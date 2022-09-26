@@ -2,7 +2,9 @@
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Threading;
-using FortnitePorting.Runtime;
+using FortnitePorting.AppUtils;
+using FortnitePorting.Services;
+using Serilog;
 
 namespace FortnitePorting;
 
@@ -22,6 +24,8 @@ public partial class App
     {
         base.OnStartup(e);
         AllocConsole();
+
+        Log.Logger = new LoggerConfiguration().WriteTo.Console().CreateLogger(); 
         
         AssetsFolder.Create();
         ExportsFolder.Create();
@@ -29,6 +33,11 @@ public partial class App
         
         AppSettings.DirectoryPath.Create();
         AppSettings.Load();
+
+        if (AppSettings.Current.DiscordRPC == ERichPresenceAccess.Always)
+        {
+            DiscordService.Initialize();
+        }
     }
 
     protected override void OnExit(ExitEventArgs e)

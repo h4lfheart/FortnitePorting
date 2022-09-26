@@ -1,13 +1,22 @@
 ﻿using System.Diagnostics;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using FortnitePorting.Runtime;
+using FortnitePorting.AppUtils;
 using FortnitePorting.Views;
 
 namespace FortnitePorting.ViewModels;
 
 public partial class MainViewModel : ObservableObject
 {
+    public async Task Initialize()
+    {
+        AppVM.CUE4ParseVM = new CUE4ParseViewModel(AppSettings.Current.ArchivePath);
+        await AppVM.CUE4ParseVM.Initialize();
+        
+        
+    }
+    
     [RelayCommand]
     public void Menu(string parameter)
     {
@@ -30,6 +39,9 @@ public partial class MainViewModel : ObservableObject
                 break;
             case "Settings_Options":
                 AppHelper.OpenWindow<SettingsView>();
+                break;
+            case "Settings_Startup":
+                AppHelper.OpenWindow<StartupView>();
                 break;
             case "Tools_BundleDownloader":
                 AppHelper.OpenWindow<BundleDownloaderView>();

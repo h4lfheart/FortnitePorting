@@ -1,10 +1,9 @@
 ﻿using System.Diagnostics;
 using System.Linq;
 using System.Windows;
-using FortnitePorting.Views;
 using Ookii.Dialogs.Wpf;
 
-namespace FortnitePorting.Runtime;
+namespace FortnitePorting.AppUtils;
 
 public static class AppHelper
 {

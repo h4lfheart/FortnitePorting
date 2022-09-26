@@ -1,5 +1,5 @@
 ﻿using System.Windows;
-using FortnitePorting.Runtime;
+using FortnitePorting.AppUtils;
 using FortnitePorting.ViewModels;
 
 namespace FortnitePorting.Views;
@@ -15,8 +15,9 @@ public partial class StartupView
         AppVM.StartupVM.CheckForInstallation();
     }
 
-    private void OnClickContinue(object sender, RoutedEventArgs e)
+    private async void OnClickContinue(object sender, RoutedEventArgs e)
     {
+        await AppVM.MainVM.Initialize();
         Close();
     }
     

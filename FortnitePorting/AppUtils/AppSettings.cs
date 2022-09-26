@@ -2,9 +2,10 @@
 using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.Versions;
+using FortnitePorting.Services.Endpoints.Models;
 using Newtonsoft.Json;
 
-namespace FortnitePorting.Runtime;
+namespace FortnitePorting.AppUtils;
 
 public partial class AppSettings : ObservableObject
 {
@@ -34,4 +35,13 @@ public partial class AppSettings : ObservableObject
     
     [ObservableProperty] 
     private ELanguage language;
+    
+    [ObservableProperty] 
+    private EInstallType installType;
+    
+    [ObservableProperty] 
+    private ERichPresenceAccess discordRPC;
+    
+    [ObservableProperty] 
+    private AesResponse aesResponse;
 }

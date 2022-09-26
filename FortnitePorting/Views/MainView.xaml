@@ -1,9 +1,14 @@
 ﻿<adonisCtrls:AdonisWindow x:Class="FortnitePorting.Views.MainView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:FortnitePorting.Views.Controls"
              xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
              xmlns:adonisCtrls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
+             xmlns:adonisExt="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"
              Title="Fortnite Porting" Width="1280" Height="720" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize" Loaded="OnLoaded">
+    <Window.InputBindings>
+        <KeyBinding Key="R" Modifiers="Control" Command="{Binding MenuCommand}" CommandParameter="File_Restart"/>
+    </Window.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -24,6 +29,7 @@
             </MenuItem>
             <MenuItem Header="Settings">
                 <MenuItem Header="Options" Command="{Binding MenuCommand}" CommandParameter="Settings_Options"/>
+                <MenuItem Header="First-Time Startup" Command="{Binding MenuCommand}" CommandParameter="Settings_Startup"/>
             </MenuItem>
             <MenuItem Header="Tools">
                 <MenuItem Header="Bundle Downloader" Command="{Binding MenuCommand}" CommandParameter="Tools_BundleDownloader"/>
@@ -37,7 +43,80 @@
         </Menu>
         
         <Grid Grid.Row="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="4*"/>
+                <RowDefinition Height="{adonisUi:Space 1}"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
             
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2.5*"/>
+                <ColumnDefinition Width="{adonisUi:Space 1}"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            
+            <GroupBox Grid.Row="0" Grid.Column="0" Padding="{adonisUi:Space 0}" adonisExt:LayerExtension.Layer="2" Background="Transparent">
+                <TabControl SelectionChanged="OnAssetSelectorSelectionChanged">
+                    <TabItem>
+                        <TabItem.Header>
+                            <controls:TextWithIcon Label="Outfits" ImageSource="pack://application:,,,/Resources/Outfit.png"/>
+                        </TabItem.Header>
+                    </TabItem>
+                    <TabItem>
+                        <TabItem.Header>
+                            <controls:TextWithIcon Label="Back Blings" ImageSource="pack://application:,,,/Resources/Backpack.png"/>
+                        </TabItem.Header>
+                    </TabItem>
+                    <TabItem>
+                        <TabItem.Header>
+                            <controls:TextWithIcon Label="Harvesting Tools" ImageSource="pack://application:,,,/Resources/Pickaxe.png"/>
+                        </TabItem.Header>
+                    </TabItem>
+                    <TabItem>
+                        <TabItem.Header>
+                            <controls:TextWithIcon Label="Gliders" ImageSource="pack://application:,,,/Resources/Glider.png"/>
+                        </TabItem.Header>
+                    </TabItem>
+                    <TabItem>
+                        <TabItem.Header>
+                            <controls:TextWithIcon Label="Weapons" ImageSource="pack://application:,,,/Resources/Weapon.png"/>
+                        </TabItem.Header>
+                    </TabItem>
+                    <TabItem>
+                        <TabItem.Header>
+                            <controls:TextWithIcon Label="Vehicles" ImageSource="pack://application:,,,/Resources/Vehicle.png"/>
+                        </TabItem.Header>
+                    </TabItem>
+                    <TabItem>
+                        <TabItem.Header>
+                            <controls:TextWithIcon Label="Props" ImageSource="pack://application:,,,/Resources/Props.png"/>
+                        </TabItem.Header>
+                    </TabItem>
+                    <TabItem>
+                        <TabItem.Header>
+                            <controls:TextWithIcon Label="Meshes" ImageSource="pack://application:,,,/Resources/Mesh.png"/>
+                        </TabItem.Header>
+                    </TabItem>
+                    <TabItem>
+                        <TabItem.Header>
+                            <controls:TextWithIcon Label="Emotes" ImageSource="pack://application:,,,/Resources/Dance.png"/>
+                        </TabItem.Header>
+                    </TabItem>
+                </TabControl>
+            </GroupBox>
+            
+            <GroupBox Grid.Row="0" Grid.RowSpan="3" Grid.Column="2" Padding="{adonisUi:Space 0}" adonisExt:LayerExtension.Layer="3" BorderThickness="1" 
+                      BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer3BorderBrush}}">
+            </GroupBox>
+            
+            <GroupBox Grid.Row="2" Grid.Column="0" Padding="{adonisUi:Space 0}" adonisExt:LayerExtension.Layer="3" BorderThickness="1" 
+                      BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer3BorderBrush}}">
+                <RichTextBox Name="LoggerRtb" Margin="{adonisUi:Space 1}" Block.LineHeight="2.0" IsReadOnly="True" Background="Transparent" BorderThickness="0">
+                    <FlowDocument PageWidth="{Binding ElementName=LoggerBox, Path=ActualWidth}"/>
+                </RichTextBox>
+            </GroupBox>
+            
+           
         </Grid>
     </Grid>
 </adonisCtrls:AdonisWindow>
