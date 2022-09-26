@@ -1,0 +1,50 @@
+﻿<adonisCtrls:AdonisWindow x:Class="FortnitePorting.Views.StartupView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        
+        xmlns:extensions="clr-namespace:FortnitePorting.Views.Extensions"
+        xmlns:cue4Parse="clr-namespace:CUE4Parse;assembly=CUE4Parse"
+        xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
+        xmlns:adonisCtrls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
+        xmlns:adonisExt="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"
+        
+        Title="First-Time Startup" Width="480" Height="260" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" Topmost="True">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="{adonisUi:Space 1}"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="{adonisUi:Space 1}"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0">
+            <TextBlock Margin="{adonisUi:Space 1}" FontSize="24" HorizontalAlignment="Center" Text="Welcome to Fortnite Porting!"/>
+            <TextBlock Margin="{adonisUi:Space 1}" HorizontalAlignment="Center" TextAlignment="Center" Text="Please choose your specified game language and locate your Fortnite installation folder to get started! If you skip this step the program may not work as intended." TextWrapping="WrapWithOverflow"/>
+        </StackPanel>
+        <Grid Grid.Row="2" Margin="{adonisUi:Space 1}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="{adonisUi:Space 1}" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="{adonisUi:Space 1}" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="{adonisUi:Space 1}" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="Game Language" VerticalAlignment="Center"/>
+            <ComboBox Grid.Row="0" Grid.Column="2" ItemsSource="{extensions:EnumToItemsSource {x:Type cue4Parse:UE4.Versions.ELanguage}}" SelectedItem="{Binding Language, Converter={StaticResource EnumToString}}"/>
+            
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="Game Installation" VerticalAlignment="Center"/>
+            <TextBox Grid.Row="2" Grid.Column="2" Text="{Binding ArchivePath}" adonisExt:WatermarkExtension.Watermark="Paks Folder"/>
+            <Button Grid.Row="2" Grid.Column="4" Content="..." Click="OnClickInstallation"/>
+        </Grid>
+        <Border Grid.Row="4" Background="{DynamicResource {x:Static adonisUi:Brushes.Layer1BackgroundBrush}}" adonisExt:LayerExtension.IncreaseLayer="True">
+            <Button MinWidth="80" Margin="{adonisUi:Space 1}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Content="Continue" Click="OnClickContinue"/>
+        </Border>
+    </Grid>
+</adonisCtrls:AdonisWindow>

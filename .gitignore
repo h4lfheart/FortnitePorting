@@ -1,0 +1,6 @@
+# IDE Stuff
+.idea
+
+# Build
+bin
+obj
