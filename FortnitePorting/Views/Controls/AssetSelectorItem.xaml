@@ -1,0 +1,19 @@
+﻿<UserControl x:Class="FortnitePorting.Views.Controls.AssetSelectorItem"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:FortnitePorting.Views.Controls"
+             xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
+             DataContext="{Binding RelativeSource={RelativeSource Self}}">
+    <StackPanel HorizontalAlignment="Center" Width="64">
+        <StackPanel.ToolTip>
+            <ToolTip Padding="0" BorderThickness="1" BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer3BorderBrush}}">
+                <StackPanel Background="{DynamicResource {x:Static adonisUi:Brushes.Layer0BackgroundBrush}}">
+                    <TextBlock Text="{Binding DisplayName}" Margin="5, 5,5,0" FontSize="24" TextTrimming="CharacterEllipsis" Foreground="{StaticResource MainTextBrush}"/>
+                    <TextBlock Text="{Binding Description}" Margin="5, 0,5,5" TextTrimming="CharacterEllipsis" TextWrapping="Wrap" Foreground="{StaticResource SubTextBrush}"/>
+                </StackPanel>
+            </ToolTip>
+        </StackPanel.ToolTip>
+        <Image x:Name="DisplayImage" Width="64" Height="64" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
+        <TextBlock Text="{Binding DisplayName, RelativeSource={RelativeSource AncestorType=local:AssetSelectorItem}}" VerticalAlignment="Center" HorizontalAlignment="Center" TextTrimming="WordEllipsis"/>
+    </StackPanel>
+</UserControl>

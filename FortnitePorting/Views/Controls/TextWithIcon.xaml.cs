@@ -9,7 +9,7 @@ public partial class TextWithIcon
         DependencyProperty.Register(
             nameof(ImageSource),
             typeof(ImageSource), 
-            typeof(AssetSelector)
+            typeof(TextWithIcon)
         );
 
     public ImageSource ImageSource
@@ -18,11 +18,38 @@ public partial class TextWithIcon
         set => SetValue(ImageSourceProperty, value);
     }
     
+    public static readonly DependencyProperty IconSizeProperty = 
+        DependencyProperty.Register(
+            nameof(IconSize),
+            typeof(int), 
+            typeof(TextWithIcon),
+            new PropertyMetadata(24)
+        );
+
+    public int IconSize
+    {
+        get => (int)GetValue(IconSizeProperty);
+        set => SetValue(IconSizeProperty, value);
+    }
+    
+    public static readonly DependencyProperty LabelFontSizeProperty = 
+        DependencyProperty.Register(
+            nameof(LabelFontSize),
+            typeof(int), 
+            typeof(TextWithIcon)
+        );
+
+    public int LabelFontSize
+    {
+        get => (int)GetValue(LabelFontSizeProperty);
+        set => SetValue(LabelFontSizeProperty, value);
+    }
+    
     public static readonly DependencyProperty LabelProperty = 
         DependencyProperty.Register(
             nameof(Label),
             typeof(string), 
-            typeof(AssetSelector)
+            typeof(TextWithIcon)
         );
 
     public string Label

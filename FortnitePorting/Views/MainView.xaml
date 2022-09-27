@@ -61,6 +61,13 @@
                         <TabItem.Header>
                             <controls:TextWithIcon Label="Outfits" ImageSource="pack://application:,,,/Resources/Outfit.png"/>
                         </TabItem.Header>
+                        <ListBox ItemsSource="{Binding Outfits}">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <controls:UniformGridPanel Rows="5" Columns="10" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                        </ListBox>
                     </TabItem>
                     <TabItem>
                         <TabItem.Header>

@@ -20,43 +20,35 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\CUE4Parse\CUE4Parse-Conversion\CUE4Parse-Conversion.csproj" />
       <ProjectReference Include="..\CUE4Parse\CUE4Parse\CUE4Parse.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="Resources\Backpack.png" />
       <Content Include="Resources\Backpack.png">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
-      <None Remove="Resources\Dance.png" />
       <Content Include="Resources\Dance.png">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
-      <None Remove="Resources\Glider.png" />
       <Content Include="Resources\Glider.png">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
-      <None Remove="Resources\Mesh.png" />
       <Content Include="Resources\Mesh.png">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
-      <None Remove="Resources\Outfit.png" />
       <Content Include="Resources\Outfit.png">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
-      <None Remove="Resources\Pickaxe.png" />
       <Content Include="Resources\Pickaxe.png">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
-      <None Remove="Resources\Props.png" />
       <Content Include="Resources\Props.png">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
-      <None Remove="Resources\Vehicle.png" />
       <Content Include="Resources\Vehicle.png">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
-      <None Remove="Resources\Weapon.png" />
       <Content Include="Resources\Weapon.png">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>

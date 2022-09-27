@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:FortnitePorting.Views.Controls">
     <StackPanel Orientation="Horizontal">
-        <Image Source="{Binding ImageSource, RelativeSource={RelativeSource AncestorType=local:TextWithIcon}}" Width="24" Height="24" RenderOptions.BitmapScalingMode="HighQuality"/>
-        <TextBlock Text="{Binding Label, RelativeSource={RelativeSource AncestorType=local:TextWithIcon}}" VerticalAlignment="Center" Margin="2,0,0,0"/>
+        <Image Source="{Binding ImageSource, RelativeSource={RelativeSource AncestorType=local:TextWithIcon}}" Width="{Binding IconSize, RelativeSource={RelativeSource AncestorType=local:TextWithIcon}}" Height="{Binding IconSize, RelativeSource={RelativeSource AncestorType=local:TextWithIcon}}" RenderOptions.BitmapScalingMode="Fant"/>
+        <TextBlock Text="{Binding Label, RelativeSource={RelativeSource AncestorType=local:TextWithIcon}}" VerticalAlignment="Center" Margin="2,0,0,0" FontSize="{Binding LabelFontSize, RelativeSource={RelativeSource AncestorType=local:TextWithIcon}}"/>
     </StackPanel>
 </UserControl>

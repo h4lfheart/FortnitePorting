@@ -3,6 +3,10 @@
                     xmlns:converters="clr-namespace:FortnitePorting.Views.Converters">
     <converters:EnumToStringConverter x:Key="EnumToString"/>
     <converters:TabItemSizeConverter x:Key="TabItemSize"/>
+    
+    <SolidColorBrush x:Key="MainTextBrush" Color="#f0f0f0"></SolidColorBrush>
+    <SolidColorBrush x:Key="SubTextBrush" Color="#c0c0c0"></SolidColorBrush>
+    
     <Style x:Key="TabItemEqualSize" TargetType="TabItem" BasedOn="{StaticResource {x:Type TabItem}}">
         <Setter Property="Width">
             <Setter.Value>
