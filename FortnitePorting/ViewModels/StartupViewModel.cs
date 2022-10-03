@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -16,6 +17,7 @@ public class StartupViewModel : ObservableObject
         set
         {
             AppSettings.Current.ArchivePath = value;
+            Console.WriteLine("SET THE THING " + AppSettings.Current.ArchivePath);
             OnPropertyChanged();
         }
     }
@@ -45,8 +47,7 @@ public class StartupViewModel : ObservableObject
         var fortniteInfo = launcherInstalled.InstallationList.FirstOrDefault(x => x.AppName.Equals("Fortnite"));
         if (fortniteInfo is null) return;
 
-        ArchivePath = fortniteInfo.InstallLocation + "FortniteGame\\Content\\Paks\\";
-       
+        ArchivePath = fortniteInfo.InstallLocation + "\\FortniteGame\\Content\\Paks\\";
     }
 
     private class LauncherInstalled
