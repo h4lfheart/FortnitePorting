@@ -56,61 +56,100 @@
             </Grid.ColumnDefinitions>
             
             <GroupBox Grid.Row="0" Grid.Column="0" Padding="{adonisUi:Space 0}" adonisExt:LayerExtension.Layer="2" Background="Transparent">
-                <TabControl SelectionChanged="OnAssetSelectorSelectionChanged">
-                    <TabItem>
+                <TabControl SelectionChanged="OnAssetTabSelectionChanged" IsEnabled="{Binding IsReady}">
+                    <TabItem Style="{StaticResource TabItemEqualSize}">
                         <TabItem.Header>
                             <controls:TextWithIcon Label="Outfits" ImageSource="pack://application:,,,/Resources/Outfit.png"/>
                         </TabItem.Header>
-                        <ListBox ItemsSource="{Binding Outfits}">
+                        <ListBox ItemsSource="{Binding Outfits}" SelectionChanged="OnAssetSelectionChanged">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <controls:UniformGridPanel Rows="5" Columns="10" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                                    <controls:UniformGridPanel IsItemsHost="True" Rows="5" Columns="10" VerticalAlignment="Top" HorizontalAlignment="Left"/>
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
                         </ListBox>
                     </TabItem>
-                    <TabItem>
+                    <TabItem Style="{StaticResource TabItemEqualSize}">
                         <TabItem.Header>
                             <controls:TextWithIcon Label="Back Blings" ImageSource="pack://application:,,,/Resources/Backpack.png"/>
                         </TabItem.Header>
+                        <ListBox ItemsSource="{Binding BackBlings}" SelectionChanged="OnAssetSelectionChanged">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <controls:UniformGridPanel IsItemsHost="True" Rows="5" Columns="10" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                        </ListBox>
                     </TabItem>
-                    <TabItem>
+                    <TabItem Style="{StaticResource TabItemEqualSize}">
                         <TabItem.Header>
-                            <controls:TextWithIcon Label="Harvesting Tools" ImageSource="pack://application:,,,/Resources/Pickaxe.png"/>
+                            <controls:TextWithIcon Label="Pickaxes" ImageSource="pack://application:,,,/Resources/Pickaxe.png"/>
                         </TabItem.Header>
+                        <ListBox ItemsSource="{Binding HarvestingTools}" SelectionChanged="OnAssetSelectionChanged">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <controls:UniformGridPanel IsItemsHost="True" Rows="5" Columns="10" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                        </ListBox>
                     </TabItem>
-                    <TabItem>
+                    <TabItem Style="{StaticResource TabItemEqualSize}">
                         <TabItem.Header>
                             <controls:TextWithIcon Label="Gliders" ImageSource="pack://application:,,,/Resources/Glider.png"/>
                         </TabItem.Header>
+                        <ListBox ItemsSource="{Binding Gliders}" SelectionChanged="OnAssetSelectionChanged">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <controls:UniformGridPanel IsItemsHost="True" Rows="5" Columns="10" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                        </ListBox>
                     </TabItem>
-                    <TabItem>
+                    <TabItem Style="{StaticResource TabItemEqualSize}">
                         <TabItem.Header>
                             <controls:TextWithIcon Label="Weapons" ImageSource="pack://application:,,,/Resources/Weapon.png"/>
                         </TabItem.Header>
+                        <ListBox ItemsSource="{Binding Weapons}" SelectionChanged="OnAssetSelectionChanged">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <controls:UniformGridPanel IsItemsHost="True" Rows="5" Columns="10" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                        </ListBox>
                     </TabItem>
-                    <TabItem>
+                    <TabItem Style="{StaticResource TabItemEqualSize}">
                         <TabItem.Header>
-                            <controls:TextWithIcon Label="Vehicles" ImageSource="pack://application:,,,/Resources/Vehicle.png"/>
+                            <controls:TextWithIcon Label="Emotes" ImageSource="pack://application:,,,/Resources/Dance.png"/>
                         </TabItem.Header>
+                        <ListBox ItemsSource="{Binding Dances}" SelectionChanged="OnAssetSelectionChanged">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <controls:UniformGridPanel IsItemsHost="True" Rows="5" Columns="10" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                        </ListBox>
                     </TabItem>
-                    <TabItem>
+                    <!--<TabItem Style="{StaticResource TabItemEqualSize}">
                         <TabItem.Header>
                             <controls:TextWithIcon Label="Props" ImageSource="pack://application:,,,/Resources/Props.png"/>
                         </TabItem.Header>
                     </TabItem>
-                    <TabItem>
+                    <TabItem Style="{StaticResource TabItemEqualSize}">
                         <TabItem.Header>
                             <controls:TextWithIcon Label="Meshes" ImageSource="pack://application:,,,/Resources/Mesh.png"/>
                         </TabItem.Header>
-                    </TabItem>
-                    <TabItem>
-                        <TabItem.Header>
-                            <controls:TextWithIcon Label="Emotes" ImageSource="pack://application:,,,/Resources/Dance.png"/>
-                        </TabItem.Header>
-                    </TabItem>
+                    </TabItem>-->
                 </TabControl>
             </GroupBox>
+            
+            <Grid Grid.Row="0" Grid.Column="0" Margin="0 35 0 0" Visibility="{Binding LoadingVisibility}">
+                <Rectangle Fill="#000000" Opacity="0.0"></Rectangle>
+                <ContentControl ContentTemplate="{DynamicResource {x:Static adonisUi:Templates.LoadingBars}}"
+                                Foreground="{DynamicResource {x:Static adonisUi:Brushes.ForegroundBrush}}"
+                                Width="48"
+                                Height="48"
+                                Focusable="False"/>
+            </Grid>
             
             <GroupBox Grid.Row="0" Grid.RowSpan="3" Grid.Column="2" Padding="{adonisUi:Space 0}" adonisExt:LayerExtension.Layer="3" BorderThickness="1" 
                       BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer3BorderBrush}}">

@@ -36,16 +36,13 @@ public enum EAssetType
     
     [Description("Weapons")]
     Weapon,
+
+    [Description("Emotes")]
+    Dance,
     
-    [Description("Vehicles")]
-    Vehicle,
-    
-    [Description("Props")]
+    /*[Description("Props")]
     Prop,
     
     [Description("Meshes")]
-    Mesh,
-    
-    [Description("Emotes")]
-    Dance
+    Mesh,*/
 }

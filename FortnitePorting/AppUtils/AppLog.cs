@@ -36,7 +36,7 @@ public static class AppLog
         Write("[INF] ", Globals.BLUE, FontWeights.Bold, false);
         Write(text);
     }
-    
+
     public static void Warning(string text)
     {
         Log.Warning(text);

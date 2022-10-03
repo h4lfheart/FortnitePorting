@@ -8,7 +8,7 @@
         <StackPanel.ToolTip>
             <ToolTip Padding="0" BorderThickness="1" BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer3BorderBrush}}">
                 <StackPanel Background="{DynamicResource {x:Static adonisUi:Brushes.Layer0BackgroundBrush}}">
-                    <TextBlock Text="{Binding DisplayName}" Margin="5, 5,5,0" FontSize="24" TextTrimming="CharacterEllipsis" Foreground="{StaticResource MainTextBrush}"/>
+                    <TextBlock Text="{Binding TooltipName}" Margin="5, 5,5,0" FontSize="24" TextTrimming="CharacterEllipsis" Foreground="{StaticResource MainTextBrush}"/>
                     <TextBlock Text="{Binding Description}" Margin="5, 0,5,5" TextTrimming="CharacterEllipsis" TextWrapping="Wrap" Foreground="{StaticResource SubTextBrush}"/>
                 </StackPanel>
             </ToolTip>

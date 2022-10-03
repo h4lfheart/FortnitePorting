@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.FN.Enums;
@@ -20,10 +21,20 @@ public partial class AssetSelectorItem
     public SKBitmap FullBitmap;
     public BitmapImage FullSource;
     
+    public bool IsRandom { get; set; }
     public string DisplayName { get; set; }
     public string Description { get; set; }
-    
-    public AssetSelectorItem(UObject asset, UTexture2D previewTexture)
+    public string TooltipName { get; set; }
+    public string ID { get; set; }
+
+    private static DoubleAnimation AppearAnimation = new()
+    {
+        From = 0,
+        To = 1,
+        Duration = TimeSpan.FromSeconds(0.1)
+    };
+
+    public AssetSelectorItem(UObject asset, UTexture2D previewTexture, bool isRandomSelector = false)
     {
         InitializeComponent();
         DataContext = this;
@@ -31,6 +42,10 @@ public partial class AssetSelectorItem
         Asset = asset;
         DisplayName = asset.GetOrDefault("DisplayName", new FText("Unnamed")).Text;
         Description = asset.GetOrDefault("Description", new FText("No description.")).Text;
+        ID = asset.Name;
+
+        TooltipName = $"{DisplayName} ({ID})";
+        IsRandom = isRandomSelector;
         
         var iconBitmap = previewTexture.Decode();
         if (iconBitmap is null) return;
@@ -49,6 +64,7 @@ public partial class AssetSelectorItem
         FullSource.EndInit();
 
         DisplayImage.Source = FullSource;
+        //BeginAnimation(OpacityProperty, AppearAnimation);
     }
 
     private const int MARGIN = 2;

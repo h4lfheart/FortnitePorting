@@ -13,7 +13,7 @@ public static class EndpointService
         Options =
         {
             UserAgent = "FortnitePorting",
-            MaxTimeout = 5000
+            MaxTimeout = 3000
         }
     }.UseSerializer<JsonNetSerializer>();
 

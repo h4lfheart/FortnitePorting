@@ -12,6 +12,7 @@ public static class Globals
     public const string BLUE = "#4b8ad1";
     public const string RED = "#d14b68";
     public const string YELLOW = "#d1c84b";
+    public const string GREEN = "#03fc5e";
 
     public static readonly FGuid ZERO_GUID = new();
     public static readonly string ZERO_CHAR = "0x0000000000000000000000000000000000000000000000000000000000000000";
