@@ -59,7 +59,7 @@
                 <TabControl SelectionChanged="OnAssetTabSelectionChanged" IsEnabled="{Binding IsReady}">
                     <TabItem Style="{StaticResource TabItemEqualSize}">
                         <TabItem.Header>
-                            <controls:TextWithIcon Label="Outfits" ImageSource="pack://application:,,,/Resources/Outfit.png"/>
+                            <controls:TextWithIcon Label="Outfits" ImageSource="/FortnitePorting;component/Resources/Outfit.png"/>
                         </TabItem.Header>
                         <ListBox ItemsSource="{Binding Outfits}" SelectionChanged="OnAssetSelectionChanged">
                             <ListBox.ItemsPanel>
@@ -71,7 +71,7 @@
                     </TabItem>
                     <TabItem Style="{StaticResource TabItemEqualSize}">
                         <TabItem.Header>
-                            <controls:TextWithIcon Label="Back Blings" ImageSource="pack://application:,,,/Resources/Backpack.png"/>
+                            <controls:TextWithIcon Label="Back Blings" ImageSource="/FortnitePorting;component/Resources/Backpack.png"/>
                         </TabItem.Header>
                         <ListBox ItemsSource="{Binding BackBlings}" SelectionChanged="OnAssetSelectionChanged">
                             <ListBox.ItemsPanel>
@@ -83,7 +83,7 @@
                     </TabItem>
                     <TabItem Style="{StaticResource TabItemEqualSize}">
                         <TabItem.Header>
-                            <controls:TextWithIcon Label="Pickaxes" ImageSource="pack://application:,,,/Resources/Pickaxe.png"/>
+                            <controls:TextWithIcon Label="Pickaxes" ImageSource="/FortnitePorting;component/Resources/Pickaxe.png"/>
                         </TabItem.Header>
                         <ListBox ItemsSource="{Binding HarvestingTools}" SelectionChanged="OnAssetSelectionChanged">
                             <ListBox.ItemsPanel>
@@ -95,7 +95,7 @@
                     </TabItem>
                     <TabItem Style="{StaticResource TabItemEqualSize}">
                         <TabItem.Header>
-                            <controls:TextWithIcon Label="Gliders" ImageSource="pack://application:,,,/Resources/Glider.png"/>
+                            <controls:TextWithIcon Label="Gliders" ImageSource="/FortnitePorting;component/Resources/Glider.png"/>
                         </TabItem.Header>
                         <ListBox ItemsSource="{Binding Gliders}" SelectionChanged="OnAssetSelectionChanged">
                             <ListBox.ItemsPanel>
@@ -107,7 +107,7 @@
                     </TabItem>
                     <TabItem Style="{StaticResource TabItemEqualSize}">
                         <TabItem.Header>
-                            <controls:TextWithIcon Label="Weapons" ImageSource="pack://application:,,,/Resources/Weapon.png"/>
+                            <controls:TextWithIcon Label="Weapons" ImageSource="/FortnitePorting;component/Resources/Weapon.png"/>
                         </TabItem.Header>
                         <ListBox ItemsSource="{Binding Weapons}" SelectionChanged="OnAssetSelectionChanged">
                             <ListBox.ItemsPanel>
@@ -119,7 +119,7 @@
                     </TabItem>
                     <TabItem Style="{StaticResource TabItemEqualSize}">
                         <TabItem.Header>
-                            <controls:TextWithIcon Label="Emotes" ImageSource="pack://application:,,,/Resources/Dance.png"/>
+                            <controls:TextWithIcon Label="Emotes" ImageSource="/FortnitePorting;component/Resources/Dance.png"/>
                         </TabItem.Header>
                         <ListBox ItemsSource="{Binding Dances}" SelectionChanged="OnAssetSelectionChanged">
                             <ListBox.ItemsPanel>

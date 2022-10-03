@@ -39,6 +39,7 @@ public class SettingsViewModel : ObservableObject
         {
             AppSettings.Current.Language = value;
             OnPropertyChanged();
+            IsRestartRequired = true;
         }
     }
     

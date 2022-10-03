@@ -25,33 +25,15 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="Resources\Backpack.png">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-      <Content Include="Resources\Dance.png">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-      <Content Include="Resources\Glider.png">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-      <Content Include="Resources\Mesh.png">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-      <Content Include="Resources\Outfit.png">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-      <Content Include="Resources\Pickaxe.png">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-      <Content Include="Resources\Props.png">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-      <Content Include="Resources\Vehicle.png">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-      <Content Include="Resources\Weapon.png">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
+      <Resource Include="Resources\Backpack.png" />
+      <Resource Include="Resources\Dance.png" />
+      <Resource Include="Resources\Glider.png" />
+      <Resource Include="Resources\Mesh.png" />
+      <Resource Include="Resources\Outfit.png" />
+      <Resource Include="Resources\Pickaxe.png" />
+      <Resource Include="Resources\Props.png" />
+      <Resource Include="Resources\Vehicle.png" />
+      <Resource Include="Resources\Weapon.png" />
     </ItemGroup>
 
 </Project>
