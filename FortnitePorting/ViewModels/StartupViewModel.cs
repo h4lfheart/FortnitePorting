@@ -17,7 +17,6 @@ public class StartupViewModel : ObservableObject
         set
         {
             AppSettings.Current.ArchivePath = value;
-            Console.WriteLine("SET THE THING " + AppSettings.Current.ArchivePath);
             OnPropertyChanged();
         }
     }
