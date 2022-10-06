@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Windows.Media.Imaging;
+using CUE4Parse_Conversion.Textures;
 using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.UE4.Assets.Exports.Texture;
+using SkiaSharp;
 
 namespace FortnitePorting.Views.Extensions;
 
@@ -18,5 +22,10 @@ public static class CUE4ParseExtensions
         }
 
         return default;
+    }
+
+    public static BitmapSource ToBitmapSource(this UTexture2D texture)
+    {
+        return texture.Decode()?.ToBitmapSource();
     }
 }

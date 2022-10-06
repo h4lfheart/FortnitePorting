@@ -34,6 +34,8 @@
       <Resource Include="Resources\Props.png" />
       <Resource Include="Resources\Vehicle.png" />
       <Resource Include="Resources\Weapon.png" />
+      <Resource Include="Resources\Unreal.png" />
+      <Resource Include="Resources\Blender.png" />
     </ItemGroup>
 
 </Project>

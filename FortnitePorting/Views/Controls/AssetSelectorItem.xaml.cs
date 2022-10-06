@@ -27,13 +27,6 @@ public partial class AssetSelectorItem
     public string TooltipName { get; set; }
     public string ID { get; set; }
 
-    private static DoubleAnimation AppearAnimation = new()
-    {
-        From = 0,
-        To = 1,
-        Duration = TimeSpan.FromSeconds(0.1)
-    };
-
     public AssetSelectorItem(UObject asset, UTexture2D previewTexture, bool isRandomSelector = false)
     {
         InitializeComponent();

@@ -1,0 +1,22 @@
+﻿<UserControl x:Class="FortnitePorting.Views.Controls.StyleSelector"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
+             xmlns:adonisExt="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"
+             xmlns:local="clr-namespace:FortnitePorting.Views.Controls">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <Separator Name="Title" Grid.Row="0" Style="{StaticResource NamedSeparator}"/>
+        <ListBox Grid.Row="1" Name="Options" ScrollViewer.CanContentScroll="False" adonisExt:ScrollViewerExtension.HorizontalScrollBarExpansionMode="NeverExpand" SelectionChanged="OnSelectionChanged">
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel IsItemsHost="True" Orientation="Horizontal"/>
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+        </ListBox>
+    </Grid>
+</UserControl>

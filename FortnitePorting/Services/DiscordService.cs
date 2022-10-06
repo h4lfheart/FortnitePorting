@@ -35,8 +35,8 @@ public static class DiscordService
         if (Client is not null && !Client.IsDisposed) return;
         
         Client = new DiscordRpcClient(ID);
-        Client.Logger = new ConsoleLogger { Level = LogLevel.Warning };
         Client.OnReady += (_, args) => Log.Information("Discord Service Started for {0}#{1}", args.User.Username, args.User.Discriminator);
+        Client.OnError += (_, args) => Log.Information("Discord Service Error {0}: {1}", args.Type.ToString(), args.Message);
 
         Client.Initialize();
         Client.SetPresence(DefaultPresence);

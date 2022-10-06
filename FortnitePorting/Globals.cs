@@ -1,4 +1,5 @@
 ﻿global using static FortnitePorting.Services.ApplicationService;
+global using Serilog;
 using CUE4Parse.UE4.Objects.Core.Misc;
 
 namespace FortnitePorting;
@@ -7,6 +8,10 @@ public static class Globals
 {
     public const string DISCORD_URL = "https://discord.gg/DZ5YFXdBA6";
     public const string GITHUB_URL = "https://github.com/halfuwu/FortnitePorting";
+
+    public const int BLENDER_PORT = 24280;
+    public const int UNREAL_PORT = 24281;
+    
 
     public const string WHITE = "#e1e9f2";
     public const string BLUE = "#4b8ad1";

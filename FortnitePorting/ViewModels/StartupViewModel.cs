@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.Versions;
 using FortnitePorting.AppUtils;
 using Newtonsoft.Json;
+using Serilog;
 
 namespace FortnitePorting.ViewModels;
 
@@ -47,6 +48,7 @@ public class StartupViewModel : ObservableObject
         if (fortniteInfo is null) return;
 
         ArchivePath = fortniteInfo.InstallLocation + "\\FortniteGame\\Content\\Paks\\";
+        Log.Information("Detected EGL Installation at {0}", ArchivePath);
     }
 
     private class LauncherInstalled

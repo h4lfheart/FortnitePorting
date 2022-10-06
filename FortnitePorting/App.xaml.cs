@@ -3,10 +3,13 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Threading;
+using AdonisUI.Controls;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Services;
 using Serilog;
 using Serilog.Configuration;
+using MessageBox = AdonisUI.Controls.MessageBox;
+using MessageBoxImage = AdonisUI.Controls.MessageBoxImage;
 
 namespace FortnitePorting;
 
@@ -53,5 +56,17 @@ public partial class App
 
     private void OnUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
+        Log.Error("{0}", e.Exception);
+        
+        var messageBox = new MessageBoxModel
+        {
+            Caption = "An unhandled exception has occurred",
+            Icon = MessageBoxImage.Error,
+            Text = e.Exception.Message,
+            Buttons = new[] {MessageBoxButtons.Ok()}
+        };
+        MessageBox.Show(messageBox);
+
+        e.Handled = true;
     }
 }

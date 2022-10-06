@@ -153,6 +153,51 @@
             
             <GroupBox Grid.Row="0" Grid.RowSpan="3" Grid.Column="2" Padding="{adonisUi:Space 0}" adonisExt:LayerExtension.Layer="3" BorderThickness="1" 
                       BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer3BorderBrush}}">
+                <Grid Visibility="{Binding StyleVisibility}" Margin="{adonisUi:Space 1}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1.25*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="5*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="0.5*"/>
+                        <RowDefinition Height="{adonisUi:Space 1}"/>
+                        <RowDefinition Height="0.5*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <StackPanel Grid.Row="0" Orientation="Horizontal">
+                        <Image Source="{Binding StyleImage}" Width="88" Height="88"/>
+                        <StackPanel Margin="{adonisUi:Space 1}" Width="256" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding CurrentAsset.DisplayName}" FontSize="24" TextTrimming="CharacterEllipsis"/>
+                            <TextBlock Text="{Binding CurrentAsset.Description}" TextWrapping="WrapWithOverflow" TextTrimming="CharacterEllipsis"/>
+                        </StackPanel>
+                    </StackPanel>
+                    
+                    <Separator Grid.Row="1" Style="{StaticResource NamedSeparator}" Tag="STYLES"/>
+                    
+                    <ScrollViewer Grid.Row="2" PreviewMouseWheel="StupidIdiotBadScroll">
+                        <StackPanel Grid.Row="2" Name="StyleList"/>
+                    </ScrollViewer>
+                    
+                    <Separator Grid.Row="3" Style="{StaticResource NamedSeparator}" Tag="EXPORT"/>
+                    
+                    <Button Grid.Row="4" Command="{Binding ExportBlenderCommand}">
+                        <Button.Content>
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="/FortnitePorting;component/Resources/Blender.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                <TextBlock Text="Send to Blender" VerticalAlignment="Center" Margin="5 0 0 0"/>
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+                    
+                    <Button Grid.Row="6" Command="{Binding ExportUnrealCommand}">
+                        <Button.Content>
+                           <StackPanel Orientation="Horizontal">
+                               <Image Source="/FortnitePorting;component/Resources/Unreal.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
+                               <TextBlock Text="Send to Unreal Engine" VerticalAlignment="Center" Margin="5 0 0 0"/>
+                           </StackPanel>
+                        </Button.Content>
+                    </Button>
+                </Grid>
             </GroupBox>
             
             <GroupBox Grid.Row="2" Grid.Column="0" Padding="{adonisUi:Space 0}" adonisExt:LayerExtension.Layer="3" BorderThickness="1" 

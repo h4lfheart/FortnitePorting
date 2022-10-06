@@ -56,6 +56,7 @@ public class CUE4ParseViewModel : ObservableObject
         {
             RarityData[i] = rarityData.GetByIndex<RarityCollection>(i);
         }
+        
     }
 
     private async Task InitializeKeys()
