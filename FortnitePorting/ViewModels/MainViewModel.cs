@@ -24,6 +24,9 @@ using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.Utils;
 using FortnitePorting.AppUtils;
+using FortnitePorting.Export;
+using FortnitePorting.Export.Blender;
+using FortnitePorting.Services;
 using FortnitePorting.Views;
 using FortnitePorting.Views.Controls;
 using Newtonsoft.Json;
@@ -49,8 +52,11 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> weapons = new();
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> dances = new();
 
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(LoadingVisibility))]
+    [ObservableProperty] 
+    [NotifyPropertyChangedFor(nameof(LoadingVisibility))]
     private bool isReady;
+
+    public EAssetType CurrentAssetType;
 
     public Visibility LoadingVisibility => IsReady ? Visibility.Collapsed : Visibility.Visible;
 
@@ -116,28 +122,14 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
-    #region Socket Impl (WIP)
     [RelayCommand]
     public async Task ExportBlender()
     {
-        using var Socket = new TcpClient();
-        await Socket.ConnectAsync("127.0.0.1", Globals.BLENDER_PORT);
-
-        var serverStream = Socket.GetStream();
-
-        var meshList = new List<string>();
-
-        foreach (var characterPart in CurrentAsset.Asset.GetOrDefault("BaseCharacterParts", Array.Empty<UObject>()))
+        var data = await ExportData.Create(CurrentAsset.Asset, CurrentAssetType);
+        BlenderService.Send(data, new BlenderExportSettings
         {
-            var skelmesh = characterPart.Get<USkeletalMesh>("SkeletalMesh");
-            ExportObject(skelmesh);
-            meshList.Add(GetExportPath(skelmesh, "psk", "_LOD0"));
-        }
-
-        await Task.WhenAll(RunningTasks);
-
-        serverStream.Write(Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(meshList)));
-        Socket.Close();
+            ReorientBones = false
+        });
     }
 
     [RelayCommand]
@@ -145,43 +137,5 @@ public partial class MainViewModel : ObservableObject
     {
 
     }
-    
-    private static string GetExportPath(UObject obj, string ext, string extra = "")
-    {
-        var path = obj.Owner.Name;
-        path = path.SubstringBeforeLast('.');
-        if (path.StartsWith("/")) path = path[1..];
 
-        var finalPath = Path.Combine(App.AssetsFolder.FullName, path) + $"{extra}.{ext.ToLower()}";
-        return finalPath;
-    }
-
-    private static ExporterOptions ExportOptions = new()
-    {
-        Platform = ETexturePlatform.DesktopMobile,
-        LodFormat = ELodFormat.AllLods,
-        MeshFormat = EMeshFormat.ActorX,
-        TextureFormat = ETextureFormat.Png,
-        ExportMorphTargets = false
-    };
-    
-    public static List<Task> RunningTasks = new();
-    public static void ExportObject(UObject file)
-    {
-        RunningTasks.Add(Task.Run(() =>
-        {
-            try
-            {
-                if (file is USkeletalMesh skeletalMesh)
-                {
-                    var exporter = new MeshExporter(skeletalMesh, ExportOptions, false);
-                    exporter.TryWriteToDir(App.AssetsFolder, out _);
-                }
-            }
-            catch (IOException)
-            {
-            }
-        }));
-    }
-    #endregion
 }

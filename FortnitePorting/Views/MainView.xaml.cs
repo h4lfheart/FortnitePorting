@@ -64,7 +64,7 @@ public partial class MainView
         }
         
         DiscordService.Update(assetType);
-        
+        AppVM.MainVM.CurrentAssetType = assetType;
     }
 
     private void OnAssetSelectionChanged(object sender, SelectionChangedEventArgs e)
