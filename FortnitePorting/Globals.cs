@@ -11,6 +11,7 @@ public static class Globals
 
     public const int BLENDER_PORT = 24280;
     public const int UNREAL_PORT = 24281;
+    public const int BUFFER_SIZE = 4096;
     
 
     public const string WHITE = "#e1e9f2";

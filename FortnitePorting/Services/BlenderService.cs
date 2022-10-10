@@ -1,4 +1,5 @@
-﻿using System;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using FortnitePorting.Export;
@@ -9,7 +10,7 @@ namespace FortnitePorting.Services;
 
 public static class BlenderService
 {
-    private static UdpClient Client = new();
+    private static readonly UdpClient Client = new();
 
     static BlenderService()
     {
@@ -21,10 +22,20 @@ public static class BlenderService
         var export = new BlenderExport
         {
             Data = data,
-            Settings = settings
+            Settings = settings,
+            AssetsRoot = App.AssetsFolder.FullName.Replace("\\", "/")
         };
-        
-        Console.WriteLine(JsonConvert.SerializeObject(export));
-        Client.Send(Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(export)));
+
+        var message = JsonConvert.SerializeObject(export);
+        var messageBytes = Encoding.ASCII.GetBytes(message);
+
+        Client.SendSpliced(messageBytes, Globals.BUFFER_SIZE);
+        Client.Send(Encoding.ASCII.GetBytes("FPMessageFinished"));
     }
+
+    public static int SendSpliced(this UdpClient client, IEnumerable<byte> arr, int size)
+    {
+        return arr.Chunk(size).ToList().Sum(chunk => client.Send(chunk));
+    }
+    
 }

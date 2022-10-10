@@ -1,9 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using CUE4Parse_Conversion.Meshes;
 using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
+using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Objects.Core.i18N;
+using FortnitePorting.Views.Extensions;
 
 namespace FortnitePorting.Export;
 
@@ -11,61 +16,29 @@ public class ExportData
 {
     public string Name;
     public string Type;
-    public List<string> Meshes = new();
+    public List<ExportPart> Parts = new();
 
     public static async Task<ExportData> Create(UObject asset, EAssetType assetType)
     {
         var data = new ExportData();
-        data.Name = asset.GetOrDefault("DisplayName", new FText("Unknown")).Text;
+        data.Name = asset.GetOrDefault("DisplayName", new FText("Unnamed")).Text;
         data.Type = assetType.ToString();
-
-        switch (assetType)
+        await Task.Run(() =>
         {
-            case EAssetType.Outfit:
+            switch (assetType)
             {
-                var parts = asset.GetOrDefault("BaseCharacterParts", Array.Empty<UObject>());
-                foreach (var part in parts)
+                case EAssetType.Outfit:
                 {
-                    data.Meshes.Add(await ExportHelpers.ExportObjectAsync(part.Get<USkeletalMesh>("SkeletalMesh")));
+                    var parts = asset.GetOrDefault("BaseCharacterParts", Array.Empty<UObject>());
+                    ExportHelpers.CharacterParts(parts, data.Parts);
+                    break;
                 }
-                break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
+        });
 
-            case EAssetType.Backpack:
-            {
-                var parts = asset.GetOrDefault("CharacterParts", Array.Empty<UObject>());
-                foreach (var part in parts)
-                {
-                    data.Meshes.Add(await ExportHelpers.ExportObjectAsync(part.Get<USkeletalMesh>("SkeletalMesh")));
-                }
-                break;
-            }
-            case EAssetType.Pickaxe:
-            {
-                var weapon = asset.Get<UObject>("WeaponDefinition");
-                var mesh = weapon.Get<USkeletalMesh>("WeaponMeshOverride");
-                data.Meshes.Add(await ExportHelpers.ExportObjectAsync(mesh));
-                break;
-            }
-            case EAssetType.Glider:
-                data.Meshes.Add(await ExportHelpers.ExportObjectAsync(asset.Get<USkeletalMesh>("SkeletalMesh")));
-                break;
-            case EAssetType.Weapon:
-            {
-                if (!asset.TryGetValue<USkeletalMesh>(out var mesh, "WeaponMeshOverride"))
-                {
-                    asset.TryGetValue<USkeletalMesh>(out mesh, "PickupSkeletalMesh");
-                }
-                data.Meshes.Add(await ExportHelpers.ExportObjectAsync(mesh));
-                break;
-            }
-            case EAssetType.Dance:
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
-        
-        
+
         await Task.WhenAll(ExportHelpers.RunningExporters);
         return data;
     }

@@ -21,11 +21,9 @@ public partial class App
     [DllImport("kernel32")]
     private static extern bool FreeConsole();
 
-    public static readonly string WorkingDirectory = System.Reflection.Assembly.GetExecutingAssembly().Location;
-    
-    public static readonly DirectoryInfo AssetsFolder = new(Path.Combine(WorkingDirectory, "Assets"));
-    public static readonly DirectoryInfo ExportsFolder = new(Path.Combine(WorkingDirectory, "Exports"));
-    public static readonly DirectoryInfo DataFolder = new(Path.Combine(WorkingDirectory, ".data"));
+    public static readonly DirectoryInfo AssetsFolder = new(Path.Combine(Directory.GetCurrentDirectory(), "Assets"));
+    public static readonly DirectoryInfo ExportsFolder = new(Path.Combine(Directory.GetCurrentDirectory(), "Exports"));
+    public static readonly DirectoryInfo DataFolder = new(Path.Combine(Directory.GetCurrentDirectory(), ".data"));
 
     public static readonly Random RandomGenerator = new(); 
     

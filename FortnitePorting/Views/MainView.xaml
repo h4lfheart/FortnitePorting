@@ -5,7 +5,7 @@
              xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
              xmlns:adonisCtrls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
              xmlns:adonisExt="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"
-             Title="Fortnite Porting" Width="1280" Height="720" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize" Loaded="OnLoaded">
+             Title="Fortnite Porting" Width="1280" Height="720" WindowStartupLocation="CenterScreen"  Loaded="OnLoaded">
     <Window.InputBindings>
         <KeyBinding Key="R" Modifiers="Control" Command="{Binding MenuCommand}" CommandParameter="File_Restart"/>
     </Window.InputBindings>
