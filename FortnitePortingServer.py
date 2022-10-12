@@ -71,11 +71,49 @@ class Receiver(threading.Thread):
 
 
 class Utils:
-    material_mappings = {
+    # Name, Slot, Location, *Linear
+    texture_mappings = {
         ("Diffuse", 0, (-300, -75)),
+        ("PetalDetailMap", 0, (-300, -75)),
+
         ("SpecularMasks", 1, (-300, -125), True),
-        ("Normals", 2, (-300, -175), True),
-        ("Normal", 2, (-300, -175), True)
+        ("SpecMap", 1, (-300, -125), True),
+
+        ("Normals", 5, (-300, -175), True),
+        ("Normal", 5, (-300, -175), True),
+        ("NormalMap", 5, (-300, -175), True),
+
+        ("M", 7, (-300, -225), True),
+
+        ("Emissive", 12, (-300, -325)),
+    }
+
+    # Name, Slot
+    scalar_mappings = {
+        ("RoughnessMin", 3),
+        ("Roughness Min", 3),
+
+        ("RoughnessMax", 4),
+        ("Roughness Max", 4),
+
+        ("emissive mult", 13),
+        ("TH_StaticEmissiveMult", 13),
+        ("Emissive", 13),
+
+        ("Emissive_BrightnessMin", 14),
+
+        ("Emissive_BrightnessMax", 15),
+
+        ("Emissive Fres EX", 16),
+        ("EmissiveFresnelExp", 16),
+    }
+
+    # Name, Slot, *Alpha
+    vector_mappings = {
+        ("Skin Boost Color And Exponent", 10, 11),
+
+        ("EmissiveColor", 18, 17),
+        ("Emissive Color", 18, 17)
     }
 
     @staticmethod
@@ -114,7 +152,7 @@ class Utils:
             target_slot.material = existing
             return
         target_material = target_slot.material
-        if target_material.name != material_name:
+        if target_material.name.casefold() != material_name.casefold():
             target_material = target_material.copy()
             target_material.name = material_name
             target_slot.material = target_material
@@ -136,14 +174,17 @@ class Utils:
 
         def texture_parameter(data):
             name = data.get("Name")
-            path = data.get("Path")
+            value = data.get("Value")
 
-            if (info := Utils.First(Utils.material_mappings, lambda x: x[0] == name)) is None:
+            if (info := Utils.first(Utils.texture_mappings, lambda x: x[0].casefold() == name.casefold())) is None:
                 return
 
             _, slot, location, *linear = info
 
-            if (image := Utils.import_texture(path)) is None:
+            if slot is 12 and value.endswith("_FX"):
+                return
+
+            if (image := Utils.import_texture(value)) is None:
                 return
 
             node = nodes.new(type="ShaderNodeTexImage")
@@ -157,15 +198,51 @@ class Utils:
 
             links.new(node.outputs[0], shader_node.inputs[slot])
 
+        def scalar_parameter(data):
+            name = data.get("Name")
+            value = data.get("Value")
+
+            if (info := Utils.first(Utils.scalar_mappings, lambda x: x[0].casefold() == name.casefold())) is None:
+                return
+
+            _, slot = info
+
+            shader_node.inputs[slot].default_value = value
+
+        def vector_parameter(data):
+            name = data.get("Name")
+            value = data.get("Value")
+
+            if (info := Utils.first(Utils.vector_mappings, lambda x: x[0].casefold() == name.casefold())) is None:
+                return
+
+            _, slot, *extra = info
+
+            shader_node.inputs[slot].default_value = (value["R"], value["G"], value["B"], 1)
+
+            if extra[0]:
+                try:
+                    shader_node.inputs[extra[0]].default_value = value["A"]
+                except TypeError:
+                    shader_node.inputs[extra[0]].default_value = int(value["A"])
+
         for texture in material_data.get("Textures"):
             texture_parameter(texture)
+
+        for scalar in material_data.get("Scalars"):
+            scalar_parameter(scalar)
+
+        for vector in material_data.get("Vectors"):
+            vector_parameter(vector)
+
+
 
     @staticmethod
     def mesh_from_armature(armature) -> bpy.types.Mesh:
         return armature.children[0]  # only used with psk, mesh is always first child
 
     @staticmethod
-    def First(target, expr, default=None):
+    def first(target, expr, default=None):
         if not target:
             return None
         Filtered = filter(expr, target)
@@ -191,10 +268,15 @@ def import_response(response):
 
     imported_parts = {}
     for part in import_data.get("Parts"):
+        part_type = part.get("Part")
+        if part_type in imported_parts:
+            continue
         if (armature := Utils.import_mesh(part.get("MeshPath"))) is None:
             continue
         mesh = Utils.mesh_from_armature(armature)
         bpy.context.view_layer.objects.active = mesh
+
+        imported_parts[part_type] = armature
 
         for material in part.get("Materials"):
             index = material.get("SlotIndex")

@@ -11,6 +11,7 @@ using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
+using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using SkiaSharp;
@@ -30,9 +31,11 @@ public static class ExportHelpers
             
             if (!skeletalMesh.TryConvert(out var convertedMesh)) continue;
             if (convertedMesh.LODs.Count <= 0) continue;
-
+            
             exportPart.MeshPath = skeletalMesh.GetPathName();
             Save(skeletalMesh);
+            
+            exportPart.Part = part.GetOrDefault<EFortCustomPartType>("CharacterPartType").ToString();
 
             var sections = convertedMesh.LODs[0].Sections.Value;
             for (var idx = 0; idx < sections.Length; idx++)
@@ -51,14 +54,17 @@ public static class ExportHelpers
 
                 if (material is UMaterialInstanceConstant materialInstance)
                 {
-                    exportMaterial.Textures = TextureParameters(materialInstance);
+                    var (textures, scalars, vectors) = MaterialParameters(materialInstance);
+                    exportMaterial.Textures = textures;
+                    exportMaterial.Scalars = scalars;
+                    exportMaterial.Vectors = vectors;
                 }
                 
                 exportPart.Materials.Add(exportMaterial);
                 
             }
             
-            /*if (part.TryGetValue(out FStructFallback[] materialOverrides, "MaterialOverrides"))
+            if (part.TryGetValue(out FStructFallback[] materialOverrides, "MaterialOverrides"))
             {
                 foreach (var materialOverride in materialOverrides)
                 {
@@ -73,7 +79,10 @@ public static class ExportHelpers
 
                     if (material is UMaterialInstanceConstant materialInstance)
                     {
-                        exportMaterial.Textures = TextureParameters(materialInstance);
+                        var (textures, scalars, vectors) = MaterialParameters(materialInstance);
+                        exportMaterial.Textures = textures;
+                        exportMaterial.Scalars = scalars;
+                        exportMaterial.Vectors = vectors;
                     }
 
                     for (var idx = 0; idx < exportPart.Materials.Count; idx++)
@@ -85,12 +94,12 @@ public static class ExportHelpers
                         }
                     }
                 }
-            }*/
+            }
             exportParts.Add(exportPart);
         }
     }
 
-    public static List<TextureParameter> TextureParameters(UMaterialInstanceConstant materialInstance)
+    public static (List<TextureParameter>, List<ScalarParameter>, List<VectorParameter>) MaterialParameters(UMaterialInstanceConstant materialInstance)
     {
         var textures = new List<TextureParameter>();
         foreach (var parameter in materialInstance.TextureParameterValues)
@@ -99,16 +108,42 @@ public static class ExportHelpers
             textures.Add(new TextureParameter(parameter.ParameterInfo.Name.PlainText, texture.GetPathName()));
             Save(texture);
         }
+        
+        var scalars = new List<ScalarParameter>();
+        foreach (var parameter in materialInstance.ScalarParameterValues)
+        {
+            scalars.Add(new ScalarParameter(parameter.ParameterInfo.Name.PlainText, parameter.ParameterValue));
+        }
+        
+        var vectors = new List<VectorParameter>();
+        foreach (var parameter in materialInstance.VectorParameterValues)
+        {
+            if (parameter.ParameterValue is null) continue;
+            vectors.Add(new VectorParameter(parameter.ParameterInfo.Name.PlainText, parameter.ParameterValue.Value));
+        }
 
         if (materialInstance.Parent is UMaterialInstanceConstant { Parent: UMaterialInstanceConstant } materialParent)
         {
-            foreach (var parentedTexture in TextureParameters(materialParent))
+            var (parentTextures, parentScalars, parentVectors) = MaterialParameters(materialParent);
+            foreach (var parentTexture in parentTextures)
             {
-                if (textures.Any(x => x.Name.Equals(parentedTexture.Name))) continue;
-                textures.Add(parentedTexture);
+                if (textures.Any(x => x.Name.Equals(parentTexture.Name))) continue;
+                textures.Add(parentTexture);
+            }
+            
+            foreach (var parentScalar in parentScalars)
+            {
+                if (scalars.Any(x => x.Name.Equals(parentScalar.Name))) continue;
+                scalars.Add(parentScalar);
+            }
+            
+            foreach (var parentVector in parentVectors)
+            {
+                if (vectors.Any(x => x.Name.Equals(parentVector.Name))) continue;
+                vectors.Add(parentVector);
             }
         }
-        return textures;
+        return (textures, scalars, vectors);
     }
     
     public static readonly List<Task> RunningExporters = new();
