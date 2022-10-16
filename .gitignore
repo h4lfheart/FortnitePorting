@@ -1,5 +1,6 @@
 # IDE Stuff
 .idea
+.fleet
 
 # Build
 bin

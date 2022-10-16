@@ -6,8 +6,6 @@ using System.Windows.Threading;
 using AdonisUI.Controls;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Services;
-using Serilog;
-using Serilog.Configuration;
 using MessageBox = AdonisUI.Controls.MessageBox;
 using MessageBoxImage = AdonisUI.Controls.MessageBoxImage;
 
@@ -32,7 +30,7 @@ public partial class App
         base.OnStartup(e);
         AllocConsole();
 
-       Log.Logger = new LoggerConfiguration().WriteTo.Console().CreateLogger();
+        Log.Logger = new LoggerConfiguration().WriteTo.Console().CreateLogger();
         
         AssetsFolder.Create();
         ExportsFolder.Create();

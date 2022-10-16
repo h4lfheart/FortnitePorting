@@ -175,7 +175,13 @@
                     <Separator Grid.Row="1" Style="{StaticResource NamedSeparator}" Tag="STYLES"/>
                     
                     <ScrollViewer Grid.Row="2" PreviewMouseWheel="StupidIdiotBadScroll">
-                        <StackPanel Grid.Row="2" Name="StyleList"/>
+                        <ItemsControl ItemsSource="{Binding Styles}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
                     </ScrollViewer>
                     
                     <Separator Grid.Row="3" Style="{StaticResource NamedSeparator}" Tag="EXPORT"/>

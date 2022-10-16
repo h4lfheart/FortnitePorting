@@ -79,7 +79,7 @@ public partial class MainView
         }
         
         AppVM.MainVM.CurrentAsset = selected;
-        StyleList.Children.Clear();
+        AppVM.MainVM.Styles.Clear();
         
         var styles = selected.Asset.GetOrDefault("ItemVariants", Array.Empty<UObject>());
         foreach (var style in styles)
@@ -99,7 +99,8 @@ public partial class MainView
             if (options.Length == 0) continue;
             
             var styleSelector = new StyleSelector(channel, options);
-            StyleList.Children.Add(styleSelector);
+            if (styleSelector.Options.Items.Count == 0) continue;
+            AppVM.MainVM.Styles.Add(styleSelector);
         }
     }
     

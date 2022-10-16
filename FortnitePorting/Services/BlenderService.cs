@@ -2,8 +2,8 @@
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
-using FortnitePorting.Export;
-using FortnitePorting.Export.Blender;
+using FortnitePorting.Exports;
+using FortnitePorting.Exports.Blender;
 using Newtonsoft.Json;
 
 namespace FortnitePorting.Services;

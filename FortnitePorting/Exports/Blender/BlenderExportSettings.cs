@@ -1,4 +1,4 @@
-﻿namespace FortnitePorting.Export.Blender;
+﻿namespace FortnitePorting.Exports.Blender;
 
 public class BlenderExportSettings
 {

@@ -2,35 +2,20 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.IO;
-using System.Media;
-using System.Net;
-using System.Net.Sockets;
-using System.Runtime.Serialization;
-using System.Text;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using CUE4Parse_Conversion;
-using CUE4Parse_Conversion.Animations;
-using CUE4Parse_Conversion.Meshes;
-using CUE4Parse_Conversion.Textures;
 using CUE4Parse.UE4.Assets.Exports;
-using CUE4Parse.UE4.Assets.Exports.Animation;
-using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
-using CUE4Parse.UE4.Assets.Exports.StaticMesh;
-using CUE4Parse.UE4.Assets.Exports.Texture;
-using CUE4Parse.Utils;
+using CUE4Parse.UE4.Assets.Objects;
 using FortnitePorting.AppUtils;
-using FortnitePorting.Export;
-using FortnitePorting.Export.Blender;
+using FortnitePorting.Exports;
+using FortnitePorting.Exports.Blender;
 using FortnitePorting.Services;
 using FortnitePorting.Views;
 using FortnitePorting.Views.Controls;
-using Newtonsoft.Json;
-using SkiaSharp;
 
 namespace FortnitePorting.ViewModels;
 
@@ -51,6 +36,8 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> gliders = new();
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> weapons = new();
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> dances = new();
+    
+    [ObservableProperty] private ObservableCollection<StyleSelector> styles = new();
 
     [ObservableProperty] 
     [NotifyPropertyChangedFor(nameof(LoadingVisibility))]
@@ -76,6 +63,11 @@ public partial class MainViewModel : ObservableObject
             AppVM.AssetHandlerVM = new AssetHandlerViewModel();
             await AppVM.AssetHandlerVM.Initialize();
         });
+    }
+
+    public FStructFallback[] GetSelectedStyles()
+    {
+        return Styles.Select(style => ((StyleSelectorItem) style.Options.Items[style.Options.SelectedIndex]).OptionData).ToArray();
     }
 
     [RelayCommand]
@@ -125,7 +117,7 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     public async Task ExportBlender()
     {
-        var data = await ExportData.Create(CurrentAsset.Asset, CurrentAssetType);
+        var data = await ExportData.Create(CurrentAsset.Asset, CurrentAssetType, GetSelectedStyles());
         BlenderService.Send(data, new BlenderExportSettings
         {
             ReorientBones = false
