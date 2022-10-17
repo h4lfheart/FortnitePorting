@@ -8,6 +8,7 @@ public class ExportPart
 {
     public string MeshPath;
     public string? Part;
+    public string? MorphName;
     public List<ExportMaterial> Materials = new();
     public List<ExportMaterial> OverrideMaterials = new();
 }

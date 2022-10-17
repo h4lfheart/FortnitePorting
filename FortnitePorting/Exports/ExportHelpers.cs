@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using CUE4Parse_Conversion;
 using CUE4Parse_Conversion.Meshes;
@@ -12,7 +12,6 @@ using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
-using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
@@ -24,6 +23,8 @@ public static class ExportHelpers
 {
     public static void CharacterParts(IEnumerable<UObject> inputParts, List<ExportPart> exportParts)
     {
+        var headMorphType = ECustomHatType.None;
+        var headMorphNames = new Dictionary<ECustomHatType, string>();
         foreach (var part in inputParts)
         {
             var skeletalMesh = part.Get<USkeletalMesh?>("SkeletalMesh");
@@ -36,7 +37,28 @@ public static class ExportHelpers
             exportPart.MeshPath = skeletalMesh.GetPathName();
             Save(skeletalMesh);
 
-            exportPart.Part = part.GetOrDefault<EFortCustomPartType>("CharacterPartType").ToString();
+            var characterPartType = part.GetOrDefault<EFortCustomPartType>("CharacterPartType");
+            exportPart.Part = characterPartType.ToString();
+
+            if (part.TryGetValue<UObject>(out var additionalData, "AdditionalData"))
+            {
+                if (additionalData.TryGetValue(out FName hatType, "HatType"))
+                {
+                    Enum.TryParse(hatType.PlainText.Replace("ECustomHatType::ECustomHatType_", string.Empty), out headMorphType);
+                }
+
+                if (additionalData.ExportType.Equals("CustomCharacterHeadData"))
+                {
+                    foreach (var type in Enum.GetValues<ECustomHatType>())
+                    {
+                        if (additionalData.TryGetValue(out FName[] morphNames, type + "MorphTargets"))
+                        {
+                            headMorphNames[type] = morphNames[0].PlainText;
+                        }
+                    }
+
+                }
+            }
 
             var sections = convertedMesh.LODs[0].Sections.Value;
             for (var idx = 0; idx < sections.Length; idx++)
@@ -71,6 +93,12 @@ public static class ExportHelpers
             }
             
             exportParts.Add(exportPart);
+        }
+
+        if (headMorphType != ECustomHatType.None)
+        {
+            var morphName = headMorphNames[headMorphType];
+            exportParts.First(x => x.Part == "Head").MorphName = morphName;
         }
     }
 
@@ -297,10 +325,10 @@ public static class ExportHelpers
     private static readonly ExporterOptions ExportOptions = new()
     {
         Platform = ETexturePlatform.DesktopMobile,
-        LodFormat = ELodFormat.AllLods,
+        LodFormat = ELodFormat.FirstLod,
         MeshFormat = EMeshFormat.ActorX,
         TextureFormat = ETextureFormat.Png,
-        ExportMorphTargets = false
+        ExportMorphTargets = true
     };
 
     public static void Save(UObject obj)

@@ -303,6 +303,11 @@ def import_response(response):
                 "Armature": imported_part if has_armature else None,
                 "Mesh": mesh
             })
+            
+            if morph_name := part.get("MorphName"):
+                for key in mesh.data.shape_keys.key_blocks:
+                    if key.name.casefold() == morph_name.casefold():
+                        key.value = 1.0
 
             for material in part.get("Materials"):
                 index = material.get("SlotIndex")
@@ -320,6 +325,8 @@ def import_response(response):
         for style_material in import_data.get("StyleMaterials"):
             if slot := mesh.material_slots.get(style_material.get("MaterialNameToSwap")):
                 import_material(slot, style_material)
+                
+    bpy.ops.object.select_all(action='DESELECT')
     
 
 
