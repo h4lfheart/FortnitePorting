@@ -66,8 +66,9 @@ class Receiver(threading.Thread):
                         if data == "FPMessageFinished":
                             break
                         data_string += data
-                self.event.set()
                 self.data = json.loads(data_string)
+                self.event.set()
+               
             except OSError:
                 pass
 
