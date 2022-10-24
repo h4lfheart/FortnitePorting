@@ -9,6 +9,7 @@ public class ExportPart
     public string MeshPath;
     public string? Part;
     public string? MorphName;
+    public string? SocketName;
     public List<ExportMaterial> Materials = new();
     public List<ExportMaterial> OverrideMaterials = new();
 }

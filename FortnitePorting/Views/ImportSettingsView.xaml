@@ -4,22 +4,45 @@
                           xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
                           xmlns:adonisCtrls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
                           xmlns:adonisExt="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"
-                          Title="Import Options" Width="480" Height="240" WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
-    <TabControl adonisExt:LayerExtension.Layer="2">
-        <TabItem Header="Blender" Style="{StaticResource TabItemEqualSize}">
-            <StackPanel>
-                <StackPanel.Resources>
-                    <Style TargetType="{x:Type CheckBox}" BasedOn="{StaticResource {x:Type CheckBox}}">
-                        <Setter Property="Margin" Value="0,0,0, 10"/>
-                    </Style>
-                </StackPanel.Resources> 
-                <Separator Style="{StaticResource NamedSeparator}" Tag="RIGGING"/>
-                <CheckBox Content="Merge Skeletons" IsChecked="{Binding BlenderMergeSkeletons}"/>
-                <CheckBox Content="Reorient Bones" IsChecked="{Binding BlenderReorientBones}"/>
-            </StackPanel>
-        </TabItem>
-        <TabItem Header="Unreal Engine" Style="{StaticResource TabItemEqualSize}">
+                          xmlns:controls="clr-namespace:FortnitePorting.Views.Controls"
+                          xmlns:extensions="clr-namespace:FortnitePorting.Views.Extensions"
+                          xmlns:local="clr-namespace:FortnitePorting"
+                          Title="Import Options" Width="480" Height="480" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize">
+    <GroupBox Background="Transparent">
+        <TabControl adonisExt:LayerExtension.Layer="2">
+            <TabItem Header="Blender" Style="{StaticResource TabItemEqualSize}">
+                <StackPanel>
+                    <StackPanel.Resources>
+                        <Style TargetType="{x:Type CheckBox}" BasedOn="{StaticResource {x:Type CheckBox}}">
+                            <Setter Property="Margin" Value="0,0,0, 10"/>
+                        </Style>
+                        <Style TargetType="{x:Type ComboBox}" BasedOn="{StaticResource {x:Type ComboBox}}">
+                            <Setter Property="Margin" Value="0,0,0, 10"/>
+                        </Style>
+                        <Style TargetType="{x:Type controls:NumericSlider}">
+                            <Setter Property="Margin" Value="5,0,0, 5"/>
+                        </Style>
+                    </StackPanel.Resources> 
+                    
+                    <Separator Style="{StaticResource NamedSeparator}" Tag="RIGGING"/>
+                    <ComboBox ItemsSource="{extensions:EnumToItemsSource {x:Type local:ERigType}}" SelectedItem="{Binding BlenderRigType, Converter={StaticResource EnumToString}}"/>
+                    <CheckBox Content="Merge Skeletons" IsChecked="{Binding BlenderMergeSkeletons}"/>
+                    <CheckBox Content="Reorient Bones" IsChecked="{Binding BlenderReorientBones}"/>
+                    
+                    <Separator Style="{StaticResource NamedSeparator}" Tag="MESH"/>
+                    <CheckBox Content="Quad Topology" IsChecked="{Binding BlenderQuadTopo}"/>
+                    <CheckBox Content="Pose Deformation Correction Modifiers" IsChecked="{Binding BlenderPoseFixes}"/>
+                    
+                    <Separator Style="{StaticResource NamedSeparator}" Tag="MATERIALS"/>
+                    <controls:NumericSlider Label="Ambient Occlusion" Value="{Binding BlenderAmbientOcclusion}"/>
+                    <controls:NumericSlider Label="Cavity" Value="{Binding BlenderCavity}"/>
+                    <controls:NumericSlider Label="Subsurface" Value="{Binding BlenderSubsurf}"/>
+                    
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="Unreal Engine" Style="{StaticResource TabItemEqualSize}">
                 
-        </TabItem>
-    </TabControl>
+            </TabItem>
+        </TabControl>
+    </GroupBox>
 </adonisCtrls:AdonisWindow>

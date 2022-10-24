@@ -68,3 +68,11 @@ public enum ECustomHatType : byte
    Hat,
    None
 }
+
+public enum ERigType
+{
+    [Description("Default Rig")]
+    Default,
+    [Description("Tasty™ Rig")]
+    Tasty
+}

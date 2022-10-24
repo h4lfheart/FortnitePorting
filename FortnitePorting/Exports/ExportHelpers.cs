@@ -42,6 +42,8 @@ public static class ExportHelpers
 
             if (part.TryGetValue<UObject>(out var additionalData, "AdditionalData"))
             {
+                exportPart.SocketName = additionalData.GetOrDefault<FName>("AttachSocketName").Text;
+                
                 if (additionalData.TryGetValue(out FName hatType, "HatType"))
                 {
                     Enum.TryParse(hatType.PlainText.Replace("ECustomHatType::ECustomHatType_", string.Empty), out headMorphType);
@@ -95,7 +97,7 @@ public static class ExportHelpers
             exportParts.Add(exportPart);
         }
 
-        if (headMorphType != ECustomHatType.None)
+        if (headMorphType != ECustomHatType.None && headMorphNames.ContainsKey(headMorphType))
         {
             var morphName = headMorphNames[headMorphType];
             exportParts.First(x => x.Part == "Head").MorphName = morphName;

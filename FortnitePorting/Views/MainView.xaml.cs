@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -115,6 +117,17 @@ public partial class MainView
             case > 0:
                 scrollViewer.ScrollToVerticalOffset(scrollViewer.VerticalOffset - 88);
                 break;
+        }
+    }
+
+    private void OnSearchTextChanged(object sender, TextChangedEventArgs e)
+    {
+        var searchBox = (TextBox) sender;
+        foreach (var tab in AssetControls.Items.OfType<TabItem>())
+        {
+            var listBox = (ListBox) tab.Content;
+            listBox.Items.Filter = o => ((AssetSelectorItem) o).Match(searchBox.Text);
+            listBox.Items.Refresh();
         }
     }
 }

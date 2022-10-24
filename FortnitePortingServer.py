@@ -4,6 +4,8 @@ import os
 import socket
 import threading
 import re
+from math import radians
+from mathutils import Matrix, Vector
 from io_import_scene_unreal_psa_psk_280 import pskimport
 
 bl_info = {
@@ -24,6 +26,7 @@ global server
 class Log:
     INFO = u"\u001b[36m"
     WARNING = u"\u001b[31m"
+    ERROR = u"\u001b[33m"
     RESET = u"\u001b[0m"
 
     @staticmethod
@@ -33,6 +36,10 @@ class Log:
     @staticmethod
     def warning(message):
         print(f"{Log.WARNING}[WARN] {Log.RESET}{message}")
+        
+    @staticmethod
+    def error(message):
+        print(f"{Log.WARNING}[ERROR] {Log.RESET}{message}")
 
 
 class Receiver(threading.Thread):
@@ -238,36 +245,42 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
         vector_parameter(vector)
 
 def merge_skeletons(parts) -> bpy.types.Armature:
-    # TODO CONSTRAINTS
     bpy.ops.object.select_all(action='DESELECT')
 
-    merge_skeletons = []
-    merge_meshes = []
-
+    merge_parts = []
+    constraint_parts = []
+    
+    # Merge Skeletons
     for part in parts:
         slot = part.get("Part")
         skeleton = part.get("Armature")
+        mesh = part.get("Mesh")
+        socket = part.get("Socket")
         if slot == "Body":
             bpy.context.view_layer.objects.active = skeleton
 
-        if slot not in {"Hat", "MiscOrTail"}:
+        if slot not in {"Hat", "MiscOrTail"} or socket == "Face" or (socket == "None" and slot != "MiscOrTail"):
             skeleton.select_set(True)
+            merge_parts.append(part)
+        else:
+            constraint_parts.append(part)
 
     bpy.ops.object.join()
     master_skeleton = bpy.context.active_object
     bpy.ops.object.select_all(action='DESELECT')
 
-    for part in parts:
+    # Merge Meshes
+    for part in merge_parts:
         slot = part.get("Part")
         mesh = part.get("Mesh")
         if slot == "Body":
             bpy.context.view_layer.objects.active = mesh
-
-        if slot not in {"Hat", "MiscOrTail"}:
-            mesh.select_set(True)
+        mesh.select_set(True)
+            
     bpy.ops.object.join()
     bpy.ops.object.select_all(action='DESELECT')
 
+    # Remove Duplicates and Rebuild Bone Tree
     bone_tree = {}
     for bone in master_skeleton.data.bones:
         try:
@@ -288,16 +301,57 @@ def merge_skeletons(parts) -> bpy.types.Armature:
     for bone, parent in bone_tree.items():
         if target_bone := skeleton_bones.get(bone):
             target_bone.parent = skeleton_bones.get(parent)
-            
-    bpy.ops.object.mode_set(mode='OBJECT')
-
+    
+    # Manual Bone Tree Fixes
+    other_fixes = {
+        "L_eye_lid_lower_mid": "faceAttach",
+        "L_eye_lid_upper_mid": "faceAttach",
+        "R_eye_lid_lower_mid": "faceAttach",
+        "R_eye_lid_upper_mid": "faceAttach",
+        "dyn_spine_05": "spine_05"
+    }
+    
+    for bone, parent in other_fixes.items():
+        if target_bone := skeleton_bones.get(bone):
+            target_bone.parent = skeleton_bones.get(parent)
+       
+    bpy.ops.object.mode_set(mode='OBJECT')     
+    
+    # TODO ACTUAL SOCKET BONES
+    # Object Constraints w/ Sockets
+    for part in constraint_parts:
+        slot = part.get("Part")
+        skeleton = part.get("Armature")
+        mesh = part.get("Mesh")
+        socket = part.get("Socket").lower()
+        
+        if socket == "hat":
+            constraint_object(skeleton, master_skeleton, "head")
+        if socket == "tail":
+            constraint_object(skeleton, master_skeleton, "pelvis")
+        if socket == "none" and part == "MiscOrTail":
+            constraint = skeleton.pose.bones[0].constraints.new('CHILD_OF')
+            constraint.target = master_skeleton
+            constraint.subtarget = skeleton.pose.bones[0].name
+  
     return master_skeleton
 
-
+def constraint_object(child: bpy.types.Object, parent: bpy.types.Object, bone: str, rot=[radians(0), radians(90), radians(0)]):
+    constraint = child.constraints.new('CHILD_OF')
+    constraint.target = parent
+    constraint.subtarget = bone
+    child.rotation_mode = 'XYZ'
+    child.rotation_euler = rot
+    constraint.inverse_matrix = Matrix.Identity(4)
 
 def mesh_from_armature(armature) -> bpy.types.Mesh:
     return armature.children[0]  # only used with psk, mesh is always first child
 
+def append_data():
+    addon_dir = os.path.dirname(os.path.splitext(__file__)[0])
+    with bpy.data.libraries.load(os.path.join(addon_dir, "FortnitePortingData.blend")) as (data_from, data_to):
+        if not bpy.data.node_groups.get("Fortnite Porting"):
+             data_to.node_groups = data_from.node_groups
 
 def first(target, expr, default=None):
     if not target:
@@ -322,6 +376,7 @@ def any(target, expr):
 
 
 def import_response(response):
+    append_data()
     global import_assets_root
     import_assets_root = response.get("AssetsRoot")
 
@@ -357,10 +412,11 @@ def import_response(response):
             imported_parts.append({
                 "Part": part_type,
                 "Armature": imported_part if has_armature else None,
-                "Mesh": mesh
+                "Mesh": mesh,
+                "Socket": part.get("SocketName")
             })
             
-            if morph_name := part.get("MorphName"):
+            if (morph_name := part.get("MorphName")) and mesh.data.shape_keys is not None:
                 for key in mesh.data.shape_keys.key_blocks:
                     if key.name.casefold() == morph_name.casefold():
                         key.value = 1.0
@@ -388,10 +444,12 @@ def import_response(response):
 
     bpy.ops.object.select_all(action='DESELECT')
     
+def message_box(message = "", title = "Message Box", icon = 'INFO'):
 
+    def draw(self, context):
+        self.layout.label(text=message)
 
-
-
+    bpy.context.window_manager.popup_menu(draw, title = title, icon = icon)
 
 def register():
     import_event = threading.Event()
@@ -402,7 +460,13 @@ def register():
 
     def handler():
         if import_event.is_set():
-            import_response(server.data)
+            try:
+               import_response(server.data)
+            except Exception as e:
+                error_str = str(e)
+                Log.error(f"An unhandled error occurred: {error_str}")
+                message_box(error_str, "An unhandled error occurred", "ERROR")
+                
             import_event.clear()
         return 0.01
 

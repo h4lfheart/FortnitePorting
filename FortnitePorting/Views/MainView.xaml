@@ -44,6 +44,7 @@
         
         <Grid Grid.Row="2">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="4*"/>
                 <RowDefinition Height="{adonisUi:Space 1}"/>
                 <RowDefinition Height="*"/>
@@ -55,13 +56,14 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             
-            <GroupBox Grid.Row="0" Grid.Column="0" Padding="{adonisUi:Space 0}" adonisExt:LayerExtension.Layer="2" Background="Transparent">
-                <TabControl SelectionChanged="OnAssetTabSelectionChanged" IsEnabled="{Binding IsReady}">
+            <TextBox Grid.Row="0" Grid.Column="0" Margin="{adonisUi:Space 1}" adonisExt:WatermarkExtension.Watermark="Search..." TextChanged="OnSearchTextChanged"/>
+            <GroupBox Grid.Row="1" Grid.Column="0" Padding="{adonisUi:Space 0}" adonisExt:LayerExtension.Layer="2" Background="Transparent">
+                <TabControl Name="AssetControls" SelectionChanged="OnAssetTabSelectionChanged" IsEnabled="{Binding IsReady}">
                     <TabItem Style="{StaticResource TabItemEqualSize}">
                         <TabItem.Header>
                             <controls:TextWithIcon Label="Outfits" ImageSource="/FortnitePorting;component/Resources/Outfit.png"/>
                         </TabItem.Header>
-                        <ListBox ItemsSource="{Binding Outfits}" SelectionChanged="OnAssetSelectionChanged">
+                        <ListBox Grid.Row="2" ItemsSource="{Binding Outfits}" SelectionChanged="OnAssetSelectionChanged">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <controls:UniformGridPanel IsItemsHost="True" Rows="5" Columns="10" VerticalAlignment="Top" HorizontalAlignment="Left"/>
@@ -73,7 +75,7 @@
                         <TabItem.Header>
                             <controls:TextWithIcon Label="Back Blings" ImageSource="/FortnitePorting;component/Resources/Backpack.png"/>
                         </TabItem.Header>
-                        <ListBox ItemsSource="{Binding BackBlings}" SelectionChanged="OnAssetSelectionChanged">
+                        <ListBox Grid.Row="2" ItemsSource="{Binding BackBlings}" SelectionChanged="OnAssetSelectionChanged">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <controls:UniformGridPanel IsItemsHost="True" Rows="5" Columns="10" VerticalAlignment="Top" HorizontalAlignment="Left"/>
@@ -85,7 +87,7 @@
                         <TabItem.Header>
                             <controls:TextWithIcon Label="Pickaxes" ImageSource="/FortnitePorting;component/Resources/Pickaxe.png"/>
                         </TabItem.Header>
-                        <ListBox ItemsSource="{Binding HarvestingTools}" SelectionChanged="OnAssetSelectionChanged">
+                        <ListBox Grid.Row="2" ItemsSource="{Binding HarvestingTools}" SelectionChanged="OnAssetSelectionChanged">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <controls:UniformGridPanel IsItemsHost="True" Rows="5" Columns="10" VerticalAlignment="Top" HorizontalAlignment="Left"/>
@@ -97,7 +99,7 @@
                         <TabItem.Header>
                             <controls:TextWithIcon Label="Gliders" ImageSource="/FortnitePorting;component/Resources/Glider.png"/>
                         </TabItem.Header>
-                        <ListBox ItemsSource="{Binding Gliders}" SelectionChanged="OnAssetSelectionChanged">
+                        <ListBox Grid.Row="2" ItemsSource="{Binding Gliders}" SelectionChanged="OnAssetSelectionChanged">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <controls:UniformGridPanel IsItemsHost="True" Rows="5" Columns="10" VerticalAlignment="Top" HorizontalAlignment="Left"/>
@@ -109,7 +111,7 @@
                         <TabItem.Header>
                             <controls:TextWithIcon Label="Weapons" ImageSource="/FortnitePorting;component/Resources/Weapon.png"/>
                         </TabItem.Header>
-                        <ListBox ItemsSource="{Binding Weapons}" SelectionChanged="OnAssetSelectionChanged">
+                        <ListBox Grid.Row="2" ItemsSource="{Binding Weapons}" SelectionChanged="OnAssetSelectionChanged">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <controls:UniformGridPanel IsItemsHost="True" Rows="5" Columns="10" VerticalAlignment="Top" HorizontalAlignment="Left"/>
@@ -121,7 +123,7 @@
                         <TabItem.Header>
                             <controls:TextWithIcon Label="Emotes" ImageSource="/FortnitePorting;component/Resources/Dance.png"/>
                         </TabItem.Header>
-                        <ListBox ItemsSource="{Binding Dances}" SelectionChanged="OnAssetSelectionChanged">
+                        <ListBox Grid.Row="2" ItemsSource="{Binding Dances}" SelectionChanged="OnAssetSelectionChanged">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <controls:UniformGridPanel IsItemsHost="True" Rows="5" Columns="10" VerticalAlignment="Top" HorizontalAlignment="Left"/>
@@ -142,7 +144,7 @@
                 </TabControl>
             </GroupBox>
             
-            <Grid Grid.Row="0" Grid.Column="0" Margin="0 35 0 0" Visibility="{Binding LoadingVisibility}">
+            <Grid Grid.Row="1" Grid.Column="0" Margin="0 35 0 0" Visibility="{Binding LoadingVisibility}">
                 <Rectangle Fill="#000000" Opacity="0.0"></Rectangle>
                 <ContentControl ContentTemplate="{DynamicResource {x:Static adonisUi:Templates.LoadingBars}}"
                                 Foreground="{DynamicResource {x:Static adonisUi:Brushes.ForegroundBrush}}"
@@ -151,7 +153,7 @@
                                 Focusable="False"/>
             </Grid>
             
-            <GroupBox Grid.Row="0" Grid.RowSpan="3" Grid.Column="2" Padding="{adonisUi:Space 0}" adonisExt:LayerExtension.Layer="3" BorderThickness="1" 
+            <GroupBox Grid.Row="0" Grid.RowSpan="4" Grid.Column="2" Padding="{adonisUi:Space 0}" adonisExt:LayerExtension.Layer="3" BorderThickness="1" 
                       BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer3BorderBrush}}">
                 <Grid Visibility="{Binding StyleVisibility}" Margin="{adonisUi:Space 1}">
                     <Grid.RowDefinitions>
@@ -209,14 +211,14 @@
                         <Button.Content>
                             <StackPanel Orientation="Horizontal">
                                 <Image Source="/FortnitePorting;component/Resources/Settings.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
-                                <TextBlock Text="Import Options" VerticalAlignment="Center" Margin="5 0 0 0"/>
+                                <TextBlock Text="Options" VerticalAlignment="Center" Margin="5 0 0 0"/>
                             </StackPanel>
                         </Button.Content>
                     </Button>
                 </Grid>
             </GroupBox>
             
-            <GroupBox Grid.Row="2" Grid.Column="0" Padding="{adonisUi:Space 0}" adonisExt:LayerExtension.Layer="3" BorderThickness="1" 
+            <GroupBox Grid.Row="3" Grid.Column="0" Padding="{adonisUi:Space 0}" adonisExt:LayerExtension.Layer="3" BorderThickness="1" 
                       BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer3BorderBrush}}">
                 <RichTextBox Name="LoggerRtb" Margin="{adonisUi:Space 1}" Block.LineHeight="2.0" IsReadOnly="True" Background="Transparent" BorderThickness="0">
                     <FlowDocument PageWidth="{Binding ElementName=LoggerBox, Path=ActualWidth}"/>
