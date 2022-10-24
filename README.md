@@ -12,7 +12,7 @@ A free and open-source tool created to automate the Fortnite porting process to 
 
 ## FortnitePorting Client
 * Download `FortnitePorting.zip` from the [latest release](https://github.com/halfuwu/FortnitePorting/releases)
-* Unzip the archive
+* Unzip the archive to a location where programs have read/write permissions (Avoid Downloads/Desktop)
 * Launch the `FortnitePorting.exe` executable
 
 ## FortnitePorting Server
