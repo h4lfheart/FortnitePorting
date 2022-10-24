@@ -63,7 +63,7 @@
                         <TabItem.Header>
                             <controls:TextWithIcon Label="Outfits" ImageSource="/FortnitePorting;component/Resources/Outfit.png"/>
                         </TabItem.Header>
-                        <ListBox Grid.Row="2" ItemsSource="{Binding Outfits}" SelectionChanged="OnAssetSelectionChanged">
+                        <ListBox ItemsSource="{Binding Outfits}" SelectionChanged="OnAssetSelectionChanged">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <controls:UniformGridPanel IsItemsHost="True" Rows="5" Columns="10" VerticalAlignment="Top" HorizontalAlignment="Left"/>
@@ -75,7 +75,7 @@
                         <TabItem.Header>
                             <controls:TextWithIcon Label="Back Blings" ImageSource="/FortnitePorting;component/Resources/Backpack.png"/>
                         </TabItem.Header>
-                        <ListBox Grid.Row="2" ItemsSource="{Binding BackBlings}" SelectionChanged="OnAssetSelectionChanged">
+                        <ListBox ItemsSource="{Binding BackBlings}" SelectionChanged="OnAssetSelectionChanged">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <controls:UniformGridPanel IsItemsHost="True" Rows="5" Columns="10" VerticalAlignment="Top" HorizontalAlignment="Left"/>
@@ -87,7 +87,7 @@
                         <TabItem.Header>
                             <controls:TextWithIcon Label="Pickaxes" ImageSource="/FortnitePorting;component/Resources/Pickaxe.png"/>
                         </TabItem.Header>
-                        <ListBox Grid.Row="2" ItemsSource="{Binding HarvestingTools}" SelectionChanged="OnAssetSelectionChanged">
+                        <ListBox ItemsSource="{Binding HarvestingTools}" SelectionChanged="OnAssetSelectionChanged">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <controls:UniformGridPanel IsItemsHost="True" Rows="5" Columns="10" VerticalAlignment="Top" HorizontalAlignment="Left"/>
@@ -99,7 +99,7 @@
                         <TabItem.Header>
                             <controls:TextWithIcon Label="Gliders" ImageSource="/FortnitePorting;component/Resources/Glider.png"/>
                         </TabItem.Header>
-                        <ListBox Grid.Row="2" ItemsSource="{Binding Gliders}" SelectionChanged="OnAssetSelectionChanged">
+                        <ListBox ItemsSource="{Binding Gliders}" SelectionChanged="OnAssetSelectionChanged">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <controls:UniformGridPanel IsItemsHost="True" Rows="5" Columns="10" VerticalAlignment="Top" HorizontalAlignment="Left"/>
@@ -111,7 +111,7 @@
                         <TabItem.Header>
                             <controls:TextWithIcon Label="Weapons" ImageSource="/FortnitePorting;component/Resources/Weapon.png"/>
                         </TabItem.Header>
-                        <ListBox Grid.Row="2" ItemsSource="{Binding Weapons}" SelectionChanged="OnAssetSelectionChanged">
+                        <ListBox ItemsSource="{Binding Weapons}" SelectionChanged="OnAssetSelectionChanged">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <controls:UniformGridPanel IsItemsHost="True" Rows="5" Columns="10" VerticalAlignment="Top" HorizontalAlignment="Left"/>
@@ -123,7 +123,7 @@
                         <TabItem.Header>
                             <controls:TextWithIcon Label="Emotes" ImageSource="/FortnitePorting;component/Resources/Dance.png"/>
                         </TabItem.Header>
-                        <ListBox Grid.Row="2" ItemsSource="{Binding Dances}" SelectionChanged="OnAssetSelectionChanged">
+                        <ListBox ItemsSource="{Binding Dances}" SelectionChanged="OnAssetSelectionChanged">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <controls:UniformGridPanel IsItemsHost="True" Rows="5" Columns="10" VerticalAlignment="Top" HorizontalAlignment="Left"/>
