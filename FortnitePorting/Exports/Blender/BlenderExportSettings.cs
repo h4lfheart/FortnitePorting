@@ -2,5 +2,6 @@
 
 public class BlenderExportSettings
 {
+    public bool MergeSkeletons;
     public bool ReorientBones;
 }

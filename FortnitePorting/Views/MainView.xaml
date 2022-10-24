@@ -162,6 +162,8 @@
                         <RowDefinition Height="0.5*"/>
                         <RowDefinition Height="{adonisUi:Space 1}"/>
                         <RowDefinition Height="0.5*"/>
+                        <RowDefinition Height="{adonisUi:Space 1}"/>
+                        <RowDefinition Height="0.5*"/>
                     </Grid.RowDefinitions>
                     
                     <StackPanel Grid.Row="0" Orientation="Horizontal">
@@ -201,6 +203,14 @@
                                <Image Source="/FortnitePorting;component/Resources/Unreal.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
                                <TextBlock Text="Send to Unreal Engine" VerticalAlignment="Center" Margin="5 0 0 0"/>
                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+                    <Button Grid.Row="8" Command="{Binding OpenSettingsCommand}">
+                        <Button.Content>
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="/FortnitePorting;component/Resources/Settings.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                <TextBlock Text="Import Options" VerticalAlignment="Center" Margin="5 0 0 0"/>
+                            </StackPanel>
                         </Button.Content>
                     </Button>
                 </Grid>

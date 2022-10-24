@@ -2,6 +2,7 @@
 using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.Versions;
+using FortnitePorting.Exports.Blender;
 using FortnitePorting.Services.Endpoints.Models;
 using Newtonsoft.Json;
 
@@ -22,6 +23,8 @@ public partial class AppSettings : ObservableObject
         }
 
         Current ??= new AppSettings();
+
+        Current.BlenderExportSettings ??= new BlenderExportSettings();
 
     }
 
@@ -44,4 +47,7 @@ public partial class AppSettings : ObservableObject
     
     [ObservableProperty] 
     private AesResponse aesResponse;
+
+    [ObservableProperty] 
+    private BlenderExportSettings blenderExportSettings;
 }

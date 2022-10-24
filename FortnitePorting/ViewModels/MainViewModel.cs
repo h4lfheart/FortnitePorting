@@ -118,16 +118,19 @@ public partial class MainViewModel : ObservableObject
     public async Task ExportBlender()
     {
         var data = await ExportData.Create(CurrentAsset.Asset, CurrentAssetType, GetSelectedStyles());
-        BlenderService.Send(data, new BlenderExportSettings
-        {
-            ReorientBones = false
-        });
+        await BlenderService.Send(data, AppSettings.Current.BlenderExportSettings);
     }
 
     [RelayCommand]
     public async Task ExportUnreal()
     {
 
+    }
+
+    [RelayCommand]
+    public async Task OpenSettings()
+    {
+        AppHelper.OpenWindow<ImportSettingsView>();
     }
 
 }

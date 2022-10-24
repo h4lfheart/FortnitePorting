@@ -16,6 +16,7 @@ public class ApplicationViewModel : ObservableObject
     public BundleDownloaderViewModel BundleDownloaderVM;
     public CUE4ParseViewModel CUE4ParseVM;
     public AssetHandlerViewModel? AssetHandlerVM;
+    public ImportSettingsViewModel? ImportSettingsVM;
 
     public void RestartWithMessage(string caption, string message)
     {

@@ -3,6 +3,7 @@ import json
 import os
 import socket
 import threading
+import re
 from io_import_scene_unreal_psa_psk_280 import pskimport
 
 bl_info = {
@@ -127,7 +128,7 @@ def import_mesh(path: str) -> bpy.types.Object:
     if os.path.exists(mesh_path + ".pskx"):
         mesh_path += ".pskx"
 
-    if not pskimport(mesh_path):
+    if not pskimport(mesh_path, bReorientBones=import_settings.get("ReorientBones")):
         return None
 
     return bpy.context.active_object
@@ -236,6 +237,61 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
     for vector in material_data.get("Vectors"):
         vector_parameter(vector)
 
+def merge_skeletons(parts) -> bpy.types.Armature:
+    # TODO CONSTRAINTS
+    bpy.ops.object.select_all(action='DESELECT')
+
+    merge_skeletons = []
+    merge_meshes = []
+
+    for part in parts:
+        slot = part.get("Part")
+        skeleton = part.get("Armature")
+        if slot == "Body":
+            bpy.context.view_layer.objects.active = skeleton
+
+        if slot not in {"Hat", "MiscOrTail"}:
+            skeleton.select_set(True)
+
+    bpy.ops.object.join()
+    master_skeleton = bpy.context.active_object
+    bpy.ops.object.select_all(action='DESELECT')
+
+    for part in parts:
+        slot = part.get("Part")
+        mesh = part.get("Mesh")
+        if slot == "Body":
+            bpy.context.view_layer.objects.active = mesh
+
+        if slot not in {"Hat", "MiscOrTail"}:
+            mesh.select_set(True)
+    bpy.ops.object.join()
+    bpy.ops.object.select_all(action='DESELECT')
+
+    bone_tree = {}
+    for bone in master_skeleton.data.bones:
+        try:
+            bone_reg = re.sub(".\d\d\d", "", bone.name)
+            parent_reg = re.sub(".\d\d\d", "", bone.parent.name)
+            bone_tree[bone_reg] = parent_reg
+        except AttributeError:
+            pass
+
+    bpy.context.view_layer.objects.active = master_skeleton
+    bpy.ops.object.mode_set(mode='EDIT')
+    bpy.ops.armature.select_all(action='DESELECT')
+    bpy.ops.object.select_pattern(pattern="*.[0-9][0-9][0-9]")
+    bpy.ops.armature.delete()
+
+    skeleton_bones = master_skeleton.data.edit_bones
+
+    for bone, parent in bone_tree.items():
+        if target_bone := skeleton_bones.get(bone):
+            target_bone.parent = skeleton_bones.get(parent)
+            
+    bpy.ops.object.mode_set(mode='OBJECT')
+
+    return master_skeleton
 
 
 
@@ -279,7 +335,7 @@ def import_response(response):
     import_type = import_data.get("Type")
 
     Log.information(f"Received Import for {import_type}: {name}")
-    print(import_data)
+    print(response)
 
     imported_parts = []
     def import_part(parts):
@@ -326,6 +382,10 @@ def import_response(response):
             if slot := mesh.material_slots.get(style_material.get("MaterialNameToSwap")):
                 import_material(slot, style_material)
                 
+    if (import_settings.get("MergeSkeletons")):
+        merge_skeletons(imported_parts)
+
+
     bpy.ops.object.select_all(action='DESELECT')
     
 

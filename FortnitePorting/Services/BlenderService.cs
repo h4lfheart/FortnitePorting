@@ -1,7 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using AdonisUI.Controls;
 using FortnitePorting.Exports;
 using FortnitePorting.Exports.Blender;
 using Newtonsoft.Json;
@@ -17,7 +22,7 @@ public static class BlenderService
         Client.Connect("localhost", Globals.BLENDER_PORT);
     }
 
-    public static void Send(ExportData data, BlenderExportSettings settings)
+    public static async Task Send(ExportData data, BlenderExportSettings settings)
     {
         var export = new BlenderExport
         {
