@@ -42,7 +42,8 @@ public static class ExportHelpers
 
             if (part.TryGetValue<UObject>(out var additionalData, "AdditionalData"))
             {
-                exportPart.SocketName = additionalData.GetOrDefault<FName>("AttachSocketName").Text;
+                var socketName = additionalData.GetOrDefault<FName?>("AttachSocketName");
+                exportPart.SocketName = socketName?.PlainText ?? null;
                 
                 if (additionalData.TryGetValue(out FName hatType, "HatType"))
                 {
@@ -85,6 +86,7 @@ public static class ExportHelpers
                     exportMaterial.Vectors = vectors;
                 }
 
+                exportMaterial.Hash = material.GetPathName().GetHashCode();
                 exportPart.Materials.Add(exportMaterial);
 
             }
@@ -170,6 +172,7 @@ public static class ExportHelpers
                 exportMaterial.Vectors = vectors;
             }
 
+            exportMaterial.Hash = material.GetPathName().GetHashCode();
             exportPart.Materials.Add(exportMaterial);
         }
 
@@ -210,6 +213,7 @@ public static class ExportHelpers
                 exportMaterial.Vectors = vectors;
             }
 
+            exportMaterial.Hash = material.GetPathName().GetHashCode();
             exportPart.Materials.Add(exportMaterial);
         }
 
@@ -238,11 +242,13 @@ public static class ExportHelpers
                 exportMaterial.Scalars = scalars;
                 exportMaterial.Vectors = vectors;
             }
-
+            
+            exportMaterial.Hash = material.GetPathName().GetHashCode();
             for (var idx = 0; idx < exportPart.Materials.Count; idx++)
             {
-                if (exportPart.Materials[exportMaterial.SlotIndex].MaterialName ==
-                    exportPart.Materials[idx].MaterialName)
+                if (exportMaterial.SlotIndex >= exportPart.Materials.Count) continue;
+                if (exportPart.Materials[exportMaterial.SlotIndex].Hash ==
+                    exportPart.Materials[idx].Hash)
                 {
                     exportPart.OverrideMaterials.Add(exportMaterial with { SlotIndex = idx });
                 }
@@ -272,6 +278,7 @@ public static class ExportHelpers
                 exportMaterial.Vectors = vectors;
             }
             
+            exportMaterial.Hash = material.GetPathName().GetHashCode();
             exportMaterials.Add(exportMaterial);
         }
     }
@@ -330,7 +337,8 @@ public static class ExportHelpers
         LodFormat = ELodFormat.FirstLod,
         MeshFormat = EMeshFormat.ActorX,
         TextureFormat = ETextureFormat.Png,
-        ExportMorphTargets = true
+        ExportMorphTargets = true,
+        SocketFormat = ESocketFormat.Bone
     };
 
     public static void Save(UObject obj)

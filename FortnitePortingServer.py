@@ -157,17 +157,24 @@ def import_texture(path: str) -> bpy.types.Image:
 
 
 def import_material(target_slot: bpy.types.MaterialSlot, material_data):
-    material_name = material_data.get("MaterialName")
-    if (existing := bpy.data.materials.get(material_name)) and existing.use_nodes is True:  # assume default psk mat
+    mat_hash = material_data.get("Hash")
+    if existing := imported_materials.get(mat_hash):
         target_slot.material = existing
         return
+    
     target_material = target_slot.material
+    material_name = material_data.get("MaterialName")
+    
     if target_material.name.casefold() != material_name.casefold():
-        target_material = target_material.copy()
-        target_material.name = material_name
-        target_slot.material = target_material
-    target_material.use_nodes = True
+        target_material = bpy.data.materials.new(material_name)
+        
+    if any(imported_materials.values(), lambda x: x.name == material_name): # Duplicate Names, Different Hashes
+        target_material = bpy.data.materials.new(material_name + f"_{hex(abs(mat_hash))[2:]}")
+        
+    target_slot.material = target_material
+    imported_materials[mat_hash] = target_material
 
+    target_material.use_nodes = True
     nodes = target_material.node_tree.nodes
     nodes.clear()
     links = target_material.node_tree.links
@@ -260,7 +267,7 @@ def merge_skeletons(parts) -> bpy.types.Armature:
         if slot == "Body":
             bpy.context.view_layer.objects.active = skeleton
 
-        if slot not in {"Hat", "MiscOrTail"} or socket == "Face" or (socket == "None" and slot != "MiscOrTail"):
+        if slot not in {"Hat", "MiscOrTail"} or socket == "Face" or (socket is None and slot == "Hat"):
             skeleton.select_set(True)
             merge_parts.append(part)
         else:
@@ -318,22 +325,22 @@ def merge_skeletons(parts) -> bpy.types.Armature:
        
     bpy.ops.object.mode_set(mode='OBJECT')     
     
-    # TODO ACTUAL SOCKET BONES
     # Object Constraints w/ Sockets
     for part in constraint_parts:
-        slot = part.get("Part")
+        #slot = part.get("Part")
         skeleton = part.get("Armature")
-        mesh = part.get("Mesh")
-        socket = part.get("Socket").lower()
+        #mesh = part.get("Mesh")
+        socket = part.get("Socket")
+        if socket is None:
+            continue
         
-        if socket == "hat":
+        if socket.casefold() == "hat":
             constraint_object(skeleton, master_skeleton, "head")
-        if socket == "tail":
+        if socket.casefold() == "tail":
             constraint_object(skeleton, master_skeleton, "pelvis")
-        if socket == "none" and part == "MiscOrTail":
-            constraint = skeleton.pose.bones[0].constraints.new('CHILD_OF')
-            constraint.target = master_skeleton
-            constraint.subtarget = skeleton.pose.bones[0].name
+        else:
+            constraint_object(skeleton, master_skeleton, socket)
+        
   
     return master_skeleton
 
@@ -386,12 +393,15 @@ def import_response(response):
 
     global import_data
     import_data = response.get("Data")
+    
+    global imported_materials
+    imported_materials = {}
 
     name = import_data.get("Name")
     import_type = import_data.get("Type")
 
     Log.information(f"Received Import for {import_type}: {name}")
-    print(response)
+    print(json.dumps(response))
 
     imported_parts = []
     def import_part(parts):
@@ -471,7 +481,7 @@ def register():
             import_event.clear()
         return 0.01
 
-    bpy.app.timers.register(handler)
+    bpy.app.timers.register(handler, persistent=True)
 
 
 def unregister():

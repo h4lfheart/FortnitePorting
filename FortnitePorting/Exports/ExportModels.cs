@@ -19,6 +19,7 @@ public record ExportMaterial
     public string MaterialName;
     public int SlotIndex;
     public string? MaterialNameToSwap;
+    public int Hash;
     public List<TextureParameter> Textures = new();
     public List<ScalarParameter> Scalars = new();
     public List<VectorParameter> Vectors = new();
