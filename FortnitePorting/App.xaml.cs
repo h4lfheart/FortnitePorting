@@ -22,6 +22,7 @@ public partial class App
     public static readonly DirectoryInfo AssetsFolder = new(Path.Combine(Directory.GetCurrentDirectory(), "Assets"));
     public static readonly DirectoryInfo ExportsFolder = new(Path.Combine(Directory.GetCurrentDirectory(), "Exports"));
     public static readonly DirectoryInfo DataFolder = new(Path.Combine(Directory.GetCurrentDirectory(), ".data"));
+    public static readonly DirectoryInfo LogsFolder = new(Path.Combine(Directory.GetCurrentDirectory(), "Logs"));
 
     public static readonly Random RandomGenerator = new(); 
     
@@ -30,11 +31,15 @@ public partial class App
         base.OnStartup(e);
         AllocConsole();
 
-        Log.Logger = new LoggerConfiguration().WriteTo.Console().CreateLogger();
+        Log.Logger = new LoggerConfiguration()
+            .WriteTo.Console()
+            .WriteTo.File(Path.Combine(LogsFolder.FullName, $"FortnitePorting-{DateTime.UtcNow:yyyy-MM-dd-hh-mm-ss}.log"))
+            .CreateLogger();
         
         AssetsFolder.Create();
         ExportsFolder.Create();
         DataFolder.Create();
+        LogsFolder.Create();
         
         AppSettings.DirectoryPath.Create();
         AppSettings.Load();
