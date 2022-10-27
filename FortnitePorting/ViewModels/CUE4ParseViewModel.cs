@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,6 +8,7 @@ using CUE4Parse.Encryption.Aes;
 using CUE4Parse.FileProvider;
 using CUE4Parse.MappingsProvider;
 using CUE4Parse.UE4.AssetRegistry;
+using CUE4Parse.UE4.AssetRegistry.Objects;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Assets.Utils;
 using CUE4Parse.UE4.Objects.Core.Math;
@@ -22,7 +24,7 @@ public class CUE4ParseViewModel : ObservableObject
 {
     public readonly DefaultFileProvider Provider;
 
-    public FAssetRegistryState? AssetRegistry;
+    public List<FAssetData> AssetDataBuffers = new();
     
     public RarityCollection[] RarityData = new RarityCollection[8];
 
@@ -34,7 +36,6 @@ public class CUE4ParseViewModel : ObservableObject
     public async Task Initialize()
     {
         Provider.Initialize();
-
         await InitializeKeys();
         await InitializeMappings();
         if (Provider.MappingsContainer is null)
@@ -44,11 +45,17 @@ public class CUE4ParseViewModel : ObservableObject
         
         Provider.LoadLocalization(AppSettings.Current.Language);
         Provider.LoadVirtualPaths();
-        
-        var assetArchive = await Provider.TryCreateReaderAsync("FortniteGame/AssetRegistry.bin");
-        if (assetArchive is not null)
+
+        foreach (var (path, file) in Provider.Files)
         {
-            AssetRegistry = new FAssetRegistryState(assetArchive);
+            if (path.StartsWith("FortniteGame/AssetRegistry", StringComparison.OrdinalIgnoreCase))
+            {
+                var assetArchive = await file.TryCreateReaderAsync();
+                if (assetArchive is null) continue;
+                
+                var assetRegistry = new FAssetRegistryState(assetArchive);
+                AssetDataBuffers.AddRange(assetRegistry.PreallocatedAssetDataBuffers);
+            }
         }
         
         var rarityData = await Provider.LoadObjectAsync("FortniteGame/Content/Balance/RarityData.RarityData");

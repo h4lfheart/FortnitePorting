@@ -129,11 +129,10 @@ public class AssetHandlerData
         if (HasStarted) return;
         HasStarted = true;
 
-        var items = AppVM.CUE4ParseVM.AssetRegistry?.PreallocatedAssetDataBuffers?
+        var items = AppVM.CUE4ParseVM.AssetDataBuffers
             .Where(x => ClassNames.Any(y => x.AssetClass.PlainText.Equals(y, StringComparison.OrdinalIgnoreCase)))
             .Where(x => !RemoveList.Any(y => x.AssetName.PlainText.Contains(y, StringComparison.OrdinalIgnoreCase)))
             .ToList();
-        if (items is null) return;
         
         // prioritize random first cuz of parallel list positions
         var random = items.FirstOrDefault(x => x.AssetName.PlainText.Contains("Random", StringComparison.OrdinalIgnoreCase));
