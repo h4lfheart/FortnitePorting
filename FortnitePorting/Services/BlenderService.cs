@@ -32,10 +32,10 @@ public static class BlenderService
         };
 
         var message = JsonConvert.SerializeObject(export);
-        var messageBytes = Encoding.ASCII.GetBytes(message);
+        var messageBytes = Encoding.UTF8.GetBytes(message);
 
         Client.SendSpliced(messageBytes, Globals.BUFFER_SIZE);
-        Client.Send(Encoding.ASCII.GetBytes("FPMessageFinished"));
+        Client.Send(Encoding.UTF8.GetBytes("FPMessageFinished"));
     }
 
     public static int SendSpliced(this UdpClient client, IEnumerable<byte> arr, int size)
