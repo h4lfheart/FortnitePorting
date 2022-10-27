@@ -22,7 +22,7 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(StyleImage))]
     [NotifyPropertyChangedFor(nameof(StyleVisibility))]
-    private AssetSelectorItem currentAsset;
+    private AssetSelectorItem? currentAsset;
 
     public ImageSource StyleImage => currentAsset.FullSource;
     public Visibility StyleVisibility => currentAsset is null ? Visibility.Collapsed : Visibility.Visible;
@@ -114,6 +114,7 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     public async Task ExportBlender()
     {
+        if (CurrentAsset is null) return;
         var data = await ExportData.Create(CurrentAsset.Asset, CurrentAssetType, GetSelectedStyles());
         await BlenderService.Send(data, AppSettings.Current.BlenderExportSettings);
     }

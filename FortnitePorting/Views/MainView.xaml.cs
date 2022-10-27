@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -14,7 +12,6 @@ using FortnitePorting.Services;
 using FortnitePorting.ViewModels;
 using FortnitePorting.Views.Controls;
 using FortnitePorting.Views.Extensions;
-using Serilog;
 using StyleSelector = FortnitePorting.Views.Controls.StyleSelector;
 
 namespace FortnitePorting.Views;
@@ -100,7 +97,7 @@ public partial class MainView
             var options = style.Get<FStructFallback[]>(optionsName);
             if (options.Length == 0) continue;
             
-            var styleSelector = new StyleSelector(channel, options);
+            var styleSelector = new StyleSelector(channel, options, selected.IconBitmap);
             if (styleSelector.Options.Items.Count == 0) continue;
             AppVM.MainVM.Styles.Add(styleSelector);
         }
