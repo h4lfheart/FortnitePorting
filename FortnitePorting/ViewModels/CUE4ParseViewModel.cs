@@ -17,6 +17,7 @@ using CUE4Parse.UE4.Versions;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Services;
 using FortnitePorting.Services.Endpoints.Models;
+using FortnitePorting.Views.Extensions;
 
 namespace FortnitePorting.ViewModels;
 
@@ -46,16 +47,13 @@ public class CUE4ParseViewModel : ObservableObject
         Provider.LoadLocalization(AppSettings.Current.Language);
         Provider.LoadVirtualPaths();
 
-        foreach (var (path, file) in Provider.Files)
+        var assetRegistries = Provider.Files.Where(x =>
+            x.Key.Contains("AssetRegistry", StringComparison.OrdinalIgnoreCase)).ToList();
+
+        assetRegistries.MoveToEnd(x => x.Value.Name.Equals("AssetRegistry.bin")); // i want encrypted cosmetics to be at the top :)))
+        foreach (var (_, file) in assetRegistries)
         {
-            if (path.StartsWith("FortniteGame/AssetRegistry", StringComparison.OrdinalIgnoreCase))
-            {
-                var assetArchive = await file.TryCreateReaderAsync();
-                if (assetArchive is null) continue;
-                
-                var assetRegistry = new FAssetRegistryState(assetArchive);
-                AssetDataBuffers.AddRange(assetRegistry.PreallocatedAssetDataBuffers);
-            }
+            await LoadAssetRegistry(file);
         }
         
         var rarityData = await Provider.LoadObjectAsync("FortniteGame/Content/Balance/RarityData.RarityData");
@@ -113,6 +111,15 @@ public class CUE4ParseViewModel : ObservableObject
         if (latestUsmap is null) return;
 
         Provider.MappingsContainer = new FileUsmapTypeMappingsProvider(latestUsmap.FullName);
+    }
+
+    private async Task LoadAssetRegistry(GameFile file)
+    {
+        var assetArchive = await file.TryCreateReaderAsync();
+        if (assetArchive is null) return;
+                
+        var assetRegistry = new FAssetRegistryState(assetArchive);
+        AssetDataBuffers.AddRange(assetRegistry.PreallocatedAssetDataBuffers);
     }
 }
 

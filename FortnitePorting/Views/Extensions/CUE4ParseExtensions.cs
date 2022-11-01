@@ -29,5 +29,16 @@ public static class CUE4ParseExtensions
     {
         return texture.Decode()?.ToBitmapSource();
     }
-    
+
+    public static bool MoveToEnd<T>(this List<T> list, Func<T, bool> predicate)
+    {
+        var found = list.FirstOrDefault(predicate);
+        if (found is null) return false;
+
+        var removed = list.Remove(found);
+        if (!removed) return false;
+        list.Add(found);
+
+        return true;
+    }
 }
