@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.Versions;
@@ -50,4 +51,10 @@ public partial class AppSettings : ObservableObject
 
     [ObservableProperty] 
     private BlenderExportSettings blenderExportSettings;
+    
+    [ObservableProperty] 
+    private List<string> favoriteIDs = new(); // TODO BETTER FAVORITE IMPL
+
+    [ObservableProperty] 
+    private EpicAuthResponse? epicAuth;
 }

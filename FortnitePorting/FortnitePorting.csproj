@@ -23,6 +23,7 @@
     <ItemGroup>
       <ProjectReference Include="..\CUE4Parse\CUE4Parse-Conversion\CUE4Parse-Conversion.csproj" />
       <ProjectReference Include="..\CUE4Parse\CUE4Parse\CUE4Parse.csproj" />
+      <ProjectReference Include="..\EpicManifestParser\src\EpicManifestParser\EpicManifestParser.csproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -38,6 +39,9 @@
       <Resource Include="Resources\Unreal.png" />
       <Resource Include="Resources\Blender.png" />
       <Resource Include="Resources\Settings.png" />
+      <Resource Include="Resources\Favorite.png" />
+      <Resource Include="Resources\Filter.png" />
+      <Resource Include="Resources\Sort.png" />
     </ItemGroup>
 
 </Project>

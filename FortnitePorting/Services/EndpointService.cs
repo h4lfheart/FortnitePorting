@@ -18,6 +18,7 @@ public static class EndpointService
     }.UseSerializer<JsonNetSerializer>();
 
     public static readonly FortniteCentralEndpoint FortniteCentral = new(_client);
+    public static readonly EpicEndpoint Epic = new(_client);
     
     public static void DownloadFile(string url, string destination)
     {

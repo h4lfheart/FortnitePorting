@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.Encryption.Aes;
 using CUE4Parse.FileProvider;
+using CUE4Parse.FileProvider.Vfs;
 using CUE4Parse.MappingsProvider;
 using CUE4Parse.UE4.AssetRegistry;
 using CUE4Parse.UE4.AssetRegistry.Objects;
@@ -13,30 +15,38 @@ using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Assets.Utils;
 using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.Core.Misc;
+using CUE4Parse.UE4.Readers;
 using CUE4Parse.UE4.Versions;
+using EpicManifestParser.Objects;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Services;
-using FortnitePorting.Services.Endpoints.Models;
 using FortnitePorting.Views.Extensions;
 
 namespace FortnitePorting.ViewModels;
 
 public class CUE4ParseViewModel : ObservableObject
 {
-    public readonly DefaultFileProvider Provider;
+    public readonly AbstractVfsFileProvider Provider;
 
     public List<FAssetData> AssetDataBuffers = new();
     
     public RarityCollection[] RarityData = new RarityCollection[8];
+    
+    private static readonly Regex FortniteLiveRegex = new(@"^FortniteGame(/|\\)Content(/|\\)Paks(/|\\)(pakchunk(?:0|10.*|\w+)-WindowsClient|global)\.(pak|utoc)$",
+        RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
-    public CUE4ParseViewModel(string directory)
+    public CUE4ParseViewModel(string directory, EInstallType installType)
     {
-        Provider = new DefaultFileProvider(directory, SearchOption.TopDirectoryOnly, isCaseInsensitive: true, new VersionContainer(EGame.GAME_UE5_1));
+        Provider = installType switch
+        {
+            EInstallType.Local => new DefaultFileProvider(directory, SearchOption.TopDirectoryOnly, isCaseInsensitive: true, new VersionContainer(EGame.GAME_UE5_1)),
+            EInstallType.Live => new StreamedFileProvider("FortniteLive", true, new VersionContainer(EGame.GAME_UE5_1))
+        };
     }
     
     public async Task Initialize()
     {
-        Provider.Initialize();
+        await InitializeProvider();
         await InitializeKeys();
         await InitializeMappings();
         if (Provider.MappingsContainer is null)
@@ -49,11 +59,15 @@ public class CUE4ParseViewModel : ObservableObject
 
         var assetRegistries = Provider.Files.Where(x =>
             x.Key.Contains("AssetRegistry", StringComparison.OrdinalIgnoreCase)).ToList();
-
         assetRegistries.MoveToEnd(x => x.Value.Name.Equals("AssetRegistry.bin")); // i want encrypted cosmetics to be at the top :)))
         foreach (var (_, file) in assetRegistries)
         {
             await LoadAssetRegistry(file);
+        }
+
+        if (assetRegistries.Count == 0)
+        {
+            AppLog.Warning("Failed to load game files, please ensure your game is up to date");
         }
         
         var rarityData = await Provider.LoadObjectAsync("FortniteGame/Content/Balance/RarityData.RarityData");
@@ -62,6 +76,50 @@ public class CUE4ParseViewModel : ObservableObject
             RarityData[i] = rarityData.GetByIndex<RarityCollection>(i);
         }
         
+    }
+
+    private async Task InitializeProvider()
+    {
+        switch (Provider)
+        {
+            case DefaultFileProvider defaultProvider:
+            {
+                defaultProvider.Initialize();
+                break;
+            }
+            case StreamedFileProvider streamedProvider:
+            {
+                var manifestInfo = await EndpointService.Epic.GetMainfestAsync();
+                AppLog.Information($"Loading manifest for version {manifestInfo.BuildVersion}, this may take a while");
+                
+                var manifestPath = Path.Combine(App.DataFolder.FullName, manifestInfo.FileName);
+                byte[] manifestBytes;
+                if (File.Exists(manifestPath))
+                {
+                    manifestBytes = await File.ReadAllBytesAsync(manifestPath);
+                }
+                else
+                {
+                    manifestBytes = await manifestInfo.DownloadManifestDataAsync();
+                    await File.WriteAllBytesAsync(manifestPath, manifestBytes);
+                }
+                
+                var manifest = new Manifest(manifestBytes, new ManifestOptions
+                {
+                    ChunkBaseUri = new Uri("https://epicgames-download1.akamaized.net/Builds/Fortnite/CloudDir/ChunksV4/", UriKind.Absolute),
+                    ChunkCacheDirectory = App.CacheFolder
+                });
+
+                var pakAndUtocFiles = manifest.FileManifests.Where(fileManifest => FortniteLiveRegex.IsMatch(fileManifest.Name));
+                foreach (var fileManifest in pakAndUtocFiles)
+                {
+                    streamedProvider.Initialize(fileManifest.Name, new Stream[] { fileManifest.GetStream() }, it => new FStreamArchive(it, manifest.FileManifests.First(x => x.Name.Equals(it)).GetStream(), streamedProvider.Versions));
+                }
+                break;
+            }
+            
+            
+        }
     }
 
     private async Task InitializeKeys()

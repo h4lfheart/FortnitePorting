@@ -4,10 +4,10 @@ namespace FortnitePorting;
 
 public enum EInstallType
 {
-    [Description("Local")]
+    [Description("Local Installation (Faster)")]
     Local,
     
-    [Description("Fortnite Live")]
+    [Description("Fortnite Live (Slower)")]
     Live
 }
 
@@ -75,4 +75,16 @@ public enum ERigType
     Default,
     [Description("Tasty™ Rig")]
     Tasty
+}
+
+public enum ESortType
+{
+    [Description("Default")]
+    Default,
+    [Description("A-Z")]
+    AZ,
+    [Description("Season")]
+    Season,
+    [Description("Rarity")]
+    Rarity,
 }

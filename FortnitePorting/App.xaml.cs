@@ -20,9 +20,10 @@ public partial class App
     private static extern bool FreeConsole();
 
     public static readonly DirectoryInfo AssetsFolder = new(Path.Combine(Directory.GetCurrentDirectory(), "Assets"));
-    public static readonly DirectoryInfo ExportsFolder = new(Path.Combine(Directory.GetCurrentDirectory(), "Exports"));
     public static readonly DirectoryInfo DataFolder = new(Path.Combine(Directory.GetCurrentDirectory(), ".data"));
     public static readonly DirectoryInfo LogsFolder = new(Path.Combine(Directory.GetCurrentDirectory(), "Logs"));
+    
+    public static readonly DirectoryInfo CacheFolder = new(Path.Combine(DataFolder.FullName, "ManifestCache"));
 
     public static readonly Random RandomGenerator = new(); 
     
@@ -37,7 +38,6 @@ public partial class App
             .CreateLogger();
         
         AssetsFolder.Create();
-        ExportsFolder.Create();
         DataFolder.Create();
         LogsFolder.Create();
         

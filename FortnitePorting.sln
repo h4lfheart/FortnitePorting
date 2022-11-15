@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CUE4Parse", "CUE4Parse\CUE4
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CUE4Parse-Conversion", "CUE4Parse\CUE4Parse-Conversion\CUE4Parse-Conversion.csproj", "{0FECBF4E-B16D-4E44-8648-71EEEA72ADFC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EpicManifestParser", "EpicManifestParser\src\EpicManifestParser\EpicManifestParser.csproj", "{3AF69B60-D226-4E21-A438-5918E8A25C7D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{0FECBF4E-B16D-4E44-8648-71EEEA72ADFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0FECBF4E-B16D-4E44-8648-71EEEA72ADFC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0FECBF4E-B16D-4E44-8648-71EEEA72ADFC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3AF69B60-D226-4E21-A438-5918E8A25C7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3AF69B60-D226-4E21-A438-5918E8A25C7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3AF69B60-D226-4E21-A438-5918E8A25C7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3AF69B60-D226-4E21-A438-5918E8A25C7D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
