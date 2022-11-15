@@ -32,6 +32,18 @@ public class StartupViewModel : ObservableObject
         }
     }
     
+    public bool IsLocalInstall => InstallType == EInstallType.Local;
+    public EInstallType InstallType
+    {
+        get => AppSettings.Current.InstallType;
+        set
+        {
+            AppSettings.Current.InstallType = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(IsLocalInstall));
+        }
+    }
+    
     public void CheckForInstallation()
     {
         LauncherInstalled? launcherInstalled = null;
