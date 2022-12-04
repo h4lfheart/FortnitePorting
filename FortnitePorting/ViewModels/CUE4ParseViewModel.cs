@@ -19,6 +19,7 @@ using CUE4Parse.UE4.Readers;
 using CUE4Parse.UE4.Versions;
 using EpicManifestParser.Objects;
 using FortnitePorting.AppUtils;
+using FortnitePorting.Bundles;
 using FortnitePorting.Services;
 using FortnitePorting.Views.Extensions;
 
@@ -56,6 +57,12 @@ public class CUE4ParseViewModel : ObservableObject
         
         Provider.LoadLocalization(AppSettings.Current.Language);
         Provider.LoadVirtualPaths();
+        
+        var bundleStatus = await BundleDownloader.Initialize();
+        if (!bundleStatus)
+        {
+            AppLog.Warning("Failed to initialize Bundle Downloader, HD textures will not be downloaded");
+        }
 
         var assetRegistries = Provider.Files.Where(x =>
             x.Key.Contains("AssetRegistry", StringComparison.OrdinalIgnoreCase)).ToList();
@@ -75,7 +82,6 @@ public class CUE4ParseViewModel : ObservableObject
         {
             RarityData[i] = rarityData.GetByIndex<RarityCollection>(i);
         }
-        
     }
 
     private async Task InitializeProvider()
