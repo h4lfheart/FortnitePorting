@@ -81,10 +81,10 @@ public enum ESortType
 {
     [Description("Default")]
     Default,
-    [Description("A-Z")]
+    /*[Description("A-Z")]
     AZ,
     [Description("Season")]
     Season,
     [Description("Rarity")]
-    Rarity,
+    Rarity*/
 }

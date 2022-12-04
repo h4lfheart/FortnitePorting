@@ -61,13 +61,14 @@ class Receiver(threading.Thread):
             try:
                 data_string = ""
                 while True:
-                    info = self.socket_server.recvfrom(4096)
-                    if data := info[0].decode('utf-8'):
+                    socket_data, sender = self.socket_server.recvfrom(4096)
+                    if data := socket_data.decode('utf-8'):
                         if data == "FPMessageFinished":
                             break
                         data_string += data
                 self.data = json.loads(data_string)
                 self.event.set()
+                self.socket_server.sendto("FPServerReceived".encode('utf-8'), sender) # TODO WIP ERROR CHECKING
                
             except OSError:
                 pass

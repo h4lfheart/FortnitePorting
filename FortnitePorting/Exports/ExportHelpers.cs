@@ -355,7 +355,7 @@ public static class ExportHelpers
                         if (File.Exists(path)) return;
 
                         var exporter = new MeshExporter(skeletalMesh, ExportOptions, false);
-                        exporter.TryWriteToDir(App.AssetsFolder, out _);
+                        exporter.TryWriteToDir(App.AssetsFolder, out var label, out var savedFilePath);
                         break;
                     }
 
@@ -365,7 +365,7 @@ public static class ExportHelpers
                         if (File.Exists(path)) return;
 
                         var exporter = new MeshExporter(staticMesh, ExportOptions, false);
-                        exporter.TryWriteToDir(App.AssetsFolder, out _);
+                        exporter.TryWriteToDir(App.AssetsFolder, out var label, out var savedFilePath);
                         break;
                     }
                     case UTexture2D texture:
@@ -383,8 +383,11 @@ public static class ExportHelpers
                     }
                 }
             }
-            catch (IOException) { }
-        }));
+            catch (IOException)
+            {
+                Log.Error("Failed to export {0}", obj.Name);
+            }
+        })); 
     }
 
     private static string GetExportPath(UObject obj, string ext, string extra = "")
