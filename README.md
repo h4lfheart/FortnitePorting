@@ -26,6 +26,7 @@ A free and open-source tool created to automate the Fortnite porting process to 
 * Type `Fortnite Porting` in the search bar and enable the addon
   
   <img src="https://github.com/halfuwu/FortnitePorting/blob/master/.github/images/enable_addon.png?raw=true" alt="Enable Addon">
+* Restart Blender
 
 
 
