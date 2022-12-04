@@ -19,10 +19,10 @@ public static class BlenderService
 
     static BlenderService()
     {
-        Client.Connect("localhost", Globals.BLENDER_PORT);
+        Client.Connect(Globals.LOCALHOST, Globals.BLENDER_PORT);
     }
 
-    public static async Task Send(ExportData data, BlenderExportSettings settings)
+    public static void Send(ExportDataBase data, BlenderExportSettings settings)
     {
         var export = new BlenderExport
         {

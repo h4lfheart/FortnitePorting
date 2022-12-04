@@ -2,24 +2,21 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CUE4Parse.UE4.Assets.Exports;
-using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
 
 namespace FortnitePorting.Exports;
 
-public class ExportData
+public class MeshExportData : ExportDataBase
 {
-    public string Name;
-    public string Type;
     public List<ExportPart> Parts = new();
     public List<ExportPart> StyleParts = new();
     public List<ExportMaterial> StyleMaterials = new();
 
-    public static async Task<ExportData> Create(UObject asset, EAssetType assetType, FStructFallback[] styles)
+    public static async Task<MeshExportData> Create(UObject asset, EAssetType assetType, FStructFallback[] styles)
     {
-        var data = new ExportData();
+        var data = new MeshExportData();
         data.Name = asset.GetOrDefault("DisplayName", new FText("Unnamed")).Text;
         data.Type = assetType.ToString();
         await Task.Run(() =>

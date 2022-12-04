@@ -4,5 +4,5 @@ public class BlenderExport
 {
     public string AssetsRoot;
     public BlenderExportSettings Settings;
-    public ExportData Data;
+    public ExportDataBase Data;
 }
