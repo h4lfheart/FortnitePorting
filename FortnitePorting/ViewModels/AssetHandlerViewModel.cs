@@ -92,8 +92,8 @@ public class AssetHandlerViewModel
     {
         AssetType = EAssetType.Weapon,
         TargetCollection = AppVM.MainVM.Weapons,
-        ClassNames = new List<string> { "FortWeaponRangedItemDefinition" },
-        RemoveList = {},
+        ClassNames = new List<string> { "FortWeaponRangedItemDefinition", "FortWeaponMeleeItemDefinition"},
+        RemoveList = {"_Harvest"},
         IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
     };
     
@@ -128,7 +128,6 @@ public class AssetHandlerData
     {
         if (HasStarted) return;
         HasStarted = true;
-
         var items = AppVM.CUE4ParseVM.AssetDataBuffers
             .Where(x => ClassNames.Any(y => x.AssetClass.PlainText.Equals(y, StringComparison.OrdinalIgnoreCase)))
             .Where(x => !RemoveList.Any(y => x.AssetName.PlainText.Contains(y, StringComparison.OrdinalIgnoreCase)))
@@ -156,8 +155,15 @@ public class AssetHandlerData
                 }
                 addedAssets.Add(assetName);
             }
-            
-            await DoLoad(data);
+
+            try
+            {
+                await DoLoad(data);
+            }
+            catch (Exception e)
+            {
+                
+            }
         });
     }
 

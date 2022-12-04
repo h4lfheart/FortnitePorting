@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
@@ -10,12 +14,13 @@ using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.Core.Math;
+using FortnitePorting.AppUtils;
 using FortnitePorting.ViewModels;
 using SkiaSharp;
 
 namespace FortnitePorting.Views.Controls;
 
-public partial class AssetSelectorItem
+public partial class AssetSelectorItem : INotifyPropertyChanged
 {
     public UObject Asset;
     public SKBitmap IconBitmap;
@@ -27,6 +32,7 @@ public partial class AssetSelectorItem
     public string Description { get; set; }
     public string TooltipName { get; set; }
     public string ID { get; set; }
+    public Visibility FavoriteVisibility { get; set; }
 
     public AssetSelectorItem(UObject asset, UTexture2D previewTexture, bool isRandomSelector = false)
     {
@@ -58,6 +64,7 @@ public partial class AssetSelectorItem
         FullSource.EndInit();
 
         DisplayImage.Source = FullSource;
+        FavoriteVisibility = AppSettings.Current.FavoriteIDs.Contains(ID) ? Visibility.Visible : Visibility.Collapsed;
         //BeginAnimation(OpacityProperty, AppearAnimation);
     }
 
@@ -123,5 +130,36 @@ public partial class AssetSelectorItem
         }
 
         return DisplayName.Contains(filter, StringComparison.OrdinalIgnoreCase) || ID.Contains(filter, StringComparison.OrdinalIgnoreCase);
+    }
+
+    public void ToggleFavorite()
+    {
+        if (AppSettings.Current.FavoriteIDs.Contains(ID))
+        {
+            FavoriteVisibility = Visibility.Collapsed;
+            AppSettings.Current.FavoriteIDs.Remove(ID);
+        }
+        else
+        {
+            FavoriteVisibility = Visibility.Visible;
+            AppSettings.Current.FavoriteIDs.Add(ID);
+        }
+
+        OnPropertyChanged(nameof(FavoriteVisibility));
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
+    {
+        if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+        field = value;
+        OnPropertyChanged(propertyName);
+        return true;
     }
 }

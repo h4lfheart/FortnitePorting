@@ -5,10 +5,14 @@
              xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
              xmlns:adonisCtrls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
              xmlns:adonisExt="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"
+             xmlns:extensions="clr-namespace:FortnitePorting.Views.Extensions"
+             xmlns:cue4parse="clr-namespace:CUE4Parse;assembly=CUE4Parse"
+             xmlns:local="clr-namespace:FortnitePorting"
              Title="Fortnite Porting" Width="1280" Height="720" WindowStartupLocation="CenterScreen"  Loaded="OnLoaded">
     <Window.InputBindings>
         <KeyBinding Key="R" Modifiers="Control" Command="{Binding MenuCommand}" CommandParameter="File_Restart"/>
         <KeyBinding Key="D" Modifiers="Control" Command="{Binding ExportBlenderCommand}"/>
+        <KeyBinding Key="F" Command="{Binding FavoriteCommand}"/>
     </Window.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
@@ -22,7 +26,7 @@
                 <MenuItem Header="Open">
                     <MenuItem Header="Assets Folder" Command="{Binding MenuCommand}" CommandParameter="Open_Assets"/>
                     <MenuItem Header="Data Folder" Command="{Binding MenuCommand}" CommandParameter="Open_Data"/>
-                    <MenuItem Header="Exports Folder" Command="{Binding MenuCommand}" CommandParameter="Open_Exports"/>
+                    <MenuItem Header="Logs Folder" Command="{Binding MenuCommand}" CommandParameter="Open_Logs"/>
                 </MenuItem>
                 <Separator/>
                 <MenuItem Header="Restart" InputGestureText="Ctrl+R" Command="{Binding MenuCommand}" CommandParameter="File_Restart"/>
@@ -57,7 +61,27 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             
-            <TextBox Grid.Row="0" Grid.Column="0" Margin="{adonisUi:Space 1}" adonisExt:LayerExtension.Layer="2" adonisExt:WatermarkExtension.Watermark="Search..." TextChanged="OnSearchTextChanged"/>
+            <Grid Grid.Row="0" Grid.Column="0" Margin="5 0 0 5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="{adonisUi:Space 1}"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="{adonisUi:Space 1}"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="{adonisUi:Space 1}"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="{adonisUi:Space 1}"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <TextBox Grid.Column="0" adonisExt:LayerExtension.Layer="2" adonisExt:WatermarkExtension.Watermark="Search..." TextChanged="OnSearchTextChanged"/>
+                <controls:TextWithIcon Grid.Column="2" Label="Sort By" ImageSource="/FortnitePorting;component/Resources/Sort.png" IconSize="16"/>
+                <ComboBox Grid.Column="4" ItemsSource="{extensions:EnumToItemsSource {x:Type local:ESortType}}" SelectedItem="{Binding SortType, Converter={StaticResource EnumToString}}"/>
+
+                <controls:TextWithIcon Grid.Column="6" Label="Filter By" ImageSource="/FortnitePorting;component/Resources/Filter.png" IconSize="16"/>
+                <ComboBox Grid.Column="8" ItemsSource="{extensions:EnumToItemsSource {x:Type local:ESortType}}" SelectedItem="{Binding SortType, Converter={StaticResource EnumToString}}"/>
+
+            </Grid>
             <GroupBox Grid.Row="1" Grid.Column="0" Padding="{adonisUi:Space 0}" adonisExt:LayerExtension.Layer="2" Background="Transparent">
                 <TabControl Name="AssetControls" SelectionChanged="OnAssetTabSelectionChanged" IsEnabled="{Binding IsReady}">
                     <TabItem Style="{StaticResource TabItemEqualSize}">

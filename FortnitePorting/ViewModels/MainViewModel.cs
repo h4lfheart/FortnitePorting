@@ -44,13 +44,15 @@ public partial class MainViewModel : ObservableObject
 
     public Visibility LoadingVisibility => IsReady ? Visibility.Collapsed : Visibility.Visible;
 
+    [ObservableProperty] private ESortType sortType;
+
     public async Task Initialize()
     {
         await Task.Run(async () =>
         {
             var loadTime = new Stopwatch();
             loadTime.Start();
-            AppVM.CUE4ParseVM = new CUE4ParseViewModel(AppSettings.Current.ArchivePath);
+            AppVM.CUE4ParseVM = new CUE4ParseViewModel(AppSettings.Current.ArchivePath, AppSettings.Current.InstallType);
             await AppVM.CUE4ParseVM.Initialize();
             loadTime.Stop();
 
@@ -78,8 +80,8 @@ public partial class MainViewModel : ObservableObject
             case "Open_Data":
                 AppHelper.Launch(App.DataFolder.FullName);
                 break;
-            case "Open_Exports":
-                AppHelper.Launch(App.ExportsFolder.FullName);
+            case "Open_Logs":
+                AppHelper.Launch(App.LogsFolder.FullName);
                 break;
             case "File_Restart":
                 AppVM.Restart();
@@ -115,8 +117,8 @@ public partial class MainViewModel : ObservableObject
     public async Task ExportBlender()
     {
         if (CurrentAsset is null) return;
-        var data = await ExportData.Create(CurrentAsset.Asset, CurrentAssetType, GetSelectedStyles());
-        await BlenderService.Send(data, AppSettings.Current.BlenderExportSettings);
+        var data = await MeshExportData.Create(CurrentAsset.Asset, CurrentAssetType, GetSelectedStyles()); // TODO DANCE EXPORT
+        BlenderService.Send(data, AppSettings.Current.BlenderExportSettings);
     }
 
     [RelayCommand]
@@ -129,6 +131,12 @@ public partial class MainViewModel : ObservableObject
     public async Task OpenSettings()
     {
         AppHelper.OpenWindow<ImportSettingsView>();
+    }
+    
+    [RelayCommand]
+    public async Task Favorite()
+    {
+        CurrentAsset?.ToggleFavorite();
     }
 
 }
