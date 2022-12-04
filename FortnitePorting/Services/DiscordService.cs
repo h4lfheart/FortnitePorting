@@ -35,8 +35,8 @@ public static class DiscordService
         if (Client is not null && !Client.IsDisposed) return;
         
         Client = new DiscordRpcClient(ID);
-        Client.OnReady += (_, args) => Log.Information("Discord Service Started for {0}#{1}", args.User.Username, args.User.Discriminator);
-        Client.OnError += (_, args) => Log.Information("Discord Service Error {0}: {1}", args.Type.ToString(), args.Message);
+        Client.OnReady += (_, args) => Log.Information("Discord Rich Presence Started for {0}#{1}", args.User.Username, args.User.Discriminator);
+        Client.OnError += (_, args) => Log.Information("Discord Rich Presence Error {0}: {1}", args.Type.ToString(), args.Message);
 
         Client.Initialize();
         Client.SetPresence(DefaultPresence);
@@ -45,7 +45,7 @@ public static class DiscordService
     public static void DeInitialize()
     {
         var user = Client?.CurrentUser;
-        Log.Information("Discord Service Stopped for {0}#{1}", user?.Username, user?.Discriminator);
+        Log.Information("Discord Rich Presence Stopped for {0}#{1}", user?.Username, user?.Discriminator);
         Client?.Deinitialize();
         Client?.Dispose();
     }
