@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.Encryption.Aes;
 using CUE4Parse.FileProvider;
-using CUE4Parse.FileProvider.Vfs;
 using CUE4Parse.MappingsProvider;
 using CUE4Parse.UE4.AssetRegistry;
 using CUE4Parse.UE4.AssetRegistry.Objects;
@@ -27,21 +26,31 @@ namespace FortnitePorting.ViewModels;
 
 public class CUE4ParseViewModel : ObservableObject
 {
-    public readonly AbstractVfsFileProvider Provider;
+    public readonly FortnitePortingFileProvider Provider;
 
     public List<FAssetData> AssetDataBuffers = new();
     
     public RarityCollection[] RarityData = new RarityCollection[8];
+
+    public Manifest? FortniteLiveManifest;
+
+    private static readonly List<DirectoryInfo> ExtraDirectories = new()
+    {
+        new DirectoryInfo(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\FortniteGame\\Saved\\PersistentDownloadDir\\InstalledBundles"),
+        new DirectoryInfo(App.BundlesFolder.FullName)
+    };
     
     private static readonly Regex FortniteLiveRegex = new(@"^FortniteGame(/|\\)Content(/|\\)Paks(/|\\)(pakchunk(?:0|10.*|\w+)-WindowsClient|global)\.(pak|utoc)$",
         RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     public CUE4ParseViewModel(string directory, EInstallType installType)
     {
+        var narrowedDirectories = ExtraDirectories.Where(x => x.Exists).ToList();
         Provider = installType switch
         {
-            EInstallType.Local => new DefaultFileProvider(directory, SearchOption.TopDirectoryOnly, isCaseInsensitive: true, new VersionContainer(EGame.GAME_UE5_2)),
-            EInstallType.Live => new StreamedFileProvider("FortniteLive", true, new VersionContainer(EGame.GAME_UE5_2))
+            
+            EInstallType.Local => new FortnitePortingFileProvider(new DirectoryInfo(directory), narrowedDirectories, SearchOption.AllDirectories, true, new VersionContainer(EGame.GAME_UE5_2)),
+            EInstallType.Live => new FortnitePortingFileProvider(true, new VersionContainer(EGame.GAME_UE5_2))
         };
     }
     
@@ -86,16 +95,16 @@ public class CUE4ParseViewModel : ObservableObject
 
     private async Task InitializeProvider()
     {
-        switch (Provider)
+        switch (AppSettings.Current.InstallType)
         {
-            case DefaultFileProvider defaultProvider:
+            case EInstallType.Local:
             {
-                defaultProvider.Initialize();
+                Provider.InitializeLocal();
                 break;
             }
-            case StreamedFileProvider streamedProvider:
+            case EInstallType.Live:
             {
-                var manifestInfo = await EndpointService.Epic.GetMainfestAsync();
+                var manifestInfo = await EndpointService.Epic.GetManifestInfoAsync();
                 AppLog.Information($"Loading manifest for version {manifestInfo.BuildVersion}, this may take a while");
                 
                 var manifestPath = Path.Combine(App.DataFolder.FullName, manifestInfo.FileName);
@@ -110,16 +119,16 @@ public class CUE4ParseViewModel : ObservableObject
                     await File.WriteAllBytesAsync(manifestPath, manifestBytes);
                 }
                 
-                var manifest = new Manifest(manifestBytes, new ManifestOptions
+                FortniteLiveManifest = new Manifest(manifestBytes, new ManifestOptions
                 {
                     ChunkBaseUri = new Uri("https://epicgames-download1.akamaized.net/Builds/Fortnite/CloudDir/ChunksV4/", UriKind.Absolute),
                     ChunkCacheDirectory = App.CacheFolder
                 });
 
-                var pakAndUtocFiles = manifest.FileManifests.Where(fileManifest => FortniteLiveRegex.IsMatch(fileManifest.Name));
+                var pakAndUtocFiles = FortniteLiveManifest.FileManifests.Where(fileManifest => FortniteLiveRegex.IsMatch(fileManifest.Name));
                 foreach (var fileManifest in pakAndUtocFiles)
                 {
-                    streamedProvider.Initialize(fileManifest.Name, new Stream[] { fileManifest.GetStream() }, it => new FStreamArchive(it, manifest.FileManifests.First(x => x.Name.Equals(it)).GetStream(), streamedProvider.Versions));
+                    Provider.Initialize(fileManifest.Name, new Stream[] { fileManifest.GetStream() }, it => new FStreamArchive(it, FortniteLiveManifest.FileManifests.First(x => x.Name.Equals(it)).GetStream(), Provider.Versions));
                 }
                 break;
             }

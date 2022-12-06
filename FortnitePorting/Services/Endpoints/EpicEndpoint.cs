@@ -3,6 +3,7 @@ using System.Net;
 using System.Threading.Tasks;
 using EpicManifestParser.Objects;
 using FortnitePorting.AppUtils;
+using FortnitePorting.Bundles;
 using FortnitePorting.Services.Endpoints.Models;
 using RestSharp;
 
@@ -18,12 +19,9 @@ public class EpicEndpoint : EndpointBase
     {
     }
 
-    public async Task<ManifestInfo> GetMainfestAsync(string url = FORTNITE_LIVE_URL)
+    public async Task<ManifestInfo> GetManifestInfoAsync(string url = FORTNITE_LIVE_URL)
     {
-        if (IsAuthExpired())
-        {
-            AppSettings.Current.EpicAuth = await GetAuthTokenAsync();
-        }
+        await VerifyAuthAsync();
         
         var request = new RestRequest(url);
         request.AddHeader("Authorization", $"bearer {AppSettings.Current.EpicAuth?.AccessToken}");
@@ -32,9 +30,28 @@ public class EpicEndpoint : EndpointBase
         return new ManifestInfo(response.Content);
     }
     
-    public ManifestInfo GetMainfest(string url = FORTNITE_LIVE_URL)
+    public ManifestInfo GetManifestInfo(string url = FORTNITE_LIVE_URL)
     {
-        return GetMainfestAsync().GetAwaiter().GetResult();
+        return GetManifestInfoAsync(url).GetAwaiter().GetResult();
+    }
+    
+    public async Task<Manifest> GetManifestAsync(string url = "")
+    {
+        var request = new RestRequest(url);
+        var response = await _client.ExecuteAsync(request);
+        return new Manifest(response.RawBytes, new ManifestOptions
+        {
+            ChunkBaseUri =
+                new Uri("https://epicgames-download1.akamaized.net/Builds/Fortnite/Content/CloudDir/ChunksV4/",
+                    UriKind.Absolute),
+            ChunkCacheDirectory = App.CacheFolder
+            
+        });
+    }
+    
+    public Manifest GetManifest(string url = "")
+    {
+        return GetManifestAsync(url).GetAwaiter().GetResult();
     }
 
     private async Task<EpicAuthResponse?> GetAuthTokenAsync()
@@ -51,8 +68,41 @@ public class EpicEndpoint : EndpointBase
     {
         return GetAuthTokenAsync().GetAwaiter().GetResult();
     }
+    
+    public async Task<ContentBuildsResponse?> GetContentBuildsAsync(string url = BundleDownloader.MANIFEST_URL, string label = "")
+    {
+        await VerifyAuthAsync();
+        
+        var request = new RestRequest(url);
+        request.AddHeader("Authorization", $"bearer {AppSettings.Current.EpicAuth?.AccessToken}");
+        request.AddQueryParameter("label", label);
 
-    private bool IsAuthExpired()
+        var response = await _client.ExecuteAsync<ContentBuildsResponse>(request);
+        return response.Data;
+    }
+    
+    public ContentBuildsResponse? GetContentBuilds(string url = FORTNITE_LIVE_URL, string label = "")
+    {
+        return GetContentBuildsAsync(url, label).GetAwaiter().GetResult();
+    }
+
+    public async Task<bool> VerifyAuthAsync()
+    {
+        var authExpired = IsAuthExpired();
+        if (authExpired)
+        {
+            AppSettings.Current.EpicAuth = await GetAuthTokenAsync();
+        }
+
+        return authExpired;
+    }
+    
+    public bool VerifyAuth()
+    {
+        return VerifyAuthAsync().GetAwaiter().GetResult();
+    }
+
+    public bool IsAuthExpired()
     {
         var request = new RestRequest("https://account-public-service-prod.ol.epicgames.com/account/api/oauth/verify");
         request.AddHeader("Authorization", $"bearer {AppSettings.Current.EpicAuth?.AccessToken}");

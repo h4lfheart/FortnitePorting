@@ -9,6 +9,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.UE4.Assets.Objects;
 using FortnitePorting.AppUtils;
+using FortnitePorting.Bundles;
 using FortnitePorting.Exports;
 using FortnitePorting.Services;
 using FortnitePorting.Views;
@@ -46,6 +47,8 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty] private ESortType sortType;
 
+    public bool IsInitialized;
+
     public async Task Initialize()
     {
         await Task.Run(async () =>
@@ -61,6 +64,7 @@ public partial class MainViewModel : ObservableObject
 
             AppVM.AssetHandlerVM = new AssetHandlerViewModel();
             await AppVM.AssetHandlerVM.Initialize();
+            IsInitialized = true;
         });
     }
 
@@ -117,6 +121,11 @@ public partial class MainViewModel : ObservableObject
     public async Task ExportBlender()
     {
         if (CurrentAsset is null) return;
+
+        var downloadedBundles = await BundleDownloader.DownloadAsync(CurrentAsset.Asset.Name);
+        downloadedBundles.ToList().ForEach(AppVM.CUE4ParseVM.Provider.RegisterFile);
+        await AppVM.CUE4ParseVM.Provider.MountAsync();
+
         var data = await MeshExportData.Create(CurrentAsset.Asset, CurrentAssetType, GetSelectedStyles()); // TODO DANCE EXPORT
         BlenderService.Send(data, AppSettings.Current.BlenderExportSettings);
     }

@@ -12,7 +12,7 @@
     <Window.InputBindings>
         <KeyBinding Key="R" Modifiers="Control" Command="{Binding MenuCommand}" CommandParameter="File_Restart"/>
         <KeyBinding Key="D" Modifiers="Control" Command="{Binding ExportBlenderCommand}"/>
-        <KeyBinding Key="F" Command="{Binding FavoriteCommand}"/>
+        <!--KeyBinding Key="F" Command="{Binding FavoriteCommand}"/-->
     </Window.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
