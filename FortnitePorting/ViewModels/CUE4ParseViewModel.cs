@@ -40,8 +40,8 @@ public class CUE4ParseViewModel : ObservableObject
     {
         Provider = installType switch
         {
-            EInstallType.Local => new DefaultFileProvider(directory, SearchOption.TopDirectoryOnly, isCaseInsensitive: true, new VersionContainer(EGame.GAME_UE5_1)),
-            EInstallType.Live => new StreamedFileProvider("FortniteLive", true, new VersionContainer(EGame.GAME_UE5_1))
+            EInstallType.Local => new DefaultFileProvider(directory, SearchOption.TopDirectoryOnly, isCaseInsensitive: true, new VersionContainer(EGame.GAME_UE5_2)),
+            EInstallType.Live => new StreamedFileProvider("FortniteLive", true, new VersionContainer(EGame.GAME_UE5_2))
         };
     }
     

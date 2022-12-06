@@ -46,7 +46,7 @@
             <ComboBox Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="3" ItemsSource="{extensions:EnumToItemsSource {x:Type local:EInstallType}}" SelectedItem="{Binding InstallType, Converter={StaticResource EnumToString}}"/>
 
             <TextBlock Grid.Row="4" Grid.Column="0" Text="Game Installation" VerticalAlignment="Center"/>
-            <TextBox Grid.Row="4" Grid.Column="2" Text="{Binding ArchivePath}" adonisExt:WatermarkExtension.Watermark="Paks Folder"/>
+            <TextBox Grid.Row="4" Grid.Column="2" Text="{Binding ArchivePath}" adonisExt:WatermarkExtension.Watermark="Paks Folder" IsEnabled="{Binding IsLocalInstall}"/>
             <Button Grid.Row="4" Grid.Column="4" Content="..." Click="OnClickInstallation" IsEnabled="{Binding IsLocalInstall}"/>
         </Grid>
         <Border Grid.Row="4" Background="{DynamicResource {x:Static adonisUi:Brushes.Layer1BackgroundBrush}}" adonisExt:LayerExtension.IncreaseLayer="True">
