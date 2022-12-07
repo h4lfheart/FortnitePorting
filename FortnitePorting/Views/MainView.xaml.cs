@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -24,6 +25,7 @@ public partial class MainView
         DataContext = AppVM.MainVM;
 
         AppLog.Logger = LoggerRtb;
+        
     }
 
     private async void OnLoaded(object sender, RoutedEventArgs e)
@@ -124,6 +126,37 @@ public partial class MainView
             var listBox = (ListBox) tab.Content;
             listBox.Items.Filter = o => ((AssetSelectorItem) o).Match(searchBox.Text);
             listBox.Items.Refresh();
+        }
+    }
+
+    private void OnSortSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        foreach (var tab in AssetControls.Items.OfType<TabItem>())
+        {
+            var listBox = (ListBox) tab.Content;
+            listBox.Items.SortDescriptions.Clear();
+            listBox.Items.SortDescriptions.Add(new SortDescription("IsRandom", ListSortDirection.Descending));
+            switch (AppVM.MainVM.SortType)
+            {
+                case ESortType.Default:
+                    listBox.Items.SortDescriptions.Add(new SortDescription("ID", ListSortDirection.Ascending));
+                    break;
+                case ESortType.AZ:
+                    listBox.Items.SortDescriptions.Add(new SortDescription("DisplayName", ListSortDirection.Ascending));
+                    break;
+                case ESortType.Season:
+                    listBox.Items.SortDescriptions.Add(new SortDescription("SeasonNumber", ListSortDirection.Ascending));
+                    listBox.Items.SortDescriptions.Add(new SortDescription("Rarity", ListSortDirection.Ascending));
+                    break;
+                case ESortType.Rarity:
+                    listBox.Items.SortDescriptions.Add(new SortDescription("Rarity", ListSortDirection.Ascending));
+                    listBox.Items.SortDescriptions.Add(new SortDescription("ID", ListSortDirection.Ascending));
+                    break;
+                case ESortType.Series:
+                    listBox.Items.SortDescriptions.Add(new SortDescription("Series", ListSortDirection.Descending));
+                    listBox.Items.SortDescriptions.Add(new SortDescription("Rarity", ListSortDirection.Descending));
+                    break;
+            }
         }
     }
 }

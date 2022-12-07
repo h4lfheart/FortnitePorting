@@ -21,7 +21,10 @@ public partial class App
 
     public static readonly DirectoryInfo AssetsFolder = new(Path.Combine(Directory.GetCurrentDirectory(), "Assets"));
     public static readonly DirectoryInfo DataFolder = new(Path.Combine(Directory.GetCurrentDirectory(), ".data"));
-    public static readonly DirectoryInfo BundlesFolder = new(Path.Combine(Directory.GetCurrentDirectory(), "InstalledBundles"));
+
+    public static readonly DirectoryInfo BundlesFolder = new(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) +
+        "\\FortniteGame\\Saved\\PersistentDownloadDir\\InstalledBundles");//new(Path.Combine(Directory.GetCurrentDirectory(), "InstalledBundles"));
     public static readonly DirectoryInfo LogsFolder = new(Path.Combine(Directory.GetCurrentDirectory(), "Logs"));
     
     public static readonly DirectoryInfo CacheFolder = new(Path.Combine(DataFolder.FullName, "ManifestCache"));

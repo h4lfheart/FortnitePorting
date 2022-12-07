@@ -14,8 +14,12 @@ using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.Core.Math;
+using CUE4Parse.UE4.Objects.GameplayTags;
+using CUE4Parse.UE4.Objects.UObject;
+using CUE4Parse.Utils;
 using FortnitePorting.AppUtils;
 using FortnitePorting.ViewModels;
+using FortnitePorting.Views.Extensions;
 using SkiaSharp;
 
 namespace FortnitePorting.Views.Controls;
@@ -26,12 +30,16 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
     public SKBitmap IconBitmap;
     public SKBitmap FullBitmap;
     public BitmapImage FullSource;
+    public FGameplayTagContainer GameplayTags;
     
     public bool IsRandom { get; set; }
     public string DisplayName { get; set; }
     public string Description { get; set; }
     public string TooltipName { get; set; }
     public string ID { get; set; }
+    public EFortRarity Rarity { get; set; }
+    public int SeasonNumber { get; set; }
+    public string Series { get; set; }
     public Visibility FavoriteVisibility { get; set; }
 
     public AssetSelectorItem(UObject asset, UTexture2D previewTexture, bool isRandomSelector = false)
@@ -44,6 +52,16 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
         Description = asset.GetOrDefault("Description", new FText("No description.")).Text;
         ID = asset.Name;
 
+        Rarity = asset.GetOrDefault("Rarity", EFortRarity.Uncommon);
+        GameplayTags = asset.GetOrDefault<FGameplayTagContainer>("GameplayTags");
+        
+        var seasonTag = GameplayTags.GetValueOrDefault("Cosmetics.Filter.Season.")?.Text.SubstringAfterLast(".");
+        SeasonNumber = int.TryParse(seasonTag, out var seasonNumber) ? seasonNumber : int.MaxValue;
+        if (asset.TryGetValue<UObject>(out var series, "Series"))
+        {
+            Series = series.GetOrDefault<FText>("DisplayName").Text;
+        }
+        
         TooltipName = $"{DisplayName} ({ID})";
         IsRandom = isRandomSelector;
         

@@ -8,11 +8,11 @@
              xmlns:extensions="clr-namespace:FortnitePorting.Views.Extensions"
              xmlns:cue4parse="clr-namespace:CUE4Parse;assembly=CUE4Parse"
              xmlns:local="clr-namespace:FortnitePorting"
-             Title="Fortnite Porting" Width="1280" Height="720" WindowStartupLocation="CenterScreen"  Loaded="OnLoaded">
+             Title="Fortnite Porting" Width="1280" Height="720" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize" Loaded="OnLoaded">
     <Window.InputBindings>
         <KeyBinding Key="R" Modifiers="Control" Command="{Binding MenuCommand}" CommandParameter="File_Restart"/>
         <KeyBinding Key="D" Modifiers="Control" Command="{Binding ExportBlenderCommand}"/>
-        <!--KeyBinding Key="F" Command="{Binding FavoriteCommand}"/-->
+        <KeyBinding Key="F" Modifiers="Control" Command="{Binding FavoriteCommand}"/>
     </Window.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
@@ -76,10 +76,10 @@
                 
                 <TextBox Grid.Column="0" adonisExt:LayerExtension.Layer="2" adonisExt:WatermarkExtension.Watermark="Search..." TextChanged="OnSearchTextChanged"/>
                 <controls:TextWithIcon Grid.Column="2" Label="Sort By" ImageSource="/FortnitePorting;component/Resources/Sort.png" IconSize="16"/>
-                <ComboBox Grid.Column="4" ItemsSource="{extensions:EnumToItemsSource {x:Type local:ESortType}}" SelectedItem="{Binding SortType, Converter={StaticResource EnumToString}}"/>
+                <ComboBox Grid.Column="4" ItemsSource="{extensions:EnumToItemsSource {x:Type local:ESortType}}" SelectedItem="{Binding SortType, Converter={StaticResource EnumToString}}" SelectionChanged="OnSortSelectionChanged"/>
 
                 <controls:TextWithIcon Grid.Column="6" Label="Filter By" ImageSource="/FortnitePorting;component/Resources/Filter.png" IconSize="16"/>
-                <ComboBox Grid.Column="8" ItemsSource="{extensions:EnumToItemsSource {x:Type local:ESortType}}" SelectedItem="{Binding SortType, Converter={StaticResource EnumToString}}"/>
+                <ComboBox Grid.Column="8" ItemsSource="{extensions:EnumToItemsSource {x:Type local:ESortType}}" SelectedItem="{Binding FilterType, Converter={StaticResource EnumToString}}"/>
 
             </Grid>
             <GroupBox Grid.Row="1" Grid.Column="0" Padding="{adonisUi:Space 0}" adonisExt:LayerExtension.Layer="2" Background="Transparent">

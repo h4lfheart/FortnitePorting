@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -14,6 +15,7 @@ using FortnitePorting.Exports;
 using FortnitePorting.Services;
 using FortnitePorting.Views;
 using FortnitePorting.Views.Controls;
+using StyleSelector = FortnitePorting.Views.Controls.StyleSelector;
 
 namespace FortnitePorting.ViewModels;
 

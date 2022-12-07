@@ -53,7 +53,7 @@ public partial class AppSettings : ObservableObject
     private BlenderExportSettings blenderExportSettings;
     
     [ObservableProperty] 
-    private List<string> favoriteIDs = new(); // TODO BETTER FAVORITE IMPL
+    private List<string> favoriteIDs = new();
 
     [ObservableProperty] 
     private EpicAuthResponse? epicAuth;

@@ -36,7 +36,6 @@ public class CUE4ParseViewModel : ObservableObject
 
     private static readonly List<DirectoryInfo> ExtraDirectories = new()
     {
-        new DirectoryInfo(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\FortniteGame\\Saved\\PersistentDownloadDir\\InstalledBundles"),
         new DirectoryInfo(App.BundlesFolder.FullName)
     };
     
@@ -190,9 +189,16 @@ public class CUE4ParseViewModel : ObservableObject
     {
         var assetArchive = await file.TryCreateReaderAsync();
         if (assetArchive is null) return;
-                
-        var assetRegistry = new FAssetRegistryState(assetArchive);
-        AssetDataBuffers.AddRange(assetRegistry.PreallocatedAssetDataBuffers);
+
+        try
+        {
+            var assetRegistry = new FAssetRegistryState(assetArchive);
+            AssetDataBuffers.AddRange(assetRegistry.PreallocatedAssetDataBuffers);
+        }
+        catch (Exception e)
+        {
+            AppLog.Warning($"Failed to load asset registry: {file.Name}");
+        }
     }
 }
 
