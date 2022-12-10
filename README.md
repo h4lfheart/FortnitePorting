@@ -7,6 +7,7 @@ A free and open-source tool created to automate the Fortnite porting process to 
 
 ## Requirements
 * [Blender](https://www.blender.org/download/)
+* [Visual C++ Distributables x64](https://docs.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170)
 * [.NET 6.0 Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/6.0/runtime)
 > ⚠️ FortnitePorting requires **.NET 6.0 or later** to work, download it from the link above and select the **Windows Desktop x64** version.
 
