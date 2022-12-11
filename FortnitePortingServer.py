@@ -6,7 +6,7 @@ import threading
 import re
 from math import radians
 from mathutils import Matrix, Vector
-from io_import_scene_unreal_psa_psk_280 import pskimport
+from io_import_scene_unreal_psa_psk_280 import pskimport, psaimport
 
 bl_info = {
     "name": "Fortnite Porting",
@@ -63,12 +63,15 @@ class Receiver(threading.Thread):
                 while True:
                     socket_data, sender = self.socket_server.recvfrom(4096)
                     if data := socket_data.decode('utf-8'):
-                        if data == "FPMessageFinished":
+                        if data == "FPClientMessageFinished":
                             break
+                        if data == "FPClientCheckServer":
+                            self.socket_server.sendto("FPServerReceived".encode('utf-8'), sender)
+                            continue
                         data_string += data
                 self.data = json.loads(data_string)
                 self.event.set()
-                self.socket_server.sendto("FPServerReceived".encode('utf-8'), sender) # TODO WIP ERROR CHECKING
+                self.socket_server.sendto("FPServerReceived".encode('utf-8'), sender)
                
             except OSError:
                 pass
@@ -155,6 +158,12 @@ def import_texture(path: str) -> bpy.types.Image:
         return None
 
     return bpy.data.images.load(texture_path, check_existing=True)
+
+def import_anim(path: str) -> bool:
+    path = path[1:] if path.startswith("/") else path
+    anim_path = os.path.join(import_assets_root, path.split(".")[0] + "_SEQ0" + ".psa")
+
+    return psaimport(anim_path)
 
 
 def import_material(target_slot: bpy.types.MaterialSlot, material_data):
@@ -337,7 +346,7 @@ def merge_skeletons(parts) -> bpy.types.Armature:
         
         if socket.casefold() == "hat":
             constraint_object(skeleton, master_skeleton, "head")
-        if socket.casefold() == "tail":
+        elif socket.casefold() == "tail":
             constraint_object(skeleton, master_skeleton, "pelvis")
         else:
             constraint_object(skeleton, master_skeleton, socket)
@@ -402,59 +411,66 @@ def import_response(response):
     import_type = import_data.get("Type")
 
     Log.information(f"Received Import for {import_type}: {name}")
-    print(json.dumps(response))
+    print(response)
 
-    imported_parts = []
-    def import_part(parts):
-        for part in parts:
-            part_type = part.get("Part")
-            if any(imported_parts, lambda x: False if x is None else x.get("Part") == part_type):
-                continue
+    export = import_settings.get("RigType")
+    if import_type == "Dance":
+        animation = import_data.get("Animation")
+        active = bpy.context.view_layer.objects.active
 
-            if (imported_part := import_mesh(part.get("MeshPath"))) is None:
-                continue
+        if not import_anim(animation):
+            message_box("An armature must be selected for the Emote to import onto.", "Failed to Import Emote", "ERROR")
+    else:
+        imported_parts = []
+        def import_parts(parts):
+            for part in parts:
+                part_type = part.get("Part")
+                if any(imported_parts, lambda x: False if x is None else x.get("Part") == part_type):
+                    continue
 
-            has_armature = imported_part.type == "ARMATURE"
-            if has_armature:
-                mesh = mesh_from_armature(imported_part)
-            else:
-                mesh = imported_part
-            bpy.context.view_layer.objects.active = mesh
+                if (imported_part := import_mesh(part.get("MeshPath"))) is None:
+                    continue
 
-            imported_parts.append({
-                "Part": part_type,
-                "Armature": imported_part if has_armature else None,
-                "Mesh": mesh,
-                "Socket": part.get("SocketName")
-            })
-            
-            if (morph_name := part.get("MorphName")) and mesh.data.shape_keys is not None:
-                for key in mesh.data.shape_keys.key_blocks:
-                    if key.name.casefold() == morph_name.casefold():
-                        key.value = 1.0
+                has_armature = imported_part.type == "ARMATURE"
+                if has_armature:
+                    mesh = mesh_from_armature(imported_part)
+                else:
+                    mesh = imported_part
+                bpy.context.view_layer.objects.active = mesh
 
-            for material in part.get("Materials"):
-                index = material.get("SlotIndex")
-                import_material(mesh.material_slots.values()[index], material)
-
-            for override_material in part.get("OverrideMaterials"):
-                index = override_material.get("SlotIndex")
-                import_material(mesh.material_slots.values()[index], override_material)
-
-    import_part(import_data.get("StyleParts"))
-    import_part(import_data.get("Parts"))
-
-    for imported_part in imported_parts:
-        mesh = imported_part.get("Mesh")
-        for style_material in import_data.get("StyleMaterials"):
-            if slot := mesh.material_slots.get(style_material.get("MaterialNameToSwap")):
-                import_material(slot, style_material)
+                imported_parts.append({
+                    "Part": part_type,
+                    "Armature": imported_part if has_armature else None,
+                    "Mesh": mesh,
+                    "Socket": part.get("SocketName")
+                })
                 
-    if (import_settings.get("MergeSkeletons")):
-        merge_skeletons(imported_parts)
+                if (morph_name := part.get("MorphName")) and mesh.data.shape_keys is not None:
+                    for key in mesh.data.shape_keys.key_blocks:
+                        if key.name.casefold() == morph_name.casefold():
+                            key.value = 1.0
 
+                for material in part.get("Materials"):
+                    index = material.get("SlotIndex")
+                    import_material(mesh.material_slots.values()[index], material)
 
-    bpy.ops.object.select_all(action='DESELECT')
+                for override_material in part.get("OverrideMaterials"):
+                    index = override_material.get("SlotIndex")
+                    import_material(mesh.material_slots.values()[index], override_material)
+
+        import_parts(import_data.get("StyleParts"))
+        import_parts(import_data.get("Parts"))
+
+        for imported_part in imported_parts:
+            mesh = imported_part.get("Mesh")
+            for style_material in import_data.get("StyleMaterials"):
+                if slot := mesh.material_slots.get(style_material.get("MaterialNameToSwap")):
+                    import_material(slot, style_material)
+                    
+        if import_settings.get("MergeSkeletons"):
+            merge_skeletons(imported_parts)
+
+        bpy.ops.object.select_all(action='DESELECT')
     
 def message_box(message = "", title = "Message Box", icon = 'INFO'):
 

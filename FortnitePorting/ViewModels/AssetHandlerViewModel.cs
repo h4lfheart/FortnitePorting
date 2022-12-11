@@ -138,7 +138,7 @@ public class AssetHandlerData
         if (random is not null)
         {
             items.Remove(random);
-            await DoLoad(random, true);
+            await DoLoad(random, AssetType, true);
         }
 
         var addedAssets = new List<string>();
@@ -158,16 +158,16 @@ public class AssetHandlerData
 
             try
             {
-                await DoLoad(data);
+                await DoLoad(data, AssetType);
             }
             catch (Exception e)
             {
-                
+                // ignored
             }
         });
     }
 
-    private async Task DoLoad(FAssetData data, bool random = false)
+    private async Task DoLoad(FAssetData data, EAssetType type, bool random = false)
     {
         await PauseState.WaitIfPaused();
         var asset = await AppVM.CUE4ParseVM.Provider.LoadObjectAsync(data.ObjectPath);
@@ -175,6 +175,7 @@ public class AssetHandlerData
         var previewImage = IconGetter(asset);
         if (previewImage is null) return;
             
-        await Application.Current.Dispatcher.InvokeAsync(() => TargetCollection.Add(new AssetSelectorItem(asset, previewImage, random)), DispatcherPriority.Background);
+        await Application.Current.Dispatcher.InvokeAsync(
+            () => TargetCollection.Add(new AssetSelectorItem(asset, previewImage, type, random)), DispatcherPriority.Background);
     }
 }

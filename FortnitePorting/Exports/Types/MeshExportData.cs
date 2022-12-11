@@ -6,7 +6,7 @@ using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
 
-namespace FortnitePorting.Exports;
+namespace FortnitePorting.Exports.Types;
 
 public class MeshExportData : ExportDataBase
 {

@@ -9,17 +9,19 @@ using System.Threading.Tasks;
 using AdonisUI.Controls;
 using FortnitePorting.Exports;
 using FortnitePorting.Exports.Blender;
+using FortnitePorting.Exports.Types;
 using Newtonsoft.Json;
 
 namespace FortnitePorting.Services;
 
 public static class BlenderService
 {
-    private static readonly UdpClient Client = new();
+    private static UdpClient Client = new();
+    private static readonly IPEndPoint Endpoint = IPEndPoint.Parse(Globals.LOCALHOST + ":" + Globals.BLENDER_PORT);
 
     static BlenderService()
     {
-        Client.Connect(Globals.LOCALHOST, Globals.BLENDER_PORT);
+        Client.Connect(Endpoint);
     }
 
     public static void Send(ExportDataBase data, BlenderExportSettings settings)
@@ -35,12 +37,51 @@ public static class BlenderService
         var messageBytes = Encoding.UTF8.GetBytes(message);
 
         Client.SendSpliced(messageBytes, Globals.BUFFER_SIZE);
-        Client.Send(Encoding.UTF8.GetBytes("FPMessageFinished"));
+        Client.Send(Encoding.UTF8.GetBytes(Globals.UDPClient_MessageTerminator));
+        
+        if (Client.TryReceive(Endpoint, out var response))
+        {
+            var responseString = Encoding.UTF8.GetString(response);
+        }
+        else
+        {
+            AppVM.Warning("Failed to Establish Connection with FortnitePorting Server", "Please make sure you have installed the FortnitePortingServer.zip file in Blender in the Add-ons tab.");
+        }
+    }
+
+    public static bool IsServerRunning()
+    {
+        Client.Send(Encoding.UTF8.GetBytes(Globals.UDPClient_ServerCheck));
+        if (Client.TryReceive(Endpoint, out var response))
+        {
+            var responseString = Encoding.UTF8.GetString(response);
+            return responseString.Equals(Globals.UDPServer_ResponseReceived);
+        }
+
+        return false;
     }
 
     public static int SendSpliced(this UdpClient client, IEnumerable<byte> arr, int size)
     {
         return arr.Chunk(size).ToList().Sum(chunk => client.Send(chunk));
+    }
+
+    public static bool TryReceive(this UdpClient client, IPEndPoint endpoint, out byte[] data)
+    {
+        data = Array.Empty<byte>();
+        try
+        {
+            data = client.Receive(ref endpoint);
+        }
+        catch (SocketException)
+        {
+            Client.Close();
+            Client = new UdpClient();
+            Client.Connect(endpoint);
+            return false;
+        }
+
+        return true;
     }
     
 }

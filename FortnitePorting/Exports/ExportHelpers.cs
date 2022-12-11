@@ -4,9 +4,11 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using CUE4Parse_Conversion;
+using CUE4Parse_Conversion.Animations;
 using CUE4Parse_Conversion.Meshes;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
@@ -353,6 +355,8 @@ public static class ExportHelpers
                     {
                         var path = GetExportPath(obj, "psk", "_LOD0");
                         if (File.Exists(path)) return;
+                        
+                        Log.Information("Exporting {0}: {1}", obj.ExportType, obj.Name);
 
                         var exporter = new MeshExporter(skeletalMesh, ExportOptions, false);
                         exporter.TryWriteToDir(App.AssetsFolder, out var label, out var savedFilePath);
@@ -363,6 +367,8 @@ public static class ExportHelpers
                     {
                         var path = GetExportPath(obj, "pskx", "_LOD0");
                         if (File.Exists(path)) return;
+                        
+                        Log.Information("Exporting {0}: {1}", obj.ExportType, obj.Name);
 
                         var exporter = new MeshExporter(staticMesh, ExportOptions, false);
                         exporter.TryWriteToDir(App.AssetsFolder, out var label, out var savedFilePath);
@@ -372,6 +378,8 @@ public static class ExportHelpers
                     {
                         var path = GetExportPath(obj, "png");
                         if (File.Exists(path)) return;
+                        
+                        Log.Information("Exporting {0}: {1}", obj.ExportType, obj.Name);
                         Directory.CreateDirectory(path.Replace('\\', '/').SubstringBeforeLast('/'));
 
                         using var bitmap = texture.Decode(texture.GetFirstMip());
@@ -381,11 +389,22 @@ public static class ExportHelpers
                         File.WriteAllBytes(path, data.ToArray());
                         break;
                     }
+                    case UAnimSequence animation:
+                    {
+                        var path = GetExportPath(obj, "psa", "_SEQ0");
+                        if (File.Exists(path)) return;
+                        
+                        Log.Information("Exporting {0}: {1}", obj.ExportType, obj.Name);
+                        
+                        var exporter = new AnimExporter(animation);
+                        exporter.TryWriteToDir(App.AssetsFolder, out var label, out var savedFilePath);
+                        break;
+                    }
                 }
             }
             catch (IOException)
             {
-                Log.Error("Failed to export {0}", obj.Name);
+                Log.Error("Failed to export {0}: {1}", obj.ExportType, obj.Name);
             }
         })); 
     }

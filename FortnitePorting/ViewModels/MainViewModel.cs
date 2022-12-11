@@ -12,6 +12,7 @@ using CUE4Parse.UE4.Assets.Objects;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Bundles;
 using FortnitePorting.Exports;
+using FortnitePorting.Exports.Types;
 using FortnitePorting.Services;
 using FortnitePorting.Views;
 using FortnitePorting.Views.Controls;
@@ -27,7 +28,7 @@ public partial class MainViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(StyleVisibility))]
     private AssetSelectorItem? currentAsset;
 
-    public ImageSource StyleImage => currentAsset.FullSource;
+    public ImageSource? StyleImage => currentAsset?.FullSource;
     public Visibility StyleVisibility => currentAsset is null ? Visibility.Collapsed : Visibility.Visible;
 
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> outfits = new();
@@ -123,13 +124,26 @@ public partial class MainViewModel : ObservableObject
     public async Task ExportBlender()
     {
         if (CurrentAsset is null) return;
+        if (!BlenderService.IsServerRunning())
+        {
+            AppVM.Warning("Failed to Establish Connection with FortnitePorting Server", "Please make sure you have installed the FortnitePortingServer.zip file in Blender in the Add-ons tab.");
+            return;
+        }
 
-        var downloadedBundles = await BundleDownloader.DownloadAsync(CurrentAsset.Asset.Name);
-        downloadedBundles.ToList().ForEach(AppVM.CUE4ParseVM.Provider.RegisterFile);
-        await AppVM.CUE4ParseVM.Provider.MountAsync();
+        var downloadedBundles = (await BundleDownloader.DownloadAsync(CurrentAsset.Asset.Name)).ToList();
+        if (downloadedBundles.Count > 0)
+        {
+            downloadedBundles.ForEach(AppVM.CUE4ParseVM.Provider.RegisterFile);
+            await AppVM.CUE4ParseVM.Provider.MountAsync();
+        }
 
-        var data = await MeshExportData.Create(CurrentAsset.Asset, CurrentAssetType, GetSelectedStyles()); // TODO DANCE EXPORT
-        BlenderService.Send(data, AppSettings.Current.BlenderExportSettings);
+        ExportDataBase exportData = CurrentAsset.Type switch
+        {
+            EAssetType.Dance => await DanceExportData.Create(CurrentAsset.Asset),
+            _ => await MeshExportData.Create(CurrentAsset.Asset, CurrentAssetType, GetSelectedStyles())
+        };
+        
+        BlenderService.Send(exportData, AppSettings.Current.BlenderExportSettings);
     }
 
     [RelayCommand]

@@ -33,21 +33,21 @@ public static class AppLog
     public static void Information(string text)
     {
         Log.Information(text);
-        Write("[INF] ", Globals.BLUE, FontWeights.Bold, false);
+        Write("[INFO] ", Globals.BLUE, FontWeights.Bold, false);
         Write(text);
     }
 
     public static void Warning(string text)
     {
         Log.Warning(text);
-        Write("[WRN] ", Globals.YELLOW, FontWeights.Bold, false);
+        Write("[WARN] ", Globals.YELLOW, FontWeights.Bold, false);
         Write(text);
     }
     
     public static void Error(string text)
     {
         Log.Error(text);
-        Write("[ERR] ", Globals.RED, FontWeights.Bold, false);
+        Write("[ERROR] ", Globals.RED, FontWeights.Bold, false);
         Write(text);
     }
 }

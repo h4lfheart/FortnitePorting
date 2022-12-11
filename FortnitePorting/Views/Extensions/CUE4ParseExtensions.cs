@@ -29,5 +29,9 @@ public static class CUE4ParseExtensions
 
     public static BitmapSource ToBitmapSource(this UTexture2D texture) => texture.Decode()?.ToBitmapSource();
     
-    public static FName? GetValueOrDefault(this FGameplayTagContainer tags, string category, FName def = default) => tags.GameplayTags.FirstOrDefault(it => it.Text.StartsWith(category), def);
+    public static FName? GetValueOrDefault(this FGameplayTagContainer tags, string category, FName def = default)
+    {
+        if (tags.GameplayTags is null) return def;
+        return tags.GameplayTags.FirstOrDefault(it => it.Text.StartsWith(category), def);
+    }
 }

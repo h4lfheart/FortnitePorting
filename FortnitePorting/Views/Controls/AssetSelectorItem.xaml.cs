@@ -31,6 +31,7 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
     public SKBitmap FullBitmap;
     public BitmapImage FullSource;
     public FGameplayTagContainer GameplayTags;
+    public EAssetType Type;
     
     public bool IsRandom { get; set; }
     public string DisplayName { get; set; }
@@ -42,10 +43,11 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
     public string Series { get; set; }
     public Visibility FavoriteVisibility { get; set; }
 
-    public AssetSelectorItem(UObject asset, UTexture2D previewTexture, bool isRandomSelector = false)
+    public AssetSelectorItem(UObject asset, UTexture2D previewTexture, EAssetType type, bool isRandomSelector = false)
     {
         InitializeComponent();
         DataContext = this;
+        Type = type;
 
         Asset = asset;
         DisplayName = asset.GetOrDefault("DisplayName", new FText("Unnamed")).Text;

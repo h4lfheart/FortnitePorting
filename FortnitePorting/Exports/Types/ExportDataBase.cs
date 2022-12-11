@@ -1,4 +1,4 @@
-﻿namespace FortnitePorting.Exports;
+﻿namespace FortnitePorting.Exports.Types;
 
 public class ExportDataBase
 {
