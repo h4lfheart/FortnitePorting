@@ -4,7 +4,9 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Threading;
 using AdonisUI.Controls;
+using CUE4Parse.UE4.Assets;
 using FortnitePorting.AppUtils;
+using FortnitePorting.Exports.Types;
 using FortnitePorting.Services;
 using MessageBox = AdonisUI.Controls.MessageBox;
 using MessageBoxImage = AdonisUI.Controls.MessageBoxImage;
@@ -36,6 +38,8 @@ public partial class App
         base.OnStartup(e);
         AllocConsole();
         Console.Title = "Fortnite Porting Console";
+        
+        ObjectTypeRegistry.RegisterEngine(typeof(FortAnimNotifyState_SpawnProp).Assembly);
 
         Log.Logger = new LoggerConfiguration()
             .WriteTo.Console()

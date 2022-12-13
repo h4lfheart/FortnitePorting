@@ -4,8 +4,9 @@ import os
 import socket
 import threading
 import re
+import traceback
 from math import radians
-from mathutils import Matrix, Vector
+from mathutils import Matrix, Vector, Euler
 from io_import_scene_unreal_psa_psk_280 import pskimport, psaimport
 
 bl_info = {
@@ -131,7 +132,7 @@ vector_mappings = {
 }
 
 
-def import_mesh(path: str) -> bpy.types.Object:
+def import_mesh(path: str, import_mesh: bool = True) -> bpy.types.Object:
     path = path[1:] if path.startswith("/") else path
     mesh_path = os.path.join(import_assets_root, path.split(".")[0] + "_LOD0")
 
@@ -140,7 +141,21 @@ def import_mesh(path: str) -> bpy.types.Object:
     if os.path.exists(mesh_path + ".pskx"):
         mesh_path += ".pskx"
 
-    if not pskimport(mesh_path, bReorientBones=import_settings.get("ReorientBones")):
+    if not pskimport(mesh_path, bReorientBones=import_settings.get("ReorientBones"), bImportmesh = import_mesh):
+        return None
+
+    return bpy.context.active_object
+
+def import_skel(path: str) -> bpy.types.Object:
+    path = path[1:] if path.startswith("/") else path
+    mesh_path = os.path.join(import_assets_root, path.split(".")[0])
+
+    if os.path.exists(mesh_path + ".psk"):
+        mesh_path += ".psk"
+    if os.path.exists(mesh_path + ".pskx"):
+        mesh_path += ".pskx"
+
+    if not pskimport(mesh_path, bReorientBones=import_settings.get("ReorientBones"), bImportmesh=False):
         return None
 
     return bpy.context.active_object
@@ -159,7 +174,7 @@ def import_texture(path: str) -> bpy.types.Image:
 
     return bpy.data.images.load(texture_path, check_existing=True)
 
-def import_anim(path: str) -> bool:
+def import_anim(path: str):
     path = path[1:] if path.startswith("/") else path
     anim_path = os.path.join(import_assets_root, path.split(".")[0] + "_SEQ0" + ".psa")
 
@@ -208,7 +223,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
 
         _, slot, location, *linear = info
 
-        if slot is 12 and value.endswith("_FX"):
+        if slot == 12 and value.endswith("_FX"):
             return
 
         if (image := import_texture(value)) is None:
@@ -219,6 +234,9 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
         node.image.alpha_mode = 'CHANNEL_PACKED'
         node.hide = True
         node.location = location
+
+        if slot == 0:
+            nodes.active = node
 
         if linear:
             node.image.colorspace_settings.name = "Linear"
@@ -365,6 +383,24 @@ def constraint_object(child: bpy.types.Object, parent: bpy.types.Object, bone: s
 def mesh_from_armature(armature) -> bpy.types.Mesh:
     return armature.children[0]  # only used with psk, mesh is always first child
 
+def armature_from_selection():
+    armature_obj = None
+
+    for obj in bpy.data.objects:
+        if obj.type == 'ARMATURE' and obj.select_get():
+            armature_obj = obj
+            break
+
+    if armature_obj is None:
+        for obj in bpy.data.objects:
+            if obj.type == 'MESH' and obj.select_get():
+                for modifier in obj.modifiers:
+                    if modifier.type == 'ARMATURE':
+                        armature_obj = modifier.object
+                        break
+
+    return armature_obj
+
 def append_data():
     addon_dir = os.path.dirname(os.path.splitext(__file__)[0])
     with bpy.data.libraries.load(os.path.join(addon_dir, "FortnitePortingData.blend")) as (data_from, data_to):
@@ -411,17 +447,73 @@ def import_response(response):
     import_type = import_data.get("Type")
 
     Log.information(f"Received Import for {import_type}: {name}")
-    print(response)
+    print(json.dumps(response))
 
     export = import_settings.get("RigType")
     if import_type == "Dance":
         animation = import_data.get("Animation")
-        active = bpy.context.view_layer.objects.active
+        props = import_data.get("Props")
+        active_skeleton = armature_from_selection()
 
         if not import_anim(animation):
             message_box("An armature must be selected for the Emote to import onto.", "Failed to Import Emote", "ERROR")
+            return
+
+        if len(props) == 0:
+            return
+
+        existing_skel = first(active_skeleton.children, lambda x: x.name == "Prop_Skeleton")
+        if existing_skel:
+            bpy.data.objects.remove(existing_skel, do_unlink=True)
+
+        master_skeleton = import_skel(import_data.get("Skeleton"))
+        master_skeleton.name = "Prop_Skeleton"
+        master_skeleton.parent = active_skeleton
+
+        bpy.context.view_layer.objects.active = master_skeleton
+        import_anim(animation)
+                  
+        for propData in props:
+            prop = propData.get("Prop")
+            socket_name = propData.get("SocketName")
+            socket_remaps = {
+                "RightHand": "weapon_r",
+                "LeftHand": "weapon_l"
+            }
+
+            if socket_name in socket_remaps.keys():
+                socket_name = socket_remaps.get(socket_name)
+
+            if (imported_item := import_mesh(prop.get("MeshPath"))) is None:
+                    continue
+
+            bpy.context.view_layer.objects.active = imported_item
+
+            if animation := propData.get("Animation"):
+                import_anim(animation)
+
+            imported_mesh = imported_item
+            if imported_item.type == 'ARMATURE':
+                imported_mesh = mesh_from_armature(imported_item)
+
+            for material in prop.get("Materials"):
+                index = material.get("SlotIndex")
+                import_material(imported_mesh.material_slots.values()[index], material)
+
+            if location_offset := propData.get("LocationOffset"):
+                imported_item.location += Vector((location_offset.get("X"), location_offset.get("Y"), location_offset.get("Z")))*0.01
+
+            if scale := propData.get("Scale"):
+                imported_item.scale = Vector((scale.get("X"), scale.get("Y"), scale.get("Z")))
+
+            rotation = (0,0,0)
+            if rotation_offset := propData.get("RotationOffset"):
+                rotation = (radians(rotation_offset.get("Roll")), radians(rotation_offset.get("Pitch")), radians(rotation_offset.get("Yaw")))
+            constraint_object(imported_item, master_skeleton, socket_name, rotation)
+
     else:
         imported_parts = []
+        master_skeletons = []
         def import_parts(parts):
             for part in parts:
                 part_type = part.get("Part")
@@ -450,6 +542,11 @@ def import_response(response):
                         if key.name.casefold() == morph_name.casefold():
                             key.value = 1.0
 
+                if import_settings.get("QuadTopo"):
+                    bpy.ops.object.editmode_toggle()
+                    bpy.ops.mesh.tris_convert_to_quads(uvs=True)
+                    bpy.ops.object.editmode_toggle()
+
                 for material in part.get("Materials"):
                     index = material.get("SlotIndex")
                     import_material(mesh.material_slots.values()[index], material)
@@ -466,6 +563,8 @@ def import_response(response):
             for style_material in import_data.get("StyleMaterials"):
                 if slot := mesh.material_slots.get(style_material.get("MaterialNameToSwap")):
                     import_material(slot, style_material)
+
+        bpy.ops.object.select_all(action='DESELECT')
                     
         if import_settings.get("MergeSkeletons"):
             merge_skeletons(imported_parts)
@@ -489,10 +588,11 @@ def register():
     def handler():
         if import_event.is_set():
             try:
-               import_response(server.data)
+                import_response(server.data)
             except Exception as e:
                 error_str = str(e)
-                Log.error(f"An unhandled error occurred: {error_str}")
+                Log.error(f"An unhandled error occurred:")
+                traceback.print_exc()
                 message_box(error_str, "An unhandled error occurred", "ERROR")
                 
             import_event.clear()

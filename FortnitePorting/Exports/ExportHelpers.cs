@@ -332,6 +332,88 @@ public static class ExportHelpers
         return (textures, scalars, vectors);
     }
 
+    public static ExportMesh? Mesh(UStaticMesh? staticMesh)
+    {
+        if (staticMesh is null) return null;
+        if (!staticMesh.TryConvert(out var convertedMesh)) return null;
+        if (convertedMesh.LODs.Count <= 0) return null;
+
+        var exportMesh = new ExportMesh();
+        exportMesh.MeshPath = staticMesh.GetPathName();
+        Save(staticMesh);
+
+        var sections = convertedMesh.LODs[0].Sections.Value;
+        for (var idx = 0; idx < sections.Length; idx++)
+        {
+            var section = sections[idx];
+            if (section.Material is null) continue;
+
+
+            if (!section.Material.TryLoad(out var material)) continue;
+
+            var exportMaterial = new ExportMaterial
+            {
+                MaterialName = material.Name,
+                SlotIndex = idx
+            };
+
+            if (material is UMaterialInstanceConstant materialInstance)
+            {
+                var (textures, scalars, vectors) = MaterialParameters(materialInstance);
+                exportMaterial.Textures = textures;
+                exportMaterial.Scalars = scalars;
+                exportMaterial.Vectors = vectors;
+            }
+
+            exportMaterial.Hash = material.GetPathName().GetHashCode();
+            exportMesh.Materials.Add(exportMaterial);
+        }
+
+        return exportMesh;
+        
+    }
+    
+    public static ExportMesh? Mesh(USkeletalMesh? skeletalMesh)
+    {
+        if (skeletalMesh is null) return null;
+        if (!skeletalMesh.TryConvert(out var convertedMesh)) return null;
+        if (convertedMesh.LODs.Count <= 0) return null;
+
+        var exportMesh = new ExportMesh();
+        exportMesh.MeshPath = skeletalMesh.GetPathName();
+        Save(skeletalMesh);
+
+        var sections = convertedMesh.LODs[0].Sections.Value;
+        for (var idx = 0; idx < sections.Length; idx++)
+        {
+            var section = sections[idx];
+            if (section.Material is null) continue;
+
+
+            if (!section.Material.TryLoad(out var material)) continue;
+
+            var exportMaterial = new ExportMaterial
+            {
+                MaterialName = material.Name,
+                SlotIndex = idx
+            };
+
+            if (material is UMaterialInstanceConstant materialInstance)
+            {
+                var (textures, scalars, vectors) = MaterialParameters(materialInstance);
+                exportMaterial.Textures = textures;
+                exportMaterial.Scalars = scalars;
+                exportMaterial.Vectors = vectors;
+            }
+
+            exportMaterial.Hash = material.GetPathName().GetHashCode();
+            exportMesh.Materials.Add(exportMaterial);
+        }
+
+        return exportMesh;
+        
+    }
+
     public static readonly List<Task> Tasks = new();
     private static readonly ExporterOptions ExportOptions = new()
     {
@@ -345,6 +427,7 @@ public static class ExportHelpers
 
     public static void Save(UObject obj)
     {
+        if (obj is null) return;
         Tasks.Add(Task.Run(() =>
         {
             try
@@ -374,6 +457,7 @@ public static class ExportHelpers
                         exporter.TryWriteToDir(App.AssetsFolder, out var label, out var savedFilePath);
                         break;
                     }
+                    
                     case UTexture2D texture:
                     {
                         var path = GetExportPath(obj, "png");
@@ -389,6 +473,7 @@ public static class ExportHelpers
                         File.WriteAllBytes(path, data.ToArray());
                         break;
                     }
+                    
                     case UAnimSequence animation:
                     {
                         var path = GetExportPath(obj, "psa", "_SEQ0");
@@ -397,6 +482,18 @@ public static class ExportHelpers
                         Log.Information("Exporting {0}: {1}", obj.ExportType, obj.Name);
                         
                         var exporter = new AnimExporter(animation);
+                        exporter.TryWriteToDir(App.AssetsFolder, out var label, out var savedFilePath);
+                        break;
+                    }
+                    
+                    case USkeleton skeleton:
+                    {
+                        var path = GetExportPath(obj, "psk");
+                        if (File.Exists(path)) return;
+                        
+                        Log.Information("Exporting {0}: {1}", obj.ExportType, obj.Name);
+
+                        var exporter = new MeshExporter(skeleton);
                         exporter.TryWriteToDir(App.AssetsFolder, out var label, out var savedFilePath);
                         break;
                     }

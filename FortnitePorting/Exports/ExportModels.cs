@@ -4,13 +4,16 @@ using Newtonsoft.Json;
 
 namespace FortnitePorting.Exports;
 
-public class ExportPart
+public class ExportMesh
 {
     public string MeshPath;
+    public List<ExportMaterial> Materials = new();
+}
+public class ExportPart : ExportMesh
+{
     public string? Part;
     public string? MorphName;
     public string? SocketName;
-    public List<ExportMaterial> Materials = new();
     public List<ExportMaterial> OverrideMaterials = new();
 }
 
@@ -30,3 +33,13 @@ public record TextureParameter(string Name, string Value);
 public record ScalarParameter(string Name, float Value);
 
 public record VectorParameter(string Name, FLinearColor Value);
+
+public class EmotePropData
+{
+    public string SocketName;
+    public FVector LocationOffset;
+    public FRotator RotationOffset;
+    public FVector Scale;
+    public ExportMesh Prop;
+    public string Animation;
+}
