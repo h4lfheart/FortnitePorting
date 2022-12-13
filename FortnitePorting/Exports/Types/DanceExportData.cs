@@ -43,6 +43,11 @@ public class DanceExportData : ExportDataBase
                 var sectionText = x.GetOrDefault<FName>("SectionName").Text;
                 return sectionText.Equals("Default");
             });
+            targetSection ??= sections.FirstOrDefault(x =>
+            {
+                var sectionText = x.GetOrDefault<FName>("SectionName").Text;
+                return sectionText.Equals("Success");
+            });
 
             targetSection ??= sections.Last(); // TODO ADD USER PROMPT FOR SECTION
 

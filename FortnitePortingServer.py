@@ -472,6 +472,7 @@ def import_response(response):
 
         bpy.context.view_layer.objects.active = master_skeleton
         import_anim(animation)
+        master_skeleton.hide_set(True)
                   
         for propData in props:
             prop = propData.get("Prop")
