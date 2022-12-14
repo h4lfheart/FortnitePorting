@@ -32,26 +32,7 @@ public class DanceExportData : ExportDataBase
             ExportHelpers.Save(masterSkeleton);
             data.Skeleton = masterSkeleton.GetPathName();
 
-            var sections = montage.Get<FStructFallback[]>("CompositeSections");
-            var targetSection = sections.FirstOrDefault(x =>
-            {
-                var sectionText = x.GetOrDefault<FName>("SectionName").Text;
-                return sectionText.Equals("Loop");
-            });
-            targetSection ??= sections.FirstOrDefault(x =>
-            {
-                var sectionText = x.GetOrDefault<FName>("SectionName").Text;
-                return sectionText.Equals("Default");
-            });
-            targetSection ??= sections.FirstOrDefault(x =>
-            {
-                var sectionText = x.GetOrDefault<FName>("SectionName").Text;
-                return sectionText.Equals("Success");
-            });
-
-            targetSection ??= sections.Last(); // TODO ADD USER PROMPT FOR SECTION
-
-            var animation = targetSection.Get<UAnimSequence>("LinkedSequence");
+            var animation = GetExportSequence(montage);
             ExportHelpers.Save(animation);
             data.Animation = animation.GetPathName();
 
@@ -75,8 +56,10 @@ public class DanceExportData : ExportDataBase
                     Scale = notifyData.Scale,
                     Prop = ExportHelpers.Mesh(notifyData.StaticMeshProp) ?? ExportHelpers.Mesh(notifyData.SkeletalMeshProp)
                 };
-
+                
+                
                 var propAnimation = notifyData.SkeletalMeshPropAnimation;
+                propAnimation ??= GetExportSequence(notifyData.SkeletalMeshPropMontage);
                 if (propAnimation is not null)
                 {
                     ExportHelpers.Save(propAnimation);
@@ -90,6 +73,31 @@ public class DanceExportData : ExportDataBase
         await Task.WhenAll(ExportHelpers.Tasks);
         return data;
     }
+
+    public static UAnimSequence? GetExportSequence(UAnimMontage? montage)
+    {
+        var sections = montage?.Get<FStructFallback[]>("CompositeSections");
+        var targetSection = sections?.FirstOrDefault(x =>
+        {
+            var sectionText = x.GetOrDefault<FName>("SectionName").Text;
+            return sectionText.Equals("Loop", StringComparison.OrdinalIgnoreCase);
+        });
+        targetSection ??= sections?.FirstOrDefault(x =>
+        {
+            var sectionText = x.GetOrDefault<FName>("SectionName").Text;
+            return sectionText.Equals("Default", StringComparison.OrdinalIgnoreCase);
+        });
+        targetSection ??= sections?.FirstOrDefault(x =>
+        {
+            var sectionText = x.GetOrDefault<FName>("SectionName").Text;
+            return sectionText.Equals("Success", StringComparison.OrdinalIgnoreCase);
+        });
+
+        targetSection ??= sections?.Last(); // TODO ADD USER PROMPT FOR SECTION
+
+        var animation = targetSection?.Get<UAnimSequence>("LinkedSequence");
+        return animation;
+    }
 }
 
 public class FortAnimNotifyState_SpawnProp : UObject
@@ -100,8 +108,9 @@ public class FortAnimNotifyState_SpawnProp : UObject
     public FVector Scale { get; private set; }
     public bool bInheritScale { get; private set; }
     public UStaticMesh? StaticMeshProp { get; private set; }   
-    public USkeletalMesh? SkeletalMeshProp { get; private set; }   
+    public USkeletalMesh? SkeletalMeshProp { get; private set; }
     public UAnimSequence? SkeletalMeshPropAnimation { get; private set; }
+    public UAnimMontage? SkeletalMeshPropMontage { get; private set; }
     
     public override void Deserialize(FAssetArchive Ar, long validPos)
     {
@@ -115,5 +124,6 @@ public class FortAnimNotifyState_SpawnProp : UObject
         StaticMeshProp = GetOrDefault<UStaticMesh>(nameof(StaticMeshProp));
         SkeletalMeshProp = GetOrDefault<USkeletalMesh>(nameof(SkeletalMeshProp));
         SkeletalMeshPropAnimation = GetOrDefault<UAnimSequence>(nameof(SkeletalMeshPropAnimation));
+        SkeletalMeshPropMontage = GetOrDefault<UAnimMontage>(nameof(SkeletalMeshPropAnimation));
     }
 }
