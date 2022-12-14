@@ -6,6 +6,7 @@ import threading
 import re
 import traceback
 from math import radians
+from enum import Enum
 from mathutils import Matrix, Vector, Euler
 from io_import_scene_unreal_psa_psk_280 import pskimport, psaimport
 
@@ -23,6 +24,10 @@ global import_settings
 global import_data
 
 global server
+
+class RigType(Enum):
+    DEFAULT = 0
+    TASTY = 1
 
 class Log:
     INFO = u"\u001b[36m"
@@ -372,6 +377,543 @@ def merge_skeletons(parts) -> bpy.types.Armature:
   
     return master_skeleton
 
+def apply_tasty_rig(master_skeleton: bpy.types.Armature):
+    ik_group = master_skeleton.pose.bone_groups.new(name='IKGroup')
+    ik_group.color_set = 'THEME01'
+    pole_group = master_skeleton.pose.bone_groups.new(name='PoleGroup')
+    pole_group.color_set = 'THEME06'
+    twist_group = master_skeleton.pose.bone_groups.new(name='TwistGroup')
+    twist_group.color_set = 'THEME09'
+    face_group = master_skeleton.pose.bone_groups.new(name='FaceGroup')
+    face_group.color_set = 'THEME01'
+    dyn_group = master_skeleton.pose.bone_groups.new(name='DynGroup')
+    dyn_group.color_set = 'THEME07'
+    extra_group = master_skeleton.pose.bone_groups.new(name='ExtraGroup')
+    extra_group.color_set = 'THEME10'
+    master_skeleton.pose.bone_groups[0].color_set = "THEME08"
+    master_skeleton.pose.bone_groups[1].color_set = "THEME08"
+
+    bpy.ops.object.mode_set(mode='EDIT')
+    edit_bones = master_skeleton.data.edit_bones
+
+    ik_root_bone = edit_bones.new("tasty_root")
+    ik_root_bone.parent = edit_bones.get("root")
+
+    # name, head, tail, roll
+    # don't rely on other rig bones for creation
+    independent_rig_bones = [
+        ('hand_ik_r', edit_bones.get('hand_r').head, edit_bones.get('hand_r').tail, edit_bones.get('hand_r').roll),
+        ('hand_ik_l', edit_bones.get('hand_l').head, edit_bones.get('hand_l').tail, edit_bones.get('hand_l').roll),
+
+        ('foot_ik_r', edit_bones.get('foot_r').head, edit_bones.get('foot_r').tail, edit_bones.get('foot_r').roll),
+        ('foot_ik_l', edit_bones.get('foot_l').head, edit_bones.get('foot_l').tail, edit_bones.get('foot_l').roll),
+
+        ('pole_elbow_r', edit_bones.get('lowerarm_r').head + Vector((0, 0.5, 0)), edit_bones.get('lowerarm_r').head + Vector((0, 0.5, -0.05)), 0),
+        ('pole_elbow_l', edit_bones.get('lowerarm_l').head + Vector((0, 0.5, 0)), edit_bones.get('lowerarm_l').head + Vector((0, 0.5, -0.05)), 0),
+
+        ('pole_knee_r', edit_bones.get('calf_r').head + Vector((0, -0.75, 0)), edit_bones.get('calf_r').head + Vector((0, -0.75, -0.05)), 0),
+        ('pole_knee_l', edit_bones.get('calf_l').head + Vector((0, -0.75, 0)), edit_bones.get('calf_l').head + Vector((0, -0.75, -0.05)), 0),
+
+        ('index_control_l', edit_bones.get('index_01_l').head, edit_bones.get('index_01_l').tail, edit_bones.get('index_01_l').roll),
+        ('middle_control_l', edit_bones.get('middle_01_l').head, edit_bones.get('middle_01_l').tail, edit_bones.get('middle_01_l').roll),
+        ('ring_control_l', edit_bones.get('ring_01_l').head, edit_bones.get('ring_01_l').tail, edit_bones.get('ring_01_l').roll),
+        ('pinky_control_l', edit_bones.get('pinky_01_l').head, edit_bones.get('pinky_01_l').tail, edit_bones.get('pinky_01_l').roll),
+
+        ('index_control_r', edit_bones.get('index_01_r').head, edit_bones.get('index_01_r').tail, edit_bones.get('index_01_r').roll),
+        ('middle_control_r', edit_bones.get('middle_01_r').head, edit_bones.get('middle_01_r').tail, edit_bones.get('middle_01_r').roll),
+        ('ring_control_r', edit_bones.get('ring_01_r').head, edit_bones.get('ring_01_r').tail, edit_bones.get('ring_01_r').roll),
+        ('pinky_control_r', edit_bones.get('pinky_01_r').head, edit_bones.get('pinky_01_r').tail, edit_bones.get('pinky_01_r').roll),
+
+        ('eye_control_mid', edit_bones.get('head').head + Vector((0, -0.675, 0)), edit_bones.get('head').head + Vector((0, -0.7, 0)), 0),
+    ]
+
+    for new_bone in independent_rig_bones:
+        edit_bone: bpy.types.EditBone = edit_bones.new(new_bone[0])
+        edit_bone.head = new_bone[1]
+        edit_bone.tail = new_bone[2]
+        edit_bone.roll = new_bone[3]
+        edit_bone.parent = edit_bones.get('tasty_root')
+
+    # name, head, tail, roll, parent
+    # DO rely on other rig bones for creation
+    dependent_rig_bones = [
+        ('eye_control_r', edit_bones.get('eye_control_mid').head + Vector((0.0325, 0, 0)), edit_bones.get('eye_control_mid').tail + Vector((0.0325, 0, 0)), 0, "eye_control_mid"),
+        ('eye_control_l', edit_bones.get('eye_control_mid').head + Vector((-0.0325, 0, 0)), edit_bones.get('eye_control_mid').tail + Vector((-0.0325, 0, 0)), 0, "eye_control_mid")
+    ]
+
+    for new_bone in dependent_rig_bones:
+        edit_bone: bpy.types.EditBone = edit_bones.new(new_bone[0])
+        edit_bone.head = new_bone[1]
+        edit_bone.tail = new_bone[2]
+        edit_bone.roll = new_bone[3]
+        edit_bone.parent = edit_bones.get(new_bone[4])
+
+    # current, target
+    # connect bone tail to target head
+    tail_head_connection_bones = [
+        ('upperarm_r', 'lowerarm_r'),
+        ('upperarm_l', 'lowerarm_l'),
+        ('lowerarm_r', 'hand_r'),
+        ('lowerarm_l', 'hand_l'),
+
+        ('thigh_r', 'calf_r'),
+        ('thigh_l', 'calf_l'),
+        ('calf_r', 'foot_ik_r'),
+        ('calf_l', 'foot_ik_l'),
+    ]
+
+    for edit_bone in tail_head_connection_bones:
+        if (parent_bone := edit_bones.get(edit_bone[0])) and (child_bone := edit_bones.get(edit_bone[1])):
+            parent_bone.tail = child_bone.head
+
+    # current, target
+    # connect bone head to target head
+    head_head_connection_bones = [
+        ('L_eye_lid_upper_mid', 'L_eye'),
+        ('L_eye_lid_lower_mid', 'L_eye'),
+        ('R_eye_lid_upper_mid', 'R_eye'),
+        ('R_eye_lid_lower_mid', 'R_eye'),
+    ]
+
+    for edit_bone in head_head_connection_bones:
+        if (parent_bone := edit_bones.get(edit_bone[0])) and (child_bone := edit_bones.get(edit_bone[1])):
+            parent_bone.head = child_bone.head
+
+
+    for edit_bone in tail_head_connection_bones:
+        if (parent_bone := edit_bones.get(edit_bone[0])) and (child_bone := edit_bones.get(edit_bone[1])):
+            parent_bone.tail = child_bone.head
+
+    # premade ik bones to remove since we're doing stuff from scratch
+    remove_bone_names = ['ik_hand_gun', 'ik_hand_r', 'ik_hand_l','ik_hand_root','ik_foot_root', 'ik_foot_r', 'ik_foot_l']
+    for remove_bone_name in remove_bone_names:
+        if remove_bone := edit_bones.get(remove_bone_name):
+            edit_bones.remove(remove_bone)
+
+    # transform bones based off of local transforms instead of global
+    transform_bone_names = ['index_control_l', 'middle_control_l', 'ring_control_l', 'pinky_control_l','index_control_r', 'middle_control_r', 'ring_control_r', 'pinky_control_r']
+    for transform_bone_name in transform_bone_names:
+        if transform_bone := edit_bones.get(transform_bone_name):
+            transform_bone.matrix @= Matrix.Translation(Vector((0.025, 0.0, 0.0)))
+            transform_bone.parent = edit_bones.get(transform_bone_name.replace("control", "metacarpal"))
+
+    if (lower_lip_bone := edit_bones.get("FACIAL_C_LowerLipRotation")) and (jaw_bone := edit_bones.get("FACIAL_C_Jaw")):
+        lower_lip_bone.parent = jaw_bone
+
+    # rotation fixes
+    if jaw_bone_old := edit_bones.get('C_jaw'):
+        jaw_bone_old.roll = 0
+        jaw_bone_old.tail = jaw_bone_old.head + Vector((0, 0, 0.1)) 
+
+    rot_correction_bones = ["pelvis", "spine_01", "spine_02", "spine_03", "spine_04", "spine_05", "neck_01", "neck_02", "head"]
+    for correct_bone in rot_correction_bones:
+        bone = edit_bones.get(correct_bone)
+        bone.tail = bone.head + Vector((0, 0, 0.075)) 
+
+    right_eye_axis = 'Y'
+    if (eye_r := edit_bones.get('R_eye')) or (eye_r := edit_bones.get('FACIAL_R_Eye')):
+        if eye_r.tail[1] > eye_r.head[1]:
+            right_eye_axis = 'NEGATIVE_Y'
+
+    left_eye_axis = 'Y'
+    if (eye_l := edit_bones.get('L_eye')) or (eye_l := edit_bones.get('FACIAL_L_Eye')):
+        if eye_l.tail[1] > eye_l.head[1]:
+            left_eye_axis = 'NEGATIVE_Y'
+
+    bpy.ops.object.mode_set(mode='OBJECT')
+
+    pose_bones = master_skeleton.pose.bones
+
+    # bone name, shape object name, scale, *rotation
+    # bones that have custom shapes as bones instead of the normal sticks
+    custom_shape_bones = [
+        ('root', 'RIG_Root', 0.75, (90, 0, 0)),
+        ('pelvis', 'RIG_Torso', 2.0, (0, -90, 0)),
+        ('spine_01', 'RIG_Hips', 2.1),
+        ('spine_02', 'RIG_Hips', 1.8),
+        ('spine_03', 'RIG_Hips', 1.6),
+        ('spine_04', 'RIG_Hips', 1.8),
+        ('spine_05', 'RIG_Hips', 1.2),
+        ('neck_01', 'RIG_Hips', 1.0),
+        ('neck_02', 'RIG_Hips', 1.0),
+        ('head', 'RIG_Hips', 1.6),
+
+        ('clavicle_r', 'RIG_Shoulder', 1.0),
+        ('clavicle_l', 'RIG_Shoulder', 1.0),
+
+        ('upperarm_twist_01_r', 'RIG_Forearm', .13),
+        ('upperarm_twist_02_r', 'RIG_Forearm', .10),
+        ('lowerarm_twist_01_r', 'RIG_Forearm', .13),
+        ('lowerarm_twist_02_r', 'RIG_Forearm', .13),
+        ('upperarm_twist_01_l', 'RIG_Forearm', .13),
+        ('upperarm_twist_02_l', 'RIG_Forearm', .10),
+        ('lowerarm_twist_01_l', 'RIG_Forearm', .13),
+        ('lowerarm_twist_02_l', 'RIG_Forearm', .13),
+
+        ('thigh_twist_01_r', 'RIG_Tweak', .15),
+        ('calf_twist_01_r', 'RIG_Tweak', .13),
+        ('calf_twist_02_r', 'RIG_Tweak', .2),
+        ('thigh_twist_01_l', 'RIG_Tweak', .15),
+        ('calf_twist_01_l', 'RIG_Tweak', .13),
+        ('calf_twist_02_l', 'RIG_Tweak', .2),
+
+        ('hand_ik_r', 'RIG_Hand', 2.6),
+        ('hand_ik_l', 'RIG_Hand', 2.6),
+
+        ('foot_ik_r', 'RIG_FootR', 1.0),
+        ('foot_ik_l', 'RIG_FootL', 1.0, (0, -90, 0)),
+
+        ('thumb_01_l', 'RIG_Thumb', 1.0),
+        ('thumb_02_l', 'RIG_Hips', 0.7),
+        ('thumb_03_l', 'RIG_Thumb', 1.0),
+        ('index_metacarpal_l', 'RIG_MetacarpalTweak', 0.3),
+        ('index_01_l', 'RIG_Index', 1.0),
+        ('index_02_l', 'RIG_Index', 1.3),
+        ('index_03_l', 'RIG_Index', 0.7),
+        ('middle_metacarpal_l', 'RIG_MetacarpalTweak', 0.3),
+        ('middle_01_l', 'RIG_Index', 1.0),
+        ('middle_02_l', 'RIG_Index', 1.3),
+        ('middle_03_l', 'RIG_Index', 0.7),
+        ('ring_metacarpal_l', 'RIG_MetacarpalTweak', 0.3),
+        ('ring_01_l', 'RIG_Index', 1.0),
+        ('ring_02_l', 'RIG_Index', 1.3),
+        ('ring_03_l', 'RIG_Index', 0.7),
+        ('pinky_metacarpal_l', 'RIG_MetacarpalTweak', 0.3),
+        ('pinky_01_l', 'RIG_Index', 1.0),
+        ('pinky_02_l', 'RIG_Index', 1.3),
+        ('pinky_03_l', 'RIG_Index', 0.7),
+
+        ('thumb_01_r', 'RIG_Thumb', 1.0),
+        ('thumb_02_r', 'RIG_Hips', 0.7),
+        ('thumb_03_r', 'RIG_Thumb', 1.0),
+        ('index_metacarpal_r', 'RIG_MetacarpalTweak', 0.3),
+        ('index_01_r', 'RIG_Index', 1.0),
+        ('index_02_r', 'RIG_Index', 1.3),
+        ('index_03_r', 'RIG_Index', 0.7),
+        ('middle_metacarpal_r', 'RIG_MetacarpalTweak', 0.3),
+        ('middle_01_r', 'RIG_Index', 1.0),
+        ('middle_02_r', 'RIG_Index', 1.3),
+        ('middle_03_r', 'RIG_Index', 0.7),
+        ('ring_metacarpal_r', 'RIG_MetacarpalTweak', 0.3),
+        ('ring_01_r', 'RIG_Index', 1.0),
+        ('ring_02_r', 'RIG_Index', 1.3),
+        ('ring_03_r', 'RIG_Index', 0.7),
+        ('pinky_metacarpal_r', 'RIG_MetacarpalTweak', 0.3),
+        ('pinky_01_r', 'RIG_Index', 1.0),
+        ('pinky_02_r', 'RIG_Index', 1.3),
+        ('pinky_03_r', 'RIG_Index', 0.7),
+
+        ('ball_r', 'RIG_Toe', 2.1),
+        ('ball_l', 'RIG_Toe', 2.1),
+
+        ('pole_elbow_r', 'RIG_Tweak', 2.0),
+        ('pole_elbow_l', 'RIG_Tweak', 2.0),
+        ('pole_knee_r', 'RIG_Tweak', 2.0),
+        ('pole_knee_l', 'RIG_Tweak', 2.0),
+
+        ('index_control_l', 'RIG_FingerRotR', 1.0),
+        ('middle_control_l', 'RIG_FingerRotR', 1.0),
+        ('ring_control_l', 'RIG_FingerRotR', 1.0),
+        ('pinky_control_l', 'RIG_FingerRotR', 1.0),
+        ('index_control_r', 'RIG_FingerRotR', 1.0),
+        ('middle_control_r', 'RIG_FingerRotR', 1.0),
+        ('ring_control_r', 'RIG_FingerRotR', 1.0),
+        ('pinky_control_r', 'RIG_FingerRotR', 1.0),
+
+        ('eye_control_mid', 'RIG_EyeTrackMid', 0.75),
+        ('eye_control_r', 'RIG_EyeTrackInd', 0.75),
+        ('eye_control_l', 'RIG_EyeTrackInd', 0.75),
+    ]
+
+    for custom_shape_bone_data in custom_shape_bones:
+        name, shape, scale, *extra = custom_shape_bone_data
+        if not (custom_shape_bone := pose_bones.get(name)):
+            continue
+
+        custom_shape_bone.custom_shape = bpy.data.objects.get(shape)
+        custom_shape_bone.custom_shape_scale_xyz = scale, scale, scale
+
+        if len(extra) > 0 and (rot := extra[0]):
+            custom_shape_bone.custom_shape_rotation_euler = [radians(rot[0]), radians(rot[1]), radians(rot[2])]
+
+
+    # other tweaks by enumeration of pose bones
+    jaw_bones = ["C_jaw", "FACIAL_C_Jaw"]
+    face_root_bones = ["faceAttach", "FACIAL_C_FacialRoot"]
+    for pose_bone in pose_bones:
+        if pose_bone.bone_group is None:
+            pose_bone.bone_group = extra_group
+
+        if not pose_bone.parent: # root
+            pose_bone.use_custom_shape_bone_size = False
+            continue
+
+        if pose_bone.name.startswith("eye_control"):
+            pose_bone.use_custom_shape_bone_size = False
+
+        if 'dyn_' in pose_bone.name:
+            pose_bone.bone_group = dyn_group
+
+        if 'deform_' in pose_bone.name and pose_bone.bone_group_index != 0: # not unused bones
+            pose_bone.custom_shape = bpy.data.objects.get('RIG_Tweak')
+            pose_bone.custom_shape_scale_xyz = 0.05, 0.05, 0.05
+            pose_bone.use_custom_shape_bone_size = False
+            pose_bone.bone_group = dyn_group
+
+        if 'twist_' in pose_bone.name:
+            pose_bone.custom_shape_scale_xyz = 0.1, 0.1, 0.1
+            pose_bone.use_custom_shape_bone_size = False
+
+        if any(["eyelid", "eye_lid_"], lambda x: x.casefold() in pose_bone.name.casefold()):
+            pose_bone.bone_group = face_group
+            continue
+
+        if pose_bone.name.casefold().endswith("_eye"):
+            pose_bone.bone_group = extra_group
+            continue
+
+        if "FACIAL" in pose_bone.name or pose_bone.parent.name in face_root_bones or pose_bone.parent.name in jaw_bones:
+            pose_bone.custom_shape = bpy.data.objects.get('RIG_FaceBone')
+            pose_bone.bone_group = face_group
+
+        if pose_bone.name in jaw_bones:
+            pose_bone.bone_group = face_group
+            pose_bone.custom_shape = bpy.data.objects.get('RIG_JawBone')
+            pose_bone.custom_shape_scale_xyz = 0.1, 0.1, 0.1
+            pose_bone.use_custom_shape_bone_size = False
+
+        if pose_bone.name in face_root_bones:
+            pose_bone.bone_group = face_group
+
+
+    defined_group_bones = {
+        "upperarm_twist_01_r": twist_group,
+        "upperarm_twist_02_r": twist_group,
+        "lowerarm_twist_01_r": twist_group,
+        "lowerarm_twist_02_r": twist_group,
+
+        "upperarm_twist_01_l": twist_group,
+        "upperarm_twist_02_l": twist_group,
+        "lowerarm_twist_01_l": twist_group,
+        "lowerarm_twist_02_l": twist_group,
+
+        "thigh_twist_01_r": twist_group,
+        "calf_twist_01_r": twist_group,
+        "calf_twist_02_r": twist_group,
+
+        "thigh_twist_01_l": twist_group,
+        "calf_twist_01_l": twist_group,
+        "calf_twist_02_l": twist_group,
+
+        "hand_ik_r": ik_group,
+        "hand_ik_l": ik_group,
+
+        "foot_ik_r": ik_group,
+        "foot_ik_l": ik_group,
+
+        "pole_elbow_r": pole_group,
+        "pole_elbow_l": pole_group,
+        "pole_knee_r": pole_group,
+        "pole_knee_l": pole_group,
+
+        "index_control_r": extra_group,
+        "middle_control_r": extra_group,
+        "ring_control_r": extra_group,
+        "pinky_control_r": extra_group,
+
+        "index_control_l": extra_group,
+        "middle_control_l": extra_group,
+        "ring_control_l": extra_group,
+        "pinky_control_l": extra_group,
+
+        "eye_control_mid": extra_group,
+        "eye_control_r": extra_group,
+        "eye_control_l": extra_group,
+
+        "thumb_03_r": extra_group,
+        "index_03_r": extra_group,
+        "middle_03_r": extra_group,
+        "ring_03_r": extra_group,
+        "pinky_03_r": extra_group,
+
+        "thumb_03_l": extra_group,
+        "index_03_l": extra_group,
+        "middle_03_l": extra_group,
+        "ring_03_l": extra_group,
+        "pinky_03_l": extra_group,
+
+        "root": extra_group,
+        "ball_r": extra_group,
+        "ball_l": extra_group,
+        "head": extra_group,
+    }
+
+    for bone_name, group in defined_group_bones.items():
+        if bone := pose_bones.get(bone_name):
+            bone.bone_group = group
+
+    # bone, target, weight
+    # copy rotation modifier added to bones
+    copy_rotation_bones = [
+        ('hand_r', 'hand_ik_r', 1.0),
+        ('hand_l', 'hand_ik_l', 1.0),
+        ('foot_r', 'foot_ik_r', 1.0),
+        ('foot_l', 'foot_ik_l', 1.0),
+
+        ('L_eye_lid_upper_mid', 'L_eye', 0.25),
+        ('L_eye_lid_lower_mid', 'L_eye', 0.25),
+        ('R_eye_lid_upper_mid', 'R_eye', 0.25),
+        ('R_eye_lid_lower_mid', 'R_eye', 0.25),
+
+        ('index_01_l', 'index_control_l', 1.0),
+        ('index_02_l', 'index_control_l', 1.0),
+        ('index_03_l', 'index_control_l', 1.0),
+        ('middle_01_l', 'middle_control_l', 1.0),
+        ('middle_02_l', 'middle_control_l', 1.0),
+        ('middle_03_l', 'middle_control_l', 1.0),
+        ('ring_01_l', 'ring_control_l', 1.0),
+        ('ring_02_l', 'ring_control_l', 1.0),
+        ('ring_03_l', 'ring_control_l', 1.0),
+        ('pinky_01_l', 'pinky_control_l', 1.0),
+        ('pinky_02_l', 'pinky_control_l', 1.0),
+        ('pinky_03_l', 'pinky_control_l', 1.0),
+
+        ('index_01_r', 'index_control_r', 1.0),
+        ('index_02_r', 'index_control_r', 1.0),
+        ('index_03_r', 'index_control_r', 1.0),
+        ('middle_01_r', 'middle_control_r', 1.0),
+        ('middle_02_r', 'middle_control_r', 1.0),
+        ('middle_03_r', 'middle_control_r', 1.0),
+        ('ring_01_r', 'ring_control_r', 1.0),
+        ('ring_02_r', 'ring_control_r', 1.0),
+        ('ring_03_r', 'ring_control_r', 1.0),
+        ('pinky_01_r', 'pinky_control_r', 1.0),
+        ('pinky_02_r', 'pinky_control_r', 1.0),
+        ('pinky_03_r', 'pinky_control_r', 1.0),
+    ]
+
+    for bone_data in copy_rotation_bones:
+        current, target, weight = bone_data
+        if not (pose_bone := pose_bones.get(current)):
+            continue
+
+        con = pose_bone.constraints.new('COPY_ROTATION')
+        con.target = master_skeleton
+        con.subtarget = target
+        con.influence = weight
+
+        if 'hand_ik' in target or 'foot_ik' in target:
+            con.target_space = 'WORLD'
+            con.owner_space = 'WORLD'
+        elif 'control' in target:
+            con.mix_mode = 'OFFSET'
+            con.target_space = 'LOCAL_OWNER_ORIENT'
+            con.owner_space = 'LOCAL'
+        else:
+            con.target_space = 'LOCAL_OWNER_ORIENT'
+            con.owner_space = 'LOCAL'
+
+    # target, ik, pole
+    # do i have to explain thing
+    ik_bones = [
+        ('lowerarm_r', 'hand_ik_r', 'pole_elbow_r'),
+        ('lowerarm_l', 'hand_ik_l', 'pole_elbow_l'),
+        ('calf_r', 'foot_ik_r', 'pole_knee_r'),
+        ('calf_l', 'foot_ik_l', 'pole_knee_l'),
+    ]
+
+    for ik_bone_data in ik_bones:
+        target, ik, pole = ik_bone_data
+        con = pose_bones.get(target).constraints.new('IK')
+        con.target = master_skeleton
+        con.subtarget = ik
+        con.pole_target = master_skeleton
+        con.pole_subtarget = pole
+        con.pole_angle = radians(180)
+        con.chain_count = 2
+
+    #
+    # only gonna be the head but whatever
+    track_bones = [
+        ('eye_control_mid', 'head', 0.285)
+    ]
+
+    for track_bone_data in track_bones:
+        current, target, head_tail = track_bone_data
+        if not (pose_bone := pose_bones.get(current)):
+            continue
+
+        con = pose_bone.constraints.new('TRACK_TO')
+        con.target = master_skeleton
+        con.subtarget = target
+        con.head_tail = head_tail
+        con.track_axis = 'TRACK_Y'
+        con.up_axis = 'UP_Z'
+
+    # bone, target, ignore axis', axis
+    lock_track_bones = [
+        ('R_eye', 'eye_control_r', ['Y'], right_eye_axis),
+        ('L_eye', 'eye_control_l', ['Y'], left_eye_axis),
+        ('FACIAL_R_Eye', 'eye_control_r', ['Y'], right_eye_axis),
+        ('FACIAL_L_Eye', 'eye_control_l', ['Y'], left_eye_axis),
+    ]
+
+    for lock_track_bone_data in lock_track_bones:
+        current, target, ignored, bone_axis = lock_track_bone_data
+        if not (pose_bone := pose_bones.get(current)):
+            continue
+
+        for axis in ['X', 'Y', 'Z']:
+            if axis in ignored:
+                continue
+            con = pose_bone.constraints.new('LOCKED_TRACK')
+            con.target = master_skeleton
+            con.subtarget = target
+            con.track_axis = 'TRACK_' + bone_axis
+            con.lock_axis = 'LOCK_' + axis
+
+    bones = master_skeleton.data.bones
+
+    hide_bones = ['hand_r', 'hand_l', 'foot_r', 'foot_l', 'faceAttach']
+    for bone_name in hide_bones:
+        if bone := bones.get(bone_name):
+            bone.hide = True
+
+    bones.get('spine_01').use_inherit_rotation = False
+    bones.get('neck_01').use_inherit_rotation = False
+
+    # name, layer index
+    # maps bone group to layer index
+    bone_groups_to_layer_index = {
+        'IKGroup': 1,
+        'PoleGroup': 1,
+        'TwistGroup': 2,
+        'DynGroup': 3,
+        'FaceGroup': 4,
+        'ExtraGroup': 1
+    }
+
+    main_layer_bones = ['upperarm_r', 'lowerarm_r', 'upperarm_l', 'lowerarm_l', 'thigh_r', 'calf_r', 'thigh_l',
+                         'calf_l', 'clavicle_r', 'clavicle_l', 'ball_r', 'ball_l', 'pelvis', 'spine_01',
+                         'spine_02', 'spine_03', 'spine_04', 'spine_05', 'neck_01', 'neck_02', 'head', 'root']
+
+    for bone in bones:
+        if bone.name in main_layer_bones:
+            bone.layers[1] = True
+            continue
+
+        if "eye" in bone.name.casefold():
+            bone.layers[4] = True
+            continue
+
+        if group := pose_bones.get(bone.name).bone_group:
+            if group.name in ['Unused bones', 'No children']:
+                bone.layers[5] = True
+                continue
+            index = bone_groups_to_layer_index[group.name]
+            bone.layers[index] = True
+
+
 def constraint_object(child: bpy.types.Object, parent: bpy.types.Object, bone: str, rot=[radians(0), radians(90), radians(0)]):
     constraint = child.constraints.new('CHILD_OF')
     constraint.target = parent
@@ -406,6 +948,10 @@ def append_data():
     with bpy.data.libraries.load(os.path.join(addon_dir, "FortnitePortingData.blend")) as (data_from, data_to):
         if not bpy.data.node_groups.get("Fortnite Porting"):
              data_to.node_groups = data_from.node_groups
+
+        for obj in data_from.objects:
+            if not bpy.data.objects.get(obj):
+                data_to.objects.append(obj)
 
 def first(target, expr, default=None):
     if not target:
@@ -569,8 +1115,12 @@ def import_response(response):
 
         bpy.ops.object.select_all(action='DESELECT')
                     
-        if import_settings.get("MergeSkeletons"):
-            merge_skeletons(imported_parts)
+        if not import_settings.get("MergeSkeletons"):
+            return
+        
+        master_skeleton = merge_skeletons(imported_parts)
+        if RigType(import_settings.get("RigType")) == RigType.TASTY:
+            apply_tasty_rig(master_skeleton)
 
         bpy.ops.object.select_all(action='DESELECT')
     
