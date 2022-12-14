@@ -45,7 +45,7 @@ public static class BlenderService
         }
         else
         {
-            AppVM.Warning("Failed to Establish Connection with FortnitePorting Server", "Please make sure you have installed the FortnitePortingServer.zip file in Blender in the Add-ons tab.");
+            AppVM.Warning("Failed to Establish Connection with FortnitePorting Server", "Please make sure you have installed the FortnitePortingServer.zip file and have an instance of Blender open.");
         }
     }
 

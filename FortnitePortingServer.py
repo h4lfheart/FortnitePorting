@@ -507,9 +507,11 @@ def import_response(response):
             if scale := propData.get("Scale"):
                 imported_item.scale = Vector((scale.get("X"), scale.get("Y"), scale.get("Z")))
 
-            rotation = (0,0,0)
+            rotation = [0,0,0]
             if rotation_offset := propData.get("RotationOffset"):
-                rotation = (radians(rotation_offset.get("Roll")), radians(rotation_offset.get("Pitch")), radians(rotation_offset.get("Yaw")))
+                rotation[0] += radians(rotation_offset.get("Roll"))
+                rotation[1] += radians(rotation_offset.get("Pitch"))
+                rotation[2] += radians(rotation_offset.get("Yaw"))
             constraint_object(imported_item, master_skeleton, socket_name, rotation)
 
     else:

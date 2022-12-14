@@ -45,8 +45,8 @@ public class DanceExportData : ExportDataBase
             
             foreach (var propNotify in propNotifies)
             {
-                var linkedSequence = propNotify.Get<UAnimSequence>("LinkedSequence");
-                if (linkedSequence != animation) continue;
+                /*var linkedSequence = propNotify.Get<UAnimSequence>("LinkedSequence");
+                if (linkedSequence != animation) continue;*/
                 var notifyData = propNotify.Get<FortAnimNotifyState_SpawnProp>("NotifyStateClass");
                 var exportProp = new EmotePropData
                 {

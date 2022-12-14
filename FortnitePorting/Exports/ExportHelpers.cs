@@ -29,7 +29,7 @@ public static class ExportHelpers
         var headMorphNames = new Dictionary<ECustomHatType, string>();
         foreach (var part in inputParts)
         {
-            var skeletalMesh = part.Get<USkeletalMesh?>("SkeletalMesh");
+            var skeletalMesh = part.GetOrDefault<USkeletalMesh?>("SkeletalMesh");
             if (skeletalMesh is null) continue;
 
             if (!skeletalMesh.TryConvert(out var convertedMesh)) continue;
