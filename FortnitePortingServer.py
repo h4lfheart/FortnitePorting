@@ -503,7 +503,7 @@ def apply_tasty_rig(master_skeleton: bpy.types.Armature):
     # rotation fixes
     if jaw_bone_old := edit_bones.get('C_jaw'):
         jaw_bone_old.roll = 0
-        jaw_bone_old.tail = jaw_bone_old.head + Vector((0, 0, 0.1)) 
+        jaw_bone_old.tail = jaw_bone_old.head + Vector((0, -0.1, 0)) 
 
     rot_correction_bones = ["pelvis", "spine_01", "spine_02", "spine_03", "spine_04", "spine_05", "neck_01", "neck_02", "head"]
     for correct_bone in rot_correction_bones:
