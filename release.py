@@ -16,9 +16,9 @@ if not os.path.exists("Release"):
 os.system(f'dotnet publish -r win-x64 -o {release_folder} -c Release /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true /p:DebugType=None /p:DebugSymbols=false --self-contained false')
 
 with zipfile.ZipFile('Release/FortnitePortingServer.zip', 'w', zipfile.ZIP_DEFLATED) as server_zip:
-    server_zip.write("FortnitePortingServer.py")
-    server_zip.write("io_import_scene_unreal_psa_psk_280.py")
-    server_zip.write("FortnitePortingData.blend")
+    server_zip.write("Plugins/Blender/FortnitePortingServer.py", "FortnitePortingServer.py")
+    server_zip.write("Plugins/Blender/io_import_scene_unreal_psa_psk_280.py", "io_import_scene_unreal_psa_psk_280.py")
+    server_zip.write("Plugins/Blender/FortnitePortingData.blend", "FortnitePortingData.blend")
 
 with zipfile.ZipFile('Release/FortnitePorting.zip', 'w', zipfile.ZIP_DEFLATED) as main_zip:
     main_zip.write("Release/FortnitePorting.exe", "FortnitePorting.exe")
