@@ -25,9 +25,9 @@
                     </StackPanel.Resources> 
                     
                     <Separator Style="{StaticResource NamedSeparator}" Tag="RIGGING"/>
-                    <ComboBox ItemsSource="{extensions:EnumToItemsSource {x:Type local:ERigType}}" SelectedItem="{Binding BlenderRigType, Converter={StaticResource EnumToString}}"/>
-                    <CheckBox Content="Merge Skeletons" IsChecked="{Binding BlenderMergeSkeletons}"/>
-                    <CheckBox Content="Reorient Bones" IsChecked="{Binding BlenderReorientBones}"/>
+                    <ComboBox ItemsSource="{extensions:EnumToItemsSource {x:Type local:ERigType}}" SelectedItem="{Binding BlenderRigType, Converter={StaticResource EnumToString}}" SelectionChanged="OnRigTypeChanged"/>
+                    <CheckBox Content="Merge Skeletons" IsChecked="{Binding BlenderMergeSkeletons}" IsEnabled="{Binding CanChangeRigOptions}"/>
+                    <CheckBox Content="Reorient Bones" IsChecked="{Binding BlenderReorientBones}" IsEnabled="{Binding CanChangeRigOptions}"/>
                     
                     <Separator Style="{StaticResource NamedSeparator}" Tag="MESH"/>
                     <CheckBox Content="Quad Topology" IsChecked="{Binding BlenderQuadTopo}"/>

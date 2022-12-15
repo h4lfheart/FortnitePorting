@@ -6,6 +6,7 @@ namespace FortnitePorting.ViewModels;
 
 public class ImportSettingsViewModel : ObservableObject
 {
+    public bool CanChangeRigOptions => BlenderRigType == ERigType.Default;
     public ERigType BlenderRigType
     {
         get => AppSettings.Current.BlenderExportSettings.RigType;
@@ -13,6 +14,7 @@ public class ImportSettingsViewModel : ObservableObject
         {
             AppSettings.Current.BlenderExportSettings.RigType = value;
             OnPropertyChanged();
+            OnPropertyChanged(nameof(CanChangeRigOptions));
         }
     }
     
