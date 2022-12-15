@@ -137,7 +137,7 @@ vector_mappings = {
 }
 
 
-def import_mesh(path: str, import_mesh: bool = True) -> bpy.types.Object:
+def import_mesh(path: str, import_mesh: bool = True, reorient_bones: bool = False) -> bpy.types.Object:
     path = path[1:] if path.startswith("/") else path
     mesh_path = os.path.join(import_assets_root, path.split(".")[0] + "_LOD0")
 
@@ -146,7 +146,7 @@ def import_mesh(path: str, import_mesh: bool = True) -> bpy.types.Object:
     if os.path.exists(mesh_path + ".pskx"):
         mesh_path += ".pskx"
 
-    if not pskimport(mesh_path, bReorientBones=import_settings.get("ReorientBones"), bImportmesh = import_mesh):
+    if not pskimport(mesh_path, bReorientBones=reorient_bones, bImportmesh = import_mesh):
         return None
 
     return bpy.context.active_object
@@ -160,7 +160,7 @@ def import_skel(path: str) -> bpy.types.Object:
     if os.path.exists(mesh_path + ".pskx"):
         mesh_path += ".pskx"
 
-    if not pskimport(mesh_path, bReorientBones=import_settings.get("ReorientBones"), bImportmesh=False):
+    if not pskimport(mesh_path, bImportmesh=False):
         return None
 
     return bpy.context.active_object
@@ -1025,7 +1025,8 @@ def import_response(response):
             socket_name = propData.get("SocketName")
             socket_remaps = {
                 "RightHand": "weapon_r",
-                "LeftHand": "weapon_l"
+                "LeftHand": "weapon_l",
+                "AttachSocket": "attach"
             }
 
             if socket_name in socket_remaps.keys():
@@ -1069,7 +1070,7 @@ def import_response(response):
                 if any(imported_parts, lambda x: False if x is None else x.get("Part") == part_type):
                     continue
 
-                if (imported_part := import_mesh(part.get("MeshPath"))) is None:
+                if (imported_part := import_mesh(part.get("MeshPath"), reorient_bones=import_settings.get("ReorientBones"))) is None:
                     continue
 
                 has_armature = imported_part.type == "ARMATURE"
