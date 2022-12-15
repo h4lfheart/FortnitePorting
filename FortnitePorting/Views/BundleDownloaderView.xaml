@@ -9,6 +9,9 @@
              xmlns:adonisCtrls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
              Title="Bundle Downloader" Width="640" Height="480" WindowStartupLocation="CenterScreen">
     <Grid>
-        
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <ToggleButton Style="{DynamicResource {x:Static adonisUi:Styles.ToggleSwitch }}" IsChecked="{Binding BundleDownloaderEnabled}"/>
+            <TextBlock Text="Enable Bundle Downloader"></TextBlock>
+        </StackPanel>
     </Grid>
 </adonisCtrls:AdonisWindow>

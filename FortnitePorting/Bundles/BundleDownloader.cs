@@ -71,6 +71,7 @@ public static class BundleDownloader
 
     public static async Task<IEnumerable<FileInfo>> DownloadAsync(string cosmetic)
     {
+        if (!AppSettings.Current.BundleDownloaderEnabled) return Enumerable.Empty<FileInfo>();
         if (!CosmeticBundleMappings.Sections.ContainsKey(cosmetic)) return Enumerable.Empty<FileInfo>();
         var cosmeticSection = CosmeticBundleMappings.Sections[cosmetic];
         var sectionBundles = cosmeticSection.Where(x => x.Name.Equals("Bundles")).Select(x => x.Value).ToList();

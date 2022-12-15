@@ -57,4 +57,7 @@ public partial class AppSettings : ObservableObject
 
     [ObservableProperty] 
     private EpicAuthResponse? epicAuth;
+    
+    [ObservableProperty] 
+    private bool bundleDownloaderEnabled = true;
 }
