@@ -53,7 +53,7 @@ public partial class App
         AppSettings.DirectoryPath.Create();
         AppSettings.Load();
 
-        if (AppSettings.Current.DiscordRPC == ERichPresenceAccess.Always)
+        if (AppSettings.Current.DiscordRichPresence)
         {
             DiscordService.Initialize();
         }

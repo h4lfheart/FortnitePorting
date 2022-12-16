@@ -13,6 +13,20 @@
                 </StackPanel>
             </ToolTip>
         </StackPanel.ToolTip>
+        <StackPanel.ContextMenu>
+            <ContextMenu>
+                <MenuItem Header="Download/Export HD Textures" Command="{Binding ExportHDCommand}">
+                    <MenuItem.Icon>
+                        <Image Source="/Resources/Textures.png" Width="16" Height="16"></Image>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Export All Assets" Command="{Binding ExportAssetsCommand}">
+                    <MenuItem.Icon>
+                        <Image Source="/Resources/Export.png" Width="16" Height="16"></Image>
+                    </MenuItem.Icon>
+                </MenuItem>
+            </ContextMenu>
+        </StackPanel.ContextMenu>
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>

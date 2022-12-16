@@ -93,7 +93,7 @@ public class AssetHandlerViewModel
         AssetType = EAssetType.Weapon,
         TargetCollection = AppVM.MainVM.Weapons,
         ClassNames = new List<string> { "FortWeaponRangedItemDefinition", "FortWeaponMeleeItemDefinition"},
-        RemoveList = {"_Harvest"},
+        RemoveList = { "_Harvest", "Weapon_Pickaxe_", "Weapons_Pickaxe_", "Dev_WID"},
         IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
     };
     

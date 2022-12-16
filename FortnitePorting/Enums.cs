@@ -11,15 +11,6 @@ public enum EInstallType
     Live
 }
 
-public enum ERichPresenceAccess
-{
-    [Description("Always")]
-    Always,
-    
-    [Description("Never")]
-    Never
-}
-
 public enum EAssetType
 {
     [Description("Outfits")]

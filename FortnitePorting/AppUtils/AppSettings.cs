@@ -24,7 +24,6 @@ public partial class AppSettings : ObservableObject
         }
 
         Current ??= new AppSettings();
-
         Current.BlenderExportSettings ??= new BlenderExportSettings();
 
     }
@@ -44,7 +43,7 @@ public partial class AppSettings : ObservableObject
     private EInstallType installType;
     
     [ObservableProperty] 
-    private ERichPresenceAccess discordRPC;
+    private bool discordRichPresence = true;
     
     [ObservableProperty] 
     private AesResponse aesResponse;

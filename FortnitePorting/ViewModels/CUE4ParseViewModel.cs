@@ -34,6 +34,8 @@ public class CUE4ParseViewModel : ObservableObject
 
     public Manifest? FortniteLiveManifest;
 
+    public static VersionContainer Version = new(EGame.GAME_UE5_2);
+
     private static readonly List<DirectoryInfo> ExtraDirectories = new()
     {
         new DirectoryInfo(App.BundlesFolder.FullName)
@@ -48,8 +50,8 @@ public class CUE4ParseViewModel : ObservableObject
         Provider = installType switch
         {
             
-            EInstallType.Local => new FortnitePortingFileProvider(new DirectoryInfo(directory), narrowedDirectories, SearchOption.AllDirectories, true, new VersionContainer(EGame.GAME_UE5_2)),
-            EInstallType.Live => new FortnitePortingFileProvider(true, new VersionContainer(EGame.GAME_UE5_2))
+            EInstallType.Local => new FortnitePortingFileProvider(new DirectoryInfo(directory), narrowedDirectories, SearchOption.AllDirectories, true, Version),
+            EInstallType.Live => new FortnitePortingFileProvider(true, Version)
         };
     }
     
@@ -66,10 +68,14 @@ public class CUE4ParseViewModel : ObservableObject
         Provider.LoadLocalization(AppSettings.Current.Language);
         Provider.LoadVirtualPaths();
         
-        var bundleStatus = await BundleDownloader.Initialize();
-        if (!bundleStatus)
+        var bundleDownloaderSuccess = await BundleDownloader.Initialize();
+        if (bundleDownloaderSuccess)
         {
-            AppLog.Warning("Failed to initialize Bundle Downloader, HD textures will not be downloaded");
+            Log.Information("Successfully initialized Bundle Downloader");
+        }
+        else
+        {
+            AppLog.Warning("Failed to initialize Bundle Downloader, high resolution textures will not be downloaded");
         }
 
         var assetRegistries = Provider.Files.Where(x =>

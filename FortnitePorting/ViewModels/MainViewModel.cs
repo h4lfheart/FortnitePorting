@@ -102,10 +102,7 @@ public partial class MainViewModel : ObservableObject
             case "Settings_Startup":
                 AppHelper.OpenWindow<StartupView>();
                 break;
-            case "Tools_BundleDownloader":
-                AppHelper.OpenWindow<BundleDownloaderView>();
-                break;
-            case "Tools_Update":
+            case "Help_Update":
                 // TODO
                 break;
             case "Help_Discord":

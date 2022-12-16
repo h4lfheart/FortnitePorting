@@ -4,20 +4,29 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
+using AdonisUI;
+using CommunityToolkit.Mvvm.Input;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.GameTypes.FN.Enums;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Texture;
+using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.GameplayTags;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using FortnitePorting.AppUtils;
+using FortnitePorting.Bundles;
+using FortnitePorting.Exports;
+using FortnitePorting.Exports.Types;
+using FortnitePorting.Services;
 using FortnitePorting.ViewModels;
 using FortnitePorting.Views.Extensions;
 using SkiaSharp;
@@ -48,6 +57,9 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
         InitializeComponent();
         DataContext = this;
         Type = type;
+        ExportHDCommand = new RelayCommand(ExportHD);
+        ExportAssetsCommand = new RelayCommand(ExportAssets);
+
 
         Asset = asset;
         DisplayName = asset.GetOrDefault("DisplayName", new FText("Unnamed")).Text;
@@ -166,6 +178,85 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
         }
 
         OnPropertyChanged(nameof(FavoriteVisibility));
+    }
+
+    public ICommand ExportHDCommand { get; private set; }
+
+    public void ExportHD()
+    {
+        Task.Run(async () =>
+        {
+            var downloadedBundles = (await BundleDownloader.DownloadAsync(Asset.Name)).ToList();
+            if (downloadedBundles.Count <= 0)
+            {
+                Log.Warning("No Bundles Downloaded for {0}", DisplayName);
+                return;
+            }
+            
+            downloadedBundles.ForEach(AppVM.CUE4ParseVM.Provider.RegisterFile);
+            await AppVM.CUE4ParseVM.Provider.MountAsync();
+
+            // TODO FIND BETTER WAY TO GET FILES IN BUNDLE PAKS
+            var miniProvider = new FortnitePortingFileProvider(isCaseInsensitive: true, versions: CUE4ParseViewModel.Version);
+            downloadedBundles.ForEach(miniProvider.RegisterFile);
+            await miniProvider.MountAsync();
+
+            foreach (var (name, _) in miniProvider.Files)
+            {
+                var loadedTexture = await AppVM.CUE4ParseVM.Provider.TryLoadObjectAsync<UTexture2D>(name.SubstringBeforeLast("."));
+                if (loadedTexture is null) continue;
+                
+                ExportHelpers.Save(loadedTexture);
+            }
+            
+            
+            Log.Information("Finished Exporting HD Textures for {0}", DisplayName);
+        });
+    }
+    
+    public ICommand ExportAssetsCommand { get; private set; }
+
+    public void ExportAssets()
+    {
+        Task.Run(async () =>
+        {
+
+            var downloadedBundles = (await BundleDownloader.DownloadAsync(Asset.Name)).ToList();
+            if (downloadedBundles.Count > 0)
+            {
+                downloadedBundles.ForEach(AppVM.CUE4ParseVM.Provider.RegisterFile);
+                await AppVM.CUE4ParseVM.Provider.MountAsync();
+            }
+
+            var allStyles = new List<FStructFallback>();
+            var styles = Asset.GetOrDefault("ItemVariants", Array.Empty<UObject>());
+            foreach (var style in styles)
+            {
+                var channel = style.GetOrDefault("VariantChannelName", new FText("Unknown")).Text.ToLower().TitleCase();
+                var optionsName = style.ExportType switch
+                {
+                    "FortCosmeticCharacterPartVariant" => "PartOptions",
+                    "FortCosmeticMaterialVariant" => "MaterialOptions",
+                    "FortCosmeticParticleVariant" => "ParticleOptions",
+                    _ => null
+                };
+            
+                if (optionsName is null) continue;
+
+                var options = style.Get<FStructFallback[]>(optionsName);
+                if (options.Length == 0) continue;
+                
+                allStyles.AddRange(options);
+            }
+
+            ExportDataBase exportData = Type switch
+            {
+                EAssetType.Dance => await DanceExportData.Create(Asset),
+                _ => await MeshExportData.Create(Asset, Type, allStyles.ToArray())
+            };
+            
+            Log.Information("Finished Exporting All Assets for {0}", DisplayName);
+        });
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

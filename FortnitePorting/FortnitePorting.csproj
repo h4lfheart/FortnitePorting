@@ -42,6 +42,8 @@
       <Resource Include="Resources\Favorite.png" />
       <Resource Include="Resources\Filter.png" />
       <Resource Include="Resources\Sort.png" />
+      <Resource Include="Resources\Textures.png" />
+      <Resource Include="Resources\Export.png" />
     </ItemGroup>
 
 </Project>

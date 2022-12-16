@@ -110,6 +110,19 @@ public static class ExportHelpers
 
     public static void Weapon(UObject weaponDefinition, List<ExportPart> exportParts)
     {
+        weaponDefinition.TryGetValue(out USkeletalMesh? skeletalMesh, "PickupSkeletalMesh");
+        var hasWeaponOverride = weaponDefinition.TryGetValue(out skeletalMesh, "WeaponMeshOverride");
+        Mesh(skeletalMesh, exportParts);
+
+        weaponDefinition.TryGetValue(out USkeletalMesh offHandMesh, "WeaponMeshOffhandOverride");
+        Mesh(offHandMesh, exportParts);
+
+        if (!hasWeaponOverride)
+        {
+            weaponDefinition.TryGetValue(out UStaticMesh? staticMesh, "PickupStaticMesh");
+            Mesh(staticMesh, exportParts);
+        }
+        
         // TODO MATERIAL STYLES
         if (weaponDefinition.TryGetValue(out UBlueprintGeneratedClass blueprint, "WeaponActorClass"))
         {
@@ -126,19 +139,6 @@ public static class ExportHelpers
 
             if (exportParts.Count > 0) // successfully exported mesh
                 return;
-        }
-
-        weaponDefinition.TryGetValue(out USkeletalMesh? skeletalMesh, "PickupSkeletalMesh");
-        var hasWeaponOverride = weaponDefinition.TryGetValue(out skeletalMesh, "WeaponMeshOverride");
-        Mesh(skeletalMesh, exportParts);
-
-        weaponDefinition.TryGetValue(out USkeletalMesh offHandMesh, "WeaponMeshOffhandOverride");
-        Mesh(offHandMesh, exportParts);
-
-        if (!hasWeaponOverride)
-        {
-            weaponDefinition.TryGetValue(out UStaticMesh? staticMesh, "PickupStaticMesh");
-            Mesh(staticMesh, exportParts);
         }
     }
 
@@ -425,13 +425,14 @@ public static class ExportHelpers
         SocketFormat = ESocketFormat.Bone
     };
 
-    public static void Save(UObject obj)
+    public static void Save(UObject? obj)
     {
         if (obj is null) return;
         Tasks.Add(Task.Run(() =>
         {
             try
             {
+                var extraString = string.Empty;
                 switch (obj)
                 {
                     case USkeletalMesh skeletalMesh:
@@ -439,8 +440,6 @@ public static class ExportHelpers
                         var path = GetExportPath(obj, "psk", "_LOD0");
                         if (File.Exists(path)) return;
                         
-                        Log.Information("Exporting {0}: {1}", obj.ExportType, obj.Name);
-
                         var exporter = new MeshExporter(skeletalMesh, ExportOptions, false);
                         exporter.TryWriteToDir(App.AssetsFolder, out var label, out var savedFilePath);
                         break;
@@ -450,20 +449,34 @@ public static class ExportHelpers
                     {
                         var path = GetExportPath(obj, "pskx", "_LOD0");
                         if (File.Exists(path)) return;
-                        
-                        Log.Information("Exporting {0}: {1}", obj.ExportType, obj.Name);
 
                         var exporter = new MeshExporter(staticMesh, ExportOptions, false);
                         exporter.TryWriteToDir(App.AssetsFolder, out var label, out var savedFilePath);
                         break;
                     }
-                    
+
                     case UTexture2D texture:
                     {
                         var path = GetExportPath(obj, "png");
-                        if (File.Exists(path)) return;
-                        
-                        Log.Information("Exporting {0}: {1}", obj.ExportType, obj.Name);
+                        var shouldExport = true; // assume nothing exists yet
+                        if (File.Exists(path))
+                        {
+                            using var existingBitmap = SKBitmap.Decode(path);
+                            var firstMip = texture.GetFirstMip();
+                            if (firstMip?.SizeX > existingBitmap.Width || firstMip?.SizeY > existingBitmap.Height)
+                            {
+
+                                extraString += $"{firstMip.SizeX}x{firstMip.SizeY}";
+                                shouldExport = true; // update because higher res
+                            }
+                            else
+                            {
+                                shouldExport = false; // texture exists and existing resolution is equal
+                            }
+                        }
+
+                        if (!shouldExport) return;
+
                         Directory.CreateDirectory(path.Replace('\\', '/').SubstringBeforeLast('/'));
 
                         using var bitmap = texture.Decode(texture.GetFirstMip());
@@ -478,9 +491,7 @@ public static class ExportHelpers
                     {
                         var path = GetExportPath(obj, "psa", "_SEQ0");
                         if (File.Exists(path)) return;
-                        
-                        Log.Information("Exporting {0}: {1}", obj.ExportType, obj.Name);
-                        
+
                         var exporter = new AnimExporter(animation);
                         exporter.TryWriteToDir(App.AssetsFolder, out var label, out var savedFilePath);
                         break;
@@ -490,20 +501,20 @@ public static class ExportHelpers
                     {
                         var path = GetExportPath(obj, "psk");
                         if (File.Exists(path)) return;
-                        
-                        Log.Information("Exporting {0}: {1}", obj.ExportType, obj.Name);
 
                         var exporter = new MeshExporter(skeleton);
                         exporter.TryWriteToDir(App.AssetsFolder, out var label, out var savedFilePath);
                         break;
                     }
                 }
+                
+                Log.Information("Exporting {0}: {1}{2}", obj.ExportType, obj.Name, (extraString == string.Empty ? string.Empty : ", " + extraString));
             }
             catch (IOException)
             {
                 Log.Error("Failed to export {0}: {1}", obj.ExportType, obj.Name);
             }
-        })); 
+        }));
     }
 
     private static string GetExportPath(UObject obj, string ext, string extra = "")

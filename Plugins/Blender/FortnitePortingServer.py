@@ -1116,7 +1116,7 @@ def import_response(response):
 
         bpy.ops.object.select_all(action='DESELECT')
                     
-        if not import_settings.get("MergeSkeletons"):
+        if not import_settings.get("MergeSkeletons") or import_type != "Character":
             return
         
         master_skeleton = merge_skeletons(imported_parts)

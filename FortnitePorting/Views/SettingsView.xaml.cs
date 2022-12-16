@@ -21,7 +21,7 @@ public partial class SettingsView
             AppVM.RestartWithMessage("A restart is required.", "An option has been changed that requires a restart to take effect.");
         }
 
-        if (AppVM.SettingsVM.DiscordRPC == ERichPresenceAccess.Always)
+        if (AppVM.SettingsVM.DiscordRPC)
         {
             DiscordService.Initialize();
         }

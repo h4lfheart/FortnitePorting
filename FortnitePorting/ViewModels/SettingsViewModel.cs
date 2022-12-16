@@ -43,12 +43,22 @@ public class SettingsViewModel : ObservableObject
         }
     }
     
-    public ERichPresenceAccess DiscordRPC
+    public bool DiscordRPC
     {
-        get => AppSettings.Current.DiscordRPC;
+        get => AppSettings.Current.DiscordRichPresence;
         set
         {
-            AppSettings.Current.DiscordRPC = value;
+            AppSettings.Current.DiscordRichPresence = value;
+            OnPropertyChanged();
+        }
+    }
+    
+    public bool BundleDownloaderEnabled
+    {
+        get => AppSettings.Current.BundleDownloaderEnabled;
+        set
+        {
+            AppSettings.Current.BundleDownloaderEnabled = value;
             OnPropertyChanged();
         }
     }

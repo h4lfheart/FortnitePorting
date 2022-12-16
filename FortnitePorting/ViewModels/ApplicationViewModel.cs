@@ -13,7 +13,6 @@ public class ApplicationViewModel : ObservableObject
     public MainViewModel MainVM;
     public StartupViewModel StartupVM;
     public SettingsViewModel SettingsVM;
-    public BundleDownloaderViewModel BundleDownloaderVM;
     public CUE4ParseViewModel CUE4ParseVM;
     public AssetHandlerViewModel? AssetHandlerVM;
     public ImportSettingsViewModel? ImportSettingsVM;
