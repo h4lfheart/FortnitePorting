@@ -21,13 +21,13 @@ public partial class App
     [DllImport("kernel32")]
     private static extern bool FreeConsole();
 
-    public static readonly DirectoryInfo AssetsFolder = new(Path.Combine(Directory.GetCurrentDirectory(), "Assets"));
-    public static readonly DirectoryInfo DataFolder = new(Path.Combine(Directory.GetCurrentDirectory(), ".data"));
+    public static readonly DirectoryInfo AssetsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets"));
+    public static readonly DirectoryInfo DataFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".data"));
 
     public static readonly DirectoryInfo BundlesFolder = new(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) +
-        "\\FortniteGame\\Saved\\PersistentDownloadDir\\InstalledBundles");//new(Path.Combine(Directory.GetCurrentDirectory(), "InstalledBundles"));
-    public static readonly DirectoryInfo LogsFolder = new(Path.Combine(Directory.GetCurrentDirectory(), "Logs"));
+        "\\FortniteGame\\Saved\\PersistentDownloadDir\\InstalledBundles");
+    public static readonly DirectoryInfo LogsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs"));
     
     public static readonly DirectoryInfo CacheFolder = new(Path.Combine(DataFolder.FullName, "ManifestCache"));
 
@@ -40,6 +40,7 @@ public partial class App
         Console.Title = "Fortnite Porting Console";
         
         ObjectTypeRegistry.RegisterEngine(typeof(FortAnimNotifyState_SpawnProp).Assembly);
+        Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
 
         Log.Logger = new LoggerConfiguration()
             .WriteTo.Console()
