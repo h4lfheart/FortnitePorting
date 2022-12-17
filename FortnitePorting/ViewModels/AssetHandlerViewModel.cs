@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ using CUE4Parse.UE4.AssetRegistry.Objects;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Objects.UObject;
+using CUE4Parse.Utils;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Views.Controls;
 using FortnitePorting.Views.Extensions;
@@ -31,6 +33,7 @@ public class AssetHandlerViewModel
             { EAssetType.Glider, GliderHandler },
             { EAssetType.Weapon, WeaponHandler },
             { EAssetType.Dance, DanceHandler },
+            { EAssetType.Prop, PropHandler },
         };
 
     }
@@ -105,6 +108,15 @@ public class AssetHandlerViewModel
         RemoveList = { "_CT", "_NPC"},
         IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
     };
+    
+    private readonly AssetHandlerData PropHandler = new()
+    {
+        AssetType = EAssetType.Prop,
+        TargetCollection = AppVM.MainVM.Props,
+        ClassNames = new List<string> { "FortPlaysetPropItemDefinition" },
+        RemoveList = { },
+        IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
+    };
 
     public async Task Initialize()
     {
@@ -128,6 +140,8 @@ public class AssetHandlerData
     {
         if (HasStarted) return;
         HasStarted = true;
+        var sw = new Stopwatch();
+        sw.Start();
         var items = AppVM.CUE4ParseVM.AssetDataBuffers
             .Where(x => ClassNames.Any(y => x.AssetClass.PlainText.Equals(y, StringComparison.OrdinalIgnoreCase)))
             .Where(x => !RemoveList.Any(y => x.AssetName.PlainText.Contains(y, StringComparison.OrdinalIgnoreCase)))
@@ -142,7 +156,9 @@ public class AssetHandlerData
         }
 
         var addedAssets = new List<string>();
+        var removedCount = 0;
 
+        var i = 0;
         await Parallel.ForEachAsync(items, async (data, token) =>
         {
             var assetName = data.AssetName.PlainText;
@@ -155,6 +171,24 @@ public class AssetHandlerData
                 }
                 addedAssets.Add(assetName);
             }
+            else if (AssetType == EAssetType.Prop)
+            {
+                if (data.TagsAndValues.ContainsKey("DisplayName"))
+                {
+                    var name = data.TagsAndValues["DisplayName"];
+                    name = name.SubstringBeforeLast('"').SubstringAfterLast('"');
+                    if (addedAssets.Contains(name))
+                    {
+                        removedCount++;
+                        return;
+                    }
+
+                    addedAssets.Add(name);
+                }
+            }
+            
+            i++;
+            Log.Information("Prop {0}/{1}", i, items.Count-removedCount);
 
             try
             {
@@ -164,7 +198,11 @@ public class AssetHandlerData
             {
                 // ignored
             }
+            
         });
+        
+        sw.Stop();
+        Log.Information("Finished in {0}s", sw.Elapsed.TotalSeconds);
     }
 
     private async Task DoLoad(FAssetData data, EAssetType type, bool random = false)

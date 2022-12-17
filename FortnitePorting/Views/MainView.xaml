@@ -153,16 +153,23 @@
                             </ListBox.ItemsPanel>
                         </ListBox>
                     </TabItem>
-                    <!--<TabItem Style="{StaticResource TabItemEqualSize}">
-                        <TabItem.Header>
-                            <controls:TextWithIcon Label="Props" ImageSource="pack://application:,,,/Resources/Props.png"/>
-                        </TabItem.Header>
-                    </TabItem>
                     <TabItem Style="{StaticResource TabItemEqualSize}">
+                        <TabItem.Header>
+                            <controls:TextWithIcon Label="Props" ImageSource="/FortnitePorting;component/Resources/Props.png"/>
+                        </TabItem.Header>
+                        <ListBox ItemsSource="{Binding Props}" SelectionChanged="OnAssetSelectionChanged">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <controls:UniformGridPanel IsItemsHost="True" Rows="5" Columns="10" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                        </ListBox>
+                    </TabItem>
+                    <!--TabItem Style="{StaticResource TabItemEqualSize}">
                         <TabItem.Header>
                             <controls:TextWithIcon Label="Meshes" ImageSource="pack://application:,,,/Resources/Mesh.png"/>
                         </TabItem.Header>
-                    </TabItem>-->
+                    </TabItem-->
                 </TabControl>
             </GroupBox>
             

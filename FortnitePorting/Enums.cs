@@ -31,10 +31,10 @@ public enum EAssetType
     [Description("Emotes")]
     Dance,
     
-    /*[Description("Props")]
+    [Description("Props")]
     Prop,
     
-    [Description("Meshes")]
+    /*[Description("Meshes")]
     Mesh,*/
 }
 

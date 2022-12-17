@@ -78,6 +78,7 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
         
         TooltipName = $"{DisplayName} ({ID})";
         IsRandom = isRandomSelector;
+        FavoriteVisibility = AppSettings.Current.FavoriteIDs.Contains(ID) ? Visibility.Visible : Visibility.Collapsed;
         
         var iconBitmap = previewTexture.Decode();
         if (iconBitmap is null) return;
@@ -96,8 +97,6 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
         FullSource.EndInit();
 
         DisplayImage.Source = FullSource;
-        FavoriteVisibility = AppSettings.Current.FavoriteIDs.Contains(ID) ? Visibility.Visible : Visibility.Collapsed;
-        //BeginAnimation(OpacityProperty, AppearAnimation);
     }
 
     private const int MARGIN = 2;
@@ -114,6 +113,15 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
             var parsedColors = colors.Select(x => SKColor.Parse(x.Hex)).ToArray();
             return SKShader.CreateRadialGradient(new SKPoint(size / 2f, size / 2f), size / 5 * 4, parsedColors,
                 SKShaderTileMode.Clamp);
+        }
+        
+        if (Type == EAssetType.Prop)
+        {
+            canvas.DrawRect(new SKRect(0, 0, size, size), new SKPaint
+            {
+               Color = SKColor.Parse("707370")
+            });
+            return;
         }
         
         if (Asset.TryGetValue(out UObject seriesData, "Series"))
@@ -139,8 +147,7 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
         }
         else
         {
-            var rarity = Asset.GetOrDefault("Rarity", EFortRarity.Uncommon);
-            var colorData = AppVM.CUE4ParseVM.RarityData[(int) rarity];
+            var colorData = AppVM.CUE4ParseVM.RarityData[(int) Rarity];
             
             canvas.DrawRect(new SKRect(0, 0, size, size), new SKPaint
             {

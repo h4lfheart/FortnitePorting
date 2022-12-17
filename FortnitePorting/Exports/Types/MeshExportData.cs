@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using CUE4Parse.GameTypes.FN.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
+using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
+using CUE4Parse.UE4.Objects.Engine;
 
 namespace FortnitePorting.Exports.Types;
 
@@ -53,6 +56,22 @@ public class MeshExportData : ExportDataBase
                 case EAssetType.Weapon:
                 {
                     ExportHelpers.Weapon(asset, data.Parts);
+                    break;
+                }
+                case EAssetType.Prop:
+                {
+                    var actorSaveRecord = asset.Get<ULevelSaveRecord>("ActorSaveRecord");
+                    FActorTemplateRecord? templateRecord = null;
+                    foreach (var tag in actorSaveRecord.Get<UScriptMap>("TemplateRecords").Properties)
+                    {
+                        var propValue = tag.Value?.GetValue(typeof(FActorTemplateRecord));
+                        templateRecord = propValue as FActorTemplateRecord;
+                    }
+                    
+                    var actor = templateRecord?.ActorClass.Load<UBlueprintGeneratedClass>();
+                    var actorComponents = actor?.ClassDefaultObject.Load();
+                    var staticMesh = actorComponents?.Get<UStaticMesh?>("StaticMesh");
+                    ExportHelpers.Mesh(staticMesh, data.Parts);
                     break;
                 }
                 default:
