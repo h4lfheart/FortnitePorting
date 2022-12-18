@@ -931,7 +931,7 @@ def constraint_object(child: bpy.types.Object, parent: bpy.types.Object, bone: s
 def mesh_from_armature(armature) -> bpy.types.Mesh:
     return armature.children[0]  # only used with psk, mesh is always first child
 
-def armature_from_selection():
+def armature_from_selection() -> bpy.types.Armature:
     armature_obj = None
 
     for obj in bpy.data.objects:
@@ -1011,13 +1011,30 @@ def import_response(response):
             if not import_anim(animation):
                 message_box("An armature must be selected for the Emote to import onto.", "Failed to Import Emote", "ERROR")
                 continue
-    
+
+            # remove face keyframes
+            bpy.ops.object.mode_set(mode='POSE')
+            bpy.ops.pose.select_all(action='DESELECT')
+            pose_bones = active_skeleton.pose.bones
+            bones = active_skeleton.data.bones
+            face_bones = [bone for bone in first(bones, lambda x: x.name == "faceAttach").children_recursive]
+            dispose_paths = []
+            for bone in face_bones:
+                dispose_paths.append('pose.bones["{}"].rotation_quaternion'.format(bone.name))
+                dispose_paths.append('pose.bones["{}"].location'.format(bone.name))
+                dispose_paths.append('pose.bones["{}"].scale'.format(bone.name))
+                pose_bones[bone.name].matrix_basis = Matrix()
+            dispose_curves = [fcurve for fcurve in active_skeleton.animation_data.action.fcurves if fcurve.data_path in dispose_paths]
+            for fcurve in dispose_curves:
+                active_skeleton.animation_data.action.fcurves.remove(fcurve)
+            bpy.ops.object.mode_set(mode='OBJECT')
+            
             if len(props) == 0:
                 continue
-    
-            existing_skel = first(active_skeleton.children, lambda x: x.name == "Prop_Skeleton")
-            if existing_skel:
-                bpy.data.objects.remove(existing_skel, do_unlink=True)
+
+            existing_prop_skel = first(active_skeleton.children, lambda x: x.name == "Prop_Skeleton")
+            if existing_prop_skel:
+                bpy.data.objects.remove(existing_prop_skel, do_unlink=True)
     
             master_skeleton = import_skel(import_data.get("Skeleton"))
             master_skeleton.name = "Prop_Skeleton"

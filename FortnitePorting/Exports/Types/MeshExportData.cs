@@ -104,6 +104,7 @@ public static class MeshExportExtensions
 {
     public static void ProcessStyles(this MeshExportData data, UObject asset, FStructFallback[] selectedStyles)
     {
+        // apply gameplay tags for selected styles
         var totalMetaTags = new List<string>();
         var metaTagsToApply = new List<string>();
         var metaTagsToRemove= new List<string>();
@@ -121,6 +122,7 @@ public static class MeshExportExtensions
         totalMetaTags.AddRange(metaTagsToApply);
         metaTagsToRemove.ForEach(tag => totalMetaTags.RemoveAll(x => x.Equals(tag, StringComparison.OrdinalIgnoreCase)));
         
+        // figure out if the selected gameplay tags above match any of the tag driven styles
         var itemStyles = asset.GetOrDefault("ItemVariants", Array.Empty<UObject>());
         var tagDrivenStyles = itemStyles.Where(style => style.ExportType.Equals("FortCosmeticLoadoutTagDrivenVariant"));
         foreach (var tagDrivenStyle in tagDrivenStyles)
