@@ -8,7 +8,8 @@
              xmlns:extensions="clr-namespace:FortnitePorting.Views.Extensions"
              xmlns:cue4parse="clr-namespace:CUE4Parse;assembly=CUE4Parse"
              xmlns:local="clr-namespace:FortnitePorting"
-             Title="Fortnite Porting" Width="1280" Height="720" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize" Loaded="OnLoaded">
+             xmlns:toolkitCtrls="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
+             Title="Fortnite Porting" Width="1280" Height="720" WindowStartupLocation="CenterScreen" ResizeMode="CanResize" Loaded="OnLoaded">
     <Window.InputBindings>
         <KeyBinding Key="R" Modifiers="Control" Command="{Binding MenuCommand}" CommandParameter="File_Restart"/>
         <KeyBinding Key="D" Modifiers="Control" Command="{Binding ExportBlenderCommand}"/>
@@ -88,7 +89,7 @@
                         <ListBox ItemsSource="{Binding Outfits}" SelectionChanged="OnAssetSelectionChanged">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <controls:UniformGridPanel IsItemsHost="True" Rows="5" Columns="10" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                                    <toolkitCtrls:VirtualizingWrapPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left"/>
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
                         </ListBox>
@@ -100,7 +101,7 @@
                         <ListBox ItemsSource="{Binding BackBlings}" SelectionChanged="OnAssetSelectionChanged">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <controls:UniformGridPanel IsItemsHost="True" Rows="5" Columns="10" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                                    <toolkitCtrls:VirtualizingWrapPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left"/>
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
                         </ListBox>
@@ -112,7 +113,7 @@
                         <ListBox ItemsSource="{Binding HarvestingTools}" SelectionChanged="OnAssetSelectionChanged">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <controls:UniformGridPanel IsItemsHost="True" Rows="5" Columns="10" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                                    <toolkitCtrls:VirtualizingWrapPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left"/>
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
                         </ListBox>
@@ -124,7 +125,7 @@
                         <ListBox ItemsSource="{Binding Gliders}" SelectionChanged="OnAssetSelectionChanged">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <controls:UniformGridPanel IsItemsHost="True" Rows="5" Columns="10" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                                    <toolkitCtrls:VirtualizingWrapPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left"/>
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
                         </ListBox>
@@ -136,7 +137,7 @@
                         <ListBox ItemsSource="{Binding Weapons}" SelectionChanged="OnAssetSelectionChanged">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <controls:UniformGridPanel IsItemsHost="True" Rows="5" Columns="10" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                                    <toolkitCtrls:VirtualizingWrapPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left"/>
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
                         </ListBox>
@@ -148,7 +149,7 @@
                         <ListBox ItemsSource="{Binding Dances}" SelectionChanged="OnAssetSelectionChanged">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <controls:UniformGridPanel IsItemsHost="True" Rows="5" Columns="10" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                                    <toolkitCtrls:VirtualizingWrapPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left"/>
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
                         </ListBox>
@@ -160,7 +161,7 @@
                         <ListBox SelectionMode="Extended" ItemsSource="{Binding Props}" SelectionChanged="OnAssetSelectionChanged">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <controls:UniformGridPanel IsItemsHost="True" Rows="5" Columns="10" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                                    <toolkitCtrls:VirtualizingWrapPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left"/>
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
                         </ListBox>
@@ -201,10 +202,15 @@
                     
                     <StackPanel Grid.Row="0" Orientation="Horizontal">
                         <Image Source="{Binding StyleImage}" Width="88" Height="88"/>
-                        <StackPanel Margin="{adonisUi:Space 1}" Width="256" HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding CurrentAsset.DisplayName}" FontSize="24" TextTrimming="CharacterEllipsis"/>
-                            <TextBlock Text="{Binding CurrentAsset.Description}" TextWrapping="WrapWithOverflow" TextTrimming="CharacterEllipsis"/>
-                        </StackPanel>
+                        <Grid Margin="{adonisUi:Space 1}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            
+                            <TextBlock Grid.Row="0" Text="{Binding CurrentAsset.DisplayName}" FontSize="24" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                            <TextBlock Grid.Row="1" Text="{Binding CurrentAsset.Description}" TextWrapping="WrapWithOverflow" TextTrimming="CharacterEllipsis"/>
+                        </Grid>
                     </StackPanel>
                     
                     <Separator Grid.Row="1" Style="{StaticResource NamedSeparator}" Tag="STYLES"/>
