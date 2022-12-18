@@ -9,6 +9,11 @@ public class ExportMesh
     public string MeshPath;
     public List<ExportMaterial> Materials = new();
 }
+
+public class ExportMeshOverride : ExportMesh
+{
+    public string MeshToSwap;
+}
 public class ExportPart : ExportMesh
 {
     public string? Part;
@@ -40,6 +45,6 @@ public class EmotePropData
     public FVector LocationOffset;
     public FRotator RotationOffset;
     public FVector Scale;
-    public ExportMesh Prop;
+    public ExportMesh? Prop;
     public string Animation;
 }

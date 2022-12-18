@@ -331,14 +331,19 @@ public static class ExportHelpers
         }
         return (textures, scalars, vectors);
     }
+    
+    public static ExportMesh? Mesh(UStaticMesh? skeletalMesh)
+    {
+        return Mesh<ExportMesh>(skeletalMesh);
+    }
 
-    public static ExportMesh? Mesh(UStaticMesh? staticMesh)
+    public static T? Mesh<T>(UStaticMesh? staticMesh) where T : ExportMesh, new()
     {
         if (staticMesh is null) return null;
         if (!staticMesh.TryConvert(out var convertedMesh)) return null;
         if (convertedMesh.LODs.Count <= 0) return null;
 
-        var exportMesh = new ExportMesh();
+        var exportMesh = new T();
         exportMesh.MeshPath = staticMesh.GetPathName();
         Save(staticMesh);
 
@@ -372,14 +377,19 @@ public static class ExportHelpers
         return exportMesh;
         
     }
-    
+
     public static ExportMesh? Mesh(USkeletalMesh? skeletalMesh)
+    {
+        return Mesh<ExportMesh>(skeletalMesh);
+    }
+    
+    public static T? Mesh<T>(USkeletalMesh? skeletalMesh) where T : ExportMesh, new()
     {
         if (skeletalMesh is null) return null;
         if (!skeletalMesh.TryConvert(out var convertedMesh)) return null;
         if (convertedMesh.LODs.Count <= 0) return null;
 
-        var exportMesh = new ExportMesh();
+        var exportMesh = new T();
         exportMesh.MeshPath = skeletalMesh.GetPathName();
         Save(skeletalMesh);
 
@@ -411,7 +421,21 @@ public static class ExportHelpers
         }
 
         return exportMesh;
-        
+    }
+
+    public static void OverrideMeshes(FStructFallback[] overrides, List<ExportMeshOverride> exportMeshes)
+    {
+        foreach (var meshOverride in overrides)
+        {
+            var meshToSwap = meshOverride.Get<FSoftObjectPath>("MeshToSwap");
+            var meshToOverride = meshOverride.Get<USkeletalMesh>("OverrideMesh");
+            
+            var overrideMeshExport = Mesh<ExportMeshOverride>(meshToOverride);
+            if (overrideMeshExport is null) continue;
+
+            overrideMeshExport.MeshToSwap = meshToSwap.AssetPathName.Text;
+            exportMeshes.Add(overrideMeshExport);
+        }
     }
 
     public static readonly List<Task> Tasks = new();

@@ -1070,13 +1070,19 @@ def import_response(response):
     
         else:
             imported_parts = []
+            style_meshes = import_data.get("StyleMeshes")
+            
             def import_parts(parts):
                 for part in parts:
                     part_type = part.get("Part")
                     if any(imported_parts, lambda x: False if x is None else x.get("Part") == part_type):
                         continue
     
-                    if (imported_part := import_mesh(part.get("MeshPath"), reorient_bones=import_settings.get("ReorientBones"))) is None:
+                    target_mesh = part.get("MeshPath")
+                    if found_mesh := first(style_meshes, lambda x: x.get("MeshToSwap") == target_mesh):
+                        target_mesh = found_mesh.get("MeshToSwap")
+                        
+                    if (imported_part := import_mesh(target_mesh, reorient_bones=import_settings.get("ReorientBones"))) is None:
                         continue
                         
                     if import_type == "Prop":
