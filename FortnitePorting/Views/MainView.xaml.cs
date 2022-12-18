@@ -45,6 +45,8 @@ public partial class MainView
         if (AppVM.AssetHandlerVM is null) return;
         
         var assetType = (EAssetType) tabControl.SelectedIndex;
+
+        if (AppVM.MainVM.CurrentAssetType == assetType) return;
         var handlers = AppVM.AssetHandlerVM.Handlers;
         foreach (var (handlerType, handlerData) in handlers)
         {
@@ -65,6 +67,7 @@ public partial class MainView
         
         DiscordService.Update(assetType);
         AppVM.MainVM.CurrentAssetType = assetType;
+        AppVM.MainVM.ExtendedAssets.Clear();
     }
 
     private void OnAssetSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -72,6 +75,15 @@ public partial class MainView
         if (sender is not ListBox listBox) return;
         if (listBox.SelectedItem is null) return;
         var selected = (AssetSelectorItem) listBox.SelectedItem;
+        
+        if (AppVM.MainVM.CurrentAssetType == EAssetType.Prop)
+        {
+            if (listBox.SelectedItems.Count == 0) return;
+            AppVM.MainVM.CurrentAsset = selected;
+            AppVM.MainVM.ExtendedAssets = listBox.SelectedItems.OfType<AssetSelectorItem>().ToList();
+            return;
+        }
+        
         if (selected.IsRandom)
         {
             listBox.SelectedIndex = App.RandomGenerator.Next(0, listBox.Items.Count);

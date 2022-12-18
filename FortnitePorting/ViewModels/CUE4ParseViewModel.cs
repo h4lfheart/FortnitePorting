@@ -26,15 +26,15 @@ namespace FortnitePorting.ViewModels;
 
 public class CUE4ParseViewModel : ObservableObject
 {
+    public Manifest? FortniteLiveManifest;
+    
     public readonly FortnitePortingFileProvider Provider;
 
-    public List<FAssetData> AssetDataBuffers = new();
+    public readonly List<FAssetData> AssetDataBuffers = new();
     
-    public RarityCollection[] RarityData = new RarityCollection[8];
+    public readonly RarityCollection[] RarityData = new RarityCollection[8];
 
-    public Manifest? FortniteLiveManifest;
-
-    public static VersionContainer Version = new(EGame.GAME_UE5_2);
+    public static readonly VersionContainer Version = new(EGame.GAME_UE5_2);
 
     private static readonly List<DirectoryInfo> ExtraDirectories = new()
     {
@@ -49,9 +49,8 @@ public class CUE4ParseViewModel : ObservableObject
         var narrowedDirectories = ExtraDirectories.Where(x => x.Exists).ToList();
         Provider = installType switch
         {
-            
             EInstallType.Local => new FortnitePortingFileProvider(new DirectoryInfo(directory), narrowedDirectories, SearchOption.AllDirectories, true, Version),
-            EInstallType.Live => new FortnitePortingFileProvider(true, Version)
+            EInstallType.Live => new FortnitePortingFileProvider(true, Version),
         };
     }
     

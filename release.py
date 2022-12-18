@@ -26,4 +26,6 @@ with zipfile.ZipFile('Release/FortnitePorting.zip', 'w', zipfile.ZIP_DEFLATED) a
 
 os.remove("Release/FortnitePorting.exe")
 os.remove("Release/FortnitePortingServer.zip")
+
+os.startfile(os.path.realpath(release_folder))
     

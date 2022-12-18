@@ -8,6 +8,7 @@ using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.Engine;
+using FortnitePorting.AppUtils;
 
 namespace FortnitePorting.Exports.Types;
 
@@ -17,12 +18,12 @@ public class MeshExportData : ExportDataBase
     public List<ExportPart> StyleParts = new();
     public List<ExportMaterial> StyleMaterials = new();
 
-    public static async Task<MeshExportData> Create(UObject asset, EAssetType assetType, FStructFallback[] styles)
+    public static async Task<MeshExportData?> Create(UObject asset, EAssetType assetType, FStructFallback[] styles)
     {
         var data = new MeshExportData();
         data.Name = asset.GetOrDefault("DisplayName", new FText("Unnamed")).Text;
         data.Type = assetType.ToString();
-        await Task.Run(() =>
+        var canContinue = await Task.Run(() =>
         {
             switch (assetType)
             {
@@ -70,14 +71,23 @@ public class MeshExportData : ExportDataBase
                     
                     var actor = templateRecord?.ActorClass.Load<UBlueprintGeneratedClass>();
                     var actorComponents = actor?.ClassDefaultObject.Load();
-                    var staticMesh = actorComponents?.Get<UStaticMesh?>("StaticMesh");
+                    var staticMesh = actorComponents?.GetOrDefault<UStaticMesh?>("StaticMesh");
+                    if (staticMesh is null)
+                    {
+                        AppLog.Error($"StaticMesh for prop {data.Name} could not be found");
+                        return false;
+                    }
                     ExportHelpers.Mesh(staticMesh, data.Parts);
                     break;
                 }
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+
+            return true;
         });
+
+        if (!canContinue) return null;
 
         foreach (var style in styles)
         {

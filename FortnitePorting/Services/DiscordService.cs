@@ -29,10 +29,12 @@ public static class DiscordService
         }
 
     };
+
+    private static bool IsInitialized;
     
     public static void Initialize()
     {
-        if (Client is not null && !Client.IsDisposed) return;
+        if (IsInitialized) return;
         
         Client = new DiscordRpcClient(ID);
         Client.OnReady += (_, args) => Log.Information("Discord Rich Presence Started for {0}#{1}", args.User.Username, args.User.Discriminator);
@@ -40,6 +42,7 @@ public static class DiscordService
 
         Client.Initialize();
         Client.SetPresence(DefaultPresence);
+        IsInitialized = true;
     }
     
     public static void DeInitialize()
@@ -48,10 +51,12 @@ public static class DiscordService
         Log.Information("Discord Rich Presence Stopped for {0}#{1}", user?.Username, user?.Discriminator);
         Client?.Deinitialize();
         Client?.Dispose();
+        IsInitialized = false;
     }
 
     public static void Update(EAssetType assetType)
     {
+        if (!IsInitialized) return;
         Client?.UpdateState($"Browsing {assetType.GetDescription()}");
         Client?.UpdateSmallAsset(assetType.ToString().ToLower(), assetType.GetDescription());
     }

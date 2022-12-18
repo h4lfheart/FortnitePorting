@@ -149,7 +149,7 @@ public class AssetHandlerData
         
         // prioritize random first cuz of parallel list positions
         var random = items.FirstOrDefault(x => x.AssetName.PlainText.Contains("Random", StringComparison.OrdinalIgnoreCase));
-        if (random is not null)
+        if (random is not null && AssetType != EAssetType.Prop)
         {
             items.Remove(random);
             await DoLoad(random, AssetType, true);
@@ -188,7 +188,6 @@ public class AssetHandlerData
             }
             
             i++;
-            Log.Information("Prop {0}/{1}", i, items.Count-removedCount);
 
             try
             {
@@ -202,7 +201,7 @@ public class AssetHandlerData
         });
         
         sw.Stop();
-        Log.Information("Finished in {0}s", sw.Elapsed.TotalSeconds);
+        AppLog.Information($"Finished loading {AssetType.ToString()}s in {Math.Round(sw.Elapsed.TotalSeconds, 2)}s");
     }
 
     private async Task DoLoad(FAssetData data, EAssetType type, bool random = false)

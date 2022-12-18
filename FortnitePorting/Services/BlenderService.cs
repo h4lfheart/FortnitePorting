@@ -24,7 +24,7 @@ public static class BlenderService
         Client.Connect(Endpoint);
     }
 
-    public static void Send(ExportDataBase data, BlenderExportSettings settings)
+    public static void Send(List<ExportDataBase> data, BlenderExportSettings settings)
     {
         var export = new BlenderExport
         {

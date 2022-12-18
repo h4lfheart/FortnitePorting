@@ -157,7 +157,7 @@
                         <TabItem.Header>
                             <controls:TextWithIcon Label="Props" ImageSource="/FortnitePorting;component/Resources/Props.png"/>
                         </TabItem.Header>
-                        <ListBox ItemsSource="{Binding Props}" SelectionChanged="OnAssetSelectionChanged">
+                        <ListBox SelectionMode="Extended" ItemsSource="{Binding Props}" SelectionChanged="OnAssetSelectionChanged">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <controls:UniformGridPanel IsItemsHost="True" Rows="5" Columns="10" VerticalAlignment="Top" HorizontalAlignment="Left"/>
@@ -184,6 +184,8 @@
             
             <GroupBox Grid.Row="0" Grid.RowSpan="4" Grid.Column="2" Padding="{adonisUi:Space 0}" adonisExt:LayerExtension.Layer="3" BorderThickness="1" 
                       BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer3BorderBrush}}">
+                
+                <!--TODO MULTI ASSET LIST-->
                 <Grid Visibility="{Binding StyleVisibility}" Margin="{adonisUi:Space 1}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="1.25*"/>
@@ -249,9 +251,11 @@
             
             <GroupBox Grid.Row="3" Grid.Column="0" Padding="{adonisUi:Space 0}" adonisExt:LayerExtension.Layer="3" BorderThickness="1" 
                       BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer3BorderBrush}}">
-                <RichTextBox Name="LoggerRtb" Margin="{adonisUi:Space 1}" Block.LineHeight="2.0" IsReadOnly="True" Background="Transparent" BorderThickness="0">
-                    <FlowDocument PageWidth="{Binding ElementName=LoggerBox, Path=ActualWidth}"/>
-                </RichTextBox>
+               <ScrollViewer adonisExt:ScrollViewerExtension.VerticalScrollBarExpansionMode="NeverExpand">
+                   <RichTextBox Name="LoggerRtb" Margin="{adonisUi:Space 1}" Block.LineHeight="2.0" IsReadOnly="True" Background="Transparent" BorderThickness="0">
+                       <FlowDocument PageWidth="{Binding ElementName=LoggerBox, Path=ActualWidth}"/>
+                   </RichTextBox>
+               </ScrollViewer>
             </GroupBox>
             
            

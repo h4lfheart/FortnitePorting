@@ -21,7 +21,6 @@ bl_info = {
 
 global import_assets_root
 global import_settings
-global import_data
 
 global server
 
@@ -982,148 +981,147 @@ def import_response(response):
 
     global import_settings
     import_settings = response.get("Settings")
-
-    global import_data
-    import_data = response.get("Data")
     
     global imported_materials
     imported_materials = {}
 
-    name = import_data.get("Name")
-    import_type = import_data.get("Type")
+    import_datas = response.get("Data")
+    print(json.dumps(import_settings))
+    
+    for import_index, import_data in enumerate(import_datas):
 
-    Log.information(f"Received Import for {import_type}: {name}")
-    print(json.dumps(response))
-
-    export = import_settings.get("RigType")
-    if import_type == "Dance":
-        animation = import_data.get("Animation")
-        props = import_data.get("Props")
-        active_skeleton = armature_from_selection()
-
-        if not import_anim(animation):
-            message_box("An armature must be selected for the Emote to import onto.", "Failed to Import Emote", "ERROR")
-            return
-
-        if len(props) == 0:
-            return
-
-        existing_skel = first(active_skeleton.children, lambda x: x.name == "Prop_Skeleton")
-        if existing_skel:
-            bpy.data.objects.remove(existing_skel, do_unlink=True)
-
-        master_skeleton = import_skel(import_data.get("Skeleton"))
-        master_skeleton.name = "Prop_Skeleton"
-        master_skeleton.parent = active_skeleton
-
-        bpy.context.view_layer.objects.active = master_skeleton
-        import_anim(animation)
-        master_skeleton.hide_set(True)
-                  
-        for propData in props:
-            prop = propData.get("Prop")
-            socket_name = propData.get("SocketName")
-            socket_remaps = {
-                "RightHand": "weapon_r",
-                "LeftHand": "weapon_l",
-                "AttachSocket": "attach"
-            }
-
-            if socket_name in socket_remaps.keys():
-                socket_name = socket_remaps.get(socket_name)
-
-            if (imported_item := import_mesh(prop.get("MeshPath"))) is None:
-                    continue
-
-            bpy.context.view_layer.objects.active = imported_item
-
-            if animation := propData.get("Animation"):
-                import_anim(animation)
-
-            imported_mesh = imported_item
-            if imported_item.type == 'ARMATURE':
-                imported_mesh = mesh_from_armature(imported_item)
-
-            for material in prop.get("Materials"):
-                index = material.get("SlotIndex")
-                import_material(imported_mesh.material_slots.values()[index], material)
-
-            if location_offset := propData.get("LocationOffset"):
-                imported_item.location += Vector((location_offset.get("X"), location_offset.get("Y"), location_offset.get("Z")))*0.01
-
-            if scale := propData.get("Scale"):
-                imported_item.scale = Vector((scale.get("X"), scale.get("Y"), scale.get("Z")))
-
-            rotation = [0,0,0]
-            if rotation_offset := propData.get("RotationOffset"):
-                rotation[0] += radians(rotation_offset.get("Roll"))
-                rotation[1] += radians(rotation_offset.get("Pitch"))
-                rotation[2] += -radians(rotation_offset.get("Yaw"))
-            constraint_object(imported_item, master_skeleton, socket_name, rotation)
-
-    else:
-        imported_parts = []
-        master_skeletons = []
-        def import_parts(parts):
-            for part in parts:
-                part_type = part.get("Part")
-                if any(imported_parts, lambda x: False if x is None else x.get("Part") == part_type):
-                    continue
-
-                if (imported_part := import_mesh(part.get("MeshPath"), reorient_bones=import_settings.get("ReorientBones"))) is None:
-                    continue
-
-                has_armature = imported_part.type == "ARMATURE"
-                if has_armature:
-                    mesh = mesh_from_armature(imported_part)
-                else:
-                    mesh = imported_part
-                bpy.context.view_layer.objects.active = mesh
-
-                imported_parts.append({
-                    "Part": part_type,
-                    "Armature": imported_part if has_armature else None,
-                    "Mesh": mesh,
-                    "Socket": part.get("SocketName")
-                })
-                
-                if (morph_name := part.get("MorphName")) and mesh.data.shape_keys is not None:
-                    for key in mesh.data.shape_keys.key_blocks:
-                        if key.name.casefold() == morph_name.casefold():
-                            key.value = 1.0
-
-                if import_settings.get("QuadTopo"):
-                    bpy.ops.object.editmode_toggle()
-                    bpy.ops.mesh.tris_convert_to_quads(uvs=True)
-                    bpy.ops.object.editmode_toggle()
-
-                for material in part.get("Materials"):
+        name = import_data.get("Name")
+        import_type = import_data.get("Type")
+    
+        Log.information(f"Received Import for {import_type}: {name}")
+        print(json.dumps(import_data))
+    
+        if import_type == "Dance":
+            animation = import_data.get("Animation")
+            props = import_data.get("Props")
+            active_skeleton = armature_from_selection()
+    
+            if not import_anim(animation):
+                message_box("An armature must be selected for the Emote to import onto.", "Failed to Import Emote", "ERROR")
+                continue
+    
+            if len(props) == 0:
+                continue
+    
+            existing_skel = first(active_skeleton.children, lambda x: x.name == "Prop_Skeleton")
+            if existing_skel:
+                bpy.data.objects.remove(existing_skel, do_unlink=True)
+    
+            master_skeleton = import_skel(import_data.get("Skeleton"))
+            master_skeleton.name = "Prop_Skeleton"
+            master_skeleton.parent = active_skeleton
+    
+            bpy.context.view_layer.objects.active = master_skeleton
+            import_anim(animation)
+            master_skeleton.hide_set(True)
+                      
+            for propData in props:
+                prop = propData.get("Prop")
+                socket_name = propData.get("SocketName")
+                socket_remaps = {
+                    "RightHand": "weapon_r",
+                    "LeftHand": "weapon_l",
+                    "AttachSocket": "attach"
+                }
+    
+                if socket_name in socket_remaps.keys():
+                    socket_name = socket_remaps.get(socket_name)
+    
+                if (imported_item := import_mesh(prop.get("MeshPath"))) is None:
+                        continue
+    
+                bpy.context.view_layer.objects.active = imported_item
+    
+                if animation := propData.get("Animation"):
+                    import_anim(animation)
+    
+                imported_mesh = imported_item
+                if imported_item.type == 'ARMATURE':
+                    imported_mesh = mesh_from_armature(imported_item)
+    
+                for material in prop.get("Materials"):
                     index = material.get("SlotIndex")
-                    import_material(mesh.material_slots.values()[index], material)
-
-                for override_material in part.get("OverrideMaterials"):
-                    index = override_material.get("SlotIndex")
-                    import_material(mesh.material_slots.values()[index], override_material)
-
-        import_parts(import_data.get("StyleParts"))
-        import_parts(import_data.get("Parts"))
-
-        for imported_part in imported_parts:
-            mesh = imported_part.get("Mesh")
-            for style_material in import_data.get("StyleMaterials"):
-                if slot := mesh.material_slots.get(style_material.get("MaterialNameToSwap")):
-                    import_material(slot, style_material)
-
-        bpy.ops.object.select_all(action='DESELECT')
+                    import_material(imported_mesh.material_slots.values()[index], material)
+    
+                if location_offset := propData.get("LocationOffset"):
+                    imported_item.location += Vector((location_offset.get("X"), location_offset.get("Y"), location_offset.get("Z")))*0.01
+    
+                if scale := propData.get("Scale"):
+                    imported_item.scale = Vector((scale.get("X"), scale.get("Y"), scale.get("Z")))
+    
+                rotation = [0,0,0]
+                if rotation_offset := propData.get("RotationOffset"):
+                    rotation[0] += radians(rotation_offset.get("Roll"))
+                    rotation[1] += radians(rotation_offset.get("Pitch"))
+                    rotation[2] += -radians(rotation_offset.get("Yaw"))
+                constraint_object(imported_item, master_skeleton, socket_name, rotation)
+    
+        else:
+            imported_parts = []
+            def import_parts(parts):
+                for part in parts:
+                    part_type = part.get("Part")
+                    if any(imported_parts, lambda x: False if x is None else x.get("Part") == part_type):
+                        continue
+    
+                    if (imported_part := import_mesh(part.get("MeshPath"), reorient_bones=import_settings.get("ReorientBones"))) is None:
+                        continue
+                        
+                    if import_type == "Prop":
+                        imported_part.location = imported_part.location + Vector((1,0,0))*import_index
+    
+                    has_armature = imported_part.type == "ARMATURE"
+                    if has_armature:
+                        mesh = mesh_from_armature(imported_part)
+                    else:
+                        mesh = imported_part
+                    bpy.context.view_layer.objects.active = mesh
+    
+                    imported_parts.append({
+                        "Part": part_type,
+                        "Armature": imported_part if has_armature else None,
+                        "Mesh": mesh,
+                        "Socket": part.get("SocketName")
+                    })
                     
-        if not import_settings.get("MergeSkeletons") or import_type != "Character":
-            return
+                    if (morph_name := part.get("MorphName")) and mesh.data.shape_keys is not None:
+                        for key in mesh.data.shape_keys.key_blocks:
+                            if key.name.casefold() == morph_name.casefold():
+                                key.value = 1.0
+    
+                    if import_settings.get("QuadTopo"):
+                        bpy.ops.object.editmode_toggle()
+                        bpy.ops.mesh.tris_convert_to_quads(uvs=True)
+                        bpy.ops.object.editmode_toggle()
+    
+                    for material in part.get("Materials"):
+                        index = material.get("SlotIndex")
+                        import_material(mesh.material_slots.values()[index], material)
+    
+                    for override_material in part.get("OverrideMaterials"):
+                        index = override_material.get("SlotIndex")
+                        import_material(mesh.material_slots.values()[index], override_material)
+    
+            import_parts(import_data.get("StyleParts"))
+            import_parts(import_data.get("Parts"))
+    
+            for imported_part in imported_parts:
+                mesh = imported_part.get("Mesh")
+                for style_material in import_data.get("StyleMaterials"):
+                    if slot := mesh.material_slots.get(style_material.get("MaterialNameToSwap")):
+                        import_material(slot, style_material)
+    
+            if import_settings.get("MergeSkeletons") and import_type == "Outfit":
+                master_skeleton = merge_skeletons(imported_parts)
+                if RigType(import_settings.get("RigType")) == RigType.TASTY:
+                    apply_tasty_rig(master_skeleton)
         
-        master_skeleton = merge_skeletons(imported_parts)
-        if RigType(import_settings.get("RigType")) == RigType.TASTY:
-            apply_tasty_rig(master_skeleton)
-
-        bpy.ops.object.select_all(action='DESELECT')
+            bpy.ops.object.select_all(action='DESELECT')
     
 def message_box(message = "", title = "Message Box", icon = 'INFO'):
 
@@ -1153,7 +1151,6 @@ def register():
         return 0.01
 
     bpy.app.timers.register(handler, persistent=True)
-
 
 def unregister():
     server.stop()

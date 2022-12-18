@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
@@ -22,6 +23,11 @@ namespace FortnitePorting.ViewModels;
 
 public partial class MainViewModel : ObservableObject
 {
+    
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(StyleImage))]
+    [NotifyPropertyChangedFor(nameof(StyleVisibility))]
+    private List<AssetSelectorItem> extendedAssets = new();
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(StyleImage))]
@@ -121,27 +127,47 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     public async Task ExportBlender()
     {
-        if (CurrentAsset is null) return;
         if (!BlenderService.IsServerRunning())
         {
             AppVM.Warning("Failed to Establish Connection with FortnitePorting Server", "Please make sure you have installed the FortnitePortingServer.zip file and have an instance of Blender open.");
             return;
         }
-
-        var downloadedBundles = (await BundleDownloader.DownloadAsync(CurrentAsset.Asset.Name)).ToList();
-        if (downloadedBundles.Count > 0)
+        
+        var exportAssets = new List<AssetSelectorItem>();
+        if (ExtendedAssets.Count > 0)
         {
-            downloadedBundles.ForEach(AppVM.CUE4ParseVM.Provider.RegisterFile);
-            await AppVM.CUE4ParseVM.Provider.MountAsync();
+            exportAssets = extendedAssets;
+        }
+        else if (CurrentAsset is not null)
+        {
+            exportAssets.Add(CurrentAsset);
         }
 
-        ExportDataBase exportData = CurrentAsset.Type switch
+        var exportDatas = new List<ExportDataBase>();
+        foreach (var asset in exportAssets)
         {
-            EAssetType.Dance => await DanceExportData.Create(CurrentAsset.Asset),
-            _ => await MeshExportData.Create(CurrentAsset.Asset, CurrentAssetType, GetSelectedStyles())
-        };
+            var downloadedBundles = (await BundleDownloader.DownloadAsync(asset.Asset.Name)).ToList();
+            if (downloadedBundles.Count > 0)
+            {
+                downloadedBundles.ForEach(AppVM.CUE4ParseVM.Provider.RegisterFile);
+                await AppVM.CUE4ParseVM.Provider.MountAsync();
+            }
+
+            ExportDataBase? exportData = asset.Type switch
+            {
+                EAssetType.Dance => await DanceExportData.Create(asset.Asset),
+                _ => await MeshExportData.Create(asset.Asset, asset.Type, GetSelectedStyles())
+            };
+            
+            if (exportData is null) continue;
+            
+            exportDatas.Add(exportData);
+            
+        }
         
-        BlenderService.Send(exportData, AppSettings.Current.BlenderExportSettings);
+        if (exportDatas.Count == 0) return;
+
+        BlenderService.Send(exportDatas, AppSettings.Current.BlenderExportSettings); 
     }
 
     [RelayCommand]
