@@ -504,20 +504,24 @@ def apply_tasty_rig(master_skeleton: bpy.types.Armature):
         jaw_bone_old.roll = 0
         jaw_bone_old.tail = jaw_bone_old.head + Vector((0, -0.1, 0)) 
 
-    rot_correction_bones = ["pelvis", "spine_01", "spine_02", "spine_03", "spine_04", "spine_05", "neck_01", "neck_02", "head"]
-    for correct_bone in rot_correction_bones:
+    rot_correction_bones_vertical = ["pelvis", "spine_01", "spine_02", "spine_03", "spine_04", "spine_05", "neck_01", "neck_02", "head"]
+    for correct_bone in rot_correction_bones_vertical:
         bone = edit_bones.get(correct_bone)
-        bone.tail = bone.head + Vector((0, 0, 0.075)) 
+        bone.tail = bone.head + Vector((0, 0, 0.075))
 
-    right_eye_axis = 'Y'
     if (eye_r := edit_bones.get('R_eye')) or (eye_r := edit_bones.get('FACIAL_R_Eye')):
         if eye_r.tail[1] > eye_r.head[1]:
-            right_eye_axis = 'NEGATIVE_Y'
+            old_tail = eye_r.tail + Vector((0,0.001,0))
+            old_head = eye_r.head + Vector((0,0.001,0)) # minor change to bypass zero-length bone deletion
+            eye_r.tail = old_head
+            eye_r.head = old_tail
 
-    left_eye_axis = 'Y'
     if (eye_l := edit_bones.get('L_eye')) or (eye_l := edit_bones.get('FACIAL_L_Eye')):
         if eye_l.tail[1] > eye_l.head[1]:
-            left_eye_axis = 'NEGATIVE_Y'
+            old_tail = eye_l.tail + Vector((0,0.001,0))
+            old_head = eye_l.head + Vector((0,0.001,0)) # minor change to bypass zero-length bone deletion
+            eye_l.tail = old_head
+            eye_l.head = old_tail
 
     bpy.ops.object.mode_set(mode='OBJECT')
 
@@ -789,6 +793,9 @@ def apply_tasty_rig(master_skeleton: bpy.types.Armature):
         ('pinky_01_r', 'pinky_control_r', 1.0),
         ('pinky_02_r', 'pinky_control_r', 1.0),
         ('pinky_03_r', 'pinky_control_r', 1.0),
+
+        ('dfrm_upperarm_r', 'upperarm_r', 1.0),
+        ('dfrm_upperarm_l', 'upperarm_l', 1.0),
     ]
 
     for bone_data in copy_rotation_bones:
@@ -851,14 +858,14 @@ def apply_tasty_rig(master_skeleton: bpy.types.Armature):
 
     # bone, target, ignore axis', axis
     lock_track_bones = [
-        ('R_eye', 'eye_control_r', ['Y'], right_eye_axis),
-        ('L_eye', 'eye_control_l', ['Y'], left_eye_axis),
-        ('FACIAL_R_Eye', 'eye_control_r', ['Y'], right_eye_axis),
-        ('FACIAL_L_Eye', 'eye_control_l', ['Y'], left_eye_axis),
+        ('R_eye', 'eye_control_r', ['Y']),
+        ('L_eye', 'eye_control_l', ['Y']),
+        ('FACIAL_R_Eye', 'eye_control_r', ['Y']),
+        ('FACIAL_L_Eye', 'eye_control_l', ['Y']),
     ]
 
     for lock_track_bone_data in lock_track_bones:
-        current, target, ignored, bone_axis = lock_track_bone_data
+        current, target, ignored = lock_track_bone_data
         if not (pose_bone := pose_bones.get(current)):
             continue
 
@@ -868,7 +875,7 @@ def apply_tasty_rig(master_skeleton: bpy.types.Armature):
             con = pose_bone.constraints.new('LOCKED_TRACK')
             con.target = master_skeleton
             con.subtarget = target
-            con.track_axis = 'TRACK_' + bone_axis
+            con.track_axis = 'TRACK_Y'
             con.lock_axis = 'LOCK_' + axis
 
     bones = master_skeleton.data.bones
