@@ -84,6 +84,7 @@ public partial class MainViewModel : ObservableObject
 
     public FStructFallback[] GetSelectedStyles()
     {
+        if (CurrentAsset.Type == EAssetType.Prop) return Array.Empty<FStructFallback>();
         return Styles.Select(style => ((StyleSelectorItem) style.Options.Items[style.Options.SelectedIndex]).OptionData).ToArray();
     }
 

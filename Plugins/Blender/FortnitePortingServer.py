@@ -63,6 +63,7 @@ class Receiver(threading.Thread):
         Log.information(f"FortnitePorting Server Listening at {host}:{port}")
 
         while self.keep_alive:
+            current_data = ""
             try:
                 data_string = ""
                 while True:
@@ -74,11 +75,15 @@ class Receiver(threading.Thread):
                             self.socket_server.sendto("FPServerReceived".encode('utf-8'), sender)
                             continue
                         data_string += data
+                current_data = data_string
                 self.data = json.loads(data_string)
                 self.event.set()
                 self.socket_server.sendto("FPServerReceived".encode('utf-8'), sender)
                
             except OSError:
+                pass
+            except JSONDecodeError:
+                print(current_data)
                 pass
 
     def stop(self):
@@ -993,7 +998,6 @@ def import_response(response):
     imported_materials = {}
 
     import_datas = response.get("Data")
-    print(json.dumps(import_settings))
     
     for import_index, import_data in enumerate(import_datas):
 
