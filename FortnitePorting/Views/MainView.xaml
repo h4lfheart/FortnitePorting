@@ -202,18 +202,18 @@
                     
                     <StackPanel Grid.Row="0" Orientation="Horizontal">
                         <Image Source="{Binding StyleImage}" Width="88" Height="88"/>
-                        <Grid Margin="{adonisUi:Space 1}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Grid Margin="{adonisUi:Space 1}" MinWidth="256" HorizontalAlignment="Center" VerticalAlignment="Center">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="*"/>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
                             
-                            <TextBlock Grid.Row="0" Text="{Binding CurrentAsset.DisplayName}" FontSize="24" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                            <TextBlock Grid.Row="0" Text="{Binding CurrentAsset.DisplayName}" FontSize="24" TextWrapping="WrapWithOverflow" TextTrimming="CharacterEllipsis"/>
                             <TextBlock Grid.Row="1" Text="{Binding CurrentAsset.Description}" TextWrapping="WrapWithOverflow" TextTrimming="CharacterEllipsis"/>
                         </Grid>
                     </StackPanel>
                     
-                    <Separator Grid.Row="1" Style="{StaticResource NamedSeparator}" Tag="STYLES"/>
+                    <Separator Grid.Row="1" Style="{StaticResource NamedSeparator}" Tag="{Binding TabModeText}"/>
                     
                     <ScrollViewer Grid.Row="2" PreviewMouseWheel="StupidIdiotBadScroll">
                         <ItemsControl ItemsSource="{Binding Styles}">

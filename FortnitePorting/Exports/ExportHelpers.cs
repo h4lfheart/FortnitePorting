@@ -308,7 +308,7 @@ public static class ExportHelpers
             vectors.Add(new VectorParameter(parameter.ParameterInfo.Name.PlainText, parameter.ParameterValue.Value));
         }
 
-        if (materialInstance.Parent is UMaterialInstanceConstant { Parent: UMaterialInstanceConstant } materialParent)
+        if (materialInstance.Parent is UMaterialInstanceConstant materialParent)
         {
             var (parentTextures, parentScalars, parentVectors) = MaterialParameters(materialParent);
             foreach (var parentTexture in parentTextures)

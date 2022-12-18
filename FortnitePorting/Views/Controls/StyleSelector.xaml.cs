@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Windows;
 using System.Windows.Controls;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.UE4.Assets.Exports;
@@ -11,6 +13,7 @@ namespace FortnitePorting.Views.Controls;
 public partial class StyleSelector
 {
     public string ChannelName;
+    public Orientation Orientation { get; set; }
     
     
     public StyleSelector(string channelName, FStructFallback[] options, SKBitmap fallbackBitmap)
@@ -38,6 +41,20 @@ public partial class StyleSelector
             Options.Items.Add(new StyleSelectorItem(option, fullBitmap));
         }
         Options.SelectedIndex = 0;
+    }
+    
+    public StyleSelector(List<AssetSelectorItem> items)
+    {
+        InitializeComponent();
+        DataContext = this;
+        Options.IsEnabled = false;
+        Title.Visibility = Visibility.Collapsed;
+        Orientation = Orientation.Vertical;
+
+        foreach (var item in items)
+        {
+            Options.Items.Add(new TextWithIcon {Label = " " + item.DisplayName, ImageSource = item.FullSource, IconSize = 32});
+        }
     }
 
     private void OnSelectionChanged(object sender, SelectionChangedEventArgs e)

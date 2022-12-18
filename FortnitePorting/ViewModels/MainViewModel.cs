@@ -50,6 +50,10 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] 
     [NotifyPropertyChangedFor(nameof(LoadingVisibility))]
     private bool isReady;
+    
+    [ObservableProperty] 
+    [NotifyPropertyChangedFor(nameof(LoadingVisibility))]
+    private string tabModeText; 
 
     public EAssetType CurrentAssetType;
 

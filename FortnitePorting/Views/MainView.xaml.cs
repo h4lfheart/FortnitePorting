@@ -76,11 +76,14 @@ public partial class MainView
         if (listBox.SelectedItem is null) return;
         var selected = (AssetSelectorItem) listBox.SelectedItem;
         
-        if (AppVM.MainVM.CurrentAssetType == EAssetType.Prop)
+        AppVM.MainVM.Styles.Clear();
+        if (selected.Type == EAssetType.Prop)
         {
+            AppVM.MainVM.TabModeText = "SELECTED ASSETS";
             if (listBox.SelectedItems.Count == 0) return;
             AppVM.MainVM.CurrentAsset = selected;
             AppVM.MainVM.ExtendedAssets = listBox.SelectedItems.OfType<AssetSelectorItem>().ToList();
+            AppVM.MainVM.Styles.Add(new StyleSelector(AppVM.MainVM.ExtendedAssets));
             return;
         }
         
@@ -91,7 +94,7 @@ public partial class MainView
         }
         
         AppVM.MainVM.CurrentAsset = selected;
-        AppVM.MainVM.Styles.Clear();
+        AppVM.MainVM.TabModeText = "STYLES";
         
         var styles = selected.Asset.GetOrDefault("ItemVariants", Array.Empty<UObject>());
         foreach (var style in styles)
