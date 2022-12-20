@@ -218,7 +218,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
     output_node.location = (200, 0)
 
     shader_node = nodes.new(type="ShaderNodeGroup")
-    shader_node.name = "Fortnite Porting"
+    shader_node.name = "FP Shader"
     shader_node.node_tree = bpy.data.node_groups.get(shader_node.name)
 
     links.new(shader_node.outputs[0], output_node.inputs[0])
@@ -286,9 +286,26 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
     for scalar in material_data.get("Scalars"):
         scalar_parameter(scalar)
 
-    for vector in material_data.get("Vectors"):
+    vectors = material_data.get("Vectors")
+    for vector in vectors:
         vector_parameter(vector)
 
+    emissive_slot = shader_node.inputs["Emissive"]
+    if (cropped_emissive_info := first(vectors, lambda x: x.get("Name") in ["EmissiveUVs_RG_UpperLeftCorner_BA_LowerRightCorner", "Emissive Texture UVs RG_TopLeft BA_BottomRight"])) and len(emissive_slot.links) > 0:
+        emissive_node = emissive_slot.links[0].from_node
+        emissive_node.extension = 'CLIP'
+        
+        cropped_emissive_pos = cropped_emissive_info.get("Value")
+        
+        cropped_emissive_shader = nodes.new("ShaderNodeGroup")
+        cropped_emissive_shader.node_tree = bpy.data.node_groups.get("FP Cropped Emissive")
+        cropped_emissive_shader.location = emissive_node.location + Vector((-200, 25))
+        cropped_emissive_shader.inputs[0].default_value = cropped_emissive_pos.get('R')
+        cropped_emissive_shader.inputs[1].default_value = cropped_emissive_pos.get('G')
+        cropped_emissive_shader.inputs[2].default_value = cropped_emissive_pos.get('B')
+        cropped_emissive_shader.inputs[3].default_value = cropped_emissive_pos.get('A')
+        links.new(cropped_emissive_shader.outputs[0], emissive_node.inputs[0])
+                
 def merge_skeletons(parts) -> bpy.types.Armature:
     bpy.ops.object.select_all(action='DESELECT')
 
@@ -957,8 +974,9 @@ def armature_from_selection() -> bpy.types.Armature:
 def append_data():
     addon_dir = os.path.dirname(os.path.splitext(__file__)[0])
     with bpy.data.libraries.load(os.path.join(addon_dir, "FortnitePortingData.blend")) as (data_from, data_to):
-        if not bpy.data.node_groups.get("Fortnite Porting"):
-             data_to.node_groups = data_from.node_groups
+        for node_group in data_from.node_groups:
+            if not bpy.data.node_groups.get(node_group):
+                data_to.node_groups.append(node_group)
 
         for obj in data_from.objects:
             if not bpy.data.objects.get(obj):
@@ -1021,16 +1039,17 @@ def import_response(response):
             bpy.ops.pose.select_all(action='DESELECT')
             pose_bones = active_skeleton.pose.bones
             bones = active_skeleton.data.bones
-            face_bones = [bone for bone in first(bones, lambda x: x.name == "faceAttach").children_recursive]
-            dispose_paths = []
-            for bone in face_bones:
-                dispose_paths.append('pose.bones["{}"].rotation_quaternion'.format(bone.name))
-                dispose_paths.append('pose.bones["{}"].location'.format(bone.name))
-                dispose_paths.append('pose.bones["{}"].scale'.format(bone.name))
-                pose_bones[bone.name].matrix_basis = Matrix()
-            dispose_curves = [fcurve for fcurve in active_skeleton.animation_data.action.fcurves if fcurve.data_path in dispose_paths]
-            for fcurve in dispose_curves:
-                active_skeleton.animation_data.action.fcurves.remove(fcurve)
+            if face_bone := first(bones, lambda x: x.name == "faceAttach"):
+                face_bones = face_bone.children_recursive
+                dispose_paths = []
+                for bone in face_bones:
+                    dispose_paths.append('pose.bones["{}"].rotation_quaternion'.format(bone.name))
+                    dispose_paths.append('pose.bones["{}"].location'.format(bone.name))
+                    dispose_paths.append('pose.bones["{}"].scale'.format(bone.name))
+                    pose_bones[bone.name].matrix_basis = Matrix()
+                dispose_curves = [fcurve for fcurve in active_skeleton.animation_data.action.fcurves if fcurve.data_path in dispose_paths]
+                for fcurve in dispose_curves:
+                    active_skeleton.animation_data.action.fcurves.remove(fcurve)
             bpy.ops.object.mode_set(mode='OBJECT')
             
             if len(props) == 0:

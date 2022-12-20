@@ -6,3 +6,7 @@
 bin
 obj
 Release
+.exe
+
+# Blender
+.blend1
