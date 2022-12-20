@@ -23,8 +23,9 @@ namespace FortnitePorting.Exports;
 
 public static class ExportHelpers
 {
-    public static void CharacterParts(IEnumerable<UObject> inputParts, List<ExportPart> exportParts)
+    public static void CharacterParts(IEnumerable<UObject> inputParts, List<ExportMesh> exportMeshes)
     {
+        var exportParts = new List<ExportPart>();
         var headMorphType = ECustomHatType.None;
         var headMorphNames = new Dictionary<ECustomHatType, string>();
         foreach (var part in inputParts)
@@ -106,9 +107,11 @@ public static class ExportHelpers
             var morphName = headMorphNames[headMorphType];
             exportParts.First(x => x.Part == "Head").MorphName = morphName;
         }
+        
+        exportMeshes.AddRange(exportParts);
     }
 
-    public static void Weapon(UObject weaponDefinition, List<ExportPart> exportParts)
+    public static void Weapon(UObject weaponDefinition, List<ExportMesh> exportParts)
     {
         USkeletalMesh? mainSkeletalMesh = null;
         mainSkeletalMesh = weaponDefinition.GetOrDefault("PickupSkeletalMesh", mainSkeletalMesh);
@@ -143,7 +146,7 @@ public static class ExportHelpers
         }
     }
 
-    public static int Mesh(USkeletalMesh? skeletalMesh, List<ExportPart> exportParts)
+    public static int Mesh(USkeletalMesh? skeletalMesh, List<ExportMesh> exportParts)
     {
         if (skeletalMesh is null) return -1;
         if (!skeletalMesh.TryConvert(out var convertedMesh)) return -1;
@@ -183,7 +186,7 @@ public static class ExportHelpers
         return exportParts.Count - 1;
     }
 
-    public static int Mesh(UStaticMesh? staticMesh, List<ExportPart> exportParts)
+    public static int Mesh(UStaticMesh? staticMesh, List<ExportMesh> exportParts)
     {
         if (staticMesh is null) return -1;
         if (!staticMesh.TryConvert(out var convertedMesh)) return -1;

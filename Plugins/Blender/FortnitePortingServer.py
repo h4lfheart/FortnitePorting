@@ -1003,6 +1003,8 @@ def any(target, expr):
     filtered = list(filter(expr, target))
     return len(filtered) > 0
 
+def make_vector(data):
+    return Vector((data.get("X"), data.get("Y"), data.get("Z")))
 
 def import_response(response):
     append_data()
@@ -1096,10 +1098,10 @@ def import_response(response):
                     import_material(imported_mesh.material_slots.values()[index], material)
     
                 if location_offset := propData.get("LocationOffset"):
-                    imported_item.location += Vector((location_offset.get("X"), location_offset.get("Y"), location_offset.get("Z")))*0.01
+                    imported_item.location += make_vector(location_offset)*0.01
     
                 if scale := propData.get("Scale"):
-                    imported_item.scale = Vector((scale.get("X"), scale.get("Y"), scale.get("Z")))
+                    imported_item.scale = make_vector(scale)
     
                 rotation = [0,0,0]
                 if rotation_offset := propData.get("RotationOffset"):
@@ -1115,15 +1117,17 @@ def import_response(response):
             def import_parts(parts):
                 for part in parts:
                     part_type = part.get("Part")
-                    if any(imported_parts, lambda x: False if x is None else x.get("Part") == part_type):
+                    if any(imported_parts, lambda x: False if x is None else x.get("Part") == part_type) and import_type == "Outfit":
                         continue
     
                     target_mesh = part.get("MeshPath")
                     if found_mesh := first(style_meshes, lambda x: x.get("MeshToSwap") == target_mesh):
                         target_mesh = found_mesh.get("MeshToSwap")
-                        
+                    
                     if (imported_part := import_mesh(target_mesh, reorient_bones=import_settings.get("ReorientBones"))) is None:
                         continue
+
+                    imported_part.location += make_vector(part.get("Offset"))*0.01
                         
                     if import_type == "Prop":
                         imported_part.location = imported_part.location + Vector((1,0,0))*import_index

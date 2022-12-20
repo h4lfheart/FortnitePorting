@@ -7,8 +7,11 @@ namespace FortnitePorting.Exports;
 public class ExportMesh
 {
     public string MeshPath;
+    public FVector Offset;
     public List<ExportMaterial> Materials = new();
+    public List<ExportMaterial> OverrideMaterials = new();
 }
+
 
 public class ExportMeshOverride : ExportMesh
 {
@@ -19,7 +22,6 @@ public class ExportPart : ExportMesh
     public string? Part;
     public string? MorphName;
     public string? SocketName;
-    public List<ExportMaterial> OverrideMaterials = new();
 }
 
 public record ExportMaterial

@@ -8,6 +8,7 @@ using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
+using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Objects.GameplayTags;
 using CUE4Parse.UE4.Objects.UObject;
@@ -17,8 +18,8 @@ namespace FortnitePorting.Exports.Types;
 
 public class MeshExportData : ExportDataBase
 {
-    public List<ExportPart> Parts = new();
-    public List<ExportPart> StyleParts = new();
+    public List<ExportMesh> Parts = new();
+    public List<ExportMesh> StyleParts = new();
     public List<ExportMaterial> StyleMaterials = new();
     public List<ExportMeshOverride> StyleMeshes = new();
 
@@ -46,10 +47,10 @@ public class MeshExportData : ExportDataBase
                 case EAssetType.Glider:
                 {
                     var mesh = asset.Get<USkeletalMesh>("SkeletalMesh");
-                    var addedIndex = ExportHelpers.Mesh(mesh, data.Parts);
-                    var part = data.Parts[addedIndex];
+                    var part = ExportHelpers.Mesh<ExportPart>(mesh);
                     var overrides = asset.GetOrDefault("MaterialOverrides", Array.Empty<FStructFallback>());
                     ExportHelpers.OverrideMaterials(overrides, part.OverrideMaterials);
+                    data.Parts.Add(part);
                     break;
                 }
                 case EAssetType.Pickaxe:
@@ -66,22 +67,40 @@ public class MeshExportData : ExportDataBase
                 case EAssetType.Prop:
                 {
                     var actorSaveRecord = asset.Get<ULevelSaveRecord>("ActorSaveRecord");
-                    FActorTemplateRecord? templateRecord = null;
+                    var templateRecords = new List<FActorTemplateRecord?>();
                     foreach (var tag in actorSaveRecord.Get<UScriptMap>("TemplateRecords").Properties)
                     {
                         var propValue = tag.Value?.GetValue(typeof(FActorTemplateRecord));
-                        templateRecord = propValue as FActorTemplateRecord;
+                        templateRecords.Add(propValue as FActorTemplateRecord);
+                    }
+                    foreach (var templateRecord in templateRecords)
+                    {
+                        if (templateRecord is null) continue;
+                        var actor = templateRecord.ActorClass.Load<UBlueprintGeneratedClass>();
+                        var classDefaultObject = actor.ClassDefaultObject.Load();
+                        if (classDefaultObject is null) continue;
+                        
+
+                        if (classDefaultObject.TryGetValue(out UStaticMesh staticMesh, "StaticMesh"))
+                        {
+                            var export = ExportHelpers.Mesh(staticMesh)!;
+                            data.Parts.Add(export);
+                        }
+                        else
+                        {
+                            AppLog.Error($"StaticMesh could not be found in actor {actor.Name} for prop {data.Name}");
+                        }
+                        
+                        // EXTRA MESHES
+                        if (classDefaultObject.TryGetValue(out UStaticMesh doorMesh, "DoorMesh"))
+                        {
+                            var export = ExportHelpers.Mesh(doorMesh)!;
+                            export.Offset = classDefaultObject.GetOrDefault("DoorOffset", FVector.ZeroVector);
+                            data.Parts.Add(export);
+                        }
+                        
                     }
                     
-                    var actor = templateRecord?.ActorClass.Load<UBlueprintGeneratedClass>();
-                    var actorComponents = actor?.ClassDefaultObject.Load();
-                    var staticMesh = actorComponents?.GetOrDefault<UStaticMesh?>("StaticMesh");
-                    if (staticMesh is null)
-                    {
-                        AppLog.Error($"StaticMesh for prop {data.Name} could not be found");
-                        return false;
-                    }
-                    ExportHelpers.Mesh(staticMesh, data.Parts);
                     break;
                 }
                 default:
