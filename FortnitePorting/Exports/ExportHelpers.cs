@@ -110,18 +110,19 @@ public static class ExportHelpers
 
     public static void Weapon(UObject weaponDefinition, List<ExportPart> exportParts)
     {
-        weaponDefinition.TryGetValue(out USkeletalMesh? skeletalMesh, "PickupSkeletalMesh");
-        var hasWeaponOverride = weaponDefinition.TryGetValue(out skeletalMesh, "WeaponMeshOverride");
-        Mesh(skeletalMesh, exportParts);
+        USkeletalMesh? mainSkeletalMesh = null;
+        mainSkeletalMesh = weaponDefinition.GetOrDefault("PickupSkeletalMesh", mainSkeletalMesh);
+        mainSkeletalMesh = weaponDefinition.GetOrDefault("WeaponMeshOverride", mainSkeletalMesh);
+        Mesh(mainSkeletalMesh, exportParts);
 
-        weaponDefinition.TryGetValue(out USkeletalMesh offHandMesh, "WeaponMeshOffhandOverride");
-        Mesh(offHandMesh, exportParts);
-
-        if (!hasWeaponOverride)
+        if (mainSkeletalMesh is null)
         {
-            weaponDefinition.TryGetValue(out UStaticMesh? staticMesh, "PickupStaticMesh");
-            Mesh(staticMesh, exportParts);
+            weaponDefinition.TryGetValue(out UStaticMesh? mainStaticMesh, "PickupStaticMesh");
+            Mesh(mainStaticMesh, exportParts);
         }
+
+        weaponDefinition.TryGetValue(out USkeletalMesh? offHandMesh, "WeaponMeshOffhandOverride");
+        Mesh(offHandMesh, exportParts);
         
         // TODO MATERIAL STYLES
         if (weaponDefinition.TryGetValue(out UBlueprintGeneratedClass blueprint, "WeaponActorClass"))

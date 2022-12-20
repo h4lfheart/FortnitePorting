@@ -46,7 +46,7 @@ public partial class AppSettings : ObservableObject
     private bool discordRichPresence = true;
     
     [ObservableProperty] 
-    private AesResponse aesResponse;
+    private AesResponse? aesResponse;
 
     [ObservableProperty] 
     private BlenderExportSettings blenderExportSettings;

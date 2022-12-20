@@ -41,6 +41,7 @@
                 <MenuItem Header="Check for Updates" Command="{Binding MenuCommand}" CommandParameter="Help_Update"/>
                 <MenuItem Header="Discord Server" Command="{Binding MenuCommand}" CommandParameter="Help_Discord"/>
                 <MenuItem Header="GitHub Repo" Command="{Binding MenuCommand}" CommandParameter="Help_GitHub"/>
+                <MenuItem Header="Donate" Command="{Binding MenuCommand}" CommandParameter="Help_Donate"/>
                 <MenuItem Header="About" Command="{Binding MenuCommand}" CommandParameter="Help_About"/>
             </MenuItem>
         </Menu>

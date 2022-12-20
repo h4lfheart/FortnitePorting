@@ -123,6 +123,9 @@ public partial class MainViewModel : ObservableObject
             case "Help_GitHub":
                 AppHelper.Launch(Globals.GITHUB_URL);
                 break;
+           case "Help_Donate":
+               AppHelper.Launch(Globals.KOFI_URL);
+                break;
             case "Help_About":
                 // TODO
                 break;

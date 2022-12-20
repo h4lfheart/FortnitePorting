@@ -145,7 +145,8 @@ public class CUE4ParseViewModel : ObservableObject
     {
         var keyResponse = await EndpointService.FortniteCentral.GetKeysAsync();
         if (keyResponse is not null) AppSettings.Current.AesResponse = keyResponse;
-        keyResponse ??= AppSettings.Current.AesResponse;
+        else keyResponse = AppSettings.Current.AesResponse;
+        if (keyResponse is null) return;
         
         await Provider.SubmitKeyAsync(Globals.ZERO_GUID, new FAesKey(keyResponse.MainKey));
         foreach (var dynamicKey in keyResponse.DynamicKeys)

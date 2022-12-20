@@ -8,6 +8,7 @@ public static class Globals
 {
     public const string DISCORD_URL = "https://discord.gg/DZ5YFXdBA6";
     public const string GITHUB_URL = "https://github.com/halfuwu/FortnitePorting";
+    public const string KOFI_URL = "https://ko-fi.com/halfuwu";
 
     public const string LOCALHOST = "127.0.0.1";
     public const int BLENDER_PORT = 24280;
