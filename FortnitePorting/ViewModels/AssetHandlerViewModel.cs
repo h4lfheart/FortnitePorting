@@ -201,7 +201,7 @@ public class AssetHandlerData
         });
         
         sw.Stop();
-        AppLog.Information($"Finished loading {AssetType.ToString()}s in {Math.Round(sw.Elapsed.TotalSeconds, 2)}s");
+        AppLog.Information($"Loaded {AssetType.ToString()}s in {Math.Round(sw.Elapsed.TotalSeconds, 2)}s");
     }
 
     private async Task DoLoad(FAssetData data, EAssetType type, bool random = false)

@@ -44,6 +44,7 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
     
     public bool IsRandom { get; set; }
     public string DisplayName { get; set; }
+    public string DisplayNameSource { get; set; }
     public string Description { get; set; }
     public string TooltipName { get; set; }
     public string ID { get; set; }
@@ -62,7 +63,10 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
 
 
         Asset = asset;
-        DisplayName = asset.GetOrDefault("DisplayName", new FText("Unnamed")).Text;
+        var displayName = asset.GetOrDefault("DisplayName", new FText("Unnamed"));
+        DisplayName = displayName.Text;
+        if (displayName.TextHistory is FTextHistory.Base textHistory)
+            DisplayNameSource = textHistory.SourceString;
         Description = asset.GetOrDefault("Description", new FText("No description.")).Text;
         ID = asset.Name;
 
@@ -165,10 +169,10 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
     {
         if (useRegex)
         {
-            return Regex.IsMatch(DisplayName, filter) || Regex.IsMatch(ID, filter);
+            return Regex.IsMatch(DisplayName, filter) || Regex.IsMatch(ID, filter) || Regex.IsMatch(DisplayNameSource, filter);
         }
 
-        return DisplayName.Contains(filter, StringComparison.OrdinalIgnoreCase) || ID.Contains(filter, StringComparison.OrdinalIgnoreCase);
+        return DisplayName.Contains(filter, StringComparison.OrdinalIgnoreCase) || ID.Contains(filter, StringComparison.OrdinalIgnoreCase)|| DisplayNameSource.Contains(filter, StringComparison.OrdinalIgnoreCase) ;
     }
 
     public void ToggleFavorite()

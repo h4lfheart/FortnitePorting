@@ -73,7 +73,7 @@ public partial class MainViewModel : ObservableObject
             await AppVM.CUE4ParseVM.Initialize();
             loadTime.Stop();
 
-            AppLog.Information($"Finished loading game files in {Math.Round(loadTime.Elapsed.TotalSeconds, 3)}s");
+            AppLog.Information($"Loaded FortniteGame Archive in {Math.Round(loadTime.Elapsed.TotalSeconds, 3)}s");
             IsReady = true;
 
             AppVM.AssetHandlerVM = new AssetHandlerViewModel();
