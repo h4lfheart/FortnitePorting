@@ -223,11 +223,24 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
 
     links.new(shader_node.outputs[0], output_node.inputs[0])
 
+    extra_pos_offset = 0
     def texture_parameter(data):
         name = data.get("Name")
         value = data.get("Value")
 
         if (info := first(texture_mappings, lambda x: x[0].casefold() == name.casefold())) is None:
+            node = nodes.new(type="ShaderNodeTexImage")
+            node.image = import_texture(value)
+            node.image.alpha_mode = 'CHANNEL_PACKED'
+            node.hide = True
+           
+            nonlocal extra_pos_offset
+            node.location = 400, extra_pos_offset
+            extra_pos_offset -= 100
+
+            frame = nodes.new(type='NodeFrame')
+            frame.label = name
+            node.parent = frame
             return
 
         _, slot, location, *linear = info
@@ -321,11 +334,11 @@ def merge_skeletons(parts) -> bpy.types.Armature:
         if slot == "Body":
             bpy.context.view_layer.objects.active = skeleton
 
-        if slot not in {"Hat", "MiscOrTail"} or socket == "Face" or (socket is None and slot == "Hat"):
+        if (slot in {"Hat", "MiscOrTail"} and socket not in [None, "Face"]) or (slot.casefold() == "face" and socket.casefold() == "hat"):
+            constraint_parts.append(part)
+        else:
             skeleton.select_set(True)
             merge_parts.append(part)
-        else:
-            constraint_parts.append(part)
 
     bpy.ops.object.join()
     master_skeleton = bpy.context.active_object
@@ -1128,6 +1141,7 @@ def import_response(response):
                         continue
 
                     imported_part.location += make_vector(part.get("Offset"))*0.01
+                    imported_part.scale = make_vector(part.get("Scale"))
                         
                     if import_type == "Prop":
                         imported_part.location = imported_part.location + Vector((1,0,0))*import_index

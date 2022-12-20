@@ -95,8 +95,18 @@ public class MeshExportData : ExportDataBase
                         if (classDefaultObject.TryGetValue(out UStaticMesh doorMesh, "DoorMesh"))
                         {
                             var export = ExportHelpers.Mesh(doorMesh)!;
-                            export.Offset = classDefaultObject.GetOrDefault("DoorOffset", FVector.ZeroVector);
+                            var doorOffset = classDefaultObject.GetOrDefault("DoorOffset", FVector.ZeroVector);
+                            export.Offset = doorOffset;
                             data.Parts.Add(export);
+                            
+                            if (classDefaultObject.GetOrDefault<bool>("bDoubleDoor"))
+                            {
+                                var doubleDoorExport = ExportHelpers.Mesh(doorMesh)!;
+                                doubleDoorExport.Offset = doorOffset;
+                                doubleDoorExport.Offset.X = -doubleDoorExport.Offset.X;
+                                doubleDoorExport.Scale.X = -1;
+                                data.Parts.Add(doubleDoorExport);
+                            }
                         }
                         
                     }

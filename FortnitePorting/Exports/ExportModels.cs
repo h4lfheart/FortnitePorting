@@ -7,7 +7,8 @@ namespace FortnitePorting.Exports;
 public class ExportMesh
 {
     public string MeshPath;
-    public FVector Offset;
+    public FVector Offset = FVector.ZeroVector;
+    public FVector Scale = FVector.OneVector;
     public List<ExportMaterial> Materials = new();
     public List<ExportMaterial> OverrideMaterials = new();
 }
