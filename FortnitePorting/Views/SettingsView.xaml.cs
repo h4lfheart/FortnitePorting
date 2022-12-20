@@ -39,4 +39,12 @@ public partial class SettingsView
             AppVM.SettingsVM.ArchivePath = path;
         }
     }
+    
+    private void OnClickExports(object sender, RoutedEventArgs e)
+    {
+        if (AppHelper.TrySelectFolder(out var path))
+        {
+            AppVM.SettingsVM.AssetsPath = path;
+        }
+    }
 }

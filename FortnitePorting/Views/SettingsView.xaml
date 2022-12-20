@@ -26,6 +26,8 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="{adonisUi:Space 1}"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="{adonisUi:Space 1}"/>  
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="{adonisUi:Space 1}"/>
             </Grid.RowDefinitions>
             
@@ -47,11 +49,16 @@
             <TextBlock Grid.Row="4" Grid.Column="0" Text="Game Language*" VerticalAlignment="Center"/>
             <ComboBox Grid.Row="4" Grid.Column="2" Grid.ColumnSpan="3" ItemsSource="{extensions:EnumToItemsSource {x:Type cue4Parse:UE4.Versions.ELanguage}}" SelectedItem="{Binding Language, Converter={StaticResource EnumToString}}"/>
             
-            <TextBlock Grid.Row="6" Grid.Column="0" Text="Discord RPC" VerticalAlignment="Center"/>
-            <ToggleButton Grid.Row="6" Grid.Column="2" Grid.ColumnSpan="3" Style="{DynamicResource {x:Static adonisUi:Styles.ToggleSwitch }}" IsChecked="{Binding DiscordRPC}"/>
+            <TextBlock Grid.Row="6" Grid.Column="0" Text="Export Folder" VerticalAlignment="Center"/>
+            <TextBox Grid.Row="6" Grid.Column="2" Text="{Binding AssetsPath}" adonisExt:WatermarkExtension.Watermark="Asset Export Folder"/>
+            <Button Grid.Row="6" Grid.Column="4" Content="..." Click="OnClickExports"/>
+
             
-            <TextBlock Grid.Row="8" Grid.Column="0" Text="Bundle Downloader" VerticalAlignment="Center"/>
-            <ToggleButton Grid.Row="8" Grid.Column="2" Grid.ColumnSpan="3" Style="{DynamicResource {x:Static adonisUi:Styles.ToggleSwitch }}" IsChecked="{Binding BundleDownloaderEnabled}"/>
+            <TextBlock Grid.Row="8" Grid.Column="0" Text="Discord RPC" VerticalAlignment="Center"/>
+            <ToggleButton Grid.Row="8" Grid.Column="2" Grid.ColumnSpan="3" Style="{DynamicResource {x:Static adonisUi:Styles.ToggleSwitch }}" IsChecked="{Binding DiscordRPC}"/>
+            
+            <TextBlock Grid.Row="10" Grid.Column="0" Text="Bundle Downloader" VerticalAlignment="Center"/>
+            <ToggleButton Grid.Row="10" Grid.Column="2" Grid.ColumnSpan="3" Style="{DynamicResource {x:Static adonisUi:Styles.ToggleSwitch }}" IsChecked="{Binding BundleDownloaderEnabled}"/>
 
             
         </Grid>

@@ -109,7 +109,7 @@ public class CUE4ParseViewModel : ObservableObject
             case EInstallType.Live:
             {
                 var manifestInfo = await EndpointService.Epic.GetManifestInfoAsync();
-                AppLog.Information($"Loading manifest for version {manifestInfo.BuildVersion}, this may take a while");
+                AppLog.Information($"Loading Manifest for Fortnite {manifestInfo.BuildVersion}");
                 
                 var manifestPath = Path.Combine(App.DataFolder.FullName, manifestInfo.FileName);
                 byte[] manifestBytes;

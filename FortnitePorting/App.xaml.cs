@@ -21,7 +21,7 @@ public partial class App
     [DllImport("kernel32")]
     private static extern bool FreeConsole();
 
-    public static readonly DirectoryInfo AssetsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets"));
+    public static DirectoryInfo AssetsFolder => new(AppSettings.Current.AssetsPath);
     public static readonly DirectoryInfo DataFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".data"));
 
     public static readonly DirectoryInfo BundlesFolder = new(
@@ -47,12 +47,12 @@ public partial class App
             .WriteTo.File(Path.Combine(LogsFolder.FullName, $"FortnitePorting-{DateTime.UtcNow:yyyy-MM-dd-hh-mm-ss}.log"))
             .CreateLogger();
         
+        AppSettings.DirectoryPath.Create();
+        AppSettings.Load();
+        
         AssetsFolder.Create();
         DataFolder.Create();
         LogsFolder.Create();
-        
-        AppSettings.DirectoryPath.Create();
-        AppSettings.Load();
 
         if (AppSettings.Current.DiscordRichPresence)
         {

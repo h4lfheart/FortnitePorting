@@ -30,7 +30,7 @@ public partial class MainView
 
     private async void OnLoaded(object sender, RoutedEventArgs e)
     {
-        if (string.IsNullOrWhiteSpace(AppSettings.Current.ArchivePath))
+        if (string.IsNullOrWhiteSpace(AppSettings.Current.ArchivePath) && AppSettings.Current.InstallType == EInstallType.Local)
         {
             AppHelper.OpenWindow<StartupView>();
             return;

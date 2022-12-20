@@ -59,4 +59,7 @@ public partial class AppSettings : ObservableObject
     
     [ObservableProperty] 
     private bool bundleDownloaderEnabled = true;
+    
+    [ObservableProperty] 
+    private string assetsPath = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets"));
 }

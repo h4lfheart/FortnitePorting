@@ -42,7 +42,17 @@ public class SettingsViewModel : ObservableObject
             IsRestartRequired = true;
         }
     }
-    
+
+    public string AssetsPath
+    {
+        get => AppSettings.Current.AssetsPath;
+        set
+        {
+            AppSettings.Current.AssetsPath = value;
+            OnPropertyChanged();
+        }
+    }
+
     public bool DiscordRPC
     {
         get => AppSettings.Current.DiscordRichPresence;
