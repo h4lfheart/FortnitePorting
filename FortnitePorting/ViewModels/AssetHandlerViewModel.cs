@@ -143,12 +143,12 @@ public class AssetHandlerData
         var sw = new Stopwatch();
         sw.Start();
         var items = AppVM.CUE4ParseVM.AssetDataBuffers
-            .Where(x => ClassNames.Any(y => x.AssetClass.PlainText.Equals(y, StringComparison.OrdinalIgnoreCase)))
-            .Where(x => !RemoveList.Any(y => x.AssetName.PlainText.Contains(y, StringComparison.OrdinalIgnoreCase)))
+            .Where(x => ClassNames.Any(y => x.AssetClass.Text.Equals(y, StringComparison.OrdinalIgnoreCase)))
+            .Where(x => !RemoveList.Any(y => x.AssetName.Text.Contains(y, StringComparison.OrdinalIgnoreCase)))
             .ToList();
         
         // prioritize random first cuz of parallel list positions
-        var random = items.FirstOrDefault(x => x.AssetName.PlainText.Contains("Random", StringComparison.OrdinalIgnoreCase));
+        var random = items.FirstOrDefault(x => x.AssetName.Text.Contains("Random", StringComparison.OrdinalIgnoreCase));
         if (random is not null && AssetType != EAssetType.Prop)
         {
             items.Remove(random);
@@ -161,7 +161,7 @@ public class AssetHandlerData
         var i = 0;
         await Parallel.ForEachAsync(items, async (data, token) =>
         {
-            var assetName = data.AssetName.PlainText;
+            var assetName = data.AssetName.Text;
             if (AssetType == EAssetType.Weapon)
             {
                 var reg = Regex.Match(assetName, @"(.*)_(.*)_(.*)_T[0-9][0-9]");

@@ -18,7 +18,7 @@ public static class CUE4ParseExtensions
     {
         foreach (var name in names)
         {
-            if (obj.Properties.Any(x => x.Name.PlainText.Equals(name)))
+            if (obj.Properties.Any(x => x.Name.Text.Equals(name)))
             {
                 return obj.GetOrDefault<T>(name);
             }

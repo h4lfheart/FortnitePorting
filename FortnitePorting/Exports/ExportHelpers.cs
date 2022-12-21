@@ -47,11 +47,11 @@ public static class ExportHelpers
             if (part.TryGetValue<UObject>(out var additionalData, "AdditionalData"))
             {
                 var socketName = additionalData.GetOrDefault<FName?>("AttachSocketName");
-                exportPart.SocketName = socketName?.PlainText ?? null;
+                exportPart.SocketName = socketName?.Text ?? null;
                 
                 if (additionalData.TryGetValue(out FName hatType, "HatType"))
                 {
-                    Enum.TryParse(hatType.PlainText.Replace("ECustomHatType::ECustomHatType_", string.Empty), out headMorphType);
+                    Enum.TryParse(hatType.Text.Replace("ECustomHatType::ECustomHatType_", string.Empty), out headMorphType);
                 }
 
                 if (additionalData.ExportType.Equals("CustomCharacterHeadData"))
@@ -60,7 +60,7 @@ public static class ExportHelpers
                     {
                         if (additionalData.TryGetValue(out FName[] morphNames, type + "MorphTargets"))
                         {
-                            headMorphNames[type] = morphNames[0].PlainText;
+                            headMorphNames[type] = morphNames[0].Text;
                         }
                     }
 
@@ -239,7 +239,7 @@ public static class ExportHelpers
             {
                 MaterialName = material.Name,
                 SlotIndex = materialOverride.Get<int>("MaterialOverrideIndex"),
-                MaterialNameToSwap = materialOverride.GetOrDefault<FSoftObjectPath>("MaterialToSwap").AssetPathName.PlainText.SubstringAfterLast(".")
+                MaterialNameToSwap = materialOverride.GetOrDefault<FSoftObjectPath>("MaterialToSwap").AssetPathName.Text.SubstringAfterLast(".")
             };
 
             if (material is UMaterialInstanceConstant materialInstance)
@@ -274,7 +274,7 @@ public static class ExportHelpers
             {
                 MaterialName = material.Name,
                 SlotIndex = materialOverride.Get<int>("MaterialOverrideIndex"),
-                MaterialNameToSwap = materialOverride.GetOrDefault<FSoftObjectPath>("MaterialToSwap").AssetPathName.PlainText.SubstringAfterLast(".")
+                MaterialNameToSwap = materialOverride.GetOrDefault<FSoftObjectPath>("MaterialToSwap").AssetPathName.Text.SubstringAfterLast(".")
             };
 
             if (material is UMaterialInstanceConstant materialInstance)
@@ -296,21 +296,21 @@ public static class ExportHelpers
         foreach (var parameter in materialInstance.TextureParameterValues)
         {
             if (!parameter.ParameterValue.TryLoad(out UTexture2D texture)) continue;
-            textures.Add(new TextureParameter(parameter.ParameterInfo.Name.PlainText, texture.GetPathName()));
+            textures.Add(new TextureParameter(parameter.ParameterInfo.Name.Text, texture.GetPathName()));
             Save(texture);
         }
 
         var scalars = new List<ScalarParameter>();
         foreach (var parameter in materialInstance.ScalarParameterValues)
         {
-            scalars.Add(new ScalarParameter(parameter.ParameterInfo.Name.PlainText, parameter.ParameterValue));
+            scalars.Add(new ScalarParameter(parameter.ParameterInfo.Name.Text, parameter.ParameterValue));
         }
 
         var vectors = new List<VectorParameter>();
         foreach (var parameter in materialInstance.VectorParameterValues)
         {
             if (parameter.ParameterValue is null) continue;
-            vectors.Add(new VectorParameter(parameter.ParameterInfo.Name.PlainText, parameter.ParameterValue.Value));
+            vectors.Add(new VectorParameter(parameter.ParameterInfo.Name.Text, parameter.ParameterValue.Value));
         }
 
         if (materialInstance.Parent is UMaterialInstanceConstant materialParent)

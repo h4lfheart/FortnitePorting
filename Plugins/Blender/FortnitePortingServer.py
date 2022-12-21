@@ -192,6 +192,32 @@ def import_anim(path: str):
 def hash_code(num):
     return hex(abs(num))[2:]
 
+def add_range(list, items):
+    if items is None:
+        return 
+    for item in items:
+        list.append(item)
+
+layered_texture_names_non_detecting = [
+    "Diffuse",
+    "Normals",
+    "SpecularMasks",
+]
+
+layered_texture_names = [
+    "Diffuse_Texture_2",
+    "Normals_Texture_2",
+    "SpecularMasks_2",
+    
+    "Diffuse_Texture_3",
+    "Normals_Texture_3",
+    "SpecularMasks_3",
+    
+    "Diffuse_Texture_4",
+    "Normals_Texture_4",
+    "SpecularMasks_4"
+]
+
 def import_material(target_slot: bpy.types.MaterialSlot, material_data):
     mat_hash = material_data.get("Hash")
     override_datas = where(style_material_params, lambda x: x.get("MaterialToAlter").split(".")[1] == material_data.get("MaterialName"))
@@ -203,7 +229,6 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
     if existing := imported_materials.get(mat_hash):
         target_slot.material = existing
         return
-    
     
     target_material = target_slot.material
     material_name = material_data.get("MaterialName")
@@ -225,6 +250,38 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
 
     output_node = nodes.new(type="ShaderNodeOutputMaterial")
     output_node.location = (200, 0)
+    
+    layered_textures = where(material_data.get("Textures"), lambda x: x.get("Name") in layered_texture_names)
+    if len(layered_textures) > 0:
+        add_range(layered_textures, where(material_data.get("Textures"), lambda x: x.get("Name") in layered_texture_names_non_detecting))
+    
+        shader_node = nodes.new(type="ShaderNodeGroup")
+        shader_node.name = "FP Layered"
+        shader_node.node_tree = bpy.data.node_groups.get(shader_node.name)
+        links.new(shader_node.outputs[0], output_node.inputs[0])
+        
+        location = 0
+        for texture in layered_textures:
+            name = texture.get("Name")
+            value = texture.get("Value")
+            if (image := import_texture(value)) is None:
+                continue
+        
+            node = nodes.new(type="ShaderNodeTexImage")
+            node.image = image
+            node.image.alpha_mode = 'CHANNEL_PACKED'
+            node.hide = True
+            node.location = -300, location
+            location -= 40
+            
+            if "Normals" in name or "SpecularMasks" in name:
+                node.image.colorspace_settings.name = "Linear"
+
+            links.new(node.outputs[0], shader_node.inputs[name])
+            
+        return
+        
+        
 
     shader_node = nodes.new(type="ShaderNodeGroup")
     shader_node.name = "FP Shader"
@@ -242,7 +299,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
         name = data.get("Name")
         value = data.get("Value")
 
-        if (info := first(texture_mappings, lambda x: x[0].casefold() == name.casefold())) is None:
+        if (info := first(texture_mappings, lambda x: x[0].casefold() == name.casefold())) is None and name not in layered_texture_names:
             node = nodes.new(type="ShaderNodeTexImage")
             node.image = import_texture(value)
             node.image.alpha_mode = 'CHANNEL_PACKED'
@@ -321,7 +378,8 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
             except TypeError:
                 shader_node.inputs[extra[0]].default_value = int(value["A"])
 
-    for texture in material_data.get("Textures"):
+    textures = material_data.get("Textures")
+    for texture in textures:
         texture_parameter(texture)
 
     scalars = material_data.get("Scalars")
