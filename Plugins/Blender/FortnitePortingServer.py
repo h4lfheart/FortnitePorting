@@ -219,6 +219,8 @@ layered_texture_names = [
 ]
 
 def import_material(target_slot: bpy.types.MaterialSlot, material_data):
+    if not import_settings.get("ImportMaterials"):
+        return
     mat_hash = material_data.get("Hash")
     override_datas = where(style_material_params, lambda x: x.get("MaterialToAlter").split(".")[1] == material_data.get("MaterialName"))
     has_override_data = override_datas is not None and len(override_datas) > 0

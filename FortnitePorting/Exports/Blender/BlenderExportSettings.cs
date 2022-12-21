@@ -12,6 +12,7 @@ public class BlenderExportSettings
     public bool PoseFixes;
     
     // MATERIAL
+    public bool ImportMaterials = true;
     public float AmbientOcclusion;
     public float Cavity;
     public float Subsurface;
