@@ -189,12 +189,21 @@ def import_anim(path: str):
 
     return psaimport(anim_path)
 
+def hash_code(num):
+    return hex(abs(num))[2:]
 
 def import_material(target_slot: bpy.types.MaterialSlot, material_data):
     mat_hash = material_data.get("Hash")
+    override_datas = where(style_material_params, lambda x: x.get("MaterialToAlter").split(".")[1] == material_data.get("MaterialName"))
+    has_override_data = override_datas is not None and len(override_datas) > 0
+    if has_override_data:
+        mat_hash = 0
+        for data in override_datas:
+            mat_hash += data.get("Hash")
     if existing := imported_materials.get(mat_hash):
         target_slot.material = existing
         return
+    
     
     target_material = target_slot.material
     material_name = material_data.get("MaterialName")
@@ -202,8 +211,8 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
     if target_material.name.casefold() != material_name.casefold():
         target_material = bpy.data.materials.new(material_name)
         
-    if any(imported_materials.values(), lambda x: x.name == material_name): # Duplicate Names, Different Hashes
-        target_material = bpy.data.materials.new(material_name + f"_{hex(abs(mat_hash))[2:]}")
+    if any(imported_materials.values(), lambda x: x.name == material_name) or has_override_data: # Duplicate Names, Different Hashes
+        target_material = bpy.data.materials.new(material_name + f"_{hash_code(mat_hash)}")
         
     target_slot.material = target_material
     imported_materials[mat_hash] = target_material
@@ -222,9 +231,14 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
     shader_node.node_tree = bpy.data.node_groups.get(shader_node.name)
 
     links.new(shader_node.outputs[0], output_node.inputs[0])
-
+    
     extra_pos_offset = 0
     def texture_parameter(data):
+        if has_override_data:
+            for override_data in override_datas:
+                if found_override := first(override_data.get("Textures"), lambda x: x.get("Name") == data.get("Name")):
+                    data = found_override
+                
         name = data.get("Name")
         value = data.get("Value")
 
@@ -265,9 +279,18 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
 
         links.new(node.outputs[0], shader_node.inputs[slot])
 
+    hide_element_scalars = []
     def scalar_parameter(data):
+        if has_override_data:
+            for override_data in override_datas:
+                if found_override := first(override_data.get("Scalars"), lambda x: x.get("Name") == data.get("Name")):
+                    data = found_override
+            
         name = data.get("Name")
         value = data.get("Value")
+        
+        if "Hide Element" in name:
+            hide_element_scalars.append(data)
 
         if (info := first(scalar_mappings, lambda x: x[0].casefold() == name.casefold())) is None:
             return
@@ -277,6 +300,11 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
         shader_node.inputs[slot].default_value = value
 
     def vector_parameter(data):
+        if has_override_data:
+            for override_data in override_datas:
+                if found_override := first(override_data.get("Vectors"), lambda x: x.get("Name") == data.get("Name")):
+                    data = found_override
+                
         name = data.get("Name")
         value = data.get("Value")
 
@@ -304,7 +332,6 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
     for vector in vectors:
         vector_parameter(vector)
         
-    hide_element_scalars = where(scalars, lambda x: "Hide Element" in x.get("Name"))
     if len(hide_element_scalars) > 0:
         target_material.blend_method = "CLIP"
         target_material.shadow_method = "CLIP"
@@ -1065,6 +1092,9 @@ def import_response(response):
     global imported_materials
     imported_materials = {}
 
+    global style_material_params
+    style_material_params = []
+
     import_datas = response.get("Data")
     
     for import_index, import_data in enumerate(import_datas):
@@ -1161,6 +1191,7 @@ def import_response(response):
         else:
             imported_parts = []
             style_meshes = import_data.get("StyleMeshes")
+            style_material_params = import_data.get("StyleMaterialParams")
             
             def import_parts(parts):
                 for part in parts:

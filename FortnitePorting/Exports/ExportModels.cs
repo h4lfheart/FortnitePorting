@@ -36,6 +36,15 @@ public record ExportMaterial
     public List<VectorParameter> Vectors = new();
 }
 
+public record ExportMaterialParams
+{
+    public string MaterialToAlter;
+    public int Hash;
+    public List<TextureParameter> Textures = new();
+    public List<ScalarParameter> Scalars = new();
+    public List<VectorParameter> Vectors = new();
+}
+
 public record TextureParameter(string Name, string Value);
 
 public record ScalarParameter(string Name, float Value);

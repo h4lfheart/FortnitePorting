@@ -14,6 +14,7 @@ using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
+using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
@@ -336,6 +337,33 @@ public static class ExportHelpers
         return (textures, scalars, vectors);
     }
     
+    public static (List<TextureParameter>, List<ScalarParameter>, List<VectorParameter>) MaterialParametersOverride(FStructFallback data)
+    {
+        var textures = new List<TextureParameter>();
+        foreach (var parameter in data.GetOrDefault("TextureParams", Array.Empty<FStructFallback>()))
+        {
+            if (!parameter.TryGetValue(out UTexture2D texture, "Value")) continue;
+            textures.Add(new TextureParameter(parameter.Get<FName>("ParamName").Text, texture.GetPathName()));
+            Save(texture);
+        }
+
+        var scalars = new List<ScalarParameter>();
+        foreach (var parameter in data.GetOrDefault("FloatParams", Array.Empty<FStructFallback>()))
+        {
+            var scalar = parameter.Get<float>("Value");
+            scalars.Add(new ScalarParameter(parameter.Get<FName>("ParamName").Text, scalar));
+        }
+
+        var vectors = new List<VectorParameter>();
+        foreach (var parameter in data.GetOrDefault("ColorParams", Array.Empty<FStructFallback>()))
+        {
+            if (!parameter.TryGetValue(out FLinearColor color, "Value")) continue;
+            vectors.Add(new VectorParameter(parameter.Get<FName>("ParamName").Text, color));
+        }
+
+        return (textures, scalars, vectors);
+    }
+    
     public static ExportMesh? Mesh(UStaticMesh? skeletalMesh)
     {
         return Mesh<ExportMesh>(skeletalMesh);
@@ -439,6 +467,18 @@ public static class ExportHelpers
 
             overrideMeshExport.MeshToSwap = meshToSwap.AssetPathName.Text;
             exportMeshes.Add(overrideMeshExport);
+        }
+    }
+    
+    public static void OverrideParameters(FStructFallback[] overrides, List<ExportMaterialParams> exportParams)
+    {
+        foreach (var paramData in overrides)
+        {
+            var exportMaterialParams = new ExportMaterialParams();
+            exportMaterialParams.MaterialToAlter = paramData.Get<FSoftObjectPath>("MaterialToAlter").AssetPathName.Text;
+            (exportMaterialParams.Textures, exportMaterialParams.Scalars, exportMaterialParams.Vectors) = MaterialParametersOverride(paramData);
+            exportMaterialParams.Hash = exportMaterialParams.GetHashCode();
+            exportParams.Add(exportMaterialParams);
         }
     }
 
