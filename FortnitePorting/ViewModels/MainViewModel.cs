@@ -154,23 +154,25 @@ public partial class MainViewModel : ObservableObject
         var exportDatas = new List<ExportDataBase>();
         foreach (var asset in exportAssets)
         {
-            var downloadedBundles = (await BundleDownloader.DownloadAsync(asset.Asset.Name)).ToList();
-            if (downloadedBundles.Count > 0)
+            await Task.Run(async () =>
             {
-                downloadedBundles.ForEach(AppVM.CUE4ParseVM.Provider.RegisterFile);
-                await AppVM.CUE4ParseVM.Provider.MountAsync();
-            }
-
+                var downloadedBundles = (await BundleDownloader.DownloadAsync(asset.Asset.Name)).ToList();
+                if (downloadedBundles.Count > 0)
+                {
+                    downloadedBundles.ForEach(AppVM.CUE4ParseVM.Provider.RegisterFile);
+                    await AppVM.CUE4ParseVM.Provider.MountAsync();
+                }
+            });
+            
             ExportDataBase? exportData = asset.Type switch
             {
                 EAssetType.Dance => await DanceExportData.Create(asset.Asset),
                 _ => await MeshExportData.Create(asset.Asset, asset.Type, GetSelectedStyles())
             };
-            
-            if (exportData is null) continue;
-            
+
+            if (exportData is null) return;
+
             exportDatas.Add(exportData);
-            
         }
         
         if (exportDatas.Count == 0) return;
