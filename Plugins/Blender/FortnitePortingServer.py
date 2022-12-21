@@ -296,12 +296,37 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
     for texture in material_data.get("Textures"):
         texture_parameter(texture)
 
-    for scalar in material_data.get("Scalars"):
+    scalars = material_data.get("Scalars")
+    for scalar in scalars:
         scalar_parameter(scalar)
 
     vectors = material_data.get("Vectors")
     for vector in vectors:
         vector_parameter(vector)
+        
+    hide_element_scalars = where(scalars, lambda x: "Hide Element" in x.get("Name"))
+    if len(hide_element_scalars) > 0:
+        target_material.blend_method = "CLIP"
+        target_material.shadow_method = "CLIP"
+        target_material.show_transparent_back = False
+
+        vertex_color_node = nodes.new(type="ShaderNodeVertexColor")
+        vertex_color_node.location = [-800, -500]
+        vertex_color_node.layer_name = 'PSKVTXCOL_0'
+
+        vertex_mask_node = nodes.new("ShaderNodeGroup")
+        vertex_mask_node.node_tree = bpy.data.node_groups.get("FP VertexMask")
+        vertex_mask_node.location = [-600, -500]
+        
+        links.new(vertex_color_node.outputs[0], vertex_mask_node.inputs[0])
+        links.new(vertex_color_node.outputs[1], vertex_mask_node.inputs[1])
+        links.new(vertex_mask_node.outputs[0], shader_node.inputs["Alpha"])
+        
+        for scalar in hide_element_scalars:
+            name = scalar.get("Name")
+            value = scalar.get("Value")
+            if input := vertex_mask_node.inputs.get(name.replace("Hide ", "")):
+                input.default_value = int(value)
 
     emissive_slot = shader_node.inputs["Emissive"]
     emissive_crop_params = [
@@ -334,9 +359,13 @@ def merge_skeletons(parts) -> bpy.types.Armature:
     # Merge Skeletons
     for part in parts:
         slot = part.get("Part")
+        if slot is None:
+            slot = "" # fix stupid nonetype w/ the casefold
         skeleton = part.get("Armature")
         mesh = part.get("Mesh")
         socket = part.get("Socket")
+        if socket is None:
+            socket = "" # fix stupid nonetype w/ the casefold
         if slot == "Body":
             bpy.context.view_layer.objects.active = skeleton
 
@@ -1013,7 +1042,7 @@ def where(target, expr):
         return None
     filtered = filter(expr, target)
 
-    return filtered
+    return list(filtered)
 
 def any(target, expr):
     if not target:
