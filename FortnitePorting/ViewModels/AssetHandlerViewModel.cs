@@ -199,9 +199,8 @@ public class AssetHandlerData
             }
             
         });
-        
         sw.Stop();
-        AppLog.Information($"Loaded {AssetType.ToString()}s in {Math.Round(sw.Elapsed.TotalSeconds, 2)}s");
+        AppLog.Information($"Loaded {AssetType.GetDescription()} in {Math.Round(sw.Elapsed.TotalSeconds, 2)}s");
     }
 
     private async Task DoLoad(FAssetData data, EAssetType type, bool random = false)
@@ -210,8 +209,6 @@ public class AssetHandlerData
         var asset = await AppVM.CUE4ParseVM.Provider.LoadObjectAsync(data.ObjectPath);
 
         var previewImage = IconGetter(asset);
-        if (previewImage is null) return;
-            
         await Application.Current.Dispatcher.InvokeAsync(
             () => TargetCollection.Add(new AssetSelectorItem(asset, previewImage, type, random)), DispatcherPriority.Background);
     }

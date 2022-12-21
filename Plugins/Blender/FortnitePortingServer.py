@@ -304,7 +304,13 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
         vector_parameter(vector)
 
     emissive_slot = shader_node.inputs["Emissive"]
-    if (cropped_emissive_info := first(vectors, lambda x: x.get("Name") in ["EmissiveUVs_RG_UpperLeftCorner_BA_LowerRightCorner", "Emissive Texture UVs RG_TopLeft BA_BottomRight"])) and len(emissive_slot.links) > 0:
+    emissive_crop_params = [
+        "EmissiveUVs_RG_UpperLeftCorner_BA_LowerRightCorner",
+        "Emissive Texture UVs RG_TopLeft BA_BottomRight",
+        "Emissive 2 UV Positioning (RG)UpperLeft (BA)LowerRight",
+        "EmissiveUVPositioning (RG)UpperLeft (BA)LowerRight"
+    ]
+    if (cropped_emissive_info := first(vectors, lambda x: x.get("Name") in emissive_crop_params)) and len(emissive_slot.links) > 0:
         emissive_node = emissive_slot.links[0].from_node
         emissive_node.extension = 'CLIP'
         

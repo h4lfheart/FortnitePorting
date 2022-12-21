@@ -169,8 +169,15 @@
                     </TabItem>
                     <!--TabItem Style="{StaticResource TabItemEqualSize}">
                         <TabItem.Header>
-                            <controls:TextWithIcon Label="Meshes" ImageSource="pack://application:,,,/Resources/Mesh.png"/>
+                            <controls:TextWithIcon Label="Meshes" ImageSource="/FortnitePorting;component/Resources/Mesh.png"/>
                         </TabItem.Header>
+                        <ListBox SelectionMode="Extended" ItemsSource="{Binding Meshes}">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left" Orientation="Vertical"/>
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                        </ListBox>
                     </TabItem-->
                 </TabControl>
             </GroupBox>

@@ -19,7 +19,7 @@ public enum EAssetType
     [Description("Back Blings")]
     Backpack,
     
-    [Description("Harvesting Tools")]
+    [Description("Pickaxes")]
     Pickaxe,
     
     [Description("Gliders")]
@@ -34,8 +34,8 @@ public enum EAssetType
     [Description("Props")]
     Prop,
     
-    /*[Description("Meshes")]
-    Mesh,*/
+    [Description("Meshes")]
+    Mesh,
 }
 
 public enum EFortCustomPartType : byte

@@ -4,6 +4,6 @@
              xmlns:local="clr-namespace:FortnitePorting.Views.Controls">
     <StackPanel Orientation="Horizontal">
         <Image Source="{Binding ImageSource, RelativeSource={RelativeSource AncestorType=local:TextWithIcon}}" Width="{Binding IconSize, RelativeSource={RelativeSource AncestorType=local:TextWithIcon}}" Height="{Binding IconSize, RelativeSource={RelativeSource AncestorType=local:TextWithIcon}}" RenderOptions.BitmapScalingMode="Fant"/>
-        <TextBlock Foreground="#FFFFFF" Text="{Binding Label, RelativeSource={RelativeSource AncestorType=local:TextWithIcon}}" VerticalAlignment="Center" Margin="2,0,0,0" FontSize="{Binding LabelFontSize, RelativeSource={RelativeSource AncestorType=local:TextWithIcon}}"/>
+        <TextBlock Text="{Binding Label, RelativeSource={RelativeSource AncestorType=local:TextWithIcon}}" VerticalAlignment="Center" Margin="2,0,0,0" FontSize="{Binding LabelFontSize, RelativeSource={RelativeSource AncestorType=local:TextWithIcon}}"/>
     </StackPanel>
 </UserControl>

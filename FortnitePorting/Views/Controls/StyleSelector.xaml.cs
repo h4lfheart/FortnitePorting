@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using CUE4Parse_Conversion.Textures;
-using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
 using SkiaSharp;
@@ -53,7 +53,7 @@ public partial class StyleSelector
 
         foreach (var item in items)
         {
-            Options.Items.Add(new TextWithIcon {Label = " " + item.DisplayName, ImageSource = item.FullSource, IconSize = 32});
+            Options.Items.Add(new TextWithIcon {Label = " " + item.DisplayName, ImageSource = item.FullSource, IconSize = 32, Foreground = Brushes.White});
         }
     }
 
