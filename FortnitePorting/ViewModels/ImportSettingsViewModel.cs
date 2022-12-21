@@ -58,6 +58,16 @@ public class ImportSettingsViewModel : ObservableObject
         }
     }
     
+    public bool BlenderImportMaterials
+    {
+        get => AppSettings.Current.BlenderExportSettings.ImportMaterials;
+        set
+        {
+            AppSettings.Current.BlenderExportSettings.ImportMaterials = value;
+            OnPropertyChanged();
+        }
+    }
+    
     public float BlenderAmbientOcclusion
     {
         get => AppSettings.Current.BlenderExportSettings.AmbientOcclusion;

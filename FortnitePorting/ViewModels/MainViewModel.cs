@@ -111,6 +111,9 @@ public partial class MainViewModel : ObservableObject
             case "Settings_Options":
                 AppHelper.OpenWindow<SettingsView>();
                 break;
+            case "Settings_ImportOptions":
+                AppHelper.OpenWindow<ImportSettingsView>();
+                break;
             case "Settings_Startup":
                 AppHelper.OpenWindow<StartupView>();
                 break;
