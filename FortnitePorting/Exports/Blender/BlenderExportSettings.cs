@@ -13,7 +13,7 @@ public class BlenderExportSettings
     
     // MATERIAL
     public bool ImportMaterials = true;
-    public float AmbientOcclusion;
-    public float Cavity;
-    public float Subsurface;
+    public double AmbientOcclusion;
+    public double Cavity;
+    public double Subsurface;
 }

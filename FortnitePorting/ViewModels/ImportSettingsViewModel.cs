@@ -68,7 +68,7 @@ public class ImportSettingsViewModel : ObservableObject
         }
     }
     
-    public float BlenderAmbientOcclusion
+    public double BlenderAmbientOcclusion
     {
         get => AppSettings.Current.BlenderExportSettings.AmbientOcclusion;
         set
@@ -78,7 +78,7 @@ public class ImportSettingsViewModel : ObservableObject
         }
     }
     
-    public float BlenderCavity
+    public double BlenderCavity
     {
         get => AppSettings.Current.BlenderExportSettings.Cavity;
         set
@@ -88,7 +88,7 @@ public class ImportSettingsViewModel : ObservableObject
         }
     }
     
-    public float BlenderSubsurf
+    public double BlenderSubsurf
     {
         get => AppSettings.Current.BlenderExportSettings.Subsurface;
         set

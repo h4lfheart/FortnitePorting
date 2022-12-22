@@ -94,50 +94,50 @@ class Receiver(threading.Thread):
 
 # Name, Slot, Location, *Linear
 texture_mappings = {
-    ("Diffuse", 0, (-300, -75)),
-    ("PetalDetailMap", 0, (-300, -75)),
+    ("Diffuse", "Diffuse", (-300, -75)),
+    ("PetalDetailMap", "Diffuse", (-300, -75)),
 
-    ("SpecularMasks", 1, (-300, -125), True),
-    ("SpecMap", 1, (-300, -125), True),
+    ("SpecularMasks", "Specular Masks", (-300, -125), True),
+    ("SpecMap", "Specular Masks", (-300, -125), True),
 
-    ("Normals", 5, (-300, -175), True),
-    ("Normal", 5, (-300, -175), True),
-    ("NormalMap", 5, (-300, -175), True),
+    ("Normals", "Normals", (-300, -175), True),
+    ("Normal", "Normals", (-300, -175), True),
+    ("NormalMap", "Normals", (-300, -175), True),
 
-    ("M", 7, (-300, -225), True),
+    ("M", "M", (-300, -225), True),
 
-    ("Emissive", 12, (-300, -325)),
-    ("EmissiveTexture", 12, (-300, -325)),
+    ("Emissive", "Emissive", (-300, -325)),
+    ("EmissiveTexture", "Emissive", (-300, -325)),
 }
 
 # Name, Slot
 scalar_mappings = {
-    ("RoughnessMin", 3),
-    ("Roughness Min", 3),
-    ("SpecRoughnessMin", 3),
+    ("RoughnessMin", "Rough Min"),
+    ("Roughness Min", "Rough Min"),
+    ("SpecRoughnessMin", "Rough Min"),
 
-    ("RoughnessMax", 4),
-    ("Roughness Max", 4),
-    ("SpecRoughnessMax", 4),
+    ("RoughnessMax", "Rough Max"),
+    ("Roughness Max", "Rough Max"),
+    ("SpecRoughnessMax", "Rough Max"),
 
-    ("emissive mult", 13),
-    ("TH_StaticEmissiveMult", 13),
-    ("Emissive", 13),
+    ("emissive mult", "Emissive Brightness"),
+    ("TH_StaticEmissiveMult", "Emissive Brightness"),
+    ("Emissive", "Emissive Brightness"),
 
-    ("Emissive_BrightnessMin", 14),
+    ("Emissive_BrightnessMin", "Emissive Min"),
 
-    ("Emissive_BrightnessMax", 15),
+    ("Emissive_BrightnessMax", "Emissive Max"),
 
-    ("Emissive Fres EX", 16),
-    ("EmissiveFresnelExp", 16),
+    ("Emissive Fres EX", "Emissive Fresnel Exponent"),
+    ("EmissiveFresnelExp", "Emissive Fresnel Exponent"),
 }
 
 # Name, Slot, *Alpha
 vector_mappings = {
-    ("Skin Boost Color And Exponent", 10, 11),
+    ("Skin Boost Color And Exponent", "Skin Color Boost", "Skin Color Exponent"),
 
-    ("EmissiveColor", 18, 17),
-    ("Emissive Color", 18, 17)
+    ("EmissiveColor", "Emissive Color", "Use Emissive Color"),
+    ("Emissive Color", "Emissive Color", "Use Emissive Color")
 }
 
 
@@ -288,6 +288,10 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
     shader_node = nodes.new(type="ShaderNodeGroup")
     shader_node.name = "FP Shader"
     shader_node.node_tree = bpy.data.node_groups.get(shader_node.name)
+    
+    shader_node.inputs["Ambient Occlusion"].default_value = import_settings.get("AmbientOcclusion")
+    shader_node.inputs["Cavity"].default_value = import_settings.get("Cavity")
+    shader_node.inputs["Subsurface"].default_value = import_settings.get("Subsurface")
 
     links.new(shader_node.outputs[0], output_node.inputs[0])
 
@@ -303,6 +307,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
 
         value_node = nodes.new("ShaderNodeValue")
         value_node.location = -1000, -120
+        value_node.outputs[0].default_value = 0.5
         
         def add_param(name, slot, pos, alpha_slot = None, value_connect = False):
             found = first(textures, lambda x: x.get("Name") == name)

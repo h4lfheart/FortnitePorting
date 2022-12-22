@@ -16,7 +16,7 @@
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
         <TextBlock Grid.Column="0" Text="{Binding Label, RelativeSource={RelativeSource AncestorType=local:NumericSlider}}"/>
-        <Slider Grid.Column="2" Name="SliderValue" Value="{Binding Value, RelativeSource={RelativeSource AncestorType=local:NumericSlider}}" Maximum="1" TickPlacement="BottomRight" TickFrequency="0.1"  />
+        <Slider Grid.Column="2" Name="SliderValue" Value="{Binding Value, RelativeSource={RelativeSource AncestorType=local:NumericSlider}}" Maximum="1" Minimum="0" TickPlacement="BottomRight" TickFrequency="0.1"  />
         <TextBox Grid.Column="4" Text="{Binding ElementName=SliderValue, Path=Value, UpdateSourceTrigger=PropertyChanged, StringFormat=N2}" Width="40"/>
     </Grid>
 </UserControl>

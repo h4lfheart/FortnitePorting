@@ -21,13 +21,13 @@ public partial class NumericSlider
     public static readonly DependencyProperty ValueProperty = 
         DependencyProperty.Register(
             nameof(Value),
-            typeof(float), 
+            typeof(double), 
             typeof(NumericSlider)
         );
 
-    public float Value
+    public double Value
     {
-        get => (float) GetValue(ValueProperty);
+        get => (double) GetValue(ValueProperty);
         set => SetValue(ValueProperty, value);
     }
     public NumericSlider()

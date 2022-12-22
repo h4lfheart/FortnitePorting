@@ -38,9 +38,9 @@
                     
                     <Separator Style="{StaticResource NamedSeparator}" Tag="MATERIALS"/>
                     <ToggleButton Content="Import Materials" IsChecked="{Binding BlenderImportMaterials}"/>
-                    <controls:NumericSlider Label="Ambient Occlusion" Value="{Binding BlenderAmbientOcclusion}" IsEnabled="{Binding BlenderImportMaterials}"/>
-                    <controls:NumericSlider Label="Cavity" Value="{Binding BlenderCavity}" IsEnabled="{Binding BlenderImportMaterials}"/>
-                    <controls:NumericSlider Label="Subsurface" Value="{Binding BlenderSubsurf}" IsEnabled="{Binding BlenderImportMaterials}"/>
+                    <controls:NumericSlider Label="Ambient Occlusion" Value="{Binding BlenderAmbientOcclusion, Mode=TwoWay}" IsEnabled="{Binding BlenderImportMaterials}"/>
+                    <controls:NumericSlider Label="Cavity" Value="{Binding BlenderCavity, Mode=TwoWay}" IsEnabled="{Binding BlenderImportMaterials}"/>
+                    <controls:NumericSlider Label="Subsurface" Value="{Binding BlenderSubsurf, Mode=TwoWay}" IsEnabled="{Binding BlenderImportMaterials}"/>
                     
                 </StackPanel>
             </TabItem>
