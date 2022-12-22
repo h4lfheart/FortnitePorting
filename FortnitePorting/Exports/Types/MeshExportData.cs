@@ -12,6 +12,7 @@ using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Objects.GameplayTags;
 using CUE4Parse.UE4.Objects.UObject;
+using CUE4Parse.Utils;
 using FortnitePorting.AppUtils;
 
 namespace FortnitePorting.Exports.Types;
@@ -89,7 +90,14 @@ public class MeshExportData : ExportDataBase
                         }
                         else
                         {
-                            AppLog.Error($"StaticMesh could not be found in actor {actor.Name} for prop {data.Name}");
+                            var exports = AppVM.CUE4ParseVM.Provider.LoadObjectExports(actor.GetPathName().SubstringBeforeLast("."));
+                            var staticMeshComponents = exports.Where(x => x.ExportType == "StaticMeshComponent");
+                            foreach (var component in staticMeshComponents)
+                            {
+                                var componentStaticMesh = component.Get<UStaticMesh>("StaticMesh");
+                                var export = ExportHelpers.Mesh(componentStaticMesh)!;
+                                data.Parts.Add(export);
+                            }
                         }
                         
                         // EXTRA MESHES

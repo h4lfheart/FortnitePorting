@@ -254,7 +254,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
     output_node.location = (200, 0)
     
     layered_textures = where(material_data.get("Textures"), lambda x: x.get("Name") in layered_texture_names)
-    if len(layered_textures) > 0:
+    if layered_textures and len(layered_textures) > 0:
         add_range(layered_textures, where(material_data.get("Textures"), lambda x: x.get("Name") in layered_texture_names_non_detecting))
     
         shader_node = nodes.new(type="ShaderNodeGroup")
