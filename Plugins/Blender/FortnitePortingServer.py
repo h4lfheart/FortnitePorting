@@ -253,7 +253,9 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
     output_node = nodes.new(type="ShaderNodeOutputMaterial")
     output_node.location = (200, 0)
     
-    layered_textures = where(material_data.get("Textures"), lambda x: x.get("Name") in layered_texture_names)
+    textures = material_data.get("Textures")
+    
+    layered_textures = where(textures, lambda x: x.get("Name") in layered_texture_names)
     if layered_textures and len(layered_textures) > 0:
         add_range(layered_textures, where(material_data.get("Textures"), lambda x: x.get("Name") in layered_texture_names_non_detecting))
     
@@ -282,15 +284,66 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
             links.new(node.outputs[0], shader_node.inputs[name])
             
         return
-        
-        
 
     shader_node = nodes.new(type="ShaderNodeGroup")
     shader_node.name = "FP Shader"
     shader_node.node_tree = bpy.data.node_groups.get(shader_node.name)
 
     links.new(shader_node.outputs[0], output_node.inputs[0])
-    
+
+    added_gradient_textures = []
+    if any(textures, lambda x: x.get("Name") == "Layer Mask"):
+        gradient_node = nodes.new(type="ShaderNodeGroup")
+        gradient_node.name = "FP Gradient"
+        gradient_node.node_tree = bpy.data.node_groups.get(gradient_node.name)
+        gradient_node.location = -500, 0
+
+        links.new(gradient_node.outputs[0], shader_node.inputs[0])
+        shader_node.inputs["Cavity"].default_value = 1.0
+
+        value_node = nodes.new("ShaderNodeValue")
+        value_node.location = -1000, -120
+        
+        def add_param(name, slot, pos, alpha_slot = None, value_connect = False):
+            found = first(textures, lambda x: x.get("Name") == name)
+            if has_override_data:
+                for override_data in override_datas:
+                    if found_override := first(override_data.get("Textures"), lambda x: x.get("Name") == name):
+                        found = found_override
+            if found is None:
+                return
+
+            name = found.get("Name")
+            value = found.get("Value")
+            
+            if (image := import_texture(value)) is None:
+                return
+
+            node = nodes.new(type="ShaderNodeTexImage")
+            node.image = image
+            node.image.alpha_mode = 'CHANNEL_PACKED'
+            node.hide = True
+            node.location = pos
+            added_gradient_textures.append(name)
+
+            links.new(node.outputs[0], gradient_node.inputs[slot])
+            if alpha_slot is not None:
+                links.new(node.outputs[1], gradient_node.inputs[alpha_slot])
+                
+            if value_connect:
+                links.new(value_node.outputs[0], node.inputs[0])
+                
+            return node
+        
+        add_param("Diffuse", "Diffuse", (-800, 0))
+        add_param("Layer Mask", "Layer Mask", (-800, -40), "Layer Mask Alpha")
+        add_param("SkinFX_Mask", "SkinFX_Mask", (-800, -80))
+        add_param("Layer1_Gradient", "Layer1_Gradient", (-800, -120), value_connect=True)
+        add_param("Layer2_Gradient", "Layer2_Gradient", (-800, -160), value_connect=True)
+        add_param("Layer3_Gradient", "Layer3_Gradient", (-800, -200), value_connect=True)
+        add_param("Layer4_Gradient", "Layer4_Gradient", (-800, -240), value_connect=True)
+        add_param("Layer5_Gradient", "Layer5_Gradient", (-800, -280), value_connect=True)
+            
     extra_pos_offset = 0
     def texture_parameter(data):
         if has_override_data:
@@ -301,7 +354,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
         name = data.get("Name")
         value = data.get("Value")
 
-        if (info := first(texture_mappings, lambda x: x[0].casefold() == name.casefold())) is None and name not in layered_texture_names:
+        if (info := first(texture_mappings, lambda x: x[0].casefold() == name.casefold())) is None and name not in layered_texture_names and name not in added_gradient_textures:
             node = nodes.new(type="ShaderNodeTexImage")
             node.image = import_texture(value)
             node.image.alpha_mode = 'CHANNEL_PACKED'
@@ -315,8 +368,14 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
             frame.label = name
             node.parent = frame
             return
+        
+        if info is None:
+            return
 
         _, slot, location, *linear = info
+        
+        if len(shader_node.inputs[slot].links) > 0:
+            return
 
         if slot == 12 and value.endswith("_FX"):
             return

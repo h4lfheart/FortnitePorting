@@ -531,7 +531,7 @@ public static class ExportHelpers
                         {
                             using var existingBitmap = SKBitmap.Decode(path);
                             var firstMip = texture.GetFirstMip();
-                            if (firstMip?.SizeX > existingBitmap.Width || firstMip?.SizeY > existingBitmap.Height)
+                            if (existingBitmap is not null && (firstMip?.SizeX > existingBitmap.Width || firstMip?.SizeY > existingBitmap.Height))
                             {
 
                                 extraString += $"{firstMip.SizeX}x{firstMip.SizeY}";
