@@ -225,8 +225,10 @@ layered_texture_names = [
 ]
 
 def import_material(target_slot: bpy.types.MaterialSlot, material_data):
+
     if not import_settings.get("ImportMaterials"):
         return
+    # material hashing and overrides
     mat_hash = material_data.get("Hash")
     override_datas = where(style_material_params, lambda x: x.get("MaterialToAlter").split(".")[1] == material_data.get("MaterialName"))
     has_override_data = override_datas is not None and len(override_datas) > 0
@@ -260,7 +262,10 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
     output_node.location = (200, 0)
     
     textures = material_data.get("Textures")
+    scalars = material_data.get("Scalars")
+    vectors = material_data.get("Vectors")
     
+    # layered materials
     layered_textures = where(textures, lambda x: x.get("Name") in layered_texture_names)
     if layered_textures and len(layered_textures) > 0:
         add_range(layered_textures, where(material_data.get("Textures"), lambda x: x.get("Name") in layered_texture_names_non_detecting))
@@ -290,6 +295,89 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
             links.new(node.outputs[0], shader_node.inputs[name])
             
         return
+    
+    is_glass = material_data.get("IsGlass")
+    if is_glass:
+        target_material.blend_method = "BLEND"
+        
+        shader_node = nodes.new(type="ShaderNodeGroup")
+        shader_node.name = "FP Glass"
+        shader_node.node_tree = bpy.data.node_groups.get(shader_node.name)
+        links.new(shader_node.outputs[0], output_node.inputs[0])
+
+        def add_texture(name, linear = False):
+            found = first(textures, lambda x: x.get("Name") == name)
+            if has_override_data:
+                for override_data in override_datas:
+                    if found_override := first(override_data.get("Textures"), lambda x: x.get("Name") == name):
+                        found = found_override
+            if found is None:
+                return
+
+            name = found.get("Name")
+            value = found.get("Value")
+
+            if (image := import_texture(value)) is None:
+                return
+
+            node = nodes.new(type="ShaderNodeTexImage")
+            node.image = image
+            node.image.alpha_mode = 'CHANNEL_PACKED'
+            node.hide = True
+            node.location = -400, 0
+            
+            if linear:
+                node.image.colorspace_settings.name = "Linear"
+
+            links.new(node.outputs[0], shader_node.inputs[name])
+
+            return node
+
+        def add_scalar(name):
+            found = first(scalars, lambda x: x.get("Name") == name)
+            if has_override_data:
+                for override_data in override_datas:
+                    if found_override := first(override_data.get("Scalars"), lambda x: x.get("Name") == name):
+                        found = found_override
+            if found is None:
+                return
+
+            name = found.get("Name")
+            value = found.get("Value")
+
+            shader_node.inputs[name].default_value = value
+
+        def add_vector(name):
+            found = first(vectors, lambda x: x.get("Name") == name)
+            if has_override_data:
+                for override_data in override_datas:
+                    if found_override := first(override_data.get("Vectors"), lambda x: x.get("Name") == name):
+                        found = found_override
+            if found is None:
+                return
+
+            name = found.get("Name")
+            value = found.get("Value")
+
+            shader_node.inputs[name].default_value = make_color(value)
+
+        add_texture("Normals", linear=True)
+
+        add_scalar("Fresnel Exponent")
+        add_scalar("Fresnel Inner Transparency")
+        add_scalar("Fresnel Outer Transparency")
+        add_scalar("Metallic")
+        add_scalar("Roughness")
+        add_scalar("Refraction")
+
+        add_vector("Base Color")
+        
+        if tint_param := first(scalars, lambda x: x.get("Name") == "Window Tint Amount"):
+            print(tint_param)
+            adj_tint = 1-tint_param.get("Value")
+            shader_node.inputs["Base Color"].default_value = (adj_tint, adj_tint, adj_tint, 1)
+        
+        return
 
     shader_node = nodes.new(type="ShaderNodeGroup")
     shader_node.name = "FP Shader"
@@ -301,6 +389,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
 
     links.new(shader_node.outputs[0], output_node.inputs[0])
 
+    # gradient skins
     added_gradient_textures = []
     if any(textures, lambda x: x.get("Name") == "Layer Mask"):
         gradient_node = nodes.new(type="ShaderNodeGroup")
@@ -1208,6 +1297,9 @@ def any(target, expr):
     filtered = list(filter(expr, target))
     return len(filtered) > 0
 
+def make_color(data):
+    return (data.get("R"), data.get("G"), data.get("B"), data.get("A"))
+
 def make_vector(data):
     return Vector((data.get("X"), data.get("Y"), data.get("Z")))
 
@@ -1399,26 +1491,27 @@ def message_box(message = "", title = "Message Box", icon = 'INFO'):
         self.layout.label(text=message)
 
     bpy.context.window_manager.popup_menu(draw, title = title, icon = icon)
+    
+def handler():
+    if import_event.is_set():
+        try:
+            import_response(server.data)
+        except Exception as e:
+            error_str = str(e)
+            Log.error(f"An unhandled error occurred:")
+            traceback.print_exc()
+            message_box(error_str, "An unhandled error occurred", "ERROR")
+            
+        import_event.clear()
+    return 0.01
 
 def register():
+    global import_event
     import_event = threading.Event()
 
     global server
     server = Receiver(import_event)
     server.start()
-
-    def handler():
-        if import_event.is_set():
-            try:
-                import_response(server.data)
-            except Exception as e:
-                error_str = str(e)
-                Log.error(f"An unhandled error occurred:")
-                traceback.print_exc()
-                message_box(error_str, "An unhandled error occurred", "ERROR")
-                
-            import_event.clear()
-        return 0.01
 
     bpy.app.timers.register(handler, persistent=True)
 

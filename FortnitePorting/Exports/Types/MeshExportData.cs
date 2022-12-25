@@ -100,30 +100,8 @@ public class MeshExportData : ExportDataBase
                     {
                         var material = overrideMaterials[i];
                         if (material is null) continue;
-                        
-                        var exportMaterial = new ExportMaterial
-                        {
-                            MaterialName = material.Name,
-                            SlotIndex = i
-                        };
 
-                        if (material is UMaterialInstanceConstant materialInstance)
-                        {
-                            var (textures, scalars, vectors) = ExportHelpers.MaterialParameters(materialInstance);
-                            exportMaterial.Textures = textures;
-                            exportMaterial.Scalars = scalars;
-                            exportMaterial.Vectors = vectors;
-                        }
-                        else
-                        {
-                            var (textures, scalars, vectors) = ExportHelpers.MaterialParameters(material);
-                            exportMaterial.Textures = textures;
-                            exportMaterial.Scalars = scalars;
-                            exportMaterial.Vectors = vectors;
-                        }
-
-                        exportMaterial.Hash = material.GetPathName().GetHashCode();
-                        
+                        var exportMaterial = ExportHelpers.CreateExportMaterial(material, i);
                         part.OverrideMaterials.Add(exportMaterial);
                     }
                     
@@ -170,7 +148,8 @@ public class MeshExportData : ExportDataBase
                                 AppLog.Error($"StaticMesh could not be found in actor {actor.Name} for prop {data.Name}");
                             foreach (var component in staticMeshComponents)
                             {
-                                var componentStaticMesh = component.Get<UStaticMesh>("StaticMesh");
+                                var componentStaticMesh = component.GetOrDefault<UStaticMesh?>("StaticMesh");
+                                if (componentStaticMesh is null) continue;
                                 var export = ExportHelpers.Mesh(componentStaticMesh)!;
                                 data.Parts.Add(export);
                             }

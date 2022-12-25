@@ -29,11 +29,16 @@ public record ExportMaterial
 {
     public string MaterialName;
     public int SlotIndex;
-    public string? MaterialNameToSwap;
     public int Hash;
+    public bool IsGlass;
     public List<TextureParameter> Textures = new();
     public List<ScalarParameter> Scalars = new();
     public List<VectorParameter> Vectors = new();
+}
+
+public record ExportMaterialOverride : ExportMaterial
+{
+    public string? MaterialNameToSwap;
 }
 
 public record ExportMaterialParams

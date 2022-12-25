@@ -73,32 +73,11 @@ public static class ExportHelpers
             {
                 var section = sections[idx];
                 if (section.Material is null) continue;
+                
+                if (!section.Material.TryLoad(out var materialObject)) continue;
+                if (materialObject is not UMaterialInterface material) continue;
 
-
-                if (!section.Material.TryLoad(out var material)) continue;
-
-                var exportMaterial = new ExportMaterial
-                {
-                    MaterialName = material.Name,
-                    SlotIndex = idx
-                };
-
-                if (material is UMaterialInstanceConstant materialInstance)
-                {
-                    var (textures, scalars, vectors) = MaterialParameters(materialInstance);
-                    exportMaterial.Textures = textures;
-                    exportMaterial.Scalars = scalars;
-                    exportMaterial.Vectors = vectors;
-                }
-                else if (material is UMaterialInterface materialInterface)
-                {
-                    var (textures, scalars, vectors) = MaterialParameters(materialInterface);
-                    exportMaterial.Textures = textures;
-                    exportMaterial.Scalars = scalars;
-                    exportMaterial.Vectors = vectors;
-                }
-
-                exportMaterial.Hash = material.GetPathName().GetHashCode();
+                var exportMaterial = CreateExportMaterial(material, idx);
                 exportPart.Materials.Add(exportMaterial);
 
             }
@@ -136,6 +115,8 @@ public static class ExportHelpers
         weaponDefinition.TryGetValue(out USkeletalMesh? offHandMesh, "WeaponMeshOffhandOverride");
         Mesh(offHandMesh, exportParts);
         
+        if (exportParts.Count > 0) return;
+        
         // TODO MATERIAL STYLES
         if (weaponDefinition.TryGetValue(out UBlueprintGeneratedClass blueprint, "WeaponActorClass"))
         {
@@ -171,30 +152,10 @@ public static class ExportHelpers
             var section = sections[idx];
             if (section.Material is null) continue;
             
-            if (!section.Material.TryLoad(out var material)) continue;
+            if (!section.Material.TryLoad(out var materialObject)) continue;
+            if (materialObject is not UMaterialInterface material) continue;
 
-            var exportMaterial = new ExportMaterial
-            {
-                MaterialName = material.Name,
-                SlotIndex = idx
-            };
-
-            if (material is UMaterialInstanceConstant materialInstance)
-            {
-                var (textures, scalars, vectors) = MaterialParameters(materialInstance);
-                exportMaterial.Textures = textures;
-                exportMaterial.Scalars = scalars;
-                exportMaterial.Vectors = vectors;
-            }
-            else if (material is UMaterialInterface materialInterface)
-            {
-                var (textures, scalars, vectors) = MaterialParameters(materialInterface);
-                exportMaterial.Textures = textures;
-                exportMaterial.Scalars = scalars;
-                exportMaterial.Vectors = vectors;
-            }
-
-            exportMaterial.Hash = material.GetPathName().GetHashCode();
+            var exportMaterial = CreateExportMaterial(material, idx);
             exportPart.Materials.Add(exportMaterial);
         }
 
@@ -219,23 +180,10 @@ public static class ExportHelpers
             if (section.Material is null) continue;
 
 
-            if (!section.Material.TryLoad(out var material)) continue;
+            if (!section.Material.TryLoad(out var materialObject)) continue;
+            if (materialObject is not UMaterialInterface material) continue;
 
-            var exportMaterial = new ExportMaterial
-            {
-                MaterialName = material.Name,
-                SlotIndex = idx
-            };
-
-            if (material is UMaterialInstanceConstant materialInstance)
-            {
-                var (textures, scalars, vectors) = MaterialParameters(materialInstance);
-                exportMaterial.Textures = textures;
-                exportMaterial.Scalars = scalars;
-                exportMaterial.Vectors = vectors;
-            }
-
-            exportMaterial.Hash = material.GetPathName().GetHashCode();
+            var exportMaterial = CreateExportMaterial(material, idx);
             exportPart.Materials.Add(exportMaterial);
         }
 
@@ -248,31 +196,12 @@ public static class ExportHelpers
         foreach (var materialOverride in overrides)
         {
             var overrideMaterial = materialOverride.Get<FSoftObjectPath>("OverrideMaterial");
-            if (!overrideMaterial.TryLoad(out var material)) continue;
+            if (!overrideMaterial.TryLoad(out var materialObject)) continue;
+            if (materialObject is not UMaterialInterface material) continue;
 
-            var exportMaterial = new ExportMaterial
-            {
-                MaterialName = material.Name,
-                SlotIndex = materialOverride.Get<int>("MaterialOverrideIndex"),
-                MaterialNameToSwap = materialOverride.GetOrDefault<FSoftObjectPath>("MaterialToSwap").AssetPathName.Text.SubstringAfterLast(".")
-            };
-
-            if (material is UMaterialInstanceConstant materialInstance)
-            {
-                var (textures, scalars, vectors) = MaterialParameters(materialInstance);
-                exportMaterial.Textures = textures;
-                exportMaterial.Scalars = scalars;
-                exportMaterial.Vectors = vectors;
-            }
-            else if (material is UMaterialInterface materialInterface)
-            {
-                var (textures, scalars, vectors) = MaterialParameters(materialInterface);
-                exportMaterial.Textures = textures;
-                exportMaterial.Scalars = scalars;
-                exportMaterial.Vectors = vectors;
-            }
+            var exportMaterial = CreateExportMaterial<ExportMaterialOverride>(material, materialOverride.Get<int>("MaterialOverrideIndex"));
+            exportMaterial.MaterialNameToSwap = materialOverride.GetOrDefault<FSoftObjectPath>("MaterialToSwap").AssetPathName.Text.SubstringAfterLast(".");
             
-            exportMaterial.Hash = material.GetPathName().GetHashCode();
             for (var idx = 0; idx < exportPart.Materials.Count; idx++)
             {
                 if (exportMaterial.SlotIndex >= exportPart.Materials.Count) continue;
@@ -290,31 +219,12 @@ public static class ExportHelpers
         foreach (var materialOverride in overrides)
         {
             var overrideMaterial = materialOverride.Get<FSoftObjectPath>("OverrideMaterial");
-            if (!overrideMaterial.TryLoad(out var material)) continue;
+            if (!overrideMaterial.TryLoad(out var materialObject)) continue;
+            if (materialObject is not UMaterialInterface material) continue;
 
-            var exportMaterial = new ExportMaterial
-            {
-                MaterialName = material.Name,
-                SlotIndex = materialOverride.Get<int>("MaterialOverrideIndex"),
-                MaterialNameToSwap = materialOverride.GetOrDefault<FSoftObjectPath>("MaterialToSwap").AssetPathName.Text.SubstringAfterLast(".")
-            };
-
-            if (material is UMaterialInstanceConstant materialInstance)
-            {
-                var (textures, scalars, vectors) = MaterialParameters(materialInstance);
-                exportMaterial.Textures = textures;
-                exportMaterial.Scalars = scalars;
-                exportMaterial.Vectors = vectors;
-            }
-            else if (material is UMaterialInterface materialInterface)
-            {
-                var (textures, scalars, vectors) = MaterialParameters(materialInterface);
-                exportMaterial.Textures = textures;
-                exportMaterial.Scalars = scalars;
-                exportMaterial.Vectors = vectors;
-            }
+            var exportMaterial = CreateExportMaterial<ExportMaterialOverride>(material, materialOverride.Get<int>("MaterialOverrideIndex"));
+            exportMaterial.MaterialNameToSwap = materialOverride.GetOrDefault<FSoftObjectPath>("MaterialToSwap").AssetPathName.Text.SubstringAfterLast(".");
             
-            exportMaterial.Hash = material.GetPathName().GetHashCode();
             exportMaterials.Add(exportMaterial);
         }
     }
@@ -396,7 +306,6 @@ public static class ExportHelpers
         }
         return (textures, new List<ScalarParameter>(), new List<VectorParameter>());
     }
-
     
     public static (List<TextureParameter>, List<ScalarParameter>, List<VectorParameter>) MaterialParametersOverride(FStructFallback data)
     {
@@ -445,32 +354,10 @@ public static class ExportHelpers
         {
             var section = sections[idx];
             if (section.Material is null) continue;
+            if (!section.Material.TryLoad(out var materialObject)) continue;
+            if (materialObject is not UMaterialInterface material) continue;
 
-
-            if (!section.Material.TryLoad(out var material)) continue;
-
-            var exportMaterial = new ExportMaterial
-            {
-                MaterialName = material.Name,
-                SlotIndex = idx
-            };
-
-            if (material is UMaterialInstanceConstant materialInstance)
-            {
-                var (textures, scalars, vectors) = MaterialParameters(materialInstance);
-                exportMaterial.Textures = textures;
-                exportMaterial.Scalars = scalars;
-                exportMaterial.Vectors = vectors;
-            }
-            else if (material is UMaterialInterface materialInterface)
-            {
-                var (textures, scalars, vectors) = MaterialParameters(materialInterface);
-                exportMaterial.Textures = textures;
-                exportMaterial.Scalars = scalars;
-                exportMaterial.Vectors = vectors;
-            }
-
-            exportMaterial.Hash = material.GetPathName().GetHashCode();
+            var exportMaterial = CreateExportMaterial(material, idx);
             exportMesh.Materials.Add(exportMaterial);
         }
 
@@ -499,30 +386,10 @@ public static class ExportHelpers
             var section = sections[idx];
             if (section.Material is null) continue;
             
-            if (!section.Material.TryLoad(out var material)) continue;
+            if (!section.Material.TryLoad(out var materialObject)) continue;
+            if (materialObject is not UMaterialInterface material) continue;
 
-            var exportMaterial = new ExportMaterial
-            {
-                MaterialName = material.Name,
-                SlotIndex = idx
-            };
-
-            if (material is UMaterialInstanceConstant materialInstance)
-            {
-                var (textures, scalars, vectors) = MaterialParameters(materialInstance);
-                exportMaterial.Textures = textures;
-                exportMaterial.Scalars = scalars;
-                exportMaterial.Vectors = vectors;
-            }
-            else if (material is UMaterialInterface materialInterface)
-            {
-                var (textures, scalars, vectors) = MaterialParameters(materialInterface);
-                exportMaterial.Textures = textures;
-                exportMaterial.Scalars = scalars;
-                exportMaterial.Vectors = vectors;
-            }
-
-            exportMaterial.Hash = material.GetPathName().GetHashCode();
+            var exportMaterial = CreateExportMaterial(material, idx);
             exportMesh.Materials.Add(exportMaterial);
         }
 
@@ -555,6 +422,76 @@ public static class ExportHelpers
             exportParams.Add(exportMaterialParams);
         }
     }
+
+    public static ExportMaterial CreateExportMaterial(UObject material, int materialIndex = 0)
+    {
+        return CreateExportMaterial<ExportMaterial>(material, materialIndex);
+    }
+
+    public static T CreateExportMaterial<T>(UObject material, int materialIndex = 0) where T : ExportMaterial
+    {
+        var exportMaterial = new ExportMaterial
+        {
+            MaterialName = material.Name,
+            SlotIndex = materialIndex
+        };
+
+        if (material is UMaterialInstanceConstant materialInstance)
+        {
+            var (textures, scalars, vectors) = MaterialParameters(materialInstance);
+            exportMaterial.Textures = textures;
+            exportMaterial.Scalars = scalars;
+            exportMaterial.Vectors = vectors;
+            exportMaterial.IsGlass = IsGlassMaterial(materialInstance);
+        }
+        else if (material is UMaterialInterface materialInterface)
+        {
+            var (textures, scalars, vectors) = MaterialParameters(materialInterface);
+            exportMaterial.Textures = textures;
+            exportMaterial.Scalars = scalars;
+            exportMaterial.Vectors = vectors;
+        }
+
+        exportMaterial.Hash = material.GetPathName().GetHashCode();
+        return (T) exportMaterial;
+    }
+
+    public static bool IsGlassMaterial(UMaterialInstanceConstant materialInstance)
+    {
+        var lastParent = materialInstance.GetLastParent();
+        var glassMaterialNames = new[]
+        {
+            "M_MED_Glass_Master",
+            "M_MED_Glass_WithDiffuse",
+            "M_Valet_Glass_Master",
+            "M_MineralPowder_Glass",
+            "M_CP_GlassGallery_Master",
+            "M_LauchTheBalloon_Microwave_Glass"
+        };
+
+        return glassMaterialNames.Contains(lastParent.Name, StringComparer.OrdinalIgnoreCase);
+    }
+
+    public static UMaterialInterface GetLastParent(this UMaterialInstanceConstant obj)
+    {
+        if (obj.Parent is UMaterial material) return material;
+        var hasParent = true;
+        var activeParent = obj.Parent;
+        while (hasParent)
+        {
+            if (activeParent is UMaterialInstanceConstant materialInstance)
+            {
+                activeParent = materialInstance.Parent;
+            }
+            else
+            {
+                hasParent = false;
+            }
+        }
+
+        return activeParent as UMaterialInterface;
+    }
+
 
     public static readonly List<Task> Tasks = new();
     private static readonly ExporterOptions ExportOptions = new()
