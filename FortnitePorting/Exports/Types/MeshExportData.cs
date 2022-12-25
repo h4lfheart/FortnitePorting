@@ -107,14 +107,15 @@ public class MeshExportData : ExportDataBase
                     
                     data.Parts.Add(part);
                     
-                    /*var exports = AppVM.CUE4ParseVM.Provider.LoadObjectExports(blueprint.GetPathName().SubstringBeforeLast("."));
+                    var exports = AppVM.CUE4ParseVM.Provider.LoadObjectExports(blueprint.GetPathName().SubstringBeforeLast("."));
                     var staticMeshComponents = exports.Where(x => x.ExportType == "StaticMeshComponent").ToArray();
                     foreach (var staticMeshComponent in staticMeshComponents)
                     {
+                        Log.Information(staticMeshComponent.Name);
                         var componentStaticMesh = staticMeshComponent.Get<UStaticMesh>("StaticMesh");
                         var export = ExportHelpers.Mesh(componentStaticMesh);
                         data.Parts.Add(export);
-                    }*/
+                    }
                     
                     break;
                 }

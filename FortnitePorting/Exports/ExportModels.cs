@@ -28,6 +28,7 @@ public class ExportPart : ExportMesh
 public record ExportMaterial
 {
     public string MaterialName;
+    public string? MasterMaterialName;
     public int SlotIndex;
     public int Hash;
     public bool IsGlass;

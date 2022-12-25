@@ -443,6 +443,7 @@ public static class ExportHelpers
             exportMaterial.Scalars = scalars;
             exportMaterial.Vectors = vectors;
             exportMaterial.IsGlass = IsGlassMaterial(materialInstance);
+            exportMaterial.MasterMaterialName = materialInstance.GetLastParent().Name;
         }
         else if (material is UMaterialInterface materialInterface)
         {

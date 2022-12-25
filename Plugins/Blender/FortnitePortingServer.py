@@ -373,7 +373,6 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
         add_vector("Base Color")
         
         if tint_param := first(scalars, lambda x: x.get("Name") == "Window Tint Amount"):
-            print(tint_param)
             adj_tint = 1-tint_param.get("Value")
             shader_node.inputs["Base Color"].default_value = (adj_tint, adj_tint, adj_tint, 1)
         
@@ -390,7 +389,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
     links.new(shader_node.outputs[0], output_node.inputs[0])
 
     # gradient skins
-    added_gradient_textures = []
+    added_textures = []
     if any(textures, lambda x: x.get("Name") == "Layer Mask"):
         gradient_node = nodes.new(type="ShaderNodeGroup")
         gradient_node.name = "FP Gradient"
@@ -404,7 +403,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
         value_node.location = -1000, -120
         value_node.outputs[0].default_value = 0.5
         
-        def add_param(name, slot, pos, alpha_slot = None, value_connect = False):
+        def add_texture(name, slot, pos, alpha_slot = None, value_connect = False):
             found = first(textures, lambda x: x.get("Name") == name)
             if has_override_data:
                 for override_data in override_datas:
@@ -424,7 +423,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
             node.image.alpha_mode = 'CHANNEL_PACKED'
             node.hide = True
             node.location = pos
-            added_gradient_textures.append(name)
+            added_textures.append(name)
 
             links.new(node.outputs[0], gradient_node.inputs[slot])
             if alpha_slot is not None:
@@ -434,15 +433,86 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
                 links.new(value_node.outputs[0], node.inputs[0])
                 
             return node
+
+        add_texture("Diffuse", "Diffuse", (-800, 0))
+        add_texture("Layer Mask", "Layer Mask", (-800, -40), "Layer Mask Alpha")
+        add_texture("SkinFX_Mask", "SkinFX_Mask", (-800, -80))
+        add_texture("Layer1_Gradient", "Layer1_Gradient", (-800, -120), value_connect=True)
+        add_texture("Layer2_Gradient", "Layer2_Gradient", (-800, -160), value_connect=True)
+        add_texture("Layer3_Gradient", "Layer3_Gradient", (-800, -200), value_connect=True)
+        add_texture("Layer4_Gradient", "Layer4_Gradient", (-800, -240), value_connect=True)
+        add_texture("Layer5_Gradient", "Layer5_Gradient", (-800, -280), value_connect=True)
         
-        add_param("Diffuse", "Diffuse", (-800, 0))
-        add_param("Layer Mask", "Layer Mask", (-800, -40), "Layer Mask Alpha")
-        add_param("SkinFX_Mask", "SkinFX_Mask", (-800, -80))
-        add_param("Layer1_Gradient", "Layer1_Gradient", (-800, -120), value_connect=True)
-        add_param("Layer2_Gradient", "Layer2_Gradient", (-800, -160), value_connect=True)
-        add_param("Layer3_Gradient", "Layer3_Gradient", (-800, -200), value_connect=True)
-        add_param("Layer4_Gradient", "Layer4_Gradient", (-800, -240), value_connect=True)
-        add_param("Layer5_Gradient", "Layer5_Gradient", (-800, -280), value_connect=True)
+    if material_data.get("MasterMaterialName") == "M_FN_Valet_Master":
+        valet_node = nodes.new(type="ShaderNodeGroup")
+        valet_node.name = "FP Valet"
+        valet_node.node_tree = bpy.data.node_groups.get(valet_node.name)
+        valet_node.location = -500, 0
+        
+        links.new(valet_node.outputs[0], shader_node.inputs[0])
+        shader_node.inputs["Cavity"].default_value = 0.0
+        shader_node.inputs["Subsurface"].default_value = 0.0
+
+        def add_texture(name, slot, pos, alpha_slot = None, to_node = valet_node):
+            found = first(textures, lambda x: x.get("Name") == name)
+            if has_override_data:
+                for override_data in override_datas:
+                    if found_override := first(override_data.get("Textures"), lambda x: x.get("Name") == name):
+                        found = found_override
+            if found is None:
+                return
+
+            name = found.get("Name")
+            value = found.get("Value")
+
+            if (image := import_texture(value)) is None:
+                return
+
+            node = nodes.new(type="ShaderNodeTexImage")
+            node.image = image
+            node.image.alpha_mode = 'CHANNEL_PACKED'
+            node.hide = True
+            node.location = pos
+            added_textures.append(name)
+
+            links.new(node.outputs[0], to_node.inputs[slot])
+            if alpha_slot is not None:
+                links.new(node.outputs[1], to_node.inputs[alpha_slot])
+
+            return node
+
+        def add_vector(name):
+            found = first(vectors, lambda x: x.get("Name") == name)
+            if has_override_data:
+                for override_data in override_datas:
+                    if found_override := first(override_data.get("Vectors"), lambda x: x.get("Name") == name):
+                        found = found_override
+            if found is None:
+                return
+
+            name = found.get("Name")
+            value = found.get("Value")
+
+            valet_node.inputs[name].default_value = make_color(value)
+        
+        add_texture("Diffuse", "Diffuse", (-800, 0))
+        add_texture("Mask", "Mask", (-800, -40), "Mask Alpha")
+
+        add_vector("Layer 01 Color")
+        add_vector("Layer 02 Color")
+        add_vector("Layer 03 Color")
+        add_vector("Layer 04 Color")
+        
+        add_texture("Gmap/Emissive/Lights", "M", (-300, -225), to_node=shader_node)
+
+        valet_fix_node = nodes.new(type="ShaderNodeGroup")
+        valet_fix_node.name = "FP Valet SpecFix"
+        valet_fix_node.node_tree = bpy.data.node_groups.get(valet_fix_node.name)
+        valet_fix_node.location = -200, 200
+        links.new(valet_fix_node.outputs[0], shader_node.inputs["Specular Masks"])
+
+        add_texture("Specular Mask", "SpecularMasks", (-500, 200), to_node=valet_fix_node)
+    
             
     extra_pos_offset = 0
     def texture_parameter(data):
@@ -454,7 +524,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
         name = data.get("Name")
         value = data.get("Value")
 
-        if (info := first(texture_mappings, lambda x: x[0].casefold() == name.casefold())) is None and name not in layered_texture_names and name not in added_gradient_textures:
+        if (info := first(texture_mappings, lambda x: x[0].casefold() == name.casefold())) is None and name not in layered_texture_names and name not in added_textures:
             node = nodes.new(type="ShaderNodeTexImage")
             node.image = import_texture(value)
             node.image.alpha_mode = 'CHANNEL_PACKED'
