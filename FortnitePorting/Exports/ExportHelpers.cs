@@ -467,7 +467,8 @@ public static class ExportHelpers
             "M_Valet_Glass_Master",
             "M_MineralPowder_Glass",
             "M_CP_GlassGallery_Master",
-            "M_LauchTheBalloon_Microwave_Glass"
+            "M_LauchTheBalloon_Microwave_Glass",
+            "M_MED_Glass_HighTower"
         };
 
         return glassMaterialNames.Contains(lastParent.Name, StringComparer.OrdinalIgnoreCase);

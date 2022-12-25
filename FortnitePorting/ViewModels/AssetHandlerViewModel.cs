@@ -45,7 +45,7 @@ public class AssetHandlerViewModel
         AssetType = EAssetType.Outfit,
         TargetCollection = AppVM.MainVM.Outfits,
         ClassNames = new List<string> { "AthenaCharacterItemDefinition" },
-        RemoveList = new List<string> { "_NPC", "_TBD", "_VIP", "_Creative", "_SG"},
+        RemoveList = new List<string> { "_NPC", "_TBD", "CID_VIP", "_Creative", "_SG"},
         IconGetter = asset =>
         {
             asset.TryGetValue(out UTexture2D? previewImage, "SmallPreviewImage", "LargePreviewImage");

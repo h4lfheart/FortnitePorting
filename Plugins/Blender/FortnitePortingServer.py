@@ -136,6 +136,8 @@ scalar_mappings = {
 
     ("Emissive Fres EX", "Emissive Fresnel Exponent"),
     ("EmissiveFresnelExp", "Emissive Fresnel Exponent"),
+
+    ("HT_CrunchVerts", "Alpha"),
 }
 
 # Name, Slot, *Alpha
@@ -204,6 +206,13 @@ def add_range(list, items):
     for item in items:
         list.append(item)
 
+def add_range_unique_param_name(list, items):
+    if items is None:
+        return
+    for item in items:
+        if not any(list, lambda x: x.get("Name") == item.get("Name")):
+            list.append(item)
+
 layered_texture_names_non_detecting = [
     "Diffuse",
     "Normals",
@@ -260,10 +269,16 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
 
     output_node = nodes.new(type="ShaderNodeOutputMaterial")
     output_node.location = (200, 0)
-    
+
     textures = material_data.get("Textures")
     scalars = material_data.get("Scalars")
     vectors = material_data.get("Vectors")
+    
+    if has_override_data:
+        for override_data in override_datas:
+            add_range_unique_param_name(textures, override_data.get("Textures"))
+            add_range_unique_param_name(scalars, override_data.get("Scalars"))
+            add_range_unique_param_name(vectors, override_data.get("Vectors"))
     
     # layered materials
     layered_textures = where(textures, lambda x: x.get("Name") in layered_texture_names)
@@ -333,7 +348,9 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
 
             return node
 
-        def add_scalar(name):
+        def add_scalar(name, slot=None):
+            if slot is None:
+                slot = name
             found = first(scalars, lambda x: x.get("Name") == name)
             if has_override_data:
                 for override_data in override_datas:
@@ -345,7 +362,9 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
             name = found.get("Name")
             value = found.get("Value")
 
-            shader_node.inputs[name].default_value = value
+            if name == "HT_CrunchVerts":
+                value = 1-value
+            shader_node.inputs[slot].default_value = value
 
         def add_vector(name):
             found = first(vectors, lambda x: x.get("Name") == name)
@@ -369,6 +388,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
         add_scalar("Metallic")
         add_scalar("Roughness")
         add_scalar("Refraction")
+        add_scalar("HT_CrunchVerts", "Alpha")
 
         add_vector("Base Color")
         
@@ -512,8 +532,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
         links.new(valet_fix_node.outputs[0], shader_node.inputs["Specular Masks"])
 
         add_texture("Specular Mask", "SpecularMasks", (-500, 200), to_node=valet_fix_node)
-    
-            
+      
     extra_pos_offset = 0
     def texture_parameter(data):
         if has_override_data:
@@ -584,9 +603,16 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
             return
 
         _, slot = info
+        
+        if name == "HT_CrunchVerts":
+            value = 1-value
 
         shader_node.inputs[slot].default_value = value
-
+        
+        if slot == "Alpha":
+            target_material.blend_method = "CLIP"
+            target_material.shadow_method = "CLIP"
+        
     def vector_parameter(data):
         if has_override_data:
             for override_data in override_datas:
@@ -609,15 +635,12 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
             except TypeError:
                 shader_node.inputs[extra[0]].default_value = int(value["A"])
 
-    textures = material_data.get("Textures")
     for texture in textures:
         texture_parameter(texture)
 
-    scalars = material_data.get("Scalars")
     for scalar in scalars:
         scalar_parameter(scalar)
 
-    vectors = material_data.get("Vectors")
     for vector in vectors:
         vector_parameter(vector)
         
