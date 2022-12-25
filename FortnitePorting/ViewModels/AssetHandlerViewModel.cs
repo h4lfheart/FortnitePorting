@@ -10,12 +10,13 @@ using System.Windows.Threading;
 using CUE4Parse.UE4.AssetRegistry.Objects;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Texture;
-using CUE4Parse.UE4.Objects.UObject;
+using CUE4Parse.UE4.Assets.Objects;
+using CUE4Parse.UE4.Objects.Core.i18N;
+using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.Utils;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Views.Controls;
 using FortnitePorting.Views.Extensions;
-using Serilog;
 
 namespace FortnitePorting.ViewModels;
 
@@ -33,6 +34,7 @@ public class AssetHandlerViewModel
             { EAssetType.Glider, GliderHandler },
             { EAssetType.Weapon, WeaponHandler },
             { EAssetType.Dance, DanceHandler },
+            { EAssetType.Vehicle, VehicleHandler },
             { EAssetType.Prop, PropHandler },
         };
 
@@ -109,6 +111,46 @@ public class AssetHandlerViewModel
         IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
     };
     
+    private readonly AssetHandlerData VehicleHandler = new()
+    {
+        AssetType = EAssetType.Vehicle,
+        TargetCollection = AppVM.MainVM.Vehicles,
+        ClassNames = new List<string> { "FortVehicleItemDefinition" },
+        RemoveList = {},
+        IconGetter = asset =>
+        {
+            var icon = asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage");
+            if (icon is null)
+            {
+                var blueprint = asset.Get<UBlueprintGeneratedClass>("VehicleActorClass");
+                var classDefaultObject = blueprint.ClassDefaultObject.Load();
+                var markerDisplay = classDefaultObject?.Get<FStructFallback>("MarkerDisplay");
+                icon = markerDisplay?.GetOrDefault<UTexture2D?>("Icon");
+            }
+            
+            return icon;
+        },
+        DisplayNameGetter = asset =>
+        {
+            var displayText = asset.GetOrDefault<FText?>("DisplayName");
+            if (displayText is null)
+            {
+                var blueprint = asset.Get<UBlueprintGeneratedClass>("VehicleActorClass");
+                var classDefaultObject = blueprint.ClassDefaultObject.Load();
+                var markerDisplay = classDefaultObject?.Get<FStructFallback>("MarkerDisplay");
+                displayText = markerDisplay?.GetOrDefault<FText?>("DisplayName");
+                if (displayText is null)
+                {
+                    var configClass = classDefaultObject?.Get<UBlueprintGeneratedClass>("VehicleConfigsClass");
+                    var configClassDefaultObject = configClass?.ClassDefaultObject.Load();
+                    displayText = configClassDefaultObject?.GetOrDefault<FText?>("PlayerFacingLocName");
+                }
+            }
+
+            return displayText;
+        }
+    };
+    
     private readonly AssetHandlerData PropHandler = new()
     {
         AssetType = EAssetType.Prop,
@@ -135,6 +177,7 @@ public class AssetHandlerData
     public List<string> ClassNames;
     public List<string> RemoveList = Enumerable.Empty<string>().ToList();
     public Func<UObject, UTexture2D?> IconGetter;
+    public Func<UObject, FText?>? DisplayNameGetter;
 
     public async Task Execute()
     {
@@ -210,6 +253,6 @@ public class AssetHandlerData
 
         var previewImage = IconGetter(asset);
         await Application.Current.Dispatcher.InvokeAsync(
-            () => TargetCollection.Add(new AssetSelectorItem(asset, previewImage, type, random)), DispatcherPriority.Background);
+            () => TargetCollection.Add(new AssetSelectorItem(asset, previewImage, type, random, DisplayNameGetter?.Invoke(asset))), DispatcherPriority.Background);
     }
 }

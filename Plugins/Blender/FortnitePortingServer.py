@@ -95,19 +95,25 @@ class Receiver(threading.Thread):
 # Name, Slot, Location, *Linear
 texture_mappings = {
     ("Diffuse", "Diffuse", (-300, -75)),
+    ("PM_Diffuse", "Diffuse", (-300, -75)),
     ("PetalDetailMap", "Diffuse", (-300, -75)),
 
     ("SpecularMasks", "Specular Masks", (-300, -125), True),
+    ("PM_SpecularMasks", "Specular Masks", (-300, -125), True),
+    ("Specular Mask", "Specular Masks", (-300, -125), True),
     ("SpecMap", "Specular Masks", (-300, -125), True),
 
     ("Normals", "Normals", (-300, -175), True),
+    ("PM_Normals", "Normals", (-300, -125), True),
     ("Normal", "Normals", (-300, -175), True),
     ("NormalMap", "Normals", (-300, -175), True),
 
     ("M", "M", (-300, -225), True),
 
     ("Emissive", "Emissive", (-300, -325)),
+    ("PM_Emissive", "Emissive", (-300, -325)),
     ("EmissiveTexture", "Emissive", (-300, -325)),
+    ("Tank Emissive", "Emissive", (-300, -325)),
 }
 
 # Name, Slot
@@ -1366,6 +1372,9 @@ def import_response(response):
     
                     for override_material in part.get("OverrideMaterials"):
                         index = override_material.get("SlotIndex")
+                        slots = mesh.material_slots.values()
+                        if index >= len(slots):
+                            continue
                         import_material(mesh.material_slots.values()[index], override_material)
     
             import_parts(import_data.get("StyleParts"))

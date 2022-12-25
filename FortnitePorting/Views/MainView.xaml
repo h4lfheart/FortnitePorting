@@ -158,6 +158,18 @@
                     </TabItem>
                     <TabItem Style="{StaticResource TabItemEqualSize}">
                         <TabItem.Header>
+                            <controls:TextWithIcon Label="Vehicles" ImageSource="/FortnitePorting;component/Resources/Vehicle.png"/>
+                        </TabItem.Header>
+                        <ListBox  ItemsSource="{Binding Vehicles}" SelectionChanged="OnAssetSelectionChanged">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <toolkitCtrls:VirtualizingWrapPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                        </ListBox>
+                    </TabItem>
+                    <TabItem Style="{StaticResource TabItemEqualSize}">
+                        <TabItem.Header>
                             <controls:TextWithIcon Label="Props" ImageSource="/FortnitePorting;component/Resources/Props.png"/>
                         </TabItem.Header>
                         <ListBox SelectionMode="Extended" ItemsSource="{Binding Props}" SelectionChanged="OnAssetSelectionChanged">

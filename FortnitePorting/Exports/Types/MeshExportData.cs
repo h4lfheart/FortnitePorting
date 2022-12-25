@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CUE4Parse.GameTypes.FN.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Objects;
@@ -64,6 +65,79 @@ public class MeshExportData : ExportDataBase
                 case EAssetType.Weapon:
                 {
                     ExportHelpers.Weapon(asset, data.Parts);
+                    break;
+                }
+                case EAssetType.Vehicle:
+                {
+                    UObject? GetMeshComponent(UBlueprintGeneratedClass? blueprint)
+                    {
+                        if (blueprint is null) return null;
+                        
+                        var classDefaultObject = blueprint.ClassDefaultObject.Load();
+                        if (classDefaultObject is null) return null;
+
+                        var skeletalMeshComponent = classDefaultObject.GetOrDefault<UObject?>("SkeletalMesh");
+                        return skeletalMeshComponent;
+                    }
+                    
+                    var blueprint = asset.Get<UBlueprintGeneratedClass>("VehicleActorClass");
+                    
+                    var component = GetMeshComponent(blueprint);
+                    if (component is null) break;
+                    
+                    var mesh = component.GetOrDefault<USkeletalMesh?>("SkeletalMesh");
+                    if (mesh is null)
+                    {
+                        var superStruct = blueprint.SuperStruct.Load<UBlueprintGeneratedClass>();
+                        mesh = GetMeshComponent(superStruct)?.GetOrDefault<USkeletalMesh?>("SkeletalMesh");
+                    }
+                    
+                    var part = ExportHelpers.Mesh<ExportMesh>(mesh);
+                    if (part is null) break;
+
+                    var overrideMaterials = component.GetOrDefault("OverrideMaterials", Array.Empty<UMaterialInterface?>());
+                    for (var i = 0; i < overrideMaterials.Length; i++)
+                    {
+                        var material = overrideMaterials[i];
+                        if (material is null) continue;
+                        
+                        var exportMaterial = new ExportMaterial
+                        {
+                            MaterialName = material.Name,
+                            SlotIndex = i
+                        };
+
+                        if (material is UMaterialInstanceConstant materialInstance)
+                        {
+                            var (textures, scalars, vectors) = ExportHelpers.MaterialParameters(materialInstance);
+                            exportMaterial.Textures = textures;
+                            exportMaterial.Scalars = scalars;
+                            exportMaterial.Vectors = vectors;
+                        }
+                        else
+                        {
+                            var (textures, scalars, vectors) = ExportHelpers.MaterialParameters(material);
+                            exportMaterial.Textures = textures;
+                            exportMaterial.Scalars = scalars;
+                            exportMaterial.Vectors = vectors;
+                        }
+
+                        exportMaterial.Hash = material.GetPathName().GetHashCode();
+                        
+                        part.OverrideMaterials.Add(exportMaterial);
+                    }
+                    
+                    data.Parts.Add(part);
+                    
+                    /*var exports = AppVM.CUE4ParseVM.Provider.LoadObjectExports(blueprint.GetPathName().SubstringBeforeLast("."));
+                    var staticMeshComponents = exports.Where(x => x.ExportType == "StaticMeshComponent").ToArray();
+                    foreach (var staticMeshComponent in staticMeshComponents)
+                    {
+                        var componentStaticMesh = staticMeshComponent.Get<UStaticMesh>("StaticMesh");
+                        var export = ExportHelpers.Mesh(componentStaticMesh);
+                        data.Parts.Add(export);
+                    }*/
+                    
                     break;
                 }
                 case EAssetType.Prop:

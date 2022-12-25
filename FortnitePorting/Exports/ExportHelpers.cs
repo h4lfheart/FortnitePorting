@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CUE4Parse_Conversion;
 using CUE4Parse_Conversion.Animations;
@@ -85,6 +86,13 @@ public static class ExportHelpers
                 if (material is UMaterialInstanceConstant materialInstance)
                 {
                     var (textures, scalars, vectors) = MaterialParameters(materialInstance);
+                    exportMaterial.Textures = textures;
+                    exportMaterial.Scalars = scalars;
+                    exportMaterial.Vectors = vectors;
+                }
+                else if (material is UMaterialInterface materialInterface)
+                {
+                    var (textures, scalars, vectors) = MaterialParameters(materialInterface);
                     exportMaterial.Textures = textures;
                     exportMaterial.Scalars = scalars;
                     exportMaterial.Vectors = vectors;
@@ -178,6 +186,13 @@ public static class ExportHelpers
                 exportMaterial.Scalars = scalars;
                 exportMaterial.Vectors = vectors;
             }
+            else if (material is UMaterialInterface materialInterface)
+            {
+                var (textures, scalars, vectors) = MaterialParameters(materialInterface);
+                exportMaterial.Textures = textures;
+                exportMaterial.Scalars = scalars;
+                exportMaterial.Vectors = vectors;
+            }
 
             exportMaterial.Hash = material.GetPathName().GetHashCode();
             exportPart.Materials.Add(exportMaterial);
@@ -249,6 +264,13 @@ public static class ExportHelpers
                 exportMaterial.Scalars = scalars;
                 exportMaterial.Vectors = vectors;
             }
+            else if (material is UMaterialInterface materialInterface)
+            {
+                var (textures, scalars, vectors) = MaterialParameters(materialInterface);
+                exportMaterial.Textures = textures;
+                exportMaterial.Scalars = scalars;
+                exportMaterial.Vectors = vectors;
+            }
             
             exportMaterial.Hash = material.GetPathName().GetHashCode();
             for (var idx = 0; idx < exportPart.Materials.Count; idx++)
@@ -280,6 +302,13 @@ public static class ExportHelpers
             if (material is UMaterialInstanceConstant materialInstance)
             {
                 var (textures, scalars, vectors) = MaterialParameters(materialInstance);
+                exportMaterial.Textures = textures;
+                exportMaterial.Scalars = scalars;
+                exportMaterial.Vectors = vectors;
+            }
+            else if (material is UMaterialInterface materialInterface)
+            {
+                var (textures, scalars, vectors) = MaterialParameters(materialInterface);
                 exportMaterial.Textures = textures;
                 exportMaterial.Scalars = scalars;
                 exportMaterial.Vectors = vectors;
@@ -334,8 +363,40 @@ public static class ExportHelpers
                 vectors.Add(parentVector);
             }
         }
+
+        var parameters = new CMaterialParams2();
+        materialInstance.GetParams(parameters);
+        var egg = parameters.Textures;
+        
+        if (parameters.TryGetTexture2d(out var specularMasksTexture, CMaterialParams2.SpecularMasks[0]))
+        {
+            Save(specularMasksTexture);
+            textures.Add(new TextureParameter("SpecularMasks", specularMasksTexture.GetPathName()));
+        }
+        
+        if (parameters.TryGetTexture2d(out var normalsTexture, CMaterialParams2.Normals[0]))
+        {
+            Save(normalsTexture);
+            textures.Add(new TextureParameter("Normals", normalsTexture.GetPathName()));
+        }
         return (textures, scalars, vectors);
     }
+    
+    public static (List<TextureParameter>, List<ScalarParameter>, List<VectorParameter>) MaterialParameters(UMaterialInterface materialInterface)
+    {
+        var parameters = new CMaterialParams2();
+        materialInterface.GetParams(parameters);
+        
+        var textures = new List<TextureParameter>();
+        foreach (var (name, value) in parameters.Textures)
+        {
+            var texture = (UTexture2D) value;
+            Save(texture);
+            textures.Add(new TextureParameter(name, texture.GetPathName()));
+        }
+        return (textures, new List<ScalarParameter>(), new List<VectorParameter>());
+    }
+
     
     public static (List<TextureParameter>, List<ScalarParameter>, List<VectorParameter>) MaterialParametersOverride(FStructFallback data)
     {
@@ -401,6 +462,13 @@ public static class ExportHelpers
                 exportMaterial.Scalars = scalars;
                 exportMaterial.Vectors = vectors;
             }
+            else if (material is UMaterialInterface materialInterface)
+            {
+                var (textures, scalars, vectors) = MaterialParameters(materialInterface);
+                exportMaterial.Textures = textures;
+                exportMaterial.Scalars = scalars;
+                exportMaterial.Vectors = vectors;
+            }
 
             exportMaterial.Hash = material.GetPathName().GetHashCode();
             exportMesh.Materials.Add(exportMaterial);
@@ -430,8 +498,7 @@ public static class ExportHelpers
         {
             var section = sections[idx];
             if (section.Material is null) continue;
-
-
+            
             if (!section.Material.TryLoad(out var material)) continue;
 
             var exportMaterial = new ExportMaterial
@@ -443,6 +510,13 @@ public static class ExportHelpers
             if (material is UMaterialInstanceConstant materialInstance)
             {
                 var (textures, scalars, vectors) = MaterialParameters(materialInstance);
+                exportMaterial.Textures = textures;
+                exportMaterial.Scalars = scalars;
+                exportMaterial.Vectors = vectors;
+            }
+            else if (material is UMaterialInterface materialInterface)
+            {
+                var (textures, scalars, vectors) = MaterialParameters(materialInterface);
                 exportMaterial.Textures = textures;
                 exportMaterial.Scalars = scalars;
                 exportMaterial.Vectors = vectors;
