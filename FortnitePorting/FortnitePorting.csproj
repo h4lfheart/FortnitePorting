@@ -11,6 +11,7 @@
     <ItemGroup>
       <PackageReference Include="AdonisUI" Version="1.17.1" />
       <PackageReference Include="AdonisUI.ClassicTheme" Version="1.17.1" />
+      <PackageReference Include="Autoupdater.NET.Official" Version="1.7.6" />
       <PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
       <PackageReference Include="DiscordRichPresence" Version="1.0.175" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.2-beta2" />

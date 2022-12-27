@@ -4,10 +4,12 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Threading;
 using AdonisUI.Controls;
+using AutoUpdaterDotNET;
 using CUE4Parse.UE4.Assets;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Exports.Types;
 using FortnitePorting.Services;
+using FortnitePorting.Views;
 using MessageBox = AdonisUI.Controls.MessageBox;
 using MessageBoxImage = AdonisUI.Controls.MessageBoxImage;
 
@@ -54,10 +56,13 @@ public partial class App
         DataFolder.Create();
         LogsFolder.Create();
 
+        UpdateService.Initialize();
+
         if (AppSettings.Current.DiscordRichPresence)
         {
             DiscordService.Initialize();
         }
+        
     }
 
     protected override void OnExit(ExitEventArgs e)
@@ -82,4 +87,5 @@ public partial class App
 
         e.Handled = true;
     }
+    
 }

@@ -111,7 +111,8 @@ public class MeshExportData : ExportDataBase
                     var staticMeshComponents = exports.Where(x => x.ExportType == "StaticMeshComponent").ToArray();
                     foreach (var staticMeshComponent in staticMeshComponents)
                     {
-                        var componentStaticMesh = staticMeshComponent.Get<UStaticMesh>("StaticMesh");
+                        var componentStaticMesh = staticMeshComponent.GetOrDefault<UStaticMesh?>("StaticMesh");
+                        if (componentStaticMesh is null) continue;
                         var export = ExportHelpers.Mesh(componentStaticMesh);
                         data.Parts.Add(export);
                     }

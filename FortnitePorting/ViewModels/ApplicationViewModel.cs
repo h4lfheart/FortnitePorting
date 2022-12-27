@@ -54,6 +54,7 @@ public class ApplicationViewModel : ObservableObject
     
     public void Quit()
     {
+        AppSettings.Save();
         Application.Current.Shutdown();
     }
 }

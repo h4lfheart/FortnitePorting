@@ -314,13 +314,17 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
     is_glass = material_data.get("IsGlass")
     if is_glass:
         target_material.blend_method = "BLEND"
+        target_material.blend_method = "BLEND"
+        target_material.show_transparent_back = False
         
         shader_node = nodes.new(type="ShaderNodeGroup")
         shader_node.name = "FP Glass"
         shader_node.node_tree = bpy.data.node_groups.get(shader_node.name)
         links.new(shader_node.outputs[0], output_node.inputs[0])
 
-        def add_texture(name, linear = False):
+        def add_texture(name, slot=None, linear = False):
+            if slot is None:
+                slot = name
             found = first(textures, lambda x: x.get("Name") == name)
             if has_override_data:
                 for override_data in override_datas:
@@ -344,7 +348,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
             if linear:
                 node.image.colorspace_settings.name = "Linear"
 
-            links.new(node.outputs[0], shader_node.inputs[name])
+            links.new(node.outputs[0], shader_node.inputs[slot])
 
             return node
 
@@ -365,7 +369,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
             if name == "HT_CrunchVerts":
                 value = 1-value
             shader_node.inputs[slot].default_value = value
-
+            
         def add_vector(name):
             found = first(vectors, lambda x: x.get("Name") == name)
             if has_override_data:
@@ -380,7 +384,11 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
 
             shader_node.inputs[name].default_value = make_color(value)
 
+        add_texture("Diffuse Texture", "Base Color")
+        add_texture("PM_Diffuse", "Base Color")
         add_texture("Normals", linear=True)
+        add_texture("BakedNormal", "Normals", linear=True)
+        add_texture("PM_Normals", "Normals", linear=True)
 
         add_scalar("Fresnel Exponent")
         add_scalar("Fresnel Inner Transparency")
@@ -410,7 +418,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
 
     # gradient skins
     added_textures = []
-    if any(textures, lambda x: x.get("Name") == "Layer Mask"):
+    if (layer_mask := first(textures, lambda x: x.get("Name") == "Layer Mask")) and "DefaultDiffuse" not in layer_mask.get("Value"):
         gradient_node = nodes.new(type="ShaderNodeGroup")
         gradient_node.name = "FP Gradient"
         gradient_node.node_tree = bpy.data.node_groups.get(gradient_node.name)
@@ -566,7 +574,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
         if len(shader_node.inputs[slot].links) > 0:
             return
 
-        if slot == 12 and value.endswith("_FX"):
+        if slot == "Emissive" and value.endswith("_FX"):
             return
 
         if (image := import_texture(value)) is None:
@@ -1411,6 +1419,7 @@ def import_response(response):
     style_material_params = []
 
     import_datas = response.get("Data")
+    print(json.dumps(import_settings))
     
     for import_index, import_data in enumerate(import_datas):
 
@@ -1573,8 +1582,18 @@ def import_response(response):
     
             if import_settings.get("MergeSkeletons") and import_type == "Outfit":
                 master_skeleton = merge_skeletons(imported_parts)
-                if RigType(import_settings.get("RigType")) == RigType.TASTY:
+                if import_settings.get("PoseFixes"):
+                    master_mesh = mesh_from_armature(master_skeleton)
+                    master_mesh.modifiers[0].use_deform_preserve_volume = True
+                    corrective_smooth = master_mesh.modifiers.new(name="Corrective Smooth", type='CORRECTIVE_SMOOTH')
+                    corrective_smooth.use_pin_boundary = True
+
+            if RigType(import_settings.get("RigType")) == RigType.TASTY:
                     apply_tasty_rig(master_skeleton)
+                    
+                
+            
+            
         
             bpy.ops.object.select_all(action='DESELECT')
     

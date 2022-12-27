@@ -84,3 +84,11 @@ public enum ESortType
     [Description("Series")]
     Series
 }
+
+public enum EUpdateMode
+{
+    [Description("Stable")]
+    Stable,
+    [Description("Experimental")]
+    Experimental
+}

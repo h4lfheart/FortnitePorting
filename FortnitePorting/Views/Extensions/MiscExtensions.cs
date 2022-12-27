@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -40,5 +41,11 @@ public static class MiscExtensions
         {
             collection.Add(item);
         }
+    }
+
+    public static string CommaJoin<T>(this IEnumerable<T> enumerable)
+    {
+        var list = enumerable.ToList();
+        return list.Count > 1 ? string.Join(", ", list.Take(list.Count - 1)) + ", and " + list.Last() : list.First().ToString();
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -18,6 +19,7 @@ namespace FortnitePorting.Views;
 
 public partial class MainView
 {
+    public static MainView YesWeDogs;
     public MainView()
     {
         InitializeComponent();
@@ -25,7 +27,8 @@ public partial class MainView
         DataContext = AppVM.MainVM;
 
         AppLog.Logger = LoggerRtb;
-        
+        Title = $"Fortnite Porting - v{Globals.VERSION}";
+        YesWeDogs = this;
     }
 
     private async void OnLoaded(object sender, RoutedEventArgs e)
@@ -34,6 +37,18 @@ public partial class MainView
         {
             AppHelper.OpenWindow<StartupView>();
             return;
+        }
+        
+        if (DateTime.Now >= AppSettings.Current.LastUpdateAskTime.AddDays(1))
+        {
+            UpdateService.Start(automaticCheck: true);
+            AppSettings.Current.LastUpdateAskTime = DateTime.Now;
+        }
+
+        if (AppSettings.Current.JustUpdated && !UpdateService.IsUpdateAvailable())
+        {
+            AppHelper.OpenWindow<PluginUpdateView>();
+            AppSettings.Current.JustUpdated = false;
         }
         
         await AppVM.MainVM.Initialize();

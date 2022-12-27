@@ -124,10 +124,17 @@ public class AssetHandlerViewModel
             {
                 var blueprint = asset.Get<UBlueprintGeneratedClass>("VehicleActorClass");
                 var classDefaultObject = blueprint.ClassDefaultObject.Load();
-                var markerDisplay = classDefaultObject?.Get<FStructFallback>("MarkerDisplay");
+                var markerDisplay = classDefaultObject?.GetOrDefault<FStructFallback>("MarkerDisplay");
                 icon = markerDisplay?.GetOrDefault<UTexture2D?>("Icon");
+                if (icon is null)
+                {
+                    var superStruct = blueprint.SuperStruct.Load<UBlueprintGeneratedClass>();
+                    var superClassDefaultObject = superStruct.ClassDefaultObject.Load();
+                    var markerDisplaySuper = superClassDefaultObject?.Get<FStructFallback>("MarkerDisplay");
+                    icon = markerDisplaySuper?.GetOrDefault<UTexture2D?>("Icon");
+                }
             }
-            
+
             return icon;
         },
         DisplayNameGetter = asset =>
@@ -137,13 +144,20 @@ public class AssetHandlerViewModel
             {
                 var blueprint = asset.Get<UBlueprintGeneratedClass>("VehicleActorClass");
                 var classDefaultObject = blueprint.ClassDefaultObject.Load();
-                var markerDisplay = classDefaultObject?.Get<FStructFallback>("MarkerDisplay");
+                var markerDisplay = classDefaultObject?.GetOrDefault<FStructFallback>("MarkerDisplay");
                 displayText = markerDisplay?.GetOrDefault<FText?>("DisplayName");
                 if (displayText is null)
                 {
-                    var configClass = classDefaultObject?.Get<UBlueprintGeneratedClass>("VehicleConfigsClass");
+                    var configClass = classDefaultObject?.GetOrDefault<UBlueprintGeneratedClass?>("VehicleConfigsClass");
                     var configClassDefaultObject = configClass?.ClassDefaultObject.Load();
                     displayText = configClassDefaultObject?.GetOrDefault<FText?>("PlayerFacingLocName");
+                }
+                if (displayText is null)
+                {
+                    var superStruct = blueprint.SuperStruct.Load<UBlueprintGeneratedClass>();
+                    var superClassDefaultObject = superStruct.ClassDefaultObject.Load();
+                    var markerDisplaySuper = superClassDefaultObject?.Get<FStructFallback>("MarkerDisplay");
+                    displayText = markerDisplaySuper?.GetOrDefault<FText?>("DisplayName");
                 }
             }
 
@@ -208,7 +222,7 @@ public class AssetHandlerData
             if (AssetType == EAssetType.Weapon)
             {
                 var reg = Regex.Match(assetName, @"(.*)_(.*)_(.*)_T[0-9][0-9]");
-                if (reg.Success && addedAssets.Any(x => x.Contains(reg.Groups[1].Value, StringComparison.OrdinalIgnoreCase)))
+                if (reg.Success && addedAssets.ToArray().Any(x => x.Contains(reg.Groups[1].Value, StringComparison.OrdinalIgnoreCase)))
                 {
                     return;
                 }
@@ -220,7 +234,7 @@ public class AssetHandlerData
                 {
                     var name = data.TagsAndValues["DisplayName"];
                     name = name.SubstringBeforeLast('"').SubstringAfterLast('"');
-                    if (addedAssets.Contains(name))
+                    if (addedAssets.ToArray().Contains(name, StringComparer.OrdinalIgnoreCase))
                     {
                         removedCount++;
                         return;
@@ -238,7 +252,7 @@ public class AssetHandlerData
             }
             catch (Exception e)
             {
-                // ignored
+                Log.Error("Failed to load {0}", data.ObjectPath);
             }
             
         });
@@ -252,7 +266,10 @@ public class AssetHandlerData
         var asset = await AppVM.CUE4ParseVM.Provider.LoadObjectAsync(data.ObjectPath);
 
         var previewImage = IconGetter(asset);
+        previewImage ??= AppVM.CUE4ParseVM.PlaceholderTexture;
+        if (previewImage is null) return;
+        
         await Application.Current.Dispatcher.InvokeAsync(
-            () => TargetCollection.Add(new AssetSelectorItem(asset, previewImage, type, random, DisplayNameGetter?.Invoke(asset))), DispatcherPriority.Background);
+            () => TargetCollection.Add(new AssetSelectorItem(asset, previewImage, type, random, DisplayNameGetter?.Invoke(asset), type == EAssetType.Vehicle)), DispatcherPriority.Background);
     }
 }

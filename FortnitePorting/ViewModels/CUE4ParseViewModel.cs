@@ -10,6 +10,7 @@ using CUE4Parse.FileProvider;
 using CUE4Parse.MappingsProvider;
 using CUE4Parse.UE4.AssetRegistry;
 using CUE4Parse.UE4.AssetRegistry.Objects;
+using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Assets.Utils;
 using CUE4Parse.UE4.Objects.Core.Math;
@@ -27,6 +28,7 @@ namespace FortnitePorting.ViewModels;
 public class CUE4ParseViewModel : ObservableObject
 {
     public Manifest? FortniteLiveManifest;
+    public UTexture2D? PlaceholderTexture;
     
     public readonly FortnitePortingFileProvider Provider;
 
@@ -95,6 +97,10 @@ public class CUE4ParseViewModel : ObservableObject
         {
             RarityData[i] = rarityData.GetByIndex<RarityCollection>(i);
         }
+
+        PlaceholderTexture =
+            await AppVM.CUE4ParseVM.Provider.LoadObjectAsync<UTexture2D>(
+                "FortniteGame/Content/Athena/Prototype/Textures/T_Placeholder_Generic");
     }
 
     private async Task InitializeProvider()

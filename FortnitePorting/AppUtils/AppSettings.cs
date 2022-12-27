@@ -62,4 +62,13 @@ public partial class AppSettings : ObservableObject
     
     [ObservableProperty] 
     private string assetsPath = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets"));
+    
+    [ObservableProperty] 
+    private EUpdateMode updateMode;
+    
+    [ObservableProperty] 
+    private bool justUpdated = true;
+
+    [ObservableProperty] 
+    private DateTime lastUpdateAskTime = DateTime.Now.Subtract(TimeSpan.FromDays(1));
 }

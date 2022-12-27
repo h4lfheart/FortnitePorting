@@ -73,4 +73,14 @@ public class SettingsViewModel : ObservableObject
         }
     }
     
+    public EUpdateMode UpdateMode
+    {
+        get => AppSettings.Current.UpdateMode;
+        set
+        {
+            AppSettings.Current.UpdateMode = value;
+            OnPropertyChanged();
+        }
+    }
+    
 }

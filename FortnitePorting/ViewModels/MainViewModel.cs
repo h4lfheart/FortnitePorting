@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using AdonisUI.Controls;
+using AutoUpdaterDotNET;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.UE4.Assets.Objects;
@@ -17,6 +19,11 @@ using FortnitePorting.Exports.Types;
 using FortnitePorting.Services;
 using FortnitePorting.Views;
 using FortnitePorting.Views.Controls;
+using Newtonsoft.Json;
+using MessageBox = AdonisUI.Controls.MessageBox;
+using MessageBoxButton = AdonisUI.Controls.MessageBoxButton;
+using MessageBoxImage = AdonisUI.Controls.MessageBoxImage;
+using MessageBoxResult = AdonisUI.Controls.MessageBoxResult;
 using StyleSelector = FortnitePorting.Views.Controls.StyleSelector;
 
 namespace FortnitePorting.ViewModels;
@@ -90,7 +97,7 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
-    public void Menu(string parameter)
+    public async Task Menu(string parameter)
     {
         switch (parameter)
         {
@@ -119,7 +126,7 @@ public partial class MainViewModel : ObservableObject
                 AppHelper.OpenWindow<StartupView>();
                 break;
             case "Help_Update":
-                // TODO
+                CheckUpdate();
                 break;
             case "Help_Discord":
                 AppHelper.Launch(Globals.DISCORD_URL);
@@ -134,6 +141,11 @@ public partial class MainViewModel : ObservableObject
                 // TODO
                 break;
         }
+    }
+
+    public void CheckUpdate()
+    {
+        UpdateService.Start();
     }
 
     [RelayCommand]

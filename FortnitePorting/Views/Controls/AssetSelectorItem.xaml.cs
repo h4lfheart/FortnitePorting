@@ -53,7 +53,7 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
     public string Series { get; set; }
     public Visibility FavoriteVisibility { get; set; }
 
-    public AssetSelectorItem(UObject asset, UTexture2D previewTexture, EAssetType type, bool isRandomSelector = false, FText? displayNameOverride = null)
+    public AssetSelectorItem(UObject asset, UTexture2D previewTexture, EAssetType type, bool isRandomSelector = false, FText? displayNameOverride = null, bool useIdAsDescription = false)
     {
         InitializeComponent();
         DataContext = this;
@@ -69,8 +69,8 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
         DisplayName = displayName.Text;
         if (displayName.TextHistory is FTextHistory.Base textHistory)
             DisplayNameSource = textHistory.SourceString;
-        Description = asset.GetOrDefault("Description", new FText("No description.")).Text;
         ID = asset.Name;
+        Description = useIdAsDescription ? ID: asset.GetOrDefault("Description", new FText("No description.")).Text;
 
         Rarity = asset.GetOrDefault("Rarity", EFortRarity.Uncommon);
         GameplayTags = asset.GetOrDefault<FGameplayTagContainer>("GameplayTags");

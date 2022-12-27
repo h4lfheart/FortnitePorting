@@ -9,7 +9,7 @@
         xmlns:adonisExt="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"
         xmlns:local="clr-namespace:FortnitePorting"
 
-        Title="First-Time Startup" Width="480" Height="290" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" Topmost="True">
+        Title="First-Time Startup" Width="480" SizeToContent="Height" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" Topmost="True">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

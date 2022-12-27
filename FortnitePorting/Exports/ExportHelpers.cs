@@ -428,9 +428,9 @@ public static class ExportHelpers
         return CreateExportMaterial<ExportMaterial>(material, materialIndex);
     }
 
-    public static T CreateExportMaterial<T>(UObject material, int materialIndex = 0) where T : ExportMaterial
+    public static T CreateExportMaterial<T>(UObject material, int materialIndex = 0) where T : ExportMaterial, new()
     {
-        var exportMaterial = new ExportMaterial
+        var exportMaterial = new T
         {
             MaterialName = material.Name,
             SlotIndex = materialIndex
@@ -451,10 +451,11 @@ public static class ExportHelpers
             exportMaterial.Textures = textures;
             exportMaterial.Scalars = scalars;
             exportMaterial.Vectors = vectors;
+            exportMaterial.IsGlass = IsGlassMaterial(materialInterface);
         }
 
         exportMaterial.Hash = material.GetPathName().GetHashCode();
-        return (T) exportMaterial;
+        return exportMaterial;
     }
 
     public static bool IsGlassMaterial(UMaterialInstanceConstant materialInstance)
@@ -468,10 +469,28 @@ public static class ExportHelpers
             "M_MineralPowder_Glass",
             "M_CP_GlassGallery_Master",
             "M_LauchTheBalloon_Microwave_Glass",
-            "M_MED_Glass_HighTower"
+            "M_MED_Glass_HighTower",
+            "M_OctopusBall"
         };
 
         return glassMaterialNames.Contains(lastParent.Name, StringComparer.OrdinalIgnoreCase);
+    }
+    
+    public static bool IsGlassMaterial(UMaterialInterface material)
+    {
+        var glassMaterialNames = new[]
+        {
+            "M_MED_Glass_Master",
+            "M_MED_Glass_WithDiffuse",
+            "M_Valet_Glass_Master",
+            "M_MineralPowder_Glass",
+            "M_CP_GlassGallery_Master",
+            "M_LauchTheBalloon_Microwave_Glass",
+            "M_MED_Glass_HighTower",
+            "M_OctopusBall"
+        };
+
+        return glassMaterialNames.Contains(material.Name, StringComparer.OrdinalIgnoreCase);
     }
 
     public static UMaterialInterface GetLastParent(this UMaterialInstanceConstant obj)

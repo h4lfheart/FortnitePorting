@@ -7,7 +7,7 @@
                           xmlns:controls="clr-namespace:FortnitePorting.Views.Controls"
                           xmlns:extensions="clr-namespace:FortnitePorting.Views.Extensions"
                           xmlns:local="clr-namespace:FortnitePorting"
-                          Title="Import Options" Width="480" Height="480" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize">
+                          Title="Import Options" Width="480" SizeToContent="Height" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize">
     <GroupBox Background="Transparent">
         <TabControl adonisExt:LayerExtension.Layer="2">
             <TabItem Header="Blender" Style="{StaticResource TabItemEqualSize}">
@@ -34,7 +34,7 @@
                     
                     <Separator Style="{StaticResource NamedSeparator}" Tag="MESH"/>
                     <ToggleButton Content="Quad Topology" IsChecked="{Binding BlenderQuadTopo}"/>
-                    <ToggleButton Content="Pose Deformation Correction Modifiers" IsChecked="{Binding BlenderPoseFixes}"/>
+                    <ToggleButton Content="Pose Deformation Correction Modifiers" IsChecked="{Binding BlenderPoseFixes}" IsEnabled="{Binding BlenderMergeSkeletons}"/>
                     
                     <Separator Style="{StaticResource NamedSeparator}" Tag="MATERIALS"/>
                     <ToggleButton Content="Import Materials" IsChecked="{Binding BlenderImportMaterials}"/>
