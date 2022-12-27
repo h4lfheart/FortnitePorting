@@ -3,9 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Windows;
+using SkiaSharp;
 
 namespace FortnitePorting.Views.Extensions;
 
@@ -48,4 +54,5 @@ public static class MiscExtensions
         var list = enumerable.ToList();
         return list.Count > 1 ? string.Join(", ", list.Take(list.Count - 1)) + ", and " + list.Last() : list.First().ToString();
     }
+    
 }

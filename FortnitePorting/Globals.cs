@@ -6,7 +6,7 @@ namespace FortnitePorting;
 
 public static class Globals
 {
-    public const string VERSION = "1.0.2";
+    public const string VERSION = "1.0.3";
     
     public const string DISCORD_URL = "https://discord.gg/DZ5YFXdBA6";
     public const string GITHUB_URL = "https://github.com/halfuwu/FortnitePorting";
@@ -23,6 +23,7 @@ public static class Globals
     
 
     public const string WHITE = "#e1e9f2";
+    public const string BLACK = "#000000";
     public const string BLUE = "#4b8ad1";
     public const string RED = "#d14b68";
     public const string YELLOW = "#d1c84b";

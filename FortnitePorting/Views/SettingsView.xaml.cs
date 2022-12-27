@@ -1,4 +1,7 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
+using System.Windows.Media.Imaging;
+using AdonisUI;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Services;
 using FortnitePorting.ViewModels;
@@ -29,6 +32,11 @@ public partial class SettingsView
         {
             DiscordService.DeInitialize();
         }
+        
+        ResourceLocator.SetColorScheme(Application.Current.Resources, AppSettings.Current.LightMode ? ResourceLocator.LightColorScheme : ResourceLocator.DarkColorScheme);
+        MainView.YesWeDogs.Icon = new BitmapImage(new Uri(AppSettings.Current.LightMode ? 
+                "pack://application:,,,/FortnitePorting-Dark.ico" :
+                "pack://application:,,,/FortnitePorting.ico", UriKind.RelativeOrAbsolute));
         Close();
     }
 

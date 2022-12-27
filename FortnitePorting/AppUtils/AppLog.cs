@@ -4,50 +4,56 @@ using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Threading;
 using Serilog;
+using Brush = System.Drawing.Brush;
 
 namespace FortnitePorting.AppUtils;
 
 public static class AppLog
 {
-    public static RichTextBox Logger;
-    private static readonly BrushConverter BrushConverter = new();
+    public static ItemsControl Logger;
+    public static readonly BrushConverter BrushConverter = new();
 
-    private static void Write(object text, string color = Globals.WHITE, FontWeight weights = default, bool newLine = true)
+    private static void Write(string specifier, string extra, string? specifierColor = Globals.BLUE, FontWeight specifierWeight = default)
     {
         Application.Current.Dispatcher.Invoke(() =>
         {
-            var document = Logger.Document;
+            var mainBlock = new StackPanel();
+            mainBlock.Orientation = Orientation.Horizontal;
+            mainBlock.Width = Logger.ActualWidth;
 
-            var textRange = new TextRange(document?.ContentEnd, document?.ContentEnd)
-            {
-                Text = text.ToString() + (newLine ? '\n' : "")
-            };
+            var specifierBlock = new TextBlock();
+            specifierBlock.Text = specifier;
+            specifierBlock.FontWeight = specifierWeight;
+            specifierBlock.Foreground = (System.Windows.Media.Brush) BrushConverter.ConvertFromString(specifierColor!)!;
 
-            textRange.ApplyPropertyValue(TextElement.ForegroundProperty, BrushConverter.ConvertFromString(color)!);
-            textRange.ApplyPropertyValue(TextElement.FontWeightProperty, weights);
+            mainBlock.Children.Add(specifierBlock);
+            
+            var extraBlock = new TextBlock();
+            extraBlock.Text = extra;
+            extraBlock.TextWrapping = TextWrapping.Wrap;
+            extraBlock.SetResourceReference(Control.ForegroundProperty, AdonisUI.Brushes.ForegroundBrush);
 
-            Logger.ScrollToEnd();
+            mainBlock.Children.Add(extraBlock);
+
+            Logger.Items.Add(mainBlock);
         }, DispatcherPriority.Background);
     }
     
     public static void Information(string text)
     {
         Log.Information(text);
-        Write("[INFO] ", Globals.BLUE, FontWeights.Bold, false);
-        Write(text);
+        Write("[INFO] ", text, Globals.BLUE, FontWeights.Bold);
     }
 
     public static void Warning(string text)
     {
         Log.Warning(text);
-        Write("[WARN] ", Globals.YELLOW, FontWeights.Bold, false);
-        Write(text);
+        Write("[WARN] ", text, Globals.YELLOW, FontWeights.Bold);
     }
     
     public static void Error(string text)
     {
         Log.Error(text);
-        Write("[ERROR] ", Globals.RED, FontWeights.Bold, false);
-        Write(text);
+        Write("[ERROR] ", text, Globals.RED, FontWeights.Bold);
     }
 }

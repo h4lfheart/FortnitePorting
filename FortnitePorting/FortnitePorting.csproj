@@ -6,6 +6,7 @@
         <Nullable>enable</Nullable>
         <UseWPF>true</UseWPF>
         <ApplicationIcon>FortnitePorting.ico</ApplicationIcon>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <ItemGroup>
@@ -46,6 +47,13 @@
       <Resource Include="Resources\Sort.png" />
       <Resource Include="Resources\Textures.png" />
       <Resource Include="Resources\Export.png" />
+      <Resource Include="Resources\Clipboard.png" />
+      <Resource Include="FortnitePorting-Dark.ico" />
+      <Resource Include="FortnitePorting.ico" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="Resources\invert.fx" />
     </ItemGroup>
 
 </Project>

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
@@ -26,8 +27,9 @@ public partial class MainView
         AppVM.MainVM = new MainViewModel();
         DataContext = AppVM.MainVM;
 
-        AppLog.Logger = LoggerRtb;
+        AppLog.Logger = LoggerBox;
         Title = $"Fortnite Porting - v{Globals.VERSION}";
+        Icon = new BitmapImage(new Uri(AppSettings.Current.LightMode ? "pack://application:,,,/FortnitePorting-Dark.ico" : "pack://application:,,,/FortnitePorting.ico", UriKind.RelativeOrAbsolute));
         YesWeDogs = this;
     }
 
@@ -97,6 +99,7 @@ public partial class MainView
             AppVM.MainVM.TabModeText = "SELECTED ASSETS";
             if (listBox.SelectedItems.Count == 0) return;
             AppVM.MainVM.CurrentAsset = selected;
+            AppVM.MainVM.ExtendedAssets.Clear();
             AppVM.MainVM.ExtendedAssets = listBox.SelectedItems.OfType<AssetSelectorItem>().ToList();
             AppVM.MainVM.Styles.Add(new StyleSelector(AppVM.MainVM.ExtendedAssets));
             return;
@@ -108,6 +111,7 @@ public partial class MainView
             return;
         }
         
+        AppVM.MainVM.ExtendedAssets.Clear();
         AppVM.MainVM.CurrentAsset = selected;
         AppVM.MainVM.TabModeText = "STYLES";
         

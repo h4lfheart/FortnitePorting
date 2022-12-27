@@ -6,7 +6,6 @@
     <Application.Resources>
          <ResourceDictionary>
              <ResourceDictionary.MergedDictionaries>
-                 <ResourceDictionary Source="pack://application:,,,/AdonisUI;component/colorschemes/dark.xaml"/>
                  <ResourceDictionary Source="pack://application:,,,/AdonisUI.ClassicTheme;component/resources.xaml"/>
                  <ResourceDictionary Source="pack://application:,,,/Resources/Resources.xaml"/>
              </ResourceDictionary.MergedDictionaries>

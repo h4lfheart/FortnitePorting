@@ -3,6 +3,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Threading;
+using AdonisUI;
 using AdonisUI.Controls;
 using AutoUpdaterDotNET;
 using CUE4Parse.UE4.Assets;
@@ -51,6 +52,8 @@ public partial class App
         
         AppSettings.DirectoryPath.Create();
         AppSettings.Load();
+        
+        ResourceLocator.SetColorScheme(Current.Resources, AppSettings.Current.LightMode ? ResourceLocator.LightColorScheme : ResourceLocator.DarkColorScheme);
         
         AssetsFolder.Create();
         DataFolder.Create();

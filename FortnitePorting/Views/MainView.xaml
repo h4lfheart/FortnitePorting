@@ -180,7 +180,7 @@
                             </ListBox.ItemsPanel>
                         </ListBox>
                     </TabItem>
-                    <TabItem Style="{StaticResource TabItemEqualSize}">
+                    <!--TabItem Style="{StaticResource TabItemEqualSize}">
                         <TabItem.Header>
                             <controls:TextWithIcon Label="Meshes" ImageSource="/FortnitePorting;component/Resources/Mesh.png"/>
                         </TabItem.Header>
@@ -191,7 +191,7 @@
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
                         </ListBox>
-                    </TabItem>
+                    </TabItem-->
                 </TabControl>
             </GroupBox>
             
@@ -279,9 +279,7 @@
             <GroupBox Grid.Row="3" Grid.Column="0" Padding="{adonisUi:Space 0}" adonisExt:LayerExtension.Layer="3" BorderThickness="1" 
                       BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer3BorderBrush}}">
                <ScrollViewer adonisExt:ScrollViewerExtension.VerticalScrollBarExpansionMode="NeverExpand">
-                   <RichTextBox Name="LoggerRtb" Margin="{adonisUi:Space 1}" Block.LineHeight="2.0" IsReadOnly="True" Background="Transparent" BorderThickness="0">
-                       <FlowDocument PageWidth="{Binding ElementName=LoggerBox, Path=ActualWidth}"/>
-                   </RichTextBox>
+                   <ItemsControl Name="LoggerBox" Margin="{adonisUi:Space 1}" Background="Transparent" BorderThickness="0"></ItemsControl>
                </ScrollViewer>
             </GroupBox>
             

@@ -60,8 +60,15 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
         Type = type;
         ExportHDCommand = new RelayCommand(ExportHD);
         ExportAssetsCommand = new RelayCommand(ExportAssets);
+        ClipboardCommand = new RelayCommand<string>(CopyIconToClipboard);
 
-
+        if (AppSettings.Current.LightMode)
+        {
+            TexturesImage.Effect = new InvertEffect();
+            ClipboardImage.Effect = new InvertEffect();
+            ExportImage.Effect = new InvertEffect();
+        }
+        
         Asset = asset;
         var displayName = displayNameOverride;
         displayName ??= asset.GetOrDefault("DisplayName", new FText("Unnamed"));
@@ -272,6 +279,14 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
             
             Log.Information("Finished Exporting All Assets for {0}", DisplayName);
         });
+    }
+    
+    public ICommand ClipboardCommand { get; private set; }
+
+    public void CopyIconToClipboard(string? parameter)
+    {
+        parameter ??= string.Empty;
+        ImageExtensions.SetImage(parameter.Equals("WithoutBackground") ? IconBitmap.Encode(SKEncodedImageFormat.Png, 100).ToArray() : FullBitmap.Encode(SKEncodedImageFormat.Png, 100).ToArray());
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

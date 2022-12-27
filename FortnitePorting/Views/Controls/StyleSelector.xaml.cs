@@ -53,7 +53,7 @@ public partial class StyleSelector
 
         foreach (var item in items)
         {
-            Options.Items.Add(new TextWithIcon {Label = " " + item.DisplayName, ImageSource = item.FullSource, IconSize = 32, Foreground = Brushes.White});
+            Options.Items.Add(new TextWithIcon(isProp: true) {Label = " " + item.DisplayName, ImageSource = item.FullSource, IconSize = 32, Foreground = Brushes.White});
         }
     }
 

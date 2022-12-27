@@ -71,4 +71,7 @@ public partial class AppSettings : ObservableObject
 
     [ObservableProperty] 
     private DateTime lastUpdateAskTime = DateTime.Now.Subtract(TimeSpan.FromDays(1));
+
+    [ObservableProperty] 
+    private bool lightMode;
 }

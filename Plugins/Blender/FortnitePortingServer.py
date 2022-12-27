@@ -13,7 +13,7 @@ from io_import_scene_unreal_psa_psk_280 import pskimport, psaimport
 bl_info = {
     "name": "Fortnite Porting",
     "author": "Half",
-    "version": (1, 0, 2),
+    "version": (1, 0, 3),
     "blender": (3, 0, 0),
     "description": "Blender Server for Fortnite Porting",
     "category": "Import",
@@ -1588,13 +1588,9 @@ def import_response(response):
                     corrective_smooth = master_mesh.modifiers.new(name="Corrective Smooth", type='CORRECTIVE_SMOOTH')
                     corrective_smooth.use_pin_boundary = True
 
-            if RigType(import_settings.get("RigType")) == RigType.TASTY:
-                    apply_tasty_rig(master_skeleton)
+                if RigType(import_settings.get("RigType")) == RigType.TASTY:
+                        apply_tasty_rig(master_skeleton)
                     
-                
-            
-            
-        
             bpy.ops.object.select_all(action='DESELECT')
     
 def message_box(message = "", title = "Message Box", icon = 'INFO'):

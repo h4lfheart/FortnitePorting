@@ -28,7 +28,7 @@ public class ApplicationViewModel : ObservableObject
         };
 
         
-        AppLog.Warning($"{caption}: {message}");
+        //AppLog.Warning($"{caption}: {message}");
         MessageBox.Show(messageBox);
     }
     

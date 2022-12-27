@@ -83,4 +83,16 @@ public class SettingsViewModel : ObservableObject
         }
     }
     
+    public bool LightMode
+    {
+        get => AppSettings.Current.LightMode;
+        set
+        {
+            AppSettings.Current.LightMode = value;
+            OnPropertyChanged();
+            IsRestartRequired = true;
+            OnPropertyChanged(nameof(IsRestartRequired));
+        }
+    }
+    
 }

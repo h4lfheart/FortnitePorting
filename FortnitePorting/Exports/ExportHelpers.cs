@@ -470,7 +470,8 @@ public static class ExportHelpers
             "M_CP_GlassGallery_Master",
             "M_LauchTheBalloon_Microwave_Glass",
             "M_MED_Glass_HighTower",
-            "M_OctopusBall"
+            "M_OctopusBall",
+            "F_MED_SharpFang_Backpack_Glass_Master"
         };
 
         return glassMaterialNames.Contains(lastParent.Name, StringComparer.OrdinalIgnoreCase);
