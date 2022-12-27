@@ -38,6 +38,16 @@ public class ImportSettingsViewModel : ObservableObject
         }
     }
     
+    public bool BlenderUpdateTimeline
+    {
+        get => AppSettings.Current.BlenderExportSettings.UpdateTimeline;
+        set
+        {
+            AppSettings.Current.BlenderExportSettings.UpdateTimeline = value;
+            OnPropertyChanged();
+        }
+    }
+    
     public bool BlenderQuadTopo
     {
         get => AppSettings.Current.BlenderExportSettings.QuadTopo;

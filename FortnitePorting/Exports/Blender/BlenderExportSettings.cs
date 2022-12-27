@@ -7,6 +7,9 @@ public class BlenderExportSettings
     public bool MergeSkeletons;
     public bool ReorientBones;
     
+    // ANIM
+    public bool UpdateTimeline;
+    
     // MESH
     public bool QuadTopo;
     public bool PoseFixes;

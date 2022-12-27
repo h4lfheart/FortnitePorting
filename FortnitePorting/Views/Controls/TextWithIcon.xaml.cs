@@ -65,7 +65,8 @@ public partial class TextWithIcon
     public TextWithIcon()
     {
         InitializeComponent();
-        IconImage.Effect = new InvertEffect();
+        if (AppSettings.Current.LightMode)
+            IconImage.Effect = new InvertEffect();
     }
     public TextWithIcon(bool isProp = false)
     {

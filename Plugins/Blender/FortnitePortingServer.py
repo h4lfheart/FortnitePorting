@@ -195,7 +195,7 @@ def import_anim(path: str):
     path = path[1:] if path.startswith("/") else path
     anim_path = os.path.join(import_assets_root, path.split(".")[0] + "_SEQ0" + ".psa")
 
-    return psaimport(anim_path)
+    return psaimport(anim_path, bUpdateTimelineRange=import_settings.get("UpdateTimeline"))
 
 def hash_code(num):
     return hex(abs(num))[2:]
@@ -586,7 +586,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
         node.hide = True
         node.location = location
 
-        if slot == 0:
+        if slot == "Diffuse":
             nodes.active = node
 
         if linear:
@@ -716,7 +716,7 @@ def merge_skeletons(parts) -> bpy.types.Armature:
         if slot == "Body":
             bpy.context.view_layer.objects.active = skeleton
 
-        if (slot in {"Hat", "MiscOrTail"} and socket not in [None, "Face"]) or (slot.casefold() == "face" and socket.casefold() == "hat"):
+        if (slot in {"Hat", "MiscOrTail"} and socket != "") or (slot.casefold() == "face" and socket.casefold() == "hat"):
             constraint_parts.append(part)
         else:
             skeleton.select_set(True)
@@ -1577,7 +1577,8 @@ def import_response(response):
             for imported_part in imported_parts:
                 mesh = imported_part.get("Mesh")
                 for style_material in import_data.get("StyleMaterials"):
-                    if slot := mesh.material_slots.get(style_material.get("MaterialNameToSwap")):
+                    slots = where(mesh.material_slots, lambda x: x.name == style_material.get("MaterialNameToSwap"))
+                    for slot in slots:
                         import_material(slot, style_material)
     
             if import_settings.get("MergeSkeletons") and import_type == "Outfit":
