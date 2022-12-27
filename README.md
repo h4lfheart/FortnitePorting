@@ -23,7 +23,7 @@ A free and open-source tool created to automate the Fortnite porting process to 
 
   <img src="https://docs.blender.org/manual/en/latest/_images/editors_preferences_section_addons.png" alt="Addon Tab" height=260 width=330>
 
-* Press **Install** and select the `FortnitePortingServer.zip` file **DO NOT EXTRACT THIS FILE AT ALL*
+* Press **Install** and select the `FortnitePortingServer.zip` file **DO NOT EXTRACT THIS FILE AT ALL**
 * Type `Fortnite Porting` in the search bar and enable the addon
   
   <img src="https://github.com/halfuwu/FortnitePorting/blob/master/.github/images/enable_addon.png?raw=true" alt="Enable Addon">
