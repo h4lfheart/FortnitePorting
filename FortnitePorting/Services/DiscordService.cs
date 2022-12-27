@@ -19,12 +19,11 @@ public static class DiscordService
 
     private static readonly RichPresence DefaultPresence = new()
     {
-        State = "Idle",
         Timestamps = Timestamp,
         Assets = Assets,
         Buttons = new []
         {
-            new Button { Label = "Github Repository", Url = Globals.GITHUB_URL},
+            new Button { Label = "GitHub Repository", Url = Globals.GITHUB_URL},
             new Button { Label = "Discord Server", Url = Globals.DISCORD_URL}
         }
 
@@ -35,7 +34,6 @@ public static class DiscordService
     public static void Initialize()
     {
         if (IsInitialized) return;
-        
         Client = new DiscordRpcClient(ID);
         Client.OnReady += (_, args) => Log.Information("Discord Rich Presence Started for {0}#{1}", args.User.Username, args.User.Discriminator.ToString("D4"));
         Client.OnError += (_, args) => Log.Information("Discord Rich Presence Error {0}: {1}", args.Type.ToString(), args.Message);
@@ -57,7 +55,7 @@ public static class DiscordService
     public static void Update(EAssetType assetType)
     {
         if (!IsInitialized) return;
-        Client?.UpdateState($"Browsing {assetType.GetDescription()}");
+        Client?.UpdateDetails($"Browsing {assetType.GetDescription()}");
         Client?.UpdateSmallAsset(assetType.ToString().ToLower(), assetType.GetDescription());
     }
 

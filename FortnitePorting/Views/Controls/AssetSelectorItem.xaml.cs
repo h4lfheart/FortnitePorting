@@ -70,7 +70,7 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
         if (displayName.TextHistory is FTextHistory.Base textHistory)
             DisplayNameSource = textHistory.SourceString;
         ID = asset.Name;
-        Description = useIdAsDescription ? ID: asset.GetOrDefault("Description", new FText("No description.")).Text;
+        Description = useIdAsDescription ? ID : asset.GetOrDefault("Description", new FText("No description.")).Text;
 
         Rarity = asset.GetOrDefault("Rarity", EFortRarity.Uncommon);
         GameplayTags = asset.GetOrDefault<FGameplayTagContainer>("GameplayTags");
@@ -169,6 +169,8 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
 
     public bool Match(string filter, bool useRegex = false)
     {
+        if (DisplayName is null || ID is null || DisplayNameSource is null) return false;
+        
         if (useRegex)
         {
             return Regex.IsMatch(DisplayName, filter) || Regex.IsMatch(ID, filter) || Regex.IsMatch(DisplayNameSource, filter);

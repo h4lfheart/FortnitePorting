@@ -21,7 +21,9 @@ public partial class PluginUpdateView
         
         foreach (var folder in BlenderVersionFolder.GetDirectories())
         {
-            var isSupported = double.Parse(folder.Name) >= 3.0;
+            Log.Information("Found folder {0} in Blender install directory.", folder.FullName);
+            if (!double.TryParse(folder.Name, out var numberVersion)) continue;
+            var isSupported = numberVersion >= 3.0;
             var extraText = isSupported ? string.Empty : "(Unsupported)";
             var toggleSwitch = new ToggleButton();
             toggleSwitch.Content = $"Blender {folder.Name} {extraText}";
