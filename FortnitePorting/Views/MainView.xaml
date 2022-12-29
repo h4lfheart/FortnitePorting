@@ -44,7 +44,8 @@
                 <MenuItem Header="Donate" Command="{Binding MenuCommand}" CommandParameter="Help_Donate"/>
                 <MenuItem Header="About" Command="{Binding MenuCommand}" CommandParameter="Help_About"/>
             </MenuItem>
-            <MenuItem Header="Check for Updates" Command="{Binding MenuCommand}" CommandParameter="Help_Update" />
+            <MenuItem Header="Check for Updates" Command="{Binding MenuCommand}" CommandParameter="Update"/>
+            <MenuItem Header="Sync Plugin" Command="{Binding MenuCommand}" CommandParameter="SyncPlugin"/>
         </Menu>
         
         <Grid Grid.Row="2">

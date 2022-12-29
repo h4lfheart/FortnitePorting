@@ -125,9 +125,6 @@ public partial class MainViewModel : ObservableObject
             case "Settings_Startup":
                 AppHelper.OpenWindow<StartupView>();
                 break;
-            case "Help_Update":
-                CheckUpdate();
-                break;
             case "Help_Discord":
                 AppHelper.Launch(Globals.DISCORD_URL);
                 break;
@@ -139,6 +136,12 @@ public partial class MainViewModel : ObservableObject
                 break;
             case "Help_About":
                 // TODO
+                break;
+            case "Update":
+                CheckUpdate();
+                break;
+            case "SyncPlugin":
+                AppHelper.OpenWindow<PluginUpdateView>();
                 break;
         }
     }
