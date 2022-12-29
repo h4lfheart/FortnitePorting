@@ -20,9 +20,12 @@ public class ExportMeshOverride : ExportMesh
 }
 public class ExportPart : ExportMesh
 {
-    public string? Part;
+    public string Part;
     public string? MorphName;
     public string? SocketName;
+    
+    [JsonIgnore]
+    public EFortCustomGender GenderPermitted;
 }
 
 public record ExportMaterial

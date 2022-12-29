@@ -10,6 +10,7 @@ using CUE4Parse.FileProvider;
 using CUE4Parse.MappingsProvider;
 using CUE4Parse.UE4.AssetRegistry;
 using CUE4Parse.UE4.AssetRegistry.Objects;
+using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Assets.Utils;
@@ -29,6 +30,8 @@ public class CUE4ParseViewModel : ObservableObject
 {
     public Manifest? FortniteLiveManifest;
     public UTexture2D? PlaceholderTexture;
+    public List<UAnimMontage> MaleIdleAnimations = new();
+    public List<UAnimMontage> FemaleIdleAnimations = new();
     
     public readonly FortnitePortingFileProvider Provider;
 
@@ -45,6 +48,19 @@ public class CUE4ParseViewModel : ObservableObject
     
     private static readonly Regex FortniteLiveRegex = new(@"^FortniteGame(/|\\)Content(/|\\)Paks(/|\\)(pakchunk(?:0|10.*|\w+)-WindowsClient|global)\.(pak|utoc)$",
         RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static readonly string[] MaleIdlePaths = 
+    {
+        "FortniteGame/Content/Animation/Game/MainPlayer/Menu/BR/Male_Commando_Idle_01_M",
+        "FortniteGame/Content/Animation/Game/MainPlayer/Menu/BR/Male_commando_Idle_2_M"
+    };
+    
+    private static readonly string[] FemaleIdlePaths = 
+    {
+        "FortniteGame/Content/Animation/Game/MainPlayer/Menu/BR/Female_Commando_Idle_01_M",
+        "FortniteGame/Content/Animation/Game/MainPlayer/Menu/BR/Female_Commando_Idle_02_Rebirth_Montage",
+        "FortniteGame/Content/Animation/Game/MainPlayer/Menu/BR/Female_Commando_Idle_03_Rebirth_Montage"
+    };
 
     public CUE4ParseViewModel(string directory, EInstallType installType)
     {
@@ -98,9 +114,24 @@ public class CUE4ParseViewModel : ObservableObject
             RarityData[i] = rarityData.GetByIndex<RarityCollection>(i);
         }
 
-        PlaceholderTexture =
-            await AppVM.CUE4ParseVM.Provider.LoadObjectAsync<UTexture2D>(
-                "FortniteGame/Content/Athena/Prototype/Textures/T_Placeholder_Generic");
+        PlaceholderTexture = await AppVM.CUE4ParseVM.Provider.TryLoadObjectAsync<UTexture2D>("FortniteGame/Content/Athena/Prototype/Textures/T_Placeholder_Generic");
+
+        foreach (var path in FemaleIdlePaths)
+        {
+            var montage = await AppVM.CUE4ParseVM.Provider.TryLoadObjectAsync<UAnimMontage>(path);
+            if (montage is null) continue;
+            
+            FemaleIdleAnimations.Add(montage);
+        }
+        
+        foreach (var path in MaleIdlePaths)
+        {
+            var montage = await AppVM.CUE4ParseVM.Provider.TryLoadObjectAsync<UAnimMontage>(path);
+            if (montage is null) continue;
+            
+            MaleIdleAnimations.Add(montage);
+        }
+        
     }
 
     private async Task InitializeProvider()

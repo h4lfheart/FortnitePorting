@@ -26,7 +26,7 @@ namespace FortnitePorting.Exports;
 
 public static class ExportHelpers
 {
-    public static void CharacterParts(IEnumerable<UObject> inputParts, List<ExportMesh> exportMeshes)
+    public static List<ExportPart> CharacterParts(IEnumerable<UObject> inputParts, List<ExportMesh> exportMeshes)
     {
         var exportParts = new List<ExportPart>();
         var headMorphType = ECustomHatType.None;
@@ -46,6 +46,9 @@ public static class ExportHelpers
 
             var characterPartType = part.GetOrDefault<EFortCustomPartType>("CharacterPartType");
             exportPart.Part = characterPartType.ToString();
+            
+            var genderPermitted = part.GetOrDefault("GenderPermitted", EFortCustomGender.Male);
+            exportPart.GenderPermitted = genderPermitted;
 
             if (part.TryGetValue<UObject>(out var additionalData, "AdditionalData"))
             {
@@ -76,6 +79,7 @@ public static class ExportHelpers
 
                 }
             }
+            
 
             var sections = convertedMesh.LODs[0].Sections.Value;
             for (var idx = 0; idx < sections.Length; idx++)
@@ -123,6 +127,7 @@ public static class ExportHelpers
         }
         
         exportMeshes.AddRange(exportParts);
+        return exportParts;
     }
 
     public static void Weapon(UObject weaponDefinition, List<ExportMesh> exportParts)

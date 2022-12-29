@@ -92,3 +92,11 @@ public enum EUpdateMode
     [Description("Experimental")]
     Experimental
 }
+
+public enum EFortCustomGender : byte
+{
+    Invalid = 0,
+    Male = 1,
+    Female = 2,
+    Both = 3
+}

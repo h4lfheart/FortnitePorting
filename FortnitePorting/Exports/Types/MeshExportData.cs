@@ -16,6 +16,7 @@ using CUE4Parse.UE4.Objects.GameplayTags;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using FortnitePorting.AppUtils;
+using FortnitePorting.Views.Extensions;
 
 namespace FortnitePorting.Exports.Types;
 
@@ -40,14 +41,29 @@ public class MeshExportData : ExportDataBase
                 case EAssetType.Outfit:
                 {
                     var parts = asset.GetOrDefault("BaseCharacterParts", Array.Empty<UObject>());
-                    ExportHelpers.CharacterParts(parts, data.Parts);
-
+                    var exportedParts = ExportHelpers.CharacterParts(parts, data.Parts);
+                    
                     if (asset.TryGetValue(out UObject heroDefinition, "HeroDefinition"))
                     {
                         var frontendAnimMontage = heroDefinition.GetOrDefault<UAnimMontage?>("FrontendAnimMontageIdleOverride");
-                        if (frontendAnimMontage is null) break;
-                        data.LinkedSequence = await DanceExportData.CreateAnimDataAsync(frontendAnimMontage);
-                        // TODO DEFAULT ANIMATION
+                        if (frontendAnimMontage is not null) 
+                        {
+                            data.LinkedSequence = await DanceExportData.CreateAnimDataAsync(frontendAnimMontage);
+                        }
+                        else
+                        {
+                            var bodyPart = exportedParts.First(x => x.Part.Equals("Body"));
+                            var targetMontage = bodyPart.GenderPermitted switch
+                            {
+                                EFortCustomGender.Male => AppVM.CUE4ParseVM.MaleIdleAnimations.Random(),
+                                EFortCustomGender.Female => AppVM.CUE4ParseVM.FemaleIdleAnimations.Random(),
+                                _ => null
+                            };
+                            
+                            if (targetMontage is null) break;
+
+                            data.LinkedSequence = await DanceExportData.CreateAnimDataAsync(targetMontage);
+                        }
                     }
                     break;
                 }
