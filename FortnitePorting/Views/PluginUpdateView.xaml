@@ -20,14 +20,14 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0" Margin="{adonisUi:Space 1}">
-            <TextBlock Margin="{adonisUi:Space 1}" FontSize="24" HorizontalAlignment="Center" Text="Plugin Update"/>
-            <TextBlock Margin="{adonisUi:Space 1}" HorizontalAlignment="Center" TextAlignment="Center" Text="Please select the Blender version(s) that you would like to update the server plugin for." TextWrapping="WrapWithOverflow"/>
+            <TextBlock Margin="{adonisUi:Space 1}" FontSize="24" HorizontalAlignment="Center" Text="Sync Plugins"/>
+            <TextBlock Margin="{adonisUi:Space 1}" HorizontalAlignment="Center" TextAlignment="Center" Text="Please select the Blender version(s) that you would like to sync the server plugin for." TextWrapping="WrapWithOverflow"/>
 
             <Separator Style="{StaticResource NamedSeparator}" Tag="BLENDER"/>
             <ItemsControl Name="BlenderInstallationList"/>
         </StackPanel>
         <Border Grid.Row="1" Background="{DynamicResource {x:Static adonisUi:Brushes.Layer1BackgroundBrush}}" adonisExt:LayerExtension.IncreaseLayer="True">
-            <Button MinWidth="80" Margin="{adonisUi:Space 1}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Content="Update" Click="OnClickFinished"/>
+            <Button MinWidth="80" Margin="{adonisUi:Space 1}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Content="Sync" Click="OnClickFinished"/>
         </Border>
     </Grid>
 </adonisCtrls:AdonisWindow>
