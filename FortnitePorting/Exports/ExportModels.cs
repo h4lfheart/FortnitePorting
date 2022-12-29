@@ -69,3 +69,10 @@ public class EmotePropData
     public ExportMesh? Prop;
     public string Animation;
 }
+
+public class AnimationData
+{
+    public string Animation;
+    public string Skeleton;
+    public List<EmotePropData> Props = new();
+}

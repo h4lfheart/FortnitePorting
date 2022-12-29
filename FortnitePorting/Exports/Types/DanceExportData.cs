@@ -16,33 +16,43 @@ namespace FortnitePorting.Exports.Types;
 
 public class DanceExportData : ExportDataBase
 {
-    public string Animation;
-    public string Skeleton;
-    public List<EmotePropData> Props = new();
+    public AnimationData AnimData = new();
     public static async Task<DanceExportData> Create(UObject asset)
     {
         var data = new DanceExportData();
         data.Name = asset.GetOrDefault("DisplayName", new FText("Unnamed")).Text;
         data.Type = EAssetType.Dance.ToString();
+        data.AnimData = await CreateAnimDataAsync(asset.Get<UAnimMontage>("Animation"));
+
+        await Task.WhenAll(ExportHelpers.Tasks);
+        return data;
+    }
+
+    public static async Task<AnimationData> CreateAnimDataAsync(UAnimMontage montage)
+    {
+        var animData = new AnimationData();
         await Task.Run(() =>
         {
-            var montage = asset.Get<UAnimMontage>("Animation");
-
             var masterSkeleton = montage.Get<USkeleton>("Skeleton");
             ExportHelpers.Save(masterSkeleton);
-            data.Skeleton = masterSkeleton.GetPathName();
+            animData.Skeleton = masterSkeleton.GetPathName();
 
             var animation = GetExportSequence(montage);
             ExportHelpers.Save(animation);
-            data.Animation = animation.GetPathName();
+            animData.Animation = animation.GetPathName();
 
-            var notifies = montage.Get<FStructFallback[]>("Notifies");
-            var propNotifies = notifies.Where(x =>
+            var montageNotifies = montage.GetOrDefault("Notifies", Array.Empty<FStructFallback>());
+            var animNotifies = animation.GetOrDefault("Notifies", Array.Empty<FStructFallback>());
+
+            var allNotifies = new List<FStructFallback>();
+            allNotifies.AddRange(montageNotifies);
+            allNotifies.AddRange(animNotifies);
+            var propNotifies = allNotifies.Where(x =>
             {
                 var notifyName = x.GetOrDefault<FName>("NotifyName").Text;
                 return notifyName.Contains("FortSpawnProp") || notifyName.Contains("Fort Anim Notify State Spawn Prop");
             });
-            
+
             foreach (var propNotify in propNotifies)
             {
                 /*var linkedSequence = propNotify.Get<UAnimSequence>("LinkedSequence");
@@ -66,13 +76,13 @@ public class DanceExportData : ExportDataBase
                     exportProp.Animation = propAnimation.GetPathName();
                 }
                 
-                data.Props.Add(exportProp);
+                animData.Props.Add(exportProp);
             }
         });
 
-        await Task.WhenAll(ExportHelpers.Tasks);
-        return data;
+        return animData;
     }
+    
 
     public static UAnimSequence? GetExportSequence(UAnimMontage? montage)
     {
@@ -99,6 +109,8 @@ public class DanceExportData : ExportDataBase
         return animation;
     }
 }
+
+
 
 public class FortAnimNotifyState_SpawnProp : UObject
 {

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CUE4Parse.GameTypes.FN.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
@@ -25,13 +26,14 @@ public class MeshExportData : ExportDataBase
     public List<ExportMaterial> StyleMaterials = new();
     public List<ExportMeshOverride> StyleMeshes = new();
     public List<ExportMaterialParams> StyleMaterialParams = new();
+    public AnimationData? LinkedSequence;
 
     public static async Task<MeshExportData?> Create(UObject asset, EAssetType assetType, FStructFallback[] styles)
     {
         var data = new MeshExportData();
         data.Name = asset.GetOrDefault("DisplayName", new FText("Unnamed")).Text;
         data.Type = assetType.ToString();
-        var canContinue = await Task.Run(() =>
+        var canContinue = await Task.Run(async () =>
         {
             switch (assetType)
             {
@@ -39,6 +41,14 @@ public class MeshExportData : ExportDataBase
                 {
                     var parts = asset.GetOrDefault("BaseCharacterParts", Array.Empty<UObject>());
                     ExportHelpers.CharacterParts(parts, data.Parts);
+
+                    if (asset.TryGetValue(out UObject heroDefinition, "HeroDefinition"))
+                    {
+                        var frontendAnimMontage = heroDefinition.GetOrDefault<UAnimMontage?>("FrontendAnimMontageIdleOverride");
+                        if (frontendAnimMontage is null) break;
+                        data.LinkedSequence = await DanceExportData.CreateAnimDataAsync(frontendAnimMontage);
+                        // TODO DEFAULT ANIMATION
+                    }
                     break;
                 }
                 case EAssetType.Backpack:

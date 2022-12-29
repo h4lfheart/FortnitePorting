@@ -12,11 +12,11 @@
         Title="Settings" Width="480" SizeToContent="Height" WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="{adonisUi:Space 1}"/>
+            <RowDefinition Height="{adonisUi:Space 5}"/>
             <RowDefinition Height="10*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Separator Grid.Row="0" Style="{StaticResource NamedSeparator}" Tag="FORTNITE"/>
+        <Separator Grid.Row="0" Margin="{adonisUi:Space 1}" Style="{StaticResource NamedSeparator}" Tag="FORTNITE"/>
         <Grid Grid.Row="1" Margin="{adonisUi:Space 1}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -28,7 +28,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="{adonisUi:Space 1}"/>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="{adonisUi:Space 1}"/>  
+                <RowDefinition Height="{adonisUi:Space 5}"/>  
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="{adonisUi:Space 1}"/>  
                 <RowDefinition Height="Auto"/>

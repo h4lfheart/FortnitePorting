@@ -1433,15 +1433,22 @@ def import_response(response):
     
         Log.information(f"Received Import for {import_type}: {name}")
         print(json.dumps(import_data))
-    
-        if import_type == "Dance":
-            animation = import_data.get("Animation")
-            props = import_data.get("Props")
+        
+        def import_animation_data(anim_data, override_skel = None):
+            if anim_data is None:
+                return
+            animation = anim_data.get("Animation")
+            props = anim_data.get("Props")
+            
+            if override_skel is not None:
+                bpy.context.view_layer.objects.active = override_skel
+                override_skel.select_set(True)
+            
             active_skeleton = armature_from_selection()
-    
+
             if not import_anim(animation):
                 message_box("An armature must be selected for the Emote to import onto.", "Failed to Import Emote", "ERROR")
-                continue
+                return 
 
             # remove face keyframes
             bpy.ops.object.mode_set(mode='POSE')
@@ -1460,22 +1467,22 @@ def import_response(response):
                 for fcurve in dispose_curves:
                     active_skeleton.animation_data.action.fcurves.remove(fcurve)
             bpy.ops.object.mode_set(mode='OBJECT')
-            
+
             if len(props) == 0:
-                continue
+                return 
 
             existing_prop_skel = first(active_skeleton.children, lambda x: x.name == "Prop_Skeleton")
             if existing_prop_skel:
                 bpy.data.objects.remove(existing_prop_skel, do_unlink=True)
-    
-            master_skeleton = import_skel(import_data.get("Skeleton"))
+
+            master_skeleton = import_skel(anim_data.get("Skeleton"))
             master_skeleton.name = "Prop_Skeleton"
             master_skeleton.parent = active_skeleton
-    
+
             bpy.context.view_layer.objects.active = master_skeleton
             import_anim(animation)
             master_skeleton.hide_set(True)
-                      
+
             for propData in props:
                 prop = propData.get("Prop")
                 socket_name = propData.get("SocketName")
@@ -1484,38 +1491,42 @@ def import_response(response):
                     "LeftHand": "weapon_l",
                     "AttachSocket": "attach"
                 }
-    
+
                 if socket_name in socket_remaps.keys():
                     socket_name = socket_remaps.get(socket_name)
-    
+
                 if (imported_item := import_mesh(prop.get("MeshPath"))) is None:
-                        continue
-    
+                    continue
+
                 bpy.context.view_layer.objects.active = imported_item
-    
+
                 if animation := propData.get("Animation"):
                     import_anim(animation)
-    
+
                 imported_mesh = imported_item
                 if imported_item.type == 'ARMATURE':
                     imported_mesh = mesh_from_armature(imported_item)
-    
+
                 for material in prop.get("Materials"):
                     index = material.get("SlotIndex")
                     import_material(imported_mesh.material_slots.values()[index], material)
-    
+
                 if location_offset := propData.get("LocationOffset"):
                     imported_item.location += make_vector(location_offset)*0.01
-    
+
                 if scale := propData.get("Scale"):
                     imported_item.scale = make_vector(scale)
-    
+
                 rotation = [0,0,0]
                 if rotation_offset := propData.get("RotationOffset"):
                     rotation[0] += radians(rotation_offset.get("Roll"))
                     rotation[1] += radians(rotation_offset.get("Pitch"))
                     rotation[2] += -radians(rotation_offset.get("Yaw"))
                 constraint_object(imported_item, master_skeleton, socket_name, rotation)
+    
+        if import_type == "Dance":
+            anim_data = import_data.get("AnimData")
+            import_animation_data(anim_data)
     
         else:
             imported_parts = []
@@ -1594,8 +1605,13 @@ def import_response(response):
                     corrective_smooth = master_mesh.modifiers.new(name="Corrective Smooth", type='CORRECTIVE_SMOOTH')
                     corrective_smooth.use_pin_boundary = True
 
-                if RigType(import_settings.get("RigType")) == RigType.TASTY:
-                        apply_tasty_rig(master_skeleton)
+                rig_type = RigType(import_settings.get("RigType"))
+                if rig_type == RigType.DEFAULT and import_settings.get("LobbyPoses") and (sequence_data := import_data.get("LinkedSequence")):
+                    import_animation_data(sequence_data, override_skel=master_skeleton)
+                
+                if rig_type == RigType.TASTY:
+                    apply_tasty_rig(master_skeleton)
+                    
                     
             bpy.ops.object.select_all(action='DESELECT')
     

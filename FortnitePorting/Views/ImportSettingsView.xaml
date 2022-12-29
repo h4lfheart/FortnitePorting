@@ -32,8 +32,9 @@
                     <ToggleButton Content="Merge Skeletons" IsChecked="{Binding BlenderMergeSkeletons}" IsEnabled="{Binding CanChangeRigOptions}"/>
                     <ToggleButton Content="Reorient Bones" IsChecked="{Binding BlenderReorientBones}" IsEnabled="{Binding CanChangeRigOptions}"/>
                     
-                    <Separator Style="{StaticResource NamedSeparator}" Tag="ANIMATION (EMOTES)"/>
-                    <ToggleButton Content="Update Timeline Range" IsChecked="{Binding BlenderUpdateTimeline}"/>
+                    <Separator Style="{StaticResource NamedSeparator}" Tag="ANIMATION"/>
+                    <ToggleButton Content="Update Timeline to Animation Length" IsChecked="{Binding BlenderUpdateTimeline}"/>
+                    <ToggleButton Content="Import Lobby Poses" IsChecked="{Binding BlenderLobbyPoses}"/>
                     
                     <Separator Style="{StaticResource NamedSeparator}" Tag="MESH"/>
                     <ToggleButton Content="Quad Topology" IsChecked="{Binding BlenderQuadTopo}"/>

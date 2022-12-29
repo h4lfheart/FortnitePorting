@@ -9,6 +9,7 @@ public class BlenderExportSettings
     
     // ANIM
     public bool UpdateTimeline;
+    public bool LobbyPoses;
     
     // MESH
     public bool QuadTopo;

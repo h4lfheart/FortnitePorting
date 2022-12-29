@@ -48,6 +48,16 @@ public class ImportSettingsViewModel : ObservableObject
         }
     }
     
+    public bool BlenderLobbyPoses
+    {
+        get => AppSettings.Current.BlenderExportSettings.LobbyPoses;
+        set
+        {
+            AppSettings.Current.BlenderExportSettings.LobbyPoses = value;
+            OnPropertyChanged();
+        }
+    }
+    
     public bool BlenderQuadTopo
     {
         get => AppSettings.Current.BlenderExportSettings.QuadTopo;
