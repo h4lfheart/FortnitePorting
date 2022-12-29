@@ -68,6 +68,16 @@ public class ImportSettingsViewModel : ObservableObject
         }
     }
     
+    public int BlenderLevelOfDetail
+    {
+        get => AppSettings.Current.BlenderExportSettings.LevelOfDetail;
+        set
+        {
+            AppSettings.Current.BlenderExportSettings.LevelOfDetail = value;
+            OnPropertyChanged();
+        }
+    }
+    
     public bool BlenderPoseFixes
     {
         get => AppSettings.Current.BlenderExportSettings.PoseFixes;

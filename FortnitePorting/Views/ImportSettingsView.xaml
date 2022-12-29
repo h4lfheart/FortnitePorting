@@ -39,6 +39,7 @@
                     <Separator Style="{StaticResource NamedSeparator}" Tag="MESH"/>
                     <ToggleButton Content="Quad Topology" IsChecked="{Binding BlenderQuadTopo}"/>
                     <ToggleButton Content="Pose Deformation Correction Modifiers" IsChecked="{Binding BlenderPoseFixes}" IsEnabled="{Binding BlenderMergeSkeletons}"/>
+                    <controls:NumericSlider Label="Level of Detail" Maximum="4" StepSize="1" Snap="True" Value="{Binding BlenderLevelOfDetail, Mode=TwoWay}"/>
                     
                     <Separator Style="{StaticResource NamedSeparator}" Tag="MATERIALS"/>
                     <ToggleButton Content="Import Materials" IsChecked="{Binding BlenderImportMaterials}"/>

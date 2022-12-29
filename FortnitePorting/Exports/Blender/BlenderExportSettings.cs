@@ -14,6 +14,8 @@ public class BlenderExportSettings
     // MESH
     public bool QuadTopo;
     public bool PoseFixes;
+    public int LevelOfDetail;
+
     
     // MATERIAL
     public bool ImportMaterials = true;

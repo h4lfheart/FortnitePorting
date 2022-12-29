@@ -149,9 +149,9 @@ vector_mappings = {
 }
 
 
-def import_mesh(path: str, import_mesh: bool = True, reorient_bones: bool = False) -> bpy.types.Object:
+def import_mesh(path: str, import_mesh: bool = True, reorient_bones: bool = False, lod = 0) -> bpy.types.Object:
     path = path[1:] if path.startswith("/") else path
-    mesh_path = os.path.join(import_assets_root, path.split(".")[0] + "_LOD0")
+    mesh_path = os.path.join(import_assets_root, path.split(".")[0] + "_LOD" + str(lod))
 
     if os.path.exists(mesh_path + ".psk"):
         mesh_path += ".psk"
@@ -711,17 +711,13 @@ def merge_skeletons(parts) -> bpy.types.Armature:
     # Merge Skeletons
     for part in parts:
         slot = part.get("Part")
-        if slot is None:
-            slot = "" # fix stupid nonetype w/ the casefold
         skeleton = part.get("Armature")
         mesh = part.get("Mesh")
         socket = part.get("Socket")
-        if socket is None:
-            socket = "" # fix stupid nonetype w/ the casefold
         if slot == "Body":
             bpy.context.view_layer.objects.active = skeleton
 
-        if (slot in {"Hat", "MiscOrTail"} and socket != "") or (slot.casefold() == "face" and socket.casefold() == "hat"):
+        if slot in {"Hat", "MiscOrTail"} and socket not in ["Face", None]:
             constraint_parts.append(part)
         else:
             skeleton.select_set(True)
@@ -937,9 +933,21 @@ def apply_tasty_rig(master_skeleton: bpy.types.Armature):
             old_head = eye_r.head + Vector((0,0.001,0)) # minor change to bypass zero-length bone deletion
             eye_r.tail = old_head
             eye_r.head = old_tail
+        elif eye_r.tail[0] == eye_r.head[0] and eye_r.tail[1] == eye_r.head[1] and eye_r.tail[2] > eye_r.head[2]:
+            eye_r.tail = eye_r.head + Vector((0,0.01,0))
+            old_tail = eye_r.tail + Vector((0,0.001,0))
+            old_head = eye_r.head + Vector((0,0.001,0)) # minor change to bypass zero-length bone deletion
+            eye_r.tail = old_head
+            eye_r.head = old_tail
 
     if (eye_l := edit_bones.get('L_eye')) or (eye_l := edit_bones.get('FACIAL_L_Eye')):
         if eye_l.tail[1] > eye_l.head[1]:
+            old_tail = eye_l.tail + Vector((0,0.001,0))
+            old_head = eye_l.head + Vector((0,0.001,0)) # minor change to bypass zero-length bone deletion
+            eye_l.tail = old_head
+            eye_l.head = old_tail
+        elif eye_l.tail[0] == eye_l.head[0] and eye_l.tail[1] == eye_l.head[1] and eye_l.tail[2] > eye_l.head[2]:
+            eye_l.tail = eye_l.head + Vector((0,0.01,0))
             old_tail = eye_l.tail + Vector((0,0.001,0))
             old_head = eye_l.head + Vector((0,0.001,0)) # minor change to bypass zero-length bone deletion
             eye_l.tail = old_head
@@ -1494,8 +1502,10 @@ def import_response(response):
 
                 if socket_name in socket_remaps.keys():
                     socket_name = socket_remaps.get(socket_name)
+                    
+                num_lods = prop.get("NumLods")
 
-                if (imported_item := import_mesh(prop.get("MeshPath"))) is None:
+                if (imported_item := import_mesh(prop.get("MeshPath"), lod=min(num_lods-1, import_settings.get("LevelOfDetail")))) is None:
                     continue
 
                 bpy.context.view_layer.objects.active = imported_item
@@ -1542,8 +1552,10 @@ def import_response(response):
                     target_mesh = part.get("MeshPath")
                     if found_mesh := first(style_meshes, lambda x: x.get("MeshToSwap") == target_mesh):
                         target_mesh = found_mesh.get("MeshToSwap")
+                        
+                    num_lods = part.get("NumLods")
                     
-                    if (imported_part := import_mesh(target_mesh, reorient_bones=import_settings.get("ReorientBones"))) is None:
+                    if (imported_part := import_mesh(target_mesh, reorient_bones=import_settings.get("ReorientBones"), lod=min(num_lods-1, import_settings.get("LevelOfDetail")))) is None:
                         continue
 
                     imported_part.location += make_vector(part.get("Offset"))*0.01
