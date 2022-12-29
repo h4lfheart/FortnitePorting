@@ -19,6 +19,7 @@ using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
+using FortnitePorting.ViewModels;
 using SkiaSharp;
 
 namespace FortnitePorting.Exports;
@@ -30,6 +31,7 @@ public static class ExportHelpers
         var exportParts = new List<ExportPart>();
         var headMorphType = ECustomHatType.None;
         var headMorphNames = new Dictionary<ECustomHatType, string>();
+        FLinearColor? skinColor = null;
         foreach (var part in inputParts)
         {
             var skeletalMesh = part.GetOrDefault<USkeletalMesh?>("SkeletalMesh");
@@ -65,6 +67,13 @@ public static class ExportHelpers
                         }
                     }
 
+                    if (additionalData.TryGetValue(out UObject skinColorSwatch, "SkinColorSwatch"))
+                    {
+                        var colorPairs = skinColorSwatch.GetOrDefault("ColorPairs", Array.Empty<FStructFallback>());
+                        var skinColorPair = colorPairs.FirstOrDefault(x => x.Get<FName>("ColorName").Text.Equals("Skin Boost Color and Exponent", StringComparison.OrdinalIgnoreCase));
+                        if (skinColorPair is not null) skinColor = skinColorPair.Get<FLinearColor>("ColorValue");
+                    }
+
                 }
             }
 
@@ -92,8 +101,25 @@ public static class ExportHelpers
 
         if (headMorphType != ECustomHatType.None && headMorphNames.ContainsKey(headMorphType))
         {
-            var morphName = headMorphNames[headMorphType];
-            exportParts.First(x => x.Part == "Head").MorphName = morphName;
+            var headPart = exportParts.First(x => x.Part.Equals("Head"));
+            headPart.MorphName = headMorphNames[headMorphType];
+        }
+
+        if (skinColor is not null)
+        {
+            var bodyPart = exportParts.First(x => x.Part.Equals("Body"));
+            foreach (var material in bodyPart.Materials)
+            {
+                var foundSkinColor = material.Vectors.FirstOrDefault(x => x.Name.Equals("Skin Boost Color And Exponent"));
+                if (foundSkinColor is not null)
+                {
+                    foundSkinColor.Value = skinColor.Value;
+                }
+                else
+                {
+                    material.Vectors.Add(new VectorParameter("Skin Boost Color And Exponent", skinColor.Value));
+                }
+            }
         }
         
         exportMeshes.AddRange(exportParts);

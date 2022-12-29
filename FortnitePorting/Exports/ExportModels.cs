@@ -55,7 +55,10 @@ public record TextureParameter(string Name, string Value);
 
 public record ScalarParameter(string Name, float Value);
 
-public record VectorParameter(string Name, FLinearColor Value);
+public record VectorParameter(string Name, FLinearColor Value)
+{
+    public FLinearColor Value { get; set; } = Value;
+}
 
 public class EmotePropData
 {

@@ -415,6 +415,11 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
     shader_node.inputs["Subsurface"].default_value = import_settings.get("Subsurface")
 
     links.new(shader_node.outputs[0], output_node.inputs[0])
+    
+    if material_name == "M_VertexCrunch":
+        shader_node.inputs["Alpha"].default_value = 0.0
+        target_material.blend_method = "CLIP"
+        target_material.shadow_method = "CLIP"
 
     # gradient skins
     added_textures = []
