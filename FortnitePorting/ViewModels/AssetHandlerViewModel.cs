@@ -211,38 +211,18 @@ public class AssetHandlerData
         }
 
         var addedAssets = new List<string>();
-        var removedCount = 0;
-
-        var i = 0;
         await Parallel.ForEachAsync(items, async (data, token) =>
         {
-            var assetName = data.AssetName.Text;
-            if (AssetType == EAssetType.Weapon)
+            // TODO figure out differentiate rarities with diff meshes
+            if (data.TagsAndValues.ContainsKey("DisplayName") && AssetType is EAssetType.Weapon or EAssetType.Prop)
             {
-                var reg = Regex.Match(assetName, @"(.*)_(.*)_(.*)_T[0-9][0-9]");
-                if (reg.Success && addedAssets.ToArray().Any(x => x.Contains(reg.Groups[1].Value, StringComparison.OrdinalIgnoreCase)))
+                var displayName = data.TagsAndValues["DisplayName"].SubstringBeforeLast('"').SubstringAfterLast('"').Trim();
+                if (addedAssets.ToArray().Contains(displayName, StringComparer.OrdinalIgnoreCase))
                 {
                     return;
                 }
-                addedAssets.Add(assetName);
+                addedAssets.Add(displayName);
             }
-            else if (AssetType == EAssetType.Prop)
-            {
-                if (data.TagsAndValues.ContainsKey("DisplayName"))
-                {
-                    var name = data.TagsAndValues["DisplayName"];
-                    name = name.SubstringBeforeLast('"').SubstringAfterLast('"');
-                    if (addedAssets.ToArray().Contains(name, StringComparer.OrdinalIgnoreCase))
-                    {
-                        removedCount++;
-                        return;
-                    }
-
-                    addedAssets.Add(name);
-                }
-            }
-
-            i++;
 
             try
             {
