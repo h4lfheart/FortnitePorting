@@ -5,12 +5,10 @@ using System.Windows;
 using System.Windows.Threading;
 using AdonisUI;
 using AdonisUI.Controls;
-using AutoUpdaterDotNET;
 using CUE4Parse.UE4.Assets;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Exports.Types;
 using FortnitePorting.Services;
-using FortnitePorting.Views;
 using MessageBox = AdonisUI.Controls.MessageBox;
 using MessageBoxImage = AdonisUI.Controls.MessageBoxImage;
 
@@ -20,7 +18,7 @@ public partial class App
 {
     [DllImport("kernel32")]
     private static extern bool AllocConsole();
-    
+
     [DllImport("kernel32")]
     private static extern bool FreeConsole();
 
@@ -31,17 +29,17 @@ public partial class App
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) +
         "\\FortniteGame\\Saved\\PersistentDownloadDir\\InstalledBundles");
     public static readonly DirectoryInfo LogsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs"));
-    
+
     public static readonly DirectoryInfo CacheFolder = new(Path.Combine(DataFolder.FullName, "ManifestCache"));
 
-    public static readonly Random RandomGenerator = new(); 
-    
+    public static readonly Random RandomGenerator = new();
+
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
         AllocConsole();
         Console.Title = "Fortnite Porting Console";
-        
+
         ObjectTypeRegistry.RegisterEngine(typeof(FortAnimNotifyState_SpawnProp).Assembly);
         Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
 
@@ -49,12 +47,12 @@ public partial class App
             .WriteTo.Console()
             .WriteTo.File(Path.Combine(LogsFolder.FullName, $"FortnitePorting-{DateTime.UtcNow:yyyy-MM-dd-hh-mm-ss}.log"))
             .CreateLogger();
-        
+
         AppSettings.DirectoryPath.Create();
         AppSettings.Load();
-        
+
         ResourceLocator.SetColorScheme(Current.Resources, AppSettings.Current.LightMode ? ResourceLocator.LightColorScheme : ResourceLocator.DarkColorScheme);
-        
+
         AssetsFolder.Create();
         DataFolder.Create();
         LogsFolder.Create();
@@ -65,7 +63,6 @@ public partial class App
         {
             DiscordService.Initialize();
         }
-        
     }
 
     protected override void OnExit(ExitEventArgs e)
@@ -78,17 +75,16 @@ public partial class App
     private void OnUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
         Log.Error("{0}", e.Exception);
-        
+
         var messageBox = new MessageBoxModel
         {
             Caption = "An unhandled exception has occurred",
             Icon = MessageBoxImage.Error,
             Text = e.Exception.Message,
-            Buttons = new[] {MessageBoxButtons.Ok()}
+            Buttons = new[] { MessageBoxButtons.Ok() }
         };
-        MessageBox.Show(messageBox);
 
+        MessageBox.Show(messageBox);
         e.Handled = true;
     }
-    
 }

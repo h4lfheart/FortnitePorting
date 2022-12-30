@@ -6,8 +6,6 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows;
 using System.Windows.Media.Imaging;
-using CUE4Parse_Conversion.Textures;
-using CUE4Parse.UE4.Assets.Exports.Texture;
 using SkiaSharp;
 
 namespace FortnitePorting.Views.Extensions;
@@ -16,13 +14,13 @@ public static class ImageExtensions
 {
     public static BitmapSource ToBitmapSource(this SKBitmap bitmap)
     {
-        var source = new BitmapImage { CacheOption = BitmapCacheOption.OnDemand};
+        var source = new BitmapImage { CacheOption = BitmapCacheOption.OnDemand };
         source.BeginInit();
         source.StreamSource = bitmap.Encode(SKEncodedImageFormat.Png, 100).AsStream();
         source.EndInit();
         return source;
     }
-    
+
     public static void SetImage(byte[] pngBytes, string fileName = null)
     {
         Clipboard.Clear();
@@ -45,6 +43,7 @@ public static class ImageExtensions
         // The 'copy=true' argument means the MemoryStreams can be safely disposed after the operation
         Clipboard.SetDataObject(data, true);
     }
+
     public static byte[] ConvertToDib(Image image)
     {
         byte[] bm32bData;
@@ -95,22 +94,23 @@ public static class ImageExtensions
         Unsafe.CopyBlockUnaligned(ref fullImage[hdrSize + 12], ref bm32bData[0], (uint) bm32bData.Length);
         return fullImage;
     }
+
     private static void WriteIntToByteArray(byte[] data, int startIndex, int bytes, bool littleEndian, uint value)
-   {
-       var lastByte = bytes - 1;
+    {
+        var lastByte = bytes - 1;
 
-       if (data.Length < startIndex + bytes)
-       {
-           throw new ArgumentOutOfRangeException(nameof(startIndex), "Data array is too small to write a " + bytes + "-byte value at offset " + startIndex + ".");
-       }
+        if (data.Length < startIndex + bytes)
+        {
+            throw new ArgumentOutOfRangeException(nameof(startIndex), "Data array is too small to write a " + bytes + "-byte value at offset " + startIndex + ".");
+        }
 
-       for (var index = 0; index < bytes; index++)
-       {
-           var offs = startIndex + (littleEndian ? index : lastByte - index);
-           data[offs] = (byte) (value >> 8 * index & 0xFF);
-       }
-   }
-    
+        for (var index = 0; index < bytes; index++)
+        {
+            var offs = startIndex + (littleEndian ? index : lastByte - index);
+            data[offs] = (byte) (value >> 8 * index & 0xFF);
+        }
+    }
+
     private static unsafe byte[] GetRawBytes(Bitmap bmp)
     {
         var rect = new Rectangle(0, 0, bmp.Width, bmp.Height);
@@ -125,6 +125,7 @@ public static class ImageExtensions
         bmp.UnlockBits(bmpData);
         return buffer;
     }
+
     private static string GenerateHTMLFragment(string html)
     {
         var sb = new StringBuilder();

@@ -1,14 +1,13 @@
 ﻿using System.Windows;
-using System.Windows.Controls;
 
 namespace FortnitePorting.Views.Controls;
 
 public partial class NumericSlider
 {
-    public static readonly DependencyProperty LabelProperty = 
+    public static readonly DependencyProperty LabelProperty =
         DependencyProperty.Register(
             nameof(Label),
-            typeof(string), 
+            typeof(string),
             typeof(NumericSlider)
         );
 
@@ -17,11 +16,11 @@ public partial class NumericSlider
         get => (string) GetValue(LabelProperty);
         set => SetValue(LabelProperty, value);
     }
-    
-    public static readonly DependencyProperty MaximumProperty = 
+
+    public static readonly DependencyProperty MaximumProperty =
         DependencyProperty.Register(
             nameof(Maximum),
-            typeof(double), 
+            typeof(double),
             typeof(NumericSlider),
             new PropertyMetadata(1.0)
         );
@@ -31,11 +30,11 @@ public partial class NumericSlider
         get => (double) GetValue(MaximumProperty);
         set => SetValue(MaximumProperty, value);
     }
-    
-    public static readonly DependencyProperty StepSizeProperty = 
+
+    public static readonly DependencyProperty StepSizeProperty =
         DependencyProperty.Register(
             nameof(StepSize),
-            typeof(double), 
+            typeof(double),
             typeof(NumericSlider),
             new PropertyMetadata(0.1)
         );
@@ -45,11 +44,11 @@ public partial class NumericSlider
         get => (double) GetValue(StepSizeProperty);
         set => SetValue(StepSizeProperty, value);
     }
-    
-    public static readonly DependencyProperty SnapProperty = 
+
+    public static readonly DependencyProperty SnapProperty =
         DependencyProperty.Register(
             nameof(Snap),
-            typeof(bool), 
+            typeof(bool),
             typeof(NumericSlider),
             new PropertyMetadata(false)
         );
@@ -59,12 +58,11 @@ public partial class NumericSlider
         get => (bool) GetValue(SnapProperty);
         set => SetValue(SnapProperty, value);
     }
-    
-    
-    public static readonly DependencyProperty ValueProperty = 
+
+    public static readonly DependencyProperty ValueProperty =
         DependencyProperty.Register(
             nameof(Value),
-            typeof(double), 
+            typeof(double),
             typeof(NumericSlider)
         );
 
@@ -73,7 +71,7 @@ public partial class NumericSlider
         get => (double) GetValue(ValueProperty);
         set => SetValue(ValueProperty, value);
     }
-    
+
     public NumericSlider()
     {
         InitializeComponent();

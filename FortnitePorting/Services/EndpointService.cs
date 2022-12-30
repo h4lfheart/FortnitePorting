@@ -20,12 +20,12 @@ public static class EndpointService
     public static readonly FortniteCentralEndpoint FortniteCentral = new(_client);
     public static readonly EpicEndpoint Epic = new(_client);
     public static readonly FortnitePortingEndpoint FortnitePorting = new(_client);
-    
+
     public static void DownloadFile(string url, string destination)
     {
         DownloadFileAsync(url, destination).GetAwaiter().GetResult();
     }
-    
+
     public static async Task DownloadFileAsync(string url, string destination)
     {
         var request = new RestRequest(url);

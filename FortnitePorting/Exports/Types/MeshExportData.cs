@@ -42,11 +42,11 @@ public class MeshExportData : ExportDataBase
                 {
                     var parts = asset.GetOrDefault("BaseCharacterParts", Array.Empty<UObject>());
                     var exportedParts = ExportHelpers.CharacterParts(parts, data.Parts);
-                    
+
                     if (asset.TryGetValue(out UObject heroDefinition, "HeroDefinition"))
                     {
                         var frontendAnimMontage = heroDefinition.GetOrDefault<UAnimMontage?>("FrontendAnimMontageIdleOverride");
-                        if (frontendAnimMontage is not null) 
+                        if (frontendAnimMontage is not null)
                         {
                             data.LinkedSequence = await DanceExportData.CreateAnimDataAsync(frontendAnimMontage);
                         }
@@ -59,7 +59,7 @@ public class MeshExportData : ExportDataBase
                                 EFortCustomGender.Female => AppVM.CUE4ParseVM.FemaleIdleAnimations.Random(),
                                 _ => null
                             };
-                            
+
                             if (targetMontage is null) break;
 
                             data.LinkedSequence = await DanceExportData.CreateAnimDataAsync(targetMontage);
@@ -98,26 +98,26 @@ public class MeshExportData : ExportDataBase
                     UObject? GetMeshComponent(UBlueprintGeneratedClass? blueprint)
                     {
                         if (blueprint is null) return null;
-                        
+
                         var classDefaultObject = blueprint.ClassDefaultObject.Load();
                         if (classDefaultObject is null) return null;
 
                         var skeletalMeshComponent = classDefaultObject.GetOrDefault<UObject?>("SkeletalMesh");
                         return skeletalMeshComponent;
                     }
-                    
+
                     var blueprint = asset.Get<UBlueprintGeneratedClass>("VehicleActorClass");
-                    
+
                     var component = GetMeshComponent(blueprint);
                     if (component is null) break;
-                    
+
                     var mesh = component.GetOrDefault<USkeletalMesh?>("SkeletalMesh");
                     if (mesh is null)
                     {
                         var superStruct = blueprint.SuperStruct.Load<UBlueprintGeneratedClass>();
                         mesh = GetMeshComponent(superStruct)?.GetOrDefault<USkeletalMesh?>("SkeletalMesh");
                     }
-                    
+
                     var part = ExportHelpers.Mesh<ExportMesh>(mesh);
                     if (part is null) break;
 
@@ -130,9 +130,9 @@ public class MeshExportData : ExportDataBase
                         var exportMaterial = ExportHelpers.CreateExportMaterial(material, i);
                         part.OverrideMaterials.Add(exportMaterial);
                     }
-                    
+
                     data.Parts.Add(part);
-                    
+
                     var exports = AppVM.CUE4ParseVM.Provider.LoadObjectExports(blueprint.GetPathName().SubstringBeforeLast("."));
                     var staticMeshComponents = exports.Where(x => x.ExportType == "StaticMeshComponent").ToArray();
                     foreach (var staticMeshComponent in staticMeshComponents)
@@ -142,7 +142,7 @@ public class MeshExportData : ExportDataBase
                         var export = ExportHelpers.Mesh(componentStaticMesh);
                         data.Parts.Add(export);
                     }
-                    
+
                     break;
                 }
                 case EAssetType.Prop:
@@ -160,7 +160,6 @@ public class MeshExportData : ExportDataBase
                         var actor = templateRecord.ActorClass.Load<UBlueprintGeneratedClass>();
                         var classDefaultObject = actor.ClassDefaultObject.Load();
                         if (classDefaultObject is null) continue;
-                        
 
                         if (classDefaultObject.TryGetValue(out UStaticMesh staticMesh, "StaticMesh"))
                         {
@@ -171,7 +170,7 @@ public class MeshExportData : ExportDataBase
                         {
                             var exports = AppVM.CUE4ParseVM.Provider.LoadObjectExports(actor.GetPathName().SubstringBeforeLast("."));
                             var staticMeshComponents = exports.Where(x => x.ExportType == "StaticMeshComponent").ToArray();
-                            if (!staticMeshComponents.Any()) 
+                            if (!staticMeshComponents.Any())
                                 AppLog.Error($"StaticMesh could not be found in actor {actor.Name} for prop {data.Name}");
                             foreach (var component in staticMeshComponents)
                             {
@@ -181,7 +180,7 @@ public class MeshExportData : ExportDataBase
                                 data.Parts.Add(export);
                             }
                         }
-                        
+
                         // EXTRA MESHES
                         if (classDefaultObject.TryGetValue(out UStaticMesh doorMesh, "DoorMesh"))
                         {
@@ -189,7 +188,7 @@ public class MeshExportData : ExportDataBase
                             var doorOffset = classDefaultObject.GetOrDefault("DoorOffset", FVector.ZeroVector);
                             export.Offset = doorOffset;
                             data.Parts.Add(export);
-                            
+
                             if (classDefaultObject.GetOrDefault<bool>("bDoubleDoor"))
                             {
                                 var doubleDoorExport = ExportHelpers.Mesh(doorMesh)!;
@@ -199,9 +198,8 @@ public class MeshExportData : ExportDataBase
                                 data.Parts.Add(doubleDoorExport);
                             }
                         }
-                        
                     }
-                    
+
                     break;
                 }
                 default:
@@ -211,13 +209,12 @@ public class MeshExportData : ExportDataBase
             return true;
         });
         if (!canContinue) return null;
-        
+
         data.ProcessStyles(asset, styles);
 
         await Task.WhenAll(ExportHelpers.Tasks);
         return data;
     }
-    
 }
 
 public static class MeshExportExtensions
@@ -227,21 +224,21 @@ public static class MeshExportExtensions
         // apply gameplay tags for selected styles
         var totalMetaTags = new List<string>();
         var metaTagsToApply = new List<string>();
-        var metaTagsToRemove= new List<string>();
+        var metaTagsToRemove = new List<string>();
         foreach (var style in selectedStyles)
         {
             var tags = style.Get<FStructFallback>("MetaTags");
-            
+
             var tagstoApply = tags.Get<FGameplayTagContainer>("MetaTagsToApply");
             metaTagsToApply.AddRange(tagstoApply.GameplayTags.Select(x => x.Text));
-            
+
             var tagsToRemove = tags.Get<FGameplayTagContainer>("MetaTagsToRemove");
             metaTagsToRemove.AddRange(tagsToRemove.GameplayTags.Select(x => x.Text));
         }
-        
+
         totalMetaTags.AddRange(metaTagsToApply);
         metaTagsToRemove.ForEach(tag => totalMetaTags.RemoveAll(x => x.Equals(tag, StringComparison.OrdinalIgnoreCase)));
-        
+
         // figure out if the selected gameplay tags above match any of the tag driven styles
         var itemStyles = asset.GetOrDefault("ItemVariants", Array.Empty<UObject>());
         var tagDrivenStyles = itemStyles.Where(style => style.ExportType.Equals("FortCosmeticLoadoutTagDrivenVariant"));
@@ -268,7 +265,6 @@ public static class MeshExportExtensions
         {
             ExportStyleData(style, data);
         }
-        
     }
 
     private static void ExportStyleData(FStructFallback style, MeshExportData data)

@@ -15,40 +15,35 @@ public class EpicEndpoint : EndpointBase
     private const string BASIC_TOKEN = "basic MzQ0NmNkNzI2OTRjNGE0NDg1ZDgxYjc3YWRiYjIxNDE6OTIwOWQ0YTVlMjVhNDU3ZmI5YjA3NDg5ZDMxM2I0MWE=";
     private const string FORTNITE_LIVE_URL = "https://launcher-public-service-prod06.ol.epicgames.com/launcher/api/public/assets/v2/platform/Windows/namespace/fn/catalogItem/4fe75bbc5a674f4f9b356b5c90567da5/app/Fortnite/label/Live";
 
-    public EpicEndpoint(RestClient client) : base(client)
-    {
-    }
+    public EpicEndpoint(RestClient client) : base(client) { }
 
     public async Task<ManifestInfo> GetManifestInfoAsync(string url = FORTNITE_LIVE_URL)
     {
         await VerifyAuthAsync();
-        
+
         var request = new RestRequest(url);
         request.AddHeader("Authorization", $"bearer {AppSettings.Current.EpicAuth?.AccessToken}");
 
         var response = await _client.ExecuteAsync(request);
         return new ManifestInfo(response.Content);
     }
-    
+
     public ManifestInfo GetManifestInfo(string url = FORTNITE_LIVE_URL)
     {
         return GetManifestInfoAsync(url).GetAwaiter().GetResult();
     }
-    
+
     public async Task<Manifest> GetManifestAsync(string url = "")
     {
         var request = new RestRequest(url);
         var response = await _client.ExecuteAsync(request);
         return new Manifest(response.RawBytes, new ManifestOptions
         {
-            ChunkBaseUri =
-                new Uri("https://epicgames-download1.akamaized.net/Builds/Fortnite/Content/CloudDir/ChunksV4/",
-                    UriKind.Absolute),
+            ChunkBaseUri = new Uri("https://epicgames-download1.akamaized.net/Builds/Fortnite/Content/CloudDir/ChunksV4/", UriKind.Absolute),
             ChunkCacheDirectory = App.CacheFolder
-            
         });
     }
-    
+
     public Manifest GetManifest(string url = "")
     {
         return GetManifestAsync(url).GetAwaiter().GetResult();
@@ -63,16 +58,16 @@ public class EpicEndpoint : EndpointBase
         var response = await _client.ExecuteAsync<EpicAuthResponse>(request);
         return response.Data;
     }
-    
+
     public EpicAuthResponse? GetAuthToken()
     {
         return GetAuthTokenAsync().GetAwaiter().GetResult();
     }
-    
+
     public async Task<ContentBuildsResponse?> GetContentBuildsAsync(string url = BundleDownloader.MANIFEST_URL, string label = "")
     {
         await VerifyAuthAsync();
-        
+
         var request = new RestRequest(url);
         request.AddHeader("Authorization", $"bearer {AppSettings.Current.EpicAuth?.AccessToken}");
         request.AddQueryParameter("label", label);
@@ -80,7 +75,7 @@ public class EpicEndpoint : EndpointBase
         var response = await _client.ExecuteAsync<ContentBuildsResponse>(request);
         return response.Data;
     }
-    
+
     public ContentBuildsResponse? GetContentBuilds(string url = FORTNITE_LIVE_URL, string label = "")
     {
         return GetContentBuildsAsync(url, label).GetAwaiter().GetResult();
@@ -96,7 +91,7 @@ public class EpicEndpoint : EndpointBase
 
         return authExpired;
     }
-    
+
     public bool VerifyAuth()
     {
         return VerifyAuthAsync().GetAwaiter().GetResult();
@@ -109,5 +104,4 @@ public class EpicEndpoint : EndpointBase
         var response = _client.Execute(request);
         return response.StatusCode != HttpStatusCode.OK;
     }
-    
 }

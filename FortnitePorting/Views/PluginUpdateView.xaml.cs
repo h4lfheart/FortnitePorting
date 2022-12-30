@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls.Primitives;
@@ -17,11 +16,10 @@ namespace FortnitePorting.Views;
 
 public partial class PluginUpdateView
 {
-
     public PluginUpdateView()
     {
         InitializeComponent();
-        
+
         void AddInstallation(DirectoryInfo directory, string prefix = "")
         {
             if (!double.TryParse(directory.Name, out var numberVersion)) return;
@@ -32,7 +30,7 @@ public partial class PluginUpdateView
             var extraText = isSupported ? string.Empty : "(Unsupported)";
 
             if (!string.IsNullOrWhiteSpace(prefix)) prefix += " ";
-            
+
             var toggleSwitch = new ToggleButton();
             toggleSwitch.Content = $"{prefix}Blender {directory.Name} {extraText}";
             toggleSwitch.IsEnabled = isSupported;
@@ -46,7 +44,7 @@ public partial class PluginUpdateView
         {
             AddInstallation(folder);
         }
-        
+
         var steamApps = SteamDetection.GetSteamApps(SteamDetection.GetSteamLibs());
         var steamBlender = steamApps.FirstOrDefault(x => x.Name.Contains("Blender", StringComparison.OrdinalIgnoreCase));
         if (steamBlender is null) return;
@@ -70,14 +68,14 @@ public partial class PluginUpdateView
             Close();
             return;
         }
-        
+
         using var addonZip = new ZipArchive(new FileStream("FortnitePortingServer.zip", FileMode.Open));
         foreach (var selectedVersion in selectedVersions)
         {
             var addonPath = Path.Combine(selectedVersion.FullName, "scripts", "addons");
             addonZip.ExtractToDirectory(addonPath, overwriteFiles: true);
         }
-        
+
         Close();
         MessageBox.Show($"Successfully updated plugin for Blender {selectedVersions.Select(x => x.Name).CommaJoin()}. Please remember to enable the plugin (if this is your first time installing) and restart Blender.", "Updated Plugin Successfully", MessageBoxButton.OK, MessageBoxImage.Information);
     }
@@ -85,7 +83,7 @@ public partial class PluginUpdateView
 
 public static class SteamDetection
 {
-    
+
     public static List<AppInfo> GetSteamApps(List<string> steamLibs)
     {
         var apps = new List<AppInfo>();
@@ -114,7 +112,7 @@ public static class SteamDetection
         AppInfo? appInfo;
 
         if (dic.Keys.Count <= 0) return null;
-        
+
         appInfo = new AppInfo();
         var appId = dic["appid"];
         var name = dic["name"];
@@ -131,7 +129,7 @@ public static class SteamDetection
 
         return appInfo;
     }
-    
+
     public static List<string> GetSteamLibs()
     {
         var steamPath = GetSteamPath();

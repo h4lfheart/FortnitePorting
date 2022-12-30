@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -40,7 +39,7 @@ public partial class MainView
             AppHelper.OpenWindow<StartupView>();
             return;
         }
-        
+
         if (DateTime.Now >= AppSettings.Current.LastUpdateAskTime.AddDays(1))
         {
             UpdateService.Start(automaticCheck: true);
@@ -52,7 +51,7 @@ public partial class MainView
             AppHelper.OpenWindow<PluginUpdateView>();
             AppSettings.Current.JustUpdated = false;
         }
-        
+
         await AppVM.MainVM.Initialize();
     }
 
@@ -60,7 +59,7 @@ public partial class MainView
     {
         if (sender is not TabControl tabControl) return;
         if (AppVM.AssetHandlerVM is null) return;
-        
+
         var assetType = (EAssetType) tabControl.SelectedIndex;
 
         if (AppVM.MainVM.CurrentAssetType == assetType) return;
@@ -76,12 +75,12 @@ public partial class MainView
                 handlerData.PauseState.Pause();
             }
         }
-        
+
         if (!handlers[assetType].HasStarted)
         {
             await handlers[assetType].Execute();
         }
-        
+
         DiscordService.Update(assetType);
         AppVM.MainVM.CurrentAssetType = assetType;
         AppVM.MainVM.ExtendedAssets.Clear();
@@ -92,7 +91,7 @@ public partial class MainView
         if (sender is not ListBox listBox) return;
         if (listBox.SelectedItem is null) return;
         var selected = (AssetSelectorItem) listBox.SelectedItem;
-        
+
         AppVM.MainVM.Styles.Clear();
         if (selected.Type == EAssetType.Prop)
         {
@@ -104,17 +103,17 @@ public partial class MainView
             AppVM.MainVM.Styles.Add(new StyleSelector(AppVM.MainVM.ExtendedAssets));
             return;
         }
-        
+
         if (selected.IsRandom)
         {
             listBox.SelectedIndex = App.RandomGenerator.Next(0, listBox.Items.Count);
             return;
         }
-        
+
         AppVM.MainVM.ExtendedAssets.Clear();
         AppVM.MainVM.CurrentAsset = selected;
         AppVM.MainVM.TabModeText = "STYLES";
-        
+
         var styles = selected.Asset.GetOrDefault("ItemVariants", Array.Empty<UObject>());
         foreach (var style in styles)
         {
@@ -127,18 +126,18 @@ public partial class MainView
                 "FortCosmeticMeshVariant" => "MeshOptions",
                 _ => null
             };
-            
+
             if (optionsName is null) continue;
 
             var options = style.Get<FStructFallback[]>(optionsName);
             if (options.Length == 0) continue;
-            
+
             var styleSelector = new StyleSelector(channel, options, selected.IconBitmap);
             if (styleSelector.Options.Items.Count == 0) continue;
             AppVM.MainVM.Styles.Add(styleSelector);
         }
     }
-    
+
     private void StupidIdiotBadScroll(object sender, MouseWheelEventArgs e)
     {
         if (sender is not ScrollViewer scrollViewer) return;

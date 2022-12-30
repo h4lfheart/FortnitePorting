@@ -11,7 +11,7 @@ public partial class StartupView
         InitializeComponent();
         AppVM.StartupVM = new StartupViewModel();
         DataContext = AppVM.StartupVM;
-        
+
         AppVM.StartupVM.CheckForInstallation();
     }
 
@@ -21,7 +21,7 @@ public partial class StartupView
         if (!AppVM.MainVM.IsInitialized)
             await AppVM.MainVM.Initialize();
     }
-    
+
     private void OnClickInstallation(object sender, RoutedEventArgs e)
     {
         if (AppHelper.TrySelectFolder(out var path))

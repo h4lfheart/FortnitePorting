@@ -1,23 +1,19 @@
-﻿using Newtonsoft.Json;
+﻿using J = Newtonsoft.Json.JsonPropertyAttribute;
 
 namespace FortnitePorting.Services.Endpoints;
 
 public class ContentBuildsResponse
 {
-    [JsonProperty("items")]
-    public ContentItems Items;
+    [J] public ContentItems Items;
 
     public class ContentItems
     {
-        [JsonProperty("MANIFEST")]
-        public ContentItem Manifest;
+        [J] public ContentItem Manifest;
     }
 
     public class ContentItem
     {
-        [JsonProperty("distribution")]
-        public string Distribution;
-        [JsonProperty("path")]
-        public string Path;
+        [J] public string Distribution;
+        [J] public string Path;
     }
 }

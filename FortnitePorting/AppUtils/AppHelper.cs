@@ -26,7 +26,7 @@ public static class AppHelper
         return Application.Current.Windows.OfType<T>().Any();
     }
 
-    private static T GetWindow<T>() where T : Window 
+    private static T GetWindow<T>() where T : Window
     {
         return Application.Current.Windows.OfType<T>().First();
     }
@@ -35,7 +35,7 @@ public static class AppHelper
     {
         Process.Start(new ProcessStartInfo { FileName = location, UseShellExecute = shellExecute });
     }
-    
+
     public static bool TrySelectFolder(out string selectedPath)
     {
         var fileExplorer = new VistaFolderBrowserDialog { ShowNewFolderButton = true };

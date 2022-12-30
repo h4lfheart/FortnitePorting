@@ -22,8 +22,8 @@ namespace FortnitePorting.ViewModels;
 
 public class AssetHandlerViewModel
 {
-    public readonly Dictionary<EAssetType, AssetHandlerData> Handlers ;
-    
+    public readonly Dictionary<EAssetType, AssetHandlerData> Handlers;
+
     public AssetHandlerViewModel()
     {
         Handlers = new Dictionary<EAssetType, AssetHandlerData>
@@ -37,7 +37,6 @@ public class AssetHandlerViewModel
             { EAssetType.Vehicle, VehicleHandler },
             { EAssetType.Prop, PropHandler },
         };
-
     }
 
     private readonly AssetHandlerData OutfitHandler = new()
@@ -45,7 +44,7 @@ public class AssetHandlerViewModel
         AssetType = EAssetType.Outfit,
         TargetCollection = AppVM.MainVM.Outfits,
         ClassNames = new List<string> { "AthenaCharacterItemDefinition" },
-        RemoveList = new List<string> { "_NPC", "_TBD", "CID_VIP", "_Creative", "_SG"},
+        RemoveList = new List<string> { "_NPC", "_TBD", "CID_VIP", "_Creative", "_SG" },
         IconGetter = asset =>
         {
             asset.TryGetValue(out UTexture2D? previewImage, "SmallPreviewImage", "LargePreviewImage");
@@ -57,16 +56,16 @@ public class AssetHandlerViewModel
             return previewImage;
         }
     };
-    
+
     private readonly AssetHandlerData BackpackHandler = new()
     {
         AssetType = EAssetType.Backpack,
         TargetCollection = AppVM.MainVM.BackBlings,
         ClassNames = new List<string> { "AthenaBackpackItemDefinition" },
-        RemoveList = new List<string> { "_STWHeroNoDefaultBackpack", "_TEST", "Dev_", "_NPC", "_TBD"},
+        RemoveList = new List<string> { "_STWHeroNoDefaultBackpack", "_TEST", "Dev_", "_NPC", "_TBD" },
         IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
     };
-    
+
     private readonly AssetHandlerData PickaxeHandler = new()
     {
         AssetType = EAssetType.Pickaxe,
@@ -83,7 +82,7 @@ public class AssetHandlerViewModel
             return previewImage;
         }
     };
-    
+
     private readonly AssetHandlerData GliderHandler = new()
     {
         AssetType = EAssetType.Glider,
@@ -92,31 +91,31 @@ public class AssetHandlerViewModel
         RemoveList = { },
         IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
     };
-    
+
     private readonly AssetHandlerData WeaponHandler = new()
     {
         AssetType = EAssetType.Weapon,
         TargetCollection = AppVM.MainVM.Weapons,
-        ClassNames = new List<string> { "FortWeaponRangedItemDefinition", "FortWeaponMeleeItemDefinition"},
-        RemoveList = { "_Harvest", "Weapon_Pickaxe_", "Weapons_Pickaxe_", "Dev_WID"},
+        ClassNames = new List<string> { "FortWeaponRangedItemDefinition", "FortWeaponMeleeItemDefinition" },
+        RemoveList = { "_Harvest", "Weapon_Pickaxe_", "Weapons_Pickaxe_", "Dev_WID" },
         IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
     };
-    
+
     private readonly AssetHandlerData DanceHandler = new()
     {
         AssetType = EAssetType.Dance,
         TargetCollection = AppVM.MainVM.Dances,
         ClassNames = new List<string> { "AthenaDanceItemDefinition" },
-        RemoveList = { "_CT", "_NPC"},
+        RemoveList = { "_CT", "_NPC" },
         IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
     };
-    
+
     private readonly AssetHandlerData VehicleHandler = new()
     {
         AssetType = EAssetType.Vehicle,
         TargetCollection = AppVM.MainVM.Vehicles,
         ClassNames = new List<string> { "FortVehicleItemDefinition" },
-        RemoveList = {},
+        RemoveList = { },
         IconGetter = asset =>
         {
             var icon = asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage");
@@ -164,7 +163,7 @@ public class AssetHandlerViewModel
             return displayText;
         }
     };
-    
+
     private readonly AssetHandlerData PropHandler = new()
     {
         AssetType = EAssetType.Prop,
@@ -180,12 +179,11 @@ public class AssetHandlerViewModel
     }
 }
 
-
 public class AssetHandlerData
 {
     public bool HasStarted { get; private set; }
     public Pauser PauseState { get; } = new();
-    
+
     public EAssetType AssetType;
     public ObservableCollection<AssetSelectorItem> TargetCollection;
     public List<string> ClassNames;
@@ -203,7 +201,7 @@ public class AssetHandlerData
             .Where(x => ClassNames.Any(y => x.AssetClass.Text.Equals(y, StringComparison.OrdinalIgnoreCase)))
             .Where(x => !RemoveList.Any(y => x.AssetName.Text.Contains(y, StringComparison.OrdinalIgnoreCase)))
             .ToList();
-        
+
         // prioritize random first cuz of parallel list positions
         var random = items.FirstOrDefault(x => x.AssetName.Text.Contains("Random", StringComparison.OrdinalIgnoreCase));
         if (random is not null && AssetType != EAssetType.Prop)
@@ -243,7 +241,7 @@ public class AssetHandlerData
                     addedAssets.Add(name);
                 }
             }
-            
+
             i++;
 
             try
@@ -252,9 +250,9 @@ public class AssetHandlerData
             }
             catch (Exception e)
             {
-                Log.Error("Failed to load {0}", data.ObjectPath);
+                Log.Error("Failed to load {ObjectPath}", data.ObjectPath);
             }
-            
+
         });
         sw.Stop();
         AppLog.Information($"Loaded {AssetType.GetDescription()} in {Math.Round(sw.Elapsed.TotalSeconds, 2)}s");
@@ -268,7 +266,7 @@ public class AssetHandlerData
         var previewImage = IconGetter(asset);
         previewImage ??= AppVM.CUE4ParseVM.PlaceholderTexture;
         if (previewImage is null) return;
-        
+
         await Application.Current.Dispatcher.InvokeAsync(
             () => TargetCollection.Add(new AssetSelectorItem(asset, previewImage, type, random, DisplayNameGetter?.Invoke(asset), type == EAssetType.Vehicle)), DispatcherPriority.Background);
     }

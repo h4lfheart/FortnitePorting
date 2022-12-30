@@ -33,45 +33,45 @@ public partial class AppSettings : ObservableObject
         File.WriteAllText(FilePath.FullName, JsonConvert.SerializeObject(Current, Formatting.Indented));
     }
 
-    [ObservableProperty] 
+    [ObservableProperty]
     private string archivePath;
-    
-    [ObservableProperty] 
+
+    [ObservableProperty]
     private ELanguage language;
-    
-    [ObservableProperty] 
+
+    [ObservableProperty]
     private EInstallType installType;
-    
-    [ObservableProperty] 
+
+    [ObservableProperty]
     private bool discordRichPresence = true;
-    
-    [ObservableProperty] 
+
+    [ObservableProperty]
     private AesResponse? aesResponse;
 
-    [ObservableProperty] 
+    [ObservableProperty]
     private BlenderExportSettings blenderExportSettings;
-    
-    [ObservableProperty] 
+
+    [ObservableProperty]
     private List<string> favoriteIDs = new();
 
-    [ObservableProperty] 
+    [ObservableProperty]
     private EpicAuthResponse? epicAuth;
-    
-    [ObservableProperty] 
+
+    [ObservableProperty]
     private bool bundleDownloaderEnabled = true;
-    
-    [ObservableProperty] 
-    private string assetsPath = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets"));
-    
-    [ObservableProperty] 
+
+    [ObservableProperty]
+    private string assetsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets");
+
+    [ObservableProperty]
     private EUpdateMode updateMode;
-    
-    [ObservableProperty] 
+
+    [ObservableProperty]
     private bool justUpdated = true;
 
-    [ObservableProperty] 
+    [ObservableProperty]
     private DateTime lastUpdateAskTime = DateTime.Now.Subtract(TimeSpan.FromDays(1));
 
-    [ObservableProperty] 
+    [ObservableProperty]
     private bool lightMode;
 }

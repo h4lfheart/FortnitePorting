@@ -1,12 +1,10 @@
 ﻿using System;
-using Newtonsoft.Json;
+using J = Newtonsoft.Json.JsonPropertyAttribute;
 
 namespace FortnitePorting.Services.Endpoints.Models;
 
 public class EpicAuthResponse
 {
-    [JsonProperty("access_token")]
-    public string AccessToken;
-    [JsonProperty("expires_at")]
-    public DateTime ExpiresAt;
+    [J("access_token")] public string AccessToken;
+    [J("expires_at")] public DateTime ExpiresAt;
 }

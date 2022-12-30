@@ -17,6 +17,7 @@ namespace FortnitePorting.Exports.Types;
 public class DanceExportData : ExportDataBase
 {
     public AnimationData AnimData = new();
+
     public static async Task<DanceExportData> Create(UObject asset)
     {
         var data = new DanceExportData();
@@ -66,8 +67,7 @@ public class DanceExportData : ExportDataBase
                     Scale = notifyData.Scale,
                     Prop = ExportHelpers.Mesh(notifyData.StaticMeshProp) ?? ExportHelpers.Mesh(notifyData.SkeletalMeshProp)
                 };
-                
-                
+
                 var propAnimation = notifyData.SkeletalMeshPropAnimation;
                 propAnimation ??= GetExportSequence(notifyData.SkeletalMeshPropMontage);
                 if (propAnimation is not null)
@@ -75,14 +75,14 @@ public class DanceExportData : ExportDataBase
                     ExportHelpers.Save(propAnimation);
                     exportProp.Animation = propAnimation.GetPathName();
                 }
-                
+
                 animData.Props.Add(exportProp);
             }
         });
 
         return animData;
     }
-    
+
 
     public static UAnimSequence? GetExportSequence(UAnimMontage? montage)
     {
@@ -110,8 +110,6 @@ public class DanceExportData : ExportDataBase
     }
 }
 
-
-
 public class FortAnimNotifyState_SpawnProp : UObject
 {
     public FName SocketName { get; private set; }
@@ -119,19 +117,19 @@ public class FortAnimNotifyState_SpawnProp : UObject
     public FRotator RotationOffset { get; private set; }
     public FVector Scale { get; private set; }
     public bool bInheritScale { get; private set; }
-    public UStaticMesh? StaticMeshProp { get; private set; }   
+    public UStaticMesh? StaticMeshProp { get; private set; }
     public USkeletalMesh? SkeletalMeshProp { get; private set; }
     public UAnimSequence? SkeletalMeshPropAnimation { get; private set; }
     public UAnimMontage? SkeletalMeshPropMontage { get; private set; }
-    
+
     public override void Deserialize(FAssetArchive Ar, long validPos)
     {
         base.Deserialize(Ar, validPos);
 
         SocketName = GetOrDefault<FName>(nameof(SocketName));
-        LocationOffset = GetOrDefault<FVector>(nameof(LocationOffset), FVector.ZeroVector);
-        RotationOffset = GetOrDefault<FRotator>(nameof(RotationOffset), FRotator.ZeroRotator);
-        Scale = GetOrDefault<FVector>(nameof(Scale), FVector.OneVector);
+        LocationOffset = GetOrDefault(nameof(LocationOffset), FVector.ZeroVector);
+        RotationOffset = GetOrDefault(nameof(RotationOffset), FRotator.ZeroRotator);
+        Scale = GetOrDefault(nameof(Scale), FVector.OneVector);
         bInheritScale = GetOrDefault<bool>(nameof(bInheritScale));
         StaticMeshProp = GetOrDefault<UStaticMesh>(nameof(StaticMeshProp));
         SkeletalMeshProp = GetOrDefault<USkeletalMesh>(nameof(SkeletalMeshProp));

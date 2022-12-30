@@ -15,7 +15,7 @@
       <PackageReference Include="Autoupdater.NET.Official" Version="1.7.6" />
       <PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
       <PackageReference Include="DiscordRichPresence" Version="1.0.175" />
-      <PackageReference Include="Newtonsoft.Json" Version="13.0.2-beta2" />
+      <PackageReference Include="MercuryCommons" Version="0.0.8" />
       <PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
       <PackageReference Include="RestSharp" Version="108.0.3-alpha.0.5" />
       <PackageReference Include="RestSharp.Serializers.NewtonsoftJson" Version="108.0.3-alpha.0.5" />

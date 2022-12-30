@@ -5,32 +5,22 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media;
-using AdonisUI.Controls;
-using AutoUpdaterDotNET;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.UE4.Assets.Objects;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Bundles;
-using FortnitePorting.Exports;
 using FortnitePorting.Exports.Types;
 using FortnitePorting.Services;
 using FortnitePorting.Views;
 using FortnitePorting.Views.Controls;
-using Newtonsoft.Json;
-using MessageBox = AdonisUI.Controls.MessageBox;
-using MessageBoxButton = AdonisUI.Controls.MessageBoxButton;
-using MessageBoxImage = AdonisUI.Controls.MessageBoxImage;
-using MessageBoxResult = AdonisUI.Controls.MessageBoxResult;
 using StyleSelector = FortnitePorting.Views.Controls.StyleSelector;
 
 namespace FortnitePorting.ViewModels;
 
 public partial class MainViewModel : ObservableObject
 {
-    
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(StyleImage))]
     [NotifyPropertyChangedFor(nameof(StyleVisibility))]
@@ -52,16 +42,16 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> dances = new();
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> props = new();
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> vehicles = new();
-    
+
     [ObservableProperty] private ObservableCollection<StyleSelector> styles = new();
 
-    [ObservableProperty] 
+    [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(LoadingVisibility))]
     private bool isReady;
-    
-    [ObservableProperty] 
+
+    [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(LoadingVisibility))]
-    private string tabModeText; 
+    private string tabModeText;
 
     public EAssetType CurrentAssetType;
 
@@ -92,8 +82,7 @@ public partial class MainViewModel : ObservableObject
 
     public FStructFallback[] GetSelectedStyles()
     {
-        if (CurrentAsset.Type == EAssetType.Prop) return Array.Empty<FStructFallback>();
-        return Styles.Select(style => ((StyleSelectorItem) style.Options.Items[style.Options.SelectedIndex]).OptionData).ToArray();
+        return CurrentAsset?.Type == EAssetType.Prop ? Array.Empty<FStructFallback>() : Styles.Select(style => ((StyleSelectorItem) style.Options.Items[style.Options.SelectedIndex]).OptionData).ToArray();
     }
 
     [RelayCommand]
@@ -131,8 +120,8 @@ public partial class MainViewModel : ObservableObject
             case "Help_GitHub":
                 AppHelper.Launch(Globals.GITHUB_URL);
                 break;
-           case "Help_Donate":
-               AppHelper.Launch(Globals.KOFI_URL);
+            case "Help_Donate":
+                AppHelper.Launch(Globals.KOFI_URL);
                 break;
             case "Help_About":
                 // TODO
@@ -159,7 +148,7 @@ public partial class MainViewModel : ObservableObject
             AppVM.Warning("Failed to Establish Connection with FortnitePorting Server", "Please make sure you have installed the FortnitePortingServer.zip file and have an instance of Blender open.");
             return;
         }
-        
+
         var exportAssets = new List<AssetSelectorItem>();
         if (ExtendedAssets.Count > 0)
         {
@@ -182,7 +171,7 @@ public partial class MainViewModel : ObservableObject
                     await AppVM.CUE4ParseVM.Provider.MountAsync();
                 }
             });
-            
+
             ExportDataBase? exportData = asset.Type switch
             {
                 EAssetType.Dance => await DanceExportData.Create(asset.Asset),
@@ -193,28 +182,24 @@ public partial class MainViewModel : ObservableObject
 
             exportDatas.Add(exportData);
         }
-        
+
         if (exportDatas.Count == 0) return;
 
-        BlenderService.Send(exportDatas, AppSettings.Current.BlenderExportSettings); 
+        BlenderService.Send(exportDatas, AppSettings.Current.BlenderExportSettings);
     }
 
     [RelayCommand]
-    public async Task ExportUnreal()
-    {
-
-    }
+    public async Task ExportUnreal() { }
 
     [RelayCommand]
     public async Task OpenSettings()
     {
         AppHelper.OpenWindow<ImportSettingsView>();
     }
-    
+
     [RelayCommand]
     public async Task Favorite()
     {
         CurrentAsset?.ToggleFavorite();
     }
-
 }

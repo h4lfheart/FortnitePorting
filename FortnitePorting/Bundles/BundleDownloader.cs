@@ -21,12 +21,12 @@ public static class BundleDownloader
 
     private static Ini CosmeticBundleMappings;
     private static Manifest? BundleManifest;
-    
+
     public static async Task<bool> Initialize()
     {
         var bytes = await AppVM.CUE4ParseVM.Provider.TrySaveAssetAsync(BUNDLE_MAPPINGS_PATH);
         if (bytes is null) return false;
-        
+
         var bundleString = Encoding.UTF8.GetString(bytes);
         CosmeticBundleMappings = BundleIniReader.Read(bundleString);
 
@@ -62,7 +62,7 @@ public static class BundleDownloader
 
         var contentBuilds = await EndpointService.Epic.GetContentBuildsAsync(url: MANIFEST_URL, label: label);
         if (contentBuilds is null) return null;
-        
+
         var contentManifest = contentBuilds.Items.Manifest;
         var manifestUrl = contentManifest.Distribution + contentManifest.Path;
 
@@ -84,14 +84,14 @@ public static class BundleDownloader
             var targetFile = new FileInfo(Path.Combine(App.BundlesFolder.FullName, bundle.InstallTags[0], bundle.Name));
             if (targetFile.Exists) continue;
             Directory.CreateDirectory(targetFile.DirectoryName!);
-            
+
             Log.Information("Downloading file bundle: {0}", bundle.Name);
             await File.WriteAllBytesAsync(targetFile.FullName, bundle.GetStream().ToBytes());
             downloadedBundles.Add(targetFile);
         }
         return downloadedBundles;
     }
-    
+
     public static IEnumerable<FileInfo> Download(string cosmetic)
     {
         return DownloadAsync(cosmetic).GetAwaiter().GetResult();
