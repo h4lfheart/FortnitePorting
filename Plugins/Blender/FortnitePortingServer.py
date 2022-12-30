@@ -933,7 +933,7 @@ def apply_tasty_rig(master_skeleton: bpy.types.Armature):
             old_head = eye_r.head + Vector((0,0.001,0)) # minor change to bypass zero-length bone deletion
             eye_r.tail = old_head
             eye_r.head = old_tail
-        elif eye_r.tail[0] == eye_r.head[0] and eye_r.tail[1] == eye_r.head[1] and eye_r.tail[2] > eye_r.head[2]:
+        elif eye_r.tail[0] == eye_r.head[0] and eye_r.tail[1] == eye_r.head[1] and eye_r.tail[2] != eye_r.head[2]:
             eye_r.tail = eye_r.head + Vector((0,0.01,0))
             old_tail = eye_r.tail + Vector((0,0.001,0))
             old_head = eye_r.head + Vector((0,0.001,0)) # minor change to bypass zero-length bone deletion
@@ -946,7 +946,7 @@ def apply_tasty_rig(master_skeleton: bpy.types.Armature):
             old_head = eye_l.head + Vector((0,0.001,0)) # minor change to bypass zero-length bone deletion
             eye_l.tail = old_head
             eye_l.head = old_tail
-        elif eye_l.tail[0] == eye_l.head[0] and eye_l.tail[1] == eye_l.head[1] and eye_l.tail[2] > eye_l.head[2]:
+        elif eye_l.tail[0] == eye_l.head[0] and eye_l.tail[1] == eye_l.head[1] and eye_l.tail[2] != eye_l.head[2]:
             eye_l.tail = eye_l.head + Vector((0,0.01,0))
             old_tail = eye_l.tail + Vector((0,0.001,0))
             old_head = eye_l.head + Vector((0,0.001,0)) # minor change to bypass zero-length bone deletion
@@ -1226,6 +1226,13 @@ def apply_tasty_rig(master_skeleton: bpy.types.Armature):
 
         ('dfrm_upperarm_r', 'upperarm_r', 1.0),
         ('dfrm_upperarm_l', 'upperarm_l', 1.0),
+        ('dfrm_lowerarm_r', 'lowerarm_r', 1.0),
+        ('dfrm_lowerarm_l', 'lowerarm_l', 1.0),
+
+        ('dfrm_thigh_r', 'thigh_r', 1.0),
+        ('dfrm_thigh_l', 'thigh_l', 1.0),
+        ('dfrm_calf_r', 'calf_r', 1.0),
+        ('dfrm_calf_l', 'calf_l', 1.0),
     ]
 
     for bone_data in copy_rotation_bones:
@@ -1350,13 +1357,17 @@ def apply_tasty_rig(master_skeleton: bpy.types.Armature):
             bone.layers[index] = True
 
 
-def constraint_object(child: bpy.types.Object, parent: bpy.types.Object, bone: str, rot=[radians(0), radians(90), radians(0)]):
+def constraint_object(child: bpy.types.Object, parent: bpy.types.Object, bone: str, rot=[radians(0), radians(90), radians(0)], inherit_rot=True):
     constraint = child.constraints.new('CHILD_OF')
     constraint.target = parent
     constraint.subtarget = bone
     child.rotation_mode = 'XYZ'
-    child.rotation_euler = rot
-    constraint.inverse_matrix = Matrix.Identity(4)
+    #child.rotation_euler = rot
+    constraint.inverse_matrix = constraint.target.matrix_world.inverted()
+    if not inherit_rot:
+        constraint.use_rotation_x = False
+        constraint.use_rotation_y = False
+        constraint.use_rotation_z = False
 
 def mesh_from_armature(armature) -> bpy.types.Mesh:
     return armature.children[0]  # only used with psk, mesh is always first child
@@ -1546,7 +1557,7 @@ def import_response(response):
             def import_parts(parts):
                 for part in parts:
                     part_type = part.get("Part")
-                    if any(imported_parts, lambda x: False if x is None else x.get("Part") == part_type) and import_type == "Outfit":
+                    if any(imported_parts, lambda x: False if x is None else x.get("Part") == part_type) and import_type in ["Outfit", "Backpack"]:
                         continue
     
                     target_mesh = part.get("MeshPath")

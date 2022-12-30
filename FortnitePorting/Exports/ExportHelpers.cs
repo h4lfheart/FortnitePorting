@@ -53,7 +53,9 @@ public static class ExportHelpers
             if (part.TryGetValue<UObject>(out var additionalData, "AdditionalData"))
             {
                 var socketName = additionalData.GetOrDefault<FName?>("AttachSocketName");
-                exportPart.SocketName = socketName?.Text ?? null;
+                var attachToSocket = part.GetOrDefault("bAttachToSocket", true);
+                if (attachToSocket)
+                    exportPart.SocketName = socketName?.Text;
                 
                 if (additionalData.TryGetValue(out FName hatType, "HatType"))
                 {

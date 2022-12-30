@@ -64,8 +64,12 @@ public partial class PluginUpdateView
             .OfType<ToggleButton>()
             .Where(x => x.IsChecked.HasValue && x.IsChecked.Value)
             .Select(x => x.Tag as DirectoryInfo).ToArray();
-        
-        if (selectedVersions.Length == 0) return;
+
+        if (selectedVersions.Length == 0)
+        {
+            Close();
+            return;
+        }
         
         using var addonZip = new ZipArchive(new FileStream("FortnitePortingServer.zip", FileMode.Open));
         foreach (var selectedVersion in selectedVersions)
