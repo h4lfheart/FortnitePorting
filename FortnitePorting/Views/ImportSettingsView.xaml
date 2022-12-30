@@ -27,6 +27,10 @@
                         </Style>
                     </StackPanel.Resources> 
                     
+                    <Separator Style="{StaticResource NamedSeparator}" Tag="GENERAL"/>
+                    <ToggleButton Content="Import Into Collection" IsChecked="{Binding BlenderIntoCollection}"/>
+                    <ToggleButton Content="Scale Down to cm" IsChecked="{Binding BlenderScaleDown}"/>
+                    
                     <Separator Style="{StaticResource NamedSeparator}" Tag="RIGGING"/>
                     <ComboBox ItemsSource="{extensions:EnumToItemsSource {x:Type local:ERigType}}" SelectedItem="{Binding BlenderRigType, Converter={StaticResource EnumToString}}" SelectionChanged="OnRigTypeChanged"/>
                     <ToggleButton Content="Merge Skeletons" IsChecked="{Binding BlenderMergeSkeletons}" IsEnabled="{Binding CanChangeRigOptions}"/>

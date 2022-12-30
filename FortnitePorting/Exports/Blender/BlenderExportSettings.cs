@@ -2,6 +2,10 @@
 
 public class BlenderExportSettings
 {
+    // GENERAL
+    public bool IntoCollection = true;
+    public bool ScaleDown = true;
+    
     // RIGGING
     public ERigType RigType;
     public bool MergeSkeletons;
@@ -14,7 +18,7 @@ public class BlenderExportSettings
     // MESH
     public bool QuadTopo;
     public bool PoseFixes;
-    public int LevelOfDetail;
+    public int LevelOfDetail = 0;
 
     
     // MATERIAL

@@ -13,7 +13,7 @@ from io_import_scene_unreal_psa_psk_280 import pskimport, psaimport
 bl_info = {
     "name": "Fortnite Porting",
     "author": "Half",
-    "version": (1, 0, 3),
+    "version": (1, 0, 5),
     "blender": (3, 0, 0),
     "description": "Blender Server for Fortnite Porting",
     "category": "Import",
@@ -158,7 +158,7 @@ def import_mesh(path: str, import_mesh: bool = True, reorient_bones: bool = Fals
     if os.path.exists(mesh_path + ".pskx"):
         mesh_path += ".pskx"
 
-    if not pskimport(mesh_path, bReorientBones=reorient_bones, bImportmesh = import_mesh):
+    if not pskimport(mesh_path, bReorientBones=reorient_bones, bImportmesh = import_mesh, bScaleDown = import_settings.get("ScaleDown")):
         return None
 
     return bpy.context.active_object
@@ -172,7 +172,7 @@ def import_skel(path: str) -> bpy.types.Object:
     if os.path.exists(mesh_path + ".pskx"):
         mesh_path += ".pskx"
 
-    if not pskimport(mesh_path, bImportmesh=False):
+    if not pskimport(mesh_path, bImportmesh=False, bScaleDown = import_settings.get("ScaleDown")):
         return None
 
     return bpy.context.active_object
@@ -195,7 +195,7 @@ def import_anim(path: str):
     path = path[1:] if path.startswith("/") else path
     anim_path = os.path.join(import_assets_root, path.split(".")[0] + "_SEQ0" + ".psa")
 
-    return psaimport(anim_path, bUpdateTimelineRange=import_settings.get("UpdateTimeline"))
+    return psaimport(anim_path, bUpdateTimelineRange=import_settings.get("UpdateTimeline"), bScaleDown = import_settings.get("ScaleDown"))
 
 def hash_code(num):
     return hex(abs(num))[2:]
@@ -809,6 +809,8 @@ def apply_tasty_rig(master_skeleton: bpy.types.Armature):
     extra_group.color_set = 'THEME10'
     master_skeleton.pose.bone_groups[0].color_set = "THEME08"
     master_skeleton.pose.bone_groups[1].color_set = "THEME08"
+    
+    scale = 1 if import_settings.get("ScaleDown") else 100
 
     bpy.ops.object.mode_set(mode='EDIT')
     edit_bones = master_skeleton.data.edit_bones
@@ -825,11 +827,11 @@ def apply_tasty_rig(master_skeleton: bpy.types.Armature):
         ('foot_ik_r', edit_bones.get('foot_r').head, edit_bones.get('foot_r').tail, edit_bones.get('foot_r').roll),
         ('foot_ik_l', edit_bones.get('foot_l').head, edit_bones.get('foot_l').tail, edit_bones.get('foot_l').roll),
 
-        ('pole_elbow_r', edit_bones.get('lowerarm_r').head + Vector((0, 0.5, 0)), edit_bones.get('lowerarm_r').head + Vector((0, 0.5, -0.05)), 0),
-        ('pole_elbow_l', edit_bones.get('lowerarm_l').head + Vector((0, 0.5, 0)), edit_bones.get('lowerarm_l').head + Vector((0, 0.5, -0.05)), 0),
+        ('pole_elbow_r', edit_bones.get('lowerarm_r').head + Vector((0, 0.5, 0))*scale, edit_bones.get('lowerarm_r').head + Vector((0, 0.5, -0.05))*scale, 0),
+        ('pole_elbow_l', edit_bones.get('lowerarm_l').head + Vector((0, 0.5, 0))*scale, edit_bones.get('lowerarm_l').head + Vector((0, 0.5, -0.05))*scale, 0),
 
-        ('pole_knee_r', edit_bones.get('calf_r').head + Vector((0, -0.75, 0)), edit_bones.get('calf_r').head + Vector((0, -0.75, -0.05)), 0),
-        ('pole_knee_l', edit_bones.get('calf_l').head + Vector((0, -0.75, 0)), edit_bones.get('calf_l').head + Vector((0, -0.75, -0.05)), 0),
+        ('pole_knee_r', edit_bones.get('calf_r').head + Vector((0, -0.75, 0))*scale, edit_bones.get('calf_r').head + Vector((0, -0.75, -0.05))*scale, 0),
+        ('pole_knee_l', edit_bones.get('calf_l').head + Vector((0, -0.75, 0))*scale, edit_bones.get('calf_l').head + Vector((0, -0.75, -0.05))*scale, 0),
 
         ('index_control_l', edit_bones.get('index_01_l').head, edit_bones.get('index_01_l').tail, edit_bones.get('index_01_l').roll),
         ('middle_control_l', edit_bones.get('middle_01_l').head, edit_bones.get('middle_01_l').tail, edit_bones.get('middle_01_l').roll),
@@ -841,7 +843,7 @@ def apply_tasty_rig(master_skeleton: bpy.types.Armature):
         ('ring_control_r', edit_bones.get('ring_01_r').head, edit_bones.get('ring_01_r').tail, edit_bones.get('ring_01_r').roll),
         ('pinky_control_r', edit_bones.get('pinky_01_r').head, edit_bones.get('pinky_01_r').tail, edit_bones.get('pinky_01_r').roll),
 
-        ('eye_control_mid', edit_bones.get('head').head + Vector((0, -0.675, 0)), edit_bones.get('head').head + Vector((0, -0.7, 0)), 0),
+        ('eye_control_mid', edit_bones.get('head').head + Vector((0, -0.675, 0))*scale, edit_bones.get('head').head + Vector((0, -0.7, 0))*scale, 0),
     ]
 
     for new_bone in independent_rig_bones:
@@ -849,13 +851,13 @@ def apply_tasty_rig(master_skeleton: bpy.types.Armature):
         edit_bone.head = new_bone[1]
         edit_bone.tail = new_bone[2]
         edit_bone.roll = new_bone[3]
-        edit_bone.parent = edit_bones.get('tasty_root')
+        edit_bone.parent = ik_root_bone
 
     # name, head, tail, roll, parent
     # DO rely on other rig bones for creation
     dependent_rig_bones = [
-        ('eye_control_r', edit_bones.get('eye_control_mid').head + Vector((0.0325, 0, 0)), edit_bones.get('eye_control_mid').tail + Vector((0.0325, 0, 0)), 0, "eye_control_mid"),
-        ('eye_control_l', edit_bones.get('eye_control_mid').head + Vector((-0.0325, 0, 0)), edit_bones.get('eye_control_mid').tail + Vector((-0.0325, 0, 0)), 0, "eye_control_mid")
+        ('eye_control_r', edit_bones.get('eye_control_mid').head + Vector((0.0325, 0, 0))*scale, edit_bones.get('eye_control_mid').tail + Vector((0.0325, 0, 0))*scale, 0, "eye_control_mid"),
+        ('eye_control_l', edit_bones.get('eye_control_mid').head + Vector((-0.0325, 0, 0))*scale, edit_bones.get('eye_control_mid').tail + Vector((-0.0325, 0, 0))*scale, 0, "eye_control_mid")
     ]
 
     for new_bone in dependent_rig_bones:
@@ -960,35 +962,35 @@ def apply_tasty_rig(master_skeleton: bpy.types.Armature):
     # bone name, shape object name, scale, *rotation
     # bones that have custom shapes as bones instead of the normal sticks
     custom_shape_bones = [
-        ('root', 'RIG_Root', 0.75, (90, 0, 0)),
-        ('pelvis', 'RIG_Torso', 2.0, (0, -90, 0)),
-        ('spine_01', 'RIG_Hips', 2.1),
-        ('spine_02', 'RIG_Hips', 1.8),
-        ('spine_03', 'RIG_Hips', 1.6),
-        ('spine_04', 'RIG_Hips', 1.8),
-        ('spine_05', 'RIG_Hips', 1.2),
-        ('neck_01', 'RIG_Hips', 1.0),
-        ('neck_02', 'RIG_Hips', 1.0),
-        ('head', 'RIG_Hips', 1.6),
+        ('root', 'RIG_Root', 0.75*scale, (90, 0, 0)),
+        ('pelvis', 'RIG_Torso', 2.0*scale, (0, -90, 0)),
+        ('spine_01', 'RIG_Hips', 2.1*scale),
+        ('spine_02', 'RIG_Hips', 1.8*scale),
+        ('spine_03', 'RIG_Hips', 1.6*scale),
+        ('spine_04', 'RIG_Hips', 1.8*scale),
+        ('spine_05', 'RIG_Hips', 1.2*scale),
+        ('neck_01', 'RIG_Hips', 1.0*scale),
+        ('neck_02', 'RIG_Hips', 1.0*scale),
+        ('head', 'RIG_Hips', 1.6*scale),
 
         ('clavicle_r', 'RIG_Shoulder', 1.0),
         ('clavicle_l', 'RIG_Shoulder', 1.0),
 
-        ('upperarm_twist_01_r', 'RIG_Forearm', .13),
-        ('upperarm_twist_02_r', 'RIG_Forearm', .10),
-        ('lowerarm_twist_01_r', 'RIG_Forearm', .13),
-        ('lowerarm_twist_02_r', 'RIG_Forearm', .13),
-        ('upperarm_twist_01_l', 'RIG_Forearm', .13),
-        ('upperarm_twist_02_l', 'RIG_Forearm', .10),
-        ('lowerarm_twist_01_l', 'RIG_Forearm', .13),
-        ('lowerarm_twist_02_l', 'RIG_Forearm', .13),
+        ('upperarm_twist_01_r', 'RIG_Forearm', .13*scale),
+        ('upperarm_twist_02_r', 'RIG_Forearm', .10*scale),
+        ('lowerarm_twist_01_r', 'RIG_Forearm', .13*scale),
+        ('lowerarm_twist_02_r', 'RIG_Forearm', .13*scale),
+        ('upperarm_twist_01_l', 'RIG_Forearm', .13*scale),
+        ('upperarm_twist_02_l', 'RIG_Forearm', .10*scale),
+        ('lowerarm_twist_01_l', 'RIG_Forearm', .13*scale),
+        ('lowerarm_twist_02_l', 'RIG_Forearm', .13*scale),
 
-        ('thigh_twist_01_r', 'RIG_Tweak', .15),
-        ('calf_twist_01_r', 'RIG_Tweak', .13),
-        ('calf_twist_02_r', 'RIG_Tweak', .2),
-        ('thigh_twist_01_l', 'RIG_Tweak', .15),
-        ('calf_twist_01_l', 'RIG_Tweak', .13),
-        ('calf_twist_02_l', 'RIG_Tweak', .2),
+        ('thigh_twist_01_r', 'RIG_Tweak', .15*scale),
+        ('calf_twist_01_r', 'RIG_Tweak', .13*scale),
+        ('calf_twist_02_r', 'RIG_Tweak', .2*scale),
+        ('thigh_twist_01_l', 'RIG_Tweak', .15*scale),
+        ('calf_twist_01_l', 'RIG_Tweak', .13*scale),
+        ('calf_twist_02_l', 'RIG_Tweak', .2*scale),
 
         ('hand_ik_r', 'RIG_Hand', 2.6),
         ('hand_ik_l', 'RIG_Hand', 2.6),
@@ -1053,18 +1055,18 @@ def apply_tasty_rig(master_skeleton: bpy.types.Armature):
         ('ring_control_r', 'RIG_FingerRotR', 1.0),
         ('pinky_control_r', 'RIG_FingerRotR', 1.0),
 
-        ('eye_control_mid', 'RIG_EyeTrackMid', 0.75),
-        ('eye_control_r', 'RIG_EyeTrackInd', 0.75),
-        ('eye_control_l', 'RIG_EyeTrackInd', 0.75),
+        ('eye_control_mid', 'RIG_EyeTrackMid', 0.75*scale),
+        ('eye_control_r', 'RIG_EyeTrackInd', 0.75*scale),
+        ('eye_control_l', 'RIG_EyeTrackInd', 0.75*scale),
     ]
 
     for custom_shape_bone_data in custom_shape_bones:
-        name, shape, scale, *extra = custom_shape_bone_data
+        name, shape, bone_scale, *extra = custom_shape_bone_data
         if not (custom_shape_bone := pose_bones.get(name)):
             continue
 
         custom_shape_bone.custom_shape = bpy.data.objects.get(shape)
-        custom_shape_bone.custom_shape_scale_xyz = scale, scale, scale
+        custom_shape_bone.custom_shape_scale_xyz = bone_scale, bone_scale, bone_scale
 
         if len(extra) > 0 and (rot := extra[0]):
             custom_shape_bone.custom_shape_rotation_euler = [radians(rot[0]), radians(rot[1]), radians(rot[2])]
@@ -1094,7 +1096,7 @@ def apply_tasty_rig(master_skeleton: bpy.types.Armature):
             pose_bone.bone_group = dyn_group
 
         if 'twist_' in pose_bone.name:
-            pose_bone.custom_shape_scale_xyz = 0.1, 0.1, 0.1
+            pose_bone.custom_shape_scale_xyz = 0.1*scale, 0.1*scale, 0.1*scale
             pose_bone.use_custom_shape_bone_size = False
 
         if any(["eyelid", "eye_lid_"], lambda x: x.casefold() in pose_bone.name.casefold()):
@@ -1428,6 +1430,16 @@ def make_color(data):
 def make_vector(data):
     return Vector((data.get("X"), data.get("Y"), data.get("Z")))
 
+def create_collection(name):
+    if name in bpy.context.view_layer.layer_collection.children:
+        bpy.context.view_layer.active_layer_collection = bpy.context.view_layer.layer_collection.children.get(name)
+        return
+    bpy.ops.object.select_all(action='DESELECT')
+    
+    new_collection = bpy.data.collections.new(name)
+    bpy.context.scene.collection.children.link(new_collection)
+    bpy.context.view_layer.active_layer_collection = bpy.context.view_layer.layer_collection.children.get(new_collection.name)
+
 def import_response(response):
     append_data()
     global import_assets_root
@@ -1550,6 +1562,8 @@ def import_response(response):
             import_animation_data(anim_data)
     
         else:
+            if import_settings.get("IntoCollection"):
+                create_collection(name)
             imported_parts = []
             style_meshes = import_data.get("StyleMeshes")
             style_material_params = import_data.get("StyleMaterialParams")

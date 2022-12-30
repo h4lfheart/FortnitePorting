@@ -6,6 +6,26 @@ namespace FortnitePorting.ViewModels;
 
 public class ImportSettingsViewModel : ObservableObject
 {
+    public bool BlenderIntoCollection
+    {
+        get => AppSettings.Current.BlenderExportSettings.IntoCollection;
+        set
+        {
+            AppSettings.Current.BlenderExportSettings.IntoCollection = value;
+            OnPropertyChanged();
+        }
+    }
+    
+    public bool BlenderScaleDown
+    {
+        get => AppSettings.Current.BlenderExportSettings.ScaleDown;
+        set
+        {
+            AppSettings.Current.BlenderExportSettings.ScaleDown = value;
+            OnPropertyChanged();
+        }
+    }
+    
     public bool CanChangeRigOptions => BlenderRigType == ERigType.Default;
     public ERigType BlenderRigType
     {
