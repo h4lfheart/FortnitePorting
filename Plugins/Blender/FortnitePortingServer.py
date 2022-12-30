@@ -1574,13 +1574,11 @@ def import_response(response):
                     if any(imported_parts, lambda x: False if x is None else x.get("Part") == part_type) and import_type in ["Outfit", "Backpack"]:
                         continue
     
-                    target_mesh = part.get("MeshPath")
-                    if found_mesh := first(style_meshes, lambda x: x.get("MeshToSwap") == target_mesh):
-                        target_mesh = found_mesh.get("MeshToSwap")
+                    if found_mesh := first(style_meshes, lambda x: x.get("MeshToSwap") == part.get("MeshPath")):
+                        part = found_mesh
                         
                     num_lods = part.get("NumLods")
-                    
-                    if (imported_part := import_mesh(target_mesh, reorient_bones=import_settings.get("ReorientBones"), lod=min(num_lods-1, import_settings.get("LevelOfDetail")))) is None:
+                    if (imported_part := import_mesh(part.get("MeshPath"), reorient_bones=import_settings.get("ReorientBones"), lod=min(num_lods-1, import_settings.get("LevelOfDetail")))) is None:
                         continue
 
                     imported_part.location += make_vector(part.get("Offset"))*0.01

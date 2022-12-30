@@ -169,13 +169,13 @@ public static class ExportHelpers
         }
     }
 
-    public static int Mesh(USkeletalMesh? skeletalMesh, List<ExportMesh> exportParts)
+    public static void Mesh<T>(USkeletalMesh? skeletalMesh, List<T> exportParts) where T : ExportMesh, new()
     {
-        if (skeletalMesh is null) return -1;
-        if (!skeletalMesh.TryConvert(out var convertedMesh)) return -1;
-        if (convertedMesh.LODs.Count <= 0) return -1;
+        if (skeletalMesh is null) return;
+        if (!skeletalMesh.TryConvert(out var convertedMesh)) return;
+        if (convertedMesh.LODs.Count <= 0) return;
 
-        var exportPart = new ExportPart();
+        var exportPart = new T();
         exportPart.MeshPath = skeletalMesh.GetPathName();
         Save(skeletalMesh);
 
@@ -195,16 +195,15 @@ public static class ExportHelpers
         }
 
         exportParts.Add(exportPart);
-        return exportParts.Count - 1;
     }
 
-    public static int Mesh(UStaticMesh? staticMesh, List<ExportMesh> exportParts)
+    public static void Mesh<T>(UStaticMesh? staticMesh, List<T> exportParts) where T : ExportMesh, new()
     {
-        if (staticMesh is null) return -1;
-        if (!staticMesh.TryConvert(out var convertedMesh)) return -1;
-        if (convertedMesh.LODs.Count <= 0) return -1;
+        if (staticMesh is null) return;
+        if (!staticMesh.TryConvert(out var convertedMesh)) return;
+        if (convertedMesh.LODs.Count <= 0) return;
 
-        var exportPart = new ExportPart();
+        var exportPart = new T();
         exportPart.MeshPath = staticMesh.GetPathName();
         Save(staticMesh);
         
@@ -225,7 +224,6 @@ public static class ExportHelpers
         }
 
         exportParts.Add(exportPart);
-        return exportParts.Count - 1;
     }
 
     public static void OverrideMaterials(FStructFallback[] overrides, ref ExportPart exportPart)
