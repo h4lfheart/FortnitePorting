@@ -1,49 +1,28 @@
 ﻿using System.Collections.Generic;
-using Newtonsoft.Json;
+using J = Newtonsoft.Json.JsonPropertyAttribute;
 
 namespace FortnitePorting.Services.Endpoints.Models;
 
 public class AesResponse
 {
-    [JsonProperty("version")]
-    public string Version;
-        
-    [JsonProperty("mainKey")]
-    public string MainKey;
-
-    [JsonProperty("dynamicKeys")] 
-    public List<DynamicKey> DynamicKeys;
+    [J] public string Version;
+    [J] public string MainKey;
+    [J] public List<DynamicKey> DynamicKeys;
 }
 
 public class DynamicKey
 {
-    [JsonProperty("name")]
-    public string Name;
-            
-    [JsonProperty("key")]
-    public string Key;
-            
-    [JsonProperty("guid")]
-    public string GUID;
-    
-    /*[JsonProperty("keychain")]
-    public string Keychain;
-    
-    [JsonProperty("fileCount")]
-    public int FileCount;
-    
-    [JsonProperty("hasHighResTextures")]
-    public bool HasHighResTextures;
-    
-    [JsonProperty("size")]
-    public ChunkSize Size;*/
+    [J] public string Name;
+    [J] public string Key;
+    [J] public string GUID;
+    /*[J] public string Keychain;
+    [J] public int FileCount;
+    [J] public bool HasHighResTextures;
+    [J] public ChunkSize Size;*/
 }
 
 public class ChunkSize
 {
-    [JsonProperty("raw")]
-    public long Raw;
-            
-    [JsonProperty("formatted")]
-    public string Formatted;
+    [J] public long Raw;
+    [J] public string Formatted;
 }

@@ -6,7 +6,7 @@ public enum EInstallType
 {
     [Description("Local Installation (Faster)")]
     Local,
-    
+
     [Description("Fortnite Live (Slower)")]
     Live
 }
@@ -15,28 +15,28 @@ public enum EAssetType
 {
     [Description("Outfits")]
     Outfit,
-    
+
     [Description("Back Blings")]
     Backpack,
-    
+
     [Description("Pickaxes")]
     Pickaxe,
-    
+
     [Description("Gliders")]
     Glider,
-    
+
     [Description("Weapons")]
     Weapon,
 
     [Description("Emotes")]
     Dance,
-    
+
     [Description("Vehicles")]
     Vehicle,
-    
+
     [Description("Props")]
     Prop,
-    
+
     [Description("Meshes")]
     Mesh,
 }
@@ -55,12 +55,12 @@ public enum EFortCustomPartType : byte
 
 public enum ECustomHatType : byte
 {
-   HeadReplacement,
-   Cap,
-   Mask,
-   Helmet,
-   Hat,
-   None
+    HeadReplacement,
+    Cap,
+    Mask,
+    Helmet,
+    Hat,
+    None
 }
 
 public enum ERigType

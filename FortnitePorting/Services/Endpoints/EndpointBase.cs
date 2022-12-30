@@ -4,7 +4,7 @@ namespace FortnitePorting.Services.Endpoints;
 
 public abstract class EndpointBase
 {
-    protected RestClient _client;
+    protected readonly RestClient _client;
 
     protected EndpointBase(RestClient client)
     {

@@ -32,11 +32,11 @@ public partial class SettingsView
         {
             DiscordService.DeInitialize();
         }
-        
+
         ResourceLocator.SetColorScheme(Application.Current.Resources, AppSettings.Current.LightMode ? ResourceLocator.LightColorScheme : ResourceLocator.DarkColorScheme);
-        MainView.YesWeDogs.Icon = new BitmapImage(new Uri(AppSettings.Current.LightMode ? 
-                "pack://application:,,,/FortnitePorting-Dark.ico" :
-                "pack://application:,,,/FortnitePorting.ico", UriKind.RelativeOrAbsolute));
+        MainView.YesWeDogs.Icon = new BitmapImage(new Uri(AppSettings.Current.LightMode ?
+            "pack://application:,,,/FortnitePorting-Dark.ico" :
+            "pack://application:,,,/FortnitePorting.ico", UriKind.RelativeOrAbsolute));
         Close();
     }
 
@@ -47,7 +47,7 @@ public partial class SettingsView
             AppVM.SettingsVM.ArchivePath = path;
         }
     }
-    
+
     private void OnClickExports(object sender, RoutedEventArgs e)
     {
         if (AppHelper.TrySelectFolder(out var path))

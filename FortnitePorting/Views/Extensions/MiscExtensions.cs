@@ -18,6 +18,7 @@ namespace FortnitePorting.Views.Extensions;
 public static class MiscExtensions
 {
     private static readonly Random RandomGen = new();
+
     public static bool MoveToEnd<T>(this List<T> list, Func<T, bool> predicate)
     {
         var found = list.FirstOrDefault(predicate);
@@ -29,19 +30,19 @@ public static class MiscExtensions
 
         return true;
     }
-    
+
     public static byte[] ToBytes(this Stream str)
     {
         var bytes = new BinaryReader(str).ReadBytes((int) str.Length);
         return bytes;
     }
-    
+
     public static string TitleCase(this string text)
     {
         var textInfo = CultureInfo.CurrentCulture.TextInfo;
         return textInfo.ToTitleCase(text);
     }
-    
+
     public static void AddRange<T>(this ObservableCollection<T> collection, IEnumerable<T> items)
     {
         foreach (var item in items)
@@ -62,5 +63,4 @@ public static class MiscExtensions
         var index = RandomGen.Next(0, list.Count);
         return list[index];
     }
-    
 }

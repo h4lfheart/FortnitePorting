@@ -17,17 +17,17 @@ public static class AppLog
     {
         Application.Current.Dispatcher.Invoke(() =>
         {
-            var mainBlock = new StackPanel();
-            mainBlock.Orientation = Orientation.Horizontal;
-            mainBlock.Width = Logger.ActualWidth;
+            var mainBlock = new StackPanel { Orientation = Orientation.Horizontal, Width = Logger.ActualWidth };
 
-            var specifierBlock = new TextBlock();
-            specifierBlock.Text = specifier;
-            specifierBlock.FontWeight = specifierWeight;
-            specifierBlock.Foreground = (System.Windows.Media.Brush) BrushConverter.ConvertFromString(specifierColor!)!;
+            var specifierBlock = new TextBlock
+            {
+                Text = specifier,
+                FontWeight = specifierWeight,
+                Foreground = (System.Windows.Media.Brush) BrushConverter.ConvertFromString(specifierColor!)!
+            };
 
             mainBlock.Children.Add(specifierBlock);
-            
+
             var extraBlock = new TextBlock();
             extraBlock.Text = extra;
             extraBlock.TextWrapping = TextWrapping.Wrap;
@@ -38,7 +38,7 @@ public static class AppLog
             Logger.Items.Add(mainBlock);
         }, DispatcherPriority.Background);
     }
-    
+
     public static void Information(string text)
     {
         Log.Information(text);
@@ -50,7 +50,7 @@ public static class AppLog
         Log.Warning(text);
         Write("[WARN] ", text, Globals.YELLOW, FontWeights.Bold);
     }
-    
+
     public static void Error(string text)
     {
         Log.Error(text);

@@ -4,10 +4,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using AdonisUI.Controls;
-using FortnitePorting.Exports;
 using FortnitePorting.Exports.Blender;
 using FortnitePorting.Exports.Types;
 using Newtonsoft.Json;
@@ -38,7 +34,7 @@ public static class BlenderService
 
         Client.SendSpliced(messageBytes, Globals.BUFFER_SIZE);
         Client.Send(Encoding.UTF8.GetBytes(Globals.UDPClient_MessageTerminator));
-        
+
         if (Client.TryReceive(Endpoint, out var response))
         {
             var responseString = Encoding.UTF8.GetString(response);
@@ -83,5 +79,4 @@ public static class BlenderService
 
         return true;
     }
-    
 }

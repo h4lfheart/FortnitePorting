@@ -15,13 +15,16 @@ public static class EnumExtensions
             .SingleOrDefault() is not DescriptionAttribute attribute ? value.ToString() : attribute.Description;
     }
 }
+
 public class EnumToItemsSource : MarkupExtension
 {
     private readonly Type _type;
+
     public EnumToItemsSource(Type type)
     {
         _type = type;
     }
+
     public override object ProvideValue(IServiceProvider serviceProvider)
     {
         var values = Enum.GetValues(_type).Cast<Enum>();

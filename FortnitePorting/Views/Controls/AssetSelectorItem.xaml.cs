@@ -7,10 +7,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
-using AdonisUI;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.GameTypes.FN.Enums;
@@ -20,13 +17,11 @@ using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.GameplayTags;
-using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Bundles;
 using FortnitePorting.Exports;
 using FortnitePorting.Exports.Types;
-using FortnitePorting.Services;
 using FortnitePorting.ViewModels;
 using FortnitePorting.Views.Extensions;
 using SkiaSharp;
@@ -41,7 +36,7 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
     public BitmapImage FullSource;
     public FGameplayTagContainer GameplayTags;
     public EAssetType Type;
-    
+
     public bool IsRandom { get; set; }
     public string DisplayName { get; set; }
     public string DisplayNameSource { get; set; }
@@ -68,11 +63,11 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
             ClipboardImage.Effect = new InvertEffect();
             ExportImage.Effect = new InvertEffect();
         }
-        
+
         Asset = asset;
         var displayName = displayNameOverride;
         displayName ??= asset.GetOrDefault("DisplayName", new FText("Unnamed"));
-       
+
         DisplayName = displayName.Text;
         if (displayName.TextHistory is FTextHistory.Base textHistory)
             DisplayNameSource = textHistory.SourceString;
@@ -81,30 +76,30 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
 
         Rarity = asset.GetOrDefault("Rarity", EFortRarity.Uncommon);
         GameplayTags = asset.GetOrDefault<FGameplayTagContainer>("GameplayTags");
-        
+
         var seasonTag = GameplayTags.GetValueOrDefault("Cosmetics.Filter.Season.")?.Text.SubstringAfterLast(".");
         SeasonNumber = int.TryParse(seasonTag, out var seasonNumber) ? seasonNumber : int.MaxValue;
         if (asset.TryGetValue<UObject>(out var series, "Series"))
         {
             Series = series.GetOrDefault<FText>("DisplayName").Text;
         }
-        
+
         TooltipName = $"{DisplayName} ({ID})";
         IsRandom = isRandomSelector;
         FavoriteVisibility = AppSettings.Current.FavoriteIDs.Contains(ID) ? Visibility.Visible : Visibility.Collapsed;
-        
+
         var iconBitmap = previewTexture.Decode();
         if (iconBitmap is null) return;
         IconBitmap = iconBitmap;
-        
+
         FullBitmap = new SKBitmap(iconBitmap.Width, iconBitmap.Height, iconBitmap.ColorType, iconBitmap.AlphaType);
         using (var fullCanvas = new SKCanvas(FullBitmap))
         {
             DrawBackground(fullCanvas, Math.Max(iconBitmap.Width, iconBitmap.Height));
             fullCanvas.DrawBitmap(iconBitmap, 0, 0);
         }
-        
-        FullSource = new BitmapImage { CacheOption = BitmapCacheOption.OnDemand};
+
+        FullSource = new BitmapImage { CacheOption = BitmapCacheOption.OnDemand };
         FullSource.BeginInit();
         FullSource.StreamSource = FullBitmap.Encode(SKEncodedImageFormat.Png, 100).AsStream();
         FullSource.EndInit();
@@ -127,20 +122,20 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
             return SKShader.CreateRadialGradient(new SKPoint(size / 2f, size / 2f), size / 5 * 4, parsedColors,
                 SKShaderTileMode.Clamp);
         }
-        
+
         if (Type == EAssetType.Prop)
         {
             canvas.DrawRect(new SKRect(0, 0, size, size), new SKPaint
             {
-               Color = SKColor.Parse("707370")
+                Color = SKColor.Parse("707370")
             });
             return;
         }
-        
+
         if (Asset.TryGetValue(out UObject seriesData, "Series"))
         {
             var colors = seriesData.Get<RarityCollection>("Colors");
-            
+
             canvas.DrawRect(new SKRect(0, 0, size, size), new SKPaint
             {
                 Shader = BorderShader(colors.Color2, colors.Color1)
@@ -148,11 +143,11 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
 
             if (seriesData.TryGetValue(out UTexture2D background, "BackgroundTexture"))
             {
-                canvas.DrawBitmap(background.Decode(), new SKRect(MARGIN, MARGIN, size-MARGIN, size-MARGIN));
+                canvas.DrawBitmap(background.Decode(), new SKRect(MARGIN, MARGIN, size - MARGIN, size - MARGIN));
             }
             else
             {
-                canvas.DrawRect(new SKRect(MARGIN, MARGIN, size-MARGIN, size-MARGIN), new SKPaint
+                canvas.DrawRect(new SKRect(MARGIN, MARGIN, size - MARGIN, size - MARGIN), new SKPaint
                 {
                     Shader = BackgroundShader(colors.Color1, colors.Color3)
                 });
@@ -161,13 +156,13 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
         else
         {
             var colorData = AppVM.CUE4ParseVM.RarityData[(int) Rarity];
-            
+
             canvas.DrawRect(new SKRect(0, 0, size, size), new SKPaint
             {
                 Shader = BorderShader(colorData.Color2, colorData.Color1)
             });
-            
-            canvas.DrawRect(new SKRect(MARGIN, MARGIN, size-MARGIN, size-MARGIN), new SKPaint
+
+            canvas.DrawRect(new SKRect(MARGIN, MARGIN, size - MARGIN, size - MARGIN), new SKPaint
             {
                 Shader = BackgroundShader(colorData.Color1, colorData.Color3)
             });
@@ -177,13 +172,13 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
     public bool Match(string filter, bool useRegex = false)
     {
         if (DisplayName is null || ID is null || DisplayNameSource is null) return false;
-        
+
         if (useRegex)
         {
             return Regex.IsMatch(DisplayName, filter) || Regex.IsMatch(ID, filter) || Regex.IsMatch(DisplayNameSource, filter);
         }
 
-        return DisplayName.Contains(filter, StringComparison.OrdinalIgnoreCase) || ID.Contains(filter, StringComparison.OrdinalIgnoreCase)|| DisplayNameSource.Contains(filter, StringComparison.OrdinalIgnoreCase) ;
+        return DisplayName.Contains(filter, StringComparison.OrdinalIgnoreCase) || ID.Contains(filter, StringComparison.OrdinalIgnoreCase) || DisplayNameSource.Contains(filter, StringComparison.OrdinalIgnoreCase);
     }
 
     public void ToggleFavorite()
@@ -214,7 +209,7 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
                 Log.Warning("No Bundles Downloaded for {0}", DisplayName);
                 return;
             }
-            
+
             downloadedBundles.ForEach(AppVM.CUE4ParseVM.Provider.RegisterFile);
             await AppVM.CUE4ParseVM.Provider.MountAsync();
 
@@ -227,15 +222,15 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
             {
                 var loadedTexture = await AppVM.CUE4ParseVM.Provider.TryLoadObjectAsync<UTexture2D>(name.SubstringBeforeLast("."));
                 if (loadedTexture is null) continue;
-                
+
                 ExportHelpers.Save(loadedTexture);
             }
-            
-            
+
+
             Log.Information("Finished Exporting HD Textures for {0}", DisplayName);
         });
     }
-    
+
     public ICommand ExportAssetsCommand { get; private set; }
 
     public void ExportAssets()
@@ -262,12 +257,12 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
                     "FortCosmeticParticleVariant" => "ParticleOptions",
                     _ => null
                 };
-            
+
                 if (optionsName is null) continue;
 
                 var options = style.Get<FStructFallback[]>(optionsName);
                 if (options.Length == 0) continue;
-                
+
                 allStyles.AddRange(options);
             }
 
@@ -276,11 +271,11 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
                 EAssetType.Dance => await DanceExportData.Create(Asset),
                 _ => await MeshExportData.Create(Asset, Type, allStyles.ToArray())
             };
-            
+
             Log.Information("Finished Exporting All Assets for {0}", DisplayName);
         });
     }
-    
+
     public ICommand ClipboardCommand { get; private set; }
 
     public void CopyIconToClipboard(string? parameter)

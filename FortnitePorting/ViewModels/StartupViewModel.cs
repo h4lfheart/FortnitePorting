@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.Versions;
 using FortnitePorting.AppUtils;
 using Newtonsoft.Json;
-using Serilog;
 
 namespace FortnitePorting.ViewModels;
 
@@ -21,7 +19,7 @@ public class StartupViewModel : ObservableObject
             OnPropertyChanged();
         }
     }
-    
+
     public ELanguage Language
     {
         get => AppSettings.Current.Language;
@@ -31,7 +29,7 @@ public class StartupViewModel : ObservableObject
             OnPropertyChanged();
         }
     }
-    
+
     public bool IsLocalInstall => InstallType == EInstallType.Local;
     public EInstallType InstallType
     {
@@ -43,7 +41,7 @@ public class StartupViewModel : ObservableObject
             OnPropertyChanged(nameof(IsLocalInstall));
         }
     }
-    
+
     public void CheckForInstallation()
     {
         LauncherInstalled? launcherInstalled = null;
@@ -54,18 +52,18 @@ public class StartupViewModel : ObservableObject
 
             launcherInstalled = JsonConvert.DeserializeObject<LauncherInstalled>(File.ReadAllText(launcherInstalledPath));
         }
-        if (launcherInstalled is null) return;
 
-        var fortniteInfo = launcherInstalled.InstallationList.FirstOrDefault(x => x.AppName.Equals("Fortnite"));
+        var fortniteInfo = launcherInstalled?.InstallationList.FirstOrDefault(x => x.AppName.Equals("Fortnite"));
         if (fortniteInfo is null) return;
 
         ArchivePath = fortniteInfo.InstallLocation + "\\FortniteGame\\Content\\Paks\\";
-        Log.Information("Detected EGL Installation at {0}", ArchivePath);
+        Log.Information("Detected EGL Installation at {ArchivePath}", ArchivePath);
     }
 
     private class LauncherInstalled
     {
         public List<LauncherInstalledInfo> InstallationList;
+
         public class LauncherInstalledInfo
         {
             public string InstallLocation;

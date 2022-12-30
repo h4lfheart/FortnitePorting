@@ -14,17 +14,17 @@ public class ExportMesh
     public List<ExportMaterial> OverrideMaterials = new();
 }
 
-
 public class ExportMeshOverride : ExportMesh
 {
     public string MeshToSwap;
 }
+
 public class ExportPart : ExportMesh
 {
     public string Part;
     public string? MorphName;
     public string? SocketName;
-    
+
     [JsonIgnore]
     public EFortCustomGender GenderPermitted;
 }

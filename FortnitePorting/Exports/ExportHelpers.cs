@@ -46,7 +46,7 @@ public static class ExportHelpers
 
             var characterPartType = part.GetOrDefault<EFortCustomPartType>("CharacterPartType");
             exportPart.Part = characterPartType.ToString();
-            
+
             var genderPermitted = part.GetOrDefault("GenderPermitted", EFortCustomGender.Male);
             exportPart.GenderPermitted = genderPermitted;
 
@@ -56,7 +56,7 @@ public static class ExportHelpers
                 var attachToSocket = part.GetOrDefault("bAttachToSocket", true);
                 if (attachToSocket)
                     exportPart.SocketName = socketName?.Text;
-                
+
                 if (additionalData.TryGetValue(out FName hatType, "HatType"))
                 {
                     Enum.TryParse(hatType.Text.Replace("ECustomHatType::ECustomHatType_", string.Empty), out headMorphType);
@@ -81,14 +81,13 @@ public static class ExportHelpers
 
                 }
             }
-            
 
             var sections = convertedMesh.LODs[0].Sections.Value;
             for (var idx = 0; idx < sections.Length; idx++)
             {
                 var section = sections[idx];
                 if (section.Material is null) continue;
-                
+
                 if (!section.Material.TryLoad(out var materialObject)) continue;
                 if (materialObject is not UMaterialInterface material) continue;
 
@@ -101,7 +100,7 @@ public static class ExportHelpers
             {
                 OverrideMaterials(materialOverrides, ref exportPart);
             }
-            
+
             exportParts.Add(exportPart);
         }
 
@@ -127,7 +126,7 @@ public static class ExportHelpers
                 }
             }
         }
-        
+
         exportMeshes.AddRange(exportParts);
         return exportParts;
     }
@@ -147,9 +146,9 @@ public static class ExportHelpers
 
         weaponDefinition.TryGetValue(out USkeletalMesh? offHandMesh, "WeaponMeshOffhandOverride");
         Mesh(offHandMesh, exportParts);
-        
+
         if (exportParts.Count > 0) return;
-        
+
         // TODO MATERIAL STYLES
         if (weaponDefinition.TryGetValue(out UBlueprintGeneratedClass blueprint, "WeaponActorClass"))
         {
@@ -186,7 +185,7 @@ public static class ExportHelpers
         {
             var section = sections[idx];
             if (section.Material is null) continue;
-            
+
             if (!section.Material.TryLoad(out var materialObject)) continue;
             if (materialObject is not UMaterialInterface material) continue;
 
@@ -206,7 +205,7 @@ public static class ExportHelpers
         var exportPart = new T();
         exportPart.MeshPath = staticMesh.GetPathName();
         Save(staticMesh);
-        
+
         exportPart.NumLods = convertedMesh.LODs.Count;
 
         var sections = convertedMesh.LODs[0].Sections.Value;
@@ -236,7 +235,7 @@ public static class ExportHelpers
 
             var exportMaterial = CreateExportMaterial<ExportMaterialOverride>(material, materialOverride.Get<int>("MaterialOverrideIndex"));
             exportMaterial.MaterialNameToSwap = materialOverride.GetOrDefault<FSoftObjectPath>("MaterialToSwap").AssetPathName.Text.SubstringAfterLast(".");
-            
+
             for (var idx = 0; idx < exportPart.Materials.Count; idx++)
             {
                 if (exportMaterial.SlotIndex >= exportPart.Materials.Count) continue;
@@ -248,7 +247,7 @@ public static class ExportHelpers
             }
         }
     }
-    
+
     public static void OverrideMaterials(FStructFallback[] overrides, List<ExportMaterial> exportMaterials)
     {
         foreach (var materialOverride in overrides)
@@ -259,7 +258,7 @@ public static class ExportHelpers
 
             var exportMaterial = CreateExportMaterial<ExportMaterialOverride>(material, materialOverride.Get<int>("MaterialOverrideIndex"));
             exportMaterial.MaterialNameToSwap = materialOverride.GetOrDefault<FSoftObjectPath>("MaterialToSwap").AssetPathName.Text.SubstringAfterLast(".");
-            
+
             exportMaterials.Add(exportMaterial);
         }
     }
@@ -311,13 +310,13 @@ public static class ExportHelpers
 
         var parameters = new CMaterialParams2();
         materialInstance.GetParams(parameters, EMaterialFormat.AllLayers);
-        
+
         if (parameters.TryGetTexture2d(out var specularMasksTexture, CMaterialParams2.SpecularMasks[0]))
         {
             Save(specularMasksTexture);
             textures.Add(new TextureParameter("SpecularMasks", specularMasksTexture.GetPathName()));
         }
-        
+
         if (parameters.TryGetTexture2d(out var normalsTexture, CMaterialParams2.Normals[0]))
         {
             Save(normalsTexture);
@@ -325,12 +324,12 @@ public static class ExportHelpers
         }
         return (textures, scalars, vectors);
     }
-    
+
     public static (List<TextureParameter>, List<ScalarParameter>, List<VectorParameter>) MaterialParameters(UMaterialInterface materialInterface)
     {
         var parameters = new CMaterialParams2();
         materialInterface.GetParams(parameters, EMaterialFormat.AllLayers);
-        
+
         var textures = new List<TextureParameter>();
         foreach (var (name, value) in parameters.Textures)
         {
@@ -340,7 +339,7 @@ public static class ExportHelpers
         }
         return (textures, new List<ScalarParameter>(), new List<VectorParameter>());
     }
-    
+
     public static (List<TextureParameter>, List<ScalarParameter>, List<VectorParameter>) MaterialParametersOverride(FStructFallback data)
     {
         var textures = new List<TextureParameter>();
@@ -367,7 +366,7 @@ public static class ExportHelpers
 
         return (textures, scalars, vectors);
     }
-    
+
     public static ExportMesh? Mesh(UStaticMesh? skeletalMesh)
     {
         return Mesh<ExportMesh>(skeletalMesh);
@@ -382,7 +381,7 @@ public static class ExportHelpers
         var exportMesh = new T();
         exportMesh.MeshPath = staticMesh.GetPathName();
         Save(staticMesh);
-        
+
         exportMesh.NumLods = convertedMesh.LODs.Count;
 
         var sections = convertedMesh.LODs[0].Sections.Value;
@@ -398,14 +397,14 @@ public static class ExportHelpers
         }
 
         return exportMesh;
-        
+
     }
 
     public static ExportMesh? Mesh(USkeletalMesh? skeletalMesh)
     {
         return Mesh<ExportMesh>(skeletalMesh);
     }
-    
+
     public static T? Mesh<T>(USkeletalMesh? skeletalMesh) where T : ExportMesh, new()
     {
         if (skeletalMesh is null) return null;
@@ -415,7 +414,7 @@ public static class ExportHelpers
         var exportMesh = new T();
         exportMesh.MeshPath = skeletalMesh.GetPathName();
         Save(skeletalMesh);
-        
+
         exportMesh.NumLods = convertedMesh.LODs.Count;
 
         var sections = convertedMesh.LODs[0].Sections.Value;
@@ -423,7 +422,7 @@ public static class ExportHelpers
         {
             var section = sections[idx];
             if (section.Material is null) continue;
-            
+
             if (!section.Material.TryLoad(out var materialObject)) continue;
             if (materialObject is not UMaterialInterface material) continue;
 
@@ -440,7 +439,7 @@ public static class ExportHelpers
         {
             var meshToSwap = meshOverride.Get<FSoftObjectPath>("MeshToSwap");
             var meshToOverride = meshOverride.Get<USkeletalMesh>("OverrideMesh");
-            
+
             var overrideMeshExport = Mesh<ExportMeshOverride>(meshToOverride);
             if (overrideMeshExport is null) continue;
 
@@ -448,7 +447,7 @@ public static class ExportHelpers
             exportMeshes.Add(overrideMeshExport);
         }
     }
-    
+
     public static void OverrideParameters(FStructFallback[] overrides, List<ExportMaterialParams> exportParams)
     {
         foreach (var paramData in overrides)
@@ -514,7 +513,7 @@ public static class ExportHelpers
 
         return glassMaterialNames.Contains(lastParent.Name, StringComparer.OrdinalIgnoreCase);
     }
-    
+
     public static bool IsGlassMaterial(UMaterialInterface material)
     {
         var glassMaterialNames = new[]
@@ -552,7 +551,6 @@ public static class ExportHelpers
         return activeParent as UMaterialInterface;
     }
 
-
     public static readonly List<Task> Tasks = new();
     private static readonly ExporterOptions ExportOptions = new()
     {
@@ -564,7 +562,7 @@ public static class ExportHelpers
         SocketFormat = ESocketFormat.Bone,
         MaterialFormat = EMaterialFormat.AllLayersNoRef
     };
-    
+
     private static bool AllLodsExist(UObject mesh)
     {
         switch (mesh)
@@ -592,7 +590,6 @@ public static class ExportHelpers
 
     public static void Save(UObject? obj)
     {
-
         if (obj is null) return;
         Tasks.Add(Task.Run(() =>
         {
@@ -604,7 +601,7 @@ public static class ExportHelpers
                     case USkeletalMesh skeletalMesh:
                     {
                         if (AllLodsExist(skeletalMesh)) return;
-                        
+
                         var exporter = new MeshExporter(skeletalMesh, ExportOptions, false);
                         exporter.TryWriteToDir(App.AssetsFolder, out var label, out var savedFilePath);
                         break;
@@ -650,7 +647,7 @@ public static class ExportHelpers
                         File.WriteAllBytes(path, data.ToArray());
                         break;
                     }
-                    
+
                     case UAnimSequence animation:
                     {
                         var path = GetExportPath(obj, "psa", "_SEQ0");
@@ -660,7 +657,7 @@ public static class ExportHelpers
                         exporter.TryWriteToDir(App.AssetsFolder, out var label, out var savedFilePath);
                         break;
                     }
-                    
+
                     case USkeleton skeleton:
                     {
                         var path = GetExportPath(obj, "psk");
@@ -671,19 +668,19 @@ public static class ExportHelpers
                         break;
                     }
                 }
-                
-                Log.Information("Exporting {0}: {1}{2}", obj.ExportType, obj.Name, (extraString == string.Empty ? string.Empty : ", " + extraString));
+
+                Log.Information("Exporting {ExportType}: {FileName}{Extra}", obj.ExportType, obj.Name, (extraString == string.Empty ? string.Empty : ", " + extraString));
             }
             catch (IOException)
             {
-                Log.Error("Failed to export {0}: {1}", obj.ExportType, obj.Name);
+                Log.Error("Failed to export {ExportType}: {FileName}", obj.ExportType, obj.Name);
             }
         }));
     }
 
     private static string GetExportPath(UObject obj, string ext, string extra = "")
     {
-        var path = obj.Owner.Name;
+        var path = obj.Owner != null ? obj.Owner.Name : string.Empty;
         path = path.SubstringBeforeLast('.');
         if (path.StartsWith("/")) path = path[1..];
 

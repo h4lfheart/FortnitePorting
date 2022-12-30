@@ -1,18 +1,16 @@
 ﻿using System;
-using System.Threading.Tasks;
 using AdonisUI.Controls;
 using AutoUpdaterDotNET;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Views;
 using Newtonsoft.Json;
-using RestSharp;
 
 namespace FortnitePorting.Services;
 
 public static class UpdateService
 {
     private static bool IgnoreEqualMessage = false;
-    public static void Initialize() 
+    public static void Initialize()
     {
         AutoUpdater.InstalledVersion = new Version(Globals.VERSION);
         AutoUpdater.ParseUpdateInfoEvent += ParseUpdateInfo;
@@ -30,7 +28,7 @@ public static class UpdateService
     {
         var releaseData = EndpointService.FortnitePorting.GetReleaseInfo(AppSettings.Current.UpdateMode);
         if (releaseData is null) return false;
-        
+
         var currentVersion = new Version(Globals.VERSION);
         var updateVersion = new Version(releaseData.Version);
         return currentVersion != updateVersion;
@@ -70,13 +68,12 @@ public static class UpdateService
             Caption = $"{(isDowngrade ? "Downgrade" : "Update")} Available",
             Icon = MessageBoxImage.Exclamation,
             Buttons = MessageBoxButtons.YesNo(),
-            IsSoundEnabled = false,
-            
+            IsSoundEnabled = false
         };
 
         MessageBox.Show(MainView.YesWeDogs, messageBox);
         if (messageBox.Result == MessageBoxResult.No) return;
-        
+
         Log.Information("CHECK3");
 
         if (AutoUpdater.DownloadUpdate(args))
@@ -84,7 +81,6 @@ public static class UpdateService
             AppSettings.Current.JustUpdated = true;
             AppVM.Quit();
         }
-
     }
 
     private static void ParseUpdateInfo(ParseUpdateInfoEventArgs args)

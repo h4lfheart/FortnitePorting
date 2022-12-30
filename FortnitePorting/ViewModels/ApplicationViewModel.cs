@@ -26,12 +26,11 @@ public class ApplicationViewModel : ObservableObject
             Text = message,
             Buttons = new[] { MessageBoxButtons.Ok() }
         };
-
         
         //AppLog.Warning($"{caption}: {message}");
         MessageBox.Show(messageBox);
     }
-    
+
     public void RestartWithMessage(string caption, string message)
     {
         var messageBox = new MessageBoxModel
@@ -45,13 +44,13 @@ public class ApplicationViewModel : ObservableObject
         MessageBox.Show(messageBox);
         Restart();
     }
-    
+
     public void Restart()
     {
         AppHelper.Launch(AppDomain.CurrentDomain.FriendlyName, shellExecute: false);
         Application.Current.Shutdown();
     }
-    
+
     public void Quit()
     {
         AppSettings.Save();

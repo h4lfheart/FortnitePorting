@@ -6,7 +6,6 @@ namespace FortnitePorting.Bundles;
 
 public static class BundleIniReader // Built specifically for FortniteGame/Config/Windows/CosmeticBundleMapping.ini and Cloud/BuildInfo.ini
 {
-    
     public static Ini Read(FileInfo file)
     {
         return Read(File.ReadAllText(file.FullName));
@@ -15,7 +14,7 @@ public static class BundleIniReader // Built specifically for FortniteGame/Confi
     public static Ini Read(string data)
     {
         var lines = data.Split("\n");
-        
+
         var currentSection = string.Empty;
         var iniData = new Ini();
         foreach (var line in lines)
@@ -48,7 +47,7 @@ public class IniData
 {
     public string Name;
     public string Value;
-    
+
     public IniData(string name, string value)
     {
         Name = name;

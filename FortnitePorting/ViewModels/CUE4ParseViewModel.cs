@@ -32,11 +32,11 @@ public class CUE4ParseViewModel : ObservableObject
     public UTexture2D? PlaceholderTexture;
     public List<UAnimMontage> MaleIdleAnimations = new();
     public List<UAnimMontage> FemaleIdleAnimations = new();
-    
+
     public readonly FortnitePortingFileProvider Provider;
 
     public readonly List<FAssetData> AssetDataBuffers = new();
-    
+
     public readonly RarityCollection[] RarityData = new RarityCollection[8];
 
     public static readonly VersionContainer Version = new(EGame.GAME_UE5_2);
@@ -45,17 +45,17 @@ public class CUE4ParseViewModel : ObservableObject
     {
         new DirectoryInfo(App.BundlesFolder.FullName)
     };
-    
+
     private static readonly Regex FortniteLiveRegex = new(@"^FortniteGame(/|\\)Content(/|\\)Paks(/|\\)(pakchunk(?:0|10.*|\w+)-WindowsClient|global)\.(pak|utoc)$",
         RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
-    private static readonly string[] MaleIdlePaths = 
+    private static readonly string[] MaleIdlePaths =
     {
         "FortniteGame/Content/Animation/Game/MainPlayer/Menu/BR/Male_Commando_Idle_01_M",
         "FortniteGame/Content/Animation/Game/MainPlayer/Menu/BR/Male_commando_Idle_2_M"
     };
-    
-    private static readonly string[] FemaleIdlePaths = 
+
+    private static readonly string[] FemaleIdlePaths =
     {
         "FortniteGame/Content/Animation/Game/MainPlayer/Menu/BR/Female_Commando_Idle_01_M",
         "FortniteGame/Content/Animation/Game/MainPlayer/Menu/BR/Female_Commando_Idle_02_Rebirth_Montage",
@@ -71,7 +71,7 @@ public class CUE4ParseViewModel : ObservableObject
             EInstallType.Live => new FortnitePortingFileProvider(true, Version),
         };
     }
-    
+
     public async Task Initialize()
     {
         await InitializeProvider();
@@ -81,10 +81,10 @@ public class CUE4ParseViewModel : ObservableObject
         {
             AppLog.Warning("Failed to load mappings, issues may occur");
         }
-        
+
         Provider.LoadLocalization(AppSettings.Current.Language);
         Provider.LoadVirtualPaths();
-        
+
         var bundleDownloaderSuccess = await BundleDownloader.Initialize();
         if (bundleDownloaderSuccess)
         {
@@ -107,7 +107,7 @@ public class CUE4ParseViewModel : ObservableObject
         {
             AppLog.Warning("Failed to load game files, please ensure your game is up to date");
         }
-        
+
         var rarityData = await Provider.LoadObjectAsync("FortniteGame/Content/Balance/RarityData.RarityData");
         for (var i = 0; i < 8; i++)
         {
@@ -120,18 +120,18 @@ public class CUE4ParseViewModel : ObservableObject
         {
             var montage = await AppVM.CUE4ParseVM.Provider.TryLoadObjectAsync<UAnimMontage>(path);
             if (montage is null) continue;
-            
+
             FemaleIdleAnimations.Add(montage);
         }
-        
+
         foreach (var path in MaleIdlePaths)
         {
             var montage = await AppVM.CUE4ParseVM.Provider.TryLoadObjectAsync<UAnimMontage>(path);
             if (montage is null) continue;
-            
+
             MaleIdleAnimations.Add(montage);
         }
-        
+
     }
 
     private async Task InitializeProvider()
@@ -147,7 +147,7 @@ public class CUE4ParseViewModel : ObservableObject
             {
                 var manifestInfo = await EndpointService.Epic.GetManifestInfoAsync();
                 AppLog.Information($"Loading Manifest for Fortnite {manifestInfo.BuildVersion}");
-                
+
                 var manifestPath = Path.Combine(App.DataFolder.FullName, manifestInfo.FileName);
                 byte[] manifestBytes;
                 if (File.Exists(manifestPath))
@@ -159,7 +159,7 @@ public class CUE4ParseViewModel : ObservableObject
                     manifestBytes = await manifestInfo.DownloadManifestDataAsync();
                     await File.WriteAllBytesAsync(manifestPath, manifestBytes);
                 }
-                
+
                 FortniteLiveManifest = new Manifest(manifestBytes, new ManifestOptions
                 {
                     ChunkBaseUri = new Uri("https://epicgames-download1.akamaized.net/Builds/Fortnite/CloudDir/ChunksV4/", UriKind.Absolute),
@@ -173,8 +173,6 @@ public class CUE4ParseViewModel : ObservableObject
                 }
                 break;
             }
-            
-            
         }
     }
 
@@ -184,7 +182,7 @@ public class CUE4ParseViewModel : ObservableObject
         if (keyResponse is not null) AppSettings.Current.AesResponse = keyResponse;
         else keyResponse = AppSettings.Current.AesResponse;
         if (keyResponse is null) return;
-        
+
         await Provider.SubmitKeyAsync(Globals.ZERO_GUID, new FAesKey(keyResponse.MainKey));
         foreach (var dynamicKey in keyResponse.DynamicKeys)
         {
@@ -195,7 +193,7 @@ public class CUE4ParseViewModel : ObservableObject
     private async Task InitializeMappings()
     {
         if (await TryDownloadMappings()) return;
-        
+
         LoadLocalMappings();
     }
 
@@ -204,13 +202,13 @@ public class CUE4ParseViewModel : ObservableObject
         var mappingsResponse = await EndpointService.FortniteCentral.GetMappingsAsync();
         if (mappingsResponse is null) return false;
         if (mappingsResponse.Length <= 0) return false;
-        
+
         var mappings = mappingsResponse.FirstOrDefault(x => x.Meta.CompressionMethod.Equals("Oodle", StringComparison.OrdinalIgnoreCase));
         if (mappings is null) return false;
-            
+
         var mappingsFilePath = Path.Combine(App.DataFolder.FullName, mappings.Filename);
         if (File.Exists(mappingsFilePath)) return false;
-            
+
         await EndpointService.DownloadFileAsync(mappings.URL, mappingsFilePath);
         Provider.MappingsContainer = new FileUsmapTypeMappingsProvider(mappingsFilePath);
 
@@ -221,7 +219,7 @@ public class CUE4ParseViewModel : ObservableObject
     {
         var usmapFiles = App.DataFolder.GetFiles("*.usmap");
         if (usmapFiles.Length <= 0) return;
-            
+
         var latestUsmap = usmapFiles.MaxBy(x => x.LastWriteTime);
         if (latestUsmap is null) return;
 
@@ -257,7 +255,7 @@ public class RarityCollection
     public float Falloff;
     public float Brightness;
     public float Roughness;
-    
+
     public RarityCollection(FStructFallback fallback)
     {
         Color1 = fallback.GetOrDefault<FLinearColor>(nameof(Color1));
@@ -265,11 +263,10 @@ public class RarityCollection
         Color3 = fallback.GetOrDefault<FLinearColor>(nameof(Color3));
         Color4 = fallback.GetOrDefault<FLinearColor>(nameof(Color4));
         Color5 = fallback.GetOrDefault<FLinearColor>(nameof(Color5));
-        
+
         Radius = fallback.GetOrDefault<float>(nameof(Radius));
         Falloff = fallback.GetOrDefault<float>(nameof(Falloff));
         Brightness = fallback.GetOrDefault<float>(nameof(Brightness));
         Roughness = fallback.GetOrDefault<float>(nameof(Roughness));
     }
-
 }
