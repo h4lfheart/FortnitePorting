@@ -25,6 +25,7 @@ public class EpicEndpoint : EndpointBase
         request.AddHeader("Authorization", $"bearer {AppSettings.Current.EpicAuth?.AccessToken}");
 
         var response = await _client.ExecuteAsync(request);
+        Log.Information("[{Method}] {StatusDescription} ({StatusCode}): {URI}", request.Method, response.StatusDescription, (int) response.StatusCode, response.ResponseUri?.OriginalString);
         return new ManifestInfo(response.Content);
     }
 
@@ -37,6 +38,7 @@ public class EpicEndpoint : EndpointBase
     {
         var request = new RestRequest(url);
         var response = await _client.ExecuteAsync(request);
+        Log.Information("[{Method}] {StatusDescription} ({StatusCode}): {URI}", request.Method, response.StatusDescription, (int) response.StatusCode, response.ResponseUri?.OriginalString);
         return new Manifest(response.RawBytes, new ManifestOptions
         {
             ChunkBaseUri = new Uri("https://epicgames-download1.akamaized.net/Builds/Fortnite/Content/CloudDir/ChunksV4/", UriKind.Absolute),
@@ -56,6 +58,7 @@ public class EpicEndpoint : EndpointBase
         request.AddParameter("grant_type", "client_credentials");
 
         var response = await _client.ExecuteAsync<EpicAuthResponse>(request);
+        Log.Information("[{Method}] {StatusDescription} ({StatusCode}): {URI}", request.Method, response.StatusDescription, (int) response.StatusCode, response.ResponseUri?.OriginalString);
         return response.Data;
     }
 
@@ -73,6 +76,7 @@ public class EpicEndpoint : EndpointBase
         request.AddQueryParameter("label", label);
 
         var response = await _client.ExecuteAsync<ContentBuildsResponse>(request);
+        Log.Information("[{Method}] {StatusDescription} ({StatusCode}): {URI}", request.Method, response.StatusDescription, (int) response.StatusCode, response.ResponseUri?.OriginalString);
         return response.Data;
     }
 
@@ -102,6 +106,7 @@ public class EpicEndpoint : EndpointBase
         var request = new RestRequest("https://account-public-service-prod.ol.epicgames.com/account/api/oauth/verify");
         request.AddHeader("Authorization", $"bearer {AppSettings.Current.EpicAuth?.AccessToken}");
         var response = _client.Execute(request);
+        Log.Information("[{Method}] {StatusDescription} ({StatusCode}): {URI}", request.Method, response.StatusDescription, (int) response.StatusCode, response.ResponseUri?.OriginalString);
         return response.StatusCode != HttpStatusCode.OK;
     }
 }

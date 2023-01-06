@@ -40,8 +40,10 @@ public partial class MainView
             return;
         }
 
-        if (DateTime.Now >= AppSettings.Current.LastUpdateAskTime.AddDays(1))
+        var updateVersion = UpdateService.GetLatestVersion();
+        if (DateTime.Now >= AppSettings.Current.LastUpdateAskTime.AddDays(1) || updateVersion > AppSettings.Current.LastKnownUpdateVersion)
         {
+            AppSettings.Current.LastKnownUpdateVersion = updateVersion;
             UpdateService.Start(automaticCheck: true);
             AppSettings.Current.LastUpdateAskTime = DateTime.Now;
         }

@@ -1,6 +1,6 @@
 ﻿using J = Newtonsoft.Json.JsonPropertyAttribute;
 
-namespace FortnitePorting.Services.Endpoints;
+namespace FortnitePorting.Services.Endpoints.Models;
 
 public class ContentBuildsResponse
 {

@@ -33,6 +33,12 @@ public static class UpdateService
         var updateVersion = new Version(releaseData.Version);
         return currentVersion != updateVersion;
     }
+    
+    public static Version GetLatestVersion()
+    {
+        var releaseData = EndpointService.FortnitePorting.GetReleaseInfo(AppSettings.Current.UpdateMode);
+        return releaseData is null ? new Version(0, 0, 0) : new Version(releaseData.Version);
+    }
 
     private static void FinishedUpdate()
     {

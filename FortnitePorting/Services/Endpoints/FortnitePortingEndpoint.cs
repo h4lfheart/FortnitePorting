@@ -11,6 +11,7 @@ public class FortnitePortingEndpoint : EndpointBase
     {
         var request = new RestRequest($"https://halfheart.pizza/fortnite-porting/{updateMode.ToString().ToLower()}.json");
         var response = await _client.ExecuteAsync<UpdateInfo>(request).ConfigureAwait(false);
+        Log.Information("[{Method}] {StatusDescription} ({StatusCode}): {URI}", request.Method, response.StatusDescription, (int) response.StatusCode, response.ResponseUri?.OriginalString);
         return response.Data;
     }
 
