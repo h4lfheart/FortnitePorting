@@ -16,6 +16,7 @@ using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.Engine;
+using CUE4Parse.UE4.Objects.Engine.Animation;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using SkiaSharp;
@@ -77,6 +78,44 @@ public static class ExportHelpers
                         var colorPairs = skinColorSwatch.GetOrDefault("ColorPairs", Array.Empty<FStructFallback>());
                         var skinColorPair = colorPairs.FirstOrDefault(x => x.Get<FName>("ColorName").Text.Equals("Skin Boost Color and Exponent", StringComparison.OrdinalIgnoreCase));
                         if (skinColorPair is not null) skinColor = skinColorPair.Get<FLinearColor>("ColorValue");
+                    }
+
+                    if (additionalData.TryGetValue(out UAnimBlueprintGeneratedClass animBlueprint, "AnimClass"))
+                    {
+                        var classDefaultObject = animBlueprint.ClassDefaultObject.Load();
+                        if (classDefaultObject?.TryGetValue(out FStructFallback poseAssetNode, "AnimGraphNode_PoseBlendNode") ?? false)
+                        {
+                            var poseAsset = poseAssetNode.Get<UPoseAsset>("PoseAsset");
+                            var poseAssetContainer = poseAsset.PoseContainer;
+
+                            var trackDictionary = new Dictionary<string, FPoseAssetInfluence[]>();
+                            for (var i = 0; i < poseAssetContainer.Tracks.Length; i++)
+                            {
+                                var influences = poseAssetContainer.TrackPoseInfluenceIndices[i].Influences;
+                                if (influences.Length == 0) continue;
+
+                                var trackName = poseAssetContainer.Tracks[i].Text;
+                                trackDictionary[trackName] = influences;
+                            }
+                            
+                            var poseDictionary = new Dictionary<string, List<TransformParameter>>();
+                            foreach (var poseName in poseAssetContainer.PoseNames)
+                            {
+                                poseDictionary[poseName.DisplayName.Text] = new List<TransformParameter>();
+                            }
+                            
+                            foreach (var (boneName, influences) in trackDictionary)
+                            {
+                                foreach (var influence in influences)
+                                {
+                                    var targetName = poseAssetContainer.PoseNames[influence.PoseIndex].DisplayName.Text;
+                                    var targetTransform = poseAssetContainer.Poses[influence.PoseIndex].LocalSpacePose[influence.BoneTransformIndex];
+                                    poseDictionary[targetName].Add(new TransformParameter(boneName, targetTransform));
+                                }
+                            }
+
+                            exportPart.Poses = poseDictionary.Select(x => new PoseHolder(x.Key, x.Value)).ToArray();
+                        }
                     }
 
                 }

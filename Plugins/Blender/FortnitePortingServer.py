@@ -7,7 +7,7 @@ import re
 import traceback
 from math import radians
 from enum import Enum
-from mathutils import Matrix, Vector, Euler
+from mathutils import Matrix, Vector, Euler, Quaternion
 from io_import_scene_unreal_psa_psk_280 import pskimport, psaimport
 
 bl_info = {
@@ -1430,6 +1430,9 @@ def make_color(data):
 def make_vector(data):
     return Vector((data.get("X"), data.get("Y"), data.get("Z")))
 
+def make_quat(data):
+    return Quaternion((data.get("W"), data.get("X"), data.get("Y"), data.get("Z")))
+
 def create_collection(name):
     if name in bpy.context.view_layer.layer_collection.children:
         bpy.context.view_layer.active_layer_collection = bpy.context.view_layer.layer_collection.children.get(name)
@@ -1545,7 +1548,7 @@ def import_response(response):
                     import_material(imported_mesh.material_slots.values()[index], material)
 
                 if location_offset := propData.get("LocationOffset"):
-                    imported_item.location += make_vector(location_offset)*0.01
+                    imported_item.location += make_vector(location_offset) * 0.01 if import_settings.get("ScaleDown") else 1.00
 
                 if scale := propData.get("Scale"):
                     imported_item.scale = make_vector(scale)
@@ -1581,7 +1584,7 @@ def import_response(response):
                     if (imported_part := import_mesh(part.get("MeshPath"), reorient_bones=import_settings.get("ReorientBones"), lod=min(num_lods-1, import_settings.get("LevelOfDetail")))) is None:
                         continue
 
-                    imported_part.location += make_vector(part.get("Offset"))*0.01
+                    imported_part.location += make_vector(part.get("Offset")) * 0.01 if import_settings.get("ScaleDown") else 1.00
                     imported_part.scale = make_vector(part.get("Scale"))
                         
                     if import_type == "Prop":
@@ -1605,7 +1608,48 @@ def import_response(response):
                         for key in mesh.data.shape_keys.key_blocks:
                             if key.name.casefold() == morph_name.casefold():
                                 key.value = 1.0
-    
+                                
+                    
+                    if poses := part.get("Poses"):
+                        for pose in poses:
+                            # bone offsets
+                            bpy.context.view_layer.objects.active = imported_part
+                            bpy.ops.object.mode_set(mode='POSE')
+                            for transform_parameter in pose.get("Transforms"):
+                                transform = transform_parameter.get("Value")
+                                if transform is None:
+                                    continue
+
+                                pose_bone = imported_part.pose.bones.get(transform_parameter.get("Name"))
+                                
+                                offset_loc = make_vector(transform.get("Translation")) * 0.01 if import_settings.get("ScaleDown") else 1.00
+                                offset_rot = make_quat(transform.get("Rotation"))
+                                offset_scale = make_vector(transform.get("Scale3D"))
+
+                                pose_bone.rotation_quaternion += offset_rot
+                                pose_bone.location += offset_loc
+                                pose_bone.scale += offset_scale
+                                
+                            # apply transforms as shape key
+                            bpy.ops.object.mode_set(mode='OBJECT')
+                            bpy.context.view_layer.objects.active = mesh
+
+                            bpy.ops.object.modifier_apply_as_shapekey(keep_modifier=True, modifier=mesh.modifiers[0].name) # always armature modifier for psk
+                            shape_key_blocks = mesh.data.shape_keys.key_blocks
+                            shape_key_blocks[-1].name = pose.get("Name")
+                            
+                            # reset transforms
+                            for bone in imported_part.pose.bones:
+                                bone.matrix_basis = Matrix()
+
+
+                        shape_key_blocks = mesh.data.shape_keys.key_blocks
+                        for block in shape_key_blocks:
+                            if any(poses, lambda x: x.get("Name") == block.name):
+                                block.relative_key = shape_key_blocks[-1] # base_pose
+                            
+                        
+                                
                     if import_settings.get("QuadTopo"):
                         bpy.ops.object.editmode_toggle()
                         bpy.ops.mesh.tris_convert_to_quads(uvs=True)

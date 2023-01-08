@@ -109,31 +109,3 @@ public class DanceExportData : ExportDataBase
         return animation;
     }
 }
-
-public class FortAnimNotifyState_SpawnProp : UObject
-{
-    public FName SocketName { get; private set; }
-    public FVector LocationOffset { get; private set; }
-    public FRotator RotationOffset { get; private set; }
-    public FVector Scale { get; private set; }
-    public bool bInheritScale { get; private set; }
-    public UStaticMesh? StaticMeshProp { get; private set; }
-    public USkeletalMesh? SkeletalMeshProp { get; private set; }
-    public UAnimSequence? SkeletalMeshPropAnimation { get; private set; }
-    public UAnimMontage? SkeletalMeshPropMontage { get; private set; }
-
-    public override void Deserialize(FAssetArchive Ar, long validPos)
-    {
-        base.Deserialize(Ar, validPos);
-
-        SocketName = GetOrDefault<FName>(nameof(SocketName));
-        LocationOffset = GetOrDefault(nameof(LocationOffset), FVector.ZeroVector);
-        RotationOffset = GetOrDefault(nameof(RotationOffset), FRotator.ZeroRotator);
-        Scale = GetOrDefault(nameof(Scale), FVector.OneVector);
-        bInheritScale = GetOrDefault<bool>(nameof(bInheritScale));
-        StaticMeshProp = GetOrDefault<UStaticMesh>(nameof(StaticMeshProp));
-        SkeletalMeshProp = GetOrDefault<USkeletalMesh>(nameof(SkeletalMeshProp));
-        SkeletalMeshPropAnimation = GetOrDefault<UAnimSequence>(nameof(SkeletalMeshPropAnimation));
-        SkeletalMeshPropMontage = GetOrDefault<UAnimMontage>(nameof(SkeletalMeshPropAnimation));
-    }
-}

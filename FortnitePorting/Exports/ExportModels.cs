@@ -1,5 +1,9 @@
 ﻿using System.Collections.Generic;
+using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.UE4.Assets.Objects;
+using CUE4Parse.UE4.Assets.Utils;
 using CUE4Parse.UE4.Objects.Core.Math;
+using CUE4Parse.UE4.Readers;
 using Newtonsoft.Json;
 
 namespace FortnitePorting.Exports;
@@ -24,6 +28,7 @@ public class ExportPart : ExportMesh
     public string Part;
     public string? MorphName;
     public string? SocketName;
+    public PoseHolder[] Poses;
 
     [JsonIgnore]
     public EFortCustomGender GenderPermitted;
@@ -64,6 +69,8 @@ public record VectorParameter(string Name, FLinearColor Value)
     public FLinearColor Value { get; set; } = Value;
 }
 
+public record TransformParameter(string Name, FTransform Value);
+
 public class EmotePropData
 {
     public string SocketName;
@@ -80,3 +87,5 @@ public class AnimationData
     public string Skeleton;
     public List<EmotePropData> Props = new();
 }
+
+public record PoseHolder(string Name, List<TransformParameter> Transforms);
