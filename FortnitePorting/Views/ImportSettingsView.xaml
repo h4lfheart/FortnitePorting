@@ -35,6 +35,8 @@
                     <ComboBox ItemsSource="{extensions:EnumToItemsSource {x:Type local:ERigType}}" SelectedItem="{Binding BlenderRigType, Converter={StaticResource EnumToString}}" SelectionChanged="OnRigTypeChanged"/>
                     <ToggleButton Content="Merge Skeletons" IsChecked="{Binding BlenderMergeSkeletons}" IsEnabled="{Binding CanChangeRigOptions}"/>
                     <ToggleButton Content="Reorient Bones" IsChecked="{Binding BlenderReorientBones}" IsEnabled="{Binding CanChangeRigOptions}"/>
+                    <controls:NumericSlider Label="Bone Length Ratio" Value="{Binding BlenderBoneLengthRatio, Mode=TwoWay}"/>
+
                     
                     <Separator Style="{StaticResource NamedSeparator}" Tag="ANIMATION"/>
                     <ToggleButton Content="Update Timeline to Animation Length" IsChecked="{Binding BlenderUpdateTimeline}"/>

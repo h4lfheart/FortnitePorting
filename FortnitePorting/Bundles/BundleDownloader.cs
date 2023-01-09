@@ -31,31 +31,14 @@ public static class BundleDownloader
         CosmeticBundleMappings = BundleIniReader.Read(bundleString);
 
         BundleManifest = await GetManifest();
-        return true;
+        return BundleManifest is not null;
     }
 
     private static async Task<Manifest?> GetManifest()
     {
-        var buildInfoString = string.Empty;
-        switch (AppSettings.Current.InstallType)
-        {
-            case EInstallType.Local:
-            {
-                var buildInfoPath = Path.Combine(AppSettings.Current.ArchivePath, "..\\..\\..\\Cloud\\BuildInfo.ini");
-                buildInfoString = await File.ReadAllTextAsync(buildInfoPath);
-                break;
-            }
-            case EInstallType.Live:
-            {
-                var buildInfoFile = AppVM.CUE4ParseVM.FortniteLiveManifest?.FileManifests.FirstOrDefault(x => x.Name.Equals("Cloud/BuildInfo.ini", StringComparison.OrdinalIgnoreCase));
-                if (buildInfoFile is null) return null;
-
-                var stream = buildInfoFile.GetStream();
-                var bytes = stream.ToBytes();
-                buildInfoString = Encoding.UTF8.GetString(bytes);
-                break;
-            }
-        }
+        var buildInfoPath = Path.Combine(AppSettings.Current.ArchivePath, "..\\..\\..\\Cloud\\BuildInfo.ini");
+        var buildInfoString = File.Exists(buildInfoPath) ? await File.ReadAllTextAsync(buildInfoPath) : await GetFortniteLiveBuildInfoAsync();
+        if (buildInfoString is null) return null;
 
         var buildInfoIni = BundleIniReader.Read(buildInfoString);
         var label = buildInfoIni.Sections["Content"].First(x => x.Name.Equals("Label", StringComparison.OrdinalIgnoreCase)).Value;
@@ -71,6 +54,7 @@ public static class BundleDownloader
 
     public static async Task<IEnumerable<FileInfo>> DownloadAsync(string cosmetic)
     {
+        if (BundleManifest is null) return Enumerable.Empty<FileInfo>();
         if (!AppSettings.Current.BundleDownloaderEnabled) return Enumerable.Empty<FileInfo>();
         if (!CosmeticBundleMappings.Sections.ContainsKey(cosmetic)) return Enumerable.Empty<FileInfo>();
         var cosmeticSection = CosmeticBundleMappings.Sections[cosmetic];
@@ -95,5 +79,21 @@ public static class BundleDownloader
     public static IEnumerable<FileInfo> Download(string cosmetic)
     {
         return DownloadAsync(cosmetic).GetAwaiter().GetResult();
+    }
+
+    private static async Task<string?> GetFortniteLiveBuildInfoAsync()
+    {
+        await AppVM.CUE4ParseVM.LoadFortniteLiveManifest();
+        var buildInfoFile = AppVM.CUE4ParseVM.FortniteLiveManifest?.FileManifests.FirstOrDefault(x => x.Name.Equals("Cloud/BuildInfo.ini", StringComparison.OrdinalIgnoreCase));
+        if (buildInfoFile is null) return null;
+
+        var stream = buildInfoFile.GetStream();
+        var bytes = stream.ToBytes();
+        return Encoding.UTF8.GetString(bytes);
+    }
+    
+    private static async Task<string?> GetFortniteLiveBuildInfo()
+    {
+        return GetFortniteLiveBuildInfoAsync().GetAwaiter().GetResult();
     }
 }

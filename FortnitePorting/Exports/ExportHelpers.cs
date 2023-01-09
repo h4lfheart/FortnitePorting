@@ -97,6 +97,9 @@ public static class ExportHelpers
                                 var trackName = poseAssetContainer.Tracks[i].Text;
                                 trackDictionary[trackName] = influences;
                             }
+
+                            var skeleton = poseAsset.Skeleton.Load<USkeleton>()!;
+                            var retargetSource = skeleton.AnimRetargetSources.FirstOrDefault(x => x.Key.Text.Equals(poseAsset.RetargetSource.Text)).Value;
                             
                             var poseDictionary = new Dictionary<string, List<TransformParameter>>();
                             foreach (var poseName in poseAssetContainer.PoseNames)
@@ -110,6 +113,9 @@ public static class ExportHelpers
                                 {
                                     var targetName = poseAssetContainer.PoseNames[influence.PoseIndex].DisplayName.Text;
                                     var targetTransform = poseAssetContainer.Poses[influence.PoseIndex].LocalSpacePose[influence.BoneTransformIndex];
+
+                                    var boneIndex = skeleton.ReferenceSkeleton.FinalNameToIndexMap[boneName];
+                                    var retargetTransform = retargetSource.ReferencePose[boneIndex];
                                     poseDictionary[targetName].Add(new TransformParameter(boneName, targetTransform));
                                 }
                             }

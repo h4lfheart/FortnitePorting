@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
 using FortnitePorting.Exports.Blender;
 using FortnitePorting.Exports.Types;
 using Newtonsoft.Json;
@@ -67,7 +68,7 @@ public static class BlenderService
         data = Array.Empty<byte>();
         try
         {
-            data = client.Receive(ref endpoint);
+            data = Task.Run(() => client.Receive(ref endpoint)).ConfigureAwait(false).GetAwaiter().GetResult();
         }
         catch (SocketException)
         {

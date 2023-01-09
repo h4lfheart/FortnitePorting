@@ -57,6 +57,16 @@ public class ImportSettingsViewModel : ObservableObject
         }
     }
 
+    public float BlenderBoneLengthRatio
+    {
+        get => AppSettings.Current.BlenderExportSettings.BoneLengthRatio;
+        set
+        {
+            AppSettings.Current.BlenderExportSettings.BoneLengthRatio = value;
+            OnPropertyChanged();
+        }
+    }
+
     public bool BlenderUpdateTimeline
     {
         get => AppSettings.Current.BlenderExportSettings.UpdateTimeline;

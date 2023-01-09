@@ -17,6 +17,7 @@ using CUE4Parse.Utils;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Views.Controls;
 using FortnitePorting.Views.Extensions;
+using Serilog.Sinks.SystemConsole.Themes;
 
 namespace FortnitePorting.ViewModels;
 

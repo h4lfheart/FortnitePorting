@@ -88,7 +88,7 @@ public class CUE4ParseViewModel : ObservableObject
         var bundleDownloaderSuccess = await BundleDownloader.Initialize();
         if (bundleDownloaderSuccess)
         {
-            Log.Information("Successfully initialized Bundle Downloader");
+            Log.Information("Successfully Initialized Bundle Downloader");
         }
         else
         {
@@ -145,28 +145,8 @@ public class CUE4ParseViewModel : ObservableObject
             }
             case EInstallType.Live:
             {
-                var manifestInfo = await EndpointService.Epic.GetManifestInfoAsync();
-                AppLog.Information($"Loading Manifest for Fortnite {manifestInfo.BuildVersion}");
-
-                var manifestPath = Path.Combine(App.DataFolder.FullName, manifestInfo.FileName);
-                byte[] manifestBytes;
-                if (File.Exists(manifestPath))
-                {
-                    manifestBytes = await File.ReadAllBytesAsync(manifestPath);
-                }
-                else
-                {
-                    manifestBytes = await manifestInfo.DownloadManifestDataAsync();
-                    await File.WriteAllBytesAsync(manifestPath, manifestBytes);
-                }
-
-                FortniteLiveManifest = new Manifest(manifestBytes, new ManifestOptions
-                {
-                    ChunkBaseUri = new Uri("https://epicgames-download1.akamaized.net/Builds/Fortnite/CloudDir/ChunksV4/", UriKind.Absolute),
-                    ChunkCacheDirectory = App.CacheFolder
-                });
-
-                var pakAndUtocFiles = FortniteLiveManifest.FileManifests.Where(fileManifest => FortniteLiveRegex.IsMatch(fileManifest.Name));
+                await LoadFortniteLiveManifest(verbose: true);
+                var pakAndUtocFiles = FortniteLiveManifest?.FileManifests.Where(fileManifest => FortniteLiveRegex.IsMatch(fileManifest.Name));
                 foreach (var fileManifest in pakAndUtocFiles)
                 {
                     Provider.Initialize(fileManifest.Name, new Stream[] { fileManifest.GetStream() }, it => new FStreamArchive(it, FortniteLiveManifest.FileManifests.First(x => x.Name.Equals(it)).GetStream(), Provider.Versions));
@@ -174,6 +154,33 @@ public class CUE4ParseViewModel : ObservableObject
                 break;
             }
         }
+    }
+    
+    public async Task LoadFortniteLiveManifest(bool verbose = false)
+    {
+        if (FortniteLiveManifest is not null) return;
+        var manifestInfo = await EndpointService.Epic.GetManifestInfoAsync();
+        if (verbose) AppLog.Information($"Loading Manifest for Fortnite {manifestInfo.BuildVersion}");
+
+        var manifestPath = Path.Combine(App.DataFolder.FullName, manifestInfo.FileName);
+        byte[] manifestBytes;
+        if (File.Exists(manifestPath))
+        {
+            manifestBytes = await File.ReadAllBytesAsync(manifestPath);
+        }
+        else
+        {
+            manifestBytes = await manifestInfo.DownloadManifestDataAsync();
+            await File.WriteAllBytesAsync(manifestPath, manifestBytes);
+        }
+
+       
+        FortniteLiveManifest = new Manifest(manifestBytes, new ManifestOptions
+        {
+            ChunkBaseUri = new Uri("https://epicgames-download1.akamaized.net/Builds/Fortnite/CloudDir/ChunksV4/", UriKind.Absolute),
+            ChunkCacheDirectory = App.CacheFolder
+        });
+
     }
 
     private async Task InitializeKeys()

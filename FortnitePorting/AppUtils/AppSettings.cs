@@ -77,4 +77,7 @@ public partial class AppSettings : ObservableObject
     
     [ObservableProperty]
     private Version lastKnownUpdateVersion;
+    
+    [ObservableProperty]
+    private bool showConsole = true;
 }

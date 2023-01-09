@@ -37,6 +37,7 @@
                 <MenuItem Header="App Options" Command="{Binding MenuCommand}" CommandParameter="Settings_Options"/>
                 <MenuItem Header="Import Options" Command="{Binding MenuCommand}" CommandParameter="Settings_ImportOptions"/>
                 <MenuItem Header="First-Time Startup" Command="{Binding MenuCommand}" CommandParameter="Settings_Startup"/>
+                <MenuItem Header="Show Console" IsChecked="{Binding ShowConsole}" IsCheckable="True" Checked="OnShowConsoleChecked" Unchecked="OnShowConsoleChecked"/>
             </MenuItem>
             <MenuItem Header="Help">
                 <MenuItem Header="Discord Server" Command="{Binding MenuCommand}" CommandParameter="Help_Discord"/>

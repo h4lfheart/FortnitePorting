@@ -61,6 +61,12 @@ public partial class MainViewModel : ObservableObject
 
     public bool IsInitialized;
 
+    public bool ShowConsole
+    {
+        get => AppSettings.Current.ShowConsole;
+        set => AppSettings.Current.ShowConsole = value;
+    }
+
     public async Task Initialize()
     {
         await Task.Run(async () =>
@@ -134,7 +140,6 @@ public partial class MainViewModel : ObservableObject
                 break;
         }
     }
-
     public void CheckUpdate()
     {
         UpdateService.Start();

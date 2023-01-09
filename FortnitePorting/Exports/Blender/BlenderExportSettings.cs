@@ -8,8 +8,9 @@ public class BlenderExportSettings
 
     // RIGGING
     public ERigType RigType;
-    public bool MergeSkeletons;
+    public bool MergeSkeletons = true;
     public bool ReorientBones;
+    public float BoneLengthRatio = 0.4f;
 
     // ANIM
     public bool UpdateTimeline;

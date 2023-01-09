@@ -195,4 +195,12 @@ public partial class MainView
             }
         }
     }
+
+    private void OnShowConsoleChecked(object sender, RoutedEventArgs e)
+    {
+        var menuItem = (MenuItem) sender;
+        var show = menuItem.IsChecked;
+        AppSettings.Current.ShowConsole = show;
+        App.ToggleConsole(show);
+    }
 }
