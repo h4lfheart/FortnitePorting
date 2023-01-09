@@ -82,8 +82,7 @@ class Receiver(threading.Thread):
                
             except OSError:
                 pass
-            except JSONDecodeError:
-                print(current_data)
+            except json.JSONDecodeError:
                 pass
 
     def stop(self):
@@ -158,7 +157,7 @@ def import_mesh(path: str, import_mesh: bool = True, reorient_bones: bool = Fals
     if os.path.exists(mesh_path + ".pskx"):
         mesh_path += ".pskx"
 
-    if not pskimport(mesh_path, bReorientBones=reorient_bones, bImportmesh = import_mesh, bScaleDown = import_settings.get("ScaleDown")):
+    if not pskimport(mesh_path, bReorientBones=reorient_bones, bImportmesh = import_mesh, bScaleDown = import_settings.get("ScaleDown"), fBonesizeRatio=import_settings.get("BoneLengthRatio")):
         return None
 
     return bpy.context.active_object
@@ -172,7 +171,7 @@ def import_skel(path: str) -> bpy.types.Object:
     if os.path.exists(mesh_path + ".pskx"):
         mesh_path += ".pskx"
 
-    if not pskimport(mesh_path, bImportmesh=False, bScaleDown = import_settings.get("ScaleDown")):
+    if not pskimport(mesh_path, bImportmesh=False, bScaleDown = import_settings.get("ScaleDown"), fBonesizeRatio=import_settings.get("BoneLengthRatio")):
         return None
 
     return bpy.context.active_object
@@ -251,6 +250,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
     
     target_material = target_slot.material
     material_name = material_data.get("MaterialName")
+    master_material_name = material_data.get("MasterMaterialName")
     
     if target_material.name.casefold() != material_name.casefold():
         target_material = bpy.data.materials.new(material_name)
@@ -260,6 +260,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
         
     target_slot.material = target_material
     imported_materials[mat_hash] = target_material
+    imported_materials_data[mat_hash] = material_data
 
     target_material.use_nodes = True
     nodes = target_material.node_tree.nodes
@@ -405,6 +406,62 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
             shader_node.inputs["Base Color"].default_value = (adj_tint, adj_tint, adj_tint, 1)
         
         return
+    
+    is_anime = master_material_name in anime_mat_names
+    if is_anime:
+        if not bpy.context.scene.collection.objects.get("FP_CellShadeSun"):
+            bpy.context.scene.collection.objects.link(bpy.data.objects.get("FP_CellShadeSun"))
+            
+        shader_node = nodes.new(type="ShaderNodeGroup")
+        shader_node.name = "FP Anime"
+        shader_node.node_tree = bpy.data.node_groups.get(shader_node.name)
+        links.new(shader_node.outputs[0], output_node.inputs[0])
+
+        location = 0
+        def add_texture(name, slot=None, linear = False):
+            if slot is None:
+                slot = name
+            found = first(textures, lambda x: x.get("Name") == name)
+            if has_override_data:
+                for override_data in override_datas:
+                    if found_override := first(override_data.get("Textures"), lambda x: x.get("Name") == name):
+                        found = found_override
+            if found is None:
+                return
+
+            name = found.get("Name")
+            value = found.get("Value")
+
+            if (image := import_texture(value)) is None:
+                return
+
+            node = nodes.new(type="ShaderNodeTexImage")
+            node.image = image
+            node.image.alpha_mode = 'CHANNEL_PACKED'
+            node.hide = True
+
+            nonlocal location
+            node.location = -400, location
+            location -= 40
+
+            if linear:
+                node.image.colorspace_settings.name = "Linear"
+
+            links.new(node.outputs[0], shader_node.inputs[slot])
+
+            return node
+
+        add_texture("LitDiffuse")
+        add_texture("ShadedDiffuse")
+        add_texture("SSC_Texture", linear=True)
+        add_texture("DistanceField_InkLines", linear=True)
+        add_texture("InkLineColor_Texture")
+        add_texture("Normals", linear=True)
+        add_texture("SpecularMasks", linear=True)
+        add_texture("Emissive", linear=True)
+        
+        return 
+        
 
     shader_node = nodes.new(type="ShaderNodeGroup")
     shader_node.name = "FP Shader"
@@ -476,7 +533,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
         add_texture("Layer4_Gradient", "Layer4_Gradient", (-800, -240), value_connect=True)
         add_texture("Layer5_Gradient", "Layer5_Gradient", (-800, -280), value_connect=True)
         
-    if material_data.get("MasterMaterialName") == "M_FN_Valet_Master":
+    if master_material_name == "M_FN_Valet_Master":
         valet_node = nodes.new(type="ShaderNodeGroup")
         valet_node.name = "FP Valet"
         valet_node.node_tree = bpy.data.node_groups.get(valet_node.name)
@@ -1403,6 +1460,10 @@ def append_data():
             if not bpy.data.objects.get(obj):
                 data_to.objects.append(obj)
 
+        for mat in data_from.materials:
+            if not bpy.data.materials.get(mat):
+                data_to.materials.append(mat)
+
 def first(target, expr, default=None):
     if not target:
         return None
@@ -1442,6 +1503,19 @@ def create_collection(name):
     new_collection = bpy.data.collections.new(name)
     bpy.context.scene.collection.children.link(new_collection)
     bpy.context.view_layer.active_layer_collection = bpy.context.view_layer.layer_collection.children.get(new_collection.name)
+    
+anime_mat_names = [
+    "M_MASTER_AnimeShading",
+    "M_F_Genius_AnimeShading",
+    "M_Fruitcake_AnimeShader",
+    "M_MED_Apprentice_ParentAnimeShader",
+    "M_F_Ensemble_Hair_AnimeShading",
+    "M_Zest_Master",
+    "M_Ruckus_MASTER",
+    "M_Dojo_MASTER",
+    "M_MASTER_RetroCartoon",
+    "M_LexaFace_PROTO"
+]
 
 def import_response(response):
     append_data()
@@ -1453,6 +1527,9 @@ def import_response(response):
     
     global imported_materials
     imported_materials = {}
+    
+    global imported_materials_data
+    imported_materials_data = {}
 
     global style_material_params
     style_material_params = []
@@ -1563,7 +1640,6 @@ def import_response(response):
         if import_type == "Dance":
             anim_data = import_data.get("AnimData")
             import_animation_data(anim_data)
-    
         else:
             if import_settings.get("IntoCollection"):
                 create_collection(name)
@@ -1609,7 +1685,6 @@ def import_response(response):
                             if key.name.casefold() == morph_name.casefold():
                                 key.value = 1.0
                                 
-                    
                     if poses := part.get("Poses"):
                         for pose in poses:
                             # bone offsets
@@ -1621,11 +1696,13 @@ def import_response(response):
                                     continue
 
                                 pose_bone = imported_part.pose.bones.get(transform_parameter.get("Name"))
+                                if pose_bone is None:
+                                    continue
                                 
                                 offset_loc = make_vector(transform.get("Translation")) * 0.01 if import_settings.get("ScaleDown") else 1.00
                                 offset_rot = make_quat(transform.get("Rotation"))
                                 offset_scale = make_vector(transform.get("Scale3D"))
-
+                            
                                 pose_bone.rotation_quaternion += offset_rot
                                 pose_bone.location += offset_loc
                                 pose_bone.scale += offset_scale
@@ -1647,9 +1724,7 @@ def import_response(response):
                         for block in shape_key_blocks:
                             if any(poses, lambda x: x.get("Name") == block.name):
                                 block.relative_key = shape_key_blocks[-1] # base_pose
-                            
-                        
-                                
+                    
                     if import_settings.get("QuadTopo"):
                         bpy.ops.object.editmode_toggle()
                         bpy.ops.mesh.tris_convert_to_quads(uvs=True)
@@ -1657,7 +1732,18 @@ def import_response(response):
     
                     for material in part.get("Materials"):
                         index = material.get("SlotIndex")
+                        material_name = material.get("MaterialName")
                         import_material(mesh.material_slots.values()[index], material)
+
+                        # this will definitely cause issues on perfectly fine materials
+                        if any(["outline", "toon_lines"], lambda x: x in material_name.casefold()):
+                            bpy.ops.object.editmode_toggle()
+                            bpy.ops.mesh.select_all(action='DESELECT')
+                            mat_slot = mesh.material_slots.find(material_name)
+                            bpy.context.object.active_material_index = mat_slot
+                            bpy.ops.object.material_slot_select()
+                            bpy.ops.mesh.delete(type='FACE')
+                            bpy.ops.object.editmode_toggle()
     
                     for override_material in part.get("OverrideMaterials"):
                         index = override_material.get("SlotIndex")
@@ -1675,14 +1761,25 @@ def import_response(response):
                     slots = where(mesh.material_slots, lambda x: x.name == style_material.get("MaterialNameToSwap"))
                     for slot in slots:
                         import_material(slot, style_material)
-    
+                        
+            
             if import_settings.get("MergeSkeletons") and import_type == "Outfit":
                 master_skeleton = merge_skeletons(imported_parts)
+                master_mesh = mesh_from_armature(master_skeleton)
                 if import_settings.get("PoseFixes"):
-                    master_mesh = mesh_from_armature(master_skeleton)
                     master_mesh.modifiers[0].use_deform_preserve_volume = True
                     corrective_smooth = master_mesh.modifiers.new(name="Corrective Smooth", type='CORRECTIVE_SMOOTH')
                     corrective_smooth.use_pin_boundary = True
+                    
+                if any(list(imported_materials_data.values()), lambda x: x.get("MasterMaterialName") in anime_mat_names):
+                    solidify = master_mesh.modifiers.new(name="Outline", type='SOLIDIFY')
+                    solidify.thickness = 0.0015
+                    solidify.offset = 1.0
+                    solidify.use_rim = False
+                    solidify.use_flip_normals = True
+                    
+                    master_mesh.data.materials.append(bpy.data.materials.get("FP_OutlineMaterial"))
+                    solidify.material_offset = len(master_mesh.data.materials)-1
 
                 rig_type = RigType(import_settings.get("RigType"))
                 if rig_type == RigType.DEFAULT and import_settings.get("LobbyPoses") and (sequence_data := import_data.get("LinkedSequence")):
