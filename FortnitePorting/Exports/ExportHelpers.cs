@@ -307,7 +307,6 @@ public static class ExportHelpers
         var textures = new List<TextureParameter>();
         foreach (var parameter in materialInstance.TextureParameterValues)
         {
-            Log.Information("{0}: {1}, {2}", materialInstance.Name, parameter.ParameterInfo.Name.Text, parameter.ParameterValue.IsNull);
             if (!parameter.ParameterValue.TryLoad(out UTexture2D texture)) continue;
             textures.Add(new TextureParameter(parameter.ParameterInfo.Name.Text, texture.GetPathName()));
             Save(texture);
