@@ -80,7 +80,7 @@ public static class ExportHelpers
                         if (skinColorPair is not null) skinColor = skinColorPair.Get<FLinearColor>("ColorValue");
                     }
 
-                    if (additionalData.TryGetValue(out UAnimBlueprintGeneratedClass animBlueprint, "AnimClass"))
+                    /*if (additionalData.TryGetValue(out UAnimBlueprintGeneratedClass animBlueprint, "AnimClass"))
                     {
                         var classDefaultObject = animBlueprint.ClassDefaultObject.Load();
                         if (classDefaultObject?.TryGetValue(out FStructFallback poseAssetNode, "AnimGraphNode_PoseBlendNode") ?? false)
@@ -98,9 +98,6 @@ public static class ExportHelpers
                                 trackDictionary[trackName] = influences;
                             }
 
-                            var skeleton = poseAsset.Skeleton.Load<USkeleton>()!;
-                            var retargetSource = skeleton.AnimRetargetSources.FirstOrDefault(x => x.Key.Text.Equals(poseAsset.RetargetSource.Text)).Value;
-                            
                             var poseDictionary = new Dictionary<string, List<TransformParameter>>();
                             foreach (var poseName in poseAssetContainer.PoseNames)
                             {
@@ -113,16 +110,13 @@ public static class ExportHelpers
                                 {
                                     var targetName = poseAssetContainer.PoseNames[influence.PoseIndex].DisplayName.Text;
                                     var targetTransform = poseAssetContainer.Poses[influence.PoseIndex].LocalSpacePose[influence.BoneTransformIndex];
-
-                                    var boneIndex = skeleton.ReferenceSkeleton.FinalNameToIndexMap[boneName];
-                                    var retargetTransform = retargetSource.ReferencePose[boneIndex];
                                     poseDictionary[targetName].Add(new TransformParameter(boneName, targetTransform));
                                 }
                             }
 
                             exportPart.Poses = poseDictionary.Select(x => new PoseHolder(x.Key, x.Value)).ToArray();
                         }
-                    }
+                    }*/
 
                 }
             }
@@ -313,6 +307,7 @@ public static class ExportHelpers
         var textures = new List<TextureParameter>();
         foreach (var parameter in materialInstance.TextureParameterValues)
         {
+            Log.Information("{0}: {1}, {2}", materialInstance.Name, parameter.ParameterInfo.Name.Text, parameter.ParameterValue.IsNull);
             if (!parameter.ParameterValue.TryLoad(out UTexture2D texture)) continue;
             textures.Add(new TextureParameter(parameter.ParameterInfo.Name.Text, texture.GetPathName()));
             Save(texture);

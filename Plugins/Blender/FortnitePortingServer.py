@@ -13,7 +13,7 @@ from io_import_scene_unreal_psa_psk_280 import pskimport, psaimport
 bl_info = {
     "name": "Fortnite Porting",
     "author": "Half",
-    "version": (1, 0, 6),
+    "version": (1, 0, 7),
     "blender": (3, 0, 0),
     "description": "Blender Server for Fortnite Porting",
     "category": "Import",
@@ -1685,7 +1685,7 @@ def import_response(response):
                             if key.name.casefold() == morph_name.casefold():
                                 key.value = 1.0
                                 
-                    if poses := part.get("Poses"):
+                    '''if poses := part.get("Poses"):
                         for pose in poses:
                             # bone offsets
                             bpy.context.view_layer.objects.active = imported_part
@@ -1702,12 +1702,11 @@ def import_response(response):
                                 offset_loc = make_vector(transform.get("Translation")) * 0.01 if import_settings.get("ScaleDown") else 1.00
                                 offset_rot = make_quat(transform.get("Rotation"))
                                 offset_scale = make_vector(transform.get("Scale3D"))
-                            
-                                pose_bone.rotation_quaternion += offset_rot
-                                pose_bone.location += offset_loc
-                                pose_bone.scale += offset_scale
                                 
-                            # apply transforms as shape key
+                                offset_matrix_local = Matrix.LocRotScale(offset_loc, offset_rot, offset_scale)
+
+
+                                # apply transforms as shape key
                             bpy.ops.object.mode_set(mode='OBJECT')
                             bpy.context.view_layer.objects.active = mesh
 
@@ -1723,7 +1722,7 @@ def import_response(response):
                         shape_key_blocks = mesh.data.shape_keys.key_blocks
                         for block in shape_key_blocks:
                             if any(poses, lambda x: x.get("Name") == block.name):
-                                block.relative_key = shape_key_blocks[-1] # base_pose
+                                block.relative_key = shape_key_blocks[-1] # base_pose'''
                     
                     if import_settings.get("QuadTopo"):
                         bpy.ops.object.editmode_toggle()
@@ -1777,6 +1776,7 @@ def import_response(response):
                     solidify.offset = 1.0
                     solidify.use_rim = False
                     solidify.use_flip_normals = True
+                    solidify.thickness_clamp = 5.0
                     
                     master_mesh.data.materials.append(bpy.data.materials.get("FP_OutlineMaterial"))
                     solidify.material_offset = len(master_mesh.data.materials)-1
