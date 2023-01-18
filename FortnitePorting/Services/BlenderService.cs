@@ -35,15 +35,6 @@ public static class BlenderService
 
         Client.SendSpliced(messageBytes, Globals.BUFFER_SIZE);
         Client.Send(Encoding.UTF8.GetBytes(Globals.UDPClient_MessageTerminator));
-
-        if (Client.TryReceive(Endpoint, out var response))
-        {
-            var responseString = Encoding.UTF8.GetString(response);
-        }
-        else
-        {
-            AppVM.Warning("Failed to Establish Connection with FortnitePorting Server", "Please make sure you have installed the FortnitePortingServer.zip file and have an instance of Blender open.");
-        }
     }
 
     public static bool IsServerRunning()

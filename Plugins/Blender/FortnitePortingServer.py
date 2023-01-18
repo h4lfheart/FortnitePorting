@@ -59,7 +59,6 @@ class Receiver(threading.Thread):
     def run(self):
         host, port = 'localhost', 24280
         self.socket_server.bind((host, port))
-        self.socket_server.settimeout(1.0)
         Log.information(f"FortnitePorting Server Listening at {host}:{port}")
 
         while self.keep_alive:
@@ -80,7 +79,7 @@ class Receiver(threading.Thread):
                 self.event.set()
                 self.socket_server.sendto("FPServerReceived".encode('utf-8'), sender)
                
-            except OSError:
+            except OSError as e:
                 pass
             except json.JSONDecodeError:
                 pass
@@ -1538,13 +1537,14 @@ def import_response(response):
     print(json.dumps(import_settings))
     
     for import_index, import_data in enumerate(import_datas):
-
         name = import_data.get("Name")
         import_type = import_data.get("Type")
     
         Log.information(f"Received Import for {import_type}: {name}")
         print(json.dumps(import_data))
-        
+
+        if bpy.context.mode != "OBJECT":
+            bpy.ops.object.mode_set(mode='OBJECT')
         def import_animation_data(anim_data, override_skel = None):
             if anim_data is None:
                 return
@@ -1702,8 +1702,10 @@ def import_response(response):
                                 offset_loc = make_vector(transform.get("Translation")) * 0.01 if import_settings.get("ScaleDown") else 1.00
                                 offset_rot = make_quat(transform.get("Rotation"))
                                 offset_scale = make_vector(transform.get("Scale3D"))
-                                
-                                offset_matrix_local = Matrix.LocRotScale(offset_loc, offset_rot, offset_scale)
+
+                                pose_bone.rotation_quaternion.rotate(offset_rot)
+                                pose_bone.location += offset_loc
+                                pose_bone.scale += offset_scale
 
 
                                 # apply transforms as shape key
@@ -1787,7 +1789,6 @@ def import_response(response):
                 
                 if rig_type == RigType.TASTY:
                     apply_tasty_rig(master_skeleton)
-                    
                     
             bpy.ops.object.select_all(action='DESELECT')
     

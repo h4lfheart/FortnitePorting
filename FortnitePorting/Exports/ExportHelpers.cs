@@ -145,23 +145,29 @@ public static class ExportHelpers
 
         if (headMorphType != ECustomHatType.None && headMorphNames.ContainsKey(headMorphType))
         {
-            var headPart = exportParts.First(x => x.Part.Equals("Head"));
-            headPart.MorphName = headMorphNames[headMorphType];
+            var headPart = exportParts.FirstOrDefault(x => x.Part.Equals("Head"));
+            if (headPart is not null)
+            {
+                headPart.MorphName = headMorphNames[headMorphType];
+            }
         }
 
         if (skinColor is not null)
         {
-            var bodyPart = exportParts.First(x => x.Part.Equals("Body"));
-            foreach (var material in bodyPart.Materials)
+            var bodyPart = exportParts.FirstOrDefault(x => x.Part.Equals("Body"));
+            if (bodyPart is not null)
             {
-                var foundSkinColor = material.Vectors.FirstOrDefault(x => x.Name.Equals("Skin Boost Color And Exponent"));
-                if (foundSkinColor is not null)
+                foreach (var material in bodyPart.Materials)
                 {
-                    foundSkinColor.Value = skinColor.Value;
-                }
-                else
-                {
-                    material.Vectors.Add(new VectorParameter("Skin Boost Color And Exponent", skinColor.Value));
+                    var foundSkinColor = material.Vectors.FirstOrDefault(x => x.Name.Equals("Skin Boost Color And Exponent"));
+                    if (foundSkinColor is not null)
+                    {
+                        foundSkinColor.Value = skinColor.Value;
+                    }
+                    else
+                    {
+                        material.Vectors.Add(new VectorParameter("Skin Boost Color And Exponent", skinColor.Value));
+                    }
                 }
             }
         }
@@ -534,8 +540,9 @@ public static class ExportHelpers
         return exportMaterial;
     }
 
-    public static bool IsGlassMaterial(UMaterialInstanceConstant materialInstance)
+    public static bool IsGlassMaterial(UMaterialInstanceConstant? materialInstance)
     {
+        if (materialInstance is null) return false;
         var lastParent = materialInstance.GetLastParent();
         var glassMaterialNames = new[]
         {

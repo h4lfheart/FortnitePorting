@@ -21,6 +21,7 @@ public class UPoseAsset : UAnimationAsset
     public bool bAdditivePose;
     public int BasePoseIndex;
     public FName RetargetSource;
+    public FTransform[] RetargetSourceAssetReferencePose;
 
     public override void Deserialize(FAssetArchive Ar, long validPos)
     {
@@ -30,6 +31,7 @@ public class UPoseAsset : UAnimationAsset
         bAdditivePose = GetOrDefault<bool>(nameof(bAdditivePose));
         BasePoseIndex = GetOrDefault<int>(nameof(BasePoseIndex));
         RetargetSource = GetOrDefault<FName>(nameof(RetargetSource));
+        RetargetSourceAssetReferencePose = GetOrDefault<FTransform[]>(nameof(RetargetSourceAssetReferencePose));
     }
 }
 

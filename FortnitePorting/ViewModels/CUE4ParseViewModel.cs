@@ -105,7 +105,7 @@ public class CUE4ParseViewModel : ObservableObject
 
         if (assetRegistries.Count == 0)
         {
-            AppLog.Warning("Failed to load game files, please ensure your game is up to date");
+            AppLog.Warning("Failed to load asset registry, please ensure your game is up to date");
         }
 
         var rarityData = await Provider.LoadObjectAsync("FortniteGame/Content/Balance/RarityData.RarityData");
@@ -131,7 +131,6 @@ public class CUE4ParseViewModel : ObservableObject
 
             MaleIdleAnimations.Add(montage);
         }
-
     }
 
     private async Task InitializeProvider()
@@ -190,7 +189,11 @@ public class CUE4ParseViewModel : ObservableObject
         else keyResponse = AppSettings.Current.AesResponse;
         if (keyResponse is null) return;
 
-        await Provider.SubmitKeyAsync(Globals.ZERO_GUID, new FAesKey(keyResponse.MainKey));
+        var mounted = await Provider.SubmitKeyAsync(Globals.ZERO_GUID, new FAesKey(keyResponse.MainKey));
+        if (mounted == 0)
+        {
+            AppLog.Warning("Failed to load game files, please ensure your game is up to date");
+        }
         foreach (var dynamicKey in keyResponse.DynamicKeys)
         {
             await Provider.SubmitKeyAsync(new FGuid(dynamicKey.GUID), new FAesKey(dynamicKey.Key));
@@ -245,7 +248,7 @@ public class CUE4ParseViewModel : ObservableObject
         }
         catch (Exception)
         {
-            AppLog.Warning($"Failed to load asset registry: {file.Name}");
+            AppLog.Warning($"Failed to load asset registry: {file.Path}");
         }
     }
 }
