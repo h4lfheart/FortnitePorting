@@ -24,20 +24,14 @@ public static class UpdateService
         AutoUpdater.Start($"https://halfheart.pizza/fortnite-porting/{AppSettings.Current.UpdateMode.ToString().ToLower()}.json");
     }
 
-    public static bool IsUpdateAvailable()
+    public static (bool UpdateAvailable, Version UpdateVersion) GetStats()
     {
         var releaseData = EndpointService.FortnitePorting.GetReleaseInfo(AppSettings.Current.UpdateMode);
-        if (releaseData is null) return false;
-
         var currentVersion = new Version(Globals.VERSION);
+        if (releaseData is null) return (false, currentVersion);
+
         var updateVersion = new Version(releaseData.Version);
-        return currentVersion != updateVersion;
-    }
-    
-    public static Version GetLatestVersion()
-    {
-        var releaseData = EndpointService.FortnitePorting.GetReleaseInfo(AppSettings.Current.UpdateMode);
-        return releaseData is null ? new Version(0, 0, 0) : new Version(releaseData.Version);
+        return (currentVersion != updateVersion, updateVersion);
     }
 
     private static void FinishedUpdate()

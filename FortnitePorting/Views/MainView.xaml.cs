@@ -40,7 +40,7 @@ public partial class MainView
             return;
         }
 
-        var updateVersion = UpdateService.GetLatestVersion();
+        var (updateAvailable, updateVersion) = UpdateService.GetStats();
         if (DateTime.Now >= AppSettings.Current.LastUpdateAskTime.AddDays(1) || updateVersion > AppSettings.Current.LastKnownUpdateVersion)
         {
             AppSettings.Current.LastKnownUpdateVersion = updateVersion;
@@ -48,7 +48,7 @@ public partial class MainView
             AppSettings.Current.LastUpdateAskTime = DateTime.Now;
         }
 
-        if (AppSettings.Current.JustUpdated && !UpdateService.IsUpdateAvailable())
+        if (AppSettings.Current.JustUpdated && !updateAvailable)
         {
             AppHelper.OpenWindow<PluginUpdateView>();
             AppSettings.Current.JustUpdated = false;
@@ -169,7 +169,7 @@ public partial class MainView
     {
         foreach (var tab in AssetControls.Items.OfType<TabItem>())
         {
-            var listBox = (ListBox) tab.Content;
+            if (tab.Content is not ListBox listBox) continue;
             listBox.Items.SortDescriptions.Clear();
             listBox.Items.SortDescriptions.Add(new SortDescription("IsRandom", ListSortDirection.Descending));
             switch (AppVM.MainVM.SortType)

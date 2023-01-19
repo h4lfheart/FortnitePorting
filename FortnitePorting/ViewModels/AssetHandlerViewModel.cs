@@ -1,20 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Threading;
 using CUE4Parse.UE4.AssetRegistry.Objects;
+using CUE4Parse.UE4.Assets;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.Engine;
+using CUE4Parse.UE4.Vfs;
 using CUE4Parse.Utils;
 using FortnitePorting.AppUtils;
+using FortnitePorting.Views;
 using FortnitePorting.Views.Controls;
 using FortnitePorting.Views.Extensions;
 using Serilog.Sinks.SystemConsole.Themes;
@@ -37,6 +43,7 @@ public class AssetHandlerViewModel
             { EAssetType.Dance, DanceHandler },
             { EAssetType.Vehicle, VehicleHandler },
             { EAssetType.Prop, PropHandler },
+            { EAssetType.Mesh, MeshHandler },
         };
     }
 
@@ -173,6 +180,11 @@ public class AssetHandlerViewModel
         RemoveList = { },
         IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
     };
+    
+    private readonly AssetHandlerData MeshHandler = new()
+    {
+        AssetType = EAssetType.Mesh,
+    };
 
     public async Task Initialize()
     {
@@ -198,45 +210,120 @@ public class AssetHandlerData
         HasStarted = true;
         var sw = new Stopwatch();
         sw.Start();
-        var items = AppVM.CUE4ParseVM.AssetDataBuffers
-            .Where(x => ClassNames.Any(y => x.AssetClass.Text.Equals(y, StringComparison.OrdinalIgnoreCase)))
-            .Where(x => !RemoveList.Any(y => x.AssetName.Text.Contains(y, StringComparison.OrdinalIgnoreCase)))
-            .ToList();
-
-        // prioritize random first cuz of parallel list positions
-        var random = items.FirstOrDefault(x => x.AssetName.Text.Contains("Random", StringComparison.OrdinalIgnoreCase));
-        if (random is not null && AssetType != EAssetType.Prop)
+        
+        if (AssetType == EAssetType.Mesh)
         {
-            items.Remove(random);
-            await DoLoad(random, AssetType, true);
-        }
-
-        var addedAssets = new List<string>();
-        await Parallel.ForEachAsync(items, async (data, token) =>
-        {
-            // TODO figure out differentiate rarities with diff meshes
-            if (data.TagsAndValues.ContainsKey("DisplayName") && AssetType is EAssetType.Weapon or EAssetType.Prop)
+            await Parallel.ForEachAsync(AppVM.CUE4ParseVM.Provider.Files.Values, async (data, token) =>
             {
-                var displayName = data.TagsAndValues["DisplayName"].SubstringBeforeLast('"').SubstringAfterLast('"').Trim();
-                if (addedAssets.ToArray().Contains(displayName, StringComparer.OrdinalIgnoreCase))
+                await Application.Current.Dispatcher.InvokeAsync(() =>
                 {
-                    return;
+                    if (data is not VfsEntry entry || !entry.Path.EndsWith(".uasset"))
+                        return;
+                
+                    var children = entry.Path.Replace(".uasset", string.Empty).Split("/");
+                    var nextItem = children.First();
+                
+                    var item = MainView.YesWeDogs.MeshAssets.Items.OfType<TreeViewItem>().FirstOrDefault(x => x.Header.Equals(nextItem)); 
+                    item ??= new TreeViewItem { Header = children.First() };
+                    item.Items.SortDescriptions.Add(new SortDescription("Header", ListSortDirection.Descending));
+                    item.Tag = "Folder";
+                    Recurse(item, children[1..]);
+                    try
+                    {
+                        MainView.YesWeDogs.MeshAssets.Items.Add(item);
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        // ignored
+                    }
+                }, DispatcherPriority.Background);
+            });
+            await Application.Current.Dispatcher.InvokeAsync(() =>
+            {
+                var topItems = MainView.YesWeDogs.MeshAssets.Items.OfType<TreeViewItem>();
+                var fortniteGame = topItems.First(x => x.Header.Equals("FortniteGame"));
+                fortniteGame.IsExpanded = true;
+                
+                var nextItems = fortniteGame.Items.OfType<TreeViewItem>();
+                var content = nextItems.First(x => x.Header.Equals("Content"));
+                content.IsExpanded = true;
+                
+            }, DispatcherPriority.Background);
+        }
+        else
+        {
+            var items = AppVM.CUE4ParseVM.AssetDataBuffers
+                .Where(x => ClassNames.Any(y => x.AssetClass.Text.Equals(y, StringComparison.OrdinalIgnoreCase)))
+                .Where(x => !RemoveList.Any(y => x.AssetName.Text.Contains(y, StringComparison.OrdinalIgnoreCase)))
+                .ToList();
+
+            // prioritize random first cuz of parallel list positions
+            var random = items.FirstOrDefault(x => x.AssetName.Text.Contains("Random", StringComparison.OrdinalIgnoreCase));
+            if (random is not null && AssetType != EAssetType.Prop)
+            {
+                items.Remove(random);
+                await DoLoad(random, AssetType, true);
+            }
+        
+
+            var addedAssets = new List<string>();
+            await Parallel.ForEachAsync(items, async (data, token) =>
+            {
+                // TODO figure out differentiate rarities with diff meshes
+                if (data.TagsAndValues.ContainsKey("DisplayName") && AssetType is EAssetType.Weapon or EAssetType.Prop)
+                {
+                    var displayName = data.TagsAndValues["DisplayName"].SubstringBeforeLast('"').SubstringAfterLast('"').Trim();
+                    if (addedAssets.ToArray().Contains(displayName, StringComparer.OrdinalIgnoreCase))
+                    {
+                        return;
+                    }
+                    addedAssets.Add(displayName);
                 }
-                addedAssets.Add(displayName);
-            }
 
-            try
-            {
-                await DoLoad(data, AssetType);
-            }
-            catch (Exception e)
-            {
-                Log.Error("Failed to load {ObjectPath}", data.ObjectPath);
-            }
+                try
+                {
+                    await DoLoad(data, AssetType);
+                }
+                catch (Exception e)
+                {
+                    Log.Error("Failed to load {ObjectPath}", data.ObjectPath);
+                }
 
-        });
+            });
+        }
         sw.Stop();
         AppLog.Information($"Loaded {AssetType.GetDescription()} in {Math.Round(sw.Elapsed.TotalSeconds, 2)}s");
+    }
+
+
+    private static void Recurse(TreeViewItem parent, string[] children)
+    {
+        var nextItem = children.FirstOrDefault();
+        if (nextItem is null) return;
+        
+        var item = parent.Items.OfType<TreeViewItem>().FirstOrDefault(x => x.Header.Equals(nextItem)); 
+        item ??= new TreeViewItem { Header = nextItem };
+        item.Items.SortDescriptions.Add(new SortDescription("Header", ListSortDirection.Ascending));
+
+        // is mesh  = no children other than self
+        if (children.Length > 1)
+        {
+            item.Tag = "Folder";
+            Recurse(item, children[1..]);
+        }
+        else
+        {
+            item.Tag = "Object";
+        }
+
+        try
+        {
+            parent.Items.Add(item);
+        }
+        catch (InvalidOperationException)
+        {
+            // ignored
+        }
     }
 
     private async Task DoLoad(FAssetData data, EAssetType type, bool random = false)

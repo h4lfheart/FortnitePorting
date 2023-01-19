@@ -182,18 +182,12 @@
                             </ListBox.ItemsPanel>
                         </ListBox>
                     </TabItem>
-                    <!--TabItem Style="{StaticResource TabItemEqualSize}">
+                    <TabItem Style="{StaticResource TabItemEqualSize}">
                         <TabItem.Header>
                             <controls:TextWithIcon Label="Meshes" ImageSource="/FortnitePorting;component/Resources/Mesh.png"/>
                         </TabItem.Header>
-                        <ListBox SelectionMode="Extended" ItemsSource="{Binding Meshes}">
-                            <ListBox.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <VirtualizingStackPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left" Orientation="Vertical"/>
-                                </ItemsPanelTemplate>
-                            </ListBox.ItemsPanel>
-                        </ListBox>
-                    </TabItem-->
+                        <TreeView Name="MeshAssets" Style="{StaticResource AssetsFolderTreeView}"></TreeView>
+                    </TabItem>
                 </TabControl>
             </GroupBox>
             
@@ -209,7 +203,6 @@
             <GroupBox Grid.Row="0" Grid.RowSpan="4" Grid.Column="2" Padding="{adonisUi:Space 0}" adonisExt:LayerExtension.Layer="3" BorderThickness="1" 
                       BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer3BorderBrush}}">
                 
-                <!--TODO MULTI ASSET LIST-->
                 <Grid Visibility="{Binding StyleVisibility}" Margin="{adonisUi:Space 1}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="1.25*"/>

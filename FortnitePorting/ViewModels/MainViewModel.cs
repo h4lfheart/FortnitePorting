@@ -5,6 +5,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Forms;
 using System.Windows.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -42,6 +44,7 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> dances = new();
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> props = new();
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> vehicles = new();
+    [ObservableProperty] private ObservableCollection<TreeViewItem> meshes = new();
 
     [ObservableProperty] private ObservableCollection<StyleSelector> styles = new();
 

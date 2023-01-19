@@ -50,10 +50,9 @@
       <Resource Include="Resources\Clipboard.png" />
       <Resource Include="FortnitePorting-Dark.ico" />
       <Resource Include="FortnitePorting.ico" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Include="Resources\invert.fx" />
+      <Resource Include="Resources\Folder.png" />
+      <Resource Include="Resources\MeshPreview.png" />
+      <Resource Include="Resources\Fortnite.png" />
     </ItemGroup>
 
 </Project>
