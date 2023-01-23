@@ -48,7 +48,7 @@ public partial class MainView
             AppSettings.Current.LastUpdateAskTime = DateTime.Now;
         }
 
-        if (AppSettings.Current.JustUpdated && !updateAvailable)
+        if (AppSettings.Current.JustUpdated && !updateAvailable && !string.IsNullOrWhiteSpace(AppSettings.Current.ArchivePath))
         {
             AppHelper.OpenWindow<PluginUpdateView>();
             AppSettings.Current.JustUpdated = false;
@@ -90,53 +90,59 @@ public partial class MainView
 
     private void OnAssetSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (sender is not ListBox listBox) return;
-        if (listBox.SelectedItem is null) return;
-        var selected = (AssetSelectorItem) listBox.SelectedItem;
-
-        AppVM.MainVM.Styles.Clear();
-        if (selected.Type == EAssetType.Prop)
+        if (sender is ListBox listBox)
         {
-            AppVM.MainVM.TabModeText = "SELECTED ASSETS";
-            if (listBox.SelectedItems.Count == 0) return;
-            AppVM.MainVM.CurrentAsset = selected;
-            AppVM.MainVM.ExtendedAssets.Clear();
-            AppVM.MainVM.ExtendedAssets = listBox.SelectedItems.OfType<AssetSelectorItem>().ToList();
-            AppVM.MainVM.Styles.Add(new StyleSelector(AppVM.MainVM.ExtendedAssets));
-            return;
-        }
+            if (listBox.SelectedItem is null) return;
+            var selected = (AssetSelectorItem) listBox.SelectedItem;
 
-        if (selected.IsRandom)
-        {
-            listBox.SelectedIndex = App.RandomGenerator.Next(0, listBox.Items.Count);
-            return;
-        }
-
-        AppVM.MainVM.ExtendedAssets.Clear();
-        AppVM.MainVM.CurrentAsset = selected;
-        AppVM.MainVM.TabModeText = "STYLES";
-
-        var styles = selected.Asset.GetOrDefault("ItemVariants", Array.Empty<UObject>());
-        foreach (var style in styles)
-        {
-            var channel = style.GetOrDefault("VariantChannelName", new FText("Unknown")).Text.ToLower().TitleCase();
-            var optionsName = style.ExportType switch
+            AppVM.MainVM.Styles.Clear();
+            if (selected.Type == EAssetType.Prop)
             {
-                "FortCosmeticCharacterPartVariant" => "PartOptions",
-                "FortCosmeticMaterialVariant" => "MaterialOptions",
-                "FortCosmeticParticleVariant" => "ParticleOptions",
-                "FortCosmeticMeshVariant" => "MeshOptions",
-                _ => null
-            };
+                AppVM.MainVM.TabModeText = "SELECTED ASSETS";
+                if (listBox.SelectedItems.Count == 0) return;
+                AppVM.MainVM.CurrentAsset = selected;
+                AppVM.MainVM.ExtendedAssets.Clear();
+                AppVM.MainVM.ExtendedAssets = listBox.SelectedItems.OfType<AssetSelectorItem>().ToList();
+                AppVM.MainVM.Styles.Add(new StyleSelector(AppVM.MainVM.ExtendedAssets));
+                return;
+            }
 
-            if (optionsName is null) continue;
+            if (selected.IsRandom)
+            {
+                listBox.SelectedIndex = App.RandomGenerator.Next(0, listBox.Items.Count);
+                return;
+            }
 
-            var options = style.Get<FStructFallback[]>(optionsName);
-            if (options.Length == 0) continue;
+            AppVM.MainVM.ExtendedAssets.Clear();
+            AppVM.MainVM.CurrentAsset = selected;
+            AppVM.MainVM.TabModeText = "STYLES";
 
-            var styleSelector = new StyleSelector(channel, options, selected.IconBitmap);
-            if (styleSelector.Options.Items.Count == 0) continue;
-            AppVM.MainVM.Styles.Add(styleSelector);
+            var styles = selected.Asset.GetOrDefault("ItemVariants", Array.Empty<UObject>());
+            foreach (var style in styles)
+            {
+                var channel = style.GetOrDefault("VariantChannelName", new FText("Unknown")).Text.ToLower().TitleCase();
+                var optionsName = style.ExportType switch
+                {
+                    "FortCosmeticCharacterPartVariant" => "PartOptions",
+                    "FortCosmeticMaterialVariant" => "MaterialOptions",
+                    "FortCosmeticParticleVariant" => "ParticleOptions",
+                    "FortCosmeticMeshVariant" => "MeshOptions",
+                    _ => null
+                };
+
+                if (optionsName is null) continue;
+
+                var options = style.Get<FStructFallback[]>(optionsName);
+                if (options.Length == 0) continue;
+
+                var styleSelector = new StyleSelector(channel, options, selected.IconBitmap);
+                if (styleSelector.Options.Items.Count == 0) continue;
+                AppVM.MainVM.Styles.Add(styleSelector);
+            }
+        }
+        else if (sender is TreeViewItem treeViewItem)
+        {
+            
         }
     }
 
@@ -159,9 +165,11 @@ public partial class MainView
         var searchBox = (TextBox) sender;
         foreach (var tab in AssetControls.Items.OfType<TabItem>())
         {
-            var listBox = (ListBox) tab.Content;
-            listBox.Items.Filter = o => ((AssetSelectorItem) o).Match(searchBox.Text);
-            listBox.Items.Refresh();
+            if (tab.Content is ListBox listBox)
+            {
+                listBox.Items.Filter = o => ((AssetSelectorItem) o).Match(searchBox.Text);
+                listBox.Items.Refresh();
+            }
         }
     }
 

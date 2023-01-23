@@ -2,6 +2,7 @@
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
+using CUE4Parse.UE4.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Assets.Readers;
@@ -120,5 +121,19 @@ public class FortAnimNotifyState_SpawnProp : UFortnitePortingCustom
         SkeletalMeshProp = GetOrDefault<USkeletalMesh>(nameof(SkeletalMeshProp));
         SkeletalMeshPropAnimation = GetOrDefault<UAnimSequence>(nameof(SkeletalMeshPropAnimation));
         SkeletalMeshPropMontage = GetOrDefault<UAnimMontage>(nameof(SkeletalMeshPropAnimation));
+    }
+}
+
+public class FortAnimNotifyState_EmoteSound : UFortnitePortingCustom
+{
+    public USoundCue EmoteSound1P { get; private set; }
+    public USoundCue EmoteSound3P { get; private set; }
+
+    public override void Deserialize(FAssetArchive Ar, long validPos)
+    {
+        base.Deserialize(Ar, validPos);
+
+        EmoteSound1P = GetOrDefault<USoundCue>(nameof(EmoteSound1P));
+        EmoteSound3P = GetOrDefault<USoundCue>(nameof(EmoteSound3P));
     }
 }

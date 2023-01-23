@@ -4,13 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Animation;
-using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
-using CUE4Parse.UE4.Assets.Exports.StaticMesh;
+using CUE4Parse.UE4.Assets.Exports.Sound;
+using CUE4Parse.UE4.Assets.Exports.Sound.Node;
 using CUE4Parse.UE4.Assets.Objects;
-using CUE4Parse.UE4.Assets.Readers;
 using CUE4Parse.UE4.Objects.Core.i18N;
-using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.UObject;
+using CUE4Parse.Utils;
 
 namespace FortnitePorting.Exports.Types;
 
@@ -39,8 +38,22 @@ public class DanceExportData : ExportDataBase
             animData.Skeleton = masterSkeleton.GetPathName();
 
             var animation = GetExportSequence(montage);
+            if (animation is null) return;
             ExportHelpers.Save(animation);
             animData.Animation = animation.GetPathName();
+
+            var floatCurves = animation.CompressedCurveData.FloatCurves;
+            if (floatCurves is not null)
+            {
+                foreach (var curve in floatCurves)
+                {
+                    animData.Curves.Add(new CurveData
+                    {
+                        Name = curve.Name.DisplayName.Text,
+                        Keys = curve.FloatCurve.Keys.Select(x => new CurveKey(x.Time, x.Value)).ToList()
+                    });
+                }
+            }
 
             var montageNotifies = montage.GetOrDefault("Notifies", Array.Empty<FStructFallback>());
             var animNotifies = animation.GetOrDefault("Notifies", Array.Empty<FStructFallback>());
@@ -48,12 +61,22 @@ public class DanceExportData : ExportDataBase
             var allNotifies = new List<FStructFallback>();
             allNotifies.AddRange(montageNotifies);
             allNotifies.AddRange(animNotifies);
-            var propNotifies = allNotifies.Where(x =>
-            {
-                var notifyName = x.GetOrDefault<FName>("NotifyName").Text;
-                return notifyName.Contains("FortSpawnProp") || notifyName.Contains("Fort Anim Notify State Spawn Prop");
-            });
 
+            var propNotifies = new List<FStructFallback>();
+            var soundNotifies = new List<FStructFallback>();
+            foreach (var notify in allNotifies)
+            {
+                var notifyName = notify.GetOrDefault<FName>("NotifyName").Text;
+                if (notifyName.Contains("FortSpawnProp") || notifyName.Contains("Fort Anim Notify State Spawn Prop"))
+                {
+                    propNotifies.Add(notify);
+                }
+                if (notifyName.Contains("FortEmoteSound") || notifyName.Contains("Fort Anim Notify State Emote Sound"))
+                {
+                    soundNotifies.Add(notify);
+                }
+            }
+            
             foreach (var propNotify in propNotifies)
             {
                 /*var linkedSequence = propNotify.Get<UAnimSequence>("LinkedSequence");
@@ -78,6 +101,22 @@ public class DanceExportData : ExportDataBase
 
                 animData.Props.Add(exportProp);
             }
+
+            foreach (var soundNotify in soundNotifies)
+            {
+                var time = soundNotify.Get<float>("TriggerTimeOffset");
+                
+                var notifyData = soundNotify.Get<FortAnimNotifyState_EmoteSound>("NotifyStateClass");
+                var cueExports = AppVM.CUE4ParseVM.Provider.LoadObjectExports(notifyData.EmoteSound1P.GetPathName().SubstringBeforeLast("."));
+                var soundWaveNode = cueExports.OfType<USoundNodeWavePlayer>().FirstOrDefault();
+
+                var soundWave = soundWaveNode?.SoundWave?.Load<USoundWave>();
+                if (soundWave is null) continue;
+                
+                ExportHelpers.SaveSoundWave(soundWave, out var audioFormat);
+                animData.Sounds.Add(new EmoteSoundData(time, soundWave.GetPathName(), audioFormat));
+            }
+            
         });
 
         return animData;

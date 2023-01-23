@@ -6,11 +6,13 @@ using System.Threading.Tasks;
 using CUE4Parse_Conversion;
 using CUE4Parse_Conversion.Animations;
 using CUE4Parse_Conversion.Meshes;
+using CUE4Parse_Conversion.Sounds;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
+using CUE4Parse.UE4.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
@@ -80,43 +82,43 @@ public static class ExportHelpers
                         if (skinColorPair is not null) skinColor = skinColorPair.Get<FLinearColor>("ColorValue");
                     }
 
-                    /*if (additionalData.TryGetValue(out UAnimBlueprintGeneratedClass animBlueprint, "AnimClass"))
+                    if (additionalData.TryGetValue(out UAnimBlueprintGeneratedClass animBlueprint, "AnimClass"))
                     {
                         var classDefaultObject = animBlueprint.ClassDefaultObject.Load();
                         if (classDefaultObject?.TryGetValue(out FStructFallback poseAssetNode, "AnimGraphNode_PoseBlendNode") ?? false)
                         {
                             var poseAsset = poseAssetNode.Get<UPoseAsset>("PoseAsset");
-                            var poseAssetContainer = poseAsset.PoseContainer;
-
-                            var trackDictionary = new Dictionary<string, FPoseAssetInfluence[]>();
-                            for (var i = 0; i < poseAssetContainer.Tracks.Length; i++)
-                            {
-                                var influences = poseAssetContainer.TrackPoseInfluenceIndices[i].Influences;
-                                if (influences.Length == 0) continue;
-
-                                var trackName = poseAssetContainer.Tracks[i].Text;
-                                trackDictionary[trackName] = influences;
-                            }
-
-                            var poseDictionary = new Dictionary<string, List<TransformParameter>>();
-                            foreach (var poseName in poseAssetContainer.PoseNames)
-                            {
-                                poseDictionary[poseName.DisplayName.Text] = new List<TransformParameter>();
-                            }
+                            exportPart.PoseNames = poseAsset.PoseContainer.PoseNames.Select(x => x.DisplayName.Text).ToArray();
                             
-                            foreach (var (boneName, influences) in trackDictionary)
+                            var folderPath = AppVM.CUE4ParseVM.Provider.FixPath(skeletalMesh.GetPathName()).SubstringBeforeLast("/");
+                            var folderAssets = AppVM.CUE4ParseVM.Provider.Files.Values.Where(file => file.Path.StartsWith(folderPath, StringComparison.OrdinalIgnoreCase));
+                            foreach (var asset in folderAssets)
                             {
-                                foreach (var influence in influences)
-                                {
-                                    var targetName = poseAssetContainer.PoseNames[influence.PoseIndex].DisplayName.Text;
-                                    var targetTransform = poseAssetContainer.Poses[influence.PoseIndex].LocalSpacePose[influence.BoneTransformIndex];
-                                    poseDictionary[targetName].Add(new TransformParameter(boneName, targetTransform));
-                                }
-                            }
+                                if (!AppVM.CUE4ParseVM.Provider.TryLoadObject(asset.PathWithoutExtension, out UAnimSequence animSequence)) continue;
+                                if (animSequence.Name.Contains("Hand_Cull", StringComparison.OrdinalIgnoreCase)) continue;
+                                if (animSequence.Name.Contains("FaceBakePose", StringComparison.OrdinalIgnoreCase)) continue;
 
-                            exportPart.Poses = poseDictionary.Select(x => new PoseHolder(x.Key, x.Value)).ToArray();
+                                var sequencePath = animSequence.GetPathName();
+                                Log.Information("Found Facial Pose Anim {PathName}", sequencePath);
+                                exportPart.PoseAnimation = sequencePath;
+                                Save(animSequence);
+                                break;
+                            }
                         }
-                    }*/
+                        else if (skeletalMesh.ReferenceSkeleton.FinalRefBoneInfo.Any(bone => bone.Name.Text.Equals("FACIAL_C_FacialRoot", StringComparison.OrdinalIgnoreCase)))
+                        {
+                            // this will definitely cause issues in the future
+                            // for metahuman faces
+                            var poseAsset = AppVM.CUE4ParseVM.Provider.LoadObject<UPoseAsset>("FortniteGame/Content/Characters/Player/Male/Medium/Heads/M_MED_Jonesy3L_Head/Meshes/3L/3L_lod2_Facial_Poses_PoseAsset");
+                            exportPart.PoseNames = poseAsset.PoseContainer.PoseNames.Select(x => x.DisplayName.Text).ToArray();
+                            
+                            var animSequence = AppVM.CUE4ParseVM.Provider.LoadObject<UAnimSequence>("FortniteGame/Content/Characters/Player/Male/Medium/Heads/M_MED_Jonesy3L_Head/Meshes/3L/3L_lod2_Facial_Poses");
+                            var sequencePath = animSequence.GetPathName();
+                            Log.Information("Found Facial Pose Anim {PathName}", sequencePath);
+                            exportPart.PoseAnimation = sequencePath;
+                            Save(animSequence);
+                        }
+                    }
 
                 }
             }
@@ -722,6 +724,38 @@ public static class ExportHelpers
                 Log.Error("Failed to export {ExportType}: {FileName}", obj.ExportType, obj.Name);
             }
         }));
+    }
+
+    public static void SaveSoundWave(USoundWave soundWave, out string audioFormat)
+    {
+        var task = Task.Run(() =>
+        {
+            try
+            {
+                soundWave.Decode(true, out var audioFormat, out var data);
+                if (data is null || string.IsNullOrWhiteSpace(audioFormat)) return string.Empty;
+                audioFormat = audioFormat.ToLower();
+
+                var path = GetExportPath(soundWave, audioFormat);
+                if (File.Exists(path)) return audioFormat;
+
+                Directory.CreateDirectory(path.Replace('\\', '/').SubstringBeforeLast('/'));
+                File.WriteAllBytes(path, data.ToArray());
+
+                Log.Information("Exporting {ExportType}: {FileName}", soundWave.ExportType, soundWave.Name);
+                return audioFormat;
+
+            }
+            catch (IOException)
+            {
+                Log.Error("Failed to export {ExportType}: {FileName}", soundWave.ExportType, soundWave.Name);
+            }
+
+            return string.Empty;
+        });
+        Tasks.Add(task);
+
+        audioFormat = task.GetAwaiter().GetResult();
     }
 
     private static string GetExportPath(UObject obj, string ext, string extra = "")

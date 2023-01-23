@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Assets.Utils;
 using CUE4Parse.UE4.Objects.Core.Math;
@@ -28,7 +29,8 @@ public class ExportPart : ExportMesh
     public string Part;
     public string? MorphName;
     public string? SocketName;
-    public PoseHolder[] Poses;
+    public string? PoseAnimation;
+    public string[]? PoseNames;
 
     [JsonIgnore]
     public EFortCustomGender GenderPermitted;
@@ -86,6 +88,15 @@ public class AnimationData
     public string Animation;
     public string Skeleton;
     public List<EmotePropData> Props = new();
+    public List<CurveData> Curves = new();
+    public List<EmoteSoundData> Sounds = new();
 }
 
-public record PoseHolder(string Name, List<TransformParameter> Transforms);
+public class CurveData
+{
+    public string Name;
+    public List<CurveKey> Keys;
+}
+public record CurveKey(float Time, float Value);
+
+public record EmoteSoundData(float Time, string Path, string AudioExtension);
