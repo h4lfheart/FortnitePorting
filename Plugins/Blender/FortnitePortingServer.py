@@ -5,6 +5,8 @@ import socket
 import threading
 import re
 import traceback
+import zlib
+import gzip
 from math import radians
 from enum import Enum
 from mathutils import Matrix, Vector, Euler, Quaternion
@@ -13,7 +15,7 @@ from io_import_scene_unreal_psa_psk_280 import pskimport, psaimport
 bl_info = {
     "name": "Fortnite Porting",
     "author": "Half",
-    "version": (1, 0, 7),
+    "version": (1, 0, 8),
     "blender": (3, 0, 0),
     "description": "Blender Server for Fortnite Porting",
     "category": "Import",
@@ -46,6 +48,11 @@ class Log:
     def error(message):
         print(f"{Log.WARNING}[ERROR] {Log.RESET}{message}")
 
+def try_decode(bytes, format):
+    try:
+        return bytes.decode(format)
+    except UnicodeDecodeError:
+        return None
 
 class Receiver(threading.Thread):
 
@@ -59,30 +66,36 @@ class Receiver(threading.Thread):
     def run(self):
         host, port = 'localhost', 24280
         self.socket_server.bind((host, port))
+        self.socket_server.settimeout(3.0)
         Log.information(f"FortnitePorting Server Listening at {host}:{port}")
 
         while self.keep_alive:
-            current_data = ""
             try:
-                data_string = ""
+                data = bytearray()
                 while True:
-                    socket_data, sender = self.socket_server.recvfrom(4096)
-                    if data := socket_data.decode('utf-8'):
-                        if data == "FPClientMessageFinished":
+                    socket_data, sender = self.socket_server.recvfrom(1024)
+                    if utf8_data := try_decode(socket_data, 'utf-8'):
+                        if utf8_data == "FPClientMessageFinished":
                             break
-                        if data == "FPClientCheckServer":
+                        if utf8_data == "FPClientCheckServer":
                             self.socket_server.sendto("FPServerReceived".encode('utf-8'), sender)
                             continue
-                        data_string += data
-                current_data = data_string
+                    elif len(socket_data) > 0:
+                        data += bytearray(socket_data)
+                        
+                data_string = gzip.decompress(data).decode('utf-8')
                 self.data = json.loads(data_string)
                 self.event.set()
                 self.socket_server.sendto("FPServerReceived".encode('utf-8'), sender)
                
             except OSError as e:
                 pass
-            except json.JSONDecodeError:
-                pass
+            except EOFError as e:
+                Log.error(e)
+            except zlib.error as e:
+                Log.error(e)
+            except json.JSONDecodeError as e:
+                Log.error(e) 
 
     def stop(self):
         self.keep_alive = False
@@ -194,6 +207,23 @@ def import_anim(path: str):
     anim_path = os.path.join(import_assets_root, path.split(".")[0] + "_SEQ0" + ".psa")
 
     return psaimport(anim_path, bUpdateTimelineRange=import_settings.get("UpdateTimeline"), bScaleDown = import_settings.get("ScaleDown"))
+
+def import_anim_no_range(path: str):
+    path = path[1:] if path.startswith("/") else path
+    anim_path = os.path.join(import_assets_root, path.split(".")[0] + "_SEQ0" + ".psa")
+
+    return psaimport(anim_path, bScaleDown = import_settings.get("ScaleDown"))
+
+def import_sound(path: str, extension: str, time: float):
+    path = path[1:] if path.startswith("/") else path
+    file_path, name = path.split(".")
+    sound_path = os.path.join(import_assets_root, file_path + "." + extension)
+
+    if not bpy.context.scene.sequence_editor:
+        bpy.context.scene.sequence_editor_create()
+
+    bpy.context.scene.sequence_editor.sequences.new_sound(name, sound_path, 0, int(time * 30))
+
 
 def hash_code(num):
     return hex(abs(num))[2:]
@@ -1415,17 +1445,13 @@ def apply_tasty_rig(master_skeleton: bpy.types.Armature):
             bone.layers[index] = True
 
 
-def constraint_object(child: bpy.types.Object, parent: bpy.types.Object, bone: str, rot=[radians(0), radians(90), radians(0)], inherit_rot=True):
+def constraint_object(child: bpy.types.Object, parent: bpy.types.Object, bone: str, rot=[radians(0), radians(90), radians(0)]):
     constraint = child.constraints.new('CHILD_OF')
     constraint.target = parent
     constraint.subtarget = bone
     child.rotation_mode = 'XYZ'
-    #child.rotation_euler = rot
-    constraint.inverse_matrix = constraint.target.matrix_world.inverted()
-    if not inherit_rot:
-        constraint.use_rotation_x = False
-        constraint.use_rotation_y = False
-        constraint.use_rotation_z = False
+    child.rotation_euler = rot
+    constraint.inverse_matrix = Matrix()
 
 def mesh_from_armature(armature) -> bpy.types.Mesh:
     return armature.children[0]  # only used with psk, mesh is always first child
@@ -1534,7 +1560,7 @@ def import_response(response):
     style_material_params = []
 
     import_datas = response.get("Data")
-    print(json.dumps(import_settings))
+    #print(json.dumps(import_settings))
     
     for import_index, import_data in enumerate(import_datas):
         name = import_data.get("Name")
@@ -1556,6 +1582,7 @@ def import_response(response):
                 override_skel.select_set(True)
             
             active_skeleton = armature_from_selection()
+            mesh = mesh_from_armature(active_skeleton)
 
             if not import_anim(animation):
                 message_box("An armature must be selected for the Emote to import onto.", "Failed to Import Emote", "ERROR")
@@ -1578,6 +1605,22 @@ def import_response(response):
                 for fcurve in dispose_curves:
                     active_skeleton.animation_data.action.fcurves.remove(fcurve)
             bpy.ops.object.mode_set(mode='OBJECT')
+            
+            if mesh.data.shape_keys is not None:
+                key_blocks = mesh.data.shape_keys.key_blocks
+                for key_block in key_blocks:
+                    key_block.value = 0
+                
+                for curve in anim_data.get("Curves"):
+                    curve_name = curve.get("Name")
+                    if target_block := key_blocks.get(curve_name.replace("CTRL_expressions_", "")):
+                        for key in curve.get("Keys"):
+                            target_block.value = key.get("Value")
+                            target_block.keyframe_insert(data_path="value", frame=key.get("Time")*30)
+                            
+            for sound in anim_data.get("Sounds"):
+                import_sound(sound.get("Path"), sound.get("AudioExtension"), sound.get("Time"))
+                
 
             if len(props) == 0:
                 return 
@@ -1685,6 +1728,38 @@ def import_response(response):
                             if key.name.casefold() == morph_name.casefold():
                                 key.value = 1.0
                                 
+                    if pose_anim := part.get("PoseAnimation"):
+                        bpy.context.view_layer.objects.active = imported_part # will always be skel idc
+                        import_anim_no_range(pose_anim)
+
+                        bpy.context.view_layer.objects.active = mesh
+                        
+                        if mesh.data.shape_keys is None:
+                            bpy.ops.object.shape_key_add() # basis
+
+                        key_blocks = mesh.data.shape_keys.key_blocks
+                        pose_names = part.get("PoseNames")
+                        pose_start_index = -1
+                        for frame, pose_name in enumerate(pose_names):
+                            bpy.context.scene.frame_set(frame)
+                            bpy.ops.object.modifier_apply_as_shapekey(keep_modifier=True, modifier=mesh.modifiers[0].name)
+                            shape_key = key_blocks[-1]
+                            shape_key.name = pose_name
+                            if pose_start_index == -1:
+                                pose_start_index = len(key_blocks)-1
+                            
+                        for index in range(pose_start_index, len(key_blocks)):
+                            key_blocks[index].relative_key = key_blocks[-1] # base pose
+
+                        bpy.context.view_layer.objects.active = imported_part
+                        imported_part.animation_data_clear()
+                        bpy.ops.object.mode_set(mode='POSE')
+                        bpy.ops.pose.select_all(action='SELECT')
+                        bpy.ops.pose.transforms_clear()
+                        bpy.ops.object.mode_set(mode='OBJECT')
+                        bpy.context.view_layer.objects.active = mesh
+
+                                
                     '''if poses := part.get("Poses"):
                         for pose in poses:
                             # bone offsets
@@ -1727,9 +1802,9 @@ def import_response(response):
                                 block.relative_key = shape_key_blocks[-1] # base_pose'''
                     
                     if import_settings.get("QuadTopo"):
-                        bpy.ops.object.editmode_toggle()
+                        bpy.ops.object.mode_set(mode='EDIT')
                         bpy.ops.mesh.tris_convert_to_quads(uvs=True)
-                        bpy.ops.object.editmode_toggle()
+                        bpy.ops.object.mode_set(mode='OBJECT')
     
                     for material in part.get("Materials"):
                         index = material.get("SlotIndex")

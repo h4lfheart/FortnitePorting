@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using FortnitePorting.Exports.Blender;
 using FortnitePorting.Exports.Types;
+using Ionic.Zlib;
 using Newtonsoft.Json;
 
 namespace FortnitePorting.Services;
@@ -31,9 +32,11 @@ public static class BlenderService
         };
 
         var message = JsonConvert.SerializeObject(export);
-        var messageBytes = Encoding.UTF8.GetBytes(message);
+        var uncompressed = Encoding.UTF8.GetBytes(message);
+        var compressed = GZipStream.CompressBuffer(uncompressed);
+        Log.Information("Compressed Export from {0} -> {1} Bytes, {2}% Decrease", uncompressed.Length, compressed.Length, (float) uncompressed.Length / compressed.Length * 100);
 
-        Client.SendSpliced(messageBytes, Globals.BUFFER_SIZE);
+        Client.SendSpliced(compressed, Globals.BUFFER_SIZE);
         Client.Send(Encoding.UTF8.GetBytes(Globals.UDPClient_MessageTerminator));
     }
 
