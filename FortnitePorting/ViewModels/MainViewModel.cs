@@ -186,7 +186,7 @@ public partial class MainViewModel : ObservableObject
                 _ => await MeshExportData.Create(asset.Asset, asset.Type, GetSelectedStyles())
             };
 
-            if (exportData is null) return;
+            if (exportData is null) continue;
 
             exportDatas.Add(exportData);
         }

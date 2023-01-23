@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using FortnitePorting.Exports.Blender;
 using FortnitePorting.Exports.Types;
+using FortnitePorting.Views.Extensions;
 using Ionic.Zlib;
 using Newtonsoft.Json;
 
@@ -34,8 +35,7 @@ public static class BlenderService
         var message = JsonConvert.SerializeObject(export);
         var uncompressed = Encoding.UTF8.GetBytes(message);
         var compressed = GZipStream.CompressBuffer(uncompressed);
-        Log.Information("Compressed Export {0}% from {1} -> {2} Bytes", (float) uncompressed.Length / compressed.Length * 100, uncompressed.Length, compressed.Length);
-
+        
         Client.SendSpliced(compressed, Globals.BUFFER_SIZE);
         Client.Send(Encoding.UTF8.GetBytes(Globals.UDPClient_MessageTerminator));
     }
@@ -68,14 +68,14 @@ public static class BlenderService
         var chunks = arr.Chunk(size).ToList();
 
         var dataSent = 0;
-        foreach (var chunk in chunks)
+        foreach (var (index, chunk) in chunks.Enumerate())
         {
-            var chunkSize = 0;
-            do
+            var chunkSize = Client.Send(chunk);
+            while (!ReceivePing())
             {
+                Log.Warning("Lost Chunk {Index}, Retrying...", index);
                 chunkSize = Client.Send(chunk);
-            } 
-            while (!ReceivePing());
+            }
 
             dataSent += chunkSize;
         }

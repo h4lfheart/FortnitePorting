@@ -99,7 +99,6 @@ public static class ExportHelpers
                                 if (animSequence.Name.Contains("FaceBakePose", StringComparison.OrdinalIgnoreCase)) continue;
 
                                 var sequencePath = animSequence.GetPathName();
-                                Log.Information("Found Facial Pose Anim {PathName}", sequencePath);
                                 exportPart.PoseAnimation = sequencePath;
                                 Save(animSequence);
                                 break;
@@ -114,7 +113,6 @@ public static class ExportHelpers
                             
                             var animSequence = AppVM.CUE4ParseVM.Provider.LoadObject<UAnimSequence>("FortniteGame/Content/Characters/Player/Male/Medium/Heads/M_MED_Jonesy3L_Head/Meshes/3L/3L_lod2_Facial_Poses");
                             var sequencePath = animSequence.GetPathName();
-                            Log.Information("Found Facial Pose Anim {PathName}", sequencePath);
                             exportPart.PoseAnimation = sequencePath;
                             Save(animSequence);
                         }

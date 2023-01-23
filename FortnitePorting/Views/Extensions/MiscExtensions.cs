@@ -63,4 +63,6 @@ public static class MiscExtensions
         var index = RandomGen.Next(0, list.Count);
         return list[index];
     }
+    
+    public static IEnumerable<(int index, T value)> Enumerate<T>(this IEnumerable<T> enumerable) => enumerable.Select((i, val) => (val, i));
 }

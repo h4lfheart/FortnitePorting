@@ -51,7 +51,8 @@ class Log:
 def try_decode(bytes, format):
     try:
         return bytes.decode(format)
-    except UnicodeDecodeError:
+    except UnicodeDecodeError as e:
+        Log.error(f"Error Decoding Bytes: {e}")
         return None
 
 class Receiver(threading.Thread):
@@ -81,7 +82,7 @@ class Receiver(threading.Thread):
                             self.ping_client(sender)
                             continue
                     elif len(socket_data) > 0:
-                        data += bytearray(socket_data)
+                        data += socket_data
                         self.ping_client(sender)
                         
                 data_string = gzip.decompress(data).decode('utf-8')

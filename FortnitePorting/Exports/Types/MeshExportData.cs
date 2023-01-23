@@ -210,7 +210,7 @@ public class MeshExportData : ExportDataBase
         });
         if (!canContinue) return null;
 
-        data.ProcessStyles(asset, styles);
+        await Task.Run(() => data.ProcessStyles(asset, styles));
 
         await Task.WhenAll(ExportHelpers.Tasks);
         return data;
