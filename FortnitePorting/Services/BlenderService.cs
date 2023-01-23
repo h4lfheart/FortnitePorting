@@ -34,19 +34,30 @@ public static class BlenderService
         var message = JsonConvert.SerializeObject(export);
         var uncompressed = Encoding.UTF8.GetBytes(message);
         var compressed = GZipStream.CompressBuffer(uncompressed);
-        Log.Information("Compressed Export from {0} -> {1} Bytes, {2}% Decrease", uncompressed.Length, compressed.Length, (float) uncompressed.Length / compressed.Length * 100);
+        Log.Information("Compressed Export {0}% from {1} -> {2} Bytes", (float) uncompressed.Length / compressed.Length * 100, uncompressed.Length, compressed.Length);
 
         Client.SendSpliced(compressed, Globals.BUFFER_SIZE);
         Client.Send(Encoding.UTF8.GetBytes(Globals.UDPClient_MessageTerminator));
     }
 
-    public static bool IsServerRunning()
+    public static bool PingServer()
     {
-        Client.Send(Encoding.UTF8.GetBytes(Globals.UDPClient_ServerCheck));
+        Client.Send(Encoding.UTF8.GetBytes(Globals.UDPClient_Ping));
         if (Client.TryReceive(Endpoint, out var response))
         {
             var responseString = Encoding.UTF8.GetString(response);
-            return responseString.Equals(Globals.UDPServer_ResponseReceived);
+            return responseString.Equals(Globals.UDPClient_Ping);
+        }
+
+        return false;
+    }
+    
+    public static bool ReceivePing()
+    {
+        if (Client.TryReceive(Endpoint, out var response))
+        {
+            var responseString = Encoding.UTF8.GetString(response);
+            return responseString.Equals(Globals.UDPClient_Ping);
         }
 
         return false;
@@ -54,7 +65,22 @@ public static class BlenderService
 
     public static int SendSpliced(this UdpClient client, IEnumerable<byte> arr, int size)
     {
-        return arr.Chunk(size).ToList().Sum(chunk => client.Send(chunk));
+        var chunks = arr.Chunk(size).ToList();
+
+        var dataSent = 0;
+        foreach (var chunk in chunks)
+        {
+            var chunkSize = 0;
+            do
+            {
+                chunkSize = Client.Send(chunk);
+            } 
+            while (!ReceivePing());
+
+            dataSent += chunkSize;
+        }
+
+        return dataSent;
     }
 
     public static bool TryReceive(this UdpClient client, IPEndPoint endpoint, out byte[] data)

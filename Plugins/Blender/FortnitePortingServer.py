@@ -75,18 +75,19 @@ class Receiver(threading.Thread):
                 while True:
                     socket_data, sender = self.socket_server.recvfrom(1024)
                     if utf8_data := try_decode(socket_data, 'utf-8'):
-                        if utf8_data == "FPClientMessageFinished":
+                        if utf8_data == "MessageFinished":
                             break
-                        if utf8_data == "FPClientCheckServer":
-                            self.socket_server.sendto("FPServerReceived".encode('utf-8'), sender)
+                        if utf8_data == "Ping":
+                            self.ping_client(sender)
                             continue
                     elif len(socket_data) > 0:
                         data += bytearray(socket_data)
+                        self.ping_client(sender)
                         
                 data_string = gzip.decompress(data).decode('utf-8')
                 self.data = json.loads(data_string)
                 self.event.set()
-                self.socket_server.sendto("FPServerReceived".encode('utf-8'), sender)
+                self.ping_client(sender)
                
             except OSError as e:
                 pass
@@ -101,6 +102,9 @@ class Receiver(threading.Thread):
         self.keep_alive = False
         self.socket_server.close()
         Log.information("FortnitePorting Server Closed")
+        
+    def ping_client(self, sender):
+        self.socket_server.sendto("Ping".encode('utf-8'), sender)
 
 
 # Name, Slot, Location, *Linear

@@ -151,7 +151,7 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     public async Task ExportBlender()
     {
-        if (!BlenderService.IsServerRunning())
+        if (!BlenderService.PingServer())
         {
             AppVM.Warning("Failed to Establish Connection with FortnitePorting Server", "Please make sure you have installed the FortnitePortingServer.zip file and have an instance of Blender open.");
             return;
