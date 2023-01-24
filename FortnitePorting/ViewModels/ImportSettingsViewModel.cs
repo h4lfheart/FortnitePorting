@@ -127,6 +127,16 @@ public class ImportSettingsViewModel : ObservableObject
         }
     }
 
+    public EImageType GlobalImageType
+    {
+        get => AppSettings.Current.ImageType;
+        set
+        {
+            AppSettings.Current.ImageType = value;
+            OnPropertyChanged();
+        }
+    }
+
     public double BlenderAmbientOcclusion
     {
         get => AppSettings.Current.BlenderExportSettings.AmbientOcclusion;

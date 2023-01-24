@@ -80,4 +80,7 @@ public partial class AppSettings : ObservableObject
     
     [ObservableProperty]
     private bool showConsole = true;
+    
+    [ObservableProperty]
+    private EImageType imageType = EImageType.PNG;
 }

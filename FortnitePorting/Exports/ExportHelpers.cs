@@ -21,6 +21,9 @@ using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Objects.Engine.Animation;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
+using FortnitePorting.AppUtils;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using SkiaSharp;
 
 namespace FortnitePorting.Exports;
@@ -505,12 +508,12 @@ public static class ExportHelpers
         }
     }
 
-    public static ExportMaterial CreateExportMaterial(UObject material, int materialIndex = 0)
+    public static ExportMaterial CreateExportMaterial(UMaterialInterface material, int materialIndex = 0)
     {
         return CreateExportMaterial<ExportMaterial>(material, materialIndex);
     }
 
-    public static T CreateExportMaterial<T>(UObject material, int materialIndex = 0) where T : ExportMaterial, new()
+    public static T CreateExportMaterial<T>(UMaterialInterface material, int materialIndex = 0) where T : ExportMaterial, new()
     {
         var exportMaterial = new T
         {
@@ -641,7 +644,7 @@ public static class ExportHelpers
         {
             try
             {
-                var extraString = string.Empty;
+                var path = string.Empty;
                 switch (obj)
                 {
                     case USkeletalMesh skeletalMesh:
@@ -664,7 +667,12 @@ public static class ExportHelpers
 
                     case UTexture2D texture:
                     {
-                        var path = GetExportPath(obj, "png");
+                        var extension = AppSettings.Current.ImageType switch
+                        {
+                            EImageType.PNG => "png",
+                            EImageType.TGA => "tga"
+                        };
+                        path = GetExportPath(obj, extension);
                         var shouldExport = true; // assume nothing exists yet
                         if (File.Exists(path))
                         {
@@ -673,7 +681,6 @@ public static class ExportHelpers
                             if (existingBitmap is not null && (firstMip?.SizeX > existingBitmap.Width || firstMip?.SizeY > existingBitmap.Height))
                             {
 
-                                extraString += $"{firstMip.SizeX}x{firstMip.SizeY}";
                                 shouldExport = true; // update because higher res
                             }
                             else
@@ -687,16 +694,41 @@ public static class ExportHelpers
                         Directory.CreateDirectory(path.Replace('\\', '/').SubstringBeforeLast('/'));
 
                         using var bitmap = texture.Decode(texture.GetFirstMip());
-                        using var data = bitmap?.Encode(SKEncodedImageFormat.Png, 100);
+                        if (bitmap is null) return;
+                        
+                        switch (AppSettings.Current.ImageType)
+                        {
+                            case EImageType.PNG:
+                            {
+                                using var data = bitmap.Encode(SKEncodedImageFormat.Png, 100);
+                                if (data is null) return;
+                            
+                                File.WriteAllBytes(path, data.ToArray());
+                                break;
+                            }
+                            case EImageType.TGA:
+                            {
+                                var image = new Image<Rgba32>(bitmap.Width, bitmap.Height);
+                                for (var x = 0; x < bitmap.Width; x++)
+                                {
+                                    for (var y = 0; y < bitmap.Height; y++)
+                                    {
+                                        var color = bitmap.GetPixel(x, y);
+                                        image[x, y] = new Rgba32(color.Red, color.Green, color.Blue, color.Alpha);
+                                    }
+                                }
 
-                        if (data is null) return;
-                        File.WriteAllBytes(path, data.ToArray());
+                                image.SaveAsTga(path);
+                                break;
+                            }
+                        }
+                      
                         break;
                     }
 
                     case UAnimSequence animation:
                     {
-                        var path = GetExportPath(obj, "psa", "_SEQ0");
+                        path = GetExportPath(obj, "psa", "_SEQ0");
                         if (File.Exists(path)) return;
 
                         var exporter = new AnimExporter(animation, ExportOptions);
@@ -706,7 +738,7 @@ public static class ExportHelpers
 
                     case USkeleton skeleton:
                     {
-                        var path = GetExportPath(obj, "psk");
+                        path = GetExportPath(obj, "psk");
                         if (File.Exists(path)) return;
 
                         var exporter = new MeshExporter(skeleton, ExportOptions);
@@ -715,7 +747,7 @@ public static class ExportHelpers
                     }
                 }
 
-                Log.Information("Exporting {ExportType}: {FileName}{Extra}", obj.ExportType, obj.Name, (extraString == string.Empty ? string.Empty : ", " + extraString));
+                Log.Information("Exporting {ExportType}: {FileName}", obj.ExportType, obj.Name);
             }
             catch (IOException)
             {

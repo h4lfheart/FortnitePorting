@@ -1,4 +1,6 @@
-﻿namespace FortnitePorting.Exports.Blender;
+﻿using FortnitePorting.AppUtils;
+
+namespace FortnitePorting.Exports.Blender;
 
 public class BlenderExportSettings
 {
@@ -23,6 +25,7 @@ public class BlenderExportSettings
 
     // MATERIAL
     public bool ImportMaterials = true;
+    public EImageType ImageType => AppSettings.Current.ImageType;
     public double AmbientOcclusion;
     public double Cavity;
     public double Subsurface;

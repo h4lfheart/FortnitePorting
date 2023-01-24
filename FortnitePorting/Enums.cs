@@ -100,3 +100,11 @@ public enum EFortCustomGender : byte
     Female = 2,
     Both = 3
 }
+
+public enum EImageType
+{
+    [Description("PNG (.png)")]
+    PNG,
+    [Description("Targa (.tga)")]
+    TGA
+}

@@ -30,6 +30,10 @@ class RigType(Enum):
     DEFAULT = 0
     TASTY = 1
 
+class ImageType(Enum):
+    PNG = 0
+    TGA = 1
+
 class Log:
     INFO = u"\u001b[36m"
     WARNING = u"\u001b[31m"
@@ -200,7 +204,8 @@ def import_texture(path: str) -> bpy.types.Image:
         return existing
 
     path = path[1:] if path.startswith("/") else path
-    texture_path = os.path.join(import_assets_root, path + ".png")
+    ext = ImageType(import_settings.get("ImageType")).name.lower()
+    texture_path = os.path.join(import_assets_root, path + "." + ext)
 
     if not os.path.exists(texture_path):
         return None

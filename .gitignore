@@ -1,12 +1,13 @@
 # IDE Stuff
 .idea
 .fleet
+FortnitePorting_*.csproj
 
 # Build
 bin
 obj
 Release
-.exe
+exe
 
 # Blender
-.blend1
+*.blend1
