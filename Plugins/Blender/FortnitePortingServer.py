@@ -216,12 +216,6 @@ def import_anim(path: str):
     path = path[1:] if path.startswith("/") else path
     anim_path = os.path.join(import_assets_root, path.split(".")[0] + "_SEQ0" + ".psa")
 
-    return psaimport(anim_path, bUpdateTimelineRange=import_settings.get("UpdateTimeline"), bScaleDown = import_settings.get("ScaleDown"))
-
-def import_anim_no_range(path: str):
-    path = path[1:] if path.startswith("/") else path
-    anim_path = os.path.join(import_assets_root, path.split(".")[0] + "_SEQ0" + ".psa")
-
     return psaimport(anim_path, bScaleDown = import_settings.get("ScaleDown"))
 
 def import_sound(path: str, extension: str, time: float):
@@ -1552,6 +1546,24 @@ anime_mat_names = [
     "M_LexaFace_PROTO"
 ]
 
+def clear_face_pose(active_skeleton):
+    bpy.ops.object.mode_set(mode='POSE')
+    bpy.ops.pose.select_all(action='DESELECT')
+    pose_bones = active_skeleton.pose.bones
+    bones = active_skeleton.data.bones
+    if face_bone := first(bones, lambda x: x.name == "faceAttach"):
+        face_bones = face_bone.children_recursive
+        dispose_paths = []
+        for bone in face_bones:
+            dispose_paths.append('pose.bones["{}"].rotation_quaternion'.format(bone.name))
+            dispose_paths.append('pose.bones["{}"].location'.format(bone.name))
+            dispose_paths.append('pose.bones["{}"].scale'.format(bone.name))
+            pose_bones[bone.name].matrix_basis = Matrix()
+        dispose_curves = [fcurve for fcurve in active_skeleton.animation_data.action.fcurves if fcurve.data_path in dispose_paths]
+        for fcurve in dispose_curves:
+            active_skeleton.animation_data.action.fcurves.remove(fcurve)
+    bpy.ops.object.mode_set(mode='OBJECT')
+
 def import_response(response):
     append_data()
     global import_assets_root
@@ -1584,7 +1596,6 @@ def import_response(response):
         def import_animation_data(anim_data, override_skel = None):
             if anim_data is None:
                 return
-            animation = anim_data.get("Animation")
             props = anim_data.get("Props")
             
             if override_skel is not None:
@@ -1594,101 +1605,141 @@ def import_response(response):
             active_skeleton = armature_from_selection()
             mesh = mesh_from_armature(active_skeleton)
 
-            if not import_anim(animation):
-                message_box("An armature must be selected for the Emote to import onto.", "Failed to Import Emote", "ERROR")
-                return 
+            active_skeleton.animation_data_create()
+            skel_track = active_skeleton.animation_data.nla_tracks.new(prev=None)
+            skel_track.name = "Sections"
 
-            # remove face keyframes
-            bpy.ops.object.mode_set(mode='POSE')
-            bpy.ops.pose.select_all(action='DESELECT')
-            pose_bones = active_skeleton.pose.bones
-            bones = active_skeleton.data.bones
-            if face_bone := first(bones, lambda x: x.name == "faceAttach"):
-                face_bones = face_bone.children_recursive
-                dispose_paths = []
-                for bone in face_bones:
-                    dispose_paths.append('pose.bones["{}"].rotation_quaternion'.format(bone.name))
-                    dispose_paths.append('pose.bones["{}"].location'.format(bone.name))
-                    dispose_paths.append('pose.bones["{}"].scale'.format(bone.name))
-                    pose_bones[bone.name].matrix_basis = Matrix()
-                dispose_curves = [fcurve for fcurve in active_skeleton.animation_data.action.fcurves if fcurve.data_path in dispose_paths]
-                for fcurve in dispose_curves:
-                    active_skeleton.animation_data.action.fcurves.remove(fcurve)
-            bpy.ops.object.mode_set(mode='OBJECT')
-            
             if mesh.data.shape_keys is not None:
-                key_blocks = mesh.data.shape_keys.key_blocks
-                for key_block in key_blocks:
-                    key_block.value = 0
+                mesh.data.shape_keys.name = "Pose Asset Controls"
+                mesh.data.shape_keys.animation_data_create()
+                mesh_track = mesh.data.shape_keys.animation_data.nla_tracks.new(prev=None)
+                mesh_track.name = "Sections"
+            
+            if len(props) > 0:
+                existing_prop_skel = first(active_skeleton.children, lambda x: x.name == "Prop_Skeleton")
+                if existing_prop_skel:
+                    bpy.data.objects.remove(existing_prop_skel, do_unlink=True)
+    
+                master_skeleton = import_skel(anim_data.get("Skeleton"))
+                master_skeleton.name = "Prop_Skeleton"
+                master_skeleton.parent = active_skeleton
+
+                master_skeleton.animation_data_create()
+                prop_skel_track = master_skeleton.animation_data.nla_tracks.new(prev=None)
+                prop_skel_track.name = "Sections"
                 
-                for curve in anim_data.get("Curves"):
-                    curve_name = curve.get("Name")
-                    if target_block := key_blocks.get(curve_name.replace("CTRL_expressions_", "")):
-                        for key in curve.get("Keys"):
-                            target_block.value = key.get("Value")
-                            target_block.keyframe_insert(data_path="value", frame=key.get("Time")*30)
-                            
-            for sound in anim_data.get("Sounds"):
-                import_sound(sound.get("Path"), sound.get("AudioExtension"), sound.get("Time"))
+            total_frames = 0
+            for section in anim_data.get("Sections"):
+                anim_path = section.get("Path")
+                section_name = section.get("Name")
+                time_offset = section.get("Time")
+                section_length = section.get("Length")
+                curves = section.get("Curves")
+                is_looping = section.get("Loop")
+
+                loop_count = 999 if import_settings.get("LoopAnim") and is_looping else 1
                 
+                section_frames = int(section_length * 30)
+                total_frames += section_frames * loop_count
 
-            if len(props) == 0:
-                return 
-
-            existing_prop_skel = first(active_skeleton.children, lambda x: x.name == "Prop_Skeleton")
-            if existing_prop_skel:
-                bpy.data.objects.remove(existing_prop_skel, do_unlink=True)
-
-            master_skeleton = import_skel(anim_data.get("Skeleton"))
-            master_skeleton.name = "Prop_Skeleton"
-            master_skeleton.parent = active_skeleton
-
-            bpy.context.view_layer.objects.active = master_skeleton
-            import_anim(animation)
-            master_skeleton.hide_set(True)
-
-            for propData in props:
-                prop = propData.get("Prop")
-                socket_name = propData.get("SocketName")
-                socket_remaps = {
-                    "RightHand": "weapon_r",
-                    "LeftHand": "weapon_l",
-                    "AttachSocket": "attach"
-                }
-
-                if socket_name in socket_remaps.keys():
-                    socket_name = socket_remaps.get(socket_name)
-                    
-                num_lods = prop.get("NumLods")
-
-                if (imported_item := import_mesh(prop.get("MeshPath"), lod=min(num_lods-1, import_settings.get("LevelOfDetail")))) is None:
+                bpy.ops.object.select_all(action='DESELECT')
+                # skeletal animation
+                bpy.context.view_layer.objects.active = active_skeleton
+                active_skeleton.select_set(True)
+                if not import_anim(anim_path):
                     continue
+                clear_face_pose(active_skeleton)
 
-                bpy.context.view_layer.objects.active = imported_item
+                strip = skel_track.strips.new(section_name, int(time_offset * 30), active_skeleton.animation_data.action)
+                strip.name = section_name
+                strip.repeat = loop_count
+                active_skeleton.animation_data.action = None
 
-                if animation := propData.get("Animation"):
-                    import_anim(animation)
+                bpy.ops.object.select_all(action='DESELECT')
+                # prop skeletal animation
+                if len(props) > 0:
+                    bpy.context.view_layer.objects.active = master_skeleton
+                    master_skeleton.select_set(True)
+                    if not import_anim(anim_path):
+                        continue
+    
+                    strip = prop_skel_track.strips.new(section_name, int(time_offset * 30), master_skeleton.animation_data.action)
+                    strip.name = section_name
+                    strip.repeat = loop_count
+                    master_skeleton.animation_data.action = None
 
-                imported_mesh = imported_item
-                if imported_item.type == 'ARMATURE':
-                    imported_mesh = mesh_from_armature(imported_item)
+                # facial animation
+                if mesh.data.shape_keys is not None:
+                    key_blocks = mesh.data.shape_keys.key_blocks
+                    for key_block in key_blocks:
+                        key_block.value = 0
+        
+                    for curve in curves:
+                        curve_name = curve.get("Name")
+                        if target_block := key_blocks.get(curve_name.replace("CTRL_expressions_", "")):
+                            for key in curve.get("Keys"):
+                                target_block.value = key.get("Value")
+                                target_block.keyframe_insert(data_path="value", frame=key.get("Time")*30)
+                             
+                    strip = mesh_track.strips.new(section_name, int(time_offset * 30), mesh.data.shape_keys.animation_data.action)
+                    strip.name = section_name
+                    strip.repeat = loop_count
+                    mesh.data.shape_keys.animation_data.action = None
+                    
+            if import_settings.get("UpdateTimeline"):
+                bpy.context.scene.frame_end = total_frames
+                   
+            if import_settings.get("ImportSounds"):
+                for sound in anim_data.get("Sounds"):
+                    is_looping = sound.get("Loop")
+                    import_sound(sound.get("Path"), sound.get("AudioExtension"), sound.get("Time"))
+                
+            if len(props) > 0:
 
-                for material in prop.get("Materials"):
-                    index = material.get("SlotIndex")
-                    import_material(imported_mesh.material_slots.values()[index], material)
-
-                if location_offset := propData.get("LocationOffset"):
-                    imported_item.location += make_vector(location_offset) * 0.01 if import_settings.get("ScaleDown") else 1.00
-
-                if scale := propData.get("Scale"):
-                    imported_item.scale = make_vector(scale)
-
-                rotation = [0,0,0]
-                if rotation_offset := propData.get("RotationOffset"):
-                    rotation[0] += radians(rotation_offset.get("Roll"))
-                    rotation[1] += radians(rotation_offset.get("Pitch"))
-                    rotation[2] += -radians(rotation_offset.get("Yaw"))
-                constraint_object(imported_item, master_skeleton, socket_name, rotation)
+                master_skeleton.hide_set(True)
+    
+                for propData in props:
+                    prop = propData.get("Prop")
+                    socket_name = propData.get("SocketName")
+                    socket_remaps = {
+                        "RightHand": "weapon_r",
+                        "LeftHand": "weapon_l",
+                        "AttachSocket": "attach"
+                    }
+    
+                    if socket_name in socket_remaps.keys():
+                        socket_name = socket_remaps.get(socket_name)
+                        
+                    num_lods = prop.get("NumLods")
+    
+                    if (imported_item := import_mesh(prop.get("MeshPath"), lod=min(num_lods-1, import_settings.get("LevelOfDetail")))) is None:
+                        continue
+    
+                    bpy.context.view_layer.objects.active = imported_item
+    
+                    if animation := propData.get("Animation"):
+                        import_anim(animation)
+    
+                    imported_mesh = imported_item
+                    if imported_item.type == 'ARMATURE':
+                        imported_mesh = mesh_from_armature(imported_item)
+    
+                    for material in prop.get("Materials"):
+                        index = material.get("SlotIndex")
+                        import_material(imported_mesh.material_slots.values()[index], material)
+    
+                    if location_offset := propData.get("LocationOffset"):
+                        imported_item.location += make_vector(location_offset) * 0.01 if import_settings.get("ScaleDown") else 1.00
+    
+                    if scale := propData.get("Scale"):
+                        imported_item.scale = make_vector(scale)
+    
+                    rotation = [0,0,0]
+                    if rotation_offset := propData.get("RotationOffset"):
+                        rotation[0] += radians(rotation_offset.get("Roll"))
+                        rotation[1] += radians(rotation_offset.get("Pitch"))
+                        rotation[2] += -radians(rotation_offset.get("Yaw"))
+                    constraint_object(imported_item, master_skeleton, socket_name, rotation)
     
         if import_type == "Dance":
             anim_data = import_data.get("AnimData")
@@ -1734,13 +1785,14 @@ def import_response(response):
                     })
                     
                     if (morph_name := part.get("MorphName")) and mesh.data.shape_keys is not None:
+                        mesh.data.shape_keys.name = "Morph Targets"
                         for key in mesh.data.shape_keys.key_blocks:
                             if key.name.casefold() == morph_name.casefold():
                                 key.value = 1.0
                                 
                     if pose_anim := part.get("PoseAnimation"):
                         bpy.context.view_layer.objects.active = imported_part # will always be skel idc
-                        import_anim_no_range(pose_anim)
+                        import_anim(pose_anim)
 
                         bpy.context.view_layer.objects.active = mesh
                         

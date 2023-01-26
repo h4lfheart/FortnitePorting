@@ -86,6 +86,26 @@ public class ImportSettingsViewModel : ObservableObject
             OnPropertyChanged();
         }
     }
+    
+    public bool BlenderLoopAnim
+    {
+        get => AppSettings.Current.BlenderExportSettings.LoopAnim;
+        set
+        {
+            AppSettings.Current.BlenderExportSettings.LoopAnim = value;
+            OnPropertyChanged();
+        }
+    }
+    
+    public bool BlenderImportSounds
+    {
+        get => AppSettings.Current.BlenderExportSettings.ImportSounds;
+        set
+        {
+            AppSettings.Current.BlenderExportSettings.ImportSounds = value;
+            OnPropertyChanged();
+        }
+    }
 
     public bool BlenderQuadTopo
     {

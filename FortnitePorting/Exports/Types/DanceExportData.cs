@@ -10,6 +10,7 @@ using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
+using UObject = CUE4Parse.UE4.Assets.Exports.UObject;
 
 namespace FortnitePorting.Exports.Types;
 
@@ -33,38 +34,57 @@ public class DanceExportData : ExportDataBase
         var animData = new AnimationData();
         await Task.Run(() =>
         {
-            var masterSkeleton = montage.Get<USkeleton>("Skeleton");
+            var masterSkeleton = montage.Skeleton.Load<USkeleton>();
+            if (masterSkeleton is null) return;
+            
             ExportHelpers.Save(masterSkeleton);
             animData.Skeleton = masterSkeleton.GetPathName();
-
-            var animation = GetExportSequence(montage);
-            if (animation is null) return;
-            ExportHelpers.Save(animation);
-            animData.Animation = animation.GetPathName();
-
-            var floatCurves = animation.CompressedCurveData.FloatCurves;
-            if (floatCurves is not null)
+            
+            // Sections
+            void ExportSections(UAnimMontage targetMontage, List<EmoteSection> sections)
             {
-                foreach (var curve in floatCurves)
+                var section = targetMontage.CompositeSections.FirstOrDefault();
+                while (true)
                 {
-                    animData.Curves.Add(new CurveData
+                    if (section is null) break;
+                    if (section.LinkedSequence is not null) // empty sections are fine
                     {
-                        Name = curve.Name.DisplayName.Text,
-                        Keys = curve.FloatCurve.Keys.Select(x => new CurveKey(x.Time, x.Value)).ToList()
-                    });
+                        var exportSection = new EmoteSection(section.LinkedSequence.GetPathName(), section.SectionName.Text, section.SegmentBeginTime, section.SegmentLength, section.NextSectionName == section.SectionName);
+                        ExportHelpers.Save(section.LinkedSequence);
+
+                        var floatCurves = section.LinkedSequence.CompressedCurveData.FloatCurves ?? Array.Empty<FFloatCurve>();
+                        foreach (var curve in floatCurves)
+                        {
+                            exportSection.Curves.Add(new Curve
+                            {
+                                Name = curve.Name.DisplayName.Text,
+                                Keys = curve.FloatCurve.Keys.Select(x => new CurveKey(x.Time, x.Value)).ToList()
+                            });
+                        }
+
+                        sections.Add(exportSection);
+                    }
+                
+                    // current section checks
+                    var currentSecitonName = section.SectionName.Text;
+                    var nextSectionName = section.NextSectionName.Text;
+                    if (currentSecitonName.Equals(nextSectionName) || nextSectionName.Equals("None")) break;
+                
+                    // move onto next
+                    var nextSection = targetMontage.CompositeSections.FirstOrDefault(x => x.SectionName.Text.Equals(section.NextSectionName.Text));
+                    if (nextSection is null) break;
+                    if (Math.Abs(nextSection.SegmentBeginTime - section.SegmentBeginTime) < 0.01F) break;
+                    section = nextSection;
                 }
             }
 
+            ExportSections(montage, animData.Sections);
+
+            // Notifies
             var montageNotifies = montage.GetOrDefault("Notifies", Array.Empty<FStructFallback>());
-            var animNotifies = animation.GetOrDefault("Notifies", Array.Empty<FStructFallback>());
-
-            var allNotifies = new List<FStructFallback>();
-            allNotifies.AddRange(montageNotifies);
-            allNotifies.AddRange(animNotifies);
-
             var propNotifies = new List<FStructFallback>();
             var soundNotifies = new List<FStructFallback>();
-            foreach (var notify in allNotifies)
+            foreach (var notify in montageNotifies)
             {
                 var notifyName = notify.GetOrDefault<FName>("NotifyName").Text;
                 if (notifyName.Contains("FortSpawnProp") || notifyName.Contains("Fort Anim Notify State Spawn Prop"))
@@ -76,13 +96,10 @@ public class DanceExportData : ExportDataBase
                     soundNotifies.Add(notify);
                 }
             }
-            
             foreach (var propNotify in propNotifies)
             {
-                /*var linkedSequence = propNotify.Get<UAnimSequence>("LinkedSequence");
-                if (linkedSequence != animation) continue;*/
                 var notifyData = propNotify.Get<FortAnimNotifyState_SpawnProp>("NotifyStateClass");
-                var exportProp = new EmotePropData
+                var exportProp = new EmoteProp
                 {
                     SocketName = notifyData.SocketName.Text,
                     LocationOffset = notifyData.LocationOffset,
@@ -101,28 +118,63 @@ public class DanceExportData : ExportDataBase
 
                 animData.Props.Add(exportProp);
             }
-
             foreach (var soundNotify in soundNotifies)
             {
                 var time = soundNotify.Get<float>("TriggerTimeOffset");
                 
-                var notifyData = soundNotify.Get<FortAnimNotifyState_EmoteSound>("NotifyStateClass");
-                var cueExports = AppVM.CUE4ParseVM.Provider.LoadObjectExports(notifyData.EmoteSound1P.GetPathName().SubstringBeforeLast("."));
-                var soundWaveNode = cueExports.OfType<USoundNodeWavePlayer>().FirstOrDefault();
+                void ExportEmoteSound(USoundNodeWavePlayer player, float timeOffset = 0)
+                {
+                    var soundWave = player.SoundWave?.Load<USoundWave>();
+                    if (soundWave is null) return;
+                    ExportHelpers.SaveSoundWave(soundWave, out var audioFormat);
+                    animData.Sounds.Add(new EmoteSound(soundWave.GetPathName(), audioFormat, time+timeOffset, player.GetOrDefault("bLooping", false)));
+                }
 
-                var soundWave = soundWaveNode?.SoundWave?.Load<USoundWave>();
-                if (soundWave is null) continue;
+                void HandleAudioTree(UObject node, float offset = 0f)
+                {
+                    switch (node)
+                    {
+                        case USoundNodeWavePlayer player:
+                        {
+                            ExportEmoteSound(player, offset);
+                            break;
+                        }
+                        case USoundNodeDelay delay:
+                        {
+                            foreach (var nodeObject in delay.ChildNodes)
+                            {
+                                HandleAudioTree(nodeObject.Load(), offset + delay.Get<float>("DelayMin")); // Max/Min are equal for emotes
+                            }
+                            break;
+                        }
+                        case USoundNodeRandom random:
+                        {
+                            var index = App.RandomGenerator.Next(0, random.ChildNodes.Length);
+                            HandleAudioTree(random.ChildNodes[index].Load(), offset);
+                            break;
+                        }
+                        case USoundNode generic:
+                        {
+                            foreach (var nodeObject in generic.ChildNodes)
+                            {
+                                HandleAudioTree(nodeObject.Load(), offset);
+                            }
+                            break;
+                        }
+                    }
+                }
                 
-                ExportHelpers.SaveSoundWave(soundWave, out var audioFormat);
-                animData.Sounds.Add(new EmoteSoundData(time, soundWave.GetPathName(), audioFormat));
+                var notifyData = soundNotify.Get<FortAnimNotifyState_EmoteSound>("NotifyStateClass");
+                var firstNode = notifyData.EmoteSound1P?.FirstNode?.Load();
+                if (firstNode is null) continue;
+                HandleAudioTree(firstNode);
             }
             
         });
 
         return animData;
     }
-
-
+    
     public static UAnimSequence? GetExportSequence(UAnimMontage? montage)
     {
         var sections = montage?.Get<FStructFallback[]>("CompositeSections");

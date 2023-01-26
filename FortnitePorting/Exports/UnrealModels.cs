@@ -3,6 +3,7 @@ using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Sound;
+using CUE4Parse.UE4.Assets.Exports.Sound.Node;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Assets.Readers;
@@ -126,8 +127,8 @@ public class FortAnimNotifyState_SpawnProp : UFortnitePortingCustom
 
 public class FortAnimNotifyState_EmoteSound : UFortnitePortingCustom
 {
-    public USoundCue EmoteSound1P { get; private set; }
-    public USoundCue EmoteSound3P { get; private set; }
+    public USoundCue? EmoteSound1P { get; private set; }
+    public USoundCue? EmoteSound3P { get; private set; }
 
     public override void Deserialize(FAssetArchive Ar, long validPos)
     {
@@ -136,4 +137,55 @@ public class FortAnimNotifyState_EmoteSound : UFortnitePortingCustom
         EmoteSound1P = GetOrDefault<USoundCue>(nameof(EmoteSound1P));
         EmoteSound3P = GetOrDefault<USoundCue>(nameof(EmoteSound3P));
     }
+}
+
+public class UAnimMontage : UAnimCompositeBase
+{
+    public FCompositeSection[] CompositeSections;
+    public FAnimNotify[] Notifies;
+    public override void Deserialize(FAssetArchive Ar, long validPos)
+    {
+        base.Deserialize(Ar, validPos);
+
+        CompositeSections = GetOrDefault<FCompositeSection[]>(nameof(CompositeSections));
+    }
+}
+
+[StructFallback]
+public class FCompositeSection : UFortnitePortingCustom
+{
+    public FName SectionName;
+    public FName NextSectionName;
+    public float SegmentBeginTime;
+    public float SegmentLength;
+    public UAnimSequence? LinkedSequence;
+    
+    public FCompositeSection(FStructFallback fallback)
+    {
+        SectionName = fallback.GetOrDefault<FName>(nameof(SectionName));
+        NextSectionName = fallback.GetOrDefault<FName>(nameof(NextSectionName));
+        SegmentBeginTime = fallback.GetOrDefault<float>(nameof(SegmentBeginTime));
+        LinkedSequence = fallback.GetOrDefault<UAnimSequence>(nameof(LinkedSequence));
+        SegmentLength = fallback.GetOrDefault<float>(nameof(SegmentLength));
+    }
+}
+
+[StructFallback]
+public class FAnimNotify : UFortnitePortingCustom
+{
+    public float TriggerTimeOffset;
+    public FPackageIndex NotifyStateClass;
+    public float Duration;
+    public UAnimSequence LinkedSequence;
+    
+    public FAnimNotify(FStructFallback fallback)
+    {
+        TriggerTimeOffset = fallback.GetOrDefault<float>(nameof(TriggerTimeOffset));
+        NotifyStateClass = fallback.GetOrDefault<FPackageIndex>(nameof(NotifyStateClass));
+        Duration = fallback.GetOrDefault<float>(nameof(Duration));
+    }
+}
+
+public class UFortSoundNodeLicensedContentSwitcher : USoundNode
+{
 }

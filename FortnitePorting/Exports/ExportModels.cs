@@ -73,7 +73,21 @@ public record VectorParameter(string Name, FLinearColor Value)
 
 public record TransformParameter(string Name, FTransform Value);
 
-public class EmotePropData
+public class AnimationData
+{
+    public string Skeleton;
+    public List<EmoteSection> Sections = new();
+    public List<EmoteProp> Props = new();
+    public List<EmoteSound> Sounds = new();
+}
+
+public record EmoteSection(string Path, string Name, float Time, float Length, bool Loop = false)
+{
+    public List<Curve> Curves = new();
+}
+public record EmoteSound(string Path, string AudioExtension, float Time, bool Loop);
+
+public class EmoteProp
 {
     public string SocketName;
     public FVector LocationOffset;
@@ -83,20 +97,9 @@ public class EmotePropData
     public string Animation;
 }
 
-public class AnimationData
-{
-    public string Animation;
-    public string Skeleton;
-    public List<EmotePropData> Props = new();
-    public List<CurveData> Curves = new();
-    public List<EmoteSoundData> Sounds = new();
-}
-
-public class CurveData
+public class Curve
 {
     public string Name;
     public List<CurveKey> Keys;
 }
 public record CurveKey(float Time, float Value);
-
-public record EmoteSoundData(float Time, string Path, string AudioExtension);

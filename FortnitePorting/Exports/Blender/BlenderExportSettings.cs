@@ -17,6 +17,8 @@ public class BlenderExportSettings
     // ANIM
     public bool UpdateTimeline;
     public bool LobbyPoses;
+    public bool LoopAnim;
+    public bool ImportSounds;
 
     // MESH
     public bool QuadTopo;
