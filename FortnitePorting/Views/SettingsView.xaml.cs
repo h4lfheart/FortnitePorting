@@ -33,6 +33,11 @@ public partial class SettingsView
             }
         }
 
+        if (AppVM.SettingsVM.ChangedUpdateChannel)
+        {
+            UpdateService.Start(automaticCheck: true);
+        }
+
         if (AppVM.SettingsVM.DiscordRPC)
         {
             DiscordService.Initialize();

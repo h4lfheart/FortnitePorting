@@ -5,7 +5,7 @@
           xmlns:adonisCtrls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
           xmlns:adonisExt="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"
 
-          Title="Plugin Install Selector" Width="500" SizeToContent="Height" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" Topmost="True">
+          Title="Plugin Install Selector" Width="500" SizeToContent="Height" WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
     <Grid>
         <Grid.Resources>
             <Style TargetType="{x:Type ToggleButton}">

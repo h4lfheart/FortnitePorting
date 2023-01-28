@@ -13,6 +13,7 @@ using FortnitePorting.Services;
 using Serilog.Sinks.SystemConsole.Themes;
 using MessageBox = AdonisUI.Controls.MessageBox;
 using MessageBoxImage = AdonisUI.Controls.MessageBoxImage;
+using MessageBoxResult = AdonisUI.Controls.MessageBoxResult;
 
 namespace FortnitePorting;
 
@@ -100,10 +101,16 @@ public partial class App
             Caption = "An unhandled exception has occurred",
             Icon = MessageBoxImage.Error,
             Text = e.Exception.Message,
-            Buttons = new[] { MessageBoxButtons.Ok() }
+            Buttons = new[] { new MessageBoxButtonModel("Reset App Settings", MessageBoxResult.Custom), new MessageBoxButtonModel("Continue", MessageBoxResult.OK) },
         };
-
+        
         MessageBox.Show(messageBox);
+        if (messageBox.Result == MessageBoxResult.Custom)
+        {
+            AppSettings.Current = new AppSettings();
+            AppSettings.Save();
+            AppVM.Restart();
+        }
         e.Handled = true;
     }
 }

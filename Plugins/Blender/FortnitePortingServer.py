@@ -21,6 +21,7 @@ bl_info = {
     "category": "Import",
 }
 
+
 global import_assets_root
 global import_settings
 
@@ -791,6 +792,40 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
         cropped_emissive_shader.inputs[2].default_value = cropped_emissive_pos.get('B')
         cropped_emissive_shader.inputs[3].default_value = cropped_emissive_pos.get('A')
         links.new(cropped_emissive_shader.outputs[0], emissive_node.inputs[0])
+        
+    if tattoo_texture := first(textures, lambda x: x.get("Name") == "Tattoo_Texture"):
+        if has_override_data:
+            for override_data in override_datas:
+                if found_override := first(override_data.get("Textures"), lambda x: x.get("Name") == tattoo_texture.get("Name")):
+                    tattoo_texture = found_override
+                
+        name = tattoo_texture.get("Name")
+        value = tattoo_texture.get("Value")
+        if image := import_texture(value):
+            image_node = nodes.new(type="ShaderNodeTexImage")
+            image_node.image = image
+            image_node.image.alpha_mode = 'CHANNEL_PACKED'
+            image_node.location = [-500, 0]
+            image_node.hide = True
+            if not tattoo_texture.get("sRGB"):
+                node.image.colorspace_settings.name = "Linear"
+    
+            uvmap_node = nodes.new(type="ShaderNodeUVMap")
+            uvmap_node.location = [-700, 25]
+            uvmap_node.uv_map = 'EXTRAUVS0'
+    
+            links.new(uvmap_node.outputs[0], image_node.inputs[0])
+    
+            mix_node = nodes.new(type="ShaderNodeMixRGB")
+            mix_node.location = [-200, 75]
+    
+            links.new(image_node.outputs[1], mix_node.inputs[0])
+            links.new(image_node.outputs[0], mix_node.inputs[2])
+    
+            diffuse_node = shader_node.inputs["Diffuse"].links[0].from_node
+            diffuse_node.location = [-500, -75]
+            links.new(diffuse_node.outputs[0], mix_node.inputs[1])
+            links.new(mix_node.outputs[0], shader_node.inputs[0])
                 
 def merge_skeletons(parts) -> bpy.types.Armature:
     bpy.ops.object.select_all(action='DESELECT')
@@ -1564,7 +1599,7 @@ def clear_face_pose(active_skeleton):
             active_skeleton.animation_data.action.fcurves.remove(fcurve)
     bpy.ops.object.mode_set(mode='OBJECT')
     
-def hide_bone_heirarchy(active_skeleton, boneName):
+def hide_bone_heirarchy(active_skeleton, boneName, ignore_list):
     bpy.ops.object.mode_set(mode='POSE')
     bpy.ops.pose.select_all(action='DESELECT')
     pose_bones = active_skeleton.pose.bones
@@ -1573,6 +1608,8 @@ def hide_bone_heirarchy(active_skeleton, boneName):
         target_bone.hide = True
         target_bones = target_bone.children_recursive
         for bone in target_bones:
+            if bone.name in ignore_list:
+                continue
             pose_bone = pose_bones[bone.name]
             pose_bone.matrix_basis = Matrix()
             bone.hide = True
@@ -1683,7 +1720,7 @@ def import_response(response):
                     master_skeleton.animation_data.action = None
 
                 # facial animation
-                if mesh.data.shape_keys is not None:
+                if mesh.data.shape_keys is not None and len(curves) > 0:
                     key_blocks = mesh.data.shape_keys.key_blocks
                     for key_block in key_blocks:
                         key_block.value = 0
@@ -1743,7 +1780,7 @@ def import_response(response):
                         import_material(imported_mesh.material_slots.values()[index], material)
     
                     if location_offset := propData.get("LocationOffset"):
-                        imported_item.location += make_vector(location_offset) * 0.01 if import_settings.get("ScaleDown") else 1.00
+                        imported_item.location += make_vector(location_offset) * (0.01 if import_settings.get("ScaleDown") else 1.00)
     
                     if scale := propData.get("Scale"):
                         imported_item.scale = make_vector(scale)
@@ -1778,7 +1815,7 @@ def import_response(response):
                     if (imported_part := import_mesh(part.get("MeshPath"), reorient_bones=import_settings.get("ReorientBones"), lod=min(num_lods-1, import_settings.get("LevelOfDetail")))) is None:
                         continue
 
-                    imported_part.location += make_vector(part.get("Offset")) * 0.01 if import_settings.get("ScaleDown") else 1.00
+                    imported_part.location += make_vector(part.get("Offset")) * (0.01 if import_settings.get("ScaleDown") else 1.00)
                     imported_part.scale = make_vector(part.get("Scale"))
                         
                     if import_type == "Prop":
@@ -1837,8 +1874,9 @@ def import_response(response):
                         
                     if import_settings.get("HideFaceBones"):
                         bpy.context.view_layer.objects.active = imported_part
-                        hide_bone_heirarchy(imported_part, "faceAttach")
-                        hide_bone_heirarchy(imported_part, "FACIAL_C_FacialRoot")
+                        ignore_list = [] if RigType(import_settings.get("RigType")) == RigType.TASTY else ["FACIAL_R_Eye", "FACIAL_L_Eye", "R_eye", "L_eye"]
+                        hide_bone_heirarchy(imported_part, "faceAttach", ignore_list)
+                        hide_bone_heirarchy(imported_part, "FACIAL_C_FacialRoot", ignore_list)
                         bpy.context.view_layer.objects.active = mesh
                     
                     if import_settings.get("QuadTopo"):
@@ -1901,6 +1939,32 @@ def import_response(response):
                 rig_type = RigType(import_settings.get("RigType"))
                 if rig_type == RigType.DEFAULT and import_settings.get("LobbyPoses") and (sequence_data := import_data.get("LinkedSequence")):
                     import_animation_data(sequence_data, override_skel=master_skeleton)
+                    copy_rotation_bones = [
+                        ('dfrm_upperarm_r', 'upperarm_r', 1.0),
+                        ('dfrm_upperarm_l', 'upperarm_l', 1.0),
+                        ('dfrm_lowerarm_r', 'lowerarm_r', 1.0),
+                        ('dfrm_lowerarm_l', 'lowerarm_l', 1.0),
+                        
+                        ('dfrm_thigh_r', 'thigh_r', 1.0),
+                        ('dfrm_thigh_l', 'thigh_l', 1.0),
+                        ('dfrm_calf_r', 'calf_r', 1.0),
+                        ('dfrm_calf_l', 'calf_l', 1.0),
+                    ]
+                    
+                    bpy.context.view_layer.objects.active = master_skeleton 
+                    bpy.ops.object.mode_set(mode='POSE')
+                    for bone_data in copy_rotation_bones:
+                        current, target, weight = bone_data
+                        if not (pose_bone := master_skeleton.pose.bones.get(current)):
+                            continue
+                        
+                        con = pose_bone.constraints.new('COPY_ROTATION')
+                        con.target = master_skeleton
+                        con.subtarget = target
+                        con.influence = weight
+                        con.target_space = 'LOCAL_OWNER_ORIENT'
+                        con.owner_space = 'LOCAL'
+                    bpy.ops.object.mode_set(mode='OBJECT')
                 
                 if rig_type == RigType.TASTY:
                     apply_tasty_rig(master_skeleton)
@@ -1926,6 +1990,43 @@ def handler():
             
         import_event.clear()
     return 0.01
+    
+
+class FortnitePortingPanel(bpy.types.Panel):
+    bl_category = "Fortnite Porting"
+    bl_description = "Fortnite Porting Blender Utilities"
+    bl_label = "Fortnite Porting"
+    bl_region_type = 'UI'
+    bl_space_type = 'VIEW_3D'
+
+    def draw(self, context):
+        layout = self.layout
+        
+        box = layout.box()
+        box.label(text="Rigging", icon="OUTLINER_OB_ARMATURE")
+        box.row().operator("fortnite_porting.tasty", icon='ARMATURE_DATA')
+        box.row().operator("fortnite_porting.tasty_credit", icon='CHECKBOX_HLT')
+        
+class FortnitePortingTasty(bpy.types.Operator):
+    bl_idname = "fortnite_porting.tasty"
+    bl_label = "Apply Tasty Rig"
+
+    def execute(self, context):
+        active = bpy.context.active_object
+        if active.type == "ARMATURE":
+            apply_tasty_rig(active)
+        return {'FINISHED'}
+
+class FortnitePortingTastyCredit(bpy.types.Operator):
+    bl_idname = "fortnite_porting.tasty_credit"
+    bl_label = "Tasty Rig Author"
+
+    def execute(self, context):
+        os.system("start https://twitter.com/Ta5tyy2")
+        return {'FINISHED'}
+
+
+operators = [FortnitePortingPanel, FortnitePortingTasty, FortnitePortingTastyCredit]
 
 def register():
     global import_event
@@ -1936,6 +2037,11 @@ def register():
     server.start()
 
     bpy.app.timers.register(handler, persistent=True)
+    
+    for operator in operators:
+        bpy.utils.register_class(operator)
 
 def unregister():
     server.stop()
+    for operator in operators:
+        bpy.utils.unregister_class(operator)

@@ -7,6 +7,7 @@ namespace FortnitePorting.ViewModels;
 public class SettingsViewModel : ObservableObject
 {
     public bool IsRestartRequired = false;
+    public bool ChangedUpdateChannel = false;
 
     public bool IsLocalInstall => InstallType == EInstallType.Local;
     public EInstallType InstallType
@@ -80,6 +81,8 @@ public class SettingsViewModel : ObservableObject
         {
             AppSettings.Current.UpdateMode = value;
             OnPropertyChanged();
+            ChangedUpdateChannel = true;
+            OnPropertyChanged(nameof(ChangedUpdateChannel));
         }
     }
 

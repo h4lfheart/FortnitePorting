@@ -39,20 +39,23 @@ public partial class PluginUpdateView
         }
 
         var normalBlenderInstall = new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Blender Foundation", "Blender"));
-
-        foreach (var folder in normalBlenderInstall.GetDirectories())
+        if (normalBlenderInstall.Exists)
         {
-            AddInstallation(folder);
+            foreach (var folder in normalBlenderInstall.GetDirectories())
+            {
+                AddInstallation(folder);
+            }
         }
-
+        
         var steamApps = SteamDetection.GetSteamApps(SteamDetection.GetSteamLibs());
         var steamBlender = steamApps.FirstOrDefault(x => x.Name.Contains("Blender", StringComparison.OrdinalIgnoreCase));
-        if (steamBlender is null) return;
-
-        var steamBlenderInstall = new DirectoryInfo(steamBlender.GameRoot);
-        foreach (var folder in steamBlenderInstall.GetDirectories())
+        if (steamBlender is not null)
         {
-            AddInstallation(folder, prefix: "Steam");
+            var steamBlenderInstall = new DirectoryInfo(steamBlender.GameRoot);
+            foreach (var folder in steamBlenderInstall.GetDirectories())
+            {
+                AddInstallation(folder, prefix: "Steam");
+            }
         }
     }
 

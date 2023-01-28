@@ -48,7 +48,7 @@ public partial class MainView
             AppSettings.Current.LastUpdateAskTime = DateTime.Now;
         }
 
-        if (AppSettings.Current.JustUpdated && !updateAvailable && !string.IsNullOrWhiteSpace(AppSettings.Current.ArchivePath))
+        if (AppSettings.Current.JustUpdated && !updateAvailable)
         {
             AppHelper.OpenWindow<PluginUpdateView>();
             AppSettings.Current.JustUpdated = false;

@@ -23,15 +23,19 @@ public class DanceExportData : ExportDataBase
         var data = new DanceExportData();
         data.Name = asset.GetOrDefault("DisplayName", new FText("Unnamed")).Text;
         data.Type = EAssetType.Dance.ToString();
-        data.AnimData = await CreateAnimDataAsync(asset.Get<UAnimMontage>("Animation"));
+
+        var targetMontage = asset.GetOrDefault<UAnimMontage?>("Animation");
+        targetMontage ??= asset.GetOrDefault<UAnimMontage?>("FrontEndAnimation");
+        data.AnimData = await CreateAnimDataAsync(targetMontage);
 
         await Task.WhenAll(ExportHelpers.Tasks);
         return data;
     }
 
-    public static async Task<AnimationData> CreateAnimDataAsync(UAnimMontage montage)
+    public static async Task<AnimationData> CreateAnimDataAsync(UAnimMontage? montage)
     {
         var animData = new AnimationData();
+        if (montage is null) return animData;
         await Task.Run(() =>
         {
             var masterSkeleton = montage.Skeleton.Load<USkeleton>();
