@@ -112,23 +112,23 @@ class Receiver(threading.Thread):
         self.socket_server.sendto("Ping".encode('utf-8'), sender)
 
 
-# Name, Slot, Location, *Linear
+# Name, Slot, Location
 texture_mappings = {
     ("Diffuse", "Diffuse", (-300, -75)),
     ("PM_Diffuse", "Diffuse", (-300, -75)),
     ("PetalDetailMap", "Diffuse", (-300, -75)),
 
-    ("SpecularMasks", "Specular Masks", (-300, -125), True),
-    ("PM_SpecularMasks", "Specular Masks", (-300, -125), True),
-    ("Specular Mask", "Specular Masks", (-300, -125), True),
-    ("SpecMap", "Specular Masks", (-300, -125), True),
+    ("SpecularMasks", "Specular Masks", (-300, -125)),
+    ("PM_SpecularMasks", "Specular Masks", (-300, -125)),
+    ("Specular Mask", "Specular Masks", (-300, -125)),
+    ("SpecMap", "Specular Masks", (-300, -125)),
 
-    ("Normals", "Normals", (-300, -175), True),
-    ("PM_Normals", "Normals", (-300, -125), True),
-    ("Normal", "Normals", (-300, -175), True),
-    ("NormalMap", "Normals", (-300, -175), True),
+    ("Normals", "Normals", (-300, -175)),
+    ("PM_Normals", "Normals", (-300, -125)),
+    ("Normal", "Normals", (-300, -175)),
+    ("NormalMap", "Normals", (-300, -175)),
 
-    ("M", "M", (-300, -225), True),
+    ("M", "M", (-300, -225)),
 
     ("Emissive", "Emissive", (-300, -325)),
     ("PM_Emissive", "Emissive", (-300, -325)),
@@ -338,7 +338,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
             node.location = -300, location
             location -= 40
             
-            if "Normals" in name or "SpecularMasks" in name:
+            if not texture.get("sRGB"):
                 node.image.colorspace_settings.name = "Linear"
 
             links.new(node.outputs[0], shader_node.inputs[name])
@@ -356,7 +356,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
         shader_node.node_tree = bpy.data.node_groups.get(shader_node.name)
         links.new(shader_node.outputs[0], output_node.inputs[0])
 
-        def add_texture(name, slot=None, linear = False):
+        def add_texture(name, slot=None):
             if slot is None:
                 slot = name
             found = first(textures, lambda x: x.get("Name") == name)
@@ -379,7 +379,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
             node.hide = True
             node.location = -400, 0
             
-            if linear:
+            if not found.get("sRGB"):
                 node.image.colorspace_settings.name = "Linear"
 
             links.new(node.outputs[0], shader_node.inputs[slot])
@@ -420,9 +420,9 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
 
         add_texture("Diffuse Texture", "Base Color")
         add_texture("PM_Diffuse", "Base Color")
-        add_texture("Normals", linear=True)
-        add_texture("BakedNormal", "Normals", linear=True)
-        add_texture("PM_Normals", "Normals", linear=True)
+        add_texture("Normals")
+        add_texture("BakedNormal", "Normals")
+        add_texture("PM_Normals", "Normals")
 
         add_scalar("Fresnel Exponent")
         add_scalar("Fresnel Inner Transparency")
@@ -451,7 +451,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
         links.new(shader_node.outputs[0], output_node.inputs[0])
 
         location = 0
-        def add_texture(name, slot=None, linear = False):
+        def add_texture(name, slot=None):
             if slot is None:
                 slot = name
             found = first(textures, lambda x: x.get("Name") == name)
@@ -477,7 +477,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
             node.location = -400, location
             location -= 40
 
-            if linear:
+            if not found.get("sRGB"):
                 node.image.colorspace_settings.name = "Linear"
 
             links.new(node.outputs[0], shader_node.inputs[slot])
@@ -486,12 +486,12 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
 
         add_texture("LitDiffuse")
         add_texture("ShadedDiffuse")
-        add_texture("SSC_Texture", linear=True)
-        add_texture("DistanceField_InkLines", linear=True)
+        add_texture("SSC_Texture")
+        add_texture("DistanceField_InkLines")
         add_texture("InkLineColor_Texture")
-        add_texture("Normals", linear=True)
-        add_texture("SpecularMasks", linear=True)
-        add_texture("Emissive", linear=True)
+        add_texture("Normals")
+        add_texture("SpecularMasks")
+        add_texture("Emissive")
         
         return 
         
@@ -664,7 +664,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
         if info is None:
             return
 
-        _, slot, location, *linear = info
+        _, slot, location = info
         
         if len(shader_node.inputs[slot].links) > 0:
             return
@@ -684,7 +684,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
         if slot == "Diffuse":
             nodes.active = node
 
-        if linear:
+        if not data.get("sRGB"):
             node.image.colorspace_settings.name = "Linear"
 
         links.new(node.outputs[0], shader_node.inputs[slot])
@@ -1563,6 +1563,20 @@ def clear_face_pose(active_skeleton):
         for fcurve in dispose_curves:
             active_skeleton.animation_data.action.fcurves.remove(fcurve)
     bpy.ops.object.mode_set(mode='OBJECT')
+    
+def hide_bone_heirarchy(active_skeleton, boneName):
+    bpy.ops.object.mode_set(mode='POSE')
+    bpy.ops.pose.select_all(action='DESELECT')
+    pose_bones = active_skeleton.pose.bones
+    bones = active_skeleton.data.bones
+    if target_bone := first(bones, lambda x: x.name == boneName):
+        target_bone.hide = True
+        target_bones = target_bone.children_recursive
+        for bone in target_bones:
+            pose_bone = pose_bones[bone.name]
+            pose_bone.matrix_basis = Matrix()
+            bone.hide = True
+    bpy.ops.object.mode_set(mode='OBJECT')
 
 def import_response(response):
     append_data()
@@ -1820,48 +1834,12 @@ def import_response(response):
                         bpy.ops.pose.transforms_clear()
                         bpy.ops.object.mode_set(mode='OBJECT')
                         bpy.context.view_layer.objects.active = mesh
-
-                                
-                    '''if poses := part.get("Poses"):
-                        for pose in poses:
-                            # bone offsets
-                            bpy.context.view_layer.objects.active = imported_part
-                            bpy.ops.object.mode_set(mode='POSE')
-                            for transform_parameter in pose.get("Transforms"):
-                                transform = transform_parameter.get("Value")
-                                if transform is None:
-                                    continue
-
-                                pose_bone = imported_part.pose.bones.get(transform_parameter.get("Name"))
-                                if pose_bone is None:
-                                    continue
-                                
-                                offset_loc = make_vector(transform.get("Translation")) * 0.01 if import_settings.get("ScaleDown") else 1.00
-                                offset_rot = make_quat(transform.get("Rotation"))
-                                offset_scale = make_vector(transform.get("Scale3D"))
-
-                                pose_bone.rotation_quaternion.rotate(offset_rot)
-                                pose_bone.location += offset_loc
-                                pose_bone.scale += offset_scale
-
-
-                                # apply transforms as shape key
-                            bpy.ops.object.mode_set(mode='OBJECT')
-                            bpy.context.view_layer.objects.active = mesh
-
-                            bpy.ops.object.modifier_apply_as_shapekey(keep_modifier=True, modifier=mesh.modifiers[0].name) # always armature modifier for psk
-                            shape_key_blocks = mesh.data.shape_keys.key_blocks
-                            shape_key_blocks[-1].name = pose.get("Name")
-                            
-                            # reset transforms
-                            for bone in imported_part.pose.bones:
-                                bone.matrix_basis = Matrix()
-
-
-                        shape_key_blocks = mesh.data.shape_keys.key_blocks
-                        for block in shape_key_blocks:
-                            if any(poses, lambda x: x.get("Name") == block.name):
-                                block.relative_key = shape_key_blocks[-1] # base_pose'''
+                        
+                    if import_settings.get("HideFaceBones"):
+                        bpy.context.view_layer.objects.active = imported_part
+                        hide_bone_heirarchy(imported_part, "faceAttach")
+                        hide_bone_heirarchy(imported_part, "FACIAL_C_FacialRoot")
+                        bpy.context.view_layer.objects.active = mesh
                     
                     if import_settings.get("QuadTopo"):
                         bpy.ops.object.mode_set(mode='EDIT')

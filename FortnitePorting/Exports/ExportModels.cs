@@ -62,7 +62,7 @@ public record ExportMaterialParams
     public List<VectorParameter> Vectors = new();
 }
 
-public record TextureParameter(string Name, string Value);
+public record TextureParameter(string Name, string Value, bool sRGB);
 
 public record ScalarParameter(string Name, float Value);
 

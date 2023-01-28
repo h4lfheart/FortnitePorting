@@ -271,11 +271,10 @@
                 </Grid>
             </GroupBox>
             
-            <GroupBox Grid.Row="3" Grid.Column="0" Padding="{adonisUi:Space 0}" adonisExt:LayerExtension.Layer="3" BorderThickness="1" 
-                      BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer3BorderBrush}}">
-               <ScrollViewer adonisExt:ScrollViewerExtension.VerticalScrollBarExpansionMode="NeverExpand">
-                   <ItemsControl Name="LoggerBox" Margin="{adonisUi:Space 1}" Background="Transparent" BorderThickness="0"></ItemsControl>
-               </ScrollViewer>
+            <GroupBox Grid.Row="3" Grid.Column="0" Padding="{adonisUi:Space 0}" adonisExt:LayerExtension.Layer="3" BorderThickness="1" BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer3BorderBrush}}">
+                <ScrollViewer adonisExt:ScrollViewerExtension.VerticalScrollBarExpansionMode="NeverExpand">
+                    <ItemsControl Name="LoggerBox" Margin="{adonisUi:Space 1}" Background="Transparent" BorderThickness="0"/>
+                </ScrollViewer>
             </GroupBox>
             
            

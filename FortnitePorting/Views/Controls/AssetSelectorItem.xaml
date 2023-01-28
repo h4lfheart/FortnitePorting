@@ -4,7 +4,7 @@
              xmlns:local="clr-namespace:FortnitePorting.Views.Controls"
              xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
              DataContext="{Binding RelativeSource={RelativeSource Self}}">
-    <StackPanel HorizontalAlignment="Center" Width="64" Height="80">
+    <StackPanel HorizontalAlignment="Center">
         <StackPanel.ToolTip>
             <ToolTip Padding="0" BorderThickness="1" BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer3BorderBrush}}">
                 <StackPanel Background="{DynamicResource {x:Static adonisUi:Brushes.Layer0BackgroundBrush}}">
@@ -48,6 +48,6 @@
             <Image Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" x:Name="DisplayImage" Width="64" Height="64" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
             <Image Grid.Row="0" Grid.Column="1" Margin="0 0 0 40" Visibility="{Binding FavoriteVisibility, RelativeSource={RelativeSource AncestorType=local:AssetSelectorItem}}" Source="/FortnitePorting;component/Resources/Favorite.png" RenderOptions.BitmapScalingMode="Linear"/>
         </Grid>
-        <TextBlock Text="{Binding DisplayName, RelativeSource={RelativeSource AncestorType=local:AssetSelectorItem}, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Center" TextTrimming="WordEllipsis"/>
+        <TextBlock MaxWidth="64" Text="{Binding DisplayName, RelativeSource={RelativeSource AncestorType=local:AssetSelectorItem}, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Center" TextTrimming="WordEllipsis"/>
     </StackPanel>
 </UserControl>

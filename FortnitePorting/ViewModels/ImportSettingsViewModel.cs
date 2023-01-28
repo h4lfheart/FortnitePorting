@@ -56,6 +56,16 @@ public class ImportSettingsViewModel : ObservableObject
             OnPropertyChanged();
         }
     }
+    
+    public bool BlenderHideFaceBones
+    {
+        get => AppSettings.Current.BlenderExportSettings.HideFaceBones;
+        set
+        {
+            AppSettings.Current.BlenderExportSettings.HideFaceBones = value;
+            OnPropertyChanged();
+        }
+    }
 
     public float BlenderBoneLengthRatio
     {

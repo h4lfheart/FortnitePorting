@@ -317,7 +317,7 @@ public static class ExportHelpers
         foreach (var parameter in materialInstance.TextureParameterValues)
         {
             if (!parameter.ParameterValue.TryLoad(out UTexture2D texture)) continue;
-            textures.Add(new TextureParameter(parameter.ParameterInfo.Name.Text, texture.GetPathName()));
+            textures.Add(new TextureParameter(parameter.ParameterInfo.Name.Text, texture.GetPathName(), texture.SRGB));
             Save(texture);
         }
 
@@ -362,13 +362,13 @@ public static class ExportHelpers
         if (parameters.TryGetTexture2d(out var specularMasksTexture, CMaterialParams2.SpecularMasks[0]))
         {
             Save(specularMasksTexture);
-            textures.Add(new TextureParameter("SpecularMasks", specularMasksTexture.GetPathName()));
+            textures.Add(new TextureParameter("SpecularMasks", specularMasksTexture.GetPathName(), specularMasksTexture.SRGB));
         }
 
         if (parameters.TryGetTexture2d(out var normalsTexture, CMaterialParams2.Normals[0]))
         {
             Save(normalsTexture);
-            textures.Add(new TextureParameter("Normals", normalsTexture.GetPathName()));
+            textures.Add(new TextureParameter("Normals", normalsTexture.GetPathName(), normalsTexture.SRGB));
         }
         return (textures, scalars, vectors);
     }
@@ -383,7 +383,7 @@ public static class ExportHelpers
         {
             var texture = (UTexture2D) value;
             Save(texture);
-            textures.Add(new TextureParameter(name, texture.GetPathName()));
+            textures.Add(new TextureParameter(name, texture.GetPathName(), texture.SRGB));
         }
         return (textures, new List<ScalarParameter>(), new List<VectorParameter>());
     }
@@ -394,7 +394,7 @@ public static class ExportHelpers
         foreach (var parameter in data.GetOrDefault("TextureParams", Array.Empty<FStructFallback>()))
         {
             if (!parameter.TryGetValue(out UTexture2D texture, "Value")) continue;
-            textures.Add(new TextureParameter(parameter.Get<FName>("ParamName").Text, texture.GetPathName()));
+            textures.Add(new TextureParameter(parameter.Get<FName>("ParamName").Text, texture.GetPathName(), texture.SRGB));
             Save(texture);
         }
 
