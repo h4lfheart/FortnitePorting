@@ -16,7 +16,7 @@
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
         <TextBlock Grid.Column="0" Text="{Binding Label, RelativeSource={RelativeSource AncestorType=local:NumericSlider}}"/>
-        <Slider Grid.Column="2" Name="SliderValue" Value="{Binding Value, RelativeSource={RelativeSource AncestorType=local:NumericSlider}}" Maximum="{Binding Maximum, RelativeSource={RelativeSource AncestorType=local:NumericSlider}}" Minimum="0" TickPlacement="BottomRight" TickFrequency="{Binding StepSize, RelativeSource={RelativeSource AncestorType=local:NumericSlider}}" IsSnapToTickEnabled="{Binding Snap, RelativeSource={RelativeSource AncestorType=local:NumericSlider}}"  />
+        <Slider Grid.Column="2" Name="SliderValue" Value="{Binding Value, RelativeSource={RelativeSource AncestorType=local:NumericSlider}}" Maximum="{Binding Maximum, RelativeSource={RelativeSource AncestorType=local:NumericSlider}}" Minimum="{Binding Minimum, RelativeSource={RelativeSource AncestorType=local:NumericSlider}}" TickPlacement="BottomRight" TickFrequency="{Binding StepSize, RelativeSource={RelativeSource AncestorType=local:NumericSlider}}" IsSnapToTickEnabled="{Binding Snap, RelativeSource={RelativeSource AncestorType=local:NumericSlider}}"  />
         <TextBox Grid.Column="4" Text="{Binding ElementName=SliderValue, Path=Value, UpdateSourceTrigger=PropertyChanged, StringFormat=N2}" Width="40"/>
     </Grid>
 </UserControl>

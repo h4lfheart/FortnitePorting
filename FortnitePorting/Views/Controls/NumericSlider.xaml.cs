@@ -38,6 +38,20 @@ public partial class NumericSlider
             typeof(NumericSlider),
             new PropertyMetadata(0.1)
         );
+    
+    public static readonly DependencyProperty MinimumProperty =
+        DependencyProperty.Register(
+            nameof(Minimum),
+            typeof(double),
+            typeof(NumericSlider),
+            new PropertyMetadata(0.0)
+        );
+
+    public double Minimum
+    {
+        get => (double) GetValue(MinimumProperty);
+        set => SetValue(MinimumProperty, value);
+    }
 
     public double StepSize
     {

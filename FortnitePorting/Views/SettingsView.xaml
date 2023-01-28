@@ -8,7 +8,8 @@
         xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
         xmlns:adonisCtrls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
         xmlns:adonisExt="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"
-        
+        xmlns:controls="clr-namespace:FortnitePorting.Views.Controls"
+
         Title="Settings" Width="480" SizeToContent="Height" WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
     <Grid>
         <Grid.RowDefinitions>
@@ -31,6 +32,8 @@
                 <RowDefinition Height="{adonisUi:Space 5}"/>  
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="{adonisUi:Space 1}"/>  
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="{adonisUi:Space 1}"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="{adonisUi:Space 1}"/>
                 <RowDefinition Height="Auto"/>
@@ -73,12 +76,13 @@
             
             <TextBlock Grid.Row="14" Grid.Column="0" Text="Light Mode*" VerticalAlignment="Center"/>
             <ToggleButton Grid.Row="14" Grid.Column="2" Grid.ColumnSpan="3" Style="{DynamicResource {x:Static adonisUi:Styles.ToggleSwitch }}" IsChecked="{Binding LightMode}"/>
-
+            
+            <controls:NumericSlider Grid.Row="16" Grid.Column="0" Grid.ColumnSpan="5" Label="Asset Display Size" Minimum="0.5" Maximum="5" StepSize="0.5" Value="{Binding AssetSize, Mode=TwoWay}"/>
         </Grid>
         <Border Grid.Row="2" Background="{DynamicResource {x:Static adonisUi:Brushes.Layer1BackgroundBrush}}" adonisExt:LayerExtension.IncreaseLayer="True">
            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom">
                <TextBlock Text="* requires a restart for changes to take effect"  HorizontalAlignment="Right" VerticalAlignment="Center"></TextBlock>
-               <Button MinWidth="80" Margin="{adonisUi:Space 1}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Content="OK" Click="OnClickOK"/>
+               <Button MinWidth="80" Margin="{adonisUi:Space 1}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Content="Apply" Click="OnClickOK"/>
            </StackPanel>
         </Border>
     </Grid>

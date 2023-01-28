@@ -94,4 +94,14 @@ public class SettingsViewModel : ObservableObject
             OnPropertyChanged(nameof(IsRestartRequired));
         }
     }
+
+    public float AssetSize
+    {
+        get => AppSettings.Current.AssetSize;
+        set
+        {
+            AppSettings.Current.AssetSize = value;
+            OnPropertyChanged();
+        }
+    }
 }

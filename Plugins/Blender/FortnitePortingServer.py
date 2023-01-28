@@ -506,7 +506,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
 
     links.new(shader_node.outputs[0], output_node.inputs[0])
     
-    if material_name == "M_VertexCrunch":
+    if material_name in ["M_VertexCrunch", "DEMO_Master"]:
         shader_node.inputs["Alpha"].default_value = 0.0
         target_material.blend_method = "CLIP"
         target_material.shadow_method = "CLIP"

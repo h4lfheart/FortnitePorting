@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using CommunityToolkit.Mvvm.Input;
@@ -48,7 +49,10 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
     public string Series { get; set; }
     public Visibility FavoriteVisibility { get; set; }
 
-    public AssetSelectorItem(UObject asset, UTexture2D previewTexture, EAssetType type, bool isRandomSelector = false, FText? displayNameOverride = null, bool useIdAsDescription = false)
+    public float Size { get; set; } = AppSettings.Current.AssetSize * 64;
+
+    public AssetSelectorItem(UObject asset, UTexture2D previewTexture, EAssetType type, bool isRandomSelector = false,
+        FText? displayNameOverride = null, bool useIdAsDescription = false)
     {
         InitializeComponent();
         DataContext = this;
@@ -106,7 +110,7 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
 
         DisplayImage.Source = FullSource;
     }
-
+    
     private const int MARGIN = 2;
     private void DrawBackground(SKCanvas canvas, int size)
     {
@@ -195,6 +199,13 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
         }
 
         OnPropertyChanged(nameof(FavoriteVisibility));
+    }
+    
+    public void SetSize(float value)
+    {
+        Size = value * 64;
+
+        OnPropertyChanged(nameof(Size));
     }
 
     public ICommand ExportHDCommand { get; private set; }

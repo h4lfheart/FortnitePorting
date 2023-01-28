@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using AdonisUI;
@@ -24,6 +25,14 @@ public partial class SettingsView
             AppVM.RestartWithMessage("A restart is required.", "An option has been changed that requires a restart to take effect.");
         }
 
+        if (AppVM.AssetHandlerVM is not null)
+        {
+            foreach (var assetSelectorItem in AppVM.AssetHandlerVM.Handlers.Values.Where(x => x.TargetCollection is not null).SelectMany(handler => handler.TargetCollection))
+            {
+                assetSelectorItem.SetSize(AppVM.SettingsVM.AssetSize);
+            }
+        }
+
         if (AppVM.SettingsVM.DiscordRPC)
         {
             DiscordService.Initialize();
@@ -37,7 +46,6 @@ public partial class SettingsView
         MainView.YesWeDogs.Icon = new BitmapImage(new Uri(AppSettings.Current.LightMode ?
             "pack://application:,,,/FortnitePorting-Dark.ico" :
             "pack://application:,,,/FortnitePorting.ico", UriKind.RelativeOrAbsolute));
-        Close();
     }
 
     private void OnClickInstallation(object sender, RoutedEventArgs e)

@@ -83,4 +83,7 @@ public partial class AppSettings : ObservableObject
     
     [ObservableProperty]
     private EImageType imageType = EImageType.PNG;
+
+    [ObservableProperty] 
+    private float assetSize = 1.0f;
 }

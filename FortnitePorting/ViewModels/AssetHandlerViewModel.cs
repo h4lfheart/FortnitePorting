@@ -198,7 +198,7 @@ public class AssetHandlerData
     public Pauser PauseState { get; } = new();
 
     public EAssetType AssetType;
-    public ObservableCollection<AssetSelectorItem> TargetCollection;
+    public ObservableCollection<AssetSelectorItem>? TargetCollection;
     public List<string> ClassNames;
     public List<string> RemoveList = Enumerable.Empty<string>().ToList();
     public Func<UObject, UTexture2D?> IconGetter;
