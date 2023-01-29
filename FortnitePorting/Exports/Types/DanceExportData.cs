@@ -203,7 +203,8 @@ public class DanceExportData : ExportDataBase
             // move onto next
             var nextSection = targetMontage.CompositeSections.FirstOrDefault(x => x.SectionName.Text.Equals(section.NextSectionName.Text));
             if (nextSection is null) break;
-            if (Math.Abs(nextSection.SegmentBeginTime - section.SegmentBeginTime) < 0.01F) break;
+            if (Math.Abs(nextSection.SegmentBeginTime - section.SegmentBeginTime) < 0.01f)
+                nextSection.SegmentBeginTime += section.SegmentLength;
             section = nextSection;
         }
     }

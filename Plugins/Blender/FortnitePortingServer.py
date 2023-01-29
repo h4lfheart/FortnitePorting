@@ -1552,8 +1552,8 @@ def any(target, expr):
 def make_color(data):
     return (data.get("R"), data.get("G"), data.get("B"), data.get("A"))
 
-def make_vector(data):
-    return Vector((data.get("X"), data.get("Y"), data.get("Z")))
+def make_vector(data, mirror_mesh = False):
+    return Vector((data.get("X"), data.get("Y") * (-1 if mirror_mesh else 1), data.get("Z")))
 
 def make_quat(data):
     return Quaternion((data.get("W"), data.get("X"), data.get("Y"), data.get("Z")))
@@ -1734,11 +1734,11 @@ def import_response(response):
                             for key in curve.get("Keys"):
                                 target_block.value = key.get("Value")
                                 target_block.keyframe_insert(data_path="value", frame=key.get("Time")*30)
-                             
-                    strip = mesh_track.strips.new(section_name, int(time_offset * 30), mesh.data.shape_keys.animation_data.action)
-                    strip.name = section_name
-                    strip.repeat = loop_count
-                    mesh.data.shape_keys.animation_data.action = None
+                    if mesh.data.shape_keys.animation_data.action is not None:
+                        strip = mesh_track.strips.new(section_name, int(time_offset * 30), mesh.data.shape_keys.animation_data.action)
+                        strip.name = section_name
+                        strip.repeat = loop_count
+                        mesh.data.shape_keys.animation_data.action = None
                     
             if import_settings.get("UpdateTimeline"):
                 bpy.context.scene.frame_end = total_frames
@@ -1783,7 +1783,7 @@ def import_response(response):
                         import_material(imported_mesh.material_slots.values()[index], material)
     
                     if location_offset := propData.get("LocationOffset"):
-                        imported_item.location += make_vector(location_offset) * (0.01 if import_settings.get("ScaleDown") else 1.00)
+                        imported_item.location += make_vector(location_offset, mirror_mesh=True) * (0.01 if import_settings.get("ScaleDown") else 1.00)
     
                     if scale := propData.get("Scale"):
                         imported_item.scale = make_vector(scale)
