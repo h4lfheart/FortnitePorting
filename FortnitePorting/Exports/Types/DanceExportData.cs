@@ -16,7 +16,7 @@ namespace FortnitePorting.Exports.Types;
 
 public class DanceExportData : ExportDataBase
 {
-    public AnimationData AnimData = new();
+    public AnimationData BaseAnimData = new();
 
     public static async Task<DanceExportData> Create(UObject asset)
     {
@@ -24,68 +24,44 @@ public class DanceExportData : ExportDataBase
         data.Name = asset.GetOrDefault("DisplayName", new FText("Unnamed")).Text;
         data.Type = EAssetType.Dance.ToString();
 
-        var targetMontage = asset.GetOrDefault<UAnimMontage?>("Animation");
-        targetMontage ??= asset.GetOrDefault<UAnimMontage?>("FrontEndAnimation");
-        data.AnimData = await CreateAnimDataAsync(targetMontage);
+        var baseMontage = asset.GetOrDefault<UAnimMontage?>("Animation");
+        baseMontage ??= asset.GetOrDefault<UAnimMontage?>("FrontEndAnimation");
+        
+        var additiveMontage = asset.GetOrDefault<UAnimMontage?>("AnimationFemaleOverride");
+        additiveMontage ??= asset.GetOrDefault<UAnimMontage?>("FrontEndAnimationFemaleOverride");
+        data.BaseAnimData = await CreateAnimDataAsync(baseMontage, additiveMontage);
+        
+       
 
         await Task.WhenAll(ExportHelpers.Tasks);
         return data;
     }
 
-    public static async Task<AnimationData> CreateAnimDataAsync(UAnimMontage? montage)
+    public static async Task<AnimationData> CreateAnimDataAsync(UAnimMontage? baseMontage, UAnimMontage? additiveMontage = null)
     {
         var animData = new AnimationData();
-        if (montage is null) return animData;
+        if (baseMontage is null) return animData;
+
         await Task.Run(() =>
         {
-            var masterSkeleton = montage.Skeleton.Load<USkeleton>();
+            var masterSkeleton = baseMontage.Skeleton.Load<USkeleton>();
             if (masterSkeleton is null) return;
             
             ExportHelpers.Save(masterSkeleton);
             animData.Skeleton = masterSkeleton.GetPathName();
             
             // Sections
-            void ExportSections(UAnimMontage targetMontage, List<EmoteSection> sections)
+            if (additiveMontage is not null)
             {
-                var section = targetMontage.CompositeSections.FirstOrDefault();
-                while (true)
-                {
-                    if (section is null) break;
-                    if (section.LinkedSequence is not null) // empty sections are fine
-                    {
-                        var exportSection = new EmoteSection(section.LinkedSequence.GetPathName(), section.SectionName.Text, section.SegmentBeginTime, section.SegmentLength, section.NextSectionName == section.SectionName);
-                        ExportHelpers.Save(section.LinkedSequence);
-
-                        var floatCurves = section.LinkedSequence.CompressedCurveData.FloatCurves ?? Array.Empty<FFloatCurve>();
-                        foreach (var curve in floatCurves)
-                        {
-                            exportSection.Curves.Add(new Curve
-                            {
-                                Name = curve.Name.DisplayName.Text,
-                                Keys = curve.FloatCurve.Keys.Select(x => new CurveKey(x.Time, x.Value)).ToList()
-                            });
-                        }
-
-                        sections.Add(exportSection);
-                    }
-                
-                    // current section checks
-                    var currentSecitonName = section.SectionName.Text;
-                    var nextSectionName = section.NextSectionName.Text;
-                    if (currentSecitonName.Equals(nextSectionName) || nextSectionName.Equals("None")) break;
-                
-                    // move onto next
-                    var nextSection = targetMontage.CompositeSections.FirstOrDefault(x => x.SectionName.Text.Equals(section.NextSectionName.Text));
-                    if (nextSection is null) break;
-                    if (Math.Abs(nextSection.SegmentBeginTime - section.SegmentBeginTime) < 0.01F) break;
-                    section = nextSection;
-                }
+                ExportSections(baseMontage, animData.Sections, additiveMontage);
+            }
+            else
+            {
+                ExportSections(baseMontage, animData.Sections);
             }
 
-            ExportSections(montage, animData.Sections);
-
-            // Notifies
-            var montageNotifies = montage.GetOrDefault("Notifies", Array.Empty<FStructFallback>());
+                // Notifies
+            var montageNotifies = baseMontage.GetOrDefault("Notifies", Array.Empty<FStructFallback>());
             var propNotifies = new List<FStructFallback>();
             var soundNotifies = new List<FStructFallback>();
             foreach (var notify in montageNotifies)
@@ -157,6 +133,12 @@ public class DanceExportData : ExportDataBase
                             HandleAudioTree(random.ChildNodes[index].Load(), offset);
                             break;
                         }
+                        
+                        case UFortSoundNodeLicensedContentSwitcher switcher:
+                        {
+                            HandleAudioTree(switcher.ChildNodes.Last().Load(), offset);
+                            break;
+                        }
                         case USoundNode generic:
                         {
                             foreach (var nodeObject in generic.ChildNodes)
@@ -178,7 +160,54 @@ public class DanceExportData : ExportDataBase
 
         return animData;
     }
-    
+
+    private static void ExportSections(UAnimMontage targetMontage, List<EmoteSection> sections, UAnimMontage? additiveMontage = null)
+    {
+        var section = targetMontage.CompositeSections.FirstOrDefault();
+        while (true)
+        {
+            if (section is null) break;
+            if (section.LinkedSequence is not null) // empty sections are fine
+            {
+                var exportSection = new EmoteSection(section.LinkedSequence.GetPathName(), section.SectionName.Text, section.SegmentBeginTime, section.SegmentLength, section.NextSectionName == section.SectionName);
+                ExportHelpers.Save(section.LinkedSequence);
+
+                /*if (additiveMontage is not null)
+                {
+                    var additiveSlot = additiveMontage.SlotAnimTracks.First(x => x.SlotName.Text.Equals("AdditiveCorrective"));
+                    var additiveSection = additiveSlot.AnimTrack.AnimSegments.First(x => Math.Abs(x.StartPos - section.SegmentBeginTime) < 0.01);
+
+                    var additiveAnimation = additiveSection.AnimReference;
+                    exportSection.AdditivePath = additiveAnimation.GetPathName();
+                    ExportHelpers.SaveAdditiveAnim(section.LinkedSequence, additiveAnimation);
+                }*/
+
+                var floatCurves = section.LinkedSequence.CompressedCurveData.FloatCurves ?? Array.Empty<FFloatCurve>();
+                foreach (var curve in floatCurves)
+                {
+                    exportSection.Curves.Add(new Curve
+                    {
+                        Name = curve.Name.DisplayName.Text,
+                        Keys = curve.FloatCurve.Keys.Select(x => new CurveKey(x.Time, x.Value)).ToList()
+                    });
+                }
+
+                sections.Add(exportSection);
+            }
+                
+            // current section checks
+            var currentSecitonName = section.SectionName.Text;
+            var nextSectionName = section.NextSectionName.Text;
+            if (currentSecitonName.Equals(nextSectionName) || nextSectionName.Equals("None")) break;
+                
+            // move onto next
+            var nextSection = targetMontage.CompositeSections.FirstOrDefault(x => x.SectionName.Text.Equals(section.NextSectionName.Text));
+            if (nextSection is null) break;
+            if (Math.Abs(nextSection.SegmentBeginTime - section.SegmentBeginTime) < 0.01F) break;
+            section = nextSection;
+        }
+    }
+
     public static UAnimSequence? GetExportSequence(UAnimMontage? montage)
     {
         var sections = montage?.Get<FStructFallback[]>("CompositeSections");

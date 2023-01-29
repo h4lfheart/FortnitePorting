@@ -1644,6 +1644,7 @@ def import_response(response):
 
         if bpy.context.mode != "OBJECT":
             bpy.ops.object.mode_set(mode='OBJECT')
+        
         def import_animation_data(anim_data, override_skel = None):
             if anim_data is None:
                 return
@@ -1654,6 +1655,8 @@ def import_response(response):
                 override_skel.select_set(True)
             
             active_skeleton = armature_from_selection()
+            if active_skeleton is None:
+                return
             mesh = mesh_from_armature(active_skeleton)
 
             active_skeleton.animation_data_create()
@@ -1793,7 +1796,7 @@ def import_response(response):
                     constraint_object(imported_item, master_skeleton, socket_name, rotation)
     
         if import_type == "Dance":
-            anim_data = import_data.get("AnimData")
+            anim_data = import_data.get("BaseAnimData")
             import_animation_data(anim_data)
         else:
             if import_settings.get("IntoCollection"):

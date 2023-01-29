@@ -83,6 +83,7 @@ public class AnimationData
 
 public record EmoteSection(string Path, string Name, float Time, float Length, bool Loop = false)
 {
+    public string AdditivePath;
     public List<Curve> Curves = new();
 }
 public record EmoteSound(string Path, string AudioExtension, float Time, bool Loop);

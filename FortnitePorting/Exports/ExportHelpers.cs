@@ -787,6 +787,12 @@ public static class ExportHelpers
 
         audioFormat = task.GetAwaiter().GetResult();
     }
+    
+    public static void SaveAdditiveAnim(UAnimSequence baseSequence, UAnimSequence additiveSequence)
+    {
+        // TODO PLACEHOLDER FOR NOW
+        Save(additiveSequence);
+    }
 
     private static string GetExportPath(UObject obj, string ext, string extra = "")
     {

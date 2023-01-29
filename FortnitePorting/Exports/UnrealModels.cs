@@ -142,12 +142,15 @@ public class FortAnimNotifyState_EmoteSound : UFortnitePortingCustom
 public class UAnimMontage : UAnimCompositeBase
 {
     public FCompositeSection[] CompositeSections;
+    public FSlotAnimationTrack[] SlotAnimTracks;
     public FAnimNotify[] Notifies;
     public override void Deserialize(FAssetArchive Ar, long validPos)
     {
         base.Deserialize(Ar, validPos);
 
         CompositeSections = GetOrDefault<FCompositeSection[]>(nameof(CompositeSections));
+        SlotAnimTracks = GetOrDefault<FSlotAnimationTrack[]>(nameof(SlotAnimTracks));
+        Notifies = GetOrDefault<FAnimNotify[]>(nameof(Notifies));
     }
 }
 
@@ -188,4 +191,49 @@ public class FAnimNotify : UFortnitePortingCustom
 
 public class UFortSoundNodeLicensedContentSwitcher : USoundNode
 {
+    
+}
+
+[StructFallback]
+public class FSlotAnimationTrack : UFortnitePortingCustom
+{
+    public FName SlotName;
+    public FAnimTrack AnimTrack;
+    
+    public FSlotAnimationTrack(FStructFallback fallback)
+    {
+        SlotName = fallback.GetOrDefault<FName>(nameof(SlotName));
+        AnimTrack = fallback.GetOrDefault<FAnimTrack>(nameof(AnimTrack));
+    }
+}
+
+[StructFallback]
+public class FAnimTrack : UFortnitePortingCustom
+{
+    public FAnimSegment[] AnimSegments;
+    
+    public FAnimTrack(FStructFallback fallback)
+    {
+        AnimSegments = fallback.GetOrDefault<FAnimSegment[]>(nameof(AnimSegments));
+    }
+}
+
+[StructFallback]
+public class FAnimSegment : UFortnitePortingCustom
+{
+    public float AnimEndTime;
+    public float AnimPlayRate;
+    public UAnimSequence AnimReference;
+    public float AnimStartTime;
+    public int LoopingCount;
+    public float StartPos;
+    public FAnimSegment(FStructFallback fallback)
+    {
+        AnimEndTime = fallback.GetOrDefault<float>(nameof(AnimEndTime));
+        AnimPlayRate = fallback.GetOrDefault<float>(nameof(AnimPlayRate));
+        AnimReference = fallback.GetOrDefault<UAnimSequence>(nameof(AnimReference));
+        AnimStartTime = fallback.GetOrDefault<float>(nameof(AnimStartTime));
+        LoopingCount = fallback.GetOrDefault<int>(nameof(LoopingCount));
+        StartPos = fallback.GetOrDefault<float>(nameof(StartPos));
+    }
 }

@@ -1,17 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Windows;
-using SkiaSharp;
 
 namespace FortnitePorting.Views.Extensions;
 
@@ -62,6 +54,25 @@ public static class MiscExtensions
         var list = enumerable.ToList();
         var index = RandomGen.Next(0, list.Count);
         return list[index];
+    }
+    
+    public static void FillDefault<T>(this List<T> enumerable, int count) where T : new()
+    {
+        for (var i = 0; i < count; i++)
+        {
+            enumerable.Add(new T());
+        }
+    }
+    
+    public static List<T> FillDefault<T>(int count) where T : new()
+    {
+        var list = new List<T>();
+        for (var i = 0; i < count; i++)
+        {
+            list.Add(new T());
+        }
+
+        return list;
     }
     
     public static IEnumerable<(int index, T value)> Enumerate<T>(this IEnumerable<T> enumerable) => enumerable.Select((i, val) => (val, i));
