@@ -1935,6 +1935,7 @@ def import_response(response):
                 if import_settings.get("PoseFixes"):
                     master_mesh.modifiers[0].use_deform_preserve_volume = True
                     corrective_smooth = master_mesh.modifiers.new(name="Corrective Smooth", type='CORRECTIVE_SMOOTH')
+                    corrective_smooth.use_pin_boundary = True
                     
                 if import_settings.get("LobbyPoses") and (sequence_data := import_data.get("LinkedSequence")):
                     import_animation_data(sequence_data, override_skel=master_skeleton)
