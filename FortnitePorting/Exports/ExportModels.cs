@@ -1,10 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Animation;
+using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Assets.Utils;
 using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Readers;
+using CUE4Parse.Utils;
 using Newtonsoft.Json;
 
 namespace FortnitePorting.Exports;
@@ -34,6 +38,27 @@ public class ExportPart : ExportMesh
 
     [JsonIgnore]
     public EFortCustomGender GenderPermitted;
+
+    public void ProcessPoses(USkeletalMesh? skeletalMesh, UPoseAsset? poseAsset)
+    {
+        if (skeletalMesh is null || poseAsset is null) return;
+        
+        PoseNames = poseAsset.PoseContainer.PoseNames.Select(x => x.DisplayName.Text).ToArray();
+                            
+        var folderPath = AppVM.CUE4ParseVM.Provider.FixPath(skeletalMesh.GetPathName()).SubstringBeforeLast("/");
+        var folderAssets = AppVM.CUE4ParseVM.Provider.Files.Values.Where(file => file.Path.StartsWith(folderPath, StringComparison.OrdinalIgnoreCase));
+        foreach (var asset in folderAssets)
+        {
+            if (!AppVM.CUE4ParseVM.Provider.TryLoadObject(asset.PathWithoutExtension, out UAnimSequence animSequence)) continue;
+            if (animSequence.Name.Contains("Hand_Cull", StringComparison.OrdinalIgnoreCase)) continue;
+            if (animSequence.Name.Contains("FaceBakePose", StringComparison.OrdinalIgnoreCase)) continue;
+
+            var sequencePath = animSequence.GetPathName();
+            PoseAnimation = sequencePath;
+            ExportHelpers.Save(animSequence);
+            break;
+        }
+    }
 }
 
 public record ExportMaterial

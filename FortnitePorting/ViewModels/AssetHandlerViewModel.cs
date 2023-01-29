@@ -43,7 +43,7 @@ public class AssetHandlerViewModel
             { EAssetType.Dance, DanceHandler },
             { EAssetType.Vehicle, VehicleHandler },
             { EAssetType.Prop, PropHandler },
-            { EAssetType.Mesh, MeshHandler },
+            { EAssetType.Pet, PetHandler }
         };
     }
 
@@ -69,7 +69,7 @@ public class AssetHandlerViewModel
     {
         AssetType = EAssetType.Backpack,
         TargetCollection = AppVM.MainVM.BackBlings,
-        ClassNames = new List<string> { "AthenaBackpackItemDefinition" },
+        ClassNames = new List<string> { "AthenaBackpackItemDefinition"},
         RemoveList = new List<string> { "_STWHeroNoDefaultBackpack", "_TEST", "Dev_", "_NPC", "_TBD" },
         IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
     };
@@ -185,6 +185,15 @@ public class AssetHandlerViewModel
     {
         AssetType = EAssetType.Mesh,
     };
+    
+    private readonly AssetHandlerData PetHandler = new()
+    {
+        AssetType = EAssetType.Pet,
+        TargetCollection = AppVM.MainVM.Pets,
+        ClassNames = new List<string> { "AthenaPetCarrierItemDefinition" },
+        RemoveList = { },
+        IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
+    };
 
     public async Task Initialize()
     {
@@ -211,7 +220,7 @@ public class AssetHandlerData
         var sw = new Stopwatch();
         sw.Start();
         
-        if (AssetType == EAssetType.Mesh)
+        /*if (AssetType == EAssetType.Mesh)
         {
             await Parallel.ForEachAsync(AppVM.CUE4ParseVM.Provider.Files.Values, async (data, token) =>
             {
@@ -249,48 +258,45 @@ public class AssetHandlerData
                 content.IsExpanded = true;
                 
             }, DispatcherPriority.Background);
-        }
-        else
+        }*/
+        var items = AppVM.CUE4ParseVM.AssetDataBuffers
+            .Where(x => ClassNames.Any(y => x.AssetClass.Text.Equals(y, StringComparison.OrdinalIgnoreCase)))
+            .Where(x => !RemoveList.Any(y => x.AssetName.Text.Contains(y, StringComparison.OrdinalIgnoreCase)))
+            .ToList();
+
+        // prioritize random first cuz of parallel list positions
+        var random = items.FirstOrDefault(x => x.AssetName.Text.Contains("Random", StringComparison.OrdinalIgnoreCase));
+        if (random is not null && AssetType != EAssetType.Prop)
         {
-            var items = AppVM.CUE4ParseVM.AssetDataBuffers
-                .Where(x => ClassNames.Any(y => x.AssetClass.Text.Equals(y, StringComparison.OrdinalIgnoreCase)))
-                .Where(x => !RemoveList.Any(y => x.AssetName.Text.Contains(y, StringComparison.OrdinalIgnoreCase)))
-                .ToList();
-
-            // prioritize random first cuz of parallel list positions
-            var random = items.FirstOrDefault(x => x.AssetName.Text.Contains("Random", StringComparison.OrdinalIgnoreCase));
-            if (random is not null && AssetType != EAssetType.Prop)
-            {
-                items.Remove(random);
-                await DoLoad(random, AssetType, true);
-            }
-        
-
-            var addedAssets = new List<string>();
-            await Parallel.ForEachAsync(items, async (data, token) =>
-            {
-                // TODO figure out differentiate rarities with diff meshes
-                if (data.TagsAndValues.ContainsKey("DisplayName") && AssetType is EAssetType.Weapon or EAssetType.Prop)
-                {
-                    var displayName = data.TagsAndValues["DisplayName"].SubstringBeforeLast('"').SubstringAfterLast('"').Trim();
-                    if (addedAssets.ToArray().Contains(displayName, StringComparer.OrdinalIgnoreCase))
-                    {
-                        return;
-                    }
-                    addedAssets.Add(displayName);
-                }
-
-                try
-                {
-                    await DoLoad(data, AssetType);
-                }
-                catch (Exception e)
-                {
-                    Log.Error("Failed to load {ObjectPath}", data.ObjectPath);
-                }
-
-            });
+            items.Remove(random);
+            await DoLoad(random, AssetType, true);
         }
+    
+
+        var addedAssets = new List<string>();
+        await Parallel.ForEachAsync(items, async (data, token) =>
+        {
+            // TODO figure out differentiate rarities with diff meshes
+            if (data.TagsAndValues.ContainsKey("DisplayName") && AssetType is EAssetType.Weapon or EAssetType.Prop)
+            {
+                var displayName = data.TagsAndValues["DisplayName"].SubstringBeforeLast('"').SubstringAfterLast('"').Trim();
+                if (addedAssets.ToArray().Contains(displayName, StringComparer.OrdinalIgnoreCase))
+                {
+                    return;
+                }
+                addedAssets.Add(displayName);
+            }
+
+            try
+            {
+                await DoLoad(data, AssetType);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Failed to load {ObjectPath}", data.ObjectPath);
+            }
+
+        });
         sw.Stop();
         AppLog.Information($"Loaded {AssetType.GetDescription()} in {Math.Round(sw.Elapsed.TotalSeconds, 2)}s");
     }

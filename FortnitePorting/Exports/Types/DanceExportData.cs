@@ -160,6 +160,36 @@ public class DanceExportData : ExportDataBase
 
         return animData;
     }
+    
+     public static async Task<AnimationData> CreateAnimDataAsync(UAnimSequence sequence, bool loop = false)
+    {
+        var animData = new AnimationData();
+
+        await Task.Run(() =>
+        {
+            var masterSkeleton = sequence.Skeleton.Load<USkeleton>();
+            if (masterSkeleton is null) return;
+            
+            ExportHelpers.Save(masterSkeleton);
+            animData.Skeleton = masterSkeleton.GetPathName();
+            
+            var exportSection = new EmoteSection(sequence.GetPathName(), "Default", 0, sequence.SequenceLength, loop);
+            ExportHelpers.Save(sequence);
+            
+            var floatCurves = sequence.CompressedCurveData.FloatCurves ?? Array.Empty<FFloatCurve>();
+            foreach (var curve in floatCurves)
+            {
+                exportSection.Curves.Add(new Curve
+                {
+                    Name = curve.Name.DisplayName.Text,
+                    Keys = curve.FloatCurve.Keys.Select(x => new CurveKey(x.Time, x.Value)).ToList()
+                });
+            }
+            animData.Sections.Add(exportSection);
+        });
+
+        return animData;
+    }
 
     private static void ExportSections(UAnimMontage targetMontage, List<EmoteSection> sections, UAnimMontage? additiveMontage = null)
     {

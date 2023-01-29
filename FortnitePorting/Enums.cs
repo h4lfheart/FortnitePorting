@@ -24,6 +24,9 @@ public enum EAssetType
 
     [Description("Gliders")]
     Glider,
+    
+    [Description("Pets")]
+    Pet,
 
     [Description("Weapons")]
     Weapon,

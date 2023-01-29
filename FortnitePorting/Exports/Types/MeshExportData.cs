@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using CUE4Parse.GameTypes.FN.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
@@ -11,6 +13,7 @@ using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.Engine;
+using CUE4Parse.UE4.Objects.Engine.Animation;
 using CUE4Parse.UE4.Objects.GameplayTags;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
@@ -72,10 +75,49 @@ public class MeshExportData : ExportDataBase
                     ExportHelpers.CharacterParts(parts, data.Parts);
                     break;
                 }
+                case EAssetType.Pet:
+                {
+                    var parts = asset.GetOrDefault("CharacterParts", Array.Empty<UObject>());
+                    ExportHelpers.CharacterParts(parts, data.Parts);
+
+                    var petData = asset.Get<UObject>("DefaultPet");
+
+                    var petBlueprintClass = petData.Get<UBlueprintGeneratedClass>("PetPrefabClass");
+                    var petBlueprintData = await petBlueprintClass.ClassDefaultObject.LoadAsync();
+                    
+                    var petMeshComponent = petBlueprintData.Get<UObject>("PetMesh");
+                    var petMesh = petMeshComponent.GetOrDefault<USkeletalMesh?>("SkeletalMesh");
+                    petMesh ??= petMeshComponent.GetOrDefault<USkeletalMesh?>("SkinnedAsset");
+                    if (petMesh is null) break;
+                    
+                    var exportPart = ExportHelpers.Mesh<ExportPart>(petMesh);
+                    if (exportPart is null) break;
+                    exportPart.Part = "PetMesh";
+                    
+                    var animClass = petMeshComponent.Get<UAnimBlueprintGeneratedClass>("AnimClass");
+                    var animClassDefaultObject = await animClass.ClassDefaultObject.LoadAsync();
+                    exportPart.ProcessPoses(petMesh, animClassDefaultObject.GetOrDefault<UPoseAsset>("FacePoseAsset"));
+                    data.Parts.Add(exportPart);
+
+                    var sequencePlayerNames = animClassDefaultObject.Properties.Where(x => x.Name.Text.Contains("SequencePlayer")).Select(x => x.Name.Text);
+                    foreach (var sequencePlayerName in sequencePlayerNames)
+                    {
+                        var sequencePlayer = animClassDefaultObject.Get<FStructFallback>(sequencePlayerName);
+                        var sequence = sequencePlayer.Get<UAnimSequence>("Sequence");
+                        if (sequence.Name.Contains("Idle_Lobby", StringComparison.OrdinalIgnoreCase))
+                        {
+                            data.LinkedSequence = await DanceExportData.CreateAnimDataAsync(sequence, loop: true);
+                            break;
+                        }
+                    }
+                    
+                    break;
+                }
                 case EAssetType.Glider:
                 {
                     var mesh = asset.Get<USkeletalMesh>("SkeletalMesh");
                     var part = ExportHelpers.Mesh<ExportPart>(mesh);
+                    if (part is null) break;
                     var overrides = asset.GetOrDefault("MaterialOverrides", Array.Empty<FStructFallback>());
                     ExportHelpers.OverrideMaterials(overrides, part.OverrideMaterials);
                     data.Parts.Add(part);
@@ -139,6 +181,7 @@ public class MeshExportData : ExportDataBase
                         var componentStaticMesh = staticMeshComponent.GetOrDefault<UStaticMesh?>("StaticMesh");
                         if (componentStaticMesh is null) continue;
                         var export = ExportHelpers.Mesh(componentStaticMesh);
+                        if (export is null) continue;
                         data.Parts.Add(export);
                     }
 
@@ -157,8 +200,7 @@ public class MeshExportData : ExportDataBase
                     {
                         if (templateRecord is null) continue;
                         var actor = templateRecord.ActorClass.Load<UBlueprintGeneratedClass>();
-                        var classDefaultObject = actor.ClassDefaultObject.Load();
-                        if (classDefaultObject is null) continue;
+                        var classDefaultObject = await actor.ClassDefaultObject.LoadAsync();
 
                         if (classDefaultObject.TryGetValue(out UStaticMesh staticMesh, "StaticMesh"))
                         {

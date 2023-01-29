@@ -72,16 +72,16 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="{adonisUi:Space 1}"/>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="{adonisUi:Space 1}"/>
-                    <ColumnDefinition Width="*"/>
+                    <!--ColumnDefinition Width="{adonisUi:Space 1}"/>
+                    <ColumnDefinition Width="*"/-->
                 </Grid.ColumnDefinitions>
                 
                 <TextBox Grid.Column="0" adonisExt:LayerExtension.Layer="2" adonisExt:WatermarkExtension.Watermark="Search..." TextChanged="OnSearchTextChanged"/>
                 <controls:TextWithIcon Grid.Column="2" Label="Sort By" ImageSource="/FortnitePorting;component/Resources/Sort.png" IconSize="16"/>
                 <ComboBox Grid.Column="4" ItemsSource="{extensions:EnumToItemsSource {x:Type local:ESortType}}" SelectedItem="{Binding SortType, Converter={StaticResource EnumToString}}" SelectionChanged="OnSortSelectionChanged"/>
 
-                <controls:TextWithIcon Grid.Column="6" Label="Filter By" ImageSource="/FortnitePorting;component/Resources/Filter.png" IconSize="16"/>
-                <ComboBox Grid.Column="8" ItemsSource="{extensions:EnumToItemsSource {x:Type local:ESortType}}" SelectedItem="{Binding FilterType, Converter={StaticResource EnumToString}}"/>
+                <!--controls:TextWithIcon Grid.Column="6" Label="Filter By" ImageSource="/FortnitePorting;component/Resources/Filter.png" IconSize="16"/>
+                <ComboBox Grid.Column="8" ItemsSource="{extensions:EnumToItemsSource {x:Type local:ESortType}}" SelectedItem="{Binding FilterType, Converter={StaticResource EnumToString}}"/-->
 
             </Grid>
             <GroupBox Grid.Row="1" Grid.Column="0" Padding="{adonisUi:Space 0}" adonisExt:LayerExtension.Layer="2" Background="Transparent">
@@ -100,7 +100,7 @@
                     </TabItem>
                     <TabItem Style="{StaticResource TabItemEqualSize}">
                         <TabItem.Header>
-                            <controls:TextWithIcon Label="Back Blings" ImageSource="/FortnitePorting;component/Resources/Backpack.png"/>
+                            <controls:TextWithIcon Label="Backpacks" ImageSource="/FortnitePorting;component/Resources/Backpack.png"/>
                         </TabItem.Header>
                         <ListBox ItemsSource="{Binding BackBlings}" SelectionChanged="OnAssetSelectionChanged">
                             <ListBox.ItemsPanel>
@@ -127,6 +127,18 @@
                             <controls:TextWithIcon Label="Gliders" ImageSource="/FortnitePorting;component/Resources/Glider.png"/>
                         </TabItem.Header>
                         <ListBox ItemsSource="{Binding Gliders}" SelectionChanged="OnAssetSelectionChanged">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <toolkitCtrls:VirtualizingWrapPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                        </ListBox>
+                    </TabItem>
+                    <TabItem Style="{StaticResource TabItemEqualSize}">
+                        <TabItem.Header>
+                            <controls:TextWithIcon Label="Pets" ImageSource="/FortnitePorting;component/Resources/Pet.png"/>
+                        </TabItem.Header>
+                        <ListBox SelectionMode="Extended" ItemsSource="{Binding Pets}" SelectionChanged="OnAssetSelectionChanged">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <toolkitCtrls:VirtualizingWrapPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left"/>
@@ -182,12 +194,12 @@
                             </ListBox.ItemsPanel>
                         </ListBox>
                     </TabItem>
-                    <TabItem Style="{StaticResource TabItemEqualSize}">
+                    <!--TabItem Style="{StaticResource TabItemEqualSize}">
                         <TabItem.Header>
                             <controls:TextWithIcon Label="Meshes" ImageSource="/FortnitePorting;component/Resources/Mesh.png"/>
                         </TabItem.Header>
                         <TreeView Name="MeshAssets" Style="{StaticResource AssetsFolderTreeView}"></TreeView>
-                    </TabItem>
+                    </TabItem-->
                 </TabControl>
             </GroupBox>
             

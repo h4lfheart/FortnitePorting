@@ -266,6 +266,14 @@ layered_texture_names = [
     "SpecularMasks_4"
 ]
 
+def set_linear(node: bpy.types.ShaderNodeTexImage):
+    for name in ["Linear BT.709", "Linear"]:
+        try:
+            node.image.colorspace_settings.name = name
+            break
+        except Exception:
+            pass
+
 def import_material(target_slot: bpy.types.MaterialSlot, material_data):
 
     if not import_settings.get("ImportMaterials"):
@@ -340,7 +348,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
             location -= 40
             
             if not texture.get("sRGB"):
-                node.image.colorspace_settings.name = "Linear"
+                set_linear(node)
 
             links.new(node.outputs[0], shader_node.inputs[name])
             
@@ -381,7 +389,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
             node.location = -400, 0
             
             if not found.get("sRGB"):
-                node.image.colorspace_settings.name = "Linear"
+                set_linear(node)
 
             links.new(node.outputs[0], shader_node.inputs[slot])
 
@@ -479,7 +487,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
             location -= 40
 
             if not found.get("sRGB"):
-                node.image.colorspace_settings.name = "Linear"
+                set_linear(node)
 
             links.new(node.outputs[0], shader_node.inputs[slot])
 
@@ -686,7 +694,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
             nodes.active = node
 
         if not data.get("sRGB"):
-            node.image.colorspace_settings.name = "Linear"
+            set_linear(node)
 
         links.new(node.outputs[0], shader_node.inputs[slot])
 
@@ -808,7 +816,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
             image_node.location = [-500, 0]
             image_node.hide = True
             if not tattoo_texture.get("sRGB"):
-                node.image.colorspace_settings.name = "Linear"
+                set_linear(image_node)
     
             uvmap_node = nodes.new(type="ShaderNodeUVMap")
             uvmap_node.location = [-700, 25]
@@ -827,7 +835,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
             links.new(diffuse_node.outputs[0], mix_node.inputs[1])
             links.new(mix_node.outputs[0], shader_node.inputs[0])
                 
-def merge_skeletons(parts) -> bpy.types.Armature:
+def merge_skeletons(parts):
     bpy.ops.object.select_all(action='DESELECT')
 
     merge_parts = []
@@ -917,7 +925,7 @@ def merge_skeletons(parts) -> bpy.types.Armature:
             constraint_object(skeleton, master_skeleton, socket)
         
   
-    return master_skeleton
+    return (master_skeleton, constraint_parts)
 
 def apply_tasty_rig(master_skeleton: bpy.types.Armature):
     ik_group = master_skeleton.pose.bone_groups.new(name='IKGroup')
@@ -1588,6 +1596,7 @@ def clear_face_pose(active_skeleton):
     bones = active_skeleton.data.bones
     if face_bone := first(bones, lambda x: x.name == "faceAttach"):
         face_bones = face_bone.children_recursive
+        face_bones.append(face_bone)
         dispose_paths = []
         for bone in face_bones:
             dispose_paths.append('pose.bones["{}"].rotation_quaternion'.format(bone.name))
@@ -1919,9 +1928,19 @@ def import_response(response):
                     for slot in slots:
                         import_material(slot, style_material)
                         
+            if import_type == "Pet" and (imported_pet := first(imported_parts, lambda x: x.get("Part") == "PetMesh")):
+                master_skeleton = imported_pet.get("Armature")
+                master_mesh = mesh_from_armature(master_skeleton)
+                
+                if import_settings.get("PoseFixes"):
+                    master_mesh.modifiers[0].use_deform_preserve_volume = True
+                    corrective_smooth = master_mesh.modifiers.new(name="Corrective Smooth", type='CORRECTIVE_SMOOTH')
+                    
+                if import_settings.get("LobbyPoses") and (sequence_data := import_data.get("LinkedSequence")):
+                    import_animation_data(sequence_data, override_skel=master_skeleton)
             
             if import_settings.get("MergeSkeletons") and import_type == "Outfit":
-                master_skeleton = merge_skeletons(imported_parts)
+                master_skeleton, constraint_parts = merge_skeletons(imported_parts)
                 master_mesh = mesh_from_armature(master_skeleton)
                 if import_settings.get("PoseFixes"):
                     master_mesh.modifiers[0].use_deform_preserve_volume = True
@@ -1938,6 +1957,19 @@ def import_response(response):
                     
                     master_mesh.data.materials.append(bpy.data.materials.get("FP_OutlineMaterial"))
                     solidify.material_offset = len(master_mesh.data.materials)-1
+                    
+                    for part in constraint_parts:
+                        part_mesh = part.get("Mesh")
+                        solidify = part_mesh.modifiers.new(name="Outline", type='SOLIDIFY')
+                        solidify.thickness = 0.0015
+                        solidify.offset = 1.0
+                        solidify.use_rim = False
+                        solidify.use_flip_normals = True
+                        solidify.thickness_clamp = 5.0
+                        
+                        part_mesh.data.materials.append(bpy.data.materials.get("FP_OutlineMaterial"))
+                        solidify.material_offset = len(part_mesh.data.materials)-1
+                        
 
                 rig_type = RigType(import_settings.get("RigType"))
                 if rig_type == RigType.DEFAULT and import_settings.get("LobbyPoses") and (sequence_data := import_data.get("LinkedSequence")):

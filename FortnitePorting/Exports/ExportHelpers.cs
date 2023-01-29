@@ -91,21 +91,7 @@ public static class ExportHelpers
                         if (classDefaultObject?.TryGetValue(out FStructFallback poseAssetNode, "AnimGraphNode_PoseBlendNode") ?? false)
                         {
                             var poseAsset = poseAssetNode.Get<UPoseAsset>("PoseAsset");
-                            exportPart.PoseNames = poseAsset.PoseContainer.PoseNames.Select(x => x.DisplayName.Text).ToArray();
-                            
-                            var folderPath = AppVM.CUE4ParseVM.Provider.FixPath(skeletalMesh.GetPathName()).SubstringBeforeLast("/");
-                            var folderAssets = AppVM.CUE4ParseVM.Provider.Files.Values.Where(file => file.Path.StartsWith(folderPath, StringComparison.OrdinalIgnoreCase));
-                            foreach (var asset in folderAssets)
-                            {
-                                if (!AppVM.CUE4ParseVM.Provider.TryLoadObject(asset.PathWithoutExtension, out UAnimSequence animSequence)) continue;
-                                if (animSequence.Name.Contains("Hand_Cull", StringComparison.OrdinalIgnoreCase)) continue;
-                                if (animSequence.Name.Contains("FaceBakePose", StringComparison.OrdinalIgnoreCase)) continue;
-
-                                var sequencePath = animSequence.GetPathName();
-                                exportPart.PoseAnimation = sequencePath;
-                                Save(animSequence);
-                                break;
-                            }
+                            exportPart.ProcessPoses(skeletalMesh, poseAsset);
                         }
                         else if (skeletalMesh.ReferenceSkeleton.FinalRefBoneInfo.Any(bone => bone.Name.Text.Equals("FACIAL_C_FacialRoot", StringComparison.OrdinalIgnoreCase)))
                         {
