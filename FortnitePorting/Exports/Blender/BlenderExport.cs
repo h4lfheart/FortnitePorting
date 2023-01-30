@@ -3,9 +3,7 @@ using FortnitePorting.Exports.Types;
 
 namespace FortnitePorting.Exports.Blender;
 
-public class BlenderExport
+public class BlenderExport : ExportBase
 {
-    public string AssetsRoot;
     public BlenderExportSettings Settings;
-    public List<ExportDataBase> Data;
 }

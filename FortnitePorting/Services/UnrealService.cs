@@ -1,31 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading.Tasks;
 using FortnitePorting.Exports;
 using FortnitePorting.Exports.Blender;
 using FortnitePorting.Exports.Types;
+using FortnitePorting.Exports.Unreal;
 using FortnitePorting.Services.Export;
-using FortnitePorting.Views.Extensions;
 using Ionic.Zlib;
 using Newtonsoft.Json;
 
 namespace FortnitePorting.Services;
 
-public class BlenderSocketService : SocketServiceBase
+public class UnrealSocketService : SocketServiceBase
 {
-    protected override IPEndPoint Endpoint { get; set; } = new(IPAddress.Parse(Globals.LOCALHOST), Globals.BLENDER_PORT);
+    protected override IPEndPoint Endpoint { get; set; } = new(IPAddress.Parse(Globals.LOCALHOST), Globals.UNREAL_PORT);
     
     public override void Send(List<ExportDataBase> data, ExportSettingsBase settings)
     {
-        var blenderExportSettings = (BlenderExportSettings) settings;
-        var export = new BlenderExport
+        var unrealExportSettings = (UnrealExportSettings) settings;
+        var export = new UnrealExport
         {
             Data = data,
-            Settings = blenderExportSettings,
+            Settings = unrealExportSettings,
             AssetsRoot = App.AssetsFolder.FullName.Replace("\\", "/")
         };
 
@@ -38,7 +35,7 @@ public class BlenderSocketService : SocketServiceBase
     }
 }
 
-public static class BlenderService
+public static class UnrealService
 {
-    public static BlenderSocketService Client = new();
+    public static UnrealSocketService Client = new();
 }

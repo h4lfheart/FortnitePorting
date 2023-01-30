@@ -4,6 +4,7 @@ using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.Versions;
 using FortnitePorting.Exports.Blender;
+using FortnitePorting.Exports.Unreal;
 using FortnitePorting.Services.Endpoints.Models;
 using Newtonsoft.Json;
 
@@ -50,6 +51,9 @@ public partial class AppSettings : ObservableObject
 
     [ObservableProperty]
     private BlenderExportSettings blenderExportSettings;
+    
+    [ObservableProperty]
+    private UnrealExportSettings unrealExportSetttings;
 
     [ObservableProperty]
     private List<string> favoriteIDs = new();

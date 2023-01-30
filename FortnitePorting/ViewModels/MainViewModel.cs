@@ -149,15 +149,8 @@ public partial class MainViewModel : ObservableObject
         UpdateService.Start();
     }
 
-    [RelayCommand]
-    public async Task ExportBlender()
+    public async Task<List<ExportDataBase>> CreateExportDatasAsync()
     {
-        if (!BlenderService.PingServer())
-        {
-            AppVM.Warning("Failed to Establish Connection with FortnitePorting Server", "Please make sure you have installed the FortnitePortingServer.zip file and have an instance of Blender open.");
-            return;
-        }
-
         var exportAssets = new List<AssetSelectorItem>();
         if (ExtendedAssets.Count > 0)
         {
@@ -192,13 +185,38 @@ public partial class MainViewModel : ObservableObject
             exportDatas.Add(exportData);
         }
 
-        if (exportDatas.Count == 0) return;
-
-        BlenderService.Send(exportDatas, AppSettings.Current.BlenderExportSettings);
+        return exportDatas;
     }
 
     [RelayCommand]
-    public async Task ExportUnreal() { }
+    public async Task ExportBlender()
+    {
+        if (!BlenderService.Client.PingServer())
+        {
+            AppVM.Warning("Failed to Establish Connection with FortnitePorting Server", "Please make sure you have installed the BlenderFortnitePortingServer.zip file and have an instance of Blender open.");
+            return;
+        }
+
+        var exportDatas = await CreateExportDatasAsync();
+        if (exportDatas.Count == 0) return;
+        
+        BlenderService.Client.Send(exportDatas, AppSettings.Current.BlenderExportSettings);
+    }
+
+    [RelayCommand]
+    public async Task ExportUnreal()
+    {
+        if (!UnrealService.Client.PingServer())
+        {
+            AppVM.Warning("Failed to Establish Connection with FortnitePorting Server", "Please make sure you have installed the FortnitePorting Server Plugin and have an instance of Unreal Engine open.");
+            return;
+        }
+
+        var exportDatas = await CreateExportDatasAsync();
+        if (exportDatas.Count == 0) return;
+        
+        UnrealService.Client.Send(exportDatas, AppSettings.Current.UnrealExportSetttings);
+    }
 
     [RelayCommand]
     public async Task OpenSettings()
