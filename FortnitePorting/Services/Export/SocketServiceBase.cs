@@ -31,13 +31,7 @@ public abstract class SocketServiceBase
     public bool PingServer()
     {
         Client.Send(Encoding.UTF8.GetBytes(Globals.UDPClient_Ping));
-        if (TryReceive(Endpoint, out var response))
-        {
-            var responseString = Encoding.UTF8.GetString(response);
-            return responseString.Equals(Globals.UDPClient_Ping);
-        }
-
-        return false;
+        return ReceivePing();
     }
 
     private bool ReceivePing()
