@@ -65,6 +65,12 @@ public class CUE4ParseViewModel : ObservableObject
     public CUE4ParseViewModel(string directory, EInstallType installType)
     {
         var narrowedDirectories = ExtraDirectories.Where(x => x.Exists).ToList();
+        if (installType == EInstallType.Local && !File.Exists(directory))
+        {
+            AppVM.Warning("Installation Not Found", "Fortnite installation path does not exist or has not been set. Please go to settings to verify you've set the right path and restart. The program will not work properly on Local Installation mode if you do not set it.");
+            return;
+        }
+
         Provider = installType switch
         {
             EInstallType.Local => new FortnitePortingFileProvider(new DirectoryInfo(directory), narrowedDirectories, SearchOption.AllDirectories, true, Version),
@@ -74,6 +80,8 @@ public class CUE4ParseViewModel : ObservableObject
 
     public async Task Initialize()
     {
+        if (Provider is null) return;
+        
         await InitializeProvider();
         await InitializeKeys();
         await InitializeMappings();

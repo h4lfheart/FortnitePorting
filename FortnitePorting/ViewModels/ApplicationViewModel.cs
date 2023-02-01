@@ -19,16 +19,20 @@ public class ApplicationViewModel : ObservableObject
 
     public void Warning(string caption, string message)
     {
-        var messageBox = new MessageBoxModel
+        Application.Current.Dispatcher.Invoke(() =>
         {
-            Caption = caption,
-            Icon = MessageBoxImage.Warning,
-            Text = message,
-            Buttons = new[] { MessageBoxButtons.Ok() }
-        };
+            var messageBox = new MessageBoxModel
+            {
+                Caption = caption,
+                Icon = MessageBoxImage.Warning,
+                Text = message,
+                Buttons = new[] { MessageBoxButtons.Ok() }
+            };
         
-        //AppLog.Warning($"{caption}: {message}");
-        MessageBox.Show(messageBox);
+            //AppLog.Warning($"{caption}: {message}");
+            MessageBox.Show(messageBox);
+        });
+      
     }
 
     public void RestartWithMessage(string caption, string message)
