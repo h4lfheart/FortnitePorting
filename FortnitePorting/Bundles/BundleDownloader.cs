@@ -36,9 +36,18 @@ public static class BundleDownloader
 
     private static async Task<Manifest?> GetManifest()
     {
-        var buildInfoPath = Path.Combine(AppSettings.Current.ArchivePath, "..\\..\\..\\Cloud\\BuildInfo.ini");
-        var buildInfoString = File.Exists(buildInfoPath) ? await File.ReadAllTextAsync(buildInfoPath) : await GetFortniteLiveBuildInfoAsync();
-        if (buildInfoString is null) return null;
+        var buildInfoString = string.Empty;
+        switch (AppSettings.Current.InstallType)
+        {
+            case EInstallType.Local:
+                var buildInfoPath = Path.Combine(AppSettings.Current.ArchivePath, "..\\..\\..\\Cloud\\BuildInfo.ini");
+                buildInfoString = File.Exists(buildInfoPath) ? await File.ReadAllTextAsync(buildInfoPath) : await GetFortniteLiveBuildInfoAsync();
+                break;
+            case EInstallType.Live:
+                buildInfoString = await GetFortniteLiveBuildInfoAsync();
+                break;
+        }
+        if (string.IsNullOrEmpty(buildInfoString)) return null;
 
         var buildInfoIni = BundleIniReader.Read(buildInfoString);
         var label = buildInfoIni.Sections["Content"].First(x => x.Name.Equals("Label", StringComparison.OrdinalIgnoreCase)).Value;
