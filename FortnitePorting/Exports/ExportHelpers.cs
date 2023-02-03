@@ -367,9 +367,12 @@ public static class ExportHelpers
         var textures = new List<TextureParameter>();
         foreach (var (name, value) in parameters.Textures)
         {
-            var texture = (UTexture2D) value;
-            Save(texture);
-            textures.Add(new TextureParameter(name, texture.GetPathName(), texture.SRGB));
+            if (value is UTexture2D texture)
+            {
+                Save(texture);
+                textures.Add(new TextureParameter(name, texture.GetPathName(), texture.SRGB));
+                break;
+            }
         }
         return (textures, new List<ScalarParameter>(), new List<VectorParameter>());
     }
