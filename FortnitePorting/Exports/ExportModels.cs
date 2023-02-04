@@ -7,6 +7,7 @@ using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Assets.Utils;
 using CUE4Parse.UE4.Objects.Core.Math;
+using CUE4Parse.UE4.Objects.Engine.Animation;
 using CUE4Parse.UE4.Readers;
 using CUE4Parse.Utils;
 using Newtonsoft.Json;
@@ -39,7 +40,7 @@ public class ExportPart : ExportMesh
     [JsonIgnore]
     public EFortCustomGender GenderPermitted;
 
-    public void ProcessPoses(USkeletalMesh? skeletalMesh, UPoseAsset? poseAsset)
+    public void ProcessPoses(USkeletalMesh? skeletalMesh, UPoseAsset poseAsset)
     {
         if (skeletalMesh is null || poseAsset is null) return;
         

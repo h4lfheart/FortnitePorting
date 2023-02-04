@@ -10,6 +10,7 @@ using CUE4Parse.FileProvider;
 using CUE4Parse.MappingsProvider;
 using CUE4Parse.UE4.AssetRegistry;
 using CUE4Parse.UE4.AssetRegistry.Objects;
+using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Assets.Utils;
@@ -20,7 +21,6 @@ using CUE4Parse.UE4.Versions;
 using EpicManifestParser.Objects;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Bundles;
-using FortnitePorting.Exports;
 using FortnitePorting.Services;
 using FortnitePorting.Views.Extensions;
 

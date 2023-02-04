@@ -197,10 +197,10 @@ public class DanceExportData : ExportDataBase
         while (true)
         {
             if (section is null) break;
-            if (section.LinkedSequence is not null) // empty sections are fine
+            if (section.LinkedSequence.TryLoad(out UAnimSequence linkedSequence)) // empty sections are fine
             {
-                var exportSection = new EmoteSection(section.LinkedSequence.GetPathName(), section.SectionName.Text, section.SegmentBeginTime, section.SegmentLength, section.NextSectionName == section.SectionName);
-                ExportHelpers.Save(section.LinkedSequence);
+                var exportSection = new EmoteSection(linkedSequence.GetPathName(), section.SectionName.Text, section.SegmentBeginTime, section.SegmentLength, section.NextSectionName == section.SectionName);
+                ExportHelpers.Save(linkedSequence);
 
                 /*if (additiveMontage is not null)
                 {
@@ -212,7 +212,7 @@ public class DanceExportData : ExportDataBase
                     ExportHelpers.SaveAdditiveAnim(section.LinkedSequence, additiveAnimation);
                 }*/
 
-                var floatCurves = section.LinkedSequence.CompressedCurveData.FloatCurves ?? Array.Empty<FFloatCurve>();
+                var floatCurves = linkedSequence.CompressedCurveData.FloatCurves ?? Array.Empty<FFloatCurve>();
                 foreach (var curve in floatCurves)
                 {
                     exportSection.Curves.Add(new Curve
