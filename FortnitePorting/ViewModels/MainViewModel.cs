@@ -18,6 +18,7 @@ using FortnitePorting.Services;
 using FortnitePorting.Services.Export;
 using FortnitePorting.Views;
 using FortnitePorting.Views.Controls;
+using FortnitePorting.Views.Extensions;
 using StyleSelector = FortnitePorting.Views.Controls.StyleSelector;
 
 namespace FortnitePorting.ViewModels;
@@ -71,6 +72,22 @@ public partial class MainViewModel : ObservableObject
         get => AppSettings.Current.ShowConsole;
         set => AppSettings.Current.ShowConsole = value;
     }
+
+    [ObservableProperty] private bool ascending;
+    
+    [ObservableProperty] private string searchFilter = string.Empty;
+    [ObservableProperty] private ObservableCollection<Predicate<AssetSelectorItem>> filters = new();
+    [ObservableProperty] private string filterLabel = "None";
+
+    public Dictionary<string, Predicate<AssetSelectorItem>> FilterPredicates = new()
+    {
+        { "Favorite", x => AppSettings.Current.FavoriteIDs.Contains(x.ID, StringComparer.OrdinalIgnoreCase) },
+        { "Battle Pass", x => x.GameplayTags.ContainsAny("BattlePass") },
+        { "Item Shop", x => x.GameplayTags.ContainsAny("ItemShop") },
+        { "Save The World", x => x.GameplayTags.ContainsAny("CampaignHero") },
+        { "Battle Royale", x => !x.GameplayTags.ContainsAny("CampaignHero") }
+    };
+
 
     public async Task Initialize()
     {
@@ -229,5 +246,30 @@ public partial class MainViewModel : ObservableObject
     public async Task Favorite()
     {
         CurrentAsset?.ToggleFavorite();
+    }
+    
+    public void ModifyFilters(string tag, bool enable)
+    {
+        if (!FilterPredicates.ContainsKey(tag)) return;
+        var predicate = FilterPredicates[tag];
+
+        if (enable)
+        {
+            Filters.AddUnique(predicate);
+        }
+        else
+        {
+            Filters.Remove(predicate);
+        }
+
+        if (Filters.Count > 0)
+        {
+            FilterLabel = FilterPredicates.Where(x => Filters.Contains(x.Value)).Select(x => x.Key).CommaJoin(includeAnd: false);
+        }
+        else
+        {
+            FilterLabel = "None";
+        }
+        
     }
 }

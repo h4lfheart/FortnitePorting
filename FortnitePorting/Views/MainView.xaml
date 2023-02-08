@@ -72,16 +72,50 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="{adonisUi:Space 1}"/>
                     <ColumnDefinition Width="Auto"/>
-                    <!--ColumnDefinition Width="{adonisUi:Space 1}"/>
-                    <ColumnDefinition Width="*"/-->
+                    <ColumnDefinition Width="{adonisUi:Space 1}"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="{adonisUi:Space 1}"/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 
                 <TextBox Grid.Column="0" adonisExt:LayerExtension.Layer="2" adonisExt:WatermarkExtension.Watermark="Search..." TextChanged="OnSearchTextChanged"/>
+                
                 <controls:TextWithIcon Grid.Column="2" Label="Sort By" ImageSource="/FortnitePorting;component/Resources/Sort.png" IconSize="16"/>
                 <ComboBox Grid.Column="4" ItemsSource="{extensions:EnumToItemsSource {x:Type local:ESortType}}" SelectedItem="{Binding SortType, Converter={StaticResource EnumToString}}" SelectionChanged="OnSortSelectionChanged"/>
-
-                <!--controls:TextWithIcon Grid.Column="6" Label="Filter By" ImageSource="/FortnitePorting;component/Resources/Filter.png" IconSize="16"/>
-                <ComboBox Grid.Column="8" ItemsSource="{extensions:EnumToItemsSource {x:Type local:ESortType}}" SelectedItem="{Binding FilterType, Converter={StaticResource EnumToString}}"/-->
+                <CheckBox Grid.Column="6" Content="Ascending" IsChecked="{Binding Ascending}" Checked="ToggleButton_OnChanged" Unchecked="ToggleButton_OnChanged"/>
+                
+                <controls:TextWithIcon Grid.Column="8" Label="Filters" ImageSource="/FortnitePorting;component/Resources/Filter.png" IconSize="16"/>
+                <ToggleButton Grid.Column="10" Name="FilterButton">
+                    <ToggleButton.Content>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="{Binding FilterLabel}" TextTrimming="CharacterEllipsis" HorizontalAlignment="Left"/>
+                            <Border Grid.Column="1" Background="Transparent" HorizontalAlignment="Right">
+                                <Viewbox Width="16" Height="16">
+                                    <Canvas Width="24" Height="24">
+                                        <Path Fill="{DynamicResource {x:Static adonisUi:Brushes.ForegroundBrush}}" Data="{StaticResource ArrowIcon}"/>
+                                    </Canvas>
+                                </Viewbox>
+                            </Border>
+                        </Grid>
+                    </ToggleButton.Content>
+                </ToggleButton>
+                <Popup Grid.Column="10" Width="{Binding ElementName=FilterButton, Path=ActualWidth}" StaysOpen="False" PlacementTarget="{Binding ElementName=FilterButton}" IsOpen="{Binding ElementName=FilterButton, Path=IsChecked, Mode=TwoWay}">
+                    <Border Background="{DynamicResource {x:Static adonisUi:Brushes.Layer2BackgroundBrush}}" BorderThickness="1" BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer3BorderBrush}}">
+                        <StackPanel Margin="{adonisUi:Space 1}">
+                            <CheckBox Content="Favorite" Tag="Favorite" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked"/>
+                            <Separator Style="{StaticResource NamedSeparator}"/>
+                            <CheckBox Margin="0 0 0 10" Content="Battle Pass" Tag="Battle Pass" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked"/>
+                            <CheckBox Content="Item Shop" Tag="Item Shop" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked"/>
+                            <Separator Style="{StaticResource NamedSeparator}"/>
+                            <CheckBox Margin="0 0 0 10" Content="Save The World" Tag="Save The World" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked"/>
+                            <CheckBox Content="Battle Royale" Tag="Battle Royale" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked"/>
+                        </StackPanel>
+                    </Border>
+                </Popup>
 
             </Grid>
             <GroupBox Grid.Row="1" Grid.Column="0" Padding="{adonisUi:Space 0}" adonisExt:LayerExtension.Layer="2" Background="Transparent">

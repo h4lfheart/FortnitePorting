@@ -66,6 +66,10 @@ public class MeshExportData : ExportDataBase
                             data.LinkedSequence = await DanceExportData.CreateAnimDataAsync(targetMontage);
                         }
                     }
+
+                    var masterSkeleton = AppVM.CUE4ParseVM.Provider.LoadObject<USkeleton>("FortniteGame/Content/Characters/Player/Male/Male_Avg_Base/Fortnite_M_Avg_Player_Skeleton");
+                    var masterSkeletonExport = ExportHelpers.Skeleton(masterSkeleton);
+                    data.Parts.Add(masterSkeletonExport);
                     break;
                 }
                 case EAssetType.Backpack:

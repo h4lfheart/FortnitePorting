@@ -29,4 +29,10 @@ public static class CUE4ParseExtensions
     {
         return tags.GameplayTags is not { Length: > 0 } ? def : tags.GameplayTags.FirstOrDefault(it => it.Text.StartsWith(category), def);
     }
+    
+    public static bool ContainsAny(this FGameplayTagContainer tags, string check)
+    {
+        if (tags.GameplayTags is null) return false;
+        return tags.GameplayTags.Any(x => x.Text.Contains(check));
+    }
 }

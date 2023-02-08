@@ -50,6 +50,7 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
     public Visibility FavoriteVisibility { get; set; }
 
     public float Size { get; set; } = AppSettings.Current.AssetSize * 64;
+    public float FavoriteSize  => Size / 4;
 
     public AssetSelectorItem(UObject asset, UTexture2D previewTexture, EAssetType type, bool isRandomSelector = false,
         FText? displayNameOverride = null, bool useIdAsDescription = false)
@@ -73,6 +74,10 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
         displayName ??= asset.GetOrDefault("DisplayName", new FText("Unnamed"));
 
         DisplayName = displayName.Text;
+        if (DisplayName.Equals("TBD"))
+        {
+            DisplayName = asset.Name;
+        }
         if (displayName.TextHistory is FTextHistory.Base textHistory)
             DisplayNameSource = textHistory.SourceString;
         ID = asset.Name;
@@ -206,6 +211,7 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
         Size = value * 64;
 
         OnPropertyChanged(nameof(Size));
+        OnPropertyChanged(nameof(FavoriteSize));
     }
 
     public ICommand ExportHDCommand { get; private set; }

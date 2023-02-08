@@ -95,15 +95,7 @@ public static class ExportHelpers
                         }
                         else if (skeletalMesh.ReferenceSkeleton.FinalRefBoneInfo.Any(bone => bone.Name.Text.Equals("FACIAL_C_FacialRoot", StringComparison.OrdinalIgnoreCase)))
                         {
-                            // this will definitely cause issues in the future
-                            // for metahuman faces
-                            var poseAsset = AppVM.CUE4ParseVM.Provider.LoadObject<UPoseAsset>("FortniteGame/Content/Characters/Player/Male/Medium/Heads/M_MED_Jonesy3L_Head/Meshes/3L/3L_lod2_Facial_Poses_PoseAsset");
-                            exportPart.PoseNames = poseAsset.PoseContainer.PoseNames.Select(x => x.DisplayName.Text).ToArray();
-                            
-                            var animSequence = AppVM.CUE4ParseVM.Provider.LoadObject<UAnimSequence>("FortniteGame/Content/Characters/Player/Male/Medium/Heads/M_MED_Jonesy3L_Head/Meshes/3L/3L_lod2_Facial_Poses");
-                            var sequencePath = animSequence.GetPathName();
-                            exportPart.PoseAnimation = sequencePath;
-                            Save(animSequence);
+                            exportPart.ProcessMetahumanPoses(skeletalMesh);
                         }
                     }
 
@@ -132,31 +124,32 @@ public static class ExportHelpers
             exportParts.Add(exportPart);
         }
 
-        if (headMorphType != ECustomHatType.None && headMorphNames.ContainsKey(headMorphType))
+        var headPart = exportParts.FirstOrDefault(x => x.Part.Equals("Head"));
+        var bodyPart = exportParts.FirstOrDefault(x => x.Part.Equals("Body"));
+        var facePart = exportParts.FirstOrDefault(x => x.Part.Equals("Face"));
+        if (headMorphType != ECustomHatType.None && headMorphNames.ContainsKey(headMorphType) && headPart is not null)
         {
-            var headPart = exportParts.FirstOrDefault(x => x.Part.Equals("Head"));
-            if (headPart is not null)
-            {
-                headPart.MorphName = headMorphNames[headMorphType];
-            }
+            headPart.MorphName = headMorphNames[headMorphType];
         }
 
-        if (skinColor is not null)
+        if (headPart is not null && facePart is not null)
         {
-            var bodyPart = exportParts.FirstOrDefault(x => x.Part.Equals("Body"));
-            if (bodyPart is not null)
+            facePart.PoseNames = headPart.PoseNames;
+            facePart.PoseAnimation = headPart.PoseAnimation;
+        }
+
+        if (skinColor is not null && bodyPart is not null)
+        {
+            foreach (var material in bodyPart.Materials)
             {
-                foreach (var material in bodyPart.Materials)
+                var foundSkinColor = material.Vectors.FirstOrDefault(x => x.Name.Equals("Skin Boost Color And Exponent"));
+                if (foundSkinColor is not null)
                 {
-                    var foundSkinColor = material.Vectors.FirstOrDefault(x => x.Name.Equals("Skin Boost Color And Exponent"));
-                    if (foundSkinColor is not null)
-                    {
-                        foundSkinColor.Value = skinColor.Value;
-                    }
-                    else
-                    {
-                        material.Vectors.Add(new VectorParameter("Skin Boost Color And Exponent", skinColor.Value));
-                    }
+                    foundSkinColor.Value = skinColor.Value;
+                }
+                else
+                {
+                    material.Vectors.Add(new VectorParameter("Skin Boost Color And Exponent", skinColor.Value));
                 }
             }
         }
@@ -587,6 +580,17 @@ public static class ExportHelpers
         }
 
         return activeParent as UMaterialInterface;
+    }
+
+    public static ExportPart Skeleton(USkeleton skeleton)
+    {
+        var part = new ExportPart
+        {
+            Part = "MasterSkeleton",
+            MeshPath = skeleton.GetPathName()
+        };
+        Save(skeleton);
+        return part;
     }
 
     public static readonly List<Task> Tasks = new();

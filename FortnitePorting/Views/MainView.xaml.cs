@@ -163,17 +163,31 @@ public partial class MainView
     private void OnSearchTextChanged(object sender, TextChangedEventArgs e)
     {
         var searchBox = (TextBox) sender;
+        AppVM.MainVM.SearchFilter = searchBox.Text;
+        RefreshFilters();
+    }
+
+    public void RefreshFilters()
+    {
         foreach (var tab in AssetControls.Items.OfType<TabItem>())
         {
-            if (tab.Content is ListBox listBox)
+            if (tab.Content is not ListBox listBox) continue;
+            
+            listBox.Items.Filter = o =>
             {
-                listBox.Items.Filter = o => ((AssetSelectorItem) o).Match(searchBox.Text);
-                listBox.Items.Refresh();
-            }
+                var asset = (AssetSelectorItem) o;
+                return asset.Match(AppVM.MainVM.SearchFilter) && AppVM.MainVM.Filters.All(x => x.Invoke(asset));
+            };
+            listBox.Items.Refresh();
         }
     }
 
     private void OnSortSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        RefreshSorting();
+    }
+
+    public void RefreshSorting()
     {
         foreach (var tab in AssetControls.Items.OfType<TabItem>())
         {
@@ -183,25 +197,34 @@ public partial class MainView
             switch (AppVM.MainVM.SortType)
             {
                 case ESortType.Default:
-                    listBox.Items.SortDescriptions.Add(new SortDescription("ID", ListSortDirection.Ascending));
+                    listBox.Items.SortDescriptions.Add(new SortDescription("ID", GetProperSort(ListSortDirection.Ascending)));
                     break;
                 case ESortType.AZ:
-                    listBox.Items.SortDescriptions.Add(new SortDescription("DisplayName", ListSortDirection.Ascending));
+                    listBox.Items.SortDescriptions.Add(new SortDescription("DisplayName", GetProperSort(ListSortDirection.Ascending)));
                     break;
                 case ESortType.Season:
-                    listBox.Items.SortDescriptions.Add(new SortDescription("SeasonNumber", ListSortDirection.Ascending));
-                    listBox.Items.SortDescriptions.Add(new SortDescription("Rarity", ListSortDirection.Ascending));
+                    listBox.Items.SortDescriptions.Add(new SortDescription("SeasonNumber", GetProperSort(ListSortDirection.Ascending)));
+                    listBox.Items.SortDescriptions.Add(new SortDescription("Rarity", GetProperSort(ListSortDirection.Ascending)));
                     break;
                 case ESortType.Rarity:
-                    listBox.Items.SortDescriptions.Add(new SortDescription("Rarity", ListSortDirection.Ascending));
-                    listBox.Items.SortDescriptions.Add(new SortDescription("ID", ListSortDirection.Ascending));
+                    listBox.Items.SortDescriptions.Add(new SortDescription("Rarity", GetProperSort(ListSortDirection.Ascending)));
+                    listBox.Items.SortDescriptions.Add(new SortDescription("ID", GetProperSort(ListSortDirection.Ascending)));
                     break;
                 case ESortType.Series:
-                    listBox.Items.SortDescriptions.Add(new SortDescription("Series", ListSortDirection.Descending));
-                    listBox.Items.SortDescriptions.Add(new SortDescription("Rarity", ListSortDirection.Descending));
+                    listBox.Items.SortDescriptions.Add(new SortDescription("Series", GetProperSort(ListSortDirection.Descending)));
+                    listBox.Items.SortDescriptions.Add(new SortDescription("Rarity", GetProperSort(ListSortDirection.Descending)));
                     break;
             }
         }
+    }
+
+    private ListSortDirection GetProperSort(ListSortDirection direction)
+    {
+        return direction switch
+        {
+            ListSortDirection.Ascending => AppVM.MainVM.Ascending ? ListSortDirection.Descending : direction,
+            ListSortDirection.Descending => AppVM.MainVM.Ascending ? ListSortDirection.Ascending : direction
+        };
     }
 
     private void OnShowConsoleChecked(object sender, RoutedEventArgs e)
@@ -210,5 +233,20 @@ public partial class MainView
         var show = menuItem.IsChecked;
         AppSettings.Current.ShowConsole = show;
         App.ToggleConsole(show);
+    }
+
+    private void ToggleButton_OnChanged(object sender, RoutedEventArgs e)
+    {
+        RefreshSorting();
+    }
+
+    private void OnFilterItemChecked(object sender, RoutedEventArgs e)
+    {
+        var checkBox = (CheckBox) sender;
+        if (checkBox.Tag is null) return;
+        if (!checkBox.IsChecked.HasValue) return;
+        
+        AppVM.MainVM.ModifyFilters(checkBox.Tag.ToString()!, checkBox.IsChecked.Value);
+        RefreshFilters();
     }
 }

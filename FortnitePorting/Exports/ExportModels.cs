@@ -60,6 +60,19 @@ public class ExportPart : ExportMesh
             break;
         }
     }
+    
+    public void ProcessMetahumanPoses(USkeletalMesh? skeletalMesh)
+    {
+        // this will definitely cause issues in the future
+        // for metahuman faces
+        var poseAsset = AppVM.CUE4ParseVM.Provider.LoadObject<UPoseAsset>("FortniteGame/Content/Characters/Player/Male/Medium/Heads/M_MED_Jonesy3L_Head/Meshes/3L/3L_lod2_Facial_Poses_PoseAsset");
+        PoseNames = poseAsset.PoseContainer.PoseNames.Select(x => x.DisplayName.Text).ToArray();
+                            
+        var animSequence = AppVM.CUE4ParseVM.Provider.LoadObject<UAnimSequence>("FortniteGame/Content/Characters/Player/Male/Medium/Heads/M_MED_Jonesy3L_Head/Meshes/3L/3L_lod2_Facial_Poses");
+        var sequencePath = animSequence.GetPathName();
+        PoseAnimation = sequencePath;
+        ExportHelpers.Save(animSequence);
+    }
 }
 
 public record ExportMaterial

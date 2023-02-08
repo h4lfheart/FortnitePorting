@@ -35,17 +35,9 @@
             </ContextMenu>
         </StackPanel.ContextMenu>
         <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
             
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2.25*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            
-            <Image Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" x:Name="DisplayImage" Width="{Binding Size, RelativeSource={RelativeSource AncestorType=local:AssetSelectorItem}}" Height="{Binding Size, RelativeSource={RelativeSource AncestorType=local:AssetSelectorItem}}"/>
-            <Image Grid.Row="0" Grid.Column="1" Margin="0 0 0 40" Visibility="{Binding FavoriteVisibility, RelativeSource={RelativeSource AncestorType=local:AssetSelectorItem}}" Source="/FortnitePorting;component/Resources/Favorite.png" RenderOptions.BitmapScalingMode="Linear"/>
+            <Image x:Name="DisplayImage" Width="{Binding Size, RelativeSource={RelativeSource AncestorType=local:AssetSelectorItem}}" Height="{Binding Size, RelativeSource={RelativeSource AncestorType=local:AssetSelectorItem}}"/>
+            <Image HorizontalAlignment="Right" VerticalAlignment="Top" Width="{Binding FavoriteSize, RelativeSource={RelativeSource AncestorType=local:AssetSelectorItem}}" Height="{Binding FavoriteSize, RelativeSource={RelativeSource AncestorType=local:AssetSelectorItem}}" Visibility="{Binding FavoriteVisibility, RelativeSource={RelativeSource AncestorType=local:AssetSelectorItem}}" Source="/FortnitePorting;component/Resources/Favorite.png" RenderOptions.BitmapScalingMode="Linear"/>
         </Grid>
         <TextBlock MaxWidth="{Binding Size, RelativeSource={RelativeSource AncestorType=local:AssetSelectorItem}}" Text="{Binding DisplayName, RelativeSource={RelativeSource AncestorType=local:AssetSelectorItem}, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Center" TextTrimming="WordEllipsis"/>
     </StackPanel>
