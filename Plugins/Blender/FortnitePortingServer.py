@@ -866,7 +866,8 @@ def merge_skeletons(parts):
         mesh = part.get("Mesh")
         if slot == "Body":
             bpy.context.view_layer.objects.active = mesh
-        mesh.select_set(True)
+        if slot != "MasterSkeleton":
+            mesh.select_set(True)
             
     bpy.ops.object.join()
     bpy.ops.object.select_all(action='DESELECT')
@@ -877,6 +878,7 @@ def merge_skeletons(parts):
         try:
             bone_reg = re.sub(".\d\d\d", "", bone.name)
             parent_reg = re.sub(".\d\d\d", "", bone.parent.name)
+            current_parent = bone_tree.get(bone_reg)
             bone_tree[bone_reg] = parent_reg
         except AttributeError:
             pass
@@ -917,12 +919,7 @@ def merge_skeletons(parts):
         if socket is None:
             continue
         
-        if socket.casefold() == "hat":
-            constraint_object(skeleton, master_skeleton, "head")
-        elif socket.casefold() == "tail":
-            constraint_object(skeleton, master_skeleton, "pelvis")
-        else:
-            constraint_object(skeleton, master_skeleton, socket)
+        constraint_object(skeleton, master_skeleton, socket)
         
   
     return (master_skeleton, constraint_parts)
@@ -1475,6 +1472,7 @@ def apply_tasty_rig(master_skeleton: bpy.types.Armature):
                          'calf_l', 'clavicle_r', 'clavicle_l', 'ball_r', 'ball_l', 'pelvis', 'spine_01',
                          'spine_02', 'spine_03', 'spine_04', 'spine_05', 'neck_01', 'neck_02', 'head', 'root']
 
+
     for bone in bones:
         if bone.name in main_layer_bones:
             bone.layers[1] = True
@@ -1492,7 +1490,7 @@ def apply_tasty_rig(master_skeleton: bpy.types.Armature):
             bone.layers[index] = True
 
 
-def constraint_object(child: bpy.types.Object, parent: bpy.types.Object, bone: str, rot=[radians(0), radians(90), radians(0)]):
+def constraint_object(child: bpy.types.Object, parent: bpy.types.Object, bone: str, rot=[0, 0, 0]):
     constraint = child.constraints.new('CHILD_OF')
     constraint.target = parent
     constraint.subtarget = bone
@@ -1586,7 +1584,8 @@ anime_mat_names = [
     "M_Ruckus_MASTER",
     "M_Dojo_MASTER",
     "M_MASTER_RetroCartoon",
-    "M_LexaFace_PROTO"
+    "M_LexaFace_PROTO",
+    "M_Lima_Bean_Master"
 ]
 
 def clear_face_pose(active_skeleton):
@@ -1823,9 +1822,25 @@ def import_response(response):
                     if found_mesh := first(style_meshes, lambda x: x.get("MeshToSwap") == part.get("MeshPath")):
                         part = found_mesh
                         
-                    num_lods = part.get("NumLods")
-                    if (imported_part := import_mesh(part.get("MeshPath"), reorient_bones=import_settings.get("ReorientBones"), lod=min(num_lods-1, import_settings.get("LevelOfDetail")))) is None:
+                    if (part_type == "MasterSkeleton"):
                         continue
+                        if not (imported_part := import_skel(part.get("MeshPath"))):
+                            continue
+                            
+                        imported_parts.append({
+                            "Part": part_type,
+                            "Armature": imported_part,
+                            "Socket": part.get("SocketName")
+                        })
+                        
+                        for bone in imported_part.data.bones:
+                            bone.hide = True
+                        
+                        continue
+                    else:
+                        num_lods = part.get("NumLods")
+                        if not (imported_part := import_mesh(part.get("MeshPath"), reorient_bones=import_settings.get("ReorientBones"), lod=min(num_lods-1, import_settings.get("LevelOfDetail")))):
+                            continue
 
                     imported_part.location += make_vector(part.get("Offset")) * (0.01 if import_settings.get("ScaleDown") else 1.00)
                     imported_part.scale = make_vector(part.get("Scale"))
@@ -1884,7 +1899,7 @@ def import_response(response):
                         bpy.ops.object.mode_set(mode='OBJECT')
                         bpy.context.view_layer.objects.active = mesh
                         
-                    if import_settings.get("HideFaceBones"):
+                    if import_settings.get("HideFaceBones") and has_armature:
                         bpy.context.view_layer.objects.active = imported_part
                         ignore_list = [] if RigType(import_settings.get("RigType")) == RigType.TASTY else ["FACIAL_R_Eye", "FACIAL_L_Eye", "R_eye", "L_eye"]
                         hide_bone_heirarchy(imported_part, "faceAttach", ignore_list)
