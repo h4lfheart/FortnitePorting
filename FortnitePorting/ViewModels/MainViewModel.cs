@@ -247,6 +247,12 @@ public partial class MainViewModel : ObservableObject
     {
         CurrentAsset?.ToggleFavorite();
     }
+
+    [RelayCommand]
+    public async Task ClearFilters()
+    {
+        Filters.Clear();
+    }
     
     public void ModifyFilters(string tag, bool enable)
     {

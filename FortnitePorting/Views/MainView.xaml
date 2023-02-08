@@ -105,7 +105,7 @@
                 </ToggleButton>
                 <Popup Grid.Column="10" Width="{Binding ElementName=FilterButton, Path=ActualWidth}" StaysOpen="False" PlacementTarget="{Binding ElementName=FilterButton}" IsOpen="{Binding ElementName=FilterButton, Path=IsChecked, Mode=TwoWay}">
                     <Border Background="{DynamicResource {x:Static adonisUi:Brushes.Layer2BackgroundBrush}}" BorderThickness="1" BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer3BorderBrush}}">
-                        <StackPanel Margin="{adonisUi:Space 1}">
+                        <StackPanel Name="FilterPanel" Margin="{adonisUi:Space 1}">
                             <CheckBox Content="Favorite" Tag="Favorite" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked"/>
                             <Separator Style="{StaticResource NamedSeparator}"/>
                             <CheckBox Margin="0 0 0 10" Content="Battle Pass" Tag="Battle Pass" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked"/>
@@ -113,6 +113,9 @@
                             <Separator Style="{StaticResource NamedSeparator}"/>
                             <CheckBox Margin="0 0 0 10" Content="Save The World" Tag="Save The World" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked"/>
                             <CheckBox Content="Battle Royale" Tag="Battle Royale" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked"/>
+                            <Button Command="{Binding ClearFiltersCommand}" Margin="0 10 0 0" Click="ClearFilters_OnClicked">
+                                <controls:TextWithIcon Label="Clear All Filters" ImageSource="/FortnitePorting;component/Resources/Clear.png"/>
+                            </Button>
                         </StackPanel>
                     </Border>
                 </Popup>

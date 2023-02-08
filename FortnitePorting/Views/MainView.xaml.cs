@@ -249,4 +249,15 @@ public partial class MainView
         AppVM.MainVM.ModifyFilters(checkBox.Tag.ToString()!, checkBox.IsChecked.Value);
         RefreshFilters();
     }
+
+    private void ClearFilters_OnClicked(object sender, RoutedEventArgs e)
+    {
+        foreach (var child in FilterPanel.Children)
+        {
+            if (child is not CheckBox checkBox) continue;
+            checkBox.IsChecked = false;
+        }
+        
+        RefreshFilters();
+    }
 }

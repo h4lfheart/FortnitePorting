@@ -55,6 +55,7 @@
       <Resource Include="Resources\MeshPreview.png" />
       <Resource Include="Resources\Fortnite.png" />
       <Resource Include="Resources\Pet.png" />
+      <Resource Include="Resources\Clear.png" />
     </ItemGroup>
 
 </Project>
