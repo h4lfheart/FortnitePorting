@@ -52,8 +52,10 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
     public float Size { get; set; } = AppSettings.Current.AssetSize * 64;
     public float FavoriteSize  => Size / 4;
 
+    public bool HiddenAsset;
+
     public AssetSelectorItem(UObject asset, UTexture2D previewTexture, EAssetType type, bool isRandomSelector = false,
-        FText? displayNameOverride = null, bool useIdAsDescription = false)
+        FText? displayNameOverride = null, bool useIdAsDescription = false, bool hiddenAsset = false)
     {
         InitializeComponent();
         DataContext = this;
@@ -72,6 +74,7 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
         Asset = asset;
         var displayName = displayNameOverride;
         displayName ??= asset.GetOrDefault("DisplayName", new FText("Unnamed"));
+        HiddenAsset = hiddenAsset;
 
         DisplayName = displayName.Text;
         if (DisplayName.Equals("TBD"))

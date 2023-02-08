@@ -39,14 +39,17 @@
                 <MenuItem Header="First-Time Startup" Command="{Binding MenuCommand}" CommandParameter="Settings_Startup"/>
                 <MenuItem Header="Show Console" IsChecked="{Binding ShowConsole}" IsCheckable="True" Checked="OnShowConsoleChecked" Unchecked="OnShowConsoleChecked"/>
             </MenuItem>
+            <MenuItem Header="Tools">
+                <MenuItem Header="Heightmap Exporter" Command="{Binding MenuCommand}" CommandParameter="Tools_Heightmap"/>
+            </MenuItem>
+            <MenuItem Header="Check for Updates" Command="{Binding MenuCommand}" CommandParameter="Update"/>
+            <MenuItem Header="Sync Plugin" Command="{Binding MenuCommand}" CommandParameter="SyncPlugin"/>
             <MenuItem Header="Help">
                 <MenuItem Header="Discord Server" Command="{Binding MenuCommand}" CommandParameter="Help_Discord"/>
                 <MenuItem Header="GitHub Repo" Command="{Binding MenuCommand}" CommandParameter="Help_GitHub"/>
                 <MenuItem Header="Donate" Command="{Binding MenuCommand}" CommandParameter="Help_Donate"/>
                 <MenuItem Header="About" Command="{Binding MenuCommand}" CommandParameter="Help_About"/>
             </MenuItem>
-            <MenuItem Header="Check for Updates" Command="{Binding MenuCommand}" CommandParameter="Update"/>
-            <MenuItem Header="Sync Plugin" Command="{Binding MenuCommand}" CommandParameter="SyncPlugin"/>
         </Menu>
         
         <Grid Grid.Row="2">
@@ -106,7 +109,8 @@
                 <Popup Grid.Column="10" Width="{Binding ElementName=FilterButton, Path=ActualWidth}" StaysOpen="False" PlacementTarget="{Binding ElementName=FilterButton}" IsOpen="{Binding ElementName=FilterButton, Path=IsChecked, Mode=TwoWay}">
                     <Border Background="{DynamicResource {x:Static adonisUi:Brushes.Layer2BackgroundBrush}}" BorderThickness="1" BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer3BorderBrush}}">
                         <StackPanel Name="FilterPanel" Margin="{adonisUi:Space 1}">
-                            <CheckBox Content="Favorite" Tag="Favorite" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked"/>
+                            <CheckBox Margin="0 0 0 10" Content="Favorite" Tag="Favorite" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked"/>
+                            <CheckBox Content="Unfinished Assets (Unstable)" Tag="Unfinished Assets" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked"/>
                             <Separator Style="{StaticResource NamedSeparator}"/>
                             <CheckBox Margin="0 0 0 10" Content="Battle Pass" Tag="Battle Pass" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked"/>
                             <CheckBox Content="Item Shop" Tag="Item Shop" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked"/>

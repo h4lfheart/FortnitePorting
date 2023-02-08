@@ -261,7 +261,6 @@ public class AssetHandlerData
         }*/
         var items = AppVM.CUE4ParseVM.AssetDataBuffers
             .Where(x => ClassNames.Any(y => x.AssetClass.Text.Equals(y, StringComparison.OrdinalIgnoreCase)))
-            .Where(x => !RemoveList.Any(y => x.AssetName.Text.Contains(y, StringComparison.OrdinalIgnoreCase)))
             .ToList();
 
         // prioritize random first cuz of parallel list positions
@@ -342,6 +341,6 @@ public class AssetHandlerData
         if (previewImage is null) return;
 
         await Application.Current.Dispatcher.InvokeAsync(
-            () => TargetCollection.Add(new AssetSelectorItem(asset, previewImage, type, random, DisplayNameGetter?.Invoke(asset), type == EAssetType.Vehicle)), DispatcherPriority.Background);
+            () => TargetCollection.Add(new AssetSelectorItem(asset, previewImage, type, random, DisplayNameGetter?.Invoke(asset), type == EAssetType.Vehicle, RemoveList.Any(y => data.AssetName.Text.Contains(y, StringComparison.OrdinalIgnoreCase)))), DispatcherPriority.Background);
     }
 }

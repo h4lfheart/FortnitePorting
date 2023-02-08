@@ -78,6 +78,7 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] private string searchFilter = string.Empty;
     [ObservableProperty] private ObservableCollection<Predicate<AssetSelectorItem>> filters = new();
     [ObservableProperty] private string filterLabel = "None";
+    [ObservableProperty] private bool hiddenAssets;
 
     public Dictionary<string, Predicate<AssetSelectorItem>> FilterPredicates = new()
     {
@@ -85,7 +86,8 @@ public partial class MainViewModel : ObservableObject
         { "Battle Pass", x => x.GameplayTags.ContainsAny("BattlePass") },
         { "Item Shop", x => x.GameplayTags.ContainsAny("ItemShop") },
         { "Save The World", x => x.GameplayTags.ContainsAny("CampaignHero") },
-        { "Battle Royale", x => !x.GameplayTags.ContainsAny("CampaignHero") }
+        { "Battle Royale", x => !x.GameplayTags.ContainsAny("CampaignHero") },
+        { "Unfinished Assets", x => x.HiddenAsset}
     };
 
 
@@ -159,6 +161,8 @@ public partial class MainViewModel : ObservableObject
                 break;
             case "SyncPlugin":
                 AppHelper.OpenWindow<PluginUpdateView>();
+                break;
+            case "Heightmap":
                 break;
         }
     }

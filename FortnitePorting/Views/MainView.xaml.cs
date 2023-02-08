@@ -245,7 +245,7 @@ public partial class MainView
         var checkBox = (CheckBox) sender;
         if (checkBox.Tag is null) return;
         if (!checkBox.IsChecked.HasValue) return;
-        
+
         AppVM.MainVM.ModifyFilters(checkBox.Tag.ToString()!, checkBox.IsChecked.Value);
         RefreshFilters();
     }
