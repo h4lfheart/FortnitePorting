@@ -33,6 +33,7 @@ public partial class App
 
     public static DirectoryInfo AssetsFolder => new(AppSettings.Current.AssetsPath);
     public static readonly DirectoryInfo DataFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".data"));
+    public static readonly DirectoryInfo MapFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Terrain"));
 
     public static readonly DirectoryInfo BundlesFolder = new(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) +
@@ -67,6 +68,7 @@ public partial class App
         AssetsFolder.Create();
         DataFolder.Create();
         LogsFolder.Create();
+        MapFolder.Create();
 
         UpdateService.Initialize();
 

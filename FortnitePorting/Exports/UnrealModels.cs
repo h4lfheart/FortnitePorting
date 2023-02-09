@@ -4,7 +4,9 @@ using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Exports.Sound.Node;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
+using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Assets.Readers;
+using CUE4Parse.UE4.Assets.Utils;
 using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.UObject;
 
@@ -57,4 +59,29 @@ public class FortAnimNotifyState_EmoteSound : UFortnitePortingCustom
 public class UFortSoundNodeLicensedContentSwitcher : USoundNode
 {
     
+}
+
+[StructFallback]
+public class FWeightmapLayerAllocationInfo
+{
+    public ULandscapeLayerInfoObject LayerInfo;
+    public byte WeightmapTextureIndex;
+    public byte WeightmapTextureChannel;
+    public FWeightmapLayerAllocationInfo(FStructFallback fallback)
+    {
+        LayerInfo = fallback.GetOrDefault<ULandscapeLayerInfoObject>(nameof(LayerInfo));
+        WeightmapTextureIndex = fallback.GetOrDefault<byte>(nameof(WeightmapTextureIndex));
+        WeightmapTextureChannel = fallback.GetOrDefault<byte>(nameof(WeightmapTextureChannel));
+    }
+}
+
+public class ULandscapeLayerInfoObject : UFortnitePortingCustom
+{
+    public FName LayerName;
+    public override void Deserialize(FAssetArchive Ar, long validPos)
+    {
+        base.Deserialize(Ar, validPos);
+
+        LayerName = GetOrDefault<FName>(nameof(LayerName));
+    }
 }

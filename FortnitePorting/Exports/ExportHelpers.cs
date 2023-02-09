@@ -742,9 +742,10 @@ public static class ExportHelpers
 
                 Log.Information("Exporting {ExportType}: {FileName}", obj.ExportType, obj.Name);
             }
-            catch (IOException)
+            catch (IOException e)
             {
                 Log.Error("Failed to export {ExportType}: {FileName}", obj.ExportType, obj.Name);
+                Log.Error(e.Message);
             }
         }));
     }
@@ -769,9 +770,10 @@ public static class ExportHelpers
                 return audioFormat;
 
             }
-            catch (IOException)
+            catch (IOException e)
             {
                 Log.Error("Failed to export {ExportType}: {FileName}", soundWave.ExportType, soundWave.Name);
+                Log.Error(e.Message);
             }
 
             return string.Empty;
@@ -787,13 +789,38 @@ public static class ExportHelpers
         Save(additiveSequence);
     }
 
+    public static void SaveLandscapeMesh(UStaticMesh mesh, string name)
+    {
+        Tasks.Add(Task.Run(() =>
+        {
+            try
+            {
+                var exporter = new MeshExporter(mesh, ExportOptions);
+                var exportData = exporter.MeshLods[0].FileData;
+                var path = GetExportPath(mesh, "pskx", $"/{name}_LOD0");
+                Log.Information(path);
+                File.WriteAllBytes(path, exportData);
+
+                Log.Information("Exporting {ExportType}: {FileName}", mesh.ExportType, mesh.Name);
+            }
+            catch (IOException e)
+            {
+                Log.Error("Failed to export {ExportType}: {FileName}", mesh.ExportType, mesh.Name);
+                Log.Error(e.Message);
+            }
+        }));
+    }
+
     private static string GetExportPath(UObject obj, string ext, string extra = "")
     {
         var path = obj.Owner != null ? obj.Owner.Name : string.Empty;
         path = path.SubstringBeforeLast('.');
         if (path.StartsWith("/")) path = path[1..];
 
-        var finalPath = Path.Combine(App.AssetsFolder.FullName, path) + $"{extra}.{ext.ToLower()}";
+        var directory = Path.Combine(App.AssetsFolder.FullName, path);
+        Directory.CreateDirectory(directory);
+        
+        var finalPath = directory + $"{extra}.{ext.ToLower()}";
         return finalPath;
     }
 }

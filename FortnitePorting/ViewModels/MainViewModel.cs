@@ -162,7 +162,8 @@ public partial class MainViewModel : ObservableObject
             case "SyncPlugin":
                 AppHelper.OpenWindow<PluginUpdateView>();
                 break;
-            case "Heightmap":
+            case "Tools_Heightmap":
+                AppHelper.OpenWindow<HeightmapView>();
                 break;
         }
     }

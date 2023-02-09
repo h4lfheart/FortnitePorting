@@ -16,6 +16,7 @@ public class ApplicationViewModel : ObservableObject
     public CUE4ParseViewModel CUE4ParseVM;
     public AssetHandlerViewModel? AssetHandlerVM;
     public ImportSettingsViewModel? ImportSettingsVM;
+    public HeightmapViewModel? HeightmapVM;
 
     public void Warning(string caption, string message)
     {
