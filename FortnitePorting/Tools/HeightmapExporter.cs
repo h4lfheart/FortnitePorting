@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Windows;
+using System.Windows.Threading;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Objects.Engine;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Exports;
+using FortnitePorting.Views.Extensions;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
@@ -80,39 +83,54 @@ public static class HeightmapExporter
         }
         
         // Height/Normal Map
-        var height = new Image<L8>(Size, Size);
-        var normal = new Image<Rgb24>(Size, Size);
-        
-        Log.Information("Exporting Heightmap: {Type}", "Height");
-        Log.Information("Exporting Normalmap: {Type}", "Normal");
-        
-        Mutate(heightTextures, (color, x, y, _) =>
+        if (AppVM.HeightmapVM.ExportHeightmap)
         {
-            height[x, y] = new L8(color.R);
-            normal[x, y] = new Rgb24(color.B, color.A, 255);
-        });
-        
-        height.SaveAsPng(Path.Combine(App.MapFolder.FullName, $"{world.Name}_Height.png"));
-        normal.SaveAsPng(Path.Combine(App.MapFolder.FullName, $"{world.Name}_Normal.png"));
-
-        // Weightmaps
-        foreach (var (layerName, weightmapTextures) in weightmapLayerTextures)
-        {
-            Log.Information("Exporting Weightmap: {LayerName}", layerName);
-            var map = new Image<L8>(Size, Size);
-            Mutate(weightmapTextures, (color, x, y, channel) =>
+            Log.Information("Exporting Heightmap: {Type}", "Height");
+            
+            var height = new Image<L8>(Size, Size);
+            Mutate(heightTextures, (color, x, y, _) =>
             {
-                var l8 = channel switch
-                {
-                    0 => color.R,
-                    1 => color.G,
-                    2 => color.B,
-                    3 => color.A
-                };
-                
-                map[x, y] = new L8(l8);
+                height[x, y] = new L8(color.R);
             });
-            map.SaveAsPng(Path.Combine(App.MapFolder.FullName, $"{world.Name}_{layerName}.png"));
+            height.SaveAsPng(Path.Combine(App.MapFolder.FullName, $"{world.Name}_Height.png"));
+            SetPreviewImage(height);
+        }
+
+        if (AppVM.HeightmapVM.ExportNormalmap)
+        {
+            Log.Information("Exporting Normalmap: {Type}", "Normal");
+            
+            var normal = new Image<Rgb24>(Size, Size);
+            Mutate(heightTextures, (color, x, y, _) =>
+            {
+                normal[x, y] = new Rgb24(color.B, color.A, 255);
+            });
+            normal.SaveAsPng(Path.Combine(App.MapFolder.FullName, $"{world.Name}_Normal.png"));
+            SetPreviewImage(normal);
+        }
+        
+        // Weightmaps
+        if (AppVM.HeightmapVM.ExportWeightmap)
+        {
+            foreach (var (layerName, weightmapTextures) in weightmapLayerTextures)
+            {
+                Log.Information("Exporting Weightmap: {LayerName}", layerName);
+                var map = new Image<L8>(Size, Size);
+                Mutate(weightmapTextures, (color, x, y, channel) =>
+                {
+                    var l8 = channel switch
+                    {
+                        0 => color.R,
+                        1 => color.G,
+                        2 => color.B,
+                        3 => color.A
+                    };
+                
+                    map[x, y] = new L8(l8);
+                });
+                map.SaveAsPng(Path.Combine(App.MapFolder.FullName, $"{world.Name}_{layerName}.png"));
+                SetPreviewImage(map);
+            }
         }
 
         AppHelper.Launch(App.MapFolder.FullName);
@@ -140,4 +158,9 @@ public static class HeightmapExporter
     }
 
     public record TileData(Image<Bgra32>? Image, int X, int Y, int channelIndex = -1);
+
+    public static void SetPreviewImage(Image image)
+    {
+        Application.Current.Dispatcher.Invoke(() => AppVM.HeightmapVM.ImageSource = image.ToBitmapSource(), DispatcherPriority.Background);
+    }
 }

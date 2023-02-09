@@ -3,12 +3,25 @@
                           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                           xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
                           xmlns:adonisCtrls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
-                          xmlns:adonisExt="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"
-                          xmlns:controls="clr-namespace:FortnitePorting.Views.Controls"
-                          xmlns:extensions="clr-namespace:FortnitePorting.Views.Extensions"
-                          xmlns:local="clr-namespace:FortnitePorting"
                           Title="Heightmap Exporter" Width="480" SizeToContent="Height" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize">
     <Grid>
-        <Button Content="Export" Command="{Binding ExportCommand}"/>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="{adonisUi:Space 1}"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        
+        <StackPanel Grid.Column="0">
+            <Separator Style="{StaticResource NamedSeparator}" Tag="Options"/>
+            <CheckBox Margin="{adonisUi:Space 1}" Content="Export Height Map" IsChecked="{Binding ExportHeightmap}"/>
+            <CheckBox Margin="{adonisUi:Space 1}" Content="Export Normal Map" IsChecked="{Binding ExportNormalmap}"/>
+            <CheckBox Margin="{adonisUi:Space 1}" Content="Export Weight/Layer Maps" IsChecked="{Binding ExportWeightmap}"/>
+            <Button Margin="{adonisUi:Space 1}" Content="Export Terrain Map" Command="{Binding ExportCommand}"/>
+        </StackPanel>
+        
+        <StackPanel Grid.Column="2">
+            <Separator Style="{StaticResource NamedSeparator}" Tag="Preview"/>
+            <Image Source="{Binding ImageSource}" Width="128" Height="128" RenderOptions.BitmapScalingMode="Fant"/>
+        </StackPanel>
     </Grid>
 </adonisCtrls:AdonisWindow>

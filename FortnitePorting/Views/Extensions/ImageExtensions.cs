@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows;
 using System.Windows.Media.Imaging;
+using SixLabors.ImageSharp.Formats.Png;
 using SkiaSharp;
 
 namespace FortnitePorting.Views.Extensions;
@@ -20,6 +21,17 @@ public static class ImageExtensions
         source.EndInit();
         return source;
     }
+    
+    public static BitmapSource ToBitmapSource(this SixLabors.ImageSharp.Image bitmap)
+    {
+        var source = new BitmapImage { CacheOption = BitmapCacheOption.OnDemand };
+        source.BeginInit();
+        source.StreamSource = new MemoryStream();
+        SixLabors.ImageSharp.ImageExtensions.Save(bitmap, source.StreamSource, PngFormat.Instance);
+        source.EndInit();
+        return source;
+    }
+    
 
     public static void SetImage(byte[] pngBytes, string fileName = null)
     {
