@@ -2057,6 +2057,7 @@ class FortnitePortingPanel(bpy.types.Panel):
         box.label(text="Rigging", icon="OUTLINER_OB_ARMATURE")
         box.row().operator("fortnite_porting.tasty", icon='ARMATURE_DATA')
         box.row().operator("fortnite_porting.tasty_credit", icon='CHECKBOX_HLT')
+        box.row().operator("fortnite_porting.additive_fix", icon='ANIM')
         
 class FortnitePortingTasty(bpy.types.Operator):
     bl_idname = "fortnite_porting.tasty"
@@ -2075,9 +2076,44 @@ class FortnitePortingTastyCredit(bpy.types.Operator):
     def execute(self, context):
         os.system("start https://twitter.com/Ta5tyy2")
         return {'FINISHED'}
+        
+class FortnitePortingFemaleFix(bpy.types.Operator):
+    bl_idname = "fortnite_porting.additive_fix"
+    bl_label = "Female Animation Fix"
+
+    def execute(self, context):
+        active = bpy.context.active_object
+        if active.type != "ARMATURE":
+            return
+        
+        bpy.ops.object.mode_set(mode='POSE')
+        bpy.ops.pose.select_all(action='DESELECT')
+        pose_bones = active.pose.bones
+        bones = active.data.bones
+        dispose_paths = []
+        for bone in bones:
+            if bone.name.casefold() in ["root", "pelvis"]:
+                continue
+                
+            dispose_paths.append('pose.bones["{}"].location'.format(bone.name))
+            pose_bones[bone.name].location = Vector()
+
+        if active.animation_data.action:
+            dispose_curves = [fcurve for fcurve in active.animation_data.action.fcurves if fcurve.data_path in dispose_paths]
+            for fcurve in dispose_curves:
+                active.animation_data.action.fcurves.remove(fcurve)
+        elif active.animation_data.nla_tracks:
+            for track in active.animation_data.nla_tracks:
+                for strip in track.strips:
+                    dispose_curves = [fcurve for fcurve in strip.action.fcurves if fcurve.data_path in dispose_paths]
+                    for fcurve in dispose_curves:
+                        strip.action.fcurves.remove(fcurve)
+            
+        bpy.ops.object.mode_set(mode='OBJECT')
+        return {'FINISHED'}
 
 
-operators = [FortnitePortingPanel, FortnitePortingTasty, FortnitePortingTastyCredit]
+operators = [FortnitePortingPanel, FortnitePortingTasty, FortnitePortingTastyCredit, FortnitePortingFemaleFix]
 
 def register():
     global import_event
