@@ -88,7 +88,7 @@ public static class HeightmapExporter
             Log.Information("Exporting Heightmap: {Type}", "Height");
             
             var height = new Image<L8>(Size, Size);
-            Mutate(heightTextures, (color, x, y, _) =>
+            IteratePixels(heightTextures, (color, x, y, _) =>
             {
                 height[x, y] = new L8(color.R);
             });
@@ -101,7 +101,7 @@ public static class HeightmapExporter
             Log.Information("Exporting Normalmap: {Type}", "Normal");
             
             var normal = new Image<Rgb24>(Size, Size);
-            Mutate(heightTextures, (color, x, y, _) =>
+            IteratePixels(heightTextures, (color, x, y, _) =>
             {
                 normal[x, y] = new Rgb24(color.B, color.A, 255);
             });
@@ -116,7 +116,7 @@ public static class HeightmapExporter
             {
                 Log.Information("Exporting Weightmap: {LayerName}", layerName);
                 var map = new Image<L8>(Size, Size);
-                Mutate(weightmapTextures, (color, x, y, channel) =>
+                IteratePixels(weightmapTextures, (color, x, y, channel) =>
                 {
                     var l8 = channel switch
                     {
@@ -136,7 +136,7 @@ public static class HeightmapExporter
         AppHelper.Launch(App.MapFolder.FullName);
     }
     
-    public static void Mutate(List<TileData?> textures, Action<Bgra32, int, int, int> action)
+    public static void IteratePixels(List<TileData?> textures, Action<Bgra32, int, int, int> action)
     {
         foreach (var textureData in textures)
         {
