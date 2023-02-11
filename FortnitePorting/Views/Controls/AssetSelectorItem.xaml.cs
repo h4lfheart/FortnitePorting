@@ -60,12 +60,14 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
         InitializeComponent();
         DataContext = this;
         Type = type;
+        AddFavoriteCommand = new RelayCommand(AddFavorite);
         ExportHDCommand = new RelayCommand(ExportHD);
         ExportAssetsCommand = new RelayCommand(ExportAssets);
         ClipboardCommand = new RelayCommand<string>(CopyIconToClipboard);
 
-        if (AppSettings.Current.LightMode)
+        if (AppSettings.Current.LightMode) 
         {
+            FavoriteImage.Effect = new InvertEffect();
             TexturesImage.Effect = new InvertEffect();
             ClipboardImage.Effect = new InvertEffect();
             ExportImage.Effect = new InvertEffect();
@@ -217,6 +219,14 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
         OnPropertyChanged(nameof(FavoriteSize));
     }
 
+    public ICommand AddFavoriteCommand { get; private set; }
+
+    public void AddFavorite() 
+    {
+        ToggleFavorite();
+    }
+
+    
     public ICommand ExportHDCommand { get; private set; }
 
     public void ExportHD()
