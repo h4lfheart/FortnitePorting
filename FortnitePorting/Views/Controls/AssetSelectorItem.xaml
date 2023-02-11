@@ -15,7 +15,11 @@
         </StackPanel.ToolTip>
         <StackPanel.ContextMenu>
             <ContextMenu>
-                <!--TODO FAVORITE RIGHT CLICK-->
+                <MenuItem Header="Add to Favorites" Command="{Binding AddFavoriteCommand}">
+                    <MenuItem.Icon>
+                        <Image x:Name="FavoriteImage" Source="/Resources/FavoriteAdd.png" Width="16" Height="16"></Image>
+                    </MenuItem.Icon>
+                </MenuItem>
                 <MenuItem Header="Export HD Textures" Command="{Binding ExportHDCommand}">
                     <MenuItem.Icon>
                         <Image x:Name="TexturesImage" Source="/Resources/Textures.png" Width="16" Height="16"></Image>
