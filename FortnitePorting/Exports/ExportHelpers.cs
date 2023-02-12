@@ -22,8 +22,8 @@ using CUE4Parse.UE4.Objects.Engine.Animation;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using FortnitePorting.AppUtils;
+using FortnitePorting.Views.Extensions;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
 using SkiaSharp;
 
 namespace FortnitePorting.Exports;
@@ -669,11 +669,10 @@ public static class ExportHelpers
                         var shouldExport = true; // assume nothing exists yet
                         if (File.Exists(path))
                         {
-                            using var existingBitmap = SKBitmap.Decode(path);
+                            using var existingBitmap = Image.Load(path);
                             var firstMip = texture.GetFirstMip();
                             if (existingBitmap is not null && (firstMip?.SizeX > existingBitmap.Width || firstMip?.SizeY > existingBitmap.Height))
                             {
-
                                 shouldExport = true; // update because higher res
                             }
                             else
@@ -684,38 +683,18 @@ public static class ExportHelpers
 
                         if (!shouldExport) return;
 
-                        Directory.CreateDirectory(path.Replace('\\', '/').SubstringBeforeLast('/'));
-
-                        using var bitmap = texture.Decode(texture.GetFirstMip());
-                        if (bitmap is null) return;
+                        using var image = texture.DecodeImageSharp();
+                        if (image is null) return;
                         
                         switch (AppSettings.Current.ImageType)
                         {
                             case EImageType.PNG:
-                            {
-                                using var data = bitmap.Encode(SKEncodedImageFormat.Png, 100);
-                                if (data is null) return;
-                            
-                                File.WriteAllBytes(path, data.ToArray());
+                                image.SaveAsPng(path);
                                 break;
-                            }
                             case EImageType.TGA:
-                            {
-                                var image = new Image<Rgba32>(bitmap.Width, bitmap.Height);
-                                for (var x = 0; x < bitmap.Width; x++)
-                                {
-                                    for (var y = 0; y < bitmap.Height; y++)
-                                    {
-                                        var color = bitmap.GetPixel(x, y);
-                                        image[x, y] = new Rgba32(color.Red, color.Green, color.Blue, color.Alpha);
-                                    }
-                                }
-
                                 image.SaveAsTga(path);
                                 break;
-                            }
                         }
-                      
                         break;
                     }
 
@@ -789,28 +768,6 @@ public static class ExportHelpers
         Save(additiveSequence);
     }
 
-    public static void SaveLandscapeMesh(UStaticMesh mesh, string name)
-    {
-        Tasks.Add(Task.Run(() =>
-        {
-            try
-            {
-                var exporter = new MeshExporter(mesh, ExportOptions);
-                var exportData = exporter.MeshLods[0].FileData;
-                var path = GetExportPath(mesh, "pskx", $"/{name}_LOD0");
-                Log.Information(path);
-                File.WriteAllBytes(path, exportData);
-
-                Log.Information("Exporting {ExportType}: {FileName}", mesh.ExportType, mesh.Name);
-            }
-            catch (IOException e)
-            {
-                Log.Error("Failed to export {ExportType}: {FileName}", mesh.ExportType, mesh.Name);
-                Log.Error(e.Message);
-            }
-        }));
-    }
-
     private static string GetExportPath(UObject obj, string ext, string extra = "")
     {
         var path = obj.Owner != null ? obj.Owner.Name : string.Empty;
@@ -818,7 +775,7 @@ public static class ExportHelpers
         if (path.StartsWith("/")) path = path[1..];
 
         var directory = Path.Combine(App.AssetsFolder.FullName, path);
-        Directory.CreateDirectory(directory);
+        Directory.CreateDirectory(directory.SubstringBeforeLast("/"));
         
         var finalPath = directory + $"{extra}.{ext.ToLower()}";
         return finalPath;

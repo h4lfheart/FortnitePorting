@@ -45,26 +45,16 @@ public static class HeightmapExporter
                 var y = component.GetOrDefault<int>("SectionBaseY");
                 if (component.TryGetValue(out UTexture2D heightTexture, "HeightmapTexture"))
                 {
-                    var mip = heightTexture.GetFirstMip();
-                    if (mip is null) continue;
-                
-                    TextureDecoder.DecodeTexture(mip, heightTexture.Format, heightTexture.isNormalMap, ETexturePlatform.DesktopMobile, out var data, out var colorType);
-                    var image = Image.LoadPixelData<Bgra32>(data, mip.SizeX, mip.SizeY);
+                    var image = heightTexture.DecodeImageSharp<Bgra32>();
                     heightTextures.Add(new TileData(image, x, y));
                 }
 
                 if (component.TryGetValue(out UTexture2D[] weightmapTextures, "WeightmapTextures") && component.TryGetValue(out FWeightmapLayerAllocationInfo[] weightmapAllocations, "WeightmapLayerAllocations"))
                 {
-                    var weightmapImages = new Image<Bgra32>[weightmapTextures.Length];
+                    var weightmapImages = new Image<Bgra32>?[weightmapTextures.Length];
                     for (var i = 0; i < weightmapTextures.Length; i++)
                     {
-                        var weightmapTexture = weightmapTextures[i];
-                        
-                        var mip = weightmapTexture.GetFirstMip();
-                        if (mip is null) continue;
-                        
-                        TextureDecoder.DecodeTexture(mip, heightTexture.Format, heightTexture.isNormalMap, ETexturePlatform.DesktopMobile, out var data, out var colorType);
-                        weightmapImages[i] = Image.LoadPixelData<Bgra32>(data, mip.SizeX, mip.SizeY);
+                        weightmapImages[i] = weightmapTextures[i].DecodeImageSharp<Bgra32>();
                     }
                     
                     foreach (var weightmapLayerInfo in weightmapAllocations)
@@ -141,8 +131,10 @@ public static class HeightmapExporter
         foreach (var textureData in textures)
         {
             if (textureData is null) return;
+            
             var (heightTexture, x, y, channelIndex) = textureData;
             if (heightTexture is null) continue;
+            
             for (var texX = 0; texX < heightTexture.Width; texX++)
             {
                 for (var texY = 0; texY < heightTexture.Height; texY++)
