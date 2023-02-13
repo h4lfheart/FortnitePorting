@@ -2065,6 +2065,8 @@ class FortnitePortingTasty(bpy.types.Operator):
 
     def execute(self, context):
         active = bpy.context.active_object
+        if active is None:
+            return
         if active.type == "ARMATURE":
             apply_tasty_rig(active)
         return {'FINISHED'}
@@ -2079,10 +2081,12 @@ class FortnitePortingTastyCredit(bpy.types.Operator):
         
 class FortnitePortingFemaleFix(bpy.types.Operator):
     bl_idname = "fortnite_porting.additive_fix"
-    bl_label = "Female Animation Fix"
+    bl_label = "Broken Animation Fix"
 
     def execute(self, context):
         active = bpy.context.active_object
+        if active is None:
+            return
         if active.type != "ARMATURE":
             return
         
