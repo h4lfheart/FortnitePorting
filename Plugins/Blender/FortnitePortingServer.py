@@ -1854,6 +1854,7 @@ def import_response(response):
                     else:
                         mesh = imported_part
                     bpy.context.view_layer.objects.active = mesh
+                    bpy.context.object.data.validate(verbose=True)
     
                     imported_parts.append({
                         "Part": part_type,
