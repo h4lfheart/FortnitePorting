@@ -77,10 +77,11 @@ public static class HeightmapExporter
         {
             Log.Information("Exporting Heightmap: {Type}", "Height");
             
-            var height = new Image<L8>(Size, Size);
+            var height = new Image<L16>(Size, Size);
             IteratePixels(heightTextures, (color, x, y, _) =>
             {
-                height[x, y] = new L8(color.R);
+                var corrected = (ushort) ((color.R << 8) | color.G);
+                height[x, y] = new L16(corrected);
             });
             height.SaveAsPng(Path.Combine(App.MapFolder.FullName, $"{world.Name}_Height.png"));
             SetPreviewImage(height);
