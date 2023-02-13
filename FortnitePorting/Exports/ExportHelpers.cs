@@ -160,39 +160,55 @@ public static class ExportHelpers
 
     public static void Weapon(UObject weaponDefinition, List<ExportMesh> exportParts)
     {
+        var weapons = GetWeaponMeshes(weaponDefinition);
+        foreach (var weapon in weapons)
+        {
+            if (weapon is UStaticMesh staticMesh)
+            {
+                Mesh(staticMesh, exportParts);
+            }
+            else if (weapon is USkeletalMesh skeletalMesh)
+            {
+                Mesh(skeletalMesh, exportParts);
+            }
+        }
+    }
+
+    public static List<UObject?> GetWeaponMeshes(UObject weaponDefinition)
+    {
+        var weapons = new List<UObject?>();
         USkeletalMesh? mainSkeletalMesh = null;
         mainSkeletalMesh = weaponDefinition.GetOrDefault("PickupSkeletalMesh", mainSkeletalMesh);
         mainSkeletalMesh = weaponDefinition.GetOrDefault("WeaponMeshOverride", mainSkeletalMesh);
-        Mesh(mainSkeletalMesh, exportParts);
+        weapons.Add(mainSkeletalMesh);
 
         if (mainSkeletalMesh is null)
         {
             weaponDefinition.TryGetValue(out UStaticMesh? mainStaticMesh, "PickupStaticMesh");
-            Mesh(mainStaticMesh, exportParts);
+            weapons.Add(mainStaticMesh);
         }
 
         weaponDefinition.TryGetValue(out USkeletalMesh? offHandMesh, "WeaponMeshOffhandOverride");
-        Mesh(offHandMesh, exportParts);
+        weapons.Add(offHandMesh);
 
-        if (exportParts.Count > 0) return;
+        if (weapons.Count > 0) return weapons;
 
         // TODO MATERIAL STYLES
         if (weaponDefinition.TryGetValue(out UBlueprintGeneratedClass blueprint, "WeaponActorClass"))
         {
-            var defaultObject = blueprint.ClassDefaultObject.Load();
+            var defaultObject = blueprint.ClassDefaultObject.Load()!;
             if (defaultObject.TryGetValue(out UObject weaponMeshData, "WeaponMesh"))
             {
-                Mesh(weaponMeshData.GetOrDefault<USkeletalMesh>("SkeletalMesh"), exportParts);
+                weapons.Add(weaponMeshData.GetOrDefault<USkeletalMesh>("SkeletalMesh"));
             }
 
             if (defaultObject.TryGetValue(out UObject leftWeaponMeshData, "LeftHandWeaponMesh"))
             {
-                Mesh(leftWeaponMeshData.GetOrDefault<USkeletalMesh>("SkeletalMesh"), exportParts);
+                weapons.Add(leftWeaponMeshData.GetOrDefault<USkeletalMesh>("SkeletalMesh"));
             }
-
-            if (exportParts.Count > 0) // successfully exported mesh
-                return;
         }
+
+        return weapons;
     }
 
     public static void Mesh<T>(USkeletalMesh? skeletalMesh, List<T> exportParts) where T : ExportMesh, new()

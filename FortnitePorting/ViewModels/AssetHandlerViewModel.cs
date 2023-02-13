@@ -20,6 +20,7 @@ using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Vfs;
 using CUE4Parse.Utils;
 using FortnitePorting.AppUtils;
+using FortnitePorting.Exports;
 using FortnitePorting.Views;
 using FortnitePorting.Views.Controls;
 using FortnitePorting.Views.Extensions;
@@ -180,12 +181,7 @@ public class AssetHandlerViewModel
         RemoveList = { },
         IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
     };
-    
-    private readonly AssetHandlerData MeshHandler = new()
-    {
-        AssetType = EAssetType.Mesh,
-    };
-    
+
     private readonly AssetHandlerData PetHandler = new()
     {
         AssetType = EAssetType.Pet,
@@ -219,6 +215,11 @@ public class AssetHandlerData
         HasStarted = true;
         var sw = new Stopwatch();
         sw.Start();
+
+        if (AssetType is EAssetType.Weapon && AppSettings.Current.WeaponMappings.Count == 0)
+        {
+            AppLog.Warning("Generating first-time weapon mappings, this may take longer than usual");
+        }
         
         /*if (AssetType == EAssetType.Mesh)
         {
@@ -270,30 +271,56 @@ public class AssetHandlerData
             items.Remove(random);
             await DoLoad(random, AssetType, true);
         }
-    
 
         var addedAssets = new List<string>();
         await Parallel.ForEachAsync(items, async (data, token) =>
         {
-            // TODO figure out differentiate rarities with diff meshes
-            if (data.TagsAndValues.ContainsKey("DisplayName") && AssetType is EAssetType.Weapon or EAssetType.Prop)
+            var displayName = string.Empty;
+            if (data.TagsAndValues.TryGetValue("DisplayName", out var displayNameRaw))
             {
-                var displayName = data.TagsAndValues["DisplayName"].SubstringBeforeLast('"').SubstringAfterLast('"').Trim();
-                if (addedAssets.ToArray().Contains(displayName, StringComparer.OrdinalIgnoreCase))
+                displayName = displayNameRaw.SubstringBeforeLast('"').SubstringAfterLast('"').Trim();
+            }
+            
+            // Weapon Filtering
+            if (AssetType is EAssetType.Weapon)
+            {
+                var objectData = await AppVM.CUE4ParseVM.Provider.LoadObjectAsync(data.ObjectPath);
+                var foundMappings = AppSettings.Current.WeaponMappings.TryGetValue(displayName, out var weaponMeshPaths);
+                if (!foundMappings)
+                {
+                    var mainWeapon = ExportHelpers.GetWeaponMeshes(objectData).FirstOrDefault();
+                    if (mainWeapon is null) return;
+
+                    if (!AppSettings.Current.WeaponMappings.ContainsKey(displayName))
+                    {
+                        AppSettings.Current.WeaponMappings[displayName] = new List<string>();
+                    }
+                    
+                    AppSettings.Current.WeaponMappings[displayName].AddUnique(mainWeapon.GetPathName());
+                    weaponMeshPaths = AppSettings.Current.WeaponMappings[displayName];
+                }
+                
+                foreach (var weaponMesh in weaponMeshPaths.ToArray())
+                {
+                    if (addedAssets.ToArray().Contains(weaponMesh)) continue;
+                    addedAssets.Add(weaponMesh);
+                    await DoLoad(objectData, AssetType);
+                }
+                
+                return;
+            }
+            
+            // Prop Filtering
+            if (AssetType is EAssetType.Prop)
+            {
+                if (addedAssets.ToArray().Contains(displayName))
                 {
                     return;
                 }
                 addedAssets.Add(displayName);
             }
 
-            try
-            {
-                await DoLoad(data, AssetType);
-            }
-            catch (Exception e)
-            {
-                Log.Error("Failed to load {ObjectPath}", data.ObjectPath);
-            }
+            await DoLoad(data, AssetType);
 
         });
         sw.Stop();
@@ -333,14 +360,28 @@ public class AssetHandlerData
 
     private async Task DoLoad(FAssetData data, EAssetType type, bool random = false)
     {
-        await PauseState.WaitIfPaused();
         var asset = await AppVM.CUE4ParseVM.Provider.LoadObjectAsync(data.ObjectPath);
+        await DoLoad(asset, type, random);
+    }
+    
+    private async Task DoLoad(UObject asset, EAssetType type, bool random = false)
+    {
+        try
+        {
+            await PauseState.WaitIfPaused();
 
-        var previewImage = IconGetter(asset);
-        previewImage ??= AppVM.CUE4ParseVM.PlaceholderTexture;
-        if (previewImage is null) return;
+            var previewImage = IconGetter(asset);
+            previewImage ??= AppVM.CUE4ParseVM.PlaceholderTexture;
+            if (previewImage is null) return;
 
-        await Application.Current.Dispatcher.InvokeAsync(
-            () => TargetCollection.Add(new AssetSelectorItem(asset, previewImage, type, random, DisplayNameGetter?.Invoke(asset), type == EAssetType.Vehicle, RemoveList.Any(y => data.AssetName.Text.Contains(y, StringComparison.OrdinalIgnoreCase)))), DispatcherPriority.Background);
+            await Application.Current.Dispatcher.InvokeAsync(
+                () => TargetCollection.Add(new AssetSelectorItem(asset, previewImage, type, random, DisplayNameGetter?.Invoke(asset), type == EAssetType.Vehicle, RemoveList.Any(y => asset.Name.Contains(y, StringComparison.OrdinalIgnoreCase)))), DispatcherPriority.Background);
+
+        }
+        catch (Exception e)
+        {
+            Log.Error("Failed to load {ObjectPath}", asset.GetPathName());
+        }
+        
     }
 }
