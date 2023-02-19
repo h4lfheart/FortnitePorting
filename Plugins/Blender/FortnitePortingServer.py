@@ -833,7 +833,29 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
             diffuse_node = shader_node.inputs["Diffuse"].links[0].from_node
             diffuse_node.location = [-500, -75]
             links.new(diffuse_node.outputs[0], mix_node.inputs[1])
-            links.new(mix_node.outputs[0], shader_node.inputs[0])
+            links.new(mix_node.outputs[0], shader_node.inputs["Diffuse"])
+
+    if mask_texture := first(textures, lambda x: x.get("Name") == "MaskTexture"):
+        value = mask_texture.get("Value")
+        if image := import_texture(value):
+            image_node = nodes.new(type="ShaderNodeTexImage")
+            image_node.image = image
+            image_node.image.alpha_mode = 'CHANNEL_PACKED'
+            image_node.location = [-500, -500]
+            image_node.hide = True
+            if not mask_texture.get("sRGB"):
+                set_linear(image_node)
+
+            rgb_node = nodes.new(type="ShaderNodeSeparateRGB")
+            rgb_node.location = [-300, -500]
+            links.new(image_node.outputs[0], rgb_node.inputs[0])
+            links.new(rgb_node.outputs[0], shader_node.inputs["Alpha"])
+
+            target_material.blend_method = "CLIP"
+            target_material.shadow_method = "CLIP"
+            target_material.show_transparent_back = False
+            
+            
                 
 def merge_skeletons(parts):
     bpy.ops.object.select_all(action='DESELECT')
