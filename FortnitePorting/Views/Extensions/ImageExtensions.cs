@@ -1,19 +1,23 @@
 ﻿using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows;
 using System.Windows.Media.Imaging;
+using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Png;
 using SkiaSharp;
+using Image = System.Drawing.Image;
+using Rectangle = System.Drawing.Rectangle;
 
 namespace FortnitePorting.Views.Extensions;
 
 public static class ImageExtensions
 {
-    public static BitmapSource ToBitmapSource(this SKBitmap bitmap)
+    public static BitmapImage ToBitmapImage(this SKBitmap bitmap)
     {
         var source = new BitmapImage { CacheOption = BitmapCacheOption.OnDemand };
         source.BeginInit();
@@ -22,16 +26,15 @@ public static class ImageExtensions
         return source;
     }
     
-    public static BitmapSource ToBitmapSource(this SixLabors.ImageSharp.Image bitmap)
+    public static BitmapImage ToBitmapImage(this SixLabors.ImageSharp.Image bitmap)
     {
         var source = new BitmapImage { CacheOption = BitmapCacheOption.OnDemand };
         source.BeginInit();
         source.StreamSource = new MemoryStream();
-        SixLabors.ImageSharp.ImageExtensions.Save(bitmap, source.StreamSource, PngFormat.Instance);
+        bitmap.Save(source.StreamSource, PngFormat.Instance);
         source.EndInit();
         return source;
     }
-    
 
     public static void SetImage(byte[] pngBytes, string fileName = null)
     {

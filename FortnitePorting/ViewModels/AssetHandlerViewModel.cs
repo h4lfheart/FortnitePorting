@@ -221,45 +221,6 @@ public class AssetHandlerData
             AppLog.Warning("Generating first-time weapon mappings, this may take longer than usual");
         }
         
-        /*if (AssetType == EAssetType.Mesh)
-        {
-            await Parallel.ForEachAsync(AppVM.CUE4ParseVM.Provider.Files.Values, async (data, token) =>
-            {
-                await Application.Current.Dispatcher.InvokeAsync(() =>
-                {
-                    if (data is not VfsEntry entry || !entry.Path.EndsWith(".uasset"))
-                        return;
-                
-                    var children = entry.Path.Replace(".uasset", string.Empty).Split("/");
-                    var nextItem = children.First();
-                
-                    var item = MainView.YesWeDogs.MeshAssets.Items.OfType<TreeViewItem>().FirstOrDefault(x => x.Header.Equals(nextItem)); 
-                    item ??= new TreeViewItem { Header = children.First() };
-                    item.Items.SortDescriptions.Add(new SortDescription("Header", ListSortDirection.Descending));
-                    item.Tag = "Folder";
-                    Recurse(item, children[1..]);
-                    try
-                    {
-                        MainView.YesWeDogs.MeshAssets.Items.Add(item);
-                    }
-                    catch (InvalidOperationException)
-                    {
-                        // ignored
-                    }
-                }, DispatcherPriority.Background);
-            });
-            await Application.Current.Dispatcher.InvokeAsync(() =>
-            {
-                var topItems = MainView.YesWeDogs.MeshAssets.Items.OfType<TreeViewItem>();
-                var fortniteGame = topItems.First(x => x.Header.Equals("FortniteGame"));
-                fortniteGame.IsExpanded = true;
-                
-                var nextItems = fortniteGame.Items.OfType<TreeViewItem>();
-                var content = nextItems.First(x => x.Header.Equals("Content"));
-                content.IsExpanded = true;
-                
-            }, DispatcherPriority.Background);
-        }*/
         var items = AppVM.CUE4ParseVM.AssetDataBuffers
             .Where(x => ClassNames.Any(y => x.AssetClass.Text.Equals(y, StringComparison.OrdinalIgnoreCase)))
             .ToList();
@@ -327,37 +288,6 @@ public class AssetHandlerData
         AppLog.Information($"Loaded {AssetType.GetDescription()} in {Math.Round(sw.Elapsed.TotalSeconds, 2)}s");
     }
 
-
-    private static void Recurse(TreeViewItem parent, string[] children)
-    {
-        var nextItem = children.FirstOrDefault();
-        if (nextItem is null) return;
-        
-        var item = parent.Items.OfType<TreeViewItem>().FirstOrDefault(x => x.Header.Equals(nextItem)); 
-        item ??= new TreeViewItem { Header = nextItem };
-        item.Items.SortDescriptions.Add(new SortDescription("Header", ListSortDirection.Ascending));
-
-        // is mesh  = no children other than self
-        if (children.Length > 1)
-        {
-            item.Tag = "Folder";
-            Recurse(item, children[1..]);
-        }
-        else
-        {
-            item.Tag = "Object";
-        }
-
-        try
-        {
-            parent.Items.Add(item);
-        }
-        catch (InvalidOperationException)
-        {
-            // ignored
-        }
-    }
-
     private async Task DoLoad(FAssetData data, EAssetType type, bool random = false)
     {
         var asset = await AppVM.CUE4ParseVM.Provider.LoadObjectAsync(data.ObjectPath);
@@ -381,6 +311,7 @@ public class AssetHandlerData
         catch (Exception e)
         {
             Log.Error("Failed to load {ObjectPath}", asset.GetPathName());
+            Log.Debug(e.Message + e.StackTrace);
         }
         
     }

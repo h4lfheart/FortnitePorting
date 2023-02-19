@@ -9,7 +9,7 @@
              xmlns:cue4parse="clr-namespace:CUE4Parse;assembly=CUE4Parse"
              xmlns:local="clr-namespace:FortnitePorting"
              xmlns:toolkitCtrls="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
-             Title="Fortnite Porting" Width="1280" Height="720" WindowStartupLocation="CenterScreen" ResizeMode="CanResize" Loaded="OnLoaded">
+             Title="Fortnite Porting" Width="1366" Height="720" WindowStartupLocation="CenterScreen" ResizeMode="CanResize" Loaded="OnLoaded">
     <Window.InputBindings>
         <KeyBinding Key="R" Modifiers="Control" Command="{Binding MenuCommand}" CommandParameter="File_Restart"/>
         <KeyBinding Key="D" Modifiers="Control" Command="{Binding ExportBlenderCommand}"/>
@@ -89,7 +89,7 @@
                 
                 <controls:TextWithIcon Grid.Column="2" Label="Sort By" ImageSource="/FortnitePorting;component/Resources/Sort.png" IconSize="16"/>
                 <ComboBox Grid.Column="4" ItemsSource="{extensions:EnumToItemsSource {x:Type local:ESortType}}" SelectedItem="{Binding SortType, Converter={StaticResource EnumToString}}" SelectionChanged="OnSortSelectionChanged"/>
-                <CheckBox Grid.Column="6" Content="Ascending" IsChecked="{Binding Ascending}" Checked="ToggleButton_OnChanged" Unchecked="ToggleButton_OnChanged"/>
+                <CheckBox Grid.Column="6" Content="Descending" IsChecked="{Binding Ascending}" Checked="ToggleButton_OnChanged" Unchecked="ToggleButton_OnChanged"/>
                 
                 <controls:TextWithIcon Grid.Column="8" Label="Filters" ImageSource="/FortnitePorting;component/Resources/Filter.png" IconSize="16"/>
                 <ToggleButton Grid.Column="10" Name="FilterButton">
@@ -239,12 +239,12 @@
                             </ListBox.ItemsPanel>
                         </ListBox>
                     </TabItem>
-                    <!--TabItem Style="{StaticResource TabItemEqualSize}">
+                    <TabItem Style="{StaticResource TabItemEqualSize}">
                         <TabItem.Header>
                             <controls:TextWithIcon Label="Meshes" ImageSource="/FortnitePorting;component/Resources/Mesh.png"/>
                         </TabItem.Header>
-                        <TreeView Name="MeshAssets" Style="{StaticResource AssetsFolderTreeView}"></TreeView>
-                    </TabItem-->
+                        <TreeView Name="MeshAssets" Style="{StaticResource AssetsFolderTreeView}"/>
+                    </TabItem>
                 </TabControl>
             </GroupBox>
             

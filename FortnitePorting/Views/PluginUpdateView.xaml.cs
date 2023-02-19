@@ -87,7 +87,7 @@ public partial class PluginUpdateView
 public static class SteamDetection
 {
 
-    public static List<AppInfo> GetSteamApps(List<string> steamLibs)
+    public static List<AppInfo> GetSteamApps(string[] steamLibs)
     {
         var apps = new List<AppInfo>();
         foreach (var lib in steamLibs)
@@ -133,14 +133,14 @@ public static class SteamDetection
         return appInfo;
     }
 
-    public static List<string> GetSteamLibs()
+    public static string[] GetSteamLibs()
     {
         var steamPath = GetSteamPath();
-        if (steamPath is null) return new List<string>();
+        if (steamPath is null) return Array.Empty<string>();
         var libraries = new List<string> { steamPath };
 
         var listFile = Path.Combine(steamPath, @"steamapps\libraryfolders.vdf");
-        if (!File.Exists(listFile)) return new List<string>();
+        if (!File.Exists(listFile)) return Array.Empty<string>();
         var lines = File.ReadAllLines(listFile);
         foreach (var line in lines)
         {
@@ -152,10 +152,16 @@ public static class SteamDetection
                 libraries.Add(path);
             }
         }
-        return libraries;
+        return libraries.ToArray();
     }
 
-    private static string? GetSteamPath() => (string?) Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Valve\Steam", "InstallPath", "");
+    private static string? GetSteamPath()
+    {
+        var bit64 = (string?) Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Valve\Steam", "InstallPath", "");
+        var bit32 = (string?) Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Valve\Steam", "InstallPath", "");
+
+        return bit64 ?? bit32 ?? null;
+    }
 
     public class AppInfo
     {

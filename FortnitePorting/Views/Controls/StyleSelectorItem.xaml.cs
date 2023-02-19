@@ -18,6 +18,6 @@ public partial class StyleSelectorItem
         OptionData = option;
         DisplayName = option.GetOrDefault("VariantName", new FText("Unknown Style")).Text.ToLower().TitleCase();
         if (string.IsNullOrWhiteSpace(DisplayName)) DisplayName = "Unknown Style";
-        IconSource = previewBitmap.ToBitmapSource();
+        IconSource = previewBitmap.ToBitmapImage();
     }
 }

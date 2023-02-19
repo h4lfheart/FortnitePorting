@@ -154,6 +154,6 @@ public static class HeightmapExporter
 
     public static void SetPreviewImage(Image image)
     {
-        Application.Current.Dispatcher.Invoke(() => AppVM.HeightmapVM.ImageSource = image.ToBitmapSource(), DispatcherPriority.Background);
+        Application.Current.Dispatcher.Invoke(() => AppVM.HeightmapVM.ImageSource = image.ToBitmapImage(), DispatcherPriority.Background);
     }
 }

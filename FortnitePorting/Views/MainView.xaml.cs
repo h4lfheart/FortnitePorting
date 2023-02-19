@@ -60,11 +60,17 @@ public partial class MainView
     private async void OnAssetTabSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (sender is not TabControl tabControl) return;
-        if (AppVM.AssetHandlerVM is null) return;
 
         var assetType = (EAssetType) tabControl.SelectedIndex;
-
         if (AppVM.MainVM.CurrentAssetType == assetType) return;
+        
+        if (assetType == EAssetType.Mesh)
+        {
+            // TODO Mesh Tab
+            return;
+        }
+
+        if (AppVM.AssetHandlerVM is null) return;
         var handlers = AppVM.AssetHandlerVM.Handlers;
         foreach (var (handlerType, handlerData) in handlers)
         {
