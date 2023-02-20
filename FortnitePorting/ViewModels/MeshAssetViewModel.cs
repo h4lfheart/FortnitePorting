@@ -54,7 +54,6 @@ public class MeshAssetViewModel : ObservableObject
             
             var entries = AppVM.CUE4ParseVM.Provider.Files.Values.ToList();
             
-            Log.Information("timne");
             foreach (var entry in entries)
             {
                 // TODO make better but im tired so im not doing it rn
