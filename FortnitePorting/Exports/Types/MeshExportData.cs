@@ -33,7 +33,7 @@ public class MeshExportData : ExportDataBase
     public static async Task<MeshExportData?> Create(UObject asset, EAssetType assetType, FStructFallback[] styles)
     {
         var data = new MeshExportData();
-        data.Name = asset.GetOrDefault("DisplayName", new FText("Unnamed")).Text;
+        data.Name = assetType == EAssetType.Mesh ? asset.Name : asset.GetOrDefault("DisplayName", new FText("Unnamed")).Text;
         data.Type = assetType.ToString();
         var canContinue = await Task.Run(async () =>
         {
@@ -244,6 +244,18 @@ public class MeshExportData : ExportDataBase
                         }
                     }
 
+                    break;
+                }
+                case EAssetType.Mesh:
+                {
+                    if (asset is UStaticMesh staticMesh)
+                    {
+                        ExportHelpers.Mesh(staticMesh, data.Parts);
+                    }
+                    else if (asset is USkeletalMesh skeletalMesh)
+                    {
+                        ExportHelpers.Mesh(skeletalMesh, data.Parts);
+                    }
                     break;
                 }
                 default:

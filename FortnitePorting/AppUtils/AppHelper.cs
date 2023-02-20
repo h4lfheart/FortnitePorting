@@ -1,6 +1,10 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows;
+using FortnitePorting.ViewModels;
 using Ookii.Dialogs.Wpf;
 
 namespace FortnitePorting.AppUtils;
@@ -48,5 +52,11 @@ public static class AppHelper
 
         selectedPath = string.Empty;
         return false;
+    }
+    
+    public static bool Filter(string input, string filter)
+    {
+        var filters = filter.Trim().Split(' ');
+        return filters.All(x => input.Contains(x, StringComparison.OrdinalIgnoreCase));
     }
 }

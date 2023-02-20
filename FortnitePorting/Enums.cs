@@ -111,3 +111,9 @@ public enum EImageType
     [Description("Targa (.tga)")]
     TGA
 }
+
+public enum ETreeItemType
+{
+    Folder,
+    Asset
+}

@@ -17,6 +17,7 @@ public class ApplicationViewModel : ObservableObject
     public AssetHandlerViewModel? AssetHandlerVM;
     public ImportSettingsViewModel? ImportSettingsVM;
     public HeightmapViewModel? HeightmapVM;
+    public MeshAssetViewModel? MeshVM;
 
     public void Warning(string caption, string message)
     {

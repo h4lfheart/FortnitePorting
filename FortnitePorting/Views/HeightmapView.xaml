@@ -16,7 +16,7 @@
             <CheckBox Margin="{adonisUi:Space 1}" Content="Export Height Map" IsChecked="{Binding ExportHeightmap}"/>
             <CheckBox Margin="{adonisUi:Space 1}" Content="Export Normal Map" IsChecked="{Binding ExportNormalmap}"/>
             <CheckBox Margin="{adonisUi:Space 1}" Content="Export Weight/Layer Maps" IsChecked="{Binding ExportWeightmap}"/>
-            <Button Margin="{adonisUi:Space 1}" Content="Export Terrain Map" Command="{Binding ExportCommand}"/>
+            <Button Margin="{adonisUi:Space 1}" Content="Export Maps" Command="{Binding ExportCommand}"/>
         </StackPanel>
         
         <StackPanel Grid.Column="2">

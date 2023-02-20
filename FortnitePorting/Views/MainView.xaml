@@ -243,7 +243,59 @@
                         <TabItem.Header>
                             <controls:TextWithIcon Label="Meshes" ImageSource="/FortnitePorting;component/Resources/Mesh.png"/>
                         </TabItem.Header>
-                        <TreeView Name="MeshAssets" Style="{StaticResource AssetsFolderTreeView}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="{adonisUi:Space 1}"/>
+                                <ColumnDefinition Width="2*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <GroupBox Grid.Column="0" BorderThickness="1">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    
+                                    <Separator Grid.Row="0" Style="{StaticResource NamedSeparator}" Tag="File Structure"/>
+                                    <TreeView Name="AssetFolderTree" SelectedItemChanged="AssetFolderTree_OnSelectionChanged" Grid.Row="1" ItemsSource="{Binding Meshes}" Style="{StaticResource AssetsFolderTreeView}"/>
+                                </Grid>
+                            </GroupBox>
+                            <GridSplitter Grid.Column="1" ResizeDirection="Columns" Width="4" VerticalAlignment="Stretch" ResizeBehavior="PreviousAndNext" Background="{DynamicResource {x:Static adonisUi:Brushes.Layer0BackgroundBrush}}"/>
+                            
+                            <GroupBox Grid.Column="2" BorderThickness="1">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    
+                                    <Separator Grid.Row="0" Style="{StaticResource NamedSeparator}" Tag="Flat View"/>
+                                    <ListBox Name="AssetFlatView" Grid.Row="1" ItemsSource="{Binding Assets, IsAsync=True}" VirtualizingPanel.IsVirtualizing="True" HorizontalAlignment="Stretch" SelectionChanged="AssetFlatView_OnSelectionChanged" MouseDoubleClick="OnAssetDoubleClick">
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock HorizontalAlignment="Left" Text="{Binding Path}" TextTrimming="CharacterEllipsis"/>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                        <ListBox.Style>
+                                            <Style TargetType="{x:Type ListBox}" BasedOn="{StaticResource {x:Type ListBox}}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Assets.Count}" Value="0">
+                                                        <Setter Property="Template">
+                                                            <Setter.Value>
+                                                                <ControlTemplate>
+                                                                    <TextBlock Text="There are currently no loaded assets. Please wait for them to load. The window may freeze, do not be afraid. :D" FontWeight="SemiBold" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource {x:Static adonisUi:Brushes.ErrorBrush}}"/>
+                                                                </ControlTemplate>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ListBox.Style>
+                                    </ListBox>
+                                </Grid>
+                            </GroupBox>
+                        </Grid>
                     </TabItem>
                 </TabControl>
             </GroupBox>
@@ -274,7 +326,7 @@
                     </Grid.RowDefinitions>
                     
                     <StackPanel Grid.Row="0" Orientation="Horizontal">
-                        <Image Source="{Binding StyleImage}" Width="88" Height="88"/>
+                        <Image Source="{Binding StyleImage}" Width="88" Height="88" Visibility="{Binding CurrentAsset.PreviewImageVisibility}"/>
                         <Grid Margin="{adonisUi:Space 1}" MinWidth="256" HorizontalAlignment="Center" VerticalAlignment="Center">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="*"/>

@@ -5,8 +5,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Forms;
 using System.Windows.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -33,10 +31,11 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(StyleImage))]
     [NotifyPropertyChangedFor(nameof(StyleVisibility))]
-    private AssetSelectorItem? currentAsset;
+    private IExportableAsset? currentAsset;
 
     public ImageSource? StyleImage => currentAsset?.FullSource;
     public Visibility StyleVisibility => currentAsset is null ? Visibility.Collapsed : Visibility.Visible;
+
 
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> outfits = new();
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> backBlings = new();
@@ -47,7 +46,8 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> props = new();
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> vehicles = new();
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> pets = new();
-    [ObservableProperty] private ObservableCollection<TreeViewItem> meshes = new();
+    [ObservableProperty] private SuppressibleObservableCollection<TreeItem> meshes = new();
+    [ObservableProperty] private SuppressibleObservableCollection<AssetItem> assets = new();
 
     [ObservableProperty] private ObservableCollection<StyleSelector> styles = new();
 
@@ -87,7 +87,7 @@ public partial class MainViewModel : ObservableObject
         { "Item Shop", x => x.GameplayTags.ContainsAny("ItemShop") },
         { "Save The World", x => x.GameplayTags.ContainsAny("CampaignHero") },
         { "Battle Royale", x => !x.GameplayTags.ContainsAny("CampaignHero") },
-        { "Unfinished Assets", x => x.HiddenAsset}
+        { "Unfinished Assets", x => x.HiddenAsset }
     };
 
 
@@ -112,7 +112,7 @@ public partial class MainViewModel : ObservableObject
 
     public FStructFallback[] GetSelectedStyles()
     {
-        return CurrentAsset?.Type == EAssetType.Prop ? Array.Empty<FStructFallback>() : Styles.Select(style => ((StyleSelectorItem) style.Options.Items[style.Options.SelectedIndex]).OptionData).ToArray();
+        return CurrentAsset?.Type is EAssetType.Prop or EAssetType.Mesh ? Array.Empty<FStructFallback>() : Styles.Select(style => ((StyleSelectorItem) style.Options.Items[style.Options.SelectedIndex]).OptionData).ToArray();
     }
 
     [RelayCommand]
@@ -167,17 +167,34 @@ public partial class MainViewModel : ObservableObject
                 break;
         }
     }
+
     public void CheckUpdate()
     {
         UpdateService.Start();
     }
 
+    private static readonly string[] AllowedMeshTypes =
+    {
+        "Skeleton",
+        "SkeletalMesh",
+        "StaticMesh"
+    };
+    
+    public async Task SetupMeshSelection(string path)
+    {
+        var meshObject = await AppVM.CUE4ParseVM.Provider.LoadObjectAsync(path);
+        if (AllowedMeshTypes.Contains(meshObject.ExportType))
+        {
+            AppVM.MainVM.CurrentAsset = new MeshAssetItem(meshObject);
+        }
+    }
+
     public async Task<List<ExportDataBase>> CreateExportDatasAsync()
     {
-        var exportAssets = new List<AssetSelectorItem>();
+        var exportAssets = new List<IExportableAsset>();
         if (ExtendedAssets.Count > 0)
         {
-            exportAssets = extendedAssets;
+            exportAssets.AddRange(extendedAssets);
         }
         else if (CurrentAsset is not null)
         {
@@ -250,7 +267,8 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     public async Task Favorite()
     {
-        CurrentAsset?.ToggleFavorite();
+        if (CurrentAsset is AssetSelectorItem assetSelectorItem)
+            assetSelectorItem?.ToggleFavorite();
     }
 
     [RelayCommand]

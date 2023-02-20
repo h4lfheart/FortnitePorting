@@ -29,19 +29,20 @@ using SkiaSharp;
 
 namespace FortnitePorting.Views.Controls;
 
-public partial class AssetSelectorItem : INotifyPropertyChanged
+public partial class AssetSelectorItem : INotifyPropertyChanged, IExportableAsset
 {
-    public UObject Asset;
     public SKBitmap IconBitmap;
     public SKBitmap FullBitmap;
-    public BitmapImage FullSource;
     public FGameplayTagContainer GameplayTags;
-    public EAssetType Type;
-
-    public bool IsRandom { get; set; }
+    
+    
+    public UObject Asset { get; set; }
+    public EAssetType Type { get; set; }
+    public BitmapImage FullSource { get; set; }
     public string DisplayName { get; set; }
     public string DisplayNameSource { get; set; }
     public string Description { get; set; }
+    public bool IsRandom { get; set; }
     public string TooltipName { get; set; }
     public string ID { get; set; }
     public EFortRarity Rarity { get; set; }
@@ -189,7 +190,7 @@ public partial class AssetSelectorItem : INotifyPropertyChanged
 
         if (useRegex)
         {
-            return Regex.IsMatch(DisplayName, filter) || Regex.IsMatch(ID, filter) || Regex.IsMatch(DisplayNameSource, filter);
+            return AppHelper.Filter(DisplayName, filter) || AppHelper.Filter(ID, filter) || AppHelper.Filter(DisplayNameSource, filter);
         }
 
         return DisplayName.Contains(filter, StringComparison.OrdinalIgnoreCase) || ID.Contains(filter, StringComparison.OrdinalIgnoreCase) || DisplayNameSource.Contains(filter, StringComparison.OrdinalIgnoreCase);

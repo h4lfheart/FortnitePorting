@@ -64,9 +64,15 @@ public partial class MainView
         var assetType = (EAssetType) tabControl.SelectedIndex;
         if (AppVM.MainVM.CurrentAssetType == assetType) return;
         
+        AppVM.MainVM.ExtendedAssets.Clear();
+        AppVM.MainVM.CurrentAssetType = assetType;
+        DiscordService.Update(assetType);
+        
         if (assetType == EAssetType.Mesh)
         {
-            // TODO Mesh Tab
+            if (AppVM.MeshVM is not null && AppVM.MeshVM.HasStarted) return;
+            AppVM.MeshVM = new MeshAssetViewModel();
+            await AppVM.MeshVM.Initialize();
             return;
         }
 
@@ -88,10 +94,6 @@ public partial class MainView
         {
             await handlers[assetType].Execute();
         }
-
-        DiscordService.Update(assetType);
-        AppVM.MainVM.CurrentAssetType = assetType;
-        AppVM.MainVM.ExtendedAssets.Clear();
     }
 
     private void OnAssetSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -146,10 +148,6 @@ public partial class MainView
                 AppVM.MainVM.Styles.Add(styleSelector);
             }
         }
-        else if (sender is TreeViewItem treeViewItem)
-        {
-            
-        }
     }
 
     private void StupidIdiotBadScroll(object sender, MouseWheelEventArgs e)
@@ -175,6 +173,13 @@ public partial class MainView
 
     public void RefreshFilters()
     {
+        AssetFlatView.Items.Filter = o =>
+        {
+            var asset = (AssetItem) o;
+            return AppHelper.Filter(asset.Path, AppVM.MainVM.SearchFilter);
+        };
+        AssetFlatView.Items.Refresh();
+        
         foreach (var tab in AssetControls.Items.OfType<TabItem>())
         {
             if (tab.Content is not ListBox listBox) continue;
@@ -185,6 +190,7 @@ public partial class MainView
                 return asset.Match(AppVM.MainVM.SearchFilter) && AppVM.MainVM.Filters.All(x => x.Invoke(asset));
             };
             listBox.Items.Refresh();
+            
         }
     }
 
@@ -265,5 +271,59 @@ public partial class MainView
         }
         
         RefreshFilters();
+    }
+
+    public void JumpToAsset(string directory)
+    {
+        var children = AppVM.MainVM.Meshes;
+
+        var i = 0;
+        var folders = directory.Split('/');
+        while (true)
+        {
+            foreach (var folder in children)
+            {
+                if (!folder.Header.Equals(folders[i], StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                if (folder.AssetType == ETreeItemType.Asset)
+                {
+                    folder.IsSelected = true;
+                    return;
+                }
+                
+                folder.IsExpanded = true;
+                children = folder.Children;
+                break;
+            }
+
+            i++;
+            if (children.Count == 0) break;
+        }
+    }
+
+    private async void AssetFolderTree_OnSelectionChanged(object sender, RoutedPropertyChangedEventArgs<object> routedPropertyChangedEventArgs)
+    {
+        var treeView = (TreeView) sender;
+        var treeItem = (TreeItem) treeView.SelectedItem;
+        if (treeItem.AssetType == ETreeItemType.Folder) return;
+        
+        await AppVM.MainVM.SetupMeshSelection(treeItem.FullPath);
+    }
+
+    private async void AssetFlatView_OnSelectionChanged(object sender, RoutedEventArgs e)
+    {
+        var listBox = (ListBox) sender;
+        var selectedItem = (AssetItem) listBox.SelectedItem;
+        if (selectedItem is null) return;
+        
+        await AppVM.MainVM.SetupMeshSelection(selectedItem.PathWithoutExtension);
+    }
+    
+    private void OnAssetDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+        var listBox = (ListBox) sender;
+        var selectedItem = (AssetItem) listBox.SelectedItem;
+        JumpToAsset(selectedItem.PathWithoutExtension);
     }
 }
