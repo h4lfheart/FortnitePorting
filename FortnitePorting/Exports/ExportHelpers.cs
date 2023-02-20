@@ -353,6 +353,12 @@ public static class ExportHelpers
 
         var parameters = new CMaterialParams2();
         materialInstance.GetParams(parameters, EMaterialFormat.AllLayers);
+        
+        if (parameters.TryGetTexture2d(out var diffuseTexture, CMaterialParams2.Diffuse[0]))
+        {
+            Save(diffuseTexture);
+            textures.Add(new TextureParameter("Diffuse", diffuseTexture.GetPathName(), diffuseTexture.SRGB));
+        }
 
         if (parameters.TryGetTexture2d(out var specularMasksTexture, CMaterialParams2.SpecularMasks[0]))
         {
