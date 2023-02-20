@@ -40,7 +40,7 @@ public partial class PluginUpdateView
             return;
         }
 
-        using var addonZip = new ZipArchive(new FileStream("FortnitePortingServer.zip", FileMode.Open));
+        using var addonZip = new ZipArchive(new FileStream("BlenderFortnitePortingServer.zip", FileMode.Open));
         foreach (var selectedVersion in selectedVersions)
         {
             var addonPath = Path.Combine(selectedVersion.FullName, "scripts", "addons");

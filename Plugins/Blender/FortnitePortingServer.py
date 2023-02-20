@@ -15,7 +15,7 @@ from io_import_scene_unreal_psa_psk_280 import pskimport, psaimport
 bl_info = {
     "name": "Fortnite Porting",
     "author": "Half",
-    "version": (1, 0, 9),
+    "version": (1, 1, 1),
     "blender": (3, 0, 0),
     "description": "Blender Server for Fortnite Porting",
     "category": "Import",
@@ -150,10 +150,6 @@ scalar_mappings = {
     ("emissive mult", "Emissive Brightness"),
     ("TH_StaticEmissiveMult", "Emissive Brightness"),
     ("Emissive", "Emissive Brightness"),
-
-    ("Emissive_BrightnessMin", "Emissive Min"),
-
-    ("Emissive_BrightnessMax", "Emissive Max"),
 
     ("Emissive Fres EX", "Emissive Fresnel Exponent"),
     ("EmissiveFresnelExp", "Emissive Fresnel Exponent"),
