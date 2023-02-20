@@ -22,12 +22,48 @@
         <StackPanel Grid.Row="0" Margin="{adonisUi:Space 1}">
             <TextBlock Margin="{adonisUi:Space 1}" FontSize="24" HorizontalAlignment="Center" Text="Sync Plugins"/>
             <TextBlock Margin="{adonisUi:Space 1}" HorizontalAlignment="Center" TextAlignment="Center" Text="Please select the Blender version(s) that you would like to sync the server plugin for." TextWrapping="WrapWithOverflow"/>
-
+            
             <Separator Style="{StaticResource NamedSeparator}" Tag="BLENDER"/>
-            <ItemsControl Name="BlenderInstallationList"/>
+            <ItemsControl x:Name="BlenderInstallationsItemsControl" ItemsSource="{Binding BlenderInstallations}">
+                <ItemsControl.Style>
+                    <Style TargetType="{x:Type ItemsControl}" BasedOn="{StaticResource {x:Type ItemsControl}}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding BlenderInstallations.Count}" Value="0">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate>
+                                            <TextBlock Text="Failed to find any valid Blender installations." Margin="{adonisUi:Space 0, 1, 0, 1}" FontWeight="SemiBold" Foreground="{DynamicResource {x:Static adonisUi:Brushes.ErrorBrush}}" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"></TextBlock>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ItemsControl.Style>
+            </ItemsControl>
         </StackPanel>
         <Border Grid.Row="1" Background="{DynamicResource {x:Static adonisUi:Brushes.Layer1BackgroundBrush}}" adonisExt:LayerExtension.IncreaseLayer="True">
-            <Button MinWidth="80" Margin="{adonisUi:Space 1}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Content="Sync" Click="OnClickFinished"/>
+            <Grid VerticalAlignment="Bottom">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*" />
+                    <ColumnDefinition Width="{adonisUi:Space 1}" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                
+                <Grid Grid.Column="0" Margin="{adonisUi:Space 1}" HorizontalAlignment="Left">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="4*" />
+                        <ColumnDefinition Width="{adonisUi:Space 1}" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    
+                    <TextBox Grid.Column="0" Text="{Binding AddVersion}" adonisExt:WatermarkExtension.Watermark="Add Installation (3.0, 3.1, 3.2, etc.)"/>
+                    <Button Grid.Column="2" Content="+" Command="{Binding AddCustomVersionCommand}" Background="{DynamicResource {x:Static adonisUi:Brushes.HyperlinkBrush}}" Foreground="{DynamicResource {x:Static adonisUi:Brushes.ForegroundBrush}}" adonisExt:CursorSpotlightExtension.BackgroundBrush="{DynamicResource {x:Static adonisUi:Brushes.HyperlinkBrush}}"/>
+                </Grid>
+                
+                <Button Grid.Column="2" MinWidth="80" Margin="{adonisUi:Space 1}" HorizontalAlignment="Right" Content="Sync" Click="OnClickFinished"/>
+            </Grid>
+          
         </Border>
     </Grid>
 </adonisCtrls:AdonisWindow>

@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls.Primitives;
+using FortnitePorting.ViewModels;
 using FortnitePorting.Views.Extensions;
 using Microsoft.Win32;
 using MessageBox = AdonisUI.Controls.MessageBox;
@@ -19,52 +21,16 @@ public partial class PluginUpdateView
     public PluginUpdateView()
     {
         InitializeComponent();
-
-        void AddInstallation(DirectoryInfo directory, string prefix = "")
-        {
-            if (!double.TryParse(directory.Name, out var numberVersion)) return;
-            
-            var addonsPath = Path.Combine(directory.FullName, "scripts", "addons");
-            Directory.CreateDirectory(addonsPath);
-            
-            Log.Information("Found Blender installation at {0}.", directory.FullName);
-            var isSupported = numberVersion >= 3.0;
-            var extraText = isSupported ? string.Empty : "(Unsupported)";
-
-            if (!string.IsNullOrWhiteSpace(prefix)) prefix += " ";
-
-            var toggleSwitch = new ToggleButton();
-            toggleSwitch.Content = $"{prefix}Blender {directory.Name} {extraText}";
-            toggleSwitch.IsEnabled = isSupported;
-            toggleSwitch.Tag = directory;
-            BlenderInstallationList.Items.Add(toggleSwitch);
-        }
-
-        var normalBlenderInstall = new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Blender Foundation", "Blender"));
-        if (normalBlenderInstall.Exists)
-        {
-            foreach (var folder in normalBlenderInstall.GetDirectories())
-            {
-                AddInstallation(folder);
-            }
-        }
+        AppVM.PluginUpdateVM = new PluginUpdateViewModel();
+        DataContext = AppVM.PluginUpdateVM;
         
-        var steamApps = SteamDetection.GetSteamApps(SteamDetection.GetSteamLibs());
-        var steamBlender = steamApps.FirstOrDefault(x => x.Name.Contains("Blender", StringComparison.OrdinalIgnoreCase));
-        if (steamBlender is not null)
-        {
-            var steamBlenderInstall = new DirectoryInfo(steamBlender.GameRoot);
-            foreach (var folder in steamBlenderInstall.GetDirectories())
-            {
-                AddInstallation(folder, prefix: "Steam");
-            }
-        }
+        BlenderInstallationsItemsControl.Items.SortDescriptions.Add(new SortDescription { PropertyName = "Content", Direction = ListSortDirection.Ascending});
+        AppVM.PluginUpdateVM.Initialize();
     }
 
     private void OnClickFinished(object sender, RoutedEventArgs e)
     {
-        var selectedVersions = BlenderInstallationList.Items
-            .OfType<ToggleButton>()
+        var selectedVersions = AppVM.PluginUpdateVM.BlenderInstallations
             .Where(x => x.IsChecked.HasValue && x.IsChecked.Value)
             .Select(x => x.Tag as DirectoryInfo).ToArray();
 

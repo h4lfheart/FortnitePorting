@@ -93,4 +93,11 @@ public static class MiscExtensions
         list.Add(item);
         return true;
     }
+    
+    public static double Truncate(this double value, int decimals)
+    {
+        var factor = Math.Pow(10, decimals);
+        var result = Math.Truncate(factor * value) / factor;
+        return result;
+    }
 }
