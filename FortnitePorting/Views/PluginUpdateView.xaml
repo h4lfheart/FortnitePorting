@@ -32,7 +32,7 @@
                                 <Setter Property="Template">
                                     <Setter.Value>
                                         <ControlTemplate>
-                                            <TextBlock Text="Failed to find any valid Blender installations." Margin="{adonisUi:Space 0, 1, 0, 1}" FontWeight="SemiBold" Foreground="{DynamicResource {x:Static adonisUi:Brushes.ErrorBrush}}" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"></TextBlock>
+                                            <TextBlock Text="Failed to find any valid Blender installations. Please manually add one below." Margin="{adonisUi:Space 0, 1, 0, 1}" FontWeight="SemiBold" Foreground="{DynamicResource {x:Static adonisUi:Brushes.ErrorBrush}}" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"></TextBlock>
                                         </ControlTemplate>
                                     </Setter.Value>
                                 </Setter>
