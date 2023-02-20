@@ -23,8 +23,10 @@ public partial class PluginUpdateView
         void AddInstallation(DirectoryInfo directory, string prefix = "")
         {
             if (!double.TryParse(directory.Name, out var numberVersion)) return;
+            
             var addonsPath = Path.Combine(directory.FullName, "scripts", "addons");
-            if (!Directory.Exists(addonsPath)) return;
+            Directory.CreateDirectory(addonsPath);
+            
             Log.Information("Found Blender installation at {0}.", directory.FullName);
             var isSupported = numberVersion >= 3.0;
             var extraText = isSupported ? string.Empty : "(Unsupported)";
