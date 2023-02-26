@@ -365,7 +365,7 @@
                         <Button.Content>
                            <StackPanel Orientation="Horizontal">
                                <Image Source="/FortnitePorting;component/Resources/Unreal.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
-                               <TextBlock Text="Send to Unreal Engine" VerticalAlignment="Center" Margin="5 0 0 0"/>
+                               <TextBlock Text="Send to Unreal Engine (Unsupported)" VerticalAlignment="Center" Margin="5 0 0 0"/>
                            </StackPanel>
                         </Button.Content>
                     </Button>

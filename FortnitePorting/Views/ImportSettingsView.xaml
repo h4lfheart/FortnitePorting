@@ -7,7 +7,7 @@
                           xmlns:controls="clr-namespace:FortnitePorting.Views.Controls"
                           xmlns:extensions="clr-namespace:FortnitePorting.Views.Extensions"
                           xmlns:local="clr-namespace:FortnitePorting"
-                          Title="Import Options" Width="480" SizeToContent="Height" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize">
+                          Title="Import/Export Options" Width="480" SizeToContent="Height" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize">
     <GroupBox Background="Transparent">
         <TabControl adonisExt:LayerExtension.Layer="2">
             <TabItem Header="Blender" Style="{StaticResource TabItemEqualSize}">
@@ -68,8 +68,8 @@
                     
                 </StackPanel>
             </TabItem>
-            <TabItem Header="Unreal Engine" Style="{StaticResource TabItemEqualSize}">
-                
+            <TabItem Header="Unreal Engine (Unsupported)" Style="{StaticResource TabItemEqualSize}">
+                <TextBlock Text="The Unreal Engine version of the plugin has not been completed yet." HorizontalAlignment="Center"/>
             </TabItem>
         </TabControl>
     </GroupBox>
