@@ -4,6 +4,7 @@ using System.Linq;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
+using CUE4Parse.UE4.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Assets.Utils;
 using CUE4Parse.UE4.Objects.Core.Math;
@@ -117,7 +118,7 @@ public class AnimationData
     public string Skeleton;
     public List<EmoteSection> Sections = new();
     public List<EmoteProp> Props = new();
-    public List<EmoteSound> Sounds = new();
+    public List<ExportSound> Sounds = new();
 }
 
 public record EmoteSection(string Path, string Name, float Time, float Length, bool Loop = false)
@@ -125,7 +126,32 @@ public record EmoteSection(string Path, string Name, float Time, float Length, b
     public string AdditivePath;
     public List<Curve> Curves = new();
 }
-public record EmoteSound(string Path, string AudioExtension, float Time, bool Loop);
+
+public class Sound
+{
+    public USoundWave? SoundWave;
+    public float Time;
+    public bool Loop;
+    public Sound(USoundWave? soundWave, float time, bool loop)
+    {
+        SoundWave = soundWave;
+        Time = time;
+        Loop = loop;
+    }
+
+    public ExportSound ToExportSound()
+    {
+        ExportHelpers.SaveSoundWave(SoundWave, out var audioFormat, out _);
+        return new ExportSound(SoundWave.GetPathName(), audioFormat, Time, Loop);
+    }
+    
+    public bool IsValid()
+    {
+        return SoundWave is not null && Time > 0;
+    }
+}
+
+public record ExportSound(string Path, string AudioExtension, float Time, bool Loop);
 
 public class EmoteProp
 {

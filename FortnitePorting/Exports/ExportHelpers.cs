@@ -13,6 +13,7 @@ using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Sound;
+using CUE4Parse.UE4.Assets.Exports.Sound.Node;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
@@ -751,24 +752,25 @@ public static class ExportHelpers
         }));
     }
 
-    public static void SaveSoundWave(USoundWave soundWave, out string audioFormat)
+    public static void SaveSoundWave(USoundWave soundWave, out string audioFormat, out string path)
     {
         var task = Task.Run(() =>
         {
             try
             {
                 soundWave.Decode(true, out var audioFormat, out var data);
-                if (data is null || string.IsNullOrWhiteSpace(audioFormat)) return string.Empty;
+                if (data is null || string.IsNullOrWhiteSpace(audioFormat)) return (string.Empty, string.Empty);
                 audioFormat = audioFormat.ToLower();
 
                 var path = GetExportPath(soundWave, audioFormat);
-                if (File.Exists(path)) return audioFormat;
+                if (!File.Exists(path))
+                {
+                    Directory.CreateDirectory(path.Replace('\\', '/').SubstringBeforeLast('/'));
+                    File.WriteAllBytes(path, data.ToArray());
 
-                Directory.CreateDirectory(path.Replace('\\', '/').SubstringBeforeLast('/'));
-                File.WriteAllBytes(path, data.ToArray());
-
-                Log.Information("Exporting {ExportType}: {FileName}", soundWave.ExportType, soundWave.Name);
-                return audioFormat;
+                    Log.Information("Exporting {ExportType}: {FileName}", soundWave.ExportType, soundWave.Name);
+                }
+                return (path, audioFormat);
 
             }
             catch (IOException e)
@@ -777,11 +779,13 @@ public static class ExportHelpers
                 Log.Error(e.Message);
             }
 
-            return string.Empty;
+            return (string.Empty, string.Empty);
         });
         Tasks.Add(task);
 
-        audioFormat = task.GetAwaiter().GetResult();
+        var (outPath, format) = task.GetAwaiter().GetResult();
+        audioFormat = format;
+        path = outPath;
     }
     
     public static void SaveAdditiveAnim(UAnimSequence baseSequence, UAnimSequence additiveSequence)
@@ -801,5 +805,68 @@ public static class ExportHelpers
         
         var finalPath = directory + $"{extra}.{ext.ToLower()}";
         return finalPath;
+    }
+    
+    private static Sound LoadSound(USoundNodeWavePlayer player, float timeOffset = 0)
+    {
+        var soundWave = player.SoundWave?.Load<USoundWave>();
+        return new Sound(soundWave, timeOffset, player.GetOrDefault("bLooping", false));
+    }
+    private static Sound LoadSound(USoundWave soundWave, float timeOffset = 0)
+    {
+        return new Sound(soundWave, timeOffset, false);
+    }
+    
+
+    public static List<Sound> HandleAudioTree(USoundNode node, float offset = 0f)
+    {
+        var sounds = new List<Sound>();
+        switch (node)
+        {
+            case USoundNodeWavePlayer player:
+            {
+                sounds.Add(LoadSound(player, offset));
+                break;
+            }
+            case USoundNodeDelay delay:
+            {
+                foreach (var nodeObject in delay.ChildNodes)
+                {
+                    sounds.AddRange(HandleAudioTree(nodeObject.Load<USoundNode>(), offset + delay.Get<float>("DelayMin"))); // Max/Min are equal for emotes
+                }
+                break;
+            }
+            case USoundNodeRandom random:
+            {
+                var index = App.RandomGenerator.Next(0, random.ChildNodes.Length);
+                sounds.AddRange(HandleAudioTree(random.ChildNodes[index].Load<USoundNode>(), offset));
+                break;
+            }
+            
+            case UFortSoundNodeLicensedContentSwitcher switcher:
+            {
+                sounds.AddRange(HandleAudioTree(switcher.ChildNodes.Last().Load<USoundNode>(), offset));
+                break;
+            }
+            case USoundNodeDialoguePlayer dialoguePlayer:
+            {
+                var dialogueWaveParameter = dialoguePlayer.Get<FStructFallback>("DialogueWaveParameter");
+                var dialogueWave = dialogueWaveParameter.Get<UDialogueWave>("DialogueWave");
+                var contextMappings = dialogueWave.Get<FStructFallback[]>("ContextMappings");
+                var soundWave = contextMappings.First().Get<USoundWave>("SoundWave");
+                sounds.Add(LoadSound(soundWave));
+                break;
+            }
+            case USoundNode generic:
+            {
+                foreach (var nodeObject in generic.ChildNodes)
+                {
+                    sounds.AddRange(HandleAudioTree(nodeObject.Load<USoundNode>(), offset));
+                }
+                break;
+            }
+        }
+
+        return sounds;
     }
 }

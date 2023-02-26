@@ -44,7 +44,8 @@ public class AssetHandlerViewModel
             { EAssetType.Dance, DanceHandler },
             { EAssetType.Vehicle, VehicleHandler },
             { EAssetType.Prop, PropHandler },
-            { EAssetType.Pet, PetHandler }
+            { EAssetType.Pet, PetHandler },
+            { EAssetType.Music , MusicPackHandler}
         };
     }
 
@@ -189,6 +190,24 @@ public class AssetHandlerViewModel
         ClassNames = new List<string> { "AthenaPetCarrierItemDefinition" },
         RemoveList = { },
         IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
+    };
+    
+    private readonly AssetHandlerData MusicPackHandler = new()
+    {
+        AssetType = EAssetType.Music,
+        TargetCollection = AppVM.MainVM.MusicPacks,
+        ClassNames = new List<string> { "AthenaMusicPackItemDefinition" },
+        RemoveList = {},
+        IconGetter = asset =>
+        {
+            asset.TryGetValue(out UTexture2D? previewImage, "SmallPreviewImage", "LargePreviewImage");
+            if (asset.TryGetValue(out UObject heroDef, "HeroDefinition"))
+            {
+                heroDef.TryGetValue(out previewImage, "SmallPreviewImage", "LargePreviewImage");
+            }
+
+            return previewImage;
+        }
     };
 
     public async Task Initialize()

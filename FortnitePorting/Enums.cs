@@ -42,6 +42,9 @@ public enum EAssetType
 
     [Description("Meshes")]
     Mesh,
+    
+    [Description("Music Packs")]
+    Music
 }
 
 public enum EFortCustomPartType : byte

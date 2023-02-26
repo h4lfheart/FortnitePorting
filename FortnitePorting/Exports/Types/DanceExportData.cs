@@ -101,59 +101,18 @@ public class DanceExportData : ExportDataBase
             foreach (var soundNotify in soundNotifies)
             {
                 var time = soundNotify.Get<float>("TriggerTimeOffset");
+
+                var notifyData = soundNotify.Get<FortAnimNotifyState_EmoteSound>("NotifyStateClass");
+                var firstNode = notifyData.EmoteSound1P?.FirstNode?.Load<USoundNode>();
+                if (firstNode is null) continue;
                 
-                void ExportEmoteSound(USoundNodeWavePlayer player, float timeOffset = 0)
+                var sounds = ExportHelpers.HandleAudioTree(firstNode);
+                foreach (var sound in sounds)
                 {
-                    var soundWave = player.SoundWave?.Load<USoundWave>();
-                    if (soundWave is null) return;
-                    ExportHelpers.SaveSoundWave(soundWave, out var audioFormat);
-                    animData.Sounds.Add(new EmoteSound(soundWave.GetPathName(), audioFormat, time+timeOffset, player.GetOrDefault("bLooping", false)));
+                    if (!sound.IsValid()) continue;
+                    animData.Sounds.Add(sound.ToExportSound());
                 }
 
-                void HandleAudioTree(UObject node, float offset = 0f)
-                {
-                    switch (node)
-                    {
-                        case USoundNodeWavePlayer player:
-                        {
-                            ExportEmoteSound(player, offset);
-                            break;
-                        }
-                        case USoundNodeDelay delay:
-                        {
-                            foreach (var nodeObject in delay.ChildNodes)
-                            {
-                                HandleAudioTree(nodeObject.Load(), offset + delay.Get<float>("DelayMin")); // Max/Min are equal for emotes
-                            }
-                            break;
-                        }
-                        case USoundNodeRandom random:
-                        {
-                            var index = App.RandomGenerator.Next(0, random.ChildNodes.Length);
-                            HandleAudioTree(random.ChildNodes[index].Load(), offset);
-                            break;
-                        }
-                        
-                        case UFortSoundNodeLicensedContentSwitcher switcher:
-                        {
-                            HandleAudioTree(switcher.ChildNodes.Last().Load(), offset);
-                            break;
-                        }
-                        case USoundNode generic:
-                        {
-                            foreach (var nodeObject in generic.ChildNodes)
-                            {
-                                HandleAudioTree(nodeObject.Load(), offset);
-                            }
-                            break;
-                        }
-                    }
-                }
-                
-                var notifyData = soundNotify.Get<FortAnimNotifyState_EmoteSound>("NotifyStateClass");
-                var firstNode = notifyData.EmoteSound1P?.FirstNode?.Load();
-                if (firstNode is null) continue;
-                HandleAudioTree(firstNode);
             }
             
         });
@@ -161,7 +120,7 @@ public class DanceExportData : ExportDataBase
         return animData;
     }
     
-     public static async Task<AnimationData> CreateAnimDataAsync(UAnimSequence sequence, bool loop = false)
+    public static async Task<AnimationData> CreateAnimDataAsync(UAnimSequence sequence, bool loop = false)
     {
         var animData = new AnimationData();
 
@@ -263,4 +222,5 @@ public class DanceExportData : ExportDataBase
         var animation = targetSection?.Get<UAnimSequence>("LinkedSequence");
         return animation;
     }
+    
 }

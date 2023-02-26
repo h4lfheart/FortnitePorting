@@ -8,8 +8,9 @@
              xmlns:extensions="clr-namespace:FortnitePorting.Views.Extensions"
              xmlns:cue4parse="clr-namespace:CUE4Parse;assembly=CUE4Parse"
              xmlns:local="clr-namespace:FortnitePorting"
+             xmlns:vms="clr-namespace:FortnitePorting.ViewModels"
              xmlns:toolkitCtrls="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
-             Title="Fortnite Porting" Width="1366" Height="720" WindowStartupLocation="CenterScreen" ResizeMode="CanResize" Loaded="OnLoaded">
+             Title="Fortnite Porting" Width="1420" Height="720" WindowStartupLocation="CenterScreen" ResizeMode="CanResize" Loaded="OnLoaded">
     <Window.InputBindings>
         <KeyBinding Key="R" Modifiers="Control" Command="{Binding MenuCommand}" CommandParameter="File_Restart"/>
         <KeyBinding Key="D" Modifiers="Control" Command="{Binding ExportBlenderCommand}"/>
@@ -130,7 +131,7 @@
 
             </Grid>
             <GroupBox Grid.Row="1" Grid.Column="0" Padding="{adonisUi:Space 0}" adonisExt:LayerExtension.Layer="2" Background="Transparent">
-                <TabControl Name="AssetControls" SelectionChanged="OnAssetTabSelectionChanged" IsEnabled="{Binding IsReady}">
+                <TabControl x:Name="AssetControls" SelectionChanged="OnAssetTabSelectionChanged" IsEnabled="{Binding IsReady}">
                     <TabItem Style="{StaticResource TabItemEqualSize}">
                         <TabItem.Header>
                             <controls:TextWithIcon Label="Outfits" ImageSource="/FortnitePorting;component/Resources/Outfit.png"/>
@@ -297,6 +298,18 @@
                             </GroupBox>
                         </Grid>
                     </TabItem>
+                    <TabItem Style="{StaticResource TabItemEqualSize}">
+                        <TabItem.Header>
+                            <controls:TextWithIcon Label="Music" ImageSource="/FortnitePorting;component/Resources/Music.png"/>
+                        </TabItem.Header>
+                        <ListBox ItemsSource="{Binding MusicPacks}" SelectionChanged="OnAssetSelectionChanged">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <toolkitCtrls:VirtualizingWrapPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                        </ListBox>
+                    </TabItem>
                 </TabControl>
             </GroupBox>
             
@@ -317,12 +330,7 @@
                         <RowDefinition Height="1.25*"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="5*"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="0.5*"/>
-                        <RowDefinition Height="{adonisUi:Space 1}"/>
-                        <RowDefinition Height="0.5*"/>
-                        <RowDefinition Height="{adonisUi:Space 1}"/>
-                        <RowDefinition Height="0.5*"/>
+                        <RowDefinition Height="2*"/>
                     </Grid.RowDefinitions>
                     
                     <StackPanel Grid.Row="0" Orientation="Horizontal">
@@ -350,33 +358,95 @@
                         </ItemsControl>
                     </ScrollViewer>
                     
-                    <Separator Grid.Row="3" Style="{StaticResource NamedSeparator}" Tag="EXPORT"/>
                     
-                    <Button Grid.Row="4" Command="{Binding ExportBlenderCommand}">
-                        <Button.Content>
-                            <StackPanel Orientation="Horizontal">
-                                <Image Source="/FortnitePorting;component/Resources/Blender.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
-                                <TextBlock Text="Send to Blender" VerticalAlignment="Center" Margin="5 0 0 0"/>
-                            </StackPanel>
-                        </Button.Content>
-                    </Button>
+                    <ContentControl Grid.Row="3">
+                        <ContentControl.Style>
+                            <Style TargetType="{x:Type ContentControl}" BasedOn="{StaticResource {x:Type ContentControl}}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentAsset.Type}" Value="{x:Static local:EAssetType.Music}">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate>
+                                                    <Grid>
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="Auto"/>
+                                                            <RowDefinition Height="0.5*"/>
+                                                            <RowDefinition Height="{adonisUi:Space 1}"/>
+                                                            <RowDefinition Height="0.5*"/>
+                                                            <RowDefinition Height="{adonisUi:Space 1}"/>
+                                                            <RowDefinition Height="0.5*"/>
+                                                        </Grid.RowDefinitions>
+                                                        <Separator Grid.Row="0" Style="{StaticResource NamedSeparator}" Tag="CONTROLS"/>
+                                                        <Button Grid.Row="1" Command="{Binding PlaySoundCommand}">
+                                                            <Button.Content>
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <Image Source="/FortnitePorting;component/Resources/Play.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                                                    <TextBlock Text="Play Music Pack" VerticalAlignment="Center" Margin="5 0 0 0"/>
+                                                                </StackPanel>
+                                                            </Button.Content>
+                                                        </Button>
+                                                        <Button Grid.Row="3" Command="{Binding StopSoundCommand}">
+                                                            <Button.Content>
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <Image Source="/FortnitePorting;component/Resources/Stop.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                                                    <TextBlock Text="Stop Music Pack" VerticalAlignment="Center" Margin="5 0 0 0"/>
+                                                                </StackPanel>
+                                                            </Button.Content>
+                                                        </Button>
+                                                        <Button Grid.Row="5" Command="{Binding ExportSoundCommand}">
+                                                            <Button.Content>
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <Image Source="/FortnitePorting;component/Resources/Export.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                                                    <TextBlock Text="Export Music Pack" VerticalAlignment="Center" Margin="5 0 0 0"/>
+                                                                </StackPanel>
+                                                            </Button.Content>
+                                                        </Button>
+                                                    </Grid>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ContentControl.Style>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="0.5*"/>
+                                <RowDefinition Height="{adonisUi:Space 1}"/>
+                                <RowDefinition Height="0.5*"/>
+                                <RowDefinition Height="{adonisUi:Space 1}"/>
+                                <RowDefinition Height="0.5*"/>
+                            </Grid.RowDefinitions>
+                            
+                            <Separator Grid.Row="0" Style="{StaticResource NamedSeparator}" Tag="EXPORT"/>
+                            <Button Grid.Row="1" Command="{Binding ExportBlenderCommand}">
+                                <Button.Content>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="/FortnitePorting;component/Resources/Blender.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                        <TextBlock Text="Send to Blender" VerticalAlignment="Center" Margin="5 0 0 0"/>
+                                    </StackPanel>
+                                </Button.Content>
+                            </Button>
+                            <Button Grid.Row="3" Command="{Binding ExportUnrealCommand}">
+                                <Button.Content>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="/FortnitePorting;component/Resources/Unreal.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                        <TextBlock Text="Send to Unreal Engine (Unsupported)" VerticalAlignment="Center" Margin="5 0 0 0"/>
+                                    </StackPanel>
+                                </Button.Content>
+                            </Button>
+                            <Button Grid.Row="5" Command="{Binding OpenSettingsCommand}">
+                                <Button.Content>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="/FortnitePorting;component/Resources/Settings.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                        <TextBlock Text="Export/Import Options" VerticalAlignment="Center" Margin="5 0 0 0"/>
+                                    </StackPanel>
+                                </Button.Content>
+                            </Button>
+                        </Grid>
+                    </ContentControl>
                     
-                    <Button Grid.Row="6" Command="{Binding ExportUnrealCommand}">
-                        <Button.Content>
-                           <StackPanel Orientation="Horizontal">
-                               <Image Source="/FortnitePorting;component/Resources/Unreal.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
-                               <TextBlock Text="Send to Unreal Engine (Unsupported)" VerticalAlignment="Center" Margin="5 0 0 0"/>
-                           </StackPanel>
-                        </Button.Content>
-                    </Button>
-                    <Button Grid.Row="8" Command="{Binding OpenSettingsCommand}">
-                        <Button.Content>
-                            <StackPanel Orientation="Horizontal">
-                                <Image Source="/FortnitePorting;component/Resources/Settings.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
-                                <TextBlock Text="Export/Import Options" VerticalAlignment="Center" Margin="5 0 0 0"/>
-                            </StackPanel>
-                        </Button.Content>
-                    </Button>
                 </Grid>
             </GroupBox>
             

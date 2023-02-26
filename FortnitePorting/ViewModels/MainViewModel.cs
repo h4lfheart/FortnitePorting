@@ -2,15 +2,28 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CSCore;
+using CSCore.Codecs;
+using CSCore.Codecs.OGG;
+using CSCore.Codecs.WAV;
+using CSCore.CoreAudioAPI;
+using CSCore.MediaFoundation;
+using CSCore.SoundOut;
+using CUE4Parse_Conversion.Sounds;
+using CUE4Parse.UE4.Assets.Exports.Sound;
+using CUE4Parse.UE4.Assets.Exports.Sound.Node;
 using CUE4Parse.UE4.Assets.Objects;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Bundles;
+using FortnitePorting.Exports;
 using FortnitePorting.Exports.Types;
 using FortnitePorting.Services;
 using FortnitePorting.Services.Export;
@@ -48,6 +61,7 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> pets = new();
     [ObservableProperty] private SuppressibleObservableCollection<TreeItem> meshes = new();
     [ObservableProperty] private SuppressibleObservableCollection<AssetItem> assets = new();
+    [ObservableProperty] private SuppressibleObservableCollection<AssetSelectorItem> musicPacks = new();
 
     [ObservableProperty] private ObservableCollection<StyleSelector> styles = new();
 
@@ -59,7 +73,8 @@ public partial class MainViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(LoadingVisibility))]
     private string tabModeText;
 
-    public EAssetType CurrentAssetType;
+    [ObservableProperty]
+    private EAssetType currentAssetType;
 
     public Visibility LoadingVisibility => IsReady ? Visibility.Collapsed : Visibility.Visible;
 
@@ -90,7 +105,8 @@ public partial class MainViewModel : ObservableObject
         { "Unfinished Assets", x => x.HiddenAsset }
     };
 
-
+    public MusicPlayer? CurrentMusicPlayer = null;
+    
     public async Task Initialize()
     {
         await Task.Run(async () =>
@@ -300,5 +316,97 @@ public partial class MainViewModel : ObservableObject
             FilterLabel = "None";
         }
         
+    }
+    
+    [RelayCommand]
+    public async Task PlaySound()
+    {
+        CurrentMusicPlayer?.Stop();
+        CurrentMusicPlayer = new MusicPlayer(GetCurrentSoundData());
+        CurrentMusicPlayer.Play();
+    } 
+    
+    [RelayCommand]
+    public async Task StopSound()
+    {
+        CurrentMusicPlayer?.Stop();
+    } 
+    
+    [RelayCommand]
+    public async Task ExportSound()
+    {
+        var sound = GetCurrentSound();
+        ExportHelpers.SaveSoundWave(sound.SoundWave, out _, out var path);
+        AppHelper.Launch(Path.GetDirectoryName(path));
+    }
+
+    private Sound GetCurrentSound()
+    {
+        var musicCue = CurrentAsset?.Asset.GetOrDefault<USoundCue>("FrontEndLobbyMusic");
+        var sound = ExportHelpers.HandleAudioTree(musicCue.FirstNode.Load<USoundNode>()).First();
+        return sound;
+    }
+    
+    private byte[] GetCurrentSoundData()
+    {
+        var sound = GetCurrentSound();
+        sound.SoundWave.Decode(true, out var format, out var data);
+        return data;
+    }
+    
+    public class MusicPlayer : IDisposable
+    {
+        private ISoundOut? SoundOut;
+        private IWaveSource? SoundSource;
+        private static MMDeviceEnumerator? DeviceEnumerator;
+
+        public MusicPlayer(byte[] data)
+        {
+            DeviceEnumerator ??= new MMDeviceEnumerator();
+            
+            SoundSource = new OggSource(new MemoryStream(data)).ToWaveSource();
+            SoundOut = GetSoundOut();
+            SoundOut.Initialize(SoundSource);
+        }
+
+        public void Play()
+        {
+            if (SoundOut is null) return;
+            
+            SoundOut.Volume = 0.8f;
+            SoundOut.Play();
+        }
+
+        public void Stop()
+        {
+            if (SoundOut is null) return;
+            
+            SoundOut.Stop();
+        }
+
+        private static ISoundOut GetSoundOut()
+        {
+            if (WasapiOut.IsSupportedOnCurrentPlatform)
+            {
+                return new WasapiOut
+                {
+                    Device = GetDevice()
+                };
+            }
+
+            return new DirectSoundOut();
+        }
+
+        public static MMDevice GetDevice()
+        {
+            return DeviceEnumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Console);
+        }
+
+        public void Dispose()
+        {
+            Stop();
+            SoundOut.Dispose();
+            SoundSource.Dispose();
+        }
     }
 }
