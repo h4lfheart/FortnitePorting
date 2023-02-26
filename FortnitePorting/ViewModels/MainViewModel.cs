@@ -17,6 +17,7 @@ using CSCore.Codecs.WAV;
 using CSCore.CoreAudioAPI;
 using CSCore.MediaFoundation;
 using CSCore.SoundOut;
+using CSCore.Streams;
 using CUE4Parse_Conversion.Sounds;
 using CUE4Parse.UE4.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Exports.Sound.Node;
@@ -373,7 +374,7 @@ public partial class MainViewModel : ObservableObject
             
             
             DeviceEnumerator ??= new MMDeviceEnumerator();
-            SoundSource = new OggSource(new MemoryStream(data)).ToWaveSource();
+            SoundSource = new LoopStream(new OggSource(new MemoryStream(data)).ToWaveSource());
             SoundOut = GetSoundOut();
             SoundOut.Initialize(SoundSource);
         }
