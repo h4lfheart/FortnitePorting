@@ -10,7 +10,7 @@
              xmlns:local="clr-namespace:FortnitePorting"
              xmlns:vms="clr-namespace:FortnitePorting.ViewModels"
              xmlns:toolkitCtrls="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
-             Title="Fortnite Porting" Width="1420" Height="720" WindowStartupLocation="CenterScreen" ResizeMode="CanResize" Loaded="OnLoaded">
+             Title="Fortnite Porting" Width="1440" Height="720" WindowStartupLocation="CenterScreen" ResizeMode="CanResize" Loaded="OnLoaded">
     <Window.InputBindings>
         <KeyBinding Key="R" Modifiers="Control" Command="{Binding MenuCommand}" CommandParameter="File_Restart"/>
         <KeyBinding Key="D" Modifiers="Control" Command="{Binding ExportBlenderCommand}"/>

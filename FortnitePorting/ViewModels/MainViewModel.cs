@@ -100,12 +100,12 @@ public partial class MainViewModel : ObservableObject
         { "Favorite", x => AppSettings.Current.FavoriteIDs.Contains(x.ID, StringComparer.OrdinalIgnoreCase) },
         { "Battle Pass", x => x.GameplayTags.ContainsAny("BattlePass") },
         { "Item Shop", x => x.GameplayTags.ContainsAny("ItemShop") },
-        { "Save The World", x => x.GameplayTags.ContainsAny("CampaignHero") },
-        { "Battle Royale", x => !x.GameplayTags.ContainsAny("CampaignHero") },
+        { "Save The World", x => x.GameplayTags.ContainsAny("CampaignHero", "SaveTheWorld") },
+        { "Battle Royale", x => !x.GameplayTags.ContainsAny("CampaignHero", "SaveTheWorld") },
         { "Unfinished Assets", x => x.HiddenAsset }
     };
 
-    public MusicPlayer? CurrentMusicPlayer = null;
+    public MusicPackPlayer? CurrentMusicPlayer = null;
     
     public async Task Initialize()
     {
@@ -322,7 +322,9 @@ public partial class MainViewModel : ObservableObject
     public async Task PlaySound()
     {
         CurrentMusicPlayer?.Stop();
-        CurrentMusicPlayer = new MusicPlayer(GetCurrentSoundData());
+
+        var (data, format) = GetCurrentSoundData();
+        CurrentMusicPlayer = new MusicPackPlayer(data, format);
         CurrentMusicPlayer.Play();
     } 
     
@@ -343,27 +345,34 @@ public partial class MainViewModel : ObservableObject
     private Sound GetCurrentSound()
     {
         var musicCue = CurrentAsset?.Asset.GetOrDefault<USoundCue>("FrontEndLobbyMusic");
-        var sound = ExportHelpers.HandleAudioTree(musicCue.FirstNode.Load<USoundNode>()).First();
+        var sound = ExportHelpers.HandleAudioTree(musicCue.FirstNode.Load<USoundNode>()).Last();
         return sound;
     }
     
-    private byte[] GetCurrentSoundData()
+    private (byte[] data, string format) GetCurrentSoundData()
     {
         var sound = GetCurrentSound();
         sound.SoundWave.Decode(true, out var format, out var data);
-        return data;
+        return (data, format);
     }
     
-    public class MusicPlayer : IDisposable
+    public class MusicPackPlayer : IDisposable
     {
         private ISoundOut? SoundOut;
         private IWaveSource? SoundSource;
         private static MMDeviceEnumerator? DeviceEnumerator;
 
-        public MusicPlayer(byte[] data)
+        public MusicPackPlayer(byte[] data, string audioFormat)
         {
-            DeviceEnumerator ??= new MMDeviceEnumerator();
+            if (!audioFormat.ToLower().Equals("ogg"))
+            {
+                AppVM.Warning("Unsupported Audio Format", $"The music pack could not be loaded because the format \"{audioFormat}\" is not supported.");
+                Dispose();
+                return;
+            }
             
+            
+            DeviceEnumerator ??= new MMDeviceEnumerator();
             SoundSource = new OggSource(new MemoryStream(data)).ToWaveSource();
             SoundOut = GetSoundOut();
             SoundOut.Initialize(SoundSource);
@@ -405,8 +414,8 @@ public partial class MainViewModel : ObservableObject
         public void Dispose()
         {
             Stop();
-            SoundOut.Dispose();
-            SoundSource.Dispose();
+            SoundOut?.Dispose();
+            SoundSource?.Dispose();
         }
     }
 }
