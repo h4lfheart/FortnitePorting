@@ -12,7 +12,9 @@ using CUE4Parse.UE4.Objects.UObject;
 
 namespace FortnitePorting.Exports;
 
-public class UFortnitePortingCustom : UObject { }
+public class UFortnitePortingCustom : UObject
+{
+}
 
 public class FortAnimNotifyState_SpawnProp : UFortnitePortingCustom
 {
@@ -58,7 +60,6 @@ public class FortAnimNotifyState_EmoteSound : UFortnitePortingCustom
 
 public class UFortSoundNodeLicensedContentSwitcher : USoundNode
 {
-    
 }
 
 [StructFallback]
@@ -67,6 +68,7 @@ public class FWeightmapLayerAllocationInfo
     public ULandscapeLayerInfoObject LayerInfo;
     public byte WeightmapTextureIndex;
     public byte WeightmapTextureChannel;
+
     public FWeightmapLayerAllocationInfo(FStructFallback fallback)
     {
         LayerInfo = fallback.GetOrDefault<ULandscapeLayerInfoObject>(nameof(LayerInfo));
@@ -78,6 +80,7 @@ public class FWeightmapLayerAllocationInfo
 public class ULandscapeLayerInfoObject : UFortnitePortingCustom
 {
     public FName LayerName;
+
     public override void Deserialize(FAssetArchive Ar, long validPos)
     {
         base.Deserialize(Ar, validPos);

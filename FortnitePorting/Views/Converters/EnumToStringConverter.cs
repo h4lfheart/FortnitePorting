@@ -10,7 +10,7 @@ public class EnumToStringConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        var enumValue = (Enum) value;
+        var enumValue = (Enum)value;
         return enumValue.GetDescription();
     }
 

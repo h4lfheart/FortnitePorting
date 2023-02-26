@@ -47,6 +47,7 @@ public static class BundleDownloader
                 buildInfoString = await GetFortniteLiveBuildInfoAsync();
                 break;
         }
+
         if (string.IsNullOrEmpty(buildInfoString)) return null;
 
         var buildInfoIni = BundleIniReader.Read(buildInfoString);
@@ -82,6 +83,7 @@ public static class BundleDownloader
             await File.WriteAllBytesAsync(targetFile.FullName, bundle.GetStream().ToBytes());
             downloadedBundles.Add(targetFile);
         }
+
         return downloadedBundles;
     }
 
@@ -100,7 +102,7 @@ public static class BundleDownloader
         var bytes = stream.ToBytes();
         return Encoding.UTF8.GetString(bytes);
     }
-    
+
     private static async Task<string?> GetFortniteLiveBuildInfo()
     {
         return GetFortniteLiveBuildInfoAsync().GetAwaiter().GetResult();

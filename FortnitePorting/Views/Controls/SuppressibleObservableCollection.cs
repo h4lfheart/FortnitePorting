@@ -14,7 +14,7 @@ public class SuppressibleObservableCollection<T> : ObservableCollection<T>
     {
         Suppress = state;
     }
-    
+
     public void AddSuppressed(T item)
     {
         SetSuppression(true);
@@ -36,7 +36,7 @@ public class SuppressibleObservableCollection<T> : ObservableCollection<T>
         SetSuppression(false);
         InvokeOnCollectionChanged();
     }
-    
+
     public void AddRange(T[]? list)
     {
         if (list is null) return;
@@ -51,7 +51,7 @@ public class SuppressibleObservableCollection<T> : ObservableCollection<T>
         SetSuppression(false);
         InvokeOnCollectionChanged();
     }
-    
+
     public void InvokeOnCollectionChanged(NotifyCollectionChangedAction changedAction = NotifyCollectionChangedAction.Reset)
     {
         OnCollectionChanged(new NotifyCollectionChangedEventArgs(changedAction));
@@ -64,5 +64,4 @@ public class SuppressibleObservableCollection<T> : ObservableCollection<T>
             base.OnCollectionChanged(e);
         }
     }
-    
 }

@@ -38,15 +38,14 @@ public class ExportPart : ExportMesh
     public string? PoseAnimation;
     public string[]? PoseNames;
 
-    [JsonIgnore]
-    public EFortCustomGender GenderPermitted;
+    [JsonIgnore] public EFortCustomGender GenderPermitted;
 
     public void ProcessPoses(USkeletalMesh? skeletalMesh, UPoseAsset poseAsset)
     {
         if (skeletalMesh is null || poseAsset is null) return;
-        
+
         PoseNames = poseAsset.PoseContainer.PoseNames.Select(x => x.DisplayName.Text).ToArray();
-                            
+
         var folderPath = AppVM.CUE4ParseVM.Provider.FixPath(skeletalMesh.GetPathName()).SubstringBeforeLast("/");
         var folderAssets = AppVM.CUE4ParseVM.Provider.Files.Values.Where(file => file.Path.StartsWith(folderPath, StringComparison.OrdinalIgnoreCase));
         foreach (var asset in folderAssets)
@@ -61,14 +60,14 @@ public class ExportPart : ExportMesh
             break;
         }
     }
-    
+
     public void ProcessMetahumanPoses(USkeletalMesh? skeletalMesh)
     {
         // this will definitely cause issues in the future
         // for metahuman faces
         var poseAsset = AppVM.CUE4ParseVM.Provider.LoadObject<UPoseAsset>("FortniteGame/Content/Characters/Player/Male/Medium/Heads/M_MED_Jonesy3L_Head/Meshes/3L/3L_lod2_Facial_Poses_PoseAsset");
         PoseNames = poseAsset.PoseContainer.PoseNames.Select(x => x.DisplayName.Text).ToArray();
-                            
+
         var animSequence = AppVM.CUE4ParseVM.Provider.LoadObject<UAnimSequence>("FortniteGame/Content/Characters/Player/Male/Medium/Heads/M_MED_Jonesy3L_Head/Meshes/3L/3L_lod2_Facial_Poses");
         var sequencePath = animSequence.GetPathName();
         PoseAnimation = sequencePath;
@@ -132,6 +131,7 @@ public class Sound
     public USoundWave? SoundWave;
     public float Time;
     public bool Loop;
+
     public Sound(USoundWave? soundWave, float time, bool loop)
     {
         SoundWave = soundWave;
@@ -144,7 +144,7 @@ public class Sound
         ExportHelpers.SaveSoundWave(SoundWave, out var audioFormat, out _);
         return new ExportSound(SoundWave.GetPathName(), audioFormat, Time, Loop);
     }
-    
+
     public bool IsValid()
     {
         return SoundWave is not null && Time > 0;
@@ -168,4 +168,5 @@ public class Curve
     public string Name;
     public List<CurveKey> Keys;
 }
+
 public record CurveKey(float Time, float Value);

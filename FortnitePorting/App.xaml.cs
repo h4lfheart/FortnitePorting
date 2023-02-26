@@ -24,7 +24,7 @@ public partial class App
 
     [DllImport("kernel32")]
     private static extern bool FreeConsole();
-    
+
     [DllImport("kernel32.dll")]
     private static extern IntPtr GetConsoleWindow();
 
@@ -35,9 +35,7 @@ public partial class App
     public static readonly DirectoryInfo DataFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".data"));
     public static readonly DirectoryInfo MapFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Terrain"));
 
-    public static readonly DirectoryInfo BundlesFolder = new(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) +
-        "\\FortniteGame\\Saved\\PersistentDownloadDir\\InstalledBundles");
+    public static readonly DirectoryInfo BundlesFolder = new(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\FortniteGame\\Saved\\PersistentDownloadDir\\InstalledBundles");
     public static readonly DirectoryInfo LogsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs"));
 
     public static readonly DirectoryInfo CacheFolder = new(Path.Combine(DataFolder.FullName, "ManifestCache"));
@@ -53,14 +51,11 @@ public partial class App
         ObjectTypeRegistry.RegisterEngine(typeof(UFortnitePortingCustom).Assembly);
         Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
 
-        Log.Logger = new LoggerConfiguration()
-            .WriteTo.Console(theme: AnsiConsoleTheme.Literate)
-            .WriteTo.File(Path.Combine(LogsFolder.FullName, $"FortnitePorting-{DateTime.UtcNow:yyyy-MM-dd-hh-mm-ss}.log"))
-            .CreateLogger();
+        Log.Logger = new LoggerConfiguration().WriteTo.Console(theme: AnsiConsoleTheme.Literate).WriteTo.File(Path.Combine(LogsFolder.FullName, $"FortnitePorting-{DateTime.UtcNow:yyyy-MM-dd-hh-mm-ss}.log")).CreateLogger();
 
         AppSettings.DirectoryPath.Create();
         AppSettings.Load();
-        
+
         ToggleConsole(AppSettings.Current.ShowConsole);
 
         ResourceLocator.SetColorScheme(Current.Resources, AppSettings.Current.LightMode ? ResourceLocator.LightColorScheme : ResourceLocator.DarkColorScheme);
@@ -82,7 +77,7 @@ public partial class App
     {
         const int SW_HIDE = 0;
         const int SW_SHOW = 5;
-        
+
         var handle = GetConsoleWindow();
         ShowWindow(handle, show ? SW_SHOW : SW_HIDE);
     }
@@ -106,7 +101,7 @@ public partial class App
             Text = e.Exception.Message,
             Buttons = new[] { new MessageBoxButtonModel("Reset App Settings", MessageBoxResult.Custom), new MessageBoxButtonModel("Continue", MessageBoxResult.OK) },
         };
-        
+
         MessageBox.Show(messageBox);
         if (messageBox.Result == MessageBoxResult.Custom)
         {
@@ -114,6 +109,7 @@ public partial class App
             AppSettings.Save();
             AppVM.Restart();
         }
+
         e.Handled = true;
     }
 }

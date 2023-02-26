@@ -7,7 +7,7 @@ public sealed class TreeViewItemBehavior
 {
     public static bool GetIsBroughtIntoViewWhenSelected(TreeViewItem treeViewItem)
     {
-        return (bool) treeViewItem.GetValue(IsBroughtIntoViewWhenSelectedProperty);
+        return (bool)treeViewItem.GetValue(IsBroughtIntoViewWhenSelectedProperty);
     }
 
     public static void SetIsBroughtIntoViewWhenSelected(TreeViewItem treeViewItem, bool value)
@@ -15,9 +15,7 @@ public sealed class TreeViewItemBehavior
         treeViewItem.SetValue(IsBroughtIntoViewWhenSelectedProperty, value);
     }
 
-    public static readonly DependencyProperty IsBroughtIntoViewWhenSelectedProperty =
-        DependencyProperty.RegisterAttached("IsBroughtIntoViewWhenSelected", typeof(bool), typeof(TreeViewItemBehavior),
-            new UIPropertyMetadata(false, OnIsBroughtIntoViewWhenSelectedChanged));
+    public static readonly DependencyProperty IsBroughtIntoViewWhenSelectedProperty = DependencyProperty.RegisterAttached("IsBroughtIntoViewWhenSelected", typeof(bool), typeof(TreeViewItemBehavior), new UIPropertyMetadata(false, OnIsBroughtIntoViewWhenSelectedChanged));
 
     private static void OnIsBroughtIntoViewWhenSelectedChanged(DependencyObject depObj, DependencyPropertyChangedEventArgs e)
     {

@@ -8,8 +8,8 @@
         <StackPanel.ToolTip>
             <ToolTip Padding="0" BorderThickness="1" BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer3BorderBrush}}">
                 <StackPanel Background="{DynamicResource {x:Static adonisUi:Brushes.Layer0BackgroundBrush}}">
-                    <TextBlock Text="{Binding TooltipName}" Margin="5, 5,5,0" FontSize="24" TextTrimming="CharacterEllipsis" Foreground="{StaticResource MainTextBrush}"/>
-                    <TextBlock Text="{Binding Description}" Margin="5, 0,5,5" TextTrimming="CharacterEllipsis" TextWrapping="Wrap" Foreground="{StaticResource SubTextBrush}"/>
+                    <TextBlock Text="{Binding TooltipName}" Margin="5, 5,5,0" FontSize="24" TextTrimming="CharacterEllipsis" Foreground="{StaticResource MainTextBrush}" />
+                    <TextBlock Text="{Binding Description}" Margin="5, 0,5,5" TextTrimming="CharacterEllipsis" TextWrapping="Wrap" Foreground="{StaticResource SubTextBrush}" />
                 </StackPanel>
             </ToolTip>
         </StackPanel.ToolTip>
@@ -34,16 +34,16 @@
                     <MenuItem.Icon>
                         <Image x:Name="ClipboardImage" Source="/Resources/Clipboard.png" Width="16" Height="16"></Image>
                     </MenuItem.Icon>
-                    <MenuItem Header="With Background" Command="{Binding ClipboardCommand}"/>
-                    <MenuItem Header="Without Background" Command="{Binding ClipboardCommand}" CommandParameter="WithoutBackground"/>
+                    <MenuItem Header="With Background" Command="{Binding ClipboardCommand}" />
+                    <MenuItem Header="Without Background" Command="{Binding ClipboardCommand}" CommandParameter="WithoutBackground" />
                 </MenuItem>
             </ContextMenu>
         </StackPanel.ContextMenu>
         <Grid>
-            
-            <Image x:Name="DisplayImage" Width="{Binding Size, RelativeSource={RelativeSource AncestorType=local:AssetSelectorItem}}" Height="{Binding Size, RelativeSource={RelativeSource AncestorType=local:AssetSelectorItem}}"/>
-            <Image HorizontalAlignment="Right" VerticalAlignment="Top" Width="{Binding FavoriteSize, RelativeSource={RelativeSource AncestorType=local:AssetSelectorItem}}" Height="{Binding FavoriteSize, RelativeSource={RelativeSource AncestorType=local:AssetSelectorItem}}" Visibility="{Binding FavoriteVisibility, RelativeSource={RelativeSource AncestorType=local:AssetSelectorItem}}" Source="/FortnitePorting;component/Resources/Favorite.png" RenderOptions.BitmapScalingMode="Linear"/>
+
+            <Image x:Name="DisplayImage" Width="{Binding Size, RelativeSource={RelativeSource AncestorType=local:AssetSelectorItem}}" Height="{Binding Size, RelativeSource={RelativeSource AncestorType=local:AssetSelectorItem}}" />
+            <Image HorizontalAlignment="Right" VerticalAlignment="Top" Width="{Binding FavoriteSize, RelativeSource={RelativeSource AncestorType=local:AssetSelectorItem}}" Height="{Binding FavoriteSize, RelativeSource={RelativeSource AncestorType=local:AssetSelectorItem}}" Visibility="{Binding FavoriteVisibility, RelativeSource={RelativeSource AncestorType=local:AssetSelectorItem}}" Source="/FortnitePorting;component/Resources/Favorite.png" RenderOptions.BitmapScalingMode="Linear" />
         </Grid>
-        <TextBlock MaxWidth="{Binding Size, RelativeSource={RelativeSource AncestorType=local:AssetSelectorItem}}" Text="{Binding DisplayName, RelativeSource={RelativeSource AncestorType=local:AssetSelectorItem}, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Center" TextTrimming="WordEllipsis"/>
+        <TextBlock MaxWidth="{Binding Size, RelativeSource={RelativeSource AncestorType=local:AssetSelectorItem}}" Text="{Binding DisplayName, RelativeSource={RelativeSource AncestorType=local:AssetSelectorItem}, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Center" TextTrimming="WordEllipsis" />
     </StackPanel>
 </UserControl>

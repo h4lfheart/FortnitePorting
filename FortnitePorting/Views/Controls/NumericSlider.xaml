@@ -9,14 +9,14 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="{adonisUi:Space 1}"/>
-            <ColumnDefinition Width="2*"/>
-            <ColumnDefinition Width="{adonisUi:Space 1}"/>
-            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="{adonisUi:Space 1}" />
+            <ColumnDefinition Width="2*" />
+            <ColumnDefinition Width="{adonisUi:Space 1}" />
+            <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <TextBlock Grid.Column="0" Text="{Binding Label, RelativeSource={RelativeSource AncestorType=local:NumericSlider}}"/>
-        <Slider Grid.Column="2" Name="SliderValue" Value="{Binding Value, RelativeSource={RelativeSource AncestorType=local:NumericSlider}}" Maximum="{Binding Maximum, RelativeSource={RelativeSource AncestorType=local:NumericSlider}}" Minimum="{Binding Minimum, RelativeSource={RelativeSource AncestorType=local:NumericSlider}}" TickPlacement="BottomRight" TickFrequency="{Binding StepSize, RelativeSource={RelativeSource AncestorType=local:NumericSlider}}" IsSnapToTickEnabled="{Binding Snap, RelativeSource={RelativeSource AncestorType=local:NumericSlider}}"  />
-        <TextBox Grid.Column="4" Text="{Binding ElementName=SliderValue, Path=Value, UpdateSourceTrigger=PropertyChanged, StringFormat=N2}" Width="40"/>
+        <TextBlock Grid.Column="0" Text="{Binding Label, RelativeSource={RelativeSource AncestorType=local:NumericSlider}}" />
+        <Slider Grid.Column="2" Name="SliderValue" Value="{Binding Value, RelativeSource={RelativeSource AncestorType=local:NumericSlider}}" Maximum="{Binding Maximum, RelativeSource={RelativeSource AncestorType=local:NumericSlider}}" Minimum="{Binding Minimum, RelativeSource={RelativeSource AncestorType=local:NumericSlider}}" TickPlacement="BottomRight" TickFrequency="{Binding StepSize, RelativeSource={RelativeSource AncestorType=local:NumericSlider}}" IsSnapToTickEnabled="{Binding Snap, RelativeSource={RelativeSource AncestorType=local:NumericSlider}}" />
+        <TextBox Grid.Column="4" Text="{Binding ElementName=SliderValue, Path=Value, UpdateSourceTrigger=PropertyChanged, StringFormat=N2}" Width="40" />
     </Grid>
 </UserControl>

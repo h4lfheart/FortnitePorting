@@ -17,7 +17,8 @@ namespace FortnitePorting.Tools;
 
 public static class HeightmapExporter
 {
-    public const int Size = 2048-15;
+    public const int Size = 2048 - 15;
+
     public static void Export()
     {
         var world = AppVM.CUE4ParseVM.Provider.LoadObject<UWorld>("FortniteGame/Content/Athena/Asteria/Maps/Asteria_Terrain.Asteria_Terrain");
@@ -33,7 +34,7 @@ public static class HeightmapExporter
 
             var landscapeProxy = actor.Load();
             if (landscapeProxy is null) continue;
-            
+
             var landscapeComponents = landscapeProxy.GetOrDefault("LandscapeComponents", Array.Empty<UObject>());
             //var landscapeNanite = landscapeProxy.Get<UObject>("NaniteComponent");
             //var landscapeMesh = landscapeNanite.Get<UStaticMesh>("StaticMesh");
@@ -56,7 +57,7 @@ public static class HeightmapExporter
                     {
                         weightmapImages[i] = weightmapTextures[i].DecodeImageSharp<Bgra32>();
                     }
-                    
+
                     foreach (var weightmapLayerInfo in weightmapAllocations)
                     {
                         var layerName = weightmapLayerInfo.LayerInfo.LayerName.Text;
@@ -64,23 +65,22 @@ public static class HeightmapExporter
                         {
                             weightmapLayerTextures[layerName] = new List<TileData?>();
                         }
-                        
+
                         weightmapLayerTextures[layerName].Add(new TileData(weightmapImages[weightmapLayerInfo.WeightmapTextureIndex], x, y, weightmapLayerInfo.WeightmapTextureChannel));
                     }
                 }
-               
             }
         }
-        
+
         // Height/Normal Map
         if (AppVM.HeightmapVM.ExportHeightmap)
         {
             Log.Information("Exporting Heightmap: {Type}", "Height");
-            
+
             var height = new Image<L16>(Size, Size);
             IteratePixels(heightTextures, (color, x, y, _) =>
             {
-                var corrected = (ushort) ((color.R << 8) | color.G);
+                var corrected = (ushort)((color.R << 8) | color.G);
                 height[x, y] = new L16(corrected);
             });
             height.SaveAsPng(Path.Combine(App.MapFolder.FullName, $"{world.Name}_Height.png"));
@@ -90,16 +90,13 @@ public static class HeightmapExporter
         if (AppVM.HeightmapVM.ExportNormalmap)
         {
             Log.Information("Exporting Normalmap: {Type}", "Normal");
-            
+
             var normal = new Image<Rgb24>(Size, Size);
-            IteratePixels(heightTextures, (color, x, y, _) =>
-            {
-                normal[x, y] = new Rgb24(color.B, color.A, 255);
-            });
+            IteratePixels(heightTextures, (color, x, y, _) => { normal[x, y] = new Rgb24(color.B, color.A, 255); });
             normal.SaveAsPng(Path.Combine(App.MapFolder.FullName, $"{world.Name}_Normal.png"));
             SetPreviewImage(normal);
         }
-        
+
         // Weightmaps
         if (AppVM.HeightmapVM.ExportWeightmap)
         {
@@ -116,7 +113,7 @@ public static class HeightmapExporter
                         2 => color.B,
                         3 => color.A
                     };
-                
+
                     map[x, y] = new L8(l8);
                 });
                 map.SaveAsPng(Path.Combine(App.MapFolder.FullName, $"{world.Name}_{layerName}.png"));
@@ -126,16 +123,16 @@ public static class HeightmapExporter
 
         AppHelper.Launch(App.MapFolder.FullName);
     }
-    
+
     public static void IteratePixels(List<TileData?> textures, Action<Bgra32, int, int, int> action)
     {
         foreach (var textureData in textures)
         {
             if (textureData is null) return;
-            
+
             var (heightTexture, x, y, channelIndex) = textureData;
             if (heightTexture is null) continue;
-            
+
             for (var texX = 0; texX < heightTexture.Width; texX++)
             {
                 for (var texY = 0; texY < heightTexture.Height; texY++)

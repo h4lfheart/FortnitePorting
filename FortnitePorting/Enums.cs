@@ -13,38 +13,27 @@ public enum EInstallType
 
 public enum EAssetType
 {
-    [Description("Outfits")]
-    Outfit,
+    [Description("Outfits")] Outfit,
 
-    [Description("Back Blings")]
-    Backpack,
+    [Description("Back Blings")] Backpack,
 
-    [Description("Pickaxes")]
-    Pickaxe,
+    [Description("Pickaxes")] Pickaxe,
 
-    [Description("Gliders")]
-    Glider,
-    
-    [Description("Pets")]
-    Pet,
+    [Description("Gliders")] Glider,
 
-    [Description("Weapons")]
-    Weapon,
+    [Description("Pets")] Pet,
 
-    [Description("Emotes")]
-    Dance,
+    [Description("Weapons")] Weapon,
 
-    [Description("Vehicles")]
-    Vehicle,
+    [Description("Emotes")] Dance,
 
-    [Description("Props")]
-    Prop,
+    [Description("Vehicles")] Vehicle,
 
-    [Description("Meshes")]
-    Mesh,
-    
-    [Description("Music Packs")]
-    Music
+    [Description("Props")] Prop,
+
+    [Description("Meshes")] Mesh,
+
+    [Description("Music Packs")] Music
 }
 
 public enum EFortCustomPartType : byte
@@ -71,32 +60,23 @@ public enum ECustomHatType : byte
 
 public enum ERigType
 {
-    [Description("Default Rig")]
-    Default,
-    [Description("Tasty™ Rig")]
-    Tasty
+    [Description("Default Rig")] Default,
+    [Description("Tasty™ Rig")] Tasty
 }
 
 public enum ESortType
 {
-    [Description("Default")]
-    Default,
-    [Description("A-Z")]
-    AZ,
-    [Description("Season")]
-    Season,
-    [Description("Rarity")]
-    Rarity,
-    [Description("Series")]
-    Series
+    [Description("Default")] Default,
+    [Description("A-Z")] AZ,
+    [Description("Season")] Season,
+    [Description("Rarity")] Rarity,
+    [Description("Series")] Series
 }
 
 public enum EUpdateMode
 {
-    [Description("Stable")]
-    Stable,
-    [Description("Experimental")]
-    Experimental
+    [Description("Stable")] Stable,
+    [Description("Experimental")] Experimental
 }
 
 public enum EFortCustomGender : byte
@@ -109,10 +89,8 @@ public enum EFortCustomGender : byte
 
 public enum EImageType
 {
-    [Description("PNG (.png)")]
-    PNG,
-    [Description("Targa (.tga)")]
-    TGA
+    [Description("PNG (.png)")] PNG,
+    [Description("Targa (.tga)")] TGA
 }
 
 public enum ETreeItemType

@@ -39,6 +39,7 @@ public partial class StyleSelector
 
             Options.Items.Add(new StyleSelectorItem(option, fullBitmap));
         }
+
         Options.SelectedIndex = 0;
     }
 

@@ -9,56 +9,35 @@ namespace FortnitePorting.Views.Controls;
 
 public partial class TextWithIcon
 {
-    public static readonly DependencyProperty ImageSourceProperty =
-        DependencyProperty.Register(
-            nameof(ImageSource),
-            typeof(ImageSource),
-            typeof(TextWithIcon)
-        );
+    public static readonly DependencyProperty ImageSourceProperty = DependencyProperty.Register(nameof(ImageSource), typeof(ImageSource), typeof(TextWithIcon));
 
     public ImageSource ImageSource
     {
-        get => (ImageSource) GetValue(ImageSourceProperty);
+        get => (ImageSource)GetValue(ImageSourceProperty);
         set => SetValue(ImageSourceProperty, value);
     }
 
-    public static readonly DependencyProperty IconSizeProperty =
-        DependencyProperty.Register(
-            nameof(IconSize),
-            typeof(int),
-            typeof(TextWithIcon),
-            new PropertyMetadata(24)
-        );
+    public static readonly DependencyProperty IconSizeProperty = DependencyProperty.Register(nameof(IconSize), typeof(int), typeof(TextWithIcon), new PropertyMetadata(24));
 
     public int IconSize
     {
-        get => (int) GetValue(IconSizeProperty);
+        get => (int)GetValue(IconSizeProperty);
         set => SetValue(IconSizeProperty, value);
     }
 
-    public static readonly DependencyProperty LabelFontSizeProperty =
-        DependencyProperty.Register(
-            nameof(LabelFontSize),
-            typeof(int),
-            typeof(TextWithIcon)
-        );
+    public static readonly DependencyProperty LabelFontSizeProperty = DependencyProperty.Register(nameof(LabelFontSize), typeof(int), typeof(TextWithIcon));
 
     public int LabelFontSize
     {
-        get => (int) GetValue(LabelFontSizeProperty);
+        get => (int)GetValue(LabelFontSizeProperty);
         set => SetValue(LabelFontSizeProperty, value);
     }
 
-    public static readonly DependencyProperty LabelProperty =
-        DependencyProperty.Register(
-            nameof(Label),
-            typeof(string),
-            typeof(TextWithIcon)
-        );
+    public static readonly DependencyProperty LabelProperty = DependencyProperty.Register(nameof(Label), typeof(string), typeof(TextWithIcon));
 
     public string Label
     {
-        get => (string) GetValue(LabelProperty);
+        get => (string)GetValue(LabelProperty);
         set => SetValue(LabelProperty, value);
     }
 
@@ -68,6 +47,7 @@ public partial class TextWithIcon
         if (AppSettings.Current.LightMode)
             IconImage.Effect = new InvertEffect();
     }
+
     public TextWithIcon(bool isProp = false)
     {
         InitializeComponent();
@@ -78,8 +58,7 @@ public partial class TextWithIcon
 
 class InvertEffect : ShaderEffect
 {
-    private const string _kshaderAsBase64 =
-        @"AAP///7/IQBDVEFCHAAAAE8AAAAAA///AQAAABwAAAAAAQAASAAAADAAAAADAAAAAQACADgAAAAAAAAAaW5wdXQAq6sEAAwAAQABAAEAAAAAAAAAcHNfM18wAE1pY3Jvc29mdCAoUikgSExTTCBTaGFkZXIgQ29tcGlsZXIgOS4yOS45NTIuMzExMQBRAAAFAAAPoAAAgD4AAAAAAAAAAAAAAAAfAAACBQAAgAAAA5AfAAACAAAAkAAID6BCAAADAAAPgAAA5JAACOSgBgAAAgEAAYAAAP+ABQAAAwAAB4AAAOSAAQAAgAUAAAMAAAeAAAD/gAAA5IABAAACAAgIgAAA/4AFAAADAAgHgAAA5IAAAACg//8AAA==";
+    private const string _kshaderAsBase64 = @"AAP///7/IQBDVEFCHAAAAE8AAAAAA///AQAAABwAAAAAAQAASAAAADAAAAADAAAAAQACADgAAAAAAAAAaW5wdXQAq6sEAAwAAQABAAEAAAAAAAAAcHNfM18wAE1pY3Jvc29mdCAoUikgSExTTCBTaGFkZXIgQ29tcGlsZXIgOS4yOS45NTIuMzExMQBRAAAFAAAPoAAAgD4AAAAAAAAAAAAAAAAfAAACBQAAgAAAA5AfAAACAAAAkAAID6BCAAADAAAPgAAA5JAACOSgBgAAAgEAAYAAAP+ABQAAAwAAB4AAAOSAAQAAgAUAAAMAAAeAAAD/gAAA5IABAAACAAgIgAAA/4AFAAADAAgHgAAA5IAAAACg//8AAA==";
 
     private static readonly PixelShader _shader;
 
@@ -97,7 +76,7 @@ class InvertEffect : ShaderEffect
 
     public Brush Input
     {
-        get => (Brush) GetValue(InputProperty);
+        get => (Brush)GetValue(InputProperty);
         set => SetValue(InputProperty, value);
     }
 

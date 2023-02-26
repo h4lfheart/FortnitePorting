@@ -99,7 +99,6 @@ public static class ExportHelpers
                             exportPart.ProcessMetahumanPoses(skeletalMesh);
                         }
                     }
-
                 }
             }
 
@@ -114,7 +113,6 @@ public static class ExportHelpers
 
                 var exportMaterial = CreateExportMaterial(material, idx);
                 exportPart.Materials.Add(exportMaterial);
-
             }
 
             if (part.TryGetValue(out FStructFallback[] materialOverrides, "MaterialOverrides"))
@@ -283,8 +281,7 @@ public static class ExportHelpers
             for (var idx = 0; idx < exportPart.Materials.Count; idx++)
             {
                 if (exportMaterial.SlotIndex >= exportPart.Materials.Count) continue;
-                if (exportPart.Materials[exportMaterial.SlotIndex].Hash ==
-                    exportPart.Materials[idx].Hash)
+                if (exportPart.Materials[exportMaterial.SlotIndex].Hash == exportPart.Materials[idx].Hash)
                 {
                     exportPart.OverrideMaterials.Add(exportMaterial with { SlotIndex = idx });
                 }
@@ -354,7 +351,7 @@ public static class ExportHelpers
 
         var parameters = new CMaterialParams2();
         materialInstance.GetParams(parameters, EMaterialFormat.AllLayers);
-        
+
         if (parameters.TryGetTexture2d(out var diffuseTexture, CMaterialParams2.Diffuse[0]))
         {
             Save(diffuseTexture);
@@ -372,6 +369,7 @@ public static class ExportHelpers
             Save(normalsTexture);
             textures.Add(new TextureParameter("Normals", normalsTexture.GetPathName(), normalsTexture.SRGB));
         }
+
         return (textures, scalars, vectors);
     }
 
@@ -390,6 +388,7 @@ public static class ExportHelpers
                 break;
             }
         }
+
         return (textures, new List<ScalarParameter>(), new List<VectorParameter>());
     }
 
@@ -450,7 +449,6 @@ public static class ExportHelpers
         }
 
         return exportMesh;
-
     }
 
     public static ExportMesh? Mesh(USkeletalMesh? skeletalMesh)
@@ -617,6 +615,7 @@ public static class ExportHelpers
     }
 
     public static readonly List<Task> Tasks = new();
+
     private static readonly ExporterOptions ExportOptions = new()
     {
         Platform = ETexturePlatform.DesktopMobile,
@@ -639,6 +638,7 @@ public static class ExportHelpers
                     if (!File.Exists(GetExportPath(mesh, "psk", "_LOD" + i)))
                         return false;
                 }
+
                 break;
             case UStaticMesh staticMesh:
                 if (!staticMesh.TryConvert(out var convertedStatic)) return false;
@@ -647,6 +647,7 @@ public static class ExportHelpers
                     if (!File.Exists(GetExportPath(mesh, "pskx", "_LOD" + i)))
                         return false;
                 }
+
                 break;
         }
 
@@ -708,7 +709,7 @@ public static class ExportHelpers
 
                         using var image = texture.DecodeImageSharp();
                         if (image is null) return;
-                        
+
                         switch (AppSettings.Current.ImageType)
                         {
                             case EImageType.PNG:
@@ -718,6 +719,7 @@ public static class ExportHelpers
                                 image.SaveAsTga(path);
                                 break;
                         }
+
                         break;
                     }
 
@@ -770,8 +772,8 @@ public static class ExportHelpers
 
                     Log.Information("Exporting {ExportType}: {FileName}", soundWave.ExportType, soundWave.Name);
                 }
-                return (path, audioFormat);
 
+                return (path, audioFormat);
             }
             catch (IOException e)
             {
@@ -787,7 +789,7 @@ public static class ExportHelpers
         audioFormat = format;
         path = outPath;
     }
-    
+
     public static void SaveAdditiveAnim(UAnimSequence baseSequence, UAnimSequence additiveSequence)
     {
         // TODO PLACEHOLDER FOR NOW
@@ -802,21 +804,22 @@ public static class ExportHelpers
 
         var directory = Path.Combine(App.AssetsFolder.FullName, path);
         Directory.CreateDirectory(directory.SubstringBeforeLast("/"));
-        
+
         var finalPath = directory + $"{extra}.{ext.ToLower()}";
         return finalPath;
     }
-    
+
     private static Sound LoadSound(USoundNodeWavePlayer player, float timeOffset = 0)
     {
         var soundWave = player.SoundWave?.Load<USoundWave>();
         return new Sound(soundWave, timeOffset, player.GetOrDefault("bLooping", false));
     }
+
     private static Sound LoadSound(USoundWave soundWave, float timeOffset = 0)
     {
         return new Sound(soundWave, timeOffset, false);
     }
-    
+
 
     public static List<Sound> HandleAudioTree(USoundNode node, float offset = 0f)
     {
@@ -834,6 +837,7 @@ public static class ExportHelpers
                 {
                     sounds.AddRange(HandleAudioTree(nodeObject.Load<USoundNode>(), offset + delay.Get<float>("DelayMin"))); // Max/Min are equal for emotes
                 }
+
                 break;
             }
             case USoundNodeRandom random:
@@ -842,7 +846,7 @@ public static class ExportHelpers
                 sounds.AddRange(HandleAudioTree(random.ChildNodes[index].Load<USoundNode>(), offset));
                 break;
             }
-            
+
             case UFortSoundNodeLicensedContentSwitcher switcher:
             {
                 sounds.AddRange(HandleAudioTree(switcher.ChildNodes.Last().Load<USoundNode>(), offset));
@@ -863,6 +867,7 @@ public static class ExportHelpers
                 {
                     sounds.AddRange(HandleAudioTree(nodeObject.Load<USoundNode>(), offset));
                 }
+
                 break;
             }
         }

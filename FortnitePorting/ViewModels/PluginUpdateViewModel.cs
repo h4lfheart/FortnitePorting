@@ -27,7 +27,7 @@ public partial class PluginUpdateViewModel : ObservableObject
                 AddInstallation(folder);
             }
         }
-        
+
         var steamApps = SteamDetection.GetSteamApps(SteamDetection.GetSteamLibs());
         var steamBlender = steamApps.FirstOrDefault(x => x.Name.Contains("Blender", StringComparison.OrdinalIgnoreCase));
         if (steamBlender is not null)
@@ -39,15 +39,15 @@ public partial class PluginUpdateViewModel : ObservableObject
             }
         }
     }
-    
+
     private void AddInstallation(DirectoryInfo directory, string prefix = "")
     {
         if (!TryParseDouble(directory.Name, out var numberVersion)) return;
         numberVersion = numberVersion.Truncate(1);
-        
+
         var addonsPath = Path.Combine(directory.FullName, "scripts", "addons");
         Directory.CreateDirectory(addonsPath);
-            
+
         Log.Information("Found Blender installation at {0}.", directory.FullName);
         var isSupported = numberVersion >= 3.0;
         var extraText = isSupported ? string.Empty : "(Unsupported)";
@@ -78,7 +78,7 @@ public partial class PluginUpdateViewModel : ObservableObject
         {
             var targetInstallPath = new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Blender Foundation", "Blender", numberString));
             targetInstallPath.Create();
-        
+
             AddInstallation(targetInstallPath);
         }
 

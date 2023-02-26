@@ -25,7 +25,7 @@ public static class ImageExtensions
         source.EndInit();
         return source;
     }
-    
+
     public static BitmapImage ToBitmapImage(this SixLabors.ImageSharp.Image bitmap)
     {
         var source = new BitmapImage { CacheOption = BitmapCacheOption.OnDemand };
@@ -55,6 +55,7 @@ public static class ImageExtensions
             var htmlFragment = GenerateHTMLFragment($"<img src=\"{fileName}\"/>");
             data.SetData(DataFormats.Html, htmlFragment);
         }
+
         // The 'copy=true' argument means the MemoryStreams can be safely disposed after the operation
         Clipboard.SetDataObject(data, true);
     }
@@ -84,9 +85,9 @@ public static class ImageExtensions
         //Int32 biSize;
         WriteIntToByteArray(fullImage, 0x00, 4, true, hdrSize);
         //Int32 biWidth;
-        WriteIntToByteArray(fullImage, 0x04, 4, true, (uint) width);
+        WriteIntToByteArray(fullImage, 0x04, 4, true, (uint)width);
         //Int32 biHeight;
-        WriteIntToByteArray(fullImage, 0x08, 4, true, (uint) height);
+        WriteIntToByteArray(fullImage, 0x08, 4, true, (uint)height);
         //Int16 biPlanes;
         WriteIntToByteArray(fullImage, 0x0C, 2, true, 1);
         //Int16 biBitCount;
@@ -94,7 +95,7 @@ public static class ImageExtensions
         //BITMAPCOMPRESSION biCompression = BITMAPCOMPRESSION.BITFIELDS;
         WriteIntToByteArray(fullImage, 0x10, 4, true, 3);
         //Int32 biSizeImage;
-        WriteIntToByteArray(fullImage, 0x14, 4, true, (uint) bm32bData.Length);
+        WriteIntToByteArray(fullImage, 0x14, 4, true, (uint)bm32bData.Length);
         // These are all 0. Since .net clears new arrays, don't bother writing them.
         //Int32 biXPelsPerMeter = 0;
         //Int32 biYPelsPerMeter = 0;
@@ -106,7 +107,7 @@ public static class ImageExtensions
         WriteIntToByteArray(fullImage, hdrSize + 4, 4, true, 0x0000FF00);
         WriteIntToByteArray(fullImage, hdrSize + 8, 4, true, 0x000000FF);
 
-        Unsafe.CopyBlockUnaligned(ref fullImage[hdrSize + 12], ref bm32bData[0], (uint) bm32bData.Length);
+        Unsafe.CopyBlockUnaligned(ref fullImage[hdrSize + 12], ref bm32bData[0], (uint)bm32bData.Length);
         return fullImage;
     }
 
@@ -122,7 +123,7 @@ public static class ImageExtensions
         for (var index = 0; index < bytes; index++)
         {
             var offs = startIndex + (littleEndian ? index : lastByte - index);
-            data[offs] = (byte) (value >> 8 * index & 0xFF);
+            data[offs] = (byte)(value >> 8 * index & 0xFF);
         }
     }
 
@@ -130,7 +131,7 @@ public static class ImageExtensions
     {
         var rect = new Rectangle(0, 0, bmp.Width, bmp.Height);
         var bmpData = bmp.LockBits(rect, ImageLockMode.ReadOnly, bmp.PixelFormat);
-        var bytes = (uint) (Math.Abs(bmpData.Stride) * bmp.Height);
+        var bytes = (uint)(Math.Abs(bmpData.Stride) * bmp.Height);
         var buffer = new byte[bytes];
         fixed (byte* pBuffer = buffer)
         {

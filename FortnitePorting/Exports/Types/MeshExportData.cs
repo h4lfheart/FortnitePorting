@@ -87,16 +87,16 @@ public class MeshExportData : ExportDataBase
 
                     var petBlueprintClass = petData.Get<UBlueprintGeneratedClass>("PetPrefabClass");
                     var petBlueprintData = await petBlueprintClass.ClassDefaultObject.LoadAsync();
-                    
+
                     var petMeshComponent = petBlueprintData.Get<UObject>("PetMesh");
                     var petMesh = petMeshComponent.GetOrDefault<USkeletalMesh?>("SkeletalMesh");
                     petMesh ??= petMeshComponent.GetOrDefault<USkeletalMesh?>("SkinnedAsset");
                     if (petMesh is null) break;
-                    
+
                     var exportPart = ExportHelpers.Mesh<ExportPart>(petMesh);
                     if (exportPart is null) break;
                     exportPart.Part = "PetMesh";
-                    
+
                     var animClass = petMeshComponent.Get<UAnimBlueprintGeneratedClass>("AnimClass");
                     var animClassDefaultObject = await animClass.ClassDefaultObject.LoadAsync();
                     exportPart.ProcessPoses(petMesh, animClassDefaultObject.GetOrDefault<UPoseAsset>("FacePoseAsset"));
@@ -113,7 +113,7 @@ public class MeshExportData : ExportDataBase
                             break;
                         }
                     }
-                    
+
                     break;
                 }
                 case EAssetType.Glider:
@@ -199,6 +199,7 @@ public class MeshExportData : ExportDataBase
                         var propValue = tag.Value?.GetValue(typeof(FActorTemplateRecord));
                         templateRecords.Add(propValue as FActorTemplateRecord);
                     }
+
                     foreach (var templateRecord in templateRecords)
                     {
                         if (templateRecord is null) continue;
@@ -256,6 +257,7 @@ public class MeshExportData : ExportDataBase
                     {
                         ExportHelpers.Mesh(skeletalMesh, data.Parts);
                     }
+
                     break;
                 }
                 default:

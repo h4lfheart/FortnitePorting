@@ -1,110 +1,110 @@
 ﻿<adonisCtrls:AdonisWindow x:Class="FortnitePorting.Views.MainView"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:controls="clr-namespace:FortnitePorting.Views.Controls"
-             xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
-             xmlns:adonisCtrls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
-             xmlns:adonisExt="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"
-             xmlns:extensions="clr-namespace:FortnitePorting.Views.Extensions"
-             xmlns:cue4parse="clr-namespace:CUE4Parse;assembly=CUE4Parse"
-             xmlns:local="clr-namespace:FortnitePorting"
-             xmlns:vms="clr-namespace:FortnitePorting.ViewModels"
-             xmlns:toolkitCtrls="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
-             Title="Fortnite Porting" Width="1440" Height="720" WindowStartupLocation="CenterScreen" ResizeMode="CanResize" Loaded="OnLoaded">
+                          xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                          xmlns:controls="clr-namespace:FortnitePorting.Views.Controls"
+                          xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
+                          xmlns:adonisCtrls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
+                          xmlns:adonisExt="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"
+                          xmlns:extensions="clr-namespace:FortnitePorting.Views.Extensions"
+                          xmlns:cue4parse="clr-namespace:CUE4Parse;assembly=CUE4Parse"
+                          xmlns:local="clr-namespace:FortnitePorting"
+                          xmlns:vms="clr-namespace:FortnitePorting.ViewModels"
+                          xmlns:toolkitCtrls="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
+                          Title="Fortnite Porting" Width="1440" Height="720" WindowStartupLocation="CenterScreen" ResizeMode="CanResize" Loaded="OnLoaded">
     <Window.InputBindings>
-        <KeyBinding Key="R" Modifiers="Control" Command="{Binding MenuCommand}" CommandParameter="File_Restart"/>
-        <KeyBinding Key="D" Modifiers="Control" Command="{Binding ExportBlenderCommand}"/>
-        <KeyBinding Key="F" Modifiers="Control" Command="{Binding FavoriteCommand}"/>
+        <KeyBinding Key="R" Modifiers="Control" Command="{Binding MenuCommand}" CommandParameter="File_Restart" />
+        <KeyBinding Key="D" Modifiers="Control" Command="{Binding ExportBlenderCommand}" />
+        <KeyBinding Key="F" Modifiers="Control" Command="{Binding FavoriteCommand}" />
     </Window.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="{adonisUi:Space 1}"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="{adonisUi:Space 1}" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        
+
         <Menu Grid.Row="0">
             <MenuItem Header="File">
                 <MenuItem Header="Open">
-                    <MenuItem Header="Assets Folder" Command="{Binding MenuCommand}" CommandParameter="Open_Assets"/>
-                    <MenuItem Header="Data Folder" Command="{Binding MenuCommand}" CommandParameter="Open_Data"/>
-                    <MenuItem Header="Logs Folder" Command="{Binding MenuCommand}" CommandParameter="Open_Logs"/>
+                    <MenuItem Header="Assets Folder" Command="{Binding MenuCommand}" CommandParameter="Open_Assets" />
+                    <MenuItem Header="Data Folder" Command="{Binding MenuCommand}" CommandParameter="Open_Data" />
+                    <MenuItem Header="Logs Folder" Command="{Binding MenuCommand}" CommandParameter="Open_Logs" />
                 </MenuItem>
-                <Separator/>
-                <MenuItem Header="Restart" InputGestureText="Ctrl+R" Command="{Binding MenuCommand}" CommandParameter="File_Restart"/>
-                <MenuItem Header="Quit" InputGestureText="Alt+F4" Command="{Binding MenuCommand}" CommandParameter="File_Quit"/>
+                <Separator />
+                <MenuItem Header="Restart" InputGestureText="Ctrl+R" Command="{Binding MenuCommand}" CommandParameter="File_Restart" />
+                <MenuItem Header="Quit" InputGestureText="Alt+F4" Command="{Binding MenuCommand}" CommandParameter="File_Quit" />
             </MenuItem>
             <MenuItem Header="Settings">
-                <MenuItem Header="App Options" Command="{Binding MenuCommand}" CommandParameter="Settings_Options"/>
-                <MenuItem Header="Export/Import Options" Command="{Binding MenuCommand}" CommandParameter="Settings_ImportOptions"/>
-                <MenuItem Header="First-Time Startup" Command="{Binding MenuCommand}" CommandParameter="Settings_Startup"/>
-                <MenuItem Header="Show Console" IsChecked="{Binding ShowConsole}" IsCheckable="True" Checked="OnShowConsoleChecked" Unchecked="OnShowConsoleChecked"/>
+                <MenuItem Header="App Options" Command="{Binding MenuCommand}" CommandParameter="Settings_Options" />
+                <MenuItem Header="Export/Import Options" Command="{Binding MenuCommand}" CommandParameter="Settings_ImportOptions" />
+                <MenuItem Header="First-Time Startup" Command="{Binding MenuCommand}" CommandParameter="Settings_Startup" />
+                <MenuItem Header="Show Console" IsChecked="{Binding ShowConsole}" IsCheckable="True" Checked="OnShowConsoleChecked" Unchecked="OnShowConsoleChecked" />
             </MenuItem>
             <MenuItem Header="Tools">
                 <MenuItem Header="Heightmap Exporter" Command="{Binding MenuCommand}" CommandParameter="Tools_Heightmap">
                     <MenuItem.Icon>
-                        <Image Source="/Resources/Props.png" Width="16" Height="16"/>
+                        <Image Source="/Resources/Props.png" Width="16" Height="16" />
                     </MenuItem.Icon>
                 </MenuItem>
             </MenuItem>
-            <MenuItem Header="Check for Updates" Command="{Binding MenuCommand}" CommandParameter="Update"/>
-            <MenuItem Header="Sync Plugin" Command="{Binding MenuCommand}" CommandParameter="SyncPlugin"/>
+            <MenuItem Header="Check for Updates" Command="{Binding MenuCommand}" CommandParameter="Update" />
+            <MenuItem Header="Sync Plugin" Command="{Binding MenuCommand}" CommandParameter="SyncPlugin" />
             <MenuItem Header="Help">
-                <MenuItem Header="Discord Server" Command="{Binding MenuCommand}" CommandParameter="Help_Discord"/>
-                <MenuItem Header="GitHub Repo" Command="{Binding MenuCommand}" CommandParameter="Help_GitHub"/>
-                <MenuItem Header="Donate" Command="{Binding MenuCommand}" CommandParameter="Help_Donate"/>
-                <MenuItem Header="About" Command="{Binding MenuCommand}" CommandParameter="Help_About"/>
+                <MenuItem Header="Discord Server" Command="{Binding MenuCommand}" CommandParameter="Help_Discord" />
+                <MenuItem Header="GitHub Repo" Command="{Binding MenuCommand}" CommandParameter="Help_GitHub" />
+                <MenuItem Header="Donate" Command="{Binding MenuCommand}" CommandParameter="Help_Donate" />
+                <MenuItem Header="About" Command="{Binding MenuCommand}" CommandParameter="Help_About" />
             </MenuItem>
         </Menu>
-        
+
         <Grid Grid.Row="2">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="4*"/>
-                <RowDefinition Height="{adonisUi:Space 1}"/>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="4*" />
+                <RowDefinition Height="{adonisUi:Space 1}" />
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            
+
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2.5*"/>
-                <ColumnDefinition Width="{adonisUi:Space 1}"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="2.5*" />
+                <ColumnDefinition Width="{adonisUi:Space 1}" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            
+
             <Grid Grid.Row="0" Grid.Column="0" Margin="5 0 0 5">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="{adonisUi:Space 1}"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="{adonisUi:Space 1}"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="{adonisUi:Space 1}"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="{adonisUi:Space 1}"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="{adonisUi:Space 1}"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="{adonisUi:Space 1}" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="{adonisUi:Space 1}" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="{adonisUi:Space 1}" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="{adonisUi:Space 1}" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="{adonisUi:Space 1}" />
+                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                
-                <TextBox Grid.Column="0" adonisExt:LayerExtension.Layer="2" adonisExt:WatermarkExtension.Watermark="Search..." TextChanged="OnSearchTextChanged"/>
-                
-                <controls:TextWithIcon Grid.Column="2" Label="Sort By" ImageSource="/FortnitePorting;component/Resources/Sort.png" IconSize="16"/>
-                <ComboBox Grid.Column="4" ItemsSource="{extensions:EnumToItemsSource {x:Type local:ESortType}}" SelectedItem="{Binding SortType, Converter={StaticResource EnumToString}}" SelectionChanged="OnSortSelectionChanged"/>
-                <CheckBox Grid.Column="6" Content="Descending" IsChecked="{Binding Ascending}" Checked="ToggleButton_OnChanged" Unchecked="ToggleButton_OnChanged"/>
-                
-                <controls:TextWithIcon Grid.Column="8" Label="Filters" ImageSource="/FortnitePorting;component/Resources/Filter.png" IconSize="16"/>
+
+                <TextBox Grid.Column="0" adonisExt:LayerExtension.Layer="2" adonisExt:WatermarkExtension.Watermark="Search..." TextChanged="OnSearchTextChanged" />
+
+                <controls:TextWithIcon Grid.Column="2" Label="Sort By" ImageSource="/FortnitePorting;component/Resources/Sort.png" IconSize="16" />
+                <ComboBox Grid.Column="4" ItemsSource="{extensions:EnumToItemsSource {x:Type local:ESortType}}" SelectedItem="{Binding SortType, Converter={StaticResource EnumToString}}" SelectionChanged="OnSortSelectionChanged" />
+                <CheckBox Grid.Column="6" Content="Descending" IsChecked="{Binding Ascending}" Checked="ToggleButton_OnChanged" Unchecked="ToggleButton_OnChanged" />
+
+                <controls:TextWithIcon Grid.Column="8" Label="Filters" ImageSource="/FortnitePorting;component/Resources/Filter.png" IconSize="16" />
                 <ToggleButton Grid.Column="10" Name="FilterButton">
                     <ToggleButton.Content>
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="{Binding FilterLabel}" TextTrimming="CharacterEllipsis" HorizontalAlignment="Left"/>
+                            <TextBlock Grid.Column="0" Text="{Binding FilterLabel}" TextTrimming="CharacterEllipsis" HorizontalAlignment="Left" />
                             <Border Grid.Column="1" Background="Transparent" HorizontalAlignment="Right">
                                 <Viewbox Width="16" Height="16">
                                     <Canvas Width="24" Height="24">
-                                        <Path Fill="{DynamicResource {x:Static adonisUi:Brushes.ForegroundBrush}}" Data="{StaticResource ArrowIcon}"/>
+                                        <Path Fill="{DynamicResource {x:Static adonisUi:Brushes.ForegroundBrush}}" Data="{StaticResource ArrowIcon}" />
                                     </Canvas>
                                 </Viewbox>
                             </Border>
@@ -114,16 +114,16 @@
                 <Popup Grid.Column="10" Width="{Binding ElementName=FilterButton, Path=ActualWidth}" StaysOpen="False" PlacementTarget="{Binding ElementName=FilterButton}" IsOpen="{Binding ElementName=FilterButton, Path=IsChecked, Mode=TwoWay}">
                     <Border Background="{DynamicResource {x:Static adonisUi:Brushes.Layer2BackgroundBrush}}" BorderThickness="1" BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer3BorderBrush}}">
                         <StackPanel Name="FilterPanel" Margin="{adonisUi:Space 1}">
-                            <CheckBox Margin="0 0 0 10" Content="Favorite" Tag="Favorite" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked"/>
-                            <CheckBox Content="Unfinished Assets (Unstable)" Tag="Unfinished Assets" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked"/>
-                            <Separator Style="{StaticResource NamedSeparator}"/>
-                            <CheckBox Margin="0 0 0 10" Content="Battle Pass" Tag="Battle Pass" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked"/>
-                            <CheckBox Content="Item Shop" Tag="Item Shop" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked"/>
-                            <Separator Style="{StaticResource NamedSeparator}"/>
-                            <CheckBox Margin="0 0 0 10" Content="Save The World" Tag="Save The World" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked"/>
-                            <CheckBox Content="Battle Royale" Tag="Battle Royale" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked"/>
+                            <CheckBox Margin="0 0 0 10" Content="Favorite" Tag="Favorite" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked" />
+                            <CheckBox Content="Unfinished Assets (Unstable)" Tag="Unfinished Assets" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked" />
+                            <Separator Style="{StaticResource NamedSeparator}" />
+                            <CheckBox Margin="0 0 0 10" Content="Battle Pass" Tag="Battle Pass" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked" />
+                            <CheckBox Content="Item Shop" Tag="Item Shop" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked" />
+                            <Separator Style="{StaticResource NamedSeparator}" />
+                            <CheckBox Margin="0 0 0 10" Content="Save The World" Tag="Save The World" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked" />
+                            <CheckBox Content="Battle Royale" Tag="Battle Royale" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked" />
                             <Button Command="{Binding ClearFiltersCommand}" Margin="0 10 0 0" Click="ClearFilters_OnClicked">
-                                <controls:TextWithIcon Label="Clear All Filters" ImageSource="/FortnitePorting;component/Resources/Clear.png"/>
+                                <controls:TextWithIcon Label="Clear All Filters" ImageSource="/FortnitePorting;component/Resources/Clear.png" />
                             </Button>
                         </StackPanel>
                     </Border>
@@ -134,148 +134,148 @@
                 <TabControl x:Name="AssetControls" SelectionChanged="OnAssetTabSelectionChanged" IsEnabled="{Binding IsReady}">
                     <TabItem Style="{StaticResource TabItemEqualSize}">
                         <TabItem.Header>
-                            <controls:TextWithIcon Label="Outfits" ImageSource="/FortnitePorting;component/Resources/Outfit.png"/>
+                            <controls:TextWithIcon Label="Outfits" ImageSource="/FortnitePorting;component/Resources/Outfit.png" />
                         </TabItem.Header>
                         <ListBox ItemsSource="{Binding Outfits}" SelectionChanged="OnAssetSelectionChanged">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <toolkitCtrls:VirtualizingWrapPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                                    <toolkitCtrls:VirtualizingWrapPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left" />
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
                         </ListBox>
                     </TabItem>
                     <TabItem Style="{StaticResource TabItemEqualSize}">
                         <TabItem.Header>
-                            <controls:TextWithIcon Label="Backpacks" ImageSource="/FortnitePorting;component/Resources/Backpack.png"/>
+                            <controls:TextWithIcon Label="Backpacks" ImageSource="/FortnitePorting;component/Resources/Backpack.png" />
                         </TabItem.Header>
                         <ListBox ItemsSource="{Binding BackBlings}" SelectionChanged="OnAssetSelectionChanged">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <toolkitCtrls:VirtualizingWrapPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                                    <toolkitCtrls:VirtualizingWrapPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left" />
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
                         </ListBox>
                     </TabItem>
                     <TabItem Style="{StaticResource TabItemEqualSize}">
                         <TabItem.Header>
-                            <controls:TextWithIcon Label="Pickaxes" ImageSource="/FortnitePorting;component/Resources/Pickaxe.png"/>
+                            <controls:TextWithIcon Label="Pickaxes" ImageSource="/FortnitePorting;component/Resources/Pickaxe.png" />
                         </TabItem.Header>
                         <ListBox ItemsSource="{Binding HarvestingTools}" SelectionChanged="OnAssetSelectionChanged">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <toolkitCtrls:VirtualizingWrapPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                                    <toolkitCtrls:VirtualizingWrapPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left" />
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
                         </ListBox>
                     </TabItem>
                     <TabItem Style="{StaticResource TabItemEqualSize}">
                         <TabItem.Header>
-                            <controls:TextWithIcon Label="Gliders" ImageSource="/FortnitePorting;component/Resources/Glider.png"/>
+                            <controls:TextWithIcon Label="Gliders" ImageSource="/FortnitePorting;component/Resources/Glider.png" />
                         </TabItem.Header>
                         <ListBox ItemsSource="{Binding Gliders}" SelectionChanged="OnAssetSelectionChanged">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <toolkitCtrls:VirtualizingWrapPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                                    <toolkitCtrls:VirtualizingWrapPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left" />
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
                         </ListBox>
                     </TabItem>
                     <TabItem Style="{StaticResource TabItemEqualSize}">
                         <TabItem.Header>
-                            <controls:TextWithIcon Label="Pets" ImageSource="/FortnitePorting;component/Resources/Pet.png"/>
+                            <controls:TextWithIcon Label="Pets" ImageSource="/FortnitePorting;component/Resources/Pet.png" />
                         </TabItem.Header>
                         <ListBox ItemsSource="{Binding Pets}" SelectionChanged="OnAssetSelectionChanged">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <toolkitCtrls:VirtualizingWrapPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                                    <toolkitCtrls:VirtualizingWrapPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left" />
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
                         </ListBox>
                     </TabItem>
                     <TabItem Style="{StaticResource TabItemEqualSize}">
                         <TabItem.Header>
-                            <controls:TextWithIcon Label="Weapons" ImageSource="/FortnitePorting;component/Resources/Weapon.png"/>
+                            <controls:TextWithIcon Label="Weapons" ImageSource="/FortnitePorting;component/Resources/Weapon.png" />
                         </TabItem.Header>
                         <ListBox ItemsSource="{Binding Weapons}" SelectionChanged="OnAssetSelectionChanged">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <toolkitCtrls:VirtualizingWrapPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                                    <toolkitCtrls:VirtualizingWrapPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left" />
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
                         </ListBox>
                     </TabItem>
                     <TabItem Style="{StaticResource TabItemEqualSize}">
                         <TabItem.Header>
-                            <controls:TextWithIcon Label="Emotes" ImageSource="/FortnitePorting;component/Resources/Dance.png"/>
+                            <controls:TextWithIcon Label="Emotes" ImageSource="/FortnitePorting;component/Resources/Dance.png" />
                         </TabItem.Header>
                         <ListBox ItemsSource="{Binding Dances}" SelectionChanged="OnAssetSelectionChanged">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <toolkitCtrls:VirtualizingWrapPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                                    <toolkitCtrls:VirtualizingWrapPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left" />
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
                         </ListBox>
                     </TabItem>
                     <TabItem Style="{StaticResource TabItemEqualSize}">
                         <TabItem.Header>
-                            <controls:TextWithIcon Label="Vehicles" ImageSource="/FortnitePorting;component/Resources/Vehicle.png"/>
+                            <controls:TextWithIcon Label="Vehicles" ImageSource="/FortnitePorting;component/Resources/Vehicle.png" />
                         </TabItem.Header>
-                        <ListBox  ItemsSource="{Binding Vehicles}" SelectionChanged="OnAssetSelectionChanged">
+                        <ListBox ItemsSource="{Binding Vehicles}" SelectionChanged="OnAssetSelectionChanged">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <toolkitCtrls:VirtualizingWrapPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                                    <toolkitCtrls:VirtualizingWrapPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left" />
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
                         </ListBox>
                     </TabItem>
                     <TabItem Style="{StaticResource TabItemEqualSize}">
                         <TabItem.Header>
-                            <controls:TextWithIcon Label="Props" ImageSource="/FortnitePorting;component/Resources/Props.png"/>
+                            <controls:TextWithIcon Label="Props" ImageSource="/FortnitePorting;component/Resources/Props.png" />
                         </TabItem.Header>
                         <ListBox SelectionMode="Extended" ItemsSource="{Binding Props}" SelectionChanged="OnAssetSelectionChanged">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <toolkitCtrls:VirtualizingWrapPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                                    <toolkitCtrls:VirtualizingWrapPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left" />
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
                         </ListBox>
                     </TabItem>
                     <TabItem Style="{StaticResource TabItemEqualSize}">
                         <TabItem.Header>
-                            <controls:TextWithIcon Label="Meshes" ImageSource="/FortnitePorting;component/Resources/Mesh.png"/>
+                            <controls:TextWithIcon Label="Meshes" ImageSource="/FortnitePorting;component/Resources/Mesh.png" />
                         </TabItem.Header>
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="{adonisUi:Space 1}"/>
-                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="{adonisUi:Space 1}" />
+                                <ColumnDefinition Width="2*" />
                             </Grid.ColumnDefinitions>
-                            
+
                             <GroupBox Grid.Column="0" BorderThickness="1">
                                 <Grid>
                                     <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
                                     </Grid.RowDefinitions>
-                                    
-                                    <Separator Grid.Row="0" Style="{StaticResource NamedSeparator}" Tag="File Structure"/>
-                                    <TreeView Name="AssetFolderTree" SelectedItemChanged="AssetFolderTree_OnSelectionChanged" Grid.Row="1" ItemsSource="{Binding Meshes}" Style="{StaticResource AssetsFolderTreeView}"/>
+
+                                    <Separator Grid.Row="0" Style="{StaticResource NamedSeparator}" Tag="File Structure" />
+                                    <TreeView Name="AssetFolderTree" SelectedItemChanged="AssetFolderTree_OnSelectionChanged" Grid.Row="1" ItemsSource="{Binding Meshes}" Style="{StaticResource AssetsFolderTreeView}" />
                                 </Grid>
                             </GroupBox>
-                            <GridSplitter Grid.Column="1" ResizeDirection="Columns" Width="4" VerticalAlignment="Stretch" ResizeBehavior="PreviousAndNext" Background="{DynamicResource {x:Static adonisUi:Brushes.Layer0BackgroundBrush}}"/>
-                            
+                            <GridSplitter Grid.Column="1" ResizeDirection="Columns" Width="4" VerticalAlignment="Stretch" ResizeBehavior="PreviousAndNext" Background="{DynamicResource {x:Static adonisUi:Brushes.Layer0BackgroundBrush}}" />
+
                             <GroupBox Grid.Column="2" BorderThickness="1">
                                 <Grid>
                                     <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
                                     </Grid.RowDefinitions>
-                                    
-                                    <Separator Grid.Row="0" Style="{StaticResource NamedSeparator}" Tag="Flat View"/>
+
+                                    <Separator Grid.Row="0" Style="{StaticResource NamedSeparator}" Tag="Flat View" />
                                     <ListBox Name="AssetFlatView" Grid.Row="1" ItemsSource="{Binding Assets, IsAsync=True}" VirtualizingPanel.IsVirtualizing="True" HorizontalAlignment="Stretch" SelectionChanged="AssetFlatView_OnSelectionChanged" MouseDoubleClick="OnAssetDoubleClick">
                                         <ListBox.ItemTemplate>
                                             <DataTemplate>
-                                                <TextBlock HorizontalAlignment="Left" Text="{Binding Path}" TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock HorizontalAlignment="Left" Text="{Binding Path}" TextTrimming="CharacterEllipsis" />
                                             </DataTemplate>
                                         </ListBox.ItemTemplate>
                                         <ListBox.Style>
@@ -285,7 +285,7 @@
                                                         <Setter Property="Template">
                                                             <Setter.Value>
                                                                 <ControlTemplate>
-                                                                    <TextBlock Text="There are currently no loaded assets. Please wait for them to load. The window may freeze, do not be afraid. :D" FontWeight="SemiBold" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource {x:Static adonisUi:Brushes.ErrorBrush}}"/>
+                                                                    <TextBlock Text="There are currently no loaded assets. Please wait for them to load. The window may freeze, do not be afraid. :D" FontWeight="SemiBold" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource {x:Static adonisUi:Brushes.ErrorBrush}}" />
                                                                 </ControlTemplate>
                                                             </Setter.Value>
                                                         </Setter>
@@ -300,65 +300,65 @@
                     </TabItem>
                     <TabItem Style="{StaticResource TabItemEqualSize}">
                         <TabItem.Header>
-                            <controls:TextWithIcon Label="Music" ImageSource="/FortnitePorting;component/Resources/Music.png"/>
+                            <controls:TextWithIcon Label="Music" ImageSource="/FortnitePorting;component/Resources/Music.png" />
                         </TabItem.Header>
                         <ListBox ItemsSource="{Binding MusicPacks}" SelectionChanged="OnAssetSelectionChanged">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <toolkitCtrls:VirtualizingWrapPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                                    <toolkitCtrls:VirtualizingWrapPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left" />
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
                         </ListBox>
                     </TabItem>
                 </TabControl>
             </GroupBox>
-            
+
             <Grid Grid.Row="1" Grid.Column="0" Margin="0 35 0 0" Visibility="{Binding LoadingVisibility}">
                 <Rectangle Fill="#000000" Opacity="0.0"></Rectangle>
                 <ContentControl ContentTemplate="{DynamicResource {x:Static adonisUi:Templates.LoadingBars}}"
                                 Foreground="{DynamicResource {x:Static adonisUi:Brushes.ForegroundBrush}}"
                                 Width="48"
                                 Height="48"
-                                Focusable="False"/>
+                                Focusable="False" />
             </Grid>
-            
-            <GroupBox Grid.Row="0" Grid.RowSpan="4" Grid.Column="2" Padding="{adonisUi:Space 0}" adonisExt:LayerExtension.Layer="3" BorderThickness="1" 
+
+            <GroupBox Grid.Row="0" Grid.RowSpan="4" Grid.Column="2" Padding="{adonisUi:Space 0}" adonisExt:LayerExtension.Layer="3" BorderThickness="1"
                       BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer3BorderBrush}}">
-                
+
                 <Grid Visibility="{Binding StyleVisibility}" Margin="{adonisUi:Space 1}">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="1.25*"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="5*"/>
-                        <RowDefinition Height="2*"/>
+                        <RowDefinition Height="1.25*" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="5*" />
+                        <RowDefinition Height="2*" />
                     </Grid.RowDefinitions>
-                    
+
                     <StackPanel Grid.Row="0" Orientation="Horizontal">
-                        <Image Source="{Binding StyleImage}" Width="88" Height="88" Visibility="{Binding CurrentAsset.PreviewImageVisibility}"/>
+                        <Image Source="{Binding StyleImage}" Width="88" Height="88" Visibility="{Binding CurrentAsset.PreviewImageVisibility}" />
                         <Grid Margin="{adonisUi:Space 1}" MinWidth="256" HorizontalAlignment="Center" VerticalAlignment="Center">
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
-                            
-                            <TextBlock Grid.Row="0" Text="{Binding CurrentAsset.DisplayName}" FontSize="24" TextWrapping="WrapWithOverflow" TextTrimming="CharacterEllipsis"/>
-                            <TextBlock Grid.Row="1" Text="{Binding CurrentAsset.Description}" TextWrapping="WrapWithOverflow" TextTrimming="CharacterEllipsis"/>
+
+                            <TextBlock Grid.Row="0" Text="{Binding CurrentAsset.DisplayName}" FontSize="24" TextWrapping="WrapWithOverflow" TextTrimming="CharacterEllipsis" />
+                            <TextBlock Grid.Row="1" Text="{Binding CurrentAsset.Description}" TextWrapping="WrapWithOverflow" TextTrimming="CharacterEllipsis" />
                         </Grid>
                     </StackPanel>
-                    
-                    <Separator Grid.Row="1" Style="{StaticResource NamedSeparator}" Tag="{Binding TabModeText}"/>
-                    
+
+                    <Separator Grid.Row="1" Style="{StaticResource NamedSeparator}" Tag="{Binding TabModeText}" />
+
                     <ScrollViewer Grid.Row="2" PreviewMouseWheel="StupidIdiotBadScroll">
                         <ItemsControl ItemsSource="{Binding Styles}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <StackPanel/>
+                                    <StackPanel />
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                         </ItemsControl>
                     </ScrollViewer>
-                    
-                    
+
+
                     <ContentControl Grid.Row="3">
                         <ContentControl.Style>
                             <Style TargetType="{x:Type ContentControl}" BasedOn="{StaticResource {x:Type ContentControl}}">
@@ -369,35 +369,35 @@
                                                 <ControlTemplate>
                                                     <Grid>
                                                         <Grid.RowDefinitions>
-                                                            <RowDefinition Height="Auto"/>
-                                                            <RowDefinition Height="0.5*"/>
-                                                            <RowDefinition Height="{adonisUi:Space 1}"/>
-                                                            <RowDefinition Height="0.5*"/>
-                                                            <RowDefinition Height="{adonisUi:Space 1}"/>
-                                                            <RowDefinition Height="0.5*"/>
+                                                            <RowDefinition Height="Auto" />
+                                                            <RowDefinition Height="0.5*" />
+                                                            <RowDefinition Height="{adonisUi:Space 1}" />
+                                                            <RowDefinition Height="0.5*" />
+                                                            <RowDefinition Height="{adonisUi:Space 1}" />
+                                                            <RowDefinition Height="0.5*" />
                                                         </Grid.RowDefinitions>
-                                                        <Separator Grid.Row="0" Style="{StaticResource NamedSeparator}" Tag="CONTROLS"/>
+                                                        <Separator Grid.Row="0" Style="{StaticResource NamedSeparator}" Tag="CONTROLS" />
                                                         <Button Grid.Row="1" Command="{Binding PlaySoundCommand}">
                                                             <Button.Content>
                                                                 <StackPanel Orientation="Horizontal">
-                                                                    <Image Source="/FortnitePorting;component/Resources/Play.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
-                                                                    <TextBlock Text="Play Music Pack" VerticalAlignment="Center" Margin="5 0 0 0"/>
+                                                                    <Image Source="/FortnitePorting;component/Resources/Play.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality" />
+                                                                    <TextBlock Text="Play Music Pack" VerticalAlignment="Center" Margin="5 0 0 0" />
                                                                 </StackPanel>
                                                             </Button.Content>
                                                         </Button>
                                                         <Button Grid.Row="3" Command="{Binding StopSoundCommand}">
                                                             <Button.Content>
                                                                 <StackPanel Orientation="Horizontal">
-                                                                    <Image Source="/FortnitePorting;component/Resources/Stop.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
-                                                                    <TextBlock Text="Stop Music Pack" VerticalAlignment="Center" Margin="5 0 0 0"/>
+                                                                    <Image Source="/FortnitePorting;component/Resources/Stop.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality" />
+                                                                    <TextBlock Text="Stop Music Pack" VerticalAlignment="Center" Margin="5 0 0 0" />
                                                                 </StackPanel>
                                                             </Button.Content>
                                                         </Button>
                                                         <Button Grid.Row="5" Command="{Binding ExportSoundCommand}">
                                                             <Button.Content>
                                                                 <StackPanel Orientation="Horizontal">
-                                                                    <Image Source="/FortnitePorting;component/Resources/Export.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
-                                                                    <TextBlock Text="Export Music Pack" VerticalAlignment="Center" Margin="5 0 0 0"/>
+                                                                    <Image Source="/FortnitePorting;component/Resources/Export.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality" />
+                                                                    <TextBlock Text="Export Music Pack" VerticalAlignment="Center" Margin="5 0 0 0" />
                                                                 </StackPanel>
                                                             </Button.Content>
                                                         </Button>
@@ -411,52 +411,52 @@
                         </ContentControl.Style>
                         <Grid>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="0.5*"/>
-                                <RowDefinition Height="{adonisUi:Space 1}"/>
-                                <RowDefinition Height="0.5*"/>
-                                <RowDefinition Height="{adonisUi:Space 1}"/>
-                                <RowDefinition Height="0.5*"/>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="0.5*" />
+                                <RowDefinition Height="{adonisUi:Space 1}" />
+                                <RowDefinition Height="0.5*" />
+                                <RowDefinition Height="{adonisUi:Space 1}" />
+                                <RowDefinition Height="0.5*" />
                             </Grid.RowDefinitions>
-                            
-                            <Separator Grid.Row="0" Style="{StaticResource NamedSeparator}" Tag="EXPORT"/>
+
+                            <Separator Grid.Row="0" Style="{StaticResource NamedSeparator}" Tag="EXPORT" />
                             <Button Grid.Row="1" Command="{Binding ExportBlenderCommand}">
                                 <Button.Content>
                                     <StackPanel Orientation="Horizontal">
-                                        <Image Source="/FortnitePorting;component/Resources/Blender.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
-                                        <TextBlock Text="Send to Blender" VerticalAlignment="Center" Margin="5 0 0 0"/>
+                                        <Image Source="/FortnitePorting;component/Resources/Blender.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality" />
+                                        <TextBlock Text="Send to Blender" VerticalAlignment="Center" Margin="5 0 0 0" />
                                     </StackPanel>
                                 </Button.Content>
                             </Button>
                             <Button Grid.Row="3" Command="{Binding ExportUnrealCommand}">
                                 <Button.Content>
                                     <StackPanel Orientation="Horizontal">
-                                        <Image Source="/FortnitePorting;component/Resources/Unreal.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
-                                        <TextBlock Text="Send to Unreal Engine (Unsupported)" VerticalAlignment="Center" Margin="5 0 0 0"/>
+                                        <Image Source="/FortnitePorting;component/Resources/Unreal.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality" />
+                                        <TextBlock Text="Send to Unreal Engine (Unsupported)" VerticalAlignment="Center" Margin="5 0 0 0" />
                                     </StackPanel>
                                 </Button.Content>
                             </Button>
                             <Button Grid.Row="5" Command="{Binding OpenSettingsCommand}">
                                 <Button.Content>
                                     <StackPanel Orientation="Horizontal">
-                                        <Image Source="/FortnitePorting;component/Resources/Settings.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
-                                        <TextBlock Text="Export/Import Options" VerticalAlignment="Center" Margin="5 0 0 0"/>
+                                        <Image Source="/FortnitePorting;component/Resources/Settings.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality" />
+                                        <TextBlock Text="Export/Import Options" VerticalAlignment="Center" Margin="5 0 0 0" />
                                     </StackPanel>
                                 </Button.Content>
                             </Button>
                         </Grid>
                     </ContentControl>
-                    
+
                 </Grid>
             </GroupBox>
-            
+
             <GroupBox Grid.Row="3" Grid.Column="0" Padding="{adonisUi:Space 0}" adonisExt:LayerExtension.Layer="3" BorderThickness="1" BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer3BorderBrush}}">
                 <ScrollViewer adonisExt:ScrollViewerExtension.VerticalScrollBarExpansionMode="NeverExpand">
-                    <ItemsControl Name="LoggerBox" Margin="{adonisUi:Space 1}" Background="Transparent" BorderThickness="0"/>
+                    <ItemsControl Name="LoggerBox" Margin="{adonisUi:Space 1}" Background="Transparent" BorderThickness="0" />
                 </ScrollViewer>
             </GroupBox>
-            
-           
+
+
         </Grid>
     </Grid>
 </adonisCtrls:AdonisWindow>

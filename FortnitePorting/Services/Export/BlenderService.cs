@@ -12,10 +12,10 @@ namespace FortnitePorting.Services.Export;
 public class BlenderSocketService : SocketServiceBase
 {
     protected override IPEndPoint Endpoint { get; set; } = new(IPAddress.Parse(Globals.LOCALHOST), Globals.BLENDER_PORT);
-    
+
     public override void Send(List<ExportDataBase> data, ExportSettingsBase settings)
     {
-        var blenderExportSettings = (BlenderExportSettings) settings;
+        var blenderExportSettings = (BlenderExportSettings)settings;
         var export = new BlenderExport
         {
             Data = data,
@@ -26,7 +26,7 @@ public class BlenderSocketService : SocketServiceBase
         var message = JsonConvert.SerializeObject(export);
         var uncompressed = Encoding.UTF8.GetBytes(message);
         var compressed = GZipStream.CompressBuffer(uncompressed);
-        
+
         SendSpliced(compressed, Globals.BUFFER_SIZE);
         Client.Send(Encoding.UTF8.GetBytes(Globals.UDPClient_MessageTerminator));
     }

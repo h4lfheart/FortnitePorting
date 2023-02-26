@@ -23,7 +23,7 @@ public static class AppLog
             {
                 Text = specifier,
                 FontWeight = specifierWeight,
-                Foreground = (System.Windows.Media.Brush) BrushConverter.ConvertFromString(specifierColor!)!
+                Foreground = (System.Windows.Media.Brush)BrushConverter.ConvertFromString(specifierColor!)!
             };
 
             mainBlock.Children.Add(specifierBlock);

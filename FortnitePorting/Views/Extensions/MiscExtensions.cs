@@ -27,7 +27,7 @@ public static class MiscExtensions
 
     public static byte[] ToBytes(this Stream str)
     {
-        var bytes = new BinaryReader(str).ReadBytes((int) str.Length);
+        var bytes = new BinaryReader(str).ReadBytes((int)str.Length);
         return bytes;
     }
 
@@ -58,7 +58,7 @@ public static class MiscExtensions
         var index = RandomGen.Next(0, list.Count);
         return list[index];
     }
-    
+
     public static void FillDefault<T>(this List<T> enumerable, int count) where T : new()
     {
         for (var i = 0; i < count; i++)
@@ -66,7 +66,7 @@ public static class MiscExtensions
             enumerable.Add(new T());
         }
     }
-    
+
     public static List<T> FillDefault<T>(int count) where T : new()
     {
         var list = new List<T>();
@@ -77,23 +77,23 @@ public static class MiscExtensions
 
         return list;
     }
-    
+
     public static IEnumerable<(int index, T value)> Enumerate<T>(this IEnumerable<T> enumerable) => enumerable.Select((i, val) => (val, i));
-    
+
     public static bool AddUnique<T>(this List<T> list, T item)
     {
         if (list.Contains(item)) return false;
         list.Add(item);
         return true;
     }
-    
+
     public static bool AddUnique<T>(this ObservableCollection<T> list, T item)
     {
         if (list.Contains(item)) return false;
         list.Add(item);
         return true;
     }
-    
+
     public static double Truncate(this double value, int decimals)
     {
         var factor = Math.Pow(10, decimals);

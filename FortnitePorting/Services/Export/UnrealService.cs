@@ -15,7 +15,7 @@ public class UnrealSocketService : SocketServiceBase
 
     public override void Send(List<ExportDataBase> data, ExportSettingsBase settings)
     {
-        var unrealExportSettings = (UnrealExportSettings) settings;
+        var unrealExportSettings = (UnrealExportSettings)settings;
         var export = new UnrealExport
         {
             Data = data,
@@ -27,7 +27,7 @@ public class UnrealSocketService : SocketServiceBase
         var uncompressed = Encoding.UTF8.GetBytes(message);
         // TODO GZIP COMPRESSION FOR UNREAL
         //var compressed = GZipStream.CompressBuffer(uncompressed);
-        
+
         SendSpliced(uncompressed, Globals.BUFFER_SIZE);
         Client.Send(Encoding.UTF8.GetBytes(Globals.UDPClient_MessageTerminator));
     }

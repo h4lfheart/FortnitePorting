@@ -10,6 +10,7 @@ namespace FortnitePorting.Services;
 public static class UpdateService
 {
     private static bool IgnoreEqualMessage = false;
+
     public static void Initialize()
     {
         AutoUpdater.InstalledVersion = new Version(Globals.VERSION);
@@ -44,9 +45,7 @@ public static class UpdateService
         if (args.CurrentVersion is null)
         {
             if (!IgnoreEqualMessage)
-                MessageBox.Show(
-                    "There was an issue trying to reach the update server, please check your internet connection or try again later.",
-                    "Update Check Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("There was an issue trying to reach the update server, please check your internet connection or try again later.", "Update Check Failed", MessageBoxButton.OK, MessageBoxImage.Error);
             return;
         }
 
@@ -54,17 +53,14 @@ public static class UpdateService
         if (updateVersion == args.InstalledVersion)
         {
             if (!IgnoreEqualMessage)
-                MessageBox.Show(
-                    $"FortnitePorting {AppSettings.Current.UpdateMode} is up-to-date.",
-                    "No Update Available.", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show($"FortnitePorting {AppSettings.Current.UpdateMode} is up-to-date.", "No Update Available.", MessageBoxButton.OK, MessageBoxImage.Information);
             return;
         }
 
         var isDowngrade = updateVersion < args.InstalledVersion;
         var messageBox = new MessageBoxModel
         {
-            Text = $"FortnitePorting {AppSettings.Current.UpdateMode} has {(isDowngrade ? "a downgrade" : "an update")} available from {args.InstalledVersion} to {updateVersion}. Would you like to {(isDowngrade ? "downgrade" : "update")} now?\n" +
-                   $"\nChangelog:\n{args.ChangelogURL}",
+            Text = $"FortnitePorting {AppSettings.Current.UpdateMode} has {(isDowngrade ? "a downgrade" : "an update")} available from {args.InstalledVersion} to {updateVersion}. Would you like to {(isDowngrade ? "downgrade" : "update")} now?\n" + $"\nChangelog:\n{args.ChangelogURL}",
             Caption = $"{(isDowngrade ? "Downgrade" : "Update")} Available",
             Icon = MessageBoxImage.Exclamation,
             Buttons = MessageBoxButtons.YesNo(),

@@ -26,12 +26,11 @@ public class DanceExportData : ExportDataBase
 
         var baseMontage = asset.GetOrDefault<UAnimMontage?>("Animation");
         baseMontage ??= asset.GetOrDefault<UAnimMontage?>("FrontEndAnimation");
-        
+
         var additiveMontage = asset.GetOrDefault<UAnimMontage?>("AnimationFemaleOverride");
         additiveMontage ??= asset.GetOrDefault<UAnimMontage?>("FrontEndAnimationFemaleOverride");
         data.BaseAnimData = await CreateAnimDataAsync(baseMontage, additiveMontage);
-        
-       
+
 
         await Task.WhenAll(ExportHelpers.Tasks);
         return data;
@@ -46,10 +45,10 @@ public class DanceExportData : ExportDataBase
         {
             var masterSkeleton = baseMontage.Skeleton.Load<USkeleton>();
             if (masterSkeleton is null) return;
-            
+
             ExportHelpers.Save(masterSkeleton);
             animData.Skeleton = masterSkeleton.GetPathName();
-            
+
             // Sections
             if (additiveMontage is not null)
             {
@@ -60,7 +59,7 @@ public class DanceExportData : ExportDataBase
                 ExportSections(baseMontage, animData.Sections);
             }
 
-                // Notifies
+            // Notifies
             var montageNotifies = baseMontage.GetOrDefault("Notifies", Array.Empty<FStructFallback>());
             var propNotifies = new List<FStructFallback>();
             var soundNotifies = new List<FStructFallback>();
@@ -71,11 +70,13 @@ public class DanceExportData : ExportDataBase
                 {
                     propNotifies.Add(notify);
                 }
+
                 if (notifyName.Contains("FortEmoteSound") || notifyName.Contains("Fort Anim Notify State Emote Sound"))
                 {
                     soundNotifies.Add(notify);
                 }
             }
+
             foreach (var propNotify in propNotifies)
             {
                 var notifyData = propNotify.Get<FortAnimNotifyState_SpawnProp>("NotifyStateClass");
@@ -98,6 +99,7 @@ public class DanceExportData : ExportDataBase
 
                 animData.Props.Add(exportProp);
             }
+
             foreach (var soundNotify in soundNotifies)
             {
                 var time = soundNotify.Get<float>("TriggerTimeOffset");
@@ -105,21 +107,19 @@ public class DanceExportData : ExportDataBase
                 var notifyData = soundNotify.Get<FortAnimNotifyState_EmoteSound>("NotifyStateClass");
                 var firstNode = notifyData.EmoteSound1P?.FirstNode?.Load<USoundNode>();
                 if (firstNode is null) continue;
-                
+
                 var sounds = ExportHelpers.HandleAudioTree(firstNode);
                 foreach (var sound in sounds)
                 {
                     if (!sound.IsValid()) continue;
                     animData.Sounds.Add(sound.ToExportSound());
                 }
-
             }
-            
         });
 
         return animData;
     }
-    
+
     public static async Task<AnimationData> CreateAnimDataAsync(UAnimSequence sequence, bool loop = false)
     {
         var animData = new AnimationData();
@@ -128,13 +128,13 @@ public class DanceExportData : ExportDataBase
         {
             var masterSkeleton = sequence.Skeleton.Load<USkeleton>();
             if (masterSkeleton is null) return;
-            
+
             ExportHelpers.Save(masterSkeleton);
             animData.Skeleton = masterSkeleton.GetPathName();
-            
+
             var exportSection = new EmoteSection(sequence.GetPathName(), "Default", 0, sequence.SequenceLength, loop);
             ExportHelpers.Save(sequence);
-            
+
             var floatCurves = sequence.CompressedCurveData.FloatCurves ?? Array.Empty<FFloatCurve>();
             foreach (var curve in floatCurves)
             {
@@ -144,6 +144,7 @@ public class DanceExportData : ExportDataBase
                     Keys = curve.FloatCurve.Keys.Select(x => new CurveKey(x.Time, x.Value)).ToList()
                 });
             }
+
             animData.Sections.Add(exportSection);
         });
 
@@ -183,12 +184,12 @@ public class DanceExportData : ExportDataBase
 
                 sections.Add(exportSection);
             }
-                
+
             // current section checks
             var currentSecitonName = section.SectionName.Text;
             var nextSectionName = section.NextSectionName.Text;
             if (currentSecitonName.Equals(nextSectionName) || nextSectionName.Equals("None")) break;
-                
+
             // move onto next
             var nextSection = targetMontage.CompositeSections.FirstOrDefault(x => x.SectionName.Text.Equals(section.NextSectionName.Text));
             if (nextSection is null) break;
@@ -222,5 +223,4 @@ public class DanceExportData : ExportDataBase
         var animation = targetSection?.Get<UAnimSequence>("LinkedSequence");
         return animation;
     }
-    
 }

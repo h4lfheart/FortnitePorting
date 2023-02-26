@@ -26,6 +26,7 @@ public class ImportSettingsViewModel : ObservableObject
     }
 
     public bool CanChangeRigOptions => BlenderRigType == ERigType.Default;
+
     public ERigType BlenderRigType
     {
         get => AppSettings.Current.BlenderExportSettings.RigType;
@@ -56,7 +57,7 @@ public class ImportSettingsViewModel : ObservableObject
             OnPropertyChanged();
         }
     }
-    
+
     public bool BlenderHideFaceBones
     {
         get => AppSettings.Current.BlenderExportSettings.HideFaceBones;
@@ -96,7 +97,7 @@ public class ImportSettingsViewModel : ObservableObject
             OnPropertyChanged();
         }
     }
-    
+
     public bool BlenderLoopAnim
     {
         get => AppSettings.Current.BlenderExportSettings.LoopAnim;
@@ -106,7 +107,7 @@ public class ImportSettingsViewModel : ObservableObject
             OnPropertyChanged();
         }
     }
-    
+
     public bool BlenderImportSounds
     {
         get => AppSettings.Current.BlenderExportSettings.ImportSounds;

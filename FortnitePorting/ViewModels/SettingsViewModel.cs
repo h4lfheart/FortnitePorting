@@ -10,6 +10,7 @@ public class SettingsViewModel : ObservableObject
     public bool ChangedUpdateChannel = false;
 
     public bool IsLocalInstall => InstallType == EInstallType.Local;
+
     public EInstallType InstallType
     {
         get => AppSettings.Current.InstallType;

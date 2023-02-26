@@ -37,14 +37,10 @@ namespace FortnitePorting.ViewModels;
 
 public partial class MainViewModel : ObservableObject
 {
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(StyleImage))]
-    [NotifyPropertyChangedFor(nameof(StyleVisibility))]
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(StyleImage))] [NotifyPropertyChangedFor(nameof(StyleVisibility))]
     private List<AssetSelectorItem> extendedAssets = new();
 
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(StyleImage))]
-    [NotifyPropertyChangedFor(nameof(StyleVisibility))]
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(StyleImage))] [NotifyPropertyChangedFor(nameof(StyleVisibility))]
     private IExportableAsset? currentAsset;
 
     public ImageSource? StyleImage => currentAsset?.FullSource;
@@ -66,16 +62,13 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty] private ObservableCollection<StyleSelector> styles = new();
 
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(LoadingVisibility))]
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(LoadingVisibility))]
     private bool isReady;
 
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(LoadingVisibility))]
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(LoadingVisibility))]
     private string tabModeText;
 
-    [ObservableProperty]
-    private EAssetType currentAssetType;
+    [ObservableProperty] private EAssetType currentAssetType;
 
     public Visibility LoadingVisibility => IsReady ? Visibility.Collapsed : Visibility.Visible;
 
@@ -90,7 +83,7 @@ public partial class MainViewModel : ObservableObject
     }
 
     [ObservableProperty] private bool ascending;
-    
+
     [ObservableProperty] private string searchFilter = string.Empty;
     [ObservableProperty] private ObservableCollection<Predicate<AssetSelectorItem>> filters = new();
     [ObservableProperty] private string filterLabel = "None";
@@ -107,7 +100,7 @@ public partial class MainViewModel : ObservableObject
     };
 
     public MusicPackPlayer? CurrentMusicPlayer = null;
-    
+
     public async Task Initialize()
     {
         await Task.Run(async () =>
@@ -129,7 +122,7 @@ public partial class MainViewModel : ObservableObject
 
     public FStructFallback[] GetSelectedStyles()
     {
-        return CurrentAsset?.Type is EAssetType.Prop or EAssetType.Mesh ? Array.Empty<FStructFallback>() : Styles.Select(style => ((StyleSelectorItem) style.Options.Items[style.Options.SelectedIndex]).OptionData).ToArray();
+        return CurrentAsset?.Type is EAssetType.Prop or EAssetType.Mesh ? Array.Empty<FStructFallback>() : Styles.Select(style => ((StyleSelectorItem)style.Options.Items[style.Options.SelectedIndex]).OptionData).ToArray();
     }
 
     [RelayCommand]
@@ -196,7 +189,7 @@ public partial class MainViewModel : ObservableObject
         "SkeletalMesh",
         "StaticMesh"
     };
-    
+
     public async Task SetupMeshSelection(string path)
     {
         var meshObject = await AppVM.CUE4ParseVM.Provider.LoadObjectAsync(path);
@@ -256,7 +249,7 @@ public partial class MainViewModel : ObservableObject
 
         var exportDatas = await CreateExportDatasAsync();
         if (exportDatas.Count == 0) return;
-        
+
         BlenderService.Client.Send(exportDatas, AppSettings.Current.BlenderExportSettings);
     }
 
@@ -271,7 +264,7 @@ public partial class MainViewModel : ObservableObject
 
         var exportDatas = await CreateExportDatasAsync();
         if (exportDatas.Count == 0) return;
-        
+
         UnrealService.Client.Send(exportDatas, AppSettings.Current.UnrealExportSetttings);
     }
 
@@ -293,7 +286,7 @@ public partial class MainViewModel : ObservableObject
     {
         Filters.Clear();
     }
-    
+
     public void ModifyFilters(string tag, bool enable)
     {
         if (!FilterPredicates.ContainsKey(tag)) return;
@@ -316,9 +309,8 @@ public partial class MainViewModel : ObservableObject
         {
             FilterLabel = "None";
         }
-        
     }
-    
+
     [RelayCommand]
     public async Task PlaySound()
     {
@@ -327,14 +319,14 @@ public partial class MainViewModel : ObservableObject
         var (data, format) = GetCurrentSoundData();
         CurrentMusicPlayer = new MusicPackPlayer(data, format);
         CurrentMusicPlayer.Play();
-    } 
-    
+    }
+
     [RelayCommand]
     public async Task StopSound()
     {
         CurrentMusicPlayer?.Stop();
-    } 
-    
+    }
+
     [RelayCommand]
     public async Task ExportSound()
     {
@@ -349,14 +341,14 @@ public partial class MainViewModel : ObservableObject
         var sound = ExportHelpers.HandleAudioTree(musicCue.FirstNode.Load<USoundNode>()).Last();
         return sound;
     }
-    
+
     private (byte[] data, string format) GetCurrentSoundData()
     {
         var sound = GetCurrentSound();
         sound.SoundWave.Decode(true, out var format, out var data);
         return (data, format);
     }
-    
+
     public class MusicPackPlayer : IDisposable
     {
         private ISoundOut? SoundOut;
@@ -371,8 +363,8 @@ public partial class MainViewModel : ObservableObject
                 Dispose();
                 return;
             }
-            
-            
+
+
             DeviceEnumerator ??= new MMDeviceEnumerator();
             SoundSource = new LoopStream(new OggSource(new MemoryStream(data)).ToWaveSource());
             SoundOut = GetSoundOut();
@@ -382,7 +374,7 @@ public partial class MainViewModel : ObservableObject
         public void Play()
         {
             if (SoundOut is null) return;
-            
+
             SoundOut.Volume = 0.8f;
             SoundOut.Play();
         }
@@ -390,7 +382,7 @@ public partial class MainViewModel : ObservableObject
         public void Stop()
         {
             if (SoundOut is null) return;
-            
+
             SoundOut.Stop();
         }
 

@@ -31,11 +31,10 @@ public class ApplicationViewModel : ObservableObject
                 Text = message,
                 Buttons = new[] { MessageBoxButtons.Ok() }
             };
-        
+
             //AppLog.Warning($"{caption}: {message}");
             MessageBox.Show(messageBox);
         });
-      
     }
 
     public void RestartWithMessage(string caption, string message)

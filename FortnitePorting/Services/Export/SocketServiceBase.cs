@@ -25,7 +25,6 @@ public abstract class SocketServiceBase
 
     public virtual void Send(List<ExportDataBase> data, ExportSettingsBase settings)
     {
-        
     }
 
     public bool PingServer()
@@ -44,7 +43,7 @@ public abstract class SocketServiceBase
 
         return false;
     }
-    
+
     public int SendSpliced(IEnumerable<byte> arr, int size)
     {
         var chunks = arr.Chunk(size).ToList();
@@ -83,4 +82,3 @@ public abstract class SocketServiceBase
         return true;
     }
 }
-

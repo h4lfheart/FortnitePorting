@@ -17,6 +17,7 @@ public static class AppHelper
         window.Show();
         window.Focus();
     }
+
     public static void CloseWindow<T>() where T : Window, new()
     {
         if (!IsWindowOpen<T>()) return;
@@ -53,7 +54,7 @@ public static class AppHelper
         selectedPath = string.Empty;
         return false;
     }
-    
+
     public static bool Filter(string input, string filter)
     {
         var filters = filter.Trim().Split(' ');

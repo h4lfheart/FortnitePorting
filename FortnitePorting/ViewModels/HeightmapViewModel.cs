@@ -17,5 +17,5 @@ public partial class HeightmapViewModel : ObservableObject
     public async Task Export()
     {
         await Task.Run(HeightmapExporter.Export);
-    } 
+    }
 }

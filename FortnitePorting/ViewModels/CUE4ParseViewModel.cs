@@ -47,8 +47,7 @@ public class CUE4ParseViewModel : ObservableObject
         new DirectoryInfo(App.BundlesFolder.FullName)
     };
 
-    private static readonly Regex FortniteLiveRegex = new(@"^FortniteGame(/|\\)Content(/|\\)Paks(/|\\)(pakchunk(?:0|10.*|\w+)-WindowsClient|global)\.(pak|utoc)$",
-        RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+    private static readonly Regex FortniteLiveRegex = new(@"^FortniteGame(/|\\)Content(/|\\)Paks(/|\\)(pakchunk(?:0|10.*|\w+)-WindowsClient|global)\.(pak|utoc)$", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly string[] MaleIdlePaths =
     {
@@ -82,7 +81,7 @@ public class CUE4ParseViewModel : ObservableObject
     public async Task Initialize()
     {
         if (Provider is null) return;
-        
+
         await InitializeProvider();
         await InitializeKeys();
         await InitializeMappings();
@@ -104,8 +103,7 @@ public class CUE4ParseViewModel : ObservableObject
             AppLog.Warning("Failed to initialize Bundle Downloader, high resolution textures will not be downloaded");
         }
 
-        var assetRegistries = Provider.Files.Where(x =>
-            x.Key.Contains("AssetRegistry", StringComparison.OrdinalIgnoreCase)).ToList();
+        var assetRegistries = Provider.Files.Where(x => x.Key.Contains("AssetRegistry", StringComparison.OrdinalIgnoreCase)).ToList();
         assetRegistries.MoveToEnd(x => x.Value.Name.Equals("AssetRegistry.bin")); // i want encrypted cosmetics to be at the top :)))
         foreach (var (_, file) in assetRegistries)
         {
@@ -159,11 +157,12 @@ public class CUE4ParseViewModel : ObservableObject
                 {
                     Provider.Initialize(fileManifest.Name, new Stream[] { fileManifest.GetStream() }, it => new FStreamArchive(it, FortniteLiveManifest.FileManifests.First(x => x.Name.Equals(it)).GetStream(), Provider.Versions));
                 }
+
                 break;
             }
         }
     }
-    
+
     public async Task LoadFortniteLiveManifest(bool verbose = false)
     {
         if (FortniteLiveManifest is not null) return;
@@ -182,13 +181,12 @@ public class CUE4ParseViewModel : ObservableObject
             await File.WriteAllBytesAsync(manifestPath, manifestBytes);
         }
 
-       
+
         FortniteLiveManifest = new Manifest(manifestBytes, new ManifestOptions
         {
             ChunkBaseUri = new Uri("https://epicgames-download1.akamaized.net/Builds/Fortnite/CloudDir/ChunksV4/", UriKind.Absolute),
             ChunkCacheDirectory = App.CacheFolder
         });
-
     }
 
     private async Task InitializeKeys()
@@ -203,6 +201,7 @@ public class CUE4ParseViewModel : ObservableObject
         {
             AppLog.Warning("Failed to load game files, please ensure your game is up to date");
         }
+
         foreach (var dynamicKey in keyResponse.DynamicKeys)
         {
             await Provider.SubmitKeyAsync(new FGuid(dynamicKey.GUID), new FAesKey(dynamicKey.Key));

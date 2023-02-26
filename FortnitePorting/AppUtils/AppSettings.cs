@@ -26,7 +26,6 @@ public partial class AppSettings : ObservableObject
 
         Current ??= new AppSettings();
         Current.BlenderExportSettings ??= new BlenderExportSettings();
-
     }
 
     public static void Save()
@@ -34,63 +33,43 @@ public partial class AppSettings : ObservableObject
         File.WriteAllText(FilePath.FullName, JsonConvert.SerializeObject(Current, Formatting.Indented));
     }
 
-    [ObservableProperty]
-    private string archivePath;
+    [ObservableProperty] private string archivePath;
 
-    [ObservableProperty]
-    private ELanguage language;
+    [ObservableProperty] private ELanguage language;
 
-    [ObservableProperty]
-    private EInstallType installType;
+    [ObservableProperty] private EInstallType installType;
 
-    [ObservableProperty]
-    private bool discordRichPresence = true;
+    [ObservableProperty] private bool discordRichPresence = true;
 
-    [ObservableProperty]
-    private AesResponse? aesResponse;
+    [ObservableProperty] private AesResponse? aesResponse;
 
-    [ObservableProperty]
-    private BlenderExportSettings blenderExportSettings;
-    
-    [ObservableProperty]
-    private UnrealExportSettings unrealExportSetttings;
+    [ObservableProperty] private BlenderExportSettings blenderExportSettings;
 
-    [ObservableProperty]
-    private List<string> favoriteIDs = new();
+    [ObservableProperty] private UnrealExportSettings unrealExportSetttings;
 
-    [ObservableProperty]
-    private EpicAuthResponse? epicAuth;
+    [ObservableProperty] private List<string> favoriteIDs = new();
 
-    [ObservableProperty]
-    private bool bundleDownloaderEnabled = true;
+    [ObservableProperty] private EpicAuthResponse? epicAuth;
 
-    [ObservableProperty]
-    private string assetsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets");
+    [ObservableProperty] private bool bundleDownloaderEnabled = true;
 
-    [ObservableProperty]
-    private EUpdateMode updateMode;
+    [ObservableProperty] private string assetsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets");
 
-    [ObservableProperty]
-    private bool justUpdated = true;
+    [ObservableProperty] private EUpdateMode updateMode;
 
-    [ObservableProperty]
-    private DateTime lastUpdateAskTime = DateTime.Now.Subtract(TimeSpan.FromDays(1));
+    [ObservableProperty] private bool justUpdated = true;
 
-    [ObservableProperty]
-    private bool lightMode;
-    
-    [ObservableProperty]
-    private Version lastKnownUpdateVersion;
-    
-    [ObservableProperty]
-    private bool showConsole = true;
-    
-    [ObservableProperty]
-    private EImageType imageType = EImageType.PNG;
+    [ObservableProperty] private DateTime lastUpdateAskTime = DateTime.Now.Subtract(TimeSpan.FromDays(1));
 
-    [ObservableProperty] 
-    private float assetSize = 1.0f;
-    
-    [ObservableProperty]
-    private Dictionary<string, List<string>> weaponMappings = new();
+    [ObservableProperty] private bool lightMode;
+
+    [ObservableProperty] private Version lastKnownUpdateVersion;
+
+    [ObservableProperty] private bool showConsole = true;
+
+    [ObservableProperty] private EImageType imageType = EImageType.PNG;
+
+    [ObservableProperty] private float assetSize = 1.0f;
+
+    [ObservableProperty] private Dictionary<string, List<string>> weaponMappings = new();
 }

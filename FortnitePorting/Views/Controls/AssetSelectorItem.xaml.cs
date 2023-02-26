@@ -34,8 +34,8 @@ public partial class AssetSelectorItem : INotifyPropertyChanged, IExportableAsse
     public SKBitmap IconBitmap;
     public SKBitmap FullBitmap;
     public FGameplayTagContainer GameplayTags;
-    
-    
+
+
     public UObject Asset { get; set; }
     public EAssetType Type { get; set; }
     public BitmapImage FullSource { get; set; }
@@ -51,12 +51,11 @@ public partial class AssetSelectorItem : INotifyPropertyChanged, IExportableAsse
     public Visibility FavoriteVisibility { get; set; }
 
     public float Size { get; set; } = AppSettings.Current.AssetSize * 64;
-    public float FavoriteSize  => Size / 4;
+    public float FavoriteSize => Size / 4;
 
     public bool HiddenAsset;
 
-    public AssetSelectorItem(UObject asset, UTexture2D previewTexture, EAssetType type, bool isRandomSelector = false,
-        FText? displayNameOverride = null, bool useIdAsDescription = false, bool hiddenAsset = false)
+    public AssetSelectorItem(UObject asset, UTexture2D previewTexture, EAssetType type, bool isRandomSelector = false, FText? displayNameOverride = null, bool useIdAsDescription = false, bool hiddenAsset = false)
     {
         InitializeComponent();
         DataContext = this;
@@ -66,7 +65,7 @@ public partial class AssetSelectorItem : INotifyPropertyChanged, IExportableAsse
         ExportAssetsCommand = new RelayCommand(ExportAssets);
         ClipboardCommand = new RelayCommand<string>(CopyIconToClipboard);
 
-        if (AppSettings.Current.LightMode) 
+        if (AppSettings.Current.LightMode)
         {
             FavoriteImage.Effect = new InvertEffect();
             TexturesImage.Effect = new InvertEffect();
@@ -84,6 +83,7 @@ public partial class AssetSelectorItem : INotifyPropertyChanged, IExportableAsse
         {
             DisplayName = asset.Name;
         }
+
         if (displayName.TextHistory is FTextHistory.Base textHistory)
             DisplayNameSource = textHistory.SourceString;
         ID = asset.Name;
@@ -121,21 +121,21 @@ public partial class AssetSelectorItem : INotifyPropertyChanged, IExportableAsse
 
         DisplayImage.Source = FullSource;
     }
-    
+
     private const int MARGIN = 2;
+
     private void DrawBackground(SKCanvas canvas, int size)
     {
         SKShader BorderShader(params FLinearColor[] colors)
         {
             var parsedColors = colors.Select(x => SKColor.Parse(x.Hex)).ToArray();
-            return SKShader.CreateLinearGradient(new SKPoint(size / 2f, size), new SKPoint(size, size / 4f), parsedColors,
-                SKShaderTileMode.Clamp);
+            return SKShader.CreateLinearGradient(new SKPoint(size / 2f, size), new SKPoint(size, size / 4f), parsedColors, SKShaderTileMode.Clamp);
         }
+
         SKShader BackgroundShader(params FLinearColor[] colors)
         {
             var parsedColors = colors.Select(x => SKColor.Parse(x.Hex)).ToArray();
-            return SKShader.CreateRadialGradient(new SKPoint(size / 2f, size / 2f), size / 5 * 4, parsedColors,
-                SKShaderTileMode.Clamp);
+            return SKShader.CreateRadialGradient(new SKPoint(size / 2f, size / 2f), size / 5 * 4, parsedColors, SKShaderTileMode.Clamp);
         }
 
         if (Type == EAssetType.Prop)
@@ -170,7 +170,7 @@ public partial class AssetSelectorItem : INotifyPropertyChanged, IExportableAsse
         }
         else
         {
-            var colorData = AppVM.CUE4ParseVM.RarityData[(int) Rarity];
+            var colorData = AppVM.CUE4ParseVM.RarityData[(int)Rarity];
 
             canvas.DrawRect(new SKRect(0, 0, size, size), new SKPaint
             {
@@ -211,7 +211,7 @@ public partial class AssetSelectorItem : INotifyPropertyChanged, IExportableAsse
 
         OnPropertyChanged(nameof(FavoriteVisibility));
     }
-    
+
     public void SetSize(float value)
     {
         Size = value * 64;
@@ -222,12 +222,12 @@ public partial class AssetSelectorItem : INotifyPropertyChanged, IExportableAsse
 
     public ICommand AddFavoriteCommand { get; private set; }
 
-    public void AddFavorite() 
+    public void AddFavorite()
     {
         ToggleFavorite();
     }
 
-    
+
     public ICommand ExportHDCommand { get; private set; }
 
     public void ExportHD()
@@ -268,7 +268,6 @@ public partial class AssetSelectorItem : INotifyPropertyChanged, IExportableAsse
     {
         Task.Run(async () =>
         {
-
             var downloadedBundles = (await BundleDownloader.DownloadAsync(Asset.Name)).ToList();
             if (downloadedBundles.Count > 0)
             {

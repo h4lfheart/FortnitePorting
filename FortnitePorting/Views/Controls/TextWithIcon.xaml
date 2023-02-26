@@ -4,7 +4,7 @@
              xmlns:local="clr-namespace:FortnitePorting.Views.Controls"
              xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI">
     <StackPanel Orientation="Horizontal">
-        <Image Name="IconImage" Source="{Binding ImageSource, RelativeSource={RelativeSource AncestorType=local:TextWithIcon}}" Width="{Binding IconSize, RelativeSource={RelativeSource AncestorType=local:TextWithIcon}}" Height="{Binding IconSize, RelativeSource={RelativeSource AncestorType=local:TextWithIcon}}" RenderOptions.BitmapScalingMode="Fant"/>
-        <TextBlock Text="{Binding Label, RelativeSource={RelativeSource AncestorType=local:TextWithIcon}}" VerticalAlignment="Center" Margin="2,0,0,0" FontSize="{Binding LabelFontSize, RelativeSource={RelativeSource AncestorType=local:TextWithIcon}}" Foreground="{DynamicResource {x:Static adonisUi:Brushes.ForegroundBrush}}"/>
+        <Image Name="IconImage" Source="{Binding ImageSource, RelativeSource={RelativeSource AncestorType=local:TextWithIcon}}" Width="{Binding IconSize, RelativeSource={RelativeSource AncestorType=local:TextWithIcon}}" Height="{Binding IconSize, RelativeSource={RelativeSource AncestorType=local:TextWithIcon}}" RenderOptions.BitmapScalingMode="Fant" />
+        <TextBlock Text="{Binding Label, RelativeSource={RelativeSource AncestorType=local:TextWithIcon}}" VerticalAlignment="Center" Margin="2,0,0,0" FontSize="{Binding LabelFontSize, RelativeSource={RelativeSource AncestorType=local:TextWithIcon}}" Foreground="{DynamicResource {x:Static adonisUi:Brushes.ForegroundBrush}}" />
     </StackPanel>
 </UserControl>

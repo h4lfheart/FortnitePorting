@@ -31,12 +31,12 @@ public static class CUE4ParseExtensions
     {
         return tags.GameplayTags is not { Length: > 0 } ? def : tags.GameplayTags.FirstOrDefault(it => it.Text.StartsWith(category), def);
     }
-    
+
     public static bool ContainsAny(this FGameplayTagContainer tags, params string[] check)
     {
         return check.Any(x => tags.ContainsAny(x));
     }
-    
+
     public static bool ContainsAny(this FGameplayTagContainer tags, string check)
     {
         if (tags.GameplayTags is null) return false;
@@ -44,15 +44,15 @@ public static class CUE4ParseExtensions
     }
 
     public static Image<T>? DecodeImageSharp<T>(this UTexture2D texture) where T : unmanaged, IPixel<T>
-    { 
-        return (Image<T>?) DecodeImageSharp(texture);
+    {
+        return (Image<T>?)DecodeImageSharp(texture);
     }
 
     public static Image? DecodeImageSharp(this UTexture2D texture)
     {
         var mip = texture.GetFirstMip();
         if (mip is null) return null;
-        
+
         TextureDecoder.DecodeTexture(mip, texture.Format, texture.isNormalMap, ETexturePlatform.DesktopMobile, out var data, out var colorType);
         Image image;
         switch (colorType)
@@ -65,10 +65,7 @@ public static class CUE4ParseExtensions
                 break;
             case SKColorType.Rgb888x:
                 var fixedImage = new Image<Rgb24>(mip.SizeX, mip.SizeY);
-                Image.LoadPixelData<Rgba32>(data, mip.SizeX, mip.SizeY).IteratePixels((color, x, y) =>
-                {
-                    fixedImage[x, y] = color.Rgb;
-                });
+                Image.LoadPixelData<Rgba32>(data, mip.SizeX, mip.SizeY).IteratePixels((color, x, y) => { fixedImage[x, y] = color.Rgb; });
                 image = fixedImage;
                 break;
             case SKColorType.Bgra8888:
@@ -89,7 +86,7 @@ public static class CUE4ParseExtensions
 
         return image;
     }
-    
+
     private static void IteratePixels<T>(this Image<T> image, Action<T, int, int> action) where T : unmanaged, IPixel<T>
     {
         for (var x = 0; x < image.Width; x++)

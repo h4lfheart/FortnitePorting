@@ -24,13 +24,13 @@ public class MeshAssetViewModel : ObservableObject
         HasStarted = true;
         var loadTime = new Stopwatch();
         loadTime.Start();
-        
+
         var treeItems = new SuppressibleObservableCollection<TreeItem>();
         treeItems.SetSuppression(true);
-        
+
         var assetItems = new SuppressibleObservableCollection<AssetItem>();
         assetItems.SetSuppression(true);
-        
+
         await Task.Delay(500);
         await Application.Current.Dispatcher.InvokeAsync(() =>
         {
@@ -38,34 +38,32 @@ public class MeshAssetViewModel : ObservableObject
             {
                 item.Children.SetSuppression(false);
                 if (item.Children.Count == 0) return;
-                
+
                 item.Children.InvokeOnCollectionChanged();
                 foreach (var folderItem in item.Children)
                 {
                     InvokeOnCollectionChanged(folderItem);
                 }
             }
-            
-            View = new ListCollectionView(AppVM.MainVM.Meshes) { SortDescriptions =
+
+            View = new ListCollectionView(AppVM.MainVM.Meshes)
             {
-                new SortDescription("IsFolder", ListSortDirection.Descending),
-                new SortDescription("Header", ListSortDirection.Ascending)
-            }};
-            
+                SortDescriptions =
+                {
+                    new SortDescription("IsFolder", ListSortDirection.Descending),
+                    new SortDescription("Header", ListSortDirection.Ascending)
+                }
+            };
+
             var entries = AppVM.CUE4ParseVM.Provider.Files.Values.ToList();
-            
+
             foreach (var entry in entries)
             {
                 // TODO make better but im tired so im not doing it rn
-                if (!entry.Path.EndsWith(".uasset")
-                    || entry.Path.Contains("/Content/Playsets/", StringComparison.OrdinalIgnoreCase)
-                    || entry.Path.Contains("/Content/UI/", StringComparison.OrdinalIgnoreCase)
-                    || entry.Path.Contains("/Content/Sounds/", StringComparison.OrdinalIgnoreCase)
-                    || entry.Path.Contains("/Content/2dAssets/", StringComparison.OrdinalIgnoreCase)
-                    || entry.Path.Contains("NaniteDisplacement", StringComparison.OrdinalIgnoreCase)) continue;
-                
+                if (!entry.Path.EndsWith(".uasset") || entry.Path.Contains("/Content/Playsets/", StringComparison.OrdinalIgnoreCase) || entry.Path.Contains("/Content/UI/", StringComparison.OrdinalIgnoreCase) || entry.Path.Contains("/Content/Sounds/", StringComparison.OrdinalIgnoreCase) || entry.Path.Contains("/Content/2dAssets/", StringComparison.OrdinalIgnoreCase) || entry.Path.Contains("NaniteDisplacement", StringComparison.OrdinalIgnoreCase)) continue;
+
                 assetItems.AddSuppressed(new AssetItem(entry.Path));
-                
+
                 TreeItem? foundNode;
                 var folders = entry.Path.Split('/', StringSplitOptions.RemoveEmptyEntries);
                 var builder = new StringBuilder();
@@ -88,6 +86,7 @@ public class MeshAssetViewModel : ObservableObject
                         {
                             foundNode = new TreeItem(folder, nodePath[..^1], ETreeItemType.Folder);
                         }
+
                         foundNode.Children.SetSuppression(true);
                         children.AddSuppressed(foundNode);
                     }
@@ -103,12 +102,10 @@ public class MeshAssetViewModel : ObservableObject
             {
                 InvokeOnCollectionChanged(child);
             }
-            
         });
-        
+
         loadTime.Stop();
         AppLog.Information($"Loaded Meshes in {Math.Round(loadTime.Elapsed.TotalSeconds, 3)}s");
-        
     }
 }
 
@@ -119,7 +116,7 @@ public partial class TreeItem : ObservableObject
     public ETreeItemType AssetType { get; }
     public string LocalPath { get; }
     public string? FullPath; // Asset Only
-    public bool IsFolder  => AssetType == ETreeItemType.Folder;
+    public bool IsFolder => AssetType == ETreeItemType.Folder;
 
     [ObservableProperty] private string header;
     [ObservableProperty] private bool isSelected;
@@ -131,11 +128,14 @@ public partial class TreeItem : ObservableObject
         LocalPath = localPath;
         AssetType = assetType;
         Children = new SuppressibleObservableCollection<TreeItem>();
-        View = new ListCollectionView(Children) { SortDescriptions =
+        View = new ListCollectionView(Children)
         {
-            new SortDescription("IsFolder", ListSortDirection.Descending),
-            new SortDescription("Header", ListSortDirection.Ascending)
-        }};
+            SortDescriptions =
+            {
+                new SortDescription("IsFolder", ListSortDirection.Descending),
+                new SortDescription("Header", ListSortDirection.Ascending)
+            }
+        };
 
         if (AssetType == ETreeItemType.Asset)
         {

@@ -31,6 +31,7 @@ public class StartupViewModel : ObservableObject
     }
 
     public bool IsLocalInstall => InstallType == EInstallType.Local;
+
     public EInstallType InstallType
     {
         get => AppSettings.Current.InstallType;

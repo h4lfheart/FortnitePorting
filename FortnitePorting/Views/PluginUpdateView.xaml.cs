@@ -23,16 +23,14 @@ public partial class PluginUpdateView
         InitializeComponent();
         AppVM.PluginUpdateVM = new PluginUpdateViewModel();
         DataContext = AppVM.PluginUpdateVM;
-        
-        BlenderInstallationsItemsControl.Items.SortDescriptions.Add(new SortDescription { PropertyName = "Content", Direction = ListSortDirection.Ascending});
+
+        BlenderInstallationsItemsControl.Items.SortDescriptions.Add(new SortDescription { PropertyName = "Content", Direction = ListSortDirection.Ascending });
         AppVM.PluginUpdateVM.Initialize();
     }
 
     private void OnClickFinished(object sender, RoutedEventArgs e)
     {
-        var selectedVersions = AppVM.PluginUpdateVM.BlenderInstallations
-            .Where(x => x.IsChecked.HasValue && x.IsChecked.Value)
-            .Select(x => x.Tag as DirectoryInfo).ToArray();
+        var selectedVersions = AppVM.PluginUpdateVM.BlenderInstallations.Where(x => x.IsChecked.HasValue && x.IsChecked.Value).Select(x => x.Tag as DirectoryInfo).ToArray();
 
         if (selectedVersions.Length == 0)
         {
@@ -54,7 +52,6 @@ public partial class PluginUpdateView
 
 public static class SteamDetection
 {
-
     public static List<AppInfo> GetSteamApps(string[] steamLibs)
     {
         var apps = new List<AppInfo>();
@@ -64,6 +61,7 @@ public static class SteamDetection
             var files = Directory.GetFiles(appMetaDataPath, "*.acf");
             apps.AddRange(files.Select(GetAppInfo).Where(appInfo => appInfo is not null));
         }
+
         return apps;
     }
 
@@ -120,13 +118,14 @@ public static class SteamDetection
                 libraries.Add(path);
             }
         }
+
         return libraries.ToArray();
     }
 
     private static string? GetSteamPath()
     {
-        var bit64 = (string?) Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Valve\Steam", "InstallPath", "");
-        var bit32 = (string?) Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Valve\Steam", "InstallPath", "");
+        var bit64 = (string?)Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Valve\Steam", "InstallPath", "");
+        var bit32 = (string?)Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Valve\Steam", "InstallPath", "");
 
         return bit64 ?? bit32 ?? null;
     }

@@ -15,7 +15,9 @@ public class EpicEndpoint : EndpointBase
     private const string BASIC_TOKEN = "basic MzQ0NmNkNzI2OTRjNGE0NDg1ZDgxYjc3YWRiYjIxNDE6OTIwOWQ0YTVlMjVhNDU3ZmI5YjA3NDg5ZDMxM2I0MWE=";
     private const string FORTNITE_LIVE_URL = "https://launcher-public-service-prod06.ol.epicgames.com/launcher/api/public/assets/v2/platform/Windows/namespace/fn/catalogItem/4fe75bbc5a674f4f9b356b5c90567da5/app/Fortnite/label/Live";
 
-    public EpicEndpoint(RestClient client) : base(client) { }
+    public EpicEndpoint(RestClient client) : base(client)
+    {
+    }
 
     public async Task<ManifestInfo> GetManifestInfoAsync(string url = FORTNITE_LIVE_URL)
     {
@@ -25,7 +27,7 @@ public class EpicEndpoint : EndpointBase
         request.AddHeader("Authorization", $"bearer {AppSettings.Current.EpicAuth?.AccessToken}");
 
         var response = await _client.ExecuteAsync(request);
-        Log.Information("[{Method}] {StatusDescription} ({StatusCode}): {URI}", request.Method, response.StatusDescription, (int) response.StatusCode, response.ResponseUri?.OriginalString);
+        Log.Information("[{Method}] {StatusDescription} ({StatusCode}): {URI}", request.Method, response.StatusDescription, (int)response.StatusCode, response.ResponseUri?.OriginalString);
         return new ManifestInfo(response.Content);
     }
 
@@ -38,7 +40,7 @@ public class EpicEndpoint : EndpointBase
     {
         var request = new RestRequest(url);
         var response = await _client.ExecuteAsync(request);
-        Log.Information("[{Method}] {StatusDescription} ({StatusCode}): {URI}", request.Method, response.StatusDescription, (int) response.StatusCode, response.ResponseUri?.OriginalString);
+        Log.Information("[{Method}] {StatusDescription} ({StatusCode}): {URI}", request.Method, response.StatusDescription, (int)response.StatusCode, response.ResponseUri?.OriginalString);
         return new Manifest(response.RawBytes, new ManifestOptions
         {
             ChunkBaseUri = new Uri("https://epicgames-download1.akamaized.net/Builds/Fortnite/Content/CloudDir/ChunksV4/", UriKind.Absolute),
@@ -58,7 +60,7 @@ public class EpicEndpoint : EndpointBase
         request.AddParameter("grant_type", "client_credentials");
 
         var response = await _client.ExecuteAsync<EpicAuthResponse>(request);
-        Log.Information("[{Method}] {StatusDescription} ({StatusCode}): {URI}", request.Method, response.StatusDescription, (int) response.StatusCode, response.ResponseUri?.OriginalString);
+        Log.Information("[{Method}] {StatusDescription} ({StatusCode}): {URI}", request.Method, response.StatusDescription, (int)response.StatusCode, response.ResponseUri?.OriginalString);
         return response.Data;
     }
 
@@ -76,7 +78,7 @@ public class EpicEndpoint : EndpointBase
         request.AddQueryParameter("label", label);
 
         var response = await _client.ExecuteAsync<ContentBuildsResponse>(request);
-        Log.Information("[{Method}] {StatusDescription} ({StatusCode}): {URI}", request.Method, response.StatusDescription, (int) response.StatusCode, response.ResponseUri?.OriginalString);
+        Log.Information("[{Method}] {StatusDescription} ({StatusCode}): {URI}", request.Method, response.StatusDescription, (int)response.StatusCode, response.ResponseUri?.OriginalString);
         return response.Data;
     }
 
@@ -106,7 +108,7 @@ public class EpicEndpoint : EndpointBase
         var request = new RestRequest("https://account-public-service-prod.ol.epicgames.com/account/api/oauth/verify");
         request.AddHeader("Authorization", $"bearer {AppSettings.Current.EpicAuth?.AccessToken}");
         var response = _client.Execute(request);
-        Log.Information("[{Method}] {StatusDescription} ({StatusCode}): {URI}", request.Method, response.StatusDescription, (int) response.StatusCode, response.ResponseUri?.OriginalString);
+        Log.Information("[{Method}] {StatusDescription} ({StatusCode}): {URI}", request.Method, response.StatusDescription, (int)response.StatusCode, response.ResponseUri?.OriginalString);
         return response.StatusCode != HttpStatusCode.OK;
     }
 }

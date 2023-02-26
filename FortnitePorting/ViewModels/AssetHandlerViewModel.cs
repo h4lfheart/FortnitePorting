@@ -45,7 +45,7 @@ public class AssetHandlerViewModel
             { EAssetType.Vehicle, VehicleHandler },
             { EAssetType.Prop, PropHandler },
             { EAssetType.Pet, PetHandler },
-            { EAssetType.Music , MusicPackHandler}
+            { EAssetType.Music, MusicPackHandler }
         };
     }
 
@@ -71,7 +71,7 @@ public class AssetHandlerViewModel
     {
         AssetType = EAssetType.Backpack,
         TargetCollection = AppVM.MainVM.BackBlings,
-        ClassNames = new List<string> { "AthenaBackpackItemDefinition"},
+        ClassNames = new List<string> { "AthenaBackpackItemDefinition" },
         RemoveList = new List<string> { "_STWHeroNoDefaultBackpack", "_TEST", "Dev_", "_NPC", "_TBD" },
         IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
     };
@@ -89,6 +89,7 @@ public class AssetHandlerViewModel
             {
                 heroDef.TryGetValue(out previewImage, "SmallPreviewImage", "LargePreviewImage");
             }
+
             return previewImage;
         }
     };
@@ -161,6 +162,7 @@ public class AssetHandlerViewModel
                     var configClassDefaultObject = configClass?.ClassDefaultObject.Load();
                     displayText = configClassDefaultObject?.GetOrDefault<FText?>("PlayerFacingLocName");
                 }
+
                 if (displayText is null)
                 {
                     var superStruct = blueprint.SuperStruct.Load<UBlueprintGeneratedClass>();
@@ -191,13 +193,13 @@ public class AssetHandlerViewModel
         RemoveList = { },
         IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
     };
-    
+
     private readonly AssetHandlerData MusicPackHandler = new()
     {
         AssetType = EAssetType.Music,
         TargetCollection = AppVM.MainVM.MusicPacks,
         ClassNames = new List<string> { "AthenaMusicPackItemDefinition" },
-        RemoveList = {},
+        RemoveList = { },
         IconGetter = asset =>
         {
             asset.TryGetValue(out UTexture2D? previewImage, "SmallPreviewImage", "LargePreviewImage");
@@ -239,10 +241,8 @@ public class AssetHandlerData
         {
             AppLog.Warning("Generating first-time weapon mappings, this may take longer than usual");
         }
-        
-        var items = AppVM.CUE4ParseVM.AssetDataBuffers
-            .Where(x => ClassNames.Any(y => x.AssetClass.Text.Equals(y, StringComparison.OrdinalIgnoreCase)))
-            .ToList();
+
+        var items = AppVM.CUE4ParseVM.AssetDataBuffers.Where(x => ClassNames.Any(y => x.AssetClass.Text.Equals(y, StringComparison.OrdinalIgnoreCase))).ToList();
 
         // prioritize random first cuz of parallel list positions
         var random = items.FirstOrDefault(x => x.AssetName.Text.Contains("Random", StringComparison.OrdinalIgnoreCase));
@@ -260,7 +260,7 @@ public class AssetHandlerData
             {
                 displayName = displayNameRaw.SubstringBeforeLast('"').SubstringAfterLast('"').Trim();
             }
-            
+
             // Weapon Filtering
             if (AssetType is EAssetType.Weapon)
             {
@@ -275,21 +275,21 @@ public class AssetHandlerData
                     {
                         AppSettings.Current.WeaponMappings[displayName] = new List<string>();
                     }
-                    
+
                     AppSettings.Current.WeaponMappings[displayName].AddUnique(mainWeapon.GetPathName());
                     weaponMeshPaths = AppSettings.Current.WeaponMappings[displayName];
                 }
-                
+
                 foreach (var weaponMesh in weaponMeshPaths.ToArray())
                 {
                     if (addedAssets.ToArray().Contains(weaponMesh)) continue;
                     addedAssets.Add(weaponMesh);
                     await DoLoad(objectData, AssetType);
                 }
-                
+
                 return;
             }
-            
+
             // Prop Filtering
             if (AssetType is EAssetType.Prop)
             {
@@ -297,11 +297,11 @@ public class AssetHandlerData
                 {
                     return;
                 }
+
                 addedAssets.Add(displayName);
             }
 
             await DoLoad(data, AssetType);
-
         });
         sw.Stop();
         AppLog.Information($"Loaded {AssetType.GetDescription()} in {Math.Round(sw.Elapsed.TotalSeconds, 2)}s");
@@ -312,7 +312,7 @@ public class AssetHandlerData
         var asset = await AppVM.CUE4ParseVM.Provider.LoadObjectAsync(data.ObjectPath);
         await DoLoad(asset, type, random);
     }
-    
+
     private async Task DoLoad(UObject asset, EAssetType type, bool random = false)
     {
         try
@@ -323,15 +323,12 @@ public class AssetHandlerData
             previewImage ??= AppVM.CUE4ParseVM.PlaceholderTexture;
             if (previewImage is null) return;
 
-            await Application.Current.Dispatcher.InvokeAsync(
-                () => TargetCollection.Add(new AssetSelectorItem(asset, previewImage, type, random, DisplayNameGetter?.Invoke(asset), type == EAssetType.Vehicle, RemoveList.Any(y => asset.Name.Contains(y, StringComparison.OrdinalIgnoreCase)))), DispatcherPriority.Background);
-
+            await Application.Current.Dispatcher.InvokeAsync(() => TargetCollection.Add(new AssetSelectorItem(asset, previewImage, type, random, DisplayNameGetter?.Invoke(asset), type == EAssetType.Vehicle, RemoveList.Any(y => asset.Name.Contains(y, StringComparison.OrdinalIgnoreCase)))), DispatcherPriority.Background);
         }
         catch (Exception e)
         {
             Log.Error("Failed to load {ObjectPath}", asset.GetPathName());
             Log.Debug(e.Message + e.StackTrace);
         }
-        
     }
 }

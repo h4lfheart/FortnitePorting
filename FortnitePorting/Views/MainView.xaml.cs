@@ -20,6 +20,7 @@ namespace FortnitePorting.Views;
 public partial class MainView
 {
     public static MainView YesWeDogs;
+
     public MainView()
     {
         InitializeComponent();
@@ -61,13 +62,13 @@ public partial class MainView
     {
         if (sender is not TabControl tabControl) return;
 
-        var assetType = (EAssetType) tabControl.SelectedIndex;
+        var assetType = (EAssetType)tabControl.SelectedIndex;
         if (AppVM.MainVM.CurrentAssetType == assetType) return;
-        
+
         AppVM.MainVM.ExtendedAssets.Clear();
         AppVM.MainVM.CurrentAssetType = assetType;
         DiscordService.Update(assetType);
-        
+
         if (assetType == EAssetType.Mesh)
         {
             if (AppVM.MeshVM is not null && AppVM.MeshVM.HasStarted) return;
@@ -101,7 +102,7 @@ public partial class MainView
         if (sender is ListBox listBox)
         {
             if (listBox.SelectedItem is null) return;
-            var selected = (AssetSelectorItem) listBox.SelectedItem;
+            var selected = (AssetSelectorItem)listBox.SelectedItem;
 
             AppVM.MainVM.Styles.Clear();
             if (selected.Type == EAssetType.Prop)
@@ -166,7 +167,7 @@ public partial class MainView
 
     private void OnSearchTextChanged(object sender, TextChangedEventArgs e)
     {
-        var searchBox = (TextBox) sender;
+        var searchBox = (TextBox)sender;
         AppVM.MainVM.SearchFilter = searchBox.Text;
         RefreshFilters();
     }
@@ -175,22 +176,21 @@ public partial class MainView
     {
         AssetFlatView.Items.Filter = o =>
         {
-            var asset = (AssetItem) o;
+            var asset = (AssetItem)o;
             return AppHelper.Filter(asset.Path, AppVM.MainVM.SearchFilter);
         };
         AssetFlatView.Items.Refresh();
-        
+
         foreach (var tab in AssetControls.Items.OfType<TabItem>())
         {
             if (tab.Content is not ListBox listBox) continue;
-            
+
             listBox.Items.Filter = o =>
             {
-                var asset = (AssetSelectorItem) o;
+                var asset = (AssetSelectorItem)o;
                 return asset.Match(AppVM.MainVM.SearchFilter) && AppVM.MainVM.Filters.All(x => x.Invoke(asset));
             };
             listBox.Items.Refresh();
-            
         }
     }
 
@@ -241,7 +241,7 @@ public partial class MainView
 
     private void OnShowConsoleChecked(object sender, RoutedEventArgs e)
     {
-        var menuItem = (MenuItem) sender;
+        var menuItem = (MenuItem)sender;
         var show = menuItem.IsChecked;
         AppSettings.Current.ShowConsole = show;
         App.ToggleConsole(show);
@@ -254,7 +254,7 @@ public partial class MainView
 
     private void OnFilterItemChecked(object sender, RoutedEventArgs e)
     {
-        var checkBox = (CheckBox) sender;
+        var checkBox = (CheckBox)sender;
         if (checkBox.Tag is null) return;
         if (!checkBox.IsChecked.HasValue) return;
 
@@ -269,7 +269,7 @@ public partial class MainView
             if (child is not CheckBox checkBox) continue;
             checkBox.IsChecked = false;
         }
-        
+
         RefreshFilters();
     }
 
@@ -291,7 +291,7 @@ public partial class MainView
                     folder.IsSelected = true;
                     return;
                 }
-                
+
                 folder.IsExpanded = true;
                 children = folder.Children;
                 break;
@@ -304,26 +304,26 @@ public partial class MainView
 
     private async void AssetFolderTree_OnSelectionChanged(object sender, RoutedPropertyChangedEventArgs<object> routedPropertyChangedEventArgs)
     {
-        var treeView = (TreeView) sender;
-        var treeItem = (TreeItem) treeView.SelectedItem;
+        var treeView = (TreeView)sender;
+        var treeItem = (TreeItem)treeView.SelectedItem;
         if (treeItem.AssetType == ETreeItemType.Folder) return;
-        
+
         await AppVM.MainVM.SetupMeshSelection(treeItem.FullPath);
     }
 
     private async void AssetFlatView_OnSelectionChanged(object sender, RoutedEventArgs e)
     {
-        var listBox = (ListBox) sender;
-        var selectedItem = (AssetItem) listBox.SelectedItem;
+        var listBox = (ListBox)sender;
+        var selectedItem = (AssetItem)listBox.SelectedItem;
         if (selectedItem is null) return;
-        
+
         await AppVM.MainVM.SetupMeshSelection(selectedItem.PathWithoutExtension);
     }
-    
+
     private void OnAssetDoubleClick(object sender, MouseButtonEventArgs e)
     {
-        var listBox = (ListBox) sender;
-        var selectedItem = (AssetItem) listBox.SelectedItem;
+        var listBox = (ListBox)sender;
+        var selectedItem = (AssetItem)listBox.SelectedItem;
         JumpToAsset(selectedItem.PathWithoutExtension);
     }
 }
