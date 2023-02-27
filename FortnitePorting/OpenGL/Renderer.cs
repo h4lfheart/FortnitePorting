@@ -1,27 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
+using CUE4Parse.UE4.Assets.Exports.Material;
 using FortnitePorting.OpenGL.Renderable;
+using FortnitePorting.OpenGL.Shaders;
 
 namespace FortnitePorting.OpenGL;
 
 public class Renderer : IRenderable
 {
+    public Skybox Skybox;
+    public Shader MasterShader;
+    
     private readonly List<IRenderable> Dynamic = new();
     private readonly List<IRenderable> Static = new();
-    
-    //private readonly Dictionary<string, Material> MaterialCache = new();
+    private readonly Dictionary<string, Material> MaterialCache = new();
     
     public void Setup()
     {
-        foreach (var renderable in Dynamic)
-        {
-            renderable.Setup();
-        }
+        Skybox = new Skybox();
+        Skybox.Setup();
         
-        foreach (var renderable in Static)
-        {
-            renderable.Setup();
-        }
+        MasterShader = new Shader("shader");
+        MasterShader.Use();
     }
 
     public void Render(Camera camera)
@@ -35,6 +35,8 @@ public class Renderer : IRenderable
         {
             renderable.Render(camera);
         }
+        
+        Skybox.Render(camera);
     }
     
     public void AddDynamic(IRenderable renderable)
@@ -52,12 +54,28 @@ public class Renderer : IRenderable
     public void Clear()
     {
         Dynamic.Clear();
-        //MaterialCache.Clear();
+        MaterialCache.Clear();
+    }
+
+    public Material? GetOrAddMaterial(UMaterialInterface? materialInterface)
+    {
+        if (materialInterface is null) return null;
+
+        var path = materialInterface.GetPathName();
+        if (MaterialCache.TryGetValue(path, out var foundMaterial))
+        {
+            return foundMaterial;
+        }
+
+        var material = new Material(materialInterface);
+        MaterialCache[path] = new Material(materialInterface);
+        return MaterialCache[path];
     }
 
     public void Dispose()
     {
-        
+        Skybox.Dispose();
+        MasterShader.Dispose();
     }
 }
 

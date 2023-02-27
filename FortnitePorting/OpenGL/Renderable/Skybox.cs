@@ -56,6 +56,8 @@ public class Skybox : VertexModel
             -0.5f,  0.5f,  0.5f,
             -0.5f,  0.5f, -0.5f
         };
+        
+        RegisterAttribute("Position", 3, VertexAttribPointerType.Float);
 
         Shader = new Shader("skybox");
         Shader.Use();
@@ -82,7 +84,7 @@ public class Skybox : VertexModel
         Shader.SetMatrix4("uView", viewMatrix);
         Shader.SetMatrix4("uProjection", camera.GetProjectionMatrix());
         
-        GL.DrawArrays(PrimitiveType.Triangles, 0, VBO.Size());
+        GL.DrawArrays(PrimitiveType.Triangles, 0, Vertices.Count);
         GL.DepthFunc(DepthFunction.Less);
     }
 

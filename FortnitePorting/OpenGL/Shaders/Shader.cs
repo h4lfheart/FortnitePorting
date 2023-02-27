@@ -10,7 +10,7 @@ namespace FortnitePorting.OpenGL.Shaders;
 
 public class Shader : IDisposable
 {
-    public ProgramHandle Handle;
+    private readonly ProgramHandle Handle;
 
     public Shader(string shaderName)
     {
@@ -44,6 +44,11 @@ public class Shader : IDisposable
     public void SetMatrix4(string name, Matrix4 value)
     {
         GL.UniformMatrix4f(GetUniformLocation(name), true, value);
+    }
+    
+    public void SetUniform(string name, int value)
+    {
+        GL.Uniform1f(GetUniformLocation(name), value);
     }
 
     private ShaderHandle LoadShader(string name, ShaderType type)

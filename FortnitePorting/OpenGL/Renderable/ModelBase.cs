@@ -12,7 +12,7 @@ public record VertexAttribute(string Name, int Size, VertexAttribPointerType Typ
 
 public abstract class Model : IRenderable
 {
-    public ProgramHandle Handle;
+    private ProgramHandle Handle;
     public Shader Shader;
     public Matrix4 Transform;
     
@@ -37,9 +37,8 @@ public abstract class VertexModel : Model
 {
     public Buffer<float> VBO;
     public VertexArray<float> VAO;
-    public List<float> Vertices;
+    public List<float> Vertices = new();
     private List<VertexAttribute> Attributes = new();
-    private const int VertexSize = 3;
 
     public override void Setup()
     {
@@ -47,14 +46,13 @@ public abstract class VertexModel : Model
         VBO = new Buffer<float>(Vertices.ToArray(), BufferTargetARB.ArrayBuffer);
         
         VAO = new VertexArray<float>();
-        VAO.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, VertexSize, 0);
 
-        var stride = Attributes.Sum(x => x.Size) + VertexSize;
-        var offset = VertexSize;
+        var stride = Attributes.Sum(x => x.Size);
+        var offset = 0;
         for (var i = 0; i < Attributes.Count; i++)
         {
             var attribute = Attributes[i];
-            VAO.VertexAttribPointer((uint) (i+1), attribute.Size, attribute.Type, stride, offset);
+            VAO.VertexAttribPointer((uint) i, attribute.Size, attribute.Type, stride, offset);
             offset += attribute.Size;
         }
     }
@@ -75,7 +73,7 @@ public abstract class VertexModel : Model
 public abstract class VertexAndIndexModel : VertexModel
 {
     public Buffer<uint> EBO;
-    public List<uint> Indices;
+    public List<uint> Indices = new();
     
     public override void Setup()
     {

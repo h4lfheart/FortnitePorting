@@ -74,22 +74,6 @@ public partial class App
         {
             DiscordService.Initialize();
         }
-        
-        Log.Information("viewer");
-        var viewer =  new Viewer(GameWindowSettings.Default, new NativeWindowSettings
-        {
-            Size = new Vector2i(960, 540),
-            NumberOfSamples = 8,
-            WindowBorder = WindowBorder.Resizable,
-            Profile = ContextProfile.Core,
-            APIVersion = new Version(4, 6),
-            Title = "Model Viewer",
-            StartVisible = true,
-            Flags = ContextFlags.ForwardCompatible
-        });
-        
-        Log.Information("run");
-        viewer.Run();
     }
 
     public static void ToggleConsole(bool show)

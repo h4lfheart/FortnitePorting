@@ -21,16 +21,21 @@ using CSCore.Streams;
 using CUE4Parse_Conversion.Sounds;
 using CUE4Parse.UE4.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Exports.Sound.Node;
+using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Objects;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Bundles;
 using FortnitePorting.Exports;
 using FortnitePorting.Exports.Types;
+using FortnitePorting.OpenGL;
 using FortnitePorting.Services;
 using FortnitePorting.Services.Export;
 using FortnitePorting.Views;
 using FortnitePorting.Views.Controls;
 using FortnitePorting.Views.Extensions;
+using OpenTK.Mathematics;
+using OpenTK.Windowing.Common;
+using OpenTK.Windowing.Desktop;
 using StyleSelector = FortnitePorting.Views.Controls.StyleSelector;
 
 namespace FortnitePorting.ViewModels;
@@ -113,10 +118,11 @@ public partial class MainViewModel : ObservableObject
 
             AppLog.Information($"Loaded FortniteGame Archive in {Math.Round(loadTime.Elapsed.TotalSeconds, 3)}s");
             IsReady = true;
-
+            
             AppVM.AssetHandlerVM = new AssetHandlerViewModel();
             await AppVM.AssetHandlerVM.Initialize();
             IsInitialized = true;
+            
         });
     }
 
@@ -309,6 +315,31 @@ public partial class MainViewModel : ObservableObject
         {
             FilterLabel = "None";
         }
+    }
+
+    [RelayCommand]
+    public async Task PreviewMesh()
+    {
+        AppVM.MeshViewer ??= new Viewer(GameWindowSettings.Default, new NativeWindowSettings
+        {
+            Size = new Vector2i(960, 540),
+            NumberOfSamples = 8,
+            WindowBorder = WindowBorder.Resizable,
+            Profile = ContextProfile.Core,
+            APIVersion = new Version(4, 6),
+            Title = "Model Viewer",
+            StartVisible = true,
+            Flags = ContextFlags.ForwardCompatible
+        });
+
+        if (CurrentAssetType != EAssetType.Mesh)
+        {
+            AppVM.AssetHandlerVM?.Handlers[CurrentAssetType].PauseState.Pause();
+            AppVM.MeshViewer.Closing += _ => AppVM.AssetHandlerVM?.Handlers[CurrentAssetType].PauseState.Unpause();
+        }
+        
+        if (CurrentAsset is not null) AppVM.MeshViewer.LoadAsset(CurrentAsset);
+        AppVM.MeshViewer.Run();
     }
 
     [RelayCommand]

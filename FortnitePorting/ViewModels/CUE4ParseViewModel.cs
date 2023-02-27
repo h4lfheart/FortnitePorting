@@ -11,6 +11,8 @@ using CUE4Parse.MappingsProvider;
 using CUE4Parse.UE4.AssetRegistry;
 using CUE4Parse.UE4.AssetRegistry.Objects;
 using CUE4Parse.UE4.Assets.Exports.Animation;
+using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
+using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Assets.Utils;
@@ -121,11 +123,11 @@ public class CUE4ParseViewModel : ObservableObject
             RarityData[i] = rarityData.GetByIndex<RarityCollection>(i);
         }
 
-        PlaceholderTexture = await AppVM.CUE4ParseVM.Provider.TryLoadObjectAsync<UTexture2D>("FortniteGame/Content/Athena/Prototype/Textures/T_Placeholder_Generic");
+        PlaceholderTexture = await Provider.TryLoadObjectAsync<UTexture2D>("FortniteGame/Content/Athena/Prototype/Textures/T_Placeholder_Generic");
 
         foreach (var path in FemaleIdlePaths)
         {
-            var montage = await AppVM.CUE4ParseVM.Provider.TryLoadObjectAsync<UAnimMontage>(path);
+            var montage = await Provider.TryLoadObjectAsync<UAnimMontage>(path);
             if (montage is null) continue;
 
             FemaleIdleAnimations.Add(montage);
@@ -133,7 +135,7 @@ public class CUE4ParseViewModel : ObservableObject
 
         foreach (var path in MaleIdlePaths)
         {
-            var montage = await AppVM.CUE4ParseVM.Provider.TryLoadObjectAsync<UAnimMontage>(path);
+            var montage = await Provider.TryLoadObjectAsync<UAnimMontage>(path);
             if (montage is null) continue;
 
             MaleIdleAnimations.Add(montage);

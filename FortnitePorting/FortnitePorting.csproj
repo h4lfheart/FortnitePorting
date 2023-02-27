@@ -72,6 +72,9 @@
         <Resource Include="Resources\Shaders\pz.png" />
         <Resource Include="Resources\Shaders\skybox.frag" />
         <Resource Include="Resources\Shaders\skybox.vert" />
+
+        <Resource Include="Resources\Shaders\shader.frag" />
+        <Resource Include="Resources\Shaders\shader.vert" />
     </ItemGroup>
 
 </Project>

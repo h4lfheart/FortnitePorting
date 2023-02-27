@@ -2,8 +2,11 @@
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Documents;
+using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
+using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.Utils;
 using FortnitePorting.OpenGL.Renderable;
+using FortnitePorting.Views.Controls;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
@@ -17,14 +20,40 @@ namespace FortnitePorting.OpenGL;
 
 public class Viewer : GameWindow
 {
-    private Camera Cam;
-    private Renderer Renderer;
+    public Camera Cam;
+    public Renderer Renderer;
     
     public Viewer(GameWindowSettings gwSettings, NativeWindowSettings nwSettings) : base(gwSettings, nwSettings)
     {
         Cam = new Camera();
         Renderer = new Renderer();
-        Renderer.AddStatic(new Skybox());
+        Renderer.Setup();
+    }
+    
+    public void LoadAsset(IExportableAsset asset)
+    {
+        Title = $"Model Preview - {asset.DisplayName}";
+        Renderer.Clear();
+
+        switch (asset.Asset)
+        {
+            case USkeletalMesh skeletalMesh:
+                Renderer.AddDynamic(new UnrealMesh(skeletalMesh));
+                break;
+            case UStaticMesh staticMesh:
+                Renderer.AddDynamic(new UnrealMesh(staticMesh));
+                break;
+        }
+    }
+
+    public void LoadAsset(UStaticMesh staticMesh)
+    {
+        Renderer.AddDynamic(new UnrealMesh(staticMesh));
+    }
+    
+    public void LoadAsset(USkeletalMesh skeletalMesh)
+    {
+        Renderer.AddDynamic(new UnrealMesh(skeletalMesh));
     }
 
     protected override void OnLoad()
