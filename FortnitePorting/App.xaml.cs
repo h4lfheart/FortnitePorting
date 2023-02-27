@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Threading;
 using System.Windows;
 using System.Windows.Threading;
 using AdonisUI;
@@ -9,7 +8,11 @@ using AdonisUI.Controls;
 using CUE4Parse.UE4.Assets;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Exports;
+using FortnitePorting.OpenGL;
 using FortnitePorting.Services;
+using OpenTK.Mathematics;
+using OpenTK.Windowing.Common;
+using OpenTK.Windowing.Desktop;
 using Serilog.Sinks.SystemConsole.Themes;
 using MessageBox = AdonisUI.Controls.MessageBox;
 using MessageBoxImage = AdonisUI.Controls.MessageBoxImage;
@@ -71,6 +74,22 @@ public partial class App
         {
             DiscordService.Initialize();
         }
+        
+        Log.Information("viewer");
+        var viewer =  new Viewer(GameWindowSettings.Default, new NativeWindowSettings
+        {
+            Size = new Vector2i(960, 540),
+            NumberOfSamples = 8,
+            WindowBorder = WindowBorder.Resizable,
+            Profile = ContextProfile.Core,
+            APIVersion = new Version(4, 6),
+            Title = "Model Viewer",
+            StartVisible = true,
+            Flags = ContextFlags.ForwardCompatible
+        });
+        
+        Log.Information("run");
+        viewer.Run();
     }
 
     public static void ToggleConsole(bool show)
