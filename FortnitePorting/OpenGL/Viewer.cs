@@ -1,10 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Documents;
+using System.Windows.Threading;
+using CUE4Parse.GameTypes.FN.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
+using CUE4Parse.UE4.Assets.Objects;
+using CUE4Parse.UE4.Objects.Core.Math;
+using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.Utils;
+using FortnitePorting.AppUtils;
+using FortnitePorting.Exports;
 using FortnitePorting.OpenGL.Renderable;
 using FortnitePorting.Views.Controls;
 using OpenTK.Graphics.OpenGL;
@@ -30,12 +40,12 @@ public class Viewer : GameWindow
         Renderer.Setup();
     }
     
-    public void LoadAsset(IExportableAsset asset)
+    public void LoadMeshAsset(IExportableAsset exportable)
     {
-        Title = $"Model Preview - {asset.DisplayName}";
+        Title = $"Model Preview - {exportable.DisplayName}";
         Renderer.Clear();
 
-        switch (asset.Asset)
+        switch (exportable.Asset)
         {
             case USkeletalMesh skeletalMesh:
                 Renderer.AddDynamic(new UnrealMesh(skeletalMesh));

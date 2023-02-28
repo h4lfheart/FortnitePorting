@@ -19,15 +19,20 @@ using CSCore.MediaFoundation;
 using CSCore.SoundOut;
 using CSCore.Streams;
 using CUE4Parse_Conversion.Sounds;
+using CUE4Parse.GameTypes.FN.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Exports.Sound.Node;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Objects;
+using CUE4Parse.UE4.Objects.Core.Math;
+using CUE4Parse.UE4.Objects.Engine;
+using CUE4Parse.Utils;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Bundles;
 using FortnitePorting.Exports;
 using FortnitePorting.Exports.Types;
 using FortnitePorting.OpenGL;
+using FortnitePorting.OpenGL.Renderable;
 using FortnitePorting.Services;
 using FortnitePorting.Services.Export;
 using FortnitePorting.Views;
@@ -337,8 +342,57 @@ public partial class MainViewModel : ObservableObject
             AppVM.AssetHandlerVM?.Handlers[CurrentAssetType].PauseState.Pause();
             AppVM.MeshViewer.Closing += _ => AppVM.AssetHandlerVM?.Handlers[CurrentAssetType].PauseState.Unpause();
         }
-        
-        if (CurrentAsset is not null) AppVM.MeshViewer.LoadAsset(CurrentAsset);
+
+        if (CurrentAssetType == EAssetType.Prop)
+        {
+            AppVM.MeshViewer.Title = $"Model Viewer - {CurrentAsset.DisplayName}";
+            AppVM.MeshViewer.Renderer.Clear();
+
+            void Add(UStaticMesh mesh, Matrix4? transform = null)
+            {
+                Application.Current.Dispatcher.Invoke(() => AppVM.MeshViewer.Renderer.AddDynamic(new UnrealMesh(mesh) { Transform = transform ?? Matrix4.Identity }));
+            }
+
+            await Task.Run(() =>
+            {
+                var actorSaveRecord = CurrentAsset.Asset.Get<ULevelSaveRecord>("ActorSaveRecord");
+                var templateRecords = new List<FActorTemplateRecord?>();
+                foreach (var tag in actorSaveRecord.Get<UScriptMap>("TemplateRecords").Properties)
+                {
+                    var propValue = tag.Value?.GetValue(typeof(FActorTemplateRecord));
+                    templateRecords.Add(propValue as FActorTemplateRecord);
+                }
+
+                foreach (var templateRecord in templateRecords)
+                {
+                    if (templateRecord is null) continue;
+                    var actor = templateRecord.ActorClass.Load<UBlueprintGeneratedClass>();
+                    var classDefaultObject = actor.ClassDefaultObject.Load();
+
+                    if (classDefaultObject.TryGetValue(out UStaticMesh staticMesh, "StaticMesh"))
+                    {
+                        Add(staticMesh);
+                    }
+                    else
+                    {
+                        var exports = AppVM.CUE4ParseVM.Provider.LoadObjectExports(actor.GetPathName().SubstringBeforeLast("."));
+                        var staticMeshComponents = exports.Where(x => x.ExportType == "StaticMeshComponent").ToArray();
+                        foreach (var component in staticMeshComponents)
+                        {
+                            var componentStaticMesh = component.GetOrDefault<UStaticMesh?>("StaticMesh");
+                            if (componentStaticMesh is null) continue;
+
+                            Add(componentStaticMesh);
+                        }
+                    }
+                }
+            });
+        }
+        else
+        {
+            AppVM.MeshViewer.LoadMeshAsset(CurrentAsset);
+        }
+
         AppVM.MeshViewer.Run();
     }
 

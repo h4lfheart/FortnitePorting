@@ -1,5 +1,6 @@
 ﻿using CUE4Parse_Conversion.Meshes.PSK;
 using CUE4Parse.UE4.Assets.Exports.Material;
+using CUE4Parse.UE4.Objects.Core.Math;
 using FortnitePorting.OpenGL.Shaders;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
@@ -56,8 +57,8 @@ public class UnrealSection : VertexAndIndexModel
         {
             var position = vertex.Position * 0.01f;
             var texCoord = vertex.UV;
-            var normal = vertex.Normal;
-            var tangent = vertex.Tangent;
+            var normal = (FVector) vertex.Normal;
+            var tangent = (FVector) vertex.Tangent;
 
             Vertices.AddRange(new[] { 
                 position.X, position.Z, position.Y, 
@@ -90,6 +91,8 @@ public class UnrealSection : VertexAndIndexModel
         Shader.SetUniform("normalTex", 1);
         Shader.SetUniform("specularTex", 2);
         Shader.SetUniform("maskTex", 3);
+        Shader.SetUniform("environmentTex", 4);
+        Shader.SetUniform3("viewVector", -camera.Direction);
         
         Material?.Bind();
 

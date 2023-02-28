@@ -102,7 +102,7 @@ public class MeshAssetViewModel : ObservableObject
             {
                 InvokeOnCollectionChanged(child);
             }
-        });
+        }, DispatcherPriority.Background);
 
         loadTime.Stop();
         AppLog.Information($"Loaded Meshes in {Math.Round(loadTime.Elapsed.TotalSeconds, 3)}s");

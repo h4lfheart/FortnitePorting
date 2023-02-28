@@ -53,6 +53,7 @@ public class Material : IDisposable
         Normals?.Bind(TextureUnit.Texture1);
         SpecularMasks?.Bind(TextureUnit.Texture2);
         Mask?.Bind(TextureUnit.Texture3);
+        AppVM.MeshViewer.Renderer.Skybox.Cubemap.Bind(TextureUnit.Texture4);
     }
 
     public void Dispose()

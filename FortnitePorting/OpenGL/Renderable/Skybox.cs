@@ -8,7 +8,7 @@ namespace FortnitePorting.OpenGL.Renderable;
 
 public class Skybox : VertexModel
 {
-    private CubemapTexture Cubemap;
+    public CubemapTexture Cubemap;
     
     public Skybox()
     {

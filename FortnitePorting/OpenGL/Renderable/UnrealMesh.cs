@@ -4,11 +4,13 @@ using CUE4Parse_Conversion.Meshes;
 using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
+using OpenTK.Mathematics;
 
 namespace FortnitePorting.OpenGL.Renderable;
 
 public class UnrealMesh : IRenderable
 {
+    public Matrix4 Transform;
     private List<UnrealSection> Sections = new();
     
     public UnrealMesh(USkeletalMesh skeletalMesh)
@@ -17,7 +19,10 @@ public class UnrealMesh : IRenderable
         
         var lod = convertedMesh.LODs[0];
         var sections = lod.Sections.Value;
-        Sections.AddRange(sections.Select(x => new UnrealSection(lod, x, skeletalMesh.Materials[x.MaterialIndex]?.Load<UMaterialInterface>())));
+        Sections.AddRange(sections.Select(x => new UnrealSection(lod, x, skeletalMesh.Materials[x.MaterialIndex]?.Load<UMaterialInterface>())
+        {
+            Transform = Transform
+        }));
     }
     
     public UnrealMesh(UStaticMesh staticMesh)
@@ -26,7 +31,10 @@ public class UnrealMesh : IRenderable
         
         var lod = convertedMesh.LODs[0];
         var sections = lod.Sections.Value;
-        Sections.AddRange(sections.Select(x => new UnrealSection(lod, x, staticMesh.Materials[x.MaterialIndex]?.Load<UMaterialInterface>())));
+        Sections.AddRange(sections.Select(x => new UnrealSection(lod, x, staticMesh.Materials[x.MaterialIndex]?.Load<UMaterialInterface>())
+        {
+            Transform = Transform
+        }));
     }
 
     public void Setup()
