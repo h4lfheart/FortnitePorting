@@ -84,6 +84,8 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="{adonisUi:Space 1}" />
                     <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="{adonisUi:Space 1}" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
                 <TextBox Grid.Column="0" adonisExt:LayerExtension.Layer="2" adonisExt:WatermarkExtension.Watermark="Search..." TextChanged="OnSearchTextChanged" />
@@ -128,6 +130,8 @@
                         </StackPanel>
                     </Border>
                 </Popup>
+                
+                <ToggleButton Name="PauseButton" Grid.Column="12" Content="Pause Loading" Style="{DynamicResource {x:Static adonisUi:Styles.ToggleSwitch}}" Checked="OnPauseSwitch" Unchecked="OnPauseSwitch"/>
 
             </Grid>
             <GroupBox Grid.Row="1" Grid.Column="0" Padding="{adonisUi:Space 0}" adonisExt:LayerExtension.Layer="2" Background="Transparent">

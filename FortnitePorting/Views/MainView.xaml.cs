@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using CUE4Parse.UE4.Assets.Exports;
@@ -62,7 +63,7 @@ public partial class MainView
     {
         if (sender is not TabControl tabControl) return;
 
-        var assetType = (EAssetType)tabControl.SelectedIndex;
+        var assetType = (EAssetType) tabControl.SelectedIndex;
         if (AppVM.MainVM.CurrentAssetType == assetType) return;
 
         AppVM.MainVM.ExtendedAssets.Clear();
@@ -81,7 +82,7 @@ public partial class MainView
         var handlers = AppVM.AssetHandlerVM.Handlers;
         foreach (var (handlerType, handlerData) in handlers)
         {
-            if (handlerType == assetType)
+            if (handlerType == assetType && !PauseButton.IsChecked.Value)
             {
                 handlerData.PauseState.Unpause();
             }
@@ -325,5 +326,17 @@ public partial class MainView
         var listBox = (ListBox)sender;
         var selectedItem = (AssetItem)listBox.SelectedItem;
         JumpToAsset(selectedItem.PathWithoutExtension);
+    }
+
+    private void OnPauseSwitch(object sender, RoutedEventArgs e)
+    {
+        if (AppVM.AssetHandlerVM is null) return;
+        var toggleSwitch = (ToggleButton) sender;
+        var assetType = (EAssetType) AssetControls.SelectedIndex;
+
+        if (AppVM.AssetHandlerVM.Handlers.TryGetValue(assetType, out var handler))
+        {
+            handler.PauseState.IsPaused = toggleSwitch.IsChecked.HasValue && toggleSwitch.IsChecked.Value; 
+        }
     }
 }
