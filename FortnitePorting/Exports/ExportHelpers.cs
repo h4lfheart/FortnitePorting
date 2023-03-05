@@ -690,21 +690,8 @@ public static class ExportHelpers
                             EImageType.TGA => "tga"
                         };
                         path = GetExportPath(obj, extension);
-                        var shouldExport = true; // assume nothing exists yet
-                        if (File.Exists(path))
-                        {
-                            using var existingBitmap = Image.Load(path);
-                            var firstMip = texture.GetFirstMip();
-                            if (existingBitmap is not null && (firstMip?.SizeX > existingBitmap.Width || firstMip?.SizeY > existingBitmap.Height))
-                            {
-                                shouldExport = true; // update because higher res
-                            }
-                            else
-                            {
-                                shouldExport = false; // texture exists and existing resolution is equal
-                            }
-                        }
 
+                        var shouldExport = ShouldExportTexture(path, texture.GetFirstMip());
                         if (!shouldExport) return;
 
                         using var image = texture.DecodeImageSharp();
@@ -748,10 +735,25 @@ public static class ExportHelpers
             }
             catch (IOException e)
             {
-                Log.Error("Failed to export {ExportType}: {FileName}", obj.ExportType, obj.Name);
-                Log.Error(e.Message);
+                Log.Warning("Failed to export {ExportType}: {FileName}", obj.ExportType, obj.Name);
+                Log.Warning(e.Message);
             }
         }));
+    }
+
+    private static bool ShouldExportTexture(string path, FTexture2DMipMap mip)
+    {
+        if (!File.Exists(path)) return true;
+        
+        try
+        {
+            using var existingBitmap = Image.Load(path);
+            return mip.SizeX > existingBitmap.Width || mip.SizeY > existingBitmap.Height;
+        }
+        catch (UnknownImageFormatException)
+        {
+            return false;
+        }
     }
 
     public static void SaveSoundWave(USoundWave soundWave, out string audioFormat, out string path)
@@ -777,8 +779,8 @@ public static class ExportHelpers
             }
             catch (IOException e)
             {
-                Log.Error("Failed to export {ExportType}: {FileName}", soundWave.ExportType, soundWave.Name);
-                Log.Error(e.Message);
+                Log.Warning("Failed to export {ExportType}: {FileName}", soundWave.ExportType, soundWave.Name);
+                Log.Warning(e.Message);
             }
 
             return (string.Empty, string.Empty);
