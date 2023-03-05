@@ -1863,7 +1863,7 @@ def import_response(response):
                     imported_part.location += make_vector(part.get("Offset")) * (0.01 if import_settings.get("ScaleDown") else 1.00)
                     imported_part.scale = make_vector(part.get("Scale"))
                         
-                    if import_type == "Prop":
+                    if import_type in ["Prop", "Mesh"]:
                         imported_part.location = imported_part.location + Vector((1,0,0))*import_index
     
                     has_armature = imported_part.type == "ARMATURE"

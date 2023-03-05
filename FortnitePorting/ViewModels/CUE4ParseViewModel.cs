@@ -33,6 +33,7 @@ public class CUE4ParseViewModel : ObservableObject
     public UTexture2D? PlaceholderTexture;
     public List<UAnimMontage> MaleIdleAnimations = new();
     public List<UAnimMontage> FemaleIdleAnimations = new();
+    public HashSet<string> MeshEntries;
 
     public readonly FortnitePortingFileProvider Provider;
 
@@ -45,6 +46,45 @@ public class CUE4ParseViewModel : ObservableObject
     private static readonly List<DirectoryInfo> ExtraDirectories = new()
     {
         new DirectoryInfo(App.BundlesFolder.FullName)
+    };
+    
+    private static readonly string[] MeshRemoveList = {
+        "/Sounds",
+        "/Playsets",
+        "/UI",
+        "/2dAssets",
+        "/Animation",
+        "/Textures",
+        "/Audio",
+        "/Sound",
+        "/Materials",
+        "/Icons",
+        "/Anims",
+        "/DataTables",
+        "/TextureData",
+        "/ActorBlueprints",
+        "/Physics",
+        
+        "/PPID_",
+        "/M_",
+        "/MI_",
+        "/MF_",
+        "/NS_",
+        "/T_",
+        "/P_",
+        "/TD_",
+        "/MPC_",
+        "/BP_",
+        
+        "Engine/",
+        
+        "_Physics",
+        "_AnimBP",
+        "_PhysMat",
+        "_PoseAsset",
+        
+        "PlaysetGrenade",
+        "NaniteDisplacement"
     };
 
     private static readonly Regex FortniteLiveRegex = new(@"^FortniteGame(/|\\)Content(/|\\)Paks(/|\\)(pakchunk(?:0|10.*|\w+)-WindowsClient|global)\.(pak|utoc)$", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -138,6 +178,22 @@ public class CUE4ParseViewModel : ObservableObject
 
             MaleIdleAnimations.Add(montage);
         }
+        
+        var allEntries = AppVM.CUE4ParseVM.Provider.Files.ToArray();
+        var removeEntries = AppVM.CUE4ParseVM.AssetDataBuffers.Select(x => AppVM.CUE4ParseVM.Provider.FixPath(x.ObjectPath) + ".uasset").ToHashSet();
+
+        MeshEntries = new HashSet<string>();
+        for (var idx = 0; idx < allEntries.Length; idx++)
+        {
+            var entry = allEntries[idx];
+            if (!entry.Key.EndsWith(".uasset")) continue;
+            if (MeshRemoveList.Any(x => entry.Key.Contains(x, StringComparison.OrdinalIgnoreCase))) continue;
+            if (removeEntries.Contains(entry.Key)) continue;
+
+            MeshEntries.Add(entry.Value.Path);
+        }
+        
+        
     }
 
     private async Task InitializeProvider()
