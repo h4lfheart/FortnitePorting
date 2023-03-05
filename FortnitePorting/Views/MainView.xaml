@@ -432,7 +432,7 @@
                                     </StackPanel>
                                 </Button.Content>
                             </Button>
-                            <Button Grid.Row="3" Command="{Binding ExportUnrealCommand}">
+                            <Button Grid.Row="3" Command="{Binding ExportUnrealCommand}" IsEnabled="False">
                                 <Button.Content>
                                     <StackPanel Orientation="Horizontal">
                                         <Image Source="/FortnitePorting;component/Resources/Unreal.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality" />
