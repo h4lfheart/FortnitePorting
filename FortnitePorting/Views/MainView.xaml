@@ -276,7 +276,7 @@
                                     </Grid.RowDefinitions>
 
                                     <Separator Grid.Row="0" Style="{StaticResource NamedSeparator}" Tag="Flat View" />
-                                    <ListBox Name="AssetFlatView" Grid.Row="1" ItemsSource="{Binding Assets, IsAsync=True}" VirtualizingPanel.IsVirtualizing="True" HorizontalAlignment="Stretch" SelectionChanged="AssetFlatView_OnSelectionChanged" MouseDoubleClick="OnAssetDoubleClick">
+                                    <ListBox Name="AssetFlatView" SelectionMode="Extended" Grid.Row="1" ItemsSource="{Binding Assets, IsAsync=True}" VirtualizingPanel.IsVirtualizing="True" HorizontalAlignment="Stretch" SelectionChanged="AssetFlatView_OnSelectionChanged" MouseDoubleClick="OnAssetDoubleClick">
                                         <ListBox.ItemTemplate>
                                             <DataTemplate>
                                                 <TextBlock HorizontalAlignment="Left" Text="{Binding Path}" TextTrimming="CharacterEllipsis" />
@@ -289,7 +289,7 @@
                                                         <Setter Property="Template">
                                                             <Setter.Value>
                                                                 <ControlTemplate>
-                                                                    <TextBlock Text="There are currently no loaded assets. Please wait for them to load. The window may freeze, do not be afraid. :D" FontWeight="SemiBold" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource {x:Static adonisUi:Brushes.ErrorBrush}}" />
+                                                                    <TextBlock Text="There are currently no loaded assets. Please wait a few seconds for them to load." FontWeight="SemiBold" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource {x:Static adonisUi:Brushes.ErrorBrush}}" />
                                                                 </ControlTemplate>
                                                             </Setter.Value>
                                                         </Setter>

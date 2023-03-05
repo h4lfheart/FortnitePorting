@@ -85,7 +85,7 @@ public partial class App
     protected override void OnExit(ExitEventArgs e)
     {
         base.OnExit(e);
-        AppVM.MainVM.CurrentMusicPlayer.Dispose();
+        AppVM.MainVM.CurrentMusicPlayer?.Dispose();
         FreeConsole();
         AppSettings.Save();
     }

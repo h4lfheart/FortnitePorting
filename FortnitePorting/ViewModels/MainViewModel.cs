@@ -38,7 +38,7 @@ namespace FortnitePorting.ViewModels;
 public partial class MainViewModel : ObservableObject
 {
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(StyleImage))] [NotifyPropertyChangedFor(nameof(StyleVisibility))]
-    private List<AssetSelectorItem> extendedAssets = new();
+    private List<IExportableAsset> extendedAssets = new();
 
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(StyleImage))] [NotifyPropertyChangedFor(nameof(StyleVisibility))]
     private IExportableAsset? currentAsset;
@@ -195,8 +195,29 @@ public partial class MainViewModel : ObservableObject
         var meshObject = await AppVM.CUE4ParseVM.Provider.LoadObjectAsync(path);
         if (AllowedMeshTypes.Contains(meshObject.ExportType))
         {
-            AppVM.MainVM.CurrentAsset = new MeshAssetItem(meshObject);
+            CurrentAsset = new MeshAssetItem(meshObject);
         }
+    }
+    
+    public async Task SetupMeshSelection(AssetItem[] extendedItems)
+    {
+        ExtendedAssets.Clear();
+        TabModeText = "SELECTED MESHES";
+        var index = 0;
+        foreach (var item in extendedItems)
+        {
+            var meshObject = await AppVM.CUE4ParseVM.Provider.LoadObjectAsync(item.PathWithoutExtension);
+            if (AllowedMeshTypes.Contains(meshObject.ExportType))
+            {
+                var meshItem = new MeshAssetItem(meshObject);
+                if (index == 0) CurrentAsset = meshItem;
+                ExtendedAssets.Add(meshItem);
+                index++;
+            }
+        }
+        Styles.Clear();
+        Styles.Add(new StyleSelector(ExtendedAssets));
+      
     }
 
     public async Task<List<ExportDataBase>> CreateExportDatasAsync()

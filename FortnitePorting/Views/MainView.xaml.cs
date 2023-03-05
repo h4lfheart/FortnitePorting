@@ -61,6 +61,7 @@ public partial class MainView
 
     private async void OnAssetTabSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
+        if (AppVM.AssetHandlerVM is null) return;
         if (sender is not TabControl tabControl) return;
 
         var assetType = (EAssetType) tabControl.SelectedIndex;
@@ -69,16 +70,7 @@ public partial class MainView
         AppVM.MainVM.ExtendedAssets.Clear();
         AppVM.MainVM.CurrentAssetType = assetType;
         DiscordService.Update(assetType);
-
-        if (assetType == EAssetType.Mesh)
-        {
-            if (AppVM.MeshVM is not null && AppVM.MeshVM.HasStarted) return;
-            AppVM.MeshVM = new MeshAssetViewModel();
-            await AppVM.MeshVM.Initialize();
-            return;
-        }
-
-        if (AppVM.AssetHandlerVM is null) return;
+        
         var handlers = AppVM.AssetHandlerVM.Handlers;
         foreach (var (handlerType, handlerData) in handlers)
         {
@@ -90,6 +82,14 @@ public partial class MainView
             {
                 handlerData.PauseState.Pause();
             }
+        }
+
+        if (assetType == EAssetType.Mesh)
+        {
+            if (AppVM.MeshVM is not null && AppVM.MeshVM.HasStarted) return;
+            AppVM.MeshVM = new MeshAssetViewModel();
+            await AppVM.MeshVM.Initialize();
+            return;
         }
 
         if (!handlers[assetType].HasStarted)
@@ -108,11 +108,11 @@ public partial class MainView
             AppVM.MainVM.Styles.Clear();
             if (selected.Type == EAssetType.Prop)
             {
-                AppVM.MainVM.TabModeText = "SELECTED ASSETS";
+                AppVM.MainVM.TabModeText = "SELECTED PROPS";
                 if (listBox.SelectedItems.Count == 0) return;
                 AppVM.MainVM.CurrentAsset = selected;
                 AppVM.MainVM.ExtendedAssets.Clear();
-                AppVM.MainVM.ExtendedAssets = listBox.SelectedItems.OfType<AssetSelectorItem>().ToList();
+                AppVM.MainVM.ExtendedAssets = listBox.SelectedItems.OfType<IExportableAsset>().ToList();
                 AppVM.MainVM.Styles.Add(new StyleSelector(AppVM.MainVM.ExtendedAssets));
                 return;
             }
@@ -314,11 +314,11 @@ public partial class MainView
 
     private async void AssetFlatView_OnSelectionChanged(object sender, RoutedEventArgs e)
     {
-        var listBox = (ListBox)sender;
-        var selectedItem = (AssetItem)listBox.SelectedItem;
+        var listBox = (ListBox) sender;
+        var selectedItem = (AssetItem) listBox.SelectedItem;
         if (selectedItem is null) return;
-
-        await AppVM.MainVM.SetupMeshSelection(selectedItem.PathWithoutExtension);
+        
+        await AppVM.MainVM.SetupMeshSelection(listBox.SelectedItems.OfType<AssetItem>().ToArray());
     }
 
     private void OnAssetDoubleClick(object sender, MouseButtonEventArgs e)

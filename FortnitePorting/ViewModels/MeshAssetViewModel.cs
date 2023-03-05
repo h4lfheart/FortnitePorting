@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CUE4Parse.Utils;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Views.Controls;
 
@@ -19,11 +20,46 @@ public class MeshAssetViewModel : ObservableObject
     public bool HasStarted;
     public ListCollectionView View;
 
+    private static readonly string[] RemoveList = {
+        "/Sounds",
+        "/Playsets",
+        "/UI",
+        "/2dAssets",
+        "/Animation",
+        "/Textures",
+        "/Audio",
+        "/Sound",
+        "/Materials",
+        "/Icons",
+        "/Anims",
+        "/DataTables",
+        "/TextureData",
+        "/ActorBlueprints",
+        "/Physics",
+        
+        "/PPID_",
+        "/M_",
+        "/MI_",
+        "/MF_",
+        "/NS_",
+        "/T_",
+        "/P_",
+        "/TD_",
+        
+        "Engine/",
+        
+        "_Physics",
+        "_AnimBP",
+        "_PhysMat",
+        "_PoseAsset",
+        
+        "PlaysetGrenade",
+        "NaniteDisplacement"
+    };
+
     public async Task Initialize()
     {
         HasStarted = true;
-        var loadTime = new Stopwatch();
-        loadTime.Start();
 
         var treeItems = new SuppressibleObservableCollection<TreeItem>();
         treeItems.SetSuppression(true);
@@ -31,81 +67,89 @@ public class MeshAssetViewModel : ObservableObject
         var assetItems = new SuppressibleObservableCollection<AssetItem>();
         assetItems.SetSuppression(true);
 
-        await Task.Delay(500);
-        await Application.Current.Dispatcher.InvokeAsync(() =>
+        await Task.Run(() =>
         {
-            static void InvokeOnCollectionChanged(TreeItem item)
-            {
-                item.Children.SetSuppression(false);
-                if (item.Children.Count == 0) return;
+            var loadTime = new Stopwatch();
+            loadTime.Start();
+            
+            var allEntries = AppVM.CUE4ParseVM.Provider.Files.ToArray();
+            var removeEntries = AppVM.CUE4ParseVM.AssetDataBuffers.Select(x => AppVM.CUE4ParseVM.Provider.FixPath(x.ObjectPath) + ".uasset").ToHashSet();
 
-                item.Children.InvokeOnCollectionChanged();
-                foreach (var folderItem in item.Children)
-                {
-                    InvokeOnCollectionChanged(folderItem);
-                }
+            var entries = new HashSet<string>();
+            for (var idx = 0; idx < allEntries.Length; idx++)
+            {
+                var entry = allEntries[idx];
+                if (!entry.Key.EndsWith(".uasset")) continue;
+                if (RemoveList.Any(x => entry.Key.Contains(x, StringComparison.OrdinalIgnoreCase))) continue;
+                if (removeEntries.Contains(entry.Key)) continue;
+
+                entries.Add(entry.Value.Path);
             }
 
-            View = new ListCollectionView(AppVM.MainVM.Meshes)
+            Application.Current.Dispatcher.Invoke(() =>
             {
-                SortDescriptions =
+                static void InvokeOnCollectionChanged(TreeItem item)
                 {
-                    new SortDescription("IsFolder", ListSortDirection.Descending),
-                    new SortDescription("Header", ListSortDirection.Ascending)
-                }
-            };
+                    item.Children.SetSuppression(false);
+                    if (item.Children.Count == 0) return;
 
-            var entries = AppVM.CUE4ParseVM.Provider.Files.Values.ToList();
-
-            foreach (var entry in entries)
-            {
-                // TODO make better but im tired so im not doing it rn
-                if (!entry.Path.EndsWith(".uasset") || entry.Path.Contains("/Content/Playsets/", StringComparison.OrdinalIgnoreCase) || entry.Path.Contains("/Content/UI/", StringComparison.OrdinalIgnoreCase) || entry.Path.Contains("/Content/Sounds/", StringComparison.OrdinalIgnoreCase) || entry.Path.Contains("/Content/2dAssets/", StringComparison.OrdinalIgnoreCase) || entry.Path.Contains("NaniteDisplacement", StringComparison.OrdinalIgnoreCase)) continue;
-
-                assetItems.AddSuppressed(new AssetItem(entry.Path));
-
-                TreeItem? foundNode;
-                var folders = entry.Path.Split('/', StringSplitOptions.RemoveEmptyEntries);
-                var builder = new StringBuilder();
-                var children = treeItems;
-
-                for (var i = 0; i < folders.Length; i++)
-                {
-                    var folder = folders[i];
-                    builder.Append(folder).Append('/');
-                    foundNode = children.FirstOrDefault(x => x.Header == folder);
-
-                    if (foundNode is null)
+                    item.Children.InvokeOnCollectionChanged();
+                    foreach (var folderItem in item.Children)
                     {
-                        var nodePath = builder.ToString();
-                        if (i == folders.Length - 1) // actual asset, last in folder arr
-                        {
-                            foundNode = new TreeItem(folder.Replace(".uasset", string.Empty), nodePath[..^1], ETreeItemType.Asset);
-                        }
-                        else
-                        {
-                            foundNode = new TreeItem(folder, nodePath[..^1], ETreeItemType.Folder);
-                        }
-
-                        foundNode.Children.SetSuppression(true);
-                        children.AddSuppressed(foundNode);
+                        InvokeOnCollectionChanged(folderItem);
                     }
-
-                    children = foundNode.Children;
                 }
-            }
 
-            AppVM.MainVM.Assets.AddRange(assetItems);
-            AppVM.MainVM.Meshes.AddRange(treeItems);
+                View = new ListCollectionView(AppVM.MainVM.Meshes) { SortDescriptions = { new SortDescription("IsFolder", ListSortDirection.Descending), new SortDescription("Header", ListSortDirection.Ascending) } };
 
-            foreach (var child in AppVM.MainVM.Meshes)
-            {
-                InvokeOnCollectionChanged(child);
-            }
+                foreach (var entry in entries)
+                {
+                    assetItems.AddSuppressed(new AssetItem(entry));
+
+                    TreeItem? foundNode;
+                    var folders = entry.Split('/', StringSplitOptions.RemoveEmptyEntries);
+                    var builder = new StringBuilder();
+                    var children = treeItems;
+
+                    for (var i = 0; i < folders.Length; i++)
+                    {
+                        var folder = folders[i];
+                        builder.Append(folder).Append('/');
+                        foundNode = children.FirstOrDefault(x => x.Header == folder);
+
+                        if (foundNode is null)
+                        {
+                            var nodePath = builder.ToString();
+                            if (i == folders.Length - 1) // actual asset, last in folder arr
+                            {
+                                foundNode = new TreeItem(folder.Replace(".uasset", string.Empty), nodePath[..^1], ETreeItemType.Asset);
+                            }
+                            else
+                            {
+                                foundNode = new TreeItem(folder, nodePath[..^1], ETreeItemType.Folder);
+                            }
+
+                            foundNode.Children.SetSuppression(true);
+                            children.AddSuppressed(foundNode);
+                        }
+
+                        children = foundNode.Children;
+                    }
+                }
+
+                AppVM.MainVM.Assets.AddRange(assetItems);
+                AppVM.MainVM.Meshes.AddRange(treeItems);
+
+                foreach (var child in AppVM.MainVM.Meshes)
+                {
+                    InvokeOnCollectionChanged(child);
+                }
+            });
+            
+            loadTime.Stop();
+            AppLog.Information($"Loaded {entries.Count} Meshes in {Math.Round(loadTime.Elapsed.TotalSeconds, 3)}s");
         });
-
-        loadTime.Stop();
-        AppLog.Information($"Loaded Meshes in {Math.Round(loadTime.Elapsed.TotalSeconds, 3)}s");
+        
     }
 }
 
