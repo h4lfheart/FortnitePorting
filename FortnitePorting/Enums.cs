@@ -98,3 +98,9 @@ public enum ETreeItemType
     Folder,
     Asset
 }
+
+public enum EAnimGender
+{
+    Male,
+    Female
+}

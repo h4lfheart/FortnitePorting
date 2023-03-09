@@ -334,7 +334,7 @@
                         <RowDefinition Height="1.25*" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="5*" />
-                        <RowDefinition Height="2*" />
+                        <RowDefinition Height="2.5*" />
                     </Grid.RowDefinitions>
 
                     <StackPanel Grid.Row="0" Orientation="Horizontal">
@@ -402,6 +402,60 @@
                                                                 <StackPanel Orientation="Horizontal">
                                                                     <Image Source="/FortnitePorting;component/Resources/Export.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality" />
                                                                     <TextBlock Text="Export Music Pack" VerticalAlignment="Center" Margin="5 0 0 0" />
+                                                                </StackPanel>
+                                                            </Button.Content>
+                                                        </Button>
+                                                    </Grid>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding CurrentAsset.Type}" Value="{x:Static local:EAssetType.Dance}">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate>
+                                                    <Grid>
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="Auto" />
+                                                            <RowDefinition Height="0.5*" />
+                                                            <RowDefinition Height="{adonisUi:Space 0.5}" />
+                                                            <RowDefinition Height="0.5*" />
+                                                            <RowDefinition Height="{adonisUi:Space 0.5}" />
+                                                            <RowDefinition Height="0.5*" />
+                                                            <RowDefinition Height="{adonisUi:Space 0.5}" />
+                                                            <RowDefinition Height="0.5*" />
+                                                        </Grid.RowDefinitions>
+
+                                                        <Separator Grid.Row="0" Style="{StaticResource NamedSeparator}" Tag="EXPORT" />
+                                                        <Grid Grid.Row="1" HorizontalAlignment="Stretch">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="Auto" />
+                                                                <ColumnDefinition Width="*" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBlock Grid.Column="0" Text="Skeleton Type" Margin="5,5,0, 0" />
+                                                            <ComboBox Grid.Column="1" Margin="10,0,0,10" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" ItemsSource="{extensions:EnumToItemsSource {x:Type local:EAnimGender}}" SelectedItem="{Binding AnimationGender, Converter={StaticResource EnumToString}}" />
+                                                        </Grid>
+                                                        <Button Grid.Row="3" Command="{Binding ExportBlenderCommand}">
+                                                            <Button.Content>
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <Image Source="/FortnitePorting;component/Resources/Blender.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality" />
+                                                                    <TextBlock Text="Send to Blender" VerticalAlignment="Center" Margin="5 0 0 0" />
+                                                                </StackPanel>
+                                                            </Button.Content>
+                                                        </Button>
+                                                        <Button Grid.Row="5" Command="{Binding ExportUnrealCommand}" IsEnabled="False">
+                                                            <Button.Content>
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <Image Source="/FortnitePorting;component/Resources/Unreal.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality" />
+                                                                    <TextBlock Text="Send to Unreal Engine (Unsupported)" VerticalAlignment="Center" Margin="5 0 0 0" />
+                                                                </StackPanel>
+                                                            </Button.Content>
+                                                        </Button>
+                                                        <Button Grid.Row="7" Command="{Binding OpenSettingsCommand}">
+                                                            <Button.Content>
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <Image Source="/FortnitePorting;component/Resources/Settings.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality" />
+                                                                    <TextBlock Text="Export/Import Options" VerticalAlignment="Center" Margin="5 0 0 0" />
                                                                 </StackPanel>
                                                             </Button.Content>
                                                         </Button>

@@ -35,6 +35,10 @@ class ImageType(Enum):
     PNG = 0
     TGA = 1
 
+class ESkeletonType(Enum):
+    MALE = 0
+    FEMALE = 1
+
 class Log:
     INFO = u"\u001b[36m"
     WARNING = u"\u001b[31m"
@@ -1711,6 +1715,10 @@ def import_response(response):
             total_frames = 0
             for section in anim_data.get("Sections"):
                 anim_path = section.get("Path")
+                additive_path = section.get("AdditivePath")
+                if ESkeletonType(import_settings.get("AnimGender")) is ESkeletonType.FEMALE and additive_path is not None:
+                    anim_path = additive_path
+                    
                 section_name = section.get("Name")
                 time_offset = section.get("Time")
                 section_length = section.get("Length")

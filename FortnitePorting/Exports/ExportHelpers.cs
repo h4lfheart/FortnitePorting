@@ -5,9 +5,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using CUE4Parse_Conversion;
 using CUE4Parse_Conversion.Animations;
+using CUE4Parse_Conversion.Animations.PSA;
 using CUE4Parse_Conversion.Meshes;
 using CUE4Parse_Conversion.Sounds;
 using CUE4Parse_Conversion.Textures;
+using CUE4Parse.UE4.Assets;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.Material;
@@ -794,8 +796,12 @@ public static class ExportHelpers
 
     public static void SaveAdditiveAnim(UAnimSequence baseSequence, UAnimSequence additiveSequence)
     {
-        // TODO PLACEHOLDER FOR NOW
-        Save(additiveSequence);
+        additiveSequence.RefPoseSeq = new ResolvedLoadedObject(baseSequence);
+        
+        var exporter = new AnimExporter(additiveSequence, ExportOptions);
+        exporter.TryWriteToDir(App.AssetsFolder, out var label, out var savedFilePath);
+        
+        Log.Information("Exporting {ExportType}: {FileName}", additiveSequence.ExportType, additiveSequence.Name);
     }
 
     private static string GetExportPath(UObject obj, string ext, string extra = "")

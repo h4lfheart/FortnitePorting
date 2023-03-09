@@ -108,7 +108,7 @@ public class DanceExportData : ExportDataBase
                 var firstNode = notifyData.EmoteSound1P?.FirstNode?.Load<USoundNode>();
                 if (firstNode is null) continue;
 
-                var sounds = ExportHelpers.HandleAudioTree(firstNode);
+                var sounds = ExportHelpers.HandleAudioTree(firstNode, time);
                 foreach (var sound in sounds)
                 {
                     if (!sound.IsValid()) continue;
@@ -151,6 +151,18 @@ public class DanceExportData : ExportDataBase
         return animData;
     }
 
+    private static UAnimSequence? ExportAdditiveAnim(FCompositeSection currentSection, FSlotAnimationTrack[]? slots, UAnimSequence baseSequence)
+    {
+        var additiveSlot = slots?.FirstOrDefault(x => x.SlotName.Text.Equals("AdditiveCorrective"));
+        var additiveSection = additiveSlot?.AnimTrack.AnimSegments.FirstOrDefault(x => Math.Abs(x.StartPos - currentSection.SegmentBeginTime) < 0.01);
+
+        var additiveAnimation = additiveSection?.AnimReference.Load<UAnimSequence>();
+        if (additiveAnimation is null) return null;
+        
+        ExportHelpers.SaveAdditiveAnim(baseSequence, additiveAnimation);
+        return additiveAnimation;
+    }
+
     private static void ExportSections(UAnimMontage targetMontage, List<EmoteSection> sections, UAnimMontage? additiveMontage = null)
     {
         var section = targetMontage.CompositeSections.FirstOrDefault();
@@ -162,15 +174,11 @@ public class DanceExportData : ExportDataBase
                 var exportSection = new EmoteSection(linkedSequence.GetPathName(), section.SectionName.Text, section.SegmentBeginTime, section.SegmentLength, section.NextSectionName == section.SectionName);
                 ExportHelpers.Save(linkedSequence);
 
-                /*if (additiveMontage is not null)
+                var additiveAnimation = ExportAdditiveAnim(section, additiveMontage?.SlotAnimTracks, linkedSequence);
+                if (additiveAnimation is not null)
                 {
-                    var additiveSlot = additiveMontage.SlotAnimTracks.First(x => x.SlotName.Text.Equals("AdditiveCorrective"));
-                    var additiveSection = additiveSlot.AnimTrack.AnimSegments.First(x => Math.Abs(x.StartPos - section.SegmentBeginTime) < 0.01);
-
-                    var additiveAnimation = additiveSection.AnimReference;
                     exportSection.AdditivePath = additiveAnimation.GetPathName();
-                    ExportHelpers.SaveAdditiveAnim(section.LinkedSequence, additiveAnimation);
-                }*/
+                }
 
                 var floatCurves = linkedSequence.CompressedCurveData.FloatCurves ?? Array.Empty<FFloatCurve>();
                 foreach (var curve in floatCurves)

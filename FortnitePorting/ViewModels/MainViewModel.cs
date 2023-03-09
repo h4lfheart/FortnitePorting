@@ -101,6 +101,8 @@ public partial class MainViewModel : ObservableObject
 
     public MusicPackPlayer? CurrentMusicPlayer = null;
 
+    [ObservableProperty] private EAnimGender animationGender;
+
     public async Task Initialize()
     {
         await Task.Run(async () =>
@@ -271,7 +273,9 @@ public partial class MainViewModel : ObservableObject
         var exportDatas = await CreateExportDatasAsync();
         if (exportDatas.Count == 0) return;
 
-        BlenderService.Client.Send(exportDatas, AppSettings.Current.BlenderExportSettings);
+        var exportSettings = AppSettings.Current.BlenderExportSettings;
+        exportSettings.AnimGender = AnimationGender;
+        BlenderService.Client.Send(exportDatas, exportSettings);
     }
 
     [RelayCommand]
