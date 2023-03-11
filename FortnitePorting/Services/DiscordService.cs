@@ -17,12 +17,7 @@ public static class DiscordService
     private static readonly RichPresence DefaultPresence = new()
     {
         Timestamps = Timestamp,
-        Assets = Assets,
-        Buttons = new[]
-        {
-            new Button { Label = "GitHub Repository", Url = Globals.GITHUB_URL },
-            new Button { Label = "Discord Server", Url = Globals.DISCORD_URL }
-        }
+        Assets = Assets
     };
 
     private static bool IsInitialized;
