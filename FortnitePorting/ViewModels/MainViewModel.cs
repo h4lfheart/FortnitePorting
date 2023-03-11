@@ -344,12 +344,15 @@ public partial class MainViewModel : ObservableObject
         var (data, format) = GetCurrentSoundData();
         CurrentMusicPlayer = new MusicPackPlayer(data, format);
         CurrentMusicPlayer.Play();
+        
+        DiscordService.UpdateMusicState(CurrentAsset?.DisplayName ?? string.Empty);
     }
 
     [RelayCommand]
     public async Task StopSound()
     {
         CurrentMusicPlayer?.Stop();
+        DiscordService.ClearMusicState();
     }
 
     [RelayCommand]
