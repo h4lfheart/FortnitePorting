@@ -41,7 +41,7 @@
                 <MenuItem Header="Show Console" IsChecked="{Binding ShowConsole}" IsCheckable="True" Checked="OnShowConsoleChecked" Unchecked="OnShowConsoleChecked" />
             </MenuItem>
             <MenuItem Header="Tools">
-                <MenuItem Header="Heightmap Exporter" Command="{Binding MenuCommand}" CommandParameter="Tools_Heightmap">
+                <MenuItem Header="Heightmap Exporter" Command="{Binding MenuCommand}" CommandParameter="Tools_Heightmap" IsEnabled="{Binding IsReady}">
                     <MenuItem.Icon>
                         <Image Source="/Resources/Props.png" Width="16" Height="16" />
                     </MenuItem.Icon>

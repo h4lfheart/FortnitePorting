@@ -36,6 +36,7 @@ public static class DiscordService
 
     public static void DeInitialize()
     {
+        if (!IsInitialized) return;
         var user = Client?.CurrentUser;
         Log.Information("Discord Rich Presence Stopped for {Username}#{Discriminator}", user?.Username, user?.Discriminator.ToString("D4"));
         Client?.Deinitialize();
