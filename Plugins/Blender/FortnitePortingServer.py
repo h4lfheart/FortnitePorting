@@ -801,39 +801,43 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
         cropped_emissive_shader.inputs[3].default_value = cropped_emissive_pos.get('A')
         links.new(cropped_emissive_shader.outputs[0], emissive_node.inputs[0])
         
-    if tattoo_texture := first(textures, lambda x: x.get("Name") == "Tattoo_Texture"):
-        if has_override_data:
-            for override_data in override_datas:
-                if found_override := first(override_data.get("Textures"), lambda x: x.get("Name") == tattoo_texture.get("Name")):
-                    tattoo_texture = found_override
+    def extra_uv_decal(tex_name):
+        if decal_texture := first(textures, lambda x: x.get("Name") == tex_name):
+            if has_override_data:
+                for override_data in override_datas:
+                    if found_override := first(override_data.get("Textures"), lambda x: x.get("Name") == decal_texture.get("Name")):
+                        decal_texture = found_override
+
+            name = decal_texture.get("Name")
+            value = decal_texture.get("Value")
+            if image := import_texture(value):
+                image_node = nodes.new(type="ShaderNodeTexImage")
+                image_node.image = image
+                image_node.image.alpha_mode = 'CHANNEL_PACKED'
+                image_node.location = [-500, 0]
+                image_node.hide = True
+                if not decal_texture.get("sRGB"):
+                    set_linear(image_node)
+    
+                uvmap_node = nodes.new(type="ShaderNodeUVMap")
+                uvmap_node.location = [-700, 25]
+                uvmap_node.uv_map = 'EXTRAUVS0'
+    
+                links.new(uvmap_node.outputs[0], image_node.inputs[0])
+    
+                mix_node = nodes.new(type="ShaderNodeMixRGB")
+                mix_node.location = [-200, 75]
+    
+                links.new(image_node.outputs[1], mix_node.inputs[0])
+                links.new(image_node.outputs[0], mix_node.inputs[2])
+    
+                diffuse_node = shader_node.inputs["Diffuse"].links[0].from_node
+                diffuse_node.location = [-500, -75]
+                links.new(diffuse_node.outputs[0], mix_node.inputs[1])
+                links.new(mix_node.outputs[0], shader_node.inputs["Diffuse"])
                 
-        name = tattoo_texture.get("Name")
-        value = tattoo_texture.get("Value")
-        if image := import_texture(value):
-            image_node = nodes.new(type="ShaderNodeTexImage")
-            image_node.image = image
-            image_node.image.alpha_mode = 'CHANNEL_PACKED'
-            image_node.location = [-500, 0]
-            image_node.hide = True
-            if not tattoo_texture.get("sRGB"):
-                set_linear(image_node)
-    
-            uvmap_node = nodes.new(type="ShaderNodeUVMap")
-            uvmap_node.location = [-700, 25]
-            uvmap_node.uv_map = 'EXTRAUVS0'
-    
-            links.new(uvmap_node.outputs[0], image_node.inputs[0])
-    
-            mix_node = nodes.new(type="ShaderNodeMixRGB")
-            mix_node.location = [-200, 75]
-    
-            links.new(image_node.outputs[1], mix_node.inputs[0])
-            links.new(image_node.outputs[0], mix_node.inputs[2])
-    
-            diffuse_node = shader_node.inputs["Diffuse"].links[0].from_node
-            diffuse_node.location = [-500, -75]
-            links.new(diffuse_node.outputs[0], mix_node.inputs[1])
-            links.new(mix_node.outputs[0], shader_node.inputs["Diffuse"])
+    extra_uv_decal("Tattoo_Texture")
+    extra_uv_decal("Decal")
 
     if mask_texture := first(textures, lambda x: x.get("Name") == "MaskTexture"):
         value = mask_texture.get("Value")
