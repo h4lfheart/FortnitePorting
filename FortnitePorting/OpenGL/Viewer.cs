@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Threading;
+using CUE4Parse_Conversion.Meshes.PSK;
 using CUE4Parse.GameTypes.FN.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
@@ -38,20 +39,48 @@ public class Viewer : GameWindow
         Cam = new Camera();
         Renderer = new Renderer();
         Renderer.Setup();
+        
+        LoadIcon();
+        CenterWindow();
     }
     
-    public void LoadMeshAsset(IExportableAsset exportable)
+    public void LoadMeshAssets(List<IExportableAsset> exportables)
     {
-        Title = $"Model Preview - {exportable.DisplayName}";
+        Title = "Mesh Viewer - Multiple Assets";
+        Renderer.Clear();
+
+        var x = 0.0f;
+        foreach (var exportable in exportables)
+        {
+            var transform = Matrix4.CreateTranslation(x/50, 0, 0);
+            switch (exportable.Asset)
+            {
+                case USkeletalMesh skeletalMesh:
+                    var sk = new UnrealMesh(skeletalMesh, transform);
+                    Renderer.AddDynamic(sk);
+                    x += 128;
+                    break;
+                case UStaticMesh staticMesh:
+                    var sm = new UnrealMesh(staticMesh, transform);
+                    Renderer.AddDynamic(sm);
+                    x += 128;
+                    break;
+            }
+        }
+    }
+    
+    public void LoadMeshAsset(IExportableAsset exportable, Matrix4? transform = null)
+    {
+        Title = $"Mesh Viewer - {exportable.DisplayName}";
         Renderer.Clear();
 
         switch (exportable.Asset)
         {
             case USkeletalMesh skeletalMesh:
-                Renderer.AddDynamic(new UnrealMesh(skeletalMesh));
+                Renderer.AddDynamic(new UnrealMesh(skeletalMesh, transform ?? Matrix4.Zero));
                 break;
             case UStaticMesh staticMesh:
-                Renderer.AddDynamic(new UnrealMesh(staticMesh));
+                Renderer.AddDynamic(new UnrealMesh(staticMesh, transform ?? Matrix4.Zero));
                 break;
         }
     }
@@ -69,9 +98,6 @@ public class Viewer : GameWindow
     protected override void OnLoad()
     {
         base.OnLoad();
-
-        CenterWindow();
-        LoadIcon();
 
         GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         GL.Enable(EnableCap.DepthTest);

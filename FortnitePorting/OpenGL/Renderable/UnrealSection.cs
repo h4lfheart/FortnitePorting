@@ -10,8 +10,9 @@ namespace FortnitePorting.OpenGL.Renderable;
 public class UnrealSection : VertexAndIndexModel
 {
     private Material? Material;
-    public UnrealSection(CSkelMeshLod lod, CMeshSection section, UMaterialInterface? material)
+    public UnrealSection(CSkelMeshLod lod, CMeshSection section, UMaterialInterface? material, Matrix4? transform = null)
     {
+        Transform = transform ?? Matrix4.Identity;
         var indices = lod.Indices.Value;
         for (var i = 0; i < section.NumFaces * 3; i++)
         {
@@ -43,9 +44,10 @@ public class UnrealSection : VertexAndIndexModel
         Material = AppVM.MeshViewer.Renderer.GetOrAddMaterial(material);
     }
     
-    public UnrealSection(CStaticMeshLod lod, CMeshSection section, UMaterialInterface? material)
+    public UnrealSection(CStaticMeshLod lod, CMeshSection section, UMaterialInterface? material, Matrix4? transform = null)
     {
-        Log.Information(material.Name);
+        Transform = transform ?? Matrix4.Identity;
+        Log.Information(Transform.ExtractTranslation().ToString());
         var indices = lod.Indices.Value;
         for (var i = 0; i < section.NumFaces * 3; i++)
         {
@@ -84,7 +86,7 @@ public class UnrealSection : VertexAndIndexModel
         VAO.Bind();
         Shader.Use();
         
-        Shader.SetMatrix4("uTransform", Matrix4.Identity);
+        Shader.SetMatrix4("uTransform", Transform);
         Shader.SetMatrix4("uView", camera.GetViewMatrix());
         Shader.SetMatrix4("uProjection", camera.GetProjectionMatrix());
         Shader.SetUniform("diffuseTex", 0);
