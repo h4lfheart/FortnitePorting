@@ -47,14 +47,15 @@
                     </MenuItem.Icon>
                 </MenuItem>
             </MenuItem>
-            <MenuItem Header="Check for Updates" Command="{Binding MenuCommand}" CommandParameter="Update" />
-            <MenuItem Header="Sync Plugin" Command="{Binding MenuCommand}" CommandParameter="SyncPlugin" />
             <MenuItem Header="Help">
                 <MenuItem Header="Discord Server" Command="{Binding MenuCommand}" CommandParameter="Help_Discord" />
                 <MenuItem Header="GitHub Repo" Command="{Binding MenuCommand}" CommandParameter="Help_GitHub" />
                 <MenuItem Header="Donate" Command="{Binding MenuCommand}" CommandParameter="Help_Donate" />
                 <MenuItem Header="About" Command="{Binding MenuCommand}" CommandParameter="Help_About" />
             </MenuItem>
+            <MenuItem Header="Check for Updates" Command="{Binding MenuCommand}" CommandParameter="Update" />
+            <MenuItem Header="Sync Plugin" Command="{Binding MenuCommand}" CommandParameter="SyncPlugin" />
+            <MenuItem Header="Wrapped" Command="{Binding MenuCommand}" CommandParameter="Wrapped" IsEnabled="{Binding IsReady}"/>
         </Menu>
 
         <Grid Grid.Row="2">
