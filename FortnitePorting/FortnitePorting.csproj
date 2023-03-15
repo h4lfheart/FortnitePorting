@@ -13,7 +13,7 @@
         <PackageReference Include="AdonisUI" Version="1.17.1" />
         <PackageReference Include="AdonisUI.ClassicTheme" Version="1.17.1" />
         <PackageReference Include="Autoupdater.NET.Official" Version="1.7.6" />
-        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.1.0" />
         <PackageReference Include="CSCore" Version="1.2.1.2" />
         <PackageReference Include="CSCore.Ogg" Version="1.0.0" />
         <PackageReference Include="DiscordRichPresence" Version="1.0.175" />
@@ -72,7 +72,6 @@
         <Resource Include="Resources\Shaders\pz.png" />
         <Resource Include="Resources\Shaders\skybox.frag" />
         <Resource Include="Resources\Shaders\skybox.vert" />
-
         <Resource Include="Resources\Shaders\shader.frag" />
         <Resource Include="Resources\Shaders\shader.vert" />
     </ItemGroup>

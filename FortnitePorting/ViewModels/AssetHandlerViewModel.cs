@@ -17,6 +17,7 @@ using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.Engine;
+using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.UE4.Vfs;
 using CUE4Parse.Utils;
 using FortnitePorting.AppUtils;
@@ -107,7 +108,7 @@ public class AssetHandlerViewModel
     {
         AssetType = EAssetType.Weapon,
         TargetCollection = AppVM.MainVM.Weapons,
-        ClassNames = new List<string> { "FortWeaponRangedItemDefinition", "FortWeaponMeleeItemDefinition" },
+        ClassNames = new List<string> { "FortWeaponRangedItemDefinition", "FortWeaponMeleeItemDefinition", "FortCreativeWeaponMeleeItemDefinition", "FortCreativeWeaponRangedItemDefinition" },
         RemoveList = { "_Harvest", "Weapon_Pickaxe_", "Weapons_Pickaxe_", "Dev_WID" },
         IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
     };
@@ -242,6 +243,27 @@ public class AssetHandlerData
             AppLog.Warning("Generating first-time weapon mappings, this may take longer than usual");
         }
 
+        var propDictionary = new Dictionary<string, string>(); // prop asset name : gallery
+        if (AssetType is EAssetType.Prop)
+        {
+            var playsets = AppVM.CUE4ParseVM.AssetDataBuffers.Where(x => x.AssetClass.Text.Equals("FortPlaysetItemDefinition", StringComparison.OrdinalIgnoreCase)).ToList();
+            foreach (var playset in playsets)
+            {
+                var playsetObject = await AppVM.CUE4ParseVM.Provider.LoadObjectAsync(playset.ObjectPath);
+                var creativeTagsHelper = playsetObject.GetOrDefault("CreativeTagsHelper", new FStructFallback());
+                var creativeTags = creativeTagsHelper.GetOrDefault("CreativeTags", Array.Empty<FName>());
+                if (!creativeTags.Any(x => x.Text.Contains("Gallery", StringComparison.OrdinalIgnoreCase))) continue;
+
+                var playsetName = playsetObject.GetOrDefault("DisplayName", new FText("Unknown Gallery"));
+                var associatedProps = playsetObject.GetOrDefault("AssociatedPlaysetProps", Array.Empty<FSoftObjectPath>());
+                foreach (var prop in associatedProps)
+                {
+                    var propName = prop.AssetPathName.Text.SubstringAfterLast(".");
+                    propDictionary[propName] = playsetName.Text;
+                }
+            }
+        }
+
         var items = AppVM.CUE4ParseVM.AssetDataBuffers.Where(x => ClassNames.Any(y => x.AssetClass.Text.Equals(y, StringComparison.OrdinalIgnoreCase))).ToList();
 
         // prioritize random first cuz of parallel list positions
@@ -299,21 +321,37 @@ public class AssetHandlerData
                 }
 
                 addedAssets.Add(displayName);
+                if (propDictionary.TryGetValue(data.AssetName.Text, out var gallery))
+                {
+                    await DoLoad(data, AssetType, descriptionOverride: gallery);
+                }
+                else
+                {
+                    await DoLoad(data, AssetType, descriptionOverride: "Unknown Gallery");
+                }
+                return;
+            }
+            
+            if (AssetType is EAssetType.Vehicle)
+            {
+                await DoLoad(data, AssetType, descriptionOverride: data.AssetName.Text);
+                return;
             }
 
             await DoLoad(data, AssetType);
+
         });
         sw.Stop();
         AppLog.Information($"Loaded {AssetType.GetDescription()} in {Math.Round(sw.Elapsed.TotalSeconds, 2)}s");
     }
 
-    private async Task DoLoad(FAssetData data, EAssetType type, bool random = false)
+    private async Task DoLoad(FAssetData data, EAssetType type, bool random = false, string? descriptionOverride = null)
     {
         var asset = await AppVM.CUE4ParseVM.Provider.LoadObjectAsync(data.ObjectPath);
-        await DoLoad(asset, type, random);
+        await DoLoad(asset, type, random, descriptionOverride);
     }
 
-    private async Task DoLoad(UObject asset, EAssetType type, bool random = false)
+    private async Task DoLoad(UObject asset, EAssetType type, bool random = false, string? descriptionOverride = null)
     {
         try
         {
@@ -323,7 +361,7 @@ public class AssetHandlerData
             previewImage ??= AppVM.CUE4ParseVM.PlaceholderTexture;
             if (previewImage is null) return;
 
-            await Application.Current.Dispatcher.InvokeAsync(() => TargetCollection.Add(new AssetSelectorItem(asset, previewImage, type, random, DisplayNameGetter?.Invoke(asset), type == EAssetType.Vehicle, RemoveList.Any(y => asset.Name.Contains(y, StringComparison.OrdinalIgnoreCase)))), DispatcherPriority.Background);
+            await Application.Current.Dispatcher.InvokeAsync(() => TargetCollection.Add(new AssetSelectorItem(asset, previewImage, type, random, DisplayNameGetter?.Invoke(asset), descriptionOverride, RemoveList.Any(y => asset.Name.Contains(y, StringComparison.OrdinalIgnoreCase)))), DispatcherPriority.Background);
         }
         catch (Exception e)
         {

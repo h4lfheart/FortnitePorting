@@ -48,7 +48,7 @@ namespace FortnitePorting.ViewModels;
 public partial class MainViewModel : ObservableObject
 {
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(StyleImage))] [NotifyPropertyChangedFor(nameof(StyleVisibility))]
-    private List<AssetSelectorItem> extendedAssets = new();
+    private List<IExportableAsset> extendedAssets = new();
 
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(StyleImage))] [NotifyPropertyChangedFor(nameof(StyleVisibility))]
     private IExportableAsset? currentAsset;
@@ -110,6 +110,8 @@ public partial class MainViewModel : ObservableObject
     };
 
     public MusicPackPlayer? CurrentMusicPlayer = null;
+
+    [ObservableProperty] private EAnimGender animationGender;
 
     public async Task Initialize()
     {
@@ -185,6 +187,9 @@ public partial class MainViewModel : ObservableObject
                 break;
             case "Tools_Heightmap":
                 AppHelper.OpenWindow<HeightmapView>();
+                break; 
+            case "Wrapped":
+                AppHelper.OpenWindow<WrappedView>();
                 break;
         }
     }
@@ -206,8 +211,29 @@ public partial class MainViewModel : ObservableObject
         var meshObject = await AppVM.CUE4ParseVM.Provider.LoadObjectAsync(path);
         if (AllowedMeshTypes.Contains(meshObject.ExportType))
         {
-            AppVM.MainVM.CurrentAsset = new MeshAssetItem(meshObject);
+            CurrentAsset = new MeshAssetItem(meshObject);
         }
+    }
+    
+    public async Task SetupMeshSelection(AssetItem[] extendedItems)
+    {
+        ExtendedAssets.Clear();
+        TabModeText = "SELECTED MESHES";
+        var index = 0;
+        foreach (var item in extendedItems)
+        {
+            var meshObject = await AppVM.CUE4ParseVM.Provider.LoadObjectAsync(item.PathWithoutExtension);
+            if (AllowedMeshTypes.Contains(meshObject.ExportType))
+            {
+                var meshItem = new MeshAssetItem(meshObject);
+                if (index == 0) CurrentAsset = meshItem;
+                ExtendedAssets.Add(meshItem);
+                index++;
+            }
+        }
+        Styles.Clear();
+        Styles.Add(new StyleSelector(ExtendedAssets));
+      
     }
 
     public async Task<List<ExportDataBase>> CreateExportDatasAsync()
@@ -261,7 +287,10 @@ public partial class MainViewModel : ObservableObject
         var exportDatas = await CreateExportDatasAsync();
         if (exportDatas.Count == 0) return;
 
-        BlenderService.Client.Send(exportDatas, AppSettings.Current.BlenderExportSettings);
+        AppSettings.Current.WrappedData.Asset(CurrentAsset);
+        var exportSettings = AppSettings.Current.BlenderExportSettings;
+        exportSettings.AnimGender = AnimationGender;
+        BlenderService.Client.Send(exportDatas, exportSettings);
     }
 
     [RelayCommand]
@@ -400,16 +429,19 @@ public partial class MainViewModel : ObservableObject
     public async Task PlaySound()
     {
         CurrentMusicPlayer?.Stop();
-
         var (data, format) = GetCurrentSoundData();
         CurrentMusicPlayer = new MusicPackPlayer(data, format);
         CurrentMusicPlayer.Play();
+        
+        DiscordService.UpdateMusicState(CurrentAsset?.DisplayName ?? string.Empty);
+        AppSettings.Current.WrappedData.Music(CurrentAsset);
     }
 
     [RelayCommand]
     public async Task StopSound()
     {
         CurrentMusicPlayer?.Stop();
+        DiscordService.ClearMusicState();
     }
 
     [RelayCommand]

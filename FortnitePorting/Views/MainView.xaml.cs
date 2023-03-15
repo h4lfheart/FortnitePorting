@@ -3,16 +3,22 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
+using AdonisUI.Controls;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using FortnitePorting.AppUtils;
+using FortnitePorting.Models;
 using FortnitePorting.Services;
 using FortnitePorting.ViewModels;
 using FortnitePorting.Views.Controls;
 using FortnitePorting.Views.Extensions;
+using MessageBox = AdonisUI.Controls.MessageBox;
+using MessageBoxImage = AdonisUI.Controls.MessageBoxImage;
+using MessageBoxResult = AdonisUI.Controls.MessageBoxResult;
 using StyleSelector = FortnitePorting.Views.Controls.StyleSelector;
 
 namespace FortnitePorting.Views;
@@ -41,6 +47,23 @@ public partial class MainView
             return;
         }
 
+        if (AppSettings.Current.WrappedData is null)
+        {
+            AppSettings.Current.WrappedData = new FortniteWrappedData();
+            
+            var messageBox = new MessageBoxModel
+            {
+                Caption = "Introducing FortnitePorting Wrapped!",
+                Icon = MessageBoxImage.Exclamation,
+                Text = "You can now have a monthly FortnitePorting wrapped!\n\nThis new feature tracks things like what assets you export, what music packs you listen to, and how long you've used the program for!\n\nAll of this data is shown to you at the start of every month and you can always view your total stats by pressing the \"Wrapped\" button at the top of the program.\n\nAll of this info stays on your hard drive and does not leave your computer in any way. (You may opt in or out at any time in the program settings if you change your mind)",
+                Buttons = new[] { new MessageBoxButtonModel("Opt-In", MessageBoxResult.Yes), new MessageBoxButtonModel("Opt-Out", MessageBoxResult.No) },
+            };
+
+            MessageBox.Show(messageBox);
+
+            AppSettings.Current.TrackWrappedData = messageBox.Result is MessageBoxResult.Yes;
+        }
+
         var (updateAvailable, updateVersion) = UpdateService.GetStats();
         if (DateTime.Now >= AppSettings.Current.LastUpdateAskTime.AddDays(1) || updateVersion > AppSettings.Current.LastKnownUpdateVersion)
         {
@@ -60,28 +83,20 @@ public partial class MainView
 
     private async void OnAssetTabSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
+        if (AppVM.AssetHandlerVM is null) return;
         if (sender is not TabControl tabControl) return;
 
-        var assetType = (EAssetType)tabControl.SelectedIndex;
+        var assetType = (EAssetType) tabControl.SelectedIndex;
         if (AppVM.MainVM.CurrentAssetType == assetType) return;
 
         AppVM.MainVM.ExtendedAssets.Clear();
         AppVM.MainVM.CurrentAssetType = assetType;
         DiscordService.Update(assetType);
-
-        if (assetType == EAssetType.Mesh)
-        {
-            if (AppVM.MeshVM is not null && AppVM.MeshVM.HasStarted) return;
-            AppVM.MeshVM = new MeshAssetViewModel();
-            await AppVM.MeshVM.Initialize();
-            return;
-        }
-
-        if (AppVM.AssetHandlerVM is null) return;
+        
         var handlers = AppVM.AssetHandlerVM.Handlers;
         foreach (var (handlerType, handlerData) in handlers)
         {
-            if (handlerType == assetType)
+            if (handlerType == assetType && !PauseButton.IsChecked.Value)
             {
                 handlerData.PauseState.Unpause();
             }
@@ -89,6 +104,14 @@ public partial class MainView
             {
                 handlerData.PauseState.Pause();
             }
+        }
+
+        if (assetType == EAssetType.Mesh)
+        {
+            if (AppVM.MeshVM is not null && AppVM.MeshVM.HasStarted) return;
+            AppVM.MeshVM = new MeshAssetViewModel();
+            await AppVM.MeshVM.Initialize();
+            return;
         }
 
         if (!handlers[assetType].HasStarted)
@@ -107,11 +130,11 @@ public partial class MainView
             AppVM.MainVM.Styles.Clear();
             if (selected.Type == EAssetType.Prop)
             {
-                AppVM.MainVM.TabModeText = "SELECTED ASSETS";
+                AppVM.MainVM.TabModeText = "SELECTED PROPS";
                 if (listBox.SelectedItems.Count == 0) return;
                 AppVM.MainVM.CurrentAsset = selected;
                 AppVM.MainVM.ExtendedAssets.Clear();
-                AppVM.MainVM.ExtendedAssets = listBox.SelectedItems.OfType<AssetSelectorItem>().ToList();
+                AppVM.MainVM.ExtendedAssets = listBox.SelectedItems.OfType<IExportableAsset>().ToList();
                 AppVM.MainVM.Styles.Add(new StyleSelector(AppVM.MainVM.ExtendedAssets));
                 return;
             }
@@ -313,11 +336,11 @@ public partial class MainView
 
     private async void AssetFlatView_OnSelectionChanged(object sender, RoutedEventArgs e)
     {
-        var listBox = (ListBox)sender;
-        var selectedItem = (AssetItem)listBox.SelectedItem;
+        var listBox = (ListBox) sender;
+        var selectedItem = (AssetItem) listBox.SelectedItem;
         if (selectedItem is null) return;
-
-        await AppVM.MainVM.SetupMeshSelection(selectedItem.PathWithoutExtension);
+        
+        await AppVM.MainVM.SetupMeshSelection(listBox.SelectedItems.OfType<AssetItem>().ToArray());
     }
 
     private void OnAssetDoubleClick(object sender, MouseButtonEventArgs e)
@@ -325,5 +348,17 @@ public partial class MainView
         var listBox = (ListBox)sender;
         var selectedItem = (AssetItem)listBox.SelectedItem;
         JumpToAsset(selectedItem.PathWithoutExtension);
+    }
+
+    private void OnPauseSwitch(object sender, RoutedEventArgs e)
+    {
+        if (AppVM.AssetHandlerVM is null) return;
+        var toggleSwitch = (ToggleButton) sender;
+        var assetType = (EAssetType) AssetControls.SelectedIndex;
+
+        if (AppVM.AssetHandlerVM.Handlers.TryGetValue(assetType, out var handler))
+        {
+            handler.PauseState.IsPaused = toggleSwitch.IsChecked.HasValue && toggleSwitch.IsChecked.Value; 
+        }
     }
 }

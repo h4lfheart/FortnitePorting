@@ -17,12 +17,7 @@ public static class DiscordService
     private static readonly RichPresence DefaultPresence = new()
     {
         Timestamps = Timestamp,
-        Assets = Assets,
-        Buttons = new[]
-        {
-            new Button { Label = "GitHub Repository", Url = Globals.GITHUB_URL },
-            new Button { Label = "Discord Server", Url = Globals.DISCORD_URL }
-        }
+        Assets = Assets
     };
 
     private static bool IsInitialized;
@@ -41,6 +36,7 @@ public static class DiscordService
 
     public static void DeInitialize()
     {
+        if (!IsInitialized) return;
         var user = Client?.CurrentUser;
         Log.Information("Discord Rich Presence Stopped for {Username}#{Discriminator}", user?.Username, user?.Discriminator.ToString("D4"));
         Client?.Deinitialize();
@@ -53,5 +49,17 @@ public static class DiscordService
         if (!IsInitialized) return;
         Client?.UpdateDetails($"Browsing {assetType.GetDescription()}");
         Client?.UpdateSmallAsset(assetType.ToString().ToLower(), assetType.GetDescription());
+    }
+    
+    public static void UpdateMusicState(string name)
+    {
+        if (!IsInitialized) return;
+        Client?.UpdateState($"Vibin' out to \"{name}\"");
+    }
+    
+    public static void ClearMusicState()
+    {
+        if (!IsInitialized) return;
+        Client?.UpdateState(string.Empty);
     }
 }

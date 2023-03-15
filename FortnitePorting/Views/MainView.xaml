@@ -41,20 +41,21 @@
                 <MenuItem Header="Show Console" IsChecked="{Binding ShowConsole}" IsCheckable="True" Checked="OnShowConsoleChecked" Unchecked="OnShowConsoleChecked" />
             </MenuItem>
             <MenuItem Header="Tools">
-                <MenuItem Header="Heightmap Exporter" Command="{Binding MenuCommand}" CommandParameter="Tools_Heightmap">
+                <MenuItem Header="Heightmap Exporter" Command="{Binding MenuCommand}" CommandParameter="Tools_Heightmap" IsEnabled="{Binding IsReady}">
                     <MenuItem.Icon>
                         <Image Source="/Resources/Props.png" Width="16" Height="16" />
                     </MenuItem.Icon>
                 </MenuItem>
             </MenuItem>
-            <MenuItem Header="Check for Updates" Command="{Binding MenuCommand}" CommandParameter="Update" />
-            <MenuItem Header="Sync Plugin" Command="{Binding MenuCommand}" CommandParameter="SyncPlugin" />
             <MenuItem Header="Help">
                 <MenuItem Header="Discord Server" Command="{Binding MenuCommand}" CommandParameter="Help_Discord" />
                 <MenuItem Header="GitHub Repo" Command="{Binding MenuCommand}" CommandParameter="Help_GitHub" />
                 <MenuItem Header="Donate" Command="{Binding MenuCommand}" CommandParameter="Help_Donate" />
                 <MenuItem Header="About" Command="{Binding MenuCommand}" CommandParameter="Help_About" />
             </MenuItem>
+            <MenuItem Header="Check for Updates" Command="{Binding MenuCommand}" CommandParameter="Update" />
+            <MenuItem Header="Sync Plugin" Command="{Binding MenuCommand}" CommandParameter="SyncPlugin" />
+            <MenuItem Header="Wrapped" Command="{Binding MenuCommand}" CommandParameter="Wrapped" IsEnabled="{Binding IsReady}"/>
         </Menu>
 
         <Grid Grid.Row="2">
@@ -84,6 +85,8 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="{adonisUi:Space 1}" />
                     <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="{adonisUi:Space 1}" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
                 <TextBox Grid.Column="0" adonisExt:LayerExtension.Layer="2" adonisExt:WatermarkExtension.Watermark="Search..." TextChanged="OnSearchTextChanged" />
@@ -128,6 +131,8 @@
                         </StackPanel>
                     </Border>
                 </Popup>
+                
+                <ToggleButton Name="PauseButton" Grid.Column="12" Content="Pause Loading" Style="{DynamicResource {x:Static adonisUi:Styles.ToggleSwitch}}" Checked="OnPauseSwitch" Unchecked="OnPauseSwitch"/>
 
             </Grid>
             <GroupBox Grid.Row="1" Grid.Column="0" Padding="{adonisUi:Space 0}" adonisExt:LayerExtension.Layer="2" Background="Transparent">
@@ -272,7 +277,7 @@
                                     </Grid.RowDefinitions>
 
                                     <Separator Grid.Row="0" Style="{StaticResource NamedSeparator}" Tag="Flat View" />
-                                    <ListBox Name="AssetFlatView" Grid.Row="1" ItemsSource="{Binding Assets, IsAsync=True}" VirtualizingPanel.IsVirtualizing="True" HorizontalAlignment="Stretch" SelectionChanged="AssetFlatView_OnSelectionChanged" MouseDoubleClick="OnAssetDoubleClick">
+                                    <ListBox Name="AssetFlatView" SelectionMode="Extended" Grid.Row="1" ItemsSource="{Binding Assets, IsAsync=True}" VirtualizingPanel.IsVirtualizing="True" HorizontalAlignment="Stretch" SelectionChanged="AssetFlatView_OnSelectionChanged" MouseDoubleClick="OnAssetDoubleClick">
                                         <ListBox.ItemTemplate>
                                             <DataTemplate>
                                                 <TextBlock HorizontalAlignment="Left" Text="{Binding Path}" TextTrimming="CharacterEllipsis" />
@@ -285,7 +290,7 @@
                                                         <Setter Property="Template">
                                                             <Setter.Value>
                                                                 <ControlTemplate>
-                                                                    <TextBlock Text="There are currently no loaded assets. Please wait for them to load. The window may freeze, do not be afraid. :D" FontWeight="SemiBold" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource {x:Static adonisUi:Brushes.ErrorBrush}}" />
+                                                                    <TextBlock Text="There are currently no loaded assets. Please wait a few seconds for them to load." FontWeight="SemiBold" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource {x:Static adonisUi:Brushes.ErrorBrush}}" />
                                                                 </ControlTemplate>
                                                             </Setter.Value>
                                                         </Setter>
@@ -330,7 +335,7 @@
                         <RowDefinition Height="1.25*" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="5*" />
-                        <RowDefinition Height="3*" />
+                        <RowDefinition Height="2.5*" />
                     </Grid.RowDefinitions>
 
                     <StackPanel Grid.Row="0" Orientation="Horizontal">
@@ -406,8 +411,62 @@
                                             </Setter.Value>
                                         </Setter>
                                     </DataTrigger>
-                                     <DataTrigger Binding="{Binding CurrentAsset.Type}" Value="{x:Static local:EAssetType.Mesh}">
+                                    <DataTrigger Binding="{Binding CurrentAsset.Type}" Value="{x:Static local:EAssetType.Dance}">
                                         <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate>
+                                                    <Grid>
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="Auto" />
+                                                            <RowDefinition Height="0.5*" />
+                                                            <RowDefinition Height="{adonisUi:Space 0.5}" />
+                                                            <RowDefinition Height="0.5*" />
+                                                            <RowDefinition Height="{adonisUi:Space 0.5}" />
+                                                            <RowDefinition Height="0.5*" />
+                                                            <RowDefinition Height="{adonisUi:Space 0.5}" />
+                                                            <RowDefinition Height="0.5*" />
+                                                        </Grid.RowDefinitions>
+
+                                                        <Separator Grid.Row="0" Style="{StaticResource NamedSeparator}" Tag="EXPORT" />
+                                                        <Grid Grid.Row="1" HorizontalAlignment="Stretch">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="Auto" />
+                                                                <ColumnDefinition Width="*" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBlock Grid.Column="0" Text="Skeleton Type" Margin="5,5,0, 0" />
+                                                            <ComboBox Grid.Column="1" Margin="10,0,0,10" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" ItemsSource="{extensions:EnumToItemsSource {x:Type local:EAnimGender}}" SelectedItem="{Binding AnimationGender, Converter={StaticResource EnumToString}}" />
+                                                        </Grid>
+                                                        <Button Grid.Row="3" Command="{Binding ExportBlenderCommand}">
+                                                            <Button.Content>
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <Image Source="/FortnitePorting;component/Resources/Blender.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality" />
+                                                                    <TextBlock Text="Send to Blender" VerticalAlignment="Center" Margin="5 0 0 0" />
+                                                                </StackPanel>
+                                                            </Button.Content>
+                                                        </Button>
+                                                        <Button Grid.Row="5" Command="{Binding ExportUnrealCommand}" IsEnabled="False">
+                                                            <Button.Content>
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <Image Source="/FortnitePorting;component/Resources/Unreal.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality" />
+                                                                    <TextBlock Text="Send to Unreal Engine (Unsupported)" VerticalAlignment="Center" Margin="5 0 0 0" />
+                                                                </StackPanel>
+                                                            </Button.Content>
+                                                        </Button>
+                                                        <Button Grid.Row="7" Command="{Binding OpenSettingsCommand}">
+                                                            <Button.Content>
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <Image Source="/FortnitePorting;component/Resources/Settings.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality" />
+                                                                    <TextBlock Text="Export/Import Options" VerticalAlignment="Center" Margin="5 0 0 0" />
+                                                                </StackPanel>
+                                                            </Button.Content>
+                                                        </Button>
+                                                    </Grid>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding CurrentAsset.Type}" Value="{x:Static local:EAssetType.Mesh}">
+                                         <Setter Property="Template">
                                             <Setter.Value>
                                                 <ControlTemplate>
                                                     <Grid>
@@ -460,8 +519,8 @@
                                             </Setter.Value>
                                         </Setter>
                                     </DataTrigger>
-                                     <DataTrigger Binding="{Binding CurrentAsset.Type}" Value="{x:Static local:EAssetType.Prop}">
-                                        <Setter Property="Template">
+                                    <DataTrigger Binding="{Binding CurrentAsset.Type}" Value="{x:Static local:EAssetType.Prop}">
+                                         <Setter Property="Template">
                                             <Setter.Value>
                                                 <ControlTemplate>
                                                     <Grid>
@@ -481,7 +540,7 @@
                                                             <Button.Content>
                                                                 <StackPanel Orientation="Horizontal">
                                                                     <Image Source="/FortnitePorting;component/Resources/Mesh.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality" />
-                                                                    <TextBlock Text="Preview Mesh" VerticalAlignment="Center" Margin="5 0 0 0" />
+                                                                    <TextBlock Text="Preview Prop" VerticalAlignment="Center" Margin="5 0 0 0" />
                                                                 </StackPanel>
                                                             </Button.Content>
                                                         </Button>
@@ -536,7 +595,7 @@
                                     </StackPanel>
                                 </Button.Content>
                             </Button>
-                            <Button Grid.Row="3" Command="{Binding ExportUnrealCommand}">
+                            <Button Grid.Row="3" Command="{Binding ExportUnrealCommand}" IsEnabled="False">
                                 <Button.Content>
                                     <StackPanel Orientation="Horizontal">
                                         <Image Source="/FortnitePorting;component/Resources/Unreal.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality" />

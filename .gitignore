@@ -2,6 +2,7 @@
 .idea
 .fleet
 FortnitePorting_*.csproj
+*.DotSettings.user
 
 # Build
 bin

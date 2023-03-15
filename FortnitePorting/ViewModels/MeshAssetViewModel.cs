@@ -21,18 +21,17 @@ public class MeshAssetViewModel : ObservableObject
 
     public async Task Initialize()
     {
-        HasStarted = true;
         var loadTime = new Stopwatch();
         loadTime.Start();
+        HasStarted = true;
 
         var treeItems = new SuppressibleObservableCollection<TreeItem>();
         treeItems.SetSuppression(true);
 
         var assetItems = new SuppressibleObservableCollection<AssetItem>();
         assetItems.SetSuppression(true);
-
-        await Task.Delay(500);
-        await Application.Current.Dispatcher.InvokeAsync(() =>
+        
+        Application.Current.Dispatcher.Invoke(() =>
         {
             static void InvokeOnCollectionChanged(TreeItem item)
             {
@@ -46,26 +45,14 @@ public class MeshAssetViewModel : ObservableObject
                 }
             }
 
-            View = new ListCollectionView(AppVM.MainVM.Meshes)
+            View = new ListCollectionView(AppVM.MainVM.Meshes) { SortDescriptions = { new SortDescription("IsFolder", ListSortDirection.Descending), new SortDescription("Header", ListSortDirection.Ascending) } };
+
+            foreach (var entry in AppVM.CUE4ParseVM.MeshEntries)
             {
-                SortDescriptions =
-                {
-                    new SortDescription("IsFolder", ListSortDirection.Descending),
-                    new SortDescription("Header", ListSortDirection.Ascending)
-                }
-            };
-
-            var entries = AppVM.CUE4ParseVM.Provider.Files.Values.ToList();
-
-            foreach (var entry in entries)
-            {
-                // TODO make better but im tired so im not doing it rn
-                if (!entry.Path.EndsWith(".uasset") || entry.Path.Contains("/Content/Playsets/", StringComparison.OrdinalIgnoreCase) || entry.Path.Contains("/Content/UI/", StringComparison.OrdinalIgnoreCase) || entry.Path.Contains("/Content/Sounds/", StringComparison.OrdinalIgnoreCase) || entry.Path.Contains("/Content/2dAssets/", StringComparison.OrdinalIgnoreCase) || entry.Path.Contains("NaniteDisplacement", StringComparison.OrdinalIgnoreCase)) continue;
-
-                assetItems.AddSuppressed(new AssetItem(entry.Path));
+                assetItems.AddSuppressed(new AssetItem(entry));
 
                 TreeItem? foundNode;
-                var folders = entry.Path.Split('/', StringSplitOptions.RemoveEmptyEntries);
+                var folders = entry.Split('/', StringSplitOptions.RemoveEmptyEntries);
                 var builder = new StringBuilder();
                 var children = treeItems;
 
@@ -102,10 +89,11 @@ public class MeshAssetViewModel : ObservableObject
             {
                 InvokeOnCollectionChanged(child);
             }
-        }, DispatcherPriority.Background);
-
+        });
+        
         loadTime.Stop();
-        AppLog.Information($"Loaded Meshes in {Math.Round(loadTime.Elapsed.TotalSeconds, 3)}s");
+        AppLog.Information($"Loaded {AppVM.CUE4ParseVM.MeshEntries.Count} Meshes in {Math.Round(loadTime.Elapsed.TotalSeconds, 3)}s");
+        
     }
 }
 

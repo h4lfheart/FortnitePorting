@@ -17,6 +17,7 @@ public class BlenderExportSettings : ExportSettingsBase
     // ANIM
     public bool UpdateTimeline;
     public bool LoopAnim;
+    public EAnimGender AnimGender;
 
     // MESH
     public bool QuadTopo;

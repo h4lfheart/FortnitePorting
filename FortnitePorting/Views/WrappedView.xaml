@@ -1,0 +1,79 @@
+﻿<adonisCtrls:AdonisWindow x:Class="FortnitePorting.Views.WrappedView"
+                          xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+
+                          xmlns:local="clr-namespace:FortnitePorting"
+                          xmlns:extensions="clr-namespace:FortnitePorting.Views.Extensions"
+                          xmlns:cue4Parse="clr-namespace:CUE4Parse;assembly=CUE4Parse"
+                          xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
+                          xmlns:adonisCtrls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
+                          xmlns:adonisExt="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"
+                          xmlns:controls="clr-namespace:FortnitePorting.Views.Controls"
+
+                          Title="FortnitePorting Wrapped" Width="480" SizeToContent="Height" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" Loaded="OnLoaded">
+    <Grid Margin="{adonisUi:Space 1}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="{adonisUi:Space 1}"/>
+                <ColumnDefinition Width="2*"/>
+            </Grid.ColumnDefinitions>
+            
+            <Image Grid.Column="0" Source="{Binding Asset.FullSource}" MaxWidth="128"/>
+            <Grid Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="{adonisUi:Space 1}"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <TextBlock Grid.Row="0" Text="{Binding Asset.DisplayName}" TextAlignment="Center" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="2" Text="{Binding AssetDescription}" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" />
+            </Grid>
+        </Grid>
+        
+        <Separator Grid.Row="1" Style="{StaticResource NamedSeparator}"/>
+        
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="{adonisUi:Space 1}"/>
+                <ColumnDefinition Width="2*"/>
+            </Grid.ColumnDefinitions>
+            
+            <Image Grid.Column="0" Source="{Binding Music.FullSource}" MaxWidth="128"/>
+            <Grid Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="{adonisUi:Space 1}"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <TextBlock Grid.Row="0" Text="{Binding Music.DisplayName}" TextAlignment="Center" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="2" Text="{Binding MusicDescription}" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" />
+            </Grid>
+        </Grid>
+        
+        <Separator Grid.Row="3" Style="{StaticResource NamedSeparator}"/>
+        
+        <Grid Grid.Row="4">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="{adonisUi:Space 1}"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+                
+            <TextBlock Grid.Row="0" Text="Time Spent in Fortnite Porting:" TextAlignment="Center" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" />
+            <TextBlock Grid.Row="2" Text="{Binding TimeString}" TextAlignment="Center" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" />
+
+        </Grid>
+    </Grid>
+</adonisCtrls:AdonisWindow>

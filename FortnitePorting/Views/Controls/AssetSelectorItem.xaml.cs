@@ -55,7 +55,7 @@ public partial class AssetSelectorItem : INotifyPropertyChanged, IExportableAsse
 
     public bool HiddenAsset;
 
-    public AssetSelectorItem(UObject asset, UTexture2D previewTexture, EAssetType type, bool isRandomSelector = false, FText? displayNameOverride = null, bool useIdAsDescription = false, bool hiddenAsset = false)
+    public AssetSelectorItem(UObject asset, UTexture2D previewTexture, EAssetType type, bool isRandomSelector = false, FText? displayNameOverride = null, string? descriptionOverride = null, bool hiddenAsset = false)
     {
         InitializeComponent();
         DataContext = this;
@@ -87,7 +87,7 @@ public partial class AssetSelectorItem : INotifyPropertyChanged, IExportableAsse
         if (displayName.TextHistory is FTextHistory.Base textHistory)
             DisplayNameSource = textHistory.SourceString;
         ID = asset.Name;
-        Description = useIdAsDescription ? ID : asset.GetOrDefault("Description", new FText("No description.")).Text;
+        Description = descriptionOverride is null ? asset.GetOrDefault("Description", new FText("No description.")).Text : descriptionOverride;
 
         Rarity = asset.GetOrDefault("Rarity", EFortRarity.Uncommon);
         GameplayTags = asset.GetOrDefault<FGameplayTagContainer>("GameplayTags");
