@@ -67,6 +67,8 @@ public class Skybox : VertexModel
 
     public override void Render(Camera camera)
     {
+        base.Render(camera);
+        GL.Disable(EnableCap.CullFace);
         GL.DepthFunc(DepthFunction.Lequal);
         
         VAO.Bind();
@@ -86,6 +88,7 @@ public class Skybox : VertexModel
         
         GL.DrawArrays(PrimitiveType.Triangles, 0, Vertices.Count);
         GL.DepthFunc(DepthFunction.Less);
+        GL.Enable(EnableCap.CullFace);
     }
 
     public override void Dispose()

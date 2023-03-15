@@ -41,12 +41,17 @@ public class Shader : IDisposable
         return GL.GetUniformLocation(Handle, name);
     }
     
-    public void SetMatrix4(string name, Matrix4 value)
+    public void SetMatrix4(string name, Matrix4 value, bool transpose = true)
     {
-        GL.UniformMatrix4f(GetUniformLocation(name), true, value);
+        GL.UniformMatrix4f(GetUniformLocation(name), transpose, value);
     }
     
     public void SetUniform(string name, int value)
+    {
+        GL.Uniform1f(GetUniformLocation(name), value);
+    }
+    
+    public void SetUniform(string name, float value)
     {
         GL.Uniform1f(GetUniformLocation(name), value);
     }

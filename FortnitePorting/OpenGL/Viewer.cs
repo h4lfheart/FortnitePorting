@@ -46,7 +46,7 @@ public class Viewer : GameWindow
     
     public void LoadMeshAssets(List<IExportableAsset> exportables)
     {
-        Title = "Mesh Viewer - Multiple Assets";
+        Title = exportables.Count == 1 ? $"Mesh Viewer - {exportables[0].DisplayName}" : "Mesh Viewer - Multiple Assets";
         Renderer.Clear();
 
         var x = 0.0f;
@@ -100,9 +100,13 @@ public class Viewer : GameWindow
         base.OnLoad();
 
         GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        
+        GL.Enable(EnableCap.Blend);
+        GL.Enable(EnableCap.CullFace);
         GL.Enable(EnableCap.DepthTest);
         GL.Enable(EnableCap.Multisample);
         GL.Enable(EnableCap.FramebufferSrgb);
+        GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
         SetVisibility(true);
     }

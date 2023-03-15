@@ -10,6 +10,7 @@ public class Renderer : IRenderable
 {
     public Skybox Skybox;
     public Shader MasterShader;
+    public Grid Grid;
     
     private readonly List<IRenderable> Dynamic = new();
     private readonly List<IRenderable> Static = new();
@@ -22,6 +23,9 @@ public class Renderer : IRenderable
         
         MasterShader = new Shader("shader");
         MasterShader.Use();
+
+        Grid = new Grid();
+        Grid.Setup();
     }
 
     public void Render(Camera camera)
@@ -37,6 +41,7 @@ public class Renderer : IRenderable
         }
         
         Skybox.Render(camera);
+        Grid.Render(camera);
     }
     
     public void AddDynamic(IRenderable renderable)

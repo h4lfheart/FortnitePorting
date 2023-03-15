@@ -47,7 +47,6 @@ public class UnrealSection : VertexAndIndexModel
     public UnrealSection(CStaticMeshLod lod, CMeshSection section, UMaterialInterface? material, Matrix4? transform = null)
     {
         Transform = transform ?? Matrix4.Identity;
-        Log.Information(Transform.ExtractTranslation().ToString());
         var indices = lod.Indices.Value;
         for (var i = 0; i < section.NumFaces * 3; i++)
         {
@@ -82,7 +81,7 @@ public class UnrealSection : VertexAndIndexModel
     public override void Render(Camera camera)
     {
         base.Render(camera);
-        
+
         VAO.Bind();
         Shader.Use();
         

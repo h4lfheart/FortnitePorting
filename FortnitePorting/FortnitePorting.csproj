@@ -74,6 +74,8 @@
         <Resource Include="Resources\Shaders\skybox.vert" />
         <Resource Include="Resources\Shaders\shader.frag" />
         <Resource Include="Resources\Shaders\shader.vert" />
+        <Resource Include="Resources\Shaders\grid.frag" />
+        <Resource Include="Resources\Shaders\grid.vert" />
     </ItemGroup>
 
 </Project>

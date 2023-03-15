@@ -1,4 +1,5 @@
 ﻿using System;
+using CUE4Parse.UE4.Objects.Core.Math;
 using OpenTK.Mathematics;
 
 namespace FortnitePorting.OpenGL;
@@ -32,7 +33,7 @@ public class Camera
         var pitch = MathF.Atan((Position.Y - Direction.Y) / (Position.Z - Direction.Z));
         CalculateDirection(MathHelper.RadiansToDegrees(yaw), MathHelper.RadiansToDegrees(pitch));
     }
-    
+
     public void CalculateDirection(float x, float y)
     {
         Yaw += x;
