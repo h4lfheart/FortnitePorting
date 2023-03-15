@@ -28,7 +28,7 @@ public class Texture2D
     public void Bind(TextureUnit unit)
     {
         GL.ActiveTexture(unit);
-        GL.BindTexture(TextureTarget.Texture2d, Handle);
+        Bind();
     }
     
     public void Bind()

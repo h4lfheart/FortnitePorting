@@ -48,7 +48,7 @@ public class Shader : IDisposable
     
     public void SetUniform(string name, int value)
     {
-        GL.Uniform1f(GetUniformLocation(name), value);
+        GL.Uniform1i(GetUniformLocation(name), value);
     }
     
     public void SetUniform(string name, float value)

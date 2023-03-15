@@ -382,37 +382,40 @@ public partial class MainViewModel : ObservableObject
                 Application.Current.Dispatcher.Invoke(() => AppVM.MeshViewer.Renderer.AddDynamic(new UnrealMesh(mesh, transform ?? Matrix4.Identity)));
             }
 
-            var actorSaveRecord = CurrentAsset.Asset.Get<ULevelSaveRecord>("ActorSaveRecord");
-            var templateRecords = new List<FActorTemplateRecord?>();
-            foreach (var tag in actorSaveRecord.Get<UScriptMap>("TemplateRecords").Properties)
+            await Task.Run(() =>
             {
-                var propValue = tag.Value?.GetValue(typeof(FActorTemplateRecord));
-                templateRecords.Add(propValue as FActorTemplateRecord);
-            }
-
-            foreach (var templateRecord in templateRecords)
-            {
-                if (templateRecord is null) continue;
-                var actor = templateRecord.ActorClass.Load<UBlueprintGeneratedClass>();
-                var classDefaultObject = await actor.ClassDefaultObject.LoadAsync();
-
-                if (classDefaultObject.TryGetValue(out UStaticMesh staticMesh, "StaticMesh"))
+                var actorSaveRecord = CurrentAsset.Asset.Get<ULevelSaveRecord>("ActorSaveRecord");
+                var templateRecords = new List<FActorTemplateRecord?>();
+                foreach (var tag in actorSaveRecord.Get<UScriptMap>("TemplateRecords").Properties)
                 {
-                    Add(staticMesh);
+                    var propValue = tag.Value?.GetValue(typeof(FActorTemplateRecord));
+                    templateRecords.Add(propValue as FActorTemplateRecord);
                 }
-                else
-                {
-                    var exports = AppVM.CUE4ParseVM.Provider.LoadObjectExports(actor.GetPathName().SubstringBeforeLast("."));
-                    var staticMeshComponents = exports.Where(x => x.ExportType == "StaticMeshComponent").ToArray();
-                    foreach (var component in staticMeshComponents)
-                    {
-                        var componentStaticMesh = component.GetOrDefault<UStaticMesh?>("StaticMesh");
-                        if (componentStaticMesh is null) continue;
 
-                        Add(componentStaticMesh);
+                foreach (var templateRecord in templateRecords)
+                {
+                    if (templateRecord is null) continue;
+                    var actor = templateRecord.ActorClass.Load<UBlueprintGeneratedClass>();
+                    var classDefaultObject = actor.ClassDefaultObject.Load();
+
+                    if (classDefaultObject.TryGetValue(out UStaticMesh staticMesh, "StaticMesh"))
+                    {
+                        Add(staticMesh);
+                    }
+                    else
+                    {
+                        var exports = AppVM.CUE4ParseVM.Provider.LoadObjectExports(actor.GetPathName().SubstringBeforeLast("."));
+                        var staticMeshComponents = exports.Where(x => x.ExportType == "StaticMeshComponent").ToArray();
+                        foreach (var component in staticMeshComponents)
+                        {
+                            var componentStaticMesh = component.GetOrDefault<UStaticMesh?>("StaticMesh");
+                            if (componentStaticMesh is null) continue;
+
+                            Add(componentStaticMesh);
+                        }
                     }
                 }
-            }
+            });
         }
         else
         {
