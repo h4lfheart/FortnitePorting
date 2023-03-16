@@ -13,6 +13,7 @@ uniform sampler2D specularTex;
 uniform sampler2D maskTex;
 uniform samplerCube environmentTex;
 uniform vec3 viewVector;
+uniform int isGlass;
 
 vec3 samplerToColor(sampler2D tex)
 {
@@ -147,6 +148,12 @@ vec3 calcLight()
 
 void main()
 {
-    vec3 result = calcLight();
-    FragColor = vec4(result, 1.0);
+    if (isGlass == 0)
+    {
+        FragColor = vec4(calcLight(), 1.0);
+    }
+    else 
+    {
+        FragColor = vec4(calcReflection(calcNormals()), 0.5);
+    }
 }

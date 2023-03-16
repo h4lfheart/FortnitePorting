@@ -570,6 +570,11 @@ public static class ExportHelpers
 
     public static bool IsGlassMaterial(UMaterialInterface material)
     {
+        if (material is UMaterialInstanceConstant materialInstance)
+        {
+            return IsGlassMaterial(materialInstance);
+        }
+        
         var glassMaterialNames = new[]
         {
             "M_MED_Glass_Master",

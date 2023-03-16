@@ -95,6 +95,7 @@ public class UnrealSection : VertexAndIndexModel
         Shader.SetUniform("maskTex", 3);
         Shader.SetUniform("environmentTex", 4);
         Shader.SetUniform3("viewVector", -camera.Direction);
+        Shader.SetUniform("isGlass", Material is { IsGlass: true } ? 1 : 0);
         
         Material?.Bind();
 
