@@ -82,6 +82,15 @@ float distributionGGX(float roughness, float nDotH)
     return (numerator * numerator) / denominator;
 }
 
+vec3 blendSoftLight(vec3 base, vec3 blend) 
+{
+    return mix(
+    sqrt(base) * (2.0 * blend - 1.0) + 2.0 * base * (1.0 - blend),
+    2.0 * base * blend + base * base * (1.0 - 2.0 * blend),
+    step(base, vec3(0.5))
+    );
+}
+
 vec3 calcLight()
 {
     // textures
@@ -95,8 +104,15 @@ vec3 calcLight()
     float roughness = specularMasks.b;
     
     vec3 mask = samplerToColor(maskTex);
+    float ambientOcclusion = mask.r;
+    float cavity = mask.g;
+    float skinMask = mask.b;
 
     vec3 environment = calcReflection(normal);
+    
+    // Mask Stuff
+    diffuse = mix(diffuse, diffuse * ambientOcclusion, 0.25);
+    diffuse = mix(diffuse, blendSoftLight(diffuse, vec3(cavity)), 0.25);
     
     // light
     vec3 lightDirection = vec3(0.323, 0.456, 0.006);
@@ -124,6 +140,7 @@ vec3 calcLight()
     
     vec3 result = diffuse;
     result *= diffuseColor + specularColor + ambientColor;
+    result = mix(result, diffuse, skinMask * 0.25);
     
     return result;
 }

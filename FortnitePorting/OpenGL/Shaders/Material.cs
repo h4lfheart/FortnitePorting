@@ -24,32 +24,20 @@ public class Material : IDisposable
         materialInterface.GetParams(parameters, EMaterialFormat.AllLayers);
 
         var diffuseTexture = parameters.GetTextures(CMaterialParams2.Diffuse[0]).FirstOrDefault();
-        if (diffuseTexture is not null)
-        {
-            Diffuse = new Texture2D(diffuseTexture as UTexture2D);
-            Diffuse.Bind();
-        }
+        Diffuse = diffuseTexture is null ? Texture2D.Diffuse : new Texture2D(diffuseTexture as UTexture2D);
+        Diffuse.Bind();
         
         var normalsTexture = parameters.GetTextures(CMaterialParams2.Normals[0]).FirstOrDefault();
-        if (normalsTexture is not null)
-        {
-            Normals = new Texture2D(normalsTexture as UTexture2D);
-            Normals.Bind();
-        }
+        Normals = normalsTexture is null ? Texture2D.Normals : new Texture2D(normalsTexture as UTexture2D);
+        Normals.Bind();
         
         var specularMasksTexture = parameters.GetTextures(CMaterialParams2.SpecularMasks[0]).FirstOrDefault();
-        if (specularMasksTexture is not null)
-        {
-            SpecularMasks = new Texture2D(specularMasksTexture as UTexture2D);
-            SpecularMasks.Bind();
-        }
+        SpecularMasks = specularMasksTexture is null ? Texture2D.SpecularMasks : new Texture2D(specularMasksTexture as UTexture2D);
+        SpecularMasks.Bind();
         
         var maskTexture = parameters.GetTextures(new[] {"M", "Mask", "MaskTexture"}).FirstOrDefault();
-        if (maskTexture is not null)
-        {
-            Mask = new Texture2D(maskTexture as UTexture2D);
-            Mask.Bind();
-        }
+        Mask = maskTexture is null ? Texture2D.Mask : new Texture2D(maskTexture as UTexture2D);
+        Mask.Bind();
     }
 
     public void Bind()

@@ -68,7 +68,6 @@ public class CUE4ParseViewModel : ObservableObject
         "/Physics",
         
         "/PPID_",
-        "/M_",
         "/MI_",
         "/MF_",
         "/NS_",
