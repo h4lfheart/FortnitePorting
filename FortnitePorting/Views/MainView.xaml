@@ -280,7 +280,20 @@
                                     <ListBox Name="AssetFlatView" SelectionMode="Extended" Grid.Row="1" ItemsSource="{Binding Assets, IsAsync=True}" VirtualizingPanel.IsVirtualizing="True" HorizontalAlignment="Stretch" SelectionChanged="AssetFlatView_OnSelectionChanged" MouseDoubleClick="OnAssetDoubleClick">
                                         <ListBox.ItemTemplate>
                                             <DataTemplate>
-                                                <TextBlock HorizontalAlignment="Left" Text="{Binding Path}" TextTrimming="CharacterEllipsis" />
+                                                <ContentControl>
+                                                    <ContentControl.ContextMenu>
+                                                        <ContextMenu>
+                                                            <MenuItem Header="Copy Path to Clipboard">
+                                                                <MenuItem.Icon>
+                                                                    <Image Source="/Resources/Clipboard.png" Width="16" Height="16"></Image>
+                                                                </MenuItem.Icon>
+                                                                <MenuItem Header="With Extension" Command="{Binding CopyExtensionCommand}"/>
+                                                                <MenuItem Header="Without Extension" Command="{Binding CopyCommand}"/>
+                                                            </MenuItem>
+                                                        </ContextMenu>
+                                                    </ContentControl.ContextMenu>
+                                                    <TextBlock HorizontalAlignment="Left" Text="{Binding Path}" TextTrimming="CharacterEllipsis" />
+                                                </ContentControl>
                                             </DataTemplate>
                                         </ListBox.ItemTemplate>
                                         <ListBox.Style>

@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Views.Controls;
 
@@ -141,5 +142,17 @@ public partial class AssetItem : ObservableObject
     {
         Path = path;
         PathWithoutExtension = path.Replace(".uasset", string.Empty);
+    }
+
+    [RelayCommand]
+    public void CopyExtension()
+    {
+        Clipboard.SetText(path);
+    }
+    
+    [RelayCommand]
+    public void Copy()
+    {
+        Clipboard.SetText(pathWithoutExtension);
     }
 }

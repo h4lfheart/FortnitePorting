@@ -79,7 +79,7 @@ public partial class AssetSelectorItem : INotifyPropertyChanged, IExportableAsse
         HiddenAsset = hiddenAsset;
 
         DisplayName = displayName.Text;
-        if (DisplayName.Equals("TBD"))
+        if (DisplayName.Equals("TBD") || string.IsNullOrWhiteSpace(DisplayName))
         {
             DisplayName = asset.Name;
         }
