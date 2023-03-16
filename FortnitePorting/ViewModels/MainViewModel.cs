@@ -371,57 +371,8 @@ public partial class MainViewModel : ObservableObject
             AppVM.AssetHandlerVM?.Handlers[CurrentAssetType].PauseState.Pause();
             AppVM.MeshViewer.Closing += _ => AppVM.AssetHandlerVM?.Handlers[CurrentAssetType].PauseState.Unpause();
         }
-
-        if (CurrentAssetType == EAssetType.Prop)
-        {
-            AppVM.MeshViewer.Title = $"Mesh Viewer- {CurrentAsset.DisplayName}";
-            AppVM.MeshViewer.Renderer.Clear();
-
-            void Add(UStaticMesh mesh, Matrix4? transform = null)
-            {
-                Application.Current.Dispatcher.Invoke(() => AppVM.MeshViewer.Renderer.AddDynamic(new UnrealMesh(mesh, transform ?? Matrix4.Identity)));
-            }
-
-            await Task.Run(() =>
-            {
-                var actorSaveRecord = CurrentAsset.Asset.Get<ULevelSaveRecord>("ActorSaveRecord");
-                var templateRecords = new List<FActorTemplateRecord?>();
-                foreach (var tag in actorSaveRecord.Get<UScriptMap>("TemplateRecords").Properties)
-                {
-                    var propValue = tag.Value?.GetValue(typeof(FActorTemplateRecord));
-                    templateRecords.Add(propValue as FActorTemplateRecord);
-                }
-
-                foreach (var templateRecord in templateRecords)
-                {
-                    if (templateRecord is null) continue;
-                    var actor = templateRecord.ActorClass.Load<UBlueprintGeneratedClass>();
-                    var classDefaultObject = actor.ClassDefaultObject.Load();
-
-                    if (classDefaultObject.TryGetValue(out UStaticMesh staticMesh, "StaticMesh"))
-                    {
-                        Add(staticMesh);
-                    }
-                    else
-                    {
-                        var exports = AppVM.CUE4ParseVM.Provider.LoadObjectExports(actor.GetPathName().SubstringBeforeLast("."));
-                        var staticMeshComponents = exports.Where(x => x.ExportType == "StaticMeshComponent").ToArray();
-                        foreach (var component in staticMeshComponents)
-                        {
-                            var componentStaticMesh = component.GetOrDefault<UStaticMesh?>("StaticMesh");
-                            if (componentStaticMesh is null) continue;
-
-                            Add(componentStaticMesh);
-                        }
-                    }
-                }
-            });
-        }
-        else
-        {
-            AppVM.MeshViewer.LoadMeshAssets(ExtendedAssets);
-        }
-
+        
+        AppVM.MeshViewer.LoadMeshAssets(ExtendedAssets);
         AppVM.MeshViewer.Run();
     }
 

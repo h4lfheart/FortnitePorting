@@ -519,60 +519,6 @@
                                             </Setter.Value>
                                         </Setter>
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding CurrentAsset.Type}" Value="{x:Static local:EAssetType.Prop}">
-                                         <Setter Property="Template">
-                                            <Setter.Value>
-                                                <ControlTemplate>
-                                                    <Grid>
-                                                        <Grid.RowDefinitions>
-                                                            <RowDefinition Height="Auto" />
-                                                            <RowDefinition Height="0.5*" />
-                                                            <RowDefinition Height="{adonisUi:Space 1}" />
-                                                            <RowDefinition Height="0.5*" />
-                                                            <RowDefinition Height="{adonisUi:Space 1}" />
-                                                            <RowDefinition Height="0.5*" />
-                                                            <RowDefinition Height="{adonisUi:Space 1}" />
-                                                            <RowDefinition Height="0.5*" />
-                                                        </Grid.RowDefinitions>
-
-                                                        <Separator Grid.Row="0" Style="{StaticResource NamedSeparator}" Tag="EXPORT" />
-                                                        <Button Grid.Row="1" Command="{Binding PreviewMeshCommand}">
-                                                            <Button.Content>
-                                                                <StackPanel Orientation="Horizontal">
-                                                                    <Image Source="/FortnitePorting;component/Resources/Mesh.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality" />
-                                                                    <TextBlock Text="Preview Prop" VerticalAlignment="Center" Margin="5 0 0 0" />
-                                                                </StackPanel>
-                                                            </Button.Content>
-                                                        </Button>
-                                                        <Button Grid.Row="3" Command="{Binding ExportBlenderCommand}">
-                                                            <Button.Content>
-                                                                <StackPanel Orientation="Horizontal">
-                                                                    <Image Source="/FortnitePorting;component/Resources/Blender.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality" />
-                                                                    <TextBlock Text="Send to Blender" VerticalAlignment="Center" Margin="5 0 0 0" />
-                                                                </StackPanel>
-                                                            </Button.Content>
-                                                        </Button>
-                                                        <Button Grid.Row="5" Command="{Binding ExportUnrealCommand}">
-                                                            <Button.Content>
-                                                                <StackPanel Orientation="Horizontal">
-                                                                    <Image Source="/FortnitePorting;component/Resources/Unreal.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality" />
-                                                                    <TextBlock Text="Send to Unreal Engine (Unsupported)" VerticalAlignment="Center" Margin="5 0 0 0" />
-                                                                </StackPanel>
-                                                            </Button.Content>
-                                                        </Button>
-                                                        <Button Grid.Row="7" Command="{Binding OpenSettingsCommand}">
-                                                            <Button.Content>
-                                                                <StackPanel Orientation="Horizontal">
-                                                                    <Image Source="/FortnitePorting;component/Resources/Settings.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality" />
-                                                                    <TextBlock Text="Export/Import Options" VerticalAlignment="Center" Margin="5 0 0 0" />
-                                                                </StackPanel>
-                                                            </Button.Content>
-                                                        </Button>
-                                                    </Grid>
-                                                </ControlTemplate>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </DataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </ContentControl.Style>

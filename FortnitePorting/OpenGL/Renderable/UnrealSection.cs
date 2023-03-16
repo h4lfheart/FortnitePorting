@@ -81,7 +81,8 @@ public class UnrealSection : VertexAndIndexModel
     public override void Render(Camera camera)
     {
         base.Render(camera);
-
+        GL.Disable(EnableCap.CullFace);
+        
         VAO.Bind();
         Shader.Use();
         
@@ -98,5 +99,6 @@ public class UnrealSection : VertexAndIndexModel
         Material?.Bind();
 
         GL.DrawElements(PrimitiveType.Triangles, Indices.Count, DrawElementsType.UnsignedInt, 0);
+        GL.Enable(EnableCap.CullFace);
     }
 }  

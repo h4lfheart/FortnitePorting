@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using CUE4Parse.UE4.Assets.Exports.Material;
+using CUE4Parse.UE4.Assets.Exports.Texture;
 using FortnitePorting.OpenGL.Shaders.Textures;
 using OpenTK.Graphics.OpenGL;
 using SharpGLTF.Schema2;
@@ -20,31 +22,34 @@ public class Material : IDisposable
         
         var parameters = new CMaterialParams2();
         materialInterface.GetParams(parameters, EMaterialFormat.AllLayers);
-        
-        if (parameters.TryGetTexture2d(out var diffuse, "Diffuse"))
+
+        var diffuseTexture = parameters.GetTextures(CMaterialParams2.Diffuse[0]).FirstOrDefault();
+        if (diffuseTexture is not null)
         {
-            Diffuse = new Texture2D(diffuse);
+            Diffuse = new Texture2D(diffuseTexture as UTexture2D);
             Diffuse.Bind();
         }
         
-        if (parameters.TryGetTexture2d(out var normals, "Normals"))
+        var normalsTexture = parameters.GetTextures(CMaterialParams2.Normals[0]).FirstOrDefault();
+        if (normalsTexture is not null)
         {
-            Normals = new Texture2D(normals);
+            Normals = new Texture2D(normalsTexture as UTexture2D);
             Normals.Bind();
         }
         
-        if (parameters.TryGetTexture2d(out var specular, "SpecularMasks"))
+        var specularMasksTexture = parameters.GetTextures(CMaterialParams2.SpecularMasks[0]).FirstOrDefault();
+        if (specularMasksTexture is not null)
         {
-            SpecularMasks = new Texture2D(specular);
+            SpecularMasks = new Texture2D(specularMasksTexture as UTexture2D);
             SpecularMasks.Bind();
         }
         
-        if (parameters.TryGetTexture2d(out var mask, "M"))
+        var maskTexture = parameters.GetTextures(new[] {"M", "Mask", "MaskTexture"}).FirstOrDefault();
+        if (maskTexture is not null)
         {
-            Mask = new Texture2D(mask);
-            Mask.Bind(); 
+            Mask = new Texture2D(maskTexture as UTexture2D);
+            Mask.Bind();
         }
-        
     }
 
     public void Bind()
