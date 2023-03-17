@@ -15,6 +15,7 @@ using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using SixLabors.ImageSharp.PixelFormats;
 using Image = SixLabors.ImageSharp.Image;
+using WindowState = OpenTK.Windowing.Common.WindowState;
 
 namespace FortnitePorting.OpenGL;
 
@@ -22,6 +23,8 @@ public class Viewer : GameWindow
 {
     public Camera Cam;
     public Renderer Renderer;
+
+    private bool IsFullscreen;
     
     public Viewer(GameWindowSettings gwSettings, NativeWindowSettings nwSettings) : base(gwSettings, nwSettings)
     {
@@ -84,6 +87,21 @@ public class Viewer : GameWindow
         Renderer.AddDynamic(new UnrealMesh(skeletalMesh));
     }
 
+    protected override void OnKeyDown(KeyboardKeyEventArgs e)
+    {
+        base.OnKeyDown(e);
+
+        switch (e.Key)
+        {
+            case Keys.F11:
+                ToggleFullscreen();
+                break;
+            case Keys.Escape:
+                Close();
+                break;
+        }
+    }
+
     protected override void OnLoad()
     {
         base.OnLoad();
@@ -140,7 +158,7 @@ public class Viewer : GameWindow
     {
         base.OnMouseWheel(e);
         Cam.Speed += e.OffsetY;
-        Cam.Speed = Cam.Speed.Clamp(0.25f, 10.0f);
+        Cam.Speed = Cam.Speed.Clamp(0.25f, 20.0f);
     }
     
     protected override void OnMouseMove(MouseMoveEventArgs e)
@@ -186,5 +204,22 @@ public class Viewer : GameWindow
     {
         GLFW.SetWindowShouldClose(WindowPtr, !open);
         IsVisible = open; 
+    }
+
+    private void ToggleFullscreen()
+    {
+        if (IsFullscreen)
+        {
+            WindowBorder = WindowBorder.Resizable;
+            WindowState = WindowState.Normal;
+            Size = new Vector2i(960, 540);
+        }
+        else
+        {
+            WindowBorder = WindowBorder.Hidden;
+            WindowState = WindowState.Fullscreen;
+        }
+        
+        IsFullscreen = !IsFullscreen;
     }
 }
