@@ -145,14 +145,8 @@ public partial class AssetItem : ObservableObject
     }
 
     [RelayCommand]
-    public void CopyExtension()
-    {
-        Clipboard.SetText(path);
-    }
-    
-    [RelayCommand]
     public void Copy()
     {
-        Clipboard.SetText(pathWithoutExtension);
+        Clipboard.SetText(Path);
     }
 }

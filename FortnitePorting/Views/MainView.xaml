@@ -283,12 +283,10 @@
                                                 <ContentControl>
                                                     <ContentControl.ContextMenu>
                                                         <ContextMenu>
-                                                            <MenuItem Header="Copy Path to Clipboard">
+                                                            <MenuItem Header="Copy Path to Clipboard" Command="{Binding CopyCommand}">
                                                                 <MenuItem.Icon>
                                                                     <Image Source="/Resources/Clipboard.png" Width="16" Height="16"></Image>
                                                                 </MenuItem.Icon>
-                                                                <MenuItem Header="With Extension" Command="{Binding CopyExtensionCommand}"/>
-                                                                <MenuItem Header="Without Extension" Command="{Binding CopyCommand}"/>
                                                             </MenuItem>
                                                         </ContextMenu>
                                                     </ContentControl.ContextMenu>
