@@ -50,14 +50,13 @@ public class Viewer : GameWindow
                 case USkeletalMesh skeletalMesh:
                     var sk = new UnrealMesh(skeletalMesh, transform);
                     Renderer.AddDynamic(sk);
-                    x += 128;
                     break;
                 case UStaticMesh staticMesh:
                     var sm = new UnrealMesh(staticMesh, transform);
                     Renderer.AddDynamic(sm);
-                    x += 128;
                     break;
             }
+            x += 128;
         }
     }
     
