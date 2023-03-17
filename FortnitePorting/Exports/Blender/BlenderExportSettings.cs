@@ -1,6 +1,4 @@
-﻿using FortnitePorting.AppUtils;
-
-namespace FortnitePorting.Exports.Blender;
+﻿namespace FortnitePorting.Exports.Blender;
 
 public class BlenderExportSettings : ExportSettingsBase
 {

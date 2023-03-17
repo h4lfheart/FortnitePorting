@@ -1,10 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Threading;
-using Serilog;
-using Brush = System.Drawing.Brush;
 
 namespace FortnitePorting.AppUtils;
 

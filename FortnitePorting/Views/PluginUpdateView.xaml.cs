@@ -6,7 +6,6 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
-using System.Windows.Controls.Primitives;
 using FortnitePorting.ViewModels;
 using FortnitePorting.Views.Extensions;
 using Microsoft.Win32;

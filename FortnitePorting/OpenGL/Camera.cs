@@ -1,5 +1,4 @@
 ﻿using System;
-using CUE4Parse.UE4.Objects.Core.Math;
 using OpenTK.Mathematics;
 
 namespace FortnitePorting.OpenGL;

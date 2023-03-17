@@ -5,7 +5,6 @@ using CUE4Parse.UE4.Assets.Exports.Texture;
 using FortnitePorting.Exports;
 using FortnitePorting.OpenGL.Shaders.Textures;
 using OpenTK.Graphics.OpenGL;
-using SharpGLTF.Schema2;
 
 namespace FortnitePorting.OpenGL.Shaders;
 
