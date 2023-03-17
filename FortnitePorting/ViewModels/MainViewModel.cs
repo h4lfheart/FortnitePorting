@@ -187,9 +187,6 @@ public partial class MainViewModel : ObservableObject
                 break;
             case "Tools_Heightmap":
                 AppHelper.OpenWindow<HeightmapView>();
-                break; 
-            case "Wrapped":
-                AppHelper.OpenWindow<WrappedView>();
                 break;
         }
     }
@@ -287,7 +284,6 @@ public partial class MainViewModel : ObservableObject
         var exportDatas = await CreateExportDatasAsync();
         if (exportDatas.Count == 0) return;
 
-        AppSettings.Current.WrappedData.Asset(CurrentAsset);
         var exportSettings = AppSettings.Current.BlenderExportSettings;
         exportSettings.AnimGender = AnimationGender;
         BlenderService.Client.Send(exportDatas, exportSettings);
@@ -385,7 +381,6 @@ public partial class MainViewModel : ObservableObject
         CurrentMusicPlayer.Play();
         
         DiscordService.UpdateMusicState(CurrentAsset?.DisplayName ?? string.Empty);
-        AppSettings.Current.WrappedData.Music(CurrentAsset);
     }
 
     [RelayCommand]

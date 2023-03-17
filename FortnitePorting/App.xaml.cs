@@ -90,7 +90,6 @@ public partial class App
         base.OnExit(e);
         AppVM.MainVM.CurrentMusicPlayer?.Dispose();
         AppVM.MeshViewer?.Close();
-        AppSettings.Current.WrappedData.TimeSpentOpen += DateTime.Now - AppSettings.Current.WrappedData.InstanceStart;
         FreeConsole();
         AppSettings.Save();
     }

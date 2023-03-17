@@ -138,10 +138,12 @@ vec3 calcLight()
 
     float specularLight = distributionGGX(roughness, nDotH);
     vec3 specularColor = specularLight * lightColor * specular;
+    diffuse = mix(diffuse, diffuse * environment, metallic * 0.5);
     
     vec3 result = diffuse;
     result *= diffuseColor + specularColor + ambientColor;
     result = mix(result, diffuse, skinMask * 0.25);
+    
     
     return result;
 }

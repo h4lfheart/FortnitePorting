@@ -55,7 +55,6 @@
             </MenuItem>
             <MenuItem Header="Check for Updates" Command="{Binding MenuCommand}" CommandParameter="Update" />
             <MenuItem Header="Sync Plugin" Command="{Binding MenuCommand}" CommandParameter="SyncPlugin" />
-            <MenuItem Header="Wrapped" Command="{Binding MenuCommand}" CommandParameter="Wrapped" IsEnabled="{Binding IsReady}"/>
         </Menu>
 
         <Grid Grid.Row="2">

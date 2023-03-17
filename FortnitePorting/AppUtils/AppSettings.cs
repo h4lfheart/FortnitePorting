@@ -5,7 +5,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.Versions;
 using FortnitePorting.Exports.Blender;
 using FortnitePorting.Exports.Unreal;
-using FortnitePorting.Models;
 using FortnitePorting.Services.Endpoints.Models;
 using Newtonsoft.Json;
 
@@ -26,9 +25,6 @@ public partial class AppSettings : ObservableObject
         }
 
         Current ??= new AppSettings();
-
-        if (Current.WrappedData is not null)
-            Current.WrappedData.InstanceStart = DateTime.Now;
     }
 
     public static void Save()
@@ -75,8 +71,4 @@ public partial class AppSettings : ObservableObject
     [ObservableProperty] private float assetSize = 1.0f;
 
     [ObservableProperty] private Dictionary<string, List<string>> weaponMappings = new();
-    
-    [ObservableProperty] private bool trackWrappedData;
-    
-    [ObservableProperty] private FortniteWrappedData wrappedData;
 }

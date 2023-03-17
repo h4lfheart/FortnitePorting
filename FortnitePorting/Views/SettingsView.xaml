@@ -38,8 +38,6 @@
                 <RowDefinition Height="{adonisUi:Space 1}" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="{adonisUi:Space 1}" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="{adonisUi:Space 1}" />
             </Grid.RowDefinitions>
 
             <Grid.ColumnDefinitions>
@@ -79,10 +77,7 @@
             <TextBlock Grid.Row="14" Grid.Column="0" Text="Light Mode*" VerticalAlignment="Center" />
             <ToggleButton Grid.Row="14" Grid.Column="2" Grid.ColumnSpan="3" Style="{DynamicResource {x:Static adonisUi:Styles.ToggleSwitch }}" IsChecked="{Binding LightMode}" />
             
-            <TextBlock Grid.Row="16" Grid.Column="0" Text="Fortnite Porting Wrapped" VerticalAlignment="Center" />
-            <ToggleButton Grid.Row="16" Grid.Column="2" Grid.ColumnSpan="3" Style="{DynamicResource {x:Static adonisUi:Styles.ToggleSwitch }}" IsChecked="{Binding TrackWrappedData}" />
-
-            <controls:NumericSlider Grid.Row="18" Grid.Column="0" Grid.ColumnSpan="5" Label="Asset Display Size" Minimum="0.5" Maximum="5" StepSize="0.5" Value="{Binding AssetSize, Mode=TwoWay}" />
+            <controls:NumericSlider Grid.Row="16" Grid.Column="0" Grid.ColumnSpan="5" Label="Asset Display Size" Minimum="0.5" Maximum="5" StepSize="0.5" Value="{Binding AssetSize, Mode=TwoWay}" />
         </Grid>
         <Border Grid.Row="2" Background="{DynamicResource {x:Static adonisUi:Brushes.Layer1BackgroundBrush}}" adonisExt:LayerExtension.IncreaseLayer="True">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom">

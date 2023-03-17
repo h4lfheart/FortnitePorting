@@ -47,23 +47,6 @@ public partial class MainView
             return;
         }
 
-        if (AppSettings.Current.WrappedData is null)
-        {
-            AppSettings.Current.WrappedData = new FortniteWrappedData();
-            
-            var messageBox = new MessageBoxModel
-            {
-                Caption = "Introducing FortnitePorting Wrapped!",
-                Icon = MessageBoxImage.Exclamation,
-                Text = "You can now have a monthly FortnitePorting wrapped!\n\nThis new feature tracks things like what assets you export, what music packs you listen to, and how long you've used the program for!\n\nAll of this data is shown to you at the start of every month and you can always view your total stats by pressing the \"Wrapped\" button at the top of the program.\n\nAll of this info stays on your hard drive and does not leave your computer in any way. (You may opt in or out at any time in the program settings if you change your mind)",
-                Buttons = new[] { new MessageBoxButtonModel("Opt-In", MessageBoxResult.Yes), new MessageBoxButtonModel("Opt-Out", MessageBoxResult.No) },
-            };
-
-            MessageBox.Show(messageBox);
-
-            AppSettings.Current.TrackWrappedData = messageBox.Result is MessageBoxResult.Yes;
-        }
-
         var (updateAvailable, updateVersion) = UpdateService.GetStats();
         if (DateTime.Now >= AppSettings.Current.LastUpdateAskTime.AddDays(1) || updateVersion > AppSettings.Current.LastKnownUpdateVersion)
         {

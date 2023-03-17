@@ -98,16 +98,6 @@ public class SettingsViewModel : ObservableObject
             OnPropertyChanged(nameof(IsRestartRequired));
         }
     }
-    
-    public bool TrackWrappedData
-    {
-        get => AppSettings.Current.TrackWrappedData;
-        set
-        {
-            AppSettings.Current.TrackWrappedData = value;
-            OnPropertyChanged();
-        }
-    }
 
     public float AssetSize
     {
