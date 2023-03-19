@@ -195,6 +195,8 @@ public partial class MainViewModel : ObservableObject
 
     public async Task SetupMeshSelection(string path)
     {
+        ExtendedAssets.Clear();
+        TabModeText = "SELECTED MESHES";
         var meshObject = await AppVM.CUE4ParseVM.Provider.LoadObjectAsync(path);
         if (AllowedMeshTypes.Contains(meshObject.ExportType))
         {
@@ -207,6 +209,7 @@ public partial class MainViewModel : ObservableObject
         ExtendedAssets.Clear();
         TabModeText = "SELECTED MESHES";
         var index = 0;
+        var validMeshSelected = false;
         foreach (var item in extendedItems)
         {
             var meshObject = await AppVM.CUE4ParseVM.Provider.LoadObjectAsync(item.PathWithoutExtension);
@@ -216,11 +219,13 @@ public partial class MainViewModel : ObservableObject
                 if (index == 0) CurrentAsset = meshItem;
                 ExtendedAssets.Add(meshItem);
                 index++;
+                validMeshSelected = true;
             }
         }
         Styles.Clear();
         Styles.Add(new StyleSelector(ExtendedAssets));
       
+        if (!validMeshSelected) CurrentAsset = null;
     }
 
     public async Task<List<ExportDataBase>> CreateExportDatasAsync()

@@ -305,8 +305,8 @@ public partial class MainView
 
     private async void AssetFolderTree_OnSelectionChanged(object sender, RoutedPropertyChangedEventArgs<object> routedPropertyChangedEventArgs)
     {
-        var treeView = (TreeView)sender;
-        var treeItem = (TreeItem)treeView.SelectedItem;
+        var treeView = (TreeView) sender;
+        var treeItem = (TreeItem) treeView.SelectedItem;
         if (treeItem.AssetType == ETreeItemType.Folder) return;
 
         await AppVM.MainVM.SetupMeshSelection(treeItem.FullPath);
