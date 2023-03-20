@@ -179,8 +179,7 @@ public partial class MainView
         foreach (var tab in AssetControls.Items.OfType<TabItem>())
         {
             var assetType = (EAssetType) idx;
-            
-            if (tab.Content is ScrollViewer scrollViewer && assetType is EAssetType.Prop)
+            if (tab.Content is ScrollViewer scrollViewer && assetType is EAssetType.Gallery)
             {
                 var itemsControl = (ItemsControl) scrollViewer.Content;
                 itemsControl.Items.Filter = o =>
@@ -215,15 +214,15 @@ public partial class MainView
         var idx = 0;
         foreach (var tab in AssetControls.Items.OfType<TabItem>())
         {
+            var assetType = (EAssetType) idx;
             if (tab.Content is not ListBox listBox) continue;
             listBox.Items.SortDescriptions.Clear();
             listBox.Items.SortDescriptions.Add(new SortDescription("IsRandom", ListSortDirection.Descending));
-            var assetType = (EAssetType) idx;
-            
+
             switch (AppVM.MainVM.SortType)
             {
                 case ESortType.Default:
-                    if (assetType is not EAssetType.Prop)
+                    if (assetType is not EAssetType.Gallery)
                         listBox.Items.SortDescriptions.Add(new SortDescription("ID", GetProperSort(ListSortDirection.Ascending)));
                     break;
                 case ESortType.AZ:

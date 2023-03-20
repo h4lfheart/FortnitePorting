@@ -37,6 +37,7 @@ public class AssetHandlerViewModel
             { EAssetType.Weapon, WeaponHandler },
             { EAssetType.Dance, DanceHandler },
             { EAssetType.Vehicle, VehicleHandler },
+            { EAssetType.Gallery, GalleryHandler },
             { EAssetType.Prop, PropHandler },
             { EAssetType.Pet, PetHandler },
             { EAssetType.Music, MusicPackHandler }
@@ -170,9 +171,16 @@ public class AssetHandlerViewModel
         }
     };
 
+    private readonly AssetHandlerData GalleryHandler = new()
+    {
+        AssetType = EAssetType.Gallery,
+        IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
+    };
+    
     private readonly AssetHandlerData PropHandler = new()
     {
         AssetType = EAssetType.Prop,
+        TargetCollection = AppVM.MainVM.Props,
         ClassNames = new List<string> { "FortPlaysetPropItemDefinition" },
         RemoveList = { },
         IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
@@ -235,13 +243,13 @@ public class AssetHandlerData
             AppLog.Warning("Generating first-time weapon mappings, this may take longer than usual");
         }
         
-        if (AssetType is EAssetType.Prop && AppSettings.Current.GalleryMappings.Count == 0)
+        if (AssetType is EAssetType.Gallery && AppSettings.Current.GalleryMappings.Count == 0)
         {
             AppLog.Warning("Generating first-time prop gallery mappings, this may take longer than usual");
         }
 
         // prop asset name : gallery
-        if (AssetType is EAssetType.Prop)
+        if (AssetType is EAssetType.Gallery)
         {
             var addedProps = new List<string>();
             var playsets = AppVM.CUE4ParseVM.AssetDataBuffers.Where(x => x.AssetClass.Text.Equals("FortPlaysetItemDefinition", StringComparison.OrdinalIgnoreCase)).ToList();
@@ -269,7 +277,7 @@ public class AssetHandlerData
                 {
                     var propExpander = new PropExpander(playsetName, playsetImage);
                     galleryData.Expander = propExpander;
-                    AppVM.MainVM.Props.Add(propExpander);
+                    AppVM.MainVM.Galleries.Add(propExpander);
                 }, DispatcherPriority.Background);
                 
                 await Parallel.ForEachAsync(associatedProps, async (data, token) =>
@@ -285,7 +293,7 @@ public class AssetHandlerData
                     await DoLoadProps(galleryData.Expander.Props, associatedProp, AssetType, descriptionOverride: galleryData.Name);
                 });
 
-                if (galleryData.Expander.Props.Count == 0) AppVM.MainVM.Props.Remove(galleryData.Expander);
+                if (galleryData.Expander.Props.Count == 0) AppVM.MainVM.Galleries.Remove(galleryData.Expander);
             }
             
             sw.Stop();
@@ -338,6 +346,27 @@ public class AssetHandlerData
                     await DoLoad(objectData, AssetType);
                 }
 
+                return;
+            }
+            
+            // Prop Filtering
+            if (AssetType is EAssetType.Prop)
+            {
+                if (addedAssets.ToArray().Contains(displayName))
+                {
+                    return;
+                }
+
+                addedAssets.Add(displayName);
+                var foundGallery = AppSettings.Current.GalleryMappings.FirstOrDefault(gallery => gallery.Props.Any(prop => prop.Contains(data.AssetName.Text)));
+                if (foundGallery is not null)
+                {
+                    await DoLoad(data, AssetType, descriptionOverride: foundGallery.Name);
+                }
+                else
+                {
+                    await DoLoad(data, AssetType, descriptionOverride: "Unknown Gallery");
+                }
                 return;
             }
 

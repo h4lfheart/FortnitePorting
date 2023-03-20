@@ -30,9 +30,9 @@ public partial class SettingsView
         {
             foreach (var handler in AppVM.AssetHandlerVM.Handlers.Values.Where(x => x.TargetCollection is not null))
             {
-                if (handler.AssetType is EAssetType.Prop)
+                if (handler.AssetType is EAssetType.Gallery)
                 {
-                    foreach (var expander in AppVM.MainVM.Props)
+                    foreach (var expander in AppVM.MainVM.Galleries)
                     {
                         foreach (var assetSelectorItem in expander.Props)
                         {

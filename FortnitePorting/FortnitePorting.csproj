@@ -40,7 +40,7 @@
         <Resource Include="Resources\Mesh.png" />
         <Resource Include="Resources\Outfit.png" />
         <Resource Include="Resources\Pickaxe.png" />
-        <Resource Include="Resources\Props.png" />
+        <Resource Include="Resources\Gallery.png" />
         <Resource Include="Resources\Vehicle.png" />
         <Resource Include="Resources\Weapon.png" />
         <Resource Include="Resources\Unreal.png" />
@@ -76,6 +76,7 @@
         <Resource Include="Resources\Shaders\shader.vert" />
         <Resource Include="Resources\Shaders\grid.frag" />
         <Resource Include="Resources\Shaders\grid.vert" />
+        <Resource Include="Resources\Prop.png" />
     </ItemGroup>
 
 </Project>

@@ -10,7 +10,7 @@
                           xmlns:local="clr-namespace:FortnitePorting"
                           xmlns:vms="clr-namespace:FortnitePorting.ViewModels"
                           xmlns:toolkitCtrls="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
-                          Title="Fortnite Porting" Width="1440" Height="720" WindowStartupLocation="CenterScreen" ResizeMode="CanResize" Loaded="OnLoaded">
+                          Title="Fortnite Porting" Width="1520" Height="720" WindowStartupLocation="CenterScreen" ResizeMode="CanResize" Loaded="OnLoaded">
     <Window.InputBindings>
         <KeyBinding Key="R" Modifiers="Control" Command="{Binding MenuCommand}" CommandParameter="File_Restart" />
         <KeyBinding Key="D" Modifiers="Control" Command="{Binding ExportBlenderCommand}" />
@@ -43,7 +43,7 @@
             <MenuItem Header="Tools">
                 <MenuItem Header="Heightmap Exporter" Command="{Binding MenuCommand}" CommandParameter="Tools_Heightmap" IsEnabled="{Binding IsReady}">
                     <MenuItem.Icon>
-                        <Image Source="/Resources/Props.png" Width="16" Height="16" />
+                        <Image Source="/Resources/Gallery.png" Width="16" Height="16" />
                     </MenuItem.Icon>
                 </MenuItem>
             </MenuItem>
@@ -234,11 +234,23 @@
                     </TabItem>
                     <TabItem Style="{StaticResource TabItemEqualSize}">
                         <TabItem.Header>
-                            <controls:TextWithIcon Label="Props" ImageSource="/FortnitePorting;component/Resources/Props.png" />
+                            <controls:TextWithIcon Label="Galleries" ImageSource="/FortnitePorting;component/Resources/Gallery.png" />
                         </TabItem.Header>
                         <ScrollViewer PreviewMouseWheel="StupidIdiotBadScroll">
-                            <ItemsControl ItemsSource="{Binding Props}" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"/>
+                            <ItemsControl ItemsSource="{Binding Galleries}" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"/>
                         </ScrollViewer>
+                    </TabItem>
+                    <TabItem Style="{StaticResource TabItemEqualSize}">
+                        <TabItem.Header>
+                            <controls:TextWithIcon Label="Props" ImageSource="/FortnitePorting;component/Resources/Prop.png" />
+                        </TabItem.Header>
+                        <ListBox SelectionMode="Extended" ItemsSource="{Binding Props}" SelectionChanged="OnAssetSelectionChanged">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <toolkitCtrls:VirtualizingWrapPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left" />
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                        </ListBox>
                     </TabItem>
                     <TabItem Style="{StaticResource TabItemEqualSize}">
                         <TabItem.Header>

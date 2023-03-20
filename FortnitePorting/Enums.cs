@@ -28,6 +28,8 @@ public enum EAssetType
     [Description("Emotes")] Dance,
 
     [Description("Vehicles")] Vehicle,
+    
+    [Description("Galleries")] Gallery,
 
     [Description("Props")] Prop,
 
