@@ -64,7 +64,8 @@ public partial class MainView
         if (AppVM.AssetHandlerVM is null) return;
         if (sender is not TabControl tabControl) return;
 
-        var assetType = (EAssetType) tabControl.SelectedIndex;
+        var tabItem = (TabItem) tabControl.SelectedItem;
+        var assetType = (EAssetType) tabItem.Tag;
         if (AppVM.MainVM.CurrentAssetType == assetType) return;
 
         AppVM.MainVM.ExtendedAssets.Clear();
@@ -174,33 +175,34 @@ public partial class MainView
             return AppHelper.Filter(asset.Path, AppVM.MainVM.SearchFilter);
         };
         AssetFlatView.Items.Refresh();
-
-        var idx = 0;
-        foreach (var tab in AssetControls.Items.OfType<TabItem>())
+        
+        foreach (var mainTab in AssetControls.Items.OfType<TabItem>())
         {
-            var assetType = (EAssetType) idx;
-            if (tab.Content is ScrollViewer scrollViewer && assetType is EAssetType.Gallery)
+            if (mainTab.Content is not TabControl tabs) continue;
+            foreach (var tab in tabs.Items.OfType<TabItem>())
             {
-                var itemsControl = (ItemsControl) scrollViewer.Content;
-                itemsControl.Items.Filter = o =>
+                var assetType = (EAssetType) tab.Tag;
+                if (tab.Content is ScrollViewer scrollViewer && assetType is EAssetType.Gallery)
                 {
-                    var asset = (PropExpander) o;
-                    return AppHelper.Filter(asset.GalleryName.Text, AppVM.MainVM.SearchFilter);
-                };
-                itemsControl.Items.Refresh();
-            }
-            else if (tab.Content is ListBox listBox)
-            {
-                listBox.Items.Filter = o =>
+                    var itemsControl = (ItemsControl) scrollViewer.Content;
+                    itemsControl.Items.Filter = o =>
+                    {
+                        var asset = (PropExpander) o;
+                        return AppHelper.Filter(asset.GalleryName.Text, AppVM.MainVM.SearchFilter);
+                    };
+                    itemsControl.Items.Refresh();
+                }
+                else if (tab.Content is ListBox listBox)
                 {
-                    var asset = (AssetSelectorItem) o;
-                    return asset.Match(AppVM.MainVM.SearchFilter) && AppVM.MainVM.Filters.All(x => x.Invoke(asset));
-                };
+                    listBox.Items.Filter = o =>
+                    {
+                        var asset = (AssetSelectorItem) o;
+                        return asset.Match(AppVM.MainVM.SearchFilter) && AppVM.MainVM.Filters.All(x => x.Invoke(asset));
+                    };
                 
-                listBox.Items.Refresh();
+                    listBox.Items.Refresh();
+                }
             }
-
-            idx++;
         }
     }
 
@@ -211,38 +213,39 @@ public partial class MainView
 
     public void RefreshSorting()
     {
-        var idx = 0;
-        foreach (var tab in AssetControls.Items.OfType<TabItem>())
+        foreach (var mainTab in AssetControls.Items.OfType<TabItem>())
         {
-            var assetType = (EAssetType) idx;
-            if (tab.Content is not ListBox listBox) continue;
-            listBox.Items.SortDescriptions.Clear();
-            listBox.Items.SortDescriptions.Add(new SortDescription("IsRandom", ListSortDirection.Descending));
-
-            switch (AppVM.MainVM.SortType)
+            if (mainTab.Content is not TabControl tabs) continue;
+            foreach (var tab in tabs.Items.OfType<TabItem>())
             {
-                case ESortType.Default:
-                    if (assetType is not EAssetType.Gallery)
-                        listBox.Items.SortDescriptions.Add(new SortDescription("ID", GetProperSort(ListSortDirection.Ascending)));
-                    break;
-                case ESortType.AZ:
-                    listBox.Items.SortDescriptions.Add(new SortDescription("DisplayName", GetProperSort(ListSortDirection.Ascending)));
-                    break;
-                case ESortType.Season:
-                    listBox.Items.SortDescriptions.Add(new SortDescription("SeasonNumber", GetProperSort(ListSortDirection.Ascending)));
-                    listBox.Items.SortDescriptions.Add(new SortDescription("Rarity", GetProperSort(ListSortDirection.Ascending)));
-                    break;
-                case ESortType.Rarity:
-                    listBox.Items.SortDescriptions.Add(new SortDescription("Rarity", GetProperSort(ListSortDirection.Ascending)));
-                    listBox.Items.SortDescriptions.Add(new SortDescription("ID", GetProperSort(ListSortDirection.Ascending)));
-                    break;
-                case ESortType.Series:
-                    listBox.Items.SortDescriptions.Add(new SortDescription("Series", GetProperSort(ListSortDirection.Descending)));
-                    listBox.Items.SortDescriptions.Add(new SortDescription("Rarity", GetProperSort(ListSortDirection.Descending)));
-                    break;
-            }
+                var assetType = (EAssetType) tab.Tag;
+                if (tab.Content is not ListBox listBox) continue;
+                listBox.Items.SortDescriptions.Clear();
+                listBox.Items.SortDescriptions.Add(new SortDescription("IsRandom", ListSortDirection.Descending));
 
-            idx++;
+                switch (AppVM.MainVM.SortType)
+                {
+                    case ESortType.Default:
+                        if (assetType is not EAssetType.Gallery)
+                            listBox.Items.SortDescriptions.Add(new SortDescription("ID", GetProperSort(ListSortDirection.Ascending)));
+                        break;
+                    case ESortType.AZ:
+                        listBox.Items.SortDescriptions.Add(new SortDescription("DisplayName", GetProperSort(ListSortDirection.Ascending)));
+                        break;
+                    case ESortType.Season:
+                        listBox.Items.SortDescriptions.Add(new SortDescription("SeasonNumber", GetProperSort(ListSortDirection.Ascending)));
+                        listBox.Items.SortDescriptions.Add(new SortDescription("Rarity", GetProperSort(ListSortDirection.Ascending)));
+                        break;
+                    case ESortType.Rarity:
+                        listBox.Items.SortDescriptions.Add(new SortDescription("Rarity", GetProperSort(ListSortDirection.Ascending)));
+                        listBox.Items.SortDescriptions.Add(new SortDescription("ID", GetProperSort(ListSortDirection.Ascending)));
+                        break;
+                    case ESortType.Series:
+                        listBox.Items.SortDescriptions.Add(new SortDescription("Series", GetProperSort(ListSortDirection.Descending)));
+                        listBox.Items.SortDescriptions.Add(new SortDescription("Rarity", GetProperSort(ListSortDirection.Descending)));
+                        break;
+                }
+            }
         }
     }
 
@@ -347,9 +350,8 @@ public partial class MainView
     {
         if (AppVM.AssetHandlerVM is null) return;
         var toggleSwitch = (ToggleButton) sender;
-        var assetType = (EAssetType) AssetControls.SelectedIndex;
 
-        if (AppVM.AssetHandlerVM.Handlers.TryGetValue(assetType, out var handler))
+        foreach (var (type, handler) in AppVM.AssetHandlerVM.Handlers)
         {
             handler.PauseState.IsPaused = toggleSwitch.IsChecked.HasValue && toggleSwitch.IsChecked.Value; 
         }

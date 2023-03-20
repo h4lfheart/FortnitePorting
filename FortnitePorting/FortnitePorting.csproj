@@ -77,6 +77,7 @@
         <Resource Include="Resources\Shaders\grid.frag" />
         <Resource Include="Resources\Shaders\grid.vert" />
         <Resource Include="Resources\Prop.png" />
+        <Resource Include="Resources\Locker.png" />
     </ItemGroup>
 
 </Project>
