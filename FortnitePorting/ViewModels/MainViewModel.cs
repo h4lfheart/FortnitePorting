@@ -59,7 +59,8 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> pets = new();
     [ObservableProperty] private SuppressibleObservableCollection<TreeItem> meshes = new();
     [ObservableProperty] private SuppressibleObservableCollection<AssetItem> assets = new();
-    [ObservableProperty] private SuppressibleObservableCollection<AssetSelectorItem> musicPacks = new();
+    [ObservableProperty] private ObservableCollection<AssetSelectorItem> musicPacks = new();
+    [ObservableProperty] private ObservableCollection<AssetSelectorItem> toys = new();
 
     [ObservableProperty] private ObservableCollection<StyleSelector> styles = new();
 

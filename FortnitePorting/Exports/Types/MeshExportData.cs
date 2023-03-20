@@ -260,6 +260,63 @@ public class MeshExportData : ExportDataBase
 
                     break;
                 }
+                case EAssetType.Toy:
+                {
+                    var blueprint = asset.Get<UBlueprintGeneratedClass>("ToyActorClass");
+                    var superStruct = blueprint.SuperStruct.Load<UBlueprintGeneratedClass>();
+                    (UStaticMesh?, UMaterialInstanceConstant[]) GetData(UBlueprintGeneratedClass internalBlueprint)
+                    {
+                        if (internalBlueprint.TryGetValue(out UObject internalComponentHandler, "InheritableComponentHandler"))
+                        {
+                            var internalRecords = internalComponentHandler.GetOrDefault("Records", Array.Empty<FStructFallback>());
+                            foreach (var record in internalRecords)
+                            {
+                                var template = record.Get<UObject>("ComponentTemplate");
+                                if (!template.ExportType.Equals("StaticMeshComponent")) continue;
+                            
+                                var staticMesh = template.GetOrDefault<UStaticMesh?>("StaticMesh");
+                                if (staticMesh is null) continue;
+                                var overrideMaterials = template.GetOrDefault("OverrideMaterials", Array.Empty<UMaterialInstanceConstant>());
+                                return (staticMesh, overrideMaterials);
+                            }
+                        }
+
+                        return (null, Array.Empty<UMaterialInstanceConstant>());
+                    }
+
+                    var (mesh, materials) = GetData(blueprint);
+                    var (superMesh, superMaterials) = GetData(superStruct);
+                    if (materials.Length == 0) materials = superMaterials;
+
+                    mesh ??= superMesh;
+                    if (mesh is null)
+                    {
+                        var exports = AppVM.CUE4ParseVM.Provider.LoadObjectExports(blueprint.GetPathName().SubstringBeforeLast("."));
+                        var staticMeshComponents = exports.Where(x => x.ExportType == "StaticMeshComponent").ToArray();
+                        foreach (var component in staticMeshComponents)
+                        {
+                            var componentStaticMesh = component.GetOrDefault<UStaticMesh?>("StaticMesh");
+                            if (componentStaticMesh is null) continue;
+
+                            mesh = componentStaticMesh;
+                        }
+                    }
+
+                    var exportMesh = ExportHelpers.Mesh(mesh);
+                    if (exportMesh is null) break;
+                    
+                    for (var i = 0; i < materials.Length; i++)
+                    {
+                        var material = materials[i];
+                        if (material is null) continue;
+                        
+                        var exportMaterial = ExportHelpers.CreateExportMaterial(material, i);
+                        exportMesh.OverrideMaterials.Add(exportMaterial);
+                    }
+                    data.Parts.Add(exportMesh);
+                    
+                    break;
+                }
                 default:
                     throw new ArgumentOutOfRangeException();
             }

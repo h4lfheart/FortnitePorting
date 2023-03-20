@@ -47,8 +47,6 @@
         <Resource Include="Resources\Blender.png" />
         <Resource Include="Resources\Settings.png" />
         <Resource Include="Resources\Favorite.png" />
-        <Resource Include="Resources\Filter.png" />
-        <Resource Include="Resources\Sort.png" />
         <Resource Include="Resources\Textures.png" />
         <Resource Include="Resources\Export.png" />
         <Resource Include="Resources\Clipboard.png" />
@@ -78,6 +76,10 @@
         <Resource Include="Resources\Shaders\grid.vert" />
         <Resource Include="Resources\Prop.png" />
         <Resource Include="Resources\Locker.png" />
+        <Resource Include="Resources\Filter.png" />
+        <Resource Include="Resources\Sort.png" />
+        <None Remove="Resources\Toy.png" />
+        <Resource Include="Resources\Toy.png" />
     </ItemGroup>
 
 </Project>

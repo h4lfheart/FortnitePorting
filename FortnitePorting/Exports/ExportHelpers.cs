@@ -631,6 +631,17 @@ public static class ExportHelpers
         SocketFormat = ESocketFormat.Bone,
         MaterialFormat = EMaterialFormat.AllLayersNoRef
     };
+    
+    private static readonly ExporterOptions StaticMeshExportOptions = new()
+    {
+        Platform = ETexturePlatform.DesktopMobile,
+        LodFormat = ELodFormat.AllLods,
+        MeshFormat = EMeshFormat.ActorX,
+        TextureFormat = ETextureFormat.Png,
+        ExportMorphTargets = true,
+        SocketFormat = ESocketFormat.None,
+        MaterialFormat = EMaterialFormat.AllLayersNoRef
+    };
 
     private static bool AllLodsExist(UObject mesh)
     {
@@ -682,7 +693,7 @@ public static class ExportHelpers
                     {
                         if (AllLodsExist(staticMesh)) return;
 
-                        var exporter = new MeshExporter(staticMesh, ExportOptions, false);
+                        var exporter = new MeshExporter(staticMesh, StaticMeshExportOptions, false);
                         exporter.TryWriteToDir(App.AssetsFolder, out var label, out var savedFilePath);
                         break;
                     }

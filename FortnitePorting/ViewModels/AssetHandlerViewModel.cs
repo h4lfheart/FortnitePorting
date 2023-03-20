@@ -40,7 +40,8 @@ public class AssetHandlerViewModel
             { EAssetType.Gallery, GalleryHandler },
             { EAssetType.Prop, PropHandler },
             { EAssetType.Pet, PetHandler },
-            { EAssetType.Music, MusicPackHandler }
+            { EAssetType.Music, MusicPackHandler },
+            { EAssetType.Toy, ToyHandler }
         };
     }
 
@@ -211,6 +212,15 @@ public class AssetHandlerViewModel
 
             return previewImage;
         }
+    };
+    
+    private readonly AssetHandlerData ToyHandler = new()
+    {
+        AssetType = EAssetType.Toy,
+        TargetCollection = AppVM.MainVM.Toys,
+        ClassNames = new List<string> { "AthenaToyItemDefinition" },
+        RemoveList = { },
+        IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
     };
 
     public async Task Initialize()

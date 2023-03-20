@@ -201,6 +201,18 @@
                                     </ListBox.ItemsPanel>
                                 </ListBox>
                             </TabItem>
+                            <TabItem Style="{StaticResource TabItemEqualSize}" Tag="{x:Static local:EAssetType.Toy}">
+                                <TabItem.Header>
+                                    <controls:TextWithIcon Label="Toys" ImageSource="/FortnitePorting;component/Resources/Toy.png" />
+                                </TabItem.Header>
+                                <ListBox ItemsSource="{Binding Toys}" SelectionChanged="OnAssetSelectionChanged">
+                                    <ListBox.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <toolkitCtrls:VirtualizingWrapPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left" />
+                                        </ItemsPanelTemplate>
+                                    </ListBox.ItemsPanel>
+                                </ListBox>
+                            </TabItem>
                             <TabItem Style="{StaticResource TabItemEqualSize}" Tag="{x:Static local:EAssetType.Dance}">
                                 <TabItem.Header>
                                     <controls:TextWithIcon Label="Emotes" ImageSource="/FortnitePorting;component/Resources/Dance.png" />
