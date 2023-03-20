@@ -248,11 +248,6 @@ public class AssetHandlerData
         var sw = new Stopwatch();
         sw.Start();
 
-        if (AssetType is EAssetType.Weapon && AppSettings.Current.WeaponMappings.Count == 0)
-        {
-            AppLog.Warning("Generating first-time weapon mappings, this may take longer than usual");
-        }
-
         var galleryMappings = new List<GalleryData>();
         if (AssetType is EAssetType.Gallery)
         {
