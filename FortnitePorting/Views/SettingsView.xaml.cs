@@ -6,6 +6,7 @@ using AdonisUI;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Services;
 using FortnitePorting.ViewModels;
+using FortnitePorting.Views.Controls;
 
 namespace FortnitePorting.Views;
 
@@ -27,9 +28,25 @@ public partial class SettingsView
 
         if (AppVM.AssetHandlerVM is not null)
         {
-            foreach (var assetSelectorItem in AppVM.AssetHandlerVM.Handlers.Values.Where(x => x.TargetCollection is not null).SelectMany(handler => handler.TargetCollection))
+            foreach (var handler in AppVM.AssetHandlerVM.Handlers.Values.Where(x => x.TargetCollection is not null))
             {
-                assetSelectorItem.SetSize(AppVM.SettingsVM.AssetSize);
+                if (handler.AssetType is EAssetType.Prop)
+                {
+                    foreach (var expander in AppVM.MainVM.Props)
+                    {
+                        foreach (var assetSelectorItem in expander.Props)
+                        {
+                            assetSelectorItem.SetSize(AppVM.SettingsVM.AssetSize);
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (var assetSelectorItem in handler.TargetCollection!)
+                    {
+                        assetSelectorItem.SetSize(AppVM.SettingsVM.AssetSize);
+                    }
+                }
             }
         }
 

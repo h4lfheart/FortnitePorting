@@ -182,16 +182,11 @@ public partial class AssetSelectorItem : INotifyPropertyChanged, IExportableAsse
         }
     }
 
-    public bool Match(string filter, bool useRegex = false)
+    public bool Match(string filter)
     {
         if (DisplayName is null || ID is null || DisplayNameSource is null) return false;
 
-        if (useRegex)
-        {
-            return AppHelper.Filter(DisplayName, filter) || AppHelper.Filter(ID, filter) || AppHelper.Filter(DisplayNameSource, filter);
-        }
-
-        return DisplayName.Contains(filter, StringComparison.OrdinalIgnoreCase) || ID.Contains(filter, StringComparison.OrdinalIgnoreCase) || DisplayNameSource.Contains(filter, StringComparison.OrdinalIgnoreCase);
+        return AppHelper.Filter(DisplayName, filter) || AppHelper.Filter(ID, filter) || AppHelper.Filter(DisplayNameSource, filter);
     }
 
     public void ToggleFavorite()

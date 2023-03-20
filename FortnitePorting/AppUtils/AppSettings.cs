@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.Versions;
 using FortnitePorting.Exports.Blender;
 using FortnitePorting.Exports.Unreal;
+using FortnitePorting.Models;
 using FortnitePorting.Services.Endpoints.Models;
 using Newtonsoft.Json;
 
@@ -42,9 +43,9 @@ public partial class AppSettings : ObservableObject
 
     [ObservableProperty] private AesResponse? aesResponse;
 
-    [ObservableProperty] private BlenderExportSettings blenderExportSettings;
+    [ObservableProperty] private BlenderExportSettings blenderExportSettings = new();
 
-    [ObservableProperty] private UnrealExportSettings unrealExportSetttings;
+    [ObservableProperty] private UnrealExportSettings unrealExportSetttings = new();
 
     [ObservableProperty] private List<string> favoriteIDs = new();
 
@@ -71,4 +72,6 @@ public partial class AppSettings : ObservableObject
     [ObservableProperty] private float assetSize = 1.0f;
 
     [ObservableProperty] private Dictionary<string, List<string>> weaponMappings = new();
+    
+    [ObservableProperty] private HashSet<GalleryData> galleryMappings = new();
 }

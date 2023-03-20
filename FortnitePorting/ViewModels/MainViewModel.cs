@@ -53,7 +53,7 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> gliders = new();
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> weapons = new();
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> dances = new();
-    [ObservableProperty] private ObservableCollection<AssetSelectorItem> props = new();
+    [ObservableProperty] private ObservableCollection<PropExpander> props = new();
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> vehicles = new();
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> pets = new();
     [ObservableProperty] private SuppressibleObservableCollection<TreeItem> meshes = new();
