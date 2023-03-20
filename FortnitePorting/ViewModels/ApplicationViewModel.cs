@@ -3,6 +3,7 @@ using System.Windows;
 using AdonisUI.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FortnitePorting.AppUtils;
+using FortnitePorting.OpenGL;
 using MessageBox = AdonisUI.Controls.MessageBox;
 using MessageBoxImage = AdonisUI.Controls.MessageBoxImage;
 
@@ -19,7 +20,8 @@ public class ApplicationViewModel : ObservableObject
     public HeightmapViewModel? HeightmapVM;
     public MeshAssetViewModel? MeshVM;
     public PluginUpdateViewModel? PluginUpdateVM;
-    public WrappedViewModel? WrappedVM;
+
+    public Viewer? MeshViewer;
 
     public void Warning(string caption, string message)
     {

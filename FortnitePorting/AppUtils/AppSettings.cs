@@ -26,9 +26,6 @@ public partial class AppSettings : ObservableObject
         }
 
         Current ??= new AppSettings();
-
-        if (Current.WrappedData is not null)
-            Current.WrappedData.InstanceStart = DateTime.Now;
     }
 
     public static void Save()
@@ -46,9 +43,9 @@ public partial class AppSettings : ObservableObject
 
     [ObservableProperty] private AesResponse? aesResponse;
 
-    [ObservableProperty] private BlenderExportSettings blenderExportSettings;
+    [ObservableProperty] private BlenderExportSettings blenderExportSettings = new();
 
-    [ObservableProperty] private UnrealExportSettings unrealExportSetttings;
+    [ObservableProperty] private UnrealExportSettings unrealExportSetttings = new();
 
     [ObservableProperty] private List<string> favoriteIDs = new();
 
@@ -76,7 +73,5 @@ public partial class AppSettings : ObservableObject
 
     [ObservableProperty] private Dictionary<string, List<string>> weaponMappings = new();
     
-    [ObservableProperty] private bool trackWrappedData;
-    
-    [ObservableProperty] private FortniteWrappedData wrappedData;
+    [ObservableProperty] private HashSet<GalleryData> galleryMappings = new();
 }

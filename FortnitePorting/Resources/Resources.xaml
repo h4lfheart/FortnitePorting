@@ -6,7 +6,8 @@
                     xmlns:adonisExtensions="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"
                     xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
                     xmlns:adonisConverters="clr-namespace:AdonisUI.Converters;assembly=AdonisUI"
-                    xmlns:behaviors="clr-namespace:FortnitePorting.Views.Behaviors">
+                    xmlns:behaviors="clr-namespace:FortnitePorting.Views.Behaviors"
+                    xmlns:system="clr-namespace:System;assembly=System.Runtime">
     <converters:EnumToStringConverter x:Key="EnumToString" />
     <converters:TabItemSizeConverter x:Key="TabItemSize" />
 
@@ -502,5 +503,25 @@
                 </Style>
             </Setter.Value>
         </Setter>
+    </Style>
+    
+    <Style x:Key="ExpanderDownStyle" TargetType="{x:Type ToggleButton}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ToggleButton}">
+                    <Border DockPanel.Dock="Top" Background="Transparent">
+                        <Viewbox Width="16" Height="16" HorizontalAlignment="Center">
+                            <Canvas Width="24" Height="24">
+                                <Path Fill="{TemplateBinding Foreground}" Data="{StaticResource ArrowIcon}"/>
+                            </Canvas>
+                        </Viewbox>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
+    <Style x:Key="{x:Type Expander}" TargetType="Expander" BasedOn="{StaticResource {x:Type Expander}}">
+        
     </Style>
 </ResourceDictionary>

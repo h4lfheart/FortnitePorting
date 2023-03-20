@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
@@ -7,9 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
-using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CUE4Parse.Utils;
+using CommunityToolkit.Mvvm.Input;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Views.Controls;
 
@@ -93,7 +91,7 @@ public class MeshAssetViewModel : ObservableObject
         });
         
         loadTime.Stop();
-        AppLog.Information($"Loaded {AppVM.CUE4ParseVM.MeshEntries.Count} Meshes in {Math.Round(loadTime.Elapsed.TotalSeconds, 3)}s");
+        AppLog.Information($"Loaded {AppVM.CUE4ParseVM.MeshEntries.Count} Assets in {Math.Round(loadTime.Elapsed.TotalSeconds, 3)}s");
         
     }
 }
@@ -142,5 +140,11 @@ public partial class AssetItem : ObservableObject
     {
         Path = path;
         PathWithoutExtension = path.Replace(".uasset", string.Empty);
+    }
+
+    [RelayCommand]
+    public void Copy()
+    {
+        Clipboard.SetText(Path);
     }
 }

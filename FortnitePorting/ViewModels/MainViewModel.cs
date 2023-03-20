@@ -4,18 +4,14 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CSCore;
-using CSCore.Codecs;
 using CSCore.Codecs.OGG;
-using CSCore.Codecs.WAV;
 using CSCore.CoreAudioAPI;
-using CSCore.MediaFoundation;
 using CSCore.SoundOut;
 using CSCore.Streams;
 using CUE4Parse_Conversion.Sounds;
@@ -26,11 +22,15 @@ using FortnitePorting.AppUtils;
 using FortnitePorting.Bundles;
 using FortnitePorting.Exports;
 using FortnitePorting.Exports.Types;
+using FortnitePorting.OpenGL;
 using FortnitePorting.Services;
 using FortnitePorting.Services.Export;
 using FortnitePorting.Views;
 using FortnitePorting.Views.Controls;
 using FortnitePorting.Views.Extensions;
+using OpenTK.Mathematics;
+using OpenTK.Windowing.Common;
+using OpenTK.Windowing.Desktop;
 using StyleSelector = FortnitePorting.Views.Controls.StyleSelector;
 
 namespace FortnitePorting.ViewModels;
@@ -53,7 +53,7 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> gliders = new();
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> weapons = new();
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> dances = new();
-    [ObservableProperty] private ObservableCollection<AssetSelectorItem> props = new();
+    [ObservableProperty] private ObservableCollection<PropExpander> props = new();
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> vehicles = new();
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> pets = new();
     [ObservableProperty] private SuppressibleObservableCollection<TreeItem> meshes = new();
@@ -115,10 +115,11 @@ public partial class MainViewModel : ObservableObject
 
             AppLog.Information($"Loaded FortniteGame Archive in {Math.Round(loadTime.Elapsed.TotalSeconds, 3)}s");
             IsReady = true;
-
+            
             AppVM.AssetHandlerVM = new AssetHandlerViewModel();
             await AppVM.AssetHandlerVM.Initialize();
             IsInitialized = true;
+            
         });
     }
 
@@ -176,9 +177,6 @@ public partial class MainViewModel : ObservableObject
                 break;
             case "Tools_Heightmap":
                 AppHelper.OpenWindow<HeightmapView>();
-                break; 
-            case "Wrapped":
-                AppHelper.OpenWindow<WrappedView>();
                 break;
         }
     }
@@ -197,6 +195,8 @@ public partial class MainViewModel : ObservableObject
 
     public async Task SetupMeshSelection(string path)
     {
+        ExtendedAssets.Clear();
+        TabModeText = "SELECTED MESHES";
         var meshObject = await AppVM.CUE4ParseVM.Provider.LoadObjectAsync(path);
         if (AllowedMeshTypes.Contains(meshObject.ExportType))
         {
@@ -209,6 +209,7 @@ public partial class MainViewModel : ObservableObject
         ExtendedAssets.Clear();
         TabModeText = "SELECTED MESHES";
         var index = 0;
+        var validMeshSelected = false;
         foreach (var item in extendedItems)
         {
             var meshObject = await AppVM.CUE4ParseVM.Provider.LoadObjectAsync(item.PathWithoutExtension);
@@ -218,11 +219,13 @@ public partial class MainViewModel : ObservableObject
                 if (index == 0) CurrentAsset = meshItem;
                 ExtendedAssets.Add(meshItem);
                 index++;
+                validMeshSelected = true;
             }
         }
         Styles.Clear();
         Styles.Add(new StyleSelector(ExtendedAssets));
       
+        if (!validMeshSelected) CurrentAsset = null;
     }
 
     public async Task<List<ExportDataBase>> CreateExportDatasAsync()
@@ -276,7 +279,6 @@ public partial class MainViewModel : ObservableObject
         var exportDatas = await CreateExportDatasAsync();
         if (exportDatas.Count == 0) return;
 
-        AppSettings.Current.WrappedData.Asset(CurrentAsset);
         var exportSettings = AppSettings.Current.BlenderExportSettings;
         exportSettings.AnimGender = AnimationGender;
         BlenderService.Client.Send(exportDatas, exportSettings);
@@ -341,6 +343,31 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
+    public async Task PreviewMesh()
+    {
+        AppVM.MeshViewer ??= new Viewer(GameWindowSettings.Default, new NativeWindowSettings
+        {
+            Size = new Vector2i(960, 540),
+            NumberOfSamples = 8,
+            WindowBorder = WindowBorder.Resizable,
+            Profile = ContextProfile.Core,
+            APIVersion = new Version(4, 6),
+            Title = "Model Viewer",
+            StartVisible = true,
+            Flags = ContextFlags.ForwardCompatible
+        });
+
+        if (CurrentAssetType != EAssetType.Mesh)
+        {
+            AppVM.AssetHandlerVM?.Handlers[CurrentAssetType].PauseState.Pause();
+            AppVM.MeshViewer.Closing += _ => AppVM.AssetHandlerVM?.Handlers[CurrentAssetType].PauseState.Unpause();
+        }
+        
+        AppVM.MeshViewer.LoadMeshAssets(ExtendedAssets);
+        AppVM.MeshViewer.Run();
+    }
+
+    [RelayCommand]
     public async Task PlaySound()
     {
         CurrentMusicPlayer?.Stop();
@@ -349,7 +376,6 @@ public partial class MainViewModel : ObservableObject
         CurrentMusicPlayer.Play();
         
         DiscordService.UpdateMusicState(CurrentAsset?.DisplayName ?? string.Empty);
-        AppSettings.Current.WrappedData.Music(CurrentAsset);
     }
 
     [RelayCommand]

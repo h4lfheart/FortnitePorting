@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Windows;
-using FortnitePorting.ViewModels;
 using Ookii.Dialogs.Wpf;
 
 namespace FortnitePorting.AppUtils;

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Threading;
 using System.Windows;
 using System.Windows.Threading;
 using AdonisUI;
@@ -86,7 +85,7 @@ public partial class App
     {
         base.OnExit(e);
         AppVM.MainVM.CurrentMusicPlayer?.Dispose();
-        AppSettings.Current.WrappedData.TimeSpentOpen += DateTime.Now - AppSettings.Current.WrappedData.InstanceStart;
+        AppVM.MeshViewer?.Close();
         FreeConsole();
         AppSettings.Save();
     }

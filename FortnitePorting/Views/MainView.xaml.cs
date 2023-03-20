@@ -6,19 +6,14 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
-using AdonisUI.Controls;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using FortnitePorting.AppUtils;
-using FortnitePorting.Models;
 using FortnitePorting.Services;
 using FortnitePorting.ViewModels;
 using FortnitePorting.Views.Controls;
 using FortnitePorting.Views.Extensions;
-using MessageBox = AdonisUI.Controls.MessageBox;
-using MessageBoxImage = AdonisUI.Controls.MessageBoxImage;
-using MessageBoxResult = AdonisUI.Controls.MessageBoxResult;
 using StyleSelector = FortnitePorting.Views.Controls.StyleSelector;
 
 namespace FortnitePorting.Views;
@@ -45,23 +40,6 @@ public partial class MainView
         {
             AppHelper.OpenWindow<StartupView>();
             return;
-        }
-
-        if (AppSettings.Current.WrappedData is null)
-        {
-            AppSettings.Current.WrappedData = new FortniteWrappedData();
-            
-            var messageBox = new MessageBoxModel
-            {
-                Caption = "Introducing FortnitePorting Wrapped!",
-                Icon = MessageBoxImage.Exclamation,
-                Text = "You can now have a monthly FortnitePorting wrapped!\n\nThis new feature tracks things like what assets you export, what music packs you listen to, and how long you've used the program for!\n\nAll of this data is shown to you at the start of every month and you can always view your total stats by pressing the \"Wrapped\" button at the top of the program.\n\nAll of this info stays on your hard drive and does not leave your computer in any way. (You may opt in or out at any time in the program settings if you change your mind)",
-                Buttons = new[] { new MessageBoxButtonModel("Opt-In", MessageBoxResult.Yes), new MessageBoxButtonModel("Opt-Out", MessageBoxResult.No) },
-            };
-
-            MessageBox.Show(messageBox);
-
-            AppSettings.Current.TrackWrappedData = messageBox.Result is MessageBoxResult.Yes;
         }
 
         var (updateAvailable, updateVersion) = UpdateService.GetStats();
@@ -188,13 +166,6 @@ public partial class MainView
         }
     }
 
-    private void OnSearchTextChanged(object sender, TextChangedEventArgs e)
-    {
-        var searchBox = (TextBox)sender;
-        AppVM.MainVM.SearchFilter = searchBox.Text;
-        RefreshFilters();
-    }
-
     public void RefreshFilters()
     {
         AssetFlatView.Items.Filter = o =>
@@ -204,16 +175,33 @@ public partial class MainView
         };
         AssetFlatView.Items.Refresh();
 
+        var idx = 0;
         foreach (var tab in AssetControls.Items.OfType<TabItem>())
         {
-            if (tab.Content is not ListBox listBox) continue;
-
-            listBox.Items.Filter = o =>
+            var assetType = (EAssetType) idx;
+            
+            if (tab.Content is ScrollViewer scrollViewer && assetType is EAssetType.Prop)
             {
-                var asset = (AssetSelectorItem)o;
-                return asset.Match(AppVM.MainVM.SearchFilter) && AppVM.MainVM.Filters.All(x => x.Invoke(asset));
-            };
-            listBox.Items.Refresh();
+                var itemsControl = (ItemsControl) scrollViewer.Content;
+                itemsControl.Items.Filter = o =>
+                {
+                    var asset = (PropExpander) o;
+                    return AppHelper.Filter(asset.GalleryName.Text, AppVM.MainVM.SearchFilter);
+                };
+                itemsControl.Items.Refresh();
+            }
+            else if (tab.Content is ListBox listBox)
+            {
+                listBox.Items.Filter = o =>
+                {
+                    var asset = (AssetSelectorItem) o;
+                    return asset.Match(AppVM.MainVM.SearchFilter) && AppVM.MainVM.Filters.All(x => x.Invoke(asset));
+                };
+                
+                listBox.Items.Refresh();
+            }
+
+            idx++;
         }
     }
 
@@ -224,15 +212,19 @@ public partial class MainView
 
     public void RefreshSorting()
     {
+        var idx = 0;
         foreach (var tab in AssetControls.Items.OfType<TabItem>())
         {
             if (tab.Content is not ListBox listBox) continue;
             listBox.Items.SortDescriptions.Clear();
             listBox.Items.SortDescriptions.Add(new SortDescription("IsRandom", ListSortDirection.Descending));
+            var assetType = (EAssetType) idx;
+            
             switch (AppVM.MainVM.SortType)
             {
                 case ESortType.Default:
-                    listBox.Items.SortDescriptions.Add(new SortDescription("ID", GetProperSort(ListSortDirection.Ascending)));
+                    if (assetType is not EAssetType.Prop)
+                        listBox.Items.SortDescriptions.Add(new SortDescription("ID", GetProperSort(ListSortDirection.Ascending)));
                     break;
                 case ESortType.AZ:
                     listBox.Items.SortDescriptions.Add(new SortDescription("DisplayName", GetProperSort(ListSortDirection.Ascending)));
@@ -250,6 +242,8 @@ public partial class MainView
                     listBox.Items.SortDescriptions.Add(new SortDescription("Rarity", GetProperSort(ListSortDirection.Descending)));
                     break;
             }
+
+            idx++;
         }
     }
 
@@ -327,8 +321,8 @@ public partial class MainView
 
     private async void AssetFolderTree_OnSelectionChanged(object sender, RoutedPropertyChangedEventArgs<object> routedPropertyChangedEventArgs)
     {
-        var treeView = (TreeView)sender;
-        var treeItem = (TreeItem)treeView.SelectedItem;
+        var treeView = (TreeView) sender;
+        var treeItem = (TreeItem) treeView.SelectedItem;
         if (treeItem.AssetType == ETreeItemType.Folder) return;
 
         await AppVM.MainVM.SetupMeshSelection(treeItem.FullPath);
@@ -360,5 +354,10 @@ public partial class MainView
         {
             handler.PauseState.IsPaused = toggleSwitch.IsChecked.HasValue && toggleSwitch.IsChecked.Value; 
         }
+    }
+
+    private void SearchOnTextChanged(object sender, TextChangedEventArgs e)
+    {
+        RefreshFilters();
     }
 }

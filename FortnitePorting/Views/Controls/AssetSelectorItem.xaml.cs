@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using CommunityToolkit.Mvvm.Input;
@@ -79,7 +77,7 @@ public partial class AssetSelectorItem : INotifyPropertyChanged, IExportableAsse
         HiddenAsset = hiddenAsset;
 
         DisplayName = displayName.Text;
-        if (DisplayName.Equals("TBD"))
+        if (DisplayName.Equals("TBD") || string.IsNullOrWhiteSpace(DisplayName))
         {
             DisplayName = asset.Name;
         }
@@ -184,16 +182,11 @@ public partial class AssetSelectorItem : INotifyPropertyChanged, IExportableAsse
         }
     }
 
-    public bool Match(string filter, bool useRegex = false)
+    public bool Match(string filter)
     {
         if (DisplayName is null || ID is null || DisplayNameSource is null) return false;
 
-        if (useRegex)
-        {
-            return AppHelper.Filter(DisplayName, filter) || AppHelper.Filter(ID, filter) || AppHelper.Filter(DisplayNameSource, filter);
-        }
-
-        return DisplayName.Contains(filter, StringComparison.OrdinalIgnoreCase) || ID.Contains(filter, StringComparison.OrdinalIgnoreCase) || DisplayNameSource.Contains(filter, StringComparison.OrdinalIgnoreCase);
+        return AppHelper.Filter(DisplayName, filter) || AppHelper.Filter(ID, filter) || AppHelper.Filter(DisplayNameSource, filter);
     }
 
     public void ToggleFavorite()

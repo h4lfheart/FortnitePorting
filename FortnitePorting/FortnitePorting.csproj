@@ -13,12 +13,13 @@
         <PackageReference Include="AdonisUI" Version="1.17.1" />
         <PackageReference Include="AdonisUI.ClassicTheme" Version="1.17.1" />
         <PackageReference Include="Autoupdater.NET.Official" Version="1.7.6" />
-        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.1.0" />
         <PackageReference Include="CSCore" Version="1.2.1.2" />
         <PackageReference Include="CSCore.Ogg" Version="1.0.0" />
         <PackageReference Include="DiscordRichPresence" Version="1.0.175" />
         <PackageReference Include="MercuryCommons" Version="0.0.8" />
         <PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
+        <PackageReference Include="OpenTK" Version="5.0.0-pre.8" />
         <PackageReference Include="RestSharp" Version="108.0.3-alpha.0.5" />
         <PackageReference Include="RestSharp.Serializers.NewtonsoftJson" Version="108.0.3-alpha.0.5" />
         <PackageReference Include="Serilog.Sinks.File" Version="5.0.1-dev-00947" />
@@ -62,6 +63,19 @@
         <Resource Include="Resources\Music.png" />
         <Resource Include="Resources\Play.png" />
         <Resource Include="Resources\Stop.png" />
+        <Resource Include="FortnitePorting-Dark.png" />
+        <Resource Include="Resources\Shaders\nx.png" />
+        <Resource Include="Resources\Shaders\ny.png" />
+        <Resource Include="Resources\Shaders\nz.png" />
+        <Resource Include="Resources\Shaders\px.png" />
+        <Resource Include="Resources\Shaders\py.png" />
+        <Resource Include="Resources\Shaders\pz.png" />
+        <Resource Include="Resources\Shaders\skybox.frag" />
+        <Resource Include="Resources\Shaders\skybox.vert" />
+        <Resource Include="Resources\Shaders\shader.frag" />
+        <Resource Include="Resources\Shaders\shader.vert" />
+        <Resource Include="Resources\Shaders\grid.frag" />
+        <Resource Include="Resources\Shaders\grid.vert" />
     </ItemGroup>
 
 </Project>

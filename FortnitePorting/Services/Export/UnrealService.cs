@@ -4,7 +4,6 @@ using System.Text;
 using FortnitePorting.Exports;
 using FortnitePorting.Exports.Types;
 using FortnitePorting.Exports.Unreal;
-using Ionic.Zlib;
 using Newtonsoft.Json;
 
 namespace FortnitePorting.Services.Export;

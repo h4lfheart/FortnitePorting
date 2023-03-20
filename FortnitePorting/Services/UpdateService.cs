@@ -70,8 +70,6 @@ public static class UpdateService
         MessageBox.Show(MainView.YesWeDogs, messageBox);
         if (messageBox.Result == MessageBoxResult.No) return;
 
-        Log.Information("CHECK3");
-
         if (AutoUpdater.DownloadUpdate(args))
         {
             AppSettings.Current.JustUpdated = true;

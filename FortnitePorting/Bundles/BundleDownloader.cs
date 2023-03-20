@@ -1,16 +1,13 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CUE4Parse.UE4.Readers;
 using EpicManifestParser.Objects;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Services;
 using FortnitePorting.Views.Extensions;
-using RestSharp;
 
 namespace FortnitePorting.Bundles;
 

@@ -4,8 +4,7 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using CUE4Parse.UE4.Assets.Exports;
-using CUE4Parse.UE4.Objects.Engine;
+using System.Text;
 
 namespace FortnitePorting.Views.Extensions;
 
@@ -99,5 +98,10 @@ public static class MiscExtensions
         var factor = Math.Pow(10, decimals);
         var result = Math.Truncate(factor * value) / factor;
         return result;
+    }
+    
+    public static string AsString(this byte[] bytes)
+    {
+        return Encoding.UTF8.GetString(bytes);
     }
 }

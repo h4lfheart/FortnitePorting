@@ -55,7 +55,6 @@
             </MenuItem>
             <MenuItem Header="Check for Updates" Command="{Binding MenuCommand}" CommandParameter="Update" />
             <MenuItem Header="Sync Plugin" Command="{Binding MenuCommand}" CommandParameter="SyncPlugin" />
-            <MenuItem Header="Wrapped" Command="{Binding MenuCommand}" CommandParameter="Wrapped" IsEnabled="{Binding IsReady}"/>
         </Menu>
 
         <Grid Grid.Row="2">
@@ -89,7 +88,7 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <TextBox Grid.Column="0" adonisExt:LayerExtension.Layer="2" adonisExt:WatermarkExtension.Watermark="Search..." TextChanged="OnSearchTextChanged" />
+                <TextBox Grid.Column="0" Text="{Binding SearchFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" adonisExt:LayerExtension.Layer="2" adonisExt:WatermarkExtension.Watermark="Search..." TextChanged="SearchOnTextChanged"/>
 
                 <controls:TextWithIcon Grid.Column="2" Label="Sort By" ImageSource="/FortnitePorting;component/Resources/Sort.png" IconSize="16" />
                 <ComboBox Grid.Column="4" ItemsSource="{extensions:EnumToItemsSource {x:Type local:ESortType}}" SelectedItem="{Binding SortType, Converter={StaticResource EnumToString}}" SelectionChanged="OnSortSelectionChanged" />
@@ -237,13 +236,9 @@
                         <TabItem.Header>
                             <controls:TextWithIcon Label="Props" ImageSource="/FortnitePorting;component/Resources/Props.png" />
                         </TabItem.Header>
-                        <ListBox SelectionMode="Extended" ItemsSource="{Binding Props}" SelectionChanged="OnAssetSelectionChanged">
-                            <ListBox.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <toolkitCtrls:VirtualizingWrapPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left" />
-                                </ItemsPanelTemplate>
-                            </ListBox.ItemsPanel>
-                        </ListBox>
+                        <ScrollViewer PreviewMouseWheel="StupidIdiotBadScroll">
+                            <ItemsControl ItemsSource="{Binding Props}" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"/>
+                        </ScrollViewer>
                     </TabItem>
                     <TabItem Style="{StaticResource TabItemEqualSize}">
                         <TabItem.Header>
@@ -280,7 +275,18 @@
                                     <ListBox Name="AssetFlatView" SelectionMode="Extended" Grid.Row="1" ItemsSource="{Binding Assets, IsAsync=True}" VirtualizingPanel.IsVirtualizing="True" HorizontalAlignment="Stretch" SelectionChanged="AssetFlatView_OnSelectionChanged" MouseDoubleClick="OnAssetDoubleClick">
                                         <ListBox.ItemTemplate>
                                             <DataTemplate>
-                                                <TextBlock HorizontalAlignment="Left" Text="{Binding Path}" TextTrimming="CharacterEllipsis" />
+                                                <ContentControl>
+                                                    <ContentControl.ContextMenu>
+                                                        <ContextMenu>
+                                                            <MenuItem Header="Copy Path to Clipboard" Command="{Binding CopyCommand}">
+                                                                <MenuItem.Icon>
+                                                                    <Image Source="/Resources/Clipboard.png" Width="16" Height="16"></Image>
+                                                                </MenuItem.Icon>
+                                                            </MenuItem>
+                                                        </ContextMenu>
+                                                    </ContentControl.ContextMenu>
+                                                    <TextBlock HorizontalAlignment="Left" Text="{Binding Path}" TextTrimming="CharacterEllipsis" />
+                                                </ContentControl>
                                             </DataTemplate>
                                         </ListBox.ItemTemplate>
                                         <ListBox.Style>
@@ -445,6 +451,60 @@
                                                             </Button.Content>
                                                         </Button>
                                                         <Button Grid.Row="5" Command="{Binding ExportUnrealCommand}" IsEnabled="False">
+                                                            <Button.Content>
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <Image Source="/FortnitePorting;component/Resources/Unreal.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality" />
+                                                                    <TextBlock Text="Send to Unreal Engine (Unsupported)" VerticalAlignment="Center" Margin="5 0 0 0" />
+                                                                </StackPanel>
+                                                            </Button.Content>
+                                                        </Button>
+                                                        <Button Grid.Row="7" Command="{Binding OpenSettingsCommand}">
+                                                            <Button.Content>
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <Image Source="/FortnitePorting;component/Resources/Settings.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality" />
+                                                                    <TextBlock Text="Export/Import Options" VerticalAlignment="Center" Margin="5 0 0 0" />
+                                                                </StackPanel>
+                                                            </Button.Content>
+                                                        </Button>
+                                                    </Grid>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding CurrentAsset.Type}" Value="{x:Static local:EAssetType.Mesh}">
+                                         <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate>
+                                                    <Grid>
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="Auto" />
+                                                            <RowDefinition Height="0.5*" />
+                                                            <RowDefinition Height="{adonisUi:Space 1}" />
+                                                            <RowDefinition Height="0.5*" />
+                                                            <RowDefinition Height="{adonisUi:Space 1}" />
+                                                            <RowDefinition Height="0.5*" />
+                                                            <RowDefinition Height="{adonisUi:Space 1}" />
+                                                            <RowDefinition Height="0.5*" />
+                                                        </Grid.RowDefinitions>
+
+                                                        <Separator Grid.Row="0" Style="{StaticResource NamedSeparator}" Tag="EXPORT" />
+                                                        <Button Grid.Row="1" Command="{Binding PreviewMeshCommand}">
+                                                            <Button.Content>
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <Image Source="/FortnitePorting;component/Resources/Mesh.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality" />
+                                                                    <TextBlock Text="Preview Mesh" VerticalAlignment="Center" Margin="5 0 0 0" />
+                                                                </StackPanel>
+                                                            </Button.Content>
+                                                        </Button>
+                                                        <Button Grid.Row="3" Command="{Binding ExportBlenderCommand}">
+                                                            <Button.Content>
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <Image Source="/FortnitePorting;component/Resources/Blender.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality" />
+                                                                    <TextBlock Text="Send to Blender" VerticalAlignment="Center" Margin="5 0 0 0" />
+                                                                </StackPanel>
+                                                            </Button.Content>
+                                                        </Button>
+                                                        <Button Grid.Row="5" Command="{Binding ExportUnrealCommand}">
                                                             <Button.Content>
                                                                 <StackPanel Orientation="Horizontal">
                                                                     <Image Source="/FortnitePorting;component/Resources/Unreal.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality" />
