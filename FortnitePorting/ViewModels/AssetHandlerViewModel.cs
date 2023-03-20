@@ -252,18 +252,12 @@ public class AssetHandlerData
         {
             AppLog.Warning("Generating first-time weapon mappings, this may take longer than usual");
         }
-        
-        if (AssetType is EAssetType.Gallery && AppSettings.Current.GalleryMappings.Count == 0)
-        {
-            AppLog.Warning("Generating first-time prop gallery mappings, this may take longer than usual");
-        }
 
-        // prop asset name : gallery
+        var galleryMappings = new List<GalleryData>();
         if (AssetType is EAssetType.Gallery)
         {
             var addedProps = new List<string>();
             var playsets = AppVM.CUE4ParseVM.AssetDataBuffers.Where(x => x.AssetClass.Text.Equals("FortPlaysetItemDefinition", StringComparison.OrdinalIgnoreCase)).ToList();
-            //playsets.RemoveAll(playset => AppSettings.Current.GalleryMappings.Any(gallery => gallery.ID.Equals(playset.AssetName.Text)));
             foreach (var playset in playsets)
             {
                 await PauseState.WaitIfPaused();
@@ -279,7 +273,7 @@ public class AssetHandlerData
                 
                 var galleryData = new GalleryData(playsetName, playsetObject.Name, playsetObject.GetPathName());
                 galleryData.Props.AddRange(associatedProps.Select(x => x.AssetPathName.Text));
-                AppSettings.Current.GalleryMappings.Add(galleryData);
+                galleryMappings.Add(galleryData);
                 
                 playsetObject.TryGetValue(out UTexture2D? playsetImage, "SmallPreviewImage", "LargePreviewImage");
                 playsetImage ??= AppVM.CUE4ParseVM.PlaceholderTexture;
@@ -368,7 +362,7 @@ public class AssetHandlerData
                 }
 
                 addedAssets.Add(displayName);
-                var foundGallery = AppSettings.Current.GalleryMappings.FirstOrDefault(gallery => gallery.Props.Any(prop => prop.Contains(data.AssetName.Text)));
+                var foundGallery = galleryMappings.FirstOrDefault(gallery => gallery.Props.Any(prop => prop.Contains(data.AssetName.Text)));
                 if (foundGallery is not null)
                 {
                     await DoLoad(data, AssetType, descriptionOverride: foundGallery.Name);
