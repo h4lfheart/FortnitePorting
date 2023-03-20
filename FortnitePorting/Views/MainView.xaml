@@ -528,7 +528,7 @@
                                                         <Button Grid.Row="1" Command="{Binding PreviewMeshCommand}">
                                                             <Button.Content>
                                                                 <StackPanel Orientation="Horizontal">
-                                                                    <Image Source="/FortnitePorting;component/Resources/Mesh.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality" />
+                                                                    <Image Source="/FortnitePorting;component/Resources/MeshPreview.png" VerticalAlignment="Center" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality" />
                                                                     <TextBlock Text="Preview Mesh" VerticalAlignment="Center" Margin="5 0 0 0" />
                                                                 </StackPanel>
                                                             </Button.Content>
