@@ -127,7 +127,7 @@ public partial class MainViewModel : ObservableObject
 
     public FStructFallback[] GetSelectedStyles()
     {
-        return CurrentAsset?.Type is EAssetType.Prop or EAssetType.Mesh ? Array.Empty<FStructFallback>() : Styles.Select(style => ((StyleSelectorItem)style.Options.Items[style.Options.SelectedIndex]).OptionData).ToArray();
+        return CurrentAsset?.Type is EAssetType.Prop or EAssetType.Mesh or EAssetType.Gallery ? Array.Empty<FStructFallback>() : Styles.Select(style => ((StyleSelectorItem)style.Options.Items[style.Options.SelectedIndex]).OptionData).ToArray();
     }
 
     [RelayCommand]
