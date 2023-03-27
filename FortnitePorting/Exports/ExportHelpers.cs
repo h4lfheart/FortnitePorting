@@ -287,7 +287,7 @@ public static class ExportHelpers
                 }
             }
         }
-    }
+    } 
 
     public static void OverrideMaterials(FStructFallback[] overrides, List<ExportMaterial> exportMaterials)
     {
@@ -520,6 +520,7 @@ public static class ExportHelpers
     {
         var exportMaterial = new T
         {
+            MaterialPath = material.GetPathName(),
             MaterialName = material.Name,
             SlotIndex = materialIndex
         };

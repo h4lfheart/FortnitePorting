@@ -68,7 +68,7 @@
 
                 </StackPanel>
             </TabItem>
-            <TabItem Header="Unreal Engine (Unsupported)" Style="{StaticResource TabItemEqualSize}" IsEnabled="False">
+            <TabItem Header="Unreal Engine" Style="{StaticResource TabItemEqualSize}">
                 <TextBlock Text="The Unreal Engine version of the plugin has not been completed yet." HorizontalAlignment="Center" />
             </TabItem>
         </TabControl>

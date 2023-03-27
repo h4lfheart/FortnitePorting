@@ -73,6 +73,7 @@ public class ExportPart : ExportMesh
 
 public record ExportMaterial
 {
+    public string MaterialPath;
     public string MaterialName;
     public string? MasterMaterialName;
     public int SlotIndex;
