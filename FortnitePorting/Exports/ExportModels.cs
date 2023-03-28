@@ -4,6 +4,7 @@ using System.Linq;
 using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Sound;
+using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.Engine.Animation;
 using CUE4Parse.Utils;
@@ -98,7 +99,7 @@ public record ExportMaterialParams
     public List<VectorParameter> Vectors = new();
 }
 
-public record TextureParameter(string Name, string Value, bool sRGB);
+public record TextureParameter(string Name, string Value, bool sRGB, TextureCompressionSettings CompressionSettings);
 
 public record ScalarParameter(string Name, float Value);
 

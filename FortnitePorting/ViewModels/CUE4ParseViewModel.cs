@@ -145,6 +145,7 @@ public class CUE4ParseViewModel : ObservableObject
         assetRegistries.MoveToEnd(x => x.Value.Name.Equals("AssetRegistry.bin")); // i want encrypted cosmetics to be at the top :)))
         foreach (var (_, file) in assetRegistries)
         {
+            if (file.Path.Contains("UEFN", StringComparison.OrdinalIgnoreCase) || file.Path.Contains("Editor", StringComparison.OrdinalIgnoreCase)) continue;
             await LoadAssetRegistry(file);
         }
 

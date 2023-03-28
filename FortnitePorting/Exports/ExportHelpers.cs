@@ -310,7 +310,7 @@ public static class ExportHelpers
         foreach (var parameter in materialInstance.TextureParameterValues)
         {
             if (!parameter.ParameterValue.TryLoad(out UTexture2D texture)) continue;
-            textures.Add(new TextureParameter(parameter.ParameterInfo.Name.Text, texture.GetPathName(), texture.SRGB));
+            textures.Add(new TextureParameter(parameter.ParameterInfo.Name.Text, texture.GetPathName(), texture.SRGB, texture.CompressionSettings));
             Save(texture);
         }
 
@@ -355,19 +355,19 @@ public static class ExportHelpers
         if (parameters.TryGetTexture2d(out var diffuseTexture, CMaterialParams2.Diffuse[0]))
         {
             Save(diffuseTexture);
-            textures.Add(new TextureParameter("Diffuse", diffuseTexture.GetPathName(), diffuseTexture.SRGB));
+            textures.Add(new TextureParameter("Diffuse", diffuseTexture.GetPathName(), diffuseTexture.SRGB, diffuseTexture.CompressionSettings));
         }
 
         if (parameters.TryGetTexture2d(out var specularMasksTexture, CMaterialParams2.SpecularMasks[0]))
         {
             Save(specularMasksTexture);
-            textures.Add(new TextureParameter("SpecularMasks", specularMasksTexture.GetPathName(), specularMasksTexture.SRGB));
+            textures.Add(new TextureParameter("SpecularMasks", specularMasksTexture.GetPathName(), specularMasksTexture.SRGB, specularMasksTexture.CompressionSettings));
         }
 
         if (parameters.TryGetTexture2d(out var normalsTexture, CMaterialParams2.Normals[0]))
         {
             Save(normalsTexture);
-            textures.Add(new TextureParameter("Normals", normalsTexture.GetPathName(), normalsTexture.SRGB));
+            textures.Add(new TextureParameter("Normals", normalsTexture.GetPathName(), normalsTexture.SRGB, normalsTexture.CompressionSettings));
         }
 
         return (textures, scalars, vectors);
@@ -384,7 +384,7 @@ public static class ExportHelpers
             if (value is UTexture2D texture)
             {
                 Save(texture);
-                textures.Add(new TextureParameter(name, texture.GetPathName(), texture.SRGB));
+                textures.Add(new TextureParameter(name, texture.GetPathName(), texture.SRGB, texture.CompressionSettings));
                 break;
             }
         }
@@ -398,7 +398,7 @@ public static class ExportHelpers
         foreach (var parameter in data.GetOrDefault("TextureParams", Array.Empty<FStructFallback>()))
         {
             if (!parameter.TryGetValue(out UTexture2D texture, "Value")) continue;
-            textures.Add(new TextureParameter(parameter.Get<FName>("ParamName").Text, texture.GetPathName(), texture.SRGB));
+            textures.Add(new TextureParameter(parameter.Get<FName>("ParamName").Text, texture.GetPathName(), texture.SRGB, texture.CompressionSettings));
             Save(texture);
         }
 
