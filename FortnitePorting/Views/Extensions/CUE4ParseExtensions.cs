@@ -2,9 +2,12 @@
 using System.Linq;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.UE4.Assets.Exports.Material.Parameters;
 using CUE4Parse.UE4.Assets.Exports.Texture;
+using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.GameplayTags;
 using CUE4Parse.UE4.Objects.UObject;
+using CUE4Parse.Utils;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SkiaSharp;
@@ -95,5 +98,24 @@ public static class CUE4ParseExtensions
                 action(image[x, y], x, y);
             }
         }
+    }
+
+    public static bool TryLoadEditorData<T>(this UObject asset, out T editorData) where T : UObject
+    {
+        var path = asset.GetPathName().SubstringBeforeLast(".") + ".o.uasset";
+        editorData = AppVM.CUE4ParseVM.Provider.LoadObjectExports(path).FirstOrDefault() as T;
+
+        return editorData is not null;
+    }
+    
+    public static FLinearColor ToLinearColor(this FStaticComponentMaskParameter componentMask)
+    {
+        return new FLinearColor
+        {
+            R = componentMask.R ? 1 : 0,
+            G = componentMask.G ? 1 : 0,
+            B = componentMask.B ? 1 : 0,
+            A = componentMask.A ? 1 : 0
+        };
     }
 }

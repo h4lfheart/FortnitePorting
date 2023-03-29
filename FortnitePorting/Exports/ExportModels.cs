@@ -83,6 +83,8 @@ public record ExportMaterial
     public List<TextureParameter> Textures = new();
     public List<ScalarParameter> Scalars = new();
     public List<VectorParameter> Vectors = new();
+    public List<SwitchParameter> Switches = new();
+    public List<ComponentMaskParameter> ComponentMasks = new();
 }
 
 public record ExportMaterialOverride : ExportMaterial
@@ -97,6 +99,8 @@ public record ExportMaterialParams
     public List<TextureParameter> Textures = new();
     public List<ScalarParameter> Scalars = new();
     public List<VectorParameter> Vectors = new();
+    public List<SwitchParameter> Switches = new();
+    public List<ComponentMaskParameter> ComponentMasks = new();
 }
 
 public record TextureParameter(string Name, string Value, bool sRGB, TextureCompressionSettings CompressionSettings);
@@ -107,6 +111,10 @@ public record VectorParameter(string Name, FLinearColor Value)
 {
     public FLinearColor Value { get; set; } = Value;
 }
+
+public record SwitchParameter(string Name, bool Value);
+
+public record ComponentMaskParameter(string Name, FLinearColor Value);
 
 public record TransformParameter(string Name, FTransform Value);
 

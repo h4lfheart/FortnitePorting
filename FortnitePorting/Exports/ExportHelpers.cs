@@ -12,6 +12,7 @@ using CUE4Parse.UE4.Assets;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.Material;
+using CUE4Parse.UE4.Assets.Exports.Material.Editor;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Exports.Sound.Node;
@@ -25,6 +26,7 @@ using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Views.Extensions;
+using Newtonsoft.Json;
 using SixLabors.ImageSharp;
 
 namespace FortnitePorting.Exports;
@@ -304,8 +306,25 @@ public static class ExportHelpers
         }
     }
 
-    public static (List<TextureParameter>, List<ScalarParameter>, List<VectorParameter>) MaterialParameters(UMaterialInstanceConstant materialInstance)
+    public static (List<TextureParameter>, List<ScalarParameter>, List<VectorParameter>, List<SwitchParameter>, List<ComponentMaskParameter>) MaterialParameters(UMaterialInstanceConstant materialInstance)
     {
+        var switches = new List<SwitchParameter>();
+        var componentMasks = new List<ComponentMaskParameter>();
+        if (materialInstance.TryLoadEditorData<UMaterialInstanceEditorOnlyData>(out var editorData) && editorData.StaticParameters is not null)
+        {
+            foreach (var parameter in editorData.StaticParameters.StaticSwitchParameters)
+            {
+                if (parameter.ParameterInfo is null) continue;
+                switches.Add(new SwitchParameter(parameter.ParameterInfo.Name.Text, parameter.Value));
+            }
+            
+            foreach (var parameter in editorData.StaticParameters.StaticComponentMaskParameters)
+            {
+                if (parameter.ParameterInfo is null) continue;
+                componentMasks.Add(new ComponentMaskParameter(parameter.ParameterInfo.Name.Text, parameter.ToLinearColor()));
+            }
+        }
+        
         var textures = new List<TextureParameter>();
         foreach (var parameter in materialInstance.TextureParameterValues)
         {
@@ -329,7 +348,7 @@ public static class ExportHelpers
 
         if (materialInstance.Parent is UMaterialInstanceConstant materialParent)
         {
-            var (parentTextures, parentScalars, parentVectors) = MaterialParameters(materialParent);
+            var (parentTextures, parentScalars, parentVectors, parentSwitches, parentComponentMasks) = MaterialParameters(materialParent);
             foreach (var parentTexture in parentTextures)
             {
                 if (textures.Any(x => x.Name.Equals(parentTexture.Name))) continue;
@@ -346,6 +365,18 @@ public static class ExportHelpers
             {
                 if (vectors.Any(x => x.Name.Equals(parentVector.Name))) continue;
                 vectors.Add(parentVector);
+            }
+            
+            foreach (var parentSwitch in parentSwitches)
+            {
+                if (switches.Any(x => x.Name.Equals(parentSwitch.Name))) continue;
+                switches.Add(parentSwitch);
+            }
+            
+            foreach (var parentComponentMask in parentComponentMasks)
+            {
+                if (componentMasks.Any(x => x.Name.Equals(parentComponentMask.Name))) continue;
+                componentMasks.Add(parentComponentMask);
             }
         }
 
@@ -370,7 +401,7 @@ public static class ExportHelpers
             textures.Add(new TextureParameter("Normals", normalsTexture.GetPathName(), normalsTexture.SRGB, normalsTexture.CompressionSettings));
         }
 
-        return (textures, scalars, vectors);
+        return (textures, scalars, vectors, switches, componentMasks);
     }
 
     public static (List<TextureParameter>, List<ScalarParameter>, List<VectorParameter>) MaterialParameters(UMaterialInterface materialInterface)
@@ -527,10 +558,12 @@ public static class ExportHelpers
 
         if (material is UMaterialInstanceConstant materialInstance)
         {
-            var (textures, scalars, vectors) = MaterialParameters(materialInstance);
+            var (textures, scalars, vectors, switches, componentMasks) = MaterialParameters(materialInstance);
             exportMaterial.Textures = textures;
             exportMaterial.Scalars = scalars;
             exportMaterial.Vectors = vectors;
+            exportMaterial.Switches = switches;
+            exportMaterial.ComponentMasks = componentMasks;
             exportMaterial.IsGlass = IsGlassMaterial(materialInstance);
             exportMaterial.MasterMaterialName = materialInstance.GetLastParent().Name;
         }
@@ -589,7 +622,7 @@ public static class ExportHelpers
         return glassMaterialNames.Contains(material.Name, StringComparer.OrdinalIgnoreCase);
     }
 
-    public static UMaterialInterface GetLastParent(this UMaterialInstanceConstant obj)
+    public static UMaterialInterface? GetLastParent(this UMaterialInstanceConstant obj)
     {
         if (obj.Parent is UMaterial material) return material;
         var hasParent = true;

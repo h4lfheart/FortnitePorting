@@ -14,7 +14,9 @@ public partial class ImportSettingsView
 
     private void OnRigTypeChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (AppVM.ImportSettingsVM!.BlenderRigType.Equals(ERigType.Tasty))
+        if (AppVM.ImportSettingsVM is null) return;
+        
+        if (AppVM.ImportSettingsVM.BlenderRigType.Equals(ERigType.Tasty))
         {
             AppVM.ImportSettingsVM.BlenderMergeSkeletons = true;
             AppVM.ImportSettingsVM.BlenderReorientBones = true;

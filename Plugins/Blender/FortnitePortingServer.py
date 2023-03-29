@@ -57,11 +57,12 @@ class Log:
     def error(message):
         print(f"{Log.WARNING}[ERROR] {Log.RESET}{message}")
 
-def try_decode(bytes, format):
+def try_decode(bytes, format, verbose = False):
     try:
         return bytes.decode(format)
     except UnicodeDecodeError as e:
-        Log.error(f"Error Decoding Bytes: {e}")
+        if verbose:
+            Log.error(f"Error Decoding Bytes: {e}")
         return None
 
 class Receiver(threading.Thread):
