@@ -565,9 +565,9 @@ public static class ExportHelpers
             exportMaterial.Switches = switches;
             exportMaterial.ComponentMasks = componentMasks;
             exportMaterial.IsGlass = IsGlassMaterial(materialInstance);
-            exportMaterial.MasterMaterialName = materialInstance.GetLastParent().Name;
+            exportMaterial.MasterMaterialName = materialInstance.GetLastParent()?.Name;
         }
-        else if (material is UMaterialInterface materialInterface)
+        else if (material is { } materialInterface)
         {
             var (textures, scalars, vectors) = MaterialParameters(materialInterface);
             exportMaterial.Textures = textures;
@@ -583,7 +583,10 @@ public static class ExportHelpers
     public static bool IsGlassMaterial(UMaterialInstanceConstant? materialInstance)
     {
         if (materialInstance is null) return false;
+        
         var lastParent = materialInstance.GetLastParent();
+        if (lastParent is null) return false;
+        
         var glassMaterialNames = new[]
         {
             "M_MED_Glass_Master",
@@ -624,7 +627,6 @@ public static class ExportHelpers
 
     public static UMaterialInterface? GetLastParent(this UMaterialInstanceConstant obj)
     {
-        if (obj.Parent is UMaterial material) return material;
         var hasParent = true;
         var activeParent = obj.Parent;
         while (hasParent)
