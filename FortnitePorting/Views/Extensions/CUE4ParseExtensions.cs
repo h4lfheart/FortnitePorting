@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using CUE4Parse_Conversion.Textures;
+using CUE4Parse.FileProvider;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Material.Parameters;
 using CUE4Parse.UE4.Assets.Exports.Texture;
@@ -103,9 +105,14 @@ public static class CUE4ParseExtensions
     public static bool TryLoadEditorData<T>(this UObject asset, out T editorData) where T : UObject
     {
         var path = asset.GetPathName().SubstringBeforeLast(".") + ".o.uasset";
-        editorData = AppVM.CUE4ParseVM.Provider.LoadObjectExports(path).FirstOrDefault() as T;
+        if (AppVM.CUE4ParseVM.Provider.TryLoadObjectExports(path, out var exports))
+        {
+            editorData = exports.FirstOrDefault() as T;
+            return true;
+        }
 
-        return editorData is not null;
+        editorData = default;
+        return false;
     }
     
     public static FLinearColor ToLinearColor(this FStaticComponentMaskParameter componentMask)
@@ -117,5 +124,20 @@ public static class CUE4ParseExtensions
             B = componentMask.B ? 1 : 0,
             A = componentMask.A ? 1 : 0
         };
+    }
+    
+    public static bool TryLoadObjectExports(this AbstractFileProvider provider, string path, out IEnumerable<UObject> exports)
+    {
+        exports = Enumerable.Empty<UObject>();
+        try
+        {
+            exports = provider.LoadObjectExports(path);
+        }
+        catch (KeyNotFoundException)
+        {
+            return false;
+        }
+
+        return true;
     }
 }
