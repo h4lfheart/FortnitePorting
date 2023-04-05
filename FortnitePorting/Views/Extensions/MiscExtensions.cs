@@ -13,7 +13,6 @@ namespace FortnitePorting.Views.Extensions;
 
 public static class MiscExtensions
 {
-    private static readonly Random RandomGen = new();
 
     public static bool MoveToEnd<T>(this List<T> list, Func<T, bool> predicate)
     {
@@ -57,7 +56,7 @@ public static class MiscExtensions
     public static T Random<T>(this IEnumerable<T> enumerable)
     {
         var list = enumerable.ToList();
-        var index = RandomGen.Next(0, list.Count);
+        var index = App.RandomGenerator.Next(0, list.Count);
         return list[index];
     }
 
