@@ -185,7 +185,7 @@ public class CUE4ParseViewModel : ObservableObject
         for (var idx = 0; idx < allEntries.Length; idx++)
         {
             var entry = allEntries[idx];
-            if (!entry.Key.EndsWith(".uasset")) continue;
+            if (!entry.Key.EndsWith(".uasset") || entry.Key.EndsWith(".o.uasset")) continue;
             if (MeshRemoveList.Any(x => entry.Key.Contains(x, StringComparison.OrdinalIgnoreCase))) continue;
             if (removeEntries.Contains(entry.Key)) continue;
 
