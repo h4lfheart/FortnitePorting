@@ -1743,7 +1743,7 @@ def import_response(response):
                     continue
                 clear_face_pose(active_skeleton)
 
-                strip = skel_track.strips.new(section_name, int(time_offset * 30), active_skeleton.animation_data.action)
+                strip = skel_track.strips.new(section_name, int(round(time_offset * 30)), active_skeleton.animation_data.action)
                 strip.name = section_name
                 strip.repeat = loop_count
                 active_skeleton.animation_data.action = None
@@ -1756,7 +1756,7 @@ def import_response(response):
                     if not import_anim(anim_path):
                         continue
     
-                    strip = prop_skel_track.strips.new(section_name, int(time_offset * 30), master_skeleton.animation_data.action)
+                    strip = prop_skel_track.strips.new(section_name, int(round(time_offset * 30)), master_skeleton.animation_data.action)
                     strip.name = section_name
                     strip.repeat = loop_count
                     master_skeleton.animation_data.action = None

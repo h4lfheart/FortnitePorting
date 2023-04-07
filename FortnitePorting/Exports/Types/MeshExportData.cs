@@ -52,25 +52,38 @@ public class MeshExportData : ExportDataBase
                         {
                             data.LinkedSequence = await DanceExportData.CreateAnimDataAsync(frontendAnimMontage);
                         }
-                        else
+                    }
+                    
+                    if (asset.TryGetValue(out UObject[] characterParts, "BaseCharacterParts"))
+                    {
+                        foreach (var characterPart in characterParts)
                         {
-                            var bodyPart = exportedParts.First(x => x.Part.Equals("Body"));
-                            var targetMontage = bodyPart.GenderPermitted switch
-                            {
-                                EFortCustomGender.Male => AppVM.CUE4ParseVM.MaleIdleAnimations.Random(),
-                                EFortCustomGender.Female => AppVM.CUE4ParseVM.FemaleIdleAnimations.Random(),
-                                _ => null
-                            };
-
-                            if (targetMontage is null) break;
-
-                            data.LinkedSequence = await DanceExportData.CreateAnimDataAsync(targetMontage);
+                            var frontendAnimMontage = characterPart.GetOrDefault<UAnimMontage?>("FrontendAnimMontageIdleOverride");
+                            if (frontendAnimMontage is null) continue;
+                            
+                            data.LinkedSequence = await DanceExportData.CreateAnimDataAsync(frontendAnimMontage);
+                            break;
                         }
                     }
+                    
+                    if (data.LinkedSequence is null) // fallback
+                    {
+                        var bodyPart = exportedParts.First(x => x.Part.Equals("Body"));
+                        var targetMontage = bodyPart.GenderPermitted switch
+                        {
+                            EFortCustomGender.Male => AppVM.CUE4ParseVM.MaleIdleAnimations.Random(),
+                            EFortCustomGender.Female => AppVM.CUE4ParseVM.FemaleIdleAnimations.Random(),
+                            _ => null
+                        };
 
-                    var masterSkeleton = AppVM.CUE4ParseVM.Provider.LoadObject<USkeleton>("FortniteGame/Content/Characters/Player/Male/Male_Avg_Base/Fortnite_M_Avg_Player_Skeleton");
+                        if (targetMontage is null) break;
+
+                        data.LinkedSequence = await DanceExportData.CreateAnimDataAsync(targetMontage);
+                    }
+
+                    /*var masterSkeleton = AppVM.CUE4ParseVM.Provider.LoadObject<USkeleton>("FortniteGame/Content/Characters/Player/Male/Male_Avg_Base/Fortnite_M_Avg_Player_Skeleton");
                     var masterSkeletonExport = ExportHelpers.Skeleton(masterSkeleton);
-                    data.Parts.Add(masterSkeletonExport);
+                    data.Parts.Add(masterSkeletonExport);*/
                     break;
                 }
                 case EAssetType.Backpack:

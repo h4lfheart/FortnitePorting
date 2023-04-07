@@ -45,24 +45,25 @@ public class DanceExportData : ExportDataBase
 
             ExportHelpers.Save(masterSkeleton);
             animData.Skeleton = masterSkeleton.GetPathName();
-
+            
+            
             // Sections
+            var montageNotifies = baseMontage.GetOrDefault("Notifies", new List<FAnimNotifyEvent>());
             if (additiveMontage is not null)
             {
-                ExportSections(baseMontage, animData.Sections, additiveMontage);
+                ExportSections(baseMontage, animData.Sections, montageNotifies, additiveMontage);
             }
             else
             {
-                ExportSections(baseMontage, animData.Sections);
+                ExportSections(baseMontage, animData.Sections, montageNotifies);
             }
 
             // Notifies
-            var montageNotifies = baseMontage.GetOrDefault("Notifies", Array.Empty<FStructFallback>());
-            var propNotifies = new List<FStructFallback>();
-            var soundNotifies = new List<FStructFallback>();
+            var propNotifies = new List<FAnimNotifyEvent>();
+            var soundNotifies = new List<FAnimNotifyEvent>();
             foreach (var notify in montageNotifies)
             {
-                var notifyName = notify.GetOrDefault<FName>("NotifyName").Text;
+                var notifyName = notify.NotifyName.Text;
                 if (notifyName.Contains("FortSpawnProp") || notifyName.Contains("Fort Anim Notify State Spawn Prop"))
                 {
                     propNotifies.Add(notify);
@@ -76,7 +77,9 @@ public class DanceExportData : ExportDataBase
 
             foreach (var propNotify in propNotifies)
             {
-                var notifyData = propNotify.Get<FortAnimNotifyState_SpawnProp>("NotifyStateClass");
+                var notifyData = propNotify.NotifyStateClass.Load<FortAnimNotifyState_SpawnProp>();
+                if (notifyData is null) continue;
+                
                 var exportProp = new EmoteProp
                 {
                     SocketName = notifyData.SocketName.Text,
@@ -99,10 +102,10 @@ public class DanceExportData : ExportDataBase
 
             foreach (var soundNotify in soundNotifies)
             {
-                var time = soundNotify.Get<float>("TriggerTimeOffset");
+                var time = soundNotify.TriggerTimeOffset;
 
-                var notifyData = soundNotify.Get<FortAnimNotifyState_EmoteSound>("NotifyStateClass");
-                var firstNode = notifyData.EmoteSound1P?.FirstNode?.Load<USoundNode>();
+                var notifyData = soundNotify.NotifyStateClass.Load<FortAnimNotifyState_EmoteSound>();
+                var firstNode = notifyData?.EmoteSound1P?.FirstNode?.Load<USoundNode>();
                 if (firstNode is null) continue;
 
                 var sounds = ExportHelpers.HandleAudioTree(firstNode, time);
@@ -160,7 +163,7 @@ public class DanceExportData : ExportDataBase
         return additiveAnimation;
     }
 
-    private static void ExportSections(UAnimMontage targetMontage, List<EmoteSection> sections, UAnimMontage? additiveMontage = null)
+    private static void ExportSections(UAnimMontage targetMontage, List<EmoteSection> sections, List<FAnimNotifyEvent> notifies, UAnimMontage? additiveMontage = null)
     {
         var section = targetMontage.CompositeSections.FirstOrDefault();
         while (true)
@@ -170,6 +173,8 @@ public class DanceExportData : ExportDataBase
             {
                 var exportSection = new EmoteSection(linkedSequence.GetPathName(), section.SectionName.Text, section.SegmentBeginTime, section.SegmentLength, section.NextSectionName == section.SectionName);
                 ExportHelpers.Save(linkedSequence);
+                
+                notifies.AddRange(linkedSequence.Notifies);
 
                 var additiveAnimation = ExportAdditiveAnim(section, additiveMontage?.SlotAnimTracks, linkedSequence);
                 if (additiveAnimation is not null)
