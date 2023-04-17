@@ -45,7 +45,7 @@ public partial class AppSettings : ObservableObject
 
     [ObservableProperty] private BlenderExportSettings blenderExportSettings = new();
 
-    [ObservableProperty] private UnrealExportSettings unrealExportSetttings = new();
+    [ObservableProperty] private UnrealExportSettings unrealExportSettings = new();
 
     [ObservableProperty] private List<string> favoriteIDs = new();
 

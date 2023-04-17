@@ -4,9 +4,6 @@ namespace FortnitePorting.Exports;
 
 public class ExportSettingsBase
 {
-    // GENERAL
-    public bool ScaleDown = true;
-
     // ANIM
     public bool LobbyPoses;
     public bool ImportSounds;

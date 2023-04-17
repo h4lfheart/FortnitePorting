@@ -2,4 +2,6 @@
 
 public class UnrealExportSettings : ExportSettingsBase
 {
+    // MATERIAL
+    public bool ForUEFN;
 }

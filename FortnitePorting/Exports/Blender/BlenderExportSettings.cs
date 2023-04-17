@@ -3,6 +3,7 @@
 public class BlenderExportSettings : ExportSettingsBase
 {
     // GENERAL
+    public bool ScaleDown = true;
     public bool IntoCollection = true;
 
     // RIGGING

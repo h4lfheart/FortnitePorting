@@ -33,6 +33,14 @@
                     <Separator Style="{StaticResource NamedSeparator}" Tag="GENERAL" />
                     <ToggleButton Content="Import Into Collection" IsChecked="{Binding BlenderIntoCollection}" />
                     <ToggleButton Content="Scale Down to cm" IsChecked="{Binding BlenderScaleDown}" />
+                    <Grid HorizontalAlignment="Stretch">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Image Format" Margin="5,5,0, 0" />
+                        <ComboBox Grid.Column="1" Margin="10,0,0,10" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" ItemsSource="{extensions:EnumToItemsSource {x:Type local:EImageType}}" SelectedItem="{Binding GlobalImageType, Converter={StaticResource EnumToString}}" />
+                    </Grid>
 
                     <Separator Style="{StaticResource NamedSeparator}" Tag="RIGGING" />
                     <ComboBox ItemsSource="{extensions:EnumToItemsSource {x:Type local:ERigType}}" SelectedItem="{Binding BlenderRigType, Converter={StaticResource EnumToString}}" SelectionChanged="OnRigTypeChanged" />
@@ -53,14 +61,6 @@
                     <controls:NumericSlider Label="Level of Detail" Maximum="4" StepSize="1" Snap="True" Value="{Binding BlenderLevelOfDetail, Mode=TwoWay}" />
 
                     <Separator Style="{StaticResource NamedSeparator}" Tag="MATERIALS" />
-                    <Grid HorizontalAlignment="Stretch">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Image Format" Margin="5,5,0, 0" />
-                        <ComboBox Grid.Column="1" Margin="10,0,0,10" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" ItemsSource="{extensions:EnumToItemsSource {x:Type local:EImageType}}" SelectedItem="{Binding GlobalImageType, Converter={StaticResource EnumToString}}" />
-                    </Grid>
                     <ToggleButton Content="Import Materials" IsChecked="{Binding BlenderImportMaterials}" />
                     <controls:NumericSlider Label="Ambient Occlusion" Value="{Binding BlenderAmbientOcclusion, Mode=TwoWay}" IsEnabled="{Binding BlenderImportMaterials}" />
                     <controls:NumericSlider Label="Cavity" Value="{Binding BlenderCavity, Mode=TwoWay}" IsEnabled="{Binding BlenderImportMaterials}" />
@@ -69,7 +69,46 @@
                 </StackPanel>
             </TabItem>
             <TabItem Header="Unreal Engine" Style="{StaticResource TabItemEqualSize}">
-                <TextBlock Text="The Unreal Engine version of the plugin has not been completed yet." HorizontalAlignment="Center" />
+                <StackPanel>
+                    <StackPanel.Resources>
+                        <Style TargetType="{x:Type ComboBox}" BasedOn="{StaticResource {x:Type ComboBox}}">
+                            <Setter Property="Margin" Value="5,0,0, 10" />
+                        </Style>
+                        <Style TargetType="{x:Type Button}" BasedOn="{StaticResource {x:Type Button}}">
+                            <Setter Property="Margin" Value="5,0,0, 10" />
+                        </Style>
+                        <Style TargetType="{x:Type ToggleButton}">
+                            <Style.BasedOn>
+                                <StaticResource ResourceKey="{ComponentResourceKey TypeInTargetAssembly={x:Type adonisUi:Styles}, ResourceId=ToggleSwitch}" />
+                            </Style.BasedOn>
+                            <Setter Property="Margin" Value="0,0,0, 10" />
+                        </Style>
+                        <Style TargetType="{x:Type controls:NumericSlider}">
+                            <Setter Property="Margin" Value="5,0,0, 5" />
+                        </Style>
+                    </StackPanel.Resources>
+                    
+                    <Separator Style="{StaticResource NamedSeparator}" Tag="GENERAL" />
+                    <ToggleButton Content="Optimize for UEFN" IsChecked="{Binding UnrealUEFN}" />
+                    <Grid HorizontalAlignment="Stretch">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Image Format" Margin="5,5,0, 0" />
+                        <ComboBox Grid.Column="1" Margin="10,0,0,10" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" ItemsSource="{extensions:EnumToItemsSource {x:Type local:EImageType}}" SelectedItem="{Binding GlobalImageType, Converter={StaticResource EnumToString}}" />
+                    </Grid>
+                    
+                    <Separator Style="{StaticResource NamedSeparator}" Tag="MESH" />
+                    <controls:NumericSlider Label="Level of Detail" Maximum="4" StepSize="1" Snap="True" Value="{Binding UnrealLevelOfDetail, Mode=TwoWay}" />
+                    
+                    <Separator Style="{StaticResource NamedSeparator}" Tag="MATERIALS" />
+                    <ToggleButton Content="Import Materials" IsChecked="{Binding UnrealImportMaterials}" />
+                    <controls:NumericSlider Label="Ambient Occlusion" Value="{Binding UnrealAmbientOcclusion, Mode=TwoWay}" IsEnabled="{Binding UnrealImportMaterials}" />
+                    <controls:NumericSlider Label="Cavity" Value="{Binding UnrealCavity, Mode=TwoWay}" IsEnabled="{Binding UnrealImportMaterials}" />
+                    <controls:NumericSlider Label="Subsurface" Value="{Binding UnrealSubsurf, Mode=TwoWay}" IsEnabled="{Binding UnrealImportMaterials}" />
+
+                </StackPanel>
             </TabItem>
         </TabControl>
     </GroupBox>

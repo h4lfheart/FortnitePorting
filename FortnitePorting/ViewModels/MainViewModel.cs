@@ -298,7 +298,7 @@ public partial class MainViewModel : ObservableObject
         var exportDatas = await CreateExportDatasAsync();
         if (exportDatas.Count == 0) return;
 
-        UnrealService.Client.Send(exportDatas, AppSettings.Current.UnrealExportSetttings);
+        UnrealService.Client.Send(exportDatas, AppSettings.Current.UnrealExportSettings);
     }
 
     [RelayCommand]

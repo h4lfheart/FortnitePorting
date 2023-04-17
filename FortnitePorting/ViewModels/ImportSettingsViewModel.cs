@@ -5,6 +5,18 @@ namespace FortnitePorting.ViewModels;
 
 public class ImportSettingsViewModel : ObservableObject
 {
+    public EImageType GlobalImageType
+    {
+        get => AppSettings.Current.ImageType;
+        set
+        {
+            AppSettings.Current.ImageType = value;
+            OnPropertyChanged();
+        }
+    }
+    
+    #region Blender
+    
     public bool BlenderIntoCollection
     {
         get => AppSettings.Current.BlenderExportSettings.IntoCollection;
@@ -158,16 +170,6 @@ public class ImportSettingsViewModel : ObservableObject
         }
     }
 
-    public EImageType GlobalImageType
-    {
-        get => AppSettings.Current.ImageType;
-        set
-        {
-            AppSettings.Current.ImageType = value;
-            OnPropertyChanged();
-        }
-    }
-
     public double BlenderAmbientOcclusion
     {
         get => AppSettings.Current.BlenderExportSettings.AmbientOcclusion;
@@ -197,4 +199,70 @@ public class ImportSettingsViewModel : ObservableObject
             OnPropertyChanged();
         }
     }
+    
+    #endregion
+
+    #region Unreal
+
+    public bool UnrealImportMaterials
+    {
+        get => AppSettings.Current.UnrealExportSettings.ImportMaterials;
+        set
+        {
+            AppSettings.Current.UnrealExportSettings.ImportMaterials = value;
+            OnPropertyChanged();
+        }
+    }
+    
+    public bool UnrealUEFN
+    {
+        get => AppSettings.Current.UnrealExportSettings.ForUEFN;
+        set
+        {
+            AppSettings.Current.UnrealExportSettings.ForUEFN = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public double UnrealAmbientOcclusion
+    {
+        get => AppSettings.Current.UnrealExportSettings.AmbientOcclusion;
+        set
+        {
+            AppSettings.Current.UnrealExportSettings.AmbientOcclusion = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public double UnrealCavity
+    {
+        get => AppSettings.Current.UnrealExportSettings.Cavity;
+        set
+        {
+            AppSettings.Current.UnrealExportSettings.Cavity = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public double UnrealSubsurf
+    {
+        get => AppSettings.Current.UnrealExportSettings.Subsurface;
+        set
+        {
+            AppSettings.Current.UnrealExportSettings.Subsurface = value;
+            OnPropertyChanged();
+        }
+    }
+    
+    public int UnrealLevelOfDetail
+    {
+        get => AppSettings.Current.UnrealExportSettings.LevelOfDetail;
+        set
+        {
+            AppSettings.Current.UnrealExportSettings.LevelOfDetail = value;
+            OnPropertyChanged();
+        }
+    }
+    
+    #endregion
 }
