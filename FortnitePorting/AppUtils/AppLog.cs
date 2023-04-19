@@ -7,11 +7,13 @@ namespace FortnitePorting.AppUtils;
 
 public static class AppLog
 {
-    public static ItemsControl Logger;
+    public static ItemsControl? Logger;
     public static readonly BrushConverter BrushConverter = new();
 
     private static void Write(string specifier, string extra, string? specifierColor = Globals.BLUE, FontWeight specifierWeight = default)
     {
+        if (Logger is null) return;
+        
         Application.Current.Dispatcher.Invoke(() =>
         {
             var mainBlock = new StackPanel { Orientation = Orientation.Horizontal, Width = Logger.ActualWidth };

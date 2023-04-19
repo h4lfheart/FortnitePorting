@@ -32,6 +32,14 @@ public partial class TextWithIcon
         get => (int)GetValue(LabelFontSizeProperty);
         set => SetValue(LabelFontSizeProperty, value);
     }
+    
+    public static readonly DependencyProperty LabelFontWeightProperty = DependencyProperty.Register(nameof(LabelFontWeight), typeof(FontWeight), typeof(TextWithIcon), new PropertyMetadata(FontWeights.Normal));
+
+    public FontWeight LabelFontWeight
+    {
+        get => (FontWeight)GetValue(LabelFontWeightProperty);
+        set => SetValue(LabelFontWeightProperty, value);
+    }
 
     public static readonly DependencyProperty LabelProperty = DependencyProperty.Register(nameof(Label), typeof(string), typeof(TextWithIcon));
 

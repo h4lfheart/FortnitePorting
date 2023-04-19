@@ -1,0 +1,238 @@
+﻿<adonisCtrls:AdonisWindow x:Class="FortnitePorting.Views.NewMainView"
+          xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+          xmlns:controls="clr-namespace:FortnitePorting.Views.Controls"
+          xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
+          xmlns:adonisCtrls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
+          xmlns:adonisExt="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"
+          xmlns:local="clr-namespace:FortnitePorting"
+          xmlns:toolkitCtrls="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
+          Title="Fortnite Porting" Width="1368" Height="720" WindowStartupLocation="CenterScreen" ResizeMode="CanResize" Loaded="OnLoaded">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        
+        <Menu Grid.Row="0">
+            <MenuItem Header="File">
+                <MenuItem Header="Open">
+                    <MenuItem Header="Assets Folder" Command="{Binding MenuCommand}" CommandParameter="Open_Assets" />
+                    <MenuItem Header="Data Folder" Command="{Binding MenuCommand}" CommandParameter="Open_Data" />
+                    <MenuItem Header="Logs Folder" Command="{Binding MenuCommand}" CommandParameter="Open_Logs" />
+                </MenuItem>
+                <Separator />
+                <MenuItem Header="Restart" InputGestureText="Ctrl+R" Command="{Binding MenuCommand}" CommandParameter="File_Restart" />
+                <MenuItem Header="Quit" InputGestureText="Alt+F4" Command="{Binding MenuCommand}" CommandParameter="File_Quit" />
+            </MenuItem>
+            <MenuItem Header="Settings">
+                <MenuItem Header="App Settings" Command="{Binding MenuCommand}" CommandParameter="Settings_Options">
+                    <MenuItem.Icon>
+                        <Image Source="/Resources/Settings.png" Width="16" Height="16" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Import/Export Options" Command="{Binding MenuCommand}" CommandParameter="Settings_ImportOptions">
+                    <MenuItem.Icon>
+                        <Image Source="/Resources/Export.png" Width="16" Height="16" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Show Console" IsChecked="{Binding ShowConsole}" IsCheckable="True" Checked="OnToggleConsoleChecked" Unchecked="OnToggleConsoleChecked"/>
+            </MenuItem>
+            <MenuItem Header="Plugin" Command="{Binding MenuCommand}" CommandParameter="SyncPlugin">
+                <MenuItem Header="Blender" Command="{Binding MenuCommand}" CommandParameter="Sync_Blender">
+                    <MenuItem.Icon>
+                        <Image Source="/Resources/Blender.png" Width="16" Height="16" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Unreal Engine" Command="{Binding MenuCommand}" CommandParameter="Sync_Unreal">
+                    <MenuItem.Icon>
+                        <Image Source="/Resources/Unreal.png" Width="16" Height="16" />
+                    </MenuItem.Icon>
+                </MenuItem>
+            </MenuItem>
+            <MenuItem Header="Help">
+                <MenuItem Header="Discord Server" Command="{Binding MenuCommand}" CommandParameter="Help_Discord">
+                    <MenuItem.Icon>
+                        <Image Source="/Resources/Discord.png" Width="16" Height="16" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="GitHub Repository" Command="{Binding MenuCommand}" CommandParameter="Help_GitHub">
+                    <MenuItem.Icon>
+                        <Image Source="/Resources/GitHub.png" Width="16" Height="16" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Donate" Command="{Binding MenuCommand}" CommandParameter="Help_Donate">
+                    <MenuItem.Icon>
+                        <Image Source="/Resources/KoFi.png" Width="16" Height="16" />
+                    </MenuItem.Icon>
+                </MenuItem>
+            </MenuItem>
+            <MenuItem Header="Check for Updates" Command="{Binding MenuCommand}" CommandParameter="Update" />
+        </Menu>
+        
+        <Grid Grid.Row="1" Margin="{adonisUi:Space 1}" IsEnabled="{Binding IsReady}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="{adonisUi:Space 1}" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="{adonisUi:Space 1}"/>
+                <ColumnDefinition Width="4*"/>
+                <ColumnDefinition Width="{adonisUi:Space 1}"/>
+                <ColumnDefinition Width="1.5*"/>
+            </Grid.ColumnDefinitions>
+            
+            <GroupBox Grid.Row="0" Grid.RowSpan="3" Grid.Column="0" adonisExt:LayerExtension.Layer="3" BorderThickness="1">
+                <StackPanel x:Name="AssetTypePanel">
+                    <Separator Style="{StaticResource ContentSeparator}">
+                        <Separator.Tag>
+                            <controls:TextWithIcon Label="COSMETICS" LabelFontSize="11" LabelFontWeight="SemiBold" ImageSource="/FortnitePorting;component/Resources/Locker.png" IconSize="24"/>
+                        </Separator.Tag>
+                    </Separator>
+                    <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Outfit}" IsChecked="True">
+                        <controls:TextWithIcon Label="Outfits" ImageSource="/FortnitePorting;component/Resources/Outfit.png" IconSize="24"/>
+                    </ToggleButton>
+                    <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Backpack}">
+                        <controls:TextWithIcon Label="Backpacks" ImageSource="/FortnitePorting;component/Resources/Backpack.png" IconSize="24"/>
+                    </ToggleButton>
+                    <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Pickaxe}">
+                        <controls:TextWithIcon Label="Pickaxes" ImageSource="/FortnitePorting;component/Resources/Pickaxe.png" IconSize="24"/>
+                    </ToggleButton>
+                    <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Glider}">
+                        <controls:TextWithIcon Label="Gliders" ImageSource="/FortnitePorting;component/Resources/Glider.png" IconSize="24"/>
+                    </ToggleButton>
+                    <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Pet}">
+                        <controls:TextWithIcon Label="Pets" ImageSource="/FortnitePorting;component/Resources/Pet.png" IconSize="24"/>
+                    </ToggleButton>
+                    <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Toy}">
+                        <controls:TextWithIcon Label="Toys" ImageSource="/FortnitePorting;component/Resources/Toy.png" IconSize="24"/>
+                    </ToggleButton>
+                    <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Dance}">
+                        <controls:TextWithIcon Label="Emotes" ImageSource="/FortnitePorting;component/Resources/Dance.png" IconSize="24"/>
+                    </ToggleButton>
+                    <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Music}">
+                        <controls:TextWithIcon Label="Music" ImageSource="/FortnitePorting;component/Resources/Music.png" IconSize="24"/>
+                    </ToggleButton>
+                    <Separator Style="{StaticResource ContentSeparator}">
+                        <Separator.Tag>
+                            <controls:TextWithIcon Label="PROPS &amp; MESHES" LabelFontSize="11" LabelFontWeight="SemiBold" ImageSource="/FortnitePorting;component/Resources/MeshPreview.png" IconSize="24"/>
+                        </Separator.Tag>
+                    </Separator>
+                    <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Prop}">
+                        <controls:TextWithIcon Label="Props" ImageSource="/FortnitePorting;component/Resources/Prop.png" IconSize="24"/>
+                    </ToggleButton>
+                    <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Gallery}">
+                        <controls:TextWithIcon Label="Galleries" ImageSource="/FortnitePorting;component/Resources/Gallery.png" IconSize="24"/>
+                    </ToggleButton>
+                    <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Mesh}">
+                        <controls:TextWithIcon Label="Meshes" ImageSource="/FortnitePorting;component/Resources/Mesh.png" IconSize="24"/>
+                    </ToggleButton>
+                    
+                    <Separator Style="{StaticResource ContentSeparator}">
+                        <Separator.Tag>
+                            <controls:TextWithIcon Label="OTHERS" LabelFontSize="11" LabelFontWeight="SemiBold" ImageSource="/FortnitePorting;component/Resources/Vehicle.png" IconSize="24"/>
+                        </Separator.Tag>
+                    </Separator>
+                    <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Weapon}">
+                        <controls:TextWithIcon Label="Weapons" ImageSource="/FortnitePorting;component/Resources/Weapon.png" IconSize="24"/>
+                    </ToggleButton>
+                    <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Vehicle}">
+                        <controls:TextWithIcon Label="Vehicles" ImageSource="/FortnitePorting;component/Resources/Vehicle.png" IconSize="24"/>
+                    </ToggleButton>
+                </StackPanel>
+            </GroupBox>
+            
+            <!-- DISPLAY -->
+            <GroupBox Grid.Row="2" Grid.Column="2" adonisExt:LayerExtension.Layer="3" BorderThickness="1">
+                <ListBox x:Name="AssetDisplayGrid" ItemsSource="{Binding Outfits}" SelectionChanged="OnAssetSelectionChanged">
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <toolkitCtrls:VirtualizingWrapPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left" />
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                </ListBox>
+            </GroupBox>
+            
+            <!-- OPTIONS OVERHEAD -->
+            <Grid Grid.Row="0" Grid.Column="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <TextBox Grid.Column="0" adonisExt:WatermarkExtension.Watermark="Search..." />
+            </Grid>
+            
+            <!-- STYLE BOX -->
+            <GroupBox Grid.Row="0" Grid.RowSpan="3" Grid.Column="4" adonisExt:LayerExtension.Layer="3" BorderThickness="1">
+                 <Grid Visibility="{Binding AssetPreviewVisibility}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1.25*" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="5*" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <!-- PREVIEW IMAGE AND NAME -->
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        
+                        <Image Grid.Column="0" Source="{Binding CurrentAssetImage}" Width="88" Height="88" Visibility="{Binding CurrentAsset.PreviewImageVisibility}" />
+                        <Grid Grid.Column="1" Margin="{adonisUi:Space 1, 0}" HorizontalAlignment="Left" VerticalAlignment="Center">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Text="{Binding CurrentAsset.DisplayName}" FontSize="24"/>
+                            <TextBlock Grid.Row="1" Text="{Binding CurrentAsset.Description}" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" />
+                        </Grid>
+                    </Grid>
+
+                    <!-- STYLES -->
+                    <Separator Grid.Row="1" Style="{StaticResource NamedSeparator}" Tag="OPTIONS"/>
+                    <ScrollViewer Grid.Row="2" PreviewMouseWheel="FunkyScrollFix">
+                        <ItemsControl ItemsSource="{Binding Styles}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                    </ScrollViewer>
+
+                    <!-- CONTROLS -->
+                    <Separator Grid.Row="3" Style="{StaticResource NamedSeparator}" Tag="CONTROLS"/>
+                    <Grid Grid.Row="4">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="0.5*" />
+                            <RowDefinition Height="{adonisUi:Space 1}" />
+                            <RowDefinition Height="0.5*" />
+                        </Grid.RowDefinitions>
+
+                        <Button Grid.Row="0" Command="{Binding ExportBlenderCommand}">
+                            <Button.Content>
+                                <controls:TextWithIcon Label="Send to Blender" ImageSource="/FortnitePorting;component/Resources/Blender.png" IconSize="16"/>
+                            </Button.Content>
+                        </Button>
+                        <Button Grid.Row="2" Command="{Binding ExportUnrealCommand}">
+                            <Button.Content>
+                                <controls:TextWithIcon Label="Send to Unreal" ImageSource="/FortnitePorting;component/Resources/Unreal.png" IconSize="16"/>
+                            </Button.Content>
+                        </Button>
+                    </Grid>
+                </Grid>
+            </GroupBox>
+            
+            <GridSplitter Grid.Row="0" Grid.RowSpan="3" Grid.Column="1"/>
+            <GridSplitter Grid.Row="0" Grid.RowSpan="3" Grid.Column="3"/>
+        </Grid>
+        
+        <ContentControl Grid.Row="1" Visibility="{Binding LoadingVisibility}" ContentTemplate="{DynamicResource {x:Static adonisUi:Templates.LoadingDots}}" Foreground="{DynamicResource {x:Static adonisUi:Brushes.ForegroundBrush}}" Width="48" Height="48" Focusable="False" />
+    </Grid>
+</adonisCtrls:AdonisWindow>

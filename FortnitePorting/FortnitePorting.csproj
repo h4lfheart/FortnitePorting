@@ -80,6 +80,12 @@
         <Resource Include="Resources\Sort.png" />
         <None Remove="Resources\Toy.png" />
         <Resource Include="Resources\Toy.png" />
+        <None Remove="Resources\Discord.png" />
+        <Resource Include="Resources\Discord.png" />
+        <None Remove="Resources\GitHub.png" />
+        <Resource Include="Resources\GitHub.png" />
+        <None Remove="Resources\KoFi.png" />
+        <Resource Include="Resources\KoFi.png" />
     </ItemGroup>
 
 </Project>
