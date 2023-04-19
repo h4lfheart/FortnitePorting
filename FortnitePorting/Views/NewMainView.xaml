@@ -7,6 +7,7 @@
           xmlns:adonisExt="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"
           xmlns:local="clr-namespace:FortnitePorting"
           xmlns:toolkitCtrls="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
+          xmlns:extensions="clr-namespace:FortnitePorting.Views.Extensions"
           Title="Fortnite Porting" Width="1368" Height="720" WindowStartupLocation="CenterScreen" ResizeMode="CanResize" Loaded="OnLoaded">
     <Grid>
         <Grid.RowDefinitions>
@@ -85,6 +86,7 @@
                 <ColumnDefinition Width="1.5*"/>
             </Grid.ColumnDefinitions>
             
+            <!-- ASSET TYPE BUTTONS -->
             <GroupBox Grid.Row="0" Grid.RowSpan="3" Grid.Column="0" adonisExt:LayerExtension.Layer="3" BorderThickness="1">
                 <StackPanel x:Name="AssetTypePanel">
                     <Separator Style="{StaticResource ContentSeparator}">
@@ -159,9 +161,62 @@
             <!-- OPTIONS OVERHEAD -->
             <Grid Grid.Row="0" Grid.Column="2">
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="{adonisUi:Space 1}" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="{adonisUi:Space 1}" />
                     <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="{adonisUi:Space 1}" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="{adonisUi:Space 1}" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="{adonisUi:Space 1}" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
+                
                 <TextBox Grid.Column="0" adonisExt:WatermarkExtension.Watermark="Search..." />
+                
+                <controls:TextWithIcon Grid.Column="2" ImageSource="/FortnitePorting;component/Resources/Sort.png" IconSize="16" />
+                <ComboBox Grid.Column="4" ItemsSource="{extensions:EnumToItemsSource {x:Type local:ESortType}}" SelectedItem="{Binding SortType, Converter={StaticResource EnumToString}}" />
+                
+                <controls:TextWithIcon Grid.Column="6" ImageSource="/FortnitePorting;component/Resources/Filter.png" IconSize="16" />
+                <ToggleButton Grid.Column="8" Name="FilterButton">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="{Binding FilterLabel}" TextTrimming="CharacterEllipsis" HorizontalAlignment="Left" />
+                        <Border Grid.Column="1" Background="Transparent" HorizontalAlignment="Right">
+                            <Viewbox Width="16" Height="16">
+                                <Canvas Width="24" Height="24">
+                                    <Path Fill="{DynamicResource {x:Static adonisUi:Brushes.ForegroundBrush}}" Data="{StaticResource ArrowIcon}" />
+                                </Canvas>
+                            </Viewbox>
+                        </Border>
+                    </Grid>
+                </ToggleButton>
+                <Popup Grid.Column="8" Width="{Binding ElementName=FilterButton, Path=ActualWidth}" StaysOpen="False" PlacementTarget="{Binding ElementName=FilterButton}" IsOpen="{Binding ElementName=FilterButton, Path=IsChecked, Mode=TwoWay}">
+                    <Border Background="{DynamicResource {x:Static adonisUi:Brushes.Layer2BackgroundBrush}}" BorderThickness="1" BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer3BorderBrush}}">
+                        <StackPanel x:Name="FilterPanel" Margin="{adonisUi:Space 1}">
+                            <CheckBox Margin="0 0 0 10" Content="Favorite" Tag="Favorite" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked"  />
+                            <CheckBox Content="Unfinished Assets (Unstable)" Tag="Unfinished Assets" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked"  />
+                            <Separator Style="{StaticResource NamedSeparator}" />
+                            <CheckBox Margin="0 0 0 10" Content="Battle Pass" Tag="Battle Pass" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked"  />
+                            <CheckBox Content="Item Shop" Tag="Item Shop" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked"  />
+                            <Separator Style="{StaticResource NamedSeparator}" />
+                            <CheckBox Margin="0 0 0 10" Content="Save The World" Tag="Save The World" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked"  />
+                            <CheckBox Content="Battle Royale" Tag="Battle Royale" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked"  />
+                            <Button Margin="0 10 0 0" Click="OnClearFiltersClicked">
+                                <controls:TextWithIcon Label="Clear All Filters" ImageSource="/FortnitePorting;component/Resources/Clear.png" />
+                            </Button>
+                        </StackPanel>
+                    </Border>
+                </Popup>
+                
+                <ToggleButton Grid.Column="10">
+                    <controls:TextWithIcon Margin="0 0 0 0" ImageSource="/FortnitePorting;component/Resources/Pause.png" IconSize="16" />
+                </ToggleButton>
             </Grid>
             
             <!-- STYLE BOX -->

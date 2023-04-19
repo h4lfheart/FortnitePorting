@@ -86,6 +86,7 @@
         <Resource Include="Resources\GitHub.png" />
         <None Remove="Resources\KoFi.png" />
         <Resource Include="Resources\KoFi.png" />
+        <Resource Include="Resources\Pause.png" />
     </ItemGroup>
 
 </Project>

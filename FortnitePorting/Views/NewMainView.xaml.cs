@@ -151,4 +151,23 @@ public partial class NewMainView
                 break;
         }
     }
+
+    private void OnFilterItemChecked(object sender, RoutedEventArgs e)
+    {
+        var checkBox = (CheckBox)sender;
+        if (checkBox.Tag is null) return;
+        if (!checkBox.IsChecked.HasValue) return;
+
+        AppVM.NewMainVM.ModifyFilters(checkBox.Tag.ToString()!, checkBox.IsChecked.Value);
+    }
+
+    private void OnClearFiltersClicked(object sender, RoutedEventArgs e)
+    {
+        AppVM.NewMainVM.Filters.Clear();
+        foreach (var child in FilterPanel.Children)
+        {
+            if (child is not CheckBox checkBox) continue;
+            checkBox.IsChecked = false;
+        }
+    }
 }

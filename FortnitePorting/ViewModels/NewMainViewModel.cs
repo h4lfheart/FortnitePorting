@@ -15,6 +15,7 @@ using FortnitePorting.Exports.Types;
 using FortnitePorting.Services.Export;
 using FortnitePorting.Views;
 using FortnitePorting.Views.Controls;
+using FortnitePorting.Views.Extensions;
 
 namespace FortnitePorting.ViewModels;
 
@@ -22,6 +23,7 @@ public partial class NewMainViewModel : ObservableObject
 {
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(LoadingVisibility))] private bool isReady;
     
+    // Asset Stuff
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(CurrentAssetImage))] [NotifyPropertyChangedFor(nameof(AssetPreviewVisibility))] private IExportableAsset? currentAsset;
     [ObservableProperty] private EAssetType currentAssetType = EAssetType.Outfit;
     public ImageSource? CurrentAssetImage => CurrentAsset?.FullSource;
@@ -29,6 +31,7 @@ public partial class NewMainViewModel : ObservableObject
     
     public Visibility LoadingVisibility => IsReady ? Visibility.Collapsed : Visibility.Visible;
     
+    // Assets
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> outfits = new();
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> backBlings = new();
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> harvestingTools = new();
@@ -45,6 +48,22 @@ public partial class NewMainViewModel : ObservableObject
     
     [ObservableProperty] private ObservableCollection<StyleSelector> styles = new();
     
+    // Filters
+    [ObservableProperty] private ESortType sortType;
+    [ObservableProperty] private string searchFilter = string.Empty;
+    [ObservableProperty] private ObservableCollection<Predicate<AssetSelectorItem>> filters = new();
+    [ObservableProperty] private string filterLabel = "None";
+    private static readonly Dictionary<string, Predicate<AssetSelectorItem>> FilterPredicates = new()
+    {
+        { "Favorite", x => AppSettings.Current.FavoriteIDs.Contains(x.ID, StringComparer.OrdinalIgnoreCase) },
+        { "Battle Pass", x => x.GameplayTags.ContainsAny("BattlePass") },
+        { "Item Shop", x => x.GameplayTags.ContainsAny("ItemShop") },
+        { "Save The World", x => x.GameplayTags.ContainsAny("CampaignHero", "SaveTheWorld") },
+        { "Battle Royale", x => !x.GameplayTags.ContainsAny("CampaignHero", "SaveTheWorld") },
+        { "Unfinished Assets", x => x.HiddenAsset }
+    };
+    
+    // Redirectors
     public bool ShowConsole
     {
         get => AppSettings.Current.ShowConsole;
@@ -135,7 +154,7 @@ public partial class NewMainViewModel : ObservableObject
     }
     
     [RelayCommand]
-    public async Task Menu(string parameter)
+    public void Menu(string parameter)
     {
         switch (parameter)
         {
@@ -175,6 +194,30 @@ public partial class NewMainViewModel : ObservableObject
             case "Sync_Unreal":
                 // TODO
                 break;
+        }
+    }
+
+    public void ModifyFilters(string tag, bool enable)
+    {
+        if (!FilterPredicates.ContainsKey(tag)) return;
+        var predicate = FilterPredicates[tag];
+
+        if (enable)
+        {
+            Filters.AddUnique(predicate);
+        }
+        else
+        {
+            Filters.Remove(predicate);
+        }
+
+        if (Filters.Count > 0)
+        {
+            FilterLabel = FilterPredicates.Where(x => Filters.Contains(x.Value)).Select(x => x.Key).CommaJoin(includeAnd: false);
+        }
+        else
+        {
+            FilterLabel = "None";
         }
     }
 }
