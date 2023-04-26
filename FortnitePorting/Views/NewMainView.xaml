@@ -152,13 +152,41 @@
             
             <!-- DISPLAY -->
             <GroupBox Grid.Row="2" Grid.Column="2" adonisExt:LayerExtension.Layer="3" BorderThickness="1">
-                <ListBox x:Name="AssetDisplayGrid" ItemsSource="{Binding Outfits}" SelectionChanged="OnAssetSelectionChanged">
-                    <ListBox.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <toolkitCtrls:VirtualizingWrapPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left" />
-                        </ItemsPanelTemplate>
-                    </ListBox.ItemsPanel>
-                </ListBox>
+                <ContentControl x:Name="MainLoadingControl">
+                    <ContentControl.Style>
+                        <Style TargetType="{x:Type ContentControl}" BasedOn="{StaticResource {x:Type ContentControl}}">
+                            <EventSetter Event="PreviewMouseWheel" Handler="FunkyScrollFix"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding CurrentAssetType}" Value="{x:Static local:EAssetType.Gallery}">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate>
+                                                <ScrollViewer>
+                                                    <ItemsControl x:Name="GalleryItemsControl" ItemsSource="{Binding Galleries}" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"/>
+                                                </ScrollViewer>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding CurrentAssetType}" Value="{x:Static local:EAssetType.Mesh}">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ContentControl.Style>
+                    <ListBox x:Name="AssetDisplayGrid" ItemsSource="{Binding Outfits}" SelectionChanged="OnAssetSelectionChanged">
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <toolkitCtrls:VirtualizingWrapPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left" />
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                    </ListBox>
+                </ContentControl>
             </GroupBox>
             
             <!-- OPTIONS OVERHEAD -->
@@ -182,13 +210,13 @@
                 <TextBox Grid.Column="0" adonisExt:WatermarkExtension.Watermark="Search..." Text="{Binding SearchFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextChanged="OnSearchTextChanged"/>
                 
                 <controls:IconBecauseImLazy Grid.Column="2" ImageSource="/FortnitePorting;component/Resources/Sort.png" IconSize="16" />
-                <ComboBox ToolTip="Sorting Options" Grid.Column="4" ItemsSource="{extensions:EnumToItemsSource {x:Type local:ESortType}}" SelectedItem="{Binding SortType, Converter={StaticResource EnumToString}}" SelectionChanged="OnSortSelectionChanged"/>
-                <Button ToolTip="Ascending or Descending" Grid.Column="6" Click="OnAscendingDescendingClicked">
+                <ComboBox ToolTip="Sorting Options" Grid.Column="4" ItemsSource="{extensions:EnumToItemsSource {x:Type local:ESortType}}" SelectedItem="{Binding SortType, Converter={StaticResource EnumToString}}" SelectionChanged="OnSortSelectionChanged" IsEnabled="{Binding IsValidFilterer}"/>
+                <Button ToolTip="Ascending or Descending" Grid.Column="6" Click="OnAscendingDescendingClicked" IsEnabled="{Binding IsValidFilterer}">
                     <controls:IconBecauseImLazy ImageSource="/FortnitePorting;component/Resources/Arrow.png" IconSize="16" RenderTransformOrigin="0.5, 0.5"/>
                 </Button>
                 
-                <controls:IconBecauseImLazy Grid.Column="8" ImageSource="/FortnitePorting;component/Resources/Filter.png" IconSize="16" />
-                <ToggleButton ToolTip="Filters" Grid.Column="10" Name="FilterButton">
+                <controls:IconBecauseImLazy Grid.Column="8" ImageSource="/FortnitePorting;component/Resources/Filter.png" IconSize="16"/>
+                <ToggleButton ToolTip="Filters" Grid.Column="10" Name="FilterButton" IsEnabled="{Binding IsValidFilterer}"> 
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />

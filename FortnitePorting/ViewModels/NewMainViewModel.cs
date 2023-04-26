@@ -24,7 +24,8 @@ public partial class NewMainViewModel : ObservableObject
     
     // Asset Stuff
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(CurrentAssetImage))] [NotifyPropertyChangedFor(nameof(AssetPreviewVisibility))] private IExportableAsset? currentAsset;
-    [ObservableProperty] private EAssetType currentAssetType = EAssetType.Outfit;
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(IsValidFilterer))] private EAssetType currentAssetType = EAssetType.Outfit;
+    public bool IsValidFilterer => CurrentAssetType is not EAssetType.Gallery or EAssetType.Mesh;
     public ImageSource? CurrentAssetImage => CurrentAsset?.FullSource;
     public Visibility AssetPreviewVisibility => CurrentAsset is null ? Visibility.Hidden : Visibility.Visible;
     

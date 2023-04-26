@@ -74,7 +74,7 @@ public partial class NewMainView
         }
 
         var handlers = AppVM.AssetHandlerVM.Handlers;
-        AssetDisplayGrid.ItemsSource = handlers[assetType].TargetCollection;
+        if (assetType is not EAssetType.Gallery or EAssetType.Mesh) AssetDisplayGrid.ItemsSource = handlers[assetType].TargetCollection;
         foreach (var (handlerType, handlerData) in handlers)
         {
             if (handlerType == assetType && !AppVM.NewMainVM.IsPaused)
@@ -162,6 +162,18 @@ public partial class NewMainView
             return asset.Match(AppVM.NewMainVM.SearchFilter) && AppVM.NewMainVM.Filters.All(x => x.Invoke(asset));
         };
         AssetDisplayGrid.Items.Refresh();
+
+        if (AppVM.NewMainVM.CurrentAssetType is EAssetType.Gallery)
+        {
+            if (MainLoadingControl.Template?.FindName("GalleryItemsControl", MainLoadingControl) is not ItemsControl itemsControl) return;
+            
+            itemsControl.Items.Filter = o =>
+            {
+                var asset = (PropExpander) o;
+                return AppHelper.Filter(asset.GalleryName.Text, AppVM.NewMainVM.SearchFilter);
+            };
+            itemsControl.Items.Refresh();
+        }
     }
 
     private void OnFilterItemChecked(object sender, RoutedEventArgs e)
@@ -199,6 +211,7 @@ public partial class NewMainView
         switch (AppVM.NewMainVM.SortType)
         {
             case ESortType.Default:
+                if (AppVM.NewMainVM.CurrentAssetType is EAssetType.Gallery) break;
                 AssetDisplayGrid.Items.SortDescriptions.Add(new SortDescription("ID", GetProperSort(ListSortDirection.Ascending)));
                 break;
             case ESortType.AZ:

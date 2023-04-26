@@ -29,15 +29,38 @@ public partial class PropExpander
     {
         if (sender is not ListBox listBox) return;
         if (listBox.SelectedItem is null) return;
-        var selected = (AssetSelectorItem) listBox.SelectedItem;
-
-        AppVM.MainVM.Styles.Clear();
-        AppVM.MainVM.TabModeText = "SELECTED PROPS";
-        if (listBox.SelectedItems.Count == 0) return;
         
-        AppVM.MainVM.CurrentAsset = selected;
-        AppVM.MainVM.ExtendedAssets.Clear();
-        AppVM.MainVM.ExtendedAssets = listBox.SelectedItems.OfType<IExportableAsset>().ToList();
-        AppVM.MainVM.Styles.Add(new StyleSelector(AppVM.MainVM.ExtendedAssets));
+        var selected = (AssetSelectorItem) listBox.SelectedItem;
+        if (selected.IsRandom)
+        {
+            listBox.SelectedIndex = App.RandomGenerator.Next(0, listBox.Items.Count);
+            return;
+        }
+
+        AppVM.NewMainVM.Styles.Clear();
+        AppVM.NewMainVM.CurrentAsset = selected;
+        
+        var styles = selected.Asset.GetOrDefault("ItemVariants", Array.Empty<UObject>());
+        foreach (var style in styles)
+        {
+            var channel = style.GetOrDefault("VariantChannelName", new FText("Unknown")).Text.ToLower().TitleCase();
+            var optionsName = style.ExportType switch
+            {
+                "FortCosmeticCharacterPartVariant" => "PartOptions",
+                "FortCosmeticMaterialVariant" => "MaterialOptions",
+                "FortCosmeticParticleVariant" => "ParticleOptions",
+                "FortCosmeticMeshVariant" => "MeshOptions",
+                _ => null
+            };
+
+            if (optionsName is null) continue;
+
+            var options = style.Get<FStructFallback[]>(optionsName);
+            if (options.Length == 0) continue;
+
+            var styleSelector = new StyleSelector(channel, options, selected.IconBitmap);
+            if (styleSelector.Options.Items.Count == 0) continue;
+            AppVM.NewMainVM.Styles.Add(styleSelector);
+        }
     }
 }
