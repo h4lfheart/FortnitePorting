@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -48,9 +47,14 @@ public partial class NewMainViewModel : ObservableObject
     
     [ObservableProperty] private ObservableCollection<StyleSelector> styles = new();
     
-    // Filters
+    [ObservableProperty] private bool isPaused;
+    
+    // Sort
     [ObservableProperty] private ESortType sortType;
     [ObservableProperty] private string searchFilter = string.Empty;
+    [ObservableProperty] private bool ascending;
+    
+    // Filters
     [ObservableProperty] private ObservableCollection<Predicate<AssetSelectorItem>> filters = new();
     [ObservableProperty] private string filterLabel = "None";
     private static readonly Dictionary<string, Predicate<AssetSelectorItem>> FilterPredicates = new()
@@ -194,6 +198,15 @@ public partial class NewMainViewModel : ObservableObject
             case "Sync_Unreal":
                 // TODO
                 break;
+        }
+    }
+    
+    [RelayCommand]
+    public void Favorite()
+    {
+        if (CurrentAsset is AssetSelectorItem assetSelectorItem)
+        {
+            assetSelectorItem.ToggleFavorite();
         }
     }
 

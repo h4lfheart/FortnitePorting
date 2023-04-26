@@ -9,6 +9,9 @@
           xmlns:toolkitCtrls="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
           xmlns:extensions="clr-namespace:FortnitePorting.Views.Extensions"
           Title="Fortnite Porting" Width="1368" Height="720" WindowStartupLocation="CenterScreen" ResizeMode="CanResize" Loaded="OnLoaded">
+    <Window.InputBindings>
+        <KeyBinding Key="F" Modifiers="Control" Command="{Binding FavoriteCommand}" />
+    </Window.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -169,18 +172,23 @@
                     <ColumnDefinition Width="{adonisUi:Space 1}" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="{adonisUi:Space 1}" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="{adonisUi:Space 1}" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="{adonisUi:Space 1}" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 
-                <TextBox Grid.Column="0" adonisExt:WatermarkExtension.Watermark="Search..." />
+                <TextBox Grid.Column="0" adonisExt:WatermarkExtension.Watermark="Search..." Text="{Binding SearchFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextChanged="OnSearchTextChanged"/>
                 
-                <controls:TextWithIcon Grid.Column="2" ImageSource="/FortnitePorting;component/Resources/Sort.png" IconSize="16" />
-                <ComboBox Grid.Column="4" ItemsSource="{extensions:EnumToItemsSource {x:Type local:ESortType}}" SelectedItem="{Binding SortType, Converter={StaticResource EnumToString}}" />
+                <controls:IconBecauseImLazy Grid.Column="2" ImageSource="/FortnitePorting;component/Resources/Sort.png" IconSize="16" />
+                <ComboBox ToolTip="Sorting Options" Grid.Column="4" ItemsSource="{extensions:EnumToItemsSource {x:Type local:ESortType}}" SelectedItem="{Binding SortType, Converter={StaticResource EnumToString}}" SelectionChanged="OnSortSelectionChanged"/>
+                <Button ToolTip="Ascending or Descending" Grid.Column="6" Click="OnAscendingDescendingClicked">
+                    <controls:IconBecauseImLazy ImageSource="/FortnitePorting;component/Resources/Arrow.png" IconSize="16" RenderTransformOrigin="0.5, 0.5"/>
+                </Button>
                 
-                <controls:TextWithIcon Grid.Column="6" ImageSource="/FortnitePorting;component/Resources/Filter.png" IconSize="16" />
-                <ToggleButton Grid.Column="8" Name="FilterButton">
+                <controls:IconBecauseImLazy Grid.Column="8" ImageSource="/FortnitePorting;component/Resources/Filter.png" IconSize="16" />
+                <ToggleButton ToolTip="Filters" Grid.Column="10" Name="FilterButton">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
@@ -214,8 +222,8 @@
                     </Border>
                 </Popup>
                 
-                <ToggleButton Grid.Column="10">
-                    <controls:TextWithIcon Margin="0 0 0 0" ImageSource="/FortnitePorting;component/Resources/Pause.png" IconSize="16" />
+                <ToggleButton ToolTip="Pause Loading" Grid.Column="12" Checked="OnPauseLoadingSwitched" Unchecked="OnPauseLoadingSwitched">
+                    <controls:IconBecauseImLazy ImageSource="/FortnitePorting;component/Resources/Pause.png" IconSize="16" />
                 </ToggleButton>
             </Grid>
             

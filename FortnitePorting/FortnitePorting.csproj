@@ -87,6 +87,8 @@
         <None Remove="Resources\KoFi.png" />
         <Resource Include="Resources\KoFi.png" />
         <Resource Include="Resources\Pause.png" />
+        <None Remove="Resources\Arrow.png" />
+        <Resource Include="Resources\Arrow.png" />
     </ItemGroup>
 
 </Project>
