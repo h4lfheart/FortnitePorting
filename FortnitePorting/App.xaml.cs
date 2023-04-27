@@ -46,6 +46,7 @@ public partial class App
         base.OnStartup(e);
         AllocConsole();
         Console.Title = "Fortnite Porting Console";
+        CUE4Parse.Globals.WarnMissingImportPackage = false;
 
         ObjectTypeRegistry.RegisterEngine(typeof(UFortnitePortingCustom).Assembly);
         Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
