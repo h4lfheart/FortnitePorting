@@ -74,7 +74,6 @@ public partial class NewMainView
         }
 
         var handlers = AppVM.AssetHandlerVM.Handlers;
-        if (assetType is not EAssetType.Gallery or EAssetType.Mesh) AssetDisplayGrid.ItemsSource = handlers[assetType].TargetCollection;
         foreach (var (handlerType, handlerData) in handlers)
         {
             if (handlerType == assetType && !AppVM.NewMainVM.IsPaused)
@@ -87,9 +86,19 @@ public partial class NewMainView
             }
         }
         
-        if (!handlers[assetType].HasStarted)
+        if (assetType is EAssetType.Mesh)
         {
-            await handlers[assetType].Execute();
+            if (AppVM.MeshVM is not null && AppVM.MeshVM.HasStarted) return;
+            AppVM.MeshVM = new MeshAssetViewModel();
+            await AppVM.MeshVM.Initialize();
+        }
+        else
+        {
+            if (assetType is not EAssetType.Gallery) AssetDisplayGrid.ItemsSource = handlers[assetType].TargetCollection;
+            if (!handlers[assetType].HasStarted)
+            {
+                await handlers[assetType].Execute();
+            }
         }
     }
 
@@ -165,14 +174,22 @@ public partial class NewMainView
 
         if (AppVM.NewMainVM.CurrentAssetType is EAssetType.Gallery)
         {
-            if (MainLoadingControl.Template?.FindName("GalleryItemsControl", MainLoadingControl) is not ItemsControl itemsControl) return;
-            
-            itemsControl.Items.Filter = o =>
+            GalleryItemsControl.Items.Filter = o =>
             {
                 var asset = (PropExpander) o;
                 return AppHelper.Filter(asset.GalleryName.Text, AppVM.NewMainVM.SearchFilter);
             };
-            itemsControl.Items.Refresh();
+            GalleryItemsControl.Items.Refresh();
+        }
+
+        if (AppVM.NewMainVM.CurrentAssetType is EAssetType.Mesh)
+        {
+            AssetFlatView.Items.Filter = o =>
+            {
+                var asset = (AssetItem) o;
+                return AppHelper.Filter(asset.Path, AppVM.MainVM.SearchFilter);
+            };
+            AssetFlatView.Items.Refresh();
         }
     }
 
@@ -270,5 +287,62 @@ public partial class NewMainView
         }
 
         AppVM.NewMainVM.IsPaused = pauseValue;
+    }
+
+    private async void AssetFolderTree_OnSelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+    {
+        var treeView = (TreeView) sender;
+        var treeItem = (TreeItem) treeView.SelectedItem;
+        if (treeItem is null) return;
+        if (treeItem.AssetType == ETreeItemType.Folder) return;
+
+        await AppVM.NewMainVM.SetupMeshSelection(treeItem.FullPath!);
+    }
+
+    private async void AssetFlatView_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        var listBox = (ListBox) sender;
+        var selectedItem = (AssetItem) listBox.SelectedItem;
+        if (selectedItem is null) return;
+        
+        await AppVM.NewMainVM.SetupMeshSelection(selectedItem.PathWithoutExtension);
+    }
+
+    private void AssetFlatView_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+        var listBox = (ListBox) sender;
+        var selectedItem = (AssetItem) listBox.SelectedItem;
+        if (selectedItem is null) return;
+        
+        JumpToAsset(selectedItem.PathWithoutExtension);
+    }
+    
+    private void JumpToAsset(string directory)
+    {
+        var children = AppVM.NewMainVM.Meshes;
+
+        var i = 0;
+        var folders = directory.Split('/');
+        while (true)
+        {
+            foreach (var folder in children)
+            {
+                if (!folder.Header.Equals(folders[i], StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                if (folder.AssetType == ETreeItemType.Asset)
+                {
+                    folder.IsSelected = true;
+                    return;
+                }
+
+                folder.IsExpanded = true;
+                children = folder.Children;
+                break;
+            }
+
+            i++;
+            if (children.Count == 0) break;
+        }
     }
 }

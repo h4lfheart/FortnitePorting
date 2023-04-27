@@ -152,41 +152,73 @@
             
             <!-- DISPLAY -->
             <GroupBox Grid.Row="2" Grid.Column="2" adonisExt:LayerExtension.Layer="3" BorderThickness="1">
-                <ContentControl x:Name="MainLoadingControl">
-                    <ContentControl.Style>
-                        <Style TargetType="{x:Type ContentControl}" BasedOn="{StaticResource {x:Type ContentControl}}">
-                            <EventSetter Event="PreviewMouseWheel" Handler="FunkyScrollFix"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding CurrentAssetType}" Value="{x:Static local:EAssetType.Gallery}">
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate>
-                                                <ScrollViewer>
-                                                    <ItemsControl x:Name="GalleryItemsControl" ItemsSource="{Binding Galleries}" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"/>
-                                                </ScrollViewer>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding CurrentAssetType}" Value="{x:Static local:EAssetType.Mesh}">
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </ContentControl.Style>
-                    <ListBox x:Name="AssetDisplayGrid" ItemsSource="{Binding Outfits}" SelectionChanged="OnAssetSelectionChanged">
-                        <ListBox.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <toolkitCtrls:VirtualizingWrapPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left" />
-                            </ItemsPanelTemplate>
-                        </ListBox.ItemsPanel>
-                    </ListBox>
-                </ContentControl>
+                <Grid>
+                    <ContentControl Visibility="{Binding AssetTabVisibility}">
+                        <ListBox x:Name="AssetDisplayGrid" ItemsSource="{Binding Outfits}" SelectionChanged="OnAssetSelectionChanged">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <toolkitCtrls:VirtualizingWrapPanel IsItemsHost="True" VerticalAlignment="Top" HorizontalAlignment="Left" />
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                        </ListBox>
+                    </ContentControl>
+                    <ContentControl Visibility="{Binding GalleryTabVisibility}">
+                        <ScrollViewer>
+                            <ItemsControl x:Name="GalleryItemsControl" ItemsSource="{Binding Galleries}" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"/>
+                        </ScrollViewer>
+                    </ContentControl>
+                    <ContentControl Visibility="{Binding MeshTabVisibility}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="{adonisUi:Space 1}" />
+                                <ColumnDefinition Width="2*" />
+                            </Grid.ColumnDefinitions>
+
+                            <GroupBox Grid.Column="0" BorderThickness="1">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+
+                                    <Separator Grid.Row="0" Style="{StaticResource NamedSeparator}" Tag="File Structure" />
+                                    <TreeView x:Name="AssetFolderTree" SelectedItemChanged="AssetFolderTree_OnSelectedItemChanged" Grid.Row="1" ItemsSource="{Binding Meshes}" Style="{StaticResource AssetsFolderTreeView}" />
+                                </Grid>
+                            </GroupBox>
+                            <GridSplitter Grid.Column="1" ResizeDirection="Columns" Width="4" VerticalAlignment="Stretch" ResizeBehavior="PreviousAndNext" Background="{DynamicResource {x:Static adonisUi:Brushes.Layer0BackgroundBrush}}" />
+
+                            <GroupBox Grid.Column="2" BorderThickness="1">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+
+                                    <Separator Grid.Row="0" Style="{StaticResource NamedSeparator}" Tag="Flat View" />
+                                    <ListBox x:Name="AssetFlatView" SelectionMode="Extended" Grid.Row="1" ItemsSource="{Binding Assets}" VirtualizingPanel.IsVirtualizing="True" HorizontalAlignment="Stretch" SelectionChanged="AssetFlatView_OnSelectionChanged" MouseDoubleClick="AssetFlatView_OnMouseDoubleClick">
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <ContentControl>
+                                                    <ContentControl.ContextMenu>
+                                                        <ContextMenu>
+                                                            <MenuItem Header="Copy Path to Clipboard" Command="{Binding CopyCommand}">
+                                                                <MenuItem.Icon>
+                                                                    <Image Source="/Resources/Clipboard.png" Width="16" Height="16"></Image>
+                                                                </MenuItem.Icon>
+                                                            </MenuItem>
+                                                        </ContextMenu>
+                                                    </ContentControl.ContextMenu>
+                                                    <TextBlock HorizontalAlignment="Left" Text="{Binding Path}" TextTrimming="CharacterEllipsis" />
+                                                </ContentControl>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+                                </Grid>
+                            </GroupBox>
+                        </Grid>
+                    </ContentControl>
+                </Grid>
             </GroupBox>
             
             <!-- OPTIONS OVERHEAD -->

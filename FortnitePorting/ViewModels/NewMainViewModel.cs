@@ -20,16 +20,31 @@ namespace FortnitePorting.ViewModels;
 
 public partial class NewMainViewModel : ObservableObject
 {
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(LoadingVisibility))] private bool isReady;
+    [ObservableProperty] 
+    [NotifyPropertyChangedFor(nameof(LoadingVisibility))] 
+    private bool isReady;
     
     // Asset Stuff
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(CurrentAssetImage))] [NotifyPropertyChangedFor(nameof(AssetPreviewVisibility))] private IExportableAsset? currentAsset;
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(IsValidFilterer))] private EAssetType currentAssetType = EAssetType.Outfit;
-    public bool IsValidFilterer => CurrentAssetType is not EAssetType.Gallery or EAssetType.Mesh;
+    [ObservableProperty] 
+    [NotifyPropertyChangedFor(nameof(CurrentAssetImage))] 
+    [NotifyPropertyChangedFor(nameof(AssetPreviewVisibility))] 
+    private IExportableAsset? currentAsset;
+    
+    [ObservableProperty] 
+    [NotifyPropertyChangedFor(nameof(IsValidFilterer))]
+    [NotifyPropertyChangedFor(nameof(AssetTabVisibility))]
+    [NotifyPropertyChangedFor(nameof(GalleryTabVisibility))]
+    [NotifyPropertyChangedFor(nameof(MeshTabVisibility))]
+    private EAssetType currentAssetType = EAssetType.Outfit;
+    
+    public bool IsValidFilterer => CurrentAssetType is not (EAssetType.Gallery or EAssetType.Mesh);
     public ImageSource? CurrentAssetImage => CurrentAsset?.FullSource;
     public Visibility AssetPreviewVisibility => CurrentAsset is null ? Visibility.Hidden : Visibility.Visible;
     
     public Visibility LoadingVisibility => IsReady ? Visibility.Collapsed : Visibility.Visible;
+    public Visibility AssetTabVisibility => CurrentAssetType is (EAssetType.Gallery or EAssetType.Mesh) ? Visibility.Collapsed : Visibility.Visible;
+    public Visibility GalleryTabVisibility => CurrentAssetType is EAssetType.Gallery ? Visibility.Visible : Visibility.Collapsed;
+    public Visibility MeshTabVisibility => CurrentAssetType is EAssetType.Mesh ? Visibility.Visible : Visibility.Collapsed;
     
     // Assets
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> outfits = new();
@@ -45,6 +60,9 @@ public partial class NewMainViewModel : ObservableObject
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> toys = new();
     
     [ObservableProperty] private ObservableCollection<PropExpander> galleries = new();
+    
+    [ObservableProperty] private SuppressibleObservableCollection<TreeItem> meshes = new();
+    [ObservableProperty] private SuppressibleObservableCollection<AssetItem> assets = new();
     
     [ObservableProperty] private ObservableCollection<StyleSelector> styles = new();
     
@@ -86,7 +104,20 @@ public partial class NewMainViewModel : ObservableObject
             AppVM.AssetHandlerVM = new AssetHandlerViewModel();
             await AppVM.AssetHandlerVM.Initialize();
         });
-    } 
+    }
+    
+    private static readonly string[] AllowedMeshTypes =
+    {
+        "Skeleton",
+        "SkeletalMesh",
+        "StaticMesh"
+    };
+
+    public async Task SetupMeshSelection(string path)
+    {
+        var meshObject = await AppVM.CUE4ParseVM.Provider.LoadObjectAsync(path);
+        CurrentAsset = AllowedMeshTypes.Contains(meshObject.ExportType) ? new MeshAssetItem(meshObject) : null;
+    }
     
     public FStructFallback[] GetSelectedStyles()
     {

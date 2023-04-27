@@ -52,7 +52,6 @@ public class CUE4ParseViewModel : ObservableObject
         "/Playsets",
         "/UI",
         "/2dAssets",
-        "/Animation",
         "/Textures",
         "/Audio",
         "/Sound",
@@ -63,6 +62,7 @@ public class CUE4ParseViewModel : ObservableObject
         "/TextureData",
         "/ActorBlueprints",
         "/Physics",
+        "/_Verse",
         
         "/PPID_",
         "/MI_",

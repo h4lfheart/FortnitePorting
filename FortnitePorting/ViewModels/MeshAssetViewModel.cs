@@ -44,7 +44,7 @@ public class MeshAssetViewModel : ObservableObject
                 }
             }
 
-            View = new ListCollectionView(AppVM.MainVM.Meshes) { SortDescriptions = { new SortDescription("IsFolder", ListSortDirection.Descending), new SortDescription("Header", ListSortDirection.Ascending) } };
+            View = new ListCollectionView(AppVM.NewMainVM.Meshes) { SortDescriptions = { new SortDescription("IsFolder", ListSortDirection.Descending), new SortDescription("Header", ListSortDirection.Ascending) } };
 
             foreach (var entry in AppVM.CUE4ParseVM.MeshEntries)
             {
@@ -81,10 +81,10 @@ public class MeshAssetViewModel : ObservableObject
                 }
             }
 
-            AppVM.MainVM.Assets.AddRange(assetItems);
-            AppVM.MainVM.Meshes.AddRange(treeItems);
+            AppVM.NewMainVM.Assets.AddRange(assetItems);
+            AppVM.NewMainVM.Meshes.AddRange(treeItems);
 
-            foreach (var child in AppVM.MainVM.Meshes)
+            foreach (var child in AppVM.NewMainVM.Meshes)
             {
                 InvokeOnCollectionChanged(child);
             }

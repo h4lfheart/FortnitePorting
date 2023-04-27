@@ -418,8 +418,6 @@
                                         <RowDefinition />
                                     </Grid.RowDefinitions>
 
-                                    <Rectangle Margin="0,0,1,0" Width="1" Stroke="#FFFFFF" Grid.RowSpan="2" Opacity="0.05" />
-
                                     <Border x:Name="Border"
                                             Grid.Row="0"
                                             Grid.Column="0"
