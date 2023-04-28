@@ -10,6 +10,7 @@ public class SettingsViewModel : ObservableObject
     public bool ChangedUpdateChannel = false;
 
     public bool IsLocalInstall => InstallType == EInstallType.Local;
+    public bool IsCustomInstall => InstallType == EInstallType.Custom;
 
     public EInstallType InstallType
     {
@@ -19,6 +20,18 @@ public class SettingsViewModel : ObservableObject
             AppSettings.Current.InstallType = value;
             OnPropertyChanged();
             OnPropertyChanged(nameof(IsLocalInstall));
+            OnPropertyChanged(nameof(IsCustomInstall));
+            IsRestartRequired = true;
+        }
+    }
+
+    public EGame UnrealVersion
+    {
+        get => AppSettings.Current.UeVersion;
+        set
+        {
+            AppSettings.Current.UeVersion = value;
+            OnPropertyChanged();
             IsRestartRequired = true;
         }
     }
@@ -34,6 +47,30 @@ public class SettingsViewModel : ObservableObject
         }
     }
 
+
+
+    public string MappingPath
+    {
+        get => AppSettings.Current.MappingPath;
+        set
+        {
+            AppSettings.Current.MappingPath = value;
+            OnPropertyChanged();
+            IsRestartRequired = true;
+        }
+    }
+
+    public string CustominstallPath
+    {
+        get => AppSettings.Current.CustominstallPath;
+        set
+        {
+            AppSettings.Current.CustominstallPath = value;
+            OnPropertyChanged();
+            IsRestartRequired = true;
+        }
+    }
+
     public ELanguage Language
     {
         get => AppSettings.Current.Language;
@@ -44,7 +81,6 @@ public class SettingsViewModel : ObservableObject
             IsRestartRequired = true;
         }
     }
-
     public string AssetsPath
     {
         get => AppSettings.Current.AssetsPath;

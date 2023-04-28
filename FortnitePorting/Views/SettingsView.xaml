@@ -1,10 +1,11 @@
 ﻿<adonisCtrls:AdonisWindow x:Class="FortnitePorting.Views.SettingsView"
                           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-
+                            
                           xmlns:local="clr-namespace:FortnitePorting"
                           xmlns:extensions="clr-namespace:FortnitePorting.Views.Extensions"
                           xmlns:cue4Parse="clr-namespace:CUE4Parse;assembly=CUE4Parse"
+                          xmlns:cue4ParseEnums="clr-namespace:CUE4Parse.UE4.Versions;assembly=CUE4Parse"
                           xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
                           xmlns:adonisCtrls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
                           xmlns:adonisExt="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"
@@ -14,11 +15,11 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="{adonisUi:Space 5}" />
-            <RowDefinition Height="10*" />
-            <RowDefinition Height="Auto" />
+            <RowDefinition />
+            <RowDefinition Height="Auto" MinHeight="40" />
         </Grid.RowDefinitions>
-        <Separator Grid.Row="0" Margin="{adonisUi:Space 1}" Style="{StaticResource NamedSeparator}" Tag="FORTNITE" />
-        <Grid Grid.Row="1" Margin="{adonisUi:Space 1}">
+        <Separator Grid.Row="0" Margin="8,8,8,8" Style="{StaticResource NamedSeparator}" Tag="FORTNITE" />
+        <Grid Grid.Row="1" Margin="8,8,8,8">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="{adonisUi:Space 1}" />
@@ -30,6 +31,20 @@
                 <RowDefinition Height="{adonisUi:Space 1}" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="{adonisUi:Space 5}" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="{adonisUi:Space 1}" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="{adonisUi:Space 1}" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="{adonisUi:Space 1}" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="{adonisUi:Space 1}" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="{adonisUi:Space 1}" />                
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="{adonisUi:Space 1}" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="{adonisUi:Space 1}" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="{adonisUi:Space 1}" />
                 <RowDefinition Height="Auto" />
@@ -56,7 +71,7 @@
             <Button Grid.Row="2" Grid.Column="4" Content="..." Click="OnClickInstallation" IsEnabled="{Binding IsLocalInstall}" />
 
             <TextBlock Grid.Row="4" Grid.Column="0" Text="Game Language*" VerticalAlignment="Center" />
-            <ComboBox Grid.Row="4" Grid.Column="2" Grid.ColumnSpan="3" ItemsSource="{extensions:EnumToItemsSource {x:Type cue4Parse:UE4.Versions.ELanguage}}" SelectedItem="{Binding Language, Converter={StaticResource EnumToString}}" />
+            <ComboBox Grid.Row="4" Grid.Column="2" Grid.ColumnSpan="3" ItemsSource="{extensions:EnumToItemsSource {x:Type cue4ParseEnums:ELanguage}}" SelectedItem="{Binding Language, Converter={StaticResource EnumToString}}" />
 
             <TextBlock Grid.Row="6" Grid.Column="0" Text="Export Folder" VerticalAlignment="Center" />
             <TextBox Grid.Row="6" Grid.Column="2" Text="{Binding AssetsPath}" adonisExt:WatermarkExtension.Watermark="Asset Export Folder" />
@@ -76,8 +91,23 @@
 
             <TextBlock Grid.Row="14" Grid.Column="0" Text="Light Mode*" VerticalAlignment="Center" />
             <ToggleButton Grid.Row="14" Grid.Column="2" Grid.ColumnSpan="3" Style="{DynamicResource {x:Static adonisUi:Styles.ToggleSwitch }}" IsChecked="{Binding LightMode}" />
-            
+
             <controls:NumericSlider Grid.Row="16" Grid.Column="0" Grid.ColumnSpan="5" Label="Asset Display Size" Minimum="0.5" Maximum="5" StepSize="0.5" Value="{Binding AssetSize, Mode=TwoWay}" />
+
+            
+            <Separator Grid.Row="18" Grid.Column="0" Grid.ColumnSpan="5" Style="{StaticResource NamedSeparator}" Tag="CUSTOM" />
+
+            <TextBlock Grid.Row="20" Grid.Column="0" Text="Unreal Version" VerticalAlignment="Center" />
+            <ComboBox Grid.Row="20" Grid.Column="2" Grid.ColumnSpan="3" ItemsSource="{extensions:EnumToItemsSource {x:Type cue4ParseEnums:EGame}}" SelectedItem="{Binding UnrealVersion, Converter={StaticResource EnumToString}}" IsEnabled="{Binding IsCustomInstall}" />
+           
+            <TextBlock Grid.Row="22" Grid.Column="0" Text="Fortnite Installation" VerticalAlignment="Center" />
+            <TextBox Grid.Row="22" Grid.Column="2" Text="{Binding CustominstallPath}" adonisExt:WatermarkExtension.Watermark="Custom Fortnite installation Path" IsEnabled="{Binding IsCustomInstall}"  />
+            <Button Grid.Row="22" Grid.Column="4" Content="..." Click="OnClickCustominstall" IsEnabled="{Binding IsCustomInstall}" />
+            
+            <TextBlock Grid.Row="24" Grid.Column="0" Text="Mapping File" VerticalAlignment="Center" />
+            <TextBox Grid.Row="24" Grid.Column="2" Text="{Binding MappingPath}" adonisExt:WatermarkExtension.Watermark="Mapping file .usmap" IsEnabled="{Binding IsCustomInstall}"  />
+            <Button Grid.Row="24" Grid.Column="4" Content="..." Click="OnClickMapping" IsEnabled="{Binding IsCustomInstall}" />
+            
         </Grid>
         <Border Grid.Row="2" Background="{DynamicResource {x:Static adonisUi:Brushes.Layer1BackgroundBrush}}" adonisExt:LayerExtension.IncreaseLayer="True">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom">

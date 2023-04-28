@@ -6,6 +6,7 @@ using System.Windows.Threading;
 using AdonisUI;
 using AdonisUI.Controls;
 using CUE4Parse.UE4.Assets;
+using CUE4Parse.UE4.Versions;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Exports;
 using FortnitePorting.Services;

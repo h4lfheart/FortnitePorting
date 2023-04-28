@@ -100,7 +100,7 @@ public class CUE4ParseViewModel : ObservableObject
         "FortniteGame/Content/Animation/Game/MainPlayer/Menu/BR/Female_Commando_Idle_03_Rebirth_Montage"
     };
 
-    public CUE4ParseViewModel(string directory, EInstallType installType)
+    public CUE4ParseViewModel(string directory,string custominstalldirectory,EGame CIVersion, EInstallType installType)
     {
         var narrowedDirectories = ExtraDirectories.Where(x => x.Exists).ToList();
         if (installType == EInstallType.Local && !Directory.Exists(directory))
@@ -113,6 +113,7 @@ public class CUE4ParseViewModel : ObservableObject
         {
             EInstallType.Local => new FortnitePortingFileProvider(new DirectoryInfo(directory), narrowedDirectories, SearchOption.AllDirectories, true, Version),
             EInstallType.Live => new FortnitePortingFileProvider(true, Version),
+            EInstallType.Custom => new FortnitePortingFileProvider(new DirectoryInfo(directory), narrowedDirectories, SearchOption.AllDirectories, true, Version),
         };
     }
 

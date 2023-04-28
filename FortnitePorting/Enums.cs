@@ -8,7 +8,10 @@ public enum EInstallType
     Local,
 
     [Description("Fortnite Live (Slower)")]
-    Live
+    Live,
+
+    [Description("Custom Installation (Instable)")]
+    Custom
 }
 
 public enum EAssetType

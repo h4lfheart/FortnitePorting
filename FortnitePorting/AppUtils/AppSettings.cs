@@ -35,7 +35,13 @@ public partial class AppSettings : ObservableObject
 
     [ObservableProperty] private string archivePath;
 
+    [ObservableProperty] private string mappingPath;
+
+    [ObservableProperty] private string custominstallPath;
+
     [ObservableProperty] private ELanguage language;
+
+    [ObservableProperty] private EGame ueVersion = EGame.GAME_UE5_2;
 
     [ObservableProperty] private EInstallType installType;
 

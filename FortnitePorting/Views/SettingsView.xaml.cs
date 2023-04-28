@@ -76,6 +76,21 @@ public partial class SettingsView
         }
     }
 
+    private void OnClickMapping(object sender, RoutedEventArgs e)
+    {
+        if (AppHelper.TrySelectFolder(out var path))
+        {
+            AppVM.SettingsVM.MappingPath = path;
+        }
+    }
+    private void OnClickCustominstall(object sender, RoutedEventArgs e)
+    {
+        if (AppHelper.TrySelectFolder(out var path))
+        {
+            AppVM.SettingsVM.CustominstallPath = path;
+        }
+    }
+
     private void OnClickExports(object sender, RoutedEventArgs e)
     {
         if (AppHelper.TrySelectFolder(out var path))
