@@ -100,7 +100,7 @@ public class CUE4ParseViewModel : ObservableObject
         "FortniteGame/Content/Animation/Game/MainPlayer/Menu/BR/Female_Commando_Idle_03_Rebirth_Montage"
     };
 
-    public CUE4ParseViewModel(string directory,string custominstalldirectory,EGame CIVersion, EInstallType installType)
+    public CUE4ParseViewModel(string directory,string custominstalldirectory ,EInstallType installType)
     {
         var narrowedDirectories = ExtraDirectories.Where(x => x.Exists).ToList();
         if (installType == EInstallType.Local && !Directory.Exists(directory))

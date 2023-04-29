@@ -80,7 +80,7 @@ public partial class NewMainViewModel : ObservableObject
     {
         await Task.Run(async () =>
         {
-            AppVM.CUE4ParseVM = new CUE4ParseViewModel(AppSettings.Current.ArchivePath, AppSettings.Current.CustominstallPath,AppSettings.Current.UeVersion , AppSettings.Current.InstallType);
+            AppVM.CUE4ParseVM = new CUE4ParseViewModel(AppSettings.Current.ArchivePath, AppSettings.Current.CustominstallPath, AppSettings.Current.InstallType);
             await AppVM.CUE4ParseVM.Initialize();
             IsReady = true;
             
