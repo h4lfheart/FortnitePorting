@@ -49,7 +49,8 @@ public partial class NewMainViewModel : ObservableObject
     [ObservableProperty] private ObservableCollection<StyleSelector> styles = new();
     
     [ObservableProperty] private bool isPaused;
-    
+
+    public bool IsInitialized;
     // Sort
     [ObservableProperty] private ESortType sortType;
     [ObservableProperty] private string searchFilter = string.Empty;
@@ -79,12 +80,13 @@ public partial class NewMainViewModel : ObservableObject
     {
         await Task.Run(async () =>
         {
-            AppVM.CUE4ParseVM = new CUE4ParseViewModel(AppSettings.Current.ArchivePath, AppSettings.Current.CustominstallPath , AppSettings.Current.InstallType);
+            AppVM.CUE4ParseVM = new CUE4ParseViewModel(AppSettings.Current.ArchivePath, AppSettings.Current.CustominstallPath,AppSettings.Current.UeVersion , AppSettings.Current.InstallType);
             await AppVM.CUE4ParseVM.Initialize();
             IsReady = true;
             
             AppVM.AssetHandlerVM = new AssetHandlerViewModel();
             await AppVM.AssetHandlerVM.Initialize();
+            IsInitialized = true;
         });
     } 
     

@@ -111,7 +111,7 @@ public partial class MainViewModel : ObservableObject
         {
             var loadTime = new Stopwatch();
             loadTime.Start();
-            AppVM.CUE4ParseVM = new CUE4ParseViewModel(AppSettings.Current.ArchivePath, AppSettings.Current.InstallType);
+            AppVM.CUE4ParseVM = new CUE4ParseViewModel(AppSettings.Current.ArchivePath, AppSettings.Current.CustominstallPath, AppSettings.Current.UeVersion, AppSettings.Current.InstallType);
             await AppVM.CUE4ParseVM.Initialize();
             loadTime.Stop();
 

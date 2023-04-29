@@ -108,12 +108,16 @@ public class CUE4ParseViewModel : ObservableObject
             AppVM.Warning("Installation Not Found", "Fortnite installation path does not exist or has not been set. Please go to settings to verify you've set the right path and restart. The program will not work properly on Local Installation mode if you do not set it.");
             return;
         }
-
+        if (installType == EInstallType.Custom && !Directory.Exists(custominstalldirectory))
+        {
+            AppVM.Warning("Installation Not Found", "Fortnite installation path does not exist or has not been set. Please go to settings to verify you've set the right path and restart. The program will not work properly on Local Installation mode if you do not set it.");
+            return;
+        }
         Provider = installType switch
         {
             EInstallType.Local => new FortnitePortingFileProvider(new DirectoryInfo(directory), narrowedDirectories, SearchOption.AllDirectories, true, Version),
             EInstallType.Live => new FortnitePortingFileProvider(true, Version),
-            EInstallType.Custom => new FortnitePortingFileProvider(new DirectoryInfo(directory), narrowedDirectories, SearchOption.AllDirectories, true, Version),
+            EInstallType.Custom => new FortnitePortingFileProvider(new DirectoryInfo(custominstalldirectory), narrowedDirectories, SearchOption.AllDirectories, true, new(AppSettings.Current.UeVersion)),
         };
     }
 
