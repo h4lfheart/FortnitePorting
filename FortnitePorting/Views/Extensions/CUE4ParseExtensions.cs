@@ -131,7 +131,7 @@ public static class CUE4ParseExtensions
         exports = Enumerable.Empty<UObject>();
         try
         {
-            exports = provider.LoadObjectExports(path);
+            exports = provider.LoadAllObjects(path);
         }
         catch (KeyNotFoundException)
         {

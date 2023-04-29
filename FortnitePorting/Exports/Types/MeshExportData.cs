@@ -191,7 +191,7 @@ public class MeshExportData : ExportDataBase
 
                     data.Parts.Add(part);
 
-                    var exports = AppVM.CUE4ParseVM.Provider.LoadObjectExports(blueprint.GetPathName().SubstringBeforeLast("."));
+                    var exports = AppVM.CUE4ParseVM.Provider.LoadAllObjects(blueprint.GetPathName().SubstringBeforeLast("."));
                     var staticMeshComponents = exports.Where(x => x.ExportType == "StaticMeshComponent").ToArray();
                     foreach (var staticMeshComponent in staticMeshComponents)
                     {
@@ -227,7 +227,7 @@ public class MeshExportData : ExportDataBase
                         }
                         else
                         {
-                            var exports = AppVM.CUE4ParseVM.Provider.LoadObjectExports(actor.GetPathName().SubstringBeforeLast("."));
+                            var exports = AppVM.CUE4ParseVM.Provider.LoadAllObjects(actor.GetPathName().SubstringBeforeLast("."));
                             var staticMeshComponents = exports.Where(x => x.ExportType == "StaticMeshComponent").ToArray();
                             if (!staticMeshComponents.Any())
                                 AppLog.Error($"StaticMesh could not be found in actor {actor.Name} for prop {data.Name}");
@@ -305,7 +305,7 @@ public class MeshExportData : ExportDataBase
                     mesh ??= superMesh;
                     if (mesh is null)
                     {
-                        var exports = AppVM.CUE4ParseVM.Provider.LoadObjectExports(blueprint.GetPathName().SubstringBeforeLast("."));
+                        var exports = AppVM.CUE4ParseVM.Provider.LoadAllObjects(blueprint.GetPathName().SubstringBeforeLast("."));
                         var staticMeshComponents = exports.Where(x => x.ExportType == "StaticMeshComponent").ToArray();
                         foreach (var component in staticMeshComponents)
                         {
