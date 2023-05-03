@@ -247,10 +247,9 @@ public partial class MainViewModel : ObservableObject
         {
             await Task.Run(async () =>
             {
-                var downloadedBundles = (await BundleDownloader.DownloadAsync(asset.Asset.Name)).ToList();
+                var downloadedBundles = (await BundleDownloader.DownloadAsync(asset.Asset)).ToList();
                 if (downloadedBundles.Count > 0)
                 {
-                    downloadedBundles.ForEach(AppVM.CUE4ParseVM.Provider.RegisterFile);
                     await AppVM.CUE4ParseVM.Provider.MountAsync();
                 }
             });

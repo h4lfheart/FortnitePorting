@@ -44,7 +44,7 @@ public class CUE4ParseViewModel : ObservableObject
 
     private static readonly List<DirectoryInfo> ExtraDirectories = new()
     {
-        new DirectoryInfo(App.BundlesFolder.FullName)
+        App.BundlesFolder
     };
     
     private static readonly string[] MeshRemoveList = {
@@ -134,11 +134,11 @@ public class CUE4ParseViewModel : ObservableObject
         var bundleDownloaderSuccess = await BundleDownloader.Initialize();
         if (bundleDownloaderSuccess)
         {
-            Log.Information("Successfully Initialized Bundle Downloader");
+            Log.Information("Successfully Initialized Content Bundle Downloader");
         }
         else
         {
-            AppLog.Warning("Failed to initialize Bundle Downloader, high resolution textures will not be downloaded");
+            AppLog.Warning("Failed to initialize Content Bundle Downloader, high resolution textures will not be downloaded");
         }
 
         var assetRegistries = Provider.Files.Where(x => x.Key.Contains("AssetRegistry", StringComparison.OrdinalIgnoreCase)).ToList();
@@ -202,6 +202,7 @@ public class CUE4ParseViewModel : ObservableObject
             case EInstallType.Local:
             {
                 Provider.InitializeLocal();
+                Provider.InitializeRawFiles(App.BundlesFolder);
                 break;
             }
             case EInstallType.Live:

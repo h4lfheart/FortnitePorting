@@ -17,7 +17,6 @@
         <PackageReference Include="CSCore" Version="1.2.1.2" />
         <PackageReference Include="CSCore.Ogg" Version="1.0.0" />
         <PackageReference Include="DiscordRichPresence" Version="1.0.175" />
-        <PackageReference Include="MercuryCommons" Version="0.0.8" />
         <PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
         <PackageReference Include="OpenTK" Version="5.0.0-pre.8" />
         <PackageReference Include="RestSharp" Version="108.0.3-alpha.0.5" />
@@ -31,6 +30,7 @@
         <ProjectReference Include="..\CUE4Parse\CUE4Parse-Conversion\CUE4Parse-Conversion.csproj" />
         <ProjectReference Include="..\CUE4Parse\CUE4Parse\CUE4Parse.csproj" />
         <ProjectReference Include="..\EpicManifestParser\src\EpicManifestParser\EpicManifestParser.csproj" />
+        <ProjectReference Include="..\MercuryCommons\MercuryCommons\MercuryCommons.csproj" />
     </ItemGroup>
 
     <ItemGroup>

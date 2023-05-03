@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.UE4.Objects.UObject;
 using EpicManifestParser.Objects;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Services;
@@ -14,19 +16,11 @@ namespace FortnitePorting.Bundles;
 public static class BundleDownloader
 {
     public const string MANIFEST_URL = "https://launcher-public-service-prod06.ol.epicgames.com/launcher/api/public/assets/Windows/5cb97847cee34581afdbc445400e2f77/FortniteContentBuilds";
-    private const string BUNDLE_MAPPINGS_PATH = "FortniteGame/Config/Windows/CosmeticBundleMapping.ini";
 
-    private static Ini CosmeticBundleMappings;
     private static Manifest? BundleManifest;
 
     public static async Task<bool> Initialize()
     {
-        var bytes = await AppVM.CUE4ParseVM.Provider.TrySaveAssetAsync(BUNDLE_MAPPINGS_PATH);
-        if (bytes is null) return false;
-
-        var bundleString = Encoding.UTF8.GetString(bytes);
-        CosmeticBundleMappings = BundleIniReader.Read(bundleString);
-
         BundleManifest = await GetManifest();
         return BundleManifest is not null;
     }
@@ -59,24 +53,23 @@ public static class BundleDownloader
         return await EndpointService.Epic.GetManifestAsync(url: manifestUrl);
     }
 
-    public static async Task<IEnumerable<FileInfo>> DownloadAsync(string cosmetic)
+    public static async Task<IEnumerable<FileInfo>> DownloadAsync(UObject asset)
     {
         if (BundleManifest is null) return Enumerable.Empty<FileInfo>();
         if (!AppSettings.Current.BundleDownloaderEnabled) return Enumerable.Empty<FileInfo>();
-        if (!CosmeticBundleMappings.Sections.ContainsKey(cosmetic)) return Enumerable.Empty<FileInfo>();
-        var cosmeticSection = CosmeticBundleMappings.Sections[cosmetic];
-        var sectionBundles = cosmeticSection.Where(x => x.Name.Equals("Bundles")).Select(x => x.Value).ToList();
-        var bundles = BundleManifest?.FileManifests.Where(x => sectionBundles.Contains(x.InstallTags[0]));
+        if (!asset.TryGetValue(out string bundleName, "DynamicInstallBundleName")) return Enumerable.Empty<FileInfo>();
+
+        var bundles = BundleManifest.FileManifests.Where(x => x.InstallTags.Contains(bundleName + "_Optional") || x.InstallTags.Contains(bundleName)).ToArray();
         if (bundles is null) return Enumerable.Empty<FileInfo>();
 
         var downloadedBundles = new List<FileInfo>();
         foreach (var bundle in bundles)
         {
-            var targetFile = new FileInfo(Path.Combine(App.BundlesFolder.FullName, bundle.InstallTags[0], bundle.Name));
+            var targetFile = new FileInfo(Path.Combine(App.BundlesFolder.FullName, bundle.Name));
             if (targetFile.Exists) continue;
             Directory.CreateDirectory(targetFile.DirectoryName!);
 
-            Log.Information("Downloading file bundle: {0}", bundle.Name);
+            Log.Information("Downloading content bundle: {0}", bundle.Name);
             await File.WriteAllBytesAsync(targetFile.FullName, bundle.GetStream().ToBytes());
             downloadedBundles.Add(targetFile);
         }
@@ -84,9 +77,9 @@ public static class BundleDownloader
         return downloadedBundles;
     }
 
-    public static IEnumerable<FileInfo> Download(string cosmetic)
+    public static IEnumerable<FileInfo> Download(UObject asset)
     {
-        return DownloadAsync(cosmetic).GetAwaiter().GetResult();
+        return DownloadAsync(asset).GetAwaiter().GetResult();
     }
 
     private static async Task<string?> GetFortniteLiveBuildInfoAsync()

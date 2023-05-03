@@ -187,7 +187,7 @@ public partial class NewMainView
             AssetFlatView.Items.Filter = o =>
             {
                 var asset = (AssetItem) o;
-                return AppHelper.Filter(asset.Path, AppVM.MainVM.SearchFilter);
+                return AppHelper.Filter(asset.Path, AppVM.NewMainVM.SearchFilter);
             };
             AssetFlatView.Items.Refresh();
         }

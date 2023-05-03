@@ -7,10 +7,12 @@ using System.Windows;
 using System.Windows.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CUE4Parse.FileProvider;
 using CUE4Parse.UE4.Assets.Objects;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Bundles;
 using FortnitePorting.Exports.Types;
+using FortnitePorting.Services;
 using FortnitePorting.Services.Export;
 using FortnitePorting.Views;
 using FortnitePorting.Views.Controls;
@@ -135,15 +137,8 @@ public partial class NewMainViewModel : ObservableObject
         var exportDatas = new List<ExportDataBase>();
         foreach (var asset in exportAssets)
         {
-            await Task.Run(async () =>
-            {
-                var downloadedBundles = (await BundleDownloader.DownloadAsync(asset.Asset.Name)).ToList();
-                if (downloadedBundles.Count > 0)
-                {
-                    downloadedBundles.ForEach(AppVM.CUE4ParseVM.Provider.RegisterFile);
-                    await AppVM.CUE4ParseVM.Provider.MountAsync();
-                }
-            });
+            await BundleDownloader.DownloadAsync(asset.Asset);
+            AppVM.CUE4ParseVM.Provider.InitializeRawFiles(App.BundlesFolder);
 
             ExportDataBase? exportData = asset.Type switch
             {
@@ -230,9 +225,12 @@ public partial class NewMainViewModel : ObservableObject
             case "Sync_Unreal":
                 // TODO
                 break;
+            case "Update":
+                UpdateService.Start();
+                break;
         }
     }
-    
+
     [RelayCommand]
     public void Favorite()
     {

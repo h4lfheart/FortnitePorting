@@ -34,7 +34,7 @@ public partial class App
     public static readonly DirectoryInfo DataFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".data"));
     public static readonly DirectoryInfo MapFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Terrain"));
 
-    public static readonly DirectoryInfo BundlesFolder = new(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\FortniteGame\\Saved\\PersistentDownloadDir\\InstalledBundles");
+    public static readonly DirectoryInfo BundlesFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ContentBundles"));
     public static readonly DirectoryInfo LogsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs"));
 
     public static readonly DirectoryInfo CacheFolder = new(Path.Combine(DataFolder.FullName, "ManifestCache"));
@@ -64,6 +64,7 @@ public partial class App
         DataFolder.Create();
         LogsFolder.Create();
         MapFolder.Create();
+        BundlesFolder.Create();
 
         UpdateService.Initialize();
 
@@ -85,7 +86,6 @@ public partial class App
     protected override void OnExit(ExitEventArgs e)
     {
         base.OnExit(e);
-        AppVM.MainVM.CurrentMusicPlayer?.Dispose();
         AppVM.MeshViewer?.Close();
         FreeConsole();
         AppSettings.Save();

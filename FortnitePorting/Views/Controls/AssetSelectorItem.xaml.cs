@@ -227,20 +227,18 @@ public partial class AssetSelectorItem : INotifyPropertyChanged, IExportableAsse
     {
         Task.Run(async () =>
         {
-            var downloadedBundles = (await BundleDownloader.DownloadAsync(Asset.Name)).ToList();
+            var downloadedBundles = (await BundleDownloader.DownloadAsync(Asset)).ToList();
             if (downloadedBundles.Count <= 0)
             {
-                Log.Warning("No Bundles Downloaded for {0}", DisplayName);
+                Log.Warning("No New Bundles Downloaded for {0}", DisplayName);
                 return;
             }
 
-            downloadedBundles.ForEach(AppVM.CUE4ParseVM.Provider.RegisterFile);
-            await AppVM.CUE4ParseVM.Provider.MountAsync();
+            AppVM.CUE4ParseVM.Provider.InitializeRawFiles(App.BundlesFolder);
 
             // TODO FIND BETTER WAY TO GET FILES IN BUNDLE PAKS
             var miniProvider = new FortnitePortingFileProvider(isCaseInsensitive: true, versions: CUE4ParseViewModel.Version);
-            downloadedBundles.ForEach(miniProvider.RegisterFile);
-            await miniProvider.MountAsync();
+            miniProvider.InitializeRawFiles(App.BundlesFolder);
 
             foreach (var (name, _) in miniProvider.Files)
             {
@@ -249,7 +247,6 @@ public partial class AssetSelectorItem : INotifyPropertyChanged, IExportableAsse
 
                 ExportHelpers.Save(loadedTexture);
             }
-
 
             Log.Information("Finished Exporting HD Textures for {0}", DisplayName);
         });
@@ -261,12 +258,9 @@ public partial class AssetSelectorItem : INotifyPropertyChanged, IExportableAsse
     {
         Task.Run(async () =>
         {
-            var downloadedBundles = (await BundleDownloader.DownloadAsync(Asset.Name)).ToList();
-            if (downloadedBundles.Count > 0)
-            {
-                downloadedBundles.ForEach(AppVM.CUE4ParseVM.Provider.RegisterFile);
-                await AppVM.CUE4ParseVM.Provider.MountAsync();
-            }
+            await BundleDownloader.DownloadAsync(Asset);
+            AppVM.CUE4ParseVM.Provider.InitializeRawFiles(App.BundlesFolder);
+
 
             var allStyles = new List<FStructFallback>();
             var styles = Asset.GetOrDefault("ItemVariants", Array.Empty<UObject>());

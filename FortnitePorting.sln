@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CUE4Parse-Conversion", "CUE
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EpicManifestParser", "EpicManifestParser\src\EpicManifestParser\EpicManifestParser.csproj", "{3AF69B60-D226-4E21-A438-5918E8A25C7D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MercuryCommons", "MercuryCommons\MercuryCommons\MercuryCommons.csproj", "{F6F0EB01-2925-4955-B07D-5CE82B57E036}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{3AF69B60-D226-4E21-A438-5918E8A25C7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3AF69B60-D226-4E21-A438-5918E8A25C7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3AF69B60-D226-4E21-A438-5918E8A25C7D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F6F0EB01-2925-4955-B07D-5CE82B57E036}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F6F0EB01-2925-4955-B07D-5CE82B57E036}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F6F0EB01-2925-4955-B07D-5CE82B57E036}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F6F0EB01-2925-4955-B07D-5CE82B57E036}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
