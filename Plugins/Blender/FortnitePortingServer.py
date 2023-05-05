@@ -317,6 +317,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
     textures = material_data.get("Textures")
     scalars = material_data.get("Scalars")
     vectors = material_data.get("Vectors")
+    switches = material_data.get("Switches")
     
     if has_override_data:
         for override_data in override_datas:
@@ -756,6 +757,12 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
 
     for vector in vectors:
         vector_parameter(vector)
+        
+    for switch in switches:
+        if switch.get("Name") == "SwizzleRoughnessToGreen":
+            target_material.inputs["New Specular"].default_value = 1
+    
+    
         
     if len(hide_element_scalars) > 0:
         target_material.blend_method = "CLIP"
