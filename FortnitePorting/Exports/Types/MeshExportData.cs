@@ -230,7 +230,7 @@ public class MeshExportData : ExportDataBase
                             var exports = AppVM.CUE4ParseVM.Provider.LoadAllObjects(actor.GetPathName().SubstringBeforeLast("."));
                             var staticMeshComponents = exports.Where(x => x.ExportType == "StaticMeshComponent").ToArray();
                             if (!staticMeshComponents.Any())
-                                AppLog.Error($"StaticMesh could not be found in actor {actor.Name} for prop {data.Name}");
+                                Log.Error($"StaticMesh could not be found in actor {actor.Name} for prop {data.Name}");
                             foreach (var component in staticMeshComponents)
                             {
                                 var componentStaticMesh = component.GetOrDefault<UStaticMesh?>("StaticMesh");

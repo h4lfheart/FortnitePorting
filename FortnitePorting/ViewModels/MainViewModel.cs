@@ -115,7 +115,7 @@ public partial class MainViewModel : ObservableObject
             await AppVM.CUE4ParseVM.Initialize();
             loadTime.Stop();
 
-            AppLog.Information($"Loaded FortniteGame Archive in {Math.Round(loadTime.Elapsed.TotalSeconds, 3)}s");
+            Log.Information($"Loaded FortniteGame Archive in {Math.Round(loadTime.Elapsed.TotalSeconds, 3)}s");
             IsReady = true;
             
             AppVM.AssetHandlerVM = new AssetHandlerViewModel();
@@ -245,15 +245,6 @@ public partial class MainViewModel : ObservableObject
         var exportDatas = new List<ExportDataBase>();
         foreach (var asset in exportAssets)
         {
-            await Task.Run(async () =>
-            {
-                var downloadedBundles = (await BundleDownloader.DownloadAsync(asset.Asset)).ToList();
-                if (downloadedBundles.Count > 0)
-                {
-                    await AppVM.CUE4ParseVM.Provider.MountAsync();
-                }
-            });
-
             ExportDataBase? exportData = asset.Type switch
             {
                 EAssetType.Dance => await DanceExportData.Create(asset.Asset),

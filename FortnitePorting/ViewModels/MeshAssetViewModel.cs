@@ -91,7 +91,7 @@ public class MeshAssetViewModel : ObservableObject
         });
         
         loadTime.Stop();
-        AppLog.Information($"Loaded {AppVM.CUE4ParseVM.MeshEntries.Count} Assets in {Math.Round(loadTime.Elapsed.TotalSeconds, 3)}s");
+        Log.Information($"Loaded {AppVM.CUE4ParseVM.MeshEntries.Count} Assets in {Math.Round(loadTime.Elapsed.TotalSeconds, 3)}s");
         
     }
 }

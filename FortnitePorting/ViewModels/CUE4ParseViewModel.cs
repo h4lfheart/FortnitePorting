@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.Encryption.Aes;
-using CUE4Parse.FileProvider;
+using CUE4Parse.FileProvider.Objects;
+using CUE4Parse.FileProvider.Vfs;
 using CUE4Parse.MappingsProvider;
 using CUE4Parse.UE4.AssetRegistry;
 using CUE4Parse.UE4.AssetRegistry.Objects;
@@ -41,11 +43,6 @@ public class CUE4ParseViewModel : ObservableObject
     public readonly RarityCollection[] RarityData = new RarityCollection[8];
 
     public static readonly VersionContainer Version = new(EGame.GAME_UE5_2);
-
-    private static readonly List<DirectoryInfo> ExtraDirectories = new()
-    {
-        App.BundlesFolder
-    };
     
     private static readonly string[] MeshRemoveList = {
         "/Sounds",
@@ -102,7 +99,6 @@ public class CUE4ParseViewModel : ObservableObject
 
     public CUE4ParseViewModel(string directory, EInstallType installType)
     {
-        var narrowedDirectories = ExtraDirectories.Where(x => x.Exists).ToList();
         if (installType == EInstallType.Local && !Directory.Exists(directory))
         {
             AppVM.Warning("Installation Not Found", "Fortnite installation path does not exist or has not been set. Please go to settings to verify you've set the right path and restart. The program will not work properly on Local Installation mode if you do not set it.");
@@ -111,7 +107,7 @@ public class CUE4ParseViewModel : ObservableObject
 
         Provider = installType switch
         {
-            EInstallType.Local => new FortnitePortingFileProvider(new DirectoryInfo(directory), narrowedDirectories, SearchOption.AllDirectories, true, Version),
+            EInstallType.Local => new FortnitePortingFileProvider(new DirectoryInfo(directory), SearchOption.AllDirectories, true, Version),
             EInstallType.Live => new FortnitePortingFileProvider(true, Version),
         };
     }
@@ -125,21 +121,18 @@ public class CUE4ParseViewModel : ObservableObject
         await InitializeMappings();
         if (Provider.MappingsContainer is null)
         {
-            AppLog.Warning("Failed to load mappings, issues may occur");
+            Log.Warning("Failed to load mappings, issues may occur");
+        }
+        
+        var contentBuildsInitialized = await InitializeContentBuilds();
+        if (!contentBuildsInitialized)
+        {
+            Log.Warning("Failed to load content bundles, textures may be lower resolution than usual");
         }
 
         Provider.LoadLocalization(AppSettings.Current.Language);
         Provider.LoadVirtualPaths();
-
-        var bundleDownloaderSuccess = await BundleDownloader.Initialize();
-        if (bundleDownloaderSuccess)
-        {
-            Log.Information("Successfully Initialized Content Bundle Downloader");
-        }
-        else
-        {
-            AppLog.Warning("Failed to initialize Content Bundle Downloader, high resolution textures will not be downloaded");
-        }
+        Provider.LoadVirtualCache();
 
         var assetRegistries = Provider.Files.Where(x => x.Key.Contains("AssetRegistry", StringComparison.OrdinalIgnoreCase)).ToList();
         assetRegistries.MoveToEnd(x => x.Value.Name.Equals("AssetRegistry.bin")); // i want encrypted cosmetics to be at the top :)))
@@ -151,7 +144,7 @@ public class CUE4ParseViewModel : ObservableObject
 
         if (assetRegistries.Count == 0)
         {
-            AppLog.Warning("Failed to load asset registry, please ensure your game is up to date");
+            Log.Warning("Failed to load asset registry, please ensure your game is up to date");
         }
 
         var rarityData = await Provider.LoadObjectAsync("FortniteGame/Content/Balance/RarityData.RarityData");
@@ -202,7 +195,6 @@ public class CUE4ParseViewModel : ObservableObject
             case EInstallType.Local:
             {
                 Provider.InitializeLocal();
-                Provider.InitializeRawFiles(App.BundlesFolder);
                 break;
             }
             case EInstallType.Live:
@@ -218,12 +210,65 @@ public class CUE4ParseViewModel : ObservableObject
             }
         }
     }
+    
+    private async Task<bool> InitializeContentBuilds()
+    {
+        var buildInfoString = string.Empty;
+        switch (AppSettings.Current.InstallType)
+        {
+            case EInstallType.Local:
+                var buildInfoPath = Path.Combine(AppSettings.Current.ArchivePath, "..\\..\\..\\Cloud\\BuildInfo.ini");
+                buildInfoString = File.Exists(buildInfoPath) ? await File.ReadAllTextAsync(buildInfoPath) : await GetFortniteLiveBuildInfoAsync();
+                break;
+            case EInstallType.Live:
+                buildInfoString = await GetFortniteLiveBuildInfoAsync();
+                break;
+        }
+
+        if (string.IsNullOrEmpty(buildInfoString)) return false;
+
+        var buildInfoIni = BundleIniReader.Read(buildInfoString);
+        var label = buildInfoIni.Sections["Content"].First(x => x.Name.Equals("Label", StringComparison.OrdinalIgnoreCase)).Value;
+
+        var contentBuilds = await EndpointService.Epic.GetContentBuildsAsync(label: label);
+        if (contentBuilds is null) return false;
+
+        var contentManifest = contentBuilds.Items.Manifest;
+        var manifestUrl = contentManifest.Distribution + contentManifest.Path;
+
+        var manifest = await EndpointService.Epic.GetManifestAsync(url: manifestUrl);
+        var contentBuildFiles = new Dictionary<string, GameFile>();
+        foreach (var fileManifest in manifest.FileManifests)
+        {
+            if (Provider.Files.ContainsKey(fileManifest.Name)) continue;
+
+            var streamedFile = new StreamedGameFile(fileManifest.Name, fileManifest.GetStream(), Provider.Versions);
+            var path = streamedFile.Path.ToLowerInvariant();
+            contentBuildFiles[path] = streamedFile;
+        }
+
+        var fileDict = (FileProviderDictionary) Provider.Files;
+        fileDict.AddFiles(contentBuildFiles);
+
+        return true;
+    }
+    
+    private static async Task<string?> GetFortniteLiveBuildInfoAsync()
+    {
+        await AppVM.CUE4ParseVM.LoadFortniteLiveManifest();
+        var buildInfoFile = AppVM.CUE4ParseVM.FortniteLiveManifest?.FileManifests.FirstOrDefault(x => x.Name.Equals("Cloud/BuildInfo.ini", StringComparison.OrdinalIgnoreCase));
+        if (buildInfoFile is null) return null;
+
+        var stream = buildInfoFile.GetStream();
+        var bytes = stream.ToBytes();
+        return Encoding.UTF8.GetString(bytes);
+    }
 
     public async Task LoadFortniteLiveManifest(bool verbose = false)
     {
         if (FortniteLiveManifest is not null) return;
         var manifestInfo = await EndpointService.Epic.GetManifestInfoAsync();
-        if (verbose) AppLog.Information($"Loading Manifest for Fortnite {manifestInfo.BuildVersion}");
+        if (verbose) Log.Information($"Loading Manifest for Fortnite {manifestInfo.BuildVersion}");
 
         var manifestPath = Path.Combine(App.DataFolder.FullName, manifestInfo.FileName);
         byte[] manifestBytes;
@@ -255,7 +300,7 @@ public class CUE4ParseViewModel : ObservableObject
         var mounted = await Provider.SubmitKeyAsync(Globals.ZERO_GUID, new FAesKey(keyResponse.MainKey));
         if (mounted == 0)
         {
-            AppLog.Warning("Failed to load game files, please ensure your game is up to date");
+            Log.Warning("Failed to load game files, please ensure your game is up to date");
         }
 
         foreach (var dynamicKey in keyResponse.DynamicKeys)
@@ -312,7 +357,7 @@ public class CUE4ParseViewModel : ObservableObject
         }
         catch (Exception)
         {
-            AppLog.Warning($"Failed to load asset registry: {file.Path}");
+            Log.Warning($"Failed to load asset registry: {file.Path}");
         }
     }
 }

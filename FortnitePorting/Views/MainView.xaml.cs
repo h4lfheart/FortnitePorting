@@ -28,7 +28,6 @@ public partial class MainView
         AppVM.MainVM = new MainViewModel();
         DataContext = AppVM.MainVM;
 
-        AppLog.Logger = LoggerBox;
         Title = $"Fortnite Porting - v{Globals.VERSION}";
         Icon = new BitmapImage(new Uri(AppSettings.Current.LightMode ? "pack://application:,,,/FortnitePorting-Dark.ico" : "pack://application:,,,/FortnitePorting.ico", UriKind.RelativeOrAbsolute));
         YesWeDogs = this;

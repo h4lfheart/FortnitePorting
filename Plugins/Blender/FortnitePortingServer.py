@@ -760,7 +760,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
         
     for switch in switches:
         if switch.get("Name") == "SwizzleRoughnessToGreen":
-            target_material.inputs["New Specular"].default_value = 1
+            shader_node.inputs["New Specular"].default_value = 1
     
     
         

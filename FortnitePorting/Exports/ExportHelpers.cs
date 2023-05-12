@@ -25,6 +25,7 @@ using CUE4Parse.UE4.Objects.Engine.Animation;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using FortnitePorting.AppUtils;
+using FortnitePorting.Bundles;
 using FortnitePorting.Views.Extensions;
 using Newtonsoft.Json;
 using SixLabors.ImageSharp;
@@ -718,7 +719,8 @@ public static class ExportHelpers
                 {
                     case USkeletalMesh skeletalMesh:
                     {
-                        if (AllLodsExist(skeletalMesh)) return;
+                        path = GetExportPath(skeletalMesh, "psk", "_LOD0");
+                        if (AllLodsExist(skeletalMesh)) break;
 
                         var exporter = new MeshExporter(skeletalMesh, ExportOptions, false);
                         exporter.TryWriteToDir(App.AssetsFolder, out var label, out var savedFilePath);
@@ -727,7 +729,8 @@ public static class ExportHelpers
 
                     case UStaticMesh staticMesh:
                     {
-                        if (AllLodsExist(staticMesh)) return;
+                        path = GetExportPath(staticMesh, "pskx", "_LOD0");
+                        if (AllLodsExist(staticMesh)) break;
 
                         var exporter = new MeshExporter(staticMesh, StaticMeshExportOptions, false);
                         exporter.TryWriteToDir(App.AssetsFolder, out var label, out var savedFilePath);
@@ -744,10 +747,10 @@ public static class ExportHelpers
                         path = GetExportPath(obj, extension);
 
                         var shouldExport = ShouldExportTexture(path, texture.GetFirstMip());
-                        if (!shouldExport) return;
+                        if (!shouldExport) break;
 
                         using var image = texture.DecodeImageSharp();
-                        if (image is null) return;
+                        if (image is null) break;
 
                         switch (AppSettings.Current.ImageType)
                         {
@@ -765,7 +768,7 @@ public static class ExportHelpers
                     case UAnimSequence animation:
                     {
                         path = GetExportPath(obj, "psa", "_SEQ0");
-                        if (File.Exists(path)) return;
+                        if (File.Exists(path)) break;
 
                         var exporter = new AnimExporter(animation, ExportOptions);
                         exporter.TryWriteToDir(App.AssetsFolder, out var label, out var savedFilePath);
@@ -775,7 +778,7 @@ public static class ExportHelpers
                     case USkeleton skeleton:
                     {
                         path = GetExportPath(obj, "psk");
-                        if (File.Exists(path)) return;
+                        if (File.Exists(path)) break;
 
                         var exporter = new MeshExporter(skeleton, ExportOptions);
                         exporter.TryWriteToDir(App.AssetsFolder, out var label, out var savedFilePath);
@@ -783,11 +786,11 @@ public static class ExportHelpers
                     }
                 }
 
-                Log.Information("Exporting {ExportType}: {FileName}", obj.ExportType, obj.Name);
+                Log.Information("Exporting {ExportType}: {FileName} to {Path}", obj.ExportType, obj.Name, path);
             }
             catch (IOException e)
             {
-                Log.Warning("Failed to export {ExportType}: {FileName}", obj.ExportType, obj.Name);
+                Log.Warning("Failed to Export {ExportType}: {FileName}", obj.ExportType, obj.Name);
                 Log.Warning(e.Message);
             }
         }));

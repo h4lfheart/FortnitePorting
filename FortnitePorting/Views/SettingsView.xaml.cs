@@ -63,9 +63,6 @@ public partial class SettingsView
         {
             DiscordService.DeInitialize();
         }
-
-        ResourceLocator.SetColorScheme(Application.Current.Resources, AppSettings.Current.LightMode ? ResourceLocator.LightColorScheme : ResourceLocator.DarkColorScheme);
-        MainView.YesWeDogs.Icon = new BitmapImage(new Uri(AppSettings.Current.LightMode ? "pack://application:,,,/FortnitePorting-Dark.ico" : "pack://application:,,,/FortnitePorting.ico", UriKind.RelativeOrAbsolute));
     }
 
     private void OnClickInstallation(object sender, RoutedEventArgs e)

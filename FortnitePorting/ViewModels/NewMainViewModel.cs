@@ -137,9 +137,6 @@ public partial class NewMainViewModel : ObservableObject
         var exportDatas = new List<ExportDataBase>();
         foreach (var asset in exportAssets)
         {
-            await BundleDownloader.DownloadAsync(asset.Asset);
-            AppVM.CUE4ParseVM.Provider.InitializeRawFiles(App.BundlesFolder);
-
             ExportDataBase? exportData = asset.Type switch
             {
                 EAssetType.Dance => await DanceExportData.Create(asset.Asset),

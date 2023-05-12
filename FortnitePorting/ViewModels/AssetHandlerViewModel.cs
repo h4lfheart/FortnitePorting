@@ -296,7 +296,7 @@ public class AssetHandlerData
             }
             
             sw.Stop();
-            AppLog.Information($"Loaded {AssetType.GetDescription()} in {Math.Round(sw.Elapsed.TotalSeconds, 2)}s");
+            Log.Information($"Loaded {AssetType.GetDescription()} in {Math.Round(sw.Elapsed.TotalSeconds, 2)}s");
             return;
         }
 
@@ -379,7 +379,7 @@ public class AssetHandlerData
 
         });
         sw.Stop();
-        AppLog.Information($"Loaded {AssetType.GetDescription()} in {Math.Round(sw.Elapsed.TotalSeconds, 2)}s");
+        Log.Information($"Loaded {AssetType.GetDescription()} in {Math.Round(sw.Elapsed.TotalSeconds, 2)}s");
     }
 
     private async Task DoLoad(FAssetData data, EAssetType type, bool random = false, string? descriptionOverride = null)

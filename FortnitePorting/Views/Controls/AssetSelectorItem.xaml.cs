@@ -59,14 +59,12 @@ public partial class AssetSelectorItem : INotifyPropertyChanged, IExportableAsse
         DataContext = this;
         Type = type;
         AddFavoriteCommand = new RelayCommand(AddFavorite);
-        ExportHDCommand = new RelayCommand(ExportHD);
         ExportAssetsCommand = new RelayCommand(ExportAssets);
         ClipboardCommand = new RelayCommand<string>(CopyIconToClipboard);
 
         if (AppSettings.Current.LightMode)
         {
             FavoriteImage.Effect = new InvertEffect();
-            TexturesImage.Effect = new InvertEffect();
             ClipboardImage.Effect = new InvertEffect();
             ExportImage.Effect = new InvertEffect();
         }
@@ -220,53 +218,16 @@ public partial class AssetSelectorItem : INotifyPropertyChanged, IExportableAsse
         ToggleFavorite();
     }
 
-
-    public ICommand ExportHDCommand { get; private set; }
-
-    public void ExportHD()
-    {
-        Task.Run(async () =>
-        {
-            var downloadedBundles = (await BundleDownloader.DownloadAsync(Asset)).ToList();
-            if (downloadedBundles.Count <= 0)
-            {
-                Log.Warning("No New Bundles Downloaded for {0}", DisplayName);
-                return;
-            }
-
-            AppVM.CUE4ParseVM.Provider.InitializeRawFiles(App.BundlesFolder);
-
-            // TODO FIND BETTER WAY TO GET FILES IN BUNDLE PAKS
-            var miniProvider = new FortnitePortingFileProvider(isCaseInsensitive: true, versions: CUE4ParseViewModel.Version);
-            miniProvider.InitializeRawFiles(App.BundlesFolder);
-
-            foreach (var (name, _) in miniProvider.Files)
-            {
-                var loadedTexture = await AppVM.CUE4ParseVM.Provider.TryLoadObjectAsync<UTexture2D>(name.SubstringBeforeLast("."));
-                if (loadedTexture is null) continue;
-
-                ExportHelpers.Save(loadedTexture);
-            }
-
-            Log.Information("Finished Exporting HD Textures for {0}", DisplayName);
-        });
-    }
-
     public ICommand ExportAssetsCommand { get; private set; }
 
     public void ExportAssets()
     {
         Task.Run(async () =>
         {
-            await BundleDownloader.DownloadAsync(Asset);
-            AppVM.CUE4ParseVM.Provider.InitializeRawFiles(App.BundlesFolder);
-
-
             var allStyles = new List<FStructFallback>();
             var styles = Asset.GetOrDefault("ItemVariants", Array.Empty<UObject>());
             foreach (var style in styles)
             {
-                var channel = style.GetOrDefault("VariantChannelName", new FText("Unknown")).Text.ToLower().TitleCase();
                 var optionsName = style.ExportType switch
                 {
                     "FortCosmeticCharacterPartVariant" => "PartOptions",
