@@ -116,14 +116,17 @@ public class CUE4ParseViewModel : ObservableObject
     {
         if (Provider is null) return;
 
+        AppVM.LoadingVM.Update("Loading Archive");
         await InitializeProvider();
         await InitializeKeys();
+        AppVM.LoadingVM.Update("Loading Mappings");
         await InitializeMappings();
         if (Provider.MappingsContainer is null)
         {
             Log.Warning("Failed to load mappings, issues may occur");
         }
         
+        AppVM.LoadingVM.Update("Initializing Content Builds");
         var contentBuildsInitialized = await InitializeContentBuilds();
         if (!contentBuildsInitialized)
         {
@@ -133,6 +136,7 @@ public class CUE4ParseViewModel : ObservableObject
         Provider.LoadLocalization(AppSettings.Current.Language);
         Provider.LoadVirtualPaths();
 
+        AppVM.LoadingVM.Update("Loading Asset Registry");
         var assetRegistries = Provider.Files.Where(x => x.Key.Contains("AssetRegistry", StringComparison.OrdinalIgnoreCase)).ToList();
         assetRegistries.MoveToEnd(x => x.Value.Name.Equals("AssetRegistry.bin")); // i want encrypted cosmetics to be at the top :)))
         foreach (var (_, file) in assetRegistries)
@@ -146,6 +150,7 @@ public class CUE4ParseViewModel : ObservableObject
             Log.Warning("Failed to load asset registry, please ensure your game is up to date");
         }
 
+        AppVM.LoadingVM.Update("Loading Required Assets");
         var rarityData = await Provider.LoadObjectAsync("FortniteGame/Content/Balance/RarityData.RarityData");
         for (var i = 0; i < 8; i++)
         {
@@ -173,6 +178,7 @@ public class CUE4ParseViewModel : ObservableObject
         var allEntries = AppVM.CUE4ParseVM.Provider.Files.ToArray();
         var removeEntries = AppVM.CUE4ParseVM.AssetDataBuffers.Select(x => AppVM.CUE4ParseVM.Provider.FixPath(x.ObjectPath) + ".uasset").ToHashSet();
 
+        AppVM.LoadingVM.Update("Preloading Mesh Entries");
         MeshEntries = new HashSet<string>();
         for (var idx = 0; idx < allEntries.Length; idx++)
         {
@@ -183,8 +189,6 @@ public class CUE4ParseViewModel : ObservableObject
 
             MeshEntries.Add(entry.Value.Path);
         }
-        
-        
     }
 
     private async Task InitializeProvider()

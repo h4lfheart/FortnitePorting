@@ -68,7 +68,9 @@ public class MeshExportData : ExportDataBase
                     
                     if (data.LinkedSequence is null) // fallback
                     {
-                        var bodyPart = exportedParts.First(x => x.Part.Equals("Body"));
+                        var bodyPart = exportedParts.FirstOrDefault(x => x.Part.Equals("Body"));
+                        if (bodyPart is null) break;
+                        
                         var targetMontage = bodyPart.GenderPermitted switch
                         {
                             EFortCustomGender.Male => AppVM.CUE4ParseVM.MaleIdleAnimations.Random(),

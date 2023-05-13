@@ -1,11 +1,12 @@
 ﻿<Application x:Class="FortnitePorting.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             StartupUri="Views/NewMainView.xaml"
+             StartupUri="Views/LoadingView.xaml"
              DispatcherUnhandledException="OnUnhandledException">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/AdonisUI;component/colorschemes/dark.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/AdonisUI.ClassicTheme;component/resources.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Resources/Resources.xaml" />
             </ResourceDictionary.MergedDictionaries>

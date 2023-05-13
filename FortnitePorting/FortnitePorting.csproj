@@ -78,17 +78,13 @@
         <Resource Include="Resources\Locker.png" />
         <Resource Include="Resources\Filter.png" />
         <Resource Include="Resources\Sort.png" />
-        <None Remove="Resources\Toy.png" />
         <Resource Include="Resources\Toy.png" />
-        <None Remove="Resources\Discord.png" />
         <Resource Include="Resources\Discord.png" />
-        <None Remove="Resources\GitHub.png" />
         <Resource Include="Resources\GitHub.png" />
-        <None Remove="Resources\KoFi.png" />
         <Resource Include="Resources\KoFi.png" />
         <Resource Include="Resources\Pause.png" />
-        <None Remove="Resources\Arrow.png" />
         <Resource Include="Resources\Arrow.png" />
+        <Resource Include="FortnitePorting-Large.png" />
     </ItemGroup>
 
 </Project>

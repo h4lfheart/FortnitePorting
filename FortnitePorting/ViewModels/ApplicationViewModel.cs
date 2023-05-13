@@ -21,6 +21,7 @@ public class ApplicationViewModel : ObservableObject
     public HeightmapViewModel? HeightmapVM;
     public MeshAssetViewModel? MeshVM;
     public PluginUpdateViewModel? PluginUpdateVM;
+    public LoadingViewModel LoadingVM;
 
     public Viewer? MeshViewer;
 

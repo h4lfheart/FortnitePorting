@@ -18,8 +18,7 @@ public partial class StartupView
     private async void OnClickContinue(object sender, RoutedEventArgs e)
     {
         Close();
-        if (!AppVM.NewMainVM.IsReady)
-            await AppVM.NewMainVM.Initialize();
+        await AppVM.LoadingVM.Initialize();
     }
 
     private void OnClickInstallation(object sender, RoutedEventArgs e)

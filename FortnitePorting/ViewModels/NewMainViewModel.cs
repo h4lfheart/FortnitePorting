@@ -10,7 +10,6 @@ using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.FileProvider;
 using CUE4Parse.UE4.Assets.Objects;
 using FortnitePorting.AppUtils;
-using FortnitePorting.Bundles;
 using FortnitePorting.Exports.Types;
 using FortnitePorting.Services;
 using FortnitePorting.Services.Export;
@@ -22,10 +21,6 @@ namespace FortnitePorting.ViewModels;
 
 public partial class NewMainViewModel : ObservableObject
 {
-    [ObservableProperty] 
-    [NotifyPropertyChangedFor(nameof(LoadingVisibility))] 
-    private bool isReady;
-    
     // Asset Stuff
     [ObservableProperty] 
     [NotifyPropertyChangedFor(nameof(CurrentAssetImage))] 
@@ -43,7 +38,6 @@ public partial class NewMainViewModel : ObservableObject
     public ImageSource? CurrentAssetImage => CurrentAsset?.FullSource;
     public Visibility AssetPreviewVisibility => CurrentAsset is null ? Visibility.Hidden : Visibility.Visible;
     
-    public Visibility LoadingVisibility => IsReady ? Visibility.Collapsed : Visibility.Visible;
     public Visibility AssetTabVisibility => CurrentAssetType is (EAssetType.Gallery or EAssetType.Mesh) ? Visibility.Collapsed : Visibility.Visible;
     public Visibility GalleryTabVisibility => CurrentAssetType is EAssetType.Gallery ? Visibility.Visible : Visibility.Collapsed;
     public Visibility MeshTabVisibility => CurrentAssetType is EAssetType.Mesh ? Visibility.Visible : Visibility.Collapsed;
@@ -94,20 +88,7 @@ public partial class NewMainViewModel : ObservableObject
         get => AppSettings.Current.ShowConsole;
         set => AppSettings.Current.ShowConsole = value;
     }
-    
-    public async Task Initialize()
-    {
-        await Task.Run(async () =>
-        {
-            AppVM.CUE4ParseVM = new CUE4ParseViewModel(AppSettings.Current.ArchivePath, AppSettings.Current.InstallType);
-            await AppVM.CUE4ParseVM.Initialize();
-            IsReady = true;
-            
-            AppVM.AssetHandlerVM = new AssetHandlerViewModel();
-            await AppVM.AssetHandlerVM.Initialize();
-        });
-    }
-    
+
     private static readonly string[] AllowedMeshTypes =
     {
         "Skeleton",
