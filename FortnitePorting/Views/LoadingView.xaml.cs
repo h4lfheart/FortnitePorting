@@ -15,6 +15,9 @@ public partial class LoadingView
         InitializeComponent();
         AppVM.LoadingVM = new LoadingViewModel();
         DataContext = AppVM.LoadingVM;
+
+        AppVM.LoadingVM.TitleText = Globals.TITLE;
+        Title = Globals.TITLE;
     }
     
     private async void OnLoaded(object sender, RoutedEventArgs e)

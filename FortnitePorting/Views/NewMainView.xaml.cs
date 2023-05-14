@@ -42,7 +42,9 @@ public partial class NewMainView
         var clickedButton = (ToggleButton) sender;
         var assetType = (EAssetType) clickedButton.Tag;
         if (AppVM.NewMainVM.CurrentAssetType == assetType) return;
-        
+
+        AssetDisplayGrid.SelectionMode = assetType is (EAssetType.Prop or EAssetType.Gallery) ? SelectionMode.Extended : SelectionMode.Single;
+        AppVM.NewMainVM.CurrentAsset = null;
         AppVM.NewMainVM.CurrentAssetType = assetType;
         DiscordService.Update(assetType);
         
@@ -88,16 +90,27 @@ public partial class NewMainView
         if (sender is not ListBox listBox) return;
         if (listBox.SelectedItem is null) return;
         
+        AppVM.NewMainVM.ExtendedAssets.Clear();
+        AppVM.NewMainVM.Styles.Clear();
+        
         var selected = (AssetSelectorItem) listBox.SelectedItem;
         if (selected.IsRandom)
         {
             listBox.SelectedIndex = App.RandomGenerator.Next(0, listBox.Items.Count);
             return;
         }
-
-        AppVM.NewMainVM.Styles.Clear();
-        AppVM.NewMainVM.CurrentAsset = selected;
         
+        AppVM.NewMainVM.CurrentAsset = selected;
+
+        if (selected.Type is EAssetType.Prop)
+        {
+            AppVM.NewMainVM.OptionTabText = "SELECTED PROPS";
+            AppVM.NewMainVM.ExtendedAssets = listBox.SelectedItems.OfType<IExportableAsset>().ToList();
+            AppVM.NewMainVM.Styles.Add(new StyleSelector(AppVM.NewMainVM.ExtendedAssets));
+            return;
+        }
+
+        AppVM.NewMainVM.OptionTabText = "OPTIONS";
         var styles = selected.Asset.GetOrDefault("ItemVariants", Array.Empty<UObject>());
         foreach (var style in styles)
         {
@@ -286,7 +299,7 @@ public partial class NewMainView
         var selectedItem = (AssetItem) listBox.SelectedItem;
         if (selectedItem is null) return;
         
-        await AppVM.NewMainVM.SetupMeshSelection(selectedItem.PathWithoutExtension);
+        await AppVM.NewMainVM.SetupMeshSelection(listBox.SelectedItems.OfType<AssetItem>().ToArray());
     }
 
     private void AssetFlatView_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)

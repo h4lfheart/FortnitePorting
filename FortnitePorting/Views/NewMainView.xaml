@@ -294,10 +294,7 @@
                      <Grid Visibility="{Binding AssetPreviewVisibility}">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="1.25*" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="5*" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
+                            <RowDefinition Height="6*" />
                         </Grid.RowDefinitions>
 
                         <!-- PREVIEW IMAGE AND NAME -->
@@ -318,40 +315,121 @@
                                 <TextBlock Grid.Row="1" Text="{Binding CurrentAsset.Description}" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" />
                             </Grid>
                         </Grid>
+                        
+                        <ContentControl Grid.Row="1" Visibility="{Binding DefaultControlVisibility}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="5*" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                
+                                <!-- STYLES -->
+                                <Separator Grid.Row="0" Style="{StaticResource NamedSeparator}" Tag="{Binding OptionTabText}"/>
+                                <ScrollViewer Grid.Row="1" PreviewMouseWheel="FunkyScrollFix">
+                                    <ItemsControl ItemsSource="{Binding Styles}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                    </ItemsControl>
+                                </ScrollViewer>
 
-                        <!-- STYLES -->
-                        <Separator Grid.Row="1" Style="{StaticResource NamedSeparator}" Tag="OPTIONS"/>
-                        <ScrollViewer Grid.Row="2" PreviewMouseWheel="FunkyScrollFix">
-                            <ItemsControl ItemsSource="{Binding Styles}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <StackPanel />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                            </ItemsControl>
-                        </ScrollViewer>
+                                <!-- CONTROLS -->
+                                <Separator Grid.Row="2" Style="{StaticResource NamedSeparator}" Tag="CONTROLS"/>
+                                <Grid Grid.Row="3">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="0.5*" />
+                                        <RowDefinition Height="{adonisUi:Space 1}" />
+                                        <RowDefinition Height="0.5*" />
+                                    </Grid.RowDefinitions>
 
-                        <!-- CONTROLS -->
-                        <Separator Grid.Row="3" Style="{StaticResource NamedSeparator}" Tag="CONTROLS"/>
-                        <Grid Grid.Row="4">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="0.5*" />
-                                <RowDefinition Height="{adonisUi:Space 1}" />
-                                <RowDefinition Height="0.5*" />
-                            </Grid.RowDefinitions>
+                                    <Button Grid.Row="0" Command="{Binding ExportBlenderCommand}">
+                                        <Button.Content>
+                                            <controls:TextWithIcon Label="Send to Blender" ImageSource="/FortnitePorting;component/Resources/Blender.png" IconSize="16"/>
+                                        </Button.Content>
+                                    </Button>
+                                    <Button Grid.Row="2" Command="{Binding ExportUnrealCommand}">
+                                        <Button.Content>
+                                            <controls:TextWithIcon Label="Send to Unreal" ImageSource="/FortnitePorting;component/Resources/Unreal.png" IconSize="16"/>
+                                        </Button.Content>
+                                    </Button>
+                                </Grid>
+                            </Grid>
+                        </ContentControl>
+                        
+                        <ContentControl Grid.Row="1" Visibility="{Binding MeshControlVisibility}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="3*" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                
+                                <!-- SELECTED MESHES PREVIEW -->
+                                <Separator Grid.Row="0" Style="{StaticResource NamedSeparator}" Tag="{Binding OptionTabText}"/>
+                                <ScrollViewer Grid.Row="1" PreviewMouseWheel="FunkyScrollFix">
+                                    <ItemsControl ItemsSource="{Binding Styles}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                    </ItemsControl>
+                                </ScrollViewer>
 
-                            <Button Grid.Row="0" Command="{Binding ExportBlenderCommand}">
-                                <Button.Content>
-                                    <controls:TextWithIcon Label="Send to Blender" ImageSource="/FortnitePorting;component/Resources/Blender.png" IconSize="16"/>
-                                </Button.Content>
-                            </Button>
-                            <Button Grid.Row="2" Command="{Binding ExportUnrealCommand}">
-                                <Button.Content>
-                                    <controls:TextWithIcon Label="Send to Unreal" ImageSource="/FortnitePorting;component/Resources/Unreal.png" IconSize="16"/>
-                                </Button.Content>
-                            </Button>
-                        </Grid>
-                    </Grid>
+                                <!-- CONTROLS -->
+                                <Separator Grid.Row="2" Style="{StaticResource NamedSeparator}" Tag="CONTROLS"/>
+                                <Grid Grid.Row="3">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="0.5*" />
+                                        <RowDefinition Height="{adonisUi:Space 1}" />
+                                        <RowDefinition Height="0.5*" />
+                                        <RowDefinition Height="{adonisUi:Space 1}" />
+                                        <RowDefinition Height="0.5*" />
+                                    </Grid.RowDefinitions>
+
+                                    <Button Grid.Row="0" Command="{Binding PreviewMeshCommand}">
+                                        <Button.Content>
+                                            <controls:TextWithIcon Label="Preview Mesh" ImageSource="/FortnitePorting;component/Resources/MeshPreview.png" IconSize="16"/>
+                                        </Button.Content>
+                                    </Button>
+                                    <Button Grid.Row="2" Command="{Binding ExportBlenderCommand}">
+                                        <Button.Content>
+                                            <controls:TextWithIcon Label="Send to Blender" ImageSource="/FortnitePorting;component/Resources/Blender.png" IconSize="16"/>
+                                        </Button.Content>
+                                    </Button>
+                                    <Button Grid.Row="4" Command="{Binding ExportUnrealCommand}">
+                                        <Button.Content>
+                                            <controls:TextWithIcon Label="Send to Unreal" ImageSource="/FortnitePorting;component/Resources/Unreal.png" IconSize="16"/>
+                                        </Button.Content>
+                                    </Button>
+                                </Grid>
+                            </Grid>
+                        </ContentControl>
+                        
+                        <ContentControl Grid.Row="1" Visibility="{Binding MusicControlVisibility}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="7*" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                
+                                <!-- CONTROLS -->
+                                <Separator Grid.Row="2" Style="{StaticResource NamedSeparator}" Tag="CONTROLS"/>
+                                <Button Grid.Row="3" Command="{Binding AddToQueueCommand}">
+                                    <Button.Content>
+                                        <controls:TextWithIcon Label="Add to Queue" ImageSource="/FortnitePorting;component/Resources/Music.png" IconSize="16"/>
+                                    </Button.Content>
+                                </Button>
+                            </Grid>
+                        </ContentControl>
+                     </Grid>
                 </GroupBox>
                 
                 <GridSplitter Grid.Row="0" Grid.RowSpan="3" Grid.Column="1"/>

@@ -7,15 +7,18 @@ using System.Windows;
 using System.Windows.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using CUE4Parse.FileProvider;
 using CUE4Parse.UE4.Assets.Objects;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Exports.Types;
+using FortnitePorting.OpenGL;
 using FortnitePorting.Services;
 using FortnitePorting.Services.Export;
 using FortnitePorting.Views;
 using FortnitePorting.Views.Controls;
 using FortnitePorting.Views.Extensions;
+using OpenTK.Mathematics;
+using OpenTK.Windowing.Common;
+using OpenTK.Windowing.Desktop;
 
 namespace FortnitePorting.ViewModels;
 
@@ -23,9 +26,17 @@ public partial class NewMainViewModel : ObservableObject
 {
     // Asset Stuff
     [ObservableProperty] 
-    [NotifyPropertyChangedFor(nameof(CurrentAssetImage))] 
-    [NotifyPropertyChangedFor(nameof(AssetPreviewVisibility))] 
+    [NotifyPropertyChangedFor(nameof(CurrentAssetImage))]
+    [NotifyPropertyChangedFor(nameof(AssetPreviewVisibility))]
+    [NotifyPropertyChangedFor(nameof(DefaultControlVisibility))]
+    [NotifyPropertyChangedFor(nameof(MeshControlVisibility))]
+    [NotifyPropertyChangedFor(nameof(MusicControlVisibility))]
     private IExportableAsset? currentAsset;
+    
+    [ObservableProperty] 
+    [NotifyPropertyChangedFor(nameof(CurrentAssetImage))] 
+    [NotifyPropertyChangedFor(nameof(AssetPreviewVisibility))]
+    private List<IExportableAsset> extendedAssets = new();
     
     [ObservableProperty] 
     [NotifyPropertyChangedFor(nameof(IsValidFilterer))]
@@ -41,6 +52,10 @@ public partial class NewMainViewModel : ObservableObject
     public Visibility AssetTabVisibility => CurrentAssetType is (EAssetType.Gallery or EAssetType.Mesh) ? Visibility.Collapsed : Visibility.Visible;
     public Visibility GalleryTabVisibility => CurrentAssetType is EAssetType.Gallery ? Visibility.Visible : Visibility.Collapsed;
     public Visibility MeshTabVisibility => CurrentAssetType is EAssetType.Mesh ? Visibility.Visible : Visibility.Collapsed;
+    
+    public Visibility DefaultControlVisibility => CurrentAsset?.Type is not (EAssetType.Mesh or EAssetType.Dance or EAssetType.Music) ? Visibility.Visible : Visibility.Collapsed;
+    public Visibility MeshControlVisibility => CurrentAsset?.Type is EAssetType.Mesh ? Visibility.Visible : Visibility.Collapsed;
+    public Visibility MusicControlVisibility => CurrentAsset?.Type is EAssetType.Music ? Visibility.Visible : Visibility.Collapsed;
     
     // Assets
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> outfits = new();
@@ -63,6 +78,7 @@ public partial class NewMainViewModel : ObservableObject
     [ObservableProperty] private ObservableCollection<StyleSelector> styles = new();
     
     [ObservableProperty] private bool isPaused;
+    [ObservableProperty] private string optionTabText;
     
     // Sort
     [ObservableProperty] private ESortType sortType;
@@ -98,8 +114,38 @@ public partial class NewMainViewModel : ObservableObject
 
     public async Task SetupMeshSelection(string path)
     {
+        ExtendedAssets.Clear();
+        Styles.Clear();
+        OptionTabText = "SELECTED MESHES";
+        
         var meshObject = await AppVM.CUE4ParseVM.Provider.LoadObjectAsync(path);
         CurrentAsset = AllowedMeshTypes.Contains(meshObject.ExportType) ? new MeshAssetItem(meshObject) : null;
+    }
+    
+    public async Task SetupMeshSelection(AssetItem[] extendedItems)
+    {
+        ExtendedAssets.Clear();
+        Styles.Clear();
+        OptionTabText = "SELECTED MESHES";
+        
+        var index = 0;
+        var validMeshSelected = false;
+        foreach (var item in extendedItems)
+        {
+            var meshObject = await AppVM.CUE4ParseVM.Provider.LoadObjectAsync(item.PathWithoutExtension);
+            if (AllowedMeshTypes.Contains(meshObject.ExportType))
+            {
+                var meshItem = new MeshAssetItem(meshObject);
+                if (index == 0) CurrentAsset = meshItem;
+                ExtendedAssets.Add(meshItem);
+                index++;
+                validMeshSelected = true;
+            }
+        }
+        
+        Styles.Add(new StyleSelector(ExtendedAssets));
+      
+        if (!validMeshSelected) CurrentAsset = null;
     }
     
     public FStructFallback[] GetSelectedStyles()
@@ -110,7 +156,11 @@ public partial class NewMainViewModel : ObservableObject
     private async Task<List<ExportDataBase>> CreateExportDatasAsync()
     {
         var exportAssets = new List<IExportableAsset>();
-        if (CurrentAsset is not null)
+        if (ExtendedAssets.Count > 0)
+        {
+            exportAssets.AddRange(ExtendedAssets);
+        }
+        else if (CurrentAsset is not null)
         {
             exportAssets.Add(CurrentAsset);
         }
@@ -240,5 +290,30 @@ public partial class NewMainViewModel : ObservableObject
         {
             FilterLabel = "None";
         }
+    }
+    
+    [RelayCommand]
+    private void PreviewMesh()
+    {
+        AppVM.MeshViewer ??= new Viewer(GameWindowSettings.Default, new NativeWindowSettings
+        {
+            Size = new Vector2i(960, 540),
+            NumberOfSamples = 8,
+            WindowBorder = WindowBorder.Resizable,
+            Profile = ContextProfile.Core,
+            APIVersion = new Version(4, 6),
+            Title = "Model Viewer",
+            StartVisible = true,
+            Flags = ContextFlags.ForwardCompatible
+        });
+
+        if (CurrentAssetType != EAssetType.Mesh)
+        {
+            AppVM.AssetHandlerVM?.Handlers[CurrentAssetType].PauseState.Pause();
+            AppVM.MeshViewer.Closing += _ => AppVM.AssetHandlerVM?.Handlers[CurrentAssetType].PauseState.Unpause();
+        }
+        
+        AppVM.MeshViewer.LoadMeshAssets(ExtendedAssets);
+        AppVM.MeshViewer.Run();
     }
 }

@@ -10,6 +10,9 @@ namespace FortnitePorting.ViewModels;
 public partial class LoadingViewModel : ObservableObject
 {
     [ObservableProperty]
+    private string titleText = "Fortnite Porting";
+    
+    [ObservableProperty]
     private string loadingText = "Starting";
 
     public void Update(string text)
