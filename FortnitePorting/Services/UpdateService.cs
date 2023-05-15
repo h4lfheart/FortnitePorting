@@ -67,7 +67,7 @@ public static class UpdateService
             IsSoundEnabled = false
         };
 
-        MessageBox.Show(MainView.YesWeDogs, messageBox);
+        MessageBox.Show(messageBox);
         if (messageBox.Result == MessageBoxResult.No) return;
 
         if (AutoUpdater.DownloadUpdate(args))

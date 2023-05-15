@@ -1,0 +1,22 @@
+﻿<UserControl x:Class="FortnitePorting.Views.Controls.MusicQueueItem"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+                            
+        <Image Grid.Column="0" Source="{Binding MusicImageSource}" Width="88" Height="88"/>
+        <Grid Grid.Column="1" Margin="{adonisUi:Space 1, 0}" HorizontalAlignment="Left" VerticalAlignment="Center">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" Text="{Binding DisplayName}" FontSize="24"/>
+            <TextBlock Grid.Row="1" Text="{Binding Description}" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" />
+        </Grid>
+    </Grid>
+</UserControl>

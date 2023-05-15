@@ -21,15 +21,16 @@ public static class EndpointService
     public static readonly EpicEndpoint Epic = new(_client);
     public static readonly FortnitePortingEndpoint FortnitePorting = new(_client);
 
-    public static void DownloadFile(string url, string destination)
+    public static FileInfo DownloadFile(string url, string destination)
     {
-        DownloadFileAsync(url, destination).GetAwaiter().GetResult();
+        return DownloadFileAsync(url, destination).GetAwaiter().GetResult();
     }
 
-    public static async Task DownloadFileAsync(string url, string destination)
+    public static async Task<FileInfo> DownloadFileAsync(string url, string destination)
     {
         var request = new RestRequest(url);
         var data = await _client.DownloadDataAsync(request);
         if (data is not null) await File.WriteAllBytesAsync(destination, data);
+        return new FileInfo(destination);
     }
 }

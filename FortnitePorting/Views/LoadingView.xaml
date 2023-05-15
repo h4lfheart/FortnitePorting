@@ -14,7 +14,7 @@
                 
         <Image Grid.Row="1" Source="/FortnitePorting-Large.png" RenderOptions.BitmapScalingMode="HighQuality" Width="150" Height="150"/>
         <StackPanel Grid.Row="2">
-            <TextBlock Text="FortnitePorting" VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center" FontSize="20"/>
+            <TextBlock Text="{Binding TitleText}" VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center" FontSize="20"/>
             <TextBlock Text="{Binding LoadingText}" VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center" Foreground="#AAAAAA"/>
         </StackPanel>
     </Grid>

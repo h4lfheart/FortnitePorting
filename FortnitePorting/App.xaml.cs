@@ -1,14 +1,17 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using AdonisUI;
 using AdonisUI.Controls;
 using CUE4Parse.UE4.Assets;
+using CUE4Parse.Utils;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Exports;
 using FortnitePorting.Services;
+using Ionic.Zip;
 using Serilog.Sinks.SystemConsole.Themes;
 using MessageBox = AdonisUI.Controls.MessageBox;
 using MessageBoxImage = AdonisUI.Controls.MessageBoxImage;
@@ -38,6 +41,7 @@ public partial class App
     public static readonly DirectoryInfo LogsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs"));
 
     public static readonly DirectoryInfo CacheFolder = new(Path.Combine(DataFolder.FullName, "ManifestCache"));
+    public static readonly DirectoryInfo VGMStreamFolder = new(Path.Combine(DataFolder.FullName, "VGMStream"));
 
     public static readonly Random RandomGenerator = new();
 
@@ -55,6 +59,7 @@ public partial class App
 
         AppSettings.DirectoryPath.Create();
         AppSettings.Load();
+        
 
         ToggleConsole(AppSettings.Current.ShowConsole);
 
@@ -65,6 +70,7 @@ public partial class App
         LogsFolder.Create();
         MapFolder.Create();
         BundlesFolder.Create();
+        VGMStreamFolder.Create();
 
         UpdateService.Initialize();
 

@@ -316,4 +316,11 @@ public partial class NewMainViewModel : ObservableObject
         AppVM.MeshViewer.LoadMeshAssets(ExtendedAssets);
         AppVM.MeshViewer.Run();
     }
+    
+    [RelayCommand]
+    private void AddToQueue()
+    {
+        AppHelper.OpenWindow<MusicView>();
+        AppVM.MusicVM.Add(new MusicQueueItem(currentAsset));
+    }
 }

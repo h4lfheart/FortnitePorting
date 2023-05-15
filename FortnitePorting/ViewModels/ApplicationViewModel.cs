@@ -4,6 +4,7 @@ using AdonisUI.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FortnitePorting.AppUtils;
 using FortnitePorting.OpenGL;
+using FortnitePorting.Views;
 using MessageBox = AdonisUI.Controls.MessageBox;
 using MessageBoxImage = AdonisUI.Controls.MessageBoxImage;
 
@@ -11,7 +12,6 @@ namespace FortnitePorting.ViewModels;
 
 public class ApplicationViewModel : ObservableObject
 {
-    public MainViewModel MainVM;
     public NewMainViewModel NewMainVM;
     public StartupViewModel StartupVM;
     public SettingsViewModel SettingsVM;
@@ -22,6 +22,7 @@ public class ApplicationViewModel : ObservableObject
     public MeshAssetViewModel? MeshVM;
     public PluginUpdateViewModel? PluginUpdateVM;
     public LoadingViewModel LoadingVM;
+    public MusicViewModel MusicVM;
 
     public Viewer? MeshViewer;
 
