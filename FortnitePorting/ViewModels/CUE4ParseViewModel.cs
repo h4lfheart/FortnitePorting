@@ -115,7 +115,7 @@ public class CUE4ParseViewModel : ObservableObject
     public async Task Initialize()
     {
         if (Provider is null) return;
-
+        
         AppVM.LoadingVM.Update("Loading Archive");
         await InitializeProvider();
         await InitializeKeys();
@@ -271,6 +271,7 @@ public class CUE4ParseViewModel : ObservableObject
     {
         if (FortniteLiveManifest is not null) return;
         var manifestInfo = await EndpointService.Epic.GetManifestInfoAsync();
+        AppVM.LoadingVM.Update($"Loading Fortnite Live v{manifestInfo.Version.ToString()}");
         if (verbose) Log.Information($"Loading Manifest for Fortnite {manifestInfo.BuildVersion}");
 
         var manifestPath = Path.Combine(App.DataFolder.FullName, manifestInfo.FileName);

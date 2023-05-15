@@ -8,13 +8,13 @@
     <Grid Margin="{adonisUi:Space 1}">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="4*"/>
         </Grid.RowDefinitions>
         
-        <Grid Grid.Row="0">
+        <ContentControl Grid.Row="0" Content="{Binding ActiveTrack}"/>
+        <Grid Grid.Row="1">
             <StackPanel>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
                     <Image Source="/Resources/loop.png" Opacity="0.5" Width="32" Height="32" RenderOptions.BitmapScalingMode="HighQuality" Cursor="Hand" MouseDown="OnClickLoop"/>
@@ -38,12 +38,9 @@
             </StackPanel>
         </Grid>
         
-        <Separator Grid.Row="1" Style="{StaticResource NamedSeparator}" Tag="CURRENTLY PLAYING"/>
-        <ContentControl Grid.Row="2" Content="{Binding ActiveTrack}"/>
-        
-        <Separator Grid.Row="3" Style="{StaticResource NamedSeparator}" Tag="QUEUE"/>
-        <ScrollViewer Grid.Row="4">
-            <ItemsControl ItemsSource="{Binding Queue}" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"/>
+        <Separator Grid.Row="2" Style="{StaticResource NamedSeparator}" Tag="QUEUE" Visibility="{Binding QueueVisibility}"/>
+        <ScrollViewer Grid.Row="3" Visibility="{Binding QueueVisibility}">
+            <ListBox ItemsSource="{Binding Queue}" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"/>
         </ScrollViewer>
     </Grid>
 </adonisCtrls:AdonisWindow>
