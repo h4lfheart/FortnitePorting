@@ -17,7 +17,6 @@ public partial class MusicViewModel : ObservableObject
     private MusicQueueItem? activeTrack;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(QueueVisibility))]
     private ObservableCollection<MusicQueueItem> queue = new();
     
     public void Add(MusicQueueItem queueItem)
@@ -27,6 +26,8 @@ public partial class MusicViewModel : ObservableObject
         {
             ContinueQueue();
         }
+        
+        OnPropertyChanged(nameof(QueueVisibility));
     }
 
     public void ContinueQueue()
@@ -43,6 +44,7 @@ public partial class MusicViewModel : ObservableObject
         Queue.RemoveAt(0);
         ActiveTrack = nextQueueItem;
         ActiveTrack.Initialize();
+        OnPropertyChanged(nameof(QueueVisibility));
     }
 
     public void Pause()
