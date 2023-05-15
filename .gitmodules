@@ -1,9 +1,12 @@
 [submodule "EpicManifestParser"]
-	path = EpicManifestParser
+	path = Dependencies/EpicManifestParser
 	url = https://github.com/FModel/EpicManifestParser
 [submodule "CUE4Parse"]
-	path = CUE4Parse
+	path = Dependencies/CUE4Parse
 	url = https://github.com/FabianFG/CUE4Parse
 [submodule "Plugins/Unreal/FortnitePortingServerUnreal"]
 	path = Plugins/Unreal/FortnitePortingServerUnreal
 	url = https://github.com/halfuwu/FortnitePortingServerUnreal
+[submodule "MercuryCommons"]
+	path = Dependencies/MercuryCommons
+	url = https://github.com/FortniteCentral/MercuryCommons

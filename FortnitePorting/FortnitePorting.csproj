@@ -59,8 +59,6 @@
         <Resource Include="Resources\Clear.png" />
         <Resource Include="Resources\FavoriteAdd.png" />
         <Resource Include="Resources\Music.png" />
-        <Resource Include="Resources\Play.png" />
-        <Resource Include="Resources\Stop.png" />
         <Resource Include="FortnitePorting-Dark.png" />
         <Resource Include="Resources\Shaders\nx.png" />
         <Resource Include="Resources\Shaders\ny.png" />
@@ -82,9 +80,12 @@
         <Resource Include="Resources\Discord.png" />
         <Resource Include="Resources\GitHub.png" />
         <Resource Include="Resources\KoFi.png" />
-        <Resource Include="Resources\Pause.png" />
         <Resource Include="Resources\Arrow.png" />
         <Resource Include="FortnitePorting-Large.png" />
+        <Resource Include="Resources\loop.png" />
+        <Resource Include="Resources\resume.png" />
+        <Resource Include="Resources\skip.png" />
+        <Resource Include="Resources\pause.png" />
     </ItemGroup>
 
 </Project>
