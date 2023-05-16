@@ -89,10 +89,7 @@ public partial class NewMainView
     {
         if (sender is not ListBox listBox) return;
         if (listBox.SelectedItem is null) return;
-        
-        AppVM.NewMainVM.ExtendedAssets.Clear();
-        AppVM.NewMainVM.Styles.Clear();
-        
+
         var selected = (AssetSelectorItem) listBox.SelectedItem;
         if (selected.IsRandom)
         {
@@ -101,6 +98,8 @@ public partial class NewMainView
         }
         
         AppVM.NewMainVM.CurrentAsset = selected;
+        AppVM.NewMainVM.ExtendedAssets.Clear();
+        AppVM.NewMainVM.Styles.Clear();
 
         if (selected.Type is EAssetType.Prop)
         {

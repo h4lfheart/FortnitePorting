@@ -78,6 +78,7 @@ public partial class NewMainViewModel : ObservableObject
     [ObservableProperty] private SuppressibleObservableCollection<AssetItem> assets = new();
     
     [ObservableProperty] private ObservableCollection<StyleSelector> styles = new();
+    [ObservableProperty] private ObservableCollection<StyleSelector> meshPreviews = new();
     
     [ObservableProperty] private bool isPaused;
     [ObservableProperty] private string optionTabText;
@@ -145,7 +146,7 @@ public partial class NewMainViewModel : ObservableObject
             }
         }
         
-        Styles.Add(new StyleSelector(ExtendedAssets));
+        MeshPreviews.Add(new StyleSelector(ExtendedAssets));
       
         if (!validMeshSelected) CurrentAsset = null;
     }

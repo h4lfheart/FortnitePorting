@@ -372,7 +372,7 @@
                                 <!-- SELECTED MESHES PREVIEW -->
                                 <Separator Grid.Row="0" Style="{StaticResource NamedSeparator}" Tag="{Binding OptionTabText}"/>
                                 <ScrollViewer Grid.Row="1" PreviewMouseWheel="FunkyScrollFix">
-                                    <ItemsControl ItemsSource="{Binding Styles}">
+                                    <ItemsControl ItemsSource="{Binding MeshPreviews}">
                                         <ItemsControl.ItemsPanel>
                                             <ItemsPanelTemplate>
                                                 <StackPanel />

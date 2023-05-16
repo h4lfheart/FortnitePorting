@@ -15,6 +15,8 @@ public partial class StyleSelector
     public string ChannelName;
     public Orientation Orientation { get; set; }
 
+    public bool HasItems => Options.HasItems;
+
     public StyleSelector(string channelName, FStructFallback[] options, SKBitmap fallbackBitmap)
     {
         InitializeComponent();
