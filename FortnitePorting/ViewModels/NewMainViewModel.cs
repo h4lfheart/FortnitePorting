@@ -118,7 +118,7 @@ public partial class NewMainViewModel : ObservableObject
     public async Task SetupMeshSelection(string path)
     {
         ExtendedAssets.Clear();
-        Styles.Clear();
+        MeshPreviews.Clear();
         OptionTabText = "SELECTED MESHES";
         
         var meshObject = await AppVM.CUE4ParseVM.Provider.LoadObjectAsync(path);
@@ -128,7 +128,7 @@ public partial class NewMainViewModel : ObservableObject
     public async Task SetupMeshSelection(AssetItem[] extendedItems)
     {
         ExtendedAssets.Clear();
-        Styles.Clear();
+        MeshPreviews.Clear();
         OptionTabText = "SELECTED MESHES";
         
         var index = 0;
