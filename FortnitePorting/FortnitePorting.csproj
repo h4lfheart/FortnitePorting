@@ -89,6 +89,10 @@
         <Resource Include="Resources\pause.png" />
         <None Remove="Resources\Random.png" />
         <Resource Include="Resources\Random.png" />
+        <None Remove="Resources\Misc.png" />
+        <Resource Include="Resources\Misc.png" />
+        <None Remove="Resources\Wrap.png" />
+        <Resource Include="Resources\Wrap.png" />
     </ItemGroup>
 
 </Project>
