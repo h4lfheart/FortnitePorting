@@ -33,6 +33,7 @@ public partial class NewMainViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(DefaultControlVisibility))]
     [NotifyPropertyChangedFor(nameof(MeshControlVisibility))]
     [NotifyPropertyChangedFor(nameof(MusicControlVisibility))]
+    [NotifyPropertyChangedFor(nameof(DanceControlVisibility))]
     private IExportableAsset? currentAsset;
     
     [ObservableProperty] 
@@ -46,6 +47,9 @@ public partial class NewMainViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(GalleryTabVisibility))]
     [NotifyPropertyChangedFor(nameof(MeshTabVisibility))]
     private EAssetType currentAssetType = EAssetType.Outfit;
+
+    [ObservableProperty] 
+    private EAnimGender animationGender = EAnimGender.Male;
     
     public bool IsValidFilterer => CurrentAssetType is not (EAssetType.Gallery or EAssetType.Mesh);
     public ImageSource? CurrentAssetImage => CurrentAsset?.FullSource;
@@ -58,6 +62,7 @@ public partial class NewMainViewModel : ObservableObject
     public Visibility DefaultControlVisibility => CurrentAsset?.Type is not (EAssetType.Mesh or EAssetType.Dance or EAssetType.Music) ? Visibility.Visible : Visibility.Collapsed;
     public Visibility MeshControlVisibility => CurrentAsset?.Type is EAssetType.Mesh ? Visibility.Visible : Visibility.Collapsed;
     public Visibility MusicControlVisibility => CurrentAsset?.Type is EAssetType.Music ? Visibility.Visible : Visibility.Collapsed;
+    public Visibility DanceControlVisibility => CurrentAsset?.Type is EAssetType.Dance ? Visibility.Visible : Visibility.Collapsed;
     
     // Assets
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> outfits = new();
@@ -197,7 +202,9 @@ public partial class NewMainViewModel : ObservableObject
         var exportDatas = await CreateExportDatasAsync();
         if (exportDatas.Count == 0) return;
 
-        BlenderService.Client.Send(exportDatas, AppSettings.Current.BlenderExportSettings);
+        var settings = AppSettings.Current.BlenderExportSettings;
+        settings.AnimGender = AnimationGender;
+        BlenderService.Client.Send(exportDatas, settings);
     }
 
     [RelayCommand]
