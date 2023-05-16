@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.Encryption.Aes;
 using CUE4Parse.FileProvider.Objects;
@@ -24,6 +26,7 @@ using EpicManifestParser.Objects;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Bundles;
 using FortnitePorting.Services;
+using FortnitePorting.Views.Controls;
 using FortnitePorting.Views.Extensions;
 
 namespace FortnitePorting.ViewModels;
@@ -32,6 +35,7 @@ public class CUE4ParseViewModel : ObservableObject
 {
     public Manifest? FortniteLiveManifest;
     public UTexture2D? PlaceholderTexture;
+    public MusicQueueItem? PlaceholderMusicPack;
     public List<UAnimMontage> MaleIdleAnimations = new();
     public List<UAnimMontage> FemaleIdleAnimations = new();
     public HashSet<string> MeshEntries;
@@ -175,10 +179,20 @@ public class CUE4ParseViewModel : ObservableObject
             MaleIdleAnimations.Add(montage);
         }
         
+        var musicPackObject = await Provider.TryLoadObjectAsync("FortniteGame/Content/Athena/Items/Cosmetics/MusicPacks/MusicPack_000_Default");
+        if (musicPackObject is not null)
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                var musicPackAsset = new AssetSelectorItem(musicPackObject, musicPackObject.Get<UTexture2D>("SmallPreviewImage"), EAssetType.Music);
+                PlaceholderMusicPack = new MusicQueueItem(musicPackAsset.Asset, musicPackAsset.FullSource, "No Music Pack Playing", "Add a Music Pack to the queue to begin listening!");
+            }, DispatcherPriority.Background);
+        }
+        
+        AppVM.LoadingVM.Update("Preloading Mesh Entries");
         var allEntries = AppVM.CUE4ParseVM.Provider.Files.ToArray();
         var removeEntries = AppVM.CUE4ParseVM.AssetDataBuffers.Select(x => AppVM.CUE4ParseVM.Provider.FixPath(x.ObjectPath) + ".uasset").ToHashSet();
-
-        AppVM.LoadingVM.Update("Preloading Mesh Entries");
+        
         MeshEntries = new HashSet<string>();
         for (var idx = 0; idx < allEntries.Length; idx++)
         {
@@ -358,6 +372,7 @@ public class CUE4ParseViewModel : ObservableObject
         {
             var assetRegistry = new FAssetRegistryState(assetArchive);
             AssetDataBuffers.AddRange(assetRegistry.PreallocatedAssetDataBuffers);
+            Log.Information("Loaded Asset Registry: {0}", file.Path);
         }
         catch (Exception)
         {

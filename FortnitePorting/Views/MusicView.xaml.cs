@@ -29,13 +29,20 @@ public partial class MusicView
     private void OnTick(object? sender, EventArgs e)
     {
         var info = AppVM.MusicVM.ActiveTrack?.GetInfo();
-        if (info is null) return;
-
+        if (info is null)
+        {
+            CurrentTime.Text = "0:00";
+            TotalTime.Text = "0:00";
+            Slider.Value = 0;
+            Slider.IsEnabled = false;
+            return;
+        }
+        
         CurrentTime.Text = info.CurrentPosition.ToString(@"mm\:ss");
         TotalTime.Text = info.Length.ToString(@"mm\:ss");
+        Slider.IsEnabled = true;
         Slider.Maximum = info.Length.TotalSeconds;
-        if (!IsSliderDragging)
-            Slider.Value = info.CurrentPosition.TotalSeconds;
+        if (!IsSliderDragging) Slider.Value = info.CurrentPosition.TotalSeconds;
 
         if (info.CurrentPosition >= info.Length)
         {
@@ -104,5 +111,19 @@ public partial class MusicView
         
         var image = (Image) sender;
         image.Opacity = isLooping ? 1.0 : 0.5;
+    }
+
+    private void OnClickRandom(object sender, MouseButtonEventArgs e)
+    {
+        var isRandom = !AppVM.MusicVM.IsRandom;
+        AppVM.MusicVM.IsRandom = isRandom;
+        
+        var image = (Image) sender;
+        image.Opacity = isRandom ? 1.0 : 0.5;
+
+        if (isRandom && AppVM.MusicVM.ActiveTrack is null)
+        {
+            AppVM.MusicVM.ContinueQueue();
+        }
     }
 }

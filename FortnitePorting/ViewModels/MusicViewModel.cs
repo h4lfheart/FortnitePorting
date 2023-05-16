@@ -3,18 +3,27 @@ using System.Linq;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FortnitePorting.Views.Controls;
+using FortnitePorting.Views.Extensions;
 
 namespace FortnitePorting.ViewModels;
 
 public partial class MusicViewModel : ObservableObject
 {
     public Visibility QueueVisibility => Queue.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+    public Visibility FallbackVisibility => ActiveTrack is null ? Visibility.Visible : Visibility.Collapsed;
     
-    [ObservableProperty] 
+    [ObservableProperty]
     private bool isPaused;
     
-    [ObservableProperty] 
+    [ObservableProperty]
+    private bool isRandom;
+    
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(FallbackVisibility))]
     private MusicQueueItem? activeTrack;
+    
+    [ObservableProperty]
+    private MusicQueueItem? fallbackTrack = AppVM.CUE4ParseVM.PlaceholderMusicPack;
 
     [ObservableProperty]
     private ObservableCollection<MusicQueueItem> queue = new();
@@ -33,17 +42,25 @@ public partial class MusicViewModel : ObservableObject
     public void ContinueQueue()
     {
         ActiveTrack?.Dispose();
-        
-        var nextQueueItem = Queue.FirstOrDefault();
-        if (nextQueueItem is null)
+
+        MusicQueueItem? nextQueueItem = null;
+        if (Queue.Count == 0)
         {
-            ActiveTrack = null;
-            return;
+            if (IsRandom)
+            {
+                nextQueueItem = new MusicQueueItem(AppVM.AssetHandlerVM.Handlers[EAssetType.Music].TargetCollection!.Random());
+            }
+            else
+            {
+                ActiveTrack = null;
+                return;
+            }
         }
         
-        Queue.RemoveAt(0);
+        nextQueueItem ??= IsRandom ? Queue.Random() : Queue.First();
         ActiveTrack = nextQueueItem;
         ActiveTrack.Initialize();
+        Queue.Remove(nextQueueItem);
         OnPropertyChanged(nameof(QueueVisibility));
     }
 

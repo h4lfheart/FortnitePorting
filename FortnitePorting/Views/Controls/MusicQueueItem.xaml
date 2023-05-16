@@ -16,7 +16,7 @@
             </Grid.RowDefinitions>
 
             <TextBlock Grid.Row="0" Text="{Binding DisplayName}" FontSize="24"/>
-            <TextBlock Grid.Row="1" Text="{Binding Description}" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" />
+            <TextBlock Grid.Row="1" Text="{Binding Description}" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" Foreground="#AAAAAA"/>
         </Grid>
     </Grid>
 </UserControl>

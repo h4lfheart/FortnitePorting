@@ -17,6 +17,7 @@
         <PackageReference Include="CSCore" Version="1.2.1.2" />
         <PackageReference Include="CSCore.Ogg" Version="1.0.0" />
         <PackageReference Include="DiscordRichPresence" Version="1.0.175" />
+        <PackageReference Include="gong-wpf-dragdrop" Version="3.2.1" />
         <PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
         <PackageReference Include="OpenTK" Version="5.0.0-pre.8" />
         <PackageReference Include="RestSharp" Version="108.0.3-alpha.0.5" />
@@ -86,6 +87,8 @@
         <Resource Include="Resources\resume.png" />
         <Resource Include="Resources\skip.png" />
         <Resource Include="Resources\pause.png" />
+        <None Remove="Resources\Random.png" />
+        <Resource Include="Resources\Random.png" />
     </ItemGroup>
 
 </Project>

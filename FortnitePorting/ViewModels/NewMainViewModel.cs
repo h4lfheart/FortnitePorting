@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -9,6 +10,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.UE4.Assets.Objects;
 using FortnitePorting.AppUtils;
+using FortnitePorting.Exports;
 using FortnitePorting.Exports.Types;
 using FortnitePorting.OpenGL;
 using FortnitePorting.Services;
@@ -309,8 +311,8 @@ public partial class NewMainViewModel : ObservableObject
 
         if (CurrentAssetType != EAssetType.Mesh)
         {
-            AppVM.AssetHandlerVM?.Handlers[CurrentAssetType].PauseState.Pause();
-            AppVM.MeshViewer.Closing += _ => AppVM.AssetHandlerVM?.Handlers[CurrentAssetType].PauseState.Unpause();
+            AppVM.AssetHandlerVM.Handlers[CurrentAssetType].PauseState.Pause();
+            AppVM.MeshViewer.Closing += _ => AppVM.AssetHandlerVM.Handlers[CurrentAssetType].PauseState.Unpause();
         }
         
         AppVM.MeshViewer.LoadMeshAssets(ExtendedAssets);
@@ -322,5 +324,13 @@ public partial class NewMainViewModel : ObservableObject
     {
         AppHelper.OpenWindow<MusicView>();
         AppVM.MusicVM.Add(new MusicQueueItem(currentAsset));
+    }
+    
+    [RelayCommand]
+    private void ExportMusic()
+    {
+        var soundWave = MusicQueueItem.GetProperSoundWave(CurrentAsset.Asset);
+        ExportHelpers.SaveSoundWave(soundWave, out _, out var path);
+        AppHelper.Launch(Path.GetDirectoryName(path));
     }
 }

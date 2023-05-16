@@ -312,7 +312,7 @@
                                 </Grid.RowDefinitions>
 
                                 <TextBlock Grid.Row="0" Text="{Binding CurrentAsset.DisplayName}" FontSize="24"/>
-                                <TextBlock Grid.Row="1" Text="{Binding CurrentAsset.Description}" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" />
+                                <TextBlock Grid.Row="1" Text="{Binding CurrentAsset.Description}" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" Foreground="#AAAAAA"/>
                             </Grid>
                         </Grid>
                         
@@ -415,18 +415,31 @@
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="7*" />
+                                    <RowDefinition Height="5*" />
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="*" />
                                 </Grid.RowDefinitions>
                                 
                                 <!-- CONTROLS -->
                                 <Separator Grid.Row="2" Style="{StaticResource NamedSeparator}" Tag="CONTROLS"/>
-                                <Button Grid.Row="3" Command="{Binding AddToQueueCommand}">
-                                    <Button.Content>
-                                        <controls:TextWithIcon Label="Add to Queue" ImageSource="/FortnitePorting;component/Resources/Music.png" IconSize="16"/>
-                                    </Button.Content>
-                                </Button>
+                                <Grid Grid.Row="3">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="0.5*" />
+                                        <RowDefinition Height="{adonisUi:Space 1}" />
+                                        <RowDefinition Height="0.5*" />
+                                    </Grid.RowDefinitions>
+
+                                    <Button Grid.Row="0" Command="{Binding ExportMusicCommand}">
+                                        <Button.Content>
+                                            <controls:TextWithIcon Label="Export Music Pack" ImageSource="/FortnitePorting;component/Resources/Export.png" IconSize="16"/>
+                                        </Button.Content>
+                                    </Button>
+                                    <Button Grid.Row="2" Command="{Binding AddToQueueCommand}">
+                                        <Button.Content>
+                                            <controls:TextWithIcon Label="Add to Queue" ImageSource="/FortnitePorting;component/Resources/Music.png" IconSize="16"/>
+                                        </Button.Content>
+                                    </Button>
+                                </Grid>
                             </Grid>
                         </ContentControl>
                      </Grid>

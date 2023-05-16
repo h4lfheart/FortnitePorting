@@ -4,6 +4,7 @@
              xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
              xmlns:adonisCtrls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
              xmlns:adonisExt="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"
+             xmlns:gong="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.WPF.DragDrop"
              Title="Music Player" Width="400" MaxHeight="800" SizeToContent="Height" ResizeMode="CanMinimize" Closed="OnClosed">
     <Grid Margin="{adonisUi:Space 1}">
         <Grid.RowDefinitions>
@@ -14,12 +15,14 @@
         </Grid.RowDefinitions>
         
         <ContentControl Grid.Row="0" Content="{Binding ActiveTrack}"/>
+        <ContentControl Grid.Row="0" Content="{Binding FallbackTrack}" Visibility="{Binding FallbackVisibility}"/>
         <Grid Grid.Row="1">
             <StackPanel>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
-                    <Image Source="/Resources/loop.png" Opacity="0.5" Width="32" Height="32" RenderOptions.BitmapScalingMode="HighQuality" Cursor="Hand" MouseDown="OnClickLoop"/>
-                    <Image Source="/Resources/pause.png" Width="32" Height="32" RenderOptions.BitmapScalingMode="HighQuality" Cursor="Hand" MouseDown="OnClickPause" />
-                    <Image Source="/Resources/skip.png" Width="32" Height="32"  RenderOptions.BitmapScalingMode="HighQuality" Cursor="Hand" MouseDown="OnClickSkip"/>
+                    <Image Source="/Resources/Random.png" ToolTip="Random" Opacity="0.5" Width="32" Height="32"  RenderOptions.BitmapScalingMode="HighQuality" Cursor="Hand" MouseDown="OnClickRandom"/>
+                    <Image Source="/Resources/loop.png" ToolTip="Loop" Opacity="0.5" Width="32" Height="32" RenderOptions.BitmapScalingMode="HighQuality" Cursor="Hand" MouseDown="OnClickLoop"/>
+                    <Image Source="/Resources/pause.png" ToolTip="Pause or Resume" Width="32" Height="32" RenderOptions.BitmapScalingMode="HighQuality" Cursor="Hand" MouseDown="OnClickPause" />
+                    <Image Source="/Resources/skip.png" ToolTip="Skip" Width="32" Height="32"  RenderOptions.BitmapScalingMode="HighQuality" Cursor="Hand" MouseDown="OnClickSkip"/>
                 </StackPanel>
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -40,7 +43,7 @@
         
         <Separator Grid.Row="2" Style="{StaticResource NamedSeparator}" Tag="QUEUE" Visibility="{Binding QueueVisibility}"/>
         <ScrollViewer Grid.Row="3" Visibility="{Binding QueueVisibility}">
-            <ListBox ItemsSource="{Binding Queue}" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"/>
+            <ListBox ItemsSource="{Binding Queue}" gong:DragDrop.IsDragSource="True" gong:DragDrop.IsDropTarget="True" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"/>
         </ScrollViewer>
     </Grid>
 </adonisCtrls:AdonisWindow>

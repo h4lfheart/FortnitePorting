@@ -40,15 +40,30 @@ public partial class MusicQueueItem : IDisposable
         Description = musicPackItem.Description;
         Asset = musicPackItem.Asset;
     }
+    
+    public MusicQueueItem(UObject asset, ImageSource source, string displayName, string description)
+    {
+        InitializeComponent();
+        DataContext = this;
+
+        MusicImageSource = source;
+        DisplayName = displayName;
+        Description = description;
+        Asset = asset;
+    }
+
+    public static USoundWave GetProperSoundWave(UObject asset)
+    {
+        var musicCue = asset.Get<USoundCue>("FrontEndLobbyMusic");
+        var sounds = ExportHelpers.HandleAudioTree(musicCue.FirstNode!.Load<USoundNode>()!);
+        var properSound = sounds.MaxBy(sound => sound.Time);
+        return properSound?.SoundWave;
+    }
 
     public void Initialize()
     {
-        var musicCue = Asset.Get<USoundCue>("FrontEndLobbyMusic");
-        var sounds = ExportHelpers.HandleAudioTree(musicCue.FirstNode!.Load<USoundNode>()!);
-        var properSound = sounds.MaxBy(sound => sound.Time);
-        if (properSound?.SoundWave is null) return;
-        
-        properSound.SoundWave.Decode(true, out var format, out var data);
+        var properSoundWave = GetProperSoundWave(Asset);
+        properSoundWave.Decode(true, out var format, out var data);
         if (data is null) return;
         
         switch (format.ToLower())

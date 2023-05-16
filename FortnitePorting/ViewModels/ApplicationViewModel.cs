@@ -16,7 +16,7 @@ public class ApplicationViewModel : ObservableObject
     public StartupViewModel StartupVM;
     public SettingsViewModel SettingsVM;
     public CUE4ParseViewModel CUE4ParseVM;
-    public AssetHandlerViewModel? AssetHandlerVM;
+    public AssetHandlerViewModel AssetHandlerVM;
     public ImportSettingsViewModel? ImportSettingsVM;
     public HeightmapViewModel? HeightmapVM;
     public MeshAssetViewModel? MeshVM;
