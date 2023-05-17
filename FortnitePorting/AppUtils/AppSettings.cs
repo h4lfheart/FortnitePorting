@@ -72,4 +72,6 @@ public partial class AppSettings : ObservableObject
     [ObservableProperty] private float assetSize = 1.0f;
 
     [ObservableProperty] private Dictionary<string, List<string>> weaponMappings = new();
+    
+    [ObservableProperty] private DateTime lastBroadcastTime;
 }

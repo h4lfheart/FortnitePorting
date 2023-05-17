@@ -2,9 +2,12 @@
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using AdonisUI.Controls;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Services;
 using FortnitePorting.ViewModels;
+using MessageBox = AdonisUI.Controls.MessageBox;
+using MessageBoxImage = AdonisUI.Controls.MessageBoxImage;
 
 namespace FortnitePorting.Views;
 
@@ -29,6 +32,22 @@ public partial class LoadingView
         }
 
         AppVM.LoadingVM.Update("Checking For Updates");
+        var broadcast = await EndpointService.FortnitePorting.GetBroadcastAsync();
+        if (broadcast?.PushedTime > AppSettings.Current.LastBroadcastTime && broadcast.IsActive)
+        {
+            AppSettings.Current.LastBroadcastTime = broadcast.PushedTime;
+            
+            var messageBox = new MessageBoxModel
+            {
+                Caption = broadcast.Title,
+                Text = broadcast.Contents,
+                Icon = MessageBoxImage.Exclamation,
+                Buttons = new []{ MessageBoxButtons.Ok() }
+            };
+
+            MessageBox.Show(messageBox);
+        }
+        
         var (updateAvailable, updateVersion) = UpdateService.GetStats();
         if (DateTime.Now >= AppSettings.Current.LastUpdateAskTime.AddDays(1) || updateVersion > AppSettings.Current.LastKnownUpdateVersion)
         {
