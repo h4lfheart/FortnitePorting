@@ -7,7 +7,7 @@ namespace FortnitePorting;
 public static class Globals
 {
     public const string TITLE = $"Fortnite Porting v{VERSION}";
-    public const string VERSION = "1.2.3";
+    public const string VERSION = "1.3.0";
 
     public const string DISCORD_URL = "https://discord.gg/DZ5YFXdBA6";
     public const string GITHUB_URL = "https://github.com/halfuwu/FortnitePorting";
