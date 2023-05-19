@@ -76,14 +76,14 @@ public class Viewer : GameWindow
         }
     }
 
-    public void LoadAsset(UStaticMesh staticMesh)
+    public void LoadAsset(UStaticMesh staticMesh, Matrix4? transform = null)
     {
-        Renderer.AddDynamic(new UnrealMesh(staticMesh));
+        Renderer.AddDynamic(new UnrealMesh(staticMesh, transform ?? Matrix4.Zero));
     }
     
-    public void LoadAsset(USkeletalMesh skeletalMesh)
+    public void LoadAsset(USkeletalMesh skeletalMesh, Matrix4? transform = null)
     {
-        Renderer.AddDynamic(new UnrealMesh(skeletalMesh));
+        Renderer.AddDynamic(new UnrealMesh(skeletalMesh, transform ?? Matrix4.Zero));
     }
 
     protected override void OnKeyDown(KeyboardKeyEventArgs e)

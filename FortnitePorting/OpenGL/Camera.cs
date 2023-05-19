@@ -15,7 +15,7 @@ public class Camera
     public float Speed = 2.5f;
     public float Sensitivity = 0.5f;
     public float Near = 0.01f;
-    public float Far = 100f;
+    public float Far = 500f;
     public float AspectRatio = 16f / 9f;
     
     public Camera()

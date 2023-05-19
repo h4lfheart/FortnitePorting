@@ -9,6 +9,7 @@ using System.Windows.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.UE4.Assets.Objects;
+using CUE4Parse.UE4.Objects.Engine;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Exports;
 using FortnitePorting.Exports.Types;
@@ -140,7 +141,13 @@ public partial class NewMainViewModel : ObservableObject
         var validMeshSelected = false;
         foreach (var item in extendedItems)
         {
-            var meshObject = await AppVM.CUE4ParseVM.Provider.LoadObjectAsync(item.PathWithoutExtension);
+            var meshObject = await AppVM.CUE4ParseVM.Provider.TryLoadObjectAsync(item.PathWithoutExtension);
+            meshObject ??= await Task.Run(() =>
+            {
+                return AppVM.CUE4ParseVM.Provider.LoadAllObjects(item.PathWithoutExtension).FirstOrDefault(x => AllowedMeshTypes.Contains(x.ExportType));
+            });
+            if (meshObject is null) continue;
+            
             if (AllowedMeshTypes.Contains(meshObject.ExportType))
             {
                 var meshItem = new MeshAssetItem(meshObject);
