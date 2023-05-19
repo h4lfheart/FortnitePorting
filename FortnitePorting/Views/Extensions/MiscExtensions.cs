@@ -53,9 +53,11 @@ public static class MiscExtensions
         return list.Count > 1 ? string.Join(", ", list.Take(list.Count - 1)) + joiner + list.Last() : list.First().ToString();
     }
 
-    public static T Random<T>(this IEnumerable<T> enumerable)
+    public static T? Random<T>(this IEnumerable<T> enumerable)
     {
         var list = enumerable.ToList();
+        if (list.Count == 0) return default;
+        
         var index = App.RandomGenerator.Next(0, list.Count);
         return list[index];
     }

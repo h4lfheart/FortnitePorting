@@ -316,13 +316,27 @@ public static class ExportHelpers
             foreach (var parameter in editorData.StaticParameters.StaticSwitchParameters)
             {
                 if (parameter.ParameterInfo is null) continue;
-                switches.Add(new SwitchParameter(parameter.ParameterInfo.Name.Text, parameter.Value));
+                switches.Add(new SwitchParameter(parameter.Name, parameter.Value));
             }
             
             foreach (var parameter in editorData.StaticParameters.StaticComponentMaskParameters)
             {
                 if (parameter.ParameterInfo is null) continue;
-                componentMasks.Add(new ComponentMaskParameter(parameter.ParameterInfo.Name.Text, parameter.ToLinearColor()));
+                componentMasks.Add(new ComponentMaskParameter(parameter.Name, parameter.ToLinearColor()));
+            }
+        }
+        else if (materialInstance.StaticParameters is not null)
+        {
+            foreach (var parameter in materialInstance.StaticParameters.StaticSwitchParameters)
+            {
+                if (parameter.ParameterInfo is null) continue;
+                switches.Add(new SwitchParameter(parameter.Name, parameter.Value));
+            }
+            
+            foreach (var parameter in materialInstance.StaticParameters.StaticComponentMaskParameters)
+            {
+                if (parameter.ParameterInfo is null) continue;
+                componentMasks.Add(new ComponentMaskParameter(parameter.Name, parameter.ToLinearColor()));
             }
         }
         
@@ -330,21 +344,21 @@ public static class ExportHelpers
         foreach (var parameter in materialInstance.TextureParameterValues)
         {
             if (!parameter.ParameterValue.TryLoad(out UTexture2D texture)) continue;
-            textures.Add(new TextureParameter(parameter.ParameterInfo.Name.Text, texture.GetPathName(), texture.SRGB, texture.CompressionSettings));
+            textures.Add(new TextureParameter(parameter.Name, texture.GetPathName(), texture.SRGB, texture.CompressionSettings));
             Save(texture);
         }
 
         var scalars = new List<ScalarParameter>();
         foreach (var parameter in materialInstance.ScalarParameterValues)
         {
-            scalars.Add(new ScalarParameter(parameter.ParameterInfo.Name.Text, parameter.ParameterValue));
+            scalars.Add(new ScalarParameter(parameter.Name, parameter.ParameterValue));
         }
 
         var vectors = new List<VectorParameter>();
         foreach (var parameter in materialInstance.VectorParameterValues)
         {
             if (parameter.ParameterValue is null) continue;
-            vectors.Add(new VectorParameter(parameter.ParameterInfo.Name.Text, parameter.ParameterValue.Value));
+            vectors.Add(new VectorParameter(parameter.Name, parameter.ParameterValue.Value));
         }
 
         if (materialInstance.Parent is UMaterialInstanceConstant materialParent)
