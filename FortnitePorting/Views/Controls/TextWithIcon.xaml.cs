@@ -52,15 +52,11 @@ public partial class TextWithIcon
     public TextWithIcon()
     {
         InitializeComponent();
-        if (AppSettings.Current.LightMode)
-            IconImage.Effect = new InvertEffect();
     }
 
     public TextWithIcon(bool isProp = false)
     {
         InitializeComponent();
-        if (AppSettings.Current.LightMode && !isProp)
-            IconImage.Effect = new InvertEffect();
     }
 }
 

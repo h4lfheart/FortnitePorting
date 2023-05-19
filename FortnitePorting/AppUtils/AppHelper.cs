@@ -51,6 +51,20 @@ public static class AppHelper
         selectedPath = string.Empty;
         return false;
     }
+    
+    public static bool TrySelectFile(out string selectedPath)
+    {
+        var fileExplorer = new VistaOpenFileDialog();
+
+        if (fileExplorer.ShowDialog() == true)
+        {
+            selectedPath = fileExplorer.FileName;
+            return true;
+        }
+
+        selectedPath = string.Empty;
+        return false;
+    }
 
     public static bool Filter(string input, string filter)
     {

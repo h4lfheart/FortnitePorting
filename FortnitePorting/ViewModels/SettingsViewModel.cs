@@ -9,7 +9,9 @@ public class SettingsViewModel : ObservableObject
     public bool IsRestartRequired = false;
     public bool ChangedUpdateChannel = false;
 
-    public bool IsLocalInstall => InstallType == EInstallType.Local;
+    public bool IsLiveInstall => InstallType == EInstallType.Live;
+    public bool IsCustomInstall => InstallType == EInstallType.Custom;
+    public bool CanChangePath => InstallType != EInstallType.Live;
 
     public EInstallType InstallType
     {
@@ -18,7 +20,9 @@ public class SettingsViewModel : ObservableObject
         {
             AppSettings.Current.InstallType = value;
             OnPropertyChanged();
-            OnPropertyChanged(nameof(IsLocalInstall));
+            OnPropertyChanged(nameof(IsLiveInstall));
+            OnPropertyChanged(nameof(IsCustomInstall));
+            OnPropertyChanged(nameof(CanChangePath));
             IsRestartRequired = true;
         }
     }
@@ -29,6 +33,39 @@ public class SettingsViewModel : ObservableObject
         set
         {
             AppSettings.Current.ArchivePath = value;
+            OnPropertyChanged();
+            IsRestartRequired = true;
+        }
+    }
+    
+    public EGame GameVersion
+    {
+        get => AppSettings.Current.GameVersion;
+        set
+        {
+            AppSettings.Current.GameVersion = value;
+            OnPropertyChanged();
+            IsRestartRequired = true;
+        }
+    }
+    
+    public string MappingsPath
+    {
+        get => AppSettings.Current.MappingsPath;
+        set
+        {
+            AppSettings.Current.MappingsPath = value;
+            OnPropertyChanged();
+            IsRestartRequired = true;
+        }
+    }
+    
+    public string AESKey
+    {
+        get => AppSettings.Current.AesKey;
+        set
+        {
+            AppSettings.Current.AesKey = value;
             OnPropertyChanged();
             IsRestartRequired = true;
         }
@@ -65,16 +102,6 @@ public class SettingsViewModel : ObservableObject
         }
     }
 
-    public bool BundleDownloaderEnabled
-    {
-        get => AppSettings.Current.BundleDownloaderEnabled;
-        set
-        {
-            AppSettings.Current.BundleDownloaderEnabled = value;
-            OnPropertyChanged();
-        }
-    }
-
     public EUpdateMode UpdateMode
     {
         get => AppSettings.Current.UpdateMode;
@@ -84,18 +111,6 @@ public class SettingsViewModel : ObservableObject
             OnPropertyChanged();
             ChangedUpdateChannel = true;
             OnPropertyChanged(nameof(ChangedUpdateChannel));
-        }
-    }
-
-    public bool LightMode
-    {
-        get => AppSettings.Current.LightMode;
-        set
-        {
-            AppSettings.Current.LightMode = value;
-            OnPropertyChanged();
-            IsRestartRequired = true;
-            OnPropertyChanged(nameof(IsRestartRequired));
         }
     }
 

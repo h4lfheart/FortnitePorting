@@ -80,4 +80,12 @@ public partial class SettingsView
             AppVM.SettingsVM.AssetsPath = path;
         }
     }
+
+    private void OnClickMappings(object sender, RoutedEventArgs e)
+    {
+        if (AppHelper.TrySelectFile(out var path))
+        {
+            AppVM.SettingsVM.MappingsPath = path;
+        }
+    }
 }

@@ -1619,7 +1619,8 @@ anime_mat_names = [
     "M_Dojo_MASTER",
     "M_MASTER_RetroCartoon",
     "M_LexaFace_PROTO",
-    "M_Lima_Bean_Master"
+    "M_Lima_Bean_Master",
+    "M_AnimeShading_Pencil_PARENT"
 ]
 
 def clear_face_pose(active_skeleton):

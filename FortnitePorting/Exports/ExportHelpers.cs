@@ -89,7 +89,7 @@ public static class ExportHelpers
                         if (skinColorPair is not null) skinColor = skinColorPair.Get<FLinearColor>("ColorValue");
                     }
 
-                    if (additionalData.TryGetValue(out UAnimBlueprintGeneratedClass animBlueprint, "AnimClass"))
+                    if (additionalData.TryGetValue(out UAnimBlueprintGeneratedClass animBlueprint, "AnimClass") && animBlueprint.ClassDefaultObject is not null)
                     {
                         var classDefaultObject = animBlueprint.ClassDefaultObject.Load();
                         if (classDefaultObject?.TryGetValue(out FStructFallback poseAssetNode, "AnimGraphNode_PoseBlendNode") ?? false)

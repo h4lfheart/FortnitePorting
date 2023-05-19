@@ -4,11 +4,14 @@ namespace FortnitePorting;
 
 public enum EInstallType
 {
-    [Description("Local Installation (Faster)")]
+    [Description("Local Installation")]
     Local,
 
-    [Description("Fortnite Live (Slower)")]
-    Live
+    [Description("Fortnite Live")]
+    Live,
+    
+    [Description("Custom")]
+    Custom
 }
 
 public enum EAssetType

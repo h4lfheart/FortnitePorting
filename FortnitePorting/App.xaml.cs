@@ -60,11 +60,8 @@ public partial class App
         AppSettings.DirectoryPath.Create();
         AppSettings.Load();
         
-
         ToggleConsole(AppSettings.Current.ShowConsole);
-
-        ResourceLocator.SetColorScheme(Current.Resources, AppSettings.Current.LightMode ? ResourceLocator.LightColorScheme : ResourceLocator.DarkColorScheme);
-
+        
         AssetsFolder.Create();
         DataFolder.Create();
         LogsFolder.Create();

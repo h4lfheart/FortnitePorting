@@ -103,7 +103,7 @@ public class CUE4ParseViewModel : ObservableObject
 
     public CUE4ParseViewModel(string directory, EInstallType installType)
     {
-        if (installType == EInstallType.Local && !Directory.Exists(directory))
+        if (installType is EInstallType.Local or EInstallType.Custom && !Directory.Exists(directory))
         {
             AppVM.Warning("Installation Not Found", "Fortnite installation path does not exist or has not been set. Please go to settings to verify you've set the right path and restart. The program will not work properly on Local Installation mode if you do not set it.");
             return;
@@ -113,6 +113,7 @@ public class CUE4ParseViewModel : ObservableObject
         {
             EInstallType.Local => new FortnitePortingFileProvider(new DirectoryInfo(directory), SearchOption.AllDirectories, true, Version),
             EInstallType.Live => new FortnitePortingFileProvider(true, Version),
+            EInstallType.Custom => new FortnitePortingFileProvider(new DirectoryInfo(directory), SearchOption.AllDirectories, true, new VersionContainer(AppSettings.Current.GameVersion))
         };
     }
 
@@ -129,7 +130,7 @@ public class CUE4ParseViewModel : ObservableObject
         {
             Log.Warning("Failed to load mappings, issues may occur");
         }
-        
+
         AppVM.LoadingVM.Update("Initializing Content Builds");
         var contentBuildsInitialized = await InitializeContentBuilds();
         if (!contentBuildsInitialized)
@@ -214,6 +215,11 @@ public class CUE4ParseViewModel : ObservableObject
                 Provider.InitializeLocal();
                 break;
             }
+            case EInstallType.Custom:
+            {
+                Provider.InitializeLocal();
+                break;
+            }
             case EInstallType.Live:
             {
                 await LoadFortniteLiveManifest(verbose: true);
@@ -230,6 +236,11 @@ public class CUE4ParseViewModel : ObservableObject
     
     private async Task<bool> InitializeContentBuilds()
     {
+        if (AppSettings.Current.InstallType is EInstallType.Custom)
+        {
+            return false;
+        }
+        
         var buildInfoString = string.Empty;
         switch (AppSettings.Current.InstallType)
         {
@@ -310,28 +321,55 @@ public class CUE4ParseViewModel : ObservableObject
 
     private async Task InitializeKeys()
     {
-        var keyResponse = await EndpointService.FortniteCentral.GetKeysAsync();
-        if (keyResponse is not null) AppSettings.Current.AesResponse = keyResponse;
-        else keyResponse = AppSettings.Current.AesResponse;
-        if (keyResponse is null) return;
-
-        var mounted = await Provider.SubmitKeyAsync(Globals.ZERO_GUID, new FAesKey(keyResponse.MainKey));
-        if (mounted == 0)
+        switch (AppSettings.Current.InstallType)
         {
-            Log.Warning("Failed to load game files, please ensure your game is up to date");
-        }
+            case EInstallType.Custom:
+            {
+                await Provider.SubmitKeyAsync(Globals.ZERO_GUID, new FAesKey(AppSettings.Current.AesKey));
+                break;
+            }
+            case EInstallType.Local:
+            case EInstallType.Live:
+            {
+                var keyResponse = await EndpointService.FortniteCentral.GetKeysAsync();
+                if (keyResponse is not null) AppSettings.Current.AesResponse = keyResponse;
+                else keyResponse = AppSettings.Current.AesResponse;
+                if (keyResponse is null) return;
 
-        foreach (var dynamicKey in keyResponse.DynamicKeys)
-        {
-            await Provider.SubmitKeyAsync(new FGuid(dynamicKey.GUID), new FAesKey(dynamicKey.Key));
+                var mounted = await Provider.SubmitKeyAsync(Globals.ZERO_GUID, new FAesKey(keyResponse.MainKey));
+                if (mounted == 0)
+                {
+                    Log.Warning("Failed to load game files, please ensure your game is up to date");
+                }
+
+                foreach (var dynamicKey in keyResponse.DynamicKeys)
+                {
+                    await Provider.SubmitKeyAsync(new FGuid(dynamicKey.GUID), new FAesKey(dynamicKey.Key));
+                }
+                break;
+            }
         }
     }
 
     private async Task InitializeMappings()
     {
-        if (await TryDownloadMappings()) return;
+        switch (AppSettings.Current.InstallType)
+        {
+            case EInstallType.Custom:
+            {
+                if (string.IsNullOrEmpty(AppSettings.Current.MappingsPath)) return;
+                Provider.MappingsContainer = new FileUsmapTypeMappingsProvider(AppSettings.Current.MappingsPath);
+                break;
+            }
+            case EInstallType.Local:
+            case EInstallType.Live:
+            {
+                if (await TryDownloadMappings()) return;
 
-        LoadLocalMappings();
+                LoadLocalMappings();
+                break;
+            }
+        }
     }
 
     private async Task<bool> TryDownloadMappings()

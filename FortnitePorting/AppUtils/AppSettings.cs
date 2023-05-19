@@ -51,8 +51,6 @@ public partial class AppSettings : ObservableObject
 
     [ObservableProperty] private EpicAuthResponse? epicAuth;
 
-    [ObservableProperty] private bool bundleDownloaderEnabled = true;
-
     [ObservableProperty] private string assetsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets");
 
     [ObservableProperty] private EUpdateMode updateMode;
@@ -60,8 +58,6 @@ public partial class AppSettings : ObservableObject
     [ObservableProperty] private bool justUpdated = true;
 
     [ObservableProperty] private DateTime lastUpdateAskTime = DateTime.Now.Subtract(TimeSpan.FromDays(1));
-
-    [ObservableProperty] private bool lightMode;
 
     [ObservableProperty] private Version lastKnownUpdateVersion;
 
@@ -74,4 +70,10 @@ public partial class AppSettings : ObservableObject
     [ObservableProperty] private Dictionary<string, List<string>> weaponMappings = new();
     
     [ObservableProperty] private DateTime lastBroadcastTime;
+    
+    [ObservableProperty] private EGame gameVersion = EGame.GAME_UE5_2;
+    
+    [ObservableProperty] private string mappingsPath;
+    
+    [ObservableProperty] private string aesKey = Globals.ZERO_CHAR;
 }

@@ -43,10 +43,13 @@ public class MeshExportData : ExportDataBase
                 case EAssetType.Outfit:
                 {
                     var parts = asset.GetOrDefault("BaseCharacterParts", Array.Empty<UObject>());
-                    var exportedParts = ExportHelpers.CharacterParts(parts, data.Parts);
-
                     if (asset.TryGetValue(out UObject heroDefinition, "HeroDefinition"))
                     {
+                        if (parts.Length == 0)
+                        {
+                            var specializations = heroDefinition.Get<UObject[]>("Specializations").FirstOrDefault();
+                            parts = specializations?.GetOrDefault("CharacterParts", Array.Empty<UObject>()) ?? Array.Empty<UObject>();
+                        }
                         var frontendAnimMontage = heroDefinition.GetOrDefault<UAnimMontage?>("FrontendAnimMontageIdleOverride");
                         if (frontendAnimMontage is not null)
                         {
@@ -54,6 +57,8 @@ public class MeshExportData : ExportDataBase
                         }
                     }
                     
+                    var exportedParts = ExportHelpers.CharacterParts(parts, data.Parts);
+
                     if (asset.TryGetValue(out UObject[] characterParts, "BaseCharacterParts"))
                     {
                         foreach (var characterPart in characterParts)

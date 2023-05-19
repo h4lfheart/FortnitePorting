@@ -62,13 +62,6 @@ public partial class AssetSelectorItem : INotifyPropertyChanged, IExportableAsse
         ExportAssetsCommand = new RelayCommand(ExportAssets);
         ClipboardCommand = new RelayCommand<string>(CopyIconToClipboard);
 
-        if (AppSettings.Current.LightMode)
-        {
-            FavoriteImage.Effect = new InvertEffect();
-            ClipboardImage.Effect = new InvertEffect();
-            ExportImage.Effect = new InvertEffect();
-        }
-
         Asset = asset;
         var displayName = displayNameOverride;
         displayName ??= asset.GetOrDefault("DisplayName", new FText("Unnamed"));
