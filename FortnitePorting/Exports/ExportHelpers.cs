@@ -311,21 +311,7 @@ public static class ExportHelpers
     {
         var switches = new List<SwitchParameter>();
         var componentMasks = new List<ComponentMaskParameter>();
-        if (materialInstance.TryLoadEditorData<UMaterialInstanceEditorOnlyData>(out var editorData) && editorData.StaticParameters is not null)
-        {
-            foreach (var parameter in editorData.StaticParameters.StaticSwitchParameters)
-            {
-                if (parameter.ParameterInfo is null) continue;
-                switches.Add(new SwitchParameter(parameter.Name, parameter.Value));
-            }
-            
-            foreach (var parameter in editorData.StaticParameters.StaticComponentMaskParameters)
-            {
-                if (parameter.ParameterInfo is null) continue;
-                componentMasks.Add(new ComponentMaskParameter(parameter.Name, parameter.ToLinearColor()));
-            }
-        }
-        else if (materialInstance.StaticParameters is not null)
+        if (materialInstance.StaticParameters is not null)
         {
             foreach (var parameter in materialInstance.StaticParameters.StaticSwitchParameters)
             {
@@ -334,6 +320,20 @@ public static class ExportHelpers
             }
             
             foreach (var parameter in materialInstance.StaticParameters.StaticComponentMaskParameters)
+            {
+                if (parameter.ParameterInfo is null) continue;
+                componentMasks.Add(new ComponentMaskParameter(parameter.Name, parameter.ToLinearColor()));
+            }
+        }
+        else if (materialInstance.TryLoadEditorData<UMaterialInstanceEditorOnlyData>(out var editorData) && editorData.StaticParameters is not null)
+        {
+            foreach (var parameter in editorData.StaticParameters.StaticSwitchParameters)
+            {
+                if (parameter.ParameterInfo is null) continue;
+                switches.Add(new SwitchParameter(parameter.Name, parameter.Value));
+            }
+            
+            foreach (var parameter in editorData.StaticParameters.StaticComponentMaskParameters)
             {
                 if (parameter.ParameterInfo is null) continue;
                 componentMasks.Add(new ComponentMaskParameter(parameter.Name, parameter.ToLinearColor()));

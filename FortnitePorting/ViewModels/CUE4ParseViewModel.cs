@@ -26,6 +26,7 @@ using EpicManifestParser.Objects;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Bundles;
 using FortnitePorting.Services;
+using FortnitePorting.Services.Endpoints.Models;
 using FortnitePorting.Views.Controls;
 using FortnitePorting.Views.Extensions;
 
@@ -47,6 +48,8 @@ public class CUE4ParseViewModel : ObservableObject
     public readonly RarityCollection[] RarityData = new RarityCollection[8];
 
     public static readonly VersionContainer Version = new(EGame.GAME_UE5_2);
+
+    private BackupAPI? BackupInfo;
     
     private static readonly string[] MeshRemoveList = {
         "/Sounds",
@@ -120,6 +123,8 @@ public class CUE4ParseViewModel : ObservableObject
     public async Task Initialize()
     {
         if (Provider is null) return;
+
+        BackupInfo = await EndpointService.FortnitePorting.GetBackupAsync();
         
         AppVM.LoadingVM.Update("Loading Archive");
         await InitializeProvider();
@@ -331,7 +336,7 @@ public class CUE4ParseViewModel : ObservableObject
             case EInstallType.Local:
             case EInstallType.Live:
             {
-                var keyResponse = await EndpointService.FortniteCentral.GetKeysAsync();
+                var keyResponse = BackupInfo.IsActive ? BackupInfo.AES : await EndpointService.FortniteCentral.GetKeysAsync();
                 if (keyResponse is not null) AppSettings.Current.AesResponse = keyResponse;
                 else keyResponse = AppSettings.Current.AesResponse;
                 if (keyResponse is null) return;
@@ -374,7 +379,7 @@ public class CUE4ParseViewModel : ObservableObject
 
     private async Task<bool> TryDownloadMappings()
     {
-        var mappingsResponse = await EndpointService.FortniteCentral.GetMappingsAsync();
+        var mappingsResponse = BackupInfo.IsActive ? BackupInfo.Mappings : await EndpointService.FortniteCentral.GetMappingsAsync();
         if (mappingsResponse is null) return false;
         if (mappingsResponse.Length <= 0) return false;
 

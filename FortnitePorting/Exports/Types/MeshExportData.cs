@@ -51,7 +51,7 @@ public class MeshExportData : ExportDataBase
                             parts = specializations?.GetOrDefault("CharacterParts", Array.Empty<UObject>()) ?? Array.Empty<UObject>();
                         }
                         var frontendAnimMontage = heroDefinition.GetOrDefault<UAnimMontage?>("FrontendAnimMontageIdleOverride");
-                        if (frontendAnimMontage is not null)
+                        if (frontendAnimMontage is not null && AppSettings.Current.BlenderExportSettings.LobbyPoses)
                         {
                             data.LinkedSequence = await DanceExportData.CreateAnimDataAsync(frontendAnimMontage);
                         }
@@ -64,14 +64,15 @@ public class MeshExportData : ExportDataBase
                         foreach (var characterPart in characterParts)
                         {
                             var frontendAnimMontage = characterPart.GetOrDefault<UAnimMontage?>("FrontendAnimMontageIdleOverride");
-                            if (frontendAnimMontage is null) continue;
-                            
-                            data.LinkedSequence = await DanceExportData.CreateAnimDataAsync(frontendAnimMontage);
+                            if (frontendAnimMontage is not null && AppSettings.Current.BlenderExportSettings.LobbyPoses)
+                            {
+                                data.LinkedSequence = await DanceExportData.CreateAnimDataAsync(frontendAnimMontage);
+                            }
                             break;
                         }
                     }
                     
-                    if (data.LinkedSequence is null) // fallback
+                    if (data.LinkedSequence is null && AppSettings.Current.BlenderExportSettings.LobbyPoses) // fallback
                     {
                         var bodyPart = exportedParts.FirstOrDefault(x => x.Part.Equals("Body"));
                         if (bodyPart is null) break;

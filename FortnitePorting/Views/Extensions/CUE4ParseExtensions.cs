@@ -57,7 +57,7 @@ public static class CUE4ParseExtensions
         var mip = texture.GetFirstMip();
         if (mip is null) return null;
 
-        TextureDecoder.DecodeTexture(mip, texture.Format, texture.isNormalMap, ETexturePlatform.DesktopMobile, out var data, out var colorType);
+        TextureDecoder.DecodeTexture(mip, texture.Format, texture.IsNormalMap, ETexturePlatform.DesktopMobile, out var data, out var colorType);
         Image image;
         switch (colorType)
         {

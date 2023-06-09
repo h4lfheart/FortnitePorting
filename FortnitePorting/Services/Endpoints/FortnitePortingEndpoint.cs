@@ -35,4 +35,17 @@ public class FortnitePortingEndpoint : EndpointBase
     {
         return GetBroadcastAsync().GetAwaiter().GetResult();
     }
+    
+    public async Task<BackupAPI?> GetBackupAsync()
+    {
+        var request = new RestRequest($"https://halfheart.dev/fortnite-porting/api/v1/backup.json");
+        var response = await _client.ExecuteAsync<BackupAPI>(request).ConfigureAwait(false);
+        Log.Information("[{Method}] {StatusDescription} ({StatusCode}): {URI}", request.Method, response.StatusDescription, (int)response.StatusCode, request.Resource);
+        return response.Data;
+    }
+
+    public BackupAPI? GetBackup()
+    {
+        return GetBackupAsync().GetAwaiter().GetResult();
+    }
 }

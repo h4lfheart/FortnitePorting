@@ -313,69 +313,78 @@ public class AssetHandlerData
         var addedAssets = new List<string>();
         await Parallel.ForEachAsync(items, async (data, token) =>
         {
-            var displayName = string.Empty;
-            if (data.TagsAndValues.TryGetValue("DisplayName", out var displayNameRaw))
+            try
             {
-                displayName = displayNameRaw.SubstringBeforeLast('"').SubstringAfterLast('"').Trim();
-            }
-
-            // Weapon Filtering
-            if (AssetType is EAssetType.Weapon)
-            {
-                var objectData = await AppVM.CUE4ParseVM.Provider.LoadObjectAsync(data.ObjectPath);
-                var foundMappings = AppSettings.Current.WeaponMappings.TryGetValue(displayName, out var weaponMeshPaths);
-                if (!foundMappings)
+                var displayName = string.Empty;
+                if (data.TagsAndValues.TryGetValue("DisplayName", out var displayNameRaw))
                 {
-                    var mainWeapon = ExportHelpers.GetWeaponMeshes(objectData).FirstOrDefault();
-                    if (mainWeapon is null) return;
+                    displayName = displayNameRaw.SubstringBeforeLast('"').SubstringAfterLast('"').Trim();
+                }
 
-                    if (!AppSettings.Current.WeaponMappings.ContainsKey(displayName))
+                // Weapon Filtering
+                if (AssetType is EAssetType.Weapon)
+                {
+                    var objectData = await AppVM.CUE4ParseVM.Provider.LoadObjectAsync(data.ObjectPath);
+                    var foundMappings = AppSettings.Current.WeaponMappings.TryGetValue(displayName, out var weaponMeshPaths);
+                    if (!foundMappings)
                     {
-                        AppSettings.Current.WeaponMappings[displayName] = new List<string>();
+                        var mainWeapon = ExportHelpers.GetWeaponMeshes(objectData).FirstOrDefault();
+                        if (mainWeapon is null) return;
+
+                        if (!AppSettings.Current.WeaponMappings.ContainsKey(displayName))
+                        {
+                            AppSettings.Current.WeaponMappings.Add(displayName, new List<string>());
+                        }
+
+                        AppSettings.Current.WeaponMappings[displayName].AddUnique(mainWeapon.GetPathName());
+                        weaponMeshPaths = AppSettings.Current.WeaponMappings[displayName];
                     }
 
-                    AppSettings.Current.WeaponMappings[displayName].AddUnique(mainWeapon.GetPathName());
-                    weaponMeshPaths = AppSettings.Current.WeaponMappings[displayName];
-                }
+                    foreach (var weaponMesh in weaponMeshPaths.ToArray())
+                    {
+                        if (addedAssets.ToArray().Contains(weaponMesh)) continue;
+                        addedAssets.Add(weaponMesh);
+                        await DoLoad(objectData, AssetType);
+                    }
 
-                foreach (var weaponMesh in weaponMeshPaths.ToArray())
-                {
-                    if (addedAssets.ToArray().Contains(weaponMesh)) continue;
-                    addedAssets.Add(weaponMesh);
-                    await DoLoad(objectData, AssetType);
-                }
-
-                return;
-            }
-            
-            // Prop Filtering
-            if (AssetType is EAssetType.Prop)
-            {
-                if (addedAssets.ToArray().Contains(displayName))
-                {
                     return;
                 }
 
-                addedAssets.Add(displayName);
-                var foundGallery = galleryMappings.FirstOrDefault(gallery => gallery.Props.Any(prop => prop.Contains(data.AssetName.Text)));
-                if (foundGallery is not null)
+                // Prop Filtering
+                if (AssetType is EAssetType.Prop)
                 {
-                    await DoLoad(data, AssetType, descriptionOverride: foundGallery.Name);
-                }
-                else
-                {
-                    await DoLoad(data, AssetType, descriptionOverride: "Unknown Gallery");
-                }
-                return;
-            }
+                    if (addedAssets.ToArray().Contains(displayName))
+                    {
+                        return;
+                    }
 
-            if (AssetType is EAssetType.Vehicle)
+                    addedAssets.Add(displayName);
+                    var foundGallery = galleryMappings.FirstOrDefault(gallery => gallery.Props.Any(prop => prop.Contains(data.AssetName.Text)));
+                    if (foundGallery is not null)
+                    {
+                        await DoLoad(data, AssetType, descriptionOverride: foundGallery.Name);
+                    }
+                    else
+                    {
+                        await DoLoad(data, AssetType, descriptionOverride: "Unknown Gallery");
+                    }
+
+                    return;
+                }
+
+                if (AssetType is EAssetType.Vehicle)
+                {
+                    await DoLoad(data, AssetType, descriptionOverride: data.AssetName.Text);
+                    return;
+                }
+
+                await DoLoad(data, AssetType);
+            }
+            catch (Exception e)
             {
-                await DoLoad(data, AssetType, descriptionOverride: data.AssetName.Text);
-                return;
+                Log.Error("Failed to load {ObjectPath}", data.ObjectPath);
+                Log.Error(e.Message + e.StackTrace);
             }
-
-            await DoLoad(data, AssetType);
 
         });
         sw.Stop();
@@ -390,39 +399,23 @@ public class AssetHandlerData
 
     private async Task DoLoad(UObject asset, EAssetType type, bool random = false, string? descriptionOverride = null)
     {
-        try
-        {
-            await PauseState.WaitIfPaused();
+        await PauseState.WaitIfPaused();
 
-            var previewImage = IconGetter(asset);
-            previewImage ??= AppVM.CUE4ParseVM.PlaceholderTexture;
-            if (previewImage is null) return;
+        var previewImage = IconGetter(asset);
+        previewImage ??= AppVM.CUE4ParseVM.PlaceholderTexture;
+        if (previewImage is null) return;
 
-            await Application.Current.Dispatcher.InvokeAsync(() => TargetCollection.Add(new AssetSelectorItem(asset, previewImage, type, random, DisplayNameGetter?.Invoke(asset), descriptionOverride, RemoveList.Any(y => asset.Name.Contains(y, StringComparison.OrdinalIgnoreCase)))), DispatcherPriority.Background);
-        }
-        catch (Exception e)
-        {
-            Log.Error("Failed to load {ObjectPath}", asset.GetPathName());
-            Log.Debug(e.Message + e.StackTrace);
-        }
+        await Application.Current.Dispatcher.InvokeAsync(() => TargetCollection.Add(new AssetSelectorItem(asset, previewImage, type, random, DisplayNameGetter?.Invoke(asset), descriptionOverride, RemoveList.Any(y => asset.Name.Contains(y, StringComparison.OrdinalIgnoreCase)))), DispatcherPriority.Background);
     }
 
     private async Task DoLoadProps(ObservableCollection<AssetSelectorItem> target, UObject asset, EAssetType type, bool random = false, string? descriptionOverride = null)
     {
-        try
-        {
-            await PauseState.WaitIfPaused();
+        await PauseState.WaitIfPaused();
 
-            var previewImage = IconGetter(asset);
-            previewImage ??= AppVM.CUE4ParseVM.PlaceholderTexture;
-            if (previewImage is null) return;
+        var previewImage = IconGetter(asset);
+        previewImage ??= AppVM.CUE4ParseVM.PlaceholderTexture;
+        if (previewImage is null) return;
 
-            await Application.Current.Dispatcher.InvokeAsync(() => target.Add(new AssetSelectorItem(asset, previewImage, type, random, DisplayNameGetter?.Invoke(asset), descriptionOverride, RemoveList.Any(y => asset.Name.Contains(y, StringComparison.OrdinalIgnoreCase)))), DispatcherPriority.Background);
-        }
-        catch (Exception e)
-        {
-            Log.Error("Failed to load {ObjectPath}", asset.GetPathName());
-            Log.Debug(e.Message + e.StackTrace);
-        }
+        await Application.Current.Dispatcher.InvokeAsync(() => target.Add(new AssetSelectorItem(asset, previewImage, type, random, DisplayNameGetter?.Invoke(asset), descriptionOverride, RemoveList.Any(y => asset.Name.Contains(y, StringComparison.OrdinalIgnoreCase)))), DispatcherPriority.Background);
     }
 }

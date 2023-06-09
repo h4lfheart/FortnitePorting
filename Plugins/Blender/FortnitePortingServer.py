@@ -15,7 +15,7 @@ from io_import_scene_unreal_psa_psk_280 import pskimport, psaimport
 bl_info = {
     "name": "Fortnite Porting",
     "author": "Half",
-    "version": (1, 3, 0, 1),
+    "version": (1, 3, 1),
     "blender": (3, 0, 0),
     "description": "Blender Server for Fortnite Porting",
     "category": "Import",

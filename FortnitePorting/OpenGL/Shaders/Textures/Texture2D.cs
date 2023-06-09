@@ -20,7 +20,7 @@ public class Texture2D
         Bind();
         
         var firstMip = texture.GetFirstMip();
-        TextureDecoder.DecodeTexture(firstMip, texture.Format, texture.isNormalMap, ETexturePlatform.DesktopMobile, out var data, out _);
+        TextureDecoder.DecodeTexture(firstMip, texture.Format, texture.IsNormalMap, ETexturePlatform.DesktopMobile, out var data, out _);
         
         GL.TexImage2D(TextureTarget.Texture2d, 0, texture.SRGB ? InternalFormat.Srgb : InternalFormat.Rgb, firstMip.SizeX, firstMip.SizeY, 0, PixelFormat.Rgba, PixelType.UnsignedByte, data);
 
