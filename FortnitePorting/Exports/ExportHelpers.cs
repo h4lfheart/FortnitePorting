@@ -309,37 +309,6 @@ public static class ExportHelpers
 
     public static (List<TextureParameter>, List<ScalarParameter>, List<VectorParameter>, List<SwitchParameter>, List<ComponentMaskParameter>) MaterialParameters(UMaterialInstanceConstant materialInstance)
     {
-        var switches = new List<SwitchParameter>();
-        var componentMasks = new List<ComponentMaskParameter>();
-        if (materialInstance.StaticParameters is not null)
-        {
-            foreach (var parameter in materialInstance.StaticParameters.StaticSwitchParameters)
-            {
-                if (parameter.ParameterInfo is null) continue;
-                switches.Add(new SwitchParameter(parameter.Name, parameter.Value));
-            }
-            
-            foreach (var parameter in materialInstance.StaticParameters.StaticComponentMaskParameters)
-            {
-                if (parameter.ParameterInfo is null) continue;
-                componentMasks.Add(new ComponentMaskParameter(parameter.Name, parameter.ToLinearColor()));
-            }
-        }
-        else if (materialInstance.TryLoadEditorData<UMaterialInstanceEditorOnlyData>(out var editorData) && editorData.StaticParameters is not null)
-        {
-            foreach (var parameter in editorData.StaticParameters.StaticSwitchParameters)
-            {
-                if (parameter.ParameterInfo is null) continue;
-                switches.Add(new SwitchParameter(parameter.Name, parameter.Value));
-            }
-            
-            foreach (var parameter in editorData.StaticParameters.StaticComponentMaskParameters)
-            {
-                if (parameter.ParameterInfo is null) continue;
-                componentMasks.Add(new ComponentMaskParameter(parameter.Name, parameter.ToLinearColor()));
-            }
-        }
-        
         var textures = new List<TextureParameter>();
         foreach (var parameter in materialInstance.TextureParameterValues)
         {
@@ -359,6 +328,23 @@ public static class ExportHelpers
         {
             if (parameter.ParameterValue is null) continue;
             vectors.Add(new VectorParameter(parameter.Name, parameter.ParameterValue.Value));
+        }
+        
+        var switches = new List<SwitchParameter>();
+        var componentMasks = new List<ComponentMaskParameter>();
+        if (materialInstance.StaticParameters is not null)
+        {
+            foreach (var parameter in materialInstance.StaticParameters.StaticSwitchParameters)
+            {
+                if (parameter.ParameterInfo is null) continue;
+                switches.Add(new SwitchParameter(parameter.Name, parameter.Value));
+            }
+            
+            foreach (var parameter in materialInstance.StaticParameters.StaticComponentMaskParameters)
+            {
+                if (parameter.ParameterInfo is null) continue;
+                componentMasks.Add(new ComponentMaskParameter(parameter.Name, parameter.ToLinearColor()));
+            }
         }
 
         if (materialInstance.Parent is UMaterialInstanceConstant materialParent)

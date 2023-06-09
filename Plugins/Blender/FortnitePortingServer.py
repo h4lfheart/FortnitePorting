@@ -15,7 +15,7 @@ from io_import_scene_unreal_psa_psk_280 import pskimport, psaimport
 bl_info = {
     "name": "Fortnite Porting",
     "author": "Half",
-    "version": (1, 3, 1),
+    "version": (1, 3, 2),
     "blender": (3, 0, 0),
     "description": "Blender Server for Fortnite Porting",
     "category": "Import",
@@ -128,6 +128,7 @@ texture_mappings = {
     ("PM_SpecularMasks", "Specular Masks", (-300, -125)),
     ("Specular Mask", "Specular Masks", (-300, -125)),
     ("SpecMap", "Specular Masks", (-300, -125)),
+    ("SRM", "Specular Masks", (-300, -125)),
 
     ("Normals", "Normals", (-300, -175)),
     ("PM_Normals", "Normals", (-300, -125)),
@@ -135,6 +136,7 @@ texture_mappings = {
     ("NormalMap", "Normals", (-300, -175)),
 
     ("M", "M", (-300, -225)),
+    ("Mask", "M", (-300, -225)),
 
     ("Emissive", "Emissive", (-300, -325)),
     ("PM_Emissive", "Emissive", (-300, -325)),
@@ -750,6 +752,8 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
                 shader_node.inputs[extra[0]].default_value = int(value["A"])
 
     for texture in textures:
+        if texture.get("Name") == "SRM":
+            shader_node.inputs["New Specular"].default_value = 1
         texture_parameter(texture)
 
     for scalar in scalars:

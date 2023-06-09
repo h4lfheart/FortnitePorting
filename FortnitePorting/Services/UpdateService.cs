@@ -22,7 +22,7 @@ public static class UpdateService
     public static void Start(bool automaticCheck = false)
     {
         IgnoreEqualMessage = automaticCheck;
-        AutoUpdater.Start($"https://www.halfheart.dev/fortnite-porting/{AppSettings.Current.UpdateMode.ToString().ToLower()}.json");
+        AutoUpdater.Start($"https://www.halfheart.dev/fortnite-porting/api/v1/{AppSettings.Current.UpdateMode.ToString().ToLower()}.json");
     }
 
     public static (bool UpdateAvailable, Version UpdateVersion) GetStats()
