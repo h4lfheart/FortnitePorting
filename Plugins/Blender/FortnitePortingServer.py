@@ -15,7 +15,7 @@ from io_import_scene_unreal_psa_psk_280 import pskimport, psaimport
 bl_info = {
     "name": "Fortnite Porting",
     "author": "Half",
-    "version": (1, 3, 2),
+    "version": (1, 3, 3),
     "blender": (3, 0, 0),
     "description": "Blender Server for Fortnite Porting",
     "category": "Import",
@@ -762,13 +762,13 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
     for vector in vectors:
         vector_parameter(vector)
         
+    
     for switch in switches:
         if switch.get("Name") == "SwizzleRoughnessToGreen":
             shader_node.inputs["New Specular"].default_value = 1
     
     
-        
-    if len(hide_element_scalars) > 0:
+    if (vertex_color_masking := first(switches, lambda x: x.get("Name") == "Use Vertex Colors for Mask")) and vertex_color_masking.get("Value"):
         target_material.blend_method = "CLIP"
         target_material.shadow_method = "CLIP"
         target_material.show_transparent_back = False
@@ -956,7 +956,7 @@ def merge_skeletons(parts):
         socket = part.get("Socket")
         if socket is None:
             continue
-        
+            
         constraint_object(skeleton, master_skeleton, socket)
         
   
@@ -1109,6 +1109,9 @@ def apply_tasty_rig(master_skeleton: bpy.types.Armature):
             old_head = eye_r.head + Vector((0,0.001,0)) # minor change to bypass zero-length bone deletion
             eye_r.tail = old_head
             eye_r.head = old_tail
+        elif eye_r.tail[0] > eye_r.head[0] or eye_r.tail[0] < eye_r.head[0]:
+            eye_r.tail[1] = -0.05
+            eye_r.tail[0] = eye_r.head[0]
 
     if (eye_l := edit_bones.get('L_eye')) or (eye_l := edit_bones.get('FACIAL_L_Eye')):
         if eye_l.tail[1] > eye_l.head[1]:
@@ -1122,6 +1125,10 @@ def apply_tasty_rig(master_skeleton: bpy.types.Armature):
             old_head = eye_l.head + Vector((0,0.001,0)) # minor change to bypass zero-length bone deletion
             eye_l.tail = old_head
             eye_l.head = old_tail
+        elif eye_l.tail[0] > eye_l.head[0] or eye_l.tail[0] < eye_l.head[0]:
+            eye_l.tail[1] = -0.05
+            eye_l.tail[0] = eye_l.head[0]
+
 
     bpy.ops.object.mode_set(mode='OBJECT')
 
@@ -1397,12 +1404,7 @@ def apply_tasty_rig(master_skeleton: bpy.types.Armature):
         ('dfrm_upperarm_r', 'upperarm_r', 1.0),
         ('dfrm_upperarm_l', 'upperarm_l', 1.0),
         ('dfrm_lowerarm_r', 'lowerarm_r', 1.0),
-        ('dfrm_lowerarm_l', 'lowerarm_l', 1.0),
-
-        ('dfrm_thigh_r', 'thigh_r', 1.0),
-        ('dfrm_thigh_l', 'thigh_l', 1.0),
-        ('dfrm_calf_r', 'calf_r', 1.0),
-        ('dfrm_calf_l', 'calf_l', 1.0),
+        ('dfrm_lowerarm_l', 'lowerarm_l', 1.0)
     ]
 
     for bone_data in copy_rotation_bones:
@@ -1745,7 +1747,7 @@ def import_response(response):
                 loop_count = 999 if import_settings.get("LoopAnim") and is_looping else 1
                 
                 section_frames = int(section_length * 30)
-                total_frames += section_frames * loop_count
+                total_frames += section_frames
 
                 bpy.ops.object.select_all(action='DESELECT')
                 # skeletal animation
@@ -2029,37 +2031,56 @@ def import_response(response):
                         
                         part_mesh.data.materials.append(bpy.data.materials.get("FP_OutlineMaterial"))
                         solidify.material_offset = len(part_mesh.data.materials)-1
-                        
+
+                bpy.context.view_layer.objects.active = master_skeleton
+                bpy.ops.object.mode_set(mode='POSE')
+
+                copy_rotation_bones = [
+                    ('dfrm_upperarm_r', 'upperarm_r', 1.0),
+                    ('dfrm_upperarm_l', 'upperarm_l', 1.0),
+                    ('dfrm_lowerarm_r', 'lowerarm_r', 1.0),
+                    ('dfrm_lowerarm_l', 'lowerarm_l', 1.0),
+
+                    ('dfrm_thigh_r', 'thigh_r', 1.0),
+                    ('dfrm_thigh_l', 'thigh_l', 1.0),
+                    ('dfrm_calf_r', 'calf_r', 1.0),
+                    ('dfrm_calf_l', 'calf_l', 1.0),
+
+                    ('dyn_arm_aim_l', 'upperarm_l', 1.0),
+                    ('dyn_arm_aim_r', 'upperarm_r', 1.0)
+                ]
+
+                for bone_data in copy_rotation_bones:
+                    current, target, weight = bone_data
+                    if not (pose_bone := master_skeleton.pose.bones.get(current)):
+                        continue
+
+                    con = pose_bone.constraints.new('COPY_ROTATION')
+                    con.target = master_skeleton
+                    con.subtarget = target
+                    con.influence = weight
+                    con.target_space = 'LOCAL_OWNER_ORIENT'
+                    con.owner_space = 'LOCAL'
+
+                child_of_bones = [
+                    ('trap_r', 'clavicle_r'),
+                    ('trap_l', 'clavicle_l'),
+                ]
+
+                for bone_data in child_of_bones:
+                    current, target = bone_data
+                    if not (pose_bone := master_skeleton.pose.bones.get(current)):
+                        continue
+
+                    con = pose_bone.constraints.new('CHILD_OF')
+                    con.target = master_skeleton
+                    con.subtarget = target
+                
+                bpy.ops.object.mode_set(mode='OBJECT')
 
                 rig_type = RigType(import_settings.get("RigType"))
                 if rig_type == RigType.DEFAULT and import_settings.get("LobbyPoses") and (sequence_data := import_data.get("LinkedSequence")):
                     import_animation_data(sequence_data, override_skel=master_skeleton)
-                    copy_rotation_bones = [
-                        ('dfrm_upperarm_r', 'upperarm_r', 1.0),
-                        ('dfrm_upperarm_l', 'upperarm_l', 1.0),
-                        ('dfrm_lowerarm_r', 'lowerarm_r', 1.0),
-                        ('dfrm_lowerarm_l', 'lowerarm_l', 1.0),
-                        
-                        ('dfrm_thigh_r', 'thigh_r', 1.0),
-                        ('dfrm_thigh_l', 'thigh_l', 1.0),
-                        ('dfrm_calf_r', 'calf_r', 1.0),
-                        ('dfrm_calf_l', 'calf_l', 1.0),
-                    ]
-                    
-                    bpy.context.view_layer.objects.active = master_skeleton 
-                    bpy.ops.object.mode_set(mode='POSE')
-                    for bone_data in copy_rotation_bones:
-                        current, target, weight = bone_data
-                        if not (pose_bone := master_skeleton.pose.bones.get(current)):
-                            continue
-                        
-                        con = pose_bone.constraints.new('COPY_ROTATION')
-                        con.target = master_skeleton
-                        con.subtarget = target
-                        con.influence = weight
-                        con.target_space = 'LOCAL_OWNER_ORIENT'
-                        con.owner_space = 'LOCAL'
-                    bpy.ops.object.mode_set(mode='OBJECT')
                 
                 if rig_type == RigType.TASTY:
                     apply_tasty_rig(master_skeleton)

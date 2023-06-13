@@ -281,6 +281,11 @@ public static class ExportHelpers
             var exportMaterial = CreateExportMaterial<ExportMaterialOverride>(material, materialOverride.Get<int>("MaterialOverrideIndex"));
             exportMaterial.MaterialNameToSwap = materialOverride.GetOrDefault<FSoftObjectPath>("MaterialToSwap").AssetPathName.Text.SubstringAfterLast(".");
 
+            if (exportPart.Materials.Count == 0)
+            {
+                exportPart.OverrideMaterials.Add(exportMaterial);
+            }
+            
             for (var idx = 0; idx < exportPart.Materials.Count; idx++)
             {
                 if (exportMaterial.SlotIndex >= exportPart.Materials.Count) continue;
@@ -896,7 +901,7 @@ public static class ExportHelpers
             {
                 foreach (var nodeObject in delay.ChildNodes)
                 {
-                    sounds.AddRange(HandleAudioTree(nodeObject.Load<USoundNode>(), offset + delay.Get<float>("DelayMin"))); // Max/Min are equal for emotes
+                    sounds.AddRange(HandleAudioTree(nodeObject.Load<USoundNode>(), offset + delay.GetOrDefault("DelayMin", delay.GetOrDefault<float>("DelayMax"))));
                 }
 
                 break;

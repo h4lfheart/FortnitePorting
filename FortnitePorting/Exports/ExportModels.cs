@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Sound;
@@ -37,14 +38,15 @@ public class ExportPart : ExportMesh
 
     [JsonIgnore] public EFortCustomGender GenderPermitted;
 
-    public void ProcessPoses(USkeletalMesh? skeletalMesh, UPoseAsset poseAsset)
+    public void ProcessPoses(USkeletalMesh? skeletalMesh, UPoseAsset? poseAsset)
     {
         if (skeletalMesh is null || poseAsset is null) return;
 
         PoseNames = poseAsset.PoseContainer.PoseNames.Select(x => x.DisplayName.Text).ToArray();
 
-        var folderPath = AppVM.CUE4ParseVM.Provider.FixPath(skeletalMesh.GetPathName()).SubstringBeforeLast("/");
-        var folderAssets = AppVM.CUE4ParseVM.Provider.Files.Values.Where(file => file.Path.StartsWith(folderPath, StringComparison.OrdinalIgnoreCase));
+        var skelMeshPath = GetFolder(skeletalMesh);
+        var poseAssetPath = GetFolder(poseAsset);
+        var folderAssets = AppVM.CUE4ParseVM.Provider.Files.Values.Where(file => file.Path.StartsWith(skelMeshPath, StringComparison.OrdinalIgnoreCase) || file.Path.StartsWith(poseAssetPath, StringComparison.OrdinalIgnoreCase));
         foreach (var asset in folderAssets)
         {
             if (!AppVM.CUE4ParseVM.Provider.TryLoadObject(asset.PathWithoutExtension, out UAnimSequence animSequence)) continue;
@@ -69,6 +71,11 @@ public class ExportPart : ExportMesh
         var sequencePath = animSequence.GetPathName();
         PoseAnimation = sequencePath;
         ExportHelpers.Save(animSequence);
+    }
+    
+    private string GetFolder(UObject obj)
+    {
+        return AppVM.CUE4ParseVM.Provider.FixPath(obj.GetPathName()).SubstringBeforeLast("/");
     }
 }
 
@@ -153,7 +160,7 @@ public class Sound
 
     public bool IsValid()
     {
-        return SoundWave is not null && Time > 0;
+        return SoundWave is not null && Time >= 0;
     }
 }
 

@@ -23,6 +23,7 @@ public class DanceExportData : ExportDataBase
 
         var baseMontage = asset.GetOrDefault<UAnimMontage?>("Animation");
         baseMontage ??= asset.GetOrDefault<UAnimMontage?>("FrontEndAnimation");
+        baseMontage ??= asset.GetOrDefault("AnimationOverrides", Array.Empty<FStructFallback>()).FirstOrDefault()?.GetOrDefault<UAnimMontage>("EmoteMontage");
 
         var additiveMontage = asset.GetOrDefault<UAnimMontage?>("AnimationFemaleOverride");
         additiveMontage ??= asset.GetOrDefault<UAnimMontage?>("FrontEndAnimationFemaleOverride");

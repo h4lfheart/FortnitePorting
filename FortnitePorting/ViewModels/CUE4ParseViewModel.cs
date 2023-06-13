@@ -114,10 +114,13 @@ public class CUE4ParseViewModel : ObservableObject
 
         Provider = installType switch
         {
-            EInstallType.Local => new FortnitePortingFileProvider(new DirectoryInfo(directory), SearchOption.AllDirectories, true, Version),
+            EInstallType.Local => new FortnitePortingFileProvider(new DirectoryInfo(directory), SearchOption.TopDirectoryOnly, true, Version),
             EInstallType.Live => new FortnitePortingFileProvider(true, Version),
-            EInstallType.Custom => new FortnitePortingFileProvider(new DirectoryInfo(directory), SearchOption.AllDirectories, true, new VersionContainer(AppSettings.Current.GameVersion))
+            EInstallType.Custom => new FortnitePortingFileProvider(new DirectoryInfo(directory), SearchOption.TopDirectoryOnly, true, new VersionContainer(AppSettings.Current.GameVersion))
         };
+        
+        Provider.Versions.Options["SkeletalMesh.KeepMobileMinLODSettingOnDesktop"] = true;
+        Provider.Versions.Options["StaticMesh.KeepMobileMinLODSettingOnDesktop"] = true;
     }
 
     public async Task Initialize()
