@@ -193,7 +193,7 @@ public class CUE4ParseViewModel : ObservableObject
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
-                var musicPackAsset = new AssetSelectorItem(musicPackObject, musicPackObject.Get<UTexture2D>("SmallPreviewImage"), EAssetType.Music);
+                var musicPackAsset = new AssetSelectorItem(musicPackObject, musicPackObject.GetOrDefault<UTexture2D>("SmallPreviewImage", PlaceholderTexture), EAssetType.Music);
                 PlaceholderMusicPack = new MusicQueueItem(musicPackAsset.Asset, musicPackAsset.FullSource, "No Music Pack Playing", "Add a Music Pack to the queue to begin listening!");
             }, DispatcherPriority.Background);
         }

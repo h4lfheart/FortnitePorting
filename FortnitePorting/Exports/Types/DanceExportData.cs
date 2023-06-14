@@ -27,6 +27,7 @@ public class DanceExportData : ExportDataBase
 
         var additiveMontage = asset.GetOrDefault<UAnimMontage?>("AnimationFemaleOverride");
         additiveMontage ??= asset.GetOrDefault<UAnimMontage?>("FrontEndAnimationFemaleOverride");
+        baseMontage ??= additiveMontage;
         data.BaseAnimData = await CreateAnimDataAsync(baseMontage, additiveMontage);
 
 
