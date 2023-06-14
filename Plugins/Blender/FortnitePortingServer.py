@@ -1110,7 +1110,7 @@ def apply_tasty_rig(master_skeleton: bpy.types.Armature):
             eye_r.tail = old_head
             eye_r.head = old_tail
         elif eye_r.tail[0] > eye_r.head[0] or eye_r.tail[0] < eye_r.head[0]:
-            eye_r.tail[1] = -0.05
+            eye_r.tail[1] = eye_r.head[1] - 0.02
             eye_r.tail[0] = eye_r.head[0]
 
     if (eye_l := edit_bones.get('L_eye')) or (eye_l := edit_bones.get('FACIAL_L_Eye')):
@@ -1126,7 +1126,7 @@ def apply_tasty_rig(master_skeleton: bpy.types.Armature):
             eye_l.tail = old_head
             eye_l.head = old_tail
         elif eye_l.tail[0] > eye_l.head[0] or eye_l.tail[0] < eye_l.head[0]:
-            eye_l.tail[1] = -0.05
+            eye_l.tail[1] = eye_l.head[1] - 0.02
             eye_l.tail[0] = eye_l.head[0]
 
 
