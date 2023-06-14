@@ -2041,11 +2041,6 @@ def import_response(response):
                     ('dfrm_lowerarm_r', 'lowerarm_r', 1.0),
                     ('dfrm_lowerarm_l', 'lowerarm_l', 1.0),
 
-                    ('dfrm_thigh_r', 'thigh_r', 1.0),
-                    ('dfrm_thigh_l', 'thigh_l', 1.0),
-                    ('dfrm_calf_r', 'calf_r', 1.0),
-                    ('dfrm_calf_l', 'calf_l', 1.0),
-
                     ('dyn_arm_aim_l', 'upperarm_l', 1.0),
                     ('dyn_arm_aim_r', 'upperarm_r', 1.0)
                 ]
