@@ -851,6 +851,38 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
     extra_uv_decal("Tattoo_Texture")
     extra_uv_decal("Decal")
 
+    def background_diffuse(tex_name):
+        if bg_texture := first(textures, lambda x: x.get("Name") == tex_name):
+            if has_override_data:
+                for override_data in override_datas:
+                    if found_override := first(override_data.get("Textures"), lambda x: x.get("Name") == bg_texture.get("Name")):
+                        bg_texture = found_override
+
+            name = bg_texture.get("Name")
+            value = bg_texture.get("Value")
+            if image := import_texture(value):
+                image_node = nodes.new(type="ShaderNodeTexImage")
+                image_node.image = image
+                image_node.image.alpha_mode = 'CHANNEL_PACKED'
+                image_node.location = [-500, 0]
+                image_node.hide = True
+                if not bg_texture.get("sRGB"):
+                    set_linear(image_node)
+
+                mix_node = nodes.new(type="ShaderNodeMixRGB")
+                mix_node.location = [-200, 75]
+                mix_node.blend_type = 'COLOR'
+
+                links.new(image_node.outputs[1], mix_node.inputs[0])
+                links.new(image_node.outputs[0], mix_node.inputs[1])
+
+                diffuse_node = shader_node.inputs["Diffuse"].links[0].from_node
+                diffuse_node.location = [-500, -75]
+                links.new(diffuse_node.outputs[0], mix_node.inputs[2])
+                links.new(mix_node.outputs[0], shader_node.inputs["Diffuse"])
+
+    background_diffuse("Background Diffuse")
+
     if mask_texture := first(textures, lambda x: x.get("Name") == "MaskTexture"):
         value = mask_texture.get("Value")
         if image := import_texture(value):
