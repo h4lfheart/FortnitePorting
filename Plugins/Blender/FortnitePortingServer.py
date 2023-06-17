@@ -15,7 +15,7 @@ from io_import_scene_unreal_psa_psk_280 import pskimport, psaimport
 bl_info = {
     "name": "Fortnite Porting",
     "author": "Half",
-    "version": (1, 3, 3),
+    "version": (1, 3, 4),
     "blender": (3, 0, 0),
     "description": "Blender Server for Fortnite Porting",
     "category": "Import",
@@ -1116,9 +1116,6 @@ def apply_tasty_rig(master_skeleton: bpy.types.Armature):
             transform_bone.matrix @= Matrix.Translation(Vector((0.025, 0.0, 0.0)))
             transform_bone.parent = edit_bones.get(transform_bone_name.replace("control", "metacarpal"))
 
-    if (lower_lip_bone := edit_bones.get("FACIAL_C_LowerLipRotation")) and (jaw_bone := edit_bones.get("FACIAL_C_Jaw")):
-        lower_lip_bone.parent = jaw_bone
-
     # rotation fixes
     if jaw_bone_old := edit_bones.get('C_jaw'):
         jaw_bone_old.roll = 0
@@ -2065,6 +2062,12 @@ def import_response(response):
                         solidify.material_offset = len(part_mesh.data.materials)-1
 
                 bpy.context.view_layer.objects.active = master_skeleton
+
+                bpy.ops.object.mode_set(mode='EDIT')
+                edit_bones = master_skeleton.data.edit_bones
+                if (lower_lip_bone := edit_bones.get("FACIAL_C_LowerLipRotation")) and (jaw_bone := edit_bones.get("FACIAL_C_Jaw")):
+                    lower_lip_bone.parent = jaw_bone
+                    
                 bpy.ops.object.mode_set(mode='POSE')
 
                 copy_rotation_bones = [
