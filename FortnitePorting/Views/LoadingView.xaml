@@ -4,13 +4,17 @@
         xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
         xmlns:adonisCtrls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
         xmlns:adonisExt="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"
+        xmlns:controls="clr-namespace:FortnitePorting.Views.Controls"
         Height="300" Width="300" WindowStyle="None" WindowStartupLocation="CenterScreen" MouseDown="OnMouseDown" Loaded="OnLoaded">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="0.25*" />
             <RowDefinition Height="3*" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
+        
+        <controls:IconBecauseImLazy Grid.Row="0" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="{adonisUi:Space 1}" ImageSource="/FortnitePorting;component/Resources/Settings.png" IconSize="16" MouseDown="OpenSettings" Cursor="Hand"/>
                 
         <Image Grid.Row="1" Source="/FortnitePorting-Large.png" RenderOptions.BitmapScalingMode="HighQuality" Width="150" Height="150"/>
         <StackPanel Grid.Row="2">

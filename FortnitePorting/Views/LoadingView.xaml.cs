@@ -69,4 +69,9 @@ public partial class LoadingView
     {
         DragMove();
     }
+
+    private void OpenSettings(object sender, MouseButtonEventArgs e)
+    {
+        AppHelper.OpenWindow<SettingsView>(this);
+    }
 }

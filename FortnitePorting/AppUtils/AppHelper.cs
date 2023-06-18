@@ -8,11 +8,12 @@ namespace FortnitePorting.AppUtils;
 
 public static class AppHelper
 {
-    public static void OpenWindow<T>() where T : Window, new()
+    public static void OpenWindow<T>(Window? owner = null) where T : Window, new()
     {
         var window = IsWindowOpen<T>() ? GetWindow<T>() : new T();
         window.Show();
         window.Focus();
+        window.Owner = owner;
     }
 
     public static void CloseWindow<T>() where T : Window, new()
