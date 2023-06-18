@@ -342,7 +342,7 @@ public class AssetHandlerData
 
                     foreach (var weaponMesh in weaponMeshPaths.ToArray())
                     {
-                        if (addedAssets.ToArray().Contains(weaponMesh)) continue;
+                        if (addedAssets.ToArray().Contains(weaponMesh) && AppSettings.Current.FilterWeapons) continue;
                         addedAssets.Add(weaponMesh);
                         await DoLoad(objectData, AssetType);
                     }
@@ -353,7 +353,7 @@ public class AssetHandlerData
                 // Prop Filtering
                 if (AssetType is EAssetType.Prop)
                 {
-                    if (addedAssets.ToArray().Contains(displayName))
+                    if (addedAssets.ToArray().Contains(displayName) && AppSettings.Current.FilterProps)
                     {
                         return;
                     }

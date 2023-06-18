@@ -76,4 +76,8 @@ public partial class AppSettings : ObservableObject
     [ObservableProperty] private string mappingsPath;
     
     [ObservableProperty] private string aesKey = Globals.ZERO_CHAR;
+
+    [ObservableProperty] private bool filterProps = true;
+    
+    [ObservableProperty] private bool filterWeapons = true;
 }

@@ -123,4 +123,26 @@ public class SettingsViewModel : ObservableObject
             OnPropertyChanged();
         }
     }
+    
+    public bool FilterProps
+    {
+        get => AppSettings.Current.FilterProps;
+        set
+        {
+            AppSettings.Current.FilterProps = value;
+            OnPropertyChanged();
+            IsRestartRequired = true;
+        }
+    }    
+    
+    public bool FilterWeapons
+    {
+        get => AppSettings.Current.FilterWeapons;
+        set
+        {
+            AppSettings.Current.FilterWeapons = value;
+            OnPropertyChanged();
+            IsRestartRequired = true;
+        }
+    }
 }
