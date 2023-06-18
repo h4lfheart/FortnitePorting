@@ -48,7 +48,7 @@ public partial class App
     {
         base.OnStartup(e);
         AllocConsole();
-        Console.Title = "Fortnite Porting Console";
+        Console.Title = $"Fortnite Porting Console - v{Globals.VERSION}";
         CUE4Parse.Globals.WarnMissingImportPackage = false;
 
         ObjectTypeRegistry.RegisterEngine(typeof(UFortnitePortingCustom).Assembly);

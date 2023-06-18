@@ -228,10 +228,13 @@ public class MeshExportData : ExportDataBase
                         var actor = templateRecord.ActorClass.Load<UBlueprintGeneratedClass>();
                         var classDefaultObject = await actor.ClassDefaultObject.LoadAsync();
 
+                        string? targetMaterialPath = null;
                         if (classDefaultObject.TryGetValue(out UStaticMesh staticMesh, "StaticMesh"))
                         {
                             var export = ExportHelpers.Mesh(staticMesh)!;
                             data.Parts.Add(export);
+
+                            targetMaterialPath = export.Materials.FirstOrDefault()?.MaterialPath;
                         }
                         else
                         {
@@ -245,6 +248,8 @@ public class MeshExportData : ExportDataBase
                                 if (componentStaticMesh is null) continue;
                                 var export = ExportHelpers.Mesh(componentStaticMesh)!;
                                 data.Parts.Add(export);
+
+                                targetMaterialPath = export.Materials.FirstOrDefault()?.MaterialPath;
                             }
                         }
 
@@ -264,6 +269,20 @@ public class MeshExportData : ExportDataBase
                                 doubleDoorExport.Scale.X = -1;
                                 data.Parts.Add(doubleDoorExport);
                             }
+                        }
+                        
+                        var actorData = templateRecord.ReadActorData(actorSaveRecord.Owner, actorSaveRecord.SaveVersion);
+                        if (!actorData.TryGetAllValues(out string[] textureDataPaths, "TextureData"))
+                        {
+                            var referenceTable = templateRecord.ActorDataReferenceTable;
+                            textureDataPaths = referenceTable.Select(x => x.AssetPathName.Text).ToArray();
+                        }
+                        
+                        for (var idx = 0; idx < textureDataPaths.Length; idx++)
+                        {
+                            var textureDataPath = textureDataPaths[idx];
+                            var textureData = await AppVM.CUE4ParseVM.Provider.LoadObjectAsync<UBuildingTextureData>(textureDataPath);
+                            data.StyleMaterialParams.Add(textureData.ToExportMaterialParams(idx, targetMaterialPath));
                         }
                     }
 

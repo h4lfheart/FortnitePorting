@@ -245,28 +245,59 @@ def add_range(list, items):
 def add_range_unique_param_name(list, items):
     if items is None:
         return
+    
+    for index, item in enumerate(list):
+        if item is None:
+            continue
+            
+        if found := first(items, lambda x: x.get("Name") == item.get("Name")):
+            list[index] = found
+
     for item in items:
         if not any(list, lambda x: x.get("Name") == item.get("Name")):
             list.append(item)
 
-layered_texture_names_non_detecting = [
-    "Diffuse",
-    "Normals",
-    "SpecularMasks",
+layered_texture_detecting = [
+    "Diffuse_Texture_2",
+    "Diffuse_Texture_3",
+    "Diffuse_Texture_4",
+    "Diffuse_Texture_5",
+    "Diffuse_Texture_6",
+
+    "Normals_Texture_2",
+    "Normals_Texture_3",
+    "Normals_Texture_4",
+    "Normals_Texture_5",
+    "Normals_Texture_6",
+
+    "SpecularMasks_2",
+    "SpecularMasks_3",
+    "SpecularMasks_4",
+    "SpecularMasks_5",
+    "SpecularMasks_6",
 ]
 
-layered_texture_names = [
+layered_texture_order = [
+    "Diffuse",
     "Diffuse_Texture_2",
-    "Normals_Texture_2",
-    "SpecularMasks_2",
-    
     "Diffuse_Texture_3",
-    "Normals_Texture_3",
-    "SpecularMasks_3",
-    
     "Diffuse_Texture_4",
+    "Diffuse_Texture_5",
+    "Diffuse_Texture_6",
+
+    "Normals",
+    "Normals_Texture_2",
+    "Normals_Texture_3",
     "Normals_Texture_4",
-    "SpecularMasks_4"
+    "Normals_Texture_5",
+    "Normals_Texture_6",
+
+    "SpecularMasks",
+    "SpecularMasks_2",
+    "SpecularMasks_3",
+    "SpecularMasks_4",
+    "SpecularMasks_5",
+    "SpecularMasks_6",
 ]
 
 def set_linear(node: bpy.types.ShaderNodeTexImage):
@@ -328,9 +359,8 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
             add_range_unique_param_name(vectors, override_data.get("Vectors"))
     
     # layered materials
-    layered_textures = where(textures, lambda x: x.get("Name") in layered_texture_names)
-    if layered_textures and len(layered_textures) > 0:
-        add_range(layered_textures, where(material_data.get("Textures"), lambda x: x.get("Name") in layered_texture_names_non_detecting))
+    if any(textures, lambda x: x.get("Name") in layered_texture_detecting):
+        layered_textures = where(textures, lambda x: x.get("Name") in layered_texture_order)
     
         shader_node = nodes.new(type="ShaderNodeGroup")
         shader_node.name = "FP Layered"
@@ -373,10 +403,6 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
             if slot is None:
                 slot = name
             found = first(textures, lambda x: x.get("Name") == name)
-            if has_override_data:
-                for override_data in override_datas:
-                    if found_override := first(override_data.get("Textures"), lambda x: x.get("Name") == name):
-                        found = found_override
             if found is None:
                 return
 
@@ -403,10 +429,6 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
             if slot is None:
                 slot = name
             found = first(scalars, lambda x: x.get("Name") == name)
-            if has_override_data:
-                for override_data in override_datas:
-                    if found_override := first(override_data.get("Scalars"), lambda x: x.get("Name") == name):
-                        found = found_override
             if found is None:
                 return
 
@@ -419,10 +441,6 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
             
         def add_vector(name):
             found = first(vectors, lambda x: x.get("Name") == name)
-            if has_override_data:
-                for override_data in override_datas:
-                    if found_override := first(override_data.get("Vectors"), lambda x: x.get("Name") == name):
-                        found = found_override
             if found is None:
                 return
 
@@ -468,10 +486,6 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
             if slot is None:
                 slot = name
             found = first(textures, lambda x: x.get("Name") == name)
-            if has_override_data:
-                for override_data in override_datas:
-                    if found_override := first(override_data.get("Textures"), lambda x: x.get("Name") == name):
-                        found = found_override
             if found is None:
                 return
 
@@ -541,10 +555,6 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
         
         def add_texture(name, slot, pos, alpha_slot = None, value_connect = False):
             found = first(textures, lambda x: x.get("Name") == name)
-            if has_override_data:
-                for override_data in override_datas:
-                    if found_override := first(override_data.get("Textures"), lambda x: x.get("Name") == name):
-                        found = found_override
             if found is None:
                 return
 
@@ -591,10 +601,6 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
 
         def add_texture(name, slot, pos, alpha_slot = None, to_node = valet_node):
             found = first(textures, lambda x: x.get("Name") == name)
-            if has_override_data:
-                for override_data in override_datas:
-                    if found_override := first(override_data.get("Textures"), lambda x: x.get("Name") == name):
-                        found = found_override
             if found is None:
                 return
 
@@ -619,10 +625,6 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
 
         def add_vector(name):
             found = first(vectors, lambda x: x.get("Name") == name)
-            if has_override_data:
-                for override_data in override_datas:
-                    if found_override := first(override_data.get("Vectors"), lambda x: x.get("Name") == name):
-                        found = found_override
             if found is None:
                 return
 
@@ -651,10 +653,6 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
       
     extra_pos_offset = 0
     def texture_parameter(data):
-        if has_override_data:
-            for override_data in override_datas:
-                if found_override := first(override_data.get("Textures"), lambda x: x.get("Name") == data.get("Name")):
-                    data = found_override
                 
         name = data.get("Name")
         value = data.get("Value")
@@ -704,10 +702,6 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
 
     hide_element_scalars = []
     def scalar_parameter(data):
-        if has_override_data:
-            for override_data in override_datas:
-                if found_override := first(override_data.get("Scalars"), lambda x: x.get("Name") == data.get("Name")):
-                    data = found_override
             
         name = data.get("Name")
         value = data.get("Value")
@@ -730,10 +724,6 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
             target_material.shadow_method = "CLIP"
         
     def vector_parameter(data):
-        if has_override_data:
-            for override_data in override_datas:
-                if found_override := first(override_data.get("Vectors"), lambda x: x.get("Name") == data.get("Name")):
-                    data = found_override
                 
         name = data.get("Name")
         value = data.get("Value")
@@ -815,10 +805,6 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
         
     def extra_uv_decal(tex_name):
         if decal_texture := first(textures, lambda x: x.get("Name") == tex_name):
-            if has_override_data:
-                for override_data in override_datas:
-                    if found_override := first(override_data.get("Textures"), lambda x: x.get("Name") == decal_texture.get("Name")):
-                        decal_texture = found_override
 
             name = decal_texture.get("Name")
             value = decal_texture.get("Value")
@@ -853,10 +839,6 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
 
     def background_diffuse(tex_name):
         if bg_texture := first(textures, lambda x: x.get("Name") == tex_name):
-            if has_override_data:
-                for override_data in override_datas:
-                    if found_override := first(override_data.get("Textures"), lambda x: x.get("Name") == bg_texture.get("Name")):
-                        bg_texture = found_override
 
             name = bg_texture.get("Name")
             value = bg_texture.get("Value")

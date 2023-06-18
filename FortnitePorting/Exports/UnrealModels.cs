@@ -1,9 +1,11 @@
 ﻿using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Animation;
+using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Exports.Sound.Node;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
+using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Assets.Readers;
 using CUE4Parse.UE4.Assets.Utils;
@@ -86,5 +88,48 @@ public class ULandscapeLayerInfoObject : UFortnitePortingCustom
         base.Deserialize(Ar, validPos);
 
         LayerName = GetOrDefault<FName>(nameof(LayerName));
+    }
+}
+
+public class UBuildingTextureData : UFortnitePortingCustom
+{
+    public UTexture2D? Diffuse;
+    public UTexture2D? Normal;
+    public UTexture2D? Specular;
+    public UMaterialInstanceConstant? OverrideMaterial;
+    
+    public override void Deserialize(FAssetArchive Ar, long validPos)
+    {
+        base.Deserialize(Ar, validPos);
+
+        Diffuse = GetOrDefault<UTexture2D?>(nameof(Diffuse));
+        Normal = GetOrDefault<UTexture2D?>(nameof(Normal));
+        Specular = GetOrDefault<UTexture2D?>(nameof(Specular));
+        OverrideMaterial = GetOrDefault<UMaterialInstanceConstant?>(nameof(OverrideMaterial));
+    }
+
+    public ExportMaterialParams ToExportMaterialParams(int index, string? targetMaterialPath)
+    {
+        var overrideMaterialPath = targetMaterialPath ?? OverrideMaterial?.GetPathName();
+        
+        var exportParams = new ExportMaterialParams();
+        exportParams.MaterialToAlter = overrideMaterialPath;
+
+        void Add(string name, UTexture2D? tex)
+        {
+            if (tex is null) return;
+            
+            ExportHelpers.Save(tex);
+            exportParams.Textures.Add(new TextureParameter(name, tex.GetPathName(), tex.SRGB, tex.CompressionSettings));
+        }
+
+        var suffix = index > 0 ? $"_Texture_{index + 1}" : string.Empty;
+        Add("Diffuse" + suffix, Diffuse);
+        Add("Normals" + suffix, Normal);
+        Add("SpecularMasks" + suffix, Specular);
+        
+        exportParams.Hash = exportParams.GetHashCode();
+
+        return exportParams;
     }
 }
