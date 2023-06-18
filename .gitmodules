@@ -7,6 +7,3 @@
 [submodule "Plugins/Unreal/FortnitePortingServerUnreal"]
 	path = Plugins/Unreal/FortnitePortingServerUnreal
 	url = https://github.com/halfuwu/FortnitePortingServerUnreal
-[submodule "MercuryCommons"]
-	path = Dependencies/MercuryCommons
-	url = https://github.com/FortniteCentral/MercuryCommons

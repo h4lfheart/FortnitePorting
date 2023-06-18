@@ -8,14 +8,11 @@ namespace FortnitePorting.Services;
 
 public static class EndpointService
 {
-    private static readonly RestClient _client = new RestClient
+    private static readonly RestClient _client = new(new RestClientOptions()
     {
-        Options =
-        {
-            UserAgent = "FortnitePorting",
-            MaxTimeout = 3000
-        }
-    }.UseSerializer<JsonNetSerializer>();
+        UserAgent = "FortnitePorting",
+        MaxTimeout = 3000
+    }, configureSerialization: s => s.UseNewtonsoftJson());
 
     public static readonly FortniteCentralEndpoint FortniteCentral = new(_client);
     public static readonly EpicEndpoint Epic = new(_client);
