@@ -657,7 +657,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
         name = data.get("Name")
         value = data.get("Value")
 
-        if (info := first(texture_mappings, lambda x: x[0].casefold() == name.casefold())) is None and name not in layered_texture_names and name not in added_textures:
+        if (info := first(texture_mappings, lambda x: x[0].casefold() == name.casefold())) is None and name not in layered_texture_order and name not in added_textures:
             node = nodes.new(type="ShaderNodeTexImage")
             node.image = import_texture(value)
             node.image.alpha_mode = 'CHANNEL_PACKED'
