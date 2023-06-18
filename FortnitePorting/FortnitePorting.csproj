@@ -93,6 +93,8 @@
         <Resource Include="Resources\Misc.png" />
         <None Remove="Resources\Wrap.png" />
         <Resource Include="Resources\Wrap.png" />
+        <None Remove="Resources\Wildlife.png" />
+        <Resource Include="Resources\Wildlife.png" />
     </ItemGroup>
 
 </Project>
