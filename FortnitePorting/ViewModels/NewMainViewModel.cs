@@ -77,6 +77,7 @@ public partial class NewMainViewModel : ObservableObject
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> pets = new();
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> musicPacks = new();
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> toys = new();
+    [ObservableProperty] private ObservableCollection<AssetSelectorItem> wildlife = new();
     
     [ObservableProperty] private ObservableCollection<PropExpander> galleries = new();
     

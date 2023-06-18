@@ -34,7 +34,7 @@ public class MeshExportData : ExportDataBase
     {
         var data = new MeshExportData();
         assetType = assetType is EAssetType.Gallery ? EAssetType.Prop : assetType;
-        data.Name = assetType == EAssetType.Mesh ? asset.Name : asset.GetOrDefault("DisplayName", new FText("Unnamed")).Text;
+        data.Name = assetType is (EAssetType.Mesh or EAssetType.Wildlife) ? asset.Name : asset.GetOrDefault("DisplayName", new FText("Unnamed")).Text;
         data.Type = assetType.ToString();
         var canContinue = await Task.Run(async () =>
         {
@@ -356,6 +356,12 @@ public class MeshExportData : ExportDataBase
                     }
                     data.Parts.Add(exportMesh);
                     
+                    break;
+                }
+                case EAssetType.Wildlife:
+                {
+                    ExportHelpers.Mesh(asset as USkeletalMesh, data.Parts);
+
                     break;
                 }
                 default:

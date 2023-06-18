@@ -76,9 +76,9 @@ public partial class AssetSelectorItem : INotifyPropertyChanged, IExportableAsse
         if (displayName.TextHistory is FTextHistory.Base textHistory)
             DisplayNameSource = textHistory.SourceString;
         ID = asset.Name;
-        Description = descriptionOverride is null ? asset.GetOrDefault("Description", new FText("No description.")).Text : descriptionOverride;
+        Description = descriptionOverride ?? asset.GetOrDefault("Description", new FText("No description.")).Text;
 
-        Rarity = asset.GetOrDefault("Rarity", EFortRarity.Uncommon);
+        Rarity = asset.GetOrDefault("Rarity", EFortRarity.Common);
         GameplayTags = asset.GetOrDefault<FGameplayTagContainer>("GameplayTags");
 
         var seasonTag = GameplayTags.GetValueOrDefault("Cosmetics.Filter.Season.")?.Text.SubstringAfterLast(".");

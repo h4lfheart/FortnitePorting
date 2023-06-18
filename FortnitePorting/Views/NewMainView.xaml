@@ -149,6 +149,9 @@
                         <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Vehicle}">
                             <controls:TextWithIcon Label="Vehicles" ImageSource="/FortnitePorting;component/Resources/Vehicle.png" IconSize="24"/>
                         </ToggleButton>
+                        <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Wildlife}">
+                            <controls:TextWithIcon Label="Wildlife" ImageSource="/FortnitePorting;component/Resources/Wildlife.png" IconSize="24"/>
+                        </ToggleButton>
                     </StackPanel>
                 </GroupBox>
                 

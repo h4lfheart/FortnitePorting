@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Threading;
 using CUE4Parse.UE4.AssetRegistry.Objects;
 using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
@@ -41,7 +42,8 @@ public class AssetHandlerViewModel
             { EAssetType.Prop, PropHandler },
             { EAssetType.Pet, PetHandler },
             { EAssetType.Music, MusicPackHandler },
-            { EAssetType.Toy, ToyHandler }
+            { EAssetType.Toy, ToyHandler },
+            { EAssetType.Wildlife, WildlifeHandler }
         };
     }
 
@@ -222,6 +224,12 @@ public class AssetHandlerViewModel
         RemoveList = { },
         IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
     };
+    
+    private readonly AssetHandlerData WildlifeHandler = new()
+    {
+        AssetType = EAssetType.Wildlife,
+        TargetCollection = AppVM.NewMainVM.Wildlife
+    };
 
     public async Task Initialize()
     {
@@ -297,6 +305,35 @@ public class AssetHandlerData
             
             sw.Stop();
             Log.Information($"Loaded {AssetType.GetDescription()} in {Math.Round(sw.Elapsed.TotalSeconds, 2)}s");
+            return;
+        }
+
+        if (AssetType is EAssetType.Wildlife)
+        {
+            await DoLoadWildlife("Boar",
+                "FortniteGame/Plugins/GameFeatures/Irwin/Content/AI/Prey/Burt/Meshes/Burt_Mammal",
+                "FortniteGame/Plugins/GameFeatures/Irwin/Content/Icons/T-Icon-Fauna-Boar");
+            
+            await DoLoadWildlife("Chicken",
+                "FortniteGame/Plugins/GameFeatures/Irwin/Content/AI/Prey/Nug/Meshes/Nug_Bird",
+                "FortniteGame/Plugins/GameFeatures/Irwin/Content/Icons/T-Icon-Fauna-Chicken");
+            
+            await DoLoadWildlife("Crow",
+                "FortniteGame/Plugins/GameFeatures/Irwin/Content/AI/Prey/Crow/Meshes/Crow_Bird",
+                "FortniteGame/Plugins/GameFeatures/Irwin/Content/Icons/T-Icon-Fauna-Crow");
+            
+            await DoLoadWildlife("Frog",
+                "FortniteGame/Plugins/GameFeatures/Irwin/Content/AI/Simple/Smackie/Meshes/Smackie_Amphibian",
+                "FortniteGame/Plugins/GameFeatures/Irwin/Content/Icons/T-Icon-Fauna-Frog");
+            
+            await DoLoadWildlife("Raptor",
+                "FortniteGame/Plugins/GameFeatures/Irwin/Content/AI/Predators/Robert/Meshes/Jungle_Raptor_Fauna",
+                "FortniteGame/Plugins/GameFeatures/Irwin/Content/Icons/T-Icon-Fauna-JungleRaptor");
+            
+            await DoLoadWildlife("Wolf",
+                "FortniteGame/Plugins/GameFeatures/Irwin/Content/AI/Predators/Grandma/Meshes/Grandma_Mammal",
+                "FortniteGame/Plugins/GameFeatures/Irwin/Content/Icons/T-Icon-Fauna-Wolf");
+            
             return;
         }
 
@@ -417,5 +454,15 @@ public class AssetHandlerData
         if (previewImage is null) return;
 
         await Application.Current.Dispatcher.InvokeAsync(() => target.Add(new AssetSelectorItem(asset, previewImage, type, random, DisplayNameGetter?.Invoke(asset), descriptionOverride, RemoveList.Any(y => asset.Name.Contains(y, StringComparison.OrdinalIgnoreCase)))), DispatcherPriority.Background);
+    }
+    
+    private async Task DoLoadWildlife(string name, string skeletalMeshPath, string previewImagePath)
+    {
+        await PauseState.WaitIfPaused();
+
+        var skeletalMesh = await AppVM.CUE4ParseVM.Provider.LoadObjectAsync<USkeletalMesh>(skeletalMeshPath);
+        var previewImage = await AppVM.CUE4ParseVM.Provider.LoadObjectAsync<UTexture2D>(previewImagePath);
+        
+        await Application.Current.Dispatcher.InvokeAsync(() => AppVM.NewMainVM.Wildlife.Add(new AssetSelectorItem(skeletalMesh, previewImage, EAssetType.Wildlife, false, new FText(name))), DispatcherPriority.Background);
     }
 }
