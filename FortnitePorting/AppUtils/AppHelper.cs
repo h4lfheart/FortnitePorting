@@ -55,7 +55,10 @@ public static class AppHelper
     
     public static bool TrySelectFile(out string selectedPath)
     {
-        var fileExplorer = new VistaOpenFileDialog();
+        var fileExplorer = new VistaOpenFileDialog()
+        {
+            Filter = "Unreal Mappings|*.usmap"
+        };
 
         if (fileExplorer.ShowDialog() == true)
         {

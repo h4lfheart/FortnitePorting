@@ -23,6 +23,7 @@ public class SettingsViewModel : ObservableObject
             OnPropertyChanged(nameof(IsLiveInstall));
             OnPropertyChanged(nameof(IsCustomInstall));
             OnPropertyChanged(nameof(CanChangePath));
+            OnPropertyChanged(nameof(ArchivePath));
             IsRestartRequired = true;
         }
     }
@@ -32,7 +33,10 @@ public class SettingsViewModel : ObservableObject
         get => AppSettings.Current.ArchivePath;
         set
         {
-            AppSettings.Current.ArchivePath = value;
+            if (IsCustomInstall)
+                AppSettings.Current.CustomArchivePath = value;
+            else
+                AppSettings.Current.LocalArchivePath = value;
             OnPropertyChanged();
             IsRestartRequired = true;
         }

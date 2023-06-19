@@ -33,7 +33,10 @@ public partial class AppSettings : ObservableObject
         File.WriteAllText(FilePath.FullName, JsonConvert.SerializeObject(Current, Formatting.Indented));
     }
 
-    [ObservableProperty] private string archivePath;
+    public string ArchivePath => InstallType is EInstallType.Custom ? CustomArchivePath : LocalArchivePath;
+    
+    [ObservableProperty] private string localArchivePath = string.Empty;
+    [ObservableProperty] private string customArchivePath = string.Empty;
 
     [ObservableProperty] private ELanguage language;
 

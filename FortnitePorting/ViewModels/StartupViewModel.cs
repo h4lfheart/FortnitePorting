@@ -12,10 +12,10 @@ public class StartupViewModel : ObservableObject
 {
     public string ArchivePath
     {
-        get => AppSettings.Current.ArchivePath;
+        get => AppSettings.Current.LocalArchivePath;
         set
         {
-            AppSettings.Current.ArchivePath = value;
+            AppSettings.Current.LocalArchivePath = value;
             OnPropertyChanged();
         }
     }
