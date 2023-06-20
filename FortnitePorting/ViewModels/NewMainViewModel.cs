@@ -16,6 +16,7 @@ using FortnitePorting.Exports.Types;
 using FortnitePorting.OpenGL;
 using FortnitePorting.Services;
 using FortnitePorting.Services.Export;
+using FortnitePorting.Tools;
 using FortnitePorting.Views;
 using FortnitePorting.Views.Controls;
 using FortnitePorting.Views.Extensions;
@@ -273,6 +274,9 @@ public partial class NewMainViewModel : ObservableObject
                 break;
             case "Update":
                 UpdateService.Start();
+                break;
+            case "Tool_Heightmap":
+                AppHelper.OpenWindow<HeightmapView>();
                 break;
         }
     }

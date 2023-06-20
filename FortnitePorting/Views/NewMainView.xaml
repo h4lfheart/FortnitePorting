@@ -56,6 +56,13 @@
                         </MenuItem.Icon>
                     </MenuItem>
                 </MenuItem>
+                <MenuItem Header="Tools" Command="{Binding MenuCommand}">
+                    <MenuItem Header="Heightmap Exporter" Command="{Binding MenuCommand}" CommandParameter="Tool_Heightmap">
+                        <MenuItem.Icon>
+                            <Image Source="/Resources/Gallery.png" Width="16" Height="16" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </MenuItem>
                 <MenuItem Header="Help">
                     <MenuItem Header="Discord Server" Command="{Binding MenuCommand}" CommandParameter="Help_Discord">
                         <MenuItem.Icon>

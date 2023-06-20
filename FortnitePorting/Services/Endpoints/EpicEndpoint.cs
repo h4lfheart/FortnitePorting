@@ -40,9 +40,6 @@ public class EpicEndpoint : EndpointBase
     {
         var request = new RestRequest(url);
         var response = await _client.ExecuteAsync(request);
-        Log.Error("Manifest Get Errors:");
-        Log.Error(response.ErrorException?.ToString() ?? "No Stack Trace.");
-        Log.Error(response.ErrorMessage ?? "No Error Message.");
         Log.Information("[{Method}] {StatusDescription} ({StatusCode}): {URI}", request.Method, response.StatusDescription, (int)response.StatusCode, request.Resource);
         return new Manifest(response.RawBytes, new ManifestOptions
         {

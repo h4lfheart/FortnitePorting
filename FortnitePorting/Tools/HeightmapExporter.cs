@@ -10,7 +10,9 @@ using FortnitePorting.AppUtils;
 using FortnitePorting.Exports;
 using FortnitePorting.Views.Extensions;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 
 namespace FortnitePorting.Tools;
 
@@ -77,6 +79,7 @@ public static class HeightmapExporter
             Log.Information("Exporting Heightmap: {Type}", "Height");
 
             var height = new Image<L16>(Size, Size);
+            height.Mutate(x => x.Fill(Color.FromRgb(0x79, 0x79, 0x97)));
             IteratePixels(heightTextures, (color, x, y, _) =>
             {
                 var corrected = (ushort)((color.R << 8) | color.G);
@@ -91,7 +94,11 @@ public static class HeightmapExporter
             Log.Information("Exporting Normalmap: {Type}", "Normal");
 
             var normal = new Image<Rgb24>(Size, Size);
-            IteratePixels(heightTextures, (color, x, y, _) => { normal[x, y] = new Rgb24(color.B, color.A, 255); });
+            normal.Mutate(x => x.Fill(Color.FromRgb(0xBC, 0xBC, 0xFF)));
+            IteratePixels(heightTextures, (color, x, y, _) =>
+            {
+                normal[x, y] = new Rgb24(color.B, color.A, 255);
+            });
             normal.SaveAsPng(Path.Combine(App.MapFolder.FullName, $"{world.Name}_Normal.png"));
             SetPreviewImage(normal);
         }
