@@ -94,7 +94,7 @@ public static class HeightmapExporter
             Log.Information("Exporting Normalmap: {Type}", "Normal");
 
             var normal = new Image<Rgb24>(Size, Size);
-            normal.Mutate(x => x.Fill(Color.FromRgb(0xBC, 0xBC, 0xFF)));
+            normal.Mutate(x => x.Fill(Color.FromRgb(0x7f, 0x7f, 0xFF)));
             IteratePixels(heightTextures, (color, x, y, _) =>
             {
                 normal[x, y] = new Rgb24(color.B, color.A, 255);
