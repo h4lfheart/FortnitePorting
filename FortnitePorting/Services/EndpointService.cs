@@ -10,9 +10,9 @@ public static class EndpointService
 {
     private static readonly RestClient _client = new(new RestClientOptions()
     {
-        UserAgent = "FortnitePorting",
-        MaxTimeout = 5000
-    }, configureSerialization: s => s.UseNewtonsoftJson());
+        UserAgent = $"FortnitePorting/{Globals.VERSION}",
+        MaxTimeout = 25 * 1000
+    }, configureSerialization: s => s.UseSerializer<JsonNetSerializer>());
 
     public static readonly FortniteCentralEndpoint FortniteCentral = new(_client);
     public static readonly EpicEndpoint Epic = new(_client);
