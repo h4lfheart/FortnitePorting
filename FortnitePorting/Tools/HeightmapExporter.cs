@@ -79,7 +79,7 @@ public static class HeightmapExporter
             Log.Information("Exporting Heightmap: {Type}", "Height");
 
             var height = new Image<L16>(Size, Size);
-            height.Mutate(x => x.Fill(Color.FromRgb(0x79, 0x79, 0x97)));
+            height.Mutate(x => x.Fill(Color.FromRgb(0x79, 0x79, 0x79)));
             IteratePixels(heightTextures, (color, x, y, _) =>
             {
                 var corrected = (ushort)((color.R << 8) | color.G);
