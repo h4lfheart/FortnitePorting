@@ -47,7 +47,7 @@ public class CUE4ParseViewModel : ObservableObject
 
     public readonly RarityCollection[] RarityData = new RarityCollection[8];
 
-    public static readonly VersionContainer Version = new(EGame.GAME_UE5_2);
+    public static readonly VersionContainer Version = new(EGame.GAME_UE5_3);
 
     private BackupAPI? BackupInfo;
     
