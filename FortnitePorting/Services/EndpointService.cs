@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using FortnitePorting.Services.Endpoints;
 using RestSharp;
@@ -11,7 +12,7 @@ public static class EndpointService
     private static readonly RestClient _client = new(new RestClientOptions()
     {
         UserAgent = $"FortnitePorting/{Globals.VERSION}",
-        MaxTimeout = 25 * 1000
+        MaxTimeout = Timeout.Infinite
     }, configureSerialization: s => s.UseSerializer<JsonNetSerializer>());
 
     public static readonly FortniteCentralEndpoint FortniteCentral = new(_client);
