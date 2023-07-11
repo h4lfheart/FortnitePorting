@@ -440,6 +440,27 @@ public static class ExportHelpers
                 break;
             }
         }
+        
+        if (materialInterface.TryLoadEditorData<UMaterialEditorOnlyData>(out var materialEditorData) && materialEditorData is not null)
+        {
+            bool TryAddExpressionTexture(string expressionName, string paramName)
+            {
+                if (!materialEditorData.TryGetValue(out FExpressionInput input, expressionName)) return false;
+                if (!input.Expression.TryLoad(out var expression)) return false;
+                if (!expression!.TryGetValue(out UTexture2D texture, "Texture")) return false;
+                
+                textures.AddUnique(new TextureParameter(paramName, texture.GetPathName(), texture.SRGB, texture.CompressionSettings));
+                Save(texture);
+                return true;
+            }
+            
+            TryAddExpressionTexture("BaseColor", "Diffuse");
+            TryAddExpressionTexture("Specular", "SpecularMasks");
+            TryAddExpressionTexture("Metallic", "SpecularMasks");
+            TryAddExpressionTexture("Roughness", "SpecularMasks");
+            TryAddExpressionTexture("Normal", "Normals");
+            TryAddExpressionTexture("EmissiveColor", "Emissive");
+        }
 
         return (textures, new List<ScalarParameter>(), new List<VectorParameter>());
     }
