@@ -352,6 +352,21 @@ public static class ExportHelpers
             }
         }
 
+        if (materialInstance.TryLoadEditorData<UMaterialInstanceEditorOnlyData>(out var materialInstanceEditorData) && materialInstanceEditorData.StaticParameters is not null)
+        {
+            foreach (var parameter in materialInstanceEditorData.StaticParameters.StaticSwitchParameters)
+            {
+                if (parameter.ParameterInfo is null) continue;
+                switches.AddUnique(new SwitchParameter(parameter.Name, parameter.Value));
+            }
+            
+            foreach (var parameter in materialInstanceEditorData.StaticParameters.StaticComponentMaskParameters)
+            {
+                if (parameter.ParameterInfo is null) continue;
+                componentMasks.AddUnique(new ComponentMaskParameter(parameter.Name, parameter.ToLinearColor()));
+            }
+        }
+
         if (materialInstance.Parent is UMaterialInstanceConstant materialParent)
         {
             var (parentTextures, parentScalars, parentVectors, parentSwitches, parentComponentMasks) = MaterialParameters(materialParent);

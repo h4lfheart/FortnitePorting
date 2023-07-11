@@ -102,13 +102,13 @@ public static class CUE4ParseExtensions
         }
     }
 
-    public static bool TryLoadEditorData<T>(this UObject asset, out T editorData) where T : UObject
+    public static bool TryLoadEditorData<T>(this UObject asset, out T? editorData) where T : UObject
     {
         var path = asset.GetPathName().SubstringBeforeLast(".") + ".o.uasset";
         if (AppVM.CUE4ParseVM.Provider.TryLoadObjectExports(path, out var exports))
         {
             editorData = exports.FirstOrDefault() as T;
-            return true;
+            return editorData is not null;
         }
 
         editorData = default;

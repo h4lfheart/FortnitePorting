@@ -351,6 +351,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
     scalars = material_data.get("Scalars")
     vectors = material_data.get("Vectors")
     switches = material_data.get("Switches")
+    component_masks = material_data.get("ComponentMasks")
     
     if has_override_data:
         for override_data in override_datas:
@@ -521,7 +522,6 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
         add_texture("Emissive")
         
         return 
-        
 
     shader_node = nodes.new(type="ShaderNodeGroup")
     shader_node.name = "FP Shader"
@@ -540,7 +540,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
 
     # gradient skins
     added_textures = []
-    if (layer_mask := first(textures, lambda x: x.get("Name") == "Layer Mask")) and "DefaultDiffuse" not in layer_mask.get("Value"):
+    if (use_gmap := first(switches, lambda x: x.get("Name") == "useGmapGradientLayers")) and use_gmap.get("Value"):
         gradient_node = nodes.new(type="ShaderNodeGroup")
         gradient_node.name = "FP Gradient"
         gradient_node.node_tree = bpy.data.node_groups.get(gradient_node.name)
@@ -588,6 +588,10 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
         add_texture("Layer3_Gradient", "Layer3_Gradient", (-800, -200), value_connect=True)
         add_texture("Layer4_Gradient", "Layer4_Gradient", (-800, -240), value_connect=True)
         add_texture("Layer5_Gradient", "Layer5_Gradient", (-800, -280), value_connect=True)
+        
+        if gmap_channel := first(component_masks, lambda x: x.get("Name") == "GmapSkinCustomization_Channel"):
+            print(gmap_channel)
+            gradient_node.inputs["GmapSkinCustomization_Channel"].default_value = make_color(gmap_channel.get("Value"))
         
     if master_material_name == "M_FN_Valet_Master":
         valet_node = nodes.new(type="ShaderNodeGroup")
