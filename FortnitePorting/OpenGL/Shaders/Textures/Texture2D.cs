@@ -13,15 +13,15 @@ public class Texture2D
     public static readonly Texture2D SpecularMasks = new(new FLinearColor(0.5f, 0.0f, 0.5f, 1.0f));
     public static readonly Texture2D Mask = new(new FLinearColor(1.0f, 0.5f, 0.0f, 1.0f));
     private readonly TextureHandle Handle;
-    
+
     public Texture2D(UTexture2D texture)
     {
         Handle = GL.GenTexture();
         Bind();
-        
+
         var firstMip = texture.GetFirstMip();
         TextureDecoder.DecodeTexture(firstMip, texture.Format, texture.IsNormalMap, ETexturePlatform.DesktopMobile, out var data, out _);
-        
+
         GL.TexImage2D(TextureTarget.Texture2d, 0, texture.SRGB ? InternalFormat.Srgb : InternalFormat.Rgb, firstMip.SizeX, firstMip.SizeY, 0, PixelFormat.Rgba, PixelType.UnsignedByte, data);
 
         GL.TextureParameteri(Handle, TextureParameterName.TextureMinFilter, (int) TextureMinFilter.Linear);
@@ -29,7 +29,7 @@ public class Texture2D
         GL.TextureParameteri(Handle, TextureParameterName.TextureWrapS, (int) TextureWrapMode.ClampToEdge);
         GL.TextureParameteri(Handle, TextureParameterName.TextureWrapT, (int) TextureWrapMode.ClampToEdge);
     }
-    
+
     public Texture2D(FLinearColor color)
     {
         Handle = GL.GenTexture();
@@ -48,7 +48,7 @@ public class Texture2D
         GL.ActiveTexture(unit);
         Bind();
     }
-    
+
     public void Bind()
     {
         GL.BindTexture(TextureTarget.Texture2d, Handle);

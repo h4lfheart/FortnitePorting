@@ -5,7 +5,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.Versions;
 using FortnitePorting.Exports.Blender;
 using FortnitePorting.Exports.Unreal;
-using FortnitePorting.Models;
 using FortnitePorting.Services.Endpoints.Models;
 using Newtonsoft.Json;
 
@@ -34,7 +33,7 @@ public partial class AppSettings : ObservableObject
     }
 
     public string ArchivePath => InstallType is EInstallType.Custom ? CustomArchivePath : LocalArchivePath;
-    
+
     [ObservableProperty] private string localArchivePath = string.Empty;
     [ObservableProperty] private string customArchivePath = string.Empty;
 
@@ -71,16 +70,16 @@ public partial class AppSettings : ObservableObject
     [ObservableProperty] private float assetSize = 1.0f;
 
     [ObservableProperty] private Dictionary<string, List<string>> weaponMappings = new();
-    
+
     [ObservableProperty] private DateTime lastBroadcastTime;
-    
+
     [ObservableProperty] private EGame gameVersion = EGame.GAME_UE5_3;
-    
+
     [ObservableProperty] private string mappingsPath;
-    
+
     [ObservableProperty] private string aesKey = Globals.ZERO_CHAR;
 
     [ObservableProperty] private bool filterProps = true;
-    
+
     [ObservableProperty] private bool filterWeapons = true;
 }

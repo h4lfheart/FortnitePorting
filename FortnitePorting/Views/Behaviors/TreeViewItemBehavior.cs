@@ -7,7 +7,7 @@ public sealed class TreeViewItemBehavior
 {
     public static bool GetIsBroughtIntoViewWhenSelected(TreeViewItem treeViewItem)
     {
-        return (bool)treeViewItem.GetValue(IsBroughtIntoViewWhenSelectedProperty);
+        return (bool) treeViewItem.GetValue(IsBroughtIntoViewWhenSelectedProperty);
     }
 
     public static void SetIsBroughtIntoViewWhenSelected(TreeViewItem treeViewItem, bool value)

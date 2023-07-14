@@ -12,8 +12,8 @@ namespace FortnitePorting.OpenGL.Renderable;
 public class UnrealMesh : IRenderable
 {
     public FBox Bounds;
-    private List<UnrealSection> Sections = new();
-    
+    private readonly List<UnrealSection> Sections = new();
+
     public UnrealMesh(USkeletalMesh skeletalMesh, Matrix4? transform = null)
     {
         Log.Information("Loading Skeletal Mesh: {Name}", skeletalMesh.Name);
@@ -22,13 +22,13 @@ public class UnrealMesh : IRenderable
             Log.Error("Failed to Load Skeletal Mesh: {Name}", skeletalMesh.Name);
             return;
         }
-        
+
         Bounds = convertedMesh.BoundingBox;
         var lod = convertedMesh.LODs[0];
         var sections = lod.Sections.Value;
         Sections.AddRange(sections.Select(x => new UnrealSection(lod, x, skeletalMesh.Materials[x.MaterialIndex]?.Load<UMaterialInterface>(), transform)));
     }
-    
+
     public UnrealMesh(UStaticMesh staticMesh, Matrix4? transform = null)
     {
         Log.Information("Loading Static Mesh: {Name}", staticMesh.Name);
@@ -46,14 +46,14 @@ public class UnrealMesh : IRenderable
 
     public void Setup()
     {
-        Sections.ForEach(x=> x.Setup());
+        Sections.ForEach(x => x.Setup());
     }
 
     public void Render(Camera camera)
     {
-        Sections.ForEach(x=> x.Render(camera));
+        Sections.ForEach(x => x.Render(camera));
     }
-    
+
     public void Dispose()
     {
         Sections.ForEach(x => x.Dispose());

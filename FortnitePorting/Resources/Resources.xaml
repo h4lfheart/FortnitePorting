@@ -61,7 +61,7 @@
             </Setter.Value>
         </Setter>
     </Style>
-    
+
     <Style x:Key="ContentSeparator" TargetType="Separator" BasedOn="{StaticResource {x:Type Separator}}">
         <Setter Property="Background" Value="{DynamicResource {x:Static adonisUi:Brushes.Layer1BorderBrush}}" />
         <Setter Property="Foreground" Value="{DynamicResource {x:Static adonisUi:Brushes.ForegroundBrush}}" />
@@ -529,7 +529,7 @@
             </Setter.Value>
         </Setter>
     </Style>
-    
+
     <Style x:Key="ExpanderDownStyle" TargetType="{x:Type ToggleButton}">
         <Setter Property="Template">
             <Setter.Value>
@@ -537,7 +537,7 @@
                     <Border DockPanel.Dock="Top" Background="Transparent">
                         <Viewbox Width="16" Height="16" HorizontalAlignment="Center">
                             <Canvas Width="24" Height="24">
-                                <Path Fill="{TemplateBinding Foreground}" Data="{StaticResource ArrowIcon}"/>
+                                <Path Fill="{TemplateBinding Foreground}" Data="{StaticResource ArrowIcon}" />
                             </Canvas>
                         </Viewbox>
                     </Border>
@@ -545,8 +545,8 @@
             </Setter.Value>
         </Setter>
     </Style>
-    
+
     <Style x:Key="{x:Type Expander}" TargetType="Expander" BasedOn="{StaticResource {x:Type Expander}}">
-        
+
     </Style>
 </ResourceDictionary>

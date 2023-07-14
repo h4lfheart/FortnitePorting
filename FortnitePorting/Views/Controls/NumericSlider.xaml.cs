@@ -8,7 +8,7 @@ public partial class NumericSlider
 
     public string Label
     {
-        get => (string)GetValue(LabelProperty);
+        get => (string) GetValue(LabelProperty);
         set => SetValue(LabelProperty, value);
     }
 
@@ -16,7 +16,7 @@ public partial class NumericSlider
 
     public double Maximum
     {
-        get => (double)GetValue(MaximumProperty);
+        get => (double) GetValue(MaximumProperty);
         set => SetValue(MaximumProperty, value);
     }
 
@@ -26,13 +26,13 @@ public partial class NumericSlider
 
     public double Minimum
     {
-        get => (double)GetValue(MinimumProperty);
+        get => (double) GetValue(MinimumProperty);
         set => SetValue(MinimumProperty, value);
     }
 
     public double StepSize
     {
-        get => (double)GetValue(StepSizeProperty);
+        get => (double) GetValue(StepSizeProperty);
         set => SetValue(StepSizeProperty, value);
     }
 
@@ -40,7 +40,7 @@ public partial class NumericSlider
 
     public bool Snap
     {
-        get => (bool)GetValue(SnapProperty);
+        get => (bool) GetValue(SnapProperty);
         set => SetValue(SnapProperty, value);
     }
 
@@ -48,7 +48,7 @@ public partial class NumericSlider
 
     public double Value
     {
-        get => (double)GetValue(ValueProperty);
+        get => (double) GetValue(ValueProperty);
         set => SetValue(ValueProperty, value);
     }
 

@@ -25,10 +25,10 @@ public partial class NewMainView
         InitializeComponent();
         AppVM.NewMainVM = new NewMainViewModel();
         DataContext = AppVM.NewMainVM;
-        
+
         Title = $"Fortnite Porting - v{Globals.VERSION}";
     }
-    
+
     private async void OnLoaded(object sender, RoutedEventArgs e)
     {
         AppVM.AssetHandlerVM = new AssetHandlerViewModel();
@@ -38,7 +38,7 @@ public partial class NewMainView
     private async void OnAssetTypeClick(object sender, RoutedEventArgs e)
     {
         if (AppVM.AssetHandlerVM is null) return;
-        
+
         var clickedButton = (ToggleButton) sender;
         var assetType = (EAssetType) clickedButton.Tag;
         if (AppVM.NewMainVM.CurrentAssetType == assetType) return;
@@ -47,7 +47,7 @@ public partial class NewMainView
         AppVM.NewMainVM.CurrentAsset = null;
         AppVM.NewMainVM.CurrentAssetType = assetType;
         DiscordService.Update(assetType);
-        
+
         // uncheck other buttons
         var buttons = AssetTypePanel.Children.OfType<ToggleButton>();
         foreach (var button in buttons)
@@ -68,7 +68,7 @@ public partial class NewMainView
                 handlerData.PauseState.Pause();
             }
         }
-        
+
         if (assetType is EAssetType.Mesh)
         {
             if (AppVM.MeshVM is not null && AppVM.MeshVM.HasStarted) return;
@@ -96,7 +96,7 @@ public partial class NewMainView
             listBox.SelectedIndex = App.RandomGenerator.Next(0, listBox.Items.Count);
             return;
         }
-        
+
         AppVM.NewMainVM.CurrentAsset = selected;
         AppVM.NewMainVM.ExtendedAssets.Clear();
         AppVM.NewMainVM.Styles.Clear();
@@ -188,7 +188,7 @@ public partial class NewMainView
 
     private void OnFilterItemChecked(object sender, RoutedEventArgs e)
     {
-        var checkBox = (CheckBox)sender;
+        var checkBox = (CheckBox) sender;
         if (checkBox.Tag is null) return;
         if (!checkBox.IsChecked.HasValue) return;
 
@@ -241,7 +241,7 @@ public partial class NewMainView
                 break;
         }
     }
-    
+
     private ListSortDirection GetProperSort(ListSortDirection direction)
     {
         return direction switch
@@ -255,28 +255,28 @@ public partial class NewMainView
     {
         RefreshSorting();
     }
-    
+
     private void OnAscendingDescendingClicked(object sender, RoutedEventArgs e)
     {
         var newValue = !AppVM.NewMainVM.Ascending;
         AppVM.NewMainVM.Ascending = newValue;
-        
+
         var button = (Button) sender;
         var image = (IconBecauseImLazy) button.Content;
         image.RenderTransform = new RotateTransform(newValue ? 180 : 0);
-        
+
         RefreshSorting();
     }
 
     private void OnPauseLoadingSwitched(object sender, RoutedEventArgs e)
     {
         if (AppVM.AssetHandlerVM is null) return;
-        
+
         var toggleSwitch = (ToggleButton) sender;
         var pauseValue = toggleSwitch.IsChecked.HasValue && toggleSwitch.IsChecked.Value;
         foreach (var (_, handler) in AppVM.AssetHandlerVM.Handlers)
         {
-            handler.PauseState.IsPaused = pauseValue; 
+            handler.PauseState.IsPaused = pauseValue;
         }
 
         AppVM.NewMainVM.IsPaused = pauseValue;
@@ -297,7 +297,7 @@ public partial class NewMainView
         var listBox = (ListBox) sender;
         var selectedItem = (AssetItem) listBox.SelectedItem;
         if (selectedItem is null) return;
-        
+
         await AppVM.NewMainVM.SetupMeshSelection(listBox.SelectedItems.OfType<AssetItem>().ToArray());
     }
 
@@ -306,10 +306,10 @@ public partial class NewMainView
         var listBox = (ListBox) sender;
         var selectedItem = (AssetItem) listBox.SelectedItem;
         if (selectedItem is null) return;
-        
+
         JumpToAsset(selectedItem.PathWithoutExtension);
     }
-    
+
     private void JumpToAsset(string directory)
     {
         var children = AppVM.NewMainVM.Meshes;

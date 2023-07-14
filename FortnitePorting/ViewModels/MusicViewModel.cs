@@ -11,23 +11,23 @@ public partial class MusicViewModel : ObservableObject
 {
     public Visibility QueueVisibility => Queue.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
     public Visibility FallbackVisibility => ActiveTrack is null ? Visibility.Visible : Visibility.Collapsed;
-    
+
     [ObservableProperty]
     private bool isPaused;
-    
+
     [ObservableProperty]
     private bool isRandom;
-    
+
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(FallbackVisibility))]
     private MusicQueueItem? activeTrack;
-    
+
     [ObservableProperty]
     private MusicQueueItem? fallbackTrack = AppVM.CUE4ParseVM.PlaceholderMusicPack;
 
     [ObservableProperty]
     private ObservableCollection<MusicQueueItem> queue = new();
-    
+
     public void Add(MusicQueueItem queueItem)
     {
         Queue.Add(queueItem);
@@ -35,7 +35,7 @@ public partial class MusicViewModel : ObservableObject
         {
             ContinueQueue();
         }
-        
+
         OnPropertyChanged(nameof(QueueVisibility));
     }
 
@@ -56,7 +56,7 @@ public partial class MusicViewModel : ObservableObject
                 return;
             }
         }
-        
+
         nextQueueItem ??= IsRandom ? Queue.Random() : Queue.First();
         ActiveTrack = nextQueueItem;
         ActiveTrack.Initialize();
@@ -68,7 +68,7 @@ public partial class MusicViewModel : ObservableObject
     {
         ActiveTrack?.Pause();
     }
-    
+
     public void Resume()
     {
         ActiveTrack?.Resume();

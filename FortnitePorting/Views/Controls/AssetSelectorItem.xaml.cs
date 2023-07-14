@@ -18,8 +18,6 @@ using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.GameplayTags;
 using CUE4Parse.Utils;
 using FortnitePorting.AppUtils;
-using FortnitePorting.Bundles;
-using FortnitePorting.Exports;
 using FortnitePorting.Exports.Types;
 using FortnitePorting.ViewModels;
 using FortnitePorting.Views.Extensions;
@@ -159,7 +157,7 @@ public partial class AssetSelectorItem : INotifyPropertyChanged, IExportableAsse
         }
         else
         {
-            var colorData = AppVM.CUE4ParseVM.RarityData[(int)Rarity];
+            var colorData = AppVM.CUE4ParseVM.RarityData[(int) Rarity];
 
             canvas.DrawRect(new SKRect(0, 0, size, size), new SKPaint
             {
@@ -204,14 +202,14 @@ public partial class AssetSelectorItem : INotifyPropertyChanged, IExportableAsse
         OnPropertyChanged(nameof(FavoriteSize));
     }
 
-    public ICommand AddFavoriteCommand { get; private set; }
+    public ICommand AddFavoriteCommand { get; }
 
     public void AddFavorite()
     {
         ToggleFavorite();
     }
 
-    public ICommand ExportAssetsCommand { get; private set; }
+    public ICommand ExportAssetsCommand { get; }
 
     public void ExportAssets()
     {
@@ -247,7 +245,7 @@ public partial class AssetSelectorItem : INotifyPropertyChanged, IExportableAsse
         });
     }
 
-    public ICommand ClipboardCommand { get; private set; }
+    public ICommand ClipboardCommand { get; }
 
     public void CopyIconToClipboard(string? parameter)
     {

@@ -50,13 +50,13 @@ public static class DiscordService
         Client?.UpdateDetails($"Browsing {assetType.GetDescription()}");
         Client?.UpdateSmallAsset(assetType.ToString().ToLower(), assetType.GetDescription());
     }
-    
+
     public static void UpdateMusicState(string name)
     {
         if (!IsInitialized) return;
         Client?.UpdateState($"Vibin' out to \"{name}\"");
     }
-    
+
     public static void ClearMusicState()
     {
         if (!IsInitialized) return;

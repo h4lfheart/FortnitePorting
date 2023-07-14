@@ -25,17 +25,17 @@ public class Viewer : GameWindow
     public Renderer Renderer;
 
     private bool IsFullscreen;
-    
+
     public Viewer(GameWindowSettings gwSettings, NativeWindowSettings nwSettings) : base(gwSettings, nwSettings)
     {
         Cam = new Camera();
         Renderer = new Renderer();
         Renderer.Setup();
-        
+
         LoadIcon();
         CenterWindow();
     }
-    
+
     public void LoadMeshAssets(List<IExportableAsset> exportables)
     {
         Title = exportables.Count == 1 ? $"Mesh Viewer - {exportables[0].DisplayName}" : "Mesh Viewer - Multiple Assets";
@@ -44,7 +44,7 @@ public class Viewer : GameWindow
         var x = 0.0f;
         foreach (var exportable in exportables)
         {
-            var transform = Matrix4.CreateTranslation(x/50, 0, 0);
+            var transform = Matrix4.CreateTranslation(x / 50, 0, 0);
             switch (exportable.Asset)
             {
                 case USkeletalMesh skeletalMesh:
@@ -56,10 +56,11 @@ public class Viewer : GameWindow
                     Renderer.AddDynamic(sm);
                     break;
             }
+
             x += 128;
         }
     }
-    
+
     public void LoadMeshAsset(IExportableAsset exportable, Matrix4? transform = null)
     {
         Title = $"Mesh Viewer - {exportable.DisplayName}";
@@ -80,7 +81,7 @@ public class Viewer : GameWindow
     {
         Renderer.AddDynamic(new UnrealMesh(staticMesh, transform ?? Matrix4.Zero));
     }
-    
+
     public void LoadAsset(USkeletalMesh skeletalMesh, Matrix4? transform = null)
     {
         Renderer.AddDynamic(new UnrealMesh(skeletalMesh, transform ?? Matrix4.Zero));
@@ -106,7 +107,7 @@ public class Viewer : GameWindow
         base.OnLoad();
 
         GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        
+
         GL.Enable(EnableCap.Blend);
         GL.Enable(EnableCap.CullFace);
         GL.Enable(EnableCap.DepthTest);
@@ -120,7 +121,7 @@ public class Viewer : GameWindow
     protected override void OnClosing(CancelEventArgs e)
     {
         base.OnClosing(e);
-        
+
         SetVisibility(false);
     }
 
@@ -128,12 +129,12 @@ public class Viewer : GameWindow
     {
         base.OnRenderFrame(args);
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-        
+
         Renderer.Render(Cam);
 
         SwapBuffers();
     }
-    
+
     protected override void OnUpdateFrame(FrameEventArgs args)
     {
         base.OnUpdateFrame(args);
@@ -152,14 +153,14 @@ public class Viewer : GameWindow
         if (KeyboardState.IsKeyDown(Keys.Q))
             Cam.Position -= Cam.Up * speed;
     }
-    
+
     protected override void OnMouseWheel(MouseWheelEventArgs e)
     {
         base.OnMouseWheel(e);
         Cam.Speed += e.OffsetY;
         Cam.Speed = Cam.Speed.Clamp(0.25f, 20.0f);
     }
-    
+
     protected override void OnMouseMove(MouseMoveEventArgs e)
     {
         base.OnMouseMove(e);
@@ -177,32 +178,32 @@ public class Viewer : GameWindow
             CursorState = CursorState.Normal;
         }
     }
-    
+
     protected override void OnResize(ResizeEventArgs e)
     {
         base.OnResize(e);
         GL.Viewport(0, 0, e.Width, e.Height);
         Cam.AspectRatio = e.Width / (float) e.Height;
     }
-    
+
     private void LoadIcon()
     {
         var imageResource = Application.GetResourceStream(new Uri("/FortnitePorting;component/FortnitePorting-Dark.png", UriKind.Relative));
         if (imageResource is null) return;
-        
+
         var image = Image.Load<Rgba32>(imageResource.Stream);
         if (image is null) return;
 
         var imageBytes = new byte[image.Width * image.Height * 32];
         image.CopyPixelDataTo(imageBytes);
-        
+
         Icon = new WindowIcon(new OpenTK.Windowing.Common.Input.Image(image.Width, image.Height, imageBytes));
     }
-    
+
     private unsafe void SetVisibility(bool open)
     {
         GLFW.SetWindowShouldClose(WindowPtr, !open);
-        IsVisible = open; 
+        IsVisible = open;
     }
 
     private void ToggleFullscreen()
@@ -218,7 +219,7 @@ public class Viewer : GameWindow
             WindowBorder = WindowBorder.Hidden;
             WindowState = WindowState.Fullscreen;
         }
-        
+
         IsFullscreen = !IsFullscreen;
     }
 }

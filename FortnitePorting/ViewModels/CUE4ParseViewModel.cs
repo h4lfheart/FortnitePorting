@@ -50,8 +50,9 @@ public class CUE4ParseViewModel : ObservableObject
     public static readonly VersionContainer Version = new(EGame.GAME_UE5_3);
 
     private BackupAPI? BackupInfo;
-    
-    private static readonly string[] MeshRemoveList = {
+
+    private static readonly string[] MeshRemoveList =
+    {
         "/Sounds",
         "/Playsets",
         "/UI",
@@ -67,7 +68,7 @@ public class CUE4ParseViewModel : ObservableObject
         "/ActorBlueprints",
         "/Physics",
         "/_Verse",
-        
+
         "/PPID_",
         "/MI_",
         "/MF_",
@@ -77,14 +78,14 @@ public class CUE4ParseViewModel : ObservableObject
         "/TD_",
         "/MPC_",
         "/BP_",
-        
+
         "Engine/",
-        
+
         "_Physics",
         "_AnimBP",
         "_PhysMat",
         "_PoseAsset",
-        
+
         "PlaysetGrenade",
         "NaniteDisplacement"
     };
@@ -118,7 +119,7 @@ public class CUE4ParseViewModel : ObservableObject
             EInstallType.Live => new FortnitePortingFileProvider(true, Version),
             EInstallType.Custom => new FortnitePortingFileProvider(new DirectoryInfo(directory), SearchOption.TopDirectoryOnly, true, new VersionContainer(AppSettings.Current.GameVersion))
         };
-        
+
         Provider.Versions.Options["SkeletalMesh.KeepMobileMinLODSettingOnDesktop"] = true;
         Provider.Versions.Options["StaticMesh.KeepMobileMinLODSettingOnDesktop"] = true;
     }
@@ -128,7 +129,7 @@ public class CUE4ParseViewModel : ObservableObject
         if (Provider is null) return;
 
         BackupInfo = await EndpointService.FortnitePorting.GetBackupAsync();
-        
+
         AppVM.LoadingVM.Update("Loading Archive");
         await InitializeProvider();
         await InitializeKeys();
@@ -187,7 +188,7 @@ public class CUE4ParseViewModel : ObservableObject
 
             MaleIdleAnimations.Add(montage);
         }
-        
+
         var musicPackObject = await Provider.TryLoadObjectAsync("FortniteGame/Content/Athena/Items/Cosmetics/MusicPacks/MusicPack_000_Default");
         if (musicPackObject is not null)
         {
@@ -197,11 +198,11 @@ public class CUE4ParseViewModel : ObservableObject
                 PlaceholderMusicPack = new MusicQueueItem(musicPackAsset.Asset, musicPackAsset.FullSource, "No Music Pack Playing", "Add a Music Pack to the queue to begin listening!");
             }, DispatcherPriority.Background);
         }
-        
+
         AppVM.LoadingVM.Update("Preloading Mesh Entries");
         var allEntries = AppVM.CUE4ParseVM.Provider.Files.ToArray();
         var removeEntries = AppVM.CUE4ParseVM.AssetDataBuffers.Select(x => AppVM.CUE4ParseVM.Provider.FixPath(x.ObjectPath) + ".uasset").ToHashSet();
-        
+
         MeshEntries = new HashSet<string>();
         for (var idx = 0; idx < allEntries.Length; idx++)
         {
@@ -241,14 +242,14 @@ public class CUE4ParseViewModel : ObservableObject
             }
         }
     }
-    
+
     private async Task<bool> InitializeContentBuilds()
     {
         if (AppSettings.Current.InstallType is EInstallType.Custom)
         {
             return false;
         }
-        
+
         var buildInfoString = string.Empty;
         switch (AppSettings.Current.InstallType)
         {
@@ -288,7 +289,7 @@ public class CUE4ParseViewModel : ObservableObject
 
         return true;
     }
-    
+
     private static async Task<string?> GetFortniteLiveBuildInfoAsync()
     {
         await AppVM.CUE4ParseVM.LoadFortniteLiveManifest();
@@ -354,6 +355,7 @@ public class CUE4ParseViewModel : ObservableObject
                 {
                     await Provider.SubmitKeyAsync(new FGuid(dynamicKey.GUID), new FAesKey(dynamicKey.Key));
                 }
+
                 break;
             }
         }

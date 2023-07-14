@@ -61,17 +61,17 @@
             <TextBlock Grid.Row="2" Grid.Column="0" Text="Game Installation*" VerticalAlignment="Center" />
             <TextBox Grid.Row="2" Grid.Column="2" Text="{Binding ArchivePath}" adonisExt:WatermarkExtension.Watermark="Paks Folder" IsEnabled="{Binding CanChangePath}" />
             <Button Grid.Row="2" Grid.Column="4" Content="..." Click="OnClickInstallation" IsEnabled="{Binding CanChangePath}" />
-            
+
             <TextBlock Grid.Row="4" Grid.Column="0" Text="Game Version*" VerticalAlignment="Center" />
             <ComboBox Grid.Row="4" Grid.Column="2" Grid.ColumnSpan="3" ItemsSource="{extensions:EnumToItemsSource {x:Type cue4Parse:UE4.Versions.EGame}}" SelectedItem="{Binding GameVersion, Converter={StaticResource EnumToString}}" IsEnabled="{Binding IsCustomInstall}" />
 
             <TextBlock Grid.Row="6" Grid.Column="0" Text="Encryption Key*" VerticalAlignment="Center" />
             <TextBox Grid.Row="6" Grid.Column="2" Grid.ColumnSpan="3" Text="{Binding AESKey}" adonisExt:WatermarkExtension.Watermark="AES Key (0x....)" IsEnabled="{Binding IsCustomInstall}" />
-            
+
             <TextBlock Grid.Row="8" Grid.Column="0" Text="Mappings*" VerticalAlignment="Center" />
             <TextBox Grid.Row="8" Grid.Column="2" Text="{Binding MappingsPath}" adonisExt:WatermarkExtension.Watermark="Mappings Path (.usmap)" IsEnabled="{Binding IsCustomInstall}" />
             <Button Grid.Row="8" Grid.Column="4" Content="..." Click="OnClickMappings" IsEnabled="{Binding IsCustomInstall}" />
-            
+
             <TextBlock Grid.Row="10" Grid.Column="0" Text="Game Language*" VerticalAlignment="Center" />
             <ComboBox Grid.Row="10" Grid.Column="2" Grid.ColumnSpan="3" ItemsSource="{extensions:EnumToItemsSource {x:Type cue4Parse:UE4.Versions.ELanguage}}" SelectedItem="{Binding Language, Converter={StaticResource EnumToString}}" />
 
@@ -86,14 +86,14 @@
 
             <TextBlock Grid.Row="16" Grid.Column="0" Text="Discord RPC" VerticalAlignment="Center" />
             <ToggleButton Grid.Row="16" Grid.Column="2" Grid.ColumnSpan="3" Style="{DynamicResource {x:Static adonisUi:Styles.ToggleSwitch }}" IsChecked="{Binding DiscordRPC}" />
-            
+
             <controls:NumericSlider Grid.Row="18" Grid.Column="0" Grid.ColumnSpan="5" Label="Asset Display Size" Minimum="0.5" Maximum="5" StepSize="0.5" Value="{Binding AssetSize, Mode=TwoWay}" />
-            
+
             <Separator Grid.Row="19" Grid.Column="0" Grid.ColumnSpan="5" Style="{StaticResource NamedSeparator}" Tag="LOADING" />
-            
+
             <TextBlock Grid.Row="20" Grid.Column="0" Text="Filter Props" VerticalAlignment="Center" />
             <ToggleButton Grid.Row="20" Grid.Column="2" Grid.ColumnSpan="3" Style="{DynamicResource {x:Static adonisUi:Styles.ToggleSwitch }}" IsChecked="{Binding FilterProps}" />
-            
+
             <TextBlock Grid.Row="22" Grid.Column="0" Text="Filter Weapons" VerticalAlignment="Center" />
             <ToggleButton Grid.Row="22" Grid.Column="2" Grid.ColumnSpan="3" Style="{DynamicResource {x:Static adonisUi:Styles.ToggleSwitch }}" IsChecked="{Binding FilterWeapons}" />
 

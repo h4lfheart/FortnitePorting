@@ -9,7 +9,8 @@ namespace FortnitePorting.OpenGL.Renderable;
 
 public class UnrealSection : VertexAndIndexModel
 {
-    private Material? Material;
+    private readonly Material? Material;
+
     public UnrealSection(CSkelMeshLod lod, CMeshSection section, UMaterialInterface? material, Matrix4? transform = null)
     {
         Transform = transform ?? Matrix4.Identity;
@@ -17,7 +18,7 @@ public class UnrealSection : VertexAndIndexModel
         for (var i = 0; i < section.NumFaces * 3; i++)
         {
             var index = indices[i + section.FirstIndex];
-            Indices.Add((uint)index);
+            Indices.Add((uint) index);
         }
 
         foreach (var vertex in lod.Verts)
@@ -27,14 +28,15 @@ public class UnrealSection : VertexAndIndexModel
             var normal = vertex.Normal;
             var tangent = vertex.Tangent;
 
-            Vertices.AddRange(new[] { 
-                position.X, position.Z, position.Y, 
-                texCoord.U, texCoord.V, 
+            Vertices.AddRange(new[]
+            {
+                position.X, position.Z, position.Y,
+                texCoord.U, texCoord.V,
                 normal.X, normal.Z, normal.Y,
                 tangent.X, tangent.Z, tangent.Y
             });
         }
-        
+
         RegisterAttribute("Position", 3, VertexAttribPointerType.Float);
         RegisterAttribute("TexCoord", 2, VertexAttribPointerType.Float);
         RegisterAttribute("Normal", 3, VertexAttribPointerType.Float);
@@ -43,7 +45,7 @@ public class UnrealSection : VertexAndIndexModel
         Shader = AppVM.MeshViewer.Renderer.MasterShader;
         Material = AppVM.MeshViewer.Renderer.GetOrAddMaterial(material);
     }
-    
+
     public UnrealSection(CStaticMeshLod lod, CMeshSection section, UMaterialInterface? material, Matrix4? transform = null)
     {
         Transform = transform ?? Matrix4.Identity;
@@ -51,7 +53,7 @@ public class UnrealSection : VertexAndIndexModel
         for (var i = 0; i < section.NumFaces * 3; i++)
         {
             var index = indices[i + section.FirstIndex];
-            Indices.Add((uint)index);
+            Indices.Add((uint) index);
         }
 
         foreach (var vertex in lod.Verts)
@@ -61,14 +63,15 @@ public class UnrealSection : VertexAndIndexModel
             var normal = (FVector) vertex.Normal;
             var tangent = (FVector) vertex.Tangent;
 
-            Vertices.AddRange(new[] { 
-                position.X, position.Z, position.Y, 
-                texCoord.U, texCoord.V, 
+            Vertices.AddRange(new[]
+            {
+                position.X, position.Z, position.Y,
+                texCoord.U, texCoord.V,
                 normal.X, normal.Z, normal.Y,
                 tangent.X, tangent.Z, tangent.Y
             });
         }
-        
+
         RegisterAttribute("Position", 3, VertexAttribPointerType.Float);
         RegisterAttribute("TexCoord", 2, VertexAttribPointerType.Float);
         RegisterAttribute("Normal", 3, VertexAttribPointerType.Float);
@@ -82,10 +85,10 @@ public class UnrealSection : VertexAndIndexModel
     {
         base.Render(camera);
         GL.Disable(EnableCap.CullFace);
-        
+
         VAO.Bind();
         Shader.Use();
-        
+
         Shader.SetMatrix4("uTransform", Transform);
         Shader.SetMatrix4("uView", camera.GetViewMatrix());
         Shader.SetMatrix4("uProjection", camera.GetProjectionMatrix());
@@ -96,10 +99,10 @@ public class UnrealSection : VertexAndIndexModel
         Shader.SetUniform("environmentTex", 4);
         Shader.SetUniform3("viewVector", -camera.Direction);
         Shader.SetUniform("isGlass", Material is { IsGlass: true } ? 1 : 0);
-        
+
         Material?.Bind();
 
         GL.DrawElements(PrimitiveType.Triangles, Indices.Count, DrawElementsType.UnsignedInt, 0);
         GL.Enable(EnableCap.CullFace);
     }
-}  
+}

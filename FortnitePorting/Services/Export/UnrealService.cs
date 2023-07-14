@@ -14,7 +14,7 @@ public class UnrealSocketService : SocketServiceBase
 
     public override void Send(List<ExportDataBase> data, ExportSettingsBase settings)
     {
-        var unrealExportSettings = (UnrealExportSettings)settings;
+        var unrealExportSettings = (UnrealExportSettings) settings;
         var export = new UnrealExport
         {
             Data = data,

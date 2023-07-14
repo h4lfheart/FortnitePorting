@@ -82,7 +82,7 @@ public static class HeightmapExporter
             height.Mutate(x => x.Fill(Color.FromRgb(0x79, 0x79, 0x79)));
             IteratePixels(heightTextures, (color, x, y, _) =>
             {
-                var corrected = (ushort)((color.R << 8) | color.G);
+                var corrected = (ushort) ((color.R << 8) | color.G);
                 height[x, y] = new L16(corrected);
             });
             height.SaveAsPng(Path.Combine(App.MapFolder.FullName, $"{world.Name}_Height.png"));
@@ -95,10 +95,7 @@ public static class HeightmapExporter
 
             var normal = new Image<Rgb24>(Size, Size);
             normal.Mutate(x => x.Fill(Color.FromRgb(0x7f, 0x7f, 0xFF)));
-            IteratePixels(heightTextures, (color, x, y, _) =>
-            {
-                normal[x, y] = new Rgb24(color.B, color.A, 255);
-            });
+            IteratePixels(heightTextures, (color, x, y, _) => { normal[x, y] = new Rgb24(color.B, color.A, 255); });
             normal.SaveAsPng(Path.Combine(App.MapFolder.FullName, $"{world.Name}_Normal.png"));
             SetPreviewImage(normal);
         }

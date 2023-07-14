@@ -9,13 +9,12 @@ public class FortnitePortingFileProvider : CustomFileProvider
 {
     public FortnitePortingFileProvider(bool isCaseInsensitive = false, VersionContainer? versions = null) : base(isCaseInsensitive, versions)
     {
-        
     }
 
     public FortnitePortingFileProvider(DirectoryInfo mainDirectory, List<DirectoryInfo> extraDirectories, SearchOption searchOption, bool isCaseInsensitive = false, VersionContainer? versions = null) : base(mainDirectory, extraDirectories, searchOption, isCaseInsensitive, versions)
     {
     }
-    
+
     public FortnitePortingFileProvider(DirectoryInfo mainDirectory, SearchOption searchOption, bool isCaseInsensitive = false, VersionContainer? versions = null) : base(mainDirectory, searchOption, isCaseInsensitive, versions)
     {
     }

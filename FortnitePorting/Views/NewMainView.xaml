@@ -1,14 +1,14 @@
 ﻿<adonisCtrls:AdonisWindow x:Class="FortnitePorting.Views.NewMainView"
-          xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-          xmlns:controls="clr-namespace:FortnitePorting.Views.Controls"
-          xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
-          xmlns:adonisCtrls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
-          xmlns:adonisExt="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"
-          xmlns:local="clr-namespace:FortnitePorting"
-          xmlns:toolkitCtrls="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
-          xmlns:extensions="clr-namespace:FortnitePorting.Views.Extensions"
-          Title="Fortnite Porting" Width="1368" Height="720" WindowStartupLocation="CenterScreen" ResizeMode="CanResize" Loaded="OnLoaded">
+                          xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                          xmlns:controls="clr-namespace:FortnitePorting.Views.Controls"
+                          xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
+                          xmlns:adonisCtrls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
+                          xmlns:adonisExt="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"
+                          xmlns:local="clr-namespace:FortnitePorting"
+                          xmlns:toolkitCtrls="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
+                          xmlns:extensions="clr-namespace:FortnitePorting.Views.Extensions"
+                          Title="Fortnite Porting" Width="1368" Height="720" WindowStartupLocation="CenterScreen" ResizeMode="CanResize" Loaded="OnLoaded">
     <Window.InputBindings>
         <KeyBinding Key="F" Modifiers="Control" Command="{Binding FavoriteCommand}" />
     </Window.InputBindings>
@@ -19,7 +19,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            
+
             <Menu Grid.Row="0">
                 <MenuItem Header="File">
                     <MenuItem Header="Open">
@@ -42,7 +42,7 @@
                             <Image Source="/Resources/Export.png" Width="16" Height="16" />
                         </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem Header="Show Console" IsChecked="{Binding ShowConsole}" IsCheckable="True" Checked="OnToggleConsoleChecked" Unchecked="OnToggleConsoleChecked"/>
+                    <MenuItem Header="Show Console" IsChecked="{Binding ShowConsole}" IsCheckable="True" Checked="OnToggleConsoleChecked" Unchecked="OnToggleConsoleChecked" />
                 </MenuItem>
                 <MenuItem Header="Plugin" Command="{Binding MenuCommand}" CommandParameter="SyncPlugin">
                     <MenuItem Header="Blender" Command="{Binding MenuCommand}" CommandParameter="Sync_Blender">
@@ -82,86 +82,86 @@
                 </MenuItem>
                 <MenuItem Header="Check for Updates" Command="{Binding MenuCommand}" CommandParameter="Update" />
             </Menu>
-            
+
             <Grid Grid.Row="1" Margin="{adonisUi:Space 1}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="{adonisUi:Space 1}" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                
+
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="{adonisUi:Space 1}"/>
-                    <ColumnDefinition Width="4*"/>
-                    <ColumnDefinition Width="{adonisUi:Space 1}"/>
-                    <ColumnDefinition Width="1.5*"/>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="{adonisUi:Space 1}" />
+                    <ColumnDefinition Width="4*" />
+                    <ColumnDefinition Width="{adonisUi:Space 1}" />
+                    <ColumnDefinition Width="1.5*" />
                 </Grid.ColumnDefinitions>
-                
+
                 <!-- ASSET TYPE BUTTONS -->
                 <GroupBox Grid.Row="0" Grid.RowSpan="3" Grid.Column="0" adonisExt:LayerExtension.Layer="3" BorderThickness="1">
                     <StackPanel x:Name="AssetTypePanel">
                         <Separator Style="{StaticResource ContentSeparator}">
                             <Separator.Tag>
-                                <controls:TextWithIcon Label="COSMETICS" LabelFontSize="11" LabelFontWeight="SemiBold" ImageSource="/FortnitePorting;component/Resources/Locker.png" IconSize="24"/>
+                                <controls:TextWithIcon Label="COSMETICS" LabelFontSize="11" LabelFontWeight="SemiBold" ImageSource="/FortnitePorting;component/Resources/Locker.png" IconSize="24" />
                             </Separator.Tag>
                         </Separator>
                         <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Outfit}" IsChecked="True">
-                            <controls:TextWithIcon Label="Outfits" ImageSource="/FortnitePorting;component/Resources/Outfit.png" IconSize="24"/>
+                            <controls:TextWithIcon Label="Outfits" ImageSource="/FortnitePorting;component/Resources/Outfit.png" IconSize="24" />
                         </ToggleButton>
                         <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Backpack}">
-                            <controls:TextWithIcon Label="Backpacks" ImageSource="/FortnitePorting;component/Resources/Backpack.png" IconSize="24"/>
+                            <controls:TextWithIcon Label="Backpacks" ImageSource="/FortnitePorting;component/Resources/Backpack.png" IconSize="24" />
                         </ToggleButton>
                         <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Pickaxe}">
-                            <controls:TextWithIcon Label="Pickaxes" ImageSource="/FortnitePorting;component/Resources/Pickaxe.png" IconSize="24"/>
+                            <controls:TextWithIcon Label="Pickaxes" ImageSource="/FortnitePorting;component/Resources/Pickaxe.png" IconSize="24" />
                         </ToggleButton>
                         <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Glider}">
-                            <controls:TextWithIcon Label="Gliders" ImageSource="/FortnitePorting;component/Resources/Glider.png" IconSize="24"/>
+                            <controls:TextWithIcon Label="Gliders" ImageSource="/FortnitePorting;component/Resources/Glider.png" IconSize="24" />
                         </ToggleButton>
                         <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Pet}">
-                            <controls:TextWithIcon Label="Pets" ImageSource="/FortnitePorting;component/Resources/Pet.png" IconSize="24"/>
+                            <controls:TextWithIcon Label="Pets" ImageSource="/FortnitePorting;component/Resources/Pet.png" IconSize="24" />
                         </ToggleButton>
                         <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Toy}">
-                            <controls:TextWithIcon Label="Toys" ImageSource="/FortnitePorting;component/Resources/Toy.png" IconSize="24"/>
+                            <controls:TextWithIcon Label="Toys" ImageSource="/FortnitePorting;component/Resources/Toy.png" IconSize="24" />
                         </ToggleButton>
                         <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Dance}">
-                            <controls:TextWithIcon Label="Emotes" ImageSource="/FortnitePorting;component/Resources/Dance.png" IconSize="24"/>
+                            <controls:TextWithIcon Label="Emotes" ImageSource="/FortnitePorting;component/Resources/Dance.png" IconSize="24" />
                         </ToggleButton>
                         <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Music}">
-                            <controls:TextWithIcon Label="Music" ImageSource="/FortnitePorting;component/Resources/Music.png" IconSize="24"/>
+                            <controls:TextWithIcon Label="Music" ImageSource="/FortnitePorting;component/Resources/Music.png" IconSize="24" />
                         </ToggleButton>
                         <Separator Style="{StaticResource ContentSeparator}">
                             <Separator.Tag>
-                                <controls:TextWithIcon Label="PROPS &amp; MESHES" LabelFontSize="11" LabelFontWeight="SemiBold" ImageSource="/FortnitePorting;component/Resources/MeshPreview.png" IconSize="24"/>
+                                <controls:TextWithIcon Label="PROPS &amp; MESHES" LabelFontSize="11" LabelFontWeight="SemiBold" ImageSource="/FortnitePorting;component/Resources/MeshPreview.png" IconSize="24" />
                             </Separator.Tag>
                         </Separator>
                         <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Prop}">
-                            <controls:TextWithIcon Label="Props" ImageSource="/FortnitePorting;component/Resources/Prop.png" IconSize="24"/>
+                            <controls:TextWithIcon Label="Props" ImageSource="/FortnitePorting;component/Resources/Prop.png" IconSize="24" />
                         </ToggleButton>
                         <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Gallery}">
-                            <controls:TextWithIcon Label="Galleries" ImageSource="/FortnitePorting;component/Resources/Gallery.png" IconSize="24"/>
+                            <controls:TextWithIcon Label="Galleries" ImageSource="/FortnitePorting;component/Resources/Gallery.png" IconSize="24" />
                         </ToggleButton>
                         <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Mesh}">
-                            <controls:TextWithIcon Label="Meshes" ImageSource="/FortnitePorting;component/Resources/Mesh.png" IconSize="24"/>
+                            <controls:TextWithIcon Label="Meshes" ImageSource="/FortnitePorting;component/Resources/Mesh.png" IconSize="24" />
                         </ToggleButton>
-                        
+
                         <Separator Style="{StaticResource ContentSeparator}">
                             <Separator.Tag>
-                                <controls:TextWithIcon Label="OTHERS" LabelFontSize="11" LabelFontWeight="SemiBold" ImageSource="/FortnitePorting;component/Resources/Misc.png" IconSize="24"/>
+                                <controls:TextWithIcon Label="OTHERS" LabelFontSize="11" LabelFontWeight="SemiBold" ImageSource="/FortnitePorting;component/Resources/Misc.png" IconSize="24" />
                             </Separator.Tag>
                         </Separator>
                         <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Weapon}">
-                            <controls:TextWithIcon Label="Weapons" ImageSource="/FortnitePorting;component/Resources/Weapon.png" IconSize="24"/>
+                            <controls:TextWithIcon Label="Weapons" ImageSource="/FortnitePorting;component/Resources/Weapon.png" IconSize="24" />
                         </ToggleButton>
                         <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Vehicle}">
-                            <controls:TextWithIcon Label="Vehicles" ImageSource="/FortnitePorting;component/Resources/Vehicle.png" IconSize="24"/>
+                            <controls:TextWithIcon Label="Vehicles" ImageSource="/FortnitePorting;component/Resources/Vehicle.png" IconSize="24" />
                         </ToggleButton>
                         <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Wildlife}">
-                            <controls:TextWithIcon Label="Wildlife" ImageSource="/FortnitePorting;component/Resources/Wildlife.png" IconSize="24"/>
+                            <controls:TextWithIcon Label="Wildlife" ImageSource="/FortnitePorting;component/Resources/Wildlife.png" IconSize="24" />
                         </ToggleButton>
                     </StackPanel>
                 </GroupBox>
-                
+
                 <!-- DISPLAY -->
                 <GroupBox Grid.Row="2" Grid.Column="2" adonisExt:LayerExtension.Layer="3" BorderThickness="1">
                     <Grid>
@@ -176,7 +176,7 @@
                         </ContentControl>
                         <ContentControl Visibility="{Binding GalleryTabVisibility}">
                             <ScrollViewer>
-                                <ItemsControl x:Name="GalleryItemsControl" ItemsSource="{Binding Galleries}" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"/>
+                                <ItemsControl x:Name="GalleryItemsControl" ItemsSource="{Binding Galleries}" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" />
                             </ScrollViewer>
                         </ContentControl>
                         <ContentControl Visibility="{Binding MeshTabVisibility}">
@@ -232,7 +232,7 @@
                         </ContentControl>
                     </Grid>
                 </GroupBox>
-                
+
                 <!-- OPTIONS OVERHEAD -->
                 <Grid Grid.Row="0" Grid.Column="2">
                     <Grid.ColumnDefinitions>
@@ -250,17 +250,17 @@
                         <ColumnDefinition Width="{adonisUi:Space 1}" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    
-                    <TextBox Grid.Column="0" adonisExt:WatermarkExtension.Watermark="Search..." Text="{Binding SearchFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextChanged="OnSearchTextChanged"/>
-                    
+
+                    <TextBox Grid.Column="0" adonisExt:WatermarkExtension.Watermark="Search..." Text="{Binding SearchFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextChanged="OnSearchTextChanged" />
+
                     <controls:IconBecauseImLazy Grid.Column="2" ImageSource="/FortnitePorting;component/Resources/Sort.png" IconSize="16" />
-                    <ComboBox ToolTip="Sorting Options" Grid.Column="4" ItemsSource="{extensions:EnumToItemsSource {x:Type local:ESortType}}" SelectedItem="{Binding SortType, Converter={StaticResource EnumToString}}" SelectionChanged="OnSortSelectionChanged" IsEnabled="{Binding IsValidFilterer}"/>
+                    <ComboBox ToolTip="Sorting Options" Grid.Column="4" ItemsSource="{extensions:EnumToItemsSource {x:Type local:ESortType}}" SelectedItem="{Binding SortType, Converter={StaticResource EnumToString}}" SelectionChanged="OnSortSelectionChanged" IsEnabled="{Binding IsValidFilterer}" />
                     <Button ToolTip="Ascending or Descending" Grid.Column="6" Click="OnAscendingDescendingClicked" IsEnabled="{Binding IsValidFilterer}">
-                        <controls:IconBecauseImLazy ImageSource="/FortnitePorting;component/Resources/Arrow.png" IconSize="16" RenderTransformOrigin="0.5, 0.5"/>
+                        <controls:IconBecauseImLazy ImageSource="/FortnitePorting;component/Resources/Arrow.png" IconSize="16" RenderTransformOrigin="0.5, 0.5" />
                     </Button>
-                    
-                    <controls:IconBecauseImLazy Grid.Column="8" ImageSource="/FortnitePorting;component/Resources/Filter.png" IconSize="16"/>
-                    <ToggleButton ToolTip="Filters" Grid.Column="10" Name="FilterButton" IsEnabled="{Binding IsValidFilterer}"> 
+
+                    <controls:IconBecauseImLazy Grid.Column="8" ImageSource="/FortnitePorting;component/Resources/Filter.png" IconSize="16" />
+                    <ToggleButton ToolTip="Filters" Grid.Column="10" Name="FilterButton" IsEnabled="{Binding IsValidFilterer}">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
@@ -279,29 +279,29 @@
                     <Popup Grid.Column="8" Width="{Binding ElementName=FilterButton, Path=ActualWidth}" StaysOpen="False" PlacementTarget="{Binding ElementName=FilterButton}" IsOpen="{Binding ElementName=FilterButton, Path=IsChecked, Mode=TwoWay}">
                         <Border Background="{DynamicResource {x:Static adonisUi:Brushes.Layer2BackgroundBrush}}" BorderThickness="1" BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer3BorderBrush}}">
                             <StackPanel x:Name="FilterPanel" Margin="{adonisUi:Space 1}">
-                                <CheckBox Margin="0 0 0 10" Content="Favorite" Tag="Favorite" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked"  />
-                                <CheckBox Content="Unfinished Assets (Unstable)" Tag="Unfinished Assets" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked"  />
+                                <CheckBox Margin="0 0 0 10" Content="Favorite" Tag="Favorite" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked" />
+                                <CheckBox Content="Unfinished Assets (Unstable)" Tag="Unfinished Assets" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked" />
                                 <Separator Style="{StaticResource NamedSeparator}" />
-                                <CheckBox Margin="0 0 0 10" Content="Battle Pass" Tag="Battle Pass" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked"  />
-                                <CheckBox Content="Item Shop" Tag="Item Shop" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked"  />
+                                <CheckBox Margin="0 0 0 10" Content="Battle Pass" Tag="Battle Pass" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked" />
+                                <CheckBox Content="Item Shop" Tag="Item Shop" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked" />
                                 <Separator Style="{StaticResource NamedSeparator}" />
-                                <CheckBox Margin="0 0 0 10" Content="Save The World" Tag="Save The World" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked"  />
-                                <CheckBox Content="Battle Royale" Tag="Battle Royale" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked"  />
+                                <CheckBox Margin="0 0 0 10" Content="Save The World" Tag="Save The World" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked" />
+                                <CheckBox Content="Battle Royale" Tag="Battle Royale" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked" />
                                 <Button Margin="0 10 0 0" Click="OnClearFiltersClicked">
                                     <controls:TextWithIcon Label="Clear All Filters" ImageSource="/FortnitePorting;component/Resources/Clear.png" />
                                 </Button>
                             </StackPanel>
                         </Border>
                     </Popup>
-                    
+
                     <ToggleButton ToolTip="Pause Loading" Grid.Column="12" Checked="OnPauseLoadingSwitched" Unchecked="OnPauseLoadingSwitched">
                         <controls:IconBecauseImLazy ImageSource="/FortnitePorting;component/Resources/Pause.png" IconSize="16" />
                     </ToggleButton>
                 </Grid>
-                
+
                 <!-- STYLE BOX -->
                 <GroupBox Grid.Row="0" Grid.RowSpan="3" Grid.Column="4" adonisExt:LayerExtension.Layer="3" BorderThickness="1">
-                     <Grid Visibility="{Binding AssetPreviewVisibility}">
+                    <Grid Visibility="{Binding AssetPreviewVisibility}">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="1.25*" />
                             <RowDefinition Height="6*" />
@@ -313,7 +313,7 @@
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            
+
                             <Image Grid.Column="0" Source="{Binding CurrentAssetImage}" Width="88" Height="88" Visibility="{Binding CurrentAsset.PreviewImageVisibility}" />
                             <Grid Grid.Column="1" Margin="{adonisUi:Space 1, 0}" HorizontalAlignment="Left" VerticalAlignment="Center">
                                 <Grid.RowDefinitions>
@@ -321,11 +321,11 @@
                                     <RowDefinition Height="*" />
                                 </Grid.RowDefinitions>
 
-                                <TextBlock Grid.Row="0" Text="{Binding CurrentAsset.DisplayName}" FontSize="24"/>
-                                <TextBlock Grid.Row="1" Text="{Binding CurrentAsset.Description}" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" Foreground="#AAAAAA"/>
+                                <TextBlock Grid.Row="0" Text="{Binding CurrentAsset.DisplayName}" FontSize="24" />
+                                <TextBlock Grid.Row="1" Text="{Binding CurrentAsset.Description}" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" Foreground="#AAAAAA" />
                             </Grid>
                         </Grid>
-                        
+
                         <ContentControl Grid.Row="1" Visibility="{Binding DefaultControlVisibility}">
                             <Grid>
                                 <Grid.RowDefinitions>
@@ -334,9 +334,9 @@
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="*" />
                                 </Grid.RowDefinitions>
-                                
+
                                 <!-- STYLES -->
-                                <Separator Grid.Row="0" Style="{StaticResource NamedSeparator}" Tag="{Binding OptionTabText}"/>
+                                <Separator Grid.Row="0" Style="{StaticResource NamedSeparator}" Tag="{Binding OptionTabText}" />
                                 <ScrollViewer Grid.Row="1" PreviewMouseWheel="FunkyScrollFix">
                                     <ItemsControl ItemsSource="{Binding Styles}">
                                         <ItemsControl.ItemsPanel>
@@ -348,7 +348,7 @@
                                 </ScrollViewer>
 
                                 <!-- CONTROLS -->
-                                <Separator Grid.Row="2" Style="{StaticResource NamedSeparator}" Tag="CONTROLS"/>
+                                <Separator Grid.Row="2" Style="{StaticResource NamedSeparator}" Tag="CONTROLS" />
                                 <Grid Grid.Row="3">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="0.5*" />
@@ -358,18 +358,18 @@
 
                                     <Button Grid.Row="0" Command="{Binding ExportBlenderCommand}">
                                         <Button.Content>
-                                            <controls:TextWithIcon Label="Send to Blender" ImageSource="/FortnitePorting;component/Resources/Blender.png" IconSize="16"/>
+                                            <controls:TextWithIcon Label="Send to Blender" ImageSource="/FortnitePorting;component/Resources/Blender.png" IconSize="16" />
                                         </Button.Content>
                                     </Button>
                                     <Button Grid.Row="2" Command="{Binding ExportUnrealCommand}">
                                         <Button.Content>
-                                            <controls:TextWithIcon Label="Send to Unreal" ImageSource="/FortnitePorting;component/Resources/Unreal.png" IconSize="16"/>
+                                            <controls:TextWithIcon Label="Send to Unreal" ImageSource="/FortnitePorting;component/Resources/Unreal.png" IconSize="16" />
                                         </Button.Content>
                                     </Button>
                                 </Grid>
                             </Grid>
                         </ContentControl>
-                        
+
                         <ContentControl Grid.Row="1" Visibility="{Binding MeshControlVisibility}">
                             <Grid>
                                 <Grid.RowDefinitions>
@@ -378,9 +378,9 @@
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="*" />
                                 </Grid.RowDefinitions>
-                                
+
                                 <!-- SELECTED MESHES PREVIEW -->
-                                <Separator Grid.Row="0" Style="{StaticResource NamedSeparator}" Tag="{Binding OptionTabText}"/>
+                                <Separator Grid.Row="0" Style="{StaticResource NamedSeparator}" Tag="{Binding OptionTabText}" />
                                 <ScrollViewer Grid.Row="1" PreviewMouseWheel="FunkyScrollFix">
                                     <ItemsControl ItemsSource="{Binding MeshPreviews}">
                                         <ItemsControl.ItemsPanel>
@@ -392,7 +392,7 @@
                                 </ScrollViewer>
 
                                 <!-- CONTROLS -->
-                                <Separator Grid.Row="2" Style="{StaticResource NamedSeparator}" Tag="CONTROLS"/>
+                                <Separator Grid.Row="2" Style="{StaticResource NamedSeparator}" Tag="CONTROLS" />
                                 <Grid Grid.Row="3">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="0.5*" />
@@ -404,23 +404,23 @@
 
                                     <Button Grid.Row="0" Command="{Binding PreviewMeshCommand}">
                                         <Button.Content>
-                                            <controls:TextWithIcon Label="Preview Mesh" ImageSource="/FortnitePorting;component/Resources/MeshPreview.png" IconSize="16"/>
+                                            <controls:TextWithIcon Label="Preview Mesh" ImageSource="/FortnitePorting;component/Resources/MeshPreview.png" IconSize="16" />
                                         </Button.Content>
                                     </Button>
                                     <Button Grid.Row="2" Command="{Binding ExportBlenderCommand}">
                                         <Button.Content>
-                                            <controls:TextWithIcon Label="Send to Blender" ImageSource="/FortnitePorting;component/Resources/Blender.png" IconSize="16"/>
+                                            <controls:TextWithIcon Label="Send to Blender" ImageSource="/FortnitePorting;component/Resources/Blender.png" IconSize="16" />
                                         </Button.Content>
                                     </Button>
                                     <Button Grid.Row="4" Command="{Binding ExportUnrealCommand}">
                                         <Button.Content>
-                                            <controls:TextWithIcon Label="Send to Unreal" ImageSource="/FortnitePorting;component/Resources/Unreal.png" IconSize="16"/>
+                                            <controls:TextWithIcon Label="Send to Unreal" ImageSource="/FortnitePorting;component/Resources/Unreal.png" IconSize="16" />
                                         </Button.Content>
                                     </Button>
                                 </Grid>
                             </Grid>
                         </ContentControl>
-                        
+
                         <ContentControl Grid.Row="1" Visibility="{Binding MusicControlVisibility}">
                             <Grid>
                                 <Grid.RowDefinitions>
@@ -429,9 +429,9 @@
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="*" />
                                 </Grid.RowDefinitions>
-                                
+
                                 <!-- CONTROLS -->
-                                <Separator Grid.Row="2" Style="{StaticResource NamedSeparator}" Tag="CONTROLS"/>
+                                <Separator Grid.Row="2" Style="{StaticResource NamedSeparator}" Tag="CONTROLS" />
                                 <Grid Grid.Row="3">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="0.5*" />
@@ -441,18 +441,18 @@
 
                                     <Button Grid.Row="0" Command="{Binding ExportMusicCommand}">
                                         <Button.Content>
-                                            <controls:TextWithIcon Label="Export Music Pack" ImageSource="/FortnitePorting;component/Resources/Export.png" IconSize="16"/>
+                                            <controls:TextWithIcon Label="Export Music Pack" ImageSource="/FortnitePorting;component/Resources/Export.png" IconSize="16" />
                                         </Button.Content>
                                     </Button>
                                     <Button Grid.Row="2" Command="{Binding AddToQueueCommand}">
                                         <Button.Content>
-                                            <controls:TextWithIcon Label="Add to Queue" ImageSource="/FortnitePorting;component/Resources/Music.png" IconSize="16"/>
+                                            <controls:TextWithIcon Label="Add to Queue" ImageSource="/FortnitePorting;component/Resources/Music.png" IconSize="16" />
                                         </Button.Content>
                                     </Button>
                                 </Grid>
                             </Grid>
                         </ContentControl>
-                        
+
                         <ContentControl Grid.Row="1" Visibility="{Binding DanceControlVisibility}">
                             <Grid>
                                 <Grid.RowDefinitions>
@@ -463,7 +463,7 @@
                                 </Grid.RowDefinitions>
 
                                 <!-- CONTROLS -->
-                                <Separator Grid.Row="2" Style="{StaticResource NamedSeparator}" Tag="CONTROLS"/>
+                                <Separator Grid.Row="2" Style="{StaticResource NamedSeparator}" Tag="CONTROLS" />
                                 <Grid Grid.Row="3">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="0.5*" />
@@ -472,7 +472,7 @@
                                         <RowDefinition Height="{adonisUi:Space 1}" />
                                         <RowDefinition Height="0.5*" />
                                     </Grid.RowDefinitions>
-                                    
+
                                     <Grid Grid.Row="0" HorizontalAlignment="Stretch">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto" />
@@ -484,24 +484,24 @@
 
                                     <Button Grid.Row="2" Command="{Binding ExportBlenderCommand}">
                                         <Button.Content>
-                                            <controls:TextWithIcon Label="Send to Blender" ImageSource="/FortnitePorting;component/Resources/Blender.png" IconSize="16"/>
+                                            <controls:TextWithIcon Label="Send to Blender" ImageSource="/FortnitePorting;component/Resources/Blender.png" IconSize="16" />
                                         </Button.Content>
                                     </Button>
                                     <Button Grid.Row="4" Command="{Binding ExportUnrealCommand}">
                                         <Button.Content>
-                                            <controls:TextWithIcon Label="Send to Unreal" ImageSource="/FortnitePorting;component/Resources/Unreal.png" IconSize="16"/>
+                                            <controls:TextWithIcon Label="Send to Unreal" ImageSource="/FortnitePorting;component/Resources/Unreal.png" IconSize="16" />
                                         </Button.Content>
                                     </Button>
                                 </Grid>
                             </Grid>
                         </ContentControl>
-                     </Grid>
+                    </Grid>
                 </GroupBox>
-                
-                <GridSplitter Grid.Row="0" Grid.RowSpan="3" Grid.Column="1"/>
-                <GridSplitter Grid.Row="0" Grid.RowSpan="3" Grid.Column="3"/>
+
+                <GridSplitter Grid.Row="0" Grid.RowSpan="3" Grid.Column="1" />
+                <GridSplitter Grid.Row="0" Grid.RowSpan="3" Grid.Column="3" />
             </Grid>
-            
+
         </Grid>
     </Grid>
 </adonisCtrls:AdonisWindow>

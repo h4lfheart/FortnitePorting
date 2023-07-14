@@ -9,7 +9,7 @@ public enum EInstallType
 
     [Description("Fortnite Live")]
     Live,
-    
+
     [Description("Custom")]
     Custom
 }
@@ -31,7 +31,7 @@ public enum EAssetType
     [Description("Emotes")] Dance,
 
     [Description("Vehicles")] Vehicle,
-    
+
     [Description("Galleries")] Gallery,
 
     [Description("Props")] Prop,
@@ -39,9 +39,9 @@ public enum EAssetType
     [Description("Meshes")] Mesh,
 
     [Description("Music Packs")] Music,
-    
+
     [Description("Toys")] Toy,
-    
+
     [Description("Wildlife")] Wildlife,
 }
 

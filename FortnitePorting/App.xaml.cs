@@ -1,17 +1,13 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
-using AdonisUI;
 using AdonisUI.Controls;
 using CUE4Parse.UE4.Assets;
-using CUE4Parse.Utils;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Exports;
 using FortnitePorting.Services;
-using Ionic.Zip;
 using Serilog.Sinks.SystemConsole.Themes;
 using MessageBox = AdonisUI.Controls.MessageBox;
 using MessageBoxImage = AdonisUI.Controls.MessageBoxImage;
@@ -58,9 +54,9 @@ public partial class App
 
         AppSettings.DirectoryPath.Create();
         AppSettings.Load();
-        
+
         ToggleConsole(AppSettings.Current.ShowConsole);
-        
+
         AssetsFolder.Create();
         DataFolder.Create();
         LogsFolder.Create();

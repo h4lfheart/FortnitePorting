@@ -1,9 +1,5 @@
-﻿using System;
-using System.IO;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Media;
-using System.Windows.Media.Effects;
-using FortnitePorting.AppUtils;
 
 namespace FortnitePorting.Views.Controls;
 
@@ -13,7 +9,7 @@ public partial class IconBecauseImLazy
 
     public ImageSource ImageSource
     {
-        get => (ImageSource)GetValue(ImageSourceProperty);
+        get => (ImageSource) GetValue(ImageSourceProperty);
         set => SetValue(ImageSourceProperty, value);
     }
 
@@ -21,7 +17,7 @@ public partial class IconBecauseImLazy
 
     public int IconSize
     {
-        get => (int)GetValue(IconSizeProperty);
+        get => (int) GetValue(IconSizeProperty);
         set => SetValue(IconSizeProperty, value);
     }
 

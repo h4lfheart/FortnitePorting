@@ -12,33 +12,33 @@ public class Material : IDisposable
 {
     public UMaterialInterface Interface;
     public bool IsGlass;
-    private Texture2D? Diffuse;
-    private Texture2D? Normals;
-    private Texture2D? SpecularMasks;
-    private Texture2D? Mask;
+    private readonly Texture2D? Diffuse;
+    private readonly Texture2D? Normals;
+    private readonly Texture2D? SpecularMasks;
+    private readonly Texture2D? Mask;
 
     public Material(UMaterialInterface materialInterface)
     {
         Interface = materialInterface;
 
         IsGlass = ExportHelpers.IsGlassMaterial(materialInterface);
-        
+
         var parameters = new CMaterialParams2();
         materialInterface.GetParams(parameters, EMaterialFormat.AllLayers);
 
         var diffuseTexture = parameters.GetTextures(CMaterialParams2.Diffuse[0]).FirstOrDefault();
         Diffuse = diffuseTexture is null ? Texture2D.Diffuse : new Texture2D(diffuseTexture as UTexture2D);
         Diffuse.Bind();
-        
+
         var normalsTexture = parameters.GetTextures(CMaterialParams2.Normals[0]).FirstOrDefault();
         Normals = normalsTexture is null ? Texture2D.Normals : new Texture2D(normalsTexture as UTexture2D);
         Normals.Bind();
-        
+
         var specularMasksTexture = parameters.GetTextures(CMaterialParams2.SpecularMasks[0]).FirstOrDefault();
         SpecularMasks = specularMasksTexture is null ? Texture2D.SpecularMasks : new Texture2D(specularMasksTexture as UTexture2D);
         SpecularMasks.Bind();
-        
-        var maskTexture = parameters.GetTextures(new[] {"M", "Mask", "MaskTexture"}).FirstOrDefault();
+
+        var maskTexture = parameters.GetTextures(new[] { "M", "Mask", "MaskTexture" }).FirstOrDefault();
         Mask = maskTexture is null ? Texture2D.Mask : new Texture2D(maskTexture as UTexture2D);
         Mask.Bind();
     }

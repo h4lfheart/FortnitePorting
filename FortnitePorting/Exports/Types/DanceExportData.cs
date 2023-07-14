@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.Sound.Node;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.UObject;
-using UObject = CUE4Parse.UE4.Assets.Exports.UObject;
 
 namespace FortnitePorting.Exports.Types;
 
@@ -47,8 +47,8 @@ public class DanceExportData : ExportDataBase
 
             ExportHelpers.Save(masterSkeleton);
             animData.Skeleton = masterSkeleton.GetPathName();
-            
-            
+
+
             // Sections
             var montageNotifies = baseMontage.GetOrDefault("Notifies", new List<FAnimNotifyEvent>());
             if (additiveMontage is not null)
@@ -81,7 +81,7 @@ public class DanceExportData : ExportDataBase
             {
                 var notifyData = propNotify.NotifyStateClass.Load<FortAnimNotifyState_SpawnProp>();
                 if (notifyData is null) continue;
-                
+
                 var exportProp = new EmoteProp
                 {
                     SocketName = notifyData.SocketName.Text,
@@ -160,7 +160,7 @@ public class DanceExportData : ExportDataBase
 
         var additiveAnimation = additiveSection?.AnimReference.Load<UAnimSequence>();
         if (additiveAnimation is null) return null;
-        
+
         ExportHelpers.SaveAdditiveAnim(baseSequence, additiveAnimation);
         return additiveAnimation;
     }
@@ -175,7 +175,7 @@ public class DanceExportData : ExportDataBase
             {
                 var exportSection = new EmoteSection(linkedSequence.GetPathName(), section.SectionName.Text, section.SegmentBeginTime, section.SegmentLength, section.NextSectionName == section.SectionName);
                 ExportHelpers.Save(linkedSequence);
-                
+
                 notifies.AddRange(linkedSequence.Notifies);
 
                 var additiveAnimation = ExportAdditiveAnim(section, additiveMontage?.SlotAnimTracks, linkedSequence);

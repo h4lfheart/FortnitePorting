@@ -15,7 +15,7 @@ public class BlenderSocketService : SocketServiceBase
 
     public override void Send(List<ExportDataBase> data, ExportSettingsBase settings)
     {
-        var blenderExportSettings = (BlenderExportSettings)settings;
+        var blenderExportSettings = (BlenderExportSettings) settings;
         var export = new BlenderExport
         {
             Data = data,

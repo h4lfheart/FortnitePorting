@@ -14,13 +14,14 @@ public partial class MusicView
 {
     private bool IsLooping;
     private bool IsSliderDragging;
-    private readonly DispatcherTimer UpdateTimer = new(); 
+    private readonly DispatcherTimer UpdateTimer = new();
+
     public MusicView()
     {
         InitializeComponent();
         AppVM.MusicVM = new MusicViewModel();
         DataContext = AppVM.MusicVM;
-        
+
         UpdateTimer.Tick += OnTick;
         UpdateTimer.Interval = TimeSpan.FromMilliseconds(1);
         UpdateTimer.Start();
@@ -37,7 +38,7 @@ public partial class MusicView
             Slider.IsEnabled = false;
             return;
         }
-        
+
         CurrentTime.Text = info.CurrentPosition.ToString(@"mm\:ss");
         TotalTime.Text = info.Length.ToString(@"mm\:ss");
         Slider.IsEnabled = true;
@@ -59,10 +60,9 @@ public partial class MusicView
 
     private void OnClickPause(object sender, MouseButtonEventArgs e)
     {
-
         var isPaused = !AppVM.MusicVM.IsPaused;
         AppVM.MusicVM.IsPaused = isPaused;
-        
+
         var text = isPaused ? "resume" : "pause";
         var image = (Image) sender;
         image.Source = new BitmapImage(new Uri($"/FortnitePorting;component/Resources/{text}.png", UriKind.Relative));
@@ -108,7 +108,7 @@ public partial class MusicView
     {
         var isLooping = !IsLooping;
         IsLooping = isLooping;
-        
+
         var image = (Image) sender;
         image.Opacity = isLooping ? 1.0 : 0.5;
     }
@@ -117,7 +117,7 @@ public partial class MusicView
     {
         var isRandom = !AppVM.MusicVM.IsRandom;
         AppVM.MusicVM.IsRandom = isRandom;
-        
+
         var image = (Image) sender;
         image.Opacity = isRandom ? 1.0 : 0.5;
 

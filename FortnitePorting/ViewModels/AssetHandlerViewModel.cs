@@ -180,7 +180,7 @@ public class AssetHandlerViewModel
         AssetType = EAssetType.Gallery,
         IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
     };
-    
+
     private readonly AssetHandlerData PropHandler = new()
     {
         AssetType = EAssetType.Prop,
@@ -216,7 +216,7 @@ public class AssetHandlerViewModel
             return previewImage;
         }
     };
-    
+
     private readonly AssetHandlerData ToyHandler = new()
     {
         AssetType = EAssetType.Toy,
@@ -225,7 +225,7 @@ public class AssetHandlerViewModel
         RemoveList = { },
         IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
     };
-    
+
     private readonly AssetHandlerData WildlifeHandler = new()
     {
         AssetType = EAssetType.Wildlife,
@@ -266,19 +266,19 @@ public class AssetHandlerData
             {
                 await PauseState.WaitIfPaused();
                 var playsetObject = await AppVM.CUE4ParseVM.Provider.LoadObjectAsync(playset.ObjectPath);
-                
+
                 var creativeTagsHelper = playsetObject.GetOrDefault("CreativeTagsHelper", new FStructFallback());
                 var creativeTags = creativeTagsHelper.GetOrDefault("CreativeTags", Array.Empty<FName>());
                 if (!creativeTags.Any(x => x.Text.Contains("Gallery", StringComparison.OrdinalIgnoreCase) || x.Text.Contains("Prefab", StringComparison.OrdinalIgnoreCase))) continue;
-                
+
                 var playsetName = playsetObject.GetOrDefault("DisplayName", new FText("Unknown Gallery")).Text;
                 var associatedProps = playsetObject.GetOrDefault("AssociatedPlaysetProps", Array.Empty<FSoftObjectPath>());
                 if (associatedProps.Length == 0) continue;
-                
+
                 var galleryData = new GalleryData(playsetName, playsetObject.Name, playsetObject.GetPathName());
                 galleryData.Props.AddRange(associatedProps.Select(x => x.AssetPathName.Text));
                 galleryMappings.Add(galleryData);
-                
+
                 playsetObject.TryGetValue(out UTexture2D? playsetImage, "SmallPreviewImage", "LargePreviewImage");
                 playsetImage ??= AppVM.CUE4ParseVM.PlaceholderTexture;
                 await Application.Current.Dispatcher.InvokeAsync(() =>
@@ -287,7 +287,7 @@ public class AssetHandlerData
                     galleryData.Expander = propExpander;
                     AppVM.NewMainVM.Galleries.Add(propExpander);
                 }, DispatcherPriority.Background);
-                
+
                 await Parallel.ForEachAsync(associatedProps, async (data, token) =>
                 {
                     var associatedProp = await data.LoadAsync();
@@ -303,7 +303,7 @@ public class AssetHandlerData
 
                 if (galleryData.Expander.Props.Count == 0) AppVM.NewMainVM.Galleries.Remove(galleryData.Expander);
             }
-            
+
             sw.Stop();
             Log.Information($"Loaded {AssetType.GetDescription()} in {Math.Round(sw.Elapsed.TotalSeconds, 2)}s");
             return;
@@ -314,27 +314,27 @@ public class AssetHandlerData
             await DoLoadWildlife("Boar",
                 "FortniteGame/Plugins/GameFeatures/Irwin/Content/AI/Prey/Burt/Meshes/Burt_Mammal",
                 "FortniteGame/Plugins/GameFeatures/Irwin/Content/Icons/T-Icon-Fauna-Boar");
-            
+
             await DoLoadWildlife("Chicken",
                 "FortniteGame/Plugins/GameFeatures/Irwin/Content/AI/Prey/Nug/Meshes/Nug_Bird",
                 "FortniteGame/Plugins/GameFeatures/Irwin/Content/Icons/T-Icon-Fauna-Chicken");
-            
+
             await DoLoadWildlife("Crow",
                 "FortniteGame/Plugins/GameFeatures/Irwin/Content/AI/Prey/Crow/Meshes/Crow_Bird",
                 "FortniteGame/Plugins/GameFeatures/Irwin/Content/Icons/T-Icon-Fauna-Crow");
-            
+
             await DoLoadWildlife("Frog",
                 "FortniteGame/Plugins/GameFeatures/Irwin/Content/AI/Simple/Smackie/Meshes/Smackie_Amphibian",
                 "FortniteGame/Plugins/GameFeatures/Irwin/Content/Icons/T-Icon-Fauna-Frog");
-            
+
             await DoLoadWildlife("Raptor",
                 "FortniteGame/Plugins/GameFeatures/Irwin/Content/AI/Predators/Robert/Meshes/Jungle_Raptor_Fauna",
                 "FortniteGame/Plugins/GameFeatures/Irwin/Content/Icons/T-Icon-Fauna-JungleRaptor");
-            
+
             await DoLoadWildlife("Wolf",
                 "FortniteGame/Plugins/GameFeatures/Irwin/Content/AI/Predators/Grandma/Meshes/Grandma_Mammal",
                 "FortniteGame/Plugins/GameFeatures/Irwin/Content/Icons/T-Icon-Fauna-Wolf");
-            
+
             return;
         }
 
@@ -423,7 +423,6 @@ public class AssetHandlerData
                 Log.Error("Failed to load {ObjectPath}", data.ObjectPath);
                 Log.Error(e.Message + e.StackTrace);
             }
-
         });
         sw.Stop();
         Log.Information($"Loaded {AssetType.GetDescription()} in {Math.Round(sw.Elapsed.TotalSeconds, 2)}s");
@@ -456,14 +455,14 @@ public class AssetHandlerData
 
         await Application.Current.Dispatcher.InvokeAsync(() => target.Add(new AssetSelectorItem(asset, previewImage, type, random, DisplayNameGetter?.Invoke(asset), descriptionOverride, RemoveList.Any(y => asset.Name.Contains(y, StringComparison.OrdinalIgnoreCase)))), DispatcherPriority.Background);
     }
-    
+
     private async Task DoLoadWildlife(string name, string skeletalMeshPath, string previewImagePath)
     {
         await PauseState.WaitIfPaused();
 
         var skeletalMesh = await AppVM.CUE4ParseVM.Provider.LoadObjectAsync<USkeletalMesh>(skeletalMeshPath);
         var previewImage = await AppVM.CUE4ParseVM.Provider.LoadObjectAsync<UTexture2D>(previewImagePath);
-        
+
         await Application.Current.Dispatcher.InvokeAsync(() => AppVM.NewMainVM.Wildlife.Add(new AssetSelectorItem(skeletalMesh, previewImage, EAssetType.Wildlife, false, new FText(name))), DispatcherPriority.Background);
     }
 }

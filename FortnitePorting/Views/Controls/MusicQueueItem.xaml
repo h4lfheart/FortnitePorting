@@ -7,16 +7,16 @@
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-                            
-        <Image Grid.Column="0" Source="{Binding MusicImageSource}" Width="88" Height="88"/>
+
+        <Image Grid.Column="0" Source="{Binding MusicImageSource}" Width="88" Height="88" />
         <Grid Grid.Column="1" Margin="{adonisUi:Space 1, 0}" HorizontalAlignment="Left" VerticalAlignment="Center">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <TextBlock Grid.Row="0" Text="{Binding DisplayName}" FontSize="24"/>
-            <TextBlock Grid.Row="1" Text="{Binding Description}" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" Foreground="#AAAAAA"/>
+            <TextBlock Grid.Row="0" Text="{Binding DisplayName}" FontSize="24" />
+            <TextBlock Grid.Row="1" Text="{Binding Description}" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" Foreground="#AAAAAA" />
         </Grid>
     </Grid>
 </UserControl>

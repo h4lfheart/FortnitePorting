@@ -49,7 +49,7 @@ public static class CUE4ParseExtensions
 
     public static Image<T>? DecodeImageSharp<T>(this UTexture2D texture) where T : unmanaged, IPixel<T>
     {
-        return (Image<T>?)DecodeImageSharp(texture);
+        return (Image<T>?) DecodeImageSharp(texture);
     }
 
     public static Image? DecodeImageSharp(this UTexture2D texture)
@@ -114,7 +114,7 @@ public static class CUE4ParseExtensions
         editorData = default;
         return false;
     }
-    
+
     public static FLinearColor ToLinearColor(this FStaticComponentMaskParameter componentMask)
     {
         return new FLinearColor
@@ -125,7 +125,7 @@ public static class CUE4ParseExtensions
             A = componentMask.A ? 1 : 0
         };
     }
-    
+
     public static bool TryLoadObjectExports(this AbstractFileProvider provider, string path, out IEnumerable<UObject> exports)
     {
         exports = Enumerable.Empty<UObject>();

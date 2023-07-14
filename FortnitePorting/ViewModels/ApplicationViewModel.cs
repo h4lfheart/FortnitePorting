@@ -4,7 +4,6 @@ using AdonisUI.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FortnitePorting.AppUtils;
 using FortnitePorting.OpenGL;
-using FortnitePorting.Views;
 using MessageBox = AdonisUI.Controls.MessageBox;
 using MessageBoxImage = AdonisUI.Controls.MessageBoxImage;
 

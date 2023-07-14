@@ -14,9 +14,9 @@ public class ImportSettingsViewModel : ObservableObject
             OnPropertyChanged();
         }
     }
-    
+
     #region Blender
-    
+
     public bool BlenderIntoCollection
     {
         get => AppSettings.Current.BlenderExportSettings.IntoCollection;
@@ -199,7 +199,7 @@ public class ImportSettingsViewModel : ObservableObject
             OnPropertyChanged();
         }
     }
-    
+
     #endregion
 
     #region Unreal
@@ -213,7 +213,7 @@ public class ImportSettingsViewModel : ObservableObject
             OnPropertyChanged();
         }
     }
-    
+
     public bool UnrealUEFN
     {
         get => AppSettings.Current.UnrealExportSettings.ForUEFN;
@@ -253,7 +253,7 @@ public class ImportSettingsViewModel : ObservableObject
             OnPropertyChanged();
         }
     }
-    
+
     public int UnrealLevelOfDetail
     {
         get => AppSettings.Current.UnrealExportSettings.LevelOfDetail;
@@ -263,6 +263,6 @@ public class ImportSettingsViewModel : ObservableObject
             OnPropertyChanged();
         }
     }
-    
+
     #endregion
 }

@@ -50,13 +50,14 @@ public class MeshExportData : ExportDataBase
                             var specializations = heroDefinition.Get<UObject[]>("Specializations").FirstOrDefault();
                             parts = specializations?.GetOrDefault("CharacterParts", Array.Empty<UObject>()) ?? Array.Empty<UObject>();
                         }
+
                         var frontendAnimMontage = heroDefinition.GetOrDefault<UAnimMontage?>("FrontendAnimMontageIdleOverride");
                         if (frontendAnimMontage is not null && AppSettings.Current.BlenderExportSettings.LobbyPoses)
                         {
                             data.LinkedSequence = await DanceExportData.CreateAnimDataAsync(frontendAnimMontage);
                         }
                     }
-                    
+
                     var exportedParts = ExportHelpers.CharacterParts(parts, data.Parts);
 
                     if (asset.TryGetValue(out UObject[] characterParts, "BaseCharacterParts"))
@@ -68,15 +69,16 @@ public class MeshExportData : ExportDataBase
                             {
                                 data.LinkedSequence = await DanceExportData.CreateAnimDataAsync(frontendAnimMontage);
                             }
+
                             break;
                         }
                     }
-                    
+
                     if (data.LinkedSequence is null && AppSettings.Current.BlenderExportSettings.LobbyPoses) // fallback
                     {
                         var bodyPart = exportedParts.FirstOrDefault(x => x.Part.Equals("Body"));
                         if (bodyPart is null) break;
-                        
+
                         var targetMontage = bodyPart.GenderPermitted switch
                         {
                             EFortCustomGender.Male => AppVM.CUE4ParseVM.MaleIdleAnimations.Random(),
@@ -270,14 +272,14 @@ public class MeshExportData : ExportDataBase
                                 data.Parts.Add(doubleDoorExport);
                             }
                         }
-                        
+
                         var actorData = templateRecord.ReadActorData(actorSaveRecord.Owner, actorSaveRecord.SaveVersion);
                         if (!actorData.TryGetAllValues(out string[] textureDataPaths, "TextureData"))
                         {
                             var referenceTable = templateRecord.ActorDataReferenceTable;
                             textureDataPaths = referenceTable.Select(x => x.AssetPathName.Text).ToArray();
                         }
-                        
+
                         for (var idx = 0; idx < textureDataPaths.Length; idx++)
                         {
                             var textureDataPath = textureDataPaths[idx];
@@ -305,6 +307,7 @@ public class MeshExportData : ExportDataBase
                 {
                     var blueprint = asset.Get<UBlueprintGeneratedClass>("ToyActorClass");
                     var superStruct = blueprint.SuperStruct.Load<UBlueprintGeneratedClass>();
+
                     (UStaticMesh?, UMaterialInstanceConstant[]) GetData(UBlueprintGeneratedClass internalBlueprint)
                     {
                         if (internalBlueprint.TryGetValue(out UObject internalComponentHandler, "InheritableComponentHandler"))
@@ -314,7 +317,7 @@ public class MeshExportData : ExportDataBase
                             {
                                 var template = record.Get<UObject>("ComponentTemplate");
                                 if (!template.ExportType.Equals("StaticMeshComponent")) continue;
-                            
+
                                 var staticMesh = template.GetOrDefault<UStaticMesh?>("StaticMesh");
                                 if (staticMesh is null) continue;
                                 var overrideMaterials = template.GetOrDefault("OverrideMaterials", Array.Empty<UMaterialInstanceConstant>());
@@ -345,17 +348,18 @@ public class MeshExportData : ExportDataBase
 
                     var exportMesh = ExportHelpers.Mesh(mesh);
                     if (exportMesh is null) break;
-                    
+
                     for (var i = 0; i < materials.Length; i++)
                     {
                         var material = materials[i];
                         if (material is null) continue;
-                        
+
                         var exportMaterial = ExportHelpers.CreateExportMaterial(material, i);
                         exportMesh.OverrideMaterials.Add(exportMaterial);
                     }
+
                     data.Parts.Add(exportMesh);
-                    
+
                     break;
                 }
                 case EAssetType.Wildlife:

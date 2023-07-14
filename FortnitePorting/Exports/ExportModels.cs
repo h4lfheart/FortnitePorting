@@ -72,7 +72,7 @@ public class ExportPart : ExportMesh
         PoseAnimation = sequencePath;
         ExportHelpers.Save(animSequence);
     }
-    
+
     private string GetFolder(UObject obj)
     {
         return AppVM.CUE4ParseVM.Provider.FixPath(obj.GetPathName()).SubstringBeforeLast("/");

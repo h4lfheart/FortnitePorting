@@ -7,9 +7,9 @@ namespace FortnitePorting.OpenGL.Buffers;
 public class Buffer<T> : IDisposable where T : unmanaged
 {
     private readonly BufferHandle Handle;
-    private T[] Source;
-    private BufferTargetARB Target;
-    
+    private readonly T[] Source;
+    private readonly BufferTargetARB Target;
+
     public Buffer(T[] source, BufferTargetARB bufferTarget)
     {
         Source = source;
@@ -30,7 +30,7 @@ public class Buffer<T> : IDisposable where T : unmanaged
     {
         GL.BindBuffer(Target, BufferHandle.Zero);
     }
-    
+
     public void Dispose()
     {
         GL.DeleteBuffer(Handle);

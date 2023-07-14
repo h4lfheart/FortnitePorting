@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Windows.Controls;
 using System.Windows.Media;
 using CSCore;
 using CSCore.Codecs.OGG;
@@ -25,11 +23,11 @@ public partial class MusicQueueItem : IDisposable
     public string DisplayName { get; set; }
     public string Description { get; set; }
 
-    private UObject Asset;
+    private readonly UObject Asset;
     private ISoundOut? SoundOut;
     private IWaveSource? SoundSource;
     private static readonly MMDeviceEnumerator DeviceEnumerator = new();
-    
+
     public MusicQueueItem(IExportableAsset musicPackItem)
     {
         InitializeComponent();
@@ -40,7 +38,7 @@ public partial class MusicQueueItem : IDisposable
         Description = musicPackItem.Description;
         Asset = musicPackItem.Asset;
     }
-    
+
     public MusicQueueItem(UObject asset, ImageSource source, string displayName, string description)
     {
         InitializeComponent();
@@ -65,7 +63,7 @@ public partial class MusicQueueItem : IDisposable
         var properSoundWave = GetProperSoundWave(Asset);
         properSoundWave.Decode(true, out var format, out var data);
         if (data is null) return;
-        
+
         switch (format.ToLower())
         {
             case "ogg":
@@ -74,13 +72,12 @@ public partial class MusicQueueItem : IDisposable
             case "adpcm":
                 SoundSource = new WaveFileReader(ConvertedData(data));
                 break;
-                
         }
 
         SoundOut = GetSoundOut();
         SoundOut.Initialize(SoundSource);
         SoundOut.Play();
-        
+
         DiscordService.UpdateMusicState(DisplayName);
     }
 
@@ -90,9 +87,9 @@ public partial class MusicQueueItem : IDisposable
 
         var adpcmPath = Path.Combine(App.VGMStreamFolder.FullName, "temp.adpcm");
         var wavPath = Path.ChangeExtension(adpcmPath, ".wav");
-        
+
         File.WriteAllBytes(adpcmPath, data);
-        
+
         var vgmInst = Process.Start(new ProcessStartInfo
         {
             FileName = vgmPath,
@@ -125,12 +122,12 @@ public partial class MusicQueueItem : IDisposable
     {
         SoundOut?.Pause();
     }
-    
+
     public void Resume()
     {
         SoundOut?.Resume();
     }
-    
+
     public void Restart()
     {
         SoundSource.SetPosition(TimeSpan.Zero);
@@ -147,7 +144,7 @@ public partial class MusicQueueItem : IDisposable
         SoundOut?.Dispose();
         SoundSource?.Dispose();
     }
-    
+
     private static ISoundOut GetSoundOut()
     {
         if (WasapiOut.IsSupportedOnCurrentPlatform)
@@ -160,7 +157,7 @@ public partial class MusicQueueItem : IDisposable
 
         return new DirectSoundOut();
     }
-    
+
     private static MMDevice GetDevice()
     {
         return DeviceEnumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Console);
@@ -171,5 +168,4 @@ public class MusicPackRuntimeInfo
 {
     public TimeSpan Length;
     public TimeSpan CurrentPosition;
-    
 }

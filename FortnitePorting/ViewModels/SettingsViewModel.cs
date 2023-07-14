@@ -41,7 +41,7 @@ public class SettingsViewModel : ObservableObject
             IsRestartRequired = true;
         }
     }
-    
+
     public EGame GameVersion
     {
         get => AppSettings.Current.GameVersion;
@@ -52,7 +52,7 @@ public class SettingsViewModel : ObservableObject
             IsRestartRequired = true;
         }
     }
-    
+
     public string MappingsPath
     {
         get => AppSettings.Current.MappingsPath;
@@ -63,7 +63,7 @@ public class SettingsViewModel : ObservableObject
             IsRestartRequired = true;
         }
     }
-    
+
     public string AESKey
     {
         get => AppSettings.Current.AesKey;
@@ -127,7 +127,7 @@ public class SettingsViewModel : ObservableObject
             OnPropertyChanged();
         }
     }
-    
+
     public bool FilterProps
     {
         get => AppSettings.Current.FilterProps;
@@ -137,8 +137,8 @@ public class SettingsViewModel : ObservableObject
             OnPropertyChanged();
             IsRestartRequired = true;
         }
-    }    
-    
+    }
+
     public bool FilterWeapons
     {
         get => AppSettings.Current.FilterWeapons;

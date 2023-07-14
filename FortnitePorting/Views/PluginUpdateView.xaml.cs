@@ -123,8 +123,8 @@ public static class SteamDetection
 
     private static string? GetSteamPath()
     {
-        var bit64 = (string?)Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Valve\Steam", "InstallPath", "");
-        var bit32 = (string?)Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Valve\Steam", "InstallPath", "");
+        var bit64 = (string?) Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Valve\Steam", "InstallPath", "");
+        var bit32 = (string?) Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Valve\Steam", "InstallPath", "");
 
         return bit64 ?? bit32 ?? null;
     }

@@ -1,19 +1,15 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Windows.Controls;
-using Microsoft.VisualBasic;
 
 namespace FortnitePorting.Views.Extensions;
 
 public static class MiscExtensions
 {
-
     public static bool MoveToEnd<T>(this List<T> list, Func<T, bool> predicate)
     {
         var found = list.FirstOrDefault(predicate);
@@ -28,7 +24,7 @@ public static class MiscExtensions
 
     public static byte[] ToBytes(this Stream str)
     {
-        var bytes = new BinaryReader(str).ReadBytes((int)str.Length);
+        var bytes = new BinaryReader(str).ReadBytes((int) str.Length);
         return bytes;
     }
 
@@ -57,7 +53,7 @@ public static class MiscExtensions
     {
         var list = enumerable.ToList();
         if (list.Count == 0) return default;
-        
+
         var index = App.RandomGenerator.Next(0, list.Count);
         return list[index];
     }
@@ -103,7 +99,7 @@ public static class MiscExtensions
         var result = Math.Truncate(factor * value) / factor;
         return result;
     }
-    
+
     public static string AsString(this byte[] bytes)
     {
         return Encoding.UTF8.GetString(bytes);

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using AdonisUI.Controls;
@@ -22,7 +21,7 @@ public partial class LoadingView
         AppVM.LoadingVM.TitleText = Globals.TITLE;
         Title = Globals.TITLE;
     }
-    
+
     private async void OnLoaded(object sender, RoutedEventArgs e)
     {
         if (string.IsNullOrWhiteSpace(AppSettings.Current.ArchivePath) && AppSettings.Current.InstallType == EInstallType.Local)
@@ -36,18 +35,18 @@ public partial class LoadingView
         if (broadcast?.PushedTime > AppSettings.Current.LastBroadcastTime && broadcast.IsActive)
         {
             AppSettings.Current.LastBroadcastTime = broadcast.PushedTime;
-            
+
             var messageBox = new MessageBoxModel
             {
                 Caption = broadcast.Title,
                 Text = broadcast.Contents,
                 Icon = MessageBoxImage.Exclamation,
-                Buttons = new []{ MessageBoxButtons.Ok() }
+                Buttons = new[] { MessageBoxButtons.Ok() }
             };
 
             MessageBox.Show(messageBox);
         }
-        
+
         var (updateAvailable, updateVersion) = UpdateService.GetStats();
         if (DateTime.Now >= AppSettings.Current.LastUpdateAskTime.AddDays(1) || updateVersion > AppSettings.Current.LastKnownUpdateVersion)
         {

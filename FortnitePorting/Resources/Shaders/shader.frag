@@ -30,7 +30,7 @@ vec3 calcNormals()
     vec3 normalVec = normalize(fNormal);
     vec3 binormalVec = -normalize(cross(normalVec, tangentVec));
     mat3 combined = mat3(tangentVec, binormalVec, normalVec);
-    
+
 
     return normalize(combined * normal);
 }
@@ -45,12 +45,12 @@ vec3 irradiance(vec3 normals)
 
     float sampleDelta = 0.25;
     float nrSamples = 0.0;
-    for(float phi = 0.0; phi < 2.0 * PI; phi += sampleDelta)
+    for (float phi = 0.0; phi < 2.0 * PI; phi += sampleDelta)
     {
-        for(float theta = 0.0; theta < 0.5 * PI; theta += sampleDelta)
+        for (float theta = 0.0; theta < 0.5 * PI; theta += sampleDelta)
         {
             // spherical to cartesian (in tangent space)
-            vec3 tangentSample = vec3(sin(theta) * cos(phi),  sin(theta) * sin(phi), cos(theta));
+            vec3 tangentSample = vec3(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
             // tangent space to world
             vec3 sampleVec = tangentSample.x * right + tangentSample.y * up + tangentSample.z * normals;
 
@@ -83,7 +83,7 @@ float distributionGGX(float roughness, float nDotH)
     return (numerator * numerator) / denominator;
 }
 
-vec3 blendSoftLight(vec3 base, vec3 blend) 
+vec3 blendSoftLight(vec3 base, vec3 blend)
 {
     return mix(
     sqrt(base) * (2.0 * blend - 1.0) + 2.0 * base * (1.0 - blend),
@@ -96,32 +96,32 @@ vec3 calcLight()
 {
     // textures
     vec3 diffuse = samplerToColor(diffuseTex);
-    
+
     vec3 normal = calcNormals();
-    
+
     vec3 specularMasks = samplerToColor(specularTex);
     float specular = specularMasks.r;
     float metallic = specularMasks.g;
     float roughness = specularMasks.b;
-    
+
     vec3 mask = samplerToColor(maskTex);
     float ambientOcclusion = mask.r;
     float cavity = mask.g;
     float skinMask = mask.b;
 
     vec3 environment = calcReflection(normal);
-    
+
     // Mask Stuff
     diffuse = mix(diffuse, diffuse * ambientOcclusion, 0.25);
     diffuse = mix(diffuse, blendSoftLight(diffuse, vec3(cavity)), 0.25);
-    
+
     // light
     vec3 lightDirection = vec3(0.323, 0.456, 0.006);
     vec3 lightColor = vec3(0.939, 0.831, 0.610) * 3;
-    
+
     // ambient
     vec3 ambientColor = irradiance(normal);
-    
+
     // diffuse light
     float diffuseLight = max(dot(normal, lightDirection), 0);
     vec3 diffuseColor = diffuseLight * lightColor;
@@ -139,12 +139,12 @@ vec3 calcLight()
     float specularLight = distributionGGX(roughness, nDotH);
     vec3 specularColor = specularLight * lightColor * specular;
     diffuse = mix(diffuse, diffuse * environment, metallic * 0.5);
-    
+
     vec3 result = diffuse;
     result *= diffuseColor + specularColor + ambientColor;
     result = mix(result, diffuse, skinMask * 0.25);
-    
-    
+
+
     return result;
 }
 
@@ -154,7 +154,7 @@ void main()
     {
         FragColor = vec4(calcLight(), 1.0);
     }
-    else 
+    else
     {
         FragColor = vec4(calcReflection(calcNormals()), 0.5);
     }

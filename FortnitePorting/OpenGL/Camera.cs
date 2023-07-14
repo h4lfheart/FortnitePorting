@@ -17,7 +17,7 @@ public class Camera
     public float Near = 0.01f;
     public float Far = 500f;
     public float AspectRatio = 16f / 9f;
-    
+
     public Camera()
     {
         Position = new Vector3(0, 1, 1);
@@ -25,7 +25,7 @@ public class Camera
 
         SetupDirection();
     }
-    
+
     private void SetupDirection()
     {
         var yaw = MathF.Atan((-Position.X - Direction.X) / (Position.Z - Direction.Z));
@@ -48,8 +48,8 @@ public class Camera
         direction.Z = MathF.Sin(yaw) * MathF.Cos(pitch);
         Direction = Vector3.Normalize(direction);
     }
-    
-    
+
+
     public Matrix4 GetViewMatrix()
     {
         return Matrix4.LookAt(Position, Position + Direction, Up);

@@ -2,7 +2,6 @@
 using AdonisUI.Controls;
 using AutoUpdaterDotNET;
 using FortnitePorting.AppUtils;
-using FortnitePorting.Views;
 using Newtonsoft.Json;
 
 namespace FortnitePorting.Services;

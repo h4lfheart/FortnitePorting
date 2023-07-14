@@ -18,19 +18,19 @@ public class Shader : IDisposable
 
         var vertexShader = LoadShader($"{shaderName}.vert", ShaderType.VertexShader);
         GL.AttachShader(Handle, vertexShader);
-        
+
         var fragShader = LoadShader($"{shaderName}.frag", ShaderType.FragmentShader);
         GL.AttachShader(Handle, fragShader);
-        
+
         GL.LinkProgram(Handle);
-        
+
         GL.DetachShader(Handle, vertexShader);
         GL.DeleteShader(vertexShader);
-        
+
         GL.DetachShader(Handle, fragShader);
         GL.DeleteShader(fragShader);
     }
-    
+
     public void Use()
     {
         GL.UseProgram(Handle);
@@ -40,22 +40,22 @@ public class Shader : IDisposable
     {
         return GL.GetUniformLocation(Handle, name);
     }
-    
+
     public void SetMatrix4(string name, Matrix4 value, bool transpose = true)
     {
         GL.UniformMatrix4f(GetUniformLocation(name), transpose, value);
     }
-    
+
     public void SetUniform(string name, int value)
     {
         GL.Uniform1i(GetUniformLocation(name), value);
     }
-    
+
     public void SetUniform(string name, float value)
     {
         GL.Uniform1f(GetUniformLocation(name), value);
     }
-    
+
     public void SetUniform3(string name, Vector3 pos)
     {
         GL.Uniform3f(GetUniformLocation(name), pos.X, pos.Y, pos.Z);
@@ -65,11 +65,11 @@ public class Shader : IDisposable
     {
         var resourceStream = Application.GetResourceStream(new Uri($"/FortnitePorting;component/Resources/Shaders/{name}", UriKind.Relative));
         var content = resourceStream?.Stream.ReadToEnd().AsString();
-        
+
         var shader = GL.CreateShader(type);
         GL.ShaderSource(shader, content);
         GL.CompileShader(shader);
-        
+
         GL.GetShaderInfoLog(shader, out var shaderInfo);
         if (!string.IsNullOrWhiteSpace(shaderInfo))
         {

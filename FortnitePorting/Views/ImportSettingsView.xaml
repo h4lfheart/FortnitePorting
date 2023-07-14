@@ -87,7 +87,7 @@
                             <Setter Property="Margin" Value="5,0,0, 5" />
                         </Style>
                     </StackPanel.Resources>
-                    
+
                     <Separator Style="{StaticResource NamedSeparator}" Tag="GENERAL" />
                     <ToggleButton Content="Optimize for UEFN" IsChecked="{Binding UnrealUEFN}" />
                     <Grid HorizontalAlignment="Stretch">
@@ -98,10 +98,10 @@
                         <TextBlock Grid.Column="0" Text="Image Format" Margin="5,5,0, 0" />
                         <ComboBox Grid.Column="1" Margin="10,0,0,10" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" ItemsSource="{extensions:EnumToItemsSource {x:Type local:EImageType}}" SelectedItem="{Binding GlobalImageType, Converter={StaticResource EnumToString}}" />
                     </Grid>
-                    
+
                     <Separator Style="{StaticResource NamedSeparator}" Tag="MESH" />
                     <controls:NumericSlider Label="Level of Detail" Maximum="4" StepSize="1" Snap="True" Value="{Binding UnrealLevelOfDetail, Mode=TwoWay}" />
-                    
+
                     <Separator Style="{StaticResource NamedSeparator}" Tag="MATERIALS" />
                     <ToggleButton Content="Import Materials" IsChecked="{Binding UnrealImportMaterials}" />
                     <controls:NumericSlider Label="Ambient Occlusion" Value="{Binding UnrealAmbientOcclusion, Mode=TwoWay}" IsEnabled="{Binding UnrealImportMaterials}" />

@@ -97,7 +97,7 @@ public class UBuildingTextureData : UFortnitePortingCustom
     public UTexture2D? Normal;
     public UTexture2D? Specular;
     public UMaterialInstanceConstant? OverrideMaterial;
-    
+
     public override void Deserialize(FAssetArchive Ar, long validPos)
     {
         base.Deserialize(Ar, validPos);
@@ -111,14 +111,14 @@ public class UBuildingTextureData : UFortnitePortingCustom
     public ExportMaterialParams ToExportMaterialParams(int index, string? targetMaterialPath)
     {
         var overrideMaterialPath = targetMaterialPath ?? OverrideMaterial?.GetPathName();
-        
+
         var exportParams = new ExportMaterialParams();
         exportParams.MaterialToAlter = overrideMaterialPath;
 
         void Add(string name, UTexture2D? tex)
         {
             if (tex is null) return;
-            
+
             ExportHelpers.Save(tex);
             exportParams.Textures.Add(new TextureParameter(name, tex.GetPathName(), tex.SRGB, tex.CompressionSettings));
         }
@@ -127,7 +127,7 @@ public class UBuildingTextureData : UFortnitePortingCustom
         Add("Diffuse" + suffix, Diffuse);
         Add("Normals" + suffix, Normal);
         Add("SpecularMasks" + suffix, Specular);
-        
+
         exportParams.Hash = exportParams.GetHashCode();
 
         return exportParams;

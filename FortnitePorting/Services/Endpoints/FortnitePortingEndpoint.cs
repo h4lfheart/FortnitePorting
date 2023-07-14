@@ -14,7 +14,7 @@ public class FortnitePortingEndpoint : EndpointBase
     {
         var request = new RestRequest($"https://halfheart.dev/fortnite-porting/api/v1/{updateMode.ToString().ToLower()}.json");
         var response = await _client.ExecuteAsync<UpdateInfo>(request).ConfigureAwait(false);
-        Log.Information("[{Method}] {StatusDescription} ({StatusCode}): {URI}", request.Method, response.StatusDescription, (int)response.StatusCode, request.Resource);
+        Log.Information("[{Method}] {StatusDescription} ({StatusCode}): {URI}", request.Method, response.StatusDescription, (int) response.StatusCode, request.Resource);
         return response.Data;
     }
 
@@ -22,12 +22,12 @@ public class FortnitePortingEndpoint : EndpointBase
     {
         return GetReleaseInfoAsync(updateMode).GetAwaiter().GetResult();
     }
-    
+
     public async Task<Broadcast?> GetBroadcastAsync()
     {
         var request = new RestRequest($"https://halfheart.dev/fortnite-porting/api/v1/broadcast.json");
         var response = await _client.ExecuteAsync<Broadcast>(request).ConfigureAwait(false);
-        Log.Information("[{Method}] {StatusDescription} ({StatusCode}): {URI}", request.Method, response.StatusDescription, (int)response.StatusCode, request.Resource);
+        Log.Information("[{Method}] {StatusDescription} ({StatusCode}): {URI}", request.Method, response.StatusDescription, (int) response.StatusCode, request.Resource);
         return response.Data;
     }
 
@@ -35,12 +35,12 @@ public class FortnitePortingEndpoint : EndpointBase
     {
         return GetBroadcastAsync().GetAwaiter().GetResult();
     }
-    
+
     public async Task<BackupAPI?> GetBackupAsync()
     {
         var request = new RestRequest($"https://halfheart.dev/fortnite-porting/api/v1/backup.json");
         var response = await _client.ExecuteAsync<BackupAPI>(request).ConfigureAwait(false);
-        Log.Information("[{Method}] {StatusDescription} ({StatusCode}): {URI}", request.Method, response.StatusDescription, (int)response.StatusCode, request.Resource);
+        Log.Information("[{Method}] {StatusDescription} ({StatusCode}): {URI}", request.Method, response.StatusDescription, (int) response.StatusCode, request.Resource);
         return response.Data;
     }
 

@@ -8,7 +8,6 @@ using System.Windows;
 using System.Windows.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using FortnitePorting.AppUtils;
 using FortnitePorting.Views.Controls;
 
 namespace FortnitePorting.ViewModels;
@@ -29,7 +28,7 @@ public class MeshAssetViewModel : ObservableObject
 
         var assetItems = new SuppressibleObservableCollection<AssetItem>();
         assetItems.SetSuppression(true);
-        
+
         Application.Current.Dispatcher.Invoke(() =>
         {
             static void InvokeOnCollectionChanged(TreeItem item)
@@ -89,10 +88,9 @@ public class MeshAssetViewModel : ObservableObject
                 InvokeOnCollectionChanged(child);
             }
         });
-        
+
         loadTime.Stop();
         Log.Information($"Loaded {AppVM.CUE4ParseVM.MeshEntries.Count} Assets in {Math.Round(loadTime.Elapsed.TotalSeconds, 3)}s");
-        
     }
 }
 

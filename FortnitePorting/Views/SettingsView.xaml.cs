@@ -1,12 +1,8 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Windows;
-using System.Windows.Media.Imaging;
-using AdonisUI;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Services;
 using FortnitePorting.ViewModels;
-using FortnitePorting.Views.Controls;
 
 namespace FortnitePorting.Views;
 

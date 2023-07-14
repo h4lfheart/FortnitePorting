@@ -19,7 +19,7 @@ public class VertexArray<T> : IDisposable where T : unmanaged
         GL.VertexAttribPointer(index, count, type, false, stride * sizeof(T), offset * sizeof(T));
         GL.EnableVertexAttribArray(index);
     }
-    
+
     public void Bind()
     {
         GL.BindVertexArray(Handle);
@@ -29,7 +29,7 @@ public class VertexArray<T> : IDisposable where T : unmanaged
     {
         GL.BindVertexArray(VertexArrayHandle.Zero);
     }
-    
+
     public void Dispose()
     {
         GL.DeleteVertexArray(Handle);

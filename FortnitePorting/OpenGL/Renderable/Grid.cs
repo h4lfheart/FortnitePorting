@@ -9,17 +9,17 @@ public class Grid : VertexAndIndexModel
     public Grid()
     {
         Indices = new List<uint> { 0, 1, 2, 3, 4, 5 };
-        
+
         Vertices = new List<float>
         {
-            1f,  1f, 0f,
+            1f, 1f, 0f,
             -1f, -1f, 0f,
-            -1f,  1f, 0f,
+            -1f, 1f, 0f,
             -1f, -1f, 0f,
-            1f,  1f, 0f,
+            1f, 1f, 0f,
             1f, -1f, 0
         };
-        
+
         RegisterAttribute("Position", 3, VertexAttribPointerType.Float);
 
         Shader = new Shader("grid");
@@ -32,7 +32,7 @@ public class Grid : VertexAndIndexModel
         VAO.Bind();
 
         Shader.Use();
-        
+
         Shader.SetMatrix4("view", camera.GetViewMatrix(), transpose: false);
         Shader.SetMatrix4("proj", camera.GetProjectionMatrix(), transpose: false);
         Shader.SetUniform("uNear", camera.Near);

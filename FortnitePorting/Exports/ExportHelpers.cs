@@ -25,9 +25,7 @@ using CUE4Parse.UE4.Objects.Engine.Animation;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using FortnitePorting.AppUtils;
-using FortnitePorting.Bundles;
 using FortnitePorting.Views.Extensions;
-using Newtonsoft.Json;
 using SixLabors.ImageSharp;
 
 namespace FortnitePorting.Exports;
@@ -285,7 +283,7 @@ public static class ExportHelpers
             {
                 exportPart.OverrideMaterials.Add(exportMaterial);
             }
-            
+
             for (var idx = 0; idx < exportPart.Materials.Count; idx++)
             {
                 if (exportMaterial.SlotIndex >= exportPart.Materials.Count) continue;
@@ -295,7 +293,7 @@ public static class ExportHelpers
                 }
             }
         }
-    } 
+    }
 
     public static void OverrideMaterials(FStructFallback[] overrides, List<ExportMaterial> exportMaterials)
     {
@@ -334,7 +332,7 @@ public static class ExportHelpers
             if (parameter.ParameterValue is null) continue;
             vectors.Add(new VectorParameter(parameter.Name, parameter.ParameterValue.Value));
         }
-        
+
         var switches = new List<SwitchParameter>();
         var componentMasks = new List<ComponentMaskParameter>();
         if (materialInstance.StaticParameters is not null)
@@ -344,7 +342,7 @@ public static class ExportHelpers
                 if (parameter.ParameterInfo is null) continue;
                 switches.Add(new SwitchParameter(parameter.Name, parameter.Value));
             }
-            
+
             foreach (var parameter in materialInstance.StaticParameters.StaticComponentMaskParameters)
             {
                 if (parameter.ParameterInfo is null) continue;
@@ -359,7 +357,7 @@ public static class ExportHelpers
                 if (parameter.ParameterInfo is null) continue;
                 switches.AddUnique(new SwitchParameter(parameter.Name, parameter.Value));
             }
-            
+
             foreach (var parameter in materialInstanceEditorData.StaticParameters.StaticComponentMaskParameters)
             {
                 if (parameter.ParameterInfo is null) continue;
@@ -387,13 +385,13 @@ public static class ExportHelpers
                 if (vectors.Any(x => x.Name.Equals(parentVector.Name))) continue;
                 vectors.Add(parentVector);
             }
-            
+
             foreach (var parentSwitch in parentSwitches)
             {
                 if (switches.Any(x => x.Name.Equals(parentSwitch.Name))) continue;
                 switches.Add(parentSwitch);
             }
-            
+
             foreach (var parentComponentMask in parentComponentMasks)
             {
                 if (componentMasks.Any(x => x.Name.Equals(parentComponentMask.Name))) continue;
@@ -440,7 +438,7 @@ public static class ExportHelpers
                 break;
             }
         }
-        
+
         if (materialInterface.TryLoadEditorData<UMaterialEditorOnlyData>(out var materialEditorData) && materialEditorData is not null)
         {
             bool TryAddExpressionTexture(string expressionName, string paramName)
@@ -448,12 +446,12 @@ public static class ExportHelpers
                 if (!materialEditorData.TryGetValue(out FExpressionInput input, expressionName)) return false;
                 if (!input.Expression.TryLoad(out var expression)) return false;
                 if (!expression!.TryGetValue(out UTexture2D texture, "Texture")) return false;
-                
+
                 textures.AddUnique(new TextureParameter(paramName, texture.GetPathName(), texture.SRGB, texture.CompressionSettings));
                 Save(texture);
                 return true;
             }
-            
+
             TryAddExpressionTexture("BaseColor", "Diffuse");
             TryAddExpressionTexture("Specular", "SpecularMasks");
             TryAddExpressionTexture("Metallic", "SpecularMasks");
@@ -625,10 +623,10 @@ public static class ExportHelpers
     public static bool IsGlassMaterial(UMaterialInstanceConstant? materialInstance)
     {
         if (materialInstance is null) return false;
-        
+
         var lastParent = materialInstance.GetLastParent();
         if (lastParent is null) return false;
-        
+
         var glassMaterialNames = new[]
         {
             "M_MED_Glass_Master",
@@ -651,7 +649,7 @@ public static class ExportHelpers
         {
             return IsGlassMaterial(materialInstance);
         }
-        
+
         var glassMaterialNames = new[]
         {
             "M_MED_Glass_Master",
@@ -709,7 +707,7 @@ public static class ExportHelpers
         SocketFormat = ESocketFormat.Bone,
         MaterialFormat = EMaterialFormat.AllLayersNoRef
     };
-    
+
     private static readonly ExporterOptions StaticMeshExportOptions = new()
     {
         Platform = ETexturePlatform.DesktopMobile,
@@ -840,7 +838,7 @@ public static class ExportHelpers
     private static bool ShouldExportTexture(string path, FTexture2DMipMap mip)
     {
         if (!File.Exists(path)) return true;
-        
+
         try
         {
             using var existingBitmap = Image.Load(path);
@@ -891,10 +889,10 @@ public static class ExportHelpers
     public static void SaveAdditiveAnim(UAnimSequence baseSequence, UAnimSequence additiveSequence)
     {
         additiveSequence.RefPoseSeq = new ResolvedLoadedObject(baseSequence);
-        
+
         var exporter = new AnimExporter(additiveSequence, ExportOptions);
         exporter.TryWriteToDir(App.AssetsFolder, out var label, out var savedFilePath);
-        
+
         Log.Information("Exporting {ExportType}: {FileName}", additiveSequence.ExportType, additiveSequence.Name);
     }
 

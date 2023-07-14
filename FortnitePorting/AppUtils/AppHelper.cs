@@ -52,7 +52,7 @@ public static class AppHelper
         selectedPath = string.Empty;
         return false;
     }
-    
+
     public static bool TrySelectFile(out string selectedPath)
     {
         var fileExplorer = new VistaOpenFileDialog()
