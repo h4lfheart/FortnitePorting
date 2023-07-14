@@ -79,7 +79,7 @@ public partial class SettingsView
 
     private void OnClickMappings(object sender, RoutedEventArgs e)
     {
-        if (AppHelper.TrySelectFile(out var path))
+        if (AppHelper.TrySelectFile(out var path, filter: "Unreal Mappings|*.usmap"))
         {
             AppVM.SettingsVM.MappingsPath = path;
         }

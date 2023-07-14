@@ -266,7 +266,7 @@ public partial class MainViewModel : ObservableObject
                 // TODO
                 break;
             case "Sync_Unreal":
-                // TODO
+                AppHelper.OpenWindow<UnrealPluginView>();
                 break;
             case "Update":
                 UpdateService.Start();

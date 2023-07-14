@@ -24,7 +24,6 @@ public class UnrealSocketService : SocketServiceBase
 
         var message = JsonConvert.SerializeObject(export);
         var uncompressed = Encoding.UTF8.GetBytes(message);
-        // TODO GZIP COMPRESSION FOR UNREAL
         //var compressed = GZipStream.CompressBuffer(uncompressed);
 
         SendSpliced(uncompressed, Globals.BUFFER_SIZE);

@@ -22,6 +22,7 @@ public class ApplicationViewModel : ObservableObject
     public PluginUpdateViewModel? PluginUpdateVM;
     public LoadingViewModel LoadingVM;
     public MusicViewModel MusicVM;
+    public UnrealPluginViewModel UnrealVM;
 
     public Viewer? MeshViewer;
 

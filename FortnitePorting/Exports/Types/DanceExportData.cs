@@ -231,7 +231,7 @@ public class DanceExportData : ExportDataBase
             return sectionText.Equals("Success", StringComparison.OrdinalIgnoreCase);
         });
 
-        targetSection ??= sections?.Last(); // TODO ADD USER PROMPT FOR SECTION
+        targetSection ??= sections?.Last();
 
         var animation = targetSection?.Get<UAnimSequence>("LinkedSequence");
         return animation;

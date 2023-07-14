@@ -82,4 +82,6 @@ public partial class AppSettings : ObservableObject
     [ObservableProperty] private bool filterProps = true;
 
     [ObservableProperty] private bool filterWeapons = true;
+    
+    [ObservableProperty] private List<string> unrealProjects = new();
 }
