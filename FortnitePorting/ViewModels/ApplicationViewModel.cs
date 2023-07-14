@@ -11,7 +11,7 @@ namespace FortnitePorting.ViewModels;
 
 public class ApplicationViewModel : ObservableObject
 {
-    public NewMainViewModel NewMainVM;
+    public MainViewModel MainVM;
     public StartupViewModel StartupVM;
     public SettingsViewModel SettingsVM;
     public CUE4ParseViewModel CUE4ParseVM;

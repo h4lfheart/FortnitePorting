@@ -24,7 +24,7 @@ using OpenTK.Windowing.Desktop;
 
 namespace FortnitePorting.ViewModels;
 
-public partial class NewMainViewModel : ObservableObject
+public partial class MainViewModel : ObservableObject
 {
     // Asset Stuff
     [ObservableProperty]

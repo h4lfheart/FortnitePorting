@@ -23,8 +23,8 @@ public partial class NewMainView
     public NewMainView()
     {
         InitializeComponent();
-        AppVM.NewMainVM = new NewMainViewModel();
-        DataContext = AppVM.NewMainVM;
+        AppVM.MainVM = new MainViewModel();
+        DataContext = AppVM.MainVM;
 
         Title = $"Fortnite Porting - v{Globals.VERSION}";
     }
@@ -41,11 +41,11 @@ public partial class NewMainView
 
         var clickedButton = (ToggleButton) sender;
         var assetType = (EAssetType) clickedButton.Tag;
-        if (AppVM.NewMainVM.CurrentAssetType == assetType) return;
+        if (AppVM.MainVM.CurrentAssetType == assetType) return;
 
         AssetDisplayGrid.SelectionMode = assetType is (EAssetType.Prop or EAssetType.Gallery) ? SelectionMode.Extended : SelectionMode.Single;
-        AppVM.NewMainVM.CurrentAsset = null;
-        AppVM.NewMainVM.CurrentAssetType = assetType;
+        AppVM.MainVM.CurrentAsset = null;
+        AppVM.MainVM.CurrentAssetType = assetType;
         DiscordService.Update(assetType);
 
         // uncheck other buttons
@@ -59,7 +59,7 @@ public partial class NewMainView
         var handlers = AppVM.AssetHandlerVM.Handlers;
         foreach (var (handlerType, handlerData) in handlers)
         {
-            if (handlerType == assetType && !AppVM.NewMainVM.IsPaused)
+            if (handlerType == assetType && !AppVM.MainVM.IsPaused)
             {
                 handlerData.PauseState.Unpause();
             }
@@ -97,19 +97,19 @@ public partial class NewMainView
             return;
         }
 
-        AppVM.NewMainVM.CurrentAsset = selected;
-        AppVM.NewMainVM.ExtendedAssets.Clear();
-        AppVM.NewMainVM.Styles.Clear();
+        AppVM.MainVM.CurrentAsset = selected;
+        AppVM.MainVM.ExtendedAssets.Clear();
+        AppVM.MainVM.Styles.Clear();
 
         if (selected.Type is EAssetType.Prop)
         {
-            AppVM.NewMainVM.OptionTabText = "SELECTED PROPS";
-            AppVM.NewMainVM.ExtendedAssets = listBox.SelectedItems.OfType<IExportableAsset>().ToList();
-            AppVM.NewMainVM.Styles.Add(new StyleSelector(AppVM.NewMainVM.ExtendedAssets));
+            AppVM.MainVM.OptionTabText = "SELECTED PROPS";
+            AppVM.MainVM.ExtendedAssets = listBox.SelectedItems.OfType<IExportableAsset>().ToList();
+            AppVM.MainVM.Styles.Add(new StyleSelector(AppVM.MainVM.ExtendedAssets));
             return;
         }
 
-        AppVM.NewMainVM.OptionTabText = "OPTIONS";
+        AppVM.MainVM.OptionTabText = "OPTIONS";
         var styles = selected.Asset.GetOrDefault("ItemVariants", Array.Empty<UObject>());
         foreach (var style in styles)
         {
@@ -130,7 +130,7 @@ public partial class NewMainView
 
             var styleSelector = new StyleSelector(channel, options, selected.IconBitmap);
             if (styleSelector.Options.Items.Count == 0) continue;
-            AppVM.NewMainVM.Styles.Add(styleSelector);
+            AppVM.MainVM.Styles.Add(styleSelector);
         }
     }
 
@@ -161,26 +161,26 @@ public partial class NewMainView
         AssetDisplayGrid.Items.Filter = o =>
         {
             var asset = (AssetSelectorItem) o;
-            return asset.Match(AppVM.NewMainVM.SearchFilter) && AppVM.NewMainVM.Filters.All(x => x.Invoke(asset));
+            return asset.Match(AppVM.MainVM.SearchFilter) && AppVM.MainVM.Filters.All(x => x.Invoke(asset));
         };
         AssetDisplayGrid.Items.Refresh();
 
-        if (AppVM.NewMainVM.CurrentAssetType is EAssetType.Gallery)
+        if (AppVM.MainVM.CurrentAssetType is EAssetType.Gallery)
         {
             GalleryItemsControl.Items.Filter = o =>
             {
                 var asset = (PropExpander) o;
-                return AppHelper.Filter(asset.GalleryName.Text, AppVM.NewMainVM.SearchFilter);
+                return AppHelper.Filter(asset.GalleryName.Text, AppVM.MainVM.SearchFilter);
             };
             GalleryItemsControl.Items.Refresh();
         }
 
-        if (AppVM.NewMainVM.CurrentAssetType is EAssetType.Mesh)
+        if (AppVM.MainVM.CurrentAssetType is EAssetType.Mesh)
         {
             AssetFlatView.Items.Filter = o =>
             {
                 var asset = (AssetItem) o;
-                return AppHelper.Filter(asset.Path, AppVM.NewMainVM.SearchFilter);
+                return AppHelper.Filter(asset.Path, AppVM.MainVM.SearchFilter);
             };
             AssetFlatView.Items.Refresh();
         }
@@ -192,13 +192,13 @@ public partial class NewMainView
         if (checkBox.Tag is null) return;
         if (!checkBox.IsChecked.HasValue) return;
 
-        AppVM.NewMainVM.ModifyFilters(checkBox.Tag.ToString()!, checkBox.IsChecked.Value);
+        AppVM.MainVM.ModifyFilters(checkBox.Tag.ToString()!, checkBox.IsChecked.Value);
         RefreshFilters();
     }
 
     private void OnClearFiltersClicked(object sender, RoutedEventArgs e)
     {
-        AppVM.NewMainVM.Filters.Clear();
+        AppVM.MainVM.Filters.Clear();
         foreach (var child in FilterPanel.Children)
         {
             if (child is not CheckBox checkBox) continue;
@@ -218,10 +218,10 @@ public partial class NewMainView
         AssetDisplayGrid.Items.SortDescriptions.Clear();
         AssetDisplayGrid.Items.SortDescriptions.Add(new SortDescription("IsRandom", ListSortDirection.Descending));
 
-        switch (AppVM.NewMainVM.SortType)
+        switch (AppVM.MainVM.SortType)
         {
             case ESortType.Default:
-                if (AppVM.NewMainVM.CurrentAssetType is EAssetType.Gallery) break;
+                if (AppVM.MainVM.CurrentAssetType is EAssetType.Gallery) break;
                 AssetDisplayGrid.Items.SortDescriptions.Add(new SortDescription("ID", GetProperSort(ListSortDirection.Ascending)));
                 break;
             case ESortType.AZ:
@@ -246,8 +246,8 @@ public partial class NewMainView
     {
         return direction switch
         {
-            ListSortDirection.Ascending => AppVM.NewMainVM.Ascending ? ListSortDirection.Descending : direction,
-            ListSortDirection.Descending => AppVM.NewMainVM.Ascending ? ListSortDirection.Ascending : direction
+            ListSortDirection.Ascending => AppVM.MainVM.Ascending ? ListSortDirection.Descending : direction,
+            ListSortDirection.Descending => AppVM.MainVM.Ascending ? ListSortDirection.Ascending : direction
         };
     }
 
@@ -258,8 +258,8 @@ public partial class NewMainView
 
     private void OnAscendingDescendingClicked(object sender, RoutedEventArgs e)
     {
-        var newValue = !AppVM.NewMainVM.Ascending;
-        AppVM.NewMainVM.Ascending = newValue;
+        var newValue = !AppVM.MainVM.Ascending;
+        AppVM.MainVM.Ascending = newValue;
 
         var button = (Button) sender;
         var image = (IconBecauseImLazy) button.Content;
@@ -279,7 +279,7 @@ public partial class NewMainView
             handler.PauseState.IsPaused = pauseValue;
         }
 
-        AppVM.NewMainVM.IsPaused = pauseValue;
+        AppVM.MainVM.IsPaused = pauseValue;
     }
 
     private async void AssetFolderTree_OnSelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
@@ -289,7 +289,7 @@ public partial class NewMainView
         if (treeItem is null) return;
         if (treeItem.AssetType == ETreeItemType.Folder) return;
 
-        await AppVM.NewMainVM.SetupMeshSelection(treeItem.FullPath!);
+        await AppVM.MainVM.SetupMeshSelection(treeItem.FullPath!);
     }
 
     private async void AssetFlatView_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -298,7 +298,7 @@ public partial class NewMainView
         var selectedItem = (AssetItem) listBox.SelectedItem;
         if (selectedItem is null) return;
 
-        await AppVM.NewMainVM.SetupMeshSelection(listBox.SelectedItems.OfType<AssetItem>().ToArray());
+        await AppVM.MainVM.SetupMeshSelection(listBox.SelectedItems.OfType<AssetItem>().ToArray());
     }
 
     private void AssetFlatView_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -312,7 +312,7 @@ public partial class NewMainView
 
     private void JumpToAsset(string directory)
     {
-        var children = AppVM.NewMainVM.Meshes;
+        var children = AppVM.MainVM.Meshes;
 
         var i = 0;
         var folders = directory.Split('/');

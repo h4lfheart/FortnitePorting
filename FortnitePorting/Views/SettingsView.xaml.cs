@@ -28,7 +28,7 @@ public partial class SettingsView
             {
                 if (handler.AssetType is EAssetType.Gallery)
                 {
-                    foreach (var expander in AppVM.NewMainVM.Galleries)
+                    foreach (var expander in AppVM.MainVM.Galleries)
                     {
                         foreach (var assetSelectorItem in expander.Props)
                         {

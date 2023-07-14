@@ -34,8 +34,8 @@ public partial class PropExpander
             return;
         }
 
-        AppVM.NewMainVM.Styles.Clear();
-        AppVM.NewMainVM.CurrentAsset = selected;
+        AppVM.MainVM.Styles.Clear();
+        AppVM.MainVM.CurrentAsset = selected;
 
         var styles = selected.Asset.GetOrDefault("ItemVariants", Array.Empty<UObject>());
         foreach (var style in styles)
@@ -57,7 +57,7 @@ public partial class PropExpander
 
             var styleSelector = new StyleSelector(channel, options, selected.IconBitmap);
             if (styleSelector.Options.Items.Count == 0) continue;
-            AppVM.NewMainVM.Styles.Add(styleSelector);
+            AppVM.MainVM.Styles.Add(styleSelector);
         }
     }
 }
