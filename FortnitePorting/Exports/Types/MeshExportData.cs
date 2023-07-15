@@ -365,7 +365,22 @@ public class MeshExportData : ExportDataBase
                 case EAssetType.Wildlife:
                 {
                     ExportHelpers.Mesh(asset as USkeletalMesh, data.Parts);
+                    
+                    break;
+                }
+                case EAssetType.Trap:
+                {
+                    var blueprint = asset.Get<UObject>("BlueprintClass");
+                    var exports = AppVM.CUE4ParseVM.Provider.LoadAllObjects(blueprint.GetPathName().SubstringBeforeLast("."));
+                    var staticMeshComponents = exports.Where(x => x.ExportType == "StaticMeshComponent").ToArray();
+                    foreach (var component in staticMeshComponents)
+                    {
+                        var componentStaticMesh = component.GetOrDefault<UStaticMesh?>("StaticMesh");
+                        if (componentStaticMesh is null) continue;
 
+                        ExportHelpers.Mesh(componentStaticMesh, data.Parts);
+                    }
+                    
                     break;
                 }
                 default:

@@ -10,90 +10,92 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AdonisUI" Version="1.17.1"/>
-        <PackageReference Include="AdonisUI.ClassicTheme" Version="1.17.1"/>
-        <PackageReference Include="Autoupdater.NET.Official" Version="1.7.6"/>
-        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.1.0"/>
-        <PackageReference Include="CSCore" Version="1.2.1.2"/>
-        <PackageReference Include="CSCore.Ogg" Version="1.0.0"/>
-        <PackageReference Include="DiscordRichPresence" Version="1.0.175"/>
-        <PackageReference Include="gong-wpf-dragdrop" Version="3.2.1"/>
-        <PackageReference Include="MercuryCommons" Version="0.1.2"/>
-        <PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1"/>
-        <PackageReference Include="OpenTK" Version="5.0.0-pre.8"/>
-        <PackageReference Include="RestSharp" Version="110.2.0"/>
-        <PackageReference Include="RestSharp.Serializers.NewtonsoftJson" Version="110.2.0"/>
-        <PackageReference Include="Serilog.Sinks.File" Version="5.0.1-dev-00947"/>
-        <PackageReference Include="SixLabors.ImageSharp" Version="2.1.3"/>
-        <PackageReference Include="VirtualizingWrapPanel" Version="1.5.7"/>
-        <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta15"/>
+        <PackageReference Include="AdonisUI" Version="1.17.1" />
+        <PackageReference Include="AdonisUI.ClassicTheme" Version="1.17.1" />
+        <PackageReference Include="Autoupdater.NET.Official" Version="1.7.6" />
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.1.0" />
+        <PackageReference Include="CSCore" Version="1.2.1.2" />
+        <PackageReference Include="CSCore.Ogg" Version="1.0.0" />
+        <PackageReference Include="DiscordRichPresence" Version="1.0.175" />
+        <PackageReference Include="gong-wpf-dragdrop" Version="3.2.1" />
+        <PackageReference Include="MercuryCommons" Version="0.1.2" />
+        <PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
+        <PackageReference Include="OpenTK" Version="5.0.0-pre.8" />
+        <PackageReference Include="RestSharp" Version="110.2.0" />
+        <PackageReference Include="RestSharp.Serializers.NewtonsoftJson" Version="110.2.0" />
+        <PackageReference Include="Serilog.Sinks.File" Version="5.0.1-dev-00947" />
+        <PackageReference Include="SixLabors.ImageSharp" Version="2.1.3" />
+        <PackageReference Include="VirtualizingWrapPanel" Version="1.5.7" />
+        <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta15" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Dependencies\CUE4Parse\CUE4Parse-Conversion\CUE4Parse-Conversion.csproj"/>
-        <ProjectReference Include="..\Dependencies\CUE4Parse\CUE4Parse\CUE4Parse.csproj"/>
-        <ProjectReference Include="..\Dependencies\EpicManifestParser\src\EpicManifestParser\EpicManifestParser.csproj"/>
+        <ProjectReference Include="..\Dependencies\CUE4Parse\CUE4Parse-Conversion\CUE4Parse-Conversion.csproj" />
+        <ProjectReference Include="..\Dependencies\CUE4Parse\CUE4Parse\CUE4Parse.csproj" />
+        <ProjectReference Include="..\Dependencies\EpicManifestParser\src\EpicManifestParser\EpicManifestParser.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <Resource Include="Resources\Backpack.png"/>
-        <Resource Include="Resources\Dance.png"/>
-        <Resource Include="Resources\Glider.png"/>
-        <Resource Include="Resources\Mesh.png"/>
-        <Resource Include="Resources\Outfit.png"/>
-        <Resource Include="Resources\Pickaxe.png"/>
-        <Resource Include="Resources\Gallery.png"/>
-        <Resource Include="Resources\Vehicle.png"/>
-        <Resource Include="Resources\Item.png"/>
-        <Resource Include="Resources\Unreal.png"/>
-        <Resource Include="Resources\Blender.png"/>
-        <Resource Include="Resources\Settings.png"/>
-        <Resource Include="Resources\Favorite.png"/>
-        <Resource Include="Resources\Textures.png"/>
-        <Resource Include="Resources\Export.png"/>
-        <Resource Include="Resources\Clipboard.png"/>
-        <Resource Include="FortnitePorting-Dark.ico"/>
-        <Resource Include="FortnitePorting.ico"/>
-        <Resource Include="Resources\Folder.png"/>
-        <Resource Include="Resources\MeshPreview.png"/>
-        <Resource Include="Resources\Fortnite.png"/>
-        <Resource Include="Resources\Pet.png"/>
-        <Resource Include="Resources\Clear.png"/>
-        <Resource Include="Resources\FavoriteAdd.png"/>
-        <Resource Include="Resources\Music.png"/>
-        <Resource Include="FortnitePorting-Dark.png"/>
-        <Resource Include="Resources\Shaders\nx.png"/>
-        <Resource Include="Resources\Shaders\ny.png"/>
-        <Resource Include="Resources\Shaders\nz.png"/>
-        <Resource Include="Resources\Shaders\px.png"/>
-        <Resource Include="Resources\Shaders\py.png"/>
-        <Resource Include="Resources\Shaders\pz.png"/>
-        <Resource Include="Resources\Shaders\skybox.frag"/>
-        <Resource Include="Resources\Shaders\skybox.vert"/>
-        <Resource Include="Resources\Shaders\shader.frag"/>
-        <Resource Include="Resources\Shaders\shader.vert"/>
-        <Resource Include="Resources\Shaders\grid.frag"/>
-        <Resource Include="Resources\Shaders\grid.vert"/>
-        <Resource Include="Resources\Prop.png"/>
-        <Resource Include="Resources\Locker.png"/>
-        <Resource Include="Resources\Filter.png"/>
-        <Resource Include="Resources\Sort.png"/>
-        <Resource Include="Resources\Toy.png"/>
-        <Resource Include="Resources\Discord.png"/>
-        <Resource Include="Resources\GitHub.png"/>
-        <Resource Include="Resources\KoFi.png"/>
-        <Resource Include="Resources\Arrow.png"/>
-        <Resource Include="FortnitePorting-Large.png"/>
-        <Resource Include="Resources\loop.png"/>
-        <Resource Include="Resources\resume.png"/>
-        <Resource Include="Resources\skip.png"/>
-        <Resource Include="Resources\pause.png"/>
-        <Resource Include="Resources\Random.png"/>
-        <Resource Include="Resources\Misc.png"/>
-        <Resource Include="Resources\Wrap.png"/>
-        <Resource Include="Resources\Wildlife.png"/>
-        <Resource Include="Resources\DefaultUnrealProject.png"/>
-        <Resource Include="Plugin\FortnitePortingUnreal.zip"/>
+        <Resource Include="Resources\Backpack.png" />
+        <Resource Include="Resources\Dance.png" />
+        <Resource Include="Resources\Glider.png" />
+        <Resource Include="Resources\Mesh.png" />
+        <Resource Include="Resources\Outfit.png" />
+        <Resource Include="Resources\Pickaxe.png" />
+        <Resource Include="Resources\Gallery.png" />
+        <Resource Include="Resources\Vehicle.png" />
+        <Resource Include="Resources\Item.png" />
+        <Resource Include="Resources\Unreal.png" />
+        <Resource Include="Resources\Blender.png" />
+        <Resource Include="Resources\Settings.png" />
+        <Resource Include="Resources\Favorite.png" />
+        <Resource Include="Resources\Textures.png" />
+        <Resource Include="Resources\Export.png" />
+        <Resource Include="Resources\Clipboard.png" />
+        <Resource Include="FortnitePorting-Dark.ico" />
+        <Resource Include="FortnitePorting.ico" />
+        <Resource Include="Resources\Folder.png" />
+        <Resource Include="Resources\MeshPreview.png" />
+        <Resource Include="Resources\Fortnite.png" />
+        <Resource Include="Resources\Pet.png" />
+        <Resource Include="Resources\Clear.png" />
+        <Resource Include="Resources\FavoriteAdd.png" />
+        <Resource Include="Resources\Music.png" />
+        <Resource Include="FortnitePorting-Dark.png" />
+        <Resource Include="Resources\Shaders\nx.png" />
+        <Resource Include="Resources\Shaders\ny.png" />
+        <Resource Include="Resources\Shaders\nz.png" />
+        <Resource Include="Resources\Shaders\px.png" />
+        <Resource Include="Resources\Shaders\py.png" />
+        <Resource Include="Resources\Shaders\pz.png" />
+        <Resource Include="Resources\Shaders\skybox.frag" />
+        <Resource Include="Resources\Shaders\skybox.vert" />
+        <Resource Include="Resources\Shaders\shader.frag" />
+        <Resource Include="Resources\Shaders\shader.vert" />
+        <Resource Include="Resources\Shaders\grid.frag" />
+        <Resource Include="Resources\Shaders\grid.vert" />
+        <Resource Include="Resources\Prop.png" />
+        <Resource Include="Resources\Locker.png" />
+        <Resource Include="Resources\Filter.png" />
+        <Resource Include="Resources\Sort.png" />
+        <Resource Include="Resources\Toy.png" />
+        <Resource Include="Resources\Discord.png" />
+        <Resource Include="Resources\GitHub.png" />
+        <Resource Include="Resources\KoFi.png" />
+        <Resource Include="Resources\Arrow.png" />
+        <Resource Include="FortnitePorting-Large.png" />
+        <Resource Include="Resources\loop.png" />
+        <Resource Include="Resources\resume.png" />
+        <Resource Include="Resources\skip.png" />
+        <Resource Include="Resources\pause.png" />
+        <Resource Include="Resources\Random.png" />
+        <Resource Include="Resources\Misc.png" />
+        <Resource Include="Resources\Wrap.png" />
+        <Resource Include="Resources\Wildlife.png" />
+        <Resource Include="Resources\DefaultUnrealProject.png" />
+        <Resource Include="Plugin\FortnitePortingUnreal.zip" />
+        <None Remove="Resources\Trap.png" />
+        <Resource Include="Resources\Trap.png" />
     </ItemGroup>
 
 </Project>

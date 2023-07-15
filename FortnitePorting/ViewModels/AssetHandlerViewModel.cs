@@ -43,7 +43,8 @@ public class AssetHandlerViewModel
             { EAssetType.Pet, PetHandler },
             { EAssetType.Music, MusicPackHandler },
             { EAssetType.Toy, ToyHandler },
-            { EAssetType.Wildlife, WildlifeHandler }
+            { EAssetType.Wildlife, WildlifeHandler },
+            { EAssetType.Trap, TrapHandler }
         };
     }
 
@@ -230,6 +231,15 @@ public class AssetHandlerViewModel
         AssetType = EAssetType.Wildlife,
         TargetCollection = AppVM.MainVM.Wildlife
     };
+    
+    private readonly AssetHandlerData TrapHandler = new()
+    {
+        AssetType = EAssetType.Trap,
+        TargetCollection = AppVM.MainVM.Traps,
+        ClassNames = new List<string> { "FortTrapItemDefinition" },
+        RemoveList = { },
+        IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
+    };
 
     public async Task Initialize()
     {
@@ -352,7 +362,7 @@ public class AssetHandlerData
         {
             try
             {
-                var displayName = string.Empty;
+                var displayName = data.AssetName.Text;
                 if (data.TagsAndValues.TryGetValue("DisplayName", out var displayNameRaw))
                 {
                     displayName = displayNameRaw.SubstringBeforeLast('"').SubstringAfterLast('"').Trim();
@@ -406,6 +416,19 @@ public class AssetHandlerData
                         await DoLoad(data, AssetType, descriptionOverride: "Unknown Gallery");
                     }
 
+                    return;
+                }
+                
+                // Trap Filtering
+                if (AssetType is EAssetType.Trap)
+                {
+                    if (addedAssets.ToArray().Contains(displayName))
+                    {
+                        return;
+                    }
+
+                    addedAssets.Add(displayName);
+                    await DoLoad(data, AssetType);
                     return;
                 }
 

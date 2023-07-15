@@ -62,7 +62,7 @@ public partial class AssetSelectorItem : INotifyPropertyChanged, IExportableAsse
 
         Asset = asset;
         var displayName = displayNameOverride;
-        displayName ??= asset.GetOrDefault("DisplayName", new FText("Unnamed"));
+        displayName ??= asset.GetOrDefault("DisplayName", new FText(asset.Name));
         HiddenAsset = hiddenAsset;
 
         DisplayName = displayName.Text;

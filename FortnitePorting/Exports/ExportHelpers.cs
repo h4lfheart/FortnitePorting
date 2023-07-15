@@ -192,8 +192,7 @@ public static class ExportHelpers
         weapons.Add(offHandMesh);
 
         if (weapons.Count > 0) return weapons;
-
-        // TODO MATERIAL STYLES
+        
         if (weaponDefinition.TryGetValue(out UBlueprintGeneratedClass blueprint, "WeaponActorClass"))
         {
             var defaultObject = blueprint.ClassDefaultObject.Load()!;

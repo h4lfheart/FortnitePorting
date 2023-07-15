@@ -8,7 +8,7 @@
                           xmlns:local="clr-namespace:FortnitePorting"
                           xmlns:toolkitCtrls="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
                           xmlns:extensions="clr-namespace:FortnitePorting.Views.Extensions"
-                          Title="Fortnite Porting" Width="1368" Height="720" WindowStartupLocation="CenterScreen" ResizeMode="CanResize" Loaded="OnLoaded">
+                          Title="Fortnite Porting" Width="1368" Height="744" WindowStartupLocation="CenterScreen" ResizeMode="CanResize" Loaded="OnLoaded">
     <Window.InputBindings>
         <KeyBinding Key="F" Modifiers="Control" Command="{Binding FavoriteCommand}" />
     </Window.InputBindings>
@@ -152,6 +152,9 @@
                         </Separator>
                         <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Item}">
                             <controls:TextWithIcon Label="Items" ImageSource="/FortnitePorting;component/Resources/Item.png" IconSize="24" />
+                        </ToggleButton>
+                        <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Trap}">
+                            <controls:TextWithIcon Label="Traps" ImageSource="/FortnitePorting;component/Resources/Trap.png" IconSize="24" />
                         </ToggleButton>
                         <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Vehicle}">
                             <controls:TextWithIcon Label="Vehicles" ImageSource="/FortnitePorting;component/Resources/Vehicle.png" IconSize="24" />
