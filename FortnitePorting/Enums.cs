@@ -43,7 +43,7 @@ public enum EAssetType
     [Description("Toys")] Toy,
 
     [Description("Wildlife")] Wildlife,
-    
+
     [Description("Traps")] Trap,
 }
 

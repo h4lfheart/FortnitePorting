@@ -94,7 +94,6 @@
         <Resource Include="Resources\Wildlife.png" />
         <Resource Include="Resources\DefaultUnrealProject.png" />
         <Resource Include="Plugin\FortnitePortingUnreal.zip" />
-        <None Remove="Resources\Trap.png" />
         <Resource Include="Resources\Trap.png" />
     </ItemGroup>
 

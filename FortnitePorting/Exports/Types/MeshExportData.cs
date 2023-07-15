@@ -365,7 +365,7 @@ public class MeshExportData : ExportDataBase
                 case EAssetType.Wildlife:
                 {
                     ExportHelpers.Mesh(asset as USkeletalMesh, data.Parts);
-                    
+
                     break;
                 }
                 case EAssetType.Trap:
@@ -380,7 +380,7 @@ public class MeshExportData : ExportDataBase
 
                         ExportHelpers.Mesh(componentStaticMesh, data.Parts);
                     }
-                    
+
                     break;
                 }
                 default:

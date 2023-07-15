@@ -231,7 +231,7 @@ public class AssetHandlerViewModel
         AssetType = EAssetType.Wildlife,
         TargetCollection = AppVM.MainVM.Wildlife
     };
-    
+
     private readonly AssetHandlerData TrapHandler = new()
     {
         AssetType = EAssetType.Trap,
@@ -418,7 +418,7 @@ public class AssetHandlerData
 
                     return;
                 }
-                
+
                 // Trap Filtering
                 if (AssetType is EAssetType.Trap)
                 {
