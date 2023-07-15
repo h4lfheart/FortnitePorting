@@ -139,12 +139,12 @@ public class SettingsViewModel : ObservableObject
         }
     }
 
-    public bool FilterWeapons
+    public bool FilterItems
     {
-        get => AppSettings.Current.FilterWeapons;
+        get => AppSettings.Current.FilterItems;
         set
         {
-            AppSettings.Current.FilterWeapons = value;
+            AppSettings.Current.FilterItems = value;
             OnPropertyChanged();
             IsRestartRequired = true;
         }

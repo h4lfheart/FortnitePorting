@@ -44,7 +44,7 @@
         <Resource Include="Resources\Pickaxe.png"/>
         <Resource Include="Resources\Gallery.png"/>
         <Resource Include="Resources\Vehicle.png"/>
-        <Resource Include="Resources\Weapon.png"/>
+        <Resource Include="Resources\Item.png"/>
         <Resource Include="Resources\Unreal.png"/>
         <Resource Include="Resources\Blender.png"/>
         <Resource Include="Resources\Settings.png"/>

@@ -156,7 +156,7 @@ public class MeshExportData : ExportDataBase
                     ExportHelpers.Weapon(weapon, data.Parts);
                     break;
                 }
-                case EAssetType.Weapon:
+                case EAssetType.Item:
                 {
                     ExportHelpers.Weapon(asset, data.Parts);
                     break;

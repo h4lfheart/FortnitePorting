@@ -94,8 +94,8 @@
             <TextBlock Grid.Row="20" Grid.Column="0" Text="Filter Props" VerticalAlignment="Center" />
             <ToggleButton Grid.Row="20" Grid.Column="2" Grid.ColumnSpan="3" Style="{DynamicResource {x:Static adonisUi:Styles.ToggleSwitch }}" IsChecked="{Binding FilterProps}" />
 
-            <TextBlock Grid.Row="22" Grid.Column="0" Text="Filter Weapons" VerticalAlignment="Center" />
-            <ToggleButton Grid.Row="22" Grid.Column="2" Grid.ColumnSpan="3" Style="{DynamicResource {x:Static adonisUi:Styles.ToggleSwitch }}" IsChecked="{Binding FilterWeapons}" />
+            <TextBlock Grid.Row="22" Grid.Column="0" Text="Filter FilterItems" VerticalAlignment="Center" />
+            <ToggleButton Grid.Row="22" Grid.Column="2" Grid.ColumnSpan="3" Style="{DynamicResource {x:Static adonisUi:Styles.ToggleSwitch }}" IsChecked="{Binding FilterItems}" />
 
         </Grid>
         <Border Grid.Row="2" Background="{DynamicResource {x:Static adonisUi:Brushes.Layer1BackgroundBrush}}" adonisExt:LayerExtension.IncreaseLayer="True">

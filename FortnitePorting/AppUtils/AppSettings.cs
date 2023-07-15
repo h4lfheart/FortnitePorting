@@ -69,7 +69,7 @@ public partial class AppSettings : ObservableObject
 
     [ObservableProperty] private float assetSize = 1.0f;
 
-    [ObservableProperty] private Dictionary<string, List<string>> weaponMappings = new();
+    [ObservableProperty] private Dictionary<string, List<string>> itemMapppings = new();
 
     [ObservableProperty] private DateTime lastBroadcastTime;
 
@@ -81,7 +81,7 @@ public partial class AppSettings : ObservableObject
 
     [ObservableProperty] private bool filterProps = true;
 
-    [ObservableProperty] private bool filterWeapons = true;
+    [ObservableProperty] private bool filterItems = true;
 
     [ObservableProperty] private List<string> unrealProjects = new();
 }

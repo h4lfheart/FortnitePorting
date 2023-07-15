@@ -26,7 +26,7 @@ public enum EAssetType
 
     [Description("Pets")] Pet,
 
-    [Description("Weapons")] Weapon,
+    [Description("Items")] Item,
 
     [Description("Emotes")] Dance,
 

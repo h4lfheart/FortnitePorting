@@ -35,7 +35,7 @@ public class AssetHandlerViewModel
             { EAssetType.Backpack, BackpackHandler },
             { EAssetType.Pickaxe, PickaxeHandler },
             { EAssetType.Glider, GliderHandler },
-            { EAssetType.Weapon, WeaponHandler },
+            { EAssetType.Item, ItemHandler },
             { EAssetType.Dance, DanceHandler },
             { EAssetType.Vehicle, VehicleHandler },
             { EAssetType.Gallery, GalleryHandler },
@@ -101,13 +101,12 @@ public class AssetHandlerViewModel
         IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
     };
 
-    // TODO REFACTOR TO ITEMS TAB
-    private readonly AssetHandlerData WeaponHandler = new()
+    private readonly AssetHandlerData ItemHandler = new()
     {
-        AssetType = EAssetType.Weapon,
-        TargetCollection = AppVM.MainVM.Weapons,
+        AssetType = EAssetType.Item,
+        TargetCollection = AppVM.MainVM.Items,
         ClassNames = new List<string> { "AthenaGadgetItemDefinition", "FortWeaponRangedItemDefinition", "FortWeaponMeleeItemDefinition", "FortCreativeWeaponMeleeItemDefinition", "FortCreativeWeaponRangedItemDefinition" },
-        RemoveList = { "_Harvest", "Weapon_Pickaxe_", "Weapons_Pickaxe_", "Dev_WID" },
+        RemoveList = { "_Harvest", "Weapon_Pickaxe_", "Weapons_Pickaxe_", "Dev_WID", "Random_Cosmetic_Pickaxe" },
         IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
     };
 
@@ -359,28 +358,28 @@ public class AssetHandlerData
                     displayName = displayNameRaw.SubstringBeforeLast('"').SubstringAfterLast('"').Trim();
                 }
 
-                // Weapon Filtering
-                if (AssetType is EAssetType.Weapon)
+                // Item Filtering
+                if (AssetType is EAssetType.Item)
                 {
                     var objectData = await AppVM.CUE4ParseVM.Provider.LoadObjectAsync(data.ObjectPath);
-                    var foundMappings = AppSettings.Current.WeaponMappings.TryGetValue(displayName, out var weaponMeshPaths);
+                    var foundMappings = AppSettings.Current.ItemMapppings.TryGetValue(displayName, out var weaponMeshPaths);
                     if (!foundMappings)
                     {
                         var mainWeapon = ExportHelpers.GetWeaponMeshes(objectData).FirstOrDefault();
                         if (mainWeapon is null) return;
 
-                        if (!AppSettings.Current.WeaponMappings.ContainsKey(displayName))
+                        if (!AppSettings.Current.ItemMapppings.ContainsKey(displayName))
                         {
-                            AppSettings.Current.WeaponMappings.Add(displayName, new List<string>());
+                            AppSettings.Current.ItemMapppings.Add(displayName, new List<string>());
                         }
 
-                        AppSettings.Current.WeaponMappings[displayName].AddUnique(mainWeapon.GetPathName());
-                        weaponMeshPaths = AppSettings.Current.WeaponMappings[displayName];
+                        AppSettings.Current.ItemMapppings[displayName].AddUnique(mainWeapon.GetPathName());
+                        weaponMeshPaths = AppSettings.Current.ItemMapppings[displayName];
                     }
 
                     foreach (var weaponMesh in weaponMeshPaths.ToArray())
                     {
-                        if (addedAssets.ToArray().Contains(weaponMesh) && AppSettings.Current.FilterWeapons) continue;
+                        if (addedAssets.ToArray().Contains(weaponMesh) && AppSettings.Current.FilterItems) continue;
                         addedAssets.Add(weaponMesh);
                         await DoLoad(objectData, AssetType);
                     }
