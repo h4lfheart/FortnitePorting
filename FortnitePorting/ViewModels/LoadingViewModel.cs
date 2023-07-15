@@ -32,7 +32,7 @@ public partial class LoadingViewModel : ObservableObject
 
             Application.Current.Dispatcher.Invoke(() =>
             {
-                AppHelper.OpenWindow<NewMainView>();
+                AppHelper.OpenWindow<MainView>();
                 AppHelper.CloseWindow<LoadingView>();
             });
         });

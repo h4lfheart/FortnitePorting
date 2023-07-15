@@ -18,7 +18,7 @@
             </Grid.RowDefinitions>
 
             <TextBlock Grid.Row="0" Text="{Binding ProjectName}" FontSize="18" />
-            <TextBlock Grid.Row="1" Text="{Binding PluginVersion}" FontSize="14" TextTrimming="CharacterEllipsis" Foreground="{Binding PluginVersionColor}"/>
+            <TextBlock Grid.Row="1" Text="{Binding PluginVersion, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" FontSize="14" TextTrimming="CharacterEllipsis" Foreground="{Binding PluginVersionColor, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
         </Grid>
     </Grid>
 </UserControl>

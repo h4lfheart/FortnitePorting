@@ -18,9 +18,9 @@ using StyleSelector = FortnitePorting.Views.Controls.StyleSelector;
 
 namespace FortnitePorting.Views;
 
-public partial class NewMainView
+public partial class MainView
 {
-    public NewMainView()
+    public MainView()
     {
         InitializeComponent();
         AppVM.MainVM = new MainViewModel();

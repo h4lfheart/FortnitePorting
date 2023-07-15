@@ -1,4 +1,4 @@
-﻿<adonisCtrls:AdonisWindow x:Class="FortnitePorting.Views.NewMainView"
+﻿<adonisCtrls:AdonisWindow x:Class="FortnitePorting.Views.MainView"
                           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                           xmlns:controls="clr-namespace:FortnitePorting.Views.Controls"
