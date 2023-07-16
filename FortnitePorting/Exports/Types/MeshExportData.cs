@@ -283,6 +283,8 @@ public class MeshExportData : ExportDataBase
                         for (var idx = 0; idx < textureDataPaths.Length; idx++)
                         {
                             var textureDataPath = textureDataPaths[idx];
+                            if (textureDataPath is null) continue;
+                            
                             var textureData = await AppVM.CUE4ParseVM.Provider.LoadObjectAsync<UBuildingTextureData>(textureDataPath);
                             data.StyleMaterialParams.Add(textureData.ToExportMaterialParams(idx, targetMaterialPath));
                         }
