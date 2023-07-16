@@ -94,7 +94,7 @@
             <TextBlock Grid.Row="20" Grid.Column="0" Text="Filter Props" VerticalAlignment="Center" />
             <ToggleButton Grid.Row="20" Grid.Column="2" Grid.ColumnSpan="3" Style="{DynamicResource {x:Static adonisUi:Styles.ToggleSwitch }}" IsChecked="{Binding FilterProps}" />
 
-            <TextBlock Grid.Row="22" Grid.Column="0" Text="Filter FilterItems" VerticalAlignment="Center" />
+            <TextBlock Grid.Row="22" Grid.Column="0" Text="Filter Items" VerticalAlignment="Center" />
             <ToggleButton Grid.Row="22" Grid.Column="2" Grid.ColumnSpan="3" Style="{DynamicResource {x:Static adonisUi:Styles.ToggleSwitch }}" IsChecked="{Binding FilterItems}" />
 
         </Grid>
