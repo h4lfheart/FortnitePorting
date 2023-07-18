@@ -44,6 +44,7 @@ public partial class LoadingViewModel : ObservableObject
         if (File.Exists(path)) return;
 
         var file = await EndpointService.DownloadFileAsync("https://github.com/vgmstream/vgmstream/releases/latest/download/vgmstream-win.zip", path);
+        if (!file.Exists) return;
         if (file.Length <= 0) return;
 
         var zip = ZipFile.Read(file.FullName);
