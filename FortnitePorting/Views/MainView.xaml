@@ -130,6 +130,9 @@
                         <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Music}">
                             <controls:TextWithIcon Label="Music" ImageSource="/FortnitePorting;component/Resources/Music.png" IconSize="24" />
                         </ToggleButton>
+                        <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.LoadingScreen}">
+                            <controls:TextWithIcon Label="Loading Screens" ImageSource="/FortnitePorting;component/Resources/LoadingScreen.png" IconSize="24" />
+                        </ToggleButton>
                         <Separator Style="{StaticResource ContentSeparator}">
                             <Separator.Tag>
                                 <controls:TextWithIcon Label="PROPS &amp; MESHES" LabelFontSize="11" LabelFontWeight="SemiBold" ImageSource="/FortnitePorting;component/Resources/MeshPreview.png" IconSize="24" />
@@ -161,9 +164,6 @@
                         </ToggleButton>
                         <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Wildlife}">
                             <controls:TextWithIcon Label="Wildlife" ImageSource="/FortnitePorting;component/Resources/Wildlife.png" IconSize="24" />
-                        </ToggleButton>
-                        <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.LoadingScreen}">
-                            <controls:TextWithIcon Label="Loading Screens" ImageSource="/FortnitePorting;component/Resources/LoadingScreen.png" IconSize="24" />
                         </ToggleButton>
                     </StackPanel>
                 </GroupBox>

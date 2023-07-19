@@ -5,7 +5,7 @@
                           xmlns:adonisCtrls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
                           xmlns:adonisExt="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"
                           xmlns:controls="clr-namespace:FortnitePorting.Views.Controls"
-                          Height="300" Width="300" WindowStyle="None" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize" MouseDown="OnMouseDown" Loaded="OnLoaded">
+                          Height="300" Width="300" WindowStyle="None" WindowStartupLocation="CenterScreen" MouseDown="OnMouseDown" Loaded="OnLoaded">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="0.25*" />
