@@ -44,7 +44,8 @@ public class AssetHandlerViewModel
             { EAssetType.Music, MusicPackHandler },
             { EAssetType.Toy, ToyHandler },
             { EAssetType.Wildlife, WildlifeHandler },
-            { EAssetType.Trap, TrapHandler }
+            { EAssetType.Trap, TrapHandler },
+            { EAssetType.LoadingScreen, LoadingScreenHandler }
         };
     }
 
@@ -237,6 +238,15 @@ public class AssetHandlerViewModel
         AssetType = EAssetType.Trap,
         TargetCollection = AppVM.MainVM.Traps,
         ClassNames = new List<string> { "FortTrapItemDefinition" },
+        RemoveList = { },
+        IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
+    };
+    
+    private readonly AssetHandlerData LoadingScreenHandler = new()
+    {
+        AssetType = EAssetType.LoadingScreen,
+        TargetCollection = AppVM.MainVM.LoadingScreens,
+        ClassNames = new List<string> { "AthenaLoadingScreenItemDefinition" },
         RemoveList = { },
         IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
     };

@@ -8,7 +8,7 @@
                           xmlns:local="clr-namespace:FortnitePorting"
                           xmlns:toolkitCtrls="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
                           xmlns:extensions="clr-namespace:FortnitePorting.Views.Extensions"
-                          Title="Fortnite Porting" Width="1368" Height="744" WindowStartupLocation="CenterScreen" ResizeMode="CanResize" Loaded="OnLoaded">
+                          Title="Fortnite Porting" Width="1368" Height="780" WindowStartupLocation="CenterScreen" ResizeMode="CanResize" Loaded="OnLoaded">
     <Window.InputBindings>
         <KeyBinding Key="F" Modifiers="Control" Command="{Binding FavoriteCommand}" />
     </Window.InputBindings>
@@ -161,6 +161,9 @@
                         </ToggleButton>
                         <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Wildlife}">
                             <controls:TextWithIcon Label="Wildlife" ImageSource="/FortnitePorting;component/Resources/Wildlife.png" IconSize="24" />
+                        </ToggleButton>
+                        <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.LoadingScreen}">
+                            <controls:TextWithIcon Label="Loading Screens" ImageSource="/FortnitePorting;component/Resources/LoadingScreen.png" IconSize="24" />
                         </ToggleButton>
                     </StackPanel>
                 </GroupBox>
@@ -493,6 +496,38 @@
                                     <Button Grid.Row="4" Command="{Binding ExportUnrealCommand}">
                                         <Button.Content>
                                             <controls:TextWithIcon Label="Send to Unreal" ImageSource="/FortnitePorting;component/Resources/Unreal.png" IconSize="16" />
+                                        </Button.Content>
+                                    </Button>
+                                </Grid>
+                            </Grid>
+                        </ContentControl>
+                        
+                        <ContentControl Grid.Row="1" Visibility="{Binding LoadingScreenControlVisibility}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="5*" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+
+                                <!-- CONTROLS -->
+                                <Separator Grid.Row="2" Style="{StaticResource NamedSeparator}" Tag="CONTROLS" />
+                                <Grid Grid.Row="3">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="0.5*" />
+                                        <RowDefinition Height="{adonisUi:Space 1}" />
+                                        <RowDefinition Height="0.5*" />
+                                    </Grid.RowDefinitions>
+
+                                    <Button Grid.Row="0" Command="{Binding PreviewLoadingScreenCommand}">
+                                        <Button.Content>
+                                            <controls:TextWithIcon Label="Preview Loading Screen" ImageSource="/FortnitePorting;component/Resources/LoadingScreen.png" IconSize="16" />
+                                        </Button.Content>
+                                    </Button>
+                                    <Button Grid.Row="2" Command="{Binding ExportLoadingScreenCommand}">
+                                        <Button.Content>
+                                            <controls:TextWithIcon Label="Export Loading Screen" ImageSource="/FortnitePorting;component/Resources/Export.png" IconSize="16" />
                                         </Button.Content>
                                     </Button>
                                 </Grid>

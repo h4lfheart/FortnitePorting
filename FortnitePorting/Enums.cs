@@ -45,6 +45,8 @@ public enum EAssetType
     [Description("Wildlife")] Wildlife,
 
     [Description("Traps")] Trap,
+    
+    [Description("Loading Screens")] LoadingScreen
 }
 
 public enum EFortCustomPartType : byte

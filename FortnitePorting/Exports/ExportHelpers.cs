@@ -747,12 +747,18 @@ public static class ExportHelpers
 
     public static void Save(UObject? obj)
     {
+        Save(obj, out _);
+    }
+
+    public static void Save(UObject? obj, out string savedFilePath)
+    {
+        savedFilePath = string.Empty;
         if (obj is null) return;
-        Tasks.Add(Task.Run(() =>
+        var task = Task.Run(() =>
         {
+            var path = string.Empty;
             try
             {
-                var path = string.Empty;
                 switch (obj)
                 {
                     case USkeletalMesh skeletalMesh:
@@ -831,7 +837,13 @@ public static class ExportHelpers
                 Log.Warning("Failed to Export {ExportType}: {FileName}", obj.ExportType, obj.Name);
                 Log.Warning(e.Message);
             }
-        }));
+
+            return path;
+        });
+        
+        Tasks.Add(task);
+        
+        savedFilePath = task.GetAwaiter().GetResult();
     }
 
     private static bool ShouldExportTexture(string path, FTexture2DMipMap mip)

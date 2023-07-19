@@ -66,6 +66,8 @@ public partial class LoadingView
 
     private void OnMouseDown(object sender, MouseButtonEventArgs e)
     {
+        if (e.LeftButton != MouseButtonState.Pressed) return;
+        
         DragMove();
     }
 

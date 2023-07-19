@@ -23,6 +23,7 @@ public class ApplicationViewModel : ObservableObject
     public LoadingViewModel LoadingVM;
     public MusicViewModel MusicVM;
     public UnrealPluginViewModel UnrealVM;
+    public ImageViewerViewModel ImageVM;
 
     public Viewer? MeshViewer;
 
