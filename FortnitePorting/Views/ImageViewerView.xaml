@@ -4,6 +4,6 @@
              xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
              xmlns:adonisCtrls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
              xmlns:adonisExt="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"
-             Title="{Binding ImageName}" Width="1024" Height="542">
+             Title="{Binding ImageName}" Width="1024" Height="512" PlaceTitleBarOverContent="True">
     <Image Source="{Binding ImageSource}"/>
 </adonisCtrls:AdonisWindow>
