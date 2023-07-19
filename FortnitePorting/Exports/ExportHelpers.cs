@@ -619,6 +619,18 @@ public static class ExportHelpers
         return exportMaterial;
     }
 
+    private static readonly string[] GlassMaterialNames = {
+        "M_MED_Glass_Master",
+        "M_MED_Glass_WithDiffuse",
+        "M_Valet_Glass_Master",
+        "M_MineralPowder_Glass",
+        "M_CP_GlassGallery_Master",
+        "M_LauchTheBalloon_Microwave_Glass",
+        "M_MED_Glass_HighTower",
+        "M_OctopusBall",
+        "F_MED_SharpFang_Backpack_Glass_Master",
+        "M_LlamaEye"
+    };
     public static bool IsGlassMaterial(UMaterialInstanceConstant? materialInstance)
     {
         if (materialInstance is null) return false;
@@ -626,20 +638,7 @@ public static class ExportHelpers
         var lastParent = materialInstance.GetLastParent();
         if (lastParent is null) return false;
 
-        var glassMaterialNames = new[]
-        {
-            "M_MED_Glass_Master",
-            "M_MED_Glass_WithDiffuse",
-            "M_Valet_Glass_Master",
-            "M_MineralPowder_Glass",
-            "M_CP_GlassGallery_Master",
-            "M_LauchTheBalloon_Microwave_Glass",
-            "M_MED_Glass_HighTower",
-            "M_OctopusBall",
-            "F_MED_SharpFang_Backpack_Glass_Master"
-        };
-
-        return glassMaterialNames.Contains(lastParent.Name, StringComparer.OrdinalIgnoreCase);
+        return GlassMaterialNames.Contains(lastParent.Name, StringComparer.OrdinalIgnoreCase);
     }
 
     public static bool IsGlassMaterial(UMaterialInterface material)
@@ -649,19 +648,7 @@ public static class ExportHelpers
             return IsGlassMaterial(materialInstance);
         }
 
-        var glassMaterialNames = new[]
-        {
-            "M_MED_Glass_Master",
-            "M_MED_Glass_WithDiffuse",
-            "M_Valet_Glass_Master",
-            "M_MineralPowder_Glass",
-            "M_CP_GlassGallery_Master",
-            "M_LauchTheBalloon_Microwave_Glass",
-            "M_MED_Glass_HighTower",
-            "M_OctopusBall"
-        };
-
-        return glassMaterialNames.Contains(material.Name, StringComparer.OrdinalIgnoreCase);
+        return GlassMaterialNames.Contains(material.Name, StringComparer.OrdinalIgnoreCase);
     }
 
     public static UMaterialInterface? GetLastParent(this UMaterialInstanceConstant obj)

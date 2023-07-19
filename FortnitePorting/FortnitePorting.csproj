@@ -95,8 +95,8 @@
         <Resource Include="Resources\DefaultUnrealProject.png" />
         <Resource Include="Plugin\FortnitePortingUnreal.zip" />
         <Resource Include="Resources\Trap.png" />
-        <None Remove="Resources\LoadingScreen.png" />
         <Resource Include="Resources\LoadingScreen.png" />
+        <Resource Include="Resources\Gameplay.png" />
     </ItemGroup>
 
 </Project>

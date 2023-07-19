@@ -150,7 +150,7 @@
 
                         <Separator Style="{StaticResource ContentSeparator}">
                             <Separator.Tag>
-                                <controls:TextWithIcon Label="OTHERS" LabelFontSize="11" LabelFontWeight="SemiBold" ImageSource="/FortnitePorting;component/Resources/Misc.png" IconSize="24" />
+                                <controls:TextWithIcon Label="GAMEPLAY" LabelFontSize="11" LabelFontWeight="SemiBold" ImageSource="/FortnitePorting;component/Resources/Gameplay.png" IconSize="24" />
                             </Separator.Tag>
                         </Separator>
                         <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Item}">
