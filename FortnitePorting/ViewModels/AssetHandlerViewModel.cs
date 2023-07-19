@@ -353,6 +353,10 @@ public class AssetHandlerData
             await DoLoadWildlife("Wolf",
                 "FortniteGame/Plugins/GameFeatures/Irwin/Content/AI/Predators/Grandma/Meshes/Grandma_Mammal",
                 "FortniteGame/Plugins/GameFeatures/Irwin/Content/Icons/T-Icon-Fauna-Wolf");
+            
+            await DoLoadWildlife("Llama",
+                "FortniteGame/Plugins/GameFeatures/Labrador/Content/Meshes/Labrador_Mammal",
+                "FortniteGame/Content/UI/Foundation/Textures/Icons/Athena/T-T-Icon-BR-SM-Athena-SupplyLlama-01");
 
             return;
         }
