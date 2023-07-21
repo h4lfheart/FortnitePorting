@@ -268,7 +268,8 @@ public partial class MainViewModel : ObservableObject
                 AppHelper.Launch(Globals.KOFI_URL);
                 break;
             case "Sync_Blender":
-                // TODO
+                // TODO REDO BLENDER UPDATER
+                AppHelper.OpenWindow<PluginUpdateView>();
                 break;
             case "Sync_Unreal":
                 AppHelper.OpenWindow<UnrealPluginView>();
