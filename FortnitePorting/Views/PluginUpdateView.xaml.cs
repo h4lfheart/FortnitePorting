@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
 using FortnitePorting.ViewModels;
 using FortnitePorting.Views.Extensions;
+using Ionic.Zip;
 using Microsoft.Win32;
 using MessageBox = AdonisUI.Controls.MessageBox;
 using MessageBoxButton = AdonisUI.Controls.MessageBoxButton;
@@ -37,11 +37,14 @@ public partial class PluginUpdateView
             return;
         }
 
-        using var addonZip = new ZipArchive(new FileStream("BlenderFortnitePortingServer.zip", FileMode.Open));
+        var zipStream = Application.GetResourceStream(new Uri($"/FortnitePorting;component/Plugin/FortnitePortingBlender.zip", UriKind.Relative))?.Stream;
+        if (zipStream is null) return;
+
+        var addonZip = ZipFile.Read(zipStream);
         foreach (var selectedVersion in selectedVersions)
         {
             var addonPath = Path.Combine(selectedVersion.FullName, "scripts", "addons");
-            addonZip.ExtractToDirectory(addonPath, overwriteFiles: true);
+            addonZip.ExtractAll(addonPath, ExtractExistingFileAction.OverwriteSilently);
         }
 
         Close();

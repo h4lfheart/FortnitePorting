@@ -97,6 +97,7 @@
         <Resource Include="Resources\Trap.png" />
         <Resource Include="Resources\LoadingScreen.png" />
         <Resource Include="Resources\Gameplay.png" />
+        <Resource Include="Plugin\FortnitePortingBlender.zip" />
     </ItemGroup>
 
 </Project>
