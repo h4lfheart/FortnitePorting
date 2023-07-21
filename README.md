@@ -48,4 +48,5 @@
 >
 > * Navigate to your Unreal Engine project's **.uproject** file and select it
 > * Press Sync
+> * Restart Unreal Engine
 
