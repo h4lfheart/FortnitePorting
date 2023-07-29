@@ -17,7 +17,8 @@ public class ExportMesh
 {
     public string MeshPath;
     public int NumLods;
-    public FVector Offset = FVector.ZeroVector;
+    public FVector Location = FVector.ZeroVector;
+    public FRotator Rotation = FRotator.ZeroRotator;
     public FVector Scale = FVector.OneVector;
     public List<ExportMaterial> Materials = new();
     public List<ExportMaterial> OverrideMaterials = new();

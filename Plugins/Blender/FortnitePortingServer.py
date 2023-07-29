@@ -15,7 +15,7 @@ from io_import_scene_unreal_psa_psk_280 import pskimport, psaimport
 bl_info = {
     "name": "Fortnite Porting",
     "author": "Half",
-    "version": (1, 4, 0),
+    "version": (1, 4, 1),
     "blender": (3, 0, 0),
     "description": "Blender Server for Fortnite Porting",
     "category": "Import",
@@ -1902,7 +1902,11 @@ def import_response(response):
                         if not (imported_part := import_mesh(part.get("MeshPath"), reorient_bones=import_settings.get("ReorientBones"), lod=min(num_lods-1, import_settings.get("LevelOfDetail")))):
                             continue
 
-                    imported_part.location += make_vector(part.get("Offset")) * (0.01 if import_settings.get("ScaleDown") else 1.00)
+                    imported_part.location += make_vector(part.get("Location"), mirror_mesh=True) * (0.01 if import_settings.get("ScaleDown") else 1.00)
+                    
+                    rotation = part.get("Rotation")
+                    imported_part.rotation_euler = [radians(rotation.get("Roll")), radians(rotation.get("Pitch")), -radians(rotation.get("Yaw"))]
+                    
                     imported_part.scale = make_vector(part.get("Scale"))
                         
                     if import_type in ["Prop", "Mesh"]:

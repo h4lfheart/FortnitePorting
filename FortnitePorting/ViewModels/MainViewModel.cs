@@ -46,19 +46,17 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsValidFilterer))]
     [NotifyPropertyChangedFor(nameof(AssetTabVisibility))]
-    [NotifyPropertyChangedFor(nameof(GalleryTabVisibility))]
     [NotifyPropertyChangedFor(nameof(MeshTabVisibility))]
     private EAssetType currentAssetType = EAssetType.Outfit;
 
     [ObservableProperty]
     private EAnimGender animationGender = EAnimGender.Male;
 
-    public bool IsValidFilterer => CurrentAssetType is not (EAssetType.Gallery or EAssetType.Mesh);
+    public bool IsValidFilterer => CurrentAssetType is not EAssetType.Mesh;
     public ImageSource? CurrentAssetImage => CurrentAsset?.FullSource;
     public Visibility AssetPreviewVisibility => CurrentAsset is null ? Visibility.Hidden : Visibility.Visible;
 
-    public Visibility AssetTabVisibility => CurrentAssetType is (EAssetType.Gallery or EAssetType.Mesh) ? Visibility.Collapsed : Visibility.Visible;
-    public Visibility GalleryTabVisibility => CurrentAssetType is EAssetType.Gallery ? Visibility.Visible : Visibility.Collapsed;
+    public Visibility AssetTabVisibility => CurrentAssetType is EAssetType.Mesh ? Visibility.Collapsed : Visibility.Visible;
     public Visibility MeshTabVisibility => CurrentAssetType is EAssetType.Mesh ? Visibility.Visible : Visibility.Collapsed;
 
     public Visibility DefaultControlVisibility => CurrentAsset?.Type is not (EAssetType.Mesh or EAssetType.Dance or EAssetType.Music or EAssetType.LoadingScreen) ? Visibility.Visible : Visibility.Collapsed;
@@ -75,6 +73,7 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> items = new();
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> dances = new();
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> props = new();
+    [ObservableProperty] private ObservableCollection<AssetSelectorItem> galleries = new();
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> vehicles = new();
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> pets = new();
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> musicPacks = new();
@@ -82,8 +81,6 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> wildlife = new();
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> traps = new();
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> loadingScreens = new();
-
-    [ObservableProperty] private ObservableCollection<PropExpander> galleries = new();
 
     [ObservableProperty] private SuppressibleObservableCollection<TreeItem> meshes = new();
     [ObservableProperty] private SuppressibleObservableCollection<AssetItem> assets = new();
@@ -168,7 +165,7 @@ public partial class MainViewModel : ObservableObject
 
     public FStructFallback[] GetSelectedStyles()
     {
-        return CurrentAsset?.Type is EAssetType.Prop or EAssetType.Mesh or EAssetType.Gallery ? Array.Empty<FStructFallback>() : Styles.Select(style => ((StyleSelectorItem) style.Options.Items[style.Options.SelectedIndex]).OptionData).ToArray();
+        return CurrentAsset?.Type is EAssetType.Prop or EAssetType.Mesh ? Array.Empty<FStructFallback>() : Styles.Select(style => ((StyleSelectorItem) style.Options.Items[style.Options.SelectedIndex]).OptionData).ToArray();
     }
 
     private async Task<List<ExportDataBase>> CreateExportDatasAsync()

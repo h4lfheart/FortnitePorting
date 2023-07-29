@@ -180,11 +180,6 @@
                                 </ListBox.ItemsPanel>
                             </ListBox>
                         </ContentControl>
-                        <ContentControl Visibility="{Binding GalleryTabVisibility}">
-                            <ScrollViewer>
-                                <ItemsControl x:Name="GalleryItemsControl" ItemsSource="{Binding Galleries}" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" />
-                            </ScrollViewer>
-                        </ContentControl>
                         <ContentControl Visibility="{Binding MeshTabVisibility}">
                             <Grid>
                                 <Grid.ColumnDefinitions>

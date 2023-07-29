@@ -26,22 +26,9 @@ public partial class SettingsView
         {
             foreach (var handler in AppVM.AssetHandlerVM.Handlers.Values.Where(x => x.TargetCollection is not null))
             {
-                if (handler.AssetType is EAssetType.Gallery)
+                foreach (var assetSelectorItem in handler.TargetCollection!)
                 {
-                    foreach (var expander in AppVM.MainVM.Galleries)
-                    {
-                        foreach (var assetSelectorItem in expander.Props)
-                        {
-                            assetSelectorItem.SetSize(AppVM.SettingsVM.AssetSize);
-                        }
-                    }
-                }
-                else
-                {
-                    foreach (var assetSelectorItem in handler.TargetCollection!)
-                    {
-                        assetSelectorItem.SetSize(AppVM.SettingsVM.AssetSize);
-                    }
+                    assetSelectorItem.SetSize(AppVM.SettingsVM.AssetSize);
                 }
             }
         }

@@ -32,7 +32,7 @@ public partial class AppSettings : ObservableObject
         File.WriteAllText(FilePath.FullName, JsonConvert.SerializeObject(Current, Formatting.Indented));
     }
 
-    public string ArchivePath => InstallType is EInstallType.Custom ? CustomArchivePath : LocalArchivePath;
+    [JsonIgnore] public string ArchivePath => InstallType is EInstallType.Custom ? CustomArchivePath : LocalArchivePath;
 
     [ObservableProperty] private string localArchivePath = string.Empty;
     [ObservableProperty] private string customArchivePath = string.Empty;
@@ -69,7 +69,7 @@ public partial class AppSettings : ObservableObject
 
     [ObservableProperty] private float assetSize = 1.0f;
 
-    [ObservableProperty] private Dictionary<string, List<string>> itemMapppings = new();
+    [ObservableProperty] private Dictionary<string, List<string>> itemMappings = new();
 
     [ObservableProperty] private DateTime lastBroadcastTime;
 

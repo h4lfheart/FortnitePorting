@@ -179,6 +179,9 @@ public class AssetHandlerViewModel
     private readonly AssetHandlerData GalleryHandler = new()
     {
         AssetType = EAssetType.Gallery,
+        TargetCollection = AppVM.MainVM.Galleries,
+        ClassNames = new List<string> { "FortPlaysetItemDefinition" },
+        RemoveList = { },
         IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
     };
 
@@ -276,58 +279,6 @@ public class AssetHandlerData
         var sw = new Stopwatch();
         sw.Start();
 
-        var galleryMappings = new List<GalleryData>();
-        if (AssetType is EAssetType.Gallery)
-        {
-            var addedProps = new List<string>();
-            var playsets = AppVM.CUE4ParseVM.AssetDataBuffers.Where(x => x.AssetClass.Text.Equals("FortPlaysetItemDefinition", StringComparison.OrdinalIgnoreCase)).ToList();
-            foreach (var playset in playsets)
-            {
-                await PauseState.WaitIfPaused();
-                var playsetObject = await AppVM.CUE4ParseVM.Provider.LoadObjectAsync(playset.ObjectPath);
-
-                var creativeTagsHelper = playsetObject.GetOrDefault("CreativeTagsHelper", new FStructFallback());
-                var creativeTags = creativeTagsHelper.GetOrDefault("CreativeTags", Array.Empty<FName>());
-                if (!creativeTags.Any(x => x.Text.Contains("Gallery", StringComparison.OrdinalIgnoreCase) || x.Text.Contains("Prefab", StringComparison.OrdinalIgnoreCase))) continue;
-
-                var playsetName = playsetObject.GetOrDefault("DisplayName", new FText("Unknown Gallery")).Text;
-                var associatedProps = playsetObject.GetOrDefault("AssociatedPlaysetProps", Array.Empty<FSoftObjectPath>());
-                if (associatedProps.Length == 0) continue;
-
-                var galleryData = new GalleryData(playsetName, playsetObject.Name, playsetObject.GetPathName());
-                galleryData.Props.AddRange(associatedProps.Select(x => x.AssetPathName.Text));
-                galleryMappings.Add(galleryData);
-
-                playsetObject.TryGetValue(out UTexture2D? playsetImage, "SmallPreviewImage", "LargePreviewImage");
-                playsetImage ??= AppVM.CUE4ParseVM.PlaceholderTexture;
-                await Application.Current.Dispatcher.InvokeAsync(() =>
-                {
-                    var propExpander = new PropExpander(playsetName, playsetImage);
-                    galleryData.Expander = propExpander;
-                    AppVM.MainVM.Galleries.Add(propExpander);
-                }, DispatcherPriority.Background);
-
-                await Parallel.ForEachAsync(associatedProps, async (data, token) =>
-                {
-                    var associatedProp = await data.LoadAsync();
-                    var displayName = associatedProp.GetOrDefault("DisplayName", new FText(associatedProp.Name)).Text;
-                    if (addedProps.ToArray().Contains(displayName))
-                    {
-                        return;
-                    }
-
-                    addedProps.Add(displayName);
-                    await DoLoadProps(galleryData.Expander.Props, associatedProp, AssetType, descriptionOverride: galleryData.Name);
-                });
-
-                if (galleryData.Expander.Props.Count == 0) AppVM.MainVM.Galleries.Remove(galleryData.Expander);
-            }
-
-            sw.Stop();
-            Log.Information($"Loaded {AssetType.GetDescription()} in {Math.Round(sw.Elapsed.TotalSeconds, 2)}s");
-            return;
-        }
-
         if (AssetType is EAssetType.Wildlife)
         {
             await DoLoadWildlife("Boar",
@@ -386,19 +337,19 @@ public class AssetHandlerData
                 if (AssetType is EAssetType.Item)
                 {
                     var objectData = await AppVM.CUE4ParseVM.Provider.LoadObjectAsync(data.ObjectPath);
-                    var foundMappings = AppSettings.Current.ItemMapppings.TryGetValue(displayName, out var weaponMeshPaths);
+                    var foundMappings = AppSettings.Current.ItemMappings.TryGetValue(displayName, out var weaponMeshPaths);
                     if (!foundMappings)
                     {
                         var mainWeapon = ExportHelpers.GetWeaponMeshes(objectData).FirstOrDefault();
                         if (mainWeapon is null) return;
 
-                        if (!AppSettings.Current.ItemMapppings.ContainsKey(displayName))
+                        if (!AppSettings.Current.ItemMappings.ContainsKey(displayName))
                         {
-                            AppSettings.Current.ItemMapppings.Add(displayName, new List<string>());
+                            AppSettings.Current.ItemMappings.Add(displayName, new List<string>());
                         }
 
-                        AppSettings.Current.ItemMapppings[displayName].AddUnique(mainWeapon.GetPathName());
-                        weaponMeshPaths = AppSettings.Current.ItemMapppings[displayName];
+                        AppSettings.Current.ItemMappings[displayName].AddUnique(mainWeapon.GetPathName());
+                        weaponMeshPaths = AppSettings.Current.ItemMappings[displayName];
                     }
 
                     foreach (var weaponMesh in weaponMeshPaths.ToArray())
@@ -420,16 +371,7 @@ public class AssetHandlerData
                     }
 
                     addedAssets.Add(displayName);
-                    var foundGallery = galleryMappings.FirstOrDefault(gallery => gallery.Props.Any(prop => prop.Contains(data.AssetName.Text)));
-                    if (foundGallery is not null)
-                    {
-                        await DoLoad(data, AssetType, descriptionOverride: foundGallery.Name);
-                    }
-                    else
-                    {
-                        await DoLoad(data, AssetType, descriptionOverride: "Unknown Gallery");
-                    }
-
+                    await DoLoad(data, AssetType);
                     return;
                 }
 
@@ -443,6 +385,19 @@ public class AssetHandlerData
 
                     addedAssets.Add(displayName);
                     await DoLoad(data, AssetType);
+                    return;
+                }
+                
+                // Gallery Filtering
+                if (AssetType is EAssetType.Gallery)
+                {
+                    var objectData = await AppVM.CUE4ParseVM.Provider.LoadObjectAsync(data.ObjectPath);
+
+                    var creativeTagsHelper = objectData.GetOrDefault("CreativeTagsHelper", new FStructFallback());
+                    var creativeTags = creativeTagsHelper.GetOrDefault("CreativeTags", Array.Empty<FName>());
+                    if (!creativeTags.Any(x => x.Text.Contains("Gallery", StringComparison.OrdinalIgnoreCase))) return;
+                    
+                    await DoLoad(objectData, AssetType);
                     return;
                 }
 

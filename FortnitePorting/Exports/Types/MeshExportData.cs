@@ -33,7 +33,6 @@ public class MeshExportData : ExportDataBase
     public static async Task<MeshExportData?> Create(UObject asset, EAssetType assetType, FStructFallback[] styles)
     {
         var data = new MeshExportData();
-        assetType = assetType is EAssetType.Gallery ? EAssetType.Prop : assetType;
         data.Name = assetType is (EAssetType.Mesh or EAssetType.Wildlife) ? asset.Name : asset.GetOrDefault("DisplayName", new FText("Unnamed")).Text;
         data.Type = assetType.ToString();
         var canContinue = await Task.Run(async () =>
@@ -216,80 +215,29 @@ public class MeshExportData : ExportDataBase
                 }
                 case EAssetType.Prop:
                 {
-                    var actorSaveRecord = asset.Get<ULevelSaveRecord>("ActorSaveRecord");
-                    var templateRecords = new List<FActorTemplateRecord?>();
-                    foreach (var tag in actorSaveRecord.Get<UScriptMap>("TemplateRecords").Properties)
+                    await data.ProcessLevelSaveRecord(asset);
+                    break;
+                }
+                case EAssetType.Gallery:
+                {
+                    var recordCollectionLazy = asset.GetOrDefault<FPackageIndex>("PlaysetPropLevelSaveRecordCollection");
+                    if (recordCollectionLazy is null || recordCollectionLazy.IsNull || !recordCollectionLazy.TryLoad(out var recordCollection)) break;
+
+                    var props = recordCollection.GetOrDefault<FStructFallback[]>("Items");
+                    foreach (var prop in props)
                     {
-                        var propValue = tag.Value?.GetValue(typeof(FActorTemplateRecord));
-                        templateRecords.Add(propValue as FActorTemplateRecord);
-                    }
+                        var levelSaveRecord = prop.GetOrDefault<UObject?>("LevelSaveRecord");
+                        if (levelSaveRecord is null) continue;
 
-                    foreach (var templateRecord in templateRecords)
-                    {
-                        if (templateRecord is null) continue;
-                        var actor = templateRecord.ActorClass.Load<UBlueprintGeneratedClass>();
-                        var classDefaultObject = await actor.ClassDefaultObject.LoadAsync();
-
-                        string? targetMaterialPath = null;
-                        if (classDefaultObject.TryGetValue(out UStaticMesh staticMesh, "StaticMesh"))
+                        var transform = prop.GetOrDefault<FTransform>("Transform");
+                        var exportedProps = await data.ProcessLevelSaveRecord(levelSaveRecord);
+                        foreach (var exportedProp in exportedProps)
                         {
-                            var export = ExportHelpers.Mesh(staticMesh)!;
-                            data.Parts.Add(export);
-
-                            targetMaterialPath = export.Materials.FirstOrDefault()?.MaterialPath;
-                        }
-                        else
-                        {
-                            var exports = AppVM.CUE4ParseVM.Provider.LoadAllObjects(actor.GetPathName().SubstringBeforeLast("."));
-                            var staticMeshComponents = exports.Where(x => x.ExportType == "StaticMeshComponent").ToArray();
-                            if (!staticMeshComponents.Any())
-                                Log.Error($"StaticMesh could not be found in actor {actor.Name} for prop {data.Name}");
-                            foreach (var component in staticMeshComponents)
-                            {
-                                var componentStaticMesh = component.GetOrDefault<UStaticMesh?>("StaticMesh");
-                                if (componentStaticMesh is null) continue;
-                                var export = ExportHelpers.Mesh(componentStaticMesh)!;
-                                data.Parts.Add(export);
-
-                                targetMaterialPath = export.Materials.FirstOrDefault()?.MaterialPath;
-                            }
-                        }
-
-                        // EXTRA MESHES
-                        if (classDefaultObject.TryGetValue(out UStaticMesh doorMesh, "DoorMesh"))
-                        {
-                            var export = ExportHelpers.Mesh(doorMesh)!;
-                            var doorOffset = classDefaultObject.GetOrDefault("DoorOffset", FVector.ZeroVector);
-                            export.Offset = doorOffset;
-                            data.Parts.Add(export);
-
-                            if (classDefaultObject.GetOrDefault<bool>("bDoubleDoor"))
-                            {
-                                var doubleDoorExport = ExportHelpers.Mesh(doorMesh)!;
-                                doubleDoorExport.Offset = doorOffset;
-                                doubleDoorExport.Offset.X = -doubleDoorExport.Offset.X;
-                                doubleDoorExport.Scale.X = -1;
-                                data.Parts.Add(doubleDoorExport);
-                            }
-                        }
-
-                        var actorData = templateRecord.ReadActorData(actorSaveRecord.Owner, actorSaveRecord.SaveVersion);
-                        if (!actorData.TryGetAllValues(out string[] textureDataPaths, "TextureData"))
-                        {
-                            var referenceTable = templateRecord.ActorDataReferenceTable;
-                            textureDataPaths = referenceTable.Select(x => x.AssetPathName.Text).ToArray();
-                        }
-
-                        for (var idx = 0; idx < textureDataPaths.Length; idx++)
-                        {
-                            var textureDataPath = textureDataPaths[idx];
-                            if (textureDataPath is null) continue;
-                            
-                            var textureData = await AppVM.CUE4ParseVM.Provider.LoadObjectAsync<UBuildingTextureData>(textureDataPath);
-                            data.StyleMaterialParams.Add(textureData.ToExportMaterialParams(idx, targetMaterialPath));
+                            exportedProp.Location += transform.Translation;
+                            exportedProp.Rotation += transform.Rotator();
+                            exportedProp.Scale *= transform.Scale3D;
                         }
                     }
-
                     break;
                 }
                 case EAssetType.Mesh:
@@ -456,5 +404,88 @@ public static class MeshExportExtensions
         ExportHelpers.OverrideMaterials(style.GetOrDefault("VariantMaterials", Array.Empty<FStructFallback>()), data.StyleMaterials);
         ExportHelpers.OverrideMeshes(style.GetOrDefault("VariantMeshes", Array.Empty<FStructFallback>()), data.StyleMeshes);
         ExportHelpers.OverrideParameters(style.GetOrDefault("VariantMaterialParams", Array.Empty<FStructFallback>()), data.StyleMaterialParams);
+    }
+
+    public static async Task<List<ExportMesh>> ProcessLevelSaveRecord(this MeshExportData data, UObject levelSaveRecord)
+    {
+        var exports = new List<ExportMesh>();
+        
+        var actorSaveRecord = levelSaveRecord.Get<ULevelSaveRecord>("ActorSaveRecord");
+        var templateRecords = new List<FActorTemplateRecord?>();
+        foreach (var tag in actorSaveRecord.Get<UScriptMap>("TemplateRecords").Properties)
+        {
+            var propValue = tag.Value?.GetValue(typeof(FActorTemplateRecord));
+            templateRecords.Add(propValue as FActorTemplateRecord);
+        }
+
+        foreach (var templateRecord in templateRecords)
+        {
+            if (templateRecord is null) continue;
+            var actor = templateRecord.ActorClass.Load<UBlueprintGeneratedClass>();
+            var classDefaultObject = await actor.ClassDefaultObject.LoadAsync();
+
+            string? targetMaterialPath = null;
+            if (classDefaultObject.TryGetValue(out UStaticMesh staticMesh, "StaticMesh"))
+            {
+                var export = ExportHelpers.Mesh(staticMesh)!;
+                exports.Add(export);
+
+                targetMaterialPath = export.Materials.FirstOrDefault()?.MaterialPath;
+            }
+            else
+            {
+                var objects = AppVM.CUE4ParseVM.Provider.LoadAllObjects(actor.GetPathName().SubstringBeforeLast("."));
+                var staticMeshComponents = objects.Where(x => x.ExportType == "StaticMeshComponent").ToArray();
+                if (!staticMeshComponents.Any()) continue;
+                
+                foreach (var component in staticMeshComponents)
+                {
+                    var componentStaticMesh = component.GetOrDefault<UStaticMesh?>("StaticMesh");
+                    if (componentStaticMesh is null) continue;
+                    var export = ExportHelpers.Mesh(componentStaticMesh)!;
+                    exports.Add(export);
+
+                    targetMaterialPath = export.Materials.FirstOrDefault()?.MaterialPath;
+                }
+            }
+
+            // EXTRA MESHES
+            if (classDefaultObject.TryGetValue(out UStaticMesh doorMesh, "DoorMesh"))
+            {
+                var export = ExportHelpers.Mesh(doorMesh)!;
+                var doorOffset = classDefaultObject.GetOrDefault("DoorOffset", FVector.ZeroVector);
+                export.Location = doorOffset;
+                exports.Add(export);
+
+                if (classDefaultObject.GetOrDefault<bool>("bDoubleDoor"))
+                {
+                    var doubleDoorExport = ExportHelpers.Mesh(doorMesh)!;
+                    doubleDoorExport.Location = doorOffset;
+                    doubleDoorExport.Location.X = -doubleDoorExport.Location.X;
+                    doubleDoorExport.Scale.X = -1;
+                    exports.Add(doubleDoorExport);
+                }
+            }
+
+            var actorData = templateRecord.ReadActorData(actorSaveRecord.Owner, actorSaveRecord.SaveVersion);
+            if (!actorData.TryGetAllValues(out string[] textureDataPaths, "TextureData"))
+            {
+                var referenceTable = templateRecord.ActorDataReferenceTable;
+                textureDataPaths = referenceTable.Select(x => x.AssetPathName.Text).ToArray();
+            }
+
+            for (var idx = 0; idx < textureDataPaths.Length; idx++)
+            {
+                var textureDataPath = textureDataPaths[idx];
+                if (string.IsNullOrEmpty(textureDataPath)) continue;
+                if (string.IsNullOrEmpty(targetMaterialPath)) continue;
+                
+                var textureData = await AppVM.CUE4ParseVM.Provider.LoadObjectAsync<UBuildingTextureData>(textureDataPath);
+                data.StyleMaterialParams.Add(textureData.ToExportMaterialParams(idx, targetMaterialPath));
+            }
+        }
+        
+        data.Parts.AddRange(exports);
+        return exports;
     }
 }

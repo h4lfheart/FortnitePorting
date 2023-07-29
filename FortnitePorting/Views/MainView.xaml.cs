@@ -43,7 +43,7 @@ public partial class MainView
         var assetType = (EAssetType) clickedButton.Tag;
         if (AppVM.MainVM.CurrentAssetType == assetType) return;
 
-        AssetDisplayGrid.SelectionMode = assetType is (EAssetType.Prop or EAssetType.Gallery) ? SelectionMode.Extended : SelectionMode.Single;
+        AssetDisplayGrid.SelectionMode = assetType is EAssetType.Prop ? SelectionMode.Extended : SelectionMode.Single;
         AppVM.MainVM.CurrentAsset = null;
         AppVM.MainVM.CurrentAssetType = assetType;
         DiscordService.Update(assetType);
@@ -77,7 +77,7 @@ public partial class MainView
         }
         else
         {
-            if (assetType is not EAssetType.Gallery) AssetDisplayGrid.ItemsSource = handlers[assetType].TargetCollection;
+            AssetDisplayGrid.ItemsSource = handlers[assetType].TargetCollection;
             if (!handlers[assetType].HasStarted)
             {
                 await handlers[assetType].Execute();
@@ -165,16 +165,6 @@ public partial class MainView
         };
         AssetDisplayGrid.Items.Refresh();
 
-        if (AppVM.MainVM.CurrentAssetType is EAssetType.Gallery)
-        {
-            GalleryItemsControl.Items.Filter = o =>
-            {
-                var asset = (PropExpander) o;
-                return AppHelper.Filter(asset.GalleryName.Text, AppVM.MainVM.SearchFilter);
-            };
-            GalleryItemsControl.Items.Refresh();
-        }
-
         if (AppVM.MainVM.CurrentAssetType is EAssetType.Mesh)
         {
             AssetFlatView.Items.Filter = o =>
@@ -221,7 +211,6 @@ public partial class MainView
         switch (AppVM.MainVM.SortType)
         {
             case ESortType.Default:
-                if (AppVM.MainVM.CurrentAssetType is EAssetType.Gallery) break;
                 AssetDisplayGrid.Items.SortDescriptions.Add(new SortDescription("ID", GetProperSort(ListSortDirection.Ascending)));
                 break;
             case ESortType.AZ:

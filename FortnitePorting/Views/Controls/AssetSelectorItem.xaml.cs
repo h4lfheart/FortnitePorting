@@ -109,7 +109,7 @@ public partial class AssetSelectorItem : INotifyPropertyChanged, IExportableAsse
         DisplayImage.Source = FullSource;
     }
 
-    private const int MARGIN = 2;
+    private const int MARGIN = 4;
 
     private void DrawBackground(SKCanvas canvas, int size)
     {

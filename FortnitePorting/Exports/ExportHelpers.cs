@@ -27,6 +27,7 @@ using CUE4Parse.Utils;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Views.Extensions;
 using SixLabors.ImageSharp;
+using SkiaSharp;
 
 namespace FortnitePorting.Exports;
 
@@ -780,16 +781,13 @@ public static class ExportHelpers
                         var shouldExport = ShouldExportTexture(path, texture.GetFirstMip());
                         if (!shouldExport) break;
 
-                        using var image = texture.DecodeImageSharp();
-                        if (image is null) break;
-
                         switch (AppSettings.Current.ImageType)
                         {
                             case EImageType.PNG:
-                                image.SaveAsPng(path);
+                                File.WriteAllBytes(path, texture.Decode().Encode(SKEncodedImageFormat.Png, 100).ToArray()); // skia just be faster for png soooo
                                 break;
                             case EImageType.TGA:
-                                image.SaveAsTga(path);
+                                texture.DecodeImageSharp()?.SaveAsTga(path);
                                 break;
                         }
 
@@ -844,7 +842,7 @@ public static class ExportHelpers
         }
         catch (UnknownImageFormatException)
         {
-            return false;
+            return true;
         }
     }
 
