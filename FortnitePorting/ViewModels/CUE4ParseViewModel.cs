@@ -152,7 +152,7 @@ public class CUE4ParseViewModel : ObservableObject
 
         AppVM.LoadingVM.Update("Loading Asset Registry");
         var assetRegistries = Provider.Files.Where(x => x.Key.Contains("AssetRegistry", StringComparison.OrdinalIgnoreCase)).ToList();
-        assetRegistries.MoveToEnd(x => x.Value.Name.Equals("AssetRegistry.bin")); // i want encrypted cosmetics to be at the top :)))
+        assetRegistries.MoveToEnd(x => x.Value.Path.EndsWith("AssetRegistry.bin")); // i want encrypted cosmetics to be at the top :)))
         foreach (var (_, file) in assetRegistries)
         {
             if (file.Path.Contains("UEFN", StringComparison.OrdinalIgnoreCase) || file.Path.Contains("Editor", StringComparison.OrdinalIgnoreCase)) continue;
@@ -351,6 +351,11 @@ public class CUE4ParseViewModel : ObservableObject
                     Log.Warning("Failed to load game files, please ensure your game is up to date");
                 }
 
+                if (!Provider.TryFindGameFile("FortniteGame/AssetRegistry.bin", out _))
+                {
+                    AppVM.Warning("Fortnite Update", "Your Fortnite installation is not up to date. Please update to the latest version for FortnitePorting to work properly.");
+                }
+
                 foreach (var dynamicKey in keyResponse.DynamicKeys)
                 {
                     await Provider.SubmitKeyAsync(new FGuid(dynamicKey.GUID), new FAesKey(dynamicKey.Key));
@@ -424,7 +429,7 @@ public class CUE4ParseViewModel : ObservableObject
         }
         catch (Exception)
         {
-            Log.Warning($"Failed to load asset registry: {file.Path}");
+            Log.Warning($"Failed to load asset registry: {0}", file.Path);
         }
     }
 }
