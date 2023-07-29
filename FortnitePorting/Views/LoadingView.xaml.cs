@@ -55,12 +55,6 @@ public partial class LoadingView
             AppSettings.Current.LastUpdateAskTime = DateTime.Now;
         }
 
-        if (AppSettings.Current.JustUpdated && !updateAvailable)
-        {
-            AppHelper.OpenWindow<PluginUpdateView>();
-            AppSettings.Current.JustUpdated = false;
-        }
-
         await AppVM.LoadingVM.Initialize();
     }
 
