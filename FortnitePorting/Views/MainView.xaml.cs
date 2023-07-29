@@ -31,6 +31,9 @@ public partial class MainView
 
     private async void OnLoaded(object sender, RoutedEventArgs e)
     {
+        RefreshFilters();
+        RefreshSorting();
+        
         AppVM.AssetHandlerVM = new AssetHandlerViewModel();
         await AppVM.AssetHandlerVM.Initialize();
     }
@@ -161,7 +164,7 @@ public partial class MainView
         AssetDisplayGrid.Items.Filter = o =>
         {
             var asset = (AssetSelectorItem) o;
-            return asset.Match(AppVM.MainVM.SearchFilter) && AppVM.MainVM.Filters.All(x => x.Invoke(asset));
+            return asset.Match(AppVM.MainVM.SearchFilter) && AppVM.MainVM.Filters.All(x => x.Value.Invoke(asset)) && asset.HiddenAsset == AppVM.MainVM.Filters.ContainsKey("Unfinished Assets");
         };
         AssetDisplayGrid.Items.Refresh();
 

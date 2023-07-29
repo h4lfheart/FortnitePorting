@@ -17,7 +17,6 @@ using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Exports;
-using FortnitePorting.Models;
 using FortnitePorting.Views.Controls;
 using FortnitePorting.Views.Extensions;
 
@@ -45,7 +44,8 @@ public class AssetHandlerViewModel
             { EAssetType.Toy, ToyHandler },
             { EAssetType.Wildlife, WildlifeHandler },
             { EAssetType.Trap, TrapHandler },
-            { EAssetType.LoadingScreen, LoadingScreenHandler }
+            { EAssetType.LoadingScreen, LoadingScreenHandler },
+            { EAssetType.Spray, SprayHandler }
         };
     }
 
@@ -251,6 +251,15 @@ public class AssetHandlerViewModel
         TargetCollection = AppVM.MainVM.LoadingScreens,
         ClassNames = new List<string> { "AthenaLoadingScreenItemDefinition" },
         RemoveList = { },
+        IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
+    };
+    
+    private readonly AssetHandlerData SprayHandler = new()
+    {
+        AssetType = EAssetType.Spray,
+        TargetCollection = AppVM.MainVM.Sprays,
+        ClassNames = new List<string> { "AthenaSprayItemDefinition" },
+        RemoveList = { "SPID_000", "SPID_001" },
         IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
     };
 

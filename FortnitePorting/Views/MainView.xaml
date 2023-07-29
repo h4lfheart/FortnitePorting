@@ -8,7 +8,7 @@
                           xmlns:local="clr-namespace:FortnitePorting"
                           xmlns:toolkitCtrls="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
                           xmlns:extensions="clr-namespace:FortnitePorting.Views.Extensions"
-                          Title="Fortnite Porting" Width="1368" Height="780" WindowStartupLocation="CenterScreen" ResizeMode="CanResize" Loaded="OnLoaded">
+                          Title="Fortnite Porting" Width="1368" Height="720" WindowStartupLocation="CenterScreen" ResizeMode="CanResize" Loaded="OnLoaded">
     <Window.InputBindings>
         <KeyBinding Key="F" Modifiers="Control" Command="{Binding FavoriteCommand}" />
     </Window.InputBindings>
@@ -100,72 +100,77 @@
 
                 <!-- ASSET TYPE BUTTONS -->
                 <GroupBox Grid.Row="0" Grid.RowSpan="3" Grid.Column="0" adonisExt:LayerExtension.Layer="3" BorderThickness="1">
-                    <StackPanel x:Name="AssetTypePanel">
-                        <Separator Style="{StaticResource ContentSeparator}">
-                            <Separator.Tag>
-                                <controls:TextWithIcon Label="COSMETICS" LabelFontSize="11" LabelFontWeight="SemiBold" ImageSource="/FortnitePorting;component/Resources/Locker.png" IconSize="24" />
-                            </Separator.Tag>
-                        </Separator>
-                        <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Outfit}" IsChecked="True">
-                            <controls:TextWithIcon Label="Outfits" ImageSource="/FortnitePorting;component/Resources/Outfit.png" IconSize="24" />
-                        </ToggleButton>
-                        <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Backpack}">
-                            <controls:TextWithIcon Label="Backpacks" ImageSource="/FortnitePorting;component/Resources/Backpack.png" IconSize="24" />
-                        </ToggleButton>
-                        <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Pickaxe}">
-                            <controls:TextWithIcon Label="Pickaxes" ImageSource="/FortnitePorting;component/Resources/Pickaxe.png" IconSize="24" />
-                        </ToggleButton>
-                        <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Glider}">
-                            <controls:TextWithIcon Label="Gliders" ImageSource="/FortnitePorting;component/Resources/Glider.png" IconSize="24" />
-                        </ToggleButton>
-                        <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Pet}">
-                            <controls:TextWithIcon Label="Pets" ImageSource="/FortnitePorting;component/Resources/Pet.png" IconSize="24" />
-                        </ToggleButton>
-                        <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Toy}">
-                            <controls:TextWithIcon Label="Toys" ImageSource="/FortnitePorting;component/Resources/Toy.png" IconSize="24" />
-                        </ToggleButton>
-                        <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Dance}">
-                            <controls:TextWithIcon Label="Emotes" ImageSource="/FortnitePorting;component/Resources/Dance.png" IconSize="24" />
-                        </ToggleButton>
-                        <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Music}">
-                            <controls:TextWithIcon Label="Music" ImageSource="/FortnitePorting;component/Resources/Music.png" IconSize="24" />
-                        </ToggleButton>
-                        <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.LoadingScreen}">
-                            <controls:TextWithIcon Label="Loading Screens" ImageSource="/FortnitePorting;component/Resources/LoadingScreen.png" IconSize="24" />
-                        </ToggleButton>
-                        <Separator Style="{StaticResource ContentSeparator}">
-                            <Separator.Tag>
-                                <controls:TextWithIcon Label="PROPS &amp; MESHES" LabelFontSize="11" LabelFontWeight="SemiBold" ImageSource="/FortnitePorting;component/Resources/MeshPreview.png" IconSize="24" />
-                            </Separator.Tag>
-                        </Separator>
-                        <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Prop}">
-                            <controls:TextWithIcon Label="Props" ImageSource="/FortnitePorting;component/Resources/Prop.png" IconSize="24" />
-                        </ToggleButton>
-                        <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Gallery}">
-                            <controls:TextWithIcon Label="Galleries" ImageSource="/FortnitePorting;component/Resources/Gallery.png" IconSize="24" />
-                        </ToggleButton>
-                        <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Mesh}">
-                            <controls:TextWithIcon Label="Meshes" ImageSource="/FortnitePorting;component/Resources/Mesh.png" IconSize="24" />
-                        </ToggleButton>
+                    <ScrollViewer adonisExt:ScrollViewerExtension.VerticalScrollBarExpansionMode="NeverExpand">
+                        <StackPanel x:Name="AssetTypePanel">
+                            <Separator Style="{StaticResource ContentSeparator}">
+                                <Separator.Tag>
+                                    <controls:TextWithIcon Label="COSMETICS" LabelFontSize="11" LabelFontWeight="SemiBold" ImageSource="/FortnitePorting;component/Resources/Locker.png" IconSize="24" />
+                                </Separator.Tag>
+                            </Separator>
+                            <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Outfit}" IsChecked="True">
+                                <controls:TextWithIcon Label="Outfits" ImageSource="/FortnitePorting;component/Resources/Outfit.png" IconSize="24" />
+                            </ToggleButton>
+                            <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Backpack}">
+                                <controls:TextWithIcon Label="Backpacks" ImageSource="/FortnitePorting;component/Resources/Backpack.png" IconSize="24" />
+                            </ToggleButton>
+                            <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Pickaxe}">
+                                <controls:TextWithIcon Label="Pickaxes" ImageSource="/FortnitePorting;component/Resources/Pickaxe.png" IconSize="24" />
+                            </ToggleButton>
+                            <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Glider}">
+                                <controls:TextWithIcon Label="Gliders" ImageSource="/FortnitePorting;component/Resources/Glider.png" IconSize="24" />
+                            </ToggleButton>
+                            <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Pet}">
+                                <controls:TextWithIcon Label="Pets" ImageSource="/FortnitePorting;component/Resources/Pet.png" IconSize="24" />
+                            </ToggleButton>
+                            <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Toy}">
+                                <controls:TextWithIcon Label="Toys" ImageSource="/FortnitePorting;component/Resources/Toy.png" IconSize="24" />
+                            </ToggleButton>
+                            <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Dance}">
+                                <controls:TextWithIcon Label="Emotes" ImageSource="/FortnitePorting;component/Resources/Dance.png" IconSize="24" />
+                            </ToggleButton>
+                            <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Music}">
+                                <controls:TextWithIcon Label="Music" ImageSource="/FortnitePorting;component/Resources/Music.png" IconSize="24" />
+                            </ToggleButton>
+                            <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Spray}">
+                                <controls:TextWithIcon Label="Sprays" ImageSource="/FortnitePorting;component/Resources/Spray.png" IconSize="24" />
+                            </ToggleButton>
+                            <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.LoadingScreen}">
+                                <controls:TextWithIcon Label="Loading Screens" ImageSource="/FortnitePorting;component/Resources/LoadingScreen.png" IconSize="24" />
+                            </ToggleButton>
+                                <Separator Style="{StaticResource ContentSeparator}">
+                                <Separator.Tag>
+                                    <controls:TextWithIcon Label="PROPS &amp; MESHES" LabelFontSize="11" LabelFontWeight="SemiBold" ImageSource="/FortnitePorting;component/Resources/MeshPreview.png" IconSize="24" />
+                                </Separator.Tag>
+                            </Separator>
+                            <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Prop}">
+                                <controls:TextWithIcon Label="Props" ImageSource="/FortnitePorting;component/Resources/Prop.png" IconSize="24" />
+                            </ToggleButton>
+                            <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Gallery}">
+                                <controls:TextWithIcon Label="Galleries" ImageSource="/FortnitePorting;component/Resources/Gallery.png" IconSize="24" />
+                            </ToggleButton>
+                            <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Mesh}">
+                                <controls:TextWithIcon Label="Meshes" ImageSource="/FortnitePorting;component/Resources/Mesh.png" IconSize="24" />
+                            </ToggleButton>
 
-                        <Separator Style="{StaticResource ContentSeparator}">
-                            <Separator.Tag>
-                                <controls:TextWithIcon Label="GAMEPLAY" LabelFontSize="11" LabelFontWeight="SemiBold" ImageSource="/FortnitePorting;component/Resources/Gameplay.png" IconSize="24" />
-                            </Separator.Tag>
-                        </Separator>
-                        <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Item}">
-                            <controls:TextWithIcon Label="Items" ImageSource="/FortnitePorting;component/Resources/Item.png" IconSize="24" />
-                        </ToggleButton>
-                        <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Trap}">
-                            <controls:TextWithIcon Label="Traps" ImageSource="/FortnitePorting;component/Resources/Trap.png" IconSize="24" />
-                        </ToggleButton>
-                        <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Vehicle}">
-                            <controls:TextWithIcon Label="Vehicles" ImageSource="/FortnitePorting;component/Resources/Vehicle.png" IconSize="24" />
-                        </ToggleButton>
-                        <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Wildlife}">
-                            <controls:TextWithIcon Label="Wildlife" ImageSource="/FortnitePorting;component/Resources/Wildlife.png" IconSize="24" />
-                        </ToggleButton>
-                    </StackPanel>
+                            <Separator Style="{StaticResource ContentSeparator}">
+                                <Separator.Tag>
+                                    <controls:TextWithIcon Label="GAMEPLAY" LabelFontSize="11" LabelFontWeight="SemiBold" ImageSource="/FortnitePorting;component/Resources/Gameplay.png" IconSize="24" />
+                                </Separator.Tag>
+                            </Separator>
+                            <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Item}">
+                                <controls:TextWithIcon Label="Items" ImageSource="/FortnitePorting;component/Resources/Item.png" IconSize="24" />
+                            </ToggleButton>
+                            <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Trap}">
+                                <controls:TextWithIcon Label="Traps" ImageSource="/FortnitePorting;component/Resources/Trap.png" IconSize="24" />
+                            </ToggleButton>
+                            <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Vehicle}">
+                                <controls:TextWithIcon Label="Vehicles" ImageSource="/FortnitePorting;component/Resources/Vehicle.png" IconSize="24" />
+                            </ToggleButton>
+                            <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Wildlife}">
+                                <controls:TextWithIcon Label="Wildlife" ImageSource="/FortnitePorting;component/Resources/Wildlife.png" IconSize="24" />
+                            </ToggleButton>
+                        </StackPanel>
+                    </ScrollViewer>
                 </GroupBox>
 
                 <!-- DISPLAY -->
@@ -281,7 +286,7 @@
                         <Border Background="{DynamicResource {x:Static adonisUi:Brushes.Layer2BackgroundBrush}}" BorderThickness="1" BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer3BorderBrush}}">
                             <StackPanel x:Name="FilterPanel" Margin="{adonisUi:Space 1}">
                                 <CheckBox Margin="0 0 0 10" Content="Favorite" Tag="Favorite" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked" />
-                                <CheckBox Content="Unfinished Assets (Unstable)" Tag="Unfinished Assets" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked" />
+                                <CheckBox Content="Unfinished Assets" Tag="Unfinished Assets" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked" />
                                 <Separator Style="{StaticResource NamedSeparator}" />
                                 <CheckBox Margin="0 0 0 10" Content="Battle Pass" Tag="Battle Pass" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked" />
                                 <CheckBox Content="Item Shop" Tag="Item Shop" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked" />
@@ -523,6 +528,38 @@
                                     <Button Grid.Row="2" Command="{Binding ExportLoadingScreenCommand}">
                                         <Button.Content>
                                             <controls:TextWithIcon Label="Export Loading Screen" ImageSource="/FortnitePorting;component/Resources/Export.png" IconSize="16" />
+                                        </Button.Content>
+                                    </Button>
+                                </Grid>
+                            </Grid>
+                        </ContentControl>
+                        
+                        <ContentControl Grid.Row="1" Visibility="{Binding SprayControlVisibility}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="5*" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+
+                                <!-- CONTROLS -->
+                                <Separator Grid.Row="2" Style="{StaticResource NamedSeparator}" Tag="CONTROLS" />
+                                <Grid Grid.Row="3">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="0.5*" />
+                                        <RowDefinition Height="{adonisUi:Space 1}" />
+                                        <RowDefinition Height="0.5*" />
+                                    </Grid.RowDefinitions>
+
+                                    <Button Grid.Row="0" Command="{Binding ExportSprayCommand}">
+                                        <Button.Content>
+                                            <controls:TextWithIcon Label="Export Spray" ImageSource="/FortnitePorting;component/Resources/Export.png" IconSize="16" />
+                                        </Button.Content>
+                                    </Button>
+                                    <Button Grid.Row="2" Command="{Binding ExportUnrealCommand}" IsEnabled="False">
+                                        <Button.Content>
+                                            <controls:TextWithIcon Label="Send to Unreal (Decal Material Coming Soon)" ImageSource="/FortnitePorting;component/Resources/Unreal.png" IconSize="16" />
                                         </Button.Content>
                                     </Button>
                                 </Grid>

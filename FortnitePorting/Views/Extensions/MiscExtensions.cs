@@ -92,6 +92,20 @@ public static class MiscExtensions
         list.Add(item);
         return true;
     }
+    
+    public static bool AddUnique<T, K>(this Dictionary<T, K> dict, T key, K value)
+    {
+        if (dict.ContainsKey(key)) return false;
+        dict.Add(key, value);
+        return true;
+    }
+    
+    public static bool AddUnique<T, K>(this Dictionary<T, K> dict, KeyValuePair<T, K> kvp)
+    {
+        if (dict.ContainsKey(kvp.Key)) return false;
+        dict.Add(kvp.Key, kvp.Value);
+        return true;
+    }
 
     public static double Truncate(this double value, int decimals)
     {

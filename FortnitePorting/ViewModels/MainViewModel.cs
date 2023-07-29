@@ -36,6 +36,7 @@ public partial class MainViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(MusicControlVisibility))]
     [NotifyPropertyChangedFor(nameof(DanceControlVisibility))]
     [NotifyPropertyChangedFor(nameof(LoadingScreenControlVisibility))]
+    [NotifyPropertyChangedFor(nameof(SprayControlVisibility))]
     private IExportableAsset? currentAsset;
 
     [ObservableProperty]
@@ -59,11 +60,12 @@ public partial class MainViewModel : ObservableObject
     public Visibility AssetTabVisibility => CurrentAssetType is EAssetType.Mesh ? Visibility.Collapsed : Visibility.Visible;
     public Visibility MeshTabVisibility => CurrentAssetType is EAssetType.Mesh ? Visibility.Visible : Visibility.Collapsed;
 
-    public Visibility DefaultControlVisibility => CurrentAsset?.Type is not (EAssetType.Mesh or EAssetType.Dance or EAssetType.Music or EAssetType.LoadingScreen) ? Visibility.Visible : Visibility.Collapsed;
+    public Visibility DefaultControlVisibility => CurrentAsset?.Type is not (EAssetType.Mesh or EAssetType.Dance or EAssetType.Music or EAssetType.LoadingScreen or EAssetType.Spray) ? Visibility.Visible : Visibility.Collapsed;
     public Visibility MeshControlVisibility => CurrentAsset?.Type is EAssetType.Mesh ? Visibility.Visible : Visibility.Collapsed;
     public Visibility MusicControlVisibility => CurrentAsset?.Type is EAssetType.Music ? Visibility.Visible : Visibility.Collapsed;
     public Visibility DanceControlVisibility => CurrentAsset?.Type is EAssetType.Dance ? Visibility.Visible : Visibility.Collapsed;
     public Visibility LoadingScreenControlVisibility => CurrentAsset?.Type is EAssetType.LoadingScreen ? Visibility.Visible : Visibility.Collapsed;
+    public Visibility SprayControlVisibility => CurrentAsset?.Type is EAssetType.Spray ? Visibility.Visible : Visibility.Collapsed;
 
     // Assets
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> outfits = new();
@@ -81,6 +83,7 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> wildlife = new();
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> traps = new();
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> loadingScreens = new();
+    [ObservableProperty] private ObservableCollection<AssetSelectorItem> sprays = new();
 
     [ObservableProperty] private SuppressibleObservableCollection<TreeItem> meshes = new();
     [ObservableProperty] private SuppressibleObservableCollection<AssetItem> assets = new();
@@ -97,7 +100,7 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] private bool ascending;
 
     // Filters
-    [ObservableProperty] private ObservableCollection<Predicate<AssetSelectorItem>> filters = new();
+    [ObservableProperty] private Dictionary<string, Predicate<AssetSelectorItem>> filters = new();
     [ObservableProperty] private string filterLabel = "None";
 
     private static readonly Dictionary<string, Predicate<AssetSelectorItem>> FilterPredicates = new()
@@ -292,20 +295,19 @@ public partial class MainViewModel : ObservableObject
     public void ModifyFilters(string tag, bool enable)
     {
         if (!FilterPredicates.ContainsKey(tag)) return;
-        var predicate = FilterPredicates[tag];
 
         if (enable)
         {
-            Filters.AddUnique(predicate);
+            Filters.AddUnique(tag, FilterPredicates[tag]);
         }
         else
         {
-            Filters.Remove(predicate);
+            Filters.Remove(tag);
         }
 
         if (Filters.Count > 0)
         {
-            FilterLabel = FilterPredicates.Where(x => Filters.Contains(x.Value)).Select(x => x.Key).CommaJoin(includeAnd: false);
+            FilterLabel = Filters.Keys.CommaJoin(includeAnd: false);
         }
         else
         {
@@ -367,6 +369,14 @@ public partial class MainViewModel : ObservableObject
     private void ExportLoadingScreen()
     {
         var texture = CurrentAsset.Asset.Get<UTexture2D>("BackgroundImage");
+        ExportHelpers.Save(texture, out var path);
+        AppHelper.Launch(Path.GetDirectoryName(path));
+    }
+    
+    [RelayCommand]
+    private void ExportSpray()
+    {
+        var texture = CurrentAsset.Asset.Get<UTexture2D>("DecalTexture");
         ExportHelpers.Save(texture, out var path);
         AppHelper.Launch(Path.GetDirectoryName(path));
     }
