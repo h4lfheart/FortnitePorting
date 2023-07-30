@@ -1,17 +1,21 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.Versions;
 using FortnitePorting.AppUtils;
+using FortnitePorting.Views.Extensions;
 
 namespace FortnitePorting.ViewModels;
 
-public class SettingsViewModel : ObservableObject
+public partial class SettingsViewModel : ObservableObject
 {
     public bool IsRestartRequired = false;
     public bool ChangedUpdateChannel = false;
-
+    
     public bool IsLiveInstall => InstallType == EInstallType.Live;
     public bool IsCustomInstall => InstallType == EInstallType.Custom;
     public bool CanChangePath => InstallType != EInstallType.Live;
+    
+    [ObservableProperty] private ObservableCollection<CustomAESKey> aesKeys = new();
 
     public EInstallType InstallType
     {
@@ -55,21 +59,10 @@ public class SettingsViewModel : ObservableObject
 
     public string MappingsPath
     {
-        get => AppSettings.Current.MappingsPath;
+        get => AppSettings.Current.CustomMappingsPath;
         set
         {
-            AppSettings.Current.MappingsPath = value;
-            OnPropertyChanged();
-            IsRestartRequired = true;
-        }
-    }
-
-    public string AESKey
-    {
-        get => AppSettings.Current.AesKey;
-        set
-        {
-            AppSettings.Current.AesKey = value;
+            AppSettings.Current.CustomMappingsPath = value;
             OnPropertyChanged();
             IsRestartRequired = true;
         }

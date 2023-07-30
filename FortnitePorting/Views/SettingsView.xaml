@@ -3,6 +3,7 @@
                           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 
                           xmlns:local="clr-namespace:FortnitePorting"
+                          xmlns:apputils="clr-namespace:FortnitePorting.AppUtils"
                           xmlns:extensions="clr-namespace:FortnitePorting.Views.Extensions"
                           xmlns:cue4Parse="clr-namespace:CUE4Parse;assembly=CUE4Parse"
                           xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
@@ -65,8 +66,19 @@
             <TextBlock Grid.Row="4" Grid.Column="0" Text="Game Version*" VerticalAlignment="Center" />
             <ComboBox Grid.Row="4" Grid.Column="2" Grid.ColumnSpan="3" ItemsSource="{extensions:EnumToItemsSource {x:Type cue4Parse:UE4.Versions.EGame}}" SelectedItem="{Binding GameVersion, Converter={StaticResource EnumToString}}" IsEnabled="{Binding IsCustomInstall}" />
 
-            <TextBlock Grid.Row="6" Grid.Column="0" Text="Encryption Key*" VerticalAlignment="Center" />
-            <TextBox Grid.Row="6" Grid.Column="2" Grid.ColumnSpan="3" Text="{Binding AESKey}" adonisExt:WatermarkExtension.Watermark="AES Key (0x....)" IsEnabled="{Binding IsCustomInstall}" />
+            <TextBlock Grid.Row="6" Grid.Column="0" Text="Encryption Keys*" VerticalAlignment="Top" />
+            <ItemsControl Grid.Row="6" Grid.Column="2" ItemsSource="{Binding AesKeys}" IsEnabled="{Binding IsCustomInstall}" VerticalAlignment="Top">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type apputils:CustomAESKey}">
+                        <TextBox Text="{Binding Hex}" Margin="{adonisUi:Space 0, 0.25}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            
+            <StackPanel Grid.Row="6" Grid.Column="4" Orientation="Vertical">
+                <Button Content="+" Click="OnClickAddKey" IsEnabled="{Binding IsCustomInstall}" VerticalAlignment="Top" Background="{DynamicResource {x:Static adonisUi:Brushes.SuccessBrush}}" Foreground="{DynamicResource {x:Static adonisUi:Brushes.ForegroundBrush}}" adonisExt:CursorSpotlightExtension.BackgroundBrush="{DynamicResource {x:Static adonisUi:Brushes.SuccessBrush}}" />
+                <Button Content="-" Click="OnClickRemoveKey" IsEnabled="{Binding IsCustomInstall}" VerticalAlignment="Top" Background="{DynamicResource {x:Static adonisUi:Brushes.ErrorBrush}}" Foreground="{DynamicResource {x:Static adonisUi:Brushes.ForegroundBrush}}" adonisExt:CursorSpotlightExtension.BackgroundBrush="{DynamicResource {x:Static adonisUi:Brushes.ErrorBrush}}" />
+            </StackPanel>
 
             <TextBlock Grid.Row="8" Grid.Column="0" Text="Mappings*" VerticalAlignment="Center" />
             <TextBox Grid.Row="8" Grid.Column="2" Text="{Binding MappingsPath}" adonisExt:WatermarkExtension.Watermark="Mappings Path (.usmap)" IsEnabled="{Binding IsCustomInstall}" />

@@ -334,7 +334,13 @@ public class CUE4ParseViewModel : ObservableObject
         {
             case EInstallType.Custom:
             {
-                await Provider.SubmitKeyAsync(Globals.ZERO_GUID, new FAesKey(AppSettings.Current.AesKey));
+                foreach (var vfs in Provider.UnloadedVfs.ToArray())
+                {
+                    foreach (var key in AppSettings.Current.CustomAesKeys)
+                    {
+                        await Provider.SubmitKeyAsync(vfs.EncryptionKeyGuid, new FAesKey(key.Hex));
+                    }
+                }
                 break;
             }
             case EInstallType.Local:
@@ -372,8 +378,8 @@ public class CUE4ParseViewModel : ObservableObject
         {
             case EInstallType.Custom:
             {
-                if (string.IsNullOrEmpty(AppSettings.Current.MappingsPath)) return;
-                Provider.MappingsContainer = new FileUsmapTypeMappingsProvider(AppSettings.Current.MappingsPath);
+                if (string.IsNullOrEmpty(AppSettings.Current.CustomMappingsPath)) return;
+                Provider.MappingsContainer = new FileUsmapTypeMappingsProvider(AppSettings.Current.CustomMappingsPath);
                 break;
             }
             case EInstallType.Local:
