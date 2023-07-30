@@ -142,7 +142,7 @@ public partial class MainView
         var menuItem = (MenuItem) sender;
         var show = menuItem.IsChecked;
         AppSettings.Current.ShowConsole = show;
-        App.ToggleConsole(show);
+        WindowsUtils.ToggleConsole(show);
     }
 
     private void FunkyScrollFix(object sender, MouseWheelEventArgs e)

@@ -477,7 +477,7 @@ public static class MeshExportExtensions
             for (var idx = 0; idx < textureDataPaths.Length; idx++)
             {
                 var textureDataPath = textureDataPaths[idx];
-                if (string.IsNullOrEmpty(textureDataPath)) continue;
+                if (string.IsNullOrEmpty(textureDataPath) || textureDataPath.Equals("None", StringComparison.OrdinalIgnoreCase)) continue;
                 if (string.IsNullOrEmpty(targetMaterialPath)) continue;
                 
                 var textureData = await AppVM.CUE4ParseVM.Provider.LoadObjectAsync<UBuildingTextureData>(textureDataPath);

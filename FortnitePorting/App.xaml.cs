@@ -9,6 +9,7 @@ using FortnitePorting.AppUtils;
 using FortnitePorting.Exports;
 using FortnitePorting.Services;
 using Serilog.Sinks.SystemConsole.Themes;
+using Console = System.Console;
 using MessageBox = AdonisUI.Controls.MessageBox;
 using MessageBoxImage = AdonisUI.Controls.MessageBoxImage;
 using MessageBoxResult = AdonisUI.Controls.MessageBoxResult;
@@ -17,18 +18,7 @@ namespace FortnitePorting;
 
 public partial class App
 {
-    [DllImport("kernel32")]
-    private static extern bool AllocConsole();
-
-    [DllImport("kernel32")]
-    private static extern bool FreeConsole();
-
-    [DllImport("kernel32.dll")]
-    private static extern IntPtr GetConsoleWindow();
-
-    [DllImport("user32.dll")]
-    private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
-
+    
     public static DirectoryInfo AssetsFolder => new(AppSettings.Current.AssetsPath);
     public static readonly DirectoryInfo DataFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".data"));
     public static readonly DirectoryInfo MapFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Terrain"));
@@ -43,7 +33,12 @@ public partial class App
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
-        AllocConsole();
+        WindowsUtils.AllocConsole();
+        WindowsUtils.InitExitHandler(_ =>
+        {
+            ExitHandler();
+            return false;
+        });
         Console.Title = $"Fortnite Porting Console - v{Globals.VERSION}";
         CUE4Parse.Globals.WarnMissingImportPackage = false;
 
@@ -55,7 +50,7 @@ public partial class App
         AppSettings.DirectoryPath.Create();
         AppSettings.Load();
 
-        ToggleConsole(AppSettings.Current.ShowConsole);
+        WindowsUtils.ToggleConsole(AppSettings.Current.ShowConsole);
 
         AssetsFolder.Create();
         DataFolder.Create();
@@ -71,21 +66,17 @@ public partial class App
         }
     }
 
-    public static void ToggleConsole(bool show)
+    public void ExitHandler()
     {
-        const int SW_HIDE = 0;
-        const int SW_SHOW = 5;
-
-        var handle = GetConsoleWindow();
-        ShowWindow(handle, show ? SW_SHOW : SW_HIDE);
+        AppVM.MeshViewer?.Close();
+        WindowsUtils.FreeConsole();
+        AppSettings.Save();
     }
 
     protected override void OnExit(ExitEventArgs e)
     {
         base.OnExit(e);
-        AppVM.MeshViewer?.Close();
-        FreeConsole();
-        AppSettings.Save();
+        ExitHandler();
     }
 
     private void OnUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
