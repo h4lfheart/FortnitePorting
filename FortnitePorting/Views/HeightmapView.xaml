@@ -3,15 +3,22 @@
                           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                           xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
                           xmlns:adonisCtrls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
+                          xmlns:adonisExt="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"
                           Title="Heightmap Exporter" Width="480" SizeToContent="Height" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize">
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="{adonisUi:Space 1}" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
+        <TextBox Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Margin="{adonisUi:Space 1}" adonisExt:WatermarkExtension.Watermark="Map Filepath" Text="{Binding MapPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
-        <StackPanel Grid.Column="0">
+        <StackPanel Grid.Row="1" Grid.Column="0">
             <Separator Style="{StaticResource NamedSeparator}" Tag="Options" />
             <CheckBox Margin="{adonisUi:Space 1}" Content="Export Height Map" IsChecked="{Binding ExportHeightmap}" />
             <CheckBox Margin="{adonisUi:Space 1}" Content="Export Normal Map" IsChecked="{Binding ExportNormalmap}" />
@@ -19,7 +26,7 @@
             <Button Margin="{adonisUi:Space 1}" Content="Export Maps" Command="{Binding ExportCommand}" />
         </StackPanel>
 
-        <StackPanel Grid.Column="2">
+        <StackPanel Grid.Row="1" Grid.Column="2">
             <Separator Style="{StaticResource NamedSeparator}" Tag="Preview" />
             <Image Source="{Binding ImageSource}" Width="128" Height="128" RenderOptions.BitmapScalingMode="Fant" />
         </StackPanel>

@@ -22,7 +22,10 @@ public static class HeightmapExporter
 
     public static void Export()
     {
-        var world = AppVM.CUE4ParseVM.Provider.LoadObject<UWorld>("FortniteGame/Content/Athena/Asteria/Maps/Asteria_Terrain.Asteria_Terrain");
+        var world = AppVM.CUE4ParseVM.Provider.LoadObject<UWorld>(AppVM.HeightmapVM.MapPath);
+        var exportFolder = Path.Combine(App.MapFolder.FullName, world.Name);
+        Directory.CreateDirectory(exportFolder);
+        
         var level = world.PersistentLevel.Load<ULevel>();
         if (level is null) return;
 
@@ -85,7 +88,7 @@ public static class HeightmapExporter
                 var corrected = (ushort) ((color.R << 8) | color.G);
                 height[x, y] = new L16(corrected);
             });
-            height.SaveAsPng(Path.Combine(App.MapFolder.FullName, $"{world.Name}_Height.png"));
+            height.SaveAsPng(Path.Combine(exportFolder, $"{world.Name}_Height.png"));
             SetPreviewImage(height);
         }
 
@@ -96,7 +99,7 @@ public static class HeightmapExporter
             var normal = new Image<Rgb24>(Size, Size);
             normal.Mutate(x => x.Fill(Color.FromRgb(0x7f, 0x7f, 0xFF)));
             IteratePixels(heightTextures, (color, x, y, _) => { normal[x, y] = new Rgb24(color.B, color.A, 255); });
-            normal.SaveAsPng(Path.Combine(App.MapFolder.FullName, $"{world.Name}_Normal.png"));
+            normal.SaveAsPng(Path.Combine(exportFolder, $"{world.Name}_Normal.png"));
             SetPreviewImage(normal);
         }
 
@@ -119,12 +122,12 @@ public static class HeightmapExporter
 
                     map[x, y] = new L8(l8);
                 });
-                map.SaveAsPng(Path.Combine(App.MapFolder.FullName, $"{world.Name}_{layerName}.png"));
+                map.SaveAsPng(Path.Combine(exportFolder, $"{world.Name}_{layerName}.png"));
                 SetPreviewImage(map);
             }
         }
 
-        AppHelper.Launch(App.MapFolder.FullName);
+        AppHelper.Launch(exportFolder);
     }
 
     public static void IteratePixels(List<TileData?> textures, Action<Bgra32, int, int, int> action)

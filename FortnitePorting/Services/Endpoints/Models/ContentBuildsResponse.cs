@@ -4,7 +4,7 @@ namespace FortnitePorting.Services.Endpoints.Models;
 
 public class ContentBuildsResponse
 {
-    [J] public ContentItems Items;
+    [J] public ContentItems? Items;
 
     public class ContentItems
     {

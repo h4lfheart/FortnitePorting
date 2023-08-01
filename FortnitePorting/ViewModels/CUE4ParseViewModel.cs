@@ -250,26 +250,35 @@ public class CUE4ParseViewModel : ObservableObject
             return false;
         }
 
-        var buildInfoString = string.Empty;
-        switch (AppSettings.Current.InstallType)
+        async Task<ContentBuildsResponse?> GetContentBuildsAsync(EInstallType type)
         {
-            case EInstallType.Local:
-                /*var buildInfoPath = Path.Combine(AppSettings.Current.ArchivePath, "..\\..\\..\\Cloud\\BuildInfo.ini");
-                buildInfoString = File.Exists(buildInfoPath) ? await File.ReadAllTextAsync(buildInfoPath) : await GetFortniteLiveBuildInfoAsync();
-                break;*/
-            case EInstallType.Live:
-                buildInfoString = await GetFortniteLiveBuildInfoAsync();
-                break;
+            var buildInfoString = string.Empty;
+            switch (type)
+            {
+                case EInstallType.Local:
+                    var buildInfoPath = Path.Combine(AppSettings.Current.ArchivePath, "..\\..\\..\\Cloud\\BuildInfo.ini");
+                    buildInfoString = File.Exists(buildInfoPath) ? await File.ReadAllTextAsync(buildInfoPath) : await GetFortniteLiveBuildInfoAsync();
+                    break;
+                case EInstallType.Live:
+                    buildInfoString = await GetFortniteLiveBuildInfoAsync();
+                    break;
+            }
+
+            if (string.IsNullOrEmpty(buildInfoString)) return null;
+
+            var buildInfoIni = BundleIniReader.Read(buildInfoString);
+            var label = buildInfoIni.Sections["Content"].First(x => x.Name.Equals("Label", StringComparison.OrdinalIgnoreCase)).Value;
+
+            var contentBuilds = await EndpointService.Epic.GetContentBuildsAsync(label: label);
+            if (contentBuilds?.Items is null) return null;
+
+            return contentBuilds;
         }
 
-        if (string.IsNullOrEmpty(buildInfoString)) return false;
-
-        var buildInfoIni = BundleIniReader.Read(buildInfoString);
-        var label = buildInfoIni.Sections["Content"].First(x => x.Name.Equals("Label", StringComparison.OrdinalIgnoreCase)).Value;
-
-        var contentBuilds = await EndpointService.Epic.GetContentBuildsAsync(label: label);
+        var contentBuilds = await GetContentBuildsAsync(AppSettings.Current.InstallType);
+        contentBuilds ??= await GetContentBuildsAsync(EInstallType.Live); // in case of a BuildInfo label mismatch, live is always correct
         if (contentBuilds is null) return false;
-
+        
         var contentManifest = contentBuilds.Items.Manifest;
         var manifestUrl = contentManifest.Distribution + contentManifest.Path;
 
@@ -305,8 +314,11 @@ public class CUE4ParseViewModel : ObservableObject
     {
         if (FortniteLiveManifest is not null) return;
         var manifestInfo = await EndpointService.Epic.GetManifestInfoAsync();
-        AppVM.LoadingVM.Update($"Loading Fortnite Live v{manifestInfo.Version.ToString()}");
-        if (verbose) Log.Information($"Loading Manifest for Fortnite {manifestInfo.BuildVersion}");
+        if (verbose)
+        {
+            AppVM.LoadingVM.Update($"Loading Fortnite Live v{manifestInfo.Version.ToString()}");
+            Log.Information($"Loading Manifest for Fortnite {manifestInfo.BuildVersion}");
+        }
 
         var manifestPath = Path.Combine(App.DataFolder.FullName, manifestInfo.FileName);
         byte[] manifestBytes;
@@ -319,8 +331,7 @@ public class CUE4ParseViewModel : ObservableObject
             manifestBytes = await manifestInfo.DownloadManifestDataAsync();
             await File.WriteAllBytesAsync(manifestPath, manifestBytes);
         }
-
-
+        
         FortniteLiveManifest = new Manifest(manifestBytes, new ManifestOptions
         {
             ChunkBaseUri = new Uri("https://epicgames-download1.akamaized.net/Builds/Fortnite/CloudDir/ChunksV4/", UriKind.Absolute),

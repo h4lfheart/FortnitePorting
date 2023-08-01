@@ -8,6 +8,7 @@ namespace FortnitePorting.ViewModels;
 
 public partial class HeightmapViewModel : ObservableObject
 {
+    [ObservableProperty] private string mapPath = "FortniteGame/Content/Athena/Asteria/Maps/Asteria_Terrain";
     [ObservableProperty] private bool exportHeightmap = true;
     [ObservableProperty] private bool exportNormalmap = true;
     [ObservableProperty] private bool exportWeightmap = true;
