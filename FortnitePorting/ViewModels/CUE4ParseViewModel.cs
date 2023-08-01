@@ -254,9 +254,9 @@ public class CUE4ParseViewModel : ObservableObject
         switch (AppSettings.Current.InstallType)
         {
             case EInstallType.Local:
-                var buildInfoPath = Path.Combine(AppSettings.Current.ArchivePath, "..\\..\\..\\Cloud\\BuildInfo.ini");
+                /*var buildInfoPath = Path.Combine(AppSettings.Current.ArchivePath, "..\\..\\..\\Cloud\\BuildInfo.ini");
                 buildInfoString = File.Exists(buildInfoPath) ? await File.ReadAllTextAsync(buildInfoPath) : await GetFortniteLiveBuildInfoAsync();
-                break;
+                break;*/
             case EInstallType.Live:
                 buildInfoString = await GetFortniteLiveBuildInfoAsync();
                 break;

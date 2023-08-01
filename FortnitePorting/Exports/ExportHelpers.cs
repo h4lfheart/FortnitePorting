@@ -754,7 +754,7 @@ public static class ExportHelpers
                         path = GetExportPath(skeletalMesh, "psk", "_LOD0");
                         if (AllLodsExist(skeletalMesh)) break;
 
-                        var exporter = new MeshExporter(skeletalMesh, ExportOptions, false);
+                        var exporter = new MeshExporter(skeletalMesh, ExportOptions);
                         exporter.TryWriteToDir(App.AssetsFolder, out var label, out var savedFilePath);
                         break;
                     }
@@ -764,7 +764,7 @@ public static class ExportHelpers
                         path = GetExportPath(staticMesh, "pskx", "_LOD0");
                         if (AllLodsExist(staticMesh)) break;
 
-                        var exporter = new MeshExporter(staticMesh, StaticMeshExportOptions, false);
+                        var exporter = new MeshExporter(staticMesh, StaticMeshExportOptions);
                         exporter.TryWriteToDir(App.AssetsFolder, out var label, out var savedFilePath);
                         break;
                     }

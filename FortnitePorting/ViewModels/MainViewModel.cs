@@ -110,7 +110,7 @@ public partial class MainViewModel : ObservableObject
         { "Item Shop", x => x.GameplayTags.ContainsAny("ItemShop") },
         { "Save The World", x => x.GameplayTags.ContainsAny("CampaignHero", "SaveTheWorld") },
         { "Battle Royale", x => !x.GameplayTags.ContainsAny("CampaignHero", "SaveTheWorld") },
-        { "Unfinished Assets", x => x.HiddenAsset }
+        { "Hidden Assets", x => x.HiddenAsset }
     };
 
     // Redirectors

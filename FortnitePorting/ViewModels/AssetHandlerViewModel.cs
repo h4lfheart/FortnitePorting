@@ -404,9 +404,7 @@ public class AssetHandlerData
 
                     var creativeTagsHelper = objectData.GetOrDefault("CreativeTagsHelper", new FStructFallback());
                     var creativeTags = creativeTagsHelper.GetOrDefault("CreativeTags", Array.Empty<FName>());
-                    if (!creativeTags.Any(x => x.Text.Contains("Gallery", StringComparison.OrdinalIgnoreCase))) return;
-                    
-                    await DoLoad(objectData, AssetType);
+                    await DoLoad(objectData, AssetType, hiddenAsset: !creativeTags.Any(x => x.Text.Contains("Gallery", StringComparison.OrdinalIgnoreCase)));
                     return;
                 }
 
@@ -434,7 +432,7 @@ public class AssetHandlerData
         await DoLoad(asset, type, random, descriptionOverride);
     }
 
-    private async Task DoLoad(UObject asset, EAssetType type, bool random = false, string? descriptionOverride = null)
+    private async Task DoLoad(UObject asset, EAssetType type, bool random = false, string? descriptionOverride = null, bool hiddenAsset = false)
     {
         await PauseState.WaitIfPaused();
 
@@ -442,8 +440,9 @@ public class AssetHandlerData
         previewImage ??= AppVM.CUE4ParseVM.PlaceholderTexture;
         if (previewImage is null) return;
 
-        await Application.Current.Dispatcher.InvokeAsync(() => TargetCollection.Add(new AssetSelectorItem(asset, previewImage, type, random, DisplayNameGetter?.Invoke(asset), descriptionOverride, RemoveList.Any(y => asset.Name.Contains(y, StringComparison.OrdinalIgnoreCase)))), DispatcherPriority.Background);
+        await Application.Current.Dispatcher.InvokeAsync(() => TargetCollection.Add(new AssetSelectorItem(asset, previewImage, type, random, DisplayNameGetter?.Invoke(asset), descriptionOverride, RemoveList.Any(y => asset.Name.Contains(y, StringComparison.OrdinalIgnoreCase)) || hiddenAsset)), DispatcherPriority.Background);
     }
+    
 
     private async Task DoLoadProps(ObservableCollection<AssetSelectorItem> target, UObject asset, EAssetType type, bool random = false, string? descriptionOverride = null)
     {

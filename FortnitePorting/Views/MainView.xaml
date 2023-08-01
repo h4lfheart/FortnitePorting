@@ -286,7 +286,7 @@
                         <Border Background="{DynamicResource {x:Static adonisUi:Brushes.Layer2BackgroundBrush}}" BorderThickness="1" BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer3BorderBrush}}">
                             <StackPanel x:Name="FilterPanel" Margin="{adonisUi:Space 1}">
                                 <CheckBox Margin="0 0 0 10" Content="Favorite" Tag="Favorite" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked" />
-                                <CheckBox Content="Unfinished Assets" Tag="Unfinished Assets" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked" />
+                                <CheckBox Content="Hidden Assets" Tag="Hidden Assets" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked" />
                                 <Separator Style="{StaticResource NamedSeparator}" />
                                 <CheckBox Margin="0 0 0 10" Content="Battle Pass" Tag="Battle Pass" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked" />
                                 <CheckBox Content="Item Shop" Tag="Item Shop" Checked="OnFilterItemChecked" Unchecked="OnFilterItemChecked" />

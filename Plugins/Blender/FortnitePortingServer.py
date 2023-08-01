@@ -590,7 +590,6 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
         add_texture("Layer5_Gradient", "Layer5_Gradient", (-800, -280), value_connect=True)
         
         if gmap_channel := first(component_masks, lambda x: x.get("Name") == "GmapSkinCustomization_Channel"):
-            print(gmap_channel)
             gradient_node.inputs["GmapSkinCustomization_Channel"].default_value = make_color(gmap_channel.get("Value"))
         
     if master_material_name == "M_FN_Valet_Master":
