@@ -48,7 +48,9 @@ public enum EAssetType
     
     [Description("Loading Screens")] LoadingScreen,
     
-    [Description("Sprays")] Spray
+    [Description("Sprays")] Spray,
+    
+    [Description("Banners")] Banner
 }
 
 public enum EFortCustomPartType : byte

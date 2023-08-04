@@ -45,7 +45,8 @@ public class AssetHandlerViewModel
             { EAssetType.Wildlife, WildlifeHandler },
             { EAssetType.Trap, TrapHandler },
             { EAssetType.LoadingScreen, LoadingScreenHandler },
-            { EAssetType.Spray, SprayHandler }
+            { EAssetType.Spray, SprayHandler },
+            { EAssetType.Banner, BannerHandler }
         };
     }
 
@@ -260,6 +261,15 @@ public class AssetHandlerViewModel
         TargetCollection = AppVM.MainVM.Sprays,
         ClassNames = new List<string> { "AthenaSprayItemDefinition" },
         RemoveList = { "SPID_000", "SPID_001" },
+        IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
+    };
+    
+    private readonly AssetHandlerData BannerHandler = new()
+    {
+        AssetType = EAssetType.Banner,
+        TargetCollection = AppVM.MainVM.Banners,
+        ClassNames = new List<string> { "FortHomebaseBannerIconItemDefinition" },
+        RemoveList = { },
         IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
     };
 

@@ -37,6 +37,7 @@ public partial class MainViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(DanceControlVisibility))]
     [NotifyPropertyChangedFor(nameof(LoadingScreenControlVisibility))]
     [NotifyPropertyChangedFor(nameof(SprayControlVisibility))]
+    [NotifyPropertyChangedFor(nameof(BannerControlVisibility))]
     private IExportableAsset? currentAsset;
 
     [ObservableProperty]
@@ -60,12 +61,13 @@ public partial class MainViewModel : ObservableObject
     public Visibility AssetTabVisibility => CurrentAssetType is EAssetType.Mesh ? Visibility.Collapsed : Visibility.Visible;
     public Visibility MeshTabVisibility => CurrentAssetType is EAssetType.Mesh ? Visibility.Visible : Visibility.Collapsed;
 
-    public Visibility DefaultControlVisibility => CurrentAsset?.Type is not (EAssetType.Mesh or EAssetType.Dance or EAssetType.Music or EAssetType.LoadingScreen or EAssetType.Spray) ? Visibility.Visible : Visibility.Collapsed;
+    public Visibility DefaultControlVisibility => CurrentAsset?.Type is not (EAssetType.Mesh or EAssetType.Dance or EAssetType.Music or EAssetType.LoadingScreen or EAssetType.Spray or EAssetType.Banner) ? Visibility.Visible : Visibility.Collapsed;
     public Visibility MeshControlVisibility => CurrentAsset?.Type is EAssetType.Mesh ? Visibility.Visible : Visibility.Collapsed;
     public Visibility MusicControlVisibility => CurrentAsset?.Type is EAssetType.Music ? Visibility.Visible : Visibility.Collapsed;
     public Visibility DanceControlVisibility => CurrentAsset?.Type is EAssetType.Dance ? Visibility.Visible : Visibility.Collapsed;
     public Visibility LoadingScreenControlVisibility => CurrentAsset?.Type is EAssetType.LoadingScreen ? Visibility.Visible : Visibility.Collapsed;
     public Visibility SprayControlVisibility => CurrentAsset?.Type is EAssetType.Spray ? Visibility.Visible : Visibility.Collapsed;
+    public Visibility BannerControlVisibility => CurrentAsset?.Type is EAssetType.Banner ? Visibility.Visible : Visibility.Collapsed;
 
     // Assets
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> outfits = new();
@@ -84,6 +86,7 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> traps = new();
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> loadingScreens = new();
     [ObservableProperty] private ObservableCollection<AssetSelectorItem> sprays = new();
+    [ObservableProperty] private ObservableCollection<AssetSelectorItem> banners = new();
 
     [ObservableProperty] private SuppressibleObservableCollection<TreeItem> meshes = new();
     [ObservableProperty] private SuppressibleObservableCollection<AssetItem> assets = new();
@@ -377,6 +380,14 @@ public partial class MainViewModel : ObservableObject
     private void ExportSpray()
     {
         var texture = CurrentAsset.Asset.Get<UTexture2D>("DecalTexture");
+        ExportHelpers.Save(texture, out var path);
+        AppHelper.Launch(Path.GetDirectoryName(path));
+    }
+    
+    [RelayCommand]
+    private void ExportBanner()
+    {
+        var texture = CurrentAsset.Asset.Get<UTexture2D>("LargePreviewImage");
         ExportHelpers.Save(texture, out var path);
         AppHelper.Launch(Path.GetDirectoryName(path));
     }

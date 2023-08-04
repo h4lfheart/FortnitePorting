@@ -22,6 +22,7 @@ using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.Core.Misc;
 using CUE4Parse.UE4.Readers;
 using CUE4Parse.UE4.Versions;
+using CUE4Parse.Utils;
 using EpicManifestParser.Objects;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Bundles;
@@ -162,6 +163,17 @@ public class CUE4ParseViewModel : ObservableObject
         if (assetRegistries.Count == 0)
         {
             Log.Warning("Failed to load asset registry, please ensure your game is up to date");
+        }
+        
+        var egg = Provider.MappingsForGame.Types.Where(x => x.Key.Contains("Banner")).Select(x => x.Key).ToArray();
+        var dict = new Dictionary<string, List<string>>();
+        foreach (var buf in AssetDataBuffers)
+        {
+            var className = buf.AssetClass.Text;
+            if (egg.Contains(className))
+            {
+                dict.GetOrAdd(className).Add(buf.ObjectPath);
+            }
         }
 
         AppVM.LoadingVM.Update("Loading Required Assets");

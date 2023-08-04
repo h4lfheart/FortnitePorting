@@ -15,7 +15,7 @@ from io_import_scene_unreal_psa_psk_280 import pskimport, psaimport
 bl_info = {
     "name": "Fortnite Porting",
     "author": "Half",
-    "version": (1, 4, 1),
+    "version": (1, 4, 4),
     "blender": (3, 0, 0),
     "description": "Blender Server for Fortnite Porting",
     "category": "Import",
@@ -121,10 +121,12 @@ class Receiver(threading.Thread):
 # Name, Slot, Location
 texture_mappings = {
     ("Diffuse", "Diffuse", (-300, -75)),
+    ("Diffuse Map", "Diffuse", (-300, -75)),
     ("PM_Diffuse", "Diffuse", (-300, -75)),
     ("PetalDetailMap", "Diffuse", (-300, -75)),
 
     ("SpecularMasks", "Specular Masks", (-300, -125)),
+    ("Specular Masks", "Specular Masks", (-300, -125)),
     ("PM_SpecularMasks", "Specular Masks", (-300, -125)),
     ("Specular Mask", "Specular Masks", (-300, -125)),
     ("SpecMap", "Specular Masks", (-300, -125)),
@@ -134,9 +136,11 @@ texture_mappings = {
     ("PM_Normals", "Normals", (-300, -125)),
     ("Normal", "Normals", (-300, -175)),
     ("NormalMap", "Normals", (-300, -175)),
+    ("Normal Map", "Normals", (-300, -175)),
 
     ("M", "M", (-300, -225)),
     ("Mask", "M", (-300, -225)),
+    ("Texture Masks", "M", (-300, -225)),
 
     ("Emissive", "Emissive", (-300, -325)),
     ("PM_Emissive", "Emissive", (-300, -325)),

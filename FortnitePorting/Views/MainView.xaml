@@ -134,6 +134,9 @@
                             <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Spray}">
                                 <controls:TextWithIcon Label="Sprays" ImageSource="/FortnitePorting;component/Resources/Spray.png" IconSize="24" />
                             </ToggleButton>
+                             <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.Banner}">
+                                <controls:TextWithIcon Label="Banners" ImageSource="/FortnitePorting;component/Resources/Banner.png" IconSize="24" />
+                            </ToggleButton>
                             <ToggleButton Margin="{adonisUi:Space 0, 0.25}" Click="OnAssetTypeClick" Tag="{x:Static local:EAssetType.LoadingScreen}">
                                 <controls:TextWithIcon Label="Loading Screens" ImageSource="/FortnitePorting;component/Resources/LoadingScreen.png" IconSize="24" />
                             </ToggleButton>
@@ -560,6 +563,31 @@
                                     <Button Grid.Row="2" Command="{Binding ExportUnrealCommand}" IsEnabled="False">
                                         <Button.Content>
                                             <controls:TextWithIcon Label="Send to Unreal (Decal Material Coming Soon)" ImageSource="/FortnitePorting;component/Resources/Unreal.png" IconSize="16" />
+                                        </Button.Content>
+                                    </Button>
+                                </Grid>
+                            </Grid>
+                        </ContentControl>
+                        
+                         <ContentControl Grid.Row="1" Visibility="{Binding BannerControlVisibility}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="7*" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+
+                                <!-- CONTROLS -->
+                                <Separator Grid.Row="2" Style="{StaticResource NamedSeparator}" Tag="CONTROLS" />
+                                <Grid Grid.Row="3">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="0.5*" />
+                                    </Grid.RowDefinitions>
+
+                                    <Button Grid.Row="0" Command="{Binding ExportBannerCommand}">
+                                        <Button.Content>
+                                            <controls:TextWithIcon Label="Export Banner" ImageSource="/FortnitePorting;component/Resources/Export.png" IconSize="16" />
                                         </Button.Content>
                                     </Button>
                                 </Grid>

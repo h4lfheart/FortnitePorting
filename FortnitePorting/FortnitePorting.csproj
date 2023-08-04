@@ -99,6 +99,7 @@
         <Resource Include="Resources\Gameplay.png" />
         <Resource Include="Plugin\FortnitePortingBlender.zip" />
         <Resource Include="Resources\Spray.png" />
+        <Resource Include="Resources\Banner.png" />
     </ItemGroup>
 
 </Project>
