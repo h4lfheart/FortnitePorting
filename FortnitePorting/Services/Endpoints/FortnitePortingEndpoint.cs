@@ -23,17 +23,17 @@ public class FortnitePortingEndpoint : EndpointBase
         return GetReleaseInfoAsync(updateMode).GetAwaiter().GetResult();
     }
 
-    public async Task<Broadcast?> GetBroadcastAsync()
+    public async Task<Broadcast[]?> GetBroadcastsAsync()
     {
         var request = new RestRequest($"https://halfheart.dev/fortnite-porting/api/v1/broadcast.json");
-        var response = await _client.ExecuteAsync<Broadcast>(request).ConfigureAwait(false);
+        var response = await _client.ExecuteAsync<Broadcast[]>(request).ConfigureAwait(false);
         Log.Information("[{Method}] {StatusDescription} ({StatusCode}): {URI}", request.Method, response.StatusDescription, (int) response.StatusCode, request.Resource);
         return response.Data;
     }
 
-    public Broadcast? GetBroadcast()
+    public Broadcast[]? GetBroadcasts()
     {
-        return GetBroadcastAsync().GetAwaiter().GetResult();
+        return GetBroadcastsAsync().GetAwaiter().GetResult();
     }
 
     public async Task<BackupAPI?> GetBackupAsync()
