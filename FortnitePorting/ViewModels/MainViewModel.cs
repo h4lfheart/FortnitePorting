@@ -108,7 +108,7 @@ public partial class MainViewModel : ObservableObject
         { "Favorite", x => AppSettings.Current.FavoriteIDs.Contains(x.ID, StringComparer.OrdinalIgnoreCase) },
         { "Battle Pass", x => x.GameplayTags.ContainsAny("BattlePass") },
         { "Item Shop", x => x.GameplayTags.ContainsAny("ItemShop") },
-        { "Save The World", x => x.GameplayTags.ContainsAny("CampaignHero", "SaveTheWorld") },
+        { "Save The World", x => x.GameplayTags.ContainsAny("CampaignHero", "SaveTheWorld") || x.Asset.GetPathName().Contains("SaveTheWorld", StringComparison.OrdinalIgnoreCase) },
         { "Battle Royale", x => !x.GameplayTags.ContainsAny("CampaignHero", "SaveTheWorld") },
         { "Hidden Assets", x => x.HiddenAsset }
     };
