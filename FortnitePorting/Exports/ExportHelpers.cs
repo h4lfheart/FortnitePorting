@@ -796,7 +796,7 @@ public static class ExportHelpers
 
                     case UAnimSequence animation:
                     {
-                        path = GetExportPath(obj, "psa", "_SEQ0");
+                        path = GetExportPath(obj, "psa");
                         if (File.Exists(path)) break;
 
                         var exporter = new AnimExporter(animation, ExportOptions);

@@ -15,7 +15,7 @@ from io_import_scene_unreal_psa_psk_280 import pskimport, psaimport
 bl_info = {
     "name": "Fortnite Porting",
     "author": "Half",
-    "version": (1, 4, 4),
+    "version": (1, 4, 5),
     "blender": (3, 0, 0),
     "description": "Blender Server for Fortnite Porting",
     "category": "Import",
@@ -222,7 +222,7 @@ def import_texture(path: str) -> bpy.types.Image:
 
 def import_anim(path: str):
     path = path[1:] if path.startswith("/") else path
-    anim_path = os.path.join(import_assets_root, path.split(".")[0] + "_SEQ0" + ".psa")
+    anim_path = os.path.join(import_assets_root, path.split(".")[0] + ".psa")
 
     return psaimport(anim_path, bScaleDown = import_settings.get("ScaleDown"))
 
