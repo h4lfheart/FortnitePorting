@@ -36,10 +36,7 @@ public partial class UnrealPluginViewModel : ObservableObject
 
     public void Sync(FileInfo uprojectFile)
     {
-        var zipStream = Application.GetResourceStream(new Uri($"/FortnitePorting;component/Plugin/FortnitePortingUnreal.zip", UriKind.Relative))?.Stream;
-        if (zipStream is null) return;
-
-        var pluginZip = ZipFile.Read(zipStream);
+        var pluginZip = ZipFile.Read(App.UnrealPluginStream);
         pluginZip.ExtractAll(Path.Combine(uprojectFile.DirectoryName, "Plugins"), ExtractExistingFileAction.OverwriteSilently);
     }
 

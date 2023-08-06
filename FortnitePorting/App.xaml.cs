@@ -8,6 +8,7 @@ using CUE4Parse.UE4.Assets;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Exports;
 using FortnitePorting.Services;
+using MercuryCommons.Utilities.Extensions;
 using Serilog.Sinks.SystemConsole.Themes;
 using Console = System.Console;
 using MessageBox = AdonisUI.Controls.MessageBox;
@@ -27,6 +28,10 @@ public partial class App
 
     public static readonly DirectoryInfo CacheFolder = new(Path.Combine(DataFolder.FullName, "ManifestCache"));
     public static readonly DirectoryInfo VGMStreamFolder = new(Path.Combine(DataFolder.FullName, "VGMStream"));
+    
+    public static Stream? BlenderPluginStream;
+    public static Stream? UnrealPluginStream;
+    
 
     public static readonly Random RandomGenerator = new();
 
@@ -57,6 +62,12 @@ public partial class App
         LogsFolder.Create();
         MapFolder.Create();
         VGMStreamFolder.Create();
+        
+        BlenderPluginStream = GetResourceStream(new Uri("/FortnitePorting;component/Plugin/FortnitePortingBlender.zip", UriKind.Relative))?.Stream;
+        TryWritePluginZip("FortnitePortingBlender.zip", BlenderPluginStream);
+        
+        UnrealPluginStream = GetResourceStream(new Uri("/FortnitePorting;component/Plugin/FortnitePortingUnreal.zip", UriKind.Relative))?.Stream;
+        TryWritePluginZip("FortnitePortingUnreal.zip", UnrealPluginStream);
 
         UpdateService.Initialize();
 
@@ -77,6 +88,12 @@ public partial class App
     {
         base.OnExit(e);
         ExitHandler();
+    }
+
+    private static void TryWritePluginZip(string outPath, Stream? str)
+    {
+        if (str is null) return;
+        File.WriteAllBytes(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, outPath), str.ReadToEnd());
     }
 
     private void OnUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)

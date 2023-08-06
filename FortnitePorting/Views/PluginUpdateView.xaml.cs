@@ -37,10 +37,7 @@ public partial class PluginUpdateView
             return;
         }
 
-        var zipStream = Application.GetResourceStream(new Uri($"/FortnitePorting;component/Plugin/FortnitePortingBlender.zip", UriKind.Relative))?.Stream;
-        if (zipStream is null) return;
-
-        var addonZip = ZipFile.Read(zipStream);
+        var addonZip = ZipFile.Read(App.BlenderPluginStream);
         foreach (var selectedVersion in selectedVersions)
         {
             var addonPath = Path.Combine(selectedVersion.FullName, "scripts", "addons");
