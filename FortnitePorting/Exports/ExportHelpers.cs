@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Media.Imaging;
 using CUE4Parse_Conversion;
 using CUE4Parse_Conversion.Animations;
 using CUE4Parse_Conversion.Meshes;
@@ -692,7 +693,8 @@ public static class ExportHelpers
         TextureFormat = ETextureFormat.Png,
         ExportMorphTargets = true,
         SocketFormat = ESocketFormat.Bone,
-        MaterialFormat = EMaterialFormat.AllLayersNoRef
+        MaterialFormat = EMaterialFormat.AllLayersNoRef,
+        ExportMaterials = false
     };
 
     private static readonly ExporterOptions StaticMeshExportOptions = new()
@@ -703,7 +705,8 @@ public static class ExportHelpers
         TextureFormat = ETextureFormat.Png,
         ExportMorphTargets = true,
         SocketFormat = ESocketFormat.None,
-        MaterialFormat = EMaterialFormat.AllLayersNoRef
+        MaterialFormat = EMaterialFormat.AllLayersNoRef, 
+        ExportMaterials = false
     };
 
     private static bool AllLodsExist(UObject mesh)
@@ -796,7 +799,7 @@ public static class ExportHelpers
 
                     case UAnimSequence animation:
                     {
-                        path = GetExportPath(obj, "psa");
+                        path = GetExportPath(obj, "psa", "_SEQ0");
                         if (File.Exists(path)) break;
 
                         var exporter = new AnimExporter(animation, ExportOptions);
@@ -837,8 +840,11 @@ public static class ExportHelpers
 
         try
         {
-            using var existingBitmap = Image.Load(path);
-            return mip.SizeX > existingBitmap.Width || mip.SizeY > existingBitmap.Height;
+            using var imageStream = File.OpenRead(path);
+            var decoder = BitmapDecoder.Create(imageStream, BitmapCreateOptions.IgnoreColorProfile, BitmapCacheOption.Default);
+            var height = decoder.Frames[0].PixelHeight;
+            var width = decoder.Frames[0].PixelWidth;
+            return mip.SizeX > width || mip.SizeY > height;
         }
         catch (UnknownImageFormatException)
         {

@@ -57,35 +57,37 @@ public static class CUE4ParseExtensions
         var mip = texture.GetFirstMip();
         if (mip is null) return null;
 
-        TextureDecoder.DecodeTexture(mip, texture.Format, texture.IsNormalMap, ETexturePlatform.DesktopMobile, out var data, out var colorType);
+        var bitmap = texture.Decode(mip);
+        if (bitmap is null) return null;
+        
         Image image;
-        switch (colorType)
+        switch (bitmap.ColorType)
         {
             case SKColorType.Alpha8:
-                image = Image.LoadPixelData<A8>(data, mip.SizeX, mip.SizeY);
+                image = Image.LoadPixelData<A8>(bitmap.Bytes, mip.SizeX, mip.SizeY);
                 break;
             case SKColorType.Rgba8888:
-                image = Image.LoadPixelData<Rgba32>(data, mip.SizeX, mip.SizeY);
+                image = Image.LoadPixelData<Rgba32>(bitmap.Bytes, mip.SizeX, mip.SizeY);
                 break;
             case SKColorType.Rgb888x:
                 var fixedImage = new Image<Rgb24>(mip.SizeX, mip.SizeY);
-                Image.LoadPixelData<Rgba32>(data, mip.SizeX, mip.SizeY).IteratePixels((color, x, y) => { fixedImage[x, y] = color.Rgb; });
+                Image.LoadPixelData<Rgba32>(bitmap.Bytes, mip.SizeX, mip.SizeY).IteratePixels((color, x, y) => { fixedImage[x, y] = color.Rgb; });
                 image = fixedImage;
                 break;
             case SKColorType.Bgra8888:
-                image = Image.LoadPixelData<Bgra32>(data, mip.SizeX, mip.SizeY);
+                image = Image.LoadPixelData<Bgra32>(bitmap.Bytes, mip.SizeX, mip.SizeY);
                 break;
             case SKColorType.Rgba1010102:
-                image = Image.LoadPixelData<Rgba1010102>(data, mip.SizeX, mip.SizeY);
+                image = Image.LoadPixelData<Rgba1010102>(bitmap.Bytes, mip.SizeX, mip.SizeY);
                 break;
             case SKColorType.Gray8:
-                image = Image.LoadPixelData<L8>(data, mip.SizeX, mip.SizeY);
+                image = Image.LoadPixelData<L8>(bitmap.Bytes, mip.SizeX, mip.SizeY);
                 break;
             case SKColorType.Rgba16161616:
-                image = Image.LoadPixelData<Rgba64>(data, mip.SizeX, mip.SizeY);
+                image = Image.LoadPixelData<Rgba64>(bitmap.Bytes, mip.SizeX, mip.SizeY);
                 break;
             default:
-                throw new ArgumentException($"Invalid Pixel Type: {colorType}");
+                throw new ArgumentException($"Invalid Pixel Type: {bitmap.ColorType}");
         }
 
         return image;
