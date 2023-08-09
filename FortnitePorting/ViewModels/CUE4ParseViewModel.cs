@@ -165,7 +165,6 @@ public class CUE4ParseViewModel : ObservableObject
             Log.Warning("Failed to load asset registry, please ensure your game is up to date");
         }
         
-        var egg = Provider.MappingsForGame.Types.Where(x => x.Key.Contains("Banner")).Select(x => x.Key).ToArray();
         var dict = new Dictionary<string, List<string>>();
         foreach (var buf in AssetDataBuffers)
         {
