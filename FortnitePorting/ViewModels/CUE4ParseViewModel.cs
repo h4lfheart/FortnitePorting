@@ -164,16 +164,6 @@ public class CUE4ParseViewModel : ObservableObject
         {
             Log.Warning("Failed to load asset registry, please ensure your game is up to date");
         }
-        
-        var dict = new Dictionary<string, List<string>>();
-        foreach (var buf in AssetDataBuffers)
-        {
-            var className = buf.AssetClass.Text;
-            if (egg.Contains(className))
-            {
-                dict.GetOrAdd(className).Add(buf.ObjectPath);
-            }
-        }
 
         AppVM.LoadingVM.Update("Loading Required Assets");
         var rarityData = await Provider.LoadObjectAsync("FortniteGame/Content/Balance/RarityData.RarityData");
