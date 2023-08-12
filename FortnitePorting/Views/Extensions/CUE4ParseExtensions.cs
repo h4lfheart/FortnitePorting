@@ -139,6 +139,10 @@ public static class CUE4ParseExtensions
         {
             return false;
         }
+        catch (AggregateException) // wtf
+        {
+            return false;
+        }
 
         return true;
     }

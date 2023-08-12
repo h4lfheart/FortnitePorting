@@ -120,18 +120,24 @@ class Receiver(threading.Thread):
 
 # Name, Slot, Location
 texture_mappings = {
+    ("Trunk_BaseColor", "Diffuse", (-300, -75)),
+    ("Base Color", "Diffuse", (-300, -75)),
+    ("BaseColor", "Diffuse", (-300, -75)),
     ("Diffuse", "Diffuse", (-300, -75)),
     ("Diffuse Map", "Diffuse", (-300, -75)),
     ("PM_Diffuse", "Diffuse", (-300, -75)),
     ("PetalDetailMap", "Diffuse", (-300, -75)),
-
+    
+    ("Trunk_Specular", "Specular Masks", (-300, -125)),
     ("SpecularMasks", "Specular Masks", (-300, -125)),
     ("Specular Masks", "Specular Masks", (-300, -125)),
     ("PM_SpecularMasks", "Specular Masks", (-300, -125)),
     ("Specular Mask", "Specular Masks", (-300, -125)),
     ("SpecMap", "Specular Masks", (-300, -125)),
     ("SRM", "Specular Masks", (-300, -125)),
+    ("SpecularMask", "Specular Masks", (-300, -125)),
 
+    ("Trunk_Normal", "Normals", (-300, -175)),
     ("Normals", "Normals", (-300, -175)),
     ("PM_Normals", "Normals", (-300, -125)),
     ("Normal", "Normals", (-300, -175)),
@@ -795,6 +801,7 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
         "Emissive 2 UV Positioning (RG)UpperLeft (BA)LowerRight",
         "EmissiveUVPositioning (RG)UpperLeft (BA)LowerRight"
     ]
+    
     if (cropped_emissive_info := first(vectors, lambda x: x.get("Name") in emissive_crop_params)) and len(emissive_slot.links) > 0:
         emissive_node = emissive_slot.links[0].from_node
         emissive_node.extension = 'CLIP'

@@ -846,7 +846,7 @@ public static class ExportHelpers
             var width = decoder.Frames[0].PixelWidth;
             return mip.SizeX > width || mip.SizeY > height;
         }
-        catch (UnknownImageFormatException)
+        catch (Exception)
         {
             return true;
         }
