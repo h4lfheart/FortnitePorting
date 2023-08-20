@@ -208,7 +208,7 @@ public partial class MainViewModel : ObservableObject
     {
         if (!BlenderService.Client.PingServer())
         {
-            AppVM.Warning("Failed to Establish Connection with FortnitePorting Server", "Please make sure you have installed the BlenderFortnitePortingServer.zip file and have an instance of Blender open.");
+            AppVM.Warning("Failed to Establish Connection with FortnitePorting Server", "Please make sure you have installed the latest FortnitePorting Blender plugin and have an instance of Blender open.");
             return;
         }
 
@@ -225,7 +225,7 @@ public partial class MainViewModel : ObservableObject
     {
         if (!UnrealService.Client.PingServer())
         {
-            AppVM.Warning("Failed to Establish Connection with FortnitePorting Server", "Please make sure you have installed the FortnitePorting Server Plugin and have an instance of Unreal Engine open.");
+            AppVM.Warning("Failed to Establish Connection with FortnitePorting Server", "Please make sure you have installed the latest FortnitePorting Unreal Plugin and have an instance of Unreal Engine open.");
             return;
         }
 
