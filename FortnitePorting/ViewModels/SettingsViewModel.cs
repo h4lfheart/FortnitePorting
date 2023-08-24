@@ -99,18 +99,6 @@ public partial class SettingsViewModel : ObservableObject
         }
     }
 
-    public EUpdateMode UpdateMode
-    {
-        get => AppSettings.Current.UpdateMode;
-        set
-        {
-            AppSettings.Current.UpdateMode = value;
-            OnPropertyChanged();
-            ChangedUpdateChannel = true;
-            OnPropertyChanged(nameof(ChangedUpdateChannel));
-        }
-    }
-
     public float AssetSize
     {
         get => AppSettings.Current.AssetSize;

@@ -9,6 +9,7 @@ namespace FortnitePorting.Services;
 public static class UpdateService
 {
     private static bool IgnoreEqualMessage = false;
+    private const string RELEASE_URL = "https://www.halfheart.dev/fortnite-porting/api/v1/release.json";
 
     public static void Initialize()
     {
@@ -21,12 +22,12 @@ public static class UpdateService
     public static void Start(bool automaticCheck = false)
     {
         IgnoreEqualMessage = automaticCheck;
-        AutoUpdater.Start($"https://www.halfheart.dev/fortnite-porting/api/v1/{AppSettings.Current.UpdateMode.ToString().ToLower()}.json");
+        AutoUpdater.Start("https://www.halfheart.dev/fortnite-porting/api/v1/release.json");
     }
 
     public static (bool UpdateAvailable, Version UpdateVersion) GetStats()
     {
-        var releaseData = EndpointService.FortnitePorting.GetReleaseInfo(AppSettings.Current.UpdateMode);
+        var releaseData = EndpointService.FortnitePorting.GetReleaseInfo();
         var currentVersion = new Version(Globals.VERSION);
         if (releaseData is null) return (false, currentVersion);
 
@@ -52,14 +53,14 @@ public static class UpdateService
         if (updateVersion == args.InstalledVersion)
         {
             if (!IgnoreEqualMessage)
-                MessageBox.Show($"FortnitePorting {AppSettings.Current.UpdateMode} is up-to-date.", "No Update Available.", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show($"FortnitePorting is up-to-date.", "No Update Available.", MessageBoxButton.OK, MessageBoxImage.Information);
             return;
         }
 
         var isDowngrade = updateVersion < args.InstalledVersion;
         var messageBox = new MessageBoxModel
         {
-            Text = $"FortnitePorting {AppSettings.Current.UpdateMode} has {(isDowngrade ? "a downgrade" : "an update")} available from {args.InstalledVersion} to {updateVersion}. Would you like to {(isDowngrade ? "downgrade" : "update")} now?\n" + $"\nChangelog:\n{args.ChangelogURL}",
+            Text = $"FortnitePorting has {(isDowngrade ? "a downgrade" : "an update")} available from {args.InstalledVersion} to {updateVersion}. Would you like to {(isDowngrade ? "downgrade" : "update")} now?\n" + $"\nChangelog:\n{args.ChangelogURL}",
             Caption = $"{(isDowngrade ? "Downgrade" : "Update")} Available",
             Icon = MessageBoxImage.Exclamation,
             Buttons = MessageBoxButtons.YesNo(),

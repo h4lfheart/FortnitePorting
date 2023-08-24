@@ -10,17 +10,17 @@ public class FortnitePortingEndpoint : EndpointBase
     {
     }
 
-    public async Task<UpdateInfo?> GetReleaseInfoAsync(EUpdateMode updateMode)
+    public async Task<UpdateInfo?> GetReleaseInfoAsync()
     {
-        var request = new RestRequest($"https://halfheart.dev/fortnite-porting/api/v1/{updateMode.ToString().ToLower()}.json");
+        var request = new RestRequest($"https://halfheart.dev/fortnite-porting/api/v1/release.json");
         var response = await _client.ExecuteAsync<UpdateInfo>(request).ConfigureAwait(false);
         Log.Information("[{Method}] {StatusDescription} ({StatusCode}): {URI}", request.Method, response.StatusDescription, (int) response.StatusCode, request.Resource);
         return response.Data;
     }
 
-    public UpdateInfo? GetReleaseInfo(EUpdateMode updateMode)
+    public UpdateInfo? GetReleaseInfo()
     {
-        return GetReleaseInfoAsync(updateMode).GetAwaiter().GetResult();
+        return GetReleaseInfoAsync().GetAwaiter().GetResult();
     }
 
     public async Task<Broadcast[]?> GetBroadcastsAsync()

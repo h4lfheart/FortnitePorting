@@ -32,8 +32,6 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="{adonisUi:Space 1}" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="{adonisUi:Space 1}" />
-                <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="{adonisUi:Space 1}" />
@@ -93,21 +91,18 @@
 
             <Separator Grid.Row="13" Grid.Column="0" Grid.ColumnSpan="5" Style="{StaticResource NamedSeparator}" Tag="APPLICATION" />
 
-            <TextBlock Grid.Row="14" Grid.Column="0" Text="Update Channel" VerticalAlignment="Center" />
-            <ComboBox Grid.Row="14" Grid.Column="2" Grid.ColumnSpan="3" ItemsSource="{extensions:EnumToItemsSource {x:Type local:EUpdateMode}}" SelectedItem="{Binding UpdateMode, Converter={StaticResource EnumToString}}" />
+            <TextBlock Grid.Row="14" Grid.Column="0" Text="Discord RPC" VerticalAlignment="Center" />
+            <ToggleButton Grid.Row="14" Grid.Column="2" Grid.ColumnSpan="3" Style="{DynamicResource {x:Static adonisUi:Styles.ToggleSwitch }}" IsChecked="{Binding DiscordRPC}" />
 
-            <TextBlock Grid.Row="16" Grid.Column="0" Text="Discord RPC" VerticalAlignment="Center" />
-            <ToggleButton Grid.Row="16" Grid.Column="2" Grid.ColumnSpan="3" Style="{DynamicResource {x:Static adonisUi:Styles.ToggleSwitch }}" IsChecked="{Binding DiscordRPC}" />
+            <controls:NumericSlider Grid.Row="16" Grid.Column="0" Grid.ColumnSpan="5" Label="Asset Display Size" Minimum="0.5" Maximum="5" StepSize="0.5" Value="{Binding AssetSize, Mode=TwoWay}" />
 
-            <controls:NumericSlider Grid.Row="18" Grid.Column="0" Grid.ColumnSpan="5" Label="Asset Display Size" Minimum="0.5" Maximum="5" StepSize="0.5" Value="{Binding AssetSize, Mode=TwoWay}" />
+            <Separator Grid.Row="17" Grid.Column="0" Grid.ColumnSpan="5" Style="{StaticResource NamedSeparator}" Tag="LOADING" />
 
-            <Separator Grid.Row="19" Grid.Column="0" Grid.ColumnSpan="5" Style="{StaticResource NamedSeparator}" Tag="LOADING" />
+            <TextBlock Grid.Row="18" Grid.Column="0" Text="Filter Props" VerticalAlignment="Center" />
+            <ToggleButton Grid.Row="18" Grid.Column="2" Grid.ColumnSpan="3" Style="{DynamicResource {x:Static adonisUi:Styles.ToggleSwitch }}" IsChecked="{Binding FilterProps}" />
 
-            <TextBlock Grid.Row="20" Grid.Column="0" Text="Filter Props" VerticalAlignment="Center" />
-            <ToggleButton Grid.Row="20" Grid.Column="2" Grid.ColumnSpan="3" Style="{DynamicResource {x:Static adonisUi:Styles.ToggleSwitch }}" IsChecked="{Binding FilterProps}" />
-
-            <TextBlock Grid.Row="22" Grid.Column="0" Text="Filter Items" VerticalAlignment="Center" />
-            <ToggleButton Grid.Row="22" Grid.Column="2" Grid.ColumnSpan="3" Style="{DynamicResource {x:Static adonisUi:Styles.ToggleSwitch }}" IsChecked="{Binding FilterItems}" />
+            <TextBlock Grid.Row="20" Grid.Column="0" Text="Filter Items" VerticalAlignment="Center" />
+            <ToggleButton Grid.Row="20" Grid.Column="2" Grid.ColumnSpan="3" Style="{DynamicResource {x:Static adonisUi:Styles.ToggleSwitch }}" IsChecked="{Binding FilterItems}" />
 
         </Grid>
         <Border Grid.Row="2" Background="{DynamicResource {x:Static adonisUi:Brushes.Layer1BackgroundBrush}}" adonisExt:LayerExtension.IncreaseLayer="True">
