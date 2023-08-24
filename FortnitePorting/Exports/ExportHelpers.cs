@@ -165,13 +165,14 @@ public static class ExportHelpers
         var weapons = GetWeaponMeshes(weaponDefinition);
         foreach (var weapon in weapons)
         {
-            if (weapon is UStaticMesh staticMesh)
+            switch (weapon)
             {
-                Mesh(staticMesh, exportParts);
-            }
-            else if (weapon is USkeletalMesh skeletalMesh)
-            {
-                Mesh(skeletalMesh, exportParts);
+                case UStaticMesh staticMesh:
+                    Mesh(staticMesh, exportParts);
+                    break;
+                case USkeletalMesh skeletalMesh:
+                    Mesh(skeletalMesh, exportParts);
+                    break;
             }
         }
     }
@@ -351,7 +352,7 @@ public static class ExportHelpers
             }
         }
 
-        if (materialInstance.TryLoadEditorData<UMaterialInstanceEditorOnlyData>(out var materialInstanceEditorData) && materialInstanceEditorData.StaticParameters is not null)
+        if (materialInstance.TryLoadEditorData<UMaterialInstanceEditorOnlyData>(out var materialInstanceEditorData) && materialInstanceEditorData?.StaticParameters is not null)
         {
             foreach (var parameter in materialInstanceEditorData.StaticParameters.StaticSwitchParameters)
             {
@@ -399,6 +400,28 @@ public static class ExportHelpers
                 componentMasks.Add(parentComponentMask);
             }
         }
+        else if (materialInstance.Parent is UMaterialInterface materialInterface)
+        {
+            var (parentTextures, parentScalars, parentVectors) = MaterialParameters(materialInterface);
+            
+            foreach (var parentTexture in parentTextures)
+            {
+                if (textures.Any(x => x.Name.Equals(parentTexture.Name))) continue;
+                textures.Add(parentTexture);
+            }
+
+            foreach (var parentScalar in parentScalars)
+            {
+                if (scalars.Any(x => x.Name.Equals(parentScalar.Name))) continue;
+                scalars.Add(parentScalar);
+            }
+
+            foreach (var parentVector in parentVectors)
+            {
+                if (vectors.Any(x => x.Name.Equals(parentVector.Name))) continue;
+                vectors.Add(parentVector);
+            }
+        }
 
         var parameters = new CMaterialParams2();
         materialInstance.GetParams(parameters, EMaterialFormat.AllLayers);
@@ -442,11 +465,17 @@ public static class ExportHelpers
 
         if (materialInterface.TryLoadEditorData<UMaterialEditorOnlyData>(out var materialEditorData) && materialEditorData is not null)
         {
+            bool TryLoadInput(UObject obj, string name, out UObject expression)
+            {
+                expression = obj;
+                return obj.TryGetValue(out FExpressionInput input, name) && input.Expression.TryLoad(out expression!);
+            }
+            
             bool TryAddExpressionTexture(string expressionName, string paramName)
             {
-                if (!materialEditorData.TryGetValue(out FExpressionInput input, expressionName)) return false;
-                if (!input.Expression.TryLoad(out var expression)) return false;
-                if (!expression!.TryGetValue(out UTexture2D texture, "Texture")) return false;
+                if (!TryLoadInput(materialEditorData, expressionName, out var expression)) return false;
+                if (expression.ExportType == "MaterialExpressionNamedRerouteDeclaration") TryLoadInput(expression, "Input", out expression);
+                if (!expression.TryGetValue(out UTexture2D texture, "Texture")) return false;
 
                 textures.AddUnique(new TextureParameter(paramName, texture.GetPathName(), texture.SRGB, texture.CompressionSettings));
                 Save(texture);
