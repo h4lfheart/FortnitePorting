@@ -37,6 +37,7 @@ public partial class PluginUpdateView
             return;
         }
 
+        App.BlenderPluginStream.Position = 0;
         var addonZip = ZipFile.Read(App.BlenderPluginStream);
         foreach (var selectedVersion in selectedVersions)
         {

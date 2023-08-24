@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using FortnitePorting.AppUtils;
 using FortnitePorting.ViewModels;
+using FortnitePorting.Views.Controls;
 
 namespace FortnitePorting.Views;
 
@@ -34,5 +35,11 @@ public partial class UnrealPluginView
                 project.UpdatePluginData(plugin);
             }
         }
+    }
+
+    private void OnClickRemoveProject(object sender, RoutedEventArgs e)
+    {
+        if (ProjectListBox.SelectedItem is not UnrealProject project) return;
+        AppVM.UnrealVM.RemoveProject(project);
     }
 }

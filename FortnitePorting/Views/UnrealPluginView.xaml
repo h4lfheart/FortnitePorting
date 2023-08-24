@@ -19,9 +19,9 @@
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0" Margin="{adonisUi:Space 1}">
             <Separator Style="{StaticResource NamedSeparator}" Tag="PROJECTS" />
-            <ItemsControl ItemsSource="{Binding Projects}">
-                <ItemsControl.Style>
-                    <Style TargetType="{x:Type ItemsControl}" BasedOn="{StaticResource {x:Type ItemsControl}}">
+            <ListBox x:Name="ProjectListBox" ItemsSource="{Binding Projects}">
+                <ListBox.Style>
+                    <Style TargetType="{x:Type ListBox}" BasedOn="{StaticResource {x:Type ListBox}}">
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding Projects.Count}" Value="0">
                                 <Setter Property="Template">
@@ -34,8 +34,8 @@
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
-                </ItemsControl.Style>
-            </ItemsControl>
+                </ListBox.Style>
+            </ListBox>
         </StackPanel>
         <Border Grid.Row="1" Background="{DynamicResource {x:Static adonisUi:Brushes.Layer1BackgroundBrush}}" adonisExt:LayerExtension.IncreaseLayer="True">
             <Grid VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="{adonisUi:Space 1}">
@@ -43,9 +43,12 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="{adonisUi:Space 1}" />
                     <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="{adonisUi:Space 1}" />
+                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <Button Grid.Column="0" MaxWidth="24" HorizontalAlignment="Right" Content="+" Background="{DynamicResource {x:Static adonisUi:Brushes.HyperlinkBrush}}" Foreground="{DynamicResource {x:Static adonisUi:Brushes.ForegroundBrush}}" adonisExt:CursorSpotlightExtension.BackgroundBrush="{DynamicResource {x:Static adonisUi:Brushes.HyperlinkBrush}}" Click="OnClickAddProject" />
-                <Button Grid.Column="2" MinWidth="80" HorizontalAlignment="Right" Content="Sync" Click="OnClickSync" />
+                <Button Grid.Column="2" MaxWidth="24" HorizontalAlignment="Right" Content="-" Background="{DynamicResource {x:Static adonisUi:Brushes.ErrorBrush}}" Foreground="{DynamicResource {x:Static adonisUi:Brushes.ForegroundBrush}}" adonisExt:CursorSpotlightExtension.BackgroundBrush="{DynamicResource {x:Static adonisUi:Brushes.ErrorBrush}}" Click="OnClickRemoveProject" />
+                <Button Grid.Column="4" MinWidth="80" HorizontalAlignment="Right" Content="Sync" Click="OnClickSync" />
             </Grid>
         </Border>
     </Grid>

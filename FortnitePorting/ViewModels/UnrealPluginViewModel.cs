@@ -33,9 +33,19 @@ public partial class UnrealPluginViewModel : ObservableObject
             Projects.Add(new UnrealProject(uprojectFile, plugin));
         }
     }
+    
+    public void RemoveProject(UnrealProject project)
+    {
+        var pluginPath = Path.Combine(project.ProjectFile.DirectoryName, "Plugins");
+        Directory.Delete(Path.Combine(pluginPath, "UnrealPSKPSA"), true);
+        Directory.Delete(Path.Combine(pluginPath, "FortnitePorting"), true);
+        AppSettings.Current.UnrealProjects.Remove(project.ProjectFile.FullName);
+        Projects.Remove(project);
+    }
 
     public void Sync(FileInfo uprojectFile)
     {
+        App.UnrealPluginStream.Position = 0;
         var pluginZip = ZipFile.Read(App.UnrealPluginStream);
         pluginZip.ExtractAll(Path.Combine(uprojectFile.DirectoryName, "Plugins"), ExtractExistingFileAction.OverwriteSilently);
     }
