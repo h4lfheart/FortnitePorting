@@ -182,16 +182,16 @@ public static class ExportHelpers
         USkeletalMesh? mainSkeletalMesh = null;
         mainSkeletalMesh = weaponDefinition.GetOrDefault("PickupSkeletalMesh", mainSkeletalMesh);
         mainSkeletalMesh = weaponDefinition.GetOrDefault("WeaponMeshOverride", mainSkeletalMesh);
-        weapons.Add(mainSkeletalMesh);
+        weapons.AddIfNotNull(mainSkeletalMesh);
 
         if (mainSkeletalMesh is null)
         {
             weaponDefinition.TryGetValue(out UStaticMesh? mainStaticMesh, "PickupStaticMesh");
-            weapons.Add(mainStaticMesh);
+            weapons.AddIfNotNull(mainStaticMesh);
         }
 
         weaponDefinition.TryGetValue(out USkeletalMesh? offHandMesh, "WeaponMeshOffhandOverride");
-        weapons.Add(offHandMesh);
+        weapons.AddIfNotNull(offHandMesh);
 
         if (weapons.Count > 0) return weapons;
 
@@ -200,12 +200,12 @@ public static class ExportHelpers
             var defaultObject = blueprint.ClassDefaultObject.Load()!;
             if (defaultObject.TryGetValue(out UObject weaponMeshData, "WeaponMesh"))
             {
-                weapons.Add(weaponMeshData.GetOrDefault<USkeletalMesh>("SkeletalMesh"));
+                weapons.AddIfNotNull(weaponMeshData.GetOrDefault<USkeletalMesh>("SkeletalMesh"));
             }
 
             if (defaultObject.TryGetValue(out UObject leftWeaponMeshData, "LeftHandWeaponMesh"))
             {
-                weapons.Add(leftWeaponMeshData.GetOrDefault<USkeletalMesh>("SkeletalMesh"));
+                weapons.AddIfNotNull(leftWeaponMeshData.GetOrDefault<USkeletalMesh>("SkeletalMesh"));
             }
         }
 

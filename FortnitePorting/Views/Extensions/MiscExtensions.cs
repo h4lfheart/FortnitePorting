@@ -118,4 +118,11 @@ public static class MiscExtensions
     {
         return Encoding.UTF8.GetString(bytes);
     }
+    
+    public static bool AddIfNotNull<T>(this List<T> list, T item)
+    {
+        if (item is null) return false;
+        list.Add(item);
+        return true;
+    }
 }
