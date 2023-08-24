@@ -898,6 +898,41 @@ def import_material(target_slot: bpy.types.MaterialSlot, material_data):
             target_material.blend_method = "CLIP"
             target_material.shadow_method = "CLIP"
             target_material.show_transparent_back = False
+
+    if eye_texture := first(textures, lambda x: x.get("Name") == "EyeTexture"):
+        value = eye_texture.get("Value")
+        if image := import_texture(value):
+            image_node = nodes.new(type="ShaderNodeTexImage")
+            image_node.image = image
+            image_node.image.alpha_mode = 'CHANNEL_PACKED'
+            image_node.location = [-500, 0]
+            image_node.hide = True
+            if not eye_texture.get("sRGB"):
+                set_linear(image_node)
+
+            uvmap_node = nodes.new(type="ShaderNodeUVMap")
+            uvmap_node.location = [-700, 25]
+            uvmap_node.uv_map = 'EXTRAUVS0'
+
+            links.new(uvmap_node.outputs[0], image_node.inputs[0])
+
+            mix_node = nodes.new(type="ShaderNodeMixRGB")
+            mix_node.location = [-200, 75]
+
+            links.new(image_node.outputs[0], mix_node.inputs[2])
+            
+            compare_node = nodes.new(type="ShaderNodeMath")
+            compare_node.operation = 'COMPARE'
+            compare_node.hide = True
+            compare_node.location = [-500, 100]
+            compare_node.inputs[1].default_value = 0.510
+            links.new(uvmap_node.outputs[0], compare_node.inputs[0])
+            links.new(compare_node.outputs[0], mix_node.inputs[0])
+
+            diffuse_node = shader_node.inputs["Diffuse"].links[0].from_node
+            diffuse_node.location = [-500, -75]
+            links.new(diffuse_node.outputs[0], mix_node.inputs[1])
+            links.new(mix_node.outputs[0], shader_node.inputs["Diffuse"])
             
             
                 
