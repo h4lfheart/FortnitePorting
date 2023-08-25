@@ -1041,9 +1041,9 @@ def apply_tasty_rig(master_skeleton: bpy.types.Armature):
     master_skeleton.pose.bone_groups[0].color_set = "THEME08"
     master_skeleton.pose.bone_groups[1].color_set = "THEME08"
     
-    scale = 1
+    scale = 100
     if import_settings.get("ScaleDown"):
-        scale = 100
+        scale = 1
 
     bpy.ops.object.mode_set(mode='EDIT')
     edit_bones = master_skeleton.data.edit_bones
