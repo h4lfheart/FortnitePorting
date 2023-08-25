@@ -346,12 +346,23 @@ public class CUE4ParseViewModel : ObservableObject
         {
             case EInstallType.Custom:
             {
+                var mounted = 0;
                 foreach (var vfs in Provider.UnloadedVfs.ToArray())
                 {
                     foreach (var key in AppSettings.Current.CustomAesKeys)
                     {
-                        await Provider.SubmitKeyAsync(vfs.EncryptionKeyGuid, new FAesKey(key.Hex));
+                        mounted += await Provider.SubmitKeyAsync(vfs.EncryptionKeyGuid, new FAesKey(key.Hex));
                     }
+                }
+                
+                if (mounted == 0)
+                {
+                    Log.Warning("Failed to load game files, please ensure your game is up to date");
+                }
+
+                if (!Provider.TryFindGameFile("FortniteGame/AssetRegistry.bin", out _))
+                {
+                    AppVM.Warning("Failed to Load Asset Registry", "The Asset Registry could not be loaded because there was no AES key submitted that was valid for this version of Fortnite.");
                 }
                 break;
             }
@@ -371,7 +382,7 @@ public class CUE4ParseViewModel : ObservableObject
 
                 if (!Provider.TryFindGameFile("FortniteGame/AssetRegistry.bin", out _))
                 {
-                    AppVM.Warning("Fortnite Update", "Your Fortnite installation is not up to date. Please update to the latest version for FortnitePorting to work properly.");
+                    AppVM.Warning("Failed to Load Asset Registry", "The Asset Registry could not be loaded because there was no AES key submitted that was valid for this version of Fortnite.\nIf any updates were released recently, be patient for AES keys to be updated.");
                 }
 
                 foreach (var dynamicKey in keyResponse.DynamicKeys)
