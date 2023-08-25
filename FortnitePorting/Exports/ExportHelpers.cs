@@ -99,7 +99,7 @@ public static class ExportHelpers
                         }
                         else if (skeletalMesh.ReferenceSkeleton.FinalRefBoneInfo.Any(bone => bone.Name.Text.Equals("FACIAL_C_FacialRoot", StringComparison.OrdinalIgnoreCase)))
                         {
-                            exportPart.ProcessMetahumanPoses(skeletalMesh);
+                            exportPart.ProcessMetahumanPoses();
                         }
                     }
                 }
