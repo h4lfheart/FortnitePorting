@@ -1041,7 +1041,9 @@ def apply_tasty_rig(master_skeleton: bpy.types.Armature):
     master_skeleton.pose.bone_groups[0].color_set = "THEME08"
     master_skeleton.pose.bone_groups[1].color_set = "THEME08"
     
-    scale = 1 if import_settings.get("ScaleDown") else 100
+    scale = 1
+    if import_settings.get("ScaleDown"):
+        scale = 100
 
     bpy.ops.object.mode_set(mode='EDIT')
     edit_bones = master_skeleton.data.edit_bones
@@ -2188,10 +2190,11 @@ class FortnitePortingPanel(bpy.types.Panel):
         box.row().operator("fortnite_porting.tasty", icon='ARMATURE_DATA')
         box.row().operator("fortnite_porting.tasty_credit", icon='CHECKBOX_HLT')
         box.row().operator("fortnite_porting.additive_fix", icon='ANIM')
+        box.row().operator("fortnite_porting.append", icon='APPEND_BLEND')
         
 class FortnitePortingTasty(bpy.types.Operator):
     bl_idname = "fortnite_porting.tasty"
-    bl_label = "Apply Tasty Rig"
+    bl_label = "Apply Tasty Rig (CUSTOM SKINS)"
 
     def execute(self, context):
         active = bpy.context.active_object
@@ -2246,8 +2249,15 @@ class FortnitePortingFemaleFix(bpy.types.Operator):
         bpy.ops.object.mode_set(mode='OBJECT')
         return {'FINISHED'}
 
+class FortnitePortingAppendShaders(bpy.types.Operator):
+    bl_idname = "fortnite_porting.append"
+    bl_label = "Append All Shaders"
 
-operators = [FortnitePortingPanel, FortnitePortingTasty, FortnitePortingTastyCredit, FortnitePortingFemaleFix]
+    def execute(self, context):
+        append_data()
+        return {'FINISHED'}
+
+operators = [FortnitePortingPanel, FortnitePortingTasty, FortnitePortingTastyCredit, FortnitePortingFemaleFix, FortnitePortingAppendShaders]
 
 def register():
     global import_event
