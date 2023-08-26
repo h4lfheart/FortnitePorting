@@ -92,6 +92,35 @@ public class MeshAssetViewModel : ObservableObject
         loadTime.Stop();
         Log.Information($"Loaded {AppVM.CUE4ParseVM.MeshEntries.Count} Assets in {Math.Round(loadTime.Elapsed.TotalSeconds, 3)}s");
     }
+    
+    public void JumpTo(string directory)
+    {
+        var children = AppVM.MainVM.Meshes;
+
+        var i = 0;
+        var folders = directory.Split('/');
+        while (true)
+        {
+            foreach (var folder in children)
+            {
+                if (!folder.Header.Equals(folders[i], StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                if (folder.AssetType == ETreeItemType.Asset)
+                {
+                    folder.IsSelected = true;
+                    return;
+                }
+
+                folder.IsExpanded = true;
+                children = folder.Children;
+                break;
+            }
+
+            i++;
+            if (children.Count == 0) break;
+        }
+    }
 }
 
 public partial class TreeItem : ObservableObject
@@ -144,5 +173,11 @@ public partial class AssetItem : ObservableObject
     public void Copy()
     {
         Clipboard.SetText(Path);
+    }
+
+    [RelayCommand]
+    public void JumpTo()
+    {
+        AppVM.MeshVM.JumpTo(PathWithoutExtension);
     }
 }

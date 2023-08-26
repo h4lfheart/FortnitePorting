@@ -228,6 +228,11 @@
                                                                         <Image Source="/Resources/Clipboard.png" Width="16" Height="16"></Image>
                                                                     </MenuItem.Icon>
                                                                 </MenuItem>
+                                                                <MenuItem Header="Open in File Structure" Command="{Binding JumpToCommand}">
+                                                                    <MenuItem.Icon>
+                                                                        <Image Source="/Resources/Folder.png" Width="16" Height="16"></Image>
+                                                                    </MenuItem.Icon>
+                                                                </MenuItem>
                                                             </ContextMenu>
                                                         </ContentControl.ContextMenu>
                                                         <TextBlock HorizontalAlignment="Left" Text="{Binding Path}" TextTrimming="CharacterEllipsis" />
