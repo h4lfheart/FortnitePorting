@@ -352,25 +352,21 @@ public static class MeshExportExtensions
 {
     public static void ProcessStyles(this MeshExportData data, UObject asset, FStructFallback[] selectedStyles)
     {
-        // apply gameplay tags for selected styles
-        var totalMetaTags = new List<string>();
-        var metaTagsToApply = new List<string>();
-        var metaTagsToRemove = new List<string>();
+        var metaTags = new List<FGameplayTag>();
+        var metaTagsToRemove = new List<FGameplayTag>();
         foreach (var style in selectedStyles)
         {
             var tags = style.Get<FStructFallback>("MetaTags");
 
-            var tagstoApply = tags.Get<FGameplayTagContainer>("MetaTagsToApply");
-            metaTagsToApply.AddRange(tagstoApply.GameplayTags.Select(x => x.Text));
+            var tagsToApply = tags.Get<FGameplayTagContainer>("MetaTagsToApply");
+            metaTags.AddRange(tagsToApply.GameplayTags);
 
             var tagsToRemove = tags.Get<FGameplayTagContainer>("MetaTagsToRemove");
-            metaTagsToRemove.AddRange(tagsToRemove.GameplayTags.Select(x => x.Text));
+            metaTagsToRemove.AddRange(tagsToRemove.GameplayTags);
         }
 
-        totalMetaTags.AddRange(metaTagsToApply);
-        metaTagsToRemove.ForEach(tag => totalMetaTags.RemoveAll(x => x.Equals(tag, StringComparison.OrdinalIgnoreCase)));
+        var metaTagContainer = new FGameplayTagContainer(metaTags.Where(tag => !metaTagsToRemove.Contains(tag)).ToArray());
 
-        // figure out if the selected gameplay tags above match any of the tag driven styles
         var itemStyles = asset.GetOrDefault("ItemVariants", Array.Empty<UObject>());
         var tagDrivenStyles = itemStyles.Where(style => style.ExportType.Equals("FortCosmeticLoadoutTagDrivenVariant"));
         foreach (var tagDrivenStyle in tagDrivenStyles)
@@ -381,10 +377,8 @@ public static class MeshExportExtensions
                 var requiredConditions = option.Get<FStructFallback[]>("RequiredConditions");
                 foreach (var condition in requiredConditions)
                 {
-                    var metaTagQuery = condition.Get<FStructFallback>("MetaTagQuery");
-                    var tagDictionary = metaTagQuery.Get<FStructFallback[]>("TagDictionary");
-                    var requiredTags = tagDictionary.Select(x => x.Get<FName>("TagName").Text).ToList();
-                    if (requiredTags.All(x => totalMetaTags.Contains(x)))
+                    var metaTagQuery = condition.Get<FGameplayTagQuery>("MetaTagQuery");
+                    if (metaTagContainer.MatchesQuery(metaTagQuery))
                     {
                         ExportStyleData(option, data);
                     }

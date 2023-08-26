@@ -224,6 +224,8 @@ public partial class AssetSelectorItem : INotifyPropertyChanged, IExportableAsse
                     "FortCosmeticCharacterPartVariant" => "PartOptions",
                     "FortCosmeticMaterialVariant" => "MaterialOptions",
                     "FortCosmeticParticleVariant" => "ParticleOptions",
+                    "FortCosmeticMeshVariant" => "MeshOptions",
+                    "FortCosmeticGameplayTagVariant" => "GenericTagOptions",
                     _ => null
                 };
 

@@ -606,6 +606,8 @@ public static class ExportHelpers
         {
             var exportMaterialParams = new ExportMaterialParams();
             exportMaterialParams.MaterialToAlter = paramData.Get<FSoftObjectPath>("MaterialToAlter").AssetPathName.Text;
+            if (string.IsNullOrEmpty(exportMaterialParams.MaterialToAlter)) continue;
+             
             (exportMaterialParams.Textures, exportMaterialParams.Scalars, exportMaterialParams.Vectors) = MaterialParametersOverride(paramData);
             exportMaterialParams.Hash = exportMaterialParams.GetHashCode();
             exportParams.Add(exportMaterialParams);

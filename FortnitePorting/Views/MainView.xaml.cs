@@ -123,6 +123,7 @@ public partial class MainView
                 "FortCosmeticMaterialVariant" => "MaterialOptions",
                 "FortCosmeticParticleVariant" => "ParticleOptions",
                 "FortCosmeticMeshVariant" => "MeshOptions",
+                "FortCosmeticGameplayTagVariant" => "GenericTagOptions",
                 _ => null
             };
 

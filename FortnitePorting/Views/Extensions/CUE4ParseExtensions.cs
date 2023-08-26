@@ -33,7 +33,7 @@ public static class CUE4ParseExtensions
 
     public static FName? GetValueOrDefault(this FGameplayTagContainer tags, string category, FName def = default)
     {
-        return tags.GameplayTags is not { Length: > 0 } ? def : tags.GameplayTags.FirstOrDefault(it => it.Text.StartsWith(category), def);
+        return tags.GameplayTags is not { Length: > 0 } ? def : tags.GetValue(category);
     }
 
     public static bool ContainsAny(this FGameplayTagContainer tags, params string[] check)
@@ -43,8 +43,7 @@ public static class CUE4ParseExtensions
 
     public static bool ContainsAny(this FGameplayTagContainer tags, string check)
     {
-        if (tags.GameplayTags is null) return false;
-        return tags.GameplayTags.Any(x => x.Text.Contains(check));
+        return tags.GameplayTags.Any(x => x.TagName.Text.Contains(check)); 
     }
 
     public static Image<T>? DecodeImageSharp<T>(this UTexture2D texture) where T : unmanaged, IPixel<T>
