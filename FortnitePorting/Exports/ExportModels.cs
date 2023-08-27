@@ -41,7 +41,7 @@ public class ExportPart : ExportMesh
 
     public void ProcessPoses(USkeletalMesh? skeletalMesh, UPoseAsset? poseAsset)
     {
-        if (skeletalMesh is null || poseAsset is null) return;
+        if (skeletalMesh is null || poseAsset?.PoseContainer is null) return;
 
         PoseNames = poseAsset.PoseContainer.GetPoseNames().ToArray();
 
