@@ -24,6 +24,7 @@ bl_info = {
 
 global import_assets_root
 global import_settings
+import_settings = {}
 
 global server
 
@@ -1041,8 +1042,12 @@ def apply_tasty_rig(master_skeleton: bpy.types.Armature):
     master_skeleton.pose.bone_groups[0].color_set = "THEME08"
     master_skeleton.pose.bone_groups[1].color_set = "THEME08"
     
-    scale = 100
-    if import_settings.get("ScaleDown"):
+    scale_down = import_settings.get("ScaleDown")
+    if scale_down is True:
+        scale = 1
+    elif scale_down is False:
+        scale = 100
+    elif scale_down is None:
         scale = 1
 
     bpy.ops.object.mode_set(mode='EDIT')
@@ -2200,6 +2205,7 @@ class FortnitePortingTasty(bpy.types.Operator):
         active = bpy.context.active_object
         if active is None:
             return
+        append_data()
         if active.type == "ARMATURE":
             apply_tasty_rig(active)
         return {'FINISHED'}
