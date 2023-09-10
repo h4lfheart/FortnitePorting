@@ -6,5 +6,17 @@
              mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720"
              x:Class="FortnitePorting.Views.LoadingView"
              x:DataType="viewmodels:LoadingViewModel">
-    <TextBlock Text="Loading View" FontWeight="SemiBold" FontSize="42" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <Grid RowDefinitions="* 2* 0.5* 0.5* *" ColumnDefinitions="* * *">
+        <Border Grid.Row="1" Grid.Column="1" Background="Black" Opacity="0.5" Width="250" Height="250" HorizontalAlignment="Center" VerticalAlignment="Center" RenderOptions.BitmapInterpolationMode="HighQuality">
+            <Border.OpacityMask>
+                <ImageBrush Source="/Assets/FortnitePortingLarge.png" Stretch="Fill"/>
+            </Border.OpacityMask>
+        </Border>
+        <Image Grid.Row="1" Grid.Column="1" Source="/Assets/FortnitePortingLarge.png" OpacityMask="{Binding LoadingOpacityMask}" RenderOptions.BitmapInterpolationMode="HighQuality" Width="250" Height="250" HorizontalAlignment="Center" VerticalAlignment="Center">
+            
+        </Image>
+        <TextBlock Grid.Row="2" Grid.Column="1" Text="Fortnite Porting" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="42"/>
+        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding LoadingText}" HorizontalAlignment="Center" VerticalAlignment="Top" Opacity="0.5"/>
+    </Grid>
+    
 </UserControl>

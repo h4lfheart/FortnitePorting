@@ -32,7 +32,7 @@ public partial class WelcomeViewModel : ViewModelBase
     };
     
     [RelayCommand]
-    public async Task BrowseLocalArchivePath()
+    private async Task BrowseLocalArchivePath()
     {
         if (await AppVM.BrowseFolderDialog() is {} path)
         {
@@ -41,7 +41,7 @@ public partial class WelcomeViewModel : ViewModelBase
     }
     
     [RelayCommand]
-    public async Task BrowseCustomArchivePath()
+    private async Task BrowseCustomArchivePath()
     {
         if (await AppVM.BrowseFolderDialog() is {} path)
         {
@@ -50,7 +50,7 @@ public partial class WelcomeViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    public async Task BrowseMappingsFile()
+    private async Task BrowseMappingsFile()
     {
         if (await AppVM.BrowseFileDialog(MappingsFileType) is {} path)
         {
@@ -59,7 +59,7 @@ public partial class WelcomeViewModel : ViewModelBase
     }
     
     [RelayCommand]
-    public async Task Continue()
+    private void Continue()
     {
         AppVM.SetView<LoadingView>();
     }

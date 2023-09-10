@@ -1,4 +1,3 @@
-using Avalonia.Controls;
 using FortnitePorting.Framework;
 using FortnitePorting.ViewModels;
 

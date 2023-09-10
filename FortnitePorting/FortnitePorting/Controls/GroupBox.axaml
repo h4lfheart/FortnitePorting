@@ -11,8 +11,8 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type controls:GroupBox}" >
                         <Grid>
-                            <Border CornerRadius="10" Opacity="0.05" Background="White"/>
-                            <Border CornerRadius="10" Opacity="0.15" BorderThickness="1" BorderBrush="#000000"/>
+                            <Border RenderOptions.EdgeMode="Aliased" CornerRadius="10" Opacity="0.05" Background="White"/>
+                            <Border RenderOptions.EdgeMode="Aliased" CornerRadius="10" Opacity="0.15" BorderThickness="1" BorderBrush="#000000"/>
                             <ContentPresenter Content="{TemplateBinding Content}" Margin="{ext:Space 1}"/>
                         </Grid>
                     </ControlTemplate>
