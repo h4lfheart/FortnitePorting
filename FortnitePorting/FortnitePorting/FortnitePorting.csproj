@@ -34,6 +34,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\Dependencies\CUE4Parse\CUE4Parse.csproj" />
+      <ProjectReference Include="..\..\Dependencies\CUE4Parse\CUE4Parse\CUE4Parse.csproj" />
     </ItemGroup>
 </Project>
