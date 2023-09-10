@@ -21,6 +21,7 @@
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
         <PackageReference Include="DiscordRichPresence" Version="1.2.1.24" />
         <PackageReference Include="Material.Icons.Avalonia" Version="2.0.1" />
+        <PackageReference Include="MercuryCommons" Version="0.1.2" />
         <PackageReference Include="Serilog.Sinks.File" Version="5.0.1-dev-00947" />
     </ItemGroup>
 

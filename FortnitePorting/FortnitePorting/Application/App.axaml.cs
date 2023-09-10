@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using Avalonia.Controls.ApplicationLifetimes;
 using FortnitePorting.Services;
+using FortnitePorting.ViewModels;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
 
@@ -43,7 +44,6 @@ public class App : Avalonia.Application
             .CreateLogger();
 
         AppSettings.Load();
-        ApplicationService.Initialize();
         
         AssetsFolder.Create();
         DataFolder.Create();
@@ -54,6 +54,8 @@ public class App : Avalonia.Application
             DiscordService.Initialize();
         }
 
+        
+        AppVM = new ApplicationViewModel();
         Desktop.MainWindow = new AppWindow();
     }
 }
