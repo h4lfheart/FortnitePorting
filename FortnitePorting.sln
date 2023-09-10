@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortnitePorting", "FortnitePorting\FortnitePorting\FortnitePorting.csproj", "{893E6B2C-C19C-4673-9B38-62361505EBC7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortnitePorting.Desktop", "FortnitePorting\FortnitePorting.Desktop\FortnitePorting.Desktop.csproj", "{3D99FAA5-5590-4E79-8427-D1646760C6CE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CUE4Parse", "Dependencies\CUE4Parse\CUE4Parse.csproj", "{A30D4293-36F0-438A-9E6F-ADEDA43AE77E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{893E6B2C-C19C-4673-9B38-62361505EBC7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{893E6B2C-C19C-4673-9B38-62361505EBC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{893E6B2C-C19C-4673-9B38-62361505EBC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{893E6B2C-C19C-4673-9B38-62361505EBC7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D99FAA5-5590-4E79-8427-D1646760C6CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D99FAA5-5590-4E79-8427-D1646760C6CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D99FAA5-5590-4E79-8427-D1646760C6CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D99FAA5-5590-4E79-8427-D1646760C6CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A30D4293-36F0-438A-9E6F-ADEDA43AE77E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A30D4293-36F0-438A-9E6F-ADEDA43AE77E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A30D4293-36F0-438A-9E6F-ADEDA43AE77E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A30D4293-36F0-438A-9E6F-ADEDA43AE77E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,30 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:framework="clr-namespace:FortnitePorting.Framework"
+        xmlns:ext="clr-namespace:FortnitePorting.Extensions"
+        xmlns:viewmodels="clr-namespace:FortnitePorting.ViewModels"
+        x:Class="FortnitePorting.Application.AppWindow"
+        x:DataType="viewmodels:ApplicationViewModel"
+        Title="FortnitePorting" Icon="/Assets/FortnitePorting.ico" Width="1280" Height="720" WindowStartupLocation="CenterScreen" FontFamily="Segoe UI"
+        TransparencyLevelHint="Mica" Background="{x:Null}" 
+        ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="PreferSystemChrome" ExtendClientAreaTitleBarHeightHint="-1">
+    <Grid RowDefinitions="30, *">
+        <Grid Grid.Row="0" PointerPressed="OnPointerPressed">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="{ext:Space 1}"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="{ext:Space 0.25}"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <TextBlock Grid.Column="1" Text="FortnitePorting" FontWeight="SemiBold" FontSize="16" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="3" Text="{Binding VersionString}" Opacity="0.5" FontSize="13" Margin="-1 2 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+        </Grid>
+        
+        <TransitioningContentControl Grid.Row="1" Content="{Binding CurrentView}">
+            <TransitioningContentControl.PageTransition>
+                <framework:ViewTransition/>
+            </TransitioningContentControl.PageTransition>
+        </TransitioningContentControl>
+    </Grid>
+</Window>
