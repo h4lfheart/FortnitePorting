@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.UE4.Versions;
 using CUE4Parse.Utils;
+using FortnitePorting.Application;
 using FortnitePorting.Framework;
 using FortnitePorting.Views;
 
@@ -61,6 +62,17 @@ public partial class WelcomeViewModel : ViewModelBase
     [RelayCommand]
     private void Continue()
     {
+        switch (CurrentLoadingType)
+        {
+            case ELoadingType.Local:
+                AppSettings.Current.LocalArchivePath = LocalArchivePath;
+                break;
+            case ELoadingType.Custom:
+                AppSettings.Current.CustomArchivePath = CustomArchivePath;
+                AppSettings.Current.CustomMappingsPath = CustomMappingsPath;
+                AppSettings.Current.CustomEncryptionKey = CustomEncryptionKey;
+                break;
+        }
         AppVM.SetView<LoadingView>();
     }
 }

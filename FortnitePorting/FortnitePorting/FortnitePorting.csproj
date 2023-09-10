@@ -19,7 +19,9 @@
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
         <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.4" />
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
+        <PackageReference Include="DiscordRichPresence" Version="1.2.1.24" />
         <PackageReference Include="Material.Icons.Avalonia" Version="2.0.1" />
+        <PackageReference Include="Serilog.Sinks.File" Version="5.0.1-dev-00947" />
     </ItemGroup>
 
     <ItemGroup>
