@@ -13,7 +13,7 @@ namespace FortnitePorting.Framework;
 
 public class ViewTransition : IPageTransition
 {
-    public TimeSpan Duration = TimeSpan.FromSeconds(0.2);
+    public TimeSpan Duration = TimeSpan.FromSeconds(0.5);
     
     public async Task Start(Visual? from, Visual? to, bool forward, CancellationToken cancellationToken)
     {
@@ -39,7 +39,7 @@ public class ViewTransition : IPageTransition
                         new Setter
                         {
                             Property = TranslateTransform.XProperty, 
-                            Value = 100
+                            Value = 250
                         }
                     },
                     Cue = new Cue(0.0)

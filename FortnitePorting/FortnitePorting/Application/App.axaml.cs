@@ -9,7 +9,8 @@ namespace FortnitePorting.Application;
 
 public class App : Avalonia.Application
 {
-    public static DirectoryInfo AssetsFolder => new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets"));
+    public static IClassicDesktopStyleApplicationLifetime Desktop;
+    public static readonly DirectoryInfo AssetsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets"));
     public static readonly DirectoryInfo LogsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs"));
     public static readonly DirectoryInfo DataFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".data"));
     
@@ -17,13 +18,11 @@ public class App : Avalonia.Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            desktop.Startup += OnStartup;
-            desktop.Exit += OnExit;
-            desktop.MainWindow = new AppWindow
-            {
-                DataContext = AppVM
-            };
+            Desktop = desktop;
         }
+        
+        Desktop.Startup += OnStartup;
+        Desktop.Exit += OnExit;
 
         base.OnFrameworkInitializationCompleted();
     }
@@ -43,8 +42,8 @@ public class App : Avalonia.Application
             .WriteTo.File(Path.Combine(LogsFolder.FullName, $"FortnitePorting-{DateTime.UtcNow:yyyy-MM-dd-hh-mm-ss}.log"))
             .CreateLogger();
 
-        AppSettings.DirectoryPath.Create();
         AppSettings.Load();
+        ApplicationService.Initialize();
         
         AssetsFolder.Create();
         DataFolder.Create();
@@ -54,5 +53,7 @@ public class App : Avalonia.Application
         {
             DiscordService.Initialize();
         }
+
+        Desktop.MainWindow = new AppWindow();
     }
 }

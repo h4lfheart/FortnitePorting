@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
+using FortnitePorting.Application;
 using FortnitePorting.Framework;
 using FortnitePorting.Views;
 
@@ -16,7 +17,17 @@ public partial class ApplicationViewModel : ViewModelBase
 
     public ApplicationViewModel()
     {
-        SetView<WelcomeView>();
+        switch (AppSettings.Current.LoadingType)
+        {
+            case ELoadingType.Live:
+            case ELoadingType.Local when AppSettings.Current.HasValidLocalData:
+            case ELoadingType.Custom when AppSettings.Current.HasValidCustomData:
+                SetView<LoadingView>();
+                break;
+            default:
+                SetView<WelcomeView>();
+                break;
+        }
     }
 
     public async Task<string?> BrowseFolderDialog()

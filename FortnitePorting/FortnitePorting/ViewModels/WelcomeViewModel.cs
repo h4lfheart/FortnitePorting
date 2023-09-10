@@ -62,6 +62,7 @@ public partial class WelcomeViewModel : ViewModelBase
     [RelayCommand]
     private void Continue()
     {
+        AppSettings.Current.LoadingType = CurrentLoadingType;
         switch (CurrentLoadingType)
         {
             case ELoadingType.Local:
