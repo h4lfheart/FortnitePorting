@@ -16,7 +16,7 @@ public partial class ApplicationViewModel : ViewModelBase
     
     [ObservableProperty] private UserControl? currentView;
 
-    [ObservableProperty] private bool useFallbackBackground = Environment.OSVersion.Platform != PlatformID.Win32NT || Environment.OSVersion.Version.Major < 11;
+    [ObservableProperty] private bool useFallbackBackground = AppSettings.Current.UseFallbackBackground || Environment.OSVersion.Platform != PlatformID.Win32NT || (Environment.OSVersion.Platform == PlatformID.Win32NT && Environment.OSVersion.Version.Build < 22000);
 
     public ApplicationViewModel()
     {

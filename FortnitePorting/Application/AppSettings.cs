@@ -37,7 +37,7 @@ public partial class AppSettings : ObservableObject
     [JsonIgnore] public bool HasValidLocalData => Directory.Exists(LocalArchivePath);
     [JsonIgnore] public bool HasValidCustomData => Directory.Exists(CustomArchivePath) && CustomEncryptionKey.TryParseAesKey(out _);
     
+    [ObservableProperty] private bool useFallbackBackground = false;
     [ObservableProperty] private bool useDiscordRPC = true;
-    
     [ObservableProperty] private ELanguage language = ELanguage.English;
 }

@@ -11,8 +11,6 @@ namespace FortnitePorting.Framework;
 
 public class ViewTransition : IPageTransition
 {
-    public TimeSpan Duration = TimeSpan.FromSeconds(2);
-    
     public async Task Start(Visual? from, Visual? to, bool forward, CancellationToken cancellationToken)
     {
         if (from is null || to is null) return;
@@ -21,7 +19,7 @@ public class ViewTransition : IPageTransition
         var animation = new Animation
         {
             FillMode = FillMode.Forward,
-            Duration = Duration,
+            Duration = TimeSpan.FromSeconds(1.25),
             Easing = new CubicEaseOut(),
             Children =
             {
@@ -36,8 +34,8 @@ public class ViewTransition : IPageTransition
                         },
                         new Setter
                         {
-                            Property = TranslateTransform.XProperty, 
-                            Value = 100
+                            Property = Visual.RenderTransformOriginProperty, 
+                            Value = new RelativePoint(100, 0, RelativeUnit.Absolute)
                         }
                     },
                     Cue = new Cue(0.0)
@@ -53,8 +51,8 @@ public class ViewTransition : IPageTransition
                         },
                         new Setter
                         {
-                            Property = TranslateTransform.XProperty, 
-                            Value = 0
+                            Property = Visual.RenderTransformOriginProperty, 
+                            Value = new RelativePoint(100, 0, RelativeUnit.Absolute)
                         }
                     },
                     Cue = new Cue(1.0)
