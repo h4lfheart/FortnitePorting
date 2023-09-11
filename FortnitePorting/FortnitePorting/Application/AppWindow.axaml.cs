@@ -1,3 +1,4 @@
+using System;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -10,6 +11,7 @@ public partial class AppWindow : Window
     {
         InitializeComponent();
         DataContext = AppVM;
+       
 #if DEBUG
         this.AttachDevTools();
 #endif

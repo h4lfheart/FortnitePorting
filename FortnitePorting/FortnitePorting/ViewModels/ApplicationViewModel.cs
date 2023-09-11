@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
@@ -14,6 +15,8 @@ public partial class ApplicationViewModel : ViewModelBase
     [ObservableProperty] private string versionString = $"v{Globals.VERSION}";
     
     [ObservableProperty] private UserControl? currentView;
+
+    [ObservableProperty] private bool useFallbackBackground = Environment.OSVersion.Platform != PlatformID.Win32NT || Environment.OSVersion.Version.Major < 11;
 
     public ApplicationViewModel()
     {

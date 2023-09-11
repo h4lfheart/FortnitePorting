@@ -6,9 +6,10 @@
         x:Class="FortnitePorting.Application.AppWindow"
         x:DataType="viewmodels:ApplicationViewModel"
         Title="FortnitePorting" Icon="/Assets/FortnitePortingV2.ico" Width="1280" Height="720" WindowStartupLocation="CenterScreen" FontFamily="Segoe UI"
-        TransparencyLevelHint="Mica" Background="{x:Null}" 
+        Background="{x:Null}" TransparencyLevelHint="Mica"
         ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="PreferSystemChrome" ExtendClientAreaTitleBarHeightHint="-1">
     <Grid RowDefinitions="30, *">
+        <Image Grid.Row="0" Grid.RowSpan="2" Source="/Assets/FallbackBackground.png" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsHitTestVisible="False" IsVisible="{Binding UseFallbackBackground}"/>
         <Grid Grid.Row="0" PointerPressed="OnPointerPressed">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="{ext:Space 1}"/>
