@@ -35,7 +35,9 @@ public partial class AppSettings : ObservableObject
     [ObservableProperty] private EGame customUnrealVersion = EGame.GAME_UE5_3;
 
     [JsonIgnore] public bool HasValidLocalData => Directory.Exists(LocalArchivePath);
-    [JsonIgnore] public bool HasValidCustomData => Directory.Exists(CustomArchivePath) && File.Exists(CustomMappingsPath) && CustomEncryptionKey.TryParseAesKey(out _);
+    [JsonIgnore] public bool HasValidCustomData => Directory.Exists(CustomArchivePath) && CustomEncryptionKey.TryParseAesKey(out _);
     
     [ObservableProperty] private bool useDiscordRPC = true;
+    
+    [ObservableProperty] private ELanguage language = ELanguage.English;
 }

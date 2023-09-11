@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using Avalonia.Controls.ApplicationLifetimes;
+using FortnitePorting.Extensions;
 using FortnitePorting.Services;
 using FortnitePorting.ViewModels;
 using Serilog;
@@ -14,9 +15,10 @@ public class App : Avalonia.Application
     public static readonly DirectoryInfo AssetsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets"));
     public static readonly DirectoryInfo LogsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs"));
     public static readonly DirectoryInfo DataFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".data"));
-    
+
     public override void OnFrameworkInitializationCompleted()
     {
+        ConsoleExtensions.AttachConsole(-1);
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             Desktop = desktop;
@@ -31,6 +33,7 @@ public class App : Avalonia.Application
     private void OnExit(object? sender, ControlledApplicationLifetimeExitEventArgs e)
     {
         AppSettings.Save();
+        Log.CloseAndFlush();
     }
 
     private void OnStartup(object? sender, ControlledApplicationLifetimeStartupEventArgs e)

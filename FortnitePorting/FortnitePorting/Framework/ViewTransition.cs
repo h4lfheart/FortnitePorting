@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
@@ -7,13 +6,12 @@ using Avalonia.Animation;
 using Avalonia.Animation.Easings;
 using Avalonia.Media;
 using Avalonia.Styling;
-using Avalonia.VisualTree;
 
 namespace FortnitePorting.Framework;
 
 public class ViewTransition : IPageTransition
 {
-    public TimeSpan Duration = TimeSpan.FromSeconds(0.5);
+    public TimeSpan Duration = TimeSpan.FromSeconds(2);
     
     public async Task Start(Visual? from, Visual? to, bool forward, CancellationToken cancellationToken)
     {
@@ -39,7 +37,7 @@ public class ViewTransition : IPageTransition
                         new Setter
                         {
                             Property = TranslateTransform.XProperty, 
-                            Value = 250
+                            Value = 100
                         }
                     },
                     Cue = new Cue(0.0)

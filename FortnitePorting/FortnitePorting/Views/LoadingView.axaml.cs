@@ -17,5 +17,6 @@ public partial class LoadingView : ViewBase<LoadingViewModel>
         base.OnLoaded(e);
 
         await Task.Run(async () => await ViewModelRegistry.Register<CUE4ParseViewModel>().Initialize());
+        AppVM.SetView<MainView>();
     }
 }

@@ -12,10 +12,8 @@
                 <ImageBrush Source="/Assets/FortnitePortingLarge.png" Stretch="Fill"/>
             </Border.OpacityMask>
         </Border>
-        <Image Grid.Row="1" Grid.Column="1" Source="/Assets/FortnitePortingLarge.png" OpacityMask="{Binding LoadingOpacityMask}" RenderOptions.BitmapInterpolationMode="HighQuality" Width="250" Height="250" HorizontalAlignment="Center" VerticalAlignment="Center">
-            
-        </Image>
-        <TextBlock Grid.Row="2" Grid.Column="1" Text="Fortnite Porting" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="42"/>
+        <Image Grid.Row="1" Grid.Column="1" Source="/Assets/FortnitePortingLarge.png" OpacityMask="{Binding LoadingOpacityMask}" RenderOptions.BitmapInterpolationMode="HighQuality" Width="250" Height="250" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <TextBlock Grid.Row="2" Grid.Column="1" Text="Fortnite Porting" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="42"/>
         <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding LoadingText}" HorizontalAlignment="Center" VerticalAlignment="Top" Opacity="0.5"/>
     </Grid>
     

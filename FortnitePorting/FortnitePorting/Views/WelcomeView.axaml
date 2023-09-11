@@ -20,7 +20,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <TextBlock Grid.Column="1" Grid.Row="1" Text="Welcome to FortnitePorting!" FontWeight="SemiBold" FontSize="42" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <TextBlock Grid.Column="1" Grid.Row="2" Text="Please select your Fortnite installation type to get started." Opacity="075" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <TextBlock Grid.Column="1" Grid.Row="2" Text="Please select your Fortnite installation type to get started." Opacity="0.75" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <controls:GroupBox Grid.Column="1" Grid.Row="4">
             <controls:AnimatableTabControl SelectionChanged="OnTabSelectionChanged">
                 <TabControl.ItemsPanel>

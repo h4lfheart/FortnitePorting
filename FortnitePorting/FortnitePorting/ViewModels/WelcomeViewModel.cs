@@ -17,7 +17,7 @@ public partial class WelcomeViewModel : ViewModelBase
     {
         ELoadingType.Local => !string.IsNullOrWhiteSpace(LocalArchivePath) && Directory.Exists(LocalArchivePath),
         ELoadingType.Live => true,
-        ELoadingType.Custom => !(string.IsNullOrWhiteSpace(LocalArchivePath) || string.IsNullOrWhiteSpace(CustomMappingsPath) || string.IsNullOrWhiteSpace(CustomEncryptionKey)) && Directory.Exists(CustomArchivePath) && File.Exists(CustomMappingsPath) && CustomEncryptionKey.TryParseAesKey(out _),
+        ELoadingType.Custom => !(string.IsNullOrWhiteSpace(LocalArchivePath) || string.IsNullOrWhiteSpace(CustomEncryptionKey)) && Directory.Exists(CustomArchivePath) && CustomEncryptionKey.TryParseAesKey(out _),
     };
     
     [ObservableProperty, NotifyPropertyChangedFor(nameof(CanContinue))] private ELoadingType currentLoadingType;  
@@ -70,8 +70,8 @@ public partial class WelcomeViewModel : ViewModelBase
                 break;
             case ELoadingType.Custom:
                 AppSettings.Current.CustomArchivePath = CustomArchivePath;
-                AppSettings.Current.CustomMappingsPath = CustomMappingsPath;
                 AppSettings.Current.CustomEncryptionKey = CustomEncryptionKey;
+                if (File.Exists(CustomMappingsPath)) AppSettings.Current.CustomMappingsPath = CustomMappingsPath; // optional
                 break;
         }
         AppVM.SetView<LoadingView>();

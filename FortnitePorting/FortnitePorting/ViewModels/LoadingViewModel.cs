@@ -28,13 +28,14 @@ public partial class LoadingViewModel : ViewModelBase
             }
         };
         
+        // stupid loading coroutine but idc
         Task.Run(async () =>
         {
             while (LoadingPercentage < 1.0f)
             {
                 while (LoadingPercentage < LoadingPercentageTarget)
                 {
-                    LoadingPercentage += 0.005f;
+                    LoadingPercentage += 0.002f;
                     var pos = 1 - LoadingPercentage;
                     
                     await Task.Delay(1);
