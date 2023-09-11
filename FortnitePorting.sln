@@ -1,8 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortnitePorting", "FortnitePorting\FortnitePorting\FortnitePorting.csproj", "{893E6B2C-C19C-4673-9B38-62361505EBC7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortnitePorting", "FortnitePorting\FortnitePorting.csproj", "{893E6B2C-C19C-4673-9B38-62361505EBC7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortnitePorting.Desktop", "FortnitePorting\FortnitePorting.Desktop\FortnitePorting.Desktop.csproj", "{3D99FAA5-5590-4E79-8427-D1646760C6CE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortnitePorting.Desktop", "FortnitePorting.Desktop\FortnitePorting.Desktop.csproj", "{3D99FAA5-5590-4E79-8427-D1646760C6CE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CUE4Parse", "Dependencies\CUE4Parse\CUE4Parse\CUE4Parse.csproj", "{12DDD505-88AB-4B15-B304-DC7DC6C07655}"
 EndProject
