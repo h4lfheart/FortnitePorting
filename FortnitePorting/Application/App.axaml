@@ -1,0 +1,76 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="using:FortnitePorting"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions"
+             xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             x:Class="FortnitePorting.Application.App"
+             RequestedThemeVariant="Dark">
+    <Application.Resources>
+        <ext:EnumToStringConverter x:Key="EnumToString" />
+    </Application.Resources>
+    
+    <Application.Styles>
+        <FluentTheme />
+        <material:MaterialIconStyles />
+        
+        <Style Selector="Button">
+            <Setter Property="CornerRadius" Value="5" />
+            <Setter Property="Background" Value="#13FFFFFF" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="#10FFFFFF" />
+        </Style>
+        
+        <Style Selector="Button:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#26FFFFFF" />
+        </Style>
+        
+        <Style Selector="ComboBox">
+            <Setter Property="CornerRadius" Value="5" />
+            <Setter Property="Background" Value="#13FFFFFF" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="#10FFFFFF" />
+        </Style>
+        
+        <Style Selector="ComboBox:pointerover /template/ Border">
+            <Setter Property="Background" Value="#26FFFFFF" />
+            <Setter Property="BorderBrush" Value="#10FFFFFF" />
+        </Style>
+        
+        <Style Selector="TextBox">
+            <Setter Property="CornerRadius" Value="5" />
+            <Setter Property="Background" Value="#13FFFFFF" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="#10FFFFFF" />
+        </Style>
+        
+        <Style Selector="TextBox:pointerover /template/ Border">
+            <Setter Property="Background" Value="#26FFFFFF" />
+            <Setter Property="BorderBrush" Value="#10FFFFFF" />
+        </Style>
+        
+        <Style Selector="TextBox:focus /template/ Border">
+            <Setter Property="Background" Value="#26FFFFFF" />
+            <Setter Property="BorderBrush" Value="#10FFFFFF" />
+        </Style>
+        
+        <Style Selector="TabItem">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        
+        <Style Selector="TabControl:normal /template/ ContentPresenter">
+            <Style.Animations>
+                <Animation Duration="0:0:0.2" FillMode="Forward" Easing="CubicEaseOut">
+                    <KeyFrame Cue="0%">
+                        <Setter Property="Opacity" Value="0" />
+                        <Setter Property="TranslateTransform.X" Value="100" />
+                    </KeyFrame>
+                    <KeyFrame Cue="100%">
+                        <Setter Property="Opacity" Value="1" />
+                        <Setter Property="TranslateTransform.X" Value="0" />
+                    </KeyFrame>
+                </Animation>
+            </Style.Animations>
+        </Style>
+        
+    </Application.Styles>
+</Application>

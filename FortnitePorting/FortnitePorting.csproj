@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <LangVersion>latest</LangVersion>
+        <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    </PropertyGroup>
+
+
+    <ItemGroup>
+        <AvaloniaResource Include="Assets\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Avalonia" Version="11.0.4" />
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.4" />
+        <PackageReference Include="Avalonia.Fonts.Inter" Version="11.0.4" />
+        <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.4" />
+        <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.4" />
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
+        <PackageReference Include="DiscordRichPresence" Version="1.2.1.24" />
+        <PackageReference Include="Material.Icons.Avalonia" Version="2.0.1" />
+        <PackageReference Include="MercuryCommons" Version="0.1.2" />
+        <PackageReference Include="RestSharp" Version="110.2.1-alpha.0.11" />
+        <PackageReference Include="RestSharp.Serializers.NewtonsoftJson" Version="110.2.1-alpha.0.11" />
+        <PackageReference Include="Serilog.Sinks.File" Version="5.0.1-dev-00947" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Application\App.axaml.cs">
+        <DependentUpon>App.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Views\LoadingView.axaml.cs">
+        <DependentUpon>LoadingView.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Dependencies\CUE4Parse\CUE4Parse\CUE4Parse.csproj" />
+    </ItemGroup>
+</Project>
