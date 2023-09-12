@@ -24,6 +24,21 @@
             <Setter Property="Background" Value="#26FFFFFF" />
         </Style>
         
+        <Style Selector="ToggleButton">
+            <Setter Property="CornerRadius" Value="5" />
+            <Setter Property="Background" Value="#13FFFFFF" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="#26FFFFFF" />
+        </Style>
+        
+        <Style Selector="ToggleButton:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#26FFFFFF" />
+        </Style>
+        
+        <Style Selector="ToggleButton:checked /template/ ContentPresenter">
+            <Setter Property="Background" Value="#0d6dbd" />
+        </Style>
+        
         <Style Selector="ComboBox">
             <Setter Property="CornerRadius" Value="5" />
             <Setter Property="Background" Value="#13FFFFFF" />
@@ -54,12 +69,13 @@
         </Style>
         
         <Style Selector="TabItem">
-            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontWeight" Value="Normal"/>
+            <Setter Property="FontSize" Value="14"/>
         </Style>
         
         <Style Selector="TabControl:normal /template/ ContentPresenter">
             <Style.Animations>
-                <Animation Duration="0:0:0.2" FillMode="Forward" Easing="CubicEaseOut">
+                <Animation Duration="0:0:0.3" FillMode="Forward" Easing="CubicEaseOut">
                     <KeyFrame Cue="0%">
                         <Setter Property="Opacity" Value="0" />
                         <Setter Property="TranslateTransform.X" Value="100" />

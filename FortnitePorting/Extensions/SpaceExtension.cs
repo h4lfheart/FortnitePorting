@@ -9,6 +9,11 @@ public class SpaceExtension : MarkupExtension
 {
     private readonly double Factor;
     private const int Default = 8;
+
+    public SpaceExtension()
+    {
+        Factor = 1;
+    }
     
     public SpaceExtension(string expression)
     {

@@ -2,10 +2,46 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions"
+             xmlns:views="clr-namespace:FortnitePorting.Views"
+             xmlns:viewmodels="clr-namespace:FortnitePorting.ViewModels"
              mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720"
-             x:Class="FortnitePorting.Views.MainView">
-    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-        <TextBlock Text="FortnitePorting Main View" FontWeight="SemiBold" FontSize="42" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <TextBlock Text="There will be cool stuff here eventually!!" Opacity="0.75" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-    </StackPanel>
+             x:Class="FortnitePorting.Views.MainView"
+             x:DataType="viewmodels:MainViewModel">
+    <Grid>
+        <controls:AnimatableTabControl Margin="0 8" TabStripPlacement="Left">
+            <TabItem>
+                <TabItem.Header>
+                    <controls:MaterialIconText Text="Assets        " Icon="File"/>
+                </TabItem.Header>
+                <views:AssetsView/>
+            </TabItem>
+            
+            <TabItem>
+                <TabItem.Header>
+                    <controls:MaterialIconText Text="Export" Icon="Download"/>
+                </TabItem.Header>
+            </TabItem>
+            <TabItem>
+                <TabItem.Header>
+                    <controls:MaterialIconText Text="Plugins" Icon="Plug"/>
+                </TabItem.Header>
+            </TabItem>
+            <TabItem>
+                <TabItem.Header>
+                    <controls:MaterialIconText Text="Tools" Icon="Tools"/>
+                </TabItem.Header>
+            </TabItem>
+            <TabItem>
+                <TabItem.Header>
+                    <controls:MaterialIconText Text="Help" Icon="Help"/>
+                </TabItem.Header>
+            </TabItem> <TabItem>
+                <TabItem.Header>
+                    <controls:MaterialIconText Text="Settings" Icon="Settings"/>
+                </TabItem.Header>
+            </TabItem>
+        </controls:AnimatableTabControl>
+    </Grid>
 </UserControl>

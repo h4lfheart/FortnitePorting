@@ -1,0 +1,69 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             xmlns:viewmodels="clr-namespace:FortnitePorting.ViewModels"
+             xmlns:fortnitePorting="clr-namespace:FortnitePorting"
+             mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720"
+             x:Class="FortnitePorting.Views.AssetsView"
+             x:DataType="viewmodels:AssetsViewModel">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.15*"/>
+            <ColumnDefinition Width="{ext:Space 1}"/>
+            <ColumnDefinition Width="2.5*"/>
+            <ColumnDefinition Width="{ext:Space 1}"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        
+        <ScrollViewer Grid.Column="0">
+            <StackPanel>
+                <StackPanel.Styles>
+                    <Style Selector="ToggleButton">
+                        <Setter Property="Margin" Value="0 0 0 4" />
+                    </Style>
+                </StackPanel.Styles>
+                <ToggleButton Tag="{x:Static fortnitePorting:EAssetType.Outfit}">
+                    <Image Source="/Assets/FN/Outfit.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                </ToggleButton>
+            </StackPanel>
+        </ScrollViewer>
+        
+        
+        <controls:GroupBox Grid.Column="2">
+        </controls:GroupBox>
+        
+        <GridSplitter Grid.Column="3" Background="Transparent"/>
+        
+        <controls:GroupBox Grid.Column="4">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="{ext:Space 1}"/>
+                    <RowDefinition Height="5*"/>
+                    <RowDefinition Height="{ext:Space 1}"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                <Grid Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="{ext:Space 2}"/>
+                        <RowDefinition Height="2*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <Grid Grid.Row="0" ColumnDefinitions="* 3.25*">
+                        <TextBlock Grid.Column="0" Text="Export To" VerticalAlignment="Center" Margin="3 0 0 2"/>
+                        <ComboBox Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EExportType}}" SelectedItem="{Binding ExportType, Converter={StaticResource EnumToString}}"/>
+                    </Grid>
+                    
+                    <Button Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <controls:MaterialIconText Text="Export" Icon="Export" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Button>
+                </Grid>
+            </Grid>
+        </controls:GroupBox>
+    </Grid>
+</UserControl>

@@ -14,12 +14,11 @@ public class ViewTransition : IPageTransition
     public async Task Start(Visual? from, Visual? to, bool forward, CancellationToken cancellationToken)
     {
         if (from is null || to is null) return;
-        
         from.IsVisible = false;
         var animation = new Animation
         {
             FillMode = FillMode.Forward,
-            Duration = TimeSpan.FromSeconds(1.25),
+            Duration = TimeSpan.FromSeconds(1),
             Easing = new CubicEaseOut(),
             Children =
             {
@@ -34,8 +33,8 @@ public class ViewTransition : IPageTransition
                         },
                         new Setter
                         {
-                            Property = Visual.RenderTransformOriginProperty, 
-                            Value = new RelativePoint(100, 0, RelativeUnit.Absolute)
+                            Property = TranslateTransform.XProperty, 
+                            Value = 0
                         }
                     },
                     Cue = new Cue(0.0)
@@ -51,8 +50,8 @@ public class ViewTransition : IPageTransition
                         },
                         new Setter
                         {
-                            Property = Visual.RenderTransformOriginProperty, 
-                            Value = new RelativePoint(100, 0, RelativeUnit.Absolute)
+                            Property = TranslateTransform.XProperty, 
+                            Value = 100
                         }
                     },
                     Cue = new Cue(1.0)

@@ -22,10 +22,9 @@ public class App : Avalonia.Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             Desktop = desktop;
+            desktop.Startup += OnStartup;
+            desktop.Exit += OnExit;
         }
-        
-        Desktop.Startup += OnStartup;
-        Desktop.Exit += OnExit;
 
         base.OnFrameworkInitializationCompleted();
     }
