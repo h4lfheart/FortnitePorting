@@ -4,6 +4,7 @@ using Avalonia.Media;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FortnitePorting.Framework;
+using FortnitePorting.Services;
 
 namespace FortnitePorting.ViewModels;
 
@@ -29,7 +30,7 @@ public partial class LoadingViewModel : ViewModelBase
         };
         
         // stupid loading coroutine but idc
-        Task.Run(async () =>
+        TaskService.Run(async () =>
         {
             while (LoadingPercentage < 1.0f)
             {

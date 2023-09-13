@@ -17,7 +17,19 @@ public enum ELoadingType
 public enum EAssetType
 {
     [Description("Outfits")]
-    Outfit
+    Outfit,
+    
+    [Description("Back Blings")]
+    Backpack,
+    
+    [Description("Pickaxes")]
+    Pickaxe,
+    
+    [Description("Gliders")]
+    Glider,
+
+    [Description("Emotes")]
+    Emote
 }
 
 public enum EExportType

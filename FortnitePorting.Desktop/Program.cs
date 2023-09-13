@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.ReactiveUI;
 using FortnitePorting.Application;
@@ -9,7 +10,6 @@ class Program
 {
     [STAThread]
     public static void Main(string[] args) => BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
-
     private static AppBuilder BuildAvaloniaApp()
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()

@@ -18,6 +18,7 @@ using FortnitePorting.Application;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Services;
+using FortnitePorting.Services.Endpoints.Models;
 using Serilog;
 
 namespace FortnitePorting.ViewModels;
@@ -28,6 +29,7 @@ public class CUE4ParseViewModel : ViewModelBase
     public readonly List<FAssetData> AssetRegistry = new();
     public readonly RarityCollection[] RarityColors = new RarityCollection[8];
     public readonly HashSet<string> MeshEntries = new();
+    private BackupAPIResponse? BackupAPI;
 
     private static readonly VersionContainer LatestVersionContainer = new(EGame.GAME_UE5_3, optionOverrides: new Dictionary<string, bool>
     {
@@ -86,6 +88,7 @@ public class CUE4ParseViewModel : ViewModelBase
 
     public override async Task Initialize()
     {
+        BackupAPI = await EndpointService.FortnitePorting.GetBackupAPIAsync();
         LoadingVM.LoadingTiers = 6;
         
         LoadingVM.Update("Loading Game Archive");
@@ -136,7 +139,7 @@ public class CUE4ParseViewModel : ViewModelBase
             case ELoadingType.Local:
             case ELoadingType.Live:
             {
-                var aes = await EndpointService.FortniteCentral.GetKeysAsync();
+                var aes = await EndpointService.FortniteCentral.GetKeysAsync() ?? BackupAPI?.GetKeys();
                 if (aes is null) return;
 
                 await Provider.SubmitKeyAsync(Globals.ZERO_GUID, new FAesKey(aes.MainKey));
@@ -181,7 +184,7 @@ public class CUE4ParseViewModel : ViewModelBase
     
     private async Task<string?> GetEndpointMappings()
     {
-        var mappings = await EndpointService.FortniteCentral.GetMappingsAsync();
+        var mappings = await EndpointService.FortniteCentral.GetMappingsAsync() ?? BackupAPI?.GetMappings();
         if (mappings is null) return null;
         if (mappings.Length <= 0) return null;
 

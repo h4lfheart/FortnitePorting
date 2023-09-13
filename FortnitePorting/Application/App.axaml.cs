@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using Avalonia.Controls.ApplicationLifetimes;
 using FortnitePorting.Extensions;
 using FortnitePorting.Services;
@@ -27,6 +28,11 @@ public class App : Avalonia.Application
         }
 
         base.OnFrameworkInitializationCompleted();
+    }
+
+    public static void HandleException(Exception exception)
+    {
+        Log.Error("{0}", exception);
     }
 
     private void OnExit(object? sender, ControlledApplicationLifetimeExitEventArgs e)

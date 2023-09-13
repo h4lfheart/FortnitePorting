@@ -13,27 +13,39 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="0.15*"/>
             <ColumnDefinition Width="{ext:Space 1}"/>
-            <ColumnDefinition Width="2.5*"/>
+            <ColumnDefinition Width="2.25*"/>
             <ColumnDefinition Width="{ext:Space 1}"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         
         <ScrollViewer Grid.Column="0">
-            <StackPanel>
+            <StackPanel x:Name="AssetTypePanel">
                 <StackPanel.Styles>
                     <Style Selector="ToggleButton">
                         <Setter Property="Margin" Value="0 0 0 4" />
                     </Style>
                 </StackPanel.Styles>
-                <ToggleButton Tag="{x:Static fortnitePorting:EAssetType.Outfit}">
+                <ToggleButton Tag="{x:Static fortnitePorting:EAssetType.Outfit}" Click="OnAssetTypeClick" IsChecked="True">
                     <Image Source="/Assets/FN/Outfit.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                </ToggleButton>
+                <ToggleButton Tag="{x:Static fortnitePorting:EAssetType.Backpack}" Click="OnAssetTypeClick">
+                    <Image Source="/Assets/FN/Backpack.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                </ToggleButton>
+                <ToggleButton Tag="{x:Static fortnitePorting:EAssetType.Pickaxe}" Click="OnAssetTypeClick">
+                    <Image Source="/Assets/FN/Pickaxe.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                </ToggleButton>
+                <ToggleButton Tag="{x:Static fortnitePorting:EAssetType.Glider}" Click="OnAssetTypeClick">
+                    <Image Source="/Assets/FN/Glider.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                </ToggleButton>
+                <ToggleButton Tag="{x:Static fortnitePorting:EAssetType.Emote}" Click="OnAssetTypeClick">
+                    <Image Source="/Assets/FN/Dance.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
                 </ToggleButton>
             </StackPanel>
         </ScrollViewer>
         
         
         <controls:GroupBox Grid.Column="2">
-            <ListBox ItemsSource="{Binding Outfits}" Background="Transparent">
+            <ListBox x:Name="AssetsListBox" ItemsSource="{Binding Outfits}" AutoScrollToSelectedItem="False" Background="Transparent" SelectionChanged="OnSelectionChanged">
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
                         <WrapPanel VerticalAlignment="Top" HorizontalAlignment="Left" />

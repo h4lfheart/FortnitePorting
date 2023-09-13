@@ -36,7 +36,7 @@
         </Style>
         
         <Style Selector="ToggleButton:checked /template/ ContentPresenter">
-            <Setter Property="Background" Value="#0d6dbd" />
+            <Setter Property="Background" Value="{DynamicResource SystemAccentColor}" />
         </Style>
         
         <Style Selector="ComboBox">

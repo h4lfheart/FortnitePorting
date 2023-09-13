@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Avalonia.Interactivity;
 using FortnitePorting.Framework;
+using FortnitePorting.Services;
 using FortnitePorting.ViewModels;
 
 namespace FortnitePorting.Views;
@@ -16,7 +17,7 @@ public partial class LoadingView : ViewBase<LoadingViewModel>
     {
         base.OnLoaded(e);
 
-        await Task.Run(async () => await ViewModelRegistry.Register<CUE4ParseViewModel>().Initialize());
+        await TaskService.RunAsync(async () => await ViewModelRegistry.Register<CUE4ParseViewModel>().Initialize());
         AppVM.SetView<MainView>();
     }
 }

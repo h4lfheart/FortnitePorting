@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Net;
+using System.Threading.Tasks;
 using FortnitePorting.Services.Endpoints.Models;
 using RestSharp;
 using Serilog;
@@ -19,7 +20,7 @@ public abstract class EndpointBase
         var request = new RestRequest(url);
         var response = await _client.ExecuteAsync<T>(request).ConfigureAwait(false);
         Log.Information("[{Method}] {StatusDescription} ({StatusCode}): {URI}", request.Method, response.StatusDescription, (int) response.StatusCode, request.Resource);
-        return response.Data;
+        return response.StatusCode != HttpStatusCode.OK ? default : response.Data;
     }
     
     protected T? Get<T>(string url)
