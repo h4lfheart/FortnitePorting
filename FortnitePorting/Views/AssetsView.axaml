@@ -61,10 +61,23 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="{ext:Space 1}"/>
-                    <RowDefinition Height="5*"/>
+                    <RowDefinition Height="4.5*"/>
                     <RowDefinition Height="{ext:Space 1}"/>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="0.75*"/>
                 </Grid.RowDefinitions>
+                
+                <controls:GroupBox Grid.Row="0" IsVisible="{Binding HasCurrentAsset}">
+                    <Grid RowDefinitions="* 2*" ColumnDefinitions="* 0.15* 2.5*">
+                        <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" CornerRadius="10">
+                            <Border.Background>
+                                <ImageBrush Stretch="UniformToFill" Source="{Binding CurrentAsset.IconBitmap}"/>
+                            </Border.Background>
+                        </Border>
+                        <TextBlock Grid.Row="0" Grid.Column="2" VerticalAlignment="Bottom" TextAlignment="Left" TextTrimming="CharacterEllipsis" Text="{Binding CurrentAsset.DisplayName}" FontSize="21"/>
+                        <TextBlock Grid.Row="1" Grid.Column="2" VerticalAlignment="Top" Text="{Binding CurrentAsset.Description}" TextAlignment="Left" TextWrapping="Wrap" TextTrimming="WordEllipsis" Opacity="0.5"/>
+                    </Grid>
+                </controls:GroupBox>
+                
                 
                 <Grid Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                     <Grid.RowDefinitions>

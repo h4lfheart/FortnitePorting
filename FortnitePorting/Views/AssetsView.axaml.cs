@@ -35,6 +35,8 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
             listBox.SelectedIndex = RandomGenerator.Next(0, listBox.Items.Count);
             return;
         }
+
+        AssetsVM.CurrentAsset = asset;
     }
 
     private async void OnAssetTypeClick(object? sender, RoutedEventArgs e)
@@ -49,10 +51,10 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
             button.IsChecked = buttonAssetType == assetType;
         }
         
-        if (AssetsVM.CurrentAssetTabType == assetType) return;
+        if (AssetsVM.CurrentTabType == assetType) return;
         
         var assetLoader = AssetsVM.Get(assetType);
-        AssetsVM.CurrentAssetTabType = assetType;
+        AssetsVM.CurrentTabType = assetType;
         AssetsListBox.ItemsSource = assetLoader.Target;
         await assetLoader.Load();
         

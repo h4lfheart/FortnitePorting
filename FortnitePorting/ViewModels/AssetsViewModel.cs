@@ -3,24 +3,25 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.AssetRegistry.Objects;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Texture;
-using CUE4Parse.UE4.Objects.Core.i18N;
-using CUE4Parse.UE4.Objects.UObject;
 using FortnitePorting.Controls;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
-using Serilog;
 
 namespace FortnitePorting.ViewModels;
 
 public partial class AssetsViewModel : ViewModelBase
 {
     [ObservableProperty] private EExportType exportType = EExportType.Blender;
-    [ObservableProperty] private EAssetType currentAssetTabType = EAssetType.Outfit;
+    [ObservableProperty] private EAssetType currentTabType = EAssetType.Outfit;
+    
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(IsActiveCurrentAsset))] private AssetItem? currentAsset;
+    public bool HasCurrentAsset => CurrentAsset is not null;
 
     [ObservableProperty] private ObservableCollection<AssetItem> outfits = new();
     [ObservableProperty] private ObservableCollection<AssetItem> backpacks = new();

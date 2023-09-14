@@ -21,6 +21,7 @@ public partial class AssetItem : UserControl
     public UObject Asset { get; set; }
     public bool IsRandom { get; set; }
     public string DisplayName { get; set; }
+    public string Description { get; set; }
     public EFortRarity Rarity { get; set; }
     public Bitmap IconBitmap { get; set; }
     public Bitmap PreviewImage { get; set; }
@@ -32,6 +33,7 @@ public partial class AssetItem : UserControl
         Asset = asset;
         IsRandom = isRandom;
         DisplayName = asset.GetOrDefault("DisplayName", new FText("Unnammed")).Text;
+        Description = asset.GetOrDefault("Description", new FText("No description.")).Text;
         Rarity = asset.GetOrDefault("Rarity", EFortRarity.Uncommon);
         
         var iconBitmap = icon.Decode()!;
