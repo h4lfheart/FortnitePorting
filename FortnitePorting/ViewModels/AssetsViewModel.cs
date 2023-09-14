@@ -20,8 +20,8 @@ public partial class AssetsViewModel : ViewModelBase
     [ObservableProperty] private EExportType exportType = EExportType.Blender;
     [ObservableProperty] private EAssetType currentTabType = EAssetType.Outfit;
     
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(IsActiveCurrentAsset))] private AssetItem? currentAsset;
-    public bool HasCurrentAsset => CurrentAsset is not null;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(HasSelectedAsset))] private AssetItem? currentAsset;
+    public bool HasSelectedAsset => CurrentAsset is not null;
 
     [ObservableProperty] private ObservableCollection<AssetItem> outfits = new();
     [ObservableProperty] private ObservableCollection<AssetItem> backpacks = new();

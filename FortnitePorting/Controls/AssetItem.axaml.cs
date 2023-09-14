@@ -32,7 +32,10 @@ public partial class AssetItem : UserControl
 
         Asset = asset;
         IsRandom = isRandom;
-        DisplayName = asset.GetOrDefault("DisplayName", new FText("Unnammed")).Text;
+        
+        var displayText = asset.GetOrDefault<FText?>("DisplayName");
+        DisplayName = string.IsNullOrEmpty(displayText?.Text) ? asset.Name : displayText.Text;
+        
         Description = asset.GetOrDefault("Description", new FText("No description.")).Text;
         Rarity = asset.GetOrDefault("Rarity", EFortRarity.Uncommon);
         

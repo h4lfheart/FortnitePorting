@@ -32,7 +32,7 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
         
         if (asset.IsRandom)
         {
-            listBox.SelectedIndex = RandomGenerator.Next(0, listBox.Items.Count);
+            listBox.SelectedIndex = RandomGenerator.Next(1, listBox.Items.Count);
             return;
         }
 

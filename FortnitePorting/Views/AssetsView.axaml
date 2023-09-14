@@ -66,7 +66,7 @@
                     <RowDefinition Height="0.75*"/>
                 </Grid.RowDefinitions>
                 
-                <controls:GroupBox Grid.Row="0" IsVisible="{Binding HasCurrentAsset}">
+                <controls:GroupBox Grid.Row="0" IsVisible="{Binding HasSelectedAsset}">
                     <Grid RowDefinitions="* 2*" ColumnDefinitions="* 0.15* 2.5*">
                         <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" CornerRadius="10">
                             <Border.Background>
