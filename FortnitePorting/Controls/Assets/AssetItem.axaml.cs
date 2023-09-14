@@ -1,20 +1,15 @@
-using System;
-using System.Linq;
 using Avalonia.Controls;
-using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.GameTypes.FN.Enums;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Objects.Core.i18N;
-using CUE4Parse.UE4.Objects.Core.Math;
 using FortnitePorting.ViewModels;
-using SharpGLTF.Schema2;
 using SkiaSharp;
 using SkiaExtensions = FortnitePorting.Extensions.SkiaExtensions;
 
-namespace FortnitePorting.Controls;
+namespace FortnitePorting.Controls.Assets;
 
 public partial class AssetItem : UserControl
 {

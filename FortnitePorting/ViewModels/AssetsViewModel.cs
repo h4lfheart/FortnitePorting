@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Avalonia.Media.Imaging;
+using Avalonia.Controls;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.AssetRegistry.Objects;
@@ -12,6 +12,7 @@ using CUE4Parse.UE4.Assets.Exports.Texture;
 using FortnitePorting.Controls;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
+using AssetItem = FortnitePorting.Controls.Assets.AssetItem;
 
 namespace FortnitePorting.ViewModels;
 
@@ -28,6 +29,7 @@ public partial class AssetsViewModel : ViewModelBase
     [ObservableProperty] private ObservableCollection<AssetItem> pickaxes = new();
     [ObservableProperty] private ObservableCollection<AssetItem> gliders = new();
     [ObservableProperty] private ObservableCollection<AssetItem> emotes = new();
+    [ObservableProperty] private ObservableCollection<UserControl> extraOptions = new();
 
     public readonly List<AssetLoader> Loaders;
 

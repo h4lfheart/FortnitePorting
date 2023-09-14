@@ -3,15 +3,16 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             xmlns:assets="clr-namespace:FortnitePorting.Controls.Assets"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="FortnitePorting.Controls.AssetItem"
-             x:DataType="controls:AssetItem">
+             x:Class="FortnitePorting.Controls.Assets.AssetItem"
+             x:DataType="assets:AssetItem">
     <StackPanel Width="64">
         <Border Width="64" Height="80" CornerRadius="5" BorderThickness="2" BorderBrush="#13FFFFFF">
             <Border.Background>
-                <ImageBrush Stretch="Fill" Source="{Binding PreviewImage, RelativeSource={RelativeSource AncestorType=controls:AssetItem}}"/>
+                <ImageBrush Stretch="Fill" Source="{Binding PreviewImage, RelativeSource={RelativeSource AncestorType=assets:AssetItem}}"/>
             </Border.Background>
         </Border>
-        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="12" TextTrimming="CharacterEllipsis" Text="{Binding DisplayName, RelativeSource={RelativeSource AncestorType=controls:AssetItem}}"/>
+        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="12" TextTrimming="CharacterEllipsis" Text="{Binding DisplayName, RelativeSource={RelativeSource AncestorType=assets:AssetItem}}"/>
     </StackPanel>
 </UserControl>

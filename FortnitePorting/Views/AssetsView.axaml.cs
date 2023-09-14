@@ -1,13 +1,20 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
+using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.UE4.Assets.Objects;
+using CUE4Parse.UE4.Objects.Core.i18N;
 using FortnitePorting.Application;
 using FortnitePorting.Controls;
+using FortnitePorting.Controls.Assets;
+using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Services;
 using FortnitePorting.ViewModels;
+using AssetItem = FortnitePorting.Controls.Assets.AssetItem;
 
 namespace FortnitePorting.Views;
 
@@ -35,8 +42,32 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
             listBox.SelectedIndex = RandomGenerator.Next(1, listBox.Items.Count);
             return;
         }
-
+        
         AssetsVM.CurrentAsset = asset;
+        AssetsVM.ExtraOptions.Clear();
+        var styles = asset.Asset.GetOrDefault("ItemVariants", Array.Empty<UObject>());
+        foreach (var style in styles)
+        {
+            var channel = style.GetOrDefault("VariantChannelName", new FText("Style")).Text.ToLower().TitleCase();
+            var optionsName = style.ExportType switch
+            {
+                "FortCosmeticCharacterPartVariant" => "PartOptions",
+                "FortCosmeticMaterialVariant" => "MaterialOptions",
+                "FortCosmeticParticleVariant" => "ParticleOptions",
+                "FortCosmeticMeshVariant" => "MeshOptions",
+                "FortCosmeticGameplayTagVariant" => "GenericTagOptions",
+                _ => null
+            };
+
+            if (optionsName is null) continue;
+
+            var options = style.Get<FStructFallback[]>(optionsName);
+            if (options.Length == 0) continue;
+
+            var styleSelector = new StyleItem(channel, options, asset.IconBitmap);
+            if (styleSelector.Styles.Count == 0) continue;
+            AssetsVM.ExtraOptions.Add(styleSelector);
+        }
     }
 
     private async void OnAssetTypeClick(object? sender, RoutedEventArgs e)

@@ -13,7 +13,7 @@
                         <Grid>
                             <Border RenderOptions.EdgeMode="Antialias" CornerRadius="10" Background="#10FFFFFF"/>
                             <Border RenderOptions.EdgeMode="Antialias" CornerRadius="10" BorderThickness="1" BorderBrush="#10FFFFFF"/>
-                            <ContentPresenter Content="{TemplateBinding Content}" Margin="{ext:Space 1}"/>
+                            <ContentControl Content="{TemplateBinding Content}" Margin="{ext:Space 1}"/>
                         </Grid>
                     </ControlTemplate>
                 </Setter.Value>

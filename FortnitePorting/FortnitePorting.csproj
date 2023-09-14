@@ -31,6 +31,10 @@
         <DependentUpon>App.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
+      <Compile Update="Controls\Assets\AssetItem.axaml.cs">
+        <DependentUpon>AssetItem.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
     </ItemGroup>
 
     <ItemGroup>

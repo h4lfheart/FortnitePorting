@@ -1,0 +1,24 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             xmlns:assets="clr-namespace:FortnitePorting.Controls.Assets"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="FortnitePorting.Controls.Assets.StyleItem"
+             x:DataType="assets:StyleItem">
+    <controls:GroupBox>
+        <Grid RowDefinitions="* *">
+            <TextBlock Grid.Row="0" Text="{Binding ChannelName, RelativeSource={RelativeSource AncestorType=assets:StyleItem}}" HorizontalAlignment="Center" FontSize="16"/>
+            <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto">
+                <ListBox ItemsSource="{Binding Styles, RelativeSource={RelativeSource AncestorType=assets:StyleItem}}" HorizontalAlignment="Center" Background="Transparent">
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                </ListBox>
+            </ScrollViewer>
+        </Grid>
+    </controls:GroupBox>
+</UserControl>

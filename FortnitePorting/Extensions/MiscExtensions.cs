@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 
 namespace FortnitePorting.Extensions;
 
@@ -14,6 +15,12 @@ public static class MiscExtensions
         repeat.Item = item;
         list.InsertRange(index, FastRepeat<T>.Instance);
         repeat.Item = default;
+    }
+    
+    public static string TitleCase(this string text)
+    {
+        var textInfo = CultureInfo.CurrentCulture.TextInfo;
+        return textInfo.ToTitleCase(text);
     }
     
     private class FastRepeat<T> : ICollection<T>

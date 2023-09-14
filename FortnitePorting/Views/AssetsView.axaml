@@ -58,7 +58,7 @@
         <GridSplitter Grid.Column="3" Background="Transparent"/>
         
         <controls:GroupBox Grid.Column="4">
-            <Grid>
+            <Grid IsVisible="{Binding HasSelectedAsset}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="{ext:Space 1}"/>
@@ -67,7 +67,7 @@
                     <RowDefinition Height="0.75*"/>
                 </Grid.RowDefinitions>
                 
-                <controls:GroupBox Grid.Row="0" IsVisible="{Binding HasSelectedAsset}">
+                <controls:GroupBox Grid.Row="0">
                     <Grid RowDefinitions="* 2*" ColumnDefinitions="* 0.15* 2.5*">
                         <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" CornerRadius="10">
                             <Border.Background>
@@ -79,6 +79,15 @@
                     </Grid>
                 </controls:GroupBox>
                 
+                <Grid Grid.Row="2" >
+                    <ItemsControl ItemsSource="{Binding ExtraOptions}">
+                        <ItemsControl.Styles>
+                            <Style Selector="Control">
+                                <Setter Property="Margin" Value="0,0,0, 8" />
+                            </Style>
+                        </ItemsControl.Styles>
+                    </ItemsControl>
+                </Grid>
                 
                 <Grid Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                     <Grid.RowDefinitions>
