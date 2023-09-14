@@ -6,6 +6,7 @@
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
              xmlns:viewmodels="clr-namespace:FortnitePorting.ViewModels"
              xmlns:fortnitePorting="clr-namespace:FortnitePorting"
+             xmlns:wrapPanel="clr-namespace:FortnitePorting.Controls.WrapPanel"
              mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720"
              x:Class="FortnitePorting.Views.AssetsView"
              x:DataType="viewmodels:AssetsViewModel">
@@ -48,7 +49,7 @@
             <ListBox x:Name="AssetsListBox" ItemsSource="{Binding Outfits}" AutoScrollToSelectedItem="False" Background="Transparent" SelectionChanged="OnSelectionChanged">
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <WrapPanel VerticalAlignment="Top" HorizontalAlignment="Left" />
+                        <wrapPanel:VirtualizingWrapPanel/>
                     </ItemsPanelTemplate>
                 </ListBox.ItemsPanel>
             </ListBox>
