@@ -56,9 +56,7 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
         var assetLoader = AssetsVM.Get(assetType);
         AssetsVM.CurrentTabType = assetType;
         AssetsListBox.ItemsSource = assetLoader.Target;
-        await assetLoader.Load();
         
-
         var loaders = AssetsVM.Loaders;
         foreach (var loader in loaders)
         {
@@ -71,5 +69,7 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
                 loader.Pause.Pause();
             }
         }
+        
+        await assetLoader.Load();
     }
 }
