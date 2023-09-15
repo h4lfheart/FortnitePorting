@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
+using Serilog;
 using SkiaSharp;
 
 namespace FortnitePorting.Controls.Assets;
@@ -37,5 +39,12 @@ public partial class StyleItem : UserControl
             
             Styles.Add(new StyleEntry(style, previewBitmap));
         }
+    }
+
+    protected override void OnLoaded(RoutedEventArgs e)
+    {
+        base.OnLoaded(e);
+
+        StylesListBox.SelectedIndex = 0;
     }
 }

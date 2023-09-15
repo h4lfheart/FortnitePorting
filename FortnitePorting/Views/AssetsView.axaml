@@ -39,8 +39,23 @@
                 <ToggleButton Tag="{x:Static fortnitePorting:EAssetType.Glider}" Click="OnAssetTypeClick">
                     <Image Source="/Assets/FN/Glider.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
                 </ToggleButton>
+                <ToggleButton Tag="{x:Static fortnitePorting:EAssetType.Pet}" Click="OnAssetTypeClick">
+                    <Image Source="/Assets/FN/Pet.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                </ToggleButton>
+                <ToggleButton Tag="{x:Static fortnitePorting:EAssetType.Toy}" Click="OnAssetTypeClick">
+                    <Image Source="/Assets/FN/Toy.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                </ToggleButton>
+                <ToggleButton Tag="{x:Static fortnitePorting:EAssetType.Spray}" Click="OnAssetTypeClick">
+                    <Image Source="/Assets/FN/Spray.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                </ToggleButton>
+                <ToggleButton Tag="{x:Static fortnitePorting:EAssetType.LoadingScreen}" Click="OnAssetTypeClick">
+                    <Image Source="/Assets/FN/LoadingScreen.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                </ToggleButton>
                 <ToggleButton Tag="{x:Static fortnitePorting:EAssetType.Emote}" Click="OnAssetTypeClick">
                     <Image Source="/Assets/FN/Dance.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                </ToggleButton>
+                <ToggleButton Tag="{x:Static fortnitePorting:EAssetType.MusicPack}" Click="OnAssetTypeClick">
+                    <Image Source="/Assets/FN/Music.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
                 </ToggleButton>
             </StackPanel>
         </ScrollViewer>
@@ -66,14 +81,14 @@
                         <RowDefinition Height="{ext:Space 1}"/>
                         <RowDefinition Height="4.5*"/>
                         <RowDefinition Height="{ext:Space 1}"/>
-                        <RowDefinition Height="0.75*"/>
+                        <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     
                     <controls:GroupBox Grid.Row="0">
                         <Grid RowDefinitions="* 2*" ColumnDefinitions="* 0.15* 2.5*">
                             <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" CornerRadius="10">
                                 <Border.Background>
-                                    <ImageBrush Stretch="UniformToFill" Source="{Binding CurrentAsset.IconBitmap}"/>
+                                    <ImageBrush Stretch="Uniform" Source="{Binding CurrentAsset.IconBitmap}"/>
                                 </Border.Background>
                             </Border>
                             <TextBlock Grid.Row="0" Grid.Column="2" VerticalAlignment="Bottom" TextAlignment="Left" TextTrimming="CharacterEllipsis" Text="{Binding CurrentAsset.DisplayName}" FontSize="21"/>
@@ -81,9 +96,9 @@
                         </Grid>
                     </controls:GroupBox>
                     
-                    <Grid Grid.Row="2" >
-                        <ScrollViewer>
-                            <ItemsControl ItemsSource="{Binding ExtraOptions}">
+                    <Grid Grid.Row="2">
+                        <ScrollViewer x:Name="StyleScrollViewer" PointerWheelChanged="OnScrollStyles">
+                            <ItemsControl ItemsSource="{Binding ExtraOptions}" CornerRadius="5">
                                 <ItemsControl.Styles>
                                     <Style Selector="assets|StyleItem">
                                         <Setter Property="Margin" Value="0,0,0, 8" />
@@ -93,24 +108,26 @@
                         </ScrollViewer>
                     </Grid>
                     
-                    <Grid Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="{ext:Space 2}"/>
-                            <RowDefinition Height="2*"/>
-                        </Grid.RowDefinitions>
+                    <controls:GroupBox Grid.Row="4">
+                        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="{ext:Space 1}"/>
+                                <RowDefinition Height="1*"/>
+                            </Grid.RowDefinitions>
                         
-                        <Grid Grid.Row="0" ColumnDefinitions="* 3.25*">
-                            <TextBlock Grid.Column="0" Text="Export To" VerticalAlignment="Center" Margin="3 0 0 2"/>
-                            <ComboBox Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EExportType}}" SelectedItem="{Binding ExportType, Converter={StaticResource EnumToString}}"/>
+                            <Grid Grid.Row="0" ColumnDefinitions="* 3.25*">
+                                <TextBlock Grid.Column="0" Text="Export To" VerticalAlignment="Center" Margin="3 0 0 2"/>
+                                <ComboBox Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EExportType}}" SelectedItem="{Binding ExportType, Converter={StaticResource EnumToString}}"/>
+                            </Grid>
+                        
+                            <Button Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                <controls:MaterialIconText Text="Export" Icon="Export" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Button>
                         </Grid>
-                        
-                        <Button Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                            <controls:MaterialIconText Text="Export" Icon="Export" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Button>
-                    </Grid>
+                    </controls:GroupBox>
                 </Grid>
-                <TextBlock Text="No Asset Selected" IsVisible="{Binding !HasSelectedAsset}" Opacity="0.75" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <TextBlock Text="No Asset Selected" IsVisible="{Binding !HasSelectedAsset}" Opacity="0.5" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Grid>
         </controls:GroupBox>
     </Grid>

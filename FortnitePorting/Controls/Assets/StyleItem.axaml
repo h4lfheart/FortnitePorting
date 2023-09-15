@@ -3,18 +3,23 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
-             xmlns:wrappanel="clr-namespace:FortnitePorting.Controls.WrapPanel"
              xmlns:assets="clr-namespace:FortnitePorting.Controls.Assets"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FortnitePorting.Controls.Assets.StyleItem"
              x:DataType="assets:StyleItem">
     <controls:GroupBox>
-        <Grid RowDefinitions="* Auto">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="{ext:Space 1}"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
             <TextBlock Grid.Row="0" Text="{Binding ChannelName, RelativeSource={RelativeSource AncestorType=assets:StyleItem}}" HorizontalAlignment="Center" FontSize="16"/>
-            <ListBox Grid.Row="1" ItemsSource="{Binding Styles, RelativeSource={RelativeSource AncestorType=assets:StyleItem}}" HorizontalAlignment="Center" Background="Transparent">
+            <ListBox Grid.Row="2" x:Name="StylesListBox" ItemsSource="{Binding Styles, RelativeSource={RelativeSource AncestorType=assets:StyleItem}}" HorizontalAlignment="Center" Background="Transparent">
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <wrappanel:VirtualizingWrapPanel VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                        <WrapPanel VerticalAlignment="Top" HorizontalAlignment="Left"/>
                     </ItemsPanelTemplate>
                 </ListBox.ItemsPanel>
             </ListBox>

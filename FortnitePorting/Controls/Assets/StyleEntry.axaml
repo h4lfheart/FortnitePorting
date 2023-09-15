@@ -13,6 +13,6 @@
                  <ImageBrush Source="{Binding StylePreviewImage, RelativeSource={RelativeSource AncestorType=assets:StyleEntry}}"/>
              </Border.Background>
          </Border>
-         <TextBlock Text="{Binding StyleName, RelativeSource={RelativeSource AncestorType=assets:StyleEntry}}" TextTrimming="CharacterEllipsis" HorizontalAlignment="Center"/>
+         <TextBlock Text="{Binding StyleName, RelativeSource={RelativeSource AncestorType=assets:StyleEntry}}" FontSize="12" TextTrimming="CharacterEllipsis" HorizontalAlignment="Center"/>
      </StackPanel>
 </UserControl>

@@ -27,9 +27,25 @@ public enum EAssetType
     
     [Description("Gliders")]
     Glider,
-
+    
+    [Description("Pets")]
+    Pet,
+    
+    [Description("Toys")]
+    Toy,
+    
+    [Description("Sprays")]
+    Spray,
+    
+    [Description("Loading Screens")]
+    LoadingScreen,
+    
     [Description("Emotes")]
-    Emote
+    Emote,
+    
+    [Description("Music Packs")]
+    MusicPack,
+    
 }
 
 public enum EExportType

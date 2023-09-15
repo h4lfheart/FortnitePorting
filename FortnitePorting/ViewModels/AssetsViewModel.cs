@@ -28,7 +28,13 @@ public partial class AssetsViewModel : ViewModelBase
     [ObservableProperty] private ObservableCollection<AssetItem> backpacks = new();
     [ObservableProperty] private ObservableCollection<AssetItem> pickaxes = new();
     [ObservableProperty] private ObservableCollection<AssetItem> gliders = new();
+    [ObservableProperty] private ObservableCollection<AssetItem> pets = new();
+    [ObservableProperty] private ObservableCollection<AssetItem> toys = new();
+    [ObservableProperty] private ObservableCollection<AssetItem> sprays = new();
+    [ObservableProperty] private ObservableCollection<AssetItem> loadingScreens = new();
     [ObservableProperty] private ObservableCollection<AssetItem> emotes = new();
+    [ObservableProperty] private ObservableCollection<AssetItem> musicPacks = new();
+    
     [ObservableProperty] private ObservableCollection<UserControl> extraOptions = new();
 
     public readonly List<AssetLoader> Loaders;
@@ -77,10 +83,35 @@ public partial class AssetsViewModel : ViewModelBase
                 Target = Gliders,
                 Classes = new[] { "AthenaGliderItemDefinition" }
             },
+            new(EAssetType.Pet)
+            {
+                Target = Pets,
+                Classes = new[] { "AthenaPetCarrierItemDefinition" }
+            },
+            new(EAssetType.Toy)
+            {
+                Target = Toys,
+                Classes = new[] { "AthenaToyItemDefinition" }
+            },
+            new(EAssetType.Spray)
+            {
+                Target = Sprays,
+                Classes = new[] { "AthenaSprayItemDefinition" }
+            },
+            new(EAssetType.LoadingScreen)
+            {
+                Target = LoadingScreens,
+                Classes = new[] { "FortHomebaseBannerIconItemDefinition" }
+            },
             new(EAssetType.Emote)
             {
                 Target = Emotes,
                 Classes = new[] { "AthenaDanceItemDefinition" }
+            },
+            new(EAssetType.MusicPack)
+            {
+                Target = MusicPacks,
+                Classes = new[] { "AthenaMusicPackItemDefinition" }
             },
         };
     }

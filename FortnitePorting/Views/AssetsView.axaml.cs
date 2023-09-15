@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Objects;
@@ -43,6 +44,7 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
             return;
         }
         
+        StyleScrollViewer.ScrollToHome();
         AssetsVM.CurrentAsset = asset;
         AssetsVM.ExtraOptions.Clear();
         var styles = asset.Asset.GetOrDefault("ItemVariants", Array.Empty<UObject>());
@@ -65,7 +67,7 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
             if (options.Length == 0) continue;
 
             var styleSelector = new StyleItem(channel, options, asset.IconBitmap);
-            if (styleSelector.Styles.Count == 0) continue;
+            if (styleSelector.Styles.Count <= 1) continue;
             AssetsVM.ExtraOptions.Add(styleSelector);
         }
     }
@@ -87,6 +89,7 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
         var assetLoader = AssetsVM.Get(assetType);
         AssetsVM.CurrentTabType = assetType;
         AssetsListBox.ItemsSource = assetLoader.Target;
+        AssetsVM.CurrentAsset = null;
         
         var loaders = AssetsVM.Loaders;
         foreach (var loader in loaders)
@@ -102,5 +105,19 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
         }
         
         await assetLoader.Load();
+    }
+
+    private void OnScrollStyles(object? sender, PointerWheelEventArgs e)
+    {
+        if (sender is not ScrollViewer scrollViewer) return;
+        switch (e.Delta.Y)
+        {
+            case < 0:
+                scrollViewer.LineLeft();
+                break;
+            case > 0:
+                scrollViewer.LineRight();
+                break;
+        }
     }
 }

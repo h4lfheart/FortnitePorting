@@ -112,7 +112,7 @@ public class CUE4ParseViewModel : ViewModelBase
         await LoadRequiredAssets();
         
         LoadingVM.Update("Preloading Mesh Entries");
-        await LoadMeshEntries();
+        //await LoadMeshEntries();
     }
     
     private async Task InitializeProvider()
@@ -251,8 +251,7 @@ public class CUE4ParseViewModel : ViewModelBase
         {
             if (removeEntries.Contains(entry.Key)) continue;
             if (!entry.Key.EndsWith(".uasset") || entry.Key.EndsWith(".o.uasset")) continue;
-            var entry1 = entry;
-            if (MeshFilter.Any(x => entry1.Key.Contains(x, StringComparison.OrdinalIgnoreCase))) continue;
+            if (MeshFilter.Any(x => entry.Key.Contains(x, StringComparison.OrdinalIgnoreCase))) continue;
 
             MeshEntries.Add(entry.Value.Path);
         }
