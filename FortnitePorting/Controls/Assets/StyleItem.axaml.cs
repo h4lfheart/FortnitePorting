@@ -39,6 +39,8 @@ public partial class StyleItem : UserControl
             
             Styles.Add(new StyleEntry(style, previewBitmap));
         }
+
+        IsVisible = Styles.Count > 1;
     }
 
     protected override void OnLoaded(RoutedEventArgs e)

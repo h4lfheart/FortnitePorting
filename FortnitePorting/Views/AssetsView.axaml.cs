@@ -67,7 +67,7 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
             if (options.Length == 0) continue;
 
             var styleSelector = new StyleItem(channel, options, asset.IconBitmap);
-            if (styleSelector.Styles.Count <= 1) continue;
+            if (styleSelector.Styles.Count == 0) continue;
             AssetsVM.ExtraOptions.Add(styleSelector);
         }
     }

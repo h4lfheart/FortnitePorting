@@ -60,7 +60,6 @@
             </StackPanel>
         </ScrollViewer>
         
-        
         <controls:GroupBox Grid.Column="2">
             <ListBox x:Name="AssetsListBox" ItemsSource="{Binding Outfits}" AutoScrollToSelectedItem="False" Background="Transparent" SelectionChanged="OnSelectionChanged">
                 <ListBox.ItemsPanel>
@@ -70,8 +69,6 @@
                 </ListBox.ItemsPanel>
             </ListBox>
         </controls:GroupBox>
-        
-        <GridSplitter Grid.Column="3" Background="Transparent"/>
         
         <controls:GroupBox Grid.Column="4">
             <Grid>
