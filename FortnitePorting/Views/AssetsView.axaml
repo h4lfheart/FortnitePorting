@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:ext="clr-namespace:FortnitePorting.Extensions"
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             xmlns:assets="clr-namespace:FortnitePorting.Controls.Assets"
              xmlns:viewmodels="clr-namespace:FortnitePorting.ViewModels"
              xmlns:fortnitePorting="clr-namespace:FortnitePorting"
              xmlns:wrapPanel="clr-namespace:FortnitePorting.Controls.WrapPanel"
@@ -58,53 +59,58 @@
         <GridSplitter Grid.Column="3" Background="Transparent"/>
         
         <controls:GroupBox Grid.Column="4">
-            <Grid IsVisible="{Binding HasSelectedAsset}">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="{ext:Space 1}"/>
-                    <RowDefinition Height="4.5*"/>
-                    <RowDefinition Height="{ext:Space 1}"/>
-                    <RowDefinition Height="0.75*"/>
-                </Grid.RowDefinitions>
-                
-                <controls:GroupBox Grid.Row="0">
-                    <Grid RowDefinitions="* 2*" ColumnDefinitions="* 0.15* 2.5*">
-                        <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" CornerRadius="10">
-                            <Border.Background>
-                                <ImageBrush Stretch="UniformToFill" Source="{Binding CurrentAsset.IconBitmap}"/>
-                            </Border.Background>
-                        </Border>
-                        <TextBlock Grid.Row="0" Grid.Column="2" VerticalAlignment="Bottom" TextAlignment="Left" TextTrimming="CharacterEllipsis" Text="{Binding CurrentAsset.DisplayName}" FontSize="21"/>
-                        <TextBlock Grid.Row="1" Grid.Column="2" VerticalAlignment="Top" Text="{Binding CurrentAsset.Description}" TextAlignment="Left" TextWrapping="Wrap" TextTrimming="WordEllipsis" Opacity="0.5"/>
-                    </Grid>
-                </controls:GroupBox>
-                
-                <Grid Grid.Row="2" >
-                    <ItemsControl ItemsSource="{Binding ExtraOptions}">
-                        <ItemsControl.Styles>
-                            <Style Selector="Control">
-                                <Setter Property="Margin" Value="0,0,0, 8" />
-                            </Style>
-                        </ItemsControl.Styles>
-                    </ItemsControl>
-                </Grid>
-                
-                <Grid Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid>
+                <Grid IsVisible="{Binding HasSelectedAsset}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
-                        <RowDefinition Height="{ext:Space 2}"/>
-                        <RowDefinition Height="2*"/>
+                        <RowDefinition Height="{ext:Space 1}"/>
+                        <RowDefinition Height="4.5*"/>
+                        <RowDefinition Height="{ext:Space 1}"/>
+                        <RowDefinition Height="0.75*"/>
                     </Grid.RowDefinitions>
                     
-                    <Grid Grid.Row="0" ColumnDefinitions="* 3.25*">
-                        <TextBlock Grid.Column="0" Text="Export To" VerticalAlignment="Center" Margin="3 0 0 2"/>
-                        <ComboBox Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EExportType}}" SelectedItem="{Binding ExportType, Converter={StaticResource EnumToString}}"/>
+                    <controls:GroupBox Grid.Row="0">
+                        <Grid RowDefinitions="* 2*" ColumnDefinitions="* 0.15* 2.5*">
+                            <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" CornerRadius="10">
+                                <Border.Background>
+                                    <ImageBrush Stretch="UniformToFill" Source="{Binding CurrentAsset.IconBitmap}"/>
+                                </Border.Background>
+                            </Border>
+                            <TextBlock Grid.Row="0" Grid.Column="2" VerticalAlignment="Bottom" TextAlignment="Left" TextTrimming="CharacterEllipsis" Text="{Binding CurrentAsset.DisplayName}" FontSize="21"/>
+                            <TextBlock Grid.Row="1" Grid.Column="2" VerticalAlignment="Top" Text="{Binding CurrentAsset.Description}" TextAlignment="Left" TextWrapping="Wrap" TextTrimming="WordEllipsis" Opacity="0.5"/>
+                        </Grid>
+                    </controls:GroupBox>
+                    
+                    <Grid Grid.Row="2" >
+                        <ScrollViewer>
+                            <ItemsControl ItemsSource="{Binding ExtraOptions}">
+                                <ItemsControl.Styles>
+                                    <Style Selector="assets|StyleItem">
+                                        <Setter Property="Margin" Value="0,0,0, 8" />
+                                    </Style>
+                                </ItemsControl.Styles>
+                            </ItemsControl>
+                        </ScrollViewer>
                     </Grid>
                     
-                    <Button Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                        <controls:MaterialIconText Text="Export" Icon="Export" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Button>
+                    <Grid Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="{ext:Space 2}"/>
+                            <RowDefinition Height="2*"/>
+                        </Grid.RowDefinitions>
+                        
+                        <Grid Grid.Row="0" ColumnDefinitions="* 3.25*">
+                            <TextBlock Grid.Column="0" Text="Export To" VerticalAlignment="Center" Margin="3 0 0 2"/>
+                            <ComboBox Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EExportType}}" SelectedItem="{Binding ExportType, Converter={StaticResource EnumToString}}"/>
+                        </Grid>
+                        
+                        <Button Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                            <controls:MaterialIconText Text="Export" Icon="Export" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Button>
+                    </Grid>
                 </Grid>
+                <TextBlock Text="No Asset Selected" IsVisible="{Binding !HasSelectedAsset}" Opacity="0.75" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Grid>
         </controls:GroupBox>
     </Grid>
