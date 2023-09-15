@@ -14,23 +14,18 @@ namespace FortnitePorting.Controls.Assets;
 public partial class AssetItem : UserControl
 {
     public UObject Asset { get; set; }
-    public bool IsRandom { get; set; }
     public string DisplayName { get; set; }
     public string Description { get; set; }
     public EFortRarity Rarity { get; set; }
     public Bitmap IconBitmap { get; set; }
     public Bitmap PreviewImage { get; set; }
     
-    public AssetItem(UObject asset, UTexture2D icon, bool isRandom = false)
+    public AssetItem(UObject asset, UTexture2D icon, string displayName)
     {
         InitializeComponent();
 
         Asset = asset;
-        IsRandom = isRandom;
-        
-        var displayText = asset.GetOrDefault<FText?>("DisplayName");
-        DisplayName = string.IsNullOrEmpty(displayText?.Text) ? asset.Name : displayText.Text;
-        
+        DisplayName = displayName;
         Description = asset.GetOrDefault("Description", new FText("No description.")).Text;
         Rarity = asset.GetOrDefault("Rarity", EFortRarity.Uncommon);
         
@@ -52,14 +47,6 @@ public partial class AssetItem : UserControl
                 fullCanvas.DrawRect(new SKRect(0, 0, fullBitmap.Width, fullBitmap.Height), new SKPaint
                 {
                     Shader = SkiaExtensions.RadialGradient(fullBitmap.Height, seriesColors.Color1, seriesColors.Color3)
-                });
-            }
-            else if (IsRandom)
-            {
-                var commonColors = CUE4ParseVM.RarityColors[0];
-                fullCanvas.DrawRect(new SKRect(0, 0, fullBitmap.Width, fullBitmap.Height), new SKPaint
-                {
-                    Shader = SkiaExtensions.RadialGradient(fullBitmap.Height, commonColors.Color1, commonColors.Color3)
                 });
             }
             else

@@ -38,13 +38,6 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
         if (sender is not ListBox listBox) return;
         if (listBox.SelectedItem is not AssetItem asset) return;
         
-        if (asset.IsRandom)
-        {
-            listBox.SelectedIndex = RandomGenerator.Next(1, listBox.Items.Count);
-            return;
-        }
-        
-        StyleScrollViewer.ScrollToHome();
         AssetsVM.CurrentAsset = asset;
         AssetsVM.ExtraOptions.Clear();
         var styles = asset.Asset.GetOrDefault("ItemVariants", Array.Empty<UObject>());

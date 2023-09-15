@@ -46,6 +46,24 @@ public enum EAssetType
     [Description("Music Packs")]
     MusicPack,
     
+    [Description("Props")]
+    Prop,
+    
+    [Description("Galleries")]
+    Gallery,
+    
+    [Description("Meshes")]
+    Mesh,
+    
+    [Description("Items")]
+    Item,
+    
+    [Description("Traps")]
+    Trap,
+    
+    [Description("Vehicles")]
+    Vehicle,
+    
 }
 
 public enum EExportType

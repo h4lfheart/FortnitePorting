@@ -20,7 +20,7 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         
-        <ScrollViewer Grid.Column="0">
+        <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Hidden">
             <StackPanel x:Name="AssetTypePanel">
                 <StackPanel.Styles>
                     <Style Selector="ToggleButton">
@@ -56,6 +56,21 @@
                 </ToggleButton>
                 <ToggleButton Tag="{x:Static fortnitePorting:EAssetType.MusicPack}" Click="OnAssetTypeClick">
                     <Image Source="/Assets/FN/Music.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                </ToggleButton>
+                <ToggleButton Tag="{x:Static fortnitePorting:EAssetType.Prop}" Click="OnAssetTypeClick">
+                    <Image Source="/Assets/FN/Prop.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                </ToggleButton>
+                <ToggleButton Tag="{x:Static fortnitePorting:EAssetType.Gallery}" Click="OnAssetTypeClick">
+                    <Image Source="/Assets/FN/Gallery.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                </ToggleButton>
+                <ToggleButton Tag="{x:Static fortnitePorting:EAssetType.Item}" Click="OnAssetTypeClick">
+                    <Image Source="/Assets/FN/Item.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                </ToggleButton>
+                <ToggleButton Tag="{x:Static fortnitePorting:EAssetType.Trap}" Click="OnAssetTypeClick">
+                    <Image Source="/Assets/FN/Trap.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                </ToggleButton>
+                <ToggleButton Tag="{x:Static fortnitePorting:EAssetType.Vehicle}" Click="OnAssetTypeClick">
+                    <Image Source="/Assets/FN/Vehicle.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
                 </ToggleButton>
             </StackPanel>
         </ScrollViewer>
