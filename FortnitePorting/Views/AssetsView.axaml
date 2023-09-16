@@ -72,6 +72,9 @@
                 <ToggleButton Tag="{x:Static fortnitePorting:EAssetType.Vehicle}" Click="OnAssetTypeClick">
                     <Image Source="/Assets/FN/Vehicle.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
                 </ToggleButton>
+                <ToggleButton Tag="{x:Static fortnitePorting:EAssetType.Wildlife}" Click="OnAssetTypeClick">
+                    <Image Source="/Assets/FN/Wildlife.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                </ToggleButton>
             </StackPanel>
         </ScrollViewer>
         

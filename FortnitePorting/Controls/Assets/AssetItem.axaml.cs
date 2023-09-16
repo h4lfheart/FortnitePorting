@@ -13,6 +13,7 @@ namespace FortnitePorting.Controls.Assets;
 
 public partial class AssetItem : UserControl
 {
+    public EAssetType Type { get; set; }
     public UObject Asset { get; set; }
     public string DisplayName { get; set; }
     public string Description { get; set; }
@@ -20,10 +21,11 @@ public partial class AssetItem : UserControl
     public Bitmap IconBitmap { get; set; }
     public Bitmap PreviewImage { get; set; }
     
-    public AssetItem(UObject asset, UTexture2D icon, string displayName)
+    public AssetItem(UObject asset, UTexture2D icon, string displayName, EAssetType type)
     {
         InitializeComponent();
 
+        Type = type;
         Asset = asset;
         DisplayName = displayName;
         Description = asset.GetOrDefault("Description", new FText("No description.")).Text;

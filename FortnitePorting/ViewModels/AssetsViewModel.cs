@@ -9,6 +9,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4;
 using CUE4Parse.UE4.AssetRegistry.Objects;
 using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
@@ -43,6 +44,7 @@ public partial class AssetsViewModel : ViewModelBase
     [ObservableProperty] private ObservableCollection<AssetItem> items = new();
     [ObservableProperty] private ObservableCollection<AssetItem> traps = new();
     [ObservableProperty] private ObservableCollection<AssetItem> vehicles = new();
+    [ObservableProperty] private ObservableCollection<AssetItem> wildlife = new();
     
     [ObservableProperty] private ObservableCollection<UserControl> extraOptions = new();
 
@@ -149,6 +151,48 @@ public partial class AssetsViewModel : ViewModelBase
                 IconHandler = asset => GetVehicleInfo<UTexture2D>(asset, "SmallPreviewImage", "LargePreviewImage", "Icon"),
                 DisplayNameHandler = asset => GetVehicleInfo<FText>(asset, "DisplayName")
             },
+            new(EAssetType.Wildlife)
+            {
+                Target = Wildlife,
+                CustomLoadingHandler = async loader =>
+                {
+                    var entries = new[]
+                    {
+                        await WildlifeEntry.Create("Boar", 
+                        "FortniteGame/Plugins/GameFeatures/Irwin/Content/AI/Prey/Burt/Meshes/Burt_Mammal", 
+                        "FortniteGame/Plugins/GameFeatures/Irwin/Content/Icons/T-Icon-Fauna-Boar"),
+
+                        await WildlifeEntry.Create("Chicken",
+                        "FortniteGame/Plugins/GameFeatures/Irwin/Content/AI/Prey/Nug/Meshes/Nug_Bird",
+                        "FortniteGame/Plugins/GameFeatures/Irwin/Content/Icons/T-Icon-Fauna-Chicken"),
+
+                        await WildlifeEntry.Create("Crow",
+                        "FortniteGame/Plugins/GameFeatures/Irwin/Content/AI/Prey/Crow/Meshes/Crow_Bird",
+                        "FortniteGame/Plugins/GameFeatures/Irwin/Content/Icons/T-Icon-Fauna-Crow"),
+
+                        await WildlifeEntry.Create("Frog",
+                        "FortniteGame/Plugins/GameFeatures/Irwin/Content/AI/Simple/Smackie/Meshes/Smackie_Amphibian",
+                        "FortniteGame/Plugins/GameFeatures/Irwin/Content/Icons/T-Icon-Fauna-Frog"),
+
+                        await WildlifeEntry.Create("Raptor",
+                        "FortniteGame/Plugins/GameFeatures/Irwin/Content/AI/Predators/Robert/Meshes/Jungle_Raptor_Fauna",
+                        "FortniteGame/Plugins/GameFeatures/Irwin/Content/Icons/T-Icon-Fauna-JungleRaptor"),
+
+                        await WildlifeEntry.Create("Wolf",
+                        "FortniteGame/Plugins/GameFeatures/Irwin/Content/AI/Predators/Grandma/Meshes/Grandma_Mammal",
+                        "FortniteGame/Plugins/GameFeatures/Irwin/Content/Icons/T-Icon-Fauna-Wolf"),
+            
+                        await WildlifeEntry.Create("Llama",
+                        "FortniteGame/Plugins/GameFeatures/Labrador/Content/Meshes/Labrador_Mammal",
+                        "FortniteGame/Content/UI/Foundation/Textures/Icons/Athena/T-T-Icon-BR-SM-Athena-SupplyLlama-01")
+                    };
+                    
+                    await Parallel.ForEachAsync(entries, async (data, _) =>
+                    {
+                        await Dispatcher.UIThread.InvokeAsync(() => loader.Target.Add(new AssetItem(data.Mesh, data.PreviewImage, data.Name, loader.Type)), DispatcherPriority.Background);
+                    });
+                }
+            },
         };
     }
 
@@ -191,6 +235,7 @@ public class AssetLoader
     public string[] Classes = Array.Empty<string>();
     public Func<UObject, UTexture2D?> IconHandler = asset => asset.GetAnyOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage");
     public Func<UObject, FText?> DisplayNameHandler = asset => asset.GetOrDefault("DisplayName", new FText(asset.Name));
+    public Func<AssetLoader, Task>? CustomLoadingHandler;
     public EAssetType Type;
     
     public AssetLoader(EAssetType type)
@@ -203,7 +248,13 @@ public class AssetLoader
         if (Started) return;
         Started = true;
 
-        var assets = CUE4ParseVM.AssetRegistry.Where(data => Classes.Any(className => data.AssetClass.Text.Equals(className, StringComparison.OrdinalIgnoreCase))).ToList();
+        if (CustomLoadingHandler is not null)
+        {
+            CustomLoadingHandler(this);
+            return;
+        }
+
+        var assets = CUE4ParseVM.AssetRegistry.Where(data => Classes.Contains(data.AssetClass.Text)).ToList();
 
         var randomAsset = assets.FirstOrDefault(x => x.AssetName.Text.EndsWith("Random", StringComparison.OrdinalIgnoreCase));
         if (randomAsset is not null) assets.Remove(randomAsset);
@@ -218,12 +269,34 @@ public class AssetLoader
     private async Task LoadAsset(FAssetData data)
     {
         var asset = await CUE4ParseVM.Provider.LoadObjectAsync(data.ObjectPath);
+        await LoadAsset(asset);
+    }
+    
+    private async Task LoadAsset(UObject asset)
+    {
         var icon = IconHandler(asset);
         if (icon is null) return;
 
         var displayName = DisplayNameHandler(asset)?.Text;
         if (string.IsNullOrEmpty(displayName)) displayName = asset.Name;
 
-        await Dispatcher.UIThread.InvokeAsync(() => Target.Add(new AssetItem(asset, icon, displayName)), DispatcherPriority.Background);
+        await Dispatcher.UIThread.InvokeAsync(() => Target.Add(new AssetItem(asset, icon, displayName, Type)), DispatcherPriority.Background);
+    }
+}
+
+public class WildlifeEntry
+{
+    public string Name;
+    public USkeletalMesh Mesh;
+    public UTexture2D PreviewImage;
+
+    public static async Task<WildlifeEntry> Create(string name, string meshPath, string imagePath)
+    {
+        return new WildlifeEntry
+        {
+            Name = name,
+            Mesh = await CUE4ParseVM.Provider.LoadObjectAsync<USkeletalMesh>(meshPath),
+            PreviewImage = await CUE4ParseVM.Provider.LoadObjectAsync<UTexture2D>(imagePath)
+        };
     }
 }

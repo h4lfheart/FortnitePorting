@@ -64,6 +64,9 @@ public enum EAssetType
     [Description("Vehicles")]
     Vehicle,
     
+    [Description("Wildlife")]
+    Wildlife,
+    
 }
 
 public enum EExportType
