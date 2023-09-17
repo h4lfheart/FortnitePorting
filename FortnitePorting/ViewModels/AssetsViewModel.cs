@@ -26,9 +26,11 @@ public partial class AssetsViewModel : ViewModelBase
     [ObservableProperty] private EExportType exportType = EExportType.Blender;
     [ObservableProperty] private EAssetType currentTabType = EAssetType.Outfit;
     
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(HasSelectedAsset))] private AssetItem? currentAsset;
-    public bool HasSelectedAsset => CurrentAsset is not null;
-
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(IsFolderOnlyExport))] private AssetItem? currentAsset;
+    
+    public bool IsFolderOnlyExport => CurrentAsset?.Type is EAssetType.LoadingScreen or EAssetType.Spray or EAssetType.MusicPack;
+    [ObservableProperty] private ObservableCollection<EExportType> folderExportEnumCollection = new(new[] { EExportType.Folder});
+    
     [ObservableProperty] private ObservableCollection<AssetItem> outfits = new();
     [ObservableProperty] private ObservableCollection<AssetItem> backpacks = new();
     [ObservableProperty] private ObservableCollection<AssetItem> pickaxes = new();
@@ -158,31 +160,31 @@ public partial class AssetsViewModel : ViewModelBase
                 {
                     var entries = new[]
                     {
-                        await WildlifeEntry.Create("Boar", 
+                        await ManualAssetItemEntry.Create("Boar", 
                         "FortniteGame/Plugins/GameFeatures/Irwin/Content/AI/Prey/Burt/Meshes/Burt_Mammal", 
                         "FortniteGame/Plugins/GameFeatures/Irwin/Content/Icons/T-Icon-Fauna-Boar"),
 
-                        await WildlifeEntry.Create("Chicken",
+                        await ManualAssetItemEntry.Create("Chicken",
                         "FortniteGame/Plugins/GameFeatures/Irwin/Content/AI/Prey/Nug/Meshes/Nug_Bird",
                         "FortniteGame/Plugins/GameFeatures/Irwin/Content/Icons/T-Icon-Fauna-Chicken"),
 
-                        await WildlifeEntry.Create("Crow",
+                        await ManualAssetItemEntry.Create("Crow",
                         "FortniteGame/Plugins/GameFeatures/Irwin/Content/AI/Prey/Crow/Meshes/Crow_Bird",
                         "FortniteGame/Plugins/GameFeatures/Irwin/Content/Icons/T-Icon-Fauna-Crow"),
 
-                        await WildlifeEntry.Create("Frog",
+                        await ManualAssetItemEntry.Create("Frog",
                         "FortniteGame/Plugins/GameFeatures/Irwin/Content/AI/Simple/Smackie/Meshes/Smackie_Amphibian",
                         "FortniteGame/Plugins/GameFeatures/Irwin/Content/Icons/T-Icon-Fauna-Frog"),
 
-                        await WildlifeEntry.Create("Raptor",
+                        await ManualAssetItemEntry.Create("Raptor",
                         "FortniteGame/Plugins/GameFeatures/Irwin/Content/AI/Predators/Robert/Meshes/Jungle_Raptor_Fauna",
                         "FortniteGame/Plugins/GameFeatures/Irwin/Content/Icons/T-Icon-Fauna-JungleRaptor"),
 
-                        await WildlifeEntry.Create("Wolf",
+                        await ManualAssetItemEntry.Create("Wolf",
                         "FortniteGame/Plugins/GameFeatures/Irwin/Content/AI/Predators/Grandma/Meshes/Grandma_Mammal",
                         "FortniteGame/Plugins/GameFeatures/Irwin/Content/Icons/T-Icon-Fauna-Wolf"),
             
-                        await WildlifeEntry.Create("Llama",
+                        await ManualAssetItemEntry.Create("Llama",
                         "FortniteGame/Plugins/GameFeatures/Labrador/Content/Meshes/Labrador_Mammal",
                         "FortniteGame/Content/UI/Foundation/Textures/Icons/Athena/T-T-Icon-BR-SM-Athena-SupplyLlama-01")
                     };
@@ -250,7 +252,7 @@ public class AssetLoader
 
         if (CustomLoadingHandler is not null)
         {
-            CustomLoadingHandler(this);
+            await CustomLoadingHandler(this);
             return;
         }
 
@@ -284,18 +286,18 @@ public class AssetLoader
     }
 }
 
-public class WildlifeEntry
+public class ManualAssetItemEntry
 {
     public string Name;
-    public USkeletalMesh Mesh;
+    public UObject Mesh;
     public UTexture2D PreviewImage;
 
-    public static async Task<WildlifeEntry> Create(string name, string meshPath, string imagePath)
+    public static async Task<ManualAssetItemEntry> Create(string name, string meshPath, string imagePath)
     {
-        return new WildlifeEntry
+        return new ManualAssetItemEntry
         {
             Name = name,
-            Mesh = await CUE4ParseVM.Provider.LoadObjectAsync<USkeletalMesh>(meshPath),
+            Mesh = await CUE4ParseVM.Provider.LoadObjectAsync(meshPath),
             PreviewImage = await CUE4ParseVM.Provider.LoadObjectAsync<UTexture2D>(imagePath)
         };
     }
