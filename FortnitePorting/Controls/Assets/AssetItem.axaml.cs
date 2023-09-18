@@ -5,6 +5,7 @@ using CUE4Parse.GameTypes.FN.Enums;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Objects.Core.i18N;
+using FortnitePorting.Extensions;
 using FortnitePorting.ViewModels;
 using SkiaSharp;
 using SkiaExtensions = FortnitePorting.Extensions.SkiaExtensions;
@@ -15,6 +16,7 @@ public partial class AssetItem : UserControl
 {
     public EAssetType Type { get; set; }
     public UObject Asset { get; set; }
+    public string ID { get; set; }
     public string DisplayName { get; set; }
     public string Description { get; set; }
     public EFortRarity Rarity { get; set; }
@@ -27,6 +29,7 @@ public partial class AssetItem : UserControl
 
         Type = type;
         Asset = asset;
+        ID = asset.Name;
         DisplayName = displayName;
         Description = asset.GetOrDefault("Description", new FText("No description.")).Text;
         Rarity = asset.GetOrDefault("Rarity", EFortRarity.Uncommon);
@@ -71,5 +74,10 @@ public partial class AssetItem : UserControl
         }
         
         PreviewImage = new Bitmap(fullBitmap.Encode(SKEncodedImageFormat.Png, 100).AsStream());
+    }
+
+    public bool Match(string filter)
+    {
+        return MiscExtensions.Filter(DisplayName, filter) || MiscExtensions.Filter(ID, filter);
     }
 }

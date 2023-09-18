@@ -78,15 +78,27 @@
             </StackPanel>
         </ScrollViewer>
         
-        <controls:GroupBox Grid.Column="2">
-            <ListBox x:Name="AssetsListBox" ItemsSource="{Binding Outfits}" AutoScrollToSelectedItem="False" Background="Transparent" SelectionChanged="OnSelectionChanged">
-                <ListBox.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <wrapPanel:VirtualizingWrapPanel/>
-                    </ItemsPanelTemplate>
-                </ListBox.ItemsPanel>
-            </ListBox>
-        </controls:GroupBox>
+        <Grid Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="{ext:Space 1}" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            
+            <Grid Grid.Row="0">
+                <TextBox Watermark="Search" Text="{Binding SearchFilter}" TextChanged="OnSearchTextChanged"/>
+            </Grid>
+            
+            <controls:GroupBox Grid.Row="2">
+                <ListBox x:Name="AssetsListBox" ItemsSource="{Binding ActiveCollection}" AutoScrollToSelectedItem="False" Background="Transparent" SelectionChanged="OnSelectionChanged">
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <wrapPanel:VirtualizingWrapPanel/>
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                </ListBox>
+            </controls:GroupBox>
+        </Grid>
         
         <controls:GroupBox Grid.Column="4">
             <Grid>

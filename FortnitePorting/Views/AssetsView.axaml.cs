@@ -38,8 +38,8 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
         if (sender is not ListBox listBox) return;
         if (listBox.SelectedItem is not AssetItem asset) return;
         
-        AssetsVM.CurrentAsset = asset;
-        AssetsVM.ExtraOptions.Clear();
+        ViewModel.CurrentAsset = asset;
+        ViewModel.ExtraOptions.Clear();
         var styles = asset.Asset.GetOrDefault("ItemVariants", Array.Empty<UObject>());
         foreach (var style in styles)
         {
@@ -61,12 +61,13 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
 
             var styleSelector = new StyleItem(channel, options, asset.IconBitmap);
             if (styleSelector.Styles.Count == 0) continue;
-            AssetsVM.ExtraOptions.Add(styleSelector);
+            ViewModel.ExtraOptions.Add(styleSelector);
         }
     }
 
     private async void OnAssetTypeClick(object? sender, RoutedEventArgs e)
     {
+        if (ViewModel.CurrentLoader is null) return;
         if (sender is not ToggleButton toggleButton) return;
         if (toggleButton.Tag is not EAssetType assetType) return;
         
@@ -77,14 +78,11 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
             button.IsChecked = buttonAssetType == assetType;
         }
         
-        if (AssetsVM.CurrentTabType == assetType) return;
+        if (ViewModel.CurrentLoader.Type == assetType) return;
+
+        ViewModel.SetLoader(assetType);
         
-        var assetLoader = AssetsVM.Get(assetType);
-        AssetsVM.CurrentTabType = assetType;
-        AssetsListBox.ItemsSource = assetLoader.Target;
-        AssetsVM.CurrentAsset = null;
-        
-        var loaders = AssetsVM.Loaders;
+        var loaders = ViewModel.Loaders;
         foreach (var loader in loaders)
         {
             if (loader.Type == assetType)
@@ -97,7 +95,7 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
             }
         }
         
-        await assetLoader.Load();
+        await ViewModel.CurrentLoader.Load();
     }
 
     private void OnScrollStyles(object? sender, PointerWheelEventArgs e)

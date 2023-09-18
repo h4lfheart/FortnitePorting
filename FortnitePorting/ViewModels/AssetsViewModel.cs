@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Threading;
@@ -14,41 +15,30 @@ using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.Engine;
+using DynamicData;
 using FortnitePorting.Controls;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
+using ReactiveUI;
 using AssetItem = FortnitePorting.Controls.Assets.AssetItem;
 
 namespace FortnitePorting.ViewModels;
 
 public partial class AssetsViewModel : ViewModelBase
 {
+    public AssetLoader? CurrentLoader;
     [ObservableProperty] private EExportType exportType = EExportType.Blender;
-    [ObservableProperty] private EAssetType currentTabType = EAssetType.Outfit;
     
     [ObservableProperty, NotifyPropertyChangedFor(nameof(IsFolderOnlyExport))] private AssetItem? currentAsset;
     
     public bool IsFolderOnlyExport => CurrentAsset?.Type is EAssetType.LoadingScreen or EAssetType.Spray or EAssetType.MusicPack;
     [ObservableProperty] private ObservableCollection<EExportType> folderExportEnumCollection = new(new[] { EExportType.Folder});
     
-    [ObservableProperty] private ObservableCollection<AssetItem> outfits = new();
-    [ObservableProperty] private ObservableCollection<AssetItem> backpacks = new();
-    [ObservableProperty] private ObservableCollection<AssetItem> pickaxes = new();
-    [ObservableProperty] private ObservableCollection<AssetItem> gliders = new();
-    [ObservableProperty] private ObservableCollection<AssetItem> pets = new();
-    [ObservableProperty] private ObservableCollection<AssetItem> toys = new();
-    [ObservableProperty] private ObservableCollection<AssetItem> sprays = new();
-    [ObservableProperty] private ObservableCollection<AssetItem> loadingScreens = new();
-    [ObservableProperty] private ObservableCollection<AssetItem> emotes = new();
-    [ObservableProperty] private ObservableCollection<AssetItem> musicPacks = new();
-    [ObservableProperty] private ObservableCollection<AssetItem> props = new();
-    [ObservableProperty] private ObservableCollection<AssetItem> galleries = new();
-    [ObservableProperty] private ObservableCollection<AssetItem> items = new();
-    [ObservableProperty] private ObservableCollection<AssetItem> traps = new();
-    [ObservableProperty] private ObservableCollection<AssetItem> vehicles = new();
-    [ObservableProperty] private ObservableCollection<AssetItem> wildlife = new();
+    [ObservableProperty] private ReadOnlyObservableCollection<AssetItem> activeCollection;
     
     [ObservableProperty] private ObservableCollection<UserControl> extraOptions = new();
+
+    [ObservableProperty] private string searchFilter = string.Empty;
 
     public readonly List<AssetLoader> Loaders;
 
@@ -58,7 +48,6 @@ public partial class AssetsViewModel : ViewModelBase
         {
             new(EAssetType.Outfit)
             {
-                Target = Outfits,
                 Classes = new[] { "AthenaCharacterItemDefinition" },
                 IconHandler = asset =>
                 {
@@ -73,12 +62,10 @@ public partial class AssetsViewModel : ViewModelBase
             },
             new(EAssetType.Backpack)
             {
-                Target = Backpacks,
                 Classes = new[] { "AthenaBackpackItemDefinition" }
             },
             new(EAssetType.Pickaxe)
             {
-                Target = Pickaxes,
                 Classes = new[] { "AthenaPickaxeItemDefinition" },
                 IconHandler = asset =>
                 {
@@ -93,69 +80,56 @@ public partial class AssetsViewModel : ViewModelBase
             },
             new(EAssetType.Glider)
             {
-                Target = Gliders,
                 Classes = new[] { "AthenaGliderItemDefinition" }
             },
             new(EAssetType.Pet)
             {
-                Target = Pets,
                 Classes = new[] { "AthenaPetCarrierItemDefinition" }
             },
             new(EAssetType.Toy)
             {
-                Target = Toys,
                 Classes = new[] { "AthenaToyItemDefinition" }
             },
             new(EAssetType.Spray)
             {
-                Target = Sprays,
                 Classes = new[] { "AthenaSprayItemDefinition" }
             },
             new(EAssetType.LoadingScreen)
             {
-                Target = LoadingScreens,
                 Classes = new[] { "FortHomebaseBannerIconItemDefinition" }
             },
             new(EAssetType.Emote)
             {
-                Target = Emotes,
                 Classes = new[] { "AthenaDanceItemDefinition" }
             },
             new(EAssetType.MusicPack)
             {
-                Target = MusicPacks,
                 Classes = new[] { "AthenaMusicPackItemDefinition" }
             },
             new(EAssetType.Prop)
             {
-                Target = Props,
                 Classes = new[] { "FortPlaysetPropItemDefinition" }
             },
             new(EAssetType.Gallery)
             {
-                Target = Galleries,
                 Classes = new[] { "FortPlaysetItemDefinition" }
             },
             new(EAssetType.Item)
             {
-                Target = Items,
                 Classes = new[] {"AthenaGadgetItemDefinition", "FortWeaponRangedItemDefinition", "FortWeaponMeleeItemDefinition", "FortCreativeWeaponMeleeItemDefinition", "FortCreativeWeaponRangedItemDefinition", "FortWeaponMeleeDualWieldItemDefinition" }
             },
             new(EAssetType.Trap)
             {
-                Target = Traps,
                 Classes = new[] { "FortTrapItemDefinition" }
             },
             new(EAssetType.Vehicle)
             {
-                Target = Vehicles,
                 Classes = new[] { "FortVehicleItemDefinition" },
                 IconHandler = asset => GetVehicleInfo<UTexture2D>(asset, "SmallPreviewImage", "LargePreviewImage", "Icon"),
                 DisplayNameHandler = asset => GetVehicleInfo<FText>(asset, "DisplayName")
             },
             new(EAssetType.Wildlife)
             {
-                Target = Wildlife,
                 CustomLoadingHandler = async loader =>
                 {
                     var entries = new[]
@@ -191,21 +165,25 @@ public partial class AssetsViewModel : ViewModelBase
                     
                     await Parallel.ForEachAsync(entries, async (data, _) =>
                     {
-                        await Dispatcher.UIThread.InvokeAsync(() => loader.Target.Add(new AssetItem(data.Mesh, data.PreviewImage, data.Name, loader.Type)), DispatcherPriority.Background);
+                        await Dispatcher.UIThread.InvokeAsync(() => loader.Source.Add(new AssetItem(data.Mesh, data.PreviewImage, data.Name, loader.Type)), DispatcherPriority.Background);
                     });
                 }
             },
         };
     }
 
-    public AssetLoader Get(EAssetType assetType)
-    {
-        return Loaders.First(x => x.Type == assetType);
-    }
 
     public override async Task Initialize()
     {
-        await Loaders.First().Load();
+        SetLoader(EAssetType.Outfit);
+        await CurrentLoader.Load();
+    }
+
+    public void SetLoader(EAssetType assetType)
+    {
+        CurrentLoader = Loaders.First(x => x.Type == assetType);
+        ActiveCollection = CurrentLoader.Target;
+        CurrentAsset = null;
     }
 
     private T? GetVehicleInfo<T>(UObject asset, params string[] names) where T : class
@@ -232,19 +210,26 @@ public partial class AssetsViewModel : ViewModelBase
 public class AssetLoader
 {
     public bool Started;
+    public EAssetType Type;
     public Pauser Pause = new();
-    public ObservableCollection<AssetItem> Target;
+    
+    public SourceList<AssetItem> Source = new();
+    public ReadOnlyObservableCollection<AssetItem> Target;
+    
     public string[] Classes = Array.Empty<string>();
     public Func<UObject, UTexture2D?> IconHandler = asset => asset.GetAnyOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage");
     public Func<UObject, FText?> DisplayNameHandler = asset => asset.GetOrDefault("DisplayName", new FText(asset.Name));
     public Func<AssetLoader, Task>? CustomLoadingHandler;
-    public EAssetType Type;
     
     public AssetLoader(EAssetType type)
     {
         Type = type;
+        Source.Connect()
+            .Bind(out Target)
+            .AutoRefresh()
+            .Subscribe();
     }
-    
+
     public async Task Load()
     {
         if (Started) return;
@@ -282,7 +267,7 @@ public class AssetLoader
         var displayName = DisplayNameHandler(asset)?.Text;
         if (string.IsNullOrEmpty(displayName)) displayName = asset.Name;
 
-        await Dispatcher.UIThread.InvokeAsync(() => Target.Add(new AssetItem(asset, icon, displayName, Type)), DispatcherPriority.Background);
+        await Dispatcher.UIThread.InvokeAsync(() => Source.Add(new AssetItem(asset, icon, displayName, Type)), DispatcherPriority.Background);
     }
 }
 

@@ -3,11 +3,25 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Linq;
 
 namespace FortnitePorting.Extensions;
 
 public static class MiscExtensions
 {
+
+    public static string TitleCase(this string text)
+    {
+        var textInfo = CultureInfo.CurrentCulture.TextInfo;
+        return textInfo.ToTitleCase(text);
+    }
+    
+    public static bool Filter(string input, string filter)
+    {
+        var filters = filter.Trim().Split(' ');
+        return filters.All(x => input.Contains(x, StringComparison.OrdinalIgnoreCase));
+    }
+
     public static void InsertMany<T>(this List<T> list, int index, T item, int count)
     {
         var repeat = FastRepeat<T>.Instance;
@@ -15,12 +29,6 @@ public static class MiscExtensions
         repeat.Item = item;
         list.InsertRange(index, FastRepeat<T>.Instance);
         repeat.Item = default;
-    }
-    
-    public static string TitleCase(this string text)
-    {
-        var textInfo = CultureInfo.CurrentCulture.TextInfo;
-        return textInfo.ToTitleCase(text);
     }
     
     private class FastRepeat<T> : ICollection<T>
