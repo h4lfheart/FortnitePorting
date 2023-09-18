@@ -86,7 +86,7 @@
             </Grid.RowDefinitions>
             
             <Grid Grid.Row="0">
-                <TextBox Watermark="Search" Text="{Binding SearchFilter}" TextChanged="OnSearchTextChanged"/>
+                <TextBox Watermark="Search" Text="{Binding SearchFilter}"/>
             </Grid>
             
             <controls:GroupBox Grid.Row="2">

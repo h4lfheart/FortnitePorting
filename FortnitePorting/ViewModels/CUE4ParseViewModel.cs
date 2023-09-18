@@ -25,7 +25,12 @@ namespace FortnitePorting.ViewModels;
 
 public class CUE4ParseViewModel : ViewModelBase
 {
-    public readonly HybridFileProvider Provider;
+    public readonly HybridFileProvider Provider = AppSettings.Current.LoadingType switch
+    {
+        ELoadingType.Local => new HybridFileProvider(AppSettings.Current.LocalArchivePath, LatestVersionContainer),
+        ELoadingType.Live => new HybridFileProvider(LatestVersionContainer),
+        ELoadingType.Custom => new HybridFileProvider(AppSettings.Current.CustomArchivePath, new VersionContainer(AppSettings.Current.CustomUnrealVersion))
+    };
     public readonly List<FAssetData> AssetRegistry = new();
     public readonly RarityCollection[] RarityColors = new RarityCollection[8];
     public readonly HashSet<string> MeshEntries = new();
@@ -75,16 +80,6 @@ public class CUE4ParseViewModel : ViewModelBase
         "PlaysetGrenade",
         "NaniteDisplacement"
     };
-    
-    public CUE4ParseViewModel()
-    {
-        Provider = AppSettings.Current.LoadingType switch
-        {
-            ELoadingType.Local => new HybridFileProvider(AppSettings.Current.LocalArchivePath, LatestVersionContainer),
-            ELoadingType.Live => new HybridFileProvider(LatestVersionContainer),
-            ELoadingType.Custom => new HybridFileProvider(AppSettings.Current.CustomArchivePath, new VersionContainer(AppSettings.Current.CustomUnrealVersion))
-        };
-    }
 
     public override async Task Initialize()
     {

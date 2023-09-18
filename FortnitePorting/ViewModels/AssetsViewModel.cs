@@ -40,9 +40,9 @@ public partial class AssetsViewModel : ViewModelBase
 
     [ObservableProperty] private string searchFilter = string.Empty;
 
-    public readonly List<AssetLoader> Loaders;
-
-    public AssetsViewModel()
+    public List<AssetLoader> Loaders;
+    
+    public override async Task Initialize()
     {
         Loaders = new List<AssetLoader>
         {
@@ -168,13 +168,9 @@ public partial class AssetsViewModel : ViewModelBase
                         await Dispatcher.UIThread.InvokeAsync(() => loader.Source.Add(new AssetItem(data.Mesh, data.PreviewImage, data.Name, loader.Type)), DispatcherPriority.Background);
                     });
                 }
-            },
+            }
         };
-    }
-
-
-    public override async Task Initialize()
-    {
+        
         SetLoader(EAssetType.Outfit);
         await CurrentLoader.Load();
     }
@@ -186,7 +182,7 @@ public partial class AssetsViewModel : ViewModelBase
         CurrentAsset = null;
     }
 
-    private T? GetVehicleInfo<T>(UObject asset, params string[] names) where T : class
+    private static T? GetVehicleInfo<T>(UObject asset, params string[] names) where T : class
     {
         FStructFallback? GetMarkerDisplay(UBlueprintGeneratedClass? blueprint)
         {
@@ -225,9 +221,15 @@ public class AssetLoader
     {
         Type = type;
         Source.Connect()
+            .ObserveOn(RxApp.MainThreadScheduler)
+            .Filter(AssetsVM.WhenAnyValue(vm => vm.SearchFilter).Select(AssetFilter))
             .Bind(out Target)
-            .AutoRefresh()
             .Subscribe();
+    }
+    
+    private static Func<AssetItem, bool> AssetFilter(string filter)
+    {
+        return asset => asset.Match(filter);
     }
 
     public async Task Load()
