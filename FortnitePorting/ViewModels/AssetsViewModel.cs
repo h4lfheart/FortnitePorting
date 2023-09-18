@@ -16,6 +16,7 @@ using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.Engine;
 using DynamicData;
+using DynamicData.Binding;
 using FortnitePorting.Controls;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
@@ -40,7 +41,14 @@ public partial class AssetsViewModel : ViewModelBase
 
     [ObservableProperty] private string searchFilter = string.Empty;
 
+    public readonly IObservable<Func<AssetItem, bool>> AssetFilter;
+
     public List<AssetLoader> Loaders;
+
+    public AssetsViewModel()
+    {
+        AssetFilter = this.WhenAnyValue(x => x.SearchFilter).Select(CreateAssetFilter);
+    }
     
     public override async Task Initialize()
     {
@@ -181,6 +189,11 @@ public partial class AssetsViewModel : ViewModelBase
         ActiveCollection = CurrentLoader.Target;
         CurrentAsset = null;
     }
+    
+    private static Func<AssetItem, bool> CreateAssetFilter(string filter)
+    {
+        return asset => asset.Match(filter);
+    }
 
     private static T? GetVehicleInfo<T>(UObject asset, params string[] names) where T : class
     {
@@ -222,14 +235,10 @@ public class AssetLoader
         Type = type;
         Source.Connect()
             .ObserveOn(RxApp.MainThreadScheduler)
-            .Filter(AssetsVM.WhenAnyValue(vm => vm.SearchFilter).Select(AssetFilter))
+            .Filter(AssetsVM.AssetFilter)
+            .Sort(SortExpressionComparer<AssetItem>.Ascending(x => x.ID))
             .Bind(out Target)
             .Subscribe();
-    }
-    
-    private static Func<AssetItem, bool> AssetFilter(string filter)
-    {
-        return asset => asset.Match(filter);
     }
 
     public async Task Load()
