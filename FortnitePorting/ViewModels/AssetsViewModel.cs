@@ -42,7 +42,6 @@ public partial class AssetsViewModel : ViewModelBase
     [ObservableProperty] private string searchFilter = string.Empty;
     [ObservableProperty] private ESortType sortType = ESortType.Default;
     public readonly IObservable<SortExpressionComparer<AssetItem>> AssetSort;
-    public readonly IObservable<SortExpressionComparer<AssetItem>> AssetSubSort;
     public readonly IObservable<Func<AssetItem, bool>> AssetFilter;
 
     public AssetsViewModel()
@@ -53,9 +52,9 @@ public partial class AssetsViewModel : ViewModelBase
             {
                 ESortType.Default => asset => asset.ID,
                 ESortType.AZ => asset => asset.DisplayName,
-                ESortType.Season => asset => asset.Season,
-                ESortType.Rarity => asset => asset.Rarity,
-                ESortType.Series => asset => asset.Series,
+                // scuffed ways to do sub-sorting within sections
+                ESortType.Season => asset => asset.Season + (double) asset.Rarity * 0.01, 
+                ESortType.Rarity => asset => asset.Series + (int) asset.Rarity,
                 _ => asset => asset.ID
             }));
     }

@@ -172,6 +172,12 @@ internal class RealizedWrappedElements
             UVSize v => v,
         };
 
+        if (estimatedSize.U == 0 || estimatedSize.V == 0)
+        {
+            estimatedSize.U = 1;
+            estimatedSize.V = 1;
+        }
+
         // Store the estimated size for the next layout pass.
         estimatedElementSize = estimatedSize;
 

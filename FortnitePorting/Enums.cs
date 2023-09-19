@@ -93,8 +93,5 @@ public enum ESortType
     Season,
     
     [Description("Rarity")]
-    Rarity,
-    
-    [Description("Series")]
-    Series
+    Rarity
 }
