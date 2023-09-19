@@ -5,6 +5,8 @@ using CUE4Parse.GameTypes.FN.Enums;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Objects.Core.i18N;
+using CUE4Parse.UE4.Objects.GameplayTags;
+using CUE4Parse.Utils;
 using FortnitePorting.Extensions;
 using FortnitePorting.ViewModels;
 using SkiaSharp;
@@ -19,7 +21,12 @@ public partial class AssetItem : UserControl
     public string ID { get; set; }
     public string DisplayName { get; set; }
     public string Description { get; set; }
+    
+    public FGameplayTagContainer GameplayTags { get; set; }
     public EFortRarity Rarity { get; set; }
+    public int Season { get; set; }
+    public string Series { get; set; }
+    
     public Bitmap IconBitmap { get; set; }
     public Bitmap PreviewImage { get; set; }
     
@@ -33,6 +40,13 @@ public partial class AssetItem : UserControl
         DisplayName = displayName;
         Description = asset.GetOrDefault("Description", new FText("No description.")).Text;
         Rarity = asset.GetOrDefault("Rarity", EFortRarity.Uncommon);
+        GameplayTags = asset.GetOrDefault<FGameplayTagContainer>("GameplayTags");
+
+        var seasonTag = GameplayTags.GetValueOrDefault("Cosmetics.Filter.Season.")?.Text;
+        Season = int.TryParse(seasonTag?.SubstringAfterLast("."), out var seasonNumber) ? seasonNumber : int.MaxValue;
+        
+        var series = Asset.GetOrDefault<UObject?>("Series");
+        Series = series?.GetOrDefault<FText>("DisplayName").Text ?? string.Empty;
         
         var iconBitmap = icon.Decode()!;
         IconBitmap = new Bitmap(iconBitmap.Encode(SKEncodedImageFormat.Png, 100).AsStream());
@@ -40,7 +54,6 @@ public partial class AssetItem : UserControl
         var fullBitmap = new SKBitmap(128, 160, iconBitmap.ColorType, iconBitmap.AlphaType);
         using (var fullCanvas = new SKCanvas(fullBitmap))
         {
-            var series = Asset.GetOrDefault<UObject?>("Series");
             var seriesBackground = series?.GetOrDefault<UTexture2D?>("BackgroundTexture");
             var seriesColors = series?.GetOrDefault<RarityCollection?>("Colors");
             if (seriesBackground is not null)

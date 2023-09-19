@@ -80,3 +80,21 @@ public enum EExportType
     [Description("Folder")]
     Folder
 }
+
+public enum ESortType
+{
+    [Description("Default")]
+    Default,
+
+    [Description("A-Z")]
+    AZ,
+    
+    [Description("Season")]
+    Season,
+    
+    [Description("Rarity")]
+    Rarity,
+    
+    [Description("Series")]
+    Series
+}

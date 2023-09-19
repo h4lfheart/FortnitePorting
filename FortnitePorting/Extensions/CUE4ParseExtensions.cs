@@ -1,6 +1,8 @@
 using System.Linq;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Objects;
+using CUE4Parse.UE4.Objects.GameplayTags;
+using CUE4Parse.UE4.Objects.UObject;
 
 namespace FortnitePorting.Extensions;
 
@@ -30,5 +32,10 @@ public static class CUE4ParseExtensions
         }
 
         return default;
+    }
+    
+    public static FName? GetValueOrDefault(this FGameplayTagContainer tags, string category, FName def = default)
+    {
+        return tags.GameplayTags is not { Length: > 0 } ? def : tags.GetValue(category);
     }
 }

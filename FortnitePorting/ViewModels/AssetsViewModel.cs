@@ -27,27 +27,37 @@ namespace FortnitePorting.ViewModels;
 
 public partial class AssetsViewModel : ViewModelBase
 {
+   
+    public List<AssetLoader> Loaders;
     public AssetLoader? CurrentLoader;
-    [ObservableProperty] private EExportType exportType = EExportType.Blender;
-    
     [ObservableProperty, NotifyPropertyChangedFor(nameof(IsFolderOnlyExport))] private AssetItem? currentAsset;
-    
+
     public bool IsFolderOnlyExport => CurrentAsset?.Type is EAssetType.LoadingScreen or EAssetType.Spray or EAssetType.MusicPack;
     [ObservableProperty] private ObservableCollection<EExportType> folderExportEnumCollection = new(new[] { EExportType.Folder});
     
     [ObservableProperty] private ReadOnlyObservableCollection<AssetItem> activeCollection;
-    
     [ObservableProperty] private ObservableCollection<UserControl> extraOptions = new();
 
+    [ObservableProperty] private EExportType exportType = EExportType.Blender;
     [ObservableProperty] private string searchFilter = string.Empty;
-
+    [ObservableProperty] private ESortType sortType = ESortType.Default;
+    public readonly IObservable<SortExpressionComparer<AssetItem>> AssetSort;
+    public readonly IObservable<SortExpressionComparer<AssetItem>> AssetSubSort;
     public readonly IObservable<Func<AssetItem, bool>> AssetFilter;
-
-    public List<AssetLoader> Loaders;
 
     public AssetsViewModel()
     {
         AssetFilter = this.WhenAnyValue(x => x.SearchFilter).Select(CreateAssetFilter);
+        AssetSort = this.WhenAnyValue(x => x.SortType).Select(type => SortExpressionComparer<AssetItem>.Ascending(
+            type switch
+            {
+                ESortType.Default => asset => asset.ID,
+                ESortType.AZ => asset => asset.DisplayName,
+                ESortType.Season => asset => asset.Season,
+                ESortType.Rarity => asset => asset.Rarity,
+                ESortType.Series => asset => asset.Series,
+                _ => asset => asset.ID
+            }));
     }
     
     public override async Task Initialize()
@@ -236,7 +246,7 @@ public class AssetLoader
         Source.Connect()
             .ObserveOn(RxApp.MainThreadScheduler)
             .Filter(AssetsVM.AssetFilter)
-            .Sort(SortExpressionComparer<AssetItem>.Ascending(x => x.ID))
+            .Sort(AssetsVM.AssetSort)
             .Bind(out Target)
             .Subscribe();
     }

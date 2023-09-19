@@ -13,7 +13,7 @@
         <controls:AnimatableTabControl Margin="0 8" TabStripPlacement="Left">
             <TabItem>
                 <TabItem.Header>
-                    <controls:MaterialIconText Text="Assets        " Icon="File"/>
+                    <controls:MaterialIconText Text="Assets      " Icon="File"/>
                 </TabItem.Header>
                 <views:AssetsView/>
             </TabItem>

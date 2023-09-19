@@ -7,7 +7,7 @@ namespace FortnitePorting.Controls;
 
 public partial class MaterialIconText : UserControl
 {
-    public static readonly StyledProperty<string> TextProperty = AvaloniaProperty.Register<MaterialIconText, string>(nameof(Text), defaultValue: "String");
+    public static readonly StyledProperty<string> TextProperty = AvaloniaProperty.Register<MaterialIconText, string>(nameof(Text), defaultValue: string.Empty);
     public string Text
     {
         get => GetValue(TextProperty);

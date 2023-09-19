@@ -8,6 +8,7 @@
              xmlns:viewmodels="clr-namespace:FortnitePorting.ViewModels"
              xmlns:fortnitePorting="clr-namespace:FortnitePorting"
              xmlns:wrapPanel="clr-namespace:FortnitePorting.Controls.WrapPanel"
+             xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720"
              x:Class="FortnitePorting.Views.AssetsView"
              x:DataType="viewmodels:AssetsViewModel">
@@ -86,7 +87,23 @@
             </Grid.RowDefinitions>
             
             <Grid Grid.Row="0">
-                <TextBox Watermark="Search" Text="{Binding SearchFilter}"/>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="{ext:Space 1}" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="{ext:Space 1}" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="{ext:Space 1}" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="{ext:Space 1}" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                
+                <TextBox Grid.Column="0" Watermark="Search" Text="{Binding SearchFilter}" HorizontalAlignment="Stretch"/>
+                <material:MaterialIcon Grid.Column="2" Kind="Sort" Width="20" Height="20"/>
+                <ComboBox Grid.Column="4" HorizontalAlignment="Stretch" ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:ESortType}}" SelectedItem="{Binding SortType, Converter={StaticResource EnumToString}}" />
+                <material:MaterialIcon Grid.Column="6" Kind="Filter" Width="20" Height="20"/>
+                <ComboBox Grid.Column="8" HorizontalAlignment="Stretch" ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:ESortType}}" />
             </Grid>
             
             <controls:GroupBox Grid.Row="2">
