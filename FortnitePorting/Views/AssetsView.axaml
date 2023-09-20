@@ -100,7 +100,9 @@
                 </Grid.ColumnDefinitions>
                 
                 <TextBox Grid.Column="0" Watermark="Search" Text="{Binding SearchFilter}" HorizontalAlignment="Stretch"/>
-                <material:MaterialIcon Grid.Column="2" Kind="Sort" Width="20" Height="20"/>
+                <ToggleButton Grid.Column="2" IsChecked="{Binding IsDescending}">
+                    <material:MaterialIcon Kind="{Binding SortIcon}" Width="20" Height="20"/>
+                </ToggleButton>
                 <ComboBox Grid.Column="4" HorizontalAlignment="Stretch" ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:ESortType}}" SelectedItem="{Binding SortType, Converter={StaticResource EnumToString}}" />
                 <material:MaterialIcon Grid.Column="6" Kind="Filter" Width="20" Height="20"/>
                 <ComboBox Grid.Column="8" HorizontalAlignment="Stretch" ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:ESortType}}" />

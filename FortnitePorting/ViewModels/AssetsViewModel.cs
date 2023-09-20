@@ -20,6 +20,7 @@ using DynamicData.Binding;
 using FortnitePorting.Controls;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
+using Material.Icons;
 using ReactiveUI;
 using AssetItem = FortnitePorting.Controls.Assets.AssetItem;
 
@@ -41,22 +42,34 @@ public partial class AssetsViewModel : ViewModelBase
     [ObservableProperty] private EExportType exportType = EExportType.Blender;
     [ObservableProperty] private string searchFilter = string.Empty;
     [ObservableProperty] private ESortType sortType = ESortType.Default;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(SortIcon))] private bool isDescending = false;
+    public MaterialIconKind SortIcon => IsDescending ? MaterialIconKind.SortDescending : MaterialIconKind.SortAscending;
     public readonly IObservable<SortExpressionComparer<AssetItem>> AssetSort;
     public readonly IObservable<Func<AssetItem, bool>> AssetFilter;
 
     public AssetsViewModel()
     {
         AssetFilter = this.WhenAnyValue(x => x.SearchFilter).Select(CreateAssetFilter);
-        AssetSort = this.WhenAnyValue(x => x.SortType).Select(type => SortExpressionComparer<AssetItem>.Ascending(
-            type switch
+        AssetSort = this.WhenAnyValue(x => x.SortType, x => x.IsDescending)
+            .Select(values =>
             {
-                ESortType.Default => asset => asset.ID,
-                ESortType.AZ => asset => asset.DisplayName,
-                // scuffed ways to do sub-sorting within sections
-                ESortType.Season => asset => asset.Season + (double) asset.Rarity * 0.01, 
-                ESortType.Rarity => asset => asset.Series + (int) asset.Rarity,
-                _ => asset => asset.ID
-            }));
+                var type = values.Item1;
+                var descending = values.Item2;
+                Func<AssetItem, IComparable> sort = type switch
+                {
+                    ESortType.Default => asset => asset.ID,
+                    ESortType.AZ => asset => asset.DisplayName,
+                    // scuffed ways to do sub-sorting within sections
+                    ESortType.Season => asset => asset.Season + (double)asset.Rarity * 0.01,
+                    ESortType.Rarity => asset => asset.Series + (int)asset.Rarity,
+                    _ => asset => asset.ID
+                };
+
+                return descending
+                    ? SortExpressionComparer<AssetItem>.Descending(sort)
+                    : SortExpressionComparer<AssetItem>.Ascending(sort);
+
+            });
     }
     
     public override async Task Initialize()
