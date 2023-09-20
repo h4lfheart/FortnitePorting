@@ -105,7 +105,12 @@
                 </ToggleButton>
                 <ComboBox Grid.Column="4" HorizontalAlignment="Stretch" ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:ESortType}}" SelectedItem="{Binding SortType, Converter={StaticResource EnumToString}}" />
                 <material:MaterialIcon Grid.Column="6" Kind="Filter" Width="20" Height="20"/>
-                <ComboBox Grid.Column="8" HorizontalAlignment="Stretch" ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:ESortType}}" />
+                <ToggleButton Grid.Column="8" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <Grid ColumnDefinitions="* Auto">
+                        <TextBlock Grid.Column="0" Text="None" TextTrimming="CharacterEllipsis" HorizontalAlignment="Center"/>
+                        <material:MaterialIcon Grid.Column="1" Kind="ArrowDown" Width="20" Height="20"/>
+                    </Grid>
+                </ToggleButton>
             </Grid>
             
             <controls:GroupBox Grid.Row="2">

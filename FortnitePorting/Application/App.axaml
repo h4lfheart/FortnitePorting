@@ -43,29 +43,29 @@
             <Setter Property="CornerRadius" Value="5" />
             <Setter Property="Background" Value="#13FFFFFF" />
             <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="BorderBrush" Value="#10FFFFFF" />
+            <Setter Property="BorderBrush" Value="#26FFFFFF" />
         </Style>
         
         <Style Selector="ComboBox:pointerover /template/ Border">
             <Setter Property="Background" Value="#26FFFFFF" />
-            <Setter Property="BorderBrush" Value="#10FFFFFF" />
+            <Setter Property="BorderBrush" Value="#26FFFFFF" />
         </Style>
         
         <Style Selector="TextBox">
             <Setter Property="CornerRadius" Value="5" />
             <Setter Property="Background" Value="#13FFFFFF" />
             <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="BorderBrush" Value="#10FFFFFF" />
+            <Setter Property="BorderBrush" Value="#26FFFFFF" />
         </Style>
         
         <Style Selector="TextBox:pointerover /template/ Border">
             <Setter Property="Background" Value="#26FFFFFF" />
-            <Setter Property="BorderBrush" Value="#10FFFFFF" />
+            <Setter Property="BorderBrush" Value="#26FFFFFF" />
         </Style>
         
         <Style Selector="TextBox:focus /template/ Border">
             <Setter Property="Background" Value="#26FFFFFF" />
-            <Setter Property="BorderBrush" Value="#10FFFFFF" />
+            <Setter Property="BorderBrush" Value="#26FFFFFF" />
         </Style>
         
         <Style Selector="TabItem">
