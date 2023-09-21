@@ -38,4 +38,14 @@ public static class CUE4ParseExtensions
     {
         return tags.GameplayTags is not { Length: > 0 } ? def : tags.GetValue(category);
     }
+    
+    public static bool ContainsAny(this FGameplayTagContainer tags, params string[] check)
+    {
+        return check.Any(x => tags.ContainsAny(x));
+    }
+
+    public static bool ContainsAny(this FGameplayTagContainer tags, string check)
+    {
+        return tags.GameplayTags.Any(x => x.TagName.Text.Contains(check)); 
+    }
 }

@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -36,40 +37,33 @@ public partial class AssetsViewModel : ViewModelBase
     public bool IsFolderOnlyExport => CurrentAsset?.Type is EAssetType.LoadingScreen or EAssetType.Spray or EAssetType.MusicPack;
     [ObservableProperty] private ObservableCollection<EExportType> folderExportEnumCollection = new(new[] { EExportType.Folder});
     
+    [ObservableProperty] private EExportType exportType = EExportType.Blender;
     [ObservableProperty] private ReadOnlyObservableCollection<AssetItem> activeCollection;
     [ObservableProperty] private ObservableCollection<UserControl> extraOptions = new();
 
-    [ObservableProperty] private EExportType exportType = EExportType.Blender;
-    [ObservableProperty] private string searchFilter = string.Empty;
     [ObservableProperty] private ESortType sortType = ESortType.Default;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(SortIcon))] private bool isDescending = false;
+    
+    [ObservableProperty] private string searchFilter = string.Empty;
+    [ObservableProperty] private string filterPreviewText = "None";
+    [ObservableProperty] private AvaloniaDictionary<string, Predicate<AssetItem>> filters = new();
     public MaterialIconKind SortIcon => IsDescending ? MaterialIconKind.SortDescending : MaterialIconKind.SortAscending;
     public readonly IObservable<SortExpressionComparer<AssetItem>> AssetSort;
     public readonly IObservable<Func<AssetItem, bool>> AssetFilter;
+    public static readonly Dictionary<string, Predicate<AssetItem>> FilterPredicates = new()
+    {
+        { "Favorite", x => false }, // TODO Favorite Support
+        { "Hidden Assets", x => false }, // TODO Broken Asset Filter
+        { "Battle Pass", x => x.GameplayTags.ContainsAny("BattlePass") },
+        { "Item Shop", x => x.GameplayTags.ContainsAny("ItemShop") },
+        { "Save The World", x => x.GameplayTags.ContainsAny("CampaignHero", "SaveTheWorld") || x.Asset.GetPathName().Contains("SaveTheWorld", StringComparison.OrdinalIgnoreCase) },
+        { "Battle Royale", x => !x.GameplayTags.ContainsAny("CampaignHero", "SaveTheWorld") },
+    };
 
     public AssetsViewModel()
     {
-        AssetFilter = this.WhenAnyValue(x => x.SearchFilter).Select(CreateAssetFilter);
-        AssetSort = this.WhenAnyValue(x => x.SortType, x => x.IsDescending)
-            .Select(values =>
-            {
-                var type = values.Item1;
-                var descending = values.Item2;
-                Func<AssetItem, IComparable> sort = type switch
-                {
-                    ESortType.Default => asset => asset.ID,
-                    ESortType.AZ => asset => asset.DisplayName,
-                    // scuffed ways to do sub-sorting within sections
-                    ESortType.Season => asset => asset.Season + (double)asset.Rarity * 0.01,
-                    ESortType.Rarity => asset => asset.Series + (int)asset.Rarity,
-                    _ => asset => asset.ID
-                };
-
-                return descending
-                    ? SortExpressionComparer<AssetItem>.Descending(sort)
-                    : SortExpressionComparer<AssetItem>.Ascending(sort);
-
-            });
+        AssetFilter = this.WhenAnyValue(x => x.SearchFilter, x => x.Filters).Select(CreateAssetFilter);
+        AssetSort = this.WhenAnyValue(x => x.SortType, x => x.IsDescending).Select(CreateAssetSort);
     }
     
     public override async Task Initialize()
@@ -212,9 +206,55 @@ public partial class AssetsViewModel : ViewModelBase
         CurrentAsset = null;
     }
     
-    private static Func<AssetItem, bool> CreateAssetFilter(string filter)
+    public void ModifyFilters(string tag, bool enable)
     {
-        return asset => asset.Match(filter);
+        if (!FilterPredicates.ContainsKey(tag)) return;
+
+        if (enable)
+        {
+            Filters.AddUnique(tag, FilterPredicates[tag]);
+        }
+        else
+        {
+            Filters.Remove(tag);
+        }
+
+        FakeRefreshFilters();
+        
+        FilterPreviewText = Filters.Count > 0 ? Filters.Select(x => x.Key).CommaJoin(includeAnd: false) : "None";
+    }
+
+    // scuffed fix to get filter to update
+    private void FakeRefreshFilters()
+    {
+        var temp = Filters;
+        Filters = null;
+        Filters = temp;
+    }
+    
+    private static SortExpressionComparer<AssetItem> CreateAssetSort((ESortType, bool) values)
+    {
+        var (type, descending) = values;
+        Func<AssetItem, IComparable> sort = type switch
+        {
+            ESortType.Default => asset => asset.ID,
+            ESortType.AZ => asset => asset.DisplayName,
+            // scuffed ways to do sub-sorting within sections
+            ESortType.Season => asset => asset.Season + (double)asset.Rarity * 0.01,
+            ESortType.Rarity => asset => asset.Series + (int)asset.Rarity,
+            _ => asset => asset.ID
+        };
+
+        return descending
+            ? SortExpressionComparer<AssetItem>.Descending(sort)
+            : SortExpressionComparer<AssetItem>.Ascending(sort);
+    }
+    
+    private static Func<AssetItem, bool> CreateAssetFilter((string, AvaloniaDictionary<string, Predicate<AssetItem>>?) values)
+    {
+        var (searchFilter, filters) = values;
+        if (filters is null) return _ => true;
+        return asset => asset.Match(searchFilter) && filters.All(x => x.Value.Invoke(asset));
     }
 
     private static T? GetVehicleInfo<T>(UObject asset, params string[] names) where T : class

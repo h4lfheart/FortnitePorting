@@ -111,4 +111,23 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
                 break;
         }
     }
+
+    private void OnFilterChecked(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not CheckBox checkBox) return;
+        if (checkBox.Content is null) return;
+        if (!checkBox.IsChecked.HasValue) return;
+
+        ViewModel.ModifyFilters(checkBox.Content.ToString()!, checkBox.IsChecked.Value);
+    }
+
+    private void OnFilterClearClicked(object? sender, RoutedEventArgs e)
+    {
+        ViewModel.Filters.Clear();
+        foreach (var child in FilterPopupPanel.Children)
+        {
+            if (child is not CheckBox checkBox) continue;
+            checkBox.IsChecked = false;
+        }
+    }
 }

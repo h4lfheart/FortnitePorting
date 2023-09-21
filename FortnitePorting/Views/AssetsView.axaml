@@ -100,21 +100,45 @@
                 </Grid.ColumnDefinitions>
                 
                 <TextBox Grid.Column="0" Watermark="Search" Text="{Binding SearchFilter}" HorizontalAlignment="Stretch"/>
+                
                 <ToggleButton Grid.Column="2" IsChecked="{Binding IsDescending}">
                     <material:MaterialIcon Kind="{Binding SortIcon}" Width="20" Height="20"/>
                 </ToggleButton>
                 <ComboBox Grid.Column="4" HorizontalAlignment="Stretch" ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:ESortType}}" SelectedItem="{Binding SortType, Converter={StaticResource EnumToString}}" />
+                
                 <material:MaterialIcon Grid.Column="6" Kind="Filter" Width="20" Height="20"/>
-                <ToggleButton Grid.Column="8" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <ToggleButton x:Name="FilterButton" Grid.Column="8" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                     <Grid ColumnDefinitions="* Auto">
-                        <TextBlock Grid.Column="0" Text="None" TextTrimming="CharacterEllipsis" HorizontalAlignment="Center"/>
+                        <TextBlock Grid.Column="0" Text="{Binding FilterPreviewText}" TextTrimming="CharacterEllipsis" HorizontalAlignment="Center"/>
                         <material:MaterialIcon Grid.Column="1" Kind="ArrowDown" Width="20" Height="20"/>
                     </Grid>
                 </ToggleButton>
+                
+                <Popup Grid.Column="8" PlacementTarget="{Binding ElementName=FilterButton}"
+                       Width="{Binding ElementName=FilterButton, Path=Bounds.Width}" 
+                       IsOpen="{Binding ElementName=FilterButton, Path=IsChecked}"
+                       Placement="BottomEdgeAlignedRight">
+                    <controls:GroupBox Background="#2b2b2b" BorderBrush="#60000000" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <StackPanel x:Name="FilterPopupPanel">
+                            <CheckBox Content="Favorite" IsCheckedChanged="OnFilterChecked"/>
+                            <CheckBox Content="Hidden Assets" IsCheckedChanged="OnFilterChecked"/>
+                            <Separator Background="Transparent" />
+                            <CheckBox Content="Battle Pass" IsCheckedChanged="OnFilterChecked"/>
+                            <CheckBox Content="Item Shop" IsCheckedChanged="OnFilterChecked"/>
+                            <Separator Background="Transparent" />
+                            <CheckBox Content="Battle Royale" IsCheckedChanged="OnFilterChecked"/>
+                            <CheckBox Content="Save The World" IsCheckedChanged="OnFilterChecked"/>
+                            <Separator Background="Transparent" />
+                            <Button HorizontalAlignment="Stretch" Click="OnFilterClearClicked">
+                                <controls:MaterialIconText HorizontalAlignment="Center" VerticalAlignment="Center" Text="Clear Filters" Icon="Delete"/>
+                            </Button>
+                        </StackPanel>
+                    </controls:GroupBox>
+                </Popup>
             </Grid>
             
             <controls:GroupBox Grid.Row="2">
-                <ListBox x:Name="AssetsListBox" ItemsSource="{Binding ActiveCollection}" AutoScrollToSelectedItem="False" Background="Transparent" SelectionChanged="OnSelectionChanged">
+                <ListBox ItemsSource="{Binding ActiveCollection}" AutoScrollToSelectedItem="False" Background="Transparent" SelectionChanged="OnSelectionChanged">
                     <ListBox.ItemsPanel>
                         <ItemsPanelTemplate>
                             <wrapPanel:VirtualizingWrapPanel/>

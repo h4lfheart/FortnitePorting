@@ -18,6 +18,15 @@ class Program
             .UseReactiveUI()
             .With(new Win32PlatformOptions
             {
-                CompositionMode = new [] { Win32CompositionMode.WinUIComposition }
+                CompositionMode = new [] { Win32CompositionMode.WinUIComposition },
+                OverlayPopups = true
+            })
+            .With(new X11PlatformOptions
+            {
+                OverlayPopups = true
+            })
+            .With(new AvaloniaNativePlatformOptions
+            {
+                OverlayPopups = true
             });
 }
