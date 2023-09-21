@@ -14,12 +14,10 @@ To be able to build FortnitePorting from source, first clone the repository and 
 
 ```
 git clone -b avalonia-2.0 https://github.com/halfuwu/FortnitePorting --recursive
-
 ```
 
 Then open the project directory in a terminal window and run this command
 
 ```
 dotnet publish FortnitePorting.Desktop -c Release --no-self-contained -r win-x64 -o "./Release" -p:PublishSingleFile=true -p:DebugType=None -p:DebugSymbols=false -p:IncludeNativeLibrariesForSelfExtract=true
-
 ```
