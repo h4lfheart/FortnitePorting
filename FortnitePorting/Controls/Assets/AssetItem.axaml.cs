@@ -27,6 +27,8 @@ public partial class AssetItem : UserControl
         get => GetValue(IsFavoriteProperty);
         set => SetValue(IsFavoriteProperty, value);
     }
+    
+    public bool Hidden { get; set; }
     public EAssetType Type { get; set; }
     public UObject Asset { get; set; }
     public string ID { get; set; }
@@ -41,10 +43,11 @@ public partial class AssetItem : UserControl
     public Bitmap IconBitmap { get; set; }
     public Bitmap PreviewImage { get; set; }
     
-    public AssetItem(UObject asset, UTexture2D icon, string displayName, EAssetType type)
+    public AssetItem(UObject asset, UTexture2D icon, string displayName, EAssetType type, bool isHidden = false)
     {
         InitializeComponent();
 
+        Hidden = isHidden;
         Type = type;
         Asset = asset;
         IsFavorite = AppSettings.Current.FavoritePaths.Contains(asset.GetPathName());

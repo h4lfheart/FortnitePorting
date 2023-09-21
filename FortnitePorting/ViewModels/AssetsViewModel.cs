@@ -54,7 +54,7 @@ public partial class AssetsViewModel : ViewModelBase
     public static readonly Dictionary<string, Predicate<AssetItem>> FilterPredicates = new()
     {
         { "Favorite", x => x.IsFavorite },
-        { "Hidden Assets", x => false }, // TODO Broken Asset Filter
+        { "Hidden Assets", x => x.Hidden },
         { "Battle Pass", x => x.GameplayTags.ContainsAny("BattlePass") },
         { "Item Shop", x => x.GameplayTags.ContainsAny("ItemShop") },
         { "Save The World", x => x.GameplayTags.ContainsAny("CampaignHero", "SaveTheWorld") || x.Asset.GetPathName().Contains("SaveTheWorld", StringComparison.OrdinalIgnoreCase) },
@@ -74,6 +74,7 @@ public partial class AssetsViewModel : ViewModelBase
             new(EAssetType.Outfit)
             {
                 Classes = new[] { "AthenaCharacterItemDefinition" },
+                Filters = new[] { "_NPC", "_TBD", "CID_VIP", "_Creative", "_SG" },
                 IconHandler = asset =>
                 {
                     asset.TryGetValue(out UTexture2D? previewImage, "SmallPreviewImage", "LargePreviewImage");
@@ -87,11 +88,13 @@ public partial class AssetsViewModel : ViewModelBase
             },
             new(EAssetType.Backpack)
             {
-                Classes = new[] { "AthenaBackpackItemDefinition" }
+                Classes = new[] { "AthenaBackpackItemDefinition" },
+                Filters = new[] { "_STWHeroNoDefaultBackpack", "_TEST", "Dev_", "_NPC", "_TBD" },
             },
             new(EAssetType.Pickaxe)
             {
                 Classes = new[] { "AthenaPickaxeItemDefinition" },
+                Filters = new[] { "Dev_", "TBD_" },
                 IconHandler = asset =>
                 {
                     asset.TryGetValue(out UTexture2D? previewImage, "SmallPreviewImage", "LargePreviewImage");
@@ -117,7 +120,8 @@ public partial class AssetsViewModel : ViewModelBase
             },
             new(EAssetType.Spray)
             {
-                Classes = new[] { "AthenaSprayItemDefinition" }
+                Classes = new[] { "AthenaSprayItemDefinition" },
+                Filters = new[] { "SPID_000", "SPID_001" }
             },
             new(EAssetType.Banner)
             {
@@ -129,7 +133,8 @@ public partial class AssetsViewModel : ViewModelBase
             },
             new(EAssetType.Emote)
             {
-                Classes = new[] { "AthenaDanceItemDefinition" }
+                Classes = new[] { "AthenaDanceItemDefinition" },
+                Filters = new[] { "_CT", "_NPC" }
             },
             new(EAssetType.MusicPack)
             {
@@ -145,7 +150,8 @@ public partial class AssetsViewModel : ViewModelBase
             },
             new(EAssetType.Item)
             {
-                Classes = new[] {"AthenaGadgetItemDefinition", "FortWeaponRangedItemDefinition", "FortWeaponMeleeItemDefinition", "FortCreativeWeaponMeleeItemDefinition", "FortCreativeWeaponRangedItemDefinition", "FortWeaponMeleeDualWieldItemDefinition" }
+                Classes = new[] {"AthenaGadgetItemDefinition", "FortWeaponRangedItemDefinition", "FortWeaponMeleeItemDefinition", "FortCreativeWeaponMeleeItemDefinition", "FortCreativeWeaponRangedItemDefinition", "FortWeaponMeleeDualWieldItemDefinition" },
+                Filters = new[] { "_Harvest", "Weapon_Pickaxe_", "Weapons_Pickaxe_", "Dev_WID" }
             },
             new(EAssetType.Trap)
             {
@@ -265,7 +271,7 @@ public partial class AssetsViewModel : ViewModelBase
     {
         var (searchFilter, filters) = values;
         if (filters is null) return _ => true;
-        return asset => asset.Match(searchFilter) && filters.All(x => x.Value.Invoke(asset));
+        return asset => asset.Match(searchFilter) && filters.All(x => x.Value.Invoke(asset)) && asset.Hidden == filters.ContainsKey("Hidden Assets");
     }
 
     private static T? GetVehicleInfo<T>(UObject asset, params string[] names) where T : class
@@ -299,6 +305,7 @@ public class AssetLoader
     public ReadOnlyObservableCollection<AssetItem> Target;
     
     public string[] Classes = Array.Empty<string>();
+    public string[] Filters = Array.Empty<string>();
     public Func<UObject, UTexture2D?> IconHandler = asset => asset.GetAnyOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage");
     public Func<UObject, FText?> DisplayNameHandler = asset => asset.GetOrDefault("DisplayName", new FText(asset.Name));
     public Func<AssetLoader, Task>? CustomLoadingHandler;
@@ -351,7 +358,7 @@ public class AssetLoader
         var displayName = DisplayNameHandler(asset)?.Text;
         if (string.IsNullOrEmpty(displayName)) displayName = asset.Name;
 
-        await Dispatcher.UIThread.InvokeAsync(() => Source.Add(new AssetItem(asset, icon, displayName, Type)), DispatcherPriority.Background);
+        await Dispatcher.UIThread.InvokeAsync(() => Source.Add(new AssetItem(asset, icon, displayName, Type, Filters.Any(y => asset.Name.Contains(y, StringComparison.OrdinalIgnoreCase)))), DispatcherPriority.Background);
     }
 }
 
