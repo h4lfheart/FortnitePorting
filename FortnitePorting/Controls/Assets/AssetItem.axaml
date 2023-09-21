@@ -12,6 +12,7 @@
             <Border.Background>
                 <ImageBrush Stretch="Fill" Source="{Binding PreviewImage, RelativeSource={RelativeSource AncestorType=assets:AssetItem}}"/>
             </Border.Background>
+            <Image IsVisible="{Binding IsFavorite, RelativeSource={RelativeSource AncestorType=assets:AssetItem}}" Source="/Assets/FN/Favorite.png" Width="24" Height="24" HorizontalAlignment="Right" VerticalAlignment="Top"/>
         </Border>
         <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="12" TextTrimming="CharacterEllipsis" Text="{Binding DisplayName, RelativeSource={RelativeSource AncestorType=assets:AssetItem}}"/>
     </StackPanel>

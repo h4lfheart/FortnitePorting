@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.Versions;
@@ -40,4 +41,5 @@ public partial class AppSettings : ObservableObject
     [ObservableProperty] private bool useFallbackBackground = false;
     [ObservableProperty] private bool useDiscordRPC = true;
     [ObservableProperty] private ELanguage language = ELanguage.English;
+    [ObservableProperty] private List<string> favoritePaths = new();
 }

@@ -8,6 +8,7 @@ using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.UE4;
 using CUE4Parse.UE4.AssetRegistry.Objects;
 using CUE4Parse.UE4.Assets.Exports;
@@ -52,7 +53,7 @@ public partial class AssetsViewModel : ViewModelBase
     public readonly IObservable<Func<AssetItem, bool>> AssetFilter;
     public static readonly Dictionary<string, Predicate<AssetItem>> FilterPredicates = new()
     {
-        { "Favorite", x => false }, // TODO Favorite Support
+        { "Favorite", x => x.IsFavorite },
         { "Hidden Assets", x => false }, // TODO Broken Asset Filter
         { "Battle Pass", x => x.GameplayTags.ContainsAny("BattlePass") },
         { "Item Shop", x => x.GameplayTags.ContainsAny("ItemShop") },
@@ -222,6 +223,12 @@ public partial class AssetsViewModel : ViewModelBase
         FakeRefreshFilters();
         
         FilterPreviewText = Filters.Count > 0 ? Filters.Select(x => x.Key).CommaJoin(includeAnd: false) : "None";
+    }
+
+    [RelayCommand]
+    public void Favorite()
+    {
+        CurrentAsset?.Favorite();
     }
 
     // scuffed fix to get filter to update

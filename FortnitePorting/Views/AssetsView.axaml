@@ -12,6 +12,9 @@
              mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720"
              x:Class="FortnitePorting.Views.AssetsView"
              x:DataType="viewmodels:AssetsViewModel">
+    <UserControl.KeyBindings>
+        <KeyBinding Gesture="Ctrl+F" Command="{Binding FavoriteCommand}"/>
+    </UserControl.KeyBindings>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="0.15*"/>

@@ -1,5 +1,9 @@
+using System.ComponentModel;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media.Imaging;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.GameTypes.FN.Enums;
 using CUE4Parse.UE4.Assets.Exports;
@@ -7,6 +11,7 @@ using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.GameplayTags;
 using CUE4Parse.Utils;
+using FortnitePorting.Application;
 using FortnitePorting.Extensions;
 using FortnitePorting.ViewModels;
 using SkiaSharp;
@@ -16,6 +21,12 @@ namespace FortnitePorting.Controls.Assets;
 
 public partial class AssetItem : UserControl
 {
+    public static readonly StyledProperty<bool> IsFavoriteProperty = AvaloniaProperty.Register<AssetItem, bool>(nameof(IsFavoriteProperty), defaultValue: false);
+    public bool IsFavorite
+    {
+        get => GetValue(IsFavoriteProperty);
+        set => SetValue(IsFavoriteProperty, value);
+    }
     public EAssetType Type { get; set; }
     public UObject Asset { get; set; }
     public string ID { get; set; }
@@ -36,6 +47,7 @@ public partial class AssetItem : UserControl
 
         Type = type;
         Asset = asset;
+        IsFavorite = AppSettings.Current.FavoritePaths.Contains(asset.GetPathName());
         ID = asset.Name;
         DisplayName = displayName;
         Description = asset.GetOrDefault("Description", new FText("No description.")).Text;
@@ -92,5 +104,21 @@ public partial class AssetItem : UserControl
     public bool Match(string filter)
     {
         return MiscExtensions.Filter(DisplayName, filter) || MiscExtensions.Filter(ID, filter);
+    }
+
+    [RelayCommand]
+    public void Favorite()
+    {
+        var path = Asset.GetPathName();
+        if (!AppSettings.Current.FavoritePaths.Contains(path))
+        {
+            AppSettings.Current.FavoritePaths.AddUnique(path);
+            IsFavorite = true;
+        }
+        else
+        {
+            AppSettings.Current.FavoritePaths.Remove(path);
+            IsFavorite = false;
+        }
     }
 }
