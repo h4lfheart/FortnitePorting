@@ -6,8 +6,7 @@
 [![Unreal](https://img.shields.io/badge/Unreal-5.3+-blue?logo=unreal-engine&logoColor=white&color=white)](https://www.unrealengine.com/en-US/download)
 ***
 
-![image](https://github.com/halfuwu/FortnitePorting/assets/69497698/71d8264d-e25d-4e6e-9793-661c7d945e1b)
-
+![image](https://github.com/halfuwu/FortnitePorting/assets/69497698/182fad45-f9b1-4775-8e4a-ec35c8a4ac09)
 
 ## Building FortnitePorting
 
