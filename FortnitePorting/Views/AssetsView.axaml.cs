@@ -130,4 +130,9 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
             checkBox.IsChecked = false;
         }
     }
+
+    private void OnRandomButtonClicked(object? sender, RoutedEventArgs e)
+    {
+        AssetsListBox.SelectedIndex = RandomGenerator.Next(0, ViewModel.ActiveCollection.Count);
+    }
 }

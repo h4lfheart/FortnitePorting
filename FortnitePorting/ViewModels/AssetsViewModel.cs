@@ -119,9 +119,13 @@ public partial class AssetsViewModel : ViewModelBase
             {
                 Classes = new[] { "AthenaSprayItemDefinition" }
             },
-            new(EAssetType.LoadingScreen)
+            new(EAssetType.Banner)
             {
                 Classes = new[] { "FortHomebaseBannerIconItemDefinition" }
+            },
+            new(EAssetType.LoadingScreen)
+            {
+                Classes = new[] { "AthenaLoadingScreenItemDefinition" }
             },
             new(EAssetType.Emote)
             {

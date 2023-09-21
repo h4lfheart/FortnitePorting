@@ -7,7 +7,7 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FortnitePorting.Controls.Assets.AssetItem"
              x:DataType="assets:AssetItem">
-    <StackPanel Width="64">
+    <StackPanel Width="64" ToolTip.Tip="{Binding ID, RelativeSource={RelativeSource AncestorType=assets:AssetItem}}">
         <Border Width="64" Height="80" CornerRadius="5" BorderThickness="2" BorderBrush="#13FFFFFF">
             <Border.Background>
                 <ImageBrush Stretch="Fill" Source="{Binding PreviewImage, RelativeSource={RelativeSource AncestorType=assets:AssetItem}}"/>

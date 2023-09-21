@@ -37,6 +37,9 @@ public enum EAssetType
     [Description("Sprays")]
     Spray,
     
+    [Description("Banners")]
+    Banner,
+    
     [Description("Loading Screens")]
     LoadingScreen,
     

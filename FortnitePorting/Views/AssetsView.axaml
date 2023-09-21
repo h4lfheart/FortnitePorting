@@ -31,52 +31,55 @@
                         <Setter Property="Margin" Value="0 0 0 4" />
                     </Style>
                 </StackPanel.Styles>
-                <ToggleButton Tag="{x:Static fortnitePorting:EAssetType.Outfit}" Click="OnAssetTypeClick" IsChecked="True">
+                <ToggleButton ToolTip.Tip="Outfits" Tag="{x:Static fortnitePorting:EAssetType.Outfit}" Click="OnAssetTypeClick" IsChecked="True">
                     <Image Source="/Assets/FN/Outfit.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
                 </ToggleButton>
-                <ToggleButton Tag="{x:Static fortnitePorting:EAssetType.Backpack}" Click="OnAssetTypeClick">
+                <ToggleButton ToolTip.Tip="Back Blings" Tag="{x:Static fortnitePorting:EAssetType.Backpack}" Click="OnAssetTypeClick">
                     <Image Source="/Assets/FN/Backpack.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
                 </ToggleButton>
-                <ToggleButton Tag="{x:Static fortnitePorting:EAssetType.Pickaxe}" Click="OnAssetTypeClick">
+                <ToggleButton ToolTip.Tip="Pickaxes" Tag="{x:Static fortnitePorting:EAssetType.Pickaxe}" Click="OnAssetTypeClick">
                     <Image Source="/Assets/FN/Pickaxe.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
                 </ToggleButton>
-                <ToggleButton Tag="{x:Static fortnitePorting:EAssetType.Glider}" Click="OnAssetTypeClick">
+                <ToggleButton ToolTip.Tip="Gliders" Tag="{x:Static fortnitePorting:EAssetType.Glider}" Click="OnAssetTypeClick">
                     <Image Source="/Assets/FN/Glider.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
                 </ToggleButton>
-                <ToggleButton Tag="{x:Static fortnitePorting:EAssetType.Pet}" Click="OnAssetTypeClick">
+                <ToggleButton ToolTip.Tip="Pets" Tag="{x:Static fortnitePorting:EAssetType.Pet}" Click="OnAssetTypeClick">
                     <Image Source="/Assets/FN/Pet.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
                 </ToggleButton>
-                <ToggleButton Tag="{x:Static fortnitePorting:EAssetType.Toy}" Click="OnAssetTypeClick">
+                <ToggleButton ToolTip.Tip="Toys" Tag="{x:Static fortnitePorting:EAssetType.Toy}" Click="OnAssetTypeClick">
                     <Image Source="/Assets/FN/Toy.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
                 </ToggleButton>
-                <ToggleButton Tag="{x:Static fortnitePorting:EAssetType.Spray}" Click="OnAssetTypeClick">
+                <ToggleButton ToolTip.Tip="Sprays" Tag="{x:Static fortnitePorting:EAssetType.Spray}" Click="OnAssetTypeClick">
                     <Image Source="/Assets/FN/Spray.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
                 </ToggleButton>
-                <ToggleButton Tag="{x:Static fortnitePorting:EAssetType.LoadingScreen}" Click="OnAssetTypeClick">
+                <ToggleButton ToolTip.Tip="Banners" Tag="{x:Static fortnitePorting:EAssetType.Banner}" Click="OnAssetTypeClick">
+                    <Image Source="/Assets/FN/Banner.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                </ToggleButton>
+                <ToggleButton ToolTip.Tip="Loading Screens" Tag="{x:Static fortnitePorting:EAssetType.LoadingScreen}" Click="OnAssetTypeClick">
                     <Image Source="/Assets/FN/LoadingScreen.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
                 </ToggleButton>
-                <ToggleButton Tag="{x:Static fortnitePorting:EAssetType.Emote}" Click="OnAssetTypeClick">
+                <ToggleButton ToolTip.Tip="Emotes" Tag="{x:Static fortnitePorting:EAssetType.Emote}" Click="OnAssetTypeClick">
                     <Image Source="/Assets/FN/Dance.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
                 </ToggleButton>
-                <ToggleButton Tag="{x:Static fortnitePorting:EAssetType.MusicPack}" Click="OnAssetTypeClick">
+                <ToggleButton ToolTip.Tip="Music Packs" Tag="{x:Static fortnitePorting:EAssetType.MusicPack}" Click="OnAssetTypeClick">
                     <Image Source="/Assets/FN/Music.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
                 </ToggleButton>
-                <ToggleButton Tag="{x:Static fortnitePorting:EAssetType.Prop}" Click="OnAssetTypeClick">
+                <ToggleButton ToolTip.Tip="Props" Tag="{x:Static fortnitePorting:EAssetType.Prop}" Click="OnAssetTypeClick">
                     <Image Source="/Assets/FN/Prop.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
                 </ToggleButton>
-                <ToggleButton Tag="{x:Static fortnitePorting:EAssetType.Gallery}" Click="OnAssetTypeClick">
+                <ToggleButton ToolTip.Tip="Galleries" Tag="{x:Static fortnitePorting:EAssetType.Gallery}" Click="OnAssetTypeClick">
                     <Image Source="/Assets/FN/Gallery.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
                 </ToggleButton>
-                <ToggleButton Tag="{x:Static fortnitePorting:EAssetType.Item}" Click="OnAssetTypeClick">
+                <ToggleButton ToolTip.Tip="Items" Tag="{x:Static fortnitePorting:EAssetType.Item}" Click="OnAssetTypeClick">
                     <Image Source="/Assets/FN/Item.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
                 </ToggleButton>
-                <ToggleButton Tag="{x:Static fortnitePorting:EAssetType.Trap}" Click="OnAssetTypeClick">
+                <ToggleButton ToolTip.Tip="Traps" Tag="{x:Static fortnitePorting:EAssetType.Trap}" Click="OnAssetTypeClick">
                     <Image Source="/Assets/FN/Trap.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
                 </ToggleButton>
-                <ToggleButton Tag="{x:Static fortnitePorting:EAssetType.Vehicle}" Click="OnAssetTypeClick">
+                <ToggleButton ToolTip.Tip="Vehicles" Tag="{x:Static fortnitePorting:EAssetType.Vehicle}" Click="OnAssetTypeClick">
                     <Image Source="/Assets/FN/Vehicle.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
                 </ToggleButton>
-                <ToggleButton Tag="{x:Static fortnitePorting:EAssetType.Wildlife}" Click="OnAssetTypeClick">
+                <ToggleButton ToolTip.Tip="Wildlife" Tag="{x:Static fortnitePorting:EAssetType.Wildlife}" Click="OnAssetTypeClick">
                     <Image Source="/Assets/FN/Wildlife.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
                 </ToggleButton>
             </StackPanel>
@@ -91,6 +94,8 @@
             
             <Grid Grid.Row="0">
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="{ext:Space 1}" />
                     <ColumnDefinition Width="2*" />
                     <ColumnDefinition Width="{ext:Space 1}" />
                     <ColumnDefinition Width="Auto" />
@@ -102,22 +107,26 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 
-                <TextBox Grid.Column="0" Watermark="Search" Text="{Binding SearchFilter}" HorizontalAlignment="Stretch"/>
+                <Button Grid.Column="0" Click="OnRandomButtonClicked" ToolTip.Tip="Random">
+                    <material:MaterialIcon Kind="DiceMultiple" Width="20" Height="20"/>
+                </Button>
                 
-                <ToggleButton Grid.Column="2" IsChecked="{Binding IsDescending}">
+                <TextBox Grid.Column="2" Watermark="Search" Text="{Binding SearchFilter}" HorizontalAlignment="Stretch"/>
+                
+                <ToggleButton Grid.Column="4" IsChecked="{Binding IsDescending}" ToolTip.Tip="Ascending or Descending">
                     <material:MaterialIcon Kind="{Binding SortIcon}" Width="20" Height="20"/>
                 </ToggleButton>
-                <ComboBox Grid.Column="4" HorizontalAlignment="Stretch" ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:ESortType}}" SelectedItem="{Binding SortType, Converter={StaticResource EnumToString}}" />
+                <ComboBox Grid.Column="6" ToolTip.Tip="Sorting" HorizontalAlignment="Stretch" ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:ESortType}}" SelectedItem="{Binding SortType, Converter={StaticResource EnumToString}}" />
                 
-                <material:MaterialIcon Grid.Column="6" Kind="Filter" Width="20" Height="20"/>
-                <ToggleButton x:Name="FilterButton" Grid.Column="8" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <material:MaterialIcon Grid.Column="8" Kind="Filter" Width="20" Height="20"/>
+                <ToggleButton ToolTip.Tip="Filters" x:Name="FilterButton" Grid.Column="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                     <Grid ColumnDefinitions="* Auto">
                         <TextBlock Grid.Column="0" Text="{Binding FilterPreviewText}" TextTrimming="CharacterEllipsis" HorizontalAlignment="Center"/>
                         <material:MaterialIcon Grid.Column="1" Kind="ArrowDown" Width="20" Height="20"/>
                     </Grid>
                 </ToggleButton>
                 
-                <Popup Grid.Column="8" PlacementTarget="{Binding ElementName=FilterButton}"
+                <Popup Grid.Column="10" PlacementTarget="{Binding ElementName=FilterButton}"
                        Width="{Binding ElementName=FilterButton, Path=Bounds.Width}" 
                        IsOpen="{Binding ElementName=FilterButton, Path=IsChecked}"
                        Placement="BottomEdgeAlignedRight">
@@ -141,7 +150,7 @@
             </Grid>
             
             <controls:GroupBox Grid.Row="2">
-                <ListBox ItemsSource="{Binding ActiveCollection}" AutoScrollToSelectedItem="False" Background="Transparent" SelectionChanged="OnSelectionChanged">
+                <ListBox x:Name="AssetsListBox" ItemsSource="{Binding ActiveCollection}" AutoScrollToSelectedItem="False" Background="Transparent" SelectionChanged="OnSelectionChanged">
                     <ListBox.ItemsPanel>
                         <ItemsPanelTemplate>
                             <wrapPanel:VirtualizingWrapPanel/>
