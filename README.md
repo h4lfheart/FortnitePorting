@@ -10,7 +10,7 @@
 
 ## Building FortnitePorting
 
-To be able to build FortnitePorting from source, first clone the repository and all of its submodules.
+To build FortnitePorting from source, first clone the repository and all of its submodules.
 
 ```
 git clone -b avalonia-2.0 https://github.com/halfuwu/FortnitePorting --recursive
