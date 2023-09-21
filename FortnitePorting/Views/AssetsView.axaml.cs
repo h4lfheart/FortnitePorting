@@ -24,13 +24,8 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
     public AssetsView()
     {
         InitializeComponent();
-    }
-    
-    protected override async void OnLoaded(RoutedEventArgs e)
-    {
-        base.OnLoaded(e);
-
-        await TaskService.RunAsync(async () => await ViewModel.Initialize());
+        
+        TaskService.Run(async () => await ViewModel.Initialize());
     }
 
     private void OnSelectionChanged(object? sender, SelectionChangedEventArgs e)

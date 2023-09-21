@@ -6,6 +6,7 @@
         <TargetFramework>net6.0</TargetFramework>
         <Nullable>enable</Nullable>
         <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+        <ApplicationIcon>../FortnitePorting/Assets/FortnitePortingV2.ico</ApplicationIcon>
     </PropertyGroup>
 
     <PropertyGroup>
