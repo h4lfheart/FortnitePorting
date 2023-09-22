@@ -19,7 +19,9 @@ public class App : Avalonia.Application
 
     public override void OnFrameworkInitializationCompleted()
     {
-        ConsoleExtensions.AttachConsole(-1);
+        #if DEBUG
+          ConsoleExtensions.AttachConsole(-1);
+        #endif
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             Desktop = desktop;

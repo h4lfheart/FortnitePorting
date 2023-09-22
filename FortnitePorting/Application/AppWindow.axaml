@@ -3,23 +3,30 @@
         xmlns:framework="clr-namespace:FortnitePorting.Framework"
         xmlns:ext="clr-namespace:FortnitePorting.Extensions"
         xmlns:viewmodels="clr-namespace:FortnitePorting.ViewModels"
+        xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         x:Class="FortnitePorting.Application.AppWindow"
         x:DataType="viewmodels:ApplicationViewModel"
         Title="FortnitePorting" Icon="/Assets/FortnitePortingV2.ico" Width="1280" Height="720" WindowStartupLocation="CenterScreen" FontFamily="Segoe UI"
         Background="{x:Null}" TransparencyLevelHint="Mica"
-        ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="PreferSystemChrome" ExtendClientAreaTitleBarHeightHint="-1">
+        ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="NoChrome" ExtendClientAreaTitleBarHeightHint="0">
     <Grid RowDefinitions="30, *">
         <Image Grid.Row="0" Grid.RowSpan="2" Source="/Assets/FallbackBackground.png" Stretch="Fill" IsHitTestVisible="False" IsVisible="{Binding UseFallbackBackground}"/>
-        <Grid Grid.Row="0" PointerPressed="OnPointerPressed">
+        <Grid Grid.Row="0" PointerPressed="OnPointerPressed" Background="Transparent" HorizontalAlignment="Stretch">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="{ext:Space 1}"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="{ext:Space 0.25}"/>
                 <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             
             <TextBlock Grid.Column="1" Text="FortnitePorting" FontWeight="SemiBold" FontSize="16" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <TextBlock Grid.Column="3" Text="{Binding VersionString}" Opacity="0.5" FontSize="13" Margin="-1 2 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="3" Text="{Binding VersionString}" Opacity="0.5" FontSize="13" Margin="0 2 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <Grid Grid.Column="4" ColumnDefinitions="* 4 * 4 *" HorizontalAlignment="Right" Margin="{ext:Space 0.5}">
+                <Button Grid.Column="0" Content="{material:MaterialIconExt Kind=Minimize}" Click="OnMinimizeClicked" Classes="MinimizeMaximize" Width="24" Height="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Button Grid.Column="2" Content="{material:MaterialIconExt Kind=Maximize}" Click="OnMaximizeClicked" Classes="MinimizeMaximize" Width="24" Height="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Button Grid.Column="4" Content="{material:MaterialIconExt Kind=Close}" Click="OnCloseClicked" Classes="CloseWindow" Width="24" Height="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Grid>
         </Grid>
         
         <TransitioningContentControl Grid.Row="1" Content="{Binding CurrentView}">

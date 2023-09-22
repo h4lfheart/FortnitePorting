@@ -24,6 +24,14 @@
             <Setter Property="Background" Value="#26FFFFFF" />
         </Style>
         
+        <Style Selector="Button.CloseWindow:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#FF0E26" />
+        </Style>
+        
+        <Style Selector="Button.MinimizeMaximize:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{StaticResource SystemAccentColor}" />
+        </Style>
+        
         <Style Selector="ToggleButton">
             <Setter Property="CornerRadius" Value="5" />
             <Setter Property="Background" Value="#13FFFFFF" />
