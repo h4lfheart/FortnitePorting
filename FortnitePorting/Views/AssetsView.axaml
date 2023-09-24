@@ -17,7 +17,7 @@
     </UserControl.KeyBindings>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="0.15*"/>
+            <ColumnDefinition Width="0.175*"/>
             <ColumnDefinition Width="{ext:Space 1}"/>
             <ColumnDefinition Width="2.25*"/>
             <ColumnDefinition Width="{ext:Space 1}"/>
@@ -25,7 +25,7 @@
         </Grid.ColumnDefinitions>
         
         <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Hidden">
-            <StackPanel x:Name="AssetTypePanel">
+            <StackPanel x:Name="AssetTypePanel" HorizontalAlignment="Center">
                 <StackPanel.Styles>
                     <Style Selector="ToggleButton">
                         <Setter Property="Margin" Value="0 0 0 4" />

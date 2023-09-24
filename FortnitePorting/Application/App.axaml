@@ -24,8 +24,18 @@
             <Setter Property="Background" Value="#26FFFFFF" />
         </Style>
         
+        <Style Selector="Button.CloseWindow /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
+        
         <Style Selector="Button.CloseWindow:pointerover /template/ ContentPresenter">
             <Setter Property="Background" Value="#FF0E26" />
+        </Style>
+        
+        <Style Selector="Button.MinimizeMaximize /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
         </Style>
         
         <Style Selector="Button.MinimizeMaximize:pointerover /template/ ContentPresenter">

@@ -15,7 +15,7 @@
                 <TabItem.Header>
                     <controls:MaterialIconText Text="Assets      " Icon="File"/>
                 </TabItem.Header>
-                <views:AssetsView/>
+                <ContentControl Content="{Binding CurrentAssetView}"/>
             </TabItem>
             
             <TabItem>

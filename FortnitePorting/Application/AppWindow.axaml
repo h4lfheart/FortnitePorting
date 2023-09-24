@@ -23,9 +23,9 @@
             <TextBlock Grid.Column="1" Text="FortnitePorting" FontWeight="SemiBold" FontSize="16" HorizontalAlignment="Left" VerticalAlignment="Center"/>
             <TextBlock Grid.Column="3" Text="{Binding VersionString}" Opacity="0.5" FontSize="13" Margin="0 2 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
             <Grid Grid.Column="4" ColumnDefinitions="* 4 * 4 *" HorizontalAlignment="Right" Margin="{ext:Space 0.5}">
-                <Button Grid.Column="0" Content="{material:MaterialIconExt Kind=Minimize}" Click="OnMinimizeClicked" Classes="MinimizeMaximize" Width="24" Height="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                <Button Grid.Column="2" Content="{material:MaterialIconExt Kind=Maximize}" Click="OnMaximizeClicked" Classes="MinimizeMaximize" Width="24" Height="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                <Button Grid.Column="4" Content="{material:MaterialIconExt Kind=Close}" Click="OnCloseClicked" Classes="CloseWindow" Width="24" Height="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Button Grid.Column="0" Content="{material:MaterialIconExt Kind=Minimize}" Click="OnMinimizeClicked" CornerRadius="2" Classes="MinimizeMaximize" Width="24" Height="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Button Grid.Column="2" Content="{material:MaterialIconExt Kind=Maximize}" Click="OnMaximizeClicked" CornerRadius="2" Classes="MinimizeMaximize" Width="24" Height="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Button Grid.Column="4" Content="{material:MaterialIconExt Kind=Close}" Click="OnCloseClicked" CornerRadius="2" Classes="CloseWindow" Width="24" Height="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Grid>
         </Grid>
         

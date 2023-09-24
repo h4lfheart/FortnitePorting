@@ -12,6 +12,7 @@ public static class ApplicationService
     public static LoadingViewModel LoadingVM => ViewModelRegistry.Get<LoadingViewModel>();
     public static CUE4ParseViewModel CUE4ParseVM => ViewModelRegistry.Get<CUE4ParseViewModel>();
     public static AssetsViewModel AssetsVM => ViewModelRegistry.Get<AssetsViewModel>();
+    public static MainViewModel MainVM => ViewModelRegistry.Get<MainViewModel>();
     public static IStorageProvider StorageProvider => ApplicationLifetime!.MainWindow!.StorageProvider;
     public static Random RandomGenerator = new();
 

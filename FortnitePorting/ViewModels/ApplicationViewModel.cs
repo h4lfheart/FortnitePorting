@@ -25,7 +25,7 @@ public partial class ApplicationViewModel : ViewModelBase
             case ELoadingType.Live:
             case ELoadingType.Local when AppSettings.Current.HasValidLocalData:
             case ELoadingType.Custom when AppSettings.Current.HasValidCustomData:
-                SetView<LoadingView>();
+                SetView<MainView>();
                 break;
             default:
                 SetView<WelcomeView>();

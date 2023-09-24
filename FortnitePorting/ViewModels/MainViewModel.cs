@@ -1,15 +1,21 @@
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FortnitePorting.Framework;
+using FortnitePorting.Views;
 
 namespace FortnitePorting.ViewModels;
 
 public partial class MainViewModel : ViewModelBase
 {
-    [ObservableProperty] private UserControl currentPage;
-    
-    public void SetPage<T>() where T : UserControl, new()
+    [ObservableProperty] private UserControl? currentAssetView;
+
+    public MainViewModel()
     {
-        CurrentPage = new T();
+        SetAssetView<LoadingView>();
+    }
+    
+    public void SetAssetView<T>() where T : UserControl, new()
+    {
+        CurrentAssetView = new T();
     }
 }
