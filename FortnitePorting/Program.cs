@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.ReactiveUI;
 using FortnitePorting.Application;
 
-namespace FortnitePorting.Desktop;
+namespace FortnitePorting;
 
 class Program
 {
