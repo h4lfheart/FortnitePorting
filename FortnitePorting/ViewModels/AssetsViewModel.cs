@@ -24,6 +24,7 @@ using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using Material.Icons;
 using ReactiveUI;
+using Serilog;
 using AssetItem = FortnitePorting.Controls.Assets.AssetItem;
 
 namespace FortnitePorting.ViewModels;
@@ -340,7 +341,14 @@ public class AssetLoader
         await Parallel.ForEachAsync(assets, async (data, _) =>
         {
             await Pause.WaitIfPaused();
-            await LoadAsset(data);
+            try
+            {
+                await LoadAsset(data);
+            }
+            catch (Exception e)
+            {
+                Log.Error("{0}", e);
+            }
         });
     }
 

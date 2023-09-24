@@ -17,6 +17,7 @@ public static class EndpointService
 
     public static readonly FortniteCentralEndpoint FortniteCentral = new(_client);
     public static readonly FortnitePortingEndpoint FortnitePorting = new(_client);
+    public static readonly EpicGamesEndpoint EpicGames = new(_client);
 
     public static FileInfo DownloadFile(string url, string destination)
     {

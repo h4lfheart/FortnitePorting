@@ -15,16 +15,39 @@ public abstract class EndpointBase
         _client = client;
     }
 
-    protected async Task<T?> GetAsync<T>(string url)
+    protected async Task<T?> ExecuteAsync<T>(string url, Method method = Method.Get, params Parameter[] parameters)
     {
-        var request = new RestRequest(url);
+        var request = new RestRequest(url, method);
+        foreach (var parameter in parameters)
+        {
+            request.AddParameter(parameter);
+        }
+        
         var response = await _client.ExecuteAsync<T>(request).ConfigureAwait(false);
-        Log.Information("[{Method}] {StatusDescription} ({StatusCode}): {URI}", request.Method, response.StatusDescription, (int) response.StatusCode, request.Resource);
+        Log.Information("[{Method}] {StatusDescription} ({StatusCode}): {Uri}", request.Method, response.StatusDescription, (int) response.StatusCode, request.Resource);
         return response.StatusCode != HttpStatusCode.OK ? default : response.Data;
     }
     
-    protected T? Get<T>(string url)
+    protected T? Execute<T>(string url, Method method = Method.Get, params Parameter[] parameters)
     {
-        return GetAsync<T>(url).GetAwaiter().GetResult();
+        return ExecuteAsync<T>(url, method, parameters).GetAwaiter().GetResult();
+    }
+    
+    protected async Task<RestResponse> ExecuteAsync(string url, Method method = Method.Get, params Parameter[] parameters)
+    {
+        var request = new RestRequest(url, method);
+        foreach (var parameter in parameters)
+        {
+            request.AddParameter(parameter);
+        }
+        
+        var response = await _client.ExecuteAsync(request).ConfigureAwait(false);
+        Log.Information("[{Method}] {StatusDescription} ({StatusCode}): {Uri}", request.Method, response.StatusDescription, (int) response.StatusCode, request.Resource);
+        return response;
+    }
+    
+    protected RestResponse Execute(string url, Method method = Method.Get, params Parameter[] parameters)
+    {
+        return ExecuteAsync(url, method, parameters).GetAwaiter().GetResult();
     }
 }

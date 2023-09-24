@@ -59,9 +59,9 @@ public partial class LoadingViewModel : ViewModelBase
         });
     }
 
-    public void Update(string text)
+    public void Update(string text, bool increment = true)
     {
-        Update(text, LoadingPercentageTarget + 1.0f / LoadingTiers);
+        Update(text, increment ? LoadingPercentageTarget + 1.0f / LoadingTiers : LoadingPercentageTarget);
     }
 
     public void Update(string text, float percentage)

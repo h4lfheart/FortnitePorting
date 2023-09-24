@@ -4,6 +4,7 @@ using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.Versions;
 using CUE4Parse.Utils;
+using FortnitePorting.Services.Endpoints.Models;
 using Newtonsoft.Json;
 
 namespace FortnitePorting.Application;
@@ -38,8 +39,9 @@ public partial class AppSettings : ObservableObject
     [JsonIgnore] public bool HasValidLocalData => Directory.Exists(LocalArchivePath);
     [JsonIgnore] public bool HasValidCustomData => Directory.Exists(CustomArchivePath) && CustomEncryptionKey.TryParseAesKey(out _);
     
-    [ObservableProperty] private bool useFallbackBackground = false;
+    [ObservableProperty] private bool useFallbackBackground;
     [ObservableProperty] private bool useDiscordRPC = true;
+    [ObservableProperty] private AuthResponse? epicGamesAuth;
     [ObservableProperty] private ELanguage language = ELanguage.English;
     [ObservableProperty] private List<string> favoritePaths = new();
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CUE4Parse.Encryption.Aes;
 using CUE4Parse.FileProvider.Objects;
@@ -13,7 +14,9 @@ using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Assets.Utils;
 using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.Core.Misc;
+using CUE4Parse.UE4.Readers;
 using CUE4Parse.UE4.Versions;
+using EpicManifestParser.Objects;
 using FortnitePorting.Application;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
@@ -31,11 +34,16 @@ public class CUE4ParseViewModel : ViewModelBase
         ELoadingType.Live => new HybridFileProvider(LatestVersionContainer),
         ELoadingType.Custom => new HybridFileProvider(AppSettings.Current.CustomArchivePath, new VersionContainer(AppSettings.Current.CustomUnrealVersion))
     };
+
+    public Manifest? FortniteLive;
     public readonly List<FAssetData> AssetRegistry = new();
     public readonly RarityCollection[] RarityColors = new RarityCollection[8];
     public readonly HashSet<string> MeshEntries = new();
     private BackupAPIResponse? BackupAPI;
-
+    
+    private const string CHUNKS_URL = "https://epicgames-download1.akamaized.net/Builds/Fortnite/CloudDir/ChunksV4/";
+    
+    private static readonly Regex FortniteLiveRegex = new(@"^FortniteGame(/|\\)Content(/|\\)Paks(/|\\)(pakchunk(?:0|10.*|\w+)-WindowsClient|global)\.(pak|utoc)$", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
     private static readonly VersionContainer LatestVersionContainer = new(EGame.GAME_UE5_3, optionOverrides: new Dictionary<string, bool>
     {
         { "SkeletalMesh.KeepMobileMinLODSettingOnDesktop", true },
@@ -84,18 +92,16 @@ public class CUE4ParseViewModel : ViewModelBase
     public override async Task Initialize()
     {
         BackupAPI = await EndpointService.FortnitePorting.GetBackupAPIAsync();
-        LoadingVM.LoadingTiers = 6;
+        LoadingVM.LoadingTiers = 5;
         
         LoadingVM.Update("Loading Game Archive");
         await InitializeProvider();
-        await InitializeKeys();
+        await LoadKeys();
         
         Provider.LoadLocalization(AppSettings.Current.Language);
         Provider.LoadVirtualPaths();
         Provider.LoadVirtualCache();
-        
-        LoadingVM.Update("Loading Mappings");
-        await InitializeMappings();
+        await LoadMappings();
         
         LoadingVM.Update("Loading Content Builds");
         // TODO Content Builds Loading
@@ -122,12 +128,47 @@ public class CUE4ParseViewModel : ViewModelBase
             }
             case ELoadingType.Live: // TODO Live Initialization
             {
+                await InitializeFortniteLive();
                 break;
             }
         }
     }
     
-    private async Task InitializeKeys()
+    public async Task InitializeFortniteLive()
+    {
+        if (FortniteLive is not null) return;
+
+        var manifestInfo = await EndpointService.EpicGames.GetManifestInfoAsync();
+        if (manifestInfo is null) return;
+
+        var manifestPath = Path.Combine(App.DataFolder.FullName, manifestInfo.FileName);
+        byte[] manifestBytes;
+        if (File.Exists(manifestPath))
+        {
+            manifestBytes = await File.ReadAllBytesAsync(manifestPath);
+        }
+        else
+        {
+            manifestBytes = await manifestInfo.DownloadManifestDataAsync();
+            await File.WriteAllBytesAsync(manifestPath, manifestBytes);
+        }
+        
+        FortniteLive = new Manifest(manifestBytes, new ManifestOptions
+        {
+            ChunkBaseUri = new Uri(CHUNKS_URL, UriKind.Absolute),
+            ChunkCacheDirectory = App.CacheFolder
+        });
+        
+        LoadingVM.Update($"Loading Fortnite Live {manifestInfo.Version}", increment: false);
+        
+        var files = FortniteLive.FileManifests.Where(fileManifest => FortniteLiveRegex.IsMatch(fileManifest.Name));
+        foreach (var fileManifest in files)
+        {
+            Provider.Initialize(fileManifest.Name, new Stream[] { fileManifest.GetStream() }, it => new FStreamArchive(it, FortniteLive.FileManifests.First(x => x.Name.Equals(it)).GetStream(), Provider.Versions));
+        }
+    }
+    
+    private async Task LoadKeys()
     {
         switch (AppSettings.Current.LoadingType)
         {
@@ -153,7 +194,7 @@ public class CUE4ParseViewModel : ViewModelBase
         }
     }
     
-    private async Task InitializeMappings()
+    private async Task LoadMappings()
     {
         switch (AppSettings.Current.LoadingType)
         {

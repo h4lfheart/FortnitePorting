@@ -11,10 +11,10 @@ public class FortniteCentralEndpoint : EndpointBase
     
     public FortniteCentralEndpoint(RestClient client) : base(client) { }
     
-    public async Task<AesResponse?> GetKeysAsync() => await GetAsync<AesResponse>(AES_URL);
+    public async Task<AesResponse?> GetKeysAsync() => await ExecuteAsync<AesResponse>(AES_URL);
     public AesResponse? GetKeys() => GetKeysAsync().GetAwaiter().GetResult();
     
-    public async Task<MappingsResponse[]?> GetMappingsAsync() => await GetAsync<MappingsResponse[]>(MAPPINGS_URL);
+    public async Task<MappingsResponse[]?> GetMappingsAsync() => await ExecuteAsync<MappingsResponse[]>(MAPPINGS_URL);
     public MappingsResponse[]? GetMappings() => GetMappingsAsync().GetAwaiter().GetResult();
 
 }

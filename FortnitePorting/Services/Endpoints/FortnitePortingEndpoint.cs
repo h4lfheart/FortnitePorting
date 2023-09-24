@@ -14,13 +14,13 @@ public class FortnitePortingEndpoint : EndpointBase
     {
     }
 
-    public async Task<ReleaseResponse?> GetReleaseAsync() => await GetAsync<ReleaseResponse>(RELEASE_URL);
+    public async Task<ReleaseResponse?> GetReleaseAsync() => await ExecuteAsync<ReleaseResponse>(RELEASE_URL);
     public ReleaseResponse? GetReleaseInfo() => GetReleaseAsync().GetAwaiter().GetResult();
 
-    public async Task<BroadcastResponse[]?> GetBroadcastsAsync() => await GetAsync<BroadcastResponse[]>(BROADCAST_URL);
+    public async Task<BroadcastResponse[]?> GetBroadcastsAsync() => await ExecuteAsync<BroadcastResponse[]>(BROADCAST_URL);
     public BroadcastResponse[]? GetBroadcasts() => GetBroadcastsAsync().GetAwaiter().GetResult();
 
-    public async Task<BackupAPIResponse?> GetBackupAPIAsync() => await GetAsync<BackupAPIResponse>(BACKUP_API_URL);
+    public async Task<BackupAPIResponse?> GetBackupAPIAsync() => await ExecuteAsync<BackupAPIResponse>(BACKUP_API_URL);
 
     public BackupAPIResponse? GetBackupAPI() => GetBackupAPIAsync().GetAwaiter().GetResult();
 }
