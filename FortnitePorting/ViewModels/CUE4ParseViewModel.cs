@@ -150,7 +150,7 @@ public class CUE4ParseViewModel : ViewModelBase
         LoadingVM.Update($"Loading Fortnite Live v{manifestInfo.Version}", increment: false);
         
         var manifestPath = Path.Combine(App.DataFolder.FullName, manifestInfo.FileName);
-        FortniteLive = await EndpointService.EpicGames.GetManifestAsync(manifestInfo.Uri.AbsolutePath, manifestPath);
+        FortniteLive = await EndpointService.EpicGames.GetManifestAsync(manifestInfo.Uri.AbsoluteUri, manifestPath);
         
         var files = FortniteLive.FileManifests.Where(fileManifest => FortniteLiveRegex.IsMatch(fileManifest.Name));
         foreach (var fileManifest in files)

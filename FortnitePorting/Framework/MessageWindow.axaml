@@ -26,7 +26,7 @@
                <Button Grid.Column="0" Content="{material:MaterialIconExt Kind=Close}" Click="OnCloseClicked" CornerRadius="2" Classes="CloseWindow" Width="24" Height="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Grid>
         </Grid>
-        <Grid Grid.Row="1" RowDefinitions="* Auto" ColumnDefinitions="* 4*">
+        <Grid Grid.Row="1" RowDefinitions="Auto Auto" ColumnDefinitions="* 4*">
             <material:MaterialIcon Grid.Row="0" Grid.Column="0" Kind="Error" Width="40" Height="40" Margin="{ext:Space 1}" HorizontalAlignment="Center" VerticalAlignment="Top"/>
             <TextBlock Grid.Row="0" Grid.Column="1" x:Name="InfoTextBlock" Margin="{ext:Space 1}" TextAlignment="Left" TextWrapping="Wrap"/>
             <Button Grid.Row="1" Grid.Column="1" Margin="{ext:Space 1}" HorizontalAlignment="Right" VerticalAlignment="Center" Content="Continue" Click="OnCloseClicked"/>
