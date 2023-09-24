@@ -95,7 +95,7 @@ public class CUE4ParseViewModel : ViewModelBase
     {
         BackupAPI = await EndpointService.FortnitePorting.GetBackupAPIAsync();
         LoadingVM.LoadingTiers = 5;
-        
+
         LoadingVM.Update("Loading Game Archive");
         await InitializeProvider();
         await LoadKeys();
@@ -111,6 +111,7 @@ public class CUE4ParseViewModel : ViewModelBase
             await LoadContentBuilds();
         }
         
+        
         LoadingVM.Update("Loading Asset Registry");
         await LoadAssetRegistries();
         
@@ -118,7 +119,7 @@ public class CUE4ParseViewModel : ViewModelBase
         await LoadRequiredAssets();
         
         LoadingVM.Update("Preloading Mesh Entries");
-        //await LoadMeshEntries();
+        await LoadMeshEntries();
     }
     
     private async Task InitializeProvider()
@@ -329,8 +330,8 @@ public class CUE4ParseViewModel : ViewModelBase
 
         foreach (var entry in entries)
         {
-            if (removeEntries.Contains(entry.Key)) continue;
             if (!entry.Key.EndsWith(".uasset") || entry.Key.EndsWith(".o.uasset")) continue;
+            if (removeEntries.Contains(entry.Key)) continue;
             if (MeshFilter.Any(x => entry.Key.Contains(x, StringComparison.OrdinalIgnoreCase))) continue;
 
             MeshEntries.Add(entry.Value.Path);

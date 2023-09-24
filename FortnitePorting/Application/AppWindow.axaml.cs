@@ -36,6 +36,7 @@ public partial class AppWindow : Window
     private void OnCloseClicked(object? sender, RoutedEventArgs e)
     {
         Close();
+        Shutdown();
     }
     
 }

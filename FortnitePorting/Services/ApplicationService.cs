@@ -14,9 +14,9 @@ public static class ApplicationService
     public static AssetsViewModel AssetsVM => ViewModelRegistry.Get<AssetsViewModel>();
     public static MainViewModel MainVM => ViewModelRegistry.Get<MainViewModel>();
     public static IStorageProvider StorageProvider => ApplicationLifetime!.MainWindow!.StorageProvider;
-    public static Random RandomGenerator = new();
+    public static readonly Random RandomGenerator = new();
 
-    private static readonly IClassicDesktopStyleApplicationLifetime? ApplicationLifetime = Avalonia.Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
+    public static readonly IClassicDesktopStyleApplicationLifetime? ApplicationLifetime = Avalonia.Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
 
     public static void Shutdown()
     {

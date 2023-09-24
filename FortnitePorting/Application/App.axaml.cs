@@ -1,8 +1,9 @@
 using System;
 using System.IO;
-using System.Threading.Tasks;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Threading;
 using FortnitePorting.Extensions;
+using FortnitePorting.Framework;
 using FortnitePorting.Services;
 using FortnitePorting.ViewModels;
 using Serilog;
@@ -36,6 +37,12 @@ public class App : Avalonia.Application
     public static void HandleException(Exception exception)
     {
         Log.Error("{0}", exception);
+        Dispatcher.UIThread.Invoke(() =>
+        {
+            var errorWindow = new MessageWindow("An unhandled exception has occurred", $"{exception.GetType().FullName}: {exception.Message}", ApplicationService.ApplicationLifetime!.MainWindow);
+            errorWindow.Show();
+        });
+        
     }
 
     private void OnExit(object? sender, ControlledApplicationLifetimeExitEventArgs e)
