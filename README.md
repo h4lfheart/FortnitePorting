@@ -18,6 +18,12 @@ git clone -b avalonia-2.0 https://github.com/halfuwu/FortnitePorting --recursive
 
 Then open the project directory in a terminal window and run this command
 
+Windows:
 ```
-dotnet publish FortnitePorting.Desktop -c Release --no-self-contained -r win-x64 -o "./Release" -p:PublishSingleFile=true -p:DebugType=None -p:DebugSymbols=false -p:IncludeNativeLibrariesForSelfExtract=true
+dotnet publish FortnitePorting -c Release --no-self-contained -r win-x64 -o "./Release" -p:PublishSingleFile=true -p:DebugType=None -p:DebugSymbols=false -p:IncludeNativeLibrariesForSelfExtract=true
+```
+
+MacOS:
+```
+dotnet publish FortnitePorting -c Release --no-self-contained -r osx-x64 -o "./Release" -p:PublishSingleFile=true -p:DebugType=None -p:DebugSymbols=false -p:IncludeNativeLibrariesForSelfExtract=true
 ```
