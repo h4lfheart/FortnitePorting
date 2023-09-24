@@ -41,6 +41,7 @@ public partial class AppSettings : ObservableObject
     
     [ObservableProperty] private bool useFallbackBackground;
     [ObservableProperty] private bool useDiscordRPC = true;
+    [ObservableProperty] private bool loadContentBuilds = true;
     [ObservableProperty] private AuthResponse? epicGamesAuth;
     [ObservableProperty] private ELanguage language = ELanguage.English;
     [ObservableProperty] private List<string> favoritePaths = new();

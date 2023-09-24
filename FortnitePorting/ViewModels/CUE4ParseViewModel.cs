@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CUE4Parse.Encryption.Aes;
 using CUE4Parse.FileProvider.Objects;
+using CUE4Parse.FileProvider.Vfs;
 using CUE4Parse.MappingsProvider;
 using CUE4Parse.UE4.AssetRegistry;
 using CUE4Parse.UE4.AssetRegistry.Objects;
@@ -16,11 +18,13 @@ using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.Core.Misc;
 using CUE4Parse.UE4.Readers;
 using CUE4Parse.UE4.Versions;
+using CUE4Parse.Utils;
 using EpicManifestParser.Objects;
 using FortnitePorting.Application;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Services;
+using FortnitePorting.Services.Endpoints;
 using FortnitePorting.Services.Endpoints.Models;
 using Serilog;
 
@@ -40,9 +44,7 @@ public class CUE4ParseViewModel : ViewModelBase
     public readonly RarityCollection[] RarityColors = new RarityCollection[8];
     public readonly HashSet<string> MeshEntries = new();
     private BackupAPIResponse? BackupAPI;
-    
-    private const string CHUNKS_URL = "https://epicgames-download1.akamaized.net/Builds/Fortnite/CloudDir/ChunksV4/";
-    
+
     private static readonly Regex FortniteLiveRegex = new(@"^FortniteGame(/|\\)Content(/|\\)Paks(/|\\)(pakchunk(?:0|10.*|\w+)-WindowsClient|global)\.(pak|utoc)$", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
     private static readonly VersionContainer LatestVersionContainer = new(EGame.GAME_UE5_3, optionOverrides: new Dictionary<string, bool>
     {
@@ -104,7 +106,10 @@ public class CUE4ParseViewModel : ViewModelBase
         await LoadMappings();
         
         LoadingVM.Update("Loading Content Builds");
-        // TODO Content Builds Loading
+        if (AppSettings.Current.LoadContentBuilds)
+        {
+            await LoadContentBuilds();
+        }
         
         LoadingVM.Update("Loading Asset Registry");
         await LoadAssetRegistries();
@@ -126,7 +131,7 @@ public class CUE4ParseViewModel : ViewModelBase
                 Provider.InitializeLocal();
                 break;
             }
-            case ELoadingType.Live: // TODO Live Initialization
+            case ELoadingType.Live:
             {
                 await InitializeFortniteLive();
                 break;
@@ -141,25 +146,10 @@ public class CUE4ParseViewModel : ViewModelBase
         var manifestInfo = await EndpointService.EpicGames.GetManifestInfoAsync();
         if (manifestInfo is null) return;
 
+        LoadingVM.Update($"Loading Fortnite Live v{manifestInfo.Version}", increment: false);
+        
         var manifestPath = Path.Combine(App.DataFolder.FullName, manifestInfo.FileName);
-        byte[] manifestBytes;
-        if (File.Exists(manifestPath))
-        {
-            manifestBytes = await File.ReadAllBytesAsync(manifestPath);
-        }
-        else
-        {
-            manifestBytes = await manifestInfo.DownloadManifestDataAsync();
-            await File.WriteAllBytesAsync(manifestPath, manifestBytes);
-        }
-        
-        FortniteLive = new Manifest(manifestBytes, new ManifestOptions
-        {
-            ChunkBaseUri = new Uri(CHUNKS_URL, UriKind.Absolute),
-            ChunkCacheDirectory = App.CacheFolder
-        });
-        
-        LoadingVM.Update($"Loading Fortnite Live {manifestInfo.Version}", increment: false);
+        FortniteLive = await EndpointService.EpicGames.GetManifestAsync(manifestInfo.Uri.AbsolutePath, manifestPath);
         
         var files = FortniteLive.FileManifests.Where(fileManifest => FortniteLiveRegex.IsMatch(fileManifest.Name));
         foreach (var fileManifest in files)
@@ -241,6 +231,60 @@ public class CUE4ParseViewModel : ViewModelBase
 
         var latestUsmap = usmapFiles.MaxBy(x => x.LastWriteTime);
         return latestUsmap?.FullName;
+    }
+
+    private async Task LoadContentBuilds()
+    {
+        if (AppSettings.Current.LoadingType == ELoadingType.Custom) return;
+
+        var contentBuilds = await GetContentBuildsAsync(ELoadingType.Local);
+        contentBuilds ??= await GetContentBuildsAsync(ELoadingType.Live); // fallback for invalid local buildinfo
+        if (contentBuilds is null) return;
+
+        var manifestInfo = contentBuilds.Items!.Manifest;
+        var manifestUrl = manifestInfo.Distribution + manifestInfo.Path;
+        var manifestPath = Path.Combine(App.DataFolder.FullName, manifestInfo.Path.SubstringAfterLast("/"));
+        
+        var manifest = await EndpointService.EpicGames.GetManifestAsync(manifestUrl, manifestPath);
+        var contentBuildFiles = new Dictionary<string, GameFile>();
+        foreach (var fileManifest in manifest.FileManifests)
+        {
+            if (Provider.Files.ContainsKey(fileManifest.Name)) continue;
+
+            var streamedFile = new StreamedGameFile(fileManifest.Name, fileManifest.GetStream(), Provider.Versions);
+            var path = streamedFile.Path.ToLowerInvariant();
+            contentBuildFiles[path] = streamedFile;
+        }
+
+        var fileDict = (FileProviderDictionary) Provider.Files;
+        fileDict.AddFiles(contentBuildFiles);
+    }
+    
+    async Task<ContentBuildsResponse?> GetContentBuildsAsync(ELoadingType type)
+    {
+        var buildInfoText = string.Empty;
+        switch (type)
+        {
+            case ELoadingType.Local:
+                var buildInfoPath = Path.Combine(AppSettings.Current.LocalArchivePath, "..\\..\\..\\Cloud\\BuildInfo.ini");
+                buildInfoText = File.Exists(buildInfoPath) ? await File.ReadAllTextAsync(buildInfoPath) : string.Empty;
+                break;
+            case ELoadingType.Live:
+                await InitializeFortniteLive(); // if used for fallback mode
+                var buildInfoFile = FortniteLive?.FileManifests.FirstOrDefault(x => x.Name.Equals("Cloud/BuildInfo.ini", StringComparison.OrdinalIgnoreCase));
+                if (buildInfoFile is null) return null;
+
+                var stream = buildInfoFile.GetStream();
+                var bytes = stream.ToBytes();
+                buildInfoText = Encoding.UTF8.GetString(bytes);
+                break;
+        }
+
+        if (string.IsNullOrEmpty(buildInfoText)) return null;
+
+        var buildInfo = new SimpleIni(buildInfoText);
+        var contentBuilds = await EndpointService.EpicGames.GetContentBuildsAsync(buildInfo["Content"]["Label"]);
+        return contentBuilds?.Items is null ? null : contentBuilds;
     }
     
     private async Task LoadAssetRegistries()

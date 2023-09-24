@@ -74,6 +74,7 @@ public partial class WelcomeViewModel : ViewModelBase
                 if (File.Exists(CustomMappingsPath)) AppSettings.Current.CustomMappingsPath = CustomMappingsPath; // optional
                 break;
         }
-        AppVM.SetView<LoadingView>();
+        
+        AppVM.SetView<MainView>();
     }
 }

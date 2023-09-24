@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 
 namespace FortnitePorting.Extensions;
@@ -66,6 +67,13 @@ public static class MiscExtensions
         var joiner = includeAnd ? (list.Count == 2 ? " and " : ", and ") : ", ";
         return list.Count > 1 ? string.Join(", ", list.Take(list.Count - 1)) + joiner + list.Last() : list.First().ToString();
     }
+    
+    public static byte[] ToBytes(this Stream str)
+    {
+        var bytes = new BinaryReader(str).ReadBytes((int) str.Length);
+        return bytes;
+    }
+
 }
 
 internal class FastRepeat<T> : ICollection<T>
