@@ -98,3 +98,21 @@ public enum ESortType
     [Description("Rarity")]
     Rarity
 }
+
+public enum EImageType
+{
+    [Description("PNG (.png)")]
+    PNG,
+
+    [Description("Targa (.tga)")]
+    TGA
+}
+
+public enum ERigType
+{
+    [Description("Default Rig (FK)")]
+    Default,
+
+    [Description("Tasty Rig (IK)")]
+    Tasty
+}

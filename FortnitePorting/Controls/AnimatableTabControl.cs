@@ -7,15 +7,18 @@ namespace FortnitePorting.Controls;
 [PseudoClasses(":normal")]
 public class AnimatableTabControl : TabControl
 {
+    public event EventHandler OnContentChanged;
+    
     protected override Type StyleKeyOverride { get; } = typeof(TabControl);
 
     public AnimatableTabControl()
     {
         PseudoClasses.Add(":normal");
-        this.GetObservable(SelectedContentProperty).Subscribe(OnContentChanged);
+        OnContentChanged += AnimateChanged;
+        this.GetObservable(SelectedContentProperty).Subscribe(obj => OnContentChanged.Invoke(SelectedContent, EventArgs.Empty));
     }
-
-    private void OnContentChanged(object? obj)
+    
+    private void AnimateChanged(object? obj, EventArgs e)
     {
         if (!AnimateOnChange) return;
         

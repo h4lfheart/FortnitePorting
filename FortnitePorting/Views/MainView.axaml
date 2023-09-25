@@ -10,10 +10,10 @@
              x:Class="FortnitePorting.Views.MainView"
              x:DataType="viewmodels:MainViewModel">
     <Grid>
-        <controls:AnimatableTabControl Margin="0 8" TabStripPlacement="Left">
-            <TabItem>
+        <controls:AnimatableTabControl Margin="0 8" TabStripPlacement="Left" OnContentChanged="OnTabChanged">
+            <TabItem Tag="Assets">
                 <TabItem.Header>
-                    <controls:MaterialIconText Text="Assets      " Icon="File"/>
+                    <controls:MaterialIconText Text="Assets" Icon="File"/>
                 </TabItem.Header>
                 <ContentControl Content="{Binding CurrentAssetView}"/>
             </TabItem>
@@ -22,6 +22,7 @@
                 <TabItem.Header>
                     <controls:MaterialIconText Text="Export" Icon="Download"/>
                 </TabItem.Header>
+                <views:ExportOptionsView/>
             </TabItem>
             <TabItem>
                 <TabItem.Header>

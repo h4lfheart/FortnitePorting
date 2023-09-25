@@ -1,3 +1,4 @@
+using System;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
@@ -13,4 +14,8 @@ public partial class MainView : ViewBase<MainViewModel>
         InitializeComponent();
     }
 
+    private void OnTabChanged(object? sender, EventArgs e)
+    {
+        ApplicationLifetime.MainWindow!.Width = sender is ContentControl { Content: AssetsView or LoadingView } ? 1280 : 1100; // loading view and assets view use this specifically
+    }
 }
