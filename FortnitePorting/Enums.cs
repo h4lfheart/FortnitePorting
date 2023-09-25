@@ -116,3 +116,21 @@ public enum ERigType
     [Description("Tasty Rig (IK)")]
     Tasty
 }
+
+public enum ESupportedLODs
+{
+    [Description("LOD 0")]
+    LOD0,
+    
+    [Description("LOD 1")]
+    LOD1,
+    
+    [Description("LOD 2")]
+    LOD2,
+    
+    [Description("LOD 3")]
+    LOD3,
+    
+    [Description("LOD 4")]
+    LOD4
+}

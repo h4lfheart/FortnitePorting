@@ -28,20 +28,24 @@
                 <TabItem.Header>
                     <controls:MaterialIconText Text="Plugins" Icon="Plug"/>
                 </TabItem.Header>
+                <controls:GroupBox Background="#26000000"/>
             </TabItem>
             <TabItem>
                 <TabItem.Header>
                     <controls:MaterialIconText Text="Tools" Icon="Tools"/>
                 </TabItem.Header>
+                <controls:GroupBox Background="#26000000"/>
             </TabItem>
             <TabItem>
                 <TabItem.Header>
                     <controls:MaterialIconText Text="Help" Icon="Help"/>
                 </TabItem.Header>
+                <controls:GroupBox Background="#26000000"/>
             </TabItem> <TabItem>
                 <TabItem.Header>
                     <controls:MaterialIconText Text="Settings" Icon="Settings"/>
                 </TabItem.Header>
+                <controls:GroupBox Background="#26000000"/>
             </TabItem>
         </controls:AnimatableTabControl>
     </Grid>

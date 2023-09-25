@@ -52,7 +52,7 @@ public partial class AssetItem : UserControl
         Asset = asset;
         IsFavorite = AppSettings.Current.FavoritePaths.Contains(asset.GetPathName());
         ID = asset.Name;
-        DisplayName = displayName;
+        DisplayName = displayName.TitleCase();
         Description = asset.GetOrDefault("Description", new FText("No description.")).Text;
         Rarity = asset.GetOrDefault("Rarity", EFortRarity.Uncommon);
         GameplayTags = asset.GetOrDefault<FGameplayTagContainer>("GameplayTags");

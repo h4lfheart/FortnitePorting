@@ -7,54 +7,142 @@
              xmlns:assets="clr-namespace:FortnitePorting.Controls.Assets"
              xmlns:viewmodels="clr-namespace:FortnitePorting.ViewModels"
              xmlns:fortnitePorting="clr-namespace:FortnitePorting"
-             xmlns:wrapPanel="clr-namespace:FortnitePorting.Controls.WrapPanel"
+             xmlns:cue4parseConversion="clr-namespace:CUE4Parse_Conversion;assembly=CUE4Parse-Conversion"
              xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720"
              x:Class="FortnitePorting.Views.ExportOptionsView"
              x:DataType="viewmodels:ExportOptionsViewModel">
     <controls:GroupBox Background="#26000000">
-        <Grid ColumnDefinitions="*">
-            <ScrollViewer VerticalScrollBarVisibility="Hidden">
-               <StackPanel>
-                   <Label Content="General" FontSize="28" FontWeight="SemiBold" Margin="8 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                   <controls:SettingBox DisplayName="Scale Down" Path="{Binding Blender.ScaleDown, Mode=TwoWay}" Icon="ImageSizeSelectSmall">
-                       <ToggleSwitch IsChecked="{Binding Blender.ScaleDown}"/>
-                   </controls:SettingBox>
-                   <controls:SettingBox DisplayName="Import Into Collection" Path="{Binding Blender.ImportCollection, Mode=TwoWay}" Icon="Folder">
-                       <ToggleSwitch IsChecked="{Binding Blender.ImportCollection}"/>
-                   </controls:SettingBox>
-                   
-                   <Label Content="Armature" FontSize="28" FontWeight="SemiBold" Margin="8 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                   <controls:SettingBox DisplayName="Rig Type" Path="{Binding Blender.RigType, Mode=TwoWay}" Icon="Person">
-                       <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:ERigType}}" SelectedItem="{Binding Blender.RigType, Converter={StaticResource EnumToString}}"/>
-                   </controls:SettingBox>
-                   <controls:SettingBox DisplayName="Merge Skeletons" Path="{Binding Blender.MergeSkeletons, Mode=TwoWay}" Icon="VectorCombine">
-                       <ToggleSwitch IsChecked="{Binding Blender.MergeSkeletons}"/>
-                   </controls:SettingBox>
-                   <controls:SettingBox DisplayName="Reorient Bones" Path="{Binding Blender.ReorientBones, Mode=TwoWay}" Icon="Bone">
-                       <ToggleSwitch IsChecked="{Binding Blender.ReorientBones}"/>
-                   </controls:SettingBox>
-                   <controls:SettingBox DisplayName="Hide Face Bones" Path="{Binding Blender.HideFaceBones, Mode=TwoWay}" Icon="BoneOff">
-                       <ToggleSwitch IsChecked="{Binding Blender.HideFaceBones}"/>
-                   </controls:SettingBox>
-                   
-                   <Label Content="Mesh" FontSize="28" FontWeight="SemiBold" Margin="8 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                   <controls:SettingBox DisplayName="Use Quads" Path="{Binding Blender.UseQuads, Mode=TwoWay}" Icon="VectorSquare">
-                       <ToggleSwitch IsChecked="{Binding Blender.UseQuads}"/>
-                   </controls:SettingBox>
-                   <controls:SettingBox DisplayName="Preserve Mesh Volume" Path="{Binding Blender.PreserveVolume, Mode=TwoWay}" Icon="CubeOutline">
-                       <ToggleSwitch IsChecked="{Binding Blender.PreserveVolume}"/>
-                   </controls:SettingBox>
-                   
-                   <Label Content="Materials" FontSize="28" FontWeight="SemiBold" Margin="8 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                   <controls:SettingBox DisplayName="Export Materials" Path="{Binding ExportMaterials, Mode=TwoWay}" Icon="Material">
-                       <ToggleSwitch IsChecked="{Binding ExportMaterials}"/>
-                   </controls:SettingBox>
-                   <controls:SettingBox DisplayName="Image Type" Path="{Binding ImageType, Mode=TwoWay}" Icon="Image">
-                       <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EImageType}}" SelectedItem="{Binding ImageType, Converter={StaticResource EnumToString}}"/>
-                   </controls:SettingBox>
-               </StackPanel>
-            </ScrollViewer>
-        </Grid>
+        <controls:AnimatableTabControl HorizontalAlignment="Stretch">
+            <TabControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center"/>
+                </ItemsPanelTemplate>
+            </TabControl.ItemsPanel>
+            <TabItem Header="Blender">
+                <ScrollViewer VerticalScrollBarVisibility="Hidden">
+                    <StackPanel>
+                       <Label Content="General" FontSize="28" FontWeight="SemiBold" Margin="8 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                       <controls:SettingBox DisplayName="Scale Down" Path="{Binding Blender.ScaleDown, Mode=TwoWay}" Icon="ImageSizeSelectSmall">
+                           <ToggleSwitch IsChecked="{Binding Blender.ScaleDown}"/>
+                       </controls:SettingBox>
+                       <controls:SettingBox DisplayName="Import Into Collection" Path="{Binding Blender.ImportCollection, Mode=TwoWay}" Icon="Folder">
+                           <ToggleSwitch IsChecked="{Binding Blender.ImportCollection}"/>
+                       </controls:SettingBox>
+                       
+                       <Label Content="Armature" FontSize="28" FontWeight="SemiBold" Margin="8 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                       <controls:SettingBox DisplayName="Rig Type" Path="{Binding Blender.RigType, Mode=TwoWay}" Icon="Person">
+                           <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:ERigType}}" SelectedItem="{Binding Blender.RigType, Converter={StaticResource EnumToString}}"/>
+                       </controls:SettingBox>
+                       <controls:SettingBox DisplayName="Merge Skeletons" Path="{Binding Blender.MergeSkeletons, Mode=TwoWay}" Icon="VectorCombine">
+                           <ToggleSwitch IsChecked="{Binding Blender.MergeSkeletons}"/>
+                       </controls:SettingBox>
+                       <controls:SettingBox DisplayName="Reorient Bones" Path="{Binding Blender.ReorientBones, Mode=TwoWay}" Icon="Bone">
+                           <ToggleSwitch IsChecked="{Binding Blender.ReorientBones}"/>
+                       </controls:SettingBox>
+                       <controls:SettingBox DisplayName="Hide Face Bones" Path="{Binding Blender.HideFaceBones, Mode=TwoWay}" Icon="BoneOff">
+                           <ToggleSwitch IsChecked="{Binding Blender.HideFaceBones}"/>
+                       </controls:SettingBox>
+                       <controls:SettingBox DisplayName="Bone Length" Path="{Binding Blender.BoneLength, StringFormat=N2}" Icon="ArrowTopRightBottomLeft">
+                           <controls:RoundedSlider Width="200" Value="{Binding Blender.BoneLength, Mode=TwoWay}"/>
+                       </controls:SettingBox>
+                       
+                       <Label Content="Mesh" FontSize="28" FontWeight="SemiBold" Margin="8 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                       <controls:SettingBox DisplayName="Level of Detail" Path="{Binding Blender.LevelOfDetail, Mode=TwoWay}" Icon="CubeScan">
+                           <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:ESupportedLODs}}" SelectedItem="{Binding Blender.LevelOfDetail, Converter={StaticResource EnumToString}}"/>
+                       </controls:SettingBox>
+                       <controls:SettingBox DisplayName="Use Quads" Path="{Binding Blender.UseQuads, Mode=TwoWay}" Icon="VectorSquare">
+                           <ToggleSwitch IsChecked="{Binding Blender.UseQuads}"/>
+                       </controls:SettingBox>
+                       <controls:SettingBox DisplayName="Preserve Mesh Volume" Path="{Binding Blender.PreserveVolume, Mode=TwoWay}" Icon="CubeOutline">
+                           <ToggleSwitch IsChecked="{Binding Blender.PreserveVolume}"/>
+                       </controls:SettingBox>
+                       
+                       <Label Content="Materials" FontSize="28" FontWeight="SemiBold" Margin="8 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                       <controls:SettingBox DisplayName="Export Materials" Path="{Binding Blender.ExportMaterials, Mode=TwoWay}" Icon="Material">
+                           <ToggleSwitch IsChecked="{Binding Blender.ExportMaterials}"/>
+                       </controls:SettingBox>
+                       <controls:SettingBox DisplayName="Image Type" Path="{Binding Blender.ImageType, Mode=TwoWay}" Icon="Image">
+                           <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EImageType}}" SelectedItem="{Binding Blender.ImageType, Converter={StaticResource EnumToString}}"/>
+                       </controls:SettingBox>
+                       <controls:SettingBox DisplayName="Ambient Occlusion" Path="{Binding Blender.AmbientOcclusion, StringFormat=N2}" Icon="BoxShadow">
+                           <controls:RoundedSlider Width="200" Value="{Binding Blender.AmbientOcclusion, Mode=TwoWay}"/>
+                       </controls:SettingBox>
+                       <controls:SettingBox DisplayName="Cavity" Path="{Binding Blender.Cavity, StringFormat=N2}" Icon="RoundedCorner">
+                           <controls:RoundedSlider Width="200" Value="{Binding Blender.Cavity, Mode=TwoWay}"/>
+                       </controls:SettingBox>
+                       <controls:SettingBox DisplayName="Subsurface Scattering" Path="{Binding Blender.Subsurface, StringFormat=N2}" Icon="ScatterPlot">
+                           <controls:RoundedSlider Width="200" Value="{Binding Blender.Subsurface, Mode=TwoWay}"/>
+                       </controls:SettingBox>
+                       
+                       <Label Content="Animation" FontSize="28" FontWeight="SemiBold" Margin="8 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                       <controls:SettingBox DisplayName="Import Sounds" Path="{Binding Blender.ImportSounds, Mode=TwoWay}" Icon="Music">
+                           <ToggleSwitch IsChecked="{Binding Blender.ImportSounds}"/>
+                       </controls:SettingBox>
+                       <controls:SettingBox DisplayName="Loop Animation" Path="{Binding Blender.LoopAnimation, Mode=TwoWay}" Icon="Sync">
+                           <ToggleSwitch IsChecked="{Binding Blender.LoopAnimation}"/>
+                       </controls:SettingBox>
+                       <controls:SettingBox DisplayName="Update Timeline Length" Path="{Binding Blender.UpdateTimelineLength, Mode=TwoWay}" Icon="Resize">
+                           <ToggleSwitch IsChecked="{Binding Blender.UpdateTimelineLength}"/>
+                       </controls:SettingBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            
+            <TabItem Header="Unreal Engine">
+                <ScrollViewer VerticalScrollBarVisibility="Hidden">
+                    <StackPanel>
+                        <Label Content="Mesh" FontSize="28" FontWeight="SemiBold" Margin="8 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        <controls:SettingBox DisplayName="Level of Detail" Path="{Binding Unreal.LevelOfDetail, Mode=TwoWay}" Icon="CubeScan">
+                            <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:ESupportedLODs}}" SelectedItem="{Binding Unreal.LevelOfDetail, Converter={StaticResource EnumToString}}"/>
+                        </controls:SettingBox>
+                       
+                        <Label Content="Materials" FontSize="28" FontWeight="SemiBold" Margin="8 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        <controls:SettingBox DisplayName="Export Materials" Path="{Binding Unreal.ExportMaterials, Mode=TwoWay}" Icon="Material">
+                            <ToggleSwitch IsChecked="{Binding Unreal.ExportMaterials}"/>
+                        </controls:SettingBox>
+                        <controls:SettingBox DisplayName="For UEFN" Path="{Binding Unreal.ForUEFN, Mode=TwoWay}" Icon="Pencil">
+                            <ToggleSwitch IsChecked="{Binding Unreal.ForUEFN}"/>
+                        </controls:SettingBox>
+                        <controls:SettingBox DisplayName="Image Type" Path="{Binding Unreal.ImageType, Mode=TwoWay}" Icon="Image">
+                            <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EImageType}}" SelectedItem="{Binding Unreal.ImageType, Converter={StaticResource EnumToString}}"/>
+                        </controls:SettingBox>
+                        <controls:SettingBox DisplayName="Ambient Occlusion" Path="{Binding Unreal.AmbientOcclusion, StringFormat=N2}" Icon="BoxShadow">
+                            <controls:RoundedSlider Width="200" Value="{Binding Unreal.AmbientOcclusion, Mode=TwoWay}"/>
+                        </controls:SettingBox>
+                        <controls:SettingBox DisplayName="Cavity" Path="{Binding Unreal.Cavity, StringFormat=N2}" Icon="RoundedCorner">
+                            <controls:RoundedSlider Width="200" Value="{Binding Unreal.Cavity, Mode=TwoWay}"/>
+                        </controls:SettingBox>
+                        <controls:SettingBox DisplayName="Subsurface Scattering" Path="{Binding Unreal.Subsurface, StringFormat=N2}" Icon="ScatterPlot">
+                            <controls:RoundedSlider Width="200" Value="{Binding Unreal.Subsurface, Mode=TwoWay}"/>
+                        </controls:SettingBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            
+            <TabItem Header="Folder">
+                <ScrollViewer VerticalScrollBarVisibility="Hidden">
+                    <StackPanel>
+                       <Label Content="General" FontSize="28" FontWeight="SemiBold" Margin="8 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                       <controls:SettingBox DisplayName="Export Folder" Path="{Binding Folder.ExportFolder, Mode=TwoWay}" Icon="Folder">
+                           <Button Content="Browse" Command="{Binding BrowseExportPathCommand}"/>
+                       </controls:SettingBox>
+                       
+                       <Label Content="Mesh" FontSize="28" FontWeight="SemiBold" Margin="8 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                       <controls:SettingBox DisplayName="LOD Format" Path="{Binding Folder.LodFormat, Mode=TwoWay}" Icon="CubeScan">
+                           <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type cue4parseConversion:Meshes.ELodFormat}}" SelectedItem="{Binding Folder.LodFormat, Converter={StaticResource EnumToString}}"/>
+                       </controls:SettingBox>
+                       
+                       <Label Content="Materials" FontSize="28" FontWeight="SemiBold" Margin="8 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                       <controls:SettingBox DisplayName="Export Materials" Path="{Binding Folder.ExportMaterials, Mode=TwoWay}" Icon="Material">
+                           <ToggleSwitch IsChecked="{Binding Folder.ExportMaterials}"/>
+                       </controls:SettingBox>
+                       <controls:SettingBox DisplayName="Image Type" Path="{Binding Folder.ImageType, Mode=TwoWay}" Icon="Image">
+                           <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EImageType}}" SelectedItem="{Binding Folder.ImageType, Converter={StaticResource EnumToString}}"/>
+                       </controls:SettingBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </controls:AnimatableTabControl>
     </controls:GroupBox>
 </UserControl>
