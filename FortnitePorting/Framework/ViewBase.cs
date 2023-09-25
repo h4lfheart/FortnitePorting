@@ -6,9 +6,9 @@ public class ViewBase<T> : UserControl where T : ViewModelBase, new()
 {
     protected readonly T ViewModel;
 
-    protected ViewBase()
+    public ViewBase(T? custom = null)
     {
-        ViewModel = ViewModelRegistry.Register<T>();
+        ViewModel = custom ?? ViewModelRegistry.Register<T>();
         DataContext = ViewModel;
     }
 }

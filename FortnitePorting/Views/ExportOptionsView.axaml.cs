@@ -21,7 +21,7 @@ namespace FortnitePorting.Views;
 
 public partial class ExportOptionsView : ViewBase<ExportOptionsViewModel>
 {
-    public ExportOptionsView()
+    public ExportOptionsView() : base(AppSettings.Current.ExportOptions)
     {
         InitializeComponent();
     }

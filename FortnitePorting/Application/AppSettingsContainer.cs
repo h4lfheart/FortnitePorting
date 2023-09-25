@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.Versions;
 using CUE4Parse.Utils;
 using FortnitePorting.Services.Endpoints.Models;
+using FortnitePorting.ViewModels;
 using Newtonsoft.Json;
 
 namespace FortnitePorting.Application;
@@ -12,6 +13,8 @@ public partial class AppSettingsContainer : ObservableObject
 {
     [JsonIgnore] public bool HasValidLocalData => Directory.Exists(LocalArchivePath);
     [JsonIgnore] public bool HasValidCustomData => Directory.Exists(CustomArchivePath) && CustomEncryptionKey.TryParseAesKey(out _);
+
+    [ObservableProperty] private ExportOptionsViewModel exportOptions = new();
     
     // Loading
     [ObservableProperty] private ELoadingType loadingType = ELoadingType.Local;
