@@ -8,11 +8,20 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="FortnitePorting.Framework.MessageWindow"
         x:DataType="viewModels:ApplicationViewModel"
-        Icon="/Assets/FortnitePortingV2.ico" Width="360" MinHeight="100" SizeToContent="Height" WindowStartupLocation="CenterOwner" FontFamily="Segoe UI"
+        Icon="/Assets/FortnitePortingV2.ico" Width="360" SizeToContent="Height" WindowStartupLocation="CenterOwner" FontFamily="Segoe UI"
         Background="{x:Null}" TransparencyLevelHint="Mica"
         ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="NoChrome" ExtendClientAreaTitleBarHeightHint="0">
-     <Grid RowDefinitions="30, *">
-        <Image Grid.Row="0" Grid.RowSpan="2" Source="/Assets/FallbackBackground.png" Stretch="Fill" IsHitTestVisible="False" IsVisible="{Binding UseFallbackBackground}"/>
+     <Grid RowDefinitions="30, *" Classes.UseFallback="{Binding UseFallbackBackground}" Classes.DontUseFallback="{Binding !UseFallbackBackground}">
+		 <Grid.Styles>
+			 <Style Selector="Grid.UseFallback">
+				 <Setter Property="Background">
+					 <ImageBrush Source="/Assets/FallbackBackground.png" Stretch="Fill"/>
+				 </Setter>
+			 </Style>
+			 <Style Selector="Grid.DontUseFallback">
+				 <Setter Property="Background" Value="{x:Null}"/>
+			 </Style>
+		 </Grid.Styles>
         <Grid Grid.Row="0" PointerPressed="OnPointerPressed" Background="Transparent" HorizontalAlignment="Stretch">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="{ext:Space 1}"/>
