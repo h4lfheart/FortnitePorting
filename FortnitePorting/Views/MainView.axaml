@@ -40,7 +40,7 @@
                 <TabItem.Header>
                     <controls:MaterialIconText Text="Help" Icon="Help"/>
                 </TabItem.Header>
-                <controls:GroupBox Background="#26000000"/>
+                <views:HelpView/>
             </TabItem> <TabItem>
                 <TabItem.Header>
                     <controls:MaterialIconText Text="Settings" Icon="Settings"/>

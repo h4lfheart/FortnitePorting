@@ -42,6 +42,10 @@
         <DependentUpon>ExportOptionsView.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
+      <Compile Update="Controls\StaticInfoBox.axaml.cs">
+        <DependentUpon>StaticInfoBox.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
     </ItemGroup>
 
     <ItemGroup>

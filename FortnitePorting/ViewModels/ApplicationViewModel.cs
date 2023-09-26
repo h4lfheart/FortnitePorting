@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
@@ -31,6 +32,11 @@ public partial class ApplicationViewModel : ViewModelBase
                 SetView<WelcomeView>();
                 break;
         }
+    }
+    
+    public void Launch(string location, bool shellExecute = true)
+    {
+        Process.Start(new ProcessStartInfo { FileName = location, UseShellExecute = shellExecute });
     }
 
     public async Task<string?> BrowseFolderDialog()
