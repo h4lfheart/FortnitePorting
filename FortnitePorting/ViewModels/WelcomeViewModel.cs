@@ -21,9 +21,9 @@ public partial class WelcomeViewModel : ViewModelBase
     };
     
     [ObservableProperty, NotifyPropertyChangedFor(nameof(CanContinue))] private ELoadingType currentLoadingType;  
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(CanContinue))] private string localArchivePath = "???";
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(CanContinue))] private string customArchivePath = "???";
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(CanContinue))] private string customMappingsPath = "???";
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(CanContinue))] private string localArchivePath = null;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(CanContinue))] private string customArchivePath = null;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(CanContinue))] private string customMappingsPath = null;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(CanContinue))] private string customEncryptionKey = Globals.ZERO_CHAR;
     [ObservableProperty] private EGame customUnrealVersion = EGame.GAME_UE5_3;
 
@@ -63,17 +63,10 @@ public partial class WelcomeViewModel : ViewModelBase
     private void Continue()
     {
         AppSettings.Current.LoadingType = CurrentLoadingType;
-        switch (CurrentLoadingType)
-        {
-            case ELoadingType.Local:
-                AppSettings.Current.LocalArchivePath = LocalArchivePath;
-                break;
-            case ELoadingType.Custom:
-                AppSettings.Current.CustomArchivePath = CustomArchivePath;
-                AppSettings.Current.CustomEncryptionKey = CustomEncryptionKey;
-                if (File.Exists(CustomMappingsPath)) AppSettings.Current.CustomMappingsPath = CustomMappingsPath; // optional
-                break;
-        }
+        AppSettings.Current.LocalArchivePath = LocalArchivePath;
+        AppSettings.Current.CustomArchivePath = CustomArchivePath;
+        AppSettings.Current.CustomEncryptionKey = CustomEncryptionKey;
+        AppSettings.Current.CustomMappingsPath = CustomMappingsPath;
         
         AppVM.SetView<MainView>();
     }

@@ -18,7 +18,7 @@
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="0.4*"/>
                                     <ColumnDefinition Width="{ext:Space 1}"/>
-                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="1.5*"/>
                                     <ColumnDefinition Width="2*"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
@@ -26,7 +26,7 @@
                                 <material:MaterialIcon Grid.Column="0" Width="40" Height="40" Kind="{Binding Icon, RelativeSource={RelativeSource AncestorType=controls:SettingBox}}"/>
                                 <StackPanel Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center">
                                     <TextBlock Text="{Binding DisplayName, RelativeSource={RelativeSource AncestorType=controls:SettingBox}}" FontSize="16" />
-                                    <TextBlock Text="{Binding Path, RelativeSource={RelativeSource AncestorType=controls:SettingBox}}" TextTrimming="CharacterEllipsis" Opacity="0.5"/>
+                                    <TextBlock Text="{Binding Path, RelativeSource={RelativeSource AncestorType=controls:SettingBox}, FallbackValue=???, TargetNullValue=???}" TextTrimming="CharacterEllipsis" Opacity="0.5"/>
                                 </StackPanel>
                                 <ContentPresenter Grid.Column="4" Content="{TemplateBinding Content}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="{ext:Space 1}"/>
                             </Grid>

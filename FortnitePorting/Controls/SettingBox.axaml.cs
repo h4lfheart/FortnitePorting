@@ -13,7 +13,7 @@ public partial class SettingBox : UserControl
         set => SetValue(IconProperty, value);
     }
     
-    public static readonly StyledProperty<string> PathProperty = AvaloniaProperty.Register<SettingBox, string>(nameof(Path));
+    public static readonly StyledProperty<string> PathProperty = AvaloniaProperty.Register<SettingBox, string>(nameof(Path), defaultValue: "???");
     public string Path
     {
         get => GetValue(PathProperty);

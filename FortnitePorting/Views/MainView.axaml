@@ -45,7 +45,7 @@
                 <TabItem.Header>
                     <controls:MaterialIconText Text="Settings" Icon="Settings"/>
                 </TabItem.Header>
-                <controls:GroupBox Background="#26000000"/>
+                <views:SettingsView/>
             </TabItem>
         </controls:AnimatableTabControl>
     </Grid>
