@@ -13,13 +13,9 @@ public static class ApplicationService
     public static CUE4ParseViewModel CUE4ParseVM => ViewModelRegistry.Get<CUE4ParseViewModel>();
     public static AssetsViewModel AssetsVM => ViewModelRegistry.Get<AssetsViewModel>();
     public static MainViewModel MainVM => ViewModelRegistry.Get<MainViewModel>();
-    public static IStorageProvider StorageProvider => ApplicationLifetime!.MainWindow!.StorageProvider;
+    public static IStorageProvider StorageProvider => ApplicationLifetime.MainWindow!.StorageProvider;
     public static readonly Random RandomGenerator = new();
 
     public static readonly IClassicDesktopStyleApplicationLifetime ApplicationLifetime = Avalonia.Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
-
-    public static void Shutdown()
-    {
-        ApplicationLifetime?.Shutdown();
-    }
+    
 }

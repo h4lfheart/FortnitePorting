@@ -1,3 +1,4 @@
+using System;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -8,7 +9,8 @@ namespace FortnitePorting.Framework;
 
 public partial class MessageWindow : Window
 {
-    public MessageWindow(string caption, string text, Window? owner = null)
+    private event EventHandler OnClosedWindow;
+    public MessageWindow(string caption, string text, Window? owner = null, Action<object?, EventArgs>? onClosed = null)
     {
         InitializeComponent();
         DataContext = AppVM;
@@ -17,6 +19,12 @@ public partial class MessageWindow : Window
         CaptionTextBlock.Text = caption;
         InfoTextBlock.Text = text;
         Owner = owner;
+        if (onClosed is not null) OnClosedWindow += (sender, args) => onClosed(sender, args);
+    }
+
+    public static void Show(string caption, string text, Window? owner = null, Action<object?, EventArgs>? onClosed = null)
+    {
+        new MessageWindow(caption, text, owner, onClosed).Show();
     }
     
     private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
@@ -27,5 +35,11 @@ public partial class MessageWindow : Window
     private void OnCloseClicked(object? sender, RoutedEventArgs e)
     {
         Close();
+    }
+
+    private void OnContinueClicked(object? sender, RoutedEventArgs e)
+    {
+        Close();
+        OnClosedWindow.Invoke(this, EventArgs.Empty);
     }
 }

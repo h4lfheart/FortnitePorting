@@ -8,6 +8,7 @@ namespace FortnitePorting.ViewModels;
 public partial class MainViewModel : ViewModelBase
 {
     [ObservableProperty] private UserControl? currentAssetView;
+    [ObservableProperty] private UserControl activeTab;
 
     public MainViewModel()
     {

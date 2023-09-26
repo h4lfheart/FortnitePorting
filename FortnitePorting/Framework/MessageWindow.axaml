@@ -8,7 +8,7 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="FortnitePorting.Framework.MessageWindow"
         x:DataType="viewModels:ApplicationViewModel"
-        Icon="/Assets/FortnitePortingV2.ico" Width="360" MinHeight="100" SizeToContent="Height" WindowStartupLocation="CenterScreen" FontFamily="Segoe UI"
+        Icon="/Assets/FortnitePortingV2.ico" Width="360" MinHeight="100" SizeToContent="Height" WindowStartupLocation="CenterOwner" FontFamily="Segoe UI"
         Background="{x:Null}" TransparencyLevelHint="Mica"
         ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="NoChrome" ExtendClientAreaTitleBarHeightHint="0">
      <Grid RowDefinitions="30, *">
@@ -27,9 +27,9 @@
             </Grid>
         </Grid>
         <Grid Grid.Row="1" RowDefinitions="Auto Auto" ColumnDefinitions="* 4*">
-            <material:MaterialIcon Grid.Row="0" Grid.Column="0" Kind="Error" Width="40" Height="40" Margin="{ext:Space 1}" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+            <material:MaterialIcon Grid.Row="0" Grid.Column="0" Kind="Alert" Width="40" Height="40" Margin="{ext:Space 1}" HorizontalAlignment="Center" VerticalAlignment="Top"/>
             <TextBlock Grid.Row="0" Grid.Column="1" x:Name="InfoTextBlock" Margin="{ext:Space 1}" TextAlignment="Left" TextWrapping="Wrap"/>
-            <Button Grid.Row="1" Grid.Column="1" Margin="{ext:Space 1}" HorizontalAlignment="Right" VerticalAlignment="Center" Content="Continue" Click="OnCloseClicked"/>
+            <Button Grid.Row="1" Grid.Column="1" Margin="{ext:Space 1}" HorizontalAlignment="Right" VerticalAlignment="Center" Content="Continue" Click="OnContinueClicked"/>
         </Grid>
         
      </Grid>

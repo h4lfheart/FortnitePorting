@@ -59,4 +59,23 @@ public partial class ApplicationViewModel : ViewModelBase
     {
         CurrentView = new T();
     }
+    
+    public void RestartWithMessage(string caption, string message)
+    {
+        MessageWindow.Show(caption, message, owner: ApplicationLifetime.MainWindow, onClosed: (o, args) =>
+        {
+            Restart();
+        });
+    }
+
+    public void Restart()
+    {
+        Launch(AppDomain.CurrentDomain.FriendlyName, shellExecute: false);
+        Shutdown();
+    }
+    
+    public void Shutdown()
+    {
+        ApplicationLifetime.Shutdown();
+    }
 }

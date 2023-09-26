@@ -7,9 +7,11 @@ public static class ViewModelRegistry
 {
     private static readonly Dictionary<Type, ViewModelBase> Registry = new();
     
-    public static T Get<T>() where T : ViewModelBase
+    public static T? Get<T>() where T : ViewModelBase
     {
-        return (T) Registry[typeof(T)];
+        var type = typeof(T);
+        if (!Registry.ContainsKey(type)) return null;
+        return (T) Registry[type];
     }
     
     public static T Register<T>() where T : ViewModelBase, new()

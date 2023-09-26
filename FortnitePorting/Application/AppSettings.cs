@@ -17,7 +17,7 @@ public class AppSettings
     {
         if (!DirectoryPath.Exists) DirectoryPath.Create();
         if (!FilePath.Exists) return;
-        Current = JsonConvert.DeserializeObject<ViewModels.SettingsViewModel>(File.ReadAllText(FilePath.FullName)) ?? new ViewModels.SettingsViewModel();
+        Current = JsonConvert.DeserializeObject<SettingsViewModel>(File.ReadAllText(FilePath.FullName)) ?? new SettingsViewModel();
     }
     
     public static void Save()
