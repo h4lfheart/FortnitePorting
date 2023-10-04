@@ -1,0 +1,30 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewmodels="clr-namespace:FortnitePorting.ViewModels"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="FortnitePorting.Views.HomeView"
+             x:DataType="viewmodels:HomeViewModel">
+    <controls:GroupBox Background="#26000000">
+        <Grid ColumnDefinitions="* *">
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="{ext:Space 1}"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Changelog" FontSize="28" FontWeight="SemiBold"/>
+                <ItemsControl Grid.Row="2" ItemsSource="{Binding Changelogs}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Grid>
+        </Grid>
+    </controls:GroupBox>
+</UserControl>

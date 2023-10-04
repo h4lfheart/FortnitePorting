@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
@@ -13,7 +14,6 @@ namespace FortnitePorting.Application;
 
 public class App : Avalonia.Application
 {
-    public static IClassicDesktopStyleApplicationLifetime Desktop;
     public static readonly DirectoryInfo AssetsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets"));
     public static readonly DirectoryInfo LogsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs"));
     public static readonly DirectoryInfo DataFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".data"));
@@ -24,9 +24,10 @@ public class App : Avalonia.Application
         #if DEBUG
           ConsoleExtensions.AttachConsole(-1);
         #endif
+        
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            Desktop = desktop;
+            ApplicationService.Application = desktop;
             desktop.Startup += OnStartup;
             desktop.Exit += OnExit;
         }
@@ -39,8 +40,7 @@ public class App : Avalonia.Application
         Log.Error("{0}", exception);
         Dispatcher.UIThread.Invoke(() =>
         {
-            var errorWindow = new MessageWindow("An unhandled exception has occurred", $"{exception.GetType().FullName}: {exception.Message}", ApplicationService.ApplicationLifetime!.MainWindow);
-            errorWindow.Show();
+            MessageWindow.Show("An unhandled exception has occurred", $"{exception.GetType().FullName}: {exception.Message}", ApplicationService.Application.MainWindow);
         });
         
     }
@@ -71,9 +71,8 @@ public class App : Avalonia.Application
         {
             DiscordService.Initialize();
         }
-
         
         AppVM = new ApplicationViewModel();
-        Desktop.MainWindow = new AppWindow();
+        ApplicationService.Application.MainWindow = new AppWindow();
     }
 }

@@ -206,9 +206,12 @@ public partial class AssetsViewModel : ViewModelBase
                 }
             }
         };
-        
+    }
+
+    public async Task StartLoadingAsync()
+    {
         SetLoader(EAssetType.Outfit);
-        await CurrentLoader.Load();
+        await CurrentLoader!.Load();
     }
 
     public void SetLoader(EAssetType assetType)

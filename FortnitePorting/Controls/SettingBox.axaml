@@ -16,14 +16,14 @@
                         <controls:GroupBox Margin="{ext:Space 1}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="0.4*"/>
+                                    <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="{ext:Space 1}"/>
                                     <ColumnDefinition Width="1.5*"/>
                                     <ColumnDefinition Width="2*"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 
-                                <material:MaterialIcon Grid.Column="0" Width="40" Height="40" Kind="{Binding Icon, RelativeSource={RelativeSource AncestorType=controls:SettingBox}}"/>
+                                <material:MaterialIcon Grid.Column="0" IsVisible="{Binding ShowIcon, RelativeSource={RelativeSource AncestorType=controls:SettingBox}}" Width="40" Height="40" Margin="4 0 8 0" Kind="{Binding Icon, RelativeSource={RelativeSource AncestorType=controls:SettingBox}}"/>
                                 <StackPanel Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center">
                                     <TextBlock Text="{Binding DisplayName, RelativeSource={RelativeSource AncestorType=controls:SettingBox}}" FontSize="16" />
                                     <TextBlock Text="{Binding Path, RelativeSource={RelativeSource AncestorType=controls:SettingBox}, FallbackValue=???, TargetNullValue=???}" TextTrimming="CharacterEllipsis" Opacity="0.5"/>

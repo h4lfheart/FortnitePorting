@@ -43,7 +43,7 @@ public class CUE4ParseViewModel : ViewModelBase
     public readonly List<FAssetData> AssetRegistry = new();
     public readonly RarityCollection[] RarityColors = new RarityCollection[8];
     public readonly HashSet<string> MeshEntries = new();
-    private BackupAPIResponse? BackupAPI;
+    //private BackupAPIResponse? BackupAPI;
 
     private static readonly Regex FortniteLiveRegex = new(@"^FortniteGame(/|\\)Content(/|\\)Paks(/|\\)(pakchunk(?:0|10.*|\w+)-WindowsClient|global)\.(pak|utoc)$", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
     private static readonly VersionContainer LatestVersionContainer = new(EGame.GAME_UE5_3, optionOverrides: new Dictionary<string, bool>
@@ -93,7 +93,7 @@ public class CUE4ParseViewModel : ViewModelBase
 
     public override async Task Initialize()
     {
-        BackupAPI = await EndpointService.FortnitePorting.GetBackupAPIAsync();
+        //BackupAPI = await EndpointService.FortnitePorting.GetBackupAPIAsync();
         LoadingVM.LoadingTiers = 5;
 
         LoadingVM.Update("Loading Game Archive");
@@ -166,7 +166,7 @@ public class CUE4ParseViewModel : ViewModelBase
             case ELoadingType.Local:
             case ELoadingType.Live:
             {
-                var aes = await EndpointService.FortniteCentral.GetKeysAsync() ?? BackupAPI?.GetKeys();
+                var aes = await EndpointService.FortniteCentral.GetKeysAsync();// ?? BackupAPI?.GetKeys();
                 if (aes is null) return;
 
                 await Provider.SubmitKeyAsync(Globals.ZERO_GUID, new FAesKey(aes.MainKey));
@@ -211,7 +211,7 @@ public class CUE4ParseViewModel : ViewModelBase
     
     private async Task<string?> GetEndpointMappings()
     {
-        var mappings = await EndpointService.FortniteCentral.GetMappingsAsync() ?? BackupAPI?.GetMappings();
+        var mappings = await EndpointService.FortniteCentral.GetMappingsAsync();// ?? BackupAPI?.GetMappings();
         if (mappings is null) return null;
         if (mappings.Length <= 0) return null;
 

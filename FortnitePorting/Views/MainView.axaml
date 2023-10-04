@@ -11,13 +11,24 @@
              x:DataType="viewmodels:MainViewModel">
     <Grid>
         <controls:AnimatableTabControl Margin="0 8" TabStripPlacement="Left" OnContentChanged="OnTabChanged">
-            <TabItem Tag="Assets">
+            <TabItem>
+                <TabItem.Header>
+                    <controls:MaterialIconText Text="Home" Icon="ViewDashboard"/>
+                </TabItem.Header>
+                <views:HomeView/>
+            </TabItem>
+            <TabItem>
                 <TabItem.Header>
                     <controls:MaterialIconText Text="Assets" Icon="File"/>
                 </TabItem.Header>
-                <ContentControl Content="{Binding CurrentAssetView}"/>
+                <views:AssetsView/>
             </TabItem>
-            
+            <TabItem>
+                <TabItem.Header>
+                    <controls:MaterialIconText Text="Meshes" Icon="Cube"/>
+                </TabItem.Header>
+                <controls:GroupBox Background="#26000000"/>
+            </TabItem>
             <TabItem>
                 <TabItem.Header>
                     <controls:MaterialIconText Text="Export" Icon="Download"/>

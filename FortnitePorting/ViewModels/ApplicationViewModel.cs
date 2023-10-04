@@ -7,6 +7,7 @@ using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FortnitePorting.Application;
 using FortnitePorting.Framework;
+using FortnitePorting.Services;
 using FortnitePorting.Views;
 
 namespace FortnitePorting.ViewModels;
@@ -62,7 +63,7 @@ public partial class ApplicationViewModel : ViewModelBase
     
     public void RestartWithMessage(string caption, string message)
     {
-        MessageWindow.Show(caption, message, owner: ApplicationLifetime.MainWindow, onClosed: (o, args) =>
+        MessageWindow.Show(caption, message, owner: ApplicationService.Application.MainWindow, onClosed: (o, args) =>
         {
             Restart();
         });
@@ -76,6 +77,6 @@ public partial class ApplicationViewModel : ViewModelBase
     
     public void Shutdown()
     {
-        ApplicationLifetime.Shutdown();
+        ApplicationService.Application.Shutdown();
     }
 }

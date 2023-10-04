@@ -19,7 +19,7 @@ public partial class LoadingView : ViewBase<LoadingViewModel>
         TaskService.Run(async () =>
         {
             await ViewModelRegistry.Register<CUE4ParseViewModel>().Initialize();
-            await Dispatcher.UIThread.InvokeAsync(() => MainVM.SetAssetView<AssetsView>());
+            await AssetsVM.StartLoadingAsync();
         });
        
     }

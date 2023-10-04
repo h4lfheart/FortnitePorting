@@ -90,10 +90,10 @@
                 </TabItem.Header>
                 
                 <StackPanel>
-                    <controls:SettingBox DisplayName="Filter Props" Path="{Binding FilterProps, Mode=TwoWay}" Icon="Filter">
+                    <controls:SettingBox DisplayName="Filter Props" Path="{Binding FilterProps, Mode=TwoWay}" ShowIcon="False">
                         <ToggleSwitch IsChecked="{Binding FilterProps}"/>
                     </controls:SettingBox>
-                    <controls:SettingBox DisplayName="Filter Items" Path="{Binding FilterItems, Mode=TwoWay}" Icon="Filter">
+                    <controls:SettingBox DisplayName="Filter Items" Path="{Binding FilterItems, Mode=TwoWay}" ShowIcon="False">
                         <ToggleSwitch IsChecked="{Binding FilterItems}"/>
                     </controls:SettingBox>
                 </StackPanel>

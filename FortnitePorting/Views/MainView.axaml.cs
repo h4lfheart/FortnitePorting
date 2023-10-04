@@ -17,16 +17,8 @@ public partial class MainView : ViewBase<MainViewModel>
 
     private void OnTabChanged(object? sender, EventArgs e)
     {
-        if (sender is ContentControl { Content: AssetsView or LoadingView } control)
-        {
-            ViewModel.ActiveTab = (UserControl) control.Content;
-        }
-        else
-        {
-            ViewModel.ActiveTab = (UserControl) sender!;
-        }
-
-        ApplicationLifetime.MainWindow.Width = ViewModel.ActiveTab is AssetsView or LoadingView ? 1280 : 1100; // loading view and assets view use this specifically
+        ViewModel.ActiveTab = (UserControl) sender!;
+        MainWindow.Width = ViewModel.ActiveTab is AssetsView or LoadingView ? 1280 : 1100; // loading view and assets view use this specifically
 
         if (AppSettings.Current.IsRestartRequired)
         {

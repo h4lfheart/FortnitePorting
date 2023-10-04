@@ -26,7 +26,14 @@ public partial class SettingBox : UserControl
         get => GetValue(DisplayNameProperty);
         set => SetValue(DisplayNameProperty, value);
     }
-
+    
+    public static readonly StyledProperty<bool> ShowIconProperty = AvaloniaProperty.Register<SettingBox, bool>(nameof(ShowIcon), defaultValue: true);
+    public bool ShowIcon
+    {
+        get => GetValue(ShowIconProperty);
+        set => SetValue(ShowIconProperty, value);
+    }
+    
     public SettingBox()
     {
         InitializeComponent();
