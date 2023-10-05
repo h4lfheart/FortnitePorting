@@ -15,7 +15,8 @@ public partial class ChangelogItem : UserControl
     public string Title { get; set; }
     public string PublishDate { get; set; }
     public string Text { get; set; }
-    public Bitmap Image { get; set; }
+    
+    public string ImageURL { get; set; }
     public string[] Tags { get; set; }
     
     public ChangelogItem(ChangelogResponse changelog)
@@ -23,8 +24,8 @@ public partial class ChangelogItem : UserControl
         InitializeComponent();
 
         Title = changelog.Title;
-        PublishDate = changelog.PublishTime.ToString("d");
+        PublishDate = changelog.PublishDate.ToString("d");
         Text = changelog.Text;
-        ImageLoader.SetSource(ThumbnailImage, changelog.ImageURL);
+        ImageURL = changelog.ImageURL;
     }
 }

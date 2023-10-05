@@ -14,10 +14,10 @@ public static class ApplicationService
     public static IStorageProvider StorageProvider => MainWindow.StorageProvider;
     
     public static ApplicationViewModel AppVM = null!;
-    public static LoadingViewModel LoadingVM => ViewModelRegistry.Get<LoadingViewModel>()!;
+    public static MainViewModel MainVM => ViewModelRegistry.Get<MainViewModel>()!;
+    public static HomeViewModel HomeVM => ViewModelRegistry.Get<HomeViewModel>()!;
     public static CUE4ParseViewModel CUE4ParseVM => ViewModelRegistry.Get<CUE4ParseViewModel>()!;
     public static AssetsViewModel AssetsVM => ViewModelRegistry.Get<AssetsViewModel>()!;
-    public static MainViewModel MainVM => ViewModelRegistry.Get<MainViewModel>()!;
     
     public static readonly Random RandomGenerator = new();
     

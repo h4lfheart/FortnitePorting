@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using FortnitePorting.Application;
 using FortnitePorting.Framework;
+using FortnitePorting.Services;
 using FortnitePorting.ViewModels;
 
 namespace FortnitePorting.Views;
@@ -13,12 +14,18 @@ public partial class MainView : ViewBase<MainViewModel>
     public MainView()
     {
         InitializeComponent();
+        
+        TaskService.Run(async () =>
+        {
+            await ViewModelRegistry.Register<CUE4ParseViewModel>().Initialize();
+            await AssetsVM.StartLoadingAsync();
+        });
     }
 
     private void OnTabChanged(object? sender, EventArgs e)
     {
         ViewModel.ActiveTab = (UserControl) sender!;
-        MainWindow.Width = ViewModel.ActiveTab is AssetsView or LoadingView ? 1280 : 1100; // loading view and assets view use this specifically
+        MainWindow.Width = ViewModel.ActiveTab is AssetsView ? 1280 : 1100; // assets view and meshes view use this specifically
 
         if (AppSettings.Current.IsRestartRequired)
         {

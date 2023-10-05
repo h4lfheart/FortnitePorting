@@ -40,6 +40,6 @@ public partial class MessageWindow : Window
     private void OnContinueClicked(object? sender, RoutedEventArgs e)
     {
         Close();
-        OnClosedWindow.Invoke(this, EventArgs.Empty);
+        OnClosedWindow?.Invoke(this, EventArgs.Empty);
     }
 }

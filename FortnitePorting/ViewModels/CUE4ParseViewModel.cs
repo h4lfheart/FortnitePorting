@@ -94,9 +94,8 @@ public class CUE4ParseViewModel : ViewModelBase
     public override async Task Initialize()
     {
         //BackupAPI = await EndpointService.FortnitePorting.GetBackupAPIAsync();
-        LoadingVM.LoadingTiers = 5;
 
-        LoadingVM.Update("Loading Game Archive");
+        HomeVM.Update("Loading Game Archive");
         await InitializeProvider();
         await LoadKeys();
         
@@ -105,21 +104,22 @@ public class CUE4ParseViewModel : ViewModelBase
         Provider.LoadVirtualCache();
         await LoadMappings();
         
-        LoadingVM.Update("Loading Content Builds");
+        HomeVM.Update("Loading Content Builds");
         if (AppSettings.Current.LoadContentBuilds)
         {
             await LoadContentBuilds();
         }
         
-        
-        LoadingVM.Update("Loading Asset Registry");
+        HomeVM.Update("Loading Asset Registry");
         await LoadAssetRegistries();
         
-        LoadingVM.Update("Loading Assets");
+        HomeVM.Update("Loading Assets");
         await LoadRequiredAssets();
         
-        LoadingVM.Update("Preloading Mesh Entries");
+        HomeVM.Update("Loading Mesh Entries");
         await LoadMeshEntries();
+        
+        HomeVM.Update(string.Empty);
     }
     
     private async Task InitializeProvider()
@@ -147,7 +147,7 @@ public class CUE4ParseViewModel : ViewModelBase
         var manifestInfo = await EndpointService.EpicGames.GetManifestInfoAsync();
         if (manifestInfo is null) return;
 
-        LoadingVM.Update($"Loading Fortnite Live v{manifestInfo.Version}", increment: false);
+        HomeVM.Update($"Loading Fortnite Live v{manifestInfo.Version}");
         
         var manifestPath = Path.Combine(App.DataFolder.FullName, manifestInfo.FileName);
         FortniteLive = await EndpointService.EpicGames.GetManifestAsync(manifestInfo.Uri.AbsoluteUri, manifestPath);

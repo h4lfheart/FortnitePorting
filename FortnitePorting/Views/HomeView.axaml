@@ -5,26 +5,83 @@
              xmlns:viewmodels="clr-namespace:FortnitePorting.ViewModels"
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
              xmlns:ext="clr-namespace:FortnitePorting.Extensions"
+             xmlns:views="clr-namespace:FortnitePorting.Views"
+             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FortnitePorting.Views.HomeView"
              x:DataType="viewmodels:HomeViewModel">
     <controls:GroupBox Background="#26000000">
-        <Grid ColumnDefinitions="* *">
-            <Grid Grid.Column="1">
+        <ScrollViewer VerticalScrollBarVisibility="Hidden">
+            <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="180"/>
                     <RowDefinition Height="{ext:Space 1}"/>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Changelog" FontSize="28" FontWeight="SemiBold"/>
-                <ItemsControl Grid.Row="2" ItemsSource="{Binding Changelogs}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel/>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="{ext:Space 1}"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+            
+                <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3">
+                    <Border RenderOptions.BitmapInterpolationMode="HighQuality" CornerRadius="5">
+                        <Border.Background>
+                            <ImageBrush Source="/Assets/HomeBackground.png" Stretch="UniformToFill"/>
+                        </Border.Background>
+                    </Border>
+                    <Border Background="Black" Opacity="0.35" CornerRadius="5"/>
+                    <TextBlock Text="FortnitePorting" FontSize="56" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <TextBlock Margin="0 80 0 0" Text="{Binding LoadingText}" Opacity="0.9" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Grid>
+            
+                <StackPanel Grid.Row="2" Grid.Column="0">
+                    <StackPanel.Styles>
+                        <Style Selector="controls|GroupBox">
+                            <Setter Property="Margin" Value="0 0 0 8"/>
+                        </Style>
+                    </StackPanel.Styles>
+                    <controls:GroupBox>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="{ext:Space 1}"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="{ext:Space 1}"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+            
+                            <TextBlock Grid.Row="0" FontSize="28" FontWeight="SemiBold" Text="Having Issues?" TextWrapping="Wrap"/>
+                            <Button Grid.Row="2" Content="Join the Support Server" Command="{Binding DiscordCommand}"/>
+                            <Button Grid.Row="4" Content="Open Frequently Asked Questions"/>
+                            <Image Grid.Row="0" Grid.RowSpan="3" Source="/Assets/Discord.png" Width="64" Height="64" RenderOptions.BitmapInterpolationMode="HighQuality" Stretch="UniformToFill" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+                        </Grid>
+                    </controls:GroupBox>
+                    <controls:GroupBox>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="{ext:Space 1}"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="{ext:Space 1}"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+            
+                            <TextBlock Grid.Row="0" FontSize="28" FontWeight="SemiBold" Text="Featured Art" TextWrapping="Wrap"/>
+                            <TextBlock Grid.Row="1" Opacity="0.5" Text="Created By Half"/>
+                            <Image Grid.Row="3" asyncImageLoader:ImageLoader.Source="https://pbs.twimg.com/media/FrCtue-WIAEubVt?format=jpg" RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                        </Grid>
+                    </controls:GroupBox>
+                </StackPanel>
+                <ItemsControl Grid.Row="2" Grid.Column="2" ItemsSource="{Binding Changelogs}">
+                    <ItemsControl.Styles>
+                        <Style Selector="controls|ChangelogItem">
+                            <Setter Property="Margin" Value="0 0 0 8"/>
+                        </Style>
+                    </ItemsControl.Styles>
                 </ItemsControl>
             </Grid>
-        </Grid>
+        </ScrollViewer>
     </controls:GroupBox>
 </UserControl>

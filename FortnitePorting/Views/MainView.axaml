@@ -31,7 +31,7 @@
             </TabItem>
             <TabItem>
                 <TabItem.Header>
-                    <controls:MaterialIconText Text="Export" Icon="Download"/>
+                    <controls:MaterialIconText Text="Export Options" Icon="Download"/>
                 </TabItem.Header>
                 <views:ExportOptionsView/>
             </TabItem>
@@ -49,15 +49,16 @@
             </TabItem>
             <TabItem>
                 <TabItem.Header>
-                    <controls:MaterialIconText Text="Help" Icon="Help"/>
-                </TabItem.Header>
-                <views:HelpView/>
-            </TabItem> <TabItem>
-                <TabItem.Header>
                     <controls:MaterialIconText Text="Settings" Icon="Settings"/>
                 </TabItem.Header>
                 <views:SettingsView/>
             </TabItem>
+            <TabItem>
+                <TabItem.Header>
+                    <controls:MaterialIconText Text="About" Icon="Help"/>
+                </TabItem.Header>
+                <views:AboutView/>
+            </TabItem> 
         </controls:AnimatableTabControl>
     </Grid>
 </UserControl>
