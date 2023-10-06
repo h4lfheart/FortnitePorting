@@ -35,49 +35,40 @@
                     <TextBlock Margin="0 80 0 0" Text="{Binding LoadingText}" Opacity="0.9" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Grid>
             
-                <StackPanel Grid.Row="2" Grid.Column="0">
+                <StackPanel Grid.Row="2" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                     <StackPanel.Styles>
                         <Style Selector="controls|GroupBox">
                             <Setter Property="Margin" Value="0 0 0 8"/>
                         </Style>
                     </StackPanel.Styles>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="{ext:Space 1}"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <controls:GroupBox Grid.Column="0">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="{ext:Space 1}"/>
-                                    <RowDefinition Height="*"/>
-                                </Grid.RowDefinitions>
+                    <controls:GroupBox>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="{ext:Space 1}"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
             
-                                <TextBlock Grid.Row="0" FontSize="28" FontWeight="SemiBold" Text="Having Issues?" TextWrapping="Wrap"/>
-                                <Button Grid.Row="2" Command="{Binding OpenDiscordCommand}">
+                            <TextBlock Grid.Row="0" FontSize="28" FontWeight="SemiBold" Text="Having Issues?" TextWrapping="Wrap"/>
+                            <Grid Grid.Row="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="{ext:Space 1}"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0" Command="{Binding OpenDiscordCommand}">
                                     <StackPanel Orientation="Horizontal">
                                         <Image Source="/Assets/Discord.png" Width="16" Height="16" Margin="0 0 8 0" RenderOptions.BitmapInterpolationMode="HighQuality" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         <TextBlock Text="Join the Support Server"/>
                                     </StackPanel>
-                                    </Button>
+                                </Button>
+                                <Button Grid.Column="2" Command="{Binding OpenFAQCommand}">
+                                    <controls:MaterialIconText Text="Open Frequently Asked Questions" Icon="QuestionMark"/>
+                                </Button>
                             </Grid>
-                        </controls:GroupBox>
-                        <controls:GroupBox Grid.Column="2">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="{ext:Space 1}"/>
-                                    <RowDefinition Height="*"/>
-                                </Grid.RowDefinitions>
-            
-                                <TextBlock Grid.Row="0" FontSize="28" FontWeight="SemiBold" Text="Common Errors" TextWrapping="Wrap"/>
-                                <Button Grid.Row="2" Content="Open Frequently Asked Questions" Command="{Binding OpenFAQCommand}"/>
-                            </Grid>
-                        </controls:GroupBox>
-                    </Grid>
-                    <controls:GroupBox>
+                        </Grid>
+                    </controls:GroupBox>
+                    <controls:GroupBox> <!-- TODO FEATURED ART API + MULTIPLE ??-->
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -90,7 +81,7 @@
             
                             <TextBlock Grid.Row="0" FontSize="28" FontWeight="SemiBold" Text="Featured Art" TextWrapping="Wrap"/>
                             <TextBlock Grid.Row="1" Opacity="0.5" Text="Created By Half"/>
-                            <Image Grid.Row="3" asyncImageLoader:ImageLoader.Source="https://pbs.twimg.com/media/FrCtue-WIAEubVt?format=jpg" RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                            <Image Grid.Row="3" asyncImageLoader:ImageLoader.Source="https://pbs.twimg.com/media/F4ZzgBvW8AAsm6D?format=jpg" RenderOptions.BitmapInterpolationMode="HighQuality"/>
                         </Grid>
                     </controls:GroupBox>
                 </StackPanel>

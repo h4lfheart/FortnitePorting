@@ -5,6 +5,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media.Imaging;
+using FortnitePorting.Extensions;
 using FortnitePorting.Services;
 using FortnitePorting.Services.Endpoints.Models;
 
@@ -27,5 +28,6 @@ public partial class ChangelogItem : UserControl
         PublishDate = changelog.PublishDate.ToString("d");
         Text = changelog.Text;
         ImageURL = changelog.ImageURL;
+        Tags = changelog.Tags; //$"Tags: {changelog.Tags.CommaJoin(includeAnd: false)}";
     }
 }

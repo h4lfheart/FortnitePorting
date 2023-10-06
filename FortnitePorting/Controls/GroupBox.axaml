@@ -4,15 +4,15 @@
              xmlns:ext="clr-namespace:FortnitePorting.Extensions"
              xmlns:fortnitePorting="clr-namespace:FortnitePorting"
              x:Class="FortnitePorting.Controls.GroupBox"
-             x:DataType="controls:GroupBox" Background="#10FFFFFF" BorderBrush="#10FFFFFF">
+             x:DataType="controls:GroupBox" Background="#10FFFFFF" BorderBrush="#10FFFFFF" CornerRadius="10">
     <UserControl.Styles>
         <Style Selector="controls|GroupBox">
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type controls:GroupBox}" >
                         <Grid>
-                            <Border RenderOptions.EdgeMode="Antialias" CornerRadius="10" Background="{TemplateBinding Background}"/>
-                            <Border RenderOptions.EdgeMode="Antialias" CornerRadius="10" BorderThickness="1" BorderBrush="{TemplateBinding BorderBrush}"/>
+                            <Border RenderOptions.EdgeMode="Antialias" CornerRadius="{TemplateBinding CornerRadius}" Background="{TemplateBinding Background}"/>
+                            <Border RenderOptions.EdgeMode="Antialias" CornerRadius="{TemplateBinding CornerRadius}" BorderThickness="1" BorderBrush="{TemplateBinding BorderBrush}"/>
                             <ContentControl Content="{TemplateBinding Content}" Margin="{ext:Space 1}"/>
                         </Grid>
                     </ControlTemplate>

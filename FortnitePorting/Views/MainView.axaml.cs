@@ -25,7 +25,8 @@ public partial class MainView : ViewBase<MainViewModel>
     private void OnTabChanged(object? sender, EventArgs e)
     {
         ViewModel.ActiveTab = (UserControl) sender!;
-        MainWindow.Width = ViewModel.ActiveTab is AssetsView ? 1280 : 1100; // assets view and meshes view use this specifically
+        MainWindow.Width = ViewModel.ActiveTab is AssetsView && MainWindow.WindowState == WindowState.Normal ? 1280 : 1100; // assets view and meshes view use this specifically
+        MainWindow.UpdateLayout();
 
         if (AppSettings.Current.IsRestartRequired)
         {

@@ -15,7 +15,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="{ext:Space 1}"/>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="{ext:Space 1}"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
@@ -28,6 +28,25 @@
             <TextBlock Grid.Column="0" Grid.Row="0" FontSize="28" FontWeight="SemiBold" Text="{Binding Title, RelativeSource={RelativeSource AncestorType=controls:ChangelogItem}}" TextWrapping="Wrap"/>
             <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" Opacity="0.5" Text="{Binding PublishDate, RelativeSource={RelativeSource AncestorType=controls:ChangelogItem}}"/>
             <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="3" Opacity="0.75" Text="{Binding Text, RelativeSource={RelativeSource AncestorType=controls:ChangelogItem}}" TextWrapping="Wrap"/>
+            <ItemsControl Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="5" ItemsSource="{Binding Tags, RelativeSource={RelativeSource AncestorType=controls:ChangelogItem}}">
+                <ItemsControl.Styles>
+                    <Style Selector="controls|GroupBox">
+                        <Setter Property="Margin" Value="0 0 8 0"/>
+                    </Style>
+                </ItemsControl.Styles>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="x:String">
+                        <controls:GroupBox HorizontalAlignment="Left" CornerRadius="10">
+                            <controls:MaterialIconText Opacity="0.5" Text="{Binding}" Icon="Tag"/>
+                        </controls:GroupBox>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
             <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="2" Width="96" Height="54" HorizontalAlignment="Right" VerticalAlignment="Top" CornerRadius="5">
                 <Border.Background>
                     <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding ImageURL, RelativeSource={RelativeSource AncestorType=controls:ChangelogItem}}" Stretch="UniformToFill"/>
