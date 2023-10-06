@@ -9,26 +9,38 @@ using DynamicData.Binding;
 using FortnitePorting.Controls;
 using FortnitePorting.Framework;
 using FortnitePorting.Services;
+using FortnitePorting.Services.Endpoints.Models;
 
 namespace FortnitePorting.ViewModels;
 
 public partial class HomeViewModel : ViewModelBase
 {
     [ObservableProperty] private string loadingText = "Loading Application";
+    [ObservableProperty] private string featuredArtist = "None";
+    [ObservableProperty] private string featuredArtURL = string.Empty;
     [ObservableProperty] private ObservableCollection<ChangelogItem> changelogs = new();
     
     public override async Task Initialize()
     {
         var changelogEntries = await EndpointService.FortnitePorting.GetChangelogsAsync();
-        if (changelogEntries is null) return;
-        
-        await TaskService.RunDispatcherAsync(() =>
+        if (changelogEntries is not null)
         {
-            foreach (var entry in changelogEntries.OrderBy(x => x.PublishDate, SortExpressionComparer<DateTime>.Descending(x => x)))
+            await TaskService.RunDispatcherAsync(() =>
             {
-                Changelogs.Add(new ChangelogItem(entry));
-            }
-        });
+                foreach (var entry in changelogEntries.OrderBy(x => x.PublishDate, SortExpressionComparer<DateTime>.Descending(x => x)))
+                {
+                    Changelogs.Add(new ChangelogItem(entry));
+                }
+            });
+        }
+
+        var featured = await EndpointService.FortnitePorting.GetFeaturedAsync();
+        if (featured is not null)
+        {
+            FeaturedArtist = featured.Artist;
+            FeaturedArtURL = featured.ImageURL;
+        }
+
     }
     
     public void Update(string text)

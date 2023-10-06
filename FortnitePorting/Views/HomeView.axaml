@@ -68,7 +68,7 @@
                             </Grid>
                         </Grid>
                     </controls:GroupBox>
-                    <controls:GroupBox> <!-- TODO FEATURED ART API + MULTIPLE ??-->
+                    <controls:GroupBox>
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -80,9 +80,22 @@
                             </Grid.RowDefinitions>
             
                             <TextBlock Grid.Row="0" FontSize="28" FontWeight="SemiBold" Text="Featured Art" TextWrapping="Wrap"/>
-                            <TextBlock Grid.Row="1" Opacity="0.5" Text="Created By Half"/>
-                            <Image Grid.Row="3" asyncImageLoader:ImageLoader.Source="https://pbs.twimg.com/media/F4ZzgBvW8AAsm6D?format=jpg" RenderOptions.BitmapInterpolationMode="HighQuality"/>
-                        </Grid>
+                            <TextBlock Grid.Row="1" Opacity="0.5">
+                                <TextBlock.Text>
+                                    <MultiBinding StringFormat="Created By: {0}">
+                                        <Binding Path="FeaturedArtist" />
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                            <Border Grid.Row="3" RenderOptions.BitmapInterpolationMode="HighQuality" CornerRadius="5">
+                                <Border.Background>
+                                    <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding FeaturedArtURL}" Stretch="UniformToFill"/>
+                                </Border.Background>
+                                
+                                <!-- scuffed but gets proper image sizing for background brush while keeping corner radius-->
+                                <Image Opacity="0" asyncImageLoader:ImageLoader.Source="{Binding FeaturedArtURL}"/>
+                            </Border>
+                            </Grid>
                     </controls:GroupBox>
                 </StackPanel>
                 <ItemsControl Grid.Row="2" Grid.Column="2" ItemsSource="{Binding Changelogs}">
