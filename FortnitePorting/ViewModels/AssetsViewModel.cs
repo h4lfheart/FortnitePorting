@@ -9,10 +9,8 @@ using Avalonia.Controls;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using CUE4Parse.UE4;
 using CUE4Parse.UE4.AssetRegistry.Objects;
 using CUE4Parse.UE4.Assets.Exports;
-using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
@@ -20,13 +18,13 @@ using CUE4Parse.UE4.Objects.Engine;
 using DynamicData;
 using DynamicData.Binding;
 using FortnitePorting.Controls;
+using FortnitePorting.Controls.Assets;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Services;
 using Material.Icons;
 using ReactiveUI;
 using Serilog;
-using AssetItem = FortnitePorting.Controls.Assets.AssetItem;
 
 namespace FortnitePorting.ViewModels;
 
@@ -207,10 +205,7 @@ public partial class AssetsViewModel : ViewModelBase
                 }
             }
         };
-    }
-
-    public async Task StartLoadingAsync()
-    {
+        
         SetLoader(EAssetType.Outfit);
         await CurrentLoader!.Load();
     }

@@ -2,7 +2,8 @@ using System;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
-namespace FortnitePorting.Controls;
+
+namespace FortnitePorting.Controls.Avalonia;
 
 [PseudoClasses(":normal")]
 public class AnimatableTabControl : TabControl

@@ -1,7 +1,8 @@
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FortnitePorting.Framework;
-using FortnitePorting.Views;
+using FortnitePorting.Services;
 
 namespace FortnitePorting.ViewModels;
 

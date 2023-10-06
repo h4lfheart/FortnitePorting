@@ -43,7 +43,6 @@ public class CUE4ParseViewModel : ViewModelBase
     public readonly List<FAssetData> AssetRegistry = new();
     public readonly RarityCollection[] RarityColors = new RarityCollection[8];
     public readonly HashSet<string> MeshEntries = new();
-    //private BackupAPIResponse? BackupAPI;
 
     private static readonly Regex FortniteLiveRegex = new(@"^FortniteGame(/|\\)Content(/|\\)Paks(/|\\)(pakchunk(?:0|10.*|\w+)-WindowsClient|global)\.(pak|utoc)$", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
     private static readonly VersionContainer LatestVersionContainer = new(EGame.GAME_UE5_3, optionOverrides: new Dictionary<string, bool>
@@ -51,50 +50,9 @@ public class CUE4ParseViewModel : ViewModelBase
         { "SkeletalMesh.KeepMobileMinLODSettingOnDesktop", true },
         { "StaticMesh.KeepMobileMinLODSettingOnDesktop", true }
     });
-    
-    private static readonly string[] MeshFilter =
-    {
-        "/Sounds",
-        "/Playsets",
-        "/UI",
-        "/2dAssets",
-        "/Textures",
-        "/Audio",
-        "/Sound",
-        "/Materials",
-        "/Icons",
-        "/Anims",
-        "/DataTables",
-        "/TextureData",
-        "/ActorBlueprints",
-        "/Physics",
-        "/_Verse",
-
-        "/PPID_",
-        "/MI_",
-        "/MF_",
-        "/NS_",
-        "/T_",
-        "/P_",
-        "/TD_",
-        "/MPC_",
-        "/BP_",
-
-        "Engine/",
-
-        "_Physics",
-        "_AnimBP",
-        "_PhysMat",
-        "_PoseAsset",
-
-        "PlaysetGrenade",
-        "NaniteDisplacement"
-    };
 
     public override async Task Initialize()
     {
-        //BackupAPI = await EndpointService.FortnitePorting.GetBackupAPIAsync();
-
         HomeVM.Update("Loading Game Archive");
         await InitializeProvider();
         await LoadKeys();
@@ -113,13 +71,8 @@ public class CUE4ParseViewModel : ViewModelBase
         HomeVM.Update("Loading Asset Registry");
         await LoadAssetRegistries();
         
-        HomeVM.Update("Loading Assets");
+        HomeVM.Update("Loading Application Assets");
         await LoadRequiredAssets();
-        
-        HomeVM.Update("Loading Mesh Entries");
-        await LoadMeshEntries();
-        
-        HomeVM.Update(string.Empty);
     }
     
     private async Task InitializeProvider()
@@ -320,21 +273,6 @@ public class CUE4ParseViewModel : ViewModelBase
             {
                 RarityColors[i] = rarityData.GetByIndex<RarityCollection>(i);
             }
-        }
-    }
-    
-    private async Task LoadMeshEntries()
-    {
-        var entries = Provider.Files.ToArray();
-        var removeEntries = AssetRegistry.Select(x => Provider.FixPath(x.ObjectPath) + ".uasset").ToHashSet();
-
-        foreach (var entry in entries)
-        {
-            if (!entry.Key.EndsWith(".uasset") || entry.Key.EndsWith(".o.uasset")) continue;
-            if (removeEntries.Contains(entry.Key)) continue;
-            if (MeshFilter.Any(x => entry.Key.Contains(x, StringComparison.OrdinalIgnoreCase))) continue;
-
-            MeshEntries.Add(entry.Value.Path);
         }
     }
 }

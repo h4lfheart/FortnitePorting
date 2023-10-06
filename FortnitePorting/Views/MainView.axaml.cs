@@ -17,15 +17,17 @@ public partial class MainView : ViewBase<MainViewModel>
         
         TaskService.Run(async () =>
         {
-            await ViewModelRegistry.Register<CUE4ParseViewModel>().Initialize();
-            await AssetsVM.StartLoadingAsync();
+            ViewModelRegistry.Register<CUE4ParseViewModel>();
+            await CUE4ParseVM.Initialize();
+            TaskService.Run(AssetsVM.Initialize);
+            TaskService.Run(MeshesVM.Initialize);
         });
     }
 
     private void OnTabChanged(object? sender, EventArgs e)
     {
         ViewModel.ActiveTab = (UserControl) sender!;
-        MainWindow.Width = ViewModel.ActiveTab is AssetsView && MainWindow.WindowState == WindowState.Normal ? 1280 : 1100; // assets view and meshes view use this specifically
+        MainWindow.Width = ViewModel.ActiveTab is AssetsView or MeshesView && MainWindow.WindowState == WindowState.Normal ? 1280 : 1100; // assets view and meshes view use this specifically
         MainWindow.UpdateLayout();
 
         if (AppSettings.Current.IsRestartRequired)

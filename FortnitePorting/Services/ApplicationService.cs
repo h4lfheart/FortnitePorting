@@ -17,6 +17,7 @@ public static class ApplicationService
     public static MainViewModel MainVM => ViewModelRegistry.Get<MainViewModel>()!;
     public static HomeViewModel HomeVM => ViewModelRegistry.Get<HomeViewModel>()!;
     public static CUE4ParseViewModel CUE4ParseVM => ViewModelRegistry.Get<CUE4ParseViewModel>()!;
+    public static MeshesViewModel MeshesVM => ViewModelRegistry.Get<MeshesViewModel>()!;
     public static AssetsViewModel AssetsVM => ViewModelRegistry.Get<AssetsViewModel>()!;
     
     public static readonly Random RandomGenerator = new();

@@ -9,11 +9,12 @@
              xmlns:fortnitePorting="clr-namespace:FortnitePorting"
              xmlns:cue4parseConversion="clr-namespace:CUE4Parse_Conversion;assembly=CUE4Parse-Conversion"
              xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:avalonia="clr-namespace:FortnitePorting.Controls.Avalonia"
              mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720"
              x:Class="FortnitePorting.Views.ExportOptionsView"
              x:DataType="viewmodels:ExportOptionsViewModel">
     <controls:GroupBox Background="#26000000">
-        <controls:AnimatableTabControl HorizontalAlignment="Stretch">
+        <avalonia:AnimatableTabControl HorizontalAlignment="Stretch">
             <TabControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center"/>
@@ -143,6 +144,6 @@
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
-        </controls:AnimatableTabControl>
+        </avalonia:AnimatableTabControl>
     </controls:GroupBox>
 </UserControl>

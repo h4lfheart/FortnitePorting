@@ -6,11 +6,12 @@
              xmlns:ext="clr-namespace:FortnitePorting.Extensions"
              xmlns:views="clr-namespace:FortnitePorting.Views"
              xmlns:viewmodels="clr-namespace:FortnitePorting.ViewModels"
+             xmlns:avalonia="clr-namespace:FortnitePorting.Controls.Avalonia"
              mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720"
              x:Class="FortnitePorting.Views.MainView"
              x:DataType="viewmodels:MainViewModel">
     <Grid>
-        <controls:AnimatableTabControl Margin="0 8" TabStripPlacement="Left" OnContentChanged="OnTabChanged">
+        <avalonia:AnimatableTabControl Margin="0 8" TabStripPlacement="Left" OnContentChanged="OnTabChanged">
             <TabItem>
                 <TabItem.Header>
                     <controls:MaterialIconText Text="Home" Icon="ViewDashboard"/>
@@ -27,7 +28,7 @@
                 <TabItem.Header>
                     <controls:MaterialIconText Text="Meshes" Icon="Cube"/>
                 </TabItem.Header>
-                <controls:GroupBox Background="#26000000"/>
+                <views:MeshesView/>
             </TabItem>
             <TabItem>
                 <TabItem.Header>
@@ -59,6 +60,6 @@
                 </TabItem.Header>
                 <views:AboutView/>
             </TabItem> 
-        </controls:AnimatableTabControl>
+        </avalonia:AnimatableTabControl>
     </Grid>
 </UserControl>

@@ -1,13 +1,11 @@
-using AsyncImageLoader;
 using FortnitePorting.Framework;
-using FortnitePorting.Services;
 using FortnitePorting.ViewModels;
 
 namespace FortnitePorting.Views;
 
-public partial class HomeView : ViewBase<HomeViewModel>
+public partial class MeshesView : ViewBase<MeshesViewModel>
 {
-    public HomeView()
+    public MeshesView() : base(waitInit: true)
     {
         InitializeComponent();
     }

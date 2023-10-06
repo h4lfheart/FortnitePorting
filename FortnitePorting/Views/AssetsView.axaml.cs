@@ -21,11 +21,9 @@ namespace FortnitePorting.Views;
 
 public partial class AssetsView : ViewBase<AssetsViewModel>
 {
-    public AssetsView()
+    public AssetsView() : base(waitInit: true)
     {
         InitializeComponent();
-        
-        TaskService.Run(async () => await ViewModel.Initialize());
     }
 
     private void OnSelectionChanged(object? sender, SelectionChangedEventArgs e)

@@ -32,7 +32,7 @@
                     </Border>
                     <Border Background="Black" Opacity="0.35" CornerRadius="5"/>
                     <TextBlock Text="FortnitePorting" FontSize="56" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <TextBlock Margin="0 80 0 0" Text="{Binding LoadingText}" Opacity="0.9" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <TextBlock Margin="0 80 0 0" Text="{Binding LoadingText}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Grid>
             
                 <StackPanel Grid.Row="2" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
