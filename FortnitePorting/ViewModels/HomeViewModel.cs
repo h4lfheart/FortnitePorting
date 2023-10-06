@@ -22,7 +22,7 @@ public partial class HomeViewModel : ViewModelBase
         var changelogEntries = await EndpointService.FortnitePorting.GetChangelogsAsync();
         if (changelogEntries is null) return;
         
-        await Dispatcher.UIThread.InvokeAsync(() =>
+        await TaskService.RunDispatcherAsync(() =>
         {
             foreach (var entry in changelogEntries.OrderBy(x => x.PublishDate, SortExpressionComparer<DateTime>.Descending(x => x)))
             {
@@ -31,14 +31,20 @@ public partial class HomeViewModel : ViewModelBase
         });
     }
     
-    [RelayCommand]
-    public void Discord()
-    {
-        AppVM.Launch(Globals.DISCORD_URL);
-    }
-
     public void Update(string text)
     {
         LoadingText = text;
+    }
+    
+    [RelayCommand]
+    public void OpenDiscord()
+    {
+        AppVM.Launch(Globals.DISCORD_URL);
+    }
+    
+    [RelayCommand]
+    public void OpenFAQ()
+    {
+        // TODO MAKE FAQ
     }
 }

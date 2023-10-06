@@ -1,12 +1,14 @@
 using System;
 using System.Threading.Tasks;
+using Avalonia.Threading;
 using FortnitePorting.Application;
 
 namespace FortnitePorting.Services;
 
 public static class TaskService
 {
-    public static void Run(Func<Task?> function)
+    private static readonly DispatcherPriority DefaultPriority = DispatcherPriority.Background;
+    public static void Run(Func<Task> function)
     {
         Task.Run(async () =>
         {
@@ -21,7 +23,7 @@ public static class TaskService
         });
     }
     
-    public static async Task RunAsync(Func<Task?> function)
+    public static async Task RunAsync(Func<Task> function)
     {
         await Task.Run(async () =>
         {
@@ -34,5 +36,35 @@ public static class TaskService
                 App.HandleException(e);
             }
         });
+    }
+    
+    public static void RunDispatcher(Action function, DispatcherPriority priority = default)
+    {
+        Dispatcher.UIThread.Invoke(() =>
+        {
+            try
+            {
+                function();
+            }
+            catch (Exception e)
+            {
+                App.HandleException(e);
+            }
+        }, priority);
+    }
+    
+    public static async Task RunDispatcherAsync(Action function, DispatcherPriority priority = default)
+    {
+        await Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            try
+            {
+                function();
+            }
+            catch (Exception e)
+            {
+                App.HandleException(e);
+            }
+        }, priority);
     }
 }

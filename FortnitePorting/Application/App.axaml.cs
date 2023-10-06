@@ -38,7 +38,7 @@ public class App : Avalonia.Application
     public static void HandleException(Exception exception)
     {
         Log.Error("{0}", exception);
-        Dispatcher.UIThread.Invoke(() =>
+        TaskService.RunDispatcher(() =>
         {
             MessageWindow.Show("An unhandled exception has occurred", $"{exception.GetType().FullName}: {exception.Message}", ApplicationService.Application.MainWindow);
         });

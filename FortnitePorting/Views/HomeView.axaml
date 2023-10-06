@@ -7,7 +7,7 @@
              xmlns:ext="clr-namespace:FortnitePorting.Extensions"
              xmlns:views="clr-namespace:FortnitePorting.Views"
              xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="720"
              x:Class="FortnitePorting.Views.HomeView"
              x:DataType="viewmodels:HomeViewModel">
     <controls:GroupBox Background="#26000000">
@@ -41,22 +41,42 @@
                             <Setter Property="Margin" Value="0 0 0 8"/>
                         </Style>
                     </StackPanel.Styles>
-                    <controls:GroupBox>
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="{ext:Space 1}"/>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="{ext:Space 1}"/>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="{ext:Space 1}"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <controls:GroupBox Grid.Column="0">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="{ext:Space 1}"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
             
-                            <TextBlock Grid.Row="0" FontSize="28" FontWeight="SemiBold" Text="Having Issues?" TextWrapping="Wrap"/>
-                            <Button Grid.Row="2" Content="Join the Support Server" Command="{Binding DiscordCommand}"/>
-                            <Button Grid.Row="4" Content="Open Frequently Asked Questions"/>
-                            <Image Grid.Row="0" Grid.RowSpan="3" Source="/Assets/Discord.png" Width="64" Height="64" RenderOptions.BitmapInterpolationMode="HighQuality" Stretch="UniformToFill" HorizontalAlignment="Right" VerticalAlignment="Top"/>
-                        </Grid>
-                    </controls:GroupBox>
+                                <TextBlock Grid.Row="0" FontSize="28" FontWeight="SemiBold" Text="Having Issues?" TextWrapping="Wrap"/>
+                                <Button Grid.Row="2" Command="{Binding OpenDiscordCommand}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="/Assets/Discord.png" Width="16" Height="16" Margin="0 0 8 0" RenderOptions.BitmapInterpolationMode="HighQuality" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Join the Support Server"/>
+                                    </StackPanel>
+                                    </Button>
+                            </Grid>
+                        </controls:GroupBox>
+                        <controls:GroupBox Grid.Column="2">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="{ext:Space 1}"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+            
+                                <TextBlock Grid.Row="0" FontSize="28" FontWeight="SemiBold" Text="Common Errors" TextWrapping="Wrap"/>
+                                <Button Grid.Row="2" Content="Open Frequently Asked Questions" Command="{Binding OpenFAQCommand}"/>
+                            </Grid>
+                        </controls:GroupBox>
+                    </Grid>
                     <controls:GroupBox>
                         <Grid>
                             <Grid.RowDefinitions>

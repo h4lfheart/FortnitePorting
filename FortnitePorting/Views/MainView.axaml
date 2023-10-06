@@ -31,7 +31,7 @@
             </TabItem>
             <TabItem>
                 <TabItem.Header>
-                    <controls:MaterialIconText Text="Export Options" Icon="Download"/>
+                    <controls:MaterialIconText Text="Export" Icon="Download"/>
                 </TabItem.Header>
                 <views:ExportOptionsView/>
             </TabItem>

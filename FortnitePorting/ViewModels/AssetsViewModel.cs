@@ -22,6 +22,7 @@ using DynamicData.Binding;
 using FortnitePorting.Controls;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
+using FortnitePorting.Services;
 using Material.Icons;
 using ReactiveUI;
 using Serilog;
@@ -201,7 +202,7 @@ public partial class AssetsViewModel : ViewModelBase
                     
                     await Parallel.ForEachAsync(entries, async (data, _) =>
                     {
-                        await Dispatcher.UIThread.InvokeAsync(() => loader.Source.Add(new AssetItem(data.Mesh, data.PreviewImage, data.Name, loader.Type)), DispatcherPriority.Background);
+                        await TaskService.RunDispatcherAsync(() => loader.Source.Add(new AssetItem(data.Mesh, data.PreviewImage, data.Name, loader.Type)), DispatcherPriority.Background);
                     });
                 }
             }
@@ -369,7 +370,7 @@ public class AssetLoader
         var displayName = DisplayNameHandler(asset)?.Text;
         if (string.IsNullOrEmpty(displayName)) displayName = asset.Name;
 
-        await Dispatcher.UIThread.InvokeAsync(() => Source.Add(new AssetItem(asset, icon, displayName, Type, Filters.Any(y => asset.Name.Contains(y, StringComparison.OrdinalIgnoreCase)))), DispatcherPriority.Background);
+        await TaskService.RunDispatcherAsync(() => Source.Add(new AssetItem(asset, icon, displayName, Type, Filters.Any(y => asset.Name.Contains(y, StringComparison.OrdinalIgnoreCase)))), DispatcherPriority.Background);
     }
 }
 
