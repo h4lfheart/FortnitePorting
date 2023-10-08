@@ -5,17 +5,87 @@
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
              xmlns:viewmodels="clr-namespace:FortnitePorting.ViewModels"
              xmlns:ext="clr-namespace:FortnitePorting.Extensions"
+             xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720"
              x:Class="FortnitePorting.Views.MeshesView"
              x:DataType="viewmodels:MeshesViewModel">
     <controls:GroupBox Background="#26000000">
-        <TreeView ItemsSource="{Binding TreeItems}" 
-                  HorizontalAlignment="Left">
-            <TreeView.ItemTemplate>
-                <TreeDataTemplate ItemsSource="{Binding Children}">
-                    <TextBlock Text="{Binding Name}"/>
-                </TreeDataTemplate>
-            </TreeView.ItemTemplate>
-        </TreeView>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="{ext:Space 1}"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="{ext:Space 1}"/>
+                <ColumnDefinition Width="2*"/>
+            </Grid.ColumnDefinitions>
+            
+            <controls:GroupBox Grid.Row="0" Grid.RowSpan="3" Grid.Column="0">
+                <Grid RowDefinitions="Auto *">
+                    <Label Grid.Row="0" Content="Tree View" FontSize="14" FontWeight="SemiBold" Margin="0 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    <TreeView Grid.Row="1" ItemsSource="{Binding TreeItems}" HorizontalAlignment="Stretch">
+                        <TreeView.ItemTemplate>
+                            <TreeDataTemplate ItemsSource="{Binding Children}">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                    <material:MaterialIcon Width="16" Height="16" Margin="0 0 8 0" Classes.File="{Binding IsFile}" Classes.Folder="{Binding IsFolder}">
+                                        <material:MaterialIcon.Styles>
+                                            <Style Selector="material|MaterialIcon.File">
+                                                <Style.Setters>
+                                                    <Setter Property="Kind" Value="File"/>
+                                                </Style.Setters>
+                                            </Style>
+                                            <Style Selector="material|MaterialIcon.Folder">
+                                                <Style.Setters>
+                                                    <Setter Property="Kind" Value="Folder"/>
+                                                </Style.Setters>
+                                            </Style>
+                                        </material:MaterialIcon.Styles>
+                                    </material:MaterialIcon>
+                                    <TextBlock Text="{Binding Name}"/>
+                                </StackPanel>
+                            </TreeDataTemplate>
+                        </TreeView.ItemTemplate>
+                    </TreeView>
+                </Grid>
+            </controls:GroupBox>
+            
+            <GridSplitter Grid.Row="0" Grid.RowSpan="3" Grid.Column="1" Background="Transparent" ResizeDirection="Columns"/>
+            
+            <Grid Grid.Row="0" Grid.Column="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="{ext:Space 1}"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="{ext:Space 1}"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBox Grid.Column="0" Watermark="Search" Text="{Binding SearchFilter}" HorizontalAlignment="Stretch"/>
+                <Button Grid.Column="2" Content="Scan for Meshes" Command="{Binding ScanContentCommand}"/>
+                <TextBlock Grid.Column="4" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock.Text>
+                        <MultiBinding StringFormat="{}{0:N2}%">
+                            <Binding Path="ScanPercentage" />
+                        </MultiBinding>
+                    </TextBlock.Text>
+                </TextBlock>
+            </Grid>
+            
+            <controls:GroupBox Grid.Row="2" Grid.Column="2">
+                <Grid RowDefinitions="Auto *">
+                    <Label Grid.Row="0" Content="Flat View" FontSize="14" FontWeight="SemiBold" Margin="0 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                        <ListBox Background="Transparent" SelectionMode="Multiple" ItemsSource="{Binding AssetItemsTarget}" HorizontalAlignment="Stretch">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Path}" Padding="0" Margin="0"/>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </ScrollViewer>
+                </Grid>
+            </controls:GroupBox>
+        </Grid>
     </controls:GroupBox>
 </UserControl>

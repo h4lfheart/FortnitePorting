@@ -95,6 +95,10 @@
             <Setter Property="CornerRadius" Value="10"/>
         </Style>
         
+        <Style Selector="TreeViewItem">
+            <Setter Property="CornerRadius" Value="10"/>
+        </Style>
+        
         <Style Selector="ToggleSwitch">
             <Setter Property="OnContent" Value="{x:Null}" />
             <Setter Property="OffContent" Value="{x:Null}" />

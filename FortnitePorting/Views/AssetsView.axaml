@@ -150,7 +150,7 @@
             </Grid>
             
             <controls:GroupBox Grid.Row="2">
-                <ListBox x:Name="AssetsListBox" ItemsSource="{Binding ActiveCollection}" AutoScrollToSelectedItem="False" Background="Transparent" SelectionChanged="OnSelectionChanged">
+                <ListBox x:Name="AssetsListBox" Classes="Rounded" ItemsSource="{Binding ActiveCollection}" AutoScrollToSelectedItem="False" Background="Transparent" SelectionChanged="OnSelectionChanged">
                     <ListBox.ItemsPanel>
                         <ItemsPanelTemplate>
                             <wrapPanel:VirtualizingWrapPanel/>

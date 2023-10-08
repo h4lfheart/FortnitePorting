@@ -46,6 +46,7 @@ public partial class SettingsViewModel : ViewModelBase
     
     [ObservableProperty] private AuthResponse? epicGamesAuth;
     [ObservableProperty] private List<string> favoritePaths = new();
+    [ObservableProperty] private HashSet<string> assetsThatArentMesh = new();
 
     [JsonIgnore] private static readonly string[] RestartProperties = 
     {

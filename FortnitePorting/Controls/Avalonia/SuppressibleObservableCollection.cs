@@ -1,6 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Linq;
 
 namespace FortnitePorting.Controls.Avalonia;
 
@@ -62,4 +65,30 @@ public class SuppressibleObservableCollection<T> : ObservableCollection<T>
             base.OnCollectionChanged(e);
         }
     }
+    
+    public void Sort<TKey>(Func<T, TKey> keySelector)
+    {
+        InternalSort(Items.OrderBy(keySelector));
+    }
+
+    public void SortDescending<TKey>(Func<T, TKey> keySelector)
+    {
+        InternalSort(Items.OrderByDescending(keySelector));
+    }
+
+    public void Sort<TKey>(Func<T, TKey> keySelector, IComparer<TKey> comparer)
+    {
+        InternalSort(Items.OrderBy(keySelector, comparer));
+    }
+    
+    private void InternalSort(IEnumerable<T> sortedItems)
+    {
+        var sortedItemsList = sortedItems.ToList();
+
+        foreach (var item in sortedItemsList)
+        {
+            Move(IndexOf(item), sortedItemsList.IndexOf(item));
+        }
+    }
+
 }

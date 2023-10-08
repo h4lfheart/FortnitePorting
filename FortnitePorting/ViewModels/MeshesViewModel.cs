@@ -1,121 +1,223 @@
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using CUE4Parse.Utils;
+using DynamicData;
+using FortnitePorting.Application;
+using FortnitePorting.Controls.Assets;
 using FortnitePorting.Controls.Avalonia;
+using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Services;
+using ReactiveUI;
+using Serilog;
 
 namespace FortnitePorting.ViewModels;
 
 public partial class MeshesViewModel : ViewModelBase
 {
-    [ObservableProperty] private SuppressibleObservableCollection<TreeNode> treeItems = new();
+    [ObservableProperty] private SuppressibleObservableCollection<TreeNodeItem> treeItems = new();
+
+    [ObservableProperty] private ReadOnlyObservableCollection<FlatViewItem> assetItemsTarget;
+    [ObservableProperty] private SourceList<FlatViewItem> assetItemsSource = new();
     [ObservableProperty] private SuppressibleObservableCollection<FlatViewItem> assetItems = new();
+    [ObservableProperty] private string searchFilter = string.Empty;
     
+    [ObservableProperty] private float scanPercentage = 0.0f;
+
+    private HashSet<string> AssetsToRemove;
+    private IObservable<Func<FlatViewItem, bool>> AssetFilter;
+
+    private HashSet<string> Filters = new()
+    {
+        // Folders
+        "Engine/",
+        "/Sounds",
+        "/Playsets",
+        "/UI",
+        "/2dAssets",
+        "/Textures",
+        "/Audio",
+        "/Sound",
+        "/Materials",
+        "/Icons",
+        "/Anims",
+        "/DataTables",
+        "/TextureData",
+        "/ActorBlueprints",
+        "/Physics",
+        "/_Verse",
+        "/Animation/Game",
+        
+        // Prefixes
+        "/PID_",
+        "/PPID_",
+        "/MI_",
+        "/MF_",
+        "/NS_",
+        "/T_",
+        "/P_",
+        "/TD_",
+        "/MPC_",
+        "/BP_",
+        
+        // Suffixes
+        "_Physics",
+        "_AnimBP",
+        "_PhysMat",
+        "_PoseAsset",
+        "_CapeColliders",
+        "_PhysicalMaterial",
+        "_BuiltData",
+        
+        // Other
+        "PlaysetGrenade",
+        "NaniteDisplacement"
+    };
+
+    private string[] MeshTypes =
+    {
+        "SkeletalMesh",
+        "StaticMesh"
+    };
+
     public override async Task Initialize()
     {
         HomeVM.Update("Loading Mesh Entries");
 
-        var nodes = new SuppressibleObservableCollection<TreeNode>();
-        nodes.SetSuppression(true);
-        
-        var assets = new SuppressibleObservableCollection<FlatViewItem>();
-        assets.SetSuppression(true);
+        AssetFilter = this.WhenAnyValue(x => x.SearchFilter).Select(CreateAssetFilter);
+        AssetItemsSource.Connect()
+            .ObserveOn(RxApp.MainThreadScheduler)
+            .Filter(AssetFilter)
+            .Bind(out var tempTarget)
+            .Subscribe();
+        AssetItemsTarget = tempTarget;
+        TreeItems.SetSuppression(true);
+        AssetItems.SetSuppression(true);
+        AssetsToRemove = CUE4ParseVM.AssetRegistry.Select(x => CUE4ParseVM.Provider.FixPath(x.ObjectPath) + ".uasset").ToHashSet();
 
         await TaskService.RunDispatcherAsync(() =>
         {
-            void InvokeOnCollectionChanged(TreeNode item)
+            foreach (var (filePath, file) in CUE4ParseVM.Provider.Files)
             {
-                item.Children.SetSuppression(false);
-                if (item.Children.Count == 0) return;
+                if (!IsValidPath(filePath)) continue;
 
-                item.Children.InvokeOnCollectionChanged();
-                foreach (var folderItem in item.Children)
-                {
-                    InvokeOnCollectionChanged(folderItem);
-                }
-            }
+                var path = file.Path; // proper casing
+                AssetItems.AddSuppressed(new FlatViewItem(path));
 
-            var eggos = 0;
-            foreach (var (_, file) in CUE4ParseVM.Provider.Files)
-            {
-                
-                if (eggos > 5000) break;
-                var path = file.Path;
-                if (!(path.EndsWith(".uasset") || path.EndsWith(".umap")) || path.EndsWith(".o.uasset")) continue;
-                
-                assets.AddSuppressed(new FlatViewItem(path));
-
-                TreeNode? foundNode;
-                var folders = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
+                var folderNames = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
                 var builder = new StringBuilder();
-                var children = nodes;
-                
-                for (var i = 0; i < folders.Length; i++)
+                var children = TreeItems;
+                for (var i = 0; i < folderNames.Length; i++)
                 {
-                    var folder = folders[i];
+                    var folder = folderNames[i];
                     builder.Append(folder).Append('/');
-                    foundNode = children.FirstOrDefault(x => x.Name == folder);
+                    var foundNode = children.FirstOrDefault(x => x.Name == folder);
 
                     if (foundNode is null)
                     {
                         var nodePath = builder.ToString();
-                        if (i == folders.Length - 1) // actual asset, last in folder arr
-                        {
-                            foundNode = new TreeNode(folder.Replace(".uasset", string.Empty), nodePath[..^1], ENodeType.File);
-                        }
-                        else
-                        {
-                            foundNode = new TreeNode(folder, nodePath[..^1], ENodeType.Folder);
-                        }
-
+                        foundNode = new TreeNodeItem(nodePath[..^1], i == folderNames.Length - 1 ? ENodeType.File : ENodeType.Folder);
                         foundNode.Children.SetSuppression(true);
                         children.AddSuppressed(foundNode);
                     }
 
                     children = foundNode.Children;
                 }
-
-                eggos++;
             }
-            
-            AssetItems.AddRange(assets);
-            TreeItems.AddRange(nodes);
 
             foreach (var child in TreeItems)
             {
-                InvokeOnCollectionChanged(child);
+                child.InvokeOnCollectionChanged();
             }
+            
+            TreeItems.InvokeOnCollectionChanged();
+            AssetItems.InvokeOnCollectionChanged();
+            
+            AssetItemsSource.AddRange(AssetItems);
         });
         
-        
+
         HomeVM.Update(string.Empty);
     }
+
+    [RelayCommand]
+    public async Task ScanContent()
+    {
+        await TaskService.RunAsync(async () =>
+        {
+            var total = CUE4ParseVM.Provider.Files.Count;
+            var index = 0.0f;
+            foreach (var (filePath, file) in CUE4ParseVM.Provider.Files)
+            {
+                index++;
+                
+                if (!IsValidPath(filePath)) continue;
+
+                var percentage = index / total * 100;
+                if (Math.Abs(ScanPercentage - percentage) > 0.01f)
+                {
+                    ScanPercentage = percentage;
+                }
+                
+                var obj = await CUE4ParseVM.Provider.TryLoadObjectAsync(file.PathWithoutExtension);
+                if (obj is null || !MeshTypes.Contains(obj.ExportType)) AppSettings.Current.AssetsThatArentMesh.Add(filePath);
+            }
+
+            ScanPercentage = 100.0f;
+        });
+    }
+
+    private bool IsValidPath(string path)
+    {
+        var isValidPathType = path.EndsWith(".uasset") && !path.EndsWith(".o.uasset");
+        var isInRegistry = AssetsToRemove.Contains(path);
+        var isFiltered = Filters.Any(filter => path.Contains(filter, StringComparison.OrdinalIgnoreCase));
+        var isFilteredByScan = AppSettings.Current.AssetsThatArentMesh.Contains(path);
+        return isValidPathType && !isInRegistry && !isFiltered && !isFilteredByScan;
+    }
+
+    private static Func<FlatViewItem, bool> CreateAssetFilter(string searchFilter) => asset =>  MiscExtensions.Filter(asset.Path, searchFilter);
 }
 
-public partial class TreeNode : ObservableObject
+public partial class TreeNodeItem : ObservableObject
 {
-    public SuppressibleObservableCollection<TreeNode> Children { get; set; } = new();
+    public SuppressibleObservableCollection<TreeNodeItem> Children { get; set; } = new();
 
     [ObservableProperty] private ENodeType nodeType;
     [ObservableProperty] private string name;
-    [ObservableProperty] private string localPath;
-    [ObservableProperty] private string fullPath;
+    [ObservableProperty] private string path;
     
     public bool IsFolder => NodeType == ENodeType.Folder;
+    public bool IsFile => NodeType == ENodeType.File;
 
-    public TreeNode(string name, string localPath, ENodeType nodeType)
+    public TreeNodeItem(string path, ENodeType nodeType)
     {
-        Name = name;
-        LocalPath = localPath;
+        Name = path.SubstringAfterLast("/");
+        Path = path;
         NodeType = nodeType;
+    }
+    
+    public void InvokeOnCollectionChanged()
+    {
+        Children.SetSuppression(false);
+        if (Children.Count == 0) return;
 
-        if (NodeType is ENodeType.File)
+        Children.Sort(x => x.Name);
+        Children.SortDescending(x => x.IsFolder);
+        Children.InvokeOnCollectionChanged();
+        foreach (var folder in Children)
         {
-            FullPath = LocalPath.Replace(".uasset", string.Empty);
+            folder.InvokeOnCollectionChanged();
         }
     }
 }
