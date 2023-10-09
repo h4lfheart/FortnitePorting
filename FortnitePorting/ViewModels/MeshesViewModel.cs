@@ -26,6 +26,8 @@ namespace FortnitePorting.ViewModels;
 
 public partial class MeshesViewModel : ViewModelBase
 {
+    
+    [ObservableProperty] private EExportType exportType = EExportType.Blender;
     [ObservableProperty] private TreeNodeItem selectedTreeItem;
     [ObservableProperty] private FlatViewItem selectedFlatViewItem;
     [ObservableProperty] private ObservableCollection<FlatViewItem> selectedExportItems = new();
@@ -120,7 +122,7 @@ public partial class MeshesViewModel : ViewModelBase
 
                 var folderNames = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
                 var builder = new StringBuilder();
-                var children = TreeItems;
+                var children = TreeItems; // start at root
                 for (var i = 0; i < folderNames.Length; i++)
                 {
                     var folder = folderNames[i];
@@ -189,7 +191,7 @@ public partial class MeshesViewModel : ViewModelBase
     
     public void TreeViewJumpTo(string directory)
     {
-        var children = TreeItems;
+        var children = TreeItems; // start at root
 
         var i = 0;
         var folders = directory.Split('/');
@@ -221,10 +223,10 @@ public partial class MeshesViewModel : ViewModelBase
         var children = AssetItemsTarget;
         foreach (var child in children)
         {
-            if (child.Path.Equals(directory))
-            {
-                SelectedFlatViewItem = child;
-            }
+            if (!child.Path.Equals(directory)) continue;
+            
+            SelectedFlatViewItem = child;
+            break;
         }
     }
 

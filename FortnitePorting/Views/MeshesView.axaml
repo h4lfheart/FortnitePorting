@@ -6,6 +6,7 @@
              xmlns:viewmodels="clr-namespace:FortnitePorting.ViewModels"
              xmlns:ext="clr-namespace:FortnitePorting.Extensions"
              xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:fortnitePorting="clr-namespace:FortnitePorting"
              mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720"
              x:Class="FortnitePorting.Views.MeshesView"
              x:DataType="viewmodels:MeshesViewModel">
@@ -19,12 +20,48 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="{ext:Space 1}"/>
                 <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="{ext:Space 1}"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             
-            <controls:GroupBox Grid.Row="0" Grid.RowSpan="5" Grid.Column="0">
+            <Grid Grid.Row="0" Grid.Column="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="{ext:Space 1}"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="{ext:Space 1}"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBox Grid.Column="0" Watermark="Search" Text="{Binding SearchFilter}" HorizontalAlignment="Stretch"/>
+                <Button Grid.Column="2" Content="Scan for Meshes" Command="{Binding ScanContentCommand}"/>
+                <TextBlock Grid.Column="4" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock.Text>
+                        <MultiBinding StringFormat="{}{0:N2}%">
+                            <Binding Path="ScanPercentage" />
+                        </MultiBinding>
+                    </TextBlock.Text>
+                </TextBlock>
+            </Grid>
+            
+            <controls:GroupBox Grid.Row="2" Grid.RowSpan="3" Grid.Column="0">
+                <Grid RowDefinitions="Auto *">
+                    <Label Grid.Row="0" Content="Flat View" FontSize="14" FontWeight="SemiBold" Margin="0 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                        <ListBox Background="Transparent" SelectionMode="Multiple" AutoScrollToSelectedItem="True" SelectedItem="{Binding SelectedFlatViewItem}" ItemsSource="{Binding AssetItemsTarget}" HorizontalAlignment="Stretch" SelectionChanged="OnFlatViewSelectionChanged" DoubleTapped="OnFlatViewDoubleTapped">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Path}" Padding="0" Margin="0"/>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </ScrollViewer>
+                </Grid>
+            </controls:GroupBox>
+            
+            <GridSplitter Grid.Row="0" Grid.RowSpan="5" Grid.Column="1" Background="Transparent" ResizeDirection="Columns"/>
+            
+            <controls:GroupBox Grid.Row="0" Grid.RowSpan="3" Grid.Column="2">
                 <Grid RowDefinitions="Auto *">
                     <Label Grid.Row="0" Content="Tree View" FontSize="14" FontWeight="SemiBold" Margin="0 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                     <TreeView Grid.Row="1" AutoScrollToSelectedItem="True" SelectedItem="{Binding SelectedTreeItem}" ItemsSource="{Binding TreeItems}" HorizontalAlignment="Stretch" Tapped="OnTreeViewTapped">
@@ -58,45 +95,24 @@
                 </Grid>
             </controls:GroupBox>
             
-            <GridSplitter Grid.Row="0" Grid.RowSpan="3" Grid.Column="1" Background="Transparent" ResizeDirection="Columns"/>
-            
-            <Grid Grid.Row="0" Grid.Column="2">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="2*"/>
-                    <ColumnDefinition Width="{ext:Space 1}"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="{ext:Space 1}"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <TextBox Grid.Column="0" Watermark="Search" Text="{Binding SearchFilter}" HorizontalAlignment="Stretch"/>
-                <Button Grid.Column="2" Content="Scan for Meshes" Command="{Binding ScanContentCommand}"/>
-                <TextBlock Grid.Column="4" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <TextBlock.Text>
-                        <MultiBinding StringFormat="{}{0:N2}%">
-                            <Binding Path="ScanPercentage" />
-                        </MultiBinding>
-                    </TextBlock.Text>
-                </TextBlock>
-            </Grid>
-            
-            <controls:GroupBox Grid.Row="2" Grid.Column="2">
-                <Grid RowDefinitions="Auto *">
-                    <Label Grid.Row="0" Content="Flat View" FontSize="14" FontWeight="SemiBold" Margin="0 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                    <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                        <ListBox Background="Transparent" SelectionMode="Multiple" AutoScrollToSelectedItem="True" SelectedItem="{Binding SelectedFlatViewItem}" ItemsSource="{Binding AssetItemsTarget}" HorizontalAlignment="Stretch" SelectionChanged="OnFlatViewSelectionChanged" DoubleTapped="OnFlatViewDoubleTapped">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Path}" Padding="0" Margin="0"/>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-                    </ScrollViewer>
+            <controls:GroupBox Grid.Row="4" Grid.Column="2">
+                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="{ext:Space 1}"/>
+                        <RowDefinition Height="1*"/>
+                    </Grid.RowDefinitions>
+                        
+                    <Grid Grid.Row="0" ColumnDefinitions="* 3.25*">
+                        <TextBlock Grid.Column="0" Text="Export To" VerticalAlignment="Center" Margin="3 0 0 2"/>
+                        <ComboBox Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EExportType}}" SelectedItem="{Binding ExportType, Converter={StaticResource EnumToString}}"/>
+                    </Grid>
+                        
+                    <Button Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <controls:MaterialIconText Text="Export" Icon="Export" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Button>
                 </Grid>
             </controls:GroupBox>
-            
-            <Grid Grid.Row="4" Grid.Column="2" ColumnDefinitions="Auto">
-                <Button Grid.Column="0" Content="Export Meshes"/>
-            </Grid>
         </Grid>
     </controls:GroupBox>
 </UserControl>
