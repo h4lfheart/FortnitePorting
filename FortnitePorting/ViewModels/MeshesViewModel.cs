@@ -140,15 +140,14 @@ public partial class MeshesViewModel : ViewModelBase
                     children = foundNode.Children;
                 }
             }
-
+            
             foreach (var child in TreeItems)
             {
                 child.InvokeOnCollectionChanged();
             }
-            
             TreeItems.InvokeOnCollectionChanged();
+
             AssetItems.InvokeOnCollectionChanged();
-            
             AssetItemsSource.AddRange(AssetItems);
         });
         

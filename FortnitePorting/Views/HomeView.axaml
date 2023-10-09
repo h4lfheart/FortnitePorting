@@ -89,11 +89,11 @@
                             </TextBlock>
                             <Border Grid.Row="3" RenderOptions.BitmapInterpolationMode="HighQuality" CornerRadius="5">
                                 <Border.Background>
-                                    <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding FeaturedArtURL}" Stretch="UniformToFill"/>
+                                    <ImageBrush Source="{Binding ElementName=FeaturedArtFrame, Path=Source}" Stretch="UniformToFill"/>
                                 </Border.Background>
                                 
                                 <!-- scuffed but gets proper image sizing for background brush while keeping corner radius-->
-                                <Image Opacity="0" asyncImageLoader:ImageLoader.Source="{Binding FeaturedArtURL}"/>
+                                <Image x:Name="FeaturedArtFrame" Opacity="0" asyncImageLoader:ImageLoader.Source="{Binding FeaturedArtURL}"/>
                             </Border>
                             </Grid>
                     </controls:GroupBox>
