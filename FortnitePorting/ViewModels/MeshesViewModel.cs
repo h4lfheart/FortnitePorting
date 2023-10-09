@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Avalonia.Controls;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -25,8 +26,11 @@ namespace FortnitePorting.ViewModels;
 
 public partial class MeshesViewModel : ViewModelBase
 {
+    [ObservableProperty] private TreeNodeItem selectedTreeItem;
+    [ObservableProperty] private FlatViewItem selectedFlatViewItem;
+    [ObservableProperty] private ObservableCollection<FlatViewItem> selectedExportItems = new();
+    
     [ObservableProperty] private SuppressibleObservableCollection<TreeNodeItem> treeItems = new();
-
     [ObservableProperty] private ReadOnlyObservableCollection<FlatViewItem> assetItemsTarget;
     [ObservableProperty] private SourceList<FlatViewItem> assetItemsSource = new();
     [ObservableProperty] private SuppressibleObservableCollection<FlatViewItem> assetItems = new();
@@ -151,6 +155,12 @@ public partial class MeshesViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    public async Task Export()
+    {
+        
+    }
+
+    [RelayCommand]
     public async Task ScanContent()
     {
         await TaskService.RunAsync(async () =>
@@ -176,6 +186,47 @@ public partial class MeshesViewModel : ViewModelBase
             ScanPercentage = 100.0f;
         });
     }
+    
+    public void TreeViewJumpTo(string directory)
+    {
+        var children = TreeItems;
+
+        var i = 0;
+        var folders = directory.Split('/');
+        while (true)
+        {
+            foreach (var folder in children)
+            {
+                if (!folder.Name.Equals(folders[i], StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                if (folder.NodeType == ENodeType.File)
+                {
+                    SelectedTreeItem = folder;
+                    return;
+                }
+
+                folder.Expanded = true;
+                children = folder.Children;
+                break;
+            }
+
+            i++;
+            if (children.Count == 0) break;
+        }
+    }
+    
+    public void FlatViewJumpTo(string directory)
+    {
+        var children = AssetItemsTarget;
+        foreach (var child in children)
+        {
+            if (child.Path.Equals(directory))
+            {
+                SelectedFlatViewItem = child;
+            }
+        }
+    }
 
     private bool IsValidPath(string path)
     {
@@ -195,15 +246,17 @@ public partial class TreeNodeItem : ObservableObject
 
     [ObservableProperty] private ENodeType nodeType;
     [ObservableProperty] private string name;
-    [ObservableProperty] private string path;
+    [ObservableProperty] private FlatViewItem pathInfo;
+    [ObservableProperty] private bool selected;
+    [ObservableProperty] private bool expanded;
     
     public bool IsFolder => NodeType == ENodeType.Folder;
     public bool IsFile => NodeType == ENodeType.File;
 
     public TreeNodeItem(string path, ENodeType nodeType)
     {
+        PathInfo = new FlatViewItem(path);
         Name = path.SubstringAfterLast("/");
-        Path = path;
         NodeType = nodeType;
     }
     

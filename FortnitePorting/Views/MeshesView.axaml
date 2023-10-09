@@ -15,6 +15,8 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="{ext:Space 1}"/>
                 <RowDefinition Height="*"/>
+                <RowDefinition Height="{ext:Space 1}"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -22,10 +24,15 @@
                 <ColumnDefinition Width="2*"/>
             </Grid.ColumnDefinitions>
             
-            <controls:GroupBox Grid.Row="0" Grid.RowSpan="3" Grid.Column="0">
+            <controls:GroupBox Grid.Row="0" Grid.RowSpan="5" Grid.Column="0">
                 <Grid RowDefinitions="Auto *">
                     <Label Grid.Row="0" Content="Tree View" FontSize="14" FontWeight="SemiBold" Margin="0 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                    <TreeView Grid.Row="1" ItemsSource="{Binding TreeItems}" HorizontalAlignment="Stretch">
+                    <TreeView Grid.Row="1" AutoScrollToSelectedItem="True" SelectedItem="{Binding SelectedTreeItem}" ItemsSource="{Binding TreeItems}" HorizontalAlignment="Stretch" Tapped="OnTreeViewTapped">
+                        <TreeView.ItemContainerTheme>
+                            <ControlTheme TargetType="TreeViewItem" BasedOn="{StaticResource {x:Type TreeViewItem}}">
+                                <Setter Property="IsExpanded" Value="{ReflectionBinding Expanded}"/>
+                            </ControlTheme>
+                        </TreeView.ItemContainerTheme>
                         <TreeView.ItemTemplate>
                             <TreeDataTemplate ItemsSource="{Binding Children}">
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
@@ -76,7 +83,7 @@
                 <Grid RowDefinitions="Auto *">
                     <Label Grid.Row="0" Content="Flat View" FontSize="14" FontWeight="SemiBold" Margin="0 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                     <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                        <ListBox Background="Transparent" SelectionMode="Multiple" ItemsSource="{Binding AssetItemsTarget}" HorizontalAlignment="Stretch">
+                        <ListBox Background="Transparent" SelectionMode="Multiple" AutoScrollToSelectedItem="True" SelectedItem="{Binding SelectedFlatViewItem}" ItemsSource="{Binding AssetItemsTarget}" HorizontalAlignment="Stretch" SelectionChanged="OnFlatViewSelectionChanged" DoubleTapped="OnFlatViewDoubleTapped">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Path}" Padding="0" Margin="0"/>
@@ -86,6 +93,10 @@
                     </ScrollViewer>
                 </Grid>
             </controls:GroupBox>
+            
+            <Grid Grid.Row="4" Grid.Column="2" ColumnDefinitions="Auto">
+                <Button Grid.Column="0" Content="Export Meshes"/>
+            </Grid>
         </Grid>
     </controls:GroupBox>
 </UserControl>
