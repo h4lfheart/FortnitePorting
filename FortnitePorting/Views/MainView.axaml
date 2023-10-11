@@ -46,7 +46,7 @@
                 <TabItem.Header>
                     <controls:MaterialIconText Text="Tools" Icon="Tools"/>
                 </TabItem.Header>
-                <controls:GroupBox Background="#26000000"/>
+                <views:ToolsView/>
             </TabItem>
             <TabItem>
                 <TabItem.Header>

@@ -58,6 +58,7 @@
                     </ScrollViewer>
                 </Grid>
             </controls:GroupBox>
+            <TextBlock Grid.Row="2" Grid.RowSpan="3" Grid.Column="0" Text="No Meshes Loaded" IsVisible="{Binding AssetItemsTarget, Converter={x:Static ObjectConverters.IsNull}}" Opacity="0.5" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             
             <GridSplitter Grid.Row="0" Grid.RowSpan="5" Grid.Column="1" Background="Transparent" ResizeDirection="Columns"/>
             

@@ -21,7 +21,7 @@ namespace FortnitePorting.Views;
 
 public partial class AssetsView : ViewBase<AssetsViewModel>
 {
-    public AssetsView() : base(waitInit: true)
+    public AssetsView() : base(lateInit: true)
     {
         InitializeComponent();
     }

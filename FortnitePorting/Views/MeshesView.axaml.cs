@@ -10,7 +10,7 @@ namespace FortnitePorting.Views;
 
 public partial class MeshesView : ViewBase<MeshesViewModel>
 {
-    public MeshesView() : base(waitInit: true)
+    public MeshesView() : base(lateInit: true)
     {
         InitializeComponent();
     }

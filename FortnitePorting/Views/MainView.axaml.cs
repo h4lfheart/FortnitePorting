@@ -21,6 +21,7 @@ public partial class MainView : ViewBase<MainViewModel>
             await CUE4ParseVM.Initialize();
             TaskService.Run(AssetsVM.Initialize);
             TaskService.Run(MeshesVM.Initialize);
+            TaskService.Run(ToolsVM.Initialize);
         });
     }
 

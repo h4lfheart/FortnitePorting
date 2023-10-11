@@ -7,11 +7,11 @@ public class ViewBase<T> : UserControl where T : ViewModelBase, new()
 {
     protected readonly T ViewModel;
 
-    public ViewBase(T? custom = null, bool waitInit = false)
+    public ViewBase(T? custom = null, bool lateInit = false)
     {
         ViewModel = custom ?? ViewModelRegistry.Register<T>();
         DataContext = ViewModel;
 
-        if (!waitInit) TaskService.Run(async () => await ViewModel.Initialize());
+        if (!lateInit) TaskService.Run(async () => await ViewModel.Initialize());
     }
 }

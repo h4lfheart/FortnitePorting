@@ -43,7 +43,7 @@ public partial class MeshesViewModel : ViewModelBase
     private HashSet<string> AssetsToRemove;
     private IObservable<Func<FlatViewItem, bool>> AssetFilter;
 
-    private HashSet<string> Filters = new()
+    private readonly HashSet<string> Filters = new()
     {
         // Folders
         "Engine/",
@@ -98,7 +98,7 @@ public partial class MeshesViewModel : ViewModelBase
 
     public override async Task Initialize()
     {
-        HomeVM.Update("Loading Mesh Entries");
+        HomeVM.Update("Loading Meshes");
 
         AssetFilter = this.WhenAnyValue(x => x.SearchFilter).Select(CreateAssetFilter);
         AssetItemsSource.Connect()
@@ -141,16 +141,17 @@ public partial class MeshesViewModel : ViewModelBase
                 }
             }
             
-            foreach (var child in TreeItems)
-            {
-                child.InvokeOnCollectionChanged();
-            }
-            TreeItems.InvokeOnCollectionChanged();
-
-            AssetItems.InvokeOnCollectionChanged();
-            AssetItemsSource.AddRange(AssetItems);
         });
-        
+
+        foreach (var child in TreeItems)
+        {
+            child.InvokeOnCollectionChanged();
+        }
+
+        TreeItems.InvokeOnCollectionChanged();
+
+        AssetItems.InvokeOnCollectionChanged();
+        AssetItemsSource.AddRange(AssetItems);
 
         HomeVM.Update(string.Empty);
     }

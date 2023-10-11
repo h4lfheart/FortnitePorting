@@ -22,25 +22,30 @@ public partial class HomeViewModel : ViewModelBase
     
     public override async Task Initialize()
     {
-        var changelogEntries = await EndpointService.FortnitePorting.GetChangelogsAsync();
-        if (changelogEntries is not null)
+        await TaskService.RunAsync(async () =>
         {
-            await TaskService.RunDispatcherAsync(() =>
+            var changelogEntries = await EndpointService.FortnitePorting.GetChangelogsAsync();
+            if (changelogEntries is not null)
             {
-                foreach (var entry in changelogEntries.OrderBy(x => x.PublishDate, SortExpressionComparer<DateTime>.Descending(x => x)))
+                await TaskService.RunDispatcherAsync(() =>
                 {
-                    Changelogs.Add(new ChangelogItem(entry));
-                }
-            });
-        }
-
-        var featured = await EndpointService.FortnitePorting.GetFeaturedAsync();
-        if (featured is not null)
+                    foreach (var entry in changelogEntries.OrderBy(x => x.PublishDate, SortExpressionComparer<DateTime>.Descending(x => x)))
+                    {
+                        Changelogs.Add(new ChangelogItem(entry));
+                    }
+                });
+            }
+        });
+        
+        await TaskService.RunAsync(async () =>
         {
-            FeaturedArtist = featured.Artist;
-            FeaturedArtURL = featured.ImageURL;
-        }
-
+            var featured = await EndpointService.FortnitePorting.GetFeaturedAsync();
+            if (featured is not null)
+            {
+                FeaturedArtist = featured.Artist;
+                FeaturedArtURL = featured.ImageURL;
+            }
+        });
     }
     
     public void Update(string text)
