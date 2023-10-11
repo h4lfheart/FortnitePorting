@@ -90,6 +90,11 @@ public class CUE4ParseViewModel : ObservableObject
         "PlaysetGrenade",
         "NaniteDisplacement"
     };
+    
+    private static readonly string[] MeshKeepList =
+    {
+        "/T_M"
+    };
 
     private static readonly Regex FortniteLiveRegex = new(@"^FortniteGame(/|\\)Content(/|\\)Paks(/|\\)(pakchunk(?:0|10.*|\w+)-WindowsClient|global)\.(pak|utoc)$", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
@@ -209,7 +214,8 @@ public class CUE4ParseViewModel : ObservableObject
         {
             var entry = allEntries[idx];
             if (!entry.Key.EndsWith(".uasset") || entry.Key.EndsWith(".o.uasset")) continue;
-            if (MeshRemoveList.Any(x => entry.Key.Contains(x, StringComparison.OrdinalIgnoreCase))) continue;
+            if (MeshRemoveList.Any(x => entry.Key.Contains(x, StringComparison.OrdinalIgnoreCase)) 
+                && !MeshKeepList.Any(x => entry.Key.Contains(x, StringComparison.OrdinalIgnoreCase))) continue;
             if (removeEntries.Contains(entry.Key)) continue;
 
             MeshEntries.Add(entry.Value.Path);
