@@ -21,6 +21,13 @@ public partial class MaterialIconText : UserControl
         set => SetValue(IconProperty, value);
     }
     
+    public static readonly StyledProperty<int> IconSizeProperty = AvaloniaProperty.Register<MaterialIconText, int>(nameof(IconSize), defaultValue: 20);
+    public int IconSize
+    {
+        get => GetValue(IconSizeProperty);
+        set => SetValue(IconSizeProperty, value);
+    }
+    
     public MaterialIconText()
     {
         InitializeComponent();

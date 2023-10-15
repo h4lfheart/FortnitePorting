@@ -45,18 +45,12 @@ public enum EAssetType
     
     [Description("Emotes")]
     Emote,
-    
-    [Description("Music Packs")]
-    MusicPack,
-    
+
     [Description("Props")]
     Prop,
     
     [Description("Galleries")]
     Gallery,
-    
-    [Description("Meshes")]
-    Mesh,
     
     [Description("Items")]
     Item,
@@ -68,8 +62,7 @@ public enum EAssetType
     Vehicle,
     
     [Description("Wildlife")]
-    Wildlife,
-    
+    Wildlife
 }
 
 public enum EExportType

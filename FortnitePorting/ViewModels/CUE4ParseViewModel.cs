@@ -40,7 +40,6 @@ public class CUE4ParseViewModel : ViewModelBase
     };
 
     public Manifest? FortniteLive;
-    public UTexture2D? Minimap;
     public readonly List<FAssetData> AssetRegistry = new();
     public readonly RarityCollection[] RarityColors = new RarityCollection[8];
     public readonly HashSet<string> MeshEntries = new();
@@ -275,8 +274,6 @@ public class CUE4ParseViewModel : ViewModelBase
                 RarityColors[i] = rarityData.GetByIndex<RarityCollection>(i);
             }
         }
-
-        Minimap = await Provider.TryLoadObjectAsync<UTexture2D>("FortniteGame/Content/Athena/Apollo/Maps/UI/Apollo_Terrain_Minimap");
     }
 }
 

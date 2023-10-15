@@ -23,13 +23,28 @@ public static class TaskService
         });
     }
     
-    public static async Task RunAsync(Func<Task> function)
+    public static void Run(Action function)
     {
-        await Task.Run(async () =>
+        Task.Run(() =>
         {
             try
             {
-                await function().ConfigureAwait(false);
+                function();
+            }
+            catch (Exception e)
+            {
+                App.HandleException(e);
+            }
+        });
+    }
+    
+    public static async Task RunAsync(Action function)
+    {
+        await Task.Run(() =>
+        {
+            try
+            {
+                function();
             }
             catch (Exception e)
             {

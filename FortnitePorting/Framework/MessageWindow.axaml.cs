@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using FortnitePorting.Services;
 
 namespace FortnitePorting.Framework;
 
@@ -24,7 +25,7 @@ public partial class MessageWindow : Window
 
     public static void Show(string caption, string text, Window? owner = null, Action<object?, EventArgs>? onClosed = null)
     {
-        new MessageWindow(caption, text, owner, onClosed).Show();
+        TaskService.RunDispatcher(() =>  new MessageWindow(caption, text, owner, onClosed).Show());
     }
     
     private void OnPointerPressed(object? sender, PointerPressedEventArgs e)

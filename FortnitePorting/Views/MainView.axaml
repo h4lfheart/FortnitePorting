@@ -38,18 +38,6 @@
             </TabItem>
             <TabItem>
                 <TabItem.Header>
-                    <controls:MaterialIconText Text="Plugins" Icon="Plug"/>
-                </TabItem.Header>
-                <controls:GroupBox Background="#26000000"/>
-            </TabItem>
-            <TabItem>
-                <TabItem.Header>
-                    <controls:MaterialIconText Text="Tools" Icon="Tools"/>
-                </TabItem.Header>
-                <views:ToolsView/>
-            </TabItem>
-            <TabItem>
-                <TabItem.Header>
                     <controls:MaterialIconText Text="Settings" Icon="Settings"/>
                 </TabItem.Header>
                 <views:SettingsView/>

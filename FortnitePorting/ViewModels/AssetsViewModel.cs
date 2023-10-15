@@ -35,7 +35,7 @@ public partial class AssetsViewModel : ViewModelBase
     public AssetLoader? CurrentLoader;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(IsFolderOnlyExport))] private AssetItem? currentAsset;
 
-    public bool IsFolderOnlyExport => CurrentAsset?.Type is EAssetType.LoadingScreen or EAssetType.Spray or EAssetType.MusicPack;
+    public bool IsFolderOnlyExport => CurrentAsset?.Type is EAssetType.LoadingScreen or EAssetType.Spray;
     [ObservableProperty] private ObservableCollection<EExportType> folderExportEnumCollection = new(new[] { EExportType.Folder});
     
     [ObservableProperty] private EExportType exportType = EExportType.Blender;
@@ -136,10 +136,6 @@ public partial class AssetsViewModel : ViewModelBase
                 Classes = new[] { "AthenaDanceItemDefinition" },
                 Filters = new[] { "_CT", "_NPC" }
             },
-            new(EAssetType.MusicPack)
-            {
-                Classes = new[] { "AthenaMusicPackItemDefinition" }
-            },
             new(EAssetType.Prop)
             {
                 Classes = new[] { "FortPlaysetPropItemDefinition" }
@@ -239,6 +235,14 @@ public partial class AssetsViewModel : ViewModelBase
     public void Favorite()
     {
         CurrentAsset?.Favorite();
+    }
+    
+    [RelayCommand]
+    public async Task Export()
+    {
+        if (CurrentAsset is null) return;
+        
+        await ExportService.ExportAsync(CurrentAsset, ExportType);
     }
 
     // scuffed fix to get filter to update
