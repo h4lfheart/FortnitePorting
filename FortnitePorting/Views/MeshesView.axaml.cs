@@ -3,7 +3,9 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using FortnitePorting.Framework;
+using FortnitePorting.Services;
 using FortnitePorting.ViewModels;
 
 namespace FortnitePorting.Views;
@@ -13,6 +15,13 @@ public partial class MeshesView : ViewBase<MeshesViewModel>
     public MeshesView() : base(lateInit: true)
     {
         InitializeComponent();
+    }
+
+    protected override async void OnLoaded(RoutedEventArgs e)
+    {
+        base.OnLoaded(e);
+
+        await ViewModel.LoadMeshes();
     }
 
     private void OnFlatViewSelectionChanged(object? sender, SelectionChangedEventArgs e)

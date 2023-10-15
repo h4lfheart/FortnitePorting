@@ -26,7 +26,6 @@ namespace FortnitePorting.ViewModels;
 
 public partial class MeshesViewModel : ViewModelBase
 {
-    
     [ObservableProperty] private EExportType exportType = EExportType.Blender;
     [ObservableProperty] private TreeNodeItem selectedTreeItem;
     [ObservableProperty] private FlatViewItem selectedFlatViewItem;
@@ -40,6 +39,8 @@ public partial class MeshesViewModel : ViewModelBase
     
     [ObservableProperty] private float scanPercentage = 0.0f;
 
+    public bool Started;
+    private HashSet<string> AssetsToLoad;
     private HashSet<string> AssetsToRemove;
     private IObservable<Func<FlatViewItem, bool>> AssetFilter;
 
@@ -99,25 +100,39 @@ public partial class MeshesViewModel : ViewModelBase
     public override async Task Initialize()
     {
         HomeVM.Update("Loading Meshes");
+        
+        AssetsToLoad = new HashSet<string>();
+        AssetsToRemove = CUE4ParseVM.AssetRegistry.Select(x => CUE4ParseVM.Provider.FixPath(x.ObjectPath) + ".uasset").ToHashSet();
+        
+        foreach (var (filePath, file) in CUE4ParseVM.Provider.Files)
+        {
+            if (IsValidPath(filePath)) AssetsToLoad.Add(file.Path);
+        }
 
+        HomeVM.Update(string.Empty);
+    }
+
+    public async Task LoadMeshes()
+    {
+        if (Started) return;
+        Started = true;
         AssetFilter = this.WhenAnyValue(x => x.SearchFilter).Select(CreateAssetFilter);
+        
         AssetItemsSource.Connect()
             .ObserveOn(RxApp.MainThreadScheduler)
             .Filter(AssetFilter)
             .Bind(out var tempTarget)
             .Subscribe();
         AssetItemsTarget = tempTarget;
+
         TreeItems.SetSuppression(true);
         AssetItems.SetSuppression(true);
-        AssetsToRemove = CUE4ParseVM.AssetRegistry.Select(x => CUE4ParseVM.Provider.FixPath(x.ObjectPath) + ".uasset").ToHashSet();
-
+        
         await TaskService.RunDispatcherAsync(() =>
         {
-            foreach (var (filePath, file) in CUE4ParseVM.Provider.Files)
+            foreach (var path in AssetsToLoad)
             {
-                if (!IsValidPath(filePath)) continue;
-
-                var path = file.Path; // proper casing
+                
                 AssetItems.AddSuppressed(new FlatViewItem(path));
 
                 var folderNames = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
@@ -152,8 +167,6 @@ public partial class MeshesViewModel : ViewModelBase
 
         AssetItems.InvokeOnCollectionChanged();
         AssetItemsSource.AddRange(AssetItems);
-
-        HomeVM.Update(string.Empty);
     }
 
     [RelayCommand]
