@@ -9,4 +9,6 @@ namespace FortnitePorting.ViewModels;
 public partial class MainViewModel : ViewModelBase
 {
     [ObservableProperty] private UserControl activeTab;
+    [ObservableProperty] private bool assetTabReady;
+    [ObservableProperty] private bool meshTabReady;
 }

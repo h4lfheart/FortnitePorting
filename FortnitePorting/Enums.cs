@@ -62,7 +62,10 @@ public enum EAssetType
     Vehicle,
     
     [Description("Wildlife")]
-    Wildlife
+    Wildlife,
+    
+    [Description("Mesh")]
+    Mesh
 }
 
 public enum EExportType
@@ -126,4 +129,22 @@ public enum ESupportedLODs
     
     [Description("LOD 4")]
     LOD4
+}
+
+public enum EMeshExportTypes
+{
+    [Description(".uemodel")]
+    UEFormat,
+    
+    [Description(".psk")]
+    ActorX
+}
+
+public enum EAnimExportTypes
+{
+    [Description(".ueanim")]
+    UEFormat,
+    
+    [Description(".psa")]
+    ActorX
 }

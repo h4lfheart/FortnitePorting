@@ -49,6 +49,9 @@
                        </controls:SettingBox>
                        
                        <Label Content="Mesh" FontSize="28" FontWeight="SemiBold" Margin="8 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                       <controls:SettingBox DisplayName="Mesh Export Type" Path="{Binding Blender.MeshExportType, Mode=TwoWay}" Icon="CubeScan">
+                           <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EMeshExportTypes}}" SelectedItem="{Binding Blender.MeshExportType, Converter={StaticResource EnumToString}}"/>
+                       </controls:SettingBox>
                        <controls:SettingBox DisplayName="Level of Detail" Path="{Binding Blender.LevelOfDetail, Mode=TwoWay}" Icon="CubeScan">
                            <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:ESupportedLODs}}" SelectedItem="{Binding Blender.LevelOfDetail, Converter={StaticResource EnumToString}}"/>
                        </controls:SettingBox>
@@ -94,6 +97,9 @@
                 <ScrollViewer VerticalScrollBarVisibility="Hidden">
                     <StackPanel>
                         <Label Content="Mesh" FontSize="28" FontWeight="SemiBold" Margin="8 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        <controls:SettingBox DisplayName="Mesh Export Type" Path="{Binding Blender.MeshExportType, Mode=TwoWay}" Icon="CubeScan">
+                            <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EMeshExportTypes}}" SelectedItem="{Binding Blender.MeshExportType, Converter={StaticResource EnumToString}}"/>
+                        </controls:SettingBox>
                         <controls:SettingBox DisplayName="Level of Detail" Path="{Binding Unreal.LevelOfDetail, Mode=TwoWay}" Icon="CubeScan">
                             <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:ESupportedLODs}}" SelectedItem="{Binding Unreal.LevelOfDetail, Converter={StaticResource EnumToString}}"/>
                         </controls:SettingBox>
@@ -130,6 +136,9 @@
                        </controls:SettingBox>
                        
                        <Label Content="Mesh" FontSize="28" FontWeight="SemiBold" Margin="8 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                       <controls:SettingBox DisplayName="Mesh Export Type" Path="{Binding Blender.MeshExportType, Mode=TwoWay}" Icon="CubeScan">
+                           <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EMeshExportTypes}}" SelectedItem="{Binding Blender.MeshExportType, Converter={StaticResource EnumToString}}"/>
+                       </controls:SettingBox>
                        <controls:SettingBox DisplayName="LOD Format" Path="{Binding Folder.LodFormat, Mode=TwoWay}" Icon="CubeScan">
                            <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type cue4parseConversion:Meshes.ELodFormat}}" SelectedItem="{Binding Folder.LodFormat, Converter={StaticResource EnumToString}}"/>
                        </controls:SettingBox>

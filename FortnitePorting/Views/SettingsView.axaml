@@ -80,7 +80,7 @@
                     <controls:SettingBox DisplayName="Use Fallback Background" Path="{Binding UseFallbackBackground, Mode=TwoWay}" Icon="Wallpaper">
                         <ToggleSwitch IsChecked="{Binding UseFallbackBackground}"/>
                     </controls:SettingBox>
-                    <controls:SettingBox DisplayName="Export Path" Path="{Binding ExportPath, Mode=TwoWay}" Icon="Folder">
+                    <controls:SettingBox DisplayName="Assets Path" Path="{Binding ExportPath, Mode=TwoWay}" Icon="Folder">
                         <Button Content="Browse" Command="{Binding BrowseExportPathCommand}"/>
                     </controls:SettingBox>
                 </StackPanel>

@@ -19,8 +19,12 @@ public partial class MainView : ViewBase<MainViewModel>
         {
             ViewModelRegistry.Register<CUE4ParseViewModel>();
             await CUE4ParseVM.Initialize();
+            
             TaskService.Run(AssetsVM.Initialize);
-            TaskService.Run(MeshesVM.Initialize);
+            ViewModel.AssetTabReady = true;
+            
+            await MeshesVM.Initialize();
+            ViewModel.MeshTabReady = true;
         });
     }
 

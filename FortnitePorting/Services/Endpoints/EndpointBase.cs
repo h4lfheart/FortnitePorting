@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 using FortnitePorting.Services.Endpoints.Models;
 using RestSharp;
@@ -17,15 +18,21 @@ public abstract class EndpointBase
 
     protected async Task<T?> ExecuteAsync<T>(string url, Method method = Method.Get, params Parameter[] parameters)
     {
-        var request = new RestRequest(url, method);
-        foreach (var parameter in parameters)
+        try
         {
-            request.AddParameter(parameter);
+            var request = new RestRequest(url, method);
+            foreach (var parameter in parameters) request.AddParameter(parameter);
+
+            var response = await _client.ExecuteAsync<T>(request).ConfigureAwait(false);
+            Log.Information("[{Method}] {StatusDescription} ({StatusCode}): {Uri}", request.Method,
+                response.StatusDescription, (int)response.StatusCode, request.Resource);
+            return response.StatusCode != HttpStatusCode.OK ? default : response.Data;
         }
-        
-        var response = await _client.ExecuteAsync<T>(request).ConfigureAwait(false);
-        Log.Information("[{Method}] {StatusDescription} ({StatusCode}): {Uri}", request.Method, response.StatusDescription, (int) response.StatusCode, request.Resource);
-        return response.StatusCode != HttpStatusCode.OK ? default : response.Data;
+        catch (Exception e)
+        {
+            Log.Error(e.Message + e.StackTrace);
+            return default;
+        }
     }
     
     protected T? Execute<T>(string url, Method method = Method.Get, params Parameter[] parameters)
@@ -36,10 +43,7 @@ public abstract class EndpointBase
     protected async Task<RestResponse> ExecuteAsync(string url, Method method = Method.Get, params Parameter[] parameters)
     {
         var request = new RestRequest(url, method);
-        foreach (var parameter in parameters)
-        {
-            request.AddParameter(parameter);
-        }
+        foreach (var parameter in parameters) request.AddParameter(parameter);
         
         var response = await _client.ExecuteAsync(request).ConfigureAwait(false);
         Log.Information("[{Method}] {StatusDescription} ({StatusCode}): {Uri}", request.Method, response.StatusDescription, (int) response.StatusCode, request.Resource);

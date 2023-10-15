@@ -172,7 +172,8 @@ public partial class MeshesViewModel : ViewModelBase
     [RelayCommand]
     public async Task Export()
     {
-        
+        var obj = await CUE4ParseVM.Provider.LoadObjectAsync(SelectedExportItems[0].PathWithoutExtension);
+        await ExportService.ExportAsync(obj, EAssetType.Mesh, ExportType);
     }
 
     [RelayCommand]

@@ -6,6 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace FortnitePorting.Extensions;
 
@@ -72,6 +73,25 @@ public static class MiscExtensions
     {
         var bytes = new BinaryReader(str).ReadBytes((int) str.Length);
         return bytes;
+    }
+    
+    public static byte[] Bytes(this string str)
+    {
+        return Encoding.UTF8.GetBytes(str);
+    }
+    
+    public static string String(this byte[] data)
+    {
+        return Encoding.UTF8.GetString(data);
+    }
+    
+    public static IEnumerable<(int index, T value)> Enumerate<T>(this IEnumerable<T> enumerable) => enumerable.Select((i, val) => (val, i));
+
+    public static bool AddIfNotNull<T>(this List<T> list, T? obj)
+    {
+        if (obj is null) return false;
+        list.Add(obj);
+        return true;
     }
 
 }

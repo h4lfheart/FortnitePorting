@@ -18,13 +18,13 @@
                 </TabItem.Header>
                 <views:HomeView/>
             </TabItem>
-            <TabItem>
+            <TabItem IsEnabled="{Binding AssetTabReady}">
                 <TabItem.Header>
                     <controls:MaterialIconText Text="Assets" Icon="File"/>
                 </TabItem.Header>
                 <views:AssetsView/>
             </TabItem>
-            <TabItem>
+            <TabItem IsEnabled="{Binding MeshTabReady}">
                 <TabItem.Header>
                     <controls:MaterialIconText Text="Meshes" Icon="Cube"/>
                 </TabItem.Header>
