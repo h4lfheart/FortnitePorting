@@ -7,5 +7,5 @@ public class ExportResponse
 {
     public string AssetsFolder;
     public ExportOptionsBase Options;
-    public ExportDataBase Data;
+    public ExportDataBase[] Data;
 }

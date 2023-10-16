@@ -472,8 +472,6 @@ def import_data(data, link_model: bool = True):
             compression_type = ar.read_fstring()
             uncompressed_size = ar.read_int()
             compressed_size = ar.read_int()
-            
-            Log.info(f"Compressed with {compression_type}")
 
             if compression_type == "GZIP":
                 read_archive = FArchiveReader(gzip.decompress(ar.read_to_end()))

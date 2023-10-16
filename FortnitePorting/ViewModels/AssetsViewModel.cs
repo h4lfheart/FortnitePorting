@@ -242,7 +242,7 @@ public partial class AssetsViewModel : ViewModelBase
     {
         if (CurrentAsset is null) return;
         
-        await ExportService.ExportAsync(CurrentAsset, ExportType);
+        await ExportService.ExportAsync(new List<AssetItem> { CurrentAsset }, ExportType);
     }
 
     // scuffed fix to get filter to update

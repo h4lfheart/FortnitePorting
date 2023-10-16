@@ -20,9 +20,9 @@ public class ExporterInstance
     private readonly ExportOptionsBase AppExportOptions;
     private readonly ExporterOptions FileExportOptions;
 
-    public ExporterInstance(ExportOptionsBase exportOptions)
+    public ExporterInstance(EExportType exportType)
     {
-        AppExportOptions = exportOptions;
+        AppExportOptions = AppSettings.Current.ExportOptions.Get(exportType);
         FileExportOptions = AppExportOptions.CreateExportOptions();
     }
 

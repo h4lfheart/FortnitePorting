@@ -11,6 +11,7 @@ using Avalonia.Controls;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.Utils;
 using DynamicData;
 using FortnitePorting.Application;
@@ -172,8 +173,12 @@ public partial class MeshesViewModel : ViewModelBase
     [RelayCommand]
     public async Task Export()
     {
-        var obj = await CUE4ParseVM.Provider.LoadObjectAsync(SelectedExportItems[0].PathWithoutExtension);
-        await ExportService.ExportAsync(obj, EAssetType.Mesh, ExportType);
+        var objects = new List<UObject>();
+        foreach (var item in SelectedExportItems)
+        {
+            objects.Add(await CUE4ParseVM.Provider.LoadObjectAsync(item.PathWithoutExtension));
+        }
+        await ExportService.ExportAsync(objects, EAssetType.Mesh, ExportType);
     }
 
     [RelayCommand]

@@ -21,13 +21,13 @@ namespace FortnitePorting.Services;
 
 public static class ExportService
 {
-    public static SocketInterface Blender = new(BLENDER_PORT);
-    public static SocketInterface Unreal = new(UNREAL_PORT);
+    private static readonly SocketInterface Blender = new(BLENDER_PORT);
+    private static readonly SocketInterface Unreal = new(UNREAL_PORT);
+
+    private const int BLENDER_PORT = 24000;
+    private const int UNREAL_PORT = 24001;
     
-    public const int BLENDER_PORT = 24000;
-    public const int UNREAL_PORT = 24001;
-    
-    private static EAssetType[] MeshTypes =
+    private static readonly EAssetType[] MeshTypes =
     {
         EAssetType.Outfit,
         EAssetType.Backpack,
@@ -44,25 +44,25 @@ public static class ExportService
         EAssetType.Mesh
     };
     
-    private static EAssetType[] AnimTypes =
+    private static readonly EAssetType[] AnimTypes =
     {
         EAssetType.Emote
     };
     
-    private static EAssetType[] TextureTypes =
+    private static readonly EAssetType[] TextureTypes =
     {
         EAssetType.Spray,
         EAssetType.Banner,
         EAssetType.LoadingScreen
     };
 
-    public static async Task ExportAsync(AssetItem asset, EExportType exportType)
+    public static async Task ExportAsync(List<AssetItem> assets, EExportType exportType)
     {
         await TaskService.RunAsync(async () =>
         {
             if (exportType is EExportType.Folder)
             {
-                CreateExportData(asset.DisplayName, asset.Asset, asset.Type, exportType);
+                assets.ForEach(asset => CreateExportData(asset.DisplayName, asset.Asset, asset.Type, exportType));
                 return;
             }
 
@@ -80,21 +80,24 @@ public static class ExportService
                 return;
             }
 
-            var exportData = CreateExportData(asset.DisplayName, asset.Asset, asset.Type, exportType);
-            await exportData.WaitForExportsAsync();
+            var exportDatas = assets.Select(asset => CreateExportData(asset.DisplayName, asset.Asset, asset.Type, exportType)).ToArray();
+            foreach (var exportData in exportDatas)
+            {
+                await exportData.WaitForExportsAsync();
+            }
 
-            var exportResponse = CreateExportResponse(exportData);
+            var exportResponse = CreateExportResponse(exportDatas, exportType);
             exportService.SendMessage(JsonConvert.SerializeObject(exportResponse));
         });
     }
     
-    public static async Task ExportAsync(UObject asset, EAssetType assetType, EExportType exportType)
+    public static async Task ExportAsync(List<UObject> assets, EAssetType assetType, EExportType exportType)
     {
         await TaskService.RunAsync(async () =>
         {
             if (exportType is EExportType.Folder)
-            {
-                CreateExportData(asset.Name, asset, assetType, exportType);
+            { 
+                assets.ForEach(asset => CreateExportData(asset.Name, asset, assetType, exportType));
                 return;
             }
 
@@ -112,20 +115,23 @@ public static class ExportService
                 return;
             }
 
-            var exportData = CreateExportData(asset.Name, asset, assetType, exportType);
-            await exportData.WaitForExportsAsync();
+            var exportDatas = assets.Select(asset => CreateExportData(asset.Name, asset, assetType, exportType)).ToArray();
+            foreach (var exportData in exportDatas)
+            {
+                await exportData.WaitForExportsAsync();
+            }
 
-            var exportResponse = CreateExportResponse(exportData);
+            var exportResponse = CreateExportResponse(exportDatas, exportType);
             exportService.SendMessage(JsonConvert.SerializeObject(exportResponse));
         });
     }
 
-    private static ExportResponse CreateExportResponse(ExportDataBase exportData)
+    private static ExportResponse CreateExportResponse(ExportDataBase[] exportData, EExportType exportType)
     {
         return new ExportResponse
         {
             AssetsFolder = AppSettings.Current.ExportPath,
-            Options = exportData.ExportOptions,
+            Options = AppSettings.Current.ExportOptions.Get(exportType),
             Data = exportData
         };
     }
