@@ -453,7 +453,7 @@ WORLD_IDENTIFIER = "UEWORLD"
 
 def import_file(path: str):
     with open(path, 'rb') as file:
-        import_data(file.read())
+        return import_data(file.read())
 
 def import_data(data, link_model: bool = True):
     with FArchiveReader(data) as ar:

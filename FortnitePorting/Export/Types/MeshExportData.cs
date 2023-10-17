@@ -10,7 +10,7 @@ namespace FortnitePorting.Export.Types;
 
 public class MeshExportData : ExportDataBase
 {
-    public readonly List<ExportTypes.Mesh> Meshes = new();
+    public readonly List<ExportMesh> Meshes = new();
     public MeshExportData(string name, UObject asset, EAssetType type, EExportType exportType) : base(name, asset, type, exportType)
     {
         switch (type)
