@@ -196,10 +196,15 @@ public class SocketInterface
         {
             var tries = 0;
             var chunkSize = Client.Send(chunk);
-            while (!Ping() && tries < 25)
+            while (!Ping())
             {
                 Log.Warning("Lost Chunk {Index}, Retrying...", index);
                 chunkSize = Client.Send(chunk);
+
+                if (tries > 25)
+                {
+                    throw new Exception($"Failed to send chunk {index}, data will not continue.");
+                }
                 tries++;
             }
 

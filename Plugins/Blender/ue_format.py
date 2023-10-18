@@ -578,10 +578,6 @@ def import_uemodel_data(ar: FArchiveReader, name: str, link: bool):
     # materials
     if len(data.materials) > 0:
         for i, material in enumerate(data.materials):
-            if material.material_name == "":
-                mesh_data.materials.append(None)
-                continue
-
             mat = bpy.data.materials.get(material.material_name)
             if mat is None:
                 mat = bpy.data.materials.new(name=material.material_name)

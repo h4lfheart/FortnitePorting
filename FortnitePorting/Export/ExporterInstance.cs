@@ -166,17 +166,20 @@ public class ExporterInstance
         {
             foreach (var param in materialInstance.TextureParameterValues)
             {
+                if (exportMaterial.Textures.Any(x => x.Name == param.Name)) continue;
                 if (!param.ParameterValue.TryLoad(out UTexture texture)) continue;
                 exportMaterial.Textures.AddUnique(new TextureParameter(param.Name, Export(texture), texture.SRGB, texture.CompressionSettings));
             }
             
             foreach (var param in materialInstance.ScalarParameterValues)
             {
+                if (exportMaterial.Scalars.Any(x => x.Name == param.Name)) continue;
                 exportMaterial.Scalars.AddUnique(new ScalarParameter(param.Name, param.ParameterValue));
             }
             
             foreach (var param in materialInstance.VectorParameterValues)
             {
+                if (exportMaterial.Vectors.Any(x => x.Name == param.Name)) continue;
                 if (param.ParameterValue is null) continue;
                 exportMaterial.Vectors.AddUnique(new VectorParameter(param.Name, param.ParameterValue.Value));
             }
@@ -185,17 +188,19 @@ public class ExporterInstance
             {
                 foreach (var param in materialInstance.StaticParameters.StaticSwitchParameters)
                 {
+                    if (exportMaterial.Switches.Any(x => x.Name == param.Name)) continue;
                     exportMaterial.Switches.AddUnique(new SwitchParameter(param.Name, param.Value));
                 }
                 
                 foreach (var param in materialInstance.StaticParameters.StaticComponentMaskParameters)
                 {
+                    if (exportMaterial.ComponentMasks.Any(x => x.Name == param.Name)) continue;
+                    
                     var color = new FLinearColor(
                         param.R ? 1.0f : 0.0f,
                         param.G ? 1.0f : 0.0f,
                         param.B ? 1.0f : 0.0f,
                         param.A ? 1.0f : 0.0f);
-                    
                     exportMaterial.ComponentMasks.AddUnique(new ComponentMaskParameter(param.Name, color));
                 }
             }

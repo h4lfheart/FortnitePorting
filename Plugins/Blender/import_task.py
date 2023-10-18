@@ -44,6 +44,17 @@ texture_mappings = {
 	"Normals": "Normals"
 }
 
+scalar_mappings = {
+	"RoughnessMin": "Roughness Min",
+	"RawRoughnessMin": "Roughness Min",
+	"RoughnessMax": "Roughness Max",
+	"RawRoughnessMax": "Roughness Max",
+}
+
+vector_mappings = {
+	"Skin Boost Color And Exponent": ("Skin Color", "Skin Boost")
+}
+
 switch_mappings = {
 	"SwizzleRoughnessToGreen": "SwizzleRoughnessToGreen",
 }
@@ -52,6 +63,7 @@ class ImportTask:
 	def run(self, response):
 		print(json.dumps(response))
 
+		self.imported_materials = {}
 		self.assets_folder = response.get("AssetsFolder")
 		self.options = response.get("Options")
 
@@ -71,11 +83,23 @@ class ImportTask:
 
 			for override_material in mesh.get("OverrideMaterials"):
 				index = override_material.get("Slot")
-				if index >= len(imported_mesh.material_slots):
-					continue
-				self.import_material(imported_mesh.material_slots[index], override_material)
+				overridden_material = imported_mesh.material_slots[index].material
+				for slot in imported_mesh.material_slots:
+					if slot.material.name.casefold() == overridden_material.name.casefold():
+						self.import_material(imported_mesh.material_slots[slot.slot_index], override_material)
 
 	def import_material(self, material_slot, material_data):
+		material_name = material_data.get("Name")
+		material_hash = material_data.get("Hash")
+
+		if existing := self.imported_materials.get(material_hash):
+			material_slot.material = existing
+			return
+
+		if material_slot.material is None or material_slot.material.name.casefold() != material_name.casefold():
+			material_slot.material = bpy.data.materials.new(material_name)
+
+		self.imported_materials[material_hash] = material_slot.material
 		material = material_slot.material
 		material.use_nodes = True
 		nodes = material.node_tree.nodes
@@ -115,6 +139,26 @@ class ImportTask:
 			node.hide = True
 			links.new(node.outputs[0], shader_node.inputs[slot])
 
+		def scalar_param(data):
+			name = data.get("Name")
+			value = data.get("Value")
+			if (slot := scalar_mappings.get(name)) is None:
+				return
+
+			shader_node.inputs[slot].default_value = value
+
+		def vector_param(data):
+			name = data.get("Name")
+			value = data.get("Value")
+			if (slot_data := vector_mappings.get(name)) is None:
+				return
+
+			color_slot, alpha_slot = slot_data
+
+			shader_node.inputs[color_slot].default_value = (value["R"], value["G"], value["B"], 1.0)
+			if alpha_slot is not None:
+				shader_node.inputs[alpha_slot].default_value = value["A"]
+
 		def switch_param(data):
 			name = data.get("Name")
 			value = data.get("Value")
@@ -126,6 +170,12 @@ class ImportTask:
 
 		for texture in textures:
 			texture_param(texture)
+
+		for scalar in scalars:
+			scalar_param(scalar)
+
+		for vector in vectors:
+			vector_param(vector)
 
 		for switch in switches:
 			switch_param(switch)
