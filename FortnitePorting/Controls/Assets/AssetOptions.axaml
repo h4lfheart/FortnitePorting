@@ -1,0 +1,38 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             xmlns:assets="clr-namespace:FortnitePorting.Controls.Assets"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="FortnitePorting.Controls.Assets.AssetOptions"
+             x:DataType="assets:AssetOptions">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="{ext:Space 1}"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <controls:GroupBox Grid.Row="0">
+            <Grid RowDefinitions="* 2*" ColumnDefinitions="* 0.15* 2.5*">
+                <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" CornerRadius="10">
+                    <Border.Background>
+                        <ImageBrush Stretch="Uniform" Source="{Binding AssetItem.IconBitmap, RelativeSource={RelativeSource AncestorType=assets:AssetOptions}}"/>
+                    </Border.Background>
+                    <Image Opacity="0" Source="{Binding AssetItem.IconBitmap, RelativeSource={RelativeSource AncestorType=assets:AssetOptions}}"/>
+                </Border>
+                <TextBlock Grid.Row="0" Grid.Column="2" VerticalAlignment="Bottom" TextAlignment="Left" TextTrimming="CharacterEllipsis" Text="{Binding AssetItem.DisplayName, RelativeSource={RelativeSource AncestorType=assets:AssetOptions}}" FontSize="21"/>
+                <TextBlock Grid.Row="1" Grid.Column="2" VerticalAlignment="Top" Text="{Binding AssetItem.Description, RelativeSource={RelativeSource AncestorType=assets:AssetOptions}}" TextAlignment="Left" TextWrapping="Wrap" TextTrimming="WordEllipsis" Opacity="0.5"/>
+            </Grid>
+        </controls:GroupBox>
+                    
+        <ItemsControl Grid.Row="2" x:Name="Styles" CornerRadius="5">
+            <ItemsControl.Styles>
+                <Style Selector="assets|StyleItem">
+                    <Setter Property="Margin" Value="0,0,0, 8" />
+                </Style>
+            </ItemsControl.Styles>
+        </ItemsControl>
+    </Grid>
+</UserControl>

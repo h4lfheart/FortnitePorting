@@ -147,7 +147,7 @@
             </Grid>
             
             <controls:GroupBox Grid.Row="2">
-                <ListBox x:Name="AssetsListBox" Classes="Rounded" ItemsSource="{Binding ActiveCollection}" AutoScrollToSelectedItem="False" Background="Transparent" SelectionChanged="OnSelectionChanged">
+                <ListBox x:Name="AssetsListBox" ItemsSource="{Binding ActiveCollection}" SelectionMode="Multiple" AutoScrollToSelectedItem="False" Background="Transparent" SelectionChanged="OnSelectionChanged">
                     <ListBox.ItemsPanel>
                         <ItemsPanelTemplate>
                             <wrapPanel:VirtualizingWrapPanel/>
@@ -159,40 +159,18 @@
         
         <controls:GroupBox Grid.Column="4">
             <Grid>
-                <Grid IsVisible="{Binding CurrentAsset, Converter={x:Static ObjectConverters.IsNotNull}}">
+                <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="{ext:Space 1}"/>
-                        <RowDefinition Height="4.5*"/>
+                        <RowDefinition Height="5.5*"/>
                         <RowDefinition Height="{ext:Space 1}"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     
-                    <controls:GroupBox Grid.Row="0">
-                        <Grid RowDefinitions="* 2*" ColumnDefinitions="* 0.15* 2.5*">
-                            <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" CornerRadius="10">
-                                <Border.Background>
-                                    <ImageBrush Stretch="Uniform" Source="{Binding CurrentAsset.IconBitmap}"/>
-                                </Border.Background>
-                            </Border>
-                            <TextBlock Grid.Row="0" Grid.Column="2" VerticalAlignment="Bottom" TextAlignment="Left" TextTrimming="CharacterEllipsis" Text="{Binding CurrentAsset.DisplayName}" FontSize="21"/>
-                            <TextBlock Grid.Row="1" Grid.Column="2" VerticalAlignment="Top" Text="{Binding CurrentAsset.Description}" TextAlignment="Left" TextWrapping="Wrap" TextTrimming="WordEllipsis" Opacity="0.5"/>
-                        </Grid>
-                    </controls:GroupBox>
+                    <ScrollViewer Grid.Row="0" PointerWheelChanged="OnScrollAssets">
+                        <ItemsControl ItemsSource="{Binding CurrentAssets}"/>
+                    </ScrollViewer>
                     
-                    <Grid Grid.Row="2">
-                        <ScrollViewer x:Name="StyleScrollViewer" PointerWheelChanged="OnScrollStyles">
-                            <ItemsControl ItemsSource="{Binding ExtraOptions}" CornerRadius="5">
-                                <ItemsControl.Styles>
-                                    <Style Selector="assets|StyleItem">
-                                        <Setter Property="Margin" Value="0,0,0, 8" />
-                                    </Style>
-                                </ItemsControl.Styles>
-                            </ItemsControl>
-                        </ScrollViewer>
-                    </Grid>
-                    
-                    <controls:GroupBox Grid.Row="4">
+                    <controls:GroupBox Grid.Row="2" IsVisible="{Binding !!CurrentAssets.Count}">
                         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="*"/>
@@ -212,7 +190,7 @@
                         </Grid>
                     </controls:GroupBox>
                 </Grid>
-                <TextBlock Text="No Asset Selected" IsVisible="{Binding CurrentAsset, Converter={x:Static ObjectConverters.IsNull}}" Opacity="0.5" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <TextBlock IsVisible="{Binding !CurrentAssets.Count}" Text="No Asset Selected" Opacity="0.5" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Grid>
         </controls:GroupBox>
     </Grid>

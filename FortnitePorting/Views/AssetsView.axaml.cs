@@ -29,32 +29,12 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
     private void OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         if (sender is not ListBox listBox) return;
-        if (listBox.SelectedItem is not AssetItem asset) return;
+        if (listBox.SelectedItems is null) return;
         
-        ViewModel.CurrentAsset = asset;
-        ViewModel.ExtraOptions.Clear();
-        var styles = asset.Asset.GetOrDefault("ItemVariants", Array.Empty<UObject>());
-        foreach (var style in styles)
+        ViewModel.CurrentAssets.Clear();
+        foreach (var asset in listBox.SelectedItems.Cast<AssetItem>())
         {
-            var channel = style.GetOrDefault("VariantChannelName", new FText("Style")).Text.ToLower().TitleCase();
-            var optionsName = style.ExportType switch
-            {
-                "FortCosmeticCharacterPartVariant" => "PartOptions",
-                "FortCosmeticMaterialVariant" => "MaterialOptions",
-                "FortCosmeticParticleVariant" => "ParticleOptions",
-                "FortCosmeticMeshVariant" => "MeshOptions",
-                "FortCosmeticGameplayTagVariant" => "GenericTagOptions",
-                _ => null
-            };
-
-            if (optionsName is null) continue;
-
-            var options = style.Get<FStructFallback[]>(optionsName);
-            if (options.Length == 0) continue;
-
-            var styleSelector = new StyleItem(channel, options, asset.IconBitmap);
-            if (styleSelector.Styles.Count == 0) continue;
-            ViewModel.ExtraOptions.Add(styleSelector);
+            ViewModel.CurrentAssets.Add(new AssetOptions(asset));
         }
     }
 
@@ -90,8 +70,8 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
         
         await ViewModel.CurrentLoader.Load();
     }
-
-    private void OnScrollStyles(object? sender, PointerWheelEventArgs e)
+    
+    private void OnScrollAssets(object? sender, PointerWheelEventArgs e)
     {
         if (sender is not ScrollViewer scrollViewer) return;
         switch (e.Delta.Y)
@@ -104,6 +84,7 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
                 break;
         }
     }
+    
 
     private void OnFilterChecked(object? sender, RoutedEventArgs e)
     {

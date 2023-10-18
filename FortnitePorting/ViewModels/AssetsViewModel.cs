@@ -33,14 +33,15 @@ public partial class AssetsViewModel : ViewModelBase
    
     public List<AssetLoader> Loaders;
     public AssetLoader? CurrentLoader;
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(IsFolderOnlyExport))] private AssetItem? currentAsset;
 
-    public bool IsFolderOnlyExport => CurrentAsset?.Type is EAssetType.LoadingScreen or EAssetType.Spray;
+    [ObservableProperty] private ObservableCollection<AssetOptions> currentAssets = new();
+
+    public bool IsFolderOnlyExport => CurrentAssetType is EAssetType.LoadingScreen or EAssetType.Spray;
+    [ObservableProperty] private EAssetType currentAssetType;
     [ObservableProperty] private ObservableCollection<EExportType> folderExportEnumCollection = new(new[] { EExportType.Folder});
     
     [ObservableProperty] private EExportType exportType = EExportType.Blender;
     [ObservableProperty] private ReadOnlyObservableCollection<AssetItem> activeCollection;
-    [ObservableProperty] private ObservableCollection<UserControl> extraOptions = new();
 
     [ObservableProperty] private ESortType sortType = ESortType.Default;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(SortIcon))] private bool isDescending = false;
@@ -210,7 +211,8 @@ public partial class AssetsViewModel : ViewModelBase
     {
         CurrentLoader = Loaders.First(x => x.Type == assetType);
         ActiveCollection = CurrentLoader.Target;
-        CurrentAsset = null;
+        CurrentAssetType = assetType;
+        CurrentAssets.Clear();
     }
     
     public void ModifyFilters(string tag, bool enable)
@@ -234,15 +236,16 @@ public partial class AssetsViewModel : ViewModelBase
     [RelayCommand]
     public void Favorite()
     {
-        CurrentAsset?.Favorite();
+        foreach (var currentAsset in CurrentAssets)
+        {
+            currentAsset.AssetItem.Favorite();
+        }
     }
     
     [RelayCommand]
     public async Task Export()
     {
-        if (CurrentAsset is null) return;
-        
-        await ExportService.ExportAsync(new List<AssetItem> { CurrentAsset }, ExportType);
+        await ExportService.ExportAsync(CurrentAssets.Select(x => x.AssetItem).ToList(), ExportType);
     }
 
     // scuffed fix to get filter to update
