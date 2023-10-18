@@ -91,10 +91,6 @@
             <Setter Property="FontSize" Value="14"/>
         </Style>
         
-        <Style Selector="ListBoxItem">
-            <Setter Property="CornerRadius" Value="10"/>
-        </Style>
-        
         <Style Selector="TreeViewItem">
             <Setter Property="CornerRadius" Value="10"/>
         </Style>

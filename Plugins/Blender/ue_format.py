@@ -528,7 +528,7 @@ def import_uemodel_data(ar: FArchiveReader, name: str, link: bool):
     mesh_object = bpy.data.objects.new(name, mesh_data)
     return_object = mesh_object
     if link:
-        bpy.context.scene.collection.objects.link(mesh_object)
+        bpy.context.collection.objects.link(mesh_object)
 
     # normals
     if len(data.normals) > 0:
@@ -598,7 +598,7 @@ def import_uemodel_data(ar: FArchiveReader, name: str, link: bool):
         return_object = armature_object
 
         if link:
-            bpy.context.scene.collection.objects.link(armature_object)
+            bpy.context.collection.objects.link(armature_object)
         bpy.context.view_layer.objects.active = armature_object
         armature_object.select_set(True)
 

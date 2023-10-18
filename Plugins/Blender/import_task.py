@@ -2,6 +2,7 @@ import bpy
 import os
 import json
 from enum import Enum
+from mathutils import Matrix, Vector, Euler, Quaternion
 from . import ue_format as ueformat
 
 class MeshType(Enum):
@@ -29,6 +30,16 @@ def append_data():
 		for mat in data_from.materials:
 			if not bpy.data.materials.get(mat):
 				data_to.materials.append(mat)'''
+
+def create_collection(name):
+    if name in bpy.context.view_layer.layer_collection.children:
+        bpy.context.view_layer.active_layer_collection = bpy.context.view_layer.layer_collection.children.get(name)
+        return
+    bpy.ops.object.select_all(action='DESELECT')
+    
+    new_collection = bpy.data.collections.new(name)
+    bpy.context.scene.collection.children.link(new_collection)
+    bpy.context.view_layer.active_layer_collection = bpy.context.view_layer.layer_collection.children.get(new_collection.name)
 
 location_mappings = {
 	"Diffuse": (-300, -75),
@@ -69,12 +80,17 @@ class ImportTask:
 
 		append_data()
 		datas = response.get("Data")
-		for data in datas:
-			self.import_data(data)
+		for index, data in enumerate(datas):
+			self.import_data(data, index)
 
-	def import_data(self, data):
+	def import_data(self, data, import_index):
+		if self.options.get("ImportCollection"):
+			create_collection(data.get("Name"))
+
 		for mesh in data.get("Meshes"):
 			imported_object = self.import_mesh(mesh.get("Path"))
+
+			imported_object.location = Vector((import_index, 0, 0))
 			imported_mesh = get_armature_mesh(imported_object)
 
 			for material in mesh.get("Materials"):
@@ -96,7 +112,7 @@ class ImportTask:
 			material_slot.material = existing
 			return
 
-		if material_slot.material is None or material_slot.material.name.casefold() != material_name.casefold():
+		if material_slot.material.name.casefold() != material_name.casefold():
 			material_slot.material = bpy.data.materials.new(material_name)
 
 		self.imported_materials[material_hash] = material_slot.material

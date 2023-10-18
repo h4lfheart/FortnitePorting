@@ -22,7 +22,7 @@ public partial class HomeViewModel : ViewModelBase
     
     public override async Task Initialize()
     {
-        await TaskService.RunAsync(async () =>
+        TaskService.Run(async () =>
         {
             var changelogEntries = await EndpointService.FortnitePorting.GetChangelogsAsync();
             if (changelogEntries is not null)
@@ -37,7 +37,7 @@ public partial class HomeViewModel : ViewModelBase
             }
         });
         
-        await TaskService.RunAsync(async () =>
+        TaskService.Run(async () =>
         {
             var featured = await EndpointService.FortnitePorting.GetFeaturedAsync();
             if (featured is not null)
