@@ -15,11 +15,26 @@ def get_armature_mesh(obj):
 	if obj.type == 'MESH':
 		return obj
 
+def append_data():
+	addon_dir = os.path.dirname(os.path.splitext(__file__)[0])
+	with bpy.data.libraries.load(os.path.join(addon_dir, "fortnite_porting_data.blend")) as (data_from, data_to):
+		for node_group in data_from.node_groups:
+			if not bpy.data.node_groups.get(node_group):
+				data_to.node_groups.append(node_group)
+
+		'''for obj in data_from.objects:
+			if not bpy.data.objects.get(obj):
+				data_to.objects.append(obj)
+
+		for mat in data_from.materials:
+			if not bpy.data.materials.get(mat):
+				data_to.materials.append(mat)'''
+
 location_mappings = {
 	"Diffuse": (-300, -75),
-	"M": (-300, -225),
-	"SpecularMasks": (-300, -125),
-	"Normals": (-300, -175)
+	"M": (-300, -120),
+	"SpecularMasks": (-300, -275),
+	"Normals": (-300, -315)
 }
 
 texture_mappings = {
@@ -29,6 +44,10 @@ texture_mappings = {
 	"Normals": "Normals"
 }
 
+switch_mappings = {
+	"SwizzleRoughnessToGreen": "SwizzleRoughnessToGreen",
+}
+
 class ImportTask:
 	def run(self, response):
 		print(json.dumps(response))
@@ -36,6 +55,7 @@ class ImportTask:
 		self.assets_folder = response.get("AssetsFolder")
 		self.options = response.get("Options")
 
+		append_data()
 		datas = response.get("Data")
 		for data in datas:
 			self.import_data(data)
@@ -48,6 +68,12 @@ class ImportTask:
 			for material in mesh.get("Materials"):
 				index = material.get("Slot")
 				self.import_material(imported_mesh.material_slots[index], material)
+
+			for override_material in mesh.get("OverrideMaterials"):
+				index = override_material.get("Slot")
+				if index >= len(imported_mesh.material_slots):
+					continue
+				self.import_material(imported_mesh.material_slots[index], override_material)
 
 	def import_material(self, material_slot, material_data):
 		material = material_slot.material
@@ -80,23 +106,29 @@ class ImportTask:
 
 			if (slot := texture_mappings.get(name)) is None:
 				return
-			if (image := self.import_image(path)) is None:
-				return
 
 			node = nodes.new(type="ShaderNodeTexImage")
-			node.image = image
+			node.image = self.import_image(path)
 			node.image.alpha_mode = 'CHANNEL_PACKED'
 			node.image.colorspace_settings.name = "sRGB" if data.get("sRGB") else "Non-Color"
 			node.location = location_mappings[slot]
 			node.hide = True
 			links.new(node.outputs[0], shader_node.inputs[slot])
 
-			if slot == 'Diffuse':
-				nodes.active = node
+		def switch_param(data):
+			name = data.get("Name")
+			value = data.get("Value")
+			if (slot := switch_mappings.get(name)) is None:
+				return
+
+			shader_node.inputs[slot].default_value = 1 if value else 0
 
 
 		for texture in textures:
 			texture_param(texture)
+
+		for switch in switches:
+			switch_param(switch)
 
 	def import_image(self, path: str):
 		path, name = path.split(".")

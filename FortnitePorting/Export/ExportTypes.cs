@@ -36,10 +36,20 @@ public record ExportMaterial
     public List<SwitchParameter> Switches = new();
     public List<ComponentMaskParameter> ComponentMasks = new();
 
-    public ExportMaterial WithSlot(int index)
+    public T WithSlot<T>(int index) where T : ExportMaterial
     {
-        return this with { Slot = index };
+        return Copy<T>() with { Slot = index };
     }
+
+    public T Copy<T>()
+    {
+        return (T) MemberwiseClone();
+    }
+}
+
+public record ExportOverrideMaterial : ExportMaterial
+{
+    public string? MaterialNameToSwap;
 }
     
 public record TextureParameter(string Name, string Value, bool sRGB, TextureCompressionSettings CompressionSettings);

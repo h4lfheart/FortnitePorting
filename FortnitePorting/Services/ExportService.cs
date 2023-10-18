@@ -194,11 +194,13 @@ public class SocketInterface
         var dataSent = 0;
         foreach (var (index, chunk) in chunks.Enumerate())
         {
+            var tries = 0;
             var chunkSize = Client.Send(chunk);
-            while (!Ping())
+            while (!Ping() && tries < 25)
             {
                 Log.Warning("Lost Chunk {Index}, Retrying...", index);
                 chunkSize = Client.Send(chunk);
+                tries++;
             }
 
             dataSent += chunkSize;

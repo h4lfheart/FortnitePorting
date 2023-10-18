@@ -11,6 +11,8 @@ using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
+using CUE4Parse.UE4.Assets.Objects;
+using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using FortnitePorting.Application;
@@ -41,6 +43,14 @@ public class ExporterInstance
 
         var exportPart = Mesh<ExportPart>(skeletalMesh);
         if (exportPart is null) return null;
+        
+        if (part.TryGetValue(out FStructFallback[] materialOverrides, "MaterialOverrides"))
+        {
+            foreach (var material in materialOverrides)
+            {
+                exportPart.OverrideMaterials.AddIfNotNull(OverrideMaterial(material));
+            }
+        }
             
         exportPart.Type = part.GetOrDefault<EFortCustomPartType>("CharacterPartType").ToString();
         exportPart.AttachToSocket = part.GetOrDefault("bAttachToSocket", false);
@@ -78,6 +88,7 @@ public class ExporterInstance
             
             exportPart.Materials.AddIfNotNull(Material(material, index));
         }
+        
         return exportPart;
     }
 
@@ -111,15 +122,20 @@ public class ExporterInstance
 
     public ExportMaterial? Material(UMaterialInterface material, int index)
     {
+        return Material<ExportMaterial>(material, index);
+    }
+
+    public T? Material<T>(UMaterialInterface material, int index) where T : ExportMaterial, new()
+    {
         if (!AppExportOptions.ExportMaterials) return null;
         
         var hash = material.GetPathName().GetHashCode();
         if (MaterialCache.FirstOrDefault(mat => mat.Hash == hash) is { } existing)
         {
-            return existing.WithSlot(index);
+            return existing.WithSlot<T>(index);
         }
         
-        var exportMaterial = new ExportMaterial
+        var exportMaterial = new T
         {
             Path = material.GetPathName(),
             Name = material.Name,
@@ -132,7 +148,19 @@ public class ExporterInstance
         return exportMaterial;
     }
     
-    public void AccumulateParameters(UMaterialInterface? materialInterface, ref ExportMaterial exportMaterial)
+    public ExportOverrideMaterial? OverrideMaterial(FStructFallback overrideData)
+    {
+        var overrideMaterial = overrideData.Get<FSoftObjectPath>("OverrideMaterial");
+        if (!overrideMaterial.TryLoad(out UMaterialInterface materialObject)) return null;
+
+        var exportMaterial = Material<ExportOverrideMaterial>(materialObject, overrideData.Get<int>("MaterialOverrideIndex"));
+        if (exportMaterial is null) return null;
+        
+        exportMaterial.MaterialNameToSwap = overrideData.GetOrDefault<FSoftObjectPath>("MaterialToSwap").AssetPathName.Text.SubstringAfterLast(".");
+        return exportMaterial;
+    }
+    
+    public void AccumulateParameters<T>(UMaterialInterface? materialInterface, ref T exportMaterial) where T : ExportMaterial
     {
         if (materialInterface is UMaterialInstanceConstant materialInstance)
         {
@@ -153,6 +181,25 @@ public class ExporterInstance
                 exportMaterial.Vectors.AddUnique(new VectorParameter(param.Name, param.ParameterValue.Value));
             }
 
+            if (materialInstance.StaticParameters is not null)
+            {
+                foreach (var param in materialInstance.StaticParameters.StaticSwitchParameters)
+                {
+                    exportMaterial.Switches.AddUnique(new SwitchParameter(param.Name, param.Value));
+                }
+                
+                foreach (var param in materialInstance.StaticParameters.StaticComponentMaskParameters)
+                {
+                    var color = new FLinearColor(
+                        param.R ? 1.0f : 0.0f,
+                        param.G ? 1.0f : 0.0f,
+                        param.B ? 1.0f : 0.0f,
+                        param.A ? 1.0f : 0.0f);
+                    
+                    exportMaterial.ComponentMasks.AddUnique(new ComponentMaskParameter(param.Name, color));
+                }
+            }
+            
             if (materialInstance.Parent is UMaterialInterface parentMaterial)
             {
                 AccumulateParameters(parentMaterial, ref exportMaterial);
