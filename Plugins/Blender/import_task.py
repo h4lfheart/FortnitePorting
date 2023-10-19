@@ -148,6 +148,9 @@ class ImportTask:
 
 			for override_material in mesh.get("OverrideMaterials"):
 				index = override_material.get("Slot")
+				if index >= len(imported_mesh.material_slots):
+					continue
+
 				overridden_material = imported_mesh.material_slots[index].material
 				for slot in imported_mesh.material_slots:
 					if slot.material.name.casefold() == overridden_material.name.casefold():
@@ -245,7 +248,7 @@ class ImportTask:
 		for switch in switches:
 			switch_param(switch)
 
-		if skin_color := meta_data.get("SkinColor"):
+		if (skin_color := meta_data.get("SkinColor")) and skin_color["A"] != 0:
 			shader_node.inputs["Skin Color"].default_value = (skin_color["R"], skin_color["G"], skin_color["B"], 1.0)
 			shader_node.inputs["Skin Boost"].default_value = skin_color["A"]
 
