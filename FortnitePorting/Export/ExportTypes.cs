@@ -18,8 +18,26 @@ public class ExportMesh
 public class ExportPart : ExportMesh
 {
     public string Type;
+    public ExportPartMeta Meta = new();
+}
+
+public class ExportPartMeta { }
+
+public class ExportHeadMeta : ExportPartMeta
+{
+    public Dictionary<ECustomHatType, string> MorphNames = new();
+    public FLinearColor SkinColor;
+}
+
+public class ExportAttachMeta : ExportPartMeta
+{
     public bool AttachToSocket;
     public string? Socket;
+}
+
+public class ExportHatMeta : ExportAttachMeta
+{
+    public string HatType;
 }
 
 public record ExportMaterial

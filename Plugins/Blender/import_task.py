@@ -6,8 +6,15 @@ from mathutils import Matrix, Vector, Euler, Quaternion
 from . import ue_format as ueformat
 
 class MeshType(Enum):
-		UEFORMAT = 0
-		ACTORX = 1
+	UEFORMAT = 0
+	ACTORX = 1
+
+class HatType(Enum):
+	HeadReplacement = 0
+	Cap = 1
+	Mask = 2
+	Helmet = 3
+	Hat = 4
 
 def get_armature_mesh(obj):
 	if obj.type == 'ARMATURE':
@@ -32,14 +39,35 @@ def append_data():
 				data_to.materials.append(mat)'''
 
 def create_collection(name):
-    if name in bpy.context.view_layer.layer_collection.children:
-        bpy.context.view_layer.active_layer_collection = bpy.context.view_layer.layer_collection.children.get(name)
-        return
-    bpy.ops.object.select_all(action='DESELECT')
-    
-    new_collection = bpy.data.collections.new(name)
-    bpy.context.scene.collection.children.link(new_collection)
-    bpy.context.view_layer.active_layer_collection = bpy.context.view_layer.layer_collection.children.get(new_collection.name)
+	if name in bpy.context.view_layer.layer_collection.children:
+		bpy.context.view_layer.active_layer_collection = bpy.context.view_layer.layer_collection.children.get(name)
+		return
+	bpy.ops.object.select_all(action='DESELECT')
+	
+	new_collection = bpy.data.collections.new(name)
+	bpy.context.scene.collection.children.link(new_collection)
+	bpy.context.view_layer.active_layer_collection = bpy.context.view_layer.layer_collection.children.get(new_collection.name)
+
+def first(target, expr, default=None):
+	if not target:
+		return None
+	filtered = filter(expr, target)
+
+	return next(filtered, default)
+
+def where(target, expr):
+	if not target:
+		return None
+	filtered = filter(expr, target)
+
+	return list(filtered)
+
+def any(target, expr):
+	if not target:
+		return None
+
+	filtered = list(filter(expr, target))
+	return len(filtered) > 0
 
 location_mappings = {
 	"Diffuse": (-300, -75),
@@ -87,24 +115,45 @@ class ImportTask:
 		if self.options.get("ImportCollection"):
 			create_collection(data.get("Name"))
 
-		for mesh in data.get("Meshes"):
+		meshes = data.get("Meshes")
+
+		def get_meta(search_props):
+			out_props = {}
+			for mesh in meshes:
+				meta = mesh.get("Meta")
+				if found_key := first(meta.keys(), lambda x: x in search_props):
+					out_props[found_key] = meta.get(found_key)
+			return out_props
+
+		for mesh in meshes:
 			imported_object = self.import_mesh(mesh.get("Path"))
 
 			imported_object.location = Vector((import_index, 0, 0))
 			imported_mesh = get_armature_mesh(imported_object)
 
+			match mesh.get("Type"):
+				case "Body":
+					meta = get_meta(["SkinColor"])
+				case "Head":
+					meta = get_meta(["MorphNames", "HatType"])
+					shape_keys = imported_mesh.data.shape_keys
+					if (morph_name := meta.get("MorphNames").get(meta.get("HatType"))) and shape_keys is not None:
+						for key in shape_keys.key_blocks:
+							if key.name.casefold() == morph_name.casefold():
+								key.value = 1.0
+
 			for material in mesh.get("Materials"):
 				index = material.get("Slot")
-				self.import_material(imported_mesh.material_slots[index], material)
+				self.import_material(imported_mesh.material_slots[index], material, meta)
 
 			for override_material in mesh.get("OverrideMaterials"):
 				index = override_material.get("Slot")
 				overridden_material = imported_mesh.material_slots[index].material
 				for slot in imported_mesh.material_slots:
 					if slot.material.name.casefold() == overridden_material.name.casefold():
-						self.import_material(imported_mesh.material_slots[slot.slot_index], override_material)
+						self.import_material(imported_mesh.material_slots[slot.slot_index], override_material, meta)
 
-	def import_material(self, material_slot, material_data):
+	def import_material(self, material_slot, material_data, meta_data):
 		material_name = material_data.get("Name")
 		material_hash = material_data.get("Hash")
 
@@ -195,6 +244,10 @@ class ImportTask:
 
 		for switch in switches:
 			switch_param(switch)
+
+		if skin_color := meta_data.get("SkinColor"):
+			shader_node.inputs["Skin Color"].default_value = (skin_color["R"], skin_color["G"], skin_color["B"], 1.0)
+			shader_node.inputs["Skin Boost"].default_value = skin_color["A"]
 
 	def import_image(self, path: str):
 		path, name = path.split(".")

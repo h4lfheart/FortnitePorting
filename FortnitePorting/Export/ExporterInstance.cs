@@ -51,13 +51,64 @@ public class ExporterInstance
                 exportPart.OverrideMaterials.AddIfNotNull(OverrideMaterial(material));
             }
         }
-            
+
         exportPart.Type = part.GetOrDefault<EFortCustomPartType>("CharacterPartType").ToString();
-        exportPart.AttachToSocket = part.GetOrDefault("bAttachToSocket", false);
 
         if (part.TryGetValue(out UObject additionalData, "AdditionalData"))
         {
-            exportPart.Socket = additionalData.GetOrDefault<FName?>("AttachSocketName")?.Text;
+            switch (additionalData.ExportType)
+            {
+                case "CustomCharacterHeadData":
+                {
+                    var meta = new ExportHeadMeta();
+                    
+                    foreach (var type in Enum.GetValues<ECustomHatType>())
+                    {
+                        if (additionalData.TryGetValue(out FName[] morphNames, type + "MorphTargets"))
+                        {
+                            meta.MorphNames[type] = morphNames.First().Text;
+                        }
+                    }
+                    
+                    if (additionalData.TryGetValue(out UObject skinColorSwatch, "SkinColorSwatch"))
+                    {
+                        var colorPairs = skinColorSwatch.GetOrDefault("ColorPairs", Array.Empty<FStructFallback>());
+                        var skinColorPair = colorPairs.FirstOrDefault(x => x.Get<FName>("ColorName").Text.Equals("Skin Boost Color and Exponent", StringComparison.OrdinalIgnoreCase));
+                        if (skinColorPair is not null)
+                        {
+                            meta.SkinColor = skinColorPair.Get<FLinearColor>("ColorValue");
+                        }
+                    }
+
+                    exportPart.Meta = meta;
+                    break;
+                }
+                case "CustomCharacterHatData":
+                {
+                    var meta = new ExportHatMeta
+                    {
+                        AttachToSocket = part.GetOrDefault("bAttachToSocket", false),
+                        Socket = additionalData.GetOrDefault<FName?>("AttachSocketName")?.Text
+                    };
+                    
+                    if (additionalData.TryGetValue(out FName hatType, "HatType"))
+                    {
+                        meta.HatType = hatType.Text.Replace("ECustomHatType::ECustomHatType_", string.Empty);
+                    }
+                    exportPart.Meta = meta;
+                    break;
+                }
+                case "CustomCharacterCharmData":
+                {
+                    var meta = new ExportAttachMeta
+                    {
+                        AttachToSocket = part.GetOrDefault("bAttachToSocket", false),
+                        Socket = additionalData.GetOrDefault<FName?>("AttachSocketName")?.Text
+                    };
+                    exportPart.Meta = meta;
+                    break;
+                }
+            }
         }
 
         return exportPart;
@@ -140,7 +191,8 @@ public class ExporterInstance
             Path = material.GetPathName(),
             Name = material.Name,
             Slot = index,
-            Hash = hash
+            Hash = hash,
+            ParentName = GetAbsoluteParent(material)?.Name
         };
         
         AccumulateParameters(material, ref exportMaterial);
@@ -159,7 +211,17 @@ public class ExporterInstance
         exportMaterial.MaterialNameToSwap = overrideData.GetOrDefault<FSoftObjectPath>("MaterialToSwap").AssetPathName.Text.SubstringAfterLast(".");
         return exportMaterial;
     }
-    
+
+    public UMaterialInterface? GetAbsoluteParent(UMaterialInterface? materialInterface)
+    {
+        var parent = materialInterface;
+        while (parent is UMaterialInstanceConstant materialInstance)
+        {
+            parent = materialInstance.Parent as UMaterialInterface;
+        }
+        return parent;
+    }
+
     public void AccumulateParameters<T>(UMaterialInterface? materialInterface, ref T exportMaterial) where T : ExportMaterial
     {
         if (materialInterface is UMaterialInstanceConstant materialInstance)

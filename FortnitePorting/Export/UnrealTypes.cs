@@ -11,3 +11,13 @@ public enum EFortCustomPartType : byte
     Gameplay = 6,
     NumTypes = 7
 }
+
+public enum ECustomHatType : byte
+{
+    HeadReplacement,
+    Cap,
+    Mask,
+    Helmet,
+    Hat,
+    None
+}
