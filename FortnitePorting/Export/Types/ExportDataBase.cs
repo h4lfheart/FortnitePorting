@@ -9,13 +9,13 @@ namespace FortnitePorting.Export.Types;
 public abstract class ExportDataBase
 {
     public string Name;
-    public EAssetType Type;
+    public string Type;
     [JsonIgnore] protected readonly ExporterInstance Exporter;
 
     public ExportDataBase(string name, UObject asset, EAssetType type, EExportType exportType)
     {
         Name = name;
-        Type = type;
+        Type = type.ToString();
         Exporter = new ExporterInstance(exportType);
     }
 

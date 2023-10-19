@@ -1,6 +1,7 @@
 import bpy
 import os
 import json
+import re
 from enum import Enum
 from mathutils import Matrix, Vector, Euler, Quaternion
 from . import ue_format as ueformat
@@ -79,7 +80,9 @@ location_mappings = {
 texture_mappings = {
 	"Diffuse": "Diffuse",
 	"M": "M",
+	"Mask": "M",
 	"SpecularMasks": "SpecularMasks",
+	"SRM": "SpecularMasks",
 	"Normals": "Normals"
 }
 
@@ -115,32 +118,44 @@ class ImportTask:
 		if self.options.get("ImportCollection"):
 			create_collection(data.get("Name"))
 
-		meshes = data.get("Meshes")
+		export_type = data.get("Type")
 
+		meshes_to_import = data.get("Meshes")
 		def get_meta(search_props):
 			out_props = {}
-			for mesh in meshes:
+			for mesh in meshes_to_import:
 				meta = mesh.get("Meta")
 				if found_key := first(meta.keys(), lambda x: x in search_props):
 					out_props[found_key] = meta.get(found_key)
 			return out_props
 
-		for mesh in meshes:
-			imported_object = self.import_mesh(mesh.get("Path"))
+		imported_meshes = []
+		def import_mesh(mesh):
+			mesh_type = mesh.get("Type")
 
+			imported_object = self.import_model(mesh.get("Path"))
 			imported_object.location = Vector((import_index, 0, 0))
 			imported_mesh = get_armature_mesh(imported_object)
+			imported_meshes.append({
+				"Skeleton": imported_object,
+				"Mesh": imported_mesh,
+				"Data": mesh,
+				"Meta": mesh.get("Meta")
+			})
 
-			match mesh.get("Type"):
+			match mesh_type:
 				case "Body":
 					meta = get_meta(["SkinColor"])
 				case "Head":
 					meta = get_meta(["MorphNames", "HatType"])
+
 					shape_keys = imported_mesh.data.shape_keys
 					if (morph_name := meta.get("MorphNames").get(meta.get("HatType"))) and shape_keys is not None:
 						for key in shape_keys.key_blocks:
 							if key.name.casefold() == morph_name.casefold():
 								key.value = 1.0
+				case _:
+					meta = get_meta([])
 
 			for material in mesh.get("Materials"):
 				index = material.get("Slot")
@@ -155,6 +170,12 @@ class ImportTask:
 				for slot in imported_mesh.material_slots:
 					if slot.material.name.casefold() == overridden_material.name.casefold():
 						self.import_material(imported_mesh.material_slots[slot.slot_index], override_material, meta)
+
+		for mesh in meshes_to_import:
+			import_mesh(mesh)
+
+		if export_type == "Outfit" and self.options.get("MergeSkeletons"):
+			self.merge_skeletons(imported_meshes)
 
 	def import_material(self, material_slot, material_data, meta_data):
 		material_name = material_data.get("Name")
@@ -195,6 +216,9 @@ class ImportTask:
 		def texture_param(data):
 			name = data.get("Name")
 			path = data.get("Value")
+
+			if name == "SRM":
+				shader_node.inputs["SwizzleRoughnessToGreen"].default_value = 1
 
 			if (slot := texture_mappings.get(name)) is None:
 				return
@@ -266,7 +290,7 @@ class ImportTask:
 
 		return bpy.data.images.load(texture_path, check_existing=True)
 
-	def import_mesh(self, path: str):
+	def import_model(self, path: str):
 		path = path[1:] if path.startswith("/") else path
 		mesh_path = os.path.join(self.assets_folder, path.split(".")[0])
 
@@ -280,3 +304,62 @@ class ImportTask:
 				mesh_path += ".pskx"
 
 		return ueformat.import_file(mesh_path)
+
+	def merge_skeletons(self, parts):
+		bpy.ops.object.select_all(action='DESELECT')
+
+		merge_parts = []
+		constraint_parts = []
+
+		for part in parts:
+			if (meta := part.get("Meta")) and meta.get("AttachToSocket"):
+				constraint_parts.append(part)
+			else:
+				merge_parts.append(part)
+
+		# merge skeletons
+		for part in merge_parts:
+			data = part.get("Data")
+			mesh_type = data.get("Type")
+			skeleton = part.get("Skeleton")
+
+			if mesh_type == "Body":
+				bpy.context.view_layer.objects.active = skeleton
+
+			skeleton.select_set(True)
+
+		bpy.ops.object.join()
+		master_skeleton = bpy.context.active_object
+		bpy.ops.object.select_all(action='DESELECT')
+
+		# merge meshes
+		for part in merge_parts:
+			data = part.get("Data")
+			mesh_type = data.get("Type")
+			mesh = part.get("Mesh")
+
+			if mesh_type == "Body":
+				bpy.context.view_layer.objects.active = mesh
+
+			mesh.select_set(True)
+
+		bpy.ops.object.join()
+		bpy.ops.object.select_all(action='DESELECT')
+
+		# rebuild master bone tree
+		bone_tree = {}
+		for bone in master_skeleton.data.bones:
+			try:
+				bone_reg = re.sub(".\d\d\d", "", bone.name)
+				parent_reg = re.sub(".\d\d\d", "", bone.parent.name)
+				current_parent = bone_tree.get(bone_reg)
+				bone_tree[bone_reg] = parent_reg
+			except AttributeError:
+				pass
+
+		bpy.context.view_layer.objects.active = master_skeleton
+		bpy.ops.object.mode_set(mode='EDIT')
+		bpy.ops.armature.select_all(action='DESELECT')
+		bpy.ops.object.select_pattern(pattern="*.[0-9][0-9][0-9]")
+		bpy.ops.armature.delete()
+		bpy.ops.object.mode_set(mode='OBJECT')
