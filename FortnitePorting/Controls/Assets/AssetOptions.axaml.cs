@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -45,5 +46,10 @@ public partial class AssetOptions : UserControl
             if (styleSelector.Styles.Count == 0) continue;
             Styles.Items.Add(styleSelector);
         }
+    }
+    
+    public FStructFallback[] GetSelectedStyles()
+    {
+        return Styles.Items.Cast<StyleItem>().Select(x => (StyleEntry) x.StylesListBox.SelectedItem!).Select(x => x.StyleInfo).ToArray();
     }
 }

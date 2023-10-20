@@ -245,7 +245,7 @@ public partial class AssetsViewModel : ViewModelBase
     [RelayCommand]
     public async Task Export()
     {
-        await ExportService.ExportAsync(CurrentAssets.Select(x => x.AssetItem).ToList(), ExportType);
+        await ExportService.ExportAsync(CurrentAssets.ToList(), ExportType);
     }
 
     // scuffed fix to get filter to update
