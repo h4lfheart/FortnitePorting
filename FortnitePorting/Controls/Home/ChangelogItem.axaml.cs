@@ -1,15 +1,7 @@
-using System;
-using System.IO;
-using AsyncImageLoader;
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
-using Avalonia.Media.Imaging;
-using FortnitePorting.Extensions;
-using FortnitePorting.Services;
 using FortnitePorting.Services.Endpoints.Models;
 
-namespace FortnitePorting.Controls;
+namespace FortnitePorting.Controls.Home;
 
 public partial class ChangelogItem : UserControl
 {

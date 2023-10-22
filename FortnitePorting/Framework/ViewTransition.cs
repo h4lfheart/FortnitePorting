@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Animation;
 using Avalonia.Animation.Easings;
+using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Styling;
 
@@ -13,12 +15,17 @@ public class ViewTransition : IPageTransition
 {
     public async Task Start(Visual? from, Visual? to, bool forward, CancellationToken cancellationToken)
     {
-        if (from is null || to is null) return;
+        if (cancellationToken.IsCancellationRequested)
+        {
+            return;
+        }
+
+        var distance = from.Bounds.Width;
+        var translateProperty = TranslateTransform.XProperty;
+
         from.IsVisible = false;
         var animation = new Animation
         {
-            FillMode = FillMode.Forward,
-            Duration = TimeSpan.FromSeconds(1),
             Easing = new CubicEaseOut(),
             Children =
             {
@@ -28,16 +35,16 @@ public class ViewTransition : IPageTransition
                     {
                         new Setter
                         {
-                            Property = Visual.OpacityProperty, 
-                            Value = 0.0
+                            Property = translateProperty,
+                            Value = forward ? distance : -distance
                         },
                         new Setter
                         {
-                            Property = TranslateTransform.XProperty, 
+                            Property = Visual.OpacityProperty,
                             Value = 0
                         }
                     },
-                    Cue = new Cue(0.0)
+                    Cue = new Cue(0d)
                 },
                 new KeyFrame
                 {
@@ -45,19 +52,21 @@ public class ViewTransition : IPageTransition
                     {
                         new Setter
                         {
-                            Property = Visual.OpacityProperty,
-                            Value = 1.0
+                            Property = translateProperty, 
+                            Value = 0
                         },
                         new Setter
                         {
-                            Property = TranslateTransform.XProperty, 
-                            Value = 100
+                            Property = Visual.OpacityProperty,
+                            Value = 1
                         }
                     },
-                    Cue = new Cue(1.0)
+                    Cue = new Cue(1)
                 }
-            }
+            },
+            Duration = TimeSpan.FromSeconds(0.3)
         };
-        await animation.RunAsync(to, cancellationToken).ConfigureAwait(false);
+
+        await animation.RunAsync(to, cancellationToken);
     }
 }

@@ -17,6 +17,6 @@ public class FortnitePortingEndpoint : EndpointBase
     public async Task<ChangelogResponse[]?> GetChangelogsAsync() => await ExecuteAsync<ChangelogResponse[]>(CHANGELOG_URL);
     public ChangelogResponse[]? GetChangelogs() => GetChangelogsAsync().GetAwaiter().GetResult();
     
-    public async Task<FeaturedResponse?> GetFeaturedAsync() => await ExecuteAsync<FeaturedResponse>(FEATURED_URL);
-    public FeaturedResponse? GetFeatured() => GetFeaturedAsync().GetAwaiter().GetResult();
+    public async Task<FeaturedResponse[]?> GetFeaturedAsync() => await ExecuteAsync<FeaturedResponse[]>(FEATURED_URL);
+    public FeaturedResponse[]? GetFeatured() => GetFeaturedAsync().GetAwaiter().GetResult();
 }

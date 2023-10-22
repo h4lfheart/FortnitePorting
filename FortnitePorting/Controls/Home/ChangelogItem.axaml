@@ -6,9 +6,10 @@
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
              xmlns:ext="clr-namespace:FortnitePorting.Extensions"
              xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+             xmlns:home="clr-namespace:FortnitePorting.Controls.Home"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="FortnitePorting.Controls.ChangelogItem"
-             x:DataType="controls:ChangelogItem">
+             x:Class="FortnitePorting.Controls.Home.ChangelogItem"
+             x:DataType="home:ChangelogItem">
     <controls:GroupBox>
         <Grid>
             <Grid.RowDefinitions>
@@ -25,10 +26,10 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             
-            <TextBlock Grid.Column="0" Grid.Row="0" FontSize="28" FontWeight="SemiBold" Text="{Binding Title, RelativeSource={RelativeSource AncestorType=controls:ChangelogItem}}" TextWrapping="Wrap"/>
-            <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" Opacity="0.5" Text="{Binding PublishDate, RelativeSource={RelativeSource AncestorType=controls:ChangelogItem}}"/>
-            <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="3" Opacity="0.75" Text="{Binding Text, RelativeSource={RelativeSource AncestorType=controls:ChangelogItem}}" TextWrapping="Wrap"/>
-            <ItemsControl Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="5" ItemsSource="{Binding Tags, RelativeSource={RelativeSource AncestorType=controls:ChangelogItem}}">
+            <TextBlock Grid.Column="0" Grid.Row="0" FontSize="28" FontWeight="SemiBold" Text="{Binding Title, RelativeSource={RelativeSource AncestorType=home:ChangelogItem}}" TextWrapping="Wrap"/>
+            <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" Opacity="0.5" Text="{Binding PublishDate, RelativeSource={RelativeSource AncestorType=home:ChangelogItem}}"/>
+            <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="3" Opacity="0.75" Text="{Binding Text, RelativeSource={RelativeSource AncestorType=home:ChangelogItem}}" TextWrapping="Wrap"/>
+            <ItemsControl Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="5" ItemsSource="{Binding Tags, RelativeSource={RelativeSource AncestorType=home:ChangelogItem}}">
                 <ItemsControl.Styles>
                     <Style Selector="controls|GroupBox">
                         <Setter Property="Margin" Value="0 0 8 0"/>
@@ -49,7 +50,7 @@
             </ItemsControl>
             <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="2" Width="96" Height="54" HorizontalAlignment="Right" VerticalAlignment="Top" CornerRadius="5">
                 <Border.Background>
-                    <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding ImageURL, RelativeSource={RelativeSource AncestorType=controls:ChangelogItem}}" Stretch="UniformToFill"/>
+                    <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding ImageURL, RelativeSource={RelativeSource AncestorType=home:ChangelogItem}}" Stretch="UniformToFill"/>
                 </Border.Background>
             </Border>
             </Grid>

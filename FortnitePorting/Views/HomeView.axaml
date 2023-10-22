@@ -7,6 +7,8 @@
              xmlns:ext="clr-namespace:FortnitePorting.Extensions"
              xmlns:views="clr-namespace:FortnitePorting.Views"
              xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+             xmlns:home="clr-namespace:FortnitePorting.Controls.Home"
+             xmlns:framework="clr-namespace:FortnitePorting.Framework"
              mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="720"
              x:Class="FortnitePorting.Views.HomeView"
              x:DataType="viewmodels:HomeViewModel">
@@ -68,39 +70,15 @@
                             </Grid>
                         </Grid>
                     </controls:GroupBox>
-                    <controls:GroupBox>
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="{ext:Space 1}"/>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="{ext:Space 1}"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-            
-                            <TextBlock Grid.Row="0" FontSize="28" FontWeight="SemiBold" Text="Featured Art" TextWrapping="Wrap"/>
-                            <TextBlock Grid.Row="1" Opacity="0.5">
-                                <TextBlock.Text>
-                                    <MultiBinding StringFormat="Created By: {0}">
-                                        <Binding Path="FeaturedArtist" />
-                                    </MultiBinding>
-                                </TextBlock.Text>
-                            </TextBlock>
-                            <Border Grid.Row="3" RenderOptions.BitmapInterpolationMode="HighQuality" CornerRadius="5">
-                                <Border.Background>
-                                    <ImageBrush Source="{Binding ElementName=FeaturedArtFrame, Path=Source}" Stretch="UniformToFill"/>
-                                </Border.Background>
-                                
-                                <!-- scuffed but gets proper image sizing for background brush while keeping corner radius-->
-                                <Image x:Name="FeaturedArtFrame" Opacity="0" asyncImageLoader:ImageLoader.Source="{Binding FeaturedArtURL}"/>
-                            </Border>
-                            </Grid>
-                    </controls:GroupBox>
+                    <TransitioningContentControl Content="{Binding CurrentFeaturedArt}">
+                        <TransitioningContentControl.PageTransition>
+                            <PageSlide Duration="0.5" Orientation="Horizontal" SlideInEasing="CubicEaseOut" SlideOutEasing="CubicEaseOut"/>
+                        </TransitioningContentControl.PageTransition>
+                    </TransitioningContentControl>
                 </StackPanel>
                 <ItemsControl Grid.Row="2" Grid.Column="2" ItemsSource="{Binding Changelogs}">
                     <ItemsControl.Styles>
-                        <Style Selector="controls|ChangelogItem">
+                        <Style Selector="home|ChangelogItem">
                             <Setter Property="Margin" Value="0 0 0 8"/>
                         </Style>
                     </ItemsControl.Styles>

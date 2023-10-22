@@ -1,0 +1,35 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions"
+             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+             xmlns:home="clr-namespace:FortnitePorting.Controls.Home"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="FortnitePorting.Controls.Home.FeaturedArtItem"
+             x:DataType="home:FeaturedArtItem">
+    <controls:GroupBox>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="{ext:Space 1}"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="{ext:Space 1}"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            
+            <TextBlock Grid.Row="0" FontSize="28" FontWeight="SemiBold" Text="Featured Art" TextWrapping="Wrap"/>
+            <TextBlock Grid.Row="1" Text="{Binding FeaturedArtistText, RelativeSource={RelativeSource AncestorType=home:FeaturedArtItem}}" Opacity="0.5"/>
+            <Border Grid.Row="3" RenderOptions.BitmapInterpolationMode="HighQuality" CornerRadius="5">
+                <Border.Background>
+                    <ImageBrush Source="{Binding ElementName=FeaturedArtFrame, Path=Source}" Stretch="UniformToFill"/>
+                </Border.Background>
+                                
+                <!-- scuffed but gets proper image sizing for background brush while keeping corner radius-->
+                <Image x:Name="FeaturedArtFrame" Opacity="0" asyncImageLoader:ImageLoader.Source="{Binding FeaturedArtURL, RelativeSource={RelativeSource AncestorType=home:FeaturedArtItem}}"/>
+            </Border>
+        </Grid>
+    </controls:GroupBox>
+</UserControl>
