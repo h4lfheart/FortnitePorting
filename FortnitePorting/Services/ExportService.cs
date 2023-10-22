@@ -56,13 +56,13 @@ public static class ExportService
         EAssetType.LoadingScreen
     };
 
-    public static async Task ExportAsync(List<AssetItem> assets, EExportType exportType)
+    public static async Task ExportAsync(List<AssetOptions> exports, EExportType exportType)
     {
         await TaskService.RunAsync(async () =>
         {
             if (exportType is EExportType.Folder)
             {
-                assets.ForEach(asset => CreateExportData(asset.DisplayName, asset.Asset, asset.Type, exportType));
+                exports.ForEach(export => CreateExportData(export.AssetItem.DisplayName, export.AssetItem.Asset, export.GetSelectedStyles(), export.AssetItem.Type, exportType));
                 return;
             }
 
@@ -80,7 +80,7 @@ public static class ExportService
                 return;
             }
 
-            var exportDatas = assets.Select(asset => CreateExportData(asset.DisplayName, asset.Asset, asset.Type, exportType)).ToArray();
+            var exportDatas = exports.Select(export => CreateExportData(export.AssetItem.DisplayName, export.AssetItem.Asset, export.GetSelectedStyles(), export.AssetItem.Type, exportType)).ToArray();
             foreach (var exportData in exportDatas)
             {
                 await exportData.WaitForExportsAsync();
@@ -97,7 +97,7 @@ public static class ExportService
         {
             if (exportType is EExportType.Folder)
             { 
-                assets.ForEach(asset => CreateExportData(asset.Name, asset, assetType, exportType));
+                assets.ForEach(asset => CreateExportData(asset.Name, asset, Array.Empty<FStructFallback>(), assetType, exportType));
                 return;
             }
 
@@ -115,7 +115,7 @@ public static class ExportService
                 return;
             }
 
-            var exportDatas = assets.Select(asset => CreateExportData(asset.Name, asset, assetType, exportType)).ToArray();
+            var exportDatas = assets.Select(asset => CreateExportData(asset.Name, asset, Array.Empty<FStructFallback>(), assetType, exportType)).ToArray();
             foreach (var exportData in exportDatas)
             {
                 await exportData.WaitForExportsAsync();
@@ -136,21 +136,21 @@ public static class ExportService
         };
     }
 
-    private static ExportDataBase CreateExportData(string name, UObject asset, EAssetType assetType, EExportType exportType)
+    private static ExportDataBase CreateExportData(string name, UObject asset, FStructFallback[] styles, EAssetType assetType, EExportType exportType)
     {
         if (MeshTypes.Contains(assetType))
         {
-            return new MeshExportData(name, asset, assetType, exportType);
+            return new MeshExportData(name, asset, styles, assetType, exportType);
         }
 
         if (AnimTypes.Contains(assetType))
         {
-            return new AnimExportData(name, asset, assetType, exportType);
+            return new AnimExportData(name, asset, styles, assetType, exportType);
         }
 
         if (TextureTypes.Contains(assetType))
         {
-            return new TextureExportData(name, asset, assetType, exportType);
+            return new TextureExportData(name, asset, styles, assetType, exportType);
         }
 
         return null!; // never reached idc

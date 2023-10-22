@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.UE4.Assets.Objects;
 using FortnitePorting.Application;
 using FortnitePorting.ViewModels;
 using Newtonsoft.Json;
@@ -12,7 +13,7 @@ public abstract class ExportDataBase
     public string Type;
     [JsonIgnore] protected readonly ExporterInstance Exporter;
 
-    public ExportDataBase(string name, UObject asset, EAssetType type, EExportType exportType)
+    public ExportDataBase(string name, UObject asset, FStructFallback[] styles, EAssetType type, EExportType exportType)
     {
         Name = name;
         Type = type.ToString();
