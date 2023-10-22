@@ -42,6 +42,18 @@
             <Setter Property="Background" Value="{StaticResource SystemAccentColor}" />
         </Style>
         
+        <Style Selector="Button.HyperLink">
+            <Setter Property="Foreground" Value="DeepSkyBlue" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        
+        <Style Selector="Button.HyperLink /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        
         <Style Selector="ToggleButton">
             <Setter Property="CornerRadius" Value="5" />
             <Setter Property="Background" Value="#13FFFFFF" />

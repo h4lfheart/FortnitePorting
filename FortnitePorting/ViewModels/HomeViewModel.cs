@@ -11,6 +11,7 @@ using FortnitePorting.Controls.Home;
 using FortnitePorting.Framework;
 using FortnitePorting.Services;
 using FortnitePorting.Services.Endpoints.Models;
+using FortnitePorting.Views;
 using ChangelogItem = FortnitePorting.Controls.Home.ChangelogItem;
 
 namespace FortnitePorting.ViewModels;
@@ -59,12 +60,12 @@ public partial class HomeViewModel : ViewModelBase
                 DispatcherTimer.Run(ChangeFeaturedArt, TimeSpan.FromSeconds(5));
             }
         });
-        
-        
     }
 
     public bool ChangeFeaturedArt()
     {
+        if (MainVM.ActiveTab is not HomeView) return true;
+        
         if (CurrentFeaturedArtIndex >= FeaturedArt.Count)
         {
             CurrentFeaturedArtIndex = 0;
