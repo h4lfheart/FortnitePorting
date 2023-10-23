@@ -15,6 +15,7 @@ public class MeshExportData : ExportDataBase
 {
     public readonly List<ExportMesh> Meshes = new();
     public readonly List<ExportMesh> OverrideMeshes = new();
+    public readonly List<ExportOverrideMaterial> OverrideMaterials = new();
     public MeshExportData(string name, UObject asset, FStructFallback[] styles, EAssetType type, EExportType exportType) : base(name, asset, styles, type, exportType)
     {
         switch (type)
@@ -125,7 +126,13 @@ public class MeshExportData : ExportDataBase
         var variantParts = style.GetOrDefault("VariantParts", Array.Empty<UObject>());
         foreach (var part in variantParts)
         {
-            Meshes.AddIfNotNull(Exporter.CharacterPart(part));
+            OverrideMeshes.AddIfNotNull(Exporter.CharacterPart(part));
+        }
+        
+        var variantMaterials = style.GetOrDefault("VariantMaterials", Array.Empty<FStructFallback>());
+        foreach (var material in variantMaterials)
+        {
+            OverrideMaterials.AddIfNotNull(Exporter.OverrideMaterial(material));
         }
     }
 }

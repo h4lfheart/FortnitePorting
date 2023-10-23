@@ -54,14 +54,22 @@ public record ExportMaterial
     public List<SwitchParameter> Switches = new();
     public List<ComponentMaskParameter> ComponentMasks = new();
 
-    public T WithSlot<T>(int index) where T : ExportMaterial
+    public T Copy<T>() where T : ExportMaterial, new()
     {
-        return Copy<T>() with { Slot = index };
-    }
-
-    public T Copy<T>()
-    {
-        return (T) MemberwiseClone();
+        var mat = new T
+        {
+            Path = Path,
+            Name = Name,
+            ParentName = ParentName,
+            Slot = Slot,
+            Hash = Hash,
+            Textures = Textures,
+            Scalars = Scalars,
+            Vectors = Vectors,
+            Switches = Switches,
+            ComponentMasks = ComponentMasks
+        };
+        return mat;
     }
 }
 

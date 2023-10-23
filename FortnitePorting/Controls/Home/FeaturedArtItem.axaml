@@ -21,8 +21,8 @@
             </Grid.RowDefinitions>
             
             <TextBlock Grid.Row="0" FontSize="28" FontWeight="SemiBold" Text="Featured Art" TextWrapping="Wrap"/>
-            <StackPanel Grid.Row="1" Orientation="Horizontal" Opacity="0.5">
-                <TextBlock Text="Created By: "/>
+            <StackPanel Grid.Row="1" Orientation="Horizontal">
+                <TextBlock Text="Created By: " Opacity="0.5"/>
                 <Button Classes="HyperLink" Click="OnSocialsButtonClicked">
                     <TextBlock Text="{Binding Artist, RelativeSource={RelativeSource AncestorType=home:FeaturedArtItem}}" TextDecorations="Underline"/>
                 </Button>

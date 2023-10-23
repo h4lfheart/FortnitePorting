@@ -87,7 +87,7 @@ public class ExporterInstance
                 {
                     var meta = new ExportHatMeta
                     {
-                        AttachToSocket = part.GetOrDefault("bAttachToSocket", false),
+                        AttachToSocket = part.GetOrDefault("bAttachToSocket", true),
                         Socket = additionalData.GetOrDefault<FName?>("AttachSocketName")?.Text
                     };
                     
@@ -102,7 +102,7 @@ public class ExporterInstance
                 {
                     var meta = new ExportAttachMeta
                     {
-                        AttachToSocket = part.GetOrDefault("bAttachToSocket", false),
+                        AttachToSocket = part.GetOrDefault("bAttachToSocket", true),
                         Socket = additionalData.GetOrDefault<FName?>("AttachSocketName")?.Text
                     };
                     exportPart.Meta = meta;
@@ -183,7 +183,7 @@ public class ExporterInstance
         var hash = material.GetPathName().GetHashCode();
         if (MaterialCache.FirstOrDefault(mat => mat.Hash == hash) is { } existing)
         {
-            return existing.WithSlot<T>(index);
+            return existing.Copy<T>() with { Slot = index };
         }
         
         var exportMaterial = new T
@@ -295,7 +295,7 @@ public class ExporterInstance
                             EMeshExportTypes.UEFormat => "uemodel",
                             EMeshExportTypes.ActorX => "psk"
                         });
-                        if (File.Exists(path)) break;
+                        if (File.Exists(path)) return;
                         
                         var exporter = new MeshExporter(skeletalMesh, FileExportOptions);
                         exporter.TryWriteToDir(App.AssetsFolder, out var _, out var _);
@@ -308,7 +308,7 @@ public class ExporterInstance
                             EMeshExportTypes.UEFormat => "uemodel",
                             EMeshExportTypes.ActorX => "pskx"
                         });
-                        if (File.Exists(path)) break;
+                        if (File.Exists(path)) return;
                         
                         var exporter = new MeshExporter(staticMesh, FileExportOptions);
                         exporter.TryWriteToDir(App.AssetsFolder, out var _, out var _);
@@ -321,7 +321,7 @@ public class ExporterInstance
                             EImageType.PNG => "png",
                             EImageType.TGA => "tga"
                         });
-                        if (File.Exists(path)) break;
+                        if (File.Exists(path)) return;
                         
                         switch (AppExportOptions.ImageType)
                         {
