@@ -189,13 +189,6 @@ def get_active_armature():
             if modifier.type == "ARMATURE":
                 return modifier.object
 
-def linear_to_srgb(byte_color):
-    float_color = byte_color / 255
-    if float_color < 0.0031308:
-        return 0 if float_color < 0 else float_color * 12.92
-    else:
-        return 1.055 * pow(float_color, 1.0 / 2.0) - 0.055
-
 class Log:
     INFO = u"\u001b[36m"
     RESET = u"\u001b[0m"
@@ -565,7 +558,7 @@ def import_uemodel_data(ar: FArchiveReader, name: str, link: bool):
         for polygon in mesh_data.polygons:
             for vertex_index, loop_index in zip(polygon.vertices, polygon.loop_indices):
                 color = data.colors[vertex_index]
-                vertex_color.data[loop_index].color = linear_to_srgb(color[0]), linear_to_srgb(color[1]), linear_to_srgb(color[2]), linear_to_srgb(color[3])
+                vertex_color.data[loop_index].color = color[0] / 255, color[1] / 255, color[2] / 255, color[3] / 255
 
     # texture coordinates
     if len(data.uvs) > 0:

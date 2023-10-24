@@ -43,7 +43,7 @@
         </Style>
         
         <Style Selector="Button.HyperLink">
-            <Setter Property="Foreground" Value="DodgerBlue" />
+            <Setter Property="Foreground" Value="DeepSkyBlue" />
             <Setter Property="Padding" Value="0" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="BorderThickness" Value="0" />
@@ -51,7 +51,7 @@
         </Style>
         
         <Style Selector="Button.HyperLink:pointerover /template/ ContentPresenter">
-            <Setter Property="Foreground" Value="DeepSkyBlue" />
+            <Setter Property="Foreground" Value="LightSkyBlue" />
             <Setter Property="Background" Value="Transparent" />
         </Style>
         
