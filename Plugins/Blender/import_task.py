@@ -166,10 +166,16 @@ class ImportTask:
 		# parameters
 		hide_element_values = {}
 
-		def get_param(source, name, fallback = None):
+		def get_param(source, name):
 			found = first(source, lambda param: param.get("Name") == name)
 			if found is None:
-				return fallback
+				return None
+			return found.get("Value")
+
+		def get_param_multiple(source, names):
+			found = first(source, lambda param: param.get("Name") in names)
+			if found is None:
+				return None
 			return found.get("Value")
 
 		def texture_param(data):
@@ -237,7 +243,7 @@ class ImportTask:
 			shader_node.inputs["Skin Color"].default_value = (skin_color["R"], skin_color["G"], skin_color["B"], 1.0)
 			shader_node.inputs["Skin Boost"].default_value = skin_color["A"]
 
-		if not get_param(switches, "Emissive"):
+		if not (get_param(switches, "Emissive") or get_param(switches, "UseBasicEmissive") or get_param(switches, "UseAdvancedEmissive")):
 			shader_node.inputs["Emission Strength"].default_value = 0
 
 		if get_param(textures, "SRM"):
@@ -266,6 +272,27 @@ class ImportTask:
 			for name, value in hide_element_values.items():
 				if input := mask_node.inputs.get(name.replace("Hide ", "")):
 					input.default_value = int(value)
+
+		emission_slot = shader_node.inputs["Emission Color"]
+		emission_crop_params = [
+			"EmissiveUVs_RG_UpperLeftCorner_BA_LowerRightCorner",
+			"Emissive Texture UVs RG_TopLeft BA_BottomRight",
+			"Emissive 2 UV Positioning (RG)UpperLeft (BA)LowerRight",
+			"EmissiveUVPositioning (RG)UpperLeft (BA)LowerRight"
+		]	
+
+		if (crop_bounds := get_param_multiple(vectors, emission_crop_params)) and get_param(switches, "CroppedEmissive") and len(emission_slot.links) > 0:
+			emission_node = emission_slot.links[0].from_node
+
+			crop_texture_node = nodes.new("ShaderNodeGroup")
+			crop_texture_node.node_tree = bpy.data.node_groups.get("FP Texture Cropping")
+			crop_texture_node.location = emission_node.location + Vector((-200, 25))
+			crop_texture_node.inputs["Left"].default_value = crop_bounds.get('R')
+			crop_texture_node.inputs["Top"].default_value = crop_bounds.get('G')
+			crop_texture_node.inputs["Right"].default_value = crop_bounds.get('B')
+			crop_texture_node.inputs["Bottom"].default_value = crop_bounds.get('A')
+			links.new(crop_texture_node.outputs[0], emission_node.inputs[0])
+
 
 
 	def import_image(self, path: str):

@@ -12,9 +12,12 @@ import json
 from mathutils import Vector, Matrix, Quaternion, Euler
 from math import *
 
-from pip._internal import main as pipmain
-pipmain(['install', 'zstd'])
-import zstd
+try:
+    import zstd
+except ImportError:
+    from pip._internal import main as pipmain
+    pipmain(['install', 'zstd'])
+    import zstd
 
 # ---------- ADDON ---------- #
 
