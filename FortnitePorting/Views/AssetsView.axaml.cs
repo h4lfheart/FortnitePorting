@@ -44,7 +44,7 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
         if (sender is not ToggleButton toggleButton) return;
         if (toggleButton.Tag is not EAssetType assetType) return;
         
-        var buttons = AssetTypePanel.Children.OfType<ToggleButton>();
+        var buttons = AssetTypePanel.Items.OfType<ToggleButton>();
         foreach (var button in buttons)
         {
             if (button.Tag is not EAssetType buttonAssetType) continue;

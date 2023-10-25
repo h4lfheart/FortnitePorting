@@ -16,7 +16,6 @@ public partial class StyleItem : UserControl
 {
     public string ChannelName { get; set; }
     public ObservableCollection<StyleEntry> Styles { get; set; } = new();
-    private bool HasLoaded = false;
     
     public StyleItem(string channelName, FStructFallback[] styles, Bitmap fallbackPreviewImage)
     {
@@ -48,8 +47,7 @@ public partial class StyleItem : UserControl
     {
         base.OnLoaded(e);
 
-        if (HasLoaded) return; // to stop flickering when reloading
-        HasLoaded = true;
+        if (StylesListBox.SelectedItem is not null) return; // to stop flickering when reloading
         StylesListBox.SelectedIndex = 0;
     }
 }

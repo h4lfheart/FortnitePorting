@@ -112,9 +112,9 @@ class ImportTask:
 				if index >= len(imported_mesh.material_slots):
 					continue
 
-				overridden_material = imported_mesh.material_slots[index].material
+				overridden_material = imported_mesh.material_slots[index]
 				slots = where(imported_mesh.material_slots, lambda slot: slot.name.casefold() == overridden_material.name.casefold())
-				for slot in imported_mesh.material_slots:
+				for slot in slots:
 					self.import_material(slot, override_material, meta)
 
 			for variant_override_material in data.get("OverrideMaterials"):

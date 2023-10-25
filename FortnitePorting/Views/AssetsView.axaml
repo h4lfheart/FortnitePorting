@@ -25,12 +25,17 @@
         </Grid.ColumnDefinitions>
         
         <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Hidden">
-            <StackPanel x:Name="AssetTypePanel" HorizontalAlignment="Center">
-                <StackPanel.Styles>
+            <ItemsControl x:Name="AssetTypePanel" HorizontalAlignment="Center">
+                <ItemsControl.Styles>
                     <Style Selector="ToggleButton">
                         <Setter Property="Margin" Value="0 0 0 4" />
                     </Style>
-                </StackPanel.Styles>
+                </ItemsControl.Styles>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
                 <ToggleButton ToolTip.Tip="Outfits" Tag="{x:Static fortnitePorting:EAssetType.Outfit}" Click="OnAssetTypeClick" IsChecked="True">
                     <Image Source="/Assets/FN/Outfit.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
                 </ToggleButton>
@@ -79,7 +84,7 @@
                 <ToggleButton ToolTip.Tip="Wildlife" Tag="{x:Static fortnitePorting:EAssetType.Wildlife}" Click="OnAssetTypeClick">
                     <Image Source="/Assets/FN/Wildlife.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
                 </ToggleButton>
-            </StackPanel>
+            </ItemsControl>
         </ScrollViewer>
         
         <Grid Grid.Column="2">
