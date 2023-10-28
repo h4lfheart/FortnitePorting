@@ -57,13 +57,17 @@ class ImportTask:
 			self.import_data(data)
 
 	def import_data(self, data):
+		name = data.get("Name")
+		type = data.get("Type")
 		if self.options.get("ImportCollection"):
-			create_collection(data.get("Name"))
+			create_collection(name)
 
-		meshes = data.get("OverrideMeshes")
-		for mesh in data.get("Meshes"):
-			if not any(meshes, lambda override_mesh: override_mesh.get("Type") == mesh.get("Type")):
-				meshes.append(mesh)
+		meshes = meshes = data.get("Meshes")
+		if type in ["Outfit", "Backpack"]:
+			meshes = data.get("OverrideMeshes")
+			for mesh in data.get("Meshes"):
+				if not any(meshes, lambda override_mesh: override_mesh.get("Type") == mesh.get("Type")):
+					meshes.append(mesh)
 
 		def get_meta(search_props):
 			out_props = {}
@@ -123,8 +127,7 @@ class ImportTask:
 				for slot in slots:
 					self.import_material(slot, variant_override_material, meta)
 
-		export_type = data.get("Type")
-		if export_type == "Outfit" and self.options.get("MergeSkeletons"):
+		if type == "Outfit" and self.options.get("MergeSkeletons"):
 			merge_skeletons(imported_meshes)
 
 	def import_material(self, material_slot, material_data, meta_data):

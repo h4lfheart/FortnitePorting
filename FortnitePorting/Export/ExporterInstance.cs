@@ -13,6 +13,7 @@ using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.Math;
+using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using FortnitePorting.Application;
@@ -112,6 +113,43 @@ public class ExporterInstance
         }
 
         return exportPart;
+    }
+
+    // TODO REFACTOR TO BE BETTER
+    public List<ExportMesh> WeaponDefinition(UObject weaponDefinition)
+    {
+        var exportWeapons = new List<ExportMesh>();
+        
+        var skeletalMesh = weaponDefinition.GetOrDefault<USkeletalMesh?>("WeaponMeshOverride");
+        skeletalMesh ??= weaponDefinition.GetOrDefault<USkeletalMesh?>("PickupSkeletalMesh");
+        if (skeletalMesh is not null) exportWeapons.AddIfNotNull(Mesh(skeletalMesh));
+
+        var offhandSkeletalMesh = weaponDefinition.GetOrDefault<USkeletalMesh?>("WeaponMeshOffhandOverride");
+        if (offhandSkeletalMesh is not null) exportWeapons.AddIfNotNull(Mesh(offhandSkeletalMesh));
+        
+        if (skeletalMesh is null)
+        {
+            var staticMesh = weaponDefinition.GetOrDefault<UStaticMesh?>("PickupStaticMesh");
+            if (staticMesh is not null) exportWeapons.AddIfNotNull(Mesh(staticMesh));
+        }
+
+        if (exportWeapons.Count == 0 && weaponDefinition.TryGetValue(out UBlueprintGeneratedClass weaponActorClass, "WeaponActorClass"))
+        {
+            var weaponActorData = weaponActorClass.ClassDefaultObject.Load()!;
+            if (weaponActorData.TryGetValue(out UObject weaponMeshData, "WeaponMesh"))
+            {
+                var weaponMesh = weaponMeshData.GetOrDefault<USkeletalMesh?>("SkeletalMesh");
+                if (weaponMesh is not null) exportWeapons.AddIfNotNull(Mesh(weaponMesh));
+            }
+
+            if (weaponActorData.TryGetValue(out UObject leftWeaponMeshData, "LeftHandWeaponMesh"))
+            {
+                var leftWeaponMesh = leftWeaponMeshData.GetOrDefault<USkeletalMesh?>("SkeletalMesh");
+                if (leftWeaponMesh is not null) exportWeapons.AddIfNotNull(Mesh(leftWeaponMesh));
+            }
+        }
+
+        return exportWeapons;
     }
     
     public ExportMesh? Mesh(USkeletalMesh mesh)

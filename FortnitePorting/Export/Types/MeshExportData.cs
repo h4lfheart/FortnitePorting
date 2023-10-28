@@ -22,43 +22,70 @@ public class MeshExportData : ExportDataBase
         {
             case EAssetType.Outfit:
             {
-                var characterParts = asset.GetOrDefault("BaseCharacterParts", Array.Empty<UObject>());
-                foreach (var part in characterParts)
+                var parts = asset.GetOrDefault("BaseCharacterParts", Array.Empty<UObject>());
+                foreach (var part in parts)
                 {
                     Meshes.AddIfNotNull(Exporter.CharacterPart(part));
                 }
                 break;
             }
             case EAssetType.Backpack:
+            {
+                var parts = asset.GetOrDefault("CharacterParts", Array.Empty<UObject>());
+                foreach (var part in parts)
+                {
+                    Meshes.AddIfNotNull(Exporter.CharacterPart(part));
+                }
                 break;
+            }
             case EAssetType.Pickaxe:
+            {
+                var weapon = asset.GetOrDefault<UObject?>("WeaponDefinition");
+                if (weapon is null) break;
+                
+                Meshes.AddRange(Exporter.WeaponDefinition(weapon));
                 break;
+            }
             case EAssetType.Glider:
+            {
+                var mesh = asset.GetOrDefault<USkeletalMesh?>("SkeletalMesh");
+                if (mesh is null) break;
+                
+                var part = Exporter.Mesh(mesh);
+                if (part is null) break;
+                
+                var overrideMaterials = asset.GetOrDefault("MaterialOverrides", Array.Empty<FStructFallback>());
+                foreach (var overrideMaterial in overrideMaterials)
+                {
+                    part.OverrideMaterials.AddIfNotNull(Exporter.OverrideMaterial(overrideMaterial));
+                }
+                
+                Meshes.Add(part);
                 break;
+            }
             case EAssetType.Pet:
                 break;
             case EAssetType.Toy:
-                break;
-            case EAssetType.Spray:
-                break;
-            case EAssetType.Banner:
-                break;
-            case EAssetType.LoadingScreen:
-                break;
-            case EAssetType.Emote:
                 break;
             case EAssetType.Prop:
                 break;
             case EAssetType.Gallery:
                 break;
             case EAssetType.Item:
+            {
+                Meshes.AddRange(Exporter.WeaponDefinition(asset));
                 break;
+            }
             case EAssetType.Trap:
                 break;
             case EAssetType.Vehicle:
                 break;
             case EAssetType.Wildlife:
+            {
+                var wildlifeMesh = (USkeletalMesh) asset;
+                Meshes.AddIfNotNull(Exporter.Mesh(wildlifeMesh));
                 break;
+            }
             case EAssetType.Mesh:
             {
                 switch (asset)
