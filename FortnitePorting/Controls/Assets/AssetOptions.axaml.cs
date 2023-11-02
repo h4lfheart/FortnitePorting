@@ -50,6 +50,11 @@ public partial class AssetOptions : UserControl
     
     public FStructFallback[] GetSelectedStyles()
     {
-        return Styles.Items.Cast<StyleItem>().Select(x => (StyleEntry) x.StylesListBox.SelectedItem!).Select(x => x.StyleInfo).ToArray();
+        return Styles.Items
+            .Cast<StyleItem>()
+            .Select(x => (StyleEntry) x.StylesListBox.SelectedItem!)
+            .RemoveNull()
+            .Select(x => x.StyleInfo)
+            .ToArray();
     }
 }

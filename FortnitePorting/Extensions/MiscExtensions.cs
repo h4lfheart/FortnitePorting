@@ -94,6 +94,11 @@ public static class MiscExtensions
         return true;
     }
 
+    public static IEnumerable<T> RemoveNull<T>(this IEnumerable<T> enumerable)
+    {
+        return enumerable.Where(x => x is not null);
+    }
+
 }
 
 internal class FastRepeat<T> : ICollection<T>

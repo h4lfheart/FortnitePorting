@@ -6,6 +6,7 @@ using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Objects;
+using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Objects.GameplayTags;
 using FortnitePorting.Extensions;
 
@@ -64,7 +65,36 @@ public class MeshExportData : ExportDataBase
                 break;
             }
             case EAssetType.Pet:
+            {
+                USkeletalMesh? GetComponentMesh(UObject? component)
+                {
+                    if (component is null) return null;
+                    
+                    var mesh = component.GetOrDefault<USkeletalMesh?>("SkeletalMesh");
+                    mesh ??= component.GetOrDefault<USkeletalMesh?>("SkinnedAsset");
+                    return mesh;
+                }
+
+                // backpack meshes
+                var parts = asset.GetOrDefault("CharacterParts", Array.Empty<UObject>());
+                foreach (var part in parts)
+                {
+                    Meshes.AddIfNotNull(Exporter.CharacterPart(part));
+                }
+
+                // pet mesh
+                var petAsset = asset.Get<UObject>("DefaultPet");
+                var blueprint = petAsset.Get<UBlueprintGeneratedClass>("PetPrefabClass").ClassDefaultObject.Load();
+                var meshComponent = blueprint?.Get<UObject>("PetMesh");
+                var mesh = GetComponentMesh(meshComponent) ?? GetComponentMesh(meshComponent?.Template?.Load());
+
+                if (mesh is not null)
+                {
+                    Meshes.AddIfNotNull(Exporter.Mesh(mesh));
+                }
+
                 break;
+            }
             case EAssetType.Toy:
                 break;
             case EAssetType.Prop:

@@ -93,7 +93,7 @@
                 </ScrollViewer>
             </TabItem>
             
-            <TabItem Header="Unreal Engine">
+            <TabItem Header="Unreal Engine" IsEnabled="False">
                 <ScrollViewer VerticalScrollBarVisibility="Hidden">
                     <StackPanel>
                         <Label Content="Mesh" FontSize="28" FontWeight="SemiBold" Margin="8 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
@@ -127,7 +127,7 @@
                 </ScrollViewer>
             </TabItem>
             
-            <TabItem Header="Folder">
+            <TabItem Header="Folder" IsEnabled="False">
                 <ScrollViewer VerticalScrollBarVisibility="Hidden">
                     <StackPanel>
                        <Label Content="General" FontSize="28" FontWeight="SemiBold" Margin="8 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
