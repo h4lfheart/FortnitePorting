@@ -61,14 +61,19 @@ public class ExportPart : ExportMesh
         }
     }
 
+    private const string METAHUMAN_POSEASSET =
+        "FortniteGame/Content/Characters/Player/Male/Medium/Heads/M_MED_Jonesy3L_Head/Meshes/3L/3L_lod2_Facial_Poses_PoseAsset";
+    private const string METAHUMAN_POSES =
+        "FortniteGame/Content/Characters/Player/Male/Medium/Heads/M_MED_Jonesy3L_Head/Meshes/3L/3L_lod2_Facial_Poses";
+
     public void ProcessMetahumanPoses()
     {
         // this will definitely cause issues in the future
         // for metahuman faces
-        var poseAsset = AppVM.CUE4ParseVM.Provider.LoadObject<UPoseAsset>("FortniteGame/Content/Characters/Player/Male/Medium/Heads/M_MED_Jonesy3L_Head/Meshes/3L/3L_lod2_Facial_Poses_PoseAsset");
+        if (!AppVM.CUE4ParseVM.Provider.TryLoadObject(METAHUMAN_POSEASSET, out UPoseAsset poseAsset)) return;
         PoseNames = poseAsset.PoseContainer.GetPoseNames().ToArray();
-
-        var animSequence = AppVM.CUE4ParseVM.Provider.LoadObject<UAnimSequence>("FortniteGame/Content/Characters/Player/Male/Medium/Heads/M_MED_Jonesy3L_Head/Meshes/3L/3L_lod2_Facial_Poses");
+        
+        if (!AppVM.CUE4ParseVM.Provider.TryLoadObject(METAHUMAN_POSES, out UAnimSequence animSequence)) return;
         var sequencePath = animSequence.GetPathName();
         PoseAnimation = sequencePath;
         ExportHelpers.Save(animSequence);

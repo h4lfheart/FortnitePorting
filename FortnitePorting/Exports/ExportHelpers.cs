@@ -851,7 +851,7 @@ public static class ExportHelpers
 
                 Log.Information("Exporting {ExportType}: {FileName} to {Path}", obj.ExportType, obj.Name, path);
             }
-            catch (IOException e)
+            catch (Exception e)
             {
                 Log.Warning("Failed to Export {ExportType}: {FileName}", obj.ExportType, obj.Name);
                 Log.Warning(e.Message);
