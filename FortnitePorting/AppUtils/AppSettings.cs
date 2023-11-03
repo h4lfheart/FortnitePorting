@@ -73,7 +73,7 @@ public partial class AppSettings : ObservableObject
 
     [ObservableProperty] private DateTime lastBroadcastTime;
 
-    [ObservableProperty] private EGame gameVersion = EGame.GAME_UE5_3;
+    [ObservableProperty] private EGame gameVersion = EGame.GAME_UE5_4;
 
     [ObservableProperty] private string customMappingsPath;
 
