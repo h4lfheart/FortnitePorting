@@ -97,10 +97,10 @@ public static class ExportHelpers
                             var poseAsset = poseAssetNode.Get<UPoseAsset>("PoseAsset");
                             exportPart.ProcessPoses(skeletalMesh, poseAsset);
                         }
-                        else if (skeletalMesh.ReferenceSkeleton.FinalRefBoneInfo.Any(bone => bone.Name.Text.Equals("FACIAL_C_FacialRoot", StringComparison.OrdinalIgnoreCase)))
+                        /*else if (skeletalMesh.ReferenceSkeleton.FinalRefBoneInfo.Any(bone => bone.Name.Text.Equals("FACIAL_C_FacialRoot", StringComparison.OrdinalIgnoreCase)))
                         {
                             exportPart.ProcessMetahumanPoses();
-                        }
+                        }*/
                     }
                 }
             }

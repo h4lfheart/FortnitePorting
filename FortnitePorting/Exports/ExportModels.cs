@@ -61,7 +61,7 @@ public class ExportPart : ExportMesh
         }
     }
 
-    private const string METAHUMAN_POSEASSET =
+    /*private const string METAHUMAN_POSEASSET =
         "FortniteGame/Content/Characters/Player/Male/Medium/Heads/M_MED_Jonesy3L_Head/Meshes/3L/3L_lod2_Facial_Poses_PoseAsset";
     private const string METAHUMAN_POSES =
         "FortniteGame/Content/Characters/Player/Male/Medium/Heads/M_MED_Jonesy3L_Head/Meshes/3L/3L_lod2_Facial_Poses";
@@ -77,7 +77,7 @@ public class ExportPart : ExportMesh
         var sequencePath = animSequence.GetPathName();
         PoseAnimation = sequencePath;
         ExportHelpers.Save(animSequence);
-    }
+    }*/
 
     private string GetFolder(UObject obj)
     {

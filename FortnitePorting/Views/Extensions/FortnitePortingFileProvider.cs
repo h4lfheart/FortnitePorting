@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using CUE4Parse.FileProvider;
+using CUE4Parse.FileProvider.Vfs;
 using CUE4Parse.UE4.Versions;
 using MercuryCommons.Framework.Unreal;
 
 namespace FortnitePorting.Views.Extensions;
 
-public class FortnitePortingFileProvider : CustomFileProvider
+public class FortnitePortingFileProvider : DefaultFileProvider
 {
     public FortnitePortingFileProvider(bool isCaseInsensitive = false, VersionContainer? versions = null) : base(isCaseInsensitive, versions)
     {

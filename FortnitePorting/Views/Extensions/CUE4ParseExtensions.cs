@@ -43,6 +43,7 @@ public static class CUE4ParseExtensions
 
     public static bool ContainsAny(this FGameplayTagContainer tags, string check)
     {
+        if (tags.GameplayTags is null) return false;
         return tags.GameplayTags.Any(x => x.TagName.Text.Contains(check)); 
     }
 

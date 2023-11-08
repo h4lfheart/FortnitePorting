@@ -1,6 +1,10 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Threading.Tasks;
+using CUE4Parse.UE4.IO;
+using CUE4Parse.UE4.Readers;
+using CUE4Parse.Utils;
 using EpicManifestParser.Objects;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Services.Endpoints.Models;
@@ -34,6 +38,16 @@ public class EpicEndpoint : EndpointBase
     public ManifestInfo GetManifestInfo(string url = FORTNITE_LIVE_URL)
     {
         return GetManifestInfoAsync(url).GetAwaiter().GetResult();
+    }
+
+    public async Task<byte[]?> GetWithAuth(string path)
+    {
+        await VerifyAuthAsync();
+        var request = new RestRequest(path);
+        request.AddHeader("Authorization", $"bearer {AppSettings.Current.EpicAuth?.AccessToken}");
+
+        var response = await _client.ExecuteAsync(request);
+        return response.RawBytes;
     }
 
     public async Task<Manifest> GetManifestAsync(string url = "")

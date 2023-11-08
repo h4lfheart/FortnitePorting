@@ -31,4 +31,18 @@ public static class EndpointService
         if (data is not null) await File.WriteAllBytesAsync(destination, data);
         return new FileInfo(destination);
     }
+    
+    public static byte[] Download(string url)
+    {
+        return DownloadAsync(url).GetAwaiter().GetResult();
+    }
+
+    public static async Task<byte[]> DownloadAsync(string url)
+    {
+        var request = new RestRequest(url);
+        var response = await _client.ExecuteAsync(request);
+        Log.Information("[{Method}] {StatusDescription} ({StatusCode}): {URI}", request.Method, response.StatusDescription, (int) response.StatusCode, request.Resource);
+
+        return response.RawBytes;
+    }
 }

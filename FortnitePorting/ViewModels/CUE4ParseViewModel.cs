@@ -1,13 +1,18 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Documents;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CUE4Parse.Compression;
 using CUE4Parse.Encryption.Aes;
 using CUE4Parse.FileProvider.Objects;
 using CUE4Parse.FileProvider.Vfs;
@@ -18,10 +23,13 @@ using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Assets.Utils;
+using CUE4Parse.UE4.IO;
+using CUE4Parse.UE4.IO.Objects;
 using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.Core.Misc;
 using CUE4Parse.UE4.Readers;
 using CUE4Parse.UE4.Versions;
+using CUE4Parse.UE4.Writers;
 using CUE4Parse.Utils;
 using EpicManifestParser.Objects;
 using FortnitePorting.AppUtils;
@@ -30,6 +38,7 @@ using FortnitePorting.Services;
 using FortnitePorting.Services.Endpoints.Models;
 using FortnitePorting.Views.Controls;
 using FortnitePorting.Views.Extensions;
+using MercuryCommons.Utilities.Extensions;
 
 namespace FortnitePorting.ViewModels;
 
@@ -133,24 +142,23 @@ public class CUE4ParseViewModel : ObservableObject
     public async Task Initialize()
     {
         if (Provider is null) return;
-
+        
         BackupInfo = await EndpointService.FortnitePorting.GetBackupAsync();
 
         AppVM.LoadingVM.Update("Loading Archive");
         await InitializeProvider();
+        AppVM.LoadingVM.Update("Initializing Content Builds");
+        var contentBuildsInitialized = await InitializeOnDemandFiles();
+        if (!contentBuildsInitialized)
+        {
+            Log.Warning("Failed to load content bundles, textures may be lower resolution than usual");
+        }
         await InitializeKeys();
         AppVM.LoadingVM.Update("Loading Mappings");
         await InitializeMappings();
         if (Provider.MappingsContainer is null)
         {
             Log.Warning("Failed to load mappings, issues may occur");
-        }
-
-        AppVM.LoadingVM.Update("Initializing Content Builds");
-        var contentBuildsInitialized = await InitializeContentBuilds();
-        if (!contentBuildsInitialized)
-        {
-            Log.Warning("Failed to load content bundles, textures may be lower resolution than usual");
         }
 
         Provider.LoadLocalization(AppSettings.Current.Language);
@@ -227,10 +235,6 @@ public class CUE4ParseViewModel : ObservableObject
         switch (AppSettings.Current.InstallType)
         {
             case EInstallType.Local:
-            {
-                Provider.InitializeLocal();
-                break;
-            }
             case EInstallType.Custom:
             {
                 Provider.InitializeLocal();
@@ -242,74 +246,74 @@ public class CUE4ParseViewModel : ObservableObject
                 var pakAndUtocFiles = FortniteLiveManifest?.FileManifests.Where(fileManifest => FortniteLiveRegex.IsMatch(fileManifest.Name));
                 foreach (var fileManifest in pakAndUtocFiles)
                 {
-                    Provider.Initialize(fileManifest.Name, new Stream[] { fileManifest.GetStream() }, it => new FStreamArchive(it, FortniteLiveManifest.FileManifests.First(x => x.Name.Equals(it)).GetStream(), Provider.Versions));
+                    Provider.RegisterVfs(fileManifest.Name, new Stream[] { fileManifest.GetStream() }, it => new FStreamArchive(it, FortniteLiveManifest.FileManifests.First(x => x.Name.Equals(it)).GetStream(), Provider.Versions));
                 }
+
+                await Provider.MountAsync();
 
                 break;
             }
         }
     }
 
-    private async Task<bool> InitializeContentBuilds()
+    private async Task<bool> InitializeOnDemandFiles()
     {
         if (AppSettings.Current.InstallType is EInstallType.Custom)
         {
             return false;
         }
 
-        async Task<ContentBuildsResponse?> GetContentBuildsAsync(EInstallType type)
+        async Task<string?> GetTocPathAsync(EInstallType type)
         {
-            var buildInfoString = string.Empty;
+            var onDemandString = string.Empty;
             switch (type)
             {
                 case EInstallType.Local:
-                    var buildInfoPath = Path.Combine(AppSettings.Current.ArchivePath, "..\\..\\..\\Cloud\\BuildInfo.ini");
-                    buildInfoString = File.Exists(buildInfoPath) ? await File.ReadAllTextAsync(buildInfoPath) : await GetFortniteLiveBuildInfoAsync();
+                    var onDemandPath = Path.Combine(AppSettings.Current.ArchivePath, "..\\..\\..\\Cloud\\IoStoreOnDemand.ini");
+                    onDemandString = File.Exists(onDemandPath) ? await File.ReadAllTextAsync(onDemandPath) : await GetFortniteLiveTocPathAsync();
                     break;
                 case EInstallType.Live:
-                    buildInfoString = await GetFortniteLiveBuildInfoAsync();
+                    onDemandString = await GetFortniteLiveTocPathAsync();
                     break;
             }
 
-            if (string.IsNullOrEmpty(buildInfoString)) return null;
+            if (string.IsNullOrEmpty(onDemandString)) return null;
 
-            var buildInfoIni = BundleIniReader.Read(buildInfoString);
-            var label = buildInfoIni.Sections["Content"].First(x => x.Name.Equals("Label", StringComparison.OrdinalIgnoreCase)).Value;
-
-            var contentBuilds = await EndpointService.Epic.GetContentBuildsAsync(label: label);
-            if (contentBuilds?.Items is null) return null;
-
-            return contentBuilds;
+            var onDemandIni = IniReader.Read(onDemandString);
+            var tocPath = onDemandIni.Sections["Endpoint"].First(x => x.Name.Equals("TocPath", StringComparison.OrdinalIgnoreCase)).Value.Replace("\"", string.Empty);
+            return tocPath;
         }
 
-        var contentBuilds = await GetContentBuildsAsync(AppSettings.Current.InstallType);
-        contentBuilds ??= await GetContentBuildsAsync(EInstallType.Live); // in case of a BuildInfo label mismatch, live is always correct
-        if (contentBuilds is null) return false;
-        
-        var contentManifest = contentBuilds.Items.Manifest;
-        var manifestUrl = contentManifest.Distribution + contentManifest.Path;
+        var tocPath = await GetTocPathAsync(AppSettings.Current.InstallType);
+        tocPath ??= await GetTocPathAsync(EInstallType.Live); // in case of a BuildInfo label mismatch, live is always correct
+        if (tocPath is null) return false;
 
-        var manifest = await EndpointService.Epic.GetManifestAsync(url: manifestUrl);
-        var contentBuildFiles = new Dictionary<string, GameFile>();
-        foreach (var fileManifest in manifest.FileManifests)
-        {
-            if (Provider.Files.ContainsKey(fileManifest.Name)) continue;
-
-            var streamedFile = new StreamedGameFile(fileManifest.Name, fileManifest.GetStream(), Provider.Versions);
-            var path = streamedFile.Path.ToLowerInvariant();
-            contentBuildFiles[path] = streamedFile;
-        }
-
-        var fileDict = (FileProviderDictionary) Provider.Files;
-        fileDict.AddFiles(contentBuildFiles);
+        await DownloadIoStoreOnDemand(tocPath.SubstringAfterLast("/").SubstringBeforeLast("."));
 
         return true;
     }
 
-    private static async Task<string?> GetFortniteLiveBuildInfoAsync()
+    public async Task DownloadIoStoreOnDemand(string onDemandHash)
+    {
+        var onDemandBytes = await EndpointService.Epic.GetWithAuth($"https://download.epicgames.com/ias/fortnite/{onDemandHash}.iochunktoc");
+        if (onDemandBytes is null) return;
+
+        await Provider.RegisterVfs(new IoChunkToc(new FByteArchive("OnDemandToc", onDemandBytes)), new IoStoreOnDemandOptions
+        {
+            ChunkBaseUri = new Uri("https://download.epicgames.com/ias/fortnite/", UriKind.Absolute),
+            ChunkCacheDirectory = App.CacheFolder,
+            Authorization = new AuthenticationHeaderValue("Bearer", AppSettings.Current.EpicAuth.AccessToken)
+        });
+        await Provider.MountAsync();
+
+    }
+    
+    
+
+    private static async Task<string?> GetFortniteLiveTocPathAsync()
     {
         await AppVM.CUE4ParseVM.LoadFortniteLiveManifest();
-        var buildInfoFile = AppVM.CUE4ParseVM.FortniteLiveManifest?.FileManifests.FirstOrDefault(x => x.Name.Equals("Cloud/BuildInfo.ini", StringComparison.OrdinalIgnoreCase));
+        var buildInfoFile = AppVM.CUE4ParseVM.FortniteLiveManifest?.FileManifests.FirstOrDefault(x => x.Name.Equals("Cloud/IoStoreOnDemand.ini", StringComparison.OrdinalIgnoreCase));
         if (buildInfoFile is null) return null;
 
         var stream = buildInfoFile.GetStream();

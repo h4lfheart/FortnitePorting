@@ -4,7 +4,7 @@ using CUE4Parse.Utils;
 
 namespace FortnitePorting.Bundles;
 
-public static class BundleIniReader // Built specifically for FortniteGame/Config/Windows/CosmeticBundleMapping.ini and Cloud/BuildInfo.ini
+public static class IniReader // Built specifically for FortniteGame/Config/Windows/CosmeticBundleMapping.ini and Cloud/BuildInfo.ini
 {
     public static Ini Read(FileInfo file)
     {
