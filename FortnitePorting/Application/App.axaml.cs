@@ -29,7 +29,6 @@ public class App : Avalonia.Application
         {
             ApplicationService.Application = desktop;
             desktop.Startup += OnStartup;
-            desktop.Exit += OnExit;
         }
 
         base.OnFrameworkInitializationCompleted();
@@ -43,12 +42,6 @@ public class App : Avalonia.Application
             MessageWindow.Show("An unhandled exception has occurred", $"{exception.GetType().FullName}: {exception.Message}", ApplicationService.Application.MainWindow);
         });
         
-    }
-
-    private void OnExit(object? sender, ControlledApplicationLifetimeExitEventArgs e)
-    {
-        AppSettings.Save();
-        Log.CloseAndFlush();
     }
 
     private void OnStartup(object? sender, ControlledApplicationLifetimeStartupEventArgs e)

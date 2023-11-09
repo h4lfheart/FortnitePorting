@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
@@ -17,7 +18,8 @@ public class SpaceExtension : MarkupExtension
     
     public SpaceExtension(string expression)
     {
-        Factor = double.Parse(expression);
+        var parsed = double.TryParse(expression, NumberStyles.Any, new NumberFormatInfo { NumberDecimalSeparator = "." }, out Factor);
+        if (!parsed) Factor = 0;
     }
 
     public override object ProvideValue(IServiceProvider serviceProvider)

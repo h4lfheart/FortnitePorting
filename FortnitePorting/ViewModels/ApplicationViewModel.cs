@@ -9,6 +9,7 @@ using FortnitePorting.Application;
 using FortnitePorting.Framework;
 using FortnitePorting.Services;
 using FortnitePorting.Views;
+using Serilog;
 
 namespace FortnitePorting.ViewModels;
 
@@ -77,6 +78,8 @@ public partial class ApplicationViewModel : ViewModelBase
     
     public void Shutdown()
     {
+        AppSettings.Save();
+        Log.CloseAndFlush();
         ApplicationService.Application.Shutdown();
     }
 }

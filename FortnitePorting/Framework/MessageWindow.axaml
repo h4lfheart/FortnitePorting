@@ -22,7 +22,7 @@
 				 <Setter Property="Background" Value="{x:Null}"/>
 			 </Style>
 		 </Grid.Styles>
-        <Grid Grid.Row="0" PointerPressed="OnPointerPressed" Background="Transparent" HorizontalAlignment="Stretch">
+        <Grid Grid.Row="0" PointerPressed="OnPointerPressed" Background="#25000000" HorizontalAlignment="Stretch">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="{ext:Space 1}"/>
                 <ColumnDefinition Width="Auto"/>

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -20,7 +21,11 @@ public class BlenderEndpoint : EndpointBase
         if (html.Content is null) return Array.Empty<double>();
         
         var matches = Regex.Matches(html.Content, "Blender [0-9].[0-9]");
-        return matches.Select(x => double.Parse(x.Value.Replace("Blender ", string.Empty))).Distinct().ToArray();
+        return matches.Select(x =>
+        {
+            double.TryParse(x.Value.Replace("Blender ", string.Empty), NumberStyles.Any, new NumberFormatInfo { NumberDecimalSeparator = "." }, out var value);
+            return value;
+        }).Distinct().ToArray();
     }
 
     public double[]? GetReleases() => GetReleasesAsync().GetAwaiter().GetResult();
