@@ -14,6 +14,7 @@ using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.Utils;
 using DynamicData;
+using DynamicData.Binding;
 using FortnitePorting.Application;
 using FortnitePorting.Controls.Assets;
 using FortnitePorting.Controls.Avalonia;
@@ -122,6 +123,7 @@ public partial class MeshesViewModel : ViewModelBase
         AssetItemsSource.Connect()
             .ObserveOn(RxApp.MainThreadScheduler)
             .Filter(AssetFilter)
+            .Sort(SortExpressionComparer<FlatViewItem>.Ascending(x => x.Path))
             .Bind(out var tempTarget)
             .Subscribe();
         AssetItemsTarget = tempTarget;
@@ -133,7 +135,6 @@ public partial class MeshesViewModel : ViewModelBase
         {
             foreach (var path in AssetsToLoad)
             {
-                
                 AssetItems.AddSuppressed(new FlatViewItem(path));
 
                 var folderNames = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
@@ -205,6 +206,7 @@ public partial class MeshesViewModel : ViewModelBase
             }
 
             ScanPercentage = 100.0f;
+            AppVM.RestartWithMessage("Mesh Scanning Completed", "The mesh scanning process has finished. FortnitePorting will now restart.");
         });
     }
     
