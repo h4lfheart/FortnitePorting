@@ -25,7 +25,7 @@ public partial class WelcomeViewModel : ViewModelBase
     [ObservableProperty, NotifyPropertyChangedFor(nameof(CanContinue))] private string customArchivePath = null;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(CanContinue))] private string customMappingsPath = null;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(CanContinue))] private string customEncryptionKey = Globals.ZERO_CHAR;
-    [ObservableProperty] private EGame customUnrealVersion = EGame.GAME_UE5_3;
+    [ObservableProperty] private EGame customUnrealVersion = EGame.GAME_UE5_4;
 
     private static readonly FilePickerFileType MappingsFileType = new("Unreal Mappings")
     {

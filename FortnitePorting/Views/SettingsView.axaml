@@ -26,8 +26,8 @@
                         <ComboBox Width="200" HorizontalAlignment="Right" ItemsSource="{ext:EnumToItemsSource {x:Type cue4parse:UE4.Versions.ELanguage}}" SelectedItem="{Binding Language, Converter={StaticResource EnumToString}}"/>
                     </controls:SettingBox>
                     
-                    <controls:SettingBox Grid.Row="2" DisplayName="Load Content Builds" Path="{Binding LoadContentBuilds, Mode=TwoWay}" Icon="FileDownload">
-                        <ToggleSwitch IsChecked="{Binding LoadContentBuilds}"/>
+                    <controls:SettingBox Grid.Row="2" DisplayName="Cosmetic Streaming" Path="{Binding UseCosmeticStreaming, Mode=TwoWay}" Icon="CloudDownload">
+                        <ToggleSwitch IsChecked="{Binding UseCosmeticStreaming}"/>
                     </controls:SettingBox>
                     
                     <controls:GroupBox Grid.Row="3" Margin="{ext:Space 1}">

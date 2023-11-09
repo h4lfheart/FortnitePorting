@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.UE4.Assets.Exports.Component.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Objects.GameplayTags;
+using CUE4Parse.UE4.Objects.UObject;
+using CUE4Parse.Utils;
 using FortnitePorting.Extensions;
 
 namespace FortnitePorting.Export.Types;
@@ -66,15 +69,6 @@ public class MeshExportData : ExportDataBase
             }
             case EAssetType.Pet:
             {
-                USkeletalMesh? GetComponentMesh(UObject? component)
-                {
-                    if (component is null) return null;
-                    
-                    var mesh = component.GetOrDefault<USkeletalMesh?>("SkeletalMesh");
-                    mesh ??= component.GetOrDefault<USkeletalMesh?>("SkinnedAsset");
-                    return mesh;
-                }
-
                 // backpack meshes
                 var parts = asset.GetOrDefault("CharacterParts", Array.Empty<UObject>());
                 foreach (var part in parts)
@@ -84,10 +78,10 @@ public class MeshExportData : ExportDataBase
 
                 // pet mesh
                 var petAsset = asset.Get<UObject>("DefaultPet");
-                var blueprint = petAsset.Get<UBlueprintGeneratedClass>("PetPrefabClass").ClassDefaultObject.Load();
-                var meshComponent = blueprint?.Get<UObject>("PetMesh");
-                var mesh = GetComponentMesh(meshComponent) ?? GetComponentMesh(meshComponent?.Template?.Load());
-
+                var blueprintPath = petAsset.Get<FSoftObjectPath>("PetPrefabClass");
+                var blueprintExports = CUE4ParseVM.Provider.LoadAllObjects(blueprintPath.AssetPathName.Text.SubstringBeforeLast("."));
+                var meshComponent = blueprintExports.FirstOrDefault(export => export.Name.Equals("PetMesh0")) as USkeletalMeshComponentBudgeted;
+                var mesh = meshComponent?.GetSkeletalMesh().Load<USkeletalMesh>();
                 if (mesh is not null)
                 {
                     Meshes.AddIfNotNull(Exporter.Mesh(mesh));

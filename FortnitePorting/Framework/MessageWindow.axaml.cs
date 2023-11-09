@@ -10,6 +10,7 @@ namespace FortnitePorting.Framework;
 
 public partial class MessageWindow : Window
 {
+    public static MessageWindow? ActiveWindow;
     private event EventHandler OnClosedWindow;
     public MessageWindow(string caption, string text, Window? owner = null, Action<object?, EventArgs>? onClosed = null)
     {
@@ -25,7 +26,12 @@ public partial class MessageWindow : Window
 
     public static void Show(string caption, string text, Window? owner = null, Action<object?, EventArgs>? onClosed = null)
     {
-        TaskService.RunDispatcher(() =>  new MessageWindow(caption, text, owner, onClosed).Show());
+        TaskService.RunDispatcher(() =>
+        {
+            ActiveWindow?.Close(); // only keep one instance
+            ActiveWindow = new MessageWindow(caption, text, owner, onClosed);
+            ActiveWindow.Show();
+        });
     }
     
     private void OnPointerPressed(object? sender, PointerPressedEventArgs e)

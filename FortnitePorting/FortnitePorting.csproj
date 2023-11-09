@@ -28,7 +28,6 @@
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
         <PackageReference Include="DiscordRichPresence" Version="1.2.1.24" />
         <PackageReference Include="Material.Icons.Avalonia" Version="2.0.1" />
-        <PackageReference Include="MercuryCommons" Version="0.1.2" />
         <PackageReference Include="RestSharp" Version="110.2.1-alpha.0.11" />
         <PackageReference Include="RestSharp.Serializers.NewtonsoftJson" Version="110.2.1-alpha.0.11" />
         <PackageReference Include="Serilog.Sinks.File" Version="5.0.1-dev-00947" />
@@ -48,5 +47,6 @@
     <ItemGroup>
       <ProjectReference Include="..\Dependencies\CUE4Parse\CUE4Parse-Conversion\CUE4Parse-Conversion.csproj" />
       <ProjectReference Include="..\Dependencies\CUE4Parse\CUE4Parse\CUE4Parse.csproj" />
+      <ProjectReference Include="..\Dependencies\EpicManifestParser\src\EpicManifestParser\EpicManifestParser.csproj" />
     </ItemGroup>
 </Project>

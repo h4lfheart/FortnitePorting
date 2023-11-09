@@ -17,28 +17,28 @@ public class EpicGamesEndpoint : EndpointBase
     private const string OATH_VERIFY_URL = "https://account-public-service-prod.ol.epicgames.com/account/api/oauth/verify";
     private const string BASIC_TOKEN = "basic MzQ0NmNkNzI2OTRjNGE0NDg1ZDgxYjc3YWRiYjIxNDE6OTIwOWQ0YTVlMjVhNDU3ZmI5YjA3NDg5ZDMxM2I0MWE=";
     private const string FORTNITE_LIVE_URL = "https://launcher-public-service-prod06.ol.epicgames.com/launcher/api/public/assets/v2/platform/Windows/namespace/fn/catalogItem/4fe75bbc5a674f4f9b356b5c90567da5/app/Fortnite/label/Live";
-    private const string CONTENT_BUILDS_URL = "https://launcher-public-service-prod06.ol.epicgames.com/launcher/api/public/assets/Windows/5cb97847cee34581afdbc445400e2f77/FortniteContentBuilds";
 
-    public EpicGamesEndpoint(RestClient client) : base(client) { }
+    public EpicGamesEndpoint(RestClient client) : base(client)
+    {
+        Task.Run(async () => await VerifyAuthAsync());
+    }
+    
+    public async Task<byte[]?> GetWithAuth(string url)
+    {
+        var response = await ExecuteAsync(url, Method.Get,
+            new HeaderParameter("Authorization", $"bearer {AppSettings.Current.EpicGamesAuth?.Token}"));
+        return response.RawBytes;
+    }
 
     public async Task<ManifestInfo?> GetManifestInfoAsync()
     {
-        await VerifyAuthAsync();
         var response = await ExecuteAsync(FORTNITE_LIVE_URL, Method.Get,
             new HeaderParameter("Authorization", $"bearer {AppSettings.Current.EpicGamesAuth?.Token}"));
         return new ManifestInfo(response.Content);
     }
 
     public ManifestInfo? GetManifestInfo() => GetManifestInfoAsync().GetAwaiter().GetResult();
-    
-    public async Task<ContentBuildsResponse?> GetContentBuildsAsync(string label = "")
-    {
-        await VerifyAuthAsync();
-        return await ExecuteAsync<ContentBuildsResponse>(CONTENT_BUILDS_URL, Method.Get,
-            new HeaderParameter("Authorization", $"bearer {AppSettings.Current.EpicGamesAuth?.Token}"),
-            new QueryParameter("label", label));
-    }
-    
+
     public async Task<Manifest> GetManifestAsync(string url = "", string writePath = "")
     {
         byte[] manifestBytes;
@@ -62,8 +62,6 @@ public class EpicGamesEndpoint : EndpointBase
     }
 
     public Manifest GetManifest(string url = "") => GetManifestAsync(url).GetAwaiter().GetResult();
-
-    public ContentBuildsResponse? GetContentBuilds(string label = "") => GetContentBuildsAsync(label).GetAwaiter().GetResult();
 
     public async Task<AuthResponse?> GetAuthTokenAsync() => await ExecuteAsync<AuthResponse>(OAUTH_POST_URL, Method.Post, 
         new HeaderParameter("Authorization", BASIC_TOKEN), 

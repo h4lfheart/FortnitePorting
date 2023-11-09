@@ -30,12 +30,12 @@ public partial class SettingsViewModel : ViewModelBase
     // Loading
     [ObservableProperty] private ELoadingType loadingType = ELoadingType.Local;
     [ObservableProperty] private ELanguage language = ELanguage.English;
-    [ObservableProperty] private bool loadContentBuilds = true;
+    [ObservableProperty] private bool useCosmeticStreaming = true;
     [ObservableProperty] private string localArchivePath;
     [ObservableProperty] private string customArchivePath;
     [ObservableProperty] private string customMappingsPath;
     [ObservableProperty] private string customEncryptionKey = Globals.ZERO_CHAR;
-    [ObservableProperty] private EGame customUnrealVersion = EGame.GAME_UE5_3;
+    [ObservableProperty] private EGame customUnrealVersion = EGame.GAME_UE5_4;
     
     // Program
     [ObservableProperty] private bool useFallbackBackground;
@@ -52,7 +52,7 @@ public partial class SettingsViewModel : ViewModelBase
     {
         nameof(LoadingType),
         nameof(Language),
-        nameof(LoadContentBuilds),
+        nameof(UseCosmeticStreaming),
         nameof(LocalArchivePath),
         nameof(CustomArchivePath),
         nameof(CustomMappingsPath),

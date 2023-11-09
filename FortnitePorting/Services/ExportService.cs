@@ -176,15 +176,15 @@ public class SocketInterface
 
     public void SendMessage(string str)
     {
-        Client.Send(COMMAND_START.Bytes());
-        SendSpliced(str.Bytes(), BUFFER_SIZE);
-        Client.Send(COMMAND_STOP.Bytes());
+        Client.Send(COMMAND_START.StringToBytes());
+        SendSpliced(str.StringToBytes(), BUFFER_SIZE);
+        Client.Send(COMMAND_STOP.StringToBytes());
     }
 
     public bool Ping()
     {
-        Client.Send(COMMAND_PING_REQUEST.Bytes());
-        return TryReceive(out var response) && response.String().Equals(COMMAND_PING_RESPONSE);
+        Client.Send(COMMAND_PING_REQUEST.StringToBytes());
+        return TryReceive(out var response) && response.BytesToString().Equals(COMMAND_PING_RESPONSE);
     }
     
     public int SendSpliced(IEnumerable<byte> arr, int size)

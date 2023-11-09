@@ -69,18 +69,18 @@ public static class MiscExtensions
         return list.Count > 1 ? string.Join(", ", list.Take(list.Count - 1)) + joiner + list.Last() : list.First().ToString();
     }
     
-    public static byte[] ToBytes(this Stream str)
+    public static byte[] ReadToEnd(this Stream str)
     {
         var bytes = new BinaryReader(str).ReadBytes((int) str.Length);
         return bytes;
     }
     
-    public static byte[] Bytes(this string str)
+    public static byte[] StringToBytes(this string str)
     {
         return Encoding.UTF8.GetBytes(str);
     }
     
-    public static string String(this byte[] data)
+    public static string BytesToString(this byte[] data)
     {
         return Encoding.UTF8.GetString(data);
     }
