@@ -93,7 +93,7 @@
                 </ScrollViewer>
             </TabItem>
             
-            <TabItem Header="Unreal Engine" IsEnabled="False">
+            <TabItem Header="Unreal Engine">
                 <ScrollViewer VerticalScrollBarVisibility="Hidden">
                     <StackPanel>
                         <Label Content="Mesh" FontSize="28" FontWeight="SemiBold" Margin="8 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
@@ -127,15 +127,10 @@
                 </ScrollViewer>
             </TabItem>
             
-            <TabItem Header="Folder" IsEnabled="False">
+            <TabItem Header="Folder">
                 <ScrollViewer VerticalScrollBarVisibility="Hidden">
                     <StackPanel>
-                       <Label Content="General" FontSize="28" FontWeight="SemiBold" Margin="8 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                       <controls:SettingBox DisplayName="Export Folder" Path="{Binding Folder.ExportFolder, Mode=TwoWay}" Icon="Folder">
-                           <Button Content="Browse" Command="{Binding BrowseExportPathCommand}"/>
-                       </controls:SettingBox>
-                       
-                       <Label Content="Mesh" FontSize="28" FontWeight="SemiBold" Margin="8 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        <Label Content="Mesh" FontSize="28" FontWeight="SemiBold" Margin="8 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                        <controls:SettingBox DisplayName="Mesh Export Type" Path="{Binding Blender.MeshExportType, Mode=TwoWay}" Icon="CubeScan">
                            <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EMeshExportTypes}}" SelectedItem="{Binding Blender.MeshExportType, Converter={StaticResource EnumToString}}"/>
                        </controls:SettingBox>

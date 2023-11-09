@@ -48,15 +48,6 @@ public partial class ExportOptionsViewModel : ViewModelBase
             EExportType.Folder => Folder
         };
     }
-
-    [RelayCommand]
-    public async Task BrowseExportPath()
-    {
-        if (await AppVM.BrowseFolderDialog() is {} path)
-        {
-            Folder.ExportFolder = path;
-        }
-    }
 }
 
 public partial class ExportOptionsBase : ObservableObject
@@ -141,8 +132,6 @@ public partial class UnrealExportOptions : ExportOptionsBase
 
 public partial class FolderExportOptions : ExportOptionsBase
 {
-    [ObservableProperty] private string exportFolder = "???";
-    
     [ObservableProperty] private ELodFormat lodFormat = ELodFormat.FirstLod;
 
     public override ExporterOptions CreateExportOptions()

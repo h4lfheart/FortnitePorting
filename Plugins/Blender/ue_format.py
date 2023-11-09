@@ -530,7 +530,8 @@ def import_uemodel_data(ar: FArchiveReader, name: str, link: bool):
     if len(data.normals) > 0:
         mesh_data.polygons.foreach_set("use_smooth", [True] * len(mesh_data.polygons))
         mesh_data.normals_split_custom_set_from_vertices(data.normals)
-        mesh_data.use_auto_smooth = True
+        if bpy.app.version < (4, 1, 0):
+            mesh_data.use_auto_smooth = True
 
     # weights
     if len(data.weights) > 0 and len(data.bones) > 0:

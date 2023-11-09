@@ -22,6 +22,6 @@ public abstract class ExportDataBase
 
     public async Task WaitForExportsAsync()
     {
-        await Task.WhenAll(Exporter.Tasks);
+        await Task.WhenAll(Exporter.ExportTasks);
     }
 }

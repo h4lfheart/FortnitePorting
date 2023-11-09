@@ -26,7 +26,7 @@ namespace FortnitePorting.Export;
 
 public class ExporterInstance
 {
-    public readonly List<Task> Tasks = new();
+    public readonly List<Task> ExportTasks = new();
     private readonly HashSet<ExportMaterial> MaterialCache = new();
     private readonly ExportOptionsBase AppExportOptions;
     private readonly ExporterOptions FileExportOptions;
@@ -317,74 +317,95 @@ public class ExporterInstance
         
     }
 
-    public string Export(UObject obj)
+    public async Task<string> ExportAsync(UObject asset, bool waitForFinish = false)
     {
-        Tasks.Add(Task.Run(() =>
+        var extension = asset switch
         {
-            var path = string.Empty;
-            try
+            USkeletalMesh => AppExportOptions.MeshExportType switch
             {
-                switch (obj)
-                {
-                    case USkeletalMesh skeletalMesh:
-                    {
-                        path = GetExportPath(skeletalMesh, AppExportOptions.MeshExportType switch
-                        {
-                            EMeshExportTypes.UEFormat => "uemodel",
-                            EMeshExportTypes.ActorX => "psk"
-                        });
-                        if (File.Exists(path)) return;
-                        
-                        var exporter = new MeshExporter(skeletalMesh, FileExportOptions);
-                        exporter.TryWriteToDir(App.AssetsFolder, out var _, out var _);
-                        break;
-                    }
-                    case UStaticMesh staticMesh:
-                    {
-                        path = GetExportPath(staticMesh, AppExportOptions.MeshExportType switch
-                        {
-                            EMeshExportTypes.UEFormat => "uemodel",
-                            EMeshExportTypes.ActorX => "pskx"
-                        });
-                        if (File.Exists(path)) return;
-                        
-                        var exporter = new MeshExporter(staticMesh, FileExportOptions);
-                        exporter.TryWriteToDir(App.AssetsFolder, out var _, out var _);
-                        break;
-                    }
-                    case UTexture texture:
-                    {
-                        path = GetExportPath(texture, AppExportOptions.ImageType switch
-                        {
-                            EImageType.PNG => "png",
-                            EImageType.TGA => "tga"
-                        });
-                        if (File.Exists(path)) return;
-                        
-                        switch (AppExportOptions.ImageType)
-                        {
-                            case EImageType.PNG:
-                                File.WriteAllBytes(path, texture.Decode()!.Encode(SKEncodedImageFormat.Png, 100).ToArray());
-                                break;
-                            case EImageType.TGA:
-                                throw new NotImplementedException("TARGA (.tga) export not currently supported.");
-                        }
-                        break;
-                    }
-                }
-                
-                Log.Information("Exporting {ExportType}: {Path}", obj.ExportType, path);
+                EMeshExportTypes.UEFormat => "uemodel",
+                EMeshExportTypes.ActorX => "psk"
+            },
+            UStaticMesh => AppExportOptions.MeshExportType switch
+            {
+                EMeshExportTypes.UEFormat => "uemodel",
+                EMeshExportTypes.ActorX => "pskx"
+            },
+            UTexture => AppExportOptions.ImageType switch
+            {
+                EImageType.PNG => "png",
+                EImageType.TGA => "tga"
+            }
+        };
+
+        var exportPath = GetExportPath(asset, extension);
+
+        var returnValue = waitForFinish ? exportPath : asset.GetPathName();
+        if (File.Exists(exportPath)) return returnValue;
+        
+        var exportTask = Task.Run(() =>
+        {
+            try 
+            {
+                Export(asset, exportPath);
+                Log.Information("Exporting {ExportType}: {Path}", asset.ExportType, exportPath);
             }
             catch (IOException e)
             {
-                Log.Warning("Failed to Export {ExportType}: {Name}", obj.ExportType, obj.Name);
+                Log.Warning("Failed to Export {ExportType}: {Name}", asset.ExportType, asset.Name);
                 Log.Warning(e.Message + e.StackTrace);
             }
-        }));
+        });
         
-        return obj.GetPathName();
+        if (waitForFinish)
+        {
+            exportTask.Wait();
+        }
+        else
+        {
+            ExportTasks.Add(exportTask);
+        }
+
+        return returnValue;
+
     }
     
+    public string Export(UObject asset, bool waitForFinish = false)
+    {
+        return ExportAsync(asset, waitForFinish).GetAwaiter().GetResult();
+    }
+
+    private void Export(UObject asset, string exportPath)
+    {
+        switch (asset)
+        {
+            case USkeletalMesh skeletalMesh:
+            {
+                var exporter = new MeshExporter(skeletalMesh, FileExportOptions);
+                exporter.TryWriteToDir(App.AssetsFolder, out var _, out var _);
+                break;
+            }
+            case UStaticMesh staticMesh:
+            {
+                var exporter = new MeshExporter(staticMesh, FileExportOptions);
+                exporter.TryWriteToDir(App.AssetsFolder, out var _, out var _);
+                break;
+            }
+            case UTexture texture:
+            {
+                switch (AppExportOptions.ImageType)
+                {
+                    case EImageType.PNG:
+                        File.WriteAllBytes(exportPath, texture.Decode()!.Encode(SKEncodedImageFormat.Png, 100).ToArray());
+                        break;
+                    case EImageType.TGA:
+                        throw new NotImplementedException("TARGA (.tga) export not currently supported.");
+                }
+                break;
+            }
+        }
+    }
+
     private static string GetExportPath(UObject obj, string ext, string extra = "")
     {
         var path = obj.Owner != null ? obj.Owner.Name : string.Empty;

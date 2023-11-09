@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Avalonia.Collections;
-using Avalonia.Controls;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -36,8 +35,8 @@ public partial class AssetsViewModel : ViewModelBase
 
     [ObservableProperty] private ObservableCollection<AssetOptions> currentAssets = new();
 
-    public bool IsFolderOnlyExport => CurrentAssetType is EAssetType.LoadingScreen or EAssetType.Spray;
-    [ObservableProperty] private EAssetType currentAssetType;
+    public bool IsFolderOnlyExport => CurrentAssetType is EAssetType.LoadingScreen or EAssetType.Spray or EAssetType.Banner;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(IsFolderOnlyExport))] private EAssetType currentAssetType;
     [ObservableProperty] private ObservableCollection<EExportType> folderExportEnumCollection = new(new[] { EExportType.Folder});
     
     [ObservableProperty] private EExportType exportType = EExportType.Blender;
@@ -245,7 +244,7 @@ public partial class AssetsViewModel : ViewModelBase
     [RelayCommand]
     public async Task Export()
     {
-        await ExportService.ExportAsync(CurrentAssets.ToList(), ExportType);
+        await ExportService.ExportAsync(CurrentAssets.ToList(), IsFolderOnlyExport ? EExportType.Folder : ExportType);
     }
 
     // scuffed fix to get filter to update
