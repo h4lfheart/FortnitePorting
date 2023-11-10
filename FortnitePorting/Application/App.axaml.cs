@@ -21,14 +21,15 @@ public class App : Avalonia.Application
 
     public override void OnFrameworkInitializationCompleted()
     {
-        #if DEBUG
-          ConsoleExtensions.AttachConsole(-1);
+        #if _WINDOWS
+          ConsoleExtensions.AllocConsole();
         #endif
         
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             ApplicationService.Application = desktop;
             desktop.Startup += OnStartup;
+            desktop.ShutdownRequested += OnShutDown;
         }
 
         base.OnFrameworkInitializationCompleted();
@@ -43,9 +44,16 @@ public class App : Avalonia.Application
         });
         
     }
+    
+    private void OnShutDown(object? sender, ShutdownRequestedEventArgs e)
+    {
+        AppSettings.Save();
+        Log.CloseAndFlush();
+    }
 
     private void OnStartup(object? sender, ControlledApplicationLifetimeStartupEventArgs e)
     {
+        Console.Title = $"Fortnite Porting Console v{Globals.VERSION}";
         CUE4Parse.Globals.WarnMissingImportPackage = false;
         Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
 

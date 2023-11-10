@@ -17,6 +17,10 @@
         <AvaloniaResource Include="Assets\**" />
     </ItemGroup>
 
+    <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
+        <DefineConstants>_WINDOWS</DefineConstants>
+    </PropertyGroup>
+
     <ItemGroup>
         <PackageReference Include="AsyncImageLoader.Avalonia" Version="3.2.1" />
         <PackageReference Include="Avalonia" Version="11.0.4" />

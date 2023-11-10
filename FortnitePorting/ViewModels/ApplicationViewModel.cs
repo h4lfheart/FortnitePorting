@@ -78,8 +78,6 @@ public partial class ApplicationViewModel : ViewModelBase
     
     public void Shutdown()
     {
-        AppSettings.Save();
-        Log.CloseAndFlush();
         ApplicationService.Application.Shutdown();
     }
 }
