@@ -11,7 +11,7 @@
              x:Class="FortnitePorting.Views.MainView"
              x:DataType="viewmodels:MainViewModel">
     <Grid>
-        <avalonia:AnimatableTabControl Margin="0 8" TabStripPlacement="Left" OnContentChanged="OnTabChanged">
+        <avalonia:AnimatableTabControl AnimateOnChange="{Binding AnimateTabChanges}" Margin="0 8" TabStripPlacement="Left" OnContentChanged="OnTabChanged">
             <TabItem>
                 <TabItem.Header>
                     <controls:MaterialIconText Text="Home" Icon="ViewDashboard"/>

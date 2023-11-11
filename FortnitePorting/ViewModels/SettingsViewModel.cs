@@ -39,8 +39,9 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private AesResponse? lastAesResponse;
     
     // Program
-    [ObservableProperty] private bool useFallbackBackground;
+    [ObservableProperty] private bool useTabTransition = true;
     [ObservableProperty] private bool useDiscordRPC = true;
+    [ObservableProperty] private bool useFallbackBackground;
     [ObservableProperty] private bool useCustomExportPath;
     [ObservableProperty] private string customExportPath;
     [ObservableProperty] private bool filterProps = true;
@@ -74,7 +75,9 @@ public partial class SettingsViewModel : ViewModelBase
     {
         base.OnPropertyChanged(e);
 
-        if (MainVM?.ActiveTab is SettingsView && RestartProperties.Contains(e.PropertyName))
+        var property = e.PropertyName;
+
+        if (MainVM?.ActiveTab is SettingsView && RestartProperties.Contains(property))
         {
             IsRestartRequired = true;
         }
@@ -86,6 +89,16 @@ public partial class SettingsViewModel : ViewModelBase
         else
         {
             DiscordService.Deinitialize();
+        }
+
+        switch (property)
+        {
+            case nameof(UseTabTransition):
+            {
+                if (MainVM is null) break;
+                MainVM.AnimateTabChanges = UseTabTransition;
+                break;
+            }
         }
     }
 

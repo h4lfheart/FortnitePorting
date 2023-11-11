@@ -74,10 +74,13 @@
                 </TabItem.Header>
                 
                 <StackPanel>
-                    <controls:SettingBox DisplayName="Use Discord Rich Presence" Path="{Binding UseDiscordRPC, Mode=TwoWay}" Icon="Message">
+                    <controls:SettingBox DisplayName="Tab Transitions" Path="{Binding UseTabTransition, Mode=TwoWay}" Icon="Transition">
+                        <ToggleSwitch IsChecked="{Binding UseTabTransition}"/>
+                    </controls:SettingBox>
+                    <controls:SettingBox DisplayName="Discord Rich Presence" Path="{Binding UseDiscordRPC, Mode=TwoWay}" Icon="Message">
                         <ToggleSwitch IsChecked="{Binding UseDiscordRPC}"/>
                     </controls:SettingBox>
-                    <controls:SettingBox DisplayName="Use Fallback Background" Path="{Binding UseFallbackBackground, Mode=TwoWay}" Icon="Wallpaper">
+                    <controls:SettingBox DisplayName="Fallback Background" Path="{Binding UseFallbackBackground, Mode=TwoWay}" Icon="Wallpaper">
                         <ToggleSwitch IsChecked="{Binding UseFallbackBackground}"/>
                     </controls:SettingBox>
                     <controls:SettingBox DisplayName="Custom Assets Path" Path="{Binding CustomExportPath, Mode=TwoWay}" Icon="Folder">
