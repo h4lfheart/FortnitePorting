@@ -1,35 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Reactive.Linq;
+using System.IO;
 using System.Threading.Tasks;
-using Avalonia.Collections;
-using Avalonia.Controls;
-using Avalonia.Threading;
+using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse_Conversion;
 using CUE4Parse_Conversion.Meshes;
 using CUE4Parse_Conversion.UEFormat;
-using CUE4Parse.UE4;
-using CUE4Parse.UE4.AssetRegistry.Objects;
-using CUE4Parse.UE4.Assets.Exports;
-using CUE4Parse.UE4.Assets.Exports.Material;
-using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
-using CUE4Parse.UE4.Assets.Exports.Texture;
-using CUE4Parse.UE4.Assets.Objects;
-using CUE4Parse.UE4.Objects.Core.i18N;
-using CUE4Parse.UE4.Objects.Engine;
-using DynamicData;
-using DynamicData.Binding;
-using FortnitePorting.Controls;
-using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
-using Material.Icons;
-using ReactiveUI;
-using Serilog;
-using AssetItem = FortnitePorting.Controls.Assets.AssetItem;
+using Newtonsoft.Json;
 
 namespace FortnitePorting.ViewModels;
 
@@ -47,6 +25,48 @@ public partial class ExportOptionsViewModel : ViewModelBase
             EExportType.Unreal => Unreal,
             EExportType.Folder => Folder
         };
+    }
+    
+    private static readonly FilePickerFileType LoadFileType = new("Export Options")
+    {
+        Patterns = new[] { "*.fpexport.json" }
+    };
+
+    private static readonly FilePickerSaveOptions SaveOptions = new()
+    {
+        Title = "Save Export Options",
+        DefaultExtension = ".fpexport.json",
+        FileTypeChoices = new[] { LoadFileType },
+        ShowOverwritePrompt = true
+    };
+    
+    public async Task BrowseSaveFilePath()
+    {
+        if (await AppVM.SaveFileDialog(SaveOptions) is {} path)
+        {
+            var json = JsonConvert.SerializeObject(this, Formatting.Indented);
+            await File.WriteAllTextAsync(path, json);
+        }
+    }
+    
+    public async Task BrowseLoadFilePath()
+    {
+        if (await AppVM.BrowseFileDialog(LoadFileType) is {} path)
+        {
+            var imported = JsonConvert.DeserializeObject<ExportOptionsViewModel>(await File.ReadAllTextAsync(path));
+            if (imported is null) return;
+            
+            Blender = imported.Blender;
+            Unreal = imported.Unreal;
+            Folder = imported.Folder;
+        }
+    }
+    
+    public void ResetOptions()
+    {
+        Blender = new BlenderExportOptions();
+        Unreal = new UnrealExportOptions();
+        Folder = new FolderExportOptions();
     }
 }
 

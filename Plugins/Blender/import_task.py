@@ -317,7 +317,7 @@ class ImportTask:
 		path = path[1:] if path.startswith("/") else path
 		mesh_path = os.path.join(self.assets_folder, path.split(".")[0])
 
-		extension = MeshType(self.options.get("MeshExportType"))
+		extension = MeshType(self.options.get("MeshFormat"))
 		if extension == MeshType.UEFORMAT:
 			mesh_path += ".uemodel"
 		elif extension == MeshType.ACTORX:

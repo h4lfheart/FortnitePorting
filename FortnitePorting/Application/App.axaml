@@ -59,6 +59,17 @@
             <Setter Property="Background" Value="Transparent" />
         </Style>
         
+        <Style Selector="Button.NoBackground">
+            <Setter Property="Foreground" Value="#ABABAB" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
+        
+        <Style Selector="Button.NoBackground:pointerover /template/ ContentPresenter">
+            <Setter Property="Foreground" Value="#FFDEDEDE" />
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        
         <Style Selector="ToggleButton">
             <Setter Property="CornerRadius" Value="5" />
             <Setter Property="Background" Value="#13FFFFFF" />

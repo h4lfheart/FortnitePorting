@@ -56,6 +56,12 @@ public partial class ApplicationViewModel : ViewModelBase
 
         return file?.Path.AbsolutePath.Replace("%20", " ");
     }
+    
+    public async Task<string?> SaveFileDialog(FilePickerSaveOptions saveOptions = default)
+    {
+        var file = await StorageProvider.SaveFilePickerAsync(saveOptions);
+        return file?.Path.AbsolutePath.Replace("%20", " ");
+    }
 
     public void SetView<T>() where T : UserControl, new()
     {
