@@ -26,9 +26,9 @@ public partial class MessageWindow : Window
 
     public static void Show(string caption, string text, Window? owner = null, Action<object?, EventArgs>? onClosed = null)
     {
+        if (ActiveWindow is not null) return;
         TaskService.RunDispatcher(() =>
         {
-            ActiveWindow?.Close(); // only keep one instance
             ActiveWindow = new MessageWindow(caption, text, owner, onClosed);
             ActiveWindow.Show();
         });
@@ -41,11 +41,13 @@ public partial class MessageWindow : Window
     
     private void OnCloseClicked(object? sender, RoutedEventArgs e)
     {
+        ActiveWindow = null;
         Close();
     }
 
     private void OnContinueClicked(object? sender, RoutedEventArgs e)
     {
+        ActiveWindow = null;
         Close();
         OnClosedWindow?.Invoke(this, EventArgs.Empty);
     }

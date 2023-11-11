@@ -13,6 +13,10 @@
         <FluentTheme />
         <material:MaterialIconStyles />
         
+        <Style Selector="TextBlock /template/ ContentPresenter">
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+        </Style>
+        
         <Style Selector="Button">
             <Setter Property="CornerRadius" Value="5" />
             <Setter Property="Background" Value="#13FFFFFF" />

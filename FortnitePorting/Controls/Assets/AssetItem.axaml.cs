@@ -1,9 +1,7 @@
-using System.ComponentModel;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.GameTypes.FN.Enums;
 using CUE4Parse.UE4.Assets.Exports;
@@ -42,6 +40,7 @@ public partial class AssetItem : UserControl
     
     public Bitmap IconBitmap { get; set; }
     public Bitmap PreviewImage { get; set; }
+    
     
     public AssetItem(UObject asset, UTexture2D icon, string displayName, EAssetType type, bool isHidden = false)
     {
@@ -108,8 +107,7 @@ public partial class AssetItem : UserControl
     {
         return MiscExtensions.Filter(DisplayName, filter) || MiscExtensions.Filter(ID, filter);
     }
-
-    [RelayCommand]
+    
     public void Favorite()
     {
         var path = Asset.GetPathName();
@@ -123,5 +121,21 @@ public partial class AssetItem : UserControl
             AppSettings.Current.FavoritePaths.Remove(path);
             IsFavorite = false;
         }
+    }
+
+    // TODO why tf wont relay commands work
+    private void CopyPathCommand(object? sender, RoutedEventArgs e)
+    {
+       Clipboard.SetTextAsync(Asset.GetPathName());
+    }
+    
+    private void CopyIDCommand(object? sender, RoutedEventArgs e)
+    {
+        Clipboard.SetTextAsync(Asset.Name);
+    }
+
+    private void FavoriteCommand(object? sender, RoutedEventArgs e)
+    {
+        Favorite();
     }
 }

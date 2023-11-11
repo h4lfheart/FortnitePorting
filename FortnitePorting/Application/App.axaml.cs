@@ -45,10 +45,15 @@ public class App : Avalonia.Application
         
     }
     
-    private void OnExit(object? sender, ControlledApplicationLifetimeExitEventArgs e)
+    public static void Exit()
     {
         AppSettings.Save();
         Log.CloseAndFlush();
+    }
+    
+    private void OnExit(object? sender, ControlledApplicationLifetimeExitEventArgs e)
+    {
+        Exit();
     }
 
     private void OnStartup(object? sender, ControlledApplicationLifetimeStartupEventArgs e)
