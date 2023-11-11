@@ -13,6 +13,7 @@ public class TextureExportData : ExportDataBase
         { EAssetType.Spray, "DecalTexture" },
         { EAssetType.Banner, "LargePreviewImage" },
         { EAssetType.LoadingScreen, "BackgroundImage" },
+        { EAssetType.Emoticon, "SpriteSheet" },
     };
     
     public TextureExportData(string name, UObject asset, FStructFallback[] styles, EAssetType type, EExportType exportType) : base(name, asset, styles, type, exportType)

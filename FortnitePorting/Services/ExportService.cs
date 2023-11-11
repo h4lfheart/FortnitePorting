@@ -51,6 +51,7 @@ public static class ExportService
     
     private static readonly EAssetType[] TextureTypes =
     {
+        EAssetType.Emoticon,
         EAssetType.Spray,
         EAssetType.Banner,
         EAssetType.LoadingScreen

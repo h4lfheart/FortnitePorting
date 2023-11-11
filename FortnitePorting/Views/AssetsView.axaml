@@ -54,6 +54,9 @@
                 <ToggleButton ToolTip.Tip="Toys" Tag="{x:Static fortnitePorting:EAssetType.Toy}" Click="OnAssetTypeClick">
                     <Image Source="/Assets/FN/Toy.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
                 </ToggleButton>
+                <ToggleButton ToolTip.Tip="Emoticons" Tag="{x:Static fortnitePorting:EAssetType.Emoticon}" Click="OnAssetTypeClick">
+                    <Image Source="/Assets/FN/Emoticon.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                </ToggleButton>
                 <ToggleButton ToolTip.Tip="Sprays" Tag="{x:Static fortnitePorting:EAssetType.Spray}" Click="OnAssetTypeClick">
                     <Image Source="/Assets/FN/Spray.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
                 </ToggleButton>

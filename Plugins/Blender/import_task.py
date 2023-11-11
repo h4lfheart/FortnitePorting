@@ -192,6 +192,7 @@ class ImportTask:
 			node.image = self.import_image(path)
 			node.image.alpha_mode = 'CHANNEL_PACKED'
 			node.image.colorspace_settings.name = "sRGB" if data.get("sRGB") else "Non-Color"
+			node.interpolation = "Smart"
 			node.location = location_mappings[slot]
 			node.hide = True
 			links.new(node.outputs[0], shader_node.inputs[slot])

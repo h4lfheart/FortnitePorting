@@ -34,6 +34,9 @@ public enum EAssetType
     [Description("Toys")]
     Toy,
     
+    [Description("Emoticons")]
+    Emoticon,
+    
     [Description("Sprays")]
     Spray,
     

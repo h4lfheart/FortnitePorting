@@ -35,7 +35,7 @@ public partial class AssetsViewModel : ViewModelBase
 
     [ObservableProperty] private ObservableCollection<AssetOptions> currentAssets = new();
 
-    public bool IsFolderOnlyExport => CurrentAssetType is EAssetType.LoadingScreen or EAssetType.Spray or EAssetType.Banner;
+    public bool IsFolderOnlyExport => CurrentAssetType is EAssetType.LoadingScreen or EAssetType.Spray or EAssetType.Banner or EAssetType.Emoticon;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(IsFolderOnlyExport))] private EAssetType currentAssetType;
     [ObservableProperty] private ObservableCollection<EExportType> folderExportEnumCollection = new(new[] { EExportType.Folder});
     
@@ -117,6 +117,11 @@ public partial class AssetsViewModel : ViewModelBase
             new(EAssetType.Toy)
             {
                 Classes = new[] { "AthenaToyItemDefinition" }
+            },
+            new(EAssetType.Emoticon)
+            {
+                Classes = new[] { "AthenaEmojiItemDefinition" },
+                Filters = new[] { "Emoji_100APlus" }
             },
             new(EAssetType.Spray)
             {
