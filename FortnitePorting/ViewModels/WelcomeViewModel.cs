@@ -6,6 +6,7 @@ using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.UE4.Versions;
+using CUE4Parse.Utils;
 using FortnitePorting.Application;
 using FortnitePorting.Framework;
 using FortnitePorting.Views;

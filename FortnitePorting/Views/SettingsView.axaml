@@ -17,7 +17,7 @@
                 <TabItem.Header>
                     <controls:MaterialIconText Text="Installation" Icon="Folder"/>
                 </TabItem.Header>
-                <Grid RowDefinitions="Auto Auto Auto *">
+                <Grid RowDefinitions="Auto Auto *">
                     <controls:SettingBox Grid.Row="0" DisplayName="Installation Type" Path="{Binding LoadingType, Mode=TwoWay}" Icon="GamepadClassic">
                         <ComboBox Width="200" HorizontalAlignment="Right" ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:ELoadingType}}" SelectedItem="{Binding LoadingType, Converter={StaticResource EnumToString}}"/>
                     </controls:SettingBox>
@@ -26,11 +26,7 @@
                         <ComboBox Width="200" HorizontalAlignment="Right" ItemsSource="{ext:EnumToItemsSource {x:Type cue4parse:UE4.Versions.ELanguage}}" SelectedItem="{Binding Language, Converter={StaticResource EnumToString}}"/>
                     </controls:SettingBox>
                     
-                    <controls:SettingBox Grid.Row="2" DisplayName="Cosmetic Streaming" Path="{Binding UseCosmeticStreaming, Mode=TwoWay}" Icon="CloudDownload">
-                        <ToggleSwitch IsChecked="{Binding UseCosmeticStreaming}"/>
-                    </controls:SettingBox>
-                    
-                    <controls:GroupBox Grid.Row="3" Margin="{ext:Space 1}">
+                    <controls:GroupBox Grid.Row="2" Margin="{ext:Space 1}">
                         <avalonia:AnimatableTabControl>
                             <TabControl.ItemsPanel>
                                 <ItemsPanelTemplate>
@@ -42,6 +38,9 @@
                                 <StackPanel>
                                     <controls:SettingBox DisplayName="Archive Path" Path="{Binding LocalArchivePath, Mode=TwoWay}" Icon="Folder">
                                         <Button Content="Browse" Command="{Binding BrowseLocalArchivePathCommand}"/>
+                                    </controls:SettingBox>
+                                    <controls:SettingBox DisplayName="Cosmetic Streaming" Path="{Binding UseCosmeticStreaming, Mode=TwoWay}" Icon="CloudDownload">
+                                        <ToggleSwitch IsChecked="{Binding UseCosmeticStreaming}"/>
                                     </controls:SettingBox>
                                 </StackPanel>
                             </TabItem>

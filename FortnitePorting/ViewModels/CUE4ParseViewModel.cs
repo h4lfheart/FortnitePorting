@@ -49,7 +49,7 @@ public class CUE4ParseViewModel : ViewModelBase
     {
         HomeVM.Update("Loading Game Archive");
         await InitializeProvider();
-        if (AppSettings.Current.UseCosmeticStreaming)
+        if ((AppSettings.Current.UseCosmeticStreaming && AppSettings.Current.LoadingType == ELoadingType.Local) || AppSettings.Current.LoadingType == ELoadingType.Live)
         {
             await LoadCosmeticStreaming();
         }
