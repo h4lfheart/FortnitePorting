@@ -2,6 +2,7 @@ using System;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
+using FortnitePorting.Application;
 
 namespace FortnitePorting.Controls.Avalonia;
 
@@ -27,12 +28,5 @@ public class AnimatableTabControl : TabControl
         PseudoClasses.Add(":normal");
     }
 
-    public bool AnimateOnChange
-    {
-        get => GetValue(AnimateOnChangeProperty);
-        set => SetValue(AnimateOnChangeProperty, value);
-    }
-
-    public static readonly StyledProperty<bool> AnimateOnChangeProperty =
-        AvaloniaProperty.Register<AnimatableTabControl, bool>(nameof(AnimateOnChange), true);
+    public bool AnimateOnChange => AppSettings.Current.UseTabTransition;
 }

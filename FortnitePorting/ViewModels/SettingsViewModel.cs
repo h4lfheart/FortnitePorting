@@ -90,16 +90,6 @@ public partial class SettingsViewModel : ViewModelBase
         {
             DiscordService.Deinitialize();
         }
-
-        switch (property)
-        {
-            case nameof(UseTabTransition):
-            {
-                if (MainVM is null) break;
-                MainVM.AnimateTabChanges = UseTabTransition;
-                break;
-            }
-        }
     }
 
     private static readonly FilePickerFileType MappingsFileType = new("Unreal Mappings")
