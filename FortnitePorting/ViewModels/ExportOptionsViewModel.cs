@@ -52,7 +52,8 @@ public partial class ExportOptionsViewModel : ViewModelBase
 
 public partial class ExportOptionsBase : ObservableObject
 {
-    [ObservableProperty] private EMeshExportTypes meshExportType = EMeshExportTypes.UEFormat;
+    [ObservableProperty] private EMeshExportTypes meshFormat = EMeshExportTypes.UEFormat;
+    [ObservableProperty] private EFileCompressionFormat compressionFormat = EFileCompressionFormat.ZSTD;
     
     [ObservableProperty] private bool exportMaterials = true;
     [ObservableProperty] private EImageType imageType = EImageType.PNG;
@@ -92,12 +93,12 @@ public partial class BlenderExportOptions : ExportOptionsBase
         return new ExporterOptions
         {
             LodFormat = LevelOfDetail is ESupportedLODs.LOD0 ? ELodFormat.FirstLod : ELodFormat.AllLods,
-            MeshFormat = MeshExportType switch
+            MeshFormat = MeshFormat switch
             {
                 EMeshExportTypes.UEFormat => EMeshFormat.UEFormat,
                 EMeshExportTypes.ActorX => EMeshFormat.ActorX
             },
-            CompressionFormat = EFileCompressionFormat.ZSTD,
+            CompressionFormat = CompressionFormat,
             ExportMorphTargets = true,
             ExportMaterials = false
         };
@@ -118,12 +119,12 @@ public partial class UnrealExportOptions : ExportOptionsBase
         return new ExporterOptions
         {
             LodFormat = LevelOfDetail is ESupportedLODs.LOD0 ? ELodFormat.FirstLod : ELodFormat.AllLods,
-            MeshFormat = MeshExportType switch
+            MeshFormat = MeshFormat switch
             {
                 EMeshExportTypes.UEFormat => EMeshFormat.UEFormat,
                 EMeshExportTypes.ActorX => EMeshFormat.ActorX
             },
-            CompressionFormat = EFileCompressionFormat.ZSTD,
+            CompressionFormat = CompressionFormat,
             ExportMorphTargets = true,
             ExportMaterials = false
         };
@@ -139,12 +140,12 @@ public partial class FolderExportOptions : ExportOptionsBase
         return new ExporterOptions
         {
             LodFormat = LodFormat,
-            MeshFormat = MeshExportType switch
+            MeshFormat = MeshFormat switch
             {
                 EMeshExportTypes.UEFormat => EMeshFormat.UEFormat,
                 EMeshExportTypes.ActorX => EMeshFormat.ActorX
             },
-            CompressionFormat = EFileCompressionFormat.ZSTD,
+            CompressionFormat = CompressionFormat,
             ExportMorphTargets = true,
             ExportMaterials = false
         };

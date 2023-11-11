@@ -321,12 +321,12 @@ public class ExporterInstance
     {
         var extension = asset switch
         {
-            USkeletalMesh => AppExportOptions.MeshExportType switch
+            USkeletalMesh => AppExportOptions.MeshFormat switch
             {
                 EMeshExportTypes.UEFormat => "uemodel",
                 EMeshExportTypes.ActorX => "psk"
             },
-            UStaticMesh => AppExportOptions.MeshExportType switch
+            UStaticMesh => AppExportOptions.MeshFormat switch
             {
                 EMeshExportTypes.UEFormat => "uemodel",
                 EMeshExportTypes.ActorX => "pskx"
