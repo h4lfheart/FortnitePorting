@@ -78,7 +78,6 @@ public partial class ApplicationViewModel : ViewModelBase
     
     public void Shutdown()
     {
-        App.Exit();
         ApplicationService.Application.Shutdown();
     }
 }

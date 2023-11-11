@@ -12,5 +12,5 @@ public static class Globals
     public const string KOFI_URL = "https://ko-fi.com/halfuwu";
 
     public static readonly FGuid ZERO_GUID = new();
-    public static readonly string ZERO_CHAR = "0x0000000000000000000000000000000000000000000000000000000000000000";
+    public const string ZERO_CHAR = "0x0000000000000000000000000000000000000000000000000000000000000000";
 }

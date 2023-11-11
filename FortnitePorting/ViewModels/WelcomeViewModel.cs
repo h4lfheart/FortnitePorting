@@ -1,13 +1,17 @@
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.UE4.Versions;
-using CUE4Parse.Utils;
 using FortnitePorting.Application;
 using FortnitePorting.Framework;
 using FortnitePorting.Views;
+using Newtonsoft.Json;
+using Serilog;
+using J = Newtonsoft.Json.JsonPropertyAttribute;
 
 namespace FortnitePorting.ViewModels;
 
@@ -31,6 +35,29 @@ public partial class WelcomeViewModel : ViewModelBase
     {
         Patterns = new[] { "*.usmap" }
     };
+
+    public override async Task Initialize()
+    {
+        await CheckForInstallation();
+    }
+
+    private async Task CheckForInstallation()
+    {
+        LauncherInstalled? launcherInstalled = null;
+        foreach (var drive in DriveInfo.GetDrives())
+        {
+            var launcherInstalledPath = $"{drive.Name}ProgramData\\Epic\\UnrealEngineLauncher\\LauncherInstalled.dat";
+            if (!File.Exists(launcherInstalledPath)) continue;
+
+            launcherInstalled = JsonConvert.DeserializeObject<LauncherInstalled>(await File.ReadAllTextAsync(launcherInstalledPath));
+        }
+
+        var fortniteInfo = launcherInstalled?.InstallationList.FirstOrDefault(x => x.AppName.Equals("Fortnite"));
+        if (fortniteInfo is null) return;
+
+        LocalArchivePath = fortniteInfo.InstallLocation + "\\FortniteGame\\Content\\Paks\\";
+        Log.Information("Found Fortnite Installation at {ArchivePath}", LocalArchivePath);
+    }
     
     [RelayCommand]
     private async Task BrowseLocalArchivePath()
@@ -70,4 +97,16 @@ public partial class WelcomeViewModel : ViewModelBase
         
         AppVM.SetView<MainView>();
     }
+}
+
+public class LauncherInstalled
+{
+    [J] public List<LauncherInstalledInfo> InstallationList;
+}
+
+public class LauncherInstalledInfo
+{
+    [J] public string InstallLocation;
+    [J] public string AppVersion;
+    [J] public string AppName;
 }
