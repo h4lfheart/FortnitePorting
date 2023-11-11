@@ -36,6 +36,7 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private string customMappingsPath;
     [ObservableProperty] private string customEncryptionKey = Globals.ZERO_CHAR;
     [ObservableProperty] private EGame customUnrealVersion = EGame.GAME_UE5_4;
+    [ObservableProperty] private AesResponse? lastAesResponse;
     
     // Program
     [ObservableProperty] private bool useFallbackBackground;
