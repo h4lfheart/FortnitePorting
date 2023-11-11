@@ -60,7 +60,7 @@
                                 </Grid.ColumnDefinitions>
                                 <Button Grid.Column="0" Command="{Binding OpenDiscordCommand}">
                                     <StackPanel Orientation="Horizontal">
-                                        <Image Source="/Assets/Discord.png" Width="16" Height="16" Margin="0 0 8 0" RenderOptions.BitmapInterpolationMode="HighQuality" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <Svg Path="/Assets/Icons/Discord.svg" Width="16" Height="16" Margin="0 0 8 0" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         <TextBlock Text="Join the Support Server"/>
                                     </StackPanel>
                                 </Button>

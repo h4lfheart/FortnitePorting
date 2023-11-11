@@ -24,6 +24,7 @@
     <ItemGroup>
         <PackageReference Include="AsyncImageLoader.Avalonia" Version="3.2.1" />
         <PackageReference Include="Avalonia" Version="11.0.4" />
+        <PackageReference Include="Avalonia.Svg.Skia" Version="11.0.0.3" />
         <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.4" />
         <PackageReference Include="Avalonia.Fonts.Inter" Version="11.0.4" />
         <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.4" />
@@ -44,6 +45,10 @@
       </Compile>
       <Compile Update="Controls\Home\ChangelogItem.axaml.cs">
         <DependentUpon>ChangelogItem.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Controls\ImageText.axaml.cs">
+        <DependentUpon>MaterialImageText.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
     </ItemGroup>

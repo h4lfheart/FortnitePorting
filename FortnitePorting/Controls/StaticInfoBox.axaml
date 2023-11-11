@@ -23,7 +23,7 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                     
-                                <Image RenderOptions.BitmapInterpolationMode="LowQuality" Grid.Column="0" Source="{Binding Icon, RelativeSource={RelativeSource AncestorType=controls:StaticInfoBox}}" Width="30" Height="30" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <Svg Grid.Column="0" Path="{Binding Image, RelativeSource={RelativeSource AncestorType=controls:StaticInfoBox}}" Width="30" Height="30" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 <TextBlock Grid.Column="2" Text="{Binding DisplayName, RelativeSource={RelativeSource AncestorType=controls:StaticInfoBox}}" FontSize="20" FontWeight="SemiBold" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                                 <ContentPresenter Grid.Column="4" Content="{TemplateBinding Content}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="{ext:Space 1}"/>
                             </Grid>

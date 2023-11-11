@@ -1,0 +1,20 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="FortnitePorting.Controls.ImageText"
+             x:DataType="controls:ImageText">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="{ext:Space 1}"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Svg Grid.Column="0" Path="{Binding Image, RelativeSource={RelativeSource AncestorType=controls:ImageText}}" Width="{Binding ImageSize, RelativeSource={RelativeSource AncestorType=controls:ImageText}}" Height="{Binding ImageSize, RelativeSource={RelativeSource AncestorType=controls:ImageText}}"/>
+        <TextBlock Grid.Column="2" Text="{Binding Text, RelativeSource={RelativeSource AncestorType=controls:ImageText}}" FontWeight="Normal" FontSize="14"/>
+    </Grid>
+</UserControl>

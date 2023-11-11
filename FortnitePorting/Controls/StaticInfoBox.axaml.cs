@@ -7,11 +7,11 @@ namespace FortnitePorting.Controls;
 
 public partial class StaticInfoBox : UserControl
 {
-    public static readonly StyledProperty<IImage> IconProperty = AvaloniaProperty.Register<SettingBox, IImage>(nameof(Icon));
-    public IImage Icon
+    public static readonly StyledProperty<string> ImageProperty = AvaloniaProperty.Register<SettingBox, string>(nameof(Image));
+    public string Image
     {
-        get => GetValue(IconProperty);
-        set => SetValue(IconProperty, value);
+        get => GetValue(ImageProperty);
+        set => SetValue(ImageProperty, value);
     }
     
     public static readonly StyledProperty<string> DisplayNameProperty = AvaloniaProperty.Register<SettingBox, string>(nameof(DisplayName), defaultValue: "Property");

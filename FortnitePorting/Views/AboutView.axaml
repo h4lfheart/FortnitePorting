@@ -10,13 +10,13 @@
              x:DataType="viewmodels:AboutViewModel">
     <controls:GroupBox Background="#26000000">
         <StackPanel>
-            <controls:StaticInfoBox DisplayName="Discord" Icon="/Assets/Discord.png">
+            <controls:StaticInfoBox DisplayName="Discord" Image="/Assets/Icons/Discord.svg">
                 <Button Content="Join Server" Command="{Binding DiscordCommand}"/>
             </controls:StaticInfoBox>
-            <controls:StaticInfoBox DisplayName="Ko-Fi" Icon="/Assets/KoFi.png">
+            <controls:StaticInfoBox DisplayName="Ko-Fi" Image="/Assets/Icons/KoFi.svg">
                 <Button Content="Donate" Command="{Binding KoFiCommand}"/>
             </controls:StaticInfoBox>
-            <controls:StaticInfoBox DisplayName="GitHub" Icon="/Assets/GitHub.png">
+            <controls:StaticInfoBox DisplayName="GitHub" Image="/Assets/Icons/GitHub.svg">
                 <Button Content="Open Repository" Command="{Binding GitHubCommand}"/>
             </controls:StaticInfoBox>
         </StackPanel>

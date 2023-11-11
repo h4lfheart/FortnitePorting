@@ -14,13 +14,11 @@
              x:Class="FortnitePorting.Views.ExportOptionsView"
              x:DataType="viewmodels:ExportOptionsViewModel">
     <controls:GroupBox Background="#26000000">
-        <avalonia:AnimatableTabControl HorizontalAlignment="Stretch">
-            <TabControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center"/>
-                </ItemsPanelTemplate>
-            </TabControl.ItemsPanel>
-            <TabItem Header="Blender">
+        <avalonia:AnimatableTabControl TabStripPlacement="Left">
+            <TabItem>
+                <TabItem.Header>
+                    <controls:ImageText Text="Blender" Image="/Assets/Icons/Blender.svg"/>
+                </TabItem.Header>
                 <ScrollViewer VerticalScrollBarVisibility="Hidden">
                     <StackPanel>
                        <Label Content="General" FontSize="28" FontWeight="SemiBold" Margin="8 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
@@ -96,7 +94,10 @@
                 </ScrollViewer>
             </TabItem>
             
-            <TabItem Header="Unreal Engine">
+            <TabItem>
+                <TabItem.Header>
+                    <controls:ImageText Text="Unreal Engine" Image="/Assets/Icons/Unreal.svg"/>
+                </TabItem.Header>
                 <ScrollViewer VerticalScrollBarVisibility="Hidden">
                     <StackPanel>
                         <Label Content="Mesh" FontSize="28" FontWeight="SemiBold" Margin="8 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
@@ -133,7 +134,10 @@
                 </ScrollViewer>
             </TabItem>
             
-            <TabItem Header="Folder">
+            <TabItem>
+                <TabItem.Header>
+                    <controls:ImageText Text="Folder" Image="/Assets/Icons/Folder.svg"/>
+                </TabItem.Header>
                 <ScrollViewer VerticalScrollBarVisibility="Hidden">
                     <StackPanel>
                         <Label Content="Mesh" FontSize="28" FontWeight="SemiBold" Margin="8 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
