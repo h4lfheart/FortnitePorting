@@ -41,7 +41,8 @@ public partial class SettingsViewModel : ViewModelBase
     // Program
     [ObservableProperty] private bool useFallbackBackground;
     [ObservableProperty] private bool useDiscordRPC = true;
-    [ObservableProperty] private string exportPath = App.AssetsFolder.FullName;
+    [ObservableProperty] private bool useCustomExportPath;
+    [ObservableProperty] private string customExportPath;
     [ObservableProperty] private bool filterProps = true;
     [ObservableProperty] private bool filterItems = true;
     
@@ -63,6 +64,11 @@ public partial class SettingsViewModel : ViewModelBase
         nameof(FilterProps),
         nameof(FilterItems)
     };
+
+    public string GetExportPath()
+    {
+        return UseCustomExportPath && Directory.Exists(CustomExportPath) ? CustomExportPath : App.AssetsFolder.FullName;
+    }
 
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
     {
@@ -120,7 +126,7 @@ public partial class SettingsViewModel : ViewModelBase
     {
         if (await AppVM.BrowseFolderDialog() is {} path)
         {
-            ExportPath = path;
+            CustomExportPath = path;
         }
     }
 }

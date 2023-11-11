@@ -29,7 +29,7 @@ public class App : Avalonia.Application
         {
             ApplicationService.Application = desktop;
             desktop.Startup += OnStartup;
-            desktop.ShutdownRequested += OnShutDown;
+            desktop.Exit += OnExit;
         }
 
         base.OnFrameworkInitializationCompleted();
@@ -45,7 +45,7 @@ public class App : Avalonia.Application
         
     }
     
-    private void OnShutDown(object? sender, ShutdownRequestedEventArgs e)
+    private void OnExit(object? sender, ControlledApplicationLifetimeExitEventArgs e)
     {
         AppSettings.Save();
         Log.CloseAndFlush();

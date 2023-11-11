@@ -412,7 +412,7 @@ public class ExporterInstance
         path = path.SubstringBeforeLast('.');
         if (path.StartsWith("/")) path = path[1..];
 
-        var directory = Path.Combine(App.AssetsFolder.FullName, path);
+        var directory = Path.Combine(AppSettings.Current.GetExportPath(), path);
         Directory.CreateDirectory(directory.SubstringBeforeLast("/"));
 
         var finalPath = directory + $"{extra}.{ext.ToLower()}";

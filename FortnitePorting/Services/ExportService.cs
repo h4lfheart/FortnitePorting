@@ -131,7 +131,7 @@ public static class ExportService
     {
         return new ExportResponse
         {
-            AssetsFolder = AppSettings.Current.ExportPath,
+            AssetsFolder = AppSettings.Current.GetExportPath(),
             Options = AppSettings.Current.ExportOptions.Get(exportType),
             Data = exportData
         };

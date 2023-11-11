@@ -80,8 +80,11 @@
                     <controls:SettingBox DisplayName="Use Fallback Background" Path="{Binding UseFallbackBackground, Mode=TwoWay}" Icon="Wallpaper">
                         <ToggleSwitch IsChecked="{Binding UseFallbackBackground}"/>
                     </controls:SettingBox>
-                    <controls:SettingBox DisplayName="Assets Path" Path="{Binding ExportPath, Mode=TwoWay}" Icon="Folder">
-                        <Button Content="Browse" Command="{Binding BrowseExportPathCommand}"/>
+                    <controls:SettingBox DisplayName="Custom Assets Path" Path="{Binding CustomExportPath, Mode=TwoWay}" Icon="Folder">
+                        <StackPanel Orientation="Horizontal">
+                            <ToggleSwitch IsChecked="{Binding UseCustomExportPath}"/>
+                            <Button Content="Browse" Command="{Binding BrowseExportPathCommand}" IsEnabled="{Binding UseCustomExportPath}"/>
+                        </StackPanel>
                     </controls:SettingBox>
                 </StackPanel>
             </TabItem>
