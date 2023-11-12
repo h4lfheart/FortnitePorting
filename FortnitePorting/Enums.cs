@@ -52,8 +52,8 @@ public enum EAssetType
     [Description("Props")]
     Prop,
     
-    [Description("Galleries")]
-    Gallery,
+    [Description("Prefabs")]
+    Prefab,
     
     [Description("Items")]
     Item,

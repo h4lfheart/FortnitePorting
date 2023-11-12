@@ -36,16 +36,18 @@ public static class CUE4ParseExtensions
     
     public static FName? GetValueOrDefault(this FGameplayTagContainer tags, string category, FName def = default)
     {
-        return tags.GameplayTags is not { Length: > 0 } ? def : tags.GetValue(category);
+        return tags.GameplayTags is { Length: > 0 } ? tags.GetValue(category) : def;
     }
     
-    public static bool ContainsAny(this FGameplayTagContainer tags, params string[] check)
+    public static bool ContainsAny(this FGameplayTagContainer? tags, params string[] check)
     {
+        if (tags is null) return false;
         return check.Any(x => tags.ContainsAny(x));
     }
 
-    public static bool ContainsAny(this FGameplayTagContainer tags, string check)
+    public static bool ContainsAny(this FGameplayTagContainer? tags, string check)
     {
-        return tags.GameplayTags.Any(x => x.TagName.Text.Contains(check)); 
+        if (tags is null) return false;
+        return tags.Value.Any(x => x.TagName.Text.Contains(check)); 
     }
 }

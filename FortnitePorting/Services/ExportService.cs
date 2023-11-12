@@ -36,7 +36,7 @@ public static class ExportService
         EAssetType.Pet,
         EAssetType.Toy,
         EAssetType.Prop,
-        EAssetType.Gallery,
+        EAssetType.Prefab,
         EAssetType.Item,
         EAssetType.Trap,
         EAssetType.Vehicle,

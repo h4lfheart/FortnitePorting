@@ -72,8 +72,8 @@
                 <ToggleButton ToolTip.Tip="Props" Tag="{x:Static fortnitePorting:EAssetType.Prop}" Click="OnAssetTypeClick">
                     <Image Source="/Assets/FN/Prop.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
                 </ToggleButton>
-                <ToggleButton ToolTip.Tip="Galleries" Tag="{x:Static fortnitePorting:EAssetType.Gallery}" Click="OnAssetTypeClick">
-                    <Image Source="/Assets/FN/Gallery.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                <ToggleButton ToolTip.Tip="Prefabs" Tag="{x:Static fortnitePorting:EAssetType.Prefab}" Click="OnAssetTypeClick">
+                    <Image Source="/Assets/FN/Prefab.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
                 </ToggleButton>
                 <ToggleButton ToolTip.Tip="Items" Tag="{x:Static fortnitePorting:EAssetType.Item}" Click="OnAssetTypeClick">
                     <Image Source="/Assets/FN/Item.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>

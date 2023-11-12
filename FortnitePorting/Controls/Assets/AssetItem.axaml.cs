@@ -33,7 +33,7 @@ public partial class AssetItem : UserControl
     public string DisplayName { get; set; }
     public string Description { get; set; }
     
-    public FGameplayTagContainer GameplayTags { get; set; }
+    public FGameplayTagContainer? GameplayTags { get; set; }
     public EFortRarity Rarity { get; set; }
     public int Season { get; set; }
     public string Series { get; set; }
@@ -54,9 +54,9 @@ public partial class AssetItem : UserControl
         DisplayName = displayName.TitleCase();
         Description = asset.GetOrDefault("Description", new FText("No description.")).Text;
         Rarity = asset.GetOrDefault("Rarity", EFortRarity.Uncommon);
-        GameplayTags = asset.GetOrDefault<FGameplayTagContainer>("GameplayTags");
+        GameplayTags = asset.GetOrDefault<FGameplayTagContainer?>("GameplayTags");
 
-        var seasonTag = GameplayTags.GetValueOrDefault("Cosmetics.Filter.Season.")?.Text;
+        var seasonTag = GameplayTags?.GetValueOrDefault("Cosmetics.Filter.Season.")?.Text;
         Season = int.TryParse(seasonTag?.SubstringAfterLast("."), out var seasonNumber) ? seasonNumber : int.MaxValue;
         
         var series = Asset.GetOrDefault<UObject?>("Series");

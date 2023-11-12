@@ -93,7 +93,7 @@ public class MeshExportData : ExportDataBase
                 break;
             case EAssetType.Prop:
                 break;
-            case EAssetType.Gallery:
+            case EAssetType.Prefab:
                 break;
             case EAssetType.Item:
             {

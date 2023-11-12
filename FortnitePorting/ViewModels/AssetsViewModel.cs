@@ -14,9 +14,9 @@ using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.Engine;
+using CUE4Parse.UE4.Objects.UObject;
 using DynamicData;
 using DynamicData.Binding;
-using FortnitePorting.Controls;
 using FortnitePorting.Controls.Assets;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
@@ -145,9 +145,20 @@ public partial class AssetsViewModel : ViewModelBase
             {
                 Classes = new[] { "FortPlaysetPropItemDefinition" }
             },
-            new(EAssetType.Gallery)
+            new(EAssetType.Prefab)
             {
-                Classes = new[] { "FortPlaysetItemDefinition" }
+                Classes = new[] { "FortPlaysetItemDefinition" },
+                HidePredicate = asset =>
+                {
+                    var nameContainsDevices = asset.Name.Contains("Device", StringComparison.OrdinalIgnoreCase);
+                    if (nameContainsDevices) return true;
+                    
+                    var tagsHelper = asset.GetOrDefault<FStructFallback?>("CreativeTagsHelper");
+                    if (tagsHelper is null) return false;
+                    
+                    var tags = tagsHelper.GetOrDefault("CreativeTags", Array.Empty<FName>());
+                    return tags.Any(tag => tag.Text.Contains("Device", StringComparison.OrdinalIgnoreCase));
+                }
             },
             new(EAssetType.Item)
             {
@@ -317,6 +328,7 @@ public class AssetLoader
     
     public string[] Classes = Array.Empty<string>();
     public string[] Filters = Array.Empty<string>();
+    public Func<UObject, bool> HidePredicate = _ => false;
     public Func<UObject, UTexture2D?> IconHandler = asset => asset.GetAnyOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage");
     public Func<UObject, FText?> DisplayNameHandler = asset => asset.GetOrDefault("DisplayName", new FText(asset.Name));
     public Func<AssetLoader, Task>? CustomLoadingHandler;
@@ -376,7 +388,7 @@ public class AssetLoader
         var displayName = DisplayNameHandler(asset)?.Text;
         if (string.IsNullOrEmpty(displayName)) displayName = asset.Name;
 
-        await TaskService.RunDispatcherAsync(() => Source.Add(new AssetItem(asset, icon, displayName, Type, Filters.Any(y => asset.Name.Contains(y, StringComparison.OrdinalIgnoreCase)))), DispatcherPriority.Background);
+        await TaskService.RunDispatcherAsync(() => Source.Add(new AssetItem(asset, icon, displayName, Type, Filters.Any(y => asset.Name.Contains(y, StringComparison.OrdinalIgnoreCase)) || HidePredicate(asset) )), DispatcherPriority.Background);
     }
 }
 
