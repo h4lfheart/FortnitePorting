@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -26,13 +27,16 @@ public partial class RadioViewModel : ViewModelBase
     [ObservableProperty] private ObservableCollection<RadioSongPicker> loadedSongs = new();
     [ObservableProperty] private RadioSongPicker? songInfo;
     [ObservableProperty] private RuntimeSongInfo? runtimeSongInfo;
-    private readonly DispatcherTimer UpdateTimer = new();
+    [ObservableProperty] private bool isLooping;
+    [ObservableProperty] private bool isShuffling;
+
+    public bool IsPlaying;
+    public bool IsValidSong => SoundSource is not null && SongInfo is not null && RuntimeSongInfo is not null;
+    public MaterialIconKind PlayIconKind => IsPlaying ? MaterialIconKind.Pause : MaterialIconKind.Play;
     
     private IWaveSource? SoundSource;
     private readonly ISoundOut SoundOut = SoundExtensions.GetSoundOut();
-
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(PlayIconKind))] private bool isPaused;
-    public MaterialIconKind PlayIconKind => IsPaused ? MaterialIconKind.Play : MaterialIconKind.Pause;
+    private readonly DispatcherTimer UpdateTimer = new();
 
     private bool HasStarted;
     private const string MusicPackExportType = "AthenaMusicPackItemDefinition";
@@ -46,7 +50,7 @@ public partial class RadioViewModel : ViewModelBase
 
     private void OnTimerTick(object? sender, EventArgs e)
     {
-        if (SoundSource is null)
+        if (SoundSource is null || !IsPlaying)
         {
             RuntimeSongInfo = null;
             return;
@@ -60,10 +64,14 @@ public partial class RadioViewModel : ViewModelBase
 
         if (RuntimeSongInfo.Position >= RuntimeSongInfo.Length)
         {
-            // todo looping support
-            // todo onto next track in queue
-            Restart();
-            SoundOut.Play();
+            if (IsLooping)
+            {
+                Restart();
+            }
+            else
+            {
+                Next();
+            }
         }
     }
 
@@ -107,29 +115,71 @@ public partial class RadioViewModel : ViewModelBase
                 break;
         }
         
+        IsPlaying = true;
+        SongInfo = songPicker;
         SoundOut.Stop();
         SoundOut.Initialize(SoundSource);
         SoundOut.Play();
-        SongInfo = songPicker;
+    }
+
+    public void TogglePlayPause()
+    {
+        if (!IsValidSong) return;
+        
+        if (IsPlaying) Pause();
+        else Resume();
+        
+        IsPlaying = !IsPlaying;
+    }
+    
+    public void Stop()
+    {
+        SoundOut.Stop();
     }
     
     public void Pause()
     {
+        if (!IsValidSong) return;
         SoundOut.Pause();
     }
 
     public void Resume()
     {
+        if (!IsValidSong) return;
         SoundOut.Resume();
+    }
+    
+    public void Previous()
+    {
+        if (!IsValidSong) return;
+        
+        var previousSongIndex = LoadedSongs.IndexOf(SongInfo) - 1;
+        if (RuntimeSongInfo?.Position.TotalSeconds > 5 || previousSongIndex < 0)
+        {
+            Restart();
+            return;
+        }
+
+        Play(LoadedSongs[previousSongIndex]);
+    }
+    
+    public void Next()
+    {
+        if (!IsValidSong) return;
+        var nextSongIndex = IsShuffling ? Random.Shared.Next(0, LoadedSongs.Count) : LoadedSongs.IndexOf(SongInfo) + 1;
+        Play(LoadedSongs[nextSongIndex]);
     }
 
     public void Restart()
     {
+        if (!IsValidSong) return;
         SoundSource?.SetPosition(TimeSpan.Zero);
+        SoundOut.Play();
     }
 
     public void Scrub(TimeSpan time)
     {
+        if (!IsValidSong) return;
         SoundSource?.SetPosition(time);
     }
 }

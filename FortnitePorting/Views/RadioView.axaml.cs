@@ -1,7 +1,6 @@
 using System;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
-using Avalonia.Input;
 using Avalonia.Interactivity;
 using FortnitePorting.Framework;
 using FortnitePorting.ViewModels;
@@ -20,24 +19,6 @@ public partial class RadioView : ViewBase<RadioViewModel>
         base.OnLoaded(e);
 
         await ViewModel.Initialize();
-    }
-
-    private void OnPausePlayPressed(object? sender, PointerPressedEventArgs e)
-    {
-        ViewModel.IsPaused = !ViewModel.IsPaused;
-        if (ViewModel.IsPaused)
-        {
-            ViewModel.Pause();
-        }
-        else
-        {
-            ViewModel.Resume();
-        }
-    }
-    
-    private void OnRestartPressed(object? sender, PointerPressedEventArgs e)
-    {
-        ViewModel.Restart();
     }
 
     private void OnSliderValueChanged(object? sender, RangeBaseValueChangedEventArgs e)

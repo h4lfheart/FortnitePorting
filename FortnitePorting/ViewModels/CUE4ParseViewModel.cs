@@ -93,7 +93,7 @@ public class CUE4ParseViewModel : ViewModelBase
         var manifestInfo = await EndpointService.EpicGames.GetManifestInfoAsync();
         if (manifestInfo is null) return;
 
-        HomeVM.Update($"Loading Fortnite Live v{manifestInfo.Version}");
+        HomeVM.Update($"Loading {manifestInfo.BuildVersion}");
         
         var manifestPath = Path.Combine(App.DataFolder.FullName, manifestInfo.FileName);
         FortniteLive = await EndpointService.EpicGames.GetManifestAsync(manifestInfo.Uris.First().Uri.AbsoluteUri, manifestPath);

@@ -18,7 +18,7 @@
             <ColumnDefinition Width="{ext:Space 1}"/>
             <ColumnDefinition Width="2*"/>
         </Grid.ColumnDefinitions>
-        <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" x:Name="PointerOverTarget" PointerPressed="OnSongPlayPressed" Width="68" Height="68">
+        <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Cursor="Hand" x:Name="PointerOverTarget" PointerPressed="OnSongPlayPressed" Width="68" Height="68">
             <Border.Background>
                 <ImageBrush Source="{Binding CoverArtImage, RelativeSource={RelativeSource AncestorType=radio:RadioSongPicker}}"/>
             </Border.Background>

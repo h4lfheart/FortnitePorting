@@ -49,6 +49,7 @@ public class App : Avalonia.Application
     {
         AppSettings.Save();
         Log.CloseAndFlush();
+        RadioVM.Stop();
     }
 
     private void OnStartup(object? sender, ControlledApplicationLifetimeStartupEventArgs e)

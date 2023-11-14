@@ -70,6 +70,18 @@
             <Setter Property="Background" Value="Transparent" />
         </Style>
         
+        <Style Selector="Button.RadioButton">
+            <Setter Property="Foreground" Value="#FFFFFF" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+        
+        <Style Selector="Button.RadioButton:pointerover /template/ ContentPresenter">
+            <Setter Property="Foreground" Value="#FFFFFF" />
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        
         <Style Selector="ToggleButton">
             <Setter Property="CornerRadius" Value="5" />
             <Setter Property="Background" Value="#13FFFFFF" />
@@ -83,6 +95,23 @@
         
         <Style Selector="ToggleButton:checked /template/ ContentPresenter">
             <Setter Property="Background" Value="{DynamicResource SystemAccentColor}" />
+        </Style>
+        
+        <Style Selector="ToggleButton.ToggleRadioButton">
+            <Setter Property="Foreground" Value="#48FFFFFF" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+        
+        <Style Selector="ToggleButton.ToggleRadioButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Foreground" Value="#48FFFFFF" />
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        
+        <Style Selector="ToggleButton.ToggleRadioButton:checked /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Foreground" Value="#FFFFFF" />
+            <Setter Property="Background" Value="Transparent" />
         </Style>
         
         <Style Selector="ComboBox">
