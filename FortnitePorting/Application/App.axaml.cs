@@ -72,6 +72,8 @@ public class App : Avalonia.Application
         {
             DiscordService.Initialize();
         }
+
+        DependencyService.EnsureDependencies();
         
         AppVM = new ApplicationViewModel();
         ApplicationService.Application.MainWindow = new AppWindow();

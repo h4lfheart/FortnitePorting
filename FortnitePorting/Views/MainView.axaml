@@ -30,6 +30,12 @@
                 </TabItem.Header>
                 <views:MeshesView/>
             </TabItem>
+            <TabItem IsEnabled="{Binding RadioTabReady}">
+                <TabItem.Header>
+                    <controls:MaterialIconText Text="Radio" Icon="Radio"/>
+                </TabItem.Header>
+                <views:RadioView/>
+            </TabItem>
             <TabItem>
                 <TabItem.Header>
                     <controls:MaterialIconText Text="Export" Icon="Download"/>

@@ -107,6 +107,6 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
 
     private void OnRandomButtonClicked(object? sender, RoutedEventArgs e)
     {
-        AssetsListBox.SelectedIndex = RandomGenerator.Next(0, ViewModel.ActiveCollection.Count);
+        AssetsListBox.SelectedIndex = Random.Shared.Next(0, ViewModel.ActiveCollection.Count);
     }
 }

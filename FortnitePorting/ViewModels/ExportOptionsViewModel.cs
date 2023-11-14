@@ -29,13 +29,13 @@ public partial class ExportOptionsViewModel : ViewModelBase
     
     private static readonly FilePickerFileType LoadFileType = new("Export Options")
     {
-        Patterns = new[] { "*.fpexport.json" }
+        Patterns = new[] { "*.fp_exportoptions" }
     };
 
     private static readonly FilePickerSaveOptions SaveOptions = new()
     {
         Title = "Save Export Options",
-        DefaultExtension = ".fpexport.json",
+        DefaultExtension = ".fp_exportoptions",
         FileTypeChoices = new[] { LoadFileType },
         ShowOverwritePrompt = true
     };
