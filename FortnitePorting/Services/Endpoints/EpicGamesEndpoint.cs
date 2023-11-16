@@ -57,7 +57,7 @@ public class EpicGamesEndpoint : EndpointBase
         return new Manifest(manifestBytes, new ManifestOptions
         {
             ChunkBaseUri = new Uri(CHUNKS_URL, UriKind.Absolute),
-            ChunkCacheDirectory = App.CacheFolder
+            ChunkCacheDirectory = App.ChunkCacheFolder
         });
     }
 

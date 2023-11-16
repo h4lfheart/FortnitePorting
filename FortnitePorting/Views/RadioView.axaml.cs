@@ -21,9 +21,15 @@ public partial class RadioView : ViewBase<RadioViewModel>
         await ViewModel.Initialize();
     }
 
-    private void OnSliderValueChanged(object? sender, RangeBaseValueChangedEventArgs e)
+    private void OnPlaybackSliderChanged(object? sender, RangeBaseValueChangedEventArgs e)
     {
         if (sender is not Slider slider) return;
         ViewModel.Scrub(TimeSpan.FromSeconds(slider.Value));
+    }
+    
+    private void OnVolumeSliderChanged(object? sender, RangeBaseValueChangedEventArgs e)
+    {
+        if (sender is not Slider slider) return;
+        ViewModel.SetVolume((float) slider.Value);
     }
 }

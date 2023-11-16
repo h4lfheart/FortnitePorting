@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using CUE4Parse.Utils;
 using FortnitePorting.Services.Endpoints;
 using RestSharp;
 using RestSharp.Serializers.NewtonsoftJson;
@@ -43,5 +44,19 @@ public static class EndpointService
         var data = await _client.DownloadDataAsync(request);
         if (data is not null) await File.WriteAllBytesAsync(destination, data);
         return new FileInfo(destination);
+    }
+    
+    public static FileInfo DownloadFile(string url, DirectoryInfo destination)
+    {
+        return DownloadFileAsync(url, destination).GetAwaiter().GetResult();
+    }
+
+    public static async Task<FileInfo> DownloadFileAsync(string url, DirectoryInfo destination)
+    {
+        var outPath = Path.Combine(destination.FullName, url.SubstringAfterLast("/").SubstringAfterLast("\\"));
+        var request = new RestRequest(url);
+        var data = await _client.DownloadDataAsync(request);
+        if (data is not null) await File.WriteAllBytesAsync(outPath, data);
+        return new FileInfo(outPath);
     }
 }

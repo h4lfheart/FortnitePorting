@@ -29,10 +29,18 @@ public partial class RadioViewModel : ViewModelBase
     [ObservableProperty] private RuntimeSongInfo? runtimeSongInfo;
     [ObservableProperty] private bool isLooping;
     [ObservableProperty] private bool isShuffling;
-
-    public bool IsPlaying;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(PlayIconKind))] private bool isPlaying;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(VolumeIconKind))] private float volume = 1.0f;
+    
     public bool IsValidSong => SoundSource is not null && SongInfo is not null && RuntimeSongInfo is not null;
     public MaterialIconKind PlayIconKind => IsPlaying ? MaterialIconKind.Pause : MaterialIconKind.Play;
+    public MaterialIconKind VolumeIconKind => Volume switch
+    {
+        0.0f => MaterialIconKind.VolumeMute,
+        < 0.3f => MaterialIconKind.VolumeLow,
+        < 0.66f => MaterialIconKind.VolumeMedium,
+        1.0f => MaterialIconKind.VolumeHigh
+    };
     
     private IWaveSource? SoundSource;
     private readonly ISoundOut SoundOut = SoundExtensions.GetSoundOut();
@@ -50,7 +58,7 @@ public partial class RadioViewModel : ViewModelBase
 
     private void OnTimerTick(object? sender, EventArgs e)
     {
-        if (SoundSource is null || !IsPlaying)
+        if (SoundSource is null)
         {
             RuntimeSongInfo = null;
             return;
@@ -100,40 +108,55 @@ public partial class RadioViewModel : ViewModelBase
 
     public void Play(RadioSongPicker songPicker)
     {
-        var sounds = songPicker.SoundCue.HandleSoundTree();
-        var sound = sounds.MaxBy(sound => sound.Time)?.SoundWave;
-        if (sound is null) return;
-        
-        sound.Decode(true, out var format, out var data);
-        if (data is null) sound.Decode(false, out format, out data);
-        if (data is null) return;
-        
-        switch (format.ToLower())
+        TaskService.Run(() =>
         {
-            case "binka":
-                SoundSource = new WaveFileReader(SoundExtensions.ConvertBinkaToWav(data));
-                break;
-        }
+            var sounds = songPicker.SoundCue.HandleSoundTree();
+            var sound = sounds.MaxBy(sound => sound.Time)?.SoundWave;
+            if (sound is null) return;
         
-        IsPlaying = true;
-        SongInfo = songPicker;
-        SoundOut.Stop();
-        SoundOut.Initialize(SoundSource);
-        SoundOut.Play();
+            sound.Decode(true, out var format, out var data);
+            if (data is null) sound.Decode(false, out format, out data);
+            if (data is null) return;
+        
+            switch (format.ToLower())
+            {
+                case "binka":
+                    SoundSource = new WaveFileReader(SoundExtensions.ConvertBinkaToWav(data, sound.Name));
+                    break;
+            }
+        
+            IsPlaying = true;
+            SongInfo = songPicker;
+            SoundOut.Stop();
+            SoundOut.Initialize(SoundSource);
+            SoundOut.Play();
+        });
+    }
+    
+    public void SetVolume(float value)
+    {
+        if (!IsValidSong) return;
+        SoundOut.Volume = value;
     }
 
     public void TogglePlayPause()
     {
         if (!IsValidSong) return;
+
+        if (IsPlaying)
+        {
+            Pause();
+        }
+        else
+        {
+            Resume();
+        }
         
-        if (IsPlaying) Pause();
-        else Resume();
-        
-        IsPlaying = !IsPlaying;
     }
     
     public void Stop()
     {
+        if (!IsValidSong) return;
         SoundOut.Stop();
     }
     
@@ -141,12 +164,14 @@ public partial class RadioViewModel : ViewModelBase
     {
         if (!IsValidSong) return;
         SoundOut.Pause();
+        IsPlaying = false;
     }
 
     public void Resume()
     {
         if (!IsValidSong) return;
         SoundOut.Resume();
+        IsPlaying = true;
     }
     
     public void Previous()

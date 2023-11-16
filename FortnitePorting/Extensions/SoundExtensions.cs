@@ -29,44 +29,53 @@ public static class SoundExtensions
         return new DirectSoundOut();
     }
 
-    public static MemoryStream ConvertBinkaToWav(byte[] data)
+    public static FileStream ConvertBinkaToWav(byte[] data, string name = "temp")
     {
-        var binkaPath = Path.Combine(App.DataFolder.FullName, "temp.binka");
-        File.WriteAllBytes(binkaPath, data);
+        var wavPath = Path.Combine(App.AudioCacheFolder.FullName, $"{name}.wav");
+        if (File.Exists(wavPath))
+        {
+            return new FileStream(wavPath, FileMode.Open, FileAccess.Read);
+        }
         
+        var binkaPath = Path.ChangeExtension(wavPath, "binka");
         var binPath = Path.ChangeExtension(binkaPath, ".bin");
-        var binkadecProcess = Process.Start(new ProcessStartInfo
-        {
-            FileName = DependencyService.BinkadecFile.FullName,
-            Arguments = $"-i \"{binkaPath}\" -o \"{binPath}\"",
-            UseShellExecute = false,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            CreateNoWindow = false
-        });
-        binkadecProcess!.WaitForExit();
-        File.Delete(binkaPath);
+        File.WriteAllBytes(binkaPath, data);
 
-        var binkadecOutput = binkadecProcess.StandardOutput.ReadToEnd();
-        var parameters = binkadecOutput.SubstringAfter("ffplay ").Trim();
-        var wavPath = Path.ChangeExtension(binkaPath, ".wav");
-        var ffmpegProcess = Process.Start(new ProcessStartInfo
+        string ffmpegParameters;
+        using (var binkaProcess = new Process())
         {
-            FileName = DependencyService.FFmpegFile.FullName,
-            Arguments = $"{parameters} \"{wavPath}\"",
-            UseShellExecute = false,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            CreateNoWindow = false
-        });
-        ffmpegProcess!.WaitForExit();
+         
+            binkaProcess.StartInfo = new ProcessStartInfo
+            {
+                FileName = DependencyService.BinkadecFile.FullName,
+                Arguments = $"-i \"{binkaPath}\" -o \"{binPath}\"",
+                UseShellExecute = false,
+                RedirectStandardOutput = true
+            };
+
+            binkaProcess.Start();
+            binkaProcess.WaitForExit(5000);
+            ffmpegParameters = binkaProcess.StandardOutput.ReadToEnd().SubstringAfter("ffplay ").Trim();
+        }
+
+        using (var ffmpegProcess = new Process())
+        {
+            ffmpegProcess.StartInfo = new ProcessStartInfo
+            {
+                FileName = DependencyService.FFmpegFile.FullName,
+                Arguments = $"{ffmpegParameters} \"{wavPath}\"",
+                UseShellExecute = false,
+                RedirectStandardOutput = true
+            };
+
+            ffmpegProcess.Start();
+            ffmpegProcess.WaitForExit(5000);
+        }
+        
+        File.Delete(binkaPath);
         File.Delete(binPath);
         
-        // TODO cache in actual folder w/ filestream
-        var wavStream = new MemoryStream(File.ReadAllBytes(wavPath));
-        File.Delete(wavPath);
-
-        return wavStream;
+        return new FileStream(wavPath, FileMode.Open, FileAccess.Read);
     }
     
     public static List<Sound> HandleSoundTree(this USoundCue root, float offsetTime = 0.0f)
@@ -152,10 +161,5 @@ public class Sound
         SoundWave = soundWave;
         Time = time;
         Loop = loop;
-    }
-    
-    public bool IsValid()
-    {
-        return SoundWave is not null && Time >= 0;
     }
 }

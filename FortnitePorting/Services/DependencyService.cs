@@ -42,5 +42,6 @@ public static class DependencyService
             if (!zipFile.FileName.EndsWith("/bin/ffmpeg.exe", StringComparison.OrdinalIgnoreCase)) continue;
             zipFile.Extract(new FileStream(FFmpegFile.FullName, FileMode.OpenOrCreate, FileAccess.Write));
         }
+        file.Delete();
     }
 }

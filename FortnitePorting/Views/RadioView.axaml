@@ -14,7 +14,7 @@
     <controls:GroupBox Background="#26000000">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="6*"/>
+                <RowDefinition Height="6.5*"/>
                 <RowDefinition Height="{ext:Space 1}"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
@@ -42,14 +42,31 @@
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="1.5*"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="{ext:Space 1}"/>
                         <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="{ext:Space 1}"/>
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     
-                    <Grid Grid.Row="0" Grid.Column="1" ColumnDefinitions="* * * * *" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 8 0 0">
+                    <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" HorizontalAlignment="Left">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="{ext:Space 1}"/>
+                            <ColumnDefinition Width="2*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Background="#26FFFFFF" Width="68" Height="68" CornerRadius="10"/>
+                        <Image Grid.Column="0" Source="{Binding SongInfo.CoverArtImage}" Width="68" Height="68"/>
+                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding SongInfo.Title, FallbackValue=No Song Playing}" FontSize="18" VerticalAlignment="Bottom"/>
+                            <TextBlock Text="{Binding SongInfo.Description, FallbackValue=Play a song to begin listening!}" Opacity="0.5" TextWrapping="WrapWithOverflow" VerticalAlignment="Top"/>
+                        </StackPanel>
+                    </Grid>
+                    
+                    <Grid Grid.Row="0" Grid.Column="2" ColumnDefinitions="* * * * *" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 16 0 0">
                         <ToggleButton Grid.Column="0" IsChecked="{Binding IsLooping}" Classes="ToggleRadioButton" Width="32" Height="32">
                             <material:MaterialIcon Kind="Refresh" Width="32" Height="32"/>
                         </ToggleButton>
@@ -67,7 +84,7 @@
                         </ToggleButton>
                     </Grid>
                     
-                    <Grid Grid.Row="1" Grid.Column="1">
+                    <Grid Grid.Row="1" Grid.Column="2">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="{ext:Space 1}"/>
@@ -76,24 +93,18 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="{Binding RuntimeSongInfo.Position, StringFormat=mm\\:ss, FallbackValue=0:00}" VerticalAlignment="Center" Margin="0 8 0 0"/>
-                        <Slider Grid.Column="2" ValueChanged="OnSliderValueChanged" VerticalAlignment="Center" Value="{Binding RuntimeSongInfo.Position.TotalSeconds, FallbackValue=0}" Maximum="{Binding RuntimeSongInfo.Length.TotalSeconds, FallbackValue=0}"/>
+                        <Slider Grid.Column="2" ValueChanged="OnPlaybackSliderChanged" VerticalAlignment="Center" Value="{Binding RuntimeSongInfo.Position.TotalSeconds, FallbackValue=0}" Maximum="{Binding RuntimeSongInfo.Length.TotalSeconds, FallbackValue=0}"/>
                         <TextBlock Grid.Column="4" Text="{Binding RuntimeSongInfo.Length, StringFormat=mm\\:ss, FallbackValue=0:00}" VerticalAlignment="Center" Margin="0 8 0 0"/>
                     </Grid>
                     
-                    <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" HorizontalAlignment="Left">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
+                    <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="4" HorizontalAlignment="Center">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="{ext:Space 1}"/>
-                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="5*"/>
                         </Grid.ColumnDefinitions>
-                        <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Background="#26FFFFFF" Width="68" Height="68" CornerRadius="10"/>
-                        <Image Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Source="{Binding SongInfo.CoverArtImage}" Width="68" Height="68"/>
-                        <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding SongInfo.Title, FallbackValue=No Song Playing}" FontSize="18" VerticalAlignment="Bottom"/>
-                        <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding SongInfo.Description, FallbackValue=Play a song to begin listening!}" Opacity="0.5" TextWrapping="WrapWithOverflow" VerticalAlignment="Top"/>
+                        <material:MaterialIcon Grid.Column="0" Kind="{Binding VolumeIconKind}" VerticalAlignment="Center" Width="24" Height="24"/>
+                        <Slider Grid.Column="2" ValueChanged="OnVolumeSliderChanged" Value="{Binding Volume, Mode=TwoWay}" Minimum="0.0" Maximum="1.0" TickFrequency="0.1" VerticalAlignment="Center" Width="200"/>
                     </Grid>
                 </Grid>
             </controls:GroupBox>

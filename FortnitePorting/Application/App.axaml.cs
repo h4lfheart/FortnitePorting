@@ -17,7 +17,8 @@ public class App : Avalonia.Application
     public static readonly DirectoryInfo AssetsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets"));
     public static readonly DirectoryInfo LogsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs"));
     public static readonly DirectoryInfo DataFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".data"));
-    public static readonly DirectoryInfo CacheFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".cache"));
+    public static readonly DirectoryInfo ChunkCacheFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".chunkcache"));
+    public static readonly DirectoryInfo AudioCacheFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".audiocache"));
 
     public override void OnFrameworkInitializationCompleted()
     {
@@ -68,6 +69,8 @@ public class App : Avalonia.Application
         AssetsFolder.Create();
         DataFolder.Create();
         LogsFolder.Create();
+        ChunkCacheFolder.Create();
+        AudioCacheFolder.Create();
         
         if (AppSettings.Current.UseDiscordRPC)
         {

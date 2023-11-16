@@ -16,6 +16,7 @@ using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.Core.Misc;
 using CUE4Parse.UE4.Readers;
 using CUE4Parse.UE4.Versions;
+using CUE4Parse.Utils;
 using EpicManifestParser.Objects;
 using FortnitePorting.Application;
 using FortnitePorting.Extensions;
@@ -111,15 +112,19 @@ public class CUE4ParseViewModel : ViewModelBase
     {
         var tocPath = await GetTocPath(AppSettings.Current.LoadingType);
         if (string.IsNullOrEmpty(tocPath)) return;
+
+        var tocName = tocPath.SubstringAfterLast("/");
+        var onDemandFile = new FileInfo(Path.Combine(App.DataFolder.FullName, tocName));
+        if (!onDemandFile.Exists || onDemandFile.Length == 0)
+        {
+            await EndpointService.DownloadFileAsync($"https://download.epicgames.com/{tocPath}", onDemandFile.FullName);
+        }
         
-        var onDemandBytes = await EndpointService.EpicGames.GetWithAuth($"https://download.epicgames.com/{tocPath}");
-        if (onDemandBytes is null) return;
-        
-        await Provider.RegisterVfs(new IoChunkToc(new FByteArchive("OnDemandToc", onDemandBytes)),
+        await Provider.RegisterVfs(new IoChunkToc(onDemandFile),
             new IoStoreOnDemandOptions
             {
                 ChunkBaseUri = new Uri("https://download.epicgames.com/ias/fortnite/", UriKind.Absolute),
-                ChunkCacheDirectory = App.CacheFolder,
+                ChunkCacheDirectory = App.ChunkCacheFolder,
                 Authorization = new AuthenticationHeaderValue("Bearer", AppSettings.Current.EpicGamesAuth?.Token),
                 Timeout = TimeSpan.FromSeconds(100)
             });
