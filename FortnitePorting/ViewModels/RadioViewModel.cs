@@ -93,17 +93,15 @@ public partial class RadioViewModel : ViewModelBase
         {
             if (musicPack.AssetName.Text.Contains("Random", StringComparison.OrdinalIgnoreCase) || musicPack.AssetName.Text.Contains("TBD", StringComparison.OrdinalIgnoreCase)) continue;
             
-            try
+            var asset = await CUE4ParseVM.Provider.LoadObjectAsync(musicPack.ObjectPath);
+            await TaskService.RunDispatcherAsync(() =>
             {
-                var asset = await CUE4ParseVM.Provider.LoadObjectAsync(musicPack.ObjectPath);
-                await TaskService.RunDispatcherAsync(() => LoadedSongs.Add(new RadioSongPicker(asset)));
-            }
-            catch (Exception e)
-            {
-                Log.Error("{0}", e);
-            }
+                var loadedSong = new RadioSongPicker(asset);
+                if (LoadedSongs.Any(song => song.Title.Equals(loadedSong.Title))) return;
+                
+                LoadedSongs.Add(loadedSong);
+            });
         }
-        
     }
 
     public void Play(RadioSongPicker songPicker)
