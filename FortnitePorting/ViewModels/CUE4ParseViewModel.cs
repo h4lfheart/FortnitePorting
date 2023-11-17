@@ -34,6 +34,7 @@ using CUE4Parse.Utils;
 using EpicManifestParser.Objects;
 using FortnitePorting.AppUtils;
 using FortnitePorting.Bundles;
+using FortnitePorting.Exports;
 using FortnitePorting.Services;
 using FortnitePorting.Services.Endpoints.Models;
 using FortnitePorting.Views.Controls;
@@ -130,9 +131,9 @@ public class CUE4ParseViewModel : ObservableObject
 
         Provider = installType switch
         {
-            EInstallType.Local => new FortnitePortingFileProvider(new DirectoryInfo(directory), SearchOption.TopDirectoryOnly, true, Version),
-            EInstallType.Live => new FortnitePortingFileProvider(true, Version),
-            EInstallType.Custom => new FortnitePortingFileProvider(new DirectoryInfo(directory), SearchOption.TopDirectoryOnly, true, new VersionContainer(AppSettings.Current.GameVersion))
+            EInstallType.Local => new FortnitePortingFileProvider(directory, Version),
+            EInstallType.Live => new FortnitePortingFileProvider(Version),
+            EInstallType.Custom => new FortnitePortingFileProvider(directory, new VersionContainer(AppSettings.Current.GameVersion))
         };
 
         Provider.Versions.Options["SkeletalMesh.KeepMobileMinLODSettingOnDesktop"] = true;
@@ -237,7 +238,7 @@ public class CUE4ParseViewModel : ObservableObject
             case EInstallType.Local:
             case EInstallType.Custom:
             {
-                Provider.InitializeLocal();
+                Provider.Initialize();
                 break;
             }
             case EInstallType.Live:
@@ -298,13 +299,21 @@ public class CUE4ParseViewModel : ObservableObject
         var onDemandBytes = await EndpointService.Epic.GetWithAuth($"https://download.epicgames.com/ias/fortnite/{onDemandHash}.iochunktoc");
         if (onDemandBytes is null) return;
 
-        await Provider.RegisterVfs(new IoChunkToc(new FByteArchive("OnDemandToc", onDemandBytes)), new IoStoreOnDemandOptions
+        try
         {
-            ChunkBaseUri = new Uri("https://download.epicgames.com/ias/fortnite/", UriKind.Absolute),
-            ChunkCacheDirectory = App.CacheFolder,
-            Authorization = new AuthenticationHeaderValue("Bearer", AppSettings.Current.EpicAuth.AccessToken)
-        });
-        await Provider.MountAsync();
+            await Provider.RegisterVfs(new IoChunkToc(new FByteArchive("OnDemandToc", onDemandBytes)),
+                new IoStoreOnDemandOptions
+                {
+                    ChunkBaseUri = new Uri("https://download.epicgames.com/ias/fortnite/", UriKind.Absolute),
+                    ChunkCacheDirectory = App.CacheFolder,
+                    Authorization = new AuthenticationHeaderValue("Bearer", AppSettings.Current.EpicAuth.AccessToken)
+                });
+            await Provider.MountAsync();
+        }
+        catch (Exception)
+        {
+            Log.Error("Failed to load OnDemand cosmetic streaming");
+        }
 
     }
     

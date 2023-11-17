@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -26,7 +27,8 @@ public partial class LoadingViewModel : ObservableObject
     {
         await Task.Run(async () =>
         {
-            await LoadVGMStream();
+            Task.Run(async () => await LoadVGMStream());
+            Task.Run(async () => await LoadFFMPEG());
             AppVM.CUE4ParseVM = new CUE4ParseViewModel(AppSettings.Current.ArchivePath, AppSettings.Current.InstallType);
             await AppVM.CUE4ParseVM.Initialize();
 
@@ -51,6 +53,23 @@ public partial class LoadingViewModel : ObservableObject
         foreach (var zipFile in zip)
         {
             zipFile.Extract(App.VGMStreamFolder.FullName, ExtractExistingFileAction.OverwriteSilently);
+        }
+    }
+    
+    private async Task LoadFFMPEG()
+    {
+        var path = Path.Combine(App.VGMStreamFolder.FullName, "ffmpeg.zip");
+        if (File.Exists(path)) return;
+
+        var file = await EndpointService.DownloadFileAsync("https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip", Path.Combine(App.VGMStreamFolder.FullName, "ffmpeg.zip"));
+        if (!file.Exists) return;
+        if (file.Length <= 0) return;
+
+        var zip = ZipFile.Read(file.FullName);
+        foreach (var zipFile in zip)
+        {
+            if (!zipFile.FileName.EndsWith("/bin/ffmpeg.exe", StringComparison.OrdinalIgnoreCase)) continue;
+            zipFile.Extract(new FileStream(Path.Combine(App.VGMStreamFolder.FullName, "ffmpeg.exe"), FileMode.OpenOrCreate, FileAccess.Write));
         }
     }
 }

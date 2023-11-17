@@ -31,6 +31,7 @@ public partial class App
     
     public static Stream? BlenderPluginStream;
     public static Stream? UnrealPluginStream;
+    public static Stream? BinkadecStream;
     
 
     public static readonly Random RandomGenerator = new();
@@ -68,6 +69,9 @@ public partial class App
         
         UnrealPluginStream = GetResourceStream(new Uri("/FortnitePorting;component/Plugin/FortnitePortingUnreal.zip", UriKind.Relative))?.Stream;
         TryWritePluginZip("FortnitePortingUnreal.zip", UnrealPluginStream);
+        
+        BinkadecStream = GetResourceStream(new Uri("/FortnitePorting;component/Resources/binkadec.exe", UriKind.Relative))?.Stream;
+        TryWriteBinkadecFile("binkadec.exe", BinkadecStream);
 
         UpdateService.Initialize();
 
@@ -94,6 +98,12 @@ public partial class App
     {
         if (str is null) return;
         File.WriteAllBytes(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, outPath), str.ReadToEnd());
+    }
+    
+    private static void TryWriteBinkadecFile(string outPath, Stream? str)
+    {
+        if (str is null) return;
+        File.WriteAllBytes(Path.Combine(VGMStreamFolder.FullName, outPath), str.ReadToEnd());
     }
 
     private void OnUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)

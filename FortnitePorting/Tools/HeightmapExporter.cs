@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Threading;
 using CUE4Parse.UE4.Assets.Exports;
@@ -32,6 +33,12 @@ public static class HeightmapExporter
         // Gather Textures
         var heightTextures = new List<TileData?>();
         var weightmapLayerTextures = new Dictionary<string, List<TileData?>>(); // LayerName : List of All Textures
+        var worldSettings = level.Actors.FirstOrDefault(x => x.Name.Equals("FortWorldSettings"));
+        if (worldSettings is null) return;
+
+        var worldPartition = worldSettings.Load()?.Get<UObject>("WorldPartition");
+        if (worldPartition is null) return;
+
         foreach (var actor in level.Actors)
         {
             if (!actor.Name.StartsWith("LandscapeStreamingProxy")) continue;

@@ -12,6 +12,7 @@ using CUE4Parse_Conversion.Sounds;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Exports.Sound.Node;
+using CUE4Parse.Utils;
 using FortnitePorting.Exports;
 using FortnitePorting.Services;
 
@@ -62,6 +63,10 @@ public partial class MusicQueueItem : IDisposable
     {
         var properSoundWave = GetProperSoundWave(Asset);
         properSoundWave.Decode(true, out var format, out var data);
+        if (data is null)
+        {
+            properSoundWave.Decode(false, out format, out data);
+        }
         if (data is null) return;
 
         switch (format.ToLower())
@@ -70,7 +75,10 @@ public partial class MusicQueueItem : IDisposable
                 SoundSource = new OggSource(new MemoryStream(data)).ToWaveSource();
                 break;
             case "adpcm":
-                SoundSource = new WaveFileReader(ConvertedData(data));
+                SoundSource = new WaveFileReader(ConvertedDataVGMStream(data));
+                break;
+            case "binka":
+                SoundSource = new WaveFileReader(ConvertedDataBinkadec(data));
                 break;
         }
 
@@ -81,7 +89,7 @@ public partial class MusicQueueItem : IDisposable
         DiscordService.UpdateMusicState(DisplayName);
     }
 
-    private MemoryStream ConvertedData(byte[] data)
+    public static MemoryStream ConvertedDataVGMStream(byte[] data)
     {
         var vgmPath = Path.Combine(App.VGMStreamFolder.FullName, "vgmstream-cli.exe");
 
@@ -108,9 +116,54 @@ public partial class MusicQueueItem : IDisposable
 
         return memoryStream;
     }
-
-    public MusicPackRuntimeInfo GetInfo()
+    
+    public static MemoryStream ConvertedDataBinkadec(byte[] data)
     {
+        var binkadecPath = Path.Combine(App.VGMStreamFolder.FullName, "binkadec.exe");
+        var ffmpegPath = Path.Combine(App.VGMStreamFolder.FullName, "ffmpeg.exe");
+
+        var binkaPath = Path.Combine(App.VGMStreamFolder.FullName, "temp.binka");
+        var binPath = Path.ChangeExtension(binkaPath, ".bin");
+        var wavPath = Path.ChangeExtension(binkaPath, ".wav");
+
+        File.WriteAllBytes(binkaPath, data);
+
+        var vgmInst = Process.Start(new ProcessStartInfo
+        {
+            FileName = binkadecPath,
+            Arguments = $"-i \"{binkaPath}\" -o \"{binPath}\"",
+            UseShellExecute = false,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            CreateNoWindow = false
+        });
+        vgmInst?.WaitForExit();
+        var output = vgmInst.StandardOutput.ReadToEnd();
+        var sampleRate = output.SubstringAfter("-ar ")[..5];
+        
+        var vgmInst2 = Process.Start(new ProcessStartInfo
+        {
+            FileName = ffmpegPath,
+            Arguments = $"-f s16le -ar {sampleRate} -ac 2 -i \"{binPath}\" \"{wavPath}\"",
+            UseShellExecute = false,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            CreateNoWindow = false
+        });
+        vgmInst2?.WaitForExit();
+
+        var memoryStream = new MemoryStream(File.ReadAllBytes(wavPath));
+
+        File.Delete(binkaPath);
+        File.Delete(binPath);
+        File.Delete(wavPath);
+
+        return memoryStream;
+    }
+
+    public MusicPackRuntimeInfo? GetInfo()
+    {
+        if (SoundSource is null) return null;
         return new MusicPackRuntimeInfo
         {
             Length = SoundSource.GetLength(),

@@ -8,6 +8,10 @@ using System.Windows;
 using System.Windows.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CSCore;
+using CSCore.Codecs.OGG;
+using CSCore.Codecs.WAV;
+using CUE4Parse_Conversion.Sounds;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
 using FortnitePorting.AppUtils;
@@ -19,6 +23,7 @@ using FortnitePorting.Services.Export;
 using FortnitePorting.Views;
 using FortnitePorting.Views.Controls;
 using FortnitePorting.Views.Extensions;
+using MercuryCommons.Utilities.Extensions;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
@@ -353,8 +358,31 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void ExportMusic()
     {
-        var soundWave = MusicQueueItem.GetProperSoundWave(CurrentAsset.Asset);
-        ExportHelpers.SaveSoundWave(soundWave, out _, out var path);
+        var properSoundWave = MusicQueueItem.GetProperSoundWave(CurrentAsset.Asset);
+        properSoundWave.Decode(true, out var format, out var data);
+        if (data is null)
+        {
+            properSoundWave.Decode(false, out format, out data);
+        }
+        if (data is null) return;
+
+        var exportFormat = format;
+        var exportData = data;
+        switch (format.ToLower())
+        {
+            case "adpcm":
+                exportData = MusicQueueItem.ConvertedDataVGMStream(data).ReadToEnd();
+                exportFormat = "wav";
+                break;
+            case "binka":
+                exportData = MusicQueueItem.ConvertedDataBinkadec(data).ReadToEnd();
+                exportFormat = "wav";
+                break;
+        }
+
+
+        var path = ExportHelpers.GetExportPath(properSoundWave, exportFormat);
+        File.WriteAllBytes(path, exportData);
         AppHelper.Launch(Path.GetDirectoryName(path));
     }
     

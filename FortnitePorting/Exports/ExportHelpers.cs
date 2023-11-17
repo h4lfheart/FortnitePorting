@@ -26,7 +26,10 @@ using CUE4Parse.UE4.Objects.Engine.Animation;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using FortnitePorting.AppUtils;
+using FortnitePorting.Views.Controls;
 using FortnitePorting.Views.Extensions;
+using MercuryCommons.Utilities.Extensions;
+using Newtonsoft.Json;
 using SixLabors.ImageSharp;
 using SkiaSharp;
 
@@ -91,6 +94,9 @@ public static class ExportHelpers
 
                     if (additionalData.TryGetValue(out UAnimBlueprintGeneratedClass animBlueprint, "AnimClass") && animBlueprint.ClassDefaultObject is not null)
                     {
+                        var bagel = AppVM.CUE4ParseVM.Provider.LoadAllObjects(animBlueprint
+                            .GetPathName().SubstringBeforeLast("."));
+                        var egg = JsonConvert.SerializeObject(bagel);
                         var classDefaultObject = animBlueprint.ClassDefaultObject.Load();
                         if (classDefaultObject?.TryGetValue(out FStructFallback poseAssetNode, "AnimGraphNode_PoseBlendNode") ?? false)
                         {
@@ -889,20 +895,37 @@ public static class ExportHelpers
         {
             try
             {
-                soundWave.Decode(true, out var audioFormat, out var data);
-                if (data is null || string.IsNullOrWhiteSpace(audioFormat)) return (string.Empty, string.Empty);
-                audioFormat = audioFormat.ToLower();
+                soundWave.Decode(true, out var format, out var data);
+                if (data is null)
+                {
+                    soundWave.Decode(false, out format, out data);
+                }
+                if (data is null) return (string.Empty, string.Empty);;
 
-                var path = GetExportPath(soundWave, audioFormat);
+                var exportFormat = format;
+                var exportData = data;
+                switch (format.ToLower())
+                {
+                    case "adpcm":
+                        exportData = MusicQueueItem.ConvertedDataVGMStream(data).ReadToEnd();
+                        exportFormat = "wav";
+                        break;
+                    case "binka":
+                        exportData = MusicQueueItem.ConvertedDataBinkadec(data).ReadToEnd();
+                        exportFormat = "wav";
+                        break;
+                }
+
+                var path = GetExportPath(soundWave, exportFormat);
                 if (!File.Exists(path))
                 {
                     Directory.CreateDirectory(path.Replace('\\', '/').SubstringBeforeLast('/'));
-                    File.WriteAllBytes(path, data.ToArray());
+                    File.WriteAllBytes(path, exportData.ToArray());
 
-                    Log.Information("Exporting {ExportType}: {FileName}", soundWave.ExportType, soundWave.Name);
+                    Log.Information("Exporting {ExportType}: {FileName} to {Path}", soundWave.ExportType, soundWave.Name, path);
                 }
 
-                return (path, audioFormat);
+                return (path, exportFormat);
             }
             catch (IOException e)
             {
@@ -929,7 +952,7 @@ public static class ExportHelpers
         Log.Information("Exporting {ExportType}: {FileName}", additiveSequence.ExportType, additiveSequence.Name);
     }
 
-    private static string GetExportPath(UObject obj, string ext, string extra = "")
+    public static string GetExportPath(UObject obj, string ext, string extra = "")
     {
         var path = obj.Owner != null ? obj.Owner.Name : string.Empty;
         path = path.SubstringBeforeLast('.');
