@@ -1,11 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <LangVersion>latest</LangVersion>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
         <OutputType>WinExe</OutputType>
-        <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
         <ApplicationIcon>Assets/FortnitePortingV2.ico</ApplicationIcon>
     </PropertyGroup>
 
