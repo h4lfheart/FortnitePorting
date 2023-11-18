@@ -26,10 +26,10 @@ public partial class RadioView : ViewBase<RadioViewModel>
         if (sender is not Slider slider) return;
         ViewModel.Scrub(TimeSpan.FromSeconds(slider.Value));
     }
-    
+
     private void OnVolumeSliderChanged(object? sender, RangeBaseValueChangedEventArgs e)
     {
         if (sender is not Slider slider) return;
-        ViewModel.SetVolume((float) slider.Value);
+        ViewModel.SetVolume((float)slider.Value);
     }
 }

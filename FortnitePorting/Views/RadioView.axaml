@@ -20,11 +20,33 @@
             </Grid.RowDefinitions>
             <Grid Grid.Row="0">
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="{ext:Space 1}"/>
                     <ColumnDefinition Width="3*"/>
                 </Grid.ColumnDefinitions>
                 
-                
                 <controls:GroupBox Grid.Column="0">
+                    <Grid HorizontalAlignment="Left" VerticalAlignment="Top">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="2*"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="{ext:Space 1}"/>
+                            <ColumnDefinition Width="2*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Width="68" Height="68" CornerRadius="10">
+                            <Border.Background>
+                                <ImageBrush Source="/Assets/FN/Fortnite.png"/>
+                            </Border.Background>
+                        </Border>
+                        <TextBlock Grid.Row="0" Grid.Column="2" Text="Fortnite" FontSize="18" Margin="0 8 0 0"/>
+                        <TextBlock Grid.Row="1" Grid.Column="2" Text="Official Fortnite Playlist" Opacity="0.5" TextWrapping="WrapWithOverflow"/>
+                    </Grid>
+                </controls:GroupBox>
+                
+                <controls:GroupBox Grid.Column="2">
                     <ScrollViewer>
                         <ItemsControl ItemsSource="{Binding LoadedSongs}">
                             <ItemsControl.Styles>

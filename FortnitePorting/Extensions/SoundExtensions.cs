@@ -18,7 +18,7 @@ namespace FortnitePorting.Extensions;
 public static class SoundExtensions
 {
     private static readonly MMDeviceEnumerator DeviceEnumerator = new();
-    
+
     public static ISoundOut GetSoundOut()
     {
         if (WasapiOut.IsSupportedOnCurrentPlatform)
@@ -36,7 +36,7 @@ public static class SoundExtensions
         {
             return new FileStream(wavPath, FileMode.Open, FileAccess.Read);
         }
-        
+
         var binkaPath = Path.ChangeExtension(wavPath, "binka");
         var binPath = Path.ChangeExtension(binkaPath, ".bin");
         File.WriteAllBytes(binkaPath, data);
@@ -44,7 +44,6 @@ public static class SoundExtensions
         string ffmpegParameters;
         using (var binkaProcess = new Process())
         {
-         
             binkaProcess.StartInfo = new ProcessStartInfo
             {
                 FileName = DependencyService.BinkadecFile.FullName,
@@ -71,16 +70,16 @@ public static class SoundExtensions
             ffmpegProcess.Start();
             ffmpegProcess.WaitForExit(5000);
         }
-        
+
         File.Delete(binkaPath);
         File.Delete(binPath);
-        
+
         return new FileStream(wavPath, FileMode.Open, FileAccess.Read);
     }
-    
+
     public static List<Sound> HandleSoundTree(this USoundCue root, float offsetTime = 0.0f)
     {
-        if (root.FirstNode is null) return (List<Sound>) Enumerable.Empty<Sound>();
+        if (root.FirstNode is null) return (List<Sound>)Enumerable.Empty<Sound>();
         return HandleSoundTree(root.FirstNode.Load<USoundNode>());
     }
 
@@ -137,7 +136,7 @@ public static class SoundExtensions
 
         return sounds;
     }
-    
+
     private static Sound CreateSound(USoundNodeWavePlayer player, float timeOffset = 0)
     {
         var soundWave = player.SoundWave?.Load<USoundWave>();

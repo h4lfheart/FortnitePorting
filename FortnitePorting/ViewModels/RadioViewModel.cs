@@ -1,24 +1,18 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Avalonia.Controls.Documents;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CSCore;
 using CSCore.Codecs.WAV;
 using CSCore.SoundOut;
 using CUE4Parse_Conversion.Sounds;
-using CUE4Parse.UE4.Assets.Exports.Sound;
-using CUE4Parse.UE4.Assets.Exports.Sound.Node;
 using FortnitePorting.Controls.Radio;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Services;
 using Material.Icons;
-using Serilog;
 
 namespace FortnitePorting.ViewModels;
 
@@ -29,19 +23,22 @@ public partial class RadioViewModel : ViewModelBase
     [ObservableProperty] private RuntimeSongInfo? runtimeSongInfo;
     [ObservableProperty] private bool isLooping;
     [ObservableProperty] private bool isShuffling;
+
     [ObservableProperty, NotifyPropertyChangedFor(nameof(PlayIconKind))] private bool isPlaying;
+
     [ObservableProperty, NotifyPropertyChangedFor(nameof(VolumeIconKind))] private float volume = 1.0f;
-    
+
     public bool IsValidSong => SoundSource is not null && SongInfo is not null && RuntimeSongInfo is not null;
     public MaterialIconKind PlayIconKind => IsPlaying ? MaterialIconKind.Pause : MaterialIconKind.Play;
+
     public MaterialIconKind VolumeIconKind => Volume switch
     {
         0.0f => MaterialIconKind.VolumeMute,
         < 0.3f => MaterialIconKind.VolumeLow,
         < 0.66f => MaterialIconKind.VolumeMedium,
-        1.0f => MaterialIconKind.VolumeHigh
+        <= 1.0f => MaterialIconKind.VolumeHigh
     };
-    
+
     private IWaveSource? SoundSource;
     private readonly ISoundOut SoundOut = SoundExtensions.GetSoundOut();
     private readonly DispatcherTimer UpdateTimer = new();
@@ -52,7 +49,7 @@ public partial class RadioViewModel : ViewModelBase
     public RadioViewModel()
     {
         UpdateTimer.Tick += OnTimerTick;
-        UpdateTimer.Interval = TimeSpan.FromMilliseconds(1);
+        UpdateTimer.Interval = TimeSpan.FromSeconds(1);
         UpdateTimer.Start();
     }
 
@@ -87,18 +84,20 @@ public partial class RadioViewModel : ViewModelBase
     {
         if (HasStarted) return;
         HasStarted = true;
-        
-        var musicPacks = CUE4ParseVM.AssetRegistry.Where(data => data.AssetClass.Text.Equals(MusicPackExportType)).ToList();
+
+        var musicPacks = CUE4ParseVM.AssetRegistry.Where(data => data.AssetClass.Text.Equals(MusicPackExportType))
+            .ToList();
         foreach (var musicPack in musicPacks)
         {
-            if (musicPack.AssetName.Text.Contains("Random", StringComparison.OrdinalIgnoreCase) || musicPack.AssetName.Text.Contains("TBD", StringComparison.OrdinalIgnoreCase)) continue;
-            
+            if (musicPack.AssetName.Text.Contains("Random", StringComparison.OrdinalIgnoreCase) ||
+                musicPack.AssetName.Text.Contains("TBD", StringComparison.OrdinalIgnoreCase)) continue;
+
             var asset = await CUE4ParseVM.Provider.LoadObjectAsync(musicPack.ObjectPath);
             await TaskService.RunDispatcherAsync(() =>
             {
                 var loadedSong = new RadioSongPicker(asset);
                 if (LoadedSongs.Any(song => song.Title.Equals(loadedSong.Title))) return;
-                
+
                 LoadedSongs.Add(loadedSong);
             });
         }
@@ -111,18 +110,18 @@ public partial class RadioViewModel : ViewModelBase
             var sounds = songPicker.SoundCue.HandleSoundTree();
             var sound = sounds.MaxBy(sound => sound.Time)?.SoundWave;
             if (sound is null) return;
-        
+
             sound.Decode(true, out var format, out var data);
             if (data is null) sound.Decode(false, out format, out data);
             if (data is null) return;
-        
+
             switch (format.ToLower())
             {
                 case "binka":
                     SoundSource = new WaveFileReader(SoundExtensions.ConvertBinkaToWav(data, sound.Name));
                     break;
             }
-        
+
             IsPlaying = true;
             SongInfo = songPicker;
             SoundOut.Stop();
@@ -130,7 +129,7 @@ public partial class RadioViewModel : ViewModelBase
             SoundOut.Play();
         });
     }
-    
+
     public void SetVolume(float value)
     {
         if (!IsValidSong) return;
@@ -149,15 +148,14 @@ public partial class RadioViewModel : ViewModelBase
         {
             Resume();
         }
-        
     }
-    
+
     public void Stop()
     {
         if (!IsValidSong) return;
         SoundOut.Stop();
     }
-    
+
     public void Pause()
     {
         if (!IsValidSong) return;
@@ -171,11 +169,11 @@ public partial class RadioViewModel : ViewModelBase
         SoundOut.Resume();
         IsPlaying = true;
     }
-    
+
     public void Previous()
     {
         if (!IsValidSong) return;
-        
+
         var previousSongIndex = LoadedSongs.IndexOf(SongInfo) - 1;
         if (RuntimeSongInfo?.Position.TotalSeconds > 5 || previousSongIndex < 0)
         {
@@ -185,7 +183,7 @@ public partial class RadioViewModel : ViewModelBase
 
         Play(LoadedSongs[previousSongIndex]);
     }
-    
+
     public void Next()
     {
         if (!IsValidSong) return;
