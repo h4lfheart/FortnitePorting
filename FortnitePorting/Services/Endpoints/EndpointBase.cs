@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net;
 using System.Threading.Tasks;
-using FortnitePorting.Services.Endpoints.Models;
 using RestSharp;
 using Serilog;
 
@@ -25,7 +24,7 @@ public abstract class EndpointBase
 
             var response = await _client.ExecuteAsync<T>(request).ConfigureAwait(false);
             Log.Information("[{Method}] {StatusDescription} ({StatusCode}): {Uri}", request.Method,
-                response.StatusDescription, (int)response.StatusCode, request.Resource);
+                response.StatusDescription, (int) response.StatusCode, request.Resource);
             return response.StatusCode != HttpStatusCode.OK ? default : response.Data;
         }
         catch (Exception e)
@@ -34,22 +33,22 @@ public abstract class EndpointBase
             return default;
         }
     }
-    
+
     protected T? Execute<T>(string url, Method method = Method.Get, params Parameter[] parameters)
     {
         return ExecuteAsync<T>(url, method, parameters).GetAwaiter().GetResult();
     }
-    
+
     protected async Task<RestResponse> ExecuteAsync(string url, Method method = Method.Get, params Parameter[] parameters)
     {
         var request = new RestRequest(url, method);
         foreach (var parameter in parameters) request.AddParameter(parameter);
-        
+
         var response = await _client.ExecuteAsync(request).ConfigureAwait(false);
         Log.Information("[{Method}] {StatusDescription} ({StatusCode}): {Uri}", request.Method, response.StatusDescription, (int) response.StatusCode, request.Resource);
         return response;
     }
-    
+
     protected RestResponse Execute(string url, Method method = Method.Get, params Parameter[] parameters)
     {
         return ExecuteAsync(url, method, parameters).GetAwaiter().GetResult();

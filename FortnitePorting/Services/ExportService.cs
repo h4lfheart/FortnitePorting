@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading.Tasks;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Objects;
@@ -13,7 +12,6 @@ using FortnitePorting.Export;
 using FortnitePorting.Export.Types;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
-using FortnitePorting.ViewModels;
 using Newtonsoft.Json;
 using Serilog;
 
@@ -26,7 +24,7 @@ public static class ExportService
 
     private const int BLENDER_PORT = 24000;
     private const int UNREAL_PORT = 24001;
-    
+
     private static readonly EAssetType[] MeshTypes =
     {
         EAssetType.Outfit,
@@ -43,12 +41,12 @@ public static class ExportService
         EAssetType.Wildlife,
         EAssetType.Mesh
     };
-    
+
     private static readonly EAssetType[] AnimTypes =
     {
         EAssetType.Emote
     };
-    
+
     private static readonly EAssetType[] TextureTypes =
     {
         EAssetType.Emoticon,
@@ -82,22 +80,19 @@ public static class ExportService
             }
 
             var exportDatas = exports.Select(export => CreateExportData(export.AssetItem.DisplayName, export.AssetItem.Asset, export.GetSelectedStyles(), export.AssetItem.Type, exportType)).ToArray();
-            foreach (var exportData in exportDatas)
-            {
-                await exportData.WaitForExportsAsync();
-            }
+            foreach (var exportData in exportDatas) await exportData.WaitForExportsAsync();
 
             var exportResponse = CreateExportResponse(exportDatas, exportType);
             exportService.SendMessage(JsonConvert.SerializeObject(exportResponse));
         });
     }
-    
+
     public static async Task ExportAsync(List<UObject> assets, EAssetType assetType, EExportType exportType)
     {
         await TaskService.RunAsync(async () =>
         {
             if (exportType is EExportType.Folder)
-            { 
+            {
                 assets.ForEach(asset => CreateExportData(asset.Name, asset, Array.Empty<FStructFallback>(), assetType, exportType));
                 return;
             }
@@ -117,10 +112,7 @@ public static class ExportService
             }
 
             var exportDatas = assets.Select(asset => CreateExportData(asset.Name, asset, Array.Empty<FStructFallback>(), assetType, exportType)).ToArray();
-            foreach (var exportData in exportDatas)
-            {
-                await exportData.WaitForExportsAsync();
-            }
+            foreach (var exportData in exportDatas) await exportData.WaitForExportsAsync();
 
             var exportResponse = CreateExportResponse(exportDatas, exportType);
             exportService.SendMessage(JsonConvert.SerializeObject(exportResponse));
@@ -139,20 +131,11 @@ public static class ExportService
 
     private static ExportDataBase CreateExportData(string name, UObject asset, FStructFallback[] styles, EAssetType assetType, EExportType exportType)
     {
-        if (MeshTypes.Contains(assetType))
-        {
-            return new MeshExportData(name, asset, styles, assetType, exportType);
-        }
+        if (MeshTypes.Contains(assetType)) return new MeshExportData(name, asset, styles, assetType, exportType);
 
-        if (AnimTypes.Contains(assetType))
-        {
-            return new AnimExportData(name, asset, styles, assetType, exportType);
-        }
+        if (AnimTypes.Contains(assetType)) return new AnimExportData(name, asset, styles, assetType, exportType);
 
-        if (TextureTypes.Contains(assetType))
-        {
-            return new TextureExportData(name, asset, styles, assetType, exportType);
-        }
+        if (TextureTypes.Contains(assetType)) return new TextureExportData(name, asset, styles, assetType, exportType);
 
         return null!; // never reached idc
     }
@@ -162,7 +145,7 @@ public class SocketInterface
 {
     private IPEndPoint EndPoint;
     private UdpClient Client = new();
-    
+
     private const string COMMAND_START = "Start";
     private const string COMMAND_STOP = "Stop";
     private const string COMMAND_PING_REQUEST = "Ping";
@@ -187,7 +170,7 @@ public class SocketInterface
         Client.Send(COMMAND_PING_REQUEST.StringToBytes());
         return TryReceive(out var response) && response.BytesToString().Equals(COMMAND_PING_RESPONSE);
     }
-    
+
     public int SendSpliced(IEnumerable<byte> arr, int size)
     {
         var chunks = arr.Chunk(size).ToList();
@@ -202,10 +185,7 @@ public class SocketInterface
                 Log.Warning("Lost Chunk {Index}, Retrying...", index);
                 chunkSize = Client.Send(chunk);
 
-                if (tries > 25)
-                {
-                    throw new Exception($"Failed to send chunk {index}, data will not continue.");
-                }
+                if (tries > 25) throw new Exception($"Failed to send chunk {index}, data will not continue.");
                 tries++;
             }
 
@@ -214,7 +194,7 @@ public class SocketInterface
 
         return dataSent;
     }
-    
+
     private bool TryReceive(out byte[] data)
     {
         data = Array.Empty<byte>();

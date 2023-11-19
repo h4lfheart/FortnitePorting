@@ -6,7 +6,7 @@
              xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="FortnitePorting.Controls.SettingBox" 
+             x:Class="FortnitePorting.Controls.SettingBox"
              x:DataType="controls:SettingBox">
     <UserControl.Styles>
         <Style Selector="controls|SettingBox">
@@ -16,24 +16,33 @@
                         <controls:GroupBox Margin="{ext:Space 1}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="{ext:Space 1}"/>
-                                    <ColumnDefinition Width="1.5*"/>
-                                    <ColumnDefinition Width="2*"/>
-                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="{ext:Space 1}" />
+                                    <ColumnDefinition Width="1.5*" />
+                                    <ColumnDefinition Width="2*" />
+                                    <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                
-                                <material:MaterialIcon Grid.Column="0" IsVisible="{Binding ShowIcon, RelativeSource={RelativeSource AncestorType=controls:SettingBox}}" Width="40" Height="40" Margin="4 0 8 0" Kind="{Binding Icon, RelativeSource={RelativeSource AncestorType=controls:SettingBox}}"/>
+
+                                <material:MaterialIcon Grid.Column="0"
+                                                       IsVisible="{Binding ShowIcon, RelativeSource={RelativeSource AncestorType=controls:SettingBox}}"
+                                                       Width="40" Height="40" Margin="4 0 8 0"
+                                                       Kind="{Binding Icon, RelativeSource={RelativeSource AncestorType=controls:SettingBox}}" />
                                 <StackPanel Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center">
-                                    <TextBlock Text="{Binding DisplayName, RelativeSource={RelativeSource AncestorType=controls:SettingBox}}" FontSize="16" />
-                                    <TextBlock Text="{Binding Path, RelativeSource={RelativeSource AncestorType=controls:SettingBox}, FallbackValue=???, TargetNullValue=???}" TextTrimming="CharacterEllipsis" Opacity="0.5"/>
+                                    <TextBlock
+                                        Text="{Binding DisplayName, RelativeSource={RelativeSource AncestorType=controls:SettingBox}}"
+                                        FontSize="16" />
+                                    <TextBlock
+                                        Text="{Binding Path, RelativeSource={RelativeSource AncestorType=controls:SettingBox}, FallbackValue=???, TargetNullValue=???}"
+                                        TextTrimming="CharacterEllipsis" Opacity="0.5" />
                                 </StackPanel>
-                                <ContentPresenter Grid.Column="4" Content="{TemplateBinding Content}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="{ext:Space 1}"/>
+                                <ContentPresenter Grid.Column="4" Content="{TemplateBinding Content}"
+                                                  HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                  Margin="{ext:Space 1}" />
                             </Grid>
                         </controls:GroupBox>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
-    </UserControl.Styles> 
+    </UserControl.Styles>
 </UserControl>

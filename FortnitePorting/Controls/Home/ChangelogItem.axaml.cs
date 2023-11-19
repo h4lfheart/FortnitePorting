@@ -8,10 +8,9 @@ public partial class ChangelogItem : UserControl
     public string Title { get; set; }
     public string PublishDate { get; set; }
     public string Text { get; set; }
-    
     public string ImageURL { get; set; }
     public string[] Tags { get; set; }
-    
+
     public ChangelogItem(ChangelogResponse changelog)
     {
         InitializeComponent();

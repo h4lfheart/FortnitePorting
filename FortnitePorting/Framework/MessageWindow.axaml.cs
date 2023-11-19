@@ -1,9 +1,7 @@
 using System;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml;
 using FortnitePorting.Services;
 
 namespace FortnitePorting.Framework;
@@ -12,6 +10,7 @@ public partial class MessageWindow : Window
 {
     public static MessageWindow? ActiveWindow;
     private event EventHandler OnClosedWindow;
+
     public MessageWindow(string caption, string text, Window? owner = null, Action<object?, EventArgs>? onClosed = null)
     {
         InitializeComponent();
@@ -33,12 +32,12 @@ public partial class MessageWindow : Window
             ActiveWindow.Show();
         });
     }
-    
+
     private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
     {
         BeginMoveDrag(e);
     }
-    
+
     private void OnCloseClicked(object? sender, RoutedEventArgs e)
     {
         ActiveWindow = null;

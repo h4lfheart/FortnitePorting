@@ -22,14 +22,24 @@ public partial class WelcomeViewModel : ViewModelBase
     {
         ELoadingType.Local => !string.IsNullOrWhiteSpace(LocalArchivePath) && Directory.Exists(LocalArchivePath),
         ELoadingType.Live => true,
-        ELoadingType.Custom => !(string.IsNullOrWhiteSpace(LocalArchivePath) || string.IsNullOrWhiteSpace(CustomEncryptionKey)) && Directory.Exists(CustomArchivePath) && CustomEncryptionKey.TryParseAesKey(out _),
+        ELoadingType.Custom => !(string.IsNullOrWhiteSpace(LocalArchivePath) || string.IsNullOrWhiteSpace(CustomEncryptionKey)) && Directory.Exists(CustomArchivePath) && CustomEncryptionKey.TryParseAesKey(out _)
     };
-    
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(CanContinue))] private ELoadingType currentLoadingType;  
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(CanContinue))] private string localArchivePath = null;
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(CanContinue))] private string customArchivePath = null;
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(CanContinue))] private string customMappingsPath = null;
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(CanContinue))] private string customEncryptionKey = Globals.ZERO_CHAR;
+
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanContinue))]
+    private ELoadingType currentLoadingType;
+
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanContinue))]
+    private string localArchivePath;
+
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanContinue))]
+    private string customArchivePath;
+
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanContinue))]
+    private string customMappingsPath;
+
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanContinue))]
+    private string customEncryptionKey = Globals.ZERO_CHAR;
+
     [ObservableProperty] private EGame customUnrealVersion = EGame.GAME_UE5_4;
 
     private static readonly FilePickerFileType MappingsFileType = new("Unreal Mappings")
@@ -59,34 +69,25 @@ public partial class WelcomeViewModel : ViewModelBase
         LocalArchivePath = fortniteInfo.InstallLocation + "\\FortniteGame\\Content\\Paks\\";
         Log.Information("Found Fortnite Installation at {ArchivePath}", LocalArchivePath);
     }
-    
+
     [RelayCommand]
     private async Task BrowseLocalArchivePath()
     {
-        if (await AppVM.BrowseFolderDialog() is {} path)
-        {
-            LocalArchivePath = path;
-        }
+        if (await AppVM.BrowseFolderDialog() is { } path) LocalArchivePath = path;
     }
-    
+
     [RelayCommand]
     private async Task BrowseCustomArchivePath()
     {
-        if (await AppVM.BrowseFolderDialog() is {} path)
-        {
-            CustomArchivePath = path;
-        }
+        if (await AppVM.BrowseFolderDialog() is { } path) CustomArchivePath = path;
     }
 
     [RelayCommand]
     private async Task BrowseMappingsFile()
     {
-        if (await AppVM.BrowseFileDialog(MappingsFileType) is {} path)
-        {
-            CustomMappingsPath = path;
-        }
+        if (await AppVM.BrowseFileDialog(MappingsFileType) is { } path) CustomMappingsPath = path;
     }
-    
+
     [RelayCommand]
     private void Continue()
     {
@@ -95,7 +96,7 @@ public partial class WelcomeViewModel : ViewModelBase
         AppSettings.Current.CustomArchivePath = CustomArchivePath;
         AppSettings.Current.CustomEncryptionKey = CustomEncryptionKey;
         AppSettings.Current.CustomMappingsPath = CustomMappingsPath;
-        
+
         AppVM.SetView<MainView>();
     }
 }

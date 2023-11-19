@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.ObjectModel;
 using System.Linq;
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Input;
-using Avalonia.Markup.Xaml;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
@@ -15,13 +11,13 @@ namespace FortnitePorting.Controls.Assets;
 public partial class AssetOptions : UserControl
 {
     public AssetItem AssetItem { get; set; }
-    
+
     public AssetOptions(AssetItem assetItem)
     {
         InitializeComponent();
 
         AssetItem = assetItem;
-        
+
         Styles.Items.Clear();
         var styles = AssetItem.Asset.GetOrDefault("ItemVariants", Array.Empty<UObject>());
         foreach (var style in styles)
@@ -47,7 +43,7 @@ public partial class AssetOptions : UserControl
             Styles.Items.Add(styleSelector);
         }
     }
-    
+
     public FStructFallback[] GetSelectedStyles()
     {
         return Styles.Items

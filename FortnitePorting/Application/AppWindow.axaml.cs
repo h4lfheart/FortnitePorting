@@ -1,5 +1,3 @@
-using System;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -12,7 +10,6 @@ public partial class AppWindow : Window
     {
         InitializeComponent();
         DataContext = AppVM;
-       
     }
 
     private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
@@ -24,7 +21,7 @@ public partial class AppWindow : Window
     {
         WindowState = WindowState.Minimized;
     }
-    
+
     private void OnMaximizeClicked(object? sender, RoutedEventArgs e)
     {
         WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
@@ -34,5 +31,4 @@ public partial class AppWindow : Window
     {
         AppVM.Shutdown();
     }
-    
 }

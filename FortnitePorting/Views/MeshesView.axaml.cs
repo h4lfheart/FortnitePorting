@@ -1,11 +1,9 @@
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using FortnitePorting.Framework;
-using FortnitePorting.Services;
 using FortnitePorting.ViewModels;
 
 namespace FortnitePorting.Views;
@@ -31,7 +29,7 @@ public partial class MeshesView : ViewBase<MeshesViewModel>
 
         ViewModel.SelectedExportItems = new ObservableCollection<FlatViewItem>(listBox.SelectedItems.OfType<FlatViewItem>());
     }
-    
+
     private void OnTreeViewTapped(object? sender, TappedEventArgs e)
     {
         if (sender is not TreeView treeView) return;

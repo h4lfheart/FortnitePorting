@@ -10,7 +10,7 @@ public static class SkiaExtensions
     {
         return SKShader.CreateRadialGradient(new SKPoint(size / 2f, size / 2f), size / 5.0f * 4, colors, SKShaderTileMode.Clamp);
     }
-    
+
     public static SKShader RadialGradient(int size, params FLinearColor[] colors)
     {
         return RadialGradient(size, colors.Select(col => SKColor.Parse(col.Hex)).ToArray());

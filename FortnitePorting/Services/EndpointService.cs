@@ -10,7 +10,7 @@ namespace FortnitePorting.Services;
 
 public static class EndpointService
 {
-    private static readonly RestClient _client = new(new RestClientOptions()
+    private static readonly RestClient _client = new(new RestClientOptions
     {
         UserAgent = $"FortnitePorting/{Globals.VERSION}",
         MaxTimeout = Timeout.Infinite
@@ -20,7 +20,7 @@ public static class EndpointService
     public static readonly FortnitePortingEndpoint FortnitePorting = new(_client);
     public static readonly EpicGamesEndpoint EpicGames = new(_client);
     public static readonly BlenderEndpoint Blender = new(_client);
-    
+
     public static byte[] DownloadFile(string url)
     {
         return DownloadFileAsync(url).GetAwaiter().GetResult();
@@ -45,7 +45,7 @@ public static class EndpointService
         if (data is not null) await File.WriteAllBytesAsync(destination, data);
         return new FileInfo(destination);
     }
-    
+
     public static FileInfo DownloadFile(string url, DirectoryInfo destination)
     {
         return DownloadFileAsync(url, destination).GetAwaiter().GetResult();

@@ -17,7 +17,6 @@ internal class RealizedWrappedElements
     private List<Control?>? _elements;
     private UVSize _size;
     private List<UVSize>? _positions;
-    private UVSize _startUV;
     private bool _startUUnstable;
 
     /// <summary>
@@ -48,7 +47,7 @@ internal class RealizedWrappedElements
     /// <summary>
     /// Gets the position of the first element.
     /// </summary>
-    public UVSize StartUV => _startUV;
+    public UVSize StartUV { get; private set; }
 
     /// <summary>
     /// The size of the first realized element.
@@ -77,7 +76,7 @@ internal class RealizedWrappedElements
             _elements.Add(element);
             _size = size;
             _positions.Add(uv);
-            _startUV = uv;
+            StartUV = uv;
             _firstIndex = index;
         }
         else if (index == LastIndex + 1)
@@ -92,7 +91,7 @@ internal class RealizedWrappedElements
             _elements.Insert(0, element);
             _size = size;
             _positions.Insert(0, uv);
-            _startUV = uv;
+            StartUV = uv;
         }
         else
         {
@@ -146,7 +145,6 @@ internal class RealizedWrappedElements
             return (0, new UVSize(viewportStart.Orientation));
 
         if (_positions is not null && !_startUUnstable)
-        {
             for (var i = 0; i < _positions.Count; ++i)
             {
                 var position = _positions[i];
@@ -160,7 +158,6 @@ internal class RealizedWrappedElements
                 if (end > viewportStart.V && end < viewportEnd.V)
                     return (FirstIndex + i, position);
             }
-        }
 
         // We don't have any realized elements in the requested viewport, or can't rely on
         // StartU being valid. Estimate the index using only the estimated size. First,
@@ -169,7 +166,7 @@ internal class RealizedWrappedElements
         var estimatedSize = EstimateElementSize(viewportStart.Orientation) switch
         {
             null => estimatedElementSize,
-            UVSize v => v,
+            UVSize v => v
         };
 
         if (estimatedSize.U == 0 || estimatedSize.V == 0)
@@ -182,18 +179,18 @@ internal class RealizedWrappedElements
         estimatedElementSize = estimatedSize;
 
         // Estimate the element at the start of the viewport.
-        var index = Math.Min((int)(viewportStart.V / estimatedSize.V) * (int)(viewportEnd.U / estimatedSize.U) + (int)(viewportStart.U / estimatedSize.U), itemCount - 1);
+        var index = Math.Min((int) (viewportStart.V / estimatedSize.V) * (int) (viewportEnd.U / estimatedSize.U) + (int) (viewportStart.U / estimatedSize.U), itemCount - 1);
         return (index, GetPosition(index, estimatedSize, viewportEnd));
     }
 
     private UVSize GetPosition(int index, UVSize estimate, UVSize viewportEnd)
     {
-        var maxULength = (int)(viewportEnd.U / estimate.U) * estimate.U;
+        var maxULength = (int) (viewportEnd.U / estimate.U) * estimate.U;
 
         return new UVSize(viewportEnd.Orientation)
         {
             U = index * estimate.U % maxULength,
-            V = (int)(index * estimate.U) / maxULength * estimate.V
+            V = (int) (index * estimate.U) / maxULength * estimate.V
         };
     }
 
@@ -229,7 +226,7 @@ internal class RealizedWrappedElements
         var estimatedSize = EstimateElementSize(estimatedElementSizeUV.Orientation) switch
         {
             null => estimatedElementSizeUV,
-            UVSize uvSize => uvSize,
+            UVSize uvSize => uvSize
         };
 
         // Store the estimated size for the next layout pass.
@@ -355,13 +352,11 @@ internal class RealizedWrappedElements
             var end = Math.Min(endIndex, _elements.Count);
 
             for (var i = start; i < end; ++i)
-            {
                 if (_elements[i] is Control element)
                 {
                     _elements[i] = null;
                     recycleElement(element);
                 }
-            }
 
             _elements.RemoveRange(start, end - start);
             _positions!.RemoveRange(start, end - start);
@@ -398,16 +393,14 @@ internal class RealizedWrappedElements
             return;
 
         for (var i = 0; i < _elements.Count; i++)
-        {
             if (_elements[i] is Control e)
             {
                 _elements[i] = null;
                 recycleElement(e);
             }
-        }
 
         _firstIndex = 0;
-        _startUV = new UVSize(orientation);
+        StartUV = new UVSize(orientation);
         _elements?.Clear();
         _size = new UVSize(orientation);
         _positions?.Clear();
@@ -432,13 +425,11 @@ internal class RealizedWrappedElements
             var endIndex = index - FirstIndex;
 
             for (var i = 0; i < endIndex; ++i)
-            {
                 if (_elements[i] is Control e)
                 {
                     _elements[i] = null;
                     recycleElement(e, i + FirstIndex);
                 }
-            }
 
             _elements.RemoveRange(0, endIndex);
             _positions!.RemoveRange(0, endIndex);
@@ -467,13 +458,11 @@ internal class RealizedWrappedElements
             var count = _elements.Count;
 
             for (var i = startIndex; i < count; ++i)
-            {
                 if (_elements[i] is Control e)
                 {
                     _elements[i] = null;
                     recycleElement(e, i + FirstIndex);
                 }
-            }
 
             _elements.RemoveRange(startIndex, _elements.Count - startIndex);
             _positions!.RemoveRange(startIndex, _positions.Count - startIndex);
@@ -491,16 +480,14 @@ internal class RealizedWrappedElements
             return;
 
         for (var i = 0; i < _elements.Count; i++)
-        {
             if (_elements[i] is Control e)
             {
                 _elements[i] = null;
                 recycleElement(e, i + FirstIndex);
             }
-        }
 
         _firstIndex = 0;
-        _startUV = new UVSize(orientation);
+        StartUV = new UVSize(orientation);
         _elements?.Clear();
         _size = new UVSize(orientation);
         _positions?.Clear();
@@ -513,7 +500,7 @@ internal class RealizedWrappedElements
     public void ResetForReuse(Orientation orientation)
     {
         _firstIndex = 0;
-        _startUV = new UVSize(orientation);
+        StartUV = new UVSize(orientation);
         _startUUnstable = false;
         _elements?.Clear();
         _size = new UVSize(orientation);

@@ -18,7 +18,6 @@ using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using FortnitePorting.Application;
 using FortnitePorting.Extensions;
-using FortnitePorting.ViewModels;
 using Serilog;
 using SkiaSharp;
 
@@ -44,41 +43,29 @@ public class ExporterInstance
 
         var exportPart = Mesh<ExportPart>(skeletalMesh);
         if (exportPart is null) return null;
-        
+
         if (part.TryGetValue(out FStructFallback[] materialOverrides, "MaterialOverrides"))
-        {
             foreach (var material in materialOverrides)
-            {
                 exportPart.OverrideMaterials.AddIfNotNull(OverrideMaterial(material));
-            }
-        }
 
         exportPart.Type = part.GetOrDefault<EFortCustomPartType>("CharacterPartType").ToString();
 
         if (part.TryGetValue(out UObject additionalData, "AdditionalData"))
-        {
             switch (additionalData.ExportType)
             {
                 case "CustomCharacterHeadData":
                 {
                     var meta = new ExportHeadMeta();
-                    
+
                     foreach (var type in Enum.GetValues<ECustomHatType>())
-                    {
                         if (additionalData.TryGetValue(out FName[] morphNames, type + "MorphTargets"))
-                        {
                             meta.MorphNames[type] = morphNames.First().Text;
-                        }
-                    }
-                    
+
                     if (additionalData.TryGetValue(out UObject skinColorSwatch, "SkinColorSwatch"))
                     {
                         var colorPairs = skinColorSwatch.GetOrDefault("ColorPairs", Array.Empty<FStructFallback>());
                         var skinColorPair = colorPairs.FirstOrDefault(x => x.Get<FName>("ColorName").Text.Equals("Skin Boost Color and Exponent", StringComparison.OrdinalIgnoreCase));
-                        if (skinColorPair is not null)
-                        {
-                            meta.SkinColor = skinColorPair.Get<FLinearColor>("ColorValue");
-                        }
+                        if (skinColorPair is not null) meta.SkinColor = skinColorPair.Get<FLinearColor>("ColorValue");
                     }
 
                     exportPart.Meta = meta;
@@ -91,11 +78,8 @@ public class ExporterInstance
                         AttachToSocket = part.GetOrDefault("bAttachToSocket", true),
                         Socket = additionalData.GetOrDefault<FName?>("AttachSocketName")?.Text
                     };
-                    
-                    if (additionalData.TryGetValue(out FName hatType, "HatType"))
-                    {
-                        meta.HatType = hatType.Text.Replace("ECustomHatType::ECustomHatType_", string.Empty);
-                    }
+
+                    if (additionalData.TryGetValue(out FName hatType, "HatType")) meta.HatType = hatType.Text.Replace("ECustomHatType::ECustomHatType_", string.Empty);
                     exportPart.Meta = meta;
                     break;
                 }
@@ -110,7 +94,6 @@ public class ExporterInstance
                     break;
                 }
             }
-        }
 
         return exportPart;
     }
@@ -119,14 +102,14 @@ public class ExporterInstance
     public List<ExportMesh> WeaponDefinition(UObject weaponDefinition)
     {
         var exportWeapons = new List<ExportMesh>();
-        
+
         var skeletalMesh = weaponDefinition.GetOrDefault<USkeletalMesh?>("WeaponMeshOverride");
         skeletalMesh ??= weaponDefinition.GetOrDefault<USkeletalMesh?>("PickupSkeletalMesh");
         if (skeletalMesh is not null) exportWeapons.AddIfNotNull(Mesh(skeletalMesh));
 
         var offhandSkeletalMesh = weaponDefinition.GetOrDefault<USkeletalMesh?>("WeaponMeshOffhandOverride");
         if (offhandSkeletalMesh is not null) exportWeapons.AddIfNotNull(Mesh(offhandSkeletalMesh));
-        
+
         if (skeletalMesh is null)
         {
             var staticMesh = weaponDefinition.GetOrDefault<UStaticMesh?>("PickupStaticMesh");
@@ -151,17 +134,17 @@ public class ExporterInstance
 
         return exportWeapons;
     }
-    
+
     public ExportMesh? Mesh(USkeletalMesh mesh)
     {
         return Mesh<ExportMesh>(mesh);
     }
-    
+
     public T? Mesh<T>(USkeletalMesh mesh) where T : ExportMesh, new()
     {
         if (!mesh.TryConvert(out var convertedMesh)) return null;
         if (convertedMesh.LODs.Count <= 0) return null;
-        
+
         var exportPart = new T
         {
             Path = Export(mesh),
@@ -174,10 +157,10 @@ public class ExporterInstance
             if (section.Material is null) continue;
             if (!section.Material.TryLoad(out var materialObject)) continue;
             if (materialObject is not UMaterialInterface material) continue;
-            
+
             exportPart.Materials.AddIfNotNull(Material(material, index));
         }
-        
+
         return exportPart;
     }
 
@@ -190,7 +173,7 @@ public class ExporterInstance
     {
         if (!mesh.TryConvert(out var convertedMesh)) return null;
         if (convertedMesh.LODs.Count <= 0) return null;
-        
+
         var exportPart = new T
         {
             Path = Export(mesh),
@@ -203,9 +186,10 @@ public class ExporterInstance
             if (section.Material is null) continue;
             if (!section.Material.TryLoad(out var materialObject)) continue;
             if (materialObject is not UMaterialInterface material) continue;
-            
+
             exportPart.Materials.AddIfNotNull(Material(material, index));
         }
+
         return exportPart;
     }
 
@@ -217,13 +201,10 @@ public class ExporterInstance
     public T? Material<T>(UMaterialInterface material, int index) where T : ExportMaterial, new()
     {
         if (!AppExportOptions.ExportMaterials) return null;
-        
+
         var hash = material.GetPathName().GetHashCode();
-        if (MaterialCache.FirstOrDefault(mat => mat.Hash == hash) is { } existing)
-        {
-            return existing.Copy<T>() with { Slot = index };
-        }
-        
+        if (MaterialCache.FirstOrDefault(mat => mat.Hash == hash) is { } existing) return existing.Copy<T>() with { Slot = index };
+
         var exportMaterial = new T
         {
             Path = material.GetPathName(),
@@ -232,12 +213,12 @@ public class ExporterInstance
             Hash = hash,
             ParentName = GetAbsoluteParent(material)?.Name
         };
-        
+
         AccumulateParameters(material, ref exportMaterial);
         MaterialCache.Add(exportMaterial);
         return exportMaterial;
     }
-    
+
     public ExportOverrideMaterial? OverrideMaterial(FStructFallback overrideData)
     {
         var overrideMaterial = overrideData.Get<FSoftObjectPath>("OverrideMaterial");
@@ -245,7 +226,7 @@ public class ExporterInstance
 
         var exportMaterial = Material<ExportOverrideMaterial>(materialObject, overrideData.Get<int>("MaterialOverrideIndex"));
         if (exportMaterial is null) return null;
-        
+
         exportMaterial.MaterialNameToSwap = overrideData.GetOrDefault<FSoftObjectPath>("MaterialToSwap").AssetPathName.Text.SubstringAfterLast(".");
         return exportMaterial;
     }
@@ -253,10 +234,7 @@ public class ExporterInstance
     public UMaterialInterface? GetAbsoluteParent(UMaterialInterface? materialInterface)
     {
         var parent = materialInterface;
-        while (parent is UMaterialInstanceConstant materialInstance)
-        {
-            parent = materialInstance.Parent as UMaterialInterface;
-        }
+        while (parent is UMaterialInstanceConstant materialInstance) parent = materialInstance.Parent as UMaterialInterface;
         return parent;
     }
 
@@ -270,13 +248,13 @@ public class ExporterInstance
                 if (!param.ParameterValue.TryLoad(out UTexture texture)) continue;
                 exportMaterial.Textures.AddUnique(new TextureParameter(param.Name, Export(texture), texture.SRGB, texture.CompressionSettings));
             }
-            
+
             foreach (var param in materialInstance.ScalarParameterValues)
             {
                 if (exportMaterial.Scalars.Any(x => x.Name == param.Name)) continue;
                 exportMaterial.Scalars.AddUnique(new ScalarParameter(param.Name, param.ParameterValue));
             }
-            
+
             foreach (var param in materialInstance.VectorParameterValues)
             {
                 if (exportMaterial.Vectors.Any(x => x.Name == param.Name)) continue;
@@ -291,11 +269,11 @@ public class ExporterInstance
                     if (exportMaterial.Switches.Any(x => x.Name == param.Name)) continue;
                     exportMaterial.Switches.AddUnique(new SwitchParameter(param.Name, param.Value));
                 }
-                
+
                 foreach (var param in materialInstance.StaticParameters.StaticComponentMaskParameters)
                 {
                     if (exportMaterial.ComponentMasks.Any(x => x.Name == param.Name)) continue;
-                    
+
                     var color = new FLinearColor(
                         param.R ? 1.0f : 0.0f,
                         param.G ? 1.0f : 0.0f,
@@ -304,17 +282,13 @@ public class ExporterInstance
                     exportMaterial.ComponentMasks.AddUnique(new ComponentMaskParameter(param.Name, color));
                 }
             }
-            
-            if (materialInstance.Parent is UMaterialInterface parentMaterial)
-            {
-                AccumulateParameters(parentMaterial, ref exportMaterial);
-            }
+
+            if (materialInstance.Parent is UMaterialInterface parentMaterial) AccumulateParameters(parentMaterial, ref exportMaterial);
         }
         else if (materialInterface is UMaterial material)
         {
             // TODO NORMAL MAT ACCUMULATION
         }
-        
     }
 
     public async Task<string> ExportAsync(UObject asset, bool waitForFinish = false)
@@ -342,10 +316,10 @@ public class ExporterInstance
 
         var returnValue = waitForFinish ? exportPath : asset.GetPathName();
         if (File.Exists(exportPath)) return returnValue;
-        
+
         var exportTask = Task.Run(() =>
         {
-            try 
+            try
             {
                 Export(asset, exportPath);
                 Log.Information("Exporting {ExportType}: {Path}", asset.ExportType, exportPath);
@@ -356,20 +330,15 @@ public class ExporterInstance
                 Log.Warning(e.Message + e.StackTrace);
             }
         });
-        
+
         if (waitForFinish)
-        {
             exportTask.Wait();
-        }
         else
-        {
             ExportTasks.Add(exportTask);
-        }
 
         return returnValue;
-
     }
-    
+
     public string Export(UObject asset, bool waitForFinish = false)
     {
         return ExportAsync(asset, waitForFinish).GetAwaiter().GetResult();
@@ -401,6 +370,7 @@ public class ExporterInstance
                     case EImageType.TGA:
                         throw new NotImplementedException("TARGA (.tga) export not currently supported.");
                 }
+
                 break;
             }
         }

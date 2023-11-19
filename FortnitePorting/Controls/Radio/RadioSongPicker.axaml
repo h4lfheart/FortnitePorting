@@ -10,24 +10,30 @@
              x:DataType="radio:RadioSongPicker">
     <Grid HorizontalAlignment="Left">
         <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="2*"/>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="2*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="{ext:Space 1}"/>
-            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="{ext:Space 1}" />
+            <ColumnDefinition Width="2*" />
         </Grid.ColumnDefinitions>
-        <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Cursor="Hand" x:Name="PointerOverTarget" PointerPressed="OnSongPlayPressed" Width="68" Height="68">
+        <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Cursor="Hand" x:Name="PointerOverTarget"
+                PointerPressed="OnSongPlayPressed" Width="68" Height="68">
             <Border.Background>
-                <ImageBrush Source="{Binding CoverArtImage, RelativeSource={RelativeSource AncestorType=radio:RadioSongPicker}}"/>
+                <ImageBrush
+                    Source="{Binding CoverArtImage, RelativeSource={RelativeSource AncestorType=radio:RadioSongPicker}}" />
             </Border.Background>
             <Grid IsVisible="{Binding ElementName=PointerOverTarget, Path=IsPointerOver}">
-                <Border Width="68" Height="68" Background="#48000000"/>
-                <material:MaterialIcon Kind="Play" Width="32" Height="32"/>
+                <Border Width="68" Height="68" Background="#48000000" />
+                <material:MaterialIcon Kind="Play" Width="32" Height="32" />
             </Grid>
         </Border>
-        <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding Title, RelativeSource={RelativeSource AncestorType=radio:RadioSongPicker}}" FontSize="18" Margin="0 8 0 0"/>
-        <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding Description, RelativeSource={RelativeSource AncestorType=radio:RadioSongPicker}}" Opacity="0.5" TextWrapping="WrapWithOverflow"/>
+        <TextBlock Grid.Row="0" Grid.Column="2"
+                   Text="{Binding Title, RelativeSource={RelativeSource AncestorType=radio:RadioSongPicker}}"
+                   FontSize="18" Margin="0 8 0 0" />
+        <TextBlock Grid.Row="1" Grid.Column="2"
+                   Text="{Binding Description, RelativeSource={RelativeSource AncestorType=radio:RadioSongPicker}}"
+                   Opacity="0.5" TextWrapping="WrapWithOverflow" />
     </Grid>
 </UserControl>

@@ -1,22 +1,19 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using CUE4Parse.Utils;
 
 namespace FortnitePorting.Extensions;
-
 
 public class SimpleIni
 {
     public Dictionary<string, string> this[string id] => Sections[id];
     private readonly Dictionary<string, Dictionary<string, string>> Sections = new();
-    
+
     public SimpleIni(string data)
     {
         var lines = data.Split("\n");
 
         var currentSection = string.Empty;
         foreach (var line in lines)
-        {
             if (line.Contains('['))
             {
                 var sectionName = line.SubstringAfter("[").SubstringBefore("]").Trim();
@@ -30,7 +27,5 @@ public class SimpleIni
                 var value = pair[1].Trim();
                 Sections[currentSection].Add(key, value);
             }
-        }
     }
-    
 }

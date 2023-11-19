@@ -5,5 +5,7 @@ namespace FortnitePorting.Framework;
 
 public class ViewModelBase : ObservableObject
 {
-    public virtual async Task Initialize() { } 
+    public virtual async Task Initialize()
+    {
+    }
 }

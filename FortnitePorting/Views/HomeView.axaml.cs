@@ -1,8 +1,6 @@
 using System.Linq;
-using AsyncImageLoader;
 using Avalonia.Interactivity;
 using FortnitePorting.Framework;
-using FortnitePorting.Services;
 using FortnitePorting.ViewModels;
 
 namespace FortnitePorting.Views;

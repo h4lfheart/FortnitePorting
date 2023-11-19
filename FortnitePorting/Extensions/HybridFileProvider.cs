@@ -1,8 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using CUE4Parse.FileProvider;
 using CUE4Parse.FileProvider.Objects;
 using CUE4Parse.FileProvider.Vfs;
 using CUE4Parse.UE4.Readers;
@@ -20,7 +17,6 @@ public class HybridFileProvider : AbstractVfsFileProvider
     // Live
     public HybridFileProvider(VersionContainer? version = null) : base(CaseInsensitive, version)
     {
-        
     }
 
     // Local + Custom
@@ -31,20 +27,17 @@ public class HybridFileProvider : AbstractVfsFileProvider
 
     public override void Initialize()
     {
-        if (!WorkingDirectory.Exists)
-        {
-            throw new DirectoryNotFoundException($"Provided installation folder does not exist: {WorkingDirectory.FullName}");
-        }
-        
+        if (!WorkingDirectory.Exists) throw new DirectoryNotFoundException($"Provided installation folder does not exist: {WorkingDirectory.FullName}");
+
         var files = new Dictionary<string, GameFile>();
         foreach (var file in WorkingDirectory.EnumerateFiles("*.*", SearchOption))
         {
             var extension = file.Extension.SubstringAfter('.').ToLower();
             if (extension is not ("pak" or "utoc")) continue;
-            
+
             RegisterVfs(file.FullName, new Stream[] { file.OpenRead() }, it => new FStreamArchive(it, File.OpenRead(it), Versions));
         }
-        
+
         _files.AddFiles(files);
     }
 }

@@ -1,12 +1,10 @@
 using System;
 using System.IO;
-using System.Net;
 using System.Threading.Tasks;
 using EpicManifestParser.Objects;
 using FortnitePorting.Application;
 using FortnitePorting.Services.Endpoints.Models;
 using RestSharp;
-using Serilog;
 
 namespace FortnitePorting.Services.Endpoints;
 
@@ -22,7 +20,7 @@ public class EpicGamesEndpoint : EndpointBase
     {
         Task.Run(async () => await VerifyAuthAsync());
     }
-    
+
     public async Task<byte[]?> GetWithAuth(string url)
     {
         var response = await ExecuteAsync(url, Method.Get,
@@ -37,7 +35,10 @@ public class EpicGamesEndpoint : EndpointBase
         return new ManifestInfo(response.Content);
     }
 
-    public ManifestInfo? GetManifestInfo() => GetManifestInfoAsync().GetAwaiter().GetResult();
+    public ManifestInfo? GetManifestInfo()
+    {
+        return GetManifestInfoAsync().GetAwaiter().GetResult();
+    }
 
     public async Task<Manifest> GetManifestAsync(string url = "", string writePath = "")
     {
@@ -52,8 +53,8 @@ public class EpicGamesEndpoint : EndpointBase
             manifestBytes = response.RawBytes!;
             if (!string.IsNullOrEmpty(writePath)) await File.WriteAllBytesAsync(writePath, manifestBytes);
         }
-        
-        
+
+
         return new Manifest(manifestBytes, new ManifestOptions
         {
             ChunkBaseUri = new Uri(CHUNKS_URL, UriKind.Absolute),
@@ -61,17 +62,26 @@ public class EpicGamesEndpoint : EndpointBase
         });
     }
 
-    public Manifest GetManifest(string url = "") => GetManifestAsync(url).GetAwaiter().GetResult();
+    public Manifest GetManifest(string url = "")
+    {
+        return GetManifestAsync(url).GetAwaiter().GetResult();
+    }
 
-    public async Task<AuthResponse?> GetAuthTokenAsync() => await ExecuteAsync<AuthResponse>(OAUTH_POST_URL, Method.Post, 
-        new HeaderParameter("Authorization", BASIC_TOKEN), 
-        new GetOrPostParameter("grant_type", "client_credentials"));
+    public async Task<AuthResponse?> GetAuthTokenAsync()
+    {
+        return await ExecuteAsync<AuthResponse>(OAUTH_POST_URL, Method.Post,
+            new HeaderParameter("Authorization", BASIC_TOKEN),
+            new GetOrPostParameter("grant_type", "client_credentials"));
+    }
 
-    public AuthResponse? GetAuthToken() => GetAuthTokenAsync().GetAwaiter().GetResult();
-    
+    public AuthResponse? GetAuthToken()
+    {
+        return GetAuthTokenAsync().GetAwaiter().GetResult();
+    }
+
     public async Task VerifyAuthAsync()
     {
-        var auth = await ExecuteAsync<AuthResponse>(OATH_VERIFY_URL, Method.Get, 
+        var auth = await ExecuteAsync<AuthResponse>(OATH_VERIFY_URL, Method.Get,
             new HeaderParameter("Authorization", $"bearer {AppSettings.Current.EpicGamesAuth?.Token}"));
         if (auth is null) AppSettings.Current.EpicGamesAuth = await GetAuthTokenAsync();
     }

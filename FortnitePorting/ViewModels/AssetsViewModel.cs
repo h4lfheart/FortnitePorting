@@ -29,28 +29,33 @@ namespace FortnitePorting.ViewModels;
 
 public partial class AssetsViewModel : ViewModelBase
 {
-   
     public List<AssetLoader> Loaders;
     public AssetLoader? CurrentLoader;
 
     [ObservableProperty] private ObservableCollection<AssetOptions> currentAssets = new();
 
     public bool IsFolderOnlyExport => CurrentAssetType is EAssetType.LoadingScreen or EAssetType.Spray or EAssetType.Banner or EAssetType.Emoticon;
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(IsFolderOnlyExport))] private EAssetType currentAssetType;
-    [ObservableProperty] private ObservableCollection<EExportType> folderExportEnumCollection = new(new[] { EExportType.Folder});
-    
+
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(IsFolderOnlyExport))]
+    private EAssetType currentAssetType;
+
+    [ObservableProperty] private ObservableCollection<EExportType> folderExportEnumCollection = new(new[] { EExportType.Folder });
+
     [ObservableProperty] private EExportType exportType = EExportType.Blender;
     [ObservableProperty] private ReadOnlyObservableCollection<AssetItem> activeCollection;
 
     [ObservableProperty] private ESortType sortType = ESortType.Default;
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(SortIcon))] private bool isDescending = false;
-    
+
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(SortIcon))]
+    private bool isDescending;
+
     [ObservableProperty] private string searchFilter = string.Empty;
     [ObservableProperty] private string filterPreviewText = "None";
     [ObservableProperty] private AvaloniaDictionary<string, Predicate<AssetItem>> filters = new();
     public MaterialIconKind SortIcon => IsDescending ? MaterialIconKind.SortDescending : MaterialIconKind.SortAscending;
     public readonly IObservable<SortExpressionComparer<AssetItem>> AssetSort;
     public readonly IObservable<Func<AssetItem, bool>> AssetFilter;
+
     public static readonly Dictionary<string, Predicate<AssetItem>> FilterPredicates = new()
     {
         { "Favorite", x => x.IsFavorite },
@@ -58,7 +63,7 @@ public partial class AssetsViewModel : ViewModelBase
         { "Battle Pass", x => x.GameplayTags.ContainsAny("BattlePass") },
         { "Item Shop", x => x.GameplayTags.ContainsAny("ItemShop") },
         { "Save The World", x => x.GameplayTags.ContainsAny("CampaignHero", "SaveTheWorld") || x.Asset.GetPathName().Contains("SaveTheWorld", StringComparison.OrdinalIgnoreCase) },
-        { "Battle Royale", x => !x.GameplayTags.ContainsAny("CampaignHero", "SaveTheWorld") },
+        { "Battle Royale", x => !x.GameplayTags.ContainsAny("CampaignHero", "SaveTheWorld") }
     };
 
     public AssetsViewModel()
@@ -66,7 +71,7 @@ public partial class AssetsViewModel : ViewModelBase
         AssetFilter = this.WhenAnyValue(x => x.SearchFilter, x => x.Filters).Select(CreateAssetFilter);
         AssetSort = this.WhenAnyValue(x => x.SortType, x => x.IsDescending).Select(CreateAssetSort);
     }
-    
+
     public override async Task Initialize()
     {
         Loaders = new List<AssetLoader>
@@ -78,10 +83,7 @@ public partial class AssetsViewModel : ViewModelBase
                 IconHandler = asset =>
                 {
                     asset.TryGetValue(out UTexture2D? previewImage, "SmallPreviewImage", "LargePreviewImage");
-                    if (asset.TryGetValue(out UObject heroDef, "HeroDefinition"))
-                    {
-                        heroDef.TryGetValue(out previewImage, "SmallPreviewImage", "LargePreviewImage");
-                    }
+                    if (asset.TryGetValue(out UObject heroDef, "HeroDefinition")) heroDef.TryGetValue(out previewImage, "SmallPreviewImage", "LargePreviewImage");
 
                     return previewImage;
                 }
@@ -89,7 +91,7 @@ public partial class AssetsViewModel : ViewModelBase
             new(EAssetType.Backpack)
             {
                 Classes = new[] { "AthenaBackpackItemDefinition" },
-                Filters = new[] { "_STWHeroNoDefaultBackpack", "_TEST", "Dev_", "_NPC", "_TBD" },
+                Filters = new[] { "_STWHeroNoDefaultBackpack", "_TEST", "Dev_", "_NPC", "_TBD" }
             },
             new(EAssetType.Pickaxe)
             {
@@ -98,10 +100,7 @@ public partial class AssetsViewModel : ViewModelBase
                 IconHandler = asset =>
                 {
                     asset.TryGetValue(out UTexture2D? previewImage, "SmallPreviewImage", "LargePreviewImage");
-                    if (asset.TryGetValue(out UObject heroDef, "WeaponDefinition"))
-                    {
-                        heroDef.TryGetValue(out previewImage, "SmallPreviewImage", "LargePreviewImage");
-                    }
+                    if (asset.TryGetValue(out UObject heroDef, "WeaponDefinition")) heroDef.TryGetValue(out previewImage, "SmallPreviewImage", "LargePreviewImage");
 
                     return previewImage;
                 }
@@ -152,17 +151,17 @@ public partial class AssetsViewModel : ViewModelBase
                 {
                     var nameContainsDevices = asset.Name.Contains("Device", StringComparison.OrdinalIgnoreCase);
                     if (nameContainsDevices) return true;
-                    
+
                     var tagsHelper = asset.GetOrDefault<FStructFallback?>("CreativeTagsHelper");
                     if (tagsHelper is null) return false;
-                    
+
                     var tags = tagsHelper.GetOrDefault("CreativeTags", Array.Empty<FName>());
                     return tags.Any(tag => tag.Text.Contains("Device", StringComparison.OrdinalIgnoreCase));
                 }
             },
             new(EAssetType.Item)
             {
-                Classes = new[] {"AthenaGadgetItemDefinition", "FortWeaponRangedItemDefinition", "FortWeaponMeleeItemDefinition", "FortCreativeWeaponMeleeItemDefinition", "FortCreativeWeaponRangedItemDefinition", "FortWeaponMeleeDualWieldItemDefinition" },
+                Classes = new[] { "AthenaGadgetItemDefinition", "FortWeaponRangedItemDefinition", "FortWeaponMeleeItemDefinition", "FortCreativeWeaponMeleeItemDefinition", "FortCreativeWeaponRangedItemDefinition", "FortWeaponMeleeDualWieldItemDefinition" },
                 Filters = new[] { "_Harvest", "Weapon_Pickaxe_", "Weapons_Pickaxe_", "Dev_WID" }
             },
             new(EAssetType.Trap)
@@ -181,48 +180,42 @@ public partial class AssetsViewModel : ViewModelBase
                 {
                     var entries = new[]
                     {
-                        await ManualAssetItemEntry.Create("Boar", 
-                        "FortniteGame/Plugins/GameFeatures/Irwin/Content/AI/Prey/Burt/Meshes/Burt_Mammal", 
-                        "FortniteGame/Plugins/GameFeatures/Irwin/Content/Icons/T-Icon-Fauna-Boar"),
+                        await ManualAssetItemEntry.Create("Boar",
+                            "FortniteGame/Plugins/GameFeatures/Irwin/Content/AI/Prey/Burt/Meshes/Burt_Mammal",
+                            "FortniteGame/Plugins/GameFeatures/Irwin/Content/Icons/T-Icon-Fauna-Boar"),
 
                         await ManualAssetItemEntry.Create("Chicken",
-                        "FortniteGame/Plugins/GameFeatures/Irwin/Content/AI/Prey/Nug/Meshes/Nug_Bird",
-                        "FortniteGame/Plugins/GameFeatures/Irwin/Content/Icons/T-Icon-Fauna-Chicken"),
+                            "FortniteGame/Plugins/GameFeatures/Irwin/Content/AI/Prey/Nug/Meshes/Nug_Bird",
+                            "FortniteGame/Plugins/GameFeatures/Irwin/Content/Icons/T-Icon-Fauna-Chicken"),
 
                         await ManualAssetItemEntry.Create("Crow",
-                        "FortniteGame/Plugins/GameFeatures/Irwin/Content/AI/Prey/Crow/Meshes/Crow_Bird",
-                        "FortniteGame/Plugins/GameFeatures/Irwin/Content/Icons/T-Icon-Fauna-Crow"),
+                            "FortniteGame/Plugins/GameFeatures/Irwin/Content/AI/Prey/Crow/Meshes/Crow_Bird",
+                            "FortniteGame/Plugins/GameFeatures/Irwin/Content/Icons/T-Icon-Fauna-Crow"),
 
                         await ManualAssetItemEntry.Create("Frog",
-                        "FortniteGame/Plugins/GameFeatures/Irwin/Content/AI/Simple/Smackie/Meshes/Smackie_Amphibian",
-                        "FortniteGame/Plugins/GameFeatures/Irwin/Content/Icons/T-Icon-Fauna-Frog"),
+                            "FortniteGame/Plugins/GameFeatures/Irwin/Content/AI/Simple/Smackie/Meshes/Smackie_Amphibian",
+                            "FortniteGame/Plugins/GameFeatures/Irwin/Content/Icons/T-Icon-Fauna-Frog"),
 
                         await ManualAssetItemEntry.Create("Raptor",
-                        "FortniteGame/Plugins/GameFeatures/Irwin/Content/AI/Predators/Robert/Meshes/Jungle_Raptor_Fauna",
-                        "FortniteGame/Plugins/GameFeatures/Irwin/Content/Icons/T-Icon-Fauna-JungleRaptor"),
+                            "FortniteGame/Plugins/GameFeatures/Irwin/Content/AI/Predators/Robert/Meshes/Jungle_Raptor_Fauna",
+                            "FortniteGame/Plugins/GameFeatures/Irwin/Content/Icons/T-Icon-Fauna-JungleRaptor"),
 
                         await ManualAssetItemEntry.Create("Wolf",
-                        "FortniteGame/Plugins/GameFeatures/Irwin/Content/AI/Predators/Grandma/Meshes/Grandma_Mammal",
-                        "FortniteGame/Plugins/GameFeatures/Irwin/Content/Icons/T-Icon-Fauna-Wolf"),
-            
+                            "FortniteGame/Plugins/GameFeatures/Irwin/Content/AI/Predators/Grandma/Meshes/Grandma_Mammal",
+                            "FortniteGame/Plugins/GameFeatures/Irwin/Content/Icons/T-Icon-Fauna-Wolf"),
+
                         await ManualAssetItemEntry.Create("Llama",
-                        "FortniteGame/Plugins/GameFeatures/Labrador/Content/Meshes/Labrador_Mammal",
-                        "FortniteGame/Content/UI/Foundation/Textures/Icons/Athena/T-T-Icon-BR-SM-Athena-SupplyLlama-01")
+                            "FortniteGame/Plugins/GameFeatures/Labrador/Content/Meshes/Labrador_Mammal",
+                            "FortniteGame/Content/UI/Foundation/Textures/Icons/Athena/T-T-Icon-BR-SM-Athena-SupplyLlama-01")
                     };
-                    
-                    await Parallel.ForEachAsync(entries, async (data, _) =>
-                    {
-                        await TaskService.RunDispatcherAsync(() => loader.Source.Add(new AssetItem(data.Mesh, data.PreviewImage, data.Name, loader.Type)), DispatcherPriority.Background);
-                    });
+
+                    await Parallel.ForEachAsync(entries, async (data, _) => { await TaskService.RunDispatcherAsync(() => loader.Source.Add(new AssetItem(data.Mesh, data.PreviewImage, data.Name, loader.Type)), DispatcherPriority.Background); });
                 }
             }
         };
-        
+
         SetLoader(EAssetType.Outfit);
-        TaskService.Run(async () =>
-        {
-            await CurrentLoader!.Load();
-        });
+        TaskService.Run(async () => { await CurrentLoader!.Load(); });
     }
 
     public void SetLoader(EAssetType assetType)
@@ -232,34 +225,27 @@ public partial class AssetsViewModel : ViewModelBase
         CurrentAssetType = assetType;
         CurrentAssets.Clear();
     }
-    
+
     public void ModifyFilters(string tag, bool enable)
     {
         if (!FilterPredicates.ContainsKey(tag)) return;
 
         if (enable)
-        {
             Filters.AddUnique(tag, FilterPredicates[tag]);
-        }
         else
-        {
             Filters.Remove(tag);
-        }
 
         FakeRefreshFilters();
-        
-        FilterPreviewText = Filters.Count > 0 ? Filters.Select(x => x.Key).CommaJoin(includeAnd: false) : "None";
+
+        FilterPreviewText = Filters.Count > 0 ? Filters.Select(x => x.Key).CommaJoin(false) : "None";
     }
 
     [RelayCommand]
     public void Favorite()
     {
-        foreach (var currentAsset in CurrentAssets)
-        {
-            currentAsset.AssetItem.Favorite();
-        }
+        foreach (var currentAsset in CurrentAssets) currentAsset.AssetItem.Favorite();
     }
-    
+
     [RelayCommand]
     public async Task Export()
     {
@@ -273,7 +259,7 @@ public partial class AssetsViewModel : ViewModelBase
         Filters = null;
         Filters = temp;
     }
-    
+
     private static SortExpressionComparer<AssetItem> CreateAssetSort((ESortType, bool) values)
     {
         var (type, descending) = values;
@@ -282,8 +268,8 @@ public partial class AssetsViewModel : ViewModelBase
             ESortType.Default => asset => asset.ID,
             ESortType.AZ => asset => asset.DisplayName,
             // scuffed ways to do sub-sorting within sections
-            ESortType.Season => asset => asset.Season + (double)asset.Rarity * 0.01,
-            ESortType.Rarity => asset => asset.Series + (int)asset.Rarity,
+            ESortType.Season => asset => asset.Season + (double) asset.Rarity * 0.01,
+            ESortType.Rarity => asset => asset.Series + (int) asset.Rarity,
             _ => asset => asset.ID
         };
 
@@ -291,7 +277,7 @@ public partial class AssetsViewModel : ViewModelBase
             ? SortExpressionComparer<AssetItem>.Descending(sort)
             : SortExpressionComparer<AssetItem>.Ascending(sort);
     }
-    
+
     private static Func<AssetItem, bool> CreateAssetFilter((string, AvaloniaDictionary<string, Predicate<AssetItem>>?) values)
     {
         var (searchFilter, filters) = values;
@@ -306,7 +292,7 @@ public partial class AssetsViewModel : ViewModelBase
             var obj = blueprint?.ClassDefaultObject.Load();
             return obj?.GetOrDefault<FStructFallback>("MarkerDisplay");
         }
-        
+
         var output = asset.GetAnyOrDefault<T?>(names);
         if (output is not null) return output;
 
@@ -325,17 +311,17 @@ public class AssetLoader
     public bool Started;
     public EAssetType Type;
     public Pauser Pause = new();
-    
+
     public SourceList<AssetItem> Source = new();
     public ReadOnlyObservableCollection<AssetItem> Target;
-    
+
     public string[] Classes = Array.Empty<string>();
     public string[] Filters = Array.Empty<string>();
     public Func<UObject, bool> HidePredicate = _ => false;
     public Func<UObject, UTexture2D?> IconHandler = asset => asset.GetAnyOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage");
     public Func<UObject, FText?> DisplayNameHandler = asset => asset.GetOrDefault("DisplayName", new FText(asset.Name));
     public Func<AssetLoader, Task>? CustomLoadingHandler;
-    
+
     public AssetLoader(EAssetType type)
     {
         Type = type;
@@ -382,7 +368,7 @@ public class AssetLoader
         var asset = await CUE4ParseVM.Provider.LoadObjectAsync(data.ObjectPath);
         await LoadAsset(asset);
     }
-    
+
     private async Task LoadAsset(UObject asset)
     {
         var icon = IconHandler(asset);
@@ -391,7 +377,7 @@ public class AssetLoader
         var displayName = DisplayNameHandler(asset)?.Text;
         if (string.IsNullOrEmpty(displayName)) displayName = asset.Name;
 
-        await TaskService.RunDispatcherAsync(() => Source.Add(new AssetItem(asset, icon, displayName, Type, Filters.Any(y => asset.Name.Contains(y, StringComparison.OrdinalIgnoreCase)) || HidePredicate(asset) )), DispatcherPriority.Background);
+        await TaskService.RunDispatcherAsync(() => Source.Add(new AssetItem(asset, icon, displayName, Type, Filters.Any(y => asset.Name.Contains(y, StringComparison.OrdinalIgnoreCase)) || HidePredicate(asset))), DispatcherPriority.Background);
     }
 }
 
@@ -428,9 +414,6 @@ public class Pauser
 
     public async Task WaitIfPaused()
     {
-        while (IsPaused)
-        {
-            await Task.Delay(1);
-        }
+        while (IsPaused) await Task.Delay(1);
     }
 }

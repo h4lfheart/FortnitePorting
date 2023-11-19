@@ -1,8 +1,6 @@
 using System;
 using System.IO;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Platform.Storage;
-using Avalonia.Threading;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Services;
@@ -22,10 +20,10 @@ public class App : Avalonia.Application
 
     public override void OnFrameworkInitializationCompleted()
     {
-        #if _WINDOWS
-          ConsoleExtensions.AllocConsole();
-        #endif
-        
+#if _WINDOWS
+        ConsoleExtensions.AllocConsole();
+#endif
+
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             ApplicationService.Application = desktop;
@@ -39,11 +37,7 @@ public class App : Avalonia.Application
     public static void HandleException(Exception exception)
     {
         Log.Error("{0}", exception);
-        TaskService.RunDispatcher(() =>
-        {
-            MessageWindow.Show("An unhandled exception has occurred", $"{exception.GetType().FullName}: {exception.Message}", ApplicationService.Application.MainWindow);
-        });
-        
+        TaskService.RunDispatcher(() => { MessageWindow.Show("An unhandled exception has occurred", $"{exception.GetType().FullName}: {exception.Message}", ApplicationService.Application.MainWindow); });
     }
 
     private void OnExit(object? sender, ControlledApplicationLifetimeExitEventArgs e)
@@ -65,20 +59,17 @@ public class App : Avalonia.Application
             .CreateLogger();
 
         AppSettings.Load();
-        
+
         AssetsFolder.Create();
         DataFolder.Create();
         LogsFolder.Create();
         ChunkCacheFolder.Create();
         AudioCacheFolder.Create();
-        
-        if (AppSettings.Current.UseDiscordRPC)
-        {
-            DiscordService.Initialize();
-        }
+
+        if (AppSettings.Current.UseDiscordRPC) DiscordService.Initialize();
 
         DependencyService.EnsureDependencies();
-        
+
         AppVM = new ApplicationViewModel();
         ApplicationService.Application.MainWindow = new AppWindow();
     }

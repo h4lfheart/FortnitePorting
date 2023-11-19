@@ -14,19 +14,18 @@ using FortnitePorting.Services;
 using FortnitePorting.Services.Endpoints.Models;
 using FortnitePorting.Views;
 using Newtonsoft.Json;
-using Serilog;
 
 namespace FortnitePorting.ViewModels;
 
 public partial class SettingsViewModel : ViewModelBase
 {
     [JsonIgnore] public bool IsRestartRequired;
-    
+
     [JsonIgnore] public bool HasValidLocalData => Directory.Exists(LocalArchivePath);
     [JsonIgnore] public bool HasValidCustomData => Directory.Exists(CustomArchivePath) && CustomEncryptionKey.TryParseAesKey(out _);
 
     [ObservableProperty] private ExportOptionsViewModel exportOptions = new();
-    
+
     // Loading
     [ObservableProperty] private ELoadingType loadingType = ELoadingType.Local;
     [ObservableProperty] private ELanguage language = ELanguage.English;
@@ -37,7 +36,7 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private string customEncryptionKey = Globals.ZERO_CHAR;
     [ObservableProperty] private EGame customUnrealVersion = EGame.GAME_UE5_4;
     [ObservableProperty] private AesResponse? lastAesResponse;
-    
+
     // Program
     [ObservableProperty] private bool useTabTransition = true;
     [ObservableProperty] private bool useDiscordRPC = true;
@@ -46,12 +45,12 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private string customExportPath;
     [ObservableProperty] private bool filterProps = true;
     [ObservableProperty] private bool filterItems = true;
-    
+
     [ObservableProperty] private AuthResponse? epicGamesAuth;
     [ObservableProperty] private List<string> favoritePaths = new();
     [ObservableProperty] private HashSet<string> assetsThatArentMesh = new();
 
-    [JsonIgnore] private static readonly string[] RestartProperties = 
+    [JsonIgnore] private static readonly string[] RestartProperties =
     {
         nameof(LoadingType),
         nameof(Language),
@@ -77,59 +76,40 @@ public partial class SettingsViewModel : ViewModelBase
 
         var property = e.PropertyName;
 
-        if (MainVM?.ActiveTab is SettingsView && RestartProperties.Contains(property))
-        {
-            IsRestartRequired = true;
-        }
+        if (MainVM?.ActiveTab is SettingsView && RestartProperties.Contains(property)) IsRestartRequired = true;
 
         if (UseDiscordRPC)
-        {
             DiscordService.Initialize();
-        }
         else
-        {
             DiscordService.Deinitialize();
-        }
     }
 
     private static readonly FilePickerFileType MappingsFileType = new("Unreal Mappings")
     {
         Patterns = new[] { "*.usmap" }
     };
-    
+
     [RelayCommand]
     private async Task BrowseLocalArchivePath()
     {
-        if (await AppVM.BrowseFolderDialog() is {} path)
-        {
-            LocalArchivePath = path;
-        }
+        if (await AppVM.BrowseFolderDialog() is { } path) LocalArchivePath = path;
     }
-    
+
     [RelayCommand]
     private async Task BrowseCustomArchivePath()
     {
-        if (await AppVM.BrowseFolderDialog() is {} path)
-        {
-            CustomArchivePath = path;
-        }
+        if (await AppVM.BrowseFolderDialog() is { } path) CustomArchivePath = path;
     }
 
     [RelayCommand]
     private async Task BrowseMappingsFile()
     {
-        if (await AppVM.BrowseFileDialog(MappingsFileType) is {} path)
-        {
-            CustomMappingsPath = path;
-        }
+        if (await AppVM.BrowseFileDialog(MappingsFileType) is { } path) CustomMappingsPath = path;
     }
-    
+
     [RelayCommand]
     private async Task BrowseExportPath()
     {
-        if (await AppVM.BrowseFolderDialog() is {} path)
-        {
-            CustomExportPath = path;
-        }
+        if (await AppVM.BrowseFolderDialog() is { } path) CustomExportPath = path;
     }
 }

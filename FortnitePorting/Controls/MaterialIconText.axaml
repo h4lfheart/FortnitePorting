@@ -10,11 +10,16 @@
              x:DataType="controls:MaterialIconText">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="{ext:Space 1}"/>
-            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="{ext:Space 1}" />
+            <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <material:MaterialIcon Grid.Column="0" Kind="{Binding Icon, RelativeSource={RelativeSource AncestorType=controls:MaterialIconText}}" Width="{Binding IconSize, RelativeSource={RelativeSource AncestorType=controls:MaterialIconText}}" Height="{Binding IconSize, RelativeSource={RelativeSource AncestorType=controls:MaterialIconText}}"/>
-        <TextBlock Grid.Column="2" Text="{Binding Text, RelativeSource={RelativeSource AncestorType=controls:MaterialIconText}}" FontWeight="Normal" FontSize="14"/>
+        <material:MaterialIcon Grid.Column="0"
+                               Kind="{Binding Icon, RelativeSource={RelativeSource AncestorType=controls:MaterialIconText}}"
+                               Width="{Binding IconSize, RelativeSource={RelativeSource AncestorType=controls:MaterialIconText}}"
+                               Height="{Binding IconSize, RelativeSource={RelativeSource AncestorType=controls:MaterialIconText}}" />
+        <TextBlock Grid.Column="2"
+                   Text="{Binding Text, RelativeSource={RelativeSource AncestorType=controls:MaterialIconText}}"
+                   FontWeight="Normal" FontSize="14" />
     </Grid>
 </UserControl>

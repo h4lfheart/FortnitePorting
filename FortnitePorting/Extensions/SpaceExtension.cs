@@ -15,7 +15,7 @@ public class SpaceExtension : MarkupExtension
     {
         Factor = 1;
     }
-    
+
     public SpaceExtension(string expression)
     {
         var parsed = double.TryParse(expression, NumberStyles.Any, new NumberFormatInfo { NumberDecimalSeparator = "." }, out Factor);
@@ -29,7 +29,7 @@ public class SpaceExtension : MarkupExtension
 
         return service.TargetProperty switch
         {
-            StyledProperty<Thickness> =>  new Thickness(Factor * Default),
+            StyledProperty<Thickness> => new Thickness(Factor * Default),
             StyledProperty<GridLength> => new GridLength(Factor * Default),
             _ => throw new InvalidOperationException()
         };

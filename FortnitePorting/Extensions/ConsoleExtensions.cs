@@ -6,10 +6,10 @@ namespace FortnitePorting.Extensions;
 public static class ConsoleExtensions
 {
 #if _WINDOWS
-    
+
     [DllImport("kernel32")]
     public static extern bool AllocConsole();
-    
+
     [DllImport("kernel32.dll")]
     private static extern IntPtr GetConsoleWindow();
 

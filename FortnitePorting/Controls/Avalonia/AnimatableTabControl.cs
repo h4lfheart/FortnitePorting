@@ -10,7 +10,7 @@ namespace FortnitePorting.Controls.Avalonia;
 public class AnimatableTabControl : TabControl
 {
     public event EventHandler OnContentChanged;
-    
+
     protected override Type StyleKeyOverride { get; } = typeof(TabControl);
 
     public AnimatableTabControl()
@@ -19,11 +19,11 @@ public class AnimatableTabControl : TabControl
         OnContentChanged += AnimateChanged;
         this.GetObservable(SelectedContentProperty).Subscribe(obj => OnContentChanged.Invoke(SelectedContent, EventArgs.Empty));
     }
-    
+
     private void AnimateChanged(object? obj, EventArgs e)
     {
         if (!AnimateOnChange) return;
-        
+
         PseudoClasses.Remove(":normal");
         PseudoClasses.Add(":normal");
     }

@@ -1,11 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Animation;
 using Avalonia.Animation.Easings;
-using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Styling;
 
@@ -15,10 +13,7 @@ public class ViewTransition : IPageTransition
 {
     public async Task Start(Visual? from, Visual? to, bool forward, CancellationToken cancellationToken)
     {
-        if (cancellationToken.IsCancellationRequested)
-        {
-            return;
-        }
+        if (cancellationToken.IsCancellationRequested) return;
 
         var distance = from.Bounds.Width;
         var translateProperty = TranslateTransform.XProperty;
@@ -52,7 +47,7 @@ public class ViewTransition : IPageTransition
                     {
                         new Setter
                         {
-                            Property = translateProperty, 
+                            Property = translateProperty,
                             Value = 0
                         },
                         new Setter

@@ -9,14 +9,13 @@ using FortnitePorting.Application;
 using FortnitePorting.Framework;
 using FortnitePorting.Services;
 using FortnitePorting.Views;
-using Serilog;
 
 namespace FortnitePorting.ViewModels;
 
 public partial class ApplicationViewModel : ViewModelBase
 {
     [ObservableProperty] private string versionString = $"v{Globals.VERSION}";
-    
+
     [ObservableProperty] private UserControl? currentView;
 
     [ObservableProperty] private bool useFallbackBackground = AppSettings.Current.UseFallbackBackground || Environment.OSVersion.Platform != PlatformID.Win32NT || (Environment.OSVersion.Platform == PlatformID.Win32NT && Environment.OSVersion.Version.Build < 22000);
@@ -35,7 +34,7 @@ public partial class ApplicationViewModel : ViewModelBase
                 break;
         }
     }
-    
+
     public void Launch(string location, bool shellExecute = true)
     {
         Process.Start(new ProcessStartInfo { FileName = location, UseShellExecute = shellExecute });
@@ -56,7 +55,7 @@ public partial class ApplicationViewModel : ViewModelBase
 
         return file?.Path.AbsolutePath.Replace("%20", " ");
     }
-    
+
     public async Task<string?> SaveFileDialog(FilePickerSaveOptions saveOptions = default)
     {
         var file = await StorageProvider.SaveFilePickerAsync(saveOptions);
@@ -67,21 +66,18 @@ public partial class ApplicationViewModel : ViewModelBase
     {
         CurrentView = new T();
     }
-    
+
     public void RestartWithMessage(string caption, string message)
     {
-        MessageWindow.Show(caption, message, owner: ApplicationService.Application.MainWindow, onClosed: (o, args) =>
-        {
-            Restart();
-        });
+        MessageWindow.Show(caption, message, ApplicationService.Application.MainWindow, (o, args) => { Restart(); });
     }
 
     public void Restart()
     {
-        Launch(AppDomain.CurrentDomain.FriendlyName, shellExecute: false);
+        Launch(AppDomain.CurrentDomain.FriendlyName, false);
         Shutdown();
     }
-    
+
     public void Shutdown()
     {
         ApplicationService.Application.Shutdown();

@@ -6,13 +6,10 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DynamicData.Binding;
-using FortnitePorting.Controls;
 using FortnitePorting.Controls.Home;
 using FortnitePorting.Framework;
 using FortnitePorting.Services;
-using FortnitePorting.Services.Endpoints.Models;
 using FortnitePorting.Views;
-using ChangelogItem = FortnitePorting.Controls.Home.ChangelogItem;
 
 namespace FortnitePorting.ViewModels;
 
@@ -34,13 +31,10 @@ public partial class HomeViewModel : ViewModelBase
 
             await TaskService.RunDispatcherAsync(() =>
             {
-                foreach (var entry in changelogEntries.OrderBy(x => x.PublishDate, SortExpressionComparer<DateTime>.Descending(x => x)))
-                {
-                    Changelogs.Add(new ChangelogItem(entry));
-                }
+                foreach (var entry in changelogEntries.OrderBy(x => x.PublishDate, SortExpressionComparer<DateTime>.Descending(x => x))) Changelogs.Add(new ChangelogItem(entry));
             });
         });
-        
+
         TaskService.Run(async () =>
         {
             var featured = await EndpointService.FortnitePorting.GetFeaturedAsync();
@@ -48,47 +42,38 @@ public partial class HomeViewModel : ViewModelBase
 
             await TaskService.RunDispatcherAsync(() =>
             {
-                foreach (var feature in featured)
-                {
-                    FeaturedArt.Add(new FeaturedArtItem(feature));
-                }
+                foreach (var feature in featured) FeaturedArt.Add(new FeaturedArtItem(feature));
             });
 
             CurrentFeaturedArt = FeaturedArt.FirstOrDefault();
-            if (FeaturedArt.Count > 1)
-            {
-                DispatcherTimer.Run(ChangeFeaturedArt, TimeSpan.FromSeconds(5));
-            }
+            if (FeaturedArt.Count > 1) DispatcherTimer.Run(ChangeFeaturedArt, TimeSpan.FromSeconds(5));
         });
     }
 
     public bool ChangeFeaturedArt()
     {
         if (MainVM.ActiveTab is not HomeView) return true;
-        
-        if (CurrentFeaturedArtIndex >= FeaturedArt.Count)
-        {
-            CurrentFeaturedArtIndex = 0;
-        }
-        
+
+        if (CurrentFeaturedArtIndex >= FeaturedArt.Count) CurrentFeaturedArtIndex = 0;
+
         CurrentFeaturedArt = FeaturedArt[CurrentFeaturedArtIndex];
         CurrentFeaturedArtIndex++;
 
         return true;
     }
-    
+
 
     public void Update(string text)
     {
         LoadingText = text;
     }
-    
+
     [RelayCommand]
     public void OpenDiscord()
     {
         AppVM.Launch(Globals.DISCORD_URL);
     }
-    
+
     [RelayCommand]
     public void OpenFAQ()
     {

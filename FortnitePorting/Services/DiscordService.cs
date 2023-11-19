@@ -7,9 +7,10 @@ namespace FortnitePorting.Services;
 public static class DiscordService
 {
     private const string ID = "1150461433449042053";
-    
+
     private static bool IsInitialized;
     private static DiscordRpcClient Client = null!;
+
     private static readonly RichPresence DefaultPresence = new()
     {
         Timestamps = new Timestamps
@@ -18,7 +19,7 @@ public static class DiscordService
         },
         Assets = new Assets
         {
-            LargeImageText = $"Fortnite Porting v{Globals.VERSION}", 
+            LargeImageText = $"Fortnite Porting v{Globals.VERSION}",
             LargeImageKey = "v2-icon"
         },
         Buttons = new[]
@@ -43,14 +44,14 @@ public static class DiscordService
         Client.SetPresence(DefaultPresence);
         IsInitialized = true;
     }
-    
+
     public static void Deinitialize()
     {
         if (!IsInitialized) return;
-        
+
         var user = Client.CurrentUser;
         Log.Information("Discord Rich Presence Stopped for {Username} ({ID})", user.Username, user.ID);
-        
+
         Client.Deinitialize();
         Client.Dispose();
         IsInitialized = false;

@@ -21,7 +21,9 @@ public class ExportPart : ExportMesh
     public ExportPartMeta Meta = new();
 }
 
-public class ExportPartMeta { }
+public class ExportPartMeta
+{
+}
 
 public class ExportHeadMeta : ExportPartMeta
 {
@@ -47,7 +49,7 @@ public record ExportMaterial
     public string? ParentName;
     public int Slot;
     public int Hash;
-        
+
     public List<TextureParameter> Textures = new();
     public List<ScalarParameter> Scalars = new();
     public List<VectorParameter> Vectors = new();
@@ -77,7 +79,7 @@ public record ExportOverrideMaterial : ExportMaterial
 {
     public string? MaterialNameToSwap;
 }
-    
+
 public record TextureParameter(string Name, string Value, bool sRGB, TextureCompressionSettings CompressionSettings);
 
 public record ScalarParameter(string Name, float Value);

@@ -24,9 +24,11 @@ public partial class RadioViewModel : ViewModelBase
     [ObservableProperty] private bool isLooping;
     [ObservableProperty] private bool isShuffling;
 
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(PlayIconKind))] private bool isPlaying;
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(PlayIconKind))]
+    private bool isPlaying;
 
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(VolumeIconKind))] private float volume = 1.0f;
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(VolumeIconKind))]
+    private float volume = 1.0f;
 
     public bool IsValidSong => SoundSource is not null && SongInfo is not null && RuntimeSongInfo is not null;
     public MaterialIconKind PlayIconKind => IsPlaying ? MaterialIconKind.Pause : MaterialIconKind.Play;
@@ -70,13 +72,9 @@ public partial class RadioViewModel : ViewModelBase
         if (RuntimeSongInfo.Position >= RuntimeSongInfo.Length)
         {
             if (IsLooping)
-            {
                 Restart();
-            }
             else
-            {
                 Next();
-            }
         }
     }
 
@@ -141,13 +139,9 @@ public partial class RadioViewModel : ViewModelBase
         if (!IsValidSong) return;
 
         if (IsPlaying)
-        {
             Pause();
-        }
         else
-        {
             Resume();
-        }
     }
 
     public void Stop()

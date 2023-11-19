@@ -1,7 +1,5 @@
 using System;
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 using FortnitePorting.Application;
 using FortnitePorting.Framework;
 using FortnitePorting.Services;
@@ -14,18 +12,18 @@ public partial class MainView : ViewBase<MainViewModel>
     public MainView()
     {
         InitializeComponent();
-        
+
         TaskService.Run(async () =>
         {
             ViewModelRegistry.Register<CUE4ParseViewModel>();
             await CUE4ParseVM.Initialize();
-            
+
             TaskService.Run(async () =>
             {
                 await AssetsVM.Initialize();
                 ViewModel.AssetTabReady = true;
             });
-            
+
             TaskService.Run(async () =>
             {
                 await MeshesVM.Initialize();

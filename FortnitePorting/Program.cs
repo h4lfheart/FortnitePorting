@@ -6,7 +6,7 @@ using Serilog;
 
 namespace FortnitePorting;
 
-class Program
+internal class Program
 {
     [STAThread]
     public static void Main(string[] args)
@@ -23,14 +23,15 @@ class Program
     }
 
     private static AppBuilder BuildAvaloniaApp()
-        => AppBuilder.Configure<App>()
+    {
+        return AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .WithInterFont()
             .LogToTrace()
             .UseReactiveUI()
             .With(new Win32PlatformOptions
             {
-                CompositionMode = new [] { Win32CompositionMode.WinUIComposition },
+                CompositionMode = new[] { Win32CompositionMode.WinUIComposition },
                 OverlayPopups = true
             })
             .With(new X11PlatformOptions
@@ -41,4 +42,5 @@ class Program
             {
                 OverlayPopups = true
             });
+    }
 }

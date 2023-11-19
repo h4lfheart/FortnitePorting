@@ -13,28 +13,28 @@
     <controls:GroupBox Background="#26000000">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="{ext:Space 1}"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="{ext:Space 1}"/>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="{ext:Space 1}" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="{ext:Space 1}" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*"/>
-                <ColumnDefinition Width="{ext:Space 1}"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="{ext:Space 1}" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            
+
             <Grid Grid.Row="0" Grid.Column="0">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="2*"/>
-                    <ColumnDefinition Width="{ext:Space 1}"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="{ext:Space 1}"/>
-                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="{ext:Space 1}" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="{ext:Space 1}" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <TextBox Grid.Column="0" Watermark="Search" Text="{Binding SearchFilter}" HorizontalAlignment="Stretch"/>
-                <Button Grid.Column="2" Content="Scan for Meshes" Command="{Binding ScanContentCommand}"/>
+                <TextBox Grid.Column="0" Watermark="Search" Text="{Binding SearchFilter}" HorizontalAlignment="Stretch" />
+                <Button Grid.Column="2" Content="Scan for Meshes" Command="{Binding ScanContentCommand}" />
                 <TextBlock Grid.Column="4" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <TextBlock.Text>
                         <MultiBinding StringFormat="{}{0:N2}%">
@@ -43,87 +43,103 @@
                     </TextBlock.Text>
                 </TextBlock>
             </Grid>
-            
+
             <controls:GroupBox Grid.Row="2" Grid.RowSpan="3" Grid.Column="0">
                 <Grid RowDefinitions="Auto *">
-                    <Label Grid.Row="0" Content="Flat View" FontSize="14" FontWeight="SemiBold" Margin="0 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    <Label Grid.Row="0" Content="Flat View" FontSize="14" FontWeight="SemiBold" Margin="0 0 0 0"
+                           HorizontalAlignment="Left" VerticalAlignment="Center" />
                     <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                        <ListBox Background="Transparent" SelectionMode="Multiple" AutoScrollToSelectedItem="True" SelectedItem="{Binding SelectedFlatViewItem}" ItemsSource="{Binding AssetItemsTarget}" HorizontalAlignment="Stretch" SelectionChanged="OnFlatViewSelectionChanged" DoubleTapped="OnFlatViewDoubleTapped">
+                        <ListBox Background="Transparent" SelectionMode="Multiple" AutoScrollToSelectedItem="True"
+                                 SelectedItem="{Binding SelectedFlatViewItem}" ItemsSource="{Binding AssetItemsTarget}"
+                                 HorizontalAlignment="Stretch" SelectionChanged="OnFlatViewSelectionChanged"
+                                 DoubleTapped="OnFlatViewDoubleTapped">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding Path}" Padding="0" Margin="0"/>
+                                    <TextBlock Text="{Binding Path}" Padding="0" Margin="0" />
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
                     </ScrollViewer>
                 </Grid>
             </controls:GroupBox>
-            <TextBlock Grid.Row="2" Grid.RowSpan="3" Grid.Column="0" Text="No Meshes Loaded" IsVisible="{Binding AssetItemsTarget, Converter={x:Static ObjectConverters.IsNull}}" Opacity="0.5" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-            
-            <GridSplitter Grid.Row="0" Grid.RowSpan="5" Grid.Column="1" Background="Transparent" ResizeDirection="Columns"/>
-            
+            <TextBlock Grid.Row="2" Grid.RowSpan="3" Grid.Column="0" Text="No Meshes Loaded"
+                       IsVisible="{Binding AssetItemsTarget, Converter={x:Static ObjectConverters.IsNull}}"
+                       Opacity="0.5" HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+            <GridSplitter Grid.Row="0" Grid.RowSpan="5" Grid.Column="1" Background="Transparent"
+                          ResizeDirection="Columns" />
+
             <controls:GroupBox Grid.Row="0" Grid.RowSpan="3" Grid.Column="2">
                 <Grid RowDefinitions="Auto *">
-                    <Label Grid.Row="0" Content="Tree View" FontSize="14" FontWeight="SemiBold" Margin="0 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                    <TreeView Grid.Row="1" AutoScrollToSelectedItem="True" SelectedItem="{Binding SelectedTreeItem}" ItemsSource="{Binding TreeItems}" HorizontalAlignment="Stretch" Tapped="OnTreeViewTapped">
+                    <Label Grid.Row="0" Content="Tree View" FontSize="14" FontWeight="SemiBold" Margin="0 0 0 0"
+                           HorizontalAlignment="Left" VerticalAlignment="Center" />
+                    <TreeView Grid.Row="1" AutoScrollToSelectedItem="True" SelectedItem="{Binding SelectedTreeItem}"
+                              ItemsSource="{Binding TreeItems}" HorizontalAlignment="Stretch" Tapped="OnTreeViewTapped">
                         <TreeView.ItemContainerTheme>
                             <ControlTheme TargetType="TreeViewItem" BasedOn="{StaticResource {x:Type TreeViewItem}}">
-                                <Setter Property="IsExpanded" Value="{ReflectionBinding Expanded}"/>
+                                <Setter Property="IsExpanded" Value="{ReflectionBinding Expanded}" />
                             </ControlTheme>
                         </TreeView.ItemContainerTheme>
                         <TreeView.ItemTemplate>
                             <TreeDataTemplate ItemsSource="{Binding Children}">
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                                    <material:MaterialIcon Width="16" Height="16" Margin="0 0 8 0" Classes.File="{Binding IsFile}" Classes.Folder="{Binding IsFolder}">
+                                    <material:MaterialIcon Width="16" Height="16" Margin="0 0 8 0"
+                                                           Classes.File="{Binding IsFile}"
+                                                           Classes.Folder="{Binding IsFolder}">
                                         <material:MaterialIcon.Styles>
                                             <Style Selector="material|MaterialIcon.File">
                                                 <Style.Setters>
-                                                    <Setter Property="Kind" Value="File"/>
+                                                    <Setter Property="Kind" Value="File" />
                                                 </Style.Setters>
                                             </Style>
                                             <Style Selector="material|MaterialIcon.Folder">
                                                 <Style.Setters>
-                                                    <Setter Property="Kind" Value="Folder"/>
+                                                    <Setter Property="Kind" Value="Folder" />
                                                 </Style.Setters>
                                             </Style>
                                         </material:MaterialIcon.Styles>
                                     </material:MaterialIcon>
-                                    <TextBlock Text="{Binding Name}"/>
+                                    <TextBlock Text="{Binding Name}" />
                                 </StackPanel>
                             </TreeDataTemplate>
                         </TreeView.ItemTemplate>
                     </TreeView>
                 </Grid>
             </controls:GroupBox>
-            
-            <GridSplitter Grid.Row="3" Grid.Column="2" Background="Transparent" ResizeDirection="Rows"/>
-            
+
+            <GridSplitter Grid.Row="3" Grid.Column="2" Background="Transparent" ResizeDirection="Rows" />
+
             <controls:GroupBox Grid.Row="4" Grid.Column="2">
                 <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="{ext:Space 1}"/>
-                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="{ext:Space 1}" />
+                        <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                        
+
                     <Grid Grid.Row="0" ColumnDefinitions="* 3.25*">
-                        <TextBlock Grid.Column="0" Text="Export To" VerticalAlignment="Center" Margin="3 0 0 2"/>
-                        <ComboBox Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EExportType}}" SelectedItem="{Binding ExportType, Converter={StaticResource EnumToString}}"/>
+                        <TextBlock Grid.Column="0" Text="Export To" VerticalAlignment="Center" Margin="3 0 0 2" />
+                        <ComboBox Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                                  ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EExportType}}"
+                                  SelectedItem="{Binding ExportType, Converter={StaticResource EnumToString}}" />
                     </Grid>
-                    
+
                     <Grid Grid.Row="2">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="{ext:Space 1}"/>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="{ext:Space 1}" />
+                            <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        
+
                         <Button Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                            <controls:MaterialIconText Text="Preview" Icon="CubeScan" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <controls:MaterialIconText Text="Preview" Icon="CubeScan" HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center" />
                         </Button>
-                        
-                        <Button Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Command="{Binding ExportCommand}">
-                            <controls:MaterialIconText Text="Export" Icon="Export" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+                        <Button Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                Command="{Binding ExportCommand}">
+                            <controls:MaterialIconText Text="Export" Icon="Export" HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center" />
                         </Button>
                     </Grid>
                 </Grid>

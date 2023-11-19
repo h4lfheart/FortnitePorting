@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
@@ -29,10 +28,7 @@ public class SuppressibleObservableCollection<T> : ObservableCollection<T>
 
         SetSuppression(true);
 
-        foreach (var item in list)
-        {
-            Add(item);
-        }
+        foreach (var item in list) Add(item);
 
         SetSuppression(false);
         InvokeOnCollectionChanged();
@@ -44,10 +40,7 @@ public class SuppressibleObservableCollection<T> : ObservableCollection<T>
 
         SetSuppression(true);
 
-        foreach (var item in list)
-        {
-            Add(item);
-        }
+        foreach (var item in list) Add(item);
 
         SetSuppression(false);
         InvokeOnCollectionChanged();
@@ -60,12 +53,9 @@ public class SuppressibleObservableCollection<T> : ObservableCollection<T>
 
     protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
     {
-        if (!Suppress)
-        {
-            base.OnCollectionChanged(e);
-        }
+        if (!Suppress) base.OnCollectionChanged(e);
     }
-    
+
     public void Sort<TKey>(Func<T, TKey> keySelector)
     {
         InternalSort(Items.OrderBy(keySelector));
@@ -80,15 +70,11 @@ public class SuppressibleObservableCollection<T> : ObservableCollection<T>
     {
         InternalSort(Items.OrderBy(keySelector, comparer));
     }
-    
+
     private void InternalSort(IEnumerable<T> sortedItems)
     {
         var sortedItemsList = sortedItems.ToList();
 
-        foreach (var item in sortedItemsList)
-        {
-            Move(IndexOf(item), sortedItemsList.IndexOf(item));
-        }
+        foreach (var item in sortedItemsList) Move(IndexOf(item), sortedItemsList.IndexOf(item));
     }
-
 }

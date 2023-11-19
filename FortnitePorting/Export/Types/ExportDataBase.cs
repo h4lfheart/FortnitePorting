@@ -1,8 +1,6 @@
 using System.Threading.Tasks;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Objects;
-using FortnitePorting.Application;
-using FortnitePorting.ViewModels;
 using Newtonsoft.Json;
 
 namespace FortnitePorting.Export.Types;

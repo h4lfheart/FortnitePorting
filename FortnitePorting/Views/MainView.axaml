@@ -3,7 +3,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
-             xmlns:ext="clr-namespace:FortnitePorting.Extensions"
              xmlns:views="clr-namespace:FortnitePorting.Views"
              xmlns:viewmodels="clr-namespace:FortnitePorting.ViewModels"
              xmlns:avalonia="clr-namespace:FortnitePorting.Controls.Avalonia"
@@ -14,46 +13,46 @@
         <avalonia:AnimatableTabControl Margin="0 8" TabStripPlacement="Left" OnContentChanged="OnTabChanged">
             <TabItem>
                 <TabItem.Header>
-                    <controls:MaterialIconText Text="Home" Icon="ViewDashboard"/>
+                    <controls:MaterialIconText Text="Home" Icon="ViewDashboard" />
                 </TabItem.Header>
-                <views:HomeView/>
+                <views:HomeView />
             </TabItem>
             <TabItem IsEnabled="{Binding AssetTabReady}">
                 <TabItem.Header>
-                    <controls:MaterialIconText Text="Assets" Icon="File"/>
+                    <controls:MaterialIconText Text="Assets" Icon="File" />
                 </TabItem.Header>
-                <views:AssetsView/>
+                <views:AssetsView />
             </TabItem>
             <TabItem IsEnabled="{Binding MeshTabReady}">
                 <TabItem.Header>
-                    <controls:MaterialIconText Text="Meshes" Icon="Cube"/>
+                    <controls:MaterialIconText Text="Meshes" Icon="Cube" />
                 </TabItem.Header>
-                <views:MeshesView/>
+                <views:MeshesView />
             </TabItem>
             <TabItem IsEnabled="{Binding RadioTabReady}">
                 <TabItem.Header>
-                    <controls:MaterialIconText Text="Radio" Icon="Radio"/>
+                    <controls:MaterialIconText Text="Radio" Icon="Radio" />
                 </TabItem.Header>
-                <views:RadioView/>
+                <views:RadioView />
             </TabItem>
             <TabItem>
                 <TabItem.Header>
-                    <controls:MaterialIconText Text="Export" Icon="Download"/>
+                    <controls:MaterialIconText Text="Export" Icon="Download" />
                 </TabItem.Header>
-                <views:ExportOptionsView/>
+                <views:ExportOptionsView />
             </TabItem>
             <TabItem>
                 <TabItem.Header>
-                    <controls:MaterialIconText Text="Settings" Icon="Settings"/>
+                    <controls:MaterialIconText Text="Settings" Icon="Settings" />
                 </TabItem.Header>
-                <views:SettingsView/>
+                <views:SettingsView />
             </TabItem>
             <TabItem>
                 <TabItem.Header>
-                    <controls:MaterialIconText Text="About" Icon="Help"/>
+                    <controls:MaterialIconText Text="About" Icon="Help" />
                 </TabItem.Header>
-                <views:AboutView/>
-            </TabItem> 
+                <views:AboutView />
+            </TabItem>
         </avalonia:AnimatableTabControl>
     </Grid>
 </UserControl>

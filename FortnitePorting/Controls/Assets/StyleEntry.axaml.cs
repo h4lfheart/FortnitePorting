@@ -11,15 +11,14 @@ public partial class StyleEntry : UserControl
     public string StyleName { get; set; }
     public Bitmap StylePreviewImage { get; set; }
     public FStructFallback StyleInfo { get; set; }
-    
+
     public StyleEntry(FStructFallback styleInfo, Bitmap previewImage)
     {
         InitializeComponent();
-        
+
         StylePreviewImage = previewImage;
         StyleInfo = styleInfo;
         StyleName = styleInfo.GetOrDefault("VariantName", new FText("Unnamed")).Text.ToLower().TitleCase();
         if (string.IsNullOrWhiteSpace(StyleName)) StyleName = "Unnamed";
-
     }
 }

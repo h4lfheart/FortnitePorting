@@ -6,7 +6,6 @@
              xmlns:viewmodels="clr-namespace:FortnitePorting.ViewModels"
              xmlns:ext="clr-namespace:FortnitePorting.Extensions"
              xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
-             xmlns:fortnitePorting="clr-namespace:FortnitePorting"
              xmlns:radio="clr-namespace:FortnitePorting.Controls.Radio"
              mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="620"
              x:Class="FortnitePorting.Views.RadioView"
@@ -14,119 +13,137 @@
     <controls:GroupBox Background="#26000000">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="6.5*"/>
-                <RowDefinition Height="{ext:Space 1}"/>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="6.5*" />
+                <RowDefinition Height="{ext:Space 1}" />
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <Grid Grid.Row="0">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="{ext:Space 1}"/>
-                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="{ext:Space 1}" />
+                    <ColumnDefinition Width="3*" />
                 </Grid.ColumnDefinitions>
-                
+
                 <controls:GroupBox Grid.Column="0">
                     <Grid HorizontalAlignment="Left" VerticalAlignment="Top">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="2*"/>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="2*" />
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="{ext:Space 1}"/>
-                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="{ext:Space 1}" />
+                            <ColumnDefinition Width="2*" />
                         </Grid.ColumnDefinitions>
                         <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Width="68" Height="68" CornerRadius="10">
                             <Border.Background>
-                                <ImageBrush Source="/Assets/FN/Fortnite.png"/>
+                                <ImageBrush Source="/Assets/FN/Fortnite.png" />
                             </Border.Background>
                         </Border>
-                        <TextBlock Grid.Row="0" Grid.Column="2" Text="Fortnite" FontSize="18" Margin="0 8 0 0"/>
-                        <TextBlock Grid.Row="1" Grid.Column="2" Text="Official Fortnite Playlist" Opacity="0.5" TextWrapping="WrapWithOverflow"/>
+                        <TextBlock Grid.Row="0" Grid.Column="2" Text="Fortnite" FontSize="18" Margin="0 8 0 0" />
+                        <TextBlock Grid.Row="1" Grid.Column="2" Text="Official Fortnite Playlist" Opacity="0.5"
+                                   TextWrapping="WrapWithOverflow" />
                     </Grid>
                 </controls:GroupBox>
-                
+
                 <controls:GroupBox Grid.Column="2">
                     <ScrollViewer>
                         <ItemsControl ItemsSource="{Binding LoadedSongs}">
                             <ItemsControl.Styles>
                                 <Style Selector="radio|RadioSongPicker">
-                                    <Setter Property="Margin" Value="0 8 0 0"/>
+                                    <Setter Property="Margin" Value="0 8 0 0" />
                                 </Style>
                             </ItemsControl.Styles>
                         </ItemsControl>
                     </ScrollViewer>
                 </controls:GroupBox>
             </Grid>
-            
+
             <!-- Lower Control Bar -->
             <controls:GroupBox Grid.Row="2">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="1.5*"/>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="1.5*" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="{ext:Space 1}"/>
-                        <ColumnDefinition Width="2*"/>
-                        <ColumnDefinition Width="{ext:Space 1}"/>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="{ext:Space 1}" />
+                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="{ext:Space 1}" />
+                        <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    
+
                     <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" HorizontalAlignment="Left">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="{ext:Space 1}"/>
-                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="{ext:Space 1}" />
+                            <ColumnDefinition Width="2*" />
                         </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Background="#26FFFFFF" Width="68" Height="68" CornerRadius="10"/>
-                        <Image Grid.Column="0" Source="{Binding SongInfo.CoverArtImage}" Width="68" Height="68"/>
+                        <Border Grid.Column="0" Background="#26FFFFFF" Width="68" Height="68" CornerRadius="10" />
+                        <Image Grid.Column="0" Source="{Binding SongInfo.CoverArtImage}" Width="68" Height="68" />
                         <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding SongInfo.Title, FallbackValue=No Song Playing}" FontSize="18" VerticalAlignment="Bottom"/>
-                            <TextBlock Text="{Binding SongInfo.Description, FallbackValue=Play a song to begin listening!}" Opacity="0.5" TextWrapping="WrapWithOverflow" VerticalAlignment="Top"/>
+                            <TextBlock Text="{Binding SongInfo.Title, FallbackValue=No Song Playing}" FontSize="18"
+                                       VerticalAlignment="Bottom" />
+                            <TextBlock
+                                Text="{Binding SongInfo.Description, FallbackValue=Play a song to begin listening!}"
+                                Opacity="0.5" TextWrapping="WrapWithOverflow" VerticalAlignment="Top" />
                         </StackPanel>
                     </Grid>
-                    
-                    <Grid Grid.Row="0" Grid.Column="2" ColumnDefinitions="* * * * *" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 16 0 0">
-                        <ToggleButton Grid.Column="0" IsChecked="{Binding IsLooping}" Classes="ToggleRadioButton" Width="32" Height="32">
-                            <material:MaterialIcon Kind="Refresh" Width="32" Height="32"/>
+
+                    <Grid Grid.Row="0" Grid.Column="2" ColumnDefinitions="* * * * *" HorizontalAlignment="Center"
+                          VerticalAlignment="Center" Margin="0 16 0 0">
+                        <ToggleButton Grid.Column="0" IsChecked="{Binding IsLooping}" Classes="ToggleRadioButton"
+                                      Width="32" Height="32">
+                            <material:MaterialIcon Kind="Refresh" Width="32" Height="32" />
                         </ToggleButton>
-                        <Button Grid.Column="1" Classes="RadioButton" Command="{Binding Previous}" Width="40" Height="40">
-                            <material:MaterialIcon Kind="SkipPrevious" Width="40" Height="40"/>
+                        <Button Grid.Column="1" Classes="RadioButton" Command="{Binding Previous}" Width="40"
+                                Height="40">
+                            <material:MaterialIcon Kind="SkipPrevious" Width="40" Height="40" />
                         </Button>
-                        <Button Grid.Column="2" Classes="RadioButton" Command="{Binding TogglePlayPause}" Width="40" Height="40">
+                        <Button Grid.Column="2" Classes="RadioButton" Command="{Binding TogglePlayPause}" Width="40"
+                                Height="40">
                             <material:MaterialIcon Kind="{Binding PlayIconKind}" Width="40" Height="40" />
                         </Button>
                         <Button Grid.Column="3" Classes="RadioButton" Command="{Binding Next}" Width="40" Height="40">
-                            <material:MaterialIcon Kind="SkipNext" Width="40" Height="40"/>
+                            <material:MaterialIcon Kind="SkipNext" Width="40" Height="40" />
                         </Button>
-                        <ToggleButton Grid.Column="4" IsChecked="{Binding IsShuffling}" Classes="ToggleRadioButton" Width="32" Height="32">
-                            <material:MaterialIcon Kind="Shuffle" Width="32" Height="32"/>
+                        <ToggleButton Grid.Column="4" IsChecked="{Binding IsShuffling}" Classes="ToggleRadioButton"
+                                      Width="32" Height="32">
+                            <material:MaterialIcon Kind="Shuffle" Width="32" Height="32" />
                         </ToggleButton>
                     </Grid>
-                    
+
                     <Grid Grid.Row="1" Grid.Column="2">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="{ext:Space 1}"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="{ext:Space 1}"/>
-                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="{ext:Space 1}" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="{ext:Space 1}" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="{Binding RuntimeSongInfo.Position, StringFormat=mm\\:ss, FallbackValue=0:00}" VerticalAlignment="Center" Margin="0 8 0 0"/>
-                        <Slider Grid.Column="2" ValueChanged="OnPlaybackSliderChanged" VerticalAlignment="Center" Value="{Binding RuntimeSongInfo.Position.TotalSeconds, FallbackValue=0}" Maximum="{Binding RuntimeSongInfo.Length.TotalSeconds, FallbackValue=0}"/>
-                        <TextBlock Grid.Column="4" Text="{Binding RuntimeSongInfo.Length, StringFormat=mm\\:ss, FallbackValue=0:00}" VerticalAlignment="Center" Margin="0 8 0 0"/>
+                        <TextBlock Grid.Column="0"
+                                   Text="{Binding RuntimeSongInfo.Position, StringFormat=mm\\:ss, FallbackValue=0:00}"
+                                   VerticalAlignment="Center" Margin="0 8 0 0" />
+                        <Slider Grid.Column="2" ValueChanged="OnPlaybackSliderChanged" VerticalAlignment="Center"
+                                Value="{Binding RuntimeSongInfo.Position.TotalSeconds, FallbackValue=0}"
+                                Maximum="{Binding RuntimeSongInfo.Length.TotalSeconds, FallbackValue=0}" />
+                        <TextBlock Grid.Column="4"
+                                   Text="{Binding RuntimeSongInfo.Length, StringFormat=mm\\:ss, FallbackValue=0:00}"
+                                   VerticalAlignment="Center" Margin="0 8 0 0" />
                     </Grid>
-                    
+
                     <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="4" HorizontalAlignment="Center">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="{ext:Space 1}"/>
-                            <ColumnDefinition Width="5*"/>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="{ext:Space 1}" />
+                            <ColumnDefinition Width="5*" />
                         </Grid.ColumnDefinitions>
-                        <material:MaterialIcon Grid.Column="0" Kind="{Binding VolumeIconKind}" VerticalAlignment="Center" Width="24" Height="24"/>
-                        <Slider Grid.Column="2" ValueChanged="OnVolumeSliderChanged" Value="{Binding Volume, Mode=TwoWay}" Minimum="0.0" Maximum="1.0" TickFrequency="0.1" VerticalAlignment="Center" Width="200"/>
+                        <material:MaterialIcon Grid.Column="0" Kind="{Binding VolumeIconKind}"
+                                               VerticalAlignment="Center" Width="24" Height="24" />
+                        <Slider Grid.Column="2" ValueChanged="OnVolumeSliderChanged"
+                                Value="{Binding Volume, Mode=TwoWay}" Minimum="0.0" Maximum="1.0" TickFrequency="0.1"
+                                VerticalAlignment="Center" Width="200" />
                     </Grid>
                 </Grid>
             </controls:GroupBox>

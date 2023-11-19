@@ -1,13 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Component.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Objects;
-using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Objects.GameplayTags;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
@@ -20,6 +18,7 @@ public class MeshExportData : ExportDataBase
     public readonly List<ExportMesh> Meshes = new();
     public readonly List<ExportMesh> OverrideMeshes = new();
     public readonly List<ExportOverrideMaterial> OverrideMaterials = new();
+
     public MeshExportData(string name, UObject asset, FStructFallback[] styles, EAssetType type, EExportType exportType) : base(name, asset, styles, type, exportType)
     {
         switch (type)
@@ -27,26 +26,20 @@ public class MeshExportData : ExportDataBase
             case EAssetType.Outfit:
             {
                 var parts = asset.GetOrDefault("BaseCharacterParts", Array.Empty<UObject>());
-                foreach (var part in parts)
-                {
-                    Meshes.AddIfNotNull(Exporter.CharacterPart(part));
-                }
+                foreach (var part in parts) Meshes.AddIfNotNull(Exporter.CharacterPart(part));
                 break;
             }
             case EAssetType.Backpack:
             {
                 var parts = asset.GetOrDefault("CharacterParts", Array.Empty<UObject>());
-                foreach (var part in parts)
-                {
-                    Meshes.AddIfNotNull(Exporter.CharacterPart(part));
-                }
+                foreach (var part in parts) Meshes.AddIfNotNull(Exporter.CharacterPart(part));
                 break;
             }
             case EAssetType.Pickaxe:
             {
                 var weapon = asset.GetOrDefault<UObject?>("WeaponDefinition");
                 if (weapon is null) break;
-                
+
                 Meshes.AddRange(Exporter.WeaponDefinition(weapon));
                 break;
             }
@@ -54,16 +47,13 @@ public class MeshExportData : ExportDataBase
             {
                 var mesh = asset.GetOrDefault<USkeletalMesh?>("SkeletalMesh");
                 if (mesh is null) break;
-                
+
                 var part = Exporter.Mesh(mesh);
                 if (part is null) break;
-                
+
                 var overrideMaterials = asset.GetOrDefault("MaterialOverrides", Array.Empty<FStructFallback>());
-                foreach (var overrideMaterial in overrideMaterials)
-                {
-                    part.OverrideMaterials.AddIfNotNull(Exporter.OverrideMaterial(overrideMaterial));
-                }
-                
+                foreach (var overrideMaterial in overrideMaterials) part.OverrideMaterials.AddIfNotNull(Exporter.OverrideMaterial(overrideMaterial));
+
                 Meshes.Add(part);
                 break;
             }
@@ -71,10 +61,7 @@ public class MeshExportData : ExportDataBase
             {
                 // backpack meshes
                 var parts = asset.GetOrDefault("CharacterParts", Array.Empty<UObject>());
-                foreach (var part in parts)
-                {
-                    Meshes.AddIfNotNull(Exporter.CharacterPart(part));
-                }
+                foreach (var part in parts) Meshes.AddIfNotNull(Exporter.CharacterPart(part));
 
                 // pet mesh
                 var petAsset = asset.Get<UObject>("DefaultPet");
@@ -82,10 +69,7 @@ public class MeshExportData : ExportDataBase
                 var blueprintExports = CUE4ParseVM.Provider.LoadAllObjects(blueprintPath.AssetPathName.Text.SubstringBeforeLast("."));
                 var meshComponent = blueprintExports.FirstOrDefault(export => export.Name.Equals("PetMesh0")) as USkeletalMeshComponentBudgeted;
                 var mesh = meshComponent?.GetSkeletalMesh().Load<USkeletalMesh>();
-                if (mesh is not null)
-                {
-                    Meshes.AddIfNotNull(Exporter.Mesh(mesh));
-                }
+                if (mesh is not null) Meshes.AddIfNotNull(Exporter.Mesh(mesh));
 
                 break;
             }
@@ -127,7 +111,7 @@ public class MeshExportData : ExportDataBase
             default:
                 throw new ArgumentOutOfRangeException(nameof(type), type, null);
         }
-        
+
         ExportStyles(asset, styles);
     }
 
@@ -158,32 +142,20 @@ public class MeshExportData : ExportDataBase
                 foreach (var condition in requiredConditions)
                 {
                     var metaTagQuery = condition.Get<FGameplayTagQuery>("MetaTagQuery");
-                    if (metaTags.MatchesQuery(metaTagQuery))
-                    {
-                        ExportStyleData(option);
-                    }
+                    if (metaTags.MatchesQuery(metaTagQuery)) ExportStyleData(option);
                 }
             }
         }
-        
-        foreach (var style in styles)
-        {
-            ExportStyleData(style);
-        }
+
+        foreach (var style in styles) ExportStyleData(style);
     }
 
     private void ExportStyleData(FStructFallback style)
     {
         var variantParts = style.GetOrDefault("VariantParts", Array.Empty<UObject>());
-        foreach (var part in variantParts)
-        {
-            OverrideMeshes.AddIfNotNull(Exporter.CharacterPart(part));
-        }
-        
+        foreach (var part in variantParts) OverrideMeshes.AddIfNotNull(Exporter.CharacterPart(part));
+
         var variantMaterials = style.GetOrDefault("VariantMaterials", Array.Empty<FStructFallback>());
-        foreach (var material in variantMaterials)
-        {
-            OverrideMaterials.AddIfNotNull(Exporter.OverrideMaterial(material));
-        }
+        foreach (var material in variantMaterials) OverrideMaterials.AddIfNotNull(Exporter.OverrideMaterial(material));
     }
 }

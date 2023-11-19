@@ -50,7 +50,7 @@ public class VirtualizingWrapPanel : VirtualizingPanel
     private Control? _scrollToElement;
     private bool _isInLayout;
     private bool _isWaitingForViewportUpdate;
-    private UVSize _lastEstimatedElementSizeUV = new UVSize(Orientation.Horizontal, 25, 25);
+    private UVSize _lastEstimatedElementSizeUV = new(Orientation.Horizontal, 25, 25);
     private RealizedWrappedElements? _measureElements;
     private RealizedWrappedElements? _realizedElements;
     private ScrollViewer? _scrollViewer;
@@ -90,8 +90,8 @@ public class VirtualizingWrapPanel : VirtualizingPanel
     /// </summary>
     public double ItemWidth
     {
-        get { return GetValue(ItemWidthProperty); }
-        set { SetValue(ItemWidthProperty, value); }
+        get => GetValue(ItemWidthProperty);
+        set => SetValue(ItemWidthProperty, value);
     }
 
     /// <summary>
@@ -99,8 +99,8 @@ public class VirtualizingWrapPanel : VirtualizingPanel
     /// </summary>
     public double ItemHeight
     {
-        get { return GetValue(ItemHeightProperty); }
-        set { SetValue(ItemHeightProperty, value); }
+        get => GetValue(ItemHeightProperty);
+        set => SetValue(ItemHeightProperty, value);
     }
 
     /// <summary>
@@ -131,8 +131,8 @@ public class VirtualizingWrapPanel : VirtualizingPanel
         {
             var orientation = Orientation;
 
-            _realizedElements ??= new();
-            _measureElements ??= new();
+            _realizedElements ??= new RealizedWrappedElements();
+            _measureElements ??= new RealizedWrappedElements();
 
             // We handle horizontal and vertical layouts here so X and Y are abstracted to:
             // - Horizontal layouts: U = horizontal, V = vertical
@@ -305,7 +305,10 @@ public class VirtualizingWrapPanel : VirtualizingPanel
         return null;
     }
 
-    protected override int IndexFromContainer(Control container) => _realizedElements?.GetIndex(container) ?? -1;
+    protected override int IndexFromContainer(Control container)
+    {
+        return _realizedElements?.GetIndex(container) ?? -1;
+    }
 
     protected override Control? ScrollIntoView(int index)
     {
@@ -319,14 +322,15 @@ public class VirtualizingWrapPanel : VirtualizingPanel
             element.BringIntoView();
             return element;
         }
-        else if (this.GetVisualRoot() is ILayoutRoot root)
+
+        if (this.GetVisualRoot() is ILayoutRoot root)
         {
             // Create and measure the element to be brought into view. Store it in a field so that
             // it can be re-used in the layout pass.
-            double itemWidth = ItemWidth;
-            double itemHeight = ItemHeight;
-            bool isItemWidthSet = !double.IsNaN(itemWidth);
-            bool isItemHeightSet = !double.IsNaN(itemHeight);
+            var itemWidth = ItemWidth;
+            var itemHeight = ItemHeight;
+            var isItemWidthSet = !double.IsNaN(itemWidth);
+            var isItemHeightSet = !double.IsNaN(itemHeight);
             var size = new Size(isItemWidthSet ? itemWidth : double.PositiveInfinity,
                 isItemHeightSet ? itemHeight : double.PositiveInfinity);
             _scrollToElement = GetOrCreateElement(items, index);
@@ -385,10 +389,10 @@ public class VirtualizingWrapPanel : VirtualizingPanel
 
     private UVSize EstimateElementSizeUV()
     {
-        double itemWidth = ItemWidth;
-        double itemHeight = ItemHeight;
-        bool isItemWidthSet = !double.IsNaN(itemWidth);
-        bool isItemHeightSet = !double.IsNaN(itemHeight);
+        var itemWidth = ItemWidth;
+        var itemHeight = ItemHeight;
+        var isItemWidthSet = !double.IsNaN(itemWidth);
+        var isItemHeightSet = !double.IsNaN(itemHeight);
 
         var estimatedSize = new UVSize(Orientation,
             isItemWidthSet ? itemWidth : _lastEstimatedElementSizeUV.Width,
@@ -402,8 +406,9 @@ public class VirtualizingWrapPanel : VirtualizingPanel
         {
             estimatedSize = result.Value;
             estimatedSize.Width = isItemWidthSet ? itemWidth : estimatedSize.Width;
-            estimatedSize.Height = isItemHeightSet ? itemHeight:estimatedSize.Height;
+            estimatedSize.Height = isItemHeightSet ? itemHeight : estimatedSize.Height;
         }
+
         return estimatedSize;
     }
 
@@ -443,7 +448,7 @@ public class VirtualizingWrapPanel : VirtualizingPanel
             anchorUV = anchorU,
             viewportUVStart = viewportStart,
             viewportUVEnd = viewportEnd,
-            viewportIsDisjunct = disjunct,
+            viewportIsDisjunct = disjunct
         };
     }
 
@@ -456,8 +461,8 @@ public class VirtualizingWrapPanel : VirtualizingPanel
         {
             // Since ItemWidth and ItemHeight are set, we simply compute the actual size
             var uLength = viewport.viewportUVEnd.U;
-            var estimatedItemsPerU = (int)(uLength / estimatedSize.U);
-            var estimatedULanes = Math.Ceiling((double)itemCount / estimatedItemsPerU);
+            var estimatedItemsPerU = (int) (uLength / estimatedSize.U);
+            var estimatedULanes = Math.Ceiling((double) itemCount / estimatedItemsPerU);
             sizeUV.U = estimatedItemsPerU * estimatedSize.U;
             sizeUV.V = estimatedULanes * estimatedSize.V;
         }
@@ -485,7 +490,7 @@ public class VirtualizingWrapPanel : VirtualizingPanel
             sizeUV.V += estimatedSize.V;
         }
 
-        return new(sizeUV.Width, sizeUV.Height);
+        return new Size(sizeUV.Width, sizeUV.Height);
     }
 
     private Rect EstimateViewport()
@@ -493,10 +498,7 @@ public class VirtualizingWrapPanel : VirtualizingPanel
         var c = this.GetVisualParent();
         var viewport = new Rect();
 
-        if (c is null)
-        {
-            return viewport;
-        }
+        if (c is null) return viewport;
 
         while (c is not null)
         {
@@ -530,12 +532,12 @@ public class VirtualizingWrapPanel : VirtualizingPanel
         var v = uv.V;
         double maxSizeV = 0;
         var size = new UVSize(Orientation);
-        bool firstChildMeasured = false;
+        var firstChildMeasured = false;
 
-        double itemWidth = ItemWidth;
-        double itemHeight = ItemHeight;
-        bool isItemWidthSet = !double.IsNaN(itemWidth);
-        bool isItemHeightSet = !double.IsNaN(itemHeight);
+        var itemWidth = ItemWidth;
+        var itemHeight = ItemHeight;
+        var isItemWidthSet = !double.IsNaN(itemWidth);
+        var isItemHeightSet = !double.IsNaN(itemHeight);
 
         var childConstraint = new Size(
             isItemWidthSet ? itemWidth : availableSize.Width,
@@ -549,10 +551,7 @@ public class VirtualizingWrapPanel : VirtualizingPanel
         do
         {
             // Predict if we will place this item in the next row, and if it's not visible, stop realizing it
-            if (uv.U + size.U > viewport.viewportUVEnd.U && uv.V + maxSizeV > viewport.viewportUVEnd.V)
-            {
-                break;
-            }
+            if (uv.U + size.U > viewport.viewportUVEnd.U && uv.V + maxSizeV > viewport.viewportUVEnd.V) break;
 
             if (firstChildMeasured)
                 childConstraint = new Size(size.Width, size.Height);
@@ -575,7 +574,7 @@ public class VirtualizingWrapPanel : VirtualizingPanel
             var uEnd = new UVSize(Orientation)
             {
                 U = uv.U + size.U,
-                V = Math.Max(v,uv.V)
+                V = Math.Max(v, uv.V)
             };
 
             if (uEnd.U > viewport.viewportUVEnd.U)
@@ -612,10 +611,7 @@ public class VirtualizingWrapPanel : VirtualizingPanel
         while (index >= 0)
         {
             // Predict if this item will be visible, and if not, stop realizing it
-            if (uv.U - size.U < viewport.viewportUVStart.U && uv.V <= viewport.viewportUVStart.V)
-            {
-                break;
-            }
+            if (uv.U - size.U < viewport.viewportUVStart.U && uv.V <= viewport.viewportUVStart.V) break;
 
             if (firstChildMeasured)
                 childConstraint = new Size(size.Width, size.Height);
@@ -639,7 +635,7 @@ public class VirtualizingWrapPanel : VirtualizingPanel
             if (uv.U < viewport.viewportUVStart.U)
             {
                 var uLength = viewport.viewportUVEnd.U - viewport.viewportUVStart.U;
-                var uConstraint = (int)(uLength / size.U) * size.U;
+                var uConstraint = (int) (uLength / size.U) * size.U;
                 uv.U = uConstraint - size.U;
                 uv.V -= size.V;
             }
@@ -757,7 +753,7 @@ public class VirtualizingWrapPanel : VirtualizingPanel
         else
         {
             ItemContainerGenerator!.ClearItemContainer(element);
-            _recyclePool ??= new();
+            _recyclePool ??= new Stack<Control>();
             _recyclePool.Push(element);
             element.IsVisible = false;
         }
@@ -774,7 +770,7 @@ public class VirtualizingWrapPanel : VirtualizingPanel
         else
         {
             ItemContainerGenerator!.ClearItemContainer(element);
-            _recyclePool ??= new();
+            _recyclePool ??= new Stack<Control>();
             _recyclePool.Push(element);
             element.IsVisible = false;
         }
@@ -795,7 +791,7 @@ public class VirtualizingWrapPanel : VirtualizingPanel
         var oldViewportStartV = horizontal ? _viewport.Top : _viewport.Left;
         var oldViewportEndV = horizontal ? _viewport.Bottom : _viewport.Right;
 
-        _viewport = e.EffectiveViewport.Intersect(new(Bounds.Size));
+        _viewport = e.EffectiveViewport.Intersect(new Rect(Bounds.Size));
         _isWaitingForViewportUpdate = false;
 
         var newViewportStartU = horizontal ? _viewport.Left : _viewport.Top;
@@ -807,9 +803,7 @@ public class VirtualizingWrapPanel : VirtualizingPanel
             !MathUtilities.AreClose(oldViewportEndU, newViewportEndU) ||
             !MathUtilities.AreClose(oldViewportStartV, newViewportStartV) ||
             !MathUtilities.AreClose(oldViewportEndV, newViewportEndV))
-        {
             InvalidateMeasure();
-        }
     }
 
     private void OnUnrealizedFocusedElementLostFocus(object? sender, RoutedEventArgs e)

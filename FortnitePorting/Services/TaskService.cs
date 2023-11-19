@@ -8,6 +8,7 @@ namespace FortnitePorting.Services;
 public static class TaskService
 {
     private static readonly DispatcherPriority DefaultPriority = DispatcherPriority.Background;
+
     public static void Run(Func<Task> function)
     {
         Task.Run(async () =>
@@ -22,7 +23,7 @@ public static class TaskService
             }
         });
     }
-    
+
     public static async Task RunAsync(Func<Task> function)
     {
         await Task.Run(async () =>
@@ -37,7 +38,7 @@ public static class TaskService
             }
         });
     }
-    
+
     public static void Run(Action function)
     {
         Task.Run(() =>
@@ -52,7 +53,7 @@ public static class TaskService
             }
         });
     }
-    
+
     public static async Task RunAsync(Action function)
     {
         await Task.Run(() =>
@@ -67,7 +68,7 @@ public static class TaskService
             }
         });
     }
-    
+
     public static void RunDispatcher(Action function, DispatcherPriority priority = default)
     {
         Dispatcher.UIThread.Invoke(() =>
@@ -82,7 +83,7 @@ public static class TaskService
             }
         }, priority);
     }
-    
+
     public static async Task RunDispatcherAsync(Action function, DispatcherPriority priority = default)
     {
         await Dispatcher.UIThread.InvokeAsync(() =>

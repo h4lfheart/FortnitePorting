@@ -13,13 +13,13 @@ public class TextureExportData : ExportDataBase
         { EAssetType.Spray, "DecalTexture" },
         { EAssetType.Banner, "LargePreviewImage" },
         { EAssetType.LoadingScreen, "BackgroundImage" },
-        { EAssetType.Emoticon, "SpriteSheet" },
+        { EAssetType.Emoticon, "SpriteSheet" }
     };
-    
+
     public TextureExportData(string name, UObject asset, FStructFallback[] styles, EAssetType type, EExportType exportType) : base(name, asset, styles, type, exportType)
     {
         var texture = asset.Get<UTexture2D>(TextureNames[type]);
-        var exportPath = Exporter.Export(texture, waitForFinish: true);
+        var exportPath = Exporter.Export(texture, true);
         AppVM.Launch(Path.GetDirectoryName(exportPath)!);
     }
 }

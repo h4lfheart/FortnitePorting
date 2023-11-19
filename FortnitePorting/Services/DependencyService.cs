@@ -18,16 +18,16 @@ public static class DependencyService
         TaskService.Run(EnsureBinkadec);
         TaskService.Run(EnsureFFmpeg);
     }
-    
+
     public static async Task EnsureBinkadec()
     {
         if (BinkadecFile.Exists) return;
-        
+
         var assetStream = AssetLoader.Open(new Uri("avares://FortnitePorting/Assets/Dependencies/binkadec.exe"));
         var fileStream = new FileStream(BinkadecFile.FullName, FileMode.Create, FileAccess.Write);
         await assetStream.CopyToAsync(fileStream);
     }
-    
+
     public static async Task EnsureFFmpeg()
     {
         if (FFmpegFile.Exists) return;
@@ -38,10 +38,11 @@ public static class DependencyService
 
         var zip = ZipFile.Read(FFmpegZipFile.FullName);
         foreach (var zipFile in zip)
-        {   
+        {
             if (!zipFile.FileName.EndsWith("/bin/ffmpeg.exe", StringComparison.OrdinalIgnoreCase)) continue;
             zipFile.Extract(new FileStream(FFmpegFile.FullName, FileMode.OpenOrCreate, FileAccess.Write));
         }
+
         file.Delete();
     }
 }

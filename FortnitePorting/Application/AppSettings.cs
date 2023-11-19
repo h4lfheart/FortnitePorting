@@ -9,7 +9,7 @@ namespace FortnitePorting.Application;
 public class AppSettings
 {
     public static SettingsViewModel Current = new();
-    
+
     private static readonly DirectoryInfo DirectoryPath = new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "FortnitePorting"));
     private static readonly FileInfo FilePath = new(Path.Combine(DirectoryPath.FullName, "AppSettingsV2.json"));
 
@@ -19,7 +19,7 @@ public class AppSettings
         if (!FilePath.Exists) return;
         Current = JsonConvert.DeserializeObject<SettingsViewModel>(File.ReadAllText(FilePath.FullName)) ?? new SettingsViewModel();
     }
-    
+
     public static void Save()
     {
         File.WriteAllText(FilePath.FullName, JsonConvert.SerializeObject(Current, Formatting.Indented));

@@ -1,14 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Avalonia.Controls;
-using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.UE4.Assets.Exports;
@@ -16,13 +12,11 @@ using CUE4Parse.Utils;
 using DynamicData;
 using DynamicData.Binding;
 using FortnitePorting.Application;
-using FortnitePorting.Controls.Assets;
 using FortnitePorting.Controls.Avalonia;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Services;
 using ReactiveUI;
-using Serilog;
 
 namespace FortnitePorting.ViewModels;
 
@@ -32,14 +26,14 @@ public partial class MeshesViewModel : ViewModelBase
     [ObservableProperty] private TreeNodeItem selectedTreeItem;
     [ObservableProperty] private FlatViewItem selectedFlatViewItem;
     [ObservableProperty] private ObservableCollection<FlatViewItem> selectedExportItems = new();
-    
+
     [ObservableProperty] private SuppressibleObservableCollection<TreeNodeItem> treeItems = new();
     [ObservableProperty] private ReadOnlyObservableCollection<FlatViewItem> assetItemsTarget;
     [ObservableProperty] private SourceList<FlatViewItem> assetItemsSource = new();
     [ObservableProperty] private SuppressibleObservableCollection<FlatViewItem> assetItems = new();
     [ObservableProperty] private string searchFilter = string.Empty;
-    
-    [ObservableProperty] private float scanPercentage = 0.0f;
+
+    [ObservableProperty] private float scanPercentage;
 
     public bool Started;
     private HashSet<string> AssetsToLoad;
@@ -66,7 +60,7 @@ public partial class MeshesViewModel : ViewModelBase
         "/Physics",
         "/_Verse",
         "/Animation/Game",
-        
+
         // Prefixes
         "/PID_",
         "/PPID_",
@@ -78,7 +72,7 @@ public partial class MeshesViewModel : ViewModelBase
         "/TD_",
         "/MPC_",
         "/BP_",
-        
+
         // Suffixes
         "_Physics",
         "_AnimBP",
@@ -87,13 +81,13 @@ public partial class MeshesViewModel : ViewModelBase
         "_CapeColliders",
         "_PhysicalMaterial",
         "_BuiltData",
-        
+
         // Other
         "PlaysetGrenade",
         "NaniteDisplacement"
     };
 
-    private string[] MeshTypes =
+    private readonly string[] MeshTypes =
     {
         "SkeletalMesh",
         "StaticMesh"
@@ -102,14 +96,13 @@ public partial class MeshesViewModel : ViewModelBase
     public override async Task Initialize()
     {
         HomeVM.Update("Loading Meshes");
-        
+
         AssetsToLoad = new HashSet<string>();
         AssetsToRemove = CUE4ParseVM.AssetRegistry.Select(x => CUE4ParseVM.Provider.FixPath(x.ObjectPath) + ".uasset").ToHashSet();
-        
+
         foreach (var (filePath, file) in CUE4ParseVM.Provider.Files)
-        {
-            if (IsValidPath(filePath)) AssetsToLoad.Add(file.Path);
-        }
+            if (IsValidPath(filePath))
+                AssetsToLoad.Add(file.Path);
 
         HomeVM.Update(string.Empty);
     }
@@ -119,7 +112,7 @@ public partial class MeshesViewModel : ViewModelBase
         if (Started) return;
         Started = true;
         AssetFilter = this.WhenAnyValue(x => x.SearchFilter).Select(CreateAssetFilter);
-        
+
         AssetItemsSource.Connect()
             .ObserveOn(RxApp.MainThreadScheduler)
             .Filter(AssetFilter)
@@ -130,7 +123,7 @@ public partial class MeshesViewModel : ViewModelBase
 
         TreeItems.SetSuppression(true);
         AssetItems.SetSuppression(true);
-        
+
         await TaskService.RunDispatcherAsync(() =>
         {
             foreach (var path in AssetsToLoad)
@@ -157,13 +150,9 @@ public partial class MeshesViewModel : ViewModelBase
                     children = foundNode.Children;
                 }
             }
-            
         });
 
-        foreach (var child in TreeItems)
-        {
-            child.InvokeOnCollectionChanged();
-        }
+        foreach (var child in TreeItems) child.InvokeOnCollectionChanged();
 
         TreeItems.InvokeOnCollectionChanged();
 
@@ -175,10 +164,7 @@ public partial class MeshesViewModel : ViewModelBase
     public async Task Export()
     {
         var objects = new List<UObject>();
-        foreach (var item in SelectedExportItems)
-        {
-            objects.Add(await CUE4ParseVM.Provider.LoadObjectAsync(item.PathWithoutExtension));
-        }
+        foreach (var item in SelectedExportItems) objects.Add(await CUE4ParseVM.Provider.LoadObjectAsync(item.PathWithoutExtension));
         await ExportService.ExportAsync(objects, EAssetType.Mesh, ExportType);
     }
 
@@ -192,15 +178,12 @@ public partial class MeshesViewModel : ViewModelBase
             foreach (var (filePath, file) in CUE4ParseVM.Provider.Files)
             {
                 index++;
-                
+
                 if (!IsValidPath(filePath)) continue;
 
                 var percentage = index / total * 100;
-                if (Math.Abs(ScanPercentage - percentage) > 0.01f)
-                {
-                    ScanPercentage = percentage;
-                }
-                
+                if (Math.Abs(ScanPercentage - percentage) > 0.01f) ScanPercentage = percentage;
+
                 var obj = await CUE4ParseVM.Provider.TryLoadObjectAsync(file.PathWithoutExtension);
                 if (obj is null || !MeshTypes.Contains(obj.ExportType)) AppSettings.Current.AssetsThatArentMesh.Add(filePath);
             }
@@ -209,7 +192,7 @@ public partial class MeshesViewModel : ViewModelBase
             AppVM.RestartWithMessage("Mesh Scanning Completed", "The mesh scanning process has finished. FortnitePorting will now restart.");
         });
     }
-    
+
     public void TreeViewJumpTo(string directory)
     {
         var children = TreeItems; // start at root
@@ -238,14 +221,14 @@ public partial class MeshesViewModel : ViewModelBase
             if (children.Count == 0) break;
         }
     }
-    
+
     public void FlatViewJumpTo(string directory)
     {
         var children = AssetItemsTarget;
         foreach (var child in children)
         {
             if (!child.Path.Equals(directory)) continue;
-            
+
             SelectedFlatViewItem = child;
             break;
         }
@@ -260,7 +243,10 @@ public partial class MeshesViewModel : ViewModelBase
         return isValidPathType && !isInRegistry && !isFiltered && !isFilteredByScan;
     }
 
-    private static Func<FlatViewItem, bool> CreateAssetFilter(string searchFilter) => asset =>  MiscExtensions.Filter(asset.Path, searchFilter);
+    private static Func<FlatViewItem, bool> CreateAssetFilter(string searchFilter)
+    {
+        return asset => MiscExtensions.Filter(asset.Path, searchFilter);
+    }
 }
 
 public partial class TreeNodeItem : ObservableObject
@@ -272,7 +258,7 @@ public partial class TreeNodeItem : ObservableObject
     [ObservableProperty] private FlatViewItem pathInfo;
     [ObservableProperty] private bool selected;
     [ObservableProperty] private bool expanded;
-    
+
     public bool IsFolder => NodeType == ENodeType.Folder;
     public bool IsFile => NodeType == ENodeType.File;
 
@@ -282,7 +268,7 @@ public partial class TreeNodeItem : ObservableObject
         Name = path.SubstringAfterLast("/");
         NodeType = nodeType;
     }
-    
+
     public void InvokeOnCollectionChanged()
     {
         Children.SetSuppression(false);
@@ -291,10 +277,7 @@ public partial class TreeNodeItem : ObservableObject
         Children.Sort(x => x.Name);
         Children.SortDescending(x => x.IsFolder);
         Children.InvokeOnCollectionChanged();
-        foreach (var folder in Children)
-        {
-            folder.InvokeOnCollectionChanged();
-        }
+        foreach (var folder in Children) folder.InvokeOnCollectionChanged();
     }
 }
 

@@ -21,10 +21,7 @@ public static class SoundExtensions
 
     public static ISoundOut GetSoundOut()
     {
-        if (WasapiOut.IsSupportedOnCurrentPlatform)
-        {
-            return new WasapiOut { Device = DeviceEnumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Console) };
-        }
+        if (WasapiOut.IsSupportedOnCurrentPlatform) return new WasapiOut { Device = DeviceEnumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Console) };
 
         return new DirectSoundOut();
     }
@@ -32,10 +29,7 @@ public static class SoundExtensions
     public static FileStream ConvertBinkaToWav(byte[] data, string name = "temp")
     {
         var wavPath = Path.Combine(App.AudioCacheFolder.FullName, $"{name}.wav");
-        if (File.Exists(wavPath))
-        {
-            return new FileStream(wavPath, FileMode.Open, FileAccess.Read);
-        }
+        if (File.Exists(wavPath)) return new FileStream(wavPath, FileMode.Open, FileAccess.Read);
 
         var binkaPath = Path.ChangeExtension(wavPath, "binka");
         var binPath = Path.ChangeExtension(binkaPath, ".bin");
@@ -79,7 +73,7 @@ public static class SoundExtensions
 
     public static List<Sound> HandleSoundTree(this USoundCue root, float offsetTime = 0.0f)
     {
-        if (root.FirstNode is null) return (List<Sound>)Enumerable.Empty<Sound>();
+        if (root.FirstNode is null) return (List<Sound>) Enumerable.Empty<Sound>();
         return HandleSoundTree(root.FirstNode.Load<USoundNode>());
     }
 
@@ -95,10 +89,7 @@ public static class SoundExtensions
             }
             case USoundNodeDelay delay:
             {
-                foreach (var nodeObject in delay.ChildNodes)
-                {
-                    sounds.AddRange(HandleSoundTree(nodeObject.Load<USoundNode>(), offsetTime + delay.GetOrDefault("DelayMin", delay.GetOrDefault<float>("DelayMax"))));
-                }
+                foreach (var nodeObject in delay.ChildNodes) sounds.AddRange(HandleSoundTree(nodeObject.Load<USoundNode>(), offsetTime + delay.GetOrDefault("DelayMin", delay.GetOrDefault<float>("DelayMax"))));
 
                 break;
             }
@@ -125,10 +116,7 @@ public static class SoundExtensions
             }
             case { } generic:
             {
-                foreach (var nodeObject in generic.ChildNodes)
-                {
-                    sounds.AddRange(HandleSoundTree(nodeObject.Load<USoundNode>(), offsetTime));
-                }
+                foreach (var nodeObject in generic.ChildNodes) sounds.AddRange(HandleSoundTree(nodeObject.Load<USoundNode>(), offsetTime));
 
                 break;
             }
