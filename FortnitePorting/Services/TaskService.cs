@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using FortnitePorting.Application;
@@ -7,9 +8,9 @@ namespace FortnitePorting.Services;
 
 public static class TaskService
 {
-    private static readonly DispatcherPriority DefaultPriority = DispatcherPriority.Background;
+    private static List<int> RunningHashes = new();
 
-    public static void Run(Func<Task> function)
+    public static void Run(Func<Task> function, bool oneInstance = false)
     {
         Task.Run(async () =>
         {

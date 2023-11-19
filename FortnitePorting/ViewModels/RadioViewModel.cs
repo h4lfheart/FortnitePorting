@@ -103,29 +103,26 @@ public partial class RadioViewModel : ViewModelBase
 
     public void Play(RadioSongPicker songPicker)
     {
-        TaskService.Run(() =>
+        var sounds = songPicker.SoundCue.HandleSoundTree();
+        var sound = sounds.MaxBy(sound => sound.Time)?.SoundWave;
+        if (sound is null) return;
+
+        sound.Decode(true, out var format, out var data);
+        if (data is null) sound.Decode(false, out format, out data);
+        if (data is null) return;
+
+        switch (format.ToLower())
         {
-            var sounds = songPicker.SoundCue.HandleSoundTree();
-            var sound = sounds.MaxBy(sound => sound.Time)?.SoundWave;
-            if (sound is null) return;
+            case "binka":
+                SoundSource = new WaveFileReader(SoundExtensions.ConvertBinkaToWav(data, sound.Name));
+                break;
+        }
 
-            sound.Decode(true, out var format, out var data);
-            if (data is null) sound.Decode(false, out format, out data);
-            if (data is null) return;
-
-            switch (format.ToLower())
-            {
-                case "binka":
-                    SoundSource = new WaveFileReader(SoundExtensions.ConvertBinkaToWav(data, sound.Name));
-                    break;
-            }
-
-            IsPlaying = true;
-            SongInfo = songPicker;
-            SoundOut.Stop();
-            SoundOut.Initialize(SoundSource);
-            SoundOut.Play();
-        });
+        IsPlaying = true;
+        SongInfo = songPicker;
+        SoundOut.Stop();
+        SoundOut.Initialize(SoundSource);
+        SoundOut.Play();
     }
 
     public void SetVolume(float value)

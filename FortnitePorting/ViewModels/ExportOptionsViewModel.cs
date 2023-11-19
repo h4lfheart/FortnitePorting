@@ -69,7 +69,7 @@ public partial class ExportOptionsViewModel : ViewModelBase
     }
 }
 
-public class ExportOptionsBase : ObservableObject
+public partial class ExportOptionsBase : ObservableObject
 {
     [ObservableProperty] private EMeshExportTypes meshFormat = EMeshExportTypes.UEFormat;
     [ObservableProperty] private EFileCompressionFormat compressionFormat = EFileCompressionFormat.ZSTD;
@@ -84,7 +84,7 @@ public class ExportOptionsBase : ObservableObject
     }
 }
 
-public class BlenderExportOptions : ExportOptionsBase
+public partial class BlenderExportOptions : ExportOptionsBase
 {
     [ObservableProperty] private bool scaleDown = true;
     [ObservableProperty] private bool importCollection = true;
@@ -124,7 +124,7 @@ public class BlenderExportOptions : ExportOptionsBase
     }
 }
 
-public class UnrealExportOptions : ExportOptionsBase
+public partial class UnrealExportOptions : ExportOptionsBase
 {
     [ObservableProperty] private ESupportedLODs levelOfDetail = ESupportedLODs.LOD0;
 
@@ -150,7 +150,7 @@ public class UnrealExportOptions : ExportOptionsBase
     }
 }
 
-public class FolderExportOptions : ExportOptionsBase
+public partial class FolderExportOptions : ExportOptionsBase
 {
     [ObservableProperty] private ELodFormat lodFormat = ELodFormat.FirstLod;
 

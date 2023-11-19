@@ -32,42 +32,24 @@ public static class SoundExtensions
         if (File.Exists(wavPath)) return new FileStream(wavPath, FileMode.Open, FileAccess.Read);
 
         var binkaPath = Path.ChangeExtension(wavPath, "binka");
-        var binPath = Path.ChangeExtension(binkaPath, ".bin");
-        File.WriteAllBytes(binkaPath, data);
+        if (!File.Exists(binkaPath)) File.WriteAllBytes(binkaPath, data);
 
-        string ffmpegParameters;
         using (var binkaProcess = new Process())
         {
             binkaProcess.StartInfo = new ProcessStartInfo
             {
-                FileName = DependencyService.BinkadecFile.FullName,
-                Arguments = $"-i \"{binkaPath}\" -o \"{binPath}\"",
+                FileName = DependencyService.BinkaFile.FullName,
+                Arguments = $"-i \"{binkaPath}\" -o \"{wavPath}\"",
                 UseShellExecute = false,
                 RedirectStandardOutput = true
             };
 
             binkaProcess.Start();
             binkaProcess.WaitForExit(5000);
-            ffmpegParameters = binkaProcess.StandardOutput.ReadToEnd().SubstringAfter("ffplay ").Trim();
         }
-
-        using (var ffmpegProcess = new Process())
-        {
-            ffmpegProcess.StartInfo = new ProcessStartInfo
-            {
-                FileName = DependencyService.FFmpegFile.FullName,
-                Arguments = $"{ffmpegParameters} \"{wavPath}\"",
-                UseShellExecute = false,
-                RedirectStandardOutput = true
-            };
-
-            ffmpegProcess.Start();
-            ffmpegProcess.WaitForExit(5000);
-        }
-
+        
         File.Delete(binkaPath);
-        File.Delete(binPath);
-
+        
         return new FileStream(wavPath, FileMode.Open, FileAccess.Read);
     }
 

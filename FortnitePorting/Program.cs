@@ -6,7 +6,7 @@ using Serilog;
 
 namespace FortnitePorting;
 
-internal class Program
+file class Program
 {
     [STAThread]
     public static void Main(string[] args)

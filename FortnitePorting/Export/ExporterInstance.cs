@@ -18,6 +18,7 @@ using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using FortnitePorting.Application;
 using FortnitePorting.Extensions;
+using FortnitePorting.ViewModels;
 using Serilog;
 using SkiaSharp;
 

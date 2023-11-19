@@ -6,6 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace FortnitePorting.Extensions;
@@ -100,9 +101,20 @@ public static class MiscExtensions
     {
         return enumerable.Where(x => x is not null);
     }
+
+    public static string GetHash(this Stream stream)
+    {
+        return BitConverter.ToString(SHA256.HashData(stream)).Replace("-", string.Empty);
+    }
+    
+    public static string GetHash(this FileInfo fileInfo)
+    {
+        using var fileStream = fileInfo.OpenRead();
+        return BitConverter.ToString(SHA256.HashData(fileStream)).Replace("-", string.Empty);
+    }
 }
 
-internal class FastRepeat<T> : ICollection<T>
+file class FastRepeat<T> : ICollection<T>
 {
     public static readonly FastRepeat<T> Instance = new();
     public int Count { get; set; }
