@@ -315,22 +315,9 @@ class ImportTask:
 
 	def import_mesh(self, path: str):
 		path = path[1:] if path.startswith("/") else path
-		mesh_path = os.path.join(self.assets_folder, path.split(".")[0])
-
-		extension = MeshType(self.options.get("MeshFormat"))
-		if extension == MeshType.UEFORMAT:
-			mesh_path += ".uemodel"
-		elif extension == MeshType.ACTORX:
-			if os.path.exists(mesh_path + ".psk"):
-				mesh_path += ".psk"
-			if os.path.exists(mesh_path + ".pskx"):
-				mesh_path += ".pskx"
+		mesh_path = os.path.join(self.assets_folder, path.split(".")[0] + ".uemodel")
 
 		return ueformat.import_file(mesh_path)
-
-class MeshType(Enum):
-	UEFORMAT = 0
-	ACTORX = 1
 
 class HatType(Enum):
 	HeadReplacement = 0

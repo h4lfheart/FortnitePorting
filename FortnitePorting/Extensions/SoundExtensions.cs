@@ -9,7 +9,6 @@ using CUE4Parse.GameTypes.FN.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Exports.Sound.Node;
 using CUE4Parse.UE4.Assets.Objects;
-using CUE4Parse.Utils;
 using FortnitePorting.Application;
 using FortnitePorting.Services;
 
@@ -45,11 +44,11 @@ public static class SoundExtensions
             };
 
             binkaProcess.Start();
-            binkaProcess.WaitForExit(5000);
+            binkaProcess.WaitForExit();
         }
         
         File.Delete(binkaPath);
-        
+
         return new FileStream(wavPath, FileMode.Open, FileAccess.Read);
     }
 
