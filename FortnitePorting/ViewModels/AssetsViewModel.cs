@@ -30,7 +30,7 @@ namespace FortnitePorting.ViewModels;
 public partial class AssetsViewModel : ViewModelBase
 {
     public List<AssetLoader> Loaders;
-    public AssetLoader? CurrentLoader;
+    [ObservableProperty] private AssetLoader? currentLoader;
 
     [ObservableProperty] private ObservableCollection<AssetOptions> currentAssets = new();
 
@@ -142,27 +142,28 @@ public partial class AssetsViewModel : ViewModelBase
             },
             new(EAssetType.Prop)
             {
-                Classes = new[] { "FortPlaysetPropItemDefinition" }
+                Classes = new[] { "FortPlaysetPropItemDefinition" },
+                DontLoadHiddenAssets = true
             },
             new(EAssetType.Prefab)
             {
                 Classes = new[] { "FortPlaysetItemDefinition" },
+                Filters = new[] { "Device", "PID_Playset", "PID_MapIndicator", "SpikyStadium", "PID_StageLight" },
                 HidePredicate = asset =>
                 {
-                    var nameContainsDevices = asset.Name.Contains("Device", StringComparison.OrdinalIgnoreCase);
-                    if (nameContainsDevices) return true;
-
                     var tagsHelper = asset.GetOrDefault<FStructFallback?>("CreativeTagsHelper");
                     if (tagsHelper is null) return false;
 
                     var tags = tagsHelper.GetOrDefault("CreativeTags", Array.Empty<FName>());
                     return tags.Any(tag => tag.Text.Contains("Device", StringComparison.OrdinalIgnoreCase));
-                }
+                },
+                DontLoadHiddenAssets = true
             },
             new(EAssetType.Item)
             {
                 Classes = new[] { "AthenaGadgetItemDefinition", "FortWeaponRangedItemDefinition", "FortWeaponMeleeItemDefinition", "FortCreativeWeaponMeleeItemDefinition", "FortCreativeWeaponRangedItemDefinition", "FortWeaponMeleeDualWieldItemDefinition" },
-                Filters = new[] { "_Harvest", "Weapon_Pickaxe_", "Weapons_Pickaxe_", "Dev_WID" }
+                Filters = new[] { "_Harvest", "Weapon_Pickaxe_", "Weapons_Pickaxe_", "Dev_WID" },
+                DontLoadHiddenAssets = true
             },
             new(EAssetType.Trap)
             {
@@ -209,7 +210,12 @@ public partial class AssetsViewModel : ViewModelBase
                             "FortniteGame/Content/UI/Foundation/Textures/Icons/Athena/T-T-Icon-BR-SM-Athena-SupplyLlama-01")
                     };
 
-                    await Parallel.ForEachAsync(entries, async (data, _) => { await TaskService.RunDispatcherAsync(() => loader.Source.Add(new AssetItem(data.Mesh, data.PreviewImage, data.Name, loader.Type)), DispatcherPriority.Background); });
+                    loader.Total = entries.Length;
+                    await Parallel.ForEachAsync(entries, async (data, _) =>
+                    {
+                        await TaskService.RunDispatcherAsync(() => loader.Source.Add(new AssetItem(data.Mesh, data.PreviewImage, data.Name, loader.Type)), DispatcherPriority.Background);
+                        loader.Loaded++;
+                    });
                 }
             }
         };
@@ -306,8 +312,11 @@ public partial class AssetsViewModel : ViewModelBase
     }
 }
 
-public class AssetLoader
+public partial class AssetLoader : ObservableObject
 {
+    [ObservableProperty] private int loaded;
+    [ObservableProperty] private int total;
+    
     public bool Started;
     public EAssetType Type;
     public Pauser Pause = new();
@@ -317,6 +326,7 @@ public class AssetLoader
 
     public string[] Classes = Array.Empty<string>();
     public string[] Filters = Array.Empty<string>();
+    public bool DontLoadHiddenAssets = false;
     public Func<UObject, bool> HidePredicate = _ => false;
     public Func<UObject, UTexture2D?> IconHandler = asset => asset.GetAnyOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage");
     public Func<UObject, FText?> DisplayNameHandler = asset => asset.GetOrDefault("DisplayName", new FText(asset.Name));
@@ -349,6 +359,7 @@ public class AssetLoader
         var randomAsset = assets.FirstOrDefault(x => x.AssetName.Text.EndsWith("Random", StringComparison.OrdinalIgnoreCase));
         if (randomAsset is not null) assets.Remove(randomAsset);
 
+        Total = assets.Count;
         await Parallel.ForEachAsync(assets, async (data, _) =>
         {
             await Pause.WaitIfPaused();
@@ -361,6 +372,7 @@ public class AssetLoader
                 Log.Error("{0}", e);
             }
         });
+        Loaded = Total;
     }
 
     private async Task LoadAsset(FAssetData data)
@@ -371,30 +383,18 @@ public class AssetLoader
 
     private async Task LoadAsset(UObject asset)
     {
+        Loaded++;
+        
+        var isHiddenAsset = Filters.Any(y => asset.Name.Contains(y, StringComparison.OrdinalIgnoreCase)) || HidePredicate(asset);
+        if (isHiddenAsset && DontLoadHiddenAssets) return;
+        
         var icon = IconHandler(asset);
         if (icon is null) return;
 
         var displayName = DisplayNameHandler(asset)?.Text;
         if (string.IsNullOrEmpty(displayName)) displayName = asset.Name;
 
-        await TaskService.RunDispatcherAsync(() => Source.Add(new AssetItem(asset, icon, displayName, Type, Filters.Any(y => asset.Name.Contains(y, StringComparison.OrdinalIgnoreCase)) || HidePredicate(asset))), DispatcherPriority.Background);
-    }
-}
-
-public class ManualAssetItemEntry
-{
-    public string Name;
-    public UObject Mesh;
-    public UTexture2D PreviewImage;
-
-    public static async Task<ManualAssetItemEntry> Create(string name, string meshPath, string imagePath)
-    {
-        return new ManualAssetItemEntry
-        {
-            Name = name,
-            Mesh = await CUE4ParseVM.Provider.LoadObjectAsync(meshPath),
-            PreviewImage = await CUE4ParseVM.Provider.LoadObjectAsync<UTexture2D>(imagePath)
-        };
+        await TaskService.RunDispatcherAsync(() => Source.Add(new AssetItem(asset, icon, displayName, Type, isHiddenAsset)), DispatcherPriority.Background);
     }
 }
 
@@ -415,5 +415,22 @@ public class Pauser
     public async Task WaitIfPaused()
     {
         while (IsPaused) await Task.Delay(1);
+    }
+}
+
+file class ManualAssetItemEntry
+{
+    public string Name;
+    public UObject Mesh;
+    public UTexture2D PreviewImage;
+
+    public static async Task<ManualAssetItemEntry> Create(string name, string meshPath, string imagePath)
+    {
+        return new ManualAssetItemEntry
+        {
+            Name = name,
+            Mesh = await CUE4ParseVM.Provider.LoadObjectAsync(meshPath),
+            PreviewImage = await CUE4ParseVM.Provider.LoadObjectAsync<UTexture2D>(imagePath)
+        };
     }
 }

@@ -112,11 +112,7 @@ public partial class BlenderExportOptions : ExportOptionsBase
         return new ExporterOptions
         {
             LodFormat = LevelOfDetail is ESupportedLODs.LOD0 ? ELodFormat.FirstLod : ELodFormat.AllLods,
-            MeshFormat = MeshFormat switch
-            {
-                EMeshExportTypes.UEFormat => EMeshFormat.UEFormat,
-                EMeshExportTypes.ActorX => EMeshFormat.ActorX
-            },
+            MeshFormat = EMeshFormat.UEFormat,
             CompressionFormat = CompressionFormat,
             ExportMorphTargets = true,
             ExportMaterials = false
@@ -138,11 +134,7 @@ public partial class UnrealExportOptions : ExportOptionsBase
         return new ExporterOptions
         {
             LodFormat = LevelOfDetail is ESupportedLODs.LOD0 ? ELodFormat.FirstLod : ELodFormat.AllLods,
-            MeshFormat = MeshFormat switch
-            {
-                EMeshExportTypes.UEFormat => EMeshFormat.UEFormat,
-                EMeshExportTypes.ActorX => EMeshFormat.ActorX
-            },
+            MeshFormat = EMeshFormat.UEFormat,
             CompressionFormat = CompressionFormat,
             ExportMorphTargets = true,
             ExportMaterials = false
