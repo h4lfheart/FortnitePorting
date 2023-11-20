@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -46,9 +47,12 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private bool filterProps = true;
     [ObservableProperty] private bool filterItems = true;
 
+    // Data Storage
     [ObservableProperty] private AuthResponse? epicGamesAuth;
     [ObservableProperty] private List<string> favoritePaths = new();
-    [ObservableProperty] private HashSet<string> assetsThatArentMesh = new();
+    [ObservableProperty] private HashSet<string> hiddenMeshPaths = new();
+    [ObservableProperty] private HashSet<string> hiddenPropPaths = new();
+    [ObservableProperty] private Dictionary<string, Dictionary<string, string>> itemMeshMappings = new();
 
     [JsonIgnore] private static readonly string[] RestartProperties =
     {
@@ -89,25 +93,21 @@ public partial class SettingsViewModel : ViewModelBase
         Patterns = new[] { "*.usmap" }
     };
 
-    [RelayCommand]
     private async Task BrowseLocalArchivePath()
     {
         if (await AppVM.BrowseFolderDialog() is { } path) LocalArchivePath = path;
     }
 
-    [RelayCommand]
     private async Task BrowseCustomArchivePath()
     {
         if (await AppVM.BrowseFolderDialog() is { } path) CustomArchivePath = path;
     }
 
-    [RelayCommand]
     private async Task BrowseMappingsFile()
     {
         if (await AppVM.BrowseFileDialog(MappingsFileType) is { } path) CustomMappingsPath = path;
     }
 
-    [RelayCommand]
     private async Task BrowseExportPath()
     {
         if (await AppVM.BrowseFolderDialog() is { } path) CustomExportPath = path;

@@ -44,7 +44,7 @@
                                 <StackPanel>
                                     <controls:SettingBox DisplayName="Archive Path"
                                                          Path="{Binding LocalArchivePath, Mode=TwoWay}" Icon="Folder">
-                                        <Button Content="Browse" Command="{Binding BrowseLocalArchivePathCommand}" />
+                                        <Button Content="Browse" Command="{Binding BrowseLocalArchivePath}" />
                                     </controls:SettingBox>
                                     <controls:SettingBox DisplayName="Cosmetic Streaming"
                                                          Path="{Binding UseCosmeticStreaming, Mode=TwoWay}"
@@ -61,11 +61,11 @@
                                 <StackPanel>
                                     <controls:SettingBox DisplayName="Archive Path"
                                                          Path="{Binding CustomArchivePath, Mode=TwoWay}" Icon="Folder">
-                                        <Button Content="Browse" Command="{Binding BrowseCustomArchivePathCommand}" />
+                                        <Button Content="Browse" Command="{Binding BrowseCustomArchivePath}" />
                                     </controls:SettingBox>
                                     <controls:SettingBox DisplayName="Mappings File"
                                                          Path="{Binding CustomMappingsPath, Mode=TwoWay}" Icon="File">
-                                        <Button Content="Browse" Command="{Binding BrowseMappingsFileCommand}" />
+                                        <Button Content="Browse" Command="{Binding BrowseMappingsFile}" />
                                     </controls:SettingBox>
                                     <controls:SettingBox DisplayName="Encryption Key"
                                                          Path="{Binding CustomEncryptionKey, Mode=TwoWay}" Icon="Key">
@@ -107,7 +107,7 @@
                                          Path="{Binding CustomExportPath, Mode=TwoWay}" Icon="Folder">
                         <StackPanel Orientation="Horizontal">
                             <ToggleSwitch IsChecked="{Binding UseCustomExportPath}" />
-                            <Button Content="Browse" Command="{Binding BrowseExportPathCommand}"
+                            <Button Content="Browse" Command="{Binding BrowseExportPath}"
                                     IsEnabled="{Binding UseCustomExportPath}" />
                         </StackPanel>
                     </controls:SettingBox>

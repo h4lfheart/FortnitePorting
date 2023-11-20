@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -15,9 +16,12 @@ using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Objects.UObject;
+using CUE4Parse.Utils;
 using DynamicData;
 using DynamicData.Binding;
+using FortnitePorting.Application;
 using FortnitePorting.Controls.Assets;
+using FortnitePorting.Export;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Services;
@@ -129,7 +133,8 @@ public partial class AssetsViewModel : ViewModelBase
             },
             new(EAssetType.Banner)
             {
-                Classes = new[] { "FortHomebaseBannerIconItemDefinition" }
+                Classes = new[] { "FortHomebaseBannerIconItemDefinition" },
+                HideRarity = true
             },
             new(EAssetType.LoadingScreen)
             {
@@ -143,13 +148,33 @@ public partial class AssetsViewModel : ViewModelBase
             new(EAssetType.Prop)
             {
                 Classes = new[] { "FortPlaysetPropItemDefinition" },
-                DontLoadHiddenAssets = true
+                HidePredicate = (loader, asset, name) =>
+                {
+                    if (!AppSettings.Current.FilterProps) return false;
+
+                    var path = asset.GetPathName();
+                    if (AppSettings.Current.HiddenPropPaths.Contains(path)) return true;
+                    if (loader.LoadedAssetsForFiltering.Contains(name))
+                    {
+                        AppSettings.Current.HiddenPropPaths.Add(path);
+                        return true;
+                    }
+
+                    loader.LoadedAssetsForFiltering.Add(name);
+                    return false;
+                },
+                DontLoadHiddenAssets = true,
+                HideRarity = true
             },
             new(EAssetType.Prefab)
             {
                 Classes = new[] { "FortPlaysetItemDefinition" },
-                Filters = new[] { "Device", "PID_Playset", "PID_MapIndicator", "SpikyStadium", "PID_StageLight" },
-                HidePredicate = asset =>
+                Filters = new[]
+                {
+                    "Device", "PID_Playset", "PID_MapIndicator", "SpikyStadium", "PID_StageLight",
+                    "PID_Temp_Island"
+                },
+                HidePredicate = (loader, asset, name) =>
                 {
                     var tagsHelper = asset.GetOrDefault<FStructFallback?>("CreativeTagsHelper");
                     if (tagsHelper is null) return false;
@@ -157,12 +182,36 @@ public partial class AssetsViewModel : ViewModelBase
                     var tags = tagsHelper.GetOrDefault("CreativeTags", Array.Empty<FName>());
                     return tags.Any(tag => tag.Text.Contains("Device", StringComparison.OrdinalIgnoreCase));
                 },
-                DontLoadHiddenAssets = true
+                DontLoadHiddenAssets = true,
+                HideRarity = true
             },
             new(EAssetType.Item)
             {
                 Classes = new[] { "AthenaGadgetItemDefinition", "FortWeaponRangedItemDefinition", "FortWeaponMeleeItemDefinition", "FortCreativeWeaponMeleeItemDefinition", "FortCreativeWeaponRangedItemDefinition", "FortWeaponMeleeDualWieldItemDefinition" },
                 Filters = new[] { "_Harvest", "Weapon_Pickaxe_", "Weapons_Pickaxe_", "Dev_WID" },
+                HidePredicate = (loader, asset, name) =>
+                {
+                    if (!AppSettings.Current.FilterItems) return false;
+                    var path = asset.GetPathName();
+                    var mappings = AppSettings.Current.ItemMeshMappings.GetOrAdd(name, () => new Dictionary<string, string>());
+                    if (mappings.TryGetValue(path, out var meshPath))
+                    {
+                        if (loader.LoadedAssetsForFiltering.Contains(meshPath)) return true;
+
+                        loader.LoadedAssetsForFiltering.Add(meshPath);
+                        return false;
+                    }
+
+                    var mesh = ExporterInstance.WeaponDefinitionMeshes(asset).FirstOrDefault();
+                    if (mesh is null) return true;
+
+                    meshPath = mesh.GetPathName();
+
+                    var shouldSkip = mappings.Any(x => x.Value.Equals(meshPath, StringComparison.OrdinalIgnoreCase));
+                    mappings[path] = meshPath;
+                    loader.LoadedAssetsForFiltering.Add(meshPath);
+                    return shouldSkip;
+                },
                 DontLoadHiddenAssets = true
             },
             new(EAssetType.Trap)
@@ -173,7 +222,8 @@ public partial class AssetsViewModel : ViewModelBase
             {
                 Classes = new[] { "FortVehicleItemDefinition" },
                 IconHandler = asset => GetVehicleInfo<UTexture2D>(asset, "SmallPreviewImage", "LargePreviewImage", "Icon"),
-                DisplayNameHandler = asset => GetVehicleInfo<FText>(asset, "DisplayName")
+                DisplayNameHandler = asset => GetVehicleInfo<FText>(asset, "DisplayName"),
+                HideRarity = true
             },
             new(EAssetType.Wildlife)
             {
@@ -211,11 +261,11 @@ public partial class AssetsViewModel : ViewModelBase
                     };
 
                     loader.Total = entries.Length;
-                    await Parallel.ForEachAsync(entries, async (data, _) =>
+                    foreach (var data in entries)
                     {
-                        await TaskService.RunDispatcherAsync(() => loader.Source.Add(new AssetItem(data.Mesh, data.PreviewImage, data.Name, loader.Type)), DispatcherPriority.Background);
+                        await TaskService.RunDispatcherAsync(() => loader.Source.Add(new AssetItem(data.Mesh, data.PreviewImage, data.Name, loader.Type, hideRarity: true)), DispatcherPriority.Background);
                         loader.Loaded++;
-                    });
+                    }
                 }
             }
         };
@@ -316,21 +366,24 @@ public partial class AssetLoader : ObservableObject
 {
     [ObservableProperty] private int loaded;
     [ObservableProperty] private int total;
-    
-    public bool Started;
+
     public EAssetType Type;
     public Pauser Pause = new();
 
-    public SourceList<AssetItem> Source = new();
-    public ReadOnlyObservableCollection<AssetItem> Target;
+    public readonly SourceList<AssetItem> Source = new();
+    public readonly ReadOnlyObservableCollection<AssetItem> Target;
+    public readonly ConcurrentBag<string> LoadedAssetsForFiltering = new();
 
     public string[] Classes = Array.Empty<string>();
     public string[] Filters = Array.Empty<string>();
-    public bool DontLoadHiddenAssets = false;
-    public Func<UObject, bool> HidePredicate = _ => false;
+    public bool DontLoadHiddenAssets;
+    public bool HideRarity;
+    public Func<AssetLoader, UObject, string, bool> HidePredicate = (_, _, _) => false;
     public Func<UObject, UTexture2D?> IconHandler = asset => asset.GetAnyOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage");
     public Func<UObject, FText?> DisplayNameHandler = asset => asset.GetOrDefault("DisplayName", new FText(asset.Name));
     public Func<AssetLoader, Task>? CustomLoadingHandler;
+
+    private bool Started;
 
     public AssetLoader(EAssetType type)
     {
@@ -360,7 +413,7 @@ public partial class AssetLoader : ObservableObject
         if (randomAsset is not null) assets.Remove(randomAsset);
 
         Total = assets.Count;
-        await Parallel.ForEachAsync(assets, async (data, _) =>
+        foreach (var data in assets)
         {
             await Pause.WaitIfPaused();
             try
@@ -371,30 +424,36 @@ public partial class AssetLoader : ObservableObject
             {
                 Log.Error("{0}", e);
             }
-        });
+        }
+
         Loaded = Total;
     }
 
     private async Task LoadAsset(FAssetData data)
     {
-        var asset = await CUE4ParseVM.Provider.LoadObjectAsync(data.ObjectPath);
-        await LoadAsset(asset);
+        var asset = await CUE4ParseVM.Provider.TryLoadObjectAsync(data.ObjectPath);
+        if (asset is null) return;
+
+        var displayName = data.AssetName.Text;
+        if (data.TagsAndValues.TryGetValue("DisplayName", out var displayNameRaw)) displayName = displayNameRaw.SubstringBeforeLast('"').SubstringAfterLast('"').Trim();
+
+        await LoadAsset(asset, displayName);
     }
 
-    private async Task LoadAsset(UObject asset)
+    private async Task LoadAsset(UObject asset, string assetDisplayName)
     {
         Loaded++;
-        
-        var isHiddenAsset = Filters.Any(y => asset.Name.Contains(y, StringComparison.OrdinalIgnoreCase)) || HidePredicate(asset);
+
+        var isHiddenAsset = Filters.Any(y => asset.Name.Contains(y, StringComparison.OrdinalIgnoreCase)) || HidePredicate(this, asset, assetDisplayName);
         if (isHiddenAsset && DontLoadHiddenAssets) return;
-        
+
         var icon = IconHandler(asset);
         if (icon is null) return;
 
         var displayName = DisplayNameHandler(asset)?.Text;
         if (string.IsNullOrEmpty(displayName)) displayName = asset.Name;
 
-        await TaskService.RunDispatcherAsync(() => Source.Add(new AssetItem(asset, icon, displayName, Type, isHiddenAsset)), DispatcherPriority.Background);
+        await TaskService.RunDispatcherAsync(() => Source.Add(new AssetItem(asset, icon, displayName, Type, isHiddenAsset, HideRarity)), DispatcherPriority.Background);
     }
 }
 

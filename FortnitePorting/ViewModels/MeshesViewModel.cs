@@ -185,7 +185,7 @@ public partial class MeshesViewModel : ViewModelBase
                 if (Math.Abs(ScanPercentage - percentage) > 0.01f) ScanPercentage = percentage;
 
                 var obj = await CUE4ParseVM.Provider.TryLoadObjectAsync(file.PathWithoutExtension);
-                if (obj is null || !MeshTypes.Contains(obj.ExportType)) AppSettings.Current.AssetsThatArentMesh.Add(filePath);
+                if (obj is null || !MeshTypes.Contains(obj.ExportType)) AppSettings.Current.HiddenMeshPaths.Add(filePath);
             }
 
             ScanPercentage = 100.0f;
@@ -239,7 +239,7 @@ public partial class MeshesViewModel : ViewModelBase
         var isValidPathType = path.EndsWith(".uasset") && !path.EndsWith(".o.uasset");
         var isInRegistry = AssetsToRemove.Contains(path);
         var isFiltered = Filters.Any(filter => path.Contains(filter, StringComparison.OrdinalIgnoreCase));
-        var isFilteredByScan = AppSettings.Current.AssetsThatArentMesh.Contains(path);
+        var isFilteredByScan = AppSettings.Current.HiddenMeshPaths.Contains(path);
         return isValidPathType && !isInRegistry && !isFiltered && !isFilteredByScan;
     }
 

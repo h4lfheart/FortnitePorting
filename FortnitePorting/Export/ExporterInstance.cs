@@ -99,22 +99,39 @@ public class ExporterInstance
         return exportPart;
     }
 
-    // TODO REFACTOR TO BE BETTER
     public List<ExportMesh> WeaponDefinition(UObject weaponDefinition)
     {
+        var weaponMeshes = WeaponDefinitionMeshes(weaponDefinition);
         var exportWeapons = new List<ExportMesh>();
+        foreach (var weaponMesh in weaponMeshes)
+        {
+            exportWeapons.AddIfNotNull(weaponMesh switch
+            {
+                USkeletalMesh skeletalMesh => Mesh(skeletalMesh),
+                UStaticMesh staticMesh => Mesh(staticMesh),
+                _ => null
+            });
+        }
+
+        return exportWeapons;
+    }
+
+    // TODO REFACTOR TO BE BETTER
+    public static List<UObject> WeaponDefinitionMeshes(UObject weaponDefinition)
+    {
+        var exportWeapons = new List<UObject>();
 
         var skeletalMesh = weaponDefinition.GetOrDefault<USkeletalMesh?>("WeaponMeshOverride");
         skeletalMesh ??= weaponDefinition.GetOrDefault<USkeletalMesh?>("PickupSkeletalMesh");
-        if (skeletalMesh is not null) exportWeapons.AddIfNotNull(Mesh(skeletalMesh));
+        if (skeletalMesh is not null) exportWeapons.AddIfNotNull(skeletalMesh);
 
         var offhandSkeletalMesh = weaponDefinition.GetOrDefault<USkeletalMesh?>("WeaponMeshOffhandOverride");
-        if (offhandSkeletalMesh is not null) exportWeapons.AddIfNotNull(Mesh(offhandSkeletalMesh));
+        if (offhandSkeletalMesh is not null) exportWeapons.AddIfNotNull(offhandSkeletalMesh);
 
         if (skeletalMesh is null)
         {
             var staticMesh = weaponDefinition.GetOrDefault<UStaticMesh?>("PickupStaticMesh");
-            if (staticMesh is not null) exportWeapons.AddIfNotNull(Mesh(staticMesh));
+            if (staticMesh is not null) exportWeapons.AddIfNotNull(staticMesh);
         }
 
         if (exportWeapons.Count == 0 && weaponDefinition.TryGetValue(out UBlueprintGeneratedClass weaponActorClass, "WeaponActorClass"))
@@ -123,13 +140,13 @@ public class ExporterInstance
             if (weaponActorData.TryGetValue(out UObject weaponMeshData, "WeaponMesh"))
             {
                 var weaponMesh = weaponMeshData.GetOrDefault<USkeletalMesh?>("SkeletalMesh");
-                if (weaponMesh is not null) exportWeapons.AddIfNotNull(Mesh(weaponMesh));
+                if (weaponMesh is not null) exportWeapons.AddIfNotNull(weaponMesh);
             }
 
             if (weaponActorData.TryGetValue(out UObject leftWeaponMeshData, "LeftHandWeaponMesh"))
             {
                 var leftWeaponMesh = leftWeaponMeshData.GetOrDefault<USkeletalMesh?>("SkeletalMesh");
-                if (leftWeaponMesh is not null) exportWeapons.AddIfNotNull(Mesh(leftWeaponMesh));
+                if (leftWeaponMesh is not null) exportWeapons.AddIfNotNull(leftWeaponMesh);
             }
         }
 

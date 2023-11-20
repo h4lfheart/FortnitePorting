@@ -42,8 +42,9 @@ public partial class AssetItem : UserControl
     public Bitmap PreviewImage { get; set; }
 
 
-    public AssetItem(UObject asset, UTexture2D icon, string displayName, EAssetType type, bool isHidden = false)
+    public AssetItem(UObject asset, UTexture2D icon, string displayName, EAssetType type, bool isHidden = false, bool hideRarity = false)
     {
+        DataContext = this;
         InitializeComponent();
 
         Hidden = isHidden;
@@ -83,15 +84,17 @@ public partial class AssetItem : UserControl
                     Shader = SkiaExtensions.RadialGradient(fullBitmap.Height, SKColor.Parse("#50C8FF"), SKColor.Parse("#1B7BCF"))
                 });
 
-
-            var colors = seriesColors ?? CUE4ParseVM.RarityColors[(int) Rarity];
             fullCanvas.DrawBitmap(iconBitmap, new SKRect(-16, 0, fullBitmap.Width + 16, fullBitmap.Height));
-            fullCanvas.RotateDegrees(-4);
-            fullCanvas.DrawRect(new SKRect(-16, fullBitmap.Height - 12, fullBitmap.Width + 16, fullBitmap.Height + 16), new SKPaint
+            if (!hideRarity)
             {
-                Color = SKColor.Parse(colors.Color1.Hex).WithAlpha(204) // 0.8 Alpha
-            });
-            fullCanvas.RotateDegrees(4);
+                var colors = seriesColors ?? CUE4ParseVM.RarityColors[(int) Rarity];
+                fullCanvas.RotateDegrees(-4);
+                fullCanvas.DrawRect(new SKRect(-16, fullBitmap.Height - 12, fullBitmap.Width + 16, fullBitmap.Height + 16), new SKPaint
+                {
+                    Color = SKColor.Parse(colors.Color1.Hex).WithAlpha(204) // 0.8 Alpha
+                });
+                fullCanvas.RotateDegrees(4);
+            }
         }
 
         PreviewImage = new Bitmap(fullBitmap.Encode(SKEncodedImageFormat.Png, 100).AsStream());
@@ -117,12 +120,12 @@ public partial class AssetItem : UserControl
         }
     }
 
-    private void CopyPath()
+    public void CopyPath()
     {
         Clipboard.SetTextAsync(Asset.GetPathName());
     }
 
-    private void CopyID()
+    public void CopyID()
     {
         Clipboard.SetTextAsync(Asset.Name);
     }
