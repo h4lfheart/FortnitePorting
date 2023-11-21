@@ -13,6 +13,7 @@ public class ExportMesh
     public FVector Scale = FVector.OneVector;
     public List<ExportMaterial> Materials = new();
     public List<ExportMaterial> OverrideMaterials = new();
+    public List<ExportTextureData> TextureData = new();
 }
 
 public class ExportPart : ExportMesh
@@ -78,6 +79,13 @@ public record ExportMaterial
 public record ExportOverrideMaterial : ExportMaterial
 {
     public string? MaterialNameToSwap;
+}
+
+public record ExportTextureData
+{
+    public TextureParameter? Diffuse;
+    public TextureParameter? Normal;
+    public TextureParameter? Specular;
 }
 
 public record TextureParameter(string Name, string Value, bool sRGB, TextureCompressionSettings CompressionSettings);

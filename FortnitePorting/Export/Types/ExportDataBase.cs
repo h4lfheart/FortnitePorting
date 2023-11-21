@@ -18,8 +18,8 @@ public abstract class ExportDataBase
         Exporter = new ExporterInstance(exportType);
     }
 
-    public async Task WaitForExportsAsync()
+    public void WaitForExports()
     {
-        await Task.WhenAll(Exporter.ExportTasks);
+        Task.WaitAll(Exporter.ExportTasks.ToArray());
     }
 }

@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CUE4Parse.GameTypes.FN.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Component.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Objects;
+using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.GameplayTags;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
@@ -76,9 +78,37 @@ public class MeshExportData : ExportDataBase
             case EAssetType.Toy:
                 break;
             case EAssetType.Prop:
+            {
+                var levelSaveRecord = asset.Get<ULevelSaveRecord>("ActorSaveRecord");
+                var meshes = Exporter.LevelSaveRecord(levelSaveRecord);
+                Meshes.AddRange(meshes);
                 break;
+            }
             case EAssetType.Prefab:
+            {
+                var recordCollectionLazy = asset.GetOrDefault<FPackageIndex?>("PlaysetPropLevelSaveRecordCollection");
+                if (recordCollectionLazy is null || recordCollectionLazy.IsNull || !recordCollectionLazy.TryLoad(out var recordCollection) || recordCollection is null) break;
+
+                var props = recordCollection.GetOrDefault<FStructFallback[]>("Items");
+                foreach (var prop in props)
+                {
+                    var levelSaveRecord = prop.GetOrDefault<UObject?>("LevelSaveRecord");
+                    if (levelSaveRecord is null) continue;
+
+                    var actorSaveRecord = levelSaveRecord.Get<ULevelSaveRecord>("ActorSaveRecord");
+                    var transform = prop.GetOrDefault<FTransform>("Transform");
+                    var meshes = Exporter.LevelSaveRecord(actorSaveRecord);
+                    foreach (var mesh in meshes)
+                    {
+                        mesh.Location = transform.Translation;
+                        mesh.Rotation = transform.Rotator();
+                        mesh.Scale = transform.Scale3D;
+                    }
+                    Meshes.AddRange(meshes);
+                }
+
                 break;
+            }
             case EAssetType.Item:
             {
                 Meshes.AddRange(Exporter.WeaponDefinition(asset));

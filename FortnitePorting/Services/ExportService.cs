@@ -80,7 +80,7 @@ public static class ExportService
             }
 
             var exportDatas = exports.Select(export => CreateExportData(export.AssetItem.DisplayName, export.AssetItem.Asset, export.GetSelectedStyles(), export.AssetItem.Type, exportType)).ToArray();
-            foreach (var exportData in exportDatas) await exportData.WaitForExportsAsync();
+            foreach (var exportData in exportDatas) exportData.WaitForExports();
 
             var exportResponse = CreateExportResponse(exportDatas, exportType);
             exportService.SendMessage(JsonConvert.SerializeObject(exportResponse));
@@ -112,7 +112,7 @@ public static class ExportService
             }
 
             var exportDatas = assets.Select(asset => CreateExportData(asset.Name, asset, Array.Empty<FStructFallback>(), assetType, exportType)).ToArray();
-            foreach (var exportData in exportDatas) await exportData.WaitForExportsAsync();
+            foreach (var exportData in exportDatas) exportData.WaitForExports();
 
             var exportResponse = CreateExportResponse(exportDatas, exportType);
             exportService.SendMessage(JsonConvert.SerializeObject(exportResponse));

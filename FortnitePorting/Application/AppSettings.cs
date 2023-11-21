@@ -5,7 +5,6 @@ using Newtonsoft.Json;
 
 namespace FortnitePorting.Application;
 
-// TODO ADD SUPPORT FOR SETTINGS MIGRATION FOR 1.0 -> 2.0
 public class AppSettings
 {
     public static SettingsViewModel Current = new();

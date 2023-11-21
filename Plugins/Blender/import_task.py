@@ -9,7 +9,8 @@ from . import ue_format as ueformat
 
 location_mappings = {
 	"Diffuse": (-300, -75),
-	"M": (-300, -120),
+	"Background Diffuse": (-300, -125),
+	"M": (-300, -145),
 	"SpecularMasks": (-300, -385),
 	"Normals": (-300, -305),
 	"Emission Color": (-300, -520)
@@ -17,12 +18,48 @@ location_mappings = {
 
 texture_mappings = {
 	"Diffuse": "Diffuse",
+	"Background Diffuse": "Background Diffuse",
 	"M": "M",
 	"Mask": "M",
 	"SpecularMasks": "SpecularMasks",
 	"SRM": "SpecularMasks",
 	"Normals": "Normals",
 	"Emissive": "Emission Color"
+}
+
+layer_location_mappings = {
+	"Diffuse": (-300, -100),
+	"SpecularMasks": (-300, -125),
+	"Normals": (-300, -150),
+
+	"Diffuse_Texture_2": (-300, -195),
+	"SpecularMasks_2": (-300, -220),
+	"Normals_Texture_2": (-300, -245),
+
+	"Diffuse_Texture_3": (-300, -290),
+	"SpecularMasks_3": (-300, -315),
+	"Normals_Texture_3": (-300, -340),
+
+	"Diffuse_Texture_4": (-300, -485),
+	"SpecularMasks_4": (-300, -410),
+	"Normals_Texture_4": (-300, -435),
+}
+
+layer_texture_mappings = {
+	"Diffuse": "Diffuse",
+	"Diffuse_Texture_2": "Diffuse_Texture_2",
+	"Diffuse_Texture_3": "Diffuse_Texture_3",
+	"Diffuse_Texture_4": "Diffuse_Texture_4",
+
+	"SpecularMasks": "SpecularMasks",
+	"SpecularMasks_2": "SpecularMasks_2",
+	"SpecularMasks_3": "SpecularMasks_3",
+	"SpecularMasks_4": "SpecularMasks_4",
+
+	"Normals": "Normals",
+	"Normals_Texture_2": "Normals_Texture_2",
+	"Normals_Texture_3": "Normals_Texture_3",
+	"Normals_Texture_4": "Normals_Texture_4",
 }
 
 scalar_mappings = {
@@ -83,6 +120,10 @@ class ImportTask:
 			# import mesh
 			mesh_type = mesh.get("Type")
 			imported_object = self.import_mesh(mesh.get("Path"))
+			imported_object.location = make_vector(mesh.get("Location"), mirror_y=True) * 0.01
+			imported_object.rotation_euler = make_euler(mesh.get("Rotation"))
+			imported_object.scale = make_vector(mesh.get("Scale"))
+			
 			imported_mesh = get_armature_mesh(imported_object)
 			imported_meshes.append({
 				"Skeleton": imported_object,
@@ -105,6 +146,8 @@ class ImportTask:
 								key.value = 1.0
 				case _:
 					meta = {}
+
+			meta["TextureData"] = mesh.get("TextureData")
 
 			# import mats
 			for material in mesh.get("Materials"):
@@ -148,23 +191,26 @@ class ImportTask:
 		nodes.clear()
 		links = material.node_tree.links
 		links.clear()
-
+		
 		textures = material_data.get("Textures")
 		scalars = material_data.get("Scalars")
 		vectors = material_data.get("Vectors")
 		switches = material_data.get("Switches")
 		component_masks = material_data.get("ComponentMasks")
+		
+		for texture_data in meta_data.get("TextureData"):
+			set_or_add_texturedata(textures, texture_data.get("Diffuse"))
+			set_or_add_texturedata(textures, texture_data.get("Normal"))
+			set_or_add_texturedata(textures, texture_data.get("Specular"))
 
 		output_node = nodes.new(type="ShaderNodeOutputMaterial")
 		output_node.location = (200, 0)
 
 		shader_node = nodes.new(type="ShaderNodeGroup")
-		shader_node.name = "FP Material"
-		shader_node.node_tree = bpy.data.node_groups.get(shader_node.name)
+		shader_node.node_tree = bpy.data.node_groups.get("FP Material")
 		shader_node.inputs["AO"].default_value = self.options.get("AmbientOcclusion")
 		shader_node.inputs["Cavity"].default_value = self.options.get("Cavity")
 		shader_node.inputs["Subsurface"].default_value = self.options.get("Subsurface")
-		links.new(shader_node.outputs[0], output_node.inputs[0])
 
 		# parameters
 		hide_element_values = {}
@@ -181,57 +227,82 @@ class ImportTask:
 				return None
 			return found.get("Value")
 
-		def texture_param(data):
-			name = data.get("Name")
-			path = data.get("Value")
-
-			if (slot := texture_mappings.get(name)) is None:
-				return
-
-			node = nodes.new(type="ShaderNodeTexImage")
-			node.image = self.import_image(path)
-			node.image.alpha_mode = 'CHANNEL_PACKED'
-			node.image.colorspace_settings.name = "sRGB" if data.get("sRGB") else "Non-Color"
-			node.interpolation = "Smart"
-			node.location = location_mappings[slot]
-			node.hide = True
-			links.new(node.outputs[0], shader_node.inputs[slot])
+		def texture_param(data, tex_mappings, pos_mappings):
+			try:
+				name = data.get("Name")
+				path = data.get("Value")
+	
+				if (slot := tex_mappings.get(name)) is None:
+					return
+	
+				node = nodes.new(type="ShaderNodeTexImage")
+				node.image = self.import_image(path)
+				node.image.alpha_mode = 'CHANNEL_PACKED'
+				node.image.colorspace_settings.name = "sRGB" if data.get("sRGB") else "Non-Color"
+				node.interpolation = "Smart"
+				node.location = pos_mappings[slot]
+				node.hide = True
+				links.new(node.outputs[0], shader_node.inputs[slot])
+	
+				if alpha_slot := shader_node.inputs.get(f"{name} Alpha"):
+					links.new(node.outputs[1], alpha_slot)
+			except Exception:
+				pass
 
 		def scalar_param(data):
-			name = data.get("Name")
-			value = data.get("Value")
-
-			if "Hide Element" in name:
-				hide_element_values[name] = value
-
-			if (slot := scalar_mappings.get(name)) is None:
-				return
-
-			shader_node.inputs[slot].default_value = value
+			try:
+				name = data.get("Name")
+				value = data.get("Value")
+	
+				if "Hide Element" in name:
+					hide_element_values[name] = value
+	
+				if (slot := scalar_mappings.get(name)) is None:
+					return
+	
+				shader_node.inputs[slot].default_value = value
+			except Exception:
+				pass
 
 		def vector_param(data):
-			name = data.get("Name")
-			value = data.get("Value")
-			if (slot_data := vector_mappings.get(name)) is None:
-				return
+			try:
+				name = data.get("Name")
+				value = data.get("Value")
+				if (slot_data := vector_mappings.get(name)) is None:
+					return
+	
+				color_slot, alpha_slot = slot_data
+	
+				shader_node.inputs[color_slot].default_value = (value["R"], value["G"], value["B"], 1.0)
+				if alpha_slot is not None:
+					shader_node.inputs[alpha_slot].default_value = value["A"]
+			except Exception:
+				pass
 
-			color_slot, alpha_slot = slot_data
-
-			shader_node.inputs[color_slot].default_value = (value["R"], value["G"], value["B"], 1.0)
-			if alpha_slot is not None:
-				shader_node.inputs[alpha_slot].default_value = value["A"]
 
 		def switch_param(data):
-			name = data.get("Name")
-			value = data.get("Value")
+			try:
+				name = data.get("Name")
+				value = data.get("Value")
+	
+				if (slot := switch_mappings.get(name)) is None:
+					return
+	
+				shader_node.inputs[slot].default_value = 1 if value else 0
+			except Exception:
+				pass
 
-			if (slot := switch_mappings.get(name)) is None:
-				return
-
-			shader_node.inputs[slot].default_value = 1 if value else 0
+		target_tex_mappings = texture_mappings
+		target_location_mappings = location_mappings
+		if any(["Diffuse_Texture_1", "Diffuse_Texture_2", "Diffuse_Texture_3",
+				"Normals_Texture_1", "Normals_Texture_2", "Normals_Texture_3",
+				"SpecularMasks_1", "SpecularMasks_2", "SpecularMasks_3"], lambda x: get_param(textures, x)):
+			shader_node.node_tree = bpy.data.node_groups.get("FP Layer")
+			target_location_mappings = layer_location_mappings
+			target_tex_mappings = layer_texture_mappings
 
 		for texture in textures:
-			texture_param(texture)
+			texture_param(texture, target_tex_mappings, target_location_mappings)
 
 		for scalar in scalars:
 			scalar_param(scalar)
@@ -242,60 +313,62 @@ class ImportTask:
 		for switch in switches:
 			switch_param(switch)
 
-		# extra cases
-		if (skin_color := meta_data.get("SkinColor")) and skin_color["A"] != 0:
-			shader_node.inputs["Skin Color"].default_value = (skin_color["R"], skin_color["G"], skin_color["B"], 1.0)
-			shader_node.inputs["Skin Boost"].default_value = skin_color["A"]
 
-		if not (get_param(switches, "Emissive") or get_param(switches, "UseBasicEmissive") or get_param(switches, "UseAdvancedEmissive")):
-			shader_node.inputs["Emission Strength"].default_value = 0
-
-		if get_param(textures, "SRM"):
-			shader_node.inputs["SwizzleRoughnessToGreen"].default_value = 1
-
+		links.new(shader_node.outputs[0], output_node.inputs[0])
 		if material_name in ["MI_VertexCrunch", "M_VertexCrunch"]:
 			material.blend_method = "CLIP"
 			material.shadow_method = "CLIP"
 			shader_node.inputs["Alpha"].default_value = 0.0
-
-		if get_param(switches, "Use Vertex Colors for Mask"):
-			material.blend_method = "CLIP"
-			material.shadow_method = "CLIP"
-
-			color_node = nodes.new(type="ShaderNodeVertexColor")
-			color_node.location = [-400, -560]
-			color_node.layer_name = "COL0"
-
-			mask_node = nodes.new("ShaderNodeGroup")
-			mask_node.node_tree = bpy.data.node_groups.get("FP Vertex Alpha")
-			mask_node.location = [-200, -560]
-
-			links.new(color_node.outputs[0], mask_node.inputs[0])
-			links.new(mask_node.outputs[0], shader_node.inputs["Alpha"])
-
-			for name, value in hide_element_values.items():
-				if input := mask_node.inputs.get(name.replace("Hide ", "")):
-					input.default_value = int(value)
-
-		emission_slot = shader_node.inputs["Emission Color"]
-		emission_crop_params = [
-			"EmissiveUVs_RG_UpperLeftCorner_BA_LowerRightCorner",
-			"Emissive Texture UVs RG_TopLeft BA_BottomRight",
-			"Emissive 2 UV Positioning (RG)UpperLeft (BA)LowerRight",
-			"EmissiveUVPositioning (RG)UpperLeft (BA)LowerRight"
-		]	
-
-		if (crop_bounds := get_param_multiple(vectors, emission_crop_params)) and get_param(switches, "CroppedEmissive") and len(emission_slot.links) > 0:
-			emission_node = emission_slot.links[0].from_node
-
-			crop_texture_node = nodes.new("ShaderNodeGroup")
-			crop_texture_node.node_tree = bpy.data.node_groups.get("FP Texture Cropping")
-			crop_texture_node.location = emission_node.location + Vector((-200, 25))
-			crop_texture_node.inputs["Left"].default_value = crop_bounds.get('R')
-			crop_texture_node.inputs["Top"].default_value = crop_bounds.get('G')
-			crop_texture_node.inputs["Right"].default_value = crop_bounds.get('B')
-			crop_texture_node.inputs["Bottom"].default_value = crop_bounds.get('A')
-			links.new(crop_texture_node.outputs[0], emission_node.inputs[0])
+		
+		if shader_node.node_tree.name == "FP Material":
+			if (skin_color := meta_data.get("SkinColor")) and skin_color["A"] != 0:
+				shader_node.inputs["Skin Color"].default_value = (skin_color["R"], skin_color["G"], skin_color["B"], 1.0)
+				shader_node.inputs["Skin Boost"].default_value = skin_color["A"]
+	
+			if not (get_param(switches, "Emissive") or get_param(switches, "UseBasicEmissive") or get_param(switches, "UseAdvancedEmissive")):
+				shader_node.inputs["Emission Strength"].default_value = 0
+	
+			if get_param(textures, "SRM"):
+				shader_node.inputs["SwizzleRoughnessToGreen"].default_value = 1
+	
+			if get_param(switches, "Use Vertex Colors for Mask"):
+				material.blend_method = "CLIP"
+				material.shadow_method = "CLIP"
+	
+				color_node = nodes.new(type="ShaderNodeVertexColor")
+				color_node.location = [-400, -560]
+				color_node.layer_name = "COL0"
+	
+				mask_node = nodes.new("ShaderNodeGroup")
+				mask_node.node_tree = bpy.data.node_groups.get("FP Vertex Alpha")
+				mask_node.location = [-200, -560]
+	
+				links.new(color_node.outputs[0], mask_node.inputs[0])
+				links.new(mask_node.outputs[0], shader_node.inputs["Alpha"])
+	
+				for name, value in hide_element_values.items():
+					if input := mask_node.inputs.get(name.replace("Hide ", "")):
+						input.default_value = int(value)
+	
+			emission_slot = shader_node.inputs["Emission Color"]
+			emission_crop_params = [
+				"EmissiveUVs_RG_UpperLeftCorner_BA_LowerRightCorner",
+				"Emissive Texture UVs RG_TopLeft BA_BottomRight",
+				"Emissive 2 UV Positioning (RG)UpperLeft (BA)LowerRight",
+				"EmissiveUVPositioning (RG)UpperLeft (BA)LowerRight"
+			]	
+	
+			if (crop_bounds := get_param_multiple(vectors, emission_crop_params)) and get_param(switches, "CroppedEmissive") and len(emission_slot.links) > 0:
+				emission_node = emission_slot.links[0].from_node
+	
+				crop_texture_node = nodes.new("ShaderNodeGroup")
+				crop_texture_node.node_tree = bpy.data.node_groups.get("FP Texture Cropping")
+				crop_texture_node.location = emission_node.location + Vector((-200, 25))
+				crop_texture_node.inputs["Left"].default_value = crop_bounds.get('R')
+				crop_texture_node.inputs["Top"].default_value = crop_bounds.get('G')
+				crop_texture_node.inputs["Right"].default_value = crop_bounds.get('B')
+				crop_texture_node.inputs["Bottom"].default_value = crop_bounds.get('A')
+				links.new(crop_texture_node.outputs[0], emission_node.inputs[0])
 
 
 
@@ -368,6 +441,12 @@ def constraint_object(child: bpy.types.Object, parent: bpy.types.Object, bone: s
 	child.rotation_mode = 'XYZ'
 	child.rotation_euler = rot
 	constraint.inverse_matrix = Matrix()
+	
+def make_vector(data, mirror_y=False):
+	return Vector((data.get("X"), data.get("Y") * (-1 if mirror_y else 1), data.get("Z")))
+
+def make_euler(data):
+	return Euler((radians(data.get("Roll")), radians(data.get("Pitch")), -radians(data.get("Yaw"))))
 
 def first(target, expr, default=None):
 	if not target:
@@ -389,6 +468,19 @@ def any(target, expr):
 
 	filtered = list(filter(expr, target))
 	return len(filtered) > 0
+
+def set_or_add_texturedata(list, replace_item):
+	if replace_item is None:
+		return
+	for index, item in enumerate(list):
+		if item is None:
+			continue
+
+		if item.get("Name") == replace_item.get("Name"):
+			list[index] = replace_item
+
+	if not any(list, lambda x: x.get("Name") == replace_item.get("Name")):
+		list.append(replace_item)
 
 def merge_skeletons(parts):
 	bpy.ops.object.select_all(action='DESELECT')

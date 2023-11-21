@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 using CUE4Parse_Conversion;
 using CUE4Parse_Conversion.Meshes;
 using CUE4Parse_Conversion.Textures;
+using CUE4Parse.GameTypes.FN.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.UE4.Assets.Exports.Component.SkeletalMesh;
+using CUE4Parse.UE4.Assets.Exports.Component.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
@@ -151,6 +154,84 @@ public class ExporterInstance
         }
 
         return exportWeapons;
+    }
+
+    public List<ExportMesh> LevelSaveRecord(ULevelSaveRecord levelSaveRecord)
+    {
+        var exportMeshes = new List<ExportMesh>();
+
+        foreach (var (index, templateRecord) in levelSaveRecord.TemplateRecords)
+        {
+            var actor = templateRecord.ActorClass.Load<UBlueprintGeneratedClass>().ClassDefaultObject.Load();
+            if (actor is null) continue;
+            
+            if (actor.TryGetValue(out UStaticMesh staticMesh, "StaticMesh"))
+            {
+                exportMeshes.AddIfNotNull(Mesh(staticMesh));
+            }
+            else
+            {
+                var components = CUE4ParseVM.Provider.LoadAllObjects(actor.GetPathName().SubstringBeforeLast("."));
+                foreach (var component in components)
+                {
+                    exportMeshes.AddIfNotNull(component switch
+                    {
+                        UStaticMeshComponent staticMeshComponent => Mesh(staticMeshComponent.GetStaticMesh().Load<UStaticMesh>()!),
+                        USkeletalMeshComponent skeletalMeshComponent => Mesh(skeletalMeshComponent.GetSkeletalMesh().Load<USkeletalMesh>()!),
+                        _ => null
+                    });
+                }
+            }
+            
+            if (exportMeshes.Count == 0) continue;
+
+            var textureDatas = new Dictionary<int, UBuildingTextureData>();
+            var actorData = levelSaveRecord.ActorData[index];
+            if (actorData.TryGetAllValues(out string?[] textureDataRawPaths, "TextureData"))
+            {
+                for (var i = 0; i < textureDataRawPaths.Length; i++)
+                {
+                    var textureDataPath = textureDataRawPaths[i];
+                    if (textureDataPath is null || string.IsNullOrEmpty(textureDataPath)) continue;
+                    var textureData = CUE4ParseVM.Provider.LoadObject<UBuildingTextureData>(textureDataPath);
+                    textureDatas.Add(i, textureData);
+                }
+            }
+            else
+            {
+                var textureDataPaths = templateRecord.ActorDataReferenceTable;
+                for (var i = 0; i < textureDataPaths.Length; i++)
+                {
+                    var textureDataPath = textureDataPaths[i];
+                    if (textureDataPath.AssetPathName.IsNone || string.IsNullOrEmpty(textureDataPath.AssetPathName.Text)) continue;
+                    var textureData = textureDataPath.Load<UBuildingTextureData>();
+                    textureDatas.Add(i, textureData);
+                }
+            }
+            
+            // reminder that texturedata is the worst thing ever to be created WHY WONT IT WORK
+            var targetMesh = exportMeshes.First();
+            foreach (var (textureDataIndex, textureData) in textureDatas)
+            {
+                var exportTextureData = new ExportTextureData();
+
+                TextureParameter? AddData(UTexture2D? texture, string prefix, string suffix)
+                {
+                    if (texture is null) return default;
+                    return new TextureParameter(prefix + suffix, Export(texture), texture.SRGB, texture.CompressionSettings);                    
+                }
+
+                var textureSuffix = textureDataIndex > 0 ? $"_Texture_{index + 1}" : string.Empty;
+                var specSuffix = textureDataIndex > 0 ? $"_{index + 1}" : string.Empty;
+                exportTextureData.Diffuse = AddData(textureData.Diffuse, "Diffuse", textureSuffix);
+                exportTextureData.Normal = AddData(textureData.Normal, "Normals", textureSuffix);
+                exportTextureData.Specular = AddData(textureData.Specular, "SpecularMasks", specSuffix);
+                
+                targetMesh.TextureData.Add(exportTextureData);
+            }
+        }
+
+        return exportMeshes;
     }
 
     public ExportMesh? Mesh(USkeletalMesh mesh)
@@ -348,12 +429,12 @@ public class ExporterInstance
                 Log.Warning(e.Message + e.StackTrace);
             }
         });
+        
+        ExportTasks.Add(exportTask);
 
         if (waitForFinish)
             exportTask.Wait();
-        else
-            ExportTasks.Add(exportTask);
-
+        
         return returnValue;
     }
 
@@ -383,7 +464,7 @@ public class ExporterInstance
                 switch (AppExportOptions.ImageType)
                 {
                     case EImageType.PNG:
-                        File.WriteAllBytes(exportPath, texture.Decode()!.Encode(SKEncodedImageFormat.Png, 100).ToArray());
+                        texture.Decode()!.Encode(SKEncodedImageFormat.Png, 100).SaveTo(File.OpenWrite(exportPath));
                         break;
                     case EImageType.TGA:
                         throw new NotImplementedException("TARGA (.tga) export not currently supported.");

@@ -1,6 +1,9 @@
 using System;
 using System.IO;
+using System.Reflection;
 using Avalonia.Controls.ApplicationLifetimes;
+using CUE4Parse.UE4.Assets;
+using FortnitePorting.Export;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Services;
@@ -51,6 +54,7 @@ public class App : Avalonia.Application
     {
         Console.Title = $"Fortnite Porting Console v{Globals.VERSION}";
         CUE4Parse.Globals.WarnMissingImportPackage = false;
+        ObjectTypeRegistry.RegisterEngine(typeof(URegisterThisUObject).Assembly);
         Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
 
         Log.Logger = new LoggerConfiguration()
