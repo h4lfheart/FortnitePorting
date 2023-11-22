@@ -20,7 +20,7 @@ public static class DependencyService
     public static async Task EnsureBinka()
     {
         var assetStream = AssetLoader.Open(new Uri("avares://FortnitePorting/Assets/Dependencies/binkadec.exe"));
-        if (BinkaFile.GetHash() == assetStream.GetHash()) return;
+        if (BinkaFile.Exists && BinkaFile.GetHash() == assetStream.GetHash()) return;
 
         var fileStream = new FileStream(BinkaFile.FullName, FileMode.Create, FileAccess.Write);
         await assetStream.CopyToAsync(fileStream);
