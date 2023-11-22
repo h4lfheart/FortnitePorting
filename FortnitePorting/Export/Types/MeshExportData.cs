@@ -20,6 +20,7 @@ public class MeshExportData : ExportDataBase
     public readonly List<ExportMesh> Meshes = new();
     public readonly List<ExportMesh> OverrideMeshes = new();
     public readonly List<ExportOverrideMaterial> OverrideMaterials = new();
+    public readonly List<ExportOverrideParameters> OverrideParameters = new();
 
     public MeshExportData(string name, UObject asset, FStructFallback[] styles, EAssetType type, EExportType exportType) : base(name, asset, styles, type, exportType)
     {
@@ -28,7 +29,12 @@ public class MeshExportData : ExportDataBase
             case EAssetType.Outfit:
             {
                 var parts = asset.GetOrDefault("BaseCharacterParts", Array.Empty<UObject>());
-                foreach (var part in parts) Meshes.AddIfNotNull(Exporter.CharacterPart(part));
+                AssetsVM.ExportChunks = parts.Length;
+                foreach (var part in parts)
+                {
+                    Meshes.AddIfNotNull(Exporter.CharacterPart(part));
+                    AssetsVM.ExportProgress++;
+                }
                 break;
             }
             case EAssetType.Backpack:
@@ -90,7 +96,7 @@ public class MeshExportData : ExportDataBase
                 if (recordCollectionLazy is null || recordCollectionLazy.IsNull || !recordCollectionLazy.TryLoad(out var recordCollection) || recordCollection is null) break;
 
                 var props = recordCollection.GetOrDefault<FStructFallback[]>("Items");
-                AssetsVM.ExportChunks += props.Length;
+                AssetsVM.ExportChunks = props.Length;
                 foreach (var prop in props)
                 {
                     var levelSaveRecord = prop.GetOrDefault<UObject?>("LevelSaveRecord");
@@ -189,5 +195,8 @@ public class MeshExportData : ExportDataBase
 
         var variantMaterials = style.GetOrDefault("VariantMaterials", Array.Empty<FStructFallback>());
         foreach (var material in variantMaterials) OverrideMaterials.AddIfNotNull(Exporter.OverrideMaterial(material));
+        
+        var variantParameters = style.GetOrDefault("VariantMaterialParams", Array.Empty<FStructFallback>());
+        foreach (var parameters in variantParameters) OverrideParameters.AddIfNotNull(Exporter.OverrideParameters(parameters));
     }
 }

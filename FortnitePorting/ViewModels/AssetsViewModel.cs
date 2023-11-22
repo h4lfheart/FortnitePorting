@@ -308,7 +308,7 @@ public partial class AssetsViewModel : ViewModelBase
     [RelayCommand]
     public async Task Export()
     {
-        ExportChunks = 0;
+        ExportChunks = 1;
         ExportProgress = 0;
         IsExporting = true;
         await ExportService.ExportAsync(CurrentAssets.ToList(), IsFolderOnlyExport ? EExportType.Folder : ExportType);

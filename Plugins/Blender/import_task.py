@@ -169,6 +169,7 @@ class ImportTask:
 					meta = {}
 
 			meta["TextureData"] = mesh.get("TextureData")
+			meta["OverrideParameters"] = data.get("OverrideParameters")
 
 			# import mats
 			for material in mesh.get("Materials"):
@@ -203,6 +204,11 @@ class ImportTask:
 		if texture_data:
 			for data in texture_data:
 				additional_hash += data.get("Hash")
+
+		override_parameters = where(meta_data.get("OverrideParameters"), lambda param: param.get("MaterialNameToAlter") == material_name)
+		if override_parameters:
+			for parameters in override_parameters:
+				additional_hash += parameters.get("Hash")
 				
 		if additional_hash != 0:
 			material_name += f"_{hash_code(additional_hash)}"
@@ -229,10 +235,22 @@ class ImportTask:
 		switches = material_data.get("Switches")
 		component_masks = material_data.get("ComponentMasks")
 		
-		for texture_data in meta_data.get("TextureData"):
-			set_or_add_texturedata(textures, texture_data.get("Diffuse"))
-			set_or_add_texturedata(textures, texture_data.get("Normal"))
-			set_or_add_texturedata(textures, texture_data.get("Specular"))
+		if texture_data:
+			for texture_data_inst in texture_data:
+				replace_or_add_parameter(textures, texture_data_inst.get("Diffuse"))
+				replace_or_add_parameter(textures, texture_data_inst.get("Normal"))
+				replace_or_add_parameter(textures, texture_data_inst.get("Specular"))
+
+		if override_parameters:
+			for override_parameter in override_parameters:
+				for texture in override_parameter.get("Textures"):
+					replace_or_add_parameter(textures, texture)
+					
+				for scalar in override_parameter.get("Scalars"):
+					replace_or_add_parameter(scalars, scalar)
+	
+				for vector in override_parameter.get("Vectors"):
+					replace_or_add_parameter(vectors, vector)
 
 		output_node = nodes.new(type="ShaderNodeOutputMaterial")
 		output_node.location = (200, 0)
@@ -507,7 +525,7 @@ def any(target, expr):
 	filtered = list(filter(expr, target))
 	return len(filtered) > 0
 
-def set_or_add_texturedata(list, replace_item):
+def replace_or_add_parameter(list, replace_item):
 	if replace_item is None:
 		return
 	for index, item in enumerate(list):

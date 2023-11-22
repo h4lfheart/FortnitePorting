@@ -178,8 +178,8 @@ public class ExporterInstance
                 {
                     exportMeshes.AddIfNotNull(component switch
                     {
-                        UStaticMeshComponent staticMeshComponent => Mesh(staticMeshComponent.GetStaticMesh().Load<UStaticMesh>()!),
-                        USkeletalMeshComponent skeletalMeshComponent => Mesh(skeletalMeshComponent.GetSkeletalMesh().Load<USkeletalMesh>()!),
+                        UStaticMeshComponent staticMeshComponent => Mesh(staticMeshComponent.GetStaticMesh().Load<UStaticMesh>()),
+                        USkeletalMeshComponent skeletalMeshComponent => Mesh(skeletalMeshComponent.GetSkeletalMesh().Load<USkeletalMesh>()),
                         _ => null
                     });
                 }
@@ -195,7 +195,7 @@ public class ExporterInstance
                 {
                     var textureDataPath = textureDataRawPaths[i];
                     if (textureDataPath is null || string.IsNullOrEmpty(textureDataPath)) continue;
-                    var textureData = CUE4ParseVM.Provider.LoadObject<UBuildingTextureData>(textureDataPath);
+                    if (!CUE4ParseVM.Provider.TryLoadObject(textureDataPath, out UBuildingTextureData textureData)) continue;
                     textureDatas.Add(i, textureData);
                 }
             }
@@ -236,13 +236,14 @@ public class ExporterInstance
         return exportMeshes;
     }
 
-    public ExportMesh? Mesh(USkeletalMesh mesh)
+    public ExportMesh? Mesh(USkeletalMesh? mesh)
     {
         return Mesh<ExportMesh>(mesh);
     }
 
-    public T? Mesh<T>(USkeletalMesh mesh) where T : ExportMesh, new()
+    public T? Mesh<T>(USkeletalMesh? mesh) where T : ExportMesh, new()
     {
+        if (mesh is null) return null;
         if (!mesh.TryConvert(out var convertedMesh)) return null;
         if (convertedMesh.LODs.Count <= 0) return null;
 
@@ -265,13 +266,14 @@ public class ExporterInstance
         return exportPart;
     }
 
-    public ExportMesh? Mesh(UStaticMesh mesh)
+    public ExportMesh? Mesh(UStaticMesh? mesh)
     {
         return Mesh<ExportMesh>(mesh);
     }
 
-    public T? Mesh<T>(UStaticMesh mesh) where T : ExportMesh, new()
+    public T? Mesh<T>(UStaticMesh? mesh) where T : ExportMesh, new()
     {
+        if (mesh is null) return null;
         if (!mesh.TryConvert(out var convertedMesh)) return null;
         if (convertedMesh.LODs.Count <= 0) return null;
 
@@ -331,6 +333,18 @@ public class ExporterInstance
         exportMaterial.MaterialNameToSwap = overrideData.GetOrDefault<FSoftObjectPath>("MaterialToSwap").AssetPathName.Text.SubstringAfterLast(".");
         return exportMaterial;
     }
+    
+    public ExportOverrideParameters? OverrideParameters(FStructFallback overrideData)
+    {
+        var materialToAlter = overrideData.Get<FSoftObjectPath>("MaterialToAlter");
+        if (materialToAlter.AssetPathName.IsNone) return null; 
+
+        var exportParams = new ExportOverrideParameters();
+        exportParams.MaterialNameToAlter = materialToAlter.AssetPathName.Text.SubstringAfterLast(".");
+        AccumulateParameters(overrideData, ref exportParams);
+        exportParams.Hash = exportParams.GetHashCode();
+        return exportParams;
+    }
 
     public UMaterialInterface? GetAbsoluteParent(UMaterialInterface? materialInterface)
     {
@@ -339,7 +353,7 @@ public class ExporterInstance
         return parent;
     }
 
-    public void AccumulateParameters<T>(UMaterialInterface? materialInterface, ref T exportMaterial) where T : ExportMaterial
+    public void AccumulateParameters<T>(UMaterialInterface? materialInterface, ref T exportMaterial) where T : ExportParameterContainer
     {
         if (materialInterface is UMaterialInstanceConstant materialInstance)
         {
@@ -389,6 +403,31 @@ public class ExporterInstance
         else if (materialInterface is UMaterial material)
         {
             // TODO NORMAL MAT ACCUMULATION
+        }
+    }
+    
+    public void AccumulateParameters<T>(FStructFallback data, ref T exportMaterial) where T : ExportParameterContainer
+    {
+        var textureParams = data.GetOrDefault<FStyleParameter<FSoftObjectPath>[]>("TextureParams");
+        foreach (var param in textureParams)
+        {
+            if (exportMaterial.Textures.Any(x => x.Name == param.Name)) continue;
+            if (!param.Value.TryLoad(out UTexture texture)) continue;
+            exportMaterial.Textures.AddUnique(new TextureParameter(param.Name, Export(texture), texture.SRGB, texture.CompressionSettings));
+        }
+
+        var floatParams = data.GetOrDefault<FStyleParameter<float>[]>("FloatParams");
+        foreach (var param in floatParams)
+        {
+            if (exportMaterial.Scalars.Any(x => x.Name == param.Name)) continue;
+            exportMaterial.Scalars.AddUnique(new ScalarParameter(param.Name, param.Value));
+        }
+
+        var colorParams = data.GetOrDefault<FStyleParameter<FLinearColor>[]>("ColorParams");
+        foreach (var param in colorParams)
+        {
+            if (exportMaterial.Vectors.Any(x => x.Name == param.ParamName.Text)) continue;
+            exportMaterial.Vectors.AddUnique(new VectorParameter(param.Name, param.Value));
         }
     }
 

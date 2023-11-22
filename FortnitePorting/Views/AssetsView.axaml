@@ -17,13 +17,13 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="0.175*" />
-            <ColumnDefinition Width="{ext:Space 0.5}" />
+            <ColumnDefinition Width="{ext:Space 1}" />
             <ColumnDefinition Width="2.25*" />
             <ColumnDefinition Width="{ext:Space 1}" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Hidden">
+        <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Hidden" HorizontalAlignment="Right">
             <ItemsControl x:Name="AssetTypePanel" HorizontalAlignment="Center">
                 <ItemsControl.Styles>
                     <Style Selector="ToggleButton">
@@ -127,10 +127,15 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="{ext:Space 1}" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="{ext:Space 1}" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
+            
+            <ProgressBar Grid.Row="0" IsVisible="{Binding !!CurrentLoader.Total}" Minimum="0"
+                         Maximum="{Binding CurrentLoader.Total}" Value="{Binding CurrentLoader.Loaded}" />
 
-            <Grid Grid.Row="0">
+            <Grid Grid.Row="2">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="{ext:Space 1}" />
@@ -193,7 +198,7 @@
                 </Popup>
             </Grid>
 
-            <controls:GroupBox Grid.Row="2">
+            <controls:GroupBox Grid.Row="4">
                 <ListBox x:Name="AssetsListBox" ItemsSource="{Binding ActiveCollection}" SelectionMode="Multiple"
                          AutoScrollToSelectedItem="False" Background="Transparent"
                          SelectionChanged="OnSelectionChanged">
@@ -206,17 +211,7 @@
             </controls:GroupBox>
         </Grid>
 
-        <Grid Grid.Column="4">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="{ext:Space 1}" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-
-            <ProgressBar Grid.Row="0" IsVisible="{Binding !!CurrentLoader.Total}" Minimum="0"
-                         Maximum="{Binding CurrentLoader.Total}" Value="{Binding CurrentLoader.Loaded}" />
-
-            <controls:GroupBox Grid.Row="2">
+        <controls:GroupBox Grid.Column="4">
                 <Grid>
                     <Grid>
                         <Grid.RowDefinitions>
@@ -269,6 +264,5 @@
                                HorizontalAlignment="Center" VerticalAlignment="Center" />
                 </Grid>
             </controls:GroupBox>
-        </Grid>
     </Grid>
 </UserControl>

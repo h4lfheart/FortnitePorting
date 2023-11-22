@@ -43,20 +43,23 @@ public class ExportHatMeta : ExportAttachMeta
     public string HatType;
 }
 
-public record ExportMaterial
+public record ExportParameterContainer
 {
-    public string Path;
-    public string Name;
-    public string? AbsoluteParent;
-    public int Slot;
     public int Hash;
-
     public List<TextureParameter> Textures = new();
     public List<ScalarParameter> Scalars = new();
     public List<VectorParameter> Vectors = new();
     public List<SwitchParameter> Switches = new();
     public List<ComponentMaskParameter> ComponentMasks = new();
+}
 
+public record ExportMaterial : ExportParameterContainer
+{
+    public string Path;
+    public string Name;
+    public string? AbsoluteParent;
+    public int Slot;
+    
     public T Copy<T>() where T : ExportMaterial, new()
     {
         var mat = new T
@@ -80,6 +83,12 @@ public record ExportOverrideMaterial : ExportMaterial
 {
     public string? MaterialNameToSwap;
 }
+
+public record ExportOverrideParameters : ExportParameterContainer
+{
+    public string MaterialNameToAlter;
+}
+
 
 public record ExportTextureData
 {
