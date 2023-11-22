@@ -7,6 +7,7 @@ from math import radians
 from mathutils import Matrix, Vector, Euler, Quaternion
 from . import ue_format as ueformat
 
+# todo make classes for storage ya dumb dumb
 location_mappings = {
 	"Diffuse": (-300, -75),
 	"Background Diffuse": (-300, -125),
@@ -19,12 +20,18 @@ location_mappings = {
 texture_mappings = {
 	"Diffuse": "Diffuse",
 	"Background Diffuse": "Background Diffuse",
+	"BG Diffuse Texture": "Background Diffuse",
 	"M": "M",
 	"Mask": "M",
 	"SpecularMasks": "SpecularMasks",
 	"SRM": "SpecularMasks",
 	"Normals": "Normals",
 	"Emissive": "Emission Color"
+}
+
+texture_alpha_mappings = {
+	"Background Diffuse": "Background Diffuse Alpha",
+	"BG Diffuse Texture": "Background Diffuse Alpha",
 }
 
 layer_location_mappings = {
@@ -40,9 +47,17 @@ layer_location_mappings = {
 	"SpecularMasks_3": (-300, -315),
 	"Normals_Texture_3": (-300, -340),
 
-	"Diffuse_Texture_4": (-300, -485),
+	"Diffuse_Texture_4": (-300, -385),
 	"SpecularMasks_4": (-300, -410),
 	"Normals_Texture_4": (-300, -435),
+
+	"Diffuse_Texture_5": (-300, -480),
+	"SpecularMasks_5": (-300, -505),
+	"Normals_Texture_5": (-300, -530),
+
+	"Diffuse_Texture_6": (-300, -575),
+	"SpecularMasks_6": (-300, -600),
+	"Normals_Texture_6": (-300, -625),
 }
 
 layer_texture_mappings = {
@@ -50,16 +65,22 @@ layer_texture_mappings = {
 	"Diffuse_Texture_2": "Diffuse_Texture_2",
 	"Diffuse_Texture_3": "Diffuse_Texture_3",
 	"Diffuse_Texture_4": "Diffuse_Texture_4",
+	"Diffuse_Texture_5": "Diffuse_Texture_5",
+	"Diffuse_Texture_6": "Diffuse_Texture_6",
 
 	"SpecularMasks": "SpecularMasks",
 	"SpecularMasks_2": "SpecularMasks_2",
 	"SpecularMasks_3": "SpecularMasks_3",
 	"SpecularMasks_4": "SpecularMasks_4",
+	"SpecularMasks_5": "SpecularMasks_5",
+	"SpecularMasks_6": "SpecularMasks_6",
 
 	"Normals": "Normals",
 	"Normals_Texture_2": "Normals_Texture_2",
 	"Normals_Texture_3": "Normals_Texture_3",
 	"Normals_Texture_4": "Normals_Texture_4",
+	"Normals_Texture_5": "Normals_Texture_5",
+	"Normals_Texture_6": "Normals_Texture_6",
 }
 
 scalar_mappings = {
@@ -176,6 +197,16 @@ class ImportTask:
 	def import_material(self, material_slot, material_data, meta_data):
 		material_name = material_data.get("Name")
 		material_hash = material_data.get("Hash")
+		additional_hash = 0
+		
+		texture_data = meta_data.get("TextureData")
+		if texture_data:
+			for data in texture_data:
+				additional_hash += data.get("Hash")
+				
+		if additional_hash != 0:
+			material_name += f"_{hash_code(additional_hash)}"
+			material_hash += additional_hash
 
 		if existing := self.imported_materials.get(material_hash):
 			material_slot.material = existing
@@ -243,9 +274,9 @@ class ImportTask:
 				node.location = pos_mappings[slot]
 				node.hide = True
 				links.new(node.outputs[0], shader_node.inputs[slot])
-	
-				if alpha_slot := shader_node.inputs.get(f"{name} Alpha"):
-					links.new(node.outputs[1], alpha_slot)
+
+				if alpha_slot := texture_alpha_mappings.get(name):
+					links.new(node.outputs[1], shader_node.inputs[alpha_slot])
 			except Exception:
 				pass
 
@@ -279,7 +310,6 @@ class ImportTask:
 			except Exception:
 				pass
 
-
 		def switch_param(data):
 			try:
 				name = data.get("Name")
@@ -294,9 +324,8 @@ class ImportTask:
 
 		target_tex_mappings = texture_mappings
 		target_location_mappings = location_mappings
-		if any(["Diffuse_Texture_1", "Diffuse_Texture_2", "Diffuse_Texture_3",
-				"Normals_Texture_1", "Normals_Texture_2", "Normals_Texture_3",
-				"SpecularMasks_1", "SpecularMasks_2", "SpecularMasks_3"], lambda x: get_param(textures, x)):
+		if any(["Use 2 Layers", "Use 3 Layers", "Use 4 Layers", "Use 5 Layers", "Use 6 Layers"
+			"Use 2 Materials", "Use 3 Materials", "Use 4 Materials", "Use 5 Materials", "Use 6 Materials"], lambda x: get_param(switches, x)):
 			shader_node.node_tree = bpy.data.node_groups.get("FP Layer")
 			target_location_mappings = layer_location_mappings
 			target_tex_mappings = layer_texture_mappings
@@ -313,14 +342,23 @@ class ImportTask:
 		for switch in switches:
 			switch_param(switch)
 
-
 		links.new(shader_node.outputs[0], output_node.inputs[0])
+		
 		if material_name in ["MI_VertexCrunch", "M_VertexCrunch"]:
 			material.blend_method = "CLIP"
 			material.shadow_method = "CLIP"
 			shader_node.inputs["Alpha"].default_value = 0.0
+			return
 		
 		if shader_node.node_tree.name == "FP Material":
+			material.blend_method = "CLIP"
+			material.shadow_method = "CLIP"
+			
+			# find better detection to do this
+			'''if (diffuse_links := shader_node.inputs["Diffuse"].links) and len(diffuse_links) > 0:
+				diffuse_node = diffuse_links[0].from_node
+				links.new(diffuse_node.outputs[1], shader_node.inputs["Alpha"])'''
+		
 			if (skin_color := meta_data.get("SkinColor")) and skin_color["A"] != 0:
 				shader_node.inputs["Skin Color"].default_value = (skin_color["R"], skin_color["G"], skin_color["B"], 1.0)
 				shader_node.inputs["Skin Boost"].default_value = skin_color["A"]

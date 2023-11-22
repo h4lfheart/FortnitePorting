@@ -47,7 +47,7 @@ public record ExportMaterial
 {
     public string Path;
     public string Name;
-    public string? ParentName;
+    public string? AbsoluteParent;
     public int Slot;
     public int Hash;
 
@@ -63,7 +63,7 @@ public record ExportMaterial
         {
             Path = Path,
             Name = Name,
-            ParentName = ParentName,
+            AbsoluteParent = AbsoluteParent,
             Slot = Slot,
             Hash = Hash,
             Textures = Textures,
@@ -83,6 +83,7 @@ public record ExportOverrideMaterial : ExportMaterial
 
 public record ExportTextureData
 {
+    public int Hash;
     public TextureParameter? Diffuse;
     public TextureParameter? Normal;
     public TextureParameter? Specular;

@@ -34,6 +34,7 @@ public class HybridFileProvider : AbstractVfsFileProvider
         {
             var extension = file.Extension.SubstringAfter('.').ToLower();
             if (extension is not ("pak" or "utoc")) continue;
+            if (file.Name.Contains(".o.")) continue; // no optional segments pls !!
 
             RegisterVfs(file.FullName, new Stream[] { file.OpenRead() }, it => new FStreamArchive(it, File.OpenRead(it), Versions));
         }

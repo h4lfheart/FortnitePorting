@@ -15,9 +15,11 @@ using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
+using CUE4Parse.UE4.Assets.Readers;
 using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Objects.UObject;
+using CUE4Parse.UE4.Readers;
 using CUE4Parse.Utils;
 using FortnitePorting.Application;
 using FortnitePorting.Extensions;
@@ -159,8 +161,8 @@ public class ExporterInstance
     public List<ExportMesh> LevelSaveRecord(ULevelSaveRecord levelSaveRecord)
     {
         var exportMeshes = new List<ExportMesh>();
-
-        foreach (var (index, templateRecord) in levelSaveRecord.TemplateRecords)
+        
+a        foreach (var (index, templateRecord) in levelSaveRecord.TemplateRecords)
         {
             var actor = templateRecord.ActorClass.Load<UBlueprintGeneratedClass>().ClassDefaultObject.Load();
             if (actor is null) continue;
@@ -226,7 +228,7 @@ public class ExporterInstance
                 exportTextureData.Diffuse = AddData(textureData.Diffuse, "Diffuse", textureSuffix);
                 exportTextureData.Normal = AddData(textureData.Normal, "Normals", textureSuffix);
                 exportTextureData.Specular = AddData(textureData.Specular, "SpecularMasks", specSuffix);
-                
+                exportTextureData.Hash = textureData.GetPathName().GetHashCode();
                 targetMesh.TextureData.Add(exportTextureData);
             }
         }
@@ -310,7 +312,7 @@ public class ExporterInstance
             Name = material.Name,
             Slot = index,
             Hash = hash,
-            ParentName = GetAbsoluteParent(material)?.Name
+            AbsoluteParent = GetAbsoluteParent(material)?.Name
         };
 
         AccumulateParameters(material, ref exportMaterial);
