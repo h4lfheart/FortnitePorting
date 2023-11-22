@@ -45,6 +45,9 @@ public partial class AssetsViewModel : ViewModelBase
 
     [ObservableProperty] private ObservableCollection<EExportType> folderExportEnumCollection = new(new[] { EExportType.Folder });
 
+    [ObservableProperty] private int exportChunks;
+    [ObservableProperty] private int exportProgress;
+    [ObservableProperty] private bool isExporting;
     [ObservableProperty] private EExportType exportType = EExportType.Blender;
     [ObservableProperty] private ReadOnlyObservableCollection<AssetItem> activeCollection;
 
@@ -305,7 +308,11 @@ public partial class AssetsViewModel : ViewModelBase
     [RelayCommand]
     public async Task Export()
     {
+        ExportChunks = 0;
+        ExportProgress = 0;
+        IsExporting = true;
         await ExportService.ExportAsync(CurrentAssets.ToList(), IsFolderOnlyExport ? EExportType.Folder : ExportType);
+        IsExporting = false;
     }
 
     // scuffed fix to get filter to update

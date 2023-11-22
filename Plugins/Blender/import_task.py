@@ -484,7 +484,7 @@ def make_vector(data, mirror_y=False):
 	return Vector((data.get("X"), data.get("Y") * (-1 if mirror_y else 1), data.get("Z")))
 
 def make_euler(data):
-	return Euler((radians(data.get("Roll")), radians(data.get("Pitch")), -radians(data.get("Yaw"))))
+	return Euler((radians(data.get("Roll")), -radians(data.get("Pitch")), -radians(data.get("Yaw"))))
 
 def first(target, expr, default=None):
 	if not target:

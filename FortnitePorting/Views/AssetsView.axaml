@@ -205,16 +205,17 @@
                 </ListBox>
             </controls:GroupBox>
         </Grid>
-        
+
         <Grid Grid.Column="4">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="{ext:Space 1}" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            
-            <ProgressBar Grid.Row="0" IsVisible="{Binding !!CurrentLoader.Total}" Minimum="0" Maximum="{Binding CurrentLoader.Total}" Value="{Binding CurrentLoader.Loaded}"/>
-            
+
+            <ProgressBar Grid.Row="0" IsVisible="{Binding !!CurrentLoader.Total}" Minimum="0"
+                         Maximum="{Binding CurrentLoader.Total}" Value="{Binding CurrentLoader.Loaded}" />
+
             <controls:GroupBox Grid.Row="2">
                 <Grid>
                     <Grid>
@@ -237,7 +238,8 @@
                                 </Grid.RowDefinitions>
 
                                 <Grid Grid.Row="0" ColumnDefinitions="* 3.25*">
-                                    <TextBlock Grid.Column="0" Text="Export To" VerticalAlignment="Center" Margin="3 0 0 2" />
+                                    <TextBlock Grid.Column="0" Text="Export To" VerticalAlignment="Center"
+                                               Margin="3 0 0 2" />
                                     <ComboBox Grid.Column="1" IsVisible="{Binding !IsFolderOnlyExport}"
                                               HorizontalAlignment="Stretch" VerticalAlignment="Center"
                                               ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EExportType}}"
@@ -249,9 +251,16 @@
                                 </Grid>
 
                                 <Button Grid.Row="2" Command="{Binding ExportCommand}" HorizontalAlignment="Stretch"
-                                        VerticalAlignment="Stretch">
-                                    <controls:MaterialIconText Text="Export" Icon="Export" HorizontalAlignment="Center"
-                                                               VerticalAlignment="Center" />
+                                        VerticalAlignment="Stretch" Padding="0">
+                                    <Grid>
+                                        <ProgressBar Background="Transparent" IsVisible="{Binding IsExporting}"
+                                                     Minimum="0" Maximum="{Binding ExportChunks}" 
+                                                     Value="{Binding ExportProgress}"
+                                                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                                        <controls:MaterialIconText Text="Export" Icon="Export"
+                                                                   HorizontalAlignment="Center"
+                                                                   VerticalAlignment="Center" />
+                                    </Grid>
                                 </Button>
                             </Grid>
                         </controls:GroupBox>

@@ -90,6 +90,7 @@ public class MeshExportData : ExportDataBase
                 if (recordCollectionLazy is null || recordCollectionLazy.IsNull || !recordCollectionLazy.TryLoad(out var recordCollection) || recordCollection is null) break;
 
                 var props = recordCollection.GetOrDefault<FStructFallback[]>("Items");
+                AssetsVM.ExportChunks += props.Length;
                 foreach (var prop in props)
                 {
                     var levelSaveRecord = prop.GetOrDefault<UObject?>("LevelSaveRecord");
@@ -105,6 +106,7 @@ public class MeshExportData : ExportDataBase
                         mesh.Scale = transform.Scale3D;
                     }
                     Meshes.AddRange(meshes);
+                    AssetsVM.ExportProgress++;
                 }
 
                 break;
