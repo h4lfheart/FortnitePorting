@@ -107,9 +107,9 @@ public class MeshExportData : ExportDataBase
                     var meshes = Exporter.LevelSaveRecord(actorSaveRecord);
                     foreach (var mesh in meshes)
                     {
-                        mesh.Location = transform.Translation;
-                        mesh.Rotation = transform.Rotator();
-                        mesh.Scale = transform.Scale3D;
+                        mesh.Location += transform.Translation;
+                        mesh.Rotation += transform.Rotator();
+                        mesh.Scale *= transform.Scale3D;
                     }
                     Meshes.AddRange(meshes);
                     AssetsVM.ExportProgress++;

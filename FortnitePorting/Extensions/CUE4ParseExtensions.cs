@@ -1,6 +1,7 @@
 using System.Linq;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Objects;
+using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.GameplayTags;
 using CUE4Parse.UE4.Objects.UObject;
 
@@ -41,5 +42,10 @@ public static class CUE4ParseExtensions
     {
         if (tags is null) return false;
         return tags.Value.Any(x => x.TagName.Text.Contains(check));
+    }
+
+    public static FVector ToFVector(this TIntVector3<float> vec)
+    {
+        return new FVector(vec.X, vec.Y, vec.Z);
     }
 }

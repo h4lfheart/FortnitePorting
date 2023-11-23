@@ -4,7 +4,7 @@ using CUE4Parse.UE4.Objects.Core.Math;
 
 namespace FortnitePorting.Export;
 
-public class ExportMesh
+public record ExportMesh
 {
     public string Path;
     public int NumLods;
@@ -16,7 +16,7 @@ public class ExportMesh
     public List<ExportTextureData> TextureData = new();
 }
 
-public class ExportPart : ExportMesh
+public record ExportPart : ExportMesh
 {
     public string Type;
     public ExportPartMeta Meta = new();

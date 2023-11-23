@@ -20,6 +20,9 @@ public abstract class ExportDataBase
 
     public void WaitForExports()
     {
-        Task.WaitAll(Exporter.ExportTasks.ToArray());
+        foreach (var task in Exporter.ExportTasks)
+        {
+            task.Wait();
+        }
     }
 }

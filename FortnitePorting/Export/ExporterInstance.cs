@@ -184,7 +184,37 @@ public class ExporterInstance
                     });
                 }
             }
-            
+
+            if (actor.TryGetValue(out UStaticMesh doorMesh, "DoorMesh"))
+            {
+                var doorOffset = actor.GetOrDefault<TIntVector3<float>>("DoorOffset").ToFVector();
+                var doorRotation = actor.GetOrDefault("DoorRotationOffset", FRotator.ZeroRotator);
+                doorRotation.Pitch *= -1;
+                
+                var exportDoorMesh = Mesh(doorMesh)!;
+                exportDoorMesh.Location = doorOffset;
+                exportDoorMesh.Rotation = doorRotation;
+                exportMeshes.AddIfNotNull(exportDoorMesh);
+
+                if (actor.GetOrDefault("bDoubleDoor", false))
+                {
+                    var exportDoubleDoorMesh = exportDoorMesh with
+                    {
+                        Location = exportDoorMesh.Location with { X = -exportDoorMesh.Location.X },
+                        Scale = exportDoorMesh.Scale with { X = -exportDoorMesh.Scale.X }
+                    };
+                    exportMeshes.AddIfNotNull(exportDoubleDoorMesh);
+                }
+                else if (actor.TryGetValue(out UStaticMesh doubleDoorMesh, "DoubleDoorMesh"))
+                {
+                    var exportDoubleDoorMesh = Mesh(doubleDoorMesh)!;
+                    exportDoubleDoorMesh.Location = doorOffset;
+                    exportDoubleDoorMesh.Rotation = doorRotation;
+                    exportMeshes.AddIfNotNull(exportDoubleDoorMesh);
+                }
+                
+            } 
+
             if (exportMeshes.Count == 0) continue;
 
             var textureDatas = new Dictionary<int, UBuildingTextureData>();
@@ -491,13 +521,13 @@ public class ExporterInstance
             case USkeletalMesh skeletalMesh:
             {
                 var exporter = new MeshExporter(skeletalMesh, FileExportOptions);
-                exporter.TryWriteToDir(App.AssetsFolder, out var _, out var _);
+                exporter.TryWriteToDir(App.AssetsFolder, out _, out _);
                 break;
             }
             case UStaticMesh staticMesh:
             {
                 var exporter = new MeshExporter(staticMesh, FileExportOptions);
-                exporter.TryWriteToDir(App.AssetsFolder, out var _, out var _);
+                exporter.TryWriteToDir(App.AssetsFolder, out _, out _);
                 break;
             }
             case UTexture texture:
@@ -505,8 +535,12 @@ public class ExporterInstance
                 switch (AppExportOptions.ImageType)
                 {
                     case EImageType.PNG:
-                        texture.Decode()!.Encode(SKEncodedImageFormat.Png, 100).SaveTo(File.OpenWrite(exportPath));
+                    {
+                        using var fileStream = File.OpenWrite(exportPath);
+                        var textureBitmap = texture.Decode();
+                        textureBitmap?.Encode(SKEncodedImageFormat.Png, 100).SaveTo(fileStream); 
                         break;
+                    }
                     case EImageType.TGA:
                         throw new NotImplementedException("TARGA (.tga) export not currently supported.");
                 }

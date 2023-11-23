@@ -295,7 +295,8 @@ class ImportTask:
 
 				if alpha_slot := texture_alpha_mappings.get(name):
 					links.new(node.outputs[1], shader_node.inputs[alpha_slot])
-			except Exception:
+			except Exception as e:
+				print(e)
 				pass
 
 		def scalar_param(data):
