@@ -82,10 +82,15 @@ public partial class SettingsViewModel : ViewModelBase
 
         if (MainVM?.ActiveTab is SettingsView && RestartProperties.Contains(property)) IsRestartRequired = true;
 
-        if (UseDiscordRPC)
-            DiscordService.Initialize();
-        else
-            DiscordService.Deinitialize();
+        switch (property)
+        {
+            case nameof(UseDiscordRPC):
+            {
+                if (UseDiscordRPC) DiscordService.Initialize();
+                else DiscordService.Deinitialize();
+                break;
+            }
+        }
     }
 
     private static readonly FilePickerFileType MappingsFileType = new("Unreal Mappings")
@@ -93,22 +98,22 @@ public partial class SettingsViewModel : ViewModelBase
         Patterns = new[] { "*.usmap" }
     };
 
-    private async Task BrowseLocalArchivePath()
+    public async Task BrowseLocalArchivePath()
     {
         if (await AppVM.BrowseFolderDialog() is { } path) LocalArchivePath = path;
     }
 
-    private async Task BrowseCustomArchivePath()
+    public async Task BrowseCustomArchivePath()
     {
         if (await AppVM.BrowseFolderDialog() is { } path) CustomArchivePath = path;
     }
 
-    private async Task BrowseMappingsFile()
+    public async Task BrowseMappingsFile()
     {
         if (await AppVM.BrowseFileDialog(MappingsFileType) is { } path) CustomMappingsPath = path;
     }
 
-    private async Task BrowseExportPath()
+    public async Task BrowseExportPath()
     {
         if (await AppVM.BrowseFolderDialog() is { } path) CustomExportPath = path;
     }
