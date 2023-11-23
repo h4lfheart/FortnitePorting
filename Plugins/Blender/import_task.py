@@ -101,6 +101,7 @@ switch_mappings = {
 	"SwizzleRoughnessToGreen": "SwizzleRoughnessToGreen",
 }
 
+
 class ImportTask:
 	def run(self, response):
 		print(json.dumps(response))
@@ -136,8 +137,9 @@ class ImportTask:
 			return out_props
 
 		imported_meshes = []
-		def import_mesh(mesh, parent = None):
-			
+
+		def import_mesh(mesh, parent=None):
+
 			# import mesh
 			mesh_type = mesh.get("Type")
 			imported_object = self.import_mesh(mesh.get("Path"))
@@ -184,22 +186,23 @@ class ImportTask:
 					continue
 
 				overridden_material = imported_mesh.material_slots[index]
-				slots = where(imported_mesh.material_slots, lambda slot: slot.name.casefold() == overridden_material.name.casefold())
+				slots = where(imported_mesh.material_slots,
+							  lambda slot: slot.name.casefold() == overridden_material.name.casefold())
 				for slot in slots:
 					self.import_material(slot, override_material, meta)
 
 			for variant_override_material in data.get("OverrideMaterials"):
 				material_name_to_swap = variant_override_material.get("MaterialNameToSwap")
-				slots = where(imported_mesh.material_slots, lambda slot: slot.name.casefold() == material_name_to_swap.casefold())
+				slots = where(imported_mesh.material_slots,
+							  lambda slot: slot.name.casefold() == material_name_to_swap.casefold())
 				for slot in slots:
 					self.import_material(slot, variant_override_material, meta)
-					
+
 			for child in mesh.get("Children"):
 				import_mesh(child, imported_object)
 
 		for mesh in meshes:
 			import_mesh(mesh)
-		
 
 		if type == "Outfit" and self.options.get("MergeSkeletons"):
 			merge_skeletons(imported_meshes)
@@ -208,17 +211,18 @@ class ImportTask:
 		material_name = material_data.get("Name")
 		material_hash = material_data.get("Hash")
 		additional_hash = 0
-		
+
 		texture_data = meta_data.get("TextureData")
 		if texture_data:
 			for data in texture_data:
 				additional_hash += data.get("Hash")
 
-		override_parameters = where(meta_data.get("OverrideParameters"), lambda param: param.get("MaterialNameToAlter") == material_name)
+		override_parameters = where(meta_data.get("OverrideParameters"),
+									lambda param: param.get("MaterialNameToAlter") == material_name)
 		if override_parameters:
 			for parameters in override_parameters:
 				additional_hash += parameters.get("Hash")
-				
+
 		if additional_hash != 0:
 			material_name += f"_{hash_code(additional_hash)}"
 			material_hash += additional_hash
@@ -237,13 +241,13 @@ class ImportTask:
 		nodes.clear()
 		links = material.node_tree.links
 		links.clear()
-		
+
 		textures = material_data.get("Textures")
 		scalars = material_data.get("Scalars")
 		vectors = material_data.get("Vectors")
 		switches = material_data.get("Switches")
 		component_masks = material_data.get("ComponentMasks")
-		
+
 		if texture_data:
 			for texture_data_inst in texture_data:
 				replace_or_add_parameter(textures, texture_data_inst.get("Diffuse"))
@@ -254,10 +258,10 @@ class ImportTask:
 			for override_parameter in override_parameters:
 				for texture in override_parameter.get("Textures"):
 					replace_or_add_parameter(textures, texture)
-					
+
 				for scalar in override_parameter.get("Scalars"):
 					replace_or_add_parameter(scalars, scalar)
-	
+
 				for vector in override_parameter.get("Vectors"):
 					replace_or_add_parameter(vectors, vector)
 
@@ -272,6 +276,7 @@ class ImportTask:
 
 		# parameters
 		hide_element_values = {}
+		unused_parameter_offset = 0
 
 		def get_param(source, name):
 			found = first(source, lambda param: param.get("Name") == name)
@@ -289,71 +294,92 @@ class ImportTask:
 			try:
 				name = data.get("Name")
 				path = data.get("Value")
-	
-				if (slot := tex_mappings.get(name)) is None:
-					return
-	
+
 				node = nodes.new(type="ShaderNodeTexImage")
 				node.image = self.import_image(path)
 				node.image.alpha_mode = 'CHANNEL_PACKED'
 				node.image.colorspace_settings.name = "sRGB" if data.get("sRGB") else "Non-Color"
 				node.interpolation = "Smart"
-				node.location = pos_mappings[slot]
 				node.hide = True
+
+				if (slot := tex_mappings.get(name)) is None:
+					nonlocal unused_parameter_offset
+					node.label = name
+					node.location = 400, unused_parameter_offset
+					unused_parameter_offset -= 50
+					return
+
+				node.location = pos_mappings[slot]
 				links.new(node.outputs[0], shader_node.inputs[slot])
 
 				if alpha_slot := texture_alpha_mappings.get(name):
 					links.new(node.outputs[1], shader_node.inputs[alpha_slot])
 			except Exception as e:
 				print(e)
-				pass
 
 		def scalar_param(data):
 			try:
 				name = data.get("Name")
 				value = data.get("Value")
-	
+
 				if "Hide Element" in name:
 					hide_element_values[name] = value
-	
-				if (slot := scalar_mappings.get(name)) is None:
 					return
-	
+
+				if (slot := scalar_mappings.get(name)) is None:
+					nonlocal unused_parameter_offset
+					node = nodes.new(type="ShaderNodeValue")
+					node.outputs[0].default_value = value
+					node.label = name
+					node.width = 250
+					node.location = 400, unused_parameter_offset
+					unused_parameter_offset -= 100
+					return
+
 				shader_node.inputs[slot].default_value = value
 			except Exception:
-				pass
+				print(e)
 
 		def vector_param(data):
 			try:
 				name = data.get("Name")
 				value = data.get("Value")
+				
 				if (slot_data := vector_mappings.get(name)) is None:
+					nonlocal unused_parameter_offset
+					node = nodes.new(type="ShaderNodeRGB")
+					node.outputs[0].default_value = (value["R"], value["G"], value["B"], value["A"])
+					node.label = name
+					node.width = 250
+					node.location = 400, unused_parameter_offset
+					unused_parameter_offset -= 200
 					return
-	
+
 				color_slot, alpha_slot = slot_data
-	
+
 				shader_node.inputs[color_slot].default_value = (value["R"], value["G"], value["B"], 1.0)
 				if alpha_slot is not None:
 					shader_node.inputs[alpha_slot].default_value = value["A"]
-			except Exception:
-				pass
+			except Exception as e:
+				print(e)
 
 		def switch_param(data):
 			try:
 				name = data.get("Name")
 				value = data.get("Value")
-	
+
 				if (slot := switch_mappings.get(name)) is None:
 					return
-	
+
 				shader_node.inputs[slot].default_value = 1 if value else 0
-			except Exception:
-				pass
+			except Exception as e:
+				print(e)
 
 		target_tex_mappings = texture_mappings
 		target_location_mappings = location_mappings
 		if any(["Use 2 Layers", "Use 3 Layers", "Use 4 Layers", "Use 5 Layers", "Use 6 Layers"
-			"Use 2 Materials", "Use 3 Materials", "Use 4 Materials", "Use 5 Materials", "Use 6 Materials"], lambda x: get_param(switches, x)):
+																				"Use 2 Materials", "Use 3 Materials",
+				"Use 4 Materials", "Use 5 Materials", "Use 6 Materials"], lambda x: get_param(switches, x)):
 			shader_node.node_tree = bpy.data.node_groups.get("FP Layer")
 			target_location_mappings = layer_location_mappings
 			target_tex_mappings = layer_texture_mappings
@@ -371,62 +397,66 @@ class ImportTask:
 			switch_param(switch)
 
 		links.new(shader_node.outputs[0], output_node.inputs[0])
-		
+
 		if material_name in ["MI_VertexCrunch", "M_VertexCrunch"]:
 			material.blend_method = "CLIP"
 			material.shadow_method = "CLIP"
 			shader_node.inputs["Alpha"].default_value = 0.0
 			return
-		
+
 		if shader_node.node_tree.name == "FP Material":
 			material.blend_method = "CLIP"
 			material.shadow_method = "CLIP"
-			
+
 			# find better detection to do this
 			'''if (diffuse_links := shader_node.inputs["Diffuse"].links) and len(diffuse_links) > 0:
 				diffuse_node = diffuse_links[0].from_node
 				links.new(diffuse_node.outputs[1], shader_node.inputs["Alpha"])'''
-		
+
 			if (skin_color := meta_data.get("SkinColor")) and skin_color["A"] != 0:
-				shader_node.inputs["Skin Color"].default_value = (skin_color["R"], skin_color["G"], skin_color["B"], 1.0)
+				shader_node.inputs["Skin Color"].default_value = (
+					skin_color["R"], skin_color["G"], skin_color["B"], 1.0)
 				shader_node.inputs["Skin Boost"].default_value = skin_color["A"]
-	
-			if not (get_param(switches, "Emissive") or get_param(switches, "UseBasicEmissive") or get_param(switches, "UseAdvancedEmissive")):
+
+			if not (get_param(switches, "Emissive") or get_param(switches, "UseBasicEmissive") or get_param(switches,
+																											"UseAdvancedEmissive")):
 				shader_node.inputs["Emission Strength"].default_value = 0
-	
+
 			if get_param(textures, "SRM"):
 				shader_node.inputs["SwizzleRoughnessToGreen"].default_value = 1
-	
+
 			if get_param(switches, "Use Vertex Colors for Mask"):
 				material.blend_method = "CLIP"
 				material.shadow_method = "CLIP"
-	
+
 				color_node = nodes.new(type="ShaderNodeVertexColor")
 				color_node.location = [-400, -560]
 				color_node.layer_name = "COL0"
-	
+
 				mask_node = nodes.new("ShaderNodeGroup")
 				mask_node.node_tree = bpy.data.node_groups.get("FP Vertex Alpha")
 				mask_node.location = [-200, -560]
-	
+
 				links.new(color_node.outputs[0], mask_node.inputs[0])
 				links.new(mask_node.outputs[0], shader_node.inputs["Alpha"])
-	
+
 				for name, value in hide_element_values.items():
 					if input := mask_node.inputs.get(name.replace("Hide ", "")):
 						input.default_value = int(value)
-	
+
 			emission_slot = shader_node.inputs["Emission Color"]
 			emission_crop_params = [
 				"EmissiveUVs_RG_UpperLeftCorner_BA_LowerRightCorner",
 				"Emissive Texture UVs RG_TopLeft BA_BottomRight",
 				"Emissive 2 UV Positioning (RG)UpperLeft (BA)LowerRight",
 				"EmissiveUVPositioning (RG)UpperLeft (BA)LowerRight"
-			]	
-	
-			if (crop_bounds := get_param_multiple(vectors, emission_crop_params)) and get_param(switches, "CroppedEmissive") and len(emission_slot.links) > 0:
+			]
+
+			if (crop_bounds := get_param_multiple(vectors, emission_crop_params)) and get_param(switches,
+																								"CroppedEmissive") and len(
+				emission_slot.links) > 0:
 				emission_node = emission_slot.links[0].from_node
-	
+
 				crop_texture_node = nodes.new("ShaderNodeGroup")
 				crop_texture_node.node_tree = bpy.data.node_groups.get("FP Texture Cropping")
 				crop_texture_node.location = emission_node.location + Vector((-200, 25))
@@ -435,8 +465,6 @@ class ImportTask:
 				crop_texture_node.inputs["Right"].default_value = crop_bounds.get('B')
 				crop_texture_node.inputs["Bottom"].default_value = crop_bounds.get('A')
 				links.new(crop_texture_node.outputs[0], emission_node.inputs[0])
-
-
 
 	def import_image(self, path: str):
 		path, name = path.split(".")
@@ -458,6 +486,7 @@ class ImportTask:
 
 		return ueformat.import_file(mesh_path)
 
+
 class HatType(Enum):
 	HeadReplacement = 0
 	Cap = 1
@@ -465,8 +494,10 @@ class HatType(Enum):
 	Helmet = 3
 	Hat = 4
 
+
 def hash_code(num):
 	return hex(abs(num))[2:]
+
 
 def get_armature_mesh(obj):
 	if obj.type == 'ARMATURE':
@@ -474,6 +505,7 @@ def get_armature_mesh(obj):
 
 	if obj.type == 'MESH':
 		return obj
+
 
 def append_data():
 	addon_dir = os.path.dirname(os.path.splitext(__file__)[0])
@@ -490,15 +522,18 @@ def append_data():
 			if not bpy.data.materials.get(mat):
 				data_to.materials.append(mat)'''
 
+
 def create_collection(name):
 	if name in bpy.context.view_layer.layer_collection.children:
 		bpy.context.view_layer.active_layer_collection = bpy.context.view_layer.layer_collection.children.get(name)
 		return
 	bpy.ops.object.select_all(action='DESELECT')
-	
+
 	new_collection = bpy.data.collections.new(name)
 	bpy.context.scene.collection.children.link(new_collection)
-	bpy.context.view_layer.active_layer_collection = bpy.context.view_layer.layer_collection.children.get(new_collection.name)
+	bpy.context.view_layer.active_layer_collection = bpy.context.view_layer.layer_collection.children.get(
+		new_collection.name)
+
 
 def constraint_object(child: bpy.types.Object, parent: bpy.types.Object, bone: str, rot=[0, radians(90), 0]):
 	constraint = child.constraints.new('CHILD_OF')
@@ -507,12 +542,15 @@ def constraint_object(child: bpy.types.Object, parent: bpy.types.Object, bone: s
 	child.rotation_mode = 'XYZ'
 	child.rotation_euler = rot
 	constraint.inverse_matrix = Matrix()
-	
+
+
 def make_vector(data, mirror_y=False):
 	return Vector((data.get("X"), data.get("Y") * (-1 if mirror_y else 1), data.get("Z")))
 
+
 def make_euler(data):
 	return Euler((radians(data.get("Roll")), -radians(data.get("Pitch")), -radians(data.get("Yaw"))))
+
 
 def first(target, expr, default=None):
 	if not target:
@@ -521,6 +559,7 @@ def first(target, expr, default=None):
 
 	return next(filtered, default)
 
+
 def where(target, expr):
 	if not target:
 		return None
@@ -528,12 +567,14 @@ def where(target, expr):
 
 	return list(filtered)
 
+
 def any(target, expr):
 	if not target:
 		return None
 
 	filtered = list(filter(expr, target))
 	return len(filtered) > 0
+
 
 def replace_or_add_parameter(list, replace_item):
 	if replace_item is None:
@@ -547,6 +588,7 @@ def replace_or_add_parameter(list, replace_item):
 
 	if not any(list, lambda x: x.get("Name") == replace_item.get("Name")):
 		list.append(replace_item)
+
 
 def merge_skeletons(parts):
 	bpy.ops.object.select_all(action='DESELECT')
