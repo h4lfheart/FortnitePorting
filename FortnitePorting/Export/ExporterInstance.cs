@@ -161,7 +161,6 @@ public class ExporterInstance
     public List<ExportMesh> LevelSaveRecord(ULevelSaveRecord levelSaveRecord)
     {
         var exportMeshes = new List<ExportMesh>();
-        
         foreach (var (index, templateRecord) in levelSaveRecord.TemplateRecords)
         {
             var actor = templateRecord.ActorClass.Load<UBlueprintGeneratedClass>().ClassDefaultObject.Load();
@@ -184,7 +183,10 @@ public class ExporterInstance
                     });
                 }
             }
+            
+            if (exportMeshes.Count == 0) continue;
 
+            var targetMesh = exportMeshes.First();
             if (actor.TryGetValue(out UStaticMesh doorMesh, "DoorMesh"))
             {
                 var doorOffset = actor.GetOrDefault<TIntVector3<float>>("DoorOffset").ToFVector();
@@ -194,7 +196,7 @@ public class ExporterInstance
                 var exportDoorMesh = Mesh(doorMesh)!;
                 exportDoorMesh.Location = doorOffset;
                 exportDoorMesh.Rotation = doorRotation;
-                exportMeshes.AddIfNotNull(exportDoorMesh);
+                targetMesh.Children.AddIfNotNull(exportDoorMesh);
 
                 if (actor.GetOrDefault("bDoubleDoor", false))
                 {
@@ -203,19 +205,17 @@ public class ExporterInstance
                         Location = exportDoorMesh.Location with { X = -exportDoorMesh.Location.X },
                         Scale = exportDoorMesh.Scale with { X = -exportDoorMesh.Scale.X }
                     };
-                    exportMeshes.AddIfNotNull(exportDoubleDoorMesh);
+                    targetMesh.Children.AddIfNotNull(exportDoubleDoorMesh);
                 }
                 else if (actor.TryGetValue(out UStaticMesh doubleDoorMesh, "DoubleDoorMesh"))
                 {
                     var exportDoubleDoorMesh = Mesh(doubleDoorMesh)!;
                     exportDoubleDoorMesh.Location = doorOffset;
                     exportDoubleDoorMesh.Rotation = doorRotation;
-                    exportMeshes.AddIfNotNull(exportDoubleDoorMesh);
+                    targetMesh.Children.AddIfNotNull(exportDoubleDoorMesh);
                 }
                 
-            } 
-
-            if (exportMeshes.Count == 0) continue;
+            }
 
             var textureDatas = new Dictionary<int, UBuildingTextureData>();
             var actorData = levelSaveRecord.ActorData[index];
@@ -242,7 +242,6 @@ public class ExporterInstance
             }
             
             // reminder that texturedata is the worst thing ever to be created WHY WONT IT WORK
-            var targetMesh = exportMeshes.First();
             foreach (var (textureDataIndex, textureData) in textureDatas)
             {
                 var exportTextureData = new ExportTextureData();
@@ -253,8 +252,8 @@ public class ExporterInstance
                     return new TextureParameter(prefix + suffix, Export(texture), texture.SRGB, texture.CompressionSettings);                    
                 }
 
-                var textureSuffix = textureDataIndex > 0 ? $"_Texture_{index + 1}" : string.Empty;
-                var specSuffix = textureDataIndex > 0 ? $"_{index + 1}" : string.Empty;
+                var textureSuffix = textureDataIndex > 0 ? $"_Texture_{textureDataIndex + 1}" : string.Empty;
+                var specSuffix = textureDataIndex > 0 ? $"_{textureDataIndex + 1}" : string.Empty;
                 exportTextureData.Diffuse = AddData(textureData.Diffuse, "Diffuse", textureSuffix);
                 exportTextureData.Normal = AddData(textureData.Normal, "Normals", textureSuffix);
                 exportTextureData.Specular = AddData(textureData.Specular, "SpecularMasks", specSuffix);

@@ -136,15 +136,17 @@ class ImportTask:
 			return out_props
 
 		imported_meshes = []
-		for mesh in meshes:
-
+		def import_mesh(mesh, parent = None):
+			
 			# import mesh
 			mesh_type = mesh.get("Type")
 			imported_object = self.import_mesh(mesh.get("Path"))
-			imported_object.location = make_vector(mesh.get("Location"), mirror_y=True) * 0.01
+			if parent:
+				imported_object.parent = parent
 			imported_object.rotation_euler = make_euler(mesh.get("Rotation"))
+			imported_object.location = make_vector(mesh.get("Location"), mirror_y=True) * 0.01
 			imported_object.scale = make_vector(mesh.get("Scale"))
-			
+
 			imported_mesh = get_armature_mesh(imported_object)
 			imported_meshes.append({
 				"Skeleton": imported_object,
@@ -191,6 +193,13 @@ class ImportTask:
 				slots = where(imported_mesh.material_slots, lambda slot: slot.name.casefold() == material_name_to_swap.casefold())
 				for slot in slots:
 					self.import_material(slot, variant_override_material, meta)
+					
+			for child in mesh.get("Children"):
+				import_mesh(child, imported_object)
+
+		for mesh in meshes:
+			import_mesh(mesh)
+		
 
 		if type == "Outfit" and self.options.get("MergeSkeletons"):
 			merge_skeletons(imported_meshes)

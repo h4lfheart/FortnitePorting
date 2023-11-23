@@ -14,6 +14,7 @@ public record ExportMesh
     public List<ExportMaterial> Materials = new();
     public List<ExportMaterial> OverrideMaterials = new();
     public List<ExportTextureData> TextureData = new();
+    public List<ExportMesh> Children = new();
 }
 
 public record ExportPart : ExportMesh
