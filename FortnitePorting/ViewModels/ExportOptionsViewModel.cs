@@ -102,6 +102,7 @@ public partial class BlenderExportOptions : ExportOptionsBase
     [ObservableProperty] private float ambientOcclusion = 0.0f;
     [ObservableProperty] private float cavity = 0.0f;
     [ObservableProperty] private float subsurface = 0.0f;
+    [ObservableProperty] private float toonBrightness = 1.0f;
 
     [ObservableProperty] private bool importSounds = true;
     [ObservableProperty] private bool loopAnimation = true;
