@@ -4,10 +4,12 @@ using System.Linq;
 using CUE4Parse.GameTypes.FN.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Component.SkeletalMesh;
+using CUE4Parse.UE4.Assets.Exports.Component.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.Math;
+using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Objects.GameplayTags;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
@@ -125,7 +127,26 @@ public class MeshExportData : ExportDataBase
             case EAssetType.Trap:
                 break;
             case EAssetType.Vehicle:
+            {
+                var actor = asset.Get<UBlueprintGeneratedClass>("VehicleActorClass").ClassDefaultObject.Load();
+                if (actor is null) break;
+
+                var skeletalMesh = actor.GetOrDefault<UFortVehicleSkelMeshComponent?>("SkeletalMesh");
+                if (skeletalMesh is null) break;
+                
+                Meshes.AddIfNotNull(Exporter.MeshComponent(skeletalMesh));
+                
+                /*var components = CUE4ParseVM.Provider.LoadAllObjects(actor.GetPathName().SubstringBeforeLast("."));
+                foreach (var component in components)
+                {
+                    Meshes.AddIfNotNull(component switch
+                    {
+                        UStaticMeshComponent staticMeshComponent => Exporter.MeshComponent(staticMeshComponent),
+                        _ => null
+                    });
+                }*/
                 break;
+            }
             case EAssetType.Wildlife:
             {
                 var wildlifeMesh = (USkeletalMesh) asset;

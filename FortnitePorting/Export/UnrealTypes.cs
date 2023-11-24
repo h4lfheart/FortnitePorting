@@ -1,4 +1,5 @@
 using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.UE4.Assets.Exports.Component.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Assets.Readers;
@@ -60,3 +61,5 @@ public class UBuildingTextureData : URegisterThisUObject
         Specular = GetOrDefault<UTexture2D>(nameof(Specular));
     }
 }
+
+public class UFortVehicleSkelMeshComponent : USkeletalMeshComponentBudgeted { }

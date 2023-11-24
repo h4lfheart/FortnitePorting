@@ -177,8 +177,8 @@ public class ExporterInstance
                 {
                     exportMeshes.AddIfNotNull(component switch
                     {
-                        UStaticMeshComponent staticMeshComponent => Mesh(staticMeshComponent.GetStaticMesh().Load<UStaticMesh>()),
-                        USkeletalMeshComponent skeletalMeshComponent => Mesh(skeletalMeshComponent.GetSkeletalMesh().Load<USkeletalMesh>()),
+                        UStaticMeshComponent staticMeshComponent => MeshComponent(staticMeshComponent),
+                        USkeletalMeshComponent skeletalMeshComponent => MeshComponent(skeletalMeshComponent),
                         _ => null
                     });
                 }
@@ -263,6 +263,46 @@ public class ExporterInstance
         }
 
         return exportMeshes;
+    }
+
+    public ExportMesh? MeshComponent(USkeletalMeshComponent meshComponent)
+    {
+        var mesh = meshComponent.GetSkeletalMesh().Load<USkeletalMesh>();
+        if (mesh is null) return null;
+
+        var exportMesh = Mesh(mesh);
+        if (exportMesh is null) return null;
+        
+        var overrideMaterials = meshComponent.GetOrDefault("OverrideMaterials", Array.Empty<UMaterialInterface?>());
+        for (var idx = 0; idx < overrideMaterials.Length; idx++)
+        {
+            var material = overrideMaterials[idx];
+            if (material is null) continue;
+
+            exportMesh.OverrideMaterials.AddIfNotNull(Material(material, idx));
+        }
+
+        return exportMesh;
+    }
+    
+    public ExportMesh? MeshComponent(UStaticMeshComponent meshComponent)
+    {
+        var mesh = meshComponent.GetStaticMesh().Load<UStaticMesh>();
+        if (mesh is null) return null;
+
+        var exportMesh = Mesh(mesh);
+        if (exportMesh is null) return null;
+        
+        var overrideMaterials = meshComponent.GetOrDefault("OverrideMaterials", Array.Empty<UMaterialInterface?>());
+        for (var idx = 0; idx < overrideMaterials.Length; idx++)
+        {
+            var material = overrideMaterials[idx];
+            if (material is null) continue;
+
+            exportMesh.OverrideMaterials.AddIfNotNull(Material(material, idx));
+        }
+
+        return exportMesh;
     }
 
     public ExportMesh? Mesh(USkeletalMesh? mesh)
