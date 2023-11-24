@@ -9,10 +9,11 @@ from . import ue_format as ueformat
 
 
 class SlotMapping:
-    def __init__(self, name, slot, alpha_slot=None):
+    def __init__(self, name, slot, alpha_slot=None, switch_slot=None):
         self.name = name
         self.slot = slot
         self.alpha_slot = alpha_slot
+        self.switch_slot = switch_slot
 
 texture_mappings = [
     SlotMapping("Diffuse", "Diffuse"),
@@ -23,7 +24,8 @@ texture_mappings = [
     SlotMapping("SpecularMasks", "SpecularMasks"),
     SlotMapping("SRM", "SpecularMasks"),
     SlotMapping("Normals", "Normals"),
-    SlotMapping("Emissive", "Emission Color"),
+    SlotMapping("Emissive", "Emission"),
+    SlotMapping("EmissiveTexture", "Emission"),
 ]
 
 layer_texture_mappings = [
@@ -72,7 +74,8 @@ scalar_mappings = [
 ]
 
 vector_mappings = [
-    SlotMapping("Skin Boost Color And Exponent", "Skin Color", alpha_slot="Skin Boost")
+    SlotMapping("Skin Boost Color And Exponent", "Skin Color", alpha_slot="Skin Boost"),
+    SlotMapping("EmissiveMultiplier", "Emission Multiplier")
 ]
 
 switch_mappings = [
@@ -291,6 +294,8 @@ class ImportTask:
 
                 if mappings.alpha_slot:
                     links.new(node.outputs[1], shader_node.inputs[mappings.alpha_slot])
+                if mappings.switch_slot:
+                    shader_node.inputs[mappings.switch_slot].default_value = 1 if value else 0
             except Exception as e:
                 print(e)
 
@@ -314,6 +319,8 @@ class ImportTask:
                     return
 
                 shader_node.inputs[mappings.slot].default_value = value
+                if mappings.switch_slot:
+                    shader_node.inputs[mappings.switch_slot].default_value = 1 if value else 0
             except Exception as e:
                 print(e)
 
@@ -335,6 +342,8 @@ class ImportTask:
                 shader_node.inputs[mappings.slot].default_value = (value["R"], value["G"], value["B"], 1.0)
                 if mappings.alpha_slot:
                     shader_node.inputs[mappings.alpha_slot].default_value = value["A"]
+                if mappings.switch_slot:
+                    shader_node.inputs[mappings.switch_slot].default_value = 1 if value else 0
             except Exception as e:
                 print(e)
 
@@ -353,8 +362,7 @@ class ImportTask:
         target_tex_mappings = texture_mappings
         target_scalar_mappings = scalar_mappings
         if any(["Use 2 Layers", "Use 3 Layers", "Use 4 Layers", "Use 5 Layers", "Use 6 Layers"
-                                                                                "Use 2 Materials", "Use 3 Materials",
-                "Use 4 Materials", "Use 5 Materials", "Use 6 Materials"], lambda x: get_param(switches, x)):
+                "Use 2 Materials", "Use 3 Materials", "Use 4 Materials", "Use 5 Materials", "Use 6 Materials"], lambda x: get_param(switches, x)):
             shader_node.node_tree = bpy.data.node_groups.get("FP Layer")
             target_tex_mappings = layer_texture_mappings
 
@@ -400,9 +408,9 @@ class ImportTask:
                     skin_color["R"], skin_color["G"], skin_color["B"], 1.0)
                 shader_node.inputs["Skin Boost"].default_value = skin_color["A"]
 
-            if not (get_param(switches, "Emissive") or get_param(switches, "UseBasicEmissive") or get_param(switches,
-                                                                                                            "UseAdvancedEmissive")):
-                shader_node.inputs["Emission Strength"].default_value = 0
+            # only for master character mat bruh
+            '''if not (get_param(switches, "Emissive") or get_param(switches, "UseBasicEmissive") or get_param(switches, "UseAdvancedEmissive")):
+                shader_node.inputs["Emission Strength"].default_value = 0'''
 
             if get_param(textures, "SRM"):
                 shader_node.inputs["SwizzleRoughnessToGreen"].default_value = 1
@@ -434,8 +442,7 @@ class ImportTask:
                 "EmissiveUVPositioning (RG)UpperLeft (BA)LowerRight"
             ]
 
-            if (crop_bounds := get_param_multiple(vectors, emission_crop_params)) and get_param(switches,
-                                                                                                "CroppedEmissive") and len(
+            if (crop_bounds := get_param_multiple(vectors, emission_crop_params)) and get_param(switches, "CroppedEmissive") and len(
                 emission_slot.links) > 0:
                 emission_node = emission_slot.links[0].from_node
 

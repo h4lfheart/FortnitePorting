@@ -127,6 +127,10 @@
                                          ShowIcon="False">
                         <ToggleSwitch IsChecked="{Binding FilterItems}" />
                     </controls:SettingBox>
+                    <controls:SettingBox DisplayName="Filter Traps" Path="{Binding FilterTraps, Mode=TwoWay}"
+                                         ShowIcon="False">
+                        <ToggleSwitch IsChecked="{Binding FilterTraps}" />
+                    </controls:SettingBox>
                 </StackPanel>
             </TabItem>
         </avalonia:AnimatableTabControl>

@@ -37,6 +37,7 @@ public class MeshExportData : ExportDataBase
                     Meshes.AddIfNotNull(Exporter.CharacterPart(part));
                     AssetsVM.ExportProgress++;
                 }
+
                 break;
             }
             case EAssetType.Backpack:
@@ -113,6 +114,7 @@ public class MeshExportData : ExportDataBase
                         mesh.Rotation += transform.Rotator();
                         mesh.Scale *= transform.Scale3D;
                     }
+
                     Meshes.AddRange(meshes);
                     AssetsVM.ExportProgress++;
                 }
@@ -125,26 +127,53 @@ public class MeshExportData : ExportDataBase
                 break;
             }
             case EAssetType.Trap:
+            {
+                var actor = asset.Get<UBlueprintGeneratedClass>("BlueprintClass").ClassDefaultObject.Load();
+                if (actor is null) break;
+
+                var staticMesh = actor.GetOrDefault<UBaseBuildingStaticMeshComponent?>("StaticMeshComponent");
+                if (staticMesh is not null)
+                {
+                    Meshes.AddIfNotNull(Exporter.MeshComponent(staticMesh));
+                }
+                
+                var components = CUE4ParseVM.Provider.LoadAllObjects(actor.GetPathName().SubstringBeforeLast("."));
+                foreach (var component in components)
+                {
+                    if (component.Name.Equals(staticMesh?.Name)) continue;
+                    Meshes.AddIfNotNull(component switch
+                    {
+                        UStaticMeshComponent staticMeshComponent => Exporter.MeshComponent(staticMeshComponent),
+                        USkeletalMeshComponent skeletalMeshComponent => Exporter.MeshComponent(skeletalMeshComponent),
+                        _ => null
+                    });
+                }
+
                 break;
-            case EAssetType.Vehicle:
+            }
+            case EAssetType.Vehicle: // TODO VALET SHADER TODO GLASS SHADER
             {
                 var actor = asset.Get<UBlueprintGeneratedClass>("VehicleActorClass").ClassDefaultObject.Load();
                 if (actor is null) break;
 
                 var skeletalMesh = actor.GetOrDefault<UFortVehicleSkelMeshComponent?>("SkeletalMesh");
-                if (skeletalMesh is null) break;
-                
-                Meshes.AddIfNotNull(Exporter.MeshComponent(skeletalMesh));
-                
-                /*var components = CUE4ParseVM.Provider.LoadAllObjects(actor.GetPathName().SubstringBeforeLast("."));
-                foreach (var component in components)
+                if (skeletalMesh is not null)
                 {
-                    Meshes.AddIfNotNull(component switch
+                    Meshes.AddIfNotNull(Exporter.MeshComponent(skeletalMesh));
+                }
+                else
+                {
+                    var components = CUE4ParseVM.Provider.LoadAllObjects(actor.GetPathName().SubstringBeforeLast("."));
+                    foreach (var component in components)
                     {
-                        UStaticMeshComponent staticMeshComponent => Exporter.MeshComponent(staticMeshComponent),
-                        _ => null
-                    });
-                }*/
+                        Meshes.AddIfNotNull(component switch
+                        {
+                            UStaticMeshComponent staticMeshComponent => Exporter.MeshComponent(staticMeshComponent),
+                            _ => null
+                        });
+                    }
+                }
+
                 break;
             }
             case EAssetType.Wildlife:
@@ -216,7 +245,7 @@ public class MeshExportData : ExportDataBase
 
         var variantMaterials = style.GetOrDefault("VariantMaterials", Array.Empty<FStructFallback>());
         foreach (var material in variantMaterials) OverrideMaterials.AddIfNotNull(Exporter.OverrideMaterial(material));
-        
+
         var variantParameters = style.GetOrDefault("VariantMaterialParams", Array.Empty<FStructFallback>());
         foreach (var parameters in variantParameters) OverrideParameters.AddIfNotNull(Exporter.OverrideParameters(parameters));
     }

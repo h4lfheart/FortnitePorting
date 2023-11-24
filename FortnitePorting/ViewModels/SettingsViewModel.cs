@@ -46,12 +46,14 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private string customExportPath;
     [ObservableProperty] private bool filterProps = true;
     [ObservableProperty] private bool filterItems = true;
+    [ObservableProperty] private bool filterTraps = true;
 
     // Data Storage
     [ObservableProperty] private AuthResponse? epicGamesAuth;
     [ObservableProperty] private List<string> favoritePaths = new();
     [ObservableProperty] private HashSet<string> hiddenMeshPaths = new();
     [ObservableProperty] private HashSet<string> hiddenPropPaths = new();
+    [ObservableProperty] private HashSet<string> hiddenTrapPaths = new();
     [ObservableProperty] private Dictionary<string, Dictionary<string, string>> itemMeshMappings = new();
 
     [JsonIgnore] private static readonly string[] RestartProperties =

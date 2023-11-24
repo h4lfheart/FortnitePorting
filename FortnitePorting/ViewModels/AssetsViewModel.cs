@@ -219,7 +219,25 @@ public partial class AssetsViewModel : ViewModelBase
             },
             new(EAssetType.Trap)
             {
-                Classes = new[] { "FortTrapItemDefinition" }
+                Classes = new[] { "FortTrapItemDefinition" },
+                Filters = new[] { "TID_Creative", "TID_Floor_Minigame_Trigger_Plate" },
+                HidePredicate = (loader, asset, name) =>
+                {
+                    if (!AppSettings.Current.FilterTraps) return false;
+
+                    var path = asset.GetPathName();
+                    if (AppSettings.Current.HiddenTrapPaths.Contains(path)) return true;
+                    if (loader.LoadedAssetsForFiltering.Contains(name))
+                    {
+                        AppSettings.Current.HiddenTrapPaths.Add(path);
+                        return true;
+                    }
+
+                    loader.LoadedAssetsForFiltering.Add(name);
+                    return false;
+                },
+                DontLoadHiddenAssets = true,
+                HideRarity = true
             },
             new(EAssetType.Vehicle)
             {

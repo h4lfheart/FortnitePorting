@@ -36,6 +36,11 @@ public class ExporterInstance
     private readonly ExportOptionsBase AppExportOptions;
     private readonly ExporterOptions FileExportOptions;
 
+    private static readonly string[] OverridesToIgnore =
+    {
+        "M_Trap_InvalidAttachment"
+    };
+
     public ExporterInstance(EExportType exportType)
     {
         AppExportOptions = AppSettings.Current.ExportOptions.Get(exportType);
@@ -298,7 +303,8 @@ public class ExporterInstance
         {
             var material = overrideMaterials[idx];
             if (material is null) continue;
-
+            if (OverridesToIgnore.Contains(material.Name)) continue;
+            
             exportMesh.OverrideMaterials.AddIfNotNull(Material(material, idx));
         }
 
