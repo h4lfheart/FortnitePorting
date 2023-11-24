@@ -85,7 +85,35 @@ public class MeshExportData : ExportDataBase
                 break;
             }
             case EAssetType.Toy:
+            {
+                var actor = asset.Get<UBlueprintGeneratedClass>("ToyActorClass");
+                var parentActor = actor.SuperStruct.Load<UBlueprintGeneratedClass>();
+                
+                var exportComponent = GetComponent(actor);
+                exportComponent ??= GetComponent(parentActor);
+                if (exportComponent is null) break;
+
+                Meshes.AddIfNotNull(Exporter.MeshComponent(exportComponent));
                 break;
+
+                UStaticMeshComponent? GetComponent(UBlueprintGeneratedClass? blueprint)
+                {
+                    if (blueprint is null) return null;
+                    if (!blueprint.TryGetValue(out UObject internalComponentHandler, "InheritableComponentHandler")) return null;
+
+                    var components = new List<UStaticMeshComponent>();
+                    var records = internalComponentHandler.GetOrDefault("Records", Array.Empty<FStructFallback>());
+                    foreach (var record in records)
+                    {
+                        var component = record.Get<UObject>("ComponentTemplate");
+                        if (component is not UStaticMeshComponent staticMeshComponent) continue;
+
+                        return staticMeshComponent;
+                    }
+
+                    return null;
+                }
+            }
             case EAssetType.Prop:
             {
                 var levelSaveRecord = asset.Get<ULevelSaveRecord>("ActorSaveRecord");
