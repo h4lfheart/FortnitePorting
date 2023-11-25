@@ -101,7 +101,6 @@ public class MeshExportData : ExportDataBase
                     if (blueprint is null) return null;
                     if (!blueprint.TryGetValue(out UObject internalComponentHandler, "InheritableComponentHandler")) return null;
 
-                    var components = new List<UStaticMeshComponent>();
                     var records = internalComponentHandler.GetOrDefault("Records", Array.Empty<FStructFallback>());
                     foreach (var record in records)
                     {

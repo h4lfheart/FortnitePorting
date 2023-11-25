@@ -10,6 +10,7 @@ using FortnitePorting.Services;
 using FortnitePorting.ViewModels;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
+using AssetLoader = Avalonia.Platform.AssetLoader;
 
 namespace FortnitePorting.Application;
 

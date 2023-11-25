@@ -43,6 +43,12 @@
             </TabItem>
             <TabItem>
                 <TabItem.Header>
+                    <controls:MaterialIconText Text="Plugin" Icon="Connection" />
+                </TabItem.Header>
+                <views:PluginView />
+            </TabItem>
+            <TabItem>
+                <TabItem.Header>
                     <controls:MaterialIconText Text="Settings" Icon="Settings" />
                 </TabItem.Header>
                 <views:SettingsView />

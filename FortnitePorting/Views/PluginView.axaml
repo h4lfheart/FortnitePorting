@@ -1,0 +1,93 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             xmlns:viewmodels="clr-namespace:FortnitePorting.ViewModels"
+             xmlns:fortnitePorting="clr-namespace:FortnitePorting"
+             xmlns:cue4parseConversion="clr-namespace:CUE4Parse_Conversion;assembly=CUE4Parse-Conversion"
+             xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:avalonia="clr-namespace:FortnitePorting.Controls.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720"
+             x:Class="FortnitePorting.Views.PluginView"
+             x:DataType="viewmodels:PluginViewModel">
+    <controls:GroupBox Background="#26000000">
+        <avalonia:AnimatableTabControl TabStripPlacement="Left">
+            <TabItem>
+                <TabItem.Header>
+                    <controls:ImageText Text="Blender" Image="/Assets/Icons/Blender.svg" />
+                </TabItem.Header>
+                
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="{ext:Space 1}"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="{ext:Space 1}"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="{ext:Space 1}"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Column="0" Content="Blender Installations" FontSize="28" FontWeight="SemiBold"
+                               Margin="8 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                        <Button Grid.Column="2" Command="{Binding AddBlenderInstallation}" 
+                                Margin="0 8 0 0" VerticalAlignment="Center" Content="{material:MaterialIconExt Plus}"/>
+                        <Button Grid.Column="4" Command="{Binding RemoveBlenderInstallation}" CommandParameter="{Binding ElementName=BlenderInstallationListBox, Path=SelectedItem}" 
+                                Margin="0 8 0 0" VerticalAlignment="Center" Content="{material:MaterialIconExt Minus}"/>
+                        <Button Grid.Column="6" Command="{Binding SyncAll}" Margin="0 8 0 0" VerticalAlignment="Center" Content="Sync"/>
+                    </Grid>
+                    
+                    <controls:GroupBox MinHeight="100" Margin="{ext:Space 1}">
+                        <Grid>
+                            <ListBox x:Name="BlenderInstallationListBox" ItemsSource="{Binding BlenderInstallations}" Background="Transparent">
+                                <ListBox.Styles>
+                                    <Style Selector="ListBoxItem">
+                                        <Setter Property="CornerRadius" Value="10"/>
+                                    </Style>
+                                </ListBox.Styles>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="{ext:Space 1}"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+            
+                                            <Svg Grid.Column="0" Path="/Assets/Icons/Blender.svg" Width="64" Height="64" />
+            
+                                            <Grid Grid.Column="2">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="{ext:Space 1}"/>
+                                                    <RowDefinition Height="*"/>
+                                                </Grid.RowDefinitions>
+                
+                                                <Label Grid.Row="0" Content="{Binding BlenderVersion, StringFormat=Blender {0}}" 
+                                                       FontSize="20" FontWeight="SemiBold"/>
+                                                <Label Grid.Row="2" VerticalAlignment="Top" Content="{Binding PluginVersion}"/>
+                                            </Grid>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                            <TextBlock IsVisible="{Binding !BlenderInstallations.Count}" Text="No Blender Installations Registered" Opacity="0.5"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Grid>
+                    </controls:GroupBox>
+                    
+                    <Label Content="Options" FontSize="28" FontWeight="SemiBold" Margin="8 0 0 0"
+                           HorizontalAlignment="Left" VerticalAlignment="Center" />
+                    <controls:SettingBox DisplayName="Automatically Update Plugin"
+                                         Path="{Binding AutomaticUpdate, Mode=TwoWay}"
+                                         Icon="Update">
+                        <ToggleSwitch IsChecked="{Binding AutomaticUpdate}" />
+                    </controls:SettingBox>
+                    
+                </StackPanel>
+            </TabItem>
+        </avalonia:AnimatableTabControl>
+    </controls:GroupBox>
+</UserControl>

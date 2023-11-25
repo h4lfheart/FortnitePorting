@@ -14,6 +14,7 @@
 
     <ItemGroup>
         <AvaloniaResource Include="Assets\**" />
+        <AvaloniaResource Include="Plugins\**" />
     </ItemGroup>
 
     <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
@@ -43,16 +44,8 @@
         <DependentUpon>App.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
-      <Compile Update="Controls\Home\ChangelogItem.axaml.cs">
-        <DependentUpon>ChangelogItem.axaml</DependentUpon>
-        <SubType>Code</SubType>
-      </Compile>
-      <Compile Update="Controls\ImageText.axaml.cs">
-        <DependentUpon>MaterialImageText.axaml</DependentUpon>
-        <SubType>Code</SubType>
-      </Compile>
-      <Compile Update="Views\RadioView.axaml.cs">
-        <DependentUpon>RadioView.axaml</DependentUpon>
+      <Compile Update="Views\PluginView.axaml.cs">
+        <DependentUpon>PluginView.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
     </ItemGroup>

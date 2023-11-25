@@ -26,6 +26,7 @@ public partial class SettingsViewModel : ViewModelBase
     [JsonIgnore] public bool HasValidCustomData => Directory.Exists(CustomArchivePath) && CustomEncryptionKey.TryParseAesKey(out _);
 
     [ObservableProperty] private ExportOptionsViewModel exportOptions = new();
+    [ObservableProperty] private PluginViewModel plugin = new();
 
     // Loading
     [ObservableProperty] private ELoadingType loadingType = ELoadingType.Local;
