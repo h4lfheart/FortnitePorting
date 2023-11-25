@@ -32,16 +32,16 @@
                         </Grid.ColumnDefinitions>
                         <Label Grid.Column="0" Content="Blender Installations" FontSize="28" FontWeight="SemiBold"
                                Margin="8 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center" />
-                        <Button Grid.Column="2" Command="{Binding AddBlenderInstallation}" 
+                        <Button Grid.Column="2" Command="{Binding Blender.Add}" 
                                 Margin="0 8 0 0" VerticalAlignment="Center" Content="{material:MaterialIconExt Plus}"/>
-                        <Button Grid.Column="4" Command="{Binding RemoveBlenderInstallation}" CommandParameter="{Binding ElementName=BlenderInstallationListBox, Path=SelectedItem}" 
+                        <Button Grid.Column="4" Command="{Binding Blender.Remove}" CommandParameter="{Binding ElementName=BlenderInstallationListBox, Path=SelectedItem}" 
                                 Margin="0 8 0 0" VerticalAlignment="Center" Content="{material:MaterialIconExt Minus}"/>
-                        <Button Grid.Column="6" Command="{Binding SyncAll}" Margin="0 8 0 0" VerticalAlignment="Center" Content="Sync"/>
+                        <Button Grid.Column="6" Command="{Binding Blender.SyncAll}" Margin="0 8 0 0" VerticalAlignment="Center" Content="Sync"/>
                     </Grid>
                     
                     <controls:GroupBox MinHeight="100" Margin="{ext:Space 1}">
                         <Grid>
-                            <ListBox x:Name="BlenderInstallationListBox" ItemsSource="{Binding BlenderInstallations}" Background="Transparent">
+                            <ListBox x:Name="BlenderInstallationListBox" ItemsSource="{Binding Blender.Installations}" Background="Transparent">
                                 <ListBox.Styles>
                                     <Style Selector="ListBoxItem">
                                         <Setter Property="CornerRadius" Value="10"/>
@@ -73,7 +73,7 @@
                                     </DataTemplate>
                                 </ListBox.ItemTemplate>
                             </ListBox>
-                            <TextBlock IsVisible="{Binding !BlenderInstallations.Count}" Text="No Blender Installations Registered" Opacity="0.5"
+                            <TextBlock IsVisible="{Binding !Blender.Installations.Count}" Text="No Blender Installations Registered" Opacity="0.5"
                                        HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Grid>
                     </controls:GroupBox>
@@ -81,9 +81,9 @@
                     <Label Content="Options" FontSize="28" FontWeight="SemiBold" Margin="8 0 0 0"
                            HorizontalAlignment="Left" VerticalAlignment="Center" />
                     <controls:SettingBox DisplayName="Automatically Update Plugin"
-                                         Path="{Binding AutomaticUpdate, Mode=TwoWay}"
+                                         Path="{Binding Blender.AutomaticUpdate, Mode=TwoWay}"
                                          Icon="Update">
-                        <ToggleSwitch IsChecked="{Binding AutomaticUpdate}" />
+                        <ToggleSwitch IsChecked="{Binding Blender.AutomaticUpdate}" />
                     </controls:SettingBox>
                     
                 </StackPanel>
