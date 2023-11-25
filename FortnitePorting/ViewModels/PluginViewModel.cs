@@ -32,6 +32,8 @@ public partial class PluginViewModel : ViewModelBase
 
     public async Task AddBlenderInstallation()
     {
+        if (IsBlenderRunning()) return;
+        
         var path = await AppVM.BrowseFileDialog(BlenderFileType);
         if (path is null) return;
 
@@ -43,8 +45,6 @@ public partial class PluginViewModel : ViewModelBase
             MessageWindow.Show("Invalid Blender Version", "Only Blender versions 4.0 or higher are supported.");
             return;
         }
-        
-        if (IsBlenderRunning()) return;
 
         var installInfo = new BlenderInstallInfo(path, versionInfo.ProductVersion);
         await Sync(installInfo);
@@ -69,6 +69,14 @@ public partial class PluginViewModel : ViewModelBase
     public async Task Sync(BlenderInstallInfo installInfo)
     {
         if (IsBlenderRunning()) return;
+        
+        // causes issues with enabling 2.0
+        var v1Addon = Path.Combine(installInfo.AddonBasePath, "FortnitePortingServer.py");
+        if (File.Exists(v1Addon))
+        {
+            File.Delete(v1Addon);
+        }
+        
         var assets = Avalonia.Platform.AssetLoader.GetAssets(new Uri("avares://FortnitePorting/Plugins/Blender"), null);
         foreach (var asset in assets)
         {
@@ -76,23 +84,25 @@ public partial class PluginViewModel : ViewModelBase
             var assetStream = Avalonia.Platform.AssetLoader.Open(asset);
             await assetStream.CopyToAsync(fileStream);
         }
-        
-        using (var blenderProcess = new Process())
+
+        using var blenderProcess = new Process
         {
-            blenderProcess.StartInfo = new ProcessStartInfo
+            StartInfo = new ProcessStartInfo
             {
                 FileName = installInfo.BlenderPath,
-                Arguments = $"-b --python-expr \"{BlenderEnableScript}\"",
+                Arguments = $"-b --python-exit-code 255 --python-expr \"{BlenderEnableScript}\"",
                 UseShellExecute = false,
                 RedirectStandardOutput = true
-            };
-
-            blenderProcess.Start();
-            await blenderProcess.WaitForExitAsync();
-            Log.Information("egg");
+            }
+        };
+        blenderProcess.Start();
+            
+        var exitedProperly = blenderProcess.WaitForExit(10000);
+        if (blenderProcess.ExitCode == 255 || !exitedProperly)
+        {
+            MessageWindow.Show("An Error Occured", "Blender failed to enable the FortnitePorting plugin. Please enable it yourself in the add-ons tab in Blender preferences.");
         }
-
-        
+            
         installInfo.Update();
     }
     
@@ -119,21 +129,21 @@ public partial class BlenderInstallInfo : ObservableObject
     [ObservableProperty] private string blenderPath;
     [ObservableProperty] private string blenderVersion;
     [ObservableProperty] private string pluginVersion = "???";
+    [ObservableProperty] private string addonBasePath;
     [ObservableProperty] private string addonPath;
 
     public BlenderInstallInfo(string path, string blenderVersion)
     {
         BlenderPath = path;
         BlenderVersion = blenderVersion;
-        AddonPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), 
+        AddonBasePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), 
             "Blender Foundation", 
             "Blender", 
             BlenderVersion, 
             "scripts", 
-            "addons",
-            "FortnitePorting");
+            "addons");
+        AddonPath = Path.Combine(AddonBasePath, "FortnitePorting");
         Directory.CreateDirectory(AddonPath);
-        PluginVersion = GetPluginVersion();
     }
 
     public void Update()
