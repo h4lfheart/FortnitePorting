@@ -153,6 +153,11 @@ public class MeshExportData : ExportDataBase
                 Meshes.AddRange(Exporter.WeaponDefinition(asset));
                 break;
             }
+            case EAssetType.Resource:
+            {
+                Meshes.AddRange(Exporter.WeaponDefinition(asset));
+                break;
+            }
             case EAssetType.Trap:
             {
                 var actor = asset.Get<UBlueprintGeneratedClass>("BlueprintClass").ClassDefaultObject.Load();

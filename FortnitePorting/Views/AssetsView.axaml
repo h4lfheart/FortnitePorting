@@ -105,6 +105,11 @@
                     <Image Source="/Assets/FN/Item.png" Width="32" Height="32"
                            RenderOptions.BitmapInterpolationMode="HighQuality" />
                 </ToggleButton>
+                <ToggleButton ToolTip.Tip="Resources" Tag="{x:Static fortnitePorting:EAssetType.Resource}"
+                              Click="OnAssetTypeClick">
+                    <Image Source="/Assets/FN/Resource.png" Width="32" Height="32"
+                           RenderOptions.BitmapInterpolationMode="HighQuality" />
+                </ToggleButton>
                 <ToggleButton ToolTip.Tip="Traps" Tag="{x:Static fortnitePorting:EAssetType.Trap}"
                               Click="OnAssetTypeClick">
                     <Image Source="/Assets/FN/Trap.png" Width="32" Height="32"

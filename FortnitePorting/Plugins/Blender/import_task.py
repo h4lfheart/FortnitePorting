@@ -457,6 +457,8 @@ class ImportTask:
 
         if shader_node.node_tree.name == "FP Toon":
             shader_node.inputs["Brightness"].default_value = self.options.get("ToonBrightness")
+            
+        return shader_node.node_tree.name
 
     def import_image(self, path: str):
         path, name = path.split(".")

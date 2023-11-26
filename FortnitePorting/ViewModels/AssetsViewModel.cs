@@ -217,6 +217,11 @@ public partial class AssetsViewModel : ViewModelBase
                 },
                 DontLoadHiddenAssets = true
             },
+            new(EAssetType.Resource)
+            {
+                Classes = new[] { "FortIngredientItemDefinition", "FortResourceItemDefinition" },
+                Filters = new[] { "SurvivorItemData" },
+            },
             new(EAssetType.Trap)
             {
                 Classes = new[] { "FortTrapItemDefinition" },

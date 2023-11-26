@@ -57,6 +57,9 @@ public enum EAssetType
 
     [Description("Items")]
     Item,
+    
+    [Description("Resources")]
+    Resource,
 
     [Description("Traps")]
     Trap,

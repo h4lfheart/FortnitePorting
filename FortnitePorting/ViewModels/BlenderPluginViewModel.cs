@@ -10,6 +10,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.Utils;
 using FortnitePorting.Framework;
 using FortnitePorting.Services;
+using Serilog;
 
 namespace FortnitePorting.ViewModels;
 
@@ -83,17 +84,18 @@ public partial class BlenderPluginViewModel : ViewModelBase
             StartInfo = new ProcessStartInfo
             {
                 FileName = installInfo.BlenderPath,
-                Arguments = $"-b --disable-crash-handler --python-exit-code 255 --python-expr \"{EnableScript}\"",
-                UseShellExecute = false
+                Arguments = $"-b --python-exit-code 1 --python-expr \"{EnableScript}\"",
+                UseShellExecute = false,
+                RedirectStandardOutput = true
             }
         };
-        blenderProcess.OutputDataReceived += (s, e) => Console.WriteLine(e.Data);
         blenderProcess.Start();
             
         var exitedProperly = blenderProcess.WaitForExit(10000);
-        if (blenderProcess.ExitCode == 255 || !exitedProperly)
+        if (blenderProcess.ExitCode == 1 || !exitedProperly)
         {
             MessageWindow.Show("An Error Occured", "Blender failed to enable the FortnitePorting plugin. Please enable it yourself in the add-ons tab in Blender preferences.");
+            Log.Error(await blenderProcess.StandardOutput.ReadToEndAsync());
         }
             
         installInfo.Update();
