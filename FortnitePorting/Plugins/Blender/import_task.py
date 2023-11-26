@@ -121,7 +121,7 @@ class ImportTask:
             return out_props
 
         imported_meshes = []
-
+        is_toon = False
         def import_mesh(mesh, parent=None):
 
             # import mesh
@@ -158,11 +158,14 @@ class ImportTask:
 
             meta["TextureData"] = mesh.get("TextureData")
             meta["OverrideParameters"] = data.get("OverrideParameters")
-
+            
             # import mats
             for material in mesh.get("Materials"):
                 index = material.get("Slot")
-                self.import_material(imported_mesh.material_slots[index], material, meta)
+                material_type = self.import_material(imported_mesh.material_slots[index], material, meta)
+                if material_type == "FP Toon":
+                    nonlocal is_toon
+                    is_toon = True
 
             for override_material in mesh.get("OverrideMaterials"):
                 index = override_material.get("Slot")
@@ -189,7 +192,19 @@ class ImportTask:
             import_mesh(mesh)
 
         if type == "Outfit" and self.options.get("MergeSkeletons"):
-            merge_skeletons(imported_meshes)
+            master_skeleton = merge_skeletons(imported_meshes)
+            master_mesh = get_armature_mesh(master_skeleton)
+
+            if is_toon:
+                master_mesh.data.materials.append(bpy.data.materials.get("M_FP_Outline"))
+
+                solidify = master_mesh.modifiers.new(name="Outline", type='SOLIDIFY')
+                solidify.thickness = 0.001
+                solidify.offset = 0
+                solidify.thickness_clamp = 5.0
+                solidify.use_rim = False
+                solidify.use_flip_normals = True
+                solidify.material_offset = len(master_mesh.data.materials) - 1
 
     def import_material(self, material_slot, material_data, meta_data):
         material_name = material_data.get("Name")
@@ -514,13 +529,15 @@ def append_data():
             if not bpy.data.node_groups.get(node_group):
                 data_to.node_groups.append(node_group)
 
+        for mat in data_from.materials:
+            if not bpy.data.materials.get(mat):
+                data_to.materials.append(mat)
+
         '''for obj in data_from.objects:
 			if not bpy.data.objects.get(obj):
-				data_to.objects.append(obj)
+				data_to.objects.append(obj)'''
 
-		for mat in data_from.materials:
-			if not bpy.data.materials.get(mat):
-				data_to.materials.append(mat)'''
+		
 
 
 def create_collection(name):
@@ -667,3 +684,5 @@ def merge_skeletons(parts):
             socket = "head"
 
         constraint_object(skeleton, master_skeleton, socket)
+
+    return master_skeleton

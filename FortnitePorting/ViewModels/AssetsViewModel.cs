@@ -220,7 +220,7 @@ public partial class AssetsViewModel : ViewModelBase
             new(EAssetType.Resource)
             {
                 Classes = new[] { "FortIngredientItemDefinition", "FortResourceItemDefinition" },
-                Filters = new[] { "SurvivorItemData" },
+                Filters = new[] { "SurvivorItemData", "OutpostUpgrade_StormShieldAmplifier" },
             },
             new(EAssetType.Trap)
             {
