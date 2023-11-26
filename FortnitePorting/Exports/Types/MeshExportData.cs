@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using CUE4Parse.GameTypes.FN.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Animation;
+using CUE4Parse.UE4.Assets.Exports.Component.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
@@ -201,7 +202,7 @@ public class MeshExportData : ExportDataBase
                     data.Parts.Add(part);
 
                     var exports = AppVM.CUE4ParseVM.Provider.LoadAllObjects(blueprint.GetPathName().SubstringBeforeLast("."));
-                    var staticMeshComponents = exports.Where(x => x.ExportType == "StaticMeshComponent").ToArray();
+                    var staticMeshComponents = exports.Where(x => x is UStaticMeshComponent).ToArray();
                     foreach (var staticMeshComponent in staticMeshComponents)
                     {
                         var componentStaticMesh = staticMeshComponent.GetOrDefault<UStaticMesh?>("StaticMesh");
@@ -286,7 +287,7 @@ public class MeshExportData : ExportDataBase
                     if (mesh is null)
                     {
                         var exports = AppVM.CUE4ParseVM.Provider.LoadAllObjects(blueprint.GetPathName().SubstringBeforeLast("."));
-                        var staticMeshComponents = exports.Where(x => x.ExportType == "StaticMeshComponent").ToArray();
+                        var staticMeshComponents = exports.Where(x => x is UStaticMeshComponent).ToArray();
                         foreach (var component in staticMeshComponents)
                         {
                             var componentStaticMesh = component.GetOrDefault<UStaticMesh?>("StaticMesh");
@@ -322,7 +323,7 @@ public class MeshExportData : ExportDataBase
                 {
                     var blueprint = asset.Get<UObject>("BlueprintClass");
                     var exports = AppVM.CUE4ParseVM.Provider.LoadAllObjects(blueprint.GetPathName().SubstringBeforeLast("."));
-                    var staticMeshComponents = exports.Where(x => x.ExportType == "StaticMeshComponent").ToArray();
+                    var staticMeshComponents = exports.Where(x => x is UStaticMeshComponent).ToArray();
                     foreach (var component in staticMeshComponents)
                     {
                         var componentStaticMesh = component.GetOrDefault<UStaticMesh?>("StaticMesh");
@@ -429,7 +430,7 @@ public static class MeshExportExtensions
             else
             {
                 var objects = AppVM.CUE4ParseVM.Provider.LoadAllObjects(actor.GetPathName().SubstringBeforeLast("."));
-                var staticMeshComponents = objects.Where(x => x.ExportType == "StaticMeshComponent").ToArray();
+                var staticMeshComponents = objects.Where(x => x is UStaticMeshComponent).ToArray();
                 if (!staticMeshComponents.Any()) continue;
                 
                 foreach (var component in staticMeshComponents)

@@ -306,13 +306,15 @@ public class CUE4ParseViewModel : ObservableObject
                 {
                     ChunkBaseUri = new Uri("https://download.epicgames.com/ias/fortnite/", UriKind.Absolute),
                     ChunkCacheDirectory = App.CacheFolder,
-                    Authorization = new AuthenticationHeaderValue("Bearer", AppSettings.Current.EpicAuth.AccessToken)
+                    Authorization = new AuthenticationHeaderValue("Bearer", AppSettings.Current.EpicAuth.AccessToken),
+                    Timeout = TimeSpan.FromSeconds(100)
                 });
             await Provider.MountAsync();
         }
-        catch (Exception)
+        catch (Exception e)
         {
-            Log.Error("Failed to load OnDemand cosmetic streaming");
+            Log.Error("Failed to load on-demand cosmetic streaming");
+            Log.Error(e.Message + e.StackTrace);
         }
 
     }
