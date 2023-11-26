@@ -23,13 +23,7 @@ public partial class BlenderPluginViewModel : ViewModelBase
     {
         Patterns = new[] { "blender.exe" }
     };
-    
-    private const string EnableScript = """
-    import bpy
-    bpy.ops.preferences.addon_enable(module='FortnitePorting')
-    bpy.ops.wm.save_userpref()
-    """;
-    
+
     public async Task Add()
     {
         if (CheckBlenderRunning()) return;
@@ -78,13 +72,14 @@ public partial class BlenderPluginViewModel : ViewModelBase
             var assetStream = Avalonia.Platform.AssetLoader.Open(asset);
             await assetStream.CopyToAsync(fileStream);
         }
+        installInfo.Update();
 
         using var blenderProcess = new Process
         {
             StartInfo = new ProcessStartInfo
             {
                 FileName = installInfo.BlenderPath,
-                Arguments = $"-b --python-exit-code 1 --python-expr \"{EnableScript}\"",
+                Arguments = $"-b --python-exit-code 1 --python \"{DependencyService.BlenderScriptFile.FullName}\"",
                 UseShellExecute = false,
                 RedirectStandardOutput = true
             }
@@ -97,8 +92,6 @@ public partial class BlenderPluginViewModel : ViewModelBase
             MessageWindow.Show("An Error Occured", "Blender failed to enable the FortnitePorting plugin. Please enable it yourself in the add-ons tab in Blender preferences.");
             Log.Error(await blenderProcess.StandardOutput.ReadToEndAsync());
         }
-            
-        installInfo.Update();
     }
     
     public async Task UnSync(BlenderInstallInfo installInfo)

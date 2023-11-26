@@ -23,7 +23,9 @@ texture_mappings = [
     SlotMapping("Mask", "M"),
     SlotMapping("SpecularMasks", "SpecularMasks"),
     SlotMapping("SRM", "SpecularMasks"),
+    SlotMapping("Specular Mask", "SpecularMasks"),
     SlotMapping("Normals", "Normals"),
+    SlotMapping("Normal", "Normals"),
     SlotMapping("Emissive", "Emission"),
     SlotMapping("EmissiveTexture", "Emission"),
 ]
