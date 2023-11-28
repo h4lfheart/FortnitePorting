@@ -79,25 +79,27 @@ public partial class BlenderPluginViewModel : ViewModelBase
         
         Log.Information("Synced Blender {BlenderVersion} Plugin to Version {PluginVersion}", installInfo.BlenderVersion, installInfo.PluginVersion);
 
-        using var blenderProcess = new Process
+        TaskService.Run(() =>
         {
-            StartInfo = new ProcessStartInfo
+            using var blenderProcess = new Process
             {
-                FileName = installInfo.BlenderPath,
-                Arguments = $"-b --python-exit-code 1 --python \"{DependencyService.BlenderScriptFile.FullName}\"",
-                UseShellExecute = false,
-                RedirectStandardOutput = true
-            }
-        };
-        blenderProcess.Start();
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = installInfo.BlenderPath,
+                    Arguments = $"-b --python-exit-code 1 --python \"{DependencyService.BlenderScriptFile.FullName}\"",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true
+                }
+            };
+            blenderProcess.Start();
             
-        var exitedProperly = blenderProcess.WaitForExit(10000);
-        Console.WriteLine(await blenderProcess.StandardOutput.ReadToEndAsync());
-        if (!automatic && blenderProcess.ExitCode == 1 || !exitedProperly)
-        {
-            MessageWindow.Show("An Error Occured", "Blender failed to enable the FortnitePorting plugin. If this is your first time using syncing the plugin, please enable it yourself in the add-ons tab in Blender preferences.");
-            Log.Error(await blenderProcess.StandardOutput.ReadToEndAsync());
-        }
+            var exitedProperly = blenderProcess.WaitForExit(5000);
+            if (!automatic && blenderProcess.ExitCode == 1 || !exitedProperly)
+            {
+                MessageWindow.Show("An Error Occured", "Blender failed to enable the FortnitePorting plugin. If this is your first time using syncing the plugin, please enable it yourself in the add-ons tab in Blender preferences.");
+                Log.Error(blenderProcess.StandardOutput.ReadToEnd());
+            }
+        });
     }
     
     public async Task UnSync(BlenderInstallInfo installInfo)
