@@ -21,6 +21,11 @@
             <ListBox Grid.Row="2" x:Name="StylesListBox"
                      ItemsSource="{Binding Styles, RelativeSource={RelativeSource AncestorType=assets:StyleItem}}"
                      HorizontalAlignment="Center" Background="Transparent">
+                <ListBox.Styles>
+                    <Style Selector="ListBoxItem">
+                        <Setter Property="CornerRadius" Value="10"/>
+                    </Style>
+                </ListBox.Styles>
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
                         <WrapPanel VerticalAlignment="Top" HorizontalAlignment="Left" />

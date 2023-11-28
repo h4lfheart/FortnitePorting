@@ -17,11 +17,12 @@ class MappingCollection:
 
 
 class SlotMapping:
-    def __init__(self, name, slot=None, alpha_slot=None, switch_slot=None, coords="UV0"):
+    def __init__(self, name, slot=None, alpha_slot=None, switch_slot=None, value_func=None, coords="UV0"):
         self.name = name
         self.slot = name if slot is None else slot
         self.alpha_slot = alpha_slot
         self.switch_slot = switch_slot
+        self.value_func = value_func
         self.coords = coords
 
 
@@ -47,7 +48,8 @@ default_mappings = MappingCollection(
         SlotMapping("RoughnessMax", "Roughness Max"),
         SlotMapping("SpecRoughnessMax", "Roughness Max"),
         SlotMapping("RawRoughnessMax", "Roughness Max"),
-        SlotMapping("emissive mult", "Emission Strength")
+        SlotMapping("emissive mult", "Emission Strength"),
+        SlotMapping("HT_CrunchVerts", "Alpha", value_func=lambda value: 1-value)
     ],
     vectors=[
         SlotMapping("Skin Boost Color And Exponent", "Skin Color", alpha_slot="Skin Boost"),
@@ -158,17 +160,22 @@ valet_mappings = MappingCollection(
 glass_mappings = MappingCollection(
     textures=[
         SlotMapping("Color_DarkTint"),
+        SlotMapping("Normals"),
     ],
     scalars=[
+        SlotMapping("Specular"),
+        SlotMapping("Metallic"),
+        SlotMapping("Roughness"),
         SlotMapping("Window Tint Amount", "Tint Amount"),
         SlotMapping("Fresnel Exponent"),
         SlotMapping("Fresnel Inner Transparency"),
         SlotMapping("Fresnel Inner Transparency Max Tint"),
         SlotMapping("Fresnel Outer Transparency"),
-        SlotMapping("Glass thickness", "Glass Thickness"),
+        SlotMapping("Glass thickness", "Thickness"),
     ],
     vectors=[
         SlotMapping("ColorFront", "Color"),
+        SlotMapping("Base Color", "Color"),
     ]
 )
 
@@ -430,6 +437,7 @@ class ImportTask:
                     unused_parameter_offset -= 100
                     return
 
+                value = mappings.value_func(value) if mappings.value_func else value
                 shader_node.inputs[mappings.slot].default_value = value
                 if mappings.switch_slot:
                     shader_node.inputs[mappings.switch_slot].default_value = 1 if value else 0
@@ -451,6 +459,7 @@ class ImportTask:
                     unused_parameter_offset -= 200
                     return
 
+                value = mappings.value_func(value) if mappings.value_func else value
                 shader_node.inputs[mappings.slot].default_value = (value["R"], value["G"], value["B"], 1.0)
                 if mappings.alpha_slot:
                     shader_node.inputs[mappings.alpha_slot].default_value = value["A"]
@@ -467,6 +476,7 @@ class ImportTask:
                 if (mappings := first(socket_mappings.switches, lambda x: x.name == name)) is None:
                     return
 
+                value = mappings.value_func(value) if mappings.value_func else value
                 shader_node.inputs[mappings.slot].default_value = 1 if value else 0
             except Exception as e:
                 print(e)
@@ -489,6 +499,7 @@ class ImportTask:
             shader_node.node_tree = bpy.data.node_groups.get("FP Glass")
             socket_mappings = glass_mappings
             material.blend_method = "BLEND"
+            material.shadow_method = "NONE"
             material.show_transparent_back = False
 
         for texture in textures:
