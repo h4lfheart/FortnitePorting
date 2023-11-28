@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -251,7 +252,7 @@ public class ExporterInstance
             {
                 var exportTextureData = new ExportTextureData();
 
-                TextureParameter? AddData(UTexture2D? texture, string prefix, string suffix)
+                TextureParameter? AddData(UTexture? texture, string prefix, string suffix)
                 {
                     if (texture is null) return default;
                     return new TextureParameter(prefix + suffix, Export(texture), texture.SRGB, texture.CompressionSettings);                    
@@ -532,7 +533,7 @@ public class ExporterInstance
         var exportPath = GetExportPath(asset, extension);
 
         var returnValue = waitForFinish ? exportPath : asset.GetPathName();
-        if (File.Exists(exportPath)) return returnValue;
+        if (File.Exists(exportPath) && !(asset is UTexture texture && IsExportTextureHigherRes(texture, exportPath))) return returnValue;
 
         var exportTask = Task.Run(() =>
         {
@@ -554,6 +555,21 @@ public class ExporterInstance
             exportTask.Wait();
         
         return returnValue;
+    }
+
+    private bool IsExportTextureHigherRes(UTexture texture, string path)
+    {
+        try
+        {
+            using var file = File.OpenRead(path);
+            using var image = Image.FromStream(file, useEmbeddedColorManagement: false, validateImageData: false);
+            var mip = texture.GetFirstMip();
+            return mip?.SizeX > image.PhysicalDimension.Width && mip?.SizeY > image.PhysicalDimension.Height;
+        }
+        catch (Exception)
+        {
+            return true;
+        }
     }
 
     public string Export(UObject asset, bool waitForFinish = false)

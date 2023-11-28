@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.Utils;
+using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Services;
 using Serilog;
@@ -51,19 +52,21 @@ public partial class BlenderPluginViewModel : ViewModelBase
         await UnSync(removeItem);
     }
 
-    
-    public async Task SyncAll()
+    public async Task SyncAll(bool automatic = false)
     {
-        if (CheckBlenderRunning()) return;
+        if (CheckBlenderRunning(automatic)) return;
         foreach (var blenderInstall in Installations)
         {
-            await Sync(blenderInstall);
+            await Sync(blenderInstall, automatic);
         }
     }
     
-    public async Task Sync(BlenderInstallInfo installInfo)
+    public async Task Sync(BlenderInstallInfo installInfo, bool automatic = false)
     {
-        if (CheckBlenderRunning()) return;
+        if (CheckBlenderRunning(automatic)) return;
+        
+        var currentPluginVersion = await GetPluginVersion();
+        if (installInfo.PluginVersion.Equals(currentPluginVersion) && automatic) return;
         
         var assets = Avalonia.Platform.AssetLoader.GetAssets(new Uri("avares://FortnitePorting/Plugins/Blender"), null);
         foreach (var asset in assets)
@@ -73,6 +76,8 @@ public partial class BlenderPluginViewModel : ViewModelBase
             await assetStream.CopyToAsync(fileStream);
         }
         installInfo.Update();
+        
+        Log.Information("Synced Blender {BlenderVersion} Plugin to Version {PluginVersion}", installInfo.BlenderVersion, installInfo.PluginVersion);
 
         using var blenderProcess = new Process
         {
@@ -87,9 +92,10 @@ public partial class BlenderPluginViewModel : ViewModelBase
         blenderProcess.Start();
             
         var exitedProperly = blenderProcess.WaitForExit(10000);
-        if (blenderProcess.ExitCode == 1 || !exitedProperly)
+        Console.WriteLine(await blenderProcess.StandardOutput.ReadToEndAsync());
+        if (!automatic && blenderProcess.ExitCode == 1 || !exitedProperly)
         {
-            MessageWindow.Show("An Error Occured", "Blender failed to enable the FortnitePorting plugin. Please enable it yourself in the add-ons tab in Blender preferences.");
+            MessageWindow.Show("An Error Occured", "Blender failed to enable the FortnitePorting plugin. If this is your first time using syncing the plugin, please enable it yourself in the add-ons tab in Blender preferences.");
             Log.Error(await blenderProcess.StandardOutput.ReadToEndAsync());
         }
     }
@@ -99,16 +105,23 @@ public partial class BlenderPluginViewModel : ViewModelBase
         Directory.Delete(installInfo.AddonPath);
     }
     
-    public bool CheckBlenderRunning()
+    public bool CheckBlenderRunning(bool automatic = false)
     {
         var blenderProcesses = Process.GetProcessesByName("blender");
-        if (blenderProcesses.Length > 0)
+        if (blenderProcesses.Length > 0 && !automatic)
         {
             MessageWindow.Show("Cannot Sync Plugin", "An instance of blender is open. Please close it to sync the plugin.");
             return true;
         }
 
         return false;
+    }
+
+    public async Task<string> GetPluginVersion()
+    {
+        var initStream = Avalonia.Platform.AssetLoader.Open(new Uri("avares://FortnitePorting/Plugins/Blender/__init__.py"));
+        var initText = initStream.ReadToEnd().BytesToString();
+        return BlenderInstallInfo.GetPluginVersion(initText);
     }
 }
 
@@ -145,9 +158,12 @@ public partial class BlenderInstallInfo : ObservableObject
         if (!File.Exists(initFilepath)) return PluginVersion;
         
         var initText = File.ReadAllText(initFilepath);
-        var versionMatch = Regex.Match(initText, @"""version"": \((.*)\)");
-        if (!versionMatch.Success) return PluginVersion;
-        
+        return GetPluginVersion(initText);
+    }
+
+    public static string GetPluginVersion(string text)
+    {
+        var versionMatch = Regex.Match(text, @"""version"": \((.*)\)");
         return versionMatch.Groups[^1].Value.Replace(", ", ".");
     }
 }

@@ -36,7 +36,7 @@
                                 Margin="0 8 0 0" VerticalAlignment="Center" Content="{material:MaterialIconExt Plus}"/>
                         <Button Grid.Column="4" Command="{Binding Blender.Remove}" CommandParameter="{Binding ElementName=BlenderInstallationListBox, Path=SelectedItem}" 
                                 Margin="0 8 0 0" VerticalAlignment="Center" Content="{material:MaterialIconExt Minus}"/>
-                        <Button Grid.Column="6" Command="{Binding Blender.SyncAll}" Margin="0 8 0 0" VerticalAlignment="Center" Content="Sync"/>
+                        <Button Grid.Column="6" Command="{Binding Blender.SyncAll}" CommandParameter="False" Margin="0 8 0 0" VerticalAlignment="Center" Content="Sync"/>
                     </Grid>
                     
                     <controls:GroupBox MinHeight="100" Margin="{ext:Space 1}">
