@@ -193,17 +193,16 @@ public class MeshExportData : ExportDataBase
                 {
                     Meshes.AddIfNotNull(Exporter.MeshComponent(skeletalMesh));
                 }
-                else
+                
+                var components = CUE4ParseVM.Provider.LoadAllObjects(actor.GetPathName().SubstringBeforeLast("."));
+                foreach (var component in components)
                 {
-                    var components = CUE4ParseVM.Provider.LoadAllObjects(actor.GetPathName().SubstringBeforeLast("."));
-                    foreach (var component in components)
+                    if (component.Name.Equals(skeletalMesh?.Name)) continue;
+                    Meshes.AddIfNotNull(component switch
                     {
-                        Meshes.AddIfNotNull(component switch
-                        {
-                            UStaticMeshComponent staticMeshComponent => Exporter.MeshComponent(staticMeshComponent),
-                            _ => null
-                        });
-                    }
+                        UStaticMeshComponent staticMeshComponent => Exporter.MeshComponent(staticMeshComponent),
+                        _ => null
+                    });
                 }
 
                 break;

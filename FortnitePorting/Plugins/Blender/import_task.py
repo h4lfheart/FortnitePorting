@@ -8,81 +8,152 @@ from mathutils import Matrix, Vector, Euler, Quaternion
 from . import ue_format as ueformat
 
 
+class MappingCollection:
+    def __init__(self, textures=[], scalars=[], vectors=[], switches=[]):
+        self.textures = textures
+        self.scalars = scalars
+        self.vectors = vectors
+        self.switches = switches
+
+
 class SlotMapping:
-    def __init__(self, name, slot, alpha_slot=None, switch_slot=None):
+    def __init__(self, name, slot=None, alpha_slot=None, switch_slot=None, coords="UV0"):
         self.name = name
-        self.slot = slot
+        self.slot = name if slot is None else slot
         self.alpha_slot = alpha_slot
         self.switch_slot = switch_slot
+        self.coords = coords
 
-texture_mappings = [
-    SlotMapping("Diffuse", "Diffuse"),
-    SlotMapping("Background Diffuse", "Background Diffuse", alpha_slot="Background Diffuse Alpha"),
-    SlotMapping("BG Diffuse Texture", "Background Diffuse", alpha_slot="Background Diffuse Alpha"),
-    SlotMapping("M", "M"),
-    SlotMapping("Mask", "M"),
-    SlotMapping("SpecularMasks", "SpecularMasks"),
-    SlotMapping("SRM", "SpecularMasks"),
-    SlotMapping("Specular Mask", "SpecularMasks"),
-    SlotMapping("Normals", "Normals"),
-    SlotMapping("Normal", "Normals"),
-    SlotMapping("Emissive", "Emission"),
-    SlotMapping("EmissiveTexture", "Emission"),
-]
 
-layer_texture_mappings = [
-    SlotMapping("Diffuse", "Diffuse"),
-    SlotMapping("SpecularMasks", "SpecularMasks"),
-    SlotMapping("Normals", "Normals"),
+default_mappings = MappingCollection(
+    textures=[
+        SlotMapping("Diffuse", "Diffuse"),
+        SlotMapping("Background Diffuse", "Background Diffuse", alpha_slot="Background Diffuse Alpha"),
+        SlotMapping("BG Diffuse Texture", "Background Diffuse", alpha_slot="Background Diffuse Alpha"),
+        SlotMapping("M", "M"),
+        SlotMapping("Mask", "M"),
+        SlotMapping("SpecularMasks", "SpecularMasks"),
+        SlotMapping("SRM", "SpecularMasks"),
+        SlotMapping("Specular Mask", "SpecularMasks"),
+        SlotMapping("Normals", "Normals"),
+        SlotMapping("Normal", "Normals"),
+        SlotMapping("Emissive", "Emission"),
+        SlotMapping("EmissiveTexture", "Emission")
+    ],
+    scalars=[
+        SlotMapping("RoughnessMin", "Roughness Min"),
+        SlotMapping("SpecRoughnessMin", "Roughness Min"),
+        SlotMapping("RawRoughnessMin", "Roughness Min"),
+        SlotMapping("RoughnessMax", "Roughness Max"),
+        SlotMapping("SpecRoughnessMax", "Roughness Max"),
+        SlotMapping("RawRoughnessMax", "Roughness Max"),
+        SlotMapping("emissive mult", "Emission Strength")
+    ],
+    vectors=[
+        SlotMapping("Skin Boost Color And Exponent", "Skin Color", alpha_slot="Skin Boost"),
+        SlotMapping("EmissiveMultiplier", "Emission Multiplier")
+    ],
+    switches=[
+        SlotMapping("SwizzleRoughnessToGreen")
+    ]
+)
 
-    SlotMapping("Diffuse_Texture_2", "Diffuse_Texture_2"),
-    SlotMapping("SpecularMasks_2", "SpecularMasks_2"),
-    SlotMapping("Normals_Texture_2", "Normals_Texture_2"),
+layer_mappings = MappingCollection(
+    textures=[
+        SlotMapping("Diffuse"),
+        SlotMapping("SpecularMasks"),
+        SlotMapping("Normals"),
 
-    SlotMapping("Diffuse_Texture_3", "Diffuse_Texture_3"),
-    SlotMapping("SpecularMasks_3", "SpecularMasks_3"),
-    SlotMapping("Normals_Texture_3", "Normals_Texture_3"),
+        SlotMapping("Diffuse_Texture_2"),
+        SlotMapping("SpecularMasks_2"),
+        SlotMapping("Normals_Texture_2"),
 
-    SlotMapping("Diffuse_Texture_4", "Diffuse_Texture_4"),
-    SlotMapping("SpecularMasks_4", "SpecularMasks_4"),
-    SlotMapping("Normals_Texture_4", "Normals_Texture_4"),
+        SlotMapping("Diffuse_Texture_3"),
+        SlotMapping("SpecularMasks_3"),
+        SlotMapping("Normals_Texture_3"),
 
-    SlotMapping("Diffuse_Texture_5", "Diffuse_Texture_5"),
-    SlotMapping("SpecularMasks_5", "SpecularMasks_5"),
-    SlotMapping("Normals_Texture_5", "Normals_Texture_5"),
+        SlotMapping("Diffuse_Texture_4"),
+        SlotMapping("SpecularMasks_4"),
+        SlotMapping("Normals_Texture_4"),
 
-    SlotMapping("Diffuse_Texture_6", "Diffuse_Texture_6"),
-    SlotMapping("SpecularMasks_6", "SpecularMasks_6"),
-    SlotMapping("Normals_Texture_6", "Normals_Texture_6")
-]
+        SlotMapping("Diffuse_Texture_5"),
+        SlotMapping("SpecularMasks_5"),
+        SlotMapping("Normals_Texture_5"),
 
-toon_texture_mappings = [
-    SlotMapping("LitDiffuse", "LitDiffuse"),
-    SlotMapping("ShadedDiffuse", "ShadedDiffuse"),
-    SlotMapping("DistanceField_InkLines", "DistanceField_InkLines"),
-    SlotMapping("InkLineColor_Texture", "InkLineColor_Texture"),
-    SlotMapping("SSC_Texture", "SSC_Texture"),
-    SlotMapping("Normals", "Normals")
-]
+        SlotMapping("Diffuse_Texture_6"),
+        SlotMapping("SpecularMasks_6"),
+        SlotMapping("Normals_Texture_6")
+    ]
+)
 
-scalar_mappings = [
-    SlotMapping("RoughnessMin", "Roughness Min"),
-    SlotMapping("SpecRoughnessMin", "Roughness Min"),
-    SlotMapping("RawRoughnessMin", "Roughness Min"),
-    SlotMapping("RoughnessMax", "Roughness Max"),
-    SlotMapping("SpecRoughnessMax", "Roughness Max"),
-    SlotMapping("RawRoughnessMax", "Roughness Max"),
-    SlotMapping("emissive mult", "Emission Strength")
-]
+toon_mappings = MappingCollection(
+    textures=[
+        SlotMapping("LitDiffuse"),
+        SlotMapping("ShadedDiffuse"),
+        SlotMapping("DistanceField_InkLines"),
+        SlotMapping("InkLineColor_Texture"),
+        SlotMapping("SSC_Texture"),
+        SlotMapping("Normals")
+    ]
+)
 
-vector_mappings = [
-    SlotMapping("Skin Boost Color And Exponent", "Skin Color", alpha_slot="Skin Boost"),
-    SlotMapping("EmissiveMultiplier", "Emission Multiplier")
-]
+valet_mappings = MappingCollection(
+    textures=[
+        SlotMapping("Diffuse"),
+        SlotMapping("Mask", alpha_slot="Mask Alpha"),
+        SlotMapping("Decal", alpha_slot="Decal Alpha", coords="UV1"),
+        SlotMapping("Normal"),
+        SlotMapping("Specular Mask"),
+        SlotMapping("Scratch/Grime/EMPTY"),
+    ],
+    scalars=[
+        SlotMapping("Scratch Intensity"),
+        SlotMapping("Grime Intensity"),
+        SlotMapping("Grime Spec"),
+        SlotMapping("Grime Roughness"),
 
-switch_mappings = [
-    SlotMapping("SwizzleRoughnessToGreen", "SwizzleRoughnessToGreen")
-]
+        SlotMapping("Layer 01 Specular"),
+        SlotMapping("Layer 01 Metalness"),
+        SlotMapping("Layer 01 Roughness Min"),
+        SlotMapping("Layer 01 Roughness Max"),
+        SlotMapping("Layer 01 Clearcoat"),
+        SlotMapping("Layer 01 Clearcoat Roughness Min"),
+        SlotMapping("Layer 01 Clearcoat Roughness Max"),
+
+        SlotMapping("Layer 02 Specular"),
+        SlotMapping("Layer 02 Metalness"),
+        SlotMapping("Layer 02 Roughness Min"),
+        SlotMapping("Layer 02 Roughness Max"),
+        SlotMapping("Layer 02 Clearcoat"),
+        SlotMapping("Layer 02 Clearcoat Roughness Min"),
+        SlotMapping("Layer 02 Clearcoat Roughness Max"),
+
+        SlotMapping("Layer 03 Specular"),
+        SlotMapping("Layer 03 Metalness"),
+        SlotMapping("Layer 03 Roughness Min"),
+        SlotMapping("Layer 03 Roughness Max"),
+        SlotMapping("Layer 03 Clearcoat"),
+        SlotMapping("Layer 03 Clearcoat Roughness Min"),
+        SlotMapping("Layer 03 Clearcoat Roughness Max"),
+
+        SlotMapping("Layer 04 Specular"),
+        SlotMapping("Layer 04 Metalness"),
+        SlotMapping("Layer 04 Roughness Min"),
+        SlotMapping("Layer 04 Roughness Max"),
+        SlotMapping("Layer 04 Clearcoat"),
+        SlotMapping("Layer 04 Clearcoat Roughness Min"),
+        SlotMapping("Layer 04 Clearcoat Roughness Max"),
+    ],
+    vectors=[
+        SlotMapping("Scratch Tint"),
+        SlotMapping("Grime Tint"),
+        
+        SlotMapping("Layer 01 Color"),
+        SlotMapping("Layer 02 Color"),
+        SlotMapping("Layer 03 Color"),
+        SlotMapping("Layer 04 Color"),
+    ]
+)
 
 
 class ImportTask:
@@ -122,6 +193,7 @@ class ImportTask:
 
         imported_meshes = []
         is_toon = False
+
         def import_mesh(mesh, parent=None):
 
             # import mesh
@@ -158,7 +230,7 @@ class ImportTask:
 
             meta["TextureData"] = mesh.get("TextureData")
             meta["OverrideParameters"] = data.get("OverrideParameters")
-            
+
             # import mats
             for material in mesh.get("Materials"):
                 index = material.get("Slot")
@@ -273,6 +345,7 @@ class ImportTask:
         # parameters
         hide_element_values = {}
         unused_parameter_offset = 0
+        socket_mappings = default_mappings
 
         def get_param(source, name):
             found = first(source, lambda param: param.get("Name") == name)
@@ -286,7 +359,7 @@ class ImportTask:
                 return None
             return found.get("Value")
 
-        def texture_param(data, tex_mappings):
+        def texture_param(data):
             try:
                 name = data.get("Name")
                 path = data.get("Value")
@@ -298,13 +371,13 @@ class ImportTask:
                 node.interpolation = "Smart"
                 node.hide = True
 
-                if (mappings := first(tex_mappings, lambda x: x.name == name)) is None:
+                if (mappings := first(socket_mappings.textures, lambda x: x.name == name)) is None:
                     nonlocal unused_parameter_offset
                     node.label = name
                     node.location = 400, unused_parameter_offset
                     unused_parameter_offset -= 50
                     return
-    
+
                 x, y = get_socket_pos(shader_node, shader_node.inputs.find(mappings.slot))
                 node.location = x - 300, y
                 links.new(node.outputs[0], shader_node.inputs[mappings.slot])
@@ -313,10 +386,15 @@ class ImportTask:
                     links.new(node.outputs[1], shader_node.inputs[mappings.alpha_slot])
                 if mappings.switch_slot:
                     shader_node.inputs[mappings.switch_slot].default_value = 1 if value else 0
+                if mappings.coords != "UV0":
+                    uv = nodes.new(type="ShaderNodeUVMap")
+                    uv.location = node.location.x - 250, node.location.y
+                    uv.uv_map = mappings.coords
+                    links.new(uv.outputs[0], node.inputs[0])
             except Exception as e:
                 print(e)
 
-        def scalar_param(data, scalar_mappings):
+        def scalar_param(data):
             try:
                 name = data.get("Name")
                 value = data.get("Value")
@@ -325,7 +403,7 @@ class ImportTask:
                     hide_element_values[name] = value
                     return
 
-                if (mappings := first(scalar_mappings, lambda x: x.name == name)) is None:
+                if (mappings := first(socket_mappings.scalars, lambda x: x.name == name)) is None:
                     nonlocal unused_parameter_offset
                     node = nodes.new(type="ShaderNodeValue")
                     node.outputs[0].default_value = value
@@ -346,7 +424,7 @@ class ImportTask:
                 name = data.get("Name")
                 value = data.get("Value")
 
-                if (mappings := first(vector_mappings, lambda x: x.name == name)) is None:
+                if (mappings := first(socket_mappings.vectors, lambda x: x.name == name)) is None:
                     nonlocal unused_parameter_offset
                     node = nodes.new(type="ShaderNodeRGB")
                     node.outputs[0].default_value = (value["R"], value["G"], value["B"], value["A"])
@@ -369,29 +447,32 @@ class ImportTask:
                 name = data.get("Name")
                 value = data.get("Value")
 
-                if (mappings := first(switch_mappings, lambda x: x.name == name)) is None:
+                if (mappings := first(socket_mappings.switches, lambda x: x.name == name)) is None:
                     return
 
                 shader_node.inputs[mappings.slot].default_value = 1 if value else 0
             except Exception as e:
                 print(e)
 
-        target_tex_mappings = texture_mappings
-        target_scalar_mappings = scalar_mappings
         if any(["Use 2 Layers", "Use 3 Layers", "Use 4 Layers", "Use 5 Layers", "Use 6 Layers"
-                "Use 2 Materials", "Use 3 Materials", "Use 4 Materials", "Use 5 Materials", "Use 6 Materials"], lambda x: get_param(switches, x)):
+                                                                                "Use 2 Materials", "Use 3 Materials",
+                "Use 4 Materials", "Use 5 Materials", "Use 6 Materials"], lambda x: get_param(switches, x)):
             shader_node.node_tree = bpy.data.node_groups.get("FP Layer")
-            target_tex_mappings = layer_texture_mappings
+            socket_mappings = layer_mappings
 
         if any(["LitDiffuse", "ShadedDiffuse"], lambda x: get_param(textures, x)):
             shader_node.node_tree = bpy.data.node_groups.get("FP Toon")
-            target_tex_mappings = toon_texture_mappings
+            socket_mappings = toon_mappings
+
+        if material_data.get("AbsoluteParent") == "M_FN_Valet_Master":
+            shader_node.node_tree = bpy.data.node_groups.get("FP Valet")
+            socket_mappings = valet_mappings
 
         for texture in textures:
-            texture_param(texture, target_tex_mappings)
+            texture_param(texture)
 
         for scalar in scalars:
-            scalar_param(scalar, target_scalar_mappings)
+            scalar_param(scalar)
 
         for vector in vectors:
             vector_param(vector)
@@ -459,8 +540,9 @@ class ImportTask:
                 "EmissiveUVPositioning (RG)UpperLeft (BA)LowerRight"
             ]
 
-            if (crop_bounds := get_param_multiple(vectors, emission_crop_params)) and get_param(switches, "CroppedEmissive") and len(
-                emission_slot.links) > 0:
+            if (crop_bounds := get_param_multiple(vectors, emission_crop_params)) and get_param(switches,
+                                                                                                "CroppedEmissive") and len(
+                    emission_slot.links) > 0:
                 emission_node = emission_slot.links[0].from_node
 
                 crop_texture_node = nodes.new("ShaderNodeGroup")
@@ -474,7 +556,7 @@ class ImportTask:
 
         if shader_node.node_tree.name == "FP Toon":
             shader_node.inputs["Brightness"].default_value = self.options.get("ToonBrightness")
-            
+
         return shader_node.node_tree.name
 
     def import_image(self, path: str):
@@ -505,10 +587,12 @@ class HatType(Enum):
     Helmet = 3
     Hat = 4
 
+
 def get_socket_pos(node, index):
     start_y = -80
     offset_y = -22
     return node.location.x, node.location.y + start_y + offset_y * index
+
 
 def hash_code(num):
     return hex(abs(num))[2:]
@@ -536,8 +620,6 @@ def append_data():
         '''for obj in data_from.objects:
 			if not bpy.data.objects.get(obj):
 				data_to.objects.append(obj)'''
-
-		
 
 
 def create_collection(name):
