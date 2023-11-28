@@ -147,11 +147,28 @@ valet_mappings = MappingCollection(
     vectors=[
         SlotMapping("Scratch Tint"),
         SlotMapping("Grime Tint"),
-        
+
         SlotMapping("Layer 01 Color"),
         SlotMapping("Layer 02 Color"),
         SlotMapping("Layer 03 Color"),
         SlotMapping("Layer 04 Color"),
+    ]
+)
+
+glass_mappings = MappingCollection(
+    textures=[
+        SlotMapping("Color_DarkTint"),
+    ],
+    scalars=[
+        SlotMapping("Window Tint Amount", "Tint Amount"),
+        SlotMapping("Fresnel Exponent"),
+        SlotMapping("Fresnel Inner Transparency"),
+        SlotMapping("Fresnel Inner Transparency Max Tint"),
+        SlotMapping("Fresnel Outer Transparency"),
+        SlotMapping("Glass thickness", "Glass Thickness"),
+    ],
+    vectors=[
+        SlotMapping("ColorFront", "Color"),
     ]
 )
 
@@ -467,6 +484,12 @@ class ImportTask:
         if material_data.get("AbsoluteParent") == "M_FN_Valet_Master":
             shader_node.node_tree = bpy.data.node_groups.get("FP Valet")
             socket_mappings = valet_mappings
+            
+        if material_data.get("UseGlassMaterial"):
+            shader_node.node_tree = bpy.data.node_groups.get("FP Glass")
+            socket_mappings = glass_mappings
+            material.blend_method = "BLEND"
+            material.show_transparent_back = False
 
         for texture in textures:
             texture_param(texture)
@@ -514,9 +537,6 @@ class ImportTask:
                 shader_node.inputs["SwizzleRoughnessToGreen"].default_value = 1
 
             if get_param(switches, "Use Vertex Colors for Mask"):
-                material.blend_method = "CLIP"
-                material.shadow_method = "CLIP"
-
                 color_node = nodes.new(type="ShaderNodeVertexColor")
                 color_node.location = [-400, -560]
                 color_node.layer_name = "COL0"

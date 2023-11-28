@@ -59,6 +59,7 @@ public record ExportMaterial : ExportParameterContainer
     public string Path;
     public string Name;
     public string? AbsoluteParent;
+    public bool UseGlassMaterial;
     public int Slot;
     
     public T Copy<T>() where T : ExportMaterial, new()

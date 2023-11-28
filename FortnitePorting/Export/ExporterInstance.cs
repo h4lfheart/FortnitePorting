@@ -383,13 +383,15 @@ public class ExporterInstance
         var hash = material.GetPathName().GetHashCode();
         if (MaterialCache.FirstOrDefault(mat => mat.Hash == hash) is { } existing) return existing.Copy<T>() with { Slot = index };
 
+        var absoluteParent = GetAbsoluteParent(material);
         var exportMaterial = new T
         {
             Path = material.GetPathName(),
             Name = material.Name,
             Slot = index,
             Hash = hash,
-            AbsoluteParent = GetAbsoluteParent(material)?.Name
+            AbsoluteParent = absoluteParent?.Name,
+            UseGlassMaterial = absoluteParent is { BlendMode: EBlendMode.BLEND_Translucent, TranslucencyLightingMode: ETranslucencyLightingMode.TLM_SurfacePerPixelLighting }
         };
 
         AccumulateParameters(material, ref exportMaterial);
@@ -421,11 +423,11 @@ public class ExporterInstance
         return exportParams;
     }
 
-    public UMaterialInterface? GetAbsoluteParent(UMaterialInterface? materialInterface)
+    public UMaterial? GetAbsoluteParent(UMaterialInterface? materialInterface)
     {
         var parent = materialInterface;
         while (parent is UMaterialInstanceConstant materialInstance) parent = materialInstance.Parent as UMaterialInterface;
-        return parent;
+        return parent as UMaterial;
     }
 
     public void AccumulateParameters<T>(UMaterialInterface? materialInterface, ref T exportMaterial) where T : ExportParameterContainer
