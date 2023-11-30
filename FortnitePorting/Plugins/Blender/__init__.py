@@ -1,6 +1,5 @@
 import bpy
 import traceback
-from . import ue_format as ueformat
 from .logger import Log
 from .server import Server
 from .import_task import ImportTask
@@ -22,9 +21,6 @@ def message_box(message = "", title = "Message Box", icon = 'INFO'):
 	bpy.context.window_manager.popup_menu(draw, title = title, icon = icon)
 
 def register():
-	import importlib
-	importlib.reload(ueformat)
-	ueformat.register()
 
 	global server
 	server = Server()
@@ -45,7 +41,6 @@ def register():
 	bpy.app.timers.register(import_handler, persistent=True)
 
 def unregister():
-	ueformat.unregister()
 	server.stop()
 
 if __name__ == "__main__":

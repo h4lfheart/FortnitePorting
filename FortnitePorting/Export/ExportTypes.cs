@@ -31,7 +31,21 @@ public class ExportHeadMeta : ExportPartMeta
 {
     public Dictionary<ECustomHatType, string> MorphNames = new();
     public FLinearColor SkinColor;
+    public List<PoseData> PoseData = new();
 }
+
+public class PoseData
+{
+    public string Name;
+    public List<PoseKey> Keys = new();
+
+    public PoseData(string name)
+    {
+        Name = name;
+    }
+}
+
+public record PoseKey(string Name, FVector Location, FQuat Rotation, FVector Scale);
 
 public class ExportAttachMeta : ExportPartMeta
 {

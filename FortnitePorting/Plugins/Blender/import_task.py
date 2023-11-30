@@ -5,7 +5,7 @@ import re
 from enum import Enum
 from math import radians
 from mathutils import Matrix, Vector, Euler, Quaternion
-from . import ue_format as ueformat
+from .ue_format import UEFormatImport, UEModelOptions
 
 
 class MappingCollection:
@@ -198,7 +198,6 @@ class ImportTask:
         type = data.get("Type")
         if self.options.get("ImportCollection"):
             create_collection(name)
-        SlotMapping("Diffuse", "Diffuse", (-300, -75))
 
         meshes = meshes = data.get("Meshes")
         if type in ["Outfit", "Backpack"]:
@@ -211,8 +210,9 @@ class ImportTask:
             out_props = {}
             for mesh in meshes:
                 meta = mesh.get("Meta")
-                if found_key := first(meta.keys(), lambda key: key in search_props):
-                    out_props[found_key] = meta.get(found_key)
+                for search_prop in search_props:
+                    if found_key := first(meta.keys(), lambda key: key == search_prop):
+                        out_props[found_key] = meta.get(found_key)
             return out_props
 
         imported_meshes = []
@@ -242,7 +242,7 @@ class ImportTask:
                 case "Body":
                     meta = get_meta(["SkinColor"])
                 case "Head":
-                    meta = get_meta(["MorphNames", "HatType"])
+                    meta = get_meta(["MorphNames", "HatType", "PoseData"])
 
                     shape_keys = imported_mesh.data.shape_keys
                     if (morph_name := meta.get("MorphNames").get(meta.get("HatType"))) and shape_keys is not None:
@@ -607,8 +607,12 @@ class ImportTask:
     def import_mesh(self, path: str):
         path = path[1:] if path.startswith("/") else path
         mesh_path = os.path.join(self.assets_folder, path.split(".")[0] + ".uemodel")
+        
+        options = UEModelOptions(scale_down=self.options.get("ScaleDown"),
+                                 reorient_bones=self.options.get("ReorientBones"),
+                                 bone_length=self.options.get("BoneLength"))
 
-        return ueformat.import_file(mesh_path)
+        return UEFormatImport(options).import_file(mesh_path)
 
 
 class HatType(Enum):
@@ -678,6 +682,10 @@ def make_vector(data, mirror_y=False):
     return Vector((data.get("X"), data.get("Y") * (-1 if mirror_y else 1), data.get("Z")))
 
 
+def make_quat(data):
+    return Quaternion((data.get("W"), data.get("X"), data.get("Y"), data.get("Z")))
+
+
 def make_euler(data):
     return Euler((radians(data.get("Roll")), -radians(data.get("Pitch")), -radians(data.get("Yaw"))))
 
@@ -704,6 +712,12 @@ def any(target, expr):
 
     filtered = list(filter(expr, target))
     return len(filtered) > 0
+
+
+def get_case_insensitive(source, string):
+    for item in source:
+        if item.name.casefold() == string.casefold():
+            return item
 
 
 def replace_or_add_parameter(list, replace_item):

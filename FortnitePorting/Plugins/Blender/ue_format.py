@@ -12,6 +12,7 @@ import gzip
 import json
 from mathutils import Vector, Matrix, Quaternion, Euler
 from math import *
+from enum import IntEnum, auto
 
 try:
     import zstd
@@ -100,7 +101,7 @@ class UFImportUEModel(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
 
     def execute(self, context):
         for file in self.files:
-            import_file(os.path.join(self.directory, file.name))
+            UEFormatImport().import_file(os.path.join(self.directory, file.name))
         return {'FINISHED'}
 
     def draw(self, context):
@@ -120,7 +121,7 @@ class UFImportUEAnim(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
 
     def execute(self, context):
         for file in self.files:
-            import_file(os.path.join(self.directory, file.name))
+            UEFormatImport().import_file(os.path.join(self.directory, file.name))
         return {'FINISHED'}
 
     def draw(self, context):
@@ -140,7 +141,7 @@ class UFImportUEWorld(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
 
     def execute(self, context):
         for file in self.files:
-            import_file(os.path.join(self.directory, file.name))
+            UEFormatImport().import_file(os.path.join(self.directory, file.name))
         return {'FINISHED'}
 
     def draw(self, context):
@@ -211,11 +212,16 @@ def get_active_armature():
 
 class Log:
     INFO = u"\u001b[36m"
+    ERROR = u"\u001b[33m"
     RESET = u"\u001b[0m"
 
     @staticmethod
     def info(message):
         print(f"{Log.INFO}[UEFORMAT] {Log.RESET}{message}")
+
+    @staticmethod
+    def error(message):
+        print(f"{Log.ERROR}[UEFORMAT] {Log.RESET}{message}")
 
 
 class FArchiveReader:
@@ -274,9 +280,6 @@ class FArchiveReader:
     def read_float_vector(self, size: int):
         return struct.unpack(str(size) + "f", self.data.read(size * 4))
 
-    def read_byte(self):
-        return struct.unpack("c", self.data.read(1))
-
     def read_byte_vector(self, size: int):
         return struct.unpack(str(size) + "B", self.data.read(size))
 
@@ -292,6 +295,380 @@ class FArchiveReader:
         for counter in range(count):
             array.append(predicate(self))
         return array
+
+
+MAGIC = "UEFORMAT"
+MODEL_IDENTIFIER = "UEMODEL"
+ANIM_IDENTIFIER = "UEANIM"
+WORLD_IDENTIFIER = "UEWORLD"
+
+class EUEFormatVersion(IntEnum):
+    BeforeCustomVersionWasAdded = 0
+    SerializeBinormalSign = 1
+
+    VersionPlusOne = auto()
+    LatestVersion = VersionPlusOne - 1
+
+class UEFormatOptions:
+    pass
+
+class UEModelOptions(UEFormatOptions):
+
+    def __init__(self, scale_down=True, bone_length=4.0, reorient_bones=False):
+        self.scale_down = scale_down
+        self.scale_factor = 0.01 if scale_down else 1.0
+        self.bone_length = bone_length
+        self.reorient_bones = reorient_bones
+
+
+class UEAnimOptions(UEFormatOptions):
+
+    def __init__(self, rotation_only=False):
+        self.rotation_only = rotation_only
+
+
+class UEWorldOptions(UEFormatOptions):
+
+    def __init__(self, instance_meshes=True):
+        self.instance_meshes = instance_meshes
+
+
+class UEFormatImport:
+
+    def __init__(self, options=UEFormatOptions()):
+        self.options = options
+
+    def import_file(self, path: str):
+        with open(path, 'rb') as file:
+            return self.import_data(file.read())
+
+    def import_data(self, data, link_model: bool = True):
+        with FArchiveReader(data) as ar:
+            magic = ar.read_string(len(MAGIC))
+            if magic != MAGIC:
+                return
+
+            identifier = ar.read_fstring()
+            self.file_version = EUEFormatVersion(int.from_bytes(ar.read_byte(), byteorder="big"))
+            if self.file_version > EUEFormatVersion.LatestVersion:
+                Log.error(f"File Version {self.file_version} is not supported for this version of the importer.")
+                return
+            object_name = ar.read_fstring()
+            Log.info(f"Importing {object_name}")
+
+            read_archive = ar
+            is_compressed = ar.read_bool()
+            if is_compressed:
+                compression_type = ar.read_fstring()
+                uncompressed_size = ar.read_int()
+                compressed_size = ar.read_int()
+
+                if compression_type == "GZIP":
+                    read_archive = FArchiveReader(gzip.decompress(ar.read_to_end()))
+                elif compression_type == "ZSTD":
+                    read_archive = FArchiveReader(zstd.ZSTD_uncompress(ar.read_to_end()))
+                else:
+                    Log.info(f"Unknown Compression Type: {compression_type}")
+                    return
+
+            if identifier == MODEL_IDENTIFIER:
+                return self.import_uemodel_data(read_archive, object_name, link_model)
+            elif identifier == ANIM_IDENTIFIER:
+                return self.import_ueanim_data(read_archive, object_name)
+            elif identifier == WORLD_IDENTIFIER:
+                return self.import_ueworld_data(read_archive, object_name)
+
+    def import_uemodel_data(self, ar: FArchiveReader, name: str, link: bool):
+        data = UEModel()
+
+        while not ar.eof():
+            header_name = ar.read_fstring()
+            array_size = ar.read_int()
+            byte_size = ar.read_int()
+            if header_name == "VERTICES":
+                data.vertices = ar.read_array(array_size, lambda ar: [vert * self.options.scale_factor for vert in
+                                                                      ar.read_float_vector(3)])
+            elif header_name == "INDICES":
+                data.indices = ar.read_array(int(array_size / 3), lambda ar: ar.read_int_vector(3))
+            elif header_name == "NORMALS":
+                def read_normals(ar):
+                    if self.file_version >= EUEFormatVersion.SerializeBinormalSign:
+                        binormal_sign = ar.read_float()
+                        
+                    return ar.read_float_vector(3)
+                
+                data.normals = ar.read_array(array_size, lambda ar: read_normals(ar))
+            elif header_name == "TANGENTS":
+                data.tangents = ar.read_array(array_size, lambda ar: ar.read_float_vector(3))
+            elif header_name == "VERTEXCOLORS":
+                data.colors = ar.read_array(array_size, lambda ar: ar.read_byte_vector(4))
+            elif header_name == "TEXCOORDS":
+                data.uvs = ar.read_array(array_size,
+                                         lambda ar: ar.read_array(ar.read_int(), lambda ar: ar.read_float_vector(2)))
+            elif header_name == "MATERIALS":
+                data.materials = ar.read_array(array_size, lambda ar: Material(ar))
+            elif header_name == "WEIGHTS":
+                data.weights = ar.read_array(array_size, lambda ar: Weight(ar))
+            elif header_name == "BONES":
+                data.bones = ar.read_array(array_size, lambda ar: Bone(ar, self.options.scale_factor))
+            elif header_name == "MORPHTARGETS":
+                data.morphs = ar.read_array(array_size, lambda ar: MorphTarget(ar, self.options.scale_factor))
+            elif header_name == "SOCKETS":
+                data.sockets = ar.read_array(array_size, lambda ar: Socket(ar, self.options.scale_factor))
+            else:
+                ar.skip(byte_size)
+
+        # geometry
+        mesh_data = bpy.data.meshes.new(name)
+        mesh_data.from_pydata(data.vertices, [], data.indices)
+
+        mesh_object = bpy.data.objects.new(name, mesh_data)
+        return_object = mesh_object
+        if link:
+            bpy.context.collection.objects.link(mesh_object)
+
+        # normals
+        if len(data.normals) > 0:
+            mesh_data.polygons.foreach_set("use_smooth", [True] * len(mesh_data.polygons))
+            mesh_data.normals_split_custom_set_from_vertices(data.normals)
+            if bpy.app.version < (4, 1, 0):
+                mesh_data.use_auto_smooth = True
+
+        # weights
+        if len(data.weights) > 0 and len(data.bones) > 0:
+            for weight in data.weights:
+                bone_name = data.bones[weight.bone_index].name
+                vertex_group = mesh_object.vertex_groups.get(bone_name)
+                if not vertex_group:
+                    vertex_group = mesh_object.vertex_groups.new(name=bone_name)
+                vertex_group.add([weight.vertex_index], weight.weight, 'ADD')
+
+        # morph targets
+        if len(data.morphs) > 0:
+            default_key = mesh_object.shape_key_add(from_mix=False)
+            default_key.name = "Default"
+            default_key.interpolation = 'KEY_LINEAR'
+
+            for morph in data.morphs:
+                key = mesh_object.shape_key_add(from_mix=False)
+                key.name = morph.name
+                key.interpolation = 'KEY_LINEAR'
+
+                for delta in morph.deltas:
+                    key.data[delta.vertex_index].co += Vector(delta.position)
+
+        # vertex colors
+        if len(data.colors) > 0:
+            vertex_color = mesh_data.color_attributes.new(domain='CORNER', type='BYTE_COLOR', name="COL0")
+            for polygon in mesh_data.polygons:
+                for vertex_index, loop_index in zip(polygon.vertices, polygon.loop_indices):
+                    color = data.colors[vertex_index]
+                    vertex_color.data[loop_index].color = color[0] / 255, color[1] / 255, color[2] / 255, color[3] / 255
+
+        # texture coordinates
+        if len(data.uvs) > 0:
+            for index, uvs in enumerate(data.uvs):
+                uv_layer = mesh_data.uv_layers.new(name="UV" + str(index))
+                for polygon in mesh_data.polygons:
+                    for vertex_index, loop_index in zip(polygon.vertices, polygon.loop_indices):
+                        uv_layer.data[loop_index].uv = uvs[vertex_index]
+
+        # materials
+        if len(data.materials) > 0:
+            for i, material in enumerate(data.materials):
+                mat = bpy.data.materials.get(material.material_name)
+                if mat is None:
+                    mat = bpy.data.materials.new(name=material.material_name)
+                mesh_data.materials.append(mat)
+
+                start_face_index = (material.first_index // 3)
+                end_face_index = start_face_index + material.num_faces
+                for face_index in range(start_face_index, end_face_index):
+                    mesh_data.polygons[face_index].material_index = i
+
+        # skeleton
+        if len(data.bones) > 0 or len(data.sockets) > 0:
+            armature_data = bpy.data.armatures.new(name=name)
+            armature_data.display_type = 'STICK'
+
+            armature_object = bpy.data.objects.new(name + "_Skeleton", armature_data)
+            armature_object.show_in_front = True
+            return_object = armature_object
+
+            if link:
+                bpy.context.collection.objects.link(armature_object)
+            bpy.context.view_layer.objects.active = armature_object
+            armature_object.select_set(True)
+
+            mesh_object.parent = armature_object
+
+        if len(data.bones) > 0:
+            # create bones
+            bpy.ops.object.mode_set(mode='EDIT')
+            edit_bones = armature_data.edit_bones
+            for bone in data.bones:
+                bone_pos = Vector(bone.position)
+                bone_rot = Quaternion(
+                    (bone.rotation[3], bone.rotation[0], bone.rotation[1], bone.rotation[2]))  # xyzw -> wxyz
+
+                edit_bone = edit_bones.new(bone.name)
+                edit_bone.length = self.options.bone_length * self.options.scale_factor
+
+                bone_matrix = Matrix.Translation(bone_pos) @ bone_rot.to_matrix().to_4x4()
+
+                if bone.parent_index >= 0:
+                    parent_bone = edit_bones.get(data.bones[bone.parent_index].name)
+                    edit_bone.parent = parent_bone
+                    bone_matrix = parent_bone.matrix @ bone_matrix
+
+                edit_bone.matrix = bone_matrix
+
+            bpy.ops.object.mode_set(mode='OBJECT')
+
+            # armature modifier
+            armature_modifier = mesh_object.modifiers.new(armature_object.name, type='ARMATURE')
+            armature_modifier.show_expanded = False
+            armature_modifier.use_vertex_groups = True
+            armature_modifier.object = armature_object
+
+            # bone colors
+            for bone in armature_object.pose.bones:
+                if mesh_object.vertex_groups.get(bone.name) is None:
+                    bone.color.palette = 'THEME14'
+                    continue
+
+                if len(bone.children) == 0:
+                    bone.color.palette = 'THEME03'
+
+        # sockets
+        if len(data.sockets) > 0:
+            # create sockets
+            bpy.ops.object.mode_set(mode='EDIT')
+            for socket in data.sockets:
+                socket_bone = edit_bones.new(socket.name)
+                parent_bone = get_case_insensitive(edit_bones, socket.parent_name)
+                if parent_bone is None:
+                    continue
+                socket_bone.parent = parent_bone
+                socket_bone.length = self.options.bone_length * self.options.scale_factor
+                socket_bone.matrix = parent_bone.matrix @ Matrix.Translation(socket.position) @ Quaternion((
+                                                                                                           socket.rotation[
+                                                                                                               3],
+                                                                                                           socket.rotation[
+                                                                                                               0],
+                                                                                                           socket.rotation[
+                                                                                                               1],
+                                                                                                           socket.rotation[
+                                                                                                               2])).to_matrix().to_4x4()  # xyzw -> wxyz
+
+            bpy.ops.object.mode_set(mode='OBJECT')
+
+            # socket colors
+            for socket in data.sockets:
+                socket_bone = armature_object.pose.bones.get(socket.name)
+                if socket_bone is not None:
+                    socket_bone.color.palette = 'THEME05'
+
+        return return_object
+
+    def import_ueanim_data(self, ar: FArchiveReader, name: str):
+        data = UEAnim()
+
+        data.num_frames = ar.read_int()
+        data.frames_per_second = ar.read_float()
+
+        while not ar.eof():
+            header_name = ar.read_fstring()
+            array_size = ar.read_int()
+            byte_size = ar.read_int()
+
+            if header_name == "TRACKS":
+                data.tracks = ar.read_array(array_size, lambda ar: Track(ar, self.options.scale_factor))
+            elif header_name == "CURVES":
+                data.curves = ar.read_array(array_size, lambda ar: Curve(ar))
+            else:
+                ar.skip(byte_size)
+
+        armature = get_active_armature()
+
+        action = bpy.data.actions.new(name=name)
+        armature.animation_data_create()
+        armature.animation_data.action = action
+
+        # bone anim data
+        pose_bones = armature.pose.bones
+        for track in data.tracks:
+            bone = get_case_insensitive(pose_bones, track.name)
+            if bone is None:
+                continue
+
+            def create_fcurves(name, count, key_count):
+                path = bone.path_from_id(name)
+                curves = []
+                for i in range(count):
+                    curve = action.fcurves.new(path, index=i)
+                    curve.keyframe_points.add(key_count)
+                    curves.append(curve)
+                return curves
+
+            def add_key(curves, vector, key_index, frame):
+                for i in range(len(vector)):
+                    curves[i].keyframe_points[key_index].co = frame, vector[i]
+                    curves[i].keyframe_points[key_index].interpolation = "LINEAR"
+
+            if not self.options.rotation_only:
+                loc_curves = create_fcurves("location", 3, len(track.position_keys))
+                scale_curves = create_fcurves("scale", 3, len(track.scale_keys))
+                for index, key in enumerate(track.position_keys):
+                    pos = key.get_vector()
+                    if bone.parent is None:
+                        bone.matrix.translation = pos
+                    else:
+                        bone.matrix.translation = bone.parent.matrix @ pos
+                    add_key(loc_curves, bone.location, index, key.frame)
+
+                for index, key in enumerate(track.scale_keys):
+                    add_key(scale_curves, key.value, index, key.frame)
+
+            rot_curves = create_fcurves("rotation_quaternion", 4, len(track.rotation_keys))
+            for index, key in enumerate(track.rotation_keys):
+                rot = key.get_quat()
+                if bone.parent is None:
+                    bone.rotation_quaternion = rot
+                else:
+                    bone.matrix = bone.parent.matrix @ rot.to_matrix().to_4x4()
+                add_key(rot_curves, bone.rotation_quaternion, index, key.frame)
+
+            bone.matrix_basis.identity()
+
+    def import_ueworld_data(self, ar: FArchiveReader, name: str):
+        data = UEWorld()
+
+        while not ar.eof():
+            header_name = ar.read_fstring()
+            array_size = ar.read_int()
+            byte_size = ar.read_int()
+
+            if header_name == "MESHES":
+                data.meshes = ar.read_array(array_size, lambda ar: HashedMesh(ar))
+            elif header_name == "ACTORS":
+                data.actors = ar.read_array(array_size, lambda ar: Actor(ar))
+            else:
+                ar.skip(byte_size)
+
+        mesh_map = {}
+        for mesh in data.meshes:
+            mesh_map[mesh.hash_number] = self.import_data(mesh.data, False)
+
+        for actor in data.actors:
+            mesh = mesh_map[actor.mesh_hash]
+            mesh_data = mesh.data if self.options.instance_meshes else mesh.data.copy()
+            obj = bpy.data.objects.new(actor.name, mesh_data)
+            obj.location = actor.position
+            obj.rotation_mode = 'XYZ'
+            obj.rotation_euler = [radians(actor.rotation[2]), radians(actor.rotation[0]), radians(actor.rotation[1])]
+            obj.scale = actor.scale
+            bpy.context.scene.collection.objects.link(obj)
 
 
 class UEModel:
@@ -325,10 +702,10 @@ class Bone:
     position = []
     rotation = []
 
-    def __init__(self, ar: FArchiveReader):
+    def __init__(self, ar: FArchiveReader, scale):
         self.name = ar.read_fstring()
         self.parent_index = ar.read_int()
-        self.position = [pos * bpy.context.scene.uf_settings.scale for pos in ar.read_float_vector(3)]
+        self.position = [pos * scale for pos in ar.read_float_vector(3)]
         self.rotation = ar.read_float_vector(4)
 
 
@@ -347,10 +724,10 @@ class MorphTarget:
     name = ""
     deltas = []
 
-    def __init__(self, ar: FArchiveReader):
+    def __init__(self, ar: FArchiveReader, scale):
         self.name = ar.read_fstring()
 
-        self.deltas = ar.read_bulk_array(lambda ar: MorphTargetData(ar))
+        self.deltas = ar.read_bulk_array(lambda ar: MorphTargetData(ar, scale))
 
 
 class MorphTargetData:
@@ -358,8 +735,8 @@ class MorphTargetData:
     normals = []
     vertex_index = -1
 
-    def __init__(self, ar: FArchiveReader):
-        self.position = [pos * bpy.context.scene.uf_settings.scale for pos in ar.read_float_vector(3)]
+    def __init__(self, ar: FArchiveReader, scale):
+        self.position = [pos * scale for pos in ar.read_float_vector(3)]
         self.normals = ar.read_float_vector(3)
         self.vertex_index = ar.read_int()
 
@@ -371,10 +748,10 @@ class Socket:
     rotation = []
     scale = []
 
-    def __init__(self, ar: FArchiveReader):
+    def __init__(self, ar: FArchiveReader, scale):
         self.name = ar.read_fstring()
         self.parent_name = ar.read_fstring()
-        self.position = [pos * bpy.context.scene.uf_settings.scale for pos in ar.read_float_vector(3)]
+        self.position = [pos * scale for pos in ar.read_float_vector(3)]
         self.rotation = ar.read_float_vector(4)
         self.scale = ar.read_float_vector(3)
 
@@ -401,9 +778,9 @@ class Track:
     rotation_keys = []
     scale_keys = []
 
-    def __init__(self, ar: FArchiveReader):
+    def __init__(self, ar: FArchiveReader, scale):
         self.name = ar.read_fstring()
-        self.position_keys = ar.read_bulk_array(lambda ar: VectorKey(ar, bpy.context.scene.uf_settings.scale))
+        self.position_keys = ar.read_bulk_array(lambda ar: VectorKey(ar, scale))
         self.rotation_keys = ar.read_bulk_array(lambda ar: QuatKey(ar))
         self.scale_keys = ar.read_bulk_array(lambda ar: VectorKey(ar))
 
@@ -468,346 +845,9 @@ class Actor:
     rotation = []
     scale = []
 
-    def __init__(self, ar: FArchiveReader):
+    def __init__(self, ar: FArchiveReader, scale):
         self.mesh_hash = ar.read_int()
         self.name = ar.read_fstring()
-        self.position = [pos * bpy.context.scene.uf_settings.scale for pos in ar.read_float_vector(3)]
+        self.position = [pos * scale for pos in ar.read_float_vector(3)]
         self.rotation = ar.read_float_vector(3)
         self.scale = ar.read_float_vector(3)
-
-
-# ---------- IMPORT FUNCTIONS ---------- #
-
-MAGIC = "UEFORMAT"
-MODEL_IDENTIFIER = "UEMODEL"
-ANIM_IDENTIFIER = "UEANIM"
-WORLD_IDENTIFIER = "UEWORLD"
-
-
-def import_file(path: str):
-    with open(path, 'rb') as file:
-        return import_data(file.read())
-
-
-def import_data(data, link_model: bool = True):
-    with FArchiveReader(data) as ar:
-        magic = ar.read_string(len(MAGIC))
-        if magic != MAGIC:
-            return
-
-        identifier = ar.read_fstring()
-        file_version = ar.read_byte()
-        object_name = ar.read_fstring()
-        Log.info(f"Importing {object_name}")
-
-        read_archive = ar
-        is_compressed = ar.read_bool()
-        if is_compressed:
-            compression_type = ar.read_fstring()
-            uncompressed_size = ar.read_int()
-            compressed_size = ar.read_int()
-
-            if compression_type == "GZIP":
-                read_archive = FArchiveReader(gzip.decompress(ar.read_to_end()))
-            elif compression_type == "ZSTD":
-                read_archive = FArchiveReader(zstd.ZSTD_uncompress(ar.read_to_end()))
-            else:
-                Log.info(f"Unknown Compression Type: {compression_type}")
-                return
-
-        if identifier == MODEL_IDENTIFIER:
-            return import_uemodel_data(read_archive, object_name, link_model)
-        elif identifier == ANIM_IDENTIFIER:
-            return import_ueanim_data(read_archive, object_name)
-        elif identifier == WORLD_IDENTIFIER:
-            return import_ueworld_data(read_archive, object_name)
-
-
-def import_uemodel_data(ar: FArchiveReader, name: str, link: bool):
-    data = UEModel()
-
-    while not ar.eof():
-        header_name = ar.read_fstring()
-        array_size = ar.read_int()
-        byte_size = ar.read_int()
-        if header_name == "VERTICES":
-            data.vertices = ar.read_array(array_size, lambda ar: [vert * bpy.context.scene.uf_settings.scale for vert in
-                                                                  ar.read_float_vector(3)])
-        elif header_name == "INDICES":
-            data.indices = ar.read_array(int(array_size / 3), lambda ar: ar.read_int_vector(3))
-        elif header_name == "NORMALS":
-            data.normals = ar.read_array(array_size, lambda ar: ar.read_float_vector(3))
-        elif header_name == "TANGENTS":
-            data.tangents = ar.read_array(array_size, lambda ar: ar.read_float_vector(3))
-        elif header_name == "VERTEXCOLORS":
-            data.colors = ar.read_array(array_size, lambda ar: ar.read_byte_vector(4))
-        elif header_name == "TEXCOORDS":
-            data.uvs = ar.read_array(array_size,
-                                     lambda ar: ar.read_array(ar.read_int(), lambda ar: ar.read_float_vector(2)))
-        elif header_name == "MATERIALS":
-            data.materials = ar.read_array(array_size, lambda ar: Material(ar))
-        elif header_name == "WEIGHTS":
-            data.weights = ar.read_array(array_size, lambda ar: Weight(ar))
-        elif header_name == "BONES":
-            data.bones = ar.read_array(array_size, lambda ar: Bone(ar))
-        elif header_name == "MORPHTARGETS":
-            data.morphs = ar.read_array(array_size, lambda ar: MorphTarget(ar))
-        elif header_name == "SOCKETS":
-            data.sockets = ar.read_array(array_size, lambda ar: Socket(ar))
-        else:
-            ar.skip(byte_size)
-
-    # geometry
-    mesh_data = bpy.data.meshes.new(name)
-    mesh_data.from_pydata(data.vertices, [], data.indices)
-
-    mesh_object = bpy.data.objects.new(name, mesh_data)
-    return_object = mesh_object
-    if link:
-        bpy.context.collection.objects.link(mesh_object)
-
-    # normals
-    if len(data.normals) > 0:
-        mesh_data.polygons.foreach_set("use_smooth", [True] * len(mesh_data.polygons))
-        mesh_data.normals_split_custom_set_from_vertices(data.normals)
-        if bpy.app.version < (4, 1, 0):
-            mesh_data.use_auto_smooth = True
-
-    # weights
-    if len(data.weights) > 0 and len(data.bones) > 0:
-        for weight in data.weights:
-            bone_name = data.bones[weight.bone_index].name
-            vertex_group = mesh_object.vertex_groups.get(bone_name)
-            if not vertex_group:
-                vertex_group = mesh_object.vertex_groups.new(name=bone_name)
-            vertex_group.add([weight.vertex_index], weight.weight, 'ADD')
-
-    # morph targets
-    if len(data.morphs) > 0:
-        default_key = mesh_object.shape_key_add(from_mix=False)
-        default_key.name = "Default"
-        default_key.interpolation = 'KEY_LINEAR'
-
-        for morph in data.morphs:
-            key = mesh_object.shape_key_add(from_mix=False)
-            key.name = morph.name
-            key.interpolation = 'KEY_LINEAR'
-
-            for delta in morph.deltas:
-                key.data[delta.vertex_index].co += Vector(delta.position)
-
-    # vertex colors
-    if len(data.colors) > 0:
-        vertex_color = mesh_data.color_attributes.new(domain='CORNER', type='BYTE_COLOR', name="COL0")
-        for polygon in mesh_data.polygons:
-            for vertex_index, loop_index in zip(polygon.vertices, polygon.loop_indices):
-                color = data.colors[vertex_index]
-                vertex_color.data[loop_index].color = color[0] / 255, color[1] / 255, color[2] / 255, color[3] / 255
-
-    # texture coordinates
-    if len(data.uvs) > 0:
-        for index, uvs in enumerate(data.uvs):
-            uv_layer = mesh_data.uv_layers.new(name="UV" + str(index))
-            for polygon in mesh_data.polygons:
-                for vertex_index, loop_index in zip(polygon.vertices, polygon.loop_indices):
-                    uv_layer.data[loop_index].uv = uvs[vertex_index]
-
-    # materials
-    if len(data.materials) > 0:
-        for i, material in enumerate(data.materials):
-            mat = bpy.data.materials.get(material.material_name)
-            if mat is None:
-                mat = bpy.data.materials.new(name=material.material_name)
-            mesh_data.materials.append(mat)
-
-            start_face_index = (material.first_index // 3)
-            end_face_index = start_face_index + material.num_faces
-            for face_index in range(start_face_index, end_face_index):
-                mesh_data.polygons[face_index].material_index = i
-
-    # skeleton
-    if len(data.bones) > 0 or len(data.sockets) > 0:
-        armature_data = bpy.data.armatures.new(name=name)
-        armature_data.display_type = 'STICK'
-
-        armature_object = bpy.data.objects.new(name + "_Skeleton", armature_data)
-        armature_object.show_in_front = True
-        return_object = armature_object
-
-        if link:
-            bpy.context.collection.objects.link(armature_object)
-        bpy.context.view_layer.objects.active = armature_object
-        armature_object.select_set(True)
-
-        mesh_object.parent = armature_object
-
-    if len(data.bones) > 0:
-        # create bones
-        bpy.ops.object.mode_set(mode='EDIT')
-        edit_bones = armature_data.edit_bones
-        for bone in data.bones:
-            bone_pos = Vector(bone.position)
-            bone_rot = Quaternion(
-                (bone.rotation[3], bone.rotation[0], bone.rotation[1], bone.rotation[2]))  # xyzw -> wxyz
-
-            edit_bone = edit_bones.new(bone.name)
-            edit_bone.length = bpy.context.scene.uf_settings.bone_length * bpy.context.scene.uf_settings.scale
-
-            bone_matrix = Matrix.Translation(bone_pos) @ bone_rot.to_matrix().to_4x4()
-
-            if bone.parent_index >= 0:
-                parent_bone = edit_bones.get(data.bones[bone.parent_index].name)
-                edit_bone.parent = parent_bone
-                bone_matrix = parent_bone.matrix @ bone_matrix
-
-            edit_bone.matrix = bone_matrix
-
-        bpy.ops.object.mode_set(mode='OBJECT')
-
-        # armature modifier
-        armature_modifier = mesh_object.modifiers.new(armature_object.name, type='ARMATURE')
-        armature_modifier.show_expanded = False
-        armature_modifier.use_vertex_groups = True
-        armature_modifier.object = armature_object
-
-        # bone colors
-        for bone in armature_object.pose.bones:
-            if mesh_object.vertex_groups.get(bone.name) is None:
-                bone.color.palette = 'THEME14'
-                continue
-
-            if len(bone.children) == 0:
-                bone.color.palette = 'THEME03'
-
-    # sockets
-    if len(data.sockets) > 0:
-        # create sockets
-        bpy.ops.object.mode_set(mode='EDIT')
-        for socket in data.sockets:
-            socket_bone = edit_bones.new(socket.name)
-            parent_bone = get_case_insensitive(edit_bones, socket.parent_name)
-            if parent_bone is None:
-                continue
-            socket_bone.parent = parent_bone
-            socket_bone.length = bpy.context.scene.uf_settings.bone_length * bpy.context.scene.uf_settings.scale
-            socket_bone.matrix = parent_bone.matrix @ Matrix.Translation(socket.position) @ Quaternion((socket.rotation[
-                                                                                                            3],
-                                                                                                        socket.rotation[
-                                                                                                            0],
-                                                                                                        socket.rotation[
-                                                                                                            1],
-                                                                                                        socket.rotation[
-                                                                                                            2])).to_matrix().to_4x4()  # xyzw -> wxyz
-
-        bpy.ops.object.mode_set(mode='OBJECT')
-
-        # socket colors
-        for socket in data.sockets:
-            socket_bone = armature_object.pose.bones.get(socket.name)
-            if socket_bone is not None:
-                socket_bone.color.palette = 'THEME05'
-
-    return return_object
-
-
-def import_ueanim_data(ar: FArchiveReader, name: str):
-    data = UEAnim()
-
-    data.num_frames = ar.read_int()
-    data.frames_per_second = ar.read_float()
-
-    while not ar.eof():
-        header_name = ar.read_fstring()
-        array_size = ar.read_int()
-        byte_size = ar.read_int()
-
-        if header_name == "TRACKS":
-            data.tracks = ar.read_array(array_size, lambda ar: Track(ar))
-        elif header_name == "CURVES":
-            data.curves = ar.read_array(array_size, lambda ar: Curve(ar))
-        else:
-            ar.skip(byte_size)
-
-    armature = get_active_armature()
-
-    action = bpy.data.actions.new(name=name)
-    armature.animation_data_create()
-    armature.animation_data.action = action
-
-    # bone anim data
-    pose_bones = armature.pose.bones
-    for track in data.tracks:
-        bone = get_case_insensitive(pose_bones, track.name)
-        if bone is None:
-            continue
-
-        def create_fcurves(name, count, key_count):
-            path = bone.path_from_id(name)
-            curves = []
-            for i in range(count):
-                curve = action.fcurves.new(path, index=i)
-                curve.keyframe_points.add(key_count)
-                curves.append(curve)
-            return curves
-
-        def add_key(curves, vector, key_index, frame):
-            for i in range(len(vector)):
-                curves[i].keyframe_points[key_index].co = frame, vector[i]
-                curves[i].keyframe_points[key_index].interpolation = "LINEAR"
-
-        if not bpy.context.scene.uf_settings.rotation_only:
-            loc_curves = create_fcurves("location", 3, len(track.position_keys))
-            scale_curves = create_fcurves("scale", 3, len(track.scale_keys))
-        rot_curves = create_fcurves("rotation_quaternion", 4, len(track.rotation_keys))
-
-        if not bpy.context.scene.uf_settings.rotation_only:
-            for index, key in enumerate(track.position_keys):
-                pos = key.get_vector()
-                if bone.parent is None:
-                    bone.matrix.translation = pos
-                else:
-                    bone.matrix.translation = bone.parent.matrix @ pos
-                add_key(loc_curves, bone.location, index, key.frame)
-
-            for index, key in enumerate(track.scale_keys):
-                add_key(scale_curves, key.value, index, key.frame)
-
-        for index, key in enumerate(track.rotation_keys):
-            rot = key.get_quat()
-            if bone.parent is None:
-                bone.rotation_quaternion = rot
-            else:
-                bone.matrix = bone.parent.matrix @ rot.to_matrix().to_4x4()
-            add_key(rot_curves, bone.rotation_quaternion, index, key.frame)
-
-        bone.matrix_basis.identity()
-
-
-def import_ueworld_data(ar: FArchiveReader, name: str):
-    data = UEWorld()
-
-    while not ar.eof():
-        header_name = ar.read_fstring()
-        array_size = ar.read_int()
-        byte_size = ar.read_int()
-
-        if header_name == "MESHES":
-            data.meshes = ar.read_array(array_size, lambda ar: HashedMesh(ar))
-        elif header_name == "ACTORS":
-            data.actors = ar.read_array(array_size, lambda ar: Actor(ar))
-        else:
-            ar.skip(byte_size)
-
-    mesh_map = {}
-    for mesh in data.meshes:
-        mesh_map[mesh.hash_number] = import_data(mesh.data, False)
-
-    for actor in data.actors:
-        mesh = mesh_map[actor.mesh_hash]
-        mesh_data = mesh.data if bpy.context.scene.uf_settings.instance_meshes else mesh.data.copy()
-        obj = bpy.data.objects.new(actor.name, mesh_data)
-        obj.location = actor.position
-        obj.rotation_mode = 'XYZ'
-        obj.rotation_euler = [radians(actor.rotation[2]), radians(actor.rotation[0]), radians(actor.rotation[1])]
-        obj.scale = actor.scale
-        bpy.context.scene.collection.objects.link(obj)

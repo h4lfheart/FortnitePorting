@@ -16,11 +16,10 @@ using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
-using CUE4Parse.UE4.Assets.Readers;
 using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.Engine;
+using CUE4Parse.UE4.Objects.Engine.Animation;
 using CUE4Parse.UE4.Objects.UObject;
-using CUE4Parse.UE4.Readers;
 using CUE4Parse.Utils;
 using FortnitePorting.Application;
 using FortnitePorting.Extensions;
@@ -78,6 +77,16 @@ public class ExporterInstance
                         var colorPairs = skinColorSwatch.GetOrDefault("ColorPairs", Array.Empty<FStructFallback>());
                         var skinColorPair = colorPairs.FirstOrDefault(x => x.Get<FName>("ColorName").Text.Equals("Skin Boost Color and Exponent", StringComparison.OrdinalIgnoreCase));
                         if (skinColorPair is not null) meta.SkinColor = skinColorPair.Get<FLinearColor>("ColorValue");
+                    }
+
+                    if (additionalData.TryGetValue(out UAnimBlueprintGeneratedClass animBlueprint, "AnimClass"))
+                    {
+                        var animBlueprintData = animBlueprint.ClassDefaultObject.Load()!;
+                        if (animBlueprintData.TryGetValue(out FStructFallback poseAssetNode, "AnimGraphNode_PoseBlendNode"))
+                        {
+                            var poseAsset = poseAssetNode.Get<UPoseAsset>("PoseAsset");
+                            Log.Information(poseAsset.GetPathName());
+                        }
                     }
 
                     exportPart.Meta = meta;
