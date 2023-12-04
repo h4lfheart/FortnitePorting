@@ -6,12 +6,12 @@ class Log:
 
 	@classmethod
 	def info(cls, message):
-		print(f"{Log.INFO}[INFO] {Log.RESET}{message}")
+		print(f"{Log.INFO}[FNPORTING] {Log.RESET}{message}")
 
 	@classmethod
 	def warn(cls, message):
-		print(f"{Log.WARNING}[WARN] {Log.RESET}{message}")
+		print(f"{Log.WARNING}[FNPORTING] {Log.RESET}{message}")
 		
 	@classmethod
 	def error(cls, message):
-		print(f"{Log.WARNING}[ERROR] {Log.RESET}{message}")
+		print(f"{Log.ERROR}[FNPORTING] {Log.RESET}{message}")

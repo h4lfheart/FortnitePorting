@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
+using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.Utils;
 using DynamicData;
 using DynamicData.Binding;
@@ -20,7 +22,7 @@ using ReactiveUI;
 
 namespace FortnitePorting.ViewModels;
 
-public partial class MeshesViewModel : ViewModelBase
+public partial class FilesViewModel : ViewModelBase
 {
     [ObservableProperty] private EExportType exportType = EExportType.Blender;
     [ObservableProperty] private TreeNodeItem selectedTreeItem;
@@ -96,7 +98,7 @@ public partial class MeshesViewModel : ViewModelBase
 
     public override async Task Initialize()
     {
-        HomeVM.Update("Loading Meshes");
+        HomeVM.Update("Loading Files");
 
         AssetsToLoad = new HashSet<string>();
         AssetsToRemove = CUE4ParseVM.AssetRegistry.Select(x => CUE4ParseVM.Provider.FixPath(x.ObjectPath) + ".uasset").ToHashSet();
@@ -108,7 +110,7 @@ public partial class MeshesViewModel : ViewModelBase
         HomeVM.Update(string.Empty);
     }
 
-    public async Task LoadMeshes()
+    public async Task LoadFiles()
     {
         if (Started) return;
         Started = true;
@@ -164,27 +166,42 @@ public partial class MeshesViewModel : ViewModelBase
     [RelayCommand]
     public async Task Export()
     {
-        var meshes = new List<UObject>();
-        var worlds = new List<UObject>();
+        var exports = new List<KeyValuePair<UObject, EAssetType>>();
         foreach (var item in SelectedExportItems)
         {
-            if (item.Path.EndsWith(".uasset"))
+            switch (item.Extension)
             {
-                meshes.Add(await CUE4ParseVM.Provider.LoadObjectAsync(item.PathWithoutExtension));
-            }
-            else if (item.Path.EndsWith(".umap"))
-            {
-                var path = item.PathWithoutExtension;
-                if (path.Contains("_Generated_"))
+                case "uasset":
                 {
-                    path += "." + path.SubstringBeforeLast("/_Generated").SubstringAfterLast("/");
+                    var asset = await CUE4ParseVM.Provider.LoadObjectAsync(item.PathWithoutExtension);
+                    var assetType = asset switch
+                    {
+                        USkeletalMesh => EAssetType.Mesh,
+                        UStaticMesh => EAssetType.Mesh,
+                        _ => EAssetType.None
+                    };
+                    
+                    if (assetType is not EAssetType.None)
+                        exports.Add(new KeyValuePair<UObject, EAssetType>(asset, assetType));
+                
+                    break;
                 }
-                worlds.Add(await CUE4ParseVM.Provider.LoadObjectAsync(path));
+                case "umap":
+                {
+                    var path = item.PathWithoutExtension;
+                    if (path.Contains("_Generated_"))
+                    {
+                        path += "." + path.SubstringBeforeLast("/_Generated").SubstringAfterLast("/");
+                    }
+
+                    var asset = await CUE4ParseVM.Provider.LoadObjectAsync(path);
+                    exports.Add(new KeyValuePair<UObject, EAssetType>(asset, EAssetType.World));
+                    break;
+                }
             }
         }
-
-        if (meshes.Count > 0) await ExportService.ExportAsync(meshes, EAssetType.Mesh, ExportType);
-        if (worlds.Count > 0) await ExportService.ExportAsync(worlds, EAssetType.World, ExportType);
+        
+        await ExportService.ExportAsync(exports, ExportType);
     }
 
     [RelayCommand]
@@ -204,11 +221,11 @@ public partial class MeshesViewModel : ViewModelBase
                 if (Math.Abs(ScanPercentage - percentage) > 0.01f) ScanPercentage = percentage;
 
                 var obj = await CUE4ParseVM.Provider.TryLoadObjectAsync(file.PathWithoutExtension);
-                if (obj is null || !ValidExportTypes.Contains(obj.ExportType)) AppSettings.Current.HiddenMeshPaths.Add(filePath);
+                if (obj is null || !ValidExportTypes.Contains(obj.ExportType)) AppSettings.Current.HiddenFilePaths.Add(filePath);
             }
 
             ScanPercentage = 100.0f;
-            AppVM.RestartWithMessage("Mesh Scanning Completed", "The mesh scanning process has finished. FortnitePorting will now restart.");
+            AppVM.RestartWithMessage("File Scanning Completed", "The file scanning process has finished. FortnitePorting will now restart.");
         });
     }
 
@@ -258,7 +275,7 @@ public partial class MeshesViewModel : ViewModelBase
         var isValidPathType = (path.EndsWith(".uasset") || path.EndsWith(".umap")) && !path.Contains(".o.");
         var isInRegistry = AssetsToRemove.Contains(path);
         var isFiltered = Filters.Any(filter => path.Contains(filter, StringComparison.OrdinalIgnoreCase));
-        var isFilteredByScan = AppSettings.Current.HiddenMeshPaths.Contains(path);
+        var isFilteredByScan = AppSettings.Current.HiddenFilePaths.Contains(path);
         return isValidPathType && !isInRegistry && !isFiltered && !isFilteredByScan;
     }
 
@@ -303,12 +320,15 @@ public partial class TreeNodeItem : ObservableObject
 public partial class FlatViewItem : ObservableObject
 {
     [ObservableProperty] private string pathWithoutExtension;
+    [ObservableProperty] private string extension;
     [ObservableProperty] private string path;
 
     public FlatViewItem(string path)
     {
         Path = path;
-        PathWithoutExtension = path.SubstringBefore(".");
+
+        PathWithoutExtension = path.SubstringBeforeLast(".");
+        Extension = path.SubstringAfterLast(".");
     }
 }
 

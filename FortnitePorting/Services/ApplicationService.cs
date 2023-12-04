@@ -19,6 +19,6 @@ public static class ApplicationService
     public static HomeViewModel HomeVM => ViewModelRegistry.Get<HomeViewModel>()!;
     public static CUE4ParseViewModel CUE4ParseVM => ViewModelRegistry.Get<CUE4ParseViewModel>()!;
     public static AssetsViewModel AssetsVM => ViewModelRegistry.Get<AssetsViewModel>()!;
-    public static MeshesViewModel MeshesVM => ViewModelRegistry.Get<MeshesViewModel>()!;
+    public static FilesViewModel FilesVM => ViewModelRegistry.Get<FilesViewModel>()!;
     public static RadioViewModel RadioVM => ViewModelRegistry.Get<RadioViewModel>()!;
 }

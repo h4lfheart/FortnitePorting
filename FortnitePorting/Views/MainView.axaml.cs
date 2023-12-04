@@ -26,7 +26,7 @@ public partial class MainView : ViewBase<MainViewModel>
 
             TaskService.Run(async () =>
             {
-                await MeshesVM.Initialize();
+                await FilesVM.Initialize();
                 ViewModel.MeshTabReady = true;
             });
 
@@ -37,7 +37,7 @@ public partial class MainView : ViewBase<MainViewModel>
     private void OnTabChanged(object? sender, EventArgs e)
     {
         ViewModel.ActiveTab = (UserControl) sender!;
-        MainWindow.Width = ViewModel.ActiveTab is AssetsView or MeshesView or RadioView && MainWindow.WindowState == WindowState.Normal ? 1280 : 1100; // assets view and meshes view use this specifically
+        MainWindow.Width = ViewModel.ActiveTab is AssetsView or FilesView or RadioView && MainWindow.WindowState == WindowState.Normal ? 1280 : 1100; // assets view and files view use this specifically
         MainWindow.UpdateLayout();
 
         if (AppSettings.Current.IsRestartRequired)

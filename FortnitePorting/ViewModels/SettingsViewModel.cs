@@ -52,7 +52,7 @@ public partial class SettingsViewModel : ViewModelBase
     // Data Storage
     [ObservableProperty] private AuthResponse? epicGamesAuth;
     [ObservableProperty] private List<string> favoritePaths = new();
-    [ObservableProperty] private HashSet<string> hiddenMeshPaths = new();
+    [ObservableProperty] private HashSet<string> hiddenFilePaths = new();
     [ObservableProperty] private HashSet<string> hiddenPropPaths = new();
     [ObservableProperty] private HashSet<string> hiddenTrapPaths = new();
     [ObservableProperty] private Dictionary<string, Dictionary<string, string>> itemMeshMappings = new();

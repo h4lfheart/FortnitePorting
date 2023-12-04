@@ -268,10 +268,10 @@ public class MeshExportData : ExportDataBase
                         var textureDatas = actor.GetAllProperties<UBuildingTextureData>("TextureData");
                         if (textureDatas.Count == 0 && actor.Template is not null) 
                             textureDatas = actor.Template.Load()!.GetAllProperties<UBuildingTextureData>("TextureData");
-                        
-                        for (var idx = 0; idx < textureDatas.Count; idx++)
+
+                        foreach (var (textureData, index) in textureDatas)
                         {
-                            exportMesh.TextureData.AddIfNotNull(Exporter.TextureData(textureDatas[idx], idx));
+                            exportMesh.TextureData.AddIfNotNull(Exporter.TextureData(textureData, index));
                         }
 
                         Meshes.AddIfNotNull(exportMesh);

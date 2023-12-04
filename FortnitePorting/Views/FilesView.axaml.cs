@@ -8,9 +8,9 @@ using FortnitePorting.ViewModels;
 
 namespace FortnitePorting.Views;
 
-public partial class MeshesView : ViewBase<MeshesViewModel>
+public partial class FilesView : ViewBase<FilesViewModel>
 {
-    public MeshesView() : base(lateInit: true)
+    public FilesView() : base(lateInit: true)
     {
         InitializeComponent();
     }
@@ -19,7 +19,7 @@ public partial class MeshesView : ViewBase<MeshesViewModel>
     {
         base.OnLoaded(e);
 
-        await ViewModel.LoadMeshes();
+        await ViewModel.LoadFiles();
     }
 
     private void OnFlatViewSelectionChanged(object? sender, SelectionChangedEventArgs e)

@@ -175,8 +175,6 @@ public class CUE4ParseViewModel : ViewModelBase
 
     private async Task LoadMappings()
     {
-        Provider.MappingsContainer = new FileUsmapTypeMappingsProvider(@"C:\Users\Max\WebstormProjects\halfheart.dev\docs\fortnite-porting\api\v1\mappings\++Fortnite+Release-28.00-CL-29915848-Shipping-Android.usmap");
-        return;
         switch (AppSettings.Current.LoadingType)
         {
             case ELoadingType.Local:

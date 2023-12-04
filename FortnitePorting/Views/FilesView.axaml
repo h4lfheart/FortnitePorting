@@ -8,8 +8,8 @@
              xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:fortnitePorting="clr-namespace:FortnitePorting"
              mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720"
-             x:Class="FortnitePorting.Views.MeshesView"
-             x:DataType="viewmodels:MeshesViewModel">
+             x:Class="FortnitePorting.Views.FilesView"
+             x:DataType="viewmodels:FilesViewModel">
     <controls:GroupBox Background="#26000000">
         <Grid>
             <Grid.RowDefinitions>
@@ -34,7 +34,7 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <TextBox Grid.Column="0" Watermark="Search" Text="{Binding SearchFilter}" HorizontalAlignment="Stretch" />
-                <Button Grid.Column="2" Content="Scan for Meshes" Command="{Binding ScanContentCommand}" />
+                <Button Grid.Column="2" Content="Scan for Files" Command="{Binding ScanContentCommand}" />
                 <TextBlock Grid.Column="4" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <TextBlock.Text>
                         <MultiBinding StringFormat="{}{0:N2}%">
@@ -62,7 +62,7 @@
                     </ScrollViewer>
                 </Grid>
             </controls:GroupBox>
-            <TextBlock Grid.Row="2" Grid.RowSpan="3" Grid.Column="0" Text="No Meshes Loaded"
+            <TextBlock Grid.Row="2" Grid.RowSpan="3" Grid.Column="0" Text="No Files Loaded"
                        IsVisible="{Binding AssetItemsTarget, Converter={x:Static ObjectConverters.IsNull}}"
                        Opacity="0.5" HorizontalAlignment="Center" VerticalAlignment="Center" />
 

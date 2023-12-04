@@ -16,6 +16,9 @@ public enum ELoadingType
 
 public enum EAssetType
 {
+    [Description("None")]
+    None,
+    
     [Description("Outfits")]
     Outfit,
     

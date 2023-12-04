@@ -5,7 +5,7 @@ namespace FortnitePorting;
 
 public static class Globals
 {
-    public const string VERSION = "2.0.0.ea-7";
+    public const string VERSION = "2.0.0.ea-8";
 
     public const string DISCORD_URL = "https://discord.gg/DZ5YFXdBA6";
     public const string GITHUB_URL = "https://github.com/halfuwu/FortnitePorting/tree/avalonia-2.0";

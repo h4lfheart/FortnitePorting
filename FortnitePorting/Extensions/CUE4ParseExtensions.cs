@@ -65,7 +65,7 @@ public static class CUE4ParseExtensions
         return false;
     }
 
-    public static List<T> GetAllProperties<T>(this IPropertyHolder holder, string name)
+    public static List<KeyValuePair<T, int>> GetAllProperties<T>(this IPropertyHolder holder, string name)
     {
         var propertyTags = new List<FPropertyTag>();
         foreach (var property in holder.Properties)
@@ -76,10 +76,11 @@ public static class CUE4ParseExtensions
             }
         }
 
-        var values = new List<T>();
+        var values = new List<KeyValuePair<T, int>>();
         foreach (var property in propertyTags)
         {
-            values.Add((T) property.Tag.GetValue(typeof(T)));
+            var propertyValue = (T) property.Tag.GetValue(typeof(T));
+            values.Add(new KeyValuePair<T, int>(propertyValue, property.ArrayIndex));
         }
 
         return values;

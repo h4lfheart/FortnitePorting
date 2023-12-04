@@ -25,9 +25,9 @@
             </TabItem>
             <TabItem IsEnabled="{Binding MeshTabReady}">
                 <TabItem.Header>
-                    <controls:MaterialIconText Text="Meshes" Icon="Cube" />
+                    <controls:MaterialIconText Text="Files" Icon="FileMultiple" />
                 </TabItem.Header>
-                <views:MeshesView />
+                <views:FilesView />
             </TabItem>
             <TabItem IsEnabled="{Binding RadioTabReady}">
                 <TabItem.Header>

@@ -90,13 +90,13 @@ public static class ExportService
         });
     }
 
-    public static async Task ExportAsync(List<UObject> assets, EAssetType assetType, EExportType exportType)
+    public static async Task ExportAsync(List<KeyValuePair<UObject, EAssetType>> assets, EExportType exportType)
     {
         await TaskService.RunAsync(async () =>
         {
             if (exportType is EExportType.Folder)
             {
-                assets.ForEach(asset => CreateExportData(asset.Name, asset, Array.Empty<FStructFallback>(), assetType, exportType));
+                assets.ForEach(kvp => CreateExportData(kvp.Key.Name, kvp.Key, Array.Empty<FStructFallback>(), kvp.Value, exportType));
                 return;
             }
 
@@ -114,7 +114,7 @@ public static class ExportService
                 return;
             }
 
-            var exportDatas = assets.Select(asset => CreateExportData(asset.Name, asset, Array.Empty<FStructFallback>(), assetType, exportType)).ToArray();
+            var exportDatas = assets.Select(kvp => CreateExportData(kvp.Key.Name, kvp.Key, Array.Empty<FStructFallback>(), kvp.Value, exportType)).ToArray();
             foreach (var exportData in exportDatas) exportData.WaitForExports();
 
             var exportResponse = CreateExportResponse(exportDatas, exportType);

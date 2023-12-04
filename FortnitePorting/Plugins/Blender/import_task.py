@@ -6,6 +6,7 @@ from enum import Enum
 from math import radians
 from mathutils import Matrix, Vector, Euler, Quaternion
 from .ue_format import UEFormatImport, UEModelOptions
+from .logger import Log
 
 
 class MappingCollection:
@@ -53,7 +54,8 @@ default_mappings = MappingCollection(
     ],
     vectors=[
         SlotMapping("Skin Boost Color And Exponent", "Skin Color", alpha_slot="Skin Boost"),
-        SlotMapping("EmissiveMultiplier", "Emission Multiplier")
+        SlotMapping("EmissiveMultiplier", "Emission Multiplier"),
+        SlotMapping("Emissive Multiplier", "Emission Multiplier")
     ],
     switches=[
         SlotMapping("SwizzleRoughnessToGreen")
@@ -216,6 +218,7 @@ class ImportTask:
             return out_props
 
         imported_meshes = []
+        imported_mesh_count = 0
         is_toon = False
 
         def import_mesh(mesh, parent=None):
@@ -577,17 +580,20 @@ class ImportTask:
                     if input := mask_node.inputs.get(name.replace("Hide ", "")):
                         input.default_value = int(value)
 
-            emission_slot = shader_node.inputs["Emission Color"]
-            emission_crop_params = [
+            emission_slot = shader_node.inputs["Emission"]
+            emission_crop_vector_params = [
                 "EmissiveUVs_RG_UpperLeftCorner_BA_LowerRightCorner",
                 "Emissive Texture UVs RG_TopLeft BA_BottomRight",
                 "Emissive 2 UV Positioning (RG)UpperLeft (BA)LowerRight",
                 "EmissiveUVPositioning (RG)UpperLeft (BA)LowerRight"
             ]
-
-            if (crop_bounds := get_param_multiple(vectors, emission_crop_params)) and get_param(switches,
-                                                                                                "CroppedEmissive") and len(
-                    emission_slot.links) > 0:
+            
+            emission_crop_switch_params = [
+                "CroppedEmissive",
+                "Manipulate Emissive Uvs"
+            ]
+            
+            if (crop_bounds := get_param_multiple(vectors, emission_crop_vector_params)) and get_param_multiple(switches, emission_crop_switch_params) and len(emission_slot.links) > 0:
                 emission_node = emission_slot.links[0].from_node
 
                 crop_texture_node = nodes.new("ShaderNodeGroup")
@@ -598,6 +604,11 @@ class ImportTask:
                 crop_texture_node.inputs["Right"].default_value = crop_bounds.get('B')
                 crop_texture_node.inputs["Bottom"].default_value = crop_bounds.get('A')
                 links.new(crop_texture_node.outputs[0], emission_node.inputs[0])
+
+
+            if get_param(switches, "Modulate Emissive with Diffuse"):
+                diffuse_node = shader_node.inputs["Diffuse"].links[0].from_node
+                links.new(diffuse_node.outputs[0], shader_node.inputs["Emission Multiplier"])
 
         if shader_node.node_tree.name == "FP Toon":
             shader_node.inputs["Brightness"].default_value = self.options.get("ToonBrightness")
