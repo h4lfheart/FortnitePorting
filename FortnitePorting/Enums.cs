@@ -18,6 +18,9 @@ public enum EAssetType
 {
     [Description("Outfits")]
     Outfit,
+    
+    [Description("Lego Outfits")]
+    LegoOutfit,
 
     [Description("Back Blings")]
     Backpack,

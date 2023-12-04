@@ -40,6 +40,11 @@
                     <Image Source="/Assets/FN/Outfit.png" Width="32" Height="32"
                            RenderOptions.BitmapInterpolationMode="HighQuality" />
                 </ToggleButton>
+                <ToggleButton ToolTip.Tip="Lego Outfits" Tag="{x:Static fortnitePorting:EAssetType.LegoOutfit}"
+                              Click="OnAssetTypeClick">
+                    <Image Source="/Assets/FN/LegoOutfit.png" Width="32" Height="32"
+                           RenderOptions.BitmapInterpolationMode="HighQuality" />
+                </ToggleButton>
                 <ToggleButton ToolTip.Tip="Back Blings" Tag="{x:Static fortnitePorting:EAssetType.Backpack}"
                               Click="OnAssetTypeClick">
                     <Image Source="/Assets/FN/Backpack.png" Width="32" Height="32"

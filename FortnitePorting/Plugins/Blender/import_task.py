@@ -9,7 +9,7 @@ from .ue_format import UEFormatImport, UEModelOptions
 
 
 class MappingCollection:
-    def __init__(self, textures=[], scalars=[], vectors=[], switches=[]):
+    def __init__(self, textures=(), scalars=(), vectors=(), switches=()):
         self.textures = textures
         self.scalars = scalars
         self.vectors = vectors

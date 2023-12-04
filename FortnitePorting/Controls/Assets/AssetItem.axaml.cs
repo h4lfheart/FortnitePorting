@@ -42,7 +42,7 @@ public partial class AssetItem : UserControl
     public Bitmap PreviewImage { get; set; }
 
 
-    public AssetItem(UObject asset, UTexture2D icon, string displayName, EAssetType type, bool isHidden = false, bool hideRarity = false)
+    public AssetItem(UObject asset, UTexture2D icon, string displayName, EAssetType type, bool isHidden = false, bool hideRarity = false, EFortRarity? rarityOverride = null)
     {
         DataContext = this;
         InitializeComponent();
@@ -54,7 +54,7 @@ public partial class AssetItem : UserControl
         ID = asset.Name;
         DisplayName = displayName.TitleCase();
         Description = asset.GetOrDefault("Description", new FText("No description.")).Text;
-        Rarity = asset.GetOrDefault("Rarity", EFortRarity.Uncommon);
+        Rarity = rarityOverride ?? asset.GetOrDefault("Rarity", EFortRarity.Uncommon);
         GameplayTags = asset.GetOrDefault<FGameplayTagContainer?>("GameplayTags");
 
         var seasonTag = GameplayTags?.GetValueOrDefault("Cosmetics.Filter.Season.")?.Text;

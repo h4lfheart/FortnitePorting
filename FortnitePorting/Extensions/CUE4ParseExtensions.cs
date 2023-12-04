@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Objects;
@@ -47,5 +49,19 @@ public static class CUE4ParseExtensions
     public static FVector ToFVector(this TIntVector3<float> vec)
     {
         return new FVector(vec.X, vec.Y, vec.Z);
+    }
+    
+    public static bool TryGetDataTableRow(this Dictionary<FName, FStructFallback> dataTable, string rowKey, StringComparison comparisonType, out FStructFallback rowValue)
+    {
+        foreach (var kvp in dataTable)
+        {
+            if (kvp.Key.IsNone || !kvp.Key.Text.Equals(rowKey, comparisonType)) continue;
+
+            rowValue = kvp.Value;
+            return true;
+        }
+
+        rowValue = default;
+        return false;
     }
 }

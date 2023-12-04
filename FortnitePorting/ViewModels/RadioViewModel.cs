@@ -123,6 +123,7 @@ public partial class RadioViewModel : ViewModelBase
         SoundOut.Stop();
         SoundOut.Initialize(SoundSource);
         SoundOut.Play();
+        SoundOut.Volume = Volume;
     }
 
     public void SetVolume(float value)

@@ -40,6 +40,11 @@ public class MeshExportData : ExportDataBase
 
                 break;
             }
+            case EAssetType.LegoOutfit:
+            {
+                throw new Exception("Lego Outfit export not supported yet.");
+                break;
+            }
             case EAssetType.Backpack:
             {
                 var parts = asset.GetOrDefault("CharacterParts", Array.Empty<UObject>());

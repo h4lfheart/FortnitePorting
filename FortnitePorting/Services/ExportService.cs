@@ -28,6 +28,7 @@ public static class ExportService
     private static readonly EAssetType[] MeshTypes =
     {
         EAssetType.Outfit,
+        EAssetType.LegoOutfit,
         EAssetType.Backpack,
         EAssetType.Pickaxe,
         EAssetType.Glider,
