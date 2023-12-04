@@ -551,15 +551,7 @@ class UEFormatImport:
                     continue
                 socket_bone.parent = parent_bone
                 socket_bone.length = self.options.bone_length * self.options.scale_factor
-                socket_bone.matrix = parent_bone.matrix @ Matrix.Translation(socket.position) @ Quaternion((
-                                                                                                           socket.rotation[
-                                                                                                               3],
-                                                                                                           socket.rotation[
-                                                                                                               0],
-                                                                                                           socket.rotation[
-                                                                                                               1],
-                                                                                                           socket.rotation[
-                                                                                                               2])).to_matrix().to_4x4()  # xyzw -> wxyz
+                socket_bone.matrix = parent_bone.matrix @ Matrix.Translation(socket.position) @ Quaternion((socket.rotation[3],socket.rotation[0],socket.rotation[1],socket.rotation[2])).to_matrix().to_4x4()  # xyzw -> wxyz
 
             bpy.ops.object.mode_set(mode='OBJECT')
 

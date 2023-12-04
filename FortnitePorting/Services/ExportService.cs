@@ -41,7 +41,8 @@ public static class ExportService
         EAssetType.Trap,
         EAssetType.Vehicle,
         EAssetType.Wildlife,
-        EAssetType.Mesh
+        EAssetType.Mesh,
+        EAssetType.World
     };
 
     private static readonly EAssetType[] AnimTypes =

@@ -74,7 +74,10 @@ public enum EAssetType
     Wildlife,
 
     [Description("Mesh")]
-    Mesh
+    Mesh,
+    
+    [Description("World")]
+    World
 }
 
 public enum EExportType

@@ -222,9 +222,19 @@ class ImportTask:
 
             # import mesh
             mesh_type = mesh.get("Type")
-            imported_object = self.import_mesh(mesh.get("Path"))
+            mesh_path = mesh.get("Path")
+            mesh_name = mesh_path.split(".")[1]
+            object_name = mesh.get("Name")
+            if type in ["World", "Prefab"] and (existing_mesh_data := bpy.data.meshes.get(mesh_name)):
+                imported_object = bpy.data.objects.new(object_name, existing_mesh_data)
+                bpy.context.scene.collection.objects.link(imported_object)
+            else:
+                imported_object = self.import_mesh(mesh.get("Path"))
+                imported_object.name = object_name
+
             if parent:
                 imported_object.parent = parent
+
             imported_object.rotation_euler = make_euler(mesh.get("Rotation"))
             imported_object.location = make_vector(mesh.get("Location"), mirror_y=True) * 0.01
             imported_object.scale = make_vector(mesh.get("Scale"))
@@ -303,6 +313,10 @@ class ImportTask:
                 solidify.material_offset = len(master_mesh.data.materials) - 1
 
     def import_material(self, material_slot, material_data, meta_data):
+        temp_material = material_slot.material
+        material_slot.link = 'OBJECT'
+        material_slot.material = temp_material
+        
         material_name = material_data.get("Name")
         material_hash = material_data.get("Hash")
         additional_hash = 0
@@ -480,10 +494,10 @@ class ImportTask:
                 shader_node.inputs[mappings.slot].default_value = 1 if value else 0
             except Exception as e:
                 print(e)
-
-        if any(["Use 2 Layers", "Use 3 Layers", "Use 4 Layers", "Use 5 Layers", "Use 6 Layers"
-                                                                                "Use 2 Materials", "Use 3 Materials",
-                "Use 4 Materials", "Use 5 Materials", "Use 6 Materials"], lambda x: get_param(switches, x)):
+                
+        layer_switch_names = ["Use 2 Layers", "Use 3 Layers", "Use 4 Layers", "Use 5 Layers", "Use 6 Layers",
+            "Use 2 Materials", "Use 3 Materials", "Use 4 Materials", "Use 5 Materials", "Use 6 Materials"]
+        if get_param_multiple(switches, layer_switch_names):
             shader_node.node_tree = bpy.data.node_groups.get("FP Layer")
             socket_mappings = layer_mappings
 

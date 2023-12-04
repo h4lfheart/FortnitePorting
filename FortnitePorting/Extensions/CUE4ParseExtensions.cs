@@ -64,4 +64,24 @@ public static class CUE4ParseExtensions
         rowValue = default;
         return false;
     }
+
+    public static List<T> GetAllProperties<T>(this IPropertyHolder holder, string name)
+    {
+        var propertyTags = new List<FPropertyTag>();
+        foreach (var property in holder.Properties)
+        {
+            if (property.Name.Text.Equals(name))
+            {
+                propertyTags.Add(property);
+            }
+        }
+
+        var values = new List<T>();
+        foreach (var property in propertyTags)
+        {
+            values.Add((T) property.Tag.GetValue(typeof(T)));
+        }
+
+        return values;
+    }
 }

@@ -6,6 +6,7 @@ namespace FortnitePorting.Export;
 
 public record ExportMesh
 {
+    public string Name;
     public string Path;
     public int NumLods;
     public FVector Location = FVector.ZeroVector;

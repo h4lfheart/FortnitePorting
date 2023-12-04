@@ -259,25 +259,31 @@ public class ExporterInstance
             // reminder that texturedata is the worst thing ever to be created WHY WONT IT WORK
             foreach (var (textureDataIndex, textureData) in textureDatas)
             {
-                var exportTextureData = new ExportTextureData();
-
-                TextureParameter? AddData(UTexture? texture, string prefix, string suffix)
-                {
-                    if (texture is null) return default;
-                    return new TextureParameter(prefix + suffix, Export(texture), texture.SRGB, texture.CompressionSettings);                    
-                }
-
-                var textureSuffix = textureDataIndex > 0 ? $"_Texture_{textureDataIndex + 1}" : string.Empty;
-                var specSuffix = textureDataIndex > 0 ? $"_{textureDataIndex + 1}" : string.Empty;
-                exportTextureData.Diffuse = AddData(textureData.Diffuse, "Diffuse", textureSuffix);
-                exportTextureData.Normal = AddData(textureData.Normal, "Normals", textureSuffix);
-                exportTextureData.Specular = AddData(textureData.Specular, "SpecularMasks", specSuffix);
-                exportTextureData.Hash = textureData.GetPathName().GetHashCode();
-                targetMesh.TextureData.Add(exportTextureData);
+                targetMesh.TextureData.AddIfNotNull(TextureData(textureData, index));
             }
         }
 
         return exportMeshes;
+    }
+
+    public ExportTextureData? TextureData(UBuildingTextureData? textureData, int index = 0)
+    {
+        if (textureData is null) return null;
+        
+        var exportTextureData = new ExportTextureData();
+
+        var textureSuffix = index > 0 ? $"_Texture_{index + 1}" : string.Empty;
+        var specSuffix = index > 0 ? $"_{index + 1}" : string.Empty;
+        exportTextureData.Diffuse = AddData(textureData.Diffuse, "Diffuse", textureSuffix);
+        exportTextureData.Normal = AddData(textureData.Normal, "Normals", textureSuffix);
+        exportTextureData.Specular = AddData(textureData.Specular, "SpecularMasks", specSuffix);
+        exportTextureData.Hash = textureData.GetPathName().GetHashCode();
+        return exportTextureData;
+        
+        TextureParameter? AddData(UTexture? texture, string prefix, string suffix)
+        {
+            return texture is null ? default : new TextureParameter(prefix + suffix, Export(texture), texture.SRGB, texture.CompressionSettings);
+        }
     }
 
     public ExportMesh? MeshComponent(USkeletalMeshComponent meshComponent)
@@ -334,6 +340,7 @@ public class ExporterInstance
 
         var exportPart = new T
         {
+            Name = mesh.Name,
             Path = Export(mesh),
             NumLods = convertedMesh.LODs.Count
         };
@@ -364,6 +371,7 @@ public class ExporterInstance
 
         var exportPart = new T
         {
+            Name = mesh.Name,
             Path = Export(mesh),
             NumLods = convertedMesh.LODs.Count
         };

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CUE4Parse_Conversion.Meshes;
 using CUE4Parse.GameTypes.FN.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Component.SkeletalMesh;
@@ -14,6 +15,7 @@ using CUE4Parse.UE4.Objects.GameplayTags;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using FortnitePorting.Extensions;
+using Serilog;
 
 namespace FortnitePorting.Export.Types;
 
@@ -43,7 +45,6 @@ public class MeshExportData : ExportDataBase
             case EAssetType.LegoOutfit:
             {
                 throw new Exception("Lego Outfit export not supported yet.");
-                break;
             }
             case EAssetType.Backpack:
             {
@@ -231,6 +232,51 @@ public class MeshExportData : ExportDataBase
                 }
 
                 break;
+            }
+            case EAssetType.World:
+            {
+                if (asset is not UWorld world) break;
+                if (world.PersistentLevel.Load() is not ULevel level) break;
+
+                foreach (var actorLazy in level.Actors)
+                {
+                    if (actorLazy is null || actorLazy.IsNull) continue;
+
+                    var actor = actorLazy.Load();
+                    if (actor is null) continue;
+                    if (actor.ExportType == "LODActor") continue;
+                    if (actor.Name.StartsWith("LF_")) continue;
+
+                    ProcessActor(actor);
+                }
+                break;
+
+                void ProcessActor(UObject actor)
+                {
+                    if (actor.TryGetValue(out UStaticMeshComponent staticMeshComponent, "StaticMeshComponent", "StaticMesh", "Mesh", "LightMesh"))
+                    {
+                        if (!staticMeshComponent.GetStaticMesh().TryLoad(out UStaticMesh staticMesh)) return;
+
+                        var exportMesh = Exporter.Mesh(staticMesh);
+                        if (exportMesh is null) return;
+
+                        exportMesh.Name = actor.Name;
+                        exportMesh.Location = staticMeshComponent.GetOrDefault("RelativeLocation", FVector.ZeroVector);
+                        exportMesh.Rotation = staticMeshComponent.GetOrDefault("RelativeRotation", FRotator.ZeroRotator);
+                        exportMesh.Scale = staticMeshComponent.GetOrDefault("RelativeScale3D", FVector.OneVector);
+
+                        var textureDatas = actor.GetAllProperties<UBuildingTextureData>("TextureData");
+                        if (textureDatas.Count == 0 && actor.Template is not null) 
+                            textureDatas = actor.Template.Load()!.GetAllProperties<UBuildingTextureData>("TextureData");
+                        
+                        for (var idx = 0; idx < textureDatas.Count; idx++)
+                        {
+                            exportMesh.TextureData.AddIfNotNull(Exporter.TextureData(textureDatas[idx], idx));
+                        }
+
+                        Meshes.AddIfNotNull(exportMesh);
+                    }
+                }
             }
             default:
                 throw new ArgumentOutOfRangeException(nameof(type), type, null);

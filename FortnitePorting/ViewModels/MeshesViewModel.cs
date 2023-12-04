@@ -87,10 +87,11 @@ public partial class MeshesViewModel : ViewModelBase
         "NaniteDisplacement"
     };
 
-    private readonly string[] MeshTypes =
+    private readonly string[] ValidExportTypes =
     {
         "SkeletalMesh",
-        "StaticMesh"
+        "StaticMesh",
+        "World"
     };
 
     public override async Task Initialize()
@@ -163,9 +164,27 @@ public partial class MeshesViewModel : ViewModelBase
     [RelayCommand]
     public async Task Export()
     {
-        var objects = new List<UObject>();
-        foreach (var item in SelectedExportItems) objects.Add(await CUE4ParseVM.Provider.LoadObjectAsync(item.PathWithoutExtension));
-        await ExportService.ExportAsync(objects, EAssetType.Mesh, ExportType);
+        var meshes = new List<UObject>();
+        var worlds = new List<UObject>();
+        foreach (var item in SelectedExportItems)
+        {
+            if (item.Path.EndsWith(".uasset"))
+            {
+                meshes.Add(await CUE4ParseVM.Provider.LoadObjectAsync(item.PathWithoutExtension));
+            }
+            else if (item.Path.EndsWith(".umap"))
+            {
+                var path = item.PathWithoutExtension;
+                if (path.Contains("_Generated_"))
+                {
+                    path += "." + path.SubstringBeforeLast("/_Generated").SubstringAfterLast("/");
+                }
+                worlds.Add(await CUE4ParseVM.Provider.LoadObjectAsync(path));
+            }
+        }
+
+        if (meshes.Count > 0) await ExportService.ExportAsync(meshes, EAssetType.Mesh, ExportType);
+        if (worlds.Count > 0) await ExportService.ExportAsync(worlds, EAssetType.World, ExportType);
     }
 
     [RelayCommand]
@@ -185,7 +204,7 @@ public partial class MeshesViewModel : ViewModelBase
                 if (Math.Abs(ScanPercentage - percentage) > 0.01f) ScanPercentage = percentage;
 
                 var obj = await CUE4ParseVM.Provider.TryLoadObjectAsync(file.PathWithoutExtension);
-                if (obj is null || !MeshTypes.Contains(obj.ExportType)) AppSettings.Current.HiddenMeshPaths.Add(filePath);
+                if (obj is null || !ValidExportTypes.Contains(obj.ExportType)) AppSettings.Current.HiddenMeshPaths.Add(filePath);
             }
 
             ScanPercentage = 100.0f;
@@ -236,7 +255,7 @@ public partial class MeshesViewModel : ViewModelBase
 
     private bool IsValidPath(string path)
     {
-        var isValidPathType = path.EndsWith(".uasset") && !path.EndsWith(".o.uasset");
+        var isValidPathType = (path.EndsWith(".uasset") || path.EndsWith(".umap")) && !path.Contains(".o.");
         var isInRegistry = AssetsToRemove.Contains(path);
         var isFiltered = Filters.Any(filter => path.Contains(filter, StringComparison.OrdinalIgnoreCase));
         var isFilteredByScan = AppSettings.Current.HiddenMeshPaths.Contains(path);
@@ -289,7 +308,7 @@ public partial class FlatViewItem : ObservableObject
     public FlatViewItem(string path)
     {
         Path = path;
-        PathWithoutExtension = path.Replace(".uasset", string.Empty);
+        PathWithoutExtension = path.SubstringBefore(".");
     }
 }
 
