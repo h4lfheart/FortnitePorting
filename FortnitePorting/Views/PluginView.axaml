@@ -16,7 +16,7 @@
         <avalonia:AnimatableTabControl TabStripPlacement="Left">
             <TabItem>
                 <TabItem.Header>
-                    <controls:ImageText Text="Blender" Image="/Assets/Icons/Blender.svg" />
+                    <controls:SvgText Text="Blender" Image="/Assets/Icons/Blender.svg" />
                 </TabItem.Header>
                 
                 <StackPanel>

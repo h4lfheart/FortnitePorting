@@ -1,5 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Media;
+using ExCSS;
 
 namespace FortnitePorting.Controls;
 
@@ -13,9 +15,9 @@ public partial class ImageText : UserControl
         set => SetValue(TextProperty, value);
     }
 
-    public static readonly StyledProperty<string> ImageProperty = AvaloniaProperty.Register<ImageText, string>(nameof(Image));
+    public static readonly StyledProperty<IImage> ImageProperty = AvaloniaProperty.Register<ImageText, IImage>(nameof(Image));
 
-    public string Image
+    public IImage Image
     {
         get => GetValue(ImageProperty);
         set => SetValue(ImageProperty, value);

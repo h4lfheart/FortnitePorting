@@ -80,7 +80,25 @@ public enum EAssetType
     Mesh,
     
     [Description("World")]
-    World
+    World,
+    
+    // FESTIVAL
+    
+    [Description("Guitar")]
+    FestivalGuitar,
+    
+    [Description("Bass")]
+    FestivalBass,
+    
+    [Description("Keytar")]
+    FestivalKeytar,
+    
+    [Description("Drum")]
+    FestivalDrum,
+    
+    [Description("Mic")]
+    FestivalMic
+    
 }
 
 public enum EExportType

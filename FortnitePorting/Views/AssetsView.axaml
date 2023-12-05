@@ -16,136 +16,23 @@
     </UserControl.KeyBindings>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="0.175*" />
-            <ColumnDefinition Width="{ext:Space 1}" />
-            <ColumnDefinition Width="2.25*" />
+            <ColumnDefinition Width="2.5*" />
             <ColumnDefinition Width="{ext:Space 1}" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Hidden" HorizontalAlignment="Right">
-            <ItemsControl x:Name="AssetTypePanel" HorizontalAlignment="Center">
-                <ItemsControl.Styles>
-                    <Style Selector="ToggleButton">
-                        <Setter Property="Margin" Value="0 0 0 4" />
-                    </Style>
-                </ItemsControl.Styles>
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <WrapPanel />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ToggleButton ToolTip.Tip="Outfits" Tag="{x:Static fortnitePorting:EAssetType.Outfit}"
-                              Click="OnAssetTypeClick" IsChecked="True">
-                    <Image Source="/Assets/FN/Outfit.png" Width="32" Height="32"
-                           RenderOptions.BitmapInterpolationMode="HighQuality" />
-                </ToggleButton>
-                <ToggleButton ToolTip.Tip="Lego Outfits" Tag="{x:Static fortnitePorting:EAssetType.LegoOutfit}"
-                              Click="OnAssetTypeClick">
-                    <Image Source="/Assets/FN/LegoOutfit.png" Width="32" Height="32"
-                           RenderOptions.BitmapInterpolationMode="HighQuality" />
-                </ToggleButton>
-                <ToggleButton ToolTip.Tip="Back Blings" Tag="{x:Static fortnitePorting:EAssetType.Backpack}"
-                              Click="OnAssetTypeClick">
-                    <Image Source="/Assets/FN/Backpack.png" Width="32" Height="32"
-                           RenderOptions.BitmapInterpolationMode="HighQuality" />
-                </ToggleButton>
-                <ToggleButton ToolTip.Tip="Pickaxes" Tag="{x:Static fortnitePorting:EAssetType.Pickaxe}"
-                              Click="OnAssetTypeClick">
-                    <Image Source="/Assets/FN/Pickaxe.png" Width="32" Height="32"
-                           RenderOptions.BitmapInterpolationMode="HighQuality" />
-                </ToggleButton>
-                <ToggleButton ToolTip.Tip="Gliders" Tag="{x:Static fortnitePorting:EAssetType.Glider}"
-                              Click="OnAssetTypeClick">
-                    <Image Source="/Assets/FN/Glider.png" Width="32" Height="32"
-                           RenderOptions.BitmapInterpolationMode="HighQuality" />
-                </ToggleButton>
-                <ToggleButton ToolTip.Tip="Pets" Tag="{x:Static fortnitePorting:EAssetType.Pet}"
-                              Click="OnAssetTypeClick">
-                    <Image Source="/Assets/FN/Pet.png" Width="32" Height="32"
-                           RenderOptions.BitmapInterpolationMode="HighQuality" />
-                </ToggleButton>
-                <ToggleButton ToolTip.Tip="Toys" Tag="{x:Static fortnitePorting:EAssetType.Toy}"
-                              Click="OnAssetTypeClick">
-                    <Image Source="/Assets/FN/Toy.png" Width="32" Height="32"
-                           RenderOptions.BitmapInterpolationMode="HighQuality" />
-                </ToggleButton>
-                <ToggleButton ToolTip.Tip="Emoticons" Tag="{x:Static fortnitePorting:EAssetType.Emoticon}"
-                              Click="OnAssetTypeClick">
-                    <Image Source="/Assets/FN/Emoticon.png" Width="32" Height="32"
-                           RenderOptions.BitmapInterpolationMode="HighQuality" />
-                </ToggleButton>
-                <ToggleButton ToolTip.Tip="Sprays" Tag="{x:Static fortnitePorting:EAssetType.Spray}"
-                              Click="OnAssetTypeClick">
-                    <Image Source="/Assets/FN/Spray.png" Width="32" Height="32"
-                           RenderOptions.BitmapInterpolationMode="HighQuality" />
-                </ToggleButton>
-                <ToggleButton ToolTip.Tip="Banners" Tag="{x:Static fortnitePorting:EAssetType.Banner}"
-                              Click="OnAssetTypeClick">
-                    <Image Source="/Assets/FN/Banner.png" Width="32" Height="32"
-                           RenderOptions.BitmapInterpolationMode="HighQuality" />
-                </ToggleButton>
-                <ToggleButton ToolTip.Tip="Loading Screens" Tag="{x:Static fortnitePorting:EAssetType.LoadingScreen}"
-                              Click="OnAssetTypeClick">
-                    <Image Source="/Assets/FN/LoadingScreen.png" Width="32" Height="32"
-                           RenderOptions.BitmapInterpolationMode="HighQuality" />
-                </ToggleButton>
-                <ToggleButton ToolTip.Tip="Emotes" Tag="{x:Static fortnitePorting:EAssetType.Emote}"
-                              Click="OnAssetTypeClick">
-                    <Image Source="/Assets/FN/Dance.png" Width="32" Height="32"
-                           RenderOptions.BitmapInterpolationMode="HighQuality" />
-                </ToggleButton>
-                <ToggleButton ToolTip.Tip="Props" Tag="{x:Static fortnitePorting:EAssetType.Prop}"
-                              Click="OnAssetTypeClick">
-                    <Image Source="/Assets/FN/Prop.png" Width="32" Height="32"
-                           RenderOptions.BitmapInterpolationMode="HighQuality" />
-                </ToggleButton>
-                <ToggleButton ToolTip.Tip="Prefabs" Tag="{x:Static fortnitePorting:EAssetType.Prefab}"
-                              Click="OnAssetTypeClick">
-                    <Image Source="/Assets/FN/Prefab.png" Width="32" Height="32"
-                           RenderOptions.BitmapInterpolationMode="HighQuality" />
-                </ToggleButton>
-                <ToggleButton ToolTip.Tip="Items" Tag="{x:Static fortnitePorting:EAssetType.Item}"
-                              Click="OnAssetTypeClick">
-                    <Image Source="/Assets/FN/Item.png" Width="32" Height="32"
-                           RenderOptions.BitmapInterpolationMode="HighQuality" />
-                </ToggleButton>
-                <ToggleButton ToolTip.Tip="Resources" Tag="{x:Static fortnitePorting:EAssetType.Resource}"
-                              Click="OnAssetTypeClick">
-                    <Image Source="/Assets/FN/Resource.png" Width="32" Height="32"
-                           RenderOptions.BitmapInterpolationMode="HighQuality" />
-                </ToggleButton>
-                <ToggleButton ToolTip.Tip="Traps" Tag="{x:Static fortnitePorting:EAssetType.Trap}"
-                              Click="OnAssetTypeClick">
-                    <Image Source="/Assets/FN/Trap.png" Width="32" Height="32"
-                           RenderOptions.BitmapInterpolationMode="HighQuality" />
-                </ToggleButton>
-                <ToggleButton ToolTip.Tip="Vehicles" Tag="{x:Static fortnitePorting:EAssetType.Vehicle}"
-                              Click="OnAssetTypeClick">
-                    <Image Source="/Assets/FN/Vehicle.png" Width="32" Height="32"
-                           RenderOptions.BitmapInterpolationMode="HighQuality" />
-                </ToggleButton>
-                <ToggleButton ToolTip.Tip="Wildlife" Tag="{x:Static fortnitePorting:EAssetType.Wildlife}"
-                              Click="OnAssetTypeClick">
-                    <Image Source="/Assets/FN/Wildlife.png" Width="32" Height="32"
-                           RenderOptions.BitmapInterpolationMode="HighQuality" />
-                </ToggleButton>
-            </ItemsControl>
-        </ScrollViewer>
-
-        <Grid Grid.Column="2">
+        <Grid Grid.Column="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="{ext:Space 1}" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="{ext:Space 1}" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="{ext:Space 1}" />
-                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            
-            <ProgressBar Grid.Row="0" IsVisible="{Binding !!CurrentLoader.Total}" Minimum="0"
-                         Maximum="{Binding CurrentLoader.Total}" Value="{Binding CurrentLoader.Loaded}" />
 
-            <Grid Grid.Row="2">
+            <Grid Grid.Row="0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="{ext:Space 1}" />
@@ -208,7 +95,7 @@
                 </Popup>
             </Grid>
 
-            <controls:GroupBox Grid.Row="4">
+            <controls:GroupBox Grid.Row="2">
                 <ListBox x:Name="AssetsListBox" ItemsSource="{Binding ActiveCollection}" SelectionMode="Multiple"
                          AutoScrollToSelectedItem="False" Background="Transparent"
                          SelectionChanged="OnSelectionChanged">
@@ -219,60 +106,268 @@
                     </ListBox.ItemsPanel>
                 </ListBox>
             </controls:GroupBox>
+            
+            <ProgressBar Grid.Row="4" IsVisible="{Binding !!CurrentLoader.Total}" Minimum="0"
+                         Maximum="{Binding CurrentLoader.Total}" Value="{Binding CurrentLoader.Loaded}" />
+            
+            <Grid Grid.Row="6">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="{ext:Space 1}" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="{ext:Space 1}" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="{ext:Space 1}" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                
+                <Expander Grid.Column="0" ExpandDirection="Up" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" MinHeight="36" Padding="8">
+                    <Expander.Header>
+                        <controls:ImageText Text="Cosmetics" Image="/Assets/FN/Locker.png" />
+                    </Expander.Header>
+                    <ItemsControl HorizontalAlignment="Center">
+                        <ItemsControl.Styles>
+                            <Style Selector="Button">
+                                <Setter Property="Margin" Value="4 0 0 4" />
+                            </Style>
+                        </ItemsControl.Styles>
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <Button ToolTip.Tip="Outfits" Tag="{x:Static fortnitePorting:EAssetType.Outfit}"
+                                      Click="OnAssetTypeClick">
+                            <Image Source="/Assets/FN/Outfit.png" Width="32" Height="32"
+                                   RenderOptions.BitmapInterpolationMode="HighQuality" />
+                        </Button>
+                        <Button ToolTip.Tip="Back Blings" Tag="{x:Static fortnitePorting:EAssetType.Backpack}"
+                                      Click="OnAssetTypeClick">
+                            <Image Source="/Assets/FN/Backpack.png" Width="32" Height="32"
+                                   RenderOptions.BitmapInterpolationMode="HighQuality" />
+                        </Button>
+                        <Button ToolTip.Tip="Pickaxes" Tag="{x:Static fortnitePorting:EAssetType.Pickaxe}"
+                                      Click="OnAssetTypeClick">
+                            <Image Source="/Assets/FN/Pickaxe.png" Width="32" Height="32"
+                                   RenderOptions.BitmapInterpolationMode="HighQuality" />
+                        </Button>
+                        <Button ToolTip.Tip="Gliders" Tag="{x:Static fortnitePorting:EAssetType.Glider}"
+                                      Click="OnAssetTypeClick">
+                            <Image Source="/Assets/FN/Glider.png" Width="32" Height="32"
+                                   RenderOptions.BitmapInterpolationMode="HighQuality" />
+                        </Button>
+                        <Button ToolTip.Tip="Pets" Tag="{x:Static fortnitePorting:EAssetType.Pet}"
+                                      Click="OnAssetTypeClick">
+                            <Image Source="/Assets/FN/Pet.png" Width="32" Height="32"
+                                   RenderOptions.BitmapInterpolationMode="HighQuality" />
+                        </Button>
+                        <Button ToolTip.Tip="Toys" Tag="{x:Static fortnitePorting:EAssetType.Toy}"
+                                      Click="OnAssetTypeClick">
+                            <Image Source="/Assets/FN/Toy.png" Width="32" Height="32"
+                                   RenderOptions.BitmapInterpolationMode="HighQuality" />
+                        </Button>
+                        <Button ToolTip.Tip="Emoticons" Tag="{x:Static fortnitePorting:EAssetType.Emoticon}"
+                                      Click="OnAssetTypeClick">
+                            <Image Source="/Assets/FN/Emoticon.png" Width="32" Height="32"
+                                   RenderOptions.BitmapInterpolationMode="HighQuality" />
+                        </Button>
+                        <Button ToolTip.Tip="Sprays" Tag="{x:Static fortnitePorting:EAssetType.Spray}"
+                                      Click="OnAssetTypeClick">
+                            <Image Source="/Assets/FN/Spray.png" Width="32" Height="32"
+                                   RenderOptions.BitmapInterpolationMode="HighQuality" />
+                        </Button>
+                        <Button ToolTip.Tip="Banners" Tag="{x:Static fortnitePorting:EAssetType.Banner}"
+                                      Click="OnAssetTypeClick">
+                            <Image Source="/Assets/FN/Banner.png" Width="32" Height="32"
+                                   RenderOptions.BitmapInterpolationMode="HighQuality" />
+                        </Button>
+                        <Button ToolTip.Tip="Loading Screens"
+                                      Tag="{x:Static fortnitePorting:EAssetType.LoadingScreen}"
+                                      Click="OnAssetTypeClick">
+                            <Image Source="/Assets/FN/LoadingScreen.png" Width="32" Height="32"
+                                   RenderOptions.BitmapInterpolationMode="HighQuality" />
+                        </Button>
+                        <Button ToolTip.Tip="Emotes" Tag="{x:Static fortnitePorting:EAssetType.Emote}"
+                                      Click="OnAssetTypeClick">
+                            <Image Source="/Assets/FN/Dance.png" Width="32" Height="32"
+                                   RenderOptions.BitmapInterpolationMode="HighQuality" />
+                        </Button>
+                    </ItemsControl>
+                </Expander>
+
+                <Expander Grid.Column="2" ExpandDirection="Up" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" MinHeight="36" Padding="8">
+                    <Expander.Header>
+                        <controls:ImageText Text="Creative" Image="/Assets/FN/Creative.png" />
+                    </Expander.Header>
+                    <ItemsControl HorizontalAlignment="Center">
+                        <ItemsControl.Styles>
+                            <Style Selector="Button">
+                                <Setter Property="Margin" Value="4 0 0 4" />
+                            </Style>
+                        </ItemsControl.Styles>
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+
+                        <Button ToolTip.Tip="Props" Tag="{x:Static fortnitePorting:EAssetType.Prop}"
+                                      Click="OnAssetTypeClick">
+                            <Image Source="/Assets/FN/Prop.png" Width="32" Height="32"
+                                   RenderOptions.BitmapInterpolationMode="HighQuality" />
+                        </Button>
+                        <Button ToolTip.Tip="Prefabs" Tag="{x:Static fortnitePorting:EAssetType.Prefab}"
+                                      Click="OnAssetTypeClick">
+                            <Image Source="/Assets/FN/Prefab.png" Width="32" Height="32"
+                                   RenderOptions.BitmapInterpolationMode="HighQuality" />
+                        </Button>
+                    </ItemsControl>
+                </Expander>
+
+                <Expander Grid.Column="4" ExpandDirection="Up" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" MinHeight="36" Padding="8">
+                    <Expander.Header>
+                        <controls:ImageText Text="Gameplay" Image="/Assets/FN/Gameplay.png" />
+                    </Expander.Header>
+
+                    <ItemsControl HorizontalAlignment="Center">
+                        <ItemsControl.Styles>
+                            <Style Selector="Button">
+                                <Setter Property="Margin" Value="4 0 0 4" />
+                            </Style>
+                        </ItemsControl.Styles>
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+
+                        <Button ToolTip.Tip="Items" Tag="{x:Static fortnitePorting:EAssetType.Item}"
+                                      Click="OnAssetTypeClick">
+                            <Image Source="/Assets/FN/Item.png" Width="32" Height="32"
+                                   RenderOptions.BitmapInterpolationMode="HighQuality" />
+                        </Button>
+                        <Button ToolTip.Tip="Resources" Tag="{x:Static fortnitePorting:EAssetType.Resource}"
+                                      Click="OnAssetTypeClick">
+                            <Image Source="/Assets/FN/Resource.png" Width="32" Height="32"
+                                   RenderOptions.BitmapInterpolationMode="HighQuality" />
+                        </Button>
+                        <Button ToolTip.Tip="Traps" Tag="{x:Static fortnitePorting:EAssetType.Trap}"
+                                      Click="OnAssetTypeClick">
+                            <Image Source="/Assets/FN/Trap.png" Width="32" Height="32"
+                                   RenderOptions.BitmapInterpolationMode="HighQuality" />
+                        </Button>
+                        <Button ToolTip.Tip="Vehicles" Tag="{x:Static fortnitePorting:EAssetType.Vehicle}"
+                                      Click="OnAssetTypeClick">
+                            <Image Source="/Assets/FN/Vehicle.png" Width="32" Height="32"
+                                   RenderOptions.BitmapInterpolationMode="HighQuality" />
+                        </Button>
+                        <Button ToolTip.Tip="Wildlife" Tag="{x:Static fortnitePorting:EAssetType.Wildlife}"
+                                      Click="OnAssetTypeClick">
+                            <Image Source="/Assets/FN/Wildlife.png" Width="32" Height="32"
+                                   RenderOptions.BitmapInterpolationMode="HighQuality" />
+                        </Button>
+                    </ItemsControl>
+                </Expander>
+                
+                <Expander Grid.Column="6" ExpandDirection="Up" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" MinHeight="36" Padding="8">
+                    <Expander.Header>
+                        <controls:ImageText Text="Festival" Image="/Assets/FN/Festival.png" />
+                    </Expander.Header>
+                    <ItemsControl HorizontalAlignment="Center">
+                        <ItemsControl.Styles>
+                            <Style Selector="Button">
+                                <Setter Property="Margin" Value="4 0 0 4" />
+                            </Style>
+                        </ItemsControl.Styles>
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        
+                        <Button ToolTip.Tip="Mics" Tag="{x:Static fortnitePorting:EAssetType.FestivalMic}"
+                                Click="OnAssetTypeClick">
+                            <Image Source="/Assets/FN/Mic.png" Width="32" Height="32"
+                                   RenderOptions.BitmapInterpolationMode="HighQuality" />
+                        </Button>
+                        <Button ToolTip.Tip="Guitars" Tag="{x:Static fortnitePorting:EAssetType.FestivalGuitar}"
+                                Click="OnAssetTypeClick">
+                            <Image Source="/Assets/FN/Guitar.png" Width="32" Height="32"
+                                   RenderOptions.BitmapInterpolationMode="HighQuality" />
+                        </Button>
+                        <Button ToolTip.Tip="Basses" Tag="{x:Static fortnitePorting:EAssetType.FestivalBass}"
+                                Click="OnAssetTypeClick">
+                            <Image Source="/Assets/FN/Bass.png" Width="32" Height="32"
+                                   RenderOptions.BitmapInterpolationMode="HighQuality" />
+                        </Button>
+                        <Button ToolTip.Tip="Keyboards" Tag="{x:Static fortnitePorting:EAssetType.FestivalKeytar}"
+                                Click="OnAssetTypeClick">
+                            <Image Source="/Assets/FN/Keytar.png" Width="32" Height="32"
+                                   RenderOptions.BitmapInterpolationMode="HighQuality" />
+                        </Button>
+                        <Button ToolTip.Tip="Drums" Tag="{x:Static fortnitePorting:EAssetType.FestivalDrum}"
+                                Click="OnAssetTypeClick">
+                            <Image Source="/Assets/FN/DrumSticks.png" Width="32" Height="32"
+                                   RenderOptions.BitmapInterpolationMode="HighQuality" />
+                        </Button>
+                    </ItemsControl>
+                </Expander>
+            </Grid>
         </Grid>
 
-        <controls:GroupBox Grid.Column="4">
+        <controls:GroupBox Grid.Column="2">
+            <Grid>
                 <Grid>
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="5.5*" />
-                            <RowDefinition Height="{ext:Space 1}" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="5.5*" />
+                        <RowDefinition Height="{ext:Space 1}" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
 
-                        <ScrollViewer Grid.Row="0" PointerWheelChanged="OnScrollAssets">
-                            <ItemsControl ItemsSource="{Binding CurrentAssets}" />
-                        </ScrollViewer>
+                    <ScrollViewer Grid.Row="0" PointerWheelChanged="OnScrollAssets">
+                        <ItemsControl ItemsSource="{Binding CurrentAssets}" />
+                    </ScrollViewer>
 
-                        <controls:GroupBox Grid.Row="2" IsVisible="{Binding !!CurrentAssets.Count}">
-                            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="*" />
-                                    <RowDefinition Height="{ext:Space 1}" />
-                                    <RowDefinition Height="1*" />
-                                </Grid.RowDefinitions>
+                    <controls:GroupBox Grid.Row="2" IsVisible="{Binding !!CurrentAssets.Count}">
+                        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="{ext:Space 1}" />
+                                <RowDefinition Height="1*" />
+                            </Grid.RowDefinitions>
 
-                                <Grid Grid.Row="0" ColumnDefinitions="* 3.25*">
-                                    <TextBlock Grid.Column="0" Text="Export To" VerticalAlignment="Center"
-                                               Margin="3 0 0 2" />
-                                    <ComboBox Grid.Column="1" IsVisible="{Binding !IsFolderOnlyExport}"
-                                              HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                                              ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EExportType}}"
-                                              SelectedItem="{Binding ExportType, Converter={StaticResource EnumToString}}" />
-                                    <ComboBox Grid.Column="1" IsVisible="{Binding IsFolderOnlyExport}"
-                                              HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                                              ItemsSource="{Binding FolderExportEnumCollection}" SelectedIndex="0" />
-                                    <!-- for visual purposes ignore lol-->
-                                </Grid>
-
-                                <Button Grid.Row="2" Command="{Binding ExportCommand}" HorizontalAlignment="Stretch"
-                                        VerticalAlignment="Stretch" Padding="0">
-                                    <Grid>
-                                        <ProgressBar CornerRadius="5" Background="Transparent" IsVisible="{Binding IsExporting}"
-                                                     Minimum="0" Maximum="{Binding ExportChunks}" 
-                                                     Value="{Binding ExportProgress}"
-                                                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
-                                        <controls:MaterialIconText Text="Export" Icon="Export"
-                                                                   HorizontalAlignment="Center"
-                                                                   VerticalAlignment="Center" />
-                                    </Grid>
-                                </Button>
+                            <Grid Grid.Row="0" ColumnDefinitions="* 3.25*">
+                                <TextBlock Grid.Column="0" Text="Export To" VerticalAlignment="Center"
+                                           Margin="3 0 0 2" />
+                                <ComboBox Grid.Column="1" IsVisible="{Binding !IsFolderOnlyExport}"
+                                          HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                                          ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EExportType}}"
+                                          SelectedItem="{Binding ExportType, Converter={StaticResource EnumToString}}" />
+                                <ComboBox Grid.Column="1" IsVisible="{Binding IsFolderOnlyExport}"
+                                          HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                                          ItemsSource="{Binding FolderExportEnumCollection}" SelectedIndex="0" />
+                                <!-- for visual purposes ignore lol-->
                             </Grid>
-                        </controls:GroupBox>
-                    </Grid>
-                    <TextBlock IsVisible="{Binding !CurrentAssets.Count}" Text="No Asset Selected" Opacity="0.5"
-                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+                            <Button Grid.Row="2" Command="{Binding ExportCommand}" HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch" Padding="0">
+                                <Grid>
+                                    <ProgressBar CornerRadius="5" Background="Transparent"
+                                                 IsVisible="{Binding IsExporting}"
+                                                 Minimum="0" Maximum="{Binding ExportChunks}"
+                                                 Value="{Binding ExportProgress}"
+                                                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                                    <controls:MaterialIconText Text="Export" Icon="Export"
+                                                               HorizontalAlignment="Center"
+                                                               VerticalAlignment="Center" />
+                                </Grid>
+                            </Button>
+                        </Grid>
+                    </controls:GroupBox>
                 </Grid>
-            </controls:GroupBox>
+                <TextBlock IsVisible="{Binding !CurrentAssets.Count}" Text="No Asset Selected" Opacity="0.5"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Grid>
+        </controls:GroupBox>
     </Grid>
 </UserControl>

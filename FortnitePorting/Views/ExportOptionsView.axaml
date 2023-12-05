@@ -16,7 +16,7 @@
             <avalonia:AnimatableTabControl TabStripPlacement="Left">
                 <TabItem>
                     <TabItem.Header>
-                        <controls:ImageText Text="Blender" Image="/Assets/Icons/Blender.svg" />
+                        <controls:SvgText Text="Blender" Image="/Assets/Icons/Blender.svg" />
                     </TabItem.Header>
                     <ScrollViewer VerticalScrollBarVisibility="Hidden">
                         <StackPanel>
@@ -141,7 +141,7 @@
 
                 <TabItem>
                     <TabItem.Header>
-                        <controls:ImageText Text="Unreal Engine" Image="/Assets/Icons/Unreal.svg" />
+                        <controls:SvgText Text="Unreal Engine" Image="/Assets/Icons/Unreal.svg" />
                     </TabItem.Header>
                     <ScrollViewer VerticalScrollBarVisibility="Hidden">
                         <StackPanel>
@@ -201,7 +201,7 @@
 
                 <TabItem>
                     <TabItem.Header>
-                        <controls:ImageText Text="Folder" Image="/Assets/Icons/Folder.svg" />
+                        <controls:SvgText Text="Folder" Image="/Assets/Icons/Folder.svg" />
                     </TabItem.Header>
                     <ScrollViewer VerticalScrollBarVisibility="Hidden">
                         <StackPanel>

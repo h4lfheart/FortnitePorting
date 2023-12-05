@@ -352,7 +352,35 @@ public partial class AssetsViewModel : ViewModelBase
                         loader.Loaded++;
                     }
                 }
-            }
+            },
+            
+            // TODO EXPORT SUPPORT
+            
+            new(EAssetType.FestivalGuitar)
+            {
+                Classes = new[] { "SparksGuitarItemDefinition" },
+                HideRarity = true
+            },
+            new(EAssetType.FestivalBass)
+            {
+                Classes = new[] { "SparksBassItemDefinition" },
+                HideRarity = true
+            },
+            new(EAssetType.FestivalKeytar)
+            {
+                Classes = new[] { "SparksKeyboardItemDefinition" },
+                HideRarity = true
+            },
+            new(EAssetType.FestivalDrum)
+            {
+                Classes = new[] { "SparksDrumItemDefinition" },
+                HideRarity = true
+            },
+            new(EAssetType.FestivalMic)
+            {
+                Classes = new[] { "SparksMicItemDefinition" },
+                HideRarity = true
+            },
         };
 
         SetLoader(EAssetType.Outfit);

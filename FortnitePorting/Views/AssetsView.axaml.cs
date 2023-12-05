@@ -29,15 +29,8 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
     private async void OnAssetTypeClick(object? sender, RoutedEventArgs e)
     {
         if (ViewModel.CurrentLoader is null) return;
-        if (sender is not ToggleButton toggleButton) return;
-        if (toggleButton.Tag is not EAssetType assetType) return;
-
-        var buttons = AssetTypePanel.Items.OfType<ToggleButton>();
-        foreach (var button in buttons)
-        {
-            if (button.Tag is not EAssetType buttonAssetType) continue;
-            button.IsChecked = buttonAssetType == assetType;
-        }
+        if (sender is not Button button) return;
+        if (button.Tag is not EAssetType assetType) return;
 
         if (ViewModel.CurrentLoader.Type == assetType) return;
 
