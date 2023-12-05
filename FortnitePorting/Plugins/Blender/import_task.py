@@ -235,6 +235,12 @@ class ImportTask:
                 imported_object = self.import_mesh(mesh.get("Path"))
                 imported_object.name = object_name
 
+            if type in ["World", "Prefab"]:
+                nonlocal imported_mesh_count
+                imported_mesh_count += 1
+                Log.info(f"Actor {imported_mesh_count}/{len(meshes)}: {object_name}")
+            
+
             if parent:
                 imported_object.parent = parent
 
@@ -635,7 +641,7 @@ class ImportTask:
         
         options = UEModelOptions(scale_down=self.options.get("ScaleDown"),
                                  reorient_bones=self.options.get("ReorientBones"),
-                                 bone_length=self.options.get("BoneLength"))
+                                 bone_length=self.options.get("BoneSize"))
 
         return UEFormatImport(options).import_file(mesh_path)
 

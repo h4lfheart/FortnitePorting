@@ -6,6 +6,9 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FortnitePorting.Controls.RoundedSlider"
              x:DataType="controls:RoundedSlider">
-    <Slider Value="{Binding Value, RelativeSource={RelativeSource AncestorType=controls:RoundedSlider}}" Minimum="0.0"
-            Maximum="1.0" TickFrequency="0.1" TickPlacement="BottomRight" />
+    <Slider Value="{Binding Value, RelativeSource={RelativeSource AncestorType=controls:RoundedSlider}}" 
+            Minimum="{Binding Minimum, RelativeSource={RelativeSource AncestorType=controls:RoundedSlider}}"
+            Maximum="{Binding Maximum, RelativeSource={RelativeSource AncestorType=controls:RoundedSlider}}"
+            TickFrequency="{Binding TickFrequency, RelativeSource={RelativeSource AncestorType=controls:RoundedSlider}}" 
+            TickPlacement="BottomRight" />
 </UserControl>

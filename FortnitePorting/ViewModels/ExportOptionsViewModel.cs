@@ -93,7 +93,7 @@ public partial class BlenderExportOptions : ExportOptionsBase
     [ObservableProperty] private bool mergeSkeletons = true;
     [ObservableProperty] private bool reorientBones = false;
     [ObservableProperty] private bool hideFaceBones = false;
-    [ObservableProperty] private float boneLength = 0.4f;
+    [ObservableProperty] private float boneSize = 4f;
 
     [ObservableProperty] private ESupportedLODs levelOfDetail = ESupportedLODs.LOD0;
     [ObservableProperty] private bool useQuads = false;

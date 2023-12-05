@@ -53,9 +53,9 @@
                                 <ToggleSwitch IsChecked="{Binding Blender.HideFaceBones}" />
                             </controls:SettingBox>
                             <controls:SettingBox DisplayName="Bone Length"
-                                                 Path="{Binding Blender.BoneLength, StringFormat=N2}"
+                                                 Path="{Binding Blender.BoneSize, StringFormat=N2}"
                                                  Icon="ArrowTopRightBottomLeft">
-                                <controls:RoundedSlider Width="300" HorizontalAlignment="Right" Value="{Binding Blender.BoneLength, Mode=TwoWay}" />
+                                <controls:RoundedSlider Width="300" Minimum="1" Maximum="5" TickFrequency="0.5" HorizontalAlignment="Right" Value="{Binding Blender.BoneSize, Mode=TwoWay}" />
                             </controls:SettingBox>
 
                             <Label Content="Mesh" FontSize="28" FontWeight="SemiBold" Margin="8 0 0 0"
