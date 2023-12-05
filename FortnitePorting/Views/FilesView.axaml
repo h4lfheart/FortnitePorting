@@ -136,10 +136,17 @@
                                                        VerticalAlignment="Center" />
                         </Button>
 
-                        <Button Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                Command="{Binding ExportCommand}">
-                            <controls:MaterialIconText Text="Export" Icon="Export" HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center" />
+                        <Button Grid.Column="2" Command="{Binding ExportCommand}" HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch" Padding="0">
+                            <Grid>
+                                <ProgressBar CornerRadius="5" Background="Transparent" IsVisible="{Binding IsExporting}"
+                                             Minimum="0" Maximum="{Binding ExportChunks}" 
+                                             Value="{Binding ExportProgress}"
+                                             HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                                <controls:MaterialIconText Text="Export" Icon="Export"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center" />
+                            </Grid>
                         </Button>
                     </Grid>
                 </Grid>

@@ -36,6 +36,9 @@ public partial class FilesViewModel : ViewModelBase
     [ObservableProperty] private string searchFilter = string.Empty;
 
     [ObservableProperty] private float scanPercentage;
+    [ObservableProperty] private int exportChunks;
+    [ObservableProperty] private int exportProgress;
+    [ObservableProperty] private bool isExporting;
 
     public bool Started;
     private HashSet<string> AssetsToLoad;
@@ -201,7 +204,11 @@ public partial class FilesViewModel : ViewModelBase
             }
         }
         
+        ExportChunks = 1;
+        ExportProgress = 0;
+        IsExporting = true;
         await ExportService.ExportAsync(exports, ExportType);
+        IsExporting = false;
     }
 
     [RelayCommand]

@@ -238,8 +238,10 @@ public class MeshExportData : ExportDataBase
                 if (asset is not UWorld world) break;
                 if (world.PersistentLevel.Load() is not ULevel level) break;
 
+                FilesVM.ExportChunks = level.Actors.Length;
                 foreach (var actorLazy in level.Actors)
                 {
+                    FilesVM.ExportProgress++;
                     if (actorLazy is null || actorLazy.IsNull) continue;
 
                     var actor = actorLazy.Load();
