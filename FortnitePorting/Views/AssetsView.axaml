@@ -110,7 +110,7 @@
             <ProgressBar Grid.Row="4" IsVisible="{Binding !!CurrentLoader.Total}" Minimum="0"
                          Maximum="{Binding CurrentLoader.Total}" Value="{Binding CurrentLoader.Loaded}" />
             
-            <Grid Grid.Row="6">
+            <Grid Grid.Row="2" Grid.RowSpan="5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="{ext:Space 1}" />
@@ -121,7 +121,7 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 
-                <Expander Grid.Column="0" ExpandDirection="Up" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" MinHeight="36" Padding="8">
+                <Expander x:Name="BottomHeightTemplate" Grid.Column="0" ExpandDirection="Up" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" MinHeight="36" Padding="8">
                     <Expander.Header>
                         <controls:ImageText Text="Cosmetics" Image="/Assets/FN/Locker.png" />
                     </Expander.Header>
@@ -313,6 +313,8 @@
                     </ItemsControl>
                 </Expander>
             </Grid>
+            
+            <Border Grid.Row="6" Height="{Binding ElementName=BottomHeightTemplate, Path=MinHeight}"/>
         </Grid>
 
         <controls:GroupBox Grid.Column="2">

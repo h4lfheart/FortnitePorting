@@ -6,6 +6,7 @@ using CUE4Parse.GameTypes.FN.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Component.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Component.StaticMesh;
+using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Objects;
@@ -279,6 +280,48 @@ public class MeshExportData : ExportDataBase
                         Meshes.AddIfNotNull(exportMesh);
                     }
                 }
+            }
+            case EAssetType.FestivalBass:
+            case EAssetType.FestivalDrum:
+            case EAssetType.FestivalGuitar:
+            case EAssetType.FestivalKeytar:
+            case EAssetType.FestivalMic:
+            {
+                if (asset.TryGetValue(out USkeletalMesh mesh, "Mesh"))
+                {
+                    var exportMesh = Exporter.Mesh(mesh);
+                    
+                    var material = asset.GetOrDefault<UMaterialInterface>("Material");
+                    exportMesh?.Materials.AddIfNotNull(Exporter.Material(material, 0));
+                    
+                    Meshes.AddIfNotNull(exportMesh);
+                }
+                
+                if (asset.TryGetValue(out USkeletalMesh leftHandMesh, "LeftHandMesh"))
+                {
+                    var exportMesh = Exporter.Mesh(leftHandMesh);
+                    
+                    var material = asset.GetOrDefault<UMaterialInterface>("LeftHandMaterial");
+                    exportMesh?.Materials.AddIfNotNull(Exporter.Material(material, 0));
+                    
+                    Meshes.AddIfNotNull(exportMesh);
+                }
+                
+                if (asset.TryGetValue(out USkeletalMesh auxiliaryMesh, "AuxiliaryMesh"))
+                {
+                    var exportMesh = Exporter.Mesh(auxiliaryMesh);
+                    
+                    var auxMaterial = asset.GetOrDefault<UMaterialInterface>("AuxiliaryMaterial");
+                    exportMesh?.Materials.AddIfNotNull(Exporter.Material(auxMaterial, 0));
+                    
+                    var auxMaterial2 = asset.GetOrDefault<UMaterialInterface>("AuxiliaryMaterial2");
+                    exportMesh?.Materials.AddIfNotNull(Exporter.Material(auxMaterial2, 1));
+                    
+                    Meshes.AddIfNotNull(exportMesh);
+                }
+
+                
+                break;
             }
             default:
                 throw new ArgumentOutOfRangeException(nameof(type), type, null);

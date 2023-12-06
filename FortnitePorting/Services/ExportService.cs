@@ -42,7 +42,13 @@ public static class ExportService
         EAssetType.Vehicle,
         EAssetType.Wildlife,
         EAssetType.Mesh,
-        EAssetType.World
+        EAssetType.World,
+        
+        EAssetType.FestivalBass,
+        EAssetType.FestivalDrum,
+        EAssetType.FestivalGuitar,
+        EAssetType.FestivalKeytar,
+        EAssetType.FestivalMic
     };
 
     private static readonly EAssetType[] AnimTypes =

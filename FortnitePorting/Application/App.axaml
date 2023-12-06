@@ -115,7 +115,7 @@
         
         <Style Selector="Expander">
             <Setter Property="CornerRadius" Value="5" />
-            <Setter Property="Background" Value="#13FFFFFF" />
+            <Setter Property="Background" Value="#2b2b2b" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="BorderBrush" Value="#10FFFFFF" />
         </Style>
