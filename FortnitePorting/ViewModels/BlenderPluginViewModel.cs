@@ -27,10 +27,10 @@ public partial class BlenderPluginViewModel : ViewModelBase
 
     public async Task Add()
     {
-        if (CheckBlenderRunning()) return;
-        
         var path = await AppVM.BrowseFileDialog(FileType);
         if (path is null) return;
+        
+        if (CheckBlenderRunning(path)) return;
 
         var versionInfo = FileVersionInfo.GetVersionInfo(path);
         if (Installations.Any(x => x.BlenderVersion.Equals(versionInfo.ProductVersion))) return;
@@ -54,9 +54,9 @@ public partial class BlenderPluginViewModel : ViewModelBase
 
     public async Task SyncAll(bool automatic = false)
     {
-        if (CheckBlenderRunning(automatic)) return;
         foreach (var blenderInstall in Installations)
         {
+            if (CheckBlenderRunning(blenderInstall.BlenderPath)) break;
             await Sync(blenderInstall, automatic);
         }
     }
@@ -91,11 +91,11 @@ public partial class BlenderPluginViewModel : ViewModelBase
         {
             if (automatic) return;
             
-            var process = (Process) sender!;
-            if (process.ExitCode != 1) return;
-
-            MessageWindow.Show("An Error Occured", "Blender failed to enable the FortnitePorting plugin. If this is your first time using syncing the plugin, please enable it yourself in the add-ons tab in Blender preferences.");
-            Log.Error(process.StandardOutput.ReadToEnd());
+            if (sender is Process { ExitCode: 1 } process)
+            {
+                MessageWindow.Show("An Error Occured", "Blender failed to enable the FortnitePorting plugin. If this is your first time using syncing the plugin, please enable it yourself in the add-ons tab in Blender preferences.");
+                Log.Error(process.StandardOutput.ReadToEnd());
+            }
         };
         
         blenderProcess.Start();
@@ -106,12 +106,13 @@ public partial class BlenderPluginViewModel : ViewModelBase
         Directory.Delete(installInfo.AddonPath);
     }
     
-    public bool CheckBlenderRunning(bool automatic = false)
+    public bool CheckBlenderRunning(string path, bool automatic = false)
     {
         var blenderProcesses = Process.GetProcessesByName("blender");
-        if (blenderProcesses.Length > 0 && !automatic)
+        var foundProcess = blenderProcesses.FirstOrDefault(process => process.MainModule?.FileName.Equals(path.Replace("/", "\\")) ?? false);
+        if (foundProcess is not null && !automatic)
         {
-            MessageWindow.Show("Cannot Sync Plugin", "An instance of blender is open. Please close it to sync the plugin.");
+            MessageWindow.Show("Cannot Sync Plugin", $"An instance of blender is open. Please close it to sync the plugin.\n\nPath: \"{path}\"\nPID: {foundProcess.Id}");
             return true;
         }
 
