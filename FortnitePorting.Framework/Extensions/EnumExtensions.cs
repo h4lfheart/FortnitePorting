@@ -5,7 +5,7 @@ using System.Linq;
 using Avalonia.Data.Converters;
 using Avalonia.Markup.Xaml;
 
-namespace FortnitePorting.Extensions;
+namespace FortnitePorting.Framework.Extensions;
 
 public static class EnumExtensions
 {

@@ -2,9 +2,9 @@ using System;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using FortnitePorting.Services;
+using FortnitePorting.Framework.Services;
 
-namespace FortnitePorting.Framework;
+namespace FortnitePorting.Controls;
 
 public partial class MessageWindow : Window
 {

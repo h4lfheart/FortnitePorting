@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CUE4Parse-Conversion", "Dep
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EpicManifestParser", "Dependencies\EpicManifestParser\src\EpicManifestParser\EpicManifestParser.csproj", "{05344F7B-9350-42A4-9688-1E05DA5742BE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortnitePorting.Framework", "FortnitePorting.Framework\FortnitePorting.Framework.csproj", "{AB9364B2-DF4A-496D-A76E-535F641213F1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{05344F7B-9350-42A4-9688-1E05DA5742BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{05344F7B-9350-42A4-9688-1E05DA5742BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{05344F7B-9350-42A4-9688-1E05DA5742BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AB9364B2-DF4A-496D-A76E-535F641213F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB9364B2-DF4A-496D-A76E-535F641213F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB9364B2-DF4A-496D-A76E-535F641213F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB9364B2-DF4A-496D-A76E-535F641213F1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -1,28 +1,22 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:framework="clr-namespace:FortnitePorting.Framework"
-        xmlns:ext="clr-namespace:FortnitePorting.Extensions"
         xmlns:viewmodels="clr-namespace:FortnitePorting.ViewModels"
         xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+        xmlns:framework="clr-namespace:FortnitePorting.Framework;assembly=FortnitePorting.Framework"
+        xmlns:ext="clr-namespace:FortnitePorting.Framework.Extensions;assembly=FortnitePorting.Framework"
         x:Class="FortnitePorting.Application.AppWindow"
         x:DataType="viewmodels:ApplicationViewModel"
-        Title="FortnitePorting" Icon="/Assets/FortnitePortingV2.ico" Width="1280" Height="720"
+        Title="FortnitePorting" Width="1280" Height="720"
         WindowStartupLocation="CenterScreen" FontFamily="Segoe UI"
-        Background="{x:Null}" TransparencyLevelHint="Mica"
+        Background="{x:Null}" TransparencyLevelHint="Mica, AcrylicBlur"
         ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="NoChrome"
         ExtendClientAreaTitleBarHeightHint="0">
-    <Grid RowDefinitions="30, *" Classes.UseFallback="{Binding UseFallbackBackground}"
-          Classes.DontUseFallback="{Binding !UseFallbackBackground}">
-        <Grid.Styles>
-            <Style Selector="Grid.UseFallback">
-                <Setter Property="Background">
-                    <ImageBrush Source="/Assets/FallbackBackground.png" Stretch="Fill" />
-                </Setter>
-            </Style>
-            <Style Selector="Grid.DontUseFallback">
-                <Setter Property="Background" Value="{x:Null}" />
-            </Style>
-        </Grid.Styles>
+    <Grid RowDefinitions="30, *">
+        <ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="2" IsVisible="{Binding UseFallbackBackground}" IsHitTestVisible="False">
+            <ExperimentalAcrylicBorder.Material>
+                <ExperimentalAcrylicMaterial MaterialOpacity="1" TintColor="#110038"/>
+            </ExperimentalAcrylicBorder.Material>
+        </ExperimentalAcrylicBorder>
         <Grid Grid.Row="0" PointerPressed="OnPointerPressed" Background="Transparent" HorizontalAlignment="Stretch">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="{ext:Space 1}" />

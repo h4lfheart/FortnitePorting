@@ -9,7 +9,7 @@ namespace FortnitePorting.Views;
 
 public partial class RadioView : ViewBase<RadioViewModel>
 {
-    public RadioView() : base(lateInit: true)
+    public RadioView() : base(initialize: false)
     {
         InitializeComponent();
     }

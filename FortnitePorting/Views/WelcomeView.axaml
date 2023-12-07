@@ -3,11 +3,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewmodels="clr-namespace:FortnitePorting.ViewModels"
-             xmlns:ext="clr-namespace:FortnitePorting.Extensions"
+             xmlns:ext="clr-namespace:FortnitePorting.Framework.Extensions;assembly=FortnitePorting.Framework"
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
              xmlns:local="clr-namespace:FortnitePorting"
              xmlns:cue4parse="clr-namespace:CUE4Parse;assembly=CUE4Parse"
              xmlns:avalonia="clr-namespace:FortnitePorting.Controls.Avalonia"
+             xmlns:extensions="clr-namespace:FortnitePorting.Extensions"
              mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720"
              x:Class="FortnitePorting.Views.WelcomeView"
              x:DataType="viewmodels:WelcomeViewModel">

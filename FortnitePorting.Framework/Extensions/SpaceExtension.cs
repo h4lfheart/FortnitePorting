@@ -4,7 +4,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 
-namespace FortnitePorting.Extensions;
+namespace FortnitePorting.Framework.Extensions;
 
 public class SpaceExtension : MarkupExtension
 {

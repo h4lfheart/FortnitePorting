@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewmodels="clr-namespace:FortnitePorting.ViewModels"
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
-             xmlns:ext="clr-namespace:FortnitePorting.Extensions"
+             xmlns:ext="clr-namespace:FortnitePorting.Framework.Extensions;assembly=FortnitePorting.Framework"
              xmlns:home="clr-namespace:FortnitePorting.Controls.Home"
              mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="720"
              x:Class="FortnitePorting.Views.HomeView"

@@ -1,58 +1,50 @@
 using System;
 using System.IO;
-using System.Reflection;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Markup.Xaml;
 using CUE4Parse.UE4.Assets;
 using FortnitePorting.Export;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
+using FortnitePorting.Framework.Application;
 using FortnitePorting.Services;
 using FortnitePorting.ViewModels;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
-using AssetLoader = Avalonia.Platform.AssetLoader;
 
 namespace FortnitePorting.Application;
 
-public class App : Avalonia.Application
+public class App : AppBase
 {
+    public static ApplicationViewModel AppVM = null!;
+    public static MainViewModel MainVM => ViewModelRegistry.Get<MainViewModel>()!;
+    public static HomeViewModel HomeVM => ViewModelRegistry.Get<HomeViewModel>()!;
+    public static CUE4ParseViewModel CUE4ParseVM => ViewModelRegistry.Get<CUE4ParseViewModel>()!;
+    public static AssetsViewModel AssetsVM => ViewModelRegistry.Get<AssetsViewModel>()!;
+    public static FilesViewModel FilesVM => ViewModelRegistry.Get<FilesViewModel>()!;
+    public static RadioViewModel RadioVM => ViewModelRegistry.Get<RadioViewModel>()!;
+    
     public static readonly DirectoryInfo AssetsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets"));
     public static readonly DirectoryInfo LogsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs"));
     public static readonly DirectoryInfo DataFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".data"));
     public static readonly DirectoryInfo ChunkCacheFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".chunkcache"));
     public static readonly DirectoryInfo AudioCacheFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".audiocache"));
 
-    public override void OnFrameworkInitializationCompleted()
+    public App() : base(OnStartup, OnExit)
     {
-#if _WINDOWS
-        ConsoleExtensions.AllocConsole();
-#endif
-
-        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-        {
-            ApplicationService.Application = desktop;
-            desktop.Startup += OnStartup;
-            desktop.Exit += OnExit;
-        }
-
-        base.OnFrameworkInitializationCompleted();
+        AvaloniaXamlLoader.Load(this);
     }
 
-    public static void HandleException(Exception exception)
+    protected static void OnExit(object? sender, ControlledApplicationLifetimeExitEventArgs e)
     {
-        Log.Error("{0}", exception);
-        TaskService.RunDispatcher(() => { MessageWindow.Show("An unhandled exception has occurred", $"{exception.GetType().FullName}: {exception.Message}", ApplicationService.Application.MainWindow); });
-    }
-
-    private void OnExit(object? sender, ControlledApplicationLifetimeExitEventArgs e)
-    {
+        RadioVM.Stop();
         AppSettings.Save();
         Log.CloseAndFlush();
-        RadioVM.Stop();
     }
 
-    private void OnStartup(object? sender, ControlledApplicationLifetimeStartupEventArgs e)
+    protected static void OnStartup(object? sender, ControlledApplicationLifetimeStartupEventArgs e)
     {
+        ConsoleExtensions.AllocConsole();
         Console.Title = $"Fortnite Porting Console v{Globals.VERSION}";
         CUE4Parse.Globals.WarnMissingImportPackage = false;
         ObjectTypeRegistry.RegisterEngine(typeof(URegisterThisUObject).Assembly);
@@ -76,6 +68,6 @@ public class App : Avalonia.Application
         DependencyService.EnsureDependencies();
 
         AppVM = new ApplicationViewModel();
-        ApplicationService.Application.MainWindow = new AppWindow();
+        MainWindow = new AppWindow();
     }
 }

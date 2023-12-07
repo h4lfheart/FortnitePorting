@@ -5,8 +5,6 @@ namespace FortnitePorting.Extensions;
 
 public static class ConsoleExtensions
 {
-#if _WINDOWS
-
     [DllImport("kernel32")]
     public static extern bool AllocConsole();
 
@@ -24,5 +22,4 @@ public static class ConsoleExtensions
         var handle = GetConsoleWindow();
         ShowWindow(handle, show ? SW_SHOW : SW_HIDE);
     }
-#endif
 }

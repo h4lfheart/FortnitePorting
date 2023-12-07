@@ -6,8 +6,11 @@ using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FortnitePorting.Application;
+using FortnitePorting.Controls;
 using FortnitePorting.Framework;
+using FortnitePorting.Framework.Application;
 using FortnitePorting.Services;
+using FortnitePorting.Framework.Services;
 using FortnitePorting.Views;
 
 namespace FortnitePorting.ViewModels;
@@ -18,7 +21,7 @@ public partial class ApplicationViewModel : ViewModelBase
 
     [ObservableProperty] private UserControl? currentView;
 
-    [ObservableProperty] private bool useFallbackBackground = AppSettings.Current.UseFallbackBackground || Environment.OSVersion.Platform != PlatformID.Win32NT || (Environment.OSVersion.Platform == PlatformID.Win32NT && Environment.OSVersion.Version.Build < 22000);
+    [ObservableProperty] private bool useFallbackBackground = Environment.OSVersion.Platform != PlatformID.Win32NT || (Environment.OSVersion.Platform == PlatformID.Win32NT && Environment.OSVersion.Version.Build < 22000);
 
     public ApplicationViewModel()
     {
@@ -69,7 +72,7 @@ public partial class ApplicationViewModel : ViewModelBase
 
     public void RestartWithMessage(string caption, string message)
     {
-        MessageWindow.Show(caption, message, ApplicationService.Application.MainWindow, (o, args) => { Restart(); });
+        MessageWindow.Show(caption, message, MainWindow, (o, args) => { Restart(); });
     }
 
     public void Restart()
@@ -80,6 +83,6 @@ public partial class ApplicationViewModel : ViewModelBase
 
     public void Shutdown()
     {
-        ApplicationService.Application.Shutdown();
+        AppBase.Application.Shutdown();
     }
 }

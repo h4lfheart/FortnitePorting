@@ -1,7 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
-             xmlns:ext="clr-namespace:FortnitePorting.Extensions"
+             xmlns:ext="clr-namespace:FortnitePorting.Framework.Extensions;assembly=FortnitePorting.Framework"
              x:Class="FortnitePorting.Controls.GroupBox"
              x:DataType="controls:GroupBox" Background="#10FFFFFF" BorderBrush="#10FFFFFF" CornerRadius="10">
     <UserControl.Styles>

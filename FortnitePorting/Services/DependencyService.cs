@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Avalonia.Platform;
 using FortnitePorting.Application;
 using FortnitePorting.Extensions;
-using Ionic.Zip;
+using FortnitePorting.Framework.Services;
 
 namespace FortnitePorting.Services;
 

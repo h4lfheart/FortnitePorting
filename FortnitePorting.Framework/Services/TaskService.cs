@@ -1,10 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Avalonia.Threading;
-using FortnitePorting.Application;
+using FortnitePorting.Framework.Application;
 
-namespace FortnitePorting.Services;
+namespace FortnitePorting.Framework.Services;
 
 public static class TaskService
 {
@@ -20,7 +17,7 @@ public static class TaskService
             }
             catch (Exception e)
             {
-                App.HandleException(e);
+                AppBase.HandleException(e);
             }
         });
     }
@@ -35,7 +32,7 @@ public static class TaskService
             }
             catch (Exception e)
             {
-                App.HandleException(e);
+                AppBase.HandleException(e);
             }
         });
     }
@@ -50,7 +47,7 @@ public static class TaskService
             }
             catch (Exception e)
             {
-                App.HandleException(e);
+                AppBase.HandleException(e);
             }
         });
     }
@@ -65,7 +62,7 @@ public static class TaskService
             }
             catch (Exception e)
             {
-                App.HandleException(e);
+                AppBase.HandleException(e);
             }
         });
     }
@@ -80,7 +77,7 @@ public static class TaskService
             }
             catch (Exception e)
             {
-                App.HandleException(e);
+                AppBase.HandleException(e);
             }
         }, priority);
     }
@@ -95,7 +92,7 @@ public static class TaskService
             }
             catch (Exception e)
             {
-                App.HandleException(e);
+                AppBase.HandleException(e);
             }
         }, priority);
     }

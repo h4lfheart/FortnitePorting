@@ -1,4 +1,5 @@
-global using static FortnitePorting.Services.ApplicationService;
+global using static FortnitePorting.Application.App;
+global using static FortnitePorting.Framework.Application.AppBase;
 using CUE4Parse.UE4.Objects.Core.Misc;
 
 namespace FortnitePorting;

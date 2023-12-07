@@ -40,23 +40,16 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Update="Application\App.axaml.cs">
-        <DependentUpon>App.axaml</DependentUpon>
-        <SubType>Code</SubType>
-      </Compile>
-      <Compile Update="Views\PluginView.axaml.cs">
-        <DependentUpon>PluginView.axaml</DependentUpon>
-        <SubType>Code</SubType>
-      </Compile>
-      <Compile Update="Controls\ImageText.axaml.cs">
-        <DependentUpon>ImageText.axaml</DependentUpon>
-        <SubType>Code</SubType>
-      </Compile>
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\Dependencies\CUE4Parse\CUE4Parse-Conversion\CUE4Parse-Conversion.csproj" />
       <ProjectReference Include="..\Dependencies\CUE4Parse\CUE4Parse\CUE4Parse.csproj" />
       <ProjectReference Include="..\Dependencies\EpicManifestParser\src\EpicManifestParser\EpicManifestParser.csproj" />
+      <ProjectReference Include="..\FortnitePorting.Framework\FortnitePorting.Framework.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Controls\MessageWindow.axaml.cs">
+        <DependentUpon>MessageWindow.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
     </ItemGroup>
 </Project>

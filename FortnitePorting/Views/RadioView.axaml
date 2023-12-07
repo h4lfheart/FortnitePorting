@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
              xmlns:viewmodels="clr-namespace:FortnitePorting.ViewModels"
-             xmlns:ext="clr-namespace:FortnitePorting.Extensions"
+             xmlns:ext="clr-namespace:FortnitePorting.Framework.Extensions;assembly=FortnitePorting.Framework"
              xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:radio="clr-namespace:FortnitePorting.Controls.Radio"
              mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="620"
