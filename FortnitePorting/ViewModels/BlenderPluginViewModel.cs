@@ -56,7 +56,7 @@ public partial class BlenderPluginViewModel : ViewModelBase
     {
         foreach (var blenderInstall in Installations)
         {
-            if (CheckBlenderRunning(blenderInstall.BlenderPath)) break;
+            if (CheckBlenderRunning(blenderInstall.BlenderPath, automatic)) break;
             await Sync(blenderInstall, automatic);
         }
     }
@@ -108,6 +108,7 @@ public partial class BlenderPluginViewModel : ViewModelBase
     
     public bool CheckBlenderRunning(string path, bool automatic = false)
     {
+        // todo kill process button for messageWindow? add ability to append custom buttons to stuff at bottom
         var blenderProcesses = Process.GetProcessesByName("blender");
         var foundProcess = blenderProcesses.FirstOrDefault(process => process.MainModule?.FileName.Equals(path.Replace("/", "\\")) ?? false);
         if (foundProcess is not null && !automatic)
