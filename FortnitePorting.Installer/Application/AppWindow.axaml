@@ -1,0 +1,57 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ext="clr-namespace:FortnitePorting.Framework.Extensions;assembly=FortnitePorting.Framework"
+        xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+        xmlns:viewModels="clr-namespace:FortnitePorting.Installer.ViewModels"
+        xmlns:framework="clr-namespace:FortnitePorting.Framework;assembly=FortnitePorting.Framework"
+        xmlns:controls="clr-namespace:FortnitePorting.Controls"
+        x:Class="FortnitePorting.Installer.Application.AppWindow"
+        x:DataType="viewModels:ApplicationViewModel"
+        Title="FortnitePorting Installer" Width="560" SizeToContent="Height"
+        WindowStartupLocation="CenterScreen" FontFamily="Segoe UI"
+        Background="{x:Null}" TransparencyLevelHint="Mica, AcrylicBlur" CanResize="False"
+        ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="NoChrome"
+        ExtendClientAreaTitleBarHeightHint="0">
+    <Grid RowDefinitions="30, *">
+        <ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="2" IsVisible="{Binding UseFallbackBackground}" IsHitTestVisible="False">
+            <ExperimentalAcrylicBorder.Material>
+                <ExperimentalAcrylicMaterial MaterialOpacity="1" TintColor="#110038"/>
+            </ExperimentalAcrylicBorder.Material>
+        </ExperimentalAcrylicBorder>
+        <Grid Grid.Row="0" PointerPressed="OnPointerPressed" Background="Transparent" HorizontalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="{ext:Space 1}" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="{ext:Space 0.25}" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="1" Text="FortnitePorting Installer" FontWeight="SemiBold" FontSize="16"
+                       HorizontalAlignment="Left" VerticalAlignment="Center" />
+            <TextBlock Grid.Column="3" Text="{Binding VersionString}" Opacity="0.5" FontSize="13" Margin="0 2 0 0"
+                       HorizontalAlignment="Left" VerticalAlignment="Center" />
+            <Grid Grid.Column="4" ColumnDefinitions="* 4 *" HorizontalAlignment="Right" Margin="{ext:Space 0.5}">
+                <Button Grid.Column="0" Content="{material:MaterialIconExt Kind=Minimize}" Click="OnMinimizeClicked"
+                        CornerRadius="2" Classes="MinimizeMaximize" Width="24" Height="24" HorizontalAlignment="Center"
+                        VerticalAlignment="Center" />
+                <Button Grid.Column="2" Content="{material:MaterialIconExt Kind=Close}" Click="OnCloseClicked"
+                        CornerRadius="2" Classes="CloseWindow" Width="24" Height="24" HorizontalAlignment="Center"
+                        VerticalAlignment="Center" />
+            </Grid>
+        </Grid>
+        
+        <Grid Grid.Row="1" ColumnDefinitions="* 4*" Margin="{ext:Space 1}">
+            <Image Grid.Column="0" Source="avares://FortnitePorting.Framework/Assets/FortnitePortingLarge.png" Width="96" Height="96" VerticalAlignment="Top" RenderOptions.BitmapInterpolationMode="HighQuality"/>
+
+            <TransitioningContentControl Grid.Column="1" Content="{Binding CurrentView}" Padding="{ext:Space 0, 0, 0, 1}">
+                <TransitioningContentControl.PageTransition>
+                    <framework:ViewTransition />
+                </TransitioningContentControl.PageTransition>
+            </TransitioningContentControl>
+        </Grid>
+      
+        
+       
+    </Grid>
+</Window>
