@@ -3,10 +3,11 @@ using System.IO;
 using System.Threading.Tasks;
 using EpicManifestParser.Objects;
 using FortnitePorting.Application;
-using FortnitePorting.Services.Endpoints.Models;
+using FortnitePorting.Framework.ViewModels.Endpoints;
+using FortnitePorting.ViewModels.Endpoints.Models;
 using RestSharp;
 
-namespace FortnitePorting.Services.Endpoints;
+namespace FortnitePorting.ViewModels.Endpoints;
 
 public class EpicGamesEndpoint : EndpointBase
 {

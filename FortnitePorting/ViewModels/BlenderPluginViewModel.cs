@@ -29,7 +29,7 @@ public partial class BlenderPluginViewModel : ViewModelBase
 
     public async Task Add()
     {
-        var path = await AppVM.BrowseFileDialog(FileType);
+        var path = await BrowseFileDialog(FileType);
         if (path is null) return;
         
         if (CheckBlenderRunning(path)) return;

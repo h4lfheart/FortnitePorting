@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using RestSharp;
 using Serilog;
 
-namespace FortnitePorting.Services.Endpoints;
+namespace FortnitePorting.Framework.ViewModels.Endpoints;
 
 public abstract class EndpointBase
 {

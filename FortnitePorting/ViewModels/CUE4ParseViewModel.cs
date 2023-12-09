@@ -90,13 +90,13 @@ public class CUE4ParseViewModel : ViewModelBase
     {
         if (FortniteLive is not null) return;
 
-        var manifestInfo = await EndpointService.EpicGames.GetManifestInfoAsync();
+        var manifestInfo = await EndpointsVM.EpicGames.GetManifestInfoAsync();
         if (manifestInfo is null) return;
 
         HomeVM.Update($"Loading {manifestInfo.BuildVersion}");
 
         var manifestPath = Path.Combine(App.DataFolder.FullName, manifestInfo.FileName);
-        FortniteLive = await EndpointService.EpicGames.GetManifestAsync(manifestInfo.Uris.First().Uri.AbsoluteUri, manifestPath);
+        FortniteLive = await EndpointsVM.EpicGames.GetManifestAsync(manifestInfo.Uris.First().Uri.AbsoluteUri, manifestPath);
 
         var files = FortniteLive.FileManifests.Where(fileManifest => FortniteLiveRegex.IsMatch(fileManifest.Name));
         foreach (var fileManifest in files)
@@ -112,7 +112,7 @@ public class CUE4ParseViewModel : ViewModelBase
 
         var tocName = tocPath.SubstringAfterLast("/");
         var onDemandFile = new FileInfo(Path.Combine(App.DataFolder.FullName, tocName));
-        if (!onDemandFile.Exists || onDemandFile.Length == 0) await EndpointService.DownloadFileAsync($"https://download.epicgames.com/{tocPath}", onDemandFile.FullName);
+        if (!onDemandFile.Exists || onDemandFile.Length == 0) await EndpointsVM.DownloadFileAsync($"https://download.epicgames.com/{tocPath}", onDemandFile.FullName);
 
         await Provider.RegisterVfs(new IoChunkToc(onDemandFile),
             new IoStoreOnDemandOptions
@@ -157,7 +157,7 @@ public class CUE4ParseViewModel : ViewModelBase
             case ELoadingType.Local:
             case ELoadingType.Live:
             {
-                var aes = await EndpointService.FortniteCentral.GetKeysAsync() ?? AppSettings.Current.LastAesResponse;
+                var aes = await EndpointsVM.FortniteCentral.GetKeysAsync() ?? AppSettings.Current.LastAesResponse;
                 if (aes is null) return;
 
                 AppSettings.Current.LastAesResponse = aes;
@@ -200,7 +200,7 @@ public class CUE4ParseViewModel : ViewModelBase
 
     private async Task<string?> GetEndpointMappings()
     {
-        var mappings = await EndpointService.FortniteCentral.GetMappingsAsync(); // ?? BackupAPI?.GetMappings();
+        var mappings = await EndpointsVM.FortniteCentral.GetMappingsAsync(); // ?? BackupAPI?.GetMappings();
         if (mappings is null) return null;
         if (mappings.Length <= 0) return null;
 
@@ -210,7 +210,7 @@ public class CUE4ParseViewModel : ViewModelBase
         var mappingsFilePath = Path.Combine(App.DataFolder.FullName, foundMappings.Filename);
         if (File.Exists(mappingsFilePath)) return null;
 
-        await EndpointService.DownloadFileAsync(foundMappings.URL, mappingsFilePath);
+        await EndpointsVM.DownloadFileAsync(foundMappings.URL, mappingsFilePath);
         return mappingsFilePath;
     }
 

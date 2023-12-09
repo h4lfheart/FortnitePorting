@@ -1,7 +1,7 @@
 using System;
 using J = Newtonsoft.Json.JsonPropertyAttribute;
 
-namespace FortnitePorting.Services.Endpoints.Models;
+namespace FortnitePorting.ViewModels.Endpoints.Models;
 
 public class AuthResponse
 {

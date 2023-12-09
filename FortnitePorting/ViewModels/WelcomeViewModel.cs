@@ -9,6 +9,7 @@ using CUE4Parse.UE4.Versions;
 using CUE4Parse.Utils;
 using FortnitePorting.Application;
 using FortnitePorting.Framework;
+using FortnitePorting.Framework.Application;
 using FortnitePorting.Views;
 using Newtonsoft.Json;
 using Serilog;
@@ -73,19 +74,19 @@ public partial class WelcomeViewModel : ViewModelBase
     [RelayCommand]
     private async Task BrowseLocalArchivePath()
     {
-        if (await AppVM.BrowseFolderDialog() is { } path) LocalArchivePath = path;
+        if (await BrowseFolderDialog() is { } path) LocalArchivePath = path;
     }
 
     [RelayCommand]
     private async Task BrowseCustomArchivePath()
     {
-        if (await AppVM.BrowseFolderDialog() is { } path) CustomArchivePath = path;
+        if (await BrowseFolderDialog() is { } path) CustomArchivePath = path;
     }
 
     [RelayCommand]
     private async Task BrowseMappingsFile()
     {
-        if (await AppVM.BrowseFileDialog(MappingsFileType) is { } path) CustomMappingsPath = path;
+        if (await BrowseFileDialog(MappingsFileType) is { } path) CustomMappingsPath = path;
     }
 
     [RelayCommand]

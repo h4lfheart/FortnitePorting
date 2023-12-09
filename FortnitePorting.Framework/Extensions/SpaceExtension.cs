@@ -8,18 +8,23 @@ namespace FortnitePorting.Framework.Extensions;
 
 public class SpaceExtension : MarkupExtension
 {
-    private readonly double Factor;
+    private readonly double Factor = 1;
+    private readonly Thickness Margin = new(1);
     private const int Default = 8;
 
-    public SpaceExtension()
+    public SpaceExtension(double factor)
     {
-        Factor = 1;
+        Factor = factor;
     }
-
-    public SpaceExtension(string expression)
+    
+    public SpaceExtension(double horizontal, double vertical)
     {
-        var parsed = double.TryParse(expression, NumberStyles.Any, new NumberFormatInfo { NumberDecimalSeparator = "." }, out Factor);
-        if (!parsed) Factor = 0;
+        Margin = new Thickness(horizontal, vertical);
+    }
+    
+    public SpaceExtension(double left, double top, double right, double bottom)
+    {
+        Margin = new Thickness(left, top, right, bottom);
     }
 
     public override object ProvideValue(IServiceProvider serviceProvider)
@@ -29,7 +34,7 @@ public class SpaceExtension : MarkupExtension
 
         return service.TargetProperty switch
         {
-            StyledProperty<Thickness> => new Thickness(Factor * Default),
+            StyledProperty<Thickness> => Margin * Factor * Default,
             StyledProperty<GridLength> => new GridLength(Factor * Default),
             _ => throw new InvalidOperationException()
         };

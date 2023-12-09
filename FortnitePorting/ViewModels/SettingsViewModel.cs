@@ -13,7 +13,7 @@ using FortnitePorting.Application;
 using FortnitePorting.Framework;
 using FortnitePorting.Services;
 using FortnitePorting.Framework.Services;
-using FortnitePorting.Services.Endpoints.Models;
+using FortnitePorting.ViewModels.Endpoints.Models;
 using FortnitePorting.Views;
 using Newtonsoft.Json;
 
@@ -104,21 +104,21 @@ public partial class SettingsViewModel : ViewModelBase
 
     public async Task BrowseLocalArchivePath()
     {
-        if (await AppVM.BrowseFolderDialog() is { } path) LocalArchivePath = path;
+        if (await BrowseFolderDialog() is { } path) LocalArchivePath = path;
     }
 
     public async Task BrowseCustomArchivePath()
     {
-        if (await AppVM.BrowseFolderDialog() is { } path) CustomArchivePath = path;
+        if (await BrowseFolderDialog() is { } path) CustomArchivePath = path;
     }
 
     public async Task BrowseMappingsFile()
     {
-        if (await AppVM.BrowseFileDialog(MappingsFileType) is { } path) CustomMappingsPath = path;
+        if (await BrowseFileDialog(MappingsFileType) is { } path) CustomMappingsPath = path;
     }
 
     public async Task BrowseExportPath()
     {
-        if (await AppVM.BrowseFolderDialog() is { } path) CustomExportPath = path;
+        if (await BrowseFolderDialog() is { } path) CustomExportPath = path;
     }
 }

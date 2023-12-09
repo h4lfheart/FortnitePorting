@@ -1,6 +1,6 @@
 using System;
 
-namespace FortnitePorting.Services.Endpoints.Models;
+namespace FortnitePorting.Framework.ViewModels.Endpoints.Models;
 
 public class ChangelogResponse
 {

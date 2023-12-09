@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using FortnitePorting.Services.Endpoints.Models;
+using FortnitePorting.Framework.ViewModels.Endpoints.Models;
+using FortnitePorting.ViewModels.Endpoints.Models;
 
 namespace FortnitePorting.Controls.Home;
 
@@ -21,6 +22,6 @@ public partial class FeaturedArtItem : UserControl
 
     private void OnSocialsButtonClicked(object? sender, RoutedEventArgs e)
     {
-        AppVM.Launch(SocialsURL);
+        Launch(SocialsURL);
     }
 }

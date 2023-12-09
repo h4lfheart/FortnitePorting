@@ -27,7 +27,7 @@ public partial class HomeViewModel : ViewModelBase
     {
         TaskService.Run(async () =>
         {
-            var changelogEntries = await EndpointService.FortnitePorting.GetChangelogsAsync();
+            var changelogEntries = await EndpointsVM.FortnitePorting.GetChangelogsAsync();
             if (changelogEntries is null) return;
 
             await TaskService.RunDispatcherAsync(() =>
@@ -38,7 +38,7 @@ public partial class HomeViewModel : ViewModelBase
 
         TaskService.Run(async () =>
         {
-            var featured = await EndpointService.FortnitePorting.GetFeaturedAsync();
+            var featured = await EndpointsVM.FortnitePorting.GetFeaturedAsync();
             if (featured is null) return;
 
             await TaskService.RunDispatcherAsync(() =>
@@ -72,7 +72,7 @@ public partial class HomeViewModel : ViewModelBase
     [RelayCommand]
     public void OpenDiscord()
     {
-        AppVM.Launch(Globals.DISCORD_URL);
+        Launch(Globals.DISCORD_URL);
     }
 
     [RelayCommand]

@@ -5,6 +5,7 @@
              xmlns:framework="clr-namespace:FortnitePorting.Framework.Application;assembly=FortnitePorting.Framework"
              x:Class="FortnitePorting.Application.App"
              RequestedThemeVariant="Dark">
+    <!-- TODO LIGHT THEME SUPPORT?? -->
     <Application.Resources>
         <ext:EnumToStringConverter x:Key="EnumToString" />
     </Application.Resources>

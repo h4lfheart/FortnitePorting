@@ -41,7 +41,7 @@ public partial class ExportOptionsViewModel : ViewModelBase
 
     public async Task BrowseSaveFilePath()
     {
-        if (await AppVM.SaveFileDialog(SaveOptions) is { } path)
+        if (await SaveFileDialog(SaveOptions) is { } path)
         {
             var json = JsonConvert.SerializeObject(this, Formatting.Indented);
             await File.WriteAllTextAsync(path, json);
@@ -50,7 +50,7 @@ public partial class ExportOptionsViewModel : ViewModelBase
 
     public async Task BrowseLoadFilePath()
     {
-        if (await AppVM.BrowseFileDialog(LoadFileType) is { } path)
+        if (await BrowseFileDialog(LoadFileType) is { } path)
         {
             var imported = JsonConvert.DeserializeObject<ExportOptionsViewModel>(await File.ReadAllTextAsync(path));
             if (imported is null) return;

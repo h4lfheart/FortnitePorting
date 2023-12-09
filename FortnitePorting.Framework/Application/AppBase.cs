@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input.Platform;
@@ -30,9 +31,12 @@ public abstract class AppBase : Avalonia.Application
     
     public override void OnFrameworkInitializationCompleted()
     {
-        Application = (IClassicDesktopStyleApplicationLifetime) ApplicationLifetime!;
-        Application.Startup += Startup;
-        Application.Exit += Exit;
+        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopLifetime)
+        {
+            Application = desktopLifetime;
+            Application.Startup += Startup;
+            Application.Exit += Exit;
+        }
         
         base.OnFrameworkInitializationCompleted();
     }
@@ -41,5 +45,43 @@ public abstract class AppBase : Avalonia.Application
     {
         Log.Error("{0}", exception);
         //TaskService.RunDispatcher(() => { MessageWindow.Show("An unhandled exception has occurred", $"{exception.GetType().FullName}: {exception.Message}", ApplicationService.Application.MainWindow); });
+    }
+    
+    public static async Task<string?> BrowseFolderDialog(string startLocation = "")
+    {
+        var folders = await StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions { AllowMultiple = false, SuggestedStartLocation = await StorageProvider.TryGetFolderFromPathAsync(startLocation)});
+        var folder = folders.ToArray().FirstOrDefault();
+
+        return folder?.Path.AbsolutePath.Replace("%20", " ");
+    }
+
+    public static async Task<string?> BrowseFileDialog(params FilePickerFileType[] fileTypes)
+    {
+        var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions { AllowMultiple = false, FileTypeFilter = fileTypes });
+        var file = files.ToArray().FirstOrDefault();
+
+        return file?.Path.AbsolutePath.Replace("%20", " ");
+    }
+
+    public static async Task<string?> SaveFileDialog(FilePickerSaveOptions saveOptions = default)
+    {
+        var file = await StorageProvider.SaveFilePickerAsync(saveOptions);
+        return file?.Path.AbsolutePath.Replace("%20", " ");
+    }
+    
+    public static void Launch(string location, bool shellExecute = true)
+    {
+        Process.Start(new ProcessStartInfo { FileName = location, UseShellExecute = shellExecute });
+    }
+
+    public static void Restart()
+    {
+        Launch(AppDomain.CurrentDomain.FriendlyName, false);
+        Shutdown();
+    }
+
+    public static void Shutdown()
+    {
+        Application.Shutdown();
     }
 }

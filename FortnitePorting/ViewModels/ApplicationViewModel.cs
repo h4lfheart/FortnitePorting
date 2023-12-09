@@ -38,33 +38,6 @@ public partial class ApplicationViewModel : ViewModelBase
         }
     }
 
-    public void Launch(string location, bool shellExecute = true)
-    {
-        Process.Start(new ProcessStartInfo { FileName = location, UseShellExecute = shellExecute });
-    }
-
-    public async Task<string?> BrowseFolderDialog()
-    {
-        var folders = await StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions { AllowMultiple = false });
-        var folder = folders.ToArray().FirstOrDefault();
-
-        return folder?.Path.AbsolutePath.Replace("%20", " ");
-    }
-
-    public async Task<string?> BrowseFileDialog(params FilePickerFileType[] fileTypes)
-    {
-        var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions { AllowMultiple = false, FileTypeFilter = fileTypes });
-        var file = files.ToArray().FirstOrDefault();
-
-        return file?.Path.AbsolutePath.Replace("%20", " ");
-    }
-
-    public async Task<string?> SaveFileDialog(FilePickerSaveOptions saveOptions = default)
-    {
-        var file = await StorageProvider.SaveFilePickerAsync(saveOptions);
-        return file?.Path.AbsolutePath.Replace("%20", " ");
-    }
-
     public void SetView<T>() where T : UserControl, new()
     {
         CurrentView = new T();

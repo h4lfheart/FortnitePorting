@@ -23,6 +23,7 @@ public class App : AppBase
     public static AssetsViewModel AssetsVM => ViewModelRegistry.Get<AssetsViewModel>()!;
     public static FilesViewModel FilesVM => ViewModelRegistry.Get<FilesViewModel>()!;
     public static RadioViewModel RadioVM => ViewModelRegistry.Get<RadioViewModel>()!;
+    public static EndpointViewModel EndpointsVM => ViewModelRegistry.Get<EndpointViewModel>()!;
     
     public static readonly DirectoryInfo AssetsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets"));
     public static readonly DirectoryInfo LogsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs"));
@@ -66,6 +67,7 @@ public class App : AppBase
         if (AppSettings.Current.UseDiscordRPC) DiscordService.Initialize();
 
         DependencyService.EnsureDependencies();
+        ViewModelRegistry.Register<EndpointViewModel>();
 
         AppVM = new ApplicationViewModel();
         MainWindow = new AppWindow();

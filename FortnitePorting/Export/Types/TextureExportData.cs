@@ -20,6 +20,6 @@ public class TextureExportData : ExportDataBase
     {
         var texture = asset.Get<UTexture2D>(TextureNames[type]);
         var exportPath = Exporter.Export(texture, true);
-        AppVM.Launch(Path.GetDirectoryName(exportPath)!);
+        Launch(Path.GetDirectoryName(exportPath)!);
     }
 }

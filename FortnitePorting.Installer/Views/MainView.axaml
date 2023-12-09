@@ -1,0 +1,35 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:viewModels="clr-namespace:FortnitePorting.Installer.ViewModels"
+             xmlns:ext="clr-namespace:FortnitePorting.Framework.Extensions;assembly=FortnitePorting.Framework"
+             xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="560" d:DesignHeight="210"
+             x:Class="FortnitePorting.Installer.Views.MainView"
+             x:DataType="viewModels:MainViewModel">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="{ext:Space 1}"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="{ext:Space 1}"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <TextBlock Grid.Row="0" Text="Fortnite Porting Setup" FontWeight="SemiBold" FontSize="28" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+        <TextBlock Grid.Row="2" Text="This will install Fortnite Porting on your computer." TextWrapping="WrapWithOverflow" TextAlignment="Left" Opacity="0.5" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+        <Grid Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="{ext:Space 1}"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="{ext:Space 1}"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBox Grid.Column="0" Text="{Binding InstallationPath}" HorizontalAlignment="Stretch" VerticalAlignment="Center" Watermark="Installation Path"/>
+            <Button Grid.Column="2" Content="{material:MaterialIconExt Folder}" HorizontalAlignment="Center" VerticalAlignment="Center" Command="{Binding BrowseInstallPath}"/>
+            <Button Grid.Column="4" Content="Install" HorizontalAlignment="Center" VerticalAlignment="Center" Command="{Binding StartInstall}"/>
+        </Grid>
+    </Grid>
+</UserControl>

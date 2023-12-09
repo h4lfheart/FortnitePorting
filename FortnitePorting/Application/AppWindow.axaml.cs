@@ -29,6 +29,6 @@ public partial class AppWindow : Window
 
     private void OnCloseClicked(object? sender, RoutedEventArgs e)
     {
-        AppVM.Shutdown();
+        Shutdown();
     }
 }

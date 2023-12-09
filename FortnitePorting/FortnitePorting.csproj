@@ -5,7 +5,7 @@
         <LangVersion>latest</LangVersion>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
         <OutputType>WinExe</OutputType>
-        <ApplicationIcon>Assets/FortnitePortingV2.ico</ApplicationIcon>
+        <ApplicationIcon>../FortnitePorting.Framework/Assets/FortnitePortingV2.ico</ApplicationIcon>
     </PropertyGroup>
 
     <PropertyGroup>
