@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.UE4.Assets.Exports;
@@ -12,16 +13,17 @@ using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Objects.Engine;
-using CUE4Parse.Utils;
 using DynamicData;
 using DynamicData.Binding;
 using FortnitePorting.Application;
 using FortnitePorting.Controls.Avalonia;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
+using FortnitePorting.Framework.Extensions;
 using FortnitePorting.Services;
 using FortnitePorting.Framework.Services;
 using ReactiveUI;
+using Serilog;
 
 namespace FortnitePorting.ViewModels;
 
@@ -113,26 +115,30 @@ public partial class FilesViewModel : ViewModelBase
         HomeVM.Update(string.Empty);
     }
 
-    // TODO is there any way to make performance better?
     public async Task LoadFiles()
     {
         if (Started) return;
+        
         Started = true;
         AssetFilter = this
             .WhenAnyValue(x => x.SearchFilter)
+            .Throttle(TimeSpan.FromMilliseconds(500))
             .Select(CreateAssetFilter);
 
         AssetItemsSource.Connect()
-            .ObserveOn(RxApp.MainThreadScheduler)
+            .ObserveOn(RxApp.TaskpoolScheduler)
             .Filter(AssetFilter)
             .Sort(SortExpressionComparer<FlatViewItem>.Ascending(x => x.Path))
+            .ObserveOn(RxApp.MainThreadScheduler)
             .Bind(out var tempTarget)
+            .DisposeMany()
             .Subscribe();
         AssetItemsTarget = tempTarget;
 
         TreeItems.SetSuppression(true);
         AssetItems.SetSuppression(true);
 
+        AssetsVM.CurrentLoader?.Pause.Pause();
         await TaskService.RunDispatcherAsync(() =>
         {
             foreach (var path in AssetsToLoad)
@@ -158,15 +164,17 @@ public partial class FilesViewModel : ViewModelBase
 
                     children = foundNode.Children;
                 }
+               
             }
         });
-
-        foreach (var child in TreeItems) child.InvokeOnCollectionChanged();
-
+        
         TreeItems.InvokeOnCollectionChanged();
-
+        foreach (var child in TreeItems) child.InvokeOnCollectionChanged();
+        
         AssetItems.InvokeOnCollectionChanged();
         AssetItemsSource.AddRange(AssetItems);
+        
+        AssetsVM.CurrentLoader?.Pause.Unpause();
     }
 
     [RelayCommand]
@@ -175,37 +183,18 @@ public partial class FilesViewModel : ViewModelBase
         var exports = new List<KeyValuePair<UObject, EAssetType>>();
         foreach (var item in SelectedExportItems)
         {
-            switch (item.Extension)
+            var asset = await CUE4ParseVM.Provider.LoadObjectAsync(FixPath(item.PathWithoutExtension));
+            var assetType = asset switch
             {
-                case "uasset":
-                {
-                    var asset = await CUE4ParseVM.Provider.LoadObjectAsync(item.PathWithoutExtension);
-                    var assetType = asset switch
-                    {
-                        USkeletalMesh => EAssetType.Mesh,
-                        UStaticMesh => EAssetType.Mesh,
-                        UTexture => EAssetType.Texture,
-                        _ => EAssetType.None
-                    };
+                USkeletalMesh => EAssetType.Mesh,
+                UStaticMesh => EAssetType.Mesh,
+                UTexture => EAssetType.Texture,
+                UWorld => EAssetType.World,
+                _ => EAssetType.None
+            };
                     
-                    if (assetType is not EAssetType.None)
-                        exports.Add(new KeyValuePair<UObject, EAssetType>(asset, assetType));
-                
-                    break;
-                }
-                case "umap":
-                {
-                    var path = item.PathWithoutExtension;
-                    if (path.Contains("_Generated_"))
-                    {
-                        path += "." + path.SubstringBeforeLast("/_Generated").SubstringAfterLast("/");
-                    }
-
-                    var asset = await CUE4ParseVM.Provider.LoadObjectAsync(path);
-                    exports.Add(new KeyValuePair<UObject, EAssetType>(asset, EAssetType.World));
-                    break;
-                }
-            }
+            if (assetType is not EAssetType.None)
+                exports.Add(new KeyValuePair<UObject, EAssetType>(asset, assetType));
         }
         
         ExportChunks = 1;
@@ -228,11 +217,12 @@ public partial class FilesViewModel : ViewModelBase
 
                 if (!IsValidPath(filePath)) continue;
 
+                var fixPath = FixPath(filePath);
                 var percentage = index / total * 100;
                 if (Math.Abs(ScanPercentage - percentage) > 0.01f) ScanPercentage = percentage;
 
                 var obj = await CUE4ParseVM.Provider.TryLoadObjectAsync(file.PathWithoutExtension);
-                if (obj is null || !ValidExportTypes.Any(type => obj.GetType().IsAssignableTo(type))) AppSettings.Current.HiddenFilePaths.Add(filePath);
+                if (obj is null || !ValidExportTypes.Any(type => obj.GetType().IsAssignableTo(type))) AppSettings.Current.HiddenFilePaths.Add(fixPath);
             }
 
             ScanPercentage = 100.0f;
@@ -290,10 +280,23 @@ public partial class FilesViewModel : ViewModelBase
         return isValidPathType && !isInRegistry && !isFiltered && !isFilteredByScan;
     }
 
-    // TODO how to make search performance better, fmodel can handle every asset fine so why cant this??
-    public Func<FlatViewItem, bool> CreateAssetFilter(string searchFilter)
+    private string FixPath(string path)
     {
-        return asset => MiscExtensions.Filter(asset.Path, searchFilter);
+        var outPath = path;
+        if (outPath.EndsWith("umap"))
+        {
+            if (outPath.Contains("_Generated_"))
+            {
+                outPath += "." + path.SubstringBeforeLast("/_Generated").SubstringAfterLast("/");
+            }
+        }
+
+        return outPath;
+    }
+
+    private Func<FlatViewItem, bool> CreateAssetFilter(string filter)
+    {
+        return asset => MiscExtensions.Filter(asset.Path, filter);
     }
 }
 

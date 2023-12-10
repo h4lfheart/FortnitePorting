@@ -34,7 +34,7 @@
                     <ColumnDefinition Width="{ext:Space 1}" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <TextBox x:Name="SearchTextBox" Grid.Column="0" Watermark="Search" HorizontalAlignment="Stretch" TextChanged="OnSearchTextChanged"/>
+                <TextBox x:Name="SearchTextBox" Grid.Column="0" Text="{Binding SearchFilter}" Watermark="Search" HorizontalAlignment="Stretch"/>
                 <Button Grid.Column="2" Content="Scan for Files" Command="{Binding ScanContentCommand}" />
                 <TextBlock Grid.Column="4" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <TextBlock.Text>
@@ -59,12 +59,17 @@
                                     <TextBlock Text="{Binding Path}" Padding="0" Margin="0" />
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel/>
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
                         </ListBox>
                     </ScrollViewer>
                 </Grid>
             </controls:GroupBox>
             <TextBlock Grid.Row="2" Grid.RowSpan="3" Grid.Column="0" Text="No Files Loaded"
-                       IsVisible="{Binding AssetItemsTarget, Converter={x:Static ObjectConverters.IsNull}}"
+                       IsVisible="{Binding !AssetItems.Count}"
                        Opacity="0.5" HorizontalAlignment="Center" VerticalAlignment="Center" />
 
             <GridSplitter Grid.Row="0" Grid.RowSpan="5" Grid.Column="1" Background="Transparent"
@@ -107,6 +112,9 @@
                     </TreeView>
                 </Grid>
             </controls:GroupBox>
+            <TextBlock Grid.Row="0" Grid.RowSpan="3" Grid.Column="2" Text="No Files Loaded"
+                       IsVisible="{Binding !AssetItems.Count}"
+                       Opacity="0.5" HorizontalAlignment="Center" VerticalAlignment="Center" />
 
             <GridSplitter Grid.Row="3" Grid.Column="2" Background="Transparent" ResizeDirection="Rows" />
 
