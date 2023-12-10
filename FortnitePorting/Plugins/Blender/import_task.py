@@ -98,6 +98,10 @@ toon_mappings = MappingCollection(
         SlotMapping("InkLineColor_Texture"),
         SlotMapping("SSC_Texture"),
         SlotMapping("Normals")
+    ],
+    scalars=[
+        SlotMapping("ShadedColorDarkening"),
+        SlotMapping("PBR_Shading", "Use PBR Shading", value_func=lambda value: int(value))
     ]
 )
 
@@ -311,11 +315,12 @@ class ImportTask:
             master_mesh = get_armature_mesh(master_skeleton)
 
             if is_toon:
+                # todo custom outline color from mat
                 master_mesh.data.materials.append(bpy.data.materials.get("M_FP_Outline"))
 
                 solidify = master_mesh.modifiers.new(name="Outline", type='SOLIDIFY')
                 solidify.thickness = 0.001
-                solidify.offset = 0
+                solidify.offset = 1
                 solidify.thickness_clamp = 5.0
                 solidify.use_rim = False
                 solidify.use_flip_normals = True
