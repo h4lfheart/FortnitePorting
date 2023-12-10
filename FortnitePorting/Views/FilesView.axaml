@@ -129,7 +129,7 @@
                     <Grid Grid.Row="0" ColumnDefinitions="* 3.25*">
                         <TextBlock Grid.Column="0" Text="Export To" VerticalAlignment="Center" Margin="3 0 0 2" />
                         <ComboBox Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                                  ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EExportType}}"
+                                  ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EExportTargetType}}"
                                   SelectedItem="{Binding ExportType, Converter={StaticResource EnumToString}}" />
                     </Grid>
 

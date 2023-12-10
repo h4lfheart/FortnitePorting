@@ -28,52 +28,12 @@ public static class ExportService
 
     private const int BLENDER_PORT = 24000;
     private const int UNREAL_PORT = 24001;
-
-    private static readonly EAssetType[] MeshTypes =
-    {
-        EAssetType.Outfit,
-        EAssetType.LegoOutfit,
-        EAssetType.Backpack,
-        EAssetType.Pickaxe,
-        EAssetType.Glider,
-        EAssetType.Pet,
-        EAssetType.Toy,
-        EAssetType.Prop,
-        EAssetType.Prefab,
-        EAssetType.Item,
-        EAssetType.Resource,
-        EAssetType.Trap,
-        EAssetType.Vehicle,
-        EAssetType.Wildlife,
-        EAssetType.Mesh,
-        EAssetType.World,
-        
-        EAssetType.FestivalBass,
-        EAssetType.FestivalDrum,
-        EAssetType.FestivalGuitar,
-        EAssetType.FestivalKeytar,
-        EAssetType.FestivalMic
-    };
-
-    private static readonly EAssetType[] AnimTypes =
-    {
-        EAssetType.Emote
-    };
-
-    private static readonly EAssetType[] TextureTypes =
-    {
-        EAssetType.Texture,
-        EAssetType.Emoticon,
-        EAssetType.Spray,
-        EAssetType.Banner,
-        EAssetType.LoadingScreen
-    };
-
-    public static async Task ExportAsync(List<AssetOptions> exports, EExportType exportType)
+    
+    public static async Task ExportAsync(List<AssetOptions> exports, EExportTargetType exportType)
     {
         await TaskService.RunAsync(async () =>
         {
-            if (exportType is EExportType.Folder)
+            if (exportType is EExportTargetType.Folder)
             {
                 exports.ForEach(export => CreateExportData(export.AssetItem.DisplayName, export.AssetItem.Asset, export.GetSelectedStyles(), export.AssetItem.Type, exportType));
                 return;
@@ -81,8 +41,8 @@ public static class ExportService
 
             var exportService = exportType switch
             {
-                EExportType.Blender => Blender,
-                EExportType.Unreal => Unreal
+                EExportTargetType.Blender => Blender,
+                EExportTargetType.Unreal => Unreal
             };
 
             if (!exportService.Ping())
@@ -101,11 +61,11 @@ public static class ExportService
         });
     }
 
-    public static async Task ExportAsync(List<KeyValuePair<UObject, EAssetType>> assets, EExportType exportType)
+    public static async Task ExportAsync(List<KeyValuePair<UObject, EAssetType>> assets, EExportTargetType exportType)
     {
         await TaskService.RunAsync(async () =>
         {
-            if (exportType is EExportType.Folder)
+            if (exportType is EExportTargetType.Folder)
             {
                 assets.ForEach(kvp => CreateExportData(kvp.Key.Name, kvp.Key, Array.Empty<FStructFallback>(), kvp.Value, exportType));
                 return;
@@ -113,8 +73,8 @@ public static class ExportService
 
             var exportService = exportType switch
             {
-                EExportType.Blender => Blender,
-                EExportType.Unreal => Unreal
+                EExportTargetType.Blender => Blender,
+                EExportTargetType.Unreal => Unreal
             };
 
             if (!exportService.Ping())
@@ -133,7 +93,7 @@ public static class ExportService
         });
     }
 
-    private static ExportResponse CreateExportResponse(ExportDataBase[] exportData, EExportType exportType)
+    private static ExportResponse CreateExportResponse(ExportDataBase[] exportData, EExportTargetType exportType)
     {
         return new ExportResponse
         {
@@ -143,15 +103,15 @@ public static class ExportService
         };
     }
 
-    private static ExportDataBase CreateExportData(string name, UObject asset, FStructFallback[] styles, EAssetType assetType, EExportType exportType)
+    private static ExportDataBase CreateExportData(string name, UObject asset, FStructFallback[] styles, EAssetType assetType, EExportTargetType exportType)
     {
-        if (MeshTypes.Contains(assetType)) return new MeshExportData(name, asset, styles, assetType, exportType);
-
-        if (AnimTypes.Contains(assetType)) return new AnimExportData(name, asset, styles, assetType, exportType);
-
-        if (TextureTypes.Contains(assetType)) return new TextureExportData(name, asset, styles, assetType, exportType);
-
-        return null!; // never reached idc
+        return assetType.GetExportType() switch
+        {
+            EExportType.Mesh => new MeshExportData(name, asset, styles, assetType, exportType),
+            EExportType.Animation => new AnimExportData(name, asset, styles, assetType, exportType),
+            EExportType.Texture => new TextureExportData(name, asset, styles, assetType, exportType),
+            _ => throw new ArgumentOutOfRangeException(assetType.ToString())
+        };
     }
 }
 

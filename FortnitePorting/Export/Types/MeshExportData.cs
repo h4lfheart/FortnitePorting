@@ -27,7 +27,7 @@ public class MeshExportData : ExportDataBase
     public readonly List<ExportOverrideMaterial> OverrideMaterials = new();
     public readonly List<ExportOverrideParameters> OverrideParameters = new();
 
-    public MeshExportData(string name, UObject asset, FStructFallback[] styles, EAssetType type, EExportType exportType) : base(name, asset, styles, type, exportType)
+    public MeshExportData(string name, UObject asset, FStructFallback[] styles, EAssetType type, EExportTargetType exportType) : base(name, asset, styles, type, exportType)
     {
         switch (type)
         {

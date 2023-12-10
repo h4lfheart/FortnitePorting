@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using FortnitePorting.Extensions;
 
 namespace FortnitePorting;
 
@@ -19,92 +20,116 @@ public enum EAssetType
     [Description("None")]
     None,
     
-    [Description("Outfits")]
+    // COSMETIC
+    
+    [Description("Outfits"), Export(EExportType.Mesh)]
     Outfit,
     
-    [Description("Lego Outfits")]
+    [Description("Lego Outfits"), Export(EExportType.Mesh)]
     LegoOutfit,
 
-    [Description("Back Blings")]
+    [Description("Back Blings"), Export(EExportType.Mesh)]
     Backpack,
 
-    [Description("Pickaxes")]
+    [Description("Pickaxes"), Export(EExportType.Mesh)]
     Pickaxe,
 
-    [Description("Gliders")]
+    [Description("Gliders"), Export(EExportType.Mesh)]
     Glider,
 
-    [Description("Pets")]
+    [Description("Pets"), Export(EExportType.Mesh)]
     Pet,
 
-    [Description("Toys")]
+    [Description("Toys"), Export(EExportType.Mesh)]
     Toy,
 
-    [Description("Emoticons")]
+    [Description("Emoticons"), Export(EExportType.Texture)]
     Emoticon,
 
-    [Description("Sprays")]
+    [Description("Sprays"), Export(EExportType.Texture)]
     Spray,
 
-    [Description("Banners")]
+    [Description("Banners"), Export(EExportType.Texture)]
     Banner,
 
-    [Description("Loading Screens")]
+    [Description("Loading Screens"), Export(EExportType.Texture)]
     LoadingScreen,
 
-    [Description("Emotes")]
+    [Description("Emotes"), Export(EExportType.Animation)]
     Emote,
+    
+    // CREATIVE
 
-    [Description("Props")]
+    [Description("Props"), Export(EExportType.Mesh)]
     Prop,
 
-    [Description("Prefabs")]
+    [Description("Prefabs"), Export(EExportType.Mesh)]
     Prefab,
+    
+    // GAMEPLAY
 
-    [Description("Items")]
+    [Description("Items"), Export(EExportType.Mesh)]
     Item,
     
-    [Description("Resources")]
+    [Description("Resources"), Export(EExportType.Mesh)]
     Resource,
 
-    [Description("Traps")]
+    [Description("Traps"), Export(EExportType.Mesh)]
     Trap,
 
-    [Description("Vehicles")]
+    [Description("Vehicles"), Export(EExportType.Mesh)]
     Vehicle,
 
-    [Description("Wildlife")]
+    [Description("Wildlife"), Export(EExportType.Mesh)]
     Wildlife,
-
-    [Description("Mesh")]
-    Mesh,
-    
-    [Description("World")]
-    World,
-    
-    [Description("Texture")]
-    Texture,
     
     // FESTIVAL
     
-    [Description("Guitar")]
+    [Description("Guitar"), Export(EExportType.Mesh)]
     FestivalGuitar,
     
-    [Description("Bass")]
+    [Description("Bass"), Export(EExportType.Mesh)]
     FestivalBass,
     
-    [Description("Keytar")]
+    [Description("Keytar"), Export(EExportType.Mesh)]
     FestivalKeytar,
     
-    [Description("Drum")]
+    [Description("Drum"), Export(EExportType.Mesh)]
     FestivalDrum,
     
-    [Description("Mic")]
-    FestivalMic
+    [Description("Mic"), Export(EExportType.Mesh)]
+    FestivalMic,
+    
+    // GENERIC
+
+    [Description("Mesh"), Export(EExportType.Mesh)]
+    Mesh,
+    
+    [Description("World"), Export(EExportType.Mesh)]
+    World,
+    
+    [Description("Texture"), Export(EExportType.Texture)]
+    Texture,
+    
+    [Description("Animation"), Export(EExportType.Animation)]
+    Animation
     
 }
 
 public enum EExportType
+{
+    [Description("Mesh")]
+    Mesh,
+
+    [Description("Animation")]
+    Animation,
+
+    [Description("Texture")]
+    Texture
+}
+
+
+public enum EExportTargetType
 {
     [Description("Blender")]
     Blender,

@@ -16,13 +16,13 @@ public partial class ExportOptionsViewModel : ViewModelBase
     [ObservableProperty] private UnrealExportOptions unreal = new();
     [ObservableProperty] private FolderExportOptions folder = new();
 
-    public ExportOptionsBase Get(EExportType type)
+    public ExportOptionsBase Get(EExportTargetType type)
     {
         return type switch
         {
-            EExportType.Blender => Blender,
-            EExportType.Unreal => Unreal,
-            EExportType.Folder => Folder
+            EExportTargetType.Blender => Blender,
+            EExportTargetType.Unreal => Unreal,
+            EExportTargetType.Folder => Folder
         };
     }
 

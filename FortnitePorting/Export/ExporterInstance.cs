@@ -41,7 +41,7 @@ public class ExporterInstance
         "M_Trap_InvalidAttachment"
     };
 
-    public ExporterInstance(EExportType exportType)
+    public ExporterInstance(EExportTargetType exportType)
     {
         AppExportOptions = AppSettings.Current.ExportOptions.Get(exportType);
         FileExportOptions = AppExportOptions.CreateExportOptions();
@@ -85,7 +85,7 @@ public class ExporterInstance
                         if (animBlueprintData.TryGetValue(out FStructFallback poseAssetNode, "AnimGraphNode_PoseBlendNode"))
                         {
                             var poseAsset = poseAssetNode.Get<UPoseAsset>("PoseAsset");
-                            Log.Information(poseAsset.GetPathName());
+                            // TODO Pose Asset Data
                         }
                     }
 

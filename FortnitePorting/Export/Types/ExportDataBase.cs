@@ -11,7 +11,7 @@ public abstract class ExportDataBase
     public string Type;
     [JsonIgnore] protected readonly ExporterInstance Exporter;
 
-    public ExportDataBase(string name, UObject asset, FStructFallback[] styles, EAssetType type, EExportType exportType)
+    public ExportDataBase(string name, UObject asset, FStructFallback[] styles, EAssetType type, EExportTargetType exportType)
     {
         Name = name;
         Type = type.ToString();

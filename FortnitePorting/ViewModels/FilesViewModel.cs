@@ -9,6 +9,7 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
@@ -29,7 +30,7 @@ namespace FortnitePorting.ViewModels;
 
 public partial class FilesViewModel : ViewModelBase
 {
-    [ObservableProperty] private EExportType exportType = EExportType.Blender;
+    [ObservableProperty] private EExportTargetType exportType = EExportTargetType.Blender;
     [ObservableProperty] private TreeNodeItem selectedTreeItem;
     [ObservableProperty] private FlatViewItem selectedFlatViewItem;
     [ObservableProperty] private ObservableCollection<FlatViewItem> selectedExportItems = new();
@@ -59,14 +60,12 @@ public partial class FilesViewModel : ViewModelBase
         "/Audio",
         "/Sound",
         "/Materials",
-        "/Anims",
         "/DataTables",
         "/TextureData",
         "/ActorBlueprints",
         "/Physics",
         "/_Verse",
         "/VectorFields",
-        "/Animation/Game",
 
         // Prefixes
         "/PID_",
@@ -98,7 +97,8 @@ public partial class FilesViewModel : ViewModelBase
         typeof(USkeletalMesh),
         typeof(UStaticMesh),
         typeof(UWorld),
-        typeof(UTexture)
+        typeof(UTexture),
+        typeof(UAnimationAsset)
     };
 
     public override async Task Initialize()
@@ -190,6 +190,7 @@ public partial class FilesViewModel : ViewModelBase
                 UStaticMesh => EAssetType.Mesh,
                 UTexture => EAssetType.Texture,
                 UWorld => EAssetType.World,
+                UAnimationAsset => EAssetType.Animation,
                 _ => EAssetType.None
             };
                     

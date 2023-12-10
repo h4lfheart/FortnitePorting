@@ -46,12 +46,12 @@ public partial class AssetsViewModel : ViewModelBase
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(IsFolderOnlyExport))]
     private EAssetType currentAssetType;
 
-    [ObservableProperty] private ObservableCollection<EExportType> folderExportEnumCollection = new(new[] { EExportType.Folder });
+    [ObservableProperty] private ObservableCollection<EExportTargetType> folderExportEnumCollection = new(new[] { EExportTargetType.Folder });
 
     [ObservableProperty] private int exportChunks;
     [ObservableProperty] private int exportProgress;
     [ObservableProperty] private bool isExporting;
-    [ObservableProperty] private EExportType exportType = EExportType.Blender;
+    [ObservableProperty] private EExportTargetType exportType = EExportTargetType.Blender;
     [ObservableProperty] private ReadOnlyObservableCollection<AssetItem> activeCollection;
 
     [ObservableProperty] private ESortType sortType = ESortType.Default;
@@ -420,7 +420,7 @@ public partial class AssetsViewModel : ViewModelBase
         ExportChunks = 1;
         ExportProgress = 0;
         IsExporting = true;
-        await ExportService.ExportAsync(CurrentAssets.ToList(), IsFolderOnlyExport ? EExportType.Folder : ExportType);
+        await ExportService.ExportAsync(CurrentAssets.ToList(), IsFolderOnlyExport ? EExportTargetType.Folder : ExportType);
         IsExporting = false;
     }
 
