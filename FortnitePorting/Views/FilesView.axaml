@@ -34,7 +34,7 @@
                     <ColumnDefinition Width="{ext:Space 1}" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <TextBox Grid.Column="0" Watermark="Search" Text="{Binding SearchFilter}" HorizontalAlignment="Stretch" />
+                <TextBox x:Name="SearchTextBox" Grid.Column="0" Watermark="Search" HorizontalAlignment="Stretch" TextChanged="OnSearchTextChanged"/>
                 <Button Grid.Column="2" Content="Scan for Files" Command="{Binding ScanContentCommand}" />
                 <TextBlock Grid.Column="4" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <TextBlock.Text>

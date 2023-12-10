@@ -82,6 +82,9 @@ public enum EAssetType
     [Description("World")]
     World,
     
+    [Description("Texture")]
+    Texture,
+    
     // FESTIVAL
     
     [Description("Guitar")]

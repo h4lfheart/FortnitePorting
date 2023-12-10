@@ -10,6 +10,8 @@ using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
+using CUE4Parse.UE4.Assets.Exports.Texture;
+using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.Utils;
 using DynamicData;
 using DynamicData.Binding;
@@ -52,19 +54,16 @@ public partial class FilesViewModel : ViewModelBase
         "Engine/",
         "/Sounds",
         "/Playsets",
-        "/UI",
-        "/2dAssets",
-        "/Textures",
         "/Audio",
         "/Sound",
         "/Materials",
-        "/Icons",
         "/Anims",
         "/DataTables",
         "/TextureData",
         "/ActorBlueprints",
         "/Physics",
         "/_Verse",
+        "/VectorFields",
         "/Animation/Game",
 
         // Prefixes
@@ -73,7 +72,6 @@ public partial class FilesViewModel : ViewModelBase
         "/MI_",
         "/MF_",
         "/NS_",
-        "/T_",
         "/P_",
         "/TD_",
         "/MPC_",
@@ -93,11 +91,12 @@ public partial class FilesViewModel : ViewModelBase
         "NaniteDisplacement"
     };
 
-    private readonly string[] ValidExportTypes =
+    private readonly Type[] ValidExportTypes =
     {
-        "SkeletalMesh",
-        "StaticMesh",
-        "World"
+        typeof(USkeletalMesh),
+        typeof(UStaticMesh),
+        typeof(UWorld),
+        typeof(UTexture)
     };
 
     public override async Task Initialize()
@@ -114,11 +113,14 @@ public partial class FilesViewModel : ViewModelBase
         HomeVM.Update(string.Empty);
     }
 
+    // TODO is there any way to make performance better?
     public async Task LoadFiles()
     {
         if (Started) return;
         Started = true;
-        AssetFilter = this.WhenAnyValue(x => x.SearchFilter).Select(CreateAssetFilter);
+        AssetFilter = this
+            .WhenAnyValue(x => x.SearchFilter)
+            .Select(CreateAssetFilter);
 
         AssetItemsSource.Connect()
             .ObserveOn(RxApp.MainThreadScheduler)
@@ -182,6 +184,7 @@ public partial class FilesViewModel : ViewModelBase
                     {
                         USkeletalMesh => EAssetType.Mesh,
                         UStaticMesh => EAssetType.Mesh,
+                        UTexture => EAssetType.Texture,
                         _ => EAssetType.None
                     };
                     
@@ -229,7 +232,7 @@ public partial class FilesViewModel : ViewModelBase
                 if (Math.Abs(ScanPercentage - percentage) > 0.01f) ScanPercentage = percentage;
 
                 var obj = await CUE4ParseVM.Provider.TryLoadObjectAsync(file.PathWithoutExtension);
-                if (obj is null || !ValidExportTypes.Contains(obj.ExportType)) AppSettings.Current.HiddenFilePaths.Add(filePath);
+                if (obj is null || !ValidExportTypes.Any(type => obj.GetType().IsAssignableTo(type))) AppSettings.Current.HiddenFilePaths.Add(filePath);
             }
 
             ScanPercentage = 100.0f;
@@ -287,7 +290,8 @@ public partial class FilesViewModel : ViewModelBase
         return isValidPathType && !isInRegistry && !isFiltered && !isFilteredByScan;
     }
 
-    private static Func<FlatViewItem, bool> CreateAssetFilter(string searchFilter)
+    // TODO how to make search performance better, fmodel can handle every asset fine so why cant this??
+    public Func<FlatViewItem, bool> CreateAssetFilter(string searchFilter)
     {
         return asset => MiscExtensions.Filter(asset.Path, searchFilter);
     }
