@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input.Platform;
 using Avalonia.Platform.Storage;
+using FortnitePorting.Framework.Controls;
 using FortnitePorting.Framework.Services;
 using Serilog;
 
@@ -44,7 +45,7 @@ public abstract class AppBase : Avalonia.Application
     public static void HandleException(Exception exception)
     {
         Log.Error("{0}", exception);
-        //TaskService.RunDispatcher(() => { MessageWindow.Show("An unhandled exception has occurred", $"{exception.GetType().FullName}: {exception.Message}", ApplicationService.Application.MainWindow); });
+        TaskService.RunDispatcher(() => MessageWindow.Show("An unhandled exception has occurred", $"{exception.GetType().FullName}: {exception.Message}"));
     }
     
     public static async Task<string?> BrowseFolderDialog(string startLocation = "")

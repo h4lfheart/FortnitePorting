@@ -45,11 +45,4 @@
       <ProjectReference Include="..\Dependencies\EpicManifestParser\src\EpicManifestParser\EpicManifestParser.csproj" />
       <ProjectReference Include="..\FortnitePorting.Framework\FortnitePorting.Framework.csproj" />
     </ItemGroup>
-
-    <ItemGroup>
-      <Compile Update="Controls\MessageWindow.axaml.cs">
-        <DependentUpon>MessageWindow.axaml</DependentUpon>
-        <SubType>Code</SubType>
-      </Compile>
-    </ItemGroup>
 </Project>

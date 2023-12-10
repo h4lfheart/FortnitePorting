@@ -1,11 +1,8 @@
-using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Framework.Application;
 using FortnitePorting.Installer.ViewModels;
-using FortnitePorting.Installer.Views;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
 
@@ -22,7 +19,6 @@ public partial class App : AppBase
         AvaloniaXamlLoader.Load(this);
     }
 
-    // todo admin checks
     public static void OnStartup(object? sender, ControlledApplicationLifetimeStartupEventArgs e)
     {
         Log.Logger = new LoggerConfiguration()

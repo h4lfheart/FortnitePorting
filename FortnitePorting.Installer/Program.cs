@@ -1,19 +1,37 @@
 ﻿using Avalonia;
 using System;
+using System.Diagnostics;
+using System.Security.Principal;
 using FortnitePorting.Installer.Application;
 
 namespace FortnitePorting.Installer;
 
 class Program
 {
-    // Initialization code. Don't use any Avalonia, third-party APIs or any
-    // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
-    // yet and stuff might break.
     [STAThread]
-    public static void Main(string[] args) => BuildAvaloniaApp()
-        .StartWithClassicDesktopLifetime(args);
+    public static void Main(string[] args)
+    {
+        if (HasAdmin())
+        {
+            BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+        }
+        else
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = Environment.ProcessPath,
+                UseShellExecute = true,
+                Verb = "runas"
+            });
+        }
+    }
+    
+    private static bool HasAdmin()
+    {
+        var principal = new WindowsPrincipal(WindowsIdentity.GetCurrent());
+        return principal.IsInRole(WindowsBuiltInRole.Administrator);
+    }
 
-    // Avalonia configuration, don't remove; also used by visual designer.
     public static AppBuilder BuildAvaloniaApp()
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()

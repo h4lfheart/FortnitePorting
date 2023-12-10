@@ -190,7 +190,7 @@ public class MeshExportData : ExportDataBase
 
                 break;
             }
-            case EAssetType.Vehicle: // TODO VALET SHADER TODO GLASS SHADER
+            case EAssetType.Vehicle:
             {
                 var actor = asset.Get<UBlueprintGeneratedClass>("VehicleActorClass").ClassDefaultObject.Load();
                 if (actor is null) break;

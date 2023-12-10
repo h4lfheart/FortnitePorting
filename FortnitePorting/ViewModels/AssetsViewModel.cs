@@ -355,8 +355,6 @@ public partial class AssetsViewModel : ViewModelBase
                 }
             },
             
-            // TODO EXPORT SUPPORT
-            
             new(EAssetType.FestivalGuitar)
             {
                 Classes = new[] { "SparksGuitarItemDefinition" },

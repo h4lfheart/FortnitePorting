@@ -4,17 +4,18 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using FortnitePorting.Framework.Services;
 
-namespace FortnitePorting.Controls;
+namespace FortnitePorting.Framework.Controls;
 
 public partial class MessageWindow : Window
 {
     public static MessageWindow? ActiveWindow;
+    public bool UseFallbackBackground { get; set; } = Environment.OSVersion.Platform != PlatformID.Win32NT || (Environment.OSVersion.Platform == PlatformID.Win32NT && Environment.OSVersion.Version.Build < 22000);
     private event EventHandler OnClosedWindow;
 
     public MessageWindow(string caption, string text, Window? owner = null, Action<object?, EventArgs>? onClosed = null)
     {
         InitializeComponent();
-        DataContext = AppVM;
+        DataContext = this;
 
         Title = caption;
         CaptionTextBlock.Text = caption;

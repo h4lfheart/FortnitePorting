@@ -2,24 +2,20 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:viewmodels="clr-namespace:FortnitePorting.ViewModels"
         xmlns:ext="clr-namespace:FortnitePorting.Framework.Extensions;assembly=FortnitePorting.Framework"
         xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
-        xmlns:application="clr-namespace:FortnitePorting.Framework.Application;assembly=FortnitePorting.Framework"
+        xmlns:controls1="clr-namespace:FortnitePorting.Framework.Controls"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-        x:Class="FortnitePorting.Controls.MessageWindow"
-        x:DataType="viewmodels:ApplicationViewModel" Width="360" SizeToContent="Height" WindowStartupLocation="CenterOwner"
+        x:Class="FortnitePorting.Framework.Controls.MessageWindow"
+        x:DataType="controls1:MessageWindow" Width="360" SizeToContent="Height" WindowStartupLocation="CenterOwner"
         FontFamily="Segoe UI"
         Background="{x:Null}" TransparencyLevelHint="Mica, AcrylicBlur"
         ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="NoChrome"
         ExtendClientAreaTitleBarHeightHint="0">
-    <Window.Styles>
-        <application:AppStyles/>
-    </Window.Styles>
     <Grid RowDefinitions="30, *">
         <ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="2" IsVisible="{Binding UseFallbackBackground}" IsHitTestVisible="False">
             <ExperimentalAcrylicBorder.Material>
-                <ExperimentalAcrylicMaterial BackgroundSource="Digger" MaterialOpacity="0" TintOpacity="1.0" TintColor="#231a38"/>
+                <ExperimentalAcrylicMaterial MaterialOpacity="1" TintColor="#110038"/>
             </ExperimentalAcrylicBorder.Material>
         </ExperimentalAcrylicBorder>
         <Grid Grid.Row="0" PointerPressed="OnPointerPressed" Background="#25000000" HorizontalAlignment="Stretch">

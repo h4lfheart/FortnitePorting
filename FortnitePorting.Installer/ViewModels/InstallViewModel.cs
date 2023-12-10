@@ -4,6 +4,7 @@ using System.IO;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FortnitePorting.Framework;
+using FortnitePorting.Framework.Controls;
 using FortnitePorting.Installer.Views;
 
 namespace FortnitePorting.Installer.ViewModels;
@@ -13,12 +14,16 @@ public partial class InstallViewModel : ViewModelBase
     [ObservableProperty] private string statusTitleText = "Installing";
     [ObservableProperty] private string subTitleText = "Starting Installation Process";
 
-    private static readonly DirectoryInfo TempDirectory = new DirectoryInfo(Path.GetTempPath());
+    private static readonly DirectoryInfo TempDirectory = new(Path.GetTempPath());
     
     public override async Task Initialize()
     {
         var response = await EndpointsVM.FortnitePorting.GetReleaseAsync();
-        if (response is null) return; // todo need message box in framework proj
+        if (response is null)
+        {
+            MessageWindow.Show("An Error Occurred", "Failed to get release info, installer will now close.", MainWindow, (o, args) => { Shutdown(); });
+            return;
+        }
 
         foreach (var dependency in response.Dependencies)
         {
