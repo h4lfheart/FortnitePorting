@@ -16,7 +16,7 @@ public class TextureExportData : ExportDataBase
         { EAssetType.Emoticon, "SpriteSheet" }
     };
 
-    public TextureExportData(string name, UObject asset, FStructFallback[] styles, EAssetType type, EExportTargetType exportType) : base(name, asset, styles, type, exportType)
+    public TextureExportData(string name, UObject asset, FStructFallback[] styles, EAssetType type, EExportTargetType exportType) : base(name, asset, styles, type, EExportType.Texture, exportType)
     {
         var texture = asset as UTexture ?? asset.Get<UTexture2D>(TextureNames[type]);
         var exportPath = Exporter.Export(texture, true);

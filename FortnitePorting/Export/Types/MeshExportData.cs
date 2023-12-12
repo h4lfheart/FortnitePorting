@@ -27,7 +27,7 @@ public class MeshExportData : ExportDataBase
     public readonly List<ExportOverrideMaterial> OverrideMaterials = new();
     public readonly List<ExportOverrideParameters> OverrideParameters = new();
 
-    public MeshExportData(string name, UObject asset, FStructFallback[] styles, EAssetType type, EExportTargetType exportType) : base(name, asset, styles, type, exportType)
+    public MeshExportData(string name, UObject asset, FStructFallback[] styles, EAssetType type, EExportTargetType exportType) : base(name, asset, styles, type, EExportType.Mesh, exportType)
     {
         switch (type)
         {
@@ -95,7 +95,7 @@ public class MeshExportData : ExportDataBase
             {
                 var actor = asset.Get<UBlueprintGeneratedClass>("ToyActorClass");
                 var parentActor = actor.SuperStruct.Load<UBlueprintGeneratedClass>();
-                
+
                 var exportComponent = GetComponent(actor);
                 exportComponent ??= GetComponent(parentActor);
                 if (exportComponent is null) break;
@@ -175,7 +175,7 @@ public class MeshExportData : ExportDataBase
                 {
                     Meshes.AddIfNotNull(Exporter.MeshComponent(staticMesh));
                 }
-                
+
                 var components = CUE4ParseVM.Provider.LoadAllObjects(actor.GetPathName().SubstringBeforeLast("."));
                 foreach (var component in components)
                 {
@@ -200,7 +200,7 @@ public class MeshExportData : ExportDataBase
                 {
                     Meshes.AddIfNotNull(Exporter.MeshComponent(skeletalMesh));
                 }
-                
+
                 var components = CUE4ParseVM.Provider.LoadAllObjects(actor.GetPathName().SubstringBeforeLast("."));
                 foreach (var component in components)
                 {
@@ -250,17 +250,17 @@ public class MeshExportData : ExportDataBase
                     if (actor.ExportType == "LODActor") continue;
                     if (actor.Name.StartsWith("LF_")) continue;
 
+                    Log.Information("Processing {0}: {1}/{2}", actor.Name, FilesVM.ExportProgress, FilesVM.ExportChunks);
                     ProcessActor(actor);
                 }
+
                 break;
 
                 void ProcessActor(UObject actor)
                 {
                     if (actor.TryGetValue(out UStaticMeshComponent staticMeshComponent, "StaticMeshComponent", "StaticMesh", "Mesh", "LightMesh"))
                     {
-                        if (!staticMeshComponent.GetStaticMesh().TryLoad(out UStaticMesh staticMesh)) return;
-
-                        var exportMesh = Exporter.Mesh(staticMesh);
+                        var exportMesh = Exporter.MeshComponent(staticMeshComponent);
                         if (exportMesh is null) return;
 
                         exportMesh.Name = actor.Name;
@@ -268,8 +268,13 @@ public class MeshExportData : ExportDataBase
                         exportMesh.Rotation = staticMeshComponent.GetOrDefault("RelativeRotation", FRotator.ZeroRotator);
                         exportMesh.Scale = staticMeshComponent.GetOrDefault("RelativeScale3D", FVector.OneVector);
 
+                        foreach (var extraMesh in Exporter.ExtraActorMeshes(actor))
+                        {
+                            exportMesh.Children.AddIfNotNull(extraMesh);
+                        }
+
                         var textureDatas = actor.GetAllProperties<UBuildingTextureData>("TextureData");
-                        if (textureDatas.Count == 0 && actor.Template is not null) 
+                        if (textureDatas.Count == 0 && actor.Template is not null)
                             textureDatas = actor.Template.Load()!.GetAllProperties<UBuildingTextureData>("TextureData");
 
                         foreach (var (textureData, index) in textureDatas)
@@ -290,37 +295,37 @@ public class MeshExportData : ExportDataBase
                 if (asset.TryGetValue(out USkeletalMesh mesh, "Mesh"))
                 {
                     var exportMesh = Exporter.Mesh(mesh);
-                    
+
                     var material = asset.GetOrDefault<UMaterialInterface>("Material");
                     exportMesh?.Materials.AddIfNotNull(Exporter.Material(material, 0));
-                    
-                    Meshes.AddIfNotNull(exportMesh);
-                }
-                
-                if (asset.TryGetValue(out USkeletalMesh leftHandMesh, "LeftHandMesh"))
-                {
-                    var exportMesh = Exporter.Mesh(leftHandMesh);
-                    
-                    var material = asset.GetOrDefault<UMaterialInterface>("LeftHandMaterial");
-                    exportMesh?.Materials.AddIfNotNull(Exporter.Material(material, 0));
-                    
-                    Meshes.AddIfNotNull(exportMesh);
-                }
-                
-                if (asset.TryGetValue(out USkeletalMesh auxiliaryMesh, "AuxiliaryMesh"))
-                {
-                    var exportMesh = Exporter.Mesh(auxiliaryMesh);
-                    
-                    var auxMaterial = asset.GetOrDefault<UMaterialInterface>("AuxiliaryMaterial");
-                    exportMesh?.Materials.AddIfNotNull(Exporter.Material(auxMaterial, 0));
-                    
-                    var auxMaterial2 = asset.GetOrDefault<UMaterialInterface>("AuxiliaryMaterial2");
-                    exportMesh?.Materials.AddIfNotNull(Exporter.Material(auxMaterial2, 1));
-                    
+
                     Meshes.AddIfNotNull(exportMesh);
                 }
 
-                
+                if (asset.TryGetValue(out USkeletalMesh leftHandMesh, "LeftHandMesh"))
+                {
+                    var exportMesh = Exporter.Mesh(leftHandMesh);
+
+                    var material = asset.GetOrDefault<UMaterialInterface>("LeftHandMaterial");
+                    exportMesh?.Materials.AddIfNotNull(Exporter.Material(material, 0));
+
+                    Meshes.AddIfNotNull(exportMesh);
+                }
+
+                if (asset.TryGetValue(out USkeletalMesh auxiliaryMesh, "AuxiliaryMesh"))
+                {
+                    var exportMesh = Exporter.Mesh(auxiliaryMesh);
+
+                    var auxMaterial = asset.GetOrDefault<UMaterialInterface>("AuxiliaryMaterial");
+                    exportMesh?.Materials.AddIfNotNull(Exporter.Material(auxMaterial, 0));
+
+                    var auxMaterial2 = asset.GetOrDefault<UMaterialInterface>("AuxiliaryMaterial2");
+                    exportMesh?.Materials.AddIfNotNull(Exporter.Material(auxMaterial2, 1));
+
+                    Meshes.AddIfNotNull(exportMesh);
+                }
+
+
                 break;
             }
             default:

@@ -9,12 +9,14 @@ public abstract class ExportDataBase
 {
     public string Name;
     public string Type;
+    public string PrimitiveType;
     [JsonIgnore] protected readonly ExporterInstance Exporter;
 
-    public ExportDataBase(string name, UObject asset, FStructFallback[] styles, EAssetType type, EExportTargetType exportType)
+    public ExportDataBase(string name, UObject asset, FStructFallback[] styles, EAssetType type, EExportType primitiveType, EExportTargetType exportType)
     {
         Name = name;
         Type = type.ToString();
+        PrimitiveType = primitiveType.ToString();
         Exporter = new ExporterInstance(exportType);
     }
 

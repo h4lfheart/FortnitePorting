@@ -29,18 +29,27 @@ class SlotMapping:
 
 default_mappings = MappingCollection(
     textures=[
-        SlotMapping("Diffuse", "Diffuse"),
-        SlotMapping("Background Diffuse", "Background Diffuse", alpha_slot="Background Diffuse Alpha"),
+        SlotMapping("Diffuse"),
+        SlotMapping("D", "Diffuse"),
+        SlotMapping("Base Color", "Diffuse"),
+        SlotMapping("Concrete", "Diffuse"),
+        SlotMapping("Background Diffuse", alpha_slot="Background Diffuse Alpha"),
         SlotMapping("BG Diffuse Texture", "Background Diffuse", alpha_slot="Background Diffuse Alpha"),
-        SlotMapping("M", "M"),
+        SlotMapping("M"),
         SlotMapping("Mask", "M"),
-        SlotMapping("SpecularMasks", "SpecularMasks"),
+        SlotMapping("SpecularMasks"),
+        SlotMapping("S", "SpecularMasks"),
         SlotMapping("SRM", "SpecularMasks"),
         SlotMapping("Specular Mask", "SpecularMasks"),
-        SlotMapping("Normals", "Normals"),
+        SlotMapping("Concrete_SpecMask", "SpecularMasks"),
+        SlotMapping("Normals"),
+        SlotMapping("N", "Normals"),
         SlotMapping("Normal", "Normals"),
+        SlotMapping("ConcreteTextureNormal", "Normals"),
         SlotMapping("Emissive", "Emission"),
-        SlotMapping("EmissiveTexture", "Emission")
+        SlotMapping("EmissiveTexture", "Emission"),
+        SlotMapping("MaskTexture"),
+        SlotMapping("OpacityMask", "MaskTexture")
     ],
     scalars=[
         SlotMapping("RoughnessMin", "Roughness Min"),
@@ -188,7 +197,6 @@ glass_mappings = MappingCollection(
 
 class ImportTask:
     def run(self, response):
-        print(json.dumps(response))
 
         self.imported_materials = {}
         self.assets_folder = response.get("AssetsFolder")
@@ -200,10 +208,17 @@ class ImportTask:
             self.import_data(data)
 
     def import_data(self, data):
+        import_type = data.get("PrimitiveType")
+        match import_type:
+            case "Mesh":
+                self.import_mesh_data(data)
+
+    def import_mesh_data(self, data):
         name = data.get("Name")
         type = data.get("Type")
+
         if self.options.get("ImportCollection"):
-            create_collection(name)
+            active_collection = create_collection(name)
 
         meshes = meshes = data.get("Meshes")
         if type in ["Outfit", "Backpack"]:
@@ -234,7 +249,10 @@ class ImportTask:
             object_name = mesh.get("Name")
             if type in ["World", "Prefab"] and (existing_mesh_data := bpy.data.meshes.get(mesh_name)):
                 imported_object = bpy.data.objects.new(object_name, existing_mesh_data)
-                bpy.context.scene.collection.objects.link(imported_object)
+                if active_collection:
+                    active_collection.objects.link(imported_object)
+                else:
+                    bpy.context.scene.collection.objects.link(imported_object)
             else:
                 imported_object = self.import_mesh(mesh.get("Path"))
                 imported_object.name = object_name
@@ -281,6 +299,9 @@ class ImportTask:
             # import mats
             for material in mesh.get("Materials"):
                 index = material.get("Slot")
+                if index >= len(imported_mesh.material_slots):
+                    continue
+
                 material_type = self.import_material(imported_mesh.material_slots[index], material, meta)
                 if material_type == "FP Toon":
                     nonlocal is_toon
@@ -568,9 +589,14 @@ class ImportTask:
                     skin_color["R"], skin_color["G"], skin_color["B"], 1.0)
                 shader_node.inputs["Skin Boost"].default_value = skin_color["A"]
 
-            # only for master character mat bruh
-            '''if not (get_param(switches, "Emissive") or get_param(switches, "UseBasicEmissive") or get_param(switches, "UseAdvancedEmissive")):
-                shader_node.inputs["Emission Strength"].default_value = 0'''
+            emissive_toggle_names = [
+                "Emissive",
+                "UseBasicEmissive",
+                "UseAdvancedEmissive",
+                "Use Emissive"
+            ]
+            if get_param_multiple(switches, emissive_toggle_names) is False:
+                shader_node.inputs["Emission Strength"].default_value = 0
 
             if get_param(textures, "SRM"):
                 shader_node.inputs["SwizzleRoughnessToGreen"].default_value = 1
@@ -703,6 +729,7 @@ def create_collection(name):
     bpy.context.scene.collection.children.link(new_collection)
     bpy.context.view_layer.active_layer_collection = bpy.context.view_layer.layer_collection.children.get(
         new_collection.name)
+    return new_collection
 
 
 def constraint_object(child: bpy.types.Object, parent: bpy.types.Object, bone: str, rot=[0, radians(90), 0]):

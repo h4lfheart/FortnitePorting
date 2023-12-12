@@ -183,7 +183,7 @@ public partial class FilesViewModel : ViewModelBase
         var exports = new List<KeyValuePair<UObject, EAssetType>>();
         foreach (var item in SelectedExportItems)
         {
-            var asset = await CUE4ParseVM.Provider.LoadObjectAsync(FixPath(item.PathWithoutExtension));
+            var asset = await CUE4ParseVM.Provider.LoadObjectAsync(FixPath(item.Path));
             var assetType = asset switch
             {
                 USkeletalMesh => EAssetType.Mesh,
@@ -283,8 +283,9 @@ public partial class FilesViewModel : ViewModelBase
 
     private string FixPath(string path)
     {
-        var outPath = path;
-        if (outPath.EndsWith("umap"))
+        var outPath = path.SubstringBeforeLast(".");
+        var extension = path.SubstringAfterLast(".");
+        if (extension.Equals("umap"))
         {
             if (outPath.Contains("_Generated_"))
             {
