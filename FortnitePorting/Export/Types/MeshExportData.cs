@@ -136,6 +136,7 @@ public class MeshExportData : ExportDataBase
                 AssetsVM.ExportChunks = props.Length;
                 foreach (var prop in props)
                 {
+                    if (AssetsVM.ExportProgress % 100 == 0) GC.Collect();
                     var levelSaveRecord = prop.GetOrDefault<UObject?>("LevelSaveRecord");
                     if (levelSaveRecord is null) continue;
 
@@ -243,6 +244,7 @@ public class MeshExportData : ExportDataBase
                 foreach (var actorLazy in level.Actors)
                 {
                     FilesVM.ExportProgress++;
+                    if (FilesVM.ExportProgress % 100 == 0) GC.Collect();
                     if (actorLazy is null || actorLazy.IsNull) continue;
 
                     var actor = actorLazy.Load();

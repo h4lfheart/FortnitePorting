@@ -212,6 +212,9 @@ class ImportTask:
         match import_type:
             case "Mesh":
                 self.import_mesh_data(data)
+            case "Animation":
+                self.import_anim_data(data)
+                
 
     def import_mesh_data(self, data):
         name = data.get("Name")
@@ -346,6 +349,14 @@ class ImportTask:
                 solidify.use_rim = False
                 solidify.use_flip_normals = True
                 solidify.material_offset = len(master_mesh.data.materials) - 1
+
+    def import_anim_data(self, data, override_skeleton=None):
+        name = data.get("Name")
+        
+        target_skeleton = override_skeleton or armature_from_selection()
+        if target_skeleton is None:
+            Server.instance.send("Animation_InvalidArmature")
+            return
 
     def import_material(self, material_slot, material_data, meta_data):
         temp_material = material_slot.material
@@ -702,6 +713,23 @@ def get_armature_mesh(obj):
     if obj.type == 'MESH':
         return obj
 
+def armature_from_selection():
+    armature_obj = None
+
+    for obj in bpy.data.objects:
+        if obj.type == 'ARMATURE' and obj.select_get():
+            armature_obj = obj
+            break
+
+    if armature_obj is None:
+        for obj in bpy.data.objects:
+            if obj.type == 'MESH' and obj.select_get():
+                for modifier in obj.modifiers:
+                    if modifier.type == 'ARMATURE':
+                        armature_obj = modifier.object
+                        break
+
+    return armature_obj
 
 def append_data():
     addon_dir = os.path.dirname(os.path.splitext(__file__)[0])

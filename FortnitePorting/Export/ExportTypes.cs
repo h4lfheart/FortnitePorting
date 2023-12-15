@@ -124,3 +124,12 @@ public record VectorParameter(string Name, FLinearColor Value);
 public record SwitchParameter(string Name, bool Value);
 
 public record ComponentMaskParameter(string Name, FLinearColor Value);
+
+
+public class ExportAnimSection
+{
+    public string Path;
+    public string Name;
+    public float Time;
+    public float Length;
+}

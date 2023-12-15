@@ -239,6 +239,15 @@
                                 <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EImageType}}"
                                           SelectedItem="{Binding Folder.ImageType, Converter={StaticResource EnumToString}}" />
                             </controls:SettingBox>
+                            
+                            <Label Content="Animation" FontSize="28" FontWeight="SemiBold" Margin="8 0 0 0"
+                                   HorizontalAlignment="Left" VerticalAlignment="Center" />
+                            <controls:SettingBox DisplayName="Anim Format"
+                                                 Path="{Binding Folder.AnimFormat, Mode=TwoWay}" Icon="HumanFemaleDance">
+                                <ComboBox
+                                    ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EAnimExportTypes}}"
+                                    SelectedItem="{Binding Folder.AnimFormat, Converter={StaticResource EnumToString}}" />
+                            </controls:SettingBox>
                         </StackPanel>
                     </ScrollViewer>
                 </TabItem>

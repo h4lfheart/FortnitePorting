@@ -53,7 +53,7 @@ public class App : AppBase
 
         Log.Logger = new LoggerConfiguration()
             .WriteTo.Console(theme: AnsiConsoleTheme.Literate)
-            .WriteTo.File(Path.Combine(LogsFolder.FullName, $"FortnitePorting-{DateTime.UtcNow:yyyy-MM-dd-hh-mm-ss}.log"))
+            .WriteTo.File(Path.Combine(LogsFolder.FullName, $"FortnitePorting-{DateTime.Now:yyyy-MM-dd-hh-mm-ss}.log"))
             .CreateLogger();
 
         AppSettings.Load();

@@ -72,6 +72,7 @@ public partial class ExportOptionsViewModel : ViewModelBase
 public partial class ExportOptionsBase : ObservableObject
 {
     [ObservableProperty] private EMeshExportTypes meshFormat = EMeshExportTypes.UEFormat;
+    [ObservableProperty] private EAnimExportTypes animFormat = EAnimExportTypes.UEFormat;
     [ObservableProperty] private EFileCompressionFormat compressionFormat = EFileCompressionFormat.ZSTD;
 
     [ObservableProperty] private bool exportMaterials = true;

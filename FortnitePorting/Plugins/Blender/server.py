@@ -5,7 +5,7 @@ from threading import Thread, Event
 
 HOST = "127.0.0.1"
 PORT = 24000
-BUFFER_SIZE = 1024
+BUFFER_SIZE = 4096
 
 def decode_bytes(data, format = "utf-8", verbose = False):
 	try:
@@ -17,9 +17,11 @@ def encode_string(string, format = "utf-8"):
 	return string.encode(format)
 
 class Server(Thread):
+	instance = None
 
 	def __init__(self):
 		Thread.__init__(self, daemon=True)
+		Server.instance = self
 		self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		self.event = Event()
@@ -44,6 +46,7 @@ class Server(Thread):
 		full_data = ""
 		while True:
 			byte_data, sender = self.socket.recvfrom(BUFFER_SIZE)
+			self.most_recent_sender = sender
 			if string_data := decode_bytes(byte_data):
 				match string_data:
 					case "Start":
@@ -57,6 +60,9 @@ class Server(Thread):
 		self.response = json.loads(full_data)
 		self.event.set()
 		self.ping(sender)
+		
+	def send(self, command):
+		self.socket.sendto(encode_string(command), self.most_recent_sender)
 
 	def ping(self, sender):
 		self.socket.sendto(encode_string("Pong"), sender)

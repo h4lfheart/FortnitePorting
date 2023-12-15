@@ -5,10 +5,12 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using CUE4Parse_Conversion;
+using CUE4Parse_Conversion.Animations;
 using CUE4Parse_Conversion.Meshes;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.GameTypes.FN.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.Component.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Component.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Material;
@@ -136,7 +138,6 @@ public class ExporterInstance
         return exportWeapons;
     }
 
-    // TODO REFACTOR TO BE BETTER
     public static List<UObject> WeaponDefinitionMeshes(UObject weaponDefinition)
     {
         var exportWeapons = new List<UObject>();
@@ -201,35 +202,10 @@ public class ExporterInstance
             
             if (exportMeshes.Count == 0) continue;
 
-            var targetMesh = exportMeshes.First();
-            if (actor.TryGetValue(out UStaticMesh doorMesh, "DoorMesh"))
+            var targetMesh = exportMeshes.FirstOrDefault();
+            foreach (var extraMesh in ExtraActorMeshes(actor))
             {
-                var doorOffset = actor.GetOrDefault<TIntVector3<float>>("DoorOffset").ToFVector();
-                var doorRotation = actor.GetOrDefault("DoorRotationOffset", FRotator.ZeroRotator);
-                doorRotation.Pitch *= -1;
-                
-                var exportDoorMesh = Mesh(doorMesh)!;
-                exportDoorMesh.Location = doorOffset;
-                exportDoorMesh.Rotation = doorRotation;
-                targetMesh.Children.AddIfNotNull(exportDoorMesh);
-
-                if (actor.GetOrDefault("bDoubleDoor", false))
-                {
-                    var exportDoubleDoorMesh = exportDoorMesh with
-                    {
-                        Location = exportDoorMesh.Location with { X = -exportDoorMesh.Location.X },
-                        Scale = exportDoorMesh.Scale with { X = -exportDoorMesh.Scale.X }
-                    };
-                    targetMesh.Children.AddIfNotNull(exportDoubleDoorMesh);
-                }
-                else if (actor.TryGetValue(out UStaticMesh doubleDoorMesh, "DoubleDoorMesh"))
-                {
-                    var exportDoubleDoorMesh = Mesh(doubleDoorMesh)!;
-                    exportDoubleDoorMesh.Location = doorOffset;
-                    exportDoubleDoorMesh.Rotation = doorRotation;
-                    targetMesh.Children.AddIfNotNull(exportDoubleDoorMesh);
-                }
-                
+                targetMesh?.Children.AddIfNotNull(extraMesh);
             }
 
             var textureDatas = new Dictionary<int, UBuildingTextureData>();
@@ -259,11 +235,47 @@ public class ExporterInstance
             // reminder that texturedata is the worst thing ever to be created WHY WONT IT WORK
             foreach (var (textureDataIndex, textureData) in textureDatas)
             {
-                targetMesh.TextureData.AddIfNotNull(TextureData(textureData, index));
+                targetMesh?.TextureData.AddIfNotNull(TextureData(textureData, textureDataIndex));
             }
         }
 
         return exportMeshes;
+    }
+
+    public List<ExportMesh> ExtraActorMeshes(UObject actor)
+    {
+        var extraMeshes = new List<ExportMesh>();
+        if (actor.TryGetValue(out UStaticMesh doorMesh, "DoorMesh"))
+        {
+            var doorOffset = actor.GetOrDefault<TIntVector3<float>>("DoorOffset").ToFVector();
+            var doorRotation = actor.GetOrDefault("DoorRotationOffset", FRotator.ZeroRotator);
+            doorRotation.Pitch *= -1;
+                
+            var exportDoorMesh = Mesh(doorMesh)!;
+            exportDoorMesh.Location = doorOffset;
+            exportDoorMesh.Rotation = doorRotation;
+            extraMeshes.AddIfNotNull(exportDoorMesh);
+
+            if (actor.GetOrDefault("bDoubleDoor", false))
+            {
+                var exportDoubleDoorMesh = exportDoorMesh with
+                {
+                    Location = exportDoorMesh.Location with { X = -exportDoorMesh.Location.X },
+                    Scale = exportDoorMesh.Scale with { X = -exportDoorMesh.Scale.X }
+                };
+                extraMeshes.AddIfNotNull(exportDoubleDoorMesh);
+            }
+            else if (actor.TryGetValue(out UStaticMesh doubleDoorMesh, "DoubleDoorMesh"))
+            {
+                var exportDoubleDoorMesh = Mesh(doubleDoorMesh)!;
+                exportDoubleDoorMesh.Location = doorOffset;
+                exportDoubleDoorMesh.Rotation = doorRotation;
+                extraMeshes.AddIfNotNull(exportDoubleDoorMesh);
+            }
+                
+        }
+
+        return extraMeshes;
     }
 
     public ExportTextureData? TextureData(UBuildingTextureData? textureData, int index = 0)
@@ -526,6 +538,19 @@ public class ExporterInstance
         }
     }
 
+    public ExportAnimSection AnimSequence(UAnimSequence animSequence, float time = 0.0f)
+    {
+        var exportSequence = new ExportAnimSection
+        {
+            Path = Export(animSequence),
+            Name = animSequence.Name,
+            Length = animSequence.SequenceLength,
+            Time = time
+        };
+
+        return exportSequence;
+    }
+
     public async Task<string> ExportAsync(UObject asset, bool waitForFinish = false)
     {
         var extension = asset switch
@@ -539,6 +564,11 @@ public class ExporterInstance
             {
                 EMeshExportTypes.UEFormat => "uemodel",
                 EMeshExportTypes.ActorX => "pskx"
+            },
+            UAnimSequence => AppExportOptions.AnimFormat switch
+            {
+                EAnimExportTypes.UEFormat => "ueanim",
+                EAnimExportTypes.ActorX => "psa"
             },
             UTexture => AppExportOptions.ImageType switch
             {
@@ -607,6 +637,12 @@ public class ExporterInstance
             case UStaticMesh staticMesh:
             {
                 var exporter = new MeshExporter(staticMesh, FileExportOptions);
+                exporter.TryWriteToDir(App.AssetsFolder, out _, out _);
+                break;
+            }
+            case UAnimSequence animSequence:
+            {
+                var exporter = new AnimExporter(animSequence, FileExportOptions);
                 exporter.TryWriteToDir(App.AssetsFolder, out _, out _);
                 break;
             }
