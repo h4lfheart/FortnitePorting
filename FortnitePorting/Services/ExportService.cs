@@ -127,7 +127,7 @@ public class SocketInterface
     private const string COMMAND_STOP = "Stop";
     private const string COMMAND_PING_REQUEST = "Ping";
     private const string COMMAND_PING_RESPONSE = "Pong";
-    private const int BUFFER_SIZE = 4096;
+    private const int BUFFER_SIZE = 1024;
 
     public SocketInterface(int port, Dictionary<string, Action>? commands = null)
     {

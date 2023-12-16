@@ -33,14 +33,19 @@ public class CUE4ParseViewModel : ViewModelBase
 {
     public readonly HybridFileProvider Provider = AppSettings.Current.LoadingType switch
     {
-        ELoadingType.Local => new HybridFileProvider(AppSettings.Current.LocalArchivePath, LatestVersionContainer),
+        ELoadingType.Local => new HybridFileProvider(AppSettings.Current.LocalArchivePath, ExtraDirectories, LatestVersionContainer),
         ELoadingType.Live => new HybridFileProvider(LatestVersionContainer),
-        ELoadingType.Custom => new HybridFileProvider(AppSettings.Current.CustomArchivePath, new VersionContainer(AppSettings.Current.CustomUnrealVersion))
+        ELoadingType.Custom => new HybridFileProvider(AppSettings.Current.CustomArchivePath, ExtraDirectories, new VersionContainer(AppSettings.Current.CustomUnrealVersion))
     };
 
     public Manifest? FortniteLive;
     public readonly List<FAssetData> AssetRegistry = new();
     public readonly RarityCollection[] RarityColors = new RarityCollection[8];
+
+    public static readonly List<DirectoryInfo> ExtraDirectories = new()
+    {
+        new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "FortniteGame", "Saved", "PersistentDownloadDir", "GameCustom", "InstalledBundles"))
+    };
 
     private static readonly Regex FortniteLiveRegex = new(@"^FortniteGame(/|\\)Content(/|\\)Paks(/|\\)(pakchunk(?:0|10.*|\w+)-WindowsClient|global)\.(pak|utoc)$", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
@@ -230,7 +235,7 @@ public class CUE4ParseViewModel : ViewModelBase
         var assetRegistries = Provider.Files.Where(x => x.Key.Contains("AssetRegistry", StringComparison.OrdinalIgnoreCase));
         foreach (var (path, file) in assetRegistries)
         {
-            if (path.Contains("UEFN", StringComparison.OrdinalIgnoreCase) || path.Contains("Editor", StringComparison.OrdinalIgnoreCase)) continue;
+            if (path.Contains("Plugin", StringComparison.OrdinalIgnoreCase) || path.Contains("Editor", StringComparison.OrdinalIgnoreCase)) continue;
 
             var assetArchive = await file.TryCreateReaderAsync();
             if (assetArchive is null) continue;

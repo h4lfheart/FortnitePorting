@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse_Conversion;
 using CUE4Parse_Conversion.Meshes;
 using CUE4Parse_Conversion.UEFormat;
+using CUE4Parse_Conversion.UEFormat.Enums;
 using FortnitePorting.Framework;
 using Newtonsoft.Json;
 

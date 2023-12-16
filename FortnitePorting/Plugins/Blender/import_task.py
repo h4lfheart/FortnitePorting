@@ -26,28 +26,38 @@ class SlotMapping:
         self.value_func = value_func
         self.coords = coords
 
-
+# todo mapping priority system, important for trunk textures
 default_mappings = MappingCollection(
     textures=[
         SlotMapping("Diffuse"),
         SlotMapping("D", "Diffuse"),
         SlotMapping("Base Color", "Diffuse"),
         SlotMapping("Concrete", "Diffuse"),
+        SlotMapping("Trunk_BaseColor", "Diffuse"),
+        
         SlotMapping("Background Diffuse", alpha_slot="Background Diffuse Alpha"),
         SlotMapping("BG Diffuse Texture", "Background Diffuse", alpha_slot="Background Diffuse Alpha"),
+        
         SlotMapping("M"),
         SlotMapping("Mask", "M"),
+        
         SlotMapping("SpecularMasks"),
         SlotMapping("S", "SpecularMasks"),
         SlotMapping("SRM", "SpecularMasks"),
         SlotMapping("Specular Mask", "SpecularMasks"),
         SlotMapping("Concrete_SpecMask", "SpecularMasks"),
+        SlotMapping("Trunk_Specular", "SpecularMasks"),
+        
         SlotMapping("Normals"),
         SlotMapping("N", "Normals"),
         SlotMapping("Normal", "Normals"),
+        SlotMapping("NormalMap", "Normals"),
         SlotMapping("ConcreteTextureNormal", "Normals"),
+        SlotMapping("Trunk_Normal", "Normals"),
+        
         SlotMapping("Emissive", "Emission"),
         SlotMapping("EmissiveTexture", "Emission"),
+        
         SlotMapping("MaskTexture"),
         SlotMapping("OpacityMask", "MaskTexture")
     ],

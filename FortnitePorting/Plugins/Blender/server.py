@@ -5,7 +5,7 @@ from threading import Thread, Event
 
 HOST = "127.0.0.1"
 PORT = 24000
-BUFFER_SIZE = 4096
+BUFFER_SIZE = 1024
 
 def decode_bytes(data, format = "utf-8", verbose = False):
 	try:

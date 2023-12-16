@@ -9,6 +9,7 @@
              xmlns:fortnitePorting="clr-namespace:FortnitePorting"
              xmlns:cue4parseConversion="clr-namespace:CUE4Parse_Conversion;assembly=CUE4Parse-Conversion"
              xmlns:avalonia="clr-namespace:FortnitePorting.Controls.Avalonia"
+             xmlns:enums="clr-namespace:CUE4Parse_Conversion.UEFormat.Enums;assembly=CUE4Parse-Conversion"
              mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720"
              x:Class="FortnitePorting.Views.ExportOptionsView"
              x:DataType="viewmodels:ExportOptionsViewModel">
@@ -71,7 +72,7 @@
                                                  Path="{Binding Blender.CompressionFormat, Mode=TwoWay}"
                                                  Icon="FolderZip">
                                 <ComboBox
-                                    ItemsSource="{ext:EnumToItemsSource {x:Type cue4parseConversion:UEFormat.EFileCompressionFormat}}"
+                                    ItemsSource="{ext:EnumToItemsSource {x:Type enums:EFileCompressionFormat}}"
                                     SelectedItem="{Binding Blender.CompressionFormat, Converter={StaticResource EnumToString}}" />
                             </controls:SettingBox>
                             <controls:SettingBox DisplayName="Level of Detail"
@@ -158,7 +159,7 @@
                                                  Path="{Binding Unreal.CompressionFormat, Mode=TwoWay}"
                                                  Icon="FolderZip">
                                 <ComboBox
-                                    ItemsSource="{ext:EnumToItemsSource {x:Type cue4parseConversion:UEFormat.EFileCompressionFormat}}"
+                                    ItemsSource="{ext:EnumToItemsSource {x:Type enums:EFileCompressionFormat}}"
                                     SelectedItem="{Binding Unreal.CompressionFormat, Converter={StaticResource EnumToString}}" />
                             </controls:SettingBox>
                             <controls:SettingBox DisplayName="Level of Detail"
@@ -218,7 +219,7 @@
                                                  Path="{Binding Folder.CompressionFormat, Mode=TwoWay}"
                                                  Icon="FolderZip">
                                 <ComboBox
-                                    ItemsSource="{ext:EnumToItemsSource {x:Type cue4parseConversion:UEFormat.EFileCompressionFormat}}"
+                                    ItemsSource="{ext:EnumToItemsSource {x:Type enums:EFileCompressionFormat}}"
                                     SelectedItem="{Binding Folder.CompressionFormat, Converter={StaticResource EnumToString}}" />
                             </controls:SettingBox>
                             <controls:SettingBox DisplayName="LOD Format"

@@ -11,6 +11,7 @@ namespace FortnitePorting.Extensions;
 public class HybridFileProvider : AbstractVfsFileProvider
 {
     private readonly DirectoryInfo WorkingDirectory;
+    private readonly List<DirectoryInfo> ExtraDirectories;
     private const bool CaseInsensitive = true;
     private static readonly SearchOption SearchOption = SearchOption.AllDirectories;
 
@@ -20,17 +21,24 @@ public class HybridFileProvider : AbstractVfsFileProvider
     }
 
     // Local + Custom
-    public HybridFileProvider(string directory, VersionContainer? version = null) : base(CaseInsensitive, version)
+    public HybridFileProvider(string directory, List<DirectoryInfo>? extraDirectories = null, VersionContainer? version = null) : base(CaseInsensitive, version)
     {
         WorkingDirectory = new DirectoryInfo(directory);
+        ExtraDirectories = extraDirectories ?? [];
     }
 
     public override void Initialize()
     {
         if (!WorkingDirectory.Exists) throw new DirectoryNotFoundException($"Provided installation folder does not exist: {WorkingDirectory.FullName}");
+        
+        RegisterFiles(WorkingDirectory);
+        ExtraDirectories.ForEach(RegisterFiles);
+    }
 
+    public void RegisterFiles(DirectoryInfo directory)
+    {
         var files = new Dictionary<string, GameFile>();
-        foreach (var file in WorkingDirectory.EnumerateFiles("*.*", SearchOption))
+        foreach (var file in directory.EnumerateFiles("*.*", SearchOption))
         {
             var extension = file.Extension.SubstringAfter('.').ToLower();
             if (extension is not ("pak" or "utoc")) continue;

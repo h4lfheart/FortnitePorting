@@ -134,6 +134,7 @@ public class MeshExportData : ExportDataBase
 
                 var props = recordCollection.GetOrDefault<FStructFallback[]>("Items");
                 AssetsVM.ExportChunks = props.Length;
+                AssetsVM.ExportProgress = 0;
                 foreach (var prop in props)
                 {
                     if (AssetsVM.ExportProgress % 100 == 0) GC.Collect();
@@ -241,6 +242,7 @@ public class MeshExportData : ExportDataBase
                 if (world.PersistentLevel.Load() is not ULevel level) break;
 
                 FilesVM.ExportChunks = level.Actors.Length;
+                AssetsVM.ExportProgress = 0;
                 foreach (var actorLazy in level.Actors)
                 {
                     FilesVM.ExportProgress++;
