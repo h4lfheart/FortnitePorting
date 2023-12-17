@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse_Conversion;
+using CUE4Parse_Conversion.Animations;
 using CUE4Parse_Conversion.Meshes;
 using CUE4Parse_Conversion.UEFormat;
 using CUE4Parse_Conversion.UEFormat.Enums;
@@ -116,6 +117,7 @@ public partial class BlenderExportOptions : ExportOptionsBase
         {
             LodFormat = LevelOfDetail is ESupportedLODs.LOD0 ? ELodFormat.FirstLod : ELodFormat.AllLods,
             MeshFormat = EMeshFormat.UEFormat,
+            AnimFormat = EAnimFormat.UEFormat,
             CompressionFormat = CompressionFormat,
             ExportMorphTargets = true,
             ExportMaterials = false
@@ -138,6 +140,7 @@ public partial class UnrealExportOptions : ExportOptionsBase
         {
             LodFormat = LevelOfDetail is ESupportedLODs.LOD0 ? ELodFormat.FirstLod : ELodFormat.AllLods,
             MeshFormat = EMeshFormat.UEFormat,
+            AnimFormat = EAnimFormat.UEFormat,
             CompressionFormat = CompressionFormat,
             ExportMorphTargets = true,
             ExportMaterials = false
@@ -158,6 +161,11 @@ public partial class FolderExportOptions : ExportOptionsBase
             {
                 EMeshExportTypes.UEFormat => EMeshFormat.UEFormat,
                 EMeshExportTypes.ActorX => EMeshFormat.ActorX
+            },
+            AnimFormat = AnimFormat switch
+            {
+                EAnimExportTypes.UEFormat => EAnimFormat.UEFormat,
+                EAnimExportTypes.ActorX => EAnimFormat.ActorX
             },
             CompressionFormat = CompressionFormat,
             ExportMorphTargets = true,

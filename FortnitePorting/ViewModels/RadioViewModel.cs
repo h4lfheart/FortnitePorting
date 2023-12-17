@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Threading;
@@ -107,18 +108,12 @@ public partial class RadioViewModel : ViewModelBase
         var sounds = songPicker.SoundCue.HandleSoundTree();
         var sound = sounds.MaxBy(sound => sound.Time)?.SoundWave;
         if (sound is null) return;
-
-        sound.Decode(true, out var format, out var data);
-        if (data is null) sound.Decode(false, out format, out data);
-        if (data is null) return;
-
-        switch (format.ToLower())
-        {
-            case "binka":
-                SoundSource = new WaveFileReader(SoundExtensions.ConvertBinkaToWav(data, sound.Name));
-                break;
-        }
-
+        
+        var wavPath = Path.Combine(AudioCacheFolder.FullName, $"{sound.Name}.wav");
+        if (!File.Exists(wavPath) && !SoundExtensions.TryConvertAudio(sound, wavPath)) return;
+        
+        SoundSource = new WaveFileReader(new FileStream(wavPath, FileMode.Open, FileAccess.Read));
+        
         IsPlaying = true;
         SongInfo = songPicker;
         SoundOut.Stop();

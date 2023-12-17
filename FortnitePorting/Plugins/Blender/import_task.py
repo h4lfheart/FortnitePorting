@@ -5,7 +5,7 @@ import re
 from enum import Enum
 from math import radians
 from mathutils import Matrix, Vector, Euler, Quaternion
-from .ue_format import UEFormatImport, UEModelOptions
+from .ue_format import UEFormatImport, UEModelOptions, UEAnimOptions
 from .logger import Log
 
 
@@ -204,151 +204,63 @@ glass_mappings = MappingCollection(
     ]
 )
 
-
 class ImportTask:
     def run(self, response):
-
-        self.imported_materials = {}
-        self.assets_folder = response.get("AssetsFolder")
-        self.options = response.get("Options")
+        assets_folder = response.get("AssetsFolder")
+        options = response.get("Options")
 
         append_data()
+        
         datas = response.get("Data")
         for data in datas:
-            self.import_data(data)
+            DataImportTask(data, assets_folder, options)
+
+class DataImportTask:
+    def __init__(self, data, assets_folder, options):
+        self.imported_materials = {}
+        self.assets_folder = assets_folder
+        self.options = options
+        self.import_data(data)
 
     def import_data(self, data):
+        print(json.dumps(data))
+        self.name = data.get("Name")
+        self.type = data.get("Type")
+        self.override_materials = []
+        self.override_parameters = []
+        self.is_toon = False
+        self.collection = bpy.context.scene.collection
+        self.meshes = []
+        self.imported_mesh_count = 0
+        self.imported_meshes = []
+        
         import_type = data.get("PrimitiveType")
         match import_type:
             case "Mesh":
                 self.import_mesh_data(data)
             case "Animation":
                 self.import_anim_data(data)
-                
-
     def import_mesh_data(self, data):
-        name = data.get("Name")
-        type = data.get("Type")
+        self.override_materials = data.get("OverrideMaterials")
+        self.override_parameters = data.get("OverrideParameters")
+        self.collection = create_collection(self.name) if self.options.get("ImportCollection") else bpy.context.scene.collection
 
-        if self.options.get("ImportCollection"):
-            active_collection = create_collection(name)
-
-        meshes = meshes = data.get("Meshes")
-        if type in ["Outfit", "Backpack"]:
+        meshes = data.get("Meshes")
+        if self.type in ["Outfit", "Backpack"]:
             meshes = data.get("OverrideMeshes")
             for mesh in data.get("Meshes"):
                 if not any(meshes, lambda override_mesh: override_mesh.get("Type") == mesh.get("Type")):
                     meshes.append(mesh)
 
-        def get_meta(search_props):
-            out_props = {}
-            for mesh in meshes:
-                meta = mesh.get("Meta")
-                for search_prop in search_props:
-                    if found_key := first(meta.keys(), lambda key: key == search_prop):
-                        out_props[found_key] = meta.get(found_key)
-            return out_props
-
-        imported_meshes = []
-        imported_mesh_count = 0
-        is_toon = False
-
-        def import_mesh(mesh, parent=None):
-
-            # import mesh
-            mesh_type = mesh.get("Type")
-            mesh_path = mesh.get("Path")
-            mesh_name = mesh_path.split(".")[1]
-            object_name = mesh.get("Name")
-            if type in ["World", "Prefab"] and (existing_mesh_data := bpy.data.meshes.get(mesh_name)):
-                imported_object = bpy.data.objects.new(object_name, existing_mesh_data)
-                if active_collection:
-                    active_collection.objects.link(imported_object)
-                else:
-                    bpy.context.scene.collection.objects.link(imported_object)
-            else:
-                imported_object = self.import_mesh(mesh.get("Path"))
-                imported_object.name = object_name
-
-            if type in ["World", "Prefab"]:
-                nonlocal imported_mesh_count
-                imported_mesh_count += 1
-                Log.info(f"Actor {imported_mesh_count}/{len(meshes)}: {object_name}")
-            
-
-            if parent:
-                imported_object.parent = parent
-
-            imported_object.rotation_euler = make_euler(mesh.get("Rotation"))
-            imported_object.location = make_vector(mesh.get("Location"), mirror_y=True) * 0.01
-            imported_object.scale = make_vector(mesh.get("Scale"))
-
-            imported_mesh = get_armature_mesh(imported_object)
-            imported_meshes.append({
-                "Skeleton": imported_object,
-                "Mesh": imported_mesh,
-                "Data": mesh,
-                "Meta": mesh.get("Meta")
-            })
-
-            # fetch metadata
-            match mesh_type:
-                case "Body":
-                    meta = get_meta(["SkinColor"])
-                case "Head":
-                    meta = get_meta(["MorphNames", "HatType", "PoseData"])
-
-                    shape_keys = imported_mesh.data.shape_keys
-                    if (morph_name := meta.get("MorphNames").get(meta.get("HatType"))) and shape_keys is not None:
-                        for key in shape_keys.key_blocks:
-                            if key.name.casefold() == morph_name.casefold():
-                                key.value = 1.0
-                case _:
-                    meta = {}
-
-            meta["TextureData"] = mesh.get("TextureData")
-            meta["OverrideParameters"] = data.get("OverrideParameters")
-
-            # import mats
-            for material in mesh.get("Materials"):
-                index = material.get("Slot")
-                if index >= len(imported_mesh.material_slots):
-                    continue
-
-                material_type = self.import_material(imported_mesh.material_slots[index], material, meta)
-                if material_type == "FP Toon":
-                    nonlocal is_toon
-                    is_toon = True
-
-            for override_material in mesh.get("OverrideMaterials"):
-                index = override_material.get("Slot")
-                if index >= len(imported_mesh.material_slots):
-                    continue
-
-                overridden_material = imported_mesh.material_slots[index]
-                slots = where(imported_mesh.material_slots,
-                              lambda slot: slot.name.casefold() == overridden_material.name.casefold())
-                for slot in slots:
-                    self.import_material(slot, override_material, meta)
-
-            for variant_override_material in data.get("OverrideMaterials"):
-                material_name_to_swap = variant_override_material.get("MaterialNameToSwap")
-                slots = where(imported_mesh.material_slots,
-                              lambda slot: slot.name.casefold() == material_name_to_swap.casefold())
-                for slot in slots:
-                    self.import_material(slot, variant_override_material, meta)
-
-            for child in mesh.get("Children"):
-                import_mesh(child, imported_object)
-
+        self.meshes = meshes
         for mesh in meshes:
-            import_mesh(mesh)
+            self.import_model(mesh, collection=self.collection)
 
-        if type == "Outfit" and self.options.get("MergeSkeletons"):
-            master_skeleton = merge_skeletons(imported_meshes)
+        if self.type == "Outfit" and self.options.get("MergeSkeletons"):
+            master_skeleton = merge_skeletons(self.imported_meshes)
             master_mesh = get_armature_mesh(master_skeleton)
 
-            if is_toon:
+            if self.is_toon:
                 # todo custom outline color from mat
                 master_mesh.data.materials.append(bpy.data.materials.get("M_FP_Outline"))
 
@@ -362,12 +274,165 @@ class ImportTask:
 
     def import_anim_data(self, data, override_skeleton=None):
         name = data.get("Name")
-        
+
         target_skeleton = override_skeleton or armature_from_selection()
         if target_skeleton is None:
-            Server.instance.send("Animation_InvalidArmature")
             return
 
+        # clear old data
+        target_skeleton.animation_data_clear()
+        if bpy.context.scene.sequence_editor:
+            sequences_to_remove = where(bpy.context.scene.sequence_editor.sequences, lambda seq: seq["FPSound"])
+            for sequence in sequences_to_remove:
+                bpy.context.scene.sequence_editor.sequences.remove(sequence)
+
+        # start import
+        target_skeleton.animation_data_create()
+        target_track = target_skeleton.animation_data.nla_tracks.new(prev=None)
+        target_track.name = "Sections"
+
+        def import_sections(sections, skeleton, track):
+            total_frames = 0
+            for section in sections:
+                path = section.get("Path")
+    
+                total_frames += time_to_frame(section.get("Length"))
+    
+                anim = self.import_anim(path, skeleton)
+                track.strips.new(section.get("Name"), time_to_frame(section.get("Time")), anim)
+            return total_frames
+        
+        total_frames = import_sections(data.get("Sections"), target_skeleton, target_track)
+        if self.options.get("UpdateTimelineLength"):
+            bpy.context.scene.frame_end = total_frames
+            
+        props = data.get("Props")
+        if len(props) > 0:
+            if master_skeleton := first(target_skeleton.children, lambda child: child.name == "Master_Skeleton"):
+                bpy.data.objects.remove(master_skeleton)
+                
+            master_skeleton = self.import_model(data.get("Skeleton"))
+            master_skeleton.name = "Master_Skeleton"
+            master_skeleton.parent = target_skeleton
+            master_skeleton.animation_data_create()
+
+            master_track = master_skeleton.animation_data.nla_tracks.new(prev=None)
+            master_track.name = "Sections"
+
+            import_sections(data.get("Sections"), master_skeleton, master_track)
+            
+            for prop in props:
+                mesh = self.import_model(prop.get("Mesh"))
+                mesh.rotation_euler = make_euler(prop.get("RotationOffset"))
+                mesh.location = make_vector(prop.get("LocationOffset"), mirror_y=True) * 0.01
+                mesh.scale = make_vector(prop.get("Scale"))
+                constraint_object(mesh, master_skeleton, prop.get("SocketName"), [0, 0, 0])
+
+                if (anims := prop.get("AnimSections")) and len(anims) > 0:
+                    mesh.animation_data_create()
+                    mesh_track = mesh.animation_data.nla_tracks.new(prev=None)
+                    mesh_track.name = "Sections"
+                    import_sections(anims, mesh, mesh_track)
+
+            master_skeleton.hide_set(True)
+            
+        if self.options.get("ImportSounds"):
+            for sound in data.get("Sounds"):
+                path = sound.get("Path")
+                self.import_sound(path, time_to_frame(sound.get("Time")))
+
+    def import_model(self, mesh, collection=None, parent=None):
+        mesh_type = mesh.get("Type")
+        mesh_path = mesh.get("Path")
+        mesh_name = mesh_path.split(".")[1]
+        object_name = mesh.get("Name")
+
+        if collection is None:
+            collection = bpy.context.scene.collection
+
+        if self.type in ["World", "Prefab"] and (existing_mesh_data := bpy.data.meshes.get(mesh_name)):
+            imported_object = bpy.data.objects.new(object_name, existing_mesh_data)
+            collection.objects.link(imported_object)
+        else:
+            imported_object = self.import_mesh(mesh.get("Path"))
+            imported_object.name = object_name
+
+        if self.type in ["World", "Prefab"]:
+            self.imported_mesh_count += 1
+            Log.info(f"Actor {self.imported_mesh_count}/{len(self.meshes)}: {object_name}")
+
+        if parent:
+            imported_object.parent = parent
+
+        imported_object.rotation_euler = make_euler(mesh.get("Rotation"))
+        imported_object.location = make_vector(mesh.get("Location"), mirror_y=True) * 0.01
+        imported_object.scale = make_vector(mesh.get("Scale"))
+        imported_mesh = get_armature_mesh(imported_object)
+        self.imported_meshes.append({
+            "Skeleton": imported_object,
+            "Mesh": imported_mesh,
+            "Data": mesh,
+            "Meta": mesh.get("Meta")
+        })
+
+        def get_meta(search_props):
+            out_props = {}
+            for mesh in self.meshes:
+                meta = mesh.get("Meta")
+                for search_prop in search_props:
+                    if found_key := first(meta.keys(), lambda key: key == search_prop):
+                        out_props[found_key] = meta.get(found_key)
+            return out_props
+
+        # fetch metadata
+        match mesh_type:
+            case "Body":
+                meta = get_meta(["SkinColor"])
+            case "Head":
+                meta = get_meta(["MorphNames", "HatType", "PoseData"])
+
+                shape_keys = imported_mesh.data.shape_keys
+                if (morph_name := meta.get("MorphNames").get(meta.get("HatType"))) and shape_keys is not None:
+                    for key in shape_keys.key_blocks:
+                        if key.name.casefold() == morph_name.casefold():
+                            key.value = 1.0
+            case _:
+                meta = {}
+
+        meta["TextureData"] = mesh.get("TextureData")
+        meta["OverrideParameters"] = self.override_parameters
+
+        # import mats
+        for material in mesh.get("Materials"):
+            index = material.get("Slot")
+            if index >= len(imported_mesh.material_slots):
+                continue
+
+            self.import_material(imported_mesh.material_slots[index], material, meta)
+
+        for override_material in mesh.get("OverrideMaterials"):
+            index = override_material.get("Slot")
+            if index >= len(imported_mesh.material_slots):
+                continue
+
+            overridden_material = imported_mesh.material_slots[index]
+            slots = where(imported_mesh.material_slots,
+                          lambda slot: slot.name.casefold() == overridden_material.name.casefold())
+            for slot in slots:
+                self.import_material(slot, override_material, meta)
+
+        for variant_override_material in self.override_materials:
+            material_name_to_swap = variant_override_material.get("MaterialNameToSwap")
+            slots = where(imported_mesh.material_slots,
+                          lambda slot: slot.name.casefold() == material_name_to_swap.casefold())
+            for slot in slots:
+                self.import_material(slot, variant_override_material, meta)
+
+        for child in mesh.get("Children"):
+            self.import_model(child, imported_object)
+            
+        return imported_object
+            
     def import_material(self, material_slot, material_data, meta_data):
         temp_material = material_slot.material
         material_slot.link = 'OBJECT'
@@ -670,8 +735,7 @@ class ImportTask:
 
         if shader_node.node_tree.name == "FP Toon":
             shader_node.inputs["Brightness"].default_value = self.options.get("ToonBrightness")
-
-        return shader_node.node_tree.name
+            self.is_toon = True
 
     def import_image(self, path: str):
         path, name = path.split(".")
@@ -691,12 +755,39 @@ class ImportTask:
         path = path[1:] if path.startswith("/") else path
         mesh_path = os.path.join(self.assets_folder, path.split(".")[0] + ".uemodel")
         
-        options = UEModelOptions(scale_down=self.options.get("ScaleDown"),
+        options = UEModelOptions(scale_factor=0.01 if self.options.get("ScaleDown") else 1,
                                  reorient_bones=self.options.get("ReorientBones"),
                                  bone_length=self.options.get("BoneSize"))
 
         return UEFormatImport(options).import_file(mesh_path)
 
+    def import_anim(self, path: str, override_skeleton=None):
+        path = path[1:] if path.startswith("/") else path
+        file_path, name = path.split(".")
+        if (existing := bpy.data.actions.get(name)) and existing["Skeleton"] == override_skeleton.name:
+            return existing
+
+        anim_path = os.path.join(self.assets_folder, file_path + ".ueanim")
+        options = UEAnimOptions(link=False,
+                                override_skeleton=override_skeleton,
+                                scale_factor=0.01 if self.options.get("ScaleDown") else 1)
+        anim = UEFormatImport(options).import_file(anim_path)
+        anim["Skeleton"] = override_skeleton.name
+        return anim
+
+    def import_sound(self, path: str, time):
+        path = path[1:] if path.startswith("/") else path
+        file_path, name = path.split(".")
+        if existing := bpy.data.sounds.get(name):
+            return existing
+        
+        if not bpy.context.scene.sequence_editor:
+            bpy.context.scene.sequence_editor_create()
+
+        sound_path = os.path.join(self.assets_folder, file_path + ".wav")
+        sound = bpy.context.scene.sequence_editor.sequences.new_sound(name, sound_path, 0, time)
+        sound["FPSound"] = True
+        return sound
 
 class HatType(Enum):
     HeadReplacement = 0
@@ -717,7 +808,7 @@ def hash_code(num):
 
 
 def get_armature_mesh(obj):
-    if obj.type == 'ARMATURE':
+    if obj.type == 'ARMATURE' and len(obj.children) > 0:
         return obj.children[0]
 
     if obj.type == 'MESH':
@@ -740,6 +831,9 @@ def armature_from_selection():
                         break
 
     return armature_obj
+
+def time_to_frame(time, fps = 30):
+    return int(round(time * fps))
 
 def append_data():
     addon_dir = os.path.dirname(os.path.splitext(__file__)[0])
@@ -801,7 +895,7 @@ def first(target, expr, default=None):
 
 def where(target, expr):
     if not target:
-        return None
+        return []
     filtered = filter(expr, target)
 
     return list(filtered)
@@ -809,7 +903,7 @@ def where(target, expr):
 
 def any(target, expr):
     if not target:
-        return None
+        return False
 
     filtered = list(filter(expr, target))
     return len(filtered) > 0

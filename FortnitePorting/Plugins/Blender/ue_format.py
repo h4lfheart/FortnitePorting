@@ -25,7 +25,7 @@ except ImportError:
 # ---------- ADDON ---------- #
 
 bl_info = {
-    "name": "UE Format (.uemodel / .ueanim / .ueworld)",
+    "name": "UE Format (.uemodel / .ueanim)",
     "author": "Half",
     "version": (1, 0, 0),
     "blender": (4, 0, 0),
@@ -44,7 +44,6 @@ class UEFORMAT_PT_Panel(bpy.types.Panel):
         UEFORMAT_PT_Panel.draw_general_options(self, context)
         UEFORMAT_PT_Panel.draw_model_options(self, context)
         UEFORMAT_PT_Panel.draw_anim_options(self, context)
-        UEFORMAT_PT_Panel.draw_world_options(self, context)
 
     @staticmethod
     def draw_general_options(self, context):
@@ -77,17 +76,6 @@ class UEFORMAT_PT_Panel(bpy.types.Panel):
         if not import_menu:
             box.row().operator("uf.import_ueanim", icon='ANIM')
 
-    @staticmethod
-    def draw_world_options(self, context, import_menu=False):
-        layout = self.layout
-
-        box = layout.box()
-        box.label(text="World", icon="WORLD")
-        box.row().prop(bpy.context.scene.uf_settings, "instance_meshes")
-
-        if not import_menu:
-            box.row().operator("uf.import_ueworld", icon='SCENE_DATA')
-
 
 class UFImportUEModel(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
     bl_idname = "uf.import_uemodel"
@@ -101,7 +89,9 @@ class UFImportUEModel(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
 
     def execute(self, context):
         for file in self.files:
-            UEFormatImport().import_file(os.path.join(self.directory, file.name))
+            UEFormatImport(UEModelOptions(scale_factor=bpy.context.scene.uf_settings.scale,
+                                          bone_length=bpy.context.scene.uf_settings.bone_length,
+                                          reorient_bones=bpy.context.scene.uf_settings.reorient_bones)).import_file(os.path.join(self.directory, file.name))
         return {'FINISHED'}
 
     def draw(self, context):
@@ -128,27 +118,6 @@ class UFImportUEAnim(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
         UEFORMAT_PT_Panel.draw_general_options(self, context)
         UEFORMAT_PT_Panel.draw_anim_options(self, context, True)
 
-
-class UFImportUEWorld(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
-    bl_idname = "uf.import_ueworld"
-    bl_label = "Import World"
-    bl_context = 'scene'
-
-    filename_ext = ".ueworld"
-    filter_glob: StringProperty(default="*.ueworld", options={'HIDDEN'}, maxlen=255)
-    files: CollectionProperty(type=bpy.types.OperatorFileListElement, options={'HIDDEN', 'SKIP_SAVE'})
-    directory: StringProperty(subtype='DIR_PATH')
-
-    def execute(self, context):
-        for file in self.files:
-            UEFormatImport().import_file(os.path.join(self.directory, file.name))
-        return {'FINISHED'}
-
-    def draw(self, context):
-        UEFORMAT_PT_Panel.draw_general_options(self, context)
-        UEFORMAT_PT_Panel.draw_world_options(self, context, True)
-
-
 class UFSettings(bpy.types.PropertyGroup):
     scale: FloatProperty(name="Scale", default=0.01, min=0.01)
     bone_length: FloatProperty(name="Bone Length", default=5, min=0.1)
@@ -162,7 +131,7 @@ def draw_import_menu(self, context):
     self.layout.operator(UFImportUEAnim.bl_idname, text="Unreal Animation (.ueanim)")
 
 
-operators = [UEFORMAT_PT_Panel, UFImportUEModel, UFImportUEAnim, UFImportUEWorld, UFSettings]
+operators = [UEFORMAT_PT_Panel, UFImportUEModel, UFImportUEAnim, UFSettings]
 
 
 def register():
@@ -300,7 +269,6 @@ class FArchiveReader:
 MAGIC = "UEFORMAT"
 MODEL_IDENTIFIER = "UEMODEL"
 ANIM_IDENTIFIER = "UEANIM"
-WORLD_IDENTIFIER = "UEWORLD"
 
 class EUEFormatVersion(IntEnum):
     BeforeCustomVersionWasAdded = 0
@@ -314,24 +282,20 @@ class UEFormatOptions:
 
 class UEModelOptions(UEFormatOptions):
 
-    def __init__(self, scale_down=True, bone_length=4.0, reorient_bones=False):
-        self.scale_down = scale_down
-        self.scale_factor = 0.01 if scale_down else 1.0
+    def __init__(self, link=True, scale_factor=0.01, bone_length=4.0, reorient_bones=False):
+        self.scale_factor = scale_factor
         self.bone_length = bone_length
         self.reorient_bones = reorient_bones
+        self.link = link
 
 
 class UEAnimOptions(UEFormatOptions):
 
-    def __init__(self, rotation_only=False):
+    def __init__(self, link=True, override_skeleton=None, scale_factor=0.01, rotation_only=False):
+        self.override_skeleton = override_skeleton
+        self.scale_factor = scale_factor
         self.rotation_only = rotation_only
-
-
-class UEWorldOptions(UEFormatOptions):
-
-    def __init__(self, instance_meshes=True):
-        self.instance_meshes = instance_meshes
-
+        self.link = link
 
 class UEFormatImport:
 
@@ -342,7 +306,7 @@ class UEFormatImport:
         with open(path, 'rb') as file:
             return self.import_data(file.read())
 
-    def import_data(self, data, link_model: bool = True):
+    def import_data(self, data):
         with FArchiveReader(data) as ar:
             magic = ar.read_string(len(MAGIC))
             if magic != MAGIC:
@@ -372,13 +336,11 @@ class UEFormatImport:
                     return
 
             if identifier == MODEL_IDENTIFIER:
-                return self.import_uemodel_data(read_archive, object_name, link_model)
+                return self.import_uemodel_data(read_archive, object_name)
             elif identifier == ANIM_IDENTIFIER:
                 return self.import_ueanim_data(read_archive, object_name)
-            elif identifier == WORLD_IDENTIFIER:
-                return self.import_ueworld_data(read_archive, object_name)
 
-    def import_uemodel_data(self, ar: FArchiveReader, name: str, link: bool):
+    def import_uemodel_data(self, ar: FArchiveReader, name: str):
         data = UEModel()
 
         while not ar.eof():
@@ -419,72 +381,74 @@ class UEFormatImport:
                 ar.skip(byte_size)
 
         # geometry
-        mesh_data = bpy.data.meshes.new(name)
-        mesh_data.from_pydata(data.vertices, [], data.indices)
-
-        mesh_object = bpy.data.objects.new(name, mesh_data)
-        return_object = mesh_object
-        if link:
-            bpy.context.collection.objects.link(mesh_object)
-
-        # normals
-        if len(data.normals) > 0:
-            mesh_data.polygons.foreach_set("use_smooth", [True] * len(mesh_data.polygons))
-            mesh_data.normals_split_custom_set_from_vertices(data.normals)
-            if bpy.app.version < (4, 1, 0):
-                mesh_data.use_auto_smooth = True
-
-        # weights
-        if len(data.weights) > 0 and len(data.bones) > 0:
-            for weight in data.weights:
-                bone_name = data.bones[weight.bone_index].name
-                vertex_group = mesh_object.vertex_groups.get(bone_name)
-                if not vertex_group:
-                    vertex_group = mesh_object.vertex_groups.new(name=bone_name)
-                vertex_group.add([weight.vertex_index], weight.weight, 'ADD')
-
-        # morph targets
-        if len(data.morphs) > 0:
-            default_key = mesh_object.shape_key_add(from_mix=False)
-            default_key.name = "Default"
-            default_key.interpolation = 'KEY_LINEAR'
-
-            for morph in data.morphs:
-                key = mesh_object.shape_key_add(from_mix=False)
-                key.name = morph.name
-                key.interpolation = 'KEY_LINEAR'
-
-                for delta in morph.deltas:
-                    key.data[delta.vertex_index].co += Vector(delta.position)
-
-        # vertex colors
-        if len(data.colors) > 0:
-            vertex_color = mesh_data.color_attributes.new(domain='CORNER', type='BYTE_COLOR', name="COL0")
-            for polygon in mesh_data.polygons:
-                for vertex_index, loop_index in zip(polygon.vertices, polygon.loop_indices):
-                    color = data.colors[vertex_index]
-                    vertex_color.data[loop_index].color = color[0] / 255, color[1] / 255, color[2] / 255, color[3] / 255
-
-        # texture coordinates
-        if len(data.uvs) > 0:
-            for index, uvs in enumerate(data.uvs):
-                uv_layer = mesh_data.uv_layers.new(name="UV" + str(index))
+        has_geometry = len(data.vertices) > 0 and len(data.indices) > 0
+        if has_geometry:
+            mesh_data = bpy.data.meshes.new(name)
+            mesh_data.from_pydata(data.vertices, [], data.indices)
+    
+            mesh_object = bpy.data.objects.new(name, mesh_data)
+            return_object = mesh_object
+            if self.options.link:
+                bpy.context.collection.objects.link(mesh_object)
+    
+            # normals
+            if len(data.normals) > 0:
+                mesh_data.polygons.foreach_set("use_smooth", [True] * len(mesh_data.polygons))
+                mesh_data.normals_split_custom_set_from_vertices(data.normals)
+                if bpy.app.version < (4, 1, 0):
+                    mesh_data.use_auto_smooth = True
+    
+            # weights
+            if len(data.weights) > 0 and len(data.bones) > 0:
+                for weight in data.weights:
+                    bone_name = data.bones[weight.bone_index].name
+                    vertex_group = mesh_object.vertex_groups.get(bone_name)
+                    if not vertex_group:
+                        vertex_group = mesh_object.vertex_groups.new(name=bone_name)
+                    vertex_group.add([weight.vertex_index], weight.weight, 'ADD')
+    
+            # morph targets
+            if len(data.morphs) > 0:
+                default_key = mesh_object.shape_key_add(from_mix=False)
+                default_key.name = "Default"
+                default_key.interpolation = 'KEY_LINEAR'
+    
+                for morph in data.morphs:
+                    key = mesh_object.shape_key_add(from_mix=False)
+                    key.name = morph.name
+                    key.interpolation = 'KEY_LINEAR'
+    
+                    for delta in morph.deltas:
+                        key.data[delta.vertex_index].co += Vector(delta.position)
+    
+            # vertex colors
+            if len(data.colors) > 0:
+                vertex_color = mesh_data.color_attributes.new(domain='CORNER', type='BYTE_COLOR', name="COL0")
                 for polygon in mesh_data.polygons:
                     for vertex_index, loop_index in zip(polygon.vertices, polygon.loop_indices):
-                        uv_layer.data[loop_index].uv = uvs[vertex_index]
-
-        # materials
-        if len(data.materials) > 0:
-            for i, material in enumerate(data.materials):
-                mat = bpy.data.materials.get(material.material_name)
-                if mat is None:
-                    mat = bpy.data.materials.new(name=material.material_name)
-                mesh_data.materials.append(mat)
-
-                start_face_index = (material.first_index // 3)
-                end_face_index = start_face_index + material.num_faces
-                for face_index in range(start_face_index, end_face_index):
-                    mesh_data.polygons[face_index].material_index = i
+                        color = data.colors[vertex_index]
+                        vertex_color.data[loop_index].color = color[0] / 255, color[1] / 255, color[2] / 255, color[3] / 255
+    
+            # texture coordinates
+            if len(data.uvs) > 0:
+                for index, uvs in enumerate(data.uvs):
+                    uv_layer = mesh_data.uv_layers.new(name="UV" + str(index))
+                    for polygon in mesh_data.polygons:
+                        for vertex_index, loop_index in zip(polygon.vertices, polygon.loop_indices):
+                            uv_layer.data[loop_index].uv = uvs[vertex_index]
+    
+            # materials
+            if len(data.materials) > 0:
+                for i, material in enumerate(data.materials):
+                    mat = bpy.data.materials.get(material.material_name)
+                    if mat is None:
+                        mat = bpy.data.materials.new(name=material.material_name)
+                    mesh_data.materials.append(mat)
+    
+                    start_face_index = (material.first_index // 3)
+                    end_face_index = start_face_index + material.num_faces
+                    for face_index in range(start_face_index, end_face_index):
+                        mesh_data.polygons[face_index].material_index = i
 
         # skeleton
         if len(data.bones) > 0 or len(data.sockets) > 0:
@@ -495,12 +459,13 @@ class UEFormatImport:
             armature_object.show_in_front = True
             return_object = armature_object
 
-            if link:
+            if self.options.link:
                 bpy.context.collection.objects.link(armature_object)
             bpy.context.view_layer.objects.active = armature_object
             armature_object.select_set(True)
 
-            mesh_object.parent = armature_object
+            if has_geometry:
+                mesh_object.parent = armature_object
 
         if len(data.bones) > 0:
             # create bones
@@ -525,20 +490,22 @@ class UEFormatImport:
 
             bpy.ops.object.mode_set(mode='OBJECT')
 
-            # armature modifier
-            armature_modifier = mesh_object.modifiers.new(armature_object.name, type='ARMATURE')
-            armature_modifier.show_expanded = False
-            armature_modifier.use_vertex_groups = True
-            armature_modifier.object = armature_object
-
-            # bone colors
-            for bone in armature_object.pose.bones:
-                if mesh_object.vertex_groups.get(bone.name) is None:
-                    bone.color.palette = 'THEME14'
-                    continue
-
-                if len(bone.children) == 0:
-                    bone.color.palette = 'THEME03'
+            if has_geometry:
+                
+                # armature modifier
+                armature_modifier = mesh_object.modifiers.new(armature_object.name, type='ARMATURE')
+                armature_modifier.show_expanded = False
+                armature_modifier.use_vertex_groups = True
+                armature_modifier.object = armature_object
+    
+                # bone colors
+                for bone in armature_object.pose.bones:
+                    if mesh_object.vertex_groups.get(bone.name) is None:
+                        bone.color.palette = 'THEME14'
+                        continue
+    
+                    if len(bone.children) == 0:
+                        bone.color.palette = 'THEME03'
 
         # sockets
         if len(data.sockets) > 0:
@@ -581,11 +548,12 @@ class UEFormatImport:
             else:
                 ar.skip(byte_size)
 
-        armature = get_active_armature()
-
         action = bpy.data.actions.new(name=name)
-        armature.animation_data_create()
-        armature.animation_data.action = action
+
+        armature = self.options.override_skeleton or get_active_armature()
+        if self.options.link:
+            armature.animation_data_create()
+            armature.animation_data.action = action
 
         # bone anim data
         pose_bones = armature.pose.bones
@@ -633,34 +601,7 @@ class UEFormatImport:
 
             bone.matrix_basis.identity()
 
-    def import_ueworld_data(self, ar: FArchiveReader, name: str):
-        data = UEWorld()
-
-        while not ar.eof():
-            header_name = ar.read_fstring()
-            array_size = ar.read_int()
-            byte_size = ar.read_int()
-
-            if header_name == "MESHES":
-                data.meshes = ar.read_array(array_size, lambda ar: HashedMesh(ar))
-            elif header_name == "ACTORS":
-                data.actors = ar.read_array(array_size, lambda ar: Actor(ar))
-            else:
-                ar.skip(byte_size)
-
-        mesh_map = {}
-        for mesh in data.meshes:
-            mesh_map[mesh.hash_number] = self.import_data(mesh.data, False)
-
-        for actor in data.actors:
-            mesh = mesh_map[actor.mesh_hash]
-            mesh_data = mesh.data if self.options.instance_meshes else mesh.data.copy()
-            obj = bpy.data.objects.new(actor.name, mesh_data)
-            obj.location = actor.position
-            obj.rotation_mode = 'XYZ'
-            obj.rotation_euler = [radians(actor.rotation[2]), radians(actor.rotation[0]), radians(actor.rotation[1])]
-            obj.scale = actor.scale
-            bpy.context.scene.collection.objects.link(obj)
+        return action
 
 
 class UEModel:
@@ -812,24 +753,7 @@ class FloatKey(AnimKey):
     def __init__(self, ar: FArchiveReader):
         super().__init__(ar)
         self.value = ar.read_float()
-
-
-class UEWorld:
-    meshes = []
-    actors = []
-
-
-class HashedMesh:
-    hash_number = 0
-    data = []
-
-    def __init__(self, ar: FArchiveReader):
-        self.hash_number = ar.read_int()
-
-        data_size = ar.read_int()
-        self.data = ar.read(data_size)
-
-
+        
 class Actor:
     mesh_hash = 0
     name = ""

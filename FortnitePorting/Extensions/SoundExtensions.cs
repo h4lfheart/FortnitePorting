@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using CSCore.CoreAudioAPI;
 using CSCore.SoundOut;
+using CUE4Parse_Conversion.Sounds;
 using CUE4Parse.GameTypes.FN.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Exports.Sound.Node;
@@ -26,20 +27,35 @@ public static class SoundExtensions
         return new DirectSoundOut();
     }
 
-    public static FileStream ConvertBinkaToWav(byte[] data, string name = "temp")
+    public static bool TryConvertAudio(USoundWave soundWave, string path)
     {
-        var wavPath = Path.Combine(App.AudioCacheFolder.FullName, $"{name}.wav");
-        if (File.Exists(wavPath)) return new FileStream(wavPath, FileMode.Open, FileAccess.Read);
+        soundWave.Decode(true, out var format, out var data);
+        if (data is null) soundWave.Decode(false, out format, out data);
+        if (data is null) return false;
+        
+        switch (format.ToLower())
+        {
+            case "binka":
+                SaveBinkaAsWav(data, path);
+                break;
+            default:
+                throw new NotSupportedException();
+        }
 
-        var binkaPath = Path.ChangeExtension(wavPath, "binka");
-        if (!File.Exists(binkaPath)) File.WriteAllBytes(binkaPath, data);
+        return true;
+    }
+    
+    public static void SaveBinkaAsWav(byte[] data, string outPath)
+    {
+        var binkaPath = Path.ChangeExtension(outPath, "binka");
+        File.WriteAllBytes(binkaPath, data);
 
         using (var binkaProcess = new Process())
         {
             binkaProcess.StartInfo = new ProcessStartInfo
             {
                 FileName = DependencyService.BinkaFile.FullName,
-                Arguments = $"-i \"{binkaPath}\" -o \"{wavPath}\"",
+                Arguments = $"-i \"{binkaPath}\" -o \"{outPath}\"",
                 UseShellExecute = false,
                 RedirectStandardOutput = true
             };
@@ -49,8 +65,6 @@ public static class SoundExtensions
         }
         
         File.Delete(binkaPath);
-
-        return new FileStream(wavPath, FileMode.Open, FileAccess.Read);
     }
 
     public static List<Sound> HandleSoundTree(this USoundCue root, float offsetTime = 0.0f)
@@ -121,11 +135,11 @@ public static class SoundExtensions
 
 public class Sound
 {
-    public USoundWave? SoundWave;
+    public USoundWave SoundWave;
     public float Time;
     public bool Loop;
 
-    public Sound(USoundWave? soundWave, float time, bool loop)
+    public Sound(USoundWave soundWave, float time, bool loop)
     {
         SoundWave = soundWave;
         Time = time;

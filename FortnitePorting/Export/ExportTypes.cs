@@ -132,4 +132,23 @@ public class ExportAnimSection
     public string Name;
     public float Time;
     public float Length;
+    public float LinkValue;
+    public bool Loop;
+}
+
+public class ExportSound
+{
+    public string Path;
+    public float Time;
+    public bool Loop;
+}
+
+public class ExportProp
+{
+    public ExportMesh Mesh;
+    public List<ExportAnimSection> AnimSections;
+    public string SocketName;
+    public FVector LocationOffset;
+    public FRotator RotationOffset;
+    public FVector Scale;
 }

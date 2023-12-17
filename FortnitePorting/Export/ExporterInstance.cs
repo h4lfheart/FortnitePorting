@@ -15,6 +15,7 @@ using CUE4Parse.UE4.Assets.Exports.Component.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Component.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
+using CUE4Parse.UE4.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
@@ -370,6 +371,19 @@ public class ExporterInstance
         return exportPart;
     }
 
+    public ExportMesh? Skeleton(USkeleton? skeleton)
+    {
+        if (skeleton is null) return null;
+
+        var exportMesh = new ExportMesh
+        {
+            Name = skeleton.Name,
+            Path = Export(skeleton)
+        };
+
+        return exportMesh;
+    }
+
     public ExportMesh? Mesh(UStaticMesh? mesh)
     {
         return Mesh<ExportMesh>(mesh);
@@ -538,8 +552,9 @@ public class ExporterInstance
         }
     }
 
-    public ExportAnimSection AnimSequence(UAnimSequence animSequence, float time = 0.0f)
+    public ExportAnimSection? AnimSequence(UAnimSequence? animSequence, float time = 0.0f)
     {
+        if (animSequence is null) return null;
         var exportSequence = new ExportAnimSection
         {
             Path = Export(animSequence),
@@ -565,6 +580,11 @@ public class ExporterInstance
                 EMeshExportTypes.UEFormat => "uemodel",
                 EMeshExportTypes.ActorX => "pskx"
             },
+            USkeleton => AppExportOptions.MeshFormat switch
+            {
+                EMeshExportTypes.UEFormat => "uemodel",
+                EMeshExportTypes.ActorX => "pskx"
+            },
             UAnimSequence => AppExportOptions.AnimFormat switch
             {
                 EAnimExportTypes.UEFormat => "ueanim",
@@ -574,7 +594,8 @@ public class ExporterInstance
             {
                 EImageType.PNG => "png",
                 EImageType.TGA => "tga"
-            }
+            },
+            USoundWave => "wav"
         };
 
         var exportPath = GetExportPath(asset, extension);
@@ -586,8 +607,8 @@ public class ExporterInstance
         {
             try
             {
-                Export(asset, exportPath);
                 Log.Information("Exporting {ExportType}: {Path}", asset.ExportType, exportPath);
+                Export(asset, exportPath);
             }
             catch (IOException e)
             {
@@ -631,19 +652,25 @@ public class ExporterInstance
             case USkeletalMesh skeletalMesh:
             {
                 var exporter = new MeshExporter(skeletalMesh, FileExportOptions);
-                exporter.TryWriteToDir(App.AssetsFolder, out _, out _);
+                exporter.TryWriteToDir(AssetsFolder, out _, out _);
                 break;
             }
             case UStaticMesh staticMesh:
             {
                 var exporter = new MeshExporter(staticMesh, FileExportOptions);
-                exporter.TryWriteToDir(App.AssetsFolder, out _, out _);
+                exporter.TryWriteToDir(AssetsFolder, out _, out _);
+                break;
+            }
+            case USkeleton skeleton:
+            {
+                var exporter = new MeshExporter(skeleton, FileExportOptions);
+                exporter.TryWriteToDir(AssetsFolder, out _, out _);
                 break;
             }
             case UAnimSequence animSequence:
             {
                 var exporter = new AnimExporter(animSequence, FileExportOptions);
-                exporter.TryWriteToDir(App.AssetsFolder, out _, out _);
+                exporter.TryWriteToDir(AssetsFolder, out _, out _);
                 break;
             }
             case UTexture texture:
@@ -661,6 +688,11 @@ public class ExporterInstance
                         throw new NotImplementedException("TARGA (.tga) export not currently supported.");
                 }
 
+                break;
+            }
+            case USoundWave soundWave:
+            {
+                SoundExtensions.TryConvertAudio(soundWave, exportPath);
                 break;
             }
         }
