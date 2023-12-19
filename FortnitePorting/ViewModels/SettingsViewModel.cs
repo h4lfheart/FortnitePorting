@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,6 +14,7 @@ using FortnitePorting.Application;
 using FortnitePorting.Framework;
 using FortnitePorting.Services;
 using FortnitePorting.Framework.Services;
+using FortnitePorting.Framework.ViewModels.Endpoints.Models;
 using FortnitePorting.ViewModels.Endpoints.Models;
 using FortnitePorting.Views;
 using Newtonsoft.Json;
@@ -41,6 +43,8 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private AesResponse? lastAesResponse;
 
     // Program
+    [ObservableProperty] private DateTime lastUpdateAskTime = DateTime.Now.Subtract(TimeSpan.FromDays(1));
+    [ObservableProperty] private FPVersion lastKnownUpdateVersion = Globals.Version;
     [ObservableProperty] private bool useTabTransition = true;
     [ObservableProperty] private bool useDiscordRPC = true;
     [ObservableProperty] private bool useFallbackBackground;

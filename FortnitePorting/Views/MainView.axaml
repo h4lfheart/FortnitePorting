@@ -61,7 +61,7 @@
                 <views:AboutView />
             </TabItem>
         </avalonia:AnimatableTabControl>
-        <Button IsVisible="{Binding UpdateAvailable}" Command="{Binding PromptForUpdate}" Classes="NoBackground" Margin="{ext:Space 1}"  HorizontalAlignment="Left" VerticalAlignment="Bottom">
+        <Button Command="{Binding UpdateCommand}" Classes="NoBackground" Margin="{ext:Space 1}"  HorizontalAlignment="Left" VerticalAlignment="Bottom">
             <controls:MaterialIconText Text="{Binding UpdateText}" Icon="Update" />
         </Button>
     </Grid>

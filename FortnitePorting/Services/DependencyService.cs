@@ -16,9 +16,12 @@ public static class DependencyService
 
     public static void EnsureDependencies()
     {
-        Ensure("Assets/Dependencies/binkadec.exe", BinkaFile);
-        Ensure("Plugins/Blender/enable_addon.py", BlenderScriptFile);
-        Ensure("Assets/Dependencies/updater.bat", UpdaterFile);
+        TaskService.Run(() =>
+        {
+            Ensure("Assets/Dependencies/binkadec.exe", BinkaFile);
+            Ensure("Plugins/Blender/enable_addon.py", BlenderScriptFile);
+            Ensure("Assets/Dependencies/updater.bat", UpdaterFile);
+        });
     }
 
     public static void Ensure(string path, FileInfo targetFile)
