@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using CUE4Parse.FileProvider.Objects;
 using CUE4Parse.FileProvider.Vfs;
 using CUE4Parse.UE4.Readers;
@@ -11,7 +12,7 @@ namespace FortnitePorting.Extensions;
 public class HybridFileProvider : AbstractVfsFileProvider
 {
     private readonly DirectoryInfo WorkingDirectory;
-    private readonly List<DirectoryInfo> ExtraDirectories;
+    private readonly IEnumerable<DirectoryInfo> ExtraDirectories;
     private const bool CaseInsensitive = true;
     private static readonly SearchOption SearchOption = SearchOption.AllDirectories;
 
@@ -24,7 +25,7 @@ public class HybridFileProvider : AbstractVfsFileProvider
     public HybridFileProvider(string directory, List<DirectoryInfo>? extraDirectories = null, VersionContainer? version = null) : base(CaseInsensitive, version)
     {
         WorkingDirectory = new DirectoryInfo(directory);
-        ExtraDirectories = extraDirectories ?? [];
+        ExtraDirectories = (extraDirectories ?? []).Where(directory => directory.Exists);
     }
 
     public override void Initialize()
@@ -32,7 +33,10 @@ public class HybridFileProvider : AbstractVfsFileProvider
         if (!WorkingDirectory.Exists) throw new DirectoryNotFoundException($"Provided installation folder does not exist: {WorkingDirectory.FullName}");
         
         RegisterFiles(WorkingDirectory);
-        ExtraDirectories.ForEach(RegisterFiles);
+        foreach (var extraDirectory in ExtraDirectories)
+        {
+            RegisterFiles(extraDirectory);
+        }
     }
 
     public void RegisterFiles(DirectoryInfo directory)
