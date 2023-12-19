@@ -25,7 +25,7 @@ public partial class MainViewModel : ViewModelBase
 
     public override async Task Initialize()
     {
-        AvailableUpdate = await EndpointsVM.FortnitePorting.GetReleaseAsync();
+        await RefreshUpdateInfo();
         if (AvailableUpdate is not null && !AvailableUpdate.ProperVersion.Equals(Globals.Version))
         {
             UpdateText = $"Update to\nv{AvailableUpdate.Version}";
@@ -34,7 +34,7 @@ public partial class MainViewModel : ViewModelBase
             {
                 AppSettings.Current.LastKnownUpdateVersion = AvailableUpdate.ProperVersion;
                 AppSettings.Current.LastUpdateAskTime = DateTime.Now;
-                await UpdateCommand();
+                await UpdatePrompt();
             }
         }
         else
@@ -63,7 +63,17 @@ public partial class MainViewModel : ViewModelBase
 
     public async Task UpdateCommand()
     {
+        await RefreshUpdateInfo();
+        await UpdatePrompt();
+    }
+
+    public async Task RefreshUpdateInfo()
+    {
         AvailableUpdate = await EndpointsVM.FortnitePorting.GetReleaseAsync();
+    }
+
+    public async Task UpdatePrompt()
+    {
         if (AvailableUpdate is not null && !AvailableUpdate.ProperVersion.Equals(Globals.Version))
         {
             MessageWindow.Show(new MessageWindowModel
@@ -94,7 +104,7 @@ public partial class MainViewModel : ViewModelBase
     {
         TaskService.Run(() =>
         {
-            EndpointsVM.DownloadFile(AvailableUpdate.DownloadUrl, "FortnitePorting.TEMP.exe");
+            EndpointsVM.DownloadFile(AvailableUpdate.DownloadUrl, "FortnitePorting.temp.exe");
             Process.Start(new ProcessStartInfo
             {
                 FileName = DependencyService.UpdaterFile.FullName,
