@@ -10,29 +10,23 @@ namespace FortnitePorting.Services;
 
 public static class DependencyService
 {
-    public static readonly FileInfo BinkaFile = new(Path.Combine(App.DataFolder.FullName, "binkadec.exe"));
-    public static readonly FileInfo BlenderScriptFile = new(Path.Combine(App.DataFolder.FullName, "enable_addon.py"));
+    public static readonly FileInfo BinkaFile = new(Path.Combine(DataFolder.FullName, "binkadec.exe"));
+    public static readonly FileInfo BlenderScriptFile = new(Path.Combine(DataFolder.FullName, "enable_addon.py"));
+    public static readonly FileInfo UpdaterFile = new(Path.Combine(DataFolder.FullName, "updater.bat"));
 
     public static void EnsureDependencies()
     {
-        TaskService.Run(EnsureBinka);
-        TaskService.Run(EnsureBlenderScript);
+        Ensure("Assets/Dependencies/binkadec.exe", BinkaFile);
+        Ensure("Plugins/Blender/enable_addon.py", BlenderScriptFile);
+        Ensure("Assets/Dependencies/updater.bat", UpdaterFile);
     }
 
-    public static async Task EnsureBinka()
+    public static void Ensure(string path, FileInfo targetFile)
     {
-        var assetStream = AssetLoader.Open(new Uri("avares://FortnitePorting/Assets/Dependencies/binkadec.exe"));
-        if (BinkaFile.Exists && BinkaFile.GetHash() == assetStream.GetHash()) return;
+        var assetStream = AssetLoader.Open(new Uri($"avares://FortnitePorting/{path}"));
+        if (targetFile is { Exists: true, Length: > 0 } && targetFile.GetHash() == assetStream.GetHash()) return;
 
-        var fileStream = new FileStream(BinkaFile.FullName, FileMode.Create, FileAccess.Write);
-        await assetStream.CopyToAsync(fileStream);
-    }
-    
-    public static async Task EnsureBlenderScript()
-    {
-        var assetStream = AssetLoader.Open(new Uri("avares://FortnitePorting/Plugins/Blender/enable_addon.py"));
-
-        var fileStream = new FileStream(BlenderScriptFile.FullName, FileMode.Create, FileAccess.Write);
-        await assetStream.CopyToAsync(fileStream);
+        targetFile.Delete();
+        File.WriteAllBytes(targetFile.FullName, assetStream.ReadToEnd());
     }
 }

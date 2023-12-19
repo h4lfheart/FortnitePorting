@@ -10,7 +10,7 @@ public class EndpointViewModel : EndpointViewModelBase
     public readonly FortnitePortingEndpoint FortnitePorting;
     public readonly EpicGamesEndpoint EpicGames;
     
-    public EndpointViewModel() : base($"FortnitePorting/{Globals.VERSION}")
+    public EndpointViewModel() : base($"FortnitePorting/{Globals.VersionString}")
     {
         FortniteCentral = new FortniteCentralEndpoint(Client);
         FortnitePorting = new FortnitePortingEndpoint(Client);

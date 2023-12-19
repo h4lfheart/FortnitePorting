@@ -1,19 +1,16 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:ext="clr-namespace:FortnitePorting.Framework.Extensions;assembly=FortnitePorting.Framework"
         xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
-        xmlns:controls1="clr-namespace:FortnitePorting.Framework.Controls"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        xmlns:controls="clr-namespace:FortnitePorting.Framework.Controls"
         x:Class="FortnitePorting.Framework.Controls.MessageWindow"
-        x:DataType="controls1:MessageWindow" Width="360" SizeToContent="Height" WindowStartupLocation="CenterOwner"
+        x:DataType="controls:MessageWindowModel" Width="360" SizeToContent="Height" WindowStartupLocation="CenterOwner"
         FontFamily="Segoe UI"
         Background="{x:Null}" TransparencyLevelHint="Mica, AcrylicBlur"
         ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="NoChrome"
-        ExtendClientAreaTitleBarHeightHint="0">
+        ExtendClientAreaTitleBarHeightHint="0" Title="{Binding Title}">
     <Grid RowDefinitions="30, *">
-        <ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="2" IsVisible="{Binding UseFallbackBackground}" IsHitTestVisible="False">
+        <ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="2" IsVisible="{Binding  UseFallbackBackground}" IsHitTestVisible="False">
             <ExperimentalAcrylicBorder.Material>
                 <ExperimentalAcrylicMaterial MaterialOpacity="1" TintColor="#110038"/>
             </ExperimentalAcrylicBorder.Material>
@@ -26,7 +23,7 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <TextBlock Grid.Column="1" x:Name="CaptionTextBlock" HorizontalAlignment="Left" VerticalAlignment="Center" />
+            <TextBlock Grid.Column="1" Text="{Binding Title}" HorizontalAlignment="Left" VerticalAlignment="Center" />
             <Grid Grid.Column="3" ColumnDefinitions="*" HorizontalAlignment="Right" Margin="{ext:Space 0.5}">
                 <Button Grid.Column="0" Content="{material:MaterialIconExt Kind=Close}" Click="OnCloseClicked"
                         CornerRadius="2" Classes="CloseWindow" Width="24" Height="24" HorizontalAlignment="Center"
@@ -36,10 +33,20 @@
         <Grid Grid.Row="1" RowDefinitions="Auto Auto" ColumnDefinitions="* 4*">
             <material:MaterialIcon Grid.Row="0" Grid.Column="0" Kind="Alert" Width="40" Height="40"
                                    Margin="{ext:Space 1}" HorizontalAlignment="Center" VerticalAlignment="Top" />
-            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="InfoTextBlock" Margin="{ext:Space 1}" TextAlignment="Left"
+            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Text}" Margin="{ext:Space 1}" TextAlignment="Left"
                        TextWrapping="Wrap" />
-            <Button Grid.Row="1" Grid.Column="1" Margin="{ext:Space 1}" HorizontalAlignment="Right"
-                    VerticalAlignment="Center" Content="Continue" Click="OnContinueClicked" />
+            <ItemsControl Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" ItemsSource="{Binding Buttons}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="controls:MessageWindowButton">
+                        <Button Margin="{ext:Space 0, 1, 1, 1}" HorizontalAlignment="Right" VerticalAlignment="Center" Content="{Binding Label}" Command="{Binding Command}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
         </Grid>
 
     </Grid>

@@ -9,29 +9,38 @@ namespace FortnitePorting.Framework.Controls;
 public partial class MessageWindow : Window
 {
     public static MessageWindow? ActiveWindow;
-    public bool UseFallbackBackground { get; set; } = Environment.OSVersion.Platform != PlatformID.Win32NT || (Environment.OSVersion.Platform == PlatformID.Win32NT && Environment.OSVersion.Version.Build < 22000);
-    private event EventHandler OnClosedWindow;
-
-    public MessageWindow(string caption, string text, Window? owner = null, Action<object?, EventArgs>? onClosed = null)
+   
+    public MessageWindow(MessageWindowModel model)
     {
         InitializeComponent();
-        DataContext = this;
-
-        Title = caption;
-        CaptionTextBlock.Text = caption;
-        InfoTextBlock.Text = text;
-        Owner = owner;
-        if (onClosed is not null) OnClosedWindow += (sender, args) => onClosed(sender, args);
+        DataContext = model;
     }
 
-    public static void Show(string caption, string text, Window? owner = null, Action<object?, EventArgs>? onClosed = null)
+    public static void Show(string title, string text, Window? owner = null, List<MessageWindowButton>? buttons = null)
+    {
+        var model = new MessageWindowModel
+        {
+            Title = title,
+            Text = text
+        };
+        if (buttons is not null) model.Buttons = buttons;
+
+        Show(model);
+    }
+    
+    public static void Show(MessageWindowModel model)
     {
         if (ActiveWindow is not null) return;
         TaskService.RunDispatcher(() =>
         {
-            ActiveWindow = new MessageWindow(caption, text, owner, onClosed);
+            ActiveWindow = new MessageWindow(model);
             ActiveWindow.Show();
         });
+    }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        ActiveWindow = null;
     }
 
     private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
@@ -44,11 +53,32 @@ public partial class MessageWindow : Window
         ActiveWindow = null;
         Close();
     }
+}
 
-    private void OnContinueClicked(object? sender, RoutedEventArgs e)
+public class MessageWindowModel
+{
+    public string Title { get; set; }
+    public string Text { get; set; }
+    public List<MessageWindowButton> Buttons { get; set; } = [MessageWindowButtons.Continue];
+    public bool UseFallbackBackground => Environment.OSVersion.Platform != PlatformID.Win32NT || (Environment.OSVersion.Platform == PlatformID.Win32NT && Environment.OSVersion.Version.Build < 22000);
+
+}
+
+public class MessageWindowButton
+{
+    public string Label { get; set; }
+    public Action<MessageWindow> OnClicked { get; set; }
+    
+    public MessageWindowButton(string label, Action<MessageWindow> onClicked)
     {
-        ActiveWindow = null;
-        Close();
-        OnClosedWindow?.Invoke(this, EventArgs.Empty);
+        Label = label;
+        OnClicked = onClicked;
     }
+
+    public void Command() => OnClicked.Invoke(MessageWindow.ActiveWindow!);
+}
+
+public static class MessageWindowButtons
+{
+    public static readonly MessageWindowButton Continue = new("Continue", window => window.Close());
 }

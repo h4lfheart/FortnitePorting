@@ -20,6 +20,7 @@ public abstract class AppBase : Avalonia.Application
     }
     public static IStorageProvider StorageProvider => MainWindow.StorageProvider;
     public static IClipboard Clipboard => MainWindow.Clipboard!;
+    public static string[] Arguments => Application.Args;
 
     public EventHandler<ControlledApplicationLifetimeStartupEventArgs> Startup;
     public EventHandler<ControlledApplicationLifetimeExitEventArgs> Exit;

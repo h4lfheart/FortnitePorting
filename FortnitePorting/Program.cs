@@ -2,6 +2,7 @@
 using Avalonia;
 using Avalonia.ReactiveUI;
 using FortnitePorting.Application;
+using FortnitePorting.Framework.Application;
 using Serilog;
 
 namespace FortnitePorting;
@@ -17,7 +18,7 @@ file class Program
         }
         catch (Exception e)
         {
-            App.HandleException(e);
+            HandleException(e);
             Log.CloseAndFlush();
         }
     }

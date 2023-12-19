@@ -1,12 +1,14 @@
 global using static FortnitePorting.Application.App;
 global using static FortnitePorting.Framework.Application.AppBase;
 using CUE4Parse.UE4.Objects.Core.Misc;
+using FortnitePorting.Framework.ViewModels.Endpoints.Models;
 
 namespace FortnitePorting;
 
 public static class Globals
 {
-    public const string VERSION = "2.0.0.ea-9";
+    public static readonly FPVersion Version = new(2, 0, 0, "beta0");
+    public static readonly string VersionString = Version.ToString();
 
     public const string DISCORD_URL = "https://discord.gg/DZ5YFXdBA6";
     public const string GITHUB_URL = "https://github.com/halfuwu/FortnitePorting/tree/avalonia-2.0";

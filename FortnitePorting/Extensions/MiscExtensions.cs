@@ -72,6 +72,7 @@ public static class MiscExtensions
     public static byte[] ReadToEnd(this Stream str)
     {
         var bytes = new BinaryReader(str).ReadBytes((int) str.Length);
+        str.Position = 0;
         return bytes;
     }
 
@@ -104,13 +105,12 @@ public static class MiscExtensions
 
     public static string GetHash(this Stream stream)
     {
-        return BitConverter.ToString(SHA256.HashData(stream)).Replace("-", string.Empty);
+        return BitConverter.ToString(SHA256.HashData(stream.ReadToEnd())).Replace("-", string.Empty);
     }
     
     public static string GetHash(this FileInfo fileInfo)
     {
-        using var fileStream = fileInfo.OpenRead();
-        return BitConverter.ToString(SHA256.HashData(fileStream)).Replace("-", string.Empty);
+        return BitConverter.ToString(SHA256.HashData(File.ReadAllBytes(fileInfo.FullName))).Replace("-", string.Empty);
     }
 }
 

@@ -21,7 +21,7 @@ public partial class InstallViewModel : ViewModelBase
         var response = await EndpointsVM.FortnitePorting.GetReleaseAsync();
         if (response is null)
         {
-            MessageWindow.Show("An Error Occurred", "Failed to get release info, installer will now close.", MainWindow, (o, args) => { Shutdown(); });
+            MessageWindow.Show("An Error Occurred", "Failed to get release info, installer will now close.", MainWindow, [new MessageWindowButton("Continue", _ => Shutdown())]);
             return;
         }
 

@@ -6,6 +6,7 @@
              xmlns:views="clr-namespace:FortnitePorting.Views"
              xmlns:viewmodels="clr-namespace:FortnitePorting.ViewModels"
              xmlns:avalonia="clr-namespace:FortnitePorting.Controls.Avalonia"
+             xmlns:ext="clr-namespace:FortnitePorting.Framework.Extensions;assembly=FortnitePorting.Framework"
              mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720"
              x:Class="FortnitePorting.Views.MainView"
              x:DataType="viewmodels:MainViewModel">
@@ -13,7 +14,7 @@
         <avalonia:AnimatableTabControl Margin="0 8" TabStripPlacement="Left" OnContentChanged="OnTabChanged">
             <TabItem>
                 <TabItem.Header>
-                    <controls:MaterialIconText Text="Home" Icon="ViewDashboard" />
+                    <controls:MaterialIconText Text="Home    " Icon="ViewDashboard" />
                 </TabItem.Header>
                 <views:HomeView />
             </TabItem>
@@ -60,5 +61,8 @@
                 <views:AboutView />
             </TabItem>
         </avalonia:AnimatableTabControl>
+        <Button IsVisible="{Binding UpdateAvailable}" Command="{Binding PromptForUpdate}" Classes="NoBackground" Margin="{ext:Space 1}"  HorizontalAlignment="Left" VerticalAlignment="Bottom">
+            <controls:MaterialIconText Text="{Binding UpdateText}" Icon="Update" />
+        </Button>
     </Grid>
 </UserControl>

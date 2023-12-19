@@ -108,8 +108,8 @@ public partial class BlenderExportOptions : ExportOptionsBase
     [ObservableProperty] private float toonBrightness = 1.0f;
 
     [ObservableProperty] private bool importSounds = true;
-    [ObservableProperty] private bool loopAnimation = true;
-    [ObservableProperty] private bool updateTimelineLength = true;
+    [ObservableProperty] private bool loopAnimation = false;
+    [ObservableProperty] private bool updateTimelineLength = false;
 
     public override ExporterOptions CreateExportOptions()
     {

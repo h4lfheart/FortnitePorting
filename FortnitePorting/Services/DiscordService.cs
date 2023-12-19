@@ -19,7 +19,7 @@ public static class DiscordService
         },
         Assets = new Assets
         {
-            LargeImageText = $"Fortnite Porting v{Globals.VERSION}",
+            LargeImageText = $"Fortnite Porting v{Globals.VersionString}",
             LargeImageKey = "v2-icon"
         },
         Buttons = new[]

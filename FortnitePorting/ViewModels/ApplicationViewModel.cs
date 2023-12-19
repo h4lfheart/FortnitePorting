@@ -18,7 +18,7 @@ namespace FortnitePorting.ViewModels;
 
 public partial class ApplicationViewModel : ViewModelBase
 {
-    [ObservableProperty] private string versionString = $"v{Globals.VERSION}";
+    [ObservableProperty] private string versionString = $"v{Globals.VersionString}";
 
     [ObservableProperty] private UserControl? currentView;
 
@@ -46,7 +46,7 @@ public partial class ApplicationViewModel : ViewModelBase
 
     public void RestartWithMessage(string caption, string message)
     {
-        MessageWindow.Show(caption, message, MainWindow, (o, args) => { Restart(); });
+        MessageWindow.Show(caption, message, MainWindow, [new MessageWindowButton("Restart", _ => Restart())]);
     }
 
     public void Restart()
