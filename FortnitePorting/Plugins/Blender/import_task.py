@@ -7,6 +7,7 @@ from math import radians
 from mathutils import Matrix, Vector, Euler, Quaternion
 from .ue_format import UEFormatImport, UEModelOptions, UEAnimOptions
 from .logger import Log
+from .server import Server
 
 
 class MappingCollection:
@@ -277,6 +278,7 @@ class DataImportTask:
 
         target_skeleton = override_skeleton or armature_from_selection()
         if target_skeleton is None:
+            Server.instance.send("Animation_InvalidArmature")
             return
 
         # clear old data

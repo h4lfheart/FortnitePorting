@@ -1,8 +1,6 @@
 using System;
 using System.IO;
-using System.Threading.Tasks;
 using Avalonia.Platform;
-using FortnitePorting.Application;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework.Services;
 
@@ -24,7 +22,7 @@ public static class DependencyService
         });
     }
 
-    public static void Ensure(string path, FileInfo targetFile)
+    private static void Ensure(string path, FileInfo targetFile)
     {
         var assetStream = AssetLoader.Open(new Uri($"avares://FortnitePorting/{path}"));
         if (targetFile is { Exists: true, Length: > 0 } && targetFile.GetHash() == assetStream.GetHash()) return;

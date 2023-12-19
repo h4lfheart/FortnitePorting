@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace FortnitePorting.Application;
 
-public class AppSettings
+public static class AppSettings
 {
     public static SettingsViewModel Current = new();
 
