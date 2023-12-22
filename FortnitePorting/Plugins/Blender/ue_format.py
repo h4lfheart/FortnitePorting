@@ -367,7 +367,7 @@ class UEFormatImport:
                 if self.file_version >= EUEFormatVersion.AddMultipleVertexColors:
                     data.colors = ar.read_array(array_size, lambda ar: VertexColor.from_reader(ar))
                 else:
-                    data.colors = [VertexColor("COL0", ar.read_bulk_array(lambda ar: ar.read_byte_vector(4)))]
+                    data.colors = [VertexColor("COL0", ar.read_array(array_size, lambda ar: ar.read_byte_vector(4)))]
 
             elif header_name == "TEXCOORDS":
                 data.uvs = ar.read_array(array_size, lambda ar: ar.read_bulk_array(lambda ar: ar.read_float_vector(2)))

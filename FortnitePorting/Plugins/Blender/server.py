@@ -4,7 +4,8 @@ from .logger import Log
 from threading import Thread, Event
 
 HOST = "127.0.0.1"
-PORT = 24000
+IMPORT_PORT = 24000
+MESSAGE_PORT = 24001
 BUFFER_SIZE = 1024
 
 def decode_bytes(data, format = "utf-8", verbose = False):
@@ -16,20 +17,23 @@ def decode_bytes(data, format = "utf-8", verbose = False):
 def encode_string(string, format = "utf-8"):
 	return string.encode(format)
 
-class Server(Thread):
-	instance = None
-
-	def __init__(self):
+class ServerBase(Thread):
+	def __init__(self, host, port, is_server=False):
 		Thread.__init__(self, daemon=True)
-		Server.instance = self
 		self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+		if not is_server:
+			self.socket.bind((host, port))
+
+
+class ImportServer(ServerBase):
+	def __init__(self):
+		super().__init__(HOST, IMPORT_PORT)
 		self.event = Event()
 
 	def run(self):
-		self.socket.bind((HOST, PORT))
 		self.processing = True
-		Log.info(f"FortnitePorting Server Started at {HOST}:{PORT}")
+		Log.info(f"FortnitePorting Server Started at {HOST}:{IMPORT_PORT}")
 
 		while self.processing:
 			try:
@@ -40,15 +44,13 @@ class Server(Thread):
 	def stop(self):
 		self.socket.close()
 		self.processing = False
-		Log.info(f"FortnitePorting Server Stopped at {HOST}:{PORT}")
+		Log.info(f"FortnitePorting Server Stopped at {HOST}:{IMPORT_PORT}")
 
 	def receive(self):
 		full_data = ""
 		while True:
 			byte_data, sender = self.socket.recvfrom(BUFFER_SIZE)
-			self.most_recent_sender = sender
 			if string_data := decode_bytes(byte_data):
-				print(string_data)
 				match string_data:
 					case "Start":
 						pass
@@ -58,12 +60,8 @@ class Server(Thread):
 						self.ping(sender)
 					case _:
 						full_data += string_data
-						self.socket.sendto(encode_string("DataReceived"), sender)
 		self.response = json.loads(full_data)
 		self.event.set()
-		
-	def send(self, command):
-		self.socket.sendto(encode_string(command), self.most_recent_sender)
 
 	def ping(self, sender):
 		self.socket.sendto(encode_string("Pong"), sender)
@@ -73,3 +71,20 @@ class Server(Thread):
 
 	def clear_response(self):
 		self.event.clear()
+		
+class MessageServer(ServerBase):
+	instance = None
+	
+	def __init__(self):
+		super().__init__(HOST, MESSAGE_PORT, is_server=True)
+		MessageServer.instance = self
+
+	def run(self):
+		Log.info(f"FortnitePorting Message Client Started at {HOST}:{MESSAGE_PORT}")
+
+	def stop(self):
+		self.socket.close()
+		Log.info(f"FortnitePorting Message Client Stopped at {HOST}:{MESSAGE_PORT}")
+		
+	def send(self, data):
+		self.socket.sendto(encode_string(data), (HOST, MESSAGE_PORT))

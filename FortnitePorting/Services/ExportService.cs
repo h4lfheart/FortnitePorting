@@ -16,21 +16,18 @@ using FortnitePorting.Framework.Controls;
 using FortnitePorting.Framework.Extensions;
 using FortnitePorting.Framework.Services;
 using Newtonsoft.Json;
-using Serilog;
 
 namespace FortnitePorting.Services;
 
 public static class ExportService
 {
-    private static readonly SocketInterface Blender = new(BLENDER_PORT, new Dictionary<string, Action>
-    {
-        { "Animation_InvalidArmature", () => MessageWindow.Show("Message from Blender Server", "An armature must be selected to import an animation. Please select an armature and try again.") }
-    });
-
-    private static readonly SocketInterface Unreal = new(UNREAL_PORT);
+    private static readonly SocketInterface Blender = new("Blender", BLENDER_PORT, BLENDER_MESSAGE_PORT);
+    private static readonly SocketInterface Unreal = new("Unreal Engine", UNREAL_PORT, UNREAL_MESSAGE_PORT);
 
     private const int BLENDER_PORT = 24000;
-    private const int UNREAL_PORT = 24001;
+    private const int BLENDER_MESSAGE_PORT = 24001;
+    private const int UNREAL_PORT = 24002;
+    private const int UNREAL_MESSAGE_PORT = 24003;
 
     public static async Task ExportAsync(List<AssetOptions> exports, EExportTargetType exportType)
     {
@@ -118,39 +115,79 @@ public static class ExportService
     }
 }
 
-public class SocketInterface
+public class SocketInterfaceBase
 {
-    private UdpClient Client;
-    private readonly Dictionary<string, Action> Commands;
+    protected UdpClient Client;
     private IPEndPoint EndPoint;
-    private CancellationTokenSource CancellationTokenSource = new();
+
+    public SocketInterfaceBase(int port, bool isServer = false)
+    {
+        EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), port);
+
+        if (isServer)
+        {
+            Client = new UdpClient(EndPoint);
+        }
+        else
+        {
+            Client = new UdpClient();
+            Client.Connect(EndPoint);
+        }
+    }
+    
+    public int SendData(string data)
+    {
+        try
+        {
+            return Client.Send(data.StringToBytes());
+        }
+        catch (SocketException)
+        {
+            Reconnect();
+            return 0;
+        }
+    }
+
+    public string ReceiveData()
+    {
+        try
+        {
+            return Client.Receive(ref EndPoint).BytesToString();
+        }
+        catch (SocketException)
+        {
+            Reconnect();
+            return string.Empty;
+        }
+    }
+
+    private void Reconnect()
+    {
+        Client.Close();
+        Client = new UdpClient();
+        Client.Connect(EndPoint);
+    }
+}
+
+public class SocketInterface : SocketInterfaceBase
+{
+    private readonly SocketInterfaceBase MessageServer;
 
     private const string COMMAND_START = "Start";
     private const string COMMAND_STOP = "Stop";
     private const string COMMAND_PING_REQUEST = "Ping";
     private const string COMMAND_PING_RESPONSE = "Pong";
-    private const string COMMAND_DATA_RECEIVED = "DataReceived";
     private const int BUFFER_SIZE = 1024;
 
-    public SocketInterface(int port, Dictionary<string, Action>? commands = null)
+    public SocketInterface(string name, int port, int messagePort) : base(port)
     {
-        Commands = commands ?? new Dictionary<string, Action>();
-
-        EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), port);
-        Client = new UdpClient();
-        Client.Connect(EndPoint);
-        
+        MessageServer = new SocketInterfaceBase(messagePort, isServer: true);
         TaskService.Run(() =>
         {
             while (true)
             {
-                if (Client.Available <= 0) continue;
-
-                var response = ReceiveData();
-                if (Commands.TryGetValue(response, out var command))
-                {
-                    command.Invoke();
-                }
+                var response = MessageServer.ReceiveData();
+                MessageWindow.Show($"Message from {name} Server", response);
             }
         });
     }
@@ -185,7 +222,7 @@ public class SocketInterface
                 var bytesSent = Client.Send(chunk);
                 if (bytesSent <= 0) continue;
                 
-                if (ReceiveData().Equals(COMMAND_DATA_RECEIVED)) break;
+                if (Ping()) break;
             }
 
             totalBytesSent += chunk.Length;
@@ -193,37 +230,5 @@ public class SocketInterface
 
         return totalBytesSent;
     }
-
-    private int SendData(string data)
-    {
-        try
-        {
-            return Client.Send(data.StringToBytes());
-        }
-        catch (SocketException)
-        {
-            Reconnect();
-            return 0;
-        }
-    }
-
-    private string ReceiveData()
-    {
-        try
-        {
-            return Client.Receive(ref EndPoint).BytesToString();
-        }
-        catch (SocketException)
-        {
-            Reconnect();
-            return string.Empty;
-        }
-    }
-
-    private void Reconnect()
-    {
-        Client.Close();
-        Client = new UdpClient();
-        Client.Connect(EndPoint);
-    }
+    
 }

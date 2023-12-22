@@ -7,7 +7,7 @@ from math import radians
 from mathutils import Matrix, Vector, Euler, Quaternion
 from .ue_format import UEFormatImport, UEModelOptions, UEAnimOptions
 from .logger import Log
-from .server import Server
+from .server import MessageServer
 
 
 class MappingCollection:
@@ -278,7 +278,7 @@ class DataImportTask:
 
         target_skeleton = override_skeleton or armature_from_selection()
         if target_skeleton is None:
-            Server.instance.send("Animation_InvalidArmature")
+            MessageServer.instance.send("An armature must be selected to import an animation. Please select an armature and try again.")
             return
 
         # clear old data
@@ -431,7 +431,7 @@ class DataImportTask:
                 self.import_material(slot, variant_override_material, meta)
 
         for child in mesh.get("Children"):
-            self.import_model(child, imported_object)
+            self.import_model(child, collection, imported_object)
             
         return imported_object
             

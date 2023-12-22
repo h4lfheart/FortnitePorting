@@ -1,7 +1,7 @@
 import bpy
 import traceback
 from .logger import Log
-from .server import Server
+from .server import ImportServer, MessageServer
 from .import_task import ImportTask
 
 bl_info = {
@@ -22,27 +22,32 @@ def message_box(message="", title="Message Box", icon='INFO'):
 
 
 def register():
-    global server
-    server = Server()
-    server.start()
+    global import_server
+    import_server = ImportServer()
+    import_server.start()
 
-    def import_handler():
-        if server.has_response():
+    def import_server_handler():
+        if import_server.has_response():
             try:
-                ImportTask().run(server.response)
+                ImportTask().run(import_server.response)
             except Exception as e:
                 error_str = str(e)
                 Log.error(f"An unhandled error occurred:")
                 traceback.print_exc()
                 message_box(error_str, "An unhandled error occurred", "ERROR")
-            server.clear_response()
+            import_server.clear_response()
         return 0.01
 
-    bpy.app.timers.register(import_handler, persistent=True)
+    bpy.app.timers.register(import_server_handler, persistent=True)
+
+    global message_server
+    message_server = MessageServer()
+    message_server.start()
 
 
 def unregister():
-    server.stop()
+    import_server.stop()
+    message_server.stop()
 
 
 if __name__ == "__main__":
