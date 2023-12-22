@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Objects;
@@ -47,7 +48,7 @@ public static class ExportService
                 EExportTargetType.Unreal => Unreal
             };
 
-            if (!await exportService.Ping())
+            if (!exportService.Ping())
             {
                 var exportTypeString = exportType.GetDescription();
                 MessageWindow.Show($"Failed to Connect to {exportTypeString} Server",
@@ -59,7 +60,7 @@ public static class ExportService
             foreach (var exportData in exportDatas) exportData.WaitForExports();
 
             var exportResponse = CreateExportResponse(exportDatas, exportType);
-            await exportService.SendData(JsonConvert.SerializeObject(exportResponse));
+            exportService.SendExport(JsonConvert.SerializeObject(exportResponse));
         });
     }
 
@@ -79,7 +80,7 @@ public static class ExportService
                 EExportTargetType.Unreal => Unreal
             };
 
-            if (!await exportService.Ping())
+            if (!exportService.Ping())
             {
                 var exportTypeString = exportType.GetDescription();
                 MessageWindow.Show($"Failed to Connect to {exportTypeString} Server",
@@ -91,7 +92,7 @@ public static class ExportService
             foreach (var exportData in exportDatas) exportData.WaitForExports();
 
             var exportResponse = CreateExportResponse(exportDatas, exportType);
-            await exportService.SendData(JsonConvert.SerializeObject(exportResponse));
+            exportService.SendExport(JsonConvert.SerializeObject(exportResponse));
         });
     }
 
@@ -119,16 +120,16 @@ public static class ExportService
 
 public class SocketInterface
 {
-    private UdpClient Client = new();
+    private UdpClient Client;
     private readonly Dictionary<string, Action> Commands;
-    private readonly IPEndPoint EndPoint;
-    private event EventHandler<string> DataReceived;
-    private bool IsServerOpen;
+    private IPEndPoint EndPoint;
+    private CancellationTokenSource CancellationTokenSource = new();
 
     private const string COMMAND_START = "Start";
     private const string COMMAND_STOP = "Stop";
     private const string COMMAND_PING_REQUEST = "Ping";
     private const string COMMAND_PING_RESPONSE = "Pong";
+    private const string COMMAND_DATA_RECEIVED = "DataReceived";
     private const int BUFFER_SIZE = 1024;
 
     public SocketInterface(int port, Dictionary<string, Action>? commands = null)
@@ -136,82 +137,93 @@ public class SocketInterface
         Commands = commands ?? new Dictionary<string, Action>();
 
         EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), port);
+        Client = new UdpClient();
         Client.Connect(EndPoint);
-        DataReceived += OnDataReceived;
         
-        TaskService.Run(async () =>
+        TaskService.Run(() =>
         {
             while (true)
             {
-                var data = await ReceiveData();
-                var command = data.BytesToString();
-                DataReceived.Invoke(this, command);
+                if (Client.Available <= 0) continue;
+
+                var response = ReceiveData();
+                if (Commands.TryGetValue(response, out var command))
+                {
+                    command.Invoke();
+                }
             }
         });
     }
 
-    private void OnDataReceived(object? sender, string e)
+    public void SendExport(string export)
     {
-        if (e.Equals(COMMAND_PING_RESPONSE))
-        {
-            IsServerOpen = true;
-        }
-        
-        if (Commands.TryGetValue(e, out var action))
-        {
-            action();
-        }
+        SendData(COMMAND_START);
+        SendChunked(export);
+        SendData(COMMAND_STOP);
     }
 
-    public async Task<bool> Ping()
+    public bool Ping()
     {
-        await Client.SendAsync(COMMAND_PING_REQUEST.StringToBytes());
-        await Task.Delay(5);
-        return IsServerOpen;
+        var bytesSent = SendData(COMMAND_PING_REQUEST);
+        if (bytesSent <= 0) return false;
+        
+        return ReceiveData().Equals(COMMAND_PING_RESPONSE);
     }
-    
-    public async Task SendData(string str)
+
+    private int SendChunked(string data)
     {
-        await Client.SendAsync(COMMAND_START.StringToBytes());
-        await SendSpliced(str.StringToBytes(), BUFFER_SIZE);
-        await Client.SendAsync(COMMAND_STOP.StringToBytes());
+        var totalBytesSent = 0;
+        var chunks = data.StringToBytes().Chunk(BUFFER_SIZE);
+        foreach (var (index, chunk) in chunks.Enumerate())
+        {
+            var sendAttempts = 0;
+            while (true)
+            {
+                sendAttempts++;
+                if (sendAttempts > 10) throw new Exception($"Failed to send chunk {index}, export cannot continue");
+
+                var bytesSent = Client.Send(chunk);
+                if (bytesSent <= 0) continue;
+                
+                if (ReceiveData().Equals(COMMAND_DATA_RECEIVED)) break;
+            }
+
+            totalBytesSent += chunk.Length;
+        }
+
+        return totalBytesSent;
     }
-    
-    private async Task<byte[]> ReceiveData()
+
+    private int SendData(string data)
     {
         try
         {
-            var data = await Client.ReceiveAsync();
-            return data.Buffer;
+            return Client.Send(data.StringToBytes());
         }
         catch (SocketException)
         {
-            IsServerOpen = false;
-            Client.Close();
-            Client = new UdpClient();
-            Client.Connect(EndPoint);
-            return Array.Empty<byte>();
+            Reconnect();
+            return 0;
         }
     }
 
-    private async Task SendSpliced(IEnumerable<byte> arr, int size)
+    private string ReceiveData()
     {
-        var chunks = arr.Chunk(size).ToList();
-        foreach (var (index, chunk) in chunks.Enumerate())
+        try
         {
-            var tries = 0;
-            await Client.SendAsync(chunk);
-            while (!await Ping())
-            {
-                Log.Warning("Lost Chunk {Index}, Retrying...", index);
-                await Client.SendAsync(chunk);
-
-                if (tries > 5)
-                {
-                    throw new Exception($"Failed to send chunk {index}, data will not continue.");
-                }
-                tries++;
-            }
+            return Client.Receive(ref EndPoint).BytesToString();
         }
+        catch (SocketException)
+        {
+            Reconnect();
+            return string.Empty;
+        }
+    }
+
+    private void Reconnect()
+    {
+        Client.Close();
+        Client = new UdpClient();
+        Client.Connect(EndPoint);
     }
 }

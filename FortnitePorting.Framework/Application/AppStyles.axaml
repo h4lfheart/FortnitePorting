@@ -9,6 +9,12 @@
     <Style Selector="TextBlock /template/ ContentPresenter">
         <Setter Property="FontFamily" Value="Segoe UI" />
     </Style>
+    
+    <Style Selector="ListBoxItem">
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="Padding" Value="10,9,10,12" />
+        <Setter Property="Margin" Value="2" />
+    </Style>
 
     <Style Selector="Button">
         <Setter Property="CornerRadius" Value="5" />

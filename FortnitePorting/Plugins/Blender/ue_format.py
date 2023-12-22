@@ -273,6 +273,7 @@ ANIM_IDENTIFIER = "UEANIM"
 class EUEFormatVersion(IntEnum):
     BeforeCustomVersionWasAdded = 0
     SerializeBinormalSign = 1
+    AddMultipleVertexColors = 2
 
     VersionPlusOne = auto()
     LatestVersion = VersionPlusOne - 1
@@ -356,17 +357,20 @@ class UEFormatImport:
                 def read_normals(ar):
                     if self.file_version >= EUEFormatVersion.SerializeBinormalSign:
                         binormal_sign = ar.read_float()
-                        
+
                     return ar.read_float_vector(3)
-                
+
                 data.normals = ar.read_array(array_size, lambda ar: read_normals(ar))
             elif header_name == "TANGENTS":
                 data.tangents = ar.read_array(array_size, lambda ar: ar.read_float_vector(3))
             elif header_name == "VERTEXCOLORS":
-                data.colors = ar.read_array(array_size, lambda ar: ar.read_byte_vector(4))
+                if self.file_version >= EUEFormatVersion.AddMultipleVertexColors:
+                    data.colors = ar.read_array(array_size, lambda ar: VertexColor.from_reader(ar))
+                else:
+                    data.colors = [VertexColor("COL0", ar.read_bulk_array(lambda ar: ar.read_byte_vector(4)))]
+
             elif header_name == "TEXCOORDS":
-                data.uvs = ar.read_array(array_size,
-                                         lambda ar: ar.read_array(ar.read_int(), lambda ar: ar.read_float_vector(2)))
+                data.uvs = ar.read_array(array_size, lambda ar: ar.read_bulk_array(lambda ar: ar.read_float_vector(2)))
             elif header_name == "MATERIALS":
                 data.materials = ar.read_array(array_size, lambda ar: Material(ar))
             elif header_name == "WEIGHTS":
@@ -423,11 +427,12 @@ class UEFormatImport:
     
             # vertex colors
             if len(data.colors) > 0:
-                vertex_color = mesh_data.color_attributes.new(domain='CORNER', type='BYTE_COLOR', name="COL0")
-                for polygon in mesh_data.polygons:
-                    for vertex_index, loop_index in zip(polygon.vertices, polygon.loop_indices):
-                        color = data.colors[vertex_index]
-                        vertex_color.data[loop_index].color = color[0] / 255, color[1] / 255, color[2] / 255, color[3] / 255
+                for color_info in data.colors:
+                    vertex_color = mesh_data.color_attributes.new(domain='CORNER', type='BYTE_COLOR', name=color_info.name)
+                    for polygon in mesh_data.polygons:
+                        for vertex_index, loop_index in zip(polygon.vertices, polygon.loop_indices):
+                            color = color_info.data[vertex_index]
+                            vertex_color.data[loop_index].color = color[0] / 255, color[1] / 255, color[2] / 255, color[3] / 255
     
             # texture coordinates
             if len(data.uvs) > 0:
@@ -617,7 +622,18 @@ class UEModel:
     bones = []
     sockets = []
 
+class VertexColor:
+    name = ""
+    data = []
+    
+    def __init__(self, name, data):
+        self.name = name
+        self.data = data
 
+    @staticmethod
+    def from_reader(ar: FArchiveReader):
+        return VertexColor(ar.read_fstring(), ar.read_bulk_array(lambda ar: ar.read_byte_vector(4)))
+        
 class Material:
     material_name = ""
     first_index = -1

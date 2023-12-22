@@ -14,6 +14,7 @@ public partial class MessageWindow : Window
     {
         InitializeComponent();
         DataContext = model;
+        ActiveWindow ??= this;
     }
 
     public static void Show(string title, string text, Window? owner = null, List<MessageWindowButton>? buttons = null)
@@ -33,8 +34,7 @@ public partial class MessageWindow : Window
         if (ActiveWindow is not null) return;
         TaskService.RunDispatcher(() =>
         {
-            ActiveWindow = new MessageWindow(model);
-            ActiveWindow.Show();
+            new MessageWindow(model).Show();
         });
     }
 
@@ -75,7 +75,7 @@ public class MessageWindowButton
         OnClicked = onClicked;
     }
 
-    public void Command() => OnClicked.Invoke(MessageWindow.ActiveWindow!);
+    public void Command() => OnClicked.Invoke(MessageWindow.ActiveWindow);
 }
 
 public static class MessageWindowButtons

@@ -48,6 +48,7 @@ class Server(Thread):
 			byte_data, sender = self.socket.recvfrom(BUFFER_SIZE)
 			self.most_recent_sender = sender
 			if string_data := decode_bytes(byte_data):
+				print(string_data)
 				match string_data:
 					case "Start":
 						pass
@@ -57,9 +58,9 @@ class Server(Thread):
 						self.ping(sender)
 					case _:
 						full_data += string_data
+						self.socket.sendto(encode_string("DataReceived"), sender)
 		self.response = json.loads(full_data)
 		self.event.set()
-		self.ping(sender)
 		
 	def send(self, command):
 		self.socket.sendto(encode_string(command), self.most_recent_sender)
