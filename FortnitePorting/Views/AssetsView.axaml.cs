@@ -84,4 +84,9 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
     {
         AssetsListBox.SelectedIndex = Random.Shared.Next(0, ViewModel.ActiveCollection.Count);
     }
+
+    private void OnSearchFilterChanged(object? sender, TextChangedEventArgs e)
+    {
+        ViewModel.SearchFilter = ViewModel.CurrentLoader?.SearchFilter ?? string.Empty;
+    }
 }

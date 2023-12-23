@@ -52,7 +52,7 @@
                     <material:MaterialIcon Kind="DiceMultiple" Width="20" Height="20" />
                 </Button>
 
-                <TextBox Grid.Column="2" Watermark="Search" Text="{Binding SearchFilter}" HorizontalAlignment="Stretch" />
+                <TextBox Grid.Column="2" Watermark="Search" Text="{Binding CurrentLoader.SearchFilter}" HorizontalAlignment="Stretch" TextChanged="OnSearchFilterChanged"/>
 
                 <ToggleButton Grid.Column="4" IsChecked="{Binding IsDescending}" ToolTip.Tip="Ascending or Descending">
                     <material:MaterialIcon Kind="{Binding SortIcon}" Width="20" Height="20" />

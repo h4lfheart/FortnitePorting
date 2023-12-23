@@ -390,6 +390,7 @@ public partial class AssetsViewModel : ViewModelBase
     {
         CurrentLoader = Loaders.First(x => x.Type == assetType);
         ActiveCollection = CurrentLoader.Target;
+        SearchFilter = CurrentLoader.SearchFilter;
         CurrentAssetType = assetType;
         CurrentAssets.Clear();
     }
@@ -482,9 +483,10 @@ public partial class AssetLoader : ObservableObject
 {
     [ObservableProperty] private int loaded;
     [ObservableProperty] private int total;
+    [ObservableProperty] private string searchFilter = string.Empty;
 
-    public EAssetType Type;
-    public Pauser Pause = new();
+    public readonly EAssetType Type;
+    public readonly Pauser Pause = new();
 
     public readonly SourceList<AssetItem> Source = new();
     public readonly ReadOnlyObservableCollection<AssetItem> Target;
