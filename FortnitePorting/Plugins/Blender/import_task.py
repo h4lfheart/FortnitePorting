@@ -27,7 +27,6 @@ class SlotMapping:
         self.value_func = value_func
         self.coords = coords
 
-# todo mapping priority system, important for trunk textures
 default_mappings = MappingCollection(
     textures=[
         SlotMapping("Diffuse"),
@@ -202,6 +201,31 @@ glass_mappings = MappingCollection(
     vectors=[
         SlotMapping("ColorFront", "Color"),
         SlotMapping("Base Color", "Color"),
+    ]
+)
+
+trunk_mappings = MappingCollection(
+    textures=[
+        SlotMapping("Trunk_BaseColor", "Diffuse"),
+        SlotMapping("Trunk_Specular", "SpecularMasks"),
+        SlotMapping("Trunk_Normal", "Normals"),
+    ]
+)
+
+foliage_mappings = MappingCollection(
+    textures=[
+        SlotMapping("Diffuse"),
+        SlotMapping("Normals"),
+        SlotMapping("MaskTexture"),
+    ],
+    scalars=[
+        SlotMapping("Roughness Leafs", "Roughness"),
+        SlotMapping("Specular_Leafs", "Specular")
+    ],
+    vectors=[
+        SlotMapping("Color1_Base"),
+        SlotMapping("Color2_Lit"),
+        SlotMapping("Color3_Shadows")
     ]
 )
 
@@ -469,6 +493,8 @@ class DataImportTask:
         self.imported_materials[material_hash] = material_slot.material
         material = material_slot.material
         material.use_nodes = True
+        material.blend_method = "CLIP"
+        material.shadow_method = "CLIP"
         nodes = material.node_tree.nodes
         nodes.clear()
         links = material.node_tree.links
@@ -618,8 +644,9 @@ class DataImportTask:
             except Exception as e:
                 print(e)
                 
-        layer_switch_names = ["Use 2 Layers", "Use 3 Layers", "Use 4 Layers", "Use 5 Layers", "Use 6 Layers",
-            "Use 2 Materials", "Use 3 Materials", "Use 4 Materials", "Use 5 Materials", "Use 6 Materials"]
+        layer_switch_names = ["Use 2 Layers", "Use 3 Layers", "Use 4 Layers", "Use 5 Layers", "Use 6 Layers", "Use 7 Layers",
+            "Use 2 Materials", "Use 3 Materials", "Use 4 Materials", "Use 5 Materials", "Use 6 Materials", "Use 7 Materials",
+            "Use_Multiple_Material_Textures"]
         if get_param_multiple(switches, layer_switch_names):
             shader_node.node_tree = bpy.data.node_groups.get("FP Layer")
             socket_mappings = layer_mappings
@@ -638,6 +665,15 @@ class DataImportTask:
             material.blend_method = "BLEND"
             material.shadow_method = "NONE"
             material.show_transparent_back = False
+   
+        is_trunk = get_param(switches, "IsTrunk")
+        if is_trunk:
+            socket_mappings = trunk_mappings
+
+        if material_data.get("UseFoliageMaterial") and not is_trunk:
+            shader_node.node_tree = bpy.data.node_groups.get("FP Foliage")
+            socket_mappings = foliage_mappings
+            material.use_sss_translucency = True
 
         for texture in textures:
             texture_param(texture)
@@ -654,14 +690,10 @@ class DataImportTask:
         links.new(shader_node.outputs[0], output_node.inputs[0])
 
         if material_name in ["MI_VertexCrunch", "M_VertexCrunch"]:
-            material.blend_method = "CLIP"
-            material.shadow_method = "CLIP"
             shader_node.inputs["Alpha"].default_value = 0.0
             return
 
         if shader_node.node_tree.name == "FP Material":
-            material.blend_method = "CLIP"
-            material.shadow_method = "CLIP"
 
             shader_node.inputs["AO"].default_value = self.options.get("AmbientOcclusion")
             shader_node.inputs["Cavity"].default_value = self.options.get("Cavity")

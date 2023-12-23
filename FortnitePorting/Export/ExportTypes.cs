@@ -74,7 +74,9 @@ public record ExportMaterial : ExportParameterContainer
     public string Path;
     public string Name;
     public string? AbsoluteParent;
+    // TODO do the logic for this upon import, not export
     public bool UseGlassMaterial;
+    public bool UseFoliageMaterial;
     public int Slot;
     
     public T Copy<T>() where T : ExportMaterial, new()

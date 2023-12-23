@@ -1,26 +1,15 @@
-import bpy
-import bpy_extras
-from bpy.props import StringProperty, BoolProperty, PointerProperty, EnumProperty, FloatProperty, FloatVectorProperty, \
-    CollectionProperty
-from bpy.types import Scene
-
-import struct
-import os
-import io
-import time
 import gzip
-import json
-from mathutils import Vector, Matrix, Quaternion, Euler
-from math import *
+import io
+import os
+import struct
+import zstandard
 from enum import IntEnum, auto
 
-try:
-    import zstd
-except ImportError:
-    from pip._internal import main as pipmain
-
-    pipmain(['install', 'zstd'])
-    import zstd
+import bpy
+import bpy_extras
+from bpy.props import StringProperty, BoolProperty, PointerProperty, FloatProperty, CollectionProperty
+from bpy.types import Scene
+from mathutils import Vector, Matrix, Quaternion
 
 # ---------- ADDON ---------- #
 
@@ -331,7 +320,7 @@ class UEFormatImport:
                 if compression_type == "GZIP":
                     read_archive = FArchiveReader(gzip.decompress(ar.read_to_end()))
                 elif compression_type == "ZSTD":
-                    read_archive = FArchiveReader(zstd.ZSTD_uncompress(ar.read_to_end()))
+                    read_archive = FArchiveReader(zstandard.ZstdDecompressor().decompress(ar.read_to_end(), max_output_size=uncompressed_size))
                 else:
                     Log.info(f"Unknown Compression Type: {compression_type}")
                     return

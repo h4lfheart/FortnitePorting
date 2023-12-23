@@ -435,7 +435,8 @@ public class ExporterInstance
             Slot = index,
             Hash = hash,
             AbsoluteParent = absoluteParent?.Name,
-            UseGlassMaterial = absoluteParent is { BlendMode: EBlendMode.BLEND_Translucent, TranslucencyLightingMode: ETranslucencyLightingMode.TLM_SurfacePerPixelLighting or ETranslucencyLightingMode.TLM_VolumetricPerVertexDirectional }
+            UseGlassMaterial = absoluteParent is { BlendMode: EBlendMode.BLEND_Translucent, TranslucencyLightingMode: ETranslucencyLightingMode.TLM_SurfacePerPixelLighting or ETranslucencyLightingMode.TLM_VolumetricPerVertexDirectional },
+            UseFoliageMaterial = absoluteParent is { BlendMode: EBlendMode.BLEND_Masked, ShadingModel: EMaterialShadingModel.MSM_TwoSidedFoliage or EMaterialShadingModel.MSM_Subsurface }
         };
 
         AccumulateParameters(material, ref exportMaterial);
