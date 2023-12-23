@@ -2,6 +2,7 @@ import bpy
 import os
 import json
 import re
+import bmesh
 from enum import Enum
 from math import radians
 from mathutils import Matrix, Vector, Euler, Quaternion
@@ -121,6 +122,9 @@ toon_mappings = MappingCollection(
     scalars=[
         SlotMapping("ShadedColorDarkening"),
         SlotMapping("PBR_Shading", "Use PBR Shading", value_func=lambda value: int(value))
+    ],
+    vectors=[
+        SlotMapping("InkLineColor", "InkLineColor_Texture")
     ]
 )
 
@@ -435,6 +439,14 @@ class DataImportTask:
                 continue
 
             self.import_material(imported_mesh.material_slots[index], material, meta)
+            
+            material_name = material.get("Name")
+            if any(["Outline", "Toon_Lines"], lambda x: x in material_name):
+                bm = bmesh.new()
+                bm.from_mesh(imported_mesh.data)
+                bmesh.ops.delete(bm, geom=[f for f in bm.faces if f.material_index == index], context='FACES')
+                bm.to_mesh(imported_mesh.data)
+                bm.free()
 
         for override_material in mesh.get("OverrideMaterials"):
             index = override_material.get("Slot")
@@ -665,7 +677,7 @@ class DataImportTask:
             material.blend_method = "BLEND"
             material.shadow_method = "NONE"
             material.show_transparent_back = False
-   
+
         is_trunk = get_param(switches, "IsTrunk")
         if is_trunk:
             socket_mappings = trunk_mappings
