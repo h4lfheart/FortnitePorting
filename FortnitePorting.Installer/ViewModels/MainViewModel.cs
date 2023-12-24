@@ -9,7 +9,7 @@ namespace FortnitePorting.Installer.ViewModels;
 
 public partial class MainViewModel : ViewModelBase
 {
-    [ObservableProperty] private string installationPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "FortnitePorting");
+    [ObservableProperty] private string installationPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "FortnitePorting");
 
     public async Task BrowseInstallPath()
     {
