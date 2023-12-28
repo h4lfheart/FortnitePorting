@@ -1,8 +1,10 @@
-import gzip
 import io
 import os
+import time
+import gzip
 import struct
-import zstandard
+import numpy as np
+import zstandard as zstd
 from enum import IntEnum, auto
 
 import bpy
@@ -100,7 +102,7 @@ class UFImportUEAnim(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
 
     def execute(self, context):
         for file in self.files:
-            UEFormatImport().import_file(os.path.join(self.directory, file.name))
+            UEFormatImport(UEAnimOptions(scale_factor=bpy.context.scene.uf_settings.scale)).import_file(os.path.join(self.directory, file.name))
         return {'FINISHED'}
 
     def draw(self, context):
@@ -124,6 +126,14 @@ operators = [UEFORMAT_PT_Panel, UFImportUEModel, UFImportUEAnim, UFSettings]
 
 
 def register():
+    global zstd_decompresser
+    zstd_decompresser = zstd.ZstdDecompressor()
+
+    # if used as script decomresser can be initialized like this
+    # from . import ue_format
+    # ue_format.zstd_decompresser = zstd.ZstdDecompressor()
+
+
     for operator in operators:
         bpy.utils.register_class(operator)
 
@@ -138,6 +148,9 @@ def unregister():
     del Scene.uf_settings
     bpy.types.TOPBAR_MT_file_import.remove(draw_import_menu)
 
+    global zstd_decompresser
+    del zstd_decompresser
+
 
 if __name__ == "__main__":
     register()
@@ -147,6 +160,22 @@ if __name__ == "__main__":
 
 def bytes_to_str(in_bytes):
     return in_bytes.rstrip(b'\x00').decode()
+
+def make_axis_vector(vec_in):
+    vec_out = Vector()
+    x, y, z = vec_in
+    if abs(x) > abs(y):
+        if abs(x) > abs(z):
+            vec_out.x = 1 if x >= 0 else -1
+        else:
+            vec_out.z = 1 if z >= 0 else -1
+    else:
+        if abs(y) > abs(z):
+            vec_out.y = 1 if y >= 0 else -1
+        else:
+            vec_out.z = 1 if z >= 0 else -1
+
+    return vec_out
 
 
 def get_case_insensitive(source, string):
@@ -173,26 +202,46 @@ class Log:
     ERROR = u"\u001b[33m"
     RESET = u"\u001b[0m"
 
+    NoLog = False
+
     @staticmethod
     def info(message):
+        if Log.NoLog: return
         print(f"{Log.INFO}[UEFORMAT] {Log.RESET}{message}")
 
     @staticmethod
     def error(message):
+        if Log.NoLog: return
         print(f"{Log.ERROR}[UEFORMAT] {Log.RESET}{message}")
 
+    timers = {}
 
+    @staticmethod
+    def time_start(name):
+        if Log.NoLog: return
+        Log.timers[name] = time.time()
+    
+    @staticmethod
+    def time_end(name):
+        if Log.NoLog: return
+        if name in Log.timers:
+            Log.info(f"{name} took {time.time() - Log.timers[name]} seconds")
+            del Log.timers[name]
+        else:
+            Log.error(f"Timer {name} does not exist")
+
+# TODO: optimize and clean up code
 class FArchiveReader:
     data = None
     size = 0
 
     def __init__(self, data):
         self.data = io.BytesIO(data)
-        self.size = len(self.data.read())
+        self.size = len(data)
         self.data.seek(0)
 
     def __enter__(self):
-        self.size = len(self.data.read())
+        # self.size = len(self.data.read())
         self.data.seek(0)
         return self
 
@@ -242,7 +291,7 @@ class FArchiveReader:
         return struct.unpack(str(size) + "B", self.data.read(size))
 
     def skip(self, size: int):
-        self.data.read(size)
+        self.data.seek(size, 1)
 
     def read_bulk_array(self, predicate):
         count = self.read_int()
@@ -293,8 +342,11 @@ class UEFormatImport:
         self.options = options
 
     def import_file(self, path: str):
+        Log.time_start(f"Import {path}")
         with open(path, 'rb') as file:
-            return self.import_data(file.read())
+            obj = self.import_data(file.read())
+        Log.time_end(f"Import {path}")
+        return obj
 
     def import_data(self, data):
         with FArchiveReader(data) as ar:
@@ -320,13 +372,14 @@ class UEFormatImport:
                 if compression_type == "GZIP":
                     read_archive = FArchiveReader(gzip.decompress(ar.read_to_end()))
                 elif compression_type == "ZSTD":
-                    read_archive = FArchiveReader(zstandard.ZstdDecompressor().decompress(ar.read_to_end(), max_output_size=uncompressed_size))
+                    read_archive = FArchiveReader(zstd_decompresser.decompress(ar.read_to_end(), uncompressed_size))
                 else:
                     Log.info(f"Unknown Compression Type: {compression_type}")
                     return
 
             if identifier == MODEL_IDENTIFIER:
                 return self.import_uemodel_data(read_archive, object_name)
+            
             elif identifier == ANIM_IDENTIFIER:
                 return self.import_ueanim_data(read_archive, object_name)
 
@@ -337,29 +390,36 @@ class UEFormatImport:
             header_name = ar.read_fstring()
             array_size = ar.read_int()
             byte_size = ar.read_int()
+
+            pos = ar.data.tell()
             if header_name == "VERTICES":
-                data.vertices = ar.read_array(array_size, lambda ar: [vert * self.options.scale_factor for vert in
-                                                                      ar.read_float_vector(3)])
+                flattened = ar.read_float_vector(array_size * 3)
+                data.vertices = (np.array(flattened) * self.options.scale_factor).reshape(array_size, 3)
+
             elif header_name == "INDICES":
-                data.indices = ar.read_array(int(array_size / 3), lambda ar: ar.read_int_vector(3))
+                data.indices = np.array(ar.read_int_vector(array_size), dtype=np.int32).reshape(array_size // 3, 3)
             elif header_name == "NORMALS":
-                def read_normals(ar):
-                    if self.file_version >= EUEFormatVersion.SerializeBinormalSign:
-                        binormal_sign = ar.read_float()
-
-                    return ar.read_float_vector(3)
-
-                data.normals = ar.read_array(array_size, lambda ar: read_normals(ar))
+                if self.file_version >= EUEFormatVersion.SerializeBinormalSign:
+                    flattened = np.array(ar.read_float_vector(array_size * 4)) # W XYZ # TODO: change to XYZ W
+                    data.normals = flattened.reshape(-1,4)[:,1:]
+                else:
+                    flattened = np.array(ar.read_float_vector(array_size * 3)).reshape(array_size, 3)
+                    data.normals = flattened
             elif header_name == "TANGENTS":
-                data.tangents = ar.read_array(array_size, lambda ar: ar.read_float_vector(3))
+                ar.skip(array_size * 3 * 3)
+                # flattened = np.array(ar.read_float_vector(array_size * 3)).reshape(array_size, 3)
             elif header_name == "VERTEXCOLORS":
                 if self.file_version >= EUEFormatVersion.AddMultipleVertexColors:
-                    data.colors = ar.read_array(array_size, lambda ar: VertexColor.from_reader(ar))
+                    data.colors = []
+                    for i in range(array_size):
+                        data.colors.append(VertexColor.read(ar))
                 else:
-                    data.colors = [VertexColor("COL0", ar.read_array(array_size, lambda ar: ar.read_byte_vector(4)))]
-
+                    data.colors = [VertexColor("COL0", (np.array(ar.read_byte_vector(array_size * 4)).reshape(array_size, 4) / 255).astype(np.float32))]
             elif header_name == "TEXCOORDS":
-                data.uvs = ar.read_array(array_size, lambda ar: ar.read_bulk_array(lambda ar: ar.read_float_vector(2)))
+                data.uvs = []
+                for i in range(array_size):
+                    count = ar.read_int()
+                    data.uvs.append(np.array(ar.read_float_vector(count * 2)).reshape(count, 2))
             elif header_name == "MATERIALS":
                 data.materials = ar.read_array(array_size, lambda ar: Material(ar))
             elif header_name == "WEIGHTS":
@@ -372,6 +432,7 @@ class UEFormatImport:
                 data.sockets = ar.read_array(array_size, lambda ar: Socket(ar, self.options.scale_factor))
             else:
                 ar.skip(byte_size)
+            ar.data.seek(pos + byte_size, 0)
 
         # geometry
         has_geometry = len(data.vertices) > 0 and len(data.indices) > 0
@@ -390,7 +451,7 @@ class UEFormatImport:
                 mesh_data.normals_split_custom_set_from_vertices(data.normals)
                 if bpy.app.version < (4, 1, 0):
                     mesh_data.use_auto_smooth = True
-    
+
             # weights
             if len(data.weights) > 0 and len(data.bones) > 0:
                 for weight in data.weights:
@@ -413,24 +474,23 @@ class UEFormatImport:
     
                     for delta in morph.deltas:
                         key.data[delta.vertex_index].co += Vector(delta.position)
-    
-            # vertex colors
-            if len(data.colors) > 0:
-                for color_info in data.colors:
-                    vertex_color = mesh_data.color_attributes.new(domain='CORNER', type='BYTE_COLOR', name=color_info.name)
-                    for polygon in mesh_data.polygons:
-                        for vertex_index, loop_index in zip(polygon.vertices, polygon.loop_indices):
-                            color = color_info.data[vertex_index]
-                            vertex_color.data[loop_index].color = color[0] / 255, color[1] / 255, color[2] / 255, color[3] / 255
-    
-            # texture coordinates
-            if len(data.uvs) > 0:
-                for index, uvs in enumerate(data.uvs):
-                    uv_layer = mesh_data.uv_layers.new(name="UV" + str(index))
-                    for polygon in mesh_data.polygons:
-                        for vertex_index, loop_index in zip(polygon.vertices, polygon.loop_indices):
-                            uv_layer.data[loop_index].uv = uvs[vertex_index]
-    
+            
+            squish = lambda array: array.reshape(array.size) # Squish nD array into 1D array (required by foreach_set).
+            do_remapping = lambda array, indices: array[indices]
+
+            vertices = [vertex for polygon in mesh_data.polygons for vertex in polygon.vertices]
+            # indices = np.array([index for polygon in mesh_data.polygons for index in polygon.loop_indices], dtype=np.int32)
+            # assert np.all(indices[:-1] <= indices[1:]) # check if indices are sorted hmm idk
+            for color_info in data.colors:
+                remapped = do_remapping(color_info.data, vertices)
+                vertex_color = mesh_data.color_attributes.new(domain='CORNER', type='BYTE_COLOR', name=color_info.name)
+                vertex_color.data.foreach_set("color", squish(remapped))
+
+            for index, uvs in enumerate(data.uvs):
+                remapped = do_remapping(uvs, vertices)
+                uv_layer = mesh_data.uv_layers.new(name="UV" + str(index))
+                uv_layer.data.foreach_set("uv", squish(remapped))
+
             # materials
             if len(data.materials) > 0:
                 for i, material in enumerate(data.materials):
@@ -461,14 +521,16 @@ class UEFormatImport:
             if has_geometry:
                 mesh_object.parent = armature_object
 
+        name_to_transform_map = {}
         if len(data.bones) > 0:
             # create bones
             bpy.ops.object.mode_set(mode='EDIT')
             edit_bones = armature_data.edit_bones
             for bone in data.bones:
                 bone_pos = Vector(bone.position)
-                bone_rot = Quaternion(
-                    (bone.rotation[3], bone.rotation[0], bone.rotation[1], bone.rotation[2]))  # xyzw -> wxyz
+                bone_rot = Quaternion((bone.rotation[3], bone.rotation[0], bone.rotation[1], bone.rotation[2]))  # xyzw -> wxyz
+
+                name_to_transform_map[bone.name] = bone_pos, bone_rot
 
                 edit_bone = edit_bones.new(bone.name)
                 edit_bone.length = self.options.bone_length * self.options.scale_factor
@@ -485,19 +547,19 @@ class UEFormatImport:
             bpy.ops.object.mode_set(mode='OBJECT')
 
             if has_geometry:
-                
+
                 # armature modifier
                 armature_modifier = mesh_object.modifiers.new(armature_object.name, type='ARMATURE')
                 armature_modifier.show_expanded = False
                 armature_modifier.use_vertex_groups = True
                 armature_modifier.object = armature_object
-    
+
                 # bone colors
                 for bone in armature_object.pose.bones:
                     if mesh_object.vertex_groups.get(bone.name) is None:
                         bone.color.palette = 'THEME14'
                         continue
-    
+
                     if len(bone.children) == 0:
                         bone.color.palette = 'THEME03'
 
@@ -507,6 +569,7 @@ class UEFormatImport:
             bpy.ops.object.mode_set(mode='EDIT')
             for socket in data.sockets:
                 socket_bone = edit_bones.new(socket.name)
+                socket_bone["is_socket"] = True
                 parent_bone = get_case_insensitive(edit_bones, socket.parent_name)
                 if parent_bone is None:
                     continue
@@ -521,6 +584,47 @@ class UEFormatImport:
                 socket_bone = armature_object.pose.bones.get(socket.name)
                 if socket_bone is not None:
                     socket_bone.color.palette = 'THEME05'
+
+        if len(data.bones) > 0 and self.options.reorient_bones:
+            bpy.ops.object.mode_set(mode='EDIT')
+
+            name_to_target_rot_map = {}
+            for bone in edit_bones:
+                if bone.get("is_socket"):
+                    continue
+                children = bone.children
+                total_children = len(children)
+
+                target_length = bone.length
+                if total_children == 0:
+                    pos, rot = name_to_transform_map[bone.name]
+                    new_rot = name_to_target_rot_map[bone.parent.name].copy()
+                    new_rot.rotate(rot)
+
+                    target_rotation = make_axis_vector(new_rot)
+                else:
+                    avg_child_pos = Vector()
+                    avg_child_length = 0
+                    for child in bone.children:
+                        if child.get("is_socket"):
+                            continue
+                        pos, rot = name_to_transform_map[child.name]
+                        avg_child_pos += pos
+                        avg_child_length += pos.length
+
+                    avg_child_pos /= total_children
+                    avg_child_length /= total_children
+
+                    target_rotation = make_axis_vector(avg_child_pos)
+                    name_to_target_rot_map[bone.name] = target_rotation
+
+                    target_length = avg_child_length
+
+                bone.matrix @= Vector((0, 1, 0)).rotation_difference(target_rotation).to_matrix().to_4x4()
+                bone.length = target_length
+
+
+            bpy.ops.object.mode_set(mode='OBJECT')
 
         return return_object
 
@@ -614,15 +718,19 @@ class UEModel:
 class VertexColor:
     name = ""
     data = []
-    
+
     def __init__(self, name, data):
         self.name = name
         self.data = data
 
-    @staticmethod
-    def from_reader(ar: FArchiveReader):
-        return VertexColor(ar.read_fstring(), ar.read_bulk_array(lambda ar: ar.read_byte_vector(4)))
-        
+    @classmethod
+    def read(cls, ar: FArchiveReader):
+        name = ar.read_fstring()
+        count = ar.read_int()
+        data = (np.array(ar.read_byte_vector(count * 4)).reshape(count, 4) / 255).astype(np.float32)
+
+        return cls(name, data)
+
 class Material:
     material_name = ""
     first_index = -1
@@ -758,17 +866,3 @@ class FloatKey(AnimKey):
     def __init__(self, ar: FArchiveReader):
         super().__init__(ar)
         self.value = ar.read_float()
-        
-class Actor:
-    mesh_hash = 0
-    name = ""
-    position = []
-    rotation = []
-    scale = []
-
-    def __init__(self, ar: FArchiveReader, scale):
-        self.mesh_hash = ar.read_int()
-        self.name = ar.read_fstring()
-        self.position = [pos * scale for pos in ar.read_float_vector(3)]
-        self.rotation = ar.read_float_vector(3)
-        self.scale = ar.read_float_vector(3)

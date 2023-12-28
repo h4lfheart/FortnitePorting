@@ -1,8 +1,10 @@
 import bpy
 import traceback
+import zstandard as zstd
 from .logger import Log
 from .server import ImportServer, MessageServer
 from .import_task import ImportTask
+from . import ue_format
 
 bl_info = {
     "name": "Fortnite Porting",
@@ -22,6 +24,8 @@ def message_box(message="", title="Message Box", icon='INFO'):
 
 
 def register():
+    ue_format.zstd_decompresser = zstd.ZstdDecompressor()
+    
     global import_server
     import_server = ImportServer()
     import_server.start()
