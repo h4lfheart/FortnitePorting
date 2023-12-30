@@ -80,28 +80,37 @@ public partial class BlenderPluginViewModel : ViewModelBase
         
         Log.Information("Synced Blender {BlenderVersion} Plugin to Version {PluginVersion}", installInfo.BlenderVersion, installInfo.PluginVersion);
 
-        using var blenderProcess = new Process
+        try
         {
-            StartInfo = new ProcessStartInfo
+            using var blenderProcess = new Process
             {
-                FileName = installInfo.BlenderPath,
-                Arguments = $"-b --python-exit-code 1 --python \"{DependencyService.BlenderScriptFile.FullName}\"",
-                UseShellExecute = true
-            }
-        };
-        
-        blenderProcess.Exited += (sender, args) =>
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = installInfo.BlenderPath,
+                    Arguments = $"-b --python-exit-code 1 --python \"{DependencyService.BlenderScriptFile.FullName}\"",
+                    UseShellExecute = true
+                }
+            };
+
+            blenderProcess.Exited += (sender, args) =>
+            {
+                if (automatic) return;
+
+                if (sender is Process { ExitCode: 1 } process)
+                {
+                    MessageWindow.Show("An Error Occured", "Blender failed to enable the FortnitePorting plugin. If this is your first time using syncing the plugin, please enable it yourself in the add-ons tab in Blender preferences.");
+                    Log.Error(process.StandardOutput.ReadToEnd());
+                }
+            };
+
+            blenderProcess.Start();
+        }
+        catch (Exception e)
         {
-            if (automatic) return;
-            
-            if (sender is Process { ExitCode: 1 } process)
-            {
-                MessageWindow.Show("An Error Occured", "Blender failed to enable the FortnitePorting plugin. If this is your first time using syncing the plugin, please enable it yourself in the add-ons tab in Blender preferences.");
-                Log.Error(process.StandardOutput.ReadToEnd());
-            }
-        };
-        
-        blenderProcess.Start();
+            MessageWindow.Show("An Error Occured", "Blender failed to enable the FortnitePorting plugin. If this is your first time using syncing the plugin, please enable it yourself in the add-ons tab in Blender preferences, otherwise you may ignore this message.");
+            Log.Error(e.ToString());
+        }
+      
     }
     
     public async Task UnSync(BlenderInstallInfo installInfo)

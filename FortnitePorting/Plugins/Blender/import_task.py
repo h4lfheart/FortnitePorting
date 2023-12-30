@@ -1067,18 +1067,18 @@ def merge_skeletons(parts):
 
     return master_skeleton
 
-class TastyData:
-    
+class LazyInit:
+
     def __init__(self, gen):
         try:
             self.data = gen()
             self.is_valid = True
         except Exception:
             self.is_valid = False
-            
+
     def get(self):
         return self.data
-        
+
 
 def apply_tasty_rig(master_skeleton, scale):
     master_skeleton["is_tasty_rig"] = True
@@ -1090,32 +1090,57 @@ def apply_tasty_rig(master_skeleton, scale):
     dyn_collection = armature_data.collections.new("Dynamic Bones")
     face_collection = armature_data.collections.new("Face Bones")
     extra_collection = armature_data.collections.new("Extra Bones")
-    
+
 
     bpy.ops.object.mode_set(mode='EDIT')
-    
+
     edit_bones = armature_data.edit_bones
 
     new_bones = [
-        ("tasty_root", "root", TastyData(lambda: (edit_bones["root"].head, edit_bones["root"].tail, edit_bones["root"].roll))),
+        ("tasty_root", "root", LazyInit(lambda: (edit_bones["root"].head, edit_bones["root"].tail, edit_bones["root"].roll))),
         
-        ("ik_foot_parent_r", "tasty_root", TastyData(lambda: (edit_bones["foot_r"].head, edit_bones["foot_r"].tail, edit_bones["foot_r"].roll))),
-        ("ik_foot_ctrl_r", "ik_foot_parent_r", TastyData(lambda: (edit_bones["ball_r"].head + Vector((0, 0.2, 0)), edit_bones["ball_r"].tail + Vector((0, 0.2, 0)), 0))),
-        ("ik_foot_roll_inner_r", "ik_foot_parent_r", TastyData(lambda: (Vector((edit_bones["ball_r"].head.x + 0.04, edit_bones["ball_r"].head.y, 0)), Vector((edit_bones["ball_r"].tail.x + 0.04, edit_bones["ball_r"].tail.y, 0)), 0))),
-        ("ik_foot_roll_outer_r", "ik_foot_roll_inner_r", TastyData(lambda: (Vector((edit_bones["ball_r"].head.x - 0.04, edit_bones["ball_r"].head.y, 0)), Vector((edit_bones["ball_r"].tail.x - 0.04, edit_bones["ball_r"].tail.y, 0)), 0))),
-        ("ik_foot_roll_front_r", "ik_foot_roll_outer_r", TastyData(lambda: (edit_bones["ball_r"].head, edit_bones["ball_r"].tail, radians(180)))),
-        ("ik_foot_roll_back_r", "ik_foot_roll_front_r", TastyData(lambda: (Vector((edit_bones["foot_r"].head.x, edit_bones["foot_r"].head.y + 0.065, 0)), Vector((edit_bones["foot_r"].tail.x, edit_bones["foot_r"].tail.y + 0.065, 0)), 0))),
-        ("ik_foot_target_r", "ik_foot_roll_back_r", TastyData(lambda: (edit_bones["foot_r"].head, edit_bones["foot_r"].tail, edit_bones["foot_r"].roll))),
-        ("ik_foot_pole_r", "tasty_root", TastyData(lambda: (edit_bones["calf_r"].head + Vector((0, -0.75, 0)) * scale, edit_bones["calf_r"].tail + Vector((0, -0.80, 0)) * scale, edit_bones["calf_r"].roll))),
+        ("ik_foot_parent_r", "tasty_root", LazyInit(lambda: (edit_bones["foot_r"].head, edit_bones["foot_r"].tail, edit_bones["foot_r"].roll))),
+        ("ik_foot_ctrl_r", "ik_foot_parent_r", LazyInit(lambda: (edit_bones["ball_r"].head + Vector((0, 0.2, 0)), edit_bones["ball_r"].tail + Vector((0, 0.2, 0)), 0))),
+        ("ik_foot_roll_inner_r", "ik_foot_parent_r", LazyInit(lambda: (Vector((edit_bones["ball_r"].head.x + 0.04, edit_bones["ball_r"].head.y, 0)), Vector((edit_bones["ball_r"].tail.x + 0.04, edit_bones["ball_r"].tail.y, 0)), 0))),
+        ("ik_foot_roll_outer_r", "ik_foot_roll_inner_r", LazyInit(lambda: (Vector((edit_bones["ball_r"].head.x - 0.04, edit_bones["ball_r"].head.y, 0)), Vector((edit_bones["ball_r"].tail.x - 0.04, edit_bones["ball_r"].tail.y, 0)), 0))),
+        ("ik_foot_roll_front_r", "ik_foot_roll_outer_r", LazyInit(lambda: (edit_bones["ball_r"].head, edit_bones["ball_r"].tail, radians(180)))),
+        ("ik_foot_roll_back_r", "ik_foot_roll_front_r", LazyInit(lambda: (Vector((edit_bones["foot_r"].head.x, edit_bones["foot_r"].head.y + 0.065, 0)), Vector((edit_bones["foot_r"].tail.x, edit_bones["foot_r"].tail.y + 0.065, 0)), 0))),
+        ("ik_foot_target_r", "ik_foot_roll_back_r", LazyInit(lambda: (edit_bones["foot_r"].head, edit_bones["foot_r"].tail, edit_bones["foot_r"].roll))),
+        ("ik_foot_pole_r", "tasty_root", LazyInit(lambda: (edit_bones["calf_r"].head + Vector((0, -0.75, 0)) * scale, edit_bones["calf_r"].tail + Vector((0, -0.80, 0)) * scale, edit_bones["calf_r"].roll))),
         
-        ("ik_foot_parent_l", "tasty_root", TastyData(lambda: (edit_bones["foot_l"].head, edit_bones["foot_l"].tail, edit_bones["foot_l"].roll))),
-        ("ik_foot_ctrl_l", "ik_foot_parent_l", TastyData(lambda: (edit_bones["ball_l"].head + Vector((0, 0.2, 0)), edit_bones["ball_l"].tail + Vector((0, 0.2, 0)), 0))),
-        ("ik_foot_roll_inner_l", "ik_foot_parent_l", TastyData(lambda: (Vector((edit_bones["ball_l"].head.x - 0.04, edit_bones["ball_l"].head.y, 0)), Vector((edit_bones["ball_l"].tail.x - 0.04, edit_bones["ball_l"].tail.y, 0)), 0))),
-        ("ik_foot_roll_outer_l", "ik_foot_roll_inner_l", TastyData(lambda: (Vector((edit_bones["ball_l"].head.x + 0.04, edit_bones["ball_l"].head.y, 0)), Vector((edit_bones["ball_l"].tail.x + 0.04, edit_bones["ball_l"].tail.y, 0)), 0))),
-        ("ik_foot_roll_front_l", "ik_foot_roll_outer_l", TastyData(lambda: (edit_bones["ball_l"].head, edit_bones["ball_l"].tail, radians(180)))),
-        ("ik_foot_roll_back_l", "ik_foot_roll_front_l", TastyData(lambda: (Vector((edit_bones["foot_l"].head.x, edit_bones["foot_l"].head.y + 0.065, 0)), Vector((edit_bones["foot_l"].tail.x, edit_bones["foot_l"].tail.y + 0.065, 0)), 0))),
-        ("ik_foot_target_l", "ik_foot_roll_back_l", TastyData(lambda: (edit_bones["foot_l"].head, edit_bones["foot_l"].tail, edit_bones["foot_l"].roll))),
-        ("ik_foot_pole_l", "tasty_root", TastyData(lambda: (edit_bones["calf_l"].head + Vector((0, -0.75, 0)) * scale, edit_bones["calf_l"].tail + Vector((0, -0.80, 0)) * scale, edit_bones["calf_l"].roll))),
+        ("ik_foot_parent_l", "tasty_root", LazyInit(lambda: (edit_bones["foot_l"].head, edit_bones["foot_l"].tail, edit_bones["foot_l"].roll))),
+        ("ik_foot_ctrl_l", "ik_foot_parent_l", LazyInit(lambda: (edit_bones["ball_l"].head + Vector((0, 0.2, 0)), edit_bones["ball_l"].tail + Vector((0, 0.2, 0)), 0))),
+        ("ik_foot_roll_inner_l", "ik_foot_parent_l", LazyInit(lambda: (Vector((edit_bones["ball_l"].head.x - 0.04, edit_bones["ball_l"].head.y, 0)), Vector((edit_bones["ball_l"].tail.x - 0.04, edit_bones["ball_l"].tail.y, 0)), 0))),
+        ("ik_foot_roll_outer_l", "ik_foot_roll_inner_l", LazyInit(lambda: (Vector((edit_bones["ball_l"].head.x + 0.04, edit_bones["ball_l"].head.y, 0)), Vector((edit_bones["ball_l"].tail.x + 0.04, edit_bones["ball_l"].tail.y, 0)), 0))),
+        ("ik_foot_roll_front_l", "ik_foot_roll_outer_l", LazyInit(lambda: (edit_bones["ball_l"].head, edit_bones["ball_l"].tail, radians(180)))),
+        ("ik_foot_roll_back_l", "ik_foot_roll_front_l", LazyInit(lambda: (Vector((edit_bones["foot_l"].head.x, edit_bones["foot_l"].head.y + 0.065, 0)), Vector((edit_bones["foot_l"].tail.x, edit_bones["foot_l"].tail.y + 0.065, 0)), 0))),
+        ("ik_foot_target_l", "ik_foot_roll_back_l", LazyInit(lambda: (edit_bones["foot_l"].head, edit_bones["foot_l"].tail, edit_bones["foot_l"].roll))),
+        ("ik_foot_pole_l", "tasty_root", LazyInit(lambda: (edit_bones["calf_l"].head + Vector((0, -0.75, 0)) * scale, edit_bones["calf_l"].tail + Vector((0, -0.80, 0)) * scale, edit_bones["calf_l"].roll))),
+
+        ("ik_hand_parent_r", "tasty_root", LazyInit(lambda: (edit_bones["hand_r"].head, edit_bones["hand_r"].tail, edit_bones["hand_r"].roll))),
+        ("ik_hand_target_r", "ik_hand_parent_r", LazyInit(lambda: (edit_bones["hand_r"].head, edit_bones["hand_r"].tail, edit_bones["hand_r"].roll))),
+        ("ik_finger_thumb_r", "ik_hand_parent_r", LazyInit(lambda: (edit_bones["thumb_03_r"].tail, 2 * edit_bones["thumb_03_r"].tail - edit_bones["thumb_03_r"].head, edit_bones["thumb_03_r"].roll))),
+        ("ik_finger_index_r", "ik_hand_parent_r", LazyInit(lambda: (edit_bones["index_03_r"].tail, 2 * edit_bones["index_03_r"].tail - edit_bones["index_03_r"].head, edit_bones["index_03_r"].roll))),
+        ("ik_finger_middle_r", "ik_hand_parent_r", LazyInit(lambda: (edit_bones["middle_03_r"].tail, 2 * edit_bones["middle_03_r"].tail - edit_bones["middle_03_r"].head, edit_bones["middle_03_r"].roll))),
+        ("ik_finger_ring_r", "ik_hand_parent_r", LazyInit(lambda: (edit_bones["ring_03_r"].tail, 2 * edit_bones["ring_03_r"].tail - edit_bones["ring_03_r"].head, edit_bones["ring_03_r"].roll))),
+        ("ik_finger_pinky_r", "ik_hand_parent_r", LazyInit(lambda: (edit_bones["pinky_03_r"].tail, 2 * edit_bones["pinky_03_r"].tail - edit_bones["pinky_03_r"].head, edit_bones["pinky_03_r"].roll))),
+        ("ik_hand_pole_r", "tasty_root", LazyInit(lambda: (edit_bones["lowerarm_r"].head + Vector((0, 0.75, 0)) * scale, edit_bones["lowerarm_r"].tail + Vector((0, 0.80, 0)) * scale, edit_bones["lowerarm_r"].roll))),
+        
+        ("ik_hand_parent_l", "tasty_root", LazyInit(lambda: (edit_bones["hand_l"].head, edit_bones["hand_l"].tail, edit_bones["hand_l"].roll))),
+        ("ik_hand_target_l", "ik_hand_parent_l", LazyInit(lambda: (edit_bones["hand_l"].head, edit_bones["hand_l"].tail, edit_bones["hand_l"].roll))),
+        ("ik_finger_thumb_l", "ik_hand_parent_l", LazyInit(lambda: (edit_bones["thumb_03_l"].tail, 2 * edit_bones["thumb_03_l"].tail - edit_bones["thumb_03_l"].head, edit_bones["thumb_03_l"].roll))),
+        ("ik_finger_index_l", "ik_hand_parent_l", LazyInit(lambda: (edit_bones["index_03_l"].tail, 2 * edit_bones["index_03_l"].tail - edit_bones["index_03_l"].head, edit_bones["index_03_l"].roll))),
+        ("ik_finger_middle_l", "ik_hand_parent_l", LazyInit(lambda: (edit_bones["middle_03_l"].tail, 2 * edit_bones["middle_03_l"].tail - edit_bones["middle_03_l"].head, edit_bones["middle_03_l"].roll))),
+        ("ik_finger_ring_l", "ik_hand_parent_l", LazyInit(lambda: (edit_bones["ring_03_l"].tail, 2 * edit_bones["ring_03_l"].tail - edit_bones["ring_03_l"].head, edit_bones["ring_03_l"].roll))),
+        ("ik_finger_pinky_l", "ik_hand_parent_l", LazyInit(lambda: (edit_bones["pinky_03_l"].tail, 2 * edit_bones["pinky_03_l"].tail - edit_bones["pinky_03_l"].head, edit_bones["pinky_03_l"].roll))),
+        ("ik_hand_pole_l", "tasty_root", LazyInit(lambda: (edit_bones["lowerarm_l"].head + Vector((0, 0.75, 0)) * scale, edit_bones["lowerarm_l"].tail + Vector((0, 0.80, 0)) * scale, edit_bones["lowerarm_l"].roll))),
+
+        ("ik_dog_ball_r", "ik_foot_target_r", LazyInit(lambda: (edit_bones["dog_ball_r"].tail, 2 * edit_bones["dog_ball_r"].tail - edit_bones["dog_ball_r"].head, edit_bones["dog_ball_r"].roll))),
+        ("ik_dog_ball_l", "ik_foot_target_l", LazyInit(lambda: (edit_bones["dog_ball_l"].tail, 2 * edit_bones["dog_ball_l"].tail - edit_bones["dog_ball_l"].head, edit_bones["dog_ball_l"].roll))),
+
+        ("ik_wolf_ball_r", "ik_foot_target_r", LazyInit(lambda: (edit_bones["wolf_ball_r"].tail, 2 * edit_bones["wolf_ball_r"].tail - edit_bones["wolf_ball_r"].head, edit_bones["wolf_ball_r"].roll))),
+        ("ik_wolf_ball_l", "ik_foot_target_l", LazyInit(lambda: (edit_bones["wolf_ball_l"].tail, 2 * edit_bones["wolf_ball_l"].tail - edit_bones["wolf_ball_l"].head, edit_bones["wolf_ball_l"].roll))),
+
     ]
 
     for bone_name, parent_name, data in new_bones:
@@ -1128,10 +1153,22 @@ def apply_tasty_rig(master_skeleton, scale):
         bone.head = head
         bone.tail = tail
         bone.roll = roll
+
+    head_adjustment_bones = [
+        ("calf_r", edit_bones["calf_r"].head + Vector((0.0075, 0, 0))),
+        ("calf_l", edit_bones["calf_l"].head - Vector((0.0075, 0, 0))),
+    ]
+
+    for name, loc in head_adjustment_bones:
+        if not (bone := edit_bones.get(name)): continue
+
+        bone.head = loc
         
     tail_adjustment_bones = [
         ("calf_r", edit_bones["ik_foot_target_r"].head),
         ("calf_l", edit_bones["ik_foot_target_l"].head),
+        ("lowerarm_r", edit_bones["ik_hand_target_r"].head),
+        ("lowerarm_l", edit_bones["ik_hand_target_l"].head),
     ]
     
     for name, loc in tail_adjustment_bones:
@@ -1190,6 +1227,24 @@ def apply_tasty_rig(master_skeleton, scale):
         ("ik_foot_pole_l", "RIG_Tweak", 0.75),
         ("ik_foot_ctrl_r", "RIG_Ctrl", 7.5, Euler((radians(90), 0, 0))),
         ("ik_foot_ctrl_l", "RIG_Ctrl", 7.5, Euler((radians(90), 0, 0))),
+
+        ("ik_hand_parent_r", "RIG_Hand", 2.2),
+        ("ik_hand_target_r", "RIG_Ctrl", 7.5, Euler((0, radians(-90), 0))),
+        ("ik_hand_pole_r", "RIG_Tweak", 0.75),
+        ("ik_finger_thumb_r", "RIG_Finger", 1.0, Euler((0, 0, radians(180)))),
+        ("ik_finger_index_r", "RIG_Finger", 1.0, Euler((0, 0, radians(180)))),
+        ("ik_finger_middle_r", "RIG_Finger", 1.0, Euler((0, 0, radians(180)))),
+        ("ik_finger_ring_r", "RIG_Finger", 1.0, Euler((0, 0, radians(180)))),
+        ("ik_finger_pinky_r", "RIG_Finger", 1.0, Euler((0, 0, radians(180)))),
+
+        ("ik_hand_parent_l", "RIG_Hand", 2.2),
+        ("ik_hand_target_l", "RIG_Ctrl", 7.5, Euler((0, radians(-90), 0))),
+        ("ik_hand_pole_l", "RIG_Tweak", 0.75),
+        ("ik_finger_thumb_l", "RIG_Finger", 1.0, Euler((0, 0, radians(180)))),
+        ("ik_finger_index_l", "RIG_Finger", 1.0, Euler((0, 0, radians(180)))),
+        ("ik_finger_middle_l", "RIG_Finger", 1.0, Euler((0, 0, radians(180)))),
+        ("ik_finger_ring_l", "RIG_Finger", 1.0, Euler((0, 0, radians(180)))),
+        ("ik_finger_pinky_l", "RIG_Finger", 1.0, Euler((0, 0, radians(180)))),
     ]
     
     for bone_name, shape_name, shape_scale, *extra in bone_shapes:
@@ -1221,6 +1276,24 @@ def apply_tasty_rig(master_skeleton, scale):
         "ik_foot_ctrl_l": ik_collection,
         "ik_foot_pole_r": ik_collection,
         "ik_foot_pole_l": ik_collection,
+
+        "ik_hand_parent_r": ik_collection,
+        "ik_hand_target_r": ik_collection,
+        "ik_hand_pole_r": ik_collection,
+        "ik_finger_thumb_r": ik_collection,
+        "ik_finger_index_r": ik_collection,
+        "ik_finger_middle_r": ik_collection,
+        "ik_finger_ring_r": ik_collection,
+        "ik_finger_pinky_r": ik_collection,
+
+        "ik_hand_parent_l": ik_collection,
+        "ik_hand_target_l": ik_collection,
+        "ik_hand_pole_l": ik_collection,
+        "ik_finger_thumb_l": ik_collection,
+        "ik_finger_index_l": ik_collection,
+        "ik_finger_middle_l": ik_collection,
+        "ik_finger_ring_l": ik_collection,
+        "ik_finger_pinky_l": ik_collection,
     }
 
     for bone in pose_bones:
@@ -1236,10 +1309,14 @@ def apply_tasty_rig(master_skeleton, scale):
             bone.color.palette = "THEME01"
             continue
 
-        if bone.name.startswith("dyn_"):
+        if "dyn_" in bone.name:
             dyn_collection.assign(bone)
             bone.custom_shape = bpy.data.objects.get("RIG_Dynamic")
             continue
+            
+        if "twist_" in bone.name:
+            twist_collection.assign(bone)
+            bone.use_custom_shape_bone_size = False
 
         extra_collection.assign(bone)
 
@@ -1248,6 +1325,7 @@ def apply_tasty_rig(master_skeleton, scale):
         ik_collection: "THEME04",
         dyn_collection: "THEME07",
         extra_collection: "THEME10",
+        twist_collection: "THEME03",
     }
     
     for collection, palette in collection_colors.items():
@@ -1345,25 +1423,54 @@ def apply_tasty_rig(master_skeleton, scale):
     add_foot_ik_constraints("r")
     add_foot_ik_constraints("l")
 
-    ik_bones = {
-        ("calf_r", "ik_foot_target_r", "ik_foot_pole_r"),
-        ("calf_l", "ik_foot_target_l", "ik_foot_pole_l")
-    }
+    ik_bones = [
+        ("calf_r", "ik_foot_target_r", "ik_foot_pole_r", 2, False),
+        ("calf_l", "ik_foot_target_l", "ik_foot_pole_l", 2, False),
+        
+        ("lowerarm_r", "ik_hand_target_r", "ik_hand_pole_r", 2, False),
+        ("thumb_03_r", "ik_finger_thumb_r", None, 3, True),
+        ("index_03_r", "ik_finger_index_r", None, 4, True),
+        ("middle_03_r", "ik_finger_middle_r", None, 4, True),
+        ("ring_03_r", "ik_finger_ring_r", None, 4, True),
+        ("pinky_03_r", "ik_finger_pinky_r", None, 4, True),
+
+        ("lowerarm_l", "ik_hand_target_l", "ik_hand_pole_l", 2, False),
+        ("thumb_03_l", "ik_finger_thumb_l", None, 3, True),
+        ("index_03_l", "ik_finger_index_l", None, 4, True),
+        ("middle_03_l", "ik_finger_middle_l", None, 4, True),
+        ("ring_03_l", "ik_finger_ring_l", None, 4, True),
+        ("pinky_03_l", "ik_finger_pinky_l", None, 4, True),
+
+        ("dog_ball_r", "ik_dog_ball_r", "ik_foot_pole_r", 3, True),
+        ("dog_ball_l", "ik_dog_ball_l", "ik_foot_pole_l", 3, True),
+        ("wolf_ball_r", "ik_wolf_ball_r", "ik_foot_pole_r", 3, True),
+        ("wolf_ball_l", "ik_wolf_ball_l", "ik_foot_pole_l", 3, True),
+    ]
     
-    for bone_name, target_name, pole_name in ik_bones:
+    for bone_name, target_name, pole_name, chain_length, use_rotation in ik_bones:
         if not (bone := pose_bones.get(bone_name)): continue
         
         constraint = bone.constraints.new("IK")
         constraint.target = master_skeleton
         constraint.subtarget = target_name
-        constraint.pole_target = master_skeleton
-        constraint.pole_subtarget = pole_name
-        constraint.pole_angle = radians(180)
-        constraint.chain_count = 2
+        constraint.chain_count = chain_length
+        constraint.use_rotation = use_rotation
+        
+        if pole_name:
+            constraint.pole_target = master_skeleton
+            constraint.pole_subtarget = pole_name
+            constraint.pole_angle = radians(180)
         
     copy_rotation_bones = {
         ("foot_r", "ik_foot_target_r", 1.0),
-        ("foot_l", "ik_foot_target_l", 1.0)
+        ("foot_l", "ik_foot_target_l", 1.0),
+        ("hand_r", "ik_hand_target_r", 1.0),
+        ("hand_l", "ik_hand_target_l", 1.0),
+
+        ("dog_thigh_r", "thigh_r", 1.0),
+        ("dog_thigh_l", "thigh_l", 1.0),
+        ("wolf_thigh_r", "thigh_r", 1.0),
+        ("wolf_thigh_l", "thigh_l", 1.0),
     }
     
     for bone_name, target_name, weight in copy_rotation_bones:
@@ -1374,6 +1481,17 @@ def apply_tasty_rig(master_skeleton, scale):
         constraint.subtarget = target_name
         constraint.influence = weight
         
+    inherit_rotation_bones = [
+        ("spine_01", False),
+        ("neck_01", False)
+    ]
+    
+    for bone_name, value in inherit_rotation_bones:
+        if not (bone := pose_bones.get(bone_name)): continue
+        
+        bone.bone.use_inherit_rotation = value
+        
+        
     hide_bones = [
         "ik_foot_roll_inner_r",
         "ik_foot_roll_outer_r",
@@ -1382,6 +1500,8 @@ def apply_tasty_rig(master_skeleton, scale):
         "ik_foot_target_r",
         "foot_r",
         "ball_r",
+        "ik_dog_ball_r",
+        "ik_wolf_ball_r",
 
         "ik_foot_roll_inner_l",
         "ik_foot_roll_outer_l",
@@ -1390,10 +1510,17 @@ def apply_tasty_rig(master_skeleton, scale):
         "ik_foot_target_l",
         "foot_l",
         "ball_l",
+        "ik_dog_ball_l",
+        "ik_wolf_ball_l",
+
+        "hand_r",
+        "hand_l",
+        
     ]
     
     for bone_name in hide_bones:
-        pose_bones.get(bone_name).bone.hide = True
+        if not (bone := pose_bones.get(bone_name)): continue
+        bone.bone.hide = True
 
 
     bpy.ops.object.mode_set(mode='OBJECT')
