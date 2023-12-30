@@ -10,6 +10,9 @@ from .ue_format import UEFormatImport, UEModelOptions, UEAnimOptions
 from .logger import Log
 from .server import MessageServer
 
+class ERigType(Enum):
+    DEFAULT = 0
+    TASTY = 1
 
 class MappingCollection:
     def __init__(self, textures=(), scalars=(), vectors=(), switches=()):
@@ -121,6 +124,7 @@ toon_mappings = MappingCollection(
     ],
     scalars=[
         SlotMapping("ShadedColorDarkening"),
+        SlotMapping("FakeNormalBlend_Amt"),
         SlotMapping("PBR_Shading", "Use PBR Shading", value_func=lambda value: int(value))
     ],
     vectors=[
@@ -262,7 +266,7 @@ class DataImportTask:
         self.meshes = []
         self.imported_mesh_count = 0
         self.imported_meshes = []
-        
+
         import_type = data.get("PrimitiveType")
         match import_type:
             case "Mesh":
@@ -301,12 +305,22 @@ class DataImportTask:
                 solidify.use_flip_normals = True
                 solidify.material_offset = len(master_mesh.data.materials) - 1
 
+
+            rig_type = ERigType(self.options.get("RigType"))
+            if rig_type == ERigType.TASTY:
+                apply_tasty_rig(master_skeleton, 1 if self.options.get("ScaleDown") else 100)
+
+
     def import_anim_data(self, data, override_skeleton=None):
         name = data.get("Name")
 
         target_skeleton = override_skeleton or armature_from_selection()
         if target_skeleton is None:
             MessageServer.instance.send("An armature must be selected to import an animation. Please select an armature and try again.")
+            return
+        
+        if target_skeleton.get("is_tasty_rig"):
+            MessageServer.instance.send("Tasty Rig current does not support emotes. Please use a character with the Default Rig and try again.")
             return
 
         # clear old data
@@ -541,6 +555,13 @@ class DataImportTask:
         shader_node = nodes.new(type="ShaderNodeGroup")
         shader_node.node_tree = bpy.data.node_groups.get("FP Material")
 
+        def replace_shader_node(name):
+            nonlocal shader_node
+            nodes.remove(shader_node)
+            shader_node = nodes.new(type="ShaderNodeGroup")
+            shader_node.node_tree = bpy.data.node_groups.get(name)
+
+
         # parameters
         hide_element_values = {}
         unused_parameter_offset = 0
@@ -601,7 +622,6 @@ class DataImportTask:
                 if "Hide Element" in name:
                     hide_element_values[name] = value
                     return
-
                 if (mappings := first(socket_mappings.scalars, lambda x: x.name == name)) is None:
                     nonlocal unused_parameter_offset
                     node = nodes.new(type="ShaderNodeValue")
@@ -660,19 +680,19 @@ class DataImportTask:
             "Use 2 Materials", "Use 3 Materials", "Use 4 Materials", "Use 5 Materials", "Use 6 Materials", "Use 7 Materials",
             "Use_Multiple_Material_Textures"]
         if get_param_multiple(switches, layer_switch_names):
-            shader_node.node_tree = bpy.data.node_groups.get("FP Layer")
+            replace_shader_node("FP Layer")
             socket_mappings = layer_mappings
 
         if any(["LitDiffuse", "ShadedDiffuse"], lambda x: get_param(textures, x)):
-            shader_node.node_tree = bpy.data.node_groups.get("FP Toon")
+            replace_shader_node("FP Toon")
             socket_mappings = toon_mappings
 
         if material_data.get("AbsoluteParent") == "M_FN_Valet_Master":
-            shader_node.node_tree = bpy.data.node_groups.get("FP Valet")
+            replace_shader_node("FP Valet")
             socket_mappings = valet_mappings
             
         if material_data.get("UseGlassMaterial"):
-            shader_node.node_tree = bpy.data.node_groups.get("FP Glass")
+            replace_shader_node("FP Glass")
             socket_mappings = glass_mappings
             material.blend_method = "BLEND"
             material.shadow_method = "NONE"
@@ -683,7 +703,7 @@ class DataImportTask:
             socket_mappings = trunk_mappings
 
         if material_data.get("UseFoliageMaterial") and not is_trunk:
-            shader_node.node_tree = bpy.data.node_groups.get("FP Foliage")
+            replace_shader_node("FP Foliage")
             socket_mappings = foliage_mappings
             material.use_sss_translucency = True
 
@@ -717,8 +737,7 @@ class DataImportTask:
 				links.new(diffuse_node.outputs[1], shader_node.inputs["Alpha"])'''
 
             if (skin_color := meta_data.get("SkinColor")) and skin_color["A"] != 0:
-                shader_node.inputs["Skin Color"].default_value = (
-                    skin_color["R"], skin_color["G"], skin_color["B"], 1.0)
+                shader_node.inputs["Skin Color"].default_value = (skin_color["R"], skin_color["G"], skin_color["B"], 1.0)
                 shader_node.inputs["Skin Boost"].default_value = skin_color["A"]
 
             emissive_toggle_names = [
@@ -835,13 +854,6 @@ class DataImportTask:
         sound["FPSound"] = True
         return sound
 
-class HatType(Enum):
-    HeadReplacement = 0
-    Cap = 1
-    Mask = 2
-    Helmet = 3
-    Hat = 4
-
 
 def get_socket_pos(node, index):
     start_y = -80
@@ -892,9 +904,9 @@ def append_data():
             if not bpy.data.materials.get(mat):
                 data_to.materials.append(mat)
 
-        '''for obj in data_from.objects:
-			if not bpy.data.objects.get(obj):
-				data_to.objects.append(obj)'''
+        for obj in data_from.objects:
+            if not bpy.data.objects.get(obj):
+                data_to.objects.append(obj)
 
 
 def create_collection(name):
@@ -982,7 +994,7 @@ def merge_skeletons(parts):
     constraint_parts = []
 
     for part in parts:
-        if (meta := part.get("Meta")) and meta.get("AttachToSocket") and meta.get("Socket") not in ["Face", None]:
+        if (meta := part.get("Meta")) and meta.get("AttachToSocket") and meta.get("Socket") not in ["Face", "Helmet", None]:
             constraint_parts.append(part)
         else:
             merge_parts.append(part)
@@ -1054,3 +1066,334 @@ def merge_skeletons(parts):
         constraint_object(skeleton, master_skeleton, socket)
 
     return master_skeleton
+
+class TastyData:
+    
+    def __init__(self, gen):
+        try:
+            self.data = gen()
+            self.is_valid = True
+        except Exception:
+            self.is_valid = False
+            
+    def get(self):
+        return self.data
+        
+
+def apply_tasty_rig(master_skeleton, scale):
+    master_skeleton["is_tasty_rig"] = True
+    armature_data = master_skeleton.data
+
+    main_collection = armature_data.collections.new("Main Bones")
+    ik_collection = armature_data.collections.new("IK Bones")
+    twist_collection = armature_data.collections.new("Twist Bones")
+    dyn_collection = armature_data.collections.new("Dynamic Bones")
+    face_collection = armature_data.collections.new("Face Bones")
+    extra_collection = armature_data.collections.new("Extra Bones")
+    
+
+    bpy.ops.object.mode_set(mode='EDIT')
+    
+    edit_bones = armature_data.edit_bones
+
+    new_bones = [
+        ("tasty_root", "root", TastyData(lambda: (edit_bones["root"].head, edit_bones["root"].tail, edit_bones["root"].roll))),
+        
+        ("ik_foot_parent_r", "tasty_root", TastyData(lambda: (edit_bones["foot_r"].head, edit_bones["foot_r"].tail, edit_bones["foot_r"].roll))),
+        ("ik_foot_ctrl_r", "ik_foot_parent_r", TastyData(lambda: (edit_bones["ball_r"].head + Vector((0, 0.2, 0)), edit_bones["ball_r"].tail + Vector((0, 0.2, 0)), 0))),
+        ("ik_foot_roll_inner_r", "ik_foot_parent_r", TastyData(lambda: (Vector((edit_bones["ball_r"].head.x + 0.04, edit_bones["ball_r"].head.y, 0)), Vector((edit_bones["ball_r"].tail.x + 0.04, edit_bones["ball_r"].tail.y, 0)), 0))),
+        ("ik_foot_roll_outer_r", "ik_foot_roll_inner_r", TastyData(lambda: (Vector((edit_bones["ball_r"].head.x - 0.04, edit_bones["ball_r"].head.y, 0)), Vector((edit_bones["ball_r"].tail.x - 0.04, edit_bones["ball_r"].tail.y, 0)), 0))),
+        ("ik_foot_roll_front_r", "ik_foot_roll_outer_r", TastyData(lambda: (edit_bones["ball_r"].head, edit_bones["ball_r"].tail, radians(180)))),
+        ("ik_foot_roll_back_r", "ik_foot_roll_front_r", TastyData(lambda: (Vector((edit_bones["foot_r"].head.x, edit_bones["foot_r"].head.y + 0.065, 0)), Vector((edit_bones["foot_r"].tail.x, edit_bones["foot_r"].tail.y + 0.065, 0)), 0))),
+        ("ik_foot_target_r", "ik_foot_roll_back_r", TastyData(lambda: (edit_bones["foot_r"].head, edit_bones["foot_r"].tail, edit_bones["foot_r"].roll))),
+        ("ik_foot_pole_r", "tasty_root", TastyData(lambda: (edit_bones["calf_r"].head + Vector((0, -0.75, 0)) * scale, edit_bones["calf_r"].tail + Vector((0, -0.80, 0)) * scale, edit_bones["calf_r"].roll))),
+        
+        ("ik_foot_parent_l", "tasty_root", TastyData(lambda: (edit_bones["foot_l"].head, edit_bones["foot_l"].tail, edit_bones["foot_l"].roll))),
+        ("ik_foot_ctrl_l", "ik_foot_parent_l", TastyData(lambda: (edit_bones["ball_l"].head + Vector((0, 0.2, 0)), edit_bones["ball_l"].tail + Vector((0, 0.2, 0)), 0))),
+        ("ik_foot_roll_inner_l", "ik_foot_parent_l", TastyData(lambda: (Vector((edit_bones["ball_l"].head.x - 0.04, edit_bones["ball_l"].head.y, 0)), Vector((edit_bones["ball_l"].tail.x - 0.04, edit_bones["ball_l"].tail.y, 0)), 0))),
+        ("ik_foot_roll_outer_l", "ik_foot_roll_inner_l", TastyData(lambda: (Vector((edit_bones["ball_l"].head.x + 0.04, edit_bones["ball_l"].head.y, 0)), Vector((edit_bones["ball_l"].tail.x + 0.04, edit_bones["ball_l"].tail.y, 0)), 0))),
+        ("ik_foot_roll_front_l", "ik_foot_roll_outer_l", TastyData(lambda: (edit_bones["ball_l"].head, edit_bones["ball_l"].tail, radians(180)))),
+        ("ik_foot_roll_back_l", "ik_foot_roll_front_l", TastyData(lambda: (Vector((edit_bones["foot_l"].head.x, edit_bones["foot_l"].head.y + 0.065, 0)), Vector((edit_bones["foot_l"].tail.x, edit_bones["foot_l"].tail.y + 0.065, 0)), 0))),
+        ("ik_foot_target_l", "ik_foot_roll_back_l", TastyData(lambda: (edit_bones["foot_l"].head, edit_bones["foot_l"].tail, edit_bones["foot_l"].roll))),
+        ("ik_foot_pole_l", "tasty_root", TastyData(lambda: (edit_bones["calf_l"].head + Vector((0, -0.75, 0)) * scale, edit_bones["calf_l"].tail + Vector((0, -0.80, 0)) * scale, edit_bones["calf_l"].roll))),
+    ]
+
+    for bone_name, parent_name, data in new_bones:
+        if not data.is_valid: continue
+
+        bone = edit_bones.get(bone_name) or edit_bones.new(bone_name)
+        bone.parent = edit_bones.get(parent_name)
+
+        head, tail, roll = data.get()
+        bone.head = head
+        bone.tail = tail
+        bone.roll = roll
+        
+    tail_adjustment_bones = [
+        ("calf_r", edit_bones["ik_foot_target_r"].head),
+        ("calf_l", edit_bones["ik_foot_target_l"].head),
+    ]
+    
+    for name, loc in tail_adjustment_bones:
+        if not (bone := edit_bones.get(name)): continue
+        
+        bone.tail = loc
+
+    roll_adjustment_bones = [
+        ("ball_r", 0),
+        ("ball_l", 0),
+    ]
+
+    for name, roll in roll_adjustment_bones:
+        if not (bone := edit_bones.get(name)): continue
+
+        bone.roll = roll
+        
+    bpy.ops.object.mode_set(mode='POSE')
+    
+    pose_bones = master_skeleton.pose.bones
+    
+    bone_shapes = [
+        ("root", "RIG_Root", 0.75, Euler((radians(90), 0, 0))),
+        ("pelvis", "RIG_Torso", 1.5, Euler((0, radians(-90), 0))),
+        ("spine_01", "RIG_Hips", 2.2),
+        ("spine_02", "RIG_Hips", 1.8),
+        ("spine_03", "RIG_Hips", 1.6),
+        ("spine_04", "RIG_Hips", 1.2),
+        ("spine_05", "RIG_Hips", 1.6),
+        ("neck_01", "RIG_Hips", 2.0),
+        ("neck_02", "RIG_Hips", 1.4),
+        ("head", "RIG_Hips", 2.6),
+
+        ('clavicle_r', 'RIG_Shoulder', 1.0),
+        ('clavicle_l', 'RIG_Shoulder', 1.0),
+
+        ('upperarm_twist_01_r', 'RIG_Forearm', 0.13),
+        ('upperarm_twist_02_r', 'RIG_Forearm', 0.10),
+        ('lowerarm_twist_01_r', 'RIG_Forearm', 0.13),
+        ('lowerarm_twist_02_r', 'RIG_Forearm', 0.13),
+        ('upperarm_twist_01_l', 'RIG_Forearm', 0.13),
+        ('upperarm_twist_02_l', 'RIG_Forearm', 0.10),
+        ('lowerarm_twist_01_l', 'RIG_Forearm', 0.13),
+        ('lowerarm_twist_02_l', 'RIG_Forearm', 0.13),
+
+        ('thigh_twist_01_r', 'RIG_Tweak', 0.15),
+        ('calf_twist_01_r', 'RIG_Tweak', 0.13),
+        ('calf_twist_02_r', 'RIG_Tweak', 0.2),
+        ('thigh_twist_01_l', 'RIG_Tweak', 0.15),
+        ('calf_twist_01_l', 'RIG_Tweak', 0.13),
+        ('calf_twist_02_l', 'RIG_Tweak', 0.2),
+
+        ("ik_foot_parent_r", "RIG_FootR", 1.0),
+        ("ik_foot_parent_l", "RIG_FootL", 1.0, Euler((0, radians(-90), 0))),
+        ("ik_foot_pole_r", "RIG_Tweak", 0.75),
+        ("ik_foot_pole_l", "RIG_Tweak", 0.75),
+        ("ik_foot_ctrl_r", "RIG_Ctrl", 7.5, Euler((radians(90), 0, 0))),
+        ("ik_foot_ctrl_l", "RIG_Ctrl", 7.5, Euler((radians(90), 0, 0))),
+    ]
+    
+    for bone_name, shape_name, shape_scale, *extra in bone_shapes:
+        if not (bone := pose_bones.get(bone_name)): continue
+        if not (shape := bpy.data.objects.get(shape_name)): continue
+        
+        bone.custom_shape = shape
+        bone.custom_shape_scale_xyz = (shape_scale, shape_scale, shape_scale) * scale
+        
+        if len(extra) > 0 and (rot := extra[0]):
+            bone.custom_shape_rotation_euler = rot
+
+
+    explicit_collection_bones = {
+        "pelvis": main_collection,
+        "spine_01": main_collection,
+        "spine_02": main_collection,
+        "spine_03": main_collection,
+        "spine_04": main_collection,
+        "spine_05": main_collection,
+        "clavicle_r": main_collection,
+        "clavicle_l": main_collection,
+        "neck_01": main_collection,
+        "neck_02": main_collection,
+        "head": main_collection,
+        "ik_foot_parent_r": ik_collection,
+        "ik_foot_parent_l": ik_collection,
+        "ik_foot_ctrl_r": ik_collection,
+        "ik_foot_ctrl_l": ik_collection,
+        "ik_foot_pole_r": ik_collection,
+        "ik_foot_pole_l": ik_collection,
+    }
+
+    for bone in pose_bones:
+        if len(bone.bone.collections) > 0:
+            continue
+        
+        if explicit_collection := explicit_collection_bones.get(bone.name):
+            explicit_collection.assign(bone)
+            continue
+
+        if bone.name == "root":
+            bone.use_custom_shape_bone_size = False
+            bone.color.palette = "THEME01"
+            continue
+
+        if bone.name.startswith("dyn_"):
+            dyn_collection.assign(bone)
+            bone.custom_shape = bpy.data.objects.get("RIG_Dynamic")
+            continue
+
+        extra_collection.assign(bone)
+
+    collection_colors = {
+        main_collection: "THEME09",
+        ik_collection: "THEME04",
+        dyn_collection: "THEME07",
+        extra_collection: "THEME10",
+    }
+    
+    for collection, palette in collection_colors.items():
+        for bone in collection.bones:
+            pose_bones[bone.name].color.palette = palette
+            
+    def add_foot_ik_constraints(suffix):
+        is_left = suffix == "l"
+        ctrl_bone_name = f"ik_foot_ctrl_{suffix}"
+
+        if inner_roll_bone := pose_bones.get(f"ik_foot_roll_inner_{suffix}"):
+            copy_rotation = inner_roll_bone.constraints.new("COPY_ROTATION")
+            copy_rotation.target = master_skeleton
+            copy_rotation.subtarget = ctrl_bone_name
+            copy_rotation.use_x = False
+            copy_rotation.use_y = True
+            copy_rotation.use_z = False
+            copy_rotation.target_space = "LOCAL"
+            copy_rotation.owner_space = "LOCAL"
+
+            limit_rotation = inner_roll_bone.constraints.new("LIMIT_ROTATION")
+            limit_rotation.use_limit_y = True
+            limit_rotation.min_y = radians(-180) if is_left else 0
+            limit_rotation.max_y = 0 if is_left else radians(180)
+            limit_rotation.owner_space = "LOCAL"
+
+        if outer_roll_bone := pose_bones.get(f"ik_foot_roll_outer_{suffix}"):
+            copy_rotation = outer_roll_bone.constraints.new("COPY_ROTATION")
+            copy_rotation.target = master_skeleton
+            copy_rotation.subtarget = ctrl_bone_name
+            copy_rotation.use_x = False
+            copy_rotation.use_y = True
+            copy_rotation.use_z = False
+            copy_rotation.target_space = "LOCAL"
+            copy_rotation.owner_space = "LOCAL"
+
+            limit_rotation = outer_roll_bone.constraints.new("LIMIT_ROTATION")
+            limit_rotation.use_limit_y = True
+            limit_rotation.min_y = 0 if is_left else radians(-180)
+            limit_rotation.max_y = radians(180) if is_left else 0
+            limit_rotation.owner_space = "LOCAL"
+
+        if front_roll_bone := pose_bones.get(f"ik_foot_roll_front_{suffix}"):
+            copy_rotation = front_roll_bone.constraints.new("COPY_ROTATION")
+            copy_rotation.target = master_skeleton
+            copy_rotation.subtarget = ctrl_bone_name
+            copy_rotation.use_x = True
+            copy_rotation.use_y = False
+            copy_rotation.use_z = False
+            copy_rotation.invert_x = True
+            copy_rotation.target_space = "LOCAL"
+            copy_rotation.owner_space = "LOCAL"
+
+            limit_rotation = front_roll_bone.constraints.new("LIMIT_ROTATION")
+            limit_rotation.use_limit_x = True
+            limit_rotation.min_x = radians(-180)
+            limit_rotation.max_x = 0
+            limit_rotation.owner_space = "LOCAL"
+
+        if back_roll_bone := pose_bones.get(f"ik_foot_roll_back_{suffix}"):
+            copy_rotation = back_roll_bone.constraints.new("COPY_ROTATION")
+            copy_rotation.target = master_skeleton
+            copy_rotation.subtarget = ctrl_bone_name
+            copy_rotation.use_x = True
+            copy_rotation.use_y = False
+            copy_rotation.use_z = False
+            copy_rotation.invert_x = True
+            copy_rotation.target_space = "LOCAL"
+            copy_rotation.owner_space = "LOCAL"
+
+            limit_rotation = back_roll_bone.constraints.new("LIMIT_ROTATION")
+            limit_rotation.use_limit_x = True
+            limit_rotation.min_x = 0
+            limit_rotation.max_x = radians(180)
+            limit_rotation.owner_space = "LOCAL"
+
+        if ball_bone := pose_bones.get(f"ball_{suffix}"):
+            copy_rotation = ball_bone.constraints.new("COPY_ROTATION")
+            copy_rotation.target = master_skeleton
+            copy_rotation.subtarget = ctrl_bone_name
+            copy_rotation.use_x = True
+            copy_rotation.use_y = False
+            copy_rotation.use_z = False
+            copy_rotation.invert_x = True
+            copy_rotation.mix_mode = "ADD"
+            copy_rotation.target_space = "LOCAL"
+            copy_rotation.owner_space = "LOCAL"
+
+            limit_rotation = ball_bone.constraints.new("LIMIT_ROTATION")
+            limit_rotation.use_limit_x = True
+            limit_rotation.min_x = radians(-180)
+            limit_rotation.max_x = 0
+            limit_rotation.owner_space = "LOCAL"
+
+    add_foot_ik_constraints("r")
+    add_foot_ik_constraints("l")
+
+    ik_bones = {
+        ("calf_r", "ik_foot_target_r", "ik_foot_pole_r"),
+        ("calf_l", "ik_foot_target_l", "ik_foot_pole_l")
+    }
+    
+    for bone_name, target_name, pole_name in ik_bones:
+        if not (bone := pose_bones.get(bone_name)): continue
+        
+        constraint = bone.constraints.new("IK")
+        constraint.target = master_skeleton
+        constraint.subtarget = target_name
+        constraint.pole_target = master_skeleton
+        constraint.pole_subtarget = pole_name
+        constraint.pole_angle = radians(180)
+        constraint.chain_count = 2
+        
+    copy_rotation_bones = {
+        ("foot_r", "ik_foot_target_r", 1.0),
+        ("foot_l", "ik_foot_target_l", 1.0)
+    }
+    
+    for bone_name, target_name, weight in copy_rotation_bones:
+        if not (bone := pose_bones.get(bone_name)): continue
+        
+        constraint = bone.constraints.new("COPY_ROTATION")
+        constraint.target = master_skeleton
+        constraint.subtarget = target_name
+        constraint.influence = weight
+        
+    hide_bones = [
+        "ik_foot_roll_inner_r",
+        "ik_foot_roll_outer_r",
+        "ik_foot_roll_front_r",
+        "ik_foot_roll_back_r",
+        "ik_foot_target_r",
+        "foot_r",
+        "ball_r",
+
+        "ik_foot_roll_inner_l",
+        "ik_foot_roll_outer_l",
+        "ik_foot_roll_front_l",
+        "ik_foot_roll_back_l",
+        "ik_foot_target_l",
+        "foot_l",
+        "ball_l",
+    ]
+    
+    for bone_name in hide_bones:
+        pose_bones.get(bone_name).bone.hide = True
+
+
+    bpy.ops.object.mode_set(mode='OBJECT')

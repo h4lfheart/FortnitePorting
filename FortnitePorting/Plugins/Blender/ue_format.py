@@ -102,7 +102,8 @@ class UFImportUEAnim(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
 
     def execute(self, context):
         for file in self.files:
-            UEFormatImport(UEAnimOptions(scale_factor=bpy.context.scene.uf_settings.scale)).import_file(os.path.join(self.directory, file.name))
+            UEFormatImport(UEAnimOptions(scale_factor=bpy.context.scene.uf_settings.scale,
+                                         rotation_only=bpy.context.scene.uf_settings.rotation_only)).import_file(os.path.join(self.directory, file.name))
         return {'FINISHED'}
 
     def draw(self, context):
@@ -521,7 +522,6 @@ class UEFormatImport:
             if has_geometry:
                 mesh_object.parent = armature_object
 
-        name_to_transform_map = {}
         if len(data.bones) > 0:
             # create bones
             bpy.ops.object.mode_set(mode='EDIT')
@@ -530,9 +530,9 @@ class UEFormatImport:
                 bone_pos = Vector(bone.position)
                 bone_rot = Quaternion((bone.rotation[3], bone.rotation[0], bone.rotation[1], bone.rotation[2]))  # xyzw -> wxyz
 
-                name_to_transform_map[bone.name] = bone_pos, bone_rot
-
                 edit_bone = edit_bones.new(bone.name)
+                edit_bone["orig_loc"] = bone_pos
+                edit_bone["orig_quat"] = bone_rot.conjugated() # todo unravel all these conjugations wtf, it works so imma leave it but jfc it's awful
                 edit_bone.length = self.options.bone_length * self.options.scale_factor
 
                 bone_matrix = Matrix.Translation(bone_pos) @ bone_rot.to_matrix().to_4x4()
@@ -543,6 +543,9 @@ class UEFormatImport:
                     bone_matrix = parent_bone.matrix @ bone_matrix
 
                 edit_bone.matrix = bone_matrix
+                
+                if not self.options.reorient_bones:
+                    edit_bone["post_quat"] = bone_rot
 
             bpy.ops.object.mode_set(mode='OBJECT')
 
@@ -567,8 +570,10 @@ class UEFormatImport:
         if len(data.sockets) > 0:
             # create sockets
             bpy.ops.object.mode_set(mode='EDIT')
+            socket_collection = armature_data.collections.new("Sockets")
             for socket in data.sockets:
                 socket_bone = edit_bones.new(socket.name)
+                socket_collection.assign(socket_bone)
                 socket_bone["is_socket"] = True
                 parent_bone = get_case_insensitive(edit_bones, socket.parent_name)
                 if parent_bone is None:
@@ -588,40 +593,45 @@ class UEFormatImport:
         if len(data.bones) > 0 and self.options.reorient_bones:
             bpy.ops.object.mode_set(mode='EDIT')
 
-            name_to_target_rot_map = {}
             for bone in edit_bones:
                 if bone.get("is_socket"):
                     continue
-                children = bone.children
-                total_children = len(children)
+
+                children = []
+                for child in bone.children:
+                    if child.get("is_socket"):
+                        continue
+
+                    children.append(child)
 
                 target_length = bone.length
-                if total_children == 0:
-                    pos, rot = name_to_transform_map[bone.name]
-                    new_rot = name_to_target_rot_map[bone.parent.name].copy()
-                    new_rot.rotate(rot)
+                if len(children) == 0:
+                    new_rot = Vector(bone.parent["reorient_direction"])
+                    new_rot.rotate(Quaternion(bone["orig_quat"]).conjugated())
 
                     target_rotation = make_axis_vector(new_rot)
                 else:
                     avg_child_pos = Vector()
                     avg_child_length = 0
-                    for child in bone.children:
-                        if child.get("is_socket"):
-                            continue
-                        pos, rot = name_to_transform_map[child.name]
+                    for child in children:
+                        pos = Vector(child["orig_loc"])
                         avg_child_pos += pos
                         avg_child_length += pos.length
 
-                    avg_child_pos /= total_children
-                    avg_child_length /= total_children
+                    avg_child_pos /= len(children)
+                    avg_child_length /= len(children)
 
                     target_rotation = make_axis_vector(avg_child_pos)
-                    name_to_target_rot_map[bone.name] = target_rotation
+                    bone["reorient_direction"] = target_rotation
 
                     target_length = avg_child_length
 
-                bone.matrix @= Vector((0, 1, 0)).rotation_difference(target_rotation).to_matrix().to_4x4()
-                bone.length = target_length
+                post_quat = Vector((0, 1, 0)).rotation_difference(target_rotation)
+                bone.matrix @= post_quat.to_matrix().to_4x4()
+                bone.length = max(0.01, target_length)
+
+                post_quat.rotate(Quaternion(bone["orig_quat"]).conjugated())
+                bone["post_quat"] = post_quat
 
 
             bpy.ops.object.mode_set(mode='OBJECT')
@@ -673,29 +683,43 @@ class UEFormatImport:
                 for i in range(len(vector)):
                     curves[i].keyframe_points[key_index].co = frame, vector[i]
                     curves[i].keyframe_points[key_index].interpolation = "LINEAR"
+                    
+            orig_loc = Vector(orig_loc) if (orig_loc := bone.bone.get("orig_loc")) else Vector()
+            orig_quat = Quaternion(orig_quat) if (orig_quat := bone.bone.get("orig_quat")) else Quaternion()
+            post_quat = Quaternion(post_quat) if (post_quat := bone.bone.get("post_quat")) else Quaternion()
 
             if not self.options.rotation_only:
                 loc_curves = create_fcurves("location", 3, len(track.position_keys))
                 scale_curves = create_fcurves("scale", 3, len(track.scale_keys))
                 for index, key in enumerate(track.position_keys):
                     pos = key.get_vector()
-                    if bone.parent is None:
-                        bone.matrix.translation = pos
-                    else:
-                        bone.matrix.translation = bone.parent.matrix @ pos
-                    add_key(loc_curves, bone.location, index, key.frame)
+                    pos -= orig_loc
+                    pos.rotate(post_quat.conjugated())
+
+                    add_key(loc_curves, pos, index, key.frame)
 
                 for index, key in enumerate(track.scale_keys):
                     add_key(scale_curves, key.value, index, key.frame)
 
             rot_curves = create_fcurves("rotation_quaternion", 4, len(track.rotation_keys))
             for index, key in enumerate(track.rotation_keys):
-                rot = key.get_quat()
-                if bone.parent is None:
-                    bone.rotation_quaternion = rot
+                p_quat = key.get_quat().conjugated()
+
+                q = post_quat.copy()
+                q.rotate( orig_quat )
+
+                quat = q
+
+                q = post_quat.copy()
+
+                if bone.parent == None:
+                    q.rotate( p_quat.conjugated() )
                 else:
-                    bone.matrix = bone.parent.matrix @ rot.to_matrix().to_4x4()
-                add_key(rot_curves, bone.rotation_quaternion, index, key.frame)
+                    q.rotate( p_quat )
+
+                quat.rotate( q.conjugated() )
+
+                add_key(rot_curves, quat, index, key.frame)
 
             bone.matrix_basis.identity()
 
@@ -845,7 +869,7 @@ class VectorKey(AnimKey):
         super().__init__(ar)
         self.value = [float * multiplier for float in ar.read_float_vector(3)]
 
-    def get_vector(self):
+    def get_vector(self) -> Vector:
         return Vector(self.value)
 
 
@@ -856,7 +880,7 @@ class QuatKey(AnimKey):
         super().__init__(ar)
         self.value = ar.read_float_vector(4)
 
-    def get_quat(self):
+    def get_quat(self) -> Quaternion:
         return Quaternion((self.value[3], self.value[0], self.value[1], self.value[2]))
 
 
