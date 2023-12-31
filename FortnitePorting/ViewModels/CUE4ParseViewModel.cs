@@ -228,7 +228,8 @@ public class CUE4ParseViewModel : ViewModelBase
 
     private async Task LoadConsoleVariables()
     {
-        var tokens = Provider.DefaultEngine.Sections.FirstOrDefault(source => source.Name.Equals("ConsoleVariables"))?.Tokens ?? [];
+        Provider.LoadIniConfigs();
+        var tokens = Provider.DefaultEngine.Sections.FirstOrDefault(source => source.Name == "ConsoleVariables")?.Tokens ?? [];
         foreach (var token in tokens)
         {
             if (token is not InstructionToken instructionToken) continue;
