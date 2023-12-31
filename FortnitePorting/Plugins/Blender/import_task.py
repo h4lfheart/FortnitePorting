@@ -1173,6 +1173,8 @@ def apply_tasty_rig(master_skeleton, scale):
     tail_adjustment_bones = [
         ("calf_r", LazyInit(lambda: edit_bones["ik_foot_target_r"].head)),
         ("calf_l", LazyInit(lambda: edit_bones["ik_foot_target_l"].head)),
+        ("lowerarm_r", LazyInit(lambda: edit_bones["ik_hand_target_r"].head)),
+        ("lowerarm_l", LazyInit(lambda: edit_bones["ik_hand_target_l"].head)),
         ("R_eye", LazyInit(lambda: edit_bones["R_eye"].head - Vector((0, 0.1, 0)) * scale)),
         ("L_eye", LazyInit(lambda: edit_bones["L_eye"].head - Vector((0, 0.1, 0)) * scale)),
         ("FACIAL_R_Eye", LazyInit(lambda: edit_bones["FACIAL_R_Eye"].head - Vector((0, 0.1, 0)) * scale)),
