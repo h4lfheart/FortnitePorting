@@ -26,6 +26,7 @@ using FortnitePorting.Services;
 using FortnitePorting.Framework.Services;
 using Serilog;
 using Tmds.DBus.Protocol;
+using UE4Config.Parsing;
 
 namespace FortnitePorting.ViewModels;
 
@@ -46,11 +47,7 @@ public class CUE4ParseViewModel : ViewModelBase
 
     private static readonly Regex FortniteLiveRegex = new(@"^FortniteGame(/|\\)Content(/|\\)Paks(/|\\)(pakchunk(?:0|10.*|\w+)-WindowsClient|global)\.(pak|utoc)$", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
-    private static readonly VersionContainer LatestVersionContainer = new(EGame.GAME_UE5_4, optionOverrides: new Dictionary<string, bool>
-    {
-        { "SkeletalMesh.KeepMobileMinLODSettingOnDesktop", true },
-        { "StaticMesh.KeepMobileMinLODSettingOnDesktop", true }
-    });
+    private static readonly VersionContainer LatestVersionContainer = new(Globals.LatestGameVersion);
 
     public override async Task Initialize()
     {
@@ -64,6 +61,8 @@ public class CUE4ParseViewModel : ViewModelBase
         Provider.LoadVirtualPaths();
         Provider.LoadVirtualCache();
         await LoadMappings();
+
+        await LoadConsoleVariables();
 
         HomeVM.Update("Loading Asset Registry");
         await LoadAssetRegistries();
@@ -225,6 +224,24 @@ public class CUE4ParseViewModel : ViewModelBase
 
         var latestUsmap = usmapFiles.MaxBy(x => x.LastWriteTime);
         return latestUsmap?.FullName;
+    }
+
+    private async Task LoadConsoleVariables()
+    {
+        var tokens = Provider.DefaultEngine.Sections.FirstOrDefault(source => source.Name.Equals("ConsoleVariables"))?.Tokens ?? [];
+        foreach (var token in tokens)
+        {
+            if (token is not InstructionToken instructionToken) continue;
+            var value = instructionToken.Value.Equals("1");
+            
+            switch (instructionToken.Key)
+            {
+                case "r.StaticMesh.KeepMobileMinLODSettingOnDesktop":
+                case "r.SkeletalMesh.KeepMobileMinLODSettingOnDesktop":
+                    Provider.Versions[instructionToken.Key[2..]] = value;
+                    continue;
+            }
+        }
     }
 
     private async Task LoadAssetRegistries()

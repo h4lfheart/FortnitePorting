@@ -1,7 +1,6 @@
-using System;
 using System.Runtime.InteropServices;
 
-namespace FortnitePorting.Extensions;
+namespace FortnitePorting.Framework.Extensions;
 
 public static class ConsoleExtensions
 {

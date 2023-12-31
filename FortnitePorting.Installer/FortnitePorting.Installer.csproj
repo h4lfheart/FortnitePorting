@@ -6,7 +6,7 @@
         <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-        <ApplicationIcon>../FortnitePorting.Framework/Assets/FortnitePortingV2.ico</ApplicationIcon>
+        <ApplicationIcon>../FortnitePorting.Framework/Assets/Logo/FortnitePortingLogoEnhancedV2.ico</ApplicationIcon>
     </PropertyGroup>
 
     <ItemGroup>

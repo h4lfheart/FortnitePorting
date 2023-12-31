@@ -8,7 +8,7 @@
         FontFamily="Segoe UI"
         Background="{x:Null}" TransparencyLevelHint="Mica, AcrylicBlur"
         ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="NoChrome"
-        ExtendClientAreaTitleBarHeightHint="0" Title="{Binding Title}">
+        ExtendClientAreaTitleBarHeightHint="0" Title="{Binding Title}" Icon="avares://FortnitePorting.Framework/Assets/Logo/FortnitePortingLogoEnhancedV2.ico">
     <Grid RowDefinitions="30, *">
         <ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="2" IsVisible="{Binding  UseFallbackBackground}" IsHitTestVisible="False">
             <ExperimentalAcrylicBorder.Material>

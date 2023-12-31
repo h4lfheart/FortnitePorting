@@ -39,7 +39,7 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private string customArchivePath;
     [ObservableProperty] private string customMappingsPath;
     [ObservableProperty] private string customEncryptionKey = Globals.ZERO_CHAR;
-    [ObservableProperty] private EGame customUnrealVersion = EGame.GAME_UE5_4;
+    [ObservableProperty] private EGame customUnrealVersion = Globals.LatestGameVersion;
     [ObservableProperty] private AesResponse? lastAesResponse;
 
     // Program

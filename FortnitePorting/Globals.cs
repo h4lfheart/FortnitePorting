@@ -1,6 +1,7 @@
 global using static FortnitePorting.Application.App;
 global using static FortnitePorting.Framework.Application.AppBase;
 using CUE4Parse.UE4.Objects.Core.Misc;
+using CUE4Parse.UE4.Versions;
 using FortnitePorting.Framework.ViewModels.Endpoints.Models;
 
 namespace FortnitePorting;
@@ -16,4 +17,5 @@ public static class Globals
 
     public static readonly FGuid ZERO_GUID = new();
     public const string ZERO_CHAR = "0x0000000000000000000000000000000000000000000000000000000000000000";
+    public const EGame LatestGameVersion = EGame.GAME_UE5_4;
 }
