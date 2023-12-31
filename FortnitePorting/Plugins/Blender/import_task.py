@@ -1086,10 +1086,11 @@ class LazyInit:
 def apply_tasty_rig(master_skeleton, scale):
     master_skeleton["is_tasty_rig"] = True
     armature_data = master_skeleton.data
+    armature_data["Use Finger IK"] = True
 
     main_collection = armature_data.collections.new("Main Bones")
     ik_collection = armature_data.collections.new("IK Bones")
-    twist_collection = armature_data.collections.new("Twist Bones")
+    deform_collection = armature_data.collections.new("Deform Bones")
     dyn_collection = armature_data.collections.new("Dynamic Bones")
     face_collection = armature_data.collections.new("Face Bones")
     extra_collection = armature_data.collections.new("Extra Bones")
@@ -1159,6 +1160,19 @@ def apply_tasty_rig(master_skeleton, scale):
         bone.head = head
         bone.tail = tail
         bone.roll = roll
+        
+    parent_adjustment_bones = [
+        ("L_eye_lid_lower_mid", "faceAttach"),
+        ("L_eye_lid_upper_mid", "faceAttach"),
+        ("R_eye_lid_lower_mid", "faceAttach"),
+        ("R_eye_lid_upper_mid", "faceAttach")
+    ]
+
+    for name, parent in parent_adjustment_bones:
+        if not (bone := edit_bones.get(name)): continue
+        if not (parent_bone := edit_bones.get(parent)): continue
+
+        bone.parent = parent_bone
 
     head_adjustment_bones = [
         ("calf_r", edit_bones["calf_r"].head + Vector((0.0075, 0, 0))),
@@ -1179,6 +1193,7 @@ def apply_tasty_rig(master_skeleton, scale):
         ("L_eye", LazyInit(lambda: edit_bones["L_eye"].head - Vector((0, 0.1, 0)) * scale)),
         ("FACIAL_R_Eye", LazyInit(lambda: edit_bones["FACIAL_R_Eye"].head - Vector((0, 0.1, 0)) * scale)),
         ("FACIAL_L_Eye", LazyInit(lambda: edit_bones["FACIAL_L_Eye"].head - Vector((0, 0.1, 0)) * scale)),
+        ("C_jaw", LazyInit(lambda: edit_bones["C_jaw"].head + Vector((0, -0.1, 0)) * scale)),
     ]
     
     for name, data in tail_adjustment_bones:
@@ -1190,6 +1205,7 @@ def apply_tasty_rig(master_skeleton, scale):
     roll_adjustment_bones = [
         ("ball_r", 0),
         ("ball_l", 0),
+        ("C_jaw", 0),
     ]
 
     for name, roll in roll_adjustment_bones:
@@ -1344,7 +1360,14 @@ def apply_tasty_rig(master_skeleton, scale):
             continue
             
         if "twist_" in bone.name:
-            twist_collection.assign(bone)
+            deform_collection.assign(bone)
+            bone.use_custom_shape_bone_size = False
+            continue
+
+        if "deform_" in bone.name:
+            deform_collection.assign(bone)
+            bone.custom_shape = bpy.data.objects.get('RIG_Tweak')
+            bone.custom_shape_scale_xyz = (0.030, 0.030, 0.030) * scale
             bone.use_custom_shape_bone_size = False
             continue
             
@@ -1352,6 +1375,7 @@ def apply_tasty_rig(master_skeleton, scale):
             face_collection.assign(bone)
             if not any(["eyelid", "eye_lid"], lambda filter: filter in bone.name.casefold()) and bone.custom_shape is None:
                 bone.custom_shape = bpy.data.objects.get("RIG_FaceBone")
+            continue
             
 
         extra_collection.assign(bone)
@@ -1361,7 +1385,7 @@ def apply_tasty_rig(master_skeleton, scale):
         ik_collection: "THEME04",
         dyn_collection: "THEME07",
         extra_collection: "THEME10",
-        twist_collection: "THEME03",
+        deform_collection: "THEME03",
         face_collection: "THEME06",
     }
     
@@ -1465,28 +1489,28 @@ def apply_tasty_rig(master_skeleton, scale):
         ("calf_l", "ik_foot_target_l", "ik_foot_pole_l", 2, False),
         
         ("lowerarm_r", "ik_hand_target_r", "ik_hand_pole_r", 2, False),
-        ("thumb_03_r", "ik_finger_thumb_r", None, 3, True),
-        ("index_03_r", "ik_finger_index_r", None, 4, True),
-        ("middle_03_r", "ik_finger_middle_r", None, 4, True),
-        ("ring_03_r", "ik_finger_ring_r", None, 4, True),
-        ("pinky_03_r", "ik_finger_pinky_r", None, 4, True),
-        ("phantom_thumb_03_r", "ik_finger_thumb_r", None, 3, True),
-        ("phantom_index_03_r", "ik_finger_index_r", None, 4, True),
-        ("phantom_middle_03_r", "ik_finger_middle_r", None, 4, True),
-        ("phantom_ring_03_r", "ik_finger_ring_r", None, 4, True),
-        ("phantom_pinky_03_r", "ik_finger_pinky_r", None, 4, True),
+        ("thumb_03_r", "ik_finger_thumb_r", None, 3, True, "Use Finger IK"),
+        ("index_03_r", "ik_finger_index_r", None, 4, True, "Use Finger IK"),
+        ("middle_03_r", "ik_finger_middle_r", None, 4, True, "Use Finger IK"),
+        ("ring_03_r", "ik_finger_ring_r", None, 4, True, "Use Finger IK"),
+        ("pinky_03_r", "ik_finger_pinky_r", None, 4, True, "Use Finger IK"),
+        ("phantom_thumb_03_r", "ik_finger_thumb_r", None, 3, True, "Use Finger IK"),
+        ("phantom_index_03_r", "ik_finger_index_r", None, 4, True, "Use Finger IK"),
+        ("phantom_middle_03_r", "ik_finger_middle_r", None, 4, True, "Use Finger IK"),
+        ("phantom_ring_03_r", "ik_finger_ring_r", None, 4, True, "Use Finger IK"),
+        ("phantom_pinky_03_r", "ik_finger_pinky_r", None, 4, True, "Use Finger IK"),
 
         ("lowerarm_l", "ik_hand_target_l", "ik_hand_pole_l", 2, False),
-        ("thumb_03_l", "ik_finger_thumb_l", None, 3, True),
-        ("index_03_l", "ik_finger_index_l", None, 4, True),
-        ("middle_03_l", "ik_finger_middle_l", None, 4, True),
-        ("ring_03_l", "ik_finger_ring_l", None, 4, True),
-        ("pinky_03_l", "ik_finger_pinky_l", None, 4, True),
-        ("phantom_thumb_03_l", "ik_finger_thumb_l", None, 3, True),
-        ("phantom_index_03_l", "ik_finger_index_l", None, 4, True),
-        ("phantom_middle_03_l", "ik_finger_middle_l", None, 4, True),
-        ("phantom_ring_03_l", "ik_finger_ring_l", None, 4, True),
-        ("phantom_pinky_03_l", "ik_finger_pinky_l", None, 4, True),
+        ("thumb_03_l", "ik_finger_thumb_l", None, 3, True, "Use Finger IK"),
+        ("index_03_l", "ik_finger_index_l", None, 4, True, "Use Finger IK"),
+        ("middle_03_l", "ik_finger_middle_l", None, 4, True, "Use Finger IK"),
+        ("ring_03_l", "ik_finger_ring_l", None, 4, True, "Use Finger IK"),
+        ("pinky_03_l", "ik_finger_pinky_l", None, 4, True, "Use Finger IK"),
+        ("phantom_thumb_03_l", "ik_finger_thumb_l", None, 3, True, "Use Finger IK"),
+        ("phantom_index_03_l", "ik_finger_index_l", None, 4, True, "Use Finger IK"),
+        ("phantom_middle_03_l", "ik_finger_middle_l", None, 4, True, "Use Finger IK"),
+        ("phantom_ring_03_l", "ik_finger_ring_l", None, 4, True, "Use Finger IK"),
+        ("phantom_pinky_03_l", "ik_finger_pinky_l", None, 4, True, "Use Finger IK"),
 
         ("dog_ball_r", "ik_dog_ball_r", "ik_foot_pole_r", 3, True),
         ("dog_ball_l", "ik_dog_ball_l", "ik_foot_pole_l", 3, True),
@@ -1494,7 +1518,7 @@ def apply_tasty_rig(master_skeleton, scale):
         ("wolf_ball_l", "ik_wolf_ball_l", "ik_foot_pole_l", 3, True),
     ]
     
-    for bone_name, target_name, pole_name, chain_length, use_rotation in ik_bones:
+    for bone_name, target_name, pole_name, chain_length, use_rotation, *extra in ik_bones:
         if not (bone := pose_bones.get(bone_name)): continue
         
         constraint = bone.constraints.new("IK")
@@ -1507,36 +1531,48 @@ def apply_tasty_rig(master_skeleton, scale):
             constraint.pole_target = master_skeleton
             constraint.pole_subtarget = pole_name
             constraint.pole_angle = radians(180)
+            
+        if len(extra) > 0 and (influence_custom_property := extra[0]):
+            driver = constraint.driver_add("influence")
+            var = driver.driver.variables.new()
+            var.name = "Use_Finger_IK"
+            var.targets[0].id_type = "ARMATURE"
+            var.targets[0].id = armature_data
+            var.targets[0].data_path = f"[\"{influence_custom_property}\"]"
+            driver.driver.expression = var.name
+            
         
     copy_rotation_bones = {
-        ("foot_r", "ik_foot_target_r", 1.0),
-        ("foot_l", "ik_foot_target_l", 1.0),
-        ("hand_r", "ik_hand_target_r", 1.0),
-        ("hand_l", "ik_hand_target_l", 1.0),
+        ("foot_r", "ik_foot_target_r", 1.0, "WORLD"),
+        ("foot_l", "ik_foot_target_l", 1.0, "WORLD"),
+        ("hand_r", "ik_hand_target_r", 1.0, "WORLD"),
+        ("hand_l", "ik_hand_target_l", 1.0, "WORLD"),
 
-        ("dog_thigh_r", "thigh_r", 1.0),
-        ("dog_thigh_l", "thigh_l", 1.0),
-        ("wolf_thigh_r", "thigh_r", 1.0),
-        ("wolf_thigh_l", "thigh_l", 1.0),
+        ("dog_thigh_r", "thigh_r", 1.0, "WORLD"),
+        ("dog_thigh_l", "thigh_l", 1.0, "WORLD"),
+        ("wolf_thigh_r", "thigh_r", 1.0, "WORLD"),
+        ("wolf_thigh_l", "thigh_l", 1.0, "WORLD"),
 
-        ("R_eye_lid_upper_mid", "R_eye", 0.25),
-        ("R_eye_lid_lower_mid", "R_eye", 0.25),
-        ("L_eye_lid_upper_mid", "L_eye", 0.25),
-        ("L_eye_lid_lower_mid", "L_eye", 0.25),
+        ("R_eye_lid_upper_mid", "R_eye", 0.25, "LOCAL"),
+        ("R_eye_lid_lower_mid", "R_eye", 0.25, "LOCAL"),
+        ("L_eye_lid_upper_mid", "L_eye", 0.25, "LOCAL"),
+        ("L_eye_lid_lower_mid", "L_eye", 0.25, "LOCAL"),
 
-        ("FACIAL_R_EyelidUpperA", "FACIAL_R_Eye", 0.25),
-        ("FACIAL_R_EyelidLowerA", "FACIAL_R_Eye", 0.25),
-        ("FACIAL_L_EyelidUpperA", "FACIAL_L_Eye", 0.25),
-        ("FACIAL_L_EyelidLowerA", "FACIAL_L_Eye", 0.25),
+        ("FACIAL_R_EyelidUpperA", "FACIAL_R_Eye", 0.25, "LOCAL"),
+        ("FACIAL_R_EyelidLowerA", "FACIAL_R_Eye", 0.25, "LOCAL"),
+        ("FACIAL_L_EyelidUpperA", "FACIAL_L_Eye", 0.25, "LOCAL"),
+        ("FACIAL_L_EyelidLowerA", "FACIAL_L_Eye", 0.25, "LOCAL"),
     }
     
-    for bone_name, target_name, weight in copy_rotation_bones:
+    for bone_name, target_name, weight, space in copy_rotation_bones:
         if not (bone := pose_bones.get(bone_name)): continue
         
         constraint = bone.constraints.new("COPY_ROTATION")
         constraint.target = master_skeleton
         constraint.subtarget = target_name
         constraint.influence = weight
+        constraint.target_space = space
+        constraint.owner_space = space
 
     track_bones = [
         ("eye_control_mid", "head", 0.285)
