@@ -8,13 +8,13 @@
         x:DataType="viewmodels:ApplicationViewModel"
         Title="FortnitePorting" Width="1280" Height="720"
         WindowStartupLocation="CenterScreen" FontFamily="Segoe UI"
-        Background="{x:Null}" TransparencyLevelHint="Mica, AcrylicBlur"
+        Background="{x:Null}" TransparencyLevelHint="{Binding TransparencyLevels}"
         ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="NoChrome"
         ExtendClientAreaTitleBarHeightHint="0" Icon="avares://FortnitePorting.Framework/Assets/Logo/FortnitePortingLogoEnhancedV2.ico">
     <Grid RowDefinitions="30, *">
-        <ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="2" IsVisible="{Binding UseFallbackBackground}" IsHitTestVisible="False">
+        <ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="2" IsVisible="{Binding !UseMicaBackground}" IsHitTestVisible="False">
             <ExperimentalAcrylicBorder.Material>
-                <ExperimentalAcrylicMaterial MaterialOpacity="1" TintColor="#110038"/>
+                <ExperimentalAcrylicMaterial MaterialOpacity="1.1" TintColor="{Binding BackgroundColor}" TintOpacity="1"/>
             </ExperimentalAcrylicBorder.Material>
         </ExperimentalAcrylicBorder>
         <Grid Grid.Row="0" PointerPressed="OnPointerPressed" Background="Transparent" HorizontalAlignment="Stretch">

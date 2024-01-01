@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,20 +13,24 @@ using FortnitePorting.Framework.Application;
 using FortnitePorting.Framework.Controls;
 using FortnitePorting.Services;
 using FortnitePorting.Framework.Services;
+using FortnitePorting.Framework.ViewModels;
 using FortnitePorting.Views;
 
 namespace FortnitePorting.ViewModels;
 
-public partial class ApplicationViewModel : ViewModelBase
+public partial class ApplicationViewModel : ThemedViewModelBase
 {
     [ObservableProperty] private string versionString = $"v{Globals.VersionString}";
 
     [ObservableProperty] private UserControl? currentView;
 
-    [ObservableProperty] private bool useFallbackBackground = Environment.OSVersion.Platform != PlatformID.Win32NT || (Environment.OSVersion.Platform == PlatformID.Win32NT && Environment.OSVersion.Version.Build < 22000);
-
     public ApplicationViewModel()
     {
+        ThemeVM = this;
+        UseMicaBackground = AppSettings.Current.UseMica;
+        BackgroundColor = AppSettings.Current.BackgroundColor;
+        Avalonia.Application.Current!.Resources["SystemAccentColor"] = AppSettings.Current.AccentColor;
+        
         switch (AppSettings.Current.LoadingType)
         {
             case ELoadingType.Live:
@@ -44,9 +49,12 @@ public partial class ApplicationViewModel : ViewModelBase
         CurrentView = new T();
     }
 
-    public void RestartWithMessage(string caption, string message)
+    public void RestartWithMessage(string caption, string message, bool mandatory = true)
     {
-        MessageWindow.Show(caption, message, MainWindow, [new MessageWindowButton("Restart", _ => Restart())]);
+        var restartButton = new MessageWindowButton("Restart", _ => Restart());
+        var waitButton = new MessageWindowButton("Wait", window => window.Close());
+        var buttons = mandatory ? new List<MessageWindowButton> { restartButton } : [ restartButton, waitButton ];
+        MessageWindow.Show(caption, message, MainWindow, buttons);
     }
 
     public void Restart()

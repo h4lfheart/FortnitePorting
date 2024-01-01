@@ -18,11 +18,5 @@ public partial class MainView : ViewBase<MainViewModel>
         ViewModel.ActiveTab = (UserControl) sender!;
         MainWindow.Width = ViewModel.ActiveTab is AssetsView or FilesView or RadioView && MainWindow.WindowState == WindowState.Normal ? 1280 : 1100; // assets view and files view use this specifically
         MainWindow.UpdateLayout();
-
-        if (AppSettings.Current.IsRestartRequired)
-        {
-            AppVM.RestartWithMessage("A restart is required.", "An option has been changed that requires a restart to take effect.");
-            AppSettings.Current.IsRestartRequired = false;
-        }
     }
 }

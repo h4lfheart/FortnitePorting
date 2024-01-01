@@ -194,6 +194,7 @@ glass_mappings = MappingCollection(
     textures=[
         SlotMapping("Color_DarkTint"),
         SlotMapping("Normals"),
+        SlotMapping("Diffuse Texture with Alpha Mask", "Color", alpha_slot="Mask")
     ],
     scalars=[
         SlotMapping("Specular"),

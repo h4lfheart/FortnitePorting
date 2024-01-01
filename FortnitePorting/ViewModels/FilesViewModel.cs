@@ -59,7 +59,6 @@ public partial class FilesViewModel : ViewModelBase
         "/Playsets",
         "/Audio",
         "/Sound",
-        "/Materials",
         "/DataTables",
         "/TextureData",
         "/ActorBlueprints",
@@ -122,7 +121,7 @@ public partial class FilesViewModel : ViewModelBase
         Started = true;
         AssetFilter = this
             .WhenAnyValue(x => x.SearchFilter)
-            .Throttle(TimeSpan.FromMilliseconds(500))
+            .Throttle(TimeSpan.FromMilliseconds(200))
             .Select(CreateAssetFilter);
 
         AssetItemsSource.Connect()

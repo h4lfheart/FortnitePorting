@@ -6,13 +6,13 @@
         x:Class="FortnitePorting.Framework.Controls.MessageWindow"
         x:DataType="controls:MessageWindowModel" Width="360" SizeToContent="Height" WindowStartupLocation="CenterOwner"
         FontFamily="Segoe UI"
-        Background="{x:Null}" TransparencyLevelHint="Mica, AcrylicBlur"
+        Background="{x:Null}" TransparencyLevelHint="{Binding Theme.TransparencyLevels}"
         ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="NoChrome"
         ExtendClientAreaTitleBarHeightHint="0" Title="{Binding Title}" Icon="avares://FortnitePorting.Framework/Assets/Logo/FortnitePortingLogoEnhancedV2.ico">
     <Grid RowDefinitions="30, *">
-        <ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="2" IsVisible="{Binding  UseFallbackBackground}" IsHitTestVisible="False">
+        <ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="2" IsVisible="{Binding !Theme.UseMicaBackground}" IsHitTestVisible="False">
             <ExperimentalAcrylicBorder.Material>
-                <ExperimentalAcrylicMaterial MaterialOpacity="1" TintColor="#110038"/>
+                <ExperimentalAcrylicMaterial MaterialOpacity="1.1" TintColor="{Binding Theme.BackgroundColor}" TintOpacity="1"/>
             </ExperimentalAcrylicBorder.Material>
         </ExperimentalAcrylicBorder>
         <Grid Grid.Row="0" PointerPressed="OnPointerPressed" Background="#25000000" HorizontalAlignment="Stretch">

@@ -2,10 +2,15 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using AsyncImageLoader;
+using Avalonia.Controls;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DynamicData.Binding;
+using FortnitePorting.Application;
 using FortnitePorting.Controls.Home;
 using FortnitePorting.Framework;
 using FortnitePorting.Services;
@@ -16,15 +21,18 @@ namespace FortnitePorting.ViewModels;
 
 public partial class HomeViewModel : ViewModelBase
 {
+    public readonly Bitmap DefaultHomeImage = new(Avalonia.Platform.AssetLoader.Open(new Uri("avares://FortnitePorting/Assets/HomeBackground.png")));
     [ObservableProperty] private string loadingText = "Loading Application";
     [ObservableProperty] private FeaturedArtItem? currentFeaturedArt;
     [ObservableProperty] private int currentFeaturedArtIndex;
     [ObservableProperty] private ObservableCollection<FeaturedArtItem> featuredArt = new();
     [ObservableProperty] private ObservableCollection<ChangelogItem> changelogs = new();
     [ObservableProperty] private DispatcherTimer featuredArtTimer = new();
+    [ObservableProperty] private Bitmap splashArtSource;
 
     public override async Task Initialize()
     {
+        SplashArtSource = AppSettings.Current.UseCustomSplashArt ? new Bitmap(AppSettings.Current.CustomSplashArtPath) : DefaultHomeImage;
         TaskService.Run(async () =>
         {
             var changelogEntries = await EndpointsVM.FortnitePorting.GetChangelogsAsync();

@@ -9,13 +9,13 @@
         x:DataType="viewModels:ApplicationViewModel"
         Title="FortnitePorting Installer" Width="560" SizeToContent="Height"
         WindowStartupLocation="CenterScreen" FontFamily="Segoe UI"
-        Background="{x:Null}" TransparencyLevelHint="Mica, AcrylicBlur" CanResize="False"
+        Background="{x:Null}" TransparencyLevelHint="{Binding TransparencyLevels}" CanResize="False"
         ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="NoChrome"
         ExtendClientAreaTitleBarHeightHint="0">
     <Grid RowDefinitions="30, *">
-        <ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="2" IsVisible="{Binding UseFallbackBackground}" IsHitTestVisible="False">
+        <ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="2" IsVisible="{Binding !UseMicaBackground}" IsHitTestVisible="False">
             <ExperimentalAcrylicBorder.Material>
-                <ExperimentalAcrylicMaterial MaterialOpacity="1" TintColor="#110038"/>
+                <ExperimentalAcrylicMaterial MaterialOpacity="1.1" TintColor="{Binding BackgroundColor}" TintOpacity="1"/>
             </ExperimentalAcrylicBorder.Material>
         </ExperimentalAcrylicBorder>
         <Grid Grid.Row="0" PointerPressed="OnPointerPressed" Background="Transparent" HorizontalAlignment="Stretch">

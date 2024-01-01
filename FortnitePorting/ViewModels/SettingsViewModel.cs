@@ -5,6 +5,8 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -24,9 +26,11 @@ namespace FortnitePorting.ViewModels;
 public partial class SettingsViewModel : ViewModelBase
 {
     [JsonIgnore] public bool IsRestartRequired;
+    [JsonIgnore] public bool PromptedRestartRequired;
 
     [JsonIgnore] public bool HasValidLocalData => Directory.Exists(LocalArchivePath);
     [JsonIgnore] public bool HasValidCustomData => Directory.Exists(CustomArchivePath) && CustomEncryptionKey.TryParseAesKey(out _);
+    [JsonIgnore] public static bool IsWindows11 => Environment.OSVersion.Platform == PlatformID.Win32NT && Environment.OSVersion.Version.Build >= 22000;
 
     [ObservableProperty] private ExportOptionsViewModel exportOptions = new();
     [ObservableProperty] private PluginViewModel plugin = new();
@@ -47,7 +51,6 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private FPVersion lastKnownUpdateVersion = Globals.Version;
     [ObservableProperty] private bool useTabTransition = true;
     [ObservableProperty] private bool useDiscordRPC = true;
-    [ObservableProperty] private bool useFallbackBackground;
     [ObservableProperty] private bool useCustomExportPath;
     [ObservableProperty] private string customExportPath;
     [ObservableProperty] private bool filterProps = true;
@@ -61,6 +64,16 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private HashSet<string> hiddenPropPaths = new();
     [ObservableProperty] private HashSet<string> hiddenTrapPaths = new();
     [ObservableProperty] private Dictionary<string, Dictionary<string, string>> itemMeshMappings = new();
+    
+    // Theming
+    [ObservableProperty] private bool useMica = IsWindows11;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(BackgroundColorHex))] private Color backgroundColor = Color.Parse("#1a0038");
+    public string BackgroundColorHex => BackgroundColor.ToString();
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(AccentColorHex))] private Color accentColor = Color.Parse("#7c3c92");
+    public string AccentColorHex => AccentColor.ToString();
+    
+    [ObservableProperty] private bool useCustomSplashArt;
+    [ObservableProperty] private string customSplashArtPath;
 
     [JsonIgnore] private static readonly string[] RestartProperties =
     {
@@ -72,32 +85,71 @@ public partial class SettingsViewModel : ViewModelBase
         nameof(CustomMappingsPath),
         nameof(CustomEncryptionKey),
         nameof(CustomMappingsPath),
-        nameof(UseFallbackBackground),
         nameof(FilterProps),
         nameof(FilterItems)
     };
 
     public string GetExportPath()
     {
-        return UseCustomExportPath && Directory.Exists(CustomExportPath) ? CustomExportPath : App.AssetsFolder.FullName;
+        return UseCustomExportPath && Directory.Exists(CustomExportPath) ? CustomExportPath : AssetsFolder.FullName;
     }
 
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
     {
         base.OnPropertyChanged(e);
+        if (AppVM is null) return;
+        if (MainVM is null) return;
+        if (HomeVM is null) return;
 
         var property = e.PropertyName;
-
-        if (MainVM?.ActiveTab is SettingsView && RestartProperties.Contains(property)) IsRestartRequired = true;
+        if (MainVM.ActiveTab is SettingsView && RestartProperties.Contains(property)) IsRestartRequired = true;
 
         switch (property)
         {
             case nameof(UseDiscordRPC):
             {
-                if (UseDiscordRPC) DiscordService.Initialize();
-                else DiscordService.Deinitialize();
+                if (UseDiscordRPC)
+                {
+                    DiscordService.Initialize();
+                }
+                else
+                {
+                    DiscordService.Deinitialize();
+                }
                 break;
             }
+            case nameof(UseMica):
+            {
+                AppVM.UseMicaBackground = UseMica;
+                break;
+            }
+            case nameof(BackgroundColor):
+            {
+                AppVM.BackgroundColor = BackgroundColor;
+                break;
+            }
+            case nameof(AccentColor):
+            {
+                Avalonia.Application.Current!.Resources["SystemAccentColor"] = AccentColor;
+                break;
+            }
+            case nameof(UseCustomSplashArt):
+            {
+                HomeVM.SplashArtSource = UseCustomSplashArt && !string.IsNullOrEmpty(CustomSplashArtPath) ? new Bitmap(CustomSplashArtPath) : HomeVM.DefaultHomeImage;
+                break;
+            }
+            case nameof(CustomSplashArtPath):
+            {
+                HomeVM.SplashArtSource = UseCustomSplashArt ? new Bitmap(CustomSplashArtPath) : HomeVM.DefaultHomeImage;
+                break;
+            }
+        }
+        
+        if (IsRestartRequired && !PromptedRestartRequired)
+        {
+            AppVM.RestartWithMessage("A restart is required.", "An option has been changed that requires a restart to take effect.", mandatory: false);
+            IsRestartRequired = false;
+            PromptedRestartRequired = true;
         }
     }
 
@@ -124,5 +176,10 @@ public partial class SettingsViewModel : ViewModelBase
     public async Task BrowseExportPath()
     {
         if (await BrowseFolderDialog() is { } path) CustomExportPath = path;
+    }
+    
+    public async Task BrowseSplashArtPath()
+    {
+        if (await BrowseFileDialog() is { } path) CustomSplashArtPath = path;
     }
 }

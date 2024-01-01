@@ -5,6 +5,7 @@
              xmlns:viewmodels="clr-namespace:FortnitePorting.ViewModels"
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
              xmlns:ext="clr-namespace:FortnitePorting.Framework.Extensions;assembly=FortnitePorting.Framework"
+             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
              xmlns:home="clr-namespace:FortnitePorting.Controls.Home"
              mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="720"
              x:Class="FortnitePorting.Views.HomeView"
@@ -26,7 +27,7 @@
                 <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3">
                     <Border RenderOptions.BitmapInterpolationMode="HighQuality" CornerRadius="5">
                         <Border.Background>
-                            <ImageBrush Source="/Assets/HomeBackground.png" Stretch="UniformToFill" />
+                            <ImageBrush Source="{Binding SplashArtSource}" Stretch="UniformToFill" />
                         </Border.Background>
                     </Border>
                     <Border Background="Black" Opacity="0.35" CornerRadius="5" />

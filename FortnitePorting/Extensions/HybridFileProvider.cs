@@ -41,7 +41,6 @@ public class HybridFileProvider : AbstractVfsFileProvider
 
     public void RegisterFiles(DirectoryInfo directory)
     {
-        var files = new Dictionary<string, GameFile>();
         foreach (var file in directory.EnumerateFiles("*.*", SearchOption))
         {
             var extension = file.Extension.SubstringAfter('.').ToLower();
@@ -50,7 +49,5 @@ public class HybridFileProvider : AbstractVfsFileProvider
 
             RegisterVfs(file.FullName, new Stream[] { file.OpenRead() }, it => new FStreamArchive(it, File.OpenRead(it), Versions));
         }
-
-        _files.AddFiles(files);
     }
 }

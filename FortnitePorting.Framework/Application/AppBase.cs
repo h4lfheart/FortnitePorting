@@ -5,12 +5,14 @@ using Avalonia.Input.Platform;
 using Avalonia.Platform.Storage;
 using FortnitePorting.Framework.Controls;
 using FortnitePorting.Framework.Services;
+using FortnitePorting.Framework.ViewModels;
 using Serilog;
 
 namespace FortnitePorting.Framework.Application;
 
 public abstract class AppBase : Avalonia.Application
 {
+    public static ThemedViewModelBase ThemeVM;
     public static IClassicDesktopStyleApplicationLifetime Application;
 
     public static Window MainWindow
