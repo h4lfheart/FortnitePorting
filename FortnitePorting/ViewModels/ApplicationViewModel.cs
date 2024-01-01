@@ -1,18 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 using Avalonia.Controls;
-using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FortnitePorting.Application;
-using FortnitePorting.Controls;
-using FortnitePorting.Framework;
+using FortnitePorting.Extensions;
 using FortnitePorting.Framework.Application;
 using FortnitePorting.Framework.Controls;
-using FortnitePorting.Services;
-using FortnitePorting.Framework.Services;
 using FortnitePorting.Framework.ViewModels;
 using FortnitePorting.Views;
 
@@ -29,7 +22,7 @@ public partial class ApplicationViewModel : ThemedViewModelBase
         ThemeVM = this;
         UseMicaBackground = AppSettings.Current.UseMica;
         BackgroundColor = AppSettings.Current.BackgroundColor;
-        Avalonia.Application.Current!.Resources["SystemAccentColor"] = AppSettings.Current.AccentColor;
+        ColorExtensions.SetSystemAccentColor(AppSettings.Current.AccentColor);
         
         switch (AppSettings.Current.LoadingType)
         {

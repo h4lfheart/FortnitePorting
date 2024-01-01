@@ -13,6 +13,7 @@ using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.UE4.Versions;
 using CUE4Parse.Utils;
 using FortnitePorting.Application;
+using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Services;
 using FortnitePorting.Framework.Services;
@@ -130,7 +131,7 @@ public partial class SettingsViewModel : ViewModelBase
             }
             case nameof(AccentColor):
             {
-                Avalonia.Application.Current!.Resources["SystemAccentColor"] = AccentColor;
+                ColorExtensions.SetSystemAccentColor(AccentColor);
                 break;
             }
             case nameof(UseCustomSplashArt):
