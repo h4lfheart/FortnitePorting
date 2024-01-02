@@ -1195,6 +1195,16 @@ def apply_tasty_rig(master_skeleton, scale):
         ("FACIAL_R_Eye", LazyInit(lambda: edit_bones["FACIAL_R_Eye"].head - Vector((0, 0.1, 0)) * scale)),
         ("FACIAL_L_Eye", LazyInit(lambda: edit_bones["FACIAL_L_Eye"].head - Vector((0, 0.1, 0)) * scale)),
         ("C_jaw", LazyInit(lambda: edit_bones["C_jaw"].head + Vector((0, -0.1, 0)) * scale)),
+
+        ("pelvis", LazyInit(lambda: edit_bones["pelvis"].head + Vector((0, 0, 0.15)) * scale)),
+        ("spine_01", LazyInit(lambda: edit_bones["spine_01"].head + Vector((0, 0, edit_bones["spine_01"].length)) * scale)),
+        ("spine_02", LazyInit(lambda: edit_bones["spine_02"].head + Vector((0, 0, edit_bones["spine_02"].length)) * scale)),
+        ("spine_03", LazyInit(lambda: edit_bones["spine_03"].head + Vector((0, 0, edit_bones["spine_03"].length)) * scale)),
+        ("spine_04", LazyInit(lambda: edit_bones["spine_04"].head + Vector((0, 0, edit_bones["spine_04"].length)) * scale)),
+        ("spine_05", LazyInit(lambda: edit_bones["spine_05"].head + Vector((0, 0, edit_bones["spine_05"].length)) * scale)),
+        ("neck_01", LazyInit(lambda: edit_bones["neck_01"].head + Vector((0, 0, edit_bones["neck_01"].length)) * scale)),
+        ("neck_02", LazyInit(lambda: edit_bones["neck_02"].head + Vector((0, 0, edit_bones["neck_02"].length)) * scale)),
+        ("head", LazyInit(lambda: edit_bones["head"].head + Vector((0, 0, edit_bones["head"].length)) * scale)),
     ]
     
     for name, data in tail_adjustment_bones:

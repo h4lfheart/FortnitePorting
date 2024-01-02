@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.IO;
 using System.Threading.Tasks;
 using Avalonia.Platform.Storage;
@@ -92,7 +93,8 @@ public partial class BlenderExportOptions : ExportOptionsBase
     [ObservableProperty] private bool scaleDown = true;
     [ObservableProperty] private bool importCollection = true;
 
-    [ObservableProperty] private ERigType rigType = ERigType.Default;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(IsTastyRig))] private ERigType rigType = ERigType.Default;
+    public bool IsTastyRig => RigType == ERigType.Tasty;
     [ObservableProperty] private bool mergeSkeletons = true;
     [ObservableProperty] private bool reorientBones = false;
     [ObservableProperty] private bool hideFaceBones = false;
@@ -110,6 +112,25 @@ public partial class BlenderExportOptions : ExportOptionsBase
     [ObservableProperty] private bool importSounds = true;
     [ObservableProperty] private bool loopAnimation = false;
     [ObservableProperty] private bool updateTimelineLength = false;
+
+    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+    {
+        base.OnPropertyChanged(e);
+        
+        var property = e.PropertyName;
+        switch (property)
+        {
+            case nameof(RigType):
+            {
+                if (RigType == ERigType.Tasty)
+                {
+                    ReorientBones = true;
+                    MergeSkeletons = true;
+                }
+                break;
+            }
+        }
+    }
 
     public override ExporterOptions CreateExportOptions()
     {

@@ -604,6 +604,9 @@ class UEFormatImport:
 
                     children.append(child)
 
+                if len(children) == 0 and bone.parent is None:
+                    continue
+
                 target_length = bone.length
                 if len(children) == 0:
                     new_rot = Vector(bone.parent["reorient_direction"])
