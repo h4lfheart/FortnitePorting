@@ -12,148 +12,153 @@
              x:Class="FortnitePorting.Views.SettingsView"
              x:DataType="viewmodels:SettingsViewModel">
     <controls:GroupBox Background="#26000000">
-        <avalonia:AnimatableTabControl Margin="0 8" TabStripPlacement="Left">
-            <TabItem>
-                <TabItem.Header>
-                    <controls:MaterialIconText Text="Installation" Icon="Folder" />
-                </TabItem.Header>
-                <Grid RowDefinitions="Auto Auto *">
-                    <controls:SettingBox Grid.Row="0" DisplayName="Installation Type"
-                                         Path="{Binding LoadingType, Mode=TwoWay}" Icon="GamepadClassic">
-                        <ComboBox Width="200" HorizontalAlignment="Right"
-                                  ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:ELoadingType}}"
-                                  SelectedItem="{Binding LoadingType, Converter={StaticResource EnumToString}}" />
-                    </controls:SettingBox>
+        <Grid>
+            <avalonia:AnimatableTabControl Margin="0 8" TabStripPlacement="Left">
+                <TabItem>
+                    <TabItem.Header>
+                        <controls:MaterialIconText Text="Installation" Icon="Folder" />
+                    </TabItem.Header>
+                    <Grid RowDefinitions="Auto Auto *">
+                        <controls:SettingBox Grid.Row="0" DisplayName="Installation Type"
+                                             Path="{Binding LoadingType, Mode=TwoWay}" Icon="GamepadClassic">
+                            <ComboBox Width="200" HorizontalAlignment="Right"
+                                      ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:ELoadingType}}"
+                                      SelectedItem="{Binding LoadingType, Converter={StaticResource EnumToString}}" />
+                        </controls:SettingBox>
 
-                    <controls:SettingBox Grid.Row="1" DisplayName="Game Language"
-                                         Path="{Binding Language, Mode=TwoWay}" Icon="Translate">
-                        <ComboBox Width="200" HorizontalAlignment="Right"
-                                  ItemsSource="{ext:EnumToItemsSource {x:Type cue4parse:UE4.Versions.ELanguage}}"
-                                  SelectedItem="{Binding Language, Converter={StaticResource EnumToString}}" />
-                    </controls:SettingBox>
+                        <controls:SettingBox Grid.Row="1" DisplayName="Game Language"
+                                             Path="{Binding Language, Mode=TwoWay}" Icon="Translate">
+                            <ComboBox Width="200" HorizontalAlignment="Right"
+                                      ItemsSource="{ext:EnumToItemsSource {x:Type cue4parse:UE4.Versions.ELanguage}}"
+                                      SelectedItem="{Binding Language, Converter={StaticResource EnumToString}}" />
+                        </controls:SettingBox>
 
-                    <controls:GroupBox Grid.Row="2" Margin="{ext:Space 1}">
-                        <avalonia:AnimatableTabControl>
-                            <TabControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" />
-                                </ItemsPanelTemplate>
-                            </TabControl.ItemsPanel>
+                        <controls:GroupBox Grid.Row="2" Margin="{ext:Space 1}">
+                            <avalonia:AnimatableTabControl>
+                                <TabControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" />
+                                    </ItemsPanelTemplate>
+                                </TabControl.ItemsPanel>
 
-                            <TabItem Header="Local">
-                                <StackPanel>
-                                    <controls:SettingBox DisplayName="Archive Path"
-                                                         Path="{Binding LocalArchivePath, Mode=TwoWay}" Icon="Folder">
-                                        <Button Content="Browse" Command="{Binding BrowseLocalArchivePath}" />
-                                    </controls:SettingBox>
-                                    <controls:SettingBox DisplayName="Cosmetic Streaming"
-                                                         Path="{Binding UseCosmeticStreaming, Mode=TwoWay}"
-                                                         Icon="CloudDownload">
-                                        <ToggleSwitch IsChecked="{Binding UseCosmeticStreaming}" />
-                                    </controls:SettingBox>
-                                </StackPanel>
-                            </TabItem>
-                            <TabItem Header="Live">
-                                <TextBlock Text="No settings are required for Fortnite Live." Opacity="0.5"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
-                            </TabItem>
-                            <TabItem Header="Custom">
-                                <StackPanel>
-                                    <controls:SettingBox DisplayName="Archive Path"
-                                                         Path="{Binding CustomArchivePath, Mode=TwoWay}" Icon="Folder">
-                                        <Button Content="Browse" Command="{Binding BrowseCustomArchivePath}" />
-                                    </controls:SettingBox>
-                                    <controls:SettingBox DisplayName="Mappings File"
-                                                         Path="{Binding CustomMappingsPath, Mode=TwoWay}" Icon="File">
-                                        <Button Content="Browse" Command="{Binding BrowseMappingsFile}" />
-                                    </controls:SettingBox>
-                                    <controls:SettingBox DisplayName="Encryption Key"
-                                                         Path="{Binding CustomEncryptionKey, Mode=TwoWay}" Icon="Key">
-                                        <TextBox Text="{Binding CustomEncryptionKey}" HorizontalAlignment="Right"
-                                                 VerticalAlignment="Center" MaxWidth="140" />
-                                    </controls:SettingBox>
-                                    <controls:SettingBox DisplayName="Unreal Version"
-                                                         Path="{Binding CustomUnrealVersion, Mode=TwoWay}"
-                                                         Icon="GamepadSquare">
-                                        <ComboBox
-                                            ItemsSource="{ext:EnumToItemsSource {x:Type cue4parse:UE4.Versions.EGame}}"
-                                            SelectedItem="{Binding CustomUnrealVersion, Converter={StaticResource EnumToString}}" />
-                                    </controls:SettingBox>
-                                </StackPanel>
-                            </TabItem>
-                        </avalonia:AnimatableTabControl>
-                    </controls:GroupBox>
-                </Grid>
-            </TabItem>
-            <TabItem>
-                <TabItem.Header>
-                    <controls:MaterialIconText Text="Application" Icon="Application" />
-                </TabItem.Header>
+                                <TabItem Header="Local">
+                                    <StackPanel>
+                                        <controls:SettingBox DisplayName="Archive Path"
+                                                             Path="{Binding LocalArchivePath, Mode=TwoWay}" Icon="Folder">
+                                            <Button Content="Browse" Command="{Binding BrowseLocalArchivePath}" />
+                                        </controls:SettingBox>
+                                        <controls:SettingBox DisplayName="Cosmetic Streaming"
+                                                             Path="{Binding UseCosmeticStreaming, Mode=TwoWay}"
+                                                             Icon="CloudDownload">
+                                            <ToggleSwitch IsChecked="{Binding UseCosmeticStreaming}" />
+                                        </controls:SettingBox>
+                                    </StackPanel>
+                                </TabItem>
+                                <TabItem Header="Live">
+                                    <TextBlock Text="No settings are required for Fortnite Live." Opacity="0.5"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </TabItem>
+                                <TabItem Header="Custom">
+                                    <StackPanel>
+                                        <controls:SettingBox DisplayName="Archive Path"
+                                                             Path="{Binding CustomArchivePath, Mode=TwoWay}" Icon="Folder">
+                                            <Button Content="Browse" Command="{Binding BrowseCustomArchivePath}" />
+                                        </controls:SettingBox>
+                                        <controls:SettingBox DisplayName="Mappings File"
+                                                             Path="{Binding CustomMappingsPath, Mode=TwoWay}" Icon="File">
+                                            <Button Content="Browse" Command="{Binding BrowseMappingsFile}" />
+                                        </controls:SettingBox>
+                                        <controls:SettingBox DisplayName="Encryption Key"
+                                                             Path="{Binding CustomEncryptionKey, Mode=TwoWay}" Icon="Key">
+                                            <TextBox Text="{Binding CustomEncryptionKey}" HorizontalAlignment="Right"
+                                                     VerticalAlignment="Center" MaxWidth="140" />
+                                        </controls:SettingBox>
+                                        <controls:SettingBox DisplayName="Unreal Version"
+                                                             Path="{Binding CustomUnrealVersion, Mode=TwoWay}"
+                                                             Icon="GamepadSquare">
+                                            <ComboBox
+                                                ItemsSource="{ext:EnumToItemsSource {x:Type cue4parse:UE4.Versions.EGame}}"
+                                                SelectedItem="{Binding CustomUnrealVersion, Converter={StaticResource EnumToString}}" />
+                                        </controls:SettingBox>
+                                    </StackPanel>
+                                </TabItem>
+                            </avalonia:AnimatableTabControl>
+                        </controls:GroupBox>
+                    </Grid>
+                </TabItem>
+                <TabItem>
+                    <TabItem.Header>
+                        <controls:MaterialIconText Text="Application" Icon="Application" />
+                    </TabItem.Header>
 
-                <StackPanel>
-                    <controls:SettingBox DisplayName="Tab Transitions" Path="{Binding UseTabTransition, Mode=TwoWay}"
-                                         Icon="Transition">
-                        <ToggleSwitch IsChecked="{Binding UseTabTransition}" />
-                    </controls:SettingBox>
-                    <controls:SettingBox DisplayName="Discord Rich Presence"
-                                         Path="{Binding UseDiscordRPC, Mode=TwoWay}" Icon="Message">
-                        <ToggleSwitch IsChecked="{Binding UseDiscordRPC}" />
-                    </controls:SettingBox>
-                    <controls:SettingBox DisplayName="Custom Assets Path"
-                                         Path="{Binding CustomExportPath, Mode=TwoWay}" Icon="Folder">
-                        <StackPanel Orientation="Horizontal">
-                            <ToggleSwitch IsChecked="{Binding UseCustomExportPath}" />
-                            <Button Content="Browse" Command="{Binding BrowseExportPath}"
-                                    IsEnabled="{Binding UseCustomExportPath}" />
-                        </StackPanel>
-                    </controls:SettingBox>
-                </StackPanel>
-            </TabItem>
-            <TabItem>
-                <TabItem.Header>
-                    <controls:MaterialIconText Text="Theme" Icon="Palette" />
-                </TabItem.Header>
+                    <StackPanel>
+                        <controls:SettingBox DisplayName="Tab Transitions" Path="{Binding UseTabTransition, Mode=TwoWay}"
+                                             Icon="Transition">
+                            <ToggleSwitch IsChecked="{Binding UseTabTransition}" />
+                        </controls:SettingBox>
+                        <controls:SettingBox DisplayName="Discord Rich Presence"
+                                             Path="{Binding UseDiscordRPC, Mode=TwoWay}" Icon="Message">
+                            <ToggleSwitch IsChecked="{Binding UseDiscordRPC}" />
+                        </controls:SettingBox>
+                        <controls:SettingBox DisplayName="Custom Assets Path"
+                                             Path="{Binding CustomExportPath, Mode=TwoWay}" Icon="Folder">
+                            <StackPanel Orientation="Horizontal">
+                                <ToggleSwitch IsChecked="{Binding UseCustomExportPath}" />
+                                <Button Content="Browse" Command="{Binding BrowseExportPath}"
+                                        IsEnabled="{Binding UseCustomExportPath}" />
+                            </StackPanel>
+                        </controls:SettingBox>
+                    </StackPanel>
+                </TabItem>
+                <TabItem>
+                    <TabItem.Header>
+                        <controls:MaterialIconText Text="Theme" Icon="Palette" />
+                    </TabItem.Header>
 
-                <StackPanel>
-                    <controls:SettingBox DisplayName="Use Mica (Windows 11)" Path="{Binding UseMica, Mode=TwoWay}" Icon="PaletteSwatch" IsEnabled="{Binding IsWindows11}">
-                        <ToggleSwitch IsChecked="{Binding UseMica}" />
-                    </controls:SettingBox>
-                    <controls:SettingBox DisplayName="Accent Color" Path="{Binding AccentColorHex, Mode=TwoWay}" Icon="FormatPaint">
-                        <ColorPicker Color="{Binding AccentColor}" ColorSpectrumShape="Ring" IsColorPaletteVisible="False" IsAlphaEnabled="False" IsAlphaVisible="False"/>
-                    </controls:SettingBox>
-                    <controls:SettingBox DisplayName="Background Color" Path="{Binding BackgroundColorHex, Mode=TwoWay}" Icon="Brush" IsEnabled="{Binding !UseMica}" >
-                        <ColorPicker Color="{Binding BackgroundColor}" ColorSpectrumShape="Ring" IsColorPaletteVisible="False" IsAlphaEnabled="False" IsAlphaVisible="False"/>
-                    </controls:SettingBox>
-                    <controls:SettingBox DisplayName="Custom Splash Art"
-                                         Path="{Binding CustomSplashArtPath, Mode=TwoWay}" Icon="Folder">
-                        <StackPanel Orientation="Horizontal">
-                            <ToggleSwitch IsChecked="{Binding UseCustomSplashArt}" />
-                            <Button Content="Browse" Command="{Binding BrowseSplashArtPath}"
-                                    IsEnabled="{Binding UseCustomSplashArt}" />
-                        </StackPanel>
-                    </controls:SettingBox>
-                </StackPanel>
-            </TabItem>
-            <TabItem>
-                <TabItem.Header>
-                    <controls:MaterialIconText Text="Loading" Icon="Sync" />
-                </TabItem.Header>
+                    <StackPanel>
+                        <controls:SettingBox DisplayName="Use Mica (Windows 11)" Path="{Binding UseMica, Mode=TwoWay}" Icon="PaletteSwatch" IsEnabled="{Binding IsWindows11}">
+                            <ToggleSwitch IsChecked="{Binding UseMica}" />
+                        </controls:SettingBox>
+                        <controls:SettingBox DisplayName="Accent Color" Path="{Binding AccentColorHex, Mode=TwoWay}" Icon="FormatPaint">
+                            <ColorPicker Color="{Binding AccentColor}" ColorSpectrumShape="Ring" IsColorPaletteVisible="False" IsAlphaEnabled="False" IsAlphaVisible="False"/>
+                        </controls:SettingBox>
+                        <controls:SettingBox DisplayName="Background Color" Path="{Binding BackgroundColorHex, Mode=TwoWay}" Icon="Brush" IsEnabled="{Binding !UseMica}" >
+                            <ColorPicker Color="{Binding BackgroundColor}" ColorSpectrumShape="Ring" IsColorPaletteVisible="False" IsAlphaEnabled="False" IsAlphaVisible="False"/>
+                        </controls:SettingBox>
+                        <controls:SettingBox DisplayName="Custom Splash Art"
+                                             Path="{Binding CustomSplashArtPath, Mode=TwoWay}" Icon="Folder">
+                            <StackPanel Orientation="Horizontal">
+                                <ToggleSwitch IsChecked="{Binding UseCustomSplashArt}" />
+                                <Button Content="Browse" Command="{Binding BrowseSplashArtPath}"
+                                        IsEnabled="{Binding UseCustomSplashArt}" />
+                            </StackPanel>
+                        </controls:SettingBox>
+                    </StackPanel>
+                </TabItem>
+                <TabItem>
+                    <TabItem.Header>
+                        <controls:MaterialIconText Text="Filtering" Icon="Sync" />
+                    </TabItem.Header>
 
-                <StackPanel>
-                    <controls:SettingBox DisplayName="Filter Props" Path="{Binding FilterProps, Mode=TwoWay}"
-                                         ShowIcon="False">
-                        <ToggleSwitch IsChecked="{Binding FilterProps}" />
-                    </controls:SettingBox>
-                    <controls:SettingBox DisplayName="Filter Items" Path="{Binding FilterItems, Mode=TwoWay}"
-                                         ShowIcon="False">
-                        <ToggleSwitch IsChecked="{Binding FilterItems}" />
-                    </controls:SettingBox>
-                    <controls:SettingBox DisplayName="Filter Traps" Path="{Binding FilterTraps, Mode=TwoWay}"
-                                         ShowIcon="False">
-                        <ToggleSwitch IsChecked="{Binding FilterTraps}" />
-                    </controls:SettingBox>
-                </StackPanel>
-            </TabItem>
-        </avalonia:AnimatableTabControl>
+                    <StackPanel>
+                        <controls:SettingBox DisplayName="Filter Props" Path="{Binding FilterProps, Mode=TwoWay}"
+                                             ShowIcon="False">
+                            <ToggleSwitch IsChecked="{Binding FilterProps}" />
+                        </controls:SettingBox>
+                        <controls:SettingBox DisplayName="Filter Items" Path="{Binding FilterItems, Mode=TwoWay}"
+                                             ShowIcon="False">
+                            <ToggleSwitch IsChecked="{Binding FilterItems}" />
+                        </controls:SettingBox>
+                        <controls:SettingBox DisplayName="Filter Traps" Path="{Binding FilterTraps, Mode=TwoWay}"
+                                             ShowIcon="False">
+                            <ToggleSwitch IsChecked="{Binding FilterTraps}" />
+                        </controls:SettingBox>
+                    </StackPanel>
+                </TabItem>
+            </avalonia:AnimatableTabControl>
+            <Button Command="{Binding ResetSettings}" Classes="NoBackground" Margin="{ext:Space 1, 2}" HorizontalAlignment="Left" VerticalAlignment="Bottom">
+                <controls:MaterialIconText Text="Reset Settings" Icon="Delete" />
+            </Button>
+        </Grid>
     </controls:GroupBox>
 </UserControl>

@@ -183,4 +183,10 @@ public partial class SettingsViewModel : ViewModelBase
     {
         if (await BrowseFileDialog() is { } path) CustomSplashArtPath = path;
     }
+    
+    public async Task ResetSettings()
+    {
+        AppSettings.Current = new SettingsViewModel();
+        AppVM.RestartWithMessage("A restart is required.", "To reset all settings, FortnitePorting must be restarted.");
+    }
 }
