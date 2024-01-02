@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.VisualTree;
 using FortnitePorting.Controls.Assets;
 using FortnitePorting.Framework;
 using FortnitePorting.ViewModels;
@@ -35,6 +36,10 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
         if (ViewModel.CurrentLoader.Type == assetType) return;
 
         ViewModel.SetLoader(assetType);
+        if (button.FindAncestorOfType<Expander>() is { } expander)
+        {
+            expander.IsExpanded = false;
+        }
 
         var loaders = ViewModel.Loaders;
         foreach (var loader in loaders)
