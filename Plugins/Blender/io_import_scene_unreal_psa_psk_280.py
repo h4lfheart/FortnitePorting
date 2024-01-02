@@ -1222,26 +1222,47 @@ def pskimport(filepath,
     # Skeleton. Colorize.
 
     if bImportbone:
+        
+        if bpy.app.version < (4, 0, 0):
+        
+            bone_group_unused = armature_obj.pose.bone_groups.new(name = "Unused bones")
+            bone_group_unused.color_set = 'THEME14'
+    
+            bone_group_nochild = armature_obj.pose.bone_groups.new(name = "No children")
+            bone_group_nochild.color_set = 'THEME03'
+    
+            armature_data.show_group_colors = True
+    
+            for psk_bone in psk_bones:
+    
+                pose_bone = armature_obj.pose.bones[psk_bone.name]
+    
+                if psk_bone.have_weight_data:
+    
+                    if len(psk_bone.children) == 0:
+                        pose_bone.bone_group = bone_group_nochild
+    
+                else:
+                    pose_bone.bone_group = bone_group_unused
+        else:
 
-        bone_group_unused = armature_obj.pose.bone_groups.new(name = "Unused bones")
-        bone_group_unused.color_set = 'THEME14'
+            bone_collection_unused = armature_data.collections.new("Unused bones")
+            bone_collection_nochild = armature_data.collections.new("No children")
 
-        bone_group_nochild = armature_obj.pose.bone_groups.new(name = "No children")
-        bone_group_nochild.color_set = 'THEME03'
+            for psk_bone in psk_bones:
 
-        armature_data.show_group_colors = True
+                pose_bone = armature_obj.pose.bones[psk_bone.name]
 
-        for psk_bone in psk_bones:
+                if psk_bone.have_weight_data:
 
-            pose_bone = armature_obj.pose.bones[psk_bone.name]
+                    if len(psk_bone.children) == 0:
+                        bone_collection_nochild.assign(pose_bone)
+                        pose_bone.color.palette = 'THEME03'
 
-            if psk_bone.have_weight_data:
-
-                if len(psk_bone.children) == 0:
-                    pose_bone.bone_group = bone_group_nochild
-
-            else:
-                pose_bone.bone_group = bone_group_unused
+                else:
+                    bone_collection_unused.assign(pose_bone)
+                    pose_bone.color.palette = 'THEME14'
+            
 
 
     #===================================================================================================

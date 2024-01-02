@@ -15,7 +15,7 @@ from io_import_scene_unreal_psa_psk_280 import pskimport, psaimport
 bl_info = {
     "name": "Fortnite Porting",
     "author": "Half",
-    "version": (1, 5, 4),
+    "version": (1, 6, 0),
     "blender": (3, 0, 0),
     "description": "Blender Server for Fortnite Porting",
     "category": "Import",
@@ -77,6 +77,7 @@ class Receiver(threading.Thread):
 
     def run(self):
         host, port = 'localhost', 24280
+        self.socket_server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.socket_server.bind((host, port))
         self.socket_server.settimeout(3.0)
         Log.information(f"FortnitePorting Server Listening at {host}:{port}")
@@ -312,7 +313,7 @@ layered_texture_order = [
 ]
 
 def set_linear(node: bpy.types.ShaderNodeTexImage):
-    for name in ["Linear BT.709", "Linear"]:
+    for name in ["Non-Color"]:
         try:
             node.image.colorspace_settings.name = name
             break
@@ -1020,27 +1021,42 @@ def merge_skeletons(parts):
         socket = part.get("Socket")
         if socket is None:
             continue
+
+        if socket.casefold() == "hat":
+            socket = "head"
             
-        constraint_object(skeleton, master_skeleton, socket)
+        constraint_object(skeleton, master_skeleton, socket, [0, radians(90), 0])
         
   
     return (master_skeleton, constraint_parts)
 
 def apply_tasty_rig(master_skeleton: bpy.types.Armature):
-    ik_group = master_skeleton.pose.bone_groups.new(name='IKGroup')
-    ik_group.color_set = 'THEME01'
-    pole_group = master_skeleton.pose.bone_groups.new(name='PoleGroup')
-    pole_group.color_set = 'THEME06'
-    twist_group = master_skeleton.pose.bone_groups.new(name='TwistGroup')
-    twist_group.color_set = 'THEME09'
-    face_group = master_skeleton.pose.bone_groups.new(name='FaceGroup')
-    face_group.color_set = 'THEME01'
-    dyn_group = master_skeleton.pose.bone_groups.new(name='DynGroup')
-    dyn_group.color_set = 'THEME07'
-    extra_group = master_skeleton.pose.bone_groups.new(name='ExtraGroup')
-    extra_group.color_set = 'THEME10'
-    master_skeleton.pose.bone_groups[0].color_set = "THEME08"
-    master_skeleton.pose.bone_groups[1].color_set = "THEME08"
+    if bpy.app.version < (4, 0, 0):
+        ik_group = master_skeleton.pose.bone_groups.new(name='IKGroup')
+        ik_group.color_set = 'THEME01'
+        pole_group = master_skeleton.pose.bone_groups.new(name='PoleGroup')
+        pole_group.color_set = 'THEME06'
+        twist_group = master_skeleton.pose.bone_groups.new(name='TwistGroup')
+        twist_group.color_set = 'THEME09'
+        face_group = master_skeleton.pose.bone_groups.new(name='FaceGroup')
+        face_group.color_set = 'THEME01'
+        dyn_group = master_skeleton.pose.bone_groups.new(name='DynGroup')
+        dyn_group.color_set = 'THEME07'
+        extra_group = master_skeleton.pose.bone_groups.new(name='ExtraGroup')
+        extra_group.color_set = 'THEME10'
+        master_skeleton.pose.bone_groups[0].color_set = "THEME08"
+        master_skeleton.pose.bone_groups[1].color_set = "THEME08"
+    else:
+        main_group = master_skeleton.data.collections.new("MainGroup")
+        ik_group = master_skeleton.data.collections.new("IKGroup")
+        pole_group = master_skeleton.data.collections.new("PoleGroup")
+        twist_group = master_skeleton.data.collections.new("TwistGroup")
+        face_group = master_skeleton.data.collections.new("FaceGroup")
+        dyn_group = master_skeleton.data.collections.new("DynGroup")
+        extra_group = master_skeleton.data.collections.new("ExtraGroup")
+        for bone in master_skeleton.pose.bones:
+            if bone.color.palette != "DEFAULT":
+                bone.color.palette = "THEME08"
     
     scale_down = import_settings.get("ScaleDown")
     if scale_down is True:
@@ -1318,8 +1334,13 @@ def apply_tasty_rig(master_skeleton: bpy.types.Armature):
     jaw_bones = ["C_jaw", "FACIAL_C_Jaw"]
     face_root_bones = ["faceAttach", "FACIAL_C_FacialRoot"]
     for pose_bone in pose_bones:
-        if pose_bone.bone_group is None:
-            pose_bone.bone_group = extra_group
+        if bpy.app.version < (4, 0, 0):
+            if pose_bone.bone_group is None:
+                pose_bone.bone_group = extra_group
+        else:
+            if len(pose_bone.bone.collections) > 0:
+                extra_group.assign(pose_bone)
+
 
         if not pose_bone.parent: # root
             pose_bone.use_custom_shape_bone_size = False
@@ -1329,38 +1350,60 @@ def apply_tasty_rig(master_skeleton: bpy.types.Armature):
             pose_bone.use_custom_shape_bone_size = False
 
         if 'dyn_' in pose_bone.name:
-            pose_bone.bone_group = dyn_group
+            if bpy.app.version < (4, 0, 0):
+                pose_bone.bone_group = dyn_group
+            else:
+                dyn_group.assign(pose_bone)
 
-        if 'deform_' in pose_bone.name and pose_bone.bone_group_index != 0: # not unused bones
+        if 'deform_' in pose_bone.name: # not unused bones
             pose_bone.custom_shape = bpy.data.objects.get('RIG_Tweak')
             pose_bone.custom_shape_scale_xyz = 0.05, 0.05, 0.05
             pose_bone.use_custom_shape_bone_size = False
-            pose_bone.bone_group = dyn_group
+
+            if bpy.app.version < (4, 0, 0):
+                pose_bone.bone_group = dyn_group
+            else:
+                dyn_group.assign(pose_bone)
 
         if 'twist_' in pose_bone.name:
             pose_bone.custom_shape_scale_xyz = 0.1*scale, 0.1*scale, 0.1*scale
             pose_bone.use_custom_shape_bone_size = False
 
         if any(["eyelid", "eye_lid_"], lambda x: x.casefold() in pose_bone.name.casefold()):
-            pose_bone.bone_group = face_group
+            if bpy.app.version < (4, 0, 0):
+                pose_bone.bone_group = face_group
+            else:
+                face_group.assign(pose_bone)
             continue
 
         if pose_bone.name.casefold().endswith("_eye"):
-            pose_bone.bone_group = extra_group
+            if bpy.app.version < (4, 0, 0):
+                pose_bone.bone_group = extra_group
+            else:
+                extra_group.assign(pose_bone)
             continue
 
         if "FACIAL" in pose_bone.name or pose_bone.parent.name in face_root_bones or pose_bone.parent.name in jaw_bones:
             pose_bone.custom_shape = bpy.data.objects.get('RIG_FaceBone')
-            pose_bone.bone_group = face_group
+            if bpy.app.version < (4, 0, 0):
+                pose_bone.bone_group = face_group
+            else:
+                face_group.assign(pose_bone)
 
         if pose_bone.name in jaw_bones:
-            pose_bone.bone_group = face_group
+            if bpy.app.version < (4, 0, 0):
+                pose_bone.bone_group = face_group
+            else:
+                face_group.assign(pose_bone)
             pose_bone.custom_shape = bpy.data.objects.get('RIG_JawBone')
             pose_bone.custom_shape_scale_xyz = 0.1, 0.1, 0.1
             pose_bone.use_custom_shape_bone_size = False
 
         if pose_bone.name in face_root_bones:
-            pose_bone.bone_group = face_group
+            if bpy.app.version < (4, 0, 0):
+                pose_bone.bone_group = face_group
+            else:
+                face_group.assign(pose_bone)
 
 
     defined_group_bones = {
@@ -1427,7 +1470,10 @@ def apply_tasty_rig(master_skeleton: bpy.types.Armature):
 
     for bone_name, group in defined_group_bones.items():
         if bone := pose_bones.get(bone_name):
-            bone.bone_group = group
+            if bpy.app.version < (4, 0, 0):
+                bone.bone_group = group
+            else:
+                group.assign(bone)
 
     # bone, target, weight
     # copy rotation modifier added to bones
@@ -1566,35 +1612,53 @@ def apply_tasty_rig(master_skeleton: bpy.types.Armature):
 
     # name, layer index
     # maps bone group to layer index
-    bone_groups_to_layer_index = {
-        'IKGroup': 1,
-        'PoleGroup': 1,
-        'TwistGroup': 2,
-        'DynGroup': 3,
-        'FaceGroup': 4,
-        'ExtraGroup': 1
-    }
-
     main_layer_bones = ['upperarm_r', 'lowerarm_r', 'upperarm_l', 'lowerarm_l', 'thigh_r', 'calf_r', 'thigh_l',
-                         'calf_l', 'clavicle_r', 'clavicle_l', 'ball_r', 'ball_l', 'pelvis', 'spine_01',
-                         'spine_02', 'spine_03', 'spine_04', 'spine_05', 'neck_01', 'neck_02', 'head', 'root']
-
-
-    for bone in bones:
-        if bone.name in main_layer_bones:
-            bone.layers[1] = True
-            continue
-
-        if "eye" in bone.name.casefold():
-            bone.layers[4] = True
-            continue
-
-        if group := pose_bones.get(bone.name).bone_group:
-            if group.name in ['Unused bones', 'No children']:
-                bone.layers[5] = True
+                        'calf_l', 'clavicle_r', 'clavicle_l', 'ball_r', 'ball_l', 'pelvis', 'spine_01',
+                        'spine_02', 'spine_03', 'spine_04', 'spine_05', 'neck_01', 'neck_02', 'head', 'root']
+    if bpy.app.version < (4, 0, 0):
+        bone_groups_to_layer_index = {
+            'IKGroup': 1,
+            'PoleGroup': 1,
+            'TwistGroup': 2,
+            'DynGroup': 3,
+            'FaceGroup': 4,
+            'ExtraGroup': 1
+        }
+    
+        for bone in bones:
+            if bone.name in main_layer_bones:
+                bone.layers[1] = True
                 continue
-            index = bone_groups_to_layer_index[group.name]
-            bone.layers[index] = True
+    
+            if "eye" in bone.name.casefold():
+                bone.layers[4] = True
+                continue
+    
+            if group := pose_bones.get(bone.name).bone_group:
+                if group.name in ['Unused bones', 'No children']:
+                    bone.layers[5] = True
+                    continue
+                index = bone_groups_to_layer_index[group.name]
+                bone.layers[index] = True
+    else:
+        for bone in main_layer_bones:
+            if not (pose_bone := pose_bones.get(bone)):
+                continue
+            main_group.assign(pose_bone)
+
+        collection_colors = {
+            extra_group: 'THEME10',
+            ik_group: 'THEME01',
+            pole_group: 'THEME06',
+            twist_group: 'THEME09',
+            face_group: 'THEME01',
+            dyn_group: 'THEME07',
+        }
+
+        for collection, palette in collection_colors.items():
+            for bone in collection.bones:
+                pose_bones[bone.name].color.palette = palette
+        
 
 
 def constraint_object(child: bpy.types.Object, parent: bpy.types.Object, bone: str, rot=[0, 0, 0]):
