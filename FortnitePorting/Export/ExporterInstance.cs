@@ -598,11 +598,13 @@ public class ExporterInstance
             },
             USoundWave => "wav"
         };
-
+        
         var exportPath = GetExportPath(asset, extension);
 
         var returnValue = waitForFinish ? exportPath : asset.GetPathName();
-        if (File.Exists(exportPath) && !(asset is UTexture texture && IsExportTextureHigherRes(texture, exportPath))) return returnValue;
+        if (File.Exists(exportPath) 
+            && !(asset is UTexture texture && IsExportTextureHigherRes(texture, exportPath))
+            && !(asset is USkeletalMesh or UStaticMesh && !File.Exists(GetExportPath(asset, extension, "_LOD0")))) return returnValue;
 
         var exportTask = Task.Run(() =>
         {
@@ -676,12 +678,12 @@ public class ExporterInstance
             }
             case UTexture texture:
             {
+                using var fileStream = File.OpenWrite(exportPath);
+                var textureBitmap = texture.Decode();
                 switch (AppExportOptions.ImageType)
                 {
                     case EImageType.PNG:
                     {
-                        using var fileStream = File.OpenWrite(exportPath);
-                        var textureBitmap = texture.Decode();
                         textureBitmap?.Encode(SKEncodedImageFormat.Png, 100).SaveTo(fileStream); 
                         break;
                     }

@@ -267,6 +267,7 @@ class DataImportTask:
         self.meshes = []
         self.imported_mesh_count = 0
         self.imported_meshes = []
+        self.rig_type = ERigType(self.options.get("RigType"))
 
         import_type = data.get("PrimitiveType")
         match import_type:
@@ -291,8 +292,11 @@ class DataImportTask:
             self.import_model(mesh, collection=self.collection)
 
         if self.type == "Outfit" and self.options.get("MergeSkeletons"):
-            master_skeleton = merge_skeletons(self.imported_meshes)
-            master_mesh = get_armature_mesh(master_skeleton)
+            master_skeleton, master_mesh = merge_skeletons(self.imported_meshes)
+            if self.options.get("MeshDeformFixes"):
+                master_mesh.modifiers[0].use_deform_preserve_volume = True #armature modifier
+                corrective_smooth = master_mesh.modifiers.new(name="Corrective Smooth", type='CORRECTIVE_SMOOTH')
+                corrective_smooth.use_pin_boundary = True
 
             if self.is_toon:
                 # todo custom outline color from mat
@@ -306,9 +310,7 @@ class DataImportTask:
                 solidify.use_flip_normals = True
                 solidify.material_offset = len(master_mesh.data.materials) - 1
 
-
-            rig_type = ERigType(self.options.get("RigType"))
-            if rig_type == ERigType.TASTY:
+            if self.rig_type == ERigType.TASTY:
                 apply_tasty_rig(master_skeleton, 1 if self.options.get("ScaleDown") else 100)
 
 
@@ -399,7 +401,7 @@ class DataImportTask:
             imported_object = bpy.data.objects.new(object_name, existing_mesh_data)
             collection.objects.link(imported_object)
         else:
-            imported_object = self.import_mesh(mesh.get("Path"))
+            imported_object = self.import_mesh(mesh.get("Path"), mesh.get("NumLods"))
             imported_object.name = object_name
 
         if self.type in ["World", "Prefab"]:
@@ -443,6 +445,12 @@ class DataImportTask:
                             key.value = 1.0
             case _:
                 meta = {}
+
+        if self.options.get("UseQuads"):
+            bpy.context.view_layer.objects.active = imported_mesh
+            bpy.ops.object.mode_set(mode='EDIT')
+            bpy.ops.mesh.tris_convert_to_quads(uvs=True)
+            bpy.ops.object.mode_set(mode='OBJECT')
 
         meta["TextureData"] = mesh.get("TextureData")
         meta["OverrideParameters"] = self.override_parameters
@@ -817,14 +825,17 @@ class DataImportTask:
 
         return bpy.data.images.load(texture_path, check_existing=True)
 
-    def import_mesh(self, path: str):
-        path = path[1:] if path.startswith("/") else path
-        mesh_path = os.path.join(self.assets_folder, path.split(".")[0] + ".uemodel")
-        
+    def import_mesh(self, path: str, num_lods):
         options = UEModelOptions(scale_factor=0.01 if self.options.get("ScaleDown") else 1,
                                  reorient_bones=self.options.get("ReorientBones"),
                                  bone_length=self.options.get("BoneSize"))
 
+        path = path[1:] if path.startswith("/") else path
+        
+        lod_mesh_path = os.path.join(self.assets_folder, path.split(".")[0] + f"_LOD{str(min(num_lods - 1, self.options.get('LevelOfDetail')))}" + ".uemodel")
+        normal_mesh_path = os.path.join(self.assets_folder, path.split(".")[0] + ".uemodel")
+        mesh_path = lod_mesh_path if os.path.exists(lod_mesh_path) else normal_mesh_path
+        
         return UEFormatImport(options).import_file(mesh_path)
 
     def import_anim(self, path: str, override_skeleton=None):
@@ -1013,6 +1024,7 @@ def merge_skeletons(parts):
 
     bpy.ops.object.join()
     master_skeleton = bpy.context.active_object
+    master_mesh = get_armature_mesh(bpy.context.active_object)
     bpy.ops.object.select_all(action='DESELECT')
 
     # merge meshes
@@ -1066,7 +1078,7 @@ def merge_skeletons(parts):
 
         constraint_object(skeleton, master_skeleton, socket)
 
-    return master_skeleton
+    return master_skeleton, master_mesh
 
 class LazyInit:
     

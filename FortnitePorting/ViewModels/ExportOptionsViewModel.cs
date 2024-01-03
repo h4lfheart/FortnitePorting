@@ -97,16 +97,15 @@ public partial class BlenderExportOptions : ExportOptionsBase
     public bool IsTastyRig => RigType == ERigType.Tasty;
     [ObservableProperty] private bool mergeSkeletons = true;
     [ObservableProperty] private bool reorientBones = false;
-    [ObservableProperty] private bool hideFaceBones = false;
     [ObservableProperty] private float boneSize = 4f;
 
     [ObservableProperty] private ESupportedLODs levelOfDetail = ESupportedLODs.LOD0;
     [ObservableProperty] private bool useQuads = false;
-    [ObservableProperty] private bool preserveVolume = false;
+    [ObservableProperty] private bool meshDeformFixes = false;
 
     [ObservableProperty] private float ambientOcclusion = 0.0f;
     [ObservableProperty] private float cavity = 0.0f;
-    [ObservableProperty] private float subsurface = 0.0f;
+    [ObservableProperty] private float subsurface = 0.04f;
     [ObservableProperty] private float toonBrightness = 1.0f;
 
     [ObservableProperty] private bool importSounds = true;

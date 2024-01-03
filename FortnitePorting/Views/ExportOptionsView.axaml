@@ -50,10 +50,6 @@
                                                  Path="{Binding Blender.ReorientBones, Mode=TwoWay}" Icon="Bone">
                                 <ToggleSwitch IsChecked="{Binding Blender.ReorientBones}" />
                             </controls:SettingBox>
-                            <controls:SettingBox DisplayName="Hide Face Bones"
-                                                 Path="{Binding Blender.HideFaceBones, Mode=TwoWay}" Icon="BoneOff">
-                                <ToggleSwitch IsChecked="{Binding Blender.HideFaceBones}" />
-                            </controls:SettingBox>
                             <controls:SettingBox DisplayName="Bone Length"
                                                  Path="{Binding Blender.BoneSize, StringFormat=N2}"
                                                  Icon="ArrowTopRightBottomLeft">
@@ -84,10 +80,10 @@
                                                  Icon="VectorSquare">
                                 <ToggleSwitch IsChecked="{Binding Blender.UseQuads}" />
                             </controls:SettingBox>
-                            <controls:SettingBox DisplayName="Preserve Mesh Volume"
-                                                 Path="{Binding Blender.PreserveVolume, Mode=TwoWay}"
+                            <controls:SettingBox DisplayName="Preserve Volume + Smooth Corrective"
+                                                 Path="{Binding Blender.MeshDeformFixes, Mode=TwoWay}"
                                                  Icon="CubeOutline">
-                                <ToggleSwitch IsChecked="{Binding Blender.PreserveVolume}" />
+                                <ToggleSwitch IsChecked="{Binding Blender.MeshDeformFixes}" />
                             </controls:SettingBox>
 
                             <Label Content="Materials" FontSize="28" FontWeight="SemiBold" Margin="8 0 0 0"
@@ -160,7 +156,7 @@
                                                  Icon="FolderZip">
                                 <ComboBox
                                     ItemsSource="{ext:EnumToItemsSource {x:Type enums:EFileCompressionFormat}}"
-                                    SelectedItem="{Binding Unreal.CompressionFormat, Converter={StaticResource EnumToString}}" />
+                                    SelectedItem="{Binding Unreal.CompressionFormat, Converter={StaticResource EnumToString}}" Width="150"/>
                             </controls:SettingBox>
                             <controls:SettingBox DisplayName="Level of Detail"
                                                  Path="{Binding Unreal.LevelOfDetail, Mode=TwoWay}" Icon="CubeScan">
