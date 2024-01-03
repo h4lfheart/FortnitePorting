@@ -311,7 +311,7 @@ class DataImportTask:
                 solidify.material_offset = len(master_mesh.data.materials) - 1
 
             if self.rig_type == ERigType.TASTY:
-                apply_tasty_rig(master_skeleton, 1 if self.options.get("ScaleDown") else 100)
+                apply_tasty_rig(master_skeleton, 1 if self.options.get("ScaleDown") else 100, self.options.get("UseFingerIK"))
 
 
     def import_anim_data(self, data, override_skeleton=None):
@@ -1096,10 +1096,10 @@ class LazyInit:
         return self.data
 
 
-def apply_tasty_rig(master_skeleton, scale):
+def apply_tasty_rig(master_skeleton, scale, use_finger_ik = True):
     master_skeleton["is_tasty_rig"] = True
     armature_data = master_skeleton.data
-    armature_data["Use Finger IK"] = True
+    armature_data["Use Finger IK"] = use_finger_ik
 
     main_collection = armature_data.collections.new("Main Bones")
     ik_collection = armature_data.collections.new("IK Bones")
@@ -1671,5 +1671,22 @@ def apply_tasty_rig(master_skeleton, scale):
         if not (bone := bones.get(bone_name)): continue
         bone.hide = True
 
+    conditional_hide_bones = {
+        "ik_finger_thumb_r": not use_finger_ik,
+        "ik_finger_index_r": not use_finger_ik,
+        "ik_finger_middle_r": not use_finger_ik,
+        "ik_finger_ring_r": not use_finger_ik,
+        "ik_finger_pinky_r": not use_finger_ik,
+    
+        "ik_finger_thumb_l": not use_finger_ik,
+        "ik_finger_index_l": not use_finger_ik,
+        "ik_finger_middle_l": not use_finger_ik,
+        "ik_finger_ring_l": not use_finger_ik,
+        "ik_finger_pinky_l": not use_finger_ik,
+    }
+
+    for bone_name, condition in conditional_hide_bones.items():
+        if not (bone := bones.get(bone_name)): continue
+        bone.hide = condition
 
     bpy.ops.object.mode_set(mode='OBJECT')

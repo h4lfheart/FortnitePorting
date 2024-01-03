@@ -50,6 +50,10 @@
                                                  Path="{Binding Blender.ReorientBones, Mode=TwoWay}" Icon="Bone">
                                 <ToggleSwitch IsChecked="{Binding Blender.ReorientBones}" />
                             </controls:SettingBox>
+                            <controls:SettingBox IsEnabled="{Binding Blender.IsTastyRig}" DisplayName="Use Finger IK"
+                                                 Path="{Binding Blender.UseFingerIK, Mode=TwoWay}" Icon="HandBackLeft">
+                                <ToggleSwitch IsChecked="{Binding Blender.UseFingerIK}" />
+                            </controls:SettingBox>
                             <controls:SettingBox DisplayName="Bone Length"
                                                  Path="{Binding Blender.BoneSize, StringFormat=N2}"
                                                  Icon="ArrowTopRightBottomLeft">
