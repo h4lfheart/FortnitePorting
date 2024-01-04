@@ -51,15 +51,15 @@
                                 <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
 
-                            <TextBlock Grid.Row="0" FontSize="28" FontWeight="SemiBold" Text="Having Issues?"
+                            <TextBlock Grid.Row="0" FontSize="28" FontWeight="SemiBold" Text="Helpful Links"
                                        TextWrapping="Wrap" />
-                            <Grid Grid.Row="2">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="{ext:Space 1}" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <Button Grid.Column="0" Command="{Binding OpenDiscordCommand}">
+                            <ItemsControl Grid.Row="2">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <Button Command="{Binding OpenDiscordCommand}" Margin="{ext:Space 0.25}">
                                     <StackPanel Orientation="Horizontal">
                                         <Svg Path="/Assets/Icons/Discord.svg" Width="16" Height="16" Margin="0 0 8 0"
                                              Stretch="UniformToFill" HorizontalAlignment="Center"
@@ -67,11 +67,20 @@
                                         <TextBlock Text="Join the Support Server" />
                                     </StackPanel>
                                 </Button>
-                                <Button Grid.Column="2" Command="{Binding OpenFAQCommand}">
+                                <Button Command="{Binding OpenKoFi}" Margin="{ext:Space 0.25}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Svg Path="/Assets/Icons/KoFi.svg" Width="16" Height="16" Margin="0 0 8 0"
+                                             Stretch="UniformToFill" HorizontalAlignment="Center"
+                                             VerticalAlignment="Center" />
+                                        <TextBlock Text="Support the Project" />
+                                    </StackPanel>
+                                </Button>
+                                <Button Command="{Binding OpenFAQCommand}" Margin="{ext:Space 0.25}">
                                     <controls:MaterialIconText Text="Open Frequently Asked Questions"
                                                                Icon="QuestionMark" />
                                 </Button>
-                            </Grid>
+                                
+                            </ItemsControl>
                         </Grid>
                     </controls:GroupBox>
                     <TransitioningContentControl Content="{Binding CurrentFeaturedArt}">

@@ -129,6 +129,11 @@ public class MeshExportData : ExportDataBase
             }
             case EAssetType.Prefab:
             {
+                if (asset.TryGetValue(out ULevelSaveRecord baseSaveRecord, "LevelSaveRecord"))
+                {
+                    Meshes.AddRange(Exporter.LevelSaveRecord(baseSaveRecord));
+                }
+                
                 var recordCollectionLazy = asset.GetOrDefault<FPackageIndex?>("PlaysetPropLevelSaveRecordCollection");
                 if (recordCollectionLazy is null || recordCollectionLazy.IsNull || !recordCollectionLazy.TryLoad(out var recordCollection) || recordCollection is null) break;
 

@@ -294,6 +294,8 @@ class DataImportTask:
         self.imported_mesh_count = 0
         self.imported_meshes = []
         self.rig_type = ERigType(self.options.get("RigType"))
+        
+        bpy.ops.object.mode_set(mode='OBJECT')
 
         import_type = data.get("PrimitiveType")
         match import_type:
@@ -320,7 +322,8 @@ class DataImportTask:
             self.import_model(mesh, collection=self.collection)
 
         if self.type == "Outfit" and self.options.get("MergeSkeletons"):
-            master_skeleton, master_mesh = merge_skeletons(self.imported_meshes)
+            master_skeleton = merge_skeletons(self.imported_meshes)
+            master_mesh = get_armature_mesh(master_skeleton)
             if self.options.get("MeshDeformFixes"):
                 master_mesh.modifiers[0].use_deform_preserve_volume = True #armature modifier
                 corrective_smooth = master_mesh.modifiers.new(name="Corrective Smooth", type='CORRECTIVE_SMOOTH')
@@ -1199,7 +1202,7 @@ def merge_skeletons(parts):
 
         constraint_object(skeleton, master_skeleton, socket)
 
-    return master_skeleton, master_mesh
+    return master_skeleton
 
 class LazyInit:
     

@@ -88,4 +88,10 @@ public partial class HomeViewModel : ViewModelBase
     {
         // TODO MAKE FAQ
     }
+    
+    [RelayCommand]
+    public void OpenKoFi()
+    {
+        Launch(Globals.KOFI_URL);
+    }
 }

@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using ATL;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CSCore;
@@ -111,6 +112,13 @@ public partial class RadioViewModel : ViewModelBase
         
         var wavPath = Path.Combine(AudioCacheFolder.FullName, $"{sound.Name}.wav");
         if (!File.Exists(wavPath) && !SoundExtensions.TryConvertAudio(sound, wavPath)) return;
+        /*var track = new Track(wavPath)
+        {
+            Title = songPicker.Title,
+            Description = songPicker.Description,
+            Artist = "Epic Games"
+        };
+        track.Save();*/
         
         SoundSource = new WaveFileReader(new FileStream(wavPath, FileMode.Open, FileAccess.Read));
         
