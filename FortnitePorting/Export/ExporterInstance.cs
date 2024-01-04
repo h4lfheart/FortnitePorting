@@ -14,6 +14,7 @@ using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.Component.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Component.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Material;
+using CUE4Parse.UE4.Assets.Exports.Material.Editor;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
@@ -511,12 +512,22 @@ public class ExporterInstance
                 {
                     if (exportMaterial.ComponentMasks.Any(x => x.Name == param.Name)) continue;
 
-                    var color = new FLinearColor(
-                        param.R ? 1.0f : 0.0f,
-                        param.G ? 1.0f : 0.0f,
-                        param.B ? 1.0f : 0.0f,
-                        param.A ? 1.0f : 0.0f);
-                    exportMaterial.ComponentMasks.AddUnique(new ComponentMaskParameter(param.Name, color));
+                    exportMaterial.ComponentMasks.AddUnique(new ComponentMaskParameter(param.Name, param.ToLinearColor()));
+                }
+            }
+            
+            if (materialInstance.TryLoadEditorData<UMaterialInstanceEditorOnlyData>(out var materialInstanceEditorData) && materialInstanceEditorData?.StaticParameters is not null)
+            {
+                foreach (var parameter in materialInstanceEditorData.StaticParameters.StaticSwitchParameters)
+                {
+                    if (parameter.ParameterInfo is null) continue;
+                    exportMaterial.Switches.AddUnique(new SwitchParameter(parameter.Name, parameter.Value));
+                }
+
+                foreach (var parameter in materialInstanceEditorData.StaticParameters.StaticComponentMaskParameters)
+                {
+                    if (parameter.ParameterInfo is null) continue;
+                    exportMaterial.ComponentMasks.AddUnique(new ComponentMaskParameter(parameter.Name, parameter.ToLinearColor()));
                 }
             }
 

@@ -11,6 +11,7 @@ namespace FortnitePorting.Extensions;
 
 public class HybridFileProvider : AbstractVfsFileProvider
 {
+    private readonly bool IsOptionalLoader;
     private readonly DirectoryInfo WorkingDirectory;
     private readonly IEnumerable<DirectoryInfo> ExtraDirectories;
     private const bool CaseInsensitive = true;
@@ -22,10 +23,11 @@ public class HybridFileProvider : AbstractVfsFileProvider
     }
 
     // Local + Custom
-    public HybridFileProvider(string directory, List<DirectoryInfo>? extraDirectories = null, VersionContainer? version = null) : base(CaseInsensitive, version)
+    public HybridFileProvider(string directory, List<DirectoryInfo>? extraDirectories = null, VersionContainer? version = null, bool isOptionalLoader = false) : base(CaseInsensitive, version)
     {
         WorkingDirectory = new DirectoryInfo(directory);
         ExtraDirectories = (extraDirectories ?? []).Where(directory => directory.Exists);
+        IsOptionalLoader = isOptionalLoader;
     }
 
     public override void Initialize()
@@ -45,9 +47,12 @@ public class HybridFileProvider : AbstractVfsFileProvider
         {
             var extension = file.Extension.SubstringAfter('.').ToLower();
             if (extension is not ("pak" or "utoc")) continue;
-            if (file.Name.Contains(".o.")) continue; // no optional segments pls !!
 
-            RegisterVfs(file.FullName, new Stream[] { file.OpenRead() }, it => new FStreamArchive(it, File.OpenRead(it), Versions));
+            if (file.Name.Contains("global")|| IsOptionalLoader && file.Name.Contains(".o.") || !IsOptionalLoader && !file.Name.Contains(".o."))
+            {
+                RegisterVfs(file.FullName, new Stream[] { file.OpenRead() }, it => new FStreamArchive(it, File.OpenRead(it), Versions));
+            }
+
         }
     }
 }

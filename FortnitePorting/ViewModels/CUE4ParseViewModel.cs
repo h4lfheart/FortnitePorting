@@ -38,6 +38,13 @@ public class CUE4ParseViewModel : ViewModelBase
         ELoadingType.Live => new HybridFileProvider(LatestVersionContainer),
         ELoadingType.Custom => new HybridFileProvider(AppSettings.Current.CustomArchivePath, ExtraDirectories, new VersionContainer(AppSettings.Current.CustomUnrealVersion))
     };
+    
+    public readonly HybridFileProvider OptionalProvider = AppSettings.Current.LoadingType switch
+    {
+        ELoadingType.Local => new HybridFileProvider(AppSettings.Current.LocalArchivePath,  version: LatestVersionContainer, isOptionalLoader: true),
+        ELoadingType.Live => new HybridFileProvider(LatestVersionContainer),
+        ELoadingType.Custom => new HybridFileProvider(AppSettings.Current.CustomArchivePath, version: new VersionContainer(AppSettings.Current.CustomUnrealVersion), isOptionalLoader: true)
+    };
 
     public Manifest? FortniteLive;
     public readonly List<FAssetData> AssetRegistry = [];
@@ -79,6 +86,7 @@ public class CUE4ParseViewModel : ViewModelBase
             case ELoadingType.Custom:
             {
                 Provider.Initialize();
+                OptionalProvider.Initialize();
                 break;
             }
             case ELoadingType.Live:
@@ -165,12 +173,18 @@ public class CUE4ParseViewModel : ViewModelBase
 
                 AppSettings.Current.LastAesResponse = aes;
                 await Provider.SubmitKeyAsync(Globals.ZERO_GUID, new FAesKey(aes.MainKey));
-                foreach (var key in aes.DynamicKeys) await Provider.SubmitKeyAsync(new FGuid(key.GUID), new FAesKey(key.Key));
+                await OptionalProvider.SubmitKeyAsync(Globals.ZERO_GUID, new FAesKey(aes.MainKey));
+                foreach (var key in aes.DynamicKeys)
+                {
+                    await Provider.SubmitKeyAsync(new FGuid(key.GUID), new FAesKey(key.Key));
+                    await OptionalProvider.SubmitKeyAsync(new FGuid(key.GUID), new FAesKey(key.Key));
+                }
                 break;
             }
             case ELoadingType.Custom:
             {
                 await Provider.SubmitKeyAsync(Globals.ZERO_GUID, new FAesKey(AppSettings.Current.CustomEncryptionKey));
+                await OptionalProvider.SubmitKeyAsync(Globals.ZERO_GUID, new FAesKey(AppSettings.Current.CustomEncryptionKey));
                 // TODO Extra Custom Keys
                 break;
             }
@@ -188,6 +202,7 @@ public class CUE4ParseViewModel : ViewModelBase
                 if (mappingsPath is null) return;
 
                 Provider.MappingsContainer = new FileUsmapTypeMappingsProvider(mappingsPath);
+                OptionalProvider.MappingsContainer = new FileUsmapTypeMappingsProvider(mappingsPath);
                 Log.Information("Loaded Mappings: {Path}", mappingsPath);
                 break;
             }
@@ -195,6 +210,7 @@ public class CUE4ParseViewModel : ViewModelBase
             {
                 if (!File.Exists(AppSettings.Current.CustomMappingsPath)) return; // optional
                 Provider.MappingsContainer = new FileUsmapTypeMappingsProvider(AppSettings.Current.CustomMappingsPath);
+                OptionalProvider.MappingsContainer = new FileUsmapTypeMappingsProvider(AppSettings.Current.CustomMappingsPath);
                 Log.Information("Loaded Mappings: {Path}", AppSettings.Current.CustomMappingsPath);
                 break;
             }

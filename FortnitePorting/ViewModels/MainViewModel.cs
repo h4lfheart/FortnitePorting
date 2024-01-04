@@ -102,6 +102,7 @@ public partial class MainViewModel : ViewModelBase
 
     private void Update()
     {
+        AppSettings.Save();
         TaskService.Run(() =>
         {
             EndpointsVM.DownloadFile(AvailableUpdate.DownloadUrl, "FortnitePorting.temp.exe");

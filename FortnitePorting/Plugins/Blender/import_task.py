@@ -3,6 +3,7 @@ import os
 import json
 import re
 import bmesh
+import traceback
 from enum import Enum
 from math import radians
 from mathutils import Matrix, Vector, Euler, Quaternion
@@ -15,11 +16,12 @@ class ERigType(Enum):
     TASTY = 1
 
 class MappingCollection:
-    def __init__(self, textures=(), scalars=(), vectors=(), switches=()):
+    def __init__(self, textures=(), scalars=(), vectors=(), switches=(), component_masks=()):
         self.textures = textures
         self.scalars = scalars
         self.vectors = vectors
         self.switches = switches
+        self.component_masks = component_masks
 
 
 class SlotMapping:
@@ -77,6 +79,7 @@ default_mappings = MappingCollection(
     ],
     vectors=[
         SlotMapping("Skin Boost Color And Exponent", "Skin Color", alpha_slot="Skin Boost"),
+        SlotMapping("SkinTint", "Skin Color", alpha_slot="Skin Boost"),
         SlotMapping("EmissiveMultiplier", "Emission Multiplier"),
         SlotMapping("Emissive Multiplier", "Emission Multiplier")
     ],
@@ -235,6 +238,25 @@ foliage_mappings = MappingCollection(
         SlotMapping("Color1_Base"),
         SlotMapping("Color2_Lit"),
         SlotMapping("Color3_Shadows")
+    ]
+)
+
+gradient_mappings = MappingCollection(
+    textures=[
+        SlotMapping("Diffuse"),
+        SlotMapping("Layer Mask", alpha_slot="Layer Mask Alpha"),
+        SlotMapping("SkinFX_Mask"),
+        SlotMapping("Layer1_Gradient"),
+        SlotMapping("Layer2_Gradient"),
+        SlotMapping("Layer3_Gradient"),
+        SlotMapping("Layer4_Gradient"),
+        SlotMapping("Layer5_Gradient"),
+    ],
+    switches=[
+        SlotMapping("use Alpha Channel as mask", "Use Layer Mask Alpha")
+    ],
+    component_masks=[
+        SlotMapping("GmapSkinCustomization_Channel")
     ]
 )
 
@@ -572,7 +594,6 @@ class DataImportTask:
 
 
         # parameters
-        hide_element_values = {}
         unused_parameter_offset = 0
         socket_mappings = default_mappings
 
@@ -588,7 +609,7 @@ class DataImportTask:
                 return None
             return found.get("Value")
 
-        def texture_param(data):
+        def texture_param(data, target_mappings, target_node = shader_node, add_unused_params = False):
             try:
                 name = data.get("Name")
                 path = data.get("Value")
@@ -600,90 +621,126 @@ class DataImportTask:
                 node.interpolation = "Smart"
                 node.hide = True
 
-                if (mappings := first(socket_mappings.textures, lambda x: x.name == name)) is None:
-                    nonlocal unused_parameter_offset
-                    node.label = name
-                    node.location = 400, unused_parameter_offset
-                    unused_parameter_offset -= 50
+                mappings = first(target_mappings.textures, lambda x: x.name == name)
+                if mappings is None:
+                    if add_unused_params:
+                        nonlocal unused_parameter_offset
+                        node.label = name
+                        node.location = 400, unused_parameter_offset
+                        unused_parameter_offset -= 50
                     return
 
-                x, y = get_socket_pos(shader_node, shader_node.inputs.find(mappings.slot))
+                x, y = get_socket_pos(target_node, target_node.inputs.find(mappings.slot))
                 node.location = x - 300, y
-                links.new(node.outputs[0], shader_node.inputs[mappings.slot])
+                links.new(node.outputs[0], target_node.inputs[mappings.slot])
 
                 if mappings.alpha_slot:
-                    links.new(node.outputs[1], shader_node.inputs[mappings.alpha_slot])
+                    links.new(node.outputs[1], target_node.inputs[mappings.alpha_slot])
                 if mappings.switch_slot:
-                    shader_node.inputs[mappings.switch_slot].default_value = 1 if value else 0
+                    target_node.inputs[mappings.switch_slot].default_value = 1 if value else 0
                 if mappings.coords != "UV0":
                     uv = nodes.new(type="ShaderNodeUVMap")
                     uv.location = node.location.x - 250, node.location.y
                     uv.uv_map = mappings.coords
                     links.new(uv.outputs[0], node.inputs[0])
             except Exception as e:
-                print(e)
+                traceback.print_exc()
 
-        def scalar_param(data):
+        def scalar_param(data, target_mappings, target_node = shader_node, add_unused_params = False):
             try:
                 name = data.get("Name")
                 value = data.get("Value")
-
-                if "Hide Element" in name:
-                    hide_element_values[name] = value
-                    return
-                if (mappings := first(socket_mappings.scalars, lambda x: x.name == name)) is None:
-                    nonlocal unused_parameter_offset
-                    node = nodes.new(type="ShaderNodeValue")
-                    node.outputs[0].default_value = value
-                    node.label = name
-                    node.width = 250
-                    node.location = 400, unused_parameter_offset
-                    unused_parameter_offset -= 100
+                
+                mappings = first(target_mappings.scalars, lambda x: x.name == name)
+                if mappings is None:
+                    if add_unused_params:
+                        nonlocal unused_parameter_offset
+                        node = nodes.new(type="ShaderNodeValue")
+                        node.outputs[0].default_value = value
+                        node.label = name
+                        node.width = 250
+                        node.location = 400, unused_parameter_offset
+                        unused_parameter_offset -= 100
                     return
 
                 value = mappings.value_func(value) if mappings.value_func else value
-                shader_node.inputs[mappings.slot].default_value = value
+                target_node.inputs[mappings.slot].default_value = value
                 if mappings.switch_slot:
-                    shader_node.inputs[mappings.switch_slot].default_value = 1 if value else 0
+                    target_node.inputs[mappings.switch_slot].default_value = 1 if value else 0
             except Exception as e:
-                print(e)
+                traceback.print_exc()
 
-        def vector_param(data):
+        def vector_param(data, target_mappings, target_node = shader_node, add_unused_params = False):
             try:
                 name = data.get("Name")
                 value = data.get("Value")
 
-                if (mappings := first(socket_mappings.vectors, lambda x: x.name == name)) is None:
-                    nonlocal unused_parameter_offset
-                    node = nodes.new(type="ShaderNodeRGB")
-                    node.outputs[0].default_value = (value["R"], value["G"], value["B"], value["A"])
-                    node.label = name
-                    node.width = 250
-                    node.location = 400, unused_parameter_offset
-                    unused_parameter_offset -= 200
+                mappings = first(target_mappings.vectors, lambda x: x.name == name)
+                if mappings is None:
+                    if add_unused_params:
+                        nonlocal unused_parameter_offset
+                        node = nodes.new(type="ShaderNodeRGB")
+                        node.outputs[0].default_value = (value["R"], value["G"], value["B"], value["A"])
+                        node.label = name
+                        node.width = 250
+                        node.location = 400, unused_parameter_offset
+                        unused_parameter_offset -= 200
                     return
 
                 value = mappings.value_func(value) if mappings.value_func else value
-                shader_node.inputs[mappings.slot].default_value = (value["R"], value["G"], value["B"], 1.0)
+                target_node.inputs[mappings.slot].default_value = (value["R"], value["G"], value["B"], 1.0)
                 if mappings.alpha_slot:
-                    shader_node.inputs[mappings.alpha_slot].default_value = value["A"]
+                    target_node.inputs[mappings.alpha_slot].default_value = value["A"]
                 if mappings.switch_slot:
-                    shader_node.inputs[mappings.switch_slot].default_value = 1 if value else 0
+                    target_node.inputs[mappings.switch_slot].default_value = 1 if value else 0
             except Exception as e:
-                print(e)
+                traceback.print_exc()
 
-        def switch_param(data):
+        def component_mask_param(data, target_mappings, target_node = shader_node, add_unused_params = False):
+            try:
+                name = data.get("Name")
+                value = data.get("Value")
+                
+                mappings = first(target_mappings.component_masks, lambda x: x.name == name)
+                if mappings is None:
+                    if add_unused_params:
+                        nonlocal unused_parameter_offset
+                        node = nodes.new(type="ShaderNodeRGB")
+                        node.outputs[0].default_value = (value["R"], value["G"], value["B"], value["A"])
+                        node.label = name
+                        node.width = 250
+                        node.location = 400, unused_parameter_offset
+                        unused_parameter_offset -= 200
+                    return
+
+                value = mappings.value_func(value) if mappings.value_func else value
+                target_node.inputs[mappings.slot].default_value = (value["R"], value["G"], value["B"], value["A"])
+            except Exception as e:
+                traceback.print_exc()
+
+        def switch_param(data, target_mappings, target_node = shader_node, add_unused_params = False):
             try:
                 name = data.get("Name")
                 value = data.get("Value")
 
-                if (mappings := first(socket_mappings.switches, lambda x: x.name == name)) is None:
+                mappings = first(target_mappings.switches, lambda x: x.name == name)
+                if mappings is None:
+                    if add_unused_params:
+                        nonlocal unused_parameter_offset
+                        node = nodes.new("ShaderNodeGroup")
+                        node.node_tree = bpy.data.node_groups.get("FP Switch")
+                        node.inputs[0].default_value = 1 if value else 0
+                        node.label = name
+                        node.width = 250
+                        node.location = 400, unused_parameter_offset
+                        unused_parameter_offset -= 125
                     return
 
+
                 value = mappings.value_func(value) if mappings.value_func else value
-                shader_node.inputs[mappings.slot].default_value = 1 if value else 0
+                target_node.inputs[mappings.slot].default_value = 1 if value else 0
             except Exception as e:
-                print(e)
+                traceback.print_exc()
                 
         layer_switch_names = ["Use 2 Layers", "Use 3 Layers", "Use 4 Layers", "Use 5 Layers", "Use 6 Layers", "Use 7 Layers",
             "Use 2 Materials", "Use 3 Materials", "Use 4 Materials", "Use 5 Materials", "Use 6 Materials", "Use 7 Materials",
@@ -715,18 +772,24 @@ class DataImportTask:
             replace_shader_node("FP Foliage")
             socket_mappings = foliage_mappings
             material.use_sss_translucency = True
+            
+        def setup_params(mappings, target_node, add_unused_params = False):
+            for texture in textures:
+                texture_param(texture, mappings, target_node, add_unused_params)
+    
+            for scalar in scalars:
+                scalar_param(scalar, mappings, target_node, add_unused_params)
+    
+            for vector in vectors:
+                vector_param(vector, mappings, target_node, add_unused_params)
+    
+            for component_mask in component_masks:
+                component_mask_param(component_mask, mappings, target_node, add_unused_params)
+    
+            for switch in switches:
+                switch_param(switch, mappings, target_node, add_unused_params)
 
-        for texture in textures:
-            texture_param(texture)
-
-        for scalar in scalars:
-            scalar_param(scalar)
-
-        for vector in vectors:
-            vector_param(vector)
-
-        for switch in switches:
-            switch_param(switch)
+        setup_params(socket_mappings, shader_node, True)
 
         links.new(shader_node.outputs[0], output_node.inputs[0])
 
@@ -773,7 +836,12 @@ class DataImportTask:
                 links.new(color_node.outputs[0], mask_node.inputs[0])
                 links.new(mask_node.outputs[0], shader_node.inputs["Alpha"])
 
-                for name, value in hide_element_values.items():
+                for scalar in scalars:
+                    name = scalar.get("Name")
+                    value = scalar.get("Value")
+                    if not "Hide Element" in scalar:
+                        continue
+                        
                     if input := mask_node.inputs.get(name.replace("Hide ", "")):
                         input.default_value = int(value)
 
@@ -806,6 +874,33 @@ class DataImportTask:
             if get_param(switches, "Modulate Emissive with Diffuse"):
                 diffuse_node = shader_node.inputs["Diffuse"].links[0].from_node
                 links.new(diffuse_node.outputs[0], shader_node.inputs["Emission Multiplier"])
+                
+            if get_param(switches, "useGmapGradientLayers"):
+                gradient_node = nodes.new(type="ShaderNodeGroup")
+                gradient_node.node_tree = bpy.data.node_groups.get("FP Gradient")
+                gradient_node.location = -500, 0
+                nodes.remove(shader_node.inputs["Diffuse"].links[0].from_node)
+                links.new(gradient_node.outputs[0], shader_node.inputs[0])
+                
+                gmap_node = nodes.new("ShaderNodeValue")
+                gmap_node.location = -1000, -120
+                gmap_node.outputs[0].default_value = 1
+                
+                setup_params(gradient_mappings, gradient_node)
+                
+                for item in gradient_node.node_tree.interface.items_tree:
+                    if item.name != "Colors":
+                        continue
+                        
+                    panel_items = item.interface_items
+                    for panel_item in panel_items:
+                        item_links = gradient_node.inputs[panel_item.name].links
+                        if len(item_links) == 0:
+                            continue
+                        links.new(gmap_node.outputs[0], item_links[0].from_node.inputs[0])
+                        
+                    
+                
 
         if shader_node.node_tree.name == "FP Toon":
             shader_node.inputs["Brightness"].default_value = self.options.get("ToonBrightness")
