@@ -1,5 +1,6 @@
 using System;
 using DiscordRPC;
+using FortnitePorting.Framework.Extensions;
 using Serilog;
 
 namespace FortnitePorting.Services;
@@ -20,7 +21,7 @@ public static class DiscordService
         Assets = new Assets
         {
             LargeImageText = $"Fortnite Porting v{Globals.VersionString}",
-            LargeImageKey = "v2-icon"
+            LargeImageKey = "logo"
         },
         Buttons = new[]
         {
@@ -55,5 +56,29 @@ public static class DiscordService
         Client.Deinitialize();
         Client.Dispose();
         IsInitialized = false;
+    }
+
+    public static void Update(EAssetType assetType)
+    {
+        if (!IsInitialized) return;
+
+        Client.UpdateState($"Browsing {assetType.GetDescription()}");
+        Client.UpdateSmallAsset(assetType.ToString().ToLower(), assetType.GetDescription());
+    }
+
+    public static void Update(string name, string iconKey)
+    {
+        if (!IsInitialized) return;
+
+        Client.UpdateState($"Browsing {name}");
+        Client.UpdateSmallAsset(iconKey, name);
+    }
+    
+    public static void UpdateMusic(string name)
+    {
+        if (!IsInitialized) return;
+
+        Client.UpdateState($"Listening to \"{name}\"");
+        Client.UpdateSmallAsset("music", "Music");
     }
 }

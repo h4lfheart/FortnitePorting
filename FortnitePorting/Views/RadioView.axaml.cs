@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using FortnitePorting.Framework;
+using FortnitePorting.Services;
 using FortnitePorting.ViewModels;
 
 namespace FortnitePorting.Views;
@@ -17,6 +18,8 @@ public partial class RadioView : ViewBase<RadioViewModel>
     protected override async void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
+        
+        DiscordService.Update("Music", "music");
 
         await ViewModel.Initialize();
     }

@@ -7,6 +7,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using FortnitePorting.Framework;
+using FortnitePorting.Services;
 using FortnitePorting.ViewModels;
 
 namespace FortnitePorting.Views;
@@ -21,6 +22,8 @@ public partial class FilesView : ViewBase<FilesViewModel>
     protected override async void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
+        
+        DiscordService.Update("Files", "files");
 
         await ViewModel.LoadFiles();
     }

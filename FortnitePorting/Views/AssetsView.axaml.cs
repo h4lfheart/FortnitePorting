@@ -7,6 +7,7 @@ using Avalonia.Interactivity;
 using Avalonia.VisualTree;
 using FortnitePorting.Controls.Assets;
 using FortnitePorting.Framework;
+using FortnitePorting.Services;
 using FortnitePorting.ViewModels;
 
 namespace FortnitePorting.Views;
@@ -16,6 +17,13 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
     public AssetsView() : base(initialize: false)
     {
         InitializeComponent();
+    }
+
+    protected override void OnLoaded(RoutedEventArgs e)
+    {
+        base.OnLoaded(e);
+        
+        DiscordService.Update(ViewModel.CurrentLoader?.Type ?? EAssetType.Outfit);
     }
 
     private void OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -35,6 +43,7 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
 
         if (ViewModel.CurrentLoader.Type == assetType) return;
 
+        DiscordService.Update(assetType);
         ViewModel.SetLoader(assetType);
         if (button.FindAncestorOfType<Expander>() is { } expander)
         {

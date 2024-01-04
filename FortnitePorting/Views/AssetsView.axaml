@@ -190,7 +190,7 @@
                         </Button>
                         <Button ToolTip.Tip="Emotes" Tag="{x:Static fortnitePorting:EAssetType.Emote}"
                                       Click="OnAssetTypeClick">
-                            <Image Source="/Assets/FN/Dance.png" Width="32" Height="32"
+                            <Image Source="/Assets/FN/Emote.png" Width="32" Height="32"
                                    RenderOptions.BitmapInterpolationMode="HighQuality" />
                         </Button>
                     </ItemsControl>
@@ -288,27 +288,27 @@
                         
                         <Button ToolTip.Tip="Mics" Tag="{x:Static fortnitePorting:EAssetType.FestivalMic}"
                                 Click="OnAssetTypeClick">
-                            <Image Source="/Assets/FN/Mic.png" Width="32" Height="32"
+                            <Image Source="/Assets/FN/FestivalMic.png" Width="32" Height="32"
                                    RenderOptions.BitmapInterpolationMode="HighQuality" />
                         </Button>
                         <Button ToolTip.Tip="Guitars" Tag="{x:Static fortnitePorting:EAssetType.FestivalGuitar}"
                                 Click="OnAssetTypeClick">
-                            <Image Source="/Assets/FN/Guitar.png" Width="32" Height="32"
+                            <Image Source="/Assets/FN/FestivalGuitar.png" Width="32" Height="32"
                                    RenderOptions.BitmapInterpolationMode="HighQuality" />
                         </Button>
                         <Button ToolTip.Tip="Basses" Tag="{x:Static fortnitePorting:EAssetType.FestivalBass}"
                                 Click="OnAssetTypeClick">
-                            <Image Source="/Assets/FN/Bass.png" Width="32" Height="32"
+                            <Image Source="/Assets/FN/FestivalBass.png" Width="32" Height="32"
                                    RenderOptions.BitmapInterpolationMode="HighQuality" />
                         </Button>
                         <Button ToolTip.Tip="Keyboards" Tag="{x:Static fortnitePorting:EAssetType.FestivalKeytar}"
                                 Click="OnAssetTypeClick">
-                            <Image Source="/Assets/FN/Keytar.png" Width="32" Height="32"
+                            <Image Source="/Assets/FN/FestivalKeytar.png" Width="32" Height="32"
                                    RenderOptions.BitmapInterpolationMode="HighQuality" />
                         </Button>
                         <Button ToolTip.Tip="Drums" Tag="{x:Static fortnitePorting:EAssetType.FestivalDrum}"
                                 Click="OnAssetTypeClick">
-                            <Image Source="/Assets/FN/DrumSticks.png" Width="32" Height="32"
+                            <Image Source="/Assets/FN/FestivalDrum.png" Width="32" Height="32"
                                    RenderOptions.BitmapInterpolationMode="HighQuality" />
                         </Button>
                     </ItemsControl>

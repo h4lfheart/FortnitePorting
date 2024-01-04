@@ -120,6 +120,8 @@ public partial class RadioViewModel : ViewModelBase
         SoundOut.Initialize(SoundSource);
         SoundOut.Play();
         SoundOut.Volume = Volume;
+        
+        DiscordService.UpdateMusic(songPicker.Title);
     }
 
     public void SetVolume(float value)

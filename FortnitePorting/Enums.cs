@@ -85,19 +85,19 @@ public enum EAssetType
     
     // FESTIVAL
     
-    [Description("Guitar"), Export(EExportType.Mesh)]
+    [Description("Guitars"), Export(EExportType.Mesh)]
     FestivalGuitar,
     
-    [Description("Bass"), Export(EExportType.Mesh)]
+    [Description("Basses"), Export(EExportType.Mesh)]
     FestivalBass,
     
-    [Description("Keytar"), Export(EExportType.Mesh)]
+    [Description("Keytars"), Export(EExportType.Mesh)]
     FestivalKeytar,
     
-    [Description("Drum"), Export(EExportType.Mesh)]
+    [Description("Drums"), Export(EExportType.Mesh)]
     FestivalDrum,
     
-    [Description("Mic"), Export(EExportType.Mesh)]
+    [Description("Microphones"), Export(EExportType.Mesh)]
     FestivalMic,
     
     // GENERIC
