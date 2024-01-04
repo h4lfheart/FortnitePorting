@@ -66,6 +66,7 @@ public partial class BlenderPluginViewModel : ViewModelBase
     
     public async Task Sync(BlenderInstallInfo installInfo, bool automatic = false)
     {
+        installInfo.Update();
         var currentPluginVersion = await GetPluginVersion();
         if (installInfo.PluginVersion.Equals(currentPluginVersion) && automatic) return;
         
@@ -123,9 +124,9 @@ public partial class BlenderPluginViewModel : ViewModelBase
         // todo kill process button for messageWindow? add ability to append custom buttons to stuff at bottom
         var blenderProcesses = Process.GetProcessesByName("blender");
         var foundProcess = blenderProcesses.FirstOrDefault(process => process.MainModule?.FileName.Equals(path.Replace("/", "\\")) ?? false);
-        if (foundProcess is not null && !automatic)
+        if (foundProcess is not null)
         {
-            MessageWindow.Show("Cannot Sync Plugin", $"An instance of blender is open. Please close it to sync the plugin.\n\nPath: \"{path}\"\nPID: {foundProcess.Id}");
+            MessageWindow.Show("Cannot Sync Plugin", automatic ? $"FortnitePorting tried to auto sync the plugin, but an instance of blender is open. Please close it and sync the plugin in the plugin tab.\n\nPath: \"{path}\"\nPID: {foundProcess.Id}" : $"An instance of blender is open. Please close it to sync the plugin.\n\nPath: \"{path}\"\nPID: {foundProcess.Id}");
             return true;
         }
 
@@ -179,6 +180,6 @@ public partial class BlenderInstallInfo : ObservableObject
     public static string GetPluginVersion(string text)
     {
         var versionMatch = Regex.Match(text, @"""version"": \((.*)\)");
-        return versionMatch.Groups[^1].Value.Replace(", ", ".");
+        return versionMatch.Groups[^1].Value.Replace(", ", ".").Replace("\"", string.Empty);
     }
 }

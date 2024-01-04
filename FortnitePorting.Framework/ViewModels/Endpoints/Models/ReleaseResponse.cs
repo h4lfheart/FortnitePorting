@@ -27,12 +27,11 @@ public class FPVersion
 
     public FPVersion(string inVersion)
     {
-        var versioningSplit = inVersion.Split("-");
-        var mainVersioning = versioningSplit[0].Split(".");
+        var mainVersioning = inVersion.Split(".");
         Major = int.Parse(mainVersioning[0]);
         Minor = int.Parse(mainVersioning[1]);
         Patch = int.Parse(mainVersioning[2]);
-        SubVersion = versioningSplit[1];
+        SubVersion = mainVersioning[3];
     }
 
     public FPVersion(int major = 2, int minor = 0, int patch = 0, string subversion = "")
@@ -65,7 +64,7 @@ public class FPVersion
 
     public override string ToString()
     {
-        var subVersionString = string.IsNullOrWhiteSpace(SubVersion) ? string.Empty : $"-{SubVersion}";
+        var subVersionString = string.IsNullOrWhiteSpace(SubVersion) ? string.Empty : $".{SubVersion}";
         return $"{Major}.{Minor}.{Patch}{subVersionString}";
     }
 
