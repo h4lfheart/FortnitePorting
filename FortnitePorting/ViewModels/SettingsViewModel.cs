@@ -15,6 +15,7 @@ using CUE4Parse.Utils;
 using FortnitePorting.Application;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
+using FortnitePorting.Framework.Extensions;
 using FortnitePorting.Services;
 using FortnitePorting.Framework.Services;
 using FortnitePorting.Framework.ViewModels.Endpoints.Models;
@@ -48,6 +49,7 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private AesResponse? lastAesResponse;
 
     // Program
+    [ObservableProperty] private bool showConsole = true;
     [ObservableProperty] private DateTime lastUpdateAskTime = DateTime.Now.Subtract(TimeSpan.FromDays(1));
     [ObservableProperty] private FPVersion lastKnownUpdateVersion = Globals.Version;
     [ObservableProperty] private bool useTabTransition = true;
@@ -144,6 +146,11 @@ public partial class SettingsViewModel : ViewModelBase
                 HomeVM.SplashArtSource = UseCustomSplashArt ? new Bitmap(CustomSplashArtPath) : HomeVM.DefaultHomeImage;
                 break;
             }
+            case nameof(ShowConsole):
+            {
+                ConsoleExtensions.ToggleConsole(ShowConsole);
+                break;
+            }
         }
         
         if (IsRestartRequired && !PromptedRestartRequired)
@@ -188,5 +195,10 @@ public partial class SettingsViewModel : ViewModelBase
     {
         AppSettings.Current = new SettingsViewModel();
         AppVM.RestartWithMessage("A restart is required.", "To reset all settings, FortnitePorting must be restarted.");
+    }
+    
+    public async Task OpenLogsFolder()
+    {
+        Launch(LogsFolder.FullName);
     }
 }

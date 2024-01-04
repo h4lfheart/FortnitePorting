@@ -45,9 +45,6 @@ public class App : AppBase
 
     protected static void OnStartup(object? sender, ControlledApplicationLifetimeStartupEventArgs e)
     {
-        ConsoleExtensions.AllocConsole();
-        Console.Title = $"Fortnite Porting Console v{Globals.VersionString}";
-        CUE4Parse.Globals.WarnMissingImportPackage = false;
         ObjectTypeRegistry.RegisterEngine(typeof(URegisterThisUObject).Assembly);
         Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
 
@@ -57,6 +54,7 @@ public class App : AppBase
             .CreateLogger();
 
         AppSettings.Load();
+        if (AppSettings.Current.ShowConsole) ConsoleExtensions.AllocConsole();
 
         AssetsFolder.Create();
         DataFolder.Create();

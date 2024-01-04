@@ -92,6 +92,10 @@
                     </TabItem.Header>
 
                     <StackPanel>
+                        <controls:SettingBox DisplayName="Show Console" Path="{Binding ShowConsole, Mode=TwoWay}"
+                                             Icon="Console">
+                            <ToggleSwitch IsChecked="{Binding ShowConsole}" />
+                        </controls:SettingBox>
                         <controls:SettingBox DisplayName="Tab Transitions" Path="{Binding UseTabTransition, Mode=TwoWay}"
                                              Icon="Transition">
                             <ToggleSwitch IsChecked="{Binding UseTabTransition}" />
@@ -156,9 +160,15 @@
                     </StackPanel>
                 </TabItem>
             </avalonia:AnimatableTabControl>
-            <Button Command="{Binding ResetSettings}" Classes="NoBackground" Margin="{ext:Space 1, 2}" HorizontalAlignment="Left" VerticalAlignment="Bottom">
-                <controls:MaterialIconText Text="Reset Settings" Icon="Delete" />
-            </Button>
+            <StackPanel HorizontalAlignment="Left" VerticalAlignment="Bottom" Orientation="Vertical"
+                        Margin="{ext:Space 1}">
+                <Button Command="{Binding OpenLogsFolder}" Classes="NoBackground" Margin="{ext:Space 1}">
+                    <controls:MaterialIconText Text="Open Logs" Icon="FileDocument" />
+                </Button>
+                <Button Command="{Binding ResetSettings}" Classes="NoBackground" Margin="{ext:Space 1}">
+                    <controls:MaterialIconText Text="Reset Settings" Icon="Delete" />
+                </Button>
+            </StackPanel>
         </Grid>
     </controls:GroupBox>
 </UserControl>
