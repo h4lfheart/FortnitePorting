@@ -137,6 +137,14 @@
                                                  Icon="Resize">
                                 <ToggleSwitch IsChecked="{Binding Blender.UpdateTimelineLength}" />
                             </controls:SettingBox>
+                            
+                            <Label Content="Textures" FontSize="28" FontWeight="SemiBold" Margin="8 0 0 0"
+                                   HorizontalAlignment="Left" VerticalAlignment="Center" />
+                            <controls:SettingBox DisplayName="Import Type"
+                                                 Path="{Binding Blender.TextureExportType, Mode=TwoWay}" Icon="TextureBox">
+                                <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:ETextureExportTypes}}"
+                                          SelectedItem="{Binding Blender.TextureExportType, Converter={StaticResource EnumToString}}" />
+                            </controls:SettingBox>
                         </StackPanel>
                     </ScrollViewer>
                 </TabItem>

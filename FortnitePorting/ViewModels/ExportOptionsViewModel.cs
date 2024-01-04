@@ -112,6 +112,9 @@ public partial class BlenderExportOptions : ExportOptionsBase
     [ObservableProperty] private bool importSounds = true;
     [ObservableProperty] private bool loopAnimation = false;
     [ObservableProperty] private bool updateTimelineLength = false;
+    
+    
+    [ObservableProperty] private ETextureExportTypes textureExportType = ETextureExportTypes.Plane;
 
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
     {

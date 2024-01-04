@@ -140,7 +140,7 @@
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
 
-                        <Button Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <Button Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Command="{Binding Preview}">
                             <controls:MaterialIconText Text="Preview" Icon="CubeScan" HorizontalAlignment="Center"
                                                        VerticalAlignment="Center" />
                         </Button>

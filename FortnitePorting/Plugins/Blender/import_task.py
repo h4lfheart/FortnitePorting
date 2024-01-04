@@ -15,6 +15,10 @@ class ERigType(Enum):
     DEFAULT = 0
     TASTY = 1
 
+class ETextureExportTypes(Enum):
+    DATA = 0
+    PLANE = 1
+
 class MappingCollection:
     def __init__(self, textures=(), scalars=(), vectors=(), switches=(), component_masks=()):
         self.textures = textures
@@ -297,6 +301,8 @@ class DataImportTask:
                 self.import_mesh_data(data)
             case "Animation":
                 self.import_anim_data(data)
+            case "Texture":
+                self.import_texture_data(data)
     def import_mesh_data(self, data):
         self.override_materials = data.get("OverrideMaterials")
         self.override_parameters = data.get("OverrideParameters")
@@ -409,6 +415,22 @@ class DataImportTask:
             for sound in data.get("Sounds"):
                 path = sound.get("Path")
                 self.import_sound(path, time_to_frame(sound.get("Time")))
+                
+                
+    def import_texture_data(self, data):
+        import_type = ETextureExportTypes(self.options.get("TextureExportType"))
+        path = data.get("Path")
+        
+        match import_type:
+            case ETextureExportTypes.DATA:
+                self.import_image(path)
+            case ETextureExportTypes.PLANE:
+                if "io_import_images_as_planes" not in bpy.context.preferences.addons:
+                    bpy.ops.preferences.addon_enable(module='io_import_images_as_planes')
+
+                path, name = self.format_image_path(path)
+                bpy.ops.import_image.to_plane(shader="EMISSION", files=[{"name": path}])
+        
 
     def import_model(self, mesh, collection=None, parent=None):
         mesh_type = mesh.get("Type")
@@ -905,20 +927,24 @@ class DataImportTask:
         if shader_node.node_tree.name == "FP Toon":
             shader_node.inputs["Brightness"].default_value = self.options.get("ToonBrightness")
             self.is_toon = True
-
-    def import_image(self, path: str):
+            
+            
+    def format_image_path(self, path: str):
         path, name = path.split(".")
-        if existing := bpy.data.images.get(name):
-            return existing
-
         path = path[1:] if path.startswith("/") else path
         ext = "png"
         texture_path = os.path.join(self.assets_folder, path + "." + ext)
+        return texture_path, name
 
-        if not os.path.exists(texture_path):
+    def import_image(self, path: str):
+        path, name = self.format_image_path(path)
+        if existing := bpy.data.images.get(name):
+            return existing
+
+        if not os.path.exists(path):
             return None
 
-        return bpy.data.images.load(texture_path, check_existing=True)
+        return bpy.data.images.load(path, check_existing=True)
 
     def import_mesh(self, path: str, num_lods):
         options = UEModelOptions(scale_factor=0.01 if self.options.get("ScaleDown") else 1,

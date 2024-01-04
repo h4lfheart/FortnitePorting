@@ -209,3 +209,12 @@ public enum EAnimExportTypes
     [Description(".psa")]
     ActorX
 }
+
+public enum ETextureExportTypes
+{
+    [Description("Blend Data")]
+    Data,
+
+    [Description("Images as Planes")]
+    Plane
+}

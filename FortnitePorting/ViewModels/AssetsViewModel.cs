@@ -41,12 +41,8 @@ public partial class AssetsViewModel : ViewModelBase
 
     [ObservableProperty] private ObservableCollection<AssetOptions> currentAssets = new();
 
-    public bool IsFolderOnlyExport => CurrentAssetType is EAssetType.LoadingScreen or EAssetType.Spray or EAssetType.Banner or EAssetType.Emoticon;
-
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(IsFolderOnlyExport))]
+    [ObservableProperty]
     private EAssetType currentAssetType;
-
-    [ObservableProperty] private ObservableCollection<EExportTargetType> folderExportEnumCollection = new(new[] { EExportTargetType.Folder });
 
     [ObservableProperty] private int exportChunks;
     [ObservableProperty] private int exportProgress;
@@ -421,7 +417,7 @@ public partial class AssetsViewModel : ViewModelBase
         ExportChunks = 1;
         ExportProgress = 0;
         IsExporting = true;
-        await ExportService.ExportAsync(CurrentAssets.ToList(), IsFolderOnlyExport ? EExportTargetType.Folder : ExportType);
+        await ExportService.ExportAsync(CurrentAssets.ToList(), ExportType);
         IsExporting = false;
     }
 

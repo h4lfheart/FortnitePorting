@@ -8,6 +8,8 @@ namespace FortnitePorting.Export.Types;
 
 public class TextureExportData : ExportDataBase
 {
+    public string Path;
+    
     private static readonly Dictionary<EAssetType, string> TextureNames = new()
     {
         { EAssetType.Spray, "DecalTexture" },
@@ -19,7 +21,15 @@ public class TextureExportData : ExportDataBase
     public TextureExportData(string name, UObject asset, FStructFallback[] styles, EAssetType type, EExportTargetType exportType) : base(name, asset, styles, type, EExportType.Texture, exportType)
     {
         var texture = asset as UTexture ?? asset.Get<UTexture2D>(TextureNames[type]);
-        var exportPath = Exporter.Export(texture, true);
-        Launch(Path.GetDirectoryName(exportPath)!);
+        if (exportType == EExportTargetType.Folder)
+        {
+            var exportPath = Exporter.Export(texture, true);
+            Launch(System.IO.Path.GetDirectoryName(exportPath)!);
+        }
+        else
+        {
+            Path = Exporter.Export(texture);
+        }
+        
     }
 }

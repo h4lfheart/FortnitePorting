@@ -20,6 +20,7 @@ using FortnitePorting.Application;
 using FortnitePorting.Controls.Avalonia;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
+using FortnitePorting.Framework.Controls;
 using FortnitePorting.Framework.Extensions;
 using FortnitePorting.Services;
 using FortnitePorting.Framework.Services;
@@ -228,6 +229,11 @@ public partial class FilesViewModel : ViewModelBase
             ScanPercentage = 100.0f;
             AppVM.RestartWithMessage("File Scanning Completed", "The file scanning process has finished. FortnitePorting will now restart.");
         });
+    }
+
+    public async Task Preview()
+    {
+        MessageWindow.Show("Not Implemented Yet", "The file previewer has not been implemented yet.");
     }
 
     public void TreeViewJumpTo(string directory)
