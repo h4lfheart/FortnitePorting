@@ -160,8 +160,7 @@
                     </StackPanel>
                 </TabItem>
             </avalonia:AnimatableTabControl>
-            <StackPanel HorizontalAlignment="Left" VerticalAlignment="Bottom" Orientation="Vertical"
-                        Margin="{ext:Space 1}">
+            <StackPanel HorizontalAlignment="Left" VerticalAlignment="Bottom" Orientation="Vertical" Margin="{ext:Space 1, 2}">
                 <Button Command="{Binding OpenLogsFolder}" Classes="NoBackground" Margin="{ext:Space 1}">
                     <controls:MaterialIconText Text="Open Logs" Icon="FileDocument" />
                 </Button>

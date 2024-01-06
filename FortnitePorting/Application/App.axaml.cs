@@ -45,6 +45,7 @@ public class App : AppBase
 
     protected static void OnStartup(object? sender, ControlledApplicationLifetimeStartupEventArgs e)
     {
+        CUE4Parse.Globals.WarnMissingImportPackage = false;
         ObjectTypeRegistry.RegisterEngine(typeof(URegisterThisUObject).Assembly);
         Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
 

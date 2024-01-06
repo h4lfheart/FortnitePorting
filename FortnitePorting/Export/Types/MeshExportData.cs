@@ -227,6 +227,12 @@ public class MeshExportData : ExportDataBase
                 Meshes.AddIfNotNull(Exporter.Mesh(wildlifeMesh));
                 break;
             }
+            case EAssetType.WeaponMod:
+            {
+                var mesh = asset.GetOrDefault<UStaticMesh?>("PickupStaticMesh");
+                Meshes.AddIfNotNull(Exporter.Mesh(mesh));
+                break;
+            }
             case EAssetType.Mesh:
             {
                 switch (asset)

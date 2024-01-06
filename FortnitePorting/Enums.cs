@@ -82,6 +82,9 @@ public enum EAssetType
 
     [Description("Wildlife"), Export(EExportType.Mesh)]
     Wildlife,
+        
+    [Description("Weapon Mods"), Export(EExportType.Mesh)]
+    WeaponMod,
     
     // FESTIVAL
     

@@ -32,7 +32,11 @@ public partial class HomeViewModel : ViewModelBase
 
     public override async Task Initialize()
     {
-        SplashArtSource = AppSettings.Current.UseCustomSplashArt ? new Bitmap(AppSettings.Current.CustomSplashArtPath) : DefaultHomeImage;
+        TaskService.Run(() =>
+        {
+            SplashArtSource = AppSettings.Current.UseCustomSplashArt ? new Bitmap(AppSettings.Current.CustomSplashArtPath) : DefaultHomeImage;
+        });
+        
         TaskService.Run(async () =>
         {
             var changelogEntries = await EndpointsVM.FortnitePorting.GetChangelogsAsync();

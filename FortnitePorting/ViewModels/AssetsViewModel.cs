@@ -350,7 +350,13 @@ public partial class AssetsViewModel : ViewModelBase
                     }
                 }
             },
-            
+            new(EAssetType.WeaponMod)
+            {
+                Classes = ["FortWeaponModItemDefinition", "FortWeaponModItemDefinitionMagazine", "FortWeaponModItemDefinitionOptic"],
+                Filters = ["WMID_Default_IronSights", "WMID_Default_Magazine"],
+                IconHandler = asset => asset.GetOrDefault<UTexture2D>("LargePreviewImage"),
+                HideRarity = true
+            },
             new(EAssetType.FestivalGuitar)
             {
                 Classes = new[] { "SparksGuitarItemDefinition" },

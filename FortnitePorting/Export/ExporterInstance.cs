@@ -428,19 +428,20 @@ public class ExporterInstance
         var hash = material.GetPathName().GetHashCode();
         if (MaterialCache.FirstOrDefault(mat => mat.Hash == hash) is { } existing) return existing.Copy<T>() with { Slot = index };
 
-        var absoluteParent = GetAbsoluteParent(material);
         var exportMaterial = new T
         {
             Path = material.GetPathName(),
             Name = material.Name,
             Slot = index,
             Hash = hash,
-            AbsoluteParent = absoluteParent?.Name,
-            UseGlassMaterial = absoluteParent is { BlendMode: EBlendMode.BLEND_Translucent, TranslucencyLightingMode: ETranslucencyLightingMode.TLM_SurfacePerPixelLighting or ETranslucencyLightingMode.TLM_VolumetricPerVertexDirectional },
-            UseFoliageMaterial = absoluteParent is { BlendMode: EBlendMode.BLEND_Masked, ShadingModel: EMaterialShadingModel.MSM_TwoSidedFoliage or EMaterialShadingModel.MSM_Subsurface }
         };
 
         AccumulateParameters(material, ref exportMaterial);
+
+        exportMaterial.AbsoluteParent = exportMaterial.AbsoluteParentMaterial?.Name;
+        exportMaterial.UseGlassMaterial = exportMaterial.AbsoluteParentMaterial is { BlendMode: EBlendMode.BLEND_Translucent, TranslucencyLightingMode: ETranslucencyLightingMode.TLM_SurfacePerPixelLighting or ETranslucencyLightingMode.TLM_VolumetricPerVertexDirectional } || material.Name.Contains("Glass", StringComparison.OrdinalIgnoreCase);
+        exportMaterial.UseFoliageMaterial = exportMaterial.AbsoluteParentMaterial is { BlendMode: EBlendMode.BLEND_Masked, ShadingModel: EMaterialShadingModel.MSM_TwoSidedFoliage or EMaterialShadingModel.MSM_Subsurface };
+        
         MaterialCache.Add(exportMaterial);
         return exportMaterial;
     }
@@ -535,6 +536,7 @@ public class ExporterInstance
         }
         else if (materialInterface is UMaterial material)
         {
+            exportMaterial.AbsoluteParentMaterial = material;
             // TODO NORMAL MAT ACCUMULATION
         }
     }
@@ -615,7 +617,7 @@ public class ExporterInstance
         var returnValue = waitForFinish ? exportPath : asset.GetPathName();
         if (File.Exists(exportPath) 
             && !(asset is UTexture texture && IsExportTextureHigherRes(texture, exportPath))
-            && !(asset is USkeletalMesh or UStaticMesh && !File.Exists(GetExportPath(asset, extension, "_LOD0")))) return returnValue;
+            && !(asset is USkeletalMesh or UStaticMesh && FileExportOptions.LodFormat == ELodFormat.AllLods && !File.Exists(GetExportPath(asset, extension, "_LOD0")))) return returnValue;
 
         var exportTask = Task.Run(() =>
         {

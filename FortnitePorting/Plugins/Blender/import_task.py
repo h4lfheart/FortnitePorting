@@ -294,8 +294,9 @@ class DataImportTask:
         self.imported_mesh_count = 0
         self.imported_meshes = []
         self.rig_type = ERigType(self.options.get("RigType"))
-        
-        bpy.ops.object.mode_set(mode='OBJECT')
+
+        if bpy.context.mode != "OBJECT":
+            bpy.ops.object.mode_set(mode='OBJECT')
 
         import_type = data.get("PrimitiveType")
         match import_type:

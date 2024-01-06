@@ -42,7 +42,6 @@ public partial class MainViewModel : ViewModelBase
             UpdateText = "Check for\nUpdates";
         }
         
-        
         ViewModelRegistry.Register<CUE4ParseViewModel>();
         await CUE4ParseVM.Initialize();
 

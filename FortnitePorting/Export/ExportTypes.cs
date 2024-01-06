@@ -1,6 +1,8 @@
 using System.Collections.Generic;
+using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Objects.Core.Math;
+using Newtonsoft.Json;
 
 namespace FortnitePorting.Export;
 
@@ -61,7 +63,10 @@ public class ExportHatMeta : ExportAttachMeta
 
 public record ExportParameterContainer
 {
+    [JsonIgnore] public UMaterial? AbsoluteParentMaterial;
+    
     public int Hash;
+    public string? AbsoluteParent;
     public List<TextureParameter> Textures = new();
     public List<ScalarParameter> Scalars = new();
     public List<VectorParameter> Vectors = new();
@@ -73,7 +78,6 @@ public record ExportMaterial : ExportParameterContainer
 {
     public string Path;
     public string Name;
-    public string? AbsoluteParent;
     // TODO do the logic for this upon import, not export
     public bool UseGlassMaterial;
     public bool UseFoliageMaterial;

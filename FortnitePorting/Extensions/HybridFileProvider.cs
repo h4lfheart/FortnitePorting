@@ -15,19 +15,19 @@ public class HybridFileProvider : AbstractVfsFileProvider
     private readonly DirectoryInfo WorkingDirectory;
     private readonly IEnumerable<DirectoryInfo> ExtraDirectories;
     private const bool CaseInsensitive = true;
-    private static readonly SearchOption SearchOption = SearchOption.AllDirectories;
+    private const SearchOption SearchOption = System.IO.SearchOption.AllDirectories;
 
-    // Live
-    public HybridFileProvider(VersionContainer? version = null) : base(CaseInsensitive, version)
+    public HybridFileProvider(VersionContainer? version = null)  : base(CaseInsensitive, version)
     {
+        SkipReferencedTextures = true;
     }
 
-    // Local + Custom
-    public HybridFileProvider(string directory, List<DirectoryInfo>? extraDirectories = null, VersionContainer? version = null, bool isOptionalLoader = false) : base(CaseInsensitive, version)
+    public HybridFileProvider(string directory, List<DirectoryInfo>? extraDirectories = null, VersionContainer? version = null, bool isOptionalLoader = false) : this(version)
     {
         WorkingDirectory = new DirectoryInfo(directory);
         ExtraDirectories = (extraDirectories ?? []).Where(directory => directory.Exists);
         IsOptionalLoader = isOptionalLoader;
+        SkipReferencedTextures = true;
     }
 
     public override void Initialize()
