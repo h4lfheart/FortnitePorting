@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Avalonia.Collections;
+using Avalonia.Controls;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -13,10 +14,12 @@ using CUE4Parse.GameTypes.FN.Enums;
 using CUE4Parse.UE4.AssetRegistry.Objects;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Engine;
+using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.Engine;
+using CUE4Parse.UE4.Objects.GameplayTags;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using DynamicData;
@@ -353,9 +356,59 @@ public partial class AssetsViewModel : ViewModelBase
             new(EAssetType.WeaponMod)
             {
                 Classes = ["FortWeaponModItemDefinition", "FortWeaponModItemDefinitionMagazine", "FortWeaponModItemDefinitionOptic"],
-                Filters = ["WMID_Default_IronSights", "WMID_Default_Magazine"],
-                IconHandler = asset => asset.GetOrDefault<UTexture2D>("LargePreviewImage"),
-                HideRarity = true
+                CustomLoadingHandler = async loader =>
+                {
+                    var weaponModTable = await CUE4ParseVM.Provider.LoadObjectAsync<UDataTable>("WeaponMods/DataTables/WeaponModOverrideData");
+                    var assets = CUE4ParseVM.AssetRegistry.Where(data => loader.Classes.Contains(data.AssetClass.Text)).ToList();
+
+                    loader.Total = assets.Count;
+                    foreach (var data in assets)
+                    {
+                        await loader.Pause.WaitIfPaused();
+                        try
+                        {
+                            var asset = await CUE4ParseVM.Provider.TryLoadObjectAsync(data.ObjectPath);
+                            if (asset is null) continue;
+                            
+                            var icon = asset.GetOrDefault<UTexture2D>("LargePreviewImage");
+                            var tag = asset.GetOrDefault<FGameplayTag>("PluginTuningTag");
+                            
+                            var defaultModData = asset.GetOrDefault<FStructFallback?>("DefaultModData");
+                            var mainModMeshData = defaultModData?.GetOrDefault<FStructFallback?>("MeshData");
+                            var mainModMesh = mainModMeshData?.GetOrDefault<UStaticMesh?>("ModMesh");
+                            
+                            var overridesAdded = 0;
+                            foreach (var weaponModData in weaponModTable.RowMap.Values)
+                            {
+                                var weaponModTag = weaponModData.GetOrDefault<FGameplayTag>("ModTag");
+                                if (!tag.ToString().Equals(weaponModTag.ToString())) continue;
+
+                                var modMeshData = weaponModData.GetOrDefault<FStructFallback>("ModMeshData");
+                                var modMesh = modMeshData.GetOrDefault<UStaticMesh?>("ModMesh");
+                                modMesh ??= mainModMesh;
+                                if (modMesh is null) continue;
+                                
+                                var name = modMesh.Name;
+                                if (loader.LoadedAssetsForFiltering.Contains(name)) continue;
+
+                                await TaskService.RunDispatcherAsync(() => loader.Source.Add(new AssetItem(modMesh, icon, name, EAssetType.WeaponMod, hideRarity: true, useTitleCase: false)), DispatcherPriority.Background);
+                                loader.LoadedAssetsForFiltering.Add(name);
+                                overridesAdded++;
+                            }
+
+                            if (overridesAdded == 0 && mainModMesh is not null)
+                            {
+                                await TaskService.RunDispatcherAsync(() => loader.Source.Add(new AssetItem(mainModMesh, icon, mainModMesh.Name, EAssetType.WeaponMod, hideRarity: true, useTitleCase: false)), DispatcherPriority.Background);
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            Log.Error("{0}", e);
+                        }
+                    }
+
+                    loader.Loaded = loader.Total;
+                }
             },
             new(EAssetType.FestivalGuitar)
             {

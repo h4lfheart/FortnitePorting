@@ -42,7 +42,7 @@ public partial class AssetItem : UserControl
     public Bitmap PreviewImage { get; set; }
 
 
-    public AssetItem(UObject asset, UTexture2D icon, string displayName, EAssetType type, bool isHidden = false, bool hideRarity = false, EFortRarity? rarityOverride = null)
+    public AssetItem(UObject asset, UTexture2D icon, string displayName, EAssetType type, bool isHidden = false, bool hideRarity = false, EFortRarity? rarityOverride = null, bool useTitleCase = true)
     {
         DataContext = this;
         InitializeComponent();
@@ -52,7 +52,7 @@ public partial class AssetItem : UserControl
         Asset = asset;
         IsFavorite = AppSettings.Current.FavoritePaths.Contains(asset.GetPathName());
         ID = asset.Name;
-        DisplayName = displayName.TitleCase();
+        DisplayName = useTitleCase ? displayName.TitleCase() : displayName;
         Description = asset.GetOrDefault("Description", new FText("No description.")).Text;
         Rarity = rarityOverride ?? asset.GetOrDefault("Rarity", EFortRarity.Uncommon);
         GameplayTags = asset.GetOrDefault<FGameplayTagContainer?>("GameplayTags");

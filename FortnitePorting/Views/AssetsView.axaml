@@ -357,7 +357,7 @@
                             <Button Grid.Row="2" Command="{Binding ExportCommand}" HorizontalAlignment="Stretch"
                                     VerticalAlignment="Stretch" Padding="0">
                                 <Grid>
-                                    <ProgressBar CornerRadius="5" Background="Transparent"
+                                    <ProgressBar MinWidth="0" CornerRadius="5" Background="Transparent"
                                                  IsVisible="{Binding IsExporting}"
                                                  Minimum="0" Maximum="{Binding ExportChunks}"
                                                  Value="{Binding ExportProgress}"

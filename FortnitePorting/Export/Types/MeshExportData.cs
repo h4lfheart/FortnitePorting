@@ -6,6 +6,7 @@ using CUE4Parse.GameTypes.FN.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Component.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Component.StaticMesh;
+using CUE4Parse.UE4.Assets.Exports.Engine;
 using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
@@ -142,7 +143,6 @@ public class MeshExportData : ExportDataBase
                 AssetsVM.ExportProgress = 0;
                 foreach (var prop in props)
                 {
-                    if (AssetsVM.ExportProgress % 100 == 0) GC.Collect();
                     var levelSaveRecord = prop.GetOrDefault<UObject?>("LevelSaveRecord");
                     if (levelSaveRecord is null) continue;
 
@@ -229,8 +229,7 @@ public class MeshExportData : ExportDataBase
             }
             case EAssetType.WeaponMod:
             {
-                var mesh = asset.GetOrDefault<UStaticMesh?>("PickupStaticMesh");
-                Meshes.AddIfNotNull(Exporter.Mesh(mesh));
+                Meshes.AddIfNotNull(Exporter.Mesh(asset as USkeletalMesh));
                 break;
             }
             case EAssetType.Mesh:
@@ -257,7 +256,6 @@ public class MeshExportData : ExportDataBase
                 foreach (var actorLazy in level.Actors)
                 {
                     FilesVM.ExportProgress++;
-                    if (FilesVM.ExportProgress % 100 == 0) GC.Collect();
                     if (actorLazy is null || actorLazy.IsNull) continue;
 
                     var actor = actorLazy.Load();

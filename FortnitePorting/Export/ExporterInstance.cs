@@ -35,8 +35,8 @@ namespace FortnitePorting.Export;
 
 public class ExporterInstance
 {
-    public readonly List<Task> ExportTasks = new();
-    private readonly HashSet<ExportMaterial> MaterialCache = new();
+    public readonly List<Task> ExportTasks = [];
+    private readonly HashSet<ExportMaterial> MaterialCache = [];
     private readonly ExportOptionsBase AppExportOptions;
     private readonly ExporterOptions FileExportOptions;
 

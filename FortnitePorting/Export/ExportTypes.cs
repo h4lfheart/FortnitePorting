@@ -14,10 +14,10 @@ public record ExportMesh
     public FVector Location = FVector.ZeroVector;
     public FRotator Rotation = FRotator.ZeroRotator;
     public FVector Scale = FVector.OneVector;
-    public List<ExportMaterial> Materials = new();
-    public List<ExportMaterial> OverrideMaterials = new();
-    public List<ExportTextureData> TextureData = new();
-    public List<ExportMesh> Children = new();
+    public readonly List<ExportMaterial> Materials = [];
+    public readonly List<ExportMaterial> OverrideMaterials = [];
+    public readonly List<ExportTextureData> TextureData = [];
+    public readonly List<ExportMesh> Children = [];
 }
 
 public record ExportPart : ExportMesh
@@ -32,15 +32,15 @@ public class ExportPartMeta
 
 public class ExportHeadMeta : ExportPartMeta
 {
-    public Dictionary<ECustomHatType, string> MorphNames = new();
+    public readonly Dictionary<ECustomHatType, string> MorphNames = new();
     public FLinearColor SkinColor;
-    public List<PoseData> PoseData = new();
+    public List<PoseData> PoseData = [];
 }
 
 public class PoseData
 {
     public string Name;
-    public List<PoseKey> Keys = new();
+    public List<PoseKey> Keys = new List<PoseKey>();
 
     public PoseData(string name)
     {
@@ -67,11 +67,11 @@ public record ExportParameterContainer
     
     public int Hash;
     public string? AbsoluteParent;
-    public List<TextureParameter> Textures = new();
-    public List<ScalarParameter> Scalars = new();
-    public List<VectorParameter> Vectors = new();
-    public List<SwitchParameter> Switches = new();
-    public List<ComponentMaskParameter> ComponentMasks = new();
+    public List<TextureParameter> Textures = [];
+    public List<ScalarParameter> Scalars = [];
+    public List<VectorParameter> Vectors = [];
+    public List<SwitchParameter> Switches = [];
+    public List<ComponentMaskParameter> ComponentMasks = [];
 }
 
 public record ExportMaterial : ExportParameterContainer
