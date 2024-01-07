@@ -129,7 +129,7 @@ public class CUE4ParseViewModel : ViewModelBase
             new IoStoreOnDemandOptions
             {
                 ChunkBaseUri = new Uri("https://download.epicgames.com/ias/fortnite/", UriKind.Absolute),
-                ChunkCacheDirectory = App.ChunkCacheFolder,
+                ChunkCacheDirectory = ChunkCacheFolder,
                 Authorization = new AuthenticationHeaderValue("Bearer", AppSettings.Current.EpicGamesAuth?.Token),
                 Timeout = TimeSpan.FromSeconds(100)
             });

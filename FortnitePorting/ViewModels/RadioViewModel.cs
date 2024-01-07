@@ -2,6 +2,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using ATL;
 using Avalonia.Threading;
@@ -10,18 +11,19 @@ using CSCore;
 using CSCore.Codecs.WAV;
 using CSCore.SoundOut;
 using CUE4Parse_Conversion.Sounds;
+using DynamicData;
 using FortnitePorting.Controls.Radio;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Services;
 using FortnitePorting.Framework.Services;
 using Material.Icons;
+using ReactiveUI;
 
 namespace FortnitePorting.ViewModels;
 
 public partial class RadioViewModel : ViewModelBase
 {
-    [ObservableProperty] private ObservableCollection<RadioSongPicker> loadedSongs = new();
     [ObservableProperty] private RadioSongPicker? songInfo;
     [ObservableProperty] private RuntimeSongInfo? runtimeSongInfo;
     [ObservableProperty] private bool isLooping;
@@ -32,7 +34,13 @@ public partial class RadioViewModel : ViewModelBase
 
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(VolumeIconKind))]
     private float volume = 1.0f;
-
+    
+    [ObservableProperty] private string searchFilter = string.Empty;
+    [ObservableProperty] private ReadOnlyObservableCollection<RadioSongPicker> loadedSongs;
+    [ObservableProperty] private ReadOnlyObservableCollection<RadioSongPicker> assetItemsTarget;
+    [ObservableProperty] private SourceList<RadioSongPicker> assetItemsSource = new();
+    private readonly IObservable<Func<RadioSongPicker, bool>> AssetFilter;
+    
     public bool IsValidSong => SoundSource is not null && SongInfo is not null && RuntimeSongInfo is not null;
     public MaterialIconKind PlayIconKind => IsPlaying ? MaterialIconKind.Pause : MaterialIconKind.Play;
 
@@ -56,6 +64,21 @@ public partial class RadioViewModel : ViewModelBase
         UpdateTimer.Tick += OnTimerTick;
         UpdateTimer.Interval = TimeSpan.FromSeconds(1);
         UpdateTimer.Start();
+
+        AssetFilter = this.WhenAnyValue(x => x.SearchFilter).Select(CreateAssetFilter);
+        AssetItemsSource.Connect()
+            .ObserveOn(RxApp.MainThreadScheduler)
+            .Bind(out var sourceTarget)
+            .Filter(AssetFilter)
+            .Bind(out var target)
+            .Subscribe();
+        LoadedSongs = sourceTarget;
+        AssetItemsTarget = target;
+    }
+    
+    private Func<RadioSongPicker, bool> CreateAssetFilter(string filter)
+    {
+        return asset => MiscExtensions.Filter(asset.Title, filter);
     }
 
     private void OnTimerTick(object? sender, EventArgs e)
@@ -86,8 +109,7 @@ public partial class RadioViewModel : ViewModelBase
         if (HasStarted) return;
         HasStarted = true;
 
-        var musicPacks = CUE4ParseVM.AssetRegistry.Where(data => data.AssetClass.Text.Equals(MusicPackExportType))
-            .ToList();
+        var musicPacks = CUE4ParseVM.AssetRegistry.Where(data => data.AssetClass.Text.Equals(MusicPackExportType)).ToList();
         foreach (var musicPack in musicPacks)
         {
             if (musicPack.AssetName.Text.Contains("Random", StringComparison.OrdinalIgnoreCase) ||
@@ -97,9 +119,9 @@ public partial class RadioViewModel : ViewModelBase
             await TaskService.RunDispatcherAsync(() =>
             {
                 var loadedSong = new RadioSongPicker(asset);
-                if (LoadedSongs.Any(song => song.Title.Equals(loadedSong.Title))) return;
+                if (AssetItemsSource.Items.Any(song => song.Title.Equals(loadedSong.Title))) return;
 
-                LoadedSongs.Add(loadedSong);
+                AssetItemsSource.Add(loadedSong);
             });
         }
     }
@@ -178,7 +200,7 @@ public partial class RadioViewModel : ViewModelBase
             Restart();
             return;
         }
-
+        
         Play(LoadedSongs[previousSongIndex]);
     }
 

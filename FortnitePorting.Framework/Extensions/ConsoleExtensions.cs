@@ -7,7 +7,7 @@ public static class ConsoleExtensions
     private static bool IsAllocated;
     
     [DllImport("kernel32")]
-    public static extern bool AllocConsole();
+    private static extern bool AllocConsole();
 
     [DllImport("kernel32.dll")]
     private static extern IntPtr GetConsoleWindow();

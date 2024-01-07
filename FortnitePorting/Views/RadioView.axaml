@@ -13,14 +13,19 @@
     <controls:GroupBox Background="#26000000">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="6.5*" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="{ext:Space 1}" />
+                <RowDefinition Height="6.25*" />
                 <RowDefinition Height="{ext:Space 1}" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <Grid Grid.Row="0">
+            
+            <TextBox Grid.Row="0" x:Name="SearchTextBox" Grid.Column="0" Text="{Binding SearchFilter}" Watermark="Search" HorizontalAlignment="Stretch"/>
+            
+            <Grid Grid.Row="2">
                 <controls:GroupBox>
                     <ScrollViewer>
-                        <ItemsControl ItemsSource="{Binding LoadedSongs}">
+                        <ItemsControl ItemsSource="{Binding AssetItemsTarget}">
                             <ItemsControl.Styles>
                                 <Style Selector="radio|RadioSongPicker">
                                     <Setter Property="Margin" Value="0 8 0 0" />
@@ -32,7 +37,7 @@
             </Grid>
 
             <!-- Lower Control Bar -->
-            <controls:GroupBox Grid.Row="2">
+            <controls:GroupBox Grid.Row="4">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />

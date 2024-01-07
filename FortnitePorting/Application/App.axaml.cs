@@ -49,13 +49,13 @@ public class App : AppBase
         ObjectTypeRegistry.RegisterEngine(typeof(URegisterThisUObject).Assembly);
         Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
 
+        AppSettings.Load();
+        if (AppSettings.Current.ShowConsole) ConsoleExtensions.AllocateConsole();
+        
         Log.Logger = new LoggerConfiguration()
             .WriteTo.Console(theme: AnsiConsoleTheme.Literate)
             .WriteTo.File(Path.Combine(LogsFolder.FullName, $"FortnitePorting-{DateTime.Now:yyyy-MM-dd-hh-mm-ss}.log"))
             .CreateLogger();
-
-        AppSettings.Load();
-        if (AppSettings.Current.ShowConsole) ConsoleExtensions.AllocConsole();
 
         AssetsFolder.Create();
         DataFolder.Create();
