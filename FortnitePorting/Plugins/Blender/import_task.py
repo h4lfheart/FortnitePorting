@@ -78,14 +78,14 @@ default_mappings = MappingCollection(
         SlotMapping("RoughnessMax", "Roughness Max"),
         SlotMapping("SpecRoughnessMax", "Roughness Max"),
         SlotMapping("RawRoughnessMax", "Roughness Max"),
-        SlotMapping("emissive mult", "Emission Strength"),
-        SlotMapping("HT_CrunchVerts", "Alpha", value_func=lambda value: 1-value)
+        SlotMapping("emissive mult", "Emission Strength")
     ],
     vectors=[
         SlotMapping("Skin Boost Color And Exponent", "Skin Color", alpha_slot="Skin Boost"),
         SlotMapping("SkinTint", "Skin Color", alpha_slot="Skin Boost"),
         SlotMapping("EmissiveMultiplier", "Emission Multiplier"),
-        SlotMapping("Emissive Multiplier", "Emission Multiplier")
+        SlotMapping("Emissive Multiplier", "Emission Multiplier"),
+        SlotMapping("Emissive Color", "Emission Color", switch_slot="Use Emission Color")
     ],
     switches=[
         SlotMapping("SwizzleRoughnessToGreen")
@@ -293,6 +293,7 @@ class DataImportTask:
         self.meshes = []
         self.imported_mesh_count = 0
         self.imported_meshes = []
+        self.crunch_verts_materials = []
         self.rig_type = ERigType(self.options.get("RigType"))
 
         if bpy.context.mode != "OBJECT":
@@ -329,6 +330,11 @@ class DataImportTask:
                 master_mesh.modifiers[0].use_deform_preserve_volume = True #armature modifier
                 corrective_smooth = master_mesh.modifiers.new(name="Corrective Smooth", type='CORRECTIVE_SMOOTH')
                 corrective_smooth.use_pin_boundary = True
+                
+            for crunch_verts_material in self.crunch_verts_materials:
+                geo_nodes = master_mesh.modifiers.new("Crunch Verts", "NODES")
+                geo_nodes.node_group = bpy.data.node_groups.get("FP Crunch Verts")
+                geo_nodes["Socket_3"] = crunch_verts_material
 
             if self.is_toon:
                 # todo custom outline color from mat
@@ -536,6 +542,12 @@ class DataImportTask:
                           lambda slot: slot.name.casefold() == material_name_to_swap.casefold())
             for slot in slots:
                 self.import_material(slot, variant_override_material, meta)
+                
+        for slot in imported_mesh.material_slots:
+            if not slot.material.get("Crunch Verts"):
+                continue
+
+            add_unique(self.crunch_verts_materials, slot.material)
 
         for child in mesh.get("Children"):
             self.import_model(child, collection, imported_object)
@@ -819,7 +831,8 @@ class DataImportTask:
 
         links.new(shader_node.outputs[0], output_node.inputs[0])
 
-        if material_name in ["MI_VertexCrunch", "M_VertexCrunch"]:
+        if material_name in ["MI_VertexCrunch", "M_VertexCrunch"] or get_param(scalars, "HT_CrunchVerts") == 1:
+            material_slot.material["Crunch Verts"] = True
             shader_node.inputs["Alpha"].default_value = 0.0
             return
 
@@ -1102,6 +1115,12 @@ def any(target, expr):
 
     filtered = list(filter(expr, target))
     return len(filtered) > 0
+
+def add_unique(target, item):
+    if item in target:
+        return
+    
+    target.append(item)
 
 
 def get_case_insensitive(source, string):
@@ -1723,7 +1742,7 @@ def apply_tasty_rig(master_skeleton, scale, use_finger_ik = True):
         constraint.owner_space = space
 
     track_bones = [
-        ("eye_control_mid", "head", 0.285)
+        ("eye_control_parent", "head", 0.285)
     ]
 
     for bone_name, target_name, head_tail in track_bones:
@@ -1733,7 +1752,7 @@ def apply_tasty_rig(master_skeleton, scale, use_finger_ik = True):
         constraint.target = master_skeleton
         constraint.subtarget = target_name
         constraint.head_tail = head_tail
-        constraint.track_axis = 'TRACK_Y'
+        constraint.track_axis = 'TRACK_NEGATIVE_Y'
         constraint.up_axis = 'UP_Z'
 
     lock_track_bones = [
