@@ -708,13 +708,14 @@ public class ExporterInstance
             }
             case USoundWave soundWave:
             {
-                SoundExtensions.TryConvertAudio(soundWave, exportPath);
+                SoundExtensions.TrySaveAudio(soundWave, exportPath);
+                
                 break;
             }
         }
     }
 
-    private static string GetExportPath(UObject obj, string ext, string extra = "")
+    public static string GetExportPath(UObject obj, string ext, string extra = "")
     {
         var path = obj.Owner != null ? obj.Owner.Name : string.Empty;
         path = path.SubstringBeforeLast('.');

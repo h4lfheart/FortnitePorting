@@ -92,6 +92,38 @@ public static class ExportService
             exportService.SendExport(JsonConvert.SerializeObject(exportResponse));
         });
     }
+    
+    public static async Task ExportAsync(UObject asset, EAssetType assetType, EExportTargetType exportType)
+    {
+        await TaskService.RunAsync(async () =>
+        {
+            if (exportType is EExportTargetType.Folder)
+            {
+                CreateExportData(asset.Name, asset, Array.Empty<FStructFallback>(), assetType, exportType);
+                return;
+            }
+
+            var exportService = exportType switch
+            {
+                EExportTargetType.Blender => Blender,
+                EExportTargetType.Unreal => Unreal
+            };
+
+            if (!exportService.Ping())
+            {
+                var exportTypeString = exportType.GetDescription();
+                MessageWindow.Show($"Failed to Connect to {exportTypeString} Server",
+                    $"Please ensure that you have {exportTypeString} open with the latest FortnitePorting plugin enabled.");
+                return;
+            }
+
+            var exportData = CreateExportData(asset.Name, asset, Array.Empty<FStructFallback>(), assetType, exportType);
+            exportData.WaitForExports();
+
+            var exportResponse = CreateExportResponse([exportData], exportType);
+            exportService.SendExport(JsonConvert.SerializeObject(exportResponse));
+        });
+    }
 
     private static ExportResponse CreateExportResponse(ExportDataBase[] exportData, EExportTargetType exportType)
     {
@@ -110,6 +142,7 @@ public static class ExportService
             EExportType.Mesh => new MeshExportData(name, asset, styles, assetType, exportType),
             EExportType.Animation => new AnimExportData(name, asset, styles, assetType, exportType),
             EExportType.Texture => new TextureExportData(name, asset, styles, assetType, exportType),
+            EExportType.Sound => new SoundExportData(name, asset, styles, assetType, exportType),
             _ => throw new ArgumentOutOfRangeException(assetType.ToString())
         };
     }

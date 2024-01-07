@@ -29,11 +29,17 @@
                 <material:MaterialIcon Kind="Play" Width="32" Height="32" />
             </Grid>
         </Border>
-        <TextBlock Grid.Row="0" Grid.Column="2"
-                   Text="{Binding Title, RelativeSource={RelativeSource AncestorType=radio:RadioSongPicker}}"
-                   FontSize="18" Margin="0 8 0 0" />
+        <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal">
+            <TextBlock Text="{Binding Title, RelativeSource={RelativeSource AncestorType=radio:RadioSongPicker}}"
+                FontSize="18" Margin="0 8 0 0" />
+            <Button Classes="NoBackground" ToolTip.Tip="Save" Command="{Binding Save, RelativeSource={RelativeSource AncestorType=radio:RadioSongPicker}}">
+                <material:MaterialIcon Kind="ContentSave" Margin="0 2 0 0"/>
+            </Button>
+        </StackPanel>
+       
         <TextBlock Grid.Row="1" Grid.Column="2"
                    Text="{Binding Description, RelativeSource={RelativeSource AncestorType=radio:RadioSongPicker}}"
                    Opacity="0.5" TextWrapping="WrapWithOverflow" />
+        
     </Grid>
 </UserControl>

@@ -12,6 +12,7 @@ using CSCore.Codecs.WAV;
 using CSCore.SoundOut;
 using CUE4Parse_Conversion.Sounds;
 using DynamicData;
+using DynamicData.Binding;
 using FortnitePorting.Controls.Radio;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
@@ -37,9 +38,9 @@ public partial class RadioViewModel : ViewModelBase
     
     [ObservableProperty] private string searchFilter = string.Empty;
     [ObservableProperty] private ReadOnlyObservableCollection<RadioSongPicker> loadedSongs;
-    [ObservableProperty] private ReadOnlyObservableCollection<RadioSongPicker> assetItemsTarget;
-    [ObservableProperty] private SourceList<RadioSongPicker> assetItemsSource = new();
-    private readonly IObservable<Func<RadioSongPicker, bool>> AssetFilter;
+    [ObservableProperty] private ReadOnlyObservableCollection<RadioSongPicker> radioItemsTarget;
+    [ObservableProperty] private SourceList<RadioSongPicker> radioItemsSource = new();
+    private readonly IObservable<Func<RadioSongPicker, bool>> RadioItemFilter;
     
     public bool IsValidSong => SoundSource is not null && SongInfo is not null && RuntimeSongInfo is not null;
     public MaterialIconKind PlayIconKind => IsPlaying ? MaterialIconKind.Pause : MaterialIconKind.Play;
@@ -65,20 +66,21 @@ public partial class RadioViewModel : ViewModelBase
         UpdateTimer.Interval = TimeSpan.FromSeconds(1);
         UpdateTimer.Start();
 
-        AssetFilter = this.WhenAnyValue(x => x.SearchFilter).Select(CreateAssetFilter);
-        AssetItemsSource.Connect()
+        RadioItemFilter = this.WhenAnyValue(x => x.SearchFilter).Select(CreateRadioFilter);
+        RadioItemsSource.Connect()
             .ObserveOn(RxApp.MainThreadScheduler)
             .Bind(out var sourceTarget)
-            .Filter(AssetFilter)
+            .Filter(RadioItemFilter)
+            .Sort(SortExpressionComparer<RadioSongPicker>.Ascending(Radio => Radio.ID))
             .Bind(out var target)
             .Subscribe();
         LoadedSongs = sourceTarget;
-        AssetItemsTarget = target;
+        RadioItemsTarget = target;
     }
     
-    private Func<RadioSongPicker, bool> CreateAssetFilter(string filter)
+    private Func<RadioSongPicker, bool> CreateRadioFilter(string filter)
     {
-        return asset => MiscExtensions.Filter(asset.Title, filter);
+        return Radio => MiscExtensions.Filter(Radio.Title, filter);
     }
 
     private void OnTimerTick(object? sender, EventArgs e)
@@ -115,35 +117,36 @@ public partial class RadioViewModel : ViewModelBase
             if (musicPack.AssetName.Text.Contains("Random", StringComparison.OrdinalIgnoreCase) ||
                 musicPack.AssetName.Text.Contains("TBD", StringComparison.OrdinalIgnoreCase)) continue;
 
-            var asset = await CUE4ParseVM.Provider.LoadObjectAsync(musicPack.ObjectPath);
+            var Radio = await CUE4ParseVM.Provider.LoadObjectAsync(musicPack.ObjectPath);
             await TaskService.RunDispatcherAsync(() =>
             {
-                var loadedSong = new RadioSongPicker(asset);
-                if (AssetItemsSource.Items.Any(song => song.Title.Equals(loadedSong.Title))) return;
+                var loadedSong = new RadioSongPicker(Radio);
+                if (RadioItemsSource.Items.Any(song => song.Title.Equals(loadedSong.Title))) return;
 
-                AssetItemsSource.Add(loadedSong);
+                RadioItemsSource.Add(loadedSong);
             });
         }
     }
 
     public void Play(RadioSongPicker songPicker)
     {
-        var sounds = songPicker.SoundCue.HandleSoundTree();
-        var sound = sounds.MaxBy(sound => sound.Time)?.SoundWave;
+        var sound = songPicker.GetSound();
         if (sound is null) return;
-        
+
         var wavPath = Path.Combine(AudioCacheFolder.FullName, $"{sound.Name}.wav");
-        if (!File.Exists(wavPath) && !SoundExtensions.TryConvertAudio(sound, wavPath)) return;
-        /*var track = new Track(wavPath)
+        if (File.Exists(wavPath))
         {
-            Title = songPicker.Title,
-            Description = songPicker.Description,
-            Artist = "Epic Games"
-        };
-        track.Save();*/
-        
-        SoundSource = new WaveFileReader(new FileStream(wavPath, FileMode.Open, FileAccess.Read));
-        
+            SoundSource = new WaveFileReader(wavPath);
+        }
+        else if (SoundExtensions.TrySaveAudioStream(sound, wavPath, out var stream))
+        {
+            SoundSource = new WaveFileReader(stream);
+        }
+        else
+        {
+            return;
+        }
+
         IsPlaying = true;
         SongInfo = songPicker;
         SoundOut.Stop();

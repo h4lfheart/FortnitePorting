@@ -115,7 +115,10 @@ public enum EAssetType
     Texture,
     
     [Description("Animation"), Export(EExportType.Animation)]
-    Animation
+    Animation,
+    
+    [Description("Sound"), Export(EExportType.Sound)]
+    Sound
     
 }
 
@@ -128,7 +131,10 @@ public enum EExportType
     Animation,
 
     [Description("Texture")]
-    Texture
+    Texture,
+    
+    [Description("Sound")]
+    Sound
 }
 
 

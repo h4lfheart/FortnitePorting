@@ -25,7 +25,7 @@
             <Grid Grid.Row="2">
                 <controls:GroupBox>
                     <ScrollViewer>
-                        <ItemsControl ItemsSource="{Binding AssetItemsTarget}">
+                        <ItemsControl ItemsSource="{Binding RadioItemsTarget}">
                             <ItemsControl.Styles>
                                 <Style Selector="radio|RadioSongPicker">
                                     <Setter Property="Margin" Value="0 8 0 0" />
@@ -70,22 +70,22 @@
 
                     <Grid Grid.Row="0" Grid.Column="2" ColumnDefinitions="* * * * *" HorizontalAlignment="Center"
                           VerticalAlignment="Center" Margin="0 16 0 0">
-                        <ToggleButton Grid.Column="0" IsChecked="{Binding IsLooping}" Classes="ToggleRadioButton"
+                        <ToggleButton Grid.Column="0" ToolTip.Tip="Loop" IsChecked="{Binding IsLooping}" Classes="ToggleRadioButton"
                                       Width="32" Height="32">
                             <material:MaterialIcon Kind="Refresh" Width="32" Height="32" />
                         </ToggleButton>
-                        <Button Grid.Column="1" Classes="RadioButton" Command="{Binding Previous}" Width="40"
+                        <Button Grid.Column="1" Classes="RadioButton" ToolTip.Tip="Previous" Command="{Binding Previous}" Width="40"
                                 Height="40">
                             <material:MaterialIcon Kind="SkipPrevious" Width="40" Height="40" />
                         </Button>
-                        <Button Grid.Column="2" Classes="RadioButton" Command="{Binding TogglePlayPause}" Width="40"
+                        <Button Grid.Column="2" Classes="RadioButton" ToolTip.Tip="Play / Pause" Command="{Binding TogglePlayPause}" Width="40"
                                 Height="40">
                             <material:MaterialIcon Kind="{Binding PlayIconKind}" Width="40" Height="40" />
                         </Button>
-                        <Button Grid.Column="3" Classes="RadioButton" Command="{Binding Next}" Width="40" Height="40">
+                        <Button Grid.Column="3" Classes="RadioButton" ToolTip.Tip="Next" Command="{Binding Next}" Width="40" Height="40">
                             <material:MaterialIcon Kind="SkipNext" Width="40" Height="40" />
                         </Button>
-                        <ToggleButton Grid.Column="4" IsChecked="{Binding IsShuffling}" Classes="ToggleRadioButton"
+                        <ToggleButton Grid.Column="4" ToolTip.Tip="Shuffle" IsChecked="{Binding IsShuffling}" Classes="ToggleRadioButton"
                                       Width="32" Height="32">
                             <material:MaterialIcon Kind="Shuffle" Width="32" Height="32" />
                         </ToggleButton>

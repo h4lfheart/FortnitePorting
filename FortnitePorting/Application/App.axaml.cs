@@ -65,8 +65,8 @@ public class App : AppBase
 
         if (AppSettings.Current.UseDiscordRPC) DiscordService.Initialize();
 
-        DependencyService.EnsureDependencies();
         ViewModelRegistry.Register<EndpointViewModel>();
+        DependencyService.EnsureDependencies();
 
         AppVM = new ApplicationViewModel();
         MainWindow = new AppWindow();

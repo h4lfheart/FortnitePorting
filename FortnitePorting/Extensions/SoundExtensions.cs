@@ -27,22 +27,35 @@ public static class SoundExtensions
         return new DirectSoundOut();
     }
 
-    public static bool TryConvertAudio(USoundWave soundWave, string path)
+    public static bool TrySaveAudio(USoundWave soundWave, string path)
     {
         soundWave.Decode(true, out var format, out var data);
         if (data is null) soundWave.Decode(false, out format, out data);
         if (data is null) return false;
-        
+
         switch (format.ToLower())
         {
+            case "adpcm":
+                SaveADPCMAsWav(data, path);
+                break;
             case "binka":
                 SaveBinkaAsWav(data, path);
                 break;
-            default:
-                throw new NotSupportedException();
         }
 
         return true;
+    }
+    
+    public static bool TrySaveAudioStream(USoundWave soundWave, string path, out Stream stream)
+    {
+        if (TrySaveAudio(soundWave, path))
+        {
+            stream = new FileStream(path, FileMode.Open, FileAccess.Read);
+            return true;
+        }
+
+        stream = null;
+        return false;
     }
     
     public static void SaveBinkaAsWav(byte[] data, string outPath)
@@ -65,6 +78,28 @@ public static class SoundExtensions
         }
         
         File.Delete(binkaPath);
+    }
+    
+    public static void SaveADPCMAsWav(byte[] data, string outPath)
+    {
+        var adpcmPath = Path.ChangeExtension(outPath, "adpcm");
+        File.WriteAllBytes(adpcmPath, data);
+
+        using (var adpcmProcess = new Process())
+        {
+            adpcmProcess.StartInfo = new ProcessStartInfo
+            {
+                FileName = DependencyService.VGMStreamFile.FullName,
+                Arguments = $"-o \"{outPath}\" \"{adpcmPath}\"",
+                UseShellExecute = false,
+                RedirectStandardOutput = true
+            };
+
+            adpcmProcess.Start();
+            adpcmProcess.WaitForExit();
+        }
+        
+        File.Delete(adpcmPath);
     }
 
     public static List<Sound> HandleSoundTree(this USoundCue root, float offsetTime = 0.0f)
