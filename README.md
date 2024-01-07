@@ -6,7 +6,7 @@
 [![Unreal](https://img.shields.io/badge/Unreal-5.3+-blue?logo=unreal-engine&logoColor=white&color=white)](https://www.unrealengine.com/en-US/download)
 ***
 
-![image](https://github.com/halfuwu/FortnitePorting/assets/69497698/182fad45-f9b1-4775-8e4a-ec35c8a4ac09)
+![image](https://github.com/halfuwu/FortnitePorting/assets/69497698/9b0ee275-21de-4e52-aafe-847b0231a9aa)
 
 ## Building FortnitePorting
 
@@ -18,12 +18,6 @@ git clone -b avalonia-2.0 https://github.com/halfuwu/FortnitePorting --recursive
 
 Then open the project directory in a terminal window and run this command
 
-Windows:
 ```
 dotnet publish FortnitePorting -c Release --no-self-contained -r win-x64 -o "./Release" -p:PublishSingleFile=true -p:DebugType=None -p:DebugSymbols=false -p:IncludeNativeLibrariesForSelfExtract=true
-```
-
-MacOS:
-```
-dotnet publish FortnitePorting -c Release --no-self-contained -r osx-x64 -o "./Release" -p:PublishSingleFile=true -p:DebugType=None -p:DebugSymbols=false -p:IncludeNativeLibrariesForSelfExtract=true
 ```
