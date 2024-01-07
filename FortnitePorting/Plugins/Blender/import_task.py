@@ -97,26 +97,32 @@ layer_mappings = MappingCollection(
         SlotMapping("Diffuse"),
         SlotMapping("SpecularMasks"),
         SlotMapping("Normals"),
+        SlotMapping("EmissiveTexture"),
 
         SlotMapping("Diffuse_Texture_2"),
         SlotMapping("SpecularMasks_2"),
         SlotMapping("Normals_Texture_2"),
+        SlotMapping("Emissive_Texture_2"),
 
         SlotMapping("Diffuse_Texture_3"),
         SlotMapping("SpecularMasks_3"),
         SlotMapping("Normals_Texture_3"),
+        SlotMapping("Emissive_Texture_3"),
 
         SlotMapping("Diffuse_Texture_4"),
         SlotMapping("SpecularMasks_4"),
         SlotMapping("Normals_Texture_4"),
+        SlotMapping("Emissive_Texture_4"),
 
         SlotMapping("Diffuse_Texture_5"),
         SlotMapping("SpecularMasks_5"),
         SlotMapping("Normals_Texture_5"),
+        SlotMapping("Emissive_Texture_5"),
 
         SlotMapping("Diffuse_Texture_6"),
         SlotMapping("SpecularMasks_6"),
-        SlotMapping("Normals_Texture_6")
+        SlotMapping("Normals_Texture_6"),
+        SlotMapping("Emissive_Texture_6"),
     ]
 )
 
@@ -785,11 +791,11 @@ class DataImportTask:
         layer_switch_names = ["Use 2 Layers", "Use 3 Layers", "Use 4 Layers", "Use 5 Layers", "Use 6 Layers", "Use 7 Layers",
             "Use 2 Materials", "Use 3 Materials", "Use 4 Materials", "Use 5 Materials", "Use 6 Materials", "Use 7 Materials",
             "Use_Multiple_Material_Textures"]
-        extra_layer_names = ["Diffuse_Texture_2", "SpecularMasks_2", "Normals_Texture_2", 
-                             "Diffuse_Texture_3", "SpecularMasks_3", "Normals_Texture_3", 
-                             "Diffuse_Texture_4", "SpecularMasks_4", "Normals_Texture_4", 
-                             "Diffuse_Texture_5", "SpecularMasks_5", "Normals_Texture_5", 
-                             "Diffuse_Texture_6", "SpecularMasks_6", "Normals_Texture_6",]
+        extra_layer_names = ["Diffuse_Texture_2", "SpecularMasks_2", "Normals_Texture_2", "Emissive_Texture_2", 
+                             "Diffuse_Texture_3", "SpecularMasks_3", "Normals_Texture_3", "Emissive_Texture_3", 
+                             "Diffuse_Texture_4", "SpecularMasks_4", "Normals_Texture_4", "Emissive_Texture_4", 
+                             "Diffuse_Texture_5", "SpecularMasks_5", "Normals_Texture_5", "Emissive_Texture_5", 
+                             "Diffuse_Texture_6", "SpecularMasks_6", "Normals_Texture_6", "Emissive_Texture_6",]
         if get_param_multiple(switches, layer_switch_names) and get_param_multiple(textures, extra_layer_names):
             replace_shader_node("FP Layer")
             socket_mappings = layer_mappings
