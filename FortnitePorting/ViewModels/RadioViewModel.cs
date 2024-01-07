@@ -11,6 +11,7 @@ using CSCore;
 using CSCore.Codecs.WAV;
 using CSCore.SoundOut;
 using CUE4Parse_Conversion.Sounds;
+using CUE4Parse.Utils;
 using DynamicData;
 using DynamicData.Binding;
 using FortnitePorting.Controls.Radio;
@@ -36,6 +37,9 @@ public partial class RadioViewModel : ViewModelBase
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(VolumeIconKind))]
     private float volume = 1.0f;
     
+    [ObservableProperty] private int loaded;
+    [ObservableProperty] private int total;
+    
     [ObservableProperty] private string searchFilter = string.Empty;
     [ObservableProperty] private ReadOnlyObservableCollection<RadioSongPicker> loadedSongs;
     [ObservableProperty] private ReadOnlyObservableCollection<RadioSongPicker> radioItemsTarget;
@@ -56,6 +60,7 @@ public partial class RadioViewModel : ViewModelBase
     private IWaveSource? SoundSource;
     private readonly ISoundOut SoundOut = SoundExtensions.GetSoundOut();
     private readonly DispatcherTimer UpdateTimer = new();
+    private readonly string[] IgnoreFilters = ["Random", "TBD"];
 
     private bool HasStarted;
     private const string MusicPackExportType = "AthenaMusicPackItemDefinition";
@@ -111,12 +116,13 @@ public partial class RadioViewModel : ViewModelBase
         if (HasStarted) return;
         HasStarted = true;
 
-        var musicPacks = CUE4ParseVM.AssetRegistry.Where(data => data.AssetClass.Text.Equals(MusicPackExportType)).ToList();
+        var musicPacks = CUE4ParseVM.AssetRegistry
+            .Where(data => data.AssetClass.Text.Equals(MusicPackExportType) && !IgnoreFilters.Any(filter => data.AssetName.Text.Contains(filter, StringComparison.OrdinalIgnoreCase)))
+            .ToList();
+
+        Total = musicPacks.Count;
         foreach (var musicPack in musicPacks)
         {
-            if (musicPack.AssetName.Text.Contains("Random", StringComparison.OrdinalIgnoreCase) ||
-                musicPack.AssetName.Text.Contains("TBD", StringComparison.OrdinalIgnoreCase)) continue;
-
             var Radio = await CUE4ParseVM.Provider.LoadObjectAsync(musicPack.ObjectPath);
             await TaskService.RunDispatcherAsync(() =>
             {
@@ -125,6 +131,7 @@ public partial class RadioViewModel : ViewModelBase
 
                 RadioItemsSource.Add(loadedSong);
             });
+            Loaded++;
         }
     }
 
