@@ -73,10 +73,10 @@ public partial class RadioViewModel : ViewModelBase
 
         RadioItemFilter = this.WhenAnyValue(x => x.SearchFilter).Select(CreateRadioFilter);
         RadioItemsSource.Connect()
-            .ObserveOn(RxApp.MainThreadScheduler)
+            .ObserveOn(RxApp.TaskpoolScheduler)
+            .Sort(SortExpressionComparer<RadioSongPicker>.Ascending(Radio => Radio.ID))
             .Bind(out var sourceTarget)
             .Filter(RadioItemFilter)
-            .Sort(SortExpressionComparer<RadioSongPicker>.Ascending(Radio => Radio.ID))
             .Bind(out var target)
             .Subscribe();
         LoadedSongs = sourceTarget;
@@ -218,6 +218,10 @@ public partial class RadioViewModel : ViewModelBase
     {
         if (!IsValidSong) return;
         var nextSongIndex = IsShuffling ? Random.Shared.Next(0, LoadedSongs.Count) : LoadedSongs.IndexOf(SongInfo) + 1;
+        if (nextSongIndex >= LoadedSongs.Count)
+        {
+            nextSongIndex = 0;
+        }
         Play(LoadedSongs[nextSongIndex]);
     }
 

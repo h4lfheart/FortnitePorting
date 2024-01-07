@@ -200,7 +200,9 @@ valet_mappings = MappingCollection(
 glass_mappings = MappingCollection(
     textures=[
         SlotMapping("Color_DarkTint"),
+        SlotMapping("Diffuse Texture", "Color"),
         SlotMapping("Normals"),
+        SlotMapping("BakedNormal", "Normals"),
         SlotMapping("Diffuse Texture with Alpha Mask", "Color", alpha_slot="Mask")
     ],
     scalars=[
@@ -783,7 +785,12 @@ class DataImportTask:
         layer_switch_names = ["Use 2 Layers", "Use 3 Layers", "Use 4 Layers", "Use 5 Layers", "Use 6 Layers", "Use 7 Layers",
             "Use 2 Materials", "Use 3 Materials", "Use 4 Materials", "Use 5 Materials", "Use 6 Materials", "Use 7 Materials",
             "Use_Multiple_Material_Textures"]
-        if get_param_multiple(switches, layer_switch_names):
+        extra_layer_names = ["Diffuse_Texture_2", "SpecularMasks_2", "Normals_Texture_2", 
+                             "Diffuse_Texture_3", "SpecularMasks_3", "Normals_Texture_3", 
+                             "Diffuse_Texture_4", "SpecularMasks_4", "Normals_Texture_4", 
+                             "Diffuse_Texture_5", "SpecularMasks_5", "Normals_Texture_5", 
+                             "Diffuse_Texture_6", "SpecularMasks_6", "Normals_Texture_6",]
+        if get_param_multiple(switches, layer_switch_names) and get_param_multiple(textures, extra_layer_names):
             replace_shader_node("FP Layer")
             socket_mappings = layer_mappings
 
@@ -799,7 +806,6 @@ class DataImportTask:
             replace_shader_node("FP Glass")
             socket_mappings = glass_mappings
             material.blend_method = "BLEND"
-            material.shadow_method = "NONE"
             material.show_transparent_back = False
 
         is_trunk = get_param(switches, "IsTrunk")
