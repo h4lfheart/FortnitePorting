@@ -75,8 +75,7 @@
                                 </StackPanel>
                             </Button>
                             <Button Command="{Binding OpenFAQCommand}" Margin="{ext:Space 0.25}">
-                                <controls:MaterialIconText Text="FaQ"
-                                                           Icon="QuestionMark" />
+                                <controls:MaterialIconText Text="Wiki" Icon="QuestionMark" />
                             </Button>
                             
                         </ItemsControl>

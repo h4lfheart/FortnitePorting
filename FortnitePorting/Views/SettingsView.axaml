@@ -96,6 +96,12 @@
                                              Icon="Console">
                             <ToggleSwitch IsChecked="{Binding ShowConsole}" />
                         </controls:SettingBox>
+                        <controls:SettingBox DisplayName="Asset Size" Path="{Binding AssetSize, Mode=TwoWay, Converter={StaticResource EnumToString}}"
+                                             Icon="Resize">
+                            <ComboBox
+                                ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EAssetSize}}"
+                                SelectedItem="{Binding AssetSize, Converter={StaticResource EnumToString}}" />
+                        </controls:SettingBox>
                         <controls:SettingBox DisplayName="Tab Transitions" Path="{Binding UseTabTransition, Mode=TwoWay}"
                                              Icon="Transition">
                             <ToggleSwitch IsChecked="{Binding UseTabTransition}" />

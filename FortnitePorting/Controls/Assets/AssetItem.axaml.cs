@@ -1,6 +1,8 @@
+using System.ComponentModel;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media.Imaging;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.GameTypes.FN.Enums;
 using CUE4Parse.UE4.Assets.Exports;
@@ -40,12 +42,18 @@ public partial class AssetItem : UserControl
 
     public Bitmap IconBitmap { get; set; }
     public Bitmap PreviewImage { get; set; }
-
+    
+    public float DisplayWidth { get; set; }
+    public float DisplayHeight { get; set; }
+    
 
     public AssetItem(UObject asset, UTexture2D icon, string displayName, EAssetType type, bool isHidden = false, bool hideRarity = false, EFortRarity? rarityOverride = null, bool useTitleCase = true)
     {
         DataContext = this;
         InitializeComponent();
+
+        DisplayWidth = 64 * AppSettings.Current.AssetSizeMultiplier;
+        DisplayHeight = 80 * AppSettings.Current.AssetSizeMultiplier;
 
         Hidden = isHidden;
         Type = type;
@@ -103,6 +111,11 @@ public partial class AssetItem : UserControl
     public bool Match(string filter)
     {
         return MiscExtensions.Filter(DisplayName, filter) || MiscExtensions.Filter(ID, filter);
+    }
+
+    public void ChangeSize(float multiplier)
+    {
+        
     }
 
     public void Favorite()

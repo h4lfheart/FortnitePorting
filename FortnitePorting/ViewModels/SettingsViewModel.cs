@@ -49,13 +49,28 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private AesResponse? lastAesResponse;
 
     // Program
-    [ObservableProperty] private bool showConsole = true;
     [ObservableProperty] private DateTime lastUpdateAskTime = DateTime.Now.Subtract(TimeSpan.FromDays(1));
     [ObservableProperty] private FPVersion lastKnownUpdateVersion = Globals.Version;
+    
+    [ObservableProperty] private bool showConsole = true;
+    [ObservableProperty] private EAssetSize assetSize = EAssetSize.Percent100;
+    public float AssetSizeMultiplier => AssetSize switch
+    {
+        EAssetSize.Percent50 => 0.50f,
+        EAssetSize.Percent75 => 0.75f,
+        EAssetSize.Percent100 => 1.00f,
+        EAssetSize.Percent125 => 1.25f,
+        EAssetSize.Percent150 => 1.50f,
+        EAssetSize.Percent175 => 1.75f,
+        EAssetSize.Percent200 => 2.00f,
+        _ => 1.0f
+    };
     [ObservableProperty] private bool useTabTransition = true;
     [ObservableProperty] private bool useDiscordRPC = true;
     [ObservableProperty] private bool useCustomExportPath;
     [ObservableProperty] private string customExportPath;
+    
+    // Filtering
     [ObservableProperty] private bool filterProps = true;
     [ObservableProperty] private bool filterItems = true;
     [ObservableProperty] private bool filterTraps = true;
@@ -89,7 +104,8 @@ public partial class SettingsViewModel : ViewModelBase
         nameof(CustomEncryptionKey),
         nameof(CustomMappingsPath),
         nameof(FilterProps),
-        nameof(FilterItems)
+        nameof(FilterItems),
+        nameof(AssetSize)
     };
 
     public string GetExportPath()

@@ -227,3 +227,27 @@ public enum ETextureExportTypes
     [Description("Images as Planes")]
     Plane
 }
+
+public enum EAssetSize
+{
+    [Description("50%")]
+    Percent50,
+    
+    [Description("75%")]
+    Percent75,
+    
+    [Description("100%")]
+    Percent100,
+    
+    [Description("125%")]
+    Percent125,
+    
+    [Description("150%")]
+    Percent150,
+    
+    [Description("175%")]
+    Percent175,
+    
+    [Description("200%")]
+    Percent200
+}
