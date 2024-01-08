@@ -890,7 +890,7 @@ class DataImportTask:
                 for scalar in scalars:
                     name = scalar.get("Name")
                     value = scalar.get("Value")
-                    if not "Hide Element" in scalar:
+                    if "Hide Element" not in name:
                         continue
                         
                     if input := mask_node.inputs.get(name.replace("Hide ", "")):
