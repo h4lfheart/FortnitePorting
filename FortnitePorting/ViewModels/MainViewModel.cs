@@ -26,11 +26,11 @@ public partial class MainViewModel : ViewModelBase
     public override async Task Initialize()
     {
         await RefreshUpdateInfo();
-        if (AvailableUpdate is not null && !AvailableUpdate.ProperVersion.Equals(Globals.Version) && false)
+        if (AvailableUpdate is not null && !AvailableUpdate.ProperVersion.Equals(Globals.Version))
         {
             UpdateText = $"Update to\nv{AvailableUpdate.Version}";
 
-            if (DateTime.Now >= AppSettings.Current.LastUpdateAskTime.AddDays(1) || !AvailableUpdate.ProperVersion.Equals(AppSettings.Current.LastKnownUpdateVersion))
+            if (DateTime.Now >= AppSettings.Current.LastUpdateAskTime.AddDays(0.5) && !AvailableUpdate.ProperVersion.Equals(AppSettings.Current.LastKnownUpdateVersion))
             {
                 AppSettings.Current.LastKnownUpdateVersion = AvailableUpdate.ProperVersion;
                 AppSettings.Current.LastUpdateAskTime = DateTime.Now;
@@ -41,6 +41,8 @@ public partial class MainViewModel : ViewModelBase
         {
             UpdateText = "Check for\nUpdates";
         }
+        
+        await HomeVM.Initialize();
         
         ViewModelRegistry.Register<CUE4ParseViewModel>();
         await CUE4ParseVM.Initialize();

@@ -70,7 +70,7 @@ public partial class BlenderPluginViewModel : ViewModelBase
         var currentPluginVersion = await GetPluginVersion();
         if (CheckBlenderRunning(installInfo.BlenderPath, automatic))
         {
-            if (installInfo.PluginVersion.Equals(currentPluginVersion) && automatic)
+            if (!installInfo.PluginVersion.Equals(currentPluginVersion) && automatic)
             {
                 MessageWindow.Show("An Error Occurred", $"FortnitePorting tried to auto sync the plugin, but an instance of blender is open. Please close it and sync the plugin in the plugin tab.");
             }
@@ -89,26 +89,25 @@ public partial class BlenderPluginViewModel : ViewModelBase
         installInfo.Update();
         
         Log.Information("Synced Blender {BlenderVersion} Plugin to Version {PluginVersion}", installInfo.BlenderVersion, installInfo.PluginVersion);
+        MessageWindow.Show("Sync Successful", $"Successfully synced the Blender {installInfo.BlenderVersion} plugin to version {installInfo.PluginVersion}");
 
         try
         {
-            using var blenderProcess = new Process
+            using var blenderProcess = new Process();
+            blenderProcess.StartInfo = new ProcessStartInfo
             {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = installInfo.BlenderPath,
-                    Arguments = $"-b --python-exit-code 1 --python \"{DependencyService.BlenderScriptFile.FullName}\"",
-                    UseShellExecute = true
-                }
+                FileName = installInfo.BlenderPath,
+                Arguments = $"-b --python-exit-code 1 --python \"{DependencyService.BlenderScriptFile.FullName}\"",
+                UseShellExecute = false
             };
 
             blenderProcess.Exited += (sender, args) =>
             {
                 if (automatic) return;
-
+                
                 if (sender is Process { ExitCode: 1 } process)
                 {
-                    MessageWindow.Show("An Error Occured", "Blender failed to enable the FortnitePorting plugin. If this is your first time using syncing the plugin, please enable it yourself in the add-ons tab in Blender preferences.");
+                    MessageWindow.Show("An Error Occured", "Blender failed to enable the FortnitePorting plugin. If this is your first time using syncing the plugin, please enable it yourself in the add-ons tab in Blender preferences, otherwise, you may ignore this message.");
                     Log.Error(process.StandardOutput.ReadToEnd());
                 }
             };
@@ -117,7 +116,7 @@ public partial class BlenderPluginViewModel : ViewModelBase
         }
         catch (Exception e)
         {
-            MessageWindow.Show("An Error Occured", "Blender failed to enable the FortnitePorting plugin. If this is your first time using syncing the plugin, please enable it yourself in the add-ons tab in Blender preferences, otherwise you may ignore this message.");
+            MessageWindow.Show("An Error Occured", "Blender failed to enable the FortnitePorting plugin. If this is your first time using syncing the plugin, please enable it yourself in the add-ons tab in Blender preferences, otherwise, you may ignore this message.");
             Log.Error(e.ToString());
         }
       
@@ -130,18 +129,21 @@ public partial class BlenderPluginViewModel : ViewModelBase
     
     public bool CheckBlenderRunning(string path, bool automatic = false)
     {
-        // todo kill process button for messageWindow? add ability to append custom buttons to stuff at bottom
         var blenderProcesses = Process.GetProcessesByName("blender");
         var foundProcess = blenderProcesses.FirstOrDefault(process => process.MainModule?.FileName.Equals(path.Replace("/", "\\")) ?? false);
-        if (foundProcess is not null && !automatic)
+        if (foundProcess is not null)
         {
-            MessageWindow.Show("Cannot Sync Plugin", 
-                $"An instance of blender is open. Please close it to sync the plugin.\n\nPath: \"{path}\"\nPID: {foundProcess.Id}",
-                buttons: [new MessageWindowButton("Kill Process", window =>
-                {
-                    foundProcess.Kill();
-                    window.Close();
-                }), MessageWindowButtons.Continue]);
+            if (!automatic)
+            {
+                MessageWindow.Show("Cannot Sync Plugin", 
+                    $"An instance of blender is open. Please close it to sync the plugin.\n\nPath: \"{path}\"\nPID: {foundProcess.Id}",
+                    buttons: [new MessageWindowButton("Kill Process", window =>
+                    {
+                        foundProcess.Kill();
+                        window.Close();
+                    }), MessageWindowButtons.Continue]);
+            }
+           
             return true;
         }
 

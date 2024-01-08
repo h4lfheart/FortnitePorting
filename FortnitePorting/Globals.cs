@@ -8,11 +8,11 @@ namespace FortnitePorting;
 
 public static class Globals
 {
-    public static readonly FPVersion Version = new(2, 0, 0);
+    public static readonly FPVersion Version = new(2, 0, 0, "release-candidate");
     public static readonly string VersionString = Version.ToString();
 
     public const string DISCORD_URL = "https://discord.gg/DZ5YFXdBA6";
-    public const string GITHUB_URL = "https://github.com/halfuwu/FortnitePorting/tree/avalonia-2.0";
+    public const string GITHUB_URL = "https://github.com/halfuwu/FortnitePorting/tree/v2";
     public const string KOFI_URL = "https://ko-fi.com/halfuwu";
 
     public static readonly FGuid ZERO_GUID = new();

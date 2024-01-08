@@ -185,7 +185,7 @@ public enum ERigType
 
 public enum ESupportedLODs
 {
-    [Description("LOD 0")]
+    [Description("LOD 0 (Highest Quality)")]
     LOD0,
 
     [Description("LOD 1")]
@@ -197,7 +197,7 @@ public enum ESupportedLODs
     [Description("LOD 3")]
     LOD3,
 
-    [Description("LOD 4")]
+    [Description("LOD 4 (Lowest Quality)")]
     LOD4
 }
 
