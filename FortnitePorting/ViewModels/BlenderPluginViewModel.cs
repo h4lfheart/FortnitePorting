@@ -135,7 +135,13 @@ public partial class BlenderPluginViewModel : ViewModelBase
         var foundProcess = blenderProcesses.FirstOrDefault(process => process.MainModule?.FileName.Equals(path.Replace("/", "\\")) ?? false);
         if (foundProcess is not null && !automatic)
         {
-            MessageWindow.Show("Cannot Sync Plugin", $"An instance of blender is open. Please close it to sync the plugin.\n\nPath: \"{path}\"\nPID: {foundProcess.Id}");
+            MessageWindow.Show("Cannot Sync Plugin", 
+                $"An instance of blender is open. Please close it to sync the plugin.\n\nPath: \"{path}\"\nPID: {foundProcess.Id}",
+                buttons: [new MessageWindowButton("Kill Process", window =>
+                {
+                    foundProcess.Kill();
+                    window.Close();
+                }), MessageWindowButtons.Continue]);
             return true;
         }
 
