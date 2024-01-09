@@ -18,7 +18,7 @@ file class Program
         }
         catch (Exception e)
         {
-            HandleException(e);
+            Log.Fatal(e.ToString());
             Log.CloseAndFlush();
         }
     }
