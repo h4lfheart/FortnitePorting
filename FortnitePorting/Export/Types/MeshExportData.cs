@@ -228,10 +228,6 @@ public class MeshExportData : ExportDataBase
                 break;
             }
             case EAssetType.WeaponMod:
-            {
-                Meshes.AddIfNotNull(Exporter.Mesh(asset as USkeletalMesh));
-                break;
-            }
             case EAssetType.Mesh:
             {
                 switch (asset)
