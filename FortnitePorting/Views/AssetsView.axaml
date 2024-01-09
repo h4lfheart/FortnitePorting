@@ -267,7 +267,7 @@
                             <Image Source="/Assets/FN/Wildlife.png" Width="32" Height="32"
                                    RenderOptions.BitmapInterpolationMode="HighQuality" />
                         </Button>
-                        <Button ToolTip.Tip="Wildlife" Tag="{x:Static fortnitePorting:EAssetType.WeaponMod}"
+                        <Button ToolTip.Tip="Weapon Mods" Tag="{x:Static fortnitePorting:EAssetType.WeaponMod}"
                                       Click="OnAssetTypeClick">
                             <Image Source="/Assets/FN/WeaponMod.png" Width="32" Height="32"
                                    RenderOptions.BitmapInterpolationMode="HighQuality" />

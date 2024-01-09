@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -73,7 +75,7 @@ public partial class RadioViewModel : ViewModelBase
 
         RadioItemFilter = this.WhenAnyValue(x => x.SearchFilter).Select(CreateRadioFilter);
         RadioItemsSource.Connect()
-            .ObserveOn(RxApp.TaskpoolScheduler)
+            .ObserveOn(RxApp.MainThreadScheduler)
             .Sort(SortExpressionComparer<RadioSongPicker>.Ascending(Radio => Radio.ID))
             .Bind(out var sourceTarget)
             .Filter(RadioItemFilter)
@@ -85,7 +87,7 @@ public partial class RadioViewModel : ViewModelBase
     
     private Func<RadioSongPicker, bool> CreateRadioFilter(string filter)
     {
-        return Radio => MiscExtensions.Filter(Radio.Title, filter);
+        return asset => MiscExtensions.Filter(asset.Title, filter);
     }
 
     private void OnTimerTick(object? sender, EventArgs e)
@@ -123,10 +125,10 @@ public partial class RadioViewModel : ViewModelBase
         Total = musicPacks.Count;
         foreach (var musicPack in musicPacks)
         {
-            var Radio = await CUE4ParseVM.Provider.LoadObjectAsync(musicPack.ObjectPath);
+            var asset = await CUE4ParseVM.Provider.LoadObjectAsync(musicPack.ObjectPath);
             await TaskService.RunDispatcherAsync(() =>
             {
-                var loadedSong = new RadioSongPicker(Radio);
+                var loadedSong = new RadioSongPicker(asset);
                 if (RadioItemsSource.Items.Any(song => song.Title.Equals(loadedSong.Title))) return;
 
                 RadioItemsSource.Add(loadedSong);
@@ -137,31 +139,34 @@ public partial class RadioViewModel : ViewModelBase
 
     public void Play(RadioSongPicker songPicker)
     {
-        var sound = songPicker.GetSound();
-        if (sound is null) return;
+        TaskService.Run(() =>
+        {
+            var sound = songPicker.GetSound();
+            if (sound is null) return;
 
-        var wavPath = Path.Combine(AudioCacheFolder.FullName, $"{sound.Name}.wav");
-        if (File.Exists(wavPath))
-        {
-            SoundSource = new WaveFileReader(wavPath);
-        }
-        else if (SoundExtensions.TrySaveAudioStream(sound, wavPath, out var stream))
-        {
-            SoundSource = new WaveFileReader(stream);
-        }
-        else
-        {
-            return;
-        }
+            var wavPath = Path.Combine(AudioCacheFolder.FullName, $"{sound.Name}.wav");
+            if (File.Exists(wavPath))
+            {
+                SoundSource = new WaveFileReader(wavPath);
+            }
+            else if (SoundExtensions.TrySaveAudioStream(sound, wavPath, out var stream))
+            {
+                SoundSource = new WaveFileReader(stream);
+            }
+            else
+            {
+                return;
+            }
 
-        IsPlaying = true;
-        SongInfo = songPicker;
-        SoundOut.Stop();
-        SoundOut.Initialize(SoundSource);
-        SoundOut.Play();
-        SoundOut.Volume = Volume;
+            IsPlaying = true;
+            SongInfo = songPicker;
+            SoundOut.Stop();
+            SoundOut.Initialize(SoundSource);
+            SoundOut.Play();
+            SoundOut.Volume = Volume;
         
-        DiscordService.UpdateMusic(songPicker.Title);
+            DiscordService.UpdateMusic(songPicker.Title);
+        });
     }
 
     public void SetVolume(float value)

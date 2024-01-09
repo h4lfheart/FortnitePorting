@@ -550,12 +550,13 @@ class DataImportTask:
                           lambda slot: slot.name.casefold() == material_name_to_swap.casefold())
             for slot in slots:
                 self.import_material(slot, variant_override_material, meta)
-                
-        for slot in imported_mesh.material_slots:
-            if not slot.material.get("Crunch Verts"):
-                continue
-
-            add_unique(self.crunch_verts_materials, slot.material)
+            
+        if imported_mesh:
+            for slot in imported_mesh.material_slots:
+                if not slot.material.get("Crunch Verts"):
+                    continue
+    
+                add_unique(self.crunch_verts_materials, slot.material)
 
         for child in mesh.get("Children"):
             self.import_model(child, collection, imported_object)
