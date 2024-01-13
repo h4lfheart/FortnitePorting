@@ -32,8 +32,8 @@ namespace FortnitePorting.ViewModels;
 public partial class FilesViewModel : ViewModelBase
 {
     [ObservableProperty] private EExportTargetType exportType = EExportTargetType.Blender;
-    [ObservableProperty] private TreeNodeItem selectedTreeItem;
-    [ObservableProperty] private FlatViewItem selectedFlatViewItem;
+    [ObservableProperty] private TreeNodeItem? selectedTreeItem;
+    [ObservableProperty] private FlatViewItem? selectedFlatViewItem;
     [ObservableProperty] private ObservableCollection<FlatViewItem> selectedExportItems = new();
 
     [ObservableProperty] private SuppressibleObservableCollection<TreeNodeItem> treeItems = new();
@@ -122,7 +122,7 @@ public partial class FilesViewModel : ViewModelBase
         Started = true;
         AssetFilter = this
             .WhenAnyValue(x => x.SearchFilter)
-            .Throttle(TimeSpan.FromMilliseconds(200))
+            .Throttle(TimeSpan.FromMilliseconds(250))
             .Select(CreateAssetFilter);
 
         AssetItemsSource.Connect()

@@ -40,6 +40,7 @@ public partial class FilesView : ViewBase<FilesViewModel>
     {
         if (sender is not TreeView treeView) return;
         if (treeView.SelectedItem is not TreeNodeItem item) return;
+        ViewModel.SearchFilter = string.Empty;
         ViewModel.FlatViewJumpTo(item.PathInfo.Path);
     }
 
@@ -48,5 +49,12 @@ public partial class FilesView : ViewBase<FilesViewModel>
         if (sender is not ListBox listBox) return;
         if (listBox.SelectedItem is not FlatViewItem item) return;
         ViewModel.TreeViewJumpTo(item.Path);
+    }
+
+    private void OnSearchTextChanged(object? sender, TextChangedEventArgs e)
+    {
+        ViewModel.SelectedExportItems.Clear();
+        ViewModel.SelectedFlatViewItem = null;
+        ViewModel.SelectedTreeItem = null;
     }
 }
