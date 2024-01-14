@@ -221,6 +221,7 @@ glass_mappings = MappingCollection(
         SlotMapping("Fresnel Inner Transparency Max Tint"),
         SlotMapping("Fresnel Outer Transparency"),
         SlotMapping("Glass thickness", "Thickness"),
+        SlotMapping("Alpha Channel Mask Opacity", "Mask Opacity"),
     ],
     vectors=[
         SlotMapping("ColorFront", "Color"),
@@ -847,7 +848,6 @@ class DataImportTask:
 
         if material_name in ["MI_VertexCrunch", "M_VertexCrunch"] or get_param(scalars, "HT_CrunchVerts") == 1:
             material_slot.material["Crunch Verts"] = True
-            shader_node.inputs["Alpha"].default_value = 0.0
             return
 
         if shader_node.node_tree.name == "FP Material":
