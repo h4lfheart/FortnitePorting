@@ -23,7 +23,6 @@ public class FPVersion
     public readonly int Major;
     public readonly int Minor;
     public readonly int Patch;
-    public readonly string SubVersion;
 
     public FPVersion(string inVersion)
     {
@@ -31,7 +30,6 @@ public class FPVersion
         Major = int.Parse(mainVersioning[0]);
         Minor = int.Parse(mainVersioning[1]);
         Patch = int.Parse(mainVersioning[2]);
-        SubVersion = mainVersioning[3];
     }
 
     public FPVersion(int major = 2, int minor = 0, int patch = 0, string subversion = "")
@@ -39,7 +37,6 @@ public class FPVersion
         Major = major;
         Minor = minor;
         Patch = patch;
-        SubVersion = subversion;
     }
 
     public bool MajorEquals(FPVersion other)
@@ -56,26 +53,20 @@ public class FPVersion
     {
         return Patch == other.Patch;
     }
-    
-    public bool SubVersionEquals(FPVersion other)
-    {
-        return SubVersion == other.SubVersion;
-    }
 
     public override string ToString()
     {
-        var subVersionString = string.IsNullOrWhiteSpace(SubVersion) ? string.Empty : $".{SubVersion}";
-        return $"{Major}.{Minor}.{Patch}{subVersionString}";
+        return $"{Major}.{Minor}.{Patch}";
     }
 
     public override bool Equals(object? obj)
     {
         var other = (FPVersion) obj!;
-        return MajorEquals(other) && MinorEquals(other) && PatchEquals(other) && SubVersionEquals(other);
+        return MajorEquals(other) && MinorEquals(other) && PatchEquals(other);
     }
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(Major, Minor, Patch, SubVersion);
+        return HashCode.Combine(Major, Minor, Patch);
     }
 }

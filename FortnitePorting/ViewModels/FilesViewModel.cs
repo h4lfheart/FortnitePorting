@@ -216,14 +216,21 @@ public partial class FilesViewModel : ViewModelBase
             {
                 index++;
 
-                if (!IsValidPath(filePath)) continue;
+                try
+                {
+                    if (!IsValidPath(filePath)) continue;
 
-                var fixPath = FixPath(filePath);
-                var percentage = index / total * 100;
-                if (Math.Abs(ScanPercentage - percentage) > 0.01f) ScanPercentage = percentage;
+                    var fixPath = FixPath(filePath);
+                    var percentage = index / total * 100;
+                    if (Math.Abs(ScanPercentage - percentage) > 0.01f) ScanPercentage = percentage;
 
-                var obj = await CUE4ParseVM.Provider.TryLoadObjectAsync(file.PathWithoutExtension);
-                if (obj is null || !ValidExportTypes.Any(type => obj.GetType().IsAssignableTo(type))) AppSettings.Current.HiddenFilePaths.Add(fixPath);
+                    var obj = await CUE4ParseVM.Provider.TryLoadObjectAsync(file.PathWithoutExtension);
+                    if (obj is null || !ValidExportTypes.Any(type => obj.GetType().IsAssignableTo(type))) AppSettings.Current.HiddenFilePaths.Add(fixPath);
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e.ToString());
+                }
             }
 
             ScanPercentage = 100.0f;
