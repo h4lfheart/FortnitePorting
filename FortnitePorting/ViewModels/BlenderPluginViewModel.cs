@@ -89,7 +89,7 @@ public partial class BlenderPluginViewModel : ViewModelBase
         installInfo.Update();
         
         Log.Information("Synced Blender {BlenderVersion} Plugin to Version {PluginVersion}", installInfo.BlenderVersion, installInfo.PluginVersion);
-        MessageWindow.Show("Sync Successful", $"Successfully synced the Blender {installInfo.BlenderVersion} plugin to version {installInfo.PluginVersion}");
+        MessageWindow.Show("Sync Successful", $"Successfully synced the Blender {installInfo.BlenderVersion} plugin to version {installInfo.PluginVersion}. If this is your first time installing the plugin, please ensure the plugin is enabled in Blender.");
 
         try
         {

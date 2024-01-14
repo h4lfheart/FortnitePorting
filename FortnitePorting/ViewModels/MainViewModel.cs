@@ -41,25 +41,6 @@ public partial class MainViewModel : ViewModelBase
         {
             UpdateText = "Check for\nUpdates";
         }
-        
-        await HomeVM.Initialize();
-        
-        ViewModelRegistry.Register<CUE4ParseViewModel>();
-        await CUE4ParseVM.Initialize();
-
-        TaskService.Run(async () =>
-        {
-            await AssetsVM.Initialize();
-            AssetTabReady = true;
-        });
-
-        TaskService.Run(async () =>
-        {
-            await FilesVM.Initialize();
-            MeshTabReady = true;
-        });
-
-        RadioTabReady = true;
     }
 
     public async Task UpdateCommand()

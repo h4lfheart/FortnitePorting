@@ -7,7 +7,7 @@ namespace FortnitePorting.Views;
 
 public partial class HomeView : ViewBase<HomeViewModel>
 {
-    public HomeView() : base(initialize: false)
+    public HomeView()
     {
         InitializeComponent();
     }

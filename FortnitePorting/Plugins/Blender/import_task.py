@@ -392,6 +392,7 @@ class DataImportTask:
                 total_frames += time_to_frame(section.get("Length"))
     
                 anim = self.import_anim(path, skeleton)
+                clear_bone_poses_recursive(skeleton, anim, "faceAttach")
                 track.strips.new(section.get("Name"), time_to_frame(section.get("Time")), anim)
             return total_frames
         
@@ -1236,6 +1237,25 @@ def merge_skeletons(parts):
         constraint_object(skeleton, master_skeleton, socket)
 
     return master_skeleton
+
+def clear_bone_poses_recursive(skeleton, anim, bone_name):
+    bpy.ops.object.mode_set(mode='POSE')
+    bpy.ops.pose.select_all(action='DESELECT')
+    pose_bones = skeleton.pose.bones
+    bones = skeleton.data.bones
+    if target_bone := first(bones, lambda x: x.name == bone_name):
+        target_bones = target_bone.children_recursive
+        target_bones.append(target_bone)
+        dispose_paths = []
+        for bone in target_bones:
+            dispose_paths.append(f'pose.bones["{bone.name}"].rotation_quaternion')
+            dispose_paths.append(f'pose.bones["{bone.name}"].location')
+            dispose_paths.append(f'pose.bones["{bone.name}"].scale')
+            pose_bones[bone.name].matrix_basis = Matrix()
+        dispose_curves = [fcurve for fcurve in anim.fcurves if fcurve.data_path in dispose_paths]
+        for fcurve in dispose_curves:
+            anim.fcurves.remove(fcurve)
+    bpy.ops.object.mode_set(mode='OBJECT')
 
 class LazyInit:
     

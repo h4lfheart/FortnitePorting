@@ -74,7 +74,7 @@
                                     <TextBlock Text="Support the Project" />
                                 </StackPanel>
                             </Button>
-                            <Button Command="{Binding OpenFAQCommand}" Margin="{ext:Space 0.25}">
+                            <Button Command="{Binding OpenWikiCommand}" Margin="{ext:Space 0.25}">
                                 <controls:MaterialIconText Text="Wiki" Icon="QuestionMark" />
                             </Button>
                             

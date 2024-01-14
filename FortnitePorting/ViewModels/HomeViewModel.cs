@@ -32,6 +32,26 @@ public partial class HomeViewModel : ViewModelBase
 
     public override async Task Initialize()
     {
+        TaskService.Run(async () =>
+        {
+            ViewModelRegistry.Register<CUE4ParseViewModel>();
+            await CUE4ParseVM.Initialize();
+
+            TaskService.Run(async () =>
+            {
+                await AssetsVM.Initialize();
+                MainVM.AssetTabReady = true;
+            });
+
+            TaskService.Run(async () =>
+            {
+                await FilesVM.Initialize();
+                MainVM.MeshTabReady = true;
+            });
+
+            MainVM.RadioTabReady = true;
+        });
+        
         TaskService.Run(() =>
         {
             SplashArtSource = AppSettings.Current.UseCustomSplashArt ? new Bitmap(AppSettings.Current.CustomSplashArtPath) : DefaultHomeImage;
@@ -88,9 +108,9 @@ public partial class HomeViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    public void OpenFAQ()
+    public void OpenWiki()
     {
-        // TODO MAKE FAQ
+        Launch(Globals.WIKI_URL);
     }
     
     [RelayCommand]
