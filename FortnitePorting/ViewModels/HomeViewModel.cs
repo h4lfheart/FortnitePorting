@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using AsyncImageLoader;
@@ -54,7 +55,7 @@ public partial class HomeViewModel : ViewModelBase
         
         TaskService.Run(() =>
         {
-            SplashArtSource = AppSettings.Current.UseCustomSplashArt && !string.IsNullOrEmpty(AppSettings.Current.CustomSplashArtPath) ? new Bitmap(AppSettings.Current.CustomSplashArtPath) : DefaultHomeImage;
+            SplashArtSource = AppSettings.Current.UseCustomSplashArt && File.Exists(AppSettings.Current.CustomSplashArtPath) ? new Bitmap(AppSettings.Current.CustomSplashArtPath) : DefaultHomeImage;
         });
         
         TaskService.Run(async () =>

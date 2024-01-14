@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using CUE4Parse_Conversion.Meshes;
 using CUE4Parse.GameTypes.FN.Assets.Exports;
@@ -35,6 +36,12 @@ public class MeshExportData : ExportDataBase
             case EAssetType.Outfit:
             {
                 var parts = asset.GetOrDefault("BaseCharacterParts", Array.Empty<UObject>());
+                if (parts.Length == 0 && asset.TryGetValue(out UObject heroDefinition, "HeroDefinition"))
+                {
+                    var specializations = heroDefinition.Get<UObject[]>("Specializations").FirstOrDefault();
+                    parts = specializations?.GetOrDefault("CharacterParts", Array.Empty<UObject>()) ?? Array.Empty<UObject>();
+                }
+                
                 AssetsVM.ExportChunks = parts.Length;
                 foreach (var part in parts)
                 {
@@ -244,34 +251,40 @@ public class MeshExportData : ExportDataBase
             }
             case EAssetType.World:
             {
-                if (asset is not UWorld world) break;
-                if (world.PersistentLevel.Load() is not ULevel level) break;
-
-                FilesVM.ExportChunks = level.Actors.Length;
-                AssetsVM.ExportProgress = 0;
-                foreach (var actorLazy in level.Actors)
-                {
-                    FilesVM.ExportProgress++;
-                    if (actorLazy is null || actorLazy.IsNull) continue;
-
-                    var actor = actorLazy.Load();
-                    if (actor is null) continue;
-                    if (actor.ExportType == "LODActor") continue;
-                    if (actor.Name.StartsWith("LF_")) continue;
-
-                    Log.Information("Processing {0}: {1}/{2}", actor.Name, FilesVM.ExportProgress, FilesVM.ExportChunks);
-                    ProcessActor(actor);
-                }
-
+                if (asset is not UWorld world) return;
+                Meshes.AddRange(ProcessWorld(world));
+                
                 break;
 
-                void ProcessActor(UObject actor)
+                IEnumerable<ExportMesh> ProcessWorld(UWorld world)
                 {
+                    if (world.PersistentLevel.Load() is not ULevel level) return Enumerable.Empty<ExportMesh>();
+
+                    FilesVM.ExportChunks += level.Actors.Length;
+
+                    var actors = new List<ExportMesh>();
+                    foreach (var actorLazy in level.Actors)
+                    {
+                        FilesVM.ExportProgress++;
+                        if (actorLazy is null || actorLazy.IsNull) continue;
+
+                        var actor = actorLazy.Load();
+                        if (actor is null) continue;
+                        if (actor.ExportType == "LODActor") continue;
+
+                        Log.Information("Processing {0}: {1}/{2}", actor.Name, FilesVM.ExportProgress, FilesVM.ExportChunks);
+                        actors.AddIfNotNull(ProcessActor(actor));
+                    }
+
+                    return actors;
+                }
+
+                ExportMesh? ProcessActor(UObject actor)
+                {
+                    
                     if (actor.TryGetValue(out UStaticMeshComponent staticMeshComponent, "StaticMeshComponent", "StaticMesh", "Mesh", "LightMesh"))
                     {
-                        var exportMesh = Exporter.MeshComponent(staticMeshComponent);
-                        if (exportMesh is null) return;
-
+                        var exportMesh = Exporter.MeshComponent(staticMeshComponent) ?? new ExportMesh { IsEmpty = true };
                         exportMesh.Name = actor.Name;
                         exportMesh.Location = staticMeshComponent.GetOrDefault("RelativeLocation", FVector.ZeroVector);
                         exportMesh.Rotation = staticMeshComponent.GetOrDefault("RelativeRotation", FRotator.ZeroRotator);
@@ -290,9 +303,19 @@ public class MeshExportData : ExportDataBase
                         {
                             exportMesh.TextureData.AddIfNotNull(Exporter.TextureData(textureData, index));
                         }
+                        
+                        if (actor.TryGetValue(out FSoftObjectPath[] additionalWorlds, "AdditionalWorlds"))
+                        {
+                            foreach (var additionalWorldPath in additionalWorlds)
+                            {
+                                exportMesh.Children.AddRange(ProcessWorld(additionalWorldPath.Load<UWorld>()));
+                            }
+                        }
 
-                        Meshes.AddIfNotNull(exportMesh);
+                        return exportMesh;
                     }
+
+                    return null;
                 }
             }
             case EAssetType.FestivalBass:

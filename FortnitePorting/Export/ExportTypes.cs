@@ -8,8 +8,9 @@ namespace FortnitePorting.Export;
 
 public record ExportMesh
 {
-    public string Name;
-    public string Path;
+    public bool IsEmpty;
+    public string Name = string.Empty;
+    public string Path = string.Empty;
     public int NumLods;
     public FVector Location = FVector.ZeroVector;
     public FRotator Rotation = FRotator.ZeroRotator;
@@ -22,7 +23,7 @@ public record ExportMesh
 
 public record ExportPart : ExportMesh
 {
-    public string Type;
+    public string Type = string.Empty;
     public ExportPartMeta Meta = new();
 }
 

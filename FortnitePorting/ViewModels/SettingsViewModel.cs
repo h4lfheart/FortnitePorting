@@ -101,8 +101,7 @@ public partial class SettingsViewModel : ViewModelBase
         nameof(LocalArchivePath),
         nameof(CustomArchivePath),
         nameof(CustomMappingsPath),
-        nameof(CustomEncryptionKey),
-        nameof(CustomMappingsPath),
+        nameof(CustomUnrealVersion),
         nameof(FilterProps),
         nameof(FilterItems),
         nameof(AssetSize)

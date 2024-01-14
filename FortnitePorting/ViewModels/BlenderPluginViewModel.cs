@@ -82,9 +82,9 @@ public partial class BlenderPluginViewModel : ViewModelBase
         var assets = Avalonia.Platform.AssetLoader.GetAssets(new Uri("avares://FortnitePorting/Plugins/Blender"), null);
         foreach (var asset in assets)
         {
-            await using var fileStream = File.OpenWrite(Path.Combine(installInfo.AddonPath, asset.AbsolutePath.SubstringAfterLast("/")));
+            var filePath = Path.Combine(installInfo.AddonPath, asset.AbsolutePath.SubstringAfterLast("/"));
             var assetStream = Avalonia.Platform.AssetLoader.Open(asset);
-            await assetStream.CopyToAsync(fileStream);
+            await File.WriteAllBytesAsync(filePath, assetStream.ReadToEnd());
         }
         installInfo.Update();
         
