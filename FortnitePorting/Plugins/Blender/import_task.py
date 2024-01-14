@@ -350,12 +350,30 @@ class DataImportTask:
             master_mesh = get_armature_mesh(master_skeleton)
 
             bpy.ops.object.mode_set(mode='POSE')
+
             for bone in master_skeleton.pose.bones:
                 if not (deform_bone := master_skeleton.pose.bones.get(f"deform_{bone.name}")): continue
-        
+
                 constraint = deform_bone.constraints.new("COPY_ROTATION")
                 constraint.target = master_skeleton
                 constraint.subtarget = bone.name
+
+            bpy.ops.object.mode_set(mode='EDIT')
+
+            parent_adjustment_bones = [
+                ("L_eye_lid_lower_mid", "faceAttach"),
+                ("L_eye_lid_upper_mid", "faceAttach"),
+                ("R_eye_lid_lower_mid", "faceAttach"),
+                ("R_eye_lid_upper_mid", "faceAttach")
+            ]
+
+            for name, parent in parent_adjustment_bones:
+                if not (bone := master_skeleton.data.edit_bones.get(name)): continue
+                if not (parent_bone := master_skeleton.data.edit_bones.get(parent)): continue
+        
+                bone.parent = parent_bone
+
+                
             bpy.ops.object.mode_set(mode='OBJECT')
             
             if self.options.get("MeshDeformFixes"):
