@@ -22,9 +22,17 @@ public static class SoundExtensions
 
     public static ISoundOut GetSoundOut()
     {
-        if (WasapiOut.IsSupportedOnCurrentPlatform) return new WasapiOut { Device = DeviceEnumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Console) };
+        try
+        {
+            if (WasapiOut.IsSupportedOnCurrentPlatform) return new WasapiOut { Device = DeviceEnumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia) };
 
-        return new DirectSoundOut();
+            return new DirectSoundOut();
+        }
+        catch (Exception e)
+        {
+            HandleException(e);
+            return new DirectSoundOut();
+        }
     }
 
     public static bool TrySaveAudio(USoundWave soundWave, string path)

@@ -98,31 +98,43 @@ layer_mappings = MappingCollection(
         SlotMapping("SpecularMasks"),
         SlotMapping("Normals"),
         SlotMapping("EmissiveTexture"),
+        SlotMapping("MaskTexture"),
+        SlotMapping("Background Diffuse", alpha_slot="Background Diffuse Alpha"),
 
-        SlotMapping("Diffuse_Texture_2"),
+        SlotMapping("Diffuse_Texture_2",),
         SlotMapping("SpecularMasks_2"),
         SlotMapping("Normals_Texture_2"),
         SlotMapping("Emissive_Texture_2"),
+        SlotMapping("MaskTexture_2"),
+        SlotMapping("Background Diffuse 2", alpha_slot="Background Diffuse Alpha 2"),
 
         SlotMapping("Diffuse_Texture_3"),
         SlotMapping("SpecularMasks_3"),
         SlotMapping("Normals_Texture_3"),
         SlotMapping("Emissive_Texture_3"),
+        SlotMapping("MaskTexture_3"),
+        SlotMapping("Background Diffuse 3", alpha_slot="Background Diffuse Alpha 3"),
 
         SlotMapping("Diffuse_Texture_4"),
         SlotMapping("SpecularMasks_4"),
         SlotMapping("Normals_Texture_4"),
         SlotMapping("Emissive_Texture_4"),
+        SlotMapping("MaskTexture_4"),
+        SlotMapping("Background Diffuse 4", alpha_slot="Background Diffuse Alpha 4"),
 
         SlotMapping("Diffuse_Texture_5"),
         SlotMapping("SpecularMasks_5"),
         SlotMapping("Normals_Texture_5"),
         SlotMapping("Emissive_Texture_5"),
+        SlotMapping("MaskTexture_5"),
+        SlotMapping("Background Diffuse 5", alpha_slot="Background Diffuse Alpha 5"),
 
         SlotMapping("Diffuse_Texture_6"),
         SlotMapping("SpecularMasks_6"),
         SlotMapping("Normals_Texture_6"),
         SlotMapping("Emissive_Texture_6"),
+        SlotMapping("MaskTexture_6"),
+        SlotMapping("Background Diffuse 6", alpha_slot="Background Diffuse Alpha 6"),
     ]
 )
 
@@ -913,6 +925,7 @@ class DataImportTask:
             
             if (crop_bounds := get_param_multiple(vectors, emission_crop_vector_params)) and get_param_multiple(switches, emission_crop_switch_params) and len(emission_slot.links) > 0:
                 emission_node = emission_slot.links[0].from_node
+                emission_node.extension = "CLIP"
 
                 crop_texture_node = nodes.new("ShaderNodeGroup")
                 crop_texture_node.node_tree = bpy.data.node_groups.get("FP Texture Cropping")

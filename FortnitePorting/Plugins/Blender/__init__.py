@@ -11,7 +11,7 @@ bl_info = {
     "description": "Fortnite Porting Blender Plugin",
     "author": "Half",
     "blender": (4, 0, 0),
-    "version": (2, 0, 0, "release-candidate"),
+    "version": (2, 0, 0),
     "category": "Import",
 }
 
@@ -25,7 +25,7 @@ def message_box(message="", title="Message Box", icon='INFO'):
 
 def register():
     ue_format.zstd_decompresser = zstd.ZstdDecompressor()
-    
+
     global import_server
     import_server = ImportServer()
     import_server.start()

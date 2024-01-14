@@ -54,7 +54,7 @@ public partial class HomeViewModel : ViewModelBase
         
         TaskService.Run(() =>
         {
-            SplashArtSource = AppSettings.Current.UseCustomSplashArt ? new Bitmap(AppSettings.Current.CustomSplashArtPath) : DefaultHomeImage;
+            SplashArtSource = AppSettings.Current.UseCustomSplashArt && !string.IsNullOrEmpty(AppSettings.Current.CustomSplashArtPath) ? new Bitmap(AppSettings.Current.CustomSplashArtPath) : DefaultHomeImage;
         });
         
         TaskService.Run(async () =>
