@@ -29,13 +29,14 @@ class MappingCollection:
 
 
 class SlotMapping:
-    def __init__(self, name, slot=None, alpha_slot=None, switch_slot=None, value_func=None, coords="UV0"):
+    def __init__(self, name, slot=None, alpha_slot=None, switch_slot=None, value_func=None, coords="UV0", allow_switch=None):
         self.name = name
         self.slot = name if slot is None else slot
         self.alpha_slot = alpha_slot
         self.switch_slot = switch_slot
         self.value_func = value_func
         self.coords = coords
+        self.allow_switch = allow_switch
 
 default_mappings = MappingCollection(
     textures=[
@@ -94,42 +95,42 @@ default_mappings = MappingCollection(
 
 layer_mappings = MappingCollection(
     textures=[
-        SlotMapping("Diffuse"),
+        SlotMapping("Diffuse", alpha_slot="MaskTexture"),
         SlotMapping("SpecularMasks"),
         SlotMapping("Normals"),
         SlotMapping("EmissiveTexture"),
         SlotMapping("MaskTexture"),
         SlotMapping("Background Diffuse", alpha_slot="Background Diffuse Alpha"),
 
-        SlotMapping("Diffuse_Texture_2",),
+        SlotMapping("Diffuse_Texture_2", alpha_slot="MaskTexture_2"),
         SlotMapping("SpecularMasks_2"),
         SlotMapping("Normals_Texture_2"),
         SlotMapping("Emissive_Texture_2"),
         SlotMapping("MaskTexture_2"),
         SlotMapping("Background Diffuse 2", alpha_slot="Background Diffuse Alpha 2"),
 
-        SlotMapping("Diffuse_Texture_3"),
+        SlotMapping("Diffuse_Texture_3", alpha_slot="MaskTexture_3"),
         SlotMapping("SpecularMasks_3"),
         SlotMapping("Normals_Texture_3"),
         SlotMapping("Emissive_Texture_3"),
         SlotMapping("MaskTexture_3"),
         SlotMapping("Background Diffuse 3", alpha_slot="Background Diffuse Alpha 3"),
 
-        SlotMapping("Diffuse_Texture_4"),
+        SlotMapping("Diffuse_Texture_4", alpha_slot="MaskTexture_4"),
         SlotMapping("SpecularMasks_4"),
         SlotMapping("Normals_Texture_4"),
         SlotMapping("Emissive_Texture_4"),
         SlotMapping("MaskTexture_4"),
         SlotMapping("Background Diffuse 4", alpha_slot="Background Diffuse Alpha 4"),
 
-        SlotMapping("Diffuse_Texture_5"),
+        SlotMapping("Diffuse_Texture_5", alpha_slot="MaskTexture_5"),
         SlotMapping("SpecularMasks_5"),
         SlotMapping("Normals_Texture_5"),
         SlotMapping("Emissive_Texture_5"),
         SlotMapping("MaskTexture_5"),
         SlotMapping("Background Diffuse 5", alpha_slot="Background Diffuse Alpha 5"),
 
-        SlotMapping("Diffuse_Texture_6"),
+        SlotMapping("Diffuse_Texture_6", alpha_slot="MaskTexture_6"),
         SlotMapping("SpecularMasks_6"),
         SlotMapping("Normals_Texture_6"),
         SlotMapping("Emissive_Texture_6"),
@@ -347,6 +348,16 @@ class DataImportTask:
         if self.type == "Outfit" and self.options.get("MergeSkeletons"):
             master_skeleton = merge_skeletons(self.imported_meshes)
             master_mesh = get_armature_mesh(master_skeleton)
+
+            bpy.ops.object.mode_set(mode='POSE')
+            for bone in master_skeleton.pose.bones:
+                if not (deform_bone := master_skeleton.pose.bones.get(f"deform_{bone.name}")): continue
+        
+                constraint = deform_bone.constraints.new("COPY_ROTATION")
+                constraint.target = master_skeleton
+                constraint.subtarget = bone.name
+            bpy.ops.object.mode_set(mode='OBJECT')
+            
             if self.options.get("MeshDeformFixes"):
                 master_mesh.modifiers[0].use_deform_preserve_volume = True #armature modifier
                 corrective_smooth = master_mesh.modifiers.new(name="Corrective Smooth", type='CORRECTIVE_SMOOTH')
@@ -377,6 +388,7 @@ class DataImportTask:
         name = data.get("Name")
 
         target_skeleton = override_skeleton or armature_from_selection()
+        bpy.context.view_layer.objects.active = target_skeleton
         if target_skeleton is None:
             MessageServer.instance.send("An armature must be selected to import an animation. Please select an armature and try again.")
             return
@@ -690,6 +702,9 @@ class DataImportTask:
                         node.location = 400, unused_parameter_offset
                         unused_parameter_offset -= 50
                     return
+                
+                if mappings.allow_switch and not get_param(switches, mappings.allow_switch):
+                    return
 
                 x, y = get_socket_pos(target_node, target_node.inputs.find(mappings.slot))
                 node.location = x - 300, y
@@ -814,6 +829,7 @@ class DataImportTask:
         if get_param_multiple(switches, layer_switch_names) and get_param_multiple(textures, extra_layer_names):
             replace_shader_node("FP Layer")
             socket_mappings = layer_mappings
+            shader_node.inputs["Is Transparent"].default_value = material_data.get("IsTransparent")
 
         if any(["LitDiffuse", "ShadedDiffuse"], lambda x: get_param(textures, x)):
             replace_shader_node("FP Toon")
@@ -1279,7 +1295,7 @@ class LazyInit:
         try:
             self.data = self.gen()
             return True
-        except Exception:
+        except Exception as e:
             return False
 
     def get(self):
@@ -1289,7 +1305,7 @@ class LazyInit:
 def apply_tasty_rig(master_skeleton, scale, use_finger_ik = True):
     master_skeleton["is_tasty_rig"] = True
     armature_data = master_skeleton.data
-    armature_data["Use Finger IK"] = use_finger_ik
+    use_finger_fk = not use_finger_ik
 
     main_collection = armature_data.collections.new("Main Bones")
     ik_collection = armature_data.collections.new("IK Bones")
@@ -1341,6 +1357,16 @@ def apply_tasty_rig(master_skeleton, scale, use_finger_ik = True):
         ("ik_finger_ring_l", "ik_hand_parent_l", LazyInit(lambda: (edit_bones["ring_03_l"].tail, 2 * edit_bones["ring_03_l"].tail - edit_bones["ring_03_l"].head, edit_bones["ring_03_l"].roll))),
         ("ik_finger_pinky_l", "ik_hand_parent_l", LazyInit(lambda: (edit_bones["pinky_03_l"].tail, 2 * edit_bones["pinky_03_l"].tail - edit_bones["pinky_03_l"].head, edit_bones["pinky_03_l"].roll))),
         ("ik_hand_pole_l", "tasty_root", LazyInit(lambda: (edit_bones["lowerarm_l"].head + Vector((0, 0.75, 0)) * scale, edit_bones["lowerarm_l"].tail + Vector((0, 0.80, 0)) * scale, 0))),
+
+        ("index_control_r", "index_metacarpal_r", LazyInit(lambda: (edit_bones["index_01_r"].head, edit_bones["index_01_r"].tail, edit_bones["index_01_r"].roll))),
+        ("middle_control_r", "middle_metacarpal_r", LazyInit(lambda: (edit_bones["middle_01_r"].head, edit_bones["middle_01_r"].tail, edit_bones["middle_01_r"].roll))),
+        ("ring_control_r", "ring_metacarpal_r", LazyInit(lambda: (edit_bones["ring_01_r"].head, edit_bones["ring_01_r"].tail, edit_bones["ring_01_r"].roll))),
+        ("pinky_control_r", "pinky_metacarpal_r",  LazyInit(lambda: (edit_bones["pinky_01_r"].head, edit_bones["pinky_01_r"].tail, edit_bones["pinky_01_r"].roll))),
+
+        ("index_control_l", "index_metacarpal_l", LazyInit(lambda: (edit_bones["index_01_l"].head, edit_bones["index_01_l"].tail, edit_bones["index_01_l"].roll))),
+        ("middle_control_l", "middle_metacarpal_l", LazyInit(lambda: (edit_bones["middle_01_l"].head, edit_bones["middle_01_l"].tail, edit_bones["middle_01_l"].roll))),
+        ("ring_control_l", "ring_metacarpal_l", LazyInit(lambda: (edit_bones["ring_01_l"].head, edit_bones["ring_01_l"].tail, edit_bones["ring_01_l"].roll))),
+        ("pinky_control_l", "pinky_metacarpal_l",  LazyInit(lambda: (edit_bones["pinky_01_l"].head, edit_bones["pinky_01_l"].tail, edit_bones["pinky_01_l"].roll))),
 
         ("ik_dog_ball_r", "ik_foot_target_r", LazyInit(lambda: (edit_bones["dog_ball_r"].tail, 2 * edit_bones["dog_ball_r"].tail - edit_bones["dog_ball_r"].head, edit_bones["dog_ball_r"].roll))),
         ("ik_dog_ball_l", "ik_foot_target_l", LazyInit(lambda: (edit_bones["dog_ball_l"].tail, 2 * edit_bones["dog_ball_l"].tail - edit_bones["dog_ball_l"].head, edit_bones["dog_ball_l"].roll))),
@@ -1426,6 +1452,23 @@ def apply_tasty_rig(master_skeleton, scale, use_finger_ik = True):
 
         bone.roll = roll
 
+    transform_adjustment_bones = [
+        ("index_control_r", Vector((0.025, 0.0, 0.0))),
+        ("middle_control_r", Vector((0.025, 0.0, 0.0))),
+        ("ring_control_r", Vector((0.025, 0.0, 0.0))),
+        ("pinky_control_r", Vector((0.025, 0.0, 0.0))),
+
+        ("index_control_l", Vector((0.025, 0.0, 0.0))),
+        ("middle_control_l", Vector((0.025, 0.0, 0.0))),
+        ("ring_control_l", Vector((0.025, 0.0, 0.0))),
+        ("pinky_control_l", Vector((0.025, 0.0, 0.0))),
+    ]
+
+    for name, transform in transform_adjustment_bones:
+        if not (bone := edit_bones.get(name)): continue
+
+        bone.matrix @= Matrix.Translation(transform)
+
     if (lower_lip_bone := edit_bones.get("FACIAL_C_LowerLipRotation")) and (jaw_bone := edit_bones.get("FACIAL_C_Jaw")):
         lower_lip_bone.parent = jaw_bone
         
@@ -1488,6 +1531,16 @@ def apply_tasty_rig(master_skeleton, scale, use_finger_ik = True):
         ("ik_finger_middle_l", "RIG_Finger", 1.0, Euler((0, 0, radians(180)))),
         ("ik_finger_ring_l", "RIG_Finger", 1.0, Euler((0, 0, radians(180)))),
         ("ik_finger_pinky_l", "RIG_Finger", 1.0, Euler((0, 0, radians(180)))),
+
+        ("index_control_r", "RIG_FingerRotR", 1.0),
+        ("middle_control_r", "RIG_FingerRotR", 1.0),
+        ("ring_control_r", "RIG_FingerRotR", 1.0),
+        ("pinky_control_r", "RIG_FingerRotR", 1.0),
+
+        ("index_control_l", "RIG_FingerRotR", 1.0),
+        ("middle_control_l", "RIG_FingerRotR", 1.0),
+        ("ring_control_l", "RIG_FingerRotR", 1.0),
+        ("pinky_control_l", "RIG_FingerRotR", 1.0),
         
         ("eye_control_parent", "RIG_EyeTrackMid", 0.75, False),
         ("eye_control_r", "RIG_EyeTrackInd", 0.75, False),
@@ -1547,6 +1600,16 @@ def apply_tasty_rig(master_skeleton, scale, use_finger_ik = True):
         "ik_finger_middle_l": ik_collection,
         "ik_finger_ring_l": ik_collection,
         "ik_finger_pinky_l": ik_collection,
+
+        "index_control_r": ik_collection,
+        "middle_control_r": ik_collection,
+        "ring_control_r": ik_collection,
+        "pinky_control_r": ik_collection,
+        
+        "index_control_l": ik_collection,
+        "middle_control_l": ik_collection,
+        "ring_control_l": ik_collection,
+        "pinky_control_l": ik_collection,
         
         "eye_control_parent": face_collection,
         "eye_control_r": face_collection,
@@ -1698,41 +1761,44 @@ def apply_tasty_rig(master_skeleton, scale, use_finger_ik = True):
     add_foot_ik_constraints("l")
 
     ik_bones = [
-        ("calf_r", "ik_foot_target_r", "ik_foot_pole_r", 2, False),
-        ("calf_l", "ik_foot_target_l", "ik_foot_pole_l", 2, False),
+        ("calf_r", "ik_foot_target_r", "ik_foot_pole_r", 2, False, True),
+        ("calf_l", "ik_foot_target_l", "ik_foot_pole_l", 2, False, True),
         
-        ("lowerarm_r", "ik_hand_target_r", "ik_hand_pole_r", 2, False),
-        ("thumb_03_r", "ik_finger_thumb_r", None, 3, True, "Use Finger IK"),
-        ("index_03_r", "ik_finger_index_r", None, 4, True, "Use Finger IK"),
-        ("middle_03_r", "ik_finger_middle_r", None, 4, True, "Use Finger IK"),
-        ("ring_03_r", "ik_finger_ring_r", None, 4, True, "Use Finger IK"),
-        ("pinky_03_r", "ik_finger_pinky_r", None, 4, True, "Use Finger IK"),
-        ("phantom_thumb_03_r", "ik_finger_thumb_r", None, 3, True, "Use Finger IK"),
-        ("phantom_index_03_r", "ik_finger_index_r", None, 4, True, "Use Finger IK"),
-        ("phantom_middle_03_r", "ik_finger_middle_r", None, 4, True, "Use Finger IK"),
-        ("phantom_ring_03_r", "ik_finger_ring_r", None, 4, True, "Use Finger IK"),
-        ("phantom_pinky_03_r", "ik_finger_pinky_r", None, 4, True, "Use Finger IK"),
+        ("lowerarm_r", "ik_hand_target_r", "ik_hand_pole_r", 2, False, True),
+        ("thumb_03_r", "ik_finger_thumb_r", None, 3, True, use_finger_ik),
+        ("index_03_r", "ik_finger_index_r", None, 4, True, use_finger_ik),
+        ("middle_03_r", "ik_finger_middle_r", None, 4, True, use_finger_ik),
+        ("ring_03_r", "ik_finger_ring_r", None, 4, True, use_finger_ik),
+        ("pinky_03_r", "ik_finger_pinky_r", None, 4, True, use_finger_ik),
+        ("phantom_thumb_03_r", "ik_finger_thumb_r", None, 3, True, use_finger_ik),
+        ("phantom_index_03_r", "ik_finger_index_r", None, 4, True, use_finger_ik),
+        ("phantom_middle_03_r", "ik_finger_middle_r", None, 4, True, use_finger_ik),
+        ("phantom_ring_03_r", "ik_finger_ring_r", None, 4, True, use_finger_ik),
+        ("phantom_pinky_03_r", "ik_finger_pinky_r", None, 4, True, use_finger_ik),
 
-        ("lowerarm_l", "ik_hand_target_l", "ik_hand_pole_l", 2, False),
-        ("thumb_03_l", "ik_finger_thumb_l", None, 3, True, "Use Finger IK"),
-        ("index_03_l", "ik_finger_index_l", None, 4, True, "Use Finger IK"),
-        ("middle_03_l", "ik_finger_middle_l", None, 4, True, "Use Finger IK"),
-        ("ring_03_l", "ik_finger_ring_l", None, 4, True, "Use Finger IK"),
-        ("pinky_03_l", "ik_finger_pinky_l", None, 4, True, "Use Finger IK"),
-        ("phantom_thumb_03_l", "ik_finger_thumb_l", None, 3, True, "Use Finger IK"),
-        ("phantom_index_03_l", "ik_finger_index_l", None, 4, True, "Use Finger IK"),
-        ("phantom_middle_03_l", "ik_finger_middle_l", None, 4, True, "Use Finger IK"),
-        ("phantom_ring_03_l", "ik_finger_ring_l", None, 4, True, "Use Finger IK"),
-        ("phantom_pinky_03_l", "ik_finger_pinky_l", None, 4, True, "Use Finger IK"),
+        ("lowerarm_l", "ik_hand_target_l", "ik_hand_pole_l", 2, False, True),
+        ("thumb_03_l", "ik_finger_thumb_l", None, 3, True, use_finger_ik),
+        ("index_03_l", "ik_finger_index_l", None, 4, True, use_finger_ik),
+        ("middle_03_l", "ik_finger_middle_l", None, 4, True, use_finger_ik),
+        ("ring_03_l", "ik_finger_ring_l", None, 4, True, use_finger_ik),
+        ("pinky_03_l", "ik_finger_pinky_l", None, 4, True, use_finger_ik),
+        ("phantom_thumb_03_l", "ik_finger_thumb_l", None, 3, True, use_finger_ik),
+        ("phantom_index_03_l", "ik_finger_index_l", None, 4, True, use_finger_ik),
+        ("phantom_middle_03_l", "ik_finger_middle_l", None, 4, True, use_finger_ik),
+        ("phantom_ring_03_l", "ik_finger_ring_l", None, 4, True, use_finger_ik),
+        ("phantom_pinky_03_l", "ik_finger_pinky_l", None, 4, True, use_finger_ik),
 
-        ("dog_ball_r", "ik_dog_ball_r", "ik_foot_pole_r", 3, True),
-        ("dog_ball_l", "ik_dog_ball_l", "ik_foot_pole_l", 3, True),
-        ("wolf_ball_r", "ik_wolf_ball_r", "ik_foot_pole_r", 3, True),
-        ("wolf_ball_l", "ik_wolf_ball_l", "ik_foot_pole_l", 3, True),
+        ("dog_ball_r", "ik_dog_ball_r", "ik_foot_pole_r", 3, True, True),
+        ("dog_ball_l", "ik_dog_ball_l", "ik_foot_pole_l", 3, True, True),
+        ("wolf_ball_r", "ik_wolf_ball_r", "ik_foot_pole_r", 3, True, True),
+        ("wolf_ball_l", "ik_wolf_ball_l", "ik_foot_pole_l", 3, True, True),
     ]
     
-    for bone_name, target_name, pole_name, chain_length, use_rotation, *extra in ik_bones:
+    for bone_name, target_name, pole_name, chain_length, use_rotation, is_allowed in ik_bones:
         if not (bone := pose_bones.get(bone_name)): continue
+
+        if not is_allowed:
+            continue
         
         constraint = bone.constraints.new("IK")
         constraint.target = master_skeleton
@@ -1744,41 +1810,60 @@ def apply_tasty_rig(master_skeleton, scale, use_finger_ik = True):
             constraint.pole_target = master_skeleton
             constraint.pole_subtarget = pole_name
             constraint.pole_angle = radians(180)
-            
-        if len(extra) > 0 and (influence_custom_property := extra[0]):
-            driver = constraint.driver_add("influence")
-            var = driver.driver.variables.new()
-            var.name = "Use_Finger_IK"
-            var.targets[0].id_type = "ARMATURE"
-            var.targets[0].id = armature_data
-            var.targets[0].data_path = f"[\"{influence_custom_property}\"]"
-            driver.driver.expression = var.name
-            
-        
+
     copy_rotation_bones = {
-        ("foot_r", "ik_foot_target_r", 1.0, "WORLD"),
-        ("foot_l", "ik_foot_target_l", 1.0, "WORLD"),
-        ("hand_r", "ik_hand_target_r", 1.0, "WORLD"),
-        ("hand_l", "ik_hand_target_l", 1.0, "WORLD"),
+        ("foot_r", "ik_foot_target_r", 1.0, "WORLD", True),
+        ("foot_l", "ik_foot_target_l", 1.0, "WORLD", True),
+        ("hand_r", "ik_hand_target_r", 1.0, "WORLD", True),
+        ("hand_l", "ik_hand_target_l", 1.0, "WORLD", True),
 
-        ("dog_thigh_r", "thigh_r", 1.0, "WORLD"),
-        ("dog_thigh_l", "thigh_l", 1.0, "WORLD"),
-        ("wolf_thigh_r", "thigh_r", 1.0, "WORLD"),
-        ("wolf_thigh_l", "thigh_l", 1.0, "WORLD"),
+        ("dog_thigh_r", "thigh_r", 1.0, "WORLD", True),
+        ("dog_thigh_l", "thigh_l", 1.0, "WORLD", True),
+        ("wolf_thigh_r", "thigh_r", 1.0, "WORLD", True),
+        ("wolf_thigh_l", "thigh_l", 1.0, "WORLD", True),
 
-        ("R_eye_lid_upper_mid", "R_eye", 0.25, "LOCAL"),
-        ("R_eye_lid_lower_mid", "R_eye", 0.25, "LOCAL"),
-        ("L_eye_lid_upper_mid", "L_eye", 0.25, "LOCAL"),
-        ("L_eye_lid_lower_mid", "L_eye", 0.25, "LOCAL"),
+        ("R_eye_lid_upper_mid", "R_eye", 0.25, "LOCAL", True),
+        ("R_eye_lid_lower_mid", "R_eye", 0.25, "LOCAL", True),
+        ("L_eye_lid_upper_mid", "L_eye", 0.25, "LOCAL", True),
+        ("L_eye_lid_lower_mid", "L_eye", 0.25, "LOCAL", True),
 
-        ("FACIAL_R_EyelidUpperA", "FACIAL_R_Eye", 0.25, "LOCAL"),
-        ("FACIAL_R_EyelidLowerA", "FACIAL_R_Eye", 0.25, "LOCAL"),
-        ("FACIAL_L_EyelidUpperA", "FACIAL_L_Eye", 0.25, "LOCAL"),
-        ("FACIAL_L_EyelidLowerA", "FACIAL_L_Eye", 0.25, "LOCAL"),
+        ("FACIAL_R_EyelidUpperA", "FACIAL_R_Eye", 0.25, "LOCAL", True),
+        ("FACIAL_R_EyelidLowerA", "FACIAL_R_Eye", 0.25, "LOCAL", True),
+        ("FACIAL_L_EyelidUpperA", "FACIAL_L_Eye", 0.25, "LOCAL", True),
+        ("FACIAL_L_EyelidLowerA", "FACIAL_L_Eye", 0.25, "LOCAL", True),
+
+        ("index_01_r", "index_control_r", 1.0, "LOCAL", use_finger_fk),
+        ("index_02_r", "index_control_r", 1.0, "LOCAL", use_finger_fk),
+        ("index_03_r", "index_control_r", 1.0, "LOCAL", use_finger_fk),
+        ("middle_01_r", "middle_control_r", 1.0, "LOCAL", use_finger_fk),
+        ("middle_02_r", "middle_control_r", 1.0, "LOCAL", use_finger_fk),
+        ("middle_03_r", "middle_control_r", 1.0, "LOCAL", use_finger_fk),
+        ("ring_01_r", "ring_control_r", 1.0, "LOCAL", use_finger_fk),
+        ("ring_02_r", "ring_control_r", 1.0, "LOCAL", use_finger_fk),
+        ("ring_03_r", "ring_control_r", 1.0, "LOCAL", use_finger_fk),
+        ("pinky_01_r", "pinky_control_r", 1.0, "LOCAL", use_finger_fk),
+        ("pinky_02_r", "pinky_control_r", 1.0, "LOCAL", use_finger_fk),
+        ("pinky_03_r", "pinky_control_r", 1.0, "LOCAL", use_finger_fk),
+
+        ("index_01_l", "index_control_l", 1.0, "LOCAL", use_finger_fk),
+        ("index_02_l", "index_control_l", 1.0, "LOCAL", use_finger_fk),
+        ("index_03_l", "index_control_l", 1.0, "LOCAL", use_finger_fk),
+        ("middle_01_l", "middle_control_l", 1.0, "LOCAL", use_finger_fk),
+        ("middle_02_l", "middle_control_l", 1.0, "LOCAL", use_finger_fk),
+        ("middle_03_l", "middle_control_l", 1.0, "LOCAL", use_finger_fk),
+        ("ring_01_l", "ring_control_l", 1.0, "LOCAL", use_finger_fk),
+        ("ring_02_l", "ring_control_l", 1.0, "LOCAL", use_finger_fk),
+        ("ring_03_l", "ring_control_l", 1.0, "LOCAL", use_finger_fk),
+        ("pinky_01_l", "pinky_control_l", 1.0, "LOCAL", use_finger_fk),
+        ("pinky_02_l", "pinky_control_l", 1.0, "LOCAL", use_finger_fk),
+        ("pinky_03_l", "pinky_control_l", 1.0, "LOCAL", use_finger_fk)
     }
     
-    for bone_name, target_name, weight, space in copy_rotation_bones:
+    for bone_name, target_name, weight, space, is_allowed in copy_rotation_bones:
         if not (bone := pose_bones.get(bone_name)): continue
+
+        if not is_allowed:
+            continue
         
         constraint = bone.constraints.new("COPY_ROTATION")
         constraint.target = master_skeleton
@@ -1862,17 +1947,30 @@ def apply_tasty_rig(master_skeleton, scale, use_finger_ik = True):
         bone.hide = True
 
     conditional_hide_bones = {
-        "ik_finger_thumb_r": not use_finger_ik,
-        "ik_finger_index_r": not use_finger_ik,
-        "ik_finger_middle_r": not use_finger_ik,
-        "ik_finger_ring_r": not use_finger_ik,
-        "ik_finger_pinky_r": not use_finger_ik,
+        "ik_finger_thumb_r": use_finger_fk,
+        "ik_finger_index_r": use_finger_fk,
+        "ik_finger_middle_r": use_finger_fk,
+        "ik_finger_ring_r": use_finger_fk,
+        "ik_finger_pinky_r": use_finger_fk,
     
-        "ik_finger_thumb_l": not use_finger_ik,
-        "ik_finger_index_l": not use_finger_ik,
-        "ik_finger_middle_l": not use_finger_ik,
-        "ik_finger_ring_l": not use_finger_ik,
-        "ik_finger_pinky_l": not use_finger_ik,
+        "ik_finger_thumb_l": use_finger_fk,
+        "ik_finger_index_l": use_finger_fk,
+        "ik_finger_middle_l": use_finger_fk,
+        "ik_finger_ring_l": use_finger_fk,
+        "ik_finger_pinky_l": use_finger_fk,
+
+        "index_control_r": use_finger_ik,
+        "middle_control_r": use_finger_ik,
+        "ring_control_r": use_finger_ik,
+        "pinky_control_r": use_finger_ik,
+
+        "index_control_l": use_finger_ik,
+        "middle_control_l": use_finger_ik,
+        "ring_control_l": use_finger_ik,
+        "pinky_control_l": use_finger_ik,
+        
+        "ik_hand_target_r": use_finger_fk,
+        "ik_hand_target_l": use_finger_fk,
     }
 
     for bone_name, condition in conditional_hide_bones.items():

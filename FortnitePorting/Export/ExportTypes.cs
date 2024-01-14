@@ -81,6 +81,7 @@ public record ExportMaterial : ExportParameterContainer
     // TODO do the logic for this upon import, not export
     public bool UseGlassMaterial;
     public bool UseFoliageMaterial;
+    public bool IsTransparent;
     public int Slot;
     
     public T Copy<T>() where T : ExportMaterial, new()
