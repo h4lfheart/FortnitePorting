@@ -418,7 +418,7 @@ class DataImportTask:
         # clear old data
         target_skeleton.animation_data_clear()
         if bpy.context.scene.sequence_editor:
-            sequences_to_remove = where(bpy.context.scene.sequence_editor.sequences, lambda seq: seq["FPSound"])
+            sequences_to_remove = where(bpy.context.scene.sequence_editor.sequences, lambda seq: seq.get("FPSound"))
             for sequence in sequences_to_remove:
                 bpy.context.scene.sequence_editor.sequences.remove(sequence)
 
@@ -1348,7 +1348,7 @@ def apply_tasty_rig(master_skeleton, scale, use_finger_ik = True):
         ("ik_foot_roll_front_r", "ik_foot_roll_outer_r", LazyInit(lambda: (edit_bones["ball_r"].head, edit_bones["ball_r"].tail, radians(180)))),
         ("ik_foot_roll_back_r", "ik_foot_roll_front_r", LazyInit(lambda: (Vector((edit_bones["foot_r"].head.x, edit_bones["foot_r"].head.y + 0.065, 0)), Vector((edit_bones["foot_r"].tail.x, edit_bones["foot_r"].tail.y + 0.065, 0)), 0))),
         ("ik_foot_target_r", "ik_foot_roll_back_r", LazyInit(lambda: (edit_bones["foot_r"].head, edit_bones["foot_r"].tail, edit_bones["foot_r"].roll))),
-        ("ik_foot_pole_r", "tasty_root", LazyInit(lambda: (edit_bones["calf_r"].head + Vector((0, -0.75, 0)) * scale, edit_bones["calf_r"].tail + Vector((0, -0.80, 0)) * scale, 0))),
+        ("ik_foot_pole_r", "tasty_root", LazyInit(lambda: (edit_bones["calf_r"].head + Vector((0, -0.75, 0)) * scale, edit_bones["calf_r"].head + Vector((0, -0.75, -0.2)) * scale, 0))),
         
         ("ik_foot_parent_l", "tasty_root", LazyInit(lambda: (edit_bones["foot_l"].head, edit_bones["foot_l"].tail, edit_bones["foot_l"].roll))),
         ("ik_foot_ctrl_l", "ik_foot_parent_l", LazyInit(lambda: (edit_bones["ball_l"].head + Vector((0, 0.2, 0)), edit_bones["ball_l"].tail + Vector((0, 0.2, 0)), 0))),
@@ -1357,7 +1357,7 @@ def apply_tasty_rig(master_skeleton, scale, use_finger_ik = True):
         ("ik_foot_roll_front_l", "ik_foot_roll_outer_l", LazyInit(lambda: (edit_bones["ball_l"].head, edit_bones["ball_l"].tail, radians(180)))),
         ("ik_foot_roll_back_l", "ik_foot_roll_front_l", LazyInit(lambda: (Vector((edit_bones["foot_l"].head.x, edit_bones["foot_l"].head.y + 0.065, 0)), Vector((edit_bones["foot_l"].tail.x, edit_bones["foot_l"].tail.y + 0.065, 0)), 0))),
         ("ik_foot_target_l", "ik_foot_roll_back_l", LazyInit(lambda: (edit_bones["foot_l"].head, edit_bones["foot_l"].tail, edit_bones["foot_l"].roll))),
-        ("ik_foot_pole_l", "tasty_root", LazyInit(lambda: (edit_bones["calf_l"].head + Vector((0, -0.75, 0)) * scale, edit_bones["calf_l"].tail + Vector((0, -0.80, 0)) * scale, 0))),
+        ("ik_foot_pole_l", "tasty_root", LazyInit(lambda: (edit_bones["calf_l"].head + Vector((0, -0.75, 0)) * scale, edit_bones["calf_l"].head + Vector((0, -0.75, -0.2)) * scale, 0))),
 
         ("ik_hand_parent_r", "tasty_root", LazyInit(lambda: (edit_bones["hand_r"].head, edit_bones["hand_r"].tail, edit_bones["hand_r"].roll))),
         ("ik_hand_target_r", "ik_hand_parent_r", LazyInit(lambda: (edit_bones["hand_r"].head, edit_bones["hand_r"].tail, edit_bones["hand_r"].roll))),
@@ -1366,7 +1366,7 @@ def apply_tasty_rig(master_skeleton, scale, use_finger_ik = True):
         ("ik_finger_middle_r", "ik_hand_parent_r", LazyInit(lambda: (edit_bones["middle_03_r"].tail, 2 * edit_bones["middle_03_r"].tail - edit_bones["middle_03_r"].head, edit_bones["middle_03_r"].roll))),
         ("ik_finger_ring_r", "ik_hand_parent_r", LazyInit(lambda: (edit_bones["ring_03_r"].tail, 2 * edit_bones["ring_03_r"].tail - edit_bones["ring_03_r"].head, edit_bones["ring_03_r"].roll))),
         ("ik_finger_pinky_r", "ik_hand_parent_r", LazyInit(lambda: (edit_bones["pinky_03_r"].tail, 2 * edit_bones["pinky_03_r"].tail - edit_bones["pinky_03_r"].head, edit_bones["pinky_03_r"].roll))),
-        ("ik_hand_pole_r", "tasty_root", LazyInit(lambda: (edit_bones["lowerarm_r"].head + Vector((0, 0.75, 0)) * scale, edit_bones["lowerarm_r"].tail + Vector((0, 0.80, 0)) * scale, 0))),
+        ("ik_hand_pole_r", "tasty_root", LazyInit(lambda: (edit_bones["lowerarm_r"].head + Vector((0, 0.75, 0)) * scale, edit_bones["lowerarm_r"].head + Vector((0, 0.75, -0.2)) * scale, 0))),
         
         ("ik_hand_parent_l", "tasty_root", LazyInit(lambda: (edit_bones["hand_l"].head, edit_bones["hand_l"].tail, edit_bones["hand_l"].roll))),
         ("ik_hand_target_l", "ik_hand_parent_l", LazyInit(lambda: (edit_bones["hand_l"].head, edit_bones["hand_l"].tail, edit_bones["hand_l"].roll))),
@@ -1375,7 +1375,7 @@ def apply_tasty_rig(master_skeleton, scale, use_finger_ik = True):
         ("ik_finger_middle_l", "ik_hand_parent_l", LazyInit(lambda: (edit_bones["middle_03_l"].tail, 2 * edit_bones["middle_03_l"].tail - edit_bones["middle_03_l"].head, edit_bones["middle_03_l"].roll))),
         ("ik_finger_ring_l", "ik_hand_parent_l", LazyInit(lambda: (edit_bones["ring_03_l"].tail, 2 * edit_bones["ring_03_l"].tail - edit_bones["ring_03_l"].head, edit_bones["ring_03_l"].roll))),
         ("ik_finger_pinky_l", "ik_hand_parent_l", LazyInit(lambda: (edit_bones["pinky_03_l"].tail, 2 * edit_bones["pinky_03_l"].tail - edit_bones["pinky_03_l"].head, edit_bones["pinky_03_l"].roll))),
-        ("ik_hand_pole_l", "tasty_root", LazyInit(lambda: (edit_bones["lowerarm_l"].head + Vector((0, 0.75, 0)) * scale, edit_bones["lowerarm_l"].tail + Vector((0, 0.80, 0)) * scale, 0))),
+        ("ik_hand_pole_l", "tasty_root", LazyInit(lambda: (edit_bones["lowerarm_l"].head + Vector((0, 0.75, 0)) * scale, edit_bones["lowerarm_l"].head + Vector((0, 0.75, -0.2)) * scale, 0))),
 
         ("index_control_r", "index_metacarpal_r", LazyInit(lambda: (edit_bones["index_01_r"].head, edit_bones["index_01_r"].tail, edit_bones["index_01_r"].roll))),
         ("middle_control_r", "middle_metacarpal_r", LazyInit(lambda: (edit_bones["middle_01_r"].head, edit_bones["middle_01_r"].tail, edit_bones["middle_01_r"].roll))),
@@ -1831,54 +1831,54 @@ def apply_tasty_rig(master_skeleton, scale, use_finger_ik = True):
             constraint.pole_angle = radians(180)
 
     copy_rotation_bones = {
-        ("foot_r", "ik_foot_target_r", 1.0, "WORLD", True),
-        ("foot_l", "ik_foot_target_l", 1.0, "WORLD", True),
-        ("hand_r", "ik_hand_target_r", 1.0, "WORLD", True),
-        ("hand_l", "ik_hand_target_l", 1.0, "WORLD", True),
+        ("foot_r", "ik_foot_target_r", 1.0, "WORLD", "REPLACE", True),
+        ("foot_l", "ik_foot_target_l", 1.0, "WORLD", "REPLACE", True),
+        ("hand_r", "ik_hand_target_r", 1.0, "WORLD", "REPLACE", True),
+        ("hand_l", "ik_hand_target_l", 1.0, "WORLD", "REPLACE", True),
 
-        ("dog_thigh_r", "thigh_r", 1.0, "WORLD", True),
-        ("dog_thigh_l", "thigh_l", 1.0, "WORLD", True),
-        ("wolf_thigh_r", "thigh_r", 1.0, "WORLD", True),
-        ("wolf_thigh_l", "thigh_l", 1.0, "WORLD", True),
+        ("dog_thigh_r", "thigh_r", 1.0, "WORLD", "REPLACE", True),
+        ("dog_thigh_l", "thigh_l", 1.0, "WORLD", "REPLACE", True),
+        ("wolf_thigh_r", "thigh_r", 1.0, "WORLD", "REPLACE", True),
+        ("wolf_thigh_l", "thigh_l", 1.0, "WORLD", "REPLACE", True),
 
-        ("R_eye_lid_upper_mid", "R_eye", 0.25, "LOCAL", True),
-        ("R_eye_lid_lower_mid", "R_eye", 0.25, "LOCAL", True),
-        ("L_eye_lid_upper_mid", "L_eye", 0.25, "LOCAL", True),
-        ("L_eye_lid_lower_mid", "L_eye", 0.25, "LOCAL", True),
+        ("R_eye_lid_upper_mid", "R_eye", 0.25, "LOCAL", "REPLACE", True),
+        ("R_eye_lid_lower_mid", "R_eye", 0.25, "LOCAL", "REPLACE", True),
+        ("L_eye_lid_upper_mid", "L_eye", 0.25, "LOCAL", "REPLACE", True),
+        ("L_eye_lid_lower_mid", "L_eye", 0.25, "LOCAL", "REPLACE", True),
 
-        ("FACIAL_R_EyelidUpperA", "FACIAL_R_Eye", 0.25, "LOCAL", True),
-        ("FACIAL_R_EyelidLowerA", "FACIAL_R_Eye", 0.25, "LOCAL", True),
-        ("FACIAL_L_EyelidUpperA", "FACIAL_L_Eye", 0.25, "LOCAL", True),
-        ("FACIAL_L_EyelidLowerA", "FACIAL_L_Eye", 0.25, "LOCAL", True),
+        ("FACIAL_R_EyelidUpperA", "FACIAL_R_Eye", 0.25, "LOCAL", "REPLACE", True),
+        ("FACIAL_R_EyelidLowerA", "FACIAL_R_Eye", 0.25, "LOCAL", "REPLACE", True),
+        ("FACIAL_L_EyelidUpperA", "FACIAL_L_Eye", 0.25, "LOCAL", "REPLACE", True),
+        ("FACIAL_L_EyelidLowerA", "FACIAL_L_Eye", 0.25, "LOCAL", "REPLACE", True),
 
-        ("index_01_r", "index_control_r", 1.0, "LOCAL", use_finger_fk),
-        ("index_02_r", "index_control_r", 1.0, "LOCAL", use_finger_fk),
-        ("index_03_r", "index_control_r", 1.0, "LOCAL", use_finger_fk),
-        ("middle_01_r", "middle_control_r", 1.0, "LOCAL", use_finger_fk),
-        ("middle_02_r", "middle_control_r", 1.0, "LOCAL", use_finger_fk),
-        ("middle_03_r", "middle_control_r", 1.0, "LOCAL", use_finger_fk),
-        ("ring_01_r", "ring_control_r", 1.0, "LOCAL", use_finger_fk),
-        ("ring_02_r", "ring_control_r", 1.0, "LOCAL", use_finger_fk),
-        ("ring_03_r", "ring_control_r", 1.0, "LOCAL", use_finger_fk),
-        ("pinky_01_r", "pinky_control_r", 1.0, "LOCAL", use_finger_fk),
-        ("pinky_02_r", "pinky_control_r", 1.0, "LOCAL", use_finger_fk),
-        ("pinky_03_r", "pinky_control_r", 1.0, "LOCAL", use_finger_fk),
+        ("index_01_r", "index_control_r", 1.0, "LOCAL", "ADD", use_finger_fk),
+        ("index_02_r", "index_control_r", 1.0, "LOCAL", "ADD", use_finger_fk),
+        ("index_03_r", "index_control_r", 1.0, "LOCAL", "ADD", use_finger_fk),
+        ("middle_01_r", "middle_control_r", 1.0, "LOCAL", "ADD", use_finger_fk),
+        ("middle_02_r", "middle_control_r", 1.0, "LOCAL", "ADD", use_finger_fk),
+        ("middle_03_r", "middle_control_r", 1.0, "LOCAL", "ADD", use_finger_fk),
+        ("ring_01_r", "ring_control_r", 1.0, "LOCAL", "ADD", use_finger_fk),
+        ("ring_02_r", "ring_control_r", 1.0, "LOCAL", "ADD", use_finger_fk),
+        ("ring_03_r", "ring_control_r", 1.0, "LOCAL", "ADD", use_finger_fk),
+        ("pinky_01_r", "pinky_control_r", 1.0, "LOCAL", "ADD", use_finger_fk),
+        ("pinky_02_r", "pinky_control_r", 1.0, "LOCAL", "ADD", use_finger_fk),
+        ("pinky_03_r", "pinky_control_r", 1.0, "LOCAL", "ADD", use_finger_fk),
 
-        ("index_01_l", "index_control_l", 1.0, "LOCAL", use_finger_fk),
-        ("index_02_l", "index_control_l", 1.0, "LOCAL", use_finger_fk),
-        ("index_03_l", "index_control_l", 1.0, "LOCAL", use_finger_fk),
-        ("middle_01_l", "middle_control_l", 1.0, "LOCAL", use_finger_fk),
-        ("middle_02_l", "middle_control_l", 1.0, "LOCAL", use_finger_fk),
-        ("middle_03_l", "middle_control_l", 1.0, "LOCAL", use_finger_fk),
-        ("ring_01_l", "ring_control_l", 1.0, "LOCAL", use_finger_fk),
-        ("ring_02_l", "ring_control_l", 1.0, "LOCAL", use_finger_fk),
-        ("ring_03_l", "ring_control_l", 1.0, "LOCAL", use_finger_fk),
-        ("pinky_01_l", "pinky_control_l", 1.0, "LOCAL", use_finger_fk),
-        ("pinky_02_l", "pinky_control_l", 1.0, "LOCAL", use_finger_fk),
-        ("pinky_03_l", "pinky_control_l", 1.0, "LOCAL", use_finger_fk)
+        ("index_01_l", "index_control_l", 1.0, "LOCAL", "ADD", use_finger_fk),
+        ("index_02_l", "index_control_l", 1.0, "LOCAL", "ADD", use_finger_fk),
+        ("index_03_l", "index_control_l", 1.0, "LOCAL", "ADD", use_finger_fk),
+        ("middle_01_l", "middle_control_l", 1.0, "LOCAL", "ADD", use_finger_fk),
+        ("middle_02_l", "middle_control_l", 1.0, "LOCAL", "ADD", use_finger_fk),
+        ("middle_03_l", "middle_control_l", 1.0, "LOCAL", "ADD", use_finger_fk),
+        ("ring_01_l", "ring_control_l", 1.0, "LOCAL", "ADD", use_finger_fk),
+        ("ring_02_l", "ring_control_l", 1.0, "LOCAL", "ADD", use_finger_fk),
+        ("ring_03_l", "ring_control_l", 1.0, "LOCAL", "ADD", use_finger_fk),
+        ("pinky_01_l", "pinky_control_l", 1.0, "LOCAL", "ADD", use_finger_fk),
+        ("pinky_02_l", "pinky_control_l", 1.0, "LOCAL", "ADD", use_finger_fk),
+        ("pinky_03_l", "pinky_control_l", 1.0, "LOCAL", "ADD", use_finger_fk)
     }
     
-    for bone_name, target_name, weight, space, is_allowed in copy_rotation_bones:
+    for bone_name, target_name, weight, space, mix, is_allowed in copy_rotation_bones:
         if not (bone := pose_bones.get(bone_name)): continue
 
         if not is_allowed:
@@ -1890,6 +1890,7 @@ def apply_tasty_rig(master_skeleton, scale, use_finger_ik = True):
         constraint.influence = weight
         constraint.target_space = space
         constraint.owner_space = space
+        constraint.mix_mode = mix
 
     track_bones = [
         ("eye_control_parent", "head", 0.285)
