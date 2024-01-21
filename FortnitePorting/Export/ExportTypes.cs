@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Objects.Core.Math;
@@ -23,7 +24,10 @@ public record ExportMesh
 
 public record ExportPart : ExportMesh
 {
-    public string Type = string.Empty;
+    [JsonIgnore] public EFortCustomGender GenderPermitted;
+    [JsonIgnore] public EFortCustomPartType CharacterPartType;
+    
+    public string Type => CharacterPartType.ToString();
     public ExportPartMeta Meta = new();
 }
 
@@ -142,6 +146,8 @@ public class ExportAnimSection
     public float Length;
     public float LinkValue;
     public bool Loop;
+
+    [JsonIgnore] public UAnimSequence AssetRef;
 }
 
 public class ExportSound

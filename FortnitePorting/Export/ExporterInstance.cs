@@ -36,8 +36,8 @@ namespace FortnitePorting.Export;
 public class ExporterInstance
 {
     public readonly List<Task> ExportTasks = [];
+    public readonly ExportOptionsBase AppExportOptions;
     private readonly HashSet<ExportMaterial> MaterialCache = [];
-    private readonly ExportOptionsBase AppExportOptions;
     private readonly ExporterOptions FileExportOptions;
 
     private static readonly string[] OverridesToIgnore =
@@ -63,7 +63,8 @@ public class ExporterInstance
             foreach (var material in materialOverrides)
                 exportPart.OverrideMaterials.AddIfNotNull(OverrideMaterial(material));
 
-        exportPart.Type = part.GetOrDefault<EFortCustomPartType>("CharacterPartType").ToString();
+        exportPart.CharacterPartType = part.GetOrDefault<EFortCustomPartType>("CharacterPartType");
+        exportPart.GenderPermitted = part.GetOrDefault("GenderPermitted", EFortCustomGender.Male);
 
         if (part.TryGetValue(out UObject additionalData, "AdditionalData"))
             switch (additionalData.ExportType)

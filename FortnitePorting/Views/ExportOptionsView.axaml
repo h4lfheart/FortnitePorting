@@ -124,6 +124,10 @@
 
                             <Label Content="Animation" FontSize="28" FontWeight="SemiBold" Margin="8 0 0 0"
                                    HorizontalAlignment="Left" VerticalAlignment="Center" />
+                            <controls:SettingBox DisplayName="Import Lobby Poses"
+                                                 Path="{Binding Blender.LobbyPoses, Mode=TwoWay}" Icon="HumanFemaleDance">
+                                <ToggleSwitch IsChecked="{Binding Blender.LobbyPoses}" />
+                            </controls:SettingBox>
                             <controls:SettingBox DisplayName="Import Sounds"
                                                  Path="{Binding Blender.ImportSounds, Mode=TwoWay}" Icon="Music">
                                 <ToggleSwitch IsChecked="{Binding Blender.ImportSounds}" />

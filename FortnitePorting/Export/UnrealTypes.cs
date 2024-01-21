@@ -35,6 +35,14 @@ public enum ECustomHatType : byte
     None
 }
 
+public enum EFortCustomGender  : byte
+{
+    Invalid,
+    Male,
+    Female,
+    Both
+}
+
 [StructFallback]
 public class FStyleParameter<T>
 {

@@ -351,12 +351,13 @@ class DataImportTask:
 
             bpy.ops.object.mode_set(mode='POSE')
 
-            for bone in master_skeleton.pose.bones:
+            # causing issues, disable
+            '''for bone in master_skeleton.pose.bones:
                 if not (deform_bone := master_skeleton.pose.bones.get(f"deform_{bone.name}")): continue
 
                 constraint = deform_bone.constraints.new("COPY_ROTATION")
                 constraint.target = master_skeleton
-                constraint.subtarget = bone.name
+                constraint.subtarget = bone.name'''
 
             bpy.ops.object.mode_set(mode='EDIT')
 
@@ -397,6 +398,12 @@ class DataImportTask:
                 solidify.use_rim = False
                 solidify.use_flip_normals = True
                 solidify.material_offset = len(master_mesh.data.materials) - 1
+                
+            if self.rig_type == ERigType.DEFAULT:
+                
+                if self.options.get("LobbyPoses") and (anim_data := data.get("Animation")):
+                    self.import_anim_data(anim_data, master_skeleton)
+                    
 
             if self.rig_type == ERigType.TASTY:
                 apply_tasty_rig(master_skeleton, 1 if self.options.get("ScaleDown") else 100, self.options.get("UseFingerIK"))
@@ -460,10 +467,10 @@ class DataImportTask:
             
             for prop in props:
                 mesh = self.import_model(prop.get("Mesh"))
+                constraint_object(mesh, master_skeleton, prop.get("SocketName"), [0, 0, 0])
                 mesh.rotation_euler = make_euler(prop.get("RotationOffset"))
                 mesh.location = make_vector(prop.get("LocationOffset"), mirror_y=True) * 0.01
                 mesh.scale = make_vector(prop.get("Scale"))
-                constraint_object(mesh, master_skeleton, prop.get("SocketName"), [0, 0, 0])
 
                 if (anims := prop.get("AnimSections")) and len(anims) > 0:
                     mesh.animation_data_create()

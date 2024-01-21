@@ -80,7 +80,8 @@ public partial class ExportOptionsBase : ObservableObject
 
     [ObservableProperty] private bool exportMaterials = true;
     [ObservableProperty] private EImageType imageType = EImageType.PNG;
-
+    
+    [ObservableProperty] private bool lobbyPoses = false;
 
     public virtual ExporterOptions CreateExportOptions()
     {

@@ -5,6 +5,7 @@ using System.Linq;
 using CUE4Parse_Conversion.Meshes;
 using CUE4Parse.GameTypes.FN.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.Component.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Component.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Engine;
@@ -17,6 +18,7 @@ using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Objects.GameplayTags;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
+using FortnitePorting.Application;
 using FortnitePorting.Extensions;
 using Serilog;
 
@@ -28,6 +30,7 @@ public class MeshExportData : ExportDataBase
     public readonly List<ExportMesh> OverrideMeshes = new();
     public readonly List<ExportOverrideMaterial> OverrideMaterials = new();
     public readonly List<ExportOverrideParameters> OverrideParameters = new();
+    public readonly AnimExportData Animation;
 
     public MeshExportData(string name, UObject asset, FStructFallback[] styles, EAssetType type, EExportTargetType exportType) : base(name, asset, styles, type, EExportType.Mesh, exportType)
     {
@@ -36,17 +39,40 @@ public class MeshExportData : ExportDataBase
             case EAssetType.Outfit:
             {
                 var parts = asset.GetOrDefault("BaseCharacterParts", Array.Empty<UObject>());
-                if (parts.Length == 0 && asset.TryGetValue(out UObject heroDefinition, "HeroDefinition"))
+                if (asset.TryGetValue(out UObject heroDefinition, "HeroDefinition"))
                 {
-                    var specializations = heroDefinition.Get<UObject[]>("Specializations").FirstOrDefault();
-                    parts = specializations?.GetOrDefault("CharacterParts", Array.Empty<UObject>()) ?? Array.Empty<UObject>();
+                    if (parts.Length == 0 && heroDefinition.TryGetValue(out UObject[] specializations, "Specializations"))
+                    {
+                        parts = specializations.First().GetOrDefault("CharacterParts", Array.Empty<UObject>());
+                    }
+
+                    if (Exporter.AppExportOptions.LobbyPoses && heroDefinition.TryGetValue(out UAnimMontage montage, "FrontendAnimMontageIdleOverride"))
+                    {
+                        Animation = AnimExportData.From(montage, exportType);
+                    }
                 }
                 
                 AssetsVM.ExportChunks = parts.Length;
                 foreach (var part in parts)
                 {
+                    if (Exporter.AppExportOptions.LobbyPoses && part.TryGetValue(out UAnimMontage montage, "FrontendAnimMontageIdleOverride"))
+                    {
+                        Animation = AnimExportData.From(montage, exportType);
+                    }
+                    
                     Meshes.AddIfNotNull(Exporter.CharacterPart(part));
                     AssetsVM.ExportProgress++;
+                }
+                
+                if (Animation is null && Exporter.AppExportOptions.LobbyPoses && Meshes.FirstOrDefault(part => part is ExportPart { CharacterPartType: EFortCustomPartType.Body }) is ExportPart foundPart)
+                {
+                    var montage = foundPart.GenderPermitted switch
+                    {
+                        EFortCustomGender.Male => CUE4ParseVM.MaleLobbyMontages.Random(),
+                        EFortCustomGender.Female => CUE4ParseVM.FemaleLobbyMontages.Random(),
+                    };
+                    
+                    if (montage is not null) Animation = AnimExportData.From(montage, exportType);
                 }
 
                 break;

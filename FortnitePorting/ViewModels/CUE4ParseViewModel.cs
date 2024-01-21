@@ -9,6 +9,7 @@ using CUE4Parse.Encryption.Aes;
 using CUE4Parse.MappingsProvider;
 using CUE4Parse.UE4.AssetRegistry;
 using CUE4Parse.UE4.AssetRegistry.Objects;
+using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Assets.Utils;
 using CUE4Parse.UE4.IO;
@@ -49,12 +50,26 @@ public class CUE4ParseViewModel : ViewModelBase
     public Manifest? FortniteLive;
     public readonly List<FAssetData> AssetRegistry = [];
     public readonly RarityCollection[] RarityColors = new RarityCollection[8];
+    public List<UAnimMontage> MaleLobbyMontages = [];
+    public readonly List<UAnimMontage> FemaleLobbyMontages = [];
 
     public static readonly List<DirectoryInfo> ExtraDirectories = [];//[new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "FortniteGame", "Saved", "PersistentDownloadDir", "GameCustom", "InstalledBundles"))];
 
     private static readonly Regex FortniteLiveRegex = new(@"^FortniteGame(/|\\)Content(/|\\)Paks(/|\\)(pakchunk(?:0|10.*|\w+)-WindowsClient|global)\.(pak|utoc)$", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly VersionContainer LatestVersionContainer = new(Globals.LatestGameVersion);
+
+    private static readonly List<string> MaleLobbyMontagePaths = 
+    [
+        "FortniteGame/Content/Animation/Game/MainPlayer/Menu/BR/Male_Commando_Idle_01_M",
+        "FortniteGame/Content/Animation/Game/MainPlayer/Menu/BR/Male_commando_Idle_2_M"
+    ];
+    
+    private static readonly List<string> FemaleLobbyMontagePaths = 
+    [
+        "FortniteGame/Content/Animation/Game/MainPlayer/Menu/BR/Female_Commando_Idle_02_Rebirth_Montage",
+        "FortniteGame/Content/Animation/Game/MainPlayer/Menu/BR/Female_Commando_Idle_03_Montage"
+    ];
 
     public override async Task Initialize()
     {
@@ -289,6 +304,16 @@ public class CUE4ParseViewModel : ViewModelBase
         if (await Provider.TryLoadObjectAsync("FortniteGame/Content/Balance/RarityData") is { } rarityData)
             for (var i = 0; i < 8; i++)
                 RarityColors[i] = rarityData.GetByIndex<RarityCollection>(i);
+
+        foreach (var path in MaleLobbyMontagePaths)
+        {
+            MaleLobbyMontages.AddIfNotNull(await Provider.TryLoadObjectAsync<UAnimMontage>(path));
+        }
+        
+        foreach (var path in FemaleLobbyMontagePaths)
+        {
+            FemaleLobbyMontages.AddIfNotNull(await Provider.TryLoadObjectAsync<UAnimMontage>(path));
+        }
     }
 }
 

@@ -5,6 +5,7 @@ using Avalonia.OpenGL.Egl;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Objects;
+using DynamicData;
 using FortnitePorting.Extensions;
 
 namespace FortnitePorting.Export.Types;
@@ -50,12 +51,19 @@ public class AnimExportData : ExportDataBase
         }
     }
 
+    public static AnimExportData From(UAnimMontage montage, EExportTargetType exportType)
+    {
+        return new AnimExportData(montage.Name, montage, [], EAssetType.Animation, exportType);
+    }
+    
     private void AnimMontage(UAnimMontage montage)
     {
-        Skeleton = Exporter.Skeleton(montage.Skeleton.Load<USkeleton>());
+        Skeleton = Exporter.Skeleton(montage.Skeleton.Load<USkeleton>())!;
         HandleSectionTree(Sections, montage, montage.CompositeSections.First());
 
-        var notifies = montage.GetOrDefault("Notifies", Array.Empty<FAnimNotifyEvent>());
+        var notifies = new List<FAnimNotifyEvent>();
+        notifies.AddRange(montage.GetOrDefault("Notifies", Array.Empty<FAnimNotifyEvent>()));
+        notifies.AddRange(Sections.SelectMany(section => section.AssetRef.Notifies));
         foreach (var notify in notifies)
         {
             HandleNotify(notify);
@@ -68,13 +76,17 @@ public class AnimExportData : ExportDataBase
         if (sequence is null) return;
         
         var anim = Exporter.AnimSequence(sequence);
-        anim.Name = currentSection.SectionName.Text;
-        anim.Time = currentSection.SegmentBeginTime + time;
-        anim.LinkValue = currentSection.LinkValue;
-        anim.Loop = currentSection.SectionName == currentSection.NextSectionName || currentSection.NextSectionName.IsNone;
-        sections.Add(anim);
+        if (anim is not null)
+        {
+            anim.Name = currentSection.SectionName.Text;
+            anim.Time = currentSection.SegmentBeginTime + time;
+            anim.LinkValue = currentSection.LinkValue;
+            anim.Loop = currentSection.SectionName == currentSection.NextSectionName || currentSection.NextSectionName.IsNone;
+            anim.AssetRef = sequence;
+            sections.Add(anim);
         
-        if (anim.Loop) return;
+            if (anim.Loop) return;
+        }
 
         var nextSection = montageRef.CompositeSections.FirstOrDefault(sec => currentSection.NextSectionName == sec.SectionName);
         if (nextSection is null) return;

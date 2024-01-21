@@ -112,6 +112,15 @@ public static class MiscExtensions
     {
         return BitConverter.ToString(SHA256.HashData(File.ReadAllBytes(fileInfo.FullName))).Replace("-", string.Empty);
     }
+    
+    public static T? Random<T>(this IEnumerable<T> enumerable)
+    {
+        var list = enumerable.ToList();
+        if (list.Count == 0) return default;
+        
+        var index = System.Random.Shared.Next(0, list.Count);
+        return list[index];
+    }
 }
 
 file class FastRepeat<T> : ICollection<T>
