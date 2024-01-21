@@ -97,9 +97,10 @@ public partial class BlenderExportOptions : ExportOptionsBase
 
     [ObservableProperty, NotifyPropertyChangedFor(nameof(IsTastyRig))] private ERigType rigType = ERigType.Default;
     public bool IsTastyRig => RigType == ERigType.Tasty;
+    [ObservableProperty] private bool useFingerIK = false;
+    [ObservableProperty] private bool customDynamicBoneShape = true;
     [ObservableProperty] private bool mergeSkeletons = true;
     [ObservableProperty] private bool reorientBones = false;
-    [ObservableProperty] private bool useFingerIK = false;
     [ObservableProperty] private float boneSize = 4f;
 
     [ObservableProperty] private ESupportedLODs levelOfDetail = ESupportedLODs.LOD0;

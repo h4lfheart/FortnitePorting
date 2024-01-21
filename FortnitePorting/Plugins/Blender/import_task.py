@@ -406,7 +406,7 @@ class DataImportTask:
                     
 
             if self.rig_type == ERigType.TASTY:
-                apply_tasty_rig(master_skeleton, 1 if self.options.get("ScaleDown") else 100, self.options.get("UseFingerIK"))
+                apply_tasty_rig(master_skeleton, 1 if self.options.get("ScaleDown") else 100, self.options.get("UseFingerIK"), self.options.get("CustomDynamicBoneShape"))
 
 
     def import_anim_data(self, data, override_skeleton=None):
@@ -1332,7 +1332,7 @@ class LazyInit:
         return self.data
 
 
-def apply_tasty_rig(master_skeleton, scale, use_finger_ik = True):
+def apply_tasty_rig(master_skeleton, scale, use_finger_ik = True, use_dyn_bone_shape = True):
     master_skeleton["is_tasty_rig"] = True
     armature_data = master_skeleton.data
     use_finger_fk = not use_finger_ik
@@ -1662,7 +1662,8 @@ def apply_tasty_rig(master_skeleton, scale, use_finger_ik = True):
 
         if "dyn_" in bone.name:
             dyn_collection.assign(bone)
-            bone.custom_shape = bpy.data.objects.get("RIG_Dynamic")
+            if use_dyn_bone_shape:
+                bone.custom_shape = bpy.data.objects.get("RIG_Dynamic")
             continue
             
         if "twist_" in bone.name:
