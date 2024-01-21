@@ -64,9 +64,8 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
     private void OnFilterClearClicked(object? sender, RoutedEventArgs e)
     {
         ViewModel.Filters.Clear();
-        foreach (var child in FilterPopupPanel.Children)
+        foreach (var checkBox in FilterPopupPanel.GetVisualDescendants().OfType<CheckBox>())
         {
-            if (child is not CheckBox checkBox) continue;
             checkBox.IsChecked = false;
         }
     }

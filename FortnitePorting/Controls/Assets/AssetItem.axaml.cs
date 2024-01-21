@@ -1,4 +1,7 @@
+using System;
 using System.ComponentModel;
+using System.Linq;
+using System.Runtime.InteropServices.JavaScript;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media.Imaging;
@@ -7,8 +10,10 @@ using CUE4Parse_Conversion.Textures;
 using CUE4Parse.GameTypes.FN.Enums;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Texture;
+using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.GameplayTags;
+using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using FortnitePorting.Application;
 using FortnitePorting.Extensions;
@@ -64,6 +69,13 @@ public partial class AssetItem : UserControl
         Description = asset.GetOrDefault("Description", new FText("No description.")).Text;
         Rarity = rarityOverride ?? asset.GetOrDefault("Rarity", EFortRarity.Uncommon);
         GameplayTags = asset.GetOrDefault<FGameplayTagContainer?>("GameplayTags");
+        if (type is EAssetType.Prefab)
+        {
+            var tagsHelper = asset.GetOrDefault<FStructFallback?>("CreativeTagsHelper");
+            var tags = tagsHelper?.GetOrDefault("CreativeTags", Array.Empty<FName>()) ?? Array.Empty<FName>();
+            var gameplayTags = tags.Select(tag => new FGameplayTag(tag)).ToArray();
+            GameplayTags = new FGameplayTagContainer(gameplayTags);
+        }
 
         var seasonTag = GameplayTags?.GetValueOrDefault("Cosmetics.Filter.Season.")?.Text;
         Season = int.TryParse(seasonTag?.SubstringAfterLast("."), out var seasonNumber) ? seasonNumber : int.MaxValue;

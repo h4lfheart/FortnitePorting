@@ -46,7 +46,41 @@ public partial class AssetsViewModel : ViewModelBase
 
     [ObservableProperty] private ObservableCollection<AssetOptions> currentAssets = new();
 
-    [ObservableProperty] private EAssetType currentAssetType;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasCosmeticFilters))]
+    [NotifyPropertyChangedFor(nameof(HasGameFilters))] 
+    [NotifyPropertyChangedFor(nameof(HasPrefabFilters))] 
+    private EAssetType currentAssetType;
+    public bool HasCosmeticFilters => CosmeticFilterTypes.Contains(CurrentAssetType);
+    private readonly EAssetType[] CosmeticFilterTypes =
+    [
+        EAssetType.Outfit,
+        EAssetType.Backpack,
+        EAssetType.Pickaxe,
+        EAssetType.Glider,
+        EAssetType.Pet,
+        EAssetType.Toy,
+        EAssetType.Emote,
+        EAssetType.Emoticon,
+        EAssetType.Spray,
+        EAssetType.LoadingScreen
+    ];
+    
+    public bool HasGameFilters => GameFilterTypes.Contains(CurrentAssetType);
+    private readonly EAssetType[] GameFilterTypes =
+    [
+        EAssetType.Outfit,
+        EAssetType.Backpack,
+        EAssetType.Pickaxe,
+        EAssetType.Glider,
+        EAssetType.Banner,
+        EAssetType.LoadingScreen,
+        EAssetType.Item,
+        EAssetType.Resource,
+        EAssetType.Trap
+    ];
+    
+    public bool HasPrefabFilters => CurrentAssetType is EAssetType.Prefab;
 
     [ObservableProperty] private int exportChunks;
     [ObservableProperty] private int exportProgress;
@@ -73,7 +107,9 @@ public partial class AssetsViewModel : ViewModelBase
         { "Battle Pass", x => x.GameplayTags.ContainsAny("BattlePass") },
         { "Item Shop", x => x.GameplayTags.ContainsAny("ItemShop") },
         { "Save The World", x => x.GameplayTags.ContainsAny("CampaignHero", "SaveTheWorld") || x.Asset.GetPathName().Contains("SaveTheWorld", StringComparison.OrdinalIgnoreCase) },
-        { "Battle Royale", x => !x.GameplayTags.ContainsAny("CampaignHero", "SaveTheWorld") }
+        { "Battle Royale", x => !x.GameplayTags.ContainsAny("CampaignHero", "SaveTheWorld") },
+        { "Galleries", x => x.GameplayTags.ContainsAny("Gallery") },
+        { "Prefabs", x => x.GameplayTags.ContainsAny("Prefab") }
     };
 
     public AssetsViewModel()

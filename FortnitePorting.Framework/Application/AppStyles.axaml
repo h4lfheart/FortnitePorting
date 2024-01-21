@@ -126,7 +126,7 @@
     </Style>
     
     <Style Selector="Expander">
-        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="CornerRadius" Value="5" />
         <Setter Property="Background" Value="#2b2b2b" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="BorderBrush" Value="#10FFFFFF" />
@@ -196,6 +196,34 @@
     <Style Selector="ToggleSwitch">
         <Setter Property="OnContent" Value="{x:Null}" />
         <Setter Property="OffContent" Value="{x:Null}" />
+    </Style>
+    
+    <Style Selector="Separator.NamedSeparator">
+        <Setter Property="Margin" Value="0, 8, 0,8" />
+        <Setter Property="MinHeight" Value="12" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Separator}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Separator Grid.Column="0" VerticalAlignment="Center" Margin="0"
+                                   Background="{TemplateBinding Background}"
+                                   Foreground="{TemplateBinding Foreground}" />
+                        <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{TemplateBinding Tag}"
+                                    FontSize="12" Margin="10 0"/>
+                        <Separator Grid.Column="2" VerticalAlignment="Center" Margin="0"
+                                   Background="{TemplateBinding Background}"
+                                   Foreground="{TemplateBinding Foreground}" />
+                    </Grid>
+
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <Style Selector="TabControl:normal /template/ ContentPresenter">

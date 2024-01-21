@@ -63,38 +63,6 @@
                           SelectedItem="{Binding SortType, Converter={StaticResource EnumToString}}" />
 
                 <material:MaterialIcon Grid.Column="8" Kind="Filter" Width="20" Height="20" />
-                <ToggleButton ToolTip.Tip="Filters" x:Name="FilterButton" Grid.Column="10"
-                              HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                    <Grid ColumnDefinitions="* Auto">
-                        <TextBlock Grid.Column="0" Text="{Binding FilterPreviewText}" TextTrimming="CharacterEllipsis"
-                                   HorizontalAlignment="Center" />
-                        <material:MaterialIcon Grid.Column="1" Kind="ArrowDown" Width="20" Height="20" />
-                    </Grid>
-                </ToggleButton>
-
-                <Popup Grid.Column="10" PlacementTarget="{Binding ElementName=FilterButton}"
-                       Width="{Binding ElementName=FilterButton, Path=Bounds.Width}"
-                       IsOpen="{Binding ElementName=FilterButton, Path=IsChecked}"
-                       Placement="BottomEdgeAlignedRight">
-                    <controls:GroupBox Background="#2b2b2b" BorderBrush="#60000000" HorizontalAlignment="Stretch"
-                                       VerticalAlignment="Stretch">
-                        <StackPanel x:Name="FilterPopupPanel">
-                            <CheckBox Content="Favorite" IsCheckedChanged="OnFilterChecked" />
-                            <CheckBox Content="Hidden Assets" IsCheckedChanged="OnFilterChecked" />
-                            <Separator Background="Transparent" />
-                            <CheckBox Content="Battle Pass" IsCheckedChanged="OnFilterChecked" />
-                            <CheckBox Content="Item Shop" IsCheckedChanged="OnFilterChecked" />
-                            <Separator Background="Transparent" />
-                            <CheckBox Content="Battle Royale" IsCheckedChanged="OnFilterChecked" />
-                            <CheckBox Content="Save The World" IsCheckedChanged="OnFilterChecked" />
-                            <Separator Background="Transparent" />
-                            <Button HorizontalAlignment="Stretch" Click="OnFilterClearClicked">
-                                <controls:MaterialIconText HorizontalAlignment="Center" VerticalAlignment="Center"
-                                                           Text="Clear Filters" Icon="Delete" />
-                            </Button>
-                        </StackPanel>
-                    </controls:GroupBox>
-                </Popup>
             </Grid>
 
             <controls:GroupBox Grid.Row="2">
@@ -200,6 +168,43 @@
                         <assets:AssetTypePicker Type="FestivalKeytar" Image="/Assets/FN/FestivalKeytar.png"/>
                         <assets:AssetTypePicker Type="FestivalDrum" Image="/Assets/FN/FestivalDrum.png"/>
                     </ItemsControl>
+                </Expander>
+            </Grid>
+            
+            
+            <Grid Grid.Row="0" Grid.RowSpan="7">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3.75*" />
+                    <ColumnDefinition Width="{ext:Space 1}" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                
+                <Expander ToolTip.Tip="Filters" Grid.Column="2" Header="{Binding FilterPreviewText}" 
+                          HorizontalAlignment="Stretch" VerticalAlignment="Top" MinHeight="0" Padding="8">
+                    <StackPanel x:Name="FilterPopupPanel">
+                        <CheckBox Content="Favorite" IsCheckedChanged="OnFilterChecked" />
+                        <CheckBox Content="Hidden Assets" IsCheckedChanged="OnFilterChecked" />
+                        <StackPanel IsVisible="{Binding HasCosmeticFilters}">
+                            <Separator Classes="NamedSeparator" Tag="Cosmetic" Margin="{ext:Space 0, 1}" />
+                            <CheckBox Content="Battle Pass" IsCheckedChanged="OnFilterChecked" />
+                            <CheckBox Content="Item Shop" IsCheckedChanged="OnFilterChecked" />
+                        </StackPanel>
+                        <StackPanel IsVisible="{Binding HasGameFilters}">
+                            <Separator Classes="NamedSeparator" Tag="Game" Margin="{ext:Space 0, 1}" />
+                            <CheckBox Content="Battle Royale" IsCheckedChanged="OnFilterChecked" />
+                            <CheckBox Content="Save The World" IsCheckedChanged="OnFilterChecked" />
+                        </StackPanel>
+                        <StackPanel IsVisible="{Binding HasPrefabFilters}">
+                            <Separator Classes="NamedSeparator" Tag="Creative" Margin="{ext:Space 0, 1}" />
+                            <CheckBox Content="Galleries" IsCheckedChanged="OnFilterChecked" />
+                            <CheckBox Content="Prefabs" IsCheckedChanged="OnFilterChecked" />
+                        </StackPanel>
+                        <Separator Margin="{ext:Space 0, 1}" />
+                        <Button HorizontalAlignment="Stretch" Click="OnFilterClearClicked">
+                            <controls:MaterialIconText HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                       Text="Clear Filters" Icon="Delete" />
+                        </Button>
+                    </StackPanel>
                 </Expander>
             </Grid>
             
