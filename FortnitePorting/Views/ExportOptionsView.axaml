@@ -33,6 +33,10 @@
                                                  Path="{Binding Blender.ImportCollection, Mode=TwoWay}" Icon="Folder">
                                 <ToggleSwitch IsChecked="{Binding Blender.ImportCollection}" />
                             </controls:SettingBox>
+                            <controls:SettingBox DisplayName="Spawn At 3D Cursor"
+                                                 Path="{Binding Blender.SpawnAt3DCursor, Mode=TwoWay}" Icon="CursorDefault">
+                                <ToggleSwitch IsChecked="{Binding Blender.SpawnAt3DCursor}" />
+                            </controls:SettingBox>
 
                             <Label Content="Armature" FontSize="28" FontWeight="SemiBold" Margin="8 0 0 0"
                                    HorizontalAlignment="Left" VerticalAlignment="Center" />

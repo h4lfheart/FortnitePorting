@@ -15,4 +15,16 @@ public static class SkiaExtensions
     {
         return RadialGradient(size, colors.Select(col => SKColor.Parse(col.Hex)).ToArray());
     }
+    
+    public static SKShader LinearGradient(int size, bool horizontal, params SKColor[] colors)
+    {
+        var start = new SKPoint(0, 0);
+        var end = horizontal ? new SKPoint(size, 0) : new SKPoint(0, size);
+        return SKShader.CreateLinearGradient(start, end, colors, SKShaderTileMode.Clamp);
+    }
+
+    public static SKShader LinearGradient(int size, bool horizontal, params FLinearColor[] colors)
+    {
+        return LinearGradient(size, horizontal, colors.Select(col => SKColor.Parse(col.Hex)).ToArray());
+    }
 }

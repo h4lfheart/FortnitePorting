@@ -96,11 +96,11 @@ public partial class AssetItem : UserControl
             if (!hideRarity)
             {
                 var colors = seriesColors ?? CUE4ParseVM.RarityColors[(int) Rarity];
+                var paint = new SKPaint { Shader = SkiaExtensions.LinearGradient(fullBitmap.Width, true, colors.Color1, colors.Color2) };
+                paint.Color = paint.Color.WithAlpha(215); // 0.8 Alpha
+                
                 fullCanvas.RotateDegrees(-4);
-                fullCanvas.DrawRect(new SKRect(-16, fullBitmap.Height - 12, fullBitmap.Width + 16, fullBitmap.Height + 16), new SKPaint
-                {
-                    Color = SKColor.Parse(colors.Color1.Hex).WithAlpha(204) // 0.8 Alpha
-                });
+                fullCanvas.DrawRect(new SKRect(-16, fullBitmap.Height - 12, fullBitmap.Width + 16, fullBitmap.Height + 16), paint);
                 fullCanvas.RotateDegrees(4);
             }
         }

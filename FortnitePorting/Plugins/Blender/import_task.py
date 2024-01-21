@@ -343,7 +343,7 @@ class DataImportTask:
 
         self.meshes = meshes
         for mesh in meshes:
-            self.import_model(mesh, collection=self.collection)
+            self.import_model(mesh, collection=self.collection, allow_3d_cursor_spawn=True)
 
         if self.type == "Outfit" and self.options.get("MergeSkeletons"):
             master_skeleton = merge_skeletons(self.imported_meshes)
@@ -501,7 +501,7 @@ class DataImportTask:
                 bpy.ops.import_image.to_plane(shader="EMISSION", files=[{"name": path}])
         
 
-    def import_model(self, mesh, collection=None, parent=None):
+    def import_model(self, mesh, collection=None, parent=None, allow_3d_cursor_spawn=False):
         mesh_type = mesh.get("Type")
         mesh_path = mesh.get("Path")
         object_name = mesh.get("Name")
@@ -528,6 +528,10 @@ class DataImportTask:
         imported_object.rotation_euler = make_euler(mesh.get("Rotation"))
         imported_object.location = make_vector(mesh.get("Location"), mirror_y=True) * 0.01
         imported_object.scale = make_vector(mesh.get("Scale"))
+
+        if allow_3d_cursor_spawn and self.options.get("SpawnAt3DCursor"):
+            imported_object.location += bpy.context.scene.cursor.location
+            
         imported_mesh = get_armature_mesh(imported_object)
         self.imported_meshes.append({
             "Skeleton": imported_object,

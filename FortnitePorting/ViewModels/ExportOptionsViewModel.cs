@@ -93,6 +93,7 @@ public partial class BlenderExportOptions : ExportOptionsBase
 {
     [ObservableProperty] private bool scaleDown = true;
     [ObservableProperty] private bool importCollection = true;
+    [ObservableProperty] private bool spawnAt3DCursor = false;
 
     [ObservableProperty, NotifyPropertyChangedFor(nameof(IsTastyRig))] private ERigType rigType = ERigType.Default;
     public bool IsTastyRig => RigType == ERigType.Tasty;
