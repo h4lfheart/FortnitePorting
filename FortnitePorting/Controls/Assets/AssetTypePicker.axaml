@@ -1,0 +1,21 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ext="clr-namespace:FortnitePorting.Framework.Extensions;assembly=FortnitePorting.Framework"
+             xmlns:assets="clr-namespace:FortnitePorting.Controls.Assets"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="FortnitePorting.Controls.Assets.AssetTypePicker">
+    <Button Tag="{Binding Type, RelativeSource={RelativeSource AncestorType=assets:AssetTypePicker}}"
+            Click="OnToggleButtonClick" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="{ext:Space 0, 0, 0, 1}" Padding="4">
+        <Grid>
+            <StackPanel Orientation="Horizontal">
+                <Image Source="{Binding Image, RelativeSource={RelativeSource AncestorType=assets:AssetTypePicker}}" 
+                       Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality" />
+                <TextBlock Text="{Binding Type, RelativeSource={RelativeSource AncestorType=assets:AssetTypePicker}, Converter={StaticResource EnumToString}}" 
+                           FontSize="14" Margin="{ext:Space 1, 0}" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </StackPanel>
+        </Grid>
+    </Button>
+</UserControl>

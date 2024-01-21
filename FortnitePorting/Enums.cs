@@ -28,7 +28,7 @@ public enum EAssetType
     [Description("Lego Outfits"), Export(EExportType.Mesh)]
     LegoOutfit,
 
-    [Description("Back Blings"), Export(EExportType.Mesh)]
+    [Description("Backpacks"), Export(EExportType.Mesh)]
     Backpack,
 
     [Description("Pickaxes"), Export(EExportType.Mesh)]

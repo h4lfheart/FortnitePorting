@@ -17,6 +17,7 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
     public AssetsView() : base(initialize: false)
     {
         InitializeComponent();
+        ViewModel.ExpanderContainer = ExpanderContainer;
     }
 
     protected override void OnLoaded(RoutedEventArgs e)
@@ -35,30 +36,6 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
         foreach (var asset in listBox.SelectedItems.Cast<AssetItem>()) ViewModel.CurrentAssets.Add(new AssetOptions(asset));
     }
 
-    private async void OnAssetTypeClick(object? sender, RoutedEventArgs e)
-    {
-        if (ViewModel.CurrentLoader is null) return;
-        if (sender is not Button button) return;
-        if (button.Tag is not EAssetType assetType) return;
-
-        if (ViewModel.CurrentLoader.Type == assetType) return;
-
-        DiscordService.Update(assetType);
-        ViewModel.SetLoader(assetType);
-        if (button.FindAncestorOfType<Expander>() is { } expander)
-        {
-            expander.IsExpanded = false;
-        }
-
-        var loaders = ViewModel.Loaders;
-        foreach (var loader in loaders)
-            if (loader.Type == assetType)
-                loader.Pause.Unpause();
-            else
-                loader.Pause.Pause();
-
-        await ViewModel.CurrentLoader.Load();
-    }
 
     private void OnScrollAssets(object? sender, PointerWheelEventArgs e)
     {

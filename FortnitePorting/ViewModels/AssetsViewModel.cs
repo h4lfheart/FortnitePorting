@@ -7,6 +7,7 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Avalonia.Collections;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -41,11 +42,11 @@ public partial class AssetsViewModel : ViewModelBase
 {
     public List<AssetLoader> Loaders;
     [ObservableProperty] private AssetLoader? currentLoader;
+    [ObservableProperty] private Control expanderContainer;
 
     [ObservableProperty] private ObservableCollection<AssetOptions> currentAssets = new();
 
-    [ObservableProperty]
-    private EAssetType currentAssetType;
+    [ObservableProperty] private EAssetType currentAssetType;
 
     [ObservableProperty] private int exportChunks;
     [ObservableProperty] private int exportProgress;
