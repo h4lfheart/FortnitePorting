@@ -77,15 +77,14 @@ public static class SoundExtensions
             {
                 FileName = DependencyService.BinkaFile.FullName,
                 Arguments = $"-i \"{binkaPath}\" -o \"{outPath}\"",
-                UseShellExecute = false,
-                RedirectStandardOutput = true
+                UseShellExecute = false
             };
 
             binkaProcess.Start();
             binkaProcess.WaitForExit();
         }
         
-        File.Delete(binkaPath);
+        TryDeleteFile(binkaPath);
     }
     
     public static void SaveADPCMAsWav(byte[] data, string outPath)
@@ -99,15 +98,14 @@ public static class SoundExtensions
             {
                 FileName = DependencyService.VGMStreamFile.FullName,
                 Arguments = $"-o \"{outPath}\" \"{adpcmPath}\"",
-                UseShellExecute = false,
-                RedirectStandardOutput = true
+                UseShellExecute = false
             };
 
             adpcmProcess.Start();
             adpcmProcess.WaitForExit();
         }
         
-        File.Delete(adpcmPath);
+        TryDeleteFile(adpcmPath);
     }
 
     public static List<Sound> HandleSoundTree(this USoundCue root, float offsetTime = 0.0f)
@@ -173,6 +171,19 @@ public static class SoundExtensions
     private static Sound CreateSound(USoundWave soundWave, float timeOffset = 0)
     {
         return new Sound(soundWave, timeOffset, false);
+    }
+
+    private static bool TryDeleteFile(string path)
+    {
+        try
+        {
+            File.Delete(path);
+            return true;
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
     }
 }
 

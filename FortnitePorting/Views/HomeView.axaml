@@ -81,12 +81,14 @@
                         </ItemsControl>
                     </Grid>
                 </controls:GroupBox>
-                <TransitioningContentControl Content="{Binding CurrentFeaturedArt}">
-                    <TransitioningContentControl.PageTransition>
-                        <PageSlide Duration="0.5" Orientation="Horizontal" SlideInEasing="CubicEaseOut"
-                                   SlideOutEasing="CubicEaseOut" />
-                    </TransitioningContentControl.PageTransition>
-                </TransitioningContentControl>
+                <Grid>
+                    <TransitioningContentControl Content="{Binding CurrentFeaturedArt}">
+                        <TransitioningContentControl.PageTransition>
+                            <PageSlide Duration="0.5" Orientation="Horizontal" SlideInEasing="CubicEaseOut"
+                                       SlideOutEasing="CubicEaseOut" />
+                        </TransitioningContentControl.PageTransition>
+                    </TransitioningContentControl>
+                </Grid>
             </StackPanel>
             
             <ScrollViewer Grid.Row="2" Grid.Column="2" VerticalScrollBarVisibility="Hidden">

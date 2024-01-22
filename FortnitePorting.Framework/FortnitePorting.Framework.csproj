@@ -12,11 +12,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Avalonia" Version="11.0.4" />
-        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.4" />
-        <PackageReference Include="Avalonia.Fonts.Inter" Version="11.0.4" />
-        <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.4" />
-        <PackageReference Include="Avalonia.Desktop" Version="11.0.4" />
+        <PackageReference Include="Avalonia" Version="11.0.7" />
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.7" />
+        <PackageReference Include="Avalonia.Fonts.Inter" Version="11.0.7" />
+        <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.7" />
+        <PackageReference Include="Avalonia.Desktop" Version="11.0.7" />
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
         <PackageReference Include="Material.Icons.Avalonia" Version="2.0.1" />
         <PackageReference Include="RestSharp" Version="110.2.1-alpha.0.11" />

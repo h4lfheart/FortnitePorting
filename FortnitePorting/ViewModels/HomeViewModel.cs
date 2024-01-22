@@ -30,6 +30,7 @@ public partial class HomeViewModel : ViewModelBase
     [ObservableProperty] private ObservableCollection<ChangelogItem> changelogs = new();
     [ObservableProperty] private DispatcherTimer featuredArtTimer = new();
     [ObservableProperty] private Bitmap splashArtSource;
+    private bool RunFeaturedArtTimer = true;
 
     public override async Task Initialize()
     {
@@ -80,20 +81,24 @@ public partial class HomeViewModel : ViewModelBase
             });
 
             CurrentFeaturedArt = FeaturedArt.FirstOrDefault();
-            if (FeaturedArt.Count > 1) DispatcherTimer.Run(ChangeFeaturedArt, TimeSpan.FromSeconds(5));
+            if (FeaturedArt.Count > 1) DispatcherTimer.Run(() => ChangeFeaturedArt(), TimeSpan.FromSeconds(5));
         });
     }
 
-    public bool ChangeFeaturedArt()
+    public bool ChangeFeaturedArt(bool increment = true)
     {
-        if (MainVM.ActiveTab is not HomeView) return true;
+        if (MainVM.ActiveTab is not HomeView) return RunFeaturedArtTimer;
 
         if (CurrentFeaturedArtIndex >= FeaturedArt.Count) CurrentFeaturedArtIndex = 0;
+        if (CurrentFeaturedArtIndex < 0) CurrentFeaturedArtIndex = FeaturedArt.Count - 1;
 
         CurrentFeaturedArt = FeaturedArt[CurrentFeaturedArtIndex];
-        CurrentFeaturedArtIndex++;
+        if (increment)
+            CurrentFeaturedArtIndex++;
+        else
+            CurrentFeaturedArtIndex--;
 
-        return true;
+        return RunFeaturedArtTimer;
     }
 
 
