@@ -443,7 +443,9 @@ class DataImportTask:
     
                 anim = self.import_anim(path, skeleton)
                 clear_bone_poses_recursive(skeleton, anim, "faceAttach")
-                track.strips.new(section.get("Name"), time_to_frame(section.get("Time")), anim)
+                
+                strip = track.strips.new(section.get("Name"), time_to_frame(section.get("Time")), anim)
+                strip.repeat = 999 if self.options.get("LoopAnimation") and section.get("Loop") else 1
             return total_frames
         
         total_frames = import_sections(data.get("Sections"), target_skeleton, target_track)
@@ -1438,14 +1440,19 @@ def apply_tasty_rig(master_skeleton, scale, use_finger_ik = True, use_dyn_bone_s
         bone.parent = parent_bone
 
     head_adjustment_bones = [
-        ("calf_r", edit_bones["calf_r"].head + Vector((0.0075, 0, 0))),
-        ("calf_l", edit_bones["calf_l"].head - Vector((0.0075, 0, 0))),
+        ("calf_r", LazyInit(lambda: edit_bones["calf_r"].head + Vector((0.0075, 0, 0)))),
+        ("calf_l", LazyInit(lambda: edit_bones["calf_l"].head - Vector((0.0075, 0, 0)))),
+        ("R_eye_lid_upper_mid", LazyInit(lambda: edit_bones["R_eye"].head)),
+        ("R_eye_lid_lower_mid", LazyInit(lambda: edit_bones["R_eye"].head)),
+        ("L_eye_lid_upper_mid", LazyInit(lambda: edit_bones["L_eye"].head)),
+        ("L_eye_lid_lower_mid", LazyInit(lambda: edit_bones["L_eye"].head)),
     ]
 
-    for name, loc in head_adjustment_bones:
+    for name, data in head_adjustment_bones:
+        if not data.load(): continue
         if not (bone := edit_bones.get(name)): continue
 
-        bone.head = loc
+        bone.head = data.get()
         
     tail_adjustment_bones = [
         ("calf_r", LazyInit(lambda: edit_bones["ik_foot_target_r"].head)),
