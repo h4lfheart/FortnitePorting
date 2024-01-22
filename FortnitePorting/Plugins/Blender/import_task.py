@@ -640,8 +640,12 @@ class DataImportTask:
                 additional_hash += parameters.get("Hash")
 
         if additional_hash != 0:
-            material_name += f"_{hash_code(additional_hash)}"
             material_hash += additional_hash
+            material_name += f"_{hash_code(material_hash)}"
+
+        # same name but diff hash
+        if (name_existing := first(self.imported_materials.items(), lambda x: x[1].name.casefold() == material_name.casefold())) and name_existing[0] != material_hash:
+            material_name += f"_{hash_code(material_hash)}"
 
         if existing := self.imported_materials.get(material_hash):
             material_slot.material = existing
