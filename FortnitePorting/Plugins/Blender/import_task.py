@@ -718,6 +718,12 @@ class DataImportTask:
                 return None
             return found.get("Value")
 
+        def get_param_data(source, name):
+            found = first(source, lambda param: param.get("Name") == name)
+            if found is None:
+                return None
+            return found
+
         def texture_param(data, target_mappings, target_node = shader_node, add_unused_params = False):
             try:
                 name = data.get("Name")
@@ -1017,8 +1023,39 @@ class DataImportTask:
                             continue
                         links.new(gmap_node.outputs[0], item_links[0].from_node.inputs[0])
                         
-                    
-                
+            if eye_texture_data := get_param_data(textures, "EyeTexture"):
+                eye_texture_node = nodes.new(type="ShaderNodeTexImage")
+                eye_texture_node.image = self.import_image(eye_texture_data.get("Value"))
+                eye_texture_node.image.alpha_mode = 'CHANNEL_PACKED'
+                eye_texture_node.image.colorspace_settings.name = "sRGB" if eye_texture_data.get("sRGB") else "Non-Color"
+                eye_texture_node.interpolation = "Smart"
+                eye_texture_node.hide = True
+                eye_texture_node.location = [-500, -75]
+
+                uv_map_node = nodes.new(type="ShaderNodeUVMap")
+                uv_map_node.location = [-700, 25]
+                uv_map_node.uv_map = "UV1"
+        
+                links.new(uv_map_node.outputs[0], eye_texture_node.inputs[0])
+        
+                mix_node = nodes.new(type="ShaderNodeMixRGB")
+                mix_node.location = [-200, 75]
+        
+                links.new(eye_texture_node.outputs[0], mix_node.inputs[2])
+        
+                compare_node = nodes.new(type="ShaderNodeMath")
+                compare_node.operation = 'COMPARE'
+                compare_node.hide = True
+                compare_node.location = [-500, 100]
+                compare_node.inputs[1].default_value = 0.510
+                links.new(uv_map_node.outputs[0], compare_node.inputs[0])
+                links.new(compare_node.outputs[0], mix_node.inputs[0])
+
+                diffuse_node = shader_node.inputs["Diffuse"].links[0].from_node
+                diffuse_node.location = [-500, 0]
+                links.new(diffuse_node.outputs[0], mix_node.inputs[1])
+                links.new(mix_node.outputs[0], shader_node.inputs["Diffuse"])
+
 
         if shader_node.node_tree.name == "FP Toon":
             shader_node.inputs["Brightness"].default_value = self.options.get("ToonBrightness")
