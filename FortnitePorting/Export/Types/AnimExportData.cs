@@ -90,6 +90,8 @@ public class AnimExportData : ExportDataBase
 
         var nextSection = montageRef.CompositeSections.FirstOrDefault(sec => currentSection.NextSectionName == sec.SectionName);
         if (nextSection is null) return;
+        
+        if (Sections.Any(section => section.Name.Equals(nextSection.SectionName.Text, StringComparison.OrdinalIgnoreCase))) return;
 
         var isSequentiallyNext = Math.Abs(nextSection.SegmentBeginTime - currentSection.SegmentBeginTime) < 0.01f;
         HandleSectionTree(sections, montageRef, nextSection, isSequentiallyNext ? time + currentSection.SegmentLength : time);
