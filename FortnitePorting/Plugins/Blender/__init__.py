@@ -11,7 +11,7 @@ bl_info = {
     "description": "Fortnite Porting Blender Plugin",
     "author": "Half",
     "blender": (4, 0, 0),
-    "version": (2, 0, 4),
+    "version": (2, 0, 5),
     "category": "Import",
 }
 

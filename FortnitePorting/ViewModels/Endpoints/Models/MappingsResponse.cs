@@ -17,3 +17,9 @@ public class MappingsMeta
     [J] public string Version;
     [J] public string CompressionMethod;
 }
+
+public class FortnitePortingMappingsResponse
+{
+    [J] public bool Active;
+    [J] public MappingsResponse[] Mappings;
+}

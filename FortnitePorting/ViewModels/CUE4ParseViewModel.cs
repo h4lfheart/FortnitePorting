@@ -23,8 +23,11 @@ using FortnitePorting.Application;
 using FortnitePorting.Controls;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
+using FortnitePorting.Framework.Controls;
 using FortnitePorting.Services;
 using FortnitePorting.Framework.Services;
+using FortnitePorting.Framework.ViewModels.Endpoints;
+using FortnitePorting.ViewModels.Endpoints.Models;
 using Serilog;
 using Tmds.DBus.Protocol;
 using UE4Config.Parsing;
@@ -140,15 +143,22 @@ public class CUE4ParseViewModel : ViewModelBase
         var onDemandFile = new FileInfo(Path.Combine(App.DataFolder.FullName, tocName));
         if (!onDemandFile.Exists || onDemandFile.Length == 0) await EndpointsVM.DownloadFileAsync($"https://download.epicgames.com/{tocPath}", onDemandFile.FullName);
 
-        await Provider.RegisterVfs(new IoChunkToc(onDemandFile),
-            new IoStoreOnDemandOptions
-            {
-                ChunkBaseUri = new Uri("https://download.epicgames.com/ias/fortnite/", UriKind.Absolute),
-                ChunkCacheDirectory = ChunkCacheFolder,
-                Authorization = new AuthenticationHeaderValue("Bearer", AppSettings.Current.EpicGamesAuth?.Token),
-                Timeout = TimeSpan.FromSeconds(100)
-            });
-        await Provider.MountAsync();
+        try
+        {
+            await Provider.RegisterVfs(new IoChunkToc(onDemandFile),
+                new IoStoreOnDemandOptions
+                {
+                    ChunkBaseUri = new Uri("https://download.epicgames.com/ias/fortnite/", UriKind.Absolute),
+                    ChunkCacheDirectory = ChunkCacheFolder,
+                    Authorization = new AuthenticationHeaderValue("Bearer", AppSettings.Current.EpicGamesAuth?.Token),
+                    Timeout = TimeSpan.FromSeconds(10)
+                });
+            await Provider.MountAsync();
+        }
+        catch (Exception)
+        {
+            MessageWindow.Show("Failed to Initialize On-Demand IoStore", "Failed to initialize cosmetic texture streaming, please enable \"Pre-Download Streamed Assets\" for Fortnite in the Epic Games Launcher and disable Cosmetic Streaming in Fortnite Porting settings.");
+        }
     }
 
     private async Task<string> GetTocPath(ELoadingType loadingType)
@@ -183,7 +193,7 @@ public class CUE4ParseViewModel : ViewModelBase
             case ELoadingType.Local:
             case ELoadingType.Live:
             {
-                var aes = await EndpointsVM.FortniteCentral.GetKeysAsync() ?? AppSettings.Current.LastAesResponse;
+                var aes = await EndpointsVM.FortnitePorting.GetBackupAsync<AesResponse>(FortnitePortingEndpoint.AES_URL) ?? await EndpointsVM.FortniteCentral.GetKeysAsync() ?? AppSettings.Current.LastAesResponse;
                 if (aes is null) return;
 
                 AppSettings.Current.LastAesResponse = aes;
@@ -234,7 +244,7 @@ public class CUE4ParseViewModel : ViewModelBase
 
     private async Task<string?> GetEndpointMappings()
     {
-        var mappings = await EndpointsVM.FortniteCentral.GetMappingsAsync(); // ?? BackupAPI?.GetMappings();
+        var mappings = await EndpointsVM.FortnitePorting.GetBackupAsync<MappingsResponse[]>(FortnitePortingEndpoint.MAPPINGS_URL) ?? await EndpointsVM.FortniteCentral.GetMappingsAsync(); // ?? BackupAPI?.GetMappings();
         if (mappings is null) return null;
         if (mappings.Length <= 0) return null;
 
