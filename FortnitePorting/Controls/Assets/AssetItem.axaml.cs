@@ -66,7 +66,8 @@ public partial class AssetItem : UserControl
         IsFavorite = AppSettings.Current.FavoritePaths.Contains(asset.GetPathName());
         ID = asset.Name;
         DisplayName = useTitleCase ? displayName.TitleCase() : displayName;
-        Description = asset.GetOrDefault("Description", new FText("No description.")).Text;
+        var description = asset.GetAnyOrDefault<FText?>("Description", "ItemDescription") ?? new FText("No description.");
+        Description = description.Text;
         Rarity = rarityOverride ?? asset.GetOrDefault("Rarity", EFortRarity.Uncommon);
         GameplayTags = asset.GetOrDefault<FGameplayTagContainer?>("GameplayTags");
         if (type is EAssetType.Prefab)
@@ -81,7 +82,7 @@ public partial class AssetItem : UserControl
         Season = int.TryParse(seasonTag?.SubstringAfterLast("."), out var seasonNumber) ? seasonNumber : int.MaxValue;
 
         var series = Asset.GetOrDefault<UObject?>("Series");
-        Series = series?.GetOrDefault<FText>("DisplayName").Text ?? string.Empty;
+        Series = series?.GetAnyOrDefault<FText>("DisplayName", "ItemName").Text ?? string.Empty;
 
         var iconBitmap = icon.Decode()!;
         IconBitmap = new Bitmap(iconBitmap.Encode(SKEncodedImageFormat.Png, 100).AsStream());

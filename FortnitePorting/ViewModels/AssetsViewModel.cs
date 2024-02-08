@@ -163,7 +163,7 @@ public partial class AssetsViewModel : ViewModelBase
                         try
                         {
                             var asset = await CUE4ParseVM.Provider.LoadObjectAsync(data.ObjectPath);
-                            var displayName = asset.GetOrDefault("DisplayName", new FText(asset.Name)).Text;
+                            var displayName = asset.GetAnyOrDefault<FText?>("DisplayName", "ItemName") ?? new FText(asset.Name);
                             var rarity = asset.GetOrDefault("Rarity", EFortRarity.Uncommon);
 
                             if (!mergedDataTableRows.TryGetDataTableRow(asset.Name, StringComparison.OrdinalIgnoreCase, out var characterData)) continue;
@@ -178,7 +178,7 @@ public partial class AssetsViewModel : ViewModelBase
                             var previewImage = additionalData.NonConstStruct!.GetAnyOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage");
                             if (previewImage is null) continue;
                             
-                            await TaskService.RunDispatcherAsync(() => loader.Source.Add(new AssetItem(customizableObject, previewImage, displayName, loader.Type, rarityOverride: rarity)), DispatcherPriority.Background);
+                            await TaskService.RunDispatcherAsync(() => loader.Source.Add(new AssetItem(customizableObject, previewImage, displayName.Text, loader.Type, rarityOverride: rarity)), DispatcherPriority.Background);
                             loader.Loaded++;
                             
                         }
@@ -344,7 +344,7 @@ public partial class AssetsViewModel : ViewModelBase
             {
                 Classes = new[] { "FortVehicleItemDefinition" },
                 IconHandler = asset => GetVehicleInfo<UTexture2D>(asset, "SmallPreviewImage", "LargePreviewImage", "Icon"),
-                DisplayNameHandler = asset => GetVehicleInfo<FText>(asset, "DisplayName"),
+                DisplayNameHandler = asset => GetVehicleInfo<FText>(asset, "DisplayName", "ItemName"),
                 HideRarity = true
             },
             new(EAssetType.Wildlife)
@@ -590,7 +590,7 @@ public partial class AssetLoader : ObservableObject
     public bool HideRarity;
     public Func<AssetLoader, UObject, string, bool> HidePredicate = (_, _, _) => false;
     public Func<UObject, UTexture2D?> IconHandler = asset => asset.GetAnyOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage");
-    public Func<UObject, FText?> DisplayNameHandler = asset => asset.GetOrDefault("DisplayName", new FText(asset.Name));
+    public Func<UObject, FText?> DisplayNameHandler = asset => asset.GetAnyOrDefault<FText?>("DisplayName", "ItemName") ?? new FText(asset.Name);
     public Func<AssetLoader, Task>? CustomLoadingHandler;
 
     private bool Started;

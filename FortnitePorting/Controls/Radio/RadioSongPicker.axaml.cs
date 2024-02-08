@@ -33,8 +33,10 @@ public partial class RadioSongPicker : UserControl
 
         ID = asset.Name;
         SoundCue = asset.Get<USoundCue>("FrontEndLobbyMusic");
-        Title = asset.Get<FText>("DisplayName").Text;
-        Description = asset.Get<FText>("Description").Text;
+        var titleText = asset.GetAnyOrDefault<FText?>("DisplayName", "ItemName") ?? new FText(asset.Name);
+        Title = titleText.Text;
+        var description = asset.GetAnyOrDefault<FText?>("Description", "ItemDescription") ?? new FText("No description.");
+        Description = description.Text;
 
         var coverArtTexture = asset.Get<UTexture2D>("CoverArtImage");
         CoverArtImage = new Bitmap(coverArtTexture.Decode()!.Encode(SKEncodedImageFormat.Png, 100).AsStream());
