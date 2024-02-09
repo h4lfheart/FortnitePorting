@@ -136,15 +136,15 @@ public class CUE4ParseViewModel : ViewModelBase
 
     private async Task LoadCosmeticStreaming()
     {
-        var tocPath = await GetTocPath(AppSettings.Current.LoadingType);
-        if (string.IsNullOrEmpty(tocPath)) return;
-
-        var tocName = tocPath.SubstringAfterLast("/");
-        var onDemandFile = new FileInfo(Path.Combine(App.DataFolder.FullName, tocName));
-        if (!onDemandFile.Exists || onDemandFile.Length == 0) await EndpointsVM.DownloadFileAsync($"https://download.epicgames.com/{tocPath}", onDemandFile.FullName);
-
         try
         {
+            var tocPath = await GetTocPath(AppSettings.Current.LoadingType);
+            if (string.IsNullOrEmpty(tocPath)) return;
+
+            var tocName = tocPath.SubstringAfterLast("/");
+            var onDemandFile = new FileInfo(Path.Combine(DataFolder.FullName, tocName));
+            if (!onDemandFile.Exists || onDemandFile.Length == 0) await EndpointsVM.DownloadFileAsync($"https://download.epicgames.com/{tocPath}", onDemandFile.FullName);
+
             await Provider.RegisterVfs(new IoChunkToc(onDemandFile),
                 new IoStoreOnDemandOptions
                 {
@@ -157,7 +157,7 @@ public class CUE4ParseViewModel : ViewModelBase
         }
         catch (Exception)
         {
-            MessageWindow.Show("Failed to Initialize On-Demand IoStore", "Failed to initialize cosmetic texture streaming, please enable \"Pre-Download Streamed Assets\" for Fortnite in the Epic Games Launcher and disable Cosmetic Streaming in Fortnite Porting settings.");
+            MessageWindow.Show("Failed to Initialize On-Demand IoStore", "Failed to initialize cosmetic texture streaming, please enable \"Pre-Download Streamed Assets\" for Fortnite in the Epic Games Launcher and disable Cosmetic Streaming in Fortnite Porting settings to remove this popup.");
         }
     }
 
