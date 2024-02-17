@@ -50,6 +50,7 @@ public partial class AssetsViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(HasCosmeticFilters))]
     [NotifyPropertyChangedFor(nameof(HasGameFilters))] 
     [NotifyPropertyChangedFor(nameof(HasPrefabFilters))] 
+    [NotifyPropertyChangedFor(nameof(HasItemFilters))] 
     private EAssetType currentAssetType;
     public bool HasCosmeticFilters => CosmeticFilterTypes.Contains(CurrentAssetType);
     private readonly EAssetType[] CosmeticFilterTypes =
@@ -81,6 +82,7 @@ public partial class AssetsViewModel : ViewModelBase
     ];
     
     public bool HasPrefabFilters => CurrentAssetType is EAssetType.Prefab;
+    public bool HasItemFilters => CurrentAssetType is EAssetType.Item;
 
     [ObservableProperty] private int exportChunks;
     [ObservableProperty] private int exportProgress;
@@ -109,7 +111,13 @@ public partial class AssetsViewModel : ViewModelBase
         { "Save The World", x => x.GameplayTags.ContainsAny("CampaignHero", "SaveTheWorld") || x.Asset.GetPathName().Contains("SaveTheWorld", StringComparison.OrdinalIgnoreCase) },
         { "Battle Royale", x => !x.GameplayTags.ContainsAny("CampaignHero", "SaveTheWorld") && !x.Asset.GetPathName().Contains("SaveTheWorld", StringComparison.OrdinalIgnoreCase) },
         { "Galleries", x => x.GameplayTags.ContainsAny("Gallery") },
-        { "Prefabs", x => x.GameplayTags.ContainsAny("Prefab") }
+        { "Prefabs", x => x.GameplayTags.ContainsAny("Prefab") },
+        { "Weapons", x => x.GameplayTags.ContainsAny("Weapon") },
+        { "Gadgets", x => x.Asset.ExportType.Equals("AthenaGadgetItemDefinition", StringComparison.OrdinalIgnoreCase) },
+        { "Melee", x => x.GameplayTags.ContainsAny("Melee") },
+        { "Consumables", x => x.GameplayTags.ContainsAny("Consume") },
+        { "Lego", x => x.GameplayTags.ContainsAny("Juno") },
+        
     };
 
     public AssetsViewModel()

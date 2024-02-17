@@ -199,6 +199,14 @@
                             <CheckBox Content="Galleries" IsCheckedChanged="OnFilterChecked" />
                             <CheckBox Content="Prefabs" IsCheckedChanged="OnFilterChecked" />
                         </StackPanel>
+                        <StackPanel IsVisible="{Binding HasItemFilters}">
+                            <Separator Classes="NamedSeparator" Tag="Items" Margin="{ext:Space 0, 1}" />
+                            <CheckBox Content="Weapons" IsCheckedChanged="OnFilterChecked" />
+                            <CheckBox Content="Gadgets" IsCheckedChanged="OnFilterChecked" />
+                            <CheckBox Content="Melee" IsCheckedChanged="OnFilterChecked" />
+                            <CheckBox Content="Consumables" IsCheckedChanged="OnFilterChecked" />
+                            <CheckBox Content="Lego" IsCheckedChanged="OnFilterChecked" />
+                        </StackPanel>
                         <Separator Margin="{ext:Space 0, 1}" />
                         <Button HorizontalAlignment="Stretch" Click="OnFilterClearClicked">
                             <controls:MaterialIconText HorizontalAlignment="Center" VerticalAlignment="Center"
