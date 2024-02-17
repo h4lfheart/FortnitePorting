@@ -584,12 +584,13 @@ public partial class AssetsViewModel : ViewModelBase
 
 public partial class AssetLoader : ObservableObject
 {
-    [ObservableProperty] private int loaded;
-    [ObservableProperty] private int total;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(FinishedLoading))] private int loaded;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(FinishedLoading))] private int total;
     [ObservableProperty] private string searchFilter = string.Empty;
 
     public readonly EAssetType Type;
     public readonly Pauser Pause = new();
+    public bool FinishedLoading => Loaded == Total;
 
     public readonly SourceList<AssetItem> Source = new();
     public readonly ReadOnlyObservableCollection<AssetItem> Target;

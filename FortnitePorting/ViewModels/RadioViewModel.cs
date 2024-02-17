@@ -40,8 +40,9 @@ public partial class RadioViewModel : ViewModelBase
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(VolumeIconKind))]
     private float volume = 1.0f;
     
-    [ObservableProperty] private int loaded;
-    [ObservableProperty] private int total;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(FinishedLoading))] private int loaded;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(FinishedLoading))] private int total;
+    public bool FinishedLoading => Loaded == Total;
     
     [ObservableProperty] private string searchFilter = string.Empty;
     [ObservableProperty] private ReadOnlyObservableCollection<RadioSongPicker> loadedSongs;

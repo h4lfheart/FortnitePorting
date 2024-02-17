@@ -38,8 +38,8 @@
                 </controls:GroupBox>
             </Grid>
             
-            <ProgressBar Grid.Row="4" Minimum="0" Maximum="{Binding Total}" 
-                         Value="{Binding Loaded}" />
+            <ProgressBar Grid.Row="4" IsVisible="{Binding !FinishedLoading}"
+                         Minimum="0" Maximum="{Binding Total}" Value="{Binding Loaded}" />
 
             <!-- Lower Control Bar -->
             <controls:GroupBox Grid.Row="6">

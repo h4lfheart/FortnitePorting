@@ -77,7 +77,7 @@
                 </ListBox>
             </controls:GroupBox>
             
-            <ProgressBar Grid.Row="4" IsVisible="{Binding !!CurrentLoader.Total}" Minimum="0"
+            <ProgressBar Grid.Row="4" IsVisible="{Binding !CurrentLoader.FinishedLoading}" Minimum="0"
                          Maximum="{Binding CurrentLoader.Total}" Value="{Binding CurrentLoader.Loaded}" />
             
             <Grid x:Name="ExpanderContainer" Grid.Row="2" Grid.RowSpan="5">
