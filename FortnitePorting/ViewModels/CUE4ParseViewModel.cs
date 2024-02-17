@@ -38,9 +38,9 @@ public class CUE4ParseViewModel : ViewModelBase
 {
     public readonly HybridFileProvider Provider = AppSettings.Current.LoadingType switch
     {
-        ELoadingType.Local => new HybridFileProvider(AppSettings.Current.LocalArchivePath, ExtraDirectories, LatestVersionContainer),
+        ELoadingType.Local => new HybridFileProvider(AppSettings.Current.LocalArchivePath, AppSettings.Current.LoadUEFNPaks ? ExtraDirectories : [], LatestVersionContainer),
         ELoadingType.Live => new HybridFileProvider(LatestVersionContainer),
-        ELoadingType.Custom => new HybridFileProvider(AppSettings.Current.CustomArchivePath, ExtraDirectories, new VersionContainer(AppSettings.Current.CustomUnrealVersion))
+        ELoadingType.Custom => new HybridFileProvider(AppSettings.Current.CustomArchivePath, AppSettings.Current.LoadUEFNPaks ? ExtraDirectories : [], new VersionContainer(AppSettings.Current.CustomUnrealVersion))
     };
     
     public readonly HybridFileProvider OptionalProvider = AppSettings.Current.LoadingType switch
@@ -56,7 +56,7 @@ public class CUE4ParseViewModel : ViewModelBase
     public List<UAnimMontage> MaleLobbyMontages = [];
     public readonly List<UAnimMontage> FemaleLobbyMontages = [];
 
-    public static readonly List<DirectoryInfo> ExtraDirectories = [];//[new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "FortniteGame", "Saved", "PersistentDownloadDir", "GameCustom", "InstalledBundles"))];
+    public static readonly List<DirectoryInfo> ExtraDirectories = [new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "FortniteGame", "Saved", "PersistentDownloadDir", "GameCustom", "InstalledBundles"))];
 
     private static readonly Regex FortniteLiveRegex = new(@"^FortniteGame(/|\\)Content(/|\\)Paks(/|\\)(pakchunk(?:0|10.*|\w+)-WindowsClient|global)\.(pak|utoc)$", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 

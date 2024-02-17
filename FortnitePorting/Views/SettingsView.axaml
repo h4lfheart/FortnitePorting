@@ -52,6 +52,11 @@
                                                              Icon="CloudDownload">
                                             <ToggleSwitch IsChecked="{Binding UseCosmeticStreaming}" />
                                         </controls:SettingBox>
+                                        <controls:SettingBox DisplayName="Load UEFN Maps (Unstable)"
+                                                             Path="{Binding LoadUEFNPaks, Mode=TwoWay}"
+                                                             Icon="Map">
+                                            <ToggleSwitch IsChecked="{Binding LoadUEFNPaks}" />
+                                        </controls:SettingBox>
                                     </StackPanel>
                                 </TabItem>
                                 <TabItem Header="Live">

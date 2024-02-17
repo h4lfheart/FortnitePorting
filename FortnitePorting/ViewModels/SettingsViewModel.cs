@@ -41,6 +41,7 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private ELoadingType loadingType = ELoadingType.Local;
     [ObservableProperty] private ELanguage language = ELanguage.English;
     [ObservableProperty] private bool useCosmeticStreaming = true;
+    [ObservableProperty] private bool loadUEFNPaks = true;
     [ObservableProperty] private string localArchivePath;
     [ObservableProperty] private string customArchivePath;
     [ObservableProperty] private string customMappingsPath;
