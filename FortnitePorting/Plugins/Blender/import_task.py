@@ -329,6 +329,8 @@ class DataImportTask:
                 self.import_anim_data(data)
             case "Texture":
                 self.import_texture_data(data)
+            case "Sound":
+                self.import_sound_data(data)
     def import_mesh_data(self, data):
         self.override_materials = data.get("OverrideMaterials")
         self.override_parameters = data.get("OverrideParameters")
@@ -501,6 +503,12 @@ class DataImportTask:
 
                 path, name = self.format_image_path(path)
                 bpy.ops.import_image.to_plane(shader="EMISSION", files=[{"name": path}])
+
+
+    def import_sound_data(self, data):
+        for sound in data.get("Sounds"):
+            path = sound.get("Path")
+            self.import_sound(path, time_to_frame(sound.get("Time")))
         
 
     def import_model(self, mesh, collection=None, parent=None, allow_3d_cursor_spawn=False):

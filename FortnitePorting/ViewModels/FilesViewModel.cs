@@ -11,6 +11,7 @@ using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
+using CUE4Parse.UE4.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Objects.Engine;
@@ -56,10 +57,7 @@ public partial class FilesViewModel : ViewModelBase
     {
         // Folders
         "Engine/",
-        "/Sounds",
         "/Playsets",
-        "/Audio",
-        "/Sound",
         "/DataTables",
         "/TextureData",
         "/ActorBlueprints",
@@ -98,7 +96,9 @@ public partial class FilesViewModel : ViewModelBase
         typeof(UStaticMesh),
         typeof(UWorld),
         typeof(UTexture),
-        typeof(UAnimationAsset)
+        typeof(UAnimationAsset),
+        typeof(USoundCue),
+        typeof(USoundWave),
     };
 
     public override async Task Initialize()
@@ -191,11 +191,19 @@ public partial class FilesViewModel : ViewModelBase
                 UTexture => EAssetType.Texture,
                 UWorld => EAssetType.World,
                 UAnimationAsset => EAssetType.Animation,
+                USoundWave => EAssetType.Sound,
+                USoundCue => EAssetType.Sound,
                 _ => EAssetType.None
             };
-                    
-            if (assetType is not EAssetType.None)
+
+            if (assetType is EAssetType.None)
+            {
+                MessageWindow.Show("Invalid Export", $"Exporting {asset.Name} of type {asset.ExportType} is not supported.");
+            }
+            else
+            {
                 exports.Add(new KeyValuePair<UObject, EAssetType>(asset, assetType));
+            }
         }
         
         ExportChunks = 1;
