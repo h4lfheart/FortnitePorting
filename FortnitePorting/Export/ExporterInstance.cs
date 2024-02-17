@@ -665,30 +665,31 @@ public class ExporterInstance
 
     private void Export(UObject asset, string exportPath)
     {
+        var assetsFolder = new DirectoryInfo(AppSettings.Current.GetExportPath());
         switch (asset)
         {
             case USkeletalMesh skeletalMesh:
             {
                 var exporter = new MeshExporter(skeletalMesh, FileExportOptions);
-                exporter.TryWriteToDir(AssetsFolder, out _, out _);
+                exporter.TryWriteToDir(assetsFolder, out _, out _);
                 break;
             }
             case UStaticMesh staticMesh:
             {
                 var exporter = new MeshExporter(staticMesh, FileExportOptions);
-                exporter.TryWriteToDir(AssetsFolder, out _, out _);
+                exporter.TryWriteToDir(assetsFolder, out _, out _);
                 break;
             }
             case USkeleton skeleton:
             {
                 var exporter = new MeshExporter(skeleton, FileExportOptions);
-                exporter.TryWriteToDir(AssetsFolder, out _, out _);
+                exporter.TryWriteToDir(assetsFolder, out _, out _);
                 break;
             }
             case UAnimSequence animSequence:
             {
                 var exporter = new AnimExporter(animSequence, FileExportOptions);
-                exporter.TryWriteToDir(AssetsFolder, out _, out _);
+                exporter.TryWriteToDir(assetsFolder, out _, out _);
                 break;
             }
             case UTexture texture:
