@@ -53,6 +53,7 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private DateTime lastUpdateAskTime = DateTime.Now.Subtract(TimeSpan.FromDays(1));
     [ObservableProperty] private FPVersion lastKnownUpdateVersion = Globals.Version;
     
+    [ObservableProperty] private float radioVolume = 1.0f;
     [ObservableProperty] private bool showConsole = true;
     [ObservableProperty] private EAssetSize assetSize = EAssetSize.Percent100;
     public float AssetSizeMultiplier => AssetSize switch

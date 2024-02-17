@@ -15,7 +15,7 @@
     <Grid RowDefinitions="30, *">
         <ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="2" IsVisible="{Binding !UseMicaBackground}" IsHitTestVisible="False">
             <ExperimentalAcrylicBorder.Material>
-                <ExperimentalAcrylicMaterial MaterialOpacity="1.1" TintColor="{Binding BackgroundColor}" TintOpacity="1"/>
+                <ExperimentalAcrylicMaterial BackgroundSource="Digger" MaterialOpacity="1.1" TintColor="{Binding BackgroundColor}" TintOpacity="1"/>
             </ExperimentalAcrylicBorder.Material>
         </ExperimentalAcrylicBorder>
         <Grid Grid.Row="0" PointerPressed="OnPointerPressed" Background="Transparent" HorizontalAlignment="Stretch">

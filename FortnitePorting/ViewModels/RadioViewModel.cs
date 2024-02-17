@@ -16,6 +16,7 @@ using CUE4Parse_Conversion.Sounds;
 using CUE4Parse.Utils;
 using DynamicData;
 using DynamicData.Binding;
+using FortnitePorting.Application;
 using FortnitePorting.Controls.Radio;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
@@ -83,6 +84,7 @@ public partial class RadioViewModel : ViewModelBase
             .Subscribe();
         LoadedSongs = sourceTarget;
         RadioItemsTarget = target;
+        Volume = AppSettings.Current.RadioVolume;
     }
     
     private Func<RadioSongPicker, bool> CreateRadioFilter(string filter)
@@ -173,6 +175,7 @@ public partial class RadioViewModel : ViewModelBase
     {
         if (!IsValidSong) return;
         SoundOut.Volume = value;
+        AppSettings.Current.RadioVolume = SoundOut.Volume;
     }
 
     public void TogglePlayPause()

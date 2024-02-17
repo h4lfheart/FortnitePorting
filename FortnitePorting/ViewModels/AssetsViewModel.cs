@@ -107,7 +107,7 @@ public partial class AssetsViewModel : ViewModelBase
         { "Battle Pass", x => x.GameplayTags.ContainsAny("BattlePass") },
         { "Item Shop", x => x.GameplayTags.ContainsAny("ItemShop") },
         { "Save The World", x => x.GameplayTags.ContainsAny("CampaignHero", "SaveTheWorld") || x.Asset.GetPathName().Contains("SaveTheWorld", StringComparison.OrdinalIgnoreCase) },
-        { "Battle Royale", x => !x.GameplayTags.ContainsAny("CampaignHero", "SaveTheWorld") },
+        { "Battle Royale", x => !x.GameplayTags.ContainsAny("CampaignHero", "SaveTheWorld") && !x.Asset.GetPathName().Contains("SaveTheWorld", StringComparison.OrdinalIgnoreCase) },
         { "Galleries", x => x.GameplayTags.ContainsAny("Gallery") },
         { "Prefabs", x => x.GameplayTags.ContainsAny("Prefab") }
     };
@@ -528,6 +528,9 @@ public partial class AssetsViewModel : ViewModelBase
     private static SortExpressionComparer<AssetItem> CreateAssetSort((ESortType, bool) values)
     {
         var (type, descending) = values;
+
+        AssetsVM.ModifyFilters("Battle Royale", type is ESortType.Season);
+        
         Func<AssetItem, IComparable> sort = type switch
         {
             ESortType.Default => asset => asset.ID,
