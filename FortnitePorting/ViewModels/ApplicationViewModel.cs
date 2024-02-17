@@ -47,7 +47,7 @@ public partial class ApplicationViewModel : ThemedViewModelBase
         var restartButton = new MessageWindowButton("Restart", _ => Restart());
         var waitButton = new MessageWindowButton("Wait", window => window.Close());
         var buttons = mandatory ? new List<MessageWindowButton> { restartButton } : [ restartButton, waitButton ];
-        MessageWindow.Show(caption, message, MainWindow, buttons);
+        MessageWindow.Show(caption, message, buttons);
     }
 
     public void Restart()

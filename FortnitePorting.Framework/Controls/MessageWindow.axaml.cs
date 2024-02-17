@@ -11,15 +11,17 @@ namespace FortnitePorting.Framework.Controls;
 public partial class MessageWindow : Window
 {
     public static MessageWindow? ActiveWindow;
-   
+    public static bool IsWindowCreationQueued; // helps remove window creation overlap before avalonia init
+    public static Queue<MessageWindowModel> WindowCreationQueue = [];
+    
     public MessageWindow(MessageWindowModel model)
     {
+        ActiveWindow = this;
         InitializeComponent();
         DataContext = model;
-        ActiveWindow ??= this;
     }
 
-    public static void Show(string title, string text, Window? owner = null, List<MessageWindowButton>? buttons = null)
+    public static void Show(string title, string text, List<MessageWindowButton>? buttons = null)
     {
         var model = new MessageWindowModel
         {
@@ -33,16 +35,23 @@ public partial class MessageWindow : Window
     
     public static void Show(MessageWindowModel model)
     {
-        if (ActiveWindow is not null) return;
-        TaskService.RunDispatcher(() =>
+        WindowCreationQueue.Enqueue(model);
+        if (ActiveWindow is null && !IsWindowCreationQueued)
         {
-            new MessageWindow(model).Show();
-        });
+            IsWindowCreationQueued = true;
+            TaskService.RunDispatcher(() => new MessageWindow(WindowCreationQueue.Dequeue()).Show());
+            IsWindowCreationQueued = false;
+        }
     }
 
     protected override void OnClosed(EventArgs e)
     {
+        base.OnClosed(e);
         ActiveWindow = null;
+        if (WindowCreationQueue.Count > 0)
+        {
+            TaskService.RunDispatcher(() => new MessageWindow(WindowCreationQueue.Dequeue()).Show());
+        }
     }
 
     private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
@@ -52,7 +61,6 @@ public partial class MessageWindow : Window
 
     private void OnCloseClicked(object? sender, RoutedEventArgs e)
     {
-        ActiveWindow = null;
         Close();
     }
 }
