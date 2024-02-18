@@ -2,9 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Net.Http.Headers;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Text;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Objects;
 using FortnitePorting.Application;
@@ -28,6 +32,7 @@ public static class ExportService
     private const int BLENDER_MESSAGE_PORT = 24001;
     private const int UNREAL_PORT = 24002;
     private const int UNREAL_MESSAGE_PORT = 24003;
+    private const int UNREAL_REMOTE_CONTROL_API_PORT = 30010;
 
     public static async Task ExportAsync(List<AssetOptions> exports, EExportTargetType exportType)
     {
@@ -45,19 +50,48 @@ public static class ExportService
                 EExportTargetType.Unreal => Unreal
             };
 
-            if (!exportService.Ping())
+            if (exportType == EExportTargetType.Unreal)
+            {                
+                var exportDatas = exports.Select(export => CreateExportData(export.AssetItem.DisplayName, export.AssetItem.Asset, export.GetSelectedStyles(), export.AssetItem.Type, exportType)).ToArray();
+                foreach (var exportData in exportDatas) exportData.WaitForExports();
+                
+                var exportResponse = CreateExportResponse(exportDatas, exportType);
+                                
+                var remoteControlAPIRequest = new UnrealRemoteAPIRequest();
+                remoteControlAPIRequest.objectPath = "/Engine/PythonTypes.Default__FortnitePortingFunctionLibrary";
+                remoteControlAPIRequest.functionName = "import_response_remote_api";
+                var remoteControlAPIRequestParameters = new UnrealRemoteAPIParameters();
+                remoteControlAPIRequestParameters.response = JsonConvert.SerializeObject(exportResponse);
+                remoteControlAPIRequest.parameters = remoteControlAPIRequestParameters;
+                
+                using (var client = new HttpClient())
+                {
+                    HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Put, $"http://localhost:{UNREAL_REMOTE_CONTROL_API_PORT}/remote/object/call");
+                    request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    request.Content = new StringContent(JsonConvert.SerializeObject(remoteControlAPIRequest), Encoding.UTF8, "application/json");
+                    request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+                    var response = await client.SendAsync(request);
+                    response.EnsureSuccessStatusCode();
+                }                
+            }
+            else
             {
-                var exportTypeString = exportType.GetDescription();
-                MessageWindow.Show($"Failed to Connect to {exportTypeString} Server",
-                    $"Please ensure that you have {exportTypeString} open with the latest FortnitePorting plugin enabled.");
-                return;
+                if (!exportService.Ping())
+                {
+                    var exportTypeString = exportType.GetDescription();
+                    MessageWindow.Show($"Failed to Connect to {exportTypeString} Server",
+                        $"Please ensure that you have {exportTypeString} open with the latest FortnitePorting plugin enabled.");
+                    return;
+                }
+
+                var exportDatas = exports.Select(export => CreateExportData(export.AssetItem.DisplayName, export.AssetItem.Asset, export.GetSelectedStyles(), export.AssetItem.Type, exportType)).ToArray();
+                foreach (var exportData in exportDatas) exportData.WaitForExports();
+
+                var exportResponse = CreateExportResponse(exportDatas, exportType);
+                exportService.SendExport(JsonConvert.SerializeObject(exportResponse));
             }
 
-            var exportDatas = exports.Select(export => CreateExportData(export.AssetItem.DisplayName, export.AssetItem.Asset, export.GetSelectedStyles(), export.AssetItem.Type, exportType)).ToArray();
-            foreach (var exportData in exportDatas) exportData.WaitForExports();
-
-            var exportResponse = CreateExportResponse(exportDatas, exportType);
-            exportService.SendExport(JsonConvert.SerializeObject(exportResponse));
         });
     }
 
