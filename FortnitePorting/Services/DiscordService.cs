@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using DiscordRPC;
 using FortnitePorting.Framework.Extensions;
 using Serilog;
@@ -38,12 +39,15 @@ public static class DiscordService
         if (IsInitialized) return;
 
         Client = new DiscordRpcClient(ID);
-        Client.OnReady += (_, args) => Log.Information("Discord Rich Presence Started for {Username} ({ID})", args.User.Username, args.User.ID);
+        Client.OnReady += (_, args) =>
+        {
+            Log.Information("Discord Rich Presence Started for {Username} ({ID})", args.User.Username, args.User.ID);
+            IsInitialized = true;
+        };
         Client.OnError += (_, args) => Log.Information("Discord Rich Presence Error {Type}: {Message}", args.Type.ToString(), args.Message);
 
         Client.Initialize();
         Client.SetPresence(DefaultPresence);
-        IsInitialized = true;
     }
 
     public static void Deinitialize()
@@ -56,6 +60,14 @@ public static class DiscordService
         Client.Deinitialize();
         Client.Dispose();
         IsInitialized = false;
+    }
+
+    public static async Task WaitForInitialization()
+    {
+        while (!IsInitialized)
+        {
+            await Task.Delay(50);
+        }
     }
 
     public static void Update(EAssetType assetType)
@@ -80,5 +92,12 @@ public static class DiscordService
 
         Client.UpdateState($"Listening to \"{name}\"");
         Client.UpdateSmallAsset("music", "Music");
+    }
+
+    public static string GetName()
+    {
+        var displayName = Client.CurrentUser.DisplayName;
+        var userName = Client.CurrentUser.Username;
+        return string.IsNullOrEmpty(displayName) ? userName : displayName;
     }
 }
