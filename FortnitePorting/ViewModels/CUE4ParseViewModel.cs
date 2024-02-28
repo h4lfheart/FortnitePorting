@@ -248,7 +248,7 @@ public class CUE4ParseViewModel : ViewModelBase
         if (mappings is null) return null;
         if (mappings.Length <= 0) return null;
 
-        var foundMappings = mappings.FirstOrDefault(x => x.Meta.CompressionMethod.Equals("Oodle", StringComparison.OrdinalIgnoreCase));
+        var foundMappings = mappings.FirstOrDefault();
         if (foundMappings is null) return null;
 
         var mappingsFilePath = Path.Combine(App.DataFolder.FullName, foundMappings.Filename);

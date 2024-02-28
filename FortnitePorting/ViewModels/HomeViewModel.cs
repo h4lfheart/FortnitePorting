@@ -23,6 +23,7 @@ namespace FortnitePorting.ViewModels;
 public partial class HomeViewModel : ViewModelBase
 {
     public readonly Bitmap DefaultHomeImage = new(Avalonia.Platform.AssetLoader.Open(new Uri("avares://FortnitePorting/Assets/HomeBackground.png")));
+    [ObservableProperty] private string greetingText = "FortnitePorting";
     [ObservableProperty] private string loadingText = "Loading Application";
     [ObservableProperty] private FeaturedArtItem? currentFeaturedArt;
     [ObservableProperty] private int currentFeaturedArtIndex;
