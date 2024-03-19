@@ -51,7 +51,9 @@ public class MeshExportData : ExportDataBase
                         Animation = AnimExportData.From(montage, exportType);
                     }
                 }
-                
+
+                ExportHeadMeta? partWithPoseData = null;
+                List<ExportHeadMeta> exportPartsToCopyTo = new List<ExportHeadMeta>();
                 AssetsVM.ExportChunks = parts.Length;
                 foreach (var part in parts)
                 {
@@ -59,11 +61,33 @@ public class MeshExportData : ExportDataBase
                     {
                         Animation = AnimExportData.From(montage, exportType);
                     }
-                    
-                    Meshes.AddIfNotNull(Exporter.CharacterPart(part));
+
+                    var resolvedPart = Exporter.CharacterPart(part);
+                    if (resolvedPart?.Meta is ExportHeadMeta)
+                    {
+                        var headMeta = (ExportHeadMeta)resolvedPart.Meta;
+                        if (headMeta.PoseData.Count != 0)
+                        {
+                            if (partWithPoseData != null)
+                                Log.Warning("multiple character parts contained PoseData, results may be inaccurate");
+                            partWithPoseData = headMeta;
+                        } else if (headMeta.CopyPoseData == true) {
+                            exportPartsToCopyTo.AddIfNotNull(headMeta);
+                        }
+                    }
+                    Meshes.AddIfNotNull(resolvedPart);
                     AssetsVM.ExportProgress++;
                 }
-                
+
+                // Copy data around
+                if (partWithPoseData != null) {
+                    foreach (ExportHeadMeta part in exportPartsToCopyTo)
+                    {
+                        part.PoseData = partWithPoseData.PoseData;
+                        part.ReferencePose = partWithPoseData.ReferencePose;
+                    }
+                }
+
                 if (Animation is null && Exporter.AppExportOptions.LobbyPoses && Meshes.FirstOrDefault(part => part is ExportPart { CharacterPartType: EFortCustomPartType.Body }) is ExportPart foundPart)
                 {
                     var montage = foundPart.GenderPermitted switch

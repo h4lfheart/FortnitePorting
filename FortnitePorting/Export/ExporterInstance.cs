@@ -51,6 +51,98 @@ public class ExporterInstance
         FileExportOptions = AppExportOptions.CreateExportOptions();
     }
 
+    private void ParsePoseAsset(UPoseAsset poseAsset, ExportHeadMeta meta)
+    {
+        /* Only tested when bAdditivePose = true */
+        if (!poseAsset.bAdditivePose)
+        {
+            Log.Warning($"{poseAsset.Name}: bAdditivePose = false is unsupported");
+            return;
+        }
+
+        FPoseDataContainer poseContainer = poseAsset.PoseContainer;
+        FPoseData[] poses = poseContainer.Poses;
+        if (poses.Length == 0)
+        {
+            Log.Warning($"{poseAsset.Name}: has no poses");
+            return;
+        }
+
+        FName[]? poseNames = poseContainer.PoseFNames;
+        if (poseNames == null || poseNames.Length == 0)
+        {
+            Log.Warning($"{poseAsset.Name}: PoseFNames is null or empty");
+            return;
+        }
+
+        /* Assert number of tracks == number of bones for given skeleton */
+        FName[] poseTracks = poseContainer.Tracks;
+        FPoseAssetInfluences[] poseTrackInfluences = poseContainer.TrackPoseInfluenceIndices;
+        if (poseTracks.Length != poseTrackInfluences.Length)
+        {
+            Log.Warning($"{poseAsset.Name}: length of Tracks != length of TrackPoseInfluenceIndices");
+            return;
+        }
+
+        /* Add poses by name first in order they appear */
+        for (int i = 0; i < poses.Length; i++)
+        {
+            FPoseData pose = poses[i];
+            FName poseName = poseNames[i];
+
+            if (pose.CurveData.Length != 0 && pose.CurveData.Length != poses.Length - 1)
+                Log.Warning($"{poseAsset.Name}: {poseName} length of CurveData != length of poses");
+            PoseData poseData = new PoseData(poseName.PlainText, pose.CurveData);
+            meta.PoseData.Add(poseData);
+        }
+
+        /* Discover connection between bone name and relative location. */
+        for (int i = 0; i < poseTrackInfluences.Length; i++)
+        {
+            FPoseAssetInfluences poseTrackInfluence = poseTrackInfluences[i];
+            if (poseTrackInfluence == null) continue;
+
+            FName poseTrackName = poseTracks[i];
+            foreach (var influence in poseTrackInfluence.Influences)
+            {
+                PoseData pose = meta.PoseData[influence.PoseIndex];
+                FTransform transform = poses[influence.PoseIndex].LocalSpacePose[influence.BoneTransformIndex];
+                pose.Keys.Add(new PoseKey(
+                    poseTrackName.PlainText, /* Bone name to move */
+                    transform.Translation,
+                    transform.Rotation,
+                    transform.Scale3D,
+                    influence.PoseIndex,
+                    influence.BoneTransformIndex
+                ));
+            }
+        }
+
+        USkeleton? skeleton = poseAsset.Skeleton.Load<USkeleton>();
+        if (skeleton == null)
+            return;
+
+        Dictionary<string, int> referenceMap = skeleton.ReferenceSkeleton.FinalNameToIndexMap.ToDictionary(k => k.Key.ToLower(), k => k.Value);
+        foreach (FName boneName in poseContainer.Tracks)
+        {
+            var boneNameStr = boneName.PlainText;
+            if (!referenceMap.TryGetValue(boneNameStr.ToLower(), out int idx))
+            {
+                Log.Warning($"{poseAsset.Name}: {boneNameStr} missing from referenceSkeleton ({skeleton.Name})");
+                continue;
+            }
+
+            if (idx >= poseAsset.RetargetSourceAssetReferencePose.Length)
+            {
+                Log.Warning($"{poseAsset.Name}: {boneNameStr} index {idx} is outside the bounds of the RetargetSourceAssetReferencePose");
+                continue;
+            }
+
+            FTransform transform = poseAsset.RetargetSourceAssetReferencePose[idx];
+            meta.ReferencePose.Add(new ReferencePose(boneNameStr, transform.Translation, transform.Rotation, transform.Scale3D));
+        }
+    }
+
     public ExportPart? CharacterPart(UObject part)
     {
         var skeletalMesh = part.GetOrDefault<USkeletalMesh?>("SkeletalMesh");
@@ -69,6 +161,18 @@ public class ExporterInstance
         if (part.TryGetValue(out UObject additionalData, "AdditionalData"))
             switch (additionalData.ExportType)
             {
+                case "CustomCharacterFaceData":
+                {
+                    // Massive assumption that this part is associated with FaceAcc and FaceAcc
+                    // occasionally needs the pose data copied to accomodate for on-face items.
+                    // In the future, this should probably be selectively enabled.
+                    var meta = new ExportHeadMeta();
+                    if (additionalData.TryGetValue(out UAnimBlueprintGeneratedClass animBlueprint, "AnimClass"))
+                        meta.CopyPoseData = true;
+
+                    exportPart.Meta = meta;
+                    break;
+                }
                 case "CustomCharacterHeadData":
                 {
                     var meta = new ExportHeadMeta();
@@ -88,10 +192,7 @@ public class ExporterInstance
                     {
                         var animBlueprintData = animBlueprint.ClassDefaultObject.Load()!;
                         if (animBlueprintData.TryGetValue(out FStructFallback poseAssetNode, "AnimGraphNode_PoseBlendNode"))
-                        {
-                            var poseAsset = poseAssetNode.Get<UPoseAsset>("PoseAsset");
-                            // TODO Pose Asset Data
-                        }
+                            ParsePoseAsset(poseAssetNode.Get<UPoseAsset>("PoseAsset"), meta);
                     }
 
                     exportPart.Meta = meta;

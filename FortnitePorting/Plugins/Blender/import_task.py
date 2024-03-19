@@ -563,14 +563,153 @@ class DataImportTask:
         match mesh_type:
             case "Body":
                 meta = get_meta(["SkinColor"])
-            case "Head":
-                meta = get_meta(["MorphNames", "HatType", "PoseData"])
+            case "Head" | "Face":
+                meta = get_meta(["MorphNames", "HatType", "PoseData", "ReferencePose"])
+                is_face = mesh_type == "Face"
 
                 shape_keys = imported_mesh.data.shape_keys
                 if (morph_name := meta.get("MorphNames").get(meta.get("HatType"))) and shape_keys is not None:
                     for key in shape_keys.key_blocks:
                         if key.name.casefold() == morph_name.casefold():
                             key.value = 1.0
+
+                if (pose_data := meta.get("PoseData")):
+                    original_mode = bpy.context.active_object.mode
+                    try:
+                        bpy.ops.object.mode_set(mode='OBJECT')
+
+                        # Find the ARMATURE modifier
+                        armature_modifiers = [mod for mod in imported_mesh.modifiers if mod.type == "ARMATURE"]
+                        assert len(armature_modifiers) == 1, "expected at least one armature modifier"
+                        armature_modifier: bpy.types.ArmatureModifier = armature_modifiers[0]
+
+                        # Find the ARMATURE
+                        armatures = [
+                            ob
+                            for ob in bpy.data.objects
+                            if ob.type == "ARMATURE" and ob.name.split('.')[0] == imported_mesh.name.split('.')[0]
+                        ]
+                        assert len(armatures) == 1, "expected at least one armature"
+                        armature: bpy.types.Object = armatures[0]
+
+                        # Grab reference pose data
+                        reference_pose = meta.get("ReferencePose", dict())
+
+                        # Check how many bones are scaled in the reference pose
+                        face_attach_scale = Vector((1, 1, 1))
+                        for entry in reference_pose:
+                            scale = make_vector(entry['Scale'])
+                            if scale != Vector((1, 1, 1)):
+                                if entry['BoneName'] == 'faceAttach':
+                                    face_attach_scale = scale
+                                Log.warn(f"Non-zero scale: {entry}")
+
+                        if not shape_keys:
+                            # Create Basis shape key
+                            imported_mesh.shape_key_add(name="Basis", from_mix=False)
+
+                        # NOTE: I think faceAttach affects the expected location
+                        # I'm making this assumption from observation of an old
+                        # export of face poses for Polar Patroller.
+                        loc_scale = (0.01 if self.options.get("ScaleDown") else 1)
+                        for pose in pose_data:
+                            influences = pose['Keys']
+
+                            # If there are no influences, don't bother
+                            if not influences:
+                                continue
+
+                            # Enter pose mode
+                            bpy.context.view_layer.objects.active = armature
+                            bpy.ops.object.mode_set(mode='POSE')
+
+                            # Reset all transforms to default
+                            bpy.ops.pose.select_all(action='SELECT')
+                            bpy.ops.pose.transforms_clear()
+                            bpy.ops.pose.select_all(action='DESELECT')
+
+                            # Move bones accordingly
+                            for bone in influences:
+                                bone_name = bone['Name']
+
+                                pose_bone: bpy.types.PoseBone = armature.pose.bones.get(bone_name)
+                                if not pose_bone:
+                                    # For some reason, some of the bones start capitalized and some dont
+                                    bone_name = bone_name[0].capitalize() + bone_name[1:]
+                                    pose_bone = armature.pose.bones.get(bone_name)
+                                if not pose_bone:
+                                    # For cases where pose data tries to move a non-existant bone
+                                    # i.e. Poseidon has no 'Tongue' but its in the pose asset
+                                    if not is_face:
+                                        # There are likely many missing bones in FaceAcc, but we
+                                        # process as many as we can.
+                                        Log.warn(f"could not find: {bone_name} for pose {pose['Name']}")
+                                    continue
+
+                                rotation = bone['Rotation']
+                                assert rotation['IsNormalized'], "non-normalized rotation unsupported"
+
+                                edit_bone = pose_bone.bone
+                                post_quat = Quaternion(post_quat) if (post_quat := edit_bone.get("post_quat")) else Quaternion()
+
+                                assert pose_bone.rotation_quaternion == Quaternion(), "initial pose bone is not identity"
+                                q = post_quat.copy()
+                                if edit_bone.parent is None:
+                                    q.rotate(make_quat(rotation).conjugated())
+                                else:
+                                    q.rotate(make_quat(rotation))
+
+                                quat = post_quat.copy()
+                                quat.rotate(q.conjugated())
+                                pose_bone.rotation_quaternion = quat.conjugated() @ pose_bone.rotation_quaternion
+
+                                loc = (make_vector(bone['Location'], mirror_y=True))
+                                loc = Vector((loc.x * face_attach_scale.x,
+                                              loc.y * face_attach_scale.y,
+                                              loc.z * face_attach_scale.z))
+                                loc.rotate(post_quat.conjugated())
+
+                                assert pose_bone.location == Vector((0.0, 0.0, 0.0)), "initial pose bone is not identity"
+                                pose_bone.location = pose_bone.location + loc * loc_scale
+
+                                assert pose_bone.scale == Vector((1, 1, 1)), "initial pose bone is not identity"
+                                pose_bone.scale = (Vector((1, 1, 1)) + make_vector(bone['Scale']))
+
+                                pose_bone.rotation_quaternion.normalize()
+
+                            # Create blendshape from armature
+                            bpy.ops.object.mode_set(mode='OBJECT')
+                            bpy.context.view_layer.objects.active = imported_mesh
+                            bpy.ops.object.modifier_apply_as_shapekey(keep_modifier=True,
+                                                                      modifier=armature_modifier.name)
+
+                            # Use name from pose data
+                            imported_mesh.data.shape_keys.key_blocks[-1].name = pose['Name']
+
+                        # TODO: FishThicc triggers interesting curve data. Investigate tomorrow...
+                        for pose in pose_data:
+                            if not (curve_data := pose['CurveData']):
+                                continue
+
+                            # If there's curve data that's more than the
+                            # current pose being 1.0 and all other poses
+                            # non-zero, note that.
+                            curve_sum = sum([abs(x) for x in curve_data])
+                            if curve_sum and (curve_sum > 1.0001 or curve_sum < 0.999):
+                                Log.warn(f'{pose["Name"]}: has interesting '
+                                         'curve data! Implement this feature...')
+
+                        # Final reset before re-entering regular import mode.
+                        bpy.context.view_layer.objects.active = armature
+                        bpy.ops.object.mode_set(mode='POSE')
+                        bpy.ops.pose.select_all(action='SELECT')
+                        bpy.ops.pose.transforms_clear()
+                        bpy.ops.pose.select_all(action='DESELECT')
+                    except Exception as e:
+                        Log.error("Failed to import PoseAsset data from "
+                                  f"{imported_mesh.name}: {e}")
+                    finally:
+                        bpy.ops.object.mode_set(mode=original_mode)
             case _:
                 meta = {}
 
@@ -1210,7 +1349,7 @@ def make_vector(data, mirror_y=False):
 
 
 def make_quat(data):
-    return Quaternion((data.get("W"), data.get("X"), data.get("Y"), data.get("Z")))
+    return Quaternion((-data.get("W"), data.get("X"), -data.get("Y"), data.get("Z")))
 
 
 def make_euler(data):
