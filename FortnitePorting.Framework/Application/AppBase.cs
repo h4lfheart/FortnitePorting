@@ -12,7 +12,7 @@ namespace FortnitePorting.Framework.Application;
 
 public abstract class AppBase : Avalonia.Application
 {
-    public static ThemedViewModelBase ThemeVM;
+    public static ThemedViewModelBase ThemeVM = new();
     public static IClassicDesktopStyleApplicationLifetime Application;
 
     public static Window MainWindow

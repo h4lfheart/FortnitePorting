@@ -140,12 +140,12 @@ public partial class SettingsViewModel : ViewModelBase
             }
             case nameof(UseMica):
             {
-                AppVM.UseMicaBackground = UseMica;
+                ThemeVM.UseMicaBackground = UseMica;
                 break;
             }
             case nameof(BackgroundColor):
             {
-                AppVM.BackgroundColor = BackgroundColor;
+                ThemeVM.BackgroundColor = BackgroundColor;
                 break;
             }
             case nameof(AccentColor):

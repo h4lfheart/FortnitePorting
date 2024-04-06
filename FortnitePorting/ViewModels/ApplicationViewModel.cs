@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FortnitePorting.Application;
 using FortnitePorting.Extensions;
+using FortnitePorting.Framework;
 using FortnitePorting.Framework.Application;
 using FortnitePorting.Framework.Controls;
 using FortnitePorting.Framework.ViewModels;
@@ -11,17 +12,18 @@ using FortnitePorting.Views;
 
 namespace FortnitePorting.ViewModels;
 
-public partial class ApplicationViewModel : ThemedViewModelBase
+public partial class ApplicationViewModel : ViewModelBase
 {
+    [ObservableProperty] private ThemedViewModelBase theme;
     [ObservableProperty] private string versionString = $"v{Globals.VersionString}";
 
     [ObservableProperty] private UserControl? currentView;
 
     public ApplicationViewModel()
     {
-        ThemeVM = this;
-        UseMicaBackground = AppSettings.Current.UseMica;
-        BackgroundColor = AppSettings.Current.BackgroundColor;
+        Theme = ThemeVM;
+        ThemeVM.UseMicaBackground = AppSettings.Current.UseMica;
+        ThemeVM.BackgroundColor = AppSettings.Current.BackgroundColor;
         ColorExtensions.SetSystemAccentColor(AppSettings.Current.AccentColor);
         
         switch (AppSettings.Current.LoadingType)

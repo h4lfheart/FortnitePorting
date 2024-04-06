@@ -4,33 +4,50 @@
         xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         xmlns:framework="clr-namespace:FortnitePorting.Framework;assembly=FortnitePorting.Framework"
         xmlns:ext="clr-namespace:FortnitePorting.Framework.Extensions;assembly=FortnitePorting.Framework"
-        x:Class="FortnitePorting.Application.AppWindow"
-        x:DataType="viewmodels:ApplicationViewModel"
-        Title="FortnitePorting" Width="1280" Height="720"
+        x:DataType="viewmodels:TexturePreviewViewModel"
+        x:Class="FortnitePorting.Windows.TexturePreviewWindow"
+            Title="FortnitePorting" MinHeight="360" MaxHeight="720" MinWidth="640" MaxWidth="1280" SizeToContent="WidthAndHeight"
         WindowStartupLocation="CenterScreen" FontFamily="Segoe UI"
         Background="{x:Null}" TransparencyLevelHint="{Binding Theme.TransparencyLevels}"
         ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="NoChrome"
         ExtendClientAreaTitleBarHeightHint="0" Icon="avares://FortnitePorting.Framework/Assets/Logo/FortnitePortingLogoEnhancedV2.ico">
-    <Grid RowDefinitions="30, *">
-        <ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="2" IsVisible="{Binding !Theme.UseMicaBackground}" IsHitTestVisible="False">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="5" IsVisible="{Binding !Theme.UseMicaBackground}" IsHitTestVisible="False">
             <ExperimentalAcrylicBorder.Material>
                 <ExperimentalAcrylicMaterial BackgroundSource="Digger" MaterialOpacity="1.1" TintColor="{Binding Theme.BackgroundColor}" TintOpacity="1"/>
             </ExperimentalAcrylicBorder.Material>
         </ExperimentalAcrylicBorder>
+        
         <Grid Grid.Row="0" PointerPressed="OnPointerPressed" Background="Transparent" HorizontalAlignment="Stretch">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="{ext:Space 1}" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="{ext:Space 0.25}" />
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="{ext:Space 2}" />
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <TextBlock Grid.Column="1" Text="FortnitePorting" FontWeight="SemiBold" FontSize="16"
+            <TextBlock Grid.Column="1" Text="Texture Preview" FontWeight="SemiBold" FontSize="16"
                        HorizontalAlignment="Left" VerticalAlignment="Center" />
-            <TextBlock Grid.Column="3" Text="{Binding VersionString}" Opacity="0.5" FontSize="13" Margin="0 2 0 0"
+            <TextBlock Grid.Column="3" Text="{Binding Texture.Name}" Opacity="0.5" FontSize="13" Margin="0 2 0 0"
                        HorizontalAlignment="Left" VerticalAlignment="Center" />
-            <Grid Grid.Column="4" ColumnDefinitions="* 4 * 4 *" HorizontalAlignment="Right" Margin="{ext:Space 0.5}">
+            <StackPanel Grid.Column="5" Orientation="Horizontal">
+                <CheckBox Classes="Red" IsChecked="{Binding UseRedChannel}"/>
+                <TextBlock Text="R" FontSize="13" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="{ext:Space 0, 0, 1, 0}"/>
+                <CheckBox Classes="Green" IsChecked="{Binding UseGreenChannel}"/>
+                <TextBlock Text="G" FontSize="13" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="{ext:Space 0, 0, 1, 0}"/>
+                <CheckBox Classes="Blue" IsChecked="{Binding UseBlueChannel}"/>
+                <TextBlock Text="B" FontSize="13" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="{ext:Space 0, 0, 1, 0}"/>
+                <CheckBox Classes="Alpha" IsChecked="{Binding UseAlphaChannel}"/>
+                <TextBlock Text="A" FontSize="13" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="{ext:Space 0, 0, 1, 0}"/>
+            </StackPanel>
+            <Grid Grid.Column="6" ColumnDefinitions="* 4 * 4 *" HorizontalAlignment="Right" Margin="{ext:Space 0.5}">
                 <Button Grid.Column="0" Content="{material:MaterialIconExt Kind=Minimize}" Click="OnMinimizeClicked"
                         CornerRadius="2" Classes="MinimizeMaximize" Width="24" Height="24" HorizontalAlignment="Center"
                         VerticalAlignment="Center" />
@@ -42,11 +59,13 @@
                         VerticalAlignment="Center" />
             </Grid>
         </Grid>
-
-        <TransitioningContentControl Grid.Row="1" Content="{Binding CurrentView}">
-            <TransitioningContentControl.PageTransition>
-                <framework:ViewTransition />
-            </TransitioningContentControl.PageTransition>
-        </TransitioningContentControl>
+        
+        <Border Grid.Row="1" CornerRadius="10" Margin="{ext:Space 1}" MaxHeight="670">
+            <Border.Background>
+                <ImageBrush Stretch="Uniform" Source="{Binding TextureSource}" />
+            </Border.Background>
+            
+            <Image Opacity="0" Stretch="Uniform" Source="{Binding TextureSource}"/>
+        </Border>
     </Grid>
 </Window>

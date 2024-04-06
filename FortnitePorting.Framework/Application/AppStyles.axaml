@@ -198,6 +198,31 @@
         <Setter Property="OffContent" Value="{x:Null}" />
     </Style>
     
+    <Style Selector="CheckBox.Red /template/ Border#NormalRectangle">
+        <Setter Property="Background" Value="#FFE81123" />
+        <Setter Property="BorderBrush" Value="#FFFF4343" />
+    </Style>
+    
+    <Style Selector="CheckBox.Green /template/ Border#NormalRectangle">
+        <Setter Property="Background" Value="#FF10893E" />
+        <Setter Property="BorderBrush" Value="#FF00CC6A" />
+    </Style>
+    
+    <Style Selector="CheckBox.Blue /template/ Border#NormalRectangle">
+        <Setter Property="Background" Value="#FF0063B1" />
+        <Setter Property="BorderBrush" Value="#FF0099BC" />
+    </Style>
+    
+    <Style Selector="CheckBox.Alpha /template/ Border#NormalRectangle">
+        <Setter Property="Background" Value="#FF6B6B6B" />
+        <Setter Property="BorderBrush" Value="#FFA3A3A3" />
+    </Style>
+    
+    <Style Selector="CheckBox.BlackWhite /template/ Border#NormalRectangle">
+        <Setter Property="Background" Value="#FF121212" />
+        <Setter Property="BorderBrush" Value="#FF5C5C5C" />
+    </Style>
+    
     <Style Selector="Separator.NamedSeparator">
         <Setter Property="Margin" Value="0, 8, 0,8" />
         <Setter Property="MinHeight" Value="12" />

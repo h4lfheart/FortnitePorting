@@ -27,6 +27,7 @@ using FortnitePorting.Services;
 using FortnitePorting.Framework.Services;
 using ReactiveUI;
 using Serilog;
+using TexturePreviewWindow = FortnitePorting.Windows.TexturePreviewWindow;
 
 namespace FortnitePorting.ViewModels;
 
@@ -35,12 +36,12 @@ public partial class FilesViewModel : ViewModelBase
     [ObservableProperty] private EExportTargetType exportType = EExportTargetType.Blender;
     [ObservableProperty] private TreeNodeItem? selectedTreeItem;
     [ObservableProperty] private FlatViewItem? selectedFlatViewItem;
-    [ObservableProperty] private ObservableCollection<FlatViewItem> selectedExportItems = new();
+    [ObservableProperty] private ObservableCollection<FlatViewItem> selectedExportItems = [];
 
-    [ObservableProperty] private SuppressibleObservableCollection<TreeNodeItem> treeItems = new();
+    [ObservableProperty] private SuppressibleObservableCollection<TreeNodeItem> treeItems = [];
     [ObservableProperty] private ReadOnlyObservableCollection<FlatViewItem> assetItemsTarget;
     [ObservableProperty] private SourceList<FlatViewItem> assetItemsSource = new();
-    [ObservableProperty] private SuppressibleObservableCollection<FlatViewItem> assetItems = new();
+    [ObservableProperty] private SuppressibleObservableCollection<FlatViewItem> assetItems = [];
     [ObservableProperty] private string searchFilter = string.Empty;
 
     [ObservableProperty] private float scanPercentage;
@@ -55,7 +56,7 @@ public partial class FilesViewModel : ViewModelBase
 
     private readonly HashSet<string> Filters = new()
     {
-        // Folders
+       // Folders
         "Engine/",
         "/Playsets",
         "/DataTables",
@@ -248,7 +249,26 @@ public partial class FilesViewModel : ViewModelBase
 
     public async Task Preview()
     {
-        MessageWindow.Show("Not Implemented Yet", "The file previewer has not been implemented yet.");
+        var item = SelectedExportItems.FirstOrDefault();
+        var asset = await CUE4ParseVM.Provider.LoadObjectAsync(FixPath(item.Path));
+        switch (asset)
+        {
+            case UTexture texture:
+            {
+                await TaskService.RunDispatcherAsync(() =>
+                {
+                    new TexturePreviewWindow(texture).Show();
+                });
+                break;
+            }
+
+            default:
+            {
+                MessageWindow.Show("Not Implemented Yet", $"A file previewer for {asset.ExportType} {asset.Name} has not been implemented or is not supported.");
+                break;
+            }
+        }
+        
     }
 
     public void TreeViewJumpTo(string directory)

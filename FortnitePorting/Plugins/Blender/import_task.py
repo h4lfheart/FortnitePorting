@@ -521,7 +521,11 @@ class DataImportTask:
         if mesh.get("IsEmpty"):
             imported_object = bpy.data.objects.new(object_name, None)
             collection.objects.link(imported_object)
-        elif self.type in ["World", "Prefab"] and (existing_mesh_data := bpy.data.meshes.get(mesh_path.split(".")[1])):
+            for child in mesh.get("Children"):
+                self.import_model(child, collection, imported_object)
+            return
+        
+        if self.type in ["World", "Prefab"] and (existing_mesh_data := bpy.data.meshes.get(mesh_path.split(".")[1])):
             imported_object = bpy.data.objects.new(object_name, existing_mesh_data)
             collection.objects.link(imported_object)
         else:
