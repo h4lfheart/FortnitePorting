@@ -1,0 +1,3 @@
+[submodule "Dependencies/CUE4Parse"]
+	path = Dependencies/CUE4Parse
+	url = https://github.com/halfuwu/CUE4Parse

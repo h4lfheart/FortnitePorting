@@ -1,0 +1,94 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
+        xmlns:ui="using:FluentAvalonia.UI.Controls"
+        x:Class="FortnitePorting.Application.AppWindow"
+        x:DataType="viewModels:AppViewModel"
+        Width="1160" Height="720" RequestedThemeVariant="Dark" FontFamily="Segoe UI"
+        TransparencyLevelHint="Mica" ExtendClientAreaToDecorationsHint="True" Background="{x:Null}"
+        Icon="/Assets/LogoEnhanced.ico"
+        Title="Fortnite Porting">
+    <Grid RowDefinitions="30, *">
+        <Grid Grid.Row="0" Background="Transparent" HorizontalAlignment="Stretch" IsHitTestVisible="False">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="8" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="2" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="1" Text="Fortnite Porting" FontWeight="SemiBold" FontSize="16"
+                       HorizontalAlignment="Left" VerticalAlignment="Center" />
+            <TextBlock Grid.Column="3" Text="{Binding VersionString}" Opacity="0.5" FontSize="13" Margin="-2 2 0 0"
+                       HorizontalAlignment="Left" VerticalAlignment="Center" />
+        </Grid>
+
+         <ui:NavigationView x:Name="NavigationView" Grid.Row="1" IsPaneOpen="False" OpenPaneLength="144" ItemInvoked="OnItemInvoked" IsSettingsVisible="False">
+             <ui:NavigationView.MenuItems>
+                 <ui:NavigationViewItem Content="Welcome" Tag="Welcome" IsSelected="True" IsVisible="{Binding SetupTabsAreVisible}">
+                     <ui:NavigationViewItem.IconSource>
+                         <ui:SymbolIconSource Symbol="Checkmark"/>
+                     </ui:NavigationViewItem.IconSource>
+                 </ui:NavigationViewItem>
+                 <ui:NavigationViewItemSeparator IsVisible="{Binding SetupTabsAreVisible}"/>
+                 <ui:NavigationViewItem Content="Home" Tag="Home">
+                     <ui:NavigationViewItem.IconSource>
+                         <ui:SymbolIconSource Symbol="Home"/>
+                     </ui:NavigationViewItem.IconSource>
+                 </ui:NavigationViewItem>
+                 <ui:NavigationViewItemSeparator/>
+                 <ui:NavigationViewItem Content="Assets" Tag="Assets" IsEnabled="{Binding GameBasedTabsAreReady}">
+                     <ui:NavigationViewItem.IconSource>
+                         <ui:SymbolIconSource Symbol="Page"/>
+                     </ui:NavigationViewItem.IconSource>
+                 </ui:NavigationViewItem>
+                 <ui:NavigationViewItem Content="Files" Tag="Files" IsEnabled="{Binding GameBasedTabsAreReady}">
+                     <ui:NavigationViewItem.IconSource>
+                         <ui:SymbolIconSource Symbol="Folder"/>
+                     </ui:NavigationViewItem.IconSource>
+                 </ui:NavigationViewItem>
+                 <ui:NavigationViewItem Content="Radio" Tag="Radio" IsEnabled="{Binding GameBasedTabsAreReady}">
+                     <ui:NavigationViewItem.IconSource>
+                         <ui:SymbolIconSource Symbol="Speaker2"/>
+                     </ui:NavigationViewItem.IconSource>
+                 </ui:NavigationViewItem>
+                 <ui:NavigationViewItemSeparator/>
+                 <ui:NavigationViewItem Content="Item Shop" Tag="ItemShop" IsEnabled="{Binding GameBasedTabsAreReady}">
+                     <ui:NavigationViewItem.IconSource>
+                         <ui:SymbolIconSource Symbol="Shop"/>
+                     </ui:NavigationViewItem.IconSource>
+                 </ui:NavigationViewItem>
+                 <ui:NavigationViewItem Content="Map" Tag="Map" IsEnabled="{Binding GameBasedTabsAreReady}">
+                     <ui:NavigationViewItem.IconSource>
+                         <ui:SymbolIconSource Symbol="Map"/>
+                     </ui:NavigationViewItem.IconSource>
+                 </ui:NavigationViewItem>
+             </ui:NavigationView.MenuItems>
+             <ui:NavigationView.FooterMenuItems>
+                 <ui:NavigationViewItem Content="Export" Tag="Export">
+                     <ui:NavigationViewItem.IconSource>
+                         <ui:SymbolIconSource Symbol="Download"/>
+                     </ui:NavigationViewItem.IconSource>
+                 </ui:NavigationViewItem>
+                 <ui:NavigationViewItem Content="Plugin" Tag="Plugin">
+                     <ui:NavigationViewItem.IconSource>
+                         <ui:SymbolIconSource Symbol="Sync"/>
+                     </ui:NavigationViewItem.IconSource>
+                 </ui:NavigationViewItem>
+                 <ui:NavigationViewItem Content="Help" Tag="Help">
+                     <ui:NavigationViewItem.IconSource>
+                         <ui:SymbolIconSource Symbol="Help"/>
+                     </ui:NavigationViewItem.IconSource>
+                 </ui:NavigationViewItem>
+                 <ui:NavigationViewItem Content="Settings" Tag="Settings">
+                     <ui:NavigationViewItem.IconSource>
+                         <ui:SymbolIconSource Symbol="Settings"/>
+                     </ui:NavigationViewItem.IconSource>
+                 </ui:NavigationViewItem>
+             </ui:NavigationView.FooterMenuItems>
+             
+             <ui:Frame Name="ContentFrame">
+             </ui:Frame>
+         </ui:NavigationView>
+    </Grid>
+</Window>

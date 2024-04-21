@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+        <ApplicationManifest>Application/app.manifest</ApplicationManifest>
+        <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+        <ApplicationIcon>Assets/LogoEnhanced.ico</ApplicationIcon>
+    </PropertyGroup>
+
+
+    <ItemGroup>
+        <PackageReference Include="Avalonia" Version="11.1.999-cibuild0045367-alpha" />
+        <PackageReference Include="Avalonia.Desktop" Version="11.1.999-cibuild0045367-alpha"/>
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.1.999-cibuild0045367-alpha"/>
+        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.1.999-cibuild0045367-alpha"/>
+        <PackageReference Include="FluentAvaloniaUI" Version="2.0.5" />
+        <PackageReference Include="Serilog.Sinks.File" Version="5.0.1-dev-00972" />
+    </ItemGroup>
+
+    
+    <ItemGroup>
+        <AvaloniaResource Include="Assets\**" />
+    </ItemGroup>
+
+    
+    <ItemGroup>
+      <ProjectReference Include="..\Dependencies\CUE4Parse\CUE4Parse\CUE4Parse.csproj" />
+      <ProjectReference Include="..\FortnitePorting.Shared\FortnitePorting.Shared.csproj" />
+    </ItemGroup>
+</Project>
