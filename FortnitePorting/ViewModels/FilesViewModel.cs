@@ -19,6 +19,7 @@ using DynamicData;
 using DynamicData.Binding;
 using FortnitePorting.Application;
 using FortnitePorting.Controls.Avalonia;
+using FortnitePorting.Export;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Framework.Controls;
@@ -185,6 +186,8 @@ public partial class FilesViewModel : ViewModelBase
         foreach (var item in SelectedExportItems)
         {
             var asset = await CUE4ParseVM.Provider.LoadObjectAsync(FixPath(item.Path));
+            if (asset is UVirtualTextureBuilder vtBuilder) asset = vtBuilder.Texture;
+            
             var assetType = asset switch
             {
                 USkeletalMesh => EAssetType.Mesh,
@@ -251,6 +254,8 @@ public partial class FilesViewModel : ViewModelBase
     {
         var item = SelectedExportItems.FirstOrDefault();
         var asset = await CUE4ParseVM.Provider.LoadObjectAsync(FixPath(item.Path));
+        if (asset is UVirtualTextureBuilder vtBuilder) asset = vtBuilder.Texture;
+
         switch (asset)
         {
             case UTexture texture:

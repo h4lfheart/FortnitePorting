@@ -520,6 +520,10 @@ class DataImportTask:
             collection = bpy.context.scene.collection
         if mesh.get("IsEmpty"):
             imported_object = bpy.data.objects.new(object_name, None)
+            
+            imported_object.rotation_euler = make_euler(mesh.get("Rotation"))
+            imported_object.location = make_vector(mesh.get("Location"), mirror_y=True) * 0.01
+            imported_object.scale = make_vector(mesh.get("Scale"))
             collection.objects.link(imported_object)
             for child in mesh.get("Children"):
                 self.import_model(child, collection, imported_object)

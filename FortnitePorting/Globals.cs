@@ -8,7 +8,7 @@ namespace FortnitePorting;
 
 public static class Globals
 {
-    public static readonly FPVersion Version = new(2, 1, 0);
+    public static readonly FPVersion Version = new(2, 0, 11);
     public static readonly string VersionString = Version.ToString();
 
     public const string DISCORD_URL = "https://discord.gg/DZ5YFXdBA6";

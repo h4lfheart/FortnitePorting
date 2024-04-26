@@ -16,6 +16,12 @@ public static class ImageExtensions
 {
     public static Image<Rgba32>? DecodeImageSharp(this UTexture texture)
     {
+        if (texture is UVirtualTexture2D virtualTexture)
+        {
+            var bitmap = virtualTexture.Decode();
+            if (bitmap is null) return null;
+            return Image.LoadPixelData<Rgba32>(bitmap.Bytes, bitmap.Width, bitmap.Height);
+        }
         var mip = texture.GetFirstMip();
         if (mip is null) return null;
 
