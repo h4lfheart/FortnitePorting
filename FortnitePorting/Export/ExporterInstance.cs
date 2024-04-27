@@ -161,18 +161,6 @@ public class ExporterInstance
         if (part.TryGetValue(out UObject additionalData, "AdditionalData"))
             switch (additionalData.ExportType)
             {
-                case "CustomCharacterFaceData":
-                {
-                    // Massive assumption that this part is associated with FaceAcc and FaceAcc
-                    // occasionally needs the pose data copied to accomodate for on-face items.
-                    // In the future, this should probably be selectively enabled.
-                    var meta = new ExportHeadMeta();
-                    if (additionalData.TryGetValue(out UAnimBlueprintGeneratedClass animBlueprint, "AnimClass"))
-                        meta.CopyPoseData = true;
-
-                    exportPart.Meta = meta;
-                    break;
-                }
                 case "CustomCharacterHeadData":
                 {
                     var meta = new ExportHeadMeta();

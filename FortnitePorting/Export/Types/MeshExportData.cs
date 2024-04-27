@@ -52,8 +52,8 @@ public class MeshExportData : ExportDataBase
                     }
                 }
 
-                ExportHeadMeta? partWithPoseData = null;
-                var exportPartsToCopyTo = new List<ExportHeadMeta>();
+                ExportPartMeta? partWithPoseData = null;
+                var exportPartsToCopyTo = new List<ExportPartMeta>();
                 AssetsVM.ExportChunks = parts.Length;
                 foreach (var part in parts)
                 {
@@ -63,17 +63,18 @@ public class MeshExportData : ExportDataBase
                     }
 
                     var resolvedPart = Exporter.CharacterPart(part);
-                    if (resolvedPart?.Meta is ExportHeadMeta headMeta)
+                    var meta = resolvedPart?.Meta;
+                    if (meta is not null)
                     {
-                        if (headMeta.PoseData.Count != 0)
+                        if (meta.PoseData.Count != 0)
                         {
                             if (partWithPoseData != null)
                                 Log.Warning("multiple character parts contained PoseData, results may be inaccurate");
-                            partWithPoseData = headMeta;
-                        } 
-                        else if (headMeta.CopyPoseData) 
+                            partWithPoseData = meta;
+                        }
+                        else
                         {
-                            exportPartsToCopyTo.AddIfNotNull(headMeta);
+                            exportPartsToCopyTo.Add(meta);
                         }
                     }
                     Meshes.AddIfNotNull(resolvedPart);
