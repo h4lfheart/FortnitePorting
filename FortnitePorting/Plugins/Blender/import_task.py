@@ -435,7 +435,7 @@ class DataImportTask:
         target_skeleton.animation_data_create()
         target_track = target_skeleton.animation_data.nla_tracks.new(prev=None)
         target_track.name = "Sections"
-        
+
         active_mesh = get_armature_mesh(target_skeleton)
         if active_mesh.data.shape_keys is not None:
             active_mesh.data.shape_keys.name = "Pose Asset Controls"
@@ -458,12 +458,12 @@ class DataImportTask:
                 loop_count = 999 if self.options.get("LoopAnimation") and section.get("Loop") else 1
                 strip = track.strips.new(section_name, time_to_frame(time_offset), anim)
                 strip.repeat = loop_count
-                
+
                 if (curves := section.get("Curves")) and len(curves) > 0 and active_mesh.data.shape_keys is not None and is_main_skeleton:
                     key_blocks = active_mesh.data.shape_keys.key_blocks
                     for key_block in key_blocks:
                         key_block.value = 0
-        
+
                     for curve in curves:
                         curve_name = curve.get("Name")
                         if target_block := key_blocks.get(curve_name.replace("CTRL_expressions_", "")):
@@ -475,13 +475,12 @@ class DataImportTask:
                         strip.name = section_name
                         strip.repeat = loop_count
                         active_mesh.data.shape_keys.animation_data.action = None
-                    
             return total_frames
         
         total_frames = import_sections(data.get("Sections"), target_skeleton, target_track, True)
         if self.options.get("UpdateTimelineLength"):
             bpy.context.scene.frame_end = total_frames
-         
+
         props = data.get("Props")
         if len(props) > 0:
             if master_skeleton := first(target_skeleton.children, lambda child: child.name == "Master_Skeleton"):
@@ -615,7 +614,7 @@ class DataImportTask:
                         armatures = [
                             ob
                             for ob in bpy.data.objects
-                            if ob.type == "ARMATURE" and ob.name.split('.')[0] == imported_mesh.name.split('.')[0]
+                            if ob.type == "ARMATURE" and imported_mesh.name in ob.name
                         ]
                         assert len(armatures) == 1, "expected at least one armature"
                         armature: bpy.types.Object = armatures[0]
@@ -674,13 +673,15 @@ class DataImportTask:
                                         Log.warn(f"could not find: {bone_name} for pose {pose['Name']}")
                                     continue
 
+                                # Reset bone to identity
+                                pose_bone.matrix_basis.identity()
+
                                 rotation = bone['Rotation']
                                 assert rotation['IsNormalized'], "non-normalized rotation unsupported"
 
                                 edit_bone = pose_bone.bone
                                 post_quat = Quaternion(post_quat) if (post_quat := edit_bone.get("post_quat")) else Quaternion()
 
-                                assert pose_bone.rotation_quaternion == Quaternion(), "initial pose bone is not identity"
                                 q = post_quat.copy()
                                 if edit_bone.parent is None:
                                     q.rotate(make_quat(rotation).conjugated())
@@ -697,10 +698,7 @@ class DataImportTask:
                                               loc.z * face_attach_scale.z))
                                 loc.rotate(post_quat.conjugated())
 
-                                assert pose_bone.location == Vector((0.0, 0.0, 0.0)), "initial pose bone is not identity"
                                 pose_bone.location = pose_bone.location + loc * loc_scale
-
-                                assert pose_bone.scale == Vector((1, 1, 1)), "initial pose bone is not identity"
                                 pose_bone.scale = (Vector((1, 1, 1)) + make_vector(bone['Scale']))
 
                                 pose_bone.rotation_quaternion.normalize()
