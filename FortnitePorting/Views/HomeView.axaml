@@ -3,24 +3,35 @@
              xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
              xmlns:ui="using:FluentAvalonia.UI.Controls"
              xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
+             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
              xmlns:versions="clr-namespace:CUE4Parse.UE4.Versions;assembly=CUE4Parse"
              xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             d:DesignHeight="720" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.HomeView"
              x:DataType="viewModels:HomeViewModel">
-    <Grid Margin="{ext:Space 1}">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="180" />
-            <RowDefinition Height="{ext:Space 1}" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
+        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3.5*"/>
+            <ColumnDefinition Width="{ext:Space 1}" />
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
 
-        <Grid Grid.Row="0">
-            <ui:FABorder RenderOptions.BitmapInterpolationMode="HighQuality" CornerRadius="4" BoxShadow="0 0 25 5 #2F000000">
+        <Grid Grid.Row="0" Grid.Column="0" Margin="{ext:Space 1, 1, 1, 0.5}">
+            <ui:FABorder RenderOptions.BitmapInterpolationMode="HighQuality" CornerRadius="4" BoxShadow="0 0 5 5 #0F000000">
                 <ui:FABorder.Background>
                     <ImageBrush Source="/Assets/DefaultSplash.png" Stretch="UniformToFill" />
                 </ui:FABorder.Background>
             </ui:FABorder>
             <ui:FABorder Background="Black" Opacity="0.35" CornerRadius="4" />
-            <TextBlock Text="FortnitePorting" FontSize="42" FontWeight="SemiBold" HorizontalAlignment="Center"
+            <TextBlock Text="FortnitePorting" FontSize="48" FontWeight="SemiBold" HorizontalAlignment="Center"
                        VerticalAlignment="Center">
                 <TextBlock.Effect>
                     <DropShadowEffect BlurRadius="15" Color="#5F000000" OffsetX="0" OffsetY="0" />
@@ -32,5 +43,87 @@
                     <DropShadowEffect BlurRadius="15" Color="#5F000000" OffsetX="0" OffsetY="0" />
                 </TextBlock.Effect>
             </TextBlock>
-        </Grid></Grid>
+        </Grid>
+        
+        <ui:FABorder Grid.Row="0" Grid.RowSpan="2" Grid.Column="2" Background="#22000000" CornerRadius="0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="{ext:Space 1}"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="{ext:Space 1}"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="{ext:Space 1}"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="1">
+                    <Ellipse Height="104" Width="104" Fill="#2F000000"/>
+                    <Ellipse RenderOptions.BitmapInterpolationMode="HighQuality" Height="104" Width="104" 
+                             StrokeThickness="5" Stroke="#00000000">
+                        <Ellipse.Fill>
+                            <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding AvatarURL}" Stretch="UniformToFill"/>
+                        </Ellipse.Fill>
+                    </Ellipse>
+                </Grid>
+                <TextBlock Grid.Row="3" Text="{Binding DisplayName}" FontSize="22" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                <TextBlock Grid.Row="4" Text="{Binding UserName}" Opacity="0.5" HorizontalAlignment="Center"/>
+                <Separator Grid.Row="5" Margin="{ext:Space 1}"/>
+                <StackPanel Grid.Row="6">
+                    <TextBlock Text="Helpful Links" FontSize="24" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                    <StackPanel HorizontalAlignment="Center" Margin="{ext:Space 0, 0.5}">
+                        <StackPanel.Styles>
+                            <Style Selector="Button">
+                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                                <Setter Property="Margin" Value="{ext:Space 0.5}"/>
+                            </Style>
+                        </StackPanel.Styles>
+                        <Button Content="Wiki &amp; Common Issues"/>
+                        <Button Content="Discord Server"/>
+                        <Button Content="GitHub Repository"/>
+                        <Button Content="Ko-Fi Donation Link"/>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+        </ui:FABorder>
+        
+        <ScrollViewer Grid.Row="1" Grid.Column="0" Margin="{ext:Space 1, 0.5, 1, 1}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="{ext:Space 1}"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="{ext:Space 1}"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="{ext:Space 1}"/>
+                </Grid.RowDefinitions>
+                
+                <Separator Grid.Row="0"/>
+                
+                <StackPanel Grid.Row="1" HorizontalAlignment="Stretch">
+                    <TextBlock Text="News &amp; Updates" FontSize="24" FontWeight="SemiBold" HorizontalAlignment="Left"/>
+                    <ItemsControl ItemsSource="{Binding NewsControls}" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="{ext:Space 0, 0.5}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+                </StackPanel>
+                
+                <Separator Grid.Row="2"/>
+                
+                <StackPanel Grid.Row="3" HorizontalAlignment="Stretch">
+                    <TextBlock Text="Featured Art" FontSize="24" FontWeight="SemiBold" HorizontalAlignment="Left"/>
+                    <ItemsControl ItemsSource="{Binding FeaturedControls}" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="{ext:Space 0, 0.5}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+                </StackPanel>
+                
+                <Separator Grid.Row="4"/>
+            </Grid>
+        </ScrollViewer>
+    </Grid>
 </UserControl>

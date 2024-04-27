@@ -30,5 +30,17 @@
         <Style Selector="TextBlock:disabled">
             <Setter Property="Foreground" Value="#5DFFFFFF"/>
         </Style>
+        
+        <Style Selector="TextBlock.HyperLink">
+            <Setter Property="Foreground" Value="DeepSkyBlue" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        
+        <Style Selector="TextBlock.HyperLink:pointerover /template/ ContentPresenter">
+            <Setter Property="Foreground" Value="LightSkyBlue" />
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
     </Application.Styles>
 </Application>

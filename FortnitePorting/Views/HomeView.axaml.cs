@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Markup.Xaml;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FortnitePorting.Shared.Framework;
@@ -13,5 +14,4 @@ public partial class HomeView : ViewBase<HomeViewModel>
     {
         InitializeComponent();
     }
-    
 }

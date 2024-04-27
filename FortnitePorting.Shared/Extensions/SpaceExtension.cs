@@ -36,7 +36,7 @@ public class SpaceExtension : MarkupExtension
         {
             StyledProperty<Thickness> => Margin * Factor * Default,
             StyledProperty<GridLength> => new GridLength(Factor * Default),
-            _ => throw new InvalidOperationException()
+            _ => Margin * Factor * Default
         };
     }
 }

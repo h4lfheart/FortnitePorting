@@ -22,13 +22,13 @@
                 </ui:FABorder.Background>
             </ui:FABorder>
             <ui:FABorder Background="Black" Opacity="0.35" CornerRadius="4" />
-            <TextBlock Text="Welcome to FortnitePorting!" FontSize="42" FontWeight="SemiBold" HorizontalAlignment="Center"
+            <TextBlock Text="Welcome to FortnitePorting!" FontSize="48" FontWeight="SemiBold" HorizontalAlignment="Center"
                        VerticalAlignment="Center">
                 <TextBlock.Effect>
                     <DropShadowEffect BlurRadius="15" Color="#5F000000" OffsetX="0" OffsetY="0" />
                 </TextBlock.Effect>
             </TextBlock>
-            <TextBlock Margin="0 70 0 0" Text="Please select your Fortnite installation settings to get started." HorizontalAlignment="Center"
+            <TextBlock Margin="0 80 0 0" Text="Please select your Fortnite installation settings to get started." HorizontalAlignment="Center"
                        VerticalAlignment="Center">
                 <TextBlock.Effect>
                     <DropShadowEffect BlurRadius="15" Color="#5F000000" OffsetX="0" OffsetY="0" />

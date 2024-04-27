@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using FortnitePorting.Shared.Services;
 
 namespace FortnitePorting.Shared.Framework;
 
@@ -13,7 +14,7 @@ public abstract class ViewBase<T> : UserControl where T : ViewModelBase, new()
 
         if (initializeViewModel)
         {
-            Task.Run(async () => await ViewModel.Initialize());
+            TaskService.Run(async () => await ViewModel.Initialize());
         }
     }
 }

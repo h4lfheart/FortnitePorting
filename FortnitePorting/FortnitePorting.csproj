@@ -11,11 +11,15 @@
 
 
     <ItemGroup>
+        <PackageReference Include="AsyncImageLoader.Avalonia" Version="3.2.1" />
         <PackageReference Include="Avalonia" Version="11.1.999-cibuild0045367-alpha" />
         <PackageReference Include="Avalonia.Desktop" Version="11.1.999-cibuild0045367-alpha"/>
         <PackageReference Include="Avalonia.Themes.Fluent" Version="11.1.999-cibuild0045367-alpha"/>
         <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.1.999-cibuild0045367-alpha"/>
+        <PackageReference Include="DiscordRichPresence" Version="1.2.1.24" />
         <PackageReference Include="FluentAvaloniaUI" Version="2.0.5" />
+        <PackageReference Include="RestSharp" Version="110.2.1-alpha.0.20" />
+        <PackageReference Include="RestSharp.Serializers.NewtonsoftJson" Version="110.2.1-alpha.0.20" />
         <PackageReference Include="Serilog.Sinks.File" Version="5.0.1-dev-00972" />
     </ItemGroup>
 
@@ -28,5 +32,13 @@
     <ItemGroup>
       <ProjectReference Include="..\Dependencies\CUE4Parse\CUE4Parse\CUE4Parse.csproj" />
       <ProjectReference Include="..\FortnitePorting.Shared\FortnitePorting.Shared.csproj" />
+    </ItemGroup>
+
+    
+    <ItemGroup>
+      <Compile Update="Controls\FeaturedControl.axaml.cs">
+        <DependentUpon>FeaturedControl.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
     </ItemGroup>
 </Project>

@@ -30,6 +30,40 @@ public class FPVersion : IComparable<FPVersion>
         Patch = patch;
         Identifier = identifier;
     }
+
+    public string GetDisplayString(EVersionStringType type = EVersionStringType.IdentifierSuffix)
+    {
+        var sb = new StringBuilder();
+
+        if (type == EVersionStringType.IdentifierPrefix && !string.IsNullOrWhiteSpace(Identifier))
+        {
+            sb.Append(Identifier);
+            sb.Append(' ');
+        }
+        
+        sb.Append('v');
+        sb.Append(Release);
+        
+        sb.Append('.');
+        sb.Append(Major);
+        
+        sb.Append('.');
+        sb.Append(Minor);
+        
+        if (Patch != 0)
+        {
+            sb.Append('.');
+            sb.Append(Patch);
+        }
+
+        if (type == EVersionStringType.IdentifierSuffix && !string.IsNullOrWhiteSpace(Identifier))
+        {
+            sb.Append('-');
+            sb.Append(Identifier);
+        }
+        
+        return sb.ToString();
+    }
     
 
     public static bool operator >(FPVersion a, FPVersion b)
@@ -99,28 +133,12 @@ public class FPVersion : IComparable<FPVersion>
 
     public override string ToString()
     {
-        var sb = new StringBuilder();
-
-        sb.Append(Release);
-        
-        sb.Append('.');
-        sb.Append(Major);
-        
-        sb.Append('.');
-        sb.Append(Minor);
-        
-        if (Patch != 0)
-        {
-            sb.Append('.');
-            sb.Append(Patch);
-        }
-
-        if (!string.IsNullOrWhiteSpace(Identifier))
-        {
-            sb.Append('-');
-            sb.Append(Identifier);
-        }
-        
-        return sb.ToString();
+        return GetDisplayString();
     }
+}
+
+public enum EVersionStringType
+{
+    IdentifierSuffix,
+    IdentifierPrefix
 }

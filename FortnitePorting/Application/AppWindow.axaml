@@ -17,13 +17,13 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <TextBlock Grid.Column="1" Text="Fortnite Porting" FontWeight="SemiBold" FontSize="16"
+            <TextBlock Grid.Column="1" Text="FortnitePorting" FontWeight="SemiBold" FontSize="16"
                        HorizontalAlignment="Left" VerticalAlignment="Center" />
             <TextBlock Grid.Column="3" Text="{Binding VersionString}" Opacity="0.5" FontSize="13" Margin="-2 2 0 0"
                        HorizontalAlignment="Left" VerticalAlignment="Center" />
         </Grid>
 
-         <ui:NavigationView x:Name="NavigationView" Grid.Row="1" IsPaneOpen="False" OpenPaneLength="144" ItemInvoked="OnItemInvoked" IsSettingsVisible="False">
+         <ui:NavigationView x:Name="NavigationView" Grid.Row="1" IsPaneOpen="True" OpenPaneLength="136" ItemInvoked="OnItemInvoked" IsSettingsVisible="False">
              <ui:NavigationView.MenuItems>
                  <ui:NavigationViewItem Content="Welcome" Tag="Welcome" IsSelected="True" IsVisible="{Binding SetupTabsAreVisible}">
                      <ui:NavigationViewItem.IconSource>

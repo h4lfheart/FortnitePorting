@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,6 +20,7 @@ public static class ApplicationService
     public static AppViewModel AppVM => ViewModelRegistry.Get<AppViewModel>()!;
     public static WelcomeViewModel WelcomeVM => ViewModelRegistry.Get<WelcomeViewModel>()!;
     public static HomeViewModel HomeVM => ViewModelRegistry.Get<HomeViewModel>()!;
+    public static APIViewModel ApiVM => ViewModelRegistry.Get<APIViewModel>()!;
     
     public static IClassicDesktopStyleApplicationLifetime Application = null!;
     private static IStorageProvider StorageProvider => Application.MainWindow!.StorageProvider;
@@ -41,6 +43,14 @@ public static class ApplicationService
         DataFolder.Create();
         LogsFolder.Create();
         CacheFolder.Create();
+
+        ViewModelRegistry.Register<APIViewModel>();
+        DiscordService.Initialize();
+    }
+    
+    public static void Launch(string location, bool shellExecute = true)
+    {
+        Process.Start(new ProcessStartInfo { FileName = location, UseShellExecute = shellExecute });
     }
     
     public static async Task<string?> BrowseFolderDialog(string startLocation = "")
