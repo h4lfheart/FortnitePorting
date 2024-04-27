@@ -601,11 +601,10 @@ class DataImportTask:
                             key.value = 1.0
 
                 if (pose_data := meta.get("PoseData")):
+                    armature: bpy.types.Object = imported_object
                     original_mode = bpy.context.active_object.mode
                     try:
                         bpy.ops.object.mode_set(mode='OBJECT')
-
-                        armature: bpy.types.Object = imported_object
                         armature_modifier: bpy.types.ArmatureModifier = first(imported_mesh.modifiers, lambda mod: mod.type == "ARMATURE")
 
                         # Grab reference pose data
@@ -713,17 +712,16 @@ class DataImportTask:
                             if curve_sum and (curve_sum > 1.0001 or curve_sum < 0.999):
                                 Log.warn(f'{pose_name}: has interesting '
                                          'curve data! Implement this feature...')
-
+                    except Exception as e:
+                        Log.error("Failed to import PoseAsset data from "
+                                  f"{imported_mesh.name}: {e}")
+                    finally:
                         # Final reset before re-entering regular import mode.
                         bpy.context.view_layer.objects.active = armature
                         bpy.ops.object.mode_set(mode='POSE')
                         bpy.ops.pose.select_all(action='SELECT')
                         bpy.ops.pose.transforms_clear()
                         bpy.ops.pose.select_all(action='DESELECT')
-                    except Exception as e:
-                        Log.error("Failed to import PoseAsset data from "
-                                  f"{imported_mesh.name}: {e}")
-                    finally:
                         bpy.ops.object.mode_set(mode=original_mode)
             case _:
                 meta = {}
