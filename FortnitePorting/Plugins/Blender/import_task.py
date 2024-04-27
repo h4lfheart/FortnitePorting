@@ -650,6 +650,7 @@ class DataImportTask:
                     bpy.ops.pose.select_all(action='DESELECT')
 
                     # Move bones accordingly
+                    contributed = False
                     for bone in influences:
                         if not (bone_name := bone.get('Name')):
                             Log.warn(f"empty bone name for pose {pose}")
@@ -663,6 +664,11 @@ class DataImportTask:
                                 # There are likely many missing bones in non-Head parts, but we
                                 # process as many as we can.
                                 Log.warn(f"could not find: {bone_name} for pose {pose_name}")
+                            continue
+
+                        # Check if there's a vertex group associated with the pose bone
+                        # If not, no reason to pose it.
+                        if pose_bone.name not in imported_mesh.vertex_groups:
                             continue
 
                         # Reset bone to identity
@@ -690,6 +696,11 @@ class DataImportTask:
                         pose_bone.scale = (Vector((1, 1, 1)) + make_vector(bone.get('Scale')))
 
                         pose_bone.rotation_quaternion.normalize()
+                        contributed = True
+
+                    # Do not create shape keys if nothing changed
+                    if not contributed:
+                        continue
 
                     # Create blendshape from armature
                     bpy.ops.object.mode_set(mode='OBJECT')
