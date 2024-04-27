@@ -683,11 +683,7 @@ class DataImportTask:
                                 post_quat = Quaternion(post_quat) if (post_quat := edit_bone.get("post_quat")) else Quaternion()
 
                                 q = post_quat.copy()
-                                if edit_bone.parent is None:
-                                    q.rotate(make_quat(rotation).conjugated())
-                                else:
-                                    q.rotate(make_quat(rotation))
-
+                                q.rotate(make_quat(rotation))
                                 quat = post_quat.copy()
                                 quat.rotate(q.conjugated())
                                 pose_bone.rotation_quaternion = quat.conjugated() @ pose_bone.rotation_quaternion
