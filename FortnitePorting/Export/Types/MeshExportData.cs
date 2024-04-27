@@ -26,10 +26,10 @@ namespace FortnitePorting.Export.Types;
 
 public class MeshExportData : ExportDataBase
 {
-    public readonly List<ExportMesh> Meshes = new();
-    public readonly List<ExportMesh> OverrideMeshes = new();
-    public readonly List<ExportOverrideMaterial> OverrideMaterials = new();
-    public readonly List<ExportOverrideParameters> OverrideParameters = new();
+    public readonly List<ExportMesh> Meshes = [];
+    public readonly List<ExportMesh> OverrideMeshes = [];
+    public readonly List<ExportOverrideMaterial> OverrideMaterials = [];
+    public readonly List<ExportOverrideParameters> OverrideParameters = [];
     public readonly AnimExportData Animation;
 
     public MeshExportData(string name, UObject asset, FStructFallback[] styles, EAssetType type, EExportTargetType exportType) : base(name, asset, styles, type, EExportType.Mesh, exportType)
@@ -53,7 +53,7 @@ public class MeshExportData : ExportDataBase
                 }
 
                 ExportHeadMeta? partWithPoseData = null;
-                List<ExportHeadMeta> exportPartsToCopyTo = new List<ExportHeadMeta>();
+                var exportPartsToCopyTo = new List<ExportHeadMeta>();
                 AssetsVM.ExportChunks = parts.Length;
                 foreach (var part in parts)
                 {
@@ -63,15 +63,16 @@ public class MeshExportData : ExportDataBase
                     }
 
                     var resolvedPart = Exporter.CharacterPart(part);
-                    if (resolvedPart?.Meta is ExportHeadMeta)
+                    if (resolvedPart?.Meta is ExportHeadMeta headMeta)
                     {
-                        var headMeta = (ExportHeadMeta)resolvedPart.Meta;
                         if (headMeta.PoseData.Count != 0)
                         {
                             if (partWithPoseData != null)
                                 Log.Warning("multiple character parts contained PoseData, results may be inaccurate");
                             partWithPoseData = headMeta;
-                        } else if (headMeta.CopyPoseData == true) {
+                        } 
+                        else if (headMeta.CopyPoseData) 
+                        {
                             exportPartsToCopyTo.AddIfNotNull(headMeta);
                         }
                     }
@@ -80,8 +81,9 @@ public class MeshExportData : ExportDataBase
                 }
 
                 // Copy data around
-                if (partWithPoseData != null) {
-                    foreach (ExportHeadMeta part in exportPartsToCopyTo)
+                if (partWithPoseData is not null) 
+                {
+                    foreach (var part in exportPartsToCopyTo)
                     {
                         part.PoseData = partWithPoseData.PoseData;
                         part.ReferencePose = partWithPoseData.ReferencePose;

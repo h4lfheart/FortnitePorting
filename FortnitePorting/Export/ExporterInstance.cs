@@ -60,24 +60,24 @@ public class ExporterInstance
             return;
         }
 
-        FPoseDataContainer poseContainer = poseAsset.PoseContainer;
-        FPoseData[] poses = poseContainer.Poses;
+        var poseContainer = poseAsset.PoseContainer;
+        var poses = poseContainer.Poses;
         if (poses.Length == 0)
         {
             Log.Warning($"{poseAsset.Name}: has no poses");
             return;
         }
 
-        FName[]? poseNames = poseContainer.PoseFNames;
-        if (poseNames == null || poseNames.Length == 0)
+        var poseNames = poseContainer.PoseFNames;
+        if (poseNames is null || poseNames.Length == 0)
         {
             Log.Warning($"{poseAsset.Name}: PoseFNames is null or empty");
             return;
         }
 
         /* Assert number of tracks == number of bones for given skeleton */
-        FName[] poseTracks = poseContainer.Tracks;
-        FPoseAssetInfluences[] poseTrackInfluences = poseContainer.TrackPoseInfluenceIndices;
+        var poseTracks = poseContainer.Tracks;
+        var poseTrackInfluences = poseContainer.TrackPoseInfluenceIndices;
         if (poseTracks.Length != poseTrackInfluences.Length)
         {
             Log.Warning($"{poseAsset.Name}: length of Tracks != length of TrackPoseInfluenceIndices");
@@ -85,28 +85,28 @@ public class ExporterInstance
         }
 
         /* Add poses by name first in order they appear */
-        for (int i = 0; i < poses.Length; i++)
+        for (var i = 0; i < poses.Length; i++)
         {
-            FPoseData pose = poses[i];
-            FName poseName = poseNames[i];
+            var pose = poses[i];
+            var poseName = poseNames[i];
 
             if (pose.CurveData.Length != 0 && pose.CurveData.Length != poses.Length - 1)
                 Log.Warning($"{poseAsset.Name}: {poseName} length of CurveData != length of poses");
-            PoseData poseData = new PoseData(poseName.PlainText, pose.CurveData);
+            var poseData = new PoseData(poseName.PlainText, pose.CurveData);
             meta.PoseData.Add(poseData);
         }
 
         /* Discover connection between bone name and relative location. */
-        for (int i = 0; i < poseTrackInfluences.Length; i++)
+        for (var i = 0; i < poseTrackInfluences.Length; i++)
         {
-            FPoseAssetInfluences poseTrackInfluence = poseTrackInfluences[i];
-            if (poseTrackInfluence == null) continue;
+            var poseTrackInfluence = poseTrackInfluences[i];
+            if (poseTrackInfluence is null) continue;
 
-            FName poseTrackName = poseTracks[i];
+            var poseTrackName = poseTracks[i];
             foreach (var influence in poseTrackInfluence.Influences)
             {
-                PoseData pose = meta.PoseData[influence.PoseIndex];
-                FTransform transform = poses[influence.PoseIndex].LocalSpacePose[influence.BoneTransformIndex];
+                var pose = meta.PoseData[influence.PoseIndex];
+                var transform = poses[influence.PoseIndex].LocalSpacePose[influence.BoneTransformIndex];
                 pose.Keys.Add(new PoseKey(
                     poseTrackName.PlainText, /* Bone name to move */
                     transform.Translation,
@@ -122,11 +122,11 @@ public class ExporterInstance
         if (poseAsset.Skeleton is null) return;
         if (!poseAsset.Skeleton.TryLoad<USkeleton>(out var skeleton)) return;
 
-        Dictionary<string, int> referenceMap = skeleton.ReferenceSkeleton.FinalNameToIndexMap.ToDictionary(k => k.Key.ToLower(), k => k.Value);
-        foreach (FName boneName in poseContainer.Tracks)
+        var referenceMap = skeleton.ReferenceSkeleton.FinalNameToIndexMap.ToDictionary(k => k.Key.ToLower(), k => k.Value);
+        foreach (var boneName in poseContainer.Tracks)
         {
             var boneNameStr = boneName.PlainText;
-            if (!referenceMap.TryGetValue(boneNameStr.ToLower(), out int idx))
+            if (!referenceMap.TryGetValue(boneNameStr.ToLower(), out var idx))
             {
                 Log.Warning($"{poseAsset.Name}: {boneNameStr} missing from referenceSkeleton ({skeleton.Name})");
                 continue;
@@ -138,7 +138,7 @@ public class ExporterInstance
                 continue;
             }
 
-            FTransform transform = poseAsset.RetargetSourceAssetReferencePose[idx];
+            var transform = poseAsset.RetargetSourceAssetReferencePose[idx];
             meta.ReferencePose.Add(new ReferencePose(boneNameStr, transform.Translation, transform.Rotation, transform.Scale3D));
         }
     }
