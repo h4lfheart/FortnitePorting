@@ -651,16 +651,12 @@ class DataImportTask:
                                     Log.warn(f"empty bone name for pose {pose}")
                                     continue
 
-                                pose_bone: bpy.types.PoseBone = armature.pose.bones.get(bone_name)
-                                if not pose_bone:
-                                    # For some reason, some of the bones start capitalized and some dont
-                                    bone_name = bone_name[0].capitalize() + bone_name[1:]
-                                    pose_bone = armature.pose.bones.get(bone_name)
+                                pose_bone: bpy.types.PoseBone = get_case_insensitive(armature.pose.bones, bone_name)
                                 if not pose_bone:
                                     # For cases where pose data tries to move a non-existent bone
                                     # i.e. Poseidon has no 'Tongue' but its in the pose asset
                                     if is_head:
-                                        # There are likely many missing bones in FaceAcc, but we
+                                        # There are likely many missing bones in non-Head parts, but we
                                         # process as many as we can.
                                         Log.warn(f"could not find: {bone_name} for pose {pose_name}")
                                     continue
@@ -1403,6 +1399,7 @@ def get_case_insensitive(source, string):
     for item in source:
         if item.name.casefold() == string.casefold():
             return item
+    return None
 
 
 def replace_or_add_parameter(list, replace_item):

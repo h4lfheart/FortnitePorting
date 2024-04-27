@@ -122,11 +122,11 @@ public class ExporterInstance
         if (poseAsset.Skeleton is null) return;
         if (!poseAsset.Skeleton.TryLoad<USkeleton>(out var skeleton)) return;
 
-        var referenceMap = skeleton.ReferenceSkeleton.FinalNameToIndexMap.ToDictionary(k => k.Key.ToLower(), k => k.Value);
+        var referenceMap = new Dictionary<string, int>(skeleton.ReferenceSkeleton.FinalNameToIndexMap, StringComparer.OrdinalIgnoreCase);
         foreach (var boneName in poseContainer.Tracks)
         {
             var boneNameStr = boneName.PlainText;
-            if (!referenceMap.TryGetValue(boneNameStr.ToLower(), out var idx))
+            if (!referenceMap.TryGetValue(boneNameStr, out var idx))
             {
                 Log.Warning($"{poseAsset.Name}: {boneNameStr} missing from referenceSkeleton ({skeleton.Name})");
                 continue;
