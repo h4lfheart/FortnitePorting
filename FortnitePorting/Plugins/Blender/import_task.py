@@ -592,7 +592,7 @@ class DataImportTask:
                 meta = get_meta(["SkinColor"])
             case "Head" | "Face":
                 meta = get_meta(["MorphNames", "HatType", "PoseData", "ReferencePose"])
-                is_face = mesh_type == "Face"
+                is_head = mesh_type == "Head"
 
                 shape_keys = imported_mesh.data.shape_keys
                 if (morph_name := meta.get("MorphNames").get(meta.get("HatType"))) and shape_keys is not None:
@@ -625,9 +625,9 @@ class DataImportTask:
                         # Check how many bones are scaled in the reference pose
                         face_attach_scale = Vector((1, 1, 1))
                         for entry in reference_pose:
-                            scale = make_vector(entry['Scale'])
+                            scale = make_vector(entry.get('Scale'))
                             if scale != Vector((1, 1, 1)):
-                                if entry['BoneName'] == 'faceAttach':
+                                if entry.get('BoneName', '').casefold() == 'faceattach':
                                     face_attach_scale = scale
                                 Log.warn(f"Non-zero scale: {entry}")
 
@@ -640,10 +640,12 @@ class DataImportTask:
                         # export of face poses for Polar Patroller.
                         loc_scale = (0.01 if self.options.get("ScaleDown") else 1)
                         for pose in pose_data:
-                            influences = pose['Keys']
-
                             # If there are no influences, don't bother
-                            if not influences:
+                            if not (influences := pose.get('Keys')):
+                                continue
+
+                            if not (pose_name := pose.get('Name')):
+                                Log.warn("skipping pose data with no pose name")
                                 continue
 
                             # Enter pose mode
@@ -657,7 +659,9 @@ class DataImportTask:
 
                             # Move bones accordingly
                             for bone in influences:
-                                bone_name = bone['Name']
+                                if not (bone_name := bone.get('Name')):
+                                    Log.warn(f"empty bone name for pose {pose}")
+                                    continue
 
                                 pose_bone: bpy.types.PoseBone = armature.pose.bones.get(bone_name)
                                 if not pose_bone:
@@ -665,19 +669,19 @@ class DataImportTask:
                                     bone_name = bone_name[0].capitalize() + bone_name[1:]
                                     pose_bone = armature.pose.bones.get(bone_name)
                                 if not pose_bone:
-                                    # For cases where pose data tries to move a non-existant bone
+                                    # For cases where pose data tries to move a non-existent bone
                                     # i.e. Poseidon has no 'Tongue' but its in the pose asset
-                                    if not is_face:
+                                    if is_head:
                                         # There are likely many missing bones in FaceAcc, but we
                                         # process as many as we can.
-                                        Log.warn(f"could not find: {bone_name} for pose {pose['Name']}")
+                                        Log.warn(f"could not find: {bone_name} for pose {pose_name}")
                                     continue
 
                                 # Reset bone to identity
                                 pose_bone.matrix_basis.identity()
 
-                                rotation = bone['Rotation']
-                                assert rotation['IsNormalized'], "non-normalized rotation unsupported"
+                                rotation = bone.get('Rotation')
+                                assert rotation.get('IsNormalized'), "non-normalized rotation unsupported"
 
                                 edit_bone = pose_bone.bone
                                 post_quat = Quaternion(post_quat) if (post_quat := edit_bone.get("post_quat")) else Quaternion()
@@ -688,14 +692,14 @@ class DataImportTask:
                                 quat.rotate(q.conjugated())
                                 pose_bone.rotation_quaternion = quat.conjugated() @ pose_bone.rotation_quaternion
 
-                                loc = (make_vector(bone['Location'], mirror_y=True))
+                                loc = (make_vector(bone.get('Location'), mirror_y=True))
                                 loc = Vector((loc.x * face_attach_scale.x,
                                               loc.y * face_attach_scale.y,
                                               loc.z * face_attach_scale.z))
                                 loc.rotate(post_quat.conjugated())
 
                                 pose_bone.location = pose_bone.location + loc * loc_scale
-                                pose_bone.scale = (Vector((1, 1, 1)) + make_vector(bone['Scale']))
+                                pose_bone.scale = (Vector((1, 1, 1)) + make_vector(bone.get('Scale')))
 
                                 pose_bone.rotation_quaternion.normalize()
 
@@ -706,11 +710,11 @@ class DataImportTask:
                                                                       modifier=armature_modifier.name)
 
                             # Use name from pose data
-                            imported_mesh.data.shape_keys.key_blocks[-1].name = pose['Name']
+                            imported_mesh.data.shape_keys.key_blocks[-1].name = pose_name
 
                         # TODO: FishThicc triggers interesting curve data. Investigate tomorrow...
                         for pose in pose_data:
-                            if not (curve_data := pose['CurveData']):
+                            if not (curve_data := pose.get('CurveData')):
                                 continue
 
                             # If there's curve data that's more than the
@@ -718,7 +722,7 @@ class DataImportTask:
                             # non-zero, note that.
                             curve_sum = sum([abs(x) for x in curve_data])
                             if curve_sum and (curve_sum > 1.0001 or curve_sum < 0.999):
-                                Log.warn(f'{pose["Name"]}: has interesting '
+                                Log.warn(f'{pose_name}: has interesting '
                                          'curve data! Implement this feature...')
 
                         # Final reset before re-entering regular import mode.
