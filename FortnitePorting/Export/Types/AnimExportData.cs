@@ -90,7 +90,7 @@ public class AnimExportData : ExportDataBase
             {
                 anim.Curves.Add(new ExportCurve
                 {
-                    Name = curve.Name.DisplayName.Text,
+                    Name = curve.CurveName.Text,
                     Keys = curve.FloatCurve.Keys.Select(x => new ExportCurveKey(x.Time, x.Value)).ToList()
                 });
             }
