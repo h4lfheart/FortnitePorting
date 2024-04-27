@@ -443,7 +443,7 @@ class DataImportTask:
             mesh_track = active_mesh.data.shape_keys.animation_data.nla_tracks.new(prev=None)
             mesh_track.name = "Sections"
 
-        def import_sections(sections, skeleton, track):
+        def import_sections(sections, skeleton, track, is_main_skeleton = False):
             total_frames = 0
             for section in sections:
                 path = section.get("Path")
@@ -459,7 +459,7 @@ class DataImportTask:
                 strip = track.strips.new(section_name, time_to_frame(time_offset), anim)
                 strip.repeat = loop_count
                 
-                if (curves := section.get("Curves")) and len(curves) > 0 and active_mesh.data.shape_keys is not None:
+                if (curves := section.get("Curves")) and len(curves) > 0 and active_mesh.data.shape_keys is not None and is_main_skeleton:
                     key_blocks = active_mesh.data.shape_keys.key_blocks
                     for key_block in key_blocks:
                         key_block.value = 0
@@ -478,7 +478,7 @@ class DataImportTask:
                     
             return total_frames
         
-        total_frames = import_sections(data.get("Sections"), target_skeleton, target_track)
+        total_frames = import_sections(data.get("Sections"), target_skeleton, target_track, True)
         if self.options.get("UpdateTimelineLength"):
             bpy.context.scene.frame_end = total_frames
          

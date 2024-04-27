@@ -118,9 +118,9 @@ public class ExporterInstance
             }
         }
 
-        USkeleton? skeleton = poseAsset.Skeleton.Load<USkeleton>();
-        if (skeleton == null)
-            return;
+        if (poseAsset.RetargetSourceAssetReferencePose is null) return;
+        if (poseAsset.Skeleton is null) return;
+        if (!poseAsset.Skeleton.TryLoad<USkeleton>(out var skeleton)) return;
 
         Dictionary<string, int> referenceMap = skeleton.ReferenceSkeleton.FinalNameToIndexMap.ToDictionary(k => k.Key.ToLower(), k => k.Value);
         foreach (FName boneName in poseContainer.Tracks)
@@ -192,7 +192,14 @@ public class ExporterInstance
                     {
                         var animBlueprintData = animBlueprint.ClassDefaultObject.Load()!;
                         if (animBlueprintData.TryGetValue(out FStructFallback poseAssetNode, "AnimGraphNode_PoseBlendNode"))
+                        {
                             ParsePoseAsset(poseAssetNode.Get<UPoseAsset>("PoseAsset"), meta);
+                        }
+                        else if (skeletalMesh.ReferenceSkeleton.FinalRefBoneInfo.Any(bone => bone.Name.Text.Equals("FACIAL_C_FacialRoot", StringComparison.OrdinalIgnoreCase))
+                                 && CUE4ParseVM.Provider.TryLoadObject("FortniteGame/Content/Characters/Player/Male/Medium/Heads/M_MED_Jonesy3L_Head/Meshes/3L/3L_lod2_Facial_Poses_PoseAsset", out UPoseAsset poseAsset))
+                        {
+                            ParsePoseAsset(poseAsset, meta);
+                        }
                     }
 
                     exportPart.Meta = meta;
