@@ -83,6 +83,18 @@ public class AnimExportData : ExportDataBase
             anim.LinkValue = currentSection.LinkValue;
             anim.Loop = currentSection.SectionName == currentSection.NextSectionName || currentSection.NextSectionName.IsNone;
             anim.AssetRef = sequence;
+            
+            // todo this is alr serialize in ueanim, figure out better way to access that rather than serializing in export response
+            var floatCurves = sequence.CompressedCurveData.FloatCurves ?? [];
+            foreach (var curve in floatCurves)
+            {
+                anim.Curves.Add(new ExportCurve
+                {
+                    Name = curve.Name.DisplayName.Text,
+                    Keys = curve.FloatCurve.Keys.Select(x => new ExportCurveKey(x.Time, x.Value)).ToList()
+                });
+            }
+            
             sections.Add(anim);
         
             if (anim.Loop) return;

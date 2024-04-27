@@ -435,6 +435,13 @@ class DataImportTask:
         target_skeleton.animation_data_create()
         target_track = target_skeleton.animation_data.nla_tracks.new(prev=None)
         target_track.name = "Sections"
+        
+        active_mesh = get_armature_mesh(target_skeleton)
+        if active_mesh.data.shape_keys is not None:
+            active_mesh.data.shape_keys.name = "Pose Asset Controls"
+            active_mesh.data.shape_keys.animation_data_create()
+            mesh_track = active_mesh.data.shape_keys.animation_data.nla_tracks.new(prev=None)
+            mesh_track.name = "Sections"
 
         def import_sections(sections, skeleton, track):
             total_frames = 0
@@ -446,14 +453,35 @@ class DataImportTask:
                 anim = self.import_anim(path, skeleton)
                 clear_bone_poses_recursive(skeleton, anim, "faceAttach")
                 
-                strip = track.strips.new(section.get("Name"), time_to_frame(section.get("Time")), anim)
-                strip.repeat = 999 if self.options.get("LoopAnimation") and section.get("Loop") else 1
+                section_name = section.get("Name")
+                time_offset = section.get("Time")
+                loop_count = 999 if self.options.get("LoopAnimation") and section.get("Loop") else 1
+                strip = track.strips.new(section_name, time_to_frame(time_offset), anim)
+                strip.repeat = loop_count
+                
+                if (curves := section.get("Curves")) and len(curves) > 0 and active_mesh.data.shape_keys is not None:
+                    key_blocks = active_mesh.data.shape_keys.key_blocks
+                    for key_block in key_blocks:
+                        key_block.value = 0
+        
+                    for curve in curves:
+                        curve_name = curve.get("Name")
+                        if target_block := key_blocks.get(curve_name.replace("CTRL_expressions_", "")):
+                            for key in curve.get("Keys"):
+                                target_block.value = key.get("Value")
+                                target_block.keyframe_insert(data_path="value", frame=key.get("Time") * 30)
+                    if active_mesh.data.shape_keys.animation_data.action is not None:
+                        strip = mesh_track.strips.new(section_name, time_to_frame(time_offset), active_mesh.data.shape_keys.animation_data.action)
+                        strip.name = section_name
+                        strip.repeat = loop_count
+                        active_mesh.data.shape_keys.animation_data.action = None
+                    
             return total_frames
         
         total_frames = import_sections(data.get("Sections"), target_skeleton, target_track)
         if self.options.get("UpdateTimelineLength"):
             bpy.context.scene.frame_end = total_frames
-            
+         
         props = data.get("Props")
         if len(props) > 0:
             if master_skeleton := first(target_skeleton.children, lambda child: child.name == "Master_Skeleton"):
