@@ -591,7 +591,7 @@ class DataImportTask:
             case "Body":
                 meta = get_meta(["SkinColor"])
             case "Head":
-                meta = get_meta(["MorphNames", "HatType", "PoseData", "ReferencePose"])
+                meta = get_meta(["MorphNames", "HatType"])
                 shape_keys = imported_mesh.data.shape_keys
                 if (morph_name := meta.get("MorphNames").get(meta.get("HatType"))) and shape_keys is not None:
                     for key in shape_keys.key_blocks:
