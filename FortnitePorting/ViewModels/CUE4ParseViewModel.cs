@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using CUE4Parse.Compression;
 using CUE4Parse.Encryption.Aes;
 using CUE4Parse.MappingsProvider;
 using CUE4Parse.UE4.AssetRegistry;
@@ -76,6 +77,10 @@ public class CUE4ParseViewModel : ViewModelBase
 
     public override async Task Initialize()
     {
+        HomeVM.Update("Initializing Libraries");
+        await InitializeOodle();
+        await InitializeZlib();
+        
         HomeVM.Update("Loading Game Archive");
         await InitializeProvider();
         if ((AppSettings.Current.UseCosmeticStreaming && AppSettings.Current.LoadingType == ELoadingType.Local) || AppSettings.Current.LoadingType == ELoadingType.Live) await LoadCosmeticStreaming();
@@ -94,6 +99,36 @@ public class CUE4ParseViewModel : ViewModelBase
 
         HomeVM.Update("Loading Application Assets");
         await LoadRequiredAssets();
+    }
+
+    private async Task InitializeOodle()
+    {
+        var oodlePath = Path.Combine(DataFolder.FullName, OodleHelper.OODLE_DLL_NAME);
+        if (File.Exists(OodleHelper.OODLE_DLL_NAME))
+        {
+            File.Move(OodleHelper.OODLE_DLL_NAME, oodlePath, true);
+        }
+        else if (!File.Exists(oodlePath))
+        {
+            await OodleHelper.DownloadOodleDllAsync(oodlePath);
+        }
+        
+        OodleHelper.Initialize(oodlePath);
+    }
+    
+    private async Task InitializeZlib()
+    {
+        var zlibPath = Path.Combine(DataFolder.FullName, ZlibHelper.DLL_NAME);
+        if (File.Exists(ZlibHelper.DLL_NAME))
+        {
+            File.Move(ZlibHelper.DLL_NAME, zlibPath, true);
+        }
+        else if (!File.Exists(zlibPath))
+        {
+            await ZlibHelper.DownloadDllAsync(zlibPath);
+        }
+        
+        ZlibHelper.Initialize(zlibPath);
     }
 
     private async Task InitializeProvider()
