@@ -605,19 +605,8 @@ class DataImportTask:
                     try:
                         bpy.ops.object.mode_set(mode='OBJECT')
 
-                        # Find the ARMATURE modifier
-                        armature_modifiers = [mod for mod in imported_mesh.modifiers if mod.type == "ARMATURE"]
-                        assert len(armature_modifiers) == 1, "expected at least one armature modifier"
-                        armature_modifier: bpy.types.ArmatureModifier = armature_modifiers[0]
-
-                        # Find the ARMATURE
-                        armatures = [
-                            ob
-                            for ob in bpy.data.objects
-                            if ob.type == "ARMATURE" and imported_mesh.name in ob.name
-                        ]
-                        assert len(armatures) == 1, "expected at least one armature"
-                        armature: bpy.types.Object = armatures[0]
+                        armature: bpy.types.Object = imported_object
+                        armature_modifier: bpy.types.ArmatureModifier = first(imported_mesh.modifiers, lambda mod: mod.type == "ARMATURE")
 
                         # Grab reference pose data
                         reference_pose = meta.get("ReferencePose", dict())
