@@ -104,6 +104,9 @@ public class ExporterInstance
             {
                 var pose = meta.PoseData[influence.PoseIndex];
                 var transform = poses[influence.PoseIndex].LocalSpacePose[influence.BoneTransformIndex];
+                if (!transform.Rotation.IsNormalized)
+                    transform.Rotation.Normalize();
+
                 pose.Keys.Add(new PoseKey(
                     poseTrackName.PlainText, /* Bone name to move */
                     transform.Translation,

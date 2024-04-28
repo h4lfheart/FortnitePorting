@@ -675,7 +675,8 @@ class DataImportTask:
                         pose_bone.matrix_basis.identity()
 
                         rotation = bone.get('Rotation')
-                        assert rotation.get('IsNormalized'), "non-normalized rotation unsupported"
+                        if not rotation.get('IsNormalized'):
+                            Log.warn(f"rotation not normalized for {bone_name} in pose {pose_name}")
 
                         edit_bone = pose_bone.bone
                         post_quat = Quaternion(post_quat) if (post_quat := edit_bone.get("post_quat")) else Quaternion()
