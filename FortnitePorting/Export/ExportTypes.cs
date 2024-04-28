@@ -33,27 +33,32 @@ public record ExportPart : ExportMesh
 
 public class ExportPartMeta
 {
+    public List<PoseData> PoseData = [];
+    public List<ReferencePose> ReferencePose = [];
 }
 
 public class ExportHeadMeta : ExportPartMeta
 {
     public readonly Dictionary<ECustomHatType, string> MorphNames = new();
     public FLinearColor SkinColor;
-    public List<PoseData> PoseData = [];
 }
+
+public record ReferencePose(string BoneName, FVector Location, FQuat Rotation, FVector Scale);
 
 public class PoseData
 {
     public string Name;
     public List<PoseKey> Keys = new List<PoseKey>();
+    public readonly float[] CurveData;
 
-    public PoseData(string name)
+    public PoseData(string name, float[] curveData)
     {
         Name = name;
+        CurveData = curveData;
     }
 }
 
-public record PoseKey(string Name, FVector Location, FQuat Rotation, FVector Scale);
+public record PoseKey(string Name, FVector Location, FQuat Rotation, FVector Scale, int PoseIndex, int BoneTransformIndex);
 
 public class ExportAttachMeta : ExportPartMeta
 {
@@ -146,9 +151,18 @@ public class ExportAnimSection
     public float Length;
     public float LinkValue;
     public bool Loop;
+    public List<ExportCurve> Curves = [];
 
     [JsonIgnore] public UAnimSequence AssetRef;
 }
+
+public class ExportCurve
+{
+    public string Name;
+    public List<ExportCurveKey> Keys;
+}
+
+public record ExportCurveKey(float Time, float Value);
 
 public class ExportSound
 {
