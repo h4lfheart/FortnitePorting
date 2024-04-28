@@ -51,6 +51,98 @@ public class ExporterInstance
         FileExportOptions = AppExportOptions.CreateExportOptions();
     }
 
+    private void ParsePoseAsset(UPoseAsset poseAsset, ExportHeadMeta meta)
+    {
+        /* Only tested when bAdditivePose = true */
+        if (!poseAsset.bAdditivePose)
+        {
+            Log.Warning($"{poseAsset.Name}: bAdditivePose = false is unsupported");
+            return;
+        }
+
+        var poseContainer = poseAsset.PoseContainer;
+        var poses = poseContainer.Poses;
+        if (poses.Length == 0)
+        {
+            Log.Warning($"{poseAsset.Name}: has no poses");
+            return;
+        }
+
+        var poseNames = poseContainer.PoseFNames;
+        if (poseNames is null || poseNames.Length == 0)
+        {
+            Log.Warning($"{poseAsset.Name}: PoseFNames is null or empty");
+            return;
+        }
+
+        /* Assert number of tracks == number of bones for given skeleton */
+        var poseTracks = poseContainer.Tracks;
+        var poseTrackInfluences = poseContainer.TrackPoseInfluenceIndices;
+        if (poseTracks.Length != poseTrackInfluences.Length)
+        {
+            Log.Warning($"{poseAsset.Name}: length of Tracks != length of TrackPoseInfluenceIndices");
+            return;
+        }
+
+        /* Add poses by name first in order they appear */
+        for (var i = 0; i < poses.Length; i++)
+        {
+            var pose = poses[i];
+            var poseName = poseNames[i];
+            var poseData = new PoseData(poseName.PlainText, pose.CurveData);
+            meta.PoseData.Add(poseData);
+        }
+
+        /* Discover connection between bone name and relative location. */
+        for (var i = 0; i < poseTrackInfluences.Length; i++)
+        {
+            var poseTrackInfluence = poseTrackInfluences[i];
+            if (poseTrackInfluence is null) continue;
+
+            var poseTrackName = poseTracks[i];
+            foreach (var influence in poseTrackInfluence.Influences)
+            {
+                var pose = meta.PoseData[influence.PoseIndex];
+                var transform = poses[influence.PoseIndex].LocalSpacePose[influence.BoneTransformIndex];
+                if (!transform.Rotation.IsNormalized)
+                    transform.Rotation.Normalize();
+
+                pose.Keys.Add(new PoseKey(
+                    poseTrackName.PlainText, /* Bone name to move */
+                    transform.Translation,
+                    transform.Rotation,
+                    transform.Scale3D,
+                    influence.PoseIndex,
+                    influence.BoneTransformIndex
+                ));
+            }
+        }
+
+        if (poseAsset.RetargetSourceAssetReferencePose is null) return;
+        if (poseAsset.Skeleton is null) return;
+        if (!poseAsset.Skeleton.TryLoad<USkeleton>(out var skeleton)) return;
+
+        var referenceMap = new Dictionary<string, int>(skeleton.ReferenceSkeleton.FinalNameToIndexMap, StringComparer.OrdinalIgnoreCase);
+        foreach (var boneName in poseContainer.Tracks)
+        {
+            var boneNameStr = boneName.PlainText;
+            if (!referenceMap.TryGetValue(boneNameStr, out var idx))
+            {
+                Log.Warning($"{poseAsset.Name}: {boneNameStr} missing from referenceSkeleton ({skeleton.Name})");
+                continue;
+            }
+
+            if (idx >= poseAsset.RetargetSourceAssetReferencePose.Length)
+            {
+                Log.Warning($"{poseAsset.Name}: {boneNameStr} index {idx} is outside the bounds of the RetargetSourceAssetReferencePose");
+                continue;
+            }
+
+            var transform = poseAsset.RetargetSourceAssetReferencePose[idx];
+            meta.ReferencePose.Add(new ReferencePose(boneNameStr, transform.Translation, transform.Rotation, transform.Scale3D));
+        }
+    }
+
     public ExportPart? CharacterPart(UObject part)
     {
         var skeletalMesh = part.GetOrDefault<USkeletalMesh?>("SkeletalMesh");
@@ -89,8 +181,12 @@ public class ExporterInstance
                         var animBlueprintData = animBlueprint.ClassDefaultObject.Load()!;
                         if (animBlueprintData.TryGetValue(out FStructFallback poseAssetNode, "AnimGraphNode_PoseBlendNode"))
                         {
-                            var poseAsset = poseAssetNode.Get<UPoseAsset>("PoseAsset");
-                            // TODO Pose Asset Data
+                            ParsePoseAsset(poseAssetNode.Get<UPoseAsset>("PoseAsset"), meta);
+                        }
+                        else if (skeletalMesh.ReferenceSkeleton.FinalRefBoneInfo.Any(bone => bone.Name.Text.Equals("FACIAL_C_FacialRoot", StringComparison.OrdinalIgnoreCase))
+                                 && CUE4ParseVM.Provider.TryLoadObject("FortniteGame/Content/Characters/Player/Male/Medium/Heads/M_MED_Jonesy3L_Head/Meshes/3L/3L_lod2_Facial_Poses_PoseAsset", out UPoseAsset poseAsset))
+                        {
+                            ParsePoseAsset(poseAsset, meta);
                         }
                     }
 
