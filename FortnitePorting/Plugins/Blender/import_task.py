@@ -710,19 +710,6 @@ class DataImportTask:
 
                     # Use name from pose data
                     imported_mesh.data.shape_keys.key_blocks[-1].name = pose_name
-
-                # TODO: FishThicc triggers interesting curve data. Investigate tomorrow...
-                for pose in pose_data:
-                    if not (curve_data := pose.get('CurveData')):
-                        continue
-
-                    # If there's curve data that's more than the
-                    # current pose being 1.0 and all other poses
-                    # non-zero, note that.
-                    curve_sum = sum([abs(x) for x in curve_data])
-                    if curve_sum and (curve_sum > 1.0001 or curve_sum < 0.999):
-                        Log.warn(f'{pose_name}: has interesting '
-                                    'curve data! Implement this feature...')
             except Exception as e:
                 Log.error("Failed to import PoseAsset data from "
                             f"{imported_mesh.name}: {e}")

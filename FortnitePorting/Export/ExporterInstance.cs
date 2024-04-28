@@ -89,9 +89,6 @@ public class ExporterInstance
         {
             var pose = poses[i];
             var poseName = poseNames[i];
-
-            if (pose.CurveData.Length != 0 && pose.CurveData.Length != poses.Length - 1)
-                Log.Warning($"{poseAsset.Name}: {poseName} length of CurveData != length of poses");
             var poseData = new PoseData(poseName.PlainText, pose.CurveData);
             meta.PoseData.Add(poseData);
         }
