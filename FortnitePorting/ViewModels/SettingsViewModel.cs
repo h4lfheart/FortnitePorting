@@ -12,6 +12,8 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private string _archiveDirectory;
     [ObservableProperty] private EGame _unrealVersion = EGame.GAME_UE5_LATEST;
     [ObservableProperty] private string _encryptionKey;
+    [ObservableProperty] private bool _useMappingsFile;
     [ObservableProperty] private string _mappingsFile;
+    [ObservableProperty] private ELanguage _gameLanguage = ELanguage.English;
     [ObservableProperty] private bool _useTextureStreaming = true;
 }

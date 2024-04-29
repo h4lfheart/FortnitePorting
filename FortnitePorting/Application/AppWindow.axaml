@@ -23,7 +23,7 @@
                        HorizontalAlignment="Left" VerticalAlignment="Center" />
         </Grid>
 
-         <ui:NavigationView x:Name="NavigationView" Grid.Row="1" IsPaneOpen="True" OpenPaneLength="136" ItemInvoked="OnItemInvoked" IsSettingsVisible="False">
+         <ui:NavigationView x:Name="NavigationView" Grid.Row="1" IsPaneOpen="False" OpenPaneLength="136" ItemInvoked="OnItemInvoked" IsSettingsVisible="False">
              <ui:NavigationView.MenuItems>
                  <ui:NavigationViewItem Content="Welcome" Tag="Welcome" IsSelected="True" IsVisible="{Binding SetupTabsAreVisible}">
                      <ui:NavigationViewItem.IconSource>

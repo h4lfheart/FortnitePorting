@@ -4,12 +4,12 @@ using RestSharp;
 
 namespace FortnitePorting.Models.API;
 
-public class FortnitePortingEndpoint : APIBase
+public class FortnitePortingAPI : APIBase
 {
     public const string NEWS_URL = "https://halfheart.dev/fortnite-porting/api/v3/news.json"; // i need to buy servers lmao
     public const string FEATURED_URL = "https://halfheart.dev/fortnite-porting/api/v3/featured.json";
     
-    public FortnitePortingEndpoint(RestClient client) : base(client)
+    public FortnitePortingAPI(RestClient client) : base(client)
     {
     }
 

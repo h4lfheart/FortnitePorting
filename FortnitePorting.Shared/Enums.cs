@@ -23,3 +23,33 @@ public enum EFortniteVersion
     Custom_12_41*/
     
 }
+
+public enum EExportLocation
+{
+    [Description("Blender")]
+    Blender,
+    
+    [Description("Unreal Engine")]
+    Unreal,
+    
+    [Description("Assets Folder")]
+    AssetsFolder,
+    
+    [Description("Custom Folder")]
+    CustomFolder
+}
+
+public enum EAssetSortType
+{
+    [Description("None")]
+    None,
+    
+    [Description("A-Z")]
+    AZ,
+    
+    [Description("Season")]
+    Season,
+
+    [Description("Rarity")]
+    Rarity
+}

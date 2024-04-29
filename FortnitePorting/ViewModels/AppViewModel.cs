@@ -10,7 +10,7 @@ namespace FortnitePorting.ViewModels;
 public partial class AppViewModel : ViewModelBase
 {
     [ObservableProperty] private string _versionString = Globals.VersionString;
-    [ObservableProperty] private bool _gameBasedTabsAreReady;
+    [ObservableProperty] private bool _gameBasedTabsAreReady = true;
     [ObservableProperty] private bool _setupTabsAreVisible = true;
     [ObservableProperty] private Frame _contentFrame;
     [ObservableProperty] private NavigationView _navigationView;

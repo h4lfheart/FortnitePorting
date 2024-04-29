@@ -13,6 +13,11 @@
          <Brush x:Key="ToggleSwitchKnobFillOnPointerOver">#FFFFFFFF</Brush>
          <Brush x:Key="ToggleSwitchKnobFillOnPressed">#FFFFFFFF</Brush>
          <Brush x:Key="ToggleSwitchKnobFillOnDisabled">#5DFFFFFF</Brush>
+         <Brush x:Key="CheckBoxCheckGlyphForegroundChecked">#FFFFFFFF</Brush>
+         <Brush x:Key="CheckBoxCheckGlyphForegroundCheckedPointerOver">#FFFFFFFF</Brush>
+         <Brush x:Key="CheckBoxCheckGlyphForegroundCheckedPressed">#FFFFFFFF</Brush>
+         <Brush x:Key="CheckBoxCheckGlyphForegroundCheckedDisabled">#5DFFFFFF</Brush>
+         
      </Application.Resources>
              
     <Application.Styles>
@@ -41,6 +46,29 @@
         <Style Selector="TextBlock.HyperLink:pointerover /template/ ContentPresenter">
             <Setter Property="Foreground" Value="LightSkyBlue" />
             <Setter Property="Background" Value="Transparent" />
+        </Style>
+        
+        <Style Selector="Expander:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+        <Style Selector="Expander ToggleButton:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+        <Style Selector="Expander ToggleButton:pointerover /template/ Border">
+            <Setter Property="Background" Value="#26FFFFFF"/>
+        </Style>
+        <Style Selector="Expander ToggleButton:pointerover /template/ Border#ExpandCollapseChevronBorder">
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+                    
+        <Style Selector="Expander ToggleButton:expanded /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+        <Style Selector="Expander ToggleButton:expanded /template/ Border">
+            <Setter Property="Background" Value="#26FFFFFF"/>
+        </Style>
+        <Style Selector="Expander ToggleButton:checked /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent"/>
         </Style>
     </Application.Styles>
 </Application>

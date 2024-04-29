@@ -24,6 +24,7 @@ public partial class WelcomeViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(MappingsFileEnabled))]
     [NotifyPropertyChangedFor(nameof(TextureStreamingEnabled))]
     [NotifyPropertyChangedFor(nameof(CanFinishSetup))]
+    [NotifyPropertyChangedFor(nameof(IsCustom))]
     private EFortniteVersion _fortniteVersion = EFortniteVersion.LatestInstalled;
     
     [ObservableProperty] 
@@ -32,13 +33,22 @@ public partial class WelcomeViewModel : ViewModelBase
     
     [ObservableProperty] private EGame _unrealVersion = EGame.GAME_UE5_LATEST;
     [ObservableProperty] private string _encryptionKey;
+    
+    [ObservableProperty] 
+    [NotifyPropertyChangedFor(nameof(MappingsFileEnabled))]
+    private bool _useMappingsFile;
+    
     [ObservableProperty] private string _mappingsFile;
+    
+    [ObservableProperty] private ELanguage _gameLanguage = ELanguage.English;
     [ObservableProperty] private bool _useTextureStreaming = true;
 
+    public bool IsCustom => FortniteVersion is not (EFortniteVersion.LatestInstalled or EFortniteVersion.LatestOnDemand);
+
     public bool ArchiveDirectoryEnabled => FortniteVersion is not EFortniteVersion.LatestOnDemand;
-    public bool UnrealVersionEnabled => FortniteVersion is EFortniteVersion.Custom;
-    public bool EncryptionKeyEnabled => FortniteVersion is EFortniteVersion.Custom;
-    public bool MappingsFileEnabled => FortniteVersion is EFortniteVersion.Custom;
+    public bool UnrealVersionEnabled => IsCustom;
+    public bool EncryptionKeyEnabled => IsCustom;
+    public bool MappingsFileEnabled => IsCustom;
     public bool TextureStreamingEnabled => FortniteVersion is EFortniteVersion.LatestOnDemand or EFortniteVersion.LatestInstalled;
     
     public bool CanFinishSetup => FortniteVersion switch
@@ -77,7 +87,9 @@ public partial class WelcomeViewModel : ViewModelBase
         AppSettings.Current.ArchiveDirectory = ArchiveDirectory;
         AppSettings.Current.UnrealVersion = UnrealVersion;
         AppSettings.Current.EncryptionKey = EncryptionKey;
+        AppSettings.Current.UseMappingsFile = UseMappingsFile;
         AppSettings.Current.MappingsFile = MappingsFile;
+        AppSettings.Current.GameLanguage = GameLanguage;
         AppSettings.Current.UseTextureStreaming = UseTextureStreaming;
         
         AppVM.SetupTabsAreVisible = false;

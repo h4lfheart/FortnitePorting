@@ -1,3 +1,4 @@
+using System.IO;
 using System.Threading.Tasks;
 using FortnitePorting.Models.API;
 using FortnitePorting.Shared;
@@ -9,9 +10,10 @@ namespace FortnitePorting.ViewModels;
 
 public class APIViewModel : ViewModelBase
 {
-    public readonly FortnitePortingEndpoint FortnitePorting;
+    public readonly FortnitePortingAPI FortnitePorting;
+    public readonly FortniteCentralAPI FortniteCentral;
 
-    protected readonly RestClient _client;
+    protected readonly RestClient _client = new(_clientOptions, configureSerialization: s => s.UseSerializer<JsonNetSerializer>());
 
     private static readonly RestClientOptions _clientOptions = new()
     {
@@ -21,8 +23,32 @@ public class APIViewModel : ViewModelBase
 
     public APIViewModel()
     {
-        _client = new RestClient(_clientOptions, configureSerialization: s => s.UseSerializer<JsonNetSerializer>());
-        FortnitePorting = new FortnitePortingEndpoint(_client);
+        FortnitePorting = new FortnitePortingAPI(_client);
+        FortniteCentral = new FortniteCentralAPI(_client);
+    }
+    
+    public async Task<byte[]?> DownloadFileAsync(string url)
+    {
+        var request = new RestRequest(url);
+        var data = await _client.DownloadDataAsync(request);
+        return data;
+    }
+    
+    public byte[]? DownloadFile(string url)
+    {
+        return DownloadFileAsync(url).GetAwaiter().GetResult();
     }
 
+    public async Task<FileInfo> DownloadFileAsync(string url, string destination)
+    {
+        var request = new RestRequest(url);
+        var data = await _client.DownloadDataAsync(request);
+        if (data is not null) await File.WriteAllBytesAsync(destination, data);
+        return new FileInfo(destination);
+    }
+    
+    public FileInfo DownloadFile(string url, string destination)
+    {
+        return DownloadFileAsync(url, destination).GetAwaiter().GetResult();
+    }
 }

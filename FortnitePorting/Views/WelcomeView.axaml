@@ -36,7 +36,7 @@
             </TextBlock>
         </Grid>
         <ScrollViewer Grid.Column="0" Grid.Row="2">
-            <StackPanel VerticalAlignment="Top" Margin="{ext:Space 1}">
+            <StackPanel VerticalAlignment="Top" Margin="{ext:Space 1, 1, 2, 1}">
                 <StackPanel.Styles>
                     <Style Selector="ui|SettingsExpander">
                         <Setter Property="Margin" Value="0 0 0 4"/>
@@ -75,6 +75,12 @@
                         </StackPanel>
                     </ui:SettingsExpander.Footer>
                 </ui:SettingsExpander>
+                <ui:SettingsExpander Header="Game Language" Description="The language used for in-game text strings such as names, descriptions, styles, etc.">
+                    <ui:SettingsExpander.Footer>
+                        <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type versions:ELanguage}}"
+                                  SelectedItem="{Binding GameLanguage, Converter={StaticResource EnumToString}}" />
+                    </ui:SettingsExpander.Footer>
+                </ui:SettingsExpander>
                 <ui:SettingsExpander Header="Unreal Version" Description="The Unreal Version that aligns with your Fortnite installation." IsEnabled="{Binding UnrealVersionEnabled}">
                     <ui:SettingsExpander.Footer>
                         <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type versions:EGame}}"
@@ -89,8 +95,9 @@
                 <ui:SettingsExpander Header="Mappings File" Description="The mappings file required for asset parsing to work properly. Required for Fortnite v14.30+" IsEnabled="{Binding MappingsFileEnabled}">
                     <ui:SettingsExpander.Footer>
                         <StackPanel Orientation="Horizontal">
-                            <TextBox Text="{Binding MappingsFile}" Watermark="Ex. C:/Users/FortnitePorting/Downloads/Mappings.usmap"/>
-                            <Button Margin="4 0 0 0" Command="{Binding BrowseMappingsFileCommand}">
+                            <CheckBox IsChecked="{Binding UseMappingsFile}"/>
+                            <TextBox Text="{Binding MappingsFile}" Watermark="Ex. C:/Users/FortnitePorting/Downloads/Mappings.usmap" IsEnabled="{Binding UseMappingsFile}"/>
+                            <Button Margin="4 0 0 0" Command="{Binding BrowseMappingsFileCommand}" IsEnabled="{Binding UseMappingsFile}">
                                 <ui:SymbolIcon Symbol="Folder"/>
                             </Button>
                         </StackPanel>
@@ -104,6 +111,6 @@
             </StackPanel>
         </ScrollViewer>
         
-        <Button Grid.Row="3" Content="Finish Setup" Command="{Binding FinishSetupCommand}" HorizontalAlignment="Center" VerticalAlignment="Center" IsEnabled="{Binding CanFinishSetup}"/>
+        <Button Grid.Row="3" Content="Finish Setup" Command="{Binding FinishSetupCommand}" HorizontalAlignment="Center" VerticalAlignment="Bottom" IsEnabled="{Binding CanFinishSetup}"/>
     </Grid>
 </UserControl>

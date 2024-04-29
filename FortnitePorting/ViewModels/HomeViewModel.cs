@@ -16,7 +16,6 @@ public partial class HomeViewModel : ViewModelBase
     [ObservableProperty] private string _statusText = string.Empty;
     [ObservableProperty] private ObservableCollection<NewsControl> _newsControls = [];
     [ObservableProperty] private ObservableCollection<FeaturedControl> _featuredControls = [];
-
     
     public string DisplayName => DiscordService.GetDisplayName() ?? "No User";
     public string AvatarURL => DiscordService.GetAvatarURL() ?? "avares://FortnitePorting/Assets/DefaultProfile.png";
@@ -31,6 +30,14 @@ public partial class HomeViewModel : ViewModelBase
     
     public override async Task Initialize()
     {
+        TaskService.Run(async () =>
+        {
+            ViewModelRegistry.Register<CUE4ParseViewModel>();
+            await CUE4ParseVM.Initialize();
+
+            AppVM.GameBasedTabsAreReady = true;
+        });
+        
         await TaskService.RunDispatcherAsync(async () =>
         {
             var news = await ApiVM.FortnitePorting.GetNewsAsync();
