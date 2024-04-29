@@ -589,6 +589,9 @@ class DataImportTask:
             out_props = {}
             for mesh in self.meshes:
                 meta = mesh.get("Meta")
+                if meta is None:
+                    continue
+                    
                 for search_prop in search_props:
                     if found_key := first(meta.keys(), lambda key: key == search_prop):
                         out_props[found_key] = meta.get(found_key)
