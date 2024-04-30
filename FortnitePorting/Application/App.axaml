@@ -36,8 +36,6 @@
             <Setter Property="Foreground" Value="#5DFFFFFF"/>
         </Style>
         
-        <!--- TODO WINUI 3 STYLES FOR TEXT--->
-        
         <Style Selector="ui|HyperlinkButton.HyperLink">
             <Setter Property="Padding" Value="0" />
             <Setter Property="Background" Value="Transparent" />

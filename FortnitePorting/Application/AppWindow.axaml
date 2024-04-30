@@ -4,7 +4,7 @@
         xmlns:ui="using:FluentAvalonia.UI.Controls"
         x:Class="FortnitePorting.Application.AppWindow"
         x:DataType="viewModels:AppViewModel"
-        Width="1160" Height="720" RequestedThemeVariant="Dark" FontFamily="Segoe UI"
+        Width="1160" Height="770" RequestedThemeVariant="Dark" FontFamily="Segoe UI"
         TransparencyLevelHint="Mica" ExtendClientAreaToDecorationsHint="True" Background="{x:Null}"
         Icon="/Assets/LogoEnhanced.ico"
         Title="Fortnite Porting">

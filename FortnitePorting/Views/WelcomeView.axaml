@@ -7,7 +7,7 @@
              xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             d:DesignHeight="720" d:DesignWidth="1160"
+             d:DesignHeight="770" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.WelcomeView"
              x:DataType="viewModels:WelcomeViewModel">
     <Grid>
