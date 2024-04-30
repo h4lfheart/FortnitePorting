@@ -16,7 +16,7 @@ public partial class FeaturedControl : UserControl
         Response = response;
     }
 
-    private void OnPointerPressedSocial(object? sender, PointerPressedEventArgs e)
+    public void LaunchSocial()
     {
         Launch(Response.Social);
     }

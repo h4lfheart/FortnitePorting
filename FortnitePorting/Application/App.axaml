@@ -36,15 +36,14 @@
             <Setter Property="Foreground" Value="#5DFFFFFF"/>
         </Style>
         
-        <Style Selector="TextBlock.HyperLink">
-            <Setter Property="Foreground" Value="DeepSkyBlue" />
+        <!--- TODO WINUI 3 STYLES FOR TEXT--->
+        
+        <Style Selector="ui|HyperlinkButton.HyperLink">
             <Setter Property="Padding" Value="0" />
-            <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Background" Value="Transparent" />
         </Style>
         
-        <Style Selector="TextBlock.HyperLink:pointerover /template/ ContentPresenter">
-            <Setter Property="Foreground" Value="LightSkyBlue" />
+        <Style Selector="ui|HyperlinkButton.HyperLink:pointerover /template/ ContentPresenter">
             <Setter Property="Background" Value="Transparent" />
         </Style>
         

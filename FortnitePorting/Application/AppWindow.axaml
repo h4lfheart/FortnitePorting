@@ -49,7 +49,7 @@
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItem Content="Radio" Tag="Radio" IsEnabled="{Binding GameBasedTabsAreReady}">
                      <ui:NavigationViewItem.IconSource>
-                         <ui:SymbolIconSource Symbol="Speaker2"/>
+                         <ui:FontIconSource Glyph="&#xEC4F;" FontFamily="Segoe Fluent Icons"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItemSeparator/>

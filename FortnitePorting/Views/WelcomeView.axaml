@@ -5,9 +5,12 @@
              xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
              xmlns:versions="clr-namespace:CUE4Parse.UE4.Versions;assembly=CUE4Parse"
              xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             d:DesignHeight="720" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.WelcomeView"
              x:DataType="viewModels:WelcomeViewModel">
-    <Grid Margin="{ext:Space 1}">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="165" />
             <RowDefinition Height="{ext:Space 1}" />
@@ -16,12 +19,16 @@
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0">
-            <ui:FABorder RenderOptions.BitmapInterpolationMode="HighQuality" CornerRadius="4" BoxShadow="0 0 25 5 #2F000000">
-                <ui:FABorder.Background>
-                    <ImageBrush Source="/Assets/DefaultSplash.png" Stretch="UniformToFill" />
-                </ui:FABorder.Background>
-            </ui:FABorder>
-            <ui:FABorder Background="Black" Opacity="0.35" CornerRadius="4" />
+            <Image RenderOptions.BitmapInterpolationMode="HighQuality" Source="/Assets/DefaultSplash.png" Stretch="UniformToFill" Margin="0 0 0 -50" Opacity="0.9">
+                <Image.OpacityMask>
+                    <LinearGradientBrush StartPoint="0, 0" EndPoint="0, 180">
+                        <GradientStops>
+                            <GradientStop Color="White" Offset="0"/>
+                            <GradientStop Color="Transparent" Offset="1"/>
+                        </GradientStops>
+                    </LinearGradientBrush>
+                </Image.OpacityMask>
+            </Image>
             <TextBlock Text="Welcome to FortnitePorting!" FontSize="48" FontWeight="SemiBold" HorizontalAlignment="Center"
                        VerticalAlignment="Center">
                 <TextBlock.Effect>
@@ -35,6 +42,7 @@
                 </TextBlock.Effect>
             </TextBlock>
         </Grid>
+        
         <ScrollViewer Grid.Column="0" Grid.Row="2">
             <StackPanel VerticalAlignment="Top" Margin="{ext:Space 1, 1, 2, 1}">
                 <StackPanel.Styles>
@@ -111,6 +119,6 @@
             </StackPanel>
         </ScrollViewer>
         
-        <Button Grid.Row="3" Content="Finish Setup" Command="{Binding FinishSetupCommand}" HorizontalAlignment="Center" VerticalAlignment="Bottom" IsEnabled="{Binding CanFinishSetup}"/>
+        <Button Grid.Row="3" Content="Finish Setup" Command="{Binding FinishSetupCommand}" HorizontalAlignment="Center" VerticalAlignment="Center" IsEnabled="{Binding CanFinishSetup}"/>
     </Grid>
 </UserControl>

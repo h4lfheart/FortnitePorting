@@ -34,7 +34,10 @@
         <ui:FABorder Grid.Row="1" CornerRadius="4, 4, 3, 3" Background="#FF090014" Opacity="0.75" BorderThickness="1 0 1 1"/>
         <Grid Grid.Row="1" RowDefinitions="Auto Auto" Margin="{ext:Space 1, 0.25, 1, 0}">
             <TextBlock Grid.Row="0" Text="{Binding Response.Title, RelativeSource={RelativeSource AncestorType=controls:FeaturedControl}}" FontSize="20" FontWeight="SemiBold"/>
-            <TextBlock Grid.Row="1" Classes="HyperLink" Text="{Binding Response.Artist, RelativeSource={RelativeSource AncestorType=controls:FeaturedControl}}" ToolTip.Tip="{Binding Response.Social, RelativeSource={RelativeSource AncestorType=controls:FeaturedControl}}" Opacity="0.9" FontSize="14" FontWeight="SemiBold" TextDecorations="Underline" PointerPressed="OnPointerPressedSocial"/>
+            <ui:HyperlinkButton Grid.Row="1" Classes="HyperLink" Opacity="0.9" FontSize="14" FontWeight="SemiBold"
+                                Content="{Binding Response.Artist, RelativeSource={RelativeSource AncestorType=controls:FeaturedControl}}" 
+                                ToolTip.Tip="{Binding Response.Social, RelativeSource={RelativeSource AncestorType=controls:FeaturedControl}}" 
+                                 Command="{Binding LaunchSocial, RelativeSource={RelativeSource AncestorType=controls:FeaturedControl}}" />
         </Grid>
     </Grid>
 </UserControl>

@@ -24,21 +24,25 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <Grid Grid.Row="0" Grid.Column="0" Margin="{ext:Space 1, 1, 1, 0.5}">
-            <ui:FABorder RenderOptions.BitmapInterpolationMode="HighQuality" CornerRadius="4" BoxShadow="0 0 5 5 #0F000000">
-                <ui:FABorder.Background>
-                    <ImageBrush Source="/Assets/DefaultSplash.png" Stretch="UniformToFill" />
-                </ui:FABorder.Background>
-            </ui:FABorder>
-            <ui:FABorder Background="Black" Opacity="0.35" CornerRadius="4" />
-            <TextBlock Text="FortnitePorting" FontSize="48" FontWeight="SemiBold" HorizontalAlignment="Center"
+        <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
+            <Image RenderOptions.BitmapInterpolationMode="HighQuality" Source="/Assets/DefaultSplash.png" Stretch="UniformToFill" Margin="0 0 0 -50" Opacity="0.9">
+                <Image.OpacityMask>
+                    <LinearGradientBrush StartPoint="0, 0" EndPoint="0, 180">
+                        <GradientStops>
+                            <GradientStop Color="White" Offset="0"/>
+                            <GradientStop Color="Transparent" Offset="1"/>
+                        </GradientStops>
+                    </LinearGradientBrush>
+                </Image.OpacityMask>
+            </Image>
+            <TextBlock Text="FortnitePorting" FontSize="40" FontWeight="SemiBold" HorizontalAlignment="Center"
                        VerticalAlignment="Center">
                 <TextBlock.Effect>
                     <DropShadowEffect BlurRadius="15" Color="#5F000000" OffsetX="0" OffsetY="0" />
                 </TextBlock.Effect>
             </TextBlock>
             <TextBlock Margin="0 80 0 0" Text="{Binding StatusText}" HorizontalAlignment="Center"
-                       VerticalAlignment="Center">
+                       VerticalAlignment="Center" Opacity="0.9">
                 <TextBlock.Effect>
                     <DropShadowEffect BlurRadius="15" Color="#5F000000" OffsetX="0" OffsetY="0" />
                 </TextBlock.Effect>
@@ -65,11 +69,11 @@
                         </Ellipse.Fill>
                     </Ellipse>
                 </Grid>
-                <TextBlock Grid.Row="3" Text="{Binding DisplayName}" FontSize="22" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                <TextBlock Grid.Row="3" Text="{Binding DisplayName}" FontSize="20" FontWeight="SemiBold" HorizontalAlignment="Center"/>
                 <TextBlock Grid.Row="4" Text="{Binding UserName}" Opacity="0.5" HorizontalAlignment="Center"/>
                 <Separator Grid.Row="5" Margin="{ext:Space 1}"/>
                 <StackPanel Grid.Row="6">
-                    <TextBlock Text="Helpful Links" FontSize="24" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Helpful Links" FontSize="20" FontWeight="SemiBold" HorizontalAlignment="Center"/>
                     <StackPanel HorizontalAlignment="Center" Margin="{ext:Space 0, 0.5}">
                         <StackPanel.Styles>
                             <Style Selector="Button">
@@ -99,7 +103,7 @@
                 <Separator Grid.Row="0"/>
                 
                 <StackPanel Grid.Row="1" HorizontalAlignment="Stretch">
-                    <TextBlock Text="News &amp; Updates" FontSize="24" FontWeight="SemiBold" HorizontalAlignment="Left"/>
+                    <TextBlock Text="News &amp; Updates" FontSize="20" FontWeight="SemiBold" HorizontalAlignment="Left"/>
                     <ItemsControl ItemsSource="{Binding NewsControls}" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="{ext:Space 0, 0.5}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
@@ -112,7 +116,7 @@
                 <Separator Grid.Row="2"/>
                 
                 <StackPanel Grid.Row="3" HorizontalAlignment="Stretch">
-                    <TextBlock Text="Featured Art" FontSize="24" FontWeight="SemiBold" HorizontalAlignment="Left"/>
+                    <TextBlock Text="Featured Art" FontSize="20" FontWeight="SemiBold" HorizontalAlignment="Left"/>
                     <ItemsControl ItemsSource="{Binding FeaturedControls}" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="{ext:Space 0, 0.5}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
