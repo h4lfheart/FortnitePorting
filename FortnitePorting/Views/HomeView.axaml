@@ -81,10 +81,10 @@
                                 <Setter Property="Margin" Value="{ext:Space 0.5}"/>
                             </Style>
                         </StackPanel.Styles>
-                        <Button Content="Wiki &amp; Common Issues"/>
-                        <Button Content="Discord Server"/>
-                        <Button Content="GitHub Repository"/>
-                        <Button Content="Ko-Fi Donation Link"/>
+                        <Button Content="Wiki &amp; Common Issues" Command="{Binding LaunchWiki}"/>
+                        <Button Content="Discord Server" Command="{Binding LaunchDiscord}"/>
+                        <Button Content="GitHub Repository" Command="{Binding LaunchGitHub}"/>
+                        <Button Content="Ko-Fi Donation Link" Command="{Binding LaunchKoFi}"/>
                     </StackPanel>
                 </StackPanel>
             </Grid>

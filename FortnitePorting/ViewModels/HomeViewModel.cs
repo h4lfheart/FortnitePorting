@@ -1,10 +1,13 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using FortnitePorting.Controls;
 using FortnitePorting.Services;
+using FortnitePorting.Shared;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
 using Serilog;
@@ -62,5 +65,25 @@ public partial class HomeViewModel : ViewModelBase
     public void UpdateStatus(string text)
     {
         StatusText = text;
+    }
+    
+    public void LaunchWiki()
+    {
+        throw new NotImplementedException("Wiki has not been created yet.");
+    }
+
+    public void LaunchDiscord()
+    {
+        Launch(Globals.DISCORD_URL);
+    }
+    
+    public void LaunchGitHub()
+    {
+        Launch(Globals.GITHUB_URL);
+    }
+    
+    public void LaunchKoFi()
+    {
+        Launch(Globals.KOFI_URL);
     }
 }

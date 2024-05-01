@@ -15,7 +15,7 @@
             <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
         
-        <ui:FABorder RenderOptions.BitmapInterpolationMode="HighQuality" Grid.Row="0" CornerRadius="4 4 0 0" BorderThickness="1 1 1 0">
+        <ui:FABorder Grid.Row="0" CornerRadius="4 4 0 0" BorderThickness="1 1 1 0">
             <ui:FABorder.Background>
                 <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding Response.Image, RelativeSource={RelativeSource AncestorType=controls:FeaturedControl}}"
                             Stretch="UniformToFill" />
@@ -31,7 +31,7 @@
         </ui:FABorder>
         
         <controls:CustomBlurBehind Grid.Row="1" Margin="1 0 1 1"/>
-        <ui:FABorder Grid.Row="1" CornerRadius="4, 4, 3, 3" Background="#FF090014" Opacity="0.75" BorderThickness="1 0 1 1"/>
+        <ui:FABorder Grid.Row="1" CornerRadius="0" Background="#FF090014" Opacity="0.75" BorderThickness="1 0 1 1"/>
         <Grid Grid.Row="1" RowDefinitions="Auto Auto" Margin="{ext:Space 1, 0.25, 1, 0}">
             <TextBlock Grid.Row="0" Text="{Binding Response.Title, RelativeSource={RelativeSource AncestorType=controls:FeaturedControl}}" Classes="SubtitleTextBlockStyle"/>
             <ui:HyperlinkButton Grid.Row="1" Classes="HyperLink BodyTextBlockStyle TextFillColorSecondaryBrush"
