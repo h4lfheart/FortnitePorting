@@ -35,14 +35,14 @@
                     </LinearGradientBrush>
                 </Image.OpacityMask>
             </Image>
-            <TextBlock Text="FortnitePorting" FontSize="40" FontWeight="SemiBold" HorizontalAlignment="Center"
+            <TextBlock Text="FortnitePorting" Classes="TitleLargeTextBlockStyle" HorizontalAlignment="Center"
                        VerticalAlignment="Center">
                 <TextBlock.Effect>
                     <DropShadowEffect BlurRadius="15" Color="#5F000000" OffsetX="0" OffsetY="0" />
                 </TextBlock.Effect>
             </TextBlock>
             <TextBlock Margin="0 80 0 0" Text="{Binding StatusText}" HorizontalAlignment="Center"
-                       VerticalAlignment="Center" Opacity="0.9">
+                       VerticalAlignment="Center" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush">
                 <TextBlock.Effect>
                     <DropShadowEffect BlurRadius="15" Color="#5F000000" OffsetX="0" OffsetY="0" />
                 </TextBlock.Effect>
@@ -69,11 +69,11 @@
                         </Ellipse.Fill>
                     </Ellipse>
                 </Grid>
-                <TextBlock Grid.Row="3" Text="{Binding DisplayName}" FontSize="20" FontWeight="SemiBold" HorizontalAlignment="Center"/>
-                <TextBlock Grid.Row="4" Text="{Binding UserName}" Opacity="0.5" HorizontalAlignment="Center"/>
+                <TextBlock Grid.Row="3" Text="{Binding DisplayName}" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
+                <TextBlock Grid.Row="4" Text="{Binding UserName}" Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" HorizontalAlignment="Center"/>
                 <Separator Grid.Row="5" Margin="{ext:Space 1}"/>
                 <StackPanel Grid.Row="6">
-                    <TextBlock Text="Helpful Links" FontSize="20" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Helpful Links" Classes="SubtitleTextBlockStyle" FontWeight="SemiBold" HorizontalAlignment="Center"/>
                     <StackPanel HorizontalAlignment="Center" Margin="{ext:Space 0, 0.5}">
                         <StackPanel.Styles>
                             <Style Selector="Button">
@@ -93,18 +93,15 @@
         <ScrollViewer Grid.Row="1" Grid.Column="0" Margin="{ext:Space 1, 0.5, 1, 1}">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="{ext:Space 1}"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="{ext:Space 1}"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="{ext:Space 1}"/>
                 </Grid.RowDefinitions>
                 
-                <Separator Grid.Row="0"/>
-                
-                <StackPanel Grid.Row="1" HorizontalAlignment="Stretch">
-                    <TextBlock Text="News &amp; Updates" FontSize="20" FontWeight="SemiBold" HorizontalAlignment="Left"/>
-                    <ItemsControl ItemsSource="{Binding NewsControls}" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="{ext:Space 0, 0.5}">
+                <StackPanel Grid.Row="0" HorizontalAlignment="Stretch">
+                    <TextBlock Text="News &amp; Updates" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
+                    <ItemsControl ItemsSource="{Binding NewsControls}" HorizontalAlignment="Center" Margin="{ext:Space 0, 0.5}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <WrapPanel VerticalAlignment="Center" HorizontalAlignment="Center"/>
@@ -113,11 +110,11 @@
                     </ItemsControl>
                 </StackPanel>
                 
-                <Separator Grid.Row="2"/>
+                <Separator Grid.Row="1"/>
                 
-                <StackPanel Grid.Row="3" HorizontalAlignment="Stretch">
-                    <TextBlock Text="Featured Art" FontSize="20" FontWeight="SemiBold" HorizontalAlignment="Left"/>
-                    <ItemsControl ItemsSource="{Binding FeaturedControls}" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="{ext:Space 0, 0.5}">
+                <StackPanel Grid.Row="2" HorizontalAlignment="Stretch">
+                    <TextBlock Text="Featured Art" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
+                    <ItemsControl ItemsSource="{Binding FeaturedControls}" HorizontalAlignment="Center" Margin="{ext:Space 0, 0.5}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <WrapPanel VerticalAlignment="Center" HorizontalAlignment="Center"/>
@@ -126,7 +123,7 @@
                     </ItemsControl>
                 </StackPanel>
                 
-                <Separator Grid.Row="4"/>
+                <Separator Grid.Row="3"/>
             </Grid>
         </ScrollViewer>
     </Grid>

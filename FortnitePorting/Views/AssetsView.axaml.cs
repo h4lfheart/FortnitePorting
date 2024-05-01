@@ -13,9 +13,4 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
     {
         InitializeComponent();
     }
-
-    private void Button_OnClick(object? sender, RoutedEventArgs e)
-    {
-        ToggleThemeTeachingTip1.IsOpen = true;
-    }
 }

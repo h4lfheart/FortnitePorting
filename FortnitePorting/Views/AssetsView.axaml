@@ -9,29 +9,206 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              d:DesignHeight="720" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.AssetsView"
              x:DataType="viewModels:AssetsViewModel">
-    <Grid Margin="{ext:Space 1}">
-        <DropDownButton>
-            <DropDownButton.Flyout>
-                <Flyout>
-                    <StackPanel>
-                        <TextBlock Text="hey"/>
-                        <HyperlinkButton Content="hyperlink"/>
-                        <TextBlock Text="wassup"/>
-                        <Button Content="Show TeachingTip" Click="Button_OnClick" />
-
-                        <ui:TeachingTip x:Name="ToggleThemeTeachingTip1"
-                                     Title="Change themes without hassle"
-                                     Subtitle="It's easier than ever to see control samples in both light and dark theme!">
-                            <ui:TeachingTip.IconSource>
-                                <ui:SymbolIconSource Symbol="Refresh" />
-                            </ui:TeachingTip.IconSource>
-                        </ui:TeachingTip>
-                    </StackPanel>
-                </Flyout>
-            </DropDownButton.Flyout>
-        </DropDownButton>
+    <Grid>
+        <ui:NavigationView Classes="NoBackground" PaneDisplayMode="Top" IsSettingsVisible="False">
+            <ui:NavigationView.MenuItems>
+                <ui:NavigationViewItem Content="Cosmetics" SelectsOnInvoked="False">
+                    <ui:NavigationViewItem.IconSource>
+                        <ui:ImageIconSource Source="/Assets/FN/Locker.png"/>
+                    </ui:NavigationViewItem.IconSource>
+                    <ui:NavigationViewItem.MenuItems>
+                        <ui:NavigationViewItem Content="Outfits">
+                            <ui:NavigationViewItem.IconSource>
+                                <ui:ImageIconSource Source="/Assets/FN/Outfit.png"/>
+                            </ui:NavigationViewItem.IconSource>
+                        </ui:NavigationViewItem>
+                        <ui:NavigationViewItem Content="Backpacks">
+                            <ui:NavigationViewItem.IconSource>
+                                <ui:ImageIconSource Source="/Assets/FN/Backpack.png"/>
+                            </ui:NavigationViewItem.IconSource>
+                        </ui:NavigationViewItem>
+                    </ui:NavigationViewItem.MenuItems>
+                </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="Creative" SelectsOnInvoked="False">
+                    <ui:NavigationViewItem.IconSource>
+                        <ui:ImageIconSource Source="/Assets/FN/Creative.png"/>
+                    </ui:NavigationViewItem.IconSource>
+                    <ui:NavigationViewItem.MenuItems>
+                        <ui:NavigationViewItem Content="Props">
+                            <ui:NavigationViewItem.IconSource>
+                                <ui:ImageIconSource Source="/Assets/FN/Prop.png"/>
+                            </ui:NavigationViewItem.IconSource>
+                        </ui:NavigationViewItem>
+                        <ui:NavigationViewItem Content="Prefab">
+                            <ui:NavigationViewItem.IconSource>
+                                <ui:ImageIconSource Source="/Assets/FN/Prefab.png"/>
+                            </ui:NavigationViewItem.IconSource>
+                        </ui:NavigationViewItem>
+                    </ui:NavigationViewItem.MenuItems>
+                </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="Gameplay" SelectsOnInvoked="False">
+                    <ui:NavigationViewItem.IconSource>
+                        <ui:ImageIconSource Source="/Assets/FN/Gameplay.png"/>
+                    </ui:NavigationViewItem.IconSource>
+                    <ui:NavigationViewItem.MenuItems>
+                        <ui:NavigationViewItem Content="Items">
+                            <ui:NavigationViewItem.IconSource>
+                                <ui:ImageIconSource Source="/Assets/FN/Item.png"/>
+                            </ui:NavigationViewItem.IconSource>
+                        </ui:NavigationViewItem>
+                    </ui:NavigationViewItem.MenuItems>
+                </ui:NavigationViewItem>
+                <ui:NavigationViewItemSeparator/>
+                <ui:NavigationViewItem Content="Festival" SelectsOnInvoked="False">
+                    <ui:NavigationViewItem.IconSource>
+                        <ui:ImageIconSource Source="/Assets/FN/Festival.png"/>
+                    </ui:NavigationViewItem.IconSource>
+                    <ui:NavigationViewItem.MenuItems>
+                        <ui:NavigationViewItem Content="Microphones">
+                            <ui:NavigationViewItem.IconSource>
+                                <ui:ImageIconSource Source="/Assets/FN/FestivalMic.png"/>
+                            </ui:NavigationViewItem.IconSource>
+                        </ui:NavigationViewItem>
+                    </ui:NavigationViewItem.MenuItems>
+                </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="Rocket Racing" SelectsOnInvoked="False">
+                    <ui:NavigationViewItem.IconSource>
+                        <ui:ImageIconSource Source="/Assets/FN/RocketRacing.png"/>
+                    </ui:NavigationViewItem.IconSource>
+                    <ui:NavigationViewItem.MenuItems>
+                        <ui:NavigationViewItem Content="Vehicles">
+                            <ui:NavigationViewItem.IconSource>
+                                <ui:ImageIconSource Source="/Assets/FN/RocketRacingVehicles.png"/>
+                            </ui:NavigationViewItem.IconSource>
+                        </ui:NavigationViewItem>
+                    </ui:NavigationViewItem.MenuItems>
+                </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="Lego" SelectsOnInvoked="False">
+                    <ui:NavigationViewItem.IconSource>
+                        <ui:ImageIconSource Source="/Assets/FN/Lego.png"/>
+                    </ui:NavigationViewItem.IconSource>
+                    <ui:NavigationViewItem.MenuItems>
+                        <ui:NavigationViewItem Content="Outfits">
+                            <ui:NavigationViewItem.IconSource>
+                                <ui:ImageIconSource Source="/Assets/FN/LegoOutfit.png"/>
+                            </ui:NavigationViewItem.IconSource>
+                        </ui:NavigationViewItem>
+                    </ui:NavigationViewItem.MenuItems>
+                </ui:NavigationViewItem>
+                <ui:NavigationViewItemSeparator/>
+                <ui:NavigationViewItem Content="Miscellaneous" SelectsOnInvoked="False">
+                    <ui:NavigationViewItem.IconSource>
+                        <ui:ImageIconSource Source="/Assets/FN/Misc.png"/>
+                    </ui:NavigationViewItem.IconSource>
+                    <ui:NavigationViewItem.MenuItems>
+                        <ui:NavigationViewItem Content="Wraps">
+                            <ui:NavigationViewItem.IconSource>
+                                <ui:ImageIconSource Source="/Assets/FN/Wrap.png"/>
+                            </ui:NavigationViewItem.IconSource>
+                        </ui:NavigationViewItem>
+                    </ui:NavigationViewItem.MenuItems>
+                </ui:NavigationViewItem>
+            </ui:NavigationView.MenuItems>
+            
+            <Grid Margin="{ext:Space 1}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2.5*"/>
+                    <ColumnDefinition Width="{ext:Space 1}"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <Grid Grid.Column="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="{ext:Space 1}"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="{ext:Space 1}"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="{ext:Space 1}"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="{ext:Space 1}"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="{ext:Space 1}"/>
+                            <ColumnDefinition Width="2*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <Button Grid.Column="0" ToolTip.Tip="Random" Content="{material:MaterialIconExt DiceMultiple}"/>
+                        <ToggleButton Grid.Column="2" IsChecked="{Binding DescendingSort}" ToolTip.Tip="Ascending or Descending">
+                            <material:MaterialIcon Kind="{Binding SortIcon}"/>
+                        </ToggleButton>
+                        <ComboBox Grid.Column="4" ToolTip.Tip="Sorting" HorizontalAlignment="Stretch"
+                                  ItemsSource="{ext:EnumToItemsSource {x:Type shared:EAssetSortType}}"
+                                  SelectedItem="{Binding SortType, Converter={StaticResource EnumToString}}" />
+                        <DropDownButton Grid.Column="6" HorizontalAlignment="Stretch">
+                            <DropDownButton.Flyout>
+                                <Flyout>
+                                    <StackPanel>
+                                    </StackPanel>
+                                </Flyout>
+                            </DropDownButton.Flyout>
+                            
+                            <StackPanel Orientation="Horizontal">
+                                <material:MaterialIcon Kind="Filter" Margin="{ext:Space 0, 0, 1, 0}"/>
+                                <TextBlock Text="Filters"/>
+                            </StackPanel>
+                        </DropDownButton>
+                        
+                        <TextBox Grid.Column="8" Watermark="Search"/>
+                    </Grid>
+                    
+                    <ui:FABorder Grid.Row="2">
+                    
+                    </ui:FABorder>
+                </Grid>
+                
+                <Grid Grid.Column="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <ui:FABorder Grid.Row="0">
+                    
+                    </ui:FABorder>
+                    
+                    <ui:FABorder Grid.Row="1" Margin="{ext:Space 0, 1, 0, 0}">
+                        <Grid HorizontalAlignment="Stretch" Margin="{ext:Space 1}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="{ext:Space 1}"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            
+                            <Grid Grid.Row="0" ColumnDefinitions="* 3.25*">
+                                <TextBlock Grid.Column="0" Text="Export To" VerticalAlignment="Center"
+                                           Margin="3 0 0 2" />
+                                <ComboBox Grid.Column="1"
+                                          HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                                          ItemsSource="{ext:EnumToItemsSource {x:Type shared:EExportLocation}}"
+                                          SelectedItem="{Binding ExportLocation, Converter={StaticResource EnumToString}}" />
+                            </Grid>
+                            
+                            <Button Grid.Row="2" HorizontalAlignment="Stretch">
+                                <StackPanel Orientation="Horizontal">
+                                    <material:MaterialIcon Kind="Download" Margin="{ext:Space 0, 0, 1, 0}"/>
+                                    <TextBlock Text="Export"/>
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+                    </ui:FABorder>
+                </Grid>
+            </Grid>
+            
+        </ui:NavigationView>
     </Grid>
 </UserControl>

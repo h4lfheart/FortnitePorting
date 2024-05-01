@@ -19,7 +19,7 @@
 
             <TextBlock Grid.Column="1" Text="FortnitePorting" FontWeight="SemiBold" FontSize="16"
                        HorizontalAlignment="Left" VerticalAlignment="Center" />
-            <TextBlock Grid.Column="3" Text="{Binding VersionString}" Opacity="0.5" FontSize="13" Margin="-2 2 0 0"
+            <TextBlock Grid.Column="3" Text="{Binding VersionString}" Classes="TextFillColorTertiaryBrush" FontSize="13" Margin="-2 2 0 0"
                        HorizontalAlignment="Left" VerticalAlignment="Center" />
         </Grid>
 
@@ -31,7 +31,7 @@
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItemSeparator IsVisible="{Binding SetupTabsAreVisible}"/>
-                 <ui:NavigationViewItem Content="Home" Tag="Home">
+                 <ui:NavigationViewItem Content="Home" Tag="Home" IsEnabled="{Binding !SetupTabsAreVisible}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:SymbolIconSource Symbol="Home"/>
                      </ui:NavigationViewItem.IconSource>
@@ -49,7 +49,7 @@
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItem Content="Radio" Tag="Radio" IsEnabled="{Binding GameBasedTabsAreReady}">
                      <ui:NavigationViewItem.IconSource>
-                         <ui:FontIconSource Glyph="&#xEC4F;" FontFamily="Segoe Fluent Icons"/>
+                         <ui:FontIconSource Glyph="&#xEC4F;" FontFamily="{StaticResource SymbolThemeFontFamily}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItemSeparator/>

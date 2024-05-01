@@ -3,6 +3,7 @@
              xmlns:fluentStyle="using:FluentAvalonia.Styling"
              xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
              xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+             xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              x:Class="FortnitePorting.Application.App"
              RequestedThemeVariant="Dark">
 
@@ -17,12 +18,14 @@
          <Brush x:Key="CheckBoxCheckGlyphForegroundCheckedPointerOver">#FFFFFFFF</Brush>
          <Brush x:Key="CheckBoxCheckGlyphForegroundCheckedPressed">#FFFFFFFF</Brush>
          <Brush x:Key="CheckBoxCheckGlyphForegroundCheckedDisabled">#5DFFFFFF</Brush>
+         <FontFamily x:Key="SymbolThemeFontFamily">Segoe Fluent Icons</FontFamily>
          
      </Application.Resources>
              
     <Application.Styles>
         <FluentTheme />
         <fluentStyle:FluentAvaloniaTheme/>
+        <material:MaterialIconStyles/>
         
         <Style Selector="ui|FABorder">
             <Setter Property="Background" Value="#0DFFFFFF"/>
@@ -32,40 +35,109 @@
             <Setter Property="MinHeight" Value="32"/>
         </Style>
         
-        <Style Selector="TextBlock:disabled">
-            <Setter Property="Foreground" Value="#5DFFFFFF"/>
+       <Style Selector="TextBlock:disabled">
+           <Setter Property="Foreground" Value="#5DFFFFFF"/>
+       </Style>
+       
+       <Style Selector="ui|HyperlinkButton.HyperLink">
+           <Setter Property="Padding" Value="0" />
+           <Setter Property="Background" Value="Transparent" />
+       </Style>
+       
+       <Style Selector="ui|HyperlinkButton.HyperLink:pointerover /template/ ContentPresenter">
+           <Setter Property="Background" Value="Transparent" />
+       </Style>
+       
+       <Style Selector="Expander:pointerover /template/ ContentPresenter">
+           <Setter Property="Background" Value="Transparent"/>
+       </Style>
+        
+       <Style Selector="Expander ToggleButton:pointerover /template/ ContentPresenter">
+           <Setter Property="Background" Value="Transparent"/>
+       </Style>
+        
+       <Style Selector="Expander ToggleButton:pointerover /template/ Border">
+           <Setter Property="Background" Value="#26FFFFFF"/>
+       </Style>
+        
+       <Style Selector="Expander ToggleButton:pointerover /template/ Border#ExpandCollapseChevronBorder">
+           <Setter Property="Background" Value="Transparent"/>
+       </Style>
+                   
+       <Style Selector="Expander ToggleButton:expanded /template/ ContentPresenter">
+           <Setter Property="Background" Value="Transparent"/>
+       </Style>
+        
+       <Style Selector="Expander ToggleButton:expanded /template/ Border">
+           <Setter Property="Background" Value="#26FFFFFF"/>
+       </Style>
+        
+       <Style Selector="Expander ToggleButton:checked /template/ ContentPresenter">
+           <Setter Property="Background" Value="Transparent"/>
+       </Style>
+        
+        <Style Selector="ui|NavigationView.NoBackground /template/ Border#ContentGridBorder">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
         </Style>
         
-        <Style Selector="ui|HyperlinkButton.HyperLink">
-            <Setter Property="Padding" Value="0" />
-            <Setter Property="Background" Value="Transparent" />
+        <Style Selector="ui|NavigationView.NoBackground /template/ StackPanel#TopNavArea">
+            <Setter Property="Background" Value="#16000000"/>
         </Style>
         
-        <Style Selector="ui|HyperlinkButton.HyperLink:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="Transparent" />
+        <Style Selector="material|MaterialIcon">
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+       
+       <Style Selector="TextBlock.CaptionTextBlockStyle">
+           <Setter Property="FontSize" Value="12"/>
+           <Setter Property="FontWeight" Value="Normal"/>
+       </Style>
+       
+       <Style Selector="TextBlock.BodyTextBlockStyle">
+           <Setter Property="FontSize" Value="14"/>
+           <Setter Property="FontWeight" Value="Normal"/>
+       </Style>
+        
+        <Style Selector="TextBlock.BodyStrongTextBlockStyle">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
         </Style>
         
-        <Style Selector="Expander:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="Transparent"/>
+        <Style Selector="TextBlock.SubtitleTextBlockStyle">
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
         </Style>
-        <Style Selector="Expander ToggleButton:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="Transparent"/>
+        
+        <Style Selector="TextBlock.TitleTextBlockStyle">
+            <Setter Property="FontSize" Value="28"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
         </Style>
-        <Style Selector="Expander ToggleButton:pointerover /template/ Border">
-            <Setter Property="Background" Value="#26FFFFFF"/>
+        
+        <Style Selector="TextBlock.TitleLargeTextBlockStyle">
+            <Setter Property="FontSize" Value="40"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
         </Style>
-        <Style Selector="Expander ToggleButton:pointerover /template/ Border#ExpandCollapseChevronBorder">
-            <Setter Property="Background" Value="Transparent"/>
+        
+        <Style Selector="TextBlock.TextFillColorPrimaryBrush">
+            <Setter Property="Foreground" Value="#E4E4E4"/>
         </Style>
-                    
-        <Style Selector="Expander ToggleButton:expanded /template/ ContentPresenter">
-            <Setter Property="Background" Value="Transparent"/>
+        
+        <Style Selector="TextBlock.TextFillColorSecondaryBrush">
+            <Setter Property="Foreground" Value="#C5FFFFFF"/>
         </Style>
-        <Style Selector="Expander ToggleButton:expanded /template/ Border">
-            <Setter Property="Background" Value="#26FFFFFF"/>
+        
+        <Style Selector="TextBlock.TextFillColorTertiaryBrush">
+            <Setter Property="Foreground" Value="#9E9E9E"/>
         </Style>
-        <Style Selector="Expander ToggleButton:checked /template/ ContentPresenter">
-            <Setter Property="Background" Value="Transparent"/>
+        
+        <Style Selector="TextBlock.TextFillColorQuaternaryBrush">
+            <Setter Property="Foreground" Value="#727272"/>
+        </Style>
+        
+        <Style Selector="TextBlock.TextFillColorDisabledBrush">
+            <Setter Property="Foreground" Value="#5C5C5C"/>
         </Style>
     </Application.Styles>
 </Application>

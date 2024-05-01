@@ -26,9 +26,9 @@
         <controls:CustomBlurBehind Grid.Row="1" Margin="1"/>
         <ui:FABorder Grid.Row="1" CornerRadius="0, 0, 3, 3" Background="#FF090014" Opacity="0.75"/>
         <Grid Grid.Row="1" RowDefinitions="Auto Auto Auto" Margin="{ext:Space 1, 0.25, 1, 0}">
-            <TextBlock Grid.Row="0" Text="{Binding Response.Title, RelativeSource={RelativeSource AncestorType=controls:NewsControl}}" FontSize="20" FontWeight="SemiBold"/>
-            <TextBlock Grid.Row="1" Text="{Binding Response.SubTitle, RelativeSource={RelativeSource AncestorType=controls:NewsControl}}" Opacity="0.9" FontSize="14"/>
-            <TextBlock Grid.Row="2" Text="{Binding Response.Date, StringFormat='{}{0:MM-dd-yyyy}', RelativeSource={RelativeSource AncestorType=controls:NewsControl}}" Opacity="0.8" FontSize="12"/>
+            <TextBlock Grid.Row="0" Text="{Binding Response.Title, RelativeSource={RelativeSource AncestorType=controls:NewsControl}}" Classes="SubtitleTextBlockStyle"/>
+            <TextBlock Grid.Row="1" Text="{Binding Response.SubTitle, RelativeSource={RelativeSource AncestorType=controls:NewsControl}}" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"/>
+            <TextBlock Grid.Row="2" Text="{Binding Response.Date, StringFormat='{}{0:MM-dd-yyyy}', RelativeSource={RelativeSource AncestorType=controls:NewsControl}}" Classes="CaptionTextBlockStyle TextFillColorTertiaryBrush"/>
         </Grid>
     </Grid>
 </UserControl>

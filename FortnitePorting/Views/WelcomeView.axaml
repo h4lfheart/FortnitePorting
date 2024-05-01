@@ -29,14 +29,14 @@
                     </LinearGradientBrush>
                 </Image.OpacityMask>
             </Image>
-            <TextBlock Text="Welcome to FortnitePorting!" FontSize="48" FontWeight="SemiBold" HorizontalAlignment="Center"
+            <TextBlock Text="Welcome to FortnitePorting!" Classes="TitleLargeTextBlockStyle" HorizontalAlignment="Center"
                        VerticalAlignment="Center">
                 <TextBlock.Effect>
                     <DropShadowEffect BlurRadius="15" Color="#5F000000" OffsetX="0" OffsetY="0" />
                 </TextBlock.Effect>
             </TextBlock>
             <TextBlock Margin="0 80 0 0" Text="Please select your Fortnite installation settings to get started." HorizontalAlignment="Center"
-                       VerticalAlignment="Center">
+                       VerticalAlignment="Center" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush">
                 <TextBlock.Effect>
                     <DropShadowEffect BlurRadius="15" Color="#5F000000" OffsetX="0" OffsetY="0" />
                 </TextBlock.Effect>
