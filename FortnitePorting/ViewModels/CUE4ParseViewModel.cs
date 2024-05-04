@@ -266,6 +266,7 @@ public class CUE4ParseViewModel : ViewModelBase
             }
             case ELoadingType.Custom:
             {
+                if (!AppSettings.Current.UseCustomMappingsPath) return;
                 if (!File.Exists(AppSettings.Current.CustomMappingsPath)) return; // optional
                 Provider.MappingsContainer = new FileUsmapTypeMappingsProvider(AppSettings.Current.CustomMappingsPath);
                 OptionalProvider.MappingsContainer = new FileUsmapTypeMappingsProvider(AppSettings.Current.CustomMappingsPath);

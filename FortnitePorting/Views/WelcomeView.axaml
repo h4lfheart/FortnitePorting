@@ -53,7 +53,10 @@
                         </controls:SettingBox>
                         <controls:SettingBox Grid.Row="2" DisplayName="Mappings File"
                                              Path="{Binding CustomMappingsPath, Mode=TwoWay}" Icon="File">
-                            <Button Content="Browse" Command="{Binding BrowseMappingsFileCommand}" />
+                            <StackPanel Orientation="Horizontal">
+                                <CheckBox IsChecked="{Binding UseCustomMappingsPath, Mode=TwoWay}"/>
+                                <Button Content="Browse" Command="{Binding BrowseMappingsFileCommand}" IsEnabled="{Binding UseCustomMappingsPath}"/>
+                            </StackPanel>
                         </controls:SettingBox>
                         <controls:SettingBox Grid.Row="3" DisplayName="Encryption Key"
                                              Path="{Binding CustomEncryptionKey, Mode=TwoWay}" Icon="Key">
