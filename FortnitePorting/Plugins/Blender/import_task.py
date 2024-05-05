@@ -710,7 +710,7 @@ class DataImportTask:
                         pose_bone.rotation_quaternion.normalize()
                         contributed = True
 
-                    # Fast check: Do not create shape keys if no bones moved
+                    # Do not create shape keys if nothing changed
                     if not contributed:
                         continue
 
@@ -719,6 +719,8 @@ class DataImportTask:
                     bpy.context.view_layer.objects.active = imported_mesh
                     bpy.ops.object.modifier_apply_as_shapekey(keep_modifier=True,
                                                                 modifier=armature_modifier.name)
+
+                    # Use name from pose data
                     imported_mesh.data.shape_keys.key_blocks[-1].name = pose_name
             except Exception as e:
                 Log.error("Failed to import PoseAsset data from "
