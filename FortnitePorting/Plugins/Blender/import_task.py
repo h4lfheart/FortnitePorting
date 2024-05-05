@@ -4,6 +4,8 @@ import json
 import re
 import bmesh
 import traceback
+import numpy as np
+from numpy.typing import NDArray
 from enum import Enum
 from math import radians
 from mathutils import Matrix, Vector, Euler, Quaternion
@@ -638,6 +640,13 @@ class DataImportTask:
                     # Create Basis shape key
                     imported_mesh.shape_key_add(name="Basis", from_mix=False)
 
+                # WARNING: Assumption is that all created shape keys use the
+                # Basis shape key as the relative key.
+                basis_shape_key = imported_mesh.data.shape_keys.key_blocks[0]
+                basis_shape_key_values = np.empty(
+                    len(basis_shape_key.data) * 3, dtype=np.single)
+                basis_shape_key.data.foreach_get("co", basis_shape_key_values)
+
                 # NOTE: I think faceAttach affects the expected location
                 # I'm making this assumption from observation of an old
                 # export of face poses for Polar Patroller.
@@ -662,6 +671,7 @@ class DataImportTask:
 
                     # Move bones accordingly
                     contributed = False
+                    skip_slow_check = False
                     for bone in influences:
                         if not (bone_name := bone.get('Name')):
                             Log.warn(f"empty bone name for pose {pose}")
@@ -677,9 +687,12 @@ class DataImportTask:
                                 Log.warn(f"could not find: {bone_name} for pose {pose_name}")
                             continue
 
-                        # Check if there's a vertex group associated with the pose bone
-                        # If not, no reason to pose it.
-                        if pose_bone.name not in imported_mesh.vertex_groups:
+                        # If there's a vertex group associated with the pose
+                        # bone then there's at least some vertices that are
+                        # being affected. Therefore, no need to execute the
+                        # much slower basis <-> new shape key difference check.
+                        if not skip_slow_check and pose_bone.name in imported_mesh.vertex_groups:
+                            skip_slow_check = True
                             continue
 
                         # Reset bone to identity
@@ -710,7 +723,7 @@ class DataImportTask:
                         pose_bone.rotation_quaternion.normalize()
                         contributed = True
 
-                    # Do not create shape keys if nothing changed
+                    # Fast check: Do not create shape keys if no bones moved
                     if not contributed:
                         continue
 
@@ -720,8 +733,20 @@ class DataImportTask:
                     bpy.ops.object.modifier_apply_as_shapekey(keep_modifier=True,
                                                                 modifier=armature_modifier.name)
 
+                    shape_key = imported_mesh.data.shape_keys.key_blocks[-1]
+
+                    # Slow check: Ensure shape key changed from basis. Helps
+                    # catch edge cases like the Jaw in metahuman characters
+                    # being driven by a parent bone which has no associated
+                    # vertex groups
+                    if not skip_slow_check and not shape_key_differs_from_basis(shape_key, basis_shape_key_values):
+                        # Remove created shape key
+                        imported_mesh.active_shape_key_index = len(imported_mesh.data.shape_keys.key_blocks) - 1
+                        bpy.ops.object.shape_key_remove()
+                        continue
+
                     # Use name from pose data
-                    imported_mesh.data.shape_keys.key_blocks[-1].name = pose_name
+                    shape_key.name = pose_name
             except Exception as e:
                 Log.error("Failed to import PoseAsset data from "
                             f"{imported_mesh.name}: {e}")
@@ -1527,6 +1552,18 @@ def clear_bone_poses_recursive(skeleton, anim, bone_name):
         for fcurve in dispose_curves:
             anim.fcurves.remove(fcurve)
     bpy.ops.object.mode_set(mode='OBJECT')
+
+def shape_key_differs_from_basis(shape_key: bpy.types.ShapeKey,
+                                 basis_shape_key_values: NDArray[np.single]):
+    num_vertices = len(shape_key.data) * 3
+    assert num_vertices == len(basis_shape_key_values), "mismatched vertices size"
+    vertices = np.empty(num_vertices, dtype=np.single)
+    shape_key.data.foreach_get('co', vertices)
+    return not np.allclose(vertices,
+                           basis_shape_key_values,
+                           rtol=1e-03,
+                           atol=1e-07,
+                           equal_nan=True)
 
 class LazyInit:
     
