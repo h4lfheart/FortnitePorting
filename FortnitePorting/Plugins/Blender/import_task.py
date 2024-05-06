@@ -615,7 +615,6 @@ class DataImportTask:
         meta.update(get_meta(["PoseData", "ReferencePose"]))
         if (pose_data := meta.get("PoseData")):
             is_head = mesh_type == "Head"
-            shape_keys = imported_mesh.data.shape_keys
             armature: bpy.types.Object = imported_object
             original_mode = bpy.context.active_object.mode
             try:
@@ -634,9 +633,16 @@ class DataImportTask:
                             face_attach_scale = scale
                         Log.warn(f"Non-zero scale: {entry}")
 
-                if not shape_keys:
-                    # Create Basis shape key
+                if not imported_mesh.data.shape_keys:
+                    # Use Blender's default name for the initial shape key.
                     imported_mesh.shape_key_add(name="Basis", from_mix=False)
+                else:
+                    # Use a name with underscore to reduce chances of possible
+                    # conflict. Create the basis from mix in-case existing
+                    # morphs are expecting to be set for a given character's
+                    # style (i.e. hoodie on for Miss Bunny Penny)
+                    imported_mesh.shape_key_add(name="_FaceBasis", from_mix=True)
+                face_basis_key = imported_mesh.data.shape_keys.key_blocks[-1]
 
                 # NOTE: I think faceAttach affects the expected location
                 # I'm making this assumption from observation of an old
@@ -719,9 +725,16 @@ class DataImportTask:
                     bpy.context.view_layer.objects.active = imported_mesh
                     bpy.ops.object.modifier_apply_as_shapekey(keep_modifier=True,
                                                                 modifier=armature_modifier.name)
+                    shape_key = imported_mesh.data.shape_keys.key_blocks[-1]
+                    shape_key.name = pose_name
+                    shape_key.relative_key = face_basis_key
 
-                    # Use name from pose data
-                    imported_mesh.data.shape_keys.key_blocks[-1].name = pose_name
+                # If there's only one shape key and it's the basis we created
+                # remove it since it's useless
+                if len(imported_mesh.data.shape_keys.key_blocks) == 1 and \
+                    imported_mesh.data.shape_keys.key_blocks[-1] == face_basis_key:
+                    imported_mesh.shape_key_remove(face_basis_key)
+
             except Exception as e:
                 Log.error("Failed to import PoseAsset data from "
                             f"{imported_mesh.name}: {e}")
