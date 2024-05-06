@@ -48,7 +48,7 @@ public partial class AssetOptions : UserControl
     {
         return Styles.Items
             .Cast<StyleItem>()
-            .Select(x => (StyleEntry) x.StylesListBox.SelectedItem!)
+            .Select(x => (StyleEntry) (x.StylesListBox.SelectedItem ?? x.Styles.FirstOrDefault())!)
             .RemoveNull()
             .Select(x => x.StyleInfo)
             .ToArray();

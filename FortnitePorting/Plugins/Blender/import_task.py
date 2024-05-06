@@ -597,22 +597,8 @@ class DataImportTask:
                         out_props[found_key] = meta.get(found_key)
             return out_props
 
-        # fetch metadata
-        match mesh_type:
-            case "Body":
-                meta = get_meta(["SkinColor"])
-            case "Head":
-                meta = get_meta(["MorphNames", "HatType"])
-                shape_keys = imported_mesh.data.shape_keys
-                if (morph_name := meta.get("MorphNames").get(meta.get("HatType"))) and shape_keys is not None:
-                    for key in shape_keys.key_blocks:
-                        if key.name.casefold() == morph_name.casefold():
-                            key.value = 1.0
-            case _:
-                meta = {}
-
         # fetch pose data
-        meta.update(get_meta(["PoseData", "ReferencePose"]))
+        meta = get_meta(["PoseData", "ReferencePose"])
         if (pose_data := meta.get("PoseData")):
             is_head = mesh_type == "Head"
             shape_keys = imported_mesh.data.shape_keys
@@ -733,6 +719,18 @@ class DataImportTask:
                 bpy.ops.pose.transforms_clear()
                 bpy.ops.pose.select_all(action='DESELECT')
                 bpy.ops.object.mode_set(mode=original_mode)
+
+        # fetch metadata
+        match mesh_type:
+            case "Body":
+                meta.update(get_meta(["SkinColor"]))
+            case "Head":
+                meta.update(get_meta(["MorphNames", "HatType"]))
+                shape_keys = imported_mesh.data.shape_keys
+                if (morph_name := meta.get("MorphNames").get(meta.get("HatType"))) and shape_keys is not None:
+                    for key in shape_keys.key_blocks:
+                        if key.name.casefold() == morph_name.casefold():
+                            key.value = 1.0
 
         if self.options.get("UseQuads"):
             bpy.context.view_layer.objects.active = imported_mesh
