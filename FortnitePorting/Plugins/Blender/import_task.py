@@ -677,9 +677,9 @@ class DataImportTask:
                                 Log.warn(f"could not find: {bone_name} for pose {pose_name}")
                             continue
 
-                        # Check if there's a vertex group associated with the pose bone
-                        # If not, no reason to pose it.
-                        if pose_bone.name not in imported_mesh.vertex_groups:
+                        # Verify that the current bone and all of its children
+                        # have at least one vertex group associated with it
+                        if not bone_hierarchy_has_vertex_groups(pose_bone, imported_mesh.vertex_groups):
                             continue
 
                         # Reset bone to identity
@@ -1527,6 +1527,16 @@ def clear_bone_poses_recursive(skeleton, anim, bone_name):
         for fcurve in dispose_curves:
             anim.fcurves.remove(fcurve)
     bpy.ops.object.mode_set(mode='OBJECT')
+
+def bone_hierarchy_has_vertex_groups(bone, vertex_groups):
+    # Traverse down bone hierarchy until at least one child bone or itself has
+    # an associated vertex group.
+    bone_list = [bone]
+    while bone_list and (curr_bone := bone_list.pop()):
+        if curr_bone.name in vertex_groups:
+            return True
+        bone_list.extend(bone.children)
+    return False
 
 class LazyInit:
     
