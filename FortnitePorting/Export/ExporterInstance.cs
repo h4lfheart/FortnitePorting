@@ -254,6 +254,16 @@ public class ExporterInstance
             if (staticMesh is not null) exportWeapons.AddIfNotNull(staticMesh);
         }
 
+        if (exportWeapons.Count == 0 && weaponDefinition.TryGetValue(out FStructFallback componentContainer, "ComponentContainer"))
+        {
+            var components = componentContainer.Get<UObject[]>("Components");
+            if (components.FirstOrDefault(component => component.ExportType.Equals("FortItemComponent_Pickup")) is { } pickupComponent)
+            {
+                var staticMesh = pickupComponent.GetOrDefault<UStaticMesh?>("PickupStaticMesh");
+                if (staticMesh is not null) exportWeapons.AddIfNotNull(staticMesh);
+            }
+        }
+
         if (exportWeapons.Count == 0 && weaponDefinition.TryGetValue(out UBlueprintGeneratedClass weaponActorClass, "WeaponActorClass"))
         {
             var weaponActorData = weaponActorClass.ClassDefaultObject.Load()!;
