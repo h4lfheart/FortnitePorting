@@ -1527,6 +1527,8 @@ def clear_bone_poses_recursive(skeleton, anim, bone_name):
     bpy.ops.object.mode_set(mode='OBJECT')
 
 def bone_hierarchy_has_vertex_groups(bone, vertex_groups):
+    if bone.name in vertex_groups:
+       return True
     children = bone.children_recursive
     for child in children:
         if child.name in vertex_groups:
