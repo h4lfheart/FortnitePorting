@@ -11,110 +11,15 @@
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
              xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:controls1="clr-namespace:Avalonia.Controls"
+             xmlns:wrapPanel="clr-namespace:FortnitePorting.Controls.WrapPanel"
+             xmlns:assets="clr-namespace:FortnitePorting.Models.Assets"
              d:DesignHeight="720" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.AssetsView"
              x:DataType="viewModels:AssetsViewModel">
     <Grid>
-        <ui:NavigationView Classes="NoBackground" PaneDisplayMode="Top" IsSettingsVisible="False">
-            <ui:NavigationView.MenuItems>
-                <ui:NavigationViewItem Content="Cosmetics" SelectsOnInvoked="False">
-                    <ui:NavigationViewItem.IconSource>
-                        <ui:ImageIconSource Source="/Assets/FN/Locker.png"/>
-                    </ui:NavigationViewItem.IconSource>
-                    <ui:NavigationViewItem.MenuItems>
-                        <ui:NavigationViewItem Content="Outfits">
-                            <ui:NavigationViewItem.IconSource>
-                                <ui:ImageIconSource Source="/Assets/FN/Outfit.png"/>
-                            </ui:NavigationViewItem.IconSource>
-                        </ui:NavigationViewItem>
-                        <ui:NavigationViewItem Content="Backpacks">
-                            <ui:NavigationViewItem.IconSource>
-                                <ui:ImageIconSource Source="/Assets/FN/Backpack.png"/>
-                            </ui:NavigationViewItem.IconSource>
-                        </ui:NavigationViewItem>
-                    </ui:NavigationViewItem.MenuItems>
-                </ui:NavigationViewItem>
-                <ui:NavigationViewItem Content="Creative" SelectsOnInvoked="False">
-                    <ui:NavigationViewItem.IconSource>
-                        <ui:ImageIconSource Source="/Assets/FN/Creative.png"/>
-                    </ui:NavigationViewItem.IconSource>
-                    <ui:NavigationViewItem.MenuItems>
-                        <ui:NavigationViewItem Content="Props">
-                            <ui:NavigationViewItem.IconSource>
-                                <ui:ImageIconSource Source="/Assets/FN/Prop.png"/>
-                            </ui:NavigationViewItem.IconSource>
-                        </ui:NavigationViewItem>
-                        <ui:NavigationViewItem Content="Prefab">
-                            <ui:NavigationViewItem.IconSource>
-                                <ui:ImageIconSource Source="/Assets/FN/Prefab.png"/>
-                            </ui:NavigationViewItem.IconSource>
-                        </ui:NavigationViewItem>
-                    </ui:NavigationViewItem.MenuItems>
-                </ui:NavigationViewItem>
-                <ui:NavigationViewItem Content="Gameplay" SelectsOnInvoked="False">
-                    <ui:NavigationViewItem.IconSource>
-                        <ui:ImageIconSource Source="/Assets/FN/Gameplay.png"/>
-                    </ui:NavigationViewItem.IconSource>
-                    <ui:NavigationViewItem.MenuItems>
-                        <ui:NavigationViewItem Content="Items">
-                            <ui:NavigationViewItem.IconSource>
-                                <ui:ImageIconSource Source="/Assets/FN/Item.png"/>
-                            </ui:NavigationViewItem.IconSource>
-                        </ui:NavigationViewItem>
-                    </ui:NavigationViewItem.MenuItems>
-                </ui:NavigationViewItem>
-                <ui:NavigationViewItemSeparator/>
-                <ui:NavigationViewItem Content="Festival" SelectsOnInvoked="False">
-                    <ui:NavigationViewItem.IconSource>
-                        <ui:ImageIconSource Source="/Assets/FN/Festival.png"/>
-                    </ui:NavigationViewItem.IconSource>
-                    <ui:NavigationViewItem.MenuItems>
-                        <ui:NavigationViewItem Content="Microphones">
-                            <ui:NavigationViewItem.IconSource>
-                                <ui:ImageIconSource Source="/Assets/FN/FestivalMic.png"/>
-                            </ui:NavigationViewItem.IconSource>
-                        </ui:NavigationViewItem>
-                    </ui:NavigationViewItem.MenuItems>
-                </ui:NavigationViewItem>
-                <ui:NavigationViewItem Content="Rocket Racing" SelectsOnInvoked="False">
-                    <ui:NavigationViewItem.IconSource>
-                        <ui:ImageIconSource Source="/Assets/FN/RocketRacing.png"/>
-                    </ui:NavigationViewItem.IconSource>
-                    <ui:NavigationViewItem.MenuItems>
-                        <ui:NavigationViewItem Content="Vehicles">
-                            <ui:NavigationViewItem.IconSource>
-                                <ui:ImageIconSource Source="/Assets/FN/RocketRacingVehicles.png"/>
-                            </ui:NavigationViewItem.IconSource>
-                        </ui:NavigationViewItem>
-                    </ui:NavigationViewItem.MenuItems>
-                </ui:NavigationViewItem>
-                <ui:NavigationViewItem Content="Lego" SelectsOnInvoked="False">
-                    <ui:NavigationViewItem.IconSource>
-                        <ui:ImageIconSource Source="/Assets/FN/Lego.png"/>
-                    </ui:NavigationViewItem.IconSource>
-                    <ui:NavigationViewItem.MenuItems>
-                        <ui:NavigationViewItem Content="Outfits">
-                            <ui:NavigationViewItem.IconSource>
-                                <ui:ImageIconSource Source="/Assets/FN/LegoOutfit.png"/>
-                            </ui:NavigationViewItem.IconSource>
-                        </ui:NavigationViewItem>
-                    </ui:NavigationViewItem.MenuItems>
-                </ui:NavigationViewItem>
-                <ui:NavigationViewItemSeparator/>
-                <ui:NavigationViewItem Content="Miscellaneous" SelectsOnInvoked="False">
-                    <ui:NavigationViewItem.IconSource>
-                        <ui:ImageIconSource Source="/Assets/FN/Misc.png"/>
-                    </ui:NavigationViewItem.IconSource>
-                    <ui:NavigationViewItem.MenuItems>
-                        <ui:NavigationViewItem Content="Wraps">
-                            <ui:NavigationViewItem.IconSource>
-                                <ui:ImageIconSource Source="/Assets/FN/Wrap.png"/>
-                            </ui:NavigationViewItem.IconSource>
-                        </ui:NavigationViewItem>
-                    </ui:NavigationViewItem.MenuItems>
-                </ui:NavigationViewItem>
-            </ui:NavigationView.MenuItems>
-            
+        <ui:NavigationView Classes="NoBackground" PaneDisplayMode="Top" IsSettingsVisible="False" 
+                           MenuItemsSource="{Binding AssetLoaderCollection.NavItems}"
+                           IsPaneVisible="{Binding IsPaneOpen}">
             <Grid Margin="{ext:Space 1}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="2.6*"/>
@@ -135,6 +40,8 @@
                             <ColumnDefinition Width="{ext:Space 1}"/>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="{ext:Space 1}"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="{ext:Space 1}"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="{ext:Space 1}"/>
                             <ColumnDefinition Width="*"/>
@@ -142,14 +49,17 @@
                             <ColumnDefinition Width="2*"/>
                         </Grid.ColumnDefinitions>
                         
-                        <Button Grid.Column="0" ToolTip.Tip="Random" Content="{material:MaterialIconExt DiceMultiple}"/>
-                        <ToggleButton Grid.Column="2" IsChecked="{Binding DescendingSort}" ToolTip.Tip="Ascending or Descending">
+                        <ToggleButton Grid.Column="0" IsChecked="{Binding IsPaneOpen, Mode=TwoWay}" ToolTip.Tip="Asset Type Navigation">
+                            <material:MaterialIcon Kind="Menu"/>
+                        </ToggleButton>
+                        <Button Grid.Column="2" ToolTip.Tip="Random" Content="{material:MaterialIconExt DiceMultiple}" Click="OnRandomButtonPressed"/>
+                        <ToggleButton Grid.Column="4" IsChecked="{Binding DescendingSort}" ToolTip.Tip="Ascending or Descending">
                             <material:MaterialIcon Kind="{Binding SortIcon}"/>
                         </ToggleButton>
-                        <ComboBox Grid.Column="4" ToolTip.Tip="Sorting" HorizontalAlignment="Stretch"
+                        <ComboBox Grid.Column="6" ToolTip.Tip="Sorting" HorizontalAlignment="Stretch"
                                   ItemsSource="{ext:EnumToItemsSource {x:Type shared:EAssetSortType}}"
                                   SelectedItem="{Binding SortType, Converter={StaticResource EnumToString}}" />
-                        <DropDownButton Grid.Column="6" HorizontalAlignment="Stretch">
+                        <DropDownButton Grid.Column="8" HorizontalAlignment="Stretch">
                             <DropDownButton.Flyout>
                                 <Flyout>
                                     <StackPanel>
@@ -163,11 +73,11 @@
                             </StackPanel>
                         </DropDownButton>
                         
-                        <TextBox Grid.Column="8" Watermark="Search"/>
+                        <TextBox Grid.Column="10" Watermark="Search"/>
                     </Grid>
                     
                     <ui:FABorder Grid.Row="2">
-                        <ListBox ItemsSource="{Binding CurrentAssetCollection}" SelectionMode="Multiple"
+                        <ListBox x:Name="AssetsListBox" ItemsSource="{Binding AssetLoaderCollection.ActiveCollection}" SelectionMode="Multiple"
                                  AutoScrollToSelectedItem="False">
                             <ListBox.Styles>
                                 <Style Selector="ListBoxItem">
@@ -176,7 +86,7 @@
                                 </Style>
                             </ListBox.Styles>
                             <ListBox.ItemTemplate>
-                                <DataTemplate DataType="controls:AssetItem">
+                                <DataTemplate DataType="assets:AssetItem">
                                     <ContentControl Padding="8">
                                         <StackPanel Width="{Binding DisplayWidth}" 
                                                     ToolTip.Tip="{Binding CreationData.Object.Name}">
@@ -199,7 +109,7 @@
                             </ListBox.ItemTemplate>
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <WrapPanel/>
+                                    <wrapPanel:VirtualizingWrapPanel/>
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
                         </ListBox>

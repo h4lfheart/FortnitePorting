@@ -44,8 +44,9 @@
         <DependentUpon>FeaturedControl.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
-      <Compile Update="Controls\AssetItem.axaml.cs">
-        <DependentUpon>AssetItem.axaml.bak</DependentUpon>
+      <Compile Update="Models\Assets\AssetItem.cs">
+        <DependentUpon>AssetItem.axaml</DependentUpon>
+        <SubType>Code</SubType>
       </Compile>
     </ItemGroup>
 </Project>

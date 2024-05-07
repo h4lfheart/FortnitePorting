@@ -17,4 +17,11 @@ public static class ImageExtensions
         }
        
     }
+
+    public static Bitmap AvaresBitmap(string path)
+    {
+        var uri = new Uri(path);
+        var stream = AssetLoader.Open(uri);
+        return new Bitmap(stream);
+    }
 }

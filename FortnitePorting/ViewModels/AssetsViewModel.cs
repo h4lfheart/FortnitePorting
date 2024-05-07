@@ -21,10 +21,8 @@ namespace FortnitePorting.ViewModels;
 
 public partial class AssetsViewModel : ViewModelBase
 {
-    public List<AssetLoader> Loaders;
-
-    [ObservableProperty] private AssetLoader _currentAssetLoader;
-    [ObservableProperty] private ReadOnlyObservableCollection<AssetItem> _currentAssetCollection;
+    [ObservableProperty] private bool _isPaneOpen = true;
+    [ObservableProperty] private AssetLoaderCollection _assetLoaderCollection;
     
     [ObservableProperty, NotifyPropertyChangedFor(nameof(SortIcon))] private bool _descendingSort = false;
     public MaterialIconKind SortIcon => DescendingSort ? MaterialIconKind.SortDescending : MaterialIconKind.SortAscending;
@@ -63,49 +61,14 @@ public partial class AssetsViewModel : ViewModelBase
 
     public override async Task Initialize()
     {
-        Loaders = 
-        [
-            new AssetLoader(EAssetType.Outfit)
-            {
-                ClassNames = ["AthenaCharacterItemDefinition"],
-                PlaceholderIconPath = "FortniteGame/Content/Athena/Prototype/Textures/T_Placeholder_Item_Outfit",
-                IconHandler = asset =>
-                {
-                    asset.TryGetValue(out UTexture2D? previewImage, "SmallPreviewImage", "LargePreviewImage");
-                    if (asset.TryGetValue(out UObject hero, "HeroDefinition")) 
-                        hero.TryGetValue(out previewImage, "SmallPreviewImage", "LargePreviewImage");
-
-                    return previewImage;
-                }
-            }
-        ];
-        SetAssetType(EAssetType.Outfit);
-        await CurrentAssetLoader.Load();
+        AssetLoaderCollection = new AssetLoaderCollection();
+        await AssetLoaderCollection.Load(EAssetType.Outfit);
     }
-
-    public void SetAssetType(EAssetType assetType)
-    {
-        CurrentAssetLoader = Loaders.First(loader => loader.Type == assetType);
-        CurrentAssetCollection = CurrentAssetLoader.Filtered;
-    }
+    
 
     public void ResetDebug()
     {
-        CurrentAssetLoader = new AssetLoader(EAssetType.Outfit)
-        {
-            ClassNames = ["AthenaCharacterItemDefinition"],
-            PlaceholderIconPath = "FortniteGame/Content/Athena/Prototype/Textures/T_Placeholder_Item_Outfit",
-            IconHandler = asset =>
-            {
-                asset.TryGetValue(out UTexture2D? previewImage, "SmallPreviewImage", "LargePreviewImage");
-                if (asset.TryGetValue(out UObject hero, "HeroDefinition"))
-                    hero.TryGetValue(out previewImage, "SmallPreviewImage", "LargePreviewImage");
-
-                return previewImage;
-            }
-        };
-        CurrentAssetCollection = CurrentAssetLoader.Filtered;
-        CurrentAssetLoader.Source.Clear();
-        TaskService.Run(CurrentAssetLoader.Load);
+        AssetLoaderCollection = new AssetLoaderCollection();
+        TaskService.Run(async () => await AssetLoaderCollection.Load(EAssetType.Outfit));
     }
 }

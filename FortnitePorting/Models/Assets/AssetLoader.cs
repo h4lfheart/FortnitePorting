@@ -22,20 +22,16 @@ using Serilog;
 
 namespace FortnitePorting.Models.Assets;
 
-public partial class AssetLoader : ObservableObject
+public class AssetLoader
 {
     public readonly EAssetType Type;
-    
+
+    public bool DefaultSelected;
     public string[] ClassNames = [];
     public string PlaceholderIconPath = "FortniteGame/Content/Athena/Prototype/Textures/T_Placeholder_Generic";
     public Func<UObject, UTexture2D?> IconHandler = asset => asset.GetAnyOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage");
-    public Func<UObject, string> DisplayNameHandler = asset =>
-    {
-        var fText = asset.GetAnyOrDefault<FText?>("DisplayName", "ItemName");
-        var text = fText?.Text;
-        return string.IsNullOrWhiteSpace(text) ? asset.Name : text;
-    };
-
+    public Func<UObject, string?> DisplayNameHandler = asset => asset.GetAnyOrDefault<FText?>("DisplayName", "ItemName")?.Text;
+    
     public readonly ReadOnlyObservableCollection<AssetItem> Filtered;
     public SourceCache<AssetItem, Guid> Source = new(item => item.Guid);
 
@@ -93,12 +89,17 @@ public partial class AssetLoader : ObservableObject
     
     private async Task LoadAsset(UObject asset)
     {
+        var icon = IconHandler(asset) ?? await CUE4ParseVM.Provider.TryLoadObjectAsync<UTexture2D>(PlaceholderIconPath);
+        if (icon is null) return;
+        
+        var displayName = DisplayNameHandler(asset);
+        if (string.IsNullOrWhiteSpace(displayName)) displayName = asset.Name;
         
         var args = new AssetItemCreationArgs
         {
             Object = asset,
-            Icon = IconHandler(asset) ?? await CUE4ParseVM.Provider.TryLoadObjectAsync<UTexture2D>(PlaceholderIconPath),
-            DisplayName = DisplayNameHandler(asset),
+            Icon = icon,
+            DisplayName = displayName,
             AssetType = EAssetType.None
         };
 

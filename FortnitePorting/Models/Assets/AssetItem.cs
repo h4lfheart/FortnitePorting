@@ -1,30 +1,20 @@
 using System;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
-using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 using Avalonia.Media.Imaging;
-using Avalonia.Platform;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.GameTypes.FN.Enums;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Texture;
-using CUE4Parse.UE4.Objects.Core.Misc;
 using CUE4Parse.UE4.Objects.GameplayTags;
 using CUE4Parse.Utils;
 using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
-using FortnitePorting.Shared.Services;
-using Serilog;
 using SkiaSharp;
 using SkiaExtensions = FortnitePorting.Shared.Extensions.SkiaExtensions;
 
-namespace FortnitePorting.Controls;
+namespace FortnitePorting.Models.Assets;
 
-// todo make better for not issues
+
 public class AssetItem
 {
     public AssetItemCreationArgs CreationData { get; set; }
@@ -34,7 +24,7 @@ public class AssetItem
     public EFortRarity Rarity { get; set; }
     public int Season { get; set; }
     public UFortItemSeriesDefinition? Series { get; set; }
-    public Bitmap DisplayImage { get; set; }
+    public WriteableBitmap DisplayImage { get; set; }
 
     public float DisplayWidth { get; set; } = 64;
     public float DisplayHeight { get; set; } = 80;

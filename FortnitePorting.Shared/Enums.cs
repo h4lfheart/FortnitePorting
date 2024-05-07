@@ -53,6 +53,15 @@ public enum EAssetCategory
     
     [Description("Festival")]
     Festival,
+    
+    [Description("Rocket Racing")]
+    RocketRacing,
+    
+    [Description("Lego")]
+    Lego,
+    
+    [Description("Miscellaneous")]
+    Misc
 }
 
 public enum EAssetType
