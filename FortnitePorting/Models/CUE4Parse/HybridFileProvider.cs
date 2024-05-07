@@ -7,7 +7,7 @@ using CUE4Parse.UE4.Readers;
 using CUE4Parse.UE4.Versions;
 using CUE4Parse.Utils;
 
-namespace FortnitePorting.Extensions;
+namespace FortnitePorting.Models.CUE4Parse;
 
 public class HybridFileProvider : AbstractVfsFileProvider
 {

@@ -19,7 +19,7 @@ public partial class App : Avalonia.Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             desktop.MainWindow = new AppWindow();
-            desktop.Startup += ApplicationService.OnStartup;
+            desktop.Startup += OnStartup;
             ApplicationService.Application = desktop;
             Dispatcher.UIThread.UnhandledException += (sender, args) =>
             {

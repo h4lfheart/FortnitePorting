@@ -9,6 +9,7 @@
 
      <Application.Resources>
          <ext:EnumToStringConverter x:Key="EnumToString" />
+         <ext:TitleCaseStringConverter x:Key="TitleCaseString" />
          
          <Brush x:Key="ToggleSwitchKnobFillOn">#FFFFFFFF</Brush>
          <Brush x:Key="ToggleSwitchKnobFillOnPointerOver">#FFFFFFFF</Brush>

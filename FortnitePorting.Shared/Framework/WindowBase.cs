@@ -13,7 +13,7 @@ public abstract class WindowBase<T> : Window where T : ViewModelBase, new()
         
         if (initializeViewModel)
         {
-            TaskService.Run(async () => await ViewModel.Initialize());
+            TaskService.Run(ViewModel.Initialize);
         }
     }
 }

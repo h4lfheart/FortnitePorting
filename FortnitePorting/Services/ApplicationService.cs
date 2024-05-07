@@ -21,6 +21,7 @@ public static class ApplicationService
     public static WelcomeViewModel WelcomeVM => ViewModelRegistry.Get<WelcomeViewModel>()!;
     public static HomeViewModel HomeVM => ViewModelRegistry.Get<HomeViewModel>()!;
     public static CUE4ParseViewModel CUE4ParseVM => ViewModelRegistry.Get<CUE4ParseViewModel>()!;
+    public static AssetsViewModel AssetsVM => ViewModelRegistry.Get<AssetsViewModel>()!;
     public static APIViewModel ApiVM => ViewModelRegistry.Get<APIViewModel>()!;
     
     public static IClassicDesktopStyleApplicationLifetime Application = null!;

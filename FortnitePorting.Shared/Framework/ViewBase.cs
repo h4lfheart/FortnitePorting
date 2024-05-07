@@ -14,7 +14,7 @@ public abstract class ViewBase<T> : UserControl where T : ViewModelBase, new()
 
         if (initializeViewModel)
         {
-            TaskService.Run(async () => await ViewModel.Initialize());
+            TaskService.Run(ViewModel.Initialize);
         }
     }
 }

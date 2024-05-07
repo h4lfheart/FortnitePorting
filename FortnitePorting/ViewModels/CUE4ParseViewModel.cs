@@ -2,18 +2,21 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using CUE4Parse.Compression;
 using CUE4Parse.Encryption.Aes;
 using CUE4Parse.MappingsProvider;
 using CUE4Parse.UE4.AssetRegistry;
 using CUE4Parse.UE4.AssetRegistry.Objects;
+using CUE4Parse.UE4.Assets;
 using CUE4Parse.UE4.Assets.Exports.Animation;
+using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Objects.Core.Misc;
 using CUE4Parse.UE4.Versions;
 using FortnitePorting.Application;
-using FortnitePorting.Extensions;
 using FortnitePorting.Models.CUE4Parse;
+using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Framework;
 using Serilog;
@@ -35,6 +38,8 @@ public class CUE4ParseViewModel : ViewModelBase
 
     public override async Task Initialize()
     {
+        ObjectTypeRegistry.RegisterEngine(Assembly.GetAssembly(typeof(UCustomObject))!);
+        
         HomeVM.UpdateStatus("Loading Native Libraries");
         await InitializeOodle();
         await InitializeZlib();

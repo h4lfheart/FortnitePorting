@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CUE4Parse", "Dependencies\C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortnitePorting.OpenGL", "FortnitePorting.OpenGL\FortnitePorting.OpenGL.csproj", "{87627B9B-370B-4B06-AE2B-D67D008CBF13}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CUE4Parse-Conversion", "Dependencies\CUE4Parse\CUE4Parse-Conversion\CUE4Parse-Conversion.csproj", "{A59C67EA-D088-4235-950C-C98FF12A3052}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{87627B9B-370B-4B06-AE2B-D67D008CBF13}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{87627B9B-370B-4B06-AE2B-D67D008CBF13}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{87627B9B-370B-4B06-AE2B-D67D008CBF13}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A59C67EA-D088-4235-950C-C98FF12A3052}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A59C67EA-D088-4235-950C-C98FF12A3052}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A59C67EA-D088-4235-950C-C98FF12A3052}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A59C67EA-D088-4235-950C-C98FF12A3052}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
