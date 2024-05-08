@@ -73,11 +73,9 @@
                             </StackPanel>
                         </DropDownButton>
                         
-                        <AutoCompleteBox Grid.Column="10" Watermark="Search">
-                            <AutoCompleteBox.InnerRightContent>
-                                <material:MaterialIcon Kind="Search"/>
-                            </AutoCompleteBox.InnerRightContent>
-                        </AutoCompleteBox>
+                        <AutoCompleteBox Grid.Column="10" FilterMode="ContainsOrdinal" Watermark="Search"
+                                         ItemsSource="{Binding AssetLoaderCollection.ActiveLoader.SearchAutoComplete}" 
+                                         Text="{Binding AssetLoaderCollection.ActiveLoader.SearchFilter, Mode=TwoWay}"/>
                     </Grid>
                     
                     <ui:FABorder Grid.Row="2">

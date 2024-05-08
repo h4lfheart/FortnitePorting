@@ -89,6 +89,11 @@ public class AssetItem
 
         return bitmap;
     }
+    
+    public bool Match(string filter)
+    {
+        return MiscExtensions.Filter(CreationData.DisplayName, filter) || MiscExtensions.Filter(CreationData.Object.Name, filter);
+    }
 }
 
 public class AssetItemCreationArgs

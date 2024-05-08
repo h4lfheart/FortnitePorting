@@ -22,7 +22,7 @@ using Serilog;
 
 namespace FortnitePorting.Models.Assets;
 
-public class AssetLoader
+public partial class AssetLoader : ObservableObject
 {
     public readonly EAssetType Type;
 
@@ -38,6 +38,9 @@ public class AssetLoader
 
     private bool BeganLoading;
     private bool IsPaused;
+    
+    [ObservableProperty] private string _searchFilter = string.Empty;
+    [ObservableProperty] private ObservableCollection<string> _searchAutoComplete = [];
 
     public AssetLoader(EAssetType exportType)
     {
@@ -45,7 +48,7 @@ public class AssetLoader
         
         Source.Connect()
             .ObserveOn(RxApp.MainThreadScheduler)
-            //.Filter(AssetsVM.AssetFilter)
+            .Filter(AssetsVM.AssetFilter)
             .Sort(AssetsVM.AssetSort)
             .Bind(out Filtered)
             .Subscribe();
@@ -93,6 +96,11 @@ public class AssetLoader
         
         var displayName = DisplayNameHandler(asset);
         if (string.IsNullOrWhiteSpace(displayName)) displayName = asset.Name;
+
+        await TaskService.RunDispatcherAsync(() =>
+        {
+            SearchAutoComplete.AddUnique(displayName);
+        });
         
         var args = new AssetItemCreationArgs
         {

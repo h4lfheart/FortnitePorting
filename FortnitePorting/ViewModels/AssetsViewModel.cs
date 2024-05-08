@@ -31,6 +31,8 @@ public partial class AssetsViewModel : ViewModelBase
 
     public MaterialIconKind SortIcon => DescendingSort ? MaterialIconKind.SortDescending : MaterialIconKind.SortAscending;
     public readonly IObservable<SortExpressionComparer<AssetItem>> AssetSort;
+    
+    public readonly IObservable<Func<AssetItem, bool>> AssetFilter;
 
     [ObservableProperty] private bool _isPaneOpen = true;
     [ObservableProperty] private EAssetSortType _sortType = EAssetSortType.None;
@@ -38,6 +40,10 @@ public partial class AssetsViewModel : ViewModelBase
 
     public AssetsViewModel()
     {
+        AssetFilter = this
+            .WhenAnyValue(x => x.AssetLoaderCollection.ActiveLoader.SearchFilter)
+            .Select(CreateAssetFilter);
+        
         AssetSort = this
             .WhenAnyValue(viewModel => viewModel.SortType, viewModel => viewModel.DescendingSort)
             .Select(CreateAssetSort);
@@ -47,6 +53,11 @@ public partial class AssetsViewModel : ViewModelBase
     {
         AssetLoaderCollection = new AssetLoaderCollection();
         await AssetLoaderCollection.Load(EAssetType.Outfit);
+    }
+    
+    private static Func<AssetItem, bool> CreateAssetFilter(string searchFilter)
+    {
+        return asset => asset.Match(searchFilter);
     }
 
     private static SortExpressionComparer<AssetItem> CreateAssetSort((EAssetSortType, bool) values)
