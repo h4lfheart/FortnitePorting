@@ -73,12 +73,17 @@
                             </StackPanel>
                         </DropDownButton>
                         
-                        <TextBox Grid.Column="10" Watermark="Search"/>
+                        <AutoCompleteBox Grid.Column="10" Watermark="Search">
+                            <AutoCompleteBox.InnerRightContent>
+                                <material:MaterialIcon Kind="Search"/>
+                            </AutoCompleteBox.InnerRightContent>
+                        </AutoCompleteBox>
                     </Grid>
                     
                     <ui:FABorder Grid.Row="2">
-                        <ListBox x:Name="AssetsListBox" ItemsSource="{Binding AssetLoaderCollection.ActiveCollection}" SelectionMode="Multiple"
-                                 AutoScrollToSelectedItem="False">
+                        <ListBox x:Name="AssetsListBox" SelectionMode="Multiple" AutoScrollToSelectedItem="False"
+                                 ItemsSource="{Binding AssetLoaderCollection.ActiveCollection}" 
+                                 SelectionChanged="OnSelectionChanged">
                             <ListBox.Styles>
                                 <Style Selector="ListBoxItem">
                                     <Setter Property="MinWidth" Value="0"/>
@@ -116,15 +121,15 @@
                     </ui:FABorder>
                 </Grid>
                 
-                <Grid Grid.Column="2">
+                <Grid Grid.Column="2" IsVisible="{Binding !!SelectedAssets.Count}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     
-                    <ui:FABorder Grid.Row="0">
-                    
-                    </ui:FABorder>
+                    <ScrollViewer Grid.Row="0" Classes="FixedScrollbar" VerticalScrollBarVisibility="Hidden" PointerWheelChanged="OnScrollAssets">
+                        <ItemsControl ItemsSource="{Binding SelectedAssets}" />
+                    </ScrollViewer>
                     
                     <ui:FABorder Grid.Row="1" Margin="{ext:Space 0, 1, 0, 0}">
                         <Grid HorizontalAlignment="Stretch" Margin="{ext:Space 1}">
@@ -144,7 +149,7 @@
                                           SelectedItem="{Binding ExportLocation, Converter={StaticResource EnumToString}}" />
                             </Grid>
                             
-                            <Button Grid.Row="2" HorizontalAlignment="Stretch" Command="{Binding ResetDebug}">
+                            <Button Grid.Row="2" HorizontalAlignment="Stretch">
                                 <StackPanel Orientation="Horizontal">
                                     <material:MaterialIcon Kind="Download" Margin="{ext:Space 0, 0, 1, 0}"/>
                                     <TextBlock Text="Export"/>
@@ -153,6 +158,9 @@
                         </Grid>
                     </ui:FABorder>
                 </Grid>
+                <TextBlock Grid.Column="2" IsVisible="{Binding !SelectedAssets.Count}" Text="No Asset Selected" 
+                           Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" />
             </Grid>
             
         </ui:NavigationView>

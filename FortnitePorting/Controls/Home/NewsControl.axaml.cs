@@ -1,9 +1,7 @@
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 using FortnitePorting.Models.API.Responses;
 
-namespace FortnitePorting.Controls;
+namespace FortnitePorting.Controls.Home;
 
 public partial class NewsControl : UserControl
 {

@@ -6,9 +6,10 @@
              xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:home="clr-namespace:FortnitePorting.Controls.Home"
              d:DesignHeight="140" d:DesignWidth="1160"
-             x:Class="FortnitePorting.Controls.NewsControl"
-             x:DataType="controls:NewsControl">
+             x:Class="FortnitePorting.Controls.Home.NewsControl"
+             x:DataType="home:NewsControl">
     <Grid Height="140" Margin="{ext:Space 0, 0, 0.5, 0.5}">
         <Grid.RowDefinitions>
             <RowDefinition Height="1.0*"/>
@@ -17,18 +18,18 @@
         
         <ui:FABorder Grid.Row="0" Grid.RowSpan="2" CornerRadius="4">
             <ui:FABorder.Background>
-                <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding Response.Image, RelativeSource={RelativeSource AncestorType=controls:NewsControl}}"
+                <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding Response.Image, RelativeSource={RelativeSource AncestorType=home:NewsControl}}"
                             Stretch="UniformToFill" />
             </ui:FABorder.Background>
-            <Image Opacity="0" asyncImageLoader:ImageLoader.Source="{Binding Response.Image, RelativeSource={RelativeSource AncestorType=controls:NewsControl}}"/>
+            <Image Opacity="0" asyncImageLoader:ImageLoader.Source="{Binding Response.Image, RelativeSource={RelativeSource AncestorType=home:NewsControl}}"/>
         </ui:FABorder>
         
         <controls:CustomBlurBehind Grid.Row="1" Margin="1"/>
         <ui:FABorder Grid.Row="1" CornerRadius="0" Background="#FF090014" Opacity="0.75"/>
         <Grid Grid.Row="1" RowDefinitions="Auto Auto Auto" Margin="{ext:Space 1, 0.25, 1, 0}">
-            <TextBlock Grid.Row="0" Text="{Binding Response.Title, RelativeSource={RelativeSource AncestorType=controls:NewsControl}}" Classes="SubtitleTextBlockStyle"/>
-            <TextBlock Grid.Row="1" Text="{Binding Response.SubTitle, RelativeSource={RelativeSource AncestorType=controls:NewsControl}}" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"/>
-            <TextBlock Grid.Row="2" Text="{Binding Response.Date, StringFormat='{}{0:MM-dd-yyyy}', RelativeSource={RelativeSource AncestorType=controls:NewsControl}}" Classes="CaptionTextBlockStyle TextFillColorTertiaryBrush"/>
+            <TextBlock Grid.Row="0" Text="{Binding Response.Title, RelativeSource={RelativeSource AncestorType=home:NewsControl}}" Classes="SubtitleTextBlockStyle"/>
+            <TextBlock Grid.Row="1" Text="{Binding Response.SubTitle, RelativeSource={RelativeSource AncestorType=home:NewsControl}}" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"/>
+            <TextBlock Grid.Row="2" Text="{Binding Response.Date, StringFormat='{}{0:MM-dd-yyyy}', RelativeSource={RelativeSource AncestorType=home:NewsControl}}" Classes="CaptionTextBlockStyle TextFillColorTertiaryBrush"/>
         </Grid>
     </Grid>
 </UserControl>

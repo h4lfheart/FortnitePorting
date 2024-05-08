@@ -25,7 +25,6 @@ public partial class AssetLoaderCollection : ObservableObject
             [
                 new AssetLoader(EAssetType.Outfit)
                 {
-                    DefaultSelected = true,
                     ClassNames = ["AthenaCharacterItemDefinition"],
                     PlaceholderIconPath = "FortniteGame/Content/Athena/Prototype/Textures/T_Placeholder_Item_Outfit",
                     IconHandler = asset =>

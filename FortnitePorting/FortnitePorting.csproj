@@ -40,12 +40,16 @@
 
     
     <ItemGroup>
-      <Compile Update="Controls\FeaturedControl.axaml.cs">
+      <Compile Update="Models\Assets\AssetItem.cs">
+        <DependentUpon>AssetItem.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Controls\Home\FeaturedControl.axaml.cs">
         <DependentUpon>FeaturedControl.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
-      <Compile Update="Models\Assets\AssetItem.cs">
-        <DependentUpon>AssetItem.axaml</DependentUpon>
+      <Compile Update="Controls\Home\NewsControl.axaml.cs">
+        <DependentUpon>NewsControl.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
     </ItemGroup>

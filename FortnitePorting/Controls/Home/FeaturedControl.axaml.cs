@@ -1,10 +1,7 @@
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Input;
-using Avalonia.Markup.Xaml;
 using FortnitePorting.Models.API.Responses;
 
-namespace FortnitePorting.Controls;
+namespace FortnitePorting.Controls.Home;
 
 public partial class FeaturedControl : UserControl
 {

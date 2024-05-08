@@ -36,6 +36,10 @@
             <Setter Property="MinHeight" Value="32"/>
         </Style>
         
+        <Style Selector="Border">
+            <Setter Property="CornerRadius" Value="4"/>
+        </Style>
+        
        <Style Selector="TextBlock:disabled">
            <Setter Property="Foreground" Value="#5DFFFFFF"/>
        </Style>

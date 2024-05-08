@@ -4,6 +4,7 @@ using CUE4Parse_Conversion.Textures;
 using CUE4Parse.GameTypes.FN.Enums;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Texture;
+using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.GameplayTags;
 using CUE4Parse.Utils;
 using FortnitePorting.Models.Fortnite;
@@ -20,11 +21,13 @@ public class AssetItem
     public AssetItemCreationArgs CreationData { get; set; }
     public Guid Guid { get; set; }
 
+    public string Description { get; set; }
     public FGameplayTagContainer? GameplayTags { get; set; }
     public EFortRarity Rarity { get; set; }
     public int Season { get; set; }
     public UFortItemSeriesDefinition? Series { get; set; }
     public WriteableBitmap DisplayImage { get; set; }
+    public WriteableBitmap IconDisplayImage { get; set; }
 
     public float DisplayWidth { get; set; } = 64;
     public float DisplayHeight { get; set; } = 80;
@@ -41,19 +44,22 @@ public class AssetItem
         GameplayTags = CreationData.Object.GetOrDefault<FGameplayTagContainer?>("GameplayTags");
         Rarity = CreationData.Object.GetOrDefault("Rarity", EFortRarity.Uncommon);
         
+        var description = CreationData.Object.GetAnyOrDefault<FText?>("Description", "ItemDescription") ?? new FText("No description.");
+        Description = description.Text;
+        
         var seasonTag = GameplayTags?.GetValueOrDefault("Cosmetics.Filter.Season.")?.Text;
         Season = int.TryParse(seasonTag?.SubstringAfterLast("."), out var seasonNumber) ? seasonNumber : int.MaxValue;
         
         var seriesComponent = CreationData.Object.TryGetFortComponentByType("FortItemComponent_Series");
         Series = seriesComponent?.GetOrDefault<UFortItemSeriesDefinition?>("Series");
         
-        DisplayImage = CreateDisplayImage().ToWriteableBitmap();
+        var iconBitmap = CreationData.Icon.Decode()!;
+        IconDisplayImage = iconBitmap.ToWriteableBitmap();
+        DisplayImage = CreateDisplayImage(iconBitmap).ToWriteableBitmap();
     }
 
-    public SKBitmap CreateDisplayImage()
+    public SKBitmap CreateDisplayImage(SKBitmap iconBitmap)
     {
-        var iconBitmap = CreationData.Icon.Decode()!;
-
         var bitmap = new SKBitmap(128, 160, iconBitmap.ColorType, SKAlphaType.Opaque);
         using (var canvas = new SKCanvas(bitmap))
         {

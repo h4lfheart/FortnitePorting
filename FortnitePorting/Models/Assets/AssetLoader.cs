@@ -26,7 +26,6 @@ public class AssetLoader
 {
     public readonly EAssetType Type;
 
-    public bool DefaultSelected;
     public string[] ClassNames = [];
     public string PlaceholderIconPath = "FortniteGame/Content/Athena/Prototype/Textures/T_Placeholder_Generic";
     public Func<UObject, UTexture2D?> IconHandler = asset => asset.GetAnyOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage");
