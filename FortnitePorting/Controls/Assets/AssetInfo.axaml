@@ -23,8 +23,8 @@
                     </Border.Background>
                     <Image Opacity="0" Source="{Binding Asset.IconDisplayImage}" />
                 </Border>
-                <TextBlock Grid.Row="0" Grid.Column="2" Classes="SubtitleTextBlockStyle" VerticalAlignment="Bottom" TextAlignment="Left"
-                           TextTrimming="CharacterEllipsis" FontWeight="Normal"
+                <TextBlock Grid.Row="0" Grid.Column="2" Classes="BodyStrongTextBlockStyle" VerticalAlignment="Bottom" TextAlignment="Left"
+                           TextTrimming="CharacterEllipsis"
                            Text="{Binding Asset.CreationData.DisplayName}"/>
                 <TextBlock Grid.Row="1" Grid.Column="2" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush" VerticalAlignment="Top"
                            Text="{Binding Asset.Description}"

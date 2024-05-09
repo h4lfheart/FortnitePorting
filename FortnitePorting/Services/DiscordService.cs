@@ -63,16 +63,16 @@ public static class DiscordService
     
     public static string? GetUserName()
     {
-        return Client?.CurrentUser.Username;
+        return Client?.CurrentUser?.Username;
     }
     
     public static string? GetDisplayName()
     {
-        return Client?.CurrentUser.DisplayName;
+        return Client?.CurrentUser?.DisplayName;
     }
     
     public static string? GetAvatarURL()
     {
-        return Client?.CurrentUser.GetAvatarURL(User.AvatarFormat.PNG, User.AvatarSize.x128);
+        return Client?.CurrentUser?.GetAvatarURL(User.AvatarFormat.PNG, User.AvatarSize.x128);
     }
 }
