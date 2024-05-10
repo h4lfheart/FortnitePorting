@@ -16,15 +16,6 @@ public partial class AppWindow : WindowBase<AppViewModel>
         DataContext = ViewModel;
         ViewModel.ContentFrame = ContentFrame;
         ViewModel.NavigationView = NavigationView;
-
-        if (AppSettings.Current.FinishedWelcomeScreen)
-        {
-            ViewModel.Navigate<HomeView>();
-        }
-        else
-        {
-            ViewModel.Navigate<WelcomeView>();
-        }
     }
 
     private void OnItemInvoked(object? sender, NavigationViewItemInvokedEventArgs e)

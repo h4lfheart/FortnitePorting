@@ -21,20 +21,26 @@ public partial class HomeViewModel : ViewModelBase
     [ObservableProperty] private string _statusText = string.Empty;
     [ObservableProperty] private ObservableCollection<NewsControl> _newsControls = [];
     [ObservableProperty] private ObservableCollection<FeaturedControl> _featuredControls = [];
-    
-    public string DisplayName => DiscordService.GetDisplayName() ?? "No User";
-    public string AvatarURL => DiscordService.GetAvatarURL() ?? "avares://FortnitePorting/Assets/DefaultProfile.png";
-    public string UserName
-    {
-        get
-        {
-            var name = DiscordService.GetUserName();
-            return name is not null ? $"@{name}" : "Discord RPC Disabled";
-        }
-    }
+
+    [ObservableProperty] private string _displayName;
+    [ObservableProperty] private string _userName;
+    [ObservableProperty] private string _avatarURL;
     
     public override async Task Initialize()
     {
+        // TODO adhere to options in AppSettings
+        TaskService.Run(() =>
+        {
+            DiscordService.Client!.OnReady += (sender, args) =>
+            {
+                var name = DiscordService.GetUserName();
+                UserName = name is not null ? $"@{name}" : "Discord RPC Disabled";
+
+                DisplayName = DiscordService.GetDisplayName() ?? "No User";
+                AvatarURL = DiscordService.GetAvatarURL() ?? "avares://FortnitePorting/Assets/DefaultProfile.png";
+            };
+        });
+        
         TaskService.Run(async () =>
         {
             ViewModelRegistry.Register<CUE4ParseViewModel>();

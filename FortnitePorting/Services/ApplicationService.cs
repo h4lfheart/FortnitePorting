@@ -71,13 +71,23 @@ public static class ApplicationService
 
     public static void OnStartup(object? sender, ControlledApplicationLifetimeStartupEventArgs e)
     {
-        ViewModelRegistry.Register<APIViewModel>();
         DiscordService.Initialize();
+        ViewModelRegistry.Register<APIViewModel>();
+        
+        if (AppSettings.Current.FinishedWelcomeScreen)
+        {
+            AppVM.Navigate<HomeView>();
+        }
+        else
+        {
+            AppVM.Navigate<WelcomeView>();
+        }
     }
     
     public static void OnExit(object? sender, ControlledApplicationLifetimeExitEventArgs e)
     {
         AppSettings.Save();
+        DiscordService.Deinitialize();
     }
     
     public static void Launch(string location, bool shellExecute = true)

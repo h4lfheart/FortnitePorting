@@ -19,7 +19,8 @@
     <Grid>
         <ui:NavigationView Classes="NoBackground" PaneDisplayMode="Top" IsSettingsVisible="False" 
                            MenuItemsSource="{Binding AssetLoaderCollection.NavItems}"
-                           IsPaneVisible="{Binding IsPaneOpen}">
+                           IsPaneVisible="{Binding IsPaneOpen}"
+                           ItemInvoked="OnNavigationViewItemInvoked">
             <Grid Margin="{ext:Space 1}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="2.6*"/>
@@ -166,14 +167,14 @@
 
                 </Grid>
                 
-                <Grid Grid.Column="2" IsVisible="{Binding !!SelectedAssets.Count}">
+                <Grid Grid.Column="2" IsVisible="{Binding !!AssetLoaderCollection.ActiveLoader.SelectedAssets.Count}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     
                     <ScrollViewer Grid.Row="0" Classes="FixedScrollbar" VerticalScrollBarVisibility="Hidden" PointerWheelChanged="OnScrollAssets">
-                        <ItemsControl ItemsSource="{Binding SelectedAssets}" />
+                        <ItemsControl ItemsSource="{Binding AssetLoaderCollection.ActiveLoader.SelectedAssets}" />
                     </ScrollViewer>
                     
                     <ui:FABorder Grid.Row="1" Margin="{ext:Space 0, 1, 0, 0}">
@@ -203,7 +204,7 @@
                         </Grid>
                     </ui:FABorder>
                 </Grid>
-                <TextBlock Grid.Column="2" IsVisible="{Binding !SelectedAssets.Count}" Text="No Asset Selected" 
+                <TextBlock Grid.Column="2" IsVisible="{Binding !AssetLoaderCollection.ActiveLoader.SelectedAssets.Count}" Text="No Asset Selected" 
                            Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"
                            HorizontalAlignment="Center" VerticalAlignment="Center" />
             </Grid>

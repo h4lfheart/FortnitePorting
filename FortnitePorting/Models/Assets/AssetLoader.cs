@@ -16,6 +16,7 @@ using CUE4Parse.Utils;
 using DynamicData;
 using DynamicData.Binding;
 using FortnitePorting.Controls;
+using FortnitePorting.Controls.Assets;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Services;
@@ -30,6 +31,9 @@ public partial class AssetLoader : ObservableObject
     public readonly EAssetType Type;
 
     public string[] ClassNames = [];
+    public string[] HideNames = [];
+    public bool LoadHiddenAssets;
+    public bool HideRarity;
     public string PlaceholderIconPath = "FortniteGame/Content/Athena/Prototype/Textures/T_Placeholder_Generic";
     public Func<UObject, UTexture2D?> IconHandler = asset => asset.GetAnyOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage");
     public Func<UObject, string?> DisplayNameHandler = asset => asset.GetAnyOrDefault<FText?>("DisplayName", "ItemName")?.Text;
@@ -41,6 +45,8 @@ public partial class AssetLoader : ObservableObject
 
     private bool BeganLoading;
     private bool IsPaused;
+    
+    [ObservableProperty] private ObservableCollection<AssetInfo> _selectedAssets = [];
     
     [ObservableProperty, NotifyPropertyChangedFor(nameof(FinishedLoading))] private int _loadedAssets;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(FinishedLoading))] private int _totalAssets;
@@ -61,7 +67,7 @@ public partial class AssetLoader : ObservableObject
     {
         // Application
         { "Favorite", x => x.IsFavorite },
-        { "Hidden Assets", x => x.IsHidden },
+        { "Hidden Assets", x => x.CreationData.IsHidden },
         
         // Cosmetic
         { "Battle Pass", x => x.GameplayTags.ContainsAny("BattlePass") },
@@ -178,12 +184,15 @@ public partial class AssetLoader : ObservableObject
     
     private async Task LoadAsset(UObject asset)
     {
+        var isHidden = HideNames.Any(name => asset.Name.Contains(name, StringComparison.OrdinalIgnoreCase));
+        if (isHidden && !LoadHiddenAssets) return;
+        
         var icon = IconHandler(asset) ?? await CUE4ParseVM.Provider.TryLoadObjectAsync<UTexture2D>(PlaceholderIconPath);
         if (icon is null) return;
         
         var displayName = DisplayNameHandler(asset);
         if (string.IsNullOrWhiteSpace(displayName)) displayName = asset.Name;
-
+        
         await TaskService.RunDispatcherAsync(() =>
         {
             SearchAutoComplete.AddUnique(displayName);
@@ -194,10 +203,11 @@ public partial class AssetLoader : ObservableObject
             Object = asset,
             Icon = icon,
             DisplayName = displayName,
-            AssetType = EAssetType.None
+            AssetType = Type,
+            IsHidden = isHidden,
+            HideRarity = HideRarity
         };
-
-
+        
         await TaskService.RunDispatcherAsync(() => Source.AddOrUpdate(new AssetItem(args)));
     }
     
@@ -232,7 +242,7 @@ public partial class AssetLoader : ObservableObject
     {
         var (searchFilter, filters) = values;
         
-        return asset => asset.Match(searchFilter) && filters.All(x => x.Value.Invoke(asset)) && asset.IsHidden == filters.ContainsKey("Hidden Assets");
+        return asset => asset.Match(searchFilter) && filters.All(x => x.Value.Invoke(asset)) && asset.CreationData.IsHidden == filters.ContainsKey("Hidden Assets");
     }
 
     private static SortExpressionComparer<AssetItem> CreateAssetSort((EAssetSortType, bool) values)

@@ -23,7 +23,6 @@ public partial class AssetItem : ObservableObject
     public Guid Guid { get; set; }
 
     [ObservableProperty] private bool _isFavorite;
-    [ObservableProperty] private bool isHidden;
 
     public string Description { get; set; }
     public FGameplayTagContainer? GameplayTags { get; set; }
@@ -41,7 +40,6 @@ public partial class AssetItem : ObservableObject
     
     public AssetItem(AssetItemCreationArgs args)
     {
-        //InitializeComponent();
         CreationData = args;
         Guid = Guid.NewGuid();
         
@@ -74,20 +72,28 @@ public partial class AssetItem : ObservableObject
             {
                 canvas.DrawBitmap(seriesBackground.Decode(), backgroundRect);
             }
-            else
+            else if (!CreationData.HideRarity)
             {
                 var backgroundPaint = new SKPaint { Shader = SkiaExtensions.RadialGradient(bitmap.Height, colors.Color1, colors.Color3) };
                 canvas.DrawRect(backgroundRect, backgroundPaint);
             }
+            else
+            {
+                var backgroundPaint = new SKPaint { Shader = SkiaExtensions.RadialGradient(bitmap.Height, InnerBackgroundColor, OuterBackgroundColor) };
+                canvas.DrawRect(backgroundRect, backgroundPaint);
+            }
             
             canvas.DrawBitmap(iconBitmap, backgroundRect with { Left = -8, Right = bitmap.Width + 8, Bottom = bitmap.Height - 16});
-            
-            var coolRectPaint = new SKPaint { Shader = SkiaExtensions.LinearGradient(bitmap.Width, true, colors.Color1, colors.Color2) };
-            coolRectPaint.Color = coolRectPaint.Color.WithAlpha((byte) (0.75 * byte.MaxValue));
 
-            canvas.RotateDegrees(-4);
-            canvas.DrawRect(new SKRect(-16, bitmap.Height - 40, bitmap.Width + 16, bitmap.Height + 16), coolRectPaint);
-            canvas.RotateDegrees(4);
+            if (!CreationData.HideRarity)
+            {
+                var coolRectPaint = new SKPaint { Shader = SkiaExtensions.LinearGradient(bitmap.Width, true, colors.Color1, colors.Color2) };
+                coolRectPaint.Color = coolRectPaint.Color.WithAlpha((byte) (0.75 * byte.MaxValue));
+
+                canvas.RotateDegrees(-4);
+                canvas.DrawRect(new SKRect(-16, bitmap.Height - 40, bitmap.Width + 16, bitmap.Height + 16), coolRectPaint);
+                canvas.RotateDegrees(4);
+            }
             
         }
 
@@ -106,4 +112,6 @@ public class AssetItemCreationArgs
     public required UTexture2D Icon { get; set; }
     public required string DisplayName { get; set; }
     public required EAssetType AssetType { get; set; }
+    public bool IsHidden { get; set; } = false;
+    public bool HideRarity { get; set; } = false;
 }

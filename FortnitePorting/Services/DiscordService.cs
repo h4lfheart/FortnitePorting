@@ -8,7 +8,7 @@ namespace FortnitePorting.Services;
 public static class DiscordService
 {
     private static bool IsInitialized;
-    private static DiscordRpcClient? Client;
+    public static DiscordRpcClient? Client;
 
     private static readonly RichPresence DefaultPresence = new()
     {

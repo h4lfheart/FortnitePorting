@@ -35,9 +35,73 @@ public partial class AssetLoaderCollection : ObservableObject
 
                         return previewImage;
                     }
+                },
+                new AssetLoader(EAssetType.Backpack)
+                {
+                    ClassNames = ["AthenaBackpackItemDefinition"],
+                    HideNames = ["_STWHeroNoDefaultBackpack", "_TEST", "Dev_", "_NPC", "_TBD"]
+                },
+                new AssetLoader(EAssetType.Pickaxe)
+                {
+                    ClassNames = ["AthenaPickaxeItemDefinition"],
+                    HideNames = ["Dev_", "TBD_"],
+                    IconHandler = asset =>
+                    {
+                        asset.TryGetValue(out UTexture2D? previewImage, "SmallPreviewImage", "LargePreviewImage");
+                        if (asset.TryGetValue(out UObject weapon, "WeaponDefinition")) 
+                            weapon.TryGetValue(out previewImage, "SmallPreviewImage", "LargePreviewImage");
+
+                        return previewImage;
+                    }
+                },
+                new AssetLoader(EAssetType.Glider)
+                {
+                    ClassNames = ["AthenaGliderItemDefinition"]
+                },
+                new AssetLoader(EAssetType.Pet)
+                {
+                    ClassNames = ["AthenaPetCarrierItemDefinition"]
+                },
+                new AssetLoader(EAssetType.Toy)
+                {
+                    ClassNames = ["AthenaToyItemDefinition"]
+                },
+                new AssetLoader(EAssetType.Emoticon)
+                {
+                    ClassNames = ["AthenaEmojiItemDefinition"],
+                    HideNames = ["Emoji_100APlus"]
+                },
+                new AssetLoader(EAssetType.Spray)
+                {
+                    ClassNames = ["AthenaSprayItemDefinition"],
+                    HideNames = ["SPID_000", "SPID_001"]
+                },
+                new AssetLoader(EAssetType.Banner)
+                {
+                    ClassNames = ["FortHomebaseBannerIconItemDefinition"],
+                    HideRarity = true
+                },
+                new AssetLoader(EAssetType.LoadingScreen)
+                {
+                    ClassNames = ["AthenaLoadingScreenItemDefinition"]
+                },
+                new AssetLoader(EAssetType.Emote)
+                {
+                    ClassNames = ["AthenaDanceItemDefinition"],
+                    HideNames = ["_CT", "_NPC"]
                 }
             ]
-        }
+        },
+        /*new AssetLoaderCategory(EAssetCategory.Creative)
+        {
+            Loaders = [
+                new AssetLoader(EAssetType.Prop)
+                {
+                    ClassNames = ["FortPlaysetPropItemDefinition"],
+                    HideRarity = true
+                }
+            ]
+        }*/
 
     ];
     
@@ -68,7 +132,7 @@ public partial class AssetLoaderCollection : ObservableObject
                         IconSource = new ImageIconSource
                         {
                             Source = ImageExtensions.AvaresBitmap($"avares://FortnitePorting/Assets/FN/{loader.Type.ToString()}.png")
-                        }
+                        },
                     })
                 });
             }

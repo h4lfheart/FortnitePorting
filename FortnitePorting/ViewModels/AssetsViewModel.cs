@@ -11,8 +11,6 @@ namespace FortnitePorting.ViewModels;
 public partial class AssetsViewModel : ViewModelBase
 {
     [ObservableProperty] private AssetLoaderCollection _assetLoaderCollection;
-
-    [ObservableProperty] private ObservableCollection<AssetInfo> _selectedAssets = [];
     
     [ObservableProperty] private bool _isPaneOpen = true;
     [ObservableProperty] private EExportLocation _exportLocation = EExportLocation.Blender;
