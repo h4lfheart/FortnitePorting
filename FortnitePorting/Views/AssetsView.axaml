@@ -30,8 +30,9 @@
                 <Grid Grid.Column="0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="{ext:Space 1}"/>
+                        <RowDefinition Height="{ext:Space 0.5}"/>
                         <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     
                     <Grid Grid.Row="0">
@@ -46,23 +47,65 @@
                             <ColumnDefinition Width="{ext:Space 1}"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="{ext:Space 1}"/>
-                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="3*"/>
                         </Grid.ColumnDefinitions>
                         
                         <ToggleButton Grid.Column="0" IsChecked="{Binding IsPaneOpen, Mode=TwoWay}" ToolTip.Tip="Asset Type Navigation">
                             <material:MaterialIcon Kind="Menu"/>
                         </ToggleButton>
                         <Button Grid.Column="2" ToolTip.Tip="Random" Content="{material:MaterialIconExt DiceMultiple}" Click="OnRandomButtonPressed"/>
-                        <ToggleButton Grid.Column="4" IsChecked="{Binding DescendingSort}" ToolTip.Tip="Ascending or Descending">
-                            <material:MaterialIcon Kind="{Binding SortIcon}"/>
+                        <ToggleButton Grid.Column="4" IsChecked="{Binding AssetLoaderCollection.ActiveLoader.DescendingSort}" ToolTip.Tip="Ascending or Descending">
+                            <material:MaterialIcon Kind="{Binding AssetLoaderCollection.ActiveLoader.SortIcon}"/>
                         </ToggleButton>
                         <ComboBox Grid.Column="6" ToolTip.Tip="Sorting" HorizontalAlignment="Stretch"
                                   ItemsSource="{ext:EnumToItemsSource {x:Type shared:EAssetSortType}}"
-                                  SelectedItem="{Binding SortType, Converter={StaticResource EnumToString}}" />
+                                  SelectedItem="{Binding AssetLoaderCollection.ActiveLoader.SortType, Converter={StaticResource EnumToString}}" />
                         <DropDownButton Grid.Column="8" HorizontalAlignment="Stretch">
                             <DropDownButton.Flyout>
                                 <Flyout>
-                                    <StackPanel>
+                                    <!-- TODO Create from code only so you only have to update there to add filter s-->
+                                    <!-- TODO Drive filter enabling by bindings so you dont have to access ui objects -->
+                                    <StackPanel x:Name="FilterPanelParent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                                        <StackPanel>
+                                            <TextBlock Text="Application" Classes="BodyStrongTextBlockStyle" Margin="{ext:Space 0, 0, 0, 0.5}"/>
+                                            <Separator HorizontalAlignment="Stretch"/>
+                                            <CheckBox Content="Favorite" IsCheckedChanged="OnFilterChecked"/>
+                                            <CheckBox Content="Hidden Assets" IsCheckedChanged="OnFilterChecked"/>
+                                        </StackPanel>
+                                        <StackPanel IsVisible="{Binding AssetLoaderCollection.ActiveLoader.HasCosmeticFilters}">
+                                            <TextBlock Text="Cosmetic" Classes="BodyStrongTextBlockStyle" Margin="{ext:Space 0, 1, 0, 0.5}"/>
+                                            <Separator HorizontalAlignment="Stretch"/>
+                                            <CheckBox Content="Battle Pass" IsCheckedChanged="OnFilterChecked"/>
+                                            <CheckBox Content="Item Shop" IsCheckedChanged="OnFilterChecked"/>
+                                        </StackPanel>
+                                        <StackPanel IsVisible="{Binding AssetLoaderCollection.ActiveLoader.HasGameFilters}">
+                                            <TextBlock Text="Game" Classes="BodyStrongTextBlockStyle" Margin="{ext:Space 0, 1, 0, 0.5}"/>
+                                            <Separator HorizontalAlignment="Stretch"/>
+                                            <CheckBox Content="Battle Royale" IsCheckedChanged="OnFilterChecked"/>
+                                            <CheckBox Content="Save The World" IsCheckedChanged="OnFilterChecked"/>
+                                        </StackPanel>
+                                        <StackPanel IsVisible="{Binding AssetLoaderCollection.ActiveLoader.HasPrefabFilters}">
+                                            <TextBlock Text="Creative" Classes="BodyStrongTextBlockStyle" Margin="{ext:Space 0, 1, 0, 0.5}"/>
+                                            <Separator HorizontalAlignment="Stretch"/>
+                                            <CheckBox Content="Galleries" IsCheckedChanged="OnFilterChecked" />
+                                            <CheckBox Content="Prefabs" IsCheckedChanged="OnFilterChecked" />
+                                        </StackPanel>
+                                        <StackPanel IsVisible="{Binding AssetLoaderCollection.ActiveLoader.HasItemFilters}">
+                                            <TextBlock Text="Items" Classes="BodyStrongTextBlockStyle" Margin="{ext:Space 0, 1, 0, 0.5}"/>
+                                            <Separator HorizontalAlignment="Stretch"/>
+                                            <CheckBox Content="Weapons" IsCheckedChanged="OnFilterChecked" />
+                                            <CheckBox Content="Gadgets" IsCheckedChanged="OnFilterChecked" />
+                                            <CheckBox Content="Melee" IsCheckedChanged="OnFilterChecked" />
+                                            <CheckBox Content="Consumables" IsCheckedChanged="OnFilterChecked" />
+                                            <CheckBox Content="Lego" IsCheckedChanged="OnFilterChecked" />
+                                        </StackPanel>
+                                        
+                                        <Button HorizontalAlignment="Stretch" Margin="{ext:Space 0, 1, 0, 0}" Click="OnFilterClearClicked">
+                                            <StackPanel Orientation="Horizontal">
+                                                <material:MaterialIcon Kind="Delete" Margin="{ext:Space 0, 0, 1, 0}"/>
+                                                <TextBlock Text="Clear Filters"/>
+                                            </StackPanel>
+                                        </Button>
                                     </StackPanel>
                                 </Flyout>
                             </DropDownButton.Flyout>
@@ -76,6 +119,7 @@
                         <AutoCompleteBox Grid.Column="10" FilterMode="ContainsOrdinal" Watermark="Search"
                                          ItemsSource="{Binding AssetLoaderCollection.ActiveLoader.SearchAutoComplete}" 
                                          Text="{Binding AssetLoaderCollection.ActiveLoader.SearchFilter, Mode=TwoWay}"/>
+                        
                     </Grid>
                     
                     <ui:FABorder Grid.Row="2">
@@ -117,6 +161,9 @@
                             </ListBox.ItemsPanel>
                         </ListBox>
                     </ui:FABorder>
+                    
+                    <ProgressBar Grid.Row="3" IsVisible="{Binding !AssetLoaderCollection.ActiveLoader.FinishedLoading}" Margin="{ext:Space 0, 1, 0, 0}" Value="{Binding AssetLoaderCollection.ActiveLoader.LoadedAssets}" Minimum="0" Maximum="{Binding AssetLoaderCollection.ActiveLoader.TotalAssets}"/>
+
                 </Grid>
                 
                 <Grid Grid.Column="2" IsVisible="{Binding !!SelectedAssets.Count}">

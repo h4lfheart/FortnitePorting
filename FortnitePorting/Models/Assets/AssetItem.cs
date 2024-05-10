@@ -1,5 +1,6 @@
 using System;
 using Avalonia.Media.Imaging;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.GameTypes.FN.Enums;
 using CUE4Parse.UE4.Assets.Exports;
@@ -16,10 +17,13 @@ using SkiaExtensions = FortnitePorting.Shared.Extensions.SkiaExtensions;
 namespace FortnitePorting.Models.Assets;
 
 
-public class AssetItem
+public partial class AssetItem : ObservableObject
 {
     public AssetItemCreationArgs CreationData { get; set; }
     public Guid Guid { get; set; }
+
+    [ObservableProperty] private bool _isFavorite;
+    [ObservableProperty] private bool isHidden;
 
     public string Description { get; set; }
     public FGameplayTagContainer? GameplayTags { get; set; }
