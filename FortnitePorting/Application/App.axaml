@@ -4,6 +4,7 @@
              xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
              xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
              xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:uip="clr-namespace:FluentAvalonia.UI.Controls.Primitives;assembly=FluentAvalonia"
              x:Class="FortnitePorting.Application.App"
              RequestedThemeVariant="Dark">
 
@@ -19,6 +20,8 @@
          <Brush x:Key="CheckBoxCheckGlyphForegroundCheckedPointerOver">#FFFFFFFF</Brush>
          <Brush x:Key="CheckBoxCheckGlyphForegroundCheckedPressed">#FFFFFFFF</Brush>
          <Brush x:Key="CheckBoxCheckGlyphForegroundCheckedDisabled">#5DFFFFFF</Brush>
+         <Brush x:Key="ScrollViewerScrollBarsSeparatorBackground">#00000000</Brush>
+         <x:Double x:Key="NavigationViewItemOnLeftIconBoxHeight">14</x:Double>
          <FontFamily x:Key="SymbolThemeFontFamily">Segoe Fluent Icons</FontFamily>
          
      </Application.Resources>
@@ -27,6 +30,7 @@
         <FluentTheme />
         <fluentStyle:FluentAvaloniaTheme/>
         <material:MaterialIconStyles/>
+        <StyleInclude Source="avares://FluentAvalonia.ProgressRing/Styling/Controls/ProgressRing.axaml" />
         
         <Style Selector="ui|FABorder">
             <Setter Property="Background" Value="#0DFFFFFF"/>
@@ -40,46 +44,58 @@
             <Setter Property="CornerRadius" Value="4"/>
         </Style>
         
-       <Style Selector="TextBlock:disabled">
-           <Setter Property="Foreground" Value="#5DFFFFFF"/>
-       </Style>
+        <Style Selector="ui|TabViewItem.FixTabViewItem /template/ Path#SelectedBackgroundPath">
+            <Setter Property="Fill" Value="#0DFFFFFF"/>
+        </Style>
+        
+        <Style Selector="ui|TabViewItem.FixTabViewItem /template/ Border#TabContainerBorder">
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+        
+        <Style Selector="ui|TabView.FixTabView /template/ ContentPresenter#TabContentPresenter">
+            <Setter Property="Background" Value="#0DFFFFFF"/>
+        </Style>
+        
+        <Style Selector="TextBlock:disabled">
+            <Setter Property="Foreground" Value="#5DFFFFFF"/>
+        </Style>
        
-       <Style Selector="ui|HyperlinkButton.HyperLink">
+        <Style Selector="ui|HyperlinkButton.HyperLink">
            <Setter Property="Padding" Value="0" />
            <Setter Property="Background" Value="Transparent" />
-       </Style>
-       
-       <Style Selector="ui|HyperlinkButton.HyperLink:pointerover /template/ ContentPresenter">
+        </Style>
+
+        <Style Selector="ui|HyperlinkButton.HyperLink:pointerover /template/ ContentPresenter">
            <Setter Property="Background" Value="Transparent" />
-       </Style>
-       
-       <Style Selector="Expander:pointerover /template/ ContentPresenter">
+        </Style>
+
+        <Style Selector="Expander:pointerover /template/ ContentPresenter">
            <Setter Property="Background" Value="Transparent"/>
-       </Style>
-        
-       <Style Selector="Expander ToggleButton:pointerover /template/ ContentPresenter">
+        </Style>
+
+        <Style Selector="Expander ToggleButton:pointerover /template/ ContentPresenter">
            <Setter Property="Background" Value="Transparent"/>
-       </Style>
-        
-       <Style Selector="Expander ToggleButton:pointerover /template/ Border">
+        </Style>
+
+        <Style Selector="Expander ToggleButton:pointerover /template/ Border">
            <Setter Property="Background" Value="#26FFFFFF"/>
-       </Style>
-        
-       <Style Selector="Expander ToggleButton:pointerover /template/ Border#ExpandCollapseChevronBorder">
+        </Style>
+
+        <Style Selector="Expander ToggleButton:pointerover /template/ Border#ExpandCollapseChevronBorder">
            <Setter Property="Background" Value="Transparent"/>
-       </Style>
+        </Style>
                    
-       <Style Selector="Expander ToggleButton:expanded /template/ ContentPresenter">
+        <Style Selector="Expander ToggleButton:expanded /template/ ContentPresenter">
            <Setter Property="Background" Value="Transparent"/>
-       </Style>
-        
-       <Style Selector="Expander ToggleButton:expanded /template/ Border">
+        </Style>
+
+        <Style Selector="Expander ToggleButton:expanded /template/ Border">
            <Setter Property="Background" Value="#26FFFFFF"/>
-       </Style>
-        
-       <Style Selector="Expander ToggleButton:checked /template/ ContentPresenter">
+        </Style>
+
+        <Style Selector="Expander ToggleButton:checked /template/ ContentPresenter">
            <Setter Property="Background" Value="Transparent"/>
-       </Style>
+        </Style>
         
         <Style Selector="ui|NavigationView.NoBackground /template/ Border#ContentGridBorder">
             <Setter Property="Background" Value="Transparent"/>

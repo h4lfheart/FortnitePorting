@@ -2,6 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
         xmlns:ui="using:FluentAvalonia.UI.Controls"
+        xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
         x:Class="FortnitePorting.Application.AppWindow"
         x:DataType="viewModels:AppViewModel"
         Width="1160" Height="770" RequestedThemeVariant="Dark" FontFamily="Segoe UI"
@@ -27,62 +28,62 @@
              <ui:NavigationView.MenuItems>
                  <ui:NavigationViewItem Content="Welcome" Tag="Welcome" IsSelected="True" IsVisible="{Binding SetupTabsAreVisible}">
                      <ui:NavigationViewItem.IconSource>
-                         <ui:SymbolIconSource Symbol="Checkmark"/>
+                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry CheckboxesMarked}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItemSeparator IsVisible="{Binding SetupTabsAreVisible}"/>
                  <ui:NavigationViewItem Content="Home" Tag="Home" IsEnabled="{Binding !SetupTabsAreVisible}">
                      <ui:NavigationViewItem.IconSource>
-                         <ui:SymbolIconSource Symbol="Home"/>
+                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry Home}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItemSeparator/>
                  <ui:NavigationViewItem Content="Assets" Tag="Assets" IsEnabled="{Binding GameBasedTabsAreReady}">
                      <ui:NavigationViewItem.IconSource>
-                         <ui:SymbolIconSource Symbol="Page"/>
+                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry File}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItem Content="Files" Tag="Files" IsEnabled="{Binding GameBasedTabsAreReady}">
                      <ui:NavigationViewItem.IconSource>
-                         <ui:SymbolIconSource Symbol="Folder"/>
+                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry Folder}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItem Content="Radio" Tag="Radio" IsEnabled="{Binding GameBasedTabsAreReady}">
                      <ui:NavigationViewItem.IconSource>
-                         <ui:FontIconSource Glyph="&#xEC4F;" FontFamily="{StaticResource SymbolThemeFontFamily}"/>
+                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry Radio}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItemSeparator/>
                  <ui:NavigationViewItem Content="Item Shop" Tag="ItemShop" IsEnabled="{Binding GameBasedTabsAreReady}">
                      <ui:NavigationViewItem.IconSource>
-                         <ui:SymbolIconSource Symbol="Shop"/>
+                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry Shopping}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItem Content="Map" Tag="Map" IsEnabled="{Binding GameBasedTabsAreReady}">
                      <ui:NavigationViewItem.IconSource>
-                         <ui:SymbolIconSource Symbol="Map"/>
+                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry Map}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
              </ui:NavigationView.MenuItems>
              <ui:NavigationView.FooterMenuItems>
                  <ui:NavigationViewItem Content="Export" Tag="Export">
                      <ui:NavigationViewItem.IconSource>
-                         <ui:SymbolIconSource Symbol="Download"/>
+                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry Download}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItem Content="Plugin" Tag="Plugin">
                      <ui:NavigationViewItem.IconSource>
-                         <ui:SymbolIconSource Symbol="Sync"/>
+                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry Sync}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItem Content="Help" Tag="Help">
                      <ui:NavigationViewItem.IconSource>
-                         <ui:SymbolIconSource Symbol="Help"/>
+                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry Help}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItem Content="Settings" Tag="Settings">
                      <ui:NavigationViewItem.IconSource>
-                         <ui:SymbolIconSource Symbol="Settings"/>
+                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry Settings}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
              </ui:NavigationView.FooterMenuItems>
