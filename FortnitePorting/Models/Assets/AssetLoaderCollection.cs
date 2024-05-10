@@ -7,7 +7,10 @@ using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Texture;
+using CUE4Parse.UE4.Assets.Objects;
+using CUE4Parse.UE4.Objects.UObject;
 using FluentAvalonia.UI.Controls;
+using FortnitePorting.Application;
 using FortnitePorting.Controls;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
@@ -92,16 +95,51 @@ public partial class AssetLoaderCollection : ObservableObject
                 }
             ]
         },
-        /*new AssetLoaderCategory(EAssetCategory.Creative)
+        new AssetLoaderCategory(EAssetCategory.Creative)
         {
-            Loaders = [
+            Loaders = 
+            [
                 new AssetLoader(EAssetType.Prop)
                 {
                     ClassNames = ["FortPlaysetPropItemDefinition"],
-                    HideRarity = true
+                    HideRarity = true,
+                    HidePredicate = (loader, asset, name) =>
+                    {
+                        // if prop has already been filtered, dont load it
+                        // then compare names w/ the already loaded assets
+                        // if they have the same name, they're a duplicate and should be filtered
+                        // slow on first load, otherwise a LOT faster
+                        // TODO put filtered assets into styles of main asset on click
+                        var path = asset.GetPathName();
+                        if (AppSettings.Current.FilteredProps.Contains(path)) return true;
+
+                        if (loader.FilteredAssetBag.Contains(name))
+                        {
+                            AppSettings.Current.FilteredProps.Add(path);
+                            return true;
+                        }
+                        
+                        loader.FilteredAssetBag.Add(name);
+                        return false;
+                    } 
+                },
+                new AssetLoader(EAssetType.Prefab)
+                {
+                    ClassNames = ["FortPlaysetItemDefinition"],
+                    HideNames = ["Device", "PID_Playset", "PID_MapIndicator", "SpikyStadium", "PID_StageLight", "PID_Temp_Island",
+                                "PID_LimeEmptyPlot", "PID_Townscaper", "JunoPlotPlaysetItemDefintion"], // lol epic made a typo
+                    HideRarity = true,
+                    HidePredicate = (loader, asset, name) =>
+                    {
+                        var tagsHelper = asset.GetOrDefault<FStructFallback?>("CreativeTagsHelper");
+                        if (tagsHelper is null) return false;
+
+                        var tags = tagsHelper.GetOrDefault("CreativeTags", Array.Empty<FName>());
+                        return tags.Any(tag => tag.Text.Contains("Device", StringComparison.OrdinalIgnoreCase));
+                    } 
                 }
             ]
-        }*/
+        }
 
     ];
     

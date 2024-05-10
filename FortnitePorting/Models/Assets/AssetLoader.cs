@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -34,12 +35,14 @@ public partial class AssetLoader : ObservableObject
     public string[] HideNames = [];
     public bool LoadHiddenAssets;
     public bool HideRarity;
+    public Func<AssetLoader, UObject, string, bool> HidePredicate = (loader, asset, name) => false;
     public string PlaceholderIconPath = "FortniteGame/Content/Athena/Prototype/Textures/T_Placeholder_Generic";
     public Func<UObject, UTexture2D?> IconHandler = asset => asset.GetAnyOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage");
     public Func<UObject, string?> DisplayNameHandler = asset => asset.GetAnyOrDefault<FText?>("DisplayName", "ItemName")?.Text;
     
     public readonly ReadOnlyObservableCollection<AssetItem> Filtered;
     public SourceCache<AssetItem, Guid> Source = new(item => item.Guid);
+    public readonly ConcurrentBag<string> FilteredAssetBag = [];
 
     private List<FAssetData> Assets;
 
@@ -184,14 +187,15 @@ public partial class AssetLoader : ObservableObject
     
     private async Task LoadAsset(UObject asset)
     {
-        var isHidden = HideNames.Any(name => asset.Name.Contains(name, StringComparison.OrdinalIgnoreCase));
+        var displayName = DisplayNameHandler(asset);
+        if (string.IsNullOrWhiteSpace(displayName)) displayName = asset.Name;
+        
+        var isHidden = HideNames.Any(name => asset.Name.Contains(name, StringComparison.OrdinalIgnoreCase)) || HidePredicate(this, asset, displayName);
         if (isHidden && !LoadHiddenAssets) return;
         
         var icon = IconHandler(asset) ?? await CUE4ParseVM.Provider.TryLoadObjectAsync<UTexture2D>(PlaceholderIconPath);
         if (icon is null) return;
         
-        var displayName = DisplayNameHandler(asset);
-        if (string.IsNullOrWhiteSpace(displayName)) displayName = asset.Name;
         
         await TaskService.RunDispatcherAsync(() =>
         {

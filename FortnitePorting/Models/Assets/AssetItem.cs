@@ -1,12 +1,15 @@
 using System;
+using System.Linq;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.GameTypes.FN.Enums;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Texture;
+using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.GameplayTags;
+using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Shared;
@@ -43,7 +46,18 @@ public partial class AssetItem : ObservableObject
         CreationData = args;
         Guid = Guid.NewGuid();
         
-        GameplayTags = CreationData.Object.GetOrDefault<FGameplayTagContainer?>("GameplayTags");
+        if (CreationData.AssetType is EAssetType.Prefab)
+        {
+            var tagsHelper = CreationData.Object.GetOrDefault<FStructFallback?>("CreativeTagsHelper");
+            var tags = tagsHelper?.GetOrDefault<FName[]>("CreativeTags") ?? [];
+            var gameplayTags = tags.Select(tag => new FGameplayTag(tag)).ToArray();
+            GameplayTags = new FGameplayTagContainer(gameplayTags);
+        }
+        else
+        {
+            GameplayTags = CreationData.Object.GetOrDefault<FGameplayTagContainer?>("GameplayTags");
+        }
+        
         Rarity = CreationData.Object.GetOrDefault("Rarity", EFortRarity.Uncommon);
         
         var description = CreationData.Object.GetAnyOrDefault<FText?>("Description", "ItemDescription") ?? new FText("No description.");

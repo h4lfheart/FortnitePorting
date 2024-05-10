@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.Versions;
 using FortnitePorting.Shared;
@@ -19,4 +20,6 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private string _mappingsFile;
     [ObservableProperty] private ELanguage _gameLanguage = ELanguage.English;
     [ObservableProperty] private bool _useTextureStreaming = true;
+
+    [ObservableProperty] private HashSet<string> _filteredProps = [];
 }
