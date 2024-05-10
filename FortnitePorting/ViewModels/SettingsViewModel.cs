@@ -7,6 +7,9 @@ namespace FortnitePorting.ViewModels;
 
 public partial class SettingsViewModel : ViewModelBase
 {
+    
+    [ObservableProperty] private bool _finishedWelcomeScreen;
+    
     // todo save in presets class
     [ObservableProperty] private EFortniteVersion _fortniteVersion = EFortniteVersion.LatestInstalled;
     [ObservableProperty] private string _archiveDirectory;

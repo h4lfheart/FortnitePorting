@@ -1,7 +1,9 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FluentAvalonia.UI.Controls;
+using FortnitePorting.Application;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Framework;
 
@@ -14,6 +16,11 @@ public partial class AppViewModel : ViewModelBase
     [ObservableProperty] private bool _setupTabsAreVisible = true;
     [ObservableProperty] private Frame _contentFrame;
     [ObservableProperty] private NavigationView _navigationView;
+
+    public override async Task Initialize()
+    {
+        SetupTabsAreVisible = !AppSettings.Current.FinishedWelcomeScreen;
+    }
 
     public void Navigate<T>()
     {

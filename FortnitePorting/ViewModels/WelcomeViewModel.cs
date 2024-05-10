@@ -91,6 +91,7 @@ public partial class WelcomeViewModel : ViewModelBase
         AppSettings.Current.MappingsFile = MappingsFile;
         AppSettings.Current.GameLanguage = GameLanguage;
         AppSettings.Current.UseTextureStreaming = UseTextureStreaming;
+        AppSettings.Current.FinishedWelcomeScreen = true;
         
         AppVM.SetupTabsAreVisible = false;
         AppVM.Navigate<HomeView>();
