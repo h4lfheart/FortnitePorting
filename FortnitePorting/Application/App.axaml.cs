@@ -18,24 +18,8 @@ public partial class App : Avalonia.Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            desktop.MainWindow = new AppWindow();
-            desktop.Startup += OnStartup;
             ApplicationService.Application = desktop;
-            Dispatcher.UIThread.UnhandledException += (sender, args) =>
-            {
-                args.Handled = true;
-
-                var exceptionString = args.Exception.ToString();
-                Log.Error(exceptionString);
-                
-                var dialog = new ContentDialog
-                {
-                    Title = "An unhandled exception has occurred",
-                    Content = exceptionString,
-                    CloseButtonText = "Continue"
-                };
-                dialog.ShowAsync();
-            };
+            ApplicationService.Initialize();
         }
 
         base.OnFrameworkInitializationCompleted();

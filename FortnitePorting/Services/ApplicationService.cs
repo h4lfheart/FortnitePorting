@@ -7,6 +7,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using FluentAvalonia.UI.Controls;
+using FortnitePorting.Application;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.ViewModels;
 using FortnitePorting.Views;
@@ -32,7 +33,7 @@ public static class ApplicationService
     public static readonly DirectoryInfo DataFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".data"));
     public static readonly DirectoryInfo CacheFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".cache"));
 
-    public static void OnStartup(object? sender, ControlledApplicationLifetimeStartupEventArgs e)
+    public static void Initialize()
     {
         Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
         
@@ -45,9 +46,38 @@ public static class ApplicationService
         DataFolder.Create();
         LogsFolder.Create();
         CacheFolder.Create();
+        
+        AppSettings.Load();
+        
+        Application.MainWindow = new AppWindow();
+        Application.Startup += OnStartup;
+        Application.Exit += OnExit;
+        Dispatcher.UIThread.UnhandledException += (sender, args) =>
+        {
+            args.Handled = true;
 
+            var exceptionString = args.Exception.ToString();
+            Log.Error(exceptionString);
+                
+            var dialog = new ContentDialog
+            {
+                Title = "An unhandled exception has occurred",
+                Content = exceptionString,
+                CloseButtonText = "Continue"
+            };
+            dialog.ShowAsync();
+        };
+    }
+
+    public static void OnStartup(object? sender, ControlledApplicationLifetimeStartupEventArgs e)
+    {
         ViewModelRegistry.Register<APIViewModel>();
         DiscordService.Initialize();
+    }
+    
+    public static void OnExit(object? sender, ControlledApplicationLifetimeExitEventArgs e)
+    {
+        AppSettings.Save();
     }
     
     public static void Launch(string location, bool shellExecute = true)
