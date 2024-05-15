@@ -4,11 +4,13 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Input.Platform;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
 using FortnitePorting.Shared.Framework;
+using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
 using FortnitePorting.Views;
 using Serilog;
@@ -27,6 +29,7 @@ public static class ApplicationService
     
     public static IClassicDesktopStyleApplicationLifetime Application = null!;
     private static IStorageProvider StorageProvider => Application.MainWindow!.StorageProvider;
+    public static IClipboard Clipboard => Application.MainWindow!.Clipboard!;
     
     public static readonly DirectoryInfo AssetsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets"));
     public static readonly DirectoryInfo LogsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs"));
@@ -88,6 +91,21 @@ public static class ApplicationService
     {
         AppSettings.Save();
         DiscordService.Deinitialize();
+    }
+
+    public static void DisplayDialog(string title, string content)
+    {
+        TaskService.RunDispatcher(async () =>
+        {
+            var dialog = new ContentDialog
+            {
+                Title = title,
+                Content = content,
+                CloseButtonText = "Continue"
+            };
+            
+            await dialog.ShowAsync();
+        });
     }
     
     public static void Launch(string location, bool shellExecute = true)

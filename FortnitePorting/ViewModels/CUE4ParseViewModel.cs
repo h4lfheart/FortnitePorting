@@ -19,6 +19,8 @@ using FortnitePorting.Models.CUE4Parse;
 using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Framework;
+using FortnitePorting.Shared.Services;
+using FortnitePorting.Windows;
 using Serilog;
 using UE4Config.Parsing;
 

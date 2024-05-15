@@ -1,0 +1,72 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
+        xmlns:ui="using:FluentAvalonia.UI.Controls"
+        xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
+        x:Class="FortnitePorting.Windows.TexturePreviewWindow"
+        x:DataType="viewModels:TexturePreviewViewModel"
+        Width="960" Height="540" RequestedThemeVariant="Dark" FontFamily="Segoe UI" SizeToContent="Width" MinWidth="540"
+        TransparencyLevelHint="Mica" ExtendClientAreaToDecorationsHint="True" Background="{x:Null}"
+        Icon="/Assets/LogoEnhanced.ico"
+        Title="Fortnite Porting Texture Preview">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="{ext:Space 1}"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <Grid Grid.Row="0" Background="Transparent" HorizontalAlignment="Stretch" IsHitTestVisible="False">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="8" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="2" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="1" Text="Texture Viewer" FontWeight="SemiBold" FontSize="16"
+                       HorizontalAlignment="Left" VerticalAlignment="Center" />
+            <TextBlock Grid.Column="3" Text="{Binding TextureName}" Classes="TextFillColorTertiaryBrush" FontSize="13" Margin="-2 2 0 0"
+                       HorizontalAlignment="Left" VerticalAlignment="Center" />
+        </Grid>
+        
+        <Grid Grid.Row="1" HorizontalAlignment="Center">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="{ext:Space 1}"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                <TextBlock Text="Mipmap:" Classes="BodyTextBlockStyle" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="{ext:Space 0, 0, 1, 0}"/>
+                <ui:NumberBox Value="{Binding TargetMipIndex}" 
+                              Minimum="{Binding MinimumMip}" Maximum="{Binding MaximumMip}"
+                              SpinButtonPlacementMode="Inline"/>
+            </StackPanel>
+            
+            
+            <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Center">
+                <TextBlock Text="RGBA:" Classes="BodyTextBlockStyle" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="{ext:Space 0, 0, 1, 0}"/>
+                <CheckBox Classes="Red" IsChecked="{Binding ShowRedChannel}"/>
+                <CheckBox Classes="Green" IsChecked="{Binding ShowGreenChannel}"/>
+                <CheckBox Classes="Blue" IsChecked="{Binding ShowBlueChannel}"/>
+                <CheckBox Classes="Alpha" IsChecked="{Binding ShowAlphaChannel}"/>
+            </StackPanel>
+        </Grid>
+        
+        <Separator Grid.Row="2" Margin="{ext:Space 0, 1, 0, 0}"/>
+        
+        <Grid Grid.Row="3" Margin="{ext:Space 1}">
+            <Border CornerRadius="4"
+                    Width="{Binding Bounds.Width, ElementName=TemplateImage}"
+                    Height="{Binding Bounds.Height, ElementName=TemplateImage}">
+                <Border.Background>
+                    <ImageBrush Source="{Binding DisplayBitmap}"/>
+                </Border.Background>
+            </Border>
+            
+            <Image x:Name="TemplateImage" Opacity="0" Source="{Binding DisplayBitmap}"/>
+        </Grid>
+    </Grid>
+</Window>

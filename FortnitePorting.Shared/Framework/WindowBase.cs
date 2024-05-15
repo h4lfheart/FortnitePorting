@@ -10,10 +10,16 @@ public abstract class WindowBase<T> : Window where T : ViewModelBase, new()
     public WindowBase(bool initializeViewModel = true)
     {
         ViewModel = ViewModelRegistry.Register<T>();
-        
+
         if (initializeViewModel)
         {
             TaskService.Run(ViewModel.Initialize);
         }
+    }
+
+    public void BringToTop()
+    {
+       Topmost = true;
+       Topmost = false;
     }
 }

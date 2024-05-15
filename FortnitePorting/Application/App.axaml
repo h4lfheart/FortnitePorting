@@ -160,5 +160,25 @@
         <Style Selector="TextBlock.TextFillColorDisabledBrush">
             <Setter Property="Foreground" Value="#5C5C5C"/>
         </Style>
+        
+        <Style Selector="CheckBox.Red /template/ Border#NormalRectangle">
+            <Setter Property="Background" Value="#FFE81123" />
+            <Setter Property="BorderBrush" Value="#FFFF4343" />
+        </Style>
+    
+        <Style Selector="CheckBox.Green /template/ Border#NormalRectangle">
+            <Setter Property="Background" Value="#FF10893E" />
+            <Setter Property="BorderBrush" Value="#FF00CC6A" />
+        </Style>
+    
+        <Style Selector="CheckBox.Blue /template/ Border#NormalRectangle">
+            <Setter Property="Background" Value="#FF0063B1" />
+            <Setter Property="BorderBrush" Value="#FF0099BC" />
+        </Style>
+    
+        <Style Selector="CheckBox.Alpha /template/ Border#NormalRectangle">
+            <Setter Property="Background" Value="#FF6B6B6B" />
+            <Setter Property="BorderBrush" Value="#FFA3A3A3" />
+        </Style>
     </Application.Styles>
 </Application>

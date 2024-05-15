@@ -9,13 +9,22 @@ namespace FortnitePorting.Shared.Extensions;
 
 public static class ImageExtensions
 {
-    public static unsafe WriteableBitmap ToWriteableBitmap(this SKBitmap skiaBitmap)
+    public static WriteableBitmap ToWriteableBitmap(this SKBitmap skiaBitmap)
     {
-        fixed (byte* p = skiaBitmap.Bytes)
+        using var skiaPixmap = skiaBitmap.PeekPixels();
+        using var skiaImage = SKImage.FromPixels(skiaPixmap);
+        
+        var bitmap = new WriteableBitmap(new PixelSize(skiaBitmap.Width, skiaBitmap.Height), new Vector(96, 96), PixelFormat.Bgra8888, AlphaFormat.Unpremul);
+        var frameBuffer = bitmap.Lock();
+
+        using (var pixmap = new SKPixmap(new SKImageInfo(skiaBitmap.Width, skiaBitmap.Height, SKColorType.Bgra8888, SKAlphaType.Unpremul), frameBuffer.Address, frameBuffer.RowBytes))
         {
-            return new WriteableBitmap(PixelFormat.Rgba8888, AlphaFormat.Unpremul, (IntPtr) p, new PixelSize(skiaBitmap.Width, skiaBitmap.Width), new Vector(96, 96), skiaBitmap.RowBytes);
+            skiaImage.ReadPixels(pixmap, 0, 0);
         }
-       
+        
+        frameBuffer.Dispose();
+        return bitmap;
+
     }
 
     public static Bitmap AvaresBitmap(string path)

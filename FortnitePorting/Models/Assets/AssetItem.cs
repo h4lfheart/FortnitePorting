@@ -105,7 +105,7 @@ public partial class AssetItem : ObservableObject
                 coolRectPaint.Color = coolRectPaint.Color.WithAlpha((byte) (0.75 * byte.MaxValue));
 
                 canvas.RotateDegrees(-4);
-                canvas.DrawRect(new SKRect(-16, bitmap.Height - 40, bitmap.Width + 16, bitmap.Height + 16), coolRectPaint);
+                canvas.DrawRect(new SKRect(-16, bitmap.Height - 12, bitmap.Width + 16, bitmap.Height + 16), coolRectPaint);
                 canvas.RotateDegrees(4);
             }
             
