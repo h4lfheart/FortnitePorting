@@ -11,6 +11,8 @@ using CUE4Parse.UE4.AssetRegistry;
 using CUE4Parse.UE4.AssetRegistry.Objects;
 using CUE4Parse.UE4.Assets;
 using CUE4Parse.UE4.Assets.Exports.Animation;
+using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
+using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Objects.Core.Misc;
 using CUE4Parse.UE4.Versions;
@@ -57,6 +59,9 @@ public class CUE4ParseViewModel : ViewModelBase
 
         Provider.LoadIniConfigs();
         await LoadConsoleVariables();
+
+        var mesh = Provider.LoadObject<USkeletalMesh>("FortniteGame/Content/Characters/Player/Male/Medium/Bodies/M_Med_Soldier_04/Meshes/SK_M_Med_Soldier_04");
+        ModelPreviewWindow.Preview(mesh);
         
         HomeVM.UpdateStatus("Loading Asset Registry");
         await LoadAssetRegistries();

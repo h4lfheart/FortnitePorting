@@ -9,8 +9,8 @@
         <ApplicationIcon>Assets/LogoEnhanced.ico</ApplicationIcon>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
-
-
+    
+    
     <ItemGroup>
         <PackageReference Include="AsyncImageLoader.Avalonia" Version="3.2.1" />
         <PackageReference Include="Avalonia" Version="11.1.999-cibuild0045367-alpha" />
@@ -37,6 +37,7 @@
     <ItemGroup>
       <ProjectReference Include="..\Dependencies\CUE4Parse\CUE4Parse-Conversion\CUE4Parse-Conversion.csproj" />
       <ProjectReference Include="..\Dependencies\CUE4Parse\CUE4Parse\CUE4Parse.csproj" />
+      <ProjectReference Include="..\FortnitePorting.OpenGL\FortnitePorting.OpenGL.csproj" />
       <ProjectReference Include="..\FortnitePorting.Shared\FortnitePorting.Shared.csproj" />
     </ItemGroup>
 
@@ -56,6 +57,10 @@
       </Compile>
       <Compile Update="Views\FilesView.axaml.cs">
         <DependentUpon>FilesView.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Windows\ModelPreviewWindow.axaml.cs">
+        <DependentUpon>ModelPreviewWindow.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
     </ItemGroup>

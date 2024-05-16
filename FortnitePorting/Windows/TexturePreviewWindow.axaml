@@ -6,9 +6,9 @@
         x:Class="FortnitePorting.Windows.TexturePreviewWindow"
         x:DataType="viewModels:TexturePreviewViewModel"
         Width="960" Height="540" RequestedThemeVariant="Dark" FontFamily="Segoe UI" SizeToContent="Width" MinWidth="540"
-        TransparencyLevelHint="Mica" ExtendClientAreaToDecorationsHint="True" Background="{x:Null}"
+        TransparencyLevelHint="AcrylicBlur" ExtendClientAreaToDecorationsHint="True"
         Icon="/Assets/LogoEnhanced.ico"
-        Title="Fortnite Porting Texture Preview">
+        Title="Texture Viewer">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>
@@ -16,6 +16,12 @@
             <RowDefinition Height="{ext:Space 1}"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
+        
+        <ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="4" IsHitTestVisible="False">
+            <ExperimentalAcrylicBorder.Material>
+                <ExperimentalAcrylicMaterial BackgroundSource="Digger" MaterialOpacity="1.1" TintColor="#220841" TintOpacity="1"/>
+            </ExperimentalAcrylicBorder.Material>
+        </ExperimentalAcrylicBorder>
         
         <Grid Grid.Row="0" Background="Transparent" HorizontalAlignment="Stretch" IsHitTestVisible="False">
             <Grid.ColumnDefinitions>

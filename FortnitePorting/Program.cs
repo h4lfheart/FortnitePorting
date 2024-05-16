@@ -1,6 +1,7 @@
 ﻿global using static FortnitePorting.Services.ApplicationService;
 using Avalonia;
 using System;
+using System.Collections.ObjectModel;
 using FortnitePorting.Application;
 
 namespace FortnitePorting;
@@ -15,5 +16,9 @@ internal static class Program
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .LogToTrace()
-            .With(new Win32PlatformOptions { CompositionMode = [ Win32CompositionMode.WinUIComposition ] });
+            .With(new Win32PlatformOptions
+            {
+                CompositionMode = [Win32CompositionMode.WinUIComposition],
+                RenderingMode = [Win32RenderingMode.Wgl]
+            });
 }

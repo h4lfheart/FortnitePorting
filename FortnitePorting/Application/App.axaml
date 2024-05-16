@@ -31,6 +31,7 @@
         <fluentStyle:FluentAvaloniaTheme/>
         <material:MaterialIconStyles/>
         <StyleInclude Source="avares://FluentAvalonia.ProgressRing/Styling/Controls/ProgressRing.axaml" />
+        <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
         
         <Style Selector="ui|FABorder">
             <Setter Property="Background" Value="#0DFFFFFF"/>

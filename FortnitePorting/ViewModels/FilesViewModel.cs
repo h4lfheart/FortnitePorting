@@ -6,8 +6,11 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
+using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.IO.Objects;
+using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.Utils;
 using DynamicData;
 using DynamicData.Binding;
@@ -84,6 +87,11 @@ public partial class FilesViewModel : ViewModelBase
                 asset = virtualTextureBuilder.Texture.Load<UVirtualTexture2D>();
                 break;
             }
+            case UWorld world:
+            {
+                asset = world.PersistentLevel.Load<ULevel>();
+                break;
+            }
         }
         
         switch (asset)
@@ -91,6 +99,12 @@ public partial class FilesViewModel : ViewModelBase
             case UTexture texture:
             {
                 TexturePreviewWindow.Preview(name, texture);
+                break;
+            }
+            case UStaticMesh:
+            case USkeletalMesh:
+            {
+                ModelPreviewWindow.Preview(asset);
                 break;
             }
             default:
