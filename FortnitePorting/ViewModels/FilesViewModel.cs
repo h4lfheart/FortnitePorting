@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
+using CUE4Parse.UE4.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.IO.Objects;
@@ -106,6 +107,11 @@ public partial class FilesViewModel : ViewModelBase
             case ULevel:
             {
                 ModelPreviewWindow.Preview(name, asset);
+                break;
+            }
+            case USoundWave soundWave:
+            {
+                SoundPreviewWindow.Preview(soundWave);
                 break;
             }
             default:

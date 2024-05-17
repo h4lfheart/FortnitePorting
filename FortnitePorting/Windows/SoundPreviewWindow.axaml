@@ -1,0 +1,67 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
+        xmlns:ui="using:FluentAvalonia.UI.Controls"
+        xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
+        xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+        x:Class="FortnitePorting.Windows.SoundPreviewWindow"
+        x:DataType="viewModels:SoundPreviewViewModel"
+        Width="540" RequestedThemeVariant="Dark" FontFamily="Segoe UI" SizeToContent="Height"
+        TransparencyLevelHint="AcrylicBlur" ExtendClientAreaToDecorationsHint="True" WindowStartupLocation="CenterOwner"
+        Icon="/Assets/LogoEnhanced.ico"
+        Title="Sound Viewer">
+    <Grid RowDefinitions="30, *">
+        <ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False">
+            <ExperimentalAcrylicBorder.Material>
+                <ExperimentalAcrylicMaterial BackgroundSource="Digger" MaterialOpacity="1.1" TintColor="#220841" TintOpacity="1"/>
+            </ExperimentalAcrylicBorder.Material>
+        </ExperimentalAcrylicBorder>
+        
+        <Grid Grid.Row="0" Background="Transparent" HorizontalAlignment="Stretch" IsHitTestVisible="False">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="8" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="2" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="1" Text="Sound Viewer" FontWeight="SemiBold" FontSize="16"
+                       HorizontalAlignment="Left" VerticalAlignment="Center" />
+            <TextBlock Grid.Column="3" Text="{Binding SoundName}" Classes="TextFillColorTertiaryBrush" FontSize="13" Margin="-2 2 0 0"
+                       HorizontalAlignment="Left" VerticalAlignment="Center" />
+        </Grid>
+        
+        <Grid Grid.Row="1" Margin="{ext:Space 1}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="{ext:Space 1}"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            
+            <Button Grid.Column="0" Command="{Binding TogglePause}">
+                <material:MaterialIcon Kind="{Binding PauseIcon}"/>
+            </Button>
+            
+            <Grid Grid.Column="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="{ext:Space 1}" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="{ext:Space 1}" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                
+                <TextBlock Grid.Column="0"
+                           Text="{Binding CurrentTime, StringFormat=mm\\:ss, FallbackValue=0:00}"
+                           VerticalAlignment="Center" />
+                <Slider Grid.Column="2" Value="{Binding CurrentTime.TotalSeconds}" 
+                          Minimum="0" Maximum="{Binding TotalTime.TotalSeconds}"
+                          ValueChanged="OnSliderValueChanged"/>
+                <TextBlock Grid.Column="4"
+                           Text="{Binding TotalTime, StringFormat=mm\\:ss, FallbackValue=0:00}"
+                           VerticalAlignment="Center" />
+            </Grid>
+            
+        </Grid>
+    </Grid>
+</Window>

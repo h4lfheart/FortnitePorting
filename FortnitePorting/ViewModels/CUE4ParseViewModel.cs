@@ -12,6 +12,7 @@ using CUE4Parse.UE4.AssetRegistry.Objects;
 using CUE4Parse.UE4.Assets;
 using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
+using CUE4Parse.UE4.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Objects.Core.Misc;
@@ -61,8 +62,7 @@ public class CUE4ParseViewModel : ViewModelBase
         Provider.LoadIniConfigs();
         await LoadConsoleVariables();
 
-        var level = Provider.LoadObject<UWorld>("FortniteGame/Content/Athena/Asteria/Maps/Landmarks/Japan/Asteria_LM_Japan_1x1_Tower_02");
-        ModelPreviewWindow.Preview(level.Name, level.PersistentLevel.Load<ULevel>());
+        SoundPreviewWindow.Preview(Provider.LoadObject<USoundWave>("FortniteGame/Content/Sounds/Fort_Music/Orchestral_Score/Orch_Menu_Frontend/FN_Login_Remix_02_Loop"));
         
         HomeVM.UpdateStatus("Loading Asset Registry");
         await LoadAssetRegistries();

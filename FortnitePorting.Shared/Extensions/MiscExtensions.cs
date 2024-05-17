@@ -4,6 +4,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
+using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.Utils;
 
 namespace FortnitePorting.Shared.Extensions;
 
@@ -110,6 +112,28 @@ public static class MiscExtensions
         
         var index = System.Random.Shared.Next(0, list.Count);
         return list[index];
+    }
+    
+    public static bool TryDeleteFile(string path)
+    {
+        try
+        {
+            File.Delete(path);
+            return true;
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
+    }
+    
+    public static string GetCleanedExportPath(UObject obj)
+    {
+        var path = obj.Owner != null ? obj.Owner.Name : string.Empty;
+        path = path.SubstringBeforeLast('.');
+        if (path.StartsWith("/")) path = path[1..];
+        
+        return path;
     }
 }
 

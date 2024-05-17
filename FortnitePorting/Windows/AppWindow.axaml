@@ -3,7 +3,7 @@
         xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
         xmlns:ui="using:FluentAvalonia.UI.Controls"
         xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
-        x:Class="FortnitePorting.Application.AppWindow"
+        x:Class="FortnitePorting.Windows.AppWindow"
         x:DataType="viewModels:AppViewModel"
         Width="1160" Height="770" RequestedThemeVariant="Dark" FontFamily="Segoe UI"
         TransparencyLevelHint="AcrylicBlur" ExtendClientAreaToDecorationsHint="True"
@@ -17,9 +17,9 @@
         </ExperimentalAcrylicBorder>
         <Grid Grid.Row="0" Background="Transparent" HorizontalAlignment="Stretch" IsHitTestVisible="False">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="8" />
+                <ColumnDefinition Width="{ext:Space 1}" />
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="2" />
+                <ColumnDefinition Width="{ext:Space 0.25}" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 

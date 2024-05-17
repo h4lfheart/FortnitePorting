@@ -1,12 +1,9 @@
 using System;
-using Avalonia.Controls;
-using Avalonia.Interactivity;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.ViewModels;
-using FortnitePorting.Views;
 
-namespace FortnitePorting.Application;
+namespace FortnitePorting.Windows;
 
 public partial class AppWindow : WindowBase<AppViewModel>
 {

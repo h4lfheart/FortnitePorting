@@ -18,10 +18,12 @@
         <PackageReference Include="Avalonia.Themes.Fluent" Version="11.1.999-cibuild0045367-alpha"/>
         <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.1.999-cibuild0045367-alpha"/>
         <PackageReference Include="DiscordRichPresence" Version="1.2.1.24" />
+        <PackageReference Include="DotNetZip" Version="1.16.0" />
         <PackageReference Include="DynamicData" Version="8.4.1" />
         <PackageReference Include="FluentAvalonia.ProgressRing" Version="1.69.2" />
         <PackageReference Include="FluentAvaloniaUI" Version="2.0.5" />
         <PackageReference Include="Material.Icons.Avalonia" Version="2.1.9" />
+        <PackageReference Include="NAudio" Version="2.2.1" />
         <PackageReference Include="ReactiveUI" Version="20.0.1" />
         <PackageReference Include="RestSharp" Version="110.2.1-alpha.0.20" />
         <PackageReference Include="RestSharp.Serializers.NewtonsoftJson" Version="110.2.1-alpha.0.20" />
@@ -61,6 +63,14 @@
       </Compile>
       <Compile Update="Windows\ModelPreviewWindow.axaml.cs">
         <DependentUpon>ModelPreviewWindow.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Windows\SoundPreviewWindow.axaml.cs">
+        <DependentUpon>SoundPreviewWindow.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Windows\AppWindow.axaml.cs">
+        <DependentUpon>AppWindow.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
     </ItemGroup>

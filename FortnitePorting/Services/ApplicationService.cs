@@ -15,6 +15,7 @@ using FortnitePorting.ViewModels;
 using FortnitePorting.Views;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
+using AppWindow = FortnitePorting.Windows.AppWindow;
 
 namespace FortnitePorting.Services;
 
@@ -76,6 +77,7 @@ public static class ApplicationService
     {
         DiscordService.Initialize();
         ViewModelRegistry.Register<APIViewModel>();
+        DependencyService.EnsureDependencies();
         
         if (AppSettings.Current.FinishedWelcomeScreen)
         {

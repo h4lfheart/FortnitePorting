@@ -1,5 +1,6 @@
 using System.IO;
 using System.Threading.Tasks;
+using CUE4Parse.Utils;
 using FortnitePorting.Models.API;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Framework;
@@ -50,5 +51,19 @@ public class APIViewModel : ViewModelBase
     public FileInfo DownloadFile(string url, string destination)
     {
         return DownloadFileAsync(url, destination).GetAwaiter().GetResult();
+    }
+    
+    public FileInfo DownloadFile(string url, DirectoryInfo destination)
+    {
+        return DownloadFileAsync(url, destination).GetAwaiter().GetResult();
+    }
+
+    public async Task<FileInfo> DownloadFileAsync(string url, DirectoryInfo destination)
+    {
+        var outPath = Path.Combine(destination.FullName, url.SubstringAfterLast("/").SubstringAfterLast("\\"));
+        var request = new RestRequest(url);
+        var data = await _client.DownloadDataAsync(request);
+        if (data is not null) await File.WriteAllBytesAsync(outPath, data);
+        return new FileInfo(outPath);
     }
 }
