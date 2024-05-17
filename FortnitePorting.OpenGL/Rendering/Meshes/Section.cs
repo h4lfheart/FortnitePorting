@@ -97,7 +97,6 @@ public class Section : VertexAndIndexModel
         Shader.SetUniform("normalTex", 1);
         Shader.SetUniform("specularTex", 2);
         Shader.SetUniform("maskTex", 3);
-        Shader.SetUniform("environmentTex", 4);
         Shader.SetUniform3("viewVector", -camera.Direction);
         Shader.SetUniform("isGlass", Material is { IsGlass: true } ? 1 : 0);
 

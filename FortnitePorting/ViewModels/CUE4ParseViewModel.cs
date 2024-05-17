@@ -15,6 +15,7 @@ using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Objects.Core.Misc;
+using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Versions;
 using FortnitePorting.Application;
 using FortnitePorting.Models.CUE4Parse;
@@ -60,8 +61,8 @@ public class CUE4ParseViewModel : ViewModelBase
         Provider.LoadIniConfigs();
         await LoadConsoleVariables();
 
-        var mesh = Provider.LoadObject<USkeletalMesh>("FortniteGame/Content/Characters/Player/Male/Medium/Bodies/M_Med_Soldier_04/Meshes/SK_M_Med_Soldier_04");
-        ModelPreviewWindow.Preview(mesh);
+        var level = Provider.LoadObject<UWorld>("FortniteGame/Content/Athena/Asteria/Maps/Landmarks/Japan/Asteria_LM_Japan_1x1_Tower_02");
+        ModelPreviewWindow.Preview(level.Name, level.PersistentLevel.Load<ULevel>());
         
         HomeVM.UpdateStatus("Loading Asset Registry");
         await LoadAssetRegistries();

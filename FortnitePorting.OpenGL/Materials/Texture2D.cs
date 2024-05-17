@@ -26,8 +26,8 @@ public class Texture2D
 
         GL.TextureParameteri(Handle, TextureParameterName.TextureMinFilter, (int) TextureMinFilter.Linear);
         GL.TextureParameteri(Handle, TextureParameterName.TextureMagFilter, (int) TextureMinFilter.Linear);
-        GL.TextureParameteri(Handle, TextureParameterName.TextureWrapS, (int) TextureWrapMode.ClampToEdge);
-        GL.TextureParameteri(Handle, TextureParameterName.TextureWrapT, (int) TextureWrapMode.ClampToEdge);
+        GL.TextureParameteri(Handle, TextureParameterName.TextureWrapS, (int) TextureWrapMode.Repeat);
+        GL.TextureParameteri(Handle, TextureParameterName.TextureWrapT, (int) TextureWrapMode.Repeat);
     }
 
     public Texture2D(FLinearColor color)

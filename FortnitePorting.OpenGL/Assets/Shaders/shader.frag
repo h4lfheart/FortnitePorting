@@ -11,7 +11,6 @@ uniform sampler2D diffuseTex;
 uniform sampler2D normalTex;
 uniform sampler2D specularTex;
 uniform sampler2D maskTex;
-uniform samplerCube environmentTex;
 uniform vec3 viewVector;
 
 vec3 samplerToColor(sampler2D tex)
@@ -46,13 +45,6 @@ float distributionGGX(float roughness, float nDotH)
     float numerator = pow(roughness, 2);
     float denominator = PI * pow((pow(nDotH, 2) * (numerator - 1)+1), 2);
     return (numerator * numerator) / denominator;
-}
-
-vec3 calcReflection(vec3 normals)
-{
-    vec3 I = normalize(viewVector);
-    vec3 R = reflect(I, normalize(normals));
-    return texture(environmentTex, R).rgb;
 }
 
 vec3 calcLight()

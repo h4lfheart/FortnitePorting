@@ -103,8 +103,9 @@ public partial class FilesViewModel : ViewModelBase
             }
             case UStaticMesh:
             case USkeletalMesh:
+            case ULevel:
             {
-                ModelPreviewWindow.Preview(asset);
+                ModelPreviewWindow.Preview(name, asset);
                 break;
             }
             default:

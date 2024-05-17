@@ -5,7 +5,8 @@ using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Objects.Engine;
 using FortnitePorting.OpenGL.Materials;
-using FortnitePorting.OpenGL.Rendering.World;
+using FortnitePorting.OpenGL.Rendering.Levels;
+using FortnitePorting.OpenGL.Rendering.Viewport;
 using Mesh = FortnitePorting.OpenGL.Rendering.Meshes.Mesh;
 
 namespace FortnitePorting.OpenGL.Rendering;
@@ -51,7 +52,8 @@ public class RenderManager : IRenderable
         IRenderable renderable = obj switch
         {
             UStaticMesh staticMesh => new Mesh(staticMesh),
-            USkeletalMesh skeletalMesh => new Mesh(skeletalMesh)
+            USkeletalMesh skeletalMesh => new Mesh(skeletalMesh),
+            ULevel level => new Level(level)
         };
         
         renderable.Setup();

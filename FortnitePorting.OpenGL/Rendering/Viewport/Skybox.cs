@@ -3,7 +3,7 @@ using FortnitePorting.OpenGL.Rendering.Model;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 
-namespace FortnitePorting.OpenGL.Rendering.World;
+namespace FortnitePorting.OpenGL.Rendering.Viewport;
 
 public class Skybox : VertexModel
 {

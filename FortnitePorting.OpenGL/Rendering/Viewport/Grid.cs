@@ -2,7 +2,7 @@ using FortnitePorting.OpenGL.Materials;
 using FortnitePorting.OpenGL.Rendering.Model;
 using OpenTK.Graphics.OpenGL;
 
-namespace FortnitePorting.OpenGL.Rendering.World;
+namespace FortnitePorting.OpenGL.Rendering.Viewport;
 
 public class Grid : VertexAndIndexModel
 {
