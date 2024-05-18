@@ -1,0 +1,71 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
+             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+             xmlns:versions="clr-namespace:CUE4Parse.UE4.Versions;assembly=CUE4Parse"
+             xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:icons="clr-namespace:Material.Icons;assembly=Material.Icons"
+             xmlns:files="clr-namespace:FortnitePorting.Models.Files"
+             d:DesignHeight="770" d:DesignWidth="1160"
+             x:Class="FortnitePorting.Views.MapView"
+             x:DataType="viewModels:MapViewModel">
+    <Grid Margin="{ext:Space 1}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        
+        <Grid>
+            <StackPanel>
+                <TextBlock Classes="BodyStrongTextBlockStyle" Text="Streaming Grid" Margin="{ext:Space 0, 0, 0, 1}"/>
+                <ComboBox ItemsSource="{Binding GridNames}" SelectedItem="{Binding SelectedGrid}"/>
+                <Button Content="Restart" Command="{Binding Restart}"/>
+            </StackPanel>
+        </Grid>
+        
+        <Viewbox StretchDirection="Both" Stretch="Uniform">
+            <Grid>
+                <Border CornerRadius="16" ClipToBounds="True">
+                    <Image x:Name="MapImage" Source="{Binding MapBitmap}">
+                        <Image.RenderTransform>
+                            <RotateTransform Angle="90"/>
+                        </Image.RenderTransform>
+                    </Image>
+                </Border>
+                <ItemsControl ItemsSource="{Binding Grids}"
+                              Width="{Binding Bounds.Width, ElementName=MapImage}"
+                              Height="{Binding Bounds.Height, ElementName=MapImage}">
+                    <ItemsControl.OpacityMask>
+                        <ImageBrush Source="{Binding MaskBitmap}" TransformOrigin="50%,50%">
+                            <ImageBrush.Transform>
+                                <TransformGroup>
+                                    <RotateTransform Angle="90"/>
+                                    <ScaleTransform ScaleX="0.95" ScaleY="0.95"/>
+                                </TransformGroup>
+                            </ImageBrush.Transform>
+                        </ImageBrush>
+                    </ItemsControl.OpacityMask>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border ToolTip.Tip="{Binding Name}" Opacity="0.5" Background="Gray" IsHitTestVisible="True" BorderBrush="{Binding Color}" BorderThickness="2" 
+                                    CornerRadius="0" Padding="0"
+                                    Width="{Binding Size}" Height="{Binding Size}" Margin="{Binding Margin}">
+                               
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Grid/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </Grid>
+        </Viewbox>
+    </Grid>
+</UserControl>

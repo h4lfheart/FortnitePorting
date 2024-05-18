@@ -1,8 +1,8 @@
-using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Readers;
 using CUE4Parse.UE4.Objects.UObject;
+using FortnitePorting.Models.CUE4Parse;
 
-namespace FortnitePorting.Models.CUE4Parse;
+namespace FortnitePorting.Models.Unreal;
 
 // todo push to cue4parse main
 public class UVirtualTextureBuilder : UCustomObject

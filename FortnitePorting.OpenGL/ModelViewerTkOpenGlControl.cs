@@ -65,7 +65,6 @@ public class ModelViewerTkOpenGlControl : BaseTkOpenGlControl
     {
         if (QueuedObject is not null)
         {
-            Renderer.Clear();
             Renderer.Add(QueuedObject);
             QueuedObject = null;
         }

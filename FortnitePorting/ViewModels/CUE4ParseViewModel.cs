@@ -62,8 +62,6 @@ public class CUE4ParseViewModel : ViewModelBase
         Provider.LoadIniConfigs();
         await LoadConsoleVariables();
 
-        SoundPreviewWindow.Preview(Provider.LoadObject<USoundWave>("FortniteGame/Content/Sounds/Fort_Music/Orchestral_Score/Orch_Menu_Frontend/FN_Login_Remix_02_Loop"));
-        
         HomeVM.UpdateStatus("Loading Asset Registry");
         await LoadAssetRegistries();
 

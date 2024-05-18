@@ -96,5 +96,5 @@ vec3 calcLight()
 
 void main()
 {
-    FragColor = vec4(calcLight(), 1.0);
+    FragColor = vec4(calcLight(), texture(diffuseTex, fTexCoord).a);
 }

@@ -73,5 +73,9 @@
         <DependentUpon>AppWindow.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
+      <Compile Update="Views\MapView.axaml.cs">
+        <DependentUpon>MapView.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
     </ItemGroup>
 </Project>
