@@ -118,3 +118,17 @@ public class FortAnimNotifyState_SpawnProp : URegisterThisUObject
         SkeletalMeshPropMontage = GetOrDefault<UAnimMontage>(nameof(SkeletalMeshPropAnimation));
     }
 }
+
+public class UVirtualTextureBuilder : URegisterThisUObject
+{
+    public UVirtualTexture2D? Texture;
+    public int BuildHash;
+
+    public override void Deserialize(FAssetArchive Ar, long validPos)
+    {
+        base.Deserialize(Ar, validPos);
+
+        Texture = GetOrDefault<UVirtualTexture2D>(nameof(Texture));
+        BuildHash = GetOrDefault<int>(nameof(BuildHash));
+    }
+}

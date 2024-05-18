@@ -44,6 +44,7 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private bool loadUEFNPaks = true;
     [ObservableProperty] private string localArchivePath;
     [ObservableProperty] private string customArchivePath;
+    [ObservableProperty] private bool useCustomMappingsPath;
     [ObservableProperty] private string customMappingsPath;
     [ObservableProperty] private string customEncryptionKey = Globals.ZERO_CHAR;
     [ObservableProperty] private EGame customUnrealVersion = Globals.LatestGameVersion;
@@ -140,12 +141,12 @@ public partial class SettingsViewModel : ViewModelBase
             }
             case nameof(UseMica):
             {
-                AppVM.UseMicaBackground = UseMica;
+                ThemeVM.UseMicaBackground = UseMica;
                 break;
             }
             case nameof(BackgroundColor):
             {
-                AppVM.BackgroundColor = BackgroundColor;
+                ThemeVM.BackgroundColor = BackgroundColor;
                 break;
             }
             case nameof(AccentColor):

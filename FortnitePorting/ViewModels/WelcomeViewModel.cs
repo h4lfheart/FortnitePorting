@@ -34,6 +34,10 @@ public partial class WelcomeViewModel : ViewModelBase
 
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanContinue))]
     private string customArchivePath;
+    
+    
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanContinue))]
+    private bool useCustomMappingsPath;
 
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanContinue))]
     private string customMappingsPath;
@@ -97,6 +101,7 @@ public partial class WelcomeViewModel : ViewModelBase
         AppSettings.Current.CustomArchivePath = CustomArchivePath;
         AppSettings.Current.CustomEncryptionKey = CustomEncryptionKey;
         AppSettings.Current.CustomMappingsPath = CustomMappingsPath;
+        AppSettings.Current.UseCustomMappingsPath = UseCustomMappingsPath;
 
         AppVM.SetView<MainView>();
     }

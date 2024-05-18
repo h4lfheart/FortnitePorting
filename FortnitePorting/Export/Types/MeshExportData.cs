@@ -26,10 +26,10 @@ namespace FortnitePorting.Export.Types;
 
 public class MeshExportData : ExportDataBase
 {
-    public readonly List<ExportMesh> Meshes = new();
-    public readonly List<ExportMesh> OverrideMeshes = new();
-    public readonly List<ExportOverrideMaterial> OverrideMaterials = new();
-    public readonly List<ExportOverrideParameters> OverrideParameters = new();
+    public readonly List<ExportMesh> Meshes = [];
+    public readonly List<ExportMesh> OverrideMeshes = [];
+    public readonly List<ExportOverrideMaterial> OverrideMaterials = [];
+    public readonly List<ExportOverrideParameters> OverrideParameters = [];
     public readonly AnimExportData Animation;
 
     public MeshExportData(string name, UObject asset, FStructFallback[] styles, EAssetType type, EExportTargetType exportType) : base(name, asset, styles, type, EExportType.Mesh, exportType)
@@ -51,7 +51,9 @@ public class MeshExportData : ExportDataBase
                         Animation = AnimExportData.From(montage, exportType);
                     }
                 }
-                
+
+                ExportPartMeta? partWithPoseData = null;
+                var exportPartsToCopyTo = new List<ExportPartMeta>();
                 AssetsVM.ExportChunks = parts.Length;
                 foreach (var part in parts)
                 {
@@ -59,11 +61,36 @@ public class MeshExportData : ExportDataBase
                     {
                         Animation = AnimExportData.From(montage, exportType);
                     }
-                    
-                    Meshes.AddIfNotNull(Exporter.CharacterPart(part));
+
+                    var resolvedPart = Exporter.CharacterPart(part);
+                    var meta = resolvedPart?.Meta;
+                    if (meta is not null)
+                    {
+                        if (meta.PoseData.Count != 0)
+                        {
+                            if (partWithPoseData != null)
+                                Log.Warning("multiple character parts contained PoseData, results may be inaccurate");
+                            partWithPoseData = meta;
+                        }
+                        else
+                        {
+                            exportPartsToCopyTo.Add(meta);
+                        }
+                    }
+                    Meshes.AddIfNotNull(resolvedPart);
                     AssetsVM.ExportProgress++;
                 }
-                
+
+                // Copy data around
+                if (partWithPoseData is not null) 
+                {
+                    foreach (var part in exportPartsToCopyTo)
+                    {
+                        part.PoseData = partWithPoseData.PoseData;
+                        part.ReferencePose = partWithPoseData.ReferencePose;
+                    }
+                }
+
                 if (Animation is null && Exporter.AppExportOptions.LobbyPoses && Meshes.FirstOrDefault(part => part is ExportPart { CharacterPartType: EFortCustomPartType.Body }) is ExportPart foundPart)
                 {
                     var montage = foundPart.GenderPermitted switch

@@ -25,6 +25,10 @@ public abstract class EndpointBase
             var response = await _client.ExecuteAsync<T>(request).ConfigureAwait(false);
             Log.Information("[{Method}] {StatusDescription} ({StatusCode}): {Uri}", request.Method,
                 response.StatusDescription, (int) response.StatusCode, request.Resource);
+            if (response.ErrorException is not null)
+            {
+                Log.Error(response.ErrorException.ToString());
+            }
             return response.StatusCode != HttpStatusCode.OK ? default : response.Data;
         }
         catch (Exception e)
@@ -46,6 +50,10 @@ public abstract class EndpointBase
 
         var response = await _client.ExecuteAsync(request).ConfigureAwait(false);
         Log.Information("[{Method}] {StatusDescription} ({StatusCode}): {Uri}", request.Method, response.StatusDescription, (int) response.StatusCode, request.Resource);
+        if (response.ErrorException is not null)
+        {
+            Log.Error(response.ErrorException.ToString());
+        }
         return response;
     }
 
