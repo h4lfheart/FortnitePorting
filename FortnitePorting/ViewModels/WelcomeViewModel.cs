@@ -111,7 +111,7 @@ public partial class WelcomeViewModel : ViewModelBase
     {
         if (await BrowseFileDialog(Globals.MappingsFileType) is { } path)
         {
-            ArchiveDirectory = path;
+            MappingsFile = path;
         }
     }
 }
