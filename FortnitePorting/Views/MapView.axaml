@@ -16,18 +16,6 @@
              x:Class="FortnitePorting.Views.MapView"
              x:DataType="viewModels:MapViewModel">
     <Grid Margin="{ext:Space 1}">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-        
-        <Grid>
-            <StackPanel>
-                <TextBlock Classes="BodyStrongTextBlockStyle" Text="Streaming Grid" Margin="{ext:Space 0, 0, 0, 1}"/>
-                <ComboBox ItemsSource="{Binding GridNames}" SelectedItem="{Binding SelectedGrid}"/>
-                <Button Content="Restart" Command="{Binding Restart}"/>
-            </StackPanel>
-        </Grid>
-        
         <Viewbox StretchDirection="Both" Stretch="Uniform">
             <Grid>
                 <Border CornerRadius="16" ClipToBounds="True">
@@ -52,10 +40,42 @@
                     </ItemsControl.OpacityMask>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border ToolTip.Tip="{Binding Name}" Opacity="0.5" Background="Gray" IsHitTestVisible="True" BorderBrush="{Binding Color}" BorderThickness="2" 
+                            <Border ToolTip.Tip="{Binding ToolTipNames}" Opacity="0.5" Background="Gray" IsHitTestVisible="True" BorderBrush="White" 
+                                    BorderThickness="2" PointerPressed="OnCellPressed"
                                     CornerRadius="0" Padding="0"
-                                    Width="{Binding Size}" Height="{Binding Size}" Margin="{Binding Margin}">
-                               
+                                    Width="92" Height="92" Margin="{Binding OffsetMargin}">
+                                <FlyoutBase.AttachedFlyout>
+                                    <Flyout>
+                                        <StackPanel>
+                                            <TextBlock Classes="BodyStrongTextBlockStyle" Text="Grid Maps" HorizontalAlignment="Center"/>
+                                            <ItemsControl ItemsSource="{Binding Maps}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Grid Margin="{ext:Space 0, 0.5, 0, 0.5}">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="25*"/>
+                                                                <ColumnDefinition Width="{ext:Space 1}"/>
+                                                                <ColumnDefinition Width="*"/>
+                                                                <ColumnDefinition Width="{ext:Space 1}"/>
+                                                                <ColumnDefinition Width="*"/>
+                                                            </Grid.ColumnDefinitions>
+                                                        
+                                                            <TextBlock Grid.Column="0" Text="{Binding Name}" VerticalAlignment="Center"/>
+                                                            <Button Grid.Column="2" ToolTip.Tip="Preview" Content="{material:MaterialIconExt CubeScan}" 
+                                                                    Command="{Binding PreviewCommand }"/>
+                                                            <Button Grid.Column="4" ToolTip.Tip="Export" Content="{material:MaterialIconExt Download}"/>
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                            </ItemsControl>
+                                        </StackPanel>
+                                    </Flyout>
+                                </FlyoutBase.AttachedFlyout>
                             </Border>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>

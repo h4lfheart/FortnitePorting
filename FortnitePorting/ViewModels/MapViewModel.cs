@@ -9,6 +9,7 @@ using Avalonia;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Texture;
@@ -17,10 +18,12 @@ using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
+using DynamicData;
 using FortnitePorting.Models.Unreal;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
+using FortnitePorting.Windows;
 using Newtonsoft.Json;
 using Serilog;
 using SkiaSharp;
@@ -32,93 +35,15 @@ public partial class MapViewModel : ViewModelBase
     [ObservableProperty] private WriteableBitmap _mapBitmap;
     [ObservableProperty] private WriteableBitmap _maskBitmap;
     
-    [ObservableProperty] private ObservableCollection<string> _gridNames = [];
-    [ObservableProperty] private string _selectedGrid;
-    
-    [ObservableProperty] private ObservableCollection<Grid> _grids = [];
+    [ObservableProperty] private ObservableCollection<WorldPartitionGrid> _grids = [];
 
     private const string MAP_PATH = "FortniteGame/Content/Athena/Helios/Maps/Helios_Terrain";
     private const string MINIMAP_PATH = "FortniteGame/Content/Athena/Apollo/Maps/UI/Apollo_Terrain_Minimap";
     private const string MASK_PATH = "FortniteGame/Content/Athena/Apollo/Maps/UI/T_MiniMap_Mask";
+    
 
     public override async Task Initialize()
     {
-       /*var mapTexture = await CUE4ParseVM.Provider.LoadObjectAsync<UTexture2D>(MINIMAP_PATH);
-        var mapBitmap = mapTexture.Decode();
-        await File.WriteAllBytesAsync("D:/map.png", mapBitmap.Encode(SKEncodedImageFormat.Png, 100).ToArray());
-
-        var drawBitmap = new SKBitmap(new SKImageInfo(mapBitmap.Width, mapBitmap.Height, SKColorType.Rgba8888, SKAlphaType.Unpremul));
-        using var canvas = new SKCanvas(drawBitmap);
-        canvas.RotateDegrees(90, drawBitmap.Width/2, drawBitmap.Height/2);
-        canvas.DrawBitmap(mapBitmap, 0, 0);
-        canvas.RotateDegrees(-90, drawBitmap.Width/2, drawBitmap.Height/2);
-        
-        var world = await CUE4ParseVM.Provider.LoadObjectAsync<UWorld>(MAP_PATH);
-        var level = world.PersistentLevel.Load<ULevel>();
-        if (level is null) return;
-
-        var alreadyTexts = new Dictionary<FVector, int>();
-        var datas = new List<UObject>();
-        var worldSettings = level.Get<UObject>("WorldSettings");
-        var worldPartition = worldSettings.Get<UObject>("WorldPartition");
-        var runtimeHash = worldPartition.Get<UObject>("RuntimeHash");
-        foreach (var streamingGrid in runtimeHash.GetOrDefault("StreamingGrids", Array.Empty<FStructFallback>()))
-        {
-            var gridName = streamingGrid.Get<FName>("GridName").Text;
-            GridNames.Add(gridName);
-            
-            foreach (var gridLevel in streamingGrid.GetOrDefault("GridLevels", Array.Empty<FStructFallback>()))
-            foreach (var layerCell in gridLevel.GetOrDefault("LayerCells", Array.Empty<FStructFallback>()))
-            foreach (var gridCell in layerCell.GetOrDefault("GridCells", Array.Empty<UObject>()))
-            {
-                if (gridCell.GetOrDefault<bool>("bIsHLOD")) continue;
-                
-                var levelStreaming = gridCell.GetOrDefault<UObject?>("LevelStreaming");
-                if (levelStreaming is null) continue;
-
-                var worldAsset = levelStreaming.Get<FSoftObjectPath>("WorldAsset");
-                var worldName = worldAsset.AssetPathName.Text.SubstringBeforeLast(".").SubstringAfterLast("/");
-
-                var subWorld = worldAsset.Load<UWorld>();
-                //var subLevel = subWorld.PersistentLevel.Load<ULevel>();
-
-                var runtimeCellData = gridCell.Get<UObject>("RuntimeCellData");
-                datas.Add(runtimeCellData);
-                var pos = runtimeCellData.GetOrDefault<FVector>("Position");
-                alreadyTexts.TryAdd(pos, 0);
-                
-                var factor = 0.008f;
-                var offsetx = mapBitmap.Width / 2 - 64 - 32 - 2;
-                var offsety = mapBitmap.Height / 2 - 64 - 40;
-                var bites = new byte[3];
-                Random.Shared.NextBytes(bites);
-
-                if (alreadyTexts[pos] == 0)
-                {
-                    var col = new SKColor(bites[0], bites[1], bites[2]);
-                    canvas.DrawRect(pos.X * factor + offsetx, pos.Y * factor + offsety, 96, 96, new SKPaint
-                    {
-                        Color = col.WithAlpha(255),
-                    });
-                }
-                
-                canvas.DrawText(worldName[..4], pos.X * factor + offsetx + 96f/2, pos.Y * factor + offsety + 96f/4 + 96 * 0.25f* alreadyTexts[pos], new SKFont(SKTypeface.Default, 28), new SKPaint
-                {
-                    Color = SKColors.Black,
-                    TextAlign = SKTextAlign.Center
-                });
-                
-                alreadyTexts[pos]++;
-            }
-            
-            break;
-        }
-        
-        await File.WriteAllTextAsync("D:/map.json", JsonConvert.SerializeObject(datas));
-
-        MapBitmap = drawBitmap.ToWriteableBitmap();
-        MapBitmap.Save("D:/pos.png");*/
-       
         var mapTexture = await CUE4ParseVM.Provider.LoadObjectAsync<UTexture2D>(MINIMAP_PATH);
         MapBitmap = mapTexture.Decode()!.ToWriteableBitmap();
 
@@ -129,21 +54,11 @@ public partial class MapViewModel : ViewModelBase
         var level = world.PersistentLevel.Load<ULevel>();
         if (level is null) return;
 
-        SolidColorBrush brush = null;
-        await TaskService.RunDispatcherAsync(() =>
-        {
-            brush = new SolidColorBrush(Colors.White);
-        });
-
-        var exisitingGrids = new List<FVector>();
         var worldSettings = level.Get<UObject>("WorldSettings");
         var worldPartition = worldSettings.Get<UObject>("WorldPartition");
         var runtimeHash = worldPartition.Get<UObject>("RuntimeHash");
         foreach (var streamingGrid in runtimeHash.GetOrDefault("StreamingGrids", Array.Empty<FStructFallback>()))
         {
-            var gridName = streamingGrid.Get<FName>("GridName").Text;
-            GridNames.Add(gridName);
-
             foreach (var gridLevel in streamingGrid.GetOrDefault("GridLevels", Array.Empty<FStructFallback>()))
             foreach (var layerCell in gridLevel.GetOrDefault("LayerCells", Array.Empty<FStructFallback>()))
             foreach (var gridCell in layerCell.GetOrDefault("GridCells", Array.Empty<UObject>()))
@@ -154,45 +69,67 @@ public partial class MapViewModel : ViewModelBase
                 var worldAsset = levelStreaming.Get<FSoftObjectPath>("WorldAsset");
 
                 var runtimeCellData = gridCell.Get<UObject>("RuntimeCellData");
-                var pos = runtimeCellData.GetOrDefault<FVector>("Position");
-                if (exisitingGrids.Contains(pos)) continue;
-                exisitingGrids.Add(pos);
-                
-                var factor = 0.014f;
-                var offsetx = -64 -64;
-                var offsety = -64;
-                Grids.Add(new Grid
+                var position = runtimeCellData.GetOrDefault<FVector>("Position");
+                if (Grids.FirstOrDefault(grid => grid.Position == position) is { } targetGrid)
                 {
-                    Name = worldAsset.AssetPathName.Text.SubstringBeforeLast(".").SubstringAfterLast("/"),
-                    Path = worldAsset.AssetPathName.Text,
-                    Margin = new Thickness(pos.X * factor + offsetx, pos.Y * factor + offsety, 0, 0),
-                    Size = 92,
-                    Color = brush
-                });
+                    targetGrid.Maps.Add(new WorldPartitionGridMap(worldAsset.AssetPathName.Text));
+                }
+                else
+                {
+                    var grid = new WorldPartitionGrid(position);
+                    grid.Maps.Add(new WorldPartitionGridMap(worldAsset.AssetPathName.Text));
+                    Grids.Add(grid);
+                }
             }
 
             break;
         }
 
-        SelectedGrid = GridNames[0];
     }
 
     public void Restart()
     {
-        GridNames.Clear();
         Grids.Clear();
         
         TaskService.Run(Initialize);
     }
 }
 
-public class Grid
+public partial class WorldPartitionGrid : ObservableObject
 {
-    public string Name {get; set;}
-    public string Path {get; set;}
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(ToolTipNames))] private List<WorldPartitionGridMap> _maps = [];
+    public string ToolTipNames => string.Join("\n", Maps.Select(map => map.Name));
     
-    public int Size { get; set; }
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(OffsetMargin))] private FVector _position;
+    public Thickness OffsetMargin => new(Position.X * SCALE_FACTOR + X_OFFSET, Position.Y * SCALE_FACTOR + Y_OFFSET, 0, 0);
+    
+    private const float SCALE_FACTOR = 0.014f;
+    private const int X_OFFSET = -128;
+    private const int Y_OFFSET = -64;
 
-    public Thickness Margin { get; set; }
-    public SolidColorBrush Color { get; set; }
+    public WorldPartitionGrid(FVector position)
+    {
+        Position = position;
+    }
+    
+}
+
+public partial class WorldPartitionGridMap : ObservableObject
+{
+    [ObservableProperty] private string _path;
+    public string Name => Path.SubstringBeforeLast(".").SubstringAfterLast("/");
+
+    public WorldPartitionGridMap(string path)
+    {
+        Path = path;
+    }
+    
+    [RelayCommand]
+    public async Task Preview()
+    {
+        var world = await CUE4ParseVM.Provider.LoadObjectAsync<UWorld>(Path);
+        var level = await world.PersistentLevel.LoadAsync<ULevel>();
+        ModelPreviewWindow.Preview(level);
+    }
+
 }

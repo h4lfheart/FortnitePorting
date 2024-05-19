@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -16,4 +17,10 @@ public partial class MapView : ViewBase<MapViewModel>
         InitializeComponent();
     }
 
+    private void OnCellPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (sender is not Border border) return;
+
+        FlyoutBase.ShowAttachedFlyout(border);
+    }
 }
