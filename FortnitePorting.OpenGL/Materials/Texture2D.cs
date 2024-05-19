@@ -12,6 +12,7 @@ public class Texture2D
     public static readonly Texture2D Normals = new(new FLinearColor(0.5f, 0.5f, 1.0f, 1.0f));
     public static readonly Texture2D SpecularMasks = new(new FLinearColor(0.5f, 0.0f, 0.5f, 1.0f));
     public static readonly Texture2D Mask = new(new FLinearColor(1.0f, 0.5f, 0.0f, 1.0f));
+    public static readonly Texture2D OpacityMask = new(new FLinearColor(1.0f, 1.0f, 1.0f, 1.0f));
     
     private readonly int Handle;
 

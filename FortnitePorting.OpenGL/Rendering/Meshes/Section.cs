@@ -1,6 +1,7 @@
 using CUE4Parse_Conversion.Meshes.PSK;
 using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Objects.Core.Math;
+using FortnitePorting.OpenGL.Rendering.Levels;
 using FortnitePorting.OpenGL.Rendering.Model;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
@@ -47,7 +48,7 @@ public class Section : VertexAndIndexModel
         Material = ModelViewerTkOpenGlControl.Instance.Renderer.GetOrAddMaterial(material);
     }
 
-    public Section(CStaticMeshLod lod, CMeshSection section, UMaterialInterface? material, Matrix4? transform = null)
+    public Section(CStaticMeshLod lod, CMeshSection section, UMaterialInterface? material, TextureData? textureData = null, Matrix4? transform = null)
     {
         Transform = transform ?? Matrix4.Identity;
         var indices = lod.Indices.Value;
@@ -79,7 +80,7 @@ public class Section : VertexAndIndexModel
         RegisterAttribute("Tangent", 3, VertexAttribPointerType.Float);
 
         Shader = RenderManager.Instance.ObjectShader;
-        Material =  RenderManager.Instance.GetOrAddMaterial(material);
+        Material =  RenderManager.Instance.GetOrAddMaterial(material, textureData);
     }
 
     public override void Render(Camera camera)
@@ -97,8 +98,8 @@ public class Section : VertexAndIndexModel
         Shader.SetUniform("normalTex", 1);
         Shader.SetUniform("specularTex", 2);
         Shader.SetUniform("maskTex", 3);
+        Shader.SetUniform("opacityMaskTex", 4);
         Shader.SetUniform3("viewVector", -camera.Direction);
-        Shader.SetUniform("isGlass", Material is { IsGlass: true } ? 1 : 0);
 
         Material?.Bind();
 

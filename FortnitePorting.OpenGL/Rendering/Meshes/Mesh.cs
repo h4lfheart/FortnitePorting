@@ -2,6 +2,7 @@ using CUE4Parse_Conversion.Meshes;
 using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
+using FortnitePorting.OpenGL.Rendering.Levels;
 using OpenTK.Mathematics;
 using Serilog;
 
@@ -23,7 +24,7 @@ public class Mesh : IRenderable
         Sections.AddRange(sections.Select(x => new Section(lod, x, skeletalMesh.Materials[x.MaterialIndex]?.Load<UMaterialInterface>(), transform)));
     }
 
-    public Mesh(UStaticMesh staticMesh, Matrix4? transform = null)
+    public Mesh(UStaticMesh staticMesh, TextureData? textureData = null, Matrix4? transform = null)
     {
         if (!staticMesh.TryConvert(out var convertedMesh)) return;
 
@@ -31,7 +32,7 @@ public class Mesh : IRenderable
         
         var lod = convertedMesh.LODs[0];
         var sections = lod.Sections.Value;
-        Sections.AddRange(sections.Select(x => new Section(lod, x, staticMesh.Materials[x.MaterialIndex]?.Load<UMaterialInterface>(), transform)));
+        Sections.AddRange(sections.Select(x => new Section(lod, x, staticMesh.Materials[x.MaterialIndex]?.Load<UMaterialInterface>(), textureData, transform)));
     }
 
     public void Setup()

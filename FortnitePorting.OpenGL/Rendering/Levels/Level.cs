@@ -1,9 +1,13 @@
+using System.Diagnostics;
+using CUE4Parse_Conversion;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Component.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.Engine;
 using FortnitePorting.OpenGL.Rendering.Meshes;
+using FortnitePorting.Shared.Extensions;
+using FortnitePorting.Shared.Models.Fortnite;
 using OpenTK.Mathematics;
 using Serilog;
 
@@ -47,12 +51,30 @@ public class Level : IRenderable
             var rotation = staticMeshComponent.GetOrDefault("RelativeRotation", FRotator.ZeroRotator).Quaternion();
             var scale = staticMeshComponent.GetOrDefault("RelativeScale3D", FVector.OneVector);
 
-            var mesh = new Mesh(staticMesh);
+            
             var transform = Matrix4.CreateScale(scale.X, scale.Z, scale.Y) 
                 * Matrix4.CreateFromQuaternion(new Quaternion(rotation.X, rotation.Z, rotation.Y, -rotation.W))
                 * Matrix4.CreateTranslation(location.X, location.Z, location.Y);
             
+            var textureDatas = actorObject.GetAllProperties<UBuildingTextureData>("TextureData");
+            if (textureDatas.Count == 0 && actorObject.Template is not null)
+                textureDatas = actorObject.Template.Load()!.GetAllProperties<UBuildingTextureData>("TextureData");
+
+            var textureDataFinal = new List<TextureData>();
+            foreach (var (textureData, index) in textureDatas.Where(x => x.Key is not null))
+            {
+                textureDataFinal.Add(new TextureData
+                {
+                    Diffuse = textureData.Diffuse,
+                    Normal = textureData.Normal,
+                    Specular = textureData.Specular
+                });
+            }
+            
+            var mesh = new Mesh(staticMesh, textureDataFinal.FirstOrDefault());
+            
             Actors.Add(new Actor(mesh, transform));
+            
         }
     }
     

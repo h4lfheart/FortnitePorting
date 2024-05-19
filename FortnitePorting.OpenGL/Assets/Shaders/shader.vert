@@ -15,9 +15,14 @@ uniform mat4 uProjection;
 
 void main()
 {
-    gl_Position = vec4(aPosition, 1.0) * uTransform * uView * uProjection;
+    vec4 finalPos = vec4(aPosition, 1.0);
+    vec4 finalNormal = vec4(aNormal, 1.0);
+    vec4 finalTangent = vec4(aTangent, 1.0);
+
+    fPosition = vec3(finalPos * uTransform);
+    fNormal = vec3(finalNormal * transpose(inverse(uTransform)));
+    fTangent = vec3(finalTangent * transpose(inverse(uTransform)));
     fTexCoord = aTexCoord;
-    fNormal = aNormal;
-    fTangent = aTangent;
-    fPosition = vec3(vec4(aPosition, 1.0) * uTransform);
+
+    gl_Position = finalPos * uTransform * uView * uProjection;
 }

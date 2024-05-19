@@ -6,6 +6,7 @@ using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.Utils;
 using FortnitePorting.OpenGL.OpenTK;
 using FortnitePorting.OpenGL.Rendering;
+using FortnitePorting.OpenGL.Rendering.Levels;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using Serilog;
@@ -38,14 +39,17 @@ public class ModelViewerTkOpenGlControl : BaseTkOpenGlControl
         Renderer.Clear();
         Renderer.Add(QueuedObject);
         QueuedObject = null;
+        if (Renderer.Objects.FirstOrDefault() is Level level && level.Actors.FirstOrDefault() is { } actor)
+        {
+            Camera.Position = actor.Transform.ExtractTranslation();
+        }
         
-        GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        GL.ClearColor(Color4.Black);
         
         GL.Enable(EnableCap.Blend);
         GL.Enable(EnableCap.CullFace);
         GL.Enable(EnableCap.DepthTest);
         GL.Enable(EnableCap.Multisample);
-        GL.Enable(EnableCap.FramebufferSrgb);
         GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
     }
@@ -65,8 +69,14 @@ public class ModelViewerTkOpenGlControl : BaseTkOpenGlControl
     {
         if (QueuedObject is not null)
         {
+            Renderer.Clear();
             Renderer.Add(QueuedObject);
             QueuedObject = null;
+
+            if (Renderer.Objects.FirstOrDefault() is Level level && level.Actors.FirstOrDefault() is { } actor)
+            {
+                Camera.Position = actor.Transform.ExtractTranslation();
+            }
         }
         
         Camera.AspectRatio = (float) (Bounds.Width / Bounds.Height);

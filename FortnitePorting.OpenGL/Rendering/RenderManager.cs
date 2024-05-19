@@ -20,7 +20,7 @@ public class RenderManager : IRenderable
     public Shader ObjectShader;
     private readonly Dictionary<string, Materials.Material> MaterialCache = new();
     
-    private readonly List<IRenderable> Objects = [];
+    public readonly List<IRenderable> Objects = [];
 
     public RenderManager()
     {
@@ -41,10 +41,11 @@ public class RenderManager : IRenderable
 
     public void Render(Camera camera)
     {
-        Objects.ForEach(obj => obj.Render(camera));
-        
         Skybox.Render(camera);
         Grid.Render(camera);
+        
+        Objects.ForEach(obj => obj.Render(camera));
+        
     }
 
     public void Add(UObject obj)
@@ -66,7 +67,7 @@ public class RenderManager : IRenderable
         MaterialCache.Clear();
     }
     
-    public Materials.Material? GetOrAddMaterial(UMaterialInterface? materialInterface)
+    public Materials.Material? GetOrAddMaterial(UMaterialInterface? materialInterface, TextureData? textureData = null)
     {
         if (materialInterface is null) return null;
 
@@ -76,14 +77,15 @@ public class RenderManager : IRenderable
             return foundMaterial;
         }
 
-        MaterialCache[path] = new Materials.Material(materialInterface);
+        MaterialCache[path] = new Materials.Material(materialInterface, textureData);
         return MaterialCache[path];
     }
     
     public void Dispose()
     {
-        Objects.ForEach(obj => obj.Dispose());
+        Clear();
         
+        Objects.ForEach(obj => obj.Dispose());
         ObjectShader.Dispose();
         Skybox.Dispose();
         Grid.Dispose();

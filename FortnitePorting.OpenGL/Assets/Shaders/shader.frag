@@ -11,6 +11,7 @@ uniform sampler2D diffuseTex;
 uniform sampler2D normalTex;
 uniform sampler2D specularTex;
 uniform sampler2D maskTex;
+uniform sampler2D opacityMaskTex;
 uniform vec3 viewVector;
 
 vec3 samplerToColor(sampler2D tex)
@@ -20,15 +21,14 @@ vec3 samplerToColor(sampler2D tex)
 
 vec3 calcNormals()
 {
-    vec3 normalTexture = samplerToColor(normalTex).rgb;
-    vec3 normal = normalTexture * 2.0 - 1.0;
+    vec3 normal = samplerToColor(normalTex).rgb * 2.0 - 1.0;
 
-    vec3 tangentVec = normalize(fTangent);
-    vec3 normalVec = normalize(fNormal);
-    vec3 binormalVec = -normalize(cross(normalVec, tangentVec));
-    mat3 combined = mat3(tangentVec, binormalVec, normalVec);
+    vec3 t = normalize(fTangent);
+    vec3 n = normalize(fNormal);
+    vec3 b = -normalize(cross(n, t));
+    mat3 tbn = mat3(t, b, n);
     
-    return normalize(combined * normal);
+    return normalize(tbn * normal);
 }
 
 vec3 blendSoftLight(vec3 base, vec3 blend)
@@ -47,7 +47,7 @@ float distributionGGX(float roughness, float nDotH)
     return (numerator * numerator) / denominator;
 }
 
-vec3 calcLight()
+vec4 calcLight()
 {
     vec3 normals = calcNormals();
     
@@ -91,10 +91,14 @@ vec3 calcLight()
     result *= directLightColor + ambientLightColor + specularColor;
     result = mix(result, diffuse + vec3(1, 0, 0), skinMask * 0.15); // fake subsurface lol
     
-    return result;
+    float alpha = 1.0;
+    alpha = samplerToColor(opacityMaskTex).r;
+    if (alpha < 0.5) discard;
+    
+    return vec4(result, alpha);
 }
 
 void main()
 {
-    FragColor = vec4(calcLight(), texture(diffuseTex, fTexCoord).a);
+    FragColor = calcLight();
 }
