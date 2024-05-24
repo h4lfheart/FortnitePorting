@@ -6,10 +6,10 @@ namespace FortnitePorting.Models.Files;
 
 public partial class FlatViewItem : ObservableObject
 {
-    [ObservableProperty] private FPackageId _id;
+    [ObservableProperty] private int _id;
     [ObservableProperty] private string _path;
 
-    public FlatViewItem(FPackageId id, string path)
+    public FlatViewItem(int id, string path)
     {
         Id = id;
         Path = path;

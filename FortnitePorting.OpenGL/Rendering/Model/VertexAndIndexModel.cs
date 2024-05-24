@@ -6,7 +6,7 @@ namespace FortnitePorting.OpenGL.Rendering.Model;
 public abstract class VertexAndIndexModel : VertexModel
 {
     public Buffer<uint> EBO;
-    public List<uint> Indices = new();
+    public List<uint> Indices = [];
 
     public override void Setup()
     {

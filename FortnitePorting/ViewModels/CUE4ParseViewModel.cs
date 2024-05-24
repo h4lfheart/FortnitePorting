@@ -63,9 +63,6 @@ public class CUE4ParseViewModel : ViewModelBase
         Provider.LoadIniConfigs();
         await LoadConsoleVariables();
 
-        var world = await Provider.LoadObjectAsync<UWorld>("FortniteGame/Content/Athena/Helios/Maps/Helios_Terrain/_Generated_/0PNXKUXC8VS8DD2JNODTXRXGP.Helios_Terrain");
-        ModelPreviewWindow.Preview(await world.PersistentLevel.LoadAsync<ULevel>());
-
         HomeVM.UpdateStatus("Loading Asset Registry");
         await LoadAssetRegistries();
 

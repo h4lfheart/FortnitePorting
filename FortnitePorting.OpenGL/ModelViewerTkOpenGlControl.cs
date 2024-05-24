@@ -1,15 +1,13 @@
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Media;
 using CUE4Parse.UE4.Assets.Exports;
-using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.Utils;
 using FortnitePorting.OpenGL.OpenTK;
 using FortnitePorting.OpenGL.Rendering;
 using FortnitePorting.OpenGL.Rendering.Levels;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
-using Serilog;
 
 namespace FortnitePorting.OpenGL;
 
@@ -25,7 +23,7 @@ public class ModelViewerTkOpenGlControl : BaseTkOpenGlControl
     {
         QueuedObject = initialObject;
     }
-    
+
     protected override void OpenTkInit()
     {
         base.OpenTkInit();
@@ -33,8 +31,10 @@ public class ModelViewerTkOpenGlControl : BaseTkOpenGlControl
         Instance = this;
 
         Camera = new Camera();
+        
         Renderer = new RenderManager();
         Renderer.Setup();
+        
 
         Renderer.Clear();
         Renderer.Add(QueuedObject);
@@ -59,10 +59,9 @@ public class ModelViewerTkOpenGlControl : BaseTkOpenGlControl
         base.OpenTkRender();
         
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
+        
         Update();
         
-        Renderer.Render(Camera);
     }
 
     private void Update()
@@ -79,23 +78,25 @@ public class ModelViewerTkOpenGlControl : BaseTkOpenGlControl
             }
         }
         
-        Camera.AspectRatio = (float) (Bounds.Width / Bounds.Height);
-        
-        if (!MouseDown) return;
-        
         var speed = 0.1f * Camera.Speed;
-        if (KeyboardState.IsKeyDown(Key.W))
-            Camera.Position += Camera.Direction * speed;
-        if (KeyboardState.IsKeyDown(Key.S))
-            Camera.Position -= Camera.Direction * speed;
-        if (KeyboardState.IsKeyDown(Key.A))
-            Camera.Position -= Vector3.Normalize(Vector3.Cross(Camera.Direction, Camera.Up)) * speed;
-        if (KeyboardState.IsKeyDown(Key.D))
-            Camera.Position += Vector3.Normalize(Vector3.Cross(Camera.Direction, Camera.Up)) * speed;
-        if (KeyboardState.IsKeyDown(Key.E))
-            Camera.Position += Camera.Up * speed;
-        if (KeyboardState.IsKeyDown(Key.Q))
-            Camera.Position -= Camera.Up * speed;
+        Camera.AspectRatio = (float) (Bounds.Width / Bounds.Height);
+        if (MouseDown)
+        {
+            if (KeyboardState.IsKeyDown(Key.W))
+                Camera.Position += Camera.Direction * speed;
+            if (KeyboardState.IsKeyDown(Key.S))
+                Camera.Position -= Camera.Direction * speed;
+            if (KeyboardState.IsKeyDown(Key.A))
+                Camera.Position -= Vector3.Normalize(Vector3.Cross(Camera.Direction, Camera.Up)) * speed;
+            if (KeyboardState.IsKeyDown(Key.D))
+                Camera.Position += Vector3.Normalize(Vector3.Cross(Camera.Direction, Camera.Up)) * speed;
+            if (KeyboardState.IsKeyDown(Key.E))
+                Camera.Position += Camera.Up * speed;
+            if (KeyboardState.IsKeyDown(Key.Q))
+                Camera.Position -= Camera.Up * speed;
+        }
+        
+        Renderer.Render(Camera);
     }
 
     protected override void OnPointerWheelChanged(PointerWheelEventArgs e)

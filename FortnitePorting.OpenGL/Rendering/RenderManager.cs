@@ -42,10 +42,10 @@ public class RenderManager : IRenderable
     public void Render(Camera camera)
     {
         Skybox.Render(camera);
-        Grid.Render(camera);
         
         Objects.ForEach(obj => obj.Render(camera));
         
+        Grid.Render(camera);
     }
 
     public void Add(UObject obj)

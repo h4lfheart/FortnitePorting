@@ -18,10 +18,10 @@ public class Texture2D
 
     public Texture2D(UTexture2D texture)
     {
+        var bitmap = texture.Decode()!;
+        
         Handle = GL.GenTexture();
         Bind();
-
-        var bitmap = texture.Decode()!;
 
         GL.TexImage2D(TextureTarget.Texture2d, 0, InternalFormat.Rgb, bitmap.Width, bitmap.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, bitmap.Bytes);
 

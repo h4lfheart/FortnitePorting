@@ -36,23 +36,17 @@ public partial class FilesViewModel : ViewModelBase
 
     [ObservableProperty] private FlatViewItem _selectedFlatViewItem;
     [ObservableProperty] private ReadOnlyObservableCollection<FlatViewItem> _flatViewCollection = new([]);
-    
-    public HashSet<string> AssetsToRemove = [];
 
-    public SourceCache<FlatViewItem, FPackageId> AssetCache = new(item => item.Id);
+    public SourceCache<FlatViewItem, int> AssetCache = new(item => item.Id);
     
     public override async Task Initialize()
     {
-        AssetsToRemove = CUE4ParseVM.AssetRegistry
-            .Select(data => CUE4ParseVM.Provider.FixPath(data.ObjectPath) + ".uasset")
-            .ToHashSet();
-        
-        foreach (var (id, file) in CUE4ParseVM.Provider.FilesById)
+        foreach (var (_, file) in CUE4ParseVM.Provider.Files)
         {
             var path = file.Path;
             if (IsValidFilePath(path))
             {
-                AssetCache.AddOrUpdate(new FlatViewItem(id, path));
+                AssetCache.AddOrUpdate(new FlatViewItem(path.GetHashCode(), path));
             }
         }
 
@@ -143,9 +137,8 @@ public partial class FilesViewModel : ViewModelBase
     {
         var isValidExtension = path.EndsWith(".uasset") || path.EndsWith(".umap");
         var isOptionalSegment = path.Contains(".o.");
-        var isAssetRegistry = AssetsToRemove.Contains(path);
         var isEngine = path.StartsWith("Engine", StringComparison.OrdinalIgnoreCase);
-        return isValidExtension && !isOptionalSegment && !isAssetRegistry && !isEngine;
+        return isValidExtension && !isOptionalSegment && !isEngine;
     }
     
     private Func<FlatViewItem, bool> CreateAssetFilter(string filter)
