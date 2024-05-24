@@ -34,13 +34,17 @@ public partial class MapViewModel : ViewModelBase
 {
     [ObservableProperty] private WriteableBitmap _mapBitmap;
     [ObservableProperty] private WriteableBitmap _maskBitmap;
+    [ObservableProperty] private string _worldName = string.Empty;
+    [ObservableProperty] private bool _dataLoaded = false;
     
     [ObservableProperty] private ObservableCollection<WorldPartitionGrid> _grids = [];
 
+    // todo create presets for diff versions?
     private const string MAP_PATH = "FortniteGame/Content/Athena/Helios/Maps/Helios_Terrain";
     private const string MINIMAP_PATH = "FortniteGame/Content/Athena/Apollo/Maps/UI/Apollo_Terrain_Minimap";
     private const string MASK_PATH = "FortniteGame/Content/Athena/Apollo/Maps/UI/T_MiniMap_Mask";
-    
+
+    private string ExportPath => Path.Combine(MapsFolder.FullName, WorldName);
 
     public override async Task Initialize()
     {
@@ -51,6 +55,8 @@ public partial class MapViewModel : ViewModelBase
         MaskBitmap = maskTexture.Decode()!.ToWriteableBitmap();
 
         var world = await CUE4ParseVM.Provider.LoadObjectAsync<UWorld>(MAP_PATH);
+        WorldName = world.Name;
+        
         var level = world.PersistentLevel.Load<ULevel>();
         if (level is null) return;
 
@@ -85,13 +91,25 @@ public partial class MapViewModel : ViewModelBase
             break;
         }
 
+        Directory.CreateDirectory(ExportPath);
+        DataLoaded = true;
     }
 
-    public void Restart()
+    [RelayCommand]
+    public async Task ExportMinimap()
     {
-        Grids.Clear();
-        
-        TaskService.Run(Initialize);
+        MapBitmap.Save(GetExportPath($"Minimap_{WorldName}"));
+    }
+    
+    [RelayCommand]
+    public async Task ExportHeightmap()
+    {
+        //MapBitmap.Save(GetExportPath($"Heightmap_{WorldName}"));
+    }
+
+    private string GetExportPath(string name)
+    {
+        return Path.Combine(ExportPath, name + ".png");
     }
 }
 

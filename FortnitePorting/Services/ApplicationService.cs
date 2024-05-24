@@ -33,6 +33,7 @@ public static class ApplicationService
     public static IClipboard Clipboard => Application.MainWindow!.Clipboard!;
     
     public static readonly DirectoryInfo AssetsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets"));
+    public static readonly DirectoryInfo MapsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Maps"));
     public static readonly DirectoryInfo LogsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs"));
     public static readonly DirectoryInfo DataFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".data"));
     public static readonly DirectoryInfo CacheFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".cache"));
@@ -47,6 +48,7 @@ public static class ApplicationService
             .CreateLogger();
         
         AssetsFolder.Create();
+        MapsFolder.Create();
         DataFolder.Create();
         LogsFolder.Create();
         CacheFolder.Create();

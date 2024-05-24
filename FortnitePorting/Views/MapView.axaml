@@ -15,14 +15,18 @@
              d:DesignHeight="770" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.MapView"
              x:DataType="viewModels:MapViewModel">
-    <Grid Margin="{ext:Space 1}">
-        <Viewbox StretchDirection="Both" Stretch="Uniform">
+    <Grid>
+        <Image Source="/Assets/MapBackground.png" Stretch="UniformToFill"/>
+        <Viewbox Margin="{ext:Space 1}" StretchDirection="Both" Stretch="Uniform">
             <Grid>
                 <Border CornerRadius="16" ClipToBounds="True">
                     <Image x:Name="MapImage" Source="{Binding MapBitmap}">
                         <Image.RenderTransform>
                             <RotateTransform Angle="90"/>
                         </Image.RenderTransform>
+                        <Image.OpacityMask>
+                            <ImageBrush Source="{Binding MaskBitmap}"/>
+                        </Image.OpacityMask>
                     </Image>
                 </Border>
                 <ItemsControl ItemsSource="{Binding Grids}"
@@ -40,7 +44,7 @@
                     </ItemsControl.OpacityMask>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border ToolTip.Tip="{Binding ToolTipNames}" Opacity="0.5" Background="Gray" IsHitTestVisible="True" BorderBrush="White" 
+                            <Border ToolTip.Tip="{Binding ToolTipNames}" Opacity="0.35" Background="Gray" IsHitTestVisible="True" BorderBrush="White" 
                                     BorderThickness="2" PointerPressed="OnCellPressed"
                                     CornerRadius="0" Padding="0"
                                     Width="92" Height="92" Margin="{Binding OffsetMargin}">
@@ -87,5 +91,43 @@
                 </ItemsControl>
             </Grid>
         </Viewbox>
+        
+        <ui:FABorder Grid.Row="0" Margin="{ext:Space 1}" Padding="{ext:Space 2, 0.5}" IsEnabled="{Binding DataLoaded}"
+                     VerticalAlignment="Top" HorizontalAlignment="Left" 
+                     MinWidth="200" MinHeight="175">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="{ext:Space 1}"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="{ext:Space 1}"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="{ext:Space 1}"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Classes="SubtitleTextBlockStyle" Text="Export" HorizontalAlignment="Center"/>
+                
+                    <Button Grid.Row="2" HorizontalAlignment="Stretch" Command="{Binding ExportMinimapCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <material:MaterialIcon Kind="Map" Margin="{ext:Space 0, 0, 1, 0}"/>
+                            <TextBlock Text="Minimap"/>
+                        </StackPanel>
+                    </Button>
+                
+                    <Button Grid.Row="4" HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal">
+                            <material:MaterialIcon Kind="Terrain" Margin="{ext:Space 0, 0, 1, 0}"/>
+                            <TextBlock Text="Heightmap"/>
+                        </StackPanel>
+                    </Button>
+                
+                    <Button Grid.Row="6" HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal">
+                            <material:MaterialIcon Kind="Paintbrush" Margin="{ext:Space 0, 0, 1, 0}"/>
+                            <TextBlock Text="Weightmaps"/>
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </ui:FABorder>
     </Grid>
 </UserControl>

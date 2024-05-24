@@ -25,7 +25,7 @@
         </Grid.ColumnDefinitions>
 
         <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
-            <Image RenderOptions.BitmapInterpolationMode="HighQuality" Source="/Assets/DefaultSplash.png" Stretch="UniformToFill" Opacity="0.9">
+            <Image RenderOptions.BitmapInterpolationMode="HighQuality" Source="/Assets/DefaultSplash.png" Stretch="UniformToFill" Opacity="0.75">
                 <Image.OpacityMask>
                     <LinearGradientBrush StartPoint="0, 0" EndPoint="0, 180">
                         <GradientStops>
