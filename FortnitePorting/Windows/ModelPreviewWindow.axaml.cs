@@ -1,5 +1,6 @@
 using System;
 using Avalonia.Controls;
+using Avalonia.Platform;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
@@ -9,54 +10,49 @@ using FortnitePorting.Services;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
+using OpenTK.Mathematics;
+using OpenTK.Windowing.Common;
+using OpenTK.Windowing.Desktop;
 
 namespace FortnitePorting.Windows;
 
 public partial class ModelPreviewWindow : WindowBase<ModelPreviewViewModel>
 {
-    public static ModelPreviewWindow? Instance;
-    
     public ModelPreviewWindow()
     {
         InitializeComponent();
         DataContext = ViewModel;
         Owner = ApplicationService.Application.MainWindow;
     }
-    
-    public ModelPreviewWindow(string name, UObject obj) : this()
-    {
-        ViewModel.MeshName = name;
-        ViewModel.ViewerControl = new ModelViewerTkOpenGlControl(obj);
-    }
 
     public static void Preview(UObject obj)
     {
         Preview(obj.Name, obj);
     }
-    
 
     public static void Preview(string name, UObject obj)
     {
-        if (Instance is not null && RenderManager.Instance is not null)
-        {
-            Instance.ViewModel.MeshName = name;
-            Instance.ViewModel.ViewerControl.QueuedObject = obj;
-            Instance.BringToTop();
-            return;
-        }
-        
         TaskService.RunDispatcher(() =>
         {
-            Instance = new ModelPreviewWindow(name, obj);
-            Instance.Show();
-            Instance.BringToTop();
+            if (ModelViewerWindow.Instance is null)
+            {
+                ModelViewerWindow.Instance ??= new ModelViewerWindow(GameWindowSettings.Default, new NativeWindowSettings
+                {
+                    ClientSize = new Vector2i(960, 540),
+                    NumberOfSamples = 32,
+                    WindowBorder = WindowBorder.Resizable,
+                    APIVersion = new Version(4, 6),
+                    Title = "Model Viewer",
+                    StartVisible = false
+                });
+
+                ModelViewerWindow.Instance.QueuedObject = obj;
+                ModelViewerWindow.Instance.Run();
+            }
+            else
+            {
+                ModelViewerWindow.Instance.QueuedObject = obj;
+            }
         });
-    }
-
-    protected override void OnClosed(EventArgs e)
-    {
-        base.OnClosed(e);
-
-        Instance = null;
     }
 }

@@ -16,9 +16,5 @@ internal static class Program
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .LogToTrace()
-            .With(new Win32PlatformOptions
-            {
-                CompositionMode = [Win32CompositionMode.WinUIComposition],
-                RenderingMode = [Win32RenderingMode.Wgl]
-            });
+            .With(new Win32PlatformOptions { CompositionMode = [Win32CompositionMode.WinUIComposition] });
 }

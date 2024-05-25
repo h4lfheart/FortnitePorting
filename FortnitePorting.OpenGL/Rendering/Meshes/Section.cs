@@ -44,8 +44,8 @@ public class Section : VertexAndIndexModel
         RegisterAttribute("Normal", 3, VertexAttribPointerType.Float);
         RegisterAttribute("Tangent", 3, VertexAttribPointerType.Float);
 
-        Shader = ModelViewerTkOpenGlControl.Instance.Renderer.ObjectShader;
-        Material = ModelViewerTkOpenGlControl.Instance.Renderer.GetOrAddMaterial(material);
+        Shader = RenderManager.Instance.ObjectShader;
+        Material = RenderManager.Instance.GetOrAddMaterial(material);
     }
 
     public Section(CStaticMeshLod lod, CMeshSection section, UMaterialInterface? material, TextureData? textureData = null, Matrix4? transform = null)

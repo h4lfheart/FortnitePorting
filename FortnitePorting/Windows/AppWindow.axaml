@@ -7,7 +7,7 @@
         x:DataType="viewModels:AppViewModel"
         Width="1160" Height="770" RequestedThemeVariant="Dark" FontFamily="Segoe UI"
         TransparencyLevelHint="AcrylicBlur" ExtendClientAreaToDecorationsHint="True"
-        Icon="/Assets/LogoEnhanced.ico"
+        Icon="/Assets/LogoV3.ico"
         Title="Fortnite Porting">
     <Grid RowDefinitions="30, *">
         <ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False">

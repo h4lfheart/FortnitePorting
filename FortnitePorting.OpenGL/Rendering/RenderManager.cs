@@ -18,7 +18,7 @@ public class RenderManager : IRenderable
     public Skybox Skybox;
     public Grid Grid;
     public Shader ObjectShader;
-    private readonly Dictionary<string, Materials.Material> MaterialCache = new();
+    private readonly Dictionary<int, Materials.Material> MaterialCache = new();
     
     public readonly List<IRenderable> Objects = [];
 
@@ -71,14 +71,16 @@ public class RenderManager : IRenderable
     {
         if (materialInterface is null) return null;
 
-        var path = materialInterface.GetPathName();
-        if (MaterialCache.TryGetValue(path, out var foundMaterial))
+        var hash = materialInterface.GetPathName().GetHashCode();
+        if (textureData is not null) hash += textureData.Hash;
+        
+        if (MaterialCache.TryGetValue(hash, out var foundMaterial))
         {
             return foundMaterial;
         }
 
-        MaterialCache[path] = new Materials.Material(materialInterface, textureData);
-        return MaterialCache[path];
+        MaterialCache[hash] = new Materials.Material(materialInterface, textureData);
+        return MaterialCache[hash];
     }
     
     public void Dispose()

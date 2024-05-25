@@ -65,6 +65,7 @@ public class Level : IRenderable
             {
                 textureDataFinal.Add(new TextureData
                 {
+                    Hash = textureData.GetPathName().GetHashCode(),
                     Diffuse = textureData.Diffuse,
                     Normal = textureData.Normal,
                     Specular = textureData.Specular

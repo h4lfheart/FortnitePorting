@@ -93,9 +93,9 @@ vec4 calcLight()
     
     float alpha = 1.0;
     alpha = samplerToColor(opacityMaskTex).r;
-    if (alpha < 0.5) discard;
+    if (alpha < 0.2) discard;
     
-    return vec4(result, alpha);
+    return vec4(result, 1.0);
 }
 
 void main()

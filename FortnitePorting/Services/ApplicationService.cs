@@ -76,6 +76,25 @@ public static class ApplicationService
                 await dialog.ShowAsync();
             });
         };
+        
+        TaskScheduler.UnobservedTaskException += (sender, args) =>
+        {
+            args.SetObserved();
+
+            var exceptionString = args.Exception.ToString();
+            Log.Error(exceptionString);
+                
+            TaskService.RunDispatcher(async () =>
+            {
+                var dialog = new ContentDialog
+                {
+                    Title = "An unhandled exception has occurred",
+                    Content = exceptionString,
+                    CloseButtonText = "Continue"
+                };
+                await dialog.ShowAsync();
+            });
+        };
     }
 
     public static void OnStartup(object? sender, ControlledApplicationLifetimeStartupEventArgs e)
