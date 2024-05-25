@@ -594,6 +594,13 @@ class DataImportTask:
                     
                 for search_prop in search_props:
                     if found_key := first(meta.keys(), lambda key: key == search_prop):
+                        if out_props.get(found_key):
+                            if meta.get(found_key):
+                                Log.warn(f"{found_key}: metadata already set "
+                                        "with content from different mesh but "
+                                        f"also found on {mesh.get('Name')} "
+                                        "which will be ignored")
+                            continue
                         out_props[found_key] = meta.get(found_key)
             return out_props
 

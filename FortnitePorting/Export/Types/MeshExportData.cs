@@ -52,8 +52,6 @@ public class MeshExportData : ExportDataBase
                     }
                 }
 
-                ExportPartMeta? partWithPoseData = null;
-                var exportPartsToCopyTo = new List<ExportPartMeta>();
                 AssetsVM.ExportChunks = parts.Length;
                 foreach (var part in parts)
                 {
@@ -62,33 +60,8 @@ public class MeshExportData : ExportDataBase
                         Animation = AnimExportData.From(montage, exportType);
                     }
 
-                    var resolvedPart = Exporter.CharacterPart(part);
-                    var meta = resolvedPart?.Meta;
-                    if (meta is not null)
-                    {
-                        if (meta.PoseData.Count != 0)
-                        {
-                            if (partWithPoseData != null)
-                                Log.Warning("multiple character parts contained PoseData, results may be inaccurate");
-                            partWithPoseData = meta;
-                        }
-                        else
-                        {
-                            exportPartsToCopyTo.Add(meta);
-                        }
-                    }
-                    Meshes.AddIfNotNull(resolvedPart);
+                    Meshes.AddIfNotNull(Exporter.CharacterPart(part));
                     AssetsVM.ExportProgress++;
-                }
-
-                // Copy data around
-                if (partWithPoseData is not null) 
-                {
-                    foreach (var part in exportPartsToCopyTo)
-                    {
-                        part.PoseData = partWithPoseData.PoseData;
-                        part.ReferencePose = partWithPoseData.ReferencePose;
-                    }
                 }
 
                 if (Animation is null && Exporter.AppExportOptions.LobbyPoses && Meshes.FirstOrDefault(part => part is ExportPart { CharacterPartType: EFortCustomPartType.Body }) is ExportPart foundPart)
