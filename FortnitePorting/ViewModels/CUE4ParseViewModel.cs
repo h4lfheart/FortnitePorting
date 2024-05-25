@@ -60,7 +60,7 @@ public class CUE4ParseViewModel : ViewModelBase
         Provider.LoadVirtualPaths();
         await LoadMappings();
 
-        Provider.LoadIniConfigs();
+        Provider.PostMount();
         await LoadConsoleVariables();
 
         HomeVM.UpdateStatus("Loading Asset Registry");

@@ -77,7 +77,7 @@
                     <StackPanel HorizontalAlignment="Center" Margin="{ext:Space 0, 0.5}">
                         <StackPanel.Styles>
                             <Style Selector="Button">
-                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                                <Setter Property="HorizontalAlignment" Value="Stretch"/>
                                 <Setter Property="Margin" Value="{ext:Space 0.5}"/>
                             </Style>
                         </StackPanel.Styles>

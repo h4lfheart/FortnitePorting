@@ -15,9 +15,9 @@
              d:DesignHeight="770" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.MapView"
              x:DataType="viewModels:MapViewModel">
-    <Grid>
-        <Image Source="/Assets/MapBackground.png" Stretch="UniformToFill"/>
-        <Viewbox Margin="{ext:Space 1}" StretchDirection="Both" Stretch="Uniform">
+    <Grid ColumnDefinitions="4* *">
+        <Image Grid.Column="0" Source="/Assets/MapBackground.png" Stretch="UniformToFill"/>
+        <Viewbox Grid.Column="0" StretchDirection="Both" Stretch="Uniform">
             <Grid>
                 <Border CornerRadius="16" ClipToBounds="True">
                     <Image x:Name="MapImage" Source="{Binding MapBitmap}">
@@ -92,9 +92,9 @@
             </Grid>
         </Viewbox>
         
-        <ui:FABorder Grid.Row="0" Margin="{ext:Space 1}" Padding="{ext:Space 2, 0.5}" IsEnabled="{Binding DataLoaded}"
-                     VerticalAlignment="Top" HorizontalAlignment="Left" 
-                     MinWidth="200" MinHeight="175">
+        <ui:FABorder Grid.Column="1" Padding="{ext:Space 1}" CornerRadius="0"
+                     Background="#22000000"
+                     HorizontalAlignment="Stretch">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -104,27 +104,50 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="{ext:Space 1}"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="{ext:Space 1}"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="{ext:Space 1}"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="{ext:Space 1}"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <TextBlock Grid.Row="0" Classes="SubtitleTextBlockStyle" Text="Export" HorizontalAlignment="Center"/>
+                    
+                    <TextBlock Grid.Row="0" Classes="SubtitleTextBlockStyle" Text="{Binding WorldName}" HorizontalAlignment="Center"/>
+                    <TextBlock Grid.Row="2" Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" Text="{Binding GridCount, StringFormat='{}{0} Grid Maps Loaded'}" HorizontalAlignment="Center"/>
+                    
+                    <Separator Grid.Row="3" Margin="{ext:Space 1}"/> 
+                    
+                    <TextBlock Grid.Row="4" Classes="SubtitleTextBlockStyle" Text="Export" HorizontalAlignment="Center"/>
                 
-                    <Button Grid.Row="2" HorizontalAlignment="Stretch" Command="{Binding ExportMinimapCommand}">
+                    <Button Grid.Row="6" HorizontalAlignment="Stretch" Command="{Binding ExportMinimapCommand}"
+                            IsEnabled="{Binding DataLoaded}">
                         <StackPanel Orientation="Horizontal">
                             <material:MaterialIcon Kind="Map" Margin="{ext:Space 0, 0, 1, 0}"/>
                             <TextBlock Text="Minimap"/>
                         </StackPanel>
                     </Button>
                 
-                    <Button Grid.Row="4" HorizontalAlignment="Stretch">
+                    <Button Grid.Row="8" HorizontalAlignment="Stretch" Command="{Binding ExportHeightCommand}"
+                            IsEnabled="{Binding DataLoaded}">
                         <StackPanel Orientation="Horizontal">
                             <material:MaterialIcon Kind="Terrain" Margin="{ext:Space 0, 0, 1, 0}"/>
-                            <TextBlock Text="Heightmap"/>
+                            <TextBlock Text="Height Map"/>
+                        </StackPanel>
+                    </Button>
+                    
+                    <Button Grid.Row="10" HorizontalAlignment="Stretch" Command="{Binding ExportNormalCommand}"
+                            IsEnabled="{Binding DataLoaded}">
+                        <StackPanel Orientation="Horizontal">
+                            <material:MaterialIcon Kind="VectorLine" Margin="{ext:Space 0, 0, 1, 0}"/>
+                            <TextBlock Text="Normal Map"/>
                         </StackPanel>
                     </Button>
                 
-                    <Button Grid.Row="6" HorizontalAlignment="Stretch">
+                    <Button Grid.Row="12" HorizontalAlignment="Stretch" Command="{Binding ExportWeightCommand}"
+                            IsEnabled="{Binding DataLoaded}">
                         <StackPanel Orientation="Horizontal">
                             <material:MaterialIcon Kind="Paintbrush" Margin="{ext:Space 0, 0, 1, 0}"/>
-                            <TextBlock Text="Weightmaps"/>
+                            <TextBlock Text="Weight Maps"/>
                         </StackPanel>
                     </Button>
                 </Grid>
