@@ -184,7 +184,7 @@ public class ExporterInstance
                             ParsePoseAsset(poseAssetNode.Get<UPoseAsset>("PoseAsset"), meta);
                         }
                         else if (skeletalMesh.ReferenceSkeleton.FinalRefBoneInfo.Any(bone => bone.Name.Text.Equals("FACIAL_C_FacialRoot", StringComparison.OrdinalIgnoreCase))
-                                 && CUE4ParseVM.Provider.TryLoadObject("FortniteGame/Content/Characters/Player/Male/Medium/Heads/M_MED_Jonesy3L_Head/Meshes/3L/3L_lod2_Facial_Poses_PoseAsset", out UPoseAsset poseAsset))
+                                 && CUE4ParseVM.Provider.TryLoadObject("/BRCosmetics/Characters/Player/Male/Medium/Heads/M_MED_Jonesy3L_Head/Meshes/3L/3L_lod2_Facial_Poses_PoseAsset", out UPoseAsset poseAsset))
                         {
                             ParsePoseAsset(poseAsset, meta);
                         }
