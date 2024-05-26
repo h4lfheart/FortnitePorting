@@ -61,10 +61,6 @@
         <DependentUpon>FilesView.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
-      <Compile Update="Windows\ModelPreviewWindow.axaml.cs">
-        <DependentUpon>ModelPreviewWindow.axaml</DependentUpon>
-        <SubType>Code</SubType>
-      </Compile>
       <Compile Update="Windows\SoundPreviewWindow.axaml.cs">
         <DependentUpon>SoundPreviewWindow.axaml</DependentUpon>
         <SubType>Code</SubType>

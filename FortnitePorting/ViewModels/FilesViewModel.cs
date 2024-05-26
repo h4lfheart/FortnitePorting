@@ -101,7 +101,7 @@ public partial class FilesViewModel : ViewModelBase
             case USkeletalMesh:
             case ULevel:
             {
-                ModelPreviewWindow.Preview(name, asset);
+                //ModelPreviewWindow.Preview(name, asset);
                 break;
             }
             case USoundWave soundWave:

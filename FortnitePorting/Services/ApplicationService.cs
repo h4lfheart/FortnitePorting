@@ -77,11 +77,9 @@ public static class ApplicationService
             });
         };
         
-        TaskScheduler.UnobservedTaskException += (sender, args) =>
+        TaskService.Exception += e =>
         {
-            args.SetObserved();
-
-            var exceptionString = args.Exception.ToString();
+            var exceptionString = e.ToString();
             Log.Error(exceptionString);
                 
             TaskService.RunDispatcher(async () =>

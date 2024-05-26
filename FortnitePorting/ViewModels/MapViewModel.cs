@@ -25,6 +25,7 @@ using FortnitePorting.OpenGL;
 using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Framework;
+using FortnitePorting.Shared.Services;
 using FortnitePorting.Windows;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
@@ -304,7 +305,7 @@ public partial class WorldPartitionGridMap : ObservableObject
     {
         var world = await CUE4ParseVM.Provider.LoadObjectAsync<UWorld>(Path);
         var level = await world.PersistentLevel.LoadAsync<ULevel>();
-        ModelPreviewWindow.Preview(level);
+        ModelPreviewWindow.Preview(Name, level);
     }
 }
 

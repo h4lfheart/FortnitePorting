@@ -1,5 +1,6 @@
 using System.Buffers;
 using System.ComponentModel;
+using System.Runtime.InteropServices;
 using Avalonia.Platform;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.Utils;
@@ -17,48 +18,24 @@ using Image = OpenTK.Windowing.Common.Input.Image;
 
 namespace FortnitePorting.OpenGL;
 
-public class ModelViewerWindow : GameWindow
+public class ModelViewerContext : GameWindow
 {
-    public static ModelViewerWindow? Instance;
     public Camera Camera;
     public RenderManager Renderer;
 
     public UObject? QueuedObject; // todo fix this scuffed impl, figure out how to call mesh change on opengl thread?
     
-    public ModelViewerWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(gameWindowSettings, nativeWindowSettings)
+    public ModelViewerContext(NativeWindowSettings nativeWindowSettings) : base(GameWindowSettings.Default, nativeWindowSettings)
     {
-        Instance = this;
-        
-        LoadIcon();
-    }
-
-    public void LoadIcon()
-    {
-        var stream = AssetLoader.Open(new Uri("avares://FortnitePorting/Assets/LogoV3.png"));
-        var image = SixLabors.ImageSharp.Image.Load(stream).CloneAs<Rgba32>();
-
-        var bytes = new byte[image.Width * image.Height * 4];
-        image.CopyPixelDataTo(bytes);
-
-        Icon = new WindowIcon(new Image(image.Width, image.Height, bytes));
-    }
-
-    protected override void OnLoad()
-    {
-        base.OnLoad();
-        
         Camera = new Camera();
         
         Renderer = new RenderManager();
         Renderer.Setup();
-        
-        Renderer.Clear();
-        Renderer.Add(QueuedObject);
-        QueuedObject = null;
-        if (Renderer.Objects.FirstOrDefault() is Level level && level.Actors.FirstOrDefault() is { } actor)
-        {
-            Camera.Position = actor.Transform.ExtractTranslation();
-        }
+    }
+    
+    protected override void OnLoad()
+    {
+        base.OnLoad();
         
         GL.ClearColor(Color4.Black);
         
@@ -72,6 +49,12 @@ public class ModelViewerWindow : GameWindow
     protected override void OnRenderFrame(FrameEventArgs args)
     {
         base.OnRenderFrame(args);
+        
+        if (QueuedObject is not null)
+        {
+            Renderer.Add(QueuedObject);
+            QueuedObject = null;
+        }
         
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
         
@@ -142,26 +125,15 @@ public class ModelViewerWindow : GameWindow
         base.OnResize(e);
         
         GL.Viewport(0, 0, e.Width, e.Height);
-        Camera.AspectRatio = (float) e.Width / e.Height;
+        if (Camera is not null)
+            Camera.AspectRatio = (float) e.Width / e.Height;
     }
     
-    protected override void OnKeyDown(KeyboardKeyEventArgs e)
-    {
-        base.OnKeyDown(e);
-
-        switch (e.Key)
-        {
-            case Keys.Escape:
-                Close();
-                break;
-        }
-    }
     
     protected override unsafe void OnClosing(CancelEventArgs e)
     {
         base.OnClosing(e);
 
-        Instance = null;
         GLFW.DestroyWindow(WindowPtr);
     }
 }
