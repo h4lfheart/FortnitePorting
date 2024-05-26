@@ -23,4 +23,8 @@
       <ProjectReference Include="..\FortnitePorting.Shared\FortnitePorting.Shared.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Include="ModelViewerContext.cs" />
+    </ItemGroup>
+
 </Project>

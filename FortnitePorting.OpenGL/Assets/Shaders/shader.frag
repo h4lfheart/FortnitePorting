@@ -6,12 +6,22 @@ in vec3 fPosition;
 in vec2 fTexCoord;
 in vec3 fNormal;
 in vec3 fTangent;
+in vec2 fExtraUV;
 
-uniform sampler2D diffuseTex;
-uniform sampler2D normalTex;
-uniform sampler2D specularTex;
-uniform sampler2D maskTex;
-uniform sampler2D opacityMaskTex;
+struct Parameters
+{
+    bool useLayers;
+    
+    sampler2D diffuse[6];
+    sampler2D normal[6];
+    sampler2D specular[6];
+    sampler2D mask[6];
+    sampler2D opacityMask[6];
+};
+
+uniform Parameters parameters;
+
+
 uniform vec3 viewVector;
 
 vec3 samplerToColor(sampler2D tex)
@@ -19,9 +29,9 @@ vec3 samplerToColor(sampler2D tex)
     return texture(tex, fTexCoord).rgb;
 }
 
-vec3 calcNormals()
+vec3 calcNormals(int layer)
 {
-    vec3 normal = samplerToColor(normalTex).rgb * 2.0 - 1.0;
+    vec3 normal = samplerToColor(parameters.normal[layer]).rgb * 2.0 - 1.0;
 
     vec3 t = normalize(fTangent);
     vec3 n = normalize(fNormal);
@@ -47,17 +57,17 @@ float distributionGGX(float roughness, float nDotH)
     return (numerator * numerator) / denominator;
 }
 
-vec4 calcLight()
+vec4 calcLight(int layer)
 {
-    vec3 normals = calcNormals();
+    vec3 normals = calcNormals(layer);
     
     // diffuse
-    vec3 mask = samplerToColor(maskTex);
+    vec3 mask = samplerToColor(parameters.mask[layer]);
     float ambientOcclusion = mask.r;
     float cavity = mask.g;
     float skinMask = mask.b;
     
-    vec3 diffuse = samplerToColor(diffuseTex);
+    vec3 diffuse = samplerToColor(parameters.diffuse[layer]);
     diffuse = mix(diffuse, diffuse * ambientOcclusion, 0.5);
     diffuse = mix(diffuse, blendSoftLight(diffuse, vec3(cavity)), 0.5);
     
@@ -68,7 +78,7 @@ vec4 calcLight()
     vec3 directLightColor = max(directLight * lightColor, 0.0);
 
     // specular
-    vec3 specularMasks = samplerToColor(specularTex);
+    vec3 specularMasks = samplerToColor(parameters.specular[layer]);
     float specular = specularMasks.r;
     float metallic = specularMasks.g;
     float roughness = specularMasks.b;
@@ -92,7 +102,7 @@ vec4 calcLight()
     result = mix(result, diffuse + vec3(1, 0, 0), skinMask * 0.15); // fake subsurface lol
     
     float alpha = 1.0;
-    alpha = samplerToColor(opacityMaskTex).r;
+    alpha = samplerToColor(parameters.opacityMask[layer]).r;
     if (alpha < 0.2) discard;
     
     return vec4(result, 1.0);
@@ -100,5 +110,17 @@ vec4 calcLight()
 
 void main()
 {
-    FragColor = calcLight();
+    float layerMask = fExtraUV.r;
+    
+    vec4 outColor = calcLight(0);
+    if (parameters.useLayers)
+    {
+        outColor = mix(outColor, calcLight(1), layerMask > 1);
+        outColor = mix(outColor, calcLight(2), layerMask > 2);
+        outColor = mix(outColor, calcLight(3), layerMask > 3);
+        outColor = mix(outColor, calcLight(4), layerMask > 4);
+        outColor = mix(outColor, calcLight(5), layerMask > 5);
+    }
+    
+    FragColor = outColor;
 }

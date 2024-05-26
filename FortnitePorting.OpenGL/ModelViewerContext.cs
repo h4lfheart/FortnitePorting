@@ -1,7 +1,5 @@
 using System.Buffers;
 using System.ComponentModel;
-using System.Runtime.InteropServices;
-using Avalonia.Platform;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.Utils;
 using FortnitePorting.OpenGL.Rendering;
@@ -12,50 +10,125 @@ using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Common.Input;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using SixLabors.ImageSharp.PixelFormats;
-using SkiaSharp;
-using Image = OpenTK.Windowing.Common.Input.Image;
 
 namespace FortnitePorting.OpenGL;
 
 public class ModelViewerContext : GameWindow
 {
-    public Camera Camera;
-    public RenderManager Renderer;
+    public Thread RenderThread;
+    public bool Exit = false;
+    public bool SizeChanged;
+    public int Width;
+    public int Height;
 
-    public UObject? QueuedObject; // todo fix this scuffed impl, figure out how to call mesh change on opengl thread?
+    public UObject? QueuedObject;
+
+    public RenderManager Renderer;
+    public Camera Camera = new();
     
-    public ModelViewerContext(NativeWindowSettings nativeWindowSettings) : base(GameWindowSettings.Default, nativeWindowSettings)
+    private static readonly NativeWindowSettings Settings = new()
     {
-        Camera = new Camera();
-        
-        Renderer = new RenderManager();
-        Renderer.Setup();
+        ClientSize = new Vector2i(960, 540),
+        APIVersion = new Version(4, 6),
+        NumberOfSamples = 32,
+        WindowBorder = WindowBorder.Hidden,
+        StartVisible = false
+    };
+    
+    public ModelViewerContext() : base(GameWindowSettings.Default, Settings)
+    {
+        MouseMove += delegate(MouseMoveEventArgs args)
+        {
+            var delta = args.Delta * Camera.Sensitivity;
+            if (MouseState[MouseButton.Left] || MouseState[MouseButton.Right])
+            {
+                Camera.CalculateDirection(delta.X, delta.Y);
+                Cursor = MouseCursor.Empty;
+                CursorState = CursorState.Grabbed;
+            }
+            else
+            {
+                Cursor = MouseCursor.Default;
+                CursorState = CursorState.Normal;
+            }
+        };
+
+        MouseWheel += delegate(MouseWheelEventArgs args)
+        {
+            Camera.Speed += args.OffsetY * 0.01f;
+            Camera.Speed = Camera.Speed.Clamp(0.01f, 20.0f);
+        };
+
+        Resize += delegate(ResizeEventArgs args)
+        {
+            SizeChanged = true;
+            Width = args.Width;
+            Height = args.Height;
+        };
     }
     
-    protected override void OnLoad()
+
+    public void RenderLoop()
     {
-        base.OnLoad();
-        
-        GL.ClearColor(Color4.Black);
+        MakeCurrent();
+
+        Renderer = new RenderManager();
+        Renderer.Setup();
         
         GL.Enable(EnableCap.Blend);
         GL.Enable(EnableCap.CullFace);
         GL.Enable(EnableCap.DepthTest);
         GL.Enable(EnableCap.Multisample);
         GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+
+        while (!Exit)
+        {
+            Update();
+            Render();
+        }
+        
+        Renderer.Dispose();
+        
+        Context.MakeNoneCurrent();
     }
 
-    protected override void OnRenderFrame(FrameEventArgs args)
+    private void Update()
     {
-        base.OnRenderFrame(args);
-        
         if (QueuedObject is not null)
         {
             Renderer.Add(QueuedObject);
             QueuedObject = null;
+
+            if (Renderer.Objects.LastOrDefault() is Level level)
+            {
+                var averagePosition = level.Actors.Aggregate(Vector3.Zero, (pos, actor) => pos + actor.Transform.ExtractTranslation()) / level.Actors.Count;
+                Camera.Position = averagePosition + new Vector3(0, 50, 0);
+            }
         }
         
+        if (SizeChanged)
+        {
+            GL.Viewport(0, 0, Width, Height);
+            Camera.AspectRatio = (float) Width / Height;
+            SizeChanged = false;
+        }
+        
+        if (KeyboardState.IsKeyDown(Keys.W))
+            Camera.Position += Camera.Direction * Camera.Speed;
+        if (KeyboardState.IsKeyDown(Keys.S))
+            Camera.Position -= Camera.Direction * Camera.Speed;
+        if (KeyboardState.IsKeyDown(Keys.A))
+            Camera.Position -= Vector3.Normalize(Vector3.Cross(Camera.Direction, Camera.Up)) * Camera.Speed;
+        if (KeyboardState.IsKeyDown(Keys.D))
+            Camera.Position += Vector3.Normalize(Vector3.Cross(Camera.Direction, Camera.Up)) * Camera.Speed;
+        if (KeyboardState.IsKeyDown(Keys.E))
+            Camera.Position += Camera.Up * Camera.Speed;
+        if (KeyboardState.IsKeyDown(Keys.Q))
+            Camera.Position -= Camera.Up * Camera.Speed;
+    }
+    
+    private void Render()
+    {
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
         
         Renderer.Render(Camera);
@@ -63,77 +136,18 @@ public class ModelViewerContext : GameWindow
         SwapBuffers();
     }
 
-    protected override void OnUpdateFrame(FrameEventArgs args)
+    protected override void OnLoad()
     {
-        base.OnUpdateFrame(args);
-        
-        if (QueuedObject is not null)
-        {
-            //Renderer.Clear();
-            Renderer.Add(QueuedObject);
-            QueuedObject = null;
+        Context.MakeNoneCurrent();
 
-            if (Renderer.Objects.LastOrDefault() is Level level && level.Actors.FirstOrDefault() is { } actor)
-            {
-                Camera.Position = actor.Transform.ExtractTranslation();
-            }
-        }
-        
-        var speed = 0.1f * Camera.Speed;
-        if (KeyboardState.IsKeyDown(Keys.W))
-            Camera.Position += Camera.Direction * speed;
-        if (KeyboardState.IsKeyDown(Keys.S))
-            Camera.Position -= Camera.Direction * speed;
-        if (KeyboardState.IsKeyDown(Keys.A))
-            Camera.Position -= Vector3.Normalize(Vector3.Cross(Camera.Direction, Camera.Up)) * speed;
-        if (KeyboardState.IsKeyDown(Keys.D))
-            Camera.Position += Vector3.Normalize(Vector3.Cross(Camera.Direction, Camera.Up)) * speed;
-        if (KeyboardState.IsKeyDown(Keys.E))
-            Camera.Position += Camera.Up * speed;
-        if (KeyboardState.IsKeyDown(Keys.Q))
-            Camera.Position -= Camera.Up * speed;
+        RenderThread = new Thread(RenderLoop) { IsBackground = true };
+        RenderThread.Start();
     }
 
-    protected override void OnMouseWheel(MouseWheelEventArgs e)
+    protected override void OnUnload()
     {
-        base.OnMouseWheel(e);
-        
-        Camera.Speed += e.OffsetY;
-        Camera.Speed = Camera.Speed.Clamp(0.25f, 20.0f);
-    }
-
-    protected override void OnMouseMove(MouseMoveEventArgs e)
-    {
-        base.OnMouseMove(e);
-        
-        var delta = e.Delta * Camera.Sensitivity;
-        if (MouseState[MouseButton.Left] || MouseState[MouseButton.Right])
-        {
-            Camera.CalculateDirection(delta.X, delta.Y);
-            Cursor = MouseCursor.Empty;
-            CursorState = CursorState.Grabbed;
-        }
-        else
-        {
-            Cursor = MouseCursor.Default;
-            CursorState = CursorState.Normal;
-        }
-    }
-
-    protected override void OnResize(ResizeEventArgs e)
-    {
-        base.OnResize(e);
-        
-        GL.Viewport(0, 0, e.Width, e.Height);
-        if (Camera is not null)
-            Camera.AspectRatio = (float) e.Width / e.Height;
-    }
-    
-    
-    protected override unsafe void OnClosing(CancelEventArgs e)
-    {
-        base.OnClosing(e);
-
-        GLFW.DestroyWindow(WindowPtr);
+        Exit = true;
+        RenderThread.Join();
+        Dispose();
     }
 }

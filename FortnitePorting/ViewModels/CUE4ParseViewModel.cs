@@ -59,7 +59,7 @@ public class CUE4ParseViewModel : ViewModelBase
         Provider.LoadLocalization(AppSettings.Current.GameLanguage);
         Provider.LoadVirtualPaths();
         await LoadMappings();
-
+        
         Provider.PostMount();
         await LoadConsoleVariables();
 

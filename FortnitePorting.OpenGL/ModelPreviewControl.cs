@@ -13,19 +13,10 @@ public class ModelPreviewControl : NativeControlHost
 {
     public ModelViewerContext Context;
     public PlatformHandle Handle;
-
-    private static readonly NativeWindowSettings Settings = new()
-    {
-        ClientSize = new Vector2i(960, 540),
-        APIVersion = new Version(4, 6),
-        NumberOfSamples = 32,
-        WindowBorder = WindowBorder.Hidden,
-        StartVisible = false
-    };
-
+    
     public ModelPreviewControl()
     {
-        Context = new ModelViewerContext(Settings);
+        Context = new ModelViewerContext();
     }
     
     protected override unsafe IPlatformHandle CreateNativeControlCore(IPlatformHandle parent)

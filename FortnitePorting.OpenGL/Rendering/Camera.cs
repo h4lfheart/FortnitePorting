@@ -11,7 +11,7 @@ public class Camera
     public float Yaw = -90.0f;
     public float Pitch;
     public float FOV = 60f;
-    public float Speed = 0.25f;
+    public float Speed = 0.05f;
     public float Sensitivity = 0.5f;
     public float Near = 0.01f;
     public float Far = 1000f;

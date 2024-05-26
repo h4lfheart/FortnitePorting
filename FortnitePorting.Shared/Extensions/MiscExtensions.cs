@@ -135,6 +135,14 @@ public static class MiscExtensions
         
         return path;
     }
+
+    public static void ForEach<T>(this IEnumerable<T> array, Action<T> action)
+    {
+        foreach (var item in array)
+        {
+            action(item);
+        }
+    }
 }
 
 file class FastRepeat<T> : ICollection<T>
