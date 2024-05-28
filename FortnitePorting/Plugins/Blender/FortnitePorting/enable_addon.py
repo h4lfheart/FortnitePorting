@@ -3,6 +3,8 @@ import sys
 
 
 def main():
+    
+    bpy.ops.preferences.addon_enable(module='io_scene_ueformat')
     if "FortnitePorting" in bpy.context.preferences.addons:
         print("FortnitePorting Addon Already Enabled, Exiting")
         return

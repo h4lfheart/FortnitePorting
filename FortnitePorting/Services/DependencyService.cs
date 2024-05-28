@@ -19,7 +19,7 @@ public static class DependencyService
         TaskService.Run(() =>
         {
             EnsureResourceBased("Assets/Dependencies/binkadec.exe", BinkaFile);
-            EnsureResourceBased("Plugins/Blender/enable_addon.py", BlenderScriptFile);
+            EnsureResourceBased("Plugins/Blender/FortnitePorting/enable_addon.py", BlenderScriptFile);
             EnsureResourceBased("Assets/Dependencies/updater.bat", UpdaterFile);
             EnsureVGMStream();
         });

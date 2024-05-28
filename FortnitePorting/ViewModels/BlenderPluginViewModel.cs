@@ -57,9 +57,16 @@ public partial class BlenderPluginViewModel : ViewModelBase
 
     public async Task SyncAll(bool automatic = false)
     {
-        foreach (var blenderInstall in Installations)
+        try
         {
-            await Sync(blenderInstall, automatic);
+            foreach (var blenderInstall in Installations)
+            {
+                await Sync(blenderInstall, automatic);
+            }
+        }
+        catch (Exception e)
+        {
+            HandleException(e);
         }
     }
     
@@ -82,7 +89,9 @@ public partial class BlenderPluginViewModel : ViewModelBase
         var assets = Avalonia.Platform.AssetLoader.GetAssets(new Uri("avares://FortnitePorting/Plugins/Blender"), null);
         foreach (var asset in assets)
         {
-            var filePath = Path.Combine(installInfo.AddonPath, asset.AbsolutePath.SubstringAfterLast("/"));
+            var filePath = Path.Combine(installInfo.AddonBasePath, asset.AbsolutePath.Replace("/Plugins/Blender/", string.Empty));
+            Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
+            
             var assetStream = Avalonia.Platform.AssetLoader.Open(asset);
             await File.WriteAllBytesAsync(filePath, assetStream.ReadToEnd());
         }
@@ -124,7 +133,8 @@ public partial class BlenderPluginViewModel : ViewModelBase
     
     public async Task UnSync(BlenderInstallInfo installInfo)
     {
-        Directory.Delete(installInfo.AddonPath);
+        Directory.Delete(Path.Combine(installInfo.AddonBasePath, "FortnitePorting"));
+        Directory.Delete(Path.Combine(installInfo.AddonBasePath, "io_scene_ueformat"));
     }
     
     public bool CheckBlenderRunning(string path, bool automatic = false)
@@ -152,7 +162,7 @@ public partial class BlenderPluginViewModel : ViewModelBase
 
     public async Task<string> GetPluginVersion()
     {
-        var initStream = Avalonia.Platform.AssetLoader.Open(new Uri("avares://FortnitePorting/Plugins/Blender/__init__.py"));
+        var initStream = Avalonia.Platform.AssetLoader.Open(new Uri("avares://FortnitePorting/Plugins/Blender/FortnitePorting/__init__.py"));
         var initText = initStream.ReadToEnd().BytesToString();
         return BlenderInstallInfo.GetPluginVersion(initText);
     }
@@ -164,7 +174,6 @@ public partial class BlenderInstallInfo : ObservableObject
     [ObservableProperty] private string blenderVersion;
     [ObservableProperty] private string pluginVersion = "???";
     [ObservableProperty] private string addonBasePath;
-    [ObservableProperty] private string addonPath;
 
     public BlenderInstallInfo(string path, string blenderVersion)
     {
@@ -176,8 +185,6 @@ public partial class BlenderInstallInfo : ObservableObject
             BlenderVersion, 
             "scripts", 
             "addons");
-        AddonPath = Path.Combine(AddonBasePath, "FortnitePorting");
-        Directory.CreateDirectory(AddonPath);
     }
 
     public void Update()
@@ -187,7 +194,7 @@ public partial class BlenderInstallInfo : ObservableObject
 
     public string GetPluginVersion()
     {
-        var initFilepath = Path.Combine(AddonPath, "__init__.py");
+        var initFilepath = Path.Combine(AddonBasePath, "FortnitePorting", "__init__.py");
         if (!File.Exists(initFilepath)) return PluginVersion;
         
         var initText = File.ReadAllText(initFilepath);

@@ -89,8 +89,8 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="{ext:Space 1}" />
                     <ColumnDefinition Width="0.9*" />
-                    <ColumnDefinition Width="{ext:Space 1}" />
-                    <ColumnDefinition Width="0.85*" />
+                    <!--ColumnDefinition Width="{ext:Space 1}" />
+                    <ColumnDefinition Width="0.85*" /-->
                 </Grid.ColumnDefinitions>
                 
                 <Expander x:Name="BottomHeightTemplate" Grid.Column="0" ExpandDirection="Up" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" MinHeight="36" Padding="8">
@@ -172,7 +172,7 @@
                     </ItemsControl>
                 </Expander>
                 
-                <Expander Grid.Column="8" ExpandDirection="Up" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" MinHeight="36" Padding="8">
+                <!--Expander Grid.Column="8" ExpandDirection="Up" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" MinHeight="36" Padding="8">
                     <Expander.Header>
                         <controls:ImageText Text="Lego" Image="/Assets/FN/LegoOutfit.png" ImageSize="16" />
                     </Expander.Header>
@@ -185,7 +185,7 @@
                         
                         <assets:AssetTypePicker Type="LegoOutfit" Image="/Assets/FN/LegoOutfit.png"/>
                     </ItemsControl>
-                </Expander>
+                </Expander-->
             </Grid>
             
             

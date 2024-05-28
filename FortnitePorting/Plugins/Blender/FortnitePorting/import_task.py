@@ -7,7 +7,7 @@ import traceback
 from enum import Enum
 from math import radians
 from mathutils import Matrix, Vector, Euler, Quaternion
-from . import io_scene_ueformat
+import io_scene_ueformat
 from io_scene_ueformat.importer.logic import UEFormatImport
 from io_scene_ueformat.options import UEModelOptions, UEAnimOptions
 from .logger import Log

@@ -3,7 +3,7 @@ import zstandard as zstd
 from . import op
 
 bl_info = {
-    "name": "UE Format (.Ouemodel / .ueanim)",
+    "name": "UE Format (.uemodel / .ueanim)",
     "author": "Half",
     "version": (1, 0, 0),
     "blender": (4, 0, 0),
