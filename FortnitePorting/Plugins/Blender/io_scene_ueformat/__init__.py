@@ -11,6 +11,8 @@ bl_info = {
     "category": "Import",
 }
 
+global zstd_decompressor
+zstd_decompressor = zstd.ZstdDecompressor()
 
 def register() -> None:
     global zstd_decompressor  # noqa: PLW0603

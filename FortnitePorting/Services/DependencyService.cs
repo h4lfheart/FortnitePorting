@@ -19,16 +19,16 @@ public static class DependencyService
         TaskService.Run(() =>
         {
             EnsureResourceBased("Assets/Dependencies/binkadec.exe", BinkaFile);
-            EnsureResourceBased("Plugins/Blender/FortnitePorting/enable_addon.py", BlenderScriptFile);
+            EnsureResourceBased("Plugins/Blender/FortnitePorting/enable_addon.py", BlenderScriptFile, alwaysOverwrite: true);
             EnsureResourceBased("Assets/Dependencies/updater.bat", UpdaterFile);
             EnsureVGMStream();
         });
     }
 
-    private static void EnsureResourceBased(string path, FileInfo targetFile)
+    private static void EnsureResourceBased(string path, FileInfo targetFile, bool alwaysOverwrite = false)
     {
         var assetStream = AssetLoader.Open(new Uri($"avares://FortnitePorting/{path}"));
-        if (targetFile is { Exists: true, Length: > 0 } && targetFile.GetHash() == assetStream.GetHash()) return;
+        if (!alwaysOverwrite && targetFile is { Exists: true, Length: > 0 } && targetFile.GetHash() == assetStream.GetHash()) return;
 
         targetFile.Delete();
         File.WriteAllBytes(targetFile.FullName, assetStream.ReadToEnd());
