@@ -1909,7 +1909,7 @@ def apply_tasty_rig(master_skeleton, scale, use_finger_ik = True, use_dyn_bone_s
         if "deform_" in bone.name:
             deform_collection.assign(bone)
             bone.custom_shape = bpy.data.objects.get('RIG_Tweak')
-            bone.custom_shape_scale_xyz = (0.030, 0.030, 0.030) * scale
+            bone.custom_shape_scale_xyz = Vector((0.030, 0.030, 0.030)) * scale
             bone.use_custom_shape_bone_size = False
             continue
             
