@@ -85,12 +85,13 @@ public class CUE4ParseViewModel : ViewModelBase
         if ((AppSettings.Current.UseCosmeticStreaming && AppSettings.Current.LoadingType == ELoadingType.Local) || AppSettings.Current.LoadingType == ELoadingType.Live) await LoadCosmeticStreaming();
 
         await LoadKeys();
+        Provider.PostMount();
+        await LoadConsoleVariables();
 
         Provider.LoadLocalization(AppSettings.Current.Language);
         Provider.LoadVirtualPaths();
         await LoadMappings();
 
-        await LoadConsoleVariables();
 
         HomeVM.Update("Loading Asset Registry");
         await LoadAssetRegistries();
@@ -303,7 +304,6 @@ public class CUE4ParseViewModel : ViewModelBase
 
     private async Task LoadConsoleVariables()
     {
-        Provider.LoadIniConfigs();
         var tokens = Provider.DefaultEngine.Sections.FirstOrDefault(source => source.Name == "ConsoleVariables")?.Tokens ?? [];
         foreach (var token in tokens)
         {

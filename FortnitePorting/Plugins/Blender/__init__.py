@@ -4,14 +4,14 @@ import zstandard as zstd
 from .logger import Log
 from .server import ImportServer, MessageServer
 from .import_task import ImportTask
-from . import ue_format
+from . import io_scene_ueformat
 
 bl_info = {
     "name": "Fortnite Porting",
     "description": "Fortnite Porting Blender Plugin",
     "author": "Half",
     "blender": (4, 0, 0),
-    "version": (2, 1, 3),
+    "version": (2, 1, 6),
     "category": "Import",
 }
 
@@ -24,7 +24,7 @@ def message_box(message="", title="Message Box", icon='INFO'):
 
 
 def register():
-    ue_format.zstd_decompresser = zstd.ZstdDecompressor()
+    io_scene_ueformat.zstd_decompresser = zstd.ZstdDecompressor()
 
     global import_server
     import_server = ImportServer()

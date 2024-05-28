@@ -7,7 +7,9 @@ import traceback
 from enum import Enum
 from math import radians
 from mathutils import Matrix, Vector, Euler, Quaternion
-from .ue_format import UEFormatImport, UEModelOptions, UEAnimOptions
+from . import io_scene_ueformat
+from io_scene_ueformat.importer.logic import UEFormatImport
+from io_scene_ueformat.options import UEModelOptions, UEAnimOptions
 from .logger import Log
 from .server import MessageServer
 
@@ -142,11 +144,16 @@ layer_mappings = MappingCollection(
 toon_mappings = MappingCollection(
     textures=[
         SlotMapping("LitDiffuse"),
+        SlotMapping("Color_Lit_Map", "LitDiffuse"),
         SlotMapping("ShadedDiffuse"),
+        SlotMapping("Color_Shaded_Map", "ShadedDiffuse"),
         SlotMapping("DistanceField_InkLines"),
+        SlotMapping("DFL_Map", "DistanceField_InkLines"),
         SlotMapping("InkLineColor_Texture"),
         SlotMapping("SSC_Texture"),
-        SlotMapping("Normals")
+        SlotMapping("STM_Map", "SSC_Texture"),
+        SlotMapping("Normals"),
+        SlotMapping("Normal_Map", "Normals")
     ],
     scalars=[
         SlotMapping("ShadedColorDarkening"),
@@ -154,7 +161,9 @@ toon_mappings = MappingCollection(
         SlotMapping("PBR_Shading", "Use PBR Shading", value_func=lambda value: int(value))
     ],
     vectors=[
-        SlotMapping("InkLineColor", "InkLineColor_Texture")
+        SlotMapping("InkLineColor", "InkLineColor_Texture"),
+        SlotMapping("Color_Lit", "LitDiffuse"),
+        SlotMapping("Color_Shaded", "ShadedDiffuse"),
     ]
 )
 
@@ -1046,7 +1055,7 @@ class DataImportTask:
             socket_mappings = layer_mappings
             shader_node.inputs["Is Transparent"].default_value = material_data.get("IsTransparent")
 
-        if any(["LitDiffuse", "ShadedDiffuse"], lambda x: get_param(textures, x)):
+        if any(["LitDiffuse", "ShadedDiffuse", "Color_Lit_Map", "Color_Shaded_Map"], lambda x: get_param(textures, x)) or any(["Color_Lit", "Color_Shaded"], lambda x: get_param(vectors, x)):
             replace_shader_node("FP Toon")
             socket_mappings = toon_mappings
 

@@ -25,7 +25,7 @@ public static class ImageExtensions
         var mip = texture.GetFirstMip();
         if (mip is null) return null;
 
-        TextureDecoder.DecodeTexture(mip, texture.Format, texture.IsNormalMap, ETexturePlatform.DesktopMobile, out var data, out var colorType);
+        TextureDecoder.DecodeTexture(mip, mip.SizeX, mip.SizeY, mip.SizeZ, texture.Format, texture.IsNormalMap, ETexturePlatform.DesktopMobile, out var data, out var colorType);
         
         return colorType switch
         {

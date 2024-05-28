@@ -52,7 +52,7 @@ public partial class AssetItem : UserControl
     public float DisplayHeight { get; set; }
     
 
-    public AssetItem(UObject asset, UTexture2D icon, string displayName, EAssetType type, bool isHidden = false, bool hideRarity = false, EFortRarity? rarityOverride = null, bool useTitleCase = true)
+    public AssetItem(UObject asset, UTexture2D icon, string displayName, EAssetType type, string description, bool isHidden = false, bool hideRarity = false, EFortRarity? rarityOverride = null, bool useTitleCase = true)
     {
         DataContext = this;
         InitializeComponent();
@@ -66,8 +66,7 @@ public partial class AssetItem : UserControl
         IsFavorite = AppSettings.Current.FavoritePaths.Contains(asset.GetPathName());
         ID = asset.Name;
         DisplayName = useTitleCase ? displayName.TitleCase() : displayName;
-        var description = asset.GetAnyOrDefault<FText?>("Description", "ItemDescription") ?? new FText("No description.");
-        Description = description.Text;
+        Description = description;
         Rarity = rarityOverride ?? asset.GetOrDefault("Rarity", EFortRarity.Uncommon);
         GameplayTags = asset.GetOrDefault<FGameplayTagContainer?>("GameplayTags");
         if (type is EAssetType.Prefab)
