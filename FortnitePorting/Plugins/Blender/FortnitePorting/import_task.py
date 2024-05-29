@@ -39,6 +39,68 @@ class SlotMapping:
         self.value_func = value_func
         self.coords = coords
         self.allow_switch = allow_switch
+        
+metahuman_mappings = {
+    "base_pose:": ["base"],
+    "C_glabella_down_pose": ["browDownL", "browDownR", "browLateralL", "browLateralR"],
+    "C_glabella_up_pose": ["browRaiseInL", "browRaiseInR"],
+    "C_nose_wrinkler_pose": ["noseWrinkleL", "noseWrinkleR"],
+    "eye_convergence_pose": ["eyeLookLeftR", "eyeLookRightL"],
+    "jaw_back_pose": ["jawBack"],
+    "jaw_forward_pose": ["jawFwd"],
+    "jaw_left_pose": ["jawLeft"],
+    "jaw_open_pose": ["jawOpen"],
+    "jaw_right_pose": ["jawRight"],
+    "jaw_up_pose": ["jawChinRaiseDL", "jawChinRaiseDR"],
+    "L_blink_pose": ["eyeBlinkL"],
+    "L_brow_down_pose": ["browDownL"],
+    "L_brow_squeeze_in_pose": ["browLateralL"],
+    "L_brow_up_pose": ["browRaiseInL", "browRaiseOuterL"],
+    "L_cheek_up_pose": [],
+    "L_frown_pose": [],
+    "L_lip_corner_narrow_pose": ["mouthCornerNarrowL"],
+    "L_lip_corner_wide_pose": ["mouthCornerWideL"],
+    "L_lower_lip_down_pose": ["mouthLowerLipDepressL"],
+    "L_lower_lip_up_pose": ["jawChinRaiseDL"],
+    "L_smile_pose": ["mouthCornerPullL"],
+    "L_squeeze_pose": ["eyeCheekRaiseL"],
+    "L_squint_inner_pose": ["eyeSquintInnerL"],
+    "L_upper_lip_lower_pose": [],
+    "L_upper_lip_raiser_pose": ["jawChinRaiseUL"],
+    "L_upperLidDown_pose": [],
+    "L_wide_pose": ["eyeWidenL"],
+    "look_down_pose": ["eyeLookDownR", "eyeLookDownL"],
+    "look_left_pose": ["eyeLookLeftR", "eyeLookLeftL"],
+    "look_right_pose": ["eyeLookRightR", "eyeLookRightL"],
+    "look_up_pose": ["eyeLookUpR", "eyeLookUpL"],
+    "mouth_down_pose": ["mouthDown"],
+    "mouth_up_pose": ["mouthUp"],
+    "phoneme_ch_pose": [],
+    "phoneme_fv_pose": ["mouthLowerLipBiteL", "mouthLowerLipBiteR"],
+    "phoneme_mbp_pose": [],
+    "phoneme_oo_pose": [],
+    "R_blink_pose": ["eyeBlinkR"],
+    "R_brow_down_pose": ["browDownR"],
+    "R_brow_squeeze_in_pose": ["browLateralR"],
+    "R_brow_up_pose": ["browRaiseInR", "browRaiseOuterR"],
+    "R_cheek_up_pose": [],
+    "R_frown_pose": [],
+    "R_lip_corner_narrow_pose": ["mouthCornerNarrowR"],
+    "R_lip_corner_wide_pose": ["mouthCornerWideR"],
+    "R_lower_lip_down_pose": [],
+    "R_lower_lip_up_pose": ["jawChinRaiseDR"],
+    "R_smile_pose": ["mouthCornerPullR"],
+    "R_squeeze_pose": ["eyeCheekRaiseR"],
+    "R_squint_inner_pose": ["eyeSquintInnerR"],
+    "R_upper_lip_lower_pose": [],
+    "R_upper_lip_raiser_pose": ["jawChinRaiseUR"],
+    "R_upperLidDown_pose": [],
+    "R_wide_pose": ["eyeWidenR"],
+    "tongue_back_pose": ["tongueIn"],
+    "tongue_down_pose": ["tongueDown"],
+    "tongue_forward_pose": ["tongueOut"],
+    "tongue_up_pose": ["tongueUp"],
+}
 
 default_mappings = MappingCollection(
     textures=[
@@ -454,6 +516,7 @@ class DataImportTask:
 
         def import_sections(sections, skeleton, track, is_main_skeleton = False):
             total_frames = 0
+            is_metahuman = any(skeleton.data.bones, lambda bone: bone.name == "FACIAL_C_FacialRoot")
             for section in sections:
                 path = section.get("Path")
     
@@ -467,7 +530,7 @@ class DataImportTask:
                 loop_count = 999 if self.options.get("LoopAnimation") and section.get("Loop") else 1
                 strip = track.strips.new(section_name, time_to_frame(time_offset), anim)
                 strip.repeat = loop_count
-
+                
                 if (curves := section.get("Curves")) and len(curves) > 0 and active_mesh.data.shape_keys is not None and is_main_skeleton:
                     key_blocks = active_mesh.data.shape_keys.key_blocks
                     for key_block in key_blocks:
@@ -479,6 +542,14 @@ class DataImportTask:
                             for key in curve.get("Keys"):
                                 target_block.value = key.get("Value")
                                 target_block.keyframe_insert(data_path="value", frame=key.get("Time") * 30)
+                                
+                        if is_metahuman and (curve_mappings := metahuman_mappings.get(curve_name)):
+                            for curve_mapping in curve_mappings:
+                                 if target_block := key_blocks.get(curve_mapping.replace("CTRL_expressions_", "")):
+                                     for key in curve.get("Keys"):
+                                         target_block.value = key.get("Value")
+                                         target_block.keyframe_insert(data_path="value", frame=key.get("Time") * 30)
+                            
                     if active_mesh.data.shape_keys.animation_data.action is not None:
                         strip = mesh_track.strips.new(section_name, time_to_frame(time_offset), active_mesh.data.shape_keys.animation_data.action)
                         strip.name = section_name
