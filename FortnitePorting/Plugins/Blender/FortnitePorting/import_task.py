@@ -109,6 +109,8 @@ default_mappings = MappingCollection(
         SlotMapping("Base Color", "Diffuse"),
         SlotMapping("Concrete", "Diffuse"),
         SlotMapping("Trunk_BaseColor", "Diffuse"),
+        SlotMapping("Diffuse Top", "Diffuse"),
+        SlotMapping("BaseColor_Trunk", "Diffuse"),
         
         SlotMapping("Background Diffuse", alpha_slot="Background Diffuse Alpha"),
         SlotMapping("BG Diffuse Texture", "Background Diffuse", alpha_slot="Background Diffuse Alpha"),
@@ -122,6 +124,8 @@ default_mappings = MappingCollection(
         SlotMapping("Specular Mask", "SpecularMasks"),
         SlotMapping("Concrete_SpecMask", "SpecularMasks"),
         SlotMapping("Trunk_Specular", "SpecularMasks"),
+        SlotMapping("Specular Top", "SpecularMasks"),
+        SlotMapping("SMR_Trunk", "SpecularMasks"),
         
         SlotMapping("Normals"),
         SlotMapping("N", "Normals"),
@@ -129,6 +133,8 @@ default_mappings = MappingCollection(
         SlotMapping("NormalMap", "Normals"),
         SlotMapping("ConcreteTextureNormal", "Normals"),
         SlotMapping("Trunk_Normal", "Normals"),
+        SlotMapping("Normals Top", "Normals"),
+        SlotMapping("Normal_Trunk", "Normals"),
         
         SlotMapping("Emissive", "Emission"),
         SlotMapping("EmissiveTexture", "Emission"),
@@ -318,6 +324,9 @@ trunk_mappings = MappingCollection(
         SlotMapping("Trunk_BaseColor", "Diffuse"),
         SlotMapping("Trunk_Specular", "SpecularMasks"),
         SlotMapping("Trunk_Normal", "Normals"),
+        SlotMapping("BaseColor_Trunk", "Diffuse"),
+        SlotMapping("SMR_Trunk", "SpecularMasks"),
+        SlotMapping("Normal_Trunk", "Normals"),
     ]
 )
 
@@ -636,7 +645,7 @@ class DataImportTask:
                 self.import_model(child, collection, imported_object)
             return
         
-        if self.type in ["World", "Prefab"] and (existing_mesh_data := bpy.data.meshes.get(mesh_path.split(".")[1])):
+        if self.type in ["World", "Prefab"] and (existing_mesh_data := bpy.data.meshes.get(mesh_path.split(".")[1] + "_LOD0")):
             imported_object = bpy.data.objects.new(object_name, existing_mesh_data)
             collection.objects.link(imported_object)
         else:
