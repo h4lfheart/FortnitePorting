@@ -1,56 +1,92 @@
-using CUE4Parse_Conversion.Meshes;
+using System.Diagnostics;
+using CUE4Parse_Conversion.Meshes.PSK;
+using CUE4Parse.UE4.Assets;
 using CUE4Parse.UE4.Assets.Exports.Material;
-using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
-using CUE4Parse.UE4.Assets.Exports.StaticMesh;
-using FortnitePorting.OpenGL.Rendering.Levels;
-using OpenTK.Mathematics;
-using Serilog;
+using OpenTK.Graphics.OpenGL;
 
 namespace FortnitePorting.OpenGL.Rendering.Meshes;
 
-public class Mesh : IRenderable
+public class Mesh : BaseMesh
 {
-    public Matrix4 Transform = Matrix4.Identity;
+    public List<Section> Sections = [];
+    public Materials.Material[] Materials = [];
     
-    private readonly List<Section> Sections = [];
-
-    public Mesh(USkeletalMesh skeletalMesh, Matrix4? transform = null)
+    private const float SCALE = 0.01f;
+    
+    public Mesh(CBaseMeshLod lod, CMeshVertex[] vertices, ResolvedObject?[] materials) : base(RenderManager.Instance.ObjectShader)
     {
-        if (!skeletalMesh.TryConvert(out var convertedMesh)) return;
-
-        Transform = transform ?? Matrix4.Identity;
-        var lod = convertedMesh.LODs[0];
-        var sections = lod.Sections.Value;
-        Sections.AddRange(sections.Select(x => new Section(lod, x, skeletalMesh.Materials[x.MaterialIndex]?.Load<UMaterialInterface>(), transform)));
-    }
-
-    public Mesh(UStaticMesh staticMesh, TextureData? textureData = null, Matrix4? transform = null)
-    {
-        if (!staticMesh.TryConvert(out var convertedMesh)) return;
-
-        Transform = transform ?? Matrix4.Identity;
+        RegisterAttribute("Position", 3, VertexAttribPointerType.Float);
+        RegisterAttribute("TexCoord", 2, VertexAttribPointerType.Float);
+        RegisterAttribute("Normal", 3, VertexAttribPointerType.Float);
+        RegisterAttribute("Tangent", 3, VertexAttribPointerType.Float);
+        RegisterAttribute("MaterialLayer", 1, VertexAttribPointerType.Float);
         
-        var lod = convertedMesh.LODs[0];
-        var sections = lod.Sections.Value;
-        Sections.AddRange(sections.Select(x => new Section(lod, x, staticMesh.Materials[x.MaterialIndex]?.Load<UMaterialInterface>(), textureData, transform)));
-    }
-
-    public void Setup()
-    {
-        Sections.ForEach(section => section.Setup());
-    }
-
-    public void Render(Camera camera)
-    {
-        Sections.ForEach(section =>
+        var indices = lod.Indices.Value;
+        for (var i = 0; i < indices.Length; i++)
         {
-            section.Transform = Transform;
-            section.Render(camera);
-        });
-    }
+            Indices.Add((uint) indices[i]);
+        }
 
-    public void Dispose()
+        var extraUVs = lod.ExtraUV.Value;
+        for (var i = 0; i < vertices.Length; i++)
+        {
+            var vertex = vertices[i];
+            
+            var position = vertex.Position * SCALE;
+            var texCoord = vertex.UV;
+            var normal = vertex.Normal;
+            var tangent = vertex.Tangent;
+            var materialLayer = extraUVs.Length > 0 ? extraUVs[0][i].U : 0;
+
+            Vertices.AddRange(new[]
+            {
+                position.X, position.Z, position.Y,
+                texCoord.U, texCoord.V,
+                normal.X, normal.Z, normal.Y,
+                tangent.X, tangent.Z, tangent.Y,
+                materialLayer
+            });
+        }
+
+        foreach (var section in lod.Sections.Value)
+        {
+            Sections.Add(new Section(section.MaterialIndex, section.NumFaces * 3, section.FirstIndex));
+        }
+
+        if (Materials.Length == 0) // only if materials havent been passed in from external means i.e. actor
+        {
+            Materials = new Materials.Material[materials.Length];
+            for (var i = 0; i < materials.Length; i++)
+            {
+                var material = materials[i];
+                if (material is null) continue;
+
+                if (material.TryLoad(out var materialObject) && materialObject is UMaterialInterface materialInterface)
+                {
+                    Materials[i] = RenderManager.Instance.GetOrAddMaterial(materialInterface);
+                }
+            }
+        }
+    }
+    
+    public override void Render(Camera camera)
     {
-        Sections.ForEach(section => section.Dispose());
+        base.Render(camera);
+        GL.Disable(EnableCap.CullFace);
+        
+        Shader.Use();
+        Shader.SetMatrix4("uTransform", Transform);
+        Shader.SetMatrix4("uView", camera.GetViewMatrix());
+        Shader.SetMatrix4("uProjection", camera.GetProjectionMatrix());
+        Shader.SetUniform3("viewVector", -camera.Direction);
+
+        VAO.Bind();
+        foreach (var section in Sections)
+        {
+            Materials[section.MaterialIndex].Render(Shader);
+            GL.DrawElements(PrimitiveType.Triangles, section.FaceCount, DrawElementsType.UnsignedInt, section.FirstFaceIndexPtr);
+        }
+
+        GL.Enable(EnableCap.CullFace);
     }
 }

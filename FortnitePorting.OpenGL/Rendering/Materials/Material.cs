@@ -1,12 +1,11 @@
+using System.Diagnostics;
 using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.Texture;
-using CUE4Parse.UE4.Objects.Core.Math;
-using FluentAvalonia.Core;
 using FortnitePorting.OpenGL.Rendering.Levels;
 using FortnitePorting.Shared.Extensions;
 using OpenTK.Graphics.OpenGL;
 
-namespace FortnitePorting.OpenGL.Materials;
+namespace FortnitePorting.OpenGL.Rendering.Materials;
 
 public class Material : IDisposable
 {
@@ -134,11 +133,12 @@ public class Material : IDisposable
             OpacityMask[0] = Texture2D.Empty;
         }
         
-        Diffuse[0] ??= Texture2D.Diffuse;
-        Normals[0] ??= Texture2D.Normals;
-        SpecularMasks[0] ??= Texture2D.SpecularMasks;
-        Mask[0] ??= Texture2D.Mask;
-        OpacityMask[0] ??= Texture2D.OpacityMask;
+        
+        FillWithDefaults(Diffuse, Texture2D.Diffuse);
+        FillWithDefaults(Normals, Texture2D.Normals);
+        FillWithDefaults(SpecularMasks, Texture2D.SpecularMasks);
+        FillWithDefaults(Mask, Texture2D.Mask);
+        FillWithDefaults(OpacityMask, Texture2D.OpacityMask);
     }
 
     public void AccumulateParameters(UMaterialInstanceConstant materialInstance)
@@ -154,7 +154,7 @@ public class Material : IDisposable
         if (materialInstance.Parent is UMaterialInstanceConstant parentMaterial) AccumulateParameters(parentMaterial);
     }
 
-    public void Bind(Shader shader)
+    public void Render(Shader shader)
     {
         shader.SetUniform("parameters.useLayers", UseLayers ? 1 : 0);
         
@@ -199,6 +199,14 @@ public class Material : IDisposable
             unit++;
         }
 
+    }
+
+    public void FillWithDefaults(Texture2D?[] textures, Texture2D def)
+    {
+        for (var i = 0; i < textures.Length; i++)
+        {
+            textures[i] ??= def;
+        }
     }
 
     public void Dispose()

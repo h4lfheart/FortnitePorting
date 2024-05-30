@@ -1,66 +1,44 @@
-using FortnitePorting.OpenGL.Materials;
-using FortnitePorting.OpenGL.Rendering.Model;
+using FortnitePorting.OpenGL.Rendering.Materials;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 
 namespace FortnitePorting.OpenGL.Rendering.Viewport;
 
-public class Skybox : VertexModel
+public class Skybox : Meshes.BaseMesh
 {
     public TextureCube Cubemap;
+    
+    public override List<float> Vertices => [
+        -1, -1, -1,
+         1, -1, -1,
+         1,  1, -1,
+        -1,  1, -1,
+        -1, -1,  1,
+         1, -1,  1,
+         1,  1,  1,
+        -1,  1,  1
+    ];
+    
+    public override List<uint> Indices =>
+    [
+        0, 1, 3, 
+        3, 1, 2,
+        1, 5, 2, 
+        2, 5, 6,
+        5, 4, 6, 
+        6, 4, 7,
+        4, 0, 7, 
+        7, 0, 3,
+        3, 2, 7, 
+        7, 2, 6,
+        4, 5, 0, 
+        0, 5, 1
+    ];
 
-    public Skybox()
+    public Skybox() : base("skybox")
     {
-        Vertices =
-        [
-            -0.5f, -0.5f, -0.5f,
-            0.5f, -0.5f, -0.5f,
-            0.5f, 0.5f, -0.5f,
-            0.5f, 0.5f, -0.5f,
-            -0.5f, 0.5f, -0.5f,
-            -0.5f, -0.5f, -0.5f,
-
-            -0.5f, -0.5f, 0.5f,
-            0.5f, -0.5f, 0.5f,
-            0.5f, 0.5f, 0.5f,
-            0.5f, 0.5f, 0.5f,
-            -0.5f, 0.5f, 0.5f,
-            -0.5f, -0.5f, 0.5f,
-
-            -0.5f, 0.5f, 0.5f,
-            -0.5f, 0.5f, -0.5f,
-            -0.5f, -0.5f, -0.5f,
-            -0.5f, -0.5f, -0.5f,
-            -0.5f, -0.5f, 0.5f,
-            -0.5f, 0.5f, 0.5f,
-
-            0.5f, 0.5f, 0.5f,
-            0.5f, 0.5f, -0.5f,
-            0.5f, -0.5f, -0.5f,
-            0.5f, -0.5f, -0.5f,
-            0.5f, -0.5f, 0.5f,
-            0.5f, 0.5f, 0.5f,
-
-            -0.5f, -0.5f, -0.5f,
-            0.5f, -0.5f, -0.5f,
-            0.5f, -0.5f, 0.5f,
-            0.5f, -0.5f, 0.5f,
-            -0.5f, -0.5f, 0.5f,
-            -0.5f, -0.5f, -0.5f,
-
-            -0.5f, 0.5f, -0.5f,
-            0.5f, 0.5f, -0.5f,
-            0.5f, 0.5f, 0.5f,
-            0.5f, 0.5f, 0.5f,
-            -0.5f, 0.5f, 0.5f,
-            -0.5f, 0.5f, -0.5f
-        ];
-
         RegisterAttribute("Position", 3, VertexAttribPointerType.Float);
-
-        Shader = new Shader("skybox");
-        Shader.Use();
-
+        
         Cubemap = new TextureCube("px", "nx", "ny", "py", "pz", "nz");
     }
 
@@ -85,7 +63,7 @@ public class Skybox : VertexModel
         Shader.SetMatrix4("uView", viewMatrix);
         Shader.SetMatrix4("uProjection", camera.GetProjectionMatrix());
 
-        GL.DrawArrays(PrimitiveType.Triangles, 0, Vertices.Count);
+        GL.DrawElements(PrimitiveType.Triangles, Indices.Count, DrawElementsType.UnsignedInt, 0);
         GL.DepthFunc(DepthFunction.Less);
         GL.Enable(EnableCap.CullFace);
     }

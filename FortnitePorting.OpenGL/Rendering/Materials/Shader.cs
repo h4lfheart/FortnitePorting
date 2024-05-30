@@ -1,11 +1,10 @@
 using System.Text;
 using Avalonia.Platform;
 using FortnitePorting.Shared.Extensions;
-using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 
-namespace FortnitePorting.OpenGL.Materials;
+namespace FortnitePorting.OpenGL.Rendering.Materials;
 
 public class Shader : IDisposable
 {

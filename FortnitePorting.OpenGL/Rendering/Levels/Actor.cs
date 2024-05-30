@@ -6,10 +6,10 @@ namespace FortnitePorting.OpenGL.Rendering.Levels;
 
 public class Actor : IRenderable
 {
-    public Mesh Mesh;
+    public StaticMesh Mesh;
     public Matrix4 Transform;
 
-    public Actor(Mesh mesh, Matrix4 transform)
+    public Actor(StaticMesh mesh, Matrix4 transform)
     {
         Mesh = mesh;
         Transform = transform;

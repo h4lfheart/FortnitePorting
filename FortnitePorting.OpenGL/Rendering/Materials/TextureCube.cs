@@ -1,11 +1,9 @@
-using System.Text;
 using Avalonia.Platform;
-using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using SkiaSharp;
 using PixelFormat = OpenTK.Graphics.OpenGL.PixelFormat;
 
-namespace FortnitePorting.OpenGL.Materials;
+namespace FortnitePorting.OpenGL.Rendering.Materials;
 
 public class TextureCube : IDisposable
 {

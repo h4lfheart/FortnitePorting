@@ -4,16 +4,16 @@ using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Objects.Engine;
-using FortnitePorting.OpenGL.Materials;
 using FortnitePorting.OpenGL.Rendering.Levels;
+using FortnitePorting.OpenGL.Rendering.Materials;
+using FortnitePorting.OpenGL.Rendering.Meshes;
 using FortnitePorting.OpenGL.Rendering.Viewport;
-using Mesh = FortnitePorting.OpenGL.Rendering.Meshes.Mesh;
 
 namespace FortnitePorting.OpenGL.Rendering;
 
 public class RenderManager : IRenderable
 {
-    public static RenderManager? Instance;
+    public static RenderManager Instance;
     
     public Skybox Skybox;
     public Grid Grid;
@@ -30,7 +30,6 @@ public class RenderManager : IRenderable
     public void Setup()
     {
         ObjectShader = new Shader("shader");
-        ObjectShader.Use();
         
         Skybox = new Skybox();
         Skybox.Setup();
@@ -52,8 +51,7 @@ public class RenderManager : IRenderable
     {
         IRenderable renderable = obj switch
         {
-            UStaticMesh staticMesh => new Mesh(staticMesh),
-            USkeletalMesh skeletalMesh => new Mesh(skeletalMesh),
+            UStaticMesh staticMesh => new StaticMesh(staticMesh),
             ULevel level => new Level(level)
         };
         
@@ -67,10 +65,8 @@ public class RenderManager : IRenderable
         MaterialCache.Clear();
     }
     
-    public Materials.Material? GetOrAddMaterial(UMaterialInterface? materialInterface, TextureData? textureData = null)
+    public Materials.Material GetOrAddMaterial(UMaterialInterface materialInterface, TextureData? textureData = null)
     {
-        if (materialInterface is null) return null;
-
         var hash = materialInterface.GetPathName().GetHashCode();
         if (textureData is not null) hash += textureData.Hash;
         

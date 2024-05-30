@@ -56,7 +56,7 @@ public class ModelViewerContext : GameWindow
         MouseWheel += delegate(MouseWheelEventArgs args)
         {
             Camera.Speed += args.OffsetY * 0.01f;
-            Camera.Speed = Camera.Speed.Clamp(0.01f, 20.0f);
+            Camera.Speed = Camera.Speed.Clamp(0.001f, 20.0f);
         };
 
         Resize += delegate(ResizeEventArgs args)

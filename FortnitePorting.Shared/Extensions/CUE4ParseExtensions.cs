@@ -1,6 +1,9 @@
+using CUE4Parse_Conversion.Meshes;
+using CUE4Parse_Conversion.Meshes.PSK;
 using CUE4Parse.FileProvider;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Material.Parameters;
+using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.GameplayTags;
@@ -155,5 +158,11 @@ public static class CUE4ParseExtensions
         var componentContainer = obj.GetOrDefault<FStructFallback?>("ComponentContainer");
         var components = componentContainer?.Get<UObject[]>("Components");
         return components?.FirstOrDefault(component => component.ExportType.Equals(componentType, StringComparison.OrdinalIgnoreCase));
+    }
+
+    public static CStaticMesh Convert(this UStaticMesh staticMesh)
+    {
+        staticMesh.TryConvert(out var convertedMesh);
+        return convertedMesh;
     }
 }

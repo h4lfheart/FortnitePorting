@@ -1,29 +1,23 @@
-using FortnitePorting.OpenGL.Materials;
-using FortnitePorting.OpenGL.Rendering.Model;
 using OpenTK.Graphics.OpenGL;
 
 namespace FortnitePorting.OpenGL.Rendering.Viewport;
 
-public class Grid : VertexAndIndexModel
+public class Grid : Meshes.BaseMesh
 {
-    public Grid()
+    public override List<float> Vertices => [
+         1f,  1f, 0f,
+        -1f, -1f, 0f,
+        -1f,  1f, 0f,
+        -1f, -1f, 0f,
+         1f,  1f, 0f,
+         1f, -1f, 0f
+    ];
+
+    public override List<uint> Indices => [0, 1, 2, 3, 4, 5];
+
+    public Grid() : base("grid")
     {
-        Indices = [0, 1, 2, 3, 4, 5];
-
-        Vertices =
-        [
-            1f, 1f, 0f,
-            -1f, -1f, 0f,
-            -1f, 1f, 0f,
-            -1f, -1f, 0f,
-            1f, 1f, 0f,
-            1f, -1f, 0
-        ];
-
         RegisterAttribute("Position", 3, VertexAttribPointerType.Float);
-
-        Shader = new Shader("grid");
-        Shader.Use();
     }
 
     public override void Render(Camera camera)

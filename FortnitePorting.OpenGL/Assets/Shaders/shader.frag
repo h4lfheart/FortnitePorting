@@ -6,7 +6,7 @@ in vec3 fPosition;
 in vec2 fTexCoord;
 in vec3 fNormal;
 in vec3 fTangent;
-in vec2 fExtraUV;
+in float fMaterialLayer;
 
 struct Parameters
 {
@@ -57,9 +57,9 @@ float distributionGGX(float roughness, float nDotH)
     return (numerator * numerator) / denominator;
 }
 
-vec4 calcLight(int layer)
+vec3 calcLight()
 {
-    vec3 normals = calcNormals(layer);
+    int layer = parameters.useLayers ? int(fMaterialLayer) : 0;
     
     // diffuse
     vec3 mask = samplerToColor(parameters.mask[layer]);
@@ -72,6 +72,8 @@ vec4 calcLight(int layer)
     diffuse = mix(diffuse, blendSoftLight(diffuse, vec3(cavity)), 0.5);
     
     // direct light
+    vec3 normals = calcNormals(layer);
+    
     vec3 lightDirection = vec3(0, 1, 0.28);
     vec3 lightColor = vec3(0.854934, 0.613244, 0.475582) * 1.5;
     float directLight = dot(normals, lightDirection);
@@ -105,22 +107,10 @@ vec4 calcLight(int layer)
     alpha = samplerToColor(parameters.opacityMask[layer]).r;
     if (alpha < 0.2) discard;
     
-    return vec4(result, 1.0);
+    return result;
 }
 
 void main()
 {
-    float layerMask = fExtraUV.r;
-    
-    vec4 outColor = calcLight(0);
-    if (parameters.useLayers)
-    {
-        outColor = mix(outColor, calcLight(1), layerMask > 1);
-        outColor = mix(outColor, calcLight(2), layerMask > 2);
-        outColor = mix(outColor, calcLight(3), layerMask > 3);
-        outColor = mix(outColor, calcLight(4), layerMask > 4);
-        outColor = mix(outColor, calcLight(5), layerMask > 5);
-    }
-    
-    FragColor = outColor;
+    FragColor = vec4(calcLight(), 1.0);
 }

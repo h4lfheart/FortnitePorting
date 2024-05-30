@@ -1,10 +1,9 @@
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Objects.Core.Math;
-using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 
-namespace FortnitePorting.OpenGL.Materials;
+namespace FortnitePorting.OpenGL.Rendering.Materials;
 
 public class Texture2D
 {
@@ -17,8 +16,11 @@ public class Texture2D
     
     private readonly int Handle;
 
+    public string Name;
+
     public Texture2D(UTexture2D texture)
     {
+        Name = texture.Name;
         var bitmap = texture.Decode()!;
         
         Handle = GL.GenTexture();
@@ -34,6 +36,7 @@ public class Texture2D
 
     public Texture2D(FLinearColor color)
     {
+        Name = color.ToString();
         Handle = GL.GenTexture();
         Bind();
 

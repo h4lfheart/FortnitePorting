@@ -2,6 +2,7 @@ using System.Diagnostics;
 using CUE4Parse_Conversion;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Component.StaticMesh;
+using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.Engine;
@@ -50,7 +51,6 @@ public class Level : IRenderable
             var location = staticMeshComponent.GetOrDefault("RelativeLocation", FVector.ZeroVector) * 0.01f;
             var rotation = staticMeshComponent.GetOrDefault("RelativeRotation", FRotator.ZeroRotator).Quaternion();
             var scale = staticMeshComponent.GetOrDefault("RelativeScale3D", FVector.OneVector);
-
             
             var transform = Matrix4.CreateScale(scale.X, scale.Z, scale.Y) 
                 * Matrix4.CreateFromQuaternion(new Quaternion(rotation.X, rotation.Z, rotation.Y, -rotation.W))
@@ -71,11 +71,29 @@ public class Level : IRenderable
                     Specular = textureData.Specular
                 });
             }
+
+            StaticMesh mesh;
+            if (textureDataFinal.Count == 0)
+            {
+                mesh = new StaticMesh(staticMesh);
+            }
+            else
+            {
+                var materials = new Materials.Material[staticMesh.Materials.Length];
+                for (var i = 0; i < materials.Length; i++)
+                {
+                    var material = staticMesh.Materials[i];
+                    if (material is null) continue;
+                    if (material.TryLoad(out var materialObject) && materialObject is UMaterialInterface materialInterface)
+                    {
+                        materials[i] = RenderManager.Instance.GetOrAddMaterial(materialInterface, textureDataFinal[Math.Min(i, textureDataFinal.Count - 1)]);
+                    }
+                }
             
-            var mesh = new Mesh(staticMesh, textureDataFinal.FirstOrDefault());
+                mesh = new StaticMesh(staticMesh, materials);
+            }
             
             Actors.Add(new Actor(mesh, transform));
-            
         }
     }
     

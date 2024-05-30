@@ -9,7 +9,7 @@
         TransparencyLevelHint="AcrylicBlur" ExtendClientAreaToDecorationsHint="True"
         Icon="/Assets/LogoV3.ico"
         Title="Fortnite Porting">
-    <Grid RowDefinitions="30, *">
+    <Grid RowDefinitions="30, *" Margin="{Binding $parent[Window].OffScreenMargin}">
         <ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False">
             <ExperimentalAcrylicBorder.Material>
                 <ExperimentalAcrylicMaterial BackgroundSource="Digger" MaterialOpacity="1.5" TintColor="#FF3A2F52" TintOpacity="1"/>
