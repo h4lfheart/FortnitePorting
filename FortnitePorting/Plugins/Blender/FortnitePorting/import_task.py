@@ -220,6 +220,7 @@ toon_mappings = MappingCollection(
         SlotMapping("InkLineColor_Texture"),
         SlotMapping("SSC_Texture"),
         SlotMapping("STM_Map", "SSC_Texture"),
+        SlotMapping("STT_Map", "SSC_Texture"),
         SlotMapping("Normals"),
         SlotMapping("Normal_Map", "Normals")
     ],
