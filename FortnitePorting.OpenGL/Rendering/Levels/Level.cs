@@ -16,7 +16,7 @@ namespace FortnitePorting.OpenGL.Rendering.Levels;
 
 public class Level : IRenderable
 {
-    public List<Actor> Actors = [];
+    public List<StaticMesh> Actors = [];
 
     public Level(ULevel level)
     {
@@ -92,8 +92,9 @@ public class Level : IRenderable
             
                 mesh = new StaticMesh(staticMesh, materials);
             }
-            
-            Actors.Add(new Actor(mesh, transform));
+
+            mesh.Transform = transform;
+            Actors.Add(mesh);
         }
     }
     
