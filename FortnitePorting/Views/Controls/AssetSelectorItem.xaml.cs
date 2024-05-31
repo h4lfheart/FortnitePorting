@@ -62,7 +62,7 @@ public partial class AssetSelectorItem : INotifyPropertyChanged, IExportableAsse
 
         Asset = asset;
         var displayName = displayNameOverride;
-        displayName ??= asset.GetOrDefault("DisplayName", new FText(asset.Name));
+        displayName ??= asset.GetAnyOrDefault<FText?>("DisplayName", "ItemName") ?? new FText(asset.Name);
         HiddenAsset = hiddenAsset;
 
         DisplayName = displayName.Text;
@@ -83,7 +83,7 @@ public partial class AssetSelectorItem : INotifyPropertyChanged, IExportableAsse
         SeasonNumber = int.TryParse(seasonTag, out var seasonNumber) ? seasonNumber : int.MaxValue;
         if (asset.TryGetValue<UObject>(out var series, "Series"))
         {
-            Series = series.GetOrDefault<FText>("DisplayName").Text;
+            Series = (series.GetAnyOrDefault<FText?>("DisplayName", "ItemName") ?? new FText("Unnamed")).Text;
         }
 
         TooltipName = $"{DisplayName} ({ID})";

@@ -8,6 +8,7 @@ using CUE4Parse.UE4.Assets.Exports.Sound.Node;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.UObject;
+using FortnitePorting.Views.Extensions;
 
 namespace FortnitePorting.Exports.Types;
 
@@ -18,7 +19,7 @@ public class DanceExportData : ExportDataBase
     public static async Task<DanceExportData> Create(UObject asset)
     {
         var data = new DanceExportData();
-        data.Name = asset.GetOrDefault("DisplayName", new FText("Unnamed")).Text;
+        data.Name = (asset.GetAnyOrDefault<FText?>("DisplayName", "ItemName") ?? new FText("Unnamed")).Text;
         data.Type = EAssetType.Dance.ToString();
 
         var baseMontage = asset.GetOrDefault<UAnimMontage?>("Animation");
@@ -142,7 +143,7 @@ public class DanceExportData : ExportDataBase
             {
                 exportSection.Curves.Add(new Curve
                 {
-                    Name = curve.Name.DisplayName.Text,
+                    Name = curve.CurveName.Text,
                     Keys = curve.FloatCurve.Keys.Select(x => new CurveKey(x.Time, x.Value)).ToList()
                 });
             }
@@ -189,7 +190,7 @@ public class DanceExportData : ExportDataBase
                 {
                     exportSection.Curves.Add(new Curve
                     {
-                        Name = curve.Name.DisplayName.Text,
+                        Name = curve.CurveName.Text,
                         Keys = curve.FloatCurve.Keys.Select(x => new CurveKey(x.Time, x.Value)).ToList()
                     });
                 }

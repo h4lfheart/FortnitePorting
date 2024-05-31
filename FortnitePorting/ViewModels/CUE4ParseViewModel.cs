@@ -39,7 +39,6 @@ using FortnitePorting.Services;
 using FortnitePorting.Services.Endpoints.Models;
 using FortnitePorting.Views.Controls;
 using FortnitePorting.Views.Extensions;
-using MercuryCommons.Utilities.Extensions;
 
 namespace FortnitePorting.ViewModels;
 
@@ -58,7 +57,7 @@ public class CUE4ParseViewModel : ObservableObject
 
     public readonly RarityCollection[] RarityData = new RarityCollection[8];
 
-    public static readonly VersionContainer Version = new(EGame.GAME_UE5_4);
+    public static readonly VersionContainer Version = new(EGame.GAME_UE5_5);
 
     private BackupAPI? BackupInfo;
 
@@ -143,6 +142,10 @@ public class CUE4ParseViewModel : ObservableObject
     public async Task Initialize()
     {
         if (Provider is null) return;
+
+        var oodlePath = Path.Combine(App.DataFolder.FullName, OodleHelper.OODLE_DLL_NAME);
+        if (!File.Exists(oodlePath)) await OodleHelper.DownloadOodleDllAsync(oodlePath);
+        OodleHelper.Initialize(oodlePath);
         
         BackupInfo = await EndpointService.FortnitePorting.GetBackupAsync();
 

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Windows;
 using FortnitePorting.Views.Extensions;
-using MercuryCommons.Utilities.Extensions;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;

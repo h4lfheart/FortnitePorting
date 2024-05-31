@@ -34,7 +34,7 @@ public class MeshExportData : ExportDataBase
     public static async Task<MeshExportData?> Create(UObject asset, EAssetType assetType, FStructFallback[] styles)
     {
         var data = new MeshExportData();
-        data.Name = assetType is (EAssetType.Mesh or EAssetType.Wildlife) ? asset.Name : asset.GetOrDefault("DisplayName", new FText("Unnamed")).Text;
+        data.Name = assetType is (EAssetType.Mesh or EAssetType.Wildlife) ? asset.Name : (asset.GetAnyOrDefault<FText?>("DisplayName", "ItemName") ?? new FText("Unnamed")).Text;
         data.Type = assetType.ToString();
         var canContinue = await Task.Run(async () =>
         {

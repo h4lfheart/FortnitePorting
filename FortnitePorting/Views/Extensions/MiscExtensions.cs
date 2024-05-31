@@ -10,6 +10,13 @@ namespace FortnitePorting.Views.Extensions;
 
 public static class MiscExtensions
 {
+    public static byte[] ReadToEnd(this Stream str)
+    {
+        var bytes = new BinaryReader(str).ReadBytes((int) str.Length);
+        str.Position = 0;
+        return bytes;
+    }
+    
     public static bool MoveToEnd<T>(this List<T> list, Func<T, bool> predicate)
     {
         var found = list.FirstOrDefault(predicate);

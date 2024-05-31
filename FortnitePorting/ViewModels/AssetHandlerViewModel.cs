@@ -150,13 +150,13 @@ public class AssetHandlerViewModel
         },
         DisplayNameGetter = asset =>
         {
-            var displayText = asset.GetOrDefault<FText?>("DisplayName");
+            var displayText = asset.GetAnyOrDefault<FText?>("DisplayName", "ItemName");
             if (displayText is null)
             {
                 var blueprint = asset.Get<UBlueprintGeneratedClass>("VehicleActorClass");
                 var classDefaultObject = blueprint.ClassDefaultObject.Load();
                 var markerDisplay = classDefaultObject?.GetOrDefault<FStructFallback>("MarkerDisplay");
-                displayText = markerDisplay?.GetOrDefault<FText?>("DisplayName");
+                displayText = markerDisplay.GetAnyOrDefault<FText?>("DisplayName", "ItemName");
                 if (displayText is null)
                 {
                     var configClass = classDefaultObject?.GetOrDefault<UBlueprintGeneratedClass?>("VehicleConfigsClass");
@@ -169,7 +169,7 @@ public class AssetHandlerViewModel
                     var superStruct = blueprint.SuperStruct.Load<UBlueprintGeneratedClass>();
                     var superClassDefaultObject = superStruct.ClassDefaultObject.Load();
                     var markerDisplaySuper = superClassDefaultObject?.Get<FStructFallback>("MarkerDisplay");
-                    displayText = markerDisplaySuper?.GetOrDefault<FText?>("DisplayName");
+                    displayText = markerDisplaySuper?.GetAnyOrDefault<FText?>("DisplayName", "ItemName");
                 }
             }
 

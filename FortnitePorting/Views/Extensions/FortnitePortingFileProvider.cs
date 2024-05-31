@@ -6,7 +6,6 @@ using CUE4Parse.FileProvider.Vfs;
 using CUE4Parse.UE4.Readers;
 using CUE4Parse.UE4.Versions;
 using CUE4Parse.Utils;
-using MercuryCommons.Framework.Unreal;
 
 namespace FortnitePorting.Views.Extensions;
 
