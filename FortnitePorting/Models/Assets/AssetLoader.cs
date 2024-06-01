@@ -211,8 +211,8 @@ public partial class AssetLoader : ObservableObject
             IsHidden = isHidden,
             HideRarity = HideRarity
         };
-        
-        await TaskService.RunDispatcherAsync(() => Source.AddOrUpdate(new AssetItem(args)));
+
+        Source.AddOrUpdate(new AssetItem(args));
     }
     
     public void ModifyFilters(string tag, bool enable)

@@ -20,6 +20,7 @@
         <PackageReference Include="DiscordRichPresence" Version="1.2.1.24" />
         <PackageReference Include="DotNetZip" Version="1.16.0" />
         <PackageReference Include="DynamicData" Version="8.4.1" />
+        <PackageReference Include="FFMpegCore" Version="5.1.0" />
         <PackageReference Include="FluentAvalonia.ProgressRing" Version="1.69.2" />
         <PackageReference Include="FluentAvaloniaUI" Version="2.0.5" />
         <PackageReference Include="Material.Icons.Avalonia" Version="2.1.9" />
@@ -28,6 +29,7 @@
         <PackageReference Include="RestSharp" Version="110.2.1-alpha.0.20" />
         <PackageReference Include="RestSharp.Serializers.NewtonsoftJson" Version="110.2.1-alpha.0.20" />
         <PackageReference Include="Serilog.Sinks.File" Version="5.0.1-dev-00972" />
+        <PackageReference Include="z440.atl.core" Version="5.24.0" />
     </ItemGroup>
 
     
@@ -71,6 +73,10 @@
       </Compile>
       <Compile Update="Views\MapView.axaml.cs">
         <DependentUpon>MapView.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Views\RadioView.axaml.cs">
+        <DependentUpon>RadioView.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
     </ItemGroup>

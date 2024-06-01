@@ -11,6 +11,8 @@ public static class Globals
     public static readonly FPVersion Version = new(3, 0, 0, 0, "alpha");
     
     public static readonly FilePickerFileType MappingsFileType = new("Unreal Mappings") { Patterns = [ "*.usmap" ] };
+    public static readonly FilePickerFileType MP3FileType = new("MP3 Audio") { Patterns = [ "*.mp3" ] };
+    public static readonly FilePickerFileType PNGFileType = new("PNG Image") { Patterns = [ "*.png" ] };
     
     // todo use api?
     public const EGame LatestGameVersion = EGame.GAME_UE5_4;

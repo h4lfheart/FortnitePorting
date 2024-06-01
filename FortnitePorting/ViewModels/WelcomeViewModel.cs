@@ -109,7 +109,7 @@ public partial class WelcomeViewModel : ViewModelBase
     [RelayCommand]
     public async Task BrowseMappingsFile()
     {
-        if (await BrowseFileDialog(Globals.MappingsFileType) is { } path)
+        if (await BrowseFileDialog(fileTypes: Globals.MappingsFileType) is { } path)
         {
             MappingsFile = path;
         }

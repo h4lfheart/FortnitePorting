@@ -27,7 +27,6 @@ public partial class SoundPreviewViewModel : ViewModelBase
     [ObservableProperty] private string _soundName;
     [ObservableProperty] private USoundWave _soundWave;
     
-    
     [ObservableProperty] private TimeSpan _currentTime;
     [ObservableProperty] private TimeSpan _totalTime;
     

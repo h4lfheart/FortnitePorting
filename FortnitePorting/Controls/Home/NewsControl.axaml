@@ -16,7 +16,7 @@
             <RowDefinition Height="1.1*"/>
         </Grid.RowDefinitions>
         
-        <ui:FABorder RenderOptions.BitmapInterpolationMode="MediumQuality" Grid.Row="0" Grid.RowSpan="2" CornerRadius="4">
+        <ui:FABorder Grid.Row="0" Grid.RowSpan="2" CornerRadius="4">
             <ui:FABorder.Background>
                 <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding Response.Image, RelativeSource={RelativeSource AncestorType=home:NewsControl}}"
                             Stretch="UniformToFill" />

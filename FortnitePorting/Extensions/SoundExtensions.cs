@@ -1,14 +1,20 @@
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using CUE4Parse_Conversion.Sounds;
+using CUE4Parse.GameTypes.FN.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Exports.Sound;
+using CUE4Parse.UE4.Assets.Exports.Sound.Node;
+using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.Utils;
 using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
 
 namespace FortnitePorting.Extensions;
 
-public class SoundExtensions
+public static class SoundExtensions
 {
     public static bool TrySaveSound(USoundWave soundWave, string path)
     {
@@ -27,6 +33,19 @@ public class SoundExtensions
         }
 
         return true;
+    }
+    
+    public static bool TrySaveSound(USoundWave soundWave, out string path)
+    {
+        path = Path.Combine(AssetsFolder.FullName, MiscExtensions.GetCleanedExportPath(soundWave) + ".wav");
+        Directory.CreateDirectory(path.SubstringBeforeLast("/"));
+        
+        if (File.Exists(path) || TrySaveSound(soundWave, path))
+        {
+            return true;
+        }
+
+        return false;
     }
     
     public static bool TrySaveSoundStream(USoundWave soundWave, out Stream stream)
@@ -98,5 +117,84 @@ public class SoundExtensions
         }
         
         MiscExtensions.TryDeleteFile(adpcmPath);
+    }
+    
+    public static List<Sound> HandleSoundTree(this USoundCue root, float offsetTime = 0.0f)
+    {
+        if (root.FirstNode is null) return (List<Sound>) Enumerable.Empty<Sound>();
+        return HandleSoundTree(root.FirstNode.Load<USoundNode>());
+    }
+
+    public static List<Sound> HandleSoundTree(this USoundNode? root, float offsetTime = 0.0f)
+    {
+        var sounds = new List<Sound>();
+        switch (root)
+        {
+            case USoundNodeWavePlayer player:
+            {
+                sounds.Add(CreateSound(player, offsetTime));
+                break;
+            }
+            case USoundNodeDelay delay:
+            {
+                foreach (var nodeObject in delay.ChildNodes) sounds.AddRange(HandleSoundTree(nodeObject.Load<USoundNode>(), offsetTime + delay.GetOrDefault("DelayMin", delay.GetOrDefault<float>("DelayMax"))));
+
+                break;
+            }
+            case USoundNodeRandom random:
+            {
+                var index = Random.Shared.Next(0, random.ChildNodes.Length);
+                sounds.AddRange(HandleSoundTree(random.ChildNodes[index].Load<USoundNode>(), offsetTime));
+                break;
+            }
+
+            case UFortSoundNodeLicensedContentSwitcher switcher:
+            {
+                sounds.AddRange(HandleSoundTree(switcher.ChildNodes.Last().Load<USoundNode>(), offsetTime));
+                break;
+            }
+            case USoundNodeDialoguePlayer dialoguePlayer:
+            {
+                var dialogueWaveParameter = dialoguePlayer.Get<FStructFallback>("DialogueWaveParameter");
+                var dialogueWave = dialogueWaveParameter.Get<UDialogueWave>("DialogueWave");
+                var contextMappings = dialogueWave.Get<FStructFallback[]>("ContextMappings");
+                var soundWave = contextMappings.First().Get<USoundWave>("SoundWave");
+                sounds.Add(CreateSound(soundWave));
+                break;
+            }
+            case not null:
+            {
+                foreach (var nodeObject in root.ChildNodes) sounds.AddRange(HandleSoundTree(nodeObject.Load<USoundNode>(), offsetTime));
+
+                break;
+            }
+        }
+
+        return sounds;
+    }
+    
+    private static Sound CreateSound(USoundNodeWavePlayer player, float timeOffset = 0)
+    {
+        var soundWave = player.SoundWave?.Load<USoundWave>();
+        return new Sound(soundWave, timeOffset, player.GetOrDefault("bLooping", false));
+    }
+
+    private static Sound CreateSound(USoundWave soundWave, float timeOffset = 0)
+    {
+        return new Sound(soundWave, timeOffset, false);
+    }
+}
+
+public class Sound
+{
+    public USoundWave SoundWave;
+    public float Time;
+    public bool Loop;
+
+    public Sound(USoundWave soundWave, float time, bool loop)
+    {
+        SoundWave = soundWave;
+        Time = time;
+        Loop = loop;
     }
 }

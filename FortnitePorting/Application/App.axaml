@@ -111,6 +111,37 @@
         <Style Selector="material|MaterialIcon">
             <Setter Property="Foreground" Value="White"/>
         </Style>
+        
+        <Style Selector="Button.RadioButton">
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Foreground" Value="#FFFFFF" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+
+        <Style Selector="Button.RadioButton:pointerover /template/ ContentPresenter">
+            <Setter Property="Foreground" Value="#FFFFFF" />
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        
+        <Style Selector="ToggleButton.RadioButton">
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Foreground" Value="#48FFFFFF" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+
+        <Style Selector="ToggleButton.RadioButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Foreground" Value="#48FFFFFF" />
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+
+        <Style Selector="ToggleButton.RadioButton:checked /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Foreground" Value="#FFFFFF" />
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
        
        <Style Selector="TextBlock.CaptionTextBlockStyle">
            <Setter Property="FontSize" Value="12"/>

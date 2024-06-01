@@ -16,7 +16,7 @@
             <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
         
-        <ui:FABorder Grid.Row="0" RenderOptions.BitmapInterpolationMode="MediumQuality" CornerRadius="4 4 0 0" BorderThickness="1 1 1 0">
+        <ui:FABorder Grid.Row="0" CornerRadius="4 4 0 0" BorderThickness="1 1 1 0">
             <ui:FABorder.Background>
                 <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding Response.Image, RelativeSource={RelativeSource AncestorType=home:FeaturedControl}}"
                             Stretch="UniformToFill" />

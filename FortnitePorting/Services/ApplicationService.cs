@@ -145,17 +145,17 @@ public static class ApplicationService
         return folder?.Path.AbsolutePath.Replace("%20", " ");
     }
 
-    public static async Task<string?> BrowseFileDialog(params FilePickerFileType[] fileTypes)
+    public static async Task<string?> BrowseFileDialog(string suggestedFileName = "", params FilePickerFileType[] fileTypes)
     {
-        var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions { AllowMultiple = false, FileTypeFilter = fileTypes });
+        var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions { AllowMultiple = false, FileTypeFilter = fileTypes, SuggestedFileName = suggestedFileName});
         var file = files.ToArray().FirstOrDefault();
 
         return file?.Path.AbsolutePath.Replace("%20", " ");
     }
 
-    public static async Task<string?> SaveFileDialog(FilePickerSaveOptions saveOptions = default)
+    public static async Task<string?> SaveFileDialog(string suggestedFileName = "", params FilePickerFileType[] fileTypes)
     {
-        var file = await StorageProvider.SaveFilePickerAsync(saveOptions);
+        var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions {FileTypeChoices = fileTypes, SuggestedFileName = suggestedFileName});
         return file?.Path.AbsolutePath.Replace("%20", " ");
     }
 }
