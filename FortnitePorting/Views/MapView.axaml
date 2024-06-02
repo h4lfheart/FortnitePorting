@@ -62,12 +62,16 @@
                                                                 <ColumnDefinition Width="*"/>
                                                                 <ColumnDefinition Width="{ext:Space 1}"/>
                                                                 <ColumnDefinition Width="*"/>
+                                                                <ColumnDefinition Width="{ext:Space 1}"/>
+                                                                <ColumnDefinition Width="*"/>
                                                             </Grid.ColumnDefinitions>
                                                         
                                                             <TextBlock Grid.Column="0" Text="{Binding Name}" VerticalAlignment="Center"/>
                                                             <Button Grid.Column="2" ToolTip.Tip="Preview" Content="{material:MaterialIconExt CubeScan}" 
                                                                     Command="{Binding Preview}"/>
                                                             <Button Grid.Column="4" ToolTip.Tip="Export" Content="{material:MaterialIconExt Download}"/>
+                                                            <Button Grid.Column="6" ToolTip.Tip="Copy ID" Content="{material:MaterialIconExt ContentCopy}" 
+                                                                    Command="{Binding CopyID}"/>
                                                         </Grid>
                                                     </DataTemplate>
                                                 </ItemsControl.ItemTemplate>

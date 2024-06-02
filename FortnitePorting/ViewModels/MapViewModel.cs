@@ -307,6 +307,18 @@ public partial class WorldPartitionGridMap : ObservableObject
         var level = await world.PersistentLevel.LoadAsync<ULevel>();
         ModelPreviewWindow.Preview(Name, level);
     }
+    
+    [RelayCommand]
+    public async Task Export()
+    {
+        throw new NotImplementedException("Exporting world partition grids has not been implemented.");
+    }
+    
+    [RelayCommand]
+    public async Task CopyID()
+    {
+        await Clipboard.SetTextAsync(Name);
+    }
 }
 
 public record MapTextureTileInfo(Image<Rgba32> Image, int X, int Y, int ChannelIndex = -1);
