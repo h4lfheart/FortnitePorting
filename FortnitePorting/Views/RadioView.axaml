@@ -10,6 +10,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             xmlns:radio="clr-namespace:FortnitePorting.Models.Radio"
+             xmlns:views="clr-namespace:FortnitePorting.Views"
              d:DesignHeight="770" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.RadioView"
              x:DataType="viewModels:RadioViewModel">
@@ -46,7 +48,62 @@
             </Grid.ColumnDefinitions>
             
             <ui:FABorder Grid.Column="0">
-                
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="{ext:Space 1}"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0" Margin="{ext:Space 1, 1, 1, 0}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="{ext:Space 1}"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="{ext:Space 1}"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="{ext:Space 1}"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="{ext:Space 1}"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center" HorizontalAlignment="Left" TextAlignment="Left"
+                                   TextTrimming="CharacterEllipsis"
+                                   Text="Playlists"/>
+                        <Button Grid.Column="2" ToolTip.Tip="Create Playlist" HorizontalAlignment="Stretch" Content="{material:MaterialIconExt Add}" Command="{Binding AddPlaylistCommand}"/>
+                        <Button Grid.Column="4" ToolTip.Tip="Remove Playlist" HorizontalAlignment="Stretch" Content="{material:MaterialIconExt Minus}" Command="{Binding RemovePlaylistCommand}"/>
+                        <Button Grid.Column="6" ToolTip.Tip="Import Playlist" HorizontalAlignment="Stretch" Content="{material:MaterialIconExt Download}" Command="{Binding ImportPlaylistCommand}"/>
+                        <Button Grid.Column="8" ToolTip.Tip="Export Playlist" HorizontalAlignment="Stretch" Content="{material:MaterialIconExt Upload}" Command="{Binding ExportPlaylistCommand}"/>
+                        
+                    </Grid>
+                    <ListBox Grid.Row="2" ItemsSource="{Binding Playlists}" SelectedItem="{Binding ActivePlaylist}" Margin="{ext:Space 0.5, 0}" SelectedIndex="0">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="{ext:Space 1}"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                
+                                    <Border Grid.Column="0"
+                                            Width="64" Height="64" HorizontalAlignment="Left" CornerRadius="4"
+                                            PointerPressed="OnPlayPointerPressed">
+                                        <Border.Background>
+                                            <ImageBrush Source="{Binding PlaylistCover}"/>
+                                        </Border.Background>
+                                    </Border>
+                                
+                                    <TextBlock Grid.Column="2" IsVisible="{Binding IsDefault}" Classes="BodyStrongTextBlockStyle"
+                                               VerticalAlignment="Center" HorizontalAlignment="Left" TextAlignment="Left"
+                                               Text="{Binding PlaylistName}"/>
+                                    <TextBox Grid.Column="2" IsVisible="{Binding !IsDefault}" Classes="RadioTextBlockRename"
+                                             VerticalAlignment="Center" HorizontalAlignment="Left" TextAlignment="Left"
+                                             Text="{Binding PlaylistName}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
             </ui:FABorder>
                 
             <ui:FABorder Grid.Column="2">
@@ -89,6 +146,25 @@
                                                 <MenuFlyout>
                                                     <MenuItem Header="Save Audio" Icon="{material:MaterialIconExt Music}" Command="{Binding SaveAudioCommand}"/>
                                                     <MenuItem Header="Save Cover Art" Icon="{material:MaterialIconExt Image}" Command="{Binding SaveCoverArtCommand}"/>
+                                                    <MenuItem Header="Add to Playlist" Icon="{material:MaterialIconExt PlaylistAdd}" ItemsSource="{Binding $parent[views:RadioView].((viewModels:RadioViewModel)DataContext).CustomPlaylists}" Classes="AddToPlaylistSubItems">
+                                                        <MenuItem.Styles>
+                                                            <Style Selector="MenuItem.AddToPlaylistSubItems MenuItem" x:DataType="radio:RadioPlaylist">
+                                                                <Setter Property="Header" Value="{Binding PlaylistName}"/>
+                                                                <Setter Property="Command" Value="{Binding AddToPlaylistCommand}"/>
+                                                                <Setter Property="CommandParameter" Value="{Binding $parent[MenuItem].((radio:MusicPackItem)DataContext).Id}"/>
+                                                            </Style>
+                                                        </MenuItem.Styles>
+                                                    </MenuItem>
+                                                    <MenuItem Header="Set as Playlist Cover" Icon="{material:MaterialIconExt Image}" ItemsSource="{Binding $parent[views:RadioView].((viewModels:RadioViewModel)DataContext).CustomPlaylists}" Classes="AddToPlaylistSubItems">
+                                                        <MenuItem.Styles>
+                                                            <Style Selector="MenuItem.AddToPlaylistSubItems MenuItem" x:DataType="radio:RadioPlaylist">
+                                                                <Setter Property="Header" Value="{Binding PlaylistName}"/>
+                                                                <Setter Property="Command" Value="{Binding SetCoverCommand}"/>
+                                                                <Setter Property="CommandParameter" Value="{Binding $parent[MenuItem].((radio:MusicPackItem)DataContext).AlternateCoverTexture}"/>
+                                                            </Style>
+                                                        </MenuItem.Styles>
+                                                    </MenuItem>
+                                                    <MenuItem Header="Remove From Playlist" Icon="{material:MaterialIconExt PlaylistRemove}" Command="{Binding RemoveFromPlaylistCommand}" CommandParameter="{Binding Id}"/>
                                                 </MenuFlyout>
                                             </FlyoutBase.AttachedFlyout>
                                             

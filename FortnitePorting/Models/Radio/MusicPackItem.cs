@@ -1,4 +1,5 @@
 using System;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,6 +27,7 @@ namespace FortnitePorting.Models.Radio;
 public partial class MusicPackItem : ObservableObject
 {
     [ObservableProperty] private WriteableBitmap _coverArtBitmap;
+    [ObservableProperty] private UTexture2D _alternateCoverTexture;
     [ObservableProperty] private string _id;
     [ObservableProperty] private string _trackName;
     [ObservableProperty] private string _trackDescription;
@@ -47,6 +49,8 @@ public partial class MusicPackItem : ObservableObject
         var coverArtImage = asset.Get<UTexture2D>("CoverArtImage");
         CoverArtName = coverArtImage.Name;
         CoverArtBitmap = coverArtImage.Decode()!.ToWriteableBitmap();
+
+        AlternateCoverTexture = asset.GetAnyOrDefault<UTexture2D>("LargePreviewImage", "SmallPreviewImage");
 
         SoundCue = asset.Get<USoundCue>("FrontEndLobbyMusic");
     }
@@ -110,7 +114,7 @@ public partial class MusicPackItem : ObservableObject
         var path = Path.Combine(directory.FullName, Id + ".mp3");
         await SaveAudio(path);
     }
-
+    
     [RelayCommand]
     public async Task SaveCoverArt()
     {
@@ -119,5 +123,16 @@ public partial class MusicPackItem : ObservableObject
             if (await SaveFileDialog(suggestedFileName: CoverArtName, Globals.PNGFileType) is not { } pngPath) return;
             CoverArtBitmap.Save(pngPath);
         });
+    }
+    
+    [RelayCommand(CanExecute = nameof(CanBeRemovedFromPlaylist))]
+    public async Task RemoveFromPlaylist()
+    {
+        RadioVM.ActivePlaylist.MusicIDs.Remove(Id);
+    }
+
+    private bool CanBeRemovedFromPlaylist()
+    {
+        return !RadioVM.ActivePlaylist.IsDefault;
     }
 }

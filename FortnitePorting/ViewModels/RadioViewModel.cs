@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CUE4Parse.UE4.Assets.Exports.Texture;
+using CUE4Parse.Utils;
 using DynamicData;
 using DynamicData.Binding;
 using FortnitePorting.Controls;
@@ -19,6 +21,7 @@ using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
 using Material.Icons;
 using NAudio.Wave;
+using Newtonsoft.Json;
 using ReactiveUI;
 using Serilog;
 using FeaturedControl = FortnitePorting.Controls.Home.FeaturedControl;
@@ -32,6 +35,9 @@ public partial class RadioViewModel : ViewModelBase
     [ObservableProperty] private string _searchFilter = string.Empty;
     
     [ObservableProperty] private MusicPackItem? _activeItem;
+    [ObservableProperty] private RadioPlaylist _activePlaylist;
+    [ObservableProperty] private ObservableCollection<RadioPlaylist> _playlists = [RadioPlaylist.Default];
+    public RadioPlaylist[] CustomPlaylists => Playlists.Where(playlist => !playlist.IsDefault).ToArray();
     
     [ObservableProperty, NotifyPropertyChangedFor(nameof(PlayIconKind))] private bool _isPlaying;
     public MaterialIconKind PlayIconKind => IsPlaying ? MaterialIconKind.Pause : MaterialIconKind.Play;
@@ -56,10 +62,11 @@ public partial class RadioViewModel : ViewModelBase
     public readonly WaveOutEvent OutputDevice = new();
     
     public readonly ReadOnlyObservableCollection<MusicPackItem> Filtered;
-    public readonly ReadOnlyObservableCollection<MusicPackItem> MusicPacks;
+    public readonly ReadOnlyObservableCollection<MusicPackItem> PlaylistMusicPacks;
     public SourceList<MusicPackItem> Source = new();
     
-    private readonly IObservable<Func<MusicPackItem, bool>> RadioItemFilter;
+    private readonly IObservable<Func<MusicPackItem, bool>> RadioSearchFilter;
+    private readonly IObservable<Func<MusicPackItem, bool>> RadioPlaylistFilter;
 
     private readonly string[] IgnoreFilters = ["Random", "TBD", "MusicPack_000_Default"];
     private const string CLASS_NAME = "AthenaMusicPackItemDefinition";
@@ -72,13 +79,18 @@ public partial class RadioViewModel : ViewModelBase
         UpdateTimer.Interval = TimeSpan.FromSeconds(0.1f);
         UpdateTimer.Start();
         
-        RadioItemFilter = this.WhenAnyValue(radio => radio.SearchFilter).Select(CreateItemFilter);
+        RadioSearchFilter = this.WhenAnyValue(radio => radio.SearchFilter).Select(CreateSearchFilter);
+        RadioPlaylistFilter = this.WhenAnyValue(radio => radio.ActivePlaylist).Select(CreatePlaylistFilter);
         
         Source.Connect()
             .ObserveOn(RxApp.MainThreadScheduler)
+            
+            .Filter(RadioPlaylistFilter)
             .Sort(SortExpressionComparer<MusicPackItem>.Ascending(item => item.Id))
-            .Bind(out MusicPacks)
-            .Filter(RadioItemFilter)
+            .Bind(out PlaylistMusicPacks)
+            
+            .Filter(RadioSearchFilter)
+            .Sort(SortExpressionComparer<MusicPackItem>.Ascending(item => item.Id))
             .Bind(out Filtered)
             .Subscribe();
 
@@ -196,28 +208,28 @@ public partial class RadioViewModel : ViewModelBase
     {
         if (ActiveItem is null) return;
 
-        var previousSongIndex = MusicPacks.IndexOf(ActiveItem) - 1;
-        if (previousSongIndex < 0) previousSongIndex = MusicPacks.Count - 1;
+        var previousSongIndex = PlaylistMusicPacks.IndexOf(ActiveItem) - 1;
+        if (previousSongIndex < 0) previousSongIndex = PlaylistMusicPacks.Count - 1;
         if (AudioReader?.CurrentTime.TotalSeconds > 5)
         {
             Restart();
             return;
         }
         
-        Play(MusicPacks[previousSongIndex]);
+        Play(PlaylistMusicPacks[previousSongIndex]);
     }
 
     public void Next()
     {
         if (ActiveItem is null) return;
         
-        var nextSongIndex = IsShuffling ? Random.Shared.Next(0, MusicPacks.Count) : MusicPacks.IndexOf(ActiveItem) + 1;
-        if (nextSongIndex >= MusicPacks.Count)
+        var nextSongIndex = IsShuffling ? Random.Shared.Next(0, PlaylistMusicPacks.Count) : PlaylistMusicPacks.IndexOf(ActiveItem) + 1;
+        if (nextSongIndex >= PlaylistMusicPacks.Count)
         {
             nextSongIndex = 0;
         }
         
-        Play(MusicPacks[nextSongIndex]);
+        Play(PlaylistMusicPacks[nextSongIndex]);
     }
     
     public void SetVolume(float value)
@@ -237,8 +249,53 @@ public partial class RadioViewModel : ViewModelBase
         }
     }
     
-    private static Func<MusicPackItem, bool> CreateItemFilter(string searchFilter)
+    [RelayCommand]
+    public async Task AddPlaylist()
+    {
+        Playlists.Add(new RadioPlaylist(isDefault: false));
+    }
+
+    [RelayCommand]
+    public async Task RemovePlaylist()
+    {
+        if (ActivePlaylist.IsDefault) return;
+        
+        Playlists.Remove(ActivePlaylist);
+        ActivePlaylist = Playlists.Last();
+    }
+    
+    [RelayCommand]
+    public async Task ExportPlaylist()
+    {
+        if (ActivePlaylist.IsDefault) return;
+        if (await SaveFileDialog(suggestedFileName: ActivePlaylist.PlaylistName, fileTypes: Globals.PlaylistFileType) is not { } path) return;
+
+        path = path.SubstringBeforeLast(".").SubstringBeforeLast("."); // scuffed fix for avalonia bug
+        var serializeData = RadioPlaylistSerializeData.FromPlaylist(ActivePlaylist);
+        await File.WriteAllTextAsync(path, JsonConvert.SerializeObject(serializeData));
+    }
+    
+    [RelayCommand]
+    public async Task ImportPlaylist()
+    {
+        if (await BrowseFileDialog(fileTypes: Globals.PlaylistFileType) is not { } path) return;
+
+        var serializeData = JsonConvert.DeserializeObject<RadioPlaylistSerializeData>(await File.ReadAllTextAsync(path));
+        if (serializeData is null) return;
+
+        var playlist = await RadioPlaylist.FromSerializeData(serializeData);
+        Playlists.Add(playlist);
+    }
+    
+    private static Func<MusicPackItem, bool> CreateSearchFilter(string searchFilter)
     {
         return item => item.Match(searchFilter);
+    }
+    
+    private static Func<MusicPackItem, bool> CreatePlaylistFilter(RadioPlaylist playlist)
+    {
+        if (playlist is null) return _ => true;
+        
+        return item => playlist.ContainsID(item.Id);
     }
 }

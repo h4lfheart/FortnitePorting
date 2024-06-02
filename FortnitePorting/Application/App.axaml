@@ -142,6 +142,21 @@
             <Setter Property="Foreground" Value="#FFFFFF" />
             <Setter Property="Background" Value="Transparent" />
         </Style>
+        
+        <Style Selector="TextBox.RadioTextBlockRename:not(:focus)">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Grid Background="Transparent">
+                            <TextPresenter x:Name="PART_TextPresenter" FontSize="14" FontWeight="SemiBold" 
+                                           Text="{TemplateBinding Text}" 
+                                           TextWrapping="Wrap" VerticalAlignment="Center"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
        
        <Style Selector="TextBlock.CaptionTextBlockStyle">
            <Setter Property="FontSize" Value="12"/>
