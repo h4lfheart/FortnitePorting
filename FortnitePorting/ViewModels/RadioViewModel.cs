@@ -61,7 +61,7 @@ public partial class RadioViewModel : ViewModelBase
     [ObservableProperty] private bool _isLooping;
     [ObservableProperty] private bool _isShuffling;
 
-    [ObservableProperty] private DirectSoundDeviceInfo _selectedDevice;
+    [ObservableProperty] private int _selectedDeviceIndex = 0;
     public DirectSoundDeviceInfo[] Devices => DirectSoundOut.Devices.ToArray()[1..];
     
     public WaveFileReader? AudioReader;
@@ -81,8 +81,6 @@ public partial class RadioViewModel : ViewModelBase
 
     public RadioViewModel()
     {
-        SelectedDevice = Devices[0];
-        
         UpdateTimer.Tick += OnUpdateTimerTick;
         UpdateTimer.Interval = TimeSpan.FromSeconds(0.1f);
         UpdateTimer.Start();
@@ -107,6 +105,8 @@ public partial class RadioViewModel : ViewModelBase
 
     public override async Task Initialize()
     {
+        SelectedDeviceIndex = AppSettings.Current.AudioDeviceIndex;
+        Volume = AppSettings.Current.Volume;
         foreach (var serializeData in AppSettings.Current.Playlists)
         {
             Playlists.Add(await RadioPlaylist.FromSerializeData(serializeData));
@@ -136,6 +136,8 @@ public partial class RadioViewModel : ViewModelBase
         base.OnApplicationExit();
         
         AppSettings.Current.Playlists = CustomPlaylists.Select(RadioPlaylistSerializeData.FromPlaylist).ToArray();
+        AppSettings.Current.AudioDeviceIndex = SelectedDeviceIndex;
+        AppSettings.Current.Volume = Volume;
     }
 
     private void OnUpdateTimerTick(object? sender, EventArgs e)
@@ -178,7 +180,7 @@ public partial class RadioViewModel : ViewModelBase
     {
         Stop();
         
-        OutputDevice = new WaveOutEvent { DeviceNumber = Devices.IndexOf(device => device.Description.Equals(SelectedDevice.Description, StringComparison.OrdinalIgnoreCase)) };
+        OutputDevice = new WaveOutEvent { DeviceNumber = SelectedDeviceIndex };
         
         if (AudioReader is not null)
         {
@@ -338,7 +340,7 @@ public partial class RadioViewModel : ViewModelBase
 
         switch (e.PropertyName)
         {
-            case nameof(SelectedDevice):
+            case nameof(SelectedDeviceIndex):
             {
                 UpdateOutputDevice();
                 break;

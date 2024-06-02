@@ -5,6 +5,7 @@ using CUE4Parse.UE4.Versions;
 using FortnitePorting.Models.Radio;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Framework;
+using NAudio.Wave;
 
 namespace FortnitePorting.ViewModels;
 
@@ -25,5 +26,8 @@ public partial class SettingsViewModel : ViewModelBase
 
     [ObservableProperty] private HashSet<string> _filteredProps = [];
 
+    // radio
     [ObservableProperty] private RadioPlaylistSerializeData[] _playlists = [];
+    [ObservableProperty] private int _audioDeviceIndex = 0;
+    [ObservableProperty] private float _volume = 1.0f;
 }

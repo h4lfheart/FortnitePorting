@@ -261,7 +261,7 @@
                 </Grid>
                 
                 <ComboBox Grid.Row="0" Grid.Column="4" ItemsSource="{Binding Devices}" 
-                          SelectedItem="{Binding SelectedDevice}" SelectedIndex="0"
+                          SelectedIndex="{Binding SelectedDeviceIndex, Mode=TwoWay}"
                           HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{ext:Space 2, 1, 2, 0}">
                     <ComboBox.ItemTemplate>
                         <DataTemplate DataType="wave:DirectSoundDeviceInfo">
