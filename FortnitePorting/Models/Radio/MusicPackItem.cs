@@ -125,13 +125,20 @@ public partial class MusicPackItem : ObservableObject
         });
     }
     
-    [RelayCommand(CanExecute = nameof(CanBeRemovedFromPlaylist))]
+    [RelayCommand(CanExecute = nameof(IsCustomPlaylist))]
     public async Task RemoveFromPlaylist()
     {
         RadioVM.ActivePlaylist.MusicIDs.Remove(Id);
     }
 
-    private bool CanBeRemovedFromPlaylist()
+    [RelayCommand(CanExecute = nameof(IsCustomPlaylist))]
+    public async Task SetCoverForPlaylist()
+    {
+        RadioVM.ActivePlaylist.PlaylistCover = AlternateCoverTexture.Decode()!.ToWriteableBitmap();
+        RadioVM.ActivePlaylist.PlaylistCoverPath = AlternateCoverTexture.GetPathName();
+    }
+
+    private bool IsCustomPlaylist()
     {
         return !RadioVM.ActivePlaylist.IsDefault;
     }

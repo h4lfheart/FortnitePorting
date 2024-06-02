@@ -51,18 +51,11 @@ public partial class RadioPlaylist : ObservableObject
 
         return playlist;
     }
-    
+
     [RelayCommand]
     public void AddToPlaylist(string id)
     {
-       MusicIDs.Add(id);
-    }
-    
-    [RelayCommand]
-    public void SetCover(UTexture2D texture)
-    {
-        PlaylistCover = texture.Decode()!.ToWriteableBitmap();
-        PlaylistCoverPath = texture.GetPathName();
+        MusicIDs.Add(id);
     }
 
     public bool ContainsID(string id)

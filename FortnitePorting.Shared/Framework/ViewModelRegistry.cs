@@ -27,4 +27,9 @@ public class ViewModelRegistry
         Unregister<T>();
         Register<T>();
     }
+
+    public static ViewModelBase[] All()
+    {
+        return Registry.Values.ToArray();
+    }
 }

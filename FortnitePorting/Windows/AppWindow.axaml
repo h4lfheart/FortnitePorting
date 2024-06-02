@@ -53,15 +53,10 @@
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Folder}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
+                 <ui:NavigationViewItemSeparator/>
                  <ui:NavigationViewItem Content="Radio" Tag="Radio" IsEnabled="{Binding GameBasedTabsAreReady}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Radio}"/>
-                     </ui:NavigationViewItem.IconSource>
-                 </ui:NavigationViewItem>
-                 <ui:NavigationViewItemSeparator/>
-                 <ui:NavigationViewItem Content="Item Shop" Tag="ItemShop" IsEnabled="{Binding GameBasedTabsAreReady}">
-                     <ui:NavigationViewItem.IconSource>
-                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry Shopping}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItem Content="Map" Tag="Map" IsEnabled="{Binding GameBasedTabsAreReady}">

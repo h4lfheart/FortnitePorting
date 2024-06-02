@@ -12,6 +12,7 @@
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
              xmlns:radio="clr-namespace:FortnitePorting.Models.Radio"
              xmlns:views="clr-namespace:FortnitePorting.Views"
+             xmlns:wave="clr-namespace:NAudio.Wave;assembly=NAudio.Core"
              d:DesignHeight="770" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.RadioView"
              x:DataType="viewModels:RadioViewModel">
@@ -155,16 +156,8 @@
                                                             </Style>
                                                         </MenuItem.Styles>
                                                     </MenuItem>
-                                                    <MenuItem Header="Set as Playlist Cover" Icon="{material:MaterialIconExt Image}" ItemsSource="{Binding $parent[views:RadioView].((viewModels:RadioViewModel)DataContext).CustomPlaylists}" Classes="AddToPlaylistSubItems">
-                                                        <MenuItem.Styles>
-                                                            <Style Selector="MenuItem.AddToPlaylistSubItems MenuItem" x:DataType="radio:RadioPlaylist">
-                                                                <Setter Property="Header" Value="{Binding PlaylistName}"/>
-                                                                <Setter Property="Command" Value="{Binding SetCoverCommand}"/>
-                                                                <Setter Property="CommandParameter" Value="{Binding $parent[MenuItem].((radio:MusicPackItem)DataContext).AlternateCoverTexture}"/>
-                                                            </Style>
-                                                        </MenuItem.Styles>
-                                                    </MenuItem>
-                                                    <MenuItem Header="Remove From Playlist" Icon="{material:MaterialIconExt PlaylistRemove}" Command="{Binding RemoveFromPlaylistCommand}" CommandParameter="{Binding Id}"/>
+                                                    <MenuItem Header="Remove From Playlist" Icon="{material:MaterialIconExt PlaylistRemove}" Command="{Binding RemoveFromPlaylistCommand}"/>
+                                                    <MenuItem Header="Set as Playlist Cover" Icon="{material:MaterialIconExt Image}" Command="{Binding SetCoverForPlaylistCommand}"/>
                                                 </MenuFlyout>
                                             </FlyoutBase.AttachedFlyout>
                                             
@@ -267,7 +260,17 @@
                                VerticalAlignment="Center" />
                 </Grid>
                 
-                <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="4" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <ComboBox Grid.Row="0" Grid.Column="4" ItemsSource="{Binding Devices}" 
+                          SelectedItem="{Binding SelectedDevice}" SelectedIndex="0"
+                          HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{ext:Space 2, 1, 2, 0}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate DataType="wave:DirectSoundDeviceInfo">
+                            <TextBlock Text="{Binding Description}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                
+                <Grid Grid.Row="1" Grid.Column="4" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="{ext:Space 1}" />

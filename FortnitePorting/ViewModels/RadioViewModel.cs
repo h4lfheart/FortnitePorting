@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
@@ -12,11 +13,13 @@ using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.Utils;
 using DynamicData;
 using DynamicData.Binding;
+using FortnitePorting.Application;
 using FortnitePorting.Controls;
 using FortnitePorting.Extensions;
 using FortnitePorting.Models.Radio;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
+using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
 using Material.Icons;
@@ -57,9 +60,12 @@ public partial class RadioViewModel : ViewModelBase
     
     [ObservableProperty] private bool _isLooping;
     [ObservableProperty] private bool _isShuffling;
+
+    [ObservableProperty] private DirectSoundDeviceInfo _selectedDevice;
+    public DirectSoundDeviceInfo[] Devices => DirectSoundOut.Devices.ToArray()[1..];
     
     public WaveFileReader? AudioReader;
-    public readonly WaveOutEvent OutputDevice = new();
+    public WaveOutEvent OutputDevice = new();
     
     public readonly ReadOnlyObservableCollection<MusicPackItem> Filtered;
     public readonly ReadOnlyObservableCollection<MusicPackItem> PlaylistMusicPacks;
@@ -75,6 +81,8 @@ public partial class RadioViewModel : ViewModelBase
 
     public RadioViewModel()
     {
+        SelectedDevice = Devices[0];
+        
         UpdateTimer.Tick += OnUpdateTimerTick;
         UpdateTimer.Interval = TimeSpan.FromSeconds(0.1f);
         UpdateTimer.Start();
@@ -99,6 +107,11 @@ public partial class RadioViewModel : ViewModelBase
 
     public override async Task Initialize()
     {
+        foreach (var serializeData in AppSettings.Current.Playlists)
+        {
+            Playlists.Add(await RadioPlaylist.FromSerializeData(serializeData));
+        }
+        
         var assets = CUE4ParseVM.AssetRegistry
             .Where(data => data.AssetClass.Text.Equals(CLASS_NAME))
             .Where(data => !IgnoreFilters.Any(filter => data.AssetName.Text.Contains(filter, StringComparison.OrdinalIgnoreCase)))
@@ -117,7 +130,14 @@ public partial class RadioViewModel : ViewModelBase
             }
         }
     }
-    
+
+    public override void OnApplicationExit()
+    {
+        base.OnApplicationExit();
+        
+        AppSettings.Current.Playlists = CustomPlaylists.Select(RadioPlaylistSerializeData.FromPlaylist).ToArray();
+    }
+
     private void OnUpdateTimerTick(object? sender, EventArgs e)
     {
         if (AudioReader is null) return;
@@ -139,7 +159,7 @@ public partial class RadioViewModel : ViewModelBase
         if (!SoundExtensions.TrySaveSoundStream(musicPackItem.GetSound(), out var stream)) return;
         
         Stop();
-        
+
         ActiveItem = musicPackItem;
         AudioReader = new WaveFileReader(stream);
         
@@ -152,6 +172,19 @@ public partial class RadioViewModel : ViewModelBase
 
             Stop();
         });
+    }
+
+    public void UpdateOutputDevice()
+    {
+        Stop();
+        
+        OutputDevice = new WaveOutEvent { DeviceNumber = Devices.IndexOf(device => device.Description.Equals(SelectedDevice.Description, StringComparison.OrdinalIgnoreCase)) };
+        
+        if (AudioReader is not null)
+        {
+            OutputDevice.Init(AudioReader);
+            Play();
+        }
     }
     
 
@@ -297,5 +330,19 @@ public partial class RadioViewModel : ViewModelBase
         if (playlist is null) return _ => true;
         
         return item => playlist.ContainsID(item.Id);
+    }
+
+    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+    {
+        base.OnPropertyChanged(e);
+
+        switch (e.PropertyName)
+        {
+            case nameof(SelectedDevice):
+            {
+                UpdateOutputDevice();
+                break;
+            }
+        }
     }
 }

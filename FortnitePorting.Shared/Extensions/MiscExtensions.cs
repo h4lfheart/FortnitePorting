@@ -143,6 +143,17 @@ public static class MiscExtensions
             action(item);
         }
     }
+
+    public static int IndexOf<T>(this IEnumerable<T> enumerable, Func<T, bool> action)
+    {
+        var array = enumerable.ToArray();
+        for (var i = 0; i < array.Length; i++)
+        {
+            if (action(array[i])) return i;
+        }
+
+        return -1;
+    }
 }
 
 file class FastRepeat<T> : ICollection<T>

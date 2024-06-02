@@ -114,6 +114,11 @@ public static class ApplicationService
     
     public static void OnExit(object? sender, ControlledApplicationLifetimeExitEventArgs e)
     {
+        foreach (var viewModel in ViewModelRegistry.All())
+        {
+            viewModel.OnApplicationExit();
+        }
+        
         AppSettings.Save();
         DiscordService.Deinitialize();
     }

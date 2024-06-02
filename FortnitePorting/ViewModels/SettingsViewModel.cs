@@ -1,6 +1,8 @@
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.Versions;
+using FortnitePorting.Models.Radio;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Framework;
 
@@ -22,4 +24,6 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private bool _useTextureStreaming = true;
 
     [ObservableProperty] private HashSet<string> _filteredProps = [];
+
+    [ObservableProperty] private RadioPlaylistSerializeData[] _playlists = [];
 }
