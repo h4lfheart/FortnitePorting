@@ -20,6 +20,7 @@ using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
+using FortnitePorting.Models;
 using FortnitePorting.Models.Unreal;
 using FortnitePorting.OpenGL;
 using FortnitePorting.Services;
@@ -311,7 +312,7 @@ public partial class WorldPartitionGridMap : ObservableObject
     [RelayCommand]
     public async Task Export()
     {
-        throw new NotImplementedException("Exporting world partition grids has not been implemented.");
+        AppVM.Message(string.Empty, "Exporting world partition grids has not been implemented yet.");
     }
     
     [RelayCommand]

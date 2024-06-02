@@ -68,10 +68,11 @@
                                                         
                                                             <TextBlock Grid.Column="0" Text="{Binding Name}" VerticalAlignment="Center"/>
                                                             <Button Grid.Column="2" ToolTip.Tip="Preview" Content="{material:MaterialIconExt CubeScan}" 
-                                                                    Command="{Binding Preview}"/>
-                                                            <Button Grid.Column="4" ToolTip.Tip="Export" Content="{material:MaterialIconExt Download}"/>
+                                                                    Command="{Binding PreviewCommand}"/>
+                                                            <Button Grid.Column="4" ToolTip.Tip="Export" Content="{material:MaterialIconExt Download}"
+                                                                    Command="{Binding ExportCommand}"/>
                                                             <Button Grid.Column="6" ToolTip.Tip="Copy ID" Content="{material:MaterialIconExt ContentCopy}" 
-                                                                    Command="{Binding CopyID}"/>
+                                                                    Command="{Binding CopyIDCommand}"/>
                                                         </Grid>
                                                     </DataTemplate>
                                                 </ItemsControl.ItemTemplate>
