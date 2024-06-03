@@ -30,6 +30,7 @@ using FortnitePorting.Extensions;
 using FortnitePorting.ViewModels;
 using Serilog;
 using SkiaSharp;
+using System.Drawing.Imaging;
 
 namespace FortnitePorting.Export;
 
@@ -773,6 +774,38 @@ public class ExporterInstance
         {
             return true;
         }
+    }
+
+    public string ExportIcon(UObject asset, UTexture2D icon)
+    {
+        Directory.CreateDirectory(AppSettings.Current.GetExportPath());
+
+        var path = asset.Owner != null ? asset.Owner.Name : string.Empty;
+        path = path.SubstringBeforeLast('.').Split("/")[^1];
+
+        var filePath = Path.Combine(AppSettings.Current.GetExportPath(), path);
+        var exportPath = filePath + ".png";
+
+        var exportTask = Task.Run(() =>
+        {
+            try
+            {
+                Log.Information("Exporting icon for asset: {Name}", asset.Name);
+                using var fileStream = File.OpenWrite(exportPath);
+                var iconBitmap = icon.Decode()!;
+                iconBitmap.Encode(SKEncodedImageFormat.Png, 100).SaveTo(fileStream);
+            }
+            catch (IOException e)
+            {
+                Log.Warning("Failed to Export icon for asset: {Name}", asset.Name);
+                Log.Warning(e.Message + e.StackTrace);
+            }
+        });
+
+        ExportTasks.Add(exportTask);
+        exportTask.Wait();
+
+        return exportPath;
     }
 
     public string Export(UObject asset, bool waitForFinish = false)

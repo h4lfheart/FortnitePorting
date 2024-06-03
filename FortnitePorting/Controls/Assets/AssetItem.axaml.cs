@@ -45,6 +45,7 @@ public partial class AssetItem : UserControl
     public int Season { get; set; }
     public string Series { get; set; }
 
+    public UTexture2D IconTexture{ get; set; }
     public Bitmap IconBitmap { get; set; }
     public Bitmap PreviewImage { get; set; }
     
@@ -83,6 +84,7 @@ public partial class AssetItem : UserControl
         var series = Asset.GetOrDefault<UObject?>("Series");
         Series = series?.GetAnyOrDefault<FText>("DisplayName", "ItemName").Text ?? string.Empty;
 
+        IconTexture = icon;
         var iconBitmap = icon.Decode()!;
         IconBitmap = new Bitmap(iconBitmap.Encode(SKEncodedImageFormat.Png, 100).AsStream());
 

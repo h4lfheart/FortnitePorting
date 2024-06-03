@@ -35,7 +35,12 @@ public static class ExportService
         {
             if (exportType is EExportTargetType.Folder)
             {
-                exports.ForEach(export => CreateExportData(export.AssetItem.DisplayName, export.AssetItem.Asset, export.GetSelectedStyles(), export.AssetItem.Type, exportType));
+                exports.ForEach(export =>
+                {
+                    var Exporter = new ExporterInstance(exportType);
+                    Exporter.ExportIcon(export.AssetItem.Asset, export.AssetItem.IconTexture);
+                    // CreateExportData(export.AssetItem.DisplayName, export.AssetItem.Asset, export.GetSelectedStyles(), export.AssetItem.Type, exportType);
+                });
                 return;
             }
 
