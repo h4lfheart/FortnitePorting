@@ -15,11 +15,12 @@ public class APIBase
         _client = client;
     }
 
-    protected async Task<T?> ExecuteAsync<T>(string url, Method method = Method.Get, params Parameter[] parameters)
+    protected async Task<T?> ExecuteAsync<T>(string url, Method method = Method.Get, string body = "", params Parameter[] parameters)
     {
         try
         {
             var request = new RestRequest(url, method);
+            request.AddBody(body);
             foreach (var parameter in parameters) request.AddParameter(parameter);
 
             var response = await _client.ExecuteAsync<T>(request).ConfigureAwait(false);
@@ -35,14 +36,15 @@ public class APIBase
         }
     }
 
-    protected T? Execute<T>(string url, Method method = Method.Get, params Parameter[] parameters)
+    protected T? Execute<T>(string url, Method method = Method.Get, string body = "", params Parameter[] parameters)
     {
-        return ExecuteAsync<T>(url, method, parameters).GetAwaiter().GetResult();
+        return ExecuteAsync<T>(url, method, body, parameters).GetAwaiter().GetResult();
     }
 
-    protected async Task<RestResponse> ExecuteAsync(string url, Method method = Method.Get, params Parameter[] parameters)
+    protected async Task<RestResponse> ExecuteAsync(string url, Method method = Method.Get, string body = "", params Parameter[] parameters)
     {
         var request = new RestRequest(url, method);
+        request.AddBody(body);
         foreach (var parameter in parameters) request.AddParameter(parameter);
 
         var response = await _client.ExecuteAsync(request).ConfigureAwait(false);
@@ -52,8 +54,9 @@ public class APIBase
         return response;
     }
 
-    protected RestResponse Execute(string url, Method method = Method.Get, params Parameter[] parameters)
+    protected RestResponse Execute(string url, Method method = Method.Get, string body = "", params Parameter[] parameters)
     {
-        return ExecuteAsync(url, method, parameters).GetAwaiter().GetResult();
+        return ExecuteAsync(url, method, body, parameters).GetAwaiter().GetResult();
     }
+    
 }

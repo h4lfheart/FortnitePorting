@@ -12,6 +12,7 @@ namespace FortnitePorting.ViewModels;
 public class APIViewModel : ViewModelBase
 {
     public readonly FortnitePortingAPI FortnitePorting;
+    public readonly FortnitePortingServerAPI FortnitePortingServer;
     public readonly FortniteCentralAPI FortniteCentral;
 
     protected readonly RestClient _client = new(_clientOptions, configureSerialization: s => s.UseSerializer<JsonNetSerializer>());
@@ -26,6 +27,7 @@ public class APIViewModel : ViewModelBase
     {
         FortnitePorting = new FortnitePortingAPI(_client);
         FortniteCentral = new FortniteCentralAPI(_client);
+        FortnitePortingServer = new FortnitePortingServerAPI(_client);
     }
     
     public async Task<byte[]?> DownloadFileAsync(string url)

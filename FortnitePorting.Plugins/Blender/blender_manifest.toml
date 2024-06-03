@@ -1,0 +1,30 @@
+schema_version = "1.0.0"
+
+type = "add-on"
+license = ["SPDX:GPL-3.0-or-later"]
+
+id = "fortnite_porting"
+version = "3.0.0"
+blender_version_min = "4.2.0"
+name = "Fortnite Porting"
+tagline = "Server for Fortnite Porting"
+maintainer = "https://github.com/halfuwu"
+
+
+permissions = ["files", "network"]
+
+tags = ["Import-Export"]
+
+wheels = [
+    "./wheels/blinker-1.8.2-py3-none-any.whl",
+    "./wheels/click-8.1.7-py3-none-any.whl",
+    "./wheels/colorama-0.4.6-py2.py3-none-any.whl",
+    "./wheels/flask-3.0.3-py3-none-any.whl",
+    "./wheels/itsdangerous-2.2.0-py3-none-any.whl",
+    "./wheels/jinja2-3.1.4-py3-none-any.whl",
+    "./wheels/MarkupSafe-2.1.5-cp311-cp311-win_amd64.whl",
+    "./wheels/werkzeug-3.0.3-py3-none-any.whl",
+    "./wheels/waitress-3.0.0-py3-none-any.whl"
+
+]
+

@@ -195,7 +195,7 @@
                                           SelectedItem="{Binding ExportLocation, Converter={StaticResource EnumToString}}" />
                             </Grid>
                             
-                            <Button Grid.Row="2" HorizontalAlignment="Stretch">
+                            <Button Grid.Row="2" HorizontalAlignment="Stretch" Command="{Binding ExportCommand}">
                                 <StackPanel Orientation="Horizontal">
                                     <material:MaterialIcon Kind="Download" Margin="{ext:Space 0, 0, 1, 0}"/>
                                     <TextBlock Text="Export"/>
