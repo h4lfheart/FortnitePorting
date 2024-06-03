@@ -1,13 +1,13 @@
 namespace FortnitePorting.Shared.Models;
 
-public class ExportAttribute(EExportType type) : Attribute
+public class ExportAttribute(EPrimitiveExportType type) : Attribute
 {
-    public EExportType ExportType = type;
+    public EPrimitiveExportType ExportType = type;
 }
 
 public static class ExportExtensions
 {
-    public static EExportType GetExportType(this Enum value)
+    public static EPrimitiveExportType GetPrimitiveType(this Enum value)
     {
         var attribute = value
             .GetType()

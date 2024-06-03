@@ -11,10 +11,14 @@ namespace FortnitePorting.ViewModels;
 
 public partial class SettingsViewModel : ViewModelBase
 {
+    // ViewModels
+    [ObservableProperty] private ExportSettingsViewModel _exportSettings = new();
     
+    // Welcome
     [ObservableProperty] private bool _finishedWelcomeScreen;
     
     // todo save in presets class
+    // Installation
     [ObservableProperty] private EFortniteVersion _fortniteVersion = EFortniteVersion.LatestInstalled;
     [ObservableProperty] private string _archiveDirectory;
     [ObservableProperty] private EGame _unrealVersion = EGame.GAME_UE5_LATEST;
@@ -24,9 +28,10 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private ELanguage _gameLanguage = ELanguage.English;
     [ObservableProperty] private bool _useTextureStreaming = true;
 
+    // Filtered Data
     [ObservableProperty] private HashSet<string> _filteredProps = [];
 
-    // radio
+    // Radio
     [ObservableProperty] private RadioPlaylistSerializeData[] _playlists = [];
     [ObservableProperty] private int _audioDeviceIndex = 0;
     [ObservableProperty] private float _volume = 1.0f;

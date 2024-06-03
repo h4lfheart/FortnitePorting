@@ -9,7 +9,7 @@ public abstract class WindowBase<T> : Window where T : ViewModelBase, new()
 
     public WindowBase(bool initializeViewModel = true)
     {
-        ViewModel = ViewModelRegistry.Register<T>();
+        ViewModel = ViewModelRegistry.New<T>();
 
         if (initializeViewModel)
         {

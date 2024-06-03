@@ -7,9 +7,9 @@ public abstract class ViewBase<T> : UserControl where T : ViewModelBase, new()
 {
     protected readonly T ViewModel;
 
-    public ViewBase(bool initializeViewModel = true)
+    public ViewBase(ViewModelBase? templateViewModel = null, bool initializeViewModel = true)
     {
-        ViewModel = ViewModelRegistry.Register<T>();
+        ViewModel = templateViewModel is not null ? ViewModelRegistry.Register<T>(templateViewModel) : ViewModelRegistry.New<T>();
         DataContext = ViewModel;
 
         if (initializeViewModel)

@@ -99,7 +99,7 @@ public static class ApplicationService
     public static void OnStartup(object? sender, ControlledApplicationLifetimeStartupEventArgs e)
     {
         DiscordService.Initialize();
-        ViewModelRegistry.Register<APIViewModel>();
+        ViewModelRegistry.New<APIViewModel>();
         DependencyService.EnsureDependencies();
         
         if (AppSettings.Current.FinishedWelcomeScreen)

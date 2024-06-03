@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FluentAvalonia.UI.Controls;
+using FluentAvalonia.UI.Media.Animation;
 using FortnitePorting.Application;
 using FortnitePorting.Models;
 using FortnitePorting.Shared;
@@ -50,7 +51,7 @@ public partial class AppViewModel : ViewModelBase
     
     public void Navigate(Type type)
     {
-        ContentFrame.Navigate(type);
+        ContentFrame.Navigate(type, null, Globals.TransitionInfo);
 
         var buttonName = type.Name.Replace("View", string.Empty);
         NavigationView.SelectedItem = NavigationView.MenuItems

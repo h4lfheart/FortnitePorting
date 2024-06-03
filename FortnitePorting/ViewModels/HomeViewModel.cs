@@ -43,11 +43,12 @@ public partial class HomeViewModel : ViewModelBase
         
         TaskService.Run(async () =>
         {
-            ViewModelRegistry.Register<CUE4ParseViewModel>();
+            ViewModelRegistry.New<CUE4ParseViewModel>();
             await CUE4ParseVM.Initialize();
 
             AppVM.GameBasedTabsAreReady = true;
         });
+        
         
         await TaskService.RunDispatcherAsync(async () =>
         {
@@ -68,6 +69,7 @@ public partial class HomeViewModel : ViewModelBase
             var controls = featured.Select(item => new FeaturedControl(item));
             FeaturedControls = [..controls];
         });
+        return;
     }
     
     public void UpdateStatus(string text)

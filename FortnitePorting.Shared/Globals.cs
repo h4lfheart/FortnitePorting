@@ -1,6 +1,7 @@
 using Avalonia.Platform.Storage;
 using CUE4Parse.UE4.Objects.Core.Misc;
 using CUE4Parse.UE4.Versions;
+using FluentAvalonia.UI.Media.Animation;
 using FortnitePorting.Shared.Models;
 
 namespace FortnitePorting.Shared;
@@ -14,7 +15,8 @@ public static class Globals
     public static readonly FilePickerFileType MP3FileType = new("MP3 Audio") { Patterns = [ "*.mp3" ] };
     public static readonly FilePickerFileType PNGFileType = new("PNG Image") { Patterns = [ "*.png" ] };
     public static readonly FilePickerFileType PlaylistFileType = new("Fortnite Porting Playlist") { Patterns = [ "*.fp.playlist" ] };
-    
+
+    public static NavigationTransitionInfo TransitionInfo = new SlideNavigationTransitionInfo();
     // todo use api?
     public const EGame LatestGameVersion = EGame.GAME_UE5_4;
     

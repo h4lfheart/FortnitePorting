@@ -26,7 +26,7 @@ public partial class AssetLoaderCollection : ObservableObject
         {
             Loaders = 
             [
-                new AssetLoader(EAssetType.Outfit)
+                new AssetLoader(EExportType.Outfit)
                 {
                     ClassNames = ["AthenaCharacterItemDefinition"],
                     PlaceholderIconPath = "FortniteGame/Content/Athena/Prototype/Textures/T_Placeholder_Item_Outfit",
@@ -39,12 +39,12 @@ public partial class AssetLoaderCollection : ObservableObject
                         return previewImage;
                     }
                 },
-                new AssetLoader(EAssetType.Backpack)
+                new AssetLoader(EExportType.Backpack)
                 {
                     ClassNames = ["AthenaBackpackItemDefinition"],
                     HideNames = ["_STWHeroNoDefaultBackpack", "_TEST", "Dev_", "_NPC", "_TBD"]
                 },
-                new AssetLoader(EAssetType.Pickaxe)
+                new AssetLoader(EExportType.Pickaxe)
                 {
                     ClassNames = ["AthenaPickaxeItemDefinition"],
                     HideNames = ["Dev_", "TBD_"],
@@ -57,38 +57,38 @@ public partial class AssetLoaderCollection : ObservableObject
                         return previewImage;
                     }
                 },
-                new AssetLoader(EAssetType.Glider)
+                new AssetLoader(EExportType.Glider)
                 {
                     ClassNames = ["AthenaGliderItemDefinition"]
                 },
-                new AssetLoader(EAssetType.Pet)
+                new AssetLoader(EExportType.Pet)
                 {
                     ClassNames = ["AthenaPetCarrierItemDefinition"]
                 },
-                new AssetLoader(EAssetType.Toy)
+                new AssetLoader(EExportType.Toy)
                 {
                     ClassNames = ["AthenaToyItemDefinition"]
                 },
-                new AssetLoader(EAssetType.Emoticon)
+                new AssetLoader(EExportType.Emoticon)
                 {
                     ClassNames = ["AthenaEmojiItemDefinition"],
                     HideNames = ["Emoji_100APlus"]
                 },
-                new AssetLoader(EAssetType.Spray)
+                new AssetLoader(EExportType.Spray)
                 {
                     ClassNames = ["AthenaSprayItemDefinition"],
                     HideNames = ["SPID_000", "SPID_001"]
                 },
-                new AssetLoader(EAssetType.Banner)
+                new AssetLoader(EExportType.Banner)
                 {
                     ClassNames = ["FortHomebaseBannerIconItemDefinition"],
                     HideRarity = true
                 },
-                new AssetLoader(EAssetType.LoadingScreen)
+                new AssetLoader(EExportType.LoadingScreen)
                 {
                     ClassNames = ["AthenaLoadingScreenItemDefinition"]
                 },
-                new AssetLoader(EAssetType.Emote)
+                new AssetLoader(EExportType.Emote)
                 {
                     ClassNames = ["AthenaDanceItemDefinition"],
                     HideNames = ["_CT", "_NPC"]
@@ -99,7 +99,7 @@ public partial class AssetLoaderCollection : ObservableObject
         {
             Loaders = 
             [
-                new AssetLoader(EAssetType.Prop)
+                new AssetLoader(EExportType.Prop)
                 {
                     ClassNames = ["FortPlaysetPropItemDefinition"],
                     HideRarity = true,
@@ -123,7 +123,7 @@ public partial class AssetLoaderCollection : ObservableObject
                         return false;
                     } 
                 },
-                new AssetLoader(EAssetType.Prefab)
+                new AssetLoader(EExportType.Prefab)
                 {
                     ClassNames = ["FortPlaysetItemDefinition"],
                     HideNames = ["Device", "PID_Playset", "PID_MapIndicator", "SpikyStadium", "PID_StageLight", "PID_Temp_Island",
@@ -177,19 +177,19 @@ public partial class AssetLoaderCollection : ObservableObject
         });
     }
     
-    public async Task Load(EAssetType type)
+    public async Task Load(EExportType type)
     {
         Set(type);
         await ActiveLoader.Load();
     }
     
-    public void Set(EAssetType type)
+    public void Set(EExportType type)
     {
         ActiveLoader = Get(type);
         ActiveCollection = ActiveLoader.Filtered;
     }
 
-    public AssetLoader Get(EAssetType type)
+    public AssetLoader Get(EExportType type)
     {
         foreach (var category in Categories)
         {

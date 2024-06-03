@@ -41,6 +41,7 @@
     <ItemGroup>
       <ProjectReference Include="..\Dependencies\CUE4Parse\CUE4Parse-Conversion\CUE4Parse-Conversion.csproj" />
       <ProjectReference Include="..\Dependencies\CUE4Parse\CUE4Parse\CUE4Parse.csproj" />
+      <ProjectReference Include="..\FortnitePorting.Export\FortnitePorting.Export.csproj" />
       <ProjectReference Include="..\FortnitePorting.OpenGL\FortnitePorting.OpenGL.csproj" />
       <ProjectReference Include="..\FortnitePorting.Shared\FortnitePorting.Shared.csproj" />
     </ItemGroup>
@@ -83,5 +84,22 @@
         <DependentUpon>SettingsView.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
+      <Compile Update="Views\ExportSettingsView.axaml.cs">
+        <DependentUpon>ExportSettingsView.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Views\ExportSettings\UnrealExportSettingsView.axaml.cs">
+        <DependentUpon>UnrealExportSettingsView.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Views\ExportSettings\FolderExportSettingsView.axaml.cs">
+        <DependentUpon>FolderExportSettingsView.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+    </ItemGroup>
+
+    
+    <ItemGroup>
+      <UpToDateCheckInput Remove="Views\ExportSettings\BlenderSettingsView.axaml" />
     </ItemGroup>
 </Project>

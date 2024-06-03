@@ -66,7 +66,7 @@
                  </ui:NavigationViewItem>
              </ui:NavigationView.MenuItems>
              <ui:NavigationView.FooterMenuItems>
-                 <ui:NavigationViewItem Content="Export" Tag="Export Options">
+                 <ui:NavigationViewItem Content="Export" Tag="ExportSettings">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Download}"/>
                      </ui:NavigationViewItem.IconSource>
@@ -89,7 +89,7 @@
              </ui:NavigationView.FooterMenuItems>
              
              <Grid>
-                 <ui:Frame x:Name="ContentFrame"/>
+                 <ui:Frame x:Name="ContentFrame" Transitions="{x:Null}"/>
                  <ItemsControl VerticalAlignment="Bottom" Margin="{ext:Space 1}" ItemsSource="{Binding InfoBars}">
                      <ItemsControl.ItemTemplate>
                          <DataTemplate>

@@ -75,7 +75,7 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
     private void OnNavigationViewItemInvoked(object? sender, NavigationViewItemInvokedEventArgs e)
     {
         if (e.InvokedItemContainer is not NavigationViewItem navItem) return;
-        if (navItem.Tag is not EAssetType assetType) return;
+        if (navItem.Tag is not EExportType assetType) return;
         if (ViewModel.AssetLoaderCollection.ActiveLoader.Type == assetType) return;
         
         AssetsListBox.SelectedItems.Clear();

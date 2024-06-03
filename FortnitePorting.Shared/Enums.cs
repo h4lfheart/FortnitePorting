@@ -64,110 +64,110 @@ public enum EAssetCategory
     Misc
 }
 
-public enum EAssetType
+public enum EExportType
 {
-     [Description("None")]
+    [Description("None")]
     None,
     
     // COSMETIC
     
-    [Description("Outfits"), Export(EExportType.Mesh)]
+    [Description("Outfits"), Export(EPrimitiveExportType.Mesh)]
     Outfit,
 
-    [Description("Backpacks"), Export(EExportType.Mesh)]
+    [Description("Backpacks"), Export(EPrimitiveExportType.Mesh)]
     Backpack,
 
-    [Description("Pickaxes"), Export(EExportType.Mesh)]
+    [Description("Pickaxes"), Export(EPrimitiveExportType.Mesh)]
     Pickaxe,
 
-    [Description("Gliders"), Export(EExportType.Mesh)]
+    [Description("Gliders"), Export(EPrimitiveExportType.Mesh)]
     Glider,
 
-    [Description("Pets"), Export(EExportType.Mesh)]
+    [Description("Pets"), Export(EPrimitiveExportType.Mesh)]
     Pet,
 
-    [Description("Toys"), Export(EExportType.Mesh)]
+    [Description("Toys"), Export(EPrimitiveExportType.Mesh)]
     Toy,
 
-    [Description("Emoticons"), Export(EExportType.Texture)]
+    [Description("Emoticons"), Export(EPrimitiveExportType.Texture)]
     Emoticon,
 
-    [Description("Sprays"), Export(EExportType.Texture)]
+    [Description("Sprays"), Export(EPrimitiveExportType.Texture)]
     Spray,
 
-    [Description("Banners"), Export(EExportType.Texture)]
+    [Description("Banners"), Export(EPrimitiveExportType.Texture)]
     Banner,
 
-    [Description("Loading Screens"), Export(EExportType.Texture)]
+    [Description("Loading Screens"), Export(EPrimitiveExportType.Texture)]
     LoadingScreen,
 
-    [Description("Emotes"), Export(EExportType.Animation)]
+    [Description("Emotes"), Export(EPrimitiveExportType.Animation)]
     Emote,
     
     // CREATIVE
 
-    [Description("Props"), Export(EExportType.Mesh)]
+    [Description("Props"), Export(EPrimitiveExportType.Mesh)]
     Prop,
 
-    [Description("Prefabs"), Export(EExportType.Mesh)]
+    [Description("Prefabs"), Export(EPrimitiveExportType.Mesh)]
     Prefab,
     
     // GAMEPLAY
 
-    [Description("Items"), Export(EExportType.Mesh)]
+    [Description("Items"), Export(EPrimitiveExportType.Mesh)]
     Item,
     
-    [Description("Resources"), Export(EExportType.Mesh)]
+    [Description("Resources"), Export(EPrimitiveExportType.Mesh)]
     Resource,
 
-    [Description("Traps"), Export(EExportType.Mesh)]
+    [Description("Traps"), Export(EPrimitiveExportType.Mesh)]
     Trap,
 
-    [Description("Vehicles"), Export(EExportType.Mesh)]
+    [Description("Vehicles"), Export(EPrimitiveExportType.Mesh)]
     Vehicle,
 
-    [Description("Wildlife"), Export(EExportType.Mesh)]
+    [Description("Wildlife"), Export(EPrimitiveExportType.Mesh)]
     Wildlife,
         
-    [Description("Weapon Mods"), Export(EExportType.Mesh)]
+    [Description("Weapon Mods"), Export(EPrimitiveExportType.Mesh)]
     WeaponMod,
     
     // FESTIVAL
     
-    [Description("Guitars"), Export(EExportType.Mesh)]
+    [Description("Guitars"), Export(EPrimitiveExportType.Mesh)]
     FestivalGuitar,
     
-    [Description("Basses"), Export(EExportType.Mesh)]
+    [Description("Basses"), Export(EPrimitiveExportType.Mesh)]
     FestivalBass,
     
-    [Description("Keytars"), Export(EExportType.Mesh)]
+    [Description("Keytars"), Export(EPrimitiveExportType.Mesh)]
     FestivalKeytar,
     
-    [Description("Drums"), Export(EExportType.Mesh)]
+    [Description("Drums"), Export(EPrimitiveExportType.Mesh)]
     FestivalDrum,
     
-    [Description("Microphones"), Export(EExportType.Mesh)]
+    [Description("Microphones"), Export(EPrimitiveExportType.Mesh)]
     FestivalMic,
     
     // GENERIC
 
-    [Description("Mesh"), Export(EExportType.Mesh)]
+    [Description("Mesh"), Export(EPrimitiveExportType.Mesh)]
     Mesh,
     
-    [Description("World"), Export(EExportType.Mesh)]
+    [Description("World"), Export(EPrimitiveExportType.Mesh)]
     World,
     
-    [Description("Texture"), Export(EExportType.Texture)]
+    [Description("Texture"), Export(EPrimitiveExportType.Texture)]
     Texture,
     
-    [Description("Animation"), Export(EExportType.Animation)]
+    [Description("Animation"), Export(EPrimitiveExportType.Animation)]
     Animation,
     
-    [Description("Sound"), Export(EExportType.Sound)]
+    [Description("Sound"), Export(EPrimitiveExportType.Sound)]
     Sound
 }
 
-public enum EExportType
+public enum EPrimitiveExportType
 {
     [Description("Mesh")]
     Mesh,
@@ -195,4 +195,13 @@ public enum EAssetSortType
 
     [Description("Rarity")]
     Rarity
+}
+
+public enum EImageFormat
+{
+    [Description("PNG (.png)")]
+    PNG,
+
+    [Description("Targa (.tga)")]
+    TGA
 }

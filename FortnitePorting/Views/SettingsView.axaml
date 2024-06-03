@@ -7,26 +7,8 @@
              xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              d:DesignHeight="770" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.SettingsView"
              x:DataType="viewModels:SettingsViewModel">
-    <ui:NavigationView Classes="NoBackground" PaneDisplayMode="Top" IsSettingsVisible="False">
-        <ui:NavigationView.MenuItems>
-            <ui:NavigationViewItem Content="Blender">
-                <ui:NavigationViewItem.IconSource>
-                    <ui:ImageIconSource Source="/Assets/Icons/Blender.png"/>
-                </ui:NavigationViewItem.IconSource>
-            </ui:NavigationViewItem>
-            <ui:NavigationViewItem Content="Unreal Engine">
-                <ui:NavigationViewItem.IconSource>
-                    <ui:ImageIconSource Source="/Assets/Icons/Unreal.png"/>
-                </ui:NavigationViewItem.IconSource>
-            </ui:NavigationViewItem>
-            <ui:NavigationViewItem Content="Folder">
-                <ui:NavigationViewItem.IconSource>
-                    <ui:PathIconSource Data="{ext:MaterialKindToGeometry Folder}"/>
-                </ui:NavigationViewItem.IconSource>
-            </ui:NavigationViewItem>
-        </ui:NavigationView.MenuItems>
-    </ui:NavigationView>
 </UserControl>

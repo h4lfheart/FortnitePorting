@@ -17,7 +17,7 @@ public partial class AppWindow : WindowBase<AppViewModel>
 
     private void OnItemInvoked(object? sender, NavigationViewItemInvokedEventArgs e)
     {
-        var viewName = $"FortnitePorting.Views.{e.InvokedItem}View";
+        var viewName = $"FortnitePorting.Views.{e.InvokedItemContainer.Tag}View";
         
         var type = Type.GetType(viewName);
         if (type is null) return;

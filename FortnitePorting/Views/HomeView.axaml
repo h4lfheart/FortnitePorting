@@ -25,7 +25,7 @@
         </Grid.ColumnDefinitions>
 
         <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
-            <Image RenderOptions.BitmapInterpolationMode="HighQuality" Source="/Assets/DefaultSplash.png" Stretch="UniformToFill" Opacity="0.75">
+            <Image Source="/Assets/DefaultSplash.png" Stretch="UniformToFill" Opacity="0.75">
                 <Image.OpacityMask>
                     <LinearGradientBrush StartPoint="0, 0" EndPoint="0, 180">
                         <GradientStops>
@@ -62,7 +62,7 @@
                 </Grid.RowDefinitions>
                 <Grid Grid.Row="1">
                     <Ellipse Height="104" Width="104" Fill="#2F000000"/>
-                    <Ellipse RenderOptions.BitmapInterpolationMode="HighQuality" Height="104" Width="104" 
+                    <Ellipse Height="104" Width="104" 
                              StrokeThickness="5" Stroke="#00000000">
                         <Ellipse.Fill>
                             <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding AvatarURL}" Stretch="UniformToFill"/>

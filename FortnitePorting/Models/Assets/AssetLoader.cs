@@ -29,7 +29,7 @@ namespace FortnitePorting.Models.Assets;
 
 public partial class AssetLoader : ObservableObject
 {
-    public readonly EAssetType Type;
+    public readonly EExportType Type;
 
     public string[] ClassNames = [];
     public string[] HideNames = [];
@@ -94,38 +94,38 @@ public partial class AssetLoader : ObservableObject
     };
     
     public bool HasCosmeticFilters => CosmeticFilterTypes.Contains(Type);
-    private readonly EAssetType[] CosmeticFilterTypes =
+    private readonly EExportType[] CosmeticFilterTypes =
     [
-        EAssetType.Outfit,
-        EAssetType.Backpack,
-        EAssetType.Pickaxe,
-        EAssetType.Glider,
-        EAssetType.Pet,
-        EAssetType.Toy,
-        EAssetType.Emote,
-        EAssetType.Emoticon,
-        EAssetType.Spray,
-        EAssetType.LoadingScreen
+        EExportType.Outfit,
+        EExportType.Backpack,
+        EExportType.Pickaxe,
+        EExportType.Glider,
+        EExportType.Pet,
+        EExportType.Toy,
+        EExportType.Emote,
+        EExportType.Emoticon,
+        EExportType.Spray,
+        EExportType.LoadingScreen
     ];
     
     public bool HasGameFilters => GameFilterTypes.Contains(Type);
-    private readonly EAssetType[] GameFilterTypes =
+    private readonly EExportType[] GameFilterTypes =
     [
-        EAssetType.Outfit,
-        EAssetType.Backpack,
-        EAssetType.Pickaxe,
-        EAssetType.Glider,
-        EAssetType.Banner,
-        EAssetType.LoadingScreen,
-        EAssetType.Item,
-        EAssetType.Resource,
-        EAssetType.Trap
+        EExportType.Outfit,
+        EExportType.Backpack,
+        EExportType.Pickaxe,
+        EExportType.Glider,
+        EExportType.Banner,
+        EExportType.LoadingScreen,
+        EExportType.Item,
+        EExportType.Resource,
+        EExportType.Trap
     ];
     
-    public bool HasPrefabFilters => Type is EAssetType.Prefab;
-    public bool HasItemFilters => Type is EAssetType.Item;
+    public bool HasPrefabFilters => Type is EExportType.Prefab;
+    public bool HasItemFilters => Type is EExportType.Item;
 
-    public AssetLoader(EAssetType exportType)
+    public AssetLoader(EExportType exportType)
     {
         Type = exportType;
         

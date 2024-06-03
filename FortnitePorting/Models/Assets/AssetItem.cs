@@ -46,7 +46,7 @@ public partial class AssetItem : ObservableObject
         CreationData = args;
         Guid = Guid.NewGuid();
         
-        if (CreationData.AssetType is EAssetType.Prefab)
+        if (CreationData.AssetType is EExportType.Prefab)
         {
             var tagsHelper = CreationData.Object.GetOrDefault<FStructFallback?>("CreativeTagsHelper");
             var tags = tagsHelper?.GetOrDefault<FName[]>("CreativeTags") ?? [];
@@ -125,7 +125,7 @@ public class AssetItemCreationArgs
     public required UObject Object { get; set; }
     public required UTexture2D Icon { get; set; }
     public required string DisplayName { get; set; }
-    public required EAssetType AssetType { get; set; }
+    public required EExportType AssetType { get; set; }
     public bool IsHidden { get; set; } = false;
     public bool HideRarity { get; set; } = false;
 }

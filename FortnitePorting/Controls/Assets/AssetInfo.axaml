@@ -27,7 +27,7 @@
                            TextTrimming="CharacterEllipsis"
                            Text="{Binding Asset.CreationData.DisplayName}"/>
                 <TextBlock Grid.Row="1" Grid.Column="2" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush" VerticalAlignment="Top"
-                           Text="{Binding Asset.Description}"
+                           Text="{Binding Asset.Description}" Margin="{ext:Space 0, 0, 1, 0}"
                            TextAlignment="Left" TextWrapping="Wrap" Opacity="0.75"/>
             </Grid>
         </ui:FABorder>

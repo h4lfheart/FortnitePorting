@@ -10,11 +10,17 @@ public class ViewModelRegistry
         return Registry.TryGetValue(type, out var value) ? (T) value : null;
     }
 
-    public static T Register<T>() where T : ViewModelBase, new()
+    public static T New<T>() where T : ViewModelBase, new()
     {
         var newViewModel = new T();
         Registry[typeof(T)] = newViewModel;
         return newViewModel;
+    }
+    
+    public static T Register<T>(ViewModelBase existing) where T : ViewModelBase, new()
+    {
+        Registry[typeof(T)] = existing;
+        return (T) existing;
     }
 
     public static bool Unregister<T>() where T : ViewModelBase
@@ -25,7 +31,7 @@ public class ViewModelRegistry
     public static void Reset<T>() where T : ViewModelBase, new()
     {
         Unregister<T>();
-        Register<T>();
+        New<T>();
     }
 
     public static ViewModelBase[] All()

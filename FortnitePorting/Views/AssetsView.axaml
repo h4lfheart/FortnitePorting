@@ -17,13 +17,14 @@
              x:Class="FortnitePorting.Views.AssetsView"
              x:DataType="viewModels:AssetsViewModel">
     <Grid>
-        <ui:NavigationView Classes="NoBackground" PaneDisplayMode="Top" IsSettingsVisible="False" 
+        <ui:NavigationView Classes="NoBackground" PaneDisplayMode="LeftCompact" CompactPaneLength="48"
+                           IsPaneToggleButtonVisible="False" IsSettingsVisible="False" 
                            MenuItemsSource="{Binding AssetLoaderCollection.NavItems}"
                            IsPaneVisible="{Binding IsPaneOpen}"
                            ItemInvoked="OnNavigationViewItemInvoked">
-            <Grid Margin="{ext:Space 1}">
+            <Grid Margin="{ext:Space 0, 1, 1, 1}">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="2.6*"/>
+                    <ColumnDefinition Width="2.65*"/>
                     <ColumnDefinition Width="{ext:Space 1}"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
@@ -42,8 +43,6 @@
                             <ColumnDefinition Width="{ext:Space 1}"/>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="{ext:Space 1}"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="{ext:Space 1}"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="{ext:Space 1}"/>
                             <ColumnDefinition Width="*"/>
@@ -51,17 +50,14 @@
                             <ColumnDefinition Width="3*"/>
                         </Grid.ColumnDefinitions>
                         
-                        <ToggleButton Grid.Column="0" IsChecked="{Binding IsPaneOpen, Mode=TwoWay}" ToolTip.Tip="Asset Type Navigation">
-                            <material:MaterialIcon Kind="Menu"/>
-                        </ToggleButton>
-                        <Button Grid.Column="2" ToolTip.Tip="Random" Content="{material:MaterialIconExt DiceMultiple}" Click="OnRandomButtonPressed"/>
-                        <ToggleButton Grid.Column="4" IsChecked="{Binding AssetLoaderCollection.ActiveLoader.DescendingSort}" ToolTip.Tip="Ascending or Descending">
+                        <Button Grid.Column="0" ToolTip.Tip="Random" Content="{material:MaterialIconExt DiceMultiple}" Click="OnRandomButtonPressed"/>
+                        <ToggleButton Grid.Column="2" IsChecked="{Binding AssetLoaderCollection.ActiveLoader.DescendingSort}" ToolTip.Tip="Ascending or Descending">
                             <material:MaterialIcon Kind="{Binding AssetLoaderCollection.ActiveLoader.SortIcon}"/>
                         </ToggleButton>
-                        <ComboBox Grid.Column="6" ToolTip.Tip="Sorting" HorizontalAlignment="Stretch"
+                        <ComboBox Grid.Column="4" ToolTip.Tip="Sorting" HorizontalAlignment="Stretch"
                                   ItemsSource="{ext:EnumToItemsSource {x:Type shared:EAssetSortType}}"
                                   SelectedItem="{Binding AssetLoaderCollection.ActiveLoader.SortType, Converter={StaticResource EnumToString}}" />
-                        <DropDownButton Grid.Column="8" HorizontalAlignment="Stretch">
+                        <DropDownButton Grid.Column="6" HorizontalAlignment="Stretch">
                             <DropDownButton.Flyout>
                                 <Flyout>
                                     <!-- TODO Create from code only so you only have to update there to add filter s-->
@@ -117,7 +113,7 @@
                             </StackPanel>
                         </DropDownButton>
                         
-                        <AutoCompleteBox Grid.Column="10" FilterMode="ContainsOrdinal" Watermark="Search"
+                        <AutoCompleteBox Grid.Column="8" FilterMode="ContainsOrdinal" Watermark="Search"
                                          ItemsSource="{Binding AssetLoaderCollection.ActiveLoader.SearchAutoComplete}" 
                                          Text="{Binding AssetLoaderCollection.ActiveLoader.SearchFilter, Mode=TwoWay}"/>
                         
@@ -142,8 +138,7 @@
                                                 <ui:FABorder Width="{Binding DisplayWidth}" 
                                                              Height="{Binding DisplayHeight}"/>
                                                 <ui:FABorder Width="{Binding DisplayWidth}" 
-                                                             Height="{Binding DisplayHeight}"
-                                                             RenderOptions.BitmapInterpolationMode="MediumQuality">
+                                                             Height="{Binding DisplayHeight}">
                                                     <ui:FABorder.Background>
                                                         <ImageBrush Stretch="UniformToFill" Source="{Binding DisplayImage}" />
                                                     </ui:FABorder.Background>
