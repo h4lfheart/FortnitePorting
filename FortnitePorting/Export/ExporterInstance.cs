@@ -780,11 +780,9 @@ public class ExporterInstance
     {
         Directory.CreateDirectory(AppSettings.Current.GetExportPath());
 
-        var path = asset.Owner != null ? asset.Owner.Name : string.Empty;
-        path = path.SubstringBeforeLast('.').Split("/")[^1];
+        var iconName = icon.Name;
 
-        var filePath = Path.Combine(AppSettings.Current.GetExportPath(), path);
-        var exportPath = filePath + ".png";
+        var exportPath = Path.Combine(AppSettings.Current.GetExportPath(), iconName + ".png");
 
         var exportTask = Task.Run(() =>
         {
