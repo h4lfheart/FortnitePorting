@@ -7,8 +7,11 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input.Platform;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
+using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
@@ -38,14 +41,17 @@ public static class ApplicationService
     public static readonly DirectoryInfo LogsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs"));
     public static readonly DirectoryInfo DataFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".data"));
     public static readonly DirectoryInfo CacheFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".cache"));
+    public static string LogFilePath;
 
     public static void Initialize()
     {
         Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
-        
+
+        LogFilePath = Path.Combine(LogsFolder.FullName, $"FortnitePorting-{DateTime.Now:yyyy-MM-dd-hh-mm-ss}.log");
         Log.Logger = new LoggerConfiguration()
             .WriteTo.Console(theme: AnsiConsoleTheme.Literate)
-            .WriteTo.File(Path.Combine(LogsFolder.FullName, $"FortnitePorting-{DateTime.Now:yyyy-MM-dd-hh-mm-ss}.log"))
+            .WriteTo.FortnitePortingSink()
+            .WriteTo.File(LogFilePath)
             .CreateLogger();
         
         AssetsFolder.Create();
@@ -59,41 +65,48 @@ public static class ApplicationService
         Application.MainWindow = new AppWindow();
         Application.Startup += OnStartup;
         Application.Exit += OnExit;
+        
         Dispatcher.UIThread.UnhandledException += (sender, args) =>
         {
             args.Handled = true;
-
-            var exceptionString = args.Exception.ToString();
-            Log.Error(exceptionString);
-                
-            TaskService.RunDispatcher(async () =>
-            {
-                var dialog = new ContentDialog
-                {
-                    Title = "An unhandled exception has occurred",
-                    Content = exceptionString,
-                    CloseButtonText = "Continue"
-                };
-                await dialog.ShowAsync();
-            });
+            HandleException(args.Exception);
         };
         
-        TaskService.Exception += e =>
-        {
-            var exceptionString = e.ToString();
-            Log.Error(exceptionString);
+        TaskService.Exception += HandleException;
+    }
+
+    public static void HandleException(Exception e)
+    {
+        var exceptionString = e.ToString();
+        Log.Error(exceptionString);
                 
-            TaskService.RunDispatcher(async () =>
+        TaskService.RunDispatcher(async () =>
+        {
+            var dialog = new ContentDialog
             {
-                var dialog = new ContentDialog
-                {
-                    Title = "An unhandled exception has occurred",
-                    Content = exceptionString,
-                    CloseButtonText = "Continue"
-                };
-                await dialog.ShowAsync();
-            });
-        };
+                Title = "An unhandled exception has occurred",
+                Content = exceptionString,
+                
+                PrimaryButtonText = "Open Log",
+                PrimaryButtonCommand = OpenLogCommand,
+                SecondaryButtonText = "Open Console",
+                SecondaryButtonCommand = GoToConsoleCommand,
+                CloseButtonText = "Continue",
+            };
+            await dialog.ShowAsync();
+        });
+    }
+
+    public static readonly RelayCommand GoToConsoleCommand = new(GoToConsole);
+    public static void GoToConsole()
+    {
+        AppVM.Navigate<ConsoleView>();
+    }
+    
+    public static readonly RelayCommand OpenLogCommand = new(OpenLog);
+    public static void OpenLog()
+    {
+        LaunchSelected(LogFilePath);
     }
 
     public static void OnStartup(object? sender, ControlledApplicationLifetimeStartupEventArgs e)
@@ -145,6 +158,12 @@ public static class ApplicationService
     public static void Launch(string location, bool shellExecute = true)
     {
         Process.Start(new ProcessStartInfo { FileName = location, UseShellExecute = shellExecute });
+    }
+    
+    public static void LaunchSelected(string location)
+    {
+        var argument = "/select, \"" + location +"\"";
+        Process.Start("explorer", argument);
     }
     
     public static async Task<string?> BrowseFolderDialog(string startLocation = "")

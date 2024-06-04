@@ -76,6 +76,11 @@
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Sync}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
+                 <ui:NavigationViewItem Content="Console" Tag="Console">
+                     <ui:NavigationViewItem.IconSource>
+                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry Console}"/>
+                     </ui:NavigationViewItem.IconSource>
+                 </ui:NavigationViewItem>
                  <ui:NavigationViewItem Content="Help" Tag="Help">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Help}"/>
