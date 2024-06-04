@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input.Platform;
@@ -11,6 +12,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
+using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
@@ -73,6 +75,12 @@ public static class ApplicationService
         };
         
         TaskService.Exception += HandleException;
+        
+        Log.Information($"Version: {Globals.VersionString}");
+        Log.Information($".NET Version: {RuntimeInformation.FrameworkDescription}");
+        Log.Information($"Install Mode: {AppSettings.Current.Installation.FortniteVersion.GetDescription()}");
+        Log.Information($"Archive Path: {AppSettings.Current.Installation.ArchiveDirectory}");
+        Log.Information($"Texture Streaming: {AppSettings.Current.Installation.UseTextureStreaming}");
     }
 
     public static void HandleException(Exception e)

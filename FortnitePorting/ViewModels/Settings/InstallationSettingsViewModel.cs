@@ -22,13 +22,13 @@ public partial class InstallationSettingsViewModel : ViewModelBase
     [ObservableProperty] private string _archiveDirectory;
     
     [ObservableProperty] private EGame _unrealVersion = EGame.GAME_UE5_LATEST;
-    [ObservableProperty] private string _encryptionKey;
+    [ObservableProperty] private string _encryptionKey = Globals.ZERO_CHAR;
     
     [ObservableProperty] 
     [NotifyPropertyChangedFor(nameof(MappingsFileEnabled))]
     private bool _useMappingsFile;
     
-    [ObservableProperty] private string _mappingsFile;
+    [ObservableProperty] private string _mappingsFile = string.Empty;
     
     [ObservableProperty] private ELanguage _gameLanguage = ELanguage.English;
     [ObservableProperty] private bool _useTextureStreaming = true;
