@@ -4,10 +4,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
              xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
-             xmlns:exportSettings="clr-namespace:FortnitePorting.ViewModels.ExportSettings"
+             xmlns:settings="clr-namespace:FortnitePorting.ViewModels.Settings"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="FortnitePorting.Views.ExportSettings.UnrealExportSettingsView"
-             x:DataType="exportSettings:UnrealExportSettingsViewModel">
-    <TextBlock Text="Unreal export has not been implemented yet." Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-
+             x:Class="FortnitePorting.Views.Settings.FolderSettingsView"
+             x:DataType="settings:FolderSettingsViewModel">
+    <TextBlock Text="Folder export has not been implemented yet." Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 </UserControl>

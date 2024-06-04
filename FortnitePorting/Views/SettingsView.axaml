@@ -11,4 +11,22 @@
              d:DesignHeight="770" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.SettingsView"
              x:DataType="viewModels:SettingsViewModel">
+    <ui:NavigationView x:Name="NavigationView" Classes="NoBackground" PaneDisplayMode="Left" OpenPaneLength="150" IsPaneToggleButtonVisible="False" IsSettingsVisible="False" ItemInvoked="OnItemInvoked">
+        <ui:NavigationView.MenuItems>
+            <ui:NavigationViewItem Content="Application" Tag="Application" IsSelected="True">
+                <ui:NavigationViewItem.IconSource>
+                    <ui:PathIconSource Data="{ext:MaterialKindToGeometry ApplicationCog}"/>
+                </ui:NavigationViewItem.IconSource>
+            </ui:NavigationViewItem>
+        </ui:NavigationView.MenuItems>
+        <ui:NavigationView.MenuItems>
+            <ui:NavigationViewItem Content="Installation" Tag="Installation">
+                <ui:NavigationViewItem.IconSource>
+                    <ui:PathIconSource Data="{ext:MaterialKindToGeometry Folder}"/>
+                </ui:NavigationViewItem.IconSource>
+            </ui:NavigationViewItem>
+        </ui:NavigationView.MenuItems>
+        
+        <ui:Frame x:Name="ContentFrame"/>
+    </ui:NavigationView>
 </UserControl>

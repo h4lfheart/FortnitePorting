@@ -51,7 +51,7 @@ public partial class AppViewModel : ViewModelBase
     
     public void Navigate(Type type)
     {
-        ContentFrame.Navigate(type, null, Globals.TransitionInfo);
+        ContentFrame.Navigate(type, null, AppSettings.Current.Application.Transition);
 
         var buttonName = type.Name.Replace("View", string.Empty);
         NavigationView.SelectedItem = NavigationView.MenuItems

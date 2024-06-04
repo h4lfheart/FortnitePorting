@@ -16,7 +16,6 @@ public static class Globals
     public static readonly FilePickerFileType PNGFileType = new("PNG Image") { Patterns = [ "*.png" ] };
     public static readonly FilePickerFileType PlaylistFileType = new("Fortnite Porting Playlist") { Patterns = [ "*.fp.playlist" ] };
 
-    public static NavigationTransitionInfo TransitionInfo = new SlideNavigationTransitionInfo();
     // todo use api?
     public const EGame LatestGameVersion = EGame.GAME_UE5_4;
     

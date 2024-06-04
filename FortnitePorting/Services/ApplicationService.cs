@@ -98,7 +98,11 @@ public static class ApplicationService
 
     public static void OnStartup(object? sender, ControlledApplicationLifetimeStartupEventArgs e)
     {
-        DiscordService.Initialize();
+        if (AppSettings.Current.Application.UseDiscordRPC)
+        {
+            DiscordService.Initialize();
+        }
+        
         ViewModelRegistry.New<APIViewModel>();
         DependencyService.EnsureDependencies();
         

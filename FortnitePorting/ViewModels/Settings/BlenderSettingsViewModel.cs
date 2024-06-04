@@ -4,9 +4,9 @@ using CUE4Parse_Conversion;
 using CUE4Parse_Conversion.Animations;
 using CUE4Parse_Conversion.Meshes;
 
-namespace FortnitePorting.ViewModels.ExportSettings;
+namespace FortnitePorting.ViewModels.Settings;
 
-public partial class BlenderExportSettingsViewModel : BaseExportSettings
+public partial class BlenderSettingsViewModel : BaseExportSettings
 {
     public bool IsTastyRig => RigType == ERigType.Tasty;
     

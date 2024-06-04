@@ -1,0 +1,51 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+             xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
+             xmlns:enums="clr-namespace:CUE4Parse_Conversion.UEFormat.Enums;assembly=CUE4Parse-Conversion"
+             xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
+             xmlns:settings="clr-namespace:FortnitePorting.ViewModels.Settings"
+             xmlns:versions="clr-namespace:CUE4Parse.UE4.Versions;assembly=CUE4Parse"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="FortnitePorting.Views.Settings.ApplicationSettingsView"
+             x:DataType="settings:ApplicationSettingsViewModel">
+    
+    <ScrollViewer>
+        <StackPanel VerticalAlignment="Top" Margin="{ext:Space 1, 1, 2, 1}">
+            <StackPanel.Styles>
+                <Style Selector="ui|SettingsExpander">
+                    <Setter Property="Margin" Value="0 0 0 4"/>
+                </Style>
+                <Style Selector="TextBlock.SubtitleTextBlockStyle">
+                    <Setter Property="Margin" Value="0 0 0 8"/>
+                </Style>
+            </StackPanel.Styles>
+            
+            <ui:SettingsExpander Header="Assets Path" Description="The path in which all assets will export to.">
+                <ui:SettingsExpander.Footer>
+                    <StackPanel Orientation="Horizontal">
+                        <CheckBox IsChecked="{Binding UseAssetsPath}"/>
+                        <TextBox Text="{Binding AssetsPath}" Watermark="Ex. D:/Art/FortnitePorting/Assets/" IsEnabled="{Binding UseAssetsPath}"/>
+                        <Button Margin="4 0 0 0" Command="{Binding BrowseAssetsPathCommand}" IsEnabled="{Binding UseAssetsPath}">
+                            <ui:SymbolIcon Symbol="Folder"/>
+                        </Button>
+                    </StackPanel>
+                </ui:SettingsExpander.Footer>
+            </ui:SettingsExpander>
+            
+            <ui:SettingsExpander Header="Tab Transitions" Description="Toggles the transition that plays when switching between tabs.">
+                <ui:SettingsExpander.Footer>
+                    <ToggleSwitch IsChecked="{Binding UseTabTransitions}"/>
+                </ui:SettingsExpander.Footer>
+            </ui:SettingsExpander>
+            
+            <ui:SettingsExpander Header="Discord Rich Presence" Description="Displays active Fortnite Porting information in your discord profile.">
+                <ui:SettingsExpander.Footer>
+                    <ToggleSwitch IsChecked="{Binding UseDiscordRPC}"/>
+                </ui:SettingsExpander.Footer>
+            </ui:SettingsExpander>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

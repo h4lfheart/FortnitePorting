@@ -10,13 +10,14 @@ using CUE4Parse_Conversion.Meshes;
 using CUE4Parse_Conversion.UEFormat.Enums;
 using CUE4Parse.UE4.Versions;
 using FluentAvalonia.UI.Controls;
+using FortnitePorting.Application;
 using FortnitePorting.Models.Radio;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Framework;
-using FortnitePorting.ViewModels.ExportSettings;
-using FortnitePorting.Views.ExportSettings;
+using FortnitePorting.ViewModels.Settings;
 using NAudio.Wave;
 using Newtonsoft.Json;
+using BlenderSettingsViewModel = FortnitePorting.ViewModels.Settings.BlenderSettingsViewModel;
 
 namespace FortnitePorting.ViewModels;
 
@@ -25,19 +26,19 @@ public partial class ExportSettingsViewModel : ViewModelBase
     [JsonIgnore] public Frame ContentFrame;
     [JsonIgnore] public NavigationView NavigationView;
     
-    [ObservableProperty] private BlenderExportSettingsViewModel _blender = new();
-    [ObservableProperty] private UnrealExportSettingsViewModel _unreal = new();
-    [ObservableProperty] private FolderExportSettingsViewModel _folder = new();
+    [ObservableProperty] private BlenderSettingsViewModel _blender = new();
+    [ObservableProperty] private UnrealSettingsViewModel _unreal = new();
+    [ObservableProperty] private FolderSettingsViewModel _folder = new();
 
     public void Navigate(EExportLocation exportLocation)
     {
         var name = exportLocation is EExportLocation.AssetsFolder or EExportLocation.CustomFolder ? "Folder" : exportLocation.ToString();
-        var viewName = $"FortnitePorting.Views.ExportSettings.{name}ExportSettingsView";
+        var viewName = $"FortnitePorting.Views.Settings.{name}SettingsView";
         
         var type = Type.GetType(viewName);
         if (type is null) return;
         
-        ContentFrame.Navigate(type, null, Globals.TransitionInfo);
+        ContentFrame.Navigate(type, null, AppSettings.Current.Application.Transition);
 
         NavigationView.SelectedItem = NavigationView.MenuItems
             .Concat(NavigationView.FooterMenuItems)

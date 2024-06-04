@@ -96,6 +96,14 @@
         <DependentUpon>FolderExportSettingsView.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
+      <Compile Update="Views\Settings\InstallationSettingsView.axaml.cs">
+        <DependentUpon>InstallatoinSettingsView.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Views\Settings\ApplicationSettingsView.axaml.cs">
+        <DependentUpon>ApplicationSettingsView.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
     </ItemGroup>
 
     

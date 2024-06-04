@@ -57,19 +57,19 @@
                     </ui:SettingsExpander.Footer>
                     
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Latest (Installed) - " FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBlock Text="Latest (Installed) - " Classes="BodyStrongTextBlockStyle" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         <TextBlock Text="Fortnite is installed on your computer. The paks directory will need to be provided." HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Latest (On-Demand) - " FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBlock Text="Latest (On-Demand) - " Classes="BodyStrongTextBlockStyle" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         <TextBlock Text="Fortnite is not installed on your computer. Files will be downloaded on-demand as necessary." HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Custom - " FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBlock Text="Custom - " Classes="BodyStrongTextBlockStyle" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         <TextBlock Text="An unsupported version of Fortnite that requires more setup." HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Fortnite vXX.XX - " FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBlock Text="Fortnite vXX.XX - " Classes="BodyStrongTextBlockStyle" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         <TextBlock Text="Any other older version of Fortnite. The versions listed are the currently supported versions." HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </StackPanel>
                 </ui:SettingsExpander>

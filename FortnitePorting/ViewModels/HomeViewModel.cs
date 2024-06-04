@@ -22,23 +22,20 @@ public partial class HomeViewModel : ViewModelBase
     [ObservableProperty] private ObservableCollection<NewsControl> _newsControls = [];
     [ObservableProperty] private ObservableCollection<FeaturedControl> _featuredControls = [];
 
-    [ObservableProperty] private string _displayName;
-    [ObservableProperty] private string _userName;
-    [ObservableProperty] private string _avatarURL;
+    [ObservableProperty] private string _displayName = "No User";
+    [ObservableProperty] private string _userName = "Discord RPC Disabled";
+    [ObservableProperty] private string _avatarURL =  "avares://FortnitePorting/Assets/DefaultProfile.png";
     
     public override async Task Initialize()
     {
-        // TODO adhere to options in AppSettings
         TaskService.Run(() =>
         {
-            DiscordService.Client!.OnReady += (sender, args) =>
-            {
-                var name = DiscordService.GetUserName();
-                UserName = name is not null ? $"@{name}" : "Discord RPC Disabled";
-
-                DisplayName = DiscordService.GetDisplayName() ?? "No User";
-                AvatarURL = DiscordService.GetAvatarURL() ?? "avares://FortnitePorting/Assets/DefaultProfile.png";
-            };
+            while (!DiscordService.IsInitialized) { }
+            
+            var name = DiscordService.GetUserName();
+            UserName = $"@{name}";
+            DisplayName = DiscordService.GetDisplayName();
+            AvatarURL = DiscordService.GetAvatarURL();
         });
         
         TaskService.Run(async () =>

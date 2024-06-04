@@ -43,7 +43,7 @@ public partial class WelcomeViewModel : ViewModelBase
     [ObservableProperty] private ELanguage _gameLanguage = ELanguage.English;
     [ObservableProperty] private bool _useTextureStreaming = true;
 
-    public bool IsCustom => FortniteVersion is not (EFortniteVersion.LatestInstalled or EFortniteVersion.LatestOnDemand);
+    public bool IsCustom => FortniteVersion is EFortniteVersion.Custom;
 
     public bool ArchiveDirectoryEnabled => FortniteVersion is not EFortniteVersion.LatestOnDemand;
     public bool UnrealVersionEnabled => IsCustom;
@@ -83,14 +83,14 @@ public partial class WelcomeViewModel : ViewModelBase
     [RelayCommand]
     public async Task FinishSetup()
     {
-        AppSettings.Current.FortniteVersion = FortniteVersion;
-        AppSettings.Current.ArchiveDirectory = ArchiveDirectory;
-        AppSettings.Current.UnrealVersion = UnrealVersion;
-        AppSettings.Current.EncryptionKey = EncryptionKey;
-        AppSettings.Current.UseMappingsFile = UseMappingsFile;
-        AppSettings.Current.MappingsFile = MappingsFile;
-        AppSettings.Current.GameLanguage = GameLanguage;
-        AppSettings.Current.UseTextureStreaming = UseTextureStreaming;
+        AppSettings.Current.Installation.FortniteVersion = FortniteVersion;
+        AppSettings.Current.Installation.ArchiveDirectory = ArchiveDirectory;
+        AppSettings.Current.Installation.UnrealVersion = UnrealVersion;
+        AppSettings.Current.Installation.EncryptionKey = EncryptionKey;
+        AppSettings.Current.Installation.UseMappingsFile = UseMappingsFile;
+        AppSettings.Current.Installation.MappingsFile = MappingsFile;
+        AppSettings.Current.Installation.GameLanguage = GameLanguage;
+        AppSettings.Current.Installation.UseTextureStreaming = UseTextureStreaming;
         AppSettings.Current.FinishedWelcomeScreen = true;
         
         AppVM.SetupTabsAreVisible = false;

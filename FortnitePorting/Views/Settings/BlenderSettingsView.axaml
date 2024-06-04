@@ -4,12 +4,12 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
              xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
-             xmlns:exportSettings="clr-namespace:FortnitePorting.ViewModels.ExportSettings"
              xmlns:enums="clr-namespace:CUE4Parse_Conversion.UEFormat.Enums;assembly=CUE4Parse-Conversion"
              xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
+             xmlns:settings="clr-namespace:FortnitePorting.ViewModels.Settings"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="FortnitePorting.Views.ExportSettings.BlenderExportSettingsView"
-             x:DataType="exportSettings:BlenderExportSettingsViewModel">
+             x:Class="FortnitePorting.Views.Settings.BlenderSettingsView"
+             x:DataType="settings:BlenderSettingsViewModel">
     <ScrollViewer>
         <StackPanel VerticalAlignment="Top" Margin="{ext:Space 1, 1, 2, 1}">
             <StackPanel.Styles>
@@ -53,7 +53,7 @@
             
             <ui:SettingsExpander Header="Rig" Description="The type of rig that should be applied to the imported object. (Outfit Only)">
                 <ui:SettingsExpander.Footer>
-                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type exportSettings:ERigType}}"
+                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type settings:ERigType}}"
                               SelectedItem="{Binding RigType, Converter={StaticResource EnumToString}}" />
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
@@ -106,7 +106,7 @@
             
             <ui:SettingsExpander Header="Polygon Type" Description="The type of polygon that imported meshes should use.">
                 <ui:SettingsExpander.Footer>
-                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type exportSettings:EPolygonType}}"
+                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type settings:EPolygonType}}"
                               SelectedItem="{Binding PolygonType, Converter={StaticResource EnumToString}}" />
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
@@ -178,7 +178,7 @@
             
             <ui:SettingsExpander Header="Method" Description="The way textures should be imported.">
                 <ui:SettingsExpander.Footer>
-                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type exportSettings:ETextureImportMethod}}"
+                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type settings:ETextureImportMethod}}"
                               SelectedItem="{Binding TextureImportMethod, Converter={StaticResource EnumToString}}" />
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>

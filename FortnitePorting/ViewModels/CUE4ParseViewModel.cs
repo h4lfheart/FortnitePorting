@@ -33,10 +33,10 @@ namespace FortnitePorting.ViewModels;
 
 public class CUE4ParseViewModel : ViewModelBase
 {
-    public readonly HybridFileProvider Provider = AppSettings.Current.FortniteVersion switch
+    public readonly HybridFileProvider Provider = AppSettings.Current.Installation.FortniteVersion switch
     {
-        EFortniteVersion.LatestOnDemand => new HybridFileProvider(new VersionContainer(AppSettings.Current.UnrealVersion)),
-        _ => new HybridFileProvider(AppSettings.Current.ArchiveDirectory, [], new VersionContainer(AppSettings.Current.UnrealVersion)),
+        EFortniteVersion.LatestOnDemand => new HybridFileProvider(new VersionContainer(AppSettings.Current.Installation.UnrealVersion)),
+        _ => new HybridFileProvider(AppSettings.Current.Installation.ArchiveDirectory, [], new VersionContainer(AppSettings.Current.Installation.UnrealVersion)),
     };
     
     public readonly List<FAssetData> AssetRegistry = [];
@@ -56,7 +56,7 @@ public class CUE4ParseViewModel : ViewModelBase
         await InitializeTextureStreaming();
         
         await LoadKeys();
-        Provider.LoadLocalization(AppSettings.Current.GameLanguage);
+        Provider.LoadLocalization(AppSettings.Current.Installation.GameLanguage);
         Provider.LoadVirtualPaths();
         await LoadMappings();
         
@@ -88,7 +88,7 @@ public class CUE4ParseViewModel : ViewModelBase
     
     private async Task InitializeProvider()
     {
-        switch (AppSettings.Current.FortniteVersion)
+        switch (AppSettings.Current.Installation.FortniteVersion)
         {
             case EFortniteVersion.LatestOnDemand:
             {
@@ -110,7 +110,7 @@ public class CUE4ParseViewModel : ViewModelBase
 
     private async Task LoadKeys()
     {
-        switch (AppSettings.Current.FortniteVersion)
+        switch (AppSettings.Current.Installation.FortniteVersion)
         {
             case EFortniteVersion.LatestInstalled:
             case EFortniteVersion.LatestOnDemand:
@@ -128,7 +128,7 @@ public class CUE4ParseViewModel : ViewModelBase
             }
             default:
             {
-                await Provider.SubmitKeyAsync(Globals.ZERO_GUID, new FAesKey(AppSettings.Current.EncryptionKey));
+                await Provider.SubmitKeyAsync(Globals.ZERO_GUID, new FAesKey(AppSettings.Current.Installation.EncryptionKey));
                 // TODO Multiple Keys
                 break;
             }
@@ -137,10 +137,10 @@ public class CUE4ParseViewModel : ViewModelBase
     
     private async Task LoadMappings()
     {
-        var mappingsPath = AppSettings.Current.FortniteVersion switch
+        var mappingsPath = AppSettings.Current.Installation.FortniteVersion switch
         {
             EFortniteVersion.LatestInstalled or EFortniteVersion.LatestOnDemand => await GetEndpointMappings() ?? GetLocalMappings(),
-            _ when AppSettings.Current.UseMappingsFile && File.Exists(AppSettings.Current.MappingsFile) => AppSettings.Current.MappingsFile,
+            _ when AppSettings.Current.Installation.UseMappingsFile && File.Exists(AppSettings.Current.Installation.MappingsFile) => AppSettings.Current.Installation.MappingsFile,
             _ => string.Empty
         };
         
