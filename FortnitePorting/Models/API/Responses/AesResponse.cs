@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using CUE4Parse.Encryption.Aes;
-using CUE4Parse.UE4.Objects.Core.Misc;
-using Newtonsoft.Json;
+﻿using System.Collections.Generic;
 
 namespace FortnitePorting.Models.API.Responses;
 

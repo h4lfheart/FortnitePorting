@@ -7,9 +7,9 @@ public static class TaskService
     public static event ExceptionDelegate Exception; 
     public delegate void ExceptionDelegate(Exception exception);
     
-    public static void Run(Func<Task> function)
+    public static Task Run(Func<Task> function)
     {
-        Task.Run(async () =>
+        return Task.Run(async () =>
         {
             try
             {
@@ -37,9 +37,9 @@ public static class TaskService
         });
     }
 
-    public static void Run(Action function)
+    public static Task Run(Action function)
     {
-        Task.Run(() =>
+        return Task.Run(() =>
         {
             try
             {

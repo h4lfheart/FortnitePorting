@@ -3,12 +3,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using FortnitePorting.Application;
 using FortnitePorting.Controls.Assets;
 using FortnitePorting.Export;
-using FortnitePorting.Models.API;
 using FortnitePorting.Models.Assets;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Framework;
+using FortnitePorting.Shared.Services;
 using RestSharp;
 
 namespace FortnitePorting.ViewModels;
@@ -29,10 +30,14 @@ public partial class AssetsViewModel : ViewModelBase
     [RelayCommand]
     public async Task Export()
     {
-        var asset = AssetLoaderCollection.ActiveLoader.SelectedAssets.First();
-        var name = asset.Data.Asset.CreationData.DisplayName;
+        var selectedAsset = AssetLoaderCollection.ActiveLoader.SelectedAssets.First();
+        var name = selectedAsset.Data.Asset.CreationData.DisplayName;
+        var asset = selectedAsset.Data.Asset.CreationData.Object;
 
-        var data = await Exporter.Export(name, asset.Data.Asset.CreationData.Object, EExportType.Outfit);
-        await ApiVM.FortnitePortingServer.SendAsync(data, EExportServerType.Blender);
+        await Exporter.Export(name, asset, EExportType.Outfit, new ExportMetaData
+        {
+            AssetsRoot = AppSettings.Current.Application.AssetPath,
+            Settings = AppSettings.Current.ExportSettings.Blender
+        });
     }
 }

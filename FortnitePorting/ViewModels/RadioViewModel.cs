@@ -158,7 +158,7 @@ public partial class RadioViewModel : ViewModelBase
     
     public void Play(MusicPackItem musicPackItem)
     { 
-        if (!SoundExtensions.TrySaveSoundStream(musicPackItem.GetSound(), out var stream)) return;
+        if (!SoundExtensions.TrySaveSoundToAssets(musicPackItem.GetSound(), AppSettings.Current.Application.AssetPath, out Stream stream)) return;
         
         Stop();
 

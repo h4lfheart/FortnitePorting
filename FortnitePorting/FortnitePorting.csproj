@@ -41,7 +41,6 @@
     <ItemGroup>
       <ProjectReference Include="..\Dependencies\CUE4Parse\CUE4Parse-Conversion\CUE4Parse-Conversion.csproj" />
       <ProjectReference Include="..\Dependencies\CUE4Parse\CUE4Parse\CUE4Parse.csproj" />
-      <ProjectReference Include="..\FortnitePorting.Export\FortnitePorting.Export.csproj" />
       <ProjectReference Include="..\FortnitePorting.OpenGL\FortnitePorting.OpenGL.csproj" />
       <ProjectReference Include="..\FortnitePorting.Shared\FortnitePorting.Shared.csproj" />
     </ItemGroup>

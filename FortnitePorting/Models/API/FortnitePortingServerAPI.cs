@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-using FortnitePorting.Models.API.Responses;
 using RestSharp;
 
 namespace FortnitePorting.Models.API;
@@ -15,6 +14,14 @@ public class FortnitePortingServerAPI : APIBase
         var port = (int) serverType;
         var serverUrl = $"http://127.0.0.1:{port}/fortnite-porting/data";
         await ExecuteAsync(serverUrl, body: data, method: Method.Post);
+    }
+    
+    public async Task<bool> PingAsync(EExportServerType serverType)
+    {
+        var port = (int) serverType;
+        var serverUrl = $"http://127.0.0.1:{port}/fortnite-porting/ping";
+        var response = await ExecuteAsync(serverUrl, method: Method.Get);
+        return response.IsSuccessful;
     }
 }
 

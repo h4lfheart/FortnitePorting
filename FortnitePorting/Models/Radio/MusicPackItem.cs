@@ -15,6 +15,7 @@ using CUE4Parse.UE4.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using FFMpegCore;
+using FortnitePorting.Application;
 using FortnitePorting.Extensions;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
@@ -77,7 +78,7 @@ public partial class MusicPackItem : ObservableObject
         await TaskService.RunAsync(async () =>
         {
             var soundWave = GetSound();
-            if (!SoundExtensions.TrySaveSound(soundWave, out var wavPath)) return;
+            if (!SoundExtensions.TrySaveSoundToAssets(soundWave, AppSettings.Current.Application.AssetPath, out string wavPath)) return;
 
             if (File.Exists(path)) return;
             

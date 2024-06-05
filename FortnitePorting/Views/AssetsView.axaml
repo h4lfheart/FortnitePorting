@@ -181,7 +181,7 @@
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
                             
-                            <Grid Grid.Row="0" ColumnDefinitions="* 3.25*">
+                            <Grid Grid.Row="0" ColumnDefinitions="* 3*">
                                 <TextBlock Grid.Column="0" Text="Export To" VerticalAlignment="Center"
                                            Margin="3 0 0 2" />
                                 <ComboBox Grid.Column="1"

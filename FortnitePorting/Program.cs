@@ -1,7 +1,7 @@
 ﻿global using static FortnitePorting.Services.ApplicationService;
+
 using Avalonia;
 using System;
-using System.Collections.ObjectModel;
 using FortnitePorting.Application;
 
 namespace FortnitePorting;

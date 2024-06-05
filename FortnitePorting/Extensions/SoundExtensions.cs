@@ -16,7 +16,8 @@ namespace FortnitePorting.Extensions;
 
 public static class SoundExtensions
 {
-    public static bool TrySaveSound(USoundWave soundWave, string path)
+    
+    public static bool TrySaveSoundToPath(USoundWave soundWave, string path)
     {
         soundWave.Decode(true, out var format, out var data);
         if (data is null) soundWave.Decode(false, out format, out data);
@@ -35,25 +36,9 @@ public static class SoundExtensions
         return true;
     }
     
-    public static bool TrySaveSound(USoundWave soundWave, out string path)
+    public static bool TrySaveSoundToPath(USoundWave soundWave, string path, out Stream stream)
     {
-        path = Path.Combine(AssetsFolder.FullName, MiscExtensions.GetCleanedExportPath(soundWave) + ".wav");
-        Directory.CreateDirectory(path.SubstringBeforeLast("/"));
-        
-        if (File.Exists(path) || TrySaveSound(soundWave, path))
-        {
-            return true;
-        }
-
-        return false;
-    }
-    
-    public static bool TrySaveSoundStream(USoundWave soundWave, out Stream stream)
-    {
-        var path = Path.Combine(AssetsFolder.FullName, MiscExtensions.GetCleanedExportPath(soundWave) + ".wav");
-        Directory.CreateDirectory(path.SubstringBeforeLast("/"));
-        
-        if (File.Exists(path) || TrySaveSound(soundWave, path))
+        if (File.Exists(path) || TrySaveSoundToPath(soundWave, path))
         {
             stream = new FileStream(path, FileMode.Open, FileAccess.Read);
             return true;
@@ -63,9 +48,25 @@ public static class SoundExtensions
         return false;
     }
     
-    public static bool TrySaveSoundStream(USoundWave soundWave, string path, out Stream stream)
+    public static bool TrySaveSoundToAssets(USoundWave soundWave, string assetsRoot, out string path)
     {
-        if (TrySaveSound(soundWave, path))
+        path = Path.Combine(assetsRoot, MiscExtensions.GetCleanedExportPath(soundWave) + ".wav");
+        Directory.CreateDirectory(path.SubstringBeforeLast("/"));
+        
+        if (File.Exists(path) || TrySaveSoundToPath(soundWave, path))
+        {
+            return true;
+        }
+
+        return false;
+    }
+    
+    public static bool TrySaveSoundToAssets(USoundWave soundWave, string assetsRoot, out Stream stream)
+    {
+        var path = Path.Combine(assetsRoot, MiscExtensions.GetCleanedExportPath(soundWave) + ".wav");
+        Directory.CreateDirectory(path.SubstringBeforeLast("/"));
+        
+        if (File.Exists(path) || TrySaveSoundToPath(soundWave, path))
         {
             stream = new FileStream(path, FileMode.Open, FileAccess.Read);
             return true;

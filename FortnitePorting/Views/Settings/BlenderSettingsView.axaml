@@ -172,7 +172,7 @@
             <ui:SettingsExpander Header="Image Format" Description="The type of image that textures should be exported as.">
                 <ui:SettingsExpander.Footer>
                     <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type shared:EImageFormat}}"
-                              SelectedItem="{Binding ImageType, Converter={StaticResource EnumToString}}" />
+                              SelectedItem="{Binding ImageFormat, Converter={StaticResource EnumToString}}" />
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
             

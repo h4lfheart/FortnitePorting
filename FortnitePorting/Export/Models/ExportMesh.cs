@@ -1,22 +1,22 @@
+using System.Collections.Generic;
 using FortnitePorting.Shared.Models.Fortnite;
 using Newtonsoft.Json;
 
 namespace FortnitePorting.Export.Models;
 
-public record Model
+public record ExportMesh
 {
     public string Name = string.Empty;
     public string Path = string.Empty;
     public int NumLods;
     
-    public readonly List<Material> Materials = [];
-    public readonly List<Material> OverrideMaterials = [];
+    public readonly List<ExportMaterial> Materials = [];
+    public readonly List<ExportMaterial> OverrideMaterials = [];
 }
 
-public record Part : Model
+public record ExportPart : ExportMesh
 {
     [JsonIgnore] public EFortCustomGender GenderPermitted;
-    [JsonIgnore] public EFortCustomPartType CharacterPartType;
     
-    public string Type => CharacterPartType.ToString();
+    public EFortCustomPartType Type;
 }

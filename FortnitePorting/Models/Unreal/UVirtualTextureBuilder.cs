@@ -1,6 +1,5 @@
 using CUE4Parse.UE4.Assets.Readers;
 using CUE4Parse.UE4.Objects.UObject;
-using FortnitePorting.Models.CUE4Parse;
 using FortnitePorting.Shared.Models.CUE4Parse;
 
 namespace FortnitePorting.Models.Unreal;

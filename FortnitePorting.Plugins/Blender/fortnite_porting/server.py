@@ -25,6 +25,10 @@ class Server(Thread):
             server.event.set()
             return server.data
 
+        @app.route('/fortnite-porting/ping', methods=['GET'])
+        def post_data():
+            return "Pong!"
+
         return server
 
     def run(self):

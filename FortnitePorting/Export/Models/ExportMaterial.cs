@@ -1,5 +1,8 @@
+using System.Collections.Generic;
+using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Objects.Core.Math;
+using Newtonsoft.Json;
 
 namespace FortnitePorting.Export.Models;
 
@@ -12,11 +15,13 @@ public record ParameterCollection
     public List<ComponentMaskParameter> ComponentMasks = [];
 }
 
-public record Material : ParameterCollection
+public record ExportMaterial : ParameterCollection
 {
     public string Name = string.Empty;
     public string Path = string.Empty;
+    public string BaseMaterialPath = string.Empty;
     public int Slot;
+    public int Hash;
 }
 
 public record TextureParameter(string Name, string Value, bool sRGB, TextureCompressionSettings CompressionSettings);

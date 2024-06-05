@@ -13,6 +13,7 @@ using CUE4Parse.UE4.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.Utils;
 using FluentAvalonia.Core;
+using FortnitePorting.Application;
 using FortnitePorting.Extensions;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Framework;
@@ -53,7 +54,7 @@ public partial class SoundPreviewViewModel : ViewModelBase
 
     public async Task Play()
     {
-        if (!SoundExtensions.TrySaveSoundStream(SoundWave, out var stream)) return;
+        if (!SoundExtensions.TrySaveSoundToAssets(SoundWave, AppSettings.Current.Application.AssetPath, out Stream stream)) return;
 
         AudioReader = new WaveFileReader(stream);
         

@@ -1,0 +1,15 @@
+schema_version = "1.0.0"
+
+type = "add-on"
+license = ["SPDX:GPL-3.0-or-later"]
+
+id = "io_scene_ueformat"
+version = "1.0.0"
+blender_version_min = "4.2.0"
+name = "UE Format (.uemodel / .ueanim)"
+tagline = "Importer for UEFormat Files"
+maintainer = "https://github.com/halfuwu"
+
+permissions = ["files"]
+
+tags = ["Import-Export"]

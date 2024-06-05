@@ -15,7 +15,6 @@ using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.Utils;
 using DynamicData;
 using DynamicData.Binding;
-using FortnitePorting.Models.CUE4Parse;
 using FortnitePorting.Models.Files;
 using FortnitePorting.Models.Unreal;
 using FortnitePorting.Shared;
