@@ -49,9 +49,16 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <Button Grid.Column="0" Click="OnRandomButtonClicked" ToolTip.Tip="Random">
-                    <material:MaterialIcon Kind="DiceMultiple" Width="20" Height="20" />
-                </Button>
+				<Button Grid.Column="0" Command="{Binding ExportDatabase}" ToolTip.Tip="Export Database">
+					<Grid>
+						<material:MaterialIcon Kind="DatabaseExport" Width="20" Height="20" />
+						<ProgressBar MinWidth="0" CornerRadius="5" Background="Transparent"
+													 IsVisible="{Binding IsExportingDatabase}"
+													 Minimum="0" Maximum="{Binding ExportDatabaseChunks}"
+													 Value="{Binding ExportDatabaseProgress}"
+													 HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+					</Grid>
+				</Button>
 
                 <TextBox Grid.Column="2" Watermark="Search" Text="{Binding CurrentLoader.SearchFilter}" HorizontalAlignment="Stretch" TextChanged="OnSearchFilterChanged"/>
 

@@ -87,6 +87,9 @@ public partial class AssetsViewModel : ViewModelBase
     [ObservableProperty] private int exportChunks;
     [ObservableProperty] private int exportProgress;
     [ObservableProperty] private bool isExporting;
+    [ObservableProperty] private int exportDatabaseChunks;
+    [ObservableProperty] private int exportDatabaseProgress;
+    [ObservableProperty] private bool isExportingDatabase;
     [ObservableProperty] private EExportTargetType exportType = EExportTargetType.Blender;
     [ObservableProperty] private ReadOnlyObservableCollection<AssetItem> activeCollection;
 
@@ -498,6 +501,15 @@ public partial class AssetsViewModel : ViewModelBase
         IsExporting = true;
         await ExportService.ExportAsync(CurrentAssets.ToList(), ExportType);
         IsExporting = false;
+    }
+
+    [RelayCommand]
+    public async Task ExportDatabase()
+    {
+        ExportDatabaseProgress = 0;
+        IsExportingDatabase = true;
+        await ExportService.ExportDatabaseAsync();
+        IsExportingDatabase = false;
     }
 
     // scuffed fix to get filter to update

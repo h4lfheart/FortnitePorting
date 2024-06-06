@@ -16,6 +16,7 @@ using FortnitePorting.Framework.Controls;
 using FortnitePorting.Framework.Extensions;
 using FortnitePorting.Framework.Services;
 using Newtonsoft.Json;
+using Serilog;
 
 namespace FortnitePorting.Services;
 
@@ -128,6 +129,11 @@ public static class ExportService
             var exportResponse = CreateExportResponse([exportData], exportType);
             exportService.SendExport(JsonConvert.SerializeObject(exportResponse));
         });
+    }
+
+    public static async Task ExportDatabaseAsync()
+    {
+        Log.Information("Clicked on export database");
     }
 
     private static ExportResponse CreateExportResponse(ExportDataBase[] exportData, EExportTargetType exportType)
