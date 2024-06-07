@@ -21,16 +21,14 @@ using CUE4Parse.UE4.Versions;
 using CUE4Parse.Utils;
 using EpicManifestParser.Objects;
 using FortnitePorting.Application;
-using FortnitePorting.Controls;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Framework.Controls;
-using FortnitePorting.Services;
-using FortnitePorting.Framework.Services;
 using FortnitePorting.Framework.ViewModels.Endpoints;
 using FortnitePorting.ViewModels.Endpoints.Models;
 using Serilog;
 using UE4Config.Parsing;
+using Newtonsoft.Json;
 
 namespace FortnitePorting.ViewModels;
 
@@ -98,6 +96,9 @@ public class CUE4ParseViewModel : ViewModelBase
 
         HomeVM.Update("Loading Application Assets");
         await LoadRequiredAssets();
+
+        HomeVM.Update("Generating database");
+        await GenerateDatabase();
     }
 
     private async Task InitializeOodle()
@@ -357,6 +358,50 @@ public class CUE4ParseViewModel : ViewModelBase
         foreach (var path in FemaleLobbyMontagePaths)
         {
             FemaleLobbyMontages.AddIfNotNull(await Provider.TryLoadObjectAsync<UAnimMontage>(path));
+        }
+    }
+
+    private async Task GenerateDatabase()
+    {
+        List<AssetType> assetTypes = new List<AssetType>
+        {
+            new Outfit(),
+            new Backpack(),
+            new Pickaxe(),
+            new Glider(),
+            new Pet(),
+            new Toy(),
+            new Emoticon(),
+            new Spray(),
+            new Banner(),
+            new LoadingScreen(),
+            new Emote(),
+            new Item(),
+            new Resource(),
+            new Trap(),
+            new Vehicle(),
+        };
+
+        foreach (var assetType in assetTypes)
+        {
+            var assets = AssetRegistry.Where(data => assetType.Classes.Contains(data.AssetClass.Text)).ToList();
+            var randomAsset = assets.FirstOrDefault(x => x.AssetName.Text.EndsWith("Random", StringComparison.OrdinalIgnoreCase));
+            if (randomAsset is not null) assets.Remove(randomAsset);
+
+            foreach (var data in assets)
+            {
+                try
+                {
+                    var asset = await Provider.TryLoadObjectAsync(data.ObjectPath);
+                    if (asset is null) continue;
+
+                    var exportAsset = new ExportAsset(assetType, asset);
+                    await exportAsset.Export();
+                } catch (Exception e)
+                {
+                    Log.Error("{0}", e);
+                }
+            }
         }
     }
 }
