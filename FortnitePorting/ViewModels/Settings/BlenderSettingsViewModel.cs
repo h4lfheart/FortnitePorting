@@ -14,7 +14,7 @@ public partial class BlenderSettingsViewModel : BaseExportSettings
     // General
     [ObservableProperty] private bool _scaleDown = true;
     [ObservableProperty] private bool _importIntoCollection = true;
-    [ObservableProperty] private bool _importAt3DCursor = true;
+    [ObservableProperty] private bool _importAt3DCursor = false;
     
     // Armature
     [ObservableProperty, NotifyPropertyChangedFor(nameof(IsTastyRig))] private ERigType _rigType = ERigType.Default;
@@ -32,7 +32,7 @@ public partial class BlenderSettingsViewModel : BaseExportSettings
     [ObservableProperty] private float _ambientOcclusion = 0.0f;
     [ObservableProperty] private float _cavity = 0.0f;
     [ObservableProperty] private float _subsurface = 0.0f;
-    [ObservableProperty] private float _toonShadingBrightness = 0.0f;
+    [ObservableProperty] private float _toonShadingBrightness = 0.5f;
     
     // Texture
     [ObservableProperty] private ETextureImportMethod _textureImportMethod = ETextureImportMethod.Data;

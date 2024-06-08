@@ -34,7 +34,7 @@ public partial class AssetsViewModel : ViewModelBase
         var name = selectedAsset.Data.Asset.CreationData.DisplayName;
         var asset = selectedAsset.Data.Asset.CreationData.Object;
 
-        await Exporter.Export(name, asset, EExportType.Outfit, new ExportMetaData
+        await Exporter.Export(name, asset, selectedAsset.Data.GetSelectedStyles(), EExportType.Outfit, new ExportMetaData
         {
             AssetsRoot = AppSettings.Current.Application.AssetPath,
             Settings = AppSettings.Current.ExportSettings.Blender

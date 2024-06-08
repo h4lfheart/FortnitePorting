@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
@@ -63,6 +64,14 @@ public partial class AssetInfoData : ObservableObject
             
             StyleInfos.Add(styleInfo);
         }
+    }
+    
+    public FStructFallback[] GetSelectedStyles()
+    {
+        return StyleInfos
+            .Select(info => info.StyleDatas[info.SelectedStyleIndex])
+            .Select(data => data.StyleData)
+            .ToArray();
     }
 }
 

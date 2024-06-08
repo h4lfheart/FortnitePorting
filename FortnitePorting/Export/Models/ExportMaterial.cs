@@ -19,8 +19,27 @@ public record ExportMaterial : ParameterCollection
 {
     public string Name = string.Empty;
     public string Path = string.Empty;
-    public string BaseMaterialPath = string.Empty;
+    public string BaseMaterialPath => BaseMaterial.GetPathName();
     public int Slot;
+    public int Hash;
+
+    public EBlendMode OverrideBlendMode;
+    public EBlendMode BaseBlendMode => BaseMaterial.BlendMode;
+    public ETranslucencyLightingMode TranslucencyLightingMode => BaseMaterial.TranslucencyLightingMode;
+    public EMaterialShadingModel ShadingModel => BaseMaterial.ShadingModel;
+
+    [JsonIgnore] public UMaterial BaseMaterial;
+}
+
+public record ExportOverrideMaterial
+{
+    public ExportMaterial Material;
+    public string MaterialNameToSwap;
+}
+
+public record ExportOverrideParameters : ParameterCollection
+{
+    public string MaterialNameToAlter;
     public int Hash;
 }
 

@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Models.Serilog;
 using FortnitePorting.ViewModels;
@@ -12,7 +13,6 @@ public partial class ConsoleView : ViewBase<ConsoleViewModel>
     {
         InitializeComponent();
         ViewModel.Scroll = Scroll;
-        Scroll.ScrollToEnd();
     }
 
     private void OnLogPointerPressed(object? sender, PointerPressedEventArgs e)
@@ -22,5 +22,12 @@ public partial class ConsoleView : ViewBase<ConsoleViewModel>
 
         Clipboard.SetTextAsync(logEvent.LogString);
         AppVM.Message("Info", "Copied log to clipboard!");
+    }
+
+    protected override void OnLoaded(RoutedEventArgs e)
+    {
+        base.OnLoaded(e);
+        
+        Scroll.ScrollToEnd();
     }
 }

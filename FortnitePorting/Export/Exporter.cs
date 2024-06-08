@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.UE4.Assets.Objects;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Export.Types;
 using FortnitePorting.Models.API;
@@ -12,7 +13,7 @@ namespace FortnitePorting.Export;
 
 public static class Exporter
 {
-    public static async Task Export(string name, UObject asset, EExportType exportType, ExportMetaData metaData)
+    public static async Task Export(string name, UObject asset, FStructFallback[] styles, EExportType exportType, ExportMetaData metaData)
     {
         await TaskService.RunAsync(async () =>
         {
@@ -27,7 +28,7 @@ public static class Exporter
                 MetaData = metaData,
                 Exports = exportType.GetPrimitiveType() switch
                 {
-                    EPrimitiveExportType.Mesh => [new MeshExport(name, asset, exportType, metaData)],
+                    EPrimitiveExportType.Mesh => [new MeshExport(name, asset, styles, exportType, metaData)],
                     EPrimitiveExportType.Animation => [],
                     EPrimitiveExportType.Texture => [],
                     EPrimitiveExportType.Sound => []

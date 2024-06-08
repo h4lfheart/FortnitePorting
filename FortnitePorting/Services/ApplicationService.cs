@@ -76,7 +76,7 @@ public static class ApplicationService
         
         TaskService.Exception += HandleException;
         
-        Log.Information($"Version: {Globals.VersionString}");
+        Log.Information($"Fortnite Porting {Globals.VersionString}");
         Log.Information($".NET Version: {RuntimeInformation.FrameworkDescription}");
         Log.Information($"Install Mode: {AppSettings.Current.Installation.FortniteVersion.GetDescription()}");
         Log.Information($"Archive Path: {AppSettings.Current.Installation.ArchiveDirectory}");
