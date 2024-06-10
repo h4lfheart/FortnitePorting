@@ -3,9 +3,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
 using FortnitePorting.Controls.Assets;
 using FortnitePorting.Export;
+using FortnitePorting.Export.Models;
 using FortnitePorting.Models.Assets;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Framework;
@@ -30,14 +32,6 @@ public partial class AssetsViewModel : ViewModelBase
     [RelayCommand]
     public async Task Export()
     {
-        var selectedAsset = AssetLoaderCollection.ActiveLoader.SelectedAssets.First();
-        var name = selectedAsset.Data.Asset.CreationData.DisplayName;
-        var asset = selectedAsset.Data.Asset.CreationData.Object;
-
-        await Exporter.Export(name, asset, selectedAsset.Data.GetSelectedStyles(), EExportType.Outfit, new ExportMetaData
-        {
-            AssetsRoot = AppSettings.Current.Application.AssetPath,
-            Settings = AppSettings.Current.ExportSettings.Blender
-        });
+        await Exporter.Export(AssetLoaderCollection.ActiveLoader.SelectedAssets, AppSettings.Current.CreateExportMeta());
     }
 }

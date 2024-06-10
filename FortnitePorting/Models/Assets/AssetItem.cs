@@ -46,7 +46,7 @@ public partial class AssetItem : ObservableObject
         CreationData = args;
         Guid = Guid.NewGuid();
         
-        if (CreationData.AssetType is EExportType.Prefab)
+        if (CreationData.ExportType is EExportType.Prefab)
         {
             var tagsHelper = CreationData.Object.GetOrDefault<FStructFallback?>("CreativeTagsHelper");
             var tags = tagsHelper?.GetOrDefault<FName[]>("CreativeTags") ?? [];
@@ -96,8 +96,15 @@ public partial class AssetItem : ObservableObject
                 var backgroundPaint = new SKPaint { Shader = SkiaExtensions.RadialGradient(bitmap.Height, InnerBackgroundColor, OuterBackgroundColor) };
                 canvas.DrawRect(backgroundRect, backgroundPaint);
             }
-            
-            canvas.DrawBitmap(iconBitmap, backgroundRect with { Left = -8, Right = bitmap.Width + 8, Bottom = bitmap.Height - 16});
+
+            if (CreationData.ExportType is EExportType.Prop or EExportType.Prefab)
+            {
+                canvas.DrawBitmap(iconBitmap, backgroundRect with { Left = -16, Right = bitmap.Width + 16 });
+            }
+            else
+            {
+                canvas.DrawBitmap(iconBitmap, backgroundRect with { Left = -8, Right = bitmap.Width + 8, Bottom = bitmap.Height - 16 });
+            }
 
             if (!CreationData.HideRarity)
             {
@@ -125,7 +132,7 @@ public class AssetItemCreationArgs
     public required UObject Object { get; set; }
     public required UTexture2D Icon { get; set; }
     public required string DisplayName { get; set; }
-    public required EExportType AssetType { get; set; }
+    public required EExportType ExportType { get; set; }
     public bool IsHidden { get; set; } = false;
     public bool HideRarity { get; set; } = false;
 }

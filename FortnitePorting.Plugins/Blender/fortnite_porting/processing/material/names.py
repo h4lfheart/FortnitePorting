@@ -34,3 +34,5 @@ emissive_crop_switch_names = [
     "CroppedEmissive",
     "Manipulate Emissive Uvs"
 ]
+
+texture_ignore_names = ["DefaultTexture"]

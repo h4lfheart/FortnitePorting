@@ -15,6 +15,7 @@ using FortnitePorting.Controls;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Services;
+using Serilog;
 
 namespace FortnitePorting.Models.Assets;
 
@@ -69,7 +70,7 @@ public partial class AssetLoaderCollection : ObservableObject
                 {
                     ClassNames = ["AthenaToyItemDefinition"]
                 },
-                new AssetLoader(EExportType.Emoticon)
+                /*new AssetLoader(EExportType.Emoticon)
                 {
                     ClassNames = ["AthenaEmojiItemDefinition"],
                     HideNames = ["Emoji_100APlus"]
@@ -92,7 +93,7 @@ public partial class AssetLoaderCollection : ObservableObject
                 {
                     ClassNames = ["AthenaDanceItemDefinition"],
                     HideNames = ["_CT", "_NPC"]
-                }
+                }*/
             ]
         },
         new AssetLoaderCategory(EAssetCategory.Creative)
@@ -143,8 +144,8 @@ public partial class AssetLoaderCollection : ObservableObject
 
     ];
     
-    [ObservableProperty] private ObservableCollection<NavigationViewItemBase> _navItems = [];
-    [ObservableProperty] private NavigationViewItemBase _selectedNavItem;
+    [ObservableProperty] private ObservableCollection<NavigationViewItem> _navItems = [];
+    [ObservableProperty] private NavigationViewItem _selectedNavItem;
     
     [ObservableProperty] private AssetLoader _activeLoader;
     [ObservableProperty] private ReadOnlyObservableCollection<AssetItem> _activeCollection;
@@ -157,6 +158,7 @@ public partial class AssetLoaderCollection : ObservableObject
             {
                 NavItems.Add(new NavigationViewItem
                 {
+                    Tag = category.Category,
                     Content = category.Category.GetDescription(),
                     SelectsOnInvoked = false,
                     IconSource = new ImageIconSource

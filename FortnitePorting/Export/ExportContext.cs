@@ -7,8 +7,11 @@ using CUE4Parse_Conversion;
 using CUE4Parse_Conversion.Animations;
 using CUE4Parse_Conversion.Meshes;
 using CUE4Parse_Conversion.Textures;
+using CUE4Parse.GameTypes.FN.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Animation;
+using CUE4Parse.UE4.Assets.Exports.Component.SkeletalMesh;
+using CUE4Parse.UE4.Assets.Exports.Component.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.Material.Editor;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
@@ -17,6 +20,7 @@ using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.Math;
+using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Objects.Engine.Animation;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
@@ -36,16 +40,16 @@ namespace FortnitePorting.Export;
 
 public class ExportContext
 {
-    private List<Task> ExportTasks = [];
+    public List<Task> ExportTasks = [];
     private HashSet<ExportMaterial> MaterialCache = [];
     
-    private readonly ExportMetaData AppExportOptions;
+    private readonly ExportDataMeta Meta;
     private readonly ExporterOptions FileExportOptions;
 
-    public ExportContext(ExportMetaData metaData)
+    public ExportContext(ExportDataMeta metaData)
     {
-        AppExportOptions = metaData;
-        FileExportOptions = AppExportOptions.Settings.CreateExportOptions();
+        Meta = metaData;
+        FileExportOptions = Meta.Settings.CreateExportOptions();
     }
     
     public ExportPart? CharacterPart(UObject part)
@@ -63,7 +67,7 @@ public class ExportContext
         {
             foreach (var material in materialOverrides)
             {
-                exportPart.OverrideMaterials.AddIfNotNull(OverrideMaterialIndexed(material));
+                exportPart.OverrideMaterials.AddIfNotNull(OverrideMaterial(material));
             }
         }
 
@@ -91,12 +95,12 @@ public class ExportContext
                         var animBlueprintData = animBlueprint.ClassDefaultObject.Load()!;
                         if (animBlueprintData.TryGetValue(out FStructFallback poseAssetNode, "AnimGraphNode_PoseBlendNode"))
                         {
-                            PoseAsset(poseAssetNode.Get<UPoseAsset>("PoseAsset"), ref meta);
+                            PoseAsset(poseAssetNode.Get<UPoseAsset>("PoseAsset"), meta);
                         }
                         else if (skeletalMesh.ReferenceSkeleton.FinalRefBoneInfo.Any(bone => bone.Name.Text.Equals("FACIAL_C_FacialRoot", StringComparison.OrdinalIgnoreCase))
                                  && CUE4ParseVM.Provider.TryLoadObject("/BRCosmetics/Characters/Player/Male/Medium/Heads/M_MED_Jonesy3L_Head/Meshes/3L/3L_lod2_Facial_Poses_PoseAsset", out UPoseAsset poseAsset))
                         {
-                            PoseAsset(poseAsset, ref meta);
+                            PoseAsset(poseAsset, meta);
                         }
                     }
 
@@ -131,7 +135,7 @@ public class ExportContext
         return exportPart;
     }
     
-    public void PoseAsset(UPoseAsset poseAsset, ref ExportHeadMeta meta)
+    public void PoseAsset(UPoseAsset poseAsset, ExportPoseDataMeta meta)
     {
         /* Only tested when bAdditivePose = true */
         if (!poseAsset.bAdditivePose)
@@ -223,7 +227,358 @@ public class ExportContext
         }
     }
     
+    public List<ExportMesh> WeaponDefinition(UObject weaponDefinition)
+    {
+        var weaponMeshes = WeaponDefinitionMeshes(weaponDefinition);
+        var exportWeapons = new List<ExportMesh>();
+        foreach (var weaponMesh in weaponMeshes)
+        {
+            exportWeapons.AddIfNotNull(Mesh(weaponMesh));
+        }
+
+        return exportWeapons;
+    }
+    
+    public static List<UObject> WeaponDefinitionMeshes(UObject weaponDefinition)
+    {
+        var exportWeapons = new List<UObject>();
+
+        var skeletalMesh = weaponDefinition.GetOrDefault<USkeletalMesh?>("WeaponMeshOverride");
+        skeletalMesh ??= weaponDefinition.GetOrDefault<USkeletalMesh?>("PickupSkeletalMesh");
+        exportWeapons.AddIfNotNull(skeletalMesh);
+
+        var offhandSkeletalMesh = weaponDefinition.GetOrDefault<USkeletalMesh?>("WeaponMeshOffhandOverride");
+        exportWeapons.AddIfNotNull(offhandSkeletalMesh);
+
+        if (skeletalMesh is null)
+        {
+            var staticMesh = weaponDefinition.GetOrDefault<UStaticMesh?>("PickupStaticMesh");
+            exportWeapons.AddIfNotNull(staticMesh);
+        }
+
+        if (exportWeapons.Count > 0) return exportWeapons;
+        
+        if (weaponDefinition.TryGetValue(out FStructFallback componentContainer, "ComponentContainer"))
+        {
+            var components = componentContainer.Get<UObject[]>("Components");
+            if (components.FirstOrDefault(component => component.ExportType.Equals("FortItemComponent_Pickup")) is { } pickupComponent)
+            {
+                var staticMesh = pickupComponent.GetOrDefault<UStaticMesh?>("PickupStaticMesh");
+                exportWeapons.AddIfNotNull(staticMesh);
+            }
+        }
+
+        if (exportWeapons.Count > 0) return exportWeapons;
+        
+        if (weaponDefinition.TryGetValue(out UBlueprintGeneratedClass weaponActorClass, "WeaponActorClass"))
+        {
+            var weaponActorData = weaponActorClass.ClassDefaultObject.Load()!;
+            if (weaponActorData.TryGetValue(out UObject weaponMeshData, "WeaponMesh"))
+            {
+                var weaponMesh = weaponMeshData.GetOrDefault<USkeletalMesh?>("SkeletalMesh");
+                exportWeapons.AddIfNotNull(weaponMesh);
+            }
+
+            if (weaponActorData.TryGetValue(out UObject leftWeaponMeshData, "LeftHandWeaponMesh"))
+            {
+                var leftWeaponMesh = leftWeaponMeshData.GetOrDefault<USkeletalMesh?>("SkeletalMesh");
+                exportWeapons.AddIfNotNull(leftWeaponMesh);
+            }
+        }
+
+        if (exportWeapons.Count > 0) return exportWeapons;
+        
+        if (weaponDefinition.TryGetValue(out FInstancedStruct[] dataList, "DataList"))
+        {
+            foreach (var data in dataList)
+            {
+                if (data.NonConstStruct?.TryGetValue(out UObject mesh, "PickupSkeletalMesh", "PickupStaticMesh") ?? false)
+                {
+                    exportWeapons.AddIfNotNull(mesh);
+                }
+            }
+        }
+
+        return exportWeapons;
+    }
+    
+     public List<ExportMesh> LevelSaveRecord(ULevelSaveRecord levelSaveRecord)
+    {
+        var exportMeshes = new List<ExportMesh>();
+        foreach (var (index, templateRecord) in levelSaveRecord.TemplateRecords)
+        {
+            var actor = templateRecord.ActorClass.Load<UBlueprintGeneratedClass>().ClassDefaultObject.Load();
+            if (actor is null) continue;
+            
+            if (actor.TryGetValue(out UStaticMesh staticMesh, "StaticMesh"))
+            {
+                exportMeshes.AddIfNotNull(Mesh(staticMesh));
+            }
+            else
+            {
+                var components = CUE4ParseVM.Provider.LoadAllObjects(actor.GetPathName().SubstringBeforeLast("."));
+                exportMeshes.AddRangeIfNotNull(components.Select(MeshComponent));
+            }
+            
+            if (exportMeshes.Count == 0) continue;
+
+            // extra meshes i.e. doors and such
+            var targetMesh = exportMeshes.FirstOrDefault();
+            foreach (var extraMesh in ExtraActorMeshes(actor))
+            {
+                targetMesh?.Children.AddIfNotNull(extraMesh);
+            }
+
+            // todo proper byte actor data parsing
+            var textureDatas = new Dictionary<int, UBuildingTextureData>();
+            var actorData = levelSaveRecord.ActorData[index];
+            if (actorData.TryGetAllValues(out string?[] textureDataRawPaths, "TextureData"))
+            {
+                for (var i = 0; i < textureDataRawPaths.Length; i++)
+                {
+                    var textureDataPath = textureDataRawPaths[i];
+                    if (textureDataPath is null || string.IsNullOrEmpty(textureDataPath)) continue;
+                    if (!CUE4ParseVM.Provider.TryLoadObject(textureDataPath, out UBuildingTextureData textureData)) continue;
+                    textureDatas.Add(i, textureData);
+                }
+            }
+            else
+            {
+                var textureDataPaths = templateRecord.ActorDataReferenceTable;
+                for (var i = 0; i < textureDataPaths.Length; i++)
+                {
+                    var textureDataPath = textureDataPaths[i];
+                    if (textureDataPath.AssetPathName.IsNone || string.IsNullOrEmpty(textureDataPath.AssetPathName.Text)) continue;
+                    var textureData = textureDataPath.Load<UBuildingTextureData>();
+                    textureDatas.Add(i, textureData);
+                }
+            }
+            
+            foreach (var (textureDataIndex, textureData) in textureDatas)
+            {
+                targetMesh?.TextureData.AddIfNotNull(TextureData(textureData, textureDataIndex));
+            }
+        }
+
+        return exportMeshes;
+    }
+     
+    public ExportTextureData? TextureData(UBuildingTextureData? textureData, int index = 0)
+    {
+        if (textureData is null) return null;
+        
+        var exportTextureData = new ExportTextureData();
+
+        var textureSuffix = index > 0 ? $"_Texture_{index + 1}" : string.Empty;
+        var specSuffix = index > 0 ? $"_{index + 1}" : string.Empty;
+        exportTextureData.Diffuse = AddData(textureData.Diffuse, "Diffuse", textureSuffix);
+        exportTextureData.Normal = AddData(textureData.Normal, "Normals", textureSuffix);
+        exportTextureData.Specular = AddData(textureData.Specular, "SpecularMasks", specSuffix);
+        exportTextureData.Hash = textureData.GetPathName().GetHashCode();
+        return exportTextureData;
+        
+        TextureParameter? AddData(UTexture? texture, string prefix, string suffix)
+        {
+            return texture is null ? default : new TextureParameter(prefix + suffix, Export(texture), texture.SRGB, texture.CompressionSettings);
+        }
+    }
+
+    public List<ExportMesh> ExtraActorMeshes(UObject actor)
+    {
+        var extraMeshes = new List<ExportMesh>();
+        if (actor.TryGetValue(out UStaticMesh doorMesh, "DoorMesh"))
+        {
+            var doorOffset = actor.GetOrDefault<TIntVector3<float>>("DoorOffset").ToFVector();
+            var doorRotation = actor.GetOrDefault("DoorRotationOffset", FRotator.ZeroRotator);
+            doorRotation.Pitch *= -1;
+                
+            var exportDoorMesh = Mesh(doorMesh)!;
+            exportDoorMesh.Location = doorOffset;
+            exportDoorMesh.Rotation = doorRotation;
+            extraMeshes.AddIfNotNull(exportDoorMesh);
+
+            if (actor.GetOrDefault("bDoubleDoor", false))
+            {
+                var exportDoubleDoorMesh = exportDoorMesh with
+                {
+                    Location = exportDoorMesh.Location with { X = -exportDoorMesh.Location.X },
+                    Scale = exportDoorMesh.Scale with { X = -exportDoorMesh.Scale.X }
+                };
+                extraMeshes.AddIfNotNull(exportDoubleDoorMesh);
+            }
+            else if (actor.TryGetValue(out UStaticMesh doubleDoorMesh, "DoubleDoorMesh"))
+            {
+                var exportDoubleDoorMesh = Mesh(doubleDoorMesh)!;
+                exportDoubleDoorMesh.Location = doorOffset;
+                exportDoubleDoorMesh.Rotation = doorRotation;
+                extraMeshes.AddIfNotNull(exportDoubleDoorMesh);
+            }
+                
+        }
+
+        return extraMeshes;
+    }
+
+    public List<ExportMesh> World(UWorld world )
+    {
+        if (world.PersistentLevel.Load() is not ULevel level) return [];
+
+        var actors = new List<ExportMesh>();
+        var totalActors = level.Actors.Length;
+        var currentActor = 0;
+        foreach (var actorLazy in level.Actors)
+        {
+            currentActor++;
+            if (actorLazy is null || actorLazy.IsNull) continue;
+
+            var actor = actorLazy.Load();
+            if (actor is null) continue;
+            if (actor.ExportType == "LODActor") continue;
+
+            Log.Information("Processing {ActorName}: {CurrentActor}/{TotalActors}", actor.Name, currentActor, totalActors);
+            Meta.OnUpdateProgress(actor.Name, currentActor, totalActors);
+            actors.AddIfNotNull(Actor(actor));
+        }
+
+        return actors;
+    }
+
+    public ExportMesh? Actor(UObject actor)
+    {
+        if (actor.TryGetValue(out UStaticMeshComponent staticMeshComponent, "StaticMeshComponent", "StaticMesh", "Mesh", "LightMesh"))
+        {
+            var exportMesh = MeshComponent(staticMeshComponent) ?? new ExportMesh { IsEmpty = true };
+            exportMesh.Name = actor.Name;
+            exportMesh.Location = staticMeshComponent.GetOrDefault("RelativeLocation", FVector.ZeroVector);
+            exportMesh.Rotation = staticMeshComponent.GetOrDefault("RelativeRotation", FRotator.ZeroRotator);
+            exportMesh.Scale = staticMeshComponent.GetOrDefault("RelativeScale3D", FVector.OneVector);
+
+            foreach (var extraMesh in ExtraActorMeshes(actor))
+            {
+                exportMesh.Children.AddIfNotNull(extraMesh);
+            }
+
+            // todo global solution for accumulating all uobject heirarchy properties
+            var textureDatas = actor.GetAllProperties<UBuildingTextureData>("TextureData");
+            if (textureDatas.Count == 0 && actor.Template is not null)
+                textureDatas = actor.Template.Load()!.GetAllProperties<UBuildingTextureData>("TextureData");
+
+            foreach (var (textureData, index) in textureDatas)
+            {
+                exportMesh.TextureData.AddIfNotNull(TextureData(textureData, index));
+            }
+                        
+            if (actor.TryGetValue(out FSoftObjectPath[] additionalWorlds, "AdditionalWorlds"))
+            {
+                foreach (var additionalWorldPath in additionalWorlds)
+                {
+                    exportMesh.Children.AddRange(World(additionalWorldPath.Load<UWorld>()));
+                }
+            }
+
+            return exportMesh;
+        }
+
+        return null;
+    }
+
+    public ExportMesh? MeshComponent(UObject genericComponent)
+    {
+        return genericComponent switch
+        {
+            UStaticMeshComponent staticMeshComponent => MeshComponent(staticMeshComponent),
+            USkeletalMeshComponent skeletalMeshComponent => MeshComponent(skeletalMeshComponent),
+            _ => null
+        };
+    }
+    
+    public ExportMesh? MeshComponent(USkeletalMeshComponent meshComponent)
+    {
+        var mesh = meshComponent.GetSkeletalMesh().Load<USkeletalMesh>();
+        if (mesh is null) return null;
+
+        var exportMesh = Mesh(mesh);
+        if (exportMesh is null) return null;
+        
+        var overrideMaterials = meshComponent.GetOrDefault("OverrideMaterials", Array.Empty<UMaterialInterface?>());
+        for (var idx = 0; idx < overrideMaterials.Length; idx++)
+        {
+            var material = overrideMaterials[idx];
+            if (material is null) continue;
+
+            exportMesh.OverrideMaterials.AddIfNotNull(Material(material, idx));
+        }
+
+        return exportMesh;
+    }
+    
+    public ExportMesh? MeshComponent(UStaticMeshComponent meshComponent)
+    {
+        var mesh = meshComponent.GetStaticMesh().Load<UStaticMesh>();
+        if (mesh is null) return null;
+
+        var exportMesh = Mesh(mesh);
+        if (exportMesh is null) return null;
+        
+        var overrideMaterials = meshComponent.GetOrDefault("OverrideMaterials", Array.Empty<UMaterialInterface?>());
+        for (var idx = 0; idx < overrideMaterials.Length; idx++)
+        {
+            var material = overrideMaterials[idx];
+            if (material is null) continue;
+            
+            exportMesh.OverrideMaterials.AddIfNotNull(Material(material, idx));
+        }
+
+        return exportMesh;
+    }
+
+    public ExportMesh? Mesh(UObject obj)
+    {
+        return obj switch
+        {
+            USkeletalMesh skeletalMesh => Mesh(skeletalMesh),
+            UStaticMesh staticMesh => Mesh(staticMesh),
+            _ => null
+        };
+    }
+    
+    public ExportMesh? Mesh(USkeletalMesh? mesh)
+    {
+        return Mesh<ExportMesh>(mesh);
+    }
+    
     public T? Mesh<T>(USkeletalMesh? mesh) where T : ExportMesh, new()
+    {
+        if (mesh is null) return null;
+        if (!mesh.TryConvert(out var convertedMesh)) return null;
+        if (convertedMesh.LODs.Count <= 0) return null;
+
+        var exportPart = new T
+        {
+            Name = mesh.Name,
+            Path = Export(mesh),
+            NumLods = convertedMesh.LODs.Count
+        };
+
+        var sections = convertedMesh.LODs[0].Sections.Value;
+        foreach (var (index, section) in sections.Enumerate())
+        {
+            if (section.Material is null) continue;
+            if (!section.Material.TryLoad(out var materialObject)) continue;
+            if (materialObject is not UMaterialInterface material) continue;
+
+            exportPart.Materials.AddIfNotNull(Material(material, index));
+        }
+
+        return exportPart;
+    }
+    
+    public ExportMesh? Mesh(UStaticMesh? mesh)
+    {
+        return Mesh<ExportMesh>(mesh);
+    }
+    
+    public T? Mesh<T>(UStaticMesh? mesh) where T : ExportMesh, new()
     {
         if (mesh is null) return null;
         if (!mesh.TryConvert(out var convertedMesh)) return null;
@@ -251,7 +606,7 @@ public class ExportContext
 
     public ExportMaterial? Material(UMaterialInterface material, int index)
     {
-        if (!AppExportOptions.Settings.ExportMaterials) return null;
+        if (!Meta.Settings.ExportMaterials) return null;
 
         var hash = material.GetPathName().GetHashCode();
         if (MaterialCache.FirstOrDefault(mat => mat.Hash == hash) is { } existing) return existing with { Slot = index};
@@ -272,7 +627,7 @@ public class ExportContext
         return exportMaterial;
     }
     
-    public ExportMaterial? OverrideMaterialIndexed(FStructFallback overrideData)
+    public ExportMaterial? OverrideMaterial(FStructFallback overrideData)
     {
         var overrideMaterial = overrideData.Get<FSoftObjectPath>("OverrideMaterial");
         if (!overrideMaterial.TryLoad(out UMaterialInterface materialObject)) return null;
@@ -281,7 +636,7 @@ public class ExportContext
         return material;
     }
     
-    public ExportOverrideMaterial? OverrideMaterialStyled(FStructFallback overrideData)
+    public ExportOverrideMaterial? OverrideMaterialSwap(FStructFallback overrideData)
     {
         var overrideMaterial = overrideData.Get<FSoftObjectPath>("OverrideMaterial");
         if (!overrideMaterial.TryLoad(out UMaterialInterface materialObject)) return null;
@@ -407,19 +762,19 @@ public class ExportContext
     {
         var extension = asset switch
         {
-            USkeletalMesh or UStaticMesh or USkeleton => AppExportOptions.Settings.MeshFormat switch
+            USkeletalMesh or UStaticMesh or USkeleton => Meta.Settings.MeshFormat switch
             {
                 EMeshFormat.UEFormat => "uemodel",
                 EMeshFormat.ActorX => "psk",
                 EMeshFormat.Gltf2 => "glb",
                 EMeshFormat.OBJ => "obj",
             },
-            UAnimSequence => AppExportOptions.Settings.AnimFormat switch
+            UAnimSequence => Meta.Settings.AnimFormat switch
             {
                 EAnimFormat.UEFormat => "ueanim",
                 EAnimFormat.ActorX => "psa"
             },
-            UTexture => AppExportOptions.Settings.ImageFormat switch
+            UTexture => Meta.Settings.ImageFormat switch
             {
                 EImageFormat.PNG => "png",
                 EImageFormat.TGA => "tga"
@@ -428,7 +783,6 @@ public class ExportContext
         };
 
         var path = GetExportPath(asset, extension);
-        Log.Information("Exporting {ExportType}: {Path}", asset.ExportType, path);
         
         var returnValue = returnRealPath ? path : asset.GetPathName();
         if (File.Exists(path)) return returnValue;
@@ -437,12 +791,15 @@ public class ExportContext
         {
             try
             {
+                Log.Information("Exporting {ExportType}: {Path}", asset.ExportType, path);
                 Export(asset, path);
             }
             catch (IOException e)
             {
+                if ((e.HResult & 0x0000FFFF) == 32) return; // locked files, move on, it's being exported anyways
+                
                 Log.Warning("Failed to Export {ExportType}: {Name}", asset.ExportType, asset.Name);
-                Log.Warning(e.Message + e.StackTrace);
+                Log.Warning(e.ToString());
             }
         });
         
@@ -461,7 +818,7 @@ public class ExportContext
 
     private void Export(UObject asset, string path)
     {
-        var assetsFolder = new DirectoryInfo(AppExportOptions.AssetsRoot);
+        var assetsFolder = new DirectoryInfo(Meta.AssetsRoot);
         switch (asset)
         {
             case USkeletalMesh skeletalMesh:
@@ -492,7 +849,7 @@ public class ExportContext
             {
                 using var fileStream = File.OpenWrite(path);
                 var textureBitmap = texture.Decode();
-                switch (AppExportOptions.Settings.ImageFormat)
+                switch (Meta.Settings.ImageFormat)
                 {
                     case EImageFormat.PNG:
                     {
@@ -525,7 +882,7 @@ public class ExportContext
         path = path.SubstringBeforeLast('.');
         if (path.StartsWith("/")) path = path[1..];
 
-        var directory = Path.Combine(AppExportOptions.AssetsRoot, path);
+        var directory = Path.Combine(Meta.AssetsRoot, path);
         Directory.CreateDirectory(directory.SubstringBeforeLast("/"));
 
         var finalPath = $"{directory}.{ext.ToLower()}";

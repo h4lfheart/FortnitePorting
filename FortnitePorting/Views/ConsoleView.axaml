@@ -17,13 +17,19 @@
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="{ext:Space 1}"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="{ext:Space 1}"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="{Binding LogLevelString, StringFormat='[{0}]'}"
                                        Foreground="{Binding TextColor}" 
                                        Classes="BodyStrongTextBlockStyle" VerticalAlignment="Top"/>
                                 
-                            <TextBlock Grid.Column="2" Text="{Binding Message}" TextWrapping="Wrap" 
+                            <TextBlock Grid.Column="2" Text="{Binding Timestamp, StringFormat=HH:mm:ss}" TextWrapping="Wrap" 
+                                       Foreground="{Binding TextColor}"
+                                       Classes="BodyTextBlockStyle" VerticalAlignment="Top"/>
+                            
+                            <TextBlock Grid.Column="4" Text="{Binding Message}" TextWrapping="Wrap" 
                                        Foreground="{Binding TextColor}"
                                        Classes="BodyTextBlockStyle" VerticalAlignment="Top"/>
                         </Grid>

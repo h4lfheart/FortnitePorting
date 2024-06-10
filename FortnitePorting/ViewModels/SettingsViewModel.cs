@@ -8,6 +8,7 @@ using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.UE4.Versions;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
+using FortnitePorting.Export.Models;
 using FortnitePorting.Models.Radio;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Framework;
@@ -38,6 +39,12 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private RadioPlaylistSerializeData[] _playlists = [];
     [ObservableProperty] private int _audioDeviceIndex = 0;
     [ObservableProperty] private float _volume = 1.0f;
+
+    public ExportDataMeta CreateExportMeta() => new()
+    {
+        AssetsRoot = Application.AssetPath,
+        Settings = ExportSettings.Blender
+    };
     
     public void Navigate<T>()
     {

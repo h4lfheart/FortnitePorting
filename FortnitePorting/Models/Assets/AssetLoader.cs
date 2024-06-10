@@ -207,7 +207,7 @@ public partial class AssetLoader : ObservableObject
             Object = asset,
             Icon = icon,
             DisplayName = displayName,
-            AssetType = Type,
+            ExportType = Type,
             IsHidden = isHidden,
             HideRarity = HideRarity
         };

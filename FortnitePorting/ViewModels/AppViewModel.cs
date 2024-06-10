@@ -27,9 +27,9 @@ public partial class AppViewModel : ViewModelBase
         SetupTabsAreVisible = !AppSettings.Current.FinishedWelcomeScreen;
     }
     
-    public void Message(string title, string message, InfoBarSeverity severity = InfoBarSeverity.Informational, bool autoClose = true)
+    public void Message(string title, string message, InfoBarSeverity severity = InfoBarSeverity.Informational, bool autoClose = true, string id = "")
     {
-        Message(new InfoBarData(title, message, severity, autoClose));
+        Message(new InfoBarData(title, message, severity, autoClose, id));
     }
 
     public void Message(InfoBarData data)
@@ -42,6 +42,19 @@ public partial class AppViewModel : ViewModelBase
             await Task.Delay(1500);
             InfoBars.Remove(data);
         });
+    }
+    
+    public void UpdateMessage(string id, string message)
+    {
+        InfoBars.FirstOrDefault(infoBar => infoBar.Id == id)!.Message = message;
+    }
+    
+    public void CloseMessage(string id)
+    {
+        var target = InfoBars.FirstOrDefault(infoBar => infoBar.Id == id);
+        if (target is null) return;
+        
+        InfoBars.Remove(target);
     }
 
     public void Navigate<T>()

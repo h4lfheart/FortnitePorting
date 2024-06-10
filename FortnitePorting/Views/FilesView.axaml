@@ -23,7 +23,7 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             
-            <Grid Grid.Column="0">
+            <Grid Grid.Row="0" Grid.Column="0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="{ext:Space 1}"/>
@@ -34,7 +34,8 @@
                 
                 <ui:FABorder Grid.Row="2">
                     <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                        <ListBox ItemsSource="{Binding FlatViewCollection}" SelectedItem="{Binding SelectedFlatViewItem}">
+                        <ListBox ItemsSource="{Binding FlatViewCollection}" 
+                                 SelectedItems="{Binding SelectedFlatViewItems, Mode=TwoWay}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate DataType="files:FlatViewItem">
                                     <ContentControl>
@@ -78,7 +79,7 @@
                               SelectedItem="{Binding ExportLocation, Converter={StaticResource EnumToString}}" />
                 </Grid>
                     
-                <Button Grid.Column="2" HorizontalAlignment="Stretch">
+                <Button Grid.Column="2" HorizontalAlignment="Stretch" Command="{Binding ExportCommand}">
                     <StackPanel Orientation="Horizontal">
                         <material:MaterialIcon Kind="Download" Margin="{ext:Space -1, 0, 1, 0}"/>
                         <TextBlock Text="Export"/>

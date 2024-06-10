@@ -14,12 +14,14 @@ public partial class InfoBarData : ObservableObject
     [ObservableProperty] private string _message;
     [ObservableProperty] private InfoBarSeverity _severity;
     [ObservableProperty] private bool _autoClose;
+    [ObservableProperty] private string _id;
 
-    public InfoBarData(string title, string message, InfoBarSeverity severity = InfoBarSeverity.Informational, bool autoClose = true)
+    public InfoBarData(string title, string message, InfoBarSeverity severity = InfoBarSeverity.Informational, bool autoClose = true, string id = "")
     {
         Title = title;
         Message = message;
         Severity = severity;
         AutoClose = autoClose;
+        Id = id;
     }
 }

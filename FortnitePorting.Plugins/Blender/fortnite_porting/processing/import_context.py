@@ -1,5 +1,6 @@
 import json
 import traceback
+import pyperclip
 
 import bpy
 
@@ -11,6 +12,8 @@ from ..logger import Log
 from ...io_scene_ueformat.importer.logic import UEFormatImport
 from ...io_scene_ueformat.options import UEModelOptions
 
+SCALE_FACTOR = 0.01
+
 
 class ImportContext:
 
@@ -21,12 +24,15 @@ class ImportContext:
     def run(self, data):
         self.name = data.get("Name")
         self.type = EExportType(data.get("Type"))
+        
+        Log.info(self.type.name)
 
         if bpy.context.mode != "OBJECT":
             bpy.ops.object.mode_set(mode='OBJECT')
 
         ensure_blend_data()
-        print(json.dumps(data))
+
+        pyperclip.copy(json.dumps(data))
 
         import_type = EPrimitiveExportType(data.get("PrimitiveType"))
         match import_type:
@@ -44,7 +50,7 @@ class ImportContext:
         self.override_materials = data.get("OverrideMaterials")
         self.override_parameters = data.get("OverrideParameters")
         
-        self.collection = create_collection(self.name) if self.options.get("ImportCollection") else bpy.context.scene.collection
+        self.collection = create_or_get_collection(self.name) if self.options.get("ImportIntoCollection") else bpy.context.scene.collection
 
         if self.type in [EExportType.OUTFIT, EExportType.BACKPACK]:
             target_meshes = data.get("OverrideMeshes")
@@ -63,14 +69,24 @@ class ImportContext:
             master_skeleton = merge_armatures(self.imported_meshes)
             master_mesh = get_armature_mesh(master_skeleton)
 
-    def import_mesh(self, mesh):
+    def import_mesh(self, mesh, parent=None):
         path = mesh.get("Path")
+        mesh_name = path.split(".")[1]
         name = mesh.get("Name")
         part_type = EFortCustomPartType(mesh.get("Type"))
         num_lods = mesh.get("NumLods")
+        
+        if self.type in [EExportType.PREFAB, EExportType.WORLD] and (existing_mesh_data := bpy.data.meshes.get(mesh_name + "_LOD0")):
+            imported_object = bpy.data.objects.new(name, existing_mesh_data)
+            self.collection.objects.link(imported_object)
+        else:
+            imported_object = self.import_model(path)
+            imported_object.name = name
 
-        imported_object = self.import_model(path)
-        imported_object.name = name
+        imported_object.parent = parent
+        imported_object.rotation_euler = make_euler(mesh.get("Rotation"))
+        imported_object.location = make_vector(mesh.get("Location"), unreal_coords_correction=True) * SCALE_FACTOR
+        imported_object.scale = make_vector(mesh.get("Scale"))
 
         imported_mesh = get_armature_mesh(imported_object)
         
@@ -101,6 +117,7 @@ class ImportContext:
                         out_props[found_key] = meta.get(found_key)
             return out_props
 
+        # todo extract meta reading to function bc this is too big
         meta = gather_metadata("PoseData", "ReferencePose")
         
         # pose asset
@@ -131,7 +148,7 @@ class ImportContext:
                 # NOTE: I think faceAttach affects the expected location
                 # I'm making this assumption from observation of an old
                 # export of face poses for Polar Patroller.
-                loc_scale = (0.01 if self.options.get("ScaleDown") else 1)
+                loc_scale = (SCALE_FACTOR if self.options.get("ScaleDown") else 1)
                 for pose in pose_data:
                     # If there are no influences, don't bother
                     if not (influences := pose.get('Keys')):
@@ -150,6 +167,7 @@ class ImportContext:
                     bpy.ops.pose.transforms_clear()
                     bpy.ops.pose.select_all(action='DESELECT')
 
+                    # Move bones accordingly
                     # Move bones accordingly
                     contributed = False
                     for bone in influences:
@@ -224,6 +242,8 @@ class ImportContext:
                 bpy.ops.pose.transforms_clear()
                 bpy.ops.pose.select_all(action='DESELECT')
                 bpy.ops.object.mode_set(mode=original_mode)
+                
+        # end
 
         match part_type:
             case EFortCustomPartType.BODY:
@@ -231,10 +251,12 @@ class ImportContext:
             case EFortCustomPartType.HEAD:
                 meta.update(gather_metadata("MorphNames", "HatType"))
                 shape_keys = imported_mesh.data.shape_keys
-                if (morph_name := meta.get("MorphNames").get(meta.get("HatType"))) and shape_keys is not None:
+                if (morphs := meta.get("MorphNames")) and (morph_name := morphs.get(meta.get("HatType"))) and shape_keys is not None:
                     for key in shape_keys.key_blocks:
                         if key.name.casefold() == morph_name.casefold():
                             key.value = 1.0
+
+        meta["TextureData"] = mesh.get("TextureData")
         
         for material in mesh.get("Materials"):
             index = material.get("Slot")
@@ -261,6 +283,9 @@ class ImportContext:
                           lambda slot: slot.material.get("OriginalName") == material_name_to_swap)
             for slot in slots:
                 self.import_material(slot, variant_override_material.get("Material"), meta)
+
+        for child in mesh.get("Children"):
+            self.import_mesh(child, parent=imported_object)
 
     def import_model(self, path: str):
         options = UEModelOptions(scale_factor=0.01 if self.options.get("ScaleDown") else 1,
@@ -300,6 +325,10 @@ class ImportContext:
         material_name = material_data.get("Name")
         material_hash = material_data.get("Hash")
         additional_hash = 0
+
+        texture_data = meta.get("TextureData")
+        for data in texture_data:
+            additional_hash += data.get("Hash")
         
         override_parameters = where(self.override_parameters, lambda param: param.get("MaterialNameToAlter") == material_name)
         for parameters in override_parameters:
@@ -343,14 +372,19 @@ class ImportContext:
         switches = material_data.get("Switches")
         component_masks = material_data.get("ComponentMasks")
 
-        for override_parameter in override_parameters:
-            for texture in override_parameter.get("Textures"):
+        for data in texture_data:
+            replace_or_add_parameter(textures, data.get("Diffuse"))
+            replace_or_add_parameter(textures, data.get("Normal"))
+            replace_or_add_parameter(textures, data.get("Specular"))
+
+        for parameters in override_parameters:
+            for texture in parameters.get("Textures"):
                 replace_or_add_parameter(textures, texture)
 
-            for scalar in override_parameter.get("Scalars"):
+            for scalar in parameters.get("Scalars"):
                 replace_or_add_parameter(scalars, scalar)
 
-            for vector in override_parameter.get("Vectors"):
+            for vector in parameters.get("Vectors"):
                 replace_or_add_parameter(vectors, vector)
 
         output_node = nodes.new(type="ShaderNodeOutputMaterial")
@@ -379,6 +413,7 @@ class ImportContext:
             try:
                 name = data.get("Name")
                 path = data.get("Value")
+                texture_name = path.split(".")[1]
 
                 node = nodes.new(type="ShaderNodeTexImage")
                 node.image = self.import_image(path)
@@ -388,7 +423,7 @@ class ImportContext:
                 node.hide = True
 
                 mappings = first(target_mappings.textures, lambda x: x.name == name)
-                if mappings is None:
+                if mappings is None or texture_name in texture_ignore_names:
                     if add_unused_params:
                         nonlocal unused_parameter_height
                         node.label = name

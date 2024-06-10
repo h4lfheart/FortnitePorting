@@ -89,6 +89,15 @@ public static class MiscExtensions
         list.Add(obj);
         return true;
     }
+    
+    public static void AddRangeIfNotNull<T>(this List<T> list, IEnumerable<T?> items)
+    {
+        foreach (var item in items)
+        {
+            if (item is null) continue;
+            list.Add(item);
+        }
+    }
 
     public static IEnumerable<T> RemoveNull<T>(this IEnumerable<T> enumerable)
     {

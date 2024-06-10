@@ -24,7 +24,7 @@ wheels = [
     "./wheels/jinja2-3.1.4-py3-none-any.whl",
     "./wheels/MarkupSafe-2.1.5-cp311-cp311-win_amd64.whl",
     "./wheels/werkzeug-3.0.3-py3-none-any.whl",
-    "./wheels/waitress-3.0.0-py3-none-any.whl"
-
+    "./wheels/waitress-3.0.0-py3-none-any.whl",
+    "./wheels/pyperclip-1.8.2-py3-none-any.whl"
 ]
 

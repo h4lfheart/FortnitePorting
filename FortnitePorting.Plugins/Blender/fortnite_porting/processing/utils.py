@@ -85,16 +85,16 @@ def merge_armatures(parts):
 
     return master_skeleton
 
-def create_collection(name):
-    if name in bpy.context.view_layer.layer_collection.children:
+def create_or_get_collection(name):
+    if existing_collection := bpy.data.collections.get(name):
         bpy.context.view_layer.active_layer_collection = bpy.context.view_layer.layer_collection.children.get(name)
-        return
+        return existing_collection
+    
     bpy.ops.object.select_all(action='DESELECT')
-
+    
     new_collection = bpy.data.collections.new(name)
     bpy.context.scene.collection.children.link(new_collection)
-    bpy.context.view_layer.active_layer_collection = bpy.context.view_layer.layer_collection.children.get(
-        new_collection.name)
+    bpy.context.view_layer.active_layer_collection = bpy.context.view_layer.layer_collection.children.get(name)
     return new_collection
 
 def get_armature_mesh(obj):

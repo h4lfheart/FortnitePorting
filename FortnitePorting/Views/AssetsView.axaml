@@ -20,6 +20,7 @@
         <ui:NavigationView Classes="NoBackground" PaneDisplayMode="LeftCompact" CompactPaneLength="48"
                            IsPaneToggleButtonVisible="False" IsSettingsVisible="False" 
                            MenuItemsSource="{Binding AssetLoaderCollection.NavItems}"
+                           SelectedItem="{Binding AssetLoaderCollection.SelectedNavItem, Mode=TwoWay}"
                            IsPaneVisible="{Binding IsPaneOpen}"
                            ItemInvoked="OnNavigationViewItemInvoked">
             <Grid Margin="{ext:Space 0, 1, 1, 1}">

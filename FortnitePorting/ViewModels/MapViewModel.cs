@@ -20,10 +20,12 @@ using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
+using FortnitePorting.Application;
 using FortnitePorting.Models;
 using FortnitePorting.Models.Unreal;
 using FortnitePorting.OpenGL;
 using FortnitePorting.Services;
+using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
@@ -36,6 +38,7 @@ using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using SkiaSharp;
+using Exporter = FortnitePorting.Export.Exporter;
 
 namespace FortnitePorting.ViewModels;
 
@@ -312,7 +315,19 @@ public partial class WorldPartitionGridMap : ObservableObject
     [RelayCommand]
     public async Task Export()
     {
-        AppVM.Message(string.Empty, "Exporting world partition grids has not been implemented yet.");
+        AppVM.Message("Map Export", $"Exporting World Grid Partition: {Name}", id: Name, autoClose: false);
+        
+        // TODO obtain landscape chunks from main world
+        
+        var world = await CUE4ParseVM.Provider.LoadObjectAsync<UWorld>(Path);
+        
+        var meta = AppSettings.Current.CreateExportMeta();
+        meta.UpdateProgress += (name, current, total) =>
+        {
+            AppVM.UpdateMessage(id: Name, message: $"Processing Actor \"{name}\": {current} / {total}");
+        };
+        await Exporter.Export(world, EExportType.World, meta);
+        AppVM.CloseMessage(id: Name);
     }
     
     [RelayCommand]

@@ -52,3 +52,12 @@ public record VectorParameter(string Name, FLinearColor Value);
 public record SwitchParameter(string Name, bool Value);
 
 public record ComponentMaskParameter(string Name, FLinearColor Value);
+
+public record ExportTextureData
+{
+    public int Hash;
+    public TextureParameter? Diffuse;
+    public TextureParameter? Normal;
+    public TextureParameter? Specular;
+}
+

@@ -6,6 +6,8 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
@@ -15,6 +17,9 @@ using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.Utils;
 using DynamicData;
 using DynamicData.Binding;
+using FortnitePorting.Application;
+using FortnitePorting.Export;
+using FortnitePorting.Export.Models;
 using FortnitePorting.Models.Files;
 using FortnitePorting.Models.Unreal;
 using FortnitePorting.Shared;
@@ -33,7 +38,7 @@ public partial class FilesViewModel : ViewModelBase
     [ObservableProperty] private string _searchFilter = string.Empty;
     [ObservableProperty] private bool _showLoadingSplash = true;
 
-    [ObservableProperty] private FlatViewItem _selectedFlatViewItem;
+    [ObservableProperty] private List<FlatViewItem> _selectedFlatViewItems = [];
     [ObservableProperty] private ReadOnlyObservableCollection<FlatViewItem> _flatViewCollection = new([]);
 
     public SourceCache<FlatViewItem, int> AssetCache = new(item => item.Id);
@@ -72,7 +77,10 @@ public partial class FilesViewModel : ViewModelBase
     [RelayCommand]
     public async Task Preview()
     {
-        var asset = await CUE4ParseVM.Provider.LoadObjectAsync(FixPath(SelectedFlatViewItem.Path))!;
+        var selectedItem = SelectedFlatViewItems.FirstOrDefault();
+        if (selectedItem is null) return;
+        
+        var asset = await CUE4ParseVM.Provider.LoadObjectAsync(FixPath(selectedItem.Path));
         var name = asset.Name;
 
         switch (asset)
@@ -115,6 +123,46 @@ public partial class FilesViewModel : ViewModelBase
                 break;
             }
         }
+    }
+    
+    [RelayCommand]
+    public async Task Export()
+    {
+        var exports = new List<KeyValuePair<UObject, EExportType>>();
+        foreach (var item in SelectedFlatViewItems)
+        {
+            var asset = await CUE4ParseVM.Provider.LoadObjectAsync(FixPath(item.Path));
+            if (asset is null) continue;
+            
+            switch (asset)
+            {
+                case UVirtualTextureBuilder virtualTextureBuilder:
+                {
+                    asset = virtualTextureBuilder.Texture.Load<UVirtualTexture2D>();
+                    break;
+                }
+            }
+            
+            var assetType = asset switch
+            {
+                USkeletalMesh => EExportType.Mesh,
+                UStaticMesh => EExportType.Mesh,
+                UWorld => EExportType.World,
+                _ => EExportType.None
+            };
+
+            if (assetType is EExportType.None)
+            {
+                DisplayDialog("Unimplemented Exporter", 
+                    $"A file exporter for \"{asset.ExportType}\" assets has not been implemented and/or will not be supported.");
+            }
+            else
+            {
+                exports.Add(new KeyValuePair<UObject, EExportType>(asset, assetType));
+            }
+        }
+        
+        await Exporter.Export(exports, AppSettings.Current.CreateExportMeta());
     }
     
     private string FixPath(string path)

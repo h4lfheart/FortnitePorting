@@ -8,6 +8,7 @@ namespace FortnitePorting.Shared.Models.Serilog;
 public partial class FortnitePortingLogEvent : ObservableObject
 {
     [ObservableProperty] private string _message;
+    [ObservableProperty] private DateTimeOffset _timestamp;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(TextColor))] private LogEventLevel _level;
 
     public string LogString => $"[{LogLevelString}] {Message}";
@@ -36,6 +37,7 @@ public partial class FortnitePortingLogEvent : ObservableObject
     public FortnitePortingLogEvent(LogEvent logEvent)
     {
         Message = logEvent.RenderMessage();
+        Timestamp = logEvent.Timestamp;
         Level = logEvent.Level;
     }
 }
