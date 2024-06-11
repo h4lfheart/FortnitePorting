@@ -82,7 +82,7 @@ public partial class RadioViewModel : ViewModelBase
     public RadioViewModel()
     {
         UpdateTimer.Tick += OnUpdateTimerTick;
-        UpdateTimer.Interval = TimeSpan.FromSeconds(0.1f);
+        UpdateTimer.Interval = TimeSpan.FromMilliseconds(1);
         UpdateTimer.Start();
         
         RadioSearchFilter = this.WhenAnyValue(radio => radio.SearchFilter).Select(CreateSearchFilter);
@@ -251,6 +251,7 @@ public partial class RadioViewModel : ViewModelBase
             return;
         }
         
+        CurrentTime = TimeSpan.Zero;
         Play(PlaylistMusicPacks[previousSongIndex]);
     }
 
@@ -264,6 +265,7 @@ public partial class RadioViewModel : ViewModelBase
             nextSongIndex = 0;
         }
         
+        CurrentTime = TimeSpan.Zero;
         Play(PlaylistMusicPacks[nextSongIndex]);
     }
     
