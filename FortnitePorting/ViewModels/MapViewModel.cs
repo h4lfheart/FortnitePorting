@@ -324,7 +324,7 @@ public partial class WorldPartitionGridMap : ObservableObject
         var meta = AppSettings.Current.CreateExportMeta();
         meta.UpdateProgress += (name, current, total) =>
         {
-            AppVM.UpdateMessage(id: Name, message: $"Processing Actor \"{name}\": {current} / {total}");
+            AppVM.UpdateMessage(id: Name, message: $"{current} / {total} \"{name}\"");
         };
         await Exporter.Export(world, EExportType.World, meta);
         AppVM.CloseMessage(id: Name);

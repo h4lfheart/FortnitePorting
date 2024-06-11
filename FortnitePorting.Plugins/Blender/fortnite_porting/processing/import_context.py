@@ -71,11 +71,26 @@ class ImportContext:
 
     def import_mesh(self, mesh, parent=None):
         path = mesh.get("Path")
-        mesh_name = path.split(".")[1]
         name = mesh.get("Name")
         part_type = EFortCustomPartType(mesh.get("Type"))
         num_lods = mesh.get("NumLods")
         
+        if mesh.get("IsEmpty"):
+            empty_object = bpy.data.objects.new(name, None)
+
+            empty_object.parent = parent
+            empty_object.rotation_euler = make_euler(mesh.get("Rotation"))
+            empty_object.location = make_vector(mesh.get("Location"), unreal_coords_correction=True) * SCALE_FACTOR
+            empty_object.scale = make_vector(mesh.get("Scale"))
+            
+            self.collection.objects.link(empty_object)
+            
+            for child in mesh.get("Children"):
+                self.import_mesh(child, parent=empty_object)
+                
+            return
+
+        mesh_name = path.split(".")[1]
         if self.type in [EExportType.PREFAB, EExportType.WORLD] and (existing_mesh_data := bpy.data.meshes.get(mesh_name + "_LOD0")):
             imported_object = bpy.data.objects.new(name, existing_mesh_data)
             self.collection.objects.link(imported_object)
