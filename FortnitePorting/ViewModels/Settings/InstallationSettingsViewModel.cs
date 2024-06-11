@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.UE4.Versions;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Framework;
+using FortnitePorting.Shared.Validators;
 using Newtonsoft.Json;
 
 namespace FortnitePorting.ViewModels.Settings;
@@ -19,6 +20,8 @@ public partial class InstallationSettingsViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(IsCustom))]
     private EFortniteVersion _fortniteVersion = EFortniteVersion.LatestInstalled;
     
+    [NotifyDataErrorInfo]
+    [ArchiveDirectory]
     [ObservableProperty] private string _archiveDirectory;
     
     [ObservableProperty] private EGame _unrealVersion = EGame.GAME_UE5_LATEST;

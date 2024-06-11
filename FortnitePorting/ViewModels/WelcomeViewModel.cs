@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ using CUE4Parse.UE4.Versions;
 using FortnitePorting.Application;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Framework;
+using FortnitePorting.Shared.Validators;
 using FortnitePorting.Views;
 using Newtonsoft.Json;
 using Serilog;
@@ -29,7 +31,10 @@ public partial class WelcomeViewModel : ViewModelBase
     
     [ObservableProperty] 
     [NotifyPropertyChangedFor(nameof(CanFinishSetup))]
+    [NotifyDataErrorInfo]
+    [ArchiveDirectory]
     private string _archiveDirectory;
+    
     
     [ObservableProperty] private EGame _unrealVersion = EGame.GAME_UE5_LATEST;
     [ObservableProperty] private string _encryptionKey;
@@ -51,10 +56,11 @@ public partial class WelcomeViewModel : ViewModelBase
     public bool MappingsFileEnabled => IsCustom;
     public bool TextureStreamingEnabled => FortniteVersion is EFortniteVersion.LatestOnDemand or EFortniteVersion.LatestInstalled;
     
-    public bool CanFinishSetup => FortniteVersion switch
+    // TODO convert all to validators?
+    public bool CanFinishSetup => !HasErrors && FortniteVersion switch
     {
         EFortniteVersion.LatestOnDemand => true,
-        _ => !string.IsNullOrWhiteSpace(ArchiveDirectory)
+        _ => !string.IsNullOrWhiteSpace(ArchiveDirectory) && Directory.Exists(ArchiveDirectory)
     };
 
     public override async Task Initialize()

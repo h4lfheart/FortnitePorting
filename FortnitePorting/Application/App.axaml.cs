@@ -1,6 +1,9 @@
+using System.Linq;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
+using DynamicData;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Services;
 using Serilog;
@@ -16,6 +19,8 @@ public partial class App : Avalonia.Application
 
     public override void OnFrameworkInitializationCompleted()
     {
+        BindingPlugins.DataValidators.Remove(BindingPlugins.DataValidators.OfType<DataAnnotationsValidationPlugin>().ToArray());
+        
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             ApplicationService.Application = desktop;
