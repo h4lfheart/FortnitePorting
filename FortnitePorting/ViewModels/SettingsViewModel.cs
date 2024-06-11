@@ -27,6 +27,7 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private ExportSettingsViewModel _exportSettings = new();
     [ObservableProperty] private InstallationSettingsViewModel _installation = new();
     [ObservableProperty] private ApplicationSettingsViewModel _application = new();
+    [ObservableProperty] private ThemeSettingsViewModel _theme = new();
     
     // Welcome
     [ObservableProperty] private bool _finishedWelcomeScreen;

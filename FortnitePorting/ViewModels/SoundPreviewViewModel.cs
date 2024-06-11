@@ -23,7 +23,7 @@ using NAudio.Wave;
 
 namespace FortnitePorting.ViewModels;
 
-public partial class SoundPreviewViewModel : ViewModelBase
+public partial class SoundPreviewViewModel : WindowModelBase
 {
     [ObservableProperty] private string _soundName;
     [ObservableProperty] private USoundWave _soundWave;

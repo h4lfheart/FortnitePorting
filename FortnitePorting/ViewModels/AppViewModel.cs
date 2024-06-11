@@ -13,7 +13,7 @@ using FortnitePorting.Shared.Services;
 
 namespace FortnitePorting.ViewModels;
 
-public partial class AppViewModel : ViewModelBase
+public partial class AppViewModel : WindowModelBase
 {
     [ObservableProperty] private string _versionString = Globals.VersionString;
     [ObservableProperty] private bool _gameBasedTabsAreReady = false;

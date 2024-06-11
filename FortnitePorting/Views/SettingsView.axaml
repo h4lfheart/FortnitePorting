@@ -18,11 +18,14 @@
                     <ui:PathIconSource Data="{ext:MaterialKindToGeometry ApplicationCog}"/>
                 </ui:NavigationViewItem.IconSource>
             </ui:NavigationViewItem>
-        </ui:NavigationView.MenuItems>
-        <ui:NavigationView.MenuItems>
             <ui:NavigationViewItem Content="Installation" Tag="Installation">
                 <ui:NavigationViewItem.IconSource>
                     <ui:PathIconSource Data="{ext:MaterialKindToGeometry Folder}"/>
+                </ui:NavigationViewItem.IconSource>
+            </ui:NavigationViewItem>
+            <ui:NavigationViewItem Content="Theme" Tag="Theme">
+                <ui:NavigationViewItem.IconSource>
+                    <ui:PathIconSource Data="{ext:MaterialKindToGeometry PaletteSwatch}"/>
                 </ui:NavigationViewItem.IconSource>
             </ui:NavigationViewItem>
         </ui:NavigationView.MenuItems>

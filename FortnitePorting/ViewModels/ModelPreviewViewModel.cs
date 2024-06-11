@@ -10,7 +10,7 @@ using FortnitePorting.Windows;
 
 namespace FortnitePorting.ViewModels;
 
-public partial class ModelPreviewViewModel : ViewModelBase
+public partial class ModelPreviewViewModel : WindowModelBase
 {
     [ObservableProperty] private string _meshName;
     [ObservableProperty] private ModelPreviewControl _viewerControl;

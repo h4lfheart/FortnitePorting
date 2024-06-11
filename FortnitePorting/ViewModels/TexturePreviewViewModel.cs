@@ -11,7 +11,7 @@ using FortnitePorting.Shared.Framework;
 
 namespace FortnitePorting.ViewModels;
 
-public partial class TexturePreviewViewModel : ViewModelBase
+public partial class TexturePreviewViewModel : WindowModelBase
 {
     [ObservableProperty] private string _textureName = string.Empty;
     [ObservableProperty, 

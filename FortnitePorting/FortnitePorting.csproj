@@ -14,9 +14,9 @@
     <ItemGroup>
         <PackageReference Include="AsyncImageLoader.Avalonia" Version="3.2.1" />
         <PackageReference Include="Avalonia" Version="11.1.0-beta1" />
-        <PackageReference Include="Avalonia.Desktop" Version="11.1.0-beta1"/>
-        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.1.0-beta1"/>
-        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.1.0-beta1"/>
+        <PackageReference Include="Avalonia.Desktop" Version="11.1.0-beta1" />
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.1.0-beta1" />
+        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.1.0-beta1" />
         <PackageReference Include="DiscordRichPresence" Version="1.2.1.24" />
         <PackageReference Include="DotNetZip" Version="1.16.0" />
         <PackageReference Include="DynamicData" Version="8.4.1" />
@@ -101,6 +101,10 @@
       </Compile>
       <Compile Update="Views\Settings\ApplicationSettingsView.axaml.cs">
         <DependentUpon>ApplicationSettingsView.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Views\Settings\ThemeSettingsView.axaml.cs">
+        <DependentUpon>ThemeSettingsView.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
     </ItemGroup>
