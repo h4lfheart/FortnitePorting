@@ -34,6 +34,7 @@ using FortnitePorting.Shared.Models.CUE4Parse;
 using FortnitePorting.Shared.Models.Fortnite;
 using FortnitePorting.Shared.Services;
 using Serilog;
+using SixLabors.ImageSharp;
 using SkiaSharp;
 
 namespace FortnitePorting.Export;
@@ -848,17 +849,19 @@ public class ExportContext
             case UTexture texture:
             {
                 using var fileStream = File.OpenWrite(path);
-                var textureBitmap = texture.Decode();
                 switch (Meta.Settings.ImageFormat)
                 {
                     case EImageFormat.PNG:
                     {
+                        var textureBitmap = texture.Decode();
                         textureBitmap?.Encode(SKEncodedImageFormat.Png, 100).SaveTo(fileStream); 
                         break;
                     }
                     case EImageFormat.TGA:
                     {
-                        throw new NotImplementedException("TARGA (.tga) export not currently supported.");
+                        var textureBitmap = texture.DecodeImageSharp();
+                        textureBitmap.SaveAsTga(fileStream);
+                        break;
                     }
                 }
 

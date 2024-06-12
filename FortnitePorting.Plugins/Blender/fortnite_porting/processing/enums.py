@@ -1,5 +1,9 @@
 from enum import IntEnum, auto
 
+class EImageFormat(IntEnum):
+    PNG = 0
+    TGA = 1
+
 
 class EExportType(IntEnum):
     NONE = 0

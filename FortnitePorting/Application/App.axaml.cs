@@ -6,6 +6,7 @@ using Avalonia.Threading;
 using DynamicData;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Services;
+using FortnitePorting.Shared.Extensions;
 using Serilog;
 
 namespace FortnitePorting.Application;
@@ -19,7 +20,7 @@ public partial class App : Avalonia.Application
 
     public override void OnFrameworkInitializationCompleted()
     {
-        BindingPlugins.DataValidators.Remove(BindingPlugins.DataValidators.OfType<DataAnnotationsValidationPlugin>().ToArray());
+        BindingPlugins.DataValidators.RemoveAll(validator => validator is DataAnnotationsValidationPlugin);
         
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {

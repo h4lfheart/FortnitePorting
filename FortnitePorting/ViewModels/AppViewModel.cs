@@ -8,6 +8,7 @@ using FluentAvalonia.UI.Media.Animation;
 using FortnitePorting.Application;
 using FortnitePorting.Models;
 using FortnitePorting.Shared;
+using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
 
@@ -51,10 +52,7 @@ public partial class AppViewModel : WindowModelBase
     
     public void CloseMessage(string id)
     {
-        var target = InfoBars.FirstOrDefault(infoBar => infoBar.Id == id);
-        if (target is null) return;
-        
-        InfoBars.Remove(target);
+        InfoBars.RemoveAll(info => info.Id == id);
     }
 
     public void Navigate<T>()

@@ -314,7 +314,14 @@ class ImportContext:
     def format_image_path(self, path: str):
         path, name = path.split(".")
         path = path[1:] if path.startswith("/") else path
-        ext = "png"
+        
+        ext = ""
+        match EImageFormat(self.options.get("ImageFormat")):
+            case EImageFormat.PNG:
+                ext = "png"
+            case EImageFormat.TGA:
+                ext = "tga"
+        
         texture_path = os.path.join(self.assets_root, path + "." + ext)
         return texture_path, name
 

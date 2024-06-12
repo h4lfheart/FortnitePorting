@@ -8,8 +8,13 @@ namespace FortnitePorting.Shared.Extensions;
 
 public static class ImageSharpExtensions
 {
-    public static Image<Rgba32>? DecodeImageSharp(this UTexture2D texture)
+    public static Image<Rgba32>? DecodeImageSharp(this UTexture texture)
     {
+        if (texture is UVirtualTexture2D)
+        {
+            throw new NotSupportedException("Virtual textures cannot be exported as .tga at this time.");
+        }
+        
         var mip = texture.GetFirstMip();
         if (mip is null) return null;
 
@@ -19,6 +24,7 @@ public static class ImageSharpExtensions
         {
             SKColorType.Rgba8888 => Image.LoadPixelData<Rgba32>(data, mip.SizeX, mip.SizeY),
             SKColorType.Bgra8888 => Image.LoadPixelData<Bgra32>(data, mip.SizeX, mip.SizeY),
+            SKColorType.Rgb888x => Image.LoadPixelData<Rgb24>(data, mip.SizeX, mip.SizeY)
         };
 
         return returnImage.CloneAs<Rgba32>();

@@ -153,15 +153,30 @@ public static class MiscExtensions
         }
     }
 
-    public static int IndexOf<T>(this IEnumerable<T> enumerable, Func<T, bool> action)
+    public static int IndexOf<T>(this IEnumerable<T> enumerable, Predicate<T> predicate)
     {
         var array = enumerable.ToArray();
         for (var i = 0; i < array.Length; i++)
         {
-            if (action(array[i])) return i;
+            if (predicate(array[i])) return i;
         }
 
         return -1;
+    }
+
+    public static int RemoveAll<T>(this IList<T> list, Predicate<T> predicate)
+    {
+        var removed = 0;
+        for (var i = 0; i < list.Count; i++)
+        {
+            if (predicate(list[i]))
+            {
+                list.RemoveAt(i);
+                removed++;
+            }
+        }
+
+        return removed;
     }
 }
 
