@@ -149,15 +149,19 @@ public class MeshExport : BaseExport
             {
                 if (asset.TryGetValue(out ULevelSaveRecord baseSaveRecord, "LevelSaveRecord"))
                 {
-                    throw new NotSupportedException("Legacy level save record prefabs are not supported yet.");
+                    throw new NotSupportedException("Legacy level save record prefabs are not supported.");
                 }
                 
                 var recordCollectionLazy = asset.GetOrDefault<FPackageIndex?>("PlaysetPropLevelSaveRecordCollection");
                 if (recordCollectionLazy is null || recordCollectionLazy.IsNull || !recordCollectionLazy.TryLoad(out var recordCollection) || recordCollection is null) break;
 
                 var props = recordCollection.GetOrDefault<FStructFallback[]>("Items");
+                var totalProps = props.Length;
+                var currentProp = 0;
                 foreach (var prop in props)
                 {
+                    currentProp++;
+                    
                     var levelSaveRecord = prop.GetOrDefault<UObject?>("LevelSaveRecord");
                     if (levelSaveRecord is null) continue;
 
@@ -170,7 +174,9 @@ public class MeshExport : BaseExport
                         mesh.Rotation += transform.Rotator();
                         mesh.Scale *= transform.Scale3D;
                     }
-
+                    
+                    Exporter.Meta.OnUpdateProgress(meshes.FirstOrDefault()?.Name ?? "Prop", currentProp, totalProps);
+                    
                     Meshes.AddRange(meshes);
                 }
 

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Objects;
 using FluentAvalonia.UI.Controls;
+using FortnitePorting.Application;
 using FortnitePorting.Controls.Assets;
 using FortnitePorting.Export.Models;
 using FortnitePorting.Export.Types;
@@ -13,6 +14,7 @@ using FortnitePorting.Shared;
 using FortnitePorting.Shared.Models;
 using FortnitePorting.Shared.Services;
 using Newtonsoft.Json;
+using Serilog;
 
 namespace FortnitePorting.Export;
 
@@ -52,7 +54,6 @@ public static class Exporter
                 AppVM.Message("Blender Server", "The blender server for Fortnite Porting is not currently running.", InfoBarSeverity.Error, false);
                 return;
             }
-            
             
             var exports = assets.Select(kvp => CreateExport(kvp.Key, kvp.Value, metaData)).ToArray();
             foreach (var export in exports) export.WaitForExports();
@@ -108,11 +109,24 @@ public static class Exporter
     
     private static BaseExport CreateExport(string name, UObject asset, FStructFallback[] styles, EExportType exportType, ExportDataMeta metaData)
     {
+        AppVM.Message("Export", $"Exporting: {asset.Name}", id: asset.Name, autoClose: false);
+            
+        metaData.UpdateProgress += (name, current, total) =>
+        {
+            var message = $"{current} / {total} \"{name}\"";
+            AppVM.UpdateMessage(id: asset.Name, message: message);
+            Log.Information(message);
+        };
+        
         var primitiveType = exportType.GetPrimitiveType();
-        return primitiveType switch
+        var export = primitiveType switch
         {
             EPrimitiveExportType.Mesh => new MeshExport(name, asset, styles, exportType, metaData),
             _ => throw new NotImplementedException($"Exporting {primitiveType} assets is not supported yet.")
         };
+        
+        AppVM.CloseMessage(id: asset.Name);
+
+        return export;
     }
 }

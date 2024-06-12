@@ -11,9 +11,6 @@ public enum EFortniteVersion
     [Description("Latest (On-Demand)")]
     LatestOnDemand,
     
-    [Description("Fortnite v12.41")]
-    Custom_12_41,
-    
     [Description("Custom")]
     Custom
     

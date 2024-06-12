@@ -42,8 +42,8 @@ public class ExportContext
 {
     public List<Task> ExportTasks = [];
     private HashSet<ExportMaterial> MaterialCache = [];
-    
-    private readonly ExportDataMeta Meta;
+
+    public readonly ExportDataMeta Meta;
     private readonly ExporterOptions FileExportOptions;
 
     public ExportContext(ExportDataMeta metaData)
@@ -419,7 +419,7 @@ public class ExportContext
         return extraMeshes;
     }
 
-    public List<ExportMesh> World(UWorld world )
+    public List<ExportMesh> World(UWorld world)
     {
         if (world.PersistentLevel.Load() is not ULevel level) return [];
 

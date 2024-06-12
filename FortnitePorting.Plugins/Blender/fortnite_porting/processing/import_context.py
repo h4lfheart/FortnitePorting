@@ -24,8 +24,6 @@ class ImportContext:
     def run(self, data):
         self.name = data.get("Name")
         self.type = EExportType(data.get("Type"))
-        
-        Log.info(self.type.name)
 
         if bpy.context.mode != "OBJECT":
             bpy.ops.object.mode_set(mode='OBJECT')

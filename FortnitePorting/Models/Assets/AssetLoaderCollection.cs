@@ -128,7 +128,8 @@ public partial class AssetLoaderCollection : ObservableObject
                 {
                     ClassNames = ["FortPlaysetItemDefinition"],
                     HideNames = ["Device", "PID_Playset", "PID_MapIndicator", "SpikyStadium", "PID_StageLight", "PID_Temp_Island",
-                                "PID_LimeEmptyPlot", "PID_Townscaper", "JunoPlotPlaysetItemDefintion"], // lol epic made a typo
+                                "PID_LimeEmptyPlot", "PID_Townscaper", "JunoPlotPlaysetItemDefintion", "LME",
+                                "PID_ObstacleCourse", "MW_"],
                     HideRarity = true,
                     HidePredicate = (loader, asset, name) =>
                     {

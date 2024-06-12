@@ -42,12 +42,14 @@ public partial class SoundPreviewViewModel : WindowModelBase
     public override async Task Initialize()
     {
         UpdateTimer.Tick += OnUpdateTimerTick;
-        UpdateTimer.Interval = TimeSpan.FromSeconds(0.1f);
+        UpdateTimer.Interval = TimeSpan.FromMilliseconds(1);
         UpdateTimer.Start();
     }
 
     private void OnUpdateTimerTick(object? sender, EventArgs e)
     {
+        if (AudioReader is null) return;
+        
         TotalTime = AudioReader.TotalTime;
         CurrentTime = AudioReader.CurrentTime;
     }

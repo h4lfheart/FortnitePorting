@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -44,8 +45,8 @@ namespace FortnitePorting.ViewModels;
 
 public partial class MapViewModel : ViewModelBase
 {
-    [ObservableProperty] private WriteableBitmap _mapBitmap;
-    [ObservableProperty] private WriteableBitmap _maskBitmap;
+    [ObservableProperty] private Bitmap _mapBitmap;
+    [ObservableProperty] private Bitmap _maskBitmap;
     [ObservableProperty] private string _worldName = string.Empty;
     [ObservableProperty] private bool _dataLoaded = false;
     
@@ -54,15 +55,26 @@ public partial class MapViewModel : ViewModelBase
 
     private ULevel Level;
 
-    // todo create presets for diff versions?
-    private const string MAP_PATH = "FortniteGame/Content/Athena/Helios/Maps/Helios_Terrain";
-    private const string MINIMAP_PATH = "FortniteGame/Content/Athena/Apollo/Maps/UI/Apollo_Terrain_Minimap";
-    private const string MASK_PATH = "FortniteGame/Content/Athena/Apollo/Maps/UI/T_MiniMap_Mask";
+    public static MapInfo Helios = new(
+        "FortniteGame/Content/Athena/Helios/Maps/Helios_Terrain",
+        "FortniteGame/Content/Athena/Apollo/Maps/UI/Apollo_Terrain_Minimap",
+        "FortniteGame/Content/Athena/Apollo/Maps/UI/T_MiniMap_Mask",
+        0.014f, -128, 0, 92
+    );
+    
+    public static MapInfo Rufus = new(
+        "FortniteGame/Plugins/GameFeatures/Rufus/Content/Game/Athena/Maps/Athena_Terrain",
+        "FortniteGame/Plugins/GameFeatures/Rufus/Content/Game/UI/Capture_Iteration_Discovered_Rufus_03",
+        "FortniteGame/Content/Athena/UI/Rufus/Rufus_Map_Frosty_PostMask",
+        0.0155f, -448, 320, 102
+    );
 
+    public MapInfo TargetMap;
+    
     private string ExportPath => Path.Combine(MapsFolder.FullName, WorldName);
 
     private static Color HeightBaseColor = Color.FromRgb(0x79, 0x79, 0x79);
-    private static Color NormalBasecolor = Color.FromRgb(0x7f, 0x7f, 0xFF);
+    private static Color NormalBaseColor = Color.FromRgb(0x7f, 0x7f, 0xFF);
 
     public MapViewModel()
     {
@@ -72,18 +84,20 @@ public partial class MapViewModel : ViewModelBase
 
     public override async Task Initialize()
     {
-        WorldName = MAP_PATH.SubstringAfterLast("/");
+        if (Helios.IsValid()) TargetMap = Helios;
+        else if (Rufus.IsValid()) TargetMap = Rufus;
+        else return;
         
-        var mapTexture = await CUE4ParseVM.Provider.LoadObjectAsync<UTexture2D>(MINIMAP_PATH);
+        var mapTexture = await CUE4ParseVM.Provider.LoadObjectAsync<UTexture2D>(TargetMap.MinimapPath);
         MapBitmap = mapTexture.Decode()!.ToWriteableBitmap();
 
-        var maskTexture = await CUE4ParseVM.Provider.LoadObjectAsync<UTexture2D>(MASK_PATH);
+        var maskTexture = await CUE4ParseVM.Provider.LoadObjectAsync<UTexture2D>(TargetMap.MaskPath);
         MaskBitmap = maskTexture.Decode()!.ToWriteableBitmap();
-
-        var world = await CUE4ParseVM.Provider.LoadObjectAsync<UWorld>(MAP_PATH);
         
-        Level = world.PersistentLevel.Load<ULevel>()!;
-        if (Level is null) return;
+        WorldName = TargetMap.MapPath.SubstringAfterLast("/");
+        
+        var world = await CUE4ParseVM.Provider.LoadObjectAsync<UWorld>(TargetMap.MapPath);
+        Level = await world.PersistentLevel.LoadAsync<ULevel>();
 
         var worldSettings = Level.Get<UObject>("WorldSettings");
         var worldPartition = worldSettings.Get<UObject>("WorldPartition");
@@ -107,7 +121,7 @@ public partial class MapViewModel : ViewModelBase
                 }
                 else
                 {
-                    var grid = new WorldPartitionGrid(position);
+                    var grid = new WorldPartitionGrid(position, TargetMap);
                     grid.Maps.Add(new WorldPartitionGridMap(worldAsset.AssetPathName.Text));
                     Grids.Add(grid);
                 }
@@ -115,9 +129,17 @@ public partial class MapViewModel : ViewModelBase
 
             break;
         }
-
+        
         Directory.CreateDirectory(ExportPath);
         DataLoaded = true;
+    }
+
+    [RelayCommand]
+    public async Task Restart()
+    {
+        Grids.Clear();
+
+        await Initialize();
     }
 
     [RelayCommand]
@@ -151,86 +173,151 @@ public partial class MapViewModel : ViewModelBase
         var heightTileInfos = new List<MapTextureTileInfo>();
         var weightmapTileInfos = new Dictionary<string, List<MapTextureTileInfo>>();
         
-        foreach (var actor in Level.Actors)
+        async Task<int> CollectTileInfos(ULevel level)
         {
-            if (!actor.Name.StartsWith("LandscapeStreamingProxy")) continue;
-
-            var landscapeStreamingProxy = await actor.LoadAsync();
-            if (landscapeStreamingProxy is null) continue;
-            
-            var landscapeComponents = landscapeStreamingProxy.GetOrDefault("LandscapeComponents", Array.Empty<UObject>());
-            foreach (var landscapeComponent in landscapeComponents)
+            var proxyDetectedCount = 0;
+            foreach (var actor in level.Actors)
             {
-                var x = landscapeComponent.GetOrDefault<int>("SectionBaseX");
-                var y = landscapeComponent.GetOrDefault<int>("SectionBaseY");
-                
-                switch (exportType)
-                {
-                    case EMapTextureExportType.Height or EMapTextureExportType.Normal
-                        when landscapeComponent.TryGetValue(out UTexture2D heightTexture, "HeightmapTexture"):
-                    {
-                        heightTileInfos.Add(new MapTextureTileInfo(heightTexture.DecodeImageSharp()!, x, y));
-                        break;
-                    }
-                    case EMapTextureExportType.Weight 
-                    when landscapeComponent.TryGetValue(out UTexture2D[] weightmapTextures, "WeightmapTextures")
-                         && landscapeComponent.TryGetValue(out FWeightmapLayerAllocationInfo[] weightmapAllocations, "WeightmapLayerAllocations"):
-                    {
-                        var weightmapImages = weightmapTextures.Select(tex => tex.DecodeImageSharp()).ToList();
-                        foreach (var weightmapLayerInfo in weightmapAllocations)
-                        {
-                            var layerInfo = await weightmapLayerInfo.LayerInfo.LoadAsync();
-                            var layerName = layerInfo.Get<FName>("LayerName").Text;
-                            weightmapTileInfos.TryAdd(layerName, []);
-                            weightmapTileInfos[layerName].Add(new MapTextureTileInfo(weightmapImages[weightmapLayerInfo.WeightmapTextureIndex]!, x, y, weightmapLayerInfo.WeightmapTextureChannel));
-                        }
+                if (!actor.Name.StartsWith("LandscapeStreamingProxy")) continue;
 
-                        break;
+                var landscapeStreamingProxy = await actor.LoadAsync();
+                if (landscapeStreamingProxy is null) continue;
+
+                proxyDetectedCount++;
+                
+                var landscapeComponents = landscapeStreamingProxy.GetOrDefault("LandscapeComponents", Array.Empty<UObject>());
+                foreach (var landscapeComponent in landscapeComponents)
+                {
+                    var x = landscapeComponent.GetOrDefault<int>("SectionBaseX");
+                    var y = landscapeComponent.GetOrDefault<int>("SectionBaseY");
+                    
+                    switch (exportType)
+                    {
+                        case EMapTextureExportType.Height or EMapTextureExportType.Normal
+                            when landscapeComponent.TryGetValue(out UTexture2D heightTexture, "HeightmapTexture"):
+                        {
+                            heightTileInfos.Add(new MapTextureTileInfo(heightTexture.DecodeImageSharp()!, x, y));
+                            break;
+                        }
+                        case EMapTextureExportType.Weight 
+                        when landscapeComponent.TryGetValue(out UTexture2D[] weightmapTextures, "WeightmapTextures")
+                             && landscapeComponent.TryGetValue(out FWeightmapLayerAllocationInfo[] weightmapAllocations, "WeightmapLayerAllocations"):
+                        {
+                            var weightmapImages = weightmapTextures.Select(tex => tex.DecodeImageSharp()).ToList();
+                            foreach (var weightmapLayerInfo in weightmapAllocations)
+                            {
+                                var layerInfo = await weightmapLayerInfo.LayerInfo.LoadAsync();
+                                var layerName = layerInfo.Get<FName>("LayerName").Text;
+                                weightmapTileInfos.TryAdd(layerName, []);
+                                weightmapTileInfos[layerName].Add(new MapTextureTileInfo(weightmapImages[weightmapLayerInfo.WeightmapTextureIndex]!, x, y, weightmapLayerInfo.WeightmapTextureChannel));
+                            }
+
+                            break;
+                        }
                     }
                 }
+            }
+
+            return proxyDetectedCount;
+        }
+
+        var proxyCount = await CollectTileInfos(Level);
+
+        if (proxyCount == 0)
+        {
+            var worldSettings = Level.Get<UObject>("WorldSettings");
+            var worldPartition = worldSettings.Get<UObject>("WorldPartition");
+            var runtimeHash = worldPartition.Get<UObject>("RuntimeHash");
+            foreach (var streamingGrid in runtimeHash.GetOrDefault("StreamingGrids", Array.Empty<FStructFallback>()))
+            {
+                foreach (var gridLevel in streamingGrid.GetOrDefault("GridLevels", Array.Empty<FStructFallback>()))
+                foreach (var layerCell in gridLevel.GetOrDefault("LayerCells", Array.Empty<FStructFallback>()))
+                foreach (var gridCell in layerCell.GetOrDefault("GridCells", Array.Empty<UObject>()))
+                {
+                    var levelStreaming = gridCell.GetOrDefault<UObject?>("LevelStreaming");
+                    if (levelStreaming is null) continue;
+
+                    var worldAsset = levelStreaming.Get<FSoftObjectPath>("WorldAsset");
+                    var world = await worldAsset.LoadAsync<UWorld>();
+                    var level = await world.PersistentLevel.LoadAsync<ULevel>();
+                    proxyCount += await CollectTileInfos(level);
+                }
+
+                break;
             }
         }
 
         switch (exportType)
         {
+            // TODO can definitely be done using index offset for faster memory access
             case EMapTextureExportType.Height:
             {
-                // TODO can definitely be done using index offset for faster memory access
-                var heightImage = new Image<L16>(2048, 2048);
-                heightImage.Mutate(ctx => ctx.Fill(HeightBaseColor));
-                foreach (var heightTileInfo in heightTileInfos)
+                async Task ExportHeightMap(string folderName = "", Predicate<MapTextureTileInfo>? predicate = null)
                 {
-                    PixelOperations(heightTileInfo, (color, x, y, _) =>
+                    var heightImage = new Image<L16>(2048, 2048);
+                    heightImage.Mutate(ctx => ctx.Fill(TargetMap == Rufus ? Color.Black : HeightBaseColor));
+                    foreach (var heightTileInfo in heightTileInfos)
                     {
-                        var correctedColor = (ushort) ((color.R << 8) | color.G);
-                        heightImage[x, y] = new L16(correctedColor);
-                    });
+                        if (heightTileInfo.Image.Width > 128 || heightTileInfo.Image.Height > 128) continue;
+                        PixelOperations(heightTileInfo, (color, x, y, _) =>
+                        {
+                            var correctedColor = (ushort) ((color.R << 8) | color.G);
+                            heightImage[x, y] = new L16(correctedColor);
+                        });
+                    }
+
+                    await heightImage.SaveAsPngAsync(GetExportPath($"Height_{WorldName}", folderName));
                 }
-                await heightImage.SaveAsPngAsync(GetExportPath($"Height_{WorldName}"));
+                
+                if (TargetMap == Rufus)
+                {
+                    await ExportHeightMap("BaseMap", info => info.Image.Width <= 128 || info.Image.Height <= 128);
+                    await ExportHeightMap("SnowBiome", info => info.Image.Width > 128 || info.Image.Height > 128);
+                }
+                else
+                {
+                    await ExportHeightMap();
+                }
                 break;
             }
             case EMapTextureExportType.Normal:
             {
-                var normalImage = new Image<Rgb24>(2048, 2048);
-                normalImage.Mutate(ctx => ctx.Fill(NormalBasecolor));
-                foreach (var heightTileInfo in heightTileInfos)
+                async Task ExportNormalMap(string folderName = "", Predicate<MapTextureTileInfo>? predicate = null)
                 {
-                    PixelOperations(heightTileInfo, (color, x, y, _) =>
+                    var normalImage = new Image<Rgb24>(2048, 2048);
+                    normalImage.Mutate(ctx => ctx.Fill(NormalBaseColor));
+                    foreach (var heightTileInfo in heightTileInfos)
                     {
-                        normalImage[x, y] = new Rgb24(color.B, color.A, 0xFF);
-                    });
-                }
+                        if (predicate is not null && !predicate(heightTileInfo)) continue;
+                        PixelOperations(heightTileInfo, (color, x, y, _) =>
+                        {
+                            normalImage[x, y] = new Rgb24(color.B, color.A, 0xFF);
+                        });
+                    }
 
-                await normalImage.SaveAsPngAsync(GetExportPath($"Normal_{WorldName}"));
+                    await normalImage.SaveAsPngAsync(GetExportPath($"Normal_{WorldName}", folderName));
+                }
+                
+                if (TargetMap == Rufus)
+                {
+                    await ExportNormalMap("BaseMap", info => info.Image.Width <= 128 || info.Image.Height <= 128);
+                    await ExportNormalMap("SnowBiome", info => info.Image.Width > 128 || info.Image.Height > 128);
+                }
+                else
+                {
+                    await ExportNormalMap();
+                }
+               
                 break;
             }
             case EMapTextureExportType.Weight:
             {
-                foreach (var (layerName, weightTileInfos) in weightmapTileInfos)
+                async Task ExportWeightMap(string layerName, List<MapTextureTileInfo> weightTileInfos, string folderName = "", Predicate<MapTextureTileInfo>? predicate = null)
                 {
-                    var weight = new Image<L8>(2048, 2048);
+                    var weightImage = new Image<L8>(2048, 2048);
                     foreach (var weightTileInfo in weightTileInfos)
                     {
+                        if (predicate is not null && !predicate(weightTileInfo)) continue;
                         PixelOperations(weightTileInfo, (color, x, y, channel) =>
                         {
                             var l8 = channel switch
@@ -241,11 +328,24 @@ public partial class MapViewModel : ViewModelBase
                                 3 => color.A
                             };
 
-                            weight[x, y] = new L8(l8);
+                            weightImage[x, y] = new L8(l8);
                         });
                     }
                     
-                    await weight.SaveAsPngAsync(GetExportPath($"Weight_{layerName}_{WorldName}"));
+                    await weightImage.SaveAsPngAsync(GetExportPath($"Weight_{layerName}_{WorldName}", folderName));
+                }
+                
+                foreach (var (layerName, weightTileInfos) in weightmapTileInfos)
+                {
+                    if (TargetMap == Rufus)
+                    {
+                        await ExportWeightMap(layerName, weightTileInfos, "BaseMap", info => info.Image.Width <= 128 || info.Image.Height <= 128);
+                        await ExportWeightMap(layerName, weightTileInfos, "SnowBiome", info => info.Image.Width > 128 || info.Image.Height > 128);
+                    }
+                    else
+                    {
+                        await ExportWeightMap(layerName, weightTileInfos);
+                    }
                 }
                 break;
             }
@@ -254,8 +354,15 @@ public partial class MapViewModel : ViewModelBase
         Launch(ExportPath);
     }
 
-    private string GetExportPath(string name)
+    private string GetExportPath(string name, string folderName = "")
     {
+        if (!string.IsNullOrEmpty(folderName))
+        {
+            var folderPath = Path.Combine(ExportPath, folderName);
+            Directory.CreateDirectory(folderPath);
+            return Path.Combine(folderPath, name + ".png");
+
+        }
         return Path.Combine(ExportPath, name + ".png");
     }
     
@@ -281,15 +388,17 @@ public partial class WorldPartitionGrid : ObservableObject
     public string ToolTipNames => string.Join("\n", Maps.Select(map => map.Name));
     
     [ObservableProperty, NotifyPropertyChangedFor(nameof(OffsetMargin))] private FVector _position;
-    public Thickness OffsetMargin => new(Position.X * SCALE_FACTOR + X_OFFSET, Position.Y * SCALE_FACTOR + Y_OFFSET, 0, 0);
-    
-    private const float SCALE_FACTOR = 0.014f;
-    private const int X_OFFSET = -128;
-    private const int Y_OFFSET = 0;
+    public Thickness OffsetMargin => new(Position.X * MapInfo.Scale + MapInfo.XOffset, Position.Y * MapInfo.Scale + MapInfo.YOffset, 0, 0);
 
-    public WorldPartitionGrid(FVector position)
+    [ObservableProperty] private int _cellSize;
+
+    public MapInfo MapInfo;
+
+    public WorldPartitionGrid(FVector position, MapInfo mapInfo)
     {
         Position = position;
+        MapInfo = mapInfo;
+        CellSize = mapInfo.CellSize;
     }
     
 }
@@ -315,19 +424,10 @@ public partial class WorldPartitionGridMap : ObservableObject
     [RelayCommand]
     public async Task Export()
     {
-        AppVM.Message("Map Export", $"Exporting World Grid Partition: {Name}", id: Name, autoClose: false);
-        
         // TODO obtain landscape chunks from main world
         
         var world = await CUE4ParseVM.Provider.LoadObjectAsync<UWorld>(Path);
-        
-        var meta = AppSettings.Current.CreateExportMeta();
-        meta.UpdateProgress += (name, current, total) =>
-        {
-            AppVM.UpdateMessage(id: Name, message: $"{current} / {total} \"{name}\"");
-        };
-        await Exporter.Export(world, EExportType.World, meta);
-        AppVM.CloseMessage(id: Name);
+        await Exporter.Export(world, EExportType.World, AppSettings.Current.CreateExportMeta());
     }
     
     [RelayCommand]
@@ -344,4 +444,12 @@ public enum EMapTextureExportType
     Height,
     Normal,
     Weight
+}
+
+public record MapInfo(string MapPath, string MinimapPath, string MaskPath, float Scale, int XOffset, int YOffset, int CellSize)
+{
+    public bool IsValid()
+    {
+        return CUE4ParseVM.Provider.Files.ContainsKey(MapPath + ".umap");
+    }
 }

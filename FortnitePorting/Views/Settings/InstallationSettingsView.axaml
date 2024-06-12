@@ -50,7 +50,7 @@
                 <ui:SettingsExpander.Footer>
                     <StackPanel Orientation="Horizontal">
                         <TextBox Text="{Binding ArchiveDirectory}" Watermark="Ex. C:/Program Files/Epic Games/Fortnite/FortniteGame/Content/Paks"/>
-                        <Button Margin="4 0 0 0" Command="{Binding BrowseArchivePathCommand}">
+                        <Button Margin="4 0 0 0" Command="{Binding BrowseArchivePath}">
                             <ui:SymbolIcon Symbol="Folder"/>
                         </Button>
                     </StackPanel>
@@ -78,7 +78,7 @@
                     <StackPanel Orientation="Horizontal">
                         <CheckBox IsChecked="{Binding UseMappingsFile}"/>
                         <TextBox Text="{Binding MappingsFile}" Watermark="Ex. C:/Users/FortnitePorting/Downloads/Mappings.usmap" IsEnabled="{Binding UseMappingsFile}"/>
-                        <Button Margin="4 0 0 0" Command="{Binding BrowseMappingsFileCommand}" IsEnabled="{Binding UseMappingsFile}">
+                        <Button Margin="4 0 0 0" Command="{Binding BrowseMappingsFile}" IsEnabled="{Binding UseMappingsFile}">
                             <ui:SymbolIcon Symbol="Folder"/>
                         </Button>
                     </StackPanel>

@@ -43,7 +43,6 @@ public partial class InstallationSettingsViewModel : ViewModelBase
     [JsonIgnore] public bool MappingsFileEnabled => IsCustom;
     [JsonIgnore] public bool TextureStreamingEnabled => FortniteVersion is EFortniteVersion.LatestOnDemand or EFortniteVersion.LatestInstalled;
     
-    [RelayCommand]
     public async Task BrowseArchivePath()
     {
         if (await BrowseFolderDialog() is { } path)
@@ -52,7 +51,6 @@ public partial class InstallationSettingsViewModel : ViewModelBase
         }
     }
     
-    [RelayCommand]
     public async Task BrowseMappingsFile()
     {
         if (await BrowseFileDialog(fileTypes: Globals.MappingsFileType) is { } path)
