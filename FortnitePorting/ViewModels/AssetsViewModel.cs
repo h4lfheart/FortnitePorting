@@ -137,8 +137,13 @@ public partial class AssetsViewModel : ViewModelBase
                 IconHandler = asset =>
                 {
                     asset.TryGetValue(out UTexture2D? previewImage, "SmallPreviewImage", "LargePreviewImage");
-                    if (asset.TryGetValue(out UObject heroDef, "HeroDefinition")) heroDef.TryGetValue(out previewImage, "SmallPreviewImage", "LargePreviewImage");
+                    if (previewImage is null && asset.TryGetValue(out UObject heroDef, "HeroDefinition"))
+                    {
+                        previewImage = AssetLoader.GetAssetIcon(heroDef);
+                        previewImage ??= heroDef.GetAnyOrDefault<UTexture2D>("SmallPreviewImage", "LargePreviewImage");
 
+                    }
+                    previewImage ??= AssetLoader.GetAssetIcon(asset);
                     return previewImage;
                 }
             },
@@ -186,8 +191,12 @@ public partial class AssetsViewModel : ViewModelBase
                 IconHandler = asset =>
                 {
                     asset.TryGetValue(out UTexture2D? previewImage, "SmallPreviewImage", "LargePreviewImage");
-                    if (asset.TryGetValue(out UObject heroDef, "WeaponDefinition")) heroDef.TryGetValue(out previewImage, "SmallPreviewImage", "LargePreviewImage");
-
+                    if (asset.TryGetValue(out UObject heroDef, "WeaponDefinition"))
+                    {
+                        previewImage = AssetLoader.GetAssetIcon(heroDef);
+                        previewImage ??= heroDef.GetAnyOrDefault<UTexture2D>("SmallPreviewImage", "LargePreviewImage");
+                    }
+                    previewImage ??= AssetLoader.GetAssetIcon(asset);
                     return previewImage;
                 }
             },
@@ -389,8 +398,8 @@ public partial class AssetsViewModel : ViewModelBase
                         {
                             var asset = await CUE4ParseVM.Provider.TryLoadObjectAsync(data.ObjectPath);
                             if (asset is null) continue;
-                            
-                            var icon = asset.GetOrDefault<UTexture2D>("LargePreviewImage");
+
+                            var icon = AssetLoader.GetAssetIcon(asset) ?? asset.GetOrDefault<UTexture2D>("LargePreviewImage");
                             var tag = asset.GetOrDefault<FGameplayTag>("PluginTuningTag");
                             
                             var defaultModData = asset.GetOrDefault<FStructFallback?>("DefaultModData");
@@ -576,7 +585,7 @@ public partial class AssetLoader : ObservableObject
     public bool DontLoadHiddenAssets;
     public bool HideRarity;
     public Func<AssetLoader, UObject, string, bool> HidePredicate = (_, _, _) => false;
-    public Func<UObject, UTexture2D?> IconHandler = asset => asset.GetAnyOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage");
+    public Func<UObject, UTexture2D?> IconHandler = GetAssetIcon;
     public Func<UObject, FText?> DisplayNameHandler = asset => asset.GetAnyOrDefault<FText?>("DisplayName", "ItemName") ?? new FText(asset.Name);
     public Func<UObject, FText> DescriptionHandler = asset => asset.GetAnyOrDefault<FText?>("Description", "ItemDescription") ?? new FText("No description.");
     public Func<AssetLoader, Task>? CustomLoadingHandler;
@@ -654,6 +663,21 @@ public partial class AssetLoader : ObservableObject
         var description = DescriptionHandler(asset).Text;
 
         await TaskService.RunDispatcherAsync(() => Source.Add(new AssetItem(asset, icon, displayName, Type, description, isHiddenAsset, HideRarity)), DispatcherPriority.Background);
+    }
+    
+    public static UTexture2D? GetAssetIcon(UObject asset)
+    {
+        UTexture2D previewImage = null;
+        if(asset.TryGetValue(out FInstancedStruct[] dataList, "DataList"))
+        {
+            foreach (var data in dataList)
+            {
+                if (data.NonConstStruct is not null && data.NonConstStruct.TryGetValue(out previewImage, "Icon", "LargeIcon")) break;
+            }
+        }
+
+        previewImage ??= asset.GetAnyOrDefault<UTexture2D?>("Icon", "LargeIcon", "SmallPreviewImage", "LargePreviewImage");
+        return previewImage;
     }
 }
 

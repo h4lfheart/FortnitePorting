@@ -65,6 +65,18 @@ public class FPVersion
         return MajorEquals(other) && MinorEquals(other) && PatchEquals(other);
     }
 
+    /**
+     * Check if the current version is newer than the version passed as the parameter
+     * Returns: True if this is newer than obj, false otherwise
+     */
+    public bool IsNewer(object? obj)
+    {
+        var other = (FPVersion) obj!;
+        return Major > other.Major 
+               || (Major == other.Major && Minor > other.Minor)
+               || (Major == other.Major && Minor == other.Minor && Patch > other.Patch);
+    }
+
     public override int GetHashCode()
     {
         return HashCode.Combine(Major, Minor, Patch);
