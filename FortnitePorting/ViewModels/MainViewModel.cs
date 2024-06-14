@@ -8,8 +8,8 @@ using FortnitePorting.Application;
 using FortnitePorting.Framework;
 using FortnitePorting.Framework.Controls;
 using FortnitePorting.Framework.Services;
-using FortnitePorting.Framework.ViewModels.Endpoints.Models;
 using FortnitePorting.Services;
+using FortnitePorting.ViewModels.Endpoints.Models;
 using Serilog;
 
 namespace FortnitePorting.ViewModels;
@@ -25,8 +25,31 @@ public partial class MainViewModel : ViewModelBase
 
     public override async Task Initialize()
     {
+        if (AppSettings.Current.FirstStartup)
+        {
+            MessageWindow.Show("Data Collection",
+                "Would you like to opt-in to data collection for Fortnite Porting V2?\n\nThe only data collected will be your installation's UUID and Version and will be used for tracking the amount of daily users on V2.\n\nNo personal data is sent and it is entirely anonymous and optional.",
+                [
+                    new MessageWindowButton("Yes", ctx =>
+                    {
+                        AppSettings.Current.AllowDataCollection = true;
+                        TaskService.Run(EndpointsVM.FortnitePorting.PostStatsAsync);
+                        ctx.Close();
+                    }),
+                    new MessageWindowButton("No", ctx => ctx.Close())
+                ]);
+
+            AppSettings.Current.FirstStartup = false;
+        }
+
+        if (AppSettings.Current.AllowDataCollection)
+        {
+            TaskService.Run(EndpointsVM.FortnitePorting.PostStatsAsync);
+        }
+        
+        
         await RefreshUpdateInfo();
-        if (AvailableUpdate is not null && AvailableUpdate.ProperVersion.IsNewer(Globals.Version))
+        if (AvailableUpdate is not null && AvailableUpdate.ProperVersion > Globals.Version)
         {
             UpdateText = $"Update to\nv{AvailableUpdate.Version}";
 
@@ -56,7 +79,7 @@ public partial class MainViewModel : ViewModelBase
 
     public async Task UpdatePrompt()
     {
-        if (AvailableUpdate is not null && AvailableUpdate.ProperVersion.IsNewer(Globals.Version))
+        if (AvailableUpdate is not null && AvailableUpdate.ProperVersion > Globals.Version)
         {
             MessageWindow.Show(new MessageWindowModel
             {

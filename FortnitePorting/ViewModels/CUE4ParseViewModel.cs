@@ -28,6 +28,7 @@ using FortnitePorting.Framework.Controls;
 using FortnitePorting.Services;
 using FortnitePorting.Framework.Services;
 using FortnitePorting.Framework.ViewModels.Endpoints;
+using FortnitePorting.ViewModels.Endpoints;
 using FortnitePorting.ViewModels.Endpoints.Models;
 using Serilog;
 using UE4Config.Parsing;

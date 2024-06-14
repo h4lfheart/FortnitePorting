@@ -2,13 +2,13 @@ global using static FortnitePorting.Application.App;
 global using static FortnitePorting.Framework.Application.AppBase;
 using CUE4Parse.UE4.Objects.Core.Misc;
 using CUE4Parse.UE4.Versions;
-using FortnitePorting.Framework.ViewModels.Endpoints.Models;
+using FortnitePorting.ViewModels.Endpoints.Models;
 
 namespace FortnitePorting;
 
 public static class Globals
 {
-    public static readonly FPVersion Version = new(2, 1, 9);
+    public static readonly FPVersion Version = new(2, 1, 10);
     public static readonly string VersionString = Version.ToString();
 
     public const string DISCORD_URL = "https://discord.gg/DZ5YFXdBA6";
