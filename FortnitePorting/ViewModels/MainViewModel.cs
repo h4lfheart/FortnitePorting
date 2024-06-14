@@ -26,7 +26,7 @@ public partial class MainViewModel : ViewModelBase
     public override async Task Initialize()
     {
         await RefreshUpdateInfo();
-        if (AvailableUpdate is not null && !AvailableUpdate.ProperVersion.Equals(Globals.Version))
+        if (AvailableUpdate is not null && AvailableUpdate.ProperVersion.IsNewer(Globals.Version))
         {
             UpdateText = $"Update to\nv{AvailableUpdate.Version}";
 
@@ -56,7 +56,7 @@ public partial class MainViewModel : ViewModelBase
 
     public async Task UpdatePrompt()
     {
-        if (AvailableUpdate is not null && !AvailableUpdate.ProperVersion.Equals(Globals.Version))
+        if (AvailableUpdate is not null && AvailableUpdate.ProperVersion.IsNewer(Globals.Version))
         {
             MessageWindow.Show(new MessageWindowModel
             {
