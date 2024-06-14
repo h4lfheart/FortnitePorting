@@ -126,6 +126,8 @@ public static class ApplicationService
         
         ViewModelRegistry.New<APIViewModel>();
         DependencyService.EnsureDependencies();
+
+        TaskService.Run(ApiVM.FortnitePorting.PostStats);
         
         if (AppSettings.Current.FinishedWelcomeScreen)
         {

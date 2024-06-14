@@ -10,6 +10,4 @@ name = "UE Format (.uemodel / .ueanim)"
 tagline = "Importer for UEFormat Files"
 maintainer = "https://github.com/halfuwu"
 
-permissions = ["files"]
-
 tags = ["Import-Export"]

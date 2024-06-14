@@ -29,9 +29,11 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private ApplicationSettingsViewModel _application = new();
     [ObservableProperty] private ThemeSettingsViewModel _theme = new();
     
+    // Stats
+    [ObservableProperty] private Guid _uUID = Guid.NewGuid();
+    
     // Welcome
     [ObservableProperty] private bool _finishedWelcomeScreen;
-    
 
     // Filtered Data
     [ObservableProperty] private HashSet<string> _filteredProps = [];
