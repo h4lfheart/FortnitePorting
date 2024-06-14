@@ -61,10 +61,11 @@ public class AssetHandlerViewModel
             asset.TryGetValue(out UTexture2D? previewImage, "SmallPreviewImage", "LargePreviewImage");
             if (asset.TryGetValue(out UObject heroDef, "HeroDefinition"))
             {
-                heroDef.TryGetValue(out previewImage, "SmallPreviewImage", "LargePreviewImage");
+                previewImage = AssetHandlerData.GetAssetIcon(heroDef);
+                previewImage ??= heroDef.GetAnyOrDefault<UTexture2D>("SmallPreviewImage", "LargePreviewImage");
             }
-
-            return previewImage;
+            previewImage ??= AssetHandlerData.GetAssetIcon(asset);
+            return previewImage; 
         }
     };
 
@@ -74,7 +75,6 @@ public class AssetHandlerViewModel
         TargetCollection = AppVM.MainVM.BackBlings,
         ClassNames = new List<string> { "AthenaBackpackItemDefinition" },
         RemoveList = new List<string> { "_STWHeroNoDefaultBackpack", "_TEST", "Dev_", "_NPC", "_TBD" },
-        IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
     };
 
     private readonly AssetHandlerData PickaxeHandler = new()
@@ -88,8 +88,10 @@ public class AssetHandlerViewModel
             asset.TryGetValue(out UTexture2D? previewImage, "SmallPreviewImage", "LargePreviewImage");
             if (asset.TryGetValue(out UObject heroDef, "WeaponDefinition"))
             {
-                heroDef.TryGetValue(out previewImage, "SmallPreviewImage", "LargePreviewImage");
+                previewImage = AssetHandlerData.GetAssetIcon(heroDef);
+                previewImage ??= heroDef.GetAnyOrDefault<UTexture2D>("SmallPreviewImage", "LargePreviewImage");
             }
+            previewImage ??= AssetHandlerData.GetAssetIcon(asset);
 
             return previewImage;
         }
@@ -101,7 +103,6 @@ public class AssetHandlerViewModel
         TargetCollection = AppVM.MainVM.Gliders,
         ClassNames = new List<string> { "AthenaGliderItemDefinition" },
         RemoveList = { },
-        IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
     };
 
     private readonly AssetHandlerData ItemHandler = new()
@@ -110,7 +111,6 @@ public class AssetHandlerViewModel
         TargetCollection = AppVM.MainVM.Items,
         ClassNames = new List<string> { "AthenaGadgetItemDefinition", "FortWeaponRangedItemDefinition", "FortWeaponMeleeItemDefinition", "FortCreativeWeaponMeleeItemDefinition", "FortCreativeWeaponRangedItemDefinition", "FortWeaponMeleeDualWieldItemDefinition" },
         RemoveList = { "_Harvest", "Weapon_Pickaxe_", "Weapons_Pickaxe_", "Dev_WID", "Random_Cosmetic_Pickaxe" },
-        IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
     };
 
     private readonly AssetHandlerData DanceHandler = new()
@@ -119,7 +119,6 @@ public class AssetHandlerViewModel
         TargetCollection = AppVM.MainVM.Dances,
         ClassNames = new List<string> { "AthenaDanceItemDefinition" },
         RemoveList = { "_CT", "_NPC" },
-        IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
     };
 
     private readonly AssetHandlerData VehicleHandler = new()
@@ -183,7 +182,6 @@ public class AssetHandlerViewModel
         TargetCollection = AppVM.MainVM.Galleries,
         ClassNames = new List<string> { "FortPlaysetItemDefinition" },
         RemoveList = { },
-        IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
     };
 
     private readonly AssetHandlerData PropHandler = new()
@@ -192,7 +190,6 @@ public class AssetHandlerViewModel
         TargetCollection = AppVM.MainVM.Props,
         ClassNames = new List<string> { "FortPlaysetPropItemDefinition" },
         RemoveList = { },
-        IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
     };
 
     private readonly AssetHandlerData PetHandler = new()
@@ -201,7 +198,6 @@ public class AssetHandlerViewModel
         TargetCollection = AppVM.MainVM.Pets,
         ClassNames = new List<string> { "AthenaPetCarrierItemDefinition" },
         RemoveList = { },
-        IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
     };
 
     private readonly AssetHandlerData MusicPackHandler = new()
@@ -210,16 +206,6 @@ public class AssetHandlerViewModel
         TargetCollection = AppVM.MainVM.MusicPacks,
         ClassNames = new List<string> { "AthenaMusicPackItemDefinition" },
         RemoveList = { },
-        IconGetter = asset =>
-        {
-            asset.TryGetValue(out UTexture2D? previewImage, "SmallPreviewImage", "LargePreviewImage");
-            if (asset.TryGetValue(out UObject heroDef, "HeroDefinition"))
-            {
-                heroDef.TryGetValue(out previewImage, "SmallPreviewImage", "LargePreviewImage");
-            }
-
-            return previewImage;
-        }
     };
 
     private readonly AssetHandlerData ToyHandler = new()
@@ -228,7 +214,6 @@ public class AssetHandlerViewModel
         TargetCollection = AppVM.MainVM.Toys,
         ClassNames = new List<string> { "AthenaToyItemDefinition" },
         RemoveList = { },
-        IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
     };
 
     private readonly AssetHandlerData WildlifeHandler = new()
@@ -243,7 +228,6 @@ public class AssetHandlerViewModel
         TargetCollection = AppVM.MainVM.Traps,
         ClassNames = new List<string> { "FortTrapItemDefinition" },
         RemoveList = { },
-        IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
     };
     
     private readonly AssetHandlerData LoadingScreenHandler = new()
@@ -252,7 +236,6 @@ public class AssetHandlerViewModel
         TargetCollection = AppVM.MainVM.LoadingScreens,
         ClassNames = new List<string> { "AthenaLoadingScreenItemDefinition" },
         RemoveList = { },
-        IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
     };
     
     private readonly AssetHandlerData SprayHandler = new()
@@ -261,7 +244,6 @@ public class AssetHandlerViewModel
         TargetCollection = AppVM.MainVM.Sprays,
         ClassNames = new List<string> { "AthenaSprayItemDefinition" },
         RemoveList = { "SPID_000", "SPID_001" },
-        IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
     };
     
     private readonly AssetHandlerData BannerHandler = new()
@@ -270,7 +252,6 @@ public class AssetHandlerViewModel
         TargetCollection = AppVM.MainVM.Banners,
         ClassNames = new List<string> { "FortHomebaseBannerIconItemDefinition" },
         RemoveList = { },
-        IconGetter = asset => asset.GetOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage")
     };
 
     public async Task Initialize()
@@ -288,8 +269,23 @@ public class AssetHandlerData
     public ObservableCollection<AssetSelectorItem>? TargetCollection;
     public List<string> ClassNames;
     public List<string> RemoveList = Enumerable.Empty<string>().ToList();
-    public Func<UObject, UTexture2D?> IconGetter;
+    public Func<UObject, UTexture2D?> IconGetter = GetAssetIcon;
     public Func<UObject, FText?>? DisplayNameGetter;
+    
+    public static UTexture2D? GetAssetIcon(UObject asset)
+    {
+        UTexture2D previewImage = null;
+        if(asset.TryGetValue(out FInstancedStruct[] dataList, "DataList"))
+        {
+            foreach (var data in dataList)
+            {
+                if (data.NonConstStruct is not null && data.NonConstStruct.TryGetValue(out previewImage, "Icon", "LargeIcon")) break;
+            }
+        }
+
+        previewImage ??= asset.GetAnyOrDefault<UTexture2D?>("Icon", "LargeIcon", "SmallPreviewImage", "LargePreviewImage");
+        return previewImage;
+    }
 
     public async Task Execute()
     {

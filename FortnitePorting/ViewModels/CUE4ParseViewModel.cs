@@ -446,7 +446,7 @@ public class CUE4ParseViewModel : ObservableObject
         if (mappingsResponse is null) return false;
         if (mappingsResponse.Length <= 0) return false;
 
-        var mappings = mappingsResponse.FirstOrDefault(x => x.Meta.CompressionMethod.Equals("Oodle", StringComparison.OrdinalIgnoreCase));
+        var mappings = mappingsResponse.FirstOrDefault();
         if (mappings is null) return false;
 
         var mappingsFilePath = Path.Combine(App.DataFolder.FullName, mappings.Filename);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using AdonisUI.Controls;
@@ -9,6 +10,7 @@ using FortnitePorting.ViewModels;
 using OpenTK.Graphics.OpenGL;
 using MessageBox = AdonisUI.Controls.MessageBox;
 using MessageBoxImage = AdonisUI.Controls.MessageBoxImage;
+using MessageBoxResult = AdonisUI.Controls.MessageBoxResult;
 
 namespace FortnitePorting.Views;
 
@@ -26,6 +28,31 @@ public partial class LoadingView
 
     private async void OnLoaded(object sender, RoutedEventArgs e)
     {
+        if (AppSettings.Current.IsFirstStartup)
+        {
+            var messageBox = new MessageBoxModel
+            {
+                Text = "Would you like to opt into data collection?\nThis only tracks the daily users on Fortnite Porting V1, everything is anonymous.\nYour installation UUID and Version are the only data sent over.",
+                Caption = "Data Collection",
+                Icon = MessageBoxImage.Information,
+                Buttons = MessageBoxButtons.YesNo(),
+                IsSoundEnabled = false
+            };
+
+            MessageBox.Show(messageBox);
+            if (messageBox.Result == MessageBoxResult.Yes)
+            {
+                AppSettings.Current.AllowingDataCollection = true;
+            }
+            
+            AppSettings.Current.IsFirstStartup = false;
+        }
+
+        if (AppSettings.Current.AllowingDataCollection)
+        {
+            await EndpointService.FortnitePorting.PostStatsAsync();
+        }
+        
         if (string.IsNullOrWhiteSpace(AppSettings.Current.ArchivePath) && AppSettings.Current.InstallType == EInstallType.Local)
         {
             AppHelper.OpenWindow<StartupView>();

@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using FortnitePorting.AppUtils;
 using FortnitePorting.Services.Endpoints.Models;
 using RestSharp;
 
@@ -8,6 +9,7 @@ public class FortnitePortingEndpoint : EndpointBase
 {
     private const string NORMAL_DOMAIN = "https://halfheart.dev/fortnite-porting/api/v1/";
     private const string FALLBACK_DOMAIN = "https://raw.githubusercontent.com/halfuwu/halfheart.dev/master/docs/fortnite-porting/api/v1/";
+    public const string STATS_URL = "https://fortniteporting.halfheart.dev/api/v1/stats";
     
     public FortnitePortingEndpoint(RestClient client) : base(client)
     {
@@ -53,5 +55,19 @@ public class FortnitePortingEndpoint : EndpointBase
     public BackupAPI? GetBackup()
     {
         return GetBackupAsync().GetAwaiter().GetResult();
+    }
+    
+    public async Task PostStatsAsync()
+    {
+        await ExecuteAsync(STATS_URL, Method.Post, 
+        [
+            new HeaderParameter("guid", AppSettings.Current.UUID.ToString()),
+            new HeaderParameter("version", $"v{Globals.VERSION}"),
+        ]);
+    }
+
+    public void PostStats()
+    {
+        PostStatsAsync().GetAwaiter().GetResult();
     }
 }

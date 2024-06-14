@@ -84,6 +84,12 @@ public partial class AppSettings : ObservableObject
     [ObservableProperty] private bool filterItems = true;
 
     [ObservableProperty] private List<string> unrealProjects = new();
+    
+    // Stats
+    [ObservableProperty] private bool _isFirstStartup = true;
+    [ObservableProperty] private bool _allowingDataCollection = false;
+    [ObservableProperty] private Guid _uUID = Guid.NewGuid();
+
 }
 
 public partial class CustomAESKey : ObservableObject
