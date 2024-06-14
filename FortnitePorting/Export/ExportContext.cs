@@ -289,16 +289,7 @@ public class ExportContext
 
         if (exportWeapons.Count > 0) return exportWeapons;
         
-        if (weaponDefinition.TryGetValue(out FInstancedStruct[] dataList, "DataList"))
-        {
-            foreach (var data in dataList)
-            {
-                if (data.NonConstStruct?.TryGetValue(out UObject mesh, "PickupSkeletalMesh", "PickupStaticMesh") ?? false)
-                {
-                    exportWeapons.AddIfNotNull(mesh);
-                }
-            }
-        }
+        exportWeapons.AddRangeIfNotNull(weaponDefinition.GetDataListItems<UObject>("PickupSkeletalMesh", "PickupStaticMesh"));
 
         return exportWeapons;
     }

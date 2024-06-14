@@ -11,6 +11,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.AssetRegistry.Objects;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Texture;
+using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.Core.Misc;
 using CUE4Parse.Utils;
@@ -37,7 +38,7 @@ public partial class AssetLoader : ObservableObject
     public bool HideRarity;
     public Func<AssetLoader, UObject, string, bool> HidePredicate = (loader, asset, name) => false;
     public string PlaceholderIconPath = "FortniteGame/Content/Athena/Prototype/Textures/T_Placeholder_Generic";
-    public Func<UObject, UTexture2D?> IconHandler = asset => asset.GetAnyOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage");
+    public Func<UObject, UTexture2D?> IconHandler = asset => GetIcon(asset);
     public Func<UObject, string?> DisplayNameHandler = asset => asset.GetAnyOrDefault<FText?>("DisplayName", "ItemName")?.Text;
     
     public readonly ReadOnlyObservableCollection<AssetItem> Filtered;
@@ -213,6 +214,12 @@ public partial class AssetLoader : ObservableObject
         };
 
         Source.AddOrUpdate(new AssetItem(args));
+    }
+    
+    public static UTexture2D? GetIcon(UObject asset)
+    {
+        return asset.GetDataListItem<UTexture2D>("Icon", "LargeIcon")
+               ?? asset.GetAnyOrDefault<UTexture2D?>("Icon", "SmallPreviewImage", "LargeIcon", "LargePreviewImage");
     }
     
     public void ModifyFilters(string tag, bool enable)

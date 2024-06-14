@@ -33,9 +33,9 @@ public partial class AssetLoaderCollection : ObservableObject
                     PlaceholderIconPath = "FortniteGame/Content/Athena/Prototype/Textures/T_Placeholder_Item_Outfit",
                     IconHandler = asset =>
                     {
-                        asset.TryGetValue(out UTexture2D? previewImage, "SmallPreviewImage", "LargePreviewImage");
-                        if (asset.TryGetValue(out UObject hero, "HeroDefinition")) 
-                            hero.TryGetValue(out previewImage, "SmallPreviewImage", "LargePreviewImage");
+                        var previewImage = AssetLoader.GetIcon(asset);
+                        if (previewImage is null && asset.TryGetValue(out UObject hero, "HeroDefinition"))
+                            previewImage = AssetLoader.GetIcon(hero);
 
                         return previewImage;
                     }
@@ -51,9 +51,9 @@ public partial class AssetLoaderCollection : ObservableObject
                     HideNames = ["Dev_", "TBD_"],
                     IconHandler = asset =>
                     {
-                        asset.TryGetValue(out UTexture2D? previewImage, "SmallPreviewImage", "LargePreviewImage");
-                        if (asset.TryGetValue(out UObject weapon, "WeaponDefinition")) 
-                            weapon.TryGetValue(out previewImage, "SmallPreviewImage", "LargePreviewImage");
+                        var previewImage = AssetLoader.GetIcon(asset);
+                        if (previewImage is null && asset.TryGetValue(out UObject hero, "WeaponDefinition"))
+                            previewImage = AssetLoader.GetIcon(hero);
 
                         return previewImage;
                     }

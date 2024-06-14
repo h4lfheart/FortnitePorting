@@ -4,6 +4,7 @@ using CUE4Parse.FileProvider;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Material.Parameters;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
+using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.GameplayTags;
@@ -164,5 +165,35 @@ public static class CUE4ParseExtensions
     {
         staticMesh.TryConvert(out var convertedMesh);
         return convertedMesh;
+    }
+
+    public static T? GetDataListItem<T>(this IPropertyHolder propertyHolder, params string[] names)
+    {
+        T? returnValue = default;
+        if (propertyHolder.TryGetValue(out FInstancedStruct[] dataList, "DataList"))
+        {
+            foreach (var data in dataList)
+            {
+                if (data.NonConstStruct is not null && data.NonConstStruct.TryGetValue(out returnValue, names)) break;
+            }
+        }
+
+        return returnValue;
+    }
+    public static List<T> GetDataListItems<T>(this IPropertyHolder propertyHolder, params string[] names)
+    {
+        var returnList = new List<T>();
+        if (propertyHolder.TryGetValue(out FInstancedStruct[] dataList, "DataList"))
+        {
+            foreach (var data in dataList)
+            {
+                if (data.NonConstStruct is not null && data.NonConstStruct.TryGetValue(out T obj, names))
+                {
+                    returnList.Add(obj);
+                }
+            }
+        }
+
+        return returnList;
     }
 }
