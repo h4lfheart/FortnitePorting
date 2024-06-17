@@ -400,7 +400,7 @@ public class CUE4ParseViewModel : ViewModelBase
                     await exportAsset.Export();
                 } catch (Exception e)
                 {
-                    Log.Error("{0}", e);
+                    Log.Error("Error exporting asset of type {assetType} and id {assetId} {0}", assetType, data.AssetName, e);
                 }
             }
         }

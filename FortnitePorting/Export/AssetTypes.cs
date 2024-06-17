@@ -25,9 +25,24 @@ abstract class AssetType
     public EAssetType Type = EAssetType.None;
     public string[] Classes = Array.Empty<string>();
     public string[] Filters = Array.Empty<string>();
-    public Func<UObject, UTexture2D?> IconHandler = asset => asset.GetAnyOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage");
+    public Func<UObject, UTexture2D?> IconHandler = GetAssetIcon;
     public Func<UObject, FText?> DisplayNameHandler = asset => asset.GetAnyOrDefault<FText?>("DisplayName", "ItemName") ?? new FText(asset.Name);
     public Func<UObject, FText> DescriptionHandler = asset => asset.GetAnyOrDefault<FText?>("Description", "ItemDescription") ?? new FText("No description.");
+
+    public static UTexture2D? GetAssetIcon(UObject asset)
+    {
+        UTexture2D previewImage = null;
+        if (asset.TryGetValue(out FInstancedStruct[] dataList, "DataList"))
+        {
+            foreach (var data in dataList)
+            {
+                if (data.NonConstStruct is not null && data.NonConstStruct.TryGetValue(out previewImage, "Icon", "LargeIcon")) break;
+            }
+        }
+
+        previewImage ??= asset.GetAnyOrDefault<UTexture2D?>("Icon", "LargeIcon", "SmallPreviewImage", "LargePreviewImage");
+        return previewImage;
+    }
 }
 
 class Outfit : AssetType
@@ -40,8 +55,13 @@ class Outfit : AssetType
         IconHandler = asset =>
         {
             asset.TryGetValue(out UTexture2D? previewImage, "SmallPreviewImage", "LargePreviewImage");
-            if (asset.TryGetValue(out UObject heroDef, "HeroDefinition")) heroDef.TryGetValue(out previewImage, "SmallPreviewImage", "LargePreviewImage");
+            if (previewImage is null && asset.TryGetValue(out UObject heroDef, "HeroDefinition"))
+            {
+                previewImage = GetAssetIcon(heroDef);
+                previewImage ??= heroDef.GetAnyOrDefault<UTexture2D>("SmallPreviewImage", "LargePreviewImage");
 
+            }
+            previewImage ??= GetAssetIcon(asset);
             return previewImage;
         };
     }
@@ -68,8 +88,12 @@ class Pickaxe : AssetType
         IconHandler = asset =>
         {
             asset.TryGetValue(out UTexture2D? previewImage, "SmallPreviewImage", "LargePreviewImage");
-            if (asset.TryGetValue(out UObject heroDef, "WeaponDefinition")) heroDef.TryGetValue(out previewImage, "SmallPreviewImage", "LargePreviewImage");
-
+            if (asset.TryGetValue(out UObject heroDef, "WeaponDefinition"))
+            {
+                previewImage = GetAssetIcon(heroDef);
+                previewImage ??= heroDef.GetAnyOrDefault<UTexture2D>("SmallPreviewImage", "LargePreviewImage");
+            }
+            previewImage ??= GetAssetIcon(asset);
             return previewImage;
         };
     }
@@ -157,13 +181,13 @@ class Item : AssetType
     {
         Type = EAssetType.Item;
         Classes = new[] {
-                    "AthenaGadgetItemDefinition",
-                    "FortWeaponRangedItemDefinition",
-                    "FortWeaponMeleeItemDefinition",
-                    "FortCreativeWeaponMeleeItemDefinition",
-                    "FortCreativeWeaponRangedItemDefinition",
-                    "FortWeaponMeleeDualWieldItemDefinition"
-                };
+            "AthenaGadgetItemDefinition",
+            "FortWeaponRangedItemDefinition",
+            "FortWeaponMeleeItemDefinition",
+            "FortCreativeWeaponMeleeItemDefinition",
+            "FortCreativeWeaponRangedItemDefinition",
+            "FortWeaponMeleeDualWieldItemDefinition"
+        };
         Filters = new[] { "_Harvest", "Weapon_Pickaxe_", "Weapons_Pickaxe_", "Dev_WID" };
     }
 }
