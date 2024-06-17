@@ -412,15 +412,21 @@ public class CUE4ParseViewModel : ViewModelBase
             }
         }
 
-        var exportPath = Path.Combine(directory, "assets.json");
-        await Task.Run(() =>
+        try
         {
-            using (StreamWriter file = File.CreateText(exportPath))
+            var exportPath = Path.Combine(directory, "assets.json");
+            await Task.Run(() =>
             {
-                JsonSerializer serializer = new JsonSerializer();
-                serializer.Serialize(file, exportAssets);
-            }
-        });
+                using (StreamWriter file = File.CreateText(exportPath))
+                {
+                    JsonSerializer serializer = new JsonSerializer();
+                    serializer.Serialize(file, exportAssets);
+                }
+            });
+        } catch(Exception e)
+        {
+            Log.Error("Error exporting json {e}", e);
+        }
     }
 }
 

@@ -279,8 +279,11 @@ class ExportAsset
     [JsonProperty("gameplayTags")]
     public FGameplayTagContainer? GameplayTags { get; set; }
 
-    [JsonProperty("rarity"), JsonConverter(typeof(StringEnumConverter))]
+    [JsonIgnore]
     public EFortRarity Rarity { get; set; }
+
+    [JsonProperty("rarity")]
+    public string RarityText { get; set; }
 
     [JsonProperty("season")]
     public int Season { get; set; }
@@ -303,6 +306,7 @@ class ExportAsset
         DisplayName = displayName;
         Description = assetType.DescriptionHandler(asset).Text;
         Rarity = asset.GetOrDefault("Rarity", EFortRarity.Uncommon);
+        RarityText = Rarity.GetNameText().Text;
         GameplayTags = asset.GetOrDefault<FGameplayTagContainer?>("GameplayTags");
 
         var seasonTag = GameplayTags?.GetValueOrDefault("Cosmetics.Filter.Season.")?.Text;
