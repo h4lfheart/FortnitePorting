@@ -388,7 +388,10 @@ public class CUE4ParseViewModel : ViewModelBase
         Directory.CreateDirectory(directory);
 
         var exportAssets = new Dictionary<string, ExportAsset>();
+        var errors = new List<string>();
+        var assetCount = 0;
 
+        Log.Information("Extracting assets");
         foreach (var assetType in assetTypes)
         {
             var assets = AssetRegistry.Where(data => assetType.Classes.Contains(data.AssetClass.Text)).ToList();
@@ -405,12 +408,16 @@ public class CUE4ParseViewModel : ViewModelBase
                     var exportAsset = new ExportAsset(assetType, asset);
                     await exportAsset.ExportIcon();
                     exportAssets.Add(exportAsset.ID, exportAsset);
+                    ++assetCount;
                 } catch (Exception e)
                 {
                     Log.Error("Error exporting asset of type {assetType} and id {assetId} {0}", assetType, data.AssetName, e);
                 }
             }
         }
+
+
+        Log.Information("Extracted assets {0}", assetCount);
 
         try
         {
