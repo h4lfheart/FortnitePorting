@@ -30,6 +30,7 @@ using FortnitePorting.ViewModels.Endpoints.Models;
 using Serilog;
 using UE4Config.Parsing;
 using Newtonsoft.Json;
+using FortnitePorting.Export;
 
 namespace FortnitePorting.ViewModels;
 
@@ -383,6 +384,11 @@ public class CUE4ParseViewModel : ViewModelBase
             new Vehicle(),
         };
 
+        var directory = Path.Combine(AppSettings.Current.GetExportPath());
+        Directory.CreateDirectory(directory);
+
+        var exportAssets = new Dictionary<string, ExportAsset>();
+
         foreach (var assetType in assetTypes)
         {
             var assets = AssetRegistry.Where(data => assetType.Classes.Contains(data.AssetClass.Text)).ToList();
@@ -397,13 +403,24 @@ public class CUE4ParseViewModel : ViewModelBase
                     if (asset is null) continue;
 
                     var exportAsset = new ExportAsset(assetType, asset);
-                    await exportAsset.Export();
+                    await exportAsset.ExportIcon();
+                    exportAssets.Add(exportAsset.ID, exportAsset);
                 } catch (Exception e)
                 {
                     Log.Error("Error exporting asset of type {assetType} and id {assetId} {0}", assetType, data.AssetName, e);
                 }
             }
         }
+
+        var exportPath = Path.Combine(directory, "assets.json");
+        await Task.Run(() =>
+        {
+            using (StreamWriter file = File.CreateText(exportPath))
+            {
+                JsonSerializer serializer = new JsonSerializer();
+                serializer.Serialize(file, exportAssets);
+            }
+        });
     }
 }
 

@@ -349,7 +349,7 @@ class ExportAsset
         {
             try
             {
-                Log.Information("Exporting icon for asset: {Name}", ID);
+                // Log.Information("Exporting icon for asset: {Name}", ID);
                 using var fileStream = File.OpenWrite(exportPath);
                 var iconBitmap = Icon.Decode()!;
                 iconBitmap.Encode(SKEncodedImageFormat.Png, 100).SaveTo(fileStream);
