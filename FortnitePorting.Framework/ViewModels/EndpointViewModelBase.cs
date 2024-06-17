@@ -13,7 +13,7 @@ public abstract class EndpointViewModelBase : ViewModelBase
         Client = new RestClient(new RestClientOptions
         {
             UserAgent = userAgent,
-            MaxTimeout = 1000 * 10
+            MaxTimeout = 1000 * 300
         }, configureSerialization: s => s.UseSerializer<JsonNetSerializer>());
     }
 

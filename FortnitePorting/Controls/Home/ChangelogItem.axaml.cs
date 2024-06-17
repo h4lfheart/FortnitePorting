@@ -1,5 +1,4 @@
 using Avalonia.Controls;
-using FortnitePorting.Framework.ViewModels.Endpoints.Models;
 using FortnitePorting.ViewModels.Endpoints.Models;
 
 namespace FortnitePorting.Controls.Home;

@@ -1,7 +1,10 @@
-﻿using FortnitePorting.Framework.ViewModels.Endpoints.Models;
+﻿using System.Threading.Tasks;
+using FortnitePorting.Application;
+using FortnitePorting.Framework.ViewModels.Endpoints;
+using FortnitePorting.ViewModels.Endpoints.Models;
 using RestSharp;
 
-namespace FortnitePorting.Framework.ViewModels.Endpoints;
+namespace FortnitePorting.ViewModels.Endpoints;
 
 public class FortnitePortingEndpoint : EndpointBase
 {
@@ -10,6 +13,7 @@ public class FortnitePortingEndpoint : EndpointBase
     private const string RELEASE_URL = "https://halfheart.dev/fortnite-porting/api/v2/release.json";
     private const string CHANGELOG_URL = "https://halfheart.dev/fortnite-porting/api/v2/changelog.json";
     private const string FEATURED_URL = "https://halfheart.dev/fortnite-porting/api/v2/featured.json";
+    public const string STATS_URL = "https://fortniteporting.halfheart.dev/api/v2/stats";
 
     public FortnitePortingEndpoint(RestClient client) : base(client)
     {
@@ -54,5 +58,19 @@ public class FortnitePortingEndpoint : EndpointBase
     public T? GetBackup<T>(string url)
     {
         return GetBackupAsync<T>(url).GetAwaiter().GetResult();
+    }
+    
+    public async Task PostStatsAsync()
+    {
+        await ExecuteAsync(STATS_URL, Method.Post, 
+        [
+            new HeaderParameter("guid", AppSettings.Current.UUID.ToString()),
+            new HeaderParameter("version", Globals.Version.ToString()),
+        ]);
+    }
+
+    public void PostStats()
+    {
+        PostStatsAsync().GetAwaiter().GetResult();
     }
 }
