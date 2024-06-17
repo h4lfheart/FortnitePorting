@@ -18,7 +18,6 @@ using FortnitePorting.Framework;
 using FortnitePorting.Framework.Extensions;
 using FortnitePorting.Services;
 using FortnitePorting.Framework.Services;
-using FortnitePorting.Framework.ViewModels.Endpoints.Models;
 using FortnitePorting.ViewModels.Endpoints.Models;
 using FortnitePorting.Views;
 using Newtonsoft.Json;
@@ -51,6 +50,11 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private AesResponse? lastAesResponse;
 
     // Program
+    [ObservableProperty] private bool _firstStartup = true;
+    [ObservableProperty] private bool _allowDataCollection = false;
+    [ObservableProperty] private Guid _uUID = Guid.NewGuid();
+    
+    
     [ObservableProperty] private DateTime lastUpdateAskTime = DateTime.Now.Subtract(TimeSpan.FromDays(1));
     [ObservableProperty] private FPVersion lastKnownUpdateVersion = Globals.Version;
     

@@ -15,7 +15,7 @@ namespace FortnitePorting.ViewModels;
 public partial class ApplicationViewModel : ViewModelBase
 {
     [ObservableProperty] private ThemedViewModelBase theme;
-    [ObservableProperty] private string versionString = $"v{Globals.VersionString}";
+    [ObservableProperty] private string versionString = Globals.VersionString;
 
     [ObservableProperty] private UserControl? currentView;
 
