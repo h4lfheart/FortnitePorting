@@ -33,6 +33,7 @@ public static class ApplicationService
     public static AssetsViewModel AssetsVM => ViewModelRegistry.Get<AssetsViewModel>()!;
     public static RadioViewModel RadioVM => ViewModelRegistry.Get<RadioViewModel>()!;
     public static APIViewModel ApiVM => ViewModelRegistry.Get<APIViewModel>()!;
+    public static ChatViewModel ChatVM => ViewModelRegistry.Get<ChatViewModel>()!;
     
     public static IClassicDesktopStyleApplicationLifetime Application = null!;
     private static IStorageProvider StorageProvider => Application.MainWindow!.StorageProvider;
@@ -128,6 +129,8 @@ public static class ApplicationService
         DependencyService.EnsureDependencies();
 
         TaskService.Run(ApiVM.FortnitePorting.PostStats);
+        
+        SocketService.Init();
         
         if (AppSettings.Current.FinishedWelcomeScreen)
         {

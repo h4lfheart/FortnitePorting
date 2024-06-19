@@ -64,8 +64,14 @@
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Map}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
+                 
              </ui:NavigationView.MenuItems>
              <ui:NavigationView.FooterMenuItems>
+                 <ui:NavigationViewItem Content="Chat" Tag="Chat">
+                     <ui:NavigationViewItem.IconSource>
+                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry ChatBubble}"/>
+                     </ui:NavigationViewItem.IconSource>
+                 </ui:NavigationViewItem>
                  <ui:NavigationViewItem Content="Export" Tag="ExportSettings">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Download}"/>
@@ -95,7 +101,7 @@
              
              <Grid>
                  <ui:Frame x:Name="ContentFrame" Transitions="{x:Null}"/>
-                 <ItemsControl VerticalAlignment="Bottom" Margin="{ext:Space 1}" ItemsSource="{Binding InfoBars}">
+                 <ItemsControl VerticalAlignment="Top" Margin="{ext:Space 1}" ItemsSource="{Binding InfoBars}">
                      <ItemsControl.ItemTemplate>
                          <DataTemplate>
                              <ui:InfoBar IsOpen="True" 

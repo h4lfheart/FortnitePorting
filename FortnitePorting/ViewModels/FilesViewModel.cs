@@ -20,6 +20,7 @@ using DynamicData.Binding;
 using FortnitePorting.Application;
 using FortnitePorting.Export;
 using FortnitePorting.Export.Models;
+using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.Files;
 using FortnitePorting.Models.Unreal;
 using FortnitePorting.Shared;
@@ -80,7 +81,7 @@ public partial class FilesViewModel : ViewModelBase
         var selectedItem = SelectedFlatViewItems.FirstOrDefault();
         if (selectedItem is null) return;
         
-        var asset = await CUE4ParseVM.Provider.LoadObjectAsync(FixPath(selectedItem.Path));
+        var asset = await CUE4ParseVM.Provider.LoadObjectAsync(Exporter.FixPath(selectedItem.Path));
         var name = asset.Name;
 
         switch (asset)
@@ -131,7 +132,7 @@ public partial class FilesViewModel : ViewModelBase
         var exports = new List<KeyValuePair<UObject, EExportType>>();
         foreach (var item in SelectedFlatViewItems)
         {
-            var asset = await CUE4ParseVM.Provider.LoadObjectAsync(FixPath(item.Path));
+            var asset = await CUE4ParseVM.Provider.TryLoadObjectAsync(Exporter.FixPath(item.Path));
             if (asset is null) continue;
             
             switch (asset)
@@ -142,42 +143,20 @@ public partial class FilesViewModel : ViewModelBase
                     break;
                 }
             }
-            
-            var assetType = asset switch
-            {
-                USkeletalMesh => EExportType.Mesh,
-                UStaticMesh => EExportType.Mesh,
-                UWorld => EExportType.World,
-                _ => EExportType.None
-            };
 
-            if (assetType is EExportType.None)
+            var exportType = Exporter.DetermineExportType(asset);
+            if (exportType is EExportType.None)
             {
                 DisplayDialog("Unimplemented Exporter", 
                     $"A file exporter for \"{asset.ExportType}\" assets has not been implemented and/or will not be supported.");
             }
             else
             {
-                exports.Add(new KeyValuePair<UObject, EExportType>(asset, assetType));
+                exports.Add(new KeyValuePair<UObject, EExportType>(asset, exportType));
             }
         }
         
         await Exporter.Export(exports, AppSettings.Current.CreateExportMeta());
-    }
-    
-    private string FixPath(string path)
-    {
-        var outPath = path.SubstringBeforeLast(".");
-        var extension = path.SubstringAfterLast(".");
-        if (extension.Equals("umap"))
-        {
-            if (outPath.Contains("_Generated_"))
-            {
-                outPath += "." + path.SubstringBeforeLast("/_Generated").SubstringAfterLast("/");
-            }
-        }
-
-        return outPath;
     }
 
     private bool IsValidFilePath(string path)

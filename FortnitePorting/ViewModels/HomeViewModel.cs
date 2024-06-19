@@ -2,9 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using FortnitePorting.Application;
 using FortnitePorting.Controls;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
@@ -36,6 +40,7 @@ public partial class HomeViewModel : ViewModelBase
             UserName = $"@{name}";
             DisplayName = DiscordService.GetDisplayName();
             AvatarURL = DiscordService.GetAvatarURL();
+            
         });
         
         TaskService.Run(async () =>

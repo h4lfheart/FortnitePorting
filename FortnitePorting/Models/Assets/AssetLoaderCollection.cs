@@ -21,6 +21,8 @@ namespace FortnitePorting.Models.Assets;
 
 public partial class AssetLoaderCollection : ObservableObject
 {
+    public static AssetLoaderCollection CategoryAccessor = new(false);
+    
     public readonly List<AssetLoaderCategory> Categories =
     [
         new AssetLoaderCategory(EAssetCategory.Cosmetics)
@@ -151,8 +153,10 @@ public partial class AssetLoaderCollection : ObservableObject
     [ObservableProperty] private AssetLoader _activeLoader;
     [ObservableProperty] private ReadOnlyObservableCollection<AssetItem> _activeCollection;
 
-    public AssetLoaderCollection()
+    public AssetLoaderCollection(bool isForUi = true)
     {
+        if (!isForUi) return;
+        
         TaskService.RunDispatcher(() =>
         {
             foreach (var category in Categories)

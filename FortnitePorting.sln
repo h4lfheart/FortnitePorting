@@ -12,6 +12,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CUE4Parse-Conversion", "Dep
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortnitePorting.Plugins", "FortnitePorting.Plugins\FortnitePorting.Plugins.csproj", "{7B1D87EB-F55C-4140-8240-180DE2DB83D4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortnitePorting.Multiplayer", "FortnitePorting.Multiplayer\FortnitePorting.Multiplayer.csproj", "{3D6C5BA9-2D4B-423C-A757-7751CFDD861C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +44,9 @@ Global
 		{7B1D87EB-F55C-4140-8240-180DE2DB83D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7B1D87EB-F55C-4140-8240-180DE2DB83D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7B1D87EB-F55C-4140-8240-180DE2DB83D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D6C5BA9-2D4B-423C-A757-7751CFDD861C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D6C5BA9-2D4B-423C-A757-7751CFDD861C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D6C5BA9-2D4B-423C-A757-7751CFDD861C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D6C5BA9-2D4B-423C-A757-7751CFDD861C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

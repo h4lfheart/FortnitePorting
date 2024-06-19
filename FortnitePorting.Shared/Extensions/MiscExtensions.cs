@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.Utils;
+using DynamicData.Binding;
 
 namespace FortnitePorting.Shared.Extensions;
 
@@ -177,6 +178,16 @@ public static class MiscExtensions
         }
 
         return removed;
+    }
+    
+    public static void InsertSorted<T>(this IList<T> list, T item, SortExpressionComparer<T> comparer) 
+    {
+        list.Add(item);
+        var i = list.Count-1;
+        for ( ; i > 0 && comparer.Compare(list[i-1], item) < 0 ; i--) {
+            list[i] = list[i-1];
+        }
+        list[i] = item;
     }
 }
 

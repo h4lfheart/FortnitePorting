@@ -3,16 +3,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
+using CUE4Parse.UE4.Assets.Exports.StaticMesh;
+using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
+using CUE4Parse.UE4.Objects.Engine;
+using CUE4Parse.Utils;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
 using FortnitePorting.Controls.Assets;
 using FortnitePorting.Export.Models;
 using FortnitePorting.Export.Types;
 using FortnitePorting.Models.API;
+using FortnitePorting.Models.Assets;
+using FortnitePorting.Models.Sockets;
+using FortnitePorting.Models.Unreal;
+using FortnitePorting.Services;
 using FortnitePorting.Shared;
+using FortnitePorting.Shared.Extensions;
+using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Models;
 using FortnitePorting.Shared.Services;
+using FortnitePorting.ViewModels;
 using Newtonsoft.Json;
 using Serilog;
 
@@ -93,6 +105,34 @@ public static class Exporter
             await ApiVM.FortnitePortingServer.SendAsync(data, EExportServerType.Blender);
         });
     }
+
+    public static EExportType DetermineExportType(UObject asset) 
+    {
+        var exportType = asset switch
+        {
+            USkeletalMesh => EExportType.Mesh,
+            UStaticMesh => EExportType.Mesh,
+            UWorld => EExportType.World,
+            _ => EExportType.None
+        };
+
+        if (exportType is EExportType.None)
+        {
+            var assetLoaders = AssetLoaderCollection.CategoryAccessor.Categories
+                .SelectMany(category => category.Loaders)
+                .ToArray();
+
+            foreach (var loader in assetLoaders)
+            {
+                if (loader.ClassNames.Contains(asset.ExportType))
+                {
+                    exportType = loader.Type;
+                }
+            }
+        }
+
+        return exportType;
+    }
     
     private static BaseExport CreateExport(UObject asset, EExportType exportType, ExportDataMeta metaData)
     {
@@ -104,6 +144,7 @@ public static class Exporter
         var asset = assetInfo.Data.Asset;
         var styles = assetInfo.Data.GetSelectedStyles();
         var exportType = asset.CreationData.ExportType;
+        
         return CreateExport(asset.CreationData.DisplayName, asset.CreationData.Object, styles, exportType, metaData);
     }
     
@@ -128,5 +169,20 @@ public static class Exporter
         AppVM.CloseMessage(id: asset.Name);
 
         return export;
+    }
+    
+    public static string FixPath(string path)
+    {
+        var outPath = path.SubstringBeforeLast(".");
+        var extension = path.SubstringAfterLast(".");
+        if (extension.Equals("umap"))
+        {
+            if (outPath.Contains("_Generated_"))
+            {
+                outPath += "." + path.SubstringBeforeLast("/_Generated").SubstringAfterLast("/");
+            }
+        }
+
+        return outPath;
     }
 }

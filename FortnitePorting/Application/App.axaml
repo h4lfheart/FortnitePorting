@@ -23,6 +23,8 @@
          <Brush x:Key="ScrollViewerScrollBarsSeparatorBackground">#00000000</Brush>
          <x:Double x:Key="NavigationViewItemOnLeftIconBoxHeight">14</x:Double>
          <FontFamily x:Key="SymbolThemeFontFamily">Segoe Fluent Icons</FontFamily>
+         <Brush x:Key="TabViewItemHeaderBackgroundSelected">#30000000</Brush>
+         <Brush x:Key=" TabViewItemSeparator">#00000000</Brush>
          
      </Application.Resources>
              
