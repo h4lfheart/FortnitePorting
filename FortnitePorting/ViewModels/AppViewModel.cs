@@ -28,9 +28,9 @@ public partial class AppViewModel : WindowModelBase
         SetupTabsAreVisible = !AppSettings.Current.FinishedWelcomeScreen;
     }
     
-    public void Message(string title, string message, InfoBarSeverity severity = InfoBarSeverity.Informational, bool autoClose = true, string id = "")
+    public void Message(string title, string message, InfoBarSeverity severity = InfoBarSeverity.Informational, bool autoClose = true, string id = "", float closeTime = 2.0f)
     {
-        Message(new InfoBarData(title, message, severity, autoClose, id));
+        Message(new InfoBarData(title, message, severity, autoClose, id, closeTime));
     }
 
     public void Message(InfoBarData data)
@@ -40,7 +40,7 @@ public partial class AppViewModel : WindowModelBase
         
         TaskService.Run(async () =>
         {
-            await Task.Delay(1500);
+            await Task.Delay((int) (data.CloseTime * 1000));
             InfoBars.Remove(data);
         });
     }

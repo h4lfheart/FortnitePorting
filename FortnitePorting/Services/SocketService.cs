@@ -1,11 +1,9 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Sockets;
-using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
@@ -14,27 +12,26 @@ using DynamicData.Binding;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
 using FortnitePorting.Export;
-using FortnitePorting.Models.Assets;
+using FortnitePorting.Models.Chat;
+using FortnitePorting.Multiplayer;
 using FortnitePorting.Multiplayer.Data;
-using FortnitePorting.Multiplayer.UDP;
 using FortnitePorting.Multiplayer.Utils;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
 using GenericReader;
-using Ionic.Zlib;
 using Serilog;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
-using SkiaSharp;
+using WatsonTcp;
 using ZstdSharp;
 
 namespace FortnitePorting.Services;
 
 public static class SocketService
 {
-    public static UDPClient Client;
+    public static WatsonTcpClient Client;
 
     public static UserData User => new()
     {
@@ -42,13 +39,21 @@ public static class SocketService
         Name = DiscordService.GetDisplayName(),
         AvatarURL = DiscordService.GetAvatarURL()
     };
+
+    private static Dictionary<Guid, List<BaseData>> IncomingImageData = [];
     
     public static void Init()
     {
-        Client = new UDPClient();
-        Client.DataReceived += result =>
+        Client = new WatsonTcpClient(MultiplayerGlobals.SOCKET_IP, MultiplayerGlobals.SOCKET_PORT);
+        Client.Settings.Guid = User.ID;
+        Client.Settings.ConnectTimeoutSeconds = 15;
+        Client.Events.ServerConnected += async (o, args) =>
         {
-            var Ar = new GenericBufferReader(result.Buffer);
+            await Send(new RegisterData());
+        };
+        Client.Events.MessageReceived += async (o, args) =>
+        {
+            var Ar = new GenericBufferReader(args.Data);
             var header = Ar.ReadFP<DataHeader>();
 
             var sender = Ar.ReadFP<UserData>();
@@ -57,13 +62,13 @@ public static class SocketService
             {
                 case EDataType.Ping:
                 {
-                    Send(new PingData());
+                    await Send(new PingData());
                     break;
                 }
                 case EDataType.Message:
                 {
                     var messageData = Ar.ReadFP<MessageData>();
-                    
+
                     ChatVM.Messages.InsertSorted(new ChatMessage
                     {
                         User = new ChatUser
@@ -86,7 +91,7 @@ public static class SocketService
 
                     var targetMessage = ChatVM.Messages.FirstOrDefault(message => message.Id == reactionData.MessageID);
                     if (targetMessage is null) break;
-                    
+
                     targetMessage.ReactionCount += reactionData.Increment ? 1 : -1;
                     break;
                 }
@@ -114,12 +119,13 @@ public static class SocketService
                             ChatVM.Users.Remove(existingUser);
                         }
                     }
+
                     break;
                 }
                 case EDataType.Export:
                 {
                     var exportData = Ar.ReadFP<ExportData>();
-                    
+
                     TaskService.RunDispatcher(async () =>
                     {
                         var dialog = new ContentDialog
@@ -132,11 +138,11 @@ public static class SocketService
                             {
                                 var asset = await CUE4ParseVM.Provider.TryLoadObjectAsync(Exporter.FixPath(exportData.Path));
                                 if (asset is null) return;
-                                
+
                                 var exportType = Exporter.DetermineExportType(asset);
                                 if (exportType is EExportType.None)
                                 {
-                                    DisplayDialog("Unimplemented Exporter", 
+                                    DisplayDialog("Unimplemented Exporter",
                                         $"A file exporter for \"{asset.ExportType}\" assets has not been implemented and/or will not be supported.");
                                 }
                                 else
@@ -149,14 +155,75 @@ public static class SocketService
 
                         await dialog.ShowAsync();
                     });
-                    
+
                     break;
                 }
                 case EDataType.DirectMessage:
                 {
                     var directMessageData = Ar.ReadFP<DirectMessageData>();
-                    
-                    AppVM.Message($"From {sender.Name}", directMessageData.Text);
+
+                    AppVM.Message($"From {sender.Name}", directMessageData.Text, closeTime: 5.0f);
+                    break;
+                }
+                case EDataType.ImageHeader:
+                {
+                    var imageHeader = Ar.ReadFP<ImageHeaderData>();
+
+                    IncomingImageData[sender.ID] = [imageHeader];
+
+                    break;
+                }
+                case EDataType.ImageChunk:
+                {
+                    var imageChunk = Ar.ReadFP<ImageChunkData>();
+
+                    IncomingImageData[sender.ID].Add(imageChunk);
+
+                    break;
+                }
+                case EDataType.ImageFooter:
+                {
+                    var imageFooter = Ar.ReadFP<ImageFooterData>();
+
+                    var imageHeader = IncomingImageData[sender.ID].OfType<ImageHeaderData>().First();
+
+                    var imageChunks = IncomingImageData[sender.ID].OfType<ImageChunkData>().ToArray();
+                    var imageBytes = new List<byte>();
+                    for (var chunkIdx = 0; chunkIdx < imageChunks.Length; chunkIdx++)
+                    {
+                        var data = imageChunks[chunkIdx].Data;
+                        imageBytes.AddRange(data);
+                    }
+
+                    var decompressedBytes = ZSTD_DECOMPRESS.Unwrap(imageBytes.ToArray()).ToArray();
+
+                    unsafe
+                    {
+                        fixed (byte* bytePtr = decompressedBytes)
+                        {
+                            var intPtr = (IntPtr) bytePtr;
+                            var bitmap = new WriteableBitmap(PixelFormat.Rgba8888, AlphaFormat.Unpremul, intPtr, new PixelSize(imageHeader.Width, imageHeader.Height), new Vector(96, 96), (PixelFormat.Rgba8888.BitsPerPixel * imageHeader.Width + 7) / 8);
+                            ChatVM.Messages.InsertSorted(new ChatMessage
+                            {
+                                User = new ChatUser
+                                {
+                                    Name = sender.Name,
+                                    Avatar = sender.AvatarURL,
+                                    Id = sender.ID
+                                },
+                                Text = string.Empty,
+                                Id = imageHeader.ID,
+                                Timestamp = imageHeader.Time.ToLocalTime(),
+                                ReactionCount = imageHeader.Reactions.Count,
+                                ReactedTo = imageHeader.Reactions.Contains(User.ID),
+                                Bitmap = bitmap,
+                                BitmapName = imageHeader.Name
+                            }, SortExpressionComparer<ChatMessage>.Descending(message => message.Timestamp));
+                        }
+                    }
+
+                    IncomingImageData.Remove(sender.ID);
+
                     break;
                 }
             }
@@ -168,19 +235,31 @@ public static class SocketService
             {
                 try
                 {
-                    var received = await Client.Receive();
-                    Client.OnDataReceived(received);
+                    if (DiscordService.IsInitialized && ChatVM is not null && !Client.Connected)
+                    {
+                        Client.Connect();
+                    }
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
-                    Log.Error(e.ToString());
+                    
                 }
             }
         });
     }
-
-    public static void Send(BaseData data)
+    
+    private static Decompressor ZSTD_DECOMPRESS = new();
+    
+    public static async Task Send(BaseData data)
     {
-        Client.Send(data, User);
+        var stream = new MemoryStream();
+        var Ar = new BinaryWriter(stream);
+        
+        var header = new DataHeader(data.DataType);
+        header.Serialize(Ar);
+        User.Serialize(Ar);
+        data.Serialize(Ar);
+        
+        await Client.SendAsync(stream.GetBuffer());
     }
 }

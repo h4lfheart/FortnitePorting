@@ -7,6 +7,7 @@
         x:DataType="viewModels:AppViewModel"
         Width="1160" Height="770" RequestedThemeVariant="Dark" FontFamily="Segoe UI" Background="{x:Null}"
         TransparencyLevelHint="{Binding Theme.TransparencyHints}" ExtendClientAreaToDecorationsHint="True"
+        WindowStartupLocation="CenterScreen"
         Icon="/Assets/LogoV3.ico"
         Title="Fortnite Porting">
     <Grid RowDefinitions="30, *" Margin="{Binding $parent[Window].OffScreenMargin}">

@@ -45,5 +45,8 @@ public enum EDataType : byte
     Reaction,
     OnlineUsers,
     Export,
-    DirectMessage
+    DirectMessage,
+    ImageHeader,
+    ImageChunk,
+    ImageFooter
 }

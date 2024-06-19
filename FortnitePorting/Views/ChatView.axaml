@@ -15,7 +15,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="{ext:Space 1}"/>
+            <RowDefinition Height="{ext:Space 0}"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         
@@ -25,7 +25,7 @@
         </Grid.ColumnDefinitions>
         
         <ScrollViewer Grid.Row="0" Grid.Column="0" x:Name="Scroll">
-            <ItemsControl ItemsSource="{Binding Messages}" Margin="{ext:Space 1, 1, 2, 1}">
+            <ItemsControl ItemsSource="{Binding Messages}" Margin="{ext:Space 1, 1, 2, 0}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <ui:FABorder x:Name="PointerOverTarget" Margin="{ext:Space 0, 0, 0, 0.5}">
@@ -66,6 +66,12 @@
                                 <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="7" Text="{Binding Text}" TextWrapping="Wrap" 
                                            Classes="BodyTextBlockStyle" VerticalAlignment="Center"/>
                                 
+                                <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="7" CornerRadius="4" ClipToBounds="True" HorizontalAlignment="Left">
+                                    <Image Source="{Binding Bitmap}" VerticalAlignment="Center" MaxHeight="300"
+                                           Height="{Binding Bitmap.PixelSize.Height}"
+                                           Cursor="Hand" PointerPressed="OnImagePressed"/>
+                                </Border>
+                                
                             </Grid>
                         </ui:FABorder>
                     </DataTemplate>
@@ -80,44 +86,15 @@
         
         <Grid Grid.Row="2" Grid.Column="0" Margin="{ext:Space 1}">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="{ext:Space 1}"/>
                 <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="{ext:Space 1}"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-                    
-            <AutoCompleteBox Grid.Column="0" x:Name="TextBox" Text="{Binding Text, Mode=TwoWay}" ItemsSource="{Binding Commands}" Watermark="Enter a message"/>
             
-            <DropDownButton Grid.Column="2" HorizontalAlignment="Stretch" Content="{material:MaterialIconExt Smiley}">
-                <DropDownButton.Flyout>
-                    <Flyout Placement="BottomEdgeAlignedLeft">
-                        <Grid MinWidth="320">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="{ext:Space 1}"/>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
-                            
-                            <TextBox Grid.Row="0" Watermark="Search"/>
-                            
-                            <ItemsControl Grid.Row="2" ItemsSource="{Binding Emojis}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <UniformGrid Columns="6"/>
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Button ToolTip.Tip="{Binding Name}" 
-                                                Command="{Binding PasteCommand}"
-                                                Content="{Binding Character}" 
-                                                Margin="{ext:Space 0.5}"/>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </Grid>
-                    </Flyout>
-                </DropDownButton.Flyout>
-            </DropDownButton>
+            <Button Grid.Column="0" Content="{material:MaterialIconExt Plus}" Command="{Binding SendImageCommand}"/>
+                    
+            <AutoCompleteBox Grid.Column="2" x:Name="TextBox" Text="{Binding Text, Mode=TwoWay}" ItemsSource="{Binding Commands}" Watermark="Enter a message"/>
+            
         </Grid>
         
         <ui:FABorder Grid.Row="0" Grid.RowSpan="3" Grid.Column="1" Background="#22000000" CornerRadius="0">
@@ -131,30 +108,39 @@
                 <TextBlock Grid.Row="0" Text="{Binding Users.Count, StringFormat='Online - {0}'}" 
                            Classes="BodyStrongTextBlockStyle" FontWeight="SemiBold" HorizontalAlignment="Left"/>
                 
-                <ItemsControl Grid.Row="2" ItemsSource="{Binding Users}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <ui:FABorder HorizontalAlignment="Stretch">
-                                <Grid HorizontalAlignment="Left" Margin="{ext:Space 1}">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="{ext:Space 1}"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                
-                                    <Border Grid.Column="0" CornerRadius="4" ClipToBounds="True">
-                                        <Image asyncImageLoader:ImageLoader.Source="{Binding Avatar}" 
-                                               Width="32" Height="32" Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center"/>
-                                    </Border>
-                                
-                                    <TextBlock Grid.Column="2" Text="{Binding Name}"
-                                               Foreground="{Binding Brush}"
-                                               Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center"/>
-                                </Grid>
-                            </ui:FABorder>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                <ScrollViewer Grid.Row="2" >
+                    <ItemsControl ItemsSource="{Binding Users}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <ui:FABorder HorizontalAlignment="Stretch" Cursor="Hand" PointerPressed="OnUserPressed">
+                                    <FlyoutBase.AttachedFlyout>
+                                        <MenuFlyout>
+                                            <MenuItem Header="Copy ID" Command="{Binding CopyIDCommand}"/>
+                                            <MenuItem Header="Send Export" Command="{Binding SendExportCommand}"/>
+                                            <MenuItem Header="Send Message" Command="{Binding SendMessageCommand}"/>
+                                        </MenuFlyout>
+                                    </FlyoutBase.AttachedFlyout>
+                                    <Grid HorizontalAlignment="Left" Margin="{ext:Space 1}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="{ext:Space 1}"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                    
+                                        <Border Grid.Column="0" CornerRadius="4" ClipToBounds="True">
+                                            <Image asyncImageLoader:ImageLoader.Source="{Binding Avatar}" 
+                                                   Width="32" Height="32" Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center"/>
+                                        </Border>
+                                    
+                                        <TextBlock Grid.Column="2" Text="{Binding Name}"
+                                                   Foreground="{Binding Brush}"
+                                                   Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center"/>
+                                    </Grid>
+                                </ui:FABorder>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
             </Grid>
         </ui:FABorder>
         

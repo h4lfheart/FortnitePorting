@@ -403,3 +403,4 @@ FodyWeavers.xsd
 
 # Ignore
 FortnitePorting.Multiplayer/MultiplayerService.cs
+*MultiplayerService*
