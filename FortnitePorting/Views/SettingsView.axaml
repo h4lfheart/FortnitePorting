@@ -23,6 +23,11 @@
                     <ui:PathIconSource Data="{ext:MaterialKindToGeometry Folder}"/>
                 </ui:NavigationViewItem.IconSource>
             </ui:NavigationViewItem>
+            <ui:NavigationViewItem Content="Discord" Tag="Discord">
+                <ui:NavigationViewItem.IconSource>
+                    <ui:ImageIconSource Source="/Assets/Icons/Discord.png"/>
+                </ui:NavigationViewItem.IconSource>
+            </ui:NavigationViewItem>
             <ui:NavigationViewItem Content="Theme" Tag="Theme">
                 <ui:NavigationViewItem.IconSource>
                     <ui:PathIconSource Data="{ext:MaterialKindToGeometry PaletteSwatch}"/>

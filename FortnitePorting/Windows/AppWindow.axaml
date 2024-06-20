@@ -43,6 +43,11 @@
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Home}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
+                 <ui:NavigationViewItem Content="Chat" Tag="Chat" IsEnabled="{Binding DiscordRef.UseIntegration}">
+                     <ui:NavigationViewItem.IconSource>
+                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry ChatBubble}"/>
+                     </ui:NavigationViewItem.IconSource>
+                 </ui:NavigationViewItem>
                  <ui:NavigationViewItemSeparator/>
                  <ui:NavigationViewItem Content="Assets" Tag="Assets" IsEnabled="{Binding GameBasedTabsAreReady}">
                      <ui:NavigationViewItem.IconSource>
@@ -68,11 +73,6 @@
                  
              </ui:NavigationView.MenuItems>
              <ui:NavigationView.FooterMenuItems>
-                 <ui:NavigationViewItem Content="Chat" Tag="Chat">
-                     <ui:NavigationViewItem.IconSource>
-                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry ChatBubble}"/>
-                     </ui:NavigationViewItem.IconSource>
-                 </ui:NavigationViewItem>
                  <ui:NavigationViewItem Content="Export" Tag="ExportSettings">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Download}"/>
@@ -83,14 +83,14 @@
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Sync}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Console" Tag="Console">
-                     <ui:NavigationViewItem.IconSource>
-                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry Console}"/>
-                     </ui:NavigationViewItem.IconSource>
-                 </ui:NavigationViewItem>
                  <ui:NavigationViewItem Content="Help" Tag="Help">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Help}"/>
+                     </ui:NavigationViewItem.IconSource>
+                 </ui:NavigationViewItem>
+                 <ui:NavigationViewItem Content="Console" Tag="Console">
+                     <ui:NavigationViewItem.IconSource>
+                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry Console}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItem Content="Settings" Tag="Settings">
@@ -102,7 +102,7 @@
              
              <Grid>
                  <ui:Frame x:Name="ContentFrame" Transitions="{x:Null}"/>
-                 <ItemsControl VerticalAlignment="Top" Margin="{ext:Space 1}" ItemsSource="{Binding InfoBars}">
+                 <ItemsControl VerticalAlignment="Bottom" Margin="{ext:Space 1}" ItemsSource="{Binding InfoBars}">
                      <ItemsControl.ItemTemplate>
                          <DataTemplate>
                              <ui:InfoBar IsOpen="True" 

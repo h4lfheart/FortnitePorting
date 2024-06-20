@@ -6,14 +6,14 @@
         xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         x:Class="FortnitePorting.Windows.SoundPreviewWindow"
         x:DataType="viewModels:SoundPreviewViewModel"
-        Width="540" RequestedThemeVariant="Dark" FontFamily="Segoe UI" SizeToContent="Height"
+        Width="540" RequestedThemeVariant="Dark" FontFamily="Segoe UI" SizeToContent="Height" Background="{x:Null}"
         TransparencyLevelHint="AcrylicBlur" ExtendClientAreaToDecorationsHint="True" WindowStartupLocation="CenterOwner"
         Icon="/Assets/LogoEnhanced.ico"
         Title="Sound Viewer">
     <Grid RowDefinitions="30, *">
-        <ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False">
+        <ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False" IsVisible="{Binding !Theme.UseMica}">
             <ExperimentalAcrylicBorder.Material>
-                <ExperimentalAcrylicMaterial BackgroundSource="Digger" MaterialOpacity="1.1" TintColor="#220841" TintOpacity="1"/>
+                <ExperimentalAcrylicMaterial BackgroundSource="Digger" MaterialOpacity="1.5" TintColor="{Binding Theme.BackgroundColor}" TintOpacity="1"/>
             </ExperimentalAcrylicBorder.Material>
         </ExperimentalAcrylicBorder>
         

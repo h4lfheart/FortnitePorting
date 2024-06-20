@@ -113,6 +113,10 @@
         <DependentUpon>Chatview.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
+      <Compile Update="Views\Settings\DiscordSettingsView.axaml.cs">
+        <DependentUpon>DiscordSettingsView.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
     </ItemGroup>
 
     

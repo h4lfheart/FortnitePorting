@@ -65,12 +65,12 @@
                     <Ellipse Height="104" Width="104" 
                              StrokeThickness="5" Stroke="#00000000">
                         <Ellipse.Fill>
-                            <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding AvatarURL}" Stretch="UniformToFill"/>
+                            <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding DiscordRef.ProfilePictureURL, TargetNullValue='avares://FortnitePorting/Assets/DefaultProfile.png'}" Stretch="UniformToFill"/>
                         </Ellipse.Fill>
                     </Ellipse>
                 </Grid>
-                <TextBlock Grid.Row="3" Text="{Binding DisplayName}" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
-                <TextBlock Grid.Row="4" Text="{Binding UserName}" Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" HorizontalAlignment="Center"/>
+                <TextBlock Grid.Row="3" Text="{Binding DiscordRef.GlobalName, TargetNullValue='No User'}" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
+                <TextBlock Grid.Row="4" Text="{Binding DiscordRef.UserName, TargetNullValue='Discord Not Authenticated'}" Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" HorizontalAlignment="Center"/>
                 <Separator Grid.Row="5" Margin="{ext:Space 1}"/>
                 <StackPanel Grid.Row="6">
                     <TextBlock Text="Helpful Links" Classes="SubtitleTextBlockStyle" FontWeight="SemiBold" HorizontalAlignment="Center"/>

@@ -1,6 +1,14 @@
 using System;
+using System.Net;
+using System.Threading.Tasks;
 using DiscordRPC;
+using FortnitePorting.Application;
+using FortnitePorting.Models.API;
+using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Shared;
+using FortnitePorting.Shared.Services;
+using Newtonsoft.Json;
+using RestSharp;
 using Serilog;
 
 namespace FortnitePorting.Services;
@@ -59,20 +67,5 @@ public static class DiscordService
         Client.Deinitialize();
         Client.Dispose();
         IsInitialized = false;
-    }
-    
-    public static string? GetUserName()
-    {
-        return Client?.CurrentUser?.Username;
-    }
-    
-    public static string? GetDisplayName()
-    {
-        return Client?.CurrentUser?.DisplayName;
-    }
-    
-    public static string? GetAvatarURL()
-    {
-        return Client?.CurrentUser?.GetAvatarURL(User.AvatarFormat.PNG, User.AvatarSize.x128);
     }
 }

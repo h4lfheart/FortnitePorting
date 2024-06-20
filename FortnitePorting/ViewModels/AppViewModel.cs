@@ -11,6 +11,7 @@ using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
+using FortnitePorting.ViewModels.Settings;
 
 namespace FortnitePorting.ViewModels;
 
@@ -22,7 +23,9 @@ public partial class AppViewModel : WindowModelBase
     [ObservableProperty] private Frame _contentFrame;
     [ObservableProperty] private NavigationView _navigationView;
     [ObservableProperty] private ObservableCollection<InfoBarData> _infoBars = [];
-
+    
+    public DiscordSettingsViewModel DiscordRef => AppSettings.Current.Discord;
+    
     public override async Task Initialize()
     {
         SetupTabsAreVisible = !AppSettings.Current.FinishedWelcomeScreen;

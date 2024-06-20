@@ -8,12 +8,18 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.UE4.Versions;
+using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
+using FortnitePorting.Models.API;
+using FortnitePorting.Models.API.Responses;
+using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Framework;
+using FortnitePorting.Shared.Services;
 using FortnitePorting.Shared.Validators;
 using FortnitePorting.Views;
 using Newtonsoft.Json;
+using RestSharp;
 using Serilog;
 
 namespace FortnitePorting.ViewModels;
@@ -67,6 +73,8 @@ public partial class WelcomeViewModel : ViewModelBase
     public override async Task Initialize()
     {
         await CheckForInstallation();
+
+        await AppSettings.Current.Discord.PromptForAuthentication();
     }
 
     private async Task CheckForInstallation()

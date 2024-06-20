@@ -9,12 +9,16 @@ using CUE4Parse.UE4.Versions;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
 using FortnitePorting.Export.Models;
+using FortnitePorting.Models.API;
+using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.Radio;
+using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.ViewModels.Settings;
 using NAudio.Wave;
 using Newtonsoft.Json;
+using RestSharp;
 
 namespace FortnitePorting.ViewModels;
 
@@ -28,9 +32,7 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private InstallationSettingsViewModel _installation = new();
     [ObservableProperty] private ApplicationSettingsViewModel _application = new();
     [ObservableProperty] private ThemeSettingsViewModel _theme = new();
-    
-    // Stats
-    [ObservableProperty] private Guid _uUID = Guid.NewGuid();
+    [ObservableProperty] private DiscordSettingsViewModel _discord = new();
     
     // Welcome
     [ObservableProperty] private bool _finishedWelcomeScreen;
@@ -42,6 +44,7 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private RadioPlaylistSerializeData[] _playlists = [];
     [ObservableProperty] private int _audioDeviceIndex = 0;
     [ObservableProperty] private float _volume = 1.0f;
+    
 
     public ExportDataMeta CreateExportMeta() => new()
     {

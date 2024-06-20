@@ -13,7 +13,7 @@ public class FortnitePortingServerAPI : APIBase
     {
         var port = (int) serverType;
         var serverUrl = $"http://127.0.0.1:{port}/fortnite-porting/data";
-        await ExecuteAsync(serverUrl, method: Method.Post, new BodyParameter(data, ContentType.Json, DataFormat.Json));
+        await ExecuteAsync(serverUrl, method: Method.Post, parameters: new BodyParameter(data, ContentType.Json, DataFormat.Json));
     }
     
     public async Task<bool> PingAsync(EExportServerType serverType)

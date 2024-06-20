@@ -14,6 +14,7 @@ using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
+using FortnitePorting.ViewModels.Settings;
 using Serilog;
 using FeaturedControl = FortnitePorting.Controls.Home.FeaturedControl;
 using NewsControl = FortnitePorting.Controls.Home.NewsControl;
@@ -26,22 +27,14 @@ public partial class HomeViewModel : ViewModelBase
     [ObservableProperty] private ObservableCollection<NewsControl> _newsControls = [];
     [ObservableProperty] private ObservableCollection<FeaturedControl> _featuredControls = [];
 
-    [ObservableProperty] private string _displayName = "No User";
-    [ObservableProperty] private string _userName = "Discord RPC Disabled";
-    [ObservableProperty] private string _avatarURL =  "avares://FortnitePorting/Assets/DefaultProfile.png";
+    public DiscordSettingsViewModel DiscordRef => AppSettings.Current.Discord;
     
     public override async Task Initialize()
     {
-        TaskService.Run(() =>
+        if (!AppSettings.Current.Discord.HasReceivedFirstPrompt)
         {
-            while (!DiscordService.IsInitialized) { }
-            
-            var name = DiscordService.GetUserName();
-            UserName = $"@{name}";
-            DisplayName = DiscordService.GetDisplayName();
-            AvatarURL = DiscordService.GetAvatarURL();
-            
-        });
+            await AppSettings.Current.Discord.PromptForAuthentication();
+        }
         
         TaskService.Run(async () =>
         {

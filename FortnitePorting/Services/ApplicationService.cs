@@ -18,6 +18,7 @@ using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
 using FortnitePorting.Views;
+using Microsoft.Win32;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
 using AppWindow = FortnitePorting.Windows.AppWindow;
@@ -53,7 +54,7 @@ public static class ApplicationService
         LogFilePath = Path.Combine(LogsFolder.FullName, $"FortnitePorting-{DateTime.Now:yyyy-MM-dd-hh-mm-ss}.log");
         Log.Logger = new LoggerConfiguration()
             .WriteTo.Console(theme: AnsiConsoleTheme.Literate)
-            .WriteTo.FortnitePortingSink()
+            .WriteTo.FortnitePorting()
             .WriteTo.File(LogFilePath)
             .CreateLogger();
         
@@ -83,7 +84,7 @@ public static class ApplicationService
         Log.Information($"Archive Path: {AppSettings.Current.Installation.ArchiveDirectory}");
         Log.Information($"Texture Streaming: {AppSettings.Current.Installation.UseTextureStreaming}");
     }
-
+    
     public static void HandleException(Exception e)
     {
         var exceptionString = e.ToString();
@@ -120,17 +121,24 @@ public static class ApplicationService
 
     public static void OnStartup(object? sender, ControlledApplicationLifetimeStartupEventArgs e)
     {
-        if (AppSettings.Current.Application.UseDiscordRPC)
+        ViewModelRegistry.New<APIViewModel>();
+        DependencyService.EnsureDependencies();
+        
+        if (AppSettings.Current.Discord.UseIntegration)
+        {
+            TaskService.Run(async () =>
+            {
+                await AppSettings.Current.Discord.LoadIdentification();
+                await ApiVM.FortnitePorting.PostStatsAsync();
+            });
+            
+            SocketService.Init();
+        }
+        
+        if (AppSettings.Current.Discord.UseRichPresence)
         {
             DiscordService.Initialize();
         }
-        
-        ViewModelRegistry.New<APIViewModel>();
-        DependencyService.EnsureDependencies();
-
-        TaskService.Run(ApiVM.FortnitePorting.PostStats);
-        
-        SocketService.Init();
         
         if (AppSettings.Current.FinishedWelcomeScreen)
         {
@@ -150,7 +158,7 @@ public static class ApplicationService
         }
         
         AppSettings.Save();
-        DiscordService.Deinitialize();
+        //DiscordService.Deinitialize();
     }
 
     public static void DisplayDialog(string title, string content)

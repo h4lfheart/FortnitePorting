@@ -143,7 +143,6 @@
                 </ScrollViewer>
             </Grid>
         </ui:FABorder>
-        
     </Grid>
    
 </UserControl>

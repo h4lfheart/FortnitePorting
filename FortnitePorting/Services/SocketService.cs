@@ -35,9 +35,9 @@ public static class SocketService
 
     public static UserData User => new()
     {
-        ID = AppSettings.Current.UUID,
-        Name = DiscordService.GetDisplayName(),
-        AvatarURL = DiscordService.GetAvatarURL()
+        ID = AppSettings.Current.Discord.Id,
+        Name = AppSettings.Current.Discord.GlobalName,
+        AvatarURL = AppSettings.Current.Discord.ProfilePictureURL
     };
 
     private static Dictionary<Guid, List<BaseData>> IncomingImageData = [];
@@ -235,7 +235,7 @@ public static class SocketService
             {
                 try
                 {
-                    if (DiscordService.IsInitialized && ChatVM is not null && !Client.Connected)
+                    if (AppSettings.Current.Discord.Identification is not null && ChatVM is not null && !Client.Connected)
                     {
                         Client.Connect();
                     }
@@ -246,6 +246,13 @@ public static class SocketService
                 }
             }
         });
+    }
+
+
+    public static void DeInit()
+    {
+        Client.Disconnect();
+        Client.Dispose();
     }
     
     private static Decompressor ZSTD_DECOMPRESS = new();

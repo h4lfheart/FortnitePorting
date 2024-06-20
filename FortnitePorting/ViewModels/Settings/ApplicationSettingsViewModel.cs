@@ -1,9 +1,11 @@
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.UE4.Versions;
 using FluentAvalonia.UI.Media.Animation;
+using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Validators;
@@ -22,7 +24,6 @@ public partial class ApplicationSettingsViewModel : ViewModelBase
    [ObservableProperty] private string _assetsPath;
    
    [ObservableProperty] private bool _useTabTransitions = true;
-   [ObservableProperty] private bool _useDiscordRPC = true;
     
 
    [JsonIgnore] public NavigationTransitionInfo Transition => UseTabTransitions ? new SlideNavigationTransitionInfo() : new SuppressNavigationTransitionInfo();

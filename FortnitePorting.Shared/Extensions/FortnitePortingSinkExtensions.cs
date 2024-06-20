@@ -6,7 +6,7 @@ namespace FortnitePorting.Shared.Extensions;
 
 public static class FortnitePortingSinkExtensions
 {
-    public static LoggerConfiguration FortnitePortingSink(this LoggerSinkConfiguration loggerConfiguration)
+    public static LoggerConfiguration FortnitePorting(this LoggerSinkConfiguration loggerConfiguration)
     {
         return loggerConfiguration.Sink(new FortnitePortingSink());
     }
