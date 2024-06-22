@@ -696,7 +696,7 @@ class DataImportTask:
 
         # fetch pose data
         meta = get_meta(["PoseData", "ReferencePose"])
-        if (pose_data := meta.get("PoseData")):
+        if (pose_data := meta.get("PoseData") and imported_mesh is not None):
             is_head = mesh_type == "Head"
             shape_keys = imported_mesh.data.shape_keys
             armature: bpy.types.Object = imported_object
@@ -1457,6 +1457,7 @@ def constraint_object(child: bpy.types.Object, parent: bpy.types.Object, bone: s
     constraint.subtarget = bone
     child.rotation_mode = 'XYZ'
     child.rotation_euler = rot
+    child.location = Vector((0, 0, 0))
     constraint.inverse_matrix = Matrix()
 
 
