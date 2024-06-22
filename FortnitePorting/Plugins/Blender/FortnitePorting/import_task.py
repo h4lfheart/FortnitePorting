@@ -970,7 +970,7 @@ class DataImportTask:
         socket_mappings = default_mappings
 
         def get_param(source, name):
-            found = first(source, lambda param: param.get("Name") == name)
+            found = first(source, lambda param: param.get("Name").casefold() == name.casefold())
             if found is None:
                 return None
             return found.get("Value")
@@ -982,7 +982,7 @@ class DataImportTask:
             return found.get("Value")
 
         def get_param_data(source, name):
-            found = first(source, lambda param: param.get("Name") == name)
+            found = first(source, lambda param: param.get("Name").casefold() == name.casefold())
             if found is None:
                 return None
             return found
@@ -999,7 +999,7 @@ class DataImportTask:
                 node.interpolation = "Smart"
                 node.hide = True
 
-                mappings = first(target_mappings.textures, lambda x: x.name == name)
+                mappings = first(target_mappings.textures, lambda x: x.name.casefold() == name.casefold())
                 if mappings is None:
                     if add_unused_params:
                         nonlocal unused_parameter_offset
@@ -1032,7 +1032,7 @@ class DataImportTask:
                 name = data.get("Name")
                 value = data.get("Value")
                 
-                mappings = first(target_mappings.scalars, lambda x: x.name == name)
+                mappings = first(target_mappings.scalars, lambda x: x.name.casefold() == name.casefold())
                 if mappings is None:
                     if add_unused_params:
                         nonlocal unused_parameter_offset
@@ -1056,7 +1056,7 @@ class DataImportTask:
                 name = data.get("Name")
                 value = data.get("Value")
 
-                mappings = first(target_mappings.vectors, lambda x: x.name == name)
+                mappings = first(target_mappings.vectors, lambda x: x.name.casefold() == name.casefold())
                 if mappings is None:
                     if add_unused_params:
                         nonlocal unused_parameter_offset
@@ -1082,7 +1082,7 @@ class DataImportTask:
                 name = data.get("Name")
                 value = data.get("Value")
                 
-                mappings = first(target_mappings.component_masks, lambda x: x.name == name)
+                mappings = first(target_mappings.component_masks, lambda x: x.name.casefold() == name.casefold())
                 if mappings is None:
                     if add_unused_params:
                         nonlocal unused_parameter_offset
@@ -1104,7 +1104,7 @@ class DataImportTask:
                 name = data.get("Name")
                 value = data.get("Value")
 
-                mappings = first(target_mappings.switches, lambda x: x.name == name)
+                mappings = first(target_mappings.switches, lambda x: x.name.casefold() == name.casefold())
                 if mappings is None:
                     if add_unused_params:
                         nonlocal unused_parameter_offset

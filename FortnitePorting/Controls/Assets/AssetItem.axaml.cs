@@ -77,6 +77,12 @@ public partial class AssetItem : UserControl
             GameplayTags = new FGameplayTagContainer(gameplayTags);
         }
 
+        if (GameplayTags is null)
+        {
+            GameplayTags = asset.GetDataListItem<FGameplayTagContainer?>("Tags");
+        }
+        
+
         var seasonTag = GameplayTags?.GetValueOrDefault("Cosmetics.Filter.Season.")?.Text;
         Season = int.TryParse(seasonTag?.SubstringAfterLast("."), out var seasonNumber) ? seasonNumber : int.MaxValue;
 

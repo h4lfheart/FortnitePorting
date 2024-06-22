@@ -280,15 +280,9 @@ public class ExporterInstance
             }
         }
 
-        if (exportWeapons.Count == 0 && weaponDefinition.TryGetValue(out FInstancedStruct[] dataList, "DataList"))
+        if (exportWeapons.Count == 0)
         {
-            foreach (var data in dataList)
-            {
-                if (data.NonConstStruct?.TryGetValue(out UObject mesh, "PickupSkeletalMesh", "PickupStaticMesh") ?? false)
-                {
-                    exportWeapons.Add(mesh);
-                }
-            }
+            exportWeapons.AddRange(weaponDefinition.GetDataListItems<UObject>("PickupSkeletalMesh", "PickupStaticMesh"));
         }
 
         return exportWeapons;
