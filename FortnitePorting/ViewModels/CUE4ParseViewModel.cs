@@ -430,7 +430,8 @@ public class CUE4ParseViewModel : ViewModelBase
 
         try
         {
-            var exportPath = Path.Combine(directory, "assets.json");
+            var jsonDirectory = Path.Combine(directory, "json");
+            var exportPath = Path.Combine(jsonDirectory, "assets.json");
             await Task.Run(() =>
             {
                 using (StreamWriter file = File.CreateText(exportPath))

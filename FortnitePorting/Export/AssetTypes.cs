@@ -347,7 +347,7 @@ class ExportAsset
 
         var iconName = Icon.Name;
 
-        var exportPath = Path.Combine(AppSettings.Current.GetExportPath(), iconName + ".png");
+        var exportPath = Path.Combine(AppSettings.Current.GetExportPath(), iconName + ".webp");
 
         return Task.Run(() =>
         {
@@ -356,7 +356,9 @@ class ExportAsset
                 // Log.Information("Exporting icon for asset: {Name}", ID);
                 using var fileStream = File.OpenWrite(exportPath);
                 var iconBitmap = Icon.Decode()!;
-                iconBitmap.Encode(SKEncodedImageFormat.Png, 100).SaveTo(fileStream);
+                SKPixmap pixmap = iconBitmap.PeekPixels();
+                var options = new SKWebpEncoderOptions(SKWebpEncoderCompression.Lossless, 100);
+                pixmap.Encode(options).SaveTo(fileStream);
             }
             catch (IOException e)
             {
