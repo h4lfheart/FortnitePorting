@@ -431,6 +431,7 @@ public class CUE4ParseViewModel : ViewModelBase
         try
         {
             var jsonDirectory = Path.Combine(directory, "json");
+            Directory.CreateDirectory(jsonDirectory);
             var exportPath = Path.Combine(jsonDirectory, "assets.json");
             await Task.Run(() =>
             {
