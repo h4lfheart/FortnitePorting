@@ -3,4 +3,4 @@
 	url = https://github.com/FabianFG/CUE4Parse
 [submodule "Dependencies/EpicManifestParser"]
 	path = Dependencies/EpicManifestParser
-	url = https://github.com/FModel/EpicManifestParser
+	url = https://github.com/NotOfficer/EpicManifestParser

@@ -31,6 +31,7 @@
         <PackageReference Include="CSCore" Version="1.2.1.2" />
         <PackageReference Include="CSCore.Ogg" Version="1.0.0" />
         <PackageReference Include="DiscordRichPresence" Version="1.2.1.24" />
+        <PackageReference Include="DotNetZip" Version="1.16.0" />
         <PackageReference Include="Material.Icons.Avalonia" Version="2.0.1" />
         <PackageReference Include="RestSharp" Version="110.2.1-alpha.0.11" />
         <PackageReference Include="RestSharp.Serializers.NewtonsoftJson" Version="110.2.1-alpha.0.11" />

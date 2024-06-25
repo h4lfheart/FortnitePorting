@@ -679,17 +679,8 @@ public partial class AssetLoader : ObservableObject
     
     public static UTexture2D? GetAssetIcon(UObject asset)
     {
-        UTexture2D previewImage = null;
-        if(asset.TryGetValue(out FInstancedStruct[] dataList, "DataList"))
-        {
-            foreach (var data in dataList)
-            {
-                if (data.NonConstStruct is not null && data.NonConstStruct.TryGetValue(out previewImage, "Icon", "LargeIcon")) break;
-            }
-        }
-
-        previewImage ??= asset.GetAnyOrDefault<UTexture2D?>("Icon", "LargeIcon", "SmallPreviewImage", "LargePreviewImage");
-        return previewImage;
+        return asset.GetDataListItem<UTexture2D>("Icon", "LargeIcon")
+               ?? asset.GetAnyOrDefault<UTexture2D?>("Icon", "SmallPreviewImage", "LargeIcon", "LargePreviewImage");
     }
 }
 

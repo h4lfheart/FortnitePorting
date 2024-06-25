@@ -1,7 +1,10 @@
 using System;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
-using EpicManifestParser.Objects;
+using EpicManifestParser;
+using EpicManifestParser.Api;
+using EpicManifestParser.UE;
 using FortnitePorting.Application;
 using FortnitePorting.Framework.ViewModels.Endpoints;
 using FortnitePorting.ViewModels.Endpoints.Models;
@@ -33,7 +36,7 @@ public class EpicGamesEndpoint : EndpointBase
     {
         var response = await ExecuteAsync(FORTNITE_LIVE_URL, Method.Get,
             new HeaderParameter("Authorization", $"bearer {AppSettings.Current.EpicGamesAuth?.Token}"));
-        return new ManifestInfo(response.Content);
+        return ManifestInfo.Deserialize(response.RawBytes);
     }
 
     public ManifestInfo? GetManifestInfo()
@@ -41,7 +44,7 @@ public class EpicGamesEndpoint : EndpointBase
         return GetManifestInfoAsync().GetAwaiter().GetResult();
     }
 
-    public async Task<Manifest> GetManifestAsync(string url = "", string writePath = "")
+    public async Task<FBuildPatchAppManifest> GetManifestAsync(string url = "", string writePath = "")
     {
         byte[] manifestBytes;
         if (File.Exists(writePath))
@@ -56,14 +59,15 @@ public class EpicGamesEndpoint : EndpointBase
         }
 
 
-        return new Manifest(manifestBytes, new ManifestOptions
+        return FBuildPatchAppManifest.Deserialize(manifestBytes, new ManifestParseOptions
         {
-            ChunkBaseUri = new Uri(CHUNKS_URL, UriKind.Absolute),
-            ChunkCacheDirectory = App.ChunkCacheFolder
+            ChunkBaseUrl = CHUNKS_URL,
+            ChunkCacheDirectory = ChunkCacheFolder.FullName,
+            CacheChunksAsIs = true
         });
     }
 
-    public Manifest GetManifest(string url = "")
+    public FBuildPatchAppManifest GetManifest(string url = "")
     {
         return GetManifestAsync(url).GetAwaiter().GetResult();
     }

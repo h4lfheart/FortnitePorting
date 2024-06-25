@@ -132,4 +132,35 @@ public static class CUE4ParseExtensions
 
         return true;
     }
+    
+    public static T? GetDataListItem<T>(this IPropertyHolder propertyHolder, params string[] names)
+    {
+        T? returnValue = default;
+        if (propertyHolder.TryGetValue(out FInstancedStruct[] dataList, "DataList"))
+        {
+            foreach (var data in dataList)
+            {
+                if (data.NonConstStruct is not null && data.NonConstStruct.TryGetValue(out returnValue, names)) break;
+            }
+        }
+
+        return returnValue;
+    }
+    
+    public static List<T> GetDataListItems<T>(this IPropertyHolder propertyHolder, params string[] names)
+    {
+        var returnList = new List<T>();
+        if (propertyHolder.TryGetValue(out FInstancedStruct[] dataList, "DataList"))
+        {
+            foreach (var data in dataList)
+            {
+                if (data.NonConstStruct is not null && data.NonConstStruct.TryGetValue(out T obj, names))
+                {
+                    returnList.Add(obj);
+                }
+            }
+        }
+
+        return returnList;
+    }
 }
