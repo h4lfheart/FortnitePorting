@@ -15,11 +15,11 @@ using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Assets.Utils;
 using CUE4Parse.UE4.IO;
 using CUE4Parse.UE4.Objects.Core.Math;
-using CUE4Parse.UE4.Objects.Core.Misc;
 using CUE4Parse.UE4.Readers;
 using CUE4Parse.UE4.Versions;
 using CUE4Parse.Utils;
-using EpicManifestParser.Objects;
+using EpicManifestParser;
+using EpicManifestParser.UE;
 using FortnitePorting.Application;
 using FortnitePorting.Controls;
 using FortnitePorting.Extensions;
@@ -32,6 +32,7 @@ using FortnitePorting.ViewModels.Endpoints;
 using FortnitePorting.ViewModels.Endpoints.Models;
 using Serilog;
 using UE4Config.Parsing;
+using FGuid = CUE4Parse.UE4.Objects.Core.Misc.FGuid;
 
 namespace FortnitePorting.ViewModels;
 
@@ -51,7 +52,7 @@ public class CUE4ParseViewModel : ViewModelBase
         ELoadingType.Custom => new HybridFileProvider(AppSettings.Current.CustomArchivePath, version: new VersionContainer(AppSettings.Current.CustomUnrealVersion), isOptionalLoader: true)
     };
 
-    public Manifest? FortniteLive;
+    public FBuildPatchAppManifest? FortniteLive;
     public readonly List<FAssetData> AssetRegistry = [];
     public readonly RarityCollection[] RarityColors = new RarityCollection[8];
     public List<UAnimMontage> MaleLobbyMontages = [];
@@ -156,17 +157,25 @@ public class CUE4ParseViewModel : ViewModelBase
 
         var manifestInfo = await EndpointsVM.EpicGames.GetManifestInfoAsync();
         if (manifestInfo is null) return;
+        
+        
+        var (manifest, element) = await manifestInfo.DownloadAndParseAsync( new ManifestParseOptions
+            {
+                ChunkBaseUrl = "http://epicgames-download1.akamaized.net/Builds/Fortnite/CloudDir/",
+                ChunkCacheDirectory = ChunkCacheFolder.FullName,
+                ManifestCacheDirectory = ChunkCacheFolder.FullName,
+                Zlibng = ZlibHelper.Instance,
+                CacheChunksAsIs = true
+            });
 
-        HomeVM.Update($"Loading {manifestInfo.BuildVersion}");
+        HomeVM.Update($"Loading {element.BuildVersion}");
 
-        var manifestPath = Path.Combine(DataFolder.FullName, manifestInfo.FileName);
-        FortniteLive = await EndpointsVM.EpicGames.GetManifestAsync(manifestInfo.Uris.First().Uri.AbsoluteUri, manifestPath);
+        FortniteLive = manifest;
 
-        var files = FortniteLive.FileManifests.Where(fileManifest => FortniteLiveRegex.IsMatch(fileManifest.Name));
+        var files = FortniteLive.FileManifestList.Where(fileManifest => FortniteLiveRegex.IsMatch(fileManifest.FileName));
         foreach (var fileManifest in files)
-            Provider.RegisterVfs(fileManifest.Name,
-                new Stream[] { fileManifest.GetStream() },
-                it => new FStreamArchive(it, FortniteLive.FileManifests.First(x => x.Name.Equals(it)).GetStream(), Provider.Versions));
+            Provider.RegisterVfs(fileManifest.FileName, [fileManifest.GetStream()]
+                , it => new FStreamArchive(it, manifest.FileManifestList.First(x => x.FileName.Equals(it)).GetStream(), Provider.Versions));
     }
 
     private async Task LoadCosmeticStreaming()
@@ -209,8 +218,8 @@ public class CUE4ParseViewModel : ViewModelBase
             }
             case ELoadingType.Live:
             {
-                var onDemandFile = FortniteLive?.FileManifests.FirstOrDefault(x => x.Name.Equals("Cloud/IoStoreOnDemand.ini", StringComparison.OrdinalIgnoreCase));
-                if (onDemandFile is not null) onDemandText = onDemandFile.GetStream().ReadToEnd().BytesToString();
+                //var onDemandFile = FortniteLive?.FileManifests.FirstOrDefault(x => x.Name.Equals("Cloud/IoStoreOnDemand.ini", StringComparison.OrdinalIgnoreCase));
+                //if (onDemandFile is not null) onDemandText = onDemandFile.GetStream().ReadToEnd().BytesToString();
                 break;
             }
         }
