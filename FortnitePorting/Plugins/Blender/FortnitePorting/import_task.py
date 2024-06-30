@@ -687,9 +687,9 @@ class DataImportTask:
                         if out_props.get(found_key):
                             if meta.get(found_key):
                                 Log.warn(f"{found_key}: metadata already set "
-                                        "with content from different mesh but "
-                                        f"also found on {mesh.get('Name')} "
-                                        "which will be ignored")
+                                         "with content from different mesh but "
+                                         f"also found on {mesh.get('Name')} "
+                                         "which will be ignored")
                             continue
                         out_props[found_key] = meta.get(found_key)
             return out_props
@@ -715,11 +715,24 @@ class DataImportTask:
                     if scale != Vector((1, 1, 1)):
                         if entry.get('BoneName', '').casefold() == 'faceattach':
                             face_attach_scale = scale
-                        Log.warn(f"Non-zero scale: {entry}")
+                        Log.warn(f"{imported_mesh.name}: Non-zero scale: {entry}")
 
                 if not shape_keys:
                     # Create Basis shape key
                     imported_mesh.shape_key_add(name="Basis", from_mix=False)
+
+                # Grab 'root' bone we'd consider pose data to apply up to
+                # NOTE: If there is a facial related pose that requires
+                # movement of some bone that does not have neck_01 as an
+                # eventual parent, this bit prevents that. I think this is
+                # unlikely but not impossible hence this simple reminder
+                root_bone_name = 'neck_01'
+                root_bone = get_case_insensitive(armature.pose.bones, root_bone_name)
+                if not root_bone:
+                    Log.warn(f"{imported_mesh.name}: Failed to find root bone "
+                             f"'{root_bone_name}' in '{armature.name}', all "
+                             "bones will be considered during import of "
+                             "PoseData")
 
                 # NOTE: I think faceAttach affects the expected location
                 # I'm making this assumption from observation of an old
@@ -731,7 +744,8 @@ class DataImportTask:
                         continue
 
                     if not (pose_name := pose.get('Name')):
-                        Log.warn("skipping pose data with no pose name")
+                        Log.warn(f"{imported_mesh.name}: skipping pose data "
+                                 f"with no pose name: {pose}")
                         continue
 
                     # Enter pose mode
@@ -747,7 +761,8 @@ class DataImportTask:
                     contributed = False
                     for bone in influences:
                         if not (bone_name := bone.get('Name')):
-                            Log.warn(f"empty bone name for pose {pose}")
+                            Log.warn(f"{imported_mesh.name} - {pose_name}: "
+                                     f"empty bone name for pose '{pose}'")
                             continue
 
                         pose_bone: bpy.types.PoseBone = get_case_insensitive(armature.pose.bones, bone_name)
@@ -757,7 +772,16 @@ class DataImportTask:
                             if is_head:
                                 # There are likely many missing bones in non-Head parts, but we
                                 # process as many as we can.
-                                Log.warn(f"could not find: {bone_name} for pose {pose_name}")
+                                Log.warn(f"{imported_mesh.name} - {pose_name}: "
+                                         f"'{bone_name}' influence skipped "
+                                         "since it was not found in "
+                                         f"'{armature.name}'")
+                            continue
+                        
+                        if root_bone and not bone_has_parent(pose_bone, root_bone):
+                            Log.warn(f"{imported_mesh.name} - {pose_name}: "
+                                     f"skipped '{pose_bone.name}' since it does "
+                                     f"not have '{root_bone.name}' as a parent")
                             continue
 
                         # Verify that the current bone and all of its children
@@ -770,7 +794,9 @@ class DataImportTask:
 
                         rotation = bone.get('Rotation')
                         if not rotation.get('IsNormalized'):
-                            Log.warn(f"rotation not normalized for {bone_name} in pose {pose_name}")
+                            Log.warn(f"{imported_mesh.name} - {pose_name}: "
+                                     "imported rotation not normalized for "
+                                     f"'{bone_name}'")
 
                         edit_bone = pose_bone.bone
                         post_quat = Quaternion(post_quat) if (post_quat := edit_bone.get("post_quat")) else Quaternion()
@@ -807,7 +833,7 @@ class DataImportTask:
                     imported_mesh.data.shape_keys.key_blocks[-1].name = pose_name
             except Exception as e:
                 Log.error("Failed to import PoseAsset data from "
-                            f"{imported_mesh.name}: {e}")
+                          f"{imported_mesh.name}: {e}")
             finally:
                 # Final reset before re-entering regular import mode.
                 bpy.context.view_layer.objects.active = armature
@@ -1509,7 +1535,6 @@ def get_case_insensitive(source, string):
             return item
     return None
 
-
 def replace_or_add_parameter(list, replace_item):
     if replace_item is None:
         return
@@ -1633,6 +1658,10 @@ def bone_hierarchy_has_vertex_groups(bone, vertex_groups):
             return True
     return False
 
+def bone_has_parent(child, parent):
+    if child == parent:
+        return True
+    return parent in child.parent_recursive
 
 class LazyInit:
     
