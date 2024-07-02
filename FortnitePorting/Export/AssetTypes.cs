@@ -19,6 +19,11 @@ using SkiaSharp;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Linq;
+using CUE4Parse.UE4.Assets.Exports.Engine;
+using CUE4Parse.UE4.Objects.UObject;
+using Flurl.Util;
+using System.Linq;
 
 abstract class AssetType
 {
@@ -28,6 +33,9 @@ abstract class AssetType
     public Func<UObject, UTexture2D?> IconHandler = GetAssetIcon;
     public Func<UObject, FText?> DisplayNameHandler = asset => asset.GetAnyOrDefault<FText?>("DisplayName", "ItemName") ?? new FText(asset.Name);
     public Func<UObject, FText> DescriptionHandler = asset => asset.GetAnyOrDefault<FText?>("Description", "ItemDescription") ?? new FText("No description.");
+    public virtual Dictionary<string, float> StatsHandler(UObject asset) {
+        return new Dictionary<string, float>();
+    }
 
     public static UTexture2D? GetAssetIcon(UObject asset)
     {
@@ -190,6 +198,55 @@ class Item : AssetType
         };
         Filters = new[] { "_Harvest", "Weapon_Pickaxe_", "Weapons_Pickaxe_", "Dev_WID" };
     }
+
+    public override Dictionary<string, float> StatsHandler(UObject asset)
+    {
+        var stats = new Dictionary<string, float>();
+        var hasHandle = asset.TryGetValue(out FStructFallback statHandle, "WeaponStatHandle");
+
+        if (!hasHandle) return stats;
+
+        var hasRow = statHandle.TryGetValue(out FName weaponRowName, "RowName");
+        var hasTable = statHandle.TryGetValue(out UDataTable dataTable, "DataTable");
+
+        if (!hasRow || !hasTable) return stats;
+
+        var hasDataRow = dataTable.TryGetDataTableRow(weaponRowName.Text, StringComparison.OrdinalIgnoreCase, out var weaponRowValue);
+
+        if (!hasDataRow) return stats;
+
+        weaponRowValue.TryGetValue(out float firingRate, "FiringRate");
+        stats.Add("firingRate", firingRate);
+
+        weaponRowValue.TryGetValue(out float burstFiringRate, "BurstFiringRate");
+        stats.Add("burstRateOfFire", burstFiringRate);
+
+        weaponRowValue.TryGetValue(out float diceCritChance, "DiceCritChance");
+        stats.Add("criticalHitChance", diceCritChance);
+
+        weaponRowValue.TryGetValue(out float diceCritDamageMultiplier, "DiceCritDamageMultiplier");
+        stats.Add("criticalHitDamageMultiplier", diceCritDamageMultiplier);
+
+        weaponRowValue.TryGetValue(out float reloadTime, "ReloadTime");
+        stats.Add("reloadTime", reloadTime);
+
+        weaponRowValue.TryGetValue(out float dmgPB, "DmgPB");
+        stats.Add("damagePerBullet", dmgPB);
+
+        weaponRowValue.TryGetValue(out float envDmgPB, "EnvDmgPB");
+        stats.Add("environmentDamagePerBullet", envDmgPB);
+
+        weaponRowValue.TryGetValue(out float clipSize, "ClipSize");
+        stats.Add("clipSize", clipSize);
+
+        weaponRowValue.TryGetValue(out float ammoCostPerFire, "AmmoCostPerFire");
+        stats.Add("ammoCostPerFire", ammoCostPerFire);
+
+        weaponRowValue.TryGetValue(out float bulletsPerCartridge, "BulletsPerCartridge");
+        stats.Add("bulletsPerCartridge", bulletsPerCartridge);
+            
+        return stats;
+    }
 }
 
 class Resource : AssetType
@@ -296,6 +353,9 @@ class ExportAsset
     [JsonProperty("type"), JsonConverter(typeof(StringEnumConverter))]
     public EAssetType Type {  get; set; }
 
+    [JsonProperty("stats")]
+    public Dictionary<string, float> Stats { get; set; }
+
     public ExportAsset(AssetType assetType, UObject asset) {
         var icon = assetType.IconHandler(asset) ?? throw new Exception("Icon not present for asset");
         Icon = icon;
@@ -308,6 +368,10 @@ class ExportAsset
         Rarity = asset.GetOrDefault("Rarity", EFortRarity.Uncommon);
         RarityText = Rarity.GetNameText().Text;
         GameplayTags = asset.GetOrDefault<FGameplayTagContainer?>("GameplayTags");
+        if (GameplayTags is null)
+        {
+            GameplayTags = asset.GetDataListItem<FGameplayTagContainer?>("Tags");
+        }
 
         var seasonTag = GameplayTags?.GetValueOrDefault("Cosmetics.Filter.Season.")?.Text;
         Season = int.TryParse(seasonTag?.SubstringAfterLast("."), out var seasonNumber) ? seasonNumber : int.MaxValue;
@@ -316,6 +380,8 @@ class ExportAsset
         Series = series?.GetAnyOrDefault<FText>("DisplayName", "ItemName").Text ?? string.Empty;
 
         Type = assetType.Type;
+
+        Stats = assetType.StatsHandler(asset);
     }
 
     public async Task Export()
