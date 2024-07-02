@@ -22,8 +22,6 @@ using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using CUE4Parse.UE4.Assets.Exports.Engine;
 using CUE4Parse.UE4.Objects.UObject;
-using Flurl.Util;
-using System.Linq;
 
 abstract class AssetType
 {
@@ -33,6 +31,7 @@ abstract class AssetType
     public Func<UObject, UTexture2D?> IconHandler = GetAssetIcon;
     public Func<UObject, FText?> DisplayNameHandler = asset => asset.GetAnyOrDefault<FText?>("DisplayName", "ItemName") ?? new FText(asset.Name);
     public Func<UObject, FText> DescriptionHandler = asset => asset.GetAnyOrDefault<FText?>("Description", "ItemDescription") ?? new FText("No description.");
+    public FName statRowName = "";
     public virtual Dictionary<string, float> StatsHandler(UObject asset) {
         return new Dictionary<string, float>();
     }
@@ -199,6 +198,9 @@ class Item : AssetType
         Filters = new[] { "_Harvest", "Weapon_Pickaxe_", "Weapons_Pickaxe_", "Dev_WID" };
     }
 
+    public static List<string> processedTables = new List<string>();
+    public static Dictionary<string, FStructFallback> allStats = new Dictionary<string, FStructFallback>();
+
     public override Dictionary<string, float> StatsHandler(UObject asset)
     {
         var stats = new Dictionary<string, float>();
@@ -207,13 +209,28 @@ class Item : AssetType
         if (!hasHandle) return stats;
 
         var hasRow = statHandle.TryGetValue(out FName weaponRowName, "RowName");
-        var hasTable = statHandle.TryGetValue(out UDataTable dataTable, "DataTable");
 
-        if (!hasRow || !hasTable) return stats;
+        statRowName = weaponRowName;
 
-        var hasDataRow = dataTable.TryGetDataTableRow(weaponRowName.Text, StringComparison.OrdinalIgnoreCase, out var weaponRowValue);
+        if (!hasRow) return stats;
 
-        if (!hasDataRow) return stats;
+        var hasRowValue = allStats.TryGetValue(weaponRowName.Text, out var weaponRowValue);
+
+        if (!hasRowValue)
+        {            
+            var hasTable = statHandle.TryGetValue(out UDataTable dataTable, "DataTable");
+            if (processedTables.Contains(dataTable.Name)) return stats;
+            foreach (var kvp in dataTable.RowMap)
+            {
+                if (kvp.Key.IsNone) continue;
+                allStats[kvp.Key.Text] = kvp.Value;
+            }
+            processedTables.Add(dataTable.Name);
+        }
+
+        allStats.TryGetValue(weaponRowName.Text, out weaponRowValue);
+
+        if (weaponRowValue == null) return stats;
 
         weaponRowValue.TryGetValue(out float firingRate, "FiringRate");
         stats.Add("firingRate", firingRate);
@@ -356,6 +373,9 @@ class ExportAsset
     [JsonProperty("stats")]
     public Dictionary<string, float> Stats { get; set; }
 
+    [JsonProperty("statsRowName")]
+    public string StatsRowName { get; set; }
+
     public ExportAsset(AssetType assetType, UObject asset) {
         var icon = assetType.IconHandler(asset) ?? throw new Exception("Icon not present for asset");
         Icon = icon;
@@ -382,6 +402,8 @@ class ExportAsset
         Type = assetType.Type;
 
         Stats = assetType.StatsHandler(asset);
+
+        StatsRowName = assetType.statRowName.Text;
     }
 
     public async Task Export()

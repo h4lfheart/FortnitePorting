@@ -414,6 +414,7 @@ public class CUE4ParseViewModel : ViewModelBase
                     var asset = await Provider.TryLoadObjectAsync(data.ObjectPath);
                     if (asset is null) continue;
 
+                    Log.Information("Processing asset {0}", asset.Name);
                     var exportAsset = new ExportAsset(assetType, asset);
                     await exportAsset.ExportIcon();
                     exportAssets.Add(exportAsset.ID, exportAsset);
@@ -426,6 +427,7 @@ public class CUE4ParseViewModel : ViewModelBase
         }
 
 
+        Log.Information("DataTables processed {0}", Item.processedTables);
         Log.Information("Extracted assets {0}", assetCount);
 
         try
