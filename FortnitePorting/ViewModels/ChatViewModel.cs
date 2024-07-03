@@ -1,42 +1,42 @@
 using System;
-using System.Buffers;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
+using Avalonia.Collections;
 using Avalonia.Controls;
-using Avalonia.Media;
+using Avalonia.Controls.Primitives;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using FortnitePorting.Application;
+using CUE4Parse;
+using DynamicData;
+using FluentAvalonia.UI.Controls;
 using FortnitePorting.Models.Chat;
-using FortnitePorting.Models.Sockets;
-using FortnitePorting.Multiplayer.Data;
+using FortnitePorting.Multiplayer.Models;
+using FortnitePorting.Multiplayer.Packet;
 using FortnitePorting.Services;
-using FortnitePorting.Shared;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
-using Ionic.Zlib;
-using Serilog;
-using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
-using ZstdSharp;
-using Color = Avalonia.Media.Color;
-using Image = SixLabors.ImageSharp.Image;
-using ImageExtensions = FortnitePorting.Shared.Extensions.ImageExtensions;
+using Globals = FortnitePorting.Shared.Globals;
 
 namespace FortnitePorting.ViewModels;
 
 public partial class ChatViewModel : ViewModelBase
 {
     [ObservableProperty] private ScrollViewer _scroll;
-    [ObservableProperty] private ObservableCollection<ChatMessage> _messages = [];
-    [ObservableProperty] private ObservableCollection<ChatUser> _users = [];
+    [ObservableProperty] private TeachingTip _imageFlyout;
+
+    [ObservableProperty] private EPermissions _permissions;
     [ObservableProperty] private string _text = string.Empty;
+    [ObservableProperty] private Bitmap _selectedImage;
+    [ObservableProperty] private string _selectedImagePath;
+    [ObservableProperty] private string _selectedImageName;
+
+    [ObservableProperty] private ObservableCollection<ChatUser> _users = [];
+    [ObservableProperty] private ObservableCollection<ChatMessage> _messages = [];
 
     [ObservableProperty] private ObservableCollection<string> _commands =
     [
@@ -45,6 +45,8 @@ public partial class ChatViewModel : ViewModelBase
     
     public override async Task Initialize()
     {
+        GlobalChatService.Init();
+        
         Messages.CollectionChanged += (sender, args) =>
         {
             TaskService.RunDispatcher(() =>
@@ -59,30 +61,17 @@ public partial class ChatViewModel : ViewModelBase
     public override async void OnApplicationExit()
     {
         base.OnApplicationExit();
-        await SocketService.Send(new UnregisterData());
     }
 
-    private Compressor ZSTD_COMPRESS = new(6);
-
     [RelayCommand]
-    public async Task SendImage()
+    public async Task OpenImage()
     {
-        if (await BrowseFileDialog(fileTypes: Globals.ImageFileType) is { } path)
+        if (await BrowseFileDialog(fileTypes: Globals.ChatAttachmentFileType) is { } path)
         {
-            var image = Image.Load(await File.ReadAllBytesAsync(path)).CloneAs<Rgba32>();
-
-            var imageBytes = new byte[image.Width * image.Height * 4];
-            image.CopyPixelDataTo(imageBytes);
-
-            var compressedBytes = ZSTD_COMPRESS.Wrap(imageBytes).ToArray();
-            var chunks = compressedBytes.Chunk(2048).ToArray();
-            
-            await SocketService.Send(new ImageHeaderData(Path.GetFileName(path), image.Width, image.Height, chunks.Length));
-            for (var chunkIdx = 0; chunkIdx < chunks.Length; chunkIdx++)
-            {
-                await SocketService.Send(new ImageChunkData(chunkIdx, chunks[chunkIdx]));
-            }
-            await SocketService.Send(new ImageFooterData());
+            SelectedImagePath = path;
+            SelectedImageName = Path.GetFileName(path);
+            SelectedImage = new Bitmap(path);
+            ImageFlyout.IsOpen = true;
         }
     }
 

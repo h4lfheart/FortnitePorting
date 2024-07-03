@@ -46,6 +46,7 @@ public partial class AssetItem : ObservableObject
         CreationData = args;
         Guid = Guid.NewGuid();
         
+        // gameplay tag getter, pass into args
         if (CreationData.ExportType is EExportType.Prefab)
         {
             var tagsHelper = CreationData.Object.GetOrDefault<FStructFallback?>("CreativeTagsHelper");
@@ -56,8 +57,9 @@ public partial class AssetItem : ObservableObject
         else
         {
             GameplayTags = CreationData.Object.GetOrDefault<FGameplayTagContainer?>("GameplayTags");
+            GameplayTags ??= CreationData.Object.GetDataListItem<FGameplayTagContainer?>("Tags");
         }
-        
+
         Rarity = CreationData.Object.GetOrDefault("Rarity", EFortRarity.Uncommon);
         
         var description = CreationData.Object.GetAnyOrDefault<FText?>("Description", "ItemDescription") ?? new FText("No description.");

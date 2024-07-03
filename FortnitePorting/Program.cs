@@ -1,6 +1,4 @@
-﻿global using static FortnitePorting.Services.ApplicationService;
-
-using Avalonia;
+﻿using Avalonia;
 using System;
 using FortnitePorting.Application;
 

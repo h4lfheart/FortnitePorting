@@ -400,7 +400,3 @@ FodyWeavers.xsd
 
 # Blender Extensions
 *.blender_ext
-
-# Ignore
-FortnitePorting.Multiplayer/MultiplayerService.cs
-*MultiplayerService*

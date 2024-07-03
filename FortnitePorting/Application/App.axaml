@@ -10,6 +10,7 @@
 
      <Application.Resources>
          <ext:EnumToStringConverter x:Key="EnumToString" />
+         <ext:EnumHasFlagConverter x:Key="EnumHasFlag" />
          <ext:TitleCaseStringConverter x:Key="TitleCaseString" />
          
          <Brush x:Key="ToggleSwitchKnobFillOn">#FFFFFFFF</Brush>
@@ -23,8 +24,8 @@
          <Brush x:Key="ScrollViewerScrollBarsSeparatorBackground">#00000000</Brush>
          <x:Double x:Key="NavigationViewItemOnLeftIconBoxHeight">14</x:Double>
          <FontFamily x:Key="SymbolThemeFontFamily">Segoe Fluent Icons</FontFamily>
-         <Brush x:Key="TabViewItemHeaderBackgroundSelected">#30000000</Brush>
-         <Brush x:Key=" TabViewItemSeparator">#00000000</Brush>
+         <Brush x:Key="TabViewItemHeaderBackgroundSelected">#10000000</Brush>
+         <Brush x:Key="TabViewItemSeparator">#30000000</Brush>
          
      </Application.Resources>
              
@@ -45,18 +46,6 @@
         
         <Style Selector="Border">
             <Setter Property="CornerRadius" Value="4"/>
-        </Style>
-        
-        <Style Selector="ui|TabViewItem.FixTabViewItem /template/ Path#SelectedBackgroundPath">
-            <Setter Property="Fill" Value="#0DFFFFFF"/>
-        </Style>
-        
-        <Style Selector="ui|TabViewItem.FixTabViewItem /template/ Border#TabContainerBorder">
-            <Setter Property="Background" Value="Transparent"/>
-        </Style>
-        
-        <Style Selector="ui|TabView.FixTabView /template/ ContentPresenter#TabContentPresenter">
-            <Setter Property="Background" Value="#0DFFFFFF"/>
         </Style>
         
         <Style Selector="TextBlock:disabled">

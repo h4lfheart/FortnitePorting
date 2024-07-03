@@ -131,8 +131,6 @@ public static class ApplicationService
                 await AppSettings.Current.Discord.LoadIdentification();
                 await ApiVM.FortnitePorting.PostStatsAsync();
             });
-            
-            SocketService.Init();
         }
         
         if (AppSettings.Current.Discord.UseRichPresence)

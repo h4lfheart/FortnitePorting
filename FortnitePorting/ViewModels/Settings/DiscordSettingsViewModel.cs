@@ -10,13 +10,16 @@ using FluentAvalonia.UI.Media.Animation;
 using FortnitePorting.Application;
 using FortnitePorting.Models.API;
 using FortnitePorting.Models.API.Responses;
+using FortnitePorting.Multiplayer.Extensions;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
+using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.Shared.Validators;
 using Newtonsoft.Json;
 using RestSharp;
+using MiscExtensions = FortnitePorting.Shared.Extensions.MiscExtensions;
 
 namespace FortnitePorting.ViewModels.Settings;
 
@@ -71,7 +74,8 @@ public partial class DiscordSettingsViewModel : ViewModelBase
             Auth = auth;
             UseIntegration = true;
             await LoadIdentification();
-            SocketService.Init();
+            Id = Identification.Id.ToFpGuid();
+            if (GlobalChatService.WasStarted) GlobalChatService.Init();
             AppVM.Message("Discord Integration", $"Successfully authenticated user \"{UserName}\" via Discord.", severity: InfoBarSeverity.Success, closeTime: 2.5f);
             return;
          }
@@ -89,7 +93,7 @@ public partial class DiscordSettingsViewModel : ViewModelBase
       UseIntegration = false;
       Auth = null;
       Identification = null;
-      SocketService.DeInit();
+      GlobalChatService.DeInit();
       AppVM.Message("Discord Integration", $"Successfully de-authenticated user \"{removedUsername}\" via Discord.", closeTime: 2.5f);
    }
 
