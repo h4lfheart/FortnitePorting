@@ -11,6 +11,7 @@ using Avalonia.Layout;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CUE4Parse_Conversion;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Multiplayer.Extensions;
 using FortnitePorting.Multiplayer.Models;
@@ -22,6 +23,7 @@ using FortnitePorting.ViewModels.Settings;
 using NAudio.CoreAudioApi;
 using Newtonsoft.Json;
 using Serilog;
+using Exporter = FortnitePorting.Export.Exporter;
 
 namespace FortnitePorting.Models.Chat;
 
@@ -98,7 +100,6 @@ public partial class ChatUser : ObservableObject
     [RelayCommand]
     public async Task SendExport()
     {
-        
         var dialog = new ContentDialog
         {
             Title = $"Send Export to {DisplayName}",
@@ -116,6 +117,13 @@ public partial class ChatUser : ObservableObject
         dialog.PrimaryButtonCommand = new RelayCommand(async () =>
         {
             if (inputBox.Text is not { } text) return;
+            
+            var asset = await CUE4ParseVM.Provider.TryLoadObjectAsync(Exporter.FixPath(text));
+            if (asset is null)
+            {
+                AppVM.Message("Failed to Send Export", $"Could not load \"{text}\"", InfoBarSeverity.Error);
+                return;
+            }
 
             await GlobalChatService.Send(new ExportPacket(text), new MetadataBuilder()
                 .With("Target", Guid));
