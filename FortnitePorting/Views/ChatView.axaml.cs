@@ -20,7 +20,7 @@ namespace FortnitePorting.Views;
 
 public partial class ChatView : ViewBase<ChatViewModel>
 {
-    public ChatView()
+    public ChatView() : base(ChatVM)
     {
         InitializeComponent();
         ViewModel.Scroll = Scroll;
@@ -68,6 +68,7 @@ public partial class ChatView : ViewBase<ChatViewModel>
         base.OnLoaded(e);
         
         Scroll.ScrollToEnd();
+        AppVM.ChatNotifications = 0;
     }
     
     private async void OnImagePressed(object? sender, PointerPressedEventArgs e)

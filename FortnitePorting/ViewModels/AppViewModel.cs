@@ -12,6 +12,7 @@ using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels.Settings;
+using FortnitePorting.Views;
 
 namespace FortnitePorting.ViewModels;
 
@@ -23,6 +24,7 @@ public partial class AppViewModel : WindowModelBase
     [ObservableProperty] private Frame _contentFrame;
     [ObservableProperty] private NavigationView _navigationView;
     [ObservableProperty] private ObservableCollection<InfoBarData> _infoBars = [];
+    [ObservableProperty] private int _chatNotifications;
     
     public DiscordSettingsViewModel DiscordRef => AppSettings.Current.Discord;
     
@@ -72,5 +74,15 @@ public partial class AppViewModel : WindowModelBase
             .Concat(NavigationView.FooterMenuItems)
             .OfType<NavigationViewItem>()
             .FirstOrDefault(item => (string) item.Tag! == buttonName);
+    }
+
+    public bool IsInView<T>()
+    {
+        var result = false;
+        TaskService.RunDispatcher(() =>
+        {
+            result = AppVM.ContentFrame.CurrentSourcePageType == typeof(T);
+        });
+        return result;
     }
 }

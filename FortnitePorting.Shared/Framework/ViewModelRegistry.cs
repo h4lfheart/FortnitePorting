@@ -17,10 +17,17 @@ public class ViewModelRegistry
         return newViewModel;
     }
     
-    public static T Register<T>(ViewModelBase existing) where T : ViewModelBase, new()
+    public static T Register<T>(ViewModelBase? existing = null) where T : ViewModelBase, new()
     {
-        Registry[typeof(T)] = existing;
-        return (T) existing;
+        if (existing is not null)
+        {
+            Registry[typeof(T)] = existing;
+            return (T) existing;
+        }
+
+        var newViewModel = new T();
+        Registry[typeof(T)] = newViewModel;
+        return newViewModel;
     }
 
     public static bool Unregister<T>() where T : ViewModelBase

@@ -71,11 +71,12 @@ public partial class DiscordSettingsViewModel : ViewModelBase
          var auth = await ApiVM.FortnitePorting.GetDiscordAuthAsync();
          if (auth is not null)
          {
+            GlobalChatService.DeInit();
             Auth = auth;
             UseIntegration = true;
             await LoadIdentification();
             Id = Identification.Id.ToFpGuid();
-            if (GlobalChatService.WasStarted) GlobalChatService.Init();
+            GlobalChatService.Init();
             AppVM.Message("Discord Integration", $"Successfully authenticated user \"{UserName}\" via Discord.", severity: InfoBarSeverity.Success, closeTime: 2.5f);
             return;
          }

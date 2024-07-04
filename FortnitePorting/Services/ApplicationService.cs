@@ -10,6 +10,7 @@ using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using DesktopNotifications;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
 using FortnitePorting.Shared;
@@ -39,6 +40,7 @@ public static class ApplicationService
     public static IClassicDesktopStyleApplicationLifetime Application = null!;
     private static IStorageProvider StorageProvider => Application.MainWindow!.StorageProvider;
     public static IClipboard Clipboard => Application.MainWindow!.Clipboard!;
+    public static INotificationManager NotificationManager;
     
     public static readonly DirectoryInfo AssetsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets"));
     public static readonly DirectoryInfo MapsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Maps"));
@@ -131,6 +133,8 @@ public static class ApplicationService
                 await AppSettings.Current.Discord.LoadIdentification();
                 await ApiVM.FortnitePorting.PostStatsAsync();
             });
+            
+            GlobalChatService.Init();
         }
         
         if (AppSettings.Current.Discord.UseRichPresence)

@@ -45,8 +45,6 @@ public partial class ChatViewModel : ViewModelBase
     
     public override async Task Initialize()
     {
-        GlobalChatService.Init();
-        
         Messages.CollectionChanged += (sender, args) =>
         {
             TaskService.RunDispatcher(() =>

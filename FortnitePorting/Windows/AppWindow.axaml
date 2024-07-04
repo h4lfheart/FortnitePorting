@@ -47,6 +47,9 @@
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry ChatBubble}"/>
                      </ui:NavigationViewItem.IconSource>
+                     <ui:NavigationViewItem.InfoBadge>
+                         <ui:InfoBadge Value="{Binding ChatNotifications}" IsVisible="{Binding !!ChatNotifications}"/>
+                     </ui:NavigationViewItem.InfoBadge>
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItemSeparator/>
                  <ui:NavigationViewItem Content="Assets" Tag="Assets" IsEnabled="{Binding GameBasedTabsAreReady}">

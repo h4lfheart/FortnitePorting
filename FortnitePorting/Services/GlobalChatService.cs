@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.Input;
+using DesktopNotifications;
 using DynamicData.Binding;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
@@ -14,7 +15,13 @@ using FortnitePorting.Multiplayer.Models;
 using FortnitePorting.Multiplayer.Packet;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
+using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
+using FortnitePorting.ViewModels;
+using FortnitePorting.Views;
+using Microsoft.Toolkit.Uwp.Notifications;
+using Serilog;
+using Serilog.Core;
 using WatsonTcp;
 using Exception = System.Exception;
 using MultiplayerGlobals = FortnitePorting.Multiplayer.MultiplayerGlobals;
@@ -23,16 +30,15 @@ namespace FortnitePorting.Services;
 
 public static class GlobalChatService
 {
-    public static bool WasStarted;
-    public static WatsonTcpClient Client;
+    public static bool EstablishedFirstConnection;
+    public static WatsonTcpClient? Client;
 
     public static MetadataBuilder DefaultMeta => new MetadataBuilder()
         .With("Token", AppSettings.Current.Discord.Auth.AccessToken);
     
     public static void Init()
     {
-        WasStarted = true;
-        
+        ViewModelRegistry.Register<ChatViewModel>();
         Client = new WatsonTcpClient(MultiplayerGlobals.SOCKET_IP, MultiplayerGlobals.SOCKET_PORT);
         Client.Settings.Guid = AppSettings.Current.Discord.Id;
         Client.Callbacks.SyncRequestReceivedAsync = SyncRequestReceivedAsync;
@@ -60,8 +66,8 @@ public static class GlobalChatService
 
     public static void DeInit()
     {
-        Client.Disconnect();
-        Client.Dispose();
+        Client?.Disconnect();
+        Client?.Dispose();
     }
 
     private static async Task<SyncResponse> SyncRequestReceivedAsync(SyncRequest arg)
@@ -71,7 +77,9 @@ public static class GlobalChatService
         {
             case EPacketType.Connect:
             {
-                return new SyncResponse(arg, DefaultMeta.Build(), Array.Empty<byte>());
+                var response = new SyncResponse(arg, DefaultMeta.With("RequestingMessageHistory", !EstablishedFirstConnection).Build(), Array.Empty<byte>());;
+                EstablishedFirstConnection = true;
+                return response;
             }
             case EPacketType.Ping:
             {
@@ -84,7 +92,7 @@ public static class GlobalChatService
         }
     }
 
-    private static void OnMessageReceived(object? sender, MessageReceivedEventArgs e)
+    private static async void OnMessageReceived(object? sender, MessageReceivedEventArgs e)
     {
         var type = e.GetArgument<EPacketType>("Type");
         var user = e.GetArgument<Identification>("User");
@@ -107,6 +115,24 @@ public static class GlobalChatService
                     var stream = new MemoryStream(messagePacket.AttachmentData);
                     bitmap = new Bitmap(stream);
                 }
+
+                var isInChatView = AppVM.IsInView<ChatView>();
+                var isPrivate = e.GetArgument<bool>("IsPrivate");
+                if (isPrivate && !isInChatView)
+                {
+                    var notification = new Notification
+                    {
+                        Title = $"Message from {user.DisplayName}",
+                        Body = messagePacket.Message
+                    };
+                    
+                    await NotificationManager.ShowNotification(notification);
+                }
+
+                if (!e.GetArgument<bool>("IsMessageHistory") && !isInChatView)
+                {
+                    AppVM.ChatNotifications++;
+                }
                 
                 ChatVM.Messages.InsertSorted(new ChatMessage
                 {
@@ -125,7 +151,7 @@ public static class GlobalChatService
                     BitmapName = messagePacket.AttachmentName,
                     ReactionCount = e.GetArgument<int>("Reactions"),
                     ReactedTo = e.GetArgument<bool>("HasReacted"),
-                    IsPrivate = e.GetArgument<bool>("IsPrivate"),
+                    IsPrivate = isPrivate,
                     TargetUserName = e.GetArgument<string>("TargetUserName")
                 }, SortExpressionComparer<ChatMessage>.Descending(message => message.Timestamp));
                 break;

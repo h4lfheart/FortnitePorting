@@ -34,6 +34,7 @@ using FortnitePorting.Windows;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
+using Serilog;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
@@ -84,9 +85,19 @@ public partial class MapViewModel : ViewModelBase
 
     public override async Task Initialize()
     {
-        if (Helios.IsValid()) TargetMap = Helios;
-        else if (Rufus.IsValid()) TargetMap = Rufus;
-        else return;
+        if (Helios.IsValid())
+        {
+            TargetMap = Helios;
+        }
+        else if (Rufus.IsValid())
+        {
+            TargetMap = Rufus;
+        }
+        else
+        {
+            throw new Exception("Failed to find valid map for processing.");
+        }
+
         
         var mapTexture = await CUE4ParseVM.Provider.LoadObjectAsync<UTexture2D>(TargetMap.MinimapPath);
         MapBitmap = mapTexture.Decode()!.ToWriteableBitmap();
