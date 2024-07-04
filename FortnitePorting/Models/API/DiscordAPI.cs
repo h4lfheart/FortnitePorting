@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
 using FortnitePorting.Models.API.Responses;
+using FortnitePorting.Multiplayer.Models;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Services;
 using Newtonsoft.Json;
@@ -20,16 +21,16 @@ public class DiscordAPI : APIBase
     {
     }
     
-    public async Task<IdentificationResponse?> GetIdentificationAsync()
+    public async Task<Identification?> GetIdentificationAsync()
     {
         var response = await ExecuteAsync(IDENTIFICATION_URL, 
             parameters: new HeaderParameter("Authorization", $"Bearer {AppSettings.Current.Discord.Auth.AccessToken}"));
         
-        return response.StatusCode == HttpStatusCode.OK ? JsonConvert.DeserializeObject<IdentificationResponse>(response.Content) : null;
+        return response.StatusCode == HttpStatusCode.OK ? JsonConvert.DeserializeObject<Identification>(response.Content) : null;
         
     }
 
-    public IdentificationResponse? GetIdentification()
+    public Identification? GetIdentification()
     {
         return GetIdentificationAsync().GetAwaiter().GetResult();
     }

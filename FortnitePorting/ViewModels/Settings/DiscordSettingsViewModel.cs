@@ -11,6 +11,7 @@ using FortnitePorting.Application;
 using FortnitePorting.Models.API;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Multiplayer.Extensions;
+using FortnitePorting.Multiplayer.Models;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
@@ -36,13 +37,12 @@ public partial class DiscordSettingsViewModel : ViewModelBase
    [NotifyPropertyChangedFor(nameof(UserName))]
    [NotifyPropertyChangedFor(nameof(GlobalName))]
    [NotifyPropertyChangedFor(nameof(ProfilePictureURL))]
-   private IdentificationResponse? _identification;
+   private Identification? _identification;
    
-   [JsonIgnore] public string? UserName => Identification?.Username;
-   [JsonIgnore] public string? GlobalName => Identification?.GlobalName;
-   [JsonIgnore] public string? ProfilePictureURL => Identification is not null 
-      ? $"https://cdn.discordapp.com/avatars/{Identification.Id}/{Identification.AvatarId}.png?size=128" 
-      : null;
+   [JsonIgnore] public string? UserName => Identification?.UserName;
+   [JsonIgnore] public string? GlobalName => Identification?.DisplayName;
+
+   [JsonIgnore] public string? ProfilePictureURL => Identification?.AvatarURL;
 
    public async Task LoadIdentification()
    {

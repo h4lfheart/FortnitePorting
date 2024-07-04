@@ -18,7 +18,7 @@ public partial class ChatMessage : ObservableObject
     [ObservableProperty, NotifyPropertyChangedFor(nameof(UserTitleText))] private bool _isPrivate;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(UserTitleText))] private string _targetUserName;
 
-    public string UserTitleText => IsPrivate ? $"Message {(User.DisplayName.Equals(AppSettings.Current.Discord.Identification?.GlobalName) ? $"To {TargetUserName}" : $"From {User.DisplayName}")}" : User.DisplayName;
+    public string UserTitleText => IsPrivate ? $"Message {(User.DisplayName.Equals(AppSettings.Current.Discord.Identification?.DisplayName) ? $"To {TargetUserName}" : $"From {User.DisplayName}")}" : User.DisplayName;
 
     public bool HasImageData => Bitmap is not null;
     public bool HasTextData => !string.IsNullOrWhiteSpace(Text);

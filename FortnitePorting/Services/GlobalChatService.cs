@@ -112,7 +112,7 @@ public static class GlobalChatService
                 {
                     User = new ChatUser
                     {
-                        DisplayName = user.GlobalName,
+                        DisplayName = user.DisplayName,
                         UserName = user.UserName,
                         ProfilePictureURL = user.AvatarURL,
                         Id = user.Id,
@@ -152,9 +152,9 @@ public static class GlobalChatService
                     
                     ChatVM.Users.Add(new ChatUser
                     {
-                        DisplayName = onlineUser.GlobalName,
+                        DisplayName = onlineUser.DisplayName,
                         UserName = onlineUser.UserName,
-                        ProfilePictureURL = $"https://cdn.discordapp.com/avatars/{onlineUser.Id}/{onlineUser.AvatarId}.png?size=128",
+                        ProfilePictureURL = onlineUser.AvatarURL,
                         Id = onlineUser.Id,
                         Role = onlineUser.RoleType
                     });
@@ -180,7 +180,7 @@ public static class GlobalChatService
                     var dialog = new ContentDialog
                     {
                         Title = "Incoming Export Request",
-                        Content = $"{user.GlobalName} sent a request to export \"{export.Path}.\" Accept?",
+                        Content = $"{user.DisplayName} sent a request to export \"{export.Path}.\" Accept?",
                         CloseButtonText = "No",
                         PrimaryButtonText = "Yes",
                         PrimaryButtonCommand = new RelayCommand(async () =>

@@ -14,13 +14,15 @@ public class Identification : IDualSerialize
     [J("username")] public string UserName { get; set; } = string.Empty;
     [J("global_name")] public string GlobalName { get; set; } = string.Empty;
 
+    public string DisplayName => !string.IsNullOrWhiteSpace(GlobalName) ? GlobalName : UserName;
+
     public ERoleType RoleType { get; set; } = ERoleType.User;
 
     public string AvatarURL => RoleType switch
     {
         ERoleType.System => "https://fortniteporting.halfheart.dev/sockets/system.png",
         ERoleType.SystemExport => "https://fortniteporting.halfheart.dev/sockets/export.png",
-        _ => $"https://cdn.discordapp.com/avatars/{Id}/{AvatarId}.png?size=128"
+        _ => !string.IsNullOrWhiteSpace(AvatarId) ? $"https://cdn.discordapp.com/avatars/{Id}/{AvatarId}.png?size=128" : "https://fortniteporting.halfheart.dev/sockets/default.png"
     };
 
     public static Identification System = new()
