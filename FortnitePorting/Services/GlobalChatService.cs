@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.Input;
 using DesktopNotifications;
+using DynamicData;
 using DynamicData.Binding;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
@@ -66,8 +67,11 @@ public static class GlobalChatService
 
     public static void DeInit()
     {
-        Client?.Disconnect();
-        Client?.Dispose();
+        if (Client is null) return;
+        if (!Client.Connected) return;
+        
+        Client.Disconnect();
+        Client.Dispose();
     }
 
     private static async Task<SyncResponse> SyncRequestReceivedAsync(SyncRequest arg)
@@ -103,6 +107,8 @@ public static class GlobalChatService
                 var permissions = e.Data.ReadPacket<PermissionsPacket>();
 
                 ChatVM.Permissions = permissions.Permissions; // lol?
+                ChatVM.Commands.Clear();
+                ChatVM.Commands.AddRange(permissions.Commands);
                 break;
             }
             case EPacketType.Message:
@@ -176,14 +182,14 @@ public static class GlobalChatService
                         continue;
                     }
                     
-                    ChatVM.Users.Add(new ChatUser
+                    ChatVM.Users.InsertSorted(new ChatUser
                     {
                         DisplayName = onlineUser.DisplayName,
                         UserName = onlineUser.UserName,
                         ProfilePictureURL = onlineUser.AvatarURL,
                         Id = onlineUser.Id,
                         Role = onlineUser.RoleType
-                    });
+                    }, SortExpressionComparer<ChatUser>.Ascending(sortedUser => sortedUser.Role));
                 }
                 
                 break;

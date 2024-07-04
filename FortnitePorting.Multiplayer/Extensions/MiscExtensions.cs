@@ -31,9 +31,20 @@ public static class MiscExtensions
     {
         ERoleType.Muted => EPermissions.None,
         ERoleType.User => EPermissions.Text,
-        ERoleType.ImagePermissionUser => EPermissions.Text | EPermissions.SendAttachments,
+        ERoleType.Trusted => EPermissions.Text | EPermissions.SendAttachments,
         ERoleType.Staff => EPermissions.Staff,
         ERoleType.Owner => EPermissions.Owner,
         _ => EPermissions.Text,
     };
+
+    public static List<string> GetCommands(this EPermissions permissions)
+    {
+        
+        if (permissions.HasFlag(EPermissions.Staff))
+        {
+            return ["/shrug", "/add-profanity", "/remove-profanity"];
+        }
+        
+        return ["/shrug"];
+    }
 }

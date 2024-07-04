@@ -31,11 +31,11 @@ public class SetRolePacket() : IPacket
 
 public enum ERoleType
 {
-    [Description("Users")]
+    [Description("User")]
     User,
     
-    [Description("Users w/ Image Permissions")]
-    ImagePermissionUser,
+    [Description("Trusted")]
+    Trusted,
     
     [Description("Muted")]
     Muted,

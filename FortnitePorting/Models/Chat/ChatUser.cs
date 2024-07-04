@@ -44,6 +44,7 @@ public partial class ChatUser : ObservableObject
         ERoleType.Owner => Color.Parse("#acd2f5"),
         ERoleType.Staff => Color.Parse("#9856a2"),
         ERoleType.Muted => Color.Parse("#d23940"),
+        ERoleType.Trusted => Color.Parse("#00ff97"),
         _ => Colors.White
     });
     

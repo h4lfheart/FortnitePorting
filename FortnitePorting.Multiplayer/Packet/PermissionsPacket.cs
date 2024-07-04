@@ -7,10 +7,12 @@ namespace FortnitePorting.Multiplayer.Packet;
 public class PermissionsPacket() : IPacket
 {
     public EPermissions Permissions;
+    public List<string> Commands = [];
 
     public PermissionsPacket(ERoleType role) : this()
     {
         Permissions = role.GetPermissions();
+        Commands = Permissions.GetCommands();
     }
     
     public EPacketType PacketType => EPacketType.Permissions;
@@ -18,11 +20,22 @@ public class PermissionsPacket() : IPacket
     public void Serialize(BinaryWriter writer)
     {
         writer.Write((uint) Permissions);
+        writer.Write(Commands.Count);
+        foreach (var command in Commands)
+        {
+            writer.Write(command);
+        }
     }
 
     public void Deserialize(BinaryReader reader)
     {
         Permissions = (EPermissions) reader.ReadUInt32();
+
+        var commandCount = reader.ReadInt32();
+        for (var i = 0; i < commandCount; i++)
+        {
+            Commands.Add(reader.ReadString());
+        }
     }
 }
 
