@@ -39,7 +39,9 @@ public static class GlobalChatService
     
     public static void Init()
     {
-        ViewModelRegistry.New<ChatViewModel>();
+        if (!EstablishedFirstConnection)
+            ViewModelRegistry.New<ChatViewModel>();
+        
         Client = new WatsonTcpClient(MultiplayerGlobals.SOCKET_IP, MultiplayerGlobals.SOCKET_PORT);
         Client.Settings.Guid = AppSettings.Current.Discord.Id;
         Client.Callbacks.SyncRequestReceivedAsync = SyncRequestReceivedAsync;
@@ -121,8 +123,16 @@ public static class GlobalChatService
                 Bitmap? bitmap = null;
                 if (messagePacket.HasAttachmentData)
                 {
-                    var stream = new MemoryStream(messagePacket.AttachmentData);
-                    bitmap = new Bitmap(stream);
+                    try
+                    {
+                        var stream = new MemoryStream(messagePacket.AttachmentData);
+                        bitmap = new Bitmap(stream);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error(ex.ToString());
+                        break;
+                    }
                 }
 
                 var isInChatView = AppVM.IsInView<ChatView>();
