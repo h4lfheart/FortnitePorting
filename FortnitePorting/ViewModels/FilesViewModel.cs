@@ -46,6 +46,7 @@ public partial class FilesViewModel : ViewModelBase
     
     public override async Task Initialize()
     {
+        
         foreach (var (_, file) in CUE4ParseVM.Provider.Files)
         {
             var path = file.Path;

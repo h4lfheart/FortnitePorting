@@ -1,7 +1,11 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
+using Avalonia.Controls;
+using Avalonia.Layout;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.GameTypes.FN.Enums;
 using CUE4Parse.UE4.Assets.Exports;
@@ -11,7 +15,11 @@ using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.GameplayTags;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
+using FluentAvalonia.UI.Controls;
 using FortnitePorting.Models.Fortnite;
+using FortnitePorting.Multiplayer.Models;
+using FortnitePorting.Multiplayer.Packet;
+using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
 using SkiaSharp;
@@ -126,6 +134,42 @@ public partial class AssetItem : ObservableObject
     public bool Match(string filter)
     {
         return MiscExtensions.Filter(CreationData.DisplayName, filter) || MiscExtensions.Filter(CreationData.Object.Name, filter);
+    }
+    
+    [RelayCommand]
+    public async Task CopyPath()
+    {
+        await Clipboard.SetTextAsync(CreationData.Object.GetPathName());
+    }
+    
+    [RelayCommand]
+    public async Task SendToUser()
+    {
+        var users = ChatVM.Users.Select(user => user.DisplayName);
+        var comboBox = new ComboBox
+        {
+            ItemsSource = users,
+            SelectedIndex = 0,
+            HorizontalAlignment = HorizontalAlignment.Stretch
+        };
+        
+        var dialog = new ContentDialog
+        {
+            Title = $"Send \"{CreationData.DisplayName}\" to",
+            Content = comboBox,
+            CloseButtonText = "Cancel",
+            PrimaryButtonText = "Send",
+            PrimaryButtonCommand = new RelayCommand(async () =>
+            {
+                var targetUser = ChatVM.Users.FirstOrDefault(user => user.DisplayName.Equals(comboBox.SelectionBoxItem));
+                if (targetUser is null) return;
+                
+                await GlobalChatService.Send(new ExportPacket(CreationData.Object.GetPathName()), new MetadataBuilder().With("Target", targetUser.Guid));
+                AppVM.Message("Export Sent", $"Successfully sent {CreationData.DisplayName} to {targetUser.DisplayName}");
+            })
+        };
+
+        await dialog.ShowAsync();
     }
 }
 

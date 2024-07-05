@@ -41,7 +41,8 @@
                                     <ContentControl>
                                         <ContentControl.ContextMenu>
                                             <ContextMenu>
-                                                <MenuItem Header="Copy Path" Command="{Binding CopyPath}"/>
+                                                <MenuItem Header="Copy Path" Command="{Binding CopyPathCommand}"/>
+                                                <MenuItem Header="Send to User" Command="{Binding SendToUserCommand}"/>
                                             </ContextMenu>
                                         </ContentControl.ContextMenu>
                                         

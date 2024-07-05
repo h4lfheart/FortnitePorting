@@ -118,16 +118,16 @@ public partial class ChatUser : ObservableObject
         dialog.PrimaryButtonCommand = new RelayCommand(async () =>
         {
             if (inputBox.Text is not { } text) return;
-            
-            var asset = await CUE4ParseVM.Provider.TryLoadObjectAsync(Exporter.FixPath(text));
+
+            var path = Exporter.FixPath(text);
+            var asset = await CUE4ParseVM.Provider.TryLoadObjectAsync(path);
             if (asset is null)
             {
                 AppVM.Message("Failed to Send Export", $"Could not load \"{text}\"", InfoBarSeverity.Error);
                 return;
             }
 
-            await GlobalChatService.Send(new ExportPacket(text), new MetadataBuilder()
-                .With("Target", Guid));
+            await GlobalChatService.Send(new ExportPacket(path), new MetadataBuilder().With("Target", Guid));
         });
         
         inputBox.AddHandler(InputElement.KeyDownEvent, (sender, args) =>
@@ -152,7 +152,8 @@ public partial class ChatUser : ObservableObject
         var comboBox = new ComboBox
         {
             ItemsSource = enumValues,
-            SelectedIndex = 0
+            SelectedIndex = 0,
+            HorizontalAlignment = HorizontalAlignment.Stretch
         };
         
         var dialog = new ContentDialog

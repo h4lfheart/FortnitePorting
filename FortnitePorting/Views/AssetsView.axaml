@@ -133,6 +133,12 @@
                             <ListBox.ItemTemplate>
                                 <DataTemplate DataType="assets:AssetItem">
                                     <ContentControl Padding="8">
+                                        <ContentControl.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Header="Copy Path" Command="{Binding CopyPathCommand}"/>
+                                                <MenuItem Header="Send to User" Command="{Binding SendToUserCommand}"/>
+                                            </ContextMenu>
+                                        </ContentControl.ContextMenu>
                                         <StackPanel Width="{Binding DisplayWidth}" 
                                                     ToolTip.Tip="{Binding CreationData.Object.Name}">
                                             <Grid>

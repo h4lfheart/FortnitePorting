@@ -39,7 +39,7 @@ public static class GlobalChatService
     
     public static void Init()
     {
-        ViewModelRegistry.Register<ChatViewModel>();
+        ViewModelRegistry.New<ChatViewModel>();
         Client = new WatsonTcpClient(MultiplayerGlobals.SOCKET_IP, MultiplayerGlobals.SOCKET_PORT);
         Client.Settings.Guid = AppSettings.Current.Discord.Id;
         Client.Callbacks.SyncRequestReceivedAsync = SyncRequestReceivedAsync;
@@ -107,8 +107,11 @@ public static class GlobalChatService
                 var permissions = e.Data.ReadPacket<PermissionsPacket>();
 
                 ChatVM.Permissions = permissions.Permissions; // lol?
-                ChatVM.Commands.Clear();
-                ChatVM.Commands.AddRange(permissions.Commands);
+                await TaskService.RunDispatcherAsync(() => // random invalid thread exception, this should fix
+                {
+                    ChatVM.Commands.Clear();
+                    ChatVM.Commands.AddRange(permissions.Commands);
+                });
                 break;
             }
             case EPacketType.Message:

@@ -36,6 +36,7 @@ public static class ApplicationService
     public static RadioViewModel RadioVM => ViewModelRegistry.Get<RadioViewModel>()!;
     public static APIViewModel ApiVM => ViewModelRegistry.Get<APIViewModel>()!;
     public static ChatViewModel ChatVM => ViewModelRegistry.Get<ChatViewModel>()!;
+    public static FilesViewModel FilesVM => ViewModelRegistry.Get<FilesViewModel>()!;
     
     public static IClassicDesktopStyleApplicationLifetime Application = null!;
     private static IStorageProvider StorageProvider => Application.MainWindow!.StorageProvider;
