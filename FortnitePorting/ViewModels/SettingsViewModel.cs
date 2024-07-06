@@ -32,7 +32,7 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private InstallationSettingsViewModel _installation = new();
     [ObservableProperty] private ApplicationSettingsViewModel _application = new();
     [ObservableProperty] private ThemeSettingsViewModel _theme = new();
-    [ObservableProperty] private DiscordSettingsViewModel _discord = new();
+    [ObservableProperty] private OnlineSettingsViewModel _online = new();
     
     // Welcome
     [ObservableProperty] private bool _finishedWelcomeScreen;

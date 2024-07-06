@@ -14,11 +14,13 @@ using FortnitePorting.Models.Chat;
 using FortnitePorting.Multiplayer.Extensions;
 using FortnitePorting.Multiplayer.Models;
 using FortnitePorting.Multiplayer.Packet;
+using FortnitePorting.Multiplayer.Packet.Owner;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
+using FortnitePorting.ViewModels.Settings;
 using FortnitePorting.Views;
 using Microsoft.Toolkit.Uwp.Notifications;
 using Serilog;
@@ -35,7 +37,7 @@ public static class GlobalChatService
     public static WatsonTcpClient? Client;
 
     public static MetadataBuilder DefaultMeta => new MetadataBuilder()
-        .With("Token", AppSettings.Current.Discord.Auth.AccessToken);
+        .With("Token", AppSettings.Current.Online.Auth.AccessToken);
     
     public static void Init()
     {
@@ -43,7 +45,7 @@ public static class GlobalChatService
             ViewModelRegistry.New<ChatViewModel>();
         
         Client = new WatsonTcpClient(MultiplayerGlobals.SOCKET_IP, MultiplayerGlobals.SOCKET_PORT);
-        Client.Settings.Guid = AppSettings.Current.Discord.Id;
+        Client.Settings.Guid = AppSettings.Current.Online.Id;
         Client.Callbacks.SyncRequestReceivedAsync = SyncRequestReceivedAsync;
         Client.Events.MessageReceived += OnMessageReceived;
         Client.Connect();
@@ -83,7 +85,11 @@ public static class GlobalChatService
         {
             case EPacketType.Connect:
             {
-                var response = new SyncResponse(arg, DefaultMeta.With("RequestingMessageHistory", !EstablishedFirstConnection).Build(), Array.Empty<byte>());;
+                var meta = DefaultMeta
+                    .With("RequestingMessageHistory", !EstablishedFirstConnection)
+                    .With("MessageFetchCount", AppSettings.Current.Online.MessageFetchCount)
+                    .Build();
+                var response = new SyncResponse(arg, meta, Array.Empty<byte>());;
                 EstablishedFirstConnection = true;
                 return response;
             }
@@ -101,7 +107,7 @@ public static class GlobalChatService
     private static async void OnMessageReceived(object? sender, MessageReceivedEventArgs e)
     {
         var type = e.GetArgument<EPacketType>("Type");
-        var user = e.GetArgument<Identification>("User");
+        var user = e.GetArgument<Identification>("User")!;
         switch (type)
         {
             case EPacketType.Permissions:
@@ -137,7 +143,7 @@ public static class GlobalChatService
 
                 var isInChatView = AppVM.IsInView<ChatView>();
                 var isPrivate = e.GetArgument<bool>("IsPrivate");
-                if (isPrivate && !isInChatView)
+                if (isPrivate && !isInChatView && AppSettings.Current.Online.OnlineStatus == EOnlineStatus.Online)
                 {
                     var notification = new Notification
                     {
@@ -148,7 +154,10 @@ public static class GlobalChatService
                     await NotificationManager.ShowNotification(notification);
                 }
 
-                if (!e.GetArgument<bool>("IsMessageHistory") && !isInChatView)
+                if (!e.GetArgument<bool>("IsMessageHistory")
+                    && user.RoleType is not ERoleType.System
+                    && AppSettings.Current.Online.OnlineStatus is EOnlineStatus.Online
+                    && !isInChatView)
                 {
                     AppVM.ChatNotifications++;
                 }
@@ -218,9 +227,11 @@ public static class GlobalChatService
             }
             case EPacketType.Export:
             {
+                if (AppSettings.Current.Online.OnlineStatus == EOnlineStatus.DoNotDisturb) break;
+                
                 var export = e.Data.ReadPacket<ExportPacket>();
                 
-                TaskService.RunDispatcher(async () =>
+                await TaskService.RunDispatcherAsync(async () =>
                 {
                     var dialog = new ContentDialog
                     {

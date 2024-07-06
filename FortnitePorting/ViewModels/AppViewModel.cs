@@ -26,7 +26,7 @@ public partial class AppViewModel : WindowModelBase
     [ObservableProperty] private ObservableCollection<InfoBarData> _infoBars = [];
     [ObservableProperty] private int _chatNotifications;
     
-    public DiscordSettingsViewModel DiscordRef => AppSettings.Current.Discord;
+    public OnlineSettingsViewModel OnlineRef => AppSettings.Current.Online;
     
     public override async Task Initialize()
     {

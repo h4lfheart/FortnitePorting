@@ -127,18 +127,18 @@ public static class ApplicationService
         ViewModelRegistry.New<APIViewModel>();
         DependencyService.EnsureDependencies();
         
-        if (AppSettings.Current.Discord.UseIntegration)
+        if (AppSettings.Current.Online.UseIntegration)
         {
             TaskService.Run(async () =>
             {
-                await AppSettings.Current.Discord.LoadIdentification();
+                await AppSettings.Current.Online.LoadIdentification();
                 await ApiVM.FortnitePorting.PostStatsAsync();
             });
             
             GlobalChatService.Init();
         }
         
-        if (AppSettings.Current.Discord.UseRichPresence)
+        if (AppSettings.Current.Online.UseRichPresence)
         {
             DiscordService.Initialize();
         }

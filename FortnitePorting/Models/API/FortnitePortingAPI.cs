@@ -45,7 +45,7 @@ public class FortnitePortingAPI : APIBase
     {
         await ExecuteAsync(STATS_URL, Method.Post, parameters:
         [
-            new HeaderParameter("guid", AppSettings.Current.Discord.Id.ToString()),
+            new HeaderParameter("guid", AppSettings.Current.Online.Id.ToString()),
             new HeaderParameter("version", Globals.Version.ToString()),
         ]);
     }
@@ -57,7 +57,7 @@ public class FortnitePortingAPI : APIBase
     
     public async Task<OAuthResponse?> GetDiscordAuthAsync()
     {
-        var response = await ExecuteAsync(DISCORD_GET_URL, verbose: false, parameters: new QueryParameter("id", AppSettings.Current.Discord.Id.ToString()));
+        var response = await ExecuteAsync(DISCORD_GET_URL, verbose: false, parameters: new QueryParameter("id", AppSettings.Current.Online.Id.ToString()));
         return response.StatusCode == HttpStatusCode.OK ? JsonConvert.DeserializeObject<OAuthResponse>(response.Content) : null;
     }
 
@@ -68,7 +68,7 @@ public class FortnitePortingAPI : APIBase
     
     public async Task<OAuthResponse?> GetDiscordRefreshAsync()
     {
-        var response = await ExecuteAsync(DISCORD_GET_URL, verbose: false, parameters: new QueryParameter("refreshToken", AppSettings.Current.Discord.Auth.RefreshToken));
+        var response = await ExecuteAsync(DISCORD_GET_URL, verbose: false, parameters: new QueryParameter("refreshToken", AppSettings.Current.Online.Auth.RefreshToken));
         return response.StatusCode == HttpStatusCode.OK ? JsonConvert.DeserializeObject<OAuthResponse>(response.Content) : null;
     }
 

@@ -155,7 +155,7 @@ public partial class AssetItem : ObservableObject
         
         var dialog = new ContentDialog
         {
-            Title = $"Send \"{CreationData.DisplayName}\" to",
+            Title = $"Export \"{CreationData.DisplayName}\" to User",
             Content = comboBox,
             CloseButtonText = "Cancel",
             PrimaryButtonText = "Send",

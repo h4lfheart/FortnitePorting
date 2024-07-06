@@ -43,7 +43,7 @@
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Home}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Chat" Tag="Chat" IsEnabled="{Binding DiscordRef.UseIntegration}">
+                 <ui:NavigationViewItem Content="Chat" Tag="Chat" IsEnabled="{Binding OnlineRef.UseIntegration}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry ChatBubble}"/>
                      </ui:NavigationViewItem.IconSource>

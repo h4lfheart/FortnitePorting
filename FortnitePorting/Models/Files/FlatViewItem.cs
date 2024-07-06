@@ -48,7 +48,7 @@ public partial class FlatViewItem : ObservableObject
         var name = Path.SubstringAfterLast("/").SubstringBefore(".");
         var dialog = new ContentDialog
         {
-            Title = $"Send \"{name}\" to",
+            Title = $"Export \"{name}\" to User",
             Content = comboBox,
             CloseButtonText = "Cancel",
             PrimaryButtonText = "Send",

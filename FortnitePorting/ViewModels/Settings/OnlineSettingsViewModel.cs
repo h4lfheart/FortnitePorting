@@ -24,13 +24,15 @@ using MiscExtensions = FortnitePorting.Shared.Extensions.MiscExtensions;
 
 namespace FortnitePorting.ViewModels.Settings;
 
-public partial class DiscordSettingsViewModel : ViewModelBase
+public partial class OnlineSettingsViewModel : ViewModelBase
 {
    [ObservableProperty] private Guid _id = Guid.NewGuid();
    [ObservableProperty] private OAuthResponse? _auth;
    [ObservableProperty] private bool _useIntegration = false;
    [ObservableProperty] private bool _useRichPresence = true;
    [ObservableProperty] private bool _hasReceivedFirstPrompt = false;
+   [ObservableProperty] private int _messageFetchCount = 50;
+   [ObservableProperty] private EOnlineStatus _onlineStatus = EOnlineStatus.Online;
    
    [field: JsonIgnore]
    [ObservableProperty]
@@ -111,7 +113,7 @@ public partial class DiscordSettingsViewModel : ViewModelBase
                       "This choice can be changed any time in the application settings.",
             CloseButtonText = "Ignore",
             PrimaryButtonText = "Authenticate",
-            PrimaryButtonCommand = new RelayCommand(async () => await AppSettings.Current.Discord.Authenticate())
+            PrimaryButtonCommand = new RelayCommand(async () => await AppSettings.Current.Online.Authenticate())
          };
 
          await discordIntegrationDialog.ShowAsync();
@@ -139,4 +141,13 @@ public partial class DiscordSettingsViewModel : ViewModelBase
          }
       }
    }
+}
+
+public enum EOnlineStatus
+{
+   [Description("Online")]
+   Online,
+   
+   [Description("Do Not Disturb")]
+   DoNotDisturb
 }

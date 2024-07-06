@@ -24,7 +24,7 @@ public class DiscordAPI : APIBase
     public async Task<Identification?> GetIdentificationAsync()
     {
         var response = await ExecuteAsync(IDENTIFICATION_URL, 
-            parameters: new HeaderParameter("Authorization", $"Bearer {AppSettings.Current.Discord.Auth.AccessToken}"));
+            parameters: new HeaderParameter("Authorization", $"Bearer {AppSettings.Current.Online.Auth.AccessToken}"));
         
         return response.StatusCode == HttpStatusCode.OK ? JsonConvert.DeserializeObject<Identification>(response.Content) : null;
         
@@ -38,7 +38,7 @@ public class DiscordAPI : APIBase
     public async Task CheckAuthRefresh()
     {
         var response = await ExecuteAsync(TEST_OAUTH_URL, 
-            parameters: new HeaderParameter("Authorization", $"Bearer {AppSettings.Current.Discord.Auth.AccessToken}"));
+            parameters: new HeaderParameter("Authorization", $"Bearer {AppSettings.Current.Online.Auth.AccessToken}"));
         
         if (response.StatusCode != HttpStatusCode.OK)
         {
@@ -50,7 +50,7 @@ public class DiscordAPI : APIBase
                     Content = "Your discord authentication has expired. Please re-authenticate to continue using FortnitePorting's online features.",
                     CloseButtonText = "Ignore",
                     PrimaryButtonText = "Re-Authenticate",
-                    PrimaryButtonCommand = new RelayCommand(async () => await AppSettings.Current.Discord.Authenticate())
+                    PrimaryButtonCommand = new RelayCommand(async () => await AppSettings.Current.Online.Authenticate())
                 };
 
                 await discordIntegrationDialog.ShowAsync();

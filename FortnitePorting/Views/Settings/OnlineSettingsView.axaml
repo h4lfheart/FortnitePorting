@@ -9,8 +9,8 @@
              xmlns:settings="clr-namespace:FortnitePorting.ViewModels.Settings"
              xmlns:versions="clr-namespace:CUE4Parse.UE4.Versions;assembly=CUE4Parse"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="FortnitePorting.Views.Settings.DiscordSettingsView"
-             x:DataType="settings:DiscordSettingsViewModel">
+             x:Class="FortnitePorting.Views.Settings.OnlineSettingsView"
+             x:DataType="settings:OnlineSettingsViewModel">
     
     <ScrollViewer>
         <StackPanel VerticalAlignment="Top" Margin="{ext:Space 1, 1, 2, 1}">
@@ -39,6 +39,22 @@
                     <ToggleSwitch IsChecked="{Binding UseRichPresence}"/>
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
+            
+            <ui:SettingsExpander Header="Online Status" Description="The status that should be applied to chat features.">
+                <ui:SettingsExpander.Footer>
+                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type settings:EOnlineStatus}}"
+                              SelectedItem="{Binding OnlineStatus, Converter={StaticResource EnumToString}}" />
+                </ui:SettingsExpander.Footer>
+            </ui:SettingsExpander>
+            
+            <ui:SettingsExpander Header="Message Fetch Count" Description="The number of old messages to load upon opening the chat.">
+                <ui:SettingsExpander.Footer>
+                    <ui:NumberBox Value="{Binding MessageFetchCount}" 
+                                  Minimum="0"
+                                  SpinButtonPlacementMode="Inline"/>
+                </ui:SettingsExpander.Footer>
+            </ui:SettingsExpander>
+            
         </StackPanel>
     </ScrollViewer>
 </UserControl>

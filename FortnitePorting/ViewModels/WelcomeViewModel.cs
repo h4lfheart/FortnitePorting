@@ -74,7 +74,7 @@ public partial class WelcomeViewModel : ViewModelBase
     {
         await CheckForInstallation();
 
-        await AppSettings.Current.Discord.PromptForAuthentication();
+        await AppSettings.Current.Online.PromptForAuthentication();
     }
 
     private async Task CheckForInstallation()

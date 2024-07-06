@@ -5,9 +5,9 @@ using BlenderSettingsViewModel = FortnitePorting.ViewModels.Settings.BlenderSett
 
 namespace FortnitePorting.Views.Settings;
 
-public partial class DiscordSettingsView : ViewBase<DiscordSettingsViewModel>
+public partial class OnlineSettingsView : ViewBase<OnlineSettingsViewModel>
 {
-    public DiscordSettingsView() : base(AppSettings.Current.Discord)
+    public OnlineSettingsView() : base(AppSettings.Current.Online)
     {
         InitializeComponent();
     }

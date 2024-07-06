@@ -23,9 +23,9 @@
                     <ui:PathIconSource Data="{ext:MaterialKindToGeometry Folder}"/>
                 </ui:NavigationViewItem.IconSource>
             </ui:NavigationViewItem>
-            <ui:NavigationViewItem Content="Discord" Tag="Discord">
+            <ui:NavigationViewItem Content="Online" Tag="Online">
                 <ui:NavigationViewItem.IconSource>
-                    <ui:ImageIconSource Source="/Assets/Icons/Discord.png"/>
+                    <ui:PathIconSource Data="{ext:MaterialKindToGeometry Web}"/>
                 </ui:NavigationViewItem.IconSource>
             </ui:NavigationViewItem>
             <ui:NavigationViewItem Content="Theme" Tag="Theme">

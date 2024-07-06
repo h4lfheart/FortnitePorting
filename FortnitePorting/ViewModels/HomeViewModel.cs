@@ -27,13 +27,13 @@ public partial class HomeViewModel : ViewModelBase
     [ObservableProperty] private ObservableCollection<NewsControl> _newsControls = [];
     [ObservableProperty] private ObservableCollection<FeaturedControl> _featuredControls = [];
 
-    public DiscordSettingsViewModel DiscordRef => AppSettings.Current.Discord;
+    public OnlineSettingsViewModel OnlineRef => AppSettings.Current.Online;
     
     public override async Task Initialize()
     {
-        if (!AppSettings.Current.Discord.HasReceivedFirstPrompt)
+        if (!AppSettings.Current.Online.HasReceivedFirstPrompt)
         {
-            await AppSettings.Current.Discord.PromptForAuthentication();
+            await AppSettings.Current.Online.PromptForAuthentication();
         }
         
         TaskService.Run(async () =>
