@@ -8,6 +8,7 @@
              xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
              xmlns:settings="clr-namespace:FortnitePorting.ViewModels.Settings"
              xmlns:versions="clr-namespace:CUE4Parse.UE4.Versions;assembly=CUE4Parse"
+             xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FortnitePorting.Views.Settings.InstallationSettingsView"
              x:DataType="settings:InstallationSettingsViewModel">
@@ -72,6 +73,42 @@
                 <ui:SettingsExpander.Footer>
                     <TextBox Text="{Binding EncryptionKey}" Watermark="Ex. 0x0000000000000000000000000000000000000000000000000000000000000000"/>
                 </ui:SettingsExpander.Footer>
+                
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="{ext:Space 1}"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="{ext:Space 1}"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="{ext:Space 1}"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center" HorizontalAlignment="Left" TextAlignment="Left"
+                                   TextTrimming="CharacterEllipsis"
+                                   Text="Extra Keys"/>
+                        <Button Grid.Column="2" ToolTip.Tip="Add Key" HorizontalAlignment="Left" 
+                                Content="{material:MaterialIconExt Add}" 
+                                Command="{Binding AddEncryptionKey}"/>
+                        <Button Grid.Column="4" ToolTip.Tip="Remove Key" HorizontalAlignment="Left"
+                                Content="{material:MaterialIconExt Minus}"
+                                Command="{Binding RemoveEncryptionKey}"/>
+                    </Grid>
+                    
+                    <ListBox Grid.Row="2" ItemsSource="{Binding ExtraKeys}" SelectedIndex="{Binding SelectedExtraKeyIndex, Mode=TwoWay}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding KeyString}" Watermark="Ex. 0x0000000000000000000000000000000000000000000000000000000000000000"
+                                         Margin="{ext:Space 0, 1, 0, 1}"/>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
             </ui:SettingsExpander>
             <ui:SettingsExpander Header="Mappings File" Description="The mappings file required for asset parsing to work properly. Required for Fortnite v14.30+" IsEnabled="{Binding MappingsFileEnabled}">
                 <ui:SettingsExpander.Footer>

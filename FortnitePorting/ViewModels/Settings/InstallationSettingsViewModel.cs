@@ -1,7 +1,9 @@
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.UE4.Versions;
+using FortnitePorting.Models.CUE4Parse;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Validators;
@@ -25,7 +27,14 @@ public partial class InstallationSettingsViewModel : ViewModelBase
     [ObservableProperty] private string _archiveDirectory;
     
     [ObservableProperty] private EGame _unrealVersion = EGame.GAME_UE5_LATEST;
-    [ObservableProperty] private string _encryptionKey = Globals.ZERO_CHAR;
+    
+    [NotifyDataErrorInfo]
+    [EncryptionKey]
+    [ObservableProperty] 
+    private string _encryptionKey;
+    
+    [ObservableProperty] private int _selectedExtraKeyIndex;
+    [ObservableProperty] private ObservableCollection<ExtraEncryptionKey> _extraKeys = [];
     
     [ObservableProperty] 
     [NotifyPropertyChangedFor(nameof(MappingsFileEnabled))]
@@ -57,5 +66,17 @@ public partial class InstallationSettingsViewModel : ViewModelBase
         {
             MappingsFile = path;
         }
+    }
+    
+    public async Task AddEncryptionKey()
+    {
+        ExtraKeys.Add(new ExtraEncryptionKey());
+    }
+    
+    public async Task RemoveEncryptionKey()
+    {
+        var selectedIndexToRemove = SelectedExtraKeyIndex;
+        ExtraKeys.RemoveAt(selectedIndexToRemove);
+        SelectedExtraKeyIndex = selectedIndexToRemove == 0 ? 0 : selectedIndexToRemove - 1;
     }
 }
