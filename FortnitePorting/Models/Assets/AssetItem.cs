@@ -35,7 +35,6 @@ public partial class AssetItem : ObservableObject
 
     [ObservableProperty] private bool _isFavorite;
 
-    public string Description { get; set; }
     public EFortRarity Rarity { get; set; }
     public int Season { get; set; }
     public UFortItemSeriesDefinition? Series { get; set; }
@@ -54,9 +53,6 @@ public partial class AssetItem : ObservableObject
         Guid = Guid.NewGuid();
 
         Rarity = CreationData.Object.GetOrDefault("Rarity", EFortRarity.Uncommon);
-        
-        var description = CreationData.Object.GetAnyOrDefault<FText?>("Description", "ItemDescription") ?? new FText("No description.");
-        Description = description.Text;
         
         var seasonTag = CreationData.GameplayTags?.GetValueOrDefault("Cosmetics.Filter.Season.")?.Text;
         Season = int.TryParse(seasonTag?.SubstringAfterLast("."), out var seasonNumber) ? seasonNumber : int.MaxValue;
@@ -163,6 +159,7 @@ public class AssetItemCreationArgs
     public required UObject Object { get; set; }
     public required UTexture2D Icon { get; set; }
     public required string DisplayName { get; set; }
+    public required string Description { get; set; }
     public required EExportType ExportType { get; set; }
     public bool IsHidden { get; set; } = false;
     public bool HideRarity { get; set; } = false;

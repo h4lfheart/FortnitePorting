@@ -7,6 +7,7 @@ using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.Math;
+using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Objects.GameplayTags;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
@@ -195,5 +196,25 @@ public static class CUE4ParseExtensions
         }
 
         return returnList;
+    }
+    
+    public static T? GetVehicleMetadata<T>(this UObject asset, params string[] names) where T : class
+    {
+        FStructFallback? GetMarkerDisplay(UBlueprintGeneratedClass? blueprint)
+        {
+            var obj = blueprint?.ClassDefaultObject.Load();
+            return obj?.GetOrDefault<FStructFallback>("MarkerDisplay");
+        }
+
+        var output = asset.GetAnyOrDefault<T?>(names);
+        if (output is not null) return output;
+
+        var vehicle = asset.Get<UBlueprintGeneratedClass>("VehicleActorClass");
+        output = GetMarkerDisplay(vehicle)?.GetAnyOrDefault<T?>(names);
+        if (output is not null) return output;
+
+        var vehicleSuper = vehicle.SuperStruct.Load<UBlueprintGeneratedClass>();
+        output = GetMarkerDisplay(vehicleSuper)?.GetAnyOrDefault<T?>(names);
+        return output;
     }
 }

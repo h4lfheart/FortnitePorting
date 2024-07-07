@@ -8,6 +8,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
+using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.GameplayTags;
 using CUE4Parse.UE4.Objects.UObject;
 using FluentAvalonia.UI.Controls;
@@ -73,7 +74,7 @@ public partial class AssetLoaderCollection : ObservableObject
                 {
                     ClassNames = ["AthenaToyItemDefinition"]
                 },
-                /*new AssetLoader(EExportType.Emoticon)
+                new AssetLoader(EExportType.Emoticon)
                 {
                     ClassNames = ["AthenaEmojiItemDefinition"],
                     HideNames = ["Emoji_100APlus"]
@@ -96,7 +97,7 @@ public partial class AssetLoaderCollection : ObservableObject
                 {
                     ClassNames = ["AthenaDanceItemDefinition"],
                     HideNames = ["_CT", "_NPC"]
-                }*/
+                }
             ]
         },
         new AssetLoaderCategory(EAssetCategory.Creative)
@@ -143,7 +144,168 @@ public partial class AssetLoaderCollection : ObservableObject
                     }
                 }
             ]
-        }
+        },
+        new AssetLoaderCategory(EAssetCategory.Gameplay)
+        {
+            Loaders = 
+            [
+                new AssetLoader(EExportType.Item)
+                {
+                    ClassNames = ["AthenaGadgetItemDefinition", "FortWeaponRangedItemDefinition", 
+                        "FortWeaponMeleeItemDefinition", "FortCreativeWeaponMeleeItemDefinition", 
+                        "FortCreativeWeaponRangedItemDefinition", "FortWeaponMeleeDualWieldItemDefinition"],
+                    HideNames = ["_Harvest", "Weapon_Pickaxe_", "Weapons_Pickaxe_", "Dev_WID"],
+                    HidePredicate = (loader, asset, name) =>  false // TODO item filtering
+                },
+                new AssetLoader(EExportType.Resource)
+                {
+                    ClassNames = ["FortIngredientItemDefinition", "FortResourceItemDefinition"],
+                    HideNames = ["SurvivorItemData", "OutpostUpgrade_StormShieldAmplifier"]
+                },
+                new AssetLoader(EExportType.Trap)
+                {
+                    ClassNames = ["FortTrapItemDefinition"],
+                    HideNames = ["TID_Creative", "TID_Floor_Minigame_Trigger_Plate"],
+                    HidePredicate = (loader, asset, name) =>  false // TODO trap filtering
+                    
+                },
+                new AssetLoader(EExportType.Vehicle)
+                {
+                    ClassNames = ["FortVehicleItemDefinition"],
+                    IconHandler = asset => asset.GetVehicleMetadata<UTexture2D>("Icon", "SmallPreviewImage", "LargePreviewImage"),
+                    DisplayNameHandler = asset => asset.GetVehicleMetadata<FText>("DisplayName", "ItemName")?.Text,
+                    HideRarity = true
+                },
+                new AssetLoader(EExportType.Wildlife)
+                {
+                    ManuallyDefinedAssets = 
+                    [
+                        new ManuallyDefinedAsset
+                        {
+                            Name = "Llama",
+                            AssetPath = "/Labrador/Meshes/Labrador_Mammal",
+                            IconPath = "FortniteGame/Content/UI/Foundation/Textures/Icons/Athena/T-T-Icon-BR-SM-Athena-SupplyLlama-01"
+                        },
+                        new ManuallyDefinedAsset
+                        {
+                            Name = "Boar",
+                            AssetPath = "/Irwin/AI/Prey/Burt/Meshes/Burt_Mammal",
+                            IconPath = "/Irwin/Icons/T-Icon-Fauna-Boar"
+                        },
+                        new ManuallyDefinedAsset
+                        {
+                            Name = "Chicken",
+                            AssetPath = "/Irwin/AI/Prey/Nug/Meshes/Nug_Bird",
+                            IconPath = "/Irwin/Icons/T-Icon-Fauna-Chicken"
+                        },
+                        new ManuallyDefinedAsset
+                        {
+                            Name = "Frog",
+                            AssetPath = "/Irwin/AI/Simple/Smackie/Meshes/Smackie_Amphibian",
+                            IconPath = "/Irwin/Icons/T-Icon-Fauna-Frog"
+                        },
+                        new ManuallyDefinedAsset
+                        {
+                            Name = "Crow",
+                            AssetPath = "/Irwin/AI/Prey/Crow/Meshes/Crow_Bird",
+                            IconPath = "/Irwin/Icons/T-Icon-Fauna-Crow"
+                        },
+                        new ManuallyDefinedAsset
+                        {
+                            Name = "Raptor",
+                            AssetPath = "/Irwin/AI/Predators/Robert/Meshes/Jungle_Raptor_Fauna",
+                            IconPath = "/Irwin/Icons/T-Icon-Fauna-JungleRaptor"
+                        },
+                        new ManuallyDefinedAsset
+                        {
+                            Name = "Wolf",
+                            AssetPath = "/Irwin/AI/Predators/Grandma/Meshes/Grandma_Mammal",
+                            IconPath = "/Irwin/Icons/T-Icon-Fauna-Wolf"
+                        }
+                    ],
+                    HideRarity = true
+                }
+            ]
+        },
+        new AssetLoaderCategory(EAssetCategory.Festival)
+        {
+            Loaders = 
+            [
+                new AssetLoader(EExportType.FestivalGuitar)
+                {
+                    ClassNames = ["SparksGuitarItemDefinition"]
+                },
+                new AssetLoader(EExportType.FestivalBass)
+                {
+                    ClassNames = ["SparksBassItemDefinition"]
+                },
+                new AssetLoader(EExportType.FestivalKeytar)
+                {
+                    ClassNames = ["SparksKeyboardItemDefinition"]
+                },
+                new AssetLoader(EExportType.FestivalDrum)
+                {
+                    ClassNames = ["SparksDrumItemDefinition"]
+                },
+                new AssetLoader(EExportType.FestivalMic)
+                {
+                    ClassNames = ["SparksMicItemDefinition"]
+                },
+            ]
+        },
+        /*new AssetLoaderCategory(EAssetCategory.Lego)
+        {
+            Loaders = 
+            [
+                new AssetLoader(EExportType.LegoOutfit)
+                {
+                    ClassNames = ["JunoAthenaCharacterItemOverrideDefinition"],
+                    IconHandler = asset =>
+                    {
+                        var meshSchema = asset.GetAnyOrDefault<UObject?>("AssembledMeshSchema", "LowDetailsAssembledMeshSchema");
+                        if (meshSchema is null) return null;
+
+                        var additionalDatas = meshSchema.GetOrDefault("AdditionalData", Array.Empty<FInstancedStruct>());
+                        foreach (var additionalData in additionalDatas)
+                        {
+                            var previewImage = additionalData.NonConstStruct?.GetAnyOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage");
+                            if (previewImage is not null) return previewImage;
+                        }
+
+                        return null;
+                    },
+                    DisplayNameHandler = asset =>
+                    {
+                        var baseItemDefinition = asset.GetOrDefault<UObject?>("BaseAthenaCharacterItemDefinition");
+                        return baseItemDefinition?.GetAnyOrDefault<FText?>("DisplayName", "ItemName")?.Text ?? asset.Name;
+                    },
+                    DescriptionHandler = asset =>
+                    {
+                        var baseItemDefinition = asset.GetOrDefault<UObject?>("BaseAthenaCharacterItemDefinition");
+                        return baseItemDefinition?.GetAnyOrDefault<FText?>("Description", "ItemDescription")?.Text ?? "No description.";
+                    }
+                },
+                new AssetLoader(EExportType.LegoEmote)
+                {
+                    ClassNames = ["JunoAthenaCharacterItemOverrideDefinition"],
+                    IconHandler = asset =>
+                    {
+                        var baseItemDefinition = asset.GetOrDefault<UObject?>("BaseAthenaDanceItemDefinition");
+                        return baseItemDefinition?.GetAnyOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage");
+                    },
+                    DisplayNameHandler = asset =>
+                    {
+                        var baseItemDefinition = asset.GetOrDefault<UObject?>("BaseAthenaDanceItemDefinition");
+                        return baseItemDefinition?.GetAnyOrDefault<FText?>("DisplayName", "ItemName")?.Text ?? asset.Name;
+                    },
+                    DescriptionHandler = asset =>
+                    {
+                        var baseItemDefinition = asset.GetOrDefault<UObject?>("BaseAthenaDanceItemDefinition");
+                        return baseItemDefinition?.GetAnyOrDefault<FText?>("Description", "ItemDescription")?.Text ?? "No description.";
+                    }
+                }
+            ]
+        }*/
 
     ];
     

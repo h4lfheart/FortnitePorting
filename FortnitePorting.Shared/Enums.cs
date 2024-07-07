@@ -140,6 +140,20 @@ public enum EExportType
     [Description("Microphones"), Export(EPrimitiveExportType.Mesh)]
     FestivalMic,
     
+    // LEGO
+    
+    [Description("Lego Outfits"), Export(EPrimitiveExportType.Mesh)]
+    LegoOutfit,
+    
+    [Description("Lego Emote"), Export(EPrimitiveExportType.Animation)]
+    LegoEmote,
+    
+    [Description("Lego Prop"), Export(EPrimitiveExportType.Mesh)]
+    LegoProp,
+    
+    [Description("Lego Wildlife"), Export(EPrimitiveExportType.Mesh)]
+    LegoWildlife,
+    
     // GENERIC
 
     [Description("Mesh"), Export(EPrimitiveExportType.Mesh)]

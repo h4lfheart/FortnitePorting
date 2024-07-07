@@ -35,12 +35,14 @@ public partial class AssetLoader : ObservableObject
 
     public string[] ClassNames = [];
     public string[] HideNames = [];
+    public ManuallyDefinedAsset[] ManuallyDefinedAssets = [];
     public bool LoadHiddenAssets;
     public bool HideRarity;
     public Func<AssetLoader, UObject, string, bool> HidePredicate = (loader, asset, name) => false;
     public string PlaceholderIconPath = "FortniteGame/Content/Athena/Prototype/Textures/T_Placeholder_Generic";
     public Func<UObject, UTexture2D?> IconHandler = GetIcon;
     public Func<UObject, string?> DisplayNameHandler = asset => asset.GetAnyOrDefault<FText?>("DisplayName", "ItemName")?.Text;
+    public Func<UObject, string?> DescriptionHandler = asset => asset.GetAnyOrDefault<FText?>("Description", "ItemDescription")?.Text;
     public Func<UObject, FGameplayTagContainer?> GameplayTagHandler = GetGameplayTags;
     
     public readonly ReadOnlyObservableCollection<AssetItem> Filtered;
@@ -159,13 +161,28 @@ public partial class AssetLoader : ObservableObject
             .ToList();
         Assets.RemoveAll(data => data.AssetName.Text.EndsWith("Random", StringComparison.OrdinalIgnoreCase));
 
-        TotalAssets = Assets.Count;
+        TotalAssets = Assets.Count + ManuallyDefinedAssets.Length;
         foreach (var asset in Assets)
         {
             await WaitIfPausedAsync();
             try
             {
                 await LoadAsset(asset);
+            }
+            catch (Exception e)
+            {
+                Log.Error("{0}", e);
+            }
+
+            LoadedAssets++;
+        }
+
+        foreach (var manualAsset in ManuallyDefinedAssets)
+        {
+            await WaitIfPausedAsync();
+            try
+            {
+                await LoadAsset(manualAsset);
             }
             catch (Exception e)
             {
@@ -200,6 +217,35 @@ public partial class AssetLoader : ObservableObject
         var icon = IconHandler(asset) ?? await CUE4ParseVM.Provider.TryLoadObjectAsync<UTexture2D>(PlaceholderIconPath);
         if (icon is null) return;
         
+        await TaskService.RunDispatcherAsync(() =>
+        {
+            SearchAutoComplete.AddUnique(displayName);
+        });
+        
+        var args = new AssetItemCreationArgs
+        {
+            Object = asset,
+            Icon = icon,
+            DisplayName = displayName,
+            Description = DescriptionHandler(asset) ?? "No Description.",
+            ExportType = Type,
+            IsHidden = isHidden,
+            HideRarity = HideRarity,
+            GameplayTags = GameplayTagHandler(asset)
+        };
+
+        Source.AddOrUpdate(new AssetItem(args));
+    }
+    
+    private async Task LoadAsset(ManuallyDefinedAsset manualAsset)
+    {
+        var asset = await CUE4ParseVM.Provider.TryLoadObjectAsync(manualAsset.AssetPath);
+        if (asset is null) return;
+
+        var displayName = manualAsset.Name;
+            
+        var icon = await CUE4ParseVM.Provider.TryLoadObjectAsync<UTexture2D>(manualAsset.IconPath) ?? await CUE4ParseVM.Provider.TryLoadObjectAsync<UTexture2D>(PlaceholderIconPath);
+        if (icon is null) return;
         
         await TaskService.RunDispatcherAsync(() =>
         {
@@ -211,8 +257,8 @@ public partial class AssetLoader : ObservableObject
             Object = asset,
             Icon = icon,
             DisplayName = displayName,
+            Description = manualAsset.Description,
             ExportType = Type,
-            IsHidden = isHidden,
             HideRarity = HideRarity,
             GameplayTags = GameplayTagHandler(asset)
         };
