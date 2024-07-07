@@ -839,21 +839,20 @@ public class ExportContext
             }
             case UTexture texture:
             {
-                using var fileStream = File.OpenWrite(path);
-                switch (Meta.Settings.ImageFormat)
+                if (texture is UTexture2DArray && texture.GetFirstMip() is { } mip)
                 {
-                    case EImageFormat.PNG:
+                    for (var layerIndex = 0; layerIndex < mip.SizeZ; layerIndex++)
                     {
-                        var textureBitmap = texture.Decode();
-                        textureBitmap?.Encode(SKEncodedImageFormat.Png, 100).SaveTo(fileStream); 
-                        break;
+                        var textureBitmap = texture.Decode(mip, zLayer: layerIndex);
+                        var texturePath = path.Replace(".png", $"_{layerIndex}.png");
+                        ExportBitmap(textureBitmap, texturePath);
                     }
-                    case EImageFormat.TGA:
-                    {
-                        var textureBitmap = texture.DecodeImageSharp();
-                        textureBitmap.SaveAsTga(fileStream);
-                        break;
-                    }
+                }
+                else
+                {
+                    
+                    using var textureBitmap = texture.Decode();
+                    ExportBitmap(textureBitmap, path);
                 }
 
                 break;
@@ -868,6 +867,19 @@ public class ExportContext
                 break;
             }
         }
+    }
+
+    private void ExportBitmap(SKBitmap? bitmap, string path)
+    {
+        using var fileStream = File.OpenWrite(path); 
+                
+        var format = Meta.Settings.ImageFormat switch
+        {
+            EImageFormat.PNG => ETextureFormat.Png,
+            EImageFormat.TGA => ETextureFormat.Tga
+        };
+                
+        bitmap?.Encode(format, 100).SaveTo(fileStream); 
     }
     
     public string GetExportPath(UObject obj, string ext)

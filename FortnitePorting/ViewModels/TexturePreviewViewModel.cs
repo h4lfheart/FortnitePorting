@@ -13,13 +13,13 @@ namespace FortnitePorting.ViewModels;
 
 public partial class TexturePreviewViewModel : WindowModelBase
 {
+    [ObservableProperty] private UTexture _texture;
     [ObservableProperty] private string _textureName = string.Empty;
-    [ObservableProperty, 
-     NotifyPropertyChangedFor(nameof(MinimumMip)), 
-     NotifyPropertyChangedFor(nameof(MaximumMip))] private UTexture _texture;
     [ObservableProperty] private int _targetMipIndex;
-    public int MinimumMip => Texture?.PlatformData.Mips.IndexOf(Texture.PlatformData.Mips.FirstOrDefault(mip => mip.BulkData.Data is not null)) ?? 0;
-    public int MaximumMip => Texture?.PlatformData.Mips.Length - 1 ?? 0;
+    [ObservableProperty] private int _minimumMip;
+    [ObservableProperty] private int _maximumMip;
+    [ObservableProperty] private int _targetLayerIndex;
+    [ObservableProperty] private int _maximumLayer;
     
     [ObservableProperty] private WriteableBitmap _originalBitmap;
     [ObservableProperty] private WriteableBitmap _displayBitmap;
@@ -36,6 +36,15 @@ public partial class TexturePreviewViewModel : WindowModelBase
         ShowBlueChannel = true;
         ShowAlphaChannel = true;
         
+        var firstMip = Texture.GetFirstMip();
+        MinimumMip = Texture.PlatformData.Mips.IndexOf(firstMip);
+        MaximumMip = Texture.PlatformData.Mips.Length - 1;
+        MaximumLayer = Texture.PlatformData.Mips[MinimumMip].SizeZ - 1;
+        
+        if (TargetMipIndex < MinimumMip || TargetMipIndex > MaximumMip)
+            TargetMipIndex = MinimumMip;
+
+        
         UpdateTextureInfo();
         UpdateBitmap();
     }
@@ -45,7 +54,7 @@ public partial class TexturePreviewViewModel : WindowModelBase
         if (Texture.PlatformData.Mips.Length > 0)
         {
             var mip = Texture.PlatformData.Mips[TargetMipIndex];
-            OriginalBitmap = Texture.Decode(mip)!.ToWriteableBitmap();
+            OriginalBitmap = Texture.Decode(mip, zLayer: TargetLayerIndex)!.ToWriteableBitmap();
         }
         else
         {
@@ -138,6 +147,7 @@ public partial class TexturePreviewViewModel : WindowModelBase
             }
 
             case nameof(TargetMipIndex):
+            case nameof(TargetLayerIndex):
             {
                 UpdateTextureInfo();
                 UpdateBitmap();
