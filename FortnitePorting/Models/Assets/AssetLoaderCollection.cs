@@ -8,6 +8,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
+using CUE4Parse.UE4.Objects.GameplayTags;
 using CUE4Parse.UE4.Objects.UObject;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
@@ -133,14 +134,13 @@ public partial class AssetLoaderCollection : ObservableObject
                                 "PID_LimeEmptyPlot", "PID_Townscaper", "JunoPlotPlaysetItemDefintion", "LME",
                                 "PID_ObstacleCourse", "MW_"],
                     HideRarity = true,
-                    HidePredicate = (loader, asset, name) =>
+                    GameplayTagHandler = asset =>
                     {
                         var tagsHelper = asset.GetOrDefault<FStructFallback?>("CreativeTagsHelper");
-                        if (tagsHelper is null) return false;
-
-                        var tags = tagsHelper.GetOrDefault("CreativeTags", Array.Empty<FName>());
-                        return tags.Any(tag => tag.Text.Contains("Device", StringComparison.OrdinalIgnoreCase));
-                    } 
+                        var tags = tagsHelper?.GetOrDefault<FName[]>("CreativeTags") ?? [];
+                        var gameplayTags = tags.Select(tag => new FGameplayTag(tag)).ToArray();
+                        return new FGameplayTagContainer(gameplayTags);
+                    }
                 }
             ]
         }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
@@ -12,6 +13,7 @@ using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
 using FortnitePorting.Models.API;
 using FortnitePorting.Models.API.Responses;
+using FortnitePorting.Models.CUE4Parse;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Framework;
@@ -44,7 +46,10 @@ public partial class WelcomeViewModel : ViewModelBase
     
     
     [ObservableProperty] private EGame _unrealVersion = EGame.GAME_UE5_LATEST;
-    [ObservableProperty] private string _encryptionKey;
+    [ObservableProperty] private FileEncryptionKey _mainKey;
+    
+    [ObservableProperty] private int _selectedExtraKeyIndex;
+    [ObservableProperty] private ObservableCollection<FileEncryptionKey> _extraKeys = [];
     
     [ObservableProperty] 
     [NotifyPropertyChangedFor(nameof(MappingsFileEnabled))]
@@ -101,7 +106,7 @@ public partial class WelcomeViewModel : ViewModelBase
         AppSettings.Current.Installation.FortniteVersion = FortniteVersion;
         AppSettings.Current.Installation.ArchiveDirectory = ArchiveDirectory;
         AppSettings.Current.Installation.UnrealVersion = UnrealVersion;
-        AppSettings.Current.Installation.EncryptionKey = EncryptionKey;
+        AppSettings.Current.Installation.MainKey = MainKey;
         AppSettings.Current.Installation.UseMappingsFile = UseMappingsFile;
         AppSettings.Current.Installation.MappingsFile = MappingsFile;
         AppSettings.Current.Installation.GameLanguage = GameLanguage;
@@ -128,6 +133,18 @@ public partial class WelcomeViewModel : ViewModelBase
         {
             MappingsFile = path;
         }
+    }
+    
+    public async Task AddEncryptionKey()
+    {
+        ExtraKeys.Add(FileEncryptionKey.Empty);
+    }
+    
+    public async Task RemoveEncryptionKey()
+    {
+        var selectedIndexToRemove = SelectedExtraKeyIndex;
+        ExtraKeys.RemoveAt(selectedIndexToRemove);
+        SelectedExtraKeyIndex = selectedIndexToRemove == 0 ? 0 : selectedIndexToRemove - 1;
     }
 }
 

@@ -47,7 +47,7 @@ public static class CUE4ParseExtensions
     public static bool ContainsAny(this FGameplayTagContainer? tags, string check)
     {
         if (tags is null) return false;
-        return tags.Value.Any(x => x.TagName.Text.Contains(check));
+        return tags.Value.Any(x => x.TagName.Text.Contains(check, StringComparison.OrdinalIgnoreCase));
     }
 
     public static FVector ToFVector(this TIntVector3<float> vec)

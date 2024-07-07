@@ -14,6 +14,7 @@ using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.Core.Misc;
+using CUE4Parse.UE4.Objects.GameplayTags;
 using CUE4Parse.Utils;
 using DynamicData;
 using DynamicData.Binding;
@@ -38,8 +39,9 @@ public partial class AssetLoader : ObservableObject
     public bool HideRarity;
     public Func<AssetLoader, UObject, string, bool> HidePredicate = (loader, asset, name) => false;
     public string PlaceholderIconPath = "FortniteGame/Content/Athena/Prototype/Textures/T_Placeholder_Generic";
-    public Func<UObject, UTexture2D?> IconHandler = asset => GetIcon(asset);
+    public Func<UObject, UTexture2D?> IconHandler = GetIcon;
     public Func<UObject, string?> DisplayNameHandler = asset => asset.GetAnyOrDefault<FText?>("DisplayName", "ItemName")?.Text;
+    public Func<UObject, FGameplayTagContainer?> GameplayTagHandler = GetGameplayTags;
     
     public readonly ReadOnlyObservableCollection<AssetItem> Filtered;
     public SourceCache<AssetItem, Guid> Source = new(item => item.Guid);
@@ -74,23 +76,24 @@ public partial class AssetLoader : ObservableObject
         { "Hidden Assets", x => x.CreationData.IsHidden },
         
         // Cosmetic
-        { "Battle Pass", x => x.GameplayTags.ContainsAny("BattlePass") },
-        { "Item Shop", x => x.GameplayTags.ContainsAny("ItemShop") },
+        { "Battle Pass", x => x.CreationData.GameplayTags.ContainsAny("BattlePass") },
+        { "Item Shop", x => x.CreationData.GameplayTags.ContainsAny("ItemShop") },
         
         // Game
-        { "Save The World", x => x.GameplayTags.ContainsAny("CampaignHero", "SaveTheWorld") || x.CreationData.Object.GetPathName().Contains("SaveTheWorld", StringComparison.OrdinalIgnoreCase) },
-        { "Battle Royale", x => !x.GameplayTags.ContainsAny("CampaignHero", "SaveTheWorld") && !x.CreationData.Object.GetPathName().Contains("SaveTheWorld", StringComparison.OrdinalIgnoreCase) },
+        { "Save The World", x => x.CreationData.GameplayTags.ContainsAny("CampaignHero", "SaveTheWorld") || x.CreationData.Object.GetPathName().Contains("SaveTheWorld", StringComparison.OrdinalIgnoreCase) },
+        { "Battle Royale", x => !x.CreationData.GameplayTags.ContainsAny("CampaignHero", "SaveTheWorld") && !x.CreationData.Object.GetPathName().Contains("SaveTheWorld", StringComparison.OrdinalIgnoreCase) },
         
         // Prefab
-        { "Galleries", x => x.GameplayTags.ContainsAny("Gallery") },
-        { "Prefabs", x => x.GameplayTags.ContainsAny("Prefab") },
+        { "Galleries", x => x.CreationData.GameplayTags.ContainsAny("Gallery") },
+        { "Prefabs", x => x.CreationData.GameplayTags.ContainsAny("Prefab") },
+        { "Devices", x => x.CreationData.GameplayTags.ContainsAny("Device") },
         
         // Item
-        { "Weapons", x => x.GameplayTags.ContainsAny("Weapon") },
+        { "Weapons", x => x.CreationData.GameplayTags.ContainsAny("Weapon") },
         { "Gadgets", x => x.CreationData.Object.ExportType.Equals("AthenaGadgetItemDefinition", StringComparison.OrdinalIgnoreCase) },
-        { "Melee", x => x.GameplayTags.ContainsAny("Melee") },
-        { "Consumables", x => x.GameplayTags.ContainsAny("Consume") },
-        { "Lego", x => x.GameplayTags.ContainsAny("Juno") },
+        { "Melee", x => x.CreationData.GameplayTags.ContainsAny("Melee") },
+        { "Consumables", x => x.CreationData.GameplayTags.ContainsAny("Consume") },
+        { "Lego", x => x.CreationData.GameplayTags.ContainsAny("Juno") },
         
     };
     
@@ -210,7 +213,8 @@ public partial class AssetLoader : ObservableObject
             DisplayName = displayName,
             ExportType = Type,
             IsHidden = isHidden,
-            HideRarity = HideRarity
+            HideRarity = HideRarity,
+            GameplayTags = GameplayTagHandler(asset)
         };
 
         Source.AddOrUpdate(new AssetItem(args));
@@ -220,6 +224,12 @@ public partial class AssetLoader : ObservableObject
     {
         return asset.GetDataListItem<UTexture2D>("Icon", "LargeIcon")
                ?? asset.GetAnyOrDefault<UTexture2D?>("Icon", "SmallPreviewImage", "LargeIcon", "LargePreviewImage");
+    }
+    
+    public static FGameplayTagContainer? GetGameplayTags(UObject asset)
+    {
+        return asset.GetDataListItem<FGameplayTagContainer?>("Tags")
+               ?? asset.GetOrDefault<FGameplayTagContainer?>("GameplayTags");
     }
     
     public void ModifyFilters(string tag, bool enable)

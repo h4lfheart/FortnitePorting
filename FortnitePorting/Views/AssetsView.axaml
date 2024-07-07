@@ -87,6 +87,7 @@
                                             <Separator HorizontalAlignment="Stretch"/>
                                             <CheckBox Content="Galleries" IsCheckedChanged="OnFilterChecked" />
                                             <CheckBox Content="Prefabs" IsCheckedChanged="OnFilterChecked" />
+                                            <CheckBox Content="Devices" IsCheckedChanged="OnFilterChecked" />
                                         </StackPanel>
                                         <StackPanel IsVisible="{Binding AssetLoaderCollection.ActiveLoader.HasItemFilters}">
                                             <TextBlock Text="Items" Classes="BodyStrongTextBlockStyle" Margin="{ext:Space 0, 1, 0, 0.5}"/>

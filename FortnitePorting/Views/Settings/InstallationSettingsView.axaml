@@ -71,7 +71,7 @@
             </ui:SettingsExpander>
             <ui:SettingsExpander Header="Encryption Key" Description="The encryption key required to decrypt Fortnite's game files." IsEnabled="{Binding EncryptionKeyEnabled}">
                 <ui:SettingsExpander.Footer>
-                    <TextBox Text="{Binding EncryptionKey}" Watermark="Ex. 0x0000000000000000000000000000000000000000000000000000000000000000"/>
+                    <TextBox Text="{Binding MainKey.KeyString}" Watermark="Ex. 0x0000000000000000000000000000000000000000000000000000000000000000"/>
                 </ui:SettingsExpander.Footer>
                 
                 <Grid>

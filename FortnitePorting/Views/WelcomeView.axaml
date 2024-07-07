@@ -7,6 +7,7 @@
              xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              d:DesignHeight="770" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.WelcomeView"
              x:DataType="viewModels:WelcomeViewModel">
@@ -50,6 +51,7 @@
                         <Setter Property="Margin" Value="0 0 0 4"/>
                     </Style>
                 </StackPanel.Styles>
+                
                 <ui:SettingsExpander Header="Fortnite Version" Description="The version of Fortnite that Fortnite Porting will be loading.">
                     <ui:SettingsExpander.Footer>
                         <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type shared:EFortniteVersion}}"
@@ -77,7 +79,7 @@
                     <ui:SettingsExpander.Footer>
                         <StackPanel Orientation="Horizontal">
                             <TextBox Text="{Binding ArchiveDirectory}" Watermark="Ex. C:/Program Files/Epic Games/Fortnite/FortniteGame/Content/Paks"/>
-                            <Button Margin="4 0 0 0" Command="{Binding BrowseArchivePathCommand}">
+                            <Button Margin="4 0 0 0" Command="{Binding BrowseArchivePath}">
                                 <ui:SymbolIcon Symbol="Folder"/>
                             </Button>
                         </StackPanel>
@@ -97,15 +99,51 @@
                 </ui:SettingsExpander>
                 <ui:SettingsExpander Header="Encryption Key" Description="The encryption key required to decrypt Fortnite's game files." IsEnabled="{Binding EncryptionKeyEnabled}">
                     <ui:SettingsExpander.Footer>
-                        <TextBox Text="{Binding EncryptionKey}" Watermark="Ex. 0x0000000000000000000000000000000000000000000000000000000000000000"/>
+                        <TextBox Text="{Binding MainKey.KeyString}" Watermark="Ex. 0x0000000000000000000000000000000000000000000000000000000000000000"/>
                     </ui:SettingsExpander.Footer>
+                    
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="{ext:Space 1}"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        
+                        <Grid Grid.Row="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="{ext:Space 1}"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="{ext:Space 1}"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center" HorizontalAlignment="Left" TextAlignment="Left"
+                                       TextTrimming="CharacterEllipsis"
+                                       Text="Extra Keys"/>
+                            <Button Grid.Column="2" ToolTip.Tip="Add Key" HorizontalAlignment="Left" 
+                                    Content="{material:MaterialIconExt Add}" 
+                                    Command="{Binding AddEncryptionKey}"/>
+                            <Button Grid.Column="4" ToolTip.Tip="Remove Key" HorizontalAlignment="Left"
+                                    Content="{material:MaterialIconExt Minus}"
+                                    Command="{Binding RemoveEncryptionKey}"/>
+                        </Grid>
+                        
+                        <ListBox Grid.Row="2" ItemsSource="{Binding ExtraKeys}" SelectedIndex="{Binding SelectedExtraKeyIndex, Mode=TwoWay}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBox Text="{Binding KeyString}" Watermark="Ex. 0x0000000000000000000000000000000000000000000000000000000000000000"
+                                             Margin="{ext:Space 0, 1, 0, 1}"/>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
                 </ui:SettingsExpander>
                 <ui:SettingsExpander Header="Mappings File" Description="The mappings file required for asset parsing to work properly. Required for Fortnite v14.30+" IsEnabled="{Binding MappingsFileEnabled}">
                     <ui:SettingsExpander.Footer>
                         <StackPanel Orientation="Horizontal">
                             <CheckBox IsChecked="{Binding UseMappingsFile}"/>
                             <TextBox Text="{Binding MappingsFile}" Watermark="Ex. C:/Users/FortnitePorting/Downloads/Mappings.usmap" IsEnabled="{Binding UseMappingsFile}"/>
-                            <Button Margin="4 0 0 0" Command="{Binding BrowseMappingsFileCommand}" IsEnabled="{Binding UseMappingsFile}">
+                            <Button Margin="4 0 0 0" Command="{Binding BrowseMappingsFile}" IsEnabled="{Binding UseMappingsFile}">
                                 <ui:SymbolIcon Symbol="Folder"/>
                             </Button>
                         </StackPanel>

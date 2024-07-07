@@ -36,7 +36,6 @@ public partial class AssetItem : ObservableObject
     [ObservableProperty] private bool _isFavorite;
 
     public string Description { get; set; }
-    public FGameplayTagContainer? GameplayTags { get; set; }
     public EFortRarity Rarity { get; set; }
     public int Season { get; set; }
     public UFortItemSeriesDefinition? Series { get; set; }
@@ -53,27 +52,13 @@ public partial class AssetItem : ObservableObject
     {
         CreationData = args;
         Guid = Guid.NewGuid();
-        
-        // gameplay tag getter, pass into args
-        if (CreationData.ExportType is EExportType.Prefab)
-        {
-            var tagsHelper = CreationData.Object.GetOrDefault<FStructFallback?>("CreativeTagsHelper");
-            var tags = tagsHelper?.GetOrDefault<FName[]>("CreativeTags") ?? [];
-            var gameplayTags = tags.Select(tag => new FGameplayTag(tag)).ToArray();
-            GameplayTags = new FGameplayTagContainer(gameplayTags);
-        }
-        else
-        {
-            GameplayTags = CreationData.Object.GetOrDefault<FGameplayTagContainer?>("GameplayTags");
-            GameplayTags ??= CreationData.Object.GetDataListItem<FGameplayTagContainer?>("Tags");
-        }
 
         Rarity = CreationData.Object.GetOrDefault("Rarity", EFortRarity.Uncommon);
         
         var description = CreationData.Object.GetAnyOrDefault<FText?>("Description", "ItemDescription") ?? new FText("No description.");
         Description = description.Text;
         
-        var seasonTag = GameplayTags?.GetValueOrDefault("Cosmetics.Filter.Season.")?.Text;
+        var seasonTag = CreationData.GameplayTags?.GetValueOrDefault("Cosmetics.Filter.Season.")?.Text;
         Season = int.TryParse(seasonTag?.SubstringAfterLast("."), out var seasonNumber) ? seasonNumber : int.MaxValue;
         
         var seriesComponent = CreationData.Object.TryGetFortComponentByType("FortItemComponent_Series");
@@ -181,4 +166,5 @@ public class AssetItemCreationArgs
     public required EExportType ExportType { get; set; }
     public bool IsHidden { get; set; } = false;
     public bool HideRarity { get; set; } = false;
+    public FGameplayTagContainer? GameplayTags { get; set; }
 }

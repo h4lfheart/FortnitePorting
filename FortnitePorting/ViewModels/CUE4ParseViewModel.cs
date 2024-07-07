@@ -128,11 +128,16 @@ public class CUE4ParseViewModel : ViewModelBase
             }
             default:
             {
-                await Provider.SubmitKeyAsync(Globals.ZERO_GUID, new FAesKey(AppSettings.Current.Installation.EncryptionKey));
+                var mainKey = AppSettings.Current.Installation.MainKey;
+                if (mainKey.IsEmpty) mainKey = FileEncryptionKey.Empty;
+                
+                await Provider.SubmitKeyAsync(Globals.ZERO_GUID, mainKey.EncryptionKey);
+                
                 foreach (var vfs in Provider.UnloadedVfs.ToArray())
                 {
                     foreach (var extraKey in AppSettings.Current.Installation.ExtraKeys)
                     {
+                        if (extraKey.IsEmpty) continue;
                         if (!vfs.TestAesKey(extraKey.EncryptionKey)) continue;
                         
                         await Provider.SubmitKeyAsync(vfs.EncryptionKeyGuid, extraKey.EncryptionKey);

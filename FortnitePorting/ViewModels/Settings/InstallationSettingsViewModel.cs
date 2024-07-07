@@ -31,10 +31,10 @@ public partial class InstallationSettingsViewModel : ViewModelBase
     [NotifyDataErrorInfo]
     [EncryptionKey]
     [ObservableProperty] 
-    private string _encryptionKey;
+    private FileEncryptionKey _mainKey = FileEncryptionKey.Empty;
     
     [ObservableProperty] private int _selectedExtraKeyIndex;
-    [ObservableProperty] private ObservableCollection<ExtraEncryptionKey> _extraKeys = [];
+    [ObservableProperty] private ObservableCollection<FileEncryptionKey> _extraKeys = [];
     
     [ObservableProperty] 
     [NotifyPropertyChangedFor(nameof(MappingsFileEnabled))]
@@ -70,7 +70,7 @@ public partial class InstallationSettingsViewModel : ViewModelBase
     
     public async Task AddEncryptionKey()
     {
-        ExtraKeys.Add(new ExtraEncryptionKey());
+        ExtraKeys.Add(FileEncryptionKey.Empty);
     }
     
     public async Task RemoveEncryptionKey()
