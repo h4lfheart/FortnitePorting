@@ -87,11 +87,11 @@ public partial class MapViewModel : ViewModelBase
         }
 
         
-        var mapTexture = await CUE4ParseVM.Provider.LoadObjectAsync<UTexture2D>(TargetMap.MinimapPath);
-        MapBitmap = mapTexture.Decode()!.ToWriteableBitmap();
-
         var maskTexture = await CUE4ParseVM.Provider.LoadObjectAsync<UTexture2D>(TargetMap.MaskPath);
         MaskBitmap = maskTexture.Decode()!.ToWriteableBitmap();
+        
+        var mapTexture = await CUE4ParseVM.Provider.LoadObjectAsync<UTexture2D>(TargetMap.MinimapPath);
+        MapBitmap = mapTexture.Decode()!.ToWriteableBitmap();
         
         WorldName = TargetMap.MapPath.SubstringAfterLast("/");
         
