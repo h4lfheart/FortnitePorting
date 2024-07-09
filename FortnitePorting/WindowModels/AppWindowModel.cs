@@ -4,19 +4,17 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FluentAvalonia.UI.Controls;
-using FluentAvalonia.UI.Media.Animation;
 using FortnitePorting.Application;
 using FortnitePorting.Models;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
-using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
+using FortnitePorting.ViewModels;
 using FortnitePorting.ViewModels.Settings;
-using FortnitePorting.Views;
 
-namespace FortnitePorting.ViewModels;
+namespace FortnitePorting.WindowModels;
 
-public partial class AppViewModel : WindowModelBase
+public partial class AppWindowModel : WindowModelBase
 {
     [ObservableProperty] private string _versionString = Globals.VersionString;
     [ObservableProperty] private bool _gameBasedTabsAreReady = false;
@@ -33,7 +31,7 @@ public partial class AppViewModel : WindowModelBase
         SetupTabsAreVisible = !AppSettings.Current.FinishedWelcomeScreen;
     }
     
-    public void Message(string title, string message, InfoBarSeverity severity = InfoBarSeverity.Informational, bool autoClose = true, string id = "", float closeTime = 2.0f)
+    public void Message(string title, string message, InfoBarSeverity severity = InfoBarSeverity.Informational, bool autoClose = true, string id = "", float closeTime = 3f)
     {
         Message(new InfoBarData(title, message, severity, autoClose, id, closeTime));
     }
@@ -81,7 +79,7 @@ public partial class AppViewModel : WindowModelBase
         var result = false;
         TaskService.RunDispatcher(() =>
         {
-            result = AppVM.ContentFrame.CurrentSourcePageType == typeof(T);
+            result = AppWM.ContentFrame.CurrentSourcePageType == typeof(T);
         });
         return result;
     }

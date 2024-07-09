@@ -113,8 +113,8 @@ public partial class WelcomeViewModel : ViewModelBase
         AppSettings.Current.Installation.UseTextureStreaming = UseTextureStreaming;
         AppSettings.Current.FinishedWelcomeScreen = true;
         
-        AppVM.SetupTabsAreVisible = false;
-        AppVM.Navigate<HomeView>();
+        AppWM.SetupTabsAreVisible = false;
+        AppWM.Navigate<HomeView>();
     }
     
     [RelayCommand]

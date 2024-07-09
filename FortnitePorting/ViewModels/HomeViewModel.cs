@@ -41,7 +41,7 @@ public partial class HomeViewModel : ViewModelBase
             ViewModelRegistry.New<CUE4ParseViewModel>();
             await CUE4ParseVM.Initialize();
             
-            AppVM.GameBasedTabsAreReady = true;
+            AppWM.GameBasedTabsAreReady = true;
             
             ViewModelRegistry.New<FilesViewModel>();
             await FilesVM.Initialize();

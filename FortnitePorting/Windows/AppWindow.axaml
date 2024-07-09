@@ -3,8 +3,9 @@
         xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
         xmlns:ui="using:FluentAvalonia.UI.Controls"
         xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
+        xmlns:windowModels="clr-namespace:FortnitePorting.WindowModels"
         x:Class="FortnitePorting.Windows.AppWindow"
-        x:DataType="viewModels:AppViewModel"
+        x:DataType="windowModels:AppWindowModel"
         Width="1160" Height="770" RequestedThemeVariant="Dark" FontFamily="Segoe UI" Background="{x:Null}"
         TransparencyLevelHint="{Binding Theme.TransparencyHints}" ExtendClientAreaToDecorationsHint="True"
         WindowStartupLocation="CenterScreen"
@@ -76,6 +77,11 @@
                  
              </ui:NavigationView.MenuItems>
              <ui:NavigationView.FooterMenuItems>
+                 <ui:NavigationViewItem Content="Help" Tag="Help">
+                     <ui:NavigationViewItem.IconSource>
+                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry Help}"/>
+                     </ui:NavigationViewItem.IconSource>
+                 </ui:NavigationViewItem>
                  <ui:NavigationViewItem Content="Export" Tag="ExportSettings">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Download}"/>
@@ -83,12 +89,7 @@
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItem Content="Plugin" Tag="Plugin">
                      <ui:NavigationViewItem.IconSource>
-                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry Sync}"/>
-                     </ui:NavigationViewItem.IconSource>
-                 </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Help" Tag="Help">
-                     <ui:NavigationViewItem.IconSource>
-                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry Help}"/>
+                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry Plug}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItem Content="Console" Tag="Console">

@@ -39,6 +39,7 @@
         <PackageReference Include="RestSharp" Version="110.2.1-alpha.0.20" />
         <PackageReference Include="RestSharp.Serializers.NewtonsoftJson" Version="110.2.1-alpha.0.20" />
         <PackageReference Include="Serilog.Sinks.File" Version="5.0.1-dev-00972" />
+        <PackageReference Include="Tomlyn" Version="0.17.0" />
         <PackageReference Include="z440.atl.core" Version="5.24.0" />
     </ItemGroup>
 
@@ -53,6 +54,7 @@
       <ProjectReference Include="..\Dependencies\CUE4Parse\CUE4Parse\CUE4Parse.csproj" />
       <ProjectReference Include="..\FortnitePorting.Multiplayer\FortnitePorting.Multiplayer.csproj" />
       <ProjectReference Include="..\FortnitePorting.OpenGL\FortnitePorting.OpenGL.csproj" />
+      <ProjectReference Include="..\FortnitePorting.Plugins\FortnitePorting.Plugins.csproj" />
       <ProjectReference Include="..\FortnitePorting.Shared\FortnitePorting.Shared.csproj" />
     </ItemGroup>
 

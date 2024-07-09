@@ -23,12 +23,13 @@ using Microsoft.Win32;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
 using AppWindow = FortnitePorting.Windows.AppWindow;
+using AppWindowModel = FortnitePorting.WindowModels.AppWindowModel;
 
 namespace FortnitePorting.Services;
 
 public static class ApplicationService
 {
-    public static AppViewModel AppVM => ViewModelRegistry.Get<AppViewModel>()!;
+    public static AppWindowModel AppWM => ViewModelRegistry.Get<AppWindowModel>()!;
     public static WelcomeViewModel WelcomeVM => ViewModelRegistry.Get<WelcomeViewModel>()!;
     public static HomeViewModel HomeVM => ViewModelRegistry.Get<HomeViewModel>()!;
     public static CUE4ParseViewModel CUE4ParseVM => ViewModelRegistry.Get<CUE4ParseViewModel>()!;
@@ -46,6 +47,7 @@ public static class ApplicationService
     public static readonly DirectoryInfo AssetsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets"));
     public static readonly DirectoryInfo MapsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Maps"));
     public static readonly DirectoryInfo LogsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs"));
+    public static readonly DirectoryInfo PluginsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Plugins"));
     public static readonly DirectoryInfo DataFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".data"));
     public static readonly DirectoryInfo CacheFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".cache"));
     public static string LogFilePath;
@@ -101,25 +103,13 @@ public static class ApplicationService
                 Content = exceptionString,
                 
                 PrimaryButtonText = "Open Log",
-                PrimaryButtonCommand = OpenLogCommand,
+                PrimaryButtonCommand = new RelayCommand(() => AppWM.Navigate<ConsoleView>()),
                 SecondaryButtonText = "Open Console",
-                SecondaryButtonCommand = GoToConsoleCommand,
+                SecondaryButtonCommand = new RelayCommand(() => LaunchSelected(LogFilePath)),
                 CloseButtonText = "Continue",
             };
             await dialog.ShowAsync();
         });
-    }
-
-    public static readonly RelayCommand GoToConsoleCommand = new(GoToConsole);
-    public static void GoToConsole()
-    {
-        AppVM.Navigate<ConsoleView>();
-    }
-    
-    public static readonly RelayCommand OpenLogCommand = new(OpenLog);
-    public static void OpenLog()
-    {
-        LaunchSelected(LogFilePath);
     }
 
     public static void OnStartup(object? sender, ControlledApplicationLifetimeStartupEventArgs e)
@@ -142,14 +132,19 @@ public static class ApplicationService
         {
             DiscordService.Initialize();
         }
+
+        if (AppSettings.Current.Plugin.Blender.AutomaticallySync)
+        {
+            TaskService.Run(async () => await AppSettings.Current.Plugin.Blender.SyncInstallations(verbose: false));
+        }
         
         if (AppSettings.Current.FinishedWelcomeScreen)
         {
-            AppVM.Navigate<HomeView>();
+            AppWM.Navigate<HomeView>();
         }
         else
         {
-            AppVM.Navigate<WelcomeView>();
+            AppWM.Navigate<WelcomeView>();
         }
     }
     

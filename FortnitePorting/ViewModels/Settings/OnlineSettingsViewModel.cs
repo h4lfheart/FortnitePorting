@@ -79,7 +79,7 @@ public partial class OnlineSettingsViewModel : ViewModelBase
             await LoadIdentification();
             Id = Identification.Id.ToFpGuid();
             GlobalChatService.Init();
-            AppVM.Message("Discord Integration", $"Successfully authenticated user \"{UserName}\" via Discord.", severity: InfoBarSeverity.Success, closeTime: 2.5f);
+            AppWM.Message("Discord Integration", $"Successfully authenticated user \"{UserName}\" via Discord.", severity: InfoBarSeverity.Success, closeTime: 2.5f);
             return;
          }
 
@@ -87,7 +87,7 @@ public partial class OnlineSettingsViewModel : ViewModelBase
       }
       
       
-      AppVM.Message("Discord Integration", "Timed out while trying to authenticate. Please try again.", InfoBarSeverity.Error, autoClose: false);
+      AppWM.Message("Discord Integration", "Timed out while trying to authenticate. Please try again.", InfoBarSeverity.Error, autoClose: false);
    }
    
    public async Task Deauthenticate()
@@ -97,7 +97,7 @@ public partial class OnlineSettingsViewModel : ViewModelBase
       Auth = null;
       Identification = null;
       GlobalChatService.DeInit();
-      AppVM.Message("Discord Integration", $"Successfully de-authenticated user \"{removedUsername}\" via Discord.", closeTime: 2.5f);
+      AppWM.Message("Discord Integration", $"Successfully de-authenticated user \"{removedUsername}\" via Discord.", closeTime: 2.5f);
    }
 
    public async Task PromptForAuthentication()

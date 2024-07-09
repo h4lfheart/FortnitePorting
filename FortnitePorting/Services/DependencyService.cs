@@ -9,15 +9,18 @@ namespace FortnitePorting.Services;
 
 public static class DependencyService
 {
-    public static readonly FileInfo BinkaFile = new(Path.Combine(DataFolder.FullName, "binkadec.exe"));
-    public static readonly FileInfo VGMStreamFile = new(Path.Combine(DataFolder.FullName, "vgmstream-cli.exe"));
+    public static readonly FileInfo BinkaFile = new(Path.Combine(DataFolder.FullName, "binka", "binkadec.exe"));
+    public static readonly FileInfo VgmStreamFile = new(Path.Combine(DataFolder.FullName, "vgmstream-cli.exe"));
+    
+    public static readonly DirectoryInfo VgmStreamFolder = new(Path.Combine(DataFolder.FullName, "vgmstream"));
 
     public static void EnsureDependencies()
     {
         TaskService.Run(() =>
         {
             EnsureResourceBased("Assets/Dependencies/binkadec.exe", BinkaFile);
-            EnsureVGMStream();
+            EnsureVgmStream();
+            EnsureBlenderExtensions();
         });
     }
 
@@ -26,21 +29,37 @@ public static class DependencyService
         var assetStream = AssetLoader.Open(new Uri($"avares://FortnitePorting/{path}"));
         if (targetFile is { Exists: true, Length: > 0 } && targetFile.GetHash() == assetStream.GetHash()) return;
 
+        targetFile.Directory?.Create();
         targetFile.Delete();
         File.WriteAllBytes(targetFile.FullName, assetStream.ReadToEnd());
     }
 
-    private static void EnsureVGMStream()
+    private static void EnsureVgmStream()
     {
-        if (VGMStreamFile is { Exists: true, Length: > 0 } ) return;
+        if (VgmStreamFile is { Exists: true, Length: > 0 } ) return;
         
-        var file = ApiVM.DownloadFile("https://github.com/vgmstream/vgmstream/releases/latest/download/vgmstream-win.zip", DataFolder);
+        VgmStreamFolder.Create();
+        var file = ApiVM.DownloadFile("https://github.com/vgmstream/vgmstream/releases/latest/download/vgmstream-win.zip", VgmStreamFolder);
         if (!file.Exists || file.Length == 0) return;
         
         var zip = ZipFile.Read(file.FullName);
         foreach (var zipFile in zip)
         {
-            zipFile.Extract(DataFolder.FullName, ExtractExistingFileAction.OverwriteSilently);
+            zipFile.Extract(VgmStreamFolder.FullName, ExtractExistingFileAction.OverwriteSilently);
+        }
+    }
+
+    public static void EnsureBlenderExtensions()
+    {
+        var assets = AssetLoader.GetAssets(new Uri("avares://FortnitePorting.Plugins/Blender"), null);
+        foreach (var asset in assets)
+        {
+            var assetStream = AssetLoader.Open(asset);
+            var targetFile = new FileInfo(Path.Combine(PluginsFolder.FullName, asset.AbsolutePath[1..]));
+            if (targetFile is { Exists: true, Length: > 0 } && targetFile.GetHash() == assetStream.GetHash()) return;
+            targetFile.Directory?.Create();
+            
+            File.WriteAllBytes(targetFile.FullName, assetStream.ReadToEnd());
         }
     }
 }

@@ -41,32 +41,40 @@ public static class GlobalChatService
     
     public static void Init()
     {
-        if (!EstablishedFirstConnection)
-            ViewModelRegistry.New<ChatViewModel>();
-        
-        Client = new WatsonTcpClient(MultiplayerGlobals.SOCKET_IP, MultiplayerGlobals.SOCKET_PORT);
-        Client.Settings.Guid = AppSettings.Current.Online.Id;
-        Client.Callbacks.SyncRequestReceivedAsync = SyncRequestReceivedAsync;
-        Client.Events.MessageReceived += OnMessageReceived;
-        Client.Connect();
-
-        TaskService.Run(() =>
+        try
         {
-            while (true)
+            if (!EstablishedFirstConnection)
+                ViewModelRegistry.New<ChatViewModel>();
+
+            Client = new WatsonTcpClient(MultiplayerGlobals.SOCKET_IP, MultiplayerGlobals.SOCKET_PORT);
+            Client.Settings.Guid = AppSettings.Current.Online.Id;
+            Client.Callbacks.SyncRequestReceivedAsync = SyncRequestReceivedAsync;
+            Client.Events.MessageReceived += OnMessageReceived;
+            Client.Connect();
+
+            TaskService.Run(() =>
             {
-                while (!Client.Connected)
+                while (true)
                 {
-                    try
+                    while (!Client.Connected)
                     {
-                        Client.Connect();
-                    }
-                    catch (Exception)
-                    {
-                        // lol
+                        try
+                        {
+                            Client.Connect();
+                        }
+                        catch (Exception)
+                        {
+                            // lol
+                        }
                     }
                 }
-            }
-        });
+            });
+        }
+        catch (Exception e)
+        {
+            // todo visual handling popup so user isnt confused
+            Log.Error(e.ToString());
+        }
     }
 
     public static void DeInit()
@@ -141,7 +149,7 @@ public static class GlobalChatService
                     }
                 }
 
-                var isInChatView = AppVM.IsInView<ChatView>();
+                var isInChatView = AppWM.IsInView<ChatView>();
                 var isPrivate = e.GetArgument<bool>("IsPrivate");
                 if (isPrivate && !isInChatView && AppSettings.Current.Online.OnlineStatus == EOnlineStatus.Online)
                 {
@@ -159,7 +167,7 @@ public static class GlobalChatService
                     && AppSettings.Current.Online.OnlineStatus is EOnlineStatus.Online
                     && !isInChatView)
                 {
-                    AppVM.ChatNotifications++;
+                    AppWM.ChatNotifications++;
                 }
                 
                 ChatVM.Messages.InsertSorted(new ChatMessage

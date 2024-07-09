@@ -33,6 +33,7 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private ApplicationSettingsViewModel _application = new();
     [ObservableProperty] private ThemeSettingsViewModel _theme = new();
     [ObservableProperty] private OnlineSettingsViewModel _online = new();
+    [ObservableProperty] private PluginViewModel _plugin = new();
     
     // Welcome
     [ObservableProperty] private bool _finishedWelcomeScreen;

@@ -7,11 +7,11 @@ using CUE4Parse_Conversion.Textures;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using FluentAvalonia.Core;
 using FortnitePorting.Shared.Extensions;
-using FortnitePorting.Shared.Framework;
+using FortnitePorting.ViewModels;
 
-namespace FortnitePorting.ViewModels;
+namespace FortnitePorting.WindowModels;
 
-public partial class TexturePreviewViewModel : WindowModelBase
+public partial class TexturePreviewWindowModel : WindowModelBase
 {
     [ObservableProperty] private UTexture _texture;
     [ObservableProperty] private string _textureName = string.Empty;

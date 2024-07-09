@@ -68,7 +68,8 @@ public partial class ChatView : ViewBase<ChatViewModel>
         base.OnLoaded(e);
         
         Scroll.ScrollToEnd();
-        AppVM.ChatNotifications = 0;
+        TextBox.Focus();
+        AppWM.ChatNotifications = 0;
     }
     
     private async void OnImagePressed(object? sender, PointerPressedEventArgs e)

@@ -37,7 +37,7 @@ public static class Exporter
         {
             if (await ApiVM.FortnitePortingServer.PingAsync(EExportServerType.Blender) is false)
             {
-                AppVM.Message("Blender Server", "The blender server for Fortnite Porting is not currently running.", InfoBarSeverity.Error, false);
+                AppWM.Message("Blender Server", "The blender server for Fortnite Porting is not currently running.", InfoBarSeverity.Error, false);
                 return;
             }
             
@@ -62,7 +62,7 @@ public static class Exporter
         {
             if (await ApiVM.FortnitePortingServer.PingAsync(EExportServerType.Blender) is false)
             {
-                AppVM.Message("Blender Server", "The blender server for Fortnite Porting is not currently running.", InfoBarSeverity.Error, false);
+                AppWM.Message("Blender Server", "The blender server for Fortnite Porting is not currently running.", InfoBarSeverity.Error, false);
                 return;
             }
             
@@ -86,7 +86,7 @@ public static class Exporter
         {
             if (await ApiVM.FortnitePortingServer.PingAsync(EExportServerType.Blender) is false)
             {
-                AppVM.Message("Blender Server", "The blender server for Fortnite Porting is not currently running.", InfoBarSeverity.Error, false);
+                AppWM.Message("Blender Server", "The blender server for Fortnite Porting is not currently running.", InfoBarSeverity.Error, false);
                 return;
             }
             
@@ -149,12 +149,12 @@ public static class Exporter
     
     private static BaseExport CreateExport(string name, UObject asset, FStructFallback[] styles, EExportType exportType, ExportDataMeta metaData)
     {
-        AppVM.Message("Export", $"Exporting: {asset.Name}", id: asset.Name, autoClose: false);
+        AppWM.Message("Export", $"Exporting: {asset.Name}", id: asset.Name, autoClose: false);
             
         metaData.UpdateProgress += (name, current, total) =>
         {
             var message = $"{current} / {total} \"{name}\"";
-            AppVM.UpdateMessage(id: asset.Name, message: message);
+            AppWM.UpdateMessage(id: asset.Name, message: message);
             Log.Information(message);
         };
         
@@ -165,7 +165,7 @@ public static class Exporter
             _ => throw new NotImplementedException($"Exporting {primitiveType} assets is not supported yet.")
         };
         
-        AppVM.CloseMessage(id: asset.Name);
+        AppWM.CloseMessage(id: asset.Name);
 
         return export;
     }

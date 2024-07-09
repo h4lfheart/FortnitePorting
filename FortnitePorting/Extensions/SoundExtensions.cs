@@ -107,7 +107,7 @@ public static class SoundExtensions
         {
             adpcmProcess.StartInfo = new ProcessStartInfo
             {
-                FileName = DependencyService.VGMStreamFile.FullName,
+                FileName = DependencyService.VgmStreamFile.FullName,
                 Arguments = $"-o \"{outPath}\" \"{adpcmPath}\"",
                 UseShellExecute = false,
                 CreateNoWindow = true

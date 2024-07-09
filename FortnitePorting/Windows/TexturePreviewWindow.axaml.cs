@@ -5,10 +5,11 @@ using FortnitePorting.Services;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
+using FortnitePorting.WindowModels;
 
 namespace FortnitePorting.Windows;
 
-public partial class TexturePreviewWindow : WindowBase<TexturePreviewViewModel>
+public partial class TexturePreviewWindow : WindowBase<TexturePreviewWindowModel>
 {
     public static TexturePreviewWindow? Instance;
     

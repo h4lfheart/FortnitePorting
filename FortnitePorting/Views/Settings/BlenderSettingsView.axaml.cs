@@ -1,6 +1,6 @@
 using FortnitePorting.Application;
 using FortnitePorting.Shared.Framework;
-using BlenderSettingsViewModel = FortnitePorting.ViewModels.Settings.BlenderSettingsViewModel;
+using FortnitePorting.ViewModels.Settings;
 
 namespace FortnitePorting.Views.Settings;
 

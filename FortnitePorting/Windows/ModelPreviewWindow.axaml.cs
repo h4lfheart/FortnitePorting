@@ -12,6 +12,7 @@ using FortnitePorting.Services;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
+using FortnitePorting.WindowModels;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
@@ -19,7 +20,7 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace FortnitePorting.Windows;
 
-public partial class ModelPreviewWindow : WindowBase<ModelPreviewViewModel>
+public partial class ModelPreviewWindow : WindowBase<ModelPreviewWindowModel>
 {
     public static ModelPreviewWindow? Instance;
     

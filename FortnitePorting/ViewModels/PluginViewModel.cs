@@ -14,25 +14,26 @@ using FortnitePorting.Application;
 using FortnitePorting.Models.Radio;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Framework;
+using FortnitePorting.ViewModels.Plugin;
 using FortnitePorting.ViewModels.Settings;
 using NAudio.Wave;
 using Newtonsoft.Json;
 
 namespace FortnitePorting.ViewModels;
 
-public partial class ExportSettingsViewModel : ViewModelBase
+public partial class PluginViewModel : ViewModelBase
 {
     [JsonIgnore] public Frame ContentFrame;
     [JsonIgnore] public NavigationView NavigationView;
+
+    [ObservableProperty] private BlenderPluginViewModel _blender = new();
+    [ObservableProperty] private UnrealPluginViewModel _unreal = new();
     
-    [ObservableProperty] private BlenderSettingsViewModel _blender = new();
-    [ObservableProperty] private UnrealSettingsViewModel _unreal = new();
-    [ObservableProperty] private FolderSettingsViewModel _folder = new();
 
     public void Navigate(EExportLocation exportLocation)
     {
-        var name = exportLocation is EExportLocation.AssetsFolder or EExportLocation.CustomFolder ? "Folder" : exportLocation.ToString();
-        var viewName = $"FortnitePorting.Views.Settings.{name}SettingsView";
+        var name = exportLocation.ToString();
+        var viewName = $"FortnitePorting.Views.Plugin.{name}PluginView";
         
         var type = Type.GetType(viewName);
         if (type is null) return;
@@ -43,21 +44,6 @@ public partial class ExportSettingsViewModel : ViewModelBase
             .Concat(NavigationView.FooterMenuItems)
             .OfType<NavigationViewItem>()
             .FirstOrDefault(item => (EExportLocation) item.Tag! == exportLocation);
-    }
-}
-
-public partial class BaseExportSettings : ViewModelBase
-{
-    [ObservableProperty] private EMeshFormat _meshFormat = EMeshFormat.UEFormat;
-    [ObservableProperty] private EAnimFormat _animFormat = EAnimFormat.UEFormat;
-    [ObservableProperty] private EFileCompressionFormat _compressionFormat = EFileCompressionFormat.ZSTD;
-    [ObservableProperty] private EImageFormat _imageFormat = EImageFormat.PNG;
-
-    [ObservableProperty] private bool _exportMaterials = true;
-    
-    public virtual ExporterOptions CreateExportOptions()
-    {
-        return new ExporterOptions();
     }
 }
 

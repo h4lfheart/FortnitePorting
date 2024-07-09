@@ -123,7 +123,7 @@ public partial class ChatUser : ObservableObject
             var asset = await CUE4ParseVM.Provider.TryLoadObjectAsync(path);
             if (asset is null)
             {
-                AppVM.Message("Failed to Send Export", $"Could not load \"{text}\"", InfoBarSeverity.Error);
+                AppWM.Message("Failed to Send Export", $"Could not load \"{text}\"", InfoBarSeverity.Error);
                 return;
             }
 

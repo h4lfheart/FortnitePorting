@@ -1,0 +1,84 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
+             xmlns:plugin="clr-namespace:FortnitePorting.ViewModels.Plugin"
+             xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="FortnitePorting.Views.Plugin.BlenderPluginView"
+             x:DataType="plugin:BlenderPluginViewModel">
+    <Grid Margin="{ext:Space 1}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="{ext:Space 1}" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="{ext:Space 1}" />
+            <RowDefinition Height="7*" />
+            <RowDefinition Height="{ext:Space 1}" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" HorizontalAlignment="Center">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="{ext:Space 1}" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="{ext:Space 1}" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="{ext:Space 1}" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0" Text="Blender Extensions" Classes="SubtitleTextBlockStyle" />
+            <Button Grid.Column="2" Content="{material:MaterialIconExt Plus}" Command="{Binding AddInstallation}" />
+            <Button Grid.Column="4" Content="{material:MaterialIconExt Minus}" Command="{Binding RemoveInstallation}" />
+            <Button Grid.Column="6" Content="{material:MaterialIconExt Sync}" Command="{Binding SyncInstallations}" />
+        </Grid>
+        
+        <ui:SettingsExpander Grid.Row="2" Header="Automatic Sync" Description="Whether or not to automatically sync the Blender extension after an update has occurred. It is highly recommended to keep this enabled.">
+            <ui:SettingsExpander.Footer>
+                <ToggleSwitch IsChecked="{Binding AutomaticallySync}"/>
+            </ui:SettingsExpander.Footer>
+        </ui:SettingsExpander>
+
+        <TextBlock Grid.Row="4" Text="There are no Blender versions registered yet." IsVisible="{Binding !Installations.Count}"
+                   Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" HorizontalAlignment="Center"
+                   VerticalAlignment="Center" />
+
+        <ui:FABorder Grid.Row="4" VerticalAlignment="Stretch">
+            <ListBox Margin="{ext:Space 1}" ItemsSource="{Binding Installations}" SelectedIndex="{Binding SelectedInstallationIndex, Mode=TwoWay}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="{ext:Space 0, 1}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="{ext:Space 1}" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <Image Grid.Column="0" Source="/Assets/Icons/Blender.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                        
+                            <Grid Grid.Column="2">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="{ext:Space 0.5}" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+
+                                <StackPanel Grid.Row="0" Orientation="Horizontal">
+                                    <TextBlock Text="{Binding BlenderVersion, StringFormat=Blender {0}}"
+                                               Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding Status}" Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" 
+                                               Margin="{ext:Space 1, 0, 0, 0}" VerticalAlignment="Center" />
+                                </StackPanel>
+                                <TextBlock Grid.Row="2" Text="{Binding ExtensionVersion, TargetNullValue='???'}" Classes="BodyTextBlockStyle" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </ui:FABorder>
+        
+    </Grid>
+</UserControl>

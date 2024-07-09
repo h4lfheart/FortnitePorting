@@ -21,7 +21,7 @@ public partial class ConsoleView : ViewBase<ConsoleViewModel>
         if (control.DataContext is not FortnitePortingLogEvent logEvent) return;
 
         Clipboard.SetTextAsync(logEvent.LogString);
-        AppVM.Message("Info", "Copied log to clipboard!");
+        AppWM.Message("Info", "Copied log to clipboard!");
     }
 
     protected override void OnLoaded(RoutedEventArgs e)

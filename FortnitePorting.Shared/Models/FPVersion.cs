@@ -31,6 +31,11 @@ public class FPVersion : IComparable<FPVersion>
         Identifier = identifier;
     }
 
+    public Version ToVersion()
+    {
+        return new Version(Release, Major, Minor);
+    }
+
     public string GetDisplayString(EVersionStringType type = EVersionStringType.IdentifierSuffix)
     {
         var sb = new StringBuilder();

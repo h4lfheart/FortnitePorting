@@ -1,29 +1,18 @@
 using System;
-using System.ComponentModel;
 using System.IO;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using Avalonia.Media.Imaging;
-using Avalonia.Platform;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CUE4Parse_Conversion.Textures;
 using CUE4Parse.UE4.Assets.Exports.Sound;
-using CUE4Parse.UE4.Assets.Exports.Texture;
-using CUE4Parse.Utils;
-using FluentAvalonia.Core;
 using FortnitePorting.Application;
 using FortnitePorting.Extensions;
-using FortnitePorting.Shared.Extensions;
-using FortnitePorting.Shared.Framework;
-using FortnitePorting.Shared.Services;
+using FortnitePorting.ViewModels;
 using Material.Icons;
 using NAudio.Wave;
 
-namespace FortnitePorting.ViewModels;
+namespace FortnitePorting.WindowModels;
 
-public partial class SoundPreviewViewModel : WindowModelBase
+public partial class SoundPreviewWindowModel : WindowModelBase
 {
     [ObservableProperty] private string _soundName;
     [ObservableProperty] private USoundWave _soundWave;

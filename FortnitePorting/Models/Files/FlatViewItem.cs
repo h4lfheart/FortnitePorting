@@ -58,7 +58,7 @@ public partial class FlatViewItem : ObservableObject
                 if (targetUser is null) return;
                 
                 await GlobalChatService.Send(new ExportPacket(Exporter.FixPath(Path)), new MetadataBuilder().With("Target", targetUser.Guid));
-                AppVM.Message("Export Sent", $"Successfully sent \"{name}\" to {targetUser.DisplayName}");
+                AppWM.Message("Export Sent", $"Successfully sent \"{name}\" to {targetUser.DisplayName}");
             })
         };
 

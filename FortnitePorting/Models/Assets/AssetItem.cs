@@ -146,7 +146,7 @@ public partial class AssetItem : ObservableObject
                 if (targetUser is null) return;
                 
                 await GlobalChatService.Send(new ExportPacket(CreationData.Object.GetPathName()), new MetadataBuilder().With("Target", targetUser.Guid));
-                AppVM.Message("Export Sent", $"Successfully sent {CreationData.DisplayName} to {targetUser.DisplayName}");
+                AppWM.Message("Export Sent", $"Successfully sent {CreationData.DisplayName} to {targetUser.DisplayName}");
             })
         };
 

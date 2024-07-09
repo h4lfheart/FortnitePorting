@@ -1,16 +1,13 @@
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.Assets.Exports;
-using CUE4Parse.UE4.Assets.Exports.StaticMesh;
-using CUE4Parse.UE4.Assets.Exports.Texture;
 using FortnitePorting.OpenGL;
-using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
-using FortnitePorting.Windows;
+using FortnitePorting.ViewModels;
 
-namespace FortnitePorting.ViewModels;
+namespace FortnitePorting.WindowModels;
 
-public partial class ModelPreviewViewModel : WindowModelBase
+public partial class ModelPreviewWindowModel : WindowModelBase
 {
     [ObservableProperty] private string _meshName;
     [ObservableProperty] private ModelPreviewControl _viewerControl;

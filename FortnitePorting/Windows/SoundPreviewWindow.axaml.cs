@@ -6,10 +6,11 @@ using FortnitePorting.Services;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
+using FortnitePorting.WindowModels;
 
 namespace FortnitePorting.Windows;
 
-public partial class SoundPreviewWindow : WindowBase<SoundPreviewViewModel>
+public partial class SoundPreviewWindow : WindowBase<SoundPreviewWindowModel>
 {
     public static SoundPreviewWindow? Instance;
     

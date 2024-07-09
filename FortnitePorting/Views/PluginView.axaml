@@ -1,0 +1,29 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
+             xmlns:versions="clr-namespace:CUE4Parse.UE4.Versions;assembly=CUE4Parse"
+             xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             d:DesignHeight="770" d:DesignWidth="1160"
+             x:Class="FortnitePorting.Views.PluginView"
+             x:DataType="viewModels:PluginViewModel">
+    <ui:NavigationView x:Name="NavigationView" Classes="NoBackground" PaneDisplayMode="LeftCompact" OpenPaneLength="120" IsPaneToggleButtonVisible="False" IsSettingsVisible="False" ItemInvoked="OnItemInvoked">
+        <ui:NavigationView.MenuItems>
+            <ui:NavigationViewItem Content="Blender" Tag="{x:Static shared:EExportLocation.Blender}" IsSelected="True">
+                <ui:NavigationViewItem.IconSource>
+                    <ui:ImageIconSource Source="/Assets/Icons/Blender.png"/>
+                </ui:NavigationViewItem.IconSource>
+            </ui:NavigationViewItem>
+            <ui:NavigationViewItem Content="Unreal" Tag="{x:Static shared:EExportLocation.Unreal}">
+                <ui:NavigationViewItem.IconSource>
+                    <ui:ImageIconSource Source="/Assets/Icons/Unreal.png"/>
+                </ui:NavigationViewItem.IconSource>
+            </ui:NavigationViewItem>
+        </ui:NavigationView.MenuItems>
+        
+        <ui:Frame x:Name="ContentFrame"/>
+    </ui:NavigationView>
+</UserControl>
