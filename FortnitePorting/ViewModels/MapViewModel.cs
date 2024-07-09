@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,12 +8,8 @@ using Avalonia;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using CUE4Parse_Conversion;
-using CUE4Parse_Conversion.Meshes;
 using CUE4Parse_Conversion.Textures;
-using CUE4Parse_Conversion.UEFormat.Enums;
 using CUE4Parse.UE4.Assets.Exports;
-using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.Math;
@@ -22,25 +17,18 @@ using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using FortnitePorting.Application;
-using FortnitePorting.Models;
 using FortnitePorting.Models.Unreal;
-using FortnitePorting.OpenGL;
-using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Framework;
-using FortnitePorting.Shared.Services;
 using FortnitePorting.Windows;
 using OpenTK.Mathematics;
-using OpenTK.Windowing.Common;
-using OpenTK.Windowing.Desktop;
-using Serilog;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-using SkiaSharp;
 using Exporter = FortnitePorting.Export.Exporter;
+using Vector2 = System.Numerics.Vector2;
 
 namespace FortnitePorting.ViewModels;
 
@@ -126,7 +114,7 @@ public partial class MapViewModel : ViewModelBase
 
                 var runtimeCellData = gridCell.Get<UObject>("RuntimeCellData");
                 var position = runtimeCellData.GetOrDefault<FVector>("Position");
-                if (Grids.FirstOrDefault(grid => grid.Position == position) is { } targetGrid)
+                if (Grids.FirstOrDefault(grid => grid.OriginalPosition == position) is { } targetGrid)
                 {
                     targetGrid.Maps.Add(new WorldPartitionGridMap(worldAsset.AssetPathName.Text));
                 }
@@ -143,14 +131,6 @@ public partial class MapViewModel : ViewModelBase
         
         Directory.CreateDirectory(ExportPath);
         DataLoaded = true;
-    }
-
-    [RelayCommand]
-    public async Task Restart()
-    {
-        Grids.Clear();
-
-        await Initialize();
     }
 
     [RelayCommand]
@@ -399,6 +379,7 @@ public partial class WorldPartitionGrid : ObservableObject
     public string ToolTipNames => string.Join("\n", Maps.Select(map => map.Name));
     
     [ObservableProperty, NotifyPropertyChangedFor(nameof(OffsetMargin))] private FVector _position;
+    [ObservableProperty] private FVector _originalPosition;
     public Thickness OffsetMargin => new(Position.X * MapInfo.Scale + MapInfo.XOffset, Position.Y * MapInfo.Scale + MapInfo.YOffset, 0, 0);
 
     [ObservableProperty] private int _cellSize;
@@ -407,10 +388,19 @@ public partial class WorldPartitionGrid : ObservableObject
 
     public WorldPartitionGrid(FVector position, MapInfo mapInfo)
     {
-        Position = position;
+        OriginalPosition = position;
+        
+        var rotatedPosition = RotateAboutOrigin(new Vector2(position.X, position.Y), Vector2.Zero);
+        Position = new FVector(rotatedPosition.X, rotatedPosition.Y, 0);
         MapInfo = mapInfo;
         CellSize = mapInfo.CellSize;
     }
+    
+    public Vector2 RotateAboutOrigin(Vector2 point, Vector2 origin)
+    {
+        return Vector2.Transform(point - origin, System.Numerics.Matrix3x2.CreateRotation(-MathF.PI/2f)) + origin;
+    } 
+    
     
 }
 

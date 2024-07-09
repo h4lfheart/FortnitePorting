@@ -38,7 +38,7 @@
         </Grid>
         
         <Border Grid.Row="1" Margin="{ext:Space 1, 0, 1, 1}" CornerRadius="4" ClipToBounds="True">
-            <ContentControl Content="{Binding ViewerControl}"/>
+            <ContentControl Content="{Binding ViewerControl}" CornerRadius="4"/>
         </Border>
     </Grid>
 </Window>

@@ -29,16 +29,10 @@
                 <ItemsControl ItemsSource="{Binding Grids}"
                               Width="{Binding Bounds.Width, ElementName=MapImage}"
                               Height="{Binding Bounds.Height, ElementName=MapImage}">
-                    <ItemsControl.RenderTransform>
-                        <RotateTransform Angle="-90"/>
-                    </ItemsControl.RenderTransform>
                     <ItemsControl.OpacityMask>
                         <ImageBrush Source="{Binding MaskBitmap}" TransformOrigin="50%,50%">
                             <ImageBrush.Transform>
-                                <TransformGroup>
-                                    <RotateTransform Angle="90"/>
-                                    <ScaleTransform ScaleX="0.95" ScaleY="0.95"/>
-                                </TransformGroup>
+                                 <ScaleTransform ScaleX="0.95" ScaleY="0.95"/>
                             </ImageBrush.Transform>
                         </ImageBrush>
                     </ItemsControl.OpacityMask>
@@ -156,13 +150,6 @@
                         <StackPanel Orientation="Horizontal">
                             <material:MaterialIcon Kind="Paintbrush" Margin="{ext:Space 0, 0, 1, 0}"/>
                             <TextBlock Text="Weight Maps"/>
-                        </StackPanel>
-                    </Button>
-                    
-                    <Button Grid.Row="14" HorizontalAlignment="Stretch" Command="{Binding RestartCommand}">
-                        <StackPanel Orientation="Horizontal">
-                            <material:MaterialIcon Kind="Restart" Margin="{ext:Space 0, 0, 1, 0}"/>
-                            <TextBlock Text="Restart"/>
                         </StackPanel>
                     </Button>
                 </Grid>
