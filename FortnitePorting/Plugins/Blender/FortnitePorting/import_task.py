@@ -705,18 +705,6 @@ class DataImportTask:
                 bpy.ops.object.mode_set(mode='OBJECT')
                 armature_modifier: bpy.types.ArmatureModifier = first(imported_mesh.modifiers, lambda mod: mod.type == "ARMATURE")
 
-                # Grab reference pose data
-                reference_pose = meta.get("ReferencePose", dict())
-
-                # Check how many bones are scaled in the reference pose
-                face_attach_scale = Vector((1, 1, 1))
-                for entry in reference_pose:
-                    scale = make_vector(entry.get('Scale'))
-                    if scale != Vector((1, 1, 1)):
-                        if entry.get('BoneName', '').casefold() == 'faceattach':
-                            face_attach_scale = scale
-                        Log.warn(f"{imported_mesh.name}: Non-zero scale: {entry}")
-
                 if not shape_keys:
                     # Create Basis shape key
                     imported_mesh.shape_key_add(name="Basis", from_mix=False)
@@ -734,9 +722,6 @@ class DataImportTask:
                              "bones will be considered during import of "
                              "PoseData")
 
-                # NOTE: I think faceAttach affects the expected location
-                # I'm making this assumption from observation of an old
-                # export of face poses for Polar Patroller.
                 loc_scale = (0.01 if self.options.get("ScaleDown") else 1)
                 for pose in pose_data:
                     # If there are no influences, don't bother
@@ -808,9 +793,6 @@ class DataImportTask:
                         pose_bone.rotation_quaternion = quat.conjugated() @ pose_bone.rotation_quaternion
 
                         loc = (make_vector(bone.get('Location'), mirror_y=True))
-                        loc = Vector((loc.x * face_attach_scale.x,
-                                        loc.y * face_attach_scale.y,
-                                        loc.z * face_attach_scale.z))
                         loc.rotate(post_quat.conjugated())
 
                         pose_bone.location = pose_bone.location + loc * loc_scale
