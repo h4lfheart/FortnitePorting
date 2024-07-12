@@ -121,14 +121,14 @@ public class FortAnimNotifyState_SpawnProp : URegisterThisUObject
 
 public class UVirtualTextureBuilder : URegisterThisUObject
 {
-    public UVirtualTexture2D? Texture;
+    public FPackageIndex? Texture;
     public int BuildHash;
 
     public override void Deserialize(FAssetArchive Ar, long validPos)
     {
         base.Deserialize(Ar, validPos);
 
-        Texture = GetOrDefault<UVirtualTexture2D>(nameof(Texture));
+        Texture = GetOrDefault<FPackageIndex>(nameof(Texture));
         BuildHash = GetOrDefault<int>(nameof(BuildHash));
     }
 }
