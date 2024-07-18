@@ -82,7 +82,7 @@ public partial class ChatUser : ObservableObject
         {
             if (inputBox.Text is not { } text) return;
 
-            await GlobalChatService.Send(new MessagePacket(text), new MetadataBuilder()
+            await OnlineService.Send(new MessagePacket(text), new MetadataBuilder()
                 .With("Target", Guid));
         });
         
@@ -127,7 +127,7 @@ public partial class ChatUser : ObservableObject
                 return;
             }
 
-            await GlobalChatService.Send(new ExportPacket(path), new MetadataBuilder().With("Target", Guid));
+            await OnlineService.Send(new ExportPacket(path), new MetadataBuilder().With("Target", Guid));
         });
         
         inputBox.AddHandler(InputElement.KeyDownEvent, (sender, args) =>
@@ -164,7 +164,7 @@ public partial class ChatUser : ObservableObject
             PrimaryButtonText = "Set",
             PrimaryButtonCommand = new RelayCommand(async () =>
             {
-                await GlobalChatService.Send(new SetRolePacket(Guid, Enum.GetValues<ERoleType>().FirstOrDefault(role => role.GetDescription().Equals(comboBox.SelectedItem))));
+                await OnlineService.Send(new SetRolePacket(Guid, Enum.GetValues<ERoleType>().FirstOrDefault(role => role.GetDescription().Equals(comboBox.SelectedItem))));
             })
         };
 

@@ -39,15 +39,15 @@ public partial class ChatView : ViewBase<ChatViewModel>
         {
             if (text.StartsWith("/shrug"))
             {
-                await GlobalChatService.Send(new MessagePacket(@"¯\_(ツ)_/¯"));
+                await OnlineService.Send(new MessagePacket(@"¯\_(ツ)_/¯"));
             }
             else if (ImageFlyout.IsOpen)
             {
-                await GlobalChatService.Send(new MessagePacket(text, await File.ReadAllBytesAsync(ViewModel.SelectedImagePath), ViewModel.SelectedImageName));
+                await OnlineService.Send(new MessagePacket(text, await File.ReadAllBytesAsync(ViewModel.SelectedImagePath), ViewModel.SelectedImageName));
             }
             else
             {
-                await GlobalChatService.Send(new MessagePacket(text));
+                await OnlineService.Send(new MessagePacket(text));
             }
             
             textBox.Text = string.Empty;
@@ -116,6 +116,6 @@ public partial class ChatView : ViewBase<ChatViewModel>
         if (control.DataContext is not ChatMessage message) return;
 
         message.ReactedTo = !message.ReactedTo;
-        await GlobalChatService.Send(new ReactionPacket(message.Id, message.ReactedTo));
+        await OnlineService.Send(new ReactionPacket(message.Id, message.ReactedTo));
     }
 }

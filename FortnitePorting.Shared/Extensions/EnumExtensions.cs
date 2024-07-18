@@ -59,3 +59,19 @@ public class EnumHasFlagConverter : IValueConverter
         throw new NotImplementedException();
     }
 }
+
+public class EnumEqualsConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        var enumValue = value as Enum;
+        var compareValue = parameter as Enum;
+
+        return enumValue.Equals(compareValue);
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        throw new NotImplementedException();
+    }
+}

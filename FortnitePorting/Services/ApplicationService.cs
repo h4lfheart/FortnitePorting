@@ -38,6 +38,7 @@ public static class ApplicationService
     public static APIViewModel ApiVM => ViewModelRegistry.Get<APIViewModel>()!;
     public static ChatViewModel ChatVM => ViewModelRegistry.Get<ChatViewModel>()!;
     public static FilesViewModel FilesVM => ViewModelRegistry.Get<FilesViewModel>()!;
+    public static HelpViewModel HelpVM => ViewModelRegistry.Get<HelpViewModel>()!;
     
     public static IClassicDesktopStyleApplicationLifetime Application = null!;
     private static IStorageProvider StorageProvider => Application.MainWindow!.StorageProvider;
@@ -125,7 +126,7 @@ public static class ApplicationService
                 await ApiVM.FortnitePorting.PostStatsAsync();
             });
             
-            GlobalChatService.Init();
+            OnlineService.Init();
         }
         
         if (AppSettings.Current.Online.UseRichPresence)

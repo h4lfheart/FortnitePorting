@@ -14,7 +14,6 @@ public class APIViewModel : ViewModelBase
     public readonly FortnitePortingAPI FortnitePorting;
     public readonly FortnitePortingServerAPI FortnitePortingServer;
     public readonly FortniteCentralAPI FortniteCentral;
-    public readonly DiscordAPI Discord;
 
     protected readonly RestClient _client = new(_clientOptions, configureSerialization: s => s.UseSerializer<JsonNetSerializer>());
 
@@ -29,12 +28,22 @@ public class APIViewModel : ViewModelBase
         FortnitePorting = new FortnitePortingAPI(_client);
         FortniteCentral = new FortniteCentralAPI(_client);
         FortnitePortingServer = new FortnitePortingServerAPI(_client);
-        Discord = new DiscordAPI(_client);
     }
 
     public string GetUrl(RestRequest request)
     {
         return _client.BuildUri(request).ToString();
+    }
+
+    public async Task<byte[]?> GetBytesAsync(string url)
+    {
+        var request = new RestRequest(url);
+        return await _client.DownloadDataAsync(request);
+    }
+    
+    public byte[]? GetBytes(string url)
+    {
+        return GetBytesAsync(url).ConfigureAwait(false).GetAwaiter().GetResult();
     }
     
     public async Task<byte[]?> DownloadFileAsync(string url)

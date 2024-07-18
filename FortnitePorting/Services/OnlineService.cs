@@ -31,13 +31,19 @@ using MultiplayerGlobals = FortnitePorting.Multiplayer.MultiplayerGlobals;
 
 namespace FortnitePorting.Services;
 
-public static class GlobalChatService
+public static class OnlineService
 {
+    public static EPermissions Permissions;
+    
     public static bool EstablishedFirstConnection;
     public static WatsonTcpClient? Client;
 
     public static MetadataBuilder DefaultMeta => new MetadataBuilder()
-        .With("Token", AppSettings.Current.Online.Auth.AccessToken);
+        .With("Token", AppSettings.Current.Online.Auth.Token);
+
+    private static Task ConnectTask;
+
+    public static DisconnectReason DisconnectReason;
     
     public static void Init()
     {
@@ -47,16 +53,34 @@ public static class GlobalChatService
                 ViewModelRegistry.New<ChatViewModel>();
 
             Client = new WatsonTcpClient(MultiplayerGlobals.SOCKET_IP, MultiplayerGlobals.SOCKET_PORT);
-            Client.Settings.Guid = AppSettings.Current.Online.Id;
+            Client.Settings.Guid = AppSettings.Current.Online.Identification.Identifier;
             Client.Callbacks.SyncRequestReceivedAsync = SyncRequestReceivedAsync;
             Client.Events.MessageReceived += OnMessageReceived;
+            Client.Events.ServerDisconnected += (sender, args) =>
+            {
+                if (args.Reason == DisconnectReason.AuthFailure)
+                {
+                    DisplayDialog("Disconnected",
+                        "You have been disconnected from the online services due to an invalid authentication. Please re-authenticate in online settings");
+                }
+                else if (args.Reason == DisconnectReason.Timeout)
+                {
+                    DisplayDialog("Disconnected",
+                        "You have been disconnected from the online services due to a ping timeout. Please re-launch to regain access to online features");
+                }
+
+                DisconnectReason = args.Reason;
+            };
+            
             Client.Connect();
 
-            TaskService.Run(() =>
+            TaskService.Run(async () =>
             {
                 while (true)
                 {
-                    while (!Client.Connected)
+                    if (Client is null) break;
+                    
+                    while (!Client.Connected && AppSettings.Current.Online.UseIntegration && DisconnectReason == DisconnectReason.Normal)
                     {
                         try
                         {
@@ -66,6 +90,8 @@ public static class GlobalChatService
                         {
                             // lol
                         }
+
+                        await Task.Delay(5000);
                     }
                 }
             });
@@ -84,6 +110,7 @@ public static class GlobalChatService
         
         Client.Disconnect();
         Client.Dispose();
+        Client = null;
     }
 
     private static async Task<SyncResponse> SyncRequestReceivedAsync(SyncRequest arg)
@@ -122,7 +149,12 @@ public static class GlobalChatService
             {
                 var permissions = e.Data.ReadPacket<PermissionsPacket>();
 
-                ChatVM.Permissions = permissions.Permissions; // lol?
+                var permissionEnum = permissions.Permissions; // lol
+                
+                if (HelpVM is not null) HelpVM.Permissions = permissionEnum;
+                ChatVM.Permissions = permissionEnum;
+                Permissions = permissionEnum;
+                
                 await TaskService.RunDispatcherAsync(() => // random invalid thread exception, this should fix
                 {
                     ChatVM.Commands.Clear();

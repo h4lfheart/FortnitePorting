@@ -57,7 +57,7 @@ public partial class FlatViewItem : ObservableObject
                 var targetUser = ChatVM.Users.FirstOrDefault(user => user.DisplayName.Equals(comboBox.SelectionBoxItem));
                 if (targetUser is null) return;
                 
-                await GlobalChatService.Send(new ExportPacket(Exporter.FixPath(Path)), new MetadataBuilder().With("Target", targetUser.Guid));
+                await OnlineService.Send(new ExportPacket(Exporter.FixPath(Path)), new MetadataBuilder().With("Target", targetUser.Guid));
                 AppWM.Message("Export Sent", $"Successfully sent \"{name}\" to {targetUser.DisplayName}");
             })
         };

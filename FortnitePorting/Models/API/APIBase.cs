@@ -40,21 +40,25 @@ public class APIBase
         return ExecuteAsync<T>(url, method, verbose, parameters).GetAwaiter().GetResult();
     }
 
-    protected async Task<RestResponse> ExecuteAsync(string url, Method method = Method.Get, bool verbose = true, params Parameter[] parameters)
+    protected async Task<RestResponse> ExecuteAsync(string url, Method method = Method.Get, bool verbose = true, ApiFile[]? files = null, params Parameter[] parameters)
     {
+        files ??= [];
+        
         var request = new RestRequest(url, method);
         foreach (var parameter in parameters) request.AddParameter(parameter);
+        foreach (var file in files) request.AddFile(file.PropertyName, file.Data, file.Name);
 
         var response = await _client.ExecuteAsync(request).ConfigureAwait(false);
         if (verbose) Log.Information("[{Method}] {StatusDescription} ({StatusCode}): {Uri}", request.Method, response.StatusDescription, (int) response.StatusCode, request.Resource);
         if (verbose && response.ErrorException is not null) Log.Error(response.ErrorException.ToString());
+        if (verbose && response.StatusCode != HttpStatusCode.OK) Log.Error(response.Content);
         
         return response;
     }
 
     protected RestResponse Execute(string url, Method method = Method.Get,bool verbose = true, params Parameter[] parameters)
     {
-        return ExecuteAsync(url, method, verbose, parameters).GetAwaiter().GetResult();
+        return ExecuteAsync(url, method, verbose, null, parameters).GetAwaiter().GetResult();
     }
     
 }

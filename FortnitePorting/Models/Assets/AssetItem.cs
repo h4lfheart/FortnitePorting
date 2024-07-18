@@ -145,7 +145,7 @@ public partial class AssetItem : ObservableObject
                 var targetUser = ChatVM.Users.FirstOrDefault(user => user.DisplayName.Equals(comboBox.SelectionBoxItem));
                 if (targetUser is null) return;
                 
-                await GlobalChatService.Send(new ExportPacket(CreationData.Object.GetPathName()), new MetadataBuilder().With("Target", targetUser.Guid));
+                await OnlineService.Send(new ExportPacket(CreationData.Object.GetPathName()), new MetadataBuilder().With("Target", targetUser.Guid));
                 AppWM.Message("Export Sent", $"Successfully sent {CreationData.DisplayName} to {targetUser.DisplayName}");
             })
         };

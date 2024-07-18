@@ -20,14 +20,14 @@ using FortnitePorting.Shared.Services;
 using FortnitePorting.Shared.Validators;
 using Newtonsoft.Json;
 using RestSharp;
+using Serilog;
 using MiscExtensions = FortnitePorting.Shared.Extensions.MiscExtensions;
 
 namespace FortnitePorting.ViewModels.Settings;
 
 public partial class OnlineSettingsViewModel : ViewModelBase
 {
-   [ObservableProperty] private Guid _id = Guid.NewGuid();
-   [ObservableProperty] private OAuthResponse? _auth;
+   [ObservableProperty] private AuthResponse? _auth;
    [ObservableProperty] private bool _useIntegration = false;
    [ObservableProperty] private bool _useRichPresence = true;
    [ObservableProperty] private bool _hasReceivedFirstPrompt = false;
@@ -39,46 +39,52 @@ public partial class OnlineSettingsViewModel : ViewModelBase
    [NotifyPropertyChangedFor(nameof(UserName))]
    [NotifyPropertyChangedFor(nameof(GlobalName))]
    [NotifyPropertyChangedFor(nameof(ProfilePictureURL))]
-   private Identification? _identification;
+   private UserResponse? _identification;
    
-   [JsonIgnore] public string? UserName => Identification?.UserName;
-   [JsonIgnore] public string? GlobalName => Identification?.DisplayName;
+   [JsonIgnore] public string? UserName => Identification?.Username;
+   [JsonIgnore] public string? GlobalName => !string.IsNullOrWhiteSpace(Identification?.GlobalName) ? Identification.GlobalName : Identification?.Username;
 
-   [JsonIgnore] public string? ProfilePictureURL => Identification?.AvatarURL;
+   [JsonIgnore]
+   public string? ProfilePictureURL => !string.IsNullOrWhiteSpace(Identification?.AvatarId)
+      ? $"https://cdn.discordapp.com/avatars/{Identification.DiscordId}/{Identification.AvatarId}.png?size=128"
+      : "https://fortniteporting.halfheart.dev/sockets/default.png";
+   
 
    public async Task LoadIdentification()
    {
       if (UseIntegration && Auth is not null)
       {
-         await ApiVM.Discord.CheckAuthRefresh();
-         Identification = await ApiVM.Discord.GetIdentificationAsync();
+         Identification = await ApiVM.FortnitePorting.GetUserAsync(Auth.Token);
       }
    }
 
    public async Task Authenticate()
    {
+      var state = Guid.NewGuid();
+      
       // actually authorize
       var request = new RestRequest("https://discord.com/oauth2/authorize");
       request.AddQueryParameter("client_id", "1233219769478680586");
       request.AddQueryParameter("response_type", "code");
-      request.AddQueryParameter("redirect_uri", FortnitePortingAPI.DISCORD_POST_URL);
+      request.AddQueryParameter("redirect_uri", FortnitePortingAPI.AUTH_REDIRECT_URL);
       request.AddQueryParameter("scope", "identify");
-      request.AddQueryParameter("state", Id.ToString());
+      request.AddQueryParameter("state", state.ToString());
 
       Launch(ApiVM.GetUrl(request));
 
       // wait for authorization to retrieve token
       for (var i = 0; i < 30; i++)
       {
-         var auth = await ApiVM.FortnitePorting.GetDiscordAuthAsync();
+         var auth = await ApiVM.FortnitePorting.GetAuthAsync(state);
+         
+         if (Identification is not null) break;
          if (auth is not null)
          {
-            GlobalChatService.DeInit();
+            OnlineService.DeInit();
             Auth = auth;
             UseIntegration = true;
             await LoadIdentification();
-            Id = Identification.Id.ToFpGuid();
-            GlobalChatService.Init();
+            OnlineService.Init();
             AppWM.Message("Discord Integration", $"Successfully authenticated user \"{UserName}\" via Discord.", severity: InfoBarSeverity.Success, closeTime: 2.5f);
             return;
          }
@@ -96,7 +102,7 @@ public partial class OnlineSettingsViewModel : ViewModelBase
       UseIntegration = false;
       Auth = null;
       Identification = null;
-      GlobalChatService.DeInit();
+      OnlineService.DeInit();
       AppWM.Message("Discord Integration", $"Successfully de-authenticated user \"{removedUsername}\" via Discord.", closeTime: 2.5f);
    }
 

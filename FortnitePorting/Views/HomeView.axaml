@@ -9,6 +9,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             xmlns:avaloniaGif="clr-namespace:AvaloniaGif;assembly=AvaloniaGif"
              d:DesignHeight="770" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.HomeView"
              x:DataType="viewModels:HomeViewModel">
@@ -25,6 +26,7 @@
         </Grid.ColumnDefinitions>
 
         <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
+            
             <Image Source="/Assets/DefaultSplash.png" Stretch="UniformToFill" Opacity="0.75">
                 <Image.OpacityMask>
                     <LinearGradientBrush StartPoint="0, 0" EndPoint="0, 180">
