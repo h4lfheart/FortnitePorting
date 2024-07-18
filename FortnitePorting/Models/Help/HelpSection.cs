@@ -26,7 +26,7 @@ public partial class HelpSection : ObservableObject
     private string _content;
     
     [JsonIgnore] public Uri? ContentUri => Type is EHelpSectionType.Gif ? new Uri(Content) : null;
-    [JsonIgnore] public Task<Stream> ContentStream => Type is EHelpSectionType.Gif ? GetContentStream(Content) : null;
+    [JsonIgnore] public Task<MemoryStream> ContentStream => Type is EHelpSectionType.Gif ? GetContentStream(Content) : null;
 
     
     public async Task BrowseSectionFile()
@@ -43,16 +43,19 @@ public partial class HelpSection : ObservableObject
         }
     }
 
-    public async Task<Stream> GetContentStream(string url)
+    public async Task<MemoryStream> GetContentStream(string url)
     {
         var fileName = url.SubstringAfterLast("/");
         var filePath = Path.Combine(CacheFolder.FullName, fileName);
-        if (!File.Exists(filePath))
+        if (File.Exists(filePath))
         {
-            var bytes = await ApiVM.GetBytesAsync(url);
-            await File.WriteAllBytesAsync(filePath, bytes);
+            return new MemoryStream(await File.ReadAllBytesAsync(filePath));
+          
         }
-        return new FileStream(filePath, FileMode.Open);
+
+        var bytes = await ApiVM.GetBytesAsync(url);
+        await File.WriteAllBytesAsync(filePath, bytes);
+        return new MemoryStream(bytes);
     }
 
 }

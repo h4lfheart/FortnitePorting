@@ -130,10 +130,10 @@ public partial class BlenderPluginViewModel : ViewModelBase
     }
     public async Task Sync(BlenderInstallationInfo installation)
     {
+        installation.Status = "(Syncing)";
+        
         await TaskService.Run(() =>
         {
-            installation.Status = "(Syncing)";
-
             var ueFormatZip = BuildPlugin("io_scene_ueformat", installation.BlenderPath);
             var fnPortingZip = BuildPlugin("fortnite_porting", installation.BlenderPath);
 
@@ -141,8 +141,9 @@ public partial class BlenderPluginViewModel : ViewModelBase
             InstallPlugin(fnPortingZip, installation.BlenderPath);
 
             installation.SyncExtensionVersion();
-            installation.Status = string.Empty;
         });
+        
+        installation.Status = string.Empty;
     }
 
     public string BuildPlugin(string name, string blenderPath)

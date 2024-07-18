@@ -11,7 +11,10 @@ public partial class BlenderInstallationInfo : ObservableObject
 {
     [ObservableProperty] private string _blenderPath;
     [ObservableProperty] private Version _extensionVersion;
-    [ObservableProperty, JsonIgnore] private string _status;
+    
+    [ObservableProperty]
+    [field: JsonIgnore]
+    private string _status;
 
     public Version BlenderVersion => new(FileVersionInfo.GetVersionInfo(BlenderPath).ProductVersion!);
 

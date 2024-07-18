@@ -47,6 +47,12 @@ public partial class HelpViewModel : ViewModelBase
         var helpArticles = await ApiVM.FortnitePorting.GetHelpAsync();
         if (helpArticles is not null) Articles = [..helpArticles];
     }
+
+    [RelayCommand]
+    public async Task Refresh()
+    {
+        await UpdateArticles();
+    }
     
     [RelayCommand]
     public async Task Upload()
@@ -88,6 +94,13 @@ public partial class HelpViewModel : ViewModelBase
             };
             await dialog.ShowAsync();
         });
+    }
+    
+    [RelayCommand]
+    public async Task EditArticle(HelpArticle article)
+    {
+        BuilderArticle = article;
+        IsBuilderOpen = true;
     }
     
     [RelayCommand]

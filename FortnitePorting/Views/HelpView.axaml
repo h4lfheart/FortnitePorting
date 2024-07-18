@@ -39,6 +39,10 @@
                         VerticalAlignment="Top" HorizontalAlignment="Left" Margin="{ext:Space 1}"
                         Command="{Binding ToggleBuilderCommand}"/>
                 
+                <Button Grid.Row="0" Content="Refresh" 
+                        VerticalAlignment="Top" HorizontalAlignment="Right" Margin="{ext:Space 1}"
+                        Command="{Binding RefreshCommand}"/>
+                
                 <TextBlock Grid.Row="0" Text="Help Articles" Classes="SubtitleTextBlockStyle"
                            Margin="{ext:Space 0, -1, 0, 0}"
                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -60,10 +64,15 @@
                                      </StackPanel>
                                  </ui:SettingsExpander.Header>
                                  <ui:SettingsExpander.Footer>
-                                     <Button Content="{material:MaterialIconExt Trash}" 
-                                             Command="{Binding $parent[views:HelpView].((viewModels:HelpViewModel)DataContext).DeleteArticleCommand}"
-                                             CommandParameter="{Binding Title}"
-                                             IsVisible="{Binding $parent[views:HelpView].((viewModels:HelpViewModel)DataContext).AllowedToOpenBuilder}"/>
+                                     <StackPanel IsVisible="{Binding $parent[views:HelpView].((viewModels:HelpViewModel)DataContext).AllowedToOpenBuilder}" Orientation="Horizontal">
+                                         <Button Content="{material:MaterialIconExt Pencil}" 
+                                                 Command="{Binding $parent[views:HelpView].((viewModels:HelpViewModel)DataContext).EditArticleCommand}"
+                                                 CommandParameter="{Binding}"
+                                                 Margin="{ext:Space 0, 0, 1, 0}"/>
+                                         <Button Content="{material:MaterialIconExt Trash}" 
+                                                 Command="{Binding $parent[views:HelpView].((viewModels:HelpViewModel)DataContext).DeleteArticleCommand}"
+                                                 CommandParameter="{Binding Title}"/>
+                                     </StackPanel>
                                  </ui:SettingsExpander.Footer>
                                  <ItemsControl ItemsSource="{Binding Sections}">
                                     <ItemsControl.ItemTemplate>
@@ -110,7 +119,7 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
                 
-                <TextBlock Grid.Row="4" IsVisible="{Binding !Articles.Count}" Text="No Help Articles Exist" 
+                <TextBlock Grid.Row="4" IsVisible="{Binding !Articles.Count}" Text="No Help Articles Loaded" 
                            Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"
                            HorizontalAlignment="Center" VerticalAlignment="Center" />
             </Grid>
