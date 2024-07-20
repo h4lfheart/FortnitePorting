@@ -148,9 +148,10 @@ public partial class BlenderPluginViewModel : ViewModelBase
 
     public string BuildPlugin(string name, string blenderPath)
     {
-        BlenderExtensionCommand("build", $"--output-dir \"{BlenderRoot.FullName}\"", blenderPath,
+        var outPath = Path.Combine(BlenderRoot.FullName, $"{name}.zip");
+        BlenderExtensionCommand("build", $"--output-filepath \"{outPath}\"", blenderPath,
             workingDirectory: Path.Combine(BlenderRoot.FullName, name));
-        return Path.Combine(BlenderRoot.FullName, $"{name}.zip");
+        return outPath;
     }
     
     public void InstallPlugin(string zipPath, string blenderPath)
