@@ -72,7 +72,7 @@
                     </Ellipse>
                 </Grid>
                 <TextBlock Grid.Row="3" Text="{Binding OnlineRef.GlobalName, TargetNullValue='No User'}" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
-                <TextBlock Grid.Row="4" Text="{Binding OnlineRef.UserName, TargetNullValue='Discord Not Authenticated'}" Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" HorizontalAlignment="Center"/>
+                <TextBlock Grid.Row="4" Text="{Binding OnlineRef.UserName, TargetNullValue='Unauthenticated'}" Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" HorizontalAlignment="Center"/>
                 <Separator Grid.Row="5" Margin="{ext:Space 1}"/>
                 <StackPanel Grid.Row="6">
                     <TextBlock Text="Helpful Links" Classes="SubtitleTextBlockStyle" FontWeight="SemiBold" HorizontalAlignment="Center"/>

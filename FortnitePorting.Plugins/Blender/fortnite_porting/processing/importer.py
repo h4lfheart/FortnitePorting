@@ -5,7 +5,7 @@ from .import_context import ImportContext
 class Importer:
     @staticmethod
     def Import(data: str):
-        json_data = json.loads(json.loads(data))
+        json_data = json.loads(data)
 
         meta = json_data.get("MetaData")
         exports = json_data.get("Exports")

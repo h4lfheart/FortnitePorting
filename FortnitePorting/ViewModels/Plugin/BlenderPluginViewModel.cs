@@ -80,8 +80,8 @@ public partial class BlenderPluginViewModel : ViewModelBase
         {
             var installation = Installations[SelectedInstallationIndex];
             installation.Status = "(Removing)";
-            InstallPlugin("io_scene_ueformat", installation.BlenderPath);
-            InstallPlugin("fortnite_porting", installation.BlenderPath);
+            RemovePlugin("io_scene_ueformat", installation.BlenderPath);
+            RemovePlugin("fortnite_porting", installation.BlenderPath);
 
             var selectedIndexToRemove = SelectedInstallationIndex;
             Installations.RemoveAt(selectedIndexToRemove);
@@ -182,14 +182,13 @@ public partial class BlenderPluginViewModel : ViewModelBase
         
         var output = buildProcess.StandardOutput.ReadToEnd();
         var lockMatch = Regex.Match(output, "Error: Lock exists: lock is held by other session: (.*)");
-        Log.Information(lockMatch.Groups.Count.ToString());
         if (lockMatch.Groups.Count > 1)
         {
             AppWM.Message("Blender Extension", $"A lock has been put on the user_default extension repository. Please delete \"{lockMatch.Groups[1].Value.Trim()}\" and try again.");
         }
         
-        Console.WriteLine($"------- {blenderPath} -------");
-        Console.WriteLine(output);
+        Log.Information($"------- {blenderPath} -------");
+        Log.Information(output);
     }
 
     public bool TryGetBlenderProcess(string path, out Process process)

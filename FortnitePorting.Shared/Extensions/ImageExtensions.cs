@@ -27,10 +27,20 @@ public static class ImageExtensions
 
     }
 
+    public static Dictionary<string, Bitmap> CachedBitmaps = [];
+
     public static Bitmap AvaresBitmap(string path)
     {
+        if (CachedBitmaps.TryGetValue(path, out var existingBitmap))
+        {
+            return existingBitmap;
+        }
+
         var uri = new Uri(path);
         var stream = AssetLoader.Open(uri);
-        return new Bitmap(stream);
+        var bitmap = new Bitmap(stream);
+        CachedBitmaps[path] = bitmap;
+        return bitmap;
+
     }
 }

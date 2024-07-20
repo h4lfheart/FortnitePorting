@@ -40,6 +40,12 @@ class EExportType(IntEnum):
     FESTIVAL_DRUM = auto()
     FESTIVAL_MIC = auto()
     
+    # LEGO
+    LEGO_OUTFIT = auto()
+    LEGO_EMOTE = auto()
+    LEGO_PROP = auto()
+    LEGO_WILDLIFE = auto()
+    
     # GENERIC
     MESH = auto()
     WORLD = auto()

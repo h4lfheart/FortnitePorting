@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using FortnitePorting.Application;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.Help;
+using FortnitePorting.Models.Leaderboard;
 using FortnitePorting.Shared;
 using Newtonsoft.Json;
 using RestSharp;
@@ -20,6 +22,10 @@ public class FortnitePortingAPI : APIBase
     public const string AUTH_GET_URL = "https://fortniteporting.halfheart.dev/api/v3/auth";
     public const string AUTH_USER_URL = "https://fortniteporting.halfheart.dev/api/v3/auth/user";
     public const string AUTH_REDIRECT_URL = "https://fortniteporting.halfheart.dev/api/v3/auth/redirect";
+    
+    public const string LEADERBOARD_USERS_URL = "https://fortniteporting.halfheart.dev/api/v3/leaderboard/users";
+    public const string LEADERBOARD_EXPORTS_URL = "https://fortniteporting.halfheart.dev/api/v3/leaderboard/exports";
+    public const string LEADERBOARD_EXPORTS_PERSONAL_URL = "https://fortniteporting.halfheart.dev/api/v3/leaderboard/exports/personal";
     
     public FortnitePortingAPI(RestClient client) : base(client)
     {
@@ -59,7 +65,7 @@ public class FortnitePortingAPI : APIBase
     {
         await ExecuteAsync(HELP_URL, Method.Post, parameters:
         [
-            new QueryParameter("source", JsonConvert.SerializeObject(article)),
+            new BodyParameter(JsonConvert.SerializeObject(article), ContentType.Json),
             new HeaderParameter("token", AppSettings.Current.Online.Auth!.Token),
         ]);
     }
@@ -115,7 +121,7 @@ public class FortnitePortingAPI : APIBase
 
     public async Task<AuthResponse?> GetAuthAsync(Guid state)
     {
-        return await ExecuteAsync<AuthResponse>(AUTH_GET_URL, verbose: false,
+        return await ExecuteAsync<AuthResponse>(AUTH_GET_URL,
             parameters: new QueryParameter("state", state.ToString()));
     }
 
@@ -126,12 +132,83 @@ public class FortnitePortingAPI : APIBase
     
     public async Task<UserResponse?> GetUserAsync(string token)
     {
-        return await ExecuteAsync<UserResponse>(AUTH_USER_URL, verbose: false,
+        return await ExecuteAsync<UserResponse>(AUTH_USER_URL,
             parameters: new HeaderParameter("token", token));
     }
 
     public UserResponse? GetUser(string token)
     {
         return GetUserAsync(token).GetAwaiter().GetResult();
+    }
+    
+    public async Task PostExportsAsync(IEnumerable<PersonalExport> exports)
+    {
+        await ExecuteAsync(LEADERBOARD_EXPORTS_URL, Method.Post, verbose: false, parameters: 
+        [
+            new BodyParameter(JsonConvert.SerializeObject(exports), ContentType.Json),
+            new HeaderParameter("token", AppSettings.Current.Online.Auth!.Token)
+        ]);
+    }
+
+    public void PostExports(IEnumerable<PersonalExport> exports)
+    {
+        PostExportsAsync(exports).GetAwaiter().GetResult();
+    }
+    
+    public async Task PostExportAsync(PersonalExport export)
+    {
+        PersonalExport[] exports = [export];
+        
+        await ExecuteAsync(LEADERBOARD_EXPORTS_URL, Method.Post, verbose: false, parameters: 
+        [
+            new BodyParameter(JsonConvert.SerializeObject(exports), ContentType.Json),
+            new HeaderParameter("token", AppSettings.Current.Online.Auth!.Token)
+        ]);
+    }
+
+    public void PostExport(PersonalExport export)
+    {
+        PostExportAsync(export).GetAwaiter().GetResult();
+    }
+    
+    public async Task<LeaderboardUser[]> GetLeaderboardUsersAsync(int min = 1, int max = 10)
+    {
+        return await ExecuteAsync<LeaderboardUser[]>(LEADERBOARD_USERS_URL, verbose: false, parameters: 
+        [
+            new QueryParameter("min", min.ToString()),
+            new QueryParameter("max", max.ToString())
+        ]) ?? [];
+    }
+
+    public LeaderboardUser[] GetLeaderboardUsers(int min = 1, int max = 10)
+    {
+        return GetLeaderboardUsersAsync(min, max).GetAwaiter().GetResult();
+    }
+    
+    public async Task<LeaderboardExport[]> GetLeaderboardExportsAsync(int min = 1, int max = 10)
+    {
+        return await ExecuteAsync<LeaderboardExport[]>(LEADERBOARD_EXPORTS_URL, verbose: false, parameters: 
+        [
+            new QueryParameter("min", min.ToString()),
+            new QueryParameter("max", max.ToString())
+        ]) ?? [];
+    }
+
+    public LeaderboardExport[] GetLeaderboardExports(int min = 1, int max = 10)
+    {
+        return GetLeaderboardExportsAsync(min, max).GetAwaiter().GetResult();
+    }
+    
+    public async Task<PersonalExport[]> GetPersonalExportsAsync()
+    {
+        return await ExecuteAsync<PersonalExport[]>(LEADERBOARD_EXPORTS_PERSONAL_URL, verbose: false, parameters: 
+        [
+            new HeaderParameter("token", AppSettings.Current.Online.Auth!.Token)
+        ]) ?? [];
+    }
+
+    public PersonalExport[] GetPersonalExports()
+    {
+        return GetPersonalExportsAsync().GetAwaiter().GetResult();
     }
 }

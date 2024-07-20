@@ -9,6 +9,7 @@ using FortnitePorting.Controls.Assets;
 using FortnitePorting.Export;
 using FortnitePorting.Export.Models;
 using FortnitePorting.Models.Assets;
+using FortnitePorting.Models.Leaderboard;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
@@ -33,5 +34,21 @@ public partial class AssetsViewModel : ViewModelBase
     public async Task Export()
     {
         await Exporter.Export(AssetLoaderCollection.ActiveLoader.SelectedAssets, AppSettings.Current.CreateExportMeta());
+
+        if (AppSettings.Current.Online.UseIntegration)
+        {
+            var exports = AssetLoaderCollection.ActiveLoader.SelectedAssets.Select(asset =>
+            {
+                var creationData = asset.Data.Asset.CreationData;
+                return new PersonalExport
+                {
+                    ObjectName = creationData.DisplayName,
+                    ObjectPath = creationData.Object.GetPathName(),
+                    Category = creationData.ExportType.ToString()
+                };
+            });
+            
+            await ApiVM.FortnitePorting.PostExportsAsync(exports);
+        }
     }
 }

@@ -11,6 +11,7 @@ using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
 using FortnitePorting.Export;
 using FortnitePorting.Models.Chat;
+using FortnitePorting.Models.Leaderboard;
 using FortnitePorting.Multiplayer.Extensions;
 using FortnitePorting.Multiplayer.Models;
 using FortnitePorting.Multiplayer.Packet;
@@ -293,6 +294,16 @@ public static class OnlineService
                             else
                             {
                                 await Exporter.Export(asset, exportType, AppSettings.Current.CreateExportMeta());
+                                
+                                if (AppSettings.Current.Online.UseIntegration)
+                                {
+                                    await ApiVM.FortnitePorting.PostExportAsync(new PersonalExport
+                                    {
+                                        ObjectName = asset.Name,
+                                        ObjectPath = asset.GetPathName(),
+                                        Category = type.ToString()
+                                    });
+                                }
                             }
 
                         })

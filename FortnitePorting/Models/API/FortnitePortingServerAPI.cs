@@ -13,14 +13,14 @@ public class FortnitePortingServerAPI : APIBase
     {
         var port = (int) serverType;
         var serverUrl = $"http://127.0.0.1:{port}/fortnite-porting/data";
-        await ExecuteAsync(serverUrl, method: Method.Post, parameters: new BodyParameter(data, ContentType.Json, DataFormat.Json));
+        await ExecuteAsync(serverUrl, method: Method.Post, verbose: false, parameters: new BodyParameter(data, ContentType.Json));
     }
     
     public async Task<bool> PingAsync(EExportServerType serverType)
     {
         var port = (int) serverType;
         var serverUrl = $"http://127.0.0.1:{port}/fortnite-porting/ping";
-        var response = await ExecuteAsync(serverUrl, method: Method.Get);
+        var response = await ExecuteAsync(serverUrl, method: Method.Get, verbose: false);
         return response.IsSuccessful;
     }
 }

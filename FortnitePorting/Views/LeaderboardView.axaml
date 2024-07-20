@@ -1,0 +1,226 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
+             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+             xmlns:versions="clr-namespace:CUE4Parse.UE4.Versions;assembly=CUE4Parse"
+             xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:controls1="clr-namespace:Avalonia.Controls"
+             xmlns:wrapPanel="clr-namespace:FortnitePorting.Controls.WrapPanel"
+             xmlns:assets="clr-namespace:FortnitePorting.Models.Assets"
+             xmlns:ScottPlot="clr-namespace:ScottPlot.Avalonia;assembly=ScottPlot.Avalonia"
+             xmlns:oxy="http://oxyplot.org/avalonia"
+             xmlns:leaderboard="clr-namespace:FortnitePorting.Models.Leaderboard"
+             d:DesignHeight="720" d:DesignWidth="1160"
+             x:Class="FortnitePorting.Views.LeaderboardView"
+             x:DataType="viewModels:LeaderboardViewModel">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3.5*"/>
+            <ColumnDefinition Width="{ext:Space 1}" />
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        
+        <ScrollViewer Grid.Column="0">
+            <Grid Margin="{ext:Space 1, 1, 2, 1}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="{ext:Space 1}"/>
+                    <RowDefinition Height="3*"/>
+                    <RowDefinition Height="{ext:Space 1}"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="{ext:Space 1}"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Top Users" 
+                           Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
+                
+                <ItemsControl Grid.Column="0" Grid.Row="2" ItemsSource="{Binding LeaderboardUsers}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <ui:FABorder Padding="{ext:Space 1}" Margin="{ext:Space 0, 0, 0, 1}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="{ext:Space 1}"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="{ext:Space 1}"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="{ext:Space 1}"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                            
+                                    <Grid Grid.Column="0">
+                                        <Ellipse Height="64" Width="64" Fill="#2F000000"/>
+                                        <Ellipse Height="64" Width="64" 
+                                                 StrokeThickness="5" Stroke="#00000000">
+                                            <Ellipse.Fill>
+                                                <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding ProfilePicture}" Stretch="UniformToFill"/>
+                                            </Ellipse.Fill>
+                                        </Ellipse>
+                                    </Grid>
+                                    <Image Grid.Column="0" Source="{Binding MedalBitmap}" Width="36" Margin="38 38 0 0 "/>
+                                    <TextBlock Grid.Column="2" Text="{Binding Ranking}" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                    <Grid Grid.Column="4" VerticalAlignment="Center" Margin="{ext:Space 1, 0, 0, 0}" RowDefinitions="* *">
+                                        <TextBlock Grid.Row="0" Text="{Binding GlobalName}" Classes="BodyStrongTextBlockStyle"/>
+                                        <TextBlock Grid.Row="1" Text="{Binding Username}" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"/>
+                                    </Grid>
+                                    <TextBlock Grid.Column="6" Text="{Binding ExportCount, StringFormat=N0}" 
+                                               Classes="SubtitleTextBlockStyle" Margin="{ext:Space 0, 0, 1, 0}"
+                                               HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                </Grid>
+                            </ui:FABorder>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                
+                <TextBlock Grid.Column="0" Grid.Row="2" Text="User Data Unavailable" 
+                           Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"
+                           VerticalAlignment="Center" HorizontalAlignment="Center"
+                           IsVisible="{Binding !LeaderboardUsers.Count}"/>
+
+                
+                <TextBlock Grid.Row="0" Grid.Column="2" Text="Top Exports" 
+                           Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
+                
+                <ItemsControl Grid.Column="2" Grid.Row="2" ItemsSource="{Binding LeaderboardExports}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <ui:FABorder Padding="{ext:Space 1}" Margin="{ext:Space 0, 0, 0, 1}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="{ext:Space 1}"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="{ext:Space 1}"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="{ext:Space 1}"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                            
+                                    <Border Grid.Column="0" CornerRadius="4" ClipToBounds="True">
+                                        <Image Source="{Binding ExportBitmap^}" Width="64"/>
+                                    </Border>
+                                    <Image Grid.Column="0" Source="{Binding MedalBitmap}" IsVisible="{Binding ShowMedal}"
+                                           Width="36" Margin="38 38 0 0 "/>
+                                    <TextBlock Grid.Column="2" Text="{Binding Ranking}" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                    <Grid Grid.Column="4" VerticalAlignment="Center" Margin="{ext:Space 1, 0, 0, 0}" RowDefinitions="* *">
+                                        <TextBlock Grid.Row="0" Text="{Binding ObjectName}" Classes="BodyStrongTextBlockStyle"/>
+                                        <TextBlock Grid.Row="1" Text="{Binding ID}" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush" TextWrapping="Wrap"/>
+                                    </Grid>
+                                    <TextBlock Grid.Column="6" Text="{Binding ExportCount, StringFormat=N0}" 
+                                               Classes="SubtitleTextBlockStyle" Margin="{ext:Space 0, 0, 1, 0}"
+                                               HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                </Grid>
+                            </ui:FABorder>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                
+                <TextBlock Grid.Column="2" Grid.Row="2" Text="Export Data Unavailable" 
+                           Classes="BodyTextBlockStyle TextFillColorSecondaryBrush" 
+                           VerticalAlignment="Center" HorizontalAlignment="Center"
+                           IsVisible="{Binding !LeaderboardExports.Count}"/>
+            </Grid>
+        </ScrollViewer>
+        
+        <ui:FABorder Grid.Column="2" Background="#22000000" CornerRadius="0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="{ext:Space 1}"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="{ext:Space 1}"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="{ext:Space 1}"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="1">
+                    <Ellipse Height="104" Width="104" Fill="#2F000000"/>
+                    <Ellipse Height="104" Width="104" 
+                             StrokeThickness="5" Stroke="#00000000">
+                        <Ellipse.Fill>
+                            <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding OnlineRef.ProfilePictureURL, TargetNullValue='avares://FortnitePorting/Assets/DefaultProfile.png'}" Stretch="UniformToFill"/>
+                        </Ellipse.Fill>
+                    </Ellipse>
+                </Grid>
+                <Image Grid.Row="1" Source="{Binding MedalBitmap}" Width="48" Margin="64 64 0 0 "/>
+                <TextBlock Grid.Row="3" Text="{Binding OnlineRef.GlobalName, TargetNullValue='No User'}" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
+                <TextBlock Grid.Row="4" Text="{Binding OnlineRef.UserName, TargetNullValue='Unauthenticated'}" Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" HorizontalAlignment="Center"/>
+                <Separator Grid.Row="5" Margin="{ext:Space 1}"/>
+                
+                <Popup x:Name="ValuePopup" Grid.Row="6" Placement="Center">
+                    <ui:FABorder Padding="{ext:Space 1}" Background="#2c2c2c">
+                        <TextBlock Text="{Binding PopupValue, StringFormat='{}{0} Exports'}"/>
+                    </ui:FABorder>
+                </Popup>
+                
+                <TabControl Grid.Row="6" HorizontalAlignment="Center" ItemsSource="{Binding StatisticsModels}">
+                    <TabControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Name}"/>
+                        </DataTemplate>
+                    </TabControl.ItemTemplate>
+                    <TabControl.ContentTemplate>
+                        <DataTemplate DataType="leaderboard:StatisticsModel">
+                            <Grid  Margin="{ext:Space 1}">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="{ext:Space 1}"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="{ext:Space 2}"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="{ext:Space 1}"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="{ext:Space 1}"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="{ext:Space 1}"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                
+                                <TextBlock Grid.Row="0" Text="Statistics" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
+                                
+                                <ContentControl Grid.Row="2" Height="100" Content="{Binding Graph}" PointerMoved="OnGraphPointerMoved" PointerExited="OnGraphPointerExited"/>
+                            
+                                <Separator Grid.Row="3"/>
+                            
+                                <Grid Grid.Row="4" ColumnDefinitions="* *">
+                                    <TextBlock Grid.Column="0" Text="Total" Classes="BodyStrongTextBlockStyle" HorizontalAlignment="Left"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding TotalExports, StringFormat=N0}" HorizontalAlignment="Right"/>
+                                </Grid>
+                            
+                                <Grid Grid.Row="6" ColumnDefinitions="* *">
+                                    <TextBlock Grid.Column="0" Text="Instances" Classes="BodyStrongTextBlockStyle" HorizontalAlignment="Left"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding InstanceExports, StringFormat=N0}" HorizontalAlignment="Right"/>
+                                </Grid>
+                            
+                                <Grid Grid.Row="8" ColumnDefinitions="* *">
+                                    <TextBlock Grid.Column="0" Text="Maximum" Classes="BodyStrongTextBlockStyle" HorizontalAlignment="Left"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding MaximumExports, StringFormat=N0}" HorizontalAlignment="Right"/>
+                                </Grid>
+                                <Grid Grid.Row="10" ColumnDefinitions="* *">
+                                    <TextBlock Grid.Column="0" Text="Unique" Classes="BodyStrongTextBlockStyle" HorizontalAlignment="Left"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding UniqueExports, StringFormat=N0}" HorizontalAlignment="Right"/>
+                                </Grid>
+                            </Grid>
+                        </DataTemplate>
+                    </TabControl.ContentTemplate>
+                </TabControl>
+                
+                <TextBlock Grid.Row="6" Text="Top Assets" IsVisible="False"
+                           Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
+                
+            </Grid>
+        </ui:FABorder>
+    </Grid>
+</UserControl>

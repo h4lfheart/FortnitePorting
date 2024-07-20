@@ -49,6 +49,10 @@
             <Setter Property="CornerRadius" Value="4"/>
         </Style>
         
+        <Style Selector="TabItem > TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+        
         <Style Selector="TextBlock:disabled">
             <Setter Property="Foreground" Value="#5DFFFFFF"/>
         </Style>

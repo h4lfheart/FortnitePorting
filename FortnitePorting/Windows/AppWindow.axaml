@@ -31,7 +31,7 @@
                        HorizontalAlignment="Left" VerticalAlignment="Center" />
         </Grid>
 
-         <ui:NavigationView x:Name="NavigationView" Grid.Row="1" IsPaneOpen="False" OpenPaneLength="136" ItemInvoked="OnItemInvoked" IsSettingsVisible="False">
+         <ui:NavigationView x:Name="NavigationView" Grid.Row="1" IsPaneOpen="False" OpenPaneLength="152" ItemInvoked="OnItemInvoked" IsSettingsVisible="False">
              <ui:NavigationView.MenuItems>
                  <ui:NavigationViewItem Content="Welcome" Tag="Welcome" IsSelected="True" IsVisible="{Binding SetupTabsAreVisible}">
                      <ui:NavigationViewItem.IconSource>
@@ -51,6 +51,11 @@
                      <ui:NavigationViewItem.InfoBadge>
                          <ui:InfoBadge Value="{Binding ChatNotifications}" IsVisible="{Binding !!ChatNotifications}"/>
                      </ui:NavigationViewItem.InfoBadge>
+                 </ui:NavigationViewItem>
+                 <ui:NavigationViewItem Content="Leaderboard" Tag="Leaderboard" IsEnabled="{Binding OnlineRef.UseIntegration}">
+                     <ui:NavigationViewItem.IconSource>
+                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry Trophy}"/>
+                     </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItemSeparator/>
                  <ui:NavigationViewItem Content="Assets" Tag="Assets" IsEnabled="{Binding GameBasedTabsAreReady}">

@@ -39,6 +39,7 @@ public static class ApplicationService
     public static ChatViewModel ChatVM => ViewModelRegistry.Get<ChatViewModel>()!;
     public static FilesViewModel FilesVM => ViewModelRegistry.Get<FilesViewModel>()!;
     public static HelpViewModel HelpVM => ViewModelRegistry.Get<HelpViewModel>()!;
+    public static LeaderboardViewModel LeaderboardVM => ViewModelRegistry.Get<LeaderboardViewModel>()!;
     
     public static IClassicDesktopStyleApplicationLifetime Application = null!;
     private static IStorageProvider StorageProvider => Application.MainWindow!.StorageProvider;

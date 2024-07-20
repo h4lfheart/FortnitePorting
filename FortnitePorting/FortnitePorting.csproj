@@ -40,6 +40,7 @@
         <PackageReference Include="ReactiveUI" Version="20.0.1" />
         <PackageReference Include="RestSharp" Version="110.2.1-alpha.0.20" />
         <PackageReference Include="RestSharp.Serializers.NewtonsoftJson" Version="110.2.1-alpha.0.20" />
+        <PackageReference Include="ScottPlot.Avalonia" Version="5.0.36" />
         <PackageReference Include="Serilog.Sinks.File" Version="5.0.1-dev-00972" />
         <PackageReference Include="Tomlyn" Version="0.17.0" />
         <PackageReference Include="z440.atl.core" Version="5.24.0" />
@@ -58,6 +59,14 @@
       <ProjectReference Include="..\FortnitePorting.OpenGL\FortnitePorting.OpenGL.csproj" />
       <ProjectReference Include="..\FortnitePorting.Plugins\FortnitePorting.Plugins.csproj" />
       <ProjectReference Include="..\FortnitePorting.Shared\FortnitePorting.Shared.csproj" />
+    </ItemGroup>
+
+    
+    <ItemGroup>
+      <Compile Update="Views\LeaderboardView.axaml.cs">
+        <DependentUpon>LeaderboardView.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
     </ItemGroup>
 
 </Project>

@@ -17,6 +17,7 @@ using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using FortnitePorting.Application;
+using FortnitePorting.Models.Leaderboard;
 using FortnitePorting.Models.Unreal;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
@@ -429,6 +430,16 @@ public partial class WorldPartitionGridMap : ObservableObject
         
         var world = await CUE4ParseVM.Provider.LoadObjectAsync<UWorld>(Path);
         await Exporter.Export(world, EExportType.World, AppSettings.Current.CreateExportMeta());
+        
+        if (AppSettings.Current.Online.UseIntegration)
+        {
+            await ApiVM.FortnitePorting.PostExportAsync(new PersonalExport
+            {
+                ObjectName = world.Name,
+                ObjectPath = world.GetPathName(),
+                Category = EExportType.World.ToString()
+            });
+        }
     }
     
     [RelayCommand]

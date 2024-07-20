@@ -56,7 +56,7 @@ public static class DependencyService
         {
             var assetStream = AssetLoader.Open(asset);
             var targetFile = new FileInfo(Path.Combine(PluginsFolder.FullName, asset.AbsolutePath[1..]));
-            if (targetFile is { Exists: true, Length: > 0 } && targetFile.GetHash() == assetStream.GetHash()) return;
+            if (targetFile is { Exists: true, Length: > 0 } && targetFile.GetHash() == assetStream.GetHash()) continue;
             targetFile.Directory?.Create();
             
             File.WriteAllBytes(targetFile.FullName, assetStream.ReadToEnd());

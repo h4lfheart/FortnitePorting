@@ -41,6 +41,8 @@ public class CUE4ParseViewModel : ViewModelBase
     
     public readonly List<FAssetData> AssetRegistry = [];
     public readonly List<FRarityCollection> RarityColors = [];
+
+    public bool FinishedLoading;
     
 
     public override async Task Initialize()
@@ -70,6 +72,8 @@ public class CUE4ParseViewModel : ViewModelBase
         await LoadApplicationAssets();
 
         HomeVM.UpdateStatus(string.Empty);
+
+        FinishedLoading = true;
     }
     
     private async Task InitializeOodle()

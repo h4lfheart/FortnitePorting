@@ -22,6 +22,7 @@ using FortnitePorting.Export;
 using FortnitePorting.Export.Models;
 using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.Files;
+using FortnitePorting.Models.Leaderboard;
 using FortnitePorting.Models.Unreal;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
@@ -158,6 +159,22 @@ public partial class FilesViewModel : ViewModelBase
         }
         
         await Exporter.Export(exports, AppSettings.Current.CreateExportMeta());
+
+        if (AppSettings.Current.Online.UseIntegration)
+        {
+            var sendExports = exports.Select(export =>
+            {
+                var (asset, type) = export;
+                return new PersonalExport
+                {
+                    ObjectName = asset.Name,
+                    ObjectPath = asset.GetPathName(),
+                    Category = type.ToString()
+                };
+            });
+            
+            await ApiVM.FortnitePorting.PostExportsAsync(sendExports);
+        }
     }
 
     private bool IsValidFilePath(string path)
