@@ -179,9 +179,9 @@ public partial class BlenderPluginViewModel : ViewModelBase
 
         Log.Information($"Executing {blenderPath} {command} {args}");
         buildProcess.Start();
+        var output = buildProcess.StandardOutput.ReadToEnd();
         buildProcess.WaitForExit();
         
-        var output = buildProcess.StandardOutput.ReadToEnd();
         var lockMatch = Regex.Match(output, "Error: Lock exists: lock is held by other session: (.*)");
         if (lockMatch.Groups.Count > 1)
         {
