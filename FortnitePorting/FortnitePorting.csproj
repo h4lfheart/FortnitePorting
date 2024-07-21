@@ -9,9 +9,9 @@
         <ApplicationIcon>Assets/LogoV3.ico</ApplicationIcon>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-        
     </PropertyGroup>
     
+    <!-- todo make build target for updater -->
     
     <ItemGroup>
         <PackageReference Include="AsyncImageLoader.Avalonia" Version="3.2.1" />

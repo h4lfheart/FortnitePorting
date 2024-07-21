@@ -9,6 +9,8 @@ namespace FortnitePorting.Services;
 
 public static class DependencyService
 {
+    public static readonly FileInfo UpdaterFile = new(Path.Combine(DataFolder.FullName, "release", "FortnitePorting.Updater.exe"));
+    
     public static readonly FileInfo BinkaFile = new(Path.Combine(DataFolder.FullName, "binka", "binkadec.exe"));
     public static readonly FileInfo VgmStreamFile = new(Path.Combine(DataFolder.FullName, "vgmstream-cli.exe"));
     
@@ -19,6 +21,7 @@ public static class DependencyService
         TaskService.Run(() =>
         {
             EnsureResourceBased("Assets/Dependencies/binkadec.exe", BinkaFile);
+            EnsureResourceBased("Assets/Dependencies/FortnitePorting.Updater.exe", UpdaterFile);
             EnsureVgmStream();
             EnsureBlenderExtensions();
         });

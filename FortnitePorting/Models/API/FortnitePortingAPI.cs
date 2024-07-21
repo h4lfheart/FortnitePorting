@@ -16,9 +16,12 @@ public class FortnitePortingAPI : APIBase
 {
     public const string NEWS_URL = "https://halfheart.dev/fortnite-porting/api/v3/news.json"; // i need to buy servers lmao
     public const string FEATURED_URL = "https://halfheart.dev/fortnite-porting/api/v3/featured.json";
+    
     public const string STATS_URL = "https://fortniteporting.halfheart.dev/api/v3/stats";
+    
     public const string HELP_URL = "https://fortniteporting.halfheart.dev/api/v3/help";
     public const string HELP_IMAGE_URL = "https://fortniteporting.halfheart.dev/api/v3/help/image";
+    
     public const string AUTH_GET_URL = "https://fortniteporting.halfheart.dev/api/v3/auth";
     public const string AUTH_USER_URL = "https://fortniteporting.halfheart.dev/api/v3/auth/user";
     public const string AUTH_REDIRECT_URL = "https://fortniteporting.halfheart.dev/api/v3/auth/redirect";
@@ -26,6 +29,9 @@ public class FortnitePortingAPI : APIBase
     public const string LEADERBOARD_USERS_URL = "https://fortniteporting.halfheart.dev/api/v3/leaderboard/users";
     public const string LEADERBOARD_EXPORTS_URL = "https://fortniteporting.halfheart.dev/api/v3/leaderboard/exports";
     public const string LEADERBOARD_EXPORTS_PERSONAL_URL = "https://fortniteporting.halfheart.dev/api/v3/leaderboard/exports/personal";
+    
+    public const string RELEASE_URL = "https://fortniteporting.halfheart.dev/api/v3/release";
+
     
     public FortnitePortingAPI(RestClient client) : base(client)
     {
@@ -210,5 +216,15 @@ public class FortnitePortingAPI : APIBase
     public PersonalExport[] GetPersonalExports()
     {
         return GetPersonalExportsAsync().GetAwaiter().GetResult();
+    }
+    
+    public async Task<ReleaseResponse?> GetReleaseAsync()
+    {
+        return await ExecuteAsync<ReleaseResponse>(RELEASE_URL);
+    }
+
+    public ReleaseResponse? GetRelease()
+    {
+        return GetReleaseAsync().GetAwaiter().GetResult();
     }
 }

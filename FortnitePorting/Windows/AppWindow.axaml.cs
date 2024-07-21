@@ -1,6 +1,8 @@
 using System;
+using Avalonia.Input;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Shared.Framework;
+using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
 using AppWindowModel = FortnitePorting.WindowModels.AppWindowModel;
 
@@ -8,12 +10,12 @@ namespace FortnitePorting.Windows;
 
 public partial class AppWindow : WindowBase<AppWindowModel>
 {
-    public AppWindow()
+    public AppWindow() : base(initializeWindowModel: false)
     {
         InitializeComponent();
-        DataContext = ViewModel;
-        ViewModel.ContentFrame = ContentFrame;
-        ViewModel.NavigationView = NavigationView;
+        DataContext = WindowModel;
+        WindowModel.ContentFrame = ContentFrame;
+        WindowModel.NavigationView = NavigationView;
     }
 
     private void OnItemInvoked(object? sender, NavigationViewItemInvokedEventArgs e)
@@ -23,6 +25,11 @@ public partial class AppWindow : WindowBase<AppWindowModel>
         var type = Type.GetType(viewName);
         if (type is null) return;
         
-        ViewModel.Navigate(type);
+        WindowModel.Navigate(type);
+    }
+
+    private void OnUpdatePressed(object? sender, PointerPressedEventArgs e)
+    {
+        WindowModel.CheckForUpdate().RunAsynchronously();
     }
 }

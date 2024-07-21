@@ -8,11 +8,15 @@ using System.Text;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
 using FortnitePorting.Controls;
+using FortnitePorting.OnlineServices.Models;
+using FortnitePorting.OnlineServices.Packet;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Framework;
+using FortnitePorting.Shared.Models;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels.Settings;
 using Serilog;
@@ -67,7 +71,6 @@ public partial class HomeViewModel : ViewModelBase
             var controls = featured.Select(item => new FeaturedControl(item));
             FeaturedControls = [..controls];
         });
-        return;
     }
     
     public void UpdateStatus(string text)

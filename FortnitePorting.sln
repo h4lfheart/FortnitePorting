@@ -14,7 +14,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortnitePorting.Plugins", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortnitePorting.OnlineServices", "FortnitePorting.OnlineServices\FortnitePorting.OnlineServices.csproj", "{3D6C5BA9-2D4B-423C-A757-7751CFDD861C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortnitePorting.Updater", "FortnitePorting.Updater\FortnitePorting.Updater.csproj", "{80F0B2A6-3B74-4CDB-B669-A30E096556A3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortnitePorting.Updater", "FortnitePorting.Updater\FortnitePorting.Updater.csproj", "{FA34836C-BFC0-4EE3-9611-DF6907960A0B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,9 +50,9 @@ Global
 		{3D6C5BA9-2D4B-423C-A757-7751CFDD861C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3D6C5BA9-2D4B-423C-A757-7751CFDD861C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3D6C5BA9-2D4B-423C-A757-7751CFDD861C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{80F0B2A6-3B74-4CDB-B669-A30E096556A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{80F0B2A6-3B74-4CDB-B669-A30E096556A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{80F0B2A6-3B74-4CDB-B669-A30E096556A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{80F0B2A6-3B74-4CDB-B669-A30E096556A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FA34836C-BFC0-4EE3-9611-DF6907960A0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA34836C-BFC0-4EE3-9611-DF6907960A0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA34836C-BFC0-4EE3-9611-DF6907960A0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA34836C-BFC0-4EE3-9611-DF6907960A0B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

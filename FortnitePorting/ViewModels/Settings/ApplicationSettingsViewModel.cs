@@ -8,6 +8,7 @@ using FluentAvalonia.UI.Media.Animation;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Framework;
+using FortnitePorting.Shared.Models;
 using FortnitePorting.Shared.Validators;
 using Newtonsoft.Json;
 
@@ -24,6 +25,8 @@ public partial class ApplicationSettingsViewModel : ViewModelBase
    [ObservableProperty] private string _assetsPath;
    
    [ObservableProperty] private bool _useTabTransitions = true;
+
+   [ObservableProperty] private FPVersion _lastOnlineVersion = Globals.Version;
     
 
    [JsonIgnore] public NavigationTransitionInfo Transition => UseTabTransitions ? new SlideNavigationTransitionInfo() : new SuppressNavigationTransitionInfo();

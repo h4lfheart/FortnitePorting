@@ -105,9 +105,9 @@ public static class ApplicationService
                 Content = exceptionString,
                 
                 PrimaryButtonText = "Open Log",
-                PrimaryButtonCommand = new RelayCommand(() => AppWM.Navigate<ConsoleView>()),
+                PrimaryButtonCommand = new RelayCommand(() => LaunchSelected(LogFilePath)),
                 SecondaryButtonText = "Open Console",
-                SecondaryButtonCommand = new RelayCommand(() => LaunchSelected(LogFilePath)),
+                SecondaryButtonCommand = new RelayCommand(() => AppWM.Navigate<ConsoleView>()),
                 CloseButtonText = "Continue",
             };
             await dialog.ShowAsync();
@@ -118,6 +118,8 @@ public static class ApplicationService
     {
         ViewModelRegistry.New<APIViewModel>();
         DependencyService.EnsureDependencies();
+
+        TaskService.Run(async () => await AppWM.Initialize());
         
         if (AppSettings.Current.Online.UseIntegration)
         {

@@ -126,4 +126,9 @@ public static class TaskService
             }
         }, priority);
     }
+
+    public static void RunAsynchronously(this Task task)
+    {
+        Run(async () => await task);
+    }
 }

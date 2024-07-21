@@ -16,21 +16,21 @@ public partial class TexturePreviewWindow : WindowBase<TexturePreviewWindowModel
     public TexturePreviewWindow(string name, UTexture texture)
     {
         InitializeComponent();
-        DataContext = ViewModel;
+        DataContext = WindowModel;
         Owner = ApplicationService.Application.MainWindow;
 
-        ViewModel.TextureName = name;
-        ViewModel.Texture = texture;
-        ViewModel.Update();
+        WindowModel.TextureName = name;
+        WindowModel.Texture = texture;
+        WindowModel.Update();
     }
 
     public static void Preview(string name, UTexture texture)
     {
         if (Instance is not null)
         {
-            Instance.ViewModel.TextureName = name;
-            Instance.ViewModel.Texture = texture;
-            Instance.ViewModel.Update();
+            Instance.WindowModel.TextureName = name;
+            Instance.WindowModel.Texture = texture;
+            Instance.WindowModel.Update();
             Instance.BringToTop();
             return;
         }

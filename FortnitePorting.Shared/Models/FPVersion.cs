@@ -1,8 +1,10 @@
 using System.Text;
+using Newtonsoft.Json;
 
 namespace FortnitePorting.Shared.Models;
 
-public class FPVersion : IComparable<FPVersion>
+[JsonConverter(typeof(FPVersionConverter))]
+public class FPVersion : IComparable<FPVersion>, IParsable<FPVersion>
 {
     public readonly int Release = 0;
     public readonly int Major = 0;
@@ -12,6 +14,7 @@ public class FPVersion : IComparable<FPVersion>
     
     public FPVersion(string inVersion)
     {
+        if (inVersion[0] == 'v') inVersion = inVersion[1..];
         var dashSplit = inVersion.Split("-");
         if (dashSplit.Length > 1) Identifier = dashSplit[1];
         
@@ -140,10 +143,52 @@ public class FPVersion : IComparable<FPVersion>
     {
         return GetDisplayString();
     }
+
+    public static FPVersion Parse(string s, IFormatProvider? provider)
+    {
+        return new FPVersion(s);
+    }
+
+    public static bool TryParse(string? s, IFormatProvider? provider, out FPVersion result)
+    {
+        try
+        {
+            result = Parse(s, provider);
+            return true;
+        }
+        catch (Exception)
+        {
+            result = null;
+            return false;
+        }
+    }
 }
 
 public enum EVersionStringType
 {
     IdentifierSuffix,
     IdentifierPrefix
+}
+
+public class FPVersionConverter : JsonConverter
+{
+    public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+    {
+        if (value is not FPVersion version) return;
+        
+        serializer.Serialize(writer, version.ToString());
+    }
+
+    public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+    {
+        var value = reader.Value?.ToString();
+        if (string.IsNullOrWhiteSpace(value)) return null;
+
+        return new FPVersion(value);
+    }
+
+    public override bool CanConvert(Type objectType)
+    {
+        return objectType == typeof(string);
+    }
 }

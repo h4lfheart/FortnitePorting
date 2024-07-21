@@ -25,7 +25,7 @@ public partial class ModelPreviewWindow : WindowBase<ModelPreviewWindowModel>
     public ModelPreviewWindow()
     {
         InitializeComponent();
-        DataContext = ViewModel;
+        DataContext = WindowModel;
         Owner = ApplicationService.Application.MainWindow;
     }
 
@@ -33,8 +33,8 @@ public partial class ModelPreviewWindow : WindowBase<ModelPreviewWindowModel>
     {
         if (Instance is not null)
         {
-            Instance.ViewModel.MeshName = name;
-            Instance.ViewModel.ViewerControl.Context.QueuedObject = obj;
+            Instance.WindowModel.MeshName = name;
+            Instance.WindowModel.ViewerControl.Context.QueuedObject = obj;
             Instance.BringToTop();
             return;
         }
@@ -42,8 +42,8 @@ public partial class ModelPreviewWindow : WindowBase<ModelPreviewWindowModel>
         TaskService.RunDispatcher(() =>
         {
             Instance = new ModelPreviewWindow();
-            Instance.ViewModel.MeshName = name;
-            Instance.ViewModel.QueuedObject = obj;
+            Instance.WindowModel.MeshName = name;
+            Instance.WindowModel.QueuedObject = obj;
             Instance.Show();
             Instance.BringToTop();
         });
@@ -53,7 +53,7 @@ public partial class ModelPreviewWindow : WindowBase<ModelPreviewWindowModel>
     {
         base.OnClosed(e);
 
-        Instance.ViewModel.ViewerControl.Context.Close();
+        Instance.WindowModel.ViewerControl.Context.Close();
         Instance = null;
     }
 }

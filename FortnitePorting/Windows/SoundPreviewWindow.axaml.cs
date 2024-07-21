@@ -17,21 +17,21 @@ public partial class SoundPreviewWindow : WindowBase<SoundPreviewWindowModel>
     public SoundPreviewWindow(USoundWave soundWave)
     {
         InitializeComponent();
-        DataContext = ViewModel;
+        DataContext = WindowModel;
         Owner = ApplicationService.Application.MainWindow;
 
-        ViewModel.SoundName = soundWave.Name;
-        ViewModel.SoundWave = soundWave;
-        TaskService.Run(ViewModel.Play);
+        WindowModel.SoundName = soundWave.Name;
+        WindowModel.SoundWave = soundWave;
+        TaskService.Run(WindowModel.Play);
     }
 
     public static void Preview(USoundWave soundWave)
     {
         if (Instance is not null)
         {
-            Instance.ViewModel.SoundName = soundWave.Name;
-            Instance.ViewModel.SoundWave = soundWave;
-            TaskService.Run(Instance.ViewModel.Play);
+            Instance.WindowModel.SoundName = soundWave.Name;
+            Instance.WindowModel.SoundWave = soundWave;
+            TaskService.Run(Instance.WindowModel.Play);
             Instance.BringToTop();
             return;
         }
@@ -48,13 +48,13 @@ public partial class SoundPreviewWindow : WindowBase<SoundPreviewWindowModel>
     {
         base.OnClosed(e);
 
-        Instance?.ViewModel.OutputDevice.Dispose();
+        Instance?.WindowModel.OutputDevice.Dispose();
         Instance = null;
     }
 
     private void OnSliderValueChanged(object? sender, RangeBaseValueChangedEventArgs e)
     {
         if (sender is not Slider slider) return;
-        ViewModel.Scrub(TimeSpan.FromSeconds(slider.Value));
+        WindowModel.Scrub(TimeSpan.FromSeconds(slider.Value));
     }
 }
