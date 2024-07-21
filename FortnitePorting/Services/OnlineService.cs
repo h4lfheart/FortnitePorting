@@ -296,12 +296,7 @@ public static class OnlineService
                                 
                                 if (AppSettings.Current.Online.UseIntegration)
                                 {
-                                    await ApiVM.FortnitePorting.PostExportAsync(new PersonalExport
-                                    {
-                                        ObjectName = asset.Name,
-                                        ObjectPath = asset.GetPathName(),
-                                        Category = type.ToString()
-                                    });
+                                    await ApiVM.FortnitePorting.PostExportAsync(new PersonalExport(asset.GetPathName()));
                                 }
                             }
 

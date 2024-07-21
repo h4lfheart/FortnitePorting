@@ -25,6 +25,8 @@ public partial class AssetLoaderCollection : ObservableObject
 {
     public static AssetLoaderCollection CategoryAccessor = new(false);
     
+    public AssetLoader[] Loaders => Categories.SelectMany(category => category.Loaders).ToArray();
+    
     public readonly List<AssetLoaderCategory> Categories =
     [
         new AssetLoaderCategory(EAssetCategory.Cosmetics)

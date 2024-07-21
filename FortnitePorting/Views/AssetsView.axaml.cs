@@ -81,7 +81,7 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
         AssetsListBox.SelectedItems.Clear();
         
         //DiscordService.Update(Type);
-        var loaders = ViewModel.AssetLoaderCollection.Categories.SelectMany(category => category.Loaders);
+        var loaders = ViewModel.AssetLoaderCollection.Loaders;
         foreach (var loader in loaders)
         {
             if (loader.Type == assetType)

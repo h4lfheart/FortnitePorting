@@ -109,7 +109,7 @@
                                     </Grid.ColumnDefinitions>
                             
                                     <Border Grid.Column="0" CornerRadius="4" ClipToBounds="True">
-                                        <Image Source="{Binding ExportBitmap^}" Width="64"/>
+                                        <Image Source="{Binding ExportBitmap}" Width="64"/>
                                     </Border>
                                     <Image Grid.Column="0" Source="{Binding MedalBitmap}" IsVisible="{Binding ShowMedal}"
                                            Width="36" Margin="38 38 0 0 "/>

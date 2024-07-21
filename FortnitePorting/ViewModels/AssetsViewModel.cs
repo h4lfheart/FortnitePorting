@@ -40,12 +40,7 @@ public partial class AssetsViewModel : ViewModelBase
             var exports = AssetLoaderCollection.ActiveLoader.SelectedAssets.Select(asset =>
             {
                 var creationData = asset.Data.Asset.CreationData;
-                return new PersonalExport
-                {
-                    ObjectName = creationData.DisplayName,
-                    ObjectPath = creationData.Object.GetPathName(),
-                    Category = creationData.ExportType.ToString()
-                };
+                return new PersonalExport(creationData.Object.GetPathName());
             });
             
             await ApiVM.FortnitePorting.PostExportsAsync(exports);

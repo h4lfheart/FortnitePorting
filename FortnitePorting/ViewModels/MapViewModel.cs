@@ -433,12 +433,7 @@ public partial class WorldPartitionGridMap : ObservableObject
         
         if (AppSettings.Current.Online.UseIntegration)
         {
-            await ApiVM.FortnitePorting.PostExportAsync(new PersonalExport
-            {
-                ObjectName = world.Name,
-                ObjectPath = world.GetPathName(),
-                Category = EExportType.World.ToString()
-            });
+            await ApiVM.FortnitePorting.PostExportAsync(new PersonalExport(world.GetPathName()));
         }
     }
     

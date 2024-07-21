@@ -165,12 +165,7 @@ public partial class FilesViewModel : ViewModelBase
             var sendExports = exports.Select(export =>
             {
                 var (asset, type) = export;
-                return new PersonalExport
-                {
-                    ObjectName = asset.Name,
-                    ObjectPath = asset.GetPathName(),
-                    Category = type.ToString()
-                };
+                return new PersonalExport(asset.GetPathName());
             });
             
             await ApiVM.FortnitePorting.PostExportsAsync(sendExports);

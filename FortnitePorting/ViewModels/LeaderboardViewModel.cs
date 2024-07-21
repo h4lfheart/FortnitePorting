@@ -10,6 +10,7 @@ using FortnitePorting.Application;
 using FortnitePorting.Models.Leaderboard;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Framework;
+using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels.Settings;
 using ScottPlot;
 using ScottPlot.Avalonia;
@@ -39,6 +40,14 @@ public partial class LeaderboardViewModel : ViewModelBase
         
         var leaderboardExports = await ApiVM.FortnitePorting.GetLeaderboardExportsAsync();
         LeaderboardExports = [..leaderboardExports];
+
+        TaskService.Run(async () =>
+        {
+            foreach (var leaderboardExport in LeaderboardExports)
+            {
+                await leaderboardExport.Load();
+            }
+        });
         
         var personalExports = await ApiVM.FortnitePorting.GetPersonalExportsAsync();
         PersonalExports = [..personalExports];

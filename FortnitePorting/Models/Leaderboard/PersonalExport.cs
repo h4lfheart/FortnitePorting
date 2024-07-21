@@ -13,9 +13,12 @@ namespace FortnitePorting.Models.Leaderboard;
 public class PersonalExport
 {
     public Guid UserId { get; set; }
-    public string ObjectName { get; set; }
     public string ObjectPath { get; set; }
-    public string Category { get; set; }
     public DateTime TimeExported { get; set; }
     public Guid InstanceGuid { get; set; }
+
+    public PersonalExport(string path)
+    {
+        ObjectPath = path;
+    }
 }
