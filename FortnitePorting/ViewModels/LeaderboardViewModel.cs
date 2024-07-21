@@ -35,19 +35,45 @@ public partial class LeaderboardViewModel : ViewModelBase
 
     public override async Task OnViewOpened()
     {
-        var leaderboardUsers = await ApiVM.FortnitePorting.GetLeaderboardUsersAsync();
-        LeaderboardUsers = [..leaderboardUsers];
-        
-        var leaderboardExports = await ApiVM.FortnitePorting.GetLeaderboardExportsAsync();
-        LeaderboardExports = [..leaderboardExports];
+        var leaderboardUsers = (await ApiVM.FortnitePorting.GetLeaderboardUsersAsync()).ToList();
+        var leaderboardExports = (await ApiVM.FortnitePorting.GetLeaderboardExportsAsync()).ToList();
 
         TaskService.Run(async () =>
         {
-            foreach (var leaderboardExport in LeaderboardExports)
+            var invalidExportsByUser = new Dictionary<Guid, int>();
+            for (var i = 0; i < leaderboardExports.Count; i++)
             {
-                await leaderboardExport.Load();
+                var export = leaderboardExports[i];
+                var isValid = await export.Load();
+                if (isValid) continue;
+                
+                leaderboardExports.RemoveAt(i);
+                foreach (var (guid, count) in export.Contributions)
+                {
+                    invalidExportsByUser.TryAdd(guid, 0);
+                    invalidExportsByUser[guid] += count;
+                }
             }
+
+            foreach (var (guid, count) in invalidExportsByUser)
+            {
+                var targetUser = leaderboardUsers.FirstOrDefault(user => user.Identifier == guid);
+                if (targetUser is null) continue;
+
+                var offsetCount = targetUser.ExportCount - count;
+                if (offsetCount <= 0)
+                {
+                    leaderboardUsers.Remove(targetUser);
+                    continue;
+                }
+
+                targetUser.ExportCount = offsetCount;
+            }
+        
+            LeaderboardUsers = [..leaderboardUsers];
+            LeaderboardExports = [..leaderboardExports];
         });
+        
         
         var personalExports = await ApiVM.FortnitePorting.GetPersonalExportsAsync();
         PersonalExports = [..personalExports];

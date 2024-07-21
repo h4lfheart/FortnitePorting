@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -22,34 +23,39 @@ public partial class LeaderboardExport : ObservableObject
     [ObservableProperty] private Bitmap _exportBitmap;
     [ObservableProperty] private bool _showMedal;
     [ObservableProperty] private Bitmap _medalBitmap;
+    [ObservableProperty] private Dictionary<Guid, int> _contributions;
     
     public string ID => ObjectPath.SubstringAfterLast("/").SubstringBefore(".");
     
     private static Dictionary<string, Bitmap> CachedBitmaps = [];
     private static Dictionary<string, UObject> CachedObjects = [];
 
-    public async Task Load()
+    // returns if is a valid export
+    public async Task<bool> Load()
     {
         if (!CUE4ParseVM.FinishedLoading)
         {
-            ExportBitmap = LeaderboardVM.GetMedalBitmap(Ranking);
-            ObjectName = ID;
-            return;
+            SetFailureDefaults();
+            return false;
         }
 
         if (!CachedObjects.TryGetValue(ObjectPath, out var asset))
         {
-            asset = await CUE4ParseVM.Provider.LoadObjectAsync(ObjectPath);
+            asset = await CUE4ParseVM.Provider.TryLoadObjectAsync(ObjectPath);
+        }
+        
+        if (asset is null) 
+        {
+            SetFailureDefaults();
+            return false;
         }
         
         var assetLoader =  AssetLoaderCollection.CategoryAccessor.Loaders.FirstOrDefault(loader => loader.ClassNames.Contains(asset.ExportType));
-        if (assetLoader is null) 
+        if (assetLoader is null)
         {
-            ExportBitmap = LeaderboardVM.GetMedalBitmap(Ranking);
-            ObjectName = ID;
-            return;
+            SetFailureDefaults();
+            return true;
         }
-
         
         ShowMedal = true;
         if (CachedBitmaps.TryGetValue(ObjectPath, out var existingBitmap))
@@ -68,5 +74,13 @@ public partial class LeaderboardExport : ObservableObject
         {
             MedalBitmap = LeaderboardVM.GetMedalBitmap(Ranking);
         }
+
+        return true;
+    }
+
+    private void SetFailureDefaults()
+    {
+        ExportBitmap = LeaderboardVM.GetMedalBitmap(Ranking);
+        ObjectName = ID;
     }
 }
