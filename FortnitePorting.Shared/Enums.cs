@@ -210,3 +210,12 @@ public enum EImageFormat
     [Description("Targa (.tga)")]
     TGA
 }
+
+public enum ERadioSoundFormat
+{
+    [Description("Save as MP3")]
+    MP3,
+
+    [Description("Save as WAV")]
+    WAV
+}

@@ -29,11 +29,16 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="{ext:Space 1}"/>
                 <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="{ext:Space 1}"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             
             <TextBox Grid.Column="0" Watermark="Search" Text="{Binding SearchFilter}"/>
             
-            <Button Grid.Column="2" Command="{Binding SaveAllCommand}">
+            <ComboBox Grid.Column="2" ItemsSource="{ext:EnumToItemsSource {x:Type shared:ERadioSoundFormat}}"
+                      SelectedItem="{Binding SoundFormat, Converter={StaticResource EnumToString}}" />
+            
+            <Button Grid.Column="4" Command="{Binding SaveAllCommand}">
                 <StackPanel Orientation="Horizontal">
                     <material:MaterialIcon Kind="Download" Margin="{ext:Space -1, 0, 1, 0}"/>
                     <TextBlock Text="Save All (Slow)"/>

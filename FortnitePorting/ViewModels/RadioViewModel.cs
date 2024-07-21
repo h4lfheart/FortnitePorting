@@ -54,6 +54,8 @@ public partial class RadioViewModel : ViewModelBase
         < 0.66f => MaterialIconKind.VolumeMedium,
         <= 1.0f => MaterialIconKind.VolumeHigh
     };
+
+    [ObservableProperty] private ERadioSoundFormat _soundFormat;
     
     [ObservableProperty] private TimeSpan _currentTime;
     [ObservableProperty] private TimeSpan _totalTime;
@@ -282,7 +284,7 @@ public partial class RadioViewModel : ViewModelBase
         var directory = new DirectoryInfo(exportPath);
         foreach (var item in Source.Items)
         {
-            await item.SaveAudio(directory);
+            await item.SaveAudio(directory, SoundFormat);
         }
     }
     

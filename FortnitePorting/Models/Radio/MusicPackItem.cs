@@ -69,11 +69,17 @@ public partial class MusicPackItem : ObservableObject
     [RelayCommand]
     public async Task SaveAudio()
     {
-        if (await SaveFileDialog(suggestedFileName: Id, Globals.MP3FileType) is not { } mp3Path) return;
-        await SaveAudio(mp3Path);
+        var fileType = RadioVM.SoundFormat switch
+        {
+            ERadioSoundFormat.MP3 => Globals.MP3FileType,
+            ERadioSoundFormat.WAV => Globals.WAVFileType,
+        };
+        
+        if (await SaveFileDialog(suggestedFileName: Id, fileType) is not { } path) return;
+        await SaveAudio(path, RadioVM.SoundFormat);
     }
 
-    public async Task SaveAudio(string path)
+    public async Task SaveAudio(string path, ERadioSoundFormat soundFormat)
     {
         await TaskService.RunAsync(async () =>
         {
@@ -81,39 +87,62 @@ public partial class MusicPackItem : ObservableObject
             if (!SoundExtensions.TrySaveSoundToAssets(soundWave, AppSettings.Current.Application.AssetPath, out string wavPath)) return;
 
             if (File.Exists(path)) return;
-            
-            // convert to mp3
-            await FFMpegArguments.FromFileInput(wavPath)
-                .OutputToFile(path, true, options => options.ForceFormat("mp3"))
-                .ProcessAsynchronously();
-            
-            var file = new FileInfo(path);
-            Settings.ID3v2_writePictureDataLengthIndicator = false;
-            Settings.FileBufferSize = file.Length > int.MaxValue
-                ? int.MaxValue
-                : (int) file.Length;
-            
-            // save metadata
-            var coverStream = new MemoryStream();
-            CoverArtBitmap.Save(coverStream);
-            
-            var track = new Track(path)
+
+            switch (soundFormat)
             {
-                Title = TrackName,
-                Description = TrackDescription,
-                Artist = "Epic Games"
-            };
+                case ERadioSoundFormat.MP3:
+                {
+                    // convert to mp3
+                    await FFMpegArguments.FromFileInput(wavPath)
+                        .OutputToFile(path, true, options => options.ForceFormat("mp3"))
+                        .ProcessAsynchronously();
             
-            track.EmbeddedPictures.Add(PictureInfo.fromBinaryData(coverStream.ToArray(), PictureInfo.PIC_TYPE.Front));
+                    var file = new FileInfo(path);
+                    Settings.ID3v2_writePictureDataLengthIndicator = false;
+                    Settings.FileBufferSize = file.Length > int.MaxValue
+                        ? int.MaxValue
+                        : (int) file.Length;
             
-            track.Save();
+                    // save metadata
+                    var coverStream = new MemoryStream();
+                    CoverArtBitmap.Save(coverStream);
+            
+                    var track = new Track(path)
+                    {
+                        Title = TrackName,
+                        Description = TrackDescription,
+                        Artist = "Epic Games"
+                    };
+            
+                    track.EmbeddedPictures.Add(PictureInfo.fromBinaryData(coverStream.ToArray(), PictureInfo.PIC_TYPE.Front));
+            
+                    track.Save();
+                    break;
+                }
+                case ERadioSoundFormat.WAV:
+                {
+                    File.Copy(wavPath, path);
+                    
+                    var track = new Track(path)
+                    {
+                        Title = TrackName,
+                        Description = TrackDescription,
+                        Artist = "Epic Games"
+                    };
+            
+                    track.Save();
+                    
+                    break;
+                }
+            }
+            
         });
     }
     
-    public async Task SaveAudio(DirectoryInfo directory)
+    public async Task SaveAudio(DirectoryInfo directory, ERadioSoundFormat soundFormat)
     {
         var path = Path.Combine(directory.FullName, Id + ".mp3");
-        await SaveAudio(path);
+        await SaveAudio(path, soundFormat);
     }
     
     [RelayCommand]
