@@ -18,7 +18,6 @@
              xmlns:mdctl="clr-namespace:Markdown.Avalonia.Controls;assembly=Markdown.Avalonia"
              xmlns:help="clr-namespace:FortnitePorting.Models.Help"
              xmlns:views="clr-namespace:FortnitePorting.Views"
-             xmlns:packet="clr-namespace:FortnitePorting.Multiplayer.Packet;assembly=FortnitePorting.Multiplayer"
              xmlns:gif="clr-namespace:AvaloniaGif;assembly=AvaloniaGif"
              d:DesignHeight="720" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.HelpView"

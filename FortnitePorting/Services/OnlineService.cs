@@ -12,10 +12,9 @@ using FortnitePorting.Application;
 using FortnitePorting.Export;
 using FortnitePorting.Models.Chat;
 using FortnitePorting.Models.Leaderboard;
-using FortnitePorting.Multiplayer.Extensions;
-using FortnitePorting.Multiplayer.Models;
-using FortnitePorting.Multiplayer.Packet;
-using FortnitePorting.Multiplayer.Packet.Owner;
+using FortnitePorting.OnlineServices.Extensions;
+using FortnitePorting.OnlineServices.Models;
+using FortnitePorting.OnlineServices.Packet;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Framework;
@@ -28,7 +27,7 @@ using Serilog;
 using Serilog.Core;
 using WatsonTcp;
 using Exception = System.Exception;
-using MultiplayerGlobals = FortnitePorting.Multiplayer.MultiplayerGlobals;
+using MultiplayerGlobals = FortnitePorting.OnlineServices.MultiplayerGlobals;
 
 namespace FortnitePorting.Services;
 

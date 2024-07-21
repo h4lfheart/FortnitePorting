@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.Assets.Exports;
-using FortnitePorting.OpenGL;
+using FortnitePorting.Rendering;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
 

@@ -11,7 +11,7 @@ using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.Utils;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Models.Chat;
-using FortnitePorting.Multiplayer.Packet;
+using FortnitePorting.OnlineServices.Packet;
 using FortnitePorting.Services;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.ViewModels;

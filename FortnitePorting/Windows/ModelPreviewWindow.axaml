@@ -3,7 +3,6 @@
         xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
         xmlns:ui="using:FluentAvalonia.UI.Controls"
         xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
-        xmlns:openGl="clr-namespace:FortnitePorting.OpenGL;assembly=FortnitePorting.OpenGL"
         xmlns:windowModels="clr-namespace:FortnitePorting.WindowModels"
         x:Class="FortnitePorting.Windows.ModelPreviewWindow"
         x:DataType="windowModels:ModelPreviewWindowModel"

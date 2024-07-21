@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <RootNamespace>FortnitePorting.Rendering</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Avalonia" Version="11.1.0-rc1" />
+      <PackageReference Include="OpenTK" Version="5.0.0-pre.10" />
+      <PackageReference Include="OpenTK.Core" Version="5.0.0-pre.10" />
+      <PackageReference Include="OpenTK.Graphics" Version="5.0.0-pre.10" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <AvaloniaResource Include="Assets\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Dependencies\CUE4Parse\CUE4Parse-Conversion\CUE4Parse-Conversion.csproj" />
+      <ProjectReference Include="..\FortnitePorting.Shared\FortnitePorting.Shared.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="ModelViewerContext.cs" />
+    </ItemGroup>
+
+</Project>

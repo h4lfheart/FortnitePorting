@@ -6,8 +6,6 @@ using Avalonia.Threading;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
-using FortnitePorting.OpenGL;
-using FortnitePorting.OpenGL.Rendering;
 using FortnitePorting.Services;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;

@@ -176,8 +176,8 @@ public partial class BlenderPluginViewModel : ViewModelBase
             RedirectStandardOutput = true,
             CreateNoWindow = true
         };
-            
 
+        Log.Information($"Executing {blenderPath} {command} {args}");
         buildProcess.Start();
         buildProcess.WaitForExit();
         
@@ -188,7 +188,6 @@ public partial class BlenderPluginViewModel : ViewModelBase
             AppWM.Message("Blender Extension", $"A lock has been put on the user_default extension repository. Please delete \"{lockMatch.Groups[1].Value.Trim()}\" and try again.");
         }
         
-        Log.Information($"------- {blenderPath} -------");
         Log.Information(output);
     }
 

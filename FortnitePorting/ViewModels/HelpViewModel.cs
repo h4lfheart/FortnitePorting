@@ -12,7 +12,7 @@ using FortnitePorting.Export;
 using FortnitePorting.Export.Models;
 using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.Help;
-using FortnitePorting.Multiplayer.Packet;
+using FortnitePorting.OnlineServices.Packet;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Framework;

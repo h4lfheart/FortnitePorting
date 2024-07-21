@@ -9,8 +9,8 @@
              xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
              xmlns:views="clr-namespace:FortnitePorting.Views"
              xmlns:wrapPanel="clr-namespace:FortnitePorting.Controls.WrapPanel"
-             xmlns:packet="clr-namespace:FortnitePorting.Multiplayer.Packet;assembly=FortnitePorting.Multiplayer"
              xmlns:chat="clr-namespace:FortnitePorting.Models.Chat"
+             xmlns:packet="clr-namespace:FortnitePorting.OnlineServices.Packet;assembly=FortnitePorting.OnlineServices"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FortnitePorting.Views.ChatView"
              x:DataType="viewModels:ChatViewModel">
