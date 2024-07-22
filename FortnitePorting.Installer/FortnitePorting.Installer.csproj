@@ -50,6 +50,10 @@
         <DependentUpon>InstallView.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
+      <Compile Update="Views\FinishedView.axaml.cs">
+        <DependentUpon>FinishedView.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
     </ItemGroup>
 
 </Project>

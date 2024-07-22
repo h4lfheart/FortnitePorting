@@ -22,7 +22,7 @@
                Stretch="Uniform" VerticalAlignment="Top"
                Margin="{ext:Space 2.5, 0, 0, 0}">
             <Image.OpacityMask>
-                <LinearGradientBrush StartPoint="0, 0" EndPoint="0, 200">
+                <LinearGradientBrush StartPoint="0, 0" EndPoint="0, 175">
                     <GradientStops>
                         <GradientStop Color="White" Offset="0"/>
                         <GradientStop Color="Transparent" Offset="1"/>

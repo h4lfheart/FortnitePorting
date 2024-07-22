@@ -75,16 +75,15 @@ public partial class InstallViewModel : ViewModelBase
         InstalledFile = await ApiVM.DownloadFileAsync(IntroVM.ReleaseInfo.Download, installationDirectory);
 
         MainTitle = "Installation Complete";
-        SubTitle = $"Fortnite Porting {IntroVM.ReleaseInfo.Version.GetDisplayString(EVersionStringType.IdentifierPrefix)} has been successfully installed.";
+        SubTitle = "Please press continue to finalize the installation process.";
 
         IsFinished = true;
     }
 
     [RelayCommand]
-    public async Task Exit(bool launch)
+    public async Task Continue()
     {
-        if (launch) Launch(InstalledFile.FullName, false);
-        ApplicationService.Application.Shutdown();
+        AppWM.SetView<FinishedView>();
     }
     
 }
