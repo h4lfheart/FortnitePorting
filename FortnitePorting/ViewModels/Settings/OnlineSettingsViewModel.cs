@@ -15,6 +15,7 @@ using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Framework;
+using FortnitePorting.Shared.Models.API;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.Shared.Validators;
 using Newtonsoft.Json;

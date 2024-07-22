@@ -2,7 +2,7 @@ using FortnitePorting.Application;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.ViewModels.Settings;
 
-namespace FortnitePorting.ViewModels;
+namespace FortnitePorting.WindowModels;
 
 public class WindowModelBase : ViewModelBase
 {

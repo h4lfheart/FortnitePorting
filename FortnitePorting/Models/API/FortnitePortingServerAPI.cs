@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using FortnitePorting.Shared.Models.API;
 using RestSharp;
 
 namespace FortnitePorting.Models.API;

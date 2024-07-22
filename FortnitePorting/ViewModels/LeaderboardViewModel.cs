@@ -48,6 +48,7 @@ public partial class LeaderboardViewModel : ViewModelBase
                 if (isValid) continue;
                 
                 leaderboardExports.RemoveAt(i);
+                i--;
                 foreach (var (guid, count) in export.Contributions)
                 {
                     invalidExportsByUser.TryAdd(guid, 0);

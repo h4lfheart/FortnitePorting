@@ -1,0 +1,48 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
+             xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:viewModels="clr-namespace:FortnitePorting.Installer.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="560" d:DesignHeight="250"
+             x:Class="FortnitePorting.Installer.Views.InstallView"
+             x:DataType="viewModels:InstallViewModel">
+    <Grid VerticalAlignment="Bottom" HorizontalAlignment="Stretch">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="{ext:Space 1}"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="{ext:Space 2}"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <TextBlock Grid.Row="0" Text="{Binding MainTitle}" 
+                   Classes="SubtitleTextBlockStyle"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        
+        <TextBlock Grid.Row="2" Text="{Binding SubTitle}" 
+                   Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"
+                   TextWrapping="WrapWithOverflow"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        
+        <Border Grid.Row="4" Background="#0DFFFFFF" CornerRadius="0" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Padding="{ext:Space 1}">
+            <Grid HorizontalAlignment="Right">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="{ext:Space 1}"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <Button Grid.Column="0" Content="Launch" 
+                        Command="{Binding ExitCommand}" CommandParameter="{x:True}"
+                        IsEnabled="{Binding IsFinished}"
+                        HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                <Button Grid.Column="2" Content="Exit"
+                        Command="{Binding ExitCommand}" CommandParameter="{x:False}"
+                        IsEnabled="{Binding IsFinished}"
+                        HorizontalAlignment="Right" VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

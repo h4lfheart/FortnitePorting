@@ -1,10 +1,8 @@
-using System;
 using System.Net;
-using System.Threading.Tasks;
 using RestSharp;
 using Serilog;
 
-namespace FortnitePorting.Models.API;
+namespace FortnitePorting.Shared.Models.API;
 
 public class APIBase
 {

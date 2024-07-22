@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Threading.Tasks;
 using FortnitePorting.Application;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.Help;
 using FortnitePorting.Models.Leaderboard;
 using FortnitePorting.Shared;
+using FortnitePorting.Shared.Models.API;
+using FortnitePorting.Shared.Models.API.Responses;
 using Newtonsoft.Json;
 using RestSharp;
 

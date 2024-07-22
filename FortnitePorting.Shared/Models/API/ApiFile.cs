@@ -1,4 +1,4 @@
-namespace FortnitePorting.Models.API;
+namespace FortnitePorting.Shared.Models.API;
 
 public class ApiFile
 {
