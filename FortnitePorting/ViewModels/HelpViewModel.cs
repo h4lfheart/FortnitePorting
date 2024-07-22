@@ -69,13 +69,17 @@ public partial class HelpViewModel : ViewModelBase
                 {
                     var newArticle = BuilderArticle;
                     BuilderArticle = new HelpArticle();
-                    newArticle.Author = AppSettings.Current.Online.GlobalName;
+                    newArticle.Author ??= AppSettings.Current.Online.GlobalName;
                     newArticle.PostTime = DateTime.UtcNow;
+
+                    if (string.IsNullOrWhiteSpace(newArticle.Title)) newArticle.Title = "Untitled";
+                    if (string.IsNullOrWhiteSpace(newArticle.Description)) newArticle.Description = "No Description.";
 
                     for (var i = 0; i < newArticle.Sections.Count; i++)
                     {
                         var section = newArticle.Sections[i];
                         if (section.Type is not (EHelpSectionType.Image or EHelpSectionType.Gif)) continue;
+                        if (section.Content.StartsWith("https://")) continue;
                         
                         var imageFile = new FileInfo(section.Content);
                         var newImageUrl =

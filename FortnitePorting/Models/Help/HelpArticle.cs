@@ -9,7 +9,7 @@ public partial class HelpArticle : ObservableObject
 {
     [ObservableProperty] private string _title = string.Empty;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(ProperDescription))] private string _description = string.Empty;
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(ProperDescription))] private string _author = "Anonymous";
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(ProperDescription))] private string? _author;
     [ObservableProperty] private DateTime _postTime;
     [ObservableProperty] private EHelpTag _tag;
     [ObservableProperty] private ObservableCollection<HelpSection> _sections = [];

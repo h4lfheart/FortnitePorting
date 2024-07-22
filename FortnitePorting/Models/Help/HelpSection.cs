@@ -66,5 +66,6 @@ public enum EHelpSectionType
     Heading,
     Image,
     Gif,
-    Separator
+    Separator,
+    Hyperlink
 }

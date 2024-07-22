@@ -109,6 +109,13 @@
                                                           IsVisible="{Binding Type, 
                                                           Converter={StaticResource EnumEquals}, 
                                                           ConverterParameter={x:Static help:EHelpSectionType.Separator}}"/>
+                                                
+                                                <HyperlinkButton Content="{Binding Content}" 
+                                                                 NavigateUri="{Binding Content}"
+                                                                 Classes="SubtitleTextBlockStyle"
+                                                                 IsVisible="{Binding Type, 
+                                                                 Converter={StaticResource EnumEquals},
+                                                                 ConverterParameter={x:Static help:EHelpSectionType.Hyperlink}}"/>
                                             </Grid>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
@@ -262,6 +269,13 @@
                                               IsVisible="{Binding Type, 
                                               Converter={StaticResource EnumEquals}, 
                                               ConverterParameter={x:Static help:EHelpSectionType.Separator}}"/>
+                                    
+                                    <HyperlinkButton Content="{Binding Content}" 
+                                                     NavigateUri="{Binding Content}"
+                                                     Classes="SubtitleTextBlockStyle"
+                                                     IsVisible="{Binding Type,
+                                                     Converter={StaticResource EnumEquals},
+                                                     ConverterParameter={x:Static help:EHelpSectionType.Hyperlink}}"/>
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
