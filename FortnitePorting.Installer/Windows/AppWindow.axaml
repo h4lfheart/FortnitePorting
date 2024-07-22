@@ -6,7 +6,7 @@
         xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         x:Class="FortnitePorting.Installer.Windows.AppWindow"
         x:DataType="windowModels1:AppWindowModel"
-        Width="560" Height="280" RequestedThemeVariant="Dark" FontFamily="Segoe UI" Background="{x:Null}"
+        Width="560" Height="320" RequestedThemeVariant="Dark" FontFamily="Segoe UI" Background="{x:Null}"
         ExtendClientAreaToDecorationsHint="True"
         WindowStartupLocation="CenterScreen" CanResize="False"
         Icon="/Assets/LogoV3.ico"

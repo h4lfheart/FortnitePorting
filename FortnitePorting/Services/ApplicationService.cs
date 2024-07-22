@@ -137,7 +137,7 @@ public static class ApplicationService
             DiscordService.Initialize();
         }
 
-        if (AppSettings.Current.Plugin.Blender.AutomaticallySync)
+        if (AppSettings.Current.Plugin.Blender.AutomaticallySync && DependencyService.Finished)
         {
             TaskService.Run(async () => await AppSettings.Current.Plugin.Blender.SyncInstallations(verbose: false));
         }

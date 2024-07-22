@@ -5,7 +5,7 @@
              xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
              xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:viewModels="clr-namespace:FortnitePorting.Installer.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="560" d:DesignHeight="250"
+             mc:Ignorable="d" d:DesignWidth="560" d:DesignHeight="290"
              x:Class="FortnitePorting.Installer.Views.IntroView"
              x:DataType="viewModels:IntroViewModel">
     <Grid VerticalAlignment="Bottom" HorizontalAlignment="Stretch">
@@ -13,7 +13,9 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="{ext:Space 1}"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="{ext:Space 2}"/>
+            <RowDefinition Height="{ext:Space 1}"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="{ext:Space 1}"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         
@@ -35,7 +37,9 @@
             
         </Grid>
         
-        <Border Grid.Row="4" Background="#0DFFFFFF" CornerRadius="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Padding="{ext:Space 1}">
+        <CheckBox Grid.Row="4" Content="Extract Only" IsChecked="{Binding ExtractOnly}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        
+        <Border Grid.Row="6" Background="#0DFFFFFF" CornerRadius="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Padding="{ext:Space 1}">
             <Button Content="Install" Command="{Binding InstallCommand}"
                     HorizontalAlignment="Right" VerticalAlignment="Center"/>
         </Border>

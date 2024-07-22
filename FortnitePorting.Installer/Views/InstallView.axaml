@@ -5,7 +5,7 @@
              xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
              xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:viewModels="clr-namespace:FortnitePorting.Installer.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="560" d:DesignHeight="250"
+             mc:Ignorable="d" d:DesignWidth="560" d:DesignHeight="290"
              x:Class="FortnitePorting.Installer.Views.InstallView"
              x:DataType="viewModels:InstallViewModel">
     <Grid VerticalAlignment="Bottom" HorizontalAlignment="Stretch">

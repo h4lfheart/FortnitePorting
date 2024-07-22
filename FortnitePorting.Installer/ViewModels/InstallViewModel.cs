@@ -26,40 +26,43 @@ public partial class InstallViewModel : ViewModelBase
 
     public override async Task Initialize()
     {
-        foreach (var dependency in IntroVM.ReleaseInfo.Dependencies)
+        if (!IntroVM.ExtractOnly)
         {
-            try
+            foreach (var dependency in IntroVM.ReleaseInfo.Dependencies)
             {
-                MainTitle = $"Installing: {dependency.Name}";
-                SubTitle = $"Downloading {dependency.URL}";
-                var downloadedFile = await ApiVM.DownloadFileAsync(dependency.URL, TempDirectory);
-
-                SubTitle = $"Running Setup for {downloadedFile.Name}";
-                using var dependencyProcess = new Process();
-                dependencyProcess.StartInfo = new ProcessStartInfo
+                try
                 {
-                    FileName = downloadedFile.FullName,
-                    Arguments = "/install /quiet /norestart",
-                    UseShellExecute = true
-                };
+                    MainTitle = $"Installing: {dependency.Name}";
+                    SubTitle = $"Downloading {dependency.URL}";
+                    var downloadedFile = await ApiVM.DownloadFileAsync(dependency.URL, TempDirectory);
 
-                dependencyProcess.Start();
-                await dependencyProcess.WaitForExitAsync();
-
-                downloadedFile.Delete();
-            }
-            catch (Exception e)
-            {
-                await TaskService.RunDispatcherAsync(async () =>
-                {
-                    var dialog = new ContentDialog
+                    SubTitle = $"Running Setup for {downloadedFile.Name}";
+                    using var dependencyProcess = new Process();
+                    dependencyProcess.StartInfo = new ProcessStartInfo
                     {
-                        Title = "An Error Occurred",
-                        Content = $"Failed to install dependency {dependency.Name}:.\nThis may result in issues when using Fortnite Porting.\nError: {e.GetType().FullName} {e.Message}",
-                        CloseButtonText = "Continue"
+                        FileName = downloadedFile.FullName,
+                        Arguments = "/install /quiet /norestart",
+                        UseShellExecute = true
                     };
-                    await dialog.ShowAsync();
-                });
+
+                    dependencyProcess.Start();
+                    await dependencyProcess.WaitForExitAsync();
+
+                    downloadedFile.Delete();
+                }
+                catch (Exception e)
+                {
+                    await TaskService.RunDispatcherAsync(async () =>
+                    {
+                        var dialog = new ContentDialog
+                        {
+                            Title = "An Error Occurred",
+                            Content = $"Failed to install dependency {dependency.Name}:.\nThis may result in issues when using Fortnite Porting.\nError: {e.GetType().FullName} {e.Message}",
+                            CloseButtonText = "Continue"
+                        };
+                        await dialog.ShowAsync();
+                    });
+                }
             }
         }
         

@@ -9,6 +9,8 @@ namespace FortnitePorting.Services;
 
 public static class DependencyService
 {
+    public static bool Finished;
+    
     public static readonly FileInfo UpdaterFile = new(Path.Combine(DataFolder.FullName, "release", "FortnitePorting.Updater.exe"));
     
     public static readonly FileInfo BinkaFile = new(Path.Combine(DataFolder.FullName, "binka", "binkadec.exe"));
@@ -24,6 +26,7 @@ public static class DependencyService
             EnsureResourceBased("Assets/Dependencies/FortnitePorting.Updater.exe", UpdaterFile);
             EnsureVgmStream();
             EnsureBlenderExtensions();
+            Finished = true;
         });
     }
 
