@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
+using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -28,6 +29,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using Color = SixLabors.ImageSharp.Color;
 using Exporter = FortnitePorting.Export.Exporter;
 using Vector2 = System.Numerics.Vector2;
 
@@ -40,6 +42,8 @@ public partial class MapViewModel : ViewModelBase
     [ObservableProperty] private string _worldName = string.Empty;
     [ObservableProperty] private bool _dataLoaded = false;
     
+    [ObservableProperty] private ObservableCollection<WorldPartitionGridMap> _selectedMaps = [];
+    
     [ObservableProperty] private ObservableCollection<WorldPartitionGrid> _grids = [];
     public int GridCount => Grids.Sum(grid => grid.Maps.Count);
 
@@ -49,7 +53,7 @@ public partial class MapViewModel : ViewModelBase
         "FortniteGame/Content/Athena/Helios/Maps/Helios_Terrain",
         "FortniteGame/Content/Athena/Apollo/Maps/UI/Apollo_Terrain_Minimap",
         "FortniteGame/Content/Athena/Apollo/Maps/UI/T_MiniMap_Mask",
-        0.014f, -128, 0, 92
+        0.014f, -64, 128, 92
     );
     
     public static MapInfo Rufus = new(
@@ -158,6 +162,40 @@ public partial class MapViewModel : ViewModelBase
     public async Task ExportWeight()
     {
         await ExportLandscapeMaps(EMapTextureExportType.Weight);
+    }
+    
+    [RelayCommand]
+    public async Task Preview()
+    {
+        var levels = new List<UObject>();
+        foreach (var map in SelectedMaps)
+        {
+            var world = await CUE4ParseVM.Provider.LoadObjectAsync<UWorld>(map.Path);
+            var level = await world.PersistentLevel.LoadAsync<ULevel>();
+            levels.Add(level);
+        }
+        
+        ModelPreviewWindow.Preview(levels);
+    }
+    
+    [RelayCommand]
+    public async Task Export()
+    {
+        // TODO obtain landscape chunks from main world
+        var worlds = new List<UObject>();
+        foreach (var map in SelectedMaps)
+        {
+            var world = await CUE4ParseVM.Provider.LoadObjectAsync<UWorld>(map.Path);
+            worlds.Add(world);
+        }
+        
+        await Exporter.Export(worlds, EExportType.World, AppSettings.Current.CreateExportMeta());
+        
+        if (AppSettings.Current.Online.UseIntegration)
+        {
+            var exports = SelectedMaps.Select(map => new PersonalExport(map.Path));
+            await ApiVM.FortnitePorting.PostExportsAsync(exports);
+        }
     }
 
     private async Task ExportLandscapeMaps(EMapTextureExportType exportType)
@@ -385,6 +423,11 @@ public partial class WorldPartitionGrid : ObservableObject
 
     [ObservableProperty] private int _cellSize;
 
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(GridBrush))] private bool _isSelected;
+
+    public SolidColorBrush GridBrush => IsSelected ? SolidColorBrush.Parse("#00CFFF"): SolidColorBrush.Parse("#808080");
+    
+
     public MapInfo MapInfo;
 
     public WorldPartitionGrid(FVector position, MapInfo mapInfo)
@@ -415,27 +458,6 @@ public partial class WorldPartitionGridMap : ObservableObject
         Path = path;
     }
     
-    [RelayCommand]
-    public async Task Preview()
-    {
-        var world = await CUE4ParseVM.Provider.LoadObjectAsync<UWorld>(Path);
-        var level = await world.PersistentLevel.LoadAsync<ULevel>();
-        ModelPreviewWindow.Preview(Name, level);
-    }
-    
-    [RelayCommand]
-    public async Task Export()
-    {
-        // TODO obtain landscape chunks from main world
-        
-        var world = await CUE4ParseVM.Provider.LoadObjectAsync<UWorld>(Path);
-        await Exporter.Export(world, EExportType.World, AppSettings.Current.CreateExportMeta());
-        
-        if (AppSettings.Current.Online.UseIntegration)
-        {
-            await ApiVM.FortnitePorting.PostExportAsync(new PersonalExport(world.GetPathName()));
-        }
-    }
     
     [RelayCommand]
     public async Task CopyID()

@@ -29,6 +29,7 @@ public partial class AppWindowModel : WindowModelBase
     [ObservableProperty] private string _versionString = Globals.VersionString;
     [ObservableProperty] private bool _gameBasedTabsAreReady = false;
     [ObservableProperty] private bool _setupTabsAreVisible = true;
+    [ObservableProperty] private bool _onlineAndGameTabsAreVisible = false;
     [ObservableProperty] private Frame _contentFrame;
     [ObservableProperty] private NavigationView _navigationView;
     [ObservableProperty] private ObservableCollection<InfoBarData> _infoBars = [];

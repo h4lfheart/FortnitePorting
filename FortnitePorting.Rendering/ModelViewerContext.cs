@@ -19,7 +19,7 @@ public class ModelViewerContext : GameWindow
     public int Width;
     public int Height;
 
-    public UObject? QueuedObject;
+    public List<UObject> QueuedObjects = [];
 
     public RenderManager Renderer;
     public Camera Camera = new();
@@ -92,10 +92,11 @@ public class ModelViewerContext : GameWindow
 
     private void Update()
     {
-        if (QueuedObject is not null)
+        var queuedObjects = QueuedObjects.ToArray();
+        foreach (var queuedObject in queuedObjects)
         {
-            Renderer.Add(QueuedObject);
-            QueuedObject = null;
+            Renderer.Add(queuedObject);
+            QueuedObjects.Remove(queuedObject);
 
             if (Renderer.Objects.LastOrDefault() is Level level)
             {

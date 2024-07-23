@@ -15,8 +15,9 @@
              d:DesignHeight="770" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.MapView"
              x:DataType="viewModels:MapViewModel">
-    <Grid ColumnDefinitions="4* *">
+    <Grid ColumnDefinitions="3* *">
         <Image Grid.Column="0" Source="/Assets/MapBackground.png" Stretch="UniformToFill"/>
+        
         <Viewbox Grid.Column="0" StretchDirection="Both" Stretch="Uniform">
             <Grid>
                 <Border CornerRadius="16" ClipToBounds="True">
@@ -38,49 +39,12 @@
                     </ItemsControl.OpacityMask>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border ToolTip.Tip="{Binding ToolTipNames}" Opacity="0.35" Background="Gray" IsHitTestVisible="True" BorderBrush="White" 
-                                    BorderThickness="2" PointerPressed="OnCellPressed"
-                                    CornerRadius="0" Padding="0"
+                            <Border ToolTip.Tip="{Binding ToolTipNames}" Opacity="0.35"
+                                    Background="{Binding GridBrush}" BorderBrush="White" 
+                                    BorderThickness="2" PointerPressed="OnCellHoveredOver"
+                                    CornerRadius="0" Padding="0" IsHitTestVisible="True"
                                     Width="{Binding CellSize}" Height="{Binding CellSize}" 
-                                    Margin="{Binding OffsetMargin}">
-                                <FlyoutBase.AttachedFlyout>
-                                    <Flyout>
-                                        <StackPanel>
-                                            <TextBlock Classes="BodyStrongTextBlockStyle" Text="Grid Maps" HorizontalAlignment="Center"/>
-                                            <ItemsControl ItemsSource="{Binding Maps}">
-                                                <ItemsControl.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <Grid Margin="{ext:Space 0, 0.5, 0, 0.5}">
-                                                            <Grid.ColumnDefinitions>
-                                                                <ColumnDefinition Width="25*"/>
-                                                                <ColumnDefinition Width="{ext:Space 1}"/>
-                                                                <ColumnDefinition Width="*"/>
-                                                                <ColumnDefinition Width="{ext:Space 1}"/>
-                                                                <ColumnDefinition Width="*"/>
-                                                                <ColumnDefinition Width="{ext:Space 1}"/>
-                                                                <ColumnDefinition Width="*"/>
-                                                            </Grid.ColumnDefinitions>
-                                                        
-                                                            <TextBlock Grid.Column="0" Text="{Binding Name}" VerticalAlignment="Center"/>
-                                                            <Button Grid.Column="2" ToolTip.Tip="Preview" Content="{material:MaterialIconExt CubeScan}" 
-                                                                    Command="{Binding PreviewCommand}"/>
-                                                            <Button Grid.Column="4" ToolTip.Tip="Export" Content="{material:MaterialIconExt Download}"
-                                                                    Command="{Binding ExportCommand}"/>
-                                                            <Button Grid.Column="6" ToolTip.Tip="Copy ID" Content="{material:MaterialIconExt ContentCopy}" 
-                                                                    Command="{Binding CopyIDCommand}"/>
-                                                        </Grid>
-                                                    </DataTemplate>
-                                                </ItemsControl.ItemTemplate>
-                                                <ItemsControl.ItemsPanel>
-                                                    <ItemsPanelTemplate>
-                                                        <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-                                                    </ItemsPanelTemplate>
-                                                </ItemsControl.ItemsPanel>
-                                            </ItemsControl>
-                                        </StackPanel>
-                                    </Flyout>
-                                </FlyoutBase.AttachedFlyout>
-                            </Border>
+                                    Margin="{Binding OffsetMargin}"/>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                     <ItemsControl.ItemsPanel>
@@ -93,8 +57,7 @@
         </Viewbox>
         
         <ui:FABorder Grid.Column="1" Padding="{ext:Space 1}" CornerRadius="0"
-                     Background="#22000000"
-                     HorizontalAlignment="Stretch">
+                     Background="#22000000" HorizontalAlignment="Stretch">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -112,6 +75,10 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="{ext:Space 1}"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="{ext:Space 1}"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="{ext:Space 1}"/>
+                        <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     
                     <TextBlock Grid.Row="0" Classes="SubtitleTextBlockStyle" Text="{Binding WorldName}" HorizontalAlignment="Center"/>
@@ -152,6 +119,54 @@
                             <TextBlock Text="Weight Maps"/>
                         </StackPanel>
                     </Button>
+                    
+                    <Grid Grid.Row="14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="{ext:Space 1}"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                            
+                        <Button Grid.Column="0" ToolTip.Tip="Preview"
+                                Command="{Binding PreviewCommand}" IsEnabled="{Binding !!SelectedMaps.Count}"
+                                HorizontalAlignment="Stretch">
+                            <StackPanel Orientation="Horizontal">
+                                <material:MaterialIcon Kind="CubeScan" Margin="{ext:Space 0, 0, 1, 0}"/>
+                                <TextBlock Text="Preview"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Grid.Column="2" ToolTip.Tip="Export"
+                                Command="{Binding ExportCommand}" IsEnabled="{Binding !!SelectedMaps.Count}"
+                                HorizontalAlignment="Stretch">
+                            <StackPanel Orientation="Horizontal">
+                                <material:MaterialIcon Kind="Download" Margin="{ext:Space 0, 0, 1, 0}"/>
+                                <TextBlock Text="Export"/>
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+                    
+                    <TextBlock Grid.Row="16" Text="Selected Maps" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
+                    
+                    <ScrollViewer Grid.Row="18">
+                        <ItemsControl ItemsSource="{Binding SelectedMaps}" HorizontalAlignment="Center">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name}" Classes="BodyStrongTextBlockStyle"
+                                               HorizontalAlignment="Center">
+                                        <TextBlock.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Header="Copy ID" Command="{Binding CopyIDCommand}"/>
+                                            </ContextMenu>
+                                        </TextBlock.ContextMenu>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                    
+                    <TextBlock Grid.Row="18" Text="No Grids Selected" Classes="TextFillColorSecondaryBrush"
+                               IsVisible="{Binding !SelectedMaps.Count}"
+                               HorizontalAlignment="Center" VerticalAlignment="Top"/>
                 </Grid>
             </ui:FABorder>
     </Grid>

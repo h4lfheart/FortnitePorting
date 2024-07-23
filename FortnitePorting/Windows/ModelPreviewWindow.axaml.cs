@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using Avalonia.Controls;
 using Avalonia.Platform;
@@ -29,12 +30,12 @@ public partial class ModelPreviewWindow : WindowBase<ModelPreviewWindowModel>
         Owner = ApplicationService.Application.MainWindow;
     }
 
-    public static void Preview(string name, UObject obj)
+    public static void Preview(IEnumerable<UObject> objects)
     {
         if (Instance is not null)
         {
-            Instance.WindowModel.MeshName = name;
-            Instance.WindowModel.ViewerControl.Context.QueuedObject = obj;
+            Instance.WindowModel.MeshName = string.Empty;
+            Instance.WindowModel.ViewerControl.Context.QueuedObjects.AddRange(objects);
             Instance.BringToTop();
             return;
         }
@@ -42,8 +43,8 @@ public partial class ModelPreviewWindow : WindowBase<ModelPreviewWindowModel>
         TaskService.RunDispatcher(() =>
         {
             Instance = new ModelPreviewWindow();
-            Instance.WindowModel.MeshName = name;
-            Instance.WindowModel.QueuedObject = obj;
+            Instance.WindowModel.MeshName = string.Empty;
+            Instance.WindowModel.QueuedObjects = [..objects];
             Instance.Show();
             Instance.BringToTop();
         });

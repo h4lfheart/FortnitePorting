@@ -2,7 +2,7 @@ from ...utils import *
 
 
 def get_param(source, name):
-    found = first(source, lambda param: param.get("Name") == name)
+    found = first(source, lambda param: param.get("Name").casefold() == name.casefold())
     if found is None:
         return None
     return found.get("Value")

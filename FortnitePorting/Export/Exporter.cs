@@ -80,6 +80,31 @@ public static class Exporter
         });
     }
     
+    public static async Task Export(IEnumerable<UObject> assets, EExportType type, ExportDataMeta metaData)
+    {
+        await TaskService.RunAsync(async () =>
+        {
+            if (await ApiVM.FortnitePortingServer.PingAsync(EExportServerType.Blender) is false)
+            {
+                AppWM.Message("Blender Server", "The blender server for Fortnite Porting is not currently running.", InfoBarSeverity.Error, false);
+                return;
+            }
+            
+            
+            var exports = assets.Select(obj => CreateExport(obj, type, metaData)).ToArray();
+            foreach (var export in exports) export.WaitForExports();
+            
+            var exportData = new ExportData
+            {
+                MetaData = metaData,
+                Exports = exports
+            };
+            
+            var data = JsonConvert.SerializeObject(exportData);
+            await ApiVM.FortnitePortingServer.SendAsync(data, EExportServerType.Blender);
+        });
+    }
+    
     public static async Task Export(UObject asset, EExportType type, ExportDataMeta metaData)
     {
         await TaskService.RunAsync(async () =>

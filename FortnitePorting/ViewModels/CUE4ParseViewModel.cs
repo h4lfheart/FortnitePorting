@@ -18,6 +18,7 @@ using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Objects.Core.Misc;
 using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Versions;
+using CUE4Parse.UE4.VirtualFileSystem;
 using FortnitePorting.Application;
 using FortnitePorting.Models.CUE4Parse;
 using FortnitePorting.Models.Fortnite;
@@ -48,6 +49,13 @@ public class CUE4ParseViewModel : ViewModelBase
     public override async Task Initialize()
     {
         ObjectTypeRegistry.RegisterEngine(Assembly.GetAssembly(typeof(UCustomObject))!);
+
+        Provider.VfsMounted += (sender, _) =>
+        {
+            if (sender is not IAesVfsReader reader) return;
+
+            HomeVM.UpdateStatus($"Loading {reader.Name}");
+        };
         
         HomeVM.UpdateStatus("Loading Native Libraries");
         await InitializeOodle();
