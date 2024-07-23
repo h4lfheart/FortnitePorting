@@ -9,7 +9,7 @@
         x:DataType="windowModels:SoundPreviewWindowModel"
         Width="540" RequestedThemeVariant="Dark" FontFamily="Segoe UI" SizeToContent="Height" Background="{x:Null}"
         TransparencyLevelHint="AcrylicBlur" ExtendClientAreaToDecorationsHint="True" WindowStartupLocation="CenterOwner"
-        Icon="/Assets/LogoEnhanced.ico"
+        Icon="/Assets/LogoV3.ico"
         Title="Sound Viewer">
     <Grid RowDefinitions="30, *">
         <ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="4" IsHitTestVisible="False" IsVisible="{Binding !Theme.UseMica}">

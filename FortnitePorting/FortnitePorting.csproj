@@ -59,6 +59,14 @@
       <ProjectReference Include="..\FortnitePorting.Plugins\FortnitePorting.Plugins.csproj" />
       <ProjectReference Include="..\FortnitePorting.Shared\FortnitePorting.Shared.csproj" />
     </ItemGroup>
+
+    
+    <ItemGroup>
+      <Compile Update="Windows\PropertiesPreviewWindow.axaml.cs">
+        <DependentUpon>PropertiesPreviewWindow.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+    </ItemGroup>
     
 
 </Project>

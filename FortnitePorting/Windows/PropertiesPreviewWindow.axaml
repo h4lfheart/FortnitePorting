@@ -4,19 +4,21 @@
         xmlns:ui="using:FluentAvalonia.UI.Controls"
         xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
         xmlns:windowModels="clr-namespace:FortnitePorting.WindowModels"
-        x:Class="FortnitePorting.Windows.ModelPreviewWindow"
-        x:DataType="windowModels:ModelPreviewWindowModel"
-        Width="960" Height="540" RequestedThemeVariant="Dark" FontFamily="Segoe UI" Background="{x:Null}"
+        xmlns:avaloniaEdit="https://github.com/avaloniaui/avaloniaedit"
+        xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+        x:Class="FortnitePorting.Windows.PropertiesPreviewWindow"
+        x:DataType="windowModels:PropertiesPreviewWindowModel"
+        Width="1280" Height="720" RequestedThemeVariant="Dark" FontFamily="Segoe UI"
         TransparencyLevelHint="AcrylicBlur" ExtendClientAreaToDecorationsHint="True" WindowStartupLocation="CenterOwner"
-        Icon="/Assets/LogoV3.ico"
-        Title="Model Viewer">
+        Icon="/Assets/LogoV3.ico" Background="{x:Null}"
+        Title="Properties Viewer">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         
-        <ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="4" IsHitTestVisible="False" IsVisible="{Binding !Theme.UseMica}">
+        <ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False" IsVisible="{Binding !Theme.UseMica}">
             <ExperimentalAcrylicBorder.Material>
                 <ExperimentalAcrylicMaterial BackgroundSource="Digger" MaterialOpacity="1.5" TintColor="{Binding Theme.BackgroundColor}" TintOpacity="1"/>
             </ExperimentalAcrylicBorder.Material>
@@ -30,14 +32,16 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <TextBlock Grid.Column="1" Text="Model Viewer" FontWeight="SemiBold" FontSize="16"
+            <TextBlock Grid.Column="1" Text="Properties Viewer" FontWeight="SemiBold" FontSize="16"
                        HorizontalAlignment="Left" VerticalAlignment="Center" />
-            <TextBlock Grid.Column="3" Text="{Binding MeshName}" Classes="TextFillColorTertiaryBrush" FontSize="13" Margin="-2 2 0 0"
+            <TextBlock Grid.Column="3" Text="{Binding AssetName}" Classes="TextFillColorTertiaryBrush" FontSize="13" Margin="-2 2 0 0"
                        HorizontalAlignment="Left" VerticalAlignment="Center" />
         </Grid>
         
-        <Border Grid.Row="1" Margin="{ext:Space 1, 0, 1, 1}" CornerRadius="4" ClipToBounds="True">
-            <ContentControl Content="{Binding ViewerControl}" CornerRadius="4"/>
-        </Border>
+        <ui:FABorder Grid.Row="1" Background="#08FFFFFF" Margin="{ext:Space 1}">
+            <avaloniaEdit:TextEditor x:Name="Editor" Document="{Binding PropertiesJson, Converter={StaticResource StringToDocument}}"
+                                     ShowLineNumbers="True" FontFamily="Cascadia Code, Consolas, Menlo, Monospace" Margin="{ext:Space 1}"
+                                     IsReadOnly="True" SyntaxHighlighting="{Binding JsonHighlighter}"/>
+        </ui:FABorder>
     </Grid>
 </Window>

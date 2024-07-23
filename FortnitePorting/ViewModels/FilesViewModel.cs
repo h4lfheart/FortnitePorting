@@ -29,6 +29,7 @@ using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.Windows;
+using Newtonsoft.Json;
 using ReactiveUI;
 
 namespace FortnitePorting.ViewModels;
@@ -47,7 +48,6 @@ public partial class FilesViewModel : ViewModelBase
     
     public override async Task Initialize()
     {
-        
         foreach (var (_, file) in CUE4ParseVM.Provider.Files)
         {
             var path = file.Path;
@@ -76,6 +76,18 @@ public partial class FilesViewModel : ViewModelBase
             ShowLoadingSplash = false;
         });
     }
+
+    [RelayCommand]
+    public async Task Properties()
+    {
+        var selectedItem = SelectedFlatViewItems.FirstOrDefault();
+        if (selectedItem is null) return;
+        
+        var assets = await CUE4ParseVM.Provider.LoadAllObjectsAsync(Exporter.FixPath(selectedItem.Path));
+        var json = JsonConvert.SerializeObject(assets, Formatting.Indented);
+        PropertiesPreviewWindow.Preview(selectedItem.Path.SubstringAfterLast("/").SubstringBefore("."), json);
+    }
+    
     
     [RelayCommand]
     public async Task Preview()

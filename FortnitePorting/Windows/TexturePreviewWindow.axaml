@@ -8,7 +8,7 @@
         x:DataType="windowModels:TexturePreviewWindowModel"
         Width="960" Height="540" RequestedThemeVariant="Dark" FontFamily="Segoe UI" SizeToContent="Width" MinWidth="540" MaxWidth="960"
         TransparencyLevelHint="AcrylicBlur" ExtendClientAreaToDecorationsHint="True" WindowStartupLocation="CenterOwner"
-        Icon="/Assets/LogoEnhanced.ico" Background="{x:Null}"
+        Icon="/Assets/LogoV3.ico" Background="{x:Null}"
         Title="Texture Viewer">
     <Grid>
         <Grid.RowDefinitions>

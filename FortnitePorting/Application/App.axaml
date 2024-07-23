@@ -13,6 +13,7 @@
          <ext:EnumHasFlagConverter x:Key="EnumHasFlag" />
          <ext:EnumEqualsConverter x:Key="EnumEquals" />
          <ext:TitleCaseStringConverter x:Key="TitleCaseString" />
+         <ext:StringToDocumentConverter x:Key="StringToDocument" />
          
          <Brush x:Key="ToggleSwitchKnobFillOn">#FFFFFFFF</Brush>
          <Brush x:Key="ToggleSwitchKnobFillOnPointerOver">#FFFFFFFF</Brush>
@@ -36,6 +37,7 @@
         <material:MaterialIconStyles/>
         <StyleInclude Source="avares://FluentAvalonia.ProgressRing/Styling/Controls/ProgressRing.axaml" />
         <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
+        <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
         
         <Style Selector="ui|FABorder">
             <Setter Property="Background" Value="#0DFFFFFF"/>

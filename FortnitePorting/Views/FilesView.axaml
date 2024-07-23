@@ -34,7 +34,7 @@
                 
                 <ui:FABorder Grid.Row="2">
                     <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                        <ListBox ItemsSource="{Binding FlatViewCollection}" 
+                        <ListBox ItemsSource="{Binding FlatViewCollection}" SelectionMode="Multiple"
                                  SelectedItems="{Binding SelectedFlatViewItems, Mode=TwoWay}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate DataType="files:FlatViewItem">
@@ -66,14 +66,14 @@
                     <ColumnDefinition Width="{ext:Space 1}"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="{ext:Space 1}"/>
-                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="{ext:Space 1}"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                             
                 <Grid Grid.Column="0" ColumnDefinitions="Auto *">
                     <TextBlock Grid.Column="0" Text="Export To" VerticalAlignment="Center"
-                               Margin="{ext:Space 1, 0, 1, 0}" />
+                               Margin="{ext:Space 1, 0, 1, 0.25}" />
                     <ComboBox Grid.Column="1"
                               HorizontalAlignment="Stretch" VerticalAlignment="Center"
                               ItemsSource="{ext:EnumToItemsSource {x:Type shared:EExportLocation}}"
@@ -84,6 +84,13 @@
                     <StackPanel Orientation="Horizontal">
                         <material:MaterialIcon Kind="Download" Margin="{ext:Space -1, 0, 1, 0}"/>
                         <TextBlock Text="Export"/>
+                    </StackPanel>
+                </Button>
+                
+                <Button Grid.Column="4" HorizontalAlignment="Stretch" Command="{Binding PropertiesCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <material:MaterialIcon Kind="Xml" Margin="{ext:Space 0, 0, 1, 0}"/>
+                        <TextBlock Text="Properties"/>
                     </StackPanel>
                 </Button>
                 
