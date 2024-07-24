@@ -4,6 +4,7 @@ using System.Linq;
 using Avalonia.OpenGL.Egl;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Animation;
+using CUE4Parse.UE4.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Objects;
 using DynamicData;
 using FortnitePorting.Extensions;
@@ -122,7 +123,7 @@ public class AnimExportData : ExportDataBase
                 {
                     Sounds.Add(new ExportSound
                     {
-                        Path = Exporter.Export(sound.SoundWave),
+                        Path = Exporter.Export(sound.SoundWave.Load<USoundWave>()),
                         Time = sound.Time + notify.LinkValue ,
                         Loop = sound.Loop
                     });

@@ -11,7 +11,9 @@ using CUE4Parse_Conversion.Textures;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Exports.Texture;
+using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
+using CUE4Parse.UE4.Objects.UObject;
 using FortnitePorting.Export;
 using FortnitePorting.Extensions;
 using FortnitePorting.Services;
@@ -21,7 +23,7 @@ namespace FortnitePorting.Controls.Radio;
 
 public partial class RadioSongPicker : UserControl
 {
-    public readonly USoundCue SoundCue;
+    public readonly FPackageIndex SoundWave;
     public Bitmap CoverArtImage { get; set; }
     public string Title { get; set; }
     public string Description { get; set; }
@@ -32,7 +34,6 @@ public partial class RadioSongPicker : UserControl
         InitializeComponent();
 
         ID = asset.Name;
-        SoundCue = asset.Get<USoundCue>("FrontEndLobbyMusic");
         var titleText = asset.GetAnyOrDefault<FText?>("DisplayName", "ItemName") ?? new FText(asset.Name);
         Title = titleText.Text;
         var description = asset.GetAnyOrDefault<FText?>("Description", "ItemDescription") ?? new FText("No description.");
@@ -40,13 +41,33 @@ public partial class RadioSongPicker : UserControl
 
         var coverArtTexture = asset.Get<UTexture2D>("CoverArtImage");
         CoverArtImage = new Bitmap(coverArtTexture.Decode()!.Encode(SKEncodedImageFormat.Png, 100).AsStream());
+        
+        var lobbyMusic = asset.Get<UObject>("FrontEndLobbyMusic");
+        if (lobbyMusic is USoundCue soundCue)
+        {
+            SoundWave = soundCue.HandleSoundTree().MaxBy(sound => sound.Time)?.SoundWave;
+        }
+        else if (lobbyMusic.ExportType == "MetaSoundSource") // TODO proper impl with class
+        {
+            var rootMetasoundDocument = lobbyMusic.Get<FStructFallback>("RootMetasoundDocument");
+            var rootGraph = rootMetasoundDocument.Get<FStructFallback>("RootGraph");
+            var interFace = rootGraph.Get<FStructFallback>("Interface");
+            var inputs = interFace.Get<FStructFallback[]>("Inputs");
+            foreach (var input in inputs)
+            {
+                var typeName = input.Get<FName>("TypeName");
+                if (!typeName.Text.Equals("WaveAsset")) continue;
+
+                var defaultLiteral = input.Get<FStructFallback>("DefaultLiteral");
+                SoundWave = defaultLiteral.Get<FPackageIndex[]>("AsUObject").First();
+                break;
+            }
+        }
     }
 
     public USoundWave? GetSound()
     {
-        var sounds = SoundCue.HandleSoundTree();
-        var sound = sounds.MaxBy(sound => sound.Time)?.SoundWave;
-        return sound;
+        return SoundWave.Load<USoundWave>();
 
     }
     
