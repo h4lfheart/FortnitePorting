@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Reflection;
 using System.Threading.Tasks;
 using CUE4Parse.Compression;
@@ -16,6 +17,7 @@ using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
+using CUE4Parse.UE4.IO;
 using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.Core.Misc;
 using CUE4Parse.UE4.Objects.Engine;
@@ -121,8 +123,12 @@ public class CUE4ParseViewModel : ViewModelBase
 
     private async Task InitializeTextureStreaming()
     {
+        if (AppSettings.Current.Installation.FortniteVersion is not (EFortniteVersion.LatestInstalled or EFortniteVersion.LatestOnDemand)) return;
+        if (AppSettings.Current.Installation.FortniteVersion == EFortniteVersion.LatestInstalled && !AppSettings.Current.Installation.TextureStreamingEnabled) return;
+        
         
     }
+    
 
     private async Task LoadKeys()
     {

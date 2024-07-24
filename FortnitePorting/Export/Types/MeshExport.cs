@@ -273,6 +273,16 @@ public class MeshExport : BaseExport
                             return;
                         }
 
+                        // do we know why this is inverted? no
+                        // do we care? probably not
+                        index = index switch
+                        {
+                            1 => 4,
+                            2 => 3,
+                            3 => 2,
+                            4 => 1
+                        };
+
                         var offset = CUE4ParseVM.BeanstalkAtlasTextureUVs[index];
                         parameterSet.Vectors.Add(new VectorParameter(shaderName, new FLinearColor(offset.X, offset.Y, offset.Z, 0)));
                     }

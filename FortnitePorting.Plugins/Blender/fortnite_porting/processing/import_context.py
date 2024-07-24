@@ -749,6 +749,7 @@ class ImportContext:
                     links.remove(mask_slot.links[0])
             
             case "FP Bean Costume":
+                set_param("Ambient Occlusion", self.options.get("AmbientOcclusion"))
                 mask_slot = shader_node.inputs["MaterialMasking"]
                 position = get_param(vectors, "Head_Costume_UVPatternPosition" if meta.get("IsHead") else "Costume_UVPatternPosition")
                 if position and len(mask_slot.links) > 0:
