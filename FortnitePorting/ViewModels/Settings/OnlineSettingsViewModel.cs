@@ -33,6 +33,8 @@ public partial class OnlineSettingsViewModel : ViewModelBase
    [ObservableProperty] private bool _hasReceivedFirstPrompt = false;
    [ObservableProperty] private int _messageFetchCount = 50;
    [ObservableProperty] private EOnlineStatus _onlineStatus = EOnlineStatus.Online;
+
+   [ObservableProperty] private EpicAuthResponse? _epicAuth;
    
    [field: JsonIgnore]
    [ObservableProperty]

@@ -135,7 +135,7 @@ public partial class FilesViewModel : ViewModelBase
             }
             default:
             {
-                DisplayDialog("Unimplemented Previewer", 
+                AppWM.Dialog("Unimplemented Previewer", 
                     $"A file previewer for \"{asset.ExportType}\" assets has not been implemented and/or will not be supported.");
                 break;
             }
@@ -163,7 +163,7 @@ public partial class FilesViewModel : ViewModelBase
             var exportType = Exporter.DetermineExportType(asset);
             if (exportType is EExportType.None)
             {
-                DisplayDialog("Unimplemented Exporter", 
+                AppWM.Dialog("Unimplemented Exporter", 
                     $"A file exporter for \"{asset.ExportType}\" assets has not been implemented and/or will not be supported.");
             }
             else

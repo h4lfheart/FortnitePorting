@@ -60,7 +60,7 @@ public static class OnlineService
             {
                 if (args.Reason == DisconnectReason.AuthFailure)
                 {
-                    DisplayDialog("Disconnected",
+                    AppWM.Dialog("Disconnected",
                         "You have been disconnected from the online services due to an invalid authentication. Please re-authenticate in online settings");
                 }
                 
@@ -282,7 +282,7 @@ public static class OnlineService
                             var exportType = Exporter.DetermineExportType(asset);
                             if (exportType is EExportType.None)
                             {
-                                DisplayDialog("Unimplemented Exporter",
+                                AppWM.Dialog("Unimplemented Exporter",
                                     $"A file exporter for \"{asset.ExportType}\" assets has not been implemented and/or will not be supported.");
                             }
                             else

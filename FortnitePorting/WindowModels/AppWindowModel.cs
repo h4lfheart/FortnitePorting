@@ -159,6 +159,21 @@ public partial class AppWindowModel : WindowModelBase
     {
         InfoBars.RemoveAll(info => info.Id == id);
     }
+    
+    public void Dialog(string title, string content)
+    {
+        TaskService.RunDispatcher(async () =>
+        {
+            var dialog = new ContentDialog
+            {
+                Title = title,
+                Content = content,
+                CloseButtonText = "Continue"
+            };
+            
+            await dialog.ShowAsync();
+        });
+    }
 
     public void Navigate<T>()
     {

@@ -162,21 +162,6 @@ public static class ApplicationService
         AppSettings.Save();
         //DiscordService.Deinitialize();
     }
-
-    public static void DisplayDialog(string title, string content)
-    {
-        TaskService.RunDispatcher(async () =>
-        {
-            var dialog = new ContentDialog
-            {
-                Title = title,
-                Content = content,
-                CloseButtonText = "Continue"
-            };
-            
-            await dialog.ShowAsync();
-        });
-    }
     
     public static void Launch(string location, bool shellExecute = true)
     {

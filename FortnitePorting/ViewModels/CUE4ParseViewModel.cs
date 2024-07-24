@@ -27,6 +27,7 @@ using CUE4Parse.Utils;
 using FortnitePorting.Application;
 using FortnitePorting.Models.CUE4Parse;
 using FortnitePorting.Models.Fortnite;
+using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Models.CUE4Parse;
@@ -125,10 +126,70 @@ public class CUE4ParseViewModel : ViewModelBase
     {
         if (AppSettings.Current.Installation.FortniteVersion is not (EFortniteVersion.LatestInstalled or EFortniteVersion.LatestOnDemand)) return;
         if (AppSettings.Current.Installation.FortniteVersion == EFortniteVersion.LatestInstalled && !AppSettings.Current.Installation.TextureStreamingEnabled) return;
-        
-        
+
+        try
+        {
+            var tocPath = await GetTocPath(AppSettings.Current.Installation.FortniteVersion);
+            if (string.IsNullOrEmpty(tocPath)) return;
+
+            var tocName = tocPath.SubstringAfterLast("/");
+            var onDemandFile = new FileInfo(Path.Combine(DataFolder.FullName, tocName));
+            if (!onDemandFile.Exists || onDemandFile.Length == 0)
+            {
+                await ApiVM.DownloadFileAsync($"https://download.epicgames.com/{tocPath}", onDemandFile.FullName);
+            }
+
+            await ApiVM.EpicGames.VerifyAuthAsync();
+
+            var options = new IoStoreOnDemandOptions
+            {
+                ChunkBaseUri = new Uri("https://download.epicgames.com/ias/fortnite/", UriKind.Absolute),
+                ChunkCacheDirectory = CacheFolder,
+                Authorization = new AuthenticationHeaderValue("Bearer", AppSettings.Current.Online.EpicAuth?.Token),
+                Timeout = TimeSpan.FromSeconds(30)
+            };
+            
+            await Provider.RegisterVfs(new IoChunkToc(onDemandFile), options);
+            await Provider.MountAsync();
+        }
+        catch (Exception e)
+        {
+            AppWM.Dialog("Failed to Initialize Texture Streaming", 
+                $"Please enable the \"Pre-Download Streamed Assets\" option for Fortnite in the Epic Games Launcher and disable texture streaming in installation settings to remove this popup\n\nException: {e}");
+        }
+
+
     }
     
+    private async Task<string> GetTocPath(EFortniteVersion loadingType)
+    {
+        var onDemandText = string.Empty;
+        switch (loadingType)
+        {
+            case EFortniteVersion.LatestInstalled:
+            {
+                var onDemandPath = Path.Combine(AppSettings.Current.Installation.ArchiveDirectory, @"..\..\..\Cloud\IoStoreOnDemand.ini");
+                if (File.Exists(onDemandPath)) onDemandText = await File.ReadAllTextAsync(onDemandPath);
+                break;
+            }
+            case EFortniteVersion.LatestOnDemand:
+            {
+                // TODO live cosmetic streaming
+                //var onDemandFile = FortniteLive?.FileManifests.FirstOrDefault(x => x.Name.Equals("Cloud/IoStoreOnDemand.ini", StringComparison.OrdinalIgnoreCase));
+                //if (onDemandFile is not null) onDemandText = onDemandFile.GetStream().ReadToEnd().BytesToString();
+                break;
+            }
+        }
+
+        if (string.IsNullOrEmpty(onDemandText)) return string.Empty;
+
+        var onDemandIni = new ConfigIni();
+        onDemandIni.Read(new StringReader(onDemandText));
+        return onDemandIni
+            .Sections.FirstOrDefault(section => section.Name?.Equals("Endpoint") ?? false)?
+            .Tokens.OfType<InstructionToken>().FirstOrDefault(token => token.Key.Equals("TocPath"))?
+            .Value.Replace("\"", string.Empty) ?? string.Empty;
+    }
 
     private async Task LoadKeys()
     {
