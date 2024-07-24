@@ -11,12 +11,14 @@ using CUE4Parse.MappingsProvider;
 using CUE4Parse.UE4.AssetRegistry;
 using CUE4Parse.UE4.AssetRegistry.Objects;
 using CUE4Parse.UE4.Assets.Exports.Animation;
+using CUE4Parse.UE4.Assets.Exports.Engine;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Assets.Utils;
 using CUE4Parse.UE4.IO;
 using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Readers;
 using CUE4Parse.UE4.Versions;
+using CUE4Parse.UE4.VirtualFileSystem;
 using CUE4Parse.Utils;
 using EpicManifestParser;
 using EpicManifestParser.UE;
@@ -57,6 +59,9 @@ public class CUE4ParseViewModel : ViewModelBase
     public readonly RarityCollection[] RarityColors = new RarityCollection[8];
     public List<UAnimMontage> MaleLobbyMontages = [];
     public readonly List<UAnimMontage> FemaleLobbyMontages = [];
+    public readonly Dictionary<int, FColor> BeanstalkColors = [];
+    public readonly Dictionary<int, FLinearColor> BeanstalkMaterialProps = [];
+    public readonly Dictionary<int, FVector> BeanstalkAtlasTextureUVs = [];
 
     public static readonly List<DirectoryInfo> ExtraDirectories = [new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "FortniteGame", "Saved", "PersistentDownloadDir", "GameCustom", "InstalledBundles"))];
 
@@ -78,6 +83,12 @@ public class CUE4ParseViewModel : ViewModelBase
 
     public override async Task Initialize()
     {
+        Provider.VfsMounted += (sender, _) =>
+        {
+            if (sender is not IAesVfsReader reader) return;
+            HomeVM.Update($"Loading {reader.Name}");
+        };
+        
         HomeVM.Update("Initializing Libraries");
         await InitializeOodle();
         await InitializeZlib();
@@ -93,9 +104,7 @@ public class CUE4ParseViewModel : ViewModelBase
         Provider.LoadLocalization(AppSettings.Current.Language);
         Provider.LoadVirtualPaths();
         await LoadMappings();
-
-
-        HomeVM.Update("Loading Asset Registry");
+        
         await LoadAssetRegistries();
 
         HomeVM.Update("Loading Application Assets");
@@ -336,7 +345,7 @@ public class CUE4ParseViewModel : ViewModelBase
         foreach (var (path, file) in assetRegistries)
         {
             if (path.Contains("Plugin", StringComparison.OrdinalIgnoreCase) || path.Contains("Editor", StringComparison.OrdinalIgnoreCase)) continue;
-
+            HomeVM.Update($"Loading {file.Name}");
             var assetArchive = await file.TryCreateReaderAsync();
             if (assetArchive is null) continue;
 
@@ -367,6 +376,68 @@ public class CUE4ParseViewModel : ViewModelBase
         foreach (var path in FemaleLobbyMontagePaths)
         {
             FemaleLobbyMontages.AddIfNotNull(await Provider.TryLoadObjectAsync<UAnimMontage>(path));
+        }
+        
+        if (await Provider.TryLoadObjectAsync("/BeanstalkCosmetics/Cosmetics/DataTables/DT_BeanstalkCosmetics_Colors") is UDataTable beanstalkColorTable)
+        {
+            foreach (var (name, fallback) in beanstalkColorTable.RowMap)
+            {
+                var index = int.Parse(name.Text);
+                BeanstalkColors[index] = fallback.GetOrDefault<FColor>("Color");
+            }
+        }
+
+        if (await Provider.TryLoadObjectAsync("/BeanstalkCosmetics/Cosmetics/DataTables/DT_BeanstalkCosmetics_MaterialTypes") is UDataTable beanstalkMaterialTypesTable)
+        {
+            foreach (var (name, fallback) in beanstalkMaterialTypesTable.RowMap)
+            {
+                var index = int.Parse(name.Text);
+                var color = new FLinearColor();
+                foreach (var property in fallback.Properties)
+                {
+                    if (property.Tag is null) continue;
+
+                    var actualName = property.Name.Text.SubstringBefore("_");
+                    switch (actualName)
+                    {
+                        case "Metallic":
+                        {
+                            color.R = (float) property.Tag.GetValue<double>();
+                            break;
+                        }
+                        case "Roughness":
+                        {
+                            color.G = (float) property.Tag.GetValue<double>();
+                            break;
+                        }
+                        case "Emissive":
+                        {
+                            color.B = (float) property.Tag.GetValue<double>();
+                            break;
+                        }
+                    }
+                }
+
+                BeanstalkMaterialProps[index] = color;
+            }
+        }
+
+        if (await Provider.TryLoadObjectAsync("/BeanstalkCosmetics/Cosmetics/DataTables/DT_PatternAtlasTextureSlots") is UDataTable beanstalkAtlasSlotsTable)
+        {
+            foreach (var (name, fallback) in beanstalkAtlasSlotsTable.RowMap)
+            {
+                var index = int.Parse(name.Text);
+                foreach (var property in fallback.Properties)
+                {
+                    if (property.Tag is null) continue;
+
+                    var actualName = property.Name.Text.SubstringBefore("_");
+                    if (!actualName.Equals("UV")) continue;
+
+                    BeanstalkAtlasTextureUVs[index] = property.Tag.GetValue<FVector>();
+                }
+
+            }
         }
     }
 }
