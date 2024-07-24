@@ -666,17 +666,17 @@ class ImportContext:
 
                 emission_slot = shader_node.inputs["Emission"]
                 if (crop_bounds := get_param_multiple(vectors, emissive_crop_vector_names)) and get_param_multiple(switches, emissive_crop_switch_names) and len(emission_slot.links) > 0:
-                    mask_node = emission_slot.links[0].from_node
-                    mask_node.extension = "CLIP"
-
-                    mask_position_node = nodes.new("ShaderNodeGroup")
-                    mask_position_node.node_tree = bpy.data.node_groups.get("FP Texture Cropping")
-                    mask_position_node.location = mask_node.location + Vector((-200, 25))
-                    mask_position_node.inputs["Left"].default_value = crop_bounds.get('R')
-                    mask_position_node.inputs["Top"].default_value = crop_bounds.get('G')
-                    mask_position_node.inputs["Right"].default_value = crop_bounds.get('B')
-                    mask_position_node.inputs["Bottom"].default_value = crop_bounds.get('A')
-                    links.new(mask_position_node.outputs[0], mask_node.inputs[0])
+                    emission_node = emission_slot.links[0].from_node
+                    emission_node.extension = "CLIP"
+    
+                    crop_texture_node = nodes.new("ShaderNodeGroup")
+                    crop_texture_node.node_tree = bpy.data.node_groups.get("FP Texture Cropping")
+                    crop_texture_node.location = emission_node.location + Vector((-200, 25))
+                    crop_texture_node.inputs["Left"].default_value = crop_bounds.get('R')
+                    crop_texture_node.inputs["Top"].default_value = crop_bounds.get('G')
+                    crop_texture_node.inputs["Right"].default_value = crop_bounds.get('B')
+                    crop_texture_node.inputs["Bottom"].default_value = crop_bounds.get('A')
+                    links.new(crop_texture_node.outputs[0], emission_node.inputs[0])
 
                 if get_param(switches, "Modulate Emissive with Diffuse"):
                     diffuse_node = shader_node.inputs["Diffuse"].links[0].from_node
