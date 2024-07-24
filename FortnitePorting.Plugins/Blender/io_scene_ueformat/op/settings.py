@@ -1,4 +1,4 @@
-from bpy.props import BoolProperty, FloatProperty
+from bpy.props import BoolProperty, FloatProperty, IntProperty
 from bpy.types import PropertyGroup
 from typing import Any
 
@@ -8,7 +8,7 @@ class UFSettings(PropertyGroup):
     
     bone_length: FloatProperty(name="Bone Length", default=4.0, min=0.1)
     reorient_bones: BoolProperty(name="Reorient Bones", default=False)
-    import_lods: BoolProperty(name="Import Levels of Detail", default=False)
+    target_lod: IntProperty(name="Level of Detail", default=0, min=0)
     import_collision: BoolProperty(name="Import Collision", default=False)
     import_morph_targets: BoolProperty(name="Import Morph Targets", default=True)
     import_sockets: BoolProperty(name="Import Sockets", default=True)

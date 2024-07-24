@@ -114,8 +114,12 @@ class UEFormatImport:
             data = self.deserialize_model_legacy(ar)
 
         # meshes
+        target_lod = min(self.options.target_lod, len(data.lods) - 1)
         created_lods: list[Object] = []
-        for lod in data.lods:
+        for index, lod in enumerate(data.lods):
+            if index != target_lod:
+                continue
+                
             lod_name = f"{name}_{lod.name}"
             mesh_data = bpy.data.meshes.new(lod_name)
 
@@ -196,9 +200,6 @@ class UEFormatImport:
                         mesh_data.polygons[face_index].material_index = i
 
             created_lods.append(mesh_object)
-
-            if not self.options.import_lods:
-                break
 
         # skeleton
         if data.skeleton and (data.skeleton.bones or (self.options.import_sockets and data.skeleton.sockets)):

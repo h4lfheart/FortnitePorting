@@ -20,6 +20,8 @@ public partial class BlenderSettingsViewModel : BaseExportSettings
     [ObservableProperty, NotifyPropertyChangedFor(nameof(IsTastyRig))] private ERigType _rigType = ERigType.Default;
     [ObservableProperty] private bool _mergeArmatures = true;
     [ObservableProperty] private bool _reorientBones = false;
+    [ObservableProperty] private bool _importSockets = true;
+    [ObservableProperty] private bool _importVirtualBones = false;
     [ObservableProperty] private bool _useFingerIK = false;
     [ObservableProperty] private bool _useDynamicBoneShape = false;
     [ObservableProperty] private float _boneLength = 4.0f;
@@ -27,6 +29,7 @@ public partial class BlenderSettingsViewModel : BaseExportSettings
     // Mesh
     [ObservableProperty] private int _targetLOD = 0;
     [ObservableProperty] private EPolygonType _polygonType;
+    [ObservableProperty] private bool _importCollision = false;
     
     // Material
     [ObservableProperty] private float _ambientOcclusion = 0.0f;

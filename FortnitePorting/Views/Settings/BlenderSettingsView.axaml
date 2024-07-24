@@ -82,6 +82,18 @@
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
             
+            <ui:SettingsExpander Header="Import Sockets" Description="Whether or not to import bone sockets.">
+                <ui:SettingsExpander.Footer>
+                    <ToggleSwitch IsChecked="{Binding ImportSockets}"/>
+                </ui:SettingsExpander.Footer>
+            </ui:SettingsExpander>
+            
+            <ui:SettingsExpander Header="Import Virtual Bones" Description="Whether or not to import virtual bones.">
+                <ui:SettingsExpander.Footer>
+                    <ToggleSwitch IsChecked="{Binding ImportVirtualBones}"/>
+                </ui:SettingsExpander.Footer>
+            </ui:SettingsExpander>
+            
             <ui:SettingsExpander Header="Bone Length" Description="The length of all imported bones.">
                 <ui:SettingsExpander.Footer>
                     <StackPanel Orientation="Horizontal">
@@ -108,6 +120,12 @@
                 <ui:SettingsExpander.Footer>
                     <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type settings:EPolygonType}}"
                               SelectedItem="{Binding PolygonType, Converter={StaticResource EnumToString}}" />
+                </ui:SettingsExpander.Footer>
+            </ui:SettingsExpander>
+            
+            <ui:SettingsExpander Header="Import Collision Geometry" Description="Imports the convex collision geometry if available.">
+                <ui:SettingsExpander.Footer>
+                    <ToggleSwitch IsChecked="{Binding ImportCollision}"/>
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
             

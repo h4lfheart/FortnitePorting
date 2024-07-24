@@ -30,8 +30,8 @@ class UEModelOptions(UEFormatOptions):
     import_collision: bool = False
     import_sockets: bool = True
     import_morph_targets: bool = True
-    import_lods: bool = False
     import_virtual_bones: bool = False
+    target_lod: int = 0
 
 
 @dataclass(slots=True)

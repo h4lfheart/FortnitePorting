@@ -37,7 +37,7 @@ class UEFORMAT_PT_Panel(Panel):  # noqa: N801
     ) -> None:
         box = obj.layout.box()
         box.label(text="Model", icon="OUTLINER_OB_MESH")
-        box.row().prop(settings, "import_lods")
+        box.row().prop(settings, "target_lod")
         box.row().prop(settings, "import_collision")
         box.row().prop(settings, "import_morph_targets")
         box.row().prop(settings, "import_sockets")

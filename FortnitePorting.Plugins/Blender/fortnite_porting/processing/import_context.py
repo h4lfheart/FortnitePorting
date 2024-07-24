@@ -304,7 +304,11 @@ class ImportContext:
     def import_model(self, path: str):
         options = UEModelOptions(scale_factor=0.01 if self.options.get("ScaleDown") else 1,
                                  reorient_bones=self.options.get("ReorientBones"),
-                                 bone_length=self.options.get("BoneLength"))
+                                 bone_length=self.options.get("BoneLength"),
+                                 import_sockets=self.options.get("ImportSockets"),
+                                 import_virtual_bones=self.options.get("ImportVirtualBones"),
+                                 import_collision=self.options.get("ImportCollision"),
+                                 target_lod=self.options.get("TargetLOD"))
 
         path = path[1:] if path.startswith("/") else path
 
