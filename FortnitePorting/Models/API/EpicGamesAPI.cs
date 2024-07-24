@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using EpicManifestParser.Api;
 using FortnitePorting.Application;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Shared.Models.API;
@@ -18,12 +19,27 @@ public class EpicGamesAPI : APIBase
     {
     }
     
+    public async Task<ManifestInfo?> GetManifestInfoAsync()
+    {
+        var response = await ExecuteAsync(FORTNITE_LIVE_URL, parameters:
+        [
+            new HeaderParameter("Authorization", $"bearer {AppSettings.Current.Online.EpicAuth?.Token}")
+        ]);
+        
+        return ManifestInfo.Deserialize(response.RawBytes);
+    }
+
+    public ManifestInfo? GetManifestInfo()
+    {
+        return GetManifestInfoAsync().GetAwaiter().GetResult();
+    }
+    
     public async Task<EpicAuthResponse?> GetAuthTokenAsync()
     {
         return await ExecuteAsync<EpicAuthResponse>(OAUTH_POST_URL, Method.Post, parameters:
         [
             new HeaderParameter("Authorization", BASIC_TOKEN),
-            new HeaderParameter("grant_type", "client_credentials")
+            new GetOrPostParameter("grant_type", "client_credentials")
         ]);
     }
 
@@ -34,7 +50,7 @@ public class EpicGamesAPI : APIBase
 
     public async Task VerifyAuthAsync()
     {
-        var auth = await ExecuteAsync<EpicAuthResponse>(OATH_VERIFY_URL, Method.Get, parameters:
+        var auth = await ExecuteAsync<EpicAuthResponse>(OATH_VERIFY_URL, parameters:
         [
             new HeaderParameter("Authorization", $"bearer {AppSettings.Current.Online.EpicAuth?.Token}")
         ]);

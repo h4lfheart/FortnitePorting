@@ -36,7 +36,7 @@ public partial class AssetLoaderCollection : ObservableObject
                 new AssetLoader(EExportType.Outfit)
                 {
                     ClassNames = ["AthenaCharacterItemDefinition"],
-                    HideNames = ["Bean_"],
+                    HideNames = ["Bean_", "BeanCharacter_"],
                     PlaceholderIconPath = "FortniteGame/Content/Athena/Prototype/Textures/T_Placeholder_Item_Outfit",
                     IconHandler = asset =>
                     {

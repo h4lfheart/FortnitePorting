@@ -66,7 +66,7 @@ public partial class WelcomeViewModel : ViewModelBase
     public bool UnrealVersionEnabled => IsCustom;
     public bool EncryptionKeyEnabled => IsCustom;
     public bool MappingsFileEnabled => IsCustom;
-    public bool TextureStreamingEnabled => FortniteVersion is EFortniteVersion.LatestOnDemand or EFortniteVersion.LatestInstalled;
+    public bool TextureStreamingEnabled => FortniteVersion is EFortniteVersion.LatestInstalled;
     
     // TODO convert all to validators?
     public bool CanFinishSetup => !HasErrors && FortniteVersion switch

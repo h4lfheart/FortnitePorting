@@ -18,6 +18,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortnitePorting.Updater", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortnitePorting.Installer", "FortnitePorting.Installer\FortnitePorting.Installer.csproj", "{8E9929B4-EA3A-45E9-95A4-3D37143E2B51}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EpicManifestParser", "Dependencies\EpicManifestParser\src\EpicManifestParser\EpicManifestParser.csproj", "{09036269-634F-435D-8BAB-B59991CBA770}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -60,5 +62,9 @@ Global
 		{8E9929B4-EA3A-45E9-95A4-3D37143E2B51}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8E9929B4-EA3A-45E9-95A4-3D37143E2B51}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8E9929B4-EA3A-45E9-95A4-3D37143E2B51}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09036269-634F-435D-8BAB-B59991CBA770}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09036269-634F-435D-8BAB-B59991CBA770}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09036269-634F-435D-8BAB-B59991CBA770}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09036269-634F-435D-8BAB-B59991CBA770}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CUE4Parse.Compression;
 using CUE4Parse.Encryption.Aes;
@@ -21,9 +22,11 @@ using CUE4Parse.UE4.IO;
 using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.Core.Misc;
 using CUE4Parse.UE4.Objects.Engine;
+using CUE4Parse.UE4.Readers;
 using CUE4Parse.UE4.Versions;
 using CUE4Parse.UE4.VirtualFileSystem;
 using CUE4Parse.Utils;
+using EpicManifestParser;
 using FortnitePorting.Application;
 using FortnitePorting.Models.CUE4Parse;
 using FortnitePorting.Models.Fortnite;
@@ -40,6 +43,8 @@ namespace FortnitePorting.ViewModels;
 
 public class CUE4ParseViewModel : ViewModelBase
 {
+    public bool FinishedLoading;
+    
     public readonly HybridFileProvider Provider = AppSettings.Current.Installation.FortniteVersion switch
     {
         EFortniteVersion.LatestOnDemand => new HybridFileProvider(new VersionContainer(AppSettings.Current.Installation.UnrealVersion)),
@@ -51,8 +56,9 @@ public class CUE4ParseViewModel : ViewModelBase
     public readonly Dictionary<int, FColor> BeanstalkColors = [];
     public readonly Dictionary<int, FLinearColor> BeanstalkMaterialProps = [];
     public readonly Dictionary<int, FVector> BeanstalkAtlasTextureUVs = [];
+    
+    private static readonly Regex FortniteArchiveRegex = new(@"^FortniteGame(/|\\)Content(/|\\)Paks(/|\\)(pakchunk(?:0|10.*|\w+)-WindowsClient|global)\.(pak|utoc)$", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
-    public bool FinishedLoading;
     
     public override async Task Initialize()
     {
@@ -107,11 +113,39 @@ public class CUE4ParseViewModel : ViewModelBase
     
     private async Task InitializeProvider()
     {
+        if (AppSettings.Current.Installation.FortniteVersion is EFortniteVersion.LatestInstalled or EFortniteVersion.LatestOnDemand)
+        {
+            await ApiVM.EpicGames.VerifyAuthAsync();
+        }
+        
         switch (AppSettings.Current.Installation.FortniteVersion)
         {
             case EFortniteVersion.LatestOnDemand:
             {
-                // TODO Fortnite Live Support
+                var manifestInfo = await ApiVM.EpicGames.GetManifestInfoAsync();
+                if (manifestInfo is null) break;
+
+                var options = new ManifestParseOptions
+                {
+                    ChunkBaseUrl = "http://epicgames-download1.akamaized.net/Builds/Fortnite/CloudDir/",
+                    ChunkCacheDirectory = CacheFolder.FullName,
+                    ManifestCacheDirectory = CacheFolder.FullName,
+                    Zlibng = ZlibHelper.Instance,
+                    CacheChunksAsIs = true
+                };
+                
+                var (manifest, element) = await manifestInfo.DownloadAndParseAsync(options);
+
+                HomeVM.UpdateStatus($"Loading Fortnite On-Demand (This may take a while)");
+
+                var fileManifests = manifest.FileManifestList.Where(fileManifest => FortniteArchiveRegex.IsMatch(fileManifest.FileName));
+                foreach (var fileManifest in fileManifests)
+                {
+                    Provider.RegisterVfs(fileManifest.FileName, [fileManifest.GetStream()],
+                        name => new FStreamArchive(name,
+                            manifest.FileManifestList.First(file => file.FileName.Equals(name)).GetStream()));
+                }
+                
                 break;
             }
             default:
@@ -139,8 +173,6 @@ public class CUE4ParseViewModel : ViewModelBase
                 await ApiVM.DownloadFileAsync($"https://download.epicgames.com/{tocPath}", onDemandFile.FullName);
             }
 
-            await ApiVM.EpicGames.VerifyAuthAsync();
-
             var options = new IoStoreOnDemandOptions
             {
                 ChunkBaseUri = new Uri("https://download.epicgames.com/ias/fortnite/", UriKind.Absolute),
@@ -157,8 +189,6 @@ public class CUE4ParseViewModel : ViewModelBase
             AppWM.Dialog("Failed to Initialize Texture Streaming", 
                 $"Please enable the \"Pre-Download Streamed Assets\" option for Fortnite in the Epic Games Launcher and disable texture streaming in installation settings to remove this popup\n\nException: {e}");
         }
-
-
     }
     
     private async Task<string> GetTocPath(EFortniteVersion loadingType)

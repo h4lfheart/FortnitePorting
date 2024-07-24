@@ -50,7 +50,7 @@ public partial class InstallationSettingsViewModel : ViewModelBase
     [JsonIgnore] public bool UnrealVersionEnabled => IsCustom;
     [JsonIgnore] public bool EncryptionKeyEnabled => IsCustom;
     [JsonIgnore] public bool MappingsFileEnabled => IsCustom;
-    [JsonIgnore] public bool TextureStreamingEnabled => FortniteVersion is EFortniteVersion.LatestOnDemand or EFortniteVersion.LatestInstalled;
+    [JsonIgnore] public bool TextureStreamingEnabled => FortniteVersion is EFortniteVersion.LatestInstalled;
     
     public async Task BrowseArchivePath()
     {
