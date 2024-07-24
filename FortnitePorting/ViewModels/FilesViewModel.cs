@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -39,6 +40,7 @@ public partial class FilesViewModel : ViewModelBase
     [ObservableProperty] private EExportLocation _exportLocation = EExportLocation.Blender;
     
     [ObservableProperty] private string _searchFilter = string.Empty;
+    [ObservableProperty] private bool _useRegex = false;
     [ObservableProperty] private bool _showLoadingSplash = true;
 
     [ObservableProperty] private List<FlatViewItem> _selectedFlatViewItems = [];
@@ -58,7 +60,7 @@ public partial class FilesViewModel : ViewModelBase
         }
 
         var assetFilter = this
-            .WhenAnyValue(viewModel => viewModel.SearchFilter)
+            .WhenAnyValue(viewModel => viewModel.SearchFilter, viewmodel => viewmodel.UseRegex)
             .Select(CreateAssetFilter);
         
         AssetCache.Connect()
@@ -192,8 +194,14 @@ public partial class FilesViewModel : ViewModelBase
         return isValidExtension && !isOptionalSegment && !isEngine;
     }
     
-    private Func<FlatViewItem, bool> CreateAssetFilter(string filter)
+    private Func<FlatViewItem, bool> CreateAssetFilter((string, bool) items)
     {
+        var (filter, useRegex) = items;
+        if (UseRegex)
+        {
+            return asset => Regex.IsMatch(asset.Path, filter);
+        }
+
         return asset => MiscExtensions.Filter(asset.Path, filter);
     }
 }
