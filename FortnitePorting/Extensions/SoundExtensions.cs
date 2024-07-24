@@ -8,6 +8,7 @@ using CUE4Parse.GameTypes.FN.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Exports.Sound.Node;
 using CUE4Parse.UE4.Assets.Objects;
+using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
@@ -159,7 +160,7 @@ public static class SoundExtensions
                 var dialogueWaveParameter = dialoguePlayer.Get<FStructFallback>("DialogueWaveParameter");
                 var dialogueWave = dialogueWaveParameter.Get<UDialogueWave>("DialogueWave");
                 var contextMappings = dialogueWave.Get<FStructFallback[]>("ContextMappings");
-                var soundWave = contextMappings.First().Get<USoundWave>("SoundWave");
+                var soundWave = contextMappings.First().Get<FPackageIndex>("SoundWave");
                 sounds.Add(CreateSound(soundWave));
                 break;
             }
@@ -176,11 +177,10 @@ public static class SoundExtensions
     
     private static Sound CreateSound(USoundNodeWavePlayer player, float timeOffset = 0)
     {
-        var soundWave = player.SoundWave?.Load<USoundWave>();
-        return new Sound(soundWave, timeOffset, player.GetOrDefault("bLooping", false));
+        return new Sound(player.SoundWave, timeOffset, player.GetOrDefault("bLooping", false));
     }
 
-    private static Sound CreateSound(USoundWave soundWave, float timeOffset = 0)
+    private static Sound CreateSound(FPackageIndex soundWave, float timeOffset = 0)
     {
         return new Sound(soundWave, timeOffset, false);
     }
@@ -188,11 +188,11 @@ public static class SoundExtensions
 
 public class Sound
 {
-    public USoundWave SoundWave;
+    public FPackageIndex SoundWave;
     public float Time;
     public bool Loop;
 
-    public Sound(USoundWave soundWave, float time, bool loop)
+    public Sound(FPackageIndex soundWave, float time, bool loop)
     {
         SoundWave = soundWave;
         Time = time;

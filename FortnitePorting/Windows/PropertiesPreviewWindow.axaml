@@ -41,7 +41,8 @@
         <ui:FABorder Grid.Row="1" Background="#08FFFFFF" Margin="{ext:Space 1}">
             <avaloniaEdit:TextEditor x:Name="Editor" Document="{Binding PropertiesJson, Converter={StaticResource StringToDocument}}"
                                      ShowLineNumbers="True" FontFamily="Cascadia Code, Consolas, Menlo, Monospace" Margin="{ext:Space 1}"
-                                     IsReadOnly="True" SyntaxHighlighting="{Binding JsonHighlighter}"/>
+                                     IsReadOnly="True" SyntaxHighlighting="{Binding JsonHighlighter}"
+                                     FontSize="12"/>
         </ui:FABorder>
     </Grid>
 </Window>

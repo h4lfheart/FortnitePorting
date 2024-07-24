@@ -13,7 +13,9 @@ using CUE4Parse_Conversion.Textures;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Exports.Texture;
+using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
+using CUE4Parse.UE4.Objects.UObject;
 using FFMpegCore;
 using FortnitePorting.Application;
 using FortnitePorting.Extensions;
@@ -33,7 +35,7 @@ public partial class MusicPackItem : ObservableObject
     [ObservableProperty] private string _trackName;
     [ObservableProperty] private string _trackDescription;
     [ObservableProperty] private string _coverArtName;
-    [ObservableProperty] private USoundCue _soundCue;
+    [ObservableProperty] private FPackageIndex _soundWave;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(PlayIconKind))] private bool _isPlaying;
     public MaterialIconKind PlayIconKind => IsPlaying ? MaterialIconKind.Pause : MaterialIconKind.Play;
     
@@ -53,7 +55,27 @@ public partial class MusicPackItem : ObservableObject
 
         AlternateCoverTexture = asset.GetAnyOrDefault<UTexture2D>("LargePreviewImage", "SmallPreviewImage");
 
-        SoundCue = asset.Get<USoundCue>("FrontEndLobbyMusic");
+        var lobbyMusic = asset.Get<UObject>("FrontEndLobbyMusic");
+        if (lobbyMusic is USoundCue soundCue)
+        {
+            SoundWave = soundCue.HandleSoundTree().MaxBy(sound => sound.Time)?.SoundWave;
+        }
+        else if (lobbyMusic.ExportType == "MetaSoundSource") // TODO proper impl with class
+        {
+            var rootMetasoundDocument = lobbyMusic.Get<FStructFallback>("RootMetasoundDocument");
+            var rootGraph = rootMetasoundDocument.Get<FStructFallback>("RootGraph");
+            var interFace = rootGraph.Get<FStructFallback>("Interface");
+            var inputs = interFace.Get<FStructFallback[]>("Inputs");
+            foreach (var input in inputs)
+            {
+                var typeName = input.Get<FName>("TypeName");
+                if (!typeName.Text.Equals("WaveAsset")) continue;
+
+                var defaultLiteral = input.Get<FStructFallback>("DefaultLiteral");
+                SoundWave = defaultLiteral.Get<FPackageIndex[]>("AsUObject").First();
+                break;
+            }
+        }
     }
     
     public bool Match(string filter)
@@ -61,10 +83,6 @@ public partial class MusicPackItem : ObservableObject
         return MiscExtensions.Filter(TrackName, filter) || MiscExtensions.Filter(Id, filter);
     }
 
-    public USoundWave GetSound()
-    {
-        return SoundCue.HandleSoundTree().MaxBy(sound => sound.Time)?.SoundWave;
-    }
 
     [RelayCommand]
     public async Task SaveAudio()
@@ -83,8 +101,7 @@ public partial class MusicPackItem : ObservableObject
     {
         await TaskService.RunAsync(async () =>
         {
-            var soundWave = GetSound();
-            if (!SoundExtensions.TrySaveSoundToAssets(soundWave, AppSettings.Current.Application.AssetPath, out string wavPath)) return;
+            if (!SoundExtensions.TrySaveSoundToAssets(SoundWave.Load<USoundWave>(), AppSettings.Current.Application.AssetPath, out string wavPath)) return;
 
             if (File.Exists(path)) return;
 

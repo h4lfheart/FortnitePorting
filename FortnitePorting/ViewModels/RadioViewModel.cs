@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CUE4Parse.UE4.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.Utils;
 using DynamicData;
@@ -160,7 +161,7 @@ public partial class RadioViewModel : ViewModelBase
     
     public void Play(MusicPackItem musicPackItem)
     { 
-        if (!SoundExtensions.TrySaveSoundToAssets(musicPackItem.GetSound(), AppSettings.Current.Application.AssetPath, out Stream stream)) return;
+        if (!SoundExtensions.TrySaveSoundToAssets(musicPackItem.SoundWave.Load<USoundWave>(), AppSettings.Current.Application.AssetPath, out Stream stream)) return;
         
         Stop();
 
