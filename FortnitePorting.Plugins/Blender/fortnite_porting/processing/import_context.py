@@ -50,7 +50,7 @@ class ImportContext:
         
         self.collection = create_or_get_collection(self.name) if self.options.get("ImportIntoCollection") else bpy.context.scene.collection
 
-        if self.type in [EExportType.OUTFIT, EExportType.BACKPACK]:
+        if self.type in [EExportType.OUTFIT, EExportType.BACKPACK, EExportType.FALL_GUYS_OUTFIT]:
             target_meshes = data.get("OverrideMeshes")
             normal_meshes = data.get("Meshes")
             for mesh in normal_meshes:
@@ -63,7 +63,7 @@ class ImportContext:
         for mesh in target_meshes:
             self.import_mesh(mesh)
             
-        if self.type is EExportType.OUTFIT and self.options.get("MergeArmatures"):
+        if self.type in [EExportType.OUTFIT, EExportType.FALL_GUYS_OUTFIT] and self.options.get("MergeArmatures"):
             master_skeleton = merge_armatures(self.imported_meshes)
             master_mesh = get_armature_mesh(master_skeleton)
 
@@ -263,6 +263,7 @@ class ImportContext:
                 meta.update(gather_metadata("SkinColor"))
             case EFortCustomPartType.HEAD:
                 meta.update(gather_metadata("MorphNames", "HatType"))
+                meta["IsHead"] = True
                 shape_keys = imported_mesh.data.shape_keys
                 if (morphs := meta.get("MorphNames")) and (morph_name := morphs.get(meta.get("HatType"))) and shape_keys is not None:
                     for key in shape_keys.key_blocks:
@@ -350,7 +351,7 @@ class ImportContext:
         for data in texture_data:
             additional_hash += data.get("Hash")
         
-        override_parameters = where(self.override_parameters, lambda param: param.get("MaterialNameToAlter") == material_name)
+        override_parameters = where(self.override_parameters, lambda param: param.get("MaterialNameToAlter") in [material_name, "Global"])
         for parameters in override_parameters:
             additional_hash += parameters.get("Hash")
 
@@ -442,7 +443,7 @@ class ImportContext:
                 node.interpolation = "Smart"
                 node.hide = True
 
-                mappings = first(target_mappings.textures, lambda x: x.name == name)
+                mappings = first(target_mappings.textures, lambda x: x.name.casefold() == name.casefold())
                 if mappings is None or texture_name in texture_ignore_names:
                     if add_unused_params:
                         nonlocal unused_parameter_height
@@ -472,7 +473,7 @@ class ImportContext:
                 name = data.get("Name")
                 value = data.get("Value")
 
-                mappings = first(target_mappings.scalars, lambda x: x.name == name)
+                mappings = first(target_mappings.scalars, lambda x: x.name.casefold() == name.casefold())
                 if mappings is None:
                     if add_unused_params:
                         nonlocal unused_parameter_height
@@ -496,7 +497,7 @@ class ImportContext:
                 name = data.get("Name")
                 value = data.get("Value")
 
-                mappings = first(target_mappings.vectors, lambda x: x.name == name)
+                mappings = first(target_mappings.vectors, lambda x: x.name.casefold() == name.casefold())
                 if mappings is None:
                     if add_unused_params:
                         nonlocal unused_parameter_height
@@ -522,7 +523,7 @@ class ImportContext:
                 name = data.get("Name")
                 value = data.get("Value")
 
-                mappings = first(target_mappings.component_masks, lambda x: x.name == name)
+                mappings = first(target_mappings.component_masks, lambda x: x.name.casefold() == name.casefold())
                 if mappings is None:
                     if add_unused_params:
                         nonlocal unused_parameter_height
@@ -544,7 +545,7 @@ class ImportContext:
                 name = data.get("Name")
                 value = data.get("Value")
 
-                mappings = first(target_mappings.switches, lambda x: x.name == name)
+                mappings = first(target_mappings.switches, lambda x: x.name.casefold() == name.casefold())
                 if mappings is None:
                     if add_unused_params:
                         nonlocal unused_parameter_height
@@ -612,6 +613,14 @@ class ImportContext:
             replace_shader_node("FP Foliage")
             socket_mappings = foliage_mappings
 
+        if "MM_BeanCharacter_Body" in material_data.get("BaseMaterialPath"):
+            replace_shader_node("FP Bean Base")
+            socket_mappings = bean_base_mappings
+            
+        if "MM_BeanCharacter_Costume" in material_data.get("BaseMaterialPath"):
+            replace_shader_node("FP Bean Costume")
+            socket_mappings = bean_head_costume_mappings if meta.get("IsHead") else bean_costume_mappings
+
         setup_params(socket_mappings, shader_node, True)
 
         links.new(shader_node.outputs[0], output_node.inputs[0])
@@ -657,17 +666,17 @@ class ImportContext:
 
                 emission_slot = shader_node.inputs["Emission"]
                 if (crop_bounds := get_param_multiple(vectors, emissive_crop_vector_names)) and get_param_multiple(switches, emissive_crop_switch_names) and len(emission_slot.links) > 0:
-                    emission_node = emission_slot.links[0].from_node
-                    emission_node.extension = "CLIP"
+                    mask_node = emission_slot.links[0].from_node
+                    mask_node.extension = "CLIP"
 
-                    crop_texture_node = nodes.new("ShaderNodeGroup")
-                    crop_texture_node.node_tree = bpy.data.node_groups.get("FP Texture Cropping")
-                    crop_texture_node.location = emission_node.location + Vector((-200, 25))
-                    crop_texture_node.inputs["Left"].default_value = crop_bounds.get('R')
-                    crop_texture_node.inputs["Top"].default_value = crop_bounds.get('G')
-                    crop_texture_node.inputs["Right"].default_value = crop_bounds.get('B')
-                    crop_texture_node.inputs["Bottom"].default_value = crop_bounds.get('A')
-                    links.new(crop_texture_node.outputs[0], emission_node.inputs[0])
+                    mask_position_node = nodes.new("ShaderNodeGroup")
+                    mask_position_node.node_tree = bpy.data.node_groups.get("FP Texture Cropping")
+                    mask_position_node.location = mask_node.location + Vector((-200, 25))
+                    mask_position_node.inputs["Left"].default_value = crop_bounds.get('R')
+                    mask_position_node.inputs["Top"].default_value = crop_bounds.get('G')
+                    mask_position_node.inputs["Right"].default_value = crop_bounds.get('B')
+                    mask_position_node.inputs["Bottom"].default_value = crop_bounds.get('A')
+                    links.new(mask_position_node.outputs[0], mask_node.inputs[0])
 
                 if get_param(switches, "Modulate Emissive with Diffuse"):
                     diffuse_node = shader_node.inputs["Diffuse"].links[0].from_node
@@ -734,3 +743,16 @@ class ImportContext:
                 mask_slot = shader_node.inputs["Mask"]
                 if len(mask_slot.links) > 0 and get_param(switches, "Use Diffuse Texture for Color [ignores alpha channel]"):
                     links.remove(mask_slot.links[0])
+            
+            case "FP Bean Costume":
+                mask_slot = shader_node.inputs["MaterialMasking"]
+                position = get_param(vectors, "Head_Costume_UVPatternPosition" if meta.get("IsHead") else "Costume_UVPatternPosition")
+                if position and len(mask_slot.links) > 0:
+                    mask_node = mask_slot.links[0].from_node
+                    mask_node.extension = "CLIP"
+
+                    mask_position_node = nodes.new("ShaderNodeGroup")
+                    mask_position_node.node_tree = bpy.data.node_groups.get("FP Bean Mask Position")
+                    mask_position_node.location = mask_node.location + Vector((-200, 25))
+                    mask_position_node.inputs["Costume_UVPatternPosition"].default_value = position.get('R'), position.get('G'), position.get('B')
+                    links.new(mask_position_node.outputs[0], mask_node.inputs[0])

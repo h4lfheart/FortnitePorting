@@ -279,3 +279,59 @@ gradient_mappings = MappingCollection(
         SlotMapping("GmapSkinCustomization_Channel")
     ]
 )
+
+bean_base_mappings = MappingCollection(
+    textures=[
+        SlotMapping("Body_Pattern", coords="UV1"),
+    ],
+    vectors=[
+        SlotMapping("Body_EyesColor"),
+        SlotMapping("Body_MainColor"),
+        SlotMapping("Body_SecondaryColor"),
+        SlotMapping("Body_FacePlateColor"),
+        SlotMapping("Body_Eyes_MaterialProps"),
+        SlotMapping("Body_Faceplate_MaterialProps"),
+        SlotMapping("Body_GlassesEyeLashes"),
+        SlotMapping("Body_MaterialProps"),
+        SlotMapping("Body_Secondary_MaterialProps"),
+        SlotMapping("Eyelashes_Color"),
+        SlotMapping("Eyelashes_MaterialProps"),
+        SlotMapping("Glasses_Frame_Color"),
+        SlotMapping("Glasses_Frame_MaterialProps"),
+        SlotMapping("Body_EyesColor"),
+        SlotMapping("Glasses_Lense_Color"),
+        SlotMapping("Glasses_Lense_MaterialProps"),
+    ]
+)
+
+bean_costume_mappings = MappingCollection(
+    textures=[
+        SlotMapping("Metalness/Roughness/Specular/Albedo", "Metalness/Roughness/Specular", alpha_slot="Albedo"),
+        SlotMapping("MaterialMasking"),
+        SlotMapping("NormalMap"),
+    ],
+    vectors=[
+        SlotMapping("Costume_MainColor"),
+        SlotMapping("Costume_MainMaterialProps"),
+        SlotMapping("Costume_Secondary_Color"),
+        SlotMapping("Costume_SecondaryMaterialProps"),
+        SlotMapping("Costume_AccentColor"),
+        SlotMapping("Costume_AccentMaterialProps"),
+    ]
+)
+
+bean_head_costume_mappings = MappingCollection(
+    textures=[
+        SlotMapping("Metalness/Roughness/Specular/Albedo", "Metalness/Roughness/Specular", alpha_slot="Albedo"),
+        SlotMapping("MaterialMasking"),
+        SlotMapping("NormalMap"),
+    ],
+    vectors=[
+        SlotMapping("Head_Costume_MainColor", "Costume_MainColor"),
+        SlotMapping("Head_Costume_MainMaterialProps", "Costume_MainMaterialProps"),
+        SlotMapping("Head_Costume_Secondary_Color", "Costume_Secondary_Color"),
+        SlotMapping("Head_Costume_SecondaryMaterialProps", "Costume_SecondaryMaterialProps"),
+        SlotMapping("Head_Costume_AccentColor", "Costume_AccentColor"),
+        SlotMapping("Head_Costume_AccentMaterialProps", "Costume_AccentMaterialProps"),
+    ]
+)

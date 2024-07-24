@@ -16,7 +16,7 @@ def get_param_multiple(source, names):
 
 
 def get_param_info(source, name):
-    found = first(source, lambda param: param.get("Name") == name)
+    found = first(source, lambda param: param.get("Name").casefold() == name.casefold())
     if found is None:
         return None
     return found

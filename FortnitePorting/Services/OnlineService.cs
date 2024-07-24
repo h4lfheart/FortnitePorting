@@ -63,12 +63,7 @@ public static class OnlineService
                     DisplayDialog("Disconnected",
                         "You have been disconnected from the online services due to an invalid authentication. Please re-authenticate in online settings");
                 }
-                else if (args.Reason == DisconnectReason.Timeout)
-                {
-                    DisplayDialog("Disconnected",
-                        "You have been disconnected from the online services due to a ping timeout. Please re-launch to regain access to online features");
-                }
-
+                
                 DisconnectReason = args.Reason;
             };
             

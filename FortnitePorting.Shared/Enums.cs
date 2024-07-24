@@ -51,6 +51,9 @@ public enum EAssetCategory
     [Description("Lego")]
     Lego,
     
+    [Description("Fall Guys")]
+    FallGuys,
+    
     [Description("Miscellaneous")]
     Misc
 }
@@ -142,17 +145,22 @@ public enum EExportType
     
     // LEGO
     
-    [Description("Lego Outfits"), Export(EPrimitiveExportType.Mesh)]
+    [Description("Outfits"), Export(EPrimitiveExportType.Mesh)]
     LegoOutfit,
     
-    [Description("Lego Emote"), Export(EPrimitiveExportType.Animation)]
+    [Description("Emotes"), Export(EPrimitiveExportType.Animation)]
     LegoEmote,
     
-    [Description("Lego Prop"), Export(EPrimitiveExportType.Mesh)]
+    [Description("Props"), Export(EPrimitiveExportType.Mesh)]
     LegoProp,
     
-    [Description("Lego Wildlife"), Export(EPrimitiveExportType.Mesh)]
+    [Description("Wildlife"), Export(EPrimitiveExportType.Mesh)]
     LegoWildlife,
+    
+    // FALL GUYS
+    
+    [Description("Outfits"), Export(EPrimitiveExportType.Mesh)]
+    FallGuysOutfit,
     
     // GENERIC
 

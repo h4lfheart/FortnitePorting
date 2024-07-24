@@ -36,6 +36,7 @@ public partial class AssetLoaderCollection : ObservableObject
                 new AssetLoader(EExportType.Outfit)
                 {
                     ClassNames = ["AthenaCharacterItemDefinition"],
+                    HideNames = ["Bean_"],
                     PlaceholderIconPath = "FortniteGame/Content/Athena/Prototype/Textures/T_Placeholder_Item_Outfit",
                     IconHandler = asset =>
                     {
@@ -308,7 +309,19 @@ public partial class AssetLoaderCollection : ObservableObject
                 }
             ]
         }*/
-
+        new AssetLoaderCategory(EAssetCategory.FallGuys)
+        {
+            Loaders = 
+            [
+                new AssetLoader(EExportType.FallGuysOutfit)
+                {
+                    ClassNames = ["AthenaCharacterItemDefinition"],
+                    AllowNames = ["Bean_"],
+                    PlaceholderIconPath = "FortniteGame/Content/Athena/Prototype/Textures/T_Placeholder_Item_Outfit",
+                    HideRarity = true
+                }
+            ]
+        }
     ];
     
     [ObservableProperty] private ObservableCollection<NavigationViewItem> _navItems = [];

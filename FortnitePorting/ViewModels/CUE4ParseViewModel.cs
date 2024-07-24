@@ -11,14 +11,17 @@ using CUE4Parse.UE4.AssetRegistry;
 using CUE4Parse.UE4.AssetRegistry.Objects;
 using CUE4Parse.UE4.Assets;
 using CUE4Parse.UE4.Assets.Exports.Animation;
+using CUE4Parse.UE4.Assets.Exports.Engine;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
+using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.Core.Misc;
 using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Versions;
 using CUE4Parse.UE4.VirtualFileSystem;
+using CUE4Parse.Utils;
 using FortnitePorting.Application;
 using FortnitePorting.Models.CUE4Parse;
 using FortnitePorting.Models.Fortnite;
@@ -42,10 +45,12 @@ public class CUE4ParseViewModel : ViewModelBase
     
     public readonly List<FAssetData> AssetRegistry = [];
     public readonly List<FRarityCollection> RarityColors = [];
+    public readonly Dictionary<int, FColor> BeanstalkColors = [];
+    public readonly Dictionary<int, FLinearColor> BeanstalkMaterialProps = [];
+    public readonly Dictionary<int, FVector> BeanstalkAtlasTextureUVs = [];
 
     public bool FinishedLoading;
     
-
     public override async Task Initialize()
     {
         ObjectTypeRegistry.RegisterEngine(Assembly.GetAssembly(typeof(UCustomObject))!);
@@ -73,7 +78,6 @@ public class CUE4ParseViewModel : ViewModelBase
         Provider.PostMount();
         await LoadConsoleVariables();
 
-        HomeVM.UpdateStatus("Loading Asset Registry");
         await LoadAssetRegistries();
 
         HomeVM.UpdateStatus("Loading Application Assets");
@@ -229,6 +233,7 @@ public class CUE4ParseViewModel : ViewModelBase
             if (!path.EndsWith(".bin")) continue;
             if (path.Contains("Plugin", StringComparison.OrdinalIgnoreCase) || path.Contains("Editor", StringComparison.OrdinalIgnoreCase)) continue;
 
+            HomeVM.UpdateStatus($"Loading {file.Name}");
             var assetArchive = await file.TryCreateReaderAsync();
             if (assetArchive is null) continue;
 
@@ -252,6 +257,68 @@ public class CUE4ParseViewModel : ViewModelBase
         {
             for (var i = 0; i < rarityData.Properties.Count; i++)
                 RarityColors.Add(rarityData.GetByIndex<FRarityCollection>(i));
+        }
+
+        if (await Provider.TryLoadObjectAsync("/BeanstalkCosmetics/Cosmetics/DataTables/DT_BeanstalkCosmetics_Colors") is UDataTable beanstalkColorTable)
+        {
+            foreach (var (name, fallback) in beanstalkColorTable.RowMap)
+            {
+                var index = int.Parse(name.Text);
+                BeanstalkColors[index] = fallback.GetOrDefault<FColor>("Color");
+            }
+        }
+        
+        if (await Provider.TryLoadObjectAsync("/BeanstalkCosmetics/Cosmetics/DataTables/DT_BeanstalkCosmetics_MaterialTypes") is UDataTable beanstalkMaterialTypesTable)
+        {
+            foreach (var (name, fallback) in beanstalkMaterialTypesTable.RowMap)
+            {
+                var index = int.Parse(name.Text);
+                var color = new FLinearColor();
+                foreach (var property in fallback.Properties)
+                {
+                    if (property.Tag is null) continue;
+                    
+                    var actualName = property.Name.Text.SubstringBefore("_");
+                    switch (actualName)
+                    {
+                        case "Metallic":
+                        {
+                            color.R = (float) property.Tag.GetValue<double>();
+                            break;
+                        }
+                        case "Roughness":
+                        {
+                            color.G = (float) property.Tag.GetValue<double>();
+                            break;
+                        }
+                        case "Emissive":
+                        {
+                            color.B = (float) property.Tag.GetValue<double>();
+                            break;
+                        }
+                    }
+                }
+                
+                BeanstalkMaterialProps[index] = color;
+            }
+        }
+        
+        if (await Provider.TryLoadObjectAsync("/BeanstalkCosmetics/Cosmetics/DataTables/DT_PatternAtlasTextureSlots") is UDataTable beanstalkAtlasSlotsTable)
+        {
+            foreach (var (name, fallback) in beanstalkAtlasSlotsTable.RowMap)
+            {
+                var index = int.Parse(name.Text);
+                foreach (var property in fallback.Properties)
+                {
+                    if (property.Tag is null) continue;
+                    
+                    var actualName = property.Name.Text.SubstringBefore("_");
+                    if (!actualName.Equals("UV")) continue;
+                    
+                    BeanstalkAtlasTextureUVs[index] = property.Tag.GetValue<FVector>();
+                }
+                
+            }
         }
     }
 }

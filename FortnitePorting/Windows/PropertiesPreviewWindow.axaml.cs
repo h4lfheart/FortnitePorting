@@ -36,8 +36,15 @@ public partial class PropertiesPreviewWindow : WindowBase<PropertiesPreviewWindo
 
     public static void Preview(string name, string json)
     {
+        var window = new PropertiesPreviewWindow(name, json);
+        window.Show();
+        window.BringToTop();
+        return;
+        
         if (Instance is not null)
         {
+            Instance.WindowModel.AssetName = name;
+            Instance.WindowModel.PropertiesJson = json;
             Instance.BringToTop();
             return;
         }

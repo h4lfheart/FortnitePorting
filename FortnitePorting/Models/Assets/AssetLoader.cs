@@ -34,6 +34,7 @@ public partial class AssetLoader : ObservableObject
     public readonly EExportType Type;
 
     public string[] ClassNames = [];
+    public string[] AllowNames = [];
     public string[] HideNames = [];
     public ManuallyDefinedAsset[] ManuallyDefinedAssets = [];
     public bool LoadHiddenAssets;
@@ -160,6 +161,17 @@ public partial class AssetLoader : ObservableObject
             .Where(data => ClassNames.Contains(data.AssetClass.Text))
             .ToList();
         Assets.RemoveAll(data => data.AssetName.Text.EndsWith("Random", StringComparison.OrdinalIgnoreCase));
+
+        if (AllowNames.Length > 0)
+        {
+            Assets.RemoveAll(asset => !AllowNames.Any(name => asset.PackageName.Text.Contains(name, StringComparison.OrdinalIgnoreCase)));
+        }
+
+        if (!LoadHiddenAssets)
+        {
+            Assets.RemoveAll(asset => HideNames.Any(name => asset.PackageName.Text.Contains(name, StringComparison.OrdinalIgnoreCase)));
+        }
+
 
         TotalAssets = Assets.Count + ManuallyDefinedAssets.Length;
         foreach (var asset in Assets)

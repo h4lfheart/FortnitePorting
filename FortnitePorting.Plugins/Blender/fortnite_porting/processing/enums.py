@@ -46,6 +46,9 @@ class EExportType(IntEnum):
     LEGO_PROP = auto()
     LEGO_WILDLIFE = auto()
     
+    # FALL GUYS
+    FALL_GUYS_OUTFIT = auto()
+    
     # GENERIC
     MESH = auto()
     WORLD = auto()

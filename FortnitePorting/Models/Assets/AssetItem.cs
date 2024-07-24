@@ -88,7 +88,7 @@ public partial class AssetItem : ObservableObject
                 canvas.DrawRect(backgroundRect, backgroundPaint);
             }
 
-            if (CreationData.ExportType is EExportType.Prop or EExportType.Prefab)
+            if (CreationData.HideRarity)
             {
                 canvas.DrawBitmap(iconBitmap, backgroundRect with { Left = -16, Right = bitmap.Width + 16 });
             }
