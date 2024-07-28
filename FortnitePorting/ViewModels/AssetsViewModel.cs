@@ -33,6 +33,13 @@ public partial class AssetsViewModel : ViewModelBase
     [RelayCommand]
     public async Task Export()
     {
+        if (AssetLoaderCollection.ActiveLoader.SelectedAssets.FirstOrDefault(asset => asset.Data.Asset.IsCustom) is
+            { } customAsset)
+        {
+            AppWM.Message("Unsupported Asset", $"{customAsset.Data.Asset.CreationData.DisplayName} cannot be exported.");
+            return;
+        }
+        
         await Exporter.Export(AssetLoaderCollection.ActiveLoader.SelectedAssets, AppSettings.Current.CreateExportMeta());
 
         if (AppSettings.Current.Online.UseIntegration)

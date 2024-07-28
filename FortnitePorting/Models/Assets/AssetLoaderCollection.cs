@@ -18,6 +18,7 @@ using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Services;
 using Serilog;
+using SkiaSharp;
 
 namespace FortnitePorting.Models.Assets;
 
@@ -224,6 +225,15 @@ public partial class AssetLoaderCollection : ObservableObject
                             Name = "Wolf",
                             AssetPath = "/Irwin/AI/Predators/Grandma/Meshes/Grandma_Mammal",
                             IconPath = "/Irwin/Icons/T-Icon-Fauna-Wolf"
+                        }
+                    ],
+                    CustomAssets = 
+                    [
+                        new CustomAsset
+                        {
+                            Name = "Oshawott",
+                            Description = "No Description.",
+                            IconBitmap = SKBitmap.Decode(Avalonia.Platform.AssetLoader.Open(new Uri("avares://FortnitePorting/Assets/Custom/T_Oshawott-L.png")))
                         }
                     ],
                     HideRarity = true

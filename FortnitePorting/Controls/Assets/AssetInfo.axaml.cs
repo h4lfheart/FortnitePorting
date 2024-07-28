@@ -40,6 +40,8 @@ public partial class AssetInfoData : ObservableObject
     {
         Asset = asset;
         
+        if (Asset.CreationData.Object is null) return;
+        
         var styles = Asset.CreationData.Object.GetOrDefault("ItemVariants", Array.Empty<UObject>());
         foreach (var style in styles)
         {

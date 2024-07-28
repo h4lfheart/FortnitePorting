@@ -40,6 +40,7 @@ public partial class AssetItem : ObservableObject
     public UFortItemSeriesDefinition? Series { get; set; }
     public WriteableBitmap DisplayImage { get; set; }
     public WriteableBitmap IconDisplayImage { get; set; }
+    public bool IsCustom { get; set; }
 
     public float DisplayWidth { get; set; } = 64;
     public float DisplayHeight { get; set; } = 80;
@@ -63,6 +64,23 @@ public partial class AssetItem : ObservableObject
         var iconBitmap = CreationData.Icon.Decode()!;
         IconDisplayImage = iconBitmap.ToWriteableBitmap();
         DisplayImage = CreateDisplayImage(iconBitmap).ToWriteableBitmap();
+    }
+
+    public AssetItem(string name, string description, SKBitmap iconBitmap, EExportType exportType, bool hideRarity = false)
+    {
+        CreationData = new AssetItemCreationArgs
+        {
+            Object = null,
+            Icon = null,
+            DisplayName = name,
+            Description = description,
+            ExportType = exportType,
+            HideRarity = hideRarity
+        };
+
+        IconDisplayImage = iconBitmap.ToWriteableBitmap();
+        DisplayImage = CreateDisplayImage(iconBitmap).ToWriteableBitmap();
+        IsCustom = true;
     }
 
     public SKBitmap CreateDisplayImage(SKBitmap iconBitmap)

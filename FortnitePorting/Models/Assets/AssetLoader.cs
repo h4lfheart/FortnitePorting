@@ -37,6 +37,7 @@ public partial class AssetLoader : ObservableObject
     public string[] AllowNames = [];
     public string[] HideNames = [];
     public ManuallyDefinedAsset[] ManuallyDefinedAssets = [];
+    public CustomAsset[] CustomAssets = [];
     public bool LoadHiddenAssets;
     public bool HideRarity;
     public Func<AssetLoader, UObject, string, bool> HidePredicate = (loader, asset, name) => false;
@@ -173,7 +174,7 @@ public partial class AssetLoader : ObservableObject
         }
 
 
-        TotalAssets = Assets.Count + ManuallyDefinedAssets.Length;
+        TotalAssets = Assets.Count + ManuallyDefinedAssets.Length + CustomAssets.Length;
         foreach (var asset in Assets)
         {
             await WaitIfPausedAsync();
@@ -195,6 +196,26 @@ public partial class AssetLoader : ObservableObject
             try
             {
                 await LoadAsset(manualAsset);
+            }
+            catch (Exception e)
+            {
+                Log.Error("{0}", e);
+            }
+
+            LoadedAssets++;
+        }
+        
+        foreach (var customAsset in CustomAssets)
+        {
+            await WaitIfPausedAsync();
+            try
+            {
+                await TaskService.RunDispatcherAsync(() =>
+                {
+                    SearchAutoComplete.AddUnique(customAsset.Name);
+                });
+                
+                Source.AddOrUpdate(new AssetItem(customAsset.Name, customAsset.Description, customAsset.IconBitmap, Type, HideRarity));
             }
             catch (Exception e)
             {
@@ -332,7 +353,7 @@ public partial class AssetLoader : ObservableObject
             EAssetSortType.AZ => asset => asset.CreationData.DisplayName,
             EAssetSortType.Season => asset => asset.Season + (double) asset.Rarity * 0.01,
             EAssetSortType.Rarity => asset => asset.Series?.DisplayName.Text + (int) asset.Rarity,
-            _ => asset => asset.CreationData.Object.Name
+            _ => asset => asset.CreationData.Object?.Name ?? string.Empty
         };
 
         return descending

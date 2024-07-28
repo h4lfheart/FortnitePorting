@@ -25,4 +25,11 @@ public abstract class ViewBase<T> : UserControl where T : ViewModelBase, new()
 
         await ViewModel.OnViewOpened();
     }
+
+    protected override async void OnUnloaded(RoutedEventArgs e)
+    {
+        base.OnUnloaded(e);
+        
+        await ViewModel.OnViewExited();
+    }
 }
