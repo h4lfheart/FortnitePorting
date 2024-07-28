@@ -40,6 +40,14 @@
                     <ToggleSwitch IsChecked="{Binding UseTabTransitions}"/>
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
+            
+            <ui:SettingsExpander Header="Cached Chunk Lifetime" Description="The number of days any cached chunks should be kept for. Set this value to zero to keep chunks for forever.">
+                <ui:SettingsExpander.Footer>
+                    <ui:NumberBox Value="{Binding ChunkCacheLifetime}" 
+                                  Minimum="0"
+                                  SpinButtonPlacementMode="Inline"/>
+                </ui:SettingsExpander.Footer>
+            </ui:SettingsExpander>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

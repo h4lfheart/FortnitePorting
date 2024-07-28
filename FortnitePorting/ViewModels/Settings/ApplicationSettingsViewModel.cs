@@ -26,6 +26,8 @@ public partial class ApplicationSettingsViewModel : ViewModelBase
    
    [ObservableProperty] private bool _useTabTransitions = true;
 
+   [ObservableProperty] private int _chunkCacheLifetime = 1;
+
    [ObservableProperty] private FPVersion _lastOnlineVersion = Globals.Version;
     
 

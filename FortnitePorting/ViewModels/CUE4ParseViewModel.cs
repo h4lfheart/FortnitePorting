@@ -64,6 +64,8 @@ public class CUE4ParseViewModel : ViewModelBase
     {
         ObjectTypeRegistry.RegisterEngine(Assembly.GetAssembly(typeof(UCustomObject))!);
 
+        await CleanupCache();
+
         Provider.VfsMounted += (sender, _) =>
         {
             if (sender is not IAesVfsReader reader) return;
@@ -95,6 +97,18 @@ public class CUE4ParseViewModel : ViewModelBase
         HomeVM.UpdateStatus(string.Empty);
 
         FinishedLoading = true;
+    }
+    
+    private async Task CleanupCache()
+    {
+        var files = CacheFolder.GetFiles("*.*chunk");
+        var cutoffDate = DateTime.Now - TimeSpan.FromDays(AppSettings.Current.Application.ChunkCacheLifetime);
+        foreach (var file in files)
+        {
+            if (file.LastWriteTime >= cutoffDate) continue;
+            
+            file.Delete();
+        }
     }
     
     private async Task InitializeOodle()
