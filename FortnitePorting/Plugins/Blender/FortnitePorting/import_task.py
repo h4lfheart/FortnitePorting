@@ -695,7 +695,7 @@ class DataImportTask:
             return out_props
 
         # fetch pose data
-        meta = get_meta(["PoseData", "ReferencePose"])
+        meta = get_meta(["PoseData"])
         if imported_mesh is not None and (pose_data := meta.get("PoseData")):
             is_head = mesh_type == "Head"
             shape_keys = imported_mesh.data.shape_keys

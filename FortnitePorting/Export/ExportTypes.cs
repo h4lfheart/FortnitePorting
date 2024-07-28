@@ -34,7 +34,6 @@ public record ExportPart : ExportMesh
 public class ExportPartMeta
 {
     public List<PoseData> PoseData = [];
-    public List<ReferencePose> ReferencePose = [];
 }
 
 public class ExportHeadMeta : ExportPartMeta
@@ -42,8 +41,6 @@ public class ExportHeadMeta : ExportPartMeta
     public readonly Dictionary<ECustomHatType, string> MorphNames = new();
     public FLinearColor SkinColor;
 }
-
-public record ReferencePose(string BoneName, FVector Location, FQuat Rotation, FVector Scale);
 
 public class PoseData
 {
