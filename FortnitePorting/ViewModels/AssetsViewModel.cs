@@ -44,7 +44,7 @@ public partial class AssetsViewModel : ViewModelBase
     [ObservableProperty] private AssetLoader? currentLoader;
     [ObservableProperty] private Control expanderContainer;
 
-    [ObservableProperty] private ObservableCollection<AssetOptions> currentAssets = new();
+    [ObservableProperty] private ObservableCollection<AssetOptions> currentAssets = [];
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasCosmeticFilters))]
@@ -128,12 +128,12 @@ public partial class AssetsViewModel : ViewModelBase
 
     public override async Task Initialize()
     {
-        Loaders = new List<AssetLoader>
-        {
+        Loaders =
+        [
             new(EAssetType.Outfit)
             {
-                Classes = new[] { "AthenaCharacterItemDefinition" },
-                Filters = new[] { "_NPC", "_TBD", "CID_VIP", "_Creative", "_SG" },
+                Classes = ["AthenaCharacterItemDefinition"],
+                Filters = ["_NPC", "_TBD", "CID_VIP", "_Creative", "_SG", "Bean_"],
                 IconHandler = asset =>
                 {
                     asset.TryGetValue(out UTexture2D? previewImage, "SmallPreviewImage", "LargePreviewImage");
@@ -143,22 +143,27 @@ public partial class AssetsViewModel : ViewModelBase
                         previewImage ??= heroDef.GetAnyOrDefault<UTexture2D>("SmallPreviewImage", "LargePreviewImage");
 
                     }
+
                     previewImage ??= AssetLoader.GetAssetIcon(asset);
                     return previewImage;
                 }
             },
+
             new(EAssetType.LegoOutfit)
             {
                 Classes = ["JunoAthenaCharacterItemOverrideDefinition"],
                 IconHandler = asset =>
                 {
-                    var meshSchema = asset.GetAnyOrDefault<UObject?>("AssembledMeshSchema", "LowDetailsAssembledMeshSchema");
+                    var meshSchema =
+                        asset.GetAnyOrDefault<UObject?>("AssembledMeshSchema", "LowDetailsAssembledMeshSchema");
                     if (meshSchema is null) return null;
 
                     var additionalDatas = meshSchema.GetOrDefault("AdditionalData", Array.Empty<FInstancedStruct>());
                     foreach (var additionalData in additionalDatas)
                     {
-                        var previewImage = additionalData.NonConstStruct?.GetAnyOrDefault<UTexture2D?>("SmallPreviewImage", "LargePreviewImage");
+                        var previewImage =
+                            additionalData.NonConstStruct?.GetAnyOrDefault<UTexture2D?>("SmallPreviewImage",
+                                "LargePreviewImage");
                         if (previewImage is not null) return previewImage;
                     }
 
@@ -169,25 +174,29 @@ public partial class AssetsViewModel : ViewModelBase
                     var baseItemDefinition = asset.GetOrDefault<UObject?>("BaseAthenaCharacterItemDefinition");
                     if (baseItemDefinition is null) return new FText(asset.Name);
 
-                    return baseItemDefinition.GetAnyOrDefault<FText?>("DisplayName", "ItemName") ?? new FText(asset.Name);
+                    return baseItemDefinition.GetAnyOrDefault<FText?>("DisplayName", "ItemName") ??
+                           new FText(asset.Name);
                 },
                 DescriptionHandler = asset =>
                 {
                     var baseItemDefinition = asset.GetOrDefault<UObject?>("BaseAthenaCharacterItemDefinition");
                     if (baseItemDefinition is null) return new FText("No description.");
 
-                    return baseItemDefinition.GetAnyOrDefault<FText?>("Description", "ItemDescription") ?? new FText("No description.");
+                    return baseItemDefinition.GetAnyOrDefault<FText?>("Description", "ItemDescription") ??
+                           new FText("No description.");
                 }
             },
+
             new(EAssetType.Backpack)
             {
-                Classes = new[] { "AthenaBackpackItemDefinition" },
-                Filters = new[] { "_STWHeroNoDefaultBackpack", "_TEST", "Dev_", "_NPC", "_TBD" }
+                Classes = ["AthenaBackpackItemDefinition"],
+                Filters = ["_STWHeroNoDefaultBackpack", "_TEST", "Dev_", "_NPC", "_TBD"]
             },
+
             new(EAssetType.Pickaxe)
             {
-                Classes = new[] { "AthenaPickaxeItemDefinition" },
-                Filters = new[] { "Dev_", "TBD_" },
+                Classes = ["AthenaPickaxeItemDefinition"],
+                Filters = ["Dev_", "TBD_"],
                 IconHandler = asset =>
                 {
                     asset.TryGetValue(out UTexture2D? previewImage, "SmallPreviewImage", "LargePreviewImage");
@@ -196,49 +205,59 @@ public partial class AssetsViewModel : ViewModelBase
                         previewImage = AssetLoader.GetAssetIcon(heroDef);
                         previewImage ??= heroDef.GetAnyOrDefault<UTexture2D>("SmallPreviewImage", "LargePreviewImage");
                     }
+
                     previewImage ??= AssetLoader.GetAssetIcon(asset);
                     return previewImage;
                 }
             },
+
             new(EAssetType.Glider)
             {
-                Classes = new[] { "AthenaGliderItemDefinition" }
+                Classes = ["AthenaGliderItemDefinition"]
             },
+
             new(EAssetType.Pet)
             {
-                Classes = new[] { "AthenaPetCarrierItemDefinition" }
+                Classes = ["AthenaPetCarrierItemDefinition"]
             },
+
             new(EAssetType.Toy)
             {
-                Classes = new[] { "AthenaToyItemDefinition" }
+                Classes = ["AthenaToyItemDefinition"]
             },
+
             new(EAssetType.Emoticon)
             {
-                Classes = new[] { "AthenaEmojiItemDefinition" },
-                Filters = new[] { "Emoji_100APlus" }
+                Classes = ["AthenaEmojiItemDefinition"],
+                Filters = ["Emoji_100APlus"]
             },
+
             new(EAssetType.Spray)
             {
-                Classes = new[] { "AthenaSprayItemDefinition" },
-                Filters = new[] { "SPID_000", "SPID_001" }
+                Classes = ["AthenaSprayItemDefinition"],
+                Filters = ["SPID_000", "SPID_001"]
             },
+
             new(EAssetType.Banner)
             {
-                Classes = new[] { "FortHomebaseBannerIconItemDefinition" },
+                Classes = ["FortHomebaseBannerIconItemDefinition"],
                 HideRarity = true
             },
+
             new(EAssetType.LoadingScreen)
             {
-                Classes = new[] { "AthenaLoadingScreenItemDefinition" }
+                Classes = ["AthenaLoadingScreenItemDefinition"]
             },
+
             new(EAssetType.Emote)
             {
-                Classes = new[] { "AthenaDanceItemDefinition" },
-                Filters = new[] { "_CT", "_NPC" }
+                Classes = ["AthenaDanceItemDefinition"],
+                Filters = ["_CT", "_NPC"]
             },
+
             new(EAssetType.Prop)
             {
-                Classes = new[] { "FortPlaysetPropItemDefinition" },
+                Classes = ["FortPlaysetPropItemDefinition"],
                 HidePredicate = (loader, asset, name) =>
                 {
                     if (!AppSettings.Current.FilterProps) return false;
@@ -257,14 +276,15 @@ public partial class AssetsViewModel : ViewModelBase
                 DontLoadHiddenAssets = true,
                 HideRarity = true
             },
+
             new(EAssetType.Prefab)
             {
-                Classes = new[] { "FortPlaysetItemDefinition" },
-                Filters = new[]
-                {
+                Classes = ["FortPlaysetItemDefinition"],
+                Filters =
+                [
                     "Device", "PID_Playset", "PID_MapIndicator", "SpikyStadium", "PID_StageLight",
                     "PID_Temp_Island"
-                },
+                ],
                 HidePredicate = (loader, asset, name) =>
                 {
                     var tagsHelper = asset.GetOrDefault<FStructFallback?>("CreativeTagsHelper");
@@ -276,15 +296,22 @@ public partial class AssetsViewModel : ViewModelBase
                 DontLoadHiddenAssets = true,
                 HideRarity = true
             },
+
             new(EAssetType.Item)
             {
-                Classes = new[] { "AthenaGadgetItemDefinition", "FortWeaponRangedItemDefinition", "FortWeaponMeleeItemDefinition", "FortCreativeWeaponMeleeItemDefinition", "FortCreativeWeaponRangedItemDefinition", "FortWeaponMeleeDualWieldItemDefinition" },
-                Filters = new[] { "_Harvest", "Weapon_Pickaxe_", "Weapons_Pickaxe_", "Dev_WID" },
+                Classes =
+                [
+                    "AthenaGadgetItemDefinition", "FortWeaponRangedItemDefinition", "FortWeaponMeleeItemDefinition",
+                    "FortCreativeWeaponMeleeItemDefinition", "FortCreativeWeaponRangedItemDefinition",
+                    "FortWeaponMeleeDualWieldItemDefinition"
+                ],
+                Filters = ["_Harvest", "Weapon_Pickaxe_", "Weapons_Pickaxe_", "Dev_WID"],
                 HidePredicate = (loader, asset, name) =>
                 {
                     if (!AppSettings.Current.FilterItems) return false;
                     var path = asset.GetPathName();
-                    var mappings = AppSettings.Current.ItemMeshMappings.GetOrAdd(name, () => new Dictionary<string, string>());
+                    var mappings =
+                        AppSettings.Current.ItemMeshMappings.GetOrAdd(name, () => new Dictionary<string, string>());
                     if (mappings.TryGetValue(path, out var meshPath))
                     {
                         if (loader.LoadedAssetsForFiltering.Contains(meshPath)) return true;
@@ -305,15 +332,17 @@ public partial class AssetsViewModel : ViewModelBase
                 },
                 DontLoadHiddenAssets = true
             },
+
             new(EAssetType.Resource)
             {
-                Classes = new[] { "FortIngredientItemDefinition", "FortResourceItemDefinition" },
-                Filters = new[] { "SurvivorItemData", "OutpostUpgrade_StormShieldAmplifier" },
+                Classes = ["FortIngredientItemDefinition", "FortResourceItemDefinition"],
+                Filters = ["SurvivorItemData", "OutpostUpgrade_StormShieldAmplifier"],
             },
+
             new(EAssetType.Trap)
             {
-                Classes = new[] { "FortTrapItemDefinition" },
-                Filters = new[] { "TID_Creative", "TID_Floor_Minigame_Trigger_Plate" },
+                Classes = ["FortTrapItemDefinition"],
+                Filters = ["TID_Creative", "TID_Floor_Minigame_Trigger_Plate"],
                 HidePredicate = (loader, asset, name) =>
                 {
                     if (!AppSettings.Current.FilterTraps) return false;
@@ -332,13 +361,16 @@ public partial class AssetsViewModel : ViewModelBase
                 DontLoadHiddenAssets = true,
                 HideRarity = true
             },
+
             new(EAssetType.Vehicle)
             {
-                Classes = new[] { "FortVehicleItemDefinition" },
-                IconHandler = asset => GetVehicleInfo<UTexture2D>(asset, "SmallPreviewImage", "LargePreviewImage", "Icon"),
+                Classes = ["FortVehicleItemDefinition"],
+                IconHandler = asset =>
+                    GetVehicleInfo<UTexture2D>(asset, "SmallPreviewImage", "LargePreviewImage", "Icon"),
                 DisplayNameHandler = asset => GetVehicleInfo<FText>(asset, "DisplayName", "ItemName"),
                 HideRarity = true
             },
+
             new(EAssetType.Wildlife)
             {
                 CustomLoadingHandler = async loader =>
@@ -377,18 +409,28 @@ public partial class AssetsViewModel : ViewModelBase
                     loader.Total = entries.Length;
                     foreach (var data in entries)
                     {
-                        await TaskService.RunDispatcherAsync(() => loader.Source.Add(new AssetItem(data.Mesh, data.PreviewImage, data.Name, loader.Type, "No Description.", hideRarity: true)), DispatcherPriority.Background);
+                        await TaskService.RunDispatcherAsync(
+                            () => loader.Source.Add(new AssetItem(data.Mesh, data.PreviewImage, data.Name, loader.Type,
+                                "No Description.", hideRarity: true)), DispatcherPriority.Background);
                         loader.Loaded++;
                     }
                 }
             },
+
             new(EAssetType.WeaponMod)
             {
-                Classes = ["FortWeaponModItemDefinition", "FortWeaponModItemDefinitionMagazine", "FortWeaponModItemDefinitionOptic"],
+                Classes =
+                [
+                    "FortWeaponModItemDefinition", "FortWeaponModItemDefinitionMagazine",
+                    "FortWeaponModItemDefinitionOptic"
+                ],
                 CustomLoadingHandler = async loader =>
                 {
-                    var weaponModTable = await CUE4ParseVM.Provider.LoadObjectAsync<UDataTable>("WeaponMods/DataTables/WeaponModOverrideData");
-                    var assets = CUE4ParseVM.AssetRegistry.Where(data => loader.Classes.Contains(data.AssetClass.Text)).ToList();
+                    var weaponModTable =
+                        await CUE4ParseVM.Provider.LoadObjectAsync<UDataTable>(
+                            "WeaponMods/DataTables/WeaponModOverrideData");
+                    var assets = CUE4ParseVM.AssetRegistry.Where(data => loader.Classes.Contains(data.AssetClass.Text))
+                        .ToList();
 
                     loader.Total = assets.Count;
                     foreach (var data in assets)
@@ -399,13 +441,14 @@ public partial class AssetsViewModel : ViewModelBase
                             var asset = await CUE4ParseVM.Provider.TryLoadObjectAsync(data.ObjectPath);
                             if (asset is null) continue;
 
-                            var icon = AssetLoader.GetAssetIcon(asset) ?? asset.GetOrDefault<UTexture2D>("LargePreviewImage");
+                            var icon = AssetLoader.GetAssetIcon(asset) ??
+                                       asset.GetOrDefault<UTexture2D>("LargePreviewImage");
                             var tag = asset.GetOrDefault<FGameplayTag>("PluginTuningTag");
-                            
+
                             var defaultModData = asset.GetOrDefault<FStructFallback?>("DefaultModData");
                             var mainModMeshData = defaultModData?.GetOrDefault<FStructFallback?>("MeshData");
                             var mainModMesh = mainModMeshData?.GetOrDefault<UStaticMesh?>("ModMesh");
-                            
+
                             var overridesAdded = 0;
                             foreach (var weaponModData in weaponModTable.RowMap.Values)
                             {
@@ -416,18 +459,24 @@ public partial class AssetsViewModel : ViewModelBase
                                 var modMesh = modMeshData.GetOrDefault<UStaticMesh?>("ModMesh");
                                 modMesh ??= mainModMesh;
                                 if (modMesh is null) continue;
-                                
+
                                 var name = modMesh.Name;
                                 if (loader.LoadedAssetsForFiltering.Contains(name)) continue;
 
-                                await TaskService.RunDispatcherAsync(() => loader.Source.Add(new AssetItem(modMesh, icon, name, EAssetType.WeaponMod, "No Description.", hideRarity: true, useTitleCase: false)), DispatcherPriority.Background);
+                                await TaskService.RunDispatcherAsync(
+                                    () => loader.Source.Add(new AssetItem(modMesh, icon, name, EAssetType.WeaponMod,
+                                        "No Description.", hideRarity: true, useTitleCase: false)),
+                                    DispatcherPriority.Background);
                                 loader.LoadedAssetsForFiltering.Add(name);
                                 overridesAdded++;
                             }
 
                             if (overridesAdded == 0 && mainModMesh is not null)
                             {
-                                await TaskService.RunDispatcherAsync(() => loader.Source.Add(new AssetItem(mainModMesh, icon, mainModMesh.Name, EAssetType.WeaponMod, "No Description.", hideRarity: true, useTitleCase: false)), DispatcherPriority.Background);
+                                await TaskService.RunDispatcherAsync(
+                                    () => loader.Source.Add(new AssetItem(mainModMesh, icon, mainModMesh.Name,
+                                        EAssetType.WeaponMod, "No Description.", hideRarity: true,
+                                        useTitleCase: false)), DispatcherPriority.Background);
                             }
                         }
                         catch (Exception e)
@@ -439,32 +488,44 @@ public partial class AssetsViewModel : ViewModelBase
                     loader.Loaded = loader.Total;
                 }
             },
+
             new(EAssetType.FestivalGuitar)
             {
-                Classes = new[] { "SparksGuitarItemDefinition" },
+                Classes = ["SparksGuitarItemDefinition"],
                 HideRarity = true
             },
+
             new(EAssetType.FestivalBass)
             {
-                Classes = new[] { "SparksBassItemDefinition" },
+                Classes = ["SparksBassItemDefinition"],
                 HideRarity = true
             },
+
             new(EAssetType.FestivalKeytar)
             {
-                Classes = new[] { "SparksKeyboardItemDefinition" },
+                Classes = ["SparksKeyboardItemDefinition"],
                 HideRarity = true
             },
+
             new(EAssetType.FestivalDrum)
             {
-                Classes = new[] { "SparksDrumItemDefinition" },
+                Classes = ["SparksDrumItemDefinition"],
                 HideRarity = true
             },
+
             new(EAssetType.FestivalMic)
             {
-                Classes = new[] { "SparksMicItemDefinition" },
+                Classes = ["SparksMicItemDefinition"],
                 HideRarity = true
             },
-        };
+
+            new(EAssetType.FallGuysOutfit)
+            {
+                Classes = ["AthenaCharacterItemDefinition"],
+                AllowNames = ["Bean_"]
+            }
+
+        ];
 
         SetLoader(EAssetType.Outfit);
         TaskService.Run(async () => { await CurrentLoader!.Load(); });
@@ -578,10 +639,11 @@ public partial class AssetLoader : ObservableObject
 
     public readonly SourceList<AssetItem> Source = new();
     public readonly ReadOnlyObservableCollection<AssetItem> Target;
-    public readonly ConcurrentBag<string> LoadedAssetsForFiltering = new();
+    public readonly ConcurrentBag<string> LoadedAssetsForFiltering = [];
 
-    public string[] Classes = Array.Empty<string>();
-    public string[] Filters = Array.Empty<string>();
+    public string[] Classes = [];
+    public string[] Filters = [];
+    public string[] AllowNames = [];
     public bool DontLoadHiddenAssets;
     public bool HideRarity;
     public Func<AssetLoader, UObject, string, bool> HidePredicate = (_, _, _) => false;
@@ -618,6 +680,16 @@ public partial class AssetLoader : ObservableObject
 
         var randomAsset = assets.FirstOrDefault(x => x.AssetName.Text.EndsWith("Random", StringComparison.OrdinalIgnoreCase));
         if (randomAsset is not null) assets.Remove(randomAsset);
+        
+        if (AllowNames.Length > 0)
+        {
+            assets.RemoveAll(asset => !AllowNames.Any(name => asset.PackageName.Text.Contains(name, StringComparison.OrdinalIgnoreCase)));
+        }
+
+        if (DontLoadHiddenAssets)
+        {
+            assets.RemoveAll(asset => Filters.Any(name => asset.PackageName.Text.Contains(name, StringComparison.OrdinalIgnoreCase)));
+        }
 
         Total = assets.Count;
         foreach (var data in assets)

@@ -18,6 +18,12 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Condition="'$(Configuration)' == 'Release'" Include="Fody" Version="6.8.1">
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Condition="'$(Configuration)' == 'Release'" Include="Costura.Fody" Version="5.8.0-alpha0098">
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
         <PackageReference Include="AsyncImageLoader.Avalonia" Version="3.2.1" />
         <PackageReference Include="Avalonia" Version="11.0.7" />
         <PackageReference Include="Avalonia.Controls.ColorPicker" Version="11.0.7" />

@@ -27,7 +27,7 @@ public class SoundExportData : ExportDataBase
                 var sounds = soundCue.HandleSoundTree();
                 foreach (var sound in sounds)
                 {
-                    exportSounds.Add(sound.SoundWave);
+                    exportSounds.Add(sound.SoundWave.Load<USoundWave>());
                 }
                 
                 break;

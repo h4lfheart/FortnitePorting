@@ -367,6 +367,62 @@ gradient_mappings = MappingCollection(
     ]
 )
 
+bean_base_mappings = MappingCollection(
+    textures=[
+        SlotMapping("Body_Pattern", coords="UV1"),
+    ],
+    vectors=[
+        SlotMapping("Body_EyesColor"),
+        SlotMapping("Body_MainColor"),
+        SlotMapping("Body_SecondaryColor"),
+        SlotMapping("Body_FacePlateColor"),
+        SlotMapping("Body_Eyes_MaterialProps"),
+        SlotMapping("Body_Faceplate_MaterialProps"),
+        SlotMapping("Body_GlassesEyeLashes"),
+        SlotMapping("Body_MaterialProps"),
+        SlotMapping("Body_Secondary_MaterialProps"),
+        SlotMapping("Eyelashes_Color"),
+        SlotMapping("Eyelashes_MaterialProps"),
+        SlotMapping("Glasses_Frame_Color"),
+        SlotMapping("Glasses_Frame_MaterialProps"),
+        SlotMapping("Body_EyesColor"),
+        SlotMapping("Glasses_Lense_Color"),
+        SlotMapping("Glasses_Lense_MaterialProps"),
+    ]
+)
+
+bean_costume_mappings = MappingCollection(
+    textures=[
+        SlotMapping("Metalness/Roughness/Specular/Albedo", "Metalness/Roughness/Specular", alpha_slot="Albedo"),
+        SlotMapping("MaterialMasking"),
+        SlotMapping("NormalMap"),
+    ],
+    vectors=[
+        SlotMapping("Costume_MainColor"),
+        SlotMapping("Costume_MainMaterialProps"),
+        SlotMapping("Costume_Secondary_Color"),
+        SlotMapping("Costume_SecondaryMaterialProps"),
+        SlotMapping("Costume_AccentColor"),
+        SlotMapping("Costume_AccentMaterialProps"),
+    ]
+)
+
+bean_head_costume_mappings = MappingCollection(
+    textures=[
+        SlotMapping("Metalness/Roughness/Specular/Albedo", "Metalness/Roughness/Specular", alpha_slot="Albedo"),
+        SlotMapping("MaterialMasking"),
+        SlotMapping("NormalMap"),
+    ],
+    vectors=[
+        SlotMapping("Head_Costume_MainColor", "Costume_MainColor"),
+        SlotMapping("Head_Costume_MainMaterialProps", "Costume_MainMaterialProps"),
+        SlotMapping("Head_Costume_Secondary_Color", "Costume_Secondary_Color"),
+        SlotMapping("Head_Costume_SecondaryMaterialProps", "Costume_SecondaryMaterialProps"),
+        SlotMapping("Head_Costume_AccentColor", "Costume_AccentColor"),
+        SlotMapping("Head_Costume_AccentMaterialProps", "Costume_AccentMaterialProps"),
+    ]
+)
+
 class ImportTask:
     def run(self, response):
         assets_folder = response.get("AssetsFolder")
@@ -418,7 +474,7 @@ class DataImportTask:
         self.collection = create_collection(self.name) if self.options.get("ImportCollection") else bpy.context.scene.collection
 
         meshes = data.get("Meshes")
-        if self.type in ["Outfit", "Backpack"]:
+        if self.type in ["Outfit", "Backpack", "FallGuysOutfit"]:
             meshes = data.get("OverrideMeshes")
             for mesh in data.get("Meshes"):
                 if not any(meshes, lambda override_mesh: override_mesh.get("Type") == mesh.get("Type")):
@@ -428,7 +484,7 @@ class DataImportTask:
         for mesh in meshes:
             self.import_model(mesh, collection=self.collection, allow_3d_cursor_spawn=True)
 
-        if self.type == "Outfit" and self.options.get("MergeSkeletons"):
+        if self.type in ["Outfit", "FallGuysOutfit"] and self.options.get("MergeSkeletons"):
             master_skeleton = merge_skeletons(self.imported_meshes)
             master_mesh = get_armature_mesh(master_skeleton)
 
@@ -831,6 +887,7 @@ class DataImportTask:
                 meta.update(get_meta(["SkinColor"]))
             case "Head":
                 meta.update(get_meta(["MorphNames", "HatType"]))
+                meta["IsHead"] = True
                 shape_keys = imported_mesh.data.shape_keys
                 if (morph_name := meta.get("MorphNames").get(meta.get("HatType"))) and shape_keys is not None:
                     for key in shape_keys.key_blocks:
@@ -907,7 +964,7 @@ class DataImportTask:
                 additional_hash += data.get("Hash")
 
         override_parameters = where(meta_data.get("OverrideParameters"),
-                                    lambda param: param.get("MaterialNameToAlter") == material_name)
+                                    lambda param: param.get("MaterialNameToAlter") in [material_name, "Global"])
         if override_parameters:
             for parameters in override_parameters:
                 additional_hash += parameters.get("Hash")
@@ -1166,6 +1223,15 @@ class DataImportTask:
             replace_shader_node("FP Foliage")
             socket_mappings = foliage_mappings
             material.use_sss_translucency = True
+
+
+        if "MM_BeanCharacter_Body" in material_data.get("AbsoluteParent"):
+            replace_shader_node("FP Bean Base")
+            socket_mappings = bean_base_mappings
+
+        if "MM_BeanCharacter_Costume" in material_data.get("AbsoluteParent"):
+            replace_shader_node("FP Bean Costume")
+            socket_mappings = bean_head_costume_mappings if meta_data.get("IsHead") else bean_costume_mappings
             
         def setup_params(mappings, target_node, add_unused_params = False):
             for texture in textures:
@@ -1331,6 +1397,21 @@ class DataImportTask:
         if shader_node.node_tree.name == "FP Toon":
             shader_node.inputs["Brightness"].default_value = self.options.get("ToonBrightness")
             self.is_toon = True
+
+
+
+        if shader_node.node_tree.name == "FP Bean Costume":
+            mask_slot = shader_node.inputs["MaterialMasking"]
+            position = get_param(vectors, "Head_Costume_UVPatternPosition" if meta_data.get("IsHead") else "Costume_UVPatternPosition")
+            if position and len(mask_slot.links) > 0:
+                mask_node = mask_slot.links[0].from_node
+                mask_node.extension = "CLIP"
+    
+                mask_position_node = nodes.new("ShaderNodeGroup")
+                mask_position_node.node_tree = bpy.data.node_groups.get("FP Bean Mask Position")
+                mask_position_node.location = mask_node.location + Vector((-200, 25))
+                mask_position_node.inputs["Costume_UVPatternPosition"].default_value = position.get('R'), position.get('G'), position.get('B')
+                links.new(mask_position_node.outputs[0], mask_node.inputs[0])
             
             
     def format_image_path(self, path: str):
