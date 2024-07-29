@@ -42,7 +42,7 @@
         <PackageReference Include="RestSharp" Version="110.2.1-alpha.0.11" />
         <PackageReference Include="RestSharp.Serializers.NewtonsoftJson" Version="110.2.1-alpha.0.11" />
         <PackageReference Include="Serilog.Sinks.File" Version="5.0.1-dev-00947" />
-        <PackageReference Include="SixLabors.ImageSharp" Version="3.1.3" />
+        <PackageReference Include="SixLabors.ImageSharp" Version="3.1.5" />
         <PackageReference Include="z440.atl.core" Version="5.14.0" />
     </ItemGroup>
 
