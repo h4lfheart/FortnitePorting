@@ -65,7 +65,7 @@
                                         <Ellipse Height="64" Width="64" 
                                                  StrokeThickness="5" Stroke="#00000000">
                                             <Ellipse.Fill>
-                                                <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding ProfilePicture}" Stretch="UniformToFill"/>
+                                                <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding ProfilePicture, TargetNullValue='avares://FortnitePorting/Assets/DefaultProfile.png'}" Stretch="UniformToFill"/>
                                             </Ellipse.Fill>
                                         </Ellipse>
                                     </Grid>

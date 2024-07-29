@@ -152,7 +152,10 @@ public partial class AppWindowModel : WindowModelBase
     
     public void UpdateMessage(string id, string message)
     {
-        InfoBars.FirstOrDefault(infoBar => infoBar.Id == id)!.Message = message;
+        var foundInfoBar = InfoBars.FirstOrDefault(infoBar => infoBar.Id == id);
+        if (foundInfoBar is null) return;
+        
+        foundInfoBar.Message = message;
     }
     
     public void CloseMessage(string id)

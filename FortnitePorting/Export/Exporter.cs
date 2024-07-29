@@ -175,11 +175,12 @@ public static class Exporter
     private static BaseExport CreateExport(string name, UObject asset, FStructFallback[] styles, EExportType exportType, ExportDataMeta metaData)
     {
         AppWM.Message("Export", $"Exporting: {asset.Name}", id: asset.Name, autoClose: false);
-            
+
+        var path = asset.GetPathName();
         metaData.UpdateProgress += (name, current, total) =>
         {
             var message = $"{current} / {total} \"{name}\"";
-            AppWM.UpdateMessage(id: asset.Name, message: message);
+            AppWM.UpdateMessage(id: path, message: message);
             Log.Information(message);
         };
         
@@ -190,7 +191,7 @@ public static class Exporter
             _ => throw new NotImplementedException($"Exporting {primitiveType} assets is not supported yet.")
         };
         
-        AppWM.CloseMessage(id: asset.Name);
+        AppWM.CloseMessage(id: path);
 
         return export;
     }

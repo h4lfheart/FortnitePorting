@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using DynamicData;
 using FortnitePorting.Application;
 using FortnitePorting.Models.Leaderboard;
@@ -26,8 +27,8 @@ public partial class LeaderboardViewModel : ViewModelBase
     [ObservableProperty] private ObservableCollection<LeaderboardExport> _leaderboardExports = [];
     [ObservableProperty] private ObservableCollection<PersonalExport> _personalExports = [];
     [ObservableProperty] private ObservableCollection<StatisticsModel> _statisticsModels = [];
-    
-    [ObservableProperty] private Bitmap _medalBitmap;
+
+    [ObservableProperty] private Bitmap? _medalBitmap;
 
     [ObservableProperty] private int _popupValue;
     
@@ -35,58 +36,11 @@ public partial class LeaderboardViewModel : ViewModelBase
 
     public override async Task OnViewOpened()
     {
-        var leaderboardUsers = (await ApiVM.FortnitePorting.GetLeaderboardUsersAsync()).ToList();
-        var leaderboardExports = (await ApiVM.FortnitePorting.GetLeaderboardExportsAsync()).ToList();
-
-        TaskService.Run(async () =>
-        {
-            var invalidExportsByUser = new Dictionary<Guid, int>();
-            for (var i = 0; i < leaderboardExports.Count; i++)
-            {
-                var export = leaderboardExports[i];
-                var isValid = await export.Load();
-                if (isValid) continue;
-                
-                leaderboardExports.RemoveAt(i);
-                i--;
-                foreach (var (guid, count) in export.Contributions)
-                {
-                    invalidExportsByUser.TryAdd(guid, 0);
-                    invalidExportsByUser[guid] += count;
-                }
-            }
-
-            foreach (var (guid, count) in invalidExportsByUser)
-            {
-                var targetUser = leaderboardUsers.FirstOrDefault(user => user.Identifier == guid);
-                if (targetUser is null) continue;
-
-                var offsetCount = targetUser.ExportCount - count;
-                if (offsetCount <= 0)
-                {
-                    leaderboardUsers.Remove(targetUser);
-                    continue;
-                }
-
-                targetUser.ExportCount = offsetCount;
-            }
-        
-            LeaderboardUsers = [..leaderboardUsers];
-            LeaderboardExports = [..leaderboardExports];
-        });
-        
+        Load().RunAsynchronously();
         
         var personalExports = await ApiVM.FortnitePorting.GetPersonalExportsAsync();
         PersonalExports = [..personalExports];
-
-        var foundRankingUser = LeaderboardUsers.FirstOrDefault(user =>
-            user.Identifier == AppSettings.Current.Online.Identification?.Identifier);
-
-        if (foundRankingUser is not null)
-        {
-            MedalBitmap = foundRankingUser.MedalBitmap;
-        }
-
+        
         StatisticsModels =
         [
             new StatisticsModel("Day", TimeSpan.FromHours(1), 24, PersonalExports),
@@ -104,5 +58,46 @@ public partial class LeaderboardViewModel : ViewModelBase
             3 => "BronzeMedal",
             _ => "NormalMedal"
         }}.png");
+    }
+
+    public async Task Load() 
+    {
+        var leaderboardUsers = (await ApiVM.FortnitePorting.GetLeaderboardUsersAsync()).ToList();
+        var leaderboardExports = (await ApiVM.FortnitePorting.GetLeaderboardExportsAsync()).ToList();
+        var invalidExportsByUser = new Dictionary<Guid, int>();
+        foreach (var export in leaderboardExports)
+        {
+            var isValid = await export.Load();
+            if (isValid) continue;
+                
+            foreach (var (guid, count) in export.Contributions)
+            {
+                invalidExportsByUser.TryAdd(guid, 0);
+                invalidExportsByUser[guid] += count;
+            }
+        }
+
+        foreach (var (guid, count) in invalidExportsByUser)
+        {
+            var targetUser = leaderboardUsers.FirstOrDefault(user => user.Identifier == guid);
+            if (targetUser is null) continue;
+
+            var offsetCount = targetUser.ExportCount - count;
+            if (offsetCount <= 0)
+            {
+                leaderboardUsers.Remove(targetUser);
+                continue;
+            }
+
+            targetUser.ExportCount = offsetCount;
+        }
+        
+        LeaderboardExports = [..leaderboardExports];
+        LeaderboardUsers = [..leaderboardUsers];
+            
+        var foundUser = LeaderboardUsers.FirstOrDefault(user =>
+            user.Identifier == AppSettings.Current.Online.Identification?.Identifier);
+
+        MedalBitmap = foundUser?.MedalBitmap;
     }
 }

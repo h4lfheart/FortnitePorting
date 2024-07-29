@@ -127,9 +127,8 @@ public static class ApplicationService
             {
                 await AppSettings.Current.Online.LoadIdentification();
                 await ApiVM.FortnitePorting.PostStatsAsync();
+                OnlineService.Init();
             });
-            
-            OnlineService.Init();
         }
         
         if (AppSettings.Current.Online.UseRichPresence)

@@ -36,6 +36,7 @@ using FortnitePorting.Shared.Services;
 using Serilog;
 using SixLabors.ImageSharp;
 using SkiaSharp;
+using Image = System.Drawing.Image;
 
 namespace FortnitePorting.Export;
 
@@ -777,6 +778,11 @@ public class ExportContext
         var path = GetExportPath(asset, extension);
         
         var returnValue = returnRealPath ? path : asset.GetPathName();
+        if (asset is UTexture texture && !IsTextureHigherResolution(texture, path))
+        {
+            return returnValue;
+        }
+        
         if (File.Exists(path)) return returnValue;
 
         var exportTask = TaskService.Run(() =>
@@ -802,6 +808,7 @@ public class ExportContext
 
         return returnValue;
     }
+    
     
     public string Export(UObject asset, bool returnRealPath = false, bool synchronousExport = false)
     {
@@ -866,6 +873,26 @@ public class ExportContext
                 
                 break;
             }
+        }
+    }
+
+    private bool IsTextureHigherResolution(UTexture texture, string path)
+    {
+        try
+        {
+            if (!File.Exists(path)) return true;
+            
+            using var file = File.OpenRead(path);
+            using var image = Image.FromStream(file, useEmbeddedColorManagement: false, validateImageData: false);
+            
+            var mip = texture.GetFirstMip();
+            if (mip is null) return true;
+            
+            return mip.SizeX > image.PhysicalDimension.Width && mip?.SizeY > image.PhysicalDimension.Height;
+        }
+        catch (Exception)
+        {
+            return true;
         }
     }
 

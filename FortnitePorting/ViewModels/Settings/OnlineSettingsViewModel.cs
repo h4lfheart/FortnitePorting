@@ -56,6 +56,7 @@ public partial class OnlineSettingsViewModel : ViewModelBase
    {
       if (UseIntegration && Auth is not null)
       {
+         await ApiVM.FortnitePorting.RefreshAuthAsync();
          Identification = await ApiVM.FortnitePorting.GetUserAsync(Auth.Token);
       }
    }

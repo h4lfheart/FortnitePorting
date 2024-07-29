@@ -30,8 +30,9 @@ namespace FortnitePorting.Models.Radio;
 public partial class MusicPackItem : ObservableObject
 {
     [ObservableProperty] private WriteableBitmap _coverArtBitmap;
-    [ObservableProperty] private UTexture2D _alternateCoverTexture;
+    [ObservableProperty] private UTexture2D? _alternateCoverTexture;
     [ObservableProperty] private string _id;
+    [ObservableProperty] private string _filePath;
     [ObservableProperty] private string _trackName;
     [ObservableProperty] private string _trackDescription;
     [ObservableProperty] private string _coverArtName;
@@ -42,6 +43,7 @@ public partial class MusicPackItem : ObservableObject
     public MusicPackItem(UObject asset)
     {
         Id = asset.Name;
+        FilePath = asset.GetPathName();
         
         TrackName = asset.GetAnyOrDefault<FText?>("DisplayName", "ItemName")?.Text;
         TrackName ??= asset.Name;
@@ -53,7 +55,8 @@ public partial class MusicPackItem : ObservableObject
         CoverArtName = coverArtImage.Name;
         CoverArtBitmap = coverArtImage.Decode()!.ToWriteableBitmap();
 
-        AlternateCoverTexture = asset.GetAnyOrDefault<UTexture2D>("LargePreviewImage", "SmallPreviewImage");
+        AlternateCoverTexture = asset.GetAnyOrDefault<UTexture2D>("SmallPreviewImage", "LargePreviewImage", "Icon", "LargeIcon");
+        AlternateCoverTexture ??= asset.GetDataListItem<UTexture2D>("SmallPreviewImage", "LargePreviewImage", "Icon", "LargeIcon");
 
         var lobbyMusic = asset.Get<UObject>("FrontEndLobbyMusic");
         if (lobbyMusic is USoundCue soundCue)
@@ -183,6 +186,12 @@ public partial class MusicPackItem : ObservableObject
     {
         RadioVM.ActivePlaylist.PlaylistCover = AlternateCoverTexture.Decode()!.ToWriteableBitmap();
         RadioVM.ActivePlaylist.PlaylistCoverPath = AlternateCoverTexture.GetPathName();
+    }
+
+    [RelayCommand]
+    public async Task CopyPath()
+    {
+        await Clipboard.SetTextAsync(FilePath);
     }
 
     private bool IsCustomPlaylist()

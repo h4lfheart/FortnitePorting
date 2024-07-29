@@ -163,6 +163,7 @@
                                                     </MenuItem>
                                                     <MenuItem Header="Remove From Playlist" Icon="{material:MaterialIconExt PlaylistRemove}" Command="{Binding RemoveFromPlaylistCommand}"/>
                                                     <MenuItem Header="Set as Playlist Cover" Icon="{material:MaterialIconExt Image}" Command="{Binding SetCoverForPlaylistCommand}"/>
+                                                    <MenuItem Header="Copy Path" Icon="{material:MaterialIconExt Clipboard}" Command="{Binding CopyPathCommand}"/>
                                                 </MenuFlyout>
                                             </FlyoutBase.AttachedFlyout>
                                             

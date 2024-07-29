@@ -26,6 +26,7 @@ public class FortnitePortingAPI : APIBase
     public const string AUTH_GET_URL = "https://fortniteporting.halfheart.dev/api/v3/auth";
     public const string AUTH_USER_URL = "https://fortniteporting.halfheart.dev/api/v3/auth/user";
     public const string AUTH_REDIRECT_URL = "https://fortniteporting.halfheart.dev/api/v3/auth/redirect";
+    public const string AUTH_REFRESH_URL = "https://fortniteporting.halfheart.dev/api/v3/auth/refresh";
     
     public const string LEADERBOARD_USERS_URL = "https://fortniteporting.halfheart.dev/api/v3/leaderboard/users";
     public const string LEADERBOARD_EXPORTS_URL = "https://fortniteporting.halfheart.dev/api/v3/leaderboard/exports";
@@ -227,5 +228,18 @@ public class FortnitePortingAPI : APIBase
     public ReleaseResponse? GetRelease()
     {
         return GetReleaseAsync().GetAwaiter().GetResult();
+    }
+    
+    public async Task RefreshAuthAsync()
+    {
+        await ExecuteAsync(AUTH_REFRESH_URL, Method.Post, parameters: 
+        [
+            new HeaderParameter("token", AppSettings.Current.Online.Auth!.Token)
+        ]);
+    }
+
+    public void RefreshAuth()
+    {
+        RefreshAuthAsync().GetAwaiter().GetResult();
     }
 }
