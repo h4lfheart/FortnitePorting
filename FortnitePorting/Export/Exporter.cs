@@ -174,9 +174,9 @@ public static class Exporter
     
     private static BaseExport CreateExport(string name, UObject asset, FStructFallback[] styles, EExportType exportType, ExportDataMeta metaData)
     {
-        AppWM.Message("Export", $"Exporting: {asset.Name}", id: asset.Name, autoClose: false);
-
         var path = asset.GetPathName();
+        AppWM.Message("Export", $"Exporting: {asset.Name}", id: path, autoClose: false);
+
         metaData.UpdateProgress += (name, current, total) =>
         {
             var message = $"{current} / {total} \"{name}\"";

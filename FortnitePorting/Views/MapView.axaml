@@ -15,33 +15,38 @@
              d:DesignHeight="770" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.MapView"
              x:DataType="viewModels:MapViewModel">
-    <Grid ColumnDefinitions="3* *">
-        <Image Grid.Column="0" Source="/Assets/MapBackground.png" Stretch="UniformToFill"/>
+    <Grid ColumnDefinitions="Auto *">
         
         <Viewbox Grid.Column="0" StretchDirection="Both" Stretch="Uniform">
             <Grid>
                 <Border CornerRadius="16" ClipToBounds="True">
-                    <Image x:Name="MapImage" Source="{Binding MapBitmap}">
-                        <Image.OpacityMask>
-                            <ImageBrush Source="{Binding MaskBitmap}"/>
-                        </Image.OpacityMask>
-                    </Image>
+                    <Image x:Name="MapImage" Source="{Binding SelectedMap.MapBitmap}"/>
                 </Border>
-                <ItemsControl ItemsSource="{Binding Grids}"
+                <ItemsControl ItemsSource="{Binding SelectedMap.Grids}"
                               Width="{Binding Bounds.Width, ElementName=MapImage}"
-                              Height="{Binding Bounds.Height, ElementName=MapImage}">
-                    <ItemsControl.OpacityMask>
-                        <ImageBrush Source="{Binding MaskBitmap}" TransformOrigin="50%,50%">
-                            <ImageBrush.Transform>
-                                 <ScaleTransform ScaleX="0.95" ScaleY="0.95"/>
-                            </ImageBrush.Transform>
-                        </ImageBrush>
-                    </ItemsControl.OpacityMask>
+                              Height="{Binding Bounds.Height, ElementName=MapImage}"
+                              Classes.UseMask="{Binding SelectedMap.Info.UseMask}" Classes.DontUseMask="{Binding !SelectedMap.Info.UseMask}">
+                    <ItemsControl.Styles>
+                        <Style Selector="ItemsControl.UseMask">
+                            <Setter Property="OpacityMask">
+                                <ImageBrush Source="{Binding SelectedMap.MaskBitmap}" TransformOrigin="50%,50%">
+                                    <ImageBrush.Transform>
+                                        <ScaleTransform ScaleX="0.95" ScaleY="0.95"/>
+                                    </ImageBrush.Transform>
+                                </ImageBrush>
+                            </Setter>
+                        </Style>
+                        <Style Selector="ItemsControl.DontUseMask">
+                            <Setter Property="OpacityMask">
+                                <SolidColorBrush Color="White"/>
+                            </Setter>
+                        </Style>
+                    </ItemsControl.Styles>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Border ToolTip.Tip="{Binding ToolTipNames}" Opacity="0.35"
                                     Background="{Binding GridBrush}" BorderBrush="White" 
-                                    BorderThickness="2" PointerPressed="OnCellHoveredOver"
+                                    BorderThickness="2" PointerPressed="OnCellPressed"
                                     CornerRadius="0" Padding="0" IsHitTestVisible="True"
                                     Width="{Binding CellSize}" Height="{Binding CellSize}" 
                                     Margin="{Binding OffsetMargin}"/>
@@ -79,41 +84,43 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="{ext:Space 1}"/>
                         <RowDefinition Height="*"/>
+                        <RowDefinition Height="{ext:Space 1}"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     
-                    <TextBlock Grid.Row="0" Classes="SubtitleTextBlockStyle" Text="{Binding WorldName}" HorizontalAlignment="Center"/>
-                    <TextBlock Grid.Row="2" Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" Text="{Binding GridCount, StringFormat='{}{0} Grid Maps Loaded'}" HorizontalAlignment="Center"/>
+                    <ComboBox Grid.Row="0" SelectedIndex="0" ItemsSource="{Binding Maps}" SelectedItem="{Binding SelectedMap, Mode=TwoWay}" HorizontalAlignment="Stretch"/>
+                    <TextBlock Grid.Row="2" Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" Text="{Binding SelectedMap.GridCount, StringFormat='{}{0} Grid Maps Loaded'}" HorizontalAlignment="Center"/>
                     
                     <Separator Grid.Row="3" Margin="{ext:Space 1}"/> 
                     
                     <TextBlock Grid.Row="4" Classes="SubtitleTextBlockStyle" Text="Export" HorizontalAlignment="Center"/>
                 
-                    <Button Grid.Row="6" HorizontalAlignment="Stretch" Command="{Binding ExportMinimapCommand}"
-                            IsEnabled="{Binding DataLoaded}">
+                    <Button Grid.Row="6" HorizontalAlignment="Stretch" Command="{Binding SelectedMap.ExportMinimapCommand}"
+                            IsEnabled="{Binding SelectedMap.DataLoaded}">
                         <StackPanel Orientation="Horizontal">
                             <material:MaterialIcon Kind="Map" Margin="{ext:Space 0, 0, 1, 0}"/>
                             <TextBlock Text="Minimap"/>
                         </StackPanel>
                     </Button>
                 
-                    <Button Grid.Row="8" HorizontalAlignment="Stretch" Command="{Binding ExportHeightCommand}"
-                            IsEnabled="{Binding DataLoaded}">
+                    <Button Grid.Row="8" HorizontalAlignment="Stretch" Command="{Binding SelectedMap.ExportHeightCommand}"
+                            IsEnabled="{Binding SelectedMap.DataLoaded}">
                         <StackPanel Orientation="Horizontal">
                             <material:MaterialIcon Kind="Terrain" Margin="{ext:Space 0, 0, 1, 0}"/>
                             <TextBlock Text="Height Map"/>
                         </StackPanel>
                     </Button>
                     
-                    <Button Grid.Row="10" HorizontalAlignment="Stretch" Command="{Binding ExportNormalCommand}"
-                            IsEnabled="{Binding DataLoaded}">
+                    <Button Grid.Row="10" HorizontalAlignment="Stretch" Command="{Binding SelectedMap.ExportNormalCommand}"
+                            IsEnabled="{Binding SelectedMap.DataLoaded}">
                         <StackPanel Orientation="Horizontal">
                             <material:MaterialIcon Kind="VectorLine" Margin="{ext:Space 0, 0, 1, 0}"/>
                             <TextBlock Text="Normal Map"/>
                         </StackPanel>
                     </Button>
                 
-                    <Button Grid.Row="12" HorizontalAlignment="Stretch" Command="{Binding ExportWeightCommand}"
-                            IsEnabled="{Binding DataLoaded}">
+                    <Button Grid.Row="12" HorizontalAlignment="Stretch" Command="{Binding SelectedMap.ExportWeightCommand}"
+                            IsEnabled="{Binding SelectedMap.DataLoaded}">
                         <StackPanel Orientation="Horizontal">
                             <material:MaterialIcon Kind="Paintbrush" Margin="{ext:Space 0, 0, 1, 0}"/>
                             <TextBlock Text="Weight Maps"/>
@@ -128,7 +135,7 @@
                         </Grid.ColumnDefinitions>
                             
                         <Button Grid.Column="0" ToolTip.Tip="Preview"
-                                Command="{Binding PreviewCommand}" IsEnabled="{Binding !!SelectedMaps.Count}"
+                                Command="{Binding SelectedMap.PreviewCommand}" IsEnabled="{Binding !!SelectedMap.SelectedMaps.Count}"
                                 HorizontalAlignment="Stretch">
                             <StackPanel Orientation="Horizontal">
                                 <material:MaterialIcon Kind="CubeScan" Margin="{ext:Space 0, 0, 1, 0}"/>
@@ -136,7 +143,7 @@
                             </StackPanel>
                         </Button>
                         <Button Grid.Column="2" ToolTip.Tip="Export"
-                                Command="{Binding ExportCommand}" IsEnabled="{Binding !!SelectedMaps.Count}"
+                                Command="{Binding SelectedMap.ExportCommand}" IsEnabled="{Binding !!SelectedMap.SelectedMaps.Count}"
                                 HorizontalAlignment="Stretch">
                             <StackPanel Orientation="Horizontal">
                                 <material:MaterialIcon Kind="Download" Margin="{ext:Space 0, 0, 1, 0}"/>
@@ -148,7 +155,7 @@
                     <TextBlock Grid.Row="16" Text="Selected Maps" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
                     
                     <ScrollViewer Grid.Row="18">
-                        <ItemsControl ItemsSource="{Binding SelectedMaps}" HorizontalAlignment="Center">
+                        <ItemsControl ItemsSource="{Binding SelectedMap.SelectedMaps}" HorizontalAlignment="Center">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Name}" Classes="BodyStrongTextBlockStyle"
@@ -165,8 +172,10 @@
                     </ScrollViewer>
                     
                     <TextBlock Grid.Row="18" Text="No Grids Selected" Classes="TextFillColorSecondaryBrush"
-                               IsVisible="{Binding !SelectedMaps.Count}"
+                               IsVisible="{Binding !SelectedMap.SelectedMaps.Count}"
                                HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                    
+                    <Button Grid.Row="20" Content="Refresh" Command="{Binding SelectedMap.RefreshCommand}" IsVisible="{Binding IsDebug}"/>
                 </Grid>
             </ui:FABorder>
     </Grid>

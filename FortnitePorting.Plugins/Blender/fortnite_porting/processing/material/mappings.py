@@ -25,6 +25,7 @@ default_mappings = MappingCollection(
         SlotMapping("Trunk_BaseColor", "Diffuse"),
         SlotMapping("Diffuse Top", "Diffuse"),
         SlotMapping("BaseColor_Trunk", "Diffuse"),
+        SlotMapping("CliffTexture", "Diffuse"),
 
         SlotMapping("Background Diffuse", alpha_slot="Background Diffuse Alpha"),
         SlotMapping("BG Diffuse Texture", "Background Diffuse", alpha_slot="Background Diffuse Alpha"),
@@ -40,6 +41,7 @@ default_mappings = MappingCollection(
         SlotMapping("Trunk_Specular", "SpecularMasks"),
         SlotMapping("Specular Top", "SpecularMasks"),
         SlotMapping("SMR_Trunk", "SpecularMasks"),
+        SlotMapping("Cliff Spec Texture", "SpecularMasks"),
 
         SlotMapping("Normals"),
         SlotMapping("N", "Normals"),
@@ -49,6 +51,7 @@ default_mappings = MappingCollection(
         SlotMapping("Trunk_Normal", "Normals"),
         SlotMapping("Normals Top", "Normals"),
         SlotMapping("Normal_Trunk", "Normals"),
+        SlotMapping("CliffNormal", "Normals"),
 
         SlotMapping("Emissive", "Emission"),
         SlotMapping("EmissiveTexture", "Emission"),

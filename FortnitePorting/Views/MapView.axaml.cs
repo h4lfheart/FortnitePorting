@@ -19,7 +19,7 @@ public partial class MapView : ViewBase<MapViewModel>
         InitializeComponent();
     }
 
-    private void OnCellHoveredOver(object? sender, PointerPressedEventArgs e)
+    private void OnCellPressed(object? sender, PointerPressedEventArgs e)
     {
         if (sender is not Border border) return;
         if (border.DataContext is not WorldPartitionGrid grid) return;
@@ -27,13 +27,13 @@ public partial class MapView : ViewBase<MapViewModel>
 
         if (grid.IsSelected)
         {
-            ViewModel.SelectedMaps.AddRange(grid.Maps);
+            ViewModel.SelectedMap.SelectedMaps.AddRange(grid.Maps);
         }
         else
         {
             foreach (var map in grid.Maps)
             {
-                ViewModel.SelectedMaps.Remove(map);
+                ViewModel.SelectedMap.SelectedMaps.Remove(map);
             }
         }
 

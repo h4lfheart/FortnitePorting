@@ -37,6 +37,67 @@ namespace FortnitePorting.ViewModels;
 
 public partial class MapViewModel : ViewModelBase
 {
+    [ObservableProperty] private ObservableCollection<WorldPartitionMap> _maps = [];
+    [ObservableProperty] private WorldPartitionMap _selectedMap;
+    
+    public bool IsDebug =>
+#if DEBUG
+        true;
+#else
+        false;
+#endif
+
+    public static MapInfo[] MapInfos =
+    [
+        new MapInfo(
+            "Helios",
+            "FortniteGame/Content/Athena/Helios/Maps/Helios_Terrain",
+            "FortniteGame/Content/Athena/Apollo/Maps/UI/Apollo_Terrain_Minimap",
+            "FortniteGame/Content/Athena/Apollo/Maps/UI/T_MiniMap_Mask",
+            0.014f, -64, 128, 92, true
+        ),
+        new MapInfo(
+            "Rufus",
+            "FortniteGame/Plugins/GameFeatures/Rufus/Content/Game/Athena/Maps/Athena_Terrain",
+            "FortniteGame/Plugins/GameFeatures/Rufus/Content/Game/UI/Capture_Iteration_Discovered_Rufus_03",
+            "FortniteGame/Content/Athena/UI/Rufus/Rufus_Map_Frosty_PostMask",
+            0.0155f, -448, 320, 102, true
+        ),
+        new MapInfo(
+            "BlastBerry",
+            "/BlastBerryMap/Maps/BlastBerry_Terrain",
+            "/BlastBerry/Minimap/Capture_Iteration_Discovered_BlastBerry",
+            "/BlastBerry/MiniMap/T_MiniMap_Mask",
+            0.023f, 32, 168, 150, false
+        )
+    ];
+    
+
+    public override async Task Initialize()
+    {
+        foreach (var mapInfo in MapInfos)
+        {
+            if (!mapInfo.IsValid()) continue;
+            
+            Maps.Add(new WorldPartitionMap(mapInfo));
+        }
+
+        if (Maps.Count == 0)
+        {
+            AppWM.Dialog("Unsupported Map", "Failed to find any supported map for processing.");
+        }
+
+        foreach (var map in Maps)
+        {
+            await map.Load();
+        }
+        
+    }
+}
+
+public partial class WorldPartitionMap : ObservableObject
+{
+    [ObservableProperty] private MapInfo _info;
     [ObservableProperty] private Bitmap _mapBitmap;
     [ObservableProperty] private Bitmap _maskBitmap;
     [ObservableProperty] private string _worldName = string.Empty;
@@ -45,65 +106,38 @@ public partial class MapViewModel : ViewModelBase
     [ObservableProperty] private ObservableCollection<WorldPartitionGridMap> _selectedMaps = [];
     
     [ObservableProperty] private ObservableCollection<WorldPartitionGrid> _grids = [];
-    public int GridCount => Grids.Sum(grid => grid.Maps.Count);
-
-    private ULevel Level;
-
-    public static MapInfo Helios = new(
-        "FortniteGame/Content/Athena/Helios/Maps/Helios_Terrain",
-        "FortniteGame/Content/Athena/Apollo/Maps/UI/Apollo_Terrain_Minimap",
-        "FortniteGame/Content/Athena/Apollo/Maps/UI/T_MiniMap_Mask",
-        0.014f, -64, 128, 92
-    );
     
-    public static MapInfo Rufus = new(
-        "FortniteGame/Plugins/GameFeatures/Rufus/Content/Game/Athena/Maps/Athena_Terrain",
-        "FortniteGame/Plugins/GameFeatures/Rufus/Content/Game/UI/Capture_Iteration_Discovered_Rufus_03",
-        "FortniteGame/Content/Athena/UI/Rufus/Rufus_Map_Frosty_PostMask",
-        0.0155f, -448, 320, 102
-    );
-
-    public MapInfo TargetMap;
+    public int GridCount => Grids.Sum(grid => grid.Maps.Count);
     
     private string ExportPath => Path.Combine(MapsFolder.FullName, WorldName);
+    
+    private ULevel _level;
+    
+    private static readonly Color HeightBaseColor = Color.FromRgb(0x79, 0x79, 0x79);
+    private static readonly Color NormalBaseColor = Color.FromRgb(0x7f, 0x7f, 0xFF);
 
-    private static Color HeightBaseColor = Color.FromRgb(0x79, 0x79, 0x79);
-    private static Color NormalBaseColor = Color.FromRgb(0x7f, 0x7f, 0xFF);
-
-    public MapViewModel()
+    public WorldPartitionMap(MapInfo info)
     {
+        Info = info;
+        
         // todo turn this into attribute if possible -> NotifyCollectionChangedFor
         Grids.CollectionChanged += (sender, args) => OnPropertyChanged(nameof(GridCount));
     }
 
-    public override async Task Initialize()
+    public async Task Load()
     {
-        if (Helios.IsValid())
-        {
-            TargetMap = Helios;
-        }
-        else if (Rufus.IsValid())
-        {
-            TargetMap = Rufus;
-        }
-        else
-        {
-            throw new Exception("Failed to find valid map for processing.");
-        }
-
-        
-        var maskTexture = await CUE4ParseVM.Provider.LoadObjectAsync<UTexture2D>(TargetMap.MaskPath);
+         var maskTexture = await CUE4ParseVM.Provider.LoadObjectAsync<UTexture2D>(Info.MaskPath);
         MaskBitmap = maskTexture.Decode()!.ToWriteableBitmap();
         
-        var mapTexture = await CUE4ParseVM.Provider.LoadObjectAsync<UTexture2D>(TargetMap.MinimapPath);
+        var mapTexture = await CUE4ParseVM.Provider.LoadObjectAsync<UTexture2D>(Info.MinimapPath);
         MapBitmap = mapTexture.Decode()!.ToWriteableBitmap();
         
-        WorldName = TargetMap.MapPath.SubstringAfterLast("/");
+        WorldName = Info.MapPath.SubstringAfterLast("/");
         
-        var world = await CUE4ParseVM.Provider.LoadObjectAsync<UWorld>(TargetMap.MapPath);
-        Level = await world.PersistentLevel.LoadAsync<ULevel>();
+        var world = await CUE4ParseVM.Provider.LoadObjectAsync<UWorld>(Info.MapPath);
+        _level = await world.PersistentLevel.LoadAsync<ULevel>();
 
-        var worldSettings = Level.Get<UObject>("WorldSettings");
+        var worldSettings = _level.Get<UObject>("WorldSettings");
         var worldPartition = worldSettings.Get<UObject>("WorldPartition");
         var runtimeHash = worldPartition.Get<UObject>("RuntimeHash");
         foreach (var streamingGrid in runtimeHash.GetOrDefault("StreamingGrids", Array.Empty<FStructFallback>()))
@@ -125,7 +159,7 @@ public partial class MapViewModel : ViewModelBase
                 }
                 else
                 {
-                    var grid = new WorldPartitionGrid(position, TargetMap);
+                    var grid = new WorldPartitionGrid(position, Info);
                     grid.Maps.Add(new WorldPartitionGridMap(worldAsset.AssetPathName.Text));
                     Grids.Add(grid);
                 }
@@ -137,7 +171,7 @@ public partial class MapViewModel : ViewModelBase
         Directory.CreateDirectory(ExportPath);
         DataLoaded = true;
     }
-
+    
     [RelayCommand]
     public async Task ExportMinimap()
     {
@@ -176,6 +210,7 @@ public partial class MapViewModel : ViewModelBase
         }
         
         ModelPreviewWindow.Preview(levels);
+        SelectedMaps.Clear();
     }
     
     [RelayCommand]
@@ -196,6 +231,16 @@ public partial class MapViewModel : ViewModelBase
             var exports = SelectedMaps.Select(map => new PersonalExport(map.Path));
             await ApiVM.FortnitePorting.PostExportsAsync(exports);
         }
+        
+        SelectedMaps.Clear();
+    }
+
+    [RelayCommand]
+    public async Task Refresh()
+    {
+        Grids.Clear();
+        SelectedMaps.Clear();
+        await Load();
     }
 
     private async Task ExportLandscapeMaps(EMapTextureExportType exportType)
@@ -251,11 +296,11 @@ public partial class MapViewModel : ViewModelBase
             return proxyDetectedCount;
         }
 
-        var proxyCount = await CollectTileInfos(Level);
+        var proxyCount = await CollectTileInfos(_level);
 
         if (proxyCount == 0)
         {
-            var worldSettings = Level.Get<UObject>("WorldSettings");
+            var worldSettings = _level.Get<UObject>("WorldSettings");
             var worldPartition = worldSettings.Get<UObject>("WorldPartition");
             var runtimeHash = worldPartition.Get<UObject>("RuntimeHash");
             foreach (var streamingGrid in runtimeHash.GetOrDefault("StreamingGrids", Array.Empty<FStructFallback>()))
@@ -285,7 +330,7 @@ public partial class MapViewModel : ViewModelBase
                 async Task ExportHeightMap(string folderName = "", Predicate<MapTextureTileInfo>? predicate = null)
                 {
                     var heightImage = new Image<L16>(2048, 2048);
-                    heightImage.Mutate(ctx => ctx.Fill(TargetMap == Rufus ? Color.Black : HeightBaseColor));
+                    heightImage.Mutate(ctx => ctx.Fill(Info.Name.Equals("Rufus") ? Color.Black : HeightBaseColor));
                     foreach (var heightTileInfo in heightTileInfos)
                     {
                         if (heightTileInfo.Image.Width > 128 || heightTileInfo.Image.Height > 128) continue;
@@ -299,7 +344,7 @@ public partial class MapViewModel : ViewModelBase
                     await heightImage.SaveAsPngAsync(GetExportPath($"Height_{WorldName}", folderName));
                 }
                 
-                if (TargetMap == Rufus)
+                if (Info.Name.Equals("Rufus"))
                 {
                     await ExportHeightMap("BaseMap", info => info.Image.Width <= 128 || info.Image.Height <= 128);
                     await ExportHeightMap("SnowBiome", info => info.Image.Width > 128 || info.Image.Height > 128);
@@ -328,7 +373,7 @@ public partial class MapViewModel : ViewModelBase
                     await normalImage.SaveAsPngAsync(GetExportPath($"Normal_{WorldName}", folderName));
                 }
                 
-                if (TargetMap == Rufus)
+                if (Info.Name.Equals("Rufus"))
                 {
                     await ExportNormalMap("BaseMap", info => info.Image.Width <= 128 || info.Image.Height <= 128);
                     await ExportNormalMap("SnowBiome", info => info.Image.Width > 128 || info.Image.Height > 128);
@@ -367,7 +412,7 @@ public partial class MapViewModel : ViewModelBase
                 
                 foreach (var (layerName, weightTileInfos) in weightmapTileInfos)
                 {
-                    if (TargetMap == Rufus)
+                    if (Info.Name.Equals("Rufus"))
                     {
                         await ExportWeightMap(layerName, weightTileInfos, "BaseMap", info => info.Image.Width <= 128 || info.Image.Height <= 128);
                         await ExportWeightMap(layerName, weightTileInfos, "SnowBiome", info => info.Image.Width > 128 || info.Image.Height > 128);
@@ -410,6 +455,11 @@ public partial class MapViewModel : ViewModelBase
             }
         }
     }
+
+    public override string ToString()
+    {
+        return Info.Name;
+    }
 }
 
 public partial class WorldPartitionGrid : ObservableObject
@@ -433,7 +483,7 @@ public partial class WorldPartitionGrid : ObservableObject
     public WorldPartitionGrid(FVector position, MapInfo mapInfo)
     {
         OriginalPosition = position;
-        
+
         var rotatedPosition = RotateAboutOrigin(new Vector2(position.X, position.Y), Vector2.Zero);
         Position = new FVector(rotatedPosition.X, rotatedPosition.Y, 0);
         MapInfo = mapInfo;
@@ -475,10 +525,10 @@ public enum EMapTextureExportType
     Weight
 }
 
-public record MapInfo(string MapPath, string MinimapPath, string MaskPath, float Scale, int XOffset, int YOffset, int CellSize)
+public record MapInfo(string Name, string MapPath, string MinimapPath, string MaskPath, float Scale, int XOffset, int YOffset, int CellSize, bool UseMask)
 {
     public bool IsValid()
     {
-        return CUE4ParseVM.Provider.Files.ContainsKey(MapPath + ".umap");
+        return CUE4ParseVM.Provider.Files.ContainsKey(CUE4ParseVM.Provider.FixPath(MapPath + ".umap"));
     }
 }
