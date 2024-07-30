@@ -42,6 +42,7 @@ class ImportContext:
                 self.import_texture_data(data)
                 pass
             case EPrimitiveExportType.SOUND:
+                self.import_sound_data(data)
                 pass
 
     def import_mesh_data(self, data):
@@ -346,7 +347,6 @@ class ImportContext:
             links.new(image_node.outputs[0], output_node.inputs[0])
             
             plane.data.materials.append(material)
-            
 
     def format_image_path(self, path: str):
         path, name = path.split(".")
@@ -793,3 +793,22 @@ class ImportContext:
                     mask_position_node.location = mask_node.location + Vector((-200, 25))
                     mask_position_node.inputs["Costume_UVPatternPosition"].default_value = position.get('R'), position.get('G'), position.get('B')
                     links.new(mask_position_node.outputs[0], mask_node.inputs[0])
+                    
+    def import_sound_data(self, data):
+        for sound in data.get("Sounds"):
+            path = sound.get("Path")
+            self.import_sound(path, time_to_frame(sound.get("Time")))
+
+    def import_sound(self, path: str, time):
+        path = path[1:] if path.startswith("/") else path
+        file_path, name = path.split(".")
+        if existing := bpy.data.sounds.get(name):
+            return existing
+
+        if not bpy.context.scene.sequence_editor:
+            bpy.context.scene.sequence_editor_create()
+
+        sound_path = os.path.join(self.assets_root, file_path + ".wav")  # TODO mp3 import as well bc there's an option
+        sound = bpy.context.scene.sequence_editor.sequences.new_sound(name, sound_path, 0, time)
+        sound["FPSound"] = True
+        return sound
