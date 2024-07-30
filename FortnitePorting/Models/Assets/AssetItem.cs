@@ -16,12 +16,15 @@ using CUE4Parse.UE4.Objects.GameplayTags;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using FluentAvalonia.UI.Controls;
+using FortnitePorting.Export;
 using FortnitePorting.Models.Fortnite;
 using FortnitePorting.OnlineServices.Models;
 using FortnitePorting.OnlineServices.Packet;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
+using FortnitePorting.Windows;
+using Newtonsoft.Json;
 using Serilog;
 using SkiaSharp;
 using SkiaExtensions = FortnitePorting.Shared.Extensions.SkiaExtensions;
@@ -140,6 +143,14 @@ public partial class AssetItem : ObservableObject
     public async Task CopyPath()
     {
         await Clipboard.SetTextAsync(CreationData.Object.GetPathName());
+    }
+
+    [RelayCommand]
+    public async Task PreviewProperties()
+    {
+        var assets = await CUE4ParseVM.Provider.LoadAllObjectsAsync(Exporter.FixPath(CreationData.Object.GetPathName()));
+        var json = JsonConvert.SerializeObject(assets, Formatting.Indented);
+        PropertiesPreviewWindow.Preview(CreationData.Object.Name, json);
     }
     
     [RelayCommand]

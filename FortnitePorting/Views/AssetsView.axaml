@@ -137,6 +137,7 @@
                                         <ContentControl.ContextMenu>
                                             <ContextMenu>
                                                 <MenuItem Header="Copy Path" Command="{Binding CopyPathCommand}"/>
+                                                <MenuItem Header="Preview Properties" Command="{Binding PreviewPropertiesCommand}"/>
                                                 <MenuItem Header="Send to User" Command="{Binding SendToUserCommand}"/>
                                             </ContextMenu>
                                         </ContentControl.ContextMenu>
