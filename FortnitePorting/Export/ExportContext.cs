@@ -886,8 +886,9 @@ public class ExportContext
                 }
                 else
                 {
+                    var textureBitmap = texture.Decode();
+                    if (texture is UTextureCube) textureBitmap = textureBitmap.ToPanorama();
                     
-                    using var textureBitmap = texture.Decode();
                     ExportBitmap(textureBitmap, path);
                 }
 

@@ -63,7 +63,7 @@ class ImportContext:
 
         self.meshes = target_meshes
         for mesh in target_meshes:
-            self.import_mesh(mesh)
+            self.import_model(mesh)
             
         if self.type in [EExportType.OUTFIT, EExportType.FALL_GUYS_OUTFIT] and self.options.get("MergeArmatures"):
             master_skeleton = merge_armatures(self.imported_meshes)
@@ -86,7 +86,7 @@ class ImportContext:
             self.collection.objects.link(empty_object)
             
             for child in mesh.get("Children"):
-                self.import_mesh(child, parent=empty_object)
+                self.import_model(child, parent=empty_object)
                 
             return
 
@@ -95,7 +95,7 @@ class ImportContext:
             imported_object = bpy.data.objects.new(name, existing_mesh_data)
             self.collection.objects.link(imported_object)
         else:
-            imported_object = self.import_model(path)
+            imported_object = self.import_mesh(path)
             imported_object.name = name
 
         imported_object.parent = parent
@@ -301,7 +301,7 @@ class ImportContext:
                 self.import_material(slot, variant_override_material.get("Material"), meta)
 
         for child in mesh.get("Children"):
-            self.import_mesh(child, parent=imported_object)
+            self.import_model(child, parent=imported_object)
 
     def import_mesh(self, path: str):
         options = UEModelOptions(scale_factor=0.01 if self.options.get("ScaleDown") else 1,

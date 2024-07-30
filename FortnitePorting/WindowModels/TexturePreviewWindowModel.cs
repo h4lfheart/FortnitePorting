@@ -8,6 +8,7 @@ using CUE4Parse.UE4.Assets.Exports.Texture;
 using FluentAvalonia.Core;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.ViewModels;
+using SkiaSharp;
 
 namespace FortnitePorting.WindowModels;
 
@@ -51,16 +52,23 @@ public partial class TexturePreviewWindowModel : WindowModelBase
 
     public void UpdateTextureInfo()
     {
+        SKBitmap? skiaBitmap;
         if (Texture.PlatformData.Mips.Length > 0)
         {
             var mip = Texture.PlatformData.Mips[TargetMipIndex];
-            OriginalBitmap = Texture.Decode(mip, zLayer: TargetLayerIndex)!.ToWriteableBitmap();
+            skiaBitmap = Texture.Decode(mip, zLayer: TargetLayerIndex);
         }
         else
         {
-            OriginalBitmap = Texture.Decode()!.ToWriteableBitmap();
+            skiaBitmap = Texture.Decode();
         }
         
+        if (skiaBitmap is null) return;
+
+        if (Texture is UTextureCube) skiaBitmap = skiaBitmap.ToPanorama();
+
+        OriginalBitmap = skiaBitmap.ToWriteableBitmap();
+
     }
 
     public unsafe void UpdateBitmap()
