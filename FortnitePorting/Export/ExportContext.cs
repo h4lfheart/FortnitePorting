@@ -492,7 +492,7 @@ public class ExportContext
             
             var exportMesh = new ExportMesh();
             exportMesh.Name = landscapeProxy.Name;
-            exportMesh.Path = Export(landscapeProxy, embeddedAsset: true);
+            exportMesh.Path = Export(landscapeProxy, embeddedAsset: true, synchronousExport: true);
             exportMesh.Location = transform.Translation;
             exportMesh.Scale = transform.Scale3D;
             return exportMesh;
@@ -812,7 +812,7 @@ public class ExportContext
         
         if (File.Exists(path)) return returnValue;
 
-        var exportTask = TaskService.Run(() =>
+        var exportTask = new Task(() =>
         {
             try
             {
@@ -831,7 +831,9 @@ public class ExportContext
         ExportTasks.Add(exportTask);
 
         if (synchronousExport)
-            exportTask.Wait();
+            exportTask.RunSynchronously();
+        else
+            exportTask.RunAsynchronously();
 
         return returnValue;
     }

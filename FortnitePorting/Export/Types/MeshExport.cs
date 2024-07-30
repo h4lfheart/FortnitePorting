@@ -223,7 +223,7 @@ public class MeshExport : BaseExport
                     actors.Add(new ExportMesh
                     {
                         Name = landscapeProxy.Name,
-                        Path = Exporter.Export(landscapeProxy, embeddedAsset: true),
+                        Path = Exporter.Export(landscapeProxy, embeddedAsset: true, synchronousExport: true),
                         Location = transform.Translation,
                         Scale = transform.Scale3D
                     });

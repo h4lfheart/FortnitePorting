@@ -52,6 +52,7 @@ class EExportType(IntEnum):
     # GENERIC
     MESH = auto()
     WORLD = auto()
+    WORLD_LANDSCAPE = auto()  # for export identification only
     TEXTURE = auto()
     ANIMATION = auto()
     SOUND = auto()

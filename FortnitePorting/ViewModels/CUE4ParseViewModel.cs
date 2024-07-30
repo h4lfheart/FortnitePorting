@@ -61,7 +61,8 @@ public class CUE4ParseViewModel : ViewModelBase
     
     public override async Task Initialize()
     {
-		ObjectTypeRegistry.RegisterEngine(Assembly.GetExecutingAssembly());
+		ObjectTypeRegistry.RegisterEngine(Assembly.Load("FortnitePorting"));
+        ObjectTypeRegistry.RegisterEngine(Assembly.Load("FortnitePorting.Shared"));
 
         await CleanupCache();
 
