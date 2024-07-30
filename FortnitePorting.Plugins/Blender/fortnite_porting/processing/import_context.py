@@ -39,6 +39,7 @@ class ImportContext:
             case EPrimitiveExportType.ANIMATION:
                 pass
             case EPrimitiveExportType.TEXTURE:
+                self.import_texture_data(data)
                 pass
             case EPrimitiveExportType.SOUND:
                 pass
@@ -67,7 +68,7 @@ class ImportContext:
             master_skeleton = merge_armatures(self.imported_meshes)
             master_mesh = get_armature_mesh(master_skeleton)
 
-    def import_mesh(self, mesh, parent=None):
+    def import_model(self, mesh, parent=None):
         path = mesh.get("Path")
         name = mesh.get("Name")
         part_type = EFortCustomPartType(mesh.get("Type"))
@@ -301,7 +302,7 @@ class ImportContext:
         for child in mesh.get("Children"):
             self.import_mesh(child, parent=imported_object)
 
-    def import_model(self, path: str):
+    def import_mesh(self, path: str):
         options = UEModelOptions(scale_factor=0.01 if self.options.get("ScaleDown") else 1,
                                  reorient_bones=self.options.get("ReorientBones"),
                                  bone_length=self.options.get("BoneLength"),
@@ -315,6 +316,37 @@ class ImportContext:
         mesh_path = os.path.join(self.assets_root, path.split(".")[0] + ".uemodel")
 
         return UEFormatImport(options).import_file(mesh_path)
+    
+    def import_texture_data(self, data):
+        import_method = ETextureImportMethod(self.options.get("TextureImportMethod"))
+
+        path = data.get("Path")
+        image = self.import_image(path)
+        
+        if import_method == ETextureImportMethod.OBJECT:
+            bpy.ops.mesh.primitive_plane_add()
+            plane = bpy.context.active_object
+            plane.name = image.name
+            plane.scale.x = image.size[0] / image.size[1]
+
+            material = bpy.data.materials.new(image.name)
+            material.use_nodes = True
+            material.surface_render_method = "BLENDED"
+            
+            nodes = material.node_tree.nodes
+            nodes.clear()
+            links = material.node_tree.links
+            links.clear()
+            
+            output_node = nodes.new(type="ShaderNodeOutputMaterial")
+            output_node.location = (300, 0)
+            
+            image_node = nodes.new(type="ShaderNodeTexImage")
+            image_node.image = image
+            links.new(image_node.outputs[0], output_node.inputs[0])
+            
+            plane.data.materials.append(material)
+            
 
     def format_image_path(self, path: str):
         path, name = path.split(".")

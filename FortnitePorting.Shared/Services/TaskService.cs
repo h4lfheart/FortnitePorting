@@ -129,6 +129,6 @@ public static class TaskService
 
     public static void RunAsynchronously(this Task task)
     {
-        Run(async () => await task);
+        task.Start();
     }
 }

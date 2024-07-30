@@ -137,6 +137,8 @@ public static class Exporter
             USkeletalMesh => EExportType.Mesh,
             UStaticMesh => EExportType.Mesh,
             UWorld => EExportType.World,
+            UTexture => EExportType.Texture,
+            UVirtualTextureBuilder => EExportType.Texture,
             _ => EExportType.None
         };
 
@@ -187,9 +189,10 @@ public static class Exporter
         metaData.UpdateProgress += updateDelegate;
         
         var primitiveType = exportType.GetPrimitiveType();
-        var export = primitiveType switch
+        BaseExport export = primitiveType switch
         {
             EPrimitiveExportType.Mesh => new MeshExport(name, asset, styles, exportType, metaData),
+            EPrimitiveExportType.Texture => new TextureExport(name, asset, styles, exportType, metaData),
             _ => throw new NotImplementedException($"Exporting {primitiveType} assets is not supported yet.")
         };
         

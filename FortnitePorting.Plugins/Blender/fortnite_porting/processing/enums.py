@@ -79,3 +79,7 @@ class EFortCustomPartType(IntEnum):
     @classmethod
     def _missing_(cls, value):
         return EFortCustomPartType.NONE
+
+class ETextureImportMethod(IntEnum):
+    DATA = 0
+    OBJECT = auto()

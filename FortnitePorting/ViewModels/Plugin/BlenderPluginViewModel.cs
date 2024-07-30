@@ -66,6 +66,7 @@ public partial class BlenderPluginViewModel : ViewModelBase
             AppWM.Message("Blender Extension", 
                 $"Blender {installationInfo.BlenderVersion} is too low of a version. Only Blender {MinimumVersion} and higher are supported.", 
                 InfoBarSeverity.Error, autoClose: false);
+            return;
         }
         
         Installations.Add(installationInfo);
