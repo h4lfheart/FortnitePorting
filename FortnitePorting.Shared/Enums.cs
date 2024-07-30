@@ -170,6 +170,9 @@ public enum EExportType
     [Description("World"), Export(EPrimitiveExportType.Mesh)]
     World,
     
+    [Description("World Landscape"), Export(EPrimitiveExportType.Mesh)]
+    WorldLandscape,
+    
     [Description("Texture"), Export(EPrimitiveExportType.Texture)]
     Texture,
     

@@ -13,7 +13,6 @@ public class BaseMeta
 public class ExportPoseDataMeta : BaseMeta
 {
     public List<PoseData> PoseData = [];
-    public List<ReferencePose> ReferencePose = [];
 }
 
 public class ExportAttachMeta : BaseMeta

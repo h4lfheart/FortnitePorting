@@ -121,6 +121,11 @@ def bone_hierarchy_has_vertex_groups(bone, vertex_groups):
             return True
     return False
 
+def bone_has_parent(child, parent):
+    if child == parent:
+        return True
+    return parent in child.parent_recursive
+
 def make_vector(data, unreal_coords_correction=False):
     return Vector((data.get("X"), data.get("Y") * (-1 if unreal_coords_correction else 1), data.get("Z")))
 

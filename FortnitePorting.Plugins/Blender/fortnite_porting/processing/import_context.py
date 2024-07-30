@@ -131,10 +131,10 @@ class ImportContext:
             return out_props
 
         # todo extract meta reading to function bc this is too big
-        meta = gather_metadata("PoseData", "ReferencePose")
-        
+        meta = gather_metadata("PoseData")
+
         # pose asset
-        if pose_data := meta.get("PoseData"):
+        if imported_mesh is not None and (pose_data := meta.get("PoseData")):
             shape_keys = imported_mesh.data.shape_keys
             armature = imported_object
             original_mode = bpy.context.active_object.mode
@@ -142,25 +142,18 @@ class ImportContext:
                 bpy.ops.object.mode_set(mode='OBJECT')
                 armature_modifier: bpy.types.ArmatureModifier = first(imported_mesh.modifiers, lambda mod: mod.type == "ARMATURE")
 
-                # Grab reference pose data
-                reference_pose = meta.get("ReferencePose", dict())
-
-                # Check how many bones are scaled in the reference pose
-                face_attach_scale = Vector((1, 1, 1))
-                for entry in reference_pose:
-                    scale = make_vector(entry.get('Scale'))
-                    if scale != Vector((1, 1, 1)):
-                        if entry.get('BoneName', '').casefold() == 'faceattach':
-                            face_attach_scale = scale
-                        Log.warn(f"Non-zero scale: {entry}")
-
                 if not shape_keys:
                     # Create Basis shape key
                     imported_mesh.shape_key_add(name="Basis", from_mix=False)
 
-                # NOTE: I think faceAttach affects the expected location
-                # I'm making this assumption from observation of an old
-                # export of face poses for Polar Patroller.
+                root_bone_name = 'neck_01'
+                root_bone = get_case_insensitive(armature.pose.bones, root_bone_name)
+                if not root_bone:
+                    Log.warn(f"{imported_mesh.name}: Failed to find root bone "
+                             f"'{root_bone_name}' in '{armature.name}', all "
+                             "bones will be considered during import of "
+                             "PoseData")
+
                 loc_scale = (SCALE_FACTOR if self.options.get("ScaleDown") else 1)
                 for pose in pose_data:
                     # If there are no influences, don't bother
@@ -168,7 +161,8 @@ class ImportContext:
                         continue
 
                     if not (pose_name := pose.get('Name')):
-                        Log.warn("skipping pose data with no pose name")
+                        Log.warn(f"{imported_mesh.name}: skipping pose data "
+                                 f"with no pose name: {pose}")
                         continue
 
                     # Enter pose mode
@@ -181,11 +175,11 @@ class ImportContext:
                     bpy.ops.pose.select_all(action='DESELECT')
 
                     # Move bones accordingly
-                    # Move bones accordingly
                     contributed = False
                     for bone in influences:
                         if not (bone_name := bone.get('Name')):
-                            Log.warn(f"empty bone name for pose {pose}")
+                            Log.warn(f"{imported_mesh.name} - {pose_name}: "
+                                     f"empty bone name for pose '{pose}'")
                             continue
 
                         pose_bone: bpy.types.PoseBone = get_case_insensitive(armature.pose.bones, bone_name)
@@ -195,7 +189,16 @@ class ImportContext:
                             if part_type is EFortCustomPartType.HEAD:
                                 # There are likely many missing bones in non-Head parts, but we
                                 # process as many as we can.
-                                Log.warn(f"could not find: {bone_name} for pose {pose_name}")
+                                Log.warn(f"{imported_mesh.name} - {pose_name}: "
+                                         f"'{bone_name}' influence skipped "
+                                         "since it was not found in "
+                                         f"'{armature.name}'")
+                            continue
+
+                        if root_bone and not bone_has_parent(pose_bone, root_bone):
+                            Log.warn(f"{imported_mesh.name} - {pose_name}: "
+                                     f"skipped '{pose_bone.name}' since it does "
+                                     f"not have '{root_bone.name}' as a parent")
                             continue
 
                         # Verify that the current bone and all of its children
@@ -220,9 +223,6 @@ class ImportContext:
                         pose_bone.rotation_quaternion = quat.conjugated() @ pose_bone.rotation_quaternion
 
                         loc = (make_vector(bone.get('Location'), unreal_coords_correction=True))
-                        loc = Vector((loc.x * face_attach_scale.x,
-                                      loc.y * face_attach_scale.y,
-                                      loc.z * face_attach_scale.z))
                         loc.rotate(post_quat.conjugated())
 
                         pose_bone.location = pose_bone.location + loc * loc_scale

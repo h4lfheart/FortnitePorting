@@ -1,10 +1,10 @@
+using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Readers;
-using FortnitePorting.Shared.Models.CUE4Parse;
 
 namespace FortnitePorting.Shared.Models.Fortnite;
 
-public class UBuildingTextureData : UCustomObject
+public class UBuildingTextureData : UObject
 {
     public UTexture2D Diffuse;
     public UTexture2D Normal;

@@ -22,6 +22,7 @@ using FortnitePorting.OnlineServices.Packet;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
+using Serilog;
 using SkiaSharp;
 using SkiaExtensions = FortnitePorting.Shared.Extensions.SkiaExtensions;
 

@@ -106,7 +106,7 @@
                     <Button Grid.Row="8" HorizontalAlignment="Stretch" Command="{Binding SelectedMap.ExportHeightCommand}"
                             IsEnabled="{Binding SelectedMap.DataLoaded}">
                         <StackPanel Orientation="Horizontal">
-                            <material:MaterialIcon Kind="Terrain" Margin="{ext:Space 0, 0, 1, 0}"/>
+                            <material:MaterialIcon Kind="VectorSquare" Margin="{ext:Space 0, 0, 1, 0}"/>
                             <TextBlock Text="Height Map"/>
                         </StackPanel>
                     </Button>
@@ -127,30 +127,13 @@
                         </StackPanel>
                     </Button>
                     
-                    <Grid Grid.Row="14">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="{ext:Space 1}"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                            
-                        <Button Grid.Column="0" ToolTip.Tip="Preview"
-                                Command="{Binding SelectedMap.PreviewCommand}" IsEnabled="{Binding !!SelectedMap.SelectedMaps.Count}"
-                                HorizontalAlignment="Stretch">
-                            <StackPanel Orientation="Horizontal">
-                                <material:MaterialIcon Kind="CubeScan" Margin="{ext:Space 0, 0, 1, 0}"/>
-                                <TextBlock Text="Preview"/>
-                            </StackPanel>
-                        </Button>
-                        <Button Grid.Column="2" ToolTip.Tip="Export"
-                                Command="{Binding SelectedMap.ExportCommand}" IsEnabled="{Binding !!SelectedMap.SelectedMaps.Count}"
-                                HorizontalAlignment="Stretch">
-                            <StackPanel Orientation="Horizontal">
-                                <material:MaterialIcon Kind="Download" Margin="{ext:Space 0, 0, 1, 0}"/>
-                                <TextBlock Text="Export"/>
-                            </StackPanel>
-                        </Button>
-                    </Grid>
+                    <Button Grid.Row="14" HorizontalAlignment="Stretch" Command="{Binding SelectedMap.ExportLandscapeCommand}"
+                            IsEnabled="{Binding SelectedMap.DataLoaded}">
+                        <StackPanel Orientation="Horizontal">
+                            <material:MaterialIcon Kind="Terrain" Margin="{ext:Space 0, 0, 1, 0}"/>
+                            <TextBlock Text="Landscape"/>
+                        </StackPanel>
+                    </Button>
                     
                     <TextBlock Grid.Row="16" Text="Selected Maps" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
                     
@@ -175,7 +158,30 @@
                                IsVisible="{Binding !SelectedMap.SelectedMaps.Count}"
                                HorizontalAlignment="Center" VerticalAlignment="Top"/>
                     
-                    <Button Grid.Row="20" Content="Refresh" Command="{Binding SelectedMap.RefreshCommand}" IsVisible="{Binding IsDebug}"/>
+                    <Grid Grid.Row="20">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="{ext:Space 1}"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                            
+                        <Button Grid.Column="0" ToolTip.Tip="Preview"
+                                Command="{Binding SelectedMap.PreviewCommand}" IsEnabled="{Binding !!SelectedMap.SelectedMaps.Count}"
+                                HorizontalAlignment="Stretch">
+                            <StackPanel Orientation="Horizontal">
+                                <material:MaterialIcon Kind="CubeScan" Margin="{ext:Space 0, 0, 1, 0}"/>
+                                <TextBlock Text="Preview"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Grid.Column="2" ToolTip.Tip="Export"
+                                Command="{Binding SelectedMap.ExportCommand}" IsEnabled="{Binding !!SelectedMap.SelectedMaps.Count}"
+                                HorizontalAlignment="Stretch">
+                            <StackPanel Orientation="Horizontal">
+                                <material:MaterialIcon Kind="Download" Margin="{ext:Space 0, 0, 1, 0}"/>
+                                <TextBlock Text="Export"/>
+                            </StackPanel>
+                        </Button>
+                    </Grid>
                 </Grid>
             </ui:FABorder>
     </Grid>

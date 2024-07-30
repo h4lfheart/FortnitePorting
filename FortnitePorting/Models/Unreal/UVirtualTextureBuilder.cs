@@ -1,11 +1,11 @@
+using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Readers;
 using CUE4Parse.UE4.Objects.UObject;
-using FortnitePorting.Shared.Models.CUE4Parse;
 
 namespace FortnitePorting.Models.Unreal;
 
 // todo push to cue4parse main
-public class UVirtualTextureBuilder : UCustomObject
+public class UVirtualTextureBuilder : UObject
 {
     public FPackageIndex Texture;
     public int BuildHash;

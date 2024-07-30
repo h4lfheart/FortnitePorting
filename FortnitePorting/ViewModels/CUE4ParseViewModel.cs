@@ -33,7 +33,6 @@ using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Framework;
-using FortnitePorting.Shared.Models.CUE4Parse;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.Windows;
 using Serilog;
@@ -62,7 +61,7 @@ public class CUE4ParseViewModel : ViewModelBase
     
     public override async Task Initialize()
     {
-        ObjectTypeRegistry.RegisterEngine(Assembly.GetAssembly(typeof(UCustomObject))!);
+		ObjectTypeRegistry.RegisterEngine(Assembly.GetExecutingAssembly());
 
         await CleanupCache();
 

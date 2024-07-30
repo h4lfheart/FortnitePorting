@@ -20,6 +20,7 @@ using CUE4Parse.Utils;
 using FortnitePorting.Application;
 using FortnitePorting.Models.Leaderboard;
 using FortnitePorting.Models.Unreal;
+using FortnitePorting.Models.Unreal.Landscape;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Framework;
@@ -111,6 +112,7 @@ public partial class WorldPartitionMap : ObservableObject
     
     private string ExportPath => Path.Combine(MapsFolder.FullName, WorldName);
     
+    private UWorld _world;
     private ULevel _level;
     
     private static readonly Color HeightBaseColor = Color.FromRgb(0x79, 0x79, 0x79);
@@ -126,7 +128,7 @@ public partial class WorldPartitionMap : ObservableObject
 
     public async Task Load()
     {
-         var maskTexture = await CUE4ParseVM.Provider.LoadObjectAsync<UTexture2D>(Info.MaskPath);
+        var maskTexture = await CUE4ParseVM.Provider.LoadObjectAsync<UTexture2D>(Info.MaskPath);
         MaskBitmap = maskTexture.Decode()!.ToWriteableBitmap();
         
         var mapTexture = await CUE4ParseVM.Provider.LoadObjectAsync<UTexture2D>(Info.MinimapPath);
@@ -134,8 +136,8 @@ public partial class WorldPartitionMap : ObservableObject
         
         WorldName = Info.MapPath.SubstringAfterLast("/");
         
-        var world = await CUE4ParseVM.Provider.LoadObjectAsync<UWorld>(Info.MapPath);
-        _level = await world.PersistentLevel.LoadAsync<ULevel>();
+        _world = await CUE4ParseVM.Provider.LoadObjectAsync<UWorld>(Info.MapPath);
+        _level = await _world.PersistentLevel.LoadAsync<ULevel>();
 
         var worldSettings = _level.Get<UObject>("WorldSettings");
         var worldPartition = worldSettings.Get<UObject>("WorldPartition");
@@ -196,6 +198,12 @@ public partial class WorldPartitionMap : ObservableObject
     public async Task ExportWeight()
     {
         await ExportLandscapeMaps(EMapTextureExportType.Weight);
+    }
+    
+    [RelayCommand]
+    public async Task ExportLandscape()
+    {
+        await Exporter.Export(_world, EExportType.WorldLandscape, AppSettings.Current.CreateExportMeta());
     }
     
     [RelayCommand]

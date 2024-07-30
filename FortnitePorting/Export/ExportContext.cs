@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using CUE4Parse_Conversion;
 using CUE4Parse_Conversion.Animations;
 using CUE4Parse_Conversion.Meshes;
+using CUE4Parse_Conversion.Meshes.UEFormat;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.GameTypes.FN.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports;
@@ -23,14 +25,16 @@ using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Objects.Engine.Animation;
 using CUE4Parse.UE4.Objects.UObject;
+using CUE4Parse.UE4.Writers;
 using CUE4Parse.Utils;
 using FortnitePorting.Export.Models;
 using FortnitePorting.Extensions;
 using FortnitePorting.Models.CUE4Parse;
 using FortnitePorting.Models.Fortnite;
+using FortnitePorting.Models.Unreal.Landscape;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
-using FortnitePorting.Shared.Models.CUE4Parse;
+
 using FortnitePorting.Shared.Models.Fortnite;
 using FortnitePorting.Shared.Services;
 using Serilog;
@@ -202,30 +206,6 @@ public class ExportContext
                     influence.BoneTransformIndex
                 ));
             }
-        }
-
-        if (poseAsset.RetargetSourceAssetReferencePose is null) return;
-        if (poseAsset.Skeleton is null) return;
-        if (!poseAsset.Skeleton.TryLoad<USkeleton>(out var skeleton)) return;
-
-        var referenceMap = new Dictionary<string, int>(skeleton.ReferenceSkeleton.FinalNameToIndexMap, StringComparer.OrdinalIgnoreCase);
-        foreach (var boneName in poseContainer.Tracks)
-        {
-            var boneNameStr = boneName.PlainText;
-            if (!referenceMap.TryGetValue(boneNameStr, out var idx))
-            {
-                Log.Warning($"{poseAsset.Name}: {boneNameStr} missing from referenceSkeleton ({skeleton.Name})");
-                continue;
-            }
-
-            if (idx >= poseAsset.RetargetSourceAssetReferencePose.Length)
-            {
-                Log.Warning($"{poseAsset.Name}: {boneNameStr} index {idx} is outside the bounds of the RetargetSourceAssetReferencePose");
-                continue;
-            }
-
-            var transform = poseAsset.RetargetSourceAssetReferencePose[idx];
-            meta.ReferencePose.Add(new ReferencePose(boneNameStr, transform.Translation, transform.Rotation, transform.Scale3D));
         }
     }
     
@@ -417,6 +397,40 @@ public class ExportContext
         if (world.PersistentLevel.Load() is not ULevel level) return [];
 
         var actors = new List<ExportMesh>();
+        
+        actors.AddRangeIfNotNull(Level(level));
+        
+        if (level.GetOrDefault<UObject>("WorldSettings") is { } worldSettings
+            && worldSettings.GetOrDefault<UObject>("WorldPartition") is { } worldPartition
+            && worldPartition.GetOrDefault<UObject>("RuntimeHash") is { } runtimeHash)
+        {
+            foreach (var streamingGrid in runtimeHash.GetOrDefault("StreamingGrids", Array.Empty<FStructFallback>()))
+            {
+                foreach (var gridLevel in streamingGrid.GetOrDefault("GridLevels", Array.Empty<FStructFallback>()))
+                foreach (var layerCell in gridLevel.GetOrDefault("LayerCells", Array.Empty<FStructFallback>()))
+                foreach (var gridCell in layerCell.GetOrDefault("GridCells", Array.Empty<UObject>()))
+                {
+                    var levelStreaming = gridCell.GetOrDefault<UObject?>("LevelStreaming");
+                    if (levelStreaming is null) continue;
+
+                    var worldAsset = levelStreaming.Get<FSoftObjectPath>("WorldAsset");
+                    var subWorld = worldAsset.Load<UWorld>();
+                    var subLevel = subWorld.PersistentLevel.Load<ULevel>();
+                    if (subLevel is null) continue;
+                    
+                    actors.AddRangeIfNotNull(Level(subLevel));
+                }
+
+                break;
+            }
+        }
+
+        return actors;
+    }
+
+    public List<ExportMesh> Level(ULevel level)
+    {
+        var actors = new List<ExportMesh>();
         var totalActors = level.Actors.Length;
         var currentActor = 0;
         foreach (var actorLazy in level.Actors)
@@ -434,7 +448,7 @@ public class ExportContext
         }
 
         return actors;
-    }
+    } 
 
     public ExportMesh? Actor(UObject actor)
     {
@@ -469,6 +483,18 @@ public class ExportContext
                 }
             }
 
+            return exportMesh;
+        }
+
+        if (actor is ALandscapeProxy landscapeProxy)
+        {
+            var transform = landscapeProxy.GetAbsoluteTransformFromRootComponent();
+            
+            var exportMesh = new ExportMesh();
+            exportMesh.Name = landscapeProxy.Name;
+            exportMesh.Path = Export(landscapeProxy, embeddedAsset: true);
+            exportMesh.Location = transform.Translation;
+            exportMesh.Scale = transform.Scale3D;
             return exportMesh;
         }
 
@@ -751,7 +777,7 @@ public class ExportContext
         }
     }
 
-    public async Task<string> ExportAsync(UObject asset, bool returnRealPath = false, bool synchronousExport = false)
+    public async Task<string> ExportAsync(UObject asset, bool returnRealPath = false, bool synchronousExport = false, bool embeddedAsset = false)
     {
         var extension = asset switch
         {
@@ -772,12 +798,13 @@ public class ExportContext
                 EImageFormat.PNG => "png",
                 EImageFormat.TGA => "tga"
             },
-            USoundWave => "wav"
+            USoundWave => "wav",
+            ALandscapeProxy => "uemodel"
         };
 
-        var path = GetExportPath(asset, extension);
+        var path = GetExportPath(asset, extension, embeddedAsset);
         
-        var returnValue = returnRealPath ? path : asset.GetPathName();
+        var returnValue = returnRealPath ? path : embeddedAsset ? $"{asset.Owner.Name}/{asset.Name}.{asset.Name}" : asset.GetPathName();
         if (asset is UTexture texture && !IsTextureHigherResolution(texture, path))
         {
             return returnValue;
@@ -810,9 +837,9 @@ public class ExportContext
     }
     
     
-    public string Export(UObject asset, bool returnRealPath = false, bool synchronousExport = false)
+    public string Export(UObject asset, bool returnRealPath = false, bool synchronousExport = false, bool embeddedAsset = false)
     {
-        return ExportAsync(asset, returnRealPath, synchronousExport).GetAwaiter().GetResult();
+        return ExportAsync(asset, returnRealPath, synchronousExport, embeddedAsset).GetAwaiter().GetResult();
     }
 
     private void Export(UObject asset, string path)
@@ -873,6 +900,18 @@ public class ExportContext
                 
                 break;
             }
+            case ALandscapeProxy landscapeProxy:
+            {
+                var processor = new LandscapeProcessor(landscapeProxy);
+                var mesh = processor.Process();
+
+                var archive = new FArchiveWriter();
+                var model = new UEModel(landscapeProxy.Name, mesh, new FPackageIndex(), FileExportOptions);
+                model.Save(archive);
+
+                File.WriteAllBytes(path, archive.GetBuffer());
+                break;
+            }
         }
     }
 
@@ -909,9 +948,9 @@ public class ExportContext
         bitmap?.Encode(format, 100).SaveTo(fileStream); 
     }
     
-    public string GetExportPath(UObject obj, string ext)
+    public string GetExportPath(UObject obj, string ext, bool embeddedAsset = false)
     {
-        var path = obj.Owner != null ? obj.Owner.Name : string.Empty;
+        var path = embeddedAsset ? $"{obj.Owner.Name}/{obj.Name}" : obj.Owner?.Name ?? string.Empty;
         path = path.SubstringBeforeLast('.');
         if (path.StartsWith("/")) path = path[1..];
 

@@ -2,7 +2,7 @@ using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Assets.Utils;
 using CUE4Parse.UE4.Objects.UObject;
 
-namespace FortnitePorting.Models.Unreal;
+namespace FortnitePorting.Models.Unreal.Landscape;
 
 [StructFallback]
 public class FWeightmapLayerAllocationInfo

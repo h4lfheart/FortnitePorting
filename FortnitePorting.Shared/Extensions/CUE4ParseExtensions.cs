@@ -2,6 +2,7 @@ using CUE4Parse_Conversion.Meshes;
 using CUE4Parse_Conversion.Meshes.PSK;
 using CUE4Parse.FileProvider;
 using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.UE4.Assets.Exports.Component;
 using CUE4Parse.UE4.Assets.Exports.Material.Parameters;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
@@ -225,5 +226,39 @@ public static class CUE4ParseExtensions
             MathF.Pow((float) color.G / byte.MaxValue, 2.2f), 
             MathF.Pow((float) color.B / byte.MaxValue, 2.2f), 
             MathF.Pow((float) color.A / byte.MaxValue, 2.2f));
+    }
+    
+    public static FTransform GetAbsoluteTransformFromRootComponent(this UObject actor)
+    {
+        var rootComponentLazy = actor.GetOrDefault<FPackageIndex?>("RootComponent");
+        if (rootComponentLazy == null || rootComponentLazy.IsNull) return FTransform.Identity;
+
+        var rootComponent = rootComponentLazy.Load();
+        if (rootComponent is null) return FTransform.Identity;
+        
+        if (rootComponent is USceneComponent sceneComponent)
+        {
+            return sceneComponent.GetAbsoluteTransform();
+        }
+        
+        var location = rootComponent.GetOrDefault("RelativeLocation", FVector.ZeroVector);
+        var rotation = rootComponent.GetOrDefault("RelativeRotation", FRotator.ZeroRotator);
+        var scale = rootComponent.GetOrDefault("RelativeScale3D", FVector.OneVector);
+        return new FTransform(rotation, location, scale);
+    }
+    
+    private static FTransform GetAbsoluteTransform(this USceneComponent component)
+    {
+        var result = new FTransform(component.RelativeRotation, component.RelativeLocation, component.RelativeScale3D);
+        for (var attachParent = GetAttachParent(component); attachParent != null; attachParent = attachParent.GetAttachParent())
+        {
+            result *= new FTransform(attachParent.RelativeRotation, attachParent.RelativeLocation, attachParent.RelativeScale3D);
+        }
+        return result;
+    }
+    
+    private static USceneComponent? GetAttachParent(this USceneComponent component)
+    {
+        return component.GetOrDefault("AttachParent", new FPackageIndex()).Load<USceneComponent>();
     }
 }

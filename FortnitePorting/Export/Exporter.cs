@@ -177,12 +177,14 @@ public static class Exporter
         var path = asset.GetPathName();
         AppWM.Message("Export", $"Exporting: {asset.Name}", id: path, autoClose: false);
 
-        metaData.UpdateProgress += (name, current, total) =>
+        ExportProgressUpdate updateDelegate = (name, current, total) =>
         {
             var message = $"{current} / {total} \"{name}\"";
             AppWM.UpdateMessage(id: path, message: message);
             Log.Information(message);
         };
+
+        metaData.UpdateProgress += updateDelegate;
         
         var primitiveType = exportType.GetPrimitiveType();
         var export = primitiveType switch
@@ -192,6 +194,7 @@ public static class Exporter
         };
         
         AppWM.CloseMessage(id: path);
+        metaData.UpdateProgress -= updateDelegate;
 
         return export;
     }

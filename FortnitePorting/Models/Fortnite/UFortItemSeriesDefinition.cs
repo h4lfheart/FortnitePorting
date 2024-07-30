@@ -1,13 +1,13 @@
+using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Readers;
 using CUE4Parse.UE4.Assets.Utils;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.UObject;
-using FortnitePorting.Shared.Models.CUE4Parse;
 
 namespace FortnitePorting.Models.Fortnite;
 
-public class UFortItemSeriesDefinition : UCustomObject
+public class UFortItemSeriesDefinition : UObject
 {
     public FText DisplayName;
     public FRarityCollection Colors;
