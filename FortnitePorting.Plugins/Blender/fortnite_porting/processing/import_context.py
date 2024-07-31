@@ -25,6 +25,10 @@ class ImportContext:
     def run(self, data):
         self.name = data.get("Name")
         self.type = EExportType(data.get("Type"))
+        self.meshes = []
+        self.override_materials = []
+        self.override_parameters = []
+        self.imported_meshes = []
 
         if bpy.context.mode != "OBJECT":
             bpy.ops.object.mode_set(mode='OBJECT')
@@ -48,7 +52,6 @@ class ImportContext:
                 pass
 
     def import_mesh_data(self, data):
-        self.imported_meshes = []
         self.override_materials = data.get("OverrideMaterials")
         self.override_parameters = data.get("OverrideParameters")
         
@@ -304,6 +307,8 @@ class ImportContext:
 
         for child in mesh.get("Children"):
             self.import_model(child, parent=imported_object)
+            
+        return imported_object
 
     def import_mesh(self, path: str):
         options = UEModelOptions(scale_factor=0.01 if self.options.get("ScaleDown") else 1,

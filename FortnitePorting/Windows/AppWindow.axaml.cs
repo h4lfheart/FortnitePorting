@@ -28,8 +28,8 @@ public partial class AppWindow : WindowBase<AppWindowModel>
         WindowModel.Navigate(type);
     }
 
-    private void OnUpdatePressed(object? sender, PointerPressedEventArgs e)
+    private async void OnUpdatePressed(object? sender, PointerPressedEventArgs e)
     {
-        WindowModel.CheckForUpdate().RunAsynchronously();
+        await WindowModel.CheckForUpdate();
     }
 }

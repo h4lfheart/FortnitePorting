@@ -36,7 +36,7 @@ public partial class LeaderboardViewModel : ViewModelBase
 
     public override async Task OnViewOpened()
     {
-        Load().RunAsynchronously();
+        TaskService.Run(Load);
         
         var personalExports = await ApiVM.FortnitePorting.GetPersonalExportsAsync();
         PersonalExports = [..personalExports];

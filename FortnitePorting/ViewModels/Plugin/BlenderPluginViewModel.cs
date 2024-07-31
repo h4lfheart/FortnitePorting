@@ -81,8 +81,12 @@ public partial class BlenderPluginViewModel : ViewModelBase
         {
             var installation = Installations[SelectedInstallationIndex];
             installation.Status = "(Removing)";
-            RemovePlugin("io_scene_ueformat", installation.BlenderPath);
-            RemovePlugin("fortnite_porting", installation.BlenderPath);
+            
+            if (File.Exists(installation.BlenderPath)) {
+                
+                RemovePlugin("io_scene_ueformat", installation.BlenderPath);
+                RemovePlugin("fortnite_porting", installation.BlenderPath);
+            }
 
             var selectedIndexToRemove = SelectedInstallationIndex;
             Installations.RemoveAt(selectedIndexToRemove);
