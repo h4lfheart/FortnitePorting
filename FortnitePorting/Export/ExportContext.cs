@@ -647,6 +647,17 @@ public class ExportContext
             Length = animSequence.SequenceLength,
             Time = time
         };
+        
+        // todo this is already serialized in ueanim, figure out better way to access that rather than serializing in export response
+        var floatCurves = animSequence.CompressedCurveData.FloatCurves ?? [];
+        foreach (var curve in floatCurves)
+        {
+            exportSequence.Curves.Add(new ExportCurve
+            {
+                Name = curve.CurveName.Text,
+                Keys = curve.FloatCurve.Keys.Select(x => new ExportCurveKey(x.Time, x.Value)).ToList()
+            });
+        }
 
         return exportSequence;
     }
