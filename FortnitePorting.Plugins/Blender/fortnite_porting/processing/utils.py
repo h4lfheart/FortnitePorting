@@ -1,6 +1,8 @@
 import bpy
 import re
+
 from .enums import *
+from ..utils import *
 from math import radians
 from mathutils import Matrix, Vector, Euler, Quaternion
 
@@ -103,6 +105,16 @@ def get_armature_mesh(obj):
 
     if obj.type == 'MESH':
         return obj
+    
+def get_selected_armature():
+    selected = bpy.context.active_object
+    if selected.type == 'ARMATURE':
+        return selected
+    elif selected.type == 'MESH':
+        armature_modifier = first(selected.modifiers, lambda modifier: modifier.type == 'ARMATURE')
+        return armature_modifier
+    else:
+        return None
 
 def constraint_object(child: bpy.types.Object, parent: bpy.types.Object, bone: str, rot):
     constraint = child.constraints.new('CHILD_OF')
@@ -139,3 +151,22 @@ def make_euler(data):
 
 def time_to_frame(time, fps = 30):
     return int(round(time * fps))
+
+def clear_children_bone_transforms(skeleton, anim, bone_name):
+    bpy.ops.object.mode_set(mode='POSE')
+    bpy.ops.pose.select_all(action='DESELECT')
+    pose_bones = skeleton.pose.bones
+    bones = skeleton.data.bones
+    if target_bone := first(bones, lambda x: x.name == bone_name):
+        target_bones = target_bone.children_recursive
+        target_bones.append(target_bone)
+        dispose_paths = []
+        for bone in target_bones:
+            dispose_paths.append(f'pose.bones["{bone.name}"].rotation_quaternion')
+            dispose_paths.append(f'pose.bones["{bone.name}"].location')
+            dispose_paths.append(f'pose.bones["{bone.name}"].scale')
+            pose_bones[bone.name].matrix_basis = Matrix()
+        dispose_curves = [fcurve for fcurve in anim.fcurves if fcurve.data_path in dispose_paths]
+        for fcurve in dispose_curves:
+            anim.fcurves.remove(fcurve)
+    bpy.ops.object.mode_set(mode='OBJECT')

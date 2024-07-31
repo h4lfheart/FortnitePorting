@@ -173,14 +173,12 @@ public partial class BlenderPluginViewModel : ViewModelBase
             FileName = blenderPath,
             Arguments = $"--command extension {command} {args}",
             WorkingDirectory = workingDirectory,
-            UseShellExecute = false,
-            RedirectStandardOutput = true,
-            CreateNoWindow = true
+            UseShellExecute = true
         };
 
         Log.Information($"Executing {blenderPath} {command} {args}");
         buildProcess.Start();
-        var output = buildProcess.StandardOutput.ReadToEnd();
+        var output = string.Empty;// buildProcess.StandardOutput.ReadToEnd();
         buildProcess.WaitForExit();
         
         var lockMatch = Regex.Match(output, "Error: Lock exists: lock is held by other session: (.*)");

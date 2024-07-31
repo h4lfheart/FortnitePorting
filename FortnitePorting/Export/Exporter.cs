@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CUE4Parse_Conversion.Animations;
 using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
@@ -142,6 +144,8 @@ public static class Exporter
             UVirtualTextureBuilder => EExportType.Texture,
             USoundWave => EExportType.Sound,
             USoundCue => EExportType.Sound,
+            UAnimSequence => EExportType.Animation,
+            UAnimMontage => EExportType.Animation,
             _ => EExportType.None
         };
 
@@ -197,6 +201,7 @@ public static class Exporter
             EPrimitiveExportType.Mesh => new MeshExport(name, asset, styles, exportType, metaData),
             EPrimitiveExportType.Texture => new TextureExport(name, asset, styles, exportType, metaData),
             EPrimitiveExportType.Sound => new SoundExport(name, asset, styles, exportType, metaData),
+            EPrimitiveExportType.Animation => new AnimExport(name, asset, styles, exportType, metaData),
             _ => throw new NotImplementedException($"Exporting {primitiveType} assets is not supported yet.")
         };
         

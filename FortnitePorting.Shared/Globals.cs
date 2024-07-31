@@ -9,7 +9,7 @@ namespace FortnitePorting.Shared;
 public static class Globals
 {
     public static string VersionString => Version.GetDisplayString(EVersionStringType.IdentifierPrefix);
-    public static readonly FPVersion Version = new(3, 1, 5, 0, "beta");
+    public static readonly FPVersion Version = new(3, 1, 6, 0, "beta");
     
     public static readonly FilePickerFileType MappingsFileType = new("Unreal Mappings") { Patterns = [ "*.usmap" ] };
     public static readonly FilePickerFileType MP3FileType = new("MP3 Audio") { Patterns = [ "*.mp3" ] };
@@ -20,9 +20,6 @@ public static class Globals
     public static readonly FilePickerFileType PlaylistFileType = new("Fortnite Porting Playlist") { Patterns = [ "*.fp.playlist" ] };
     public static readonly FilePickerFileType ChatAttachmentFileType = new("Image") { Patterns = [ "*.png", "*.jpg", "*.jpeg" ] };
     public static readonly FilePickerFileType BlenderFileType = new("Blender") { Patterns = ["blender.exe"] };
-
-    // todo use api?
-    public const EGame LatestGameVersion = EGame.GAME_UE5_4;
     
     public static readonly FGuid ZERO_GUID = new();
     public const string ZERO_CHAR = "0x0000000000000000000000000000000000000000000000000000000000000000";

@@ -622,6 +622,34 @@ public class ExportContext
 
         return exportPart;
     }
+    
+    public ExportMesh? Skeleton(USkeleton? skeleton)
+    {
+        if (skeleton is null) return null;
+
+        var exportMesh = new ExportMesh
+        {
+            Name = skeleton.Name,
+            Path = Export(skeleton)
+        };
+
+        return exportMesh;
+    }
+
+    
+    public ExportAnimSection? AnimSequence(UAnimSequence? animSequence, float time = 0.0f)
+    {
+        if (animSequence is null) return null;
+        var exportSequence = new ExportAnimSection
+        {
+            Path = Export(animSequence),
+            Name = animSequence.Name,
+            Length = animSequence.SequenceLength,
+            Time = time
+        };
+
+        return exportSequence;
+    }
 
     public ExportMaterial? Material(UMaterialInterface material, int index)
     {

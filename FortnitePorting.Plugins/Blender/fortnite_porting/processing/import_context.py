@@ -4,13 +4,14 @@ import pyperclip
 
 import bpy
 
+from .mappings import *
 from .material import *
 from .enums import *
 from .utils import *
 from ..utils import *
 from ..logger import Log
 from ...io_scene_ueformat.importer.logic import UEFormatImport
-from ...io_scene_ueformat.options import UEModelOptions
+from ...io_scene_ueformat.options import UEModelOptions, UEAnimOptions
 
 SCALE_FACTOR = 0.01
 
@@ -30,13 +31,14 @@ class ImportContext:
 
         ensure_blend_data()
 
-        pyperclip.copy(json.dumps(data))
+        #pyperclip.copy(json.dumps(data))
 
         import_type = EPrimitiveExportType(data.get("PrimitiveType"))
         match import_type:
             case EPrimitiveExportType.MESH:
                 self.import_mesh_data(data)
             case EPrimitiveExportType.ANIMATION:
+                self.import_anim_data(data)
                 pass
             case EPrimitiveExportType.TEXTURE:
                 self.import_texture_data(data)
@@ -793,7 +795,7 @@ class ImportContext:
                     mask_position_node.location = mask_node.location + Vector((-200, 25))
                     mask_position_node.inputs["Costume_UVPatternPosition"].default_value = position.get('R'), position.get('G'), position.get('B')
                     links.new(mask_position_node.outputs[0], mask_node.inputs[0])
-                    
+
     def import_sound_data(self, data):
         for sound in data.get("Sounds"):
             path = sound.get("Path")
@@ -812,3 +814,132 @@ class ImportContext:
         sound = bpy.context.scene.sequence_editor.sequences.new_sound(name, sound_path, 0, time)
         sound["FPSound"] = True
         return sound
+    
+    def import_anim_data(self, data, override_skeleton=None):
+        target_skeleton = override_skeleton or get_selected_armature()
+        bpy.context.view_layer.objects.active = target_skeleton
+        
+        if target_skeleton is None:
+            # TODO message server
+            #MessageServer.instance.send("An armature must be selected to import an animation. Please select an armature and try again.")
+            return
+
+        if target_skeleton.get("is_tasty_rig"):
+            # TODO make obsolete with tasty rig v3
+            #MessageServer.instance.send("Tasty Rig currently does not support emotes. Please use a character with the Default Rig and try again.")
+            return
+
+        # clear old data
+        target_skeleton.animation_data_clear()
+        if bpy.context.scene.sequence_editor:
+            sequences_to_remove = where(bpy.context.scene.sequence_editor.sequences, lambda seq: seq.get("FPSound"))
+            for sequence in sequences_to_remove:
+                bpy.context.scene.sequence_editor.sequences.remove(sequence)
+
+        # start import
+        target_skeleton.animation_data_create()
+        target_track = target_skeleton.animation_data.nla_tracks.new(prev=None)
+        target_track.name = "Sections"
+
+        active_mesh = get_armature_mesh(target_skeleton)
+        if active_mesh.data.shape_keys is not None:
+            active_mesh.data.shape_keys.name = "Pose Asset Controls"
+            active_mesh.data.shape_keys.animation_data_create()
+            mesh_track = active_mesh.data.shape_keys.animation_data.nla_tracks.new(prev=None)
+            mesh_track.name = "Sections"
+
+        def import_sections(sections, skeleton, track, is_main_skeleton = False):
+            total_frames = 0
+            is_metahuman = any(skeleton.data.bones, lambda bone: bone.name == "FACIAL_C_FacialRoot")
+            for section in sections:
+                path = section.get("Path")
+
+                total_frames += time_to_frame(section.get("Length"))
+
+                anim = self.import_anim(path, skeleton)
+                clear_children_bone_transforms(skeleton, anim, "faceAttach")
+
+                section_name = section.get("Name")
+                time_offset = section.get("Time")
+                loop_count = 999 if self.options.get("LoopAnimation") and section.get("Loop") else 1
+                strip = track.strips.new(section_name, time_to_frame(time_offset), anim)
+                strip.repeat = loop_count
+
+                if (curves := section.get("Curves")) and len(curves) > 0 and active_mesh.data.shape_keys is not None and is_main_skeleton:
+                    key_blocks = active_mesh.data.shape_keys.key_blocks
+                    for key_block in key_blocks:
+                        key_block.value = 0
+
+                    for curve in curves:
+                        curve_name = curve.get("Name")
+                        if target_block := key_blocks.get(curve_name.replace("CTRL_expressions_", "")):
+                            for key in curve.get("Keys"):
+                                target_block.value = key.get("Value")
+                                target_block.keyframe_insert(data_path="value", frame=key.get("Time") * 30)
+
+                        if is_metahuman and (curve_mappings := metahuman_mappings.get(curve_name)):
+                            for curve_mapping in curve_mappings:
+                                if target_block := key_blocks.get(curve_mapping.replace("CTRL_expressions_", "")):
+                                    for key in curve.get("Keys"):
+                                        target_block.value = key.get("Value")
+                                        target_block.keyframe_insert(data_path="value", frame=key.get("Time") * 30)
+
+                    if active_mesh.data.shape_keys.animation_data.action is not None:
+                        strip = mesh_track.strips.new(section_name, time_to_frame(time_offset), active_mesh.data.shape_keys.animation_data.action)
+                        strip.name = section_name
+                        strip.repeat = loop_count
+                        active_mesh.data.shape_keys.animation_data.action = None
+            return total_frames
+
+        total_frames = import_sections(data.get("Sections"), target_skeleton, target_track, True)
+        if self.options.get("UpdateTimelineLength"):
+            bpy.context.scene.frame_end = total_frames
+
+        props = data.get("Props")
+        if len(props) > 0:
+            if master_skeleton := first(target_skeleton.children, lambda child: child.name == "Master_Skeleton"):
+                bpy.data.objects.remove(master_skeleton)
+
+            master_skeleton = self.import_model(data.get("Skeleton"))
+            master_skeleton.name = "Master_Skeleton"
+            master_skeleton.parent = target_skeleton
+            master_skeleton.animation_data_create()
+
+            master_track = master_skeleton.animation_data.nla_tracks.new(prev=None)
+            master_track.name = "Sections"
+
+            import_sections(data.get("Sections"), master_skeleton, master_track)
+
+            for prop in props:
+                mesh = self.import_model(prop.get("Mesh"))
+                constraint_object(mesh, master_skeleton, prop.get("SocketName"), [0, 0, 0])
+                mesh.rotation_euler = make_euler(prop.get("RotationOffset"))
+                mesh.location = make_vector(prop.get("LocationOffset"), unreal_coords_correction=True) * 0.01
+                mesh.scale = make_vector(prop.get("Scale"))
+
+                if (anims := prop.get("AnimSections")) and len(anims) > 0:
+                    mesh.animation_data_create()
+                    mesh_track = mesh.animation_data.nla_tracks.new(prev=None)
+                    mesh_track.name = "Sections"
+                    import_sections(anims, mesh, mesh_track)
+
+            master_skeleton.hide_set(True)
+
+        if self.options.get("ImportSounds"):
+            for sound in data.get("Sounds"):
+                path = sound.get("Path")
+                self.import_sound(path, time_to_frame(sound.get("Time")))
+
+    def import_anim(self, path: str, override_skeleton=None):
+        path = path[1:] if path.startswith("/") else path
+        file_path, name = path.split(".")
+        if (existing := bpy.data.actions.get(name)) and existing["Skeleton"] == override_skeleton.name:
+            return existing
+
+        anim_path = os.path.join(self.assets_root, file_path + ".ueanim")
+        options = UEAnimOptions(link=False,
+                                override_skeleton=override_skeleton,
+                                scale_factor=0.01 if self.options.get("ScaleDown") else 1)
+        anim = UEFormatImport(options).import_file(anim_path)
+        anim["Skeleton"] = override_skeleton.name
+        return anim

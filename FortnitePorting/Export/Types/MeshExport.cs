@@ -232,7 +232,7 @@ public class MeshExport : BaseExport
                 Meshes.AddRange(actors);
                 break;
             }
-            /*case EExportType.Item:
+            case EExportType.Item:
             {
                 Meshes.AddRange(Exporter.WeaponDefinition(asset));
                 break;
@@ -261,7 +261,7 @@ public class MeshExport : BaseExport
                 }
 
                 break;
-            }*/
+            }
             case EExportType.FallGuysOutfit:
             {
                 var parts = asset.GetOrDefault("BaseCharacterParts", Array.Empty<UObject>());
