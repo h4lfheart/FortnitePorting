@@ -167,9 +167,9 @@ public static class CUE4ParseExtensions
     public static FLinearColor ToLinearColor(this FColor color)
     {
         return new FLinearColor(
-            (float) color.R / byte.MaxValue, 
-            (float) color.G / byte.MaxValue, 
-            (float) color.B / byte.MaxValue,
-            (float) color.A / byte.MaxValue);
+            MathF.Pow((float) color.R / byte.MaxValue, 2.2f), 
+            MathF.Pow((float) color.G / byte.MaxValue, 2.2f), 
+            MathF.Pow((float) color.B / byte.MaxValue, 2.2f), 
+            MathF.Pow((float) color.A / byte.MaxValue, 2.2f));
     }
 }
