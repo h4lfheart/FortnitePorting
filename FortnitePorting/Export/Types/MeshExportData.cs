@@ -374,12 +374,13 @@ public class MeshExportData : ExportDataBase
                 if (asset.TryGetValue(out USkeletalMesh auxiliaryMesh, "AuxiliaryMesh"))
                 {
                     var exportMesh = Exporter.Mesh(auxiliaryMesh);
+                    if (exportMesh is null) break;
 
-                    var auxMaterial = asset.GetOrDefault<UMaterialInterface>("AuxiliaryMaterial");
-                    exportMesh?.Materials.AddIfNotNull(Exporter.Material(auxMaterial, 0));
+                    if (asset.TryGetValue(out UMaterialInterface auxMaterial, "AuxiliaryMaterial"))
+                        exportMesh?.Materials.AddIfNotNull(Exporter.Material(auxMaterial, 0));
 
-                    var auxMaterial2 = asset.GetOrDefault<UMaterialInterface>("AuxiliaryMaterial2");
-                    exportMesh?.Materials.AddIfNotNull(Exporter.Material(auxMaterial2, 1));
+                    if (asset.TryGetValue(out UMaterialInterface auxMaterial2, "AuxiliaryMaterial2"))
+                        exportMesh?.Materials.AddIfNotNull(Exporter.Material(auxMaterial2, 1));
 
                     Meshes.AddIfNotNull(exportMesh);
                 }
