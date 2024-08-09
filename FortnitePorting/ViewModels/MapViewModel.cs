@@ -99,6 +99,7 @@ public partial class MapViewModel : ViewModelBase
             if (gameFeatureData is null) continue;
 
             var defaultMap = await gameFeatureData.ExperienceData.DefaultMap.LoadAsync();
+            if (defaultMap.Name.StartsWith("FMJam_")) continue;
 
             var mapInfo = MapInfo.CreateNonDisplay(defaultMap.Name, defaultMap.GetPathName().SubstringBeforeLast("."));
             

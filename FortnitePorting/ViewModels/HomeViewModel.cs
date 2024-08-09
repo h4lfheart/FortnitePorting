@@ -46,7 +46,7 @@ public partial class HomeViewModel : ViewModelBase
             await CUE4ParseVM.Initialize();
             
             AppWM.GameBasedTabsAreReady = true;
-            AppWM.OnlineAndGameTabsAreVisible = true;
+            AppWM.OnlineAndGameTabsAreVisible = AppSettings.Current.Online.UseIntegration;
             
             ViewModelRegistry.New<FilesViewModel>();
             await FilesVM.Initialize();

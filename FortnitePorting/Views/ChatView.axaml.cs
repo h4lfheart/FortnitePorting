@@ -5,11 +5,14 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
 using Avalonia.VisualTree;
+using Clowd.Clipboard;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.Utils;
 using FluentAvalonia.UI.Controls;
+using FortnitePorting.Models;
 using FortnitePorting.Models.Chat;
 using FortnitePorting.OnlineServices.Packet;
 using FortnitePorting.Services;
@@ -43,7 +46,9 @@ public partial class ChatView : ViewBase<ChatViewModel>
             }
             else if (ImageFlyout.IsOpen)
             {
-                await OnlineService.Send(new MessagePacket(text, await File.ReadAllBytesAsync(ViewModel.SelectedImagePath), ViewModel.SelectedImageName));
+                var memoryStream = new MemoryStream();
+                ViewModel.SelectedImage.Save(memoryStream);
+                await OnlineService.Send(new MessagePacket(text, memoryStream.ToArray(), ViewModel.SelectedImageName));
             }
             else
             {

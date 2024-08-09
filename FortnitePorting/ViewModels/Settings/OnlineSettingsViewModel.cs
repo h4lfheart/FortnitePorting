@@ -80,21 +80,20 @@ public partial class OnlineSettingsViewModel : ViewModelBase
       {
          var auth = await ApiVM.FortnitePorting.GetAuthAsync(state);
          
-         if (Identification is not null) break;
          if (auth is not null)
          {
             OnlineService.DeInit();
             Auth = auth;
-            UseIntegration = true;
             await LoadIdentification();
+            UseIntegration = true;
             OnlineService.Init();
+            AppWM.OnlineAndGameTabsAreVisible = true;
             AppWM.Message("Discord Integration", $"Successfully authenticated user \"{UserName}\" via Discord.", severity: InfoBarSeverity.Success, closeTime: 2.5f);
             return;
          }
 
          await Task.Delay(1000);
       }
-      
       
       AppWM.Message("Discord Integration", "Timed out while trying to authenticate. Please try again.", InfoBarSeverity.Error, autoClose: false);
    }
@@ -106,6 +105,7 @@ public partial class OnlineSettingsViewModel : ViewModelBase
       Auth = null;
       Identification = null;
       OnlineService.DeInit();
+      AppWM.OnlineAndGameTabsAreVisible = false;
       AppWM.Message("Discord Integration", $"Successfully de-authenticated user \"{removedUsername}\" via Discord.", closeTime: 2.5f);
    }
 

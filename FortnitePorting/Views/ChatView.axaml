@@ -15,6 +15,9 @@
              x:Class="FortnitePorting.Views.ChatView"
              x:DataType="viewModels:ChatViewModel">
     <Grid>
+        <Grid.KeyBindings>
+            <KeyBinding Gesture="Ctrl+V"  Command="{Binding ClipboardPaste}"/>
+        </Grid.KeyBindings>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="{ext:Space 0}"/>

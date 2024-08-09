@@ -8,16 +8,20 @@ using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Media.Imaging;
+using Clowd.Clipboard;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse;
 using DynamicData;
 using FluentAvalonia.UI.Controls;
+using FortnitePorting.Models;
 using FortnitePorting.Models.Chat;
 using FortnitePorting.OnlineServices.Packet;
 using FortnitePorting.Services;
 using FortnitePorting.Shared.Framework;
+using FortnitePorting.Shared.Models;
 using FortnitePorting.Shared.Services;
+using Serilog;
 using SixLabors.ImageSharp.PixelFormats;
 using Globals = FortnitePorting.Shared.Globals;
 
@@ -31,7 +35,6 @@ public partial class ChatViewModel : ViewModelBase
     [ObservableProperty] private EPermissions _permissions;
     [ObservableProperty] private string _text = string.Empty;
     [ObservableProperty] private Bitmap _selectedImage;
-    [ObservableProperty] private string _selectedImagePath;
     [ObservableProperty] private string _selectedImageName;
 
     [ObservableProperty] private ObservableCollection<ChatUser> _users = [];
@@ -61,11 +64,17 @@ public partial class ChatViewModel : ViewModelBase
     {
         if (await BrowseFileDialog(fileTypes: Globals.ChatAttachmentFileType) is { } path)
         {
-            SelectedImagePath = path;
             SelectedImageName = Path.GetFileName(path);
             SelectedImage = new Bitmap(path);
             ImageFlyout.IsOpen = true;
         }
+    }
+
+    public async Task ClipboardPaste()
+    {
+        SelectedImageName = "image.png";
+        SelectedImage = await ClipboardStaticBase<AvaloniaClipboardHandle, Bitmap>.GetImageAsync();
+        ImageFlyout.IsOpen = true;
     }
 
 }
