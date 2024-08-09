@@ -6,10 +6,19 @@ using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.UE4.Assets.Exports.Animation;
+using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
+using CUE4Parse.UE4.Assets.Exports.Sound;
+using CUE4Parse.UE4.Assets.Exports.StaticMesh;
+using CUE4Parse.UE4.Assets.Exports.Texture;
+using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.Utils;
 using FortnitePorting.Models.Assets;
 using FortnitePorting.Shared.Extensions;
+using FortnitePorting.Shared.Models.Fortnite;
 using OpenTK.Graphics.OpenGL;
+using SkiaSharp;
+using AssetLoader = Avalonia.Platform.AssetLoader;
 
 namespace FortnitePorting.Models.Leaderboard;
 
@@ -53,18 +62,20 @@ public partial class LeaderboardExport : ObservableObject
         var assetLoader =  AssetLoaderCollection.CategoryAccessor.Loaders.FirstOrDefault(loader => loader.ClassNames.Contains(asset.ExportType));
         if (assetLoader is null)
         {
-            SetFailureDefaults();
+            ObjectName = ID;
+            ExportBitmap = GetObjectBitmap(asset) ?? LeaderboardVM.GetMedalBitmap(Ranking);
             return true;
         }
         
         ShowMedal = true;
+        CachedBitmaps.Clear();
         if (CachedBitmaps.TryGetValue(ObjectPath, out var existingBitmap))
         {
             ExportBitmap = existingBitmap;
         }
         else
         {
-            ExportBitmap = assetLoader.IconHandler(asset)?.Decode()?.ToWriteableBitmap() ?? LeaderboardVM.GetMedalBitmap(Ranking);
+            ExportBitmap = assetLoader.IconHandler(asset)?.Decode()?.ToWriteableBitmap() ?? GetObjectBitmap(asset) ?? LeaderboardVM.GetMedalBitmap(Ranking);
             CachedBitmaps[ObjectPath] = ExportBitmap;
         }
         
@@ -76,6 +87,27 @@ public partial class LeaderboardExport : ObservableObject
         }
 
         return true;
+    }
+    
+    
+
+    private Bitmap? GetObjectBitmap(UObject obj)
+    {
+        if (obj is UTexture texture)
+        {
+            return texture.Decode()?.ToWriteableBitmap(ignoreAlpha: true);
+        }
+        
+        var typeName = obj switch
+        {
+            UBuildingTextureData => "DataAsset",
+            _ => obj.GetType().Name[1..]
+        };
+        
+        var filePath = $"avares://FortnitePorting/Assets/Unreal/{typeName}_64x.png";
+        if (!AssetLoader.Exists(new Uri(filePath))) return null;
+        
+        return ImageExtensions.AvaresBitmap(filePath);
     }
 
     private void SetFailureDefaults()

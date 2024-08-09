@@ -9,15 +9,15 @@ namespace FortnitePorting.Shared.Extensions;
 
 public static class ImageExtensions
 {
-    public static WriteableBitmap ToWriteableBitmap(this SKBitmap skiaBitmap)
+    public static WriteableBitmap ToWriteableBitmap(this SKBitmap skiaBitmap, bool ignoreAlpha = false)
     {
         using var skiaPixmap = skiaBitmap.PeekPixels();
         using var skiaImage = SKImage.FromPixels(skiaPixmap);
         
-        var bitmap = new WriteableBitmap(new PixelSize(skiaBitmap.Width, skiaBitmap.Height), new Vector(96, 96), PixelFormat.Bgra8888, AlphaFormat.Unpremul);
+        var bitmap = new WriteableBitmap(new PixelSize(skiaBitmap.Width, skiaBitmap.Height), new Vector(96, 96), PixelFormat.Bgra8888, ignoreAlpha ? AlphaFormat.Opaque : AlphaFormat.Unpremul);
         var frameBuffer = bitmap.Lock();
 
-        using (var pixmap = new SKPixmap(new SKImageInfo(skiaBitmap.Width, skiaBitmap.Height, SKColorType.Bgra8888, SKAlphaType.Unpremul), frameBuffer.Address, frameBuffer.RowBytes))
+        using (var pixmap = new SKPixmap(new SKImageInfo(skiaBitmap.Width, skiaBitmap.Height, SKColorType.Bgra8888, ignoreAlpha ? SKAlphaType.Opaque : SKAlphaType.Unpremul), frameBuffer.Address, frameBuffer.RowBytes))
         {
             skiaImage.ReadPixels(pixmap, 0, 0);
         }
