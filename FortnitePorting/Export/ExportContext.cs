@@ -275,32 +275,19 @@ public class ExportContext
         return exportWeapons;
     }
     
-     public List<ExportMesh> LevelSaveRecord(ULevelSaveRecord levelSaveRecord)
+    public List<ExportMesh> LevelSaveRecord(ULevelSaveRecord levelSaveRecord)
     {
-        var exportMeshes = new List<ExportMesh>();
+        var meshes = new List<ExportMesh>();
         foreach (var (index, templateRecord) in levelSaveRecord.TemplateRecords)
         {
-            var actor = templateRecord.ActorClass.Load<UBlueprintGeneratedClass>().ClassDefaultObject.Load();
-            if (actor is null) continue;
+            var actorBlueprint = templateRecord.ActorClass.Load<UBlueprintGeneratedClass>();
+            if (actorBlueprint is null) continue;
             
-            if (actor.TryGetValue(out UStaticMesh staticMesh, "StaticMesh"))
-            {
-                exportMeshes.AddIfNotNull(Mesh(staticMesh));
-            }
-            else
-            {
-                var components = CUE4ParseVM.Provider.LoadAllObjects(actor.GetPathName().SubstringBeforeLast("."));
-                exportMeshes.AddRangeIfNotNull(components.Select(MeshComponent));
-            }
+            meshes.AddRangeIfNotNull(Blueprint(actorBlueprint));
             
-            if (exportMeshes.Count == 0) continue;
-
-            // extra meshes i.e. doors and such
-            var targetMesh = exportMeshes.FirstOrDefault();
-            foreach (var extraMesh in ExtraActorMeshes(actor))
-            {
-                targetMesh?.Children.AddIfNotNull(extraMesh);
-            }
+            if (meshes.Count == 0) continue;
+            
+            var targetMesh = meshes.FirstOrDefault();
 
             // todo proper byte actor data parsing
             var textureDatas = new Dictionary<int, UBuildingTextureData>();
@@ -333,7 +320,7 @@ public class ExportContext
             }
         }
 
-        return exportMeshes;
+        return meshes;
     }
      
     public ExportTextureData? TextureData(UBuildingTextureData? textureData, int index = 0)
@@ -513,31 +500,21 @@ public class ExportContext
                 {
                     var basePath = template.GetPathName().SubstringBeforeLast(".");
                     var blueprintPath = $"{basePath}.{basePath.SubstringAfterLast("/")}_C";
-                    var blueprintGeneratedClass = CUE4ParseVM.Provider.LoadObject<UObject>(blueprintPath);
-                    if (blueprintGeneratedClass.TryGetValue(out UObject constructionScript, "SimpleConstructionScript"))
-                    {
-                        var allNodes = constructionScript.GetOrDefault("AllNodes", Array.Empty<UObject>());
-                        foreach (var node in allNodes)
-                        {
-                            var componentTemplate = node.GetOrDefault<UObject>("ComponentTemplate");
-                            if (componentTemplate is UInstancedStaticMeshComponent instancedStaticMeshComponent)
-                            {
-                                var instanceExportMesh = MeshComponent(instancedStaticMeshComponent);
-                                if (instanceExportMesh is null) continue;
-
-                                exportMesh.Children.Add(instanceExportMesh);
-                            }
-                            else if (componentTemplate is UStaticMeshComponent subStaticMeshComponent)
-                            {
-                               exportMesh.Children.AddIfNotNull(MeshComponent(subStaticMeshComponent));
-                            }
-                        }
-                    }
+                    var templateBlueprintGeneratedClass = CUE4ParseVM.Provider.LoadObject<UObject>(blueprintPath);
                     
+                    exportMesh.Children.AddRangeIfNotNull(ConstructionScript(templateBlueprintGeneratedClass));
                 }
 
                 meshes.Add(exportMesh);
             }
+            
+            // extra meshes i.e. doors and such
+            var targetMesh = meshes.FirstOrDefault();
+            foreach (var extraMesh in ExtraActorMeshes(actor))
+            {
+                targetMesh?.Children.AddIfNotNull(extraMesh);
+            }
+
         }
 
         if (Meta.Settings.WorldFlags.HasFlag(EWorldFlags.Landscape) && actor is ALandscapeProxy landscapeProxy)
@@ -550,6 +527,43 @@ public class ExportContext
             exportMesh.Location = transform.Translation;
             exportMesh.Scale = transform.Scale3D;
             meshes.Add(exportMesh);
+        }
+
+        return meshes;
+    }
+
+    public List<ExportMesh> Blueprint(UBlueprintGeneratedClass blueprintGeneratedClass)
+    {
+        var meshes = new List<ExportMesh>();
+        
+        meshes.AddRangeIfNotNull(ConstructionScript(blueprintGeneratedClass));
+
+        if (blueprintGeneratedClass.ClassDefaultObject.TryLoad(out var classDefaultObject))
+        {
+            meshes.AddRangeIfNotNull(Actor(classDefaultObject!));
+        }
+        
+        return meshes;
+    }
+
+    public List<ExportMesh> ConstructionScript(UObject blueprint)
+    {
+        if (!blueprint.TryGetValue(out UObject constructionScript, "SimpleConstructionScript")) return [];
+        
+        var meshes = new List<ExportMesh>();
+        
+        var allNodes = constructionScript.GetOrDefault("AllNodes", Array.Empty<UObject>());
+        foreach (var node in allNodes)
+        {
+            var componentTemplate = node.GetOrDefault<UObject>("ComponentTemplate");
+            if (componentTemplate is UInstancedStaticMeshComponent instancedStaticMeshComponent)
+            {
+                meshes.AddIfNotNull(MeshComponent(instancedStaticMeshComponent));
+            }
+            else if (componentTemplate is UStaticMeshComponent subStaticMeshComponent)
+            {
+                meshes.AddIfNotNull(MeshComponent(subStaticMeshComponent));
+            }
         }
 
         return meshes;

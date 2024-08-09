@@ -20,7 +20,7 @@
         <Viewbox Grid.Column="0" StretchDirection="Both" Stretch="Uniform">
             <Grid>
                 <Border CornerRadius="16" ClipToBounds="True">
-                    <Image x:Name="MapImage" Source="{Binding SelectedMap.MapBitmap}"/>
+                    <Image x:Name="MapImage" Source="{Binding SelectedMap.MapBitmap, TargetNullValue=Assets/DefaultProfile.png}"/>
                 </Border>
                 <ItemsControl ItemsSource="{Binding SelectedMap.Grids}"
                               Width="{Binding Bounds.Width, ElementName=MapImage}"
@@ -221,7 +221,7 @@
                         </TextBlock.IsVisible>
                     </TextBlock>
                     
-                    <Grid Grid.Row="40" IsVisible="{Binding !SelectedMap.Info.IsUEFN}">
+                    <Grid Grid.Row="30" IsVisible="{Binding !SelectedMap.Info.IsUEFN}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="{ext:Space 1}"/>

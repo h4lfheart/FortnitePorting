@@ -158,7 +158,9 @@ public partial class FilesViewModel : ViewModelBase
         var exports = new List<KeyValuePair<UObject, EExportType>>();
         foreach (var item in SelectedFlatViewItems)
         {
-            var asset = await CUE4ParseVM.Provider.TryLoadObjectAsync(Exporter.FixPath(item.Path));
+            var basePath = Exporter.FixPath(item.Path);
+            var asset = await CUE4ParseVM.Provider.TryLoadObjectAsync(basePath);
+            asset ??= await CUE4ParseVM.Provider.TryLoadObjectAsync($"{basePath}.{basePath.SubstringAfterLast("/")}_C");
             if (asset is null) continue;
             
             switch (asset)

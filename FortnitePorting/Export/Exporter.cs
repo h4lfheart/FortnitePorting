@@ -140,6 +140,7 @@ public static class Exporter
             USkeletalMesh => EExportType.Mesh,
             UStaticMesh => EExportType.Mesh,
             USkeleton => EExportType.Mesh,
+            UBlueprintGeneratedClass => EExportType.Mesh,
             UWorld => EExportType.World,
             UTexture => EExportType.Texture,
             UVirtualTextureBuilder => EExportType.Texture,

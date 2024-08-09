@@ -188,7 +188,14 @@ public class MeshExport : BaseExport
             }
             case EExportType.Mesh:
             {
-                Meshes.AddIfNotNull(Exporter.Mesh(asset));
+                if (asset is UBlueprintGeneratedClass blueprintGeneratedClass)
+                {
+                    Meshes.AddRangeIfNotNull(Exporter.Blueprint(blueprintGeneratedClass));
+                }
+                else
+                {
+                    Meshes.AddIfNotNull(Exporter.Mesh(asset));
+                }
                 break;
             }
             case EExportType.World:
