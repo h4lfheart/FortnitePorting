@@ -42,7 +42,7 @@ public partial class AppWindowModel : WindowModelBase
     
     public override async Task Initialize()
     {
-        SetupTabsAreVisible = !AppSettings.Current.FinishedWelcomeScreen;
+        SetupTabsAreVisible = !AppSettings.Current.Installation.FinishedWelcomeScreen;
 
         await CheckForUpdate(isAutomatic: true);
     }

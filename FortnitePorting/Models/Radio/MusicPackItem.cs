@@ -118,8 +118,8 @@ public partial class MusicPackItem : ObservableObject
                         .ProcessAsynchronously();
             
                     var file = new FileInfo(path);
-                    Settings.ID3v2_writePictureDataLengthIndicator = false;
-                    Settings.FileBufferSize = file.Length > int.MaxValue
+                    ATL.Settings.ID3v2_writePictureDataLengthIndicator = false;
+                    ATL.Settings.FileBufferSize = file.Length > int.MaxValue
                         ? int.MaxValue
                         : (int) file.Length;
             

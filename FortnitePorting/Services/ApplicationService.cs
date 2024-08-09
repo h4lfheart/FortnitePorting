@@ -87,9 +87,13 @@ public static class ApplicationService
         
         Log.Information($"Fortnite Porting {Globals.VersionString}");
         Log.Information($".NET Version: {RuntimeInformation.FrameworkDescription}");
-        Log.Information($"Install Mode: {AppSettings.Current.Installation.FortniteVersion.GetDescription()}");
-        Log.Information($"Archive Path: {AppSettings.Current.Installation.ArchiveDirectory}");
-        Log.Information($"Texture Streaming: {AppSettings.Current.Installation.UseTextureStreaming}");
+        
+        if (AppSettings.Current.Installation.CurrentProfile is not null)
+        {
+            Log.Information($"Install Mode: {AppSettings.Current.Installation.CurrentProfile.FortniteVersion.GetDescription()}");
+            Log.Information($"Archive Path: {AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory}");
+            Log.Information($"Texture Streaming: {AppSettings.Current.Installation.CurrentProfile.UseTextureStreaming}");
+        }
     }
     
     public static void HandleException(Exception e)
@@ -141,7 +145,7 @@ public static class ApplicationService
             TaskService.Run(async () => await AppSettings.Current.Plugin.Blender.SyncInstallations(verbose: false));
         }
         
-        if (AppSettings.Current.FinishedWelcomeScreen)
+        if (AppSettings.Current.Installation.FinishedWelcomeScreen)
         {
             AppWM.Navigate<HomeView>();
         }

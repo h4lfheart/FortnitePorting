@@ -14,23 +14,25 @@ public class FortniteCentralAPI : APIBase
     {
     }
 
-    public async Task<AesResponse?> GetKeysAsync()
+    public async Task<AesResponse?> GetKeysAsync(string version = "")
     {
-        return await ExecuteAsync<AesResponse>(AES_URL);
+        Parameter[] parameters = !string.IsNullOrWhiteSpace(version) ? [new QueryParameter("version", version)] : [];
+        return await ExecuteAsync<AesResponse>(AES_URL, parameters: parameters);
     }
 
-    public AesResponse? GetKeys()
+    public AesResponse? GetKeys(string version = "")
     {
-        return GetKeysAsync().GetAwaiter().GetResult();
+        return GetKeysAsync(version).GetAwaiter().GetResult();
     }
 
-    public async Task<MappingsResponse[]?> GetMappingsAsync()
+    public async Task<MappingsResponse[]?> GetMappingsAsync(string version = "")
     {
-        return await ExecuteAsync<MappingsResponse[]>(MAPPINGS_URL);
+        Parameter[] parameters = !string.IsNullOrWhiteSpace(version) ? [new QueryParameter("version", version)] : [];
+        return await ExecuteAsync<MappingsResponse[]>(MAPPINGS_URL, parameters: parameters);
     }
 
-    public MappingsResponse[]? GetMappings()
+    public MappingsResponse[]? GetMappings(string version = "")
     {
-        return GetMappingsAsync().GetAwaiter().GetResult();
+        return GetMappingsAsync(version).GetAwaiter().GetResult();
     }
 }

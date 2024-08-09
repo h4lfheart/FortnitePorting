@@ -14,6 +14,7 @@ using FortnitePorting.Application;
 using FortnitePorting.Models.API;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.CUE4Parse;
+using FortnitePorting.Models.Settings;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Framework;
@@ -103,18 +104,26 @@ public partial class WelcomeViewModel : ViewModelBase
     [RelayCommand]
     public async Task FinishSetup()
     {
-        AppSettings.Current.Installation.FortniteVersion = FortniteVersion;
-        AppSettings.Current.Installation.ArchiveDirectory = ArchiveDirectory;
-        AppSettings.Current.Installation.UnrealVersion = UnrealVersion;
-        AppSettings.Current.Installation.MainKey = MainKey;
-        AppSettings.Current.Installation.UseMappingsFile = UseMappingsFile;
-        AppSettings.Current.Installation.MappingsFile = MappingsFile;
-        AppSettings.Current.Installation.GameLanguage = GameLanguage;
-        AppSettings.Current.Installation.UseTextureStreaming = UseTextureStreaming;
-        AppSettings.Current.FinishedWelcomeScreen = true;
+        var profile = new InstallationProfile
+        {
+            ProfileName = "Default",
+            FortniteVersion = FortniteVersion,
+            ArchiveDirectory = ArchiveDirectory,
+            UnrealVersion = UnrealVersion,
+            MainKey = MainKey,
+            UseMappingsFile = UseMappingsFile,
+            MappingsFile = MappingsFile,
+            GameLanguage = GameLanguage,
+            UseTextureStreaming = UseTextureStreaming
+        };
+        
+        AppSettings.Current.Installation.Profiles.Add(profile);
+        AppSettings.Current.Installation.FinishedWelcomeScreen = true;
         
         AppWM.SetupTabsAreVisible = false;
         AppWM.Navigate<HomeView>();
+        
+        AppSettings.Save();
     }
     
     [RelayCommand]

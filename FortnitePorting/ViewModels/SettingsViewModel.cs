@@ -34,9 +34,6 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private ThemeSettingsViewModel _theme = new();
     [ObservableProperty] private OnlineSettingsViewModel _online = new();
     [ObservableProperty] private PluginViewModel _plugin = new();
-    
-    // Welcome
-    [ObservableProperty] private bool _finishedWelcomeScreen;
 
     // Filtered Data
     [ObservableProperty] private HashSet<string> _filteredProps = [];
@@ -45,7 +42,12 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private RadioPlaylistSerializeData[] _playlists = [];
     [ObservableProperty] private int _audioDeviceIndex = 0;
     [ObservableProperty] private float _volume = 1.0f;
-    
+
+    public override async Task OnViewExited()
+    {
+        AppSettings.Save();
+    }
+
 
     public ExportDataMeta CreateExportMeta() => new()
     {

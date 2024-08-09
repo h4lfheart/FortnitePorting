@@ -29,6 +29,11 @@ public partial class ExportSettingsViewModel : ViewModelBase
     [ObservableProperty] private UnrealSettingsViewModel _unreal = new();
     [ObservableProperty] private FolderSettingsViewModel _folder = new();
 
+    public override async Task OnViewExited()
+    {
+        AppSettings.Save();
+    }
+
     public void Navigate(EExportLocation exportLocation)
     {
         var name = exportLocation is EExportLocation.AssetsFolder or EExportLocation.CustomFolder ? "Folder" : exportLocation.ToString();

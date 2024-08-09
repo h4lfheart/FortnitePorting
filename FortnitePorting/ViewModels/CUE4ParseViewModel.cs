@@ -44,10 +44,10 @@ public class CUE4ParseViewModel : ViewModelBase
 {
     public bool FinishedLoading;
     
-    public readonly HybridFileProvider Provider = AppSettings.Current.Installation.FortniteVersion switch
+    public readonly HybridFileProvider Provider = AppSettings.Current.Installation.CurrentProfile.FortniteVersion switch
     {
-        EFortniteVersion.LatestOnDemand => new HybridFileProvider(new VersionContainer(AppSettings.Current.Installation.UnrealVersion)),
-        _ => new HybridFileProvider(AppSettings.Current.Installation.ArchiveDirectory, ExtraDirectories, new VersionContainer(AppSettings.Current.Installation.UnrealVersion)),
+        EFortniteVersion.LatestOnDemand => new HybridFileProvider(new VersionContainer(AppSettings.Current.Installation.CurrentProfile.UnrealVersion)),
+        _ => new HybridFileProvider(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, ExtraDirectories, new VersionContainer(AppSettings.Current.Installation.CurrentProfile.UnrealVersion)),
     };
     
     public readonly List<FAssetData> AssetRegistry = [];
@@ -86,7 +86,7 @@ public class CUE4ParseViewModel : ViewModelBase
         await InitializeTextureStreaming();
         
         await LoadKeys();
-        Provider.LoadLocalization(AppSettings.Current.Installation.GameLanguage);
+        Provider.LoadLocalization(AppSettings.Current.Installation.CurrentProfile.GameLanguage);
         Provider.LoadVirtualPaths();
         await LoadMappings();
         
@@ -132,12 +132,12 @@ public class CUE4ParseViewModel : ViewModelBase
     
     private async Task InitializeProvider()
     {
-        if (AppSettings.Current.Installation.FortniteVersion is EFortniteVersion.LatestInstalled or EFortniteVersion.LatestOnDemand)
+        if (AppSettings.Current.Installation.CurrentProfile.FortniteVersion is EFortniteVersion.LatestInstalled or EFortniteVersion.LatestOnDemand)
         {
             await ApiVM.EpicGames.VerifyAuthAsync();
         }
         
-        switch (AppSettings.Current.Installation.FortniteVersion)
+        switch (AppSettings.Current.Installation.CurrentProfile.FortniteVersion)
         {
             case EFortniteVersion.LatestOnDemand:
             {
@@ -177,12 +177,12 @@ public class CUE4ParseViewModel : ViewModelBase
 
     private async Task InitializeTextureStreaming()
     {
-        if (AppSettings.Current.Installation.FortniteVersion is not (EFortniteVersion.LatestInstalled or EFortniteVersion.LatestOnDemand)) return;
-        if (AppSettings.Current.Installation.FortniteVersion == EFortniteVersion.LatestInstalled && !AppSettings.Current.Installation.TextureStreamingEnabled) return;
+        if (AppSettings.Current.Installation.CurrentProfile.FortniteVersion is not (EFortniteVersion.LatestInstalled or EFortniteVersion.LatestOnDemand)) return;
+        if (AppSettings.Current.Installation.CurrentProfile.FortniteVersion == EFortniteVersion.LatestInstalled && !AppSettings.Current.Installation.CurrentProfile.TextureStreamingEnabled) return;
 
         try
         {
-            var tocPath = await GetTocPath(AppSettings.Current.Installation.FortniteVersion);
+            var tocPath = await GetTocPath(AppSettings.Current.Installation.CurrentProfile.FortniteVersion);
             if (string.IsNullOrEmpty(tocPath)) return;
 
             var tocName = tocPath.SubstringAfterLast("/");
@@ -217,7 +217,7 @@ public class CUE4ParseViewModel : ViewModelBase
         {
             case EFortniteVersion.LatestInstalled:
             {
-                var onDemandPath = Path.Combine(AppSettings.Current.Installation.ArchiveDirectory, @"..\..\..\Cloud\IoStoreOnDemand.ini");
+                var onDemandPath = Path.Combine(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, @"..\..\..\Cloud\IoStoreOnDemand.ini");
                 if (File.Exists(onDemandPath)) onDemandText = await File.ReadAllTextAsync(onDemandPath);
                 break;
             }
@@ -242,7 +242,7 @@ public class CUE4ParseViewModel : ViewModelBase
 
     private async Task LoadKeys()
     {
-        switch (AppSettings.Current.Installation.FortniteVersion)
+        switch (AppSettings.Current.Installation.CurrentProfile.FortniteVersion)
         {
             case EFortniteVersion.LatestInstalled:
             case EFortniteVersion.LatestOnDemand:
@@ -260,14 +260,14 @@ public class CUE4ParseViewModel : ViewModelBase
             }
             default:
             {
-                var mainKey = AppSettings.Current.Installation.MainKey;
+                var mainKey = AppSettings.Current.Installation.CurrentProfile.MainKey;
                 if (mainKey.IsEmpty) mainKey = FileEncryptionKey.Empty;
                 
                 await Provider.SubmitKeyAsync(Globals.ZERO_GUID, mainKey.EncryptionKey);
                 
                 foreach (var vfs in Provider.UnloadedVfs.ToArray())
                 {
-                    foreach (var extraKey in AppSettings.Current.Installation.ExtraKeys)
+                    foreach (var extraKey in AppSettings.Current.Installation.CurrentProfile.ExtraKeys)
                     {
                         if (extraKey.IsEmpty) continue;
                         if (!vfs.TestAesKey(extraKey.EncryptionKey)) continue;
@@ -282,10 +282,10 @@ public class CUE4ParseViewModel : ViewModelBase
     
     private async Task LoadMappings()
     {
-        var mappingsPath = AppSettings.Current.Installation.FortniteVersion switch
+        var mappingsPath = AppSettings.Current.Installation.CurrentProfile.FortniteVersion switch
         {
             EFortniteVersion.LatestInstalled or EFortniteVersion.LatestOnDemand => await GetEndpointMappings() ?? GetLocalMappings(),
-            _ when AppSettings.Current.Installation.UseMappingsFile && File.Exists(AppSettings.Current.Installation.MappingsFile) => AppSettings.Current.Installation.MappingsFile,
+            _ when AppSettings.Current.Installation.CurrentProfile.UseMappingsFile && File.Exists(AppSettings.Current.Installation.CurrentProfile.MappingsFile) => AppSettings.Current.Installation.CurrentProfile.MappingsFile,
             _ => string.Empty
         };
         
