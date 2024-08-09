@@ -116,6 +116,8 @@ class ImportContext:
             "Type": part_type,
             "Meta": mesh.get("Meta")
         })
+        
+        
 
         # metadata handling
         def gather_metadata(*search_props):
@@ -308,6 +310,28 @@ class ImportContext:
         for child in mesh.get("Children"):
             self.import_model(child, parent=imported_object)
             
+        instances = mesh.get("Instances")
+        if len(instances) > 0:
+            mesh_data = imported_mesh.data.copy()
+            imported_object.select_set(True)
+            bpy.ops.object.delete()
+            
+            instance_parent = bpy.data.objects.new("InstanceParent_" + name, None)
+            instance_parent.rotation_euler = make_euler(mesh.get("Rotation"))
+            instance_parent.location = make_vector(mesh.get("Location"), unreal_coords_correction=True) * SCALE_FACTOR
+            instance_parent.scale = make_vector(mesh.get("Scale"))
+            instance_parent.parent = parent
+            bpy.context.collection.objects.link(instance_parent)
+            
+            for instance_index, instance_transform in enumerate(instances):
+                instance_object = bpy.data.objects.new(f"Instance_{instance_index}_" + name, mesh_data)
+                self.collection.objects.link(instance_object)
+    
+                instance_object.parent = instance_parent
+                instance_object.rotation_euler = make_euler(instance_transform.get("Rotation"))
+                instance_object.location = make_vector(instance_transform.get("Location"), unreal_coords_correction=True) * SCALE_FACTOR
+                instance_object.scale = make_vector(instance_transform.get("Scale"))
+            
         return imported_object
 
     def import_mesh(self, path: str):
@@ -383,7 +407,7 @@ class ImportContext:
 
         # object ref mat slots for instancing
         temp_material = material_slot.material
-        material_slot.link = 'OBJECT'
+        material_slot.link = 'OBJECT' if self.type in [EExportType.WORLD, EExportType.PREFAB] else 'DATA'
         material_slot.material = temp_material
 
         material_name = material_data.get("Name")

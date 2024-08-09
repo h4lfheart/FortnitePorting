@@ -139,6 +139,7 @@ public static class Exporter
         {
             USkeletalMesh => EExportType.Mesh,
             UStaticMesh => EExportType.Mesh,
+            USkeleton => EExportType.Mesh,
             UWorld => EExportType.World,
             UTexture => EExportType.Texture,
             UVirtualTextureBuilder => EExportType.Texture,
@@ -184,7 +185,7 @@ public static class Exporter
     private static BaseExport CreateExport(string name, UObject asset, FStructFallback[] styles, EExportType exportType, ExportDataMeta metaData)
     {
         var path = asset.GetPathName();
-        AppWM.Message("Export", $"Exporting: {asset.Name}", id: path, autoClose: false);
+        AppWM.Message($"Exporting {name}", $"Exporting: {asset.Name}", id: path, autoClose: false);
 
         ExportProgressUpdate updateDelegate = (name, current, total) =>
         {

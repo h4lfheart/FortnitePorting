@@ -170,9 +170,6 @@ public enum EExportType
     [Description("World"), Export(EPrimitiveExportType.Mesh)]
     World,
     
-    [Description("World Landscape"), Export(EPrimitiveExportType.Mesh)]
-    WorldLandscape,
-    
     [Description("Texture"), Export(EPrimitiveExportType.Texture)]
     Texture,
     
@@ -229,4 +226,12 @@ public enum ERadioSoundFormat
 
     [Description("Save as WAV")]
     WAV
+}
+
+[Flags]
+public enum EWorldFlags
+{
+    Actors = 1 << 0,
+    WorldPartitionGrids = 1 << 1,
+    Landscape = 1 << 2
 }

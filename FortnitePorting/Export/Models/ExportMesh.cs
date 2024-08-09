@@ -20,6 +20,7 @@ public record ExportMesh
     public readonly List<ExportMaterial> OverrideMaterials = [];
     public readonly List<ExportTextureData> TextureData = [];
     public readonly List<ExportMesh> Children = [];
+    public readonly List<ExportTransform> Instances = [];
 }
 
 public record ExportPart : ExportMesh
@@ -28,5 +29,12 @@ public record ExportPart : ExportMesh
     
     public EFortCustomPartType Type;
     public BaseMeta Meta = new();
+}
+
+public record ExportTransform(FTransform transform)
+{
+    public FVector Location = transform.Translation;
+    public FRotator Rotation = transform.Rotation.Rotator();
+    public FVector Scale = transform.Scale3D;
 }
 

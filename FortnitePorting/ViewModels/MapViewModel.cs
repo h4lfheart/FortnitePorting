@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Media;
@@ -13,11 +14,13 @@ using CUE4Parse_Conversion.Textures;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
+using CUE4Parse.UE4.IO;
 using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using FortnitePorting.Application;
+using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Models.Leaderboard;
 using FortnitePorting.Models.Unreal;
 using FortnitePorting.Models.Unreal.Landscape;
@@ -76,9 +79,28 @@ public partial class MapViewModel : ViewModelBase
 
     public override async Task Initialize()
     {
+        // in-game maps
         foreach (var mapInfo in MapInfos)
         {
             if (!mapInfo.IsValid()) continue;
+            
+            Maps.Add(new WorldPartitionMap(mapInfo));
+        }
+        
+        // uefn maps
+        foreach (var mountedVfs in CUE4ParseVM.Provider.MountedVfs)
+        {
+            if (mountedVfs is not IoStoreReader { Name: "plugin.utoc" } ioStoreReader) continue;
+
+            var gameFeatureDataFile = ioStoreReader.Files.FirstOrDefault(file => file.Key.EndsWith("GameFeatureData.uasset", StringComparison.OrdinalIgnoreCase));
+            if (gameFeatureDataFile.Value is null) continue;
+
+            var gameFeatureData = await CUE4ParseVM.Provider.TryLoadObjectAsync<UFortGameFeatureData>(gameFeatureDataFile.Value.PathWithoutExtension);
+            if (gameFeatureData is null) continue;
+
+            var defaultMap = await gameFeatureData.ExperienceData.DefaultMap.LoadAsync();
+
+            var mapInfo = MapInfo.CreateNonDisplay(defaultMap.Name, defaultMap.GetPathName().SubstringBeforeLast("."));
             
             Maps.Add(new WorldPartitionMap(mapInfo));
         }
@@ -128,50 +150,66 @@ public partial class WorldPartitionMap : ObservableObject
 
     public async Task Load()
     {
-        var maskTexture = await CUE4ParseVM.Provider.LoadObjectAsync<UTexture2D>(Info.MaskPath);
-        MaskBitmap = maskTexture.Decode()!.ToWriteableBitmap();
+        if (!Info.IsUEFN)
+        {
+            var maskTexture = await CUE4ParseVM.Provider.LoadObjectAsync<UTexture2D>(Info.MaskPath);
+            MaskBitmap = maskTexture.Decode()!.ToWriteableBitmap();
         
-        var mapTexture = await CUE4ParseVM.Provider.LoadObjectAsync<UTexture2D>(Info.MinimapPath);
-        MapBitmap = mapTexture.Decode()!.ToWriteableBitmap();
+            var mapTexture = await CUE4ParseVM.Provider.LoadObjectAsync<UTexture2D>(Info.MinimapPath);
+            MapBitmap = mapTexture.Decode()!.ToWriteableBitmap();
+        }
+        else
+        {
+            var mapTexture = await CUE4ParseVM.Provider.LoadObjectAsync<UTexture2D>("FortniteGame/Content/Global/Textures/Default/Blanks/Transparent1x1");
+            MapBitmap = mapTexture.Decode()!.ToWriteableBitmap();
+        }
         
         WorldName = Info.MapPath.SubstringAfterLast("/");
         
         _world = await CUE4ParseVM.Provider.LoadObjectAsync<UWorld>(Info.MapPath);
         _level = await _world.PersistentLevel.LoadAsync<ULevel>();
 
-        var worldSettings = _level.Get<UObject>("WorldSettings");
-        var worldPartition = worldSettings.Get<UObject>("WorldPartition");
-        var runtimeHash = worldPartition.Get<UObject>("RuntimeHash");
-        foreach (var streamingGrid in runtimeHash.GetOrDefault("StreamingGrids", Array.Empty<FStructFallback>()))
+        if (_level.GetOrDefault<UObject>("WorldSettings") is { } worldSettings
+            && worldSettings.GetOrDefault<UObject>("WorldPartition") is { } worldPartition
+            && worldPartition.GetOrDefault<UObject>("RuntimeHash") is { } runtimeHash)
         {
-            foreach (var gridLevel in streamingGrid.GetOrDefault("GridLevels", Array.Empty<FStructFallback>()))
-            foreach (var layerCell in gridLevel.GetOrDefault("LayerCells", Array.Empty<FStructFallback>()))
-            foreach (var gridCell in layerCell.GetOrDefault("GridCells", Array.Empty<UObject>()))
+            foreach (var streamingGrid in runtimeHash.GetOrDefault("StreamingGrids", Array.Empty<FStructFallback>()))
             {
-                var levelStreaming = gridCell.GetOrDefault<UObject?>("LevelStreaming");
-                if (levelStreaming is null) continue;
-
-                var worldAsset = levelStreaming.Get<FSoftObjectPath>("WorldAsset");
-
-                var runtimeCellData = gridCell.Get<UObject>("RuntimeCellData");
-                var position = runtimeCellData.GetOrDefault<FVector>("Position");
-                if (Grids.FirstOrDefault(grid => grid.OriginalPosition == position) is { } targetGrid)
+                foreach (var gridLevel in streamingGrid.GetOrDefault("GridLevels", Array.Empty<FStructFallback>()))
+                foreach (var layerCell in gridLevel.GetOrDefault("LayerCells", Array.Empty<FStructFallback>()))
+                foreach (var gridCell in layerCell.GetOrDefault("GridCells", Array.Empty<UObject>()))
                 {
-                    targetGrid.Maps.Add(new WorldPartitionGridMap(worldAsset.AssetPathName.Text));
+                    var levelStreaming = gridCell.GetOrDefault<UObject?>("LevelStreaming");
+                    if (levelStreaming is null) continue;
+
+                    var worldAsset = levelStreaming.Get<FSoftObjectPath>("WorldAsset");
+
+                    var runtimeCellData = gridCell.Get<UObject>("RuntimeCellData");
+                    var position = runtimeCellData.GetOrDefault<FVector>("Position");
+                    if (Grids.FirstOrDefault(grid => grid.OriginalPosition == position) is { } targetGrid)
+                    {
+                        targetGrid.Maps.Add(new WorldPartitionGridMap(worldAsset.AssetPathName.Text));
+                    }
+                    else
+                    {
+                        var grid = new WorldPartitionGrid(position, Info);
+                        grid.Maps.Add(new WorldPartitionGridMap(worldAsset.AssetPathName.Text));
+                        Grids.Add(grid);
+                    }
                 }
-                else
-                {
-                    var grid = new WorldPartitionGrid(position, Info);
-                    grid.Maps.Add(new WorldPartitionGridMap(worldAsset.AssetPathName.Text));
-                    Grids.Add(grid);
-                }
+
+                break;
             }
-
-            break;
         }
         
         Directory.CreateDirectory(ExportPath);
         DataLoaded = true;
+    }
+
+    public void ClearSelectedMaps()
+    {
+        Grids.ForEach(grid => grid.IsSelected = false);
+        SelectedMaps.Clear();
     }
     
     [RelayCommand]
@@ -203,7 +241,39 @@ public partial class WorldPartitionMap : ObservableObject
     [RelayCommand]
     public async Task ExportLandscape()
     {
-        await Exporter.Export(_world, EExportType.WorldLandscape, AppSettings.Current.CreateExportMeta());
+        var meta = AppSettings.Current.CreateExportMeta();
+        meta.Settings.WorldFlags = EWorldFlags.Landscape;
+        await Exporter.Export(_world, EExportType.World, meta);
+    }
+    
+    [RelayCommand]
+    public async Task ExportActors()
+    {
+        var meta = AppSettings.Current.CreateExportMeta();
+        meta.Settings.WorldFlags = EWorldFlags.Actors;
+        await Exporter.Export(_world, EExportType.World, meta);
+    }
+    
+    [RelayCommand]
+    public async Task ExportWorldPartitionActors()
+    {
+        var meta = AppSettings.Current.CreateExportMeta();
+        meta.Settings.WorldFlags = EWorldFlags.WorldPartitionGrids;
+        await Exporter.Export(_world, EExportType.World, meta);
+    }
+    
+    [RelayCommand]
+    public async Task ExportFullMap()
+    {
+        var meta = AppSettings.Current.CreateExportMeta();
+        meta.Settings.WorldFlags = EWorldFlags.Actors | EWorldFlags.Landscape | EWorldFlags.WorldPartitionGrids;
+        await Exporter.Export(_world, EExportType.World, meta);
+    }
+    
+    [RelayCommand]
+    public async Task CopyIDs()
+    {
+        await Clipboard.SetTextAsync(string.Join('\n', SelectedMaps.Select(map => map.Name)));
     }
     
     [RelayCommand]
@@ -218,7 +288,7 @@ public partial class WorldPartitionMap : ObservableObject
         }
         
         ModelPreviewWindow.Preview(levels);
-        SelectedMaps.Clear();
+        ClearSelectedMaps();
     }
     
     [RelayCommand]
@@ -240,14 +310,14 @@ public partial class WorldPartitionMap : ObservableObject
             await ApiVM.FortnitePorting.PostExportsAsync(exports);
         }
         
-        SelectedMaps.Clear();
+        ClearSelectedMaps();
     }
 
     [RelayCommand]
     public async Task Refresh()
     {
         Grids.Clear();
-        SelectedMaps.Clear();
+        ClearSelectedMaps();
         await Load();
     }
 
@@ -466,7 +536,8 @@ public partial class WorldPartitionMap : ObservableObject
 
     public override string ToString()
     {
-        return Info.Name;
+        var prefix = Info.IsUEFN ? "UEFN" : "In-Game";
+        return $"{prefix}: {Info.Name}";
     }
 }
 
@@ -533,8 +604,13 @@ public enum EMapTextureExportType
     Weight
 }
 
-public record MapInfo(string Name, string MapPath, string MinimapPath, string MaskPath, float Scale, int XOffset, int YOffset, int CellSize, bool UseMask)
+public record MapInfo(string Name, string MapPath, string MinimapPath, string MaskPath, float Scale, int XOffset, int YOffset, int CellSize, bool UseMask, bool IsUEFN = false)
 {
+    public static MapInfo CreateNonDisplay(string name, string mapPath)
+    {
+        return new MapInfo(name, mapPath, null, null, 0, 0, 0, 0, false, true);
+    }
+    
     public bool IsValid()
     {
         return CUE4ParseVM.Provider.Files.ContainsKey(CUE4ParseVM.Provider.FixPath(MapPath + ".umap"));

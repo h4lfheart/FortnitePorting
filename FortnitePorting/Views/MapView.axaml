@@ -58,6 +58,16 @@
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                 </ItemsControl>
+                <TextBlock Text="A preview of this map is not available." 
+                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                           Classes="TextFillColorTertiaryBrush" FontSize="36">
+                    <TextBlock.IsVisible>
+                        <MultiBinding Converter="{x:Static BoolConverters.And}">
+                            <Binding Path="!SelectedMap.SelectedMaps.Count"/>
+                            <Binding Path="SelectedMap.Info.IsUEFN"/>
+                        </MultiBinding>
+                    </TextBlock.IsVisible>
+                </TextBlock>
             </Grid>
         </Viewbox>
         
@@ -83,22 +93,36 @@
                         <RowDefinition Height="{ext:Space 1}"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="{ext:Space 1}"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="{ext:Space 1}"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="{ext:Space 1}"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="{ext:Space 1}"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="{ext:Space 1}"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="{ext:Space 1}"/>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="{ext:Space 1}"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     
-                    <ComboBox Grid.Row="0" SelectedIndex="0" ItemsSource="{Binding Maps}" SelectedItem="{Binding SelectedMap, Mode=TwoWay}" HorizontalAlignment="Stretch"/>
-                    <TextBlock Grid.Row="2" Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" Text="{Binding SelectedMap.GridCount, StringFormat='{}{0} Grid Maps Loaded'}" HorizontalAlignment="Center"/>
+                    <TextBlock Grid.Row="0" Classes="SubtitleTextBlockStyle" Text="Map" HorizontalAlignment="Center"/>
                     
-                    <Separator Grid.Row="3" Margin="{ext:Space 1}"/> 
+                    <ComboBox Grid.Row="2" SelectedIndex="0" ItemsSource="{Binding Maps}" SelectedItem="{Binding SelectedMap, Mode=TwoWay}" HorizontalAlignment="Stretch"/>
                     
-                    <TextBlock Grid.Row="4" Classes="SubtitleTextBlockStyle" Text="Export" HorizontalAlignment="Center"/>
+                    <TextBlock Grid.Row="4" Classes="SubtitleTextBlockStyle" Text="Images" HorizontalAlignment="Center" Margin="{ext:Space 0, 1, 0, 0}"/>
                 
-                    <Button Grid.Row="6" HorizontalAlignment="Stretch" Command="{Binding SelectedMap.ExportMinimapCommand}"
-                            IsEnabled="{Binding SelectedMap.DataLoaded}">
+                    <Button Grid.Row="6" HorizontalAlignment="Stretch" Command="{Binding SelectedMap.ExportMinimapCommand}">
+                        <Button.IsEnabled>
+                            <MultiBinding Converter="{x:Static BoolConverters.And}">
+                                <Binding Path="SelectedMap.DataLoaded"/>
+                                <Binding Path="!SelectedMap.Info.IsUEFN"/>
+                            </MultiBinding>
+                        </Button.IsEnabled>
                         <StackPanel Orientation="Horizontal">
-                            <material:MaterialIcon Kind="Map" Margin="{ext:Space 0, 0, 1, 0}"/>
+                            <material:MaterialIcon Kind="Image" Margin="{ext:Space 0, 0, 1, 0}"/>
                             <TextBlock Text="Minimap"/>
                         </StackPanel>
                     </Button>
@@ -127,7 +151,10 @@
                         </StackPanel>
                     </Button>
                     
-                    <Button Grid.Row="14" HorizontalAlignment="Stretch" Command="{Binding SelectedMap.ExportLandscapeCommand}"
+                    <TextBlock Grid.Row="14" Classes="SubtitleTextBlockStyle" Text="Assets" 
+                               HorizontalAlignment="Center" Margin="{ext:Space 0, 1, 0, 0}"/>
+                    
+                    <Button Grid.Row="16" HorizontalAlignment="Stretch" Command="{Binding SelectedMap.ExportLandscapeCommand}"
                             IsEnabled="{Binding SelectedMap.DataLoaded}">
                         <StackPanel Orientation="Horizontal">
                             <material:MaterialIcon Kind="Terrain" Margin="{ext:Space 0, 0, 1, 0}"/>
@@ -135,10 +162,40 @@
                         </StackPanel>
                     </Button>
                     
-                    <TextBlock Grid.Row="16" Text="Selected Maps" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
+                    <Button Grid.Row="18" HorizontalAlignment="Stretch" Command="{Binding SelectedMap.ExportActorsCommand}"
+                            IsEnabled="{Binding SelectedMap.DataLoaded}">
+                        <StackPanel Orientation="Horizontal">
+                            <material:MaterialIcon Kind="Cube" Margin="{ext:Space 0, 0, 1, 0}"/>
+                            <TextBlock Text="Base Actors"/>
+                        </StackPanel>
+                    </Button>
                     
-                    <ScrollViewer Grid.Row="18">
-                        <ItemsControl ItemsSource="{Binding SelectedMap.SelectedMaps}" HorizontalAlignment="Center">
+                    <Button Grid.Row="20" HorizontalAlignment="Stretch" Command="{Binding SelectedMap.ExportWorldPartitionActorsCommand}"
+                            IsEnabled="{Binding SelectedMap.DataLoaded}">
+                        <StackPanel Orientation="Horizontal">
+                            <material:MaterialIcon Kind="ViewGridPlus" Margin="{ext:Space 0, 0, 1, 0}"/>
+                            <TextBlock Text="World Partition Actors"/>
+                        </StackPanel>
+                    </Button>
+                    
+                    <Button Grid.Row="22" HorizontalAlignment="Stretch" Command="{Binding SelectedMap.ExportFullMapCommand}"
+                            IsEnabled="{Binding SelectedMap.DataLoaded}">
+                        <StackPanel Orientation="Horizontal">
+                            <material:MaterialIcon Kind="Map" Margin="{ext:Space 0, 0, 1, 0}"/>
+                            <TextBlock Text="Full Map"/>
+                        </StackPanel>
+                    </Button>
+                    
+                    <TextBlock Grid.Row="24" Text="World Partition" Margin="{ext:Space 0, 1, 0, 0}"
+                               Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center" 
+                               IsVisible="{Binding !SelectedMap.Info.IsUEFN}"/>
+                    
+                    <TextBlock Grid.Row="26" Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" 
+                               Text="{Binding SelectedMap.GridCount, StringFormat='{}{0} Maps Loaded'}" 
+                               HorizontalAlignment="Center" IsVisible="{Binding !SelectedMap.Info.IsUEFN}"/>
+                    
+                    <ScrollViewer Grid.Row="28">
+                        <ItemsControl ItemsSource="{Binding SelectedMap.SelectedMaps, Mode=TwoWay}" HorizontalAlignment="Center">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Name}" Classes="BodyStrongTextBlockStyle"
@@ -154,18 +211,35 @@
                         </ItemsControl>
                     </ScrollViewer>
                     
-                    <TextBlock Grid.Row="18" Text="No Grids Selected" Classes="TextFillColorSecondaryBrush"
-                               IsVisible="{Binding !SelectedMap.SelectedMaps.Count}"
-                               HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                    <TextBlock Grid.Row="28" Text="No Grids Selected" Classes="TextFillColorSecondaryBrush"
+                               HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock.IsVisible>
+                            <MultiBinding Converter="{x:Static BoolConverters.And}">
+                                <Binding Path="!SelectedMap.SelectedMaps.Count"/>
+                                <Binding Path="!SelectedMap.Info.IsUEFN"/>
+                            </MultiBinding>
+                        </TextBlock.IsVisible>
+                    </TextBlock>
                     
-                    <Grid Grid.Row="20">
+                    <Grid Grid.Row="40" IsVisible="{Binding !SelectedMap.Info.IsUEFN}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="{ext:Space 1}"/>
                             <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="{ext:Space 1}"/>
+                            <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
+                        
+                        <Button Grid.Column="0" ToolTip.Tip="Copy IDs"
+                                Command="{Binding SelectedMap.CopyIDsCommand}" IsEnabled="{Binding !!SelectedMap.SelectedMaps.Count}"
+                                HorizontalAlignment="Stretch">
+                            <StackPanel Orientation="Horizontal">
+                                <material:MaterialIcon Kind="Clipboard" Margin="{ext:Space 0, 0, 1, 0}"/>
+                                <TextBlock Text="Copy IDs"/>
+                            </StackPanel>
+                        </Button>
                             
-                        <Button Grid.Column="0" ToolTip.Tip="Preview"
+                        <Button Grid.Column="2" ToolTip.Tip="Preview"
                                 Command="{Binding SelectedMap.PreviewCommand}" IsEnabled="{Binding !!SelectedMap.SelectedMaps.Count}"
                                 HorizontalAlignment="Stretch">
                             <StackPanel Orientation="Horizontal">
@@ -173,7 +247,8 @@
                                 <TextBlock Text="Preview"/>
                             </StackPanel>
                         </Button>
-                        <Button Grid.Column="2" ToolTip.Tip="Export"
+                        
+                        <Button Grid.Column="4" ToolTip.Tip="Export"
                                 Command="{Binding SelectedMap.ExportCommand}" IsEnabled="{Binding !!SelectedMap.SelectedMaps.Count}"
                                 HorizontalAlignment="Stretch">
                             <StackPanel Orientation="Horizontal">

@@ -197,41 +197,6 @@ public class MeshExport : BaseExport
                 Meshes.AddRange(Exporter.World(world));
                 break;
             }
-            case EExportType.WorldLandscape:
-            {
-                if (asset is not UWorld world) break;
-                if (world.PersistentLevel.Load() is not ULevel level) break;
-                
-                var actors = new List<ExportMesh>();
-                var totalActors = level.Actors.Length;
-                var currentActor = 0;
-                foreach (var actorLazy in level.Actors)
-                {
-                    currentActor++;
-                    if (actorLazy is null || actorLazy.IsNull) continue;
-
-                    var actor = actorLazy.Load();
-                    if (actor is null) continue;
-
-                    Log.Information("Processing {ActorName}: {CurrentActor}/{TotalActors}", actor.Name, currentActor, totalActors);
-                    Exporter.Meta.OnUpdateProgress(actor.Name, currentActor, totalActors);
-                    
-                    if (actor is not ALandscapeProxy landscapeProxy) continue;
-                    
-                    var transform = landscapeProxy.GetAbsoluteTransformFromRootComponent();
-            
-                    actors.Add(new ExportMesh
-                    {
-                        Name = landscapeProxy.Name,
-                        Path = Exporter.Export(landscapeProxy, embeddedAsset: true, synchronousExport: true),
-                        Location = transform.Translation,
-                        Scale = transform.Scale3D
-                    });
-                }
-                
-                Meshes.AddRange(actors);
-                break;
-            }
             case EExportType.Item:
             {
                 Meshes.AddRange(Exporter.WeaponDefinition(asset));

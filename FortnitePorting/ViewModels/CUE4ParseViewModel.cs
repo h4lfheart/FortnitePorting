@@ -47,7 +47,7 @@ public class CUE4ParseViewModel : ViewModelBase
     public readonly HybridFileProvider Provider = AppSettings.Current.Installation.FortniteVersion switch
     {
         EFortniteVersion.LatestOnDemand => new HybridFileProvider(new VersionContainer(AppSettings.Current.Installation.UnrealVersion)),
-        _ => new HybridFileProvider(AppSettings.Current.Installation.ArchiveDirectory, [], new VersionContainer(AppSettings.Current.Installation.UnrealVersion)),
+        _ => new HybridFileProvider(AppSettings.Current.Installation.ArchiveDirectory, ExtraDirectories, new VersionContainer(AppSettings.Current.Installation.UnrealVersion)),
     };
     
     public readonly List<FAssetData> AssetRegistry = [];
@@ -58,6 +58,10 @@ public class CUE4ParseViewModel : ViewModelBase
     
     private static readonly Regex FortniteArchiveRegex = new(@"^FortniteGame(/|\\)Content(/|\\)Paks(/|\\)(pakchunk(?:0|10.*|\w+)-WindowsClient|global)\.(pak|utoc)$", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly List<DirectoryInfo> ExtraDirectories = 
+    [
+        new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "FortniteGame", "Saved", "PersistentDownloadDir", "GameCustom", "InstalledBundles"))
+    ];
     
     public override async Task Initialize()
     {
@@ -88,6 +92,7 @@ public class CUE4ParseViewModel : ViewModelBase
         
         Provider.PostMount();
         await LoadConsoleVariables();
+        
 
         await LoadAssetRegistries();
 

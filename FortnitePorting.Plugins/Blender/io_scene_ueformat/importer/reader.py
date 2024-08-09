@@ -56,6 +56,8 @@ class FArchiveReader:
         return struct.unpack("i", self.data.read(4))[0]
 
     def read_int_vector(self, size: int) -> tuple[int, ...]:
+        if size <= 0:
+            return ()
         return struct.unpack(str(size) + "I", self.data.read(size * 4))
 
     def read_short(self) -> int:

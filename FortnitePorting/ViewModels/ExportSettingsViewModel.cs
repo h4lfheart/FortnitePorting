@@ -53,6 +53,9 @@ public partial class BaseExportSettings : ViewModelBase
     [ObservableProperty] private EFileCompressionFormat _compressionFormat = EFileCompressionFormat.ZSTD;
     [ObservableProperty] private EImageFormat _imageFormat = EImageFormat.PNG;
 
+
+    [ObservableProperty] private EWorldFlags _worldFlags = EWorldFlags.Actors | EWorldFlags.WorldPartitionGrids | EWorldFlags.Landscape;
+
     [ObservableProperty] private bool _exportMaterials = true;
     
     public virtual ExporterOptions CreateExportOptions()

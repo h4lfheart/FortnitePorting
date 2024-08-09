@@ -400,10 +400,12 @@ public class ExportContext
         
         actors.AddRangeIfNotNull(Level(level));
         
-        if (level.GetOrDefault<UObject>("WorldSettings") is { } worldSettings
+        if (Meta.Settings.WorldFlags.HasFlag(EWorldFlags.WorldPartitionGrids) &&  level.GetOrDefault<UObject>("WorldSettings") is { } worldSettings
             && worldSettings.GetOrDefault<UObject>("WorldPartition") is { } worldPartition
             && worldPartition.GetOrDefault<UObject>("RuntimeHash") is { } runtimeHash)
         {
+            Meta.Settings.WorldFlags |= EWorldFlags.Actors;
+            
             foreach (var streamingGrid in runtimeHash.GetOrDefault("StreamingGrids", Array.Empty<FStructFallback>()))
             {
                 foreach (var gridLevel in streamingGrid.GetOrDefault("GridLevels", Array.Empty<FStructFallback>()))
@@ -444,49 +446,101 @@ public class ExportContext
 
             Log.Information("Processing {ActorName}: {CurrentActor}/{TotalActors}", actor.Name, currentActor, totalActors);
             Meta.OnUpdateProgress(actor.Name, currentActor, totalActors);
-            actors.AddIfNotNull(Actor(actor));
+            actors.AddRangeIfNotNull(Actor(actor));
         }
 
         return actors;
     } 
 
-    public ExportMesh? Actor(UObject actor)
+    public List<ExportMesh> Actor(UObject actor)
     {
-        if (actor.TryGetValue(out UStaticMeshComponent staticMeshComponent, "StaticMeshComponent", "StaticMesh", "Mesh", "LightMesh"))
+        var meshes = new List<ExportMesh>();
+
+        if (Meta.Settings.WorldFlags.HasFlag(EWorldFlags.Actors))
         {
-            var exportMesh = MeshComponent(staticMeshComponent) ?? new ExportMesh { IsEmpty = true };
-            exportMesh.Name = actor.Name;
-            exportMesh.Location = staticMeshComponent.GetOrDefault("RelativeLocation", FVector.ZeroVector);
-            exportMesh.Rotation = staticMeshComponent.GetOrDefault("RelativeRotation", FRotator.ZeroRotator);
-            exportMesh.Scale = staticMeshComponent.GetOrDefault("RelativeScale3D", FVector.OneVector);
-
-            foreach (var extraMesh in ExtraActorMeshes(actor))
+            if (actor.TryGetValue(out FPackageIndex[] instanceComponents, "InstanceComponents"))
             {
-                exportMesh.Children.AddIfNotNull(extraMesh);
-            }
-
-            // todo global solution for accumulating all uobject heirarchy properties
-            var textureDatas = actor.GetAllProperties<UBuildingTextureData>("TextureData");
-            if (textureDatas.Count == 0 && actor.Template is not null)
-                textureDatas = actor.Template.Load()!.GetAllProperties<UBuildingTextureData>("TextureData");
-
-            foreach (var (textureData, index) in textureDatas)
-            {
-                exportMesh.TextureData.AddIfNotNull(TextureData(textureData, index));
-            }
-                        
-            if (actor.TryGetValue(out FSoftObjectPath[] additionalWorlds, "AdditionalWorlds"))
-            {
-                foreach (var additionalWorldPath in additionalWorlds)
+                var transform = actor.GetAbsoluteTransformFromRootComponent();
+                foreach (var instanceComponentLazy in instanceComponents)
                 {
-                    exportMesh.Children.AddRange(World(additionalWorldPath.Load<UWorld>()));
+                    var instanceComponent = instanceComponentLazy.Load<UInstancedStaticMeshComponent>();
+                    if (instanceComponent is null) continue;
+
+                    var exportMesh = MeshComponent(instanceComponent);
+                    if (exportMesh is null) continue;
+                    
+                    exportMesh.Location = transform.Translation;
+                    exportMesh.Rotation = transform.Rotator();
+                    exportMesh.Scale = FVector.OneVector + transform.Scale3D;
+
+                    meshes.Add(exportMesh);
                 }
             }
+            
+            if (actor.TryGetValue(out UStaticMeshComponent staticMeshComponent, "StaticMeshComponent", "StaticMesh", "Mesh", "LightMesh"))
+            {
+                var exportMesh = MeshComponent(staticMeshComponent) ?? new ExportMesh { IsEmpty = true };
+                exportMesh.Name = actor.Name;
+                exportMesh.Location = staticMeshComponent.GetOrDefault("RelativeLocation", FVector.ZeroVector);
+                exportMesh.Rotation = staticMeshComponent.GetOrDefault("RelativeRotation", FRotator.ZeroRotator);
+                exportMesh.Scale = staticMeshComponent.GetOrDefault("RelativeScale3D", FVector.OneVector);
 
-            return exportMesh;
+                foreach (var extraMesh in ExtraActorMeshes(actor))
+                {
+                    exportMesh.Children.AddIfNotNull(extraMesh);
+                }
+
+                // todo global solution for accumulating all uobject heirarchy properties
+                var textureDatas = actor.GetAllProperties<UBuildingTextureData>("TextureData");
+                if (textureDatas.Count == 0 && actor.Template is not null)
+                    textureDatas = actor.Template.Load()!.GetAllProperties<UBuildingTextureData>("TextureData");
+
+                foreach (var (textureData, index) in textureDatas)
+                {
+                    exportMesh.TextureData.AddIfNotNull(TextureData(textureData, index));
+                }
+                            
+                if (actor.TryGetValue(out FSoftObjectPath[] additionalWorlds, "AdditionalWorlds"))
+                {
+                    foreach (var additionalWorldPath in additionalWorlds)
+                    {
+                        exportMesh.Children.AddRange(World(additionalWorldPath.Load<UWorld>()));
+                    }
+                }
+                
+                //if (actor.Name.Contains("BottleRackBottles", StringComparison.OrdinalIgnoreCase)) Debugger.Break();
+                if (actor.Template?.Load() is { } template)
+                {
+                    var basePath = template.GetPathName().SubstringBeforeLast(".");
+                    var blueprintPath = $"{basePath}.{basePath.SubstringAfterLast("/")}_C";
+                    var blueprintGeneratedClass = CUE4ParseVM.Provider.LoadObject<UObject>(blueprintPath);
+                    if (blueprintGeneratedClass.TryGetValue(out UObject constructionScript, "SimpleConstructionScript"))
+                    {
+                        var allNodes = constructionScript.GetOrDefault("AllNodes", Array.Empty<UObject>());
+                        foreach (var node in allNodes)
+                        {
+                            var componentTemplate = node.GetOrDefault<UObject>("ComponentTemplate");
+                            if (componentTemplate is UInstancedStaticMeshComponent instancedStaticMeshComponent)
+                            {
+                                var instanceExportMesh = MeshComponent(instancedStaticMeshComponent);
+                                if (instanceExportMesh is null) continue;
+
+                                exportMesh.Children.Add(instanceExportMesh);
+                            }
+                            else if (componentTemplate is UStaticMeshComponent subStaticMeshComponent)
+                            {
+                               exportMesh.Children.AddIfNotNull(MeshComponent(subStaticMeshComponent));
+                            }
+                        }
+                    }
+                    
+                }
+
+                meshes.Add(exportMesh);
+            }
         }
 
-        if (actor is ALandscapeProxy landscapeProxy)
+        if (Meta.Settings.WorldFlags.HasFlag(EWorldFlags.Landscape) && actor is ALandscapeProxy landscapeProxy)
         {
             var transform = landscapeProxy.GetAbsoluteTransformFromRootComponent();
             
@@ -495,16 +549,17 @@ public class ExportContext
             exportMesh.Path = Export(landscapeProxy, embeddedAsset: true, synchronousExport: true);
             exportMesh.Location = transform.Translation;
             exportMesh.Scale = transform.Scale3D;
-            return exportMesh;
+            meshes.Add(exportMesh);
         }
 
-        return null;
+        return meshes;
     }
 
     public ExportMesh? MeshComponent(UObject genericComponent)
     {
         return genericComponent switch
         {
+            UInstancedStaticMeshComponent instancedStaticMeshComponent => MeshComponent(instancedStaticMeshComponent),
             UStaticMeshComponent staticMeshComponent => MeshComponent(staticMeshComponent),
             USkeletalMeshComponent skeletalMeshComponent => MeshComponent(skeletalMeshComponent),
             _ => null
@@ -546,6 +601,20 @@ public class ExportContext
             if (material is null) continue;
             
             exportMesh.OverrideMaterials.AddIfNotNull(Material(material, idx));
+        }
+
+        return exportMesh;
+    }
+
+    public ExportMesh? MeshComponent(UInstancedStaticMeshComponent instanceComponent)
+    {
+        var mesh = instanceComponent.GetOrDefault<UStaticMesh?>("StaticMesh");
+        var exportMesh = Mesh(mesh);
+        if (exportMesh is null) return null;
+                
+        foreach (var instance in instanceComponent.PerInstanceSMData ?? [])
+        {
+            exportMesh.Instances.Add(new ExportTransform(instance.TransformData));
         }
 
         return exportMesh;

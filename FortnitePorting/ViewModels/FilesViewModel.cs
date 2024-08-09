@@ -21,6 +21,7 @@ using DynamicData.Binding;
 using FortnitePorting.Application;
 using FortnitePorting.Export;
 using FortnitePorting.Export.Models;
+using FortnitePorting.Extensions;
 using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.Files;
 using FortnitePorting.Models.Leaderboard;
@@ -130,6 +131,15 @@ public partial class FilesViewModel : ViewModelBase
             }
             case USoundWave soundWave:
             {
+                SoundPreviewWindow.Preview(soundWave);
+                break;
+            }
+            case USoundCue soundCue:
+            {
+                var sounds = soundCue.HandleSoundTree();
+                var soundWaveLazy = sounds.MaxBy(sound => sound.Time)?.SoundWave;
+                if (soundWaveLazy?.Load<USoundWave>() is not { } soundWave) break;
+                
                 SoundPreviewWindow.Preview(soundWave);
                 break;
             }
