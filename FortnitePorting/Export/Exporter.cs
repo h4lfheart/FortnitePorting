@@ -25,6 +25,7 @@ using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Models;
+using FortnitePorting.Shared.Models.Fortnite;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
 using Newtonsoft.Json;
@@ -144,6 +145,7 @@ public static class Exporter
             UWorld => EExportType.World,
             UTexture => EExportType.Texture,
             UVirtualTextureBuilder => EExportType.Texture,
+            UBuildingTextureData => EExportType.Texture,
             USoundWave => EExportType.Sound,
             USoundCue => EExportType.Sound,
             UAnimSequence => EExportType.Animation,

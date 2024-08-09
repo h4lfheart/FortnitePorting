@@ -6,9 +6,9 @@ namespace FortnitePorting.Shared.Models.Fortnite;
 
 public class UBuildingTextureData : UObject
 {
-    public UTexture2D Diffuse;
-    public UTexture2D Normal;
-    public UTexture2D Specular;
+    public UTexture2D? Diffuse;
+    public UTexture2D? Normal;
+    public UTexture2D? Specular;
 
     public override void Deserialize(FAssetArchive Ar, long validPos)
     {

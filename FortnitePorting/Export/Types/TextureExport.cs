@@ -21,6 +21,7 @@ using FortnitePorting.Models.Unreal;
 using FortnitePorting.Models.Unreal.Landscape;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
+using FortnitePorting.Shared.Models.Fortnite;
 using FortnitePorting.ViewModels.Settings;
 using Serilog;
 
@@ -28,7 +29,7 @@ namespace FortnitePorting.Export.Types;
 
 public class TextureExport : BaseExport
 {
-    public string Path;
+    public List<string> Textures = [];
     
     private static readonly Dictionary<EExportType, string> TextureNames = new()
     {
@@ -40,24 +41,46 @@ public class TextureExport : BaseExport
     
     public TextureExport(string name, UObject asset, FStructFallback[] styles, EExportType exportType, ExportDataMeta metaData) : base(name, asset, styles, exportType, metaData)
     {
-        var texture = asset switch
+        var textures = new List<UTexture>();
+        switch (asset)
         {
-            UTexture textureRef => textureRef,
-            UVirtualTextureBuilder virtualTextureBuilder => virtualTextureBuilder.Texture.Load<UVirtualTexture2D>(),
-            _ => asset.GetOrDefault<UTexture2D?>(TextureNames[exportType]) ?? asset.GetDataListItem<UTexture2D>("LargeIcon", "Icon")
-        };
-        
-        if (texture is null) return;
-        
-        if (metaData.Settings is FolderSettingsViewModel folderSettings)
-        {
-            var exportPath = Exporter.Export(texture, true);
-            Launch(System.IO.Path.GetDirectoryName(exportPath)!);
+            case UVirtualTextureBuilder virtualTextureBuilder:
+            {
+                textures.AddIfNotNull(virtualTextureBuilder.Texture.Load<UVirtualTexture2D>());
+                break;
+            }
+            case UTexture texture:
+            {
+                textures.Add(texture);
+                break;
+            }
+            case UBuildingTextureData textureData:
+            {
+                textures.AddIfNotNull(textureData.Diffuse);
+                textures.AddIfNotNull(textureData.Normal);
+                textures.AddIfNotNull(textureData.Specular);
+                break;
+            }
+            default:
+            {
+                textures.AddIfNotNull(asset.GetOrDefault<UTexture2D?>(TextureNames[exportType]) ?? asset.GetDataListItem<UTexture2D>("LargeIcon", "Icon"));
+                break;
+            }
         }
-        else
+
+        foreach (var texture in textures)
         {
-            Path = Exporter.Export(texture);
+            if (metaData.Settings is FolderSettingsViewModel folderSettings)
+            {
+                var exportPath = Exporter.Export(texture, true);
+                Launch(System.IO.Path.GetDirectoryName(exportPath)!);
+            }
+            else
+            {
+                Textures.Add(Exporter.Export(texture));
+            }
         }
+       
     }
     
 }
