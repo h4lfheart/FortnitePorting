@@ -305,9 +305,10 @@ public class CUE4ParseViewModel : ViewModelBase
         if (foundMappings is null) return null;
 
         var mappingsFilePath = Path.Combine(DataFolder.FullName, foundMappings.Filename);
-        if (File.Exists(mappingsFilePath)) return null;
+        if (File.Exists(mappingsFilePath)) return mappingsFilePath;
 
         await ApiVM.DownloadFileAsync(foundMappings.URL, mappingsFilePath);
+        File.SetCreationTime(mappingsFilePath, foundMappings.Uploaded);
         return mappingsFilePath;
     }
 
@@ -316,7 +317,7 @@ public class CUE4ParseViewModel : ViewModelBase
         var usmapFiles = DataFolder.GetFiles("*.usmap");
         if (usmapFiles.Length <= 0) return null;
 
-        var latestUsmap = usmapFiles.MaxBy(x => x.LastWriteTime);
+        var latestUsmap = usmapFiles.MaxBy(x => x.CreationTime);
         return latestUsmap?.FullName;
     }
     

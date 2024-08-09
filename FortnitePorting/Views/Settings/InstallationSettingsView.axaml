@@ -165,7 +165,7 @@
                         <TextBox Text="{Binding CurrentProfile.MappingsFile}" 
                                  Watermark="Ex. C:/Users/FortnitePorting/Downloads/Mappings.usmap" 
                                  IsEnabled="{Binding CurrentProfile.UseMappingsFile}"
-                                 MaxWidth="800"/>
+                                 MaxWidth="500"/>
                         <Button Margin="4 0 0 0" Command="{Binding CurrentProfile.BrowseMappingsFile}" IsEnabled="{Binding CurrentProfile.UseMappingsFile}">
                             <ui:SymbolIcon Symbol="Folder"/>
                         </Button>

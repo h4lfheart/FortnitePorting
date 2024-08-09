@@ -100,6 +100,7 @@ public partial class InstallationProfile : ObservableValidator
 
         await ApiVM.DownloadFileAsync(targetMappings.URL, mappingsFilePath);
         MappingsFile = mappingsFilePath;
+        File.SetCreationTime(mappingsFilePath, targetMappings.Uploaded);
     }
     
     public async Task AddEncryptionKey()
