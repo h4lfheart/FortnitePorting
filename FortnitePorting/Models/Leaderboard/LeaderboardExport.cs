@@ -68,7 +68,6 @@ public partial class LeaderboardExport : ObservableObject
         }
         
         ShowMedal = true;
-        CachedBitmaps.Clear();
         if (CachedBitmaps.TryGetValue(ObjectPath, out var existingBitmap))
         {
             ExportBitmap = existingBitmap;
@@ -93,11 +92,6 @@ public partial class LeaderboardExport : ObservableObject
 
     private Bitmap? GetObjectBitmap(UObject obj)
     {
-        if (obj is UTexture texture)
-        {
-            return texture.Decode()?.ToWriteableBitmap(ignoreAlpha: true);
-        }
-        
         var typeName = obj switch
         {
             UBuildingTextureData => "DataAsset",

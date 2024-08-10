@@ -79,14 +79,14 @@ public partial class HomeViewModel : ViewModelBase
         StatusText = text;
     }
     
-    public void LaunchWiki()
-    {
-        throw new NotImplementedException("Wiki has not been created yet.");
-    }
-
     public void LaunchDiscord()
     {
         Launch(Globals.DISCORD_URL);
+    }
+    
+    public void LaunchTwitter()
+    {
+        Launch(Globals.TWITTER_URL);
     }
     
     public void LaunchGitHub()

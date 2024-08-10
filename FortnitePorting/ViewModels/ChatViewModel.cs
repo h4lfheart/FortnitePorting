@@ -72,8 +72,10 @@ public partial class ChatViewModel : ViewModelBase
 
     public async Task ClipboardPaste()
     {
+        if (await ClipboardStaticBase<AvaloniaClipboardHandle, Bitmap>.GetImageAsync() is not { } image) return;
+        
         SelectedImageName = "image.png";
-        SelectedImage = await ClipboardStaticBase<AvaloniaClipboardHandle, Bitmap>.GetImageAsync();
+        SelectedImage = image;
         ImageFlyout.IsOpen = true;
     }
 

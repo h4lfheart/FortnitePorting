@@ -35,6 +35,7 @@ using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using Color = SixLabors.ImageSharp.Color;
 using Exporter = FortnitePorting.Export.Exporter;
+using ImageExtensions = FortnitePorting.Shared.Extensions.ImageExtensions;
 using Vector2 = System.Numerics.Vector2;
 
 namespace FortnitePorting.ViewModels;
@@ -98,7 +99,9 @@ public partial class MapViewModel : ViewModelBase
             var gameFeatureData = await CUE4ParseVM.Provider.TryLoadObjectAsync<UFortGameFeatureData>(gameFeatureDataFile.Value.PathWithoutExtension);
             if (gameFeatureData is null) continue;
 
-            var defaultMap = await gameFeatureData.ExperienceData.DefaultMap.LoadAsync();
+            if (gameFeatureData.ExperienceData?.DefaultMap is not { } defaultMapPath) continue;
+
+            var defaultMap = await defaultMapPath.LoadAsync();
             if (defaultMap.Name.StartsWith("FMJam_")) continue;
 
             var mapInfo = MapInfo.CreateNonDisplay(defaultMap.Name, defaultMap.GetPathName().SubstringBeforeLast("."));
@@ -108,7 +111,7 @@ public partial class MapViewModel : ViewModelBase
 
         if (Maps.Count == 0)
         {
-            AppWM.Dialog("Unsupported Map", "Failed to find any supported map for processing.");
+            AppWM.Dialog("Unsupported Maps", "Failed to find any supported maps for processing.");
         }
 
         foreach (var map in Maps)
@@ -122,7 +125,7 @@ public partial class MapViewModel : ViewModelBase
 public partial class WorldPartitionMap : ObservableObject
 {
     [ObservableProperty] private MapInfo _info;
-    [ObservableProperty] private Bitmap _mapBitmap;
+    [ObservableProperty] private Bitmap _mapBitmap = ImageExtensions.AvaresBitmap("avares://FortnitePorting/Assets/Transparent1x1.png");
     [ObservableProperty] private Bitmap _maskBitmap;
     [ObservableProperty] private string _worldName = string.Empty;
     [ObservableProperty] private bool _dataLoaded = false;
@@ -157,11 +160,6 @@ public partial class WorldPartitionMap : ObservableObject
             MaskBitmap = maskTexture.Decode()!.ToWriteableBitmap();
         
             var mapTexture = await CUE4ParseVM.Provider.LoadObjectAsync<UTexture2D>(Info.MinimapPath);
-            MapBitmap = mapTexture.Decode()!.ToWriteableBitmap();
-        }
-        else
-        {
-            var mapTexture = await CUE4ParseVM.Provider.LoadObjectAsync<UTexture2D>("FortniteGame/Content/Global/Textures/Default/Blanks/Transparent1x1");
             MapBitmap = mapTexture.Decode()!.ToWriteableBitmap();
         }
         

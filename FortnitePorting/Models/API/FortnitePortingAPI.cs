@@ -33,6 +33,7 @@ public class FortnitePortingAPI : APIBase
     public const string LEADERBOARD_EXPORTS_PERSONAL_URL = "https://fortniteporting.halfheart.dev/api/v3/leaderboard/exports/personal";
     
     public const string RELEASE_URL = "https://fortniteporting.halfheart.dev/api/v3/release";
+    public const string RELEASE_FILES_URL = "https://fortniteporting.halfheart.dev/api/v3/release/files";
 
     
     public FortnitePortingAPI(RestClient client) : base(client)
@@ -228,6 +229,16 @@ public class FortnitePortingAPI : APIBase
     public ReleaseResponse? GetRelease()
     {
         return GetReleaseAsync().GetAwaiter().GetResult();
+    }
+    
+    public async Task<string[]> GetReleaseFilesAsync()
+    {
+        return await ExecuteAsync<string[]>(RELEASE_FILES_URL) ?? [];
+    }
+
+    public string[] GetReleaseFiles()
+    {
+        return GetReleaseFilesAsync().GetAwaiter().GetResult();
     }
     
     public async Task RefreshAuthAsync()

@@ -39,6 +39,7 @@ public static class ApplicationService
     public static ChatViewModel ChatVM => ViewModelRegistry.Get<ChatViewModel>()!;
     public static FilesViewModel FilesVM => ViewModelRegistry.Get<FilesViewModel>()!;
     public static HelpViewModel HelpVM => ViewModelRegistry.Get<HelpViewModel>()!;
+    public static ConsoleViewModel ConsoleVM => ViewModelRegistry.Get<ConsoleViewModel>()!;
     public static LeaderboardViewModel LeaderboardVM => ViewModelRegistry.Get<LeaderboardViewModel>()!;
     
     public static IClassicDesktopStyleApplicationLifetime Application = null!;
@@ -58,10 +59,11 @@ public static class ApplicationService
     {
         Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
 
+        ViewModelRegistry.New<ConsoleViewModel>();
         LogFilePath = Path.Combine(LogsFolder.FullName, $"FortnitePorting-{DateTime.Now:yyyy-MM-dd-hh-mm-ss}.log");
         Log.Logger = new LoggerConfiguration()
             .WriteTo.Console(theme: AnsiConsoleTheme.Literate)
-            .WriteTo.FortnitePorting()
+            .WriteTo.Sink(ConsoleVM)
             .WriteTo.File(LogFilePath)
             .CreateLogger();
         

@@ -67,6 +67,10 @@
         <DependentUpon>PropertiesPreviewWindow.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
+      <Compile Update="Controls\IconText.axaml.cs">
+        <DependentUpon>IconText.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
     </ItemGroup>
     
 

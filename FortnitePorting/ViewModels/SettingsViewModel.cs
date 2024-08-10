@@ -49,10 +49,16 @@ public partial class SettingsViewModel : ViewModelBase
     }
 
 
-    public ExportDataMeta CreateExportMeta() => new()
+    public ExportDataMeta CreateExportMeta(EExportLocation exportLocation = EExportLocation.Blender) => new()
     {
         AssetsRoot = Application.AssetPath,
-        Settings = ExportSettings.Blender
+        Settings = exportLocation switch
+        {
+            EExportLocation.Blender => ExportSettings.Blender,
+            EExportLocation.Unreal => ExportSettings.Unreal,
+            EExportLocation.AssetsFolder => ExportSettings.Folder,
+            EExportLocation.CustomFolder => ExportSettings.Folder
+        }
     };
     
     public void Navigate<T>()

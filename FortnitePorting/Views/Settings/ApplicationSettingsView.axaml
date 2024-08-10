@@ -48,6 +48,12 @@
                                   SpinButtonPlacementMode="Inline"/>
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
+            
+            <ui:SettingsExpander Header="Use Debugging Symbols" Description="Downloads .pdb debugging symbols for use in error reporting. Only enable this if required in a support ticket.">
+                <ui:SettingsExpander.Footer>
+                    <ToggleSwitch IsChecked="{Binding DownloadDebuggingSymbols}"/>
+                </ui:SettingsExpander.Footer>
+            </ui:SettingsExpander>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

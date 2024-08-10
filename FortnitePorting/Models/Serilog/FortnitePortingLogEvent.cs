@@ -1,9 +1,10 @@
+using System;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Serilog.Events;
 using Color = System.Drawing.Color;
 
-namespace FortnitePorting.Shared.Models.Serilog;
+namespace FortnitePorting.Models.Serilog;
 
 public partial class FortnitePortingLogEvent : ObservableObject
 {

@@ -824,6 +824,9 @@ class ImportContext:
                     mask_position_node.location = mask_node.location + Vector((-200, 25))
                     mask_position_node.inputs["Costume_UVPatternPosition"].default_value = position.get('R'), position.get('G'), position.get('B')
                     links.new(mask_position_node.outputs[0], mask_node.inputs[0])
+                
+            case "FP Toon":
+                set_param("Brightness", self.options.get("ToonShadingBrightness"))
 
     def import_sound_data(self, data):
         for sound in data.get("Sounds"):

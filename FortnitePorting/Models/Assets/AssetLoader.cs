@@ -225,7 +225,8 @@ public partial class AssetLoader : ObservableObject
             LoadedAssets++;
         }
 
-        LoadedAssets = TotalAssets;
+        LoadedAssets = TotalAssets; 
+        await TaskService.RunDispatcherAsync(() => SearchAutoComplete.AddRange(Source.Items.Select(asset => asset.CreationData.DisplayName)));
     }
 
     private async Task LoadAsset(FAssetData data)
@@ -249,11 +250,6 @@ public partial class AssetLoader : ObservableObject
         
         var icon = IconHandler(asset) ?? await CUE4ParseVM.Provider.TryLoadObjectAsync<UTexture2D>(PlaceholderIconPath);
         if (icon is null) return;
-        
-        await TaskService.RunDispatcherAsync(() =>
-        {
-            SearchAutoComplete.AddUnique(displayName);
-        });
         
         var args = new AssetItemCreationArgs
         {

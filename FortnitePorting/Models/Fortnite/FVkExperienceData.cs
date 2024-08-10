@@ -7,7 +7,7 @@ namespace FortnitePorting.Models.Fortnite;
 [StructFallback]
 public class FVkExperienceData(FStructFallback fallback)
 {
-    public FSoftObjectPath DefaultMap = fallback.GetOrDefault<FSoftObjectPath>(nameof(DefaultMap));
-    public FSoftObjectPath BaseMap = fallback.GetOrDefault<FSoftObjectPath>(nameof(BaseMap));
-    public FVkMapExperienceData MapData = fallback.GetOrDefault<FVkMapExperienceData>(nameof(MapData));
+    public FSoftObjectPath? DefaultMap = fallback.GetOrDefault<FSoftObjectPath>(nameof(DefaultMap));
+    public FSoftObjectPath? BaseMap = fallback.GetOrDefault<FSoftObjectPath>(nameof(BaseMap));
+    public FVkMapExperienceData? MapData = fallback.GetOrDefault<FVkMapExperienceData>(nameof(MapData));
 }

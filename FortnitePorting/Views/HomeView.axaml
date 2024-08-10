@@ -75,18 +75,18 @@
                 <TextBlock Grid.Row="4" Text="{Binding OnlineRef.UserName, TargetNullValue='Unauthenticated'}" Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" HorizontalAlignment="Center"/>
                 <Separator Grid.Row="5" Margin="{ext:Space 1}"/>
                 <StackPanel Grid.Row="6">
-                    <TextBlock Text="Helpful Links" Classes="SubtitleTextBlockStyle" FontWeight="SemiBold" HorizontalAlignment="Center"/>
-                    <StackPanel HorizontalAlignment="Center" Margin="{ext:Space 0, 0.5}">
+                    <TextBlock Text="Socials" Classes="SubtitleTextBlockStyle" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                    <StackPanel HorizontalAlignment="Stretch" Margin="{ext:Space 1, 0.5}">
                         <StackPanel.Styles>
                             <Style Selector="Button">
                                 <Setter Property="HorizontalAlignment" Value="Stretch"/>
                                 <Setter Property="Margin" Value="{ext:Space 0.5}"/>
                             </Style>
                         </StackPanel.Styles>
-                        <Button Content="Wiki &amp; Common Issues" Command="{Binding LaunchWiki}"/>
-                        <Button Content="Discord Server" Command="{Binding LaunchDiscord}"/>
-                        <Button Content="GitHub Repository" Command="{Binding LaunchGitHub}"/>
-                        <Button Content="Ko-Fi Donation Link" Command="{Binding LaunchKoFi}"/>
+                        <Button Content="{controls:ImageText 'Discord', /Assets/Icons/Discord.png}" Command="{Binding LaunchDiscord}"/>
+                        <Button Content="{controls:IconText 'Twitter', Twitter}" Command="{Binding LaunchTwitter}"/>
+                        <Button Content="{controls:IconText 'GitHub', Github}" Command="{Binding LaunchGitHub}"/>
+                        <Button Content="{controls:ImageText 'Ko-Fi', /Assets/Icons/KoFi.png}" Command="{Binding LaunchKoFi}"/>
                     </StackPanel>
                 </StackPanel>
             </Grid>

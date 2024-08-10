@@ -137,12 +137,14 @@ toon_mappings = MappingCollection(
         SlotMapping("InkLineColor_Texture"),
         SlotMapping("SSC_Texture"),
         SlotMapping("STM_Map", "SSC_Texture"),
+        SlotMapping("STT_Map"),
         SlotMapping("Normals"),
         SlotMapping("Normal_Map", "Normals")
     ],
     scalars=[
         SlotMapping("ShadedColorDarkening"),
         SlotMapping("FakeNormalBlend_Amt"),
+        SlotMapping("VertexBakedNormal_Blend", "FakeNormalBlend_Amt"),
         SlotMapping("PBR_Shading", "Use PBR Shading", value_func=lambda value: int(value))
     ],
     vectors=[
