@@ -5,14 +5,10 @@ using RestSharp;
 
 namespace FortnitePorting.Models.API;
 
-public class FortniteCentralAPI : APIBase
+public class FortniteCentralAPI(RestClient client) : APIBase(client)
 {
     private const string AES_URL = "https://fortnitecentral.genxgames.gg/api/v1/aes";
     private const string MAPPINGS_URL = "https://fortnitecentral.genxgames.gg/api/v1/mappings";
-    
-    public FortniteCentralAPI(RestClient client) : base(client)
-    {
-    }
 
     public async Task<AesResponse?> GetKeysAsync(string version = "")
     {

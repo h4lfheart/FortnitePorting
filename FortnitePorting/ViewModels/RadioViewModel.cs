@@ -56,7 +56,7 @@ public partial class RadioViewModel : ViewModelBase
         <= 1.0f => MaterialIconKind.VolumeHigh
     };
 
-    [ObservableProperty] private ERadioSoundFormat _soundFormat;
+    [ObservableProperty] private ESoundFormat _soundFormat;
     
     [ObservableProperty] private TimeSpan _currentTime;
     [ObservableProperty] private TimeSpan _totalTime;

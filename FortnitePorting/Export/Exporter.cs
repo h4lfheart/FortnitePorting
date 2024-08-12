@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using CUE4Parse_Conversion.Animations;
@@ -35,103 +36,72 @@ namespace FortnitePorting.Export;
 
 public static class Exporter
 {
-    public static async Task Export(IEnumerable<AssetInfo> assets, ExportDataMeta metaData)
+    public static async Task Export(Func<IEnumerable<BaseExport>> exportFunction, ExportDataMeta metaData)
     {
+        if (metaData.ExportLocation is EExportLocation.CustomFolder && await BrowseFolderDialog() is { } path)
+        {
+            metaData.CustomPath = path;
+        }
+        
         await TaskService.RunAsync(async () =>
         {
-            if (await ApiVM.FortnitePortingServer.PingAsync(EExportServerType.Blender) is false)
+            var serverType = metaData.ExportLocation.ToServerType();
+            if (serverType is EExportServerType.None)
             {
-                AppWM.Message("Blender Server", "The blender server for Fortnite Porting is not currently running.", InfoBarSeverity.Error, false);
-                return;
+                var exports = exportFunction.Invoke();
+                foreach (var export in exports) export.WaitForExports();
             }
-            
-            
-            var exports = assets.Select(asset => CreateExport(asset, metaData)).ToArray();
-            foreach (var export in exports) export.WaitForExports();
-            
-            var exportData = new ExportData
+            else
             {
-                MetaData = metaData,
-                Exports = exports
-            };
+                if (await ApiVM.FortnitePortingServer.PingAsync(serverType) is false)
+                {
+                    var serverName = serverType.GetDescription();
+                    AppWM.Message($"{serverName} Server", $"The {serverName} Server for Fortnite Porting is not currently running.", InfoBarSeverity.Error, false);
+                    return;
+                }
+
+                var exports = exportFunction().ToArray();
+                foreach (var export in exports) export.WaitForExports();
             
-            var data = JsonConvert.SerializeObject(exportData);
-            await ApiVM.FortnitePortingServer.SendAsync(data, EExportServerType.Blender);
+                var exportData = new ExportData
+                {
+                    MetaData = metaData,
+                    Exports = exports
+                };
+            
+                var data = JsonConvert.SerializeObject(exportData);
+                await ApiVM.FortnitePortingServer.SendAsync(data, EExportServerType.Blender);
+            }
         });
+    }
+    
+    public static async Task Export(IEnumerable<AssetInfo> assets, ExportDataMeta metaData)
+    {
+        await Export(() => assets.Select(assetInfo =>
+        {
+            var asset = assetInfo.Data.Asset;
+            var styles = assetInfo.Data.GetSelectedStyles();
+            var exportType = asset.CreationData.ExportType;
+
+            return CreateExport(asset.CreationData.DisplayName, asset.CreationData.Object, exportType, styles,
+                metaData);
+        }), metaData);
+        
     }
     
     public static async Task Export(List<KeyValuePair<UObject, EExportType>> assets, ExportDataMeta metaData)
     {
-        await TaskService.RunAsync(async () =>
-        {
-            if (await ApiVM.FortnitePortingServer.PingAsync(EExportServerType.Blender) is false)
-            {
-                AppWM.Message("Blender Server", "The blender server for Fortnite Porting is not currently running.", InfoBarSeverity.Error, false);
-                return;
-            }
-            
-            var exports = assets.Select(kvp => CreateExport(kvp.Key, kvp.Value, metaData)).ToArray();
-            foreach (var export in exports) export.WaitForExports();
-            
-            var exportData = new ExportData
-            {
-                MetaData = metaData,
-                Exports = exports
-            };
-            
-            var data = JsonConvert.SerializeObject(exportData);
-            await ApiVM.FortnitePortingServer.SendAsync(data, EExportServerType.Blender);
-        });
+        await Export(() => assets.Select(kvp => CreateExport(kvp.Key.Name, kvp.Key, kvp.Value, [], metaData)), metaData);
     }
     
     public static async Task Export(IEnumerable<UObject> assets, EExportType type, ExportDataMeta metaData)
     {
-        await TaskService.RunAsync(async () =>
-        {
-            if (await ApiVM.FortnitePortingServer.PingAsync(EExportServerType.Blender) is false)
-            {
-                AppWM.Message("Blender Server", "The blender server for Fortnite Porting is not currently running.", InfoBarSeverity.Error, false);
-                return;
-            }
-            
-            
-            var exports = assets.Select(obj => CreateExport(obj, type, metaData)).ToArray();
-            foreach (var export in exports) export.WaitForExports();
-            
-            var exportData = new ExportData
-            {
-                MetaData = metaData,
-                Exports = exports
-            };
-            
-            var data = JsonConvert.SerializeObject(exportData);
-            await ApiVM.FortnitePortingServer.SendAsync(data, EExportServerType.Blender);
-        });
+        await Export(() => assets.Select(asset => CreateExport(asset.Name, asset, type, [], metaData)), metaData);
     }
     
     public static async Task Export(UObject asset, EExportType type, ExportDataMeta metaData)
     {
-        await TaskService.RunAsync(async () =>
-        {
-            if (await ApiVM.FortnitePortingServer.PingAsync(EExportServerType.Blender) is false)
-            {
-                AppWM.Message("Blender Server", "The blender server for Fortnite Porting is not currently running.", InfoBarSeverity.Error, false);
-                return;
-            }
-            
-            
-            var export = CreateExport(asset, type, metaData);
-            export.WaitForExports();
-            
-            var exportData = new ExportData
-            {
-                MetaData = metaData,
-                Exports = [export]
-            };
-            
-            var data = JsonConvert.SerializeObject(exportData);
-            await ApiVM.FortnitePortingServer.SendAsync(data, EExportServerType.Blender);
-        });
+        await Export(() => [CreateExport(asset.Name, asset, type, [], metaData)], metaData);
     }
 
     public static EExportType DetermineExportType(UObject asset) 
@@ -171,21 +141,22 @@ public static class Exporter
         return exportType;
     }
     
-    private static BaseExport CreateExport(UObject asset, EExportType exportType, ExportDataMeta metaData)
+    public static string FixPath(string path)
     {
-        return CreateExport(asset.Name, asset, [], exportType, metaData);
-    }
+        var outPath = path.SubstringBeforeLast(".");
+        var extension = path.SubstringAfterLast(".");
+        if (extension.Equals("umap"))
+        {
+            if (outPath.Contains("_Generated_"))
+            {
+                outPath += "." + path.SubstringBeforeLast("/_Generated").SubstringAfterLast("/");
+            }
+        }
 
-    private static BaseExport CreateExport(AssetInfo assetInfo, ExportDataMeta metaData)
-    {
-        var asset = assetInfo.Data.Asset;
-        var styles = assetInfo.Data.GetSelectedStyles();
-        var exportType = asset.CreationData.ExportType;
-        
-        return CreateExport(asset.CreationData.DisplayName, asset.CreationData.Object, styles, exportType, metaData);
+        return outPath;
     }
     
-    private static BaseExport CreateExport(string name, UObject asset, FStructFallback[] styles, EExportType exportType, ExportDataMeta metaData)
+    private static BaseExport CreateExport(string name, UObject asset, EExportType exportType, FStructFallback[] styles, ExportDataMeta metaData)
     {
         var path = asset.GetPathName();
         AppWM.Message($"Exporting {name}", $"Exporting: {asset.Name}", id: path, autoClose: false);
@@ -213,20 +184,5 @@ public static class Exporter
         metaData.UpdateProgress -= updateDelegate;
 
         return export;
-    }
-    
-    public static string FixPath(string path)
-    {
-        var outPath = path.SubstringBeforeLast(".");
-        var extension = path.SubstringAfterLast(".");
-        if (extension.Equals("umap"))
-        {
-            if (outPath.Contains("_Generated_"))
-            {
-                outPath += "." + path.SubstringBeforeLast("/_Generated").SubstringAfterLast("/");
-            }
-        }
-
-        return outPath;
     }
 }

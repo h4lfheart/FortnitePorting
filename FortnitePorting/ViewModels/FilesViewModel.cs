@@ -186,7 +186,7 @@ public partial class FilesViewModel : ViewModelBase
         
         if (exports.Count == 0) return;
         
-        await Exporter.Export(exports, AppSettings.Current.CreateExportMeta());
+        await Exporter.Export(exports, AppSettings.Current.CreateExportMeta(ExportLocation));
 
         if (AppSettings.Current.Online.UseIntegration)
         {

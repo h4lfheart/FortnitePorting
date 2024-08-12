@@ -70,9 +70,9 @@ public class TextureExport : BaseExport
 
         foreach (var texture in textures)
         {
-            if (metaData.Settings is FolderSettingsViewModel folderSettings)
+            if (metaData.ExportLocation.IsFolder())
             {
-                var exportPath = Exporter.Export(texture, true);
+                var exportPath = Exporter.Export(texture, returnRealPath: true, synchronousExport: true);
                 Launch(System.IO.Path.GetDirectoryName(exportPath)!);
             }
             else

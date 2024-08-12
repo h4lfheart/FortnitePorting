@@ -240,6 +240,7 @@ public partial class WorldPartitionMap : ObservableObject
     [RelayCommand]
     public async Task ExportLandscape()
     {
+        // todo allow user to select export location
         var meta = AppSettings.Current.CreateExportMeta();
         meta.Settings.WorldFlags = EWorldFlags.Landscape;
         await Exporter.Export(_world, EExportType.World, meta);

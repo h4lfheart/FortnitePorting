@@ -57,7 +57,7 @@
             <ui:SettingsExpander Header="Fortnite Version" Description="The version of Fortnite that Fortnite Porting will be loading.">
                 <ui:SettingsExpander.Footer>
                     <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type shared:EFortniteVersion}}"
-                              SelectedItem="{Binding CurrentProfile.FortniteVersion, Converter={StaticResource EnumToString}}" />
+                              SelectedItem="{Binding CurrentProfile.FortniteVersion, Converter={StaticResource EnumToRecord}}" />
                 </ui:SettingsExpander.Footer>
                 
                 <StackPanel Orientation="Horizontal">
@@ -90,13 +90,13 @@
             <ui:SettingsExpander Header="Game Language" Description="The language used for in-game text strings such as names, descriptions, styles, etc.">
                 <ui:SettingsExpander.Footer>
                     <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type versions:ELanguage}}"
-                              SelectedItem="{Binding CurrentProfile.GameLanguage, Converter={StaticResource EnumToString}}" />
+                              SelectedItem="{Binding CurrentProfile.GameLanguage, Converter={StaticResource EnumToRecord}}" />
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
             <ui:SettingsExpander Header="Unreal Version" Description="The Unreal Version that aligns with your Fortnite installation." IsEnabled="{Binding CurrentProfile.UnrealVersionEnabled}">
                 <ui:SettingsExpander.Footer>
                     <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type versions:EGame}}"
-                              SelectedItem="{Binding CurrentProfile.UnrealVersion, Converter={StaticResource EnumToString}}" />
+                              SelectedItem="{Binding CurrentProfile.UnrealVersion, Converter={StaticResource EnumToRecord}}" />
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
             <ui:SettingsExpander Header="Encryption Key" Description="The encryption key required to decrypt Fortnite's game files." IsEnabled="{Binding CurrentProfile.EncryptionKeyEnabled}">

@@ -9,7 +9,7 @@
              RequestedThemeVariant="Dark">
 
      <Application.Resources>
-         <ext:EnumToStringConverter x:Key="EnumToString" />
+         <ext:EnumToRecordConverter x:Key="EnumToRecord" />
          <ext:EnumHasFlagConverter x:Key="EnumHasFlag" />
          <ext:EnumEqualsConverter x:Key="EnumEquals" />
          <ext:TitleCaseStringConverter x:Key="TitleCaseString" />

@@ -287,6 +287,7 @@ public static class OnlineService
                             }
                             else
                             {
+                                // todo allow user to select export location
                                 await Exporter.Export(asset, exportType, AppSettings.Current.CreateExportMeta());
                                 
                                 if (AppSettings.Current.Online.UseIntegration)

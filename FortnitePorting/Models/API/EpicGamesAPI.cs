@@ -7,7 +7,7 @@ using RestSharp;
 
 namespace FortnitePorting.Models.API;
 
-public class EpicGamesAPI : APIBase
+public class EpicGamesAPI(RestClient client) : APIBase(client)
 {
     public const string CHUNKS_URL = "https://epicgames-download1.akamaized.net/Builds/Fortnite/CloudDir/ChunksV4/";
     private const string OAUTH_POST_URL = "https://account-public-service-prod03.ol.epicgames.com/account/api/oauth/token";
@@ -15,10 +15,6 @@ public class EpicGamesAPI : APIBase
     private const string BASIC_TOKEN = "basic MzQ0NmNkNzI2OTRjNGE0NDg1ZDgxYjc3YWRiYjIxNDE6OTIwOWQ0YTVlMjVhNDU3ZmI5YjA3NDg5ZDMxM2I0MWE=";
     private const string FORTNITE_LIVE_URL = "https://launcher-public-service-prod06.ol.epicgames.com/launcher/api/public/assets/v2/platform/Windows/namespace/fn/catalogItem/4fe75bbc5a674f4f9b356b5c90567da5/app/Fortnite/label/Live";
 
-    public EpicGamesAPI(RestClient client) : base(client)
-    {
-    }
-    
     public async Task<ManifestInfo?> GetManifestInfoAsync()
     {
         var response = await ExecuteAsync(FORTNITE_LIVE_URL, parameters:

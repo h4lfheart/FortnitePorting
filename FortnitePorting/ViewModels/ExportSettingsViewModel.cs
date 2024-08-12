@@ -57,9 +57,9 @@ public partial class BaseExportSettings : ViewModelBase
     [ObservableProperty] private EAnimFormat _animFormat = EAnimFormat.UEFormat;
     [ObservableProperty] private EFileCompressionFormat _compressionFormat = EFileCompressionFormat.ZSTD;
     [ObservableProperty] private EImageFormat _imageFormat = EImageFormat.PNG;
+    [ObservableProperty] private ESoundFormat _soundFormat = ESoundFormat.WAV;
 
-
-    [ObservableProperty] private EWorldFlags _worldFlags = EWorldFlags.Actors | EWorldFlags.WorldPartitionGrids | EWorldFlags.Landscape;
+    [ObservableProperty, JsonIgnore] private EWorldFlags _worldFlags = EWorldFlags.Actors | EWorldFlags.WorldPartitionGrids | EWorldFlags.Landscape;
 
     [ObservableProperty] private bool _exportMaterials = true;
     

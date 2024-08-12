@@ -13,7 +13,7 @@ using RestSharp;
 
 namespace FortnitePorting.Models.API;
 
-public class FortnitePortingAPI : APIBase
+public class FortnitePortingAPI(RestClient client) : APIBase(client)
 {
     public const string NEWS_URL = "https://halfheart.dev/fortnite-porting/api/v3/news.json"; // i need to buy servers lmao
     public const string FEATURED_URL = "https://halfheart.dev/fortnite-porting/api/v3/featured.json";
@@ -35,10 +35,6 @@ public class FortnitePortingAPI : APIBase
     public const string RELEASE_URL = "https://fortniteporting.halfheart.dev/api/v3/release";
     public const string RELEASE_FILES_URL = "https://fortniteporting.halfheart.dev/api/v3/release/files";
 
-    
-    public FortnitePortingAPI(RestClient client) : base(client)
-    {
-    }
 
     public async Task<NewsResponse[]?> GetNewsAsync()
     {

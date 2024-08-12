@@ -40,7 +40,7 @@ public partial class AssetsViewModel : ViewModelBase
             return;
         }
         
-        await Exporter.Export(AssetLoaderCollection.ActiveLoader.SelectedAssets, AppSettings.Current.CreateExportMeta());
+        await Exporter.Export(AssetLoaderCollection.ActiveLoader.SelectedAssets, AppSettings.Current.CreateExportMeta(ExportLocation));
 
         if (AppSettings.Current.Online.UseIntegration)
         {

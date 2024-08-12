@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Models;
 
 namespace FortnitePorting.Shared;
@@ -21,14 +22,19 @@ public enum EExportLocation
     [Description("Blender")]
     Blender,
     
-    [Description("Unreal Engine")]
-    Unreal,
-    
     [Description("Assets Folder")]
     AssetsFolder,
     
     [Description("Custom Folder")]
-    CustomFolder
+    CustomFolder,
+    
+    [Description("Unreal Engine (Not Implemented)")]
+    [Disabled]
+    Unreal,
+    
+    [Description("Unity (Not Implemented)")]
+    [Disabled]
+    Unity,
 }
 
 public enum EAssetCategory
@@ -222,13 +228,13 @@ public enum EImageFormat
     TGA
 }
 
-public enum ERadioSoundFormat
+public enum ESoundFormat
 {
-    [Description("Save as MP3")]
-    MP3,
-
-    [Description("Save as WAV")]
-    WAV
+    [Description("Wavefront (.wav)")]
+    WAV,
+    
+    [Description("MP3 (.mp3)")]
+    MP3
 }
 
 [Flags]

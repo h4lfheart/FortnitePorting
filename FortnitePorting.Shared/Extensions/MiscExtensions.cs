@@ -189,6 +189,11 @@ public static class MiscExtensions
         }
         list[i] = item;
     }
+
+    public static T CreateValue<T>(this Lazy<T> lazy)
+    {
+        return lazy.Value;
+    }
 }
 
 file class FastRepeat<T> : ICollection<T>

@@ -87,7 +87,13 @@
                     <ComboBox Grid.Column="1"
                               HorizontalAlignment="Stretch" VerticalAlignment="Center"
                               ItemsSource="{ext:EnumToItemsSource {x:Type shared:EExportLocation}}"
-                              SelectedItem="{Binding ExportLocation, Converter={StaticResource EnumToString}}" />
+                              SelectedItem="{Binding ExportLocation, Converter={StaticResource EnumToRecord}}">
+                        <ComboBox.ItemContainerTheme>
+                            <ControlTheme x:DataType="ext:EnumRecord" TargetType="ComboBoxItem" BasedOn="{StaticResource {x:Type ComboBoxItem}}">
+                                <Setter Property="IsEnabled" Value="{Binding !IsDisabled}"/>
+                            </ControlTheme>
+                        </ComboBox.ItemContainerTheme>
+                    </ComboBox>
                 </Grid>
                     
                 <Button Grid.Column="2" HorizontalAlignment="Stretch" Command="{Binding ExportCommand}">

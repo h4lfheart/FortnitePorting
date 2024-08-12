@@ -45,7 +45,7 @@
             <ui:SettingsExpander Header="Compression" Description="The type of compression that should be used on 'UE Format' assets.">
                 <ui:SettingsExpander.Footer>
                     <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type enums:EFileCompressionFormat}}"
-                              SelectedItem="{Binding CompressionFormat, Converter={StaticResource EnumToString}}" />
+                              SelectedItem="{Binding CompressionFormat, Converter={StaticResource EnumToRecord}}" />
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
             
@@ -54,7 +54,7 @@
             <ui:SettingsExpander Header="Rig" Description="The type of rig that should be applied to the imported object. (Outfit Only)">
                 <ui:SettingsExpander.Footer>
                     <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type settings:ERigType}}"
-                              SelectedItem="{Binding RigType, Converter={StaticResource EnumToString}}" />
+                              SelectedItem="{Binding RigType, Converter={StaticResource EnumToRecord}}" />
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
             
@@ -119,13 +119,39 @@
             <ui:SettingsExpander Header="Polygon Type" Description="The type of polygon that imported meshes should use.">
                 <ui:SettingsExpander.Footer>
                     <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type settings:EPolygonType}}"
-                              SelectedItem="{Binding PolygonType, Converter={StaticResource EnumToString}}" />
+                              SelectedItem="{Binding PolygonType, Converter={StaticResource EnumToRecord}}" />
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
             
             <ui:SettingsExpander Header="Import Collision Geometry" Description="Imports the convex collision geometry if available.">
                 <ui:SettingsExpander.Footer>
                     <ToggleSwitch IsChecked="{Binding ImportCollision}"/>
+                </ui:SettingsExpander.Footer>
+            </ui:SettingsExpander>
+            
+            <TextBlock Text="Animation" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
+            
+            <ui:SettingsExpander Header="Loop Animation" Description="Whether or not to loop imported animations.">
+                <ui:SettingsExpander.Footer>
+                    <ToggleSwitch IsChecked="{Binding LoopAnimation}"/>
+                </ui:SettingsExpander.Footer>
+            </ui:SettingsExpander>
+            
+            <ui:SettingsExpander Header="Update Timeline Length" Description="Whether or not to update the timeline length to the duration of the animation.">
+                <ui:SettingsExpander.Footer>
+                    <ToggleSwitch IsChecked="{Binding UpdateTimelineLength}"/>
+                </ui:SettingsExpander.Footer>
+            </ui:SettingsExpander>
+            
+            <ui:SettingsExpander Header="Import Sounds" Description="Whether or not to import sounds collected from animations.">
+                <ui:SettingsExpander.Footer>
+                    <ToggleSwitch IsChecked="{Binding ImportSounds}"/>
+                </ui:SettingsExpander.Footer>
+            </ui:SettingsExpander>
+            
+            <ui:SettingsExpander Header="Import Lobby Animations" Description="Whether or not to import lobby animations. (Outfit Only)">
+                <ui:SettingsExpander.Footer>
+                    <ToggleSwitch IsChecked="{Binding ImportLobbyPoses}"/>
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
             
@@ -187,45 +213,20 @@
             
             <TextBlock Text="Texture" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
                
-            <ui:SettingsExpander Header="Image Format" Description="The type of image that textures should be exported as.">
+            <ui:SettingsExpander Header="Image Format" Description="The file type that textures should be exported as.">
                 <ui:SettingsExpander.Footer>
                     <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type shared:EImageFormat}}"
-                              SelectedItem="{Binding ImageFormat, Converter={StaticResource EnumToString}}" />
+                              SelectedItem="{Binding ImageFormat, Converter={StaticResource EnumToRecord}}" />
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
             
             <ui:SettingsExpander Header="Method" Description="The way textures should be imported.">
                 <ui:SettingsExpander.Footer>
                     <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type settings:ETextureImportMethod}}"
-                              SelectedItem="{Binding TextureImportMethod, Converter={StaticResource EnumToString}}" />
+                              SelectedItem="{Binding TextureImportMethod, Converter={StaticResource EnumToRecord}}" />
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
             
-            <TextBlock Text="Animation" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
-            
-            <ui:SettingsExpander Header="Loop Animation" Description="Whether or not to loop imported animations.">
-                <ui:SettingsExpander.Footer>
-                    <ToggleSwitch IsChecked="{Binding LoopAnimation}"/>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
-            
-            <ui:SettingsExpander Header="Update Timeline Length" Description="Whether or not to update the timeline length to the duration of the animation.">
-                <ui:SettingsExpander.Footer>
-                    <ToggleSwitch IsChecked="{Binding UpdateTimelineLength}"/>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
-            
-            <ui:SettingsExpander Header="Import Sounds" Description="Whether or not to import sounds collected from animations.">
-                <ui:SettingsExpander.Footer>
-                    <ToggleSwitch IsChecked="{Binding ImportSounds}"/>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
-            
-            <ui:SettingsExpander Header="Import Lobby Animations" Description="Whether or not to import lobby animations. (Outfit Only)">
-                <ui:SettingsExpander.Footer>
-                    <ToggleSwitch IsChecked="{Binding ImportLobbyPoses}"/>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

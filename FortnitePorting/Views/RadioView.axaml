@@ -35,8 +35,8 @@
             
             <TextBox Grid.Column="0" Watermark="Search" Text="{Binding SearchFilter}"/>
             
-            <ComboBox Grid.Column="2" ItemsSource="{ext:EnumToItemsSource {x:Type shared:ERadioSoundFormat}}"
-                      SelectedItem="{Binding SoundFormat, Converter={StaticResource EnumToString}}" />
+            <ComboBox Grid.Column="2" ItemsSource="{ext:EnumToItemsSource {x:Type shared:ESoundFormat}}"
+                      SelectedItem="{Binding SoundFormat, Converter={StaticResource EnumToRecord}}" />
             
             <Button Grid.Column="4" Command="{Binding SaveAllCommand}">
                 <StackPanel Orientation="Horizontal">

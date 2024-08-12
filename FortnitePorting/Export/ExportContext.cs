@@ -27,6 +27,7 @@ using CUE4Parse.UE4.Objects.Engine.Animation;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.UE4.Writers;
 using CUE4Parse.Utils;
+using FFMpegCore;
 using FortnitePorting.Export.Models;
 using FortnitePorting.Extensions;
 using FortnitePorting.Models.CUE4Parse;
@@ -920,19 +921,25 @@ public class ExportContext
                 EImageFormat.PNG => "png",
                 EImageFormat.TGA => "tga"
             },
-            USoundWave => "wav",
+            USoundWave => Meta.Settings.SoundFormat switch
+            {
+                ESoundFormat.WAV => "wav",
+                ESoundFormat.MP3 => "mp3",
+            },
             ALandscapeProxy => "uemodel"
         };
 
-        var path = GetExportPath(asset, extension, embeddedAsset);
+        var path = GetExportPath(asset, extension, embeddedAsset, excludeGamePath: Meta.CustomPath is not null);
         
-        var returnValue = returnRealPath ? path : embeddedAsset ? $"{asset.Owner.Name}/{asset.Name}.{asset.Name}" : asset.GetPathName();
-        if (asset is UTexture texture && !IsTextureHigherResolution(texture, path))
+        var returnValue = returnRealPath ? path : (embeddedAsset ? $"{asset.Owner.Name}/{asset.Name}.{asset.Name}" : asset.GetPathName());
+
+        var shouldExport = asset switch
         {
-            return returnValue;
-        }
-        
-        if (File.Exists(path)) return returnValue;
+            UTexture texture => IsTextureHigherResolutionThanExisting(texture, path),
+            _ => !File.Exists(path)
+        };
+
+        if (!shouldExport) return returnValue;
 
         var exportTask = new Task(() =>
         {
@@ -968,31 +975,42 @@ public class ExportContext
 
     private void Export(UObject asset, string path)
     {
-        var assetsFolder = new DirectoryInfo(Meta.AssetsRoot);
         switch (asset)
         {
             case USkeletalMesh skeletalMesh:
             {
                 var exporter = new MeshExporter(skeletalMesh, FileExportOptions);
-                exporter.TryWriteToDir(assetsFolder, out _, out _);
+                foreach (var mesh in exporter.MeshLods)
+                {
+                    File.WriteAllBytes(path, mesh.FileData);
+                }
                 break;
             }
             case UStaticMesh staticMesh:
             {
                 var exporter = new MeshExporter(staticMesh, FileExportOptions);
-                exporter.TryWriteToDir(assetsFolder, out _, out _);
+                foreach (var mesh in exporter.MeshLods)
+                {
+                    File.WriteAllBytes(path, mesh.FileData);
+                }
                 break;
             }
             case USkeleton skeleton:
             {
                 var exporter = new MeshExporter(skeleton, FileExportOptions);
-                exporter.TryWriteToDir(assetsFolder, out _, out _);
+                foreach (var skel in exporter.MeshLods)
+                {
+                    File.WriteAllBytes(path, skel.FileData);
+                }
                 break;
             }
             case UAnimSequence animSequence:
             {
                 var exporter = new AnimExporter(animSequence, FileExportOptions);
-                exporter.TryWriteToDir(assetsFolder, out _, out _);
+                foreach (var sequence in exporter.AnimSequences)
+                {
+                    File.WriteAllBytes(path, sequence.FileData);
+                }
                 break;
             }
             case UTexture texture:
@@ -1018,9 +1036,29 @@ public class ExportContext
             }
             case USoundWave soundWave:
             {
-                if (!SoundExtensions.TrySaveSoundToPath(soundWave, path))
+                var wavPath = Path.ChangeExtension(path, "wav");
+                if (!SoundExtensions.TrySaveSoundToPath(soundWave, wavPath))
                 {
                     throw new Exception($"Failed to export sound '{soundWave.Name}' at {path}");
+                }
+
+                switch (Meta.Settings.SoundFormat)
+                {
+                    case ESoundFormat.WAV:
+                    {
+                        break; // do nothing, default is wav
+                    }
+                    case ESoundFormat.MP3:
+                    {
+                        // convert to mp3
+                        FFMpegArguments.FromFileInput(wavPath)
+                            .OutputToFile(path, true, options => options.ForceFormat("mp3"))
+                            .ProcessSynchronously();
+                        
+                        File.Delete(wavPath); // delete old wav
+                        
+                        break;
+                    }
                 }
                 
                 break;
@@ -1040,7 +1078,7 @@ public class ExportContext
         }
     }
 
-    private bool IsTextureHigherResolution(UTexture texture, string path)
+    private bool IsTextureHigherResolutionThanExisting(UTexture texture, string path)
     {
         try
         {
@@ -1073,13 +1111,22 @@ public class ExportContext
         bitmap?.Encode(format, 100).SaveTo(fileStream); 
     }
     
-    public string GetExportPath(UObject obj, string ext, bool embeddedAsset = false)
+    public string GetExportPath(UObject obj, string ext, bool embeddedAsset = false, bool excludeGamePath = false)
     {
-        var path = embeddedAsset ? $"{obj.Owner.Name}/{obj.Name}" : obj.Owner?.Name ?? string.Empty;
+        string path;
+        if (excludeGamePath || obj.Owner is null)
+        {
+            path = obj.Name;
+        }
+        else
+        {
+            path = embeddedAsset ? $"{obj.Owner.Name}/{obj.Name}" : obj.Owner?.Name ?? string.Empty;
+        }
+        
         path = path.SubstringBeforeLast('.');
         if (path.StartsWith("/")) path = path[1..];
 
-        var directory = Path.Combine(Meta.AssetsRoot, path);
+        var directory = Path.Combine(Meta.CustomPath ?? Meta.AssetsRoot, path);
         Directory.CreateDirectory(directory.SubstringBeforeLast("/"));
 
         var finalPath = $"{directory}.{ext.ToLower()}";

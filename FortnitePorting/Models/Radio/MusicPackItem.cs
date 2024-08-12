@@ -92,15 +92,15 @@ public partial class MusicPackItem : ObservableObject
     {
         var fileType = RadioVM.SoundFormat switch
         {
-            ERadioSoundFormat.MP3 => Globals.MP3FileType,
-            ERadioSoundFormat.WAV => Globals.WAVFileType,
+            ESoundFormat.MP3 => Globals.MP3FileType,
+            ESoundFormat.WAV => Globals.WAVFileType,
         };
         
         if (await SaveFileDialog(suggestedFileName: Id, fileType) is not { } path) return;
         await SaveAudio(path, RadioVM.SoundFormat);
     }
 
-    public async Task SaveAudio(string path, ERadioSoundFormat soundFormat)
+    public async Task SaveAudio(string path, ESoundFormat soundFormat)
     {
         await TaskService.RunAsync(async () =>
         {
@@ -110,7 +110,7 @@ public partial class MusicPackItem : ObservableObject
 
             switch (soundFormat)
             {
-                case ERadioSoundFormat.MP3:
+                case ESoundFormat.MP3:
                 {
                     // convert to mp3
                     await FFMpegArguments.FromFileInput(wavPath)
@@ -139,7 +139,7 @@ public partial class MusicPackItem : ObservableObject
                     track.Save();
                     break;
                 }
-                case ERadioSoundFormat.WAV:
+                case ESoundFormat.WAV:
                 {
                     File.Copy(wavPath, path);
                     
@@ -159,7 +159,7 @@ public partial class MusicPackItem : ObservableObject
         });
     }
     
-    public async Task SaveAudio(DirectoryInfo directory, ERadioSoundFormat soundFormat)
+    public async Task SaveAudio(DirectoryInfo directory, ESoundFormat soundFormat)
     {
         var path = Path.Combine(directory.FullName, Id + ".mp3");
         await SaveAudio(path, soundFormat);

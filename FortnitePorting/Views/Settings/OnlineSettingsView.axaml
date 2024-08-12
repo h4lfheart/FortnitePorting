@@ -43,7 +43,7 @@
             <ui:SettingsExpander Header="Online Status" Description="The status that should be applied to chat features.">
                 <ui:SettingsExpander.Footer>
                     <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type settings:EOnlineStatus}}"
-                              SelectedItem="{Binding OnlineStatus, Converter={StaticResource EnumToString}}" />
+                              SelectedItem="{Binding OnlineStatus, Converter={StaticResource EnumToRecord}}" />
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
             

@@ -55,7 +55,7 @@
                                  <ui:SettingsExpander.Header>
                                      <StackPanel Orientation="Horizontal">
                                          <TextBlock Text="{Binding Title}" Classes="BodyTextBlockStyle"/>
-                                         <TextBlock Text="{Binding Tag, Converter={StaticResource EnumToString}}" 
+                                         <TextBlock Text="{Binding Tag, Converter={StaticResource EnumToRecord}}" 
                                                     Opacity="0.5" Classes="CaptionTextBlockStyle" VerticalAlignment="Center"
                                                     Margin="{ext:Space 0.5, 0, 0, 0}"/>
                                      </StackPanel>
@@ -171,7 +171,7 @@
                 <TextBox Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="4" Watermark="Title" Text="{Binding BuilderArticle.Title}" HorizontalAlignment="Stretch"/>
                 <TextBox Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="6" Watermark="Description" Text="{Binding BuilderArticle.Description}" HorizontalAlignment="Stretch"/>
                 <ComboBox Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="8" ItemsSource="{ext:EnumToItemsSource {x:Type help:EHelpTag}}"
-                          SelectedItem="{Binding BuilderArticle.Tag, Converter={StaticResource EnumToString}}" />
+                          SelectedItem="{Binding BuilderArticle.Tag, Converter={StaticResource EnumToRecord}}" />
                
                 <Separator Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="9"/>
                 
@@ -212,7 +212,7 @@
                                 </Grid.ColumnDefinitions>
                                     
                                 <ComboBox Grid.Column="0" ItemsSource="{ext:EnumToItemsSource {x:Type help:EHelpSectionType}}"
-                                          SelectedItem="{Binding Type, Converter={StaticResource EnumToString}}" />
+                                          SelectedItem="{Binding Type, Converter={StaticResource EnumToRecord}}" />
                                     
                                 <TextBox Grid.Column="2" Watermark="Content" Text="{Binding Content}" 
                                          IsVisible="{Binding HasText}"

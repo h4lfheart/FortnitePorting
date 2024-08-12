@@ -11,36 +11,42 @@ public static class EnumExtensions
     {
         return value.GetType().GetField(value.ToString())?.GetCustomAttributes(typeof(DescriptionAttribute), false).SingleOrDefault() is not DescriptionAttribute attribute ? value.ToString() : attribute.Description;
     }
+    
+    public static bool IsDisabled(this Enum value)
+    {
+        return value.GetType().GetField(value.ToString())?.GetCustomAttributes(typeof(DisabledAttribute), false).SingleOrDefault() is not null;
+    }
 }
 
-public class EnumToItemsSource : MarkupExtension
+public class EnumToItemsSource(Type type) : MarkupExtension
 {
-    private readonly Type _type;
-
-    public EnumToItemsSource(Type type)
-    {
-        _type = type;
-    }
-
     public override object ProvideValue(IServiceProvider serviceProvider)
     {
-        var values = Enum.GetValues(_type).Cast<Enum>();
-        return values.Select(x => x.GetDescription()).ToList();
+        var values = Enum.GetValues(type).Cast<Enum>();
+        return values.Select(value => new EnumRecord(type, value, value.GetDescription(), value.IsDisabled())).ToList();
     }
 }
 
-public class EnumToStringConverter : IValueConverter
+public record EnumRecord(Type EnumType, Enum Value, string Description, bool IsDisabled = false)
+{
+    public override string ToString()
+    {
+        return Description;
+    }
+}
+
+public class EnumToRecordConverter : IValueConverter
 {
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         var enumValue = value as Enum;
-        return enumValue?.GetDescription();
+        return new EnumRecord(enumValue.GetType(), enumValue, enumValue.GetDescription(), enumValue.IsDisabled());
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        var values = Enum.GetValues(targetType).Cast<Enum>();
-        return values.FirstOrDefault(x => x.GetDescription().Equals(value)) ?? value;
+        var enumValue = value as EnumRecord;
+        return enumValue.Value;
     }
 }
 
@@ -74,4 +80,9 @@ public class EnumEqualsConverter : IValueConverter
     {
         throw new NotImplementedException();
     }
+}
+
+public class DisabledAttribute : Attribute
+{
+    
 }
