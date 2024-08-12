@@ -32,7 +32,7 @@ namespace FortnitePorting.Export.Types;
 
 public class AnimExport : BaseExport
 {
-    public ExportMesh? Skeleton;
+    public ExportObject? Skeleton;
     public readonly List<ExportAnimSection> Sections = new();
     public readonly List<ExportSound> Sounds = new();
     public readonly List<ExportProp> Props = new();

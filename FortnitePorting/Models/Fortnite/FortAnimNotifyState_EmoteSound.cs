@@ -6,14 +6,6 @@ namespace FortnitePorting.Models.Fortnite;
 
 public class FortAnimNotifyState_EmoteSound : UObject
 {
-    public USoundCue? EmoteSound1P;
-    public USoundCue? EmoteSound3P;
-
-    public override void Deserialize(FAssetArchive Ar, long validPos)
-    {
-        base.Deserialize(Ar, validPos);
-
-        EmoteSound1P = GetOrDefault<USoundCue>(nameof(EmoteSound1P));
-        EmoteSound3P = GetOrDefault<USoundCue>(nameof(EmoteSound3P));
-    }
+    [UProperty] public USoundCue? EmoteSound1P;
+    [UProperty] public USoundCue? EmoteSound3P;
 }

@@ -37,14 +37,25 @@ public partial class TexturePreviewWindowModel : WindowModelBase
         ShowBlueChannel = true;
         ShowAlphaChannel = true;
         
-        var firstMip = Texture.GetFirstMip();
-        MinimumMip = Texture.PlatformData.Mips.IndexOf(firstMip);
-        MaximumMip = Texture.PlatformData.Mips.Length - 1;
-        MaximumLayer = Texture.PlatformData.Mips[MinimumMip].SizeZ - 1;
+        if (Texture.PlatformData.Mips.Length > 0)
+        {
+            var firstMip = Texture.GetFirstMip();
+            MinimumMip = Texture.PlatformData.Mips.IndexOf(firstMip);
+            MaximumMip = Texture.PlatformData.Mips.Length - 1;
+            MaximumLayer = Texture.PlatformData.Mips[MinimumMip].SizeZ - 1;
         
-        if (TargetMipIndex < MinimumMip || TargetMipIndex > MaximumMip)
-            TargetMipIndex = MinimumMip;
-
+            if (TargetMipIndex < MinimumMip || TargetMipIndex > MaximumMip)
+                TargetMipIndex = MinimumMip;
+        }
+        else
+        {
+            MinimumMip = 0;
+            MaximumMip = 0;
+            MaximumLayer = 0;
+            TargetMipIndex = 0;
+            TargetLayerIndex = 0;
+        }
+        
         
         UpdateTextureInfo();
         UpdateBitmap();

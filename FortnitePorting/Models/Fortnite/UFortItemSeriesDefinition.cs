@@ -9,16 +9,7 @@ namespace FortnitePorting.Models.Fortnite;
 
 public class UFortItemSeriesDefinition : UObject
 {
-    public FText DisplayName;
-    public FRarityCollection Colors;
-    public FSoftObjectPath BackgroundTexture;
-    
-    public override void Deserialize(FAssetArchive Ar, long validPos)
-    {
-        base.Deserialize(Ar, validPos);
-
-        DisplayName = GetOrDefault<FText>(nameof(DisplayName));
-        Colors = GetOrDefault<FRarityCollection>(nameof(Colors));
-        BackgroundTexture = GetOrDefault<FSoftObjectPath>(nameof(BackgroundTexture));
-    }
+    [UProperty] public FText DisplayName;
+    [UProperty] public FRarityCollection Colors;
+    [UProperty] public FSoftObjectPath BackgroundTexture;
 }

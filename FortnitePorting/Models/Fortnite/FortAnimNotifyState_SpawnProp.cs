@@ -10,28 +10,13 @@ namespace FortnitePorting.Models.Fortnite;
 
 public class FortAnimNotifyState_SpawnProp : UObject
 {
-    public FName SocketName;
-    public FVector LocationOffset;
-    public FRotator RotationOffset;
-    public FVector Scale;
-    public bool bInheritScale;
-    public UStaticMesh? StaticMeshProp;
-    public USkeletalMesh? SkeletalMeshProp;
-    public UAnimSequence? SkeletalMeshPropAnimation;
-    public UAnimMontage? SkeletalMeshPropMontage;
-
-    public override void Deserialize(FAssetArchive Ar, long validPos)
-    {
-        base.Deserialize(Ar, validPos);
-
-        SocketName = GetOrDefault<FName>(nameof(SocketName));
-        LocationOffset = GetOrDefault(nameof(LocationOffset), FVector.ZeroVector);
-        RotationOffset = GetOrDefault(nameof(RotationOffset), FRotator.ZeroRotator);
-        Scale = GetOrDefault(nameof(Scale), FVector.OneVector);
-        bInheritScale = GetOrDefault<bool>(nameof(bInheritScale));
-        StaticMeshProp = GetOrDefault<UStaticMesh>(nameof(StaticMeshProp));
-        SkeletalMeshProp = GetOrDefault<USkeletalMesh>(nameof(SkeletalMeshProp));
-        SkeletalMeshPropAnimation = GetOrDefault<UAnimSequence>(nameof(SkeletalMeshPropAnimation));
-        SkeletalMeshPropMontage = GetOrDefault<UAnimMontage>(nameof(SkeletalMeshPropAnimation));
-    }
+    [UProperty] public FName SocketName;
+    [UProperty] public FVector LocationOffset = FVector.ZeroVector;
+    [UProperty] public FRotator RotationOffset = FRotator.ZeroRotator;
+    [UProperty] public FVector Scale = FVector.OneVector;
+    [UProperty] public bool bInheritScale;
+    [UProperty] public UStaticMesh? StaticMeshProp;
+    [UProperty] public USkeletalMesh? SkeletalMeshProp;
+    [UProperty] public UAnimSequence? SkeletalMeshPropAnimation;
+    [UProperty] public UAnimMontage? SkeletalMeshPropMontage;
 }

@@ -1,3 +1,4 @@
+using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Assets.Utils;
 using CUE4Parse.UE4.Objects.UObject;
@@ -5,8 +6,8 @@ using CUE4Parse.UE4.Objects.UObject;
 namespace FortnitePorting.Models.Fortnite;
 
 [StructFallback]
-public class FVkMapExperienceData(FStructFallback fallback)
+public class FVkMapExperienceData
 {
-    public FSoftObjectPath Map = fallback.GetOrDefault<FSoftObjectPath>(nameof(Map));
-    public FSoftObjectPath[] BaseMaps = fallback.GetOrDefault<FSoftObjectPath[]>(nameof(BaseMaps));
+    [UProperty] public FSoftObjectPath Map;
+    [UProperty] public FSoftObjectPath[] BaseMaps;
 }
