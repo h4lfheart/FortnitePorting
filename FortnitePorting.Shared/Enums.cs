@@ -234,7 +234,13 @@ public enum ESoundFormat
     WAV,
     
     [Description("MP3 (.mp3)")]
-    MP3
+    MP3,
+    
+    [Description("OGG (.ogg)")]
+    OGG,
+    
+    [Description("FLAC (.flac)")]
+    FLAC
 }
 
 [Flags]

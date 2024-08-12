@@ -925,6 +925,8 @@ public class ExportContext
             {
                 ESoundFormat.WAV => "wav",
                 ESoundFormat.MP3 => "mp3",
+                ESoundFormat.OGG => "ogg",
+                ESoundFormat.FLAC => "flac",
             },
             ALandscapeProxy => "uemodel"
         };
@@ -1042,24 +1044,18 @@ public class ExportContext
                     throw new Exception($"Failed to export sound '{soundWave.Name}' at {path}");
                 }
 
-                switch (Meta.Settings.SoundFormat)
+                if (Meta.Settings.SoundFormat is not ESoundFormat.WAV)
                 {
-                    case ESoundFormat.WAV:
-                    {
-                        break; // do nothing, default is wav
-                    }
-                    case ESoundFormat.MP3:
-                    {
-                        // convert to mp3
-                        FFMpegArguments.FromFileInput(wavPath)
-                            .OutputToFile(path, true, options => options.ForceFormat("mp3"))
-                            .ProcessSynchronously();
+                    var extension = Path.GetExtension(path)[1..];
+                    
+                    // convert to format
+                    FFMpegArguments.FromFileInput(wavPath)
+                        .OutputToFile(path, true, options => options.ForceFormat(extension))
+                        .ProcessSynchronously();
                         
-                        File.Delete(wavPath); // delete old wav
-                        
-                        break;
-                    }
+                    File.Delete(wavPath); // delete old wav
                 }
+
                 
                 break;
             }
