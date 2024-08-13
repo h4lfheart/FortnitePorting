@@ -928,8 +928,25 @@ public class ExportContext
             {
                 exportMaterial.BaseMaterial = material;
             }
+
+            if (parameterCollection.Textures.Count == 0 && !material.Name.Contains("Parent", StringComparison.OrdinalIgnoreCase))
+            {
+                AccumulateParameters(material, ref parameterCollection);
+            }
+        }
+    }
+    
+    public void AccumulateParameters<T>(UMaterial material, ref T parameterCollection) where T : ParameterCollection
+    {
+        // TODO use uefn data and custom FPackageIndex resolver to start reading material tree 
+        var parameters = new CMaterialParams2();
+        material.GetParams(parameters, EMaterialFormat.AllLayers);
+                
+        foreach (var (name, value) in parameters.Textures)
+        {
+            if (value is not UTexture2D texture) continue;
             
-            // todo UMaterial parsing
+            parameterCollection.Textures.AddUnique(new TextureParameter(name, Export(texture), texture.SRGB, texture.CompressionSettings));
         }
     }
     

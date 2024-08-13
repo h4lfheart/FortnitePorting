@@ -26,6 +26,7 @@ default_mappings = MappingCollection(
         SlotMapping("Diffuse Top", "Diffuse"),
         SlotMapping("BaseColor_Trunk", "Diffuse"),
         SlotMapping("CliffTexture", "Diffuse"),
+        SlotMapping("PM_Diffuse", "Diffuse"),
 
         SlotMapping("Background Diffuse", alpha_slot="Background Diffuse Alpha"),
         SlotMapping("BG Diffuse Texture", "Background Diffuse", alpha_slot="Background Diffuse Alpha"),
@@ -42,6 +43,7 @@ default_mappings = MappingCollection(
         SlotMapping("Specular Top", "SpecularMasks"),
         SlotMapping("SMR_Trunk", "SpecularMasks"),
         SlotMapping("Cliff Spec Texture", "SpecularMasks"),
+        SlotMapping("PM_SpecularMasks", "SpecularMasks"),
 
         SlotMapping("Normals"),
         SlotMapping("N", "Normals"),
@@ -52,10 +54,12 @@ default_mappings = MappingCollection(
         SlotMapping("Normals Top", "Normals"),
         SlotMapping("Normal_Trunk", "Normals"),
         SlotMapping("CliffNormal", "Normals"),
+        SlotMapping("PM_Normals", "Normals"),
 
         SlotMapping("Emissive", "Emission"),
         SlotMapping("EmissiveTexture", "Emission"),
         SlotMapping("L1_Emissive", "Emission", coords="UV2"),
+        SlotMapping("PM_Emissive", "Emission"),
 
         SlotMapping("MaskTexture"),
         SlotMapping("OpacityMask", "MaskTexture")
@@ -64,9 +68,11 @@ default_mappings = MappingCollection(
         SlotMapping("RoughnessMin", "Roughness Min"),
         SlotMapping("SpecRoughnessMin", "Roughness Min"),
         SlotMapping("RawRoughnessMin", "Roughness Min"),
+        SlotMapping("Rough Min", "Roughness Min"),
         SlotMapping("RoughnessMax", "Roughness Max"),
         SlotMapping("SpecRoughnessMax", "Roughness Max"),
         SlotMapping("RawRoughnessMax", "Roughness Max"),
+        SlotMapping("Rough Max", "Roughness Max"),
         SlotMapping("emissive mult", "Emission Strength"),
         SlotMapping("DayMult", "Emission Strength")
     ],
