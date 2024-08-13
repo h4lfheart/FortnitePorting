@@ -904,8 +904,7 @@ public class ExportContext
                 }
             }
             
-            // TODO optional segment loading
-            /*if (materialInstance.TryLoadEditorData<UMaterialInstanceEditorOnlyData>(out var materialInstanceEditorData) && materialInstanceEditorData?.StaticParameters is not null)
+            if (materialInstance.TryLoadEditorData<UMaterialInstanceEditorOnlyData>(out var materialInstanceEditorData) && materialInstanceEditorData?.StaticParameters is not null)
             {
                 foreach (var parameter in materialInstanceEditorData.StaticParameters.StaticSwitchParameters)
                 {
@@ -918,7 +917,7 @@ public class ExportContext
                     if (parameter.ParameterInfo is null) continue;
                     parameterCollection.ComponentMasks.AddUnique(new ComponentMaskParameter(parameter.Name, parameter.ToLinearColor()));
                 }
-            }*/
+            }
 
             if (materialInstance.Parent is UMaterialInterface parentMaterial) AccumulateParameters(parentMaterial, ref parameterCollection);
         }

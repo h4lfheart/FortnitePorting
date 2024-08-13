@@ -62,7 +62,10 @@ default_mappings = MappingCollection(
         SlotMapping("PM_Emissive", "Emission"),
 
         SlotMapping("MaskTexture"),
-        SlotMapping("OpacityMask", "MaskTexture")
+        SlotMapping("OpacityMask", "MaskTexture"),
+
+        SlotMapping("SkinFX_Mask"),
+        SlotMapping("Thin Film Texture"),
     ],
     scalars=[
         SlotMapping("RoughnessMin", "Roughness Min"),
@@ -74,7 +77,14 @@ default_mappings = MappingCollection(
         SlotMapping("RawRoughnessMax", "Roughness Max"),
         SlotMapping("Rough Max", "Roughness Max"),
         SlotMapping("emissive mult", "Emission Strength"),
-        SlotMapping("DayMult", "Emission Strength")
+        SlotMapping("DayMult", "Emission Strength"),
+
+        SlotMapping("ThinFilm_Intensity"),
+        SlotMapping("ThinFilm_RoughnessScale"),
+        SlotMapping("ThinFilm_Exponent"),
+        SlotMapping("ThinFilm_Offset"),
+        SlotMapping("ThinFilm_Scale"),
+        SlotMapping("ThinFilm_Warp"),
     ],
     vectors=[
         SlotMapping("Skin Boost Color And Exponent", "Skin Color", alpha_slot="Skin Boost"),
@@ -83,9 +93,13 @@ default_mappings = MappingCollection(
         SlotMapping("Emissive Multiplier", "Emission Multiplier"),
         SlotMapping("Emissive Color", "Emission Color", switch_slot="Use Emission Color"),
         SlotMapping("Emissive", "Emission Color", switch_slot="Use Emission Color")
+    
     ],
     switches=[
         SlotMapping("SwizzleRoughnessToGreen")
+    ],
+    component_masks=[
+        SlotMapping("ThinFilm_Channel")
     ]
 )
 

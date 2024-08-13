@@ -20,6 +20,7 @@ using DynamicData;
 using DynamicData.Binding;
 using FortnitePorting.Controls;
 using FortnitePorting.Controls.Assets;
+using FortnitePorting.Extensions;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Services;

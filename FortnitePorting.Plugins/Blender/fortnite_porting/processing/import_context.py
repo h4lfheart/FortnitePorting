@@ -546,6 +546,8 @@ class ImportContext:
                         node.label = name
                         node.location = 400, unused_parameter_height
                         unused_parameter_height -= 50
+                    else:
+                        nodes.remove(node)
                     return
 
                 x, y = get_socket_pos(target_node, target_node.inputs.find(mappings.slot))
@@ -561,6 +563,9 @@ class ImportContext:
                     uv.location = node.location.x - 250, node.location.y
                     uv.uv_map = mappings.coords
                     links.new(uv.outputs[0], node.inputs[0])
+            except KeyError:
+                nodes.remove(node)
+                pass
             except Exception:
                 traceback.print_exc()
 
@@ -585,6 +590,8 @@ class ImportContext:
                 target_node.inputs[mappings.slot].default_value = value
                 if mappings.switch_slot:
                     target_node.inputs[mappings.switch_slot].default_value = 1 if value else 0
+            except KeyError:
+                pass
             except Exception:
                 traceback.print_exc()
 
@@ -611,6 +618,8 @@ class ImportContext:
                     target_node.inputs[mappings.alpha_slot].default_value = value["A"]
                 if mappings.switch_slot:
                     target_node.inputs[mappings.switch_slot].default_value = 1 if value else 0
+            except KeyError:
+                pass
             except Exception:
                 traceback.print_exc()
 
@@ -633,6 +642,8 @@ class ImportContext:
 
                 value = mappings.value_func(value) if mappings.value_func else value
                 target_node.inputs[mappings.slot].default_value = (value["R"], value["G"], value["B"], value["A"])
+            except KeyError:
+                pass
             except Exception:
                 traceback.print_exc()
 
@@ -656,6 +667,8 @@ class ImportContext:
 
                 value = mappings.value_func(value) if mappings.value_func else value
                 target_node.inputs[mappings.slot].default_value = 1 if value else 0
+            except KeyError:
+                pass
             except Exception:
                 traceback.print_exc()
 
@@ -725,6 +738,14 @@ class ImportContext:
 
         match shader_node.node_tree.name:
             case "FP Material":
+                pre_fx_node = nodes.new(type="ShaderNodeGroup")
+                pre_fx_node.node_tree = bpy.data.node_groups.get("FP Pre FX")
+                pre_fx_node.location = -1000, -400
+                setup_params(socket_mappings, pre_fx_node, False)
+                
+                if (thin_film_links := shader_node.inputs["Thin Film Texture"].links) and len(thin_film_links) > 0 and (thin_film_node := thin_film_links[0].from_node):
+                    links.new(pre_fx_node.outputs["Thin Film UV"], thin_film_node.inputs[0])
+                
                 set_param("AO", self.options.get("AmbientOcclusion"))
                 set_param("Cavity", self.options.get("Cavity"))
                 set_param("Subsurface", self.options.get("Subsurface"))

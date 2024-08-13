@@ -50,6 +50,12 @@ public class CUE4ParseViewModel : ViewModelBase
         _ => new HybridFileProvider(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, ExtraDirectories, new VersionContainer(AppSettings.Current.Installation.CurrentProfile.UnrealVersion)),
     };
     
+    public readonly HybridFileProvider OptionalProvider = AppSettings.Current.Installation.CurrentProfile.FortniteVersion switch
+    {
+        EFortniteVersion.LatestOnDemand => new HybridFileProvider(new VersionContainer(AppSettings.Current.Installation.CurrentProfile.UnrealVersion), isOptionalLoader: true),
+        _ => new HybridFileProvider(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, ExtraDirectories, new VersionContainer(AppSettings.Current.Installation.CurrentProfile.UnrealVersion), isOptionalLoader: true),
+    };
+    
     public readonly List<FAssetData> AssetRegistry = [];
     public readonly List<FRarityCollection> RarityColors = [];
     public readonly Dictionary<int, FColor> BeanstalkColors = [];
@@ -71,6 +77,13 @@ public class CUE4ParseViewModel : ViewModelBase
         await CleanupCache();
 
         Provider.VfsMounted += (sender, _) =>
+        {
+            if (sender is not IAesVfsReader reader) return;
+
+            HomeVM.UpdateStatus($"Loading {reader.Name}");
+        };
+        
+        OptionalProvider.VfsMounted += (sender, _) =>
         {
             if (sender is not IAesVfsReader reader) return;
 
@@ -170,6 +183,7 @@ public class CUE4ParseViewModel : ViewModelBase
             default:
             {
                 Provider.Initialize();
+                OptionalProvider.Initialize();
                 break;
             }
         }
@@ -251,9 +265,11 @@ public class CUE4ParseViewModel : ViewModelBase
                 if (aes is null) return;
                 
                 await Provider.SubmitKeyAsync(Globals.ZERO_GUID, new FAesKey(aes.MainKey));
+                await OptionalProvider.SubmitKeyAsync(Globals.ZERO_GUID, new FAesKey(aes.MainKey));
                 foreach (var key in aes.DynamicKeys)
                 {
                     await Provider.SubmitKeyAsync(new FGuid(key.GUID), new FAesKey(key.Key));
+                    await OptionalProvider.SubmitKeyAsync(new FGuid(key.GUID), new FAesKey(key.Key));
                 }
                 
                 break;
@@ -264,6 +280,7 @@ public class CUE4ParseViewModel : ViewModelBase
                 if (mainKey.IsEmpty) mainKey = FileEncryptionKey.Empty;
                 
                 await Provider.SubmitKeyAsync(Globals.ZERO_GUID, mainKey.EncryptionKey);
+                await OptionalProvider.SubmitKeyAsync(Globals.ZERO_GUID, mainKey.EncryptionKey);
                 
                 foreach (var vfs in Provider.UnloadedVfs.ToArray())
                 {
@@ -273,6 +290,7 @@ public class CUE4ParseViewModel : ViewModelBase
                         if (!vfs.TestAesKey(extraKey.EncryptionKey)) continue;
                         
                         await Provider.SubmitKeyAsync(vfs.EncryptionKeyGuid, extraKey.EncryptionKey);
+                        await OptionalProvider.SubmitKeyAsync(vfs.EncryptionKeyGuid, extraKey.EncryptionKey);
                     }
                 }
                 break;
@@ -292,6 +310,7 @@ public class CUE4ParseViewModel : ViewModelBase
         if (string.IsNullOrEmpty(mappingsPath)) return;
         
         Provider.MappingsContainer = new FileUsmapTypeMappingsProvider(mappingsPath);
+        OptionalProvider.MappingsContainer = new FileUsmapTypeMappingsProvider(mappingsPath);
         Log.Information("Loaded Mappings: {Path}", mappingsPath);
     }
     
@@ -334,6 +353,7 @@ public class CUE4ParseViewModel : ViewModelBase
                 case "r.StaticMesh.KeepMobileMinLODSettingOnDesktop":
                 case "r.SkeletalMesh.KeepMobileMinLODSettingOnDesktop":
                     Provider.Versions[instructionToken.Key[2..]] = value;
+                    OptionalProvider.Versions[instructionToken.Key[2..]] = value;
                     continue;
             }
         }
