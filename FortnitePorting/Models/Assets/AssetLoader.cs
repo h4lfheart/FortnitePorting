@@ -83,6 +83,10 @@ public partial class AssetLoader : ObservableObject
         { "Battle Pass", x => x.CreationData.GameplayTags.ContainsAny("BattlePass") },
         { "Item Shop", x => x.CreationData.GameplayTags.ContainsAny("ItemShop") },
         
+        // Emote
+        { "Synced", x => x.CreationData.GameplayTags.ContainsAny("Synced") },
+        { "Traversal", x => x.CreationData.GameplayTags.ContainsAny("Traversal") },
+        
         // Game
         { "Save The World", x => x.CreationData.GameplayTags.ContainsAny("CampaignHero", "SaveTheWorld") || x.CreationData.Object.GetPathName().Contains("SaveTheWorld", StringComparison.OrdinalIgnoreCase) },
         { "Battle Royale", x => !x.CreationData.GameplayTags.ContainsAny("CampaignHero", "SaveTheWorld") && !x.CreationData.Object.GetPathName().Contains("SaveTheWorld", StringComparison.OrdinalIgnoreCase) },
@@ -132,6 +136,7 @@ public partial class AssetLoader : ObservableObject
     
     public bool HasPrefabFilters => Type is EExportType.Prefab;
     public bool HasItemFilters => Type is EExportType.Item;
+    public bool HasEmoteFilters => Type is EExportType.Emote;
 
     public AssetLoader(EExportType exportType)
     {

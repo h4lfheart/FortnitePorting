@@ -76,6 +76,12 @@
                                             <CheckBox Content="Battle Pass" IsCheckedChanged="OnFilterChecked"/>
                                             <CheckBox Content="Item Shop" IsCheckedChanged="OnFilterChecked"/>
                                         </StackPanel>
+                                        <StackPanel IsVisible="{Binding AssetLoaderCollection.ActiveLoader.HasEmoteFilters}">
+                                            <TextBlock Text="Emote" Classes="BodyStrongTextBlockStyle" Margin="{ext:Space 0, 1, 0, 0.5}"/>
+                                            <Separator HorizontalAlignment="Stretch"/>
+                                            <CheckBox Content="Synced" IsCheckedChanged="OnFilterChecked"/>
+                                            <CheckBox Content="Traversal" IsCheckedChanged="OnFilterChecked"/>
+                                        </StackPanel>
                                         <StackPanel IsVisible="{Binding AssetLoaderCollection.ActiveLoader.HasGameFilters}">
                                             <TextBlock Text="Game" Classes="BodyStrongTextBlockStyle" Margin="{ext:Space 0, 1, 0, 0.5}"/>
                                             <Separator HorizontalAlignment="Stretch"/>
@@ -136,8 +142,8 @@
                                     <ContentControl Padding="8">
                                         <ContentControl.ContextMenu>
                                             <ContextMenu>
-                                                <MenuItem Header="View Properties" Icon="{material:MaterialIconExt Xml}" Command="{Binding PreviewPropertiesCommand}"/>
                                                 <MenuItem Header="Send to User" Icon="{material:MaterialIconExt Download}" Command="{Binding SendToUserCommand}"/>
+                                                <MenuItem Header="View Properties" Icon="{material:MaterialIconExt Xml}" Command="{Binding PreviewPropertiesCommand}"/>
                                                 <MenuItem Header="Copy Path" Icon="{material:MaterialIconExt Clipboard}" Command="{Binding CopyPathCommand}"/>
                                                 <MenuItem Header="Copy Icon" Icon="{material:MaterialIconExt Image}">
                                                     <MenuItem Header="With Background" Command="{Binding CopyIconCommand}" CommandParameter="{x:True}"/>

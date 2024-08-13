@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -53,6 +54,8 @@ public partial class AssetItem : ObservableObject
 
     private static SKColor InnerBackgroundColor = SKColor.Parse("#50C8FF");
     private static SKColor OuterBackgroundColor = SKColor.Parse("#1B7BCF");
+
+    private static Dictionary<int, UFortItemSeriesDefinition> SeriesCache = [];
     
     public AssetItem(AssetItemCreationArgs args)
     {
@@ -64,7 +67,11 @@ public partial class AssetItem : ObservableObject
         var seasonTag = CreationData.GameplayTags?.GetValueOrDefault("Cosmetics.Filter.Season.")?.Text;
         Season = int.TryParse(seasonTag?.SubstringAfterLast("."), out var seasonNumber) ? seasonNumber : int.MaxValue;
 
-        Series = CreationData.Object.GetDataListItem<UFortItemSeriesDefinition>("Series");
+        if (CreationData.Object.GetDataListItem<FPackageIndex>("Series") is { } seriesPackage)
+        {
+            Series = SeriesCache!.GetOrAdd(seriesPackage.Index,
+                () => CreationData.Object.GetDataListItem<UFortItemSeriesDefinition>("Series"));
+        }
         
         var iconBitmap = CreationData.Icon.Decode()!;
         IconDisplayImage = iconBitmap.ToWriteableBitmap();
