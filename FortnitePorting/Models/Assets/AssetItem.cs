@@ -55,7 +55,7 @@ public partial class AssetItem : ObservableObject
     private static SKColor InnerBackgroundColor = SKColor.Parse("#50C8FF");
     private static SKColor OuterBackgroundColor = SKColor.Parse("#1B7BCF");
 
-    private static Dictionary<int, UFortItemSeriesDefinition> SeriesCache = [];
+    private static Dictionary<string, UFortItemSeriesDefinition> SeriesCache = [];
     
     public AssetItem(AssetItemCreationArgs args)
     {
@@ -69,8 +69,8 @@ public partial class AssetItem : ObservableObject
 
         if (CreationData.Object.GetDataListItem<FPackageIndex>("Series") is { } seriesPackage)
         {
-            Series = SeriesCache!.GetOrAdd(seriesPackage.Index,
-                () => CreationData.Object.GetDataListItem<UFortItemSeriesDefinition>("Series"));
+            Series = SeriesCache!.GetOrAdd(seriesPackage.Name,
+                () => seriesPackage.Load<UFortItemSeriesDefinition>());
         }
         
         var iconBitmap = CreationData.Icon.Decode()!;
