@@ -523,6 +523,13 @@ class ImportContext:
             target_node = override_shader or shader_node
             target_node.inputs[name].default_value = value
 
+        def get_node(target_node, slot):
+            node_links = target_node.inputs[slot].links
+            if node_links is None or len(node_links) == 0:
+                return None
+            
+            return node_links[0].from_node
+
         unused_parameter_height = 0
 
         # parameter handlers
@@ -705,7 +712,7 @@ class ImportContext:
             replace_shader_node("FP Valet")
             socket_mappings = valet_mappings
 
-        is_glass = base_blend_mode is EBlendMode.BLEND_Translucent and translucency_lighting_mode in [ETranslucencyLightingMode.TLM_SurfacePerPixelLighting, ETranslucencyLightingMode.TLM_VolumetricPerVertexDirectional]
+        is_glass = material_data.get("PhysMaterialName") == "Glass" or (base_blend_mode is EBlendMode.BLEND_Translucent and translucency_lighting_mode in [ETranslucencyLightingMode.TLM_SurfacePerPixelLighting, ETranslucencyLightingMode.TLM_VolumetricPerVertexDirectional])
         if is_glass:
             replace_shader_node("FP Glass")
             socket_mappings = glass_mappings
@@ -738,13 +745,42 @@ class ImportContext:
 
         match shader_node.node_tree.name:
             case "FP Material":
+                # PRE FX START
                 pre_fx_node = nodes.new(type="ShaderNodeGroup")
                 pre_fx_node.node_tree = bpy.data.node_groups.get("FP Pre FX")
                 pre_fx_node.location = -600, -700
                 setup_params(socket_mappings, pre_fx_node, False)
-                
-                if (thin_film_links := shader_node.inputs["Thin Film Texture"].links) and len(thin_film_links) > 0 and (thin_film_node := thin_film_links[0].from_node):
+
+                thin_film_node = get_node(shader_node, "Thin Film Texture")
+                if get_param_multiple(switches, ["Use Thin Film", "UseThinFilm"]):
+                    if thin_film_node is None:
+                        thin_film_node = nodes.new(type="ShaderNodeTexImage")
+                        thin_film_node.image = bpy.data.images.get("T_ThinFilm_Spectrum_COLOR")
+                        thin_film_node.image.alpha_mode = 'CHANNEL_PACKED'
+                        thin_film_node.image.colorspace_settings.name = "sRGB"
+                        thin_film_node.interpolation = "Smart"
+                        thin_film_node.hide = True
+                        
+                        x, y = get_socket_pos(shader_node, shader_node.inputs.find("Thin Film Texture"))
+                        thin_film_node.location = x - 300, y
+                        links.new(thin_film_node.outputs[0], shader_node.inputs["Thin Film Texture"])
+                        
                     links.new(pre_fx_node.outputs["Thin Film UV"], thin_film_node.inputs[0])
+                elif thin_film_node is not None:
+                    nodes.remove(thin_film_node)
+
+                if ice_gradient_node := get_node(shader_node, "IceGradient"):
+                    links.new(pre_fx_node.outputs["Ice UV"], ice_gradient_node.inputs[0])
+                    links.new(pre_fx_node.outputs["Ice UV"], shader_node.inputs["Ice UV"])
+                    
+                if not any(pre_fx_node.outputs, lambda output: len(output.links) > 0):
+                    for input in pre_fx_node.inputs:
+                        if len(input.links) > 0:
+                            nodes.remove(input.links[0].from_node)
+                            
+                    nodes.remove(pre_fx_node)
+                    
+                # PRE FX END
                 
                 set_param("AO", self.options.get("AmbientOcclusion"))
                 set_param("Cavity", self.options.get("Cavity"))
@@ -765,7 +801,7 @@ class ImportContext:
 
                 if get_param(switches, "Use Vertex Colors for Mask"):  # TODO covnert geo nodes
                     color_node = nodes.new(type="ShaderNodeVertexColor")
-                    color_node.location = [-400, -560]
+                    color_node.location = [-400, -925]
                     color_node.layer_name = "COL0"
 
                     mask_node = nodes.new("ShaderNodeGroup")

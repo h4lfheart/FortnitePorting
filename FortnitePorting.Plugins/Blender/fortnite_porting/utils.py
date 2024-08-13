@@ -15,6 +15,10 @@ def ensure_blend_data():
             if not bpy.data.materials.get(mat):
                 data_to.materials.append(mat)
 
+        for image in data_from.images:
+            if not bpy.data.images.get(image):
+                data_to.images.append(image)
+
         for obj in data_from.objects:
             if not bpy.data.objects.get(obj):
                 data_to.objects.append(obj)

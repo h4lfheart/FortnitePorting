@@ -926,6 +926,8 @@ public class ExportContext
             if (parameterCollection is ExportMaterial exportMaterial)
             {
                 exportMaterial.BaseMaterial = material;
+                exportMaterial.PhysMaterialName =
+                    material.GetOrDefault<FPackageIndex?>("PhysMaterial")?.Name ?? string.Empty;
             }
 
             if (parameterCollection.Textures.Count == 0 && !material.Name.Contains("Parent", StringComparison.OrdinalIgnoreCase))

@@ -68,7 +68,9 @@ default_mappings = MappingCollection(
         SlotMapping("SkinFX Mask", "SkinFX_Mask"),
         SlotMapping("TechArtMask", "SkinFX_Mask"),
         
-        SlotMapping("Thin Film Texture")
+        SlotMapping("Thin Film Texture"),
+
+        SlotMapping("IceGradient")
     ],
     scalars=[
         SlotMapping("RoughnessMin", "Roughness Min"),
@@ -93,7 +95,12 @@ default_mappings = MappingCollection(
         SlotMapping("ThinFilm_Scale"),
         SlotMapping("ThinFilmScale", "ThinFilm_Scale"),
         SlotMapping("ThinFilm_Warp"),
-        SlotMapping("ThinFilmWarp", "ThinFilm_Warp")
+        SlotMapping("ThinFilmWarp", "ThinFilm_Warp"),
+
+        SlotMapping("Ice Fresnel"),
+        SlotMapping("Ice Brightness"),
+        SlotMapping("Ice Emissive Brightness"),
+        SlotMapping("Crystal_FresEX"),
     ],
     vectors=[
         SlotMapping("Skin Boost Color And Exponent", "Skin Color", alpha_slot="Skin Boost"),
@@ -102,16 +109,20 @@ default_mappings = MappingCollection(
         SlotMapping("Emissive Multiplier", "Emission Multiplier"),
         SlotMapping("Emissive Color", "Emission Color", switch_slot="Use Emission Color"),
         SlotMapping("Emissive", "Emission Color", switch_slot="Use Emission Color"),
-        
+
         SlotMapping("ThinFilm_Channel"),
-        SlotMapping("ThinFilmMaskChannel", "ThinFilm_Channel")
+        SlotMapping("ThinFilmMaskChannel", "ThinFilm_Channel"),
+
+        SlotMapping("Ice Channel")
     ],
     switches=[
         SlotMapping("SwizzleRoughnessToGreen")
     ],
     component_masks=[
         SlotMapping("ThinFilm_Channel"),
-        SlotMapping("ThinFilmMaskChannel", "ThinFilm_Channel")
+        SlotMapping("ThinFilmMaskChannel", "ThinFilm_Channel"),
+
+        SlotMapping("Ice Channel")
     ]
 )
 

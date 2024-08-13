@@ -23,6 +23,7 @@ public record ExportMaterial : ParameterCollection
     public int Slot;
     public int Hash;
 
+    public string PhysMaterialName;
     public EBlendMode OverrideBlendMode;
     public EBlendMode BaseBlendMode => BaseMaterial.BlendMode;
     public ETranslucencyLightingMode TranslucencyLightingMode => BaseMaterial.TranslucencyLightingMode;
