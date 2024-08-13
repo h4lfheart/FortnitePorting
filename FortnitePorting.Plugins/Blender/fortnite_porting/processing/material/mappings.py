@@ -55,6 +55,7 @@ default_mappings = MappingCollection(
 
         SlotMapping("Emissive", "Emission"),
         SlotMapping("EmissiveTexture", "Emission"),
+        SlotMapping("L1_Emissive", "Emission", coords="UV2"),
 
         SlotMapping("MaskTexture"),
         SlotMapping("OpacityMask", "MaskTexture")
@@ -66,14 +67,16 @@ default_mappings = MappingCollection(
         SlotMapping("RoughnessMax", "Roughness Max"),
         SlotMapping("SpecRoughnessMax", "Roughness Max"),
         SlotMapping("RawRoughnessMax", "Roughness Max"),
-        SlotMapping("emissive mult", "Emission Strength")
+        SlotMapping("emissive mult", "Emission Strength"),
+        SlotMapping("DayMult", "Emission Strength")
     ],
     vectors=[
         SlotMapping("Skin Boost Color And Exponent", "Skin Color", alpha_slot="Skin Boost"),
         SlotMapping("SkinTint", "Skin Color", alpha_slot="Skin Boost"),
         SlotMapping("EmissiveMultiplier", "Emission Multiplier"),
         SlotMapping("Emissive Multiplier", "Emission Multiplier"),
-        SlotMapping("Emissive Color", "Emission Color", switch_slot="Use Emission Color")
+        SlotMapping("Emissive Color", "Emission Color", switch_slot="Use Emission Color"),
+        SlotMapping("Emissive", "Emission Color", switch_slot="Use Emission Color")
     ],
     switches=[
         SlotMapping("SwizzleRoughnessToGreen")

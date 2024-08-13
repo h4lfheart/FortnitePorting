@@ -35,7 +35,7 @@ class ImportContext:
 
         ensure_blend_data()
 
-        #pyperclip.copy(json.dumps(data))
+        pyperclip.copy(json.dumps(data))
 
         import_type = EPrimitiveExportType(data.get("PrimitiveType"))
         match import_type:
@@ -69,6 +69,8 @@ class ImportContext:
         self.meshes = target_meshes
         for mesh in target_meshes:
             self.import_model(mesh)
+
+        self.import_light_data(data.get("Lights"))
             
         if self.type in [EExportType.OUTFIT, EExportType.FALL_GUYS_OUTFIT] and self.options.get("MergeArmatures"):
             master_skeleton = merge_armatures(self.imported_meshes)
@@ -116,8 +118,6 @@ class ImportContext:
             "Type": part_type,
             "Meta": mesh.get("Meta")
         })
-        
-        
 
         # metadata handling
         def gather_metadata(*search_props):
@@ -306,6 +306,8 @@ class ImportContext:
                           lambda slot: slot.material.get("OriginalName") == material_name_to_swap)
             for slot in slots:
                 self.import_material(slot, variant_override_material.get("Material"), meta)
+                
+        self.import_light_data(mesh.get("Lights"), imported_object)
 
         for child in mesh.get("Children"):
             self.import_model(child, parent=imported_object)
@@ -333,6 +335,33 @@ class ImportContext:
                 instance_object.scale = make_vector(instance_transform.get("Scale"))
             
         return imported_object
+    
+    def import_light_data(self, lights, parent=None):
+        if not lights:
+            return
+        
+        for point_light in lights.get("PointLights"):
+            self.import_point_light(point_light, parent)
+    
+    def import_point_light(self, point_light, parent=None):
+        name = point_light.get("Name")
+        Log.info(point_light)
+        light_data = bpy.data.lights.new(name=name, type='POINT')
+        light = bpy.data.objects.new(name=name, object_data=light_data)
+        self.collection.objects.link(light)
+        
+        light.parent = parent
+        light.rotation_euler = make_euler(point_light.get("Rotation"))
+        light.location = make_vector(point_light.get("Location"), unreal_coords_correction=True) * SCALE_FACTOR
+        light.scale = make_vector(point_light.get("Scale"))
+        
+        color = point_light.get("Color")
+        light_data.color = (color["R"], color["G"], color["B"])
+        light_data.energy = point_light.get("Intensity")
+        light_data.use_custom_distance = True
+        light_data.cutoff_distance = point_light.get("AttenuationRadius") * SCALE_FACTOR
+        light_data.shadow_soft_size = point_light.get("Radius") * SCALE_FACTOR
+        light_data.use_shadow = point_light.get("CastShadows")
 
     def import_mesh(self, path: str):
         options = UEModelOptions(scale_factor=0.01 if self.options.get("ScaleDown") else 1,
@@ -699,6 +728,9 @@ class ImportContext:
                 set_param("AO", self.options.get("AmbientOcclusion"))
                 set_param("Cavity", self.options.get("Cavity"))
                 set_param("Subsurface", self.options.get("Subsurface"))
+
+                if override_blend_mode == EBlendMode.BLEND_Masked and (diffuse_links := shader_node.inputs["Diffuse"].links) and len(diffuse_links) > 0 and (diffuse_node := diffuse_links[0].from_node):
+                    links.new(diffuse_node.outputs[1], shader_node.inputs["Alpha"])
 
                 if (skin_color := meta.get("SkinColor")) and skin_color["A"] != 0:
                     set_param("Skin Color", (skin_color["R"], skin_color["G"], skin_color["B"], 1.0))

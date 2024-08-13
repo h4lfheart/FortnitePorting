@@ -158,9 +158,21 @@ public partial class FilesViewModel : ViewModelBase
         var exports = new List<KeyValuePair<UObject, EExportType>>();
         foreach (var item in SelectedFlatViewItems)
         {
+            
             var basePath = Exporter.FixPath(item.Path);
-            var asset = await CUE4ParseVM.Provider.TryLoadObjectAsync(basePath);
-            asset ??= await CUE4ParseVM.Provider.TryLoadObjectAsync($"{basePath}.{basePath.SubstringAfterLast("/")}_C");
+            
+            UObject? asset = null;
+            if (item.Path.EndsWith(".umap"))
+            {
+                var package = await CUE4ParseVM.Provider.LoadPackageAsync(basePath);
+                asset = package.GetExports().OfType<UWorld>().FirstOrDefault();
+            }
+            else
+            {
+                asset = await CUE4ParseVM.Provider.TryLoadObjectAsync(basePath);
+                asset ??= await CUE4ParseVM.Provider.TryLoadObjectAsync($"{basePath}.{basePath.SubstringAfterLast("/")}_C");
+            }
+            
             if (asset is null) continue;
             
             switch (asset)
@@ -211,7 +223,7 @@ public partial class FilesViewModel : ViewModelBase
     private Func<FlatViewItem, bool> CreateAssetFilter((string, bool) items)
     {
         var (filter, useRegex) = items;
-        if (UseRegex)
+        if (useRegex)
         {
             return asset => Regex.IsMatch(asset.Path, filter);
         }

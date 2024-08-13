@@ -242,7 +242,7 @@ public partial class WorldPartitionMap : ObservableObject
     {
         // todo allow user to select export location
         var meta = AppSettings.Current.CreateExportMeta();
-        meta.Settings.WorldFlags = EWorldFlags.Landscape;
+        meta.WorldFlags = EWorldFlags.Landscape;
         await Exporter.Export(_world, EExportType.World, meta);
     }
     
@@ -250,7 +250,7 @@ public partial class WorldPartitionMap : ObservableObject
     public async Task ExportActors()
     {
         var meta = AppSettings.Current.CreateExportMeta();
-        meta.Settings.WorldFlags = EWorldFlags.Actors;
+        meta.WorldFlags = EWorldFlags.Actors;
         await Exporter.Export(_world, EExportType.World, meta);
     }
     
@@ -258,7 +258,7 @@ public partial class WorldPartitionMap : ObservableObject
     public async Task ExportWorldPartitionActors()
     {
         var meta = AppSettings.Current.CreateExportMeta();
-        meta.Settings.WorldFlags = EWorldFlags.WorldPartitionGrids;
+        meta.WorldFlags = EWorldFlags.WorldPartitionGrids;
         await Exporter.Export(_world, EExportType.World, meta);
     }
     
@@ -266,7 +266,7 @@ public partial class WorldPartitionMap : ObservableObject
     public async Task ExportFullMap()
     {
         var meta = AppSettings.Current.CreateExportMeta();
-        meta.Settings.WorldFlags = EWorldFlags.Actors | EWorldFlags.Landscape | EWorldFlags.WorldPartitionGrids;
+        meta.WorldFlags = EWorldFlags.Actors | EWorldFlags.Landscape | EWorldFlags.WorldPartitionGrids;
         await Exporter.Export(_world, EExportType.World, meta);
     }
     

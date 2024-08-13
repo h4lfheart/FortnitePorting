@@ -30,6 +30,7 @@ public class MeshExport : BaseExport
     public readonly List<ExportMesh> OverrideMeshes = [];
     public readonly List<ExportOverrideMaterial> OverrideMaterials = [];
     public readonly List<ExportOverrideParameters> OverrideParameters = [];
+    public ExportLightCollection Lights = new();
     
     public MeshExport(string name, UObject asset, FStructFallback[] styles, EExportType exportType, ExportDataMeta metaData) : base(name, asset, styles, exportType, metaData)
     {
@@ -145,8 +146,7 @@ public class MeshExport : BaseExport
             case EExportType.Prop:
             {
                 var levelSaveRecord = asset.Get<ULevelSaveRecord>("ActorSaveRecord");
-                var meshes = Exporter.LevelSaveRecord(levelSaveRecord);
-                Meshes.AddRange(meshes);
+                AddObjects(Exporter.LevelSaveRecord(levelSaveRecord));
                 break;
             }
             case EExportType.Prefab:
@@ -171,17 +171,17 @@ public class MeshExport : BaseExport
 
                     var actorSaveRecord = levelSaveRecord.Get<ULevelSaveRecord>("ActorSaveRecord");
                     var transform = prop.GetOrDefault<FTransform>("Transform");
-                    var meshes = Exporter.LevelSaveRecord(actorSaveRecord);
-                    foreach (var mesh in meshes)
+                    var objects = Exporter.LevelSaveRecord(actorSaveRecord);
+                    foreach (var mesh in objects)
                     {
                         mesh.Location += transform.Translation;
                         mesh.Rotation += transform.Rotator();
                         mesh.Scale *= transform.Scale3D;
                     }
                     
-                    Exporter.Meta.OnUpdateProgress(meshes.FirstOrDefault()?.Name ?? "Prop", currentProp, totalProps);
-                    
-                    Meshes.AddRange(meshes);
+                    Exporter.Meta.OnUpdateProgress(objects.FirstOrDefault()?.Name ?? "Prop", currentProp, totalProps);
+
+                    AddObjects(objects);
                 }
 
                 break;
@@ -190,7 +190,7 @@ public class MeshExport : BaseExport
             {
                 if (asset is UBlueprintGeneratedClass blueprintGeneratedClass)
                 {
-                    Meshes.AddRangeIfNotNull(Exporter.Blueprint(blueprintGeneratedClass));
+                    AddObjects(Exporter.Blueprint(blueprintGeneratedClass));
                 }
                 else
                 {
@@ -358,6 +358,21 @@ public class MeshExport : BaseExport
         }
 
         ExportStyles(asset, styles);
+    }
+
+    private void AddObjects(IEnumerable<ExportObject> objects)
+    {
+        foreach (var obj in objects)
+        {
+            if (obj is ExportMesh exportMesh)
+            {
+                Meshes.Add(exportMesh);
+            }
+            else if (obj is ExportLight exportLight)
+            {
+                Lights.Add(exportLight);
+            }
+        }
     }
     
     private void ExportStyles(UObject asset, FStructFallback[] styles)

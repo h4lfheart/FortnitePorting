@@ -59,8 +59,6 @@ public partial class BaseExportSettings : ViewModelBase
     [ObservableProperty] private EImageFormat _imageFormat = EImageFormat.PNG;
     [ObservableProperty] private ESoundFormat _soundFormat = ESoundFormat.WAV;
 
-    [ObservableProperty, JsonIgnore] private EWorldFlags _worldFlags = EWorldFlags.Actors | EWorldFlags.WorldPartitionGrids | EWorldFlags.Landscape;
-
     [ObservableProperty] private bool _exportMaterials = true;
     
     public virtual ExporterOptions CreateExportOptions()

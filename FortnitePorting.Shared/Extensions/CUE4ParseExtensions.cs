@@ -1,3 +1,4 @@
+using System.Reflection;
 using CUE4Parse_Conversion.Meshes;
 using CUE4Parse_Conversion.Meshes.PSK;
 using CUE4Parse.FileProvider;
@@ -226,6 +227,36 @@ public static class CUE4ParseExtensions
             MathF.Pow((float) color.G / byte.MaxValue, 2.2f), 
             MathF.Pow((float) color.B / byte.MaxValue, 2.2f), 
             MathF.Pow((float) color.A / byte.MaxValue, 2.2f));
+    }
+
+    public static void GatherTemplateProperties<T>(this T obj) where T : UObject
+    {
+        var current = obj;
+        while (true)
+        {
+            current = current.Template?.Load<T>();
+            if (current is null) break;
+
+            foreach (var property in current.Properties)
+            {
+                if (obj.Properties.Any(prop => prop.Name.Text.Equals(property.Name.Text))) continue;
+                
+                obj.Properties.Add(property);
+            }
+            
+            if (current.Template is null) break;
+        }
+        
+        var fields = obj.GetType().GetFields();
+        foreach (var field in fields)
+        {
+            if (field.DeclaringType == typeof(UObject)) continue;
+            
+            var targetProperty = obj.Properties.FirstOrDefault(prop => prop.Name.Text.Equals(field.Name));
+            if (targetProperty is null) continue;
+            
+            field.SetValue(obj, targetProperty.Tag?.GetValue(field.FieldType));
+        }
     }
     
     public static FTransform GetAbsoluteTransformFromRootComponent(this UObject actor)

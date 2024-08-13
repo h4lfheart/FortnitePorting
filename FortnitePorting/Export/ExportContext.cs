@@ -33,6 +33,7 @@ using FortnitePorting.Extensions;
 using FortnitePorting.Models.CUE4Parse;
 using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Models.Unreal.Landscape;
+using FortnitePorting.Models.Unreal.Lights;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
 
@@ -276,19 +277,17 @@ public class ExportContext
         return exportWeapons;
     }
     
-    public List<ExportMesh> LevelSaveRecord(ULevelSaveRecord levelSaveRecord)
+    public List<ExportObject> LevelSaveRecord(ULevelSaveRecord levelSaveRecord)
     {
-        var meshes = new List<ExportMesh>();
+        var objects = new List<ExportObject>();
         foreach (var (index, templateRecord) in levelSaveRecord.TemplateRecords)
         {
             var actorBlueprint = templateRecord.ActorClass.Load<UBlueprintGeneratedClass>();
             if (actorBlueprint is null) continue;
             
-            meshes.AddRangeIfNotNull(Blueprint(actorBlueprint));
+            objects.AddRangeIfNotNull(Blueprint(actorBlueprint));
             
-            if (meshes.Count == 0) continue;
-            
-            var targetMesh = meshes.FirstOrDefault();
+            if (objects.Count == 0) continue;
 
             // todo proper byte actor data parsing
             var textureDatas = new Dictionary<int, UBuildingTextureData>();
@@ -315,13 +314,14 @@ public class ExportContext
                 }
             }
             
+            var targetMesh = objects.OfType<ExportMesh>().FirstOrDefault();
             foreach (var (textureDataIndex, textureData) in textureDatas)
             {
                 targetMesh?.TextureData.AddIfNotNull(TextureData(textureData, textureDataIndex));
             }
         }
 
-        return meshes;
+        return objects;
     }
      
     public ExportTextureData? TextureData(UBuildingTextureData? textureData, int index = 0)
@@ -388,11 +388,11 @@ public class ExportContext
         
         actors.AddRangeIfNotNull(Level(level));
         
-        if (Meta.Settings.WorldFlags.HasFlag(EWorldFlags.WorldPartitionGrids) &&  level.GetOrDefault<UObject>("WorldSettings") is { } worldSettings
+        if (Meta.WorldFlags.HasFlag(EWorldFlags.WorldPartitionGrids) &&  level.GetOrDefault<UObject>("WorldSettings") is { } worldSettings
             && worldSettings.GetOrDefault<UObject>("WorldPartition") is { } worldPartition
             && worldPartition.GetOrDefault<UObject>("RuntimeHash") is { } runtimeHash)
         {
-            Meta.Settings.WorldFlags |= EWorldFlags.Actors;
+            Meta.WorldFlags |= EWorldFlags.Actors;
             
             foreach (var streamingGrid in runtimeHash.GetOrDefault("StreamingGrids", Array.Empty<FStructFallback>()))
             {
@@ -440,11 +440,11 @@ public class ExportContext
         return actors;
     } 
 
-    public List<ExportMesh> Actor(UObject actor)
+    public List<ExportMesh> Actor(UObject actor, bool loadTemplate = true)
     {
         var meshes = new List<ExportMesh>();
 
-        if (Meta.Settings.WorldFlags.HasFlag(EWorldFlags.Actors))
+        if (Meta.WorldFlags.HasFlag(EWorldFlags.Actors))
         {
             if (actor.TryGetValue(out FPackageIndex[] instanceComponents, "InstanceComponents"))
             {
@@ -496,14 +496,14 @@ public class ExportContext
                     }
                 }
                 
-                //if (actor.Name.Contains("BottleRackBottles", StringComparison.OrdinalIgnoreCase)) Debugger.Break();
-                if (actor.Template?.Load() is { } template)
+                if (loadTemplate && actor.Template?.Load() is { } template)
                 {
                     var basePath = template.GetPathName().SubstringBeforeLast(".");
                     var blueprintPath = $"{basePath}.{basePath.SubstringAfterLast("/")}_C";
                     var templateBlueprintGeneratedClass = CUE4ParseVM.Provider.LoadObject<UObject>(blueprintPath);
                     
-                    exportMesh.Children.AddRangeIfNotNull(ConstructionScript(templateBlueprintGeneratedClass));
+                    exportMesh.AddChildren(ConstructionScript(templateBlueprintGeneratedClass));
+                    exportMesh.AddChildren(InheritableComponentHandler(templateBlueprintGeneratedClass));
                 }
 
                 meshes.Add(exportMesh);
@@ -518,7 +518,7 @@ public class ExportContext
 
         }
 
-        if (Meta.Settings.WorldFlags.HasFlag(EWorldFlags.Landscape) && actor is ALandscapeProxy landscapeProxy)
+        if (Meta.WorldFlags.HasFlag(EWorldFlags.Landscape) && actor is ALandscapeProxy landscapeProxy)
         {
             var transform = landscapeProxy.GetAbsoluteTransformFromRootComponent();
             
@@ -533,25 +533,26 @@ public class ExportContext
         return meshes;
     }
 
-    public List<ExportMesh> Blueprint(UBlueprintGeneratedClass blueprintGeneratedClass)
+    public List<ExportObject> Blueprint(UBlueprintGeneratedClass blueprintGeneratedClass)
     {
-        var meshes = new List<ExportMesh>();
+        var objects = new List<ExportObject>();
         
-        meshes.AddRangeIfNotNull(ConstructionScript(blueprintGeneratedClass));
+        objects.AddRangeIfNotNull(ConstructionScript(blueprintGeneratedClass));
+        objects.AddRangeIfNotNull(InheritableComponentHandler(blueprintGeneratedClass));
 
         if (blueprintGeneratedClass.ClassDefaultObject.TryLoad(out var classDefaultObject))
         {
-            meshes.AddRangeIfNotNull(Actor(classDefaultObject!));
+            objects.AddRangeIfNotNull(Actor(classDefaultObject!, loadTemplate: false));
         }
         
-        return meshes;
+        return objects;
     }
 
-    public List<ExportMesh> ConstructionScript(UObject blueprint)
+    public List<ExportObject> ConstructionScript(UObject blueprint)
     {
         if (!blueprint.TryGetValue(out UObject constructionScript, "SimpleConstructionScript")) return [];
         
-        var meshes = new List<ExportMesh>();
+        var objects = new List<ExportObject>();
         
         var allNodes = constructionScript.GetOrDefault("AllNodes", Array.Empty<UObject>());
         foreach (var node in allNodes)
@@ -559,15 +560,72 @@ public class ExportContext
             var componentTemplate = node.GetOrDefault<UObject>("ComponentTemplate");
             if (componentTemplate is UInstancedStaticMeshComponent instancedStaticMeshComponent)
             {
-                meshes.AddIfNotNull(MeshComponent(instancedStaticMeshComponent));
+                objects.AddIfNotNull(MeshComponent(instancedStaticMeshComponent));
             }
             else if (componentTemplate is UStaticMeshComponent subStaticMeshComponent)
             {
-                meshes.AddIfNotNull(MeshComponent(subStaticMeshComponent));
+                objects.AddIfNotNull(MeshComponent(subStaticMeshComponent));
+            }
+            else if (componentTemplate is ULightComponentBase pointLightComponent)
+            {
+                objects.AddIfNotNull(LightComponent(pointLightComponent));
             }
         }
 
-        return meshes;
+        return objects;
+    }
+    
+    public List<ExportObject> InheritableComponentHandler(UObject blueprint)
+    {
+        if (!blueprint.TryGetValue(out UObject inheritableComponentHandler, "InheritableComponentHandler")) return [];
+        
+        var objects = new List<ExportObject>();
+        
+        var records = inheritableComponentHandler.GetOrDefault("Records", Array.Empty<FStructFallback>());
+        foreach (var record in records)
+        {
+            var componentTemplate = record.GetOrDefault<UObject>("ComponentTemplate");
+            if (componentTemplate is UInstancedStaticMeshComponent instancedStaticMeshComponent)
+            {
+                objects.AddIfNotNull(MeshComponent(instancedStaticMeshComponent));
+            }
+            else if (componentTemplate is UStaticMeshComponent subStaticMeshComponent)
+            {
+                objects.AddIfNotNull(MeshComponent(subStaticMeshComponent));
+            }
+            else if (componentTemplate is ULightComponentBase pointLightComponent)
+            {
+                objects.AddIfNotNull(LightComponent(pointLightComponent));
+            }
+        }
+
+        return objects;
+    }
+
+    public ExportLight? LightComponent(ULightComponentBase lightComponent)
+    {
+        lightComponent.GatherTemplateProperties();
+        return lightComponent switch
+        {
+            UPointLightComponent pointLightComponent => LightComponent(pointLightComponent),
+            _ => throw new NotImplementedException(lightComponent.ExportType)
+        };
+    }
+
+    public ExportLight LightComponent(UPointLightComponent pointLightComponent)
+    {
+        return new ExportPointLight
+        {
+            Name = pointLightComponent.Name,
+            Location = pointLightComponent.RelativeLocation,
+            Rotation = pointLightComponent.RelativeRotation,
+            Scale = pointLightComponent.RelativeScale3D,
+            Intensity = pointLightComponent.Intensity,
+            Color = pointLightComponent.LightColor.ToLinearColor(),
+            CastShadows = pointLightComponent.CastShadows,
+            AttenuationRadius = pointLightComponent.AttenuationRadius,
+            Radius = pointLightComponent.SourceRadius
+        };
     }
 
     public ExportMesh? MeshComponent(UObject genericComponent)
