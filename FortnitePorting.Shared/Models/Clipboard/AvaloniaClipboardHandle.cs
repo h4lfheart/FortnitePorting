@@ -4,9 +4,8 @@ using Avalonia;
 using Avalonia.Platform;
 using Clowd.Clipboard;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;
-using PixelFormat = Avalonia.Platform.PixelFormat;
 
-namespace FortnitePorting.Shared.Models;
+namespace FortnitePorting.Shared.Models.Clipboard;
 
 public class AvaloniaClipboardHandle : ClipboardHandleGdiBase, IClipboardHandlePlatform<Bitmap>
 {

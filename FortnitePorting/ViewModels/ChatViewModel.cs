@@ -20,6 +20,7 @@ using FortnitePorting.OnlineServices.Packet;
 using FortnitePorting.Services;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Models;
+using FortnitePorting.Shared.Models.Clipboard;
 using FortnitePorting.Shared.Services;
 using Serilog;
 using SixLabors.ImageSharp.PixelFormats;
@@ -72,7 +73,7 @@ public partial class ChatViewModel : ViewModelBase
 
     public async Task ClipboardPaste()
     {
-        if (await ClipboardStaticBase<AvaloniaClipboardHandle, Bitmap>.GetImageAsync() is not { } image) return;
+        if (await AvaloniaClipboard.GetImageAsync() is not { } image) return;
         
         SelectedImageName = "image.png";
         SelectedImage = image;

@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
@@ -23,6 +24,7 @@ using FortnitePorting.OnlineServices.Packet;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
+using FortnitePorting.Shared.Models.Clipboard;
 using FortnitePorting.Windows;
 using Newtonsoft.Json;
 using Serilog;
@@ -61,9 +63,8 @@ public partial class AssetItem : ObservableObject
         
         var seasonTag = CreationData.GameplayTags?.GetValueOrDefault("Cosmetics.Filter.Season.")?.Text;
         Season = int.TryParse(seasonTag?.SubstringAfterLast("."), out var seasonNumber) ? seasonNumber : int.MaxValue;
-        
-        var seriesComponent = CreationData.Object.TryGetFortComponentByType("FortItemComponent_Series");
-        Series = seriesComponent?.GetOrDefault<UFortItemSeriesDefinition?>("Series");
+
+        Series = CreationData.Object.GetDataListItem<UFortItemSeriesDefinition>("Series");
         
         var iconBitmap = CreationData.Icon.Decode()!;
         IconDisplayImage = iconBitmap.ToWriteableBitmap();
@@ -181,6 +182,12 @@ public partial class AssetItem : ObservableObject
         };
 
         await dialog.ShowAsync();
+    }
+    
+    [RelayCommand]
+    public async Task CopyIcon(bool withBackground = false)
+    {
+        await AvaloniaClipboard.SetImageAsync(withBackground ? DisplayImage : IconDisplayImage);
     }
 }
 
