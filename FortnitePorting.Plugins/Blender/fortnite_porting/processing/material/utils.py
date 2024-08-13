@@ -23,7 +23,7 @@ def get_param_info(source, name):
 
 
 def get_socket_pos(node, index):
-    start_y = -80
+    start_y = -100
     offset_y = -22
     return node.location.x, node.location.y + start_y + offset_y * index
 

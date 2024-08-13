@@ -740,7 +740,7 @@ class ImportContext:
             case "FP Material":
                 pre_fx_node = nodes.new(type="ShaderNodeGroup")
                 pre_fx_node.node_tree = bpy.data.node_groups.get("FP Pre FX")
-                pre_fx_node.location = -1000, -400
+                pre_fx_node.location = -600, -700
                 setup_params(socket_mappings, pre_fx_node, False)
                 
                 if (thin_film_links := shader_node.inputs["Thin Film Texture"].links) and len(thin_film_links) > 0 and (thin_film_node := thin_film_links[0].from_node):
@@ -770,7 +770,7 @@ class ImportContext:
 
                     mask_node = nodes.new("ShaderNodeGroup")
                     mask_node.node_tree = bpy.data.node_groups.get("FP Vertex Alpha")
-                    mask_node.location = [-200, -560]
+                    mask_node.location = [-200, -925]
 
                     links.new(color_node.outputs[0], mask_node.inputs[0])
                     links.new(mask_node.outputs[0], shader_node.inputs["Alpha"])

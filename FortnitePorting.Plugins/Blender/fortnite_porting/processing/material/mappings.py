@@ -65,7 +65,10 @@ default_mappings = MappingCollection(
         SlotMapping("OpacityMask", "MaskTexture"),
 
         SlotMapping("SkinFX_Mask"),
-        SlotMapping("Thin Film Texture"),
+        SlotMapping("SkinFX Mask", "SkinFX_Mask"),
+        SlotMapping("TechArtMask", "SkinFX_Mask"),
+        
+        SlotMapping("Thin Film Texture")
     ],
     scalars=[
         SlotMapping("RoughnessMin", "Roughness Min"),
@@ -80,11 +83,17 @@ default_mappings = MappingCollection(
         SlotMapping("DayMult", "Emission Strength"),
 
         SlotMapping("ThinFilm_Intensity"),
+        SlotMapping("ThinFilmIntensity", "ThinFilm_Intensity"),
         SlotMapping("ThinFilm_RoughnessScale"),
+        SlotMapping("ThinFilmRoughnessScale", "ThinFilm_RoughnessScale"),
         SlotMapping("ThinFilm_Exponent"),
+        SlotMapping("ThinFilmExponent", "ThinFilm_Exponent"),
         SlotMapping("ThinFilm_Offset"),
+        SlotMapping("ThinFilmOffset", "ThinFilm_Offset"),
         SlotMapping("ThinFilm_Scale"),
+        SlotMapping("ThinFilmScale", "ThinFilm_Scale"),
         SlotMapping("ThinFilm_Warp"),
+        SlotMapping("ThinFilmWarp", "ThinFilm_Warp")
     ],
     vectors=[
         SlotMapping("Skin Boost Color And Exponent", "Skin Color", alpha_slot="Skin Boost"),
@@ -92,14 +101,17 @@ default_mappings = MappingCollection(
         SlotMapping("EmissiveMultiplier", "Emission Multiplier"),
         SlotMapping("Emissive Multiplier", "Emission Multiplier"),
         SlotMapping("Emissive Color", "Emission Color", switch_slot="Use Emission Color"),
-        SlotMapping("Emissive", "Emission Color", switch_slot="Use Emission Color")
-    
+        SlotMapping("Emissive", "Emission Color", switch_slot="Use Emission Color"),
+        
+        SlotMapping("ThinFilm_Channel"),
+        SlotMapping("ThinFilmMaskChannel", "ThinFilm_Channel")
     ],
     switches=[
         SlotMapping("SwizzleRoughnessToGreen")
     ],
     component_masks=[
-        SlotMapping("ThinFilm_Channel")
+        SlotMapping("ThinFilm_Channel"),
+        SlotMapping("ThinFilmMaskChannel", "ThinFilm_Channel")
     ]
 )
 
@@ -238,6 +250,7 @@ valet_mappings = MappingCollection(
 glass_mappings = MappingCollection(
     textures=[
         SlotMapping("Color_DarkTint"),
+        SlotMapping("Diffuse", "Color"),
         SlotMapping("Diffuse Texture", "Color"),
         SlotMapping("Normals"),
         SlotMapping("BakedNormal", "Normals"),
@@ -245,15 +258,26 @@ glass_mappings = MappingCollection(
     ],
     scalars=[
         SlotMapping("Specular"),
+        SlotMapping("GlassSpecular", "Specular"),
         SlotMapping("Metallic"),
+        SlotMapping("GlassMetallic", "Metallic"),
         SlotMapping("Roughness"),
+        SlotMapping("GlassRoughness", "Roughness"),
         SlotMapping("Window Tint Amount", "Tint Amount"),
-        SlotMapping("Fresnel Exponent"),
-        SlotMapping("Fresnel Inner Transparency"),
-        SlotMapping("Fresnel Inner Transparency Max Tint"),
-        SlotMapping("Fresnel Outer Transparency"),
+        SlotMapping("Exponent"),
+        SlotMapping("Fresnel Exponent", "Exponent"),
+        SlotMapping("FresnelExponentTransparency", "Exponent"),
+        SlotMapping("Inner Transparency"),
+        SlotMapping("InnerTransparency", "Inner Transparency"),
+        SlotMapping("Fresnel Inner Transparency", "Inner Transparency"),
+        SlotMapping("Inner Transparency Max Tint"),
+        SlotMapping("Fresnel Inner Transparency Max Tint", "Inner Transparency Max Tint"),
+        SlotMapping("Outer Transparency"),
+        SlotMapping("OuterTransparency", "Outer Transparency"),
+        SlotMapping("Fresnel Outer Transparency", "Outer Transparency"),
         SlotMapping("Glass thickness", "Thickness"),
-        SlotMapping("Alpha Channel Mask Opacity", "Mask Opacity"),
+        SlotMapping("GlassThickness", "Thickness"),
+        SlotMapping("Alpha Channel Mask Opacity", "Mask Opacity")
     ],
     vectors=[
         SlotMapping("ColorFront", "Color"),
