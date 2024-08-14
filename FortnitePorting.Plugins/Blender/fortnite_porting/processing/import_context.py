@@ -697,6 +697,7 @@ class ImportContext:
 
         # decide which material type and mappings to use
         socket_mappings = default_mappings
+        base_material_path = material_data.get("BaseMaterialPath")
 
         if get_param_multiple(switches, layer_switch_names) and get_param_multiple(textures, extra_layer_names):
             replace_shader_node("FP Layer")
@@ -708,7 +709,7 @@ class ImportContext:
             replace_shader_node("FP Toon")
             socket_mappings = toon_mappings
 
-        if "M_FN_Valet_Master" in material_data.get("BaseMaterialPath"):
+        if "M_FN_Valet_Master" in base_material_path:
             replace_shader_node("FP Valet")
             socket_mappings = valet_mappings
 
@@ -729,13 +730,17 @@ class ImportContext:
             replace_shader_node("FP Foliage")
             socket_mappings = foliage_mappings
 
-        if "MM_BeanCharacter_Body" in material_data.get("BaseMaterialPath"):
+        if "MM_BeanCharacter_Body" in base_material_path:
             replace_shader_node("FP Bean Base")
             socket_mappings = bean_base_mappings
             
-        if "MM_BeanCharacter_Costume" in material_data.get("BaseMaterialPath"):
+        if "MM_BeanCharacter_Costume" in base_material_path:
             replace_shader_node("FP Bean Costume")
             socket_mappings = bean_head_costume_mappings if meta.get("IsHead") else bean_costume_mappings
+
+        if "M_Eyes_Parent" in base_material_path:
+            replace_shader_node("FP 3L Eyes")
+            socket_mappings = eye_mappings
 
         setup_params(socket_mappings, shader_node, True)
 
@@ -770,7 +775,7 @@ class ImportContext:
                     nodes.remove(thin_film_node)
 
                 cloth_fuzz_node = get_node(shader_node, "ClothFuzz Texture")
-                if get_param(switches, "Use Cloth Fuzz"):
+                if get_param_multiple(switches, ["Use Cloth Fuzz", "UseClothFuzz"]):
                     if cloth_fuzz_node is None:
                         cloth_fuzz_node = nodes.new(type="ShaderNodeTexImage")
                         cloth_fuzz_node.image = bpy.data.images.get("T_Fuzz_MASK")
@@ -934,6 +939,16 @@ class ImportContext:
                 
             case "FP Toon":
                 set_param("Brightness", self.options.get("ToonShadingBrightness"))
+            
+            case "FP 3L Eyes":
+                pre_eye_node = nodes.new(type="ShaderNodeGroup")
+                pre_eye_node.node_tree = bpy.data.node_groups.get("FP Pre 3L Eyes")
+                pre_eye_node.location = -600, 0
+                setup_params(socket_mappings, pre_eye_node, False)
+                
+                for texture_mapping in socket_mappings.textures:
+                    if node := get_node(shader_node, texture_mapping.slot):
+                        links.new(pre_eye_node.outputs["EyeUVs"], node.inputs[0])
 
     def import_sound_data(self, data):
         for sound in data.get("Sounds"):

@@ -70,7 +70,9 @@ default_mappings = MappingCollection(
         
         SlotMapping("Thin Film Texture"),
 
-        SlotMapping("IceGradient")
+        SlotMapping("IceGradient"),
+
+        SlotMapping("ClothFuzz Texture")
     ],
     scalars=[
         SlotMapping("RoughnessMin", "Roughness Min"),
@@ -107,9 +109,12 @@ default_mappings = MappingCollection(
         SlotMapping("Invert Emissive Fresnel", "InvertEmissiveFresnel"),
         
         SlotMapping("Fuzz Tiling"),
+        SlotMapping("ClothFuzzTiling", "Fuzz Tiling"),
         SlotMapping("Fuzz Exponent"),
+        SlotMapping("ClothFuzzExponent", "Fuzz Exponent"),
         SlotMapping("Fuzz Fresnel Blend"),
         SlotMapping("Cloth Base Color Intensity"),
+        SlotMapping("Cloth_BaseColorIntensity", "Cloth Base Color Intensity"),
         
     ],
     vectors=[
@@ -122,8 +127,6 @@ default_mappings = MappingCollection(
 
         SlotMapping("ThinFilm_Channel"),
         SlotMapping("ThinFilmMaskChannel", "ThinFilm_Channel"),
-        SlotMapping("Ice Channel"),
-        SlotMapping("Cloth Channel"),
         SlotMapping("Fuzz Tint")
     ],
     switches=[
@@ -136,7 +139,8 @@ default_mappings = MappingCollection(
         SlotMapping("ThinFilm_Channel"),
         SlotMapping("ThinFilmMaskChannel", "ThinFilm_Channel"),
         SlotMapping("Ice Channel"),
-        SlotMapping("Cloth Channel")
+        SlotMapping("Cloth Channel"),
+        SlotMapping("ClothFuzzMaskChannel", "Cloth Channel")
     ]
 )
 
@@ -410,5 +414,50 @@ bean_head_costume_mappings = MappingCollection(
         SlotMapping("Head_Costume_SecondaryMaterialProps", "Costume_SecondaryMaterialProps"),
         SlotMapping("Head_Costume_AccentColor", "Costume_AccentColor"),
         SlotMapping("Head_Costume_AccentMaterialProps", "Costume_AccentMaterialProps"),
+    ]
+)
+
+eye_mappings = MappingCollection(
+    textures=[
+        SlotMapping("Diffuse"),
+        SlotMapping("Normal"),
+        SlotMapping("SpecularMasks"),
+        SlotMapping("SRM", "SpecularMasks"),
+        SlotMapping("Emissive"),
+    ],
+    vectors=[
+        SlotMapping("Eye Right UV Position"),
+        SlotMapping("Eye Left UV Position"),
+        
+        SlotMapping("Eye Camera Light Vector"),
+        SlotMapping("Eye UV Highlight Pos"),
+        
+        SlotMapping("EyeTintColor")
+    ],
+    scalars=[
+        SlotMapping("Eye Roughness Min"),
+        SlotMapping("Eye Metallic Mult"),
+        
+        SlotMapping("Emissive Mult"),
+        SlotMapping("Eye Texture AspectRatio"),
+        SlotMapping("Eye Cornea Radius (UV)"),
+        
+        SlotMapping("Eye UV Highlight Size"),
+        
+        SlotMapping("Eye Iris Normal Flatten"),
+        SlotMapping("EyeTintMask_Radius"),
+        
+        SlotMapping("Eye Cornea Mask Hardness"),
+        SlotMapping("Eye Iris UV Radius"),
+        SlotMapping("Eye Refraction Mix"),
+        SlotMapping("Eye Refraction Mult"),
+        SlotMapping("Eye Iris Depth Scale"),
+        SlotMapping("Eye Cornea IOR"),
+    ],
+    switches=[
+        SlotMapping("SwizzleRoughnessToGreen"),
+        SlotMapping("Eye Use Sun Highlight"),
+        SlotMapping("Eye Use UV Highlight"),
+        SlotMapping("UseEyeColorTinting")
     ]
 )

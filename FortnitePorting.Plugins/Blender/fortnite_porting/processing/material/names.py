@@ -36,3 +36,4 @@ emissive_crop_switch_names = [
 ]
 
 texture_ignore_names = ["DefaultTexture"]
+
