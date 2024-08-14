@@ -101,6 +101,10 @@ default_mappings = MappingCollection(
         SlotMapping("Ice Brightness"),
         SlotMapping("Ice Emissive Brightness"),
         SlotMapping("Crystal_FresEX"),
+        
+        SlotMapping("EmissiveFresnelPower"),
+        SlotMapping("Emissive Fres EX", "EmissiveFresnelPower"),
+        SlotMapping("Invert Emissive Fresnel", "InvertEmissiveFresnel")
     ],
     vectors=[
         SlotMapping("Skin Boost Color And Exponent", "Skin Color", alpha_slot="Skin Boost"),
@@ -116,7 +120,10 @@ default_mappings = MappingCollection(
         SlotMapping("Ice Channel")
     ],
     switches=[
-        SlotMapping("SwizzleRoughnessToGreen")
+        SlotMapping("SwizzleRoughnessToGreen"),
+        SlotMapping("UseEmissiveFresnel"),
+        SlotMapping("Use Emissive Fresnel", "UseEmissiveFresnel"),
+        SlotMapping("InvertEmissiveFresnel"),
     ],
     component_masks=[
         SlotMapping("ThinFilm_Channel"),
