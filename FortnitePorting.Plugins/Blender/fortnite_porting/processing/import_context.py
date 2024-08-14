@@ -769,6 +769,24 @@ class ImportContext:
                 elif thin_film_node is not None:
                     nodes.remove(thin_film_node)
 
+                cloth_fuzz_node = get_node(shader_node, "ClothFuzz Texture")
+                if get_param(switches, "Use Cloth Fuzz"):
+                    if cloth_fuzz_node is None:
+                        cloth_fuzz_node = nodes.new(type="ShaderNodeTexImage")
+                        cloth_fuzz_node.image = bpy.data.images.get("T_Fuzz_MASK")
+                        cloth_fuzz_node.image.alpha_mode = 'CHANNEL_PACKED'
+                        cloth_fuzz_node.image.colorspace_settings.name = "sRGB"
+                        cloth_fuzz_node.interpolation = "Smart"
+                        cloth_fuzz_node.hide = True
+
+                        x, y = get_socket_pos(shader_node, shader_node.inputs.find("ClothFuzz Texture"))
+                        cloth_fuzz_node.location = x - 300, y
+                        links.new(cloth_fuzz_node.outputs[0], shader_node.inputs["ClothFuzz Texture"])
+
+                    links.new(pre_fx_node.outputs["Cloth UV"], cloth_fuzz_node.inputs[0])
+                elif cloth_fuzz_node is not None:
+                    nodes.remove(cloth_fuzz_node)
+
                 if ice_gradient_node := get_node(shader_node, "IceGradient"):
                     links.new(pre_fx_node.outputs["Ice UV"], ice_gradient_node.inputs[0])
                     links.new(pre_fx_node.outputs["Ice UV"], shader_node.inputs["Ice UV"])

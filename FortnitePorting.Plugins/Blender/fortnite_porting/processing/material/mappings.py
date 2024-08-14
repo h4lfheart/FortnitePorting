@@ -104,7 +104,13 @@ default_mappings = MappingCollection(
         
         SlotMapping("EmissiveFresnelPower"),
         SlotMapping("Emissive Fres EX", "EmissiveFresnelPower"),
-        SlotMapping("Invert Emissive Fresnel", "InvertEmissiveFresnel")
+        SlotMapping("Invert Emissive Fresnel", "InvertEmissiveFresnel"),
+        
+        SlotMapping("Fuzz Tiling"),
+        SlotMapping("Fuzz Exponent"),
+        SlotMapping("Fuzz Fresnel Blend"),
+        SlotMapping("Cloth Base Color Intensity"),
+        
     ],
     vectors=[
         SlotMapping("Skin Boost Color And Exponent", "Skin Color", alpha_slot="Skin Boost"),
@@ -116,8 +122,9 @@ default_mappings = MappingCollection(
 
         SlotMapping("ThinFilm_Channel"),
         SlotMapping("ThinFilmMaskChannel", "ThinFilm_Channel"),
-
-        SlotMapping("Ice Channel")
+        SlotMapping("Ice Channel"),
+        SlotMapping("Cloth Channel"),
+        SlotMapping("Fuzz Tint")
     ],
     switches=[
         SlotMapping("SwizzleRoughnessToGreen"),
@@ -128,8 +135,8 @@ default_mappings = MappingCollection(
     component_masks=[
         SlotMapping("ThinFilm_Channel"),
         SlotMapping("ThinFilmMaskChannel", "ThinFilm_Channel"),
-
-        SlotMapping("Ice Channel")
+        SlotMapping("Ice Channel"),
+        SlotMapping("Cloth Channel")
     ]
 )
 
