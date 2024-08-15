@@ -17,7 +17,7 @@ public partial class ConsoleViewModel : ViewModelBase, ILogEventSink
 {
     [ObservableProperty] private ScrollViewer _scroll;
 
-    [ObservableProperty] private  ObservableCollection<FortnitePortingLogEvent> _logs = [];
+    [ObservableProperty] private ObservableCollection<FortnitePortingLogEvent> _logs = [];
 
     public override async Task Initialize()
     {

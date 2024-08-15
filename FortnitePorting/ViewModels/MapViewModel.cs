@@ -66,7 +66,7 @@ public partial class MapViewModel : ViewModelBase
             "FortniteGame/Plugins/GameFeatures/Rufus/Content/Game/Athena/Maps/Athena_Terrain",
             "FortniteGame/Plugins/GameFeatures/Rufus/Content/Game/UI/Capture_Iteration_Discovered_Rufus_03",
             "FortniteGame/Content/Athena/UI/Rufus/Rufus_Map_Frosty_PostMask",
-            0.0155f, -448, 320, 102, true
+            0.0155f, 256, 448, 102, true
         ),
         new MapInfo(
             "BlastBerry",
