@@ -170,3 +170,7 @@ def clear_children_bone_transforms(skeleton, anim, bone_name):
         for fcurve in dispose_curves:
             anim.fcurves.remove(fcurve)
     bpy.ops.object.mode_set(mode='OBJECT')
+
+def set_geo_nodes_param(geo_node_modifier, name, value):
+    identifier = geo_node_modifier.node_group.interface.items_tree[name].identifier
+    geo_node_modifier[identifier] = value

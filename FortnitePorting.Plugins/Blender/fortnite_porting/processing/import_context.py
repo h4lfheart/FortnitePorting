@@ -29,6 +29,7 @@ class ImportContext:
         self.override_materials = []
         self.override_parameters = []
         self.imported_meshes = []
+        self.vertex_crunch_materials = {}
 
         if bpy.context.mode != "OBJECT":
             bpy.ops.object.mode_set(mode='OBJECT')
@@ -75,6 +76,14 @@ class ImportContext:
         if self.type in [EExportType.OUTFIT, EExportType.FALL_GUYS_OUTFIT] and self.options.get("MergeArmatures"):
             master_skeleton = merge_armatures(self.imported_meshes)
             master_mesh = get_armature_mesh(master_skeleton)
+            
+            for material, elements in self.vertex_crunch_materials.items():
+                vertex_crunch_modifier = master_mesh.modifiers.new("FP Vertex Crunch", type="NODES")
+                vertex_crunch_modifier.node_group = bpy.data.node_groups.get("FP Vertex Crunch")
+
+                set_geo_nodes_param(vertex_crunch_modifier, "Material", material)
+                for name, value in elements.items():
+                    set_geo_nodes_param(vertex_crunch_modifier, name, value == 1)
 
     def import_model(self, mesh, parent=None):
         path = mesh.get("Path")
@@ -840,30 +849,16 @@ class ImportContext:
                 if get_param(textures, "SRM"):
                     set_param("SwizzleRoughnessToGreen", 1)
 
-                if get_param(switches, "Use Vertex Colors for Mask"):  # TODO covnert geo nodes
-
-                    x, y = get_socket_pos(shader_node, shader_node.inputs.find("Alpha"))
-                    
-                    color_node = nodes.new(type="ShaderNodeVertexColor")
-                    color_node.location = [-400, y]
-                    color_node.layer_name = "COL0"
-
-                    mask_node = nodes.new("ShaderNodeGroup")
-                    mask_node.node_tree = bpy.data.node_groups.get("FP Vertex Alpha")
-                    mask_node.location = [-200, y]
-                    
-
-                    links.new(color_node.outputs[0], mask_node.inputs[0])
-                    links.new(mask_node.outputs[0], shader_node.inputs["Alpha"])
-
+                if get_param(switches, "Use Vertex Colors for Mask"):
+                    elements = {}
                     for scalar in scalars:
                         name = scalar.get("Name")
-                        value = scalar.get("Value")
                         if "Hide Element" not in name:
                             continue
 
-                        if input := mask_node.inputs.get(name.replace("Hide ", "")):
-                            input.default_value = int(value)
+                        elements[name] = scalar.get("Value")
+                    
+                    self.vertex_crunch_materials[material] = elements
 
                 emission_slot = shader_node.inputs["Emission"]
                 if (crop_bounds := get_param_multiple(vectors, emissive_crop_vector_names)) and get_param_multiple(switches, emissive_crop_switch_names) and len(emission_slot.links) > 0:
