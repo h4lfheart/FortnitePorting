@@ -72,7 +72,10 @@ default_mappings = MappingCollection(
 
         SlotMapping("IceGradient"),
 
-        SlotMapping("ClothFuzz Texture")
+        SlotMapping("ClothFuzz Texture"),
+        
+        SlotMapping("Flipbook", "Flipbook Color", alpha_slot="Flipbook Alpha"),
+        SlotMapping("MouthFlipbook", "Flipbook Color", alpha_slot="Flipbook Alpha")
     ],
     scalars=[
         SlotMapping("RoughnessMin", "Roughness Min"),
@@ -117,8 +120,16 @@ default_mappings = MappingCollection(
         SlotMapping("Cloth_BaseColorIntensity", "Cloth Base Color Intensity"),
         
         SlotMapping("Undercoat Roughness"),
+        SlotMapping("UndercoatRoughness"),
         SlotMapping("Undercoat Metallic Multiplier"),
-        SlotMapping("Roughness Map Now affects Clearcoat roughness", "Use Roughness Map")
+        SlotMapping("UndercoatMetallicMultiplier"),
+        SlotMapping("Roughness Map Now affects Clearcoat roughness", "Use Roughness Map"),
+        
+        SlotMapping("SubImages"),
+        SlotMapping("Flipbook X"),
+        SlotMapping("Flipbook Y"),
+        SlotMapping("Flipbook Scale"),
+        SlotMapping("Use Second UV Channel", "Use Second UV"),
         
     ],
     vectors=[

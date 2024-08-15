@@ -594,7 +594,16 @@ class ImportContext:
                     return
 
                 value = mappings.value_func(value) if mappings.value_func else value
-                target_node.inputs[mappings.slot].default_value = value
+                target_socket = target_node.inputs[mappings.slot]
+                
+                match target_socket.type:
+                    case "INT":
+                        target_socket.default_value = int(value)
+                    case "BOOL":
+                        target_socket.default_value = int(value) == 1
+                    case _:
+                        target_socket.default_value = value
+                    
                 if mappings.switch_slot:
                     target_node.inputs[mappings.switch_slot].default_value = 1 if value else 0
             except KeyError:
@@ -673,7 +682,12 @@ class ImportContext:
                     return
 
                 value = mappings.value_func(value) if mappings.value_func else value
-                target_node.inputs[mappings.slot].default_value = 1 if value else 0
+                target_socket = target_node.inputs[mappings.slot]
+                match target_socket.type:
+                    case "INT":
+                        target_socket.default_value = 1 if value else 0
+                    case "BOOL":
+                        target_socket.default_value = value
             except KeyError:
                 pass
             except Exception:
@@ -792,6 +806,10 @@ class ImportContext:
                 elif cloth_fuzz_node is not None:
                     nodes.remove(cloth_fuzz_node)
 
+                if flipbook_node := get_node(shader_node, "Flipbook Color"):
+                    links.new(pre_fx_node.outputs["Flipbook UV"], flipbook_node.inputs[0])
+                    links.new(pre_fx_node.outputs["Flipbook Mask"], shader_node.inputs["Flipbook Mask"])
+
                 if ice_gradient_node := get_node(shader_node, "IceGradient"):
                     links.new(pre_fx_node.outputs["Ice UV"], ice_gradient_node.inputs[0])
                     links.new(pre_fx_node.outputs["Ice UV"], shader_node.inputs["Ice UV"])
@@ -823,13 +841,17 @@ class ImportContext:
                     set_param("SwizzleRoughnessToGreen", 1)
 
                 if get_param(switches, "Use Vertex Colors for Mask"):  # TODO covnert geo nodes
+
+                    x, y = get_socket_pos(shader_node, shader_node.inputs.find("Alpha"))
+                    
                     color_node = nodes.new(type="ShaderNodeVertexColor")
-                    color_node.location = [-400, -925]
+                    color_node.location = [-400, y]
                     color_node.layer_name = "COL0"
 
                     mask_node = nodes.new("ShaderNodeGroup")
                     mask_node.node_tree = bpy.data.node_groups.get("FP Vertex Alpha")
-                    mask_node.location = [-200, -925]
+                    mask_node.location = [-200, y]
+                    
 
                     links.new(color_node.outputs[0], mask_node.inputs[0])
                     links.new(mask_node.outputs[0], shader_node.inputs["Alpha"])
