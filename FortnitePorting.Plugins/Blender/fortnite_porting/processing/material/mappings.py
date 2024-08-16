@@ -75,7 +75,9 @@ default_mappings = MappingCollection(
         SlotMapping("ClothFuzz Texture"),
         
         SlotMapping("Flipbook", "Flipbook Color", alpha_slot="Flipbook Alpha"),
-        SlotMapping("MouthFlipbook", "Flipbook Color", alpha_slot="Flipbook Alpha")
+        SlotMapping("MouthFlipbook", "Flipbook Color", alpha_slot="Flipbook Alpha"),
+        
+        SlotMapping("EmissiveDistanceField")
     ],
     scalars=[
         SlotMapping("RoughnessMin", "Roughness Min"),
@@ -130,6 +132,8 @@ default_mappings = MappingCollection(
         SlotMapping("Flipbook Y"),
         SlotMapping("Flipbook Scale"),
         SlotMapping("Use Second UV Channel", "Use Second UV"),
+        
+        SlotMapping("SubUV_Frames")
         
     ],
     vectors=[

@@ -29,7 +29,8 @@ class ImportContext:
         self.override_materials = []
         self.override_parameters = []
         self.imported_meshes = []
-        self.vertex_crunch_materials = {}
+        self.full_vertex_crunch_materials = []
+        self.partial_vertex_crunch_materials = {}
 
         if bpy.context.mode != "OBJECT":
             bpy.ops.object.mode_set(mode='OBJECT')
@@ -77,13 +78,18 @@ class ImportContext:
             master_skeleton = merge_armatures(self.imported_meshes)
             master_mesh = get_armature_mesh(master_skeleton)
             
-            for material, elements in self.vertex_crunch_materials.items():
+            for material, elements in self.partial_vertex_crunch_materials.items():
                 vertex_crunch_modifier = master_mesh.modifiers.new("FP Vertex Crunch", type="NODES")
                 vertex_crunch_modifier.node_group = bpy.data.node_groups.get("FP Vertex Crunch")
 
                 set_geo_nodes_param(vertex_crunch_modifier, "Material", material)
                 for name, value in elements.items():
                     set_geo_nodes_param(vertex_crunch_modifier, name, value == 1)
+                    
+            for material in self.full_vertex_crunch_materials:
+                vertex_crunch_modifier = master_mesh.modifiers.new("FP Full Vertex Crunch", type="NODES")
+                vertex_crunch_modifier.node_group = bpy.data.node_groups.get("FP Full Vertex Crunch")
+                set_geo_nodes_param(vertex_crunch_modifier, "Material", material)
 
     def import_model(self, mesh, parent=None):
         path = mesh.get("Path")
@@ -770,6 +776,10 @@ class ImportContext:
         links.new(shader_node.outputs[0], output_node.inputs[0])
 
         # post parameter handling
+        
+        if material_name in vertex_crunch_names or get_param(scalars, "HT_CrunchVerts") == 1:
+            self.full_vertex_crunch_materials.append(material)
+            return
 
         match shader_node.node_tree.name:
             case "FP Material":
@@ -819,6 +829,9 @@ class ImportContext:
                     links.new(pre_fx_node.outputs["Flipbook UV"], flipbook_node.inputs[0])
                     links.new(pre_fx_node.outputs["Flipbook Mask"], shader_node.inputs["Flipbook Mask"])
 
+                if emissive_distance_field_node := get_node(shader_node, "EmissiveDistanceField"):
+                    links.new(pre_fx_node.outputs["Emissive Distance Field UV"], emissive_distance_field_node.inputs[0])
+
                 if ice_gradient_node := get_node(shader_node, "IceGradient"):
                     links.new(pre_fx_node.outputs["Ice UV"], ice_gradient_node.inputs[0])
                     links.new(pre_fx_node.outputs["Ice UV"], shader_node.inputs["Ice UV"])
@@ -858,7 +871,7 @@ class ImportContext:
 
                         elements[name] = scalar.get("Value")
                     
-                    self.vertex_crunch_materials[material] = elements
+                    self.partial_vertex_crunch_materials[material] = elements
 
                 emission_slot = shader_node.inputs["Emission"]
                 if (crop_bounds := get_param_multiple(vectors, emissive_crop_vector_names)) and get_param_multiple(switches, emissive_crop_switch_names) and len(emission_slot.links) > 0:
