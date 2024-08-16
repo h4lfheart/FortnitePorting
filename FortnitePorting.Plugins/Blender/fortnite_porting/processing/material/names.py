@@ -20,6 +20,7 @@ emissive_toggle_names = [
     "Emissive",
     "UseBasicEmissive",
     "UseAdvancedEmissive",
+    "UseAnimatedEmissive",
     "Use Emissive"
 ]
 

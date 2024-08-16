@@ -50,6 +50,15 @@ def any(target, expr):
     filtered = list(filter(expr, target))
     return len(filtered) > 0
 
+def all(target, expr):
+    if not target:
+        return False
+
+    for item in target:
+        if not expr(item):
+            return False
+    return True
+
 
 def add_unique(target, item):
     if item in target:

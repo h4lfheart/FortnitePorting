@@ -21,6 +21,9 @@ def get_param_info(source, name):
         return None
     return found
 
+def get_params(source, names):
+    return [info.get("Value") for info in where(source, lambda param: param.get("Name").casefold() in [name.casefold() for name in names])]
+
 
 def get_socket_pos(node, index):
     start_y = -100

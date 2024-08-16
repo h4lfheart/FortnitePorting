@@ -856,7 +856,7 @@ class ImportContext:
                     set_param("Skin Color", (skin_color["R"], skin_color["G"], skin_color["B"], 1.0))
                     set_param("Skin Boost", skin_color["A"])
 
-                if get_param_multiple(switches, emissive_toggle_names) is False:
+                if all(get_params(switches, emissive_toggle_names), lambda bool: bool is False):
                     set_param("Emission Strength", 0)
 
                 if get_param(textures, "SRM"):

@@ -60,6 +60,9 @@ default_mappings = MappingCollection(
         SlotMapping("EmissiveTexture", "Emission"),
         SlotMapping("L1_Emissive", "Emission", coords="UV2"),
         SlotMapping("PM_Emissive", "Emission"),
+        SlotMapping("Visor_Emissive", "Emission"),
+        SlotMapping("EmissiveDistanceField"),
+        SlotMapping("Visor_EmissiveDistanceField"),
 
         SlotMapping("MaskTexture"),
         SlotMapping("OpacityMask", "MaskTexture"),
@@ -76,8 +79,6 @@ default_mappings = MappingCollection(
         
         SlotMapping("Flipbook", "Flipbook Color", alpha_slot="Flipbook Alpha"),
         SlotMapping("MouthFlipbook", "Flipbook Color", alpha_slot="Flipbook Alpha"),
-        
-        SlotMapping("EmissiveDistanceField")
     ],
     scalars=[
         SlotMapping("RoughnessMin", "Roughness Min"),
@@ -133,7 +134,9 @@ default_mappings = MappingCollection(
         SlotMapping("Flipbook Scale"),
         SlotMapping("Use Second UV Channel", "Use Second UV"),
         
-        SlotMapping("SubUV_Frames")
+        SlotMapping("SubUV_Frames"),
+        SlotMapping("Affects Base Color"),
+        SlotMapping("Multiply Flipbook Emissive")
         
     ],
     vectors=[
@@ -141,8 +144,9 @@ default_mappings = MappingCollection(
         SlotMapping("SkinTint", "Skin Color", alpha_slot="Skin Boost"),
         SlotMapping("EmissiveMultiplier", "Emission Multiplier"),
         SlotMapping("Emissive Multiplier", "Emission Multiplier"),
-        SlotMapping("Emissive Color", "Emission Color", switch_slot="Use Emission Color"),
-        SlotMapping("Emissive", "Emission Color", switch_slot="Use Emission Color"),
+        SlotMapping("Emissive Color", "Emission Multiplier"),
+        SlotMapping("EmissiveColor", "Emission Multiplier"),
+        SlotMapping("Emissive", "Emission Multiplier"),
 
 
         SlotMapping("ThinFilm_Channel"),
@@ -151,7 +155,9 @@ default_mappings = MappingCollection(
         SlotMapping("Cloth Channel"),
         SlotMapping("ClothFuzzMaskChannel", "Cloth Channel"),
         
-        SlotMapping("Fuzz Tint")
+        SlotMapping("Fuzz Tint"),
+
+        SlotMapping("FlipbookTint")
     ],
     switches=[
         SlotMapping("SwizzleRoughnessToGreen"),
@@ -163,7 +169,8 @@ default_mappings = MappingCollection(
         SlotMapping("Use Cloth Fuzz"),
         SlotMapping("UseClothFuzz", "Use Cloth Fuzz"),
         SlotMapping("Use Ice"),
-        SlotMapping("Use Clear Coat")
+        SlotMapping("Use Clear Coat"),
+        SlotMapping("Use Sub UV texture", "Use Flipbook")
     ],
     component_masks=[
         SlotMapping("ThinFilm_Channel"),
