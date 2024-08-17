@@ -133,7 +133,8 @@ public partial class AssetsViewModel : ViewModelBase
             new(EAssetType.Outfit)
             {
                 Classes = ["AthenaCharacterItemDefinition"],
-                Filters = ["_NPC", "_TBD", "CID_VIP", "_Creative", "_SG", "Bean_"],
+                Filters = ["_NPC", "_TBD", "CID_VIP", "_Creative", "_SG"],
+                DisAllowNames = ["Bean_"],
                 IconHandler = asset =>
                 {
                     asset.TryGetValue(out UTexture2D? previewImage, "SmallPreviewImage", "LargePreviewImage");
@@ -644,6 +645,7 @@ public partial class AssetLoader : ObservableObject
     public string[] Classes = [];
     public string[] Filters = [];
     public string[] AllowNames = [];
+    public string[] DisAllowNames = [];
     public bool DontLoadHiddenAssets;
     public bool HideRarity;
     public Func<AssetLoader, UObject, string, bool> HidePredicate = (_, _, _) => false;
@@ -684,6 +686,11 @@ public partial class AssetLoader : ObservableObject
         if (AllowNames.Length > 0)
         {
             assets.RemoveAll(asset => !AllowNames.Any(name => asset.PackageName.Text.Contains(name, StringComparison.OrdinalIgnoreCase)));
+        }
+
+        if (DisAllowNames.Length > 0)
+        {
+            assets.RemoveAll(asset => DisAllowNames.Any(name => asset.PackageName.Text.Contains(name, StringComparison.OrdinalIgnoreCase)));
         }
 
         if (DontLoadHiddenAssets)

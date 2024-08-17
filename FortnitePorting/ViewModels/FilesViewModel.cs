@@ -320,10 +320,10 @@ public partial class FilesViewModel : ViewModelBase
     private bool IsValidPath(string path)
     {
         var isValidPathType = (path.EndsWith(".uasset") || path.EndsWith(".umap")) && !path.Contains(".o.");
-        var isInRegistry = AssetsToRemove.Contains(path);
+        //var isInRegistry = AssetsToRemove.Contains(path);
         var isFiltered = Filters.Any(filter => path.Contains(filter, StringComparison.OrdinalIgnoreCase));
         var isFilteredByScan = AppSettings.Current.HiddenFilePaths.Contains(path);
-        return isValidPathType && !isInRegistry && !isFiltered && !isFilteredByScan;
+        return isValidPathType && !isFiltered && !isFilteredByScan;
     }
 
     private string FixPath(string path)
