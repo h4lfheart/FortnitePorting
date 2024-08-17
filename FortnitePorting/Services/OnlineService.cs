@@ -118,6 +118,7 @@ public static class OnlineService
                 var meta = DefaultMeta
                     .With("RequestingMessageHistory", !EstablishedFirstConnection)
                     .With("MessageFetchCount", AppSettings.Current.Online.MessageFetchCount)
+                    .With("Version", Globals.VersionString)
                     .Build();
                 var response = new SyncResponse(arg, meta, Array.Empty<byte>());;
                 EstablishedFirstConnection = true;
@@ -205,7 +206,8 @@ public static class OnlineService
                         UserName = user.UserName,
                         ProfilePictureURL = user.AvatarURL,
                         Id = user.Id,
-                        Role = user.RoleType
+                        Role = user.RoleType,
+                        Version = user.Version
                     },
                     Text = messagePacket.Message,
                     Id = e.GetArgument<Guid>("ID"),
@@ -245,7 +247,8 @@ public static class OnlineService
                         UserName = onlineUser.UserName,
                         ProfilePictureURL = onlineUser.AvatarURL,
                         Id = onlineUser.Id,
-                        Role = onlineUser.RoleType
+                        Role = onlineUser.RoleType,
+                        Version = onlineUser.Version
                     }, SortExpressionComparer<ChatUser>.Ascending(sortedUser => sortedUser.Role));
                 }
                 

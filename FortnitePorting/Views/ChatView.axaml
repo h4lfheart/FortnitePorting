@@ -25,7 +25,7 @@
         </Grid.RowDefinitions>
         
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="3.5*"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         
@@ -156,6 +156,8 @@
                                             <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="{ext:Space 1}"/>
                                             <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="{ext:Space 1}"/>
+                                            <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                     
                                         <Border Grid.Column="0" CornerRadius="4" ClipToBounds="True">
@@ -166,6 +168,9 @@
                                         <TextBlock Grid.Column="2" Text="{Binding DisplayName}"
                                                    Foreground="{Binding Brush}"
                                                    Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center"/>
+                                        
+                                        <TextBlock Grid.Column="4" Text="{Binding Version}"
+                                                   Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" VerticalAlignment="Center"/>
                                     </Grid>
                                 </ui:FABorder>
                             </DataTemplate>

@@ -23,6 +23,8 @@ public class Identification : IDualSerialize
         _ => !string.IsNullOrWhiteSpace(AvatarId) ? $"https://cdn.discordapp.com/avatars/{Id}/{AvatarId}.png?size=128" : "https://fortniteporting.halfheart.dev/sockets/default.png"
     };
 
+    public string Version;
+
     public static Identification System = new()
     {
         RoleType = ERoleType.System,
@@ -49,6 +51,7 @@ public class Identification : IDualSerialize
         writer.Write(AvatarId);
         writer.Write(UserName);
         writer.Write(GlobalName);
+        writer.Write(Version);
     }
 
     public void Deserialize(BinaryReader reader)
@@ -58,6 +61,7 @@ public class Identification : IDualSerialize
         AvatarId = reader.ReadString();
         UserName = reader.ReadString();
         GlobalName = reader.ReadString();
+        Version = reader.ReadString();
     }
 }
 
