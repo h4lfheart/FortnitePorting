@@ -71,6 +71,10 @@
         <DependentUpon>IconText.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
+      <Compile Update="Views\VotingView.axaml.cs">
+        <DependentUpon>VotingView.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
     </ItemGroup>
     
 

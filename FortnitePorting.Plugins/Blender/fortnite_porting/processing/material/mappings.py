@@ -148,7 +148,6 @@ default_mappings = MappingCollection(
         SlotMapping("EmissiveColor", "Emission Multiplier"),
         SlotMapping("Emissive", "Emission Multiplier"),
 
-
         SlotMapping("ThinFilm_Channel"),
         SlotMapping("ThinFilmMaskChannel", "ThinFilm_Channel"),
         SlotMapping("Ice Channel"),
@@ -170,6 +169,7 @@ default_mappings = MappingCollection(
         SlotMapping("UseClothFuzz", "Use Cloth Fuzz"),
         SlotMapping("Use Ice"),
         SlotMapping("Use Clear Coat"),
+        SlotMapping("UseClearCoat", "Use Clear Coat"),
         SlotMapping("Use Sub UV texture", "Use Flipbook")
     ],
     component_masks=[
@@ -178,7 +178,10 @@ default_mappings = MappingCollection(
         SlotMapping("Ice Channel"),
         SlotMapping("Cloth Channel"),
         SlotMapping("ClothFuzzMaskChannel", "Cloth Channel"),
-        SlotMapping("Clear Coat Channel")
+        SlotMapping("Clear Coat Channel"),
+        SlotMapping("ClearCoatChannel"),
+        SlotMapping("CloatcoatMaskChannel"),
+        SlotMapping("ClearcoatMaskChannel"),
     ]
 )
 

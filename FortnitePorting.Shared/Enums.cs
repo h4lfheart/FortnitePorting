@@ -112,9 +112,6 @@ public enum EExportType
     [Description("Prefabs"), Export(EPrimitiveExportType.Mesh)]
     Prefab,
     
-    [Description("Texture Data"), Export(EPrimitiveExportType.Texture)]
-    TextureData,
-    
     // GAMEPLAY
 
     [Description("Items"), Export(EPrimitiveExportType.Mesh)]

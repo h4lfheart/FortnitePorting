@@ -52,6 +52,12 @@
                          <ui:InfoBadge Value="{Binding ChatNotifications}" IsVisible="{Binding !!ChatNotifications}"/>
                      </ui:NavigationViewItem.InfoBadge>
                  </ui:NavigationViewItem>
+                 
+                 <ui:NavigationViewItem Content="Voting" Tag="Voting" IsEnabled="{Binding OnlineRef.UseIntegration}">
+                     <ui:NavigationViewItem.IconSource>
+                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry Poll}"/>
+                     </ui:NavigationViewItem.IconSource>
+                 </ui:NavigationViewItem>
                  <ui:NavigationViewItem Content="Leaderboard" Tag="Leaderboard" IsEnabled="{Binding OnlineAndGameTabsAreVisible}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Trophy}"/>

@@ -41,6 +41,7 @@ public static class ApplicationService
     public static HelpViewModel HelpVM => ViewModelRegistry.Get<HelpViewModel>()!;
     public static ConsoleViewModel ConsoleVM => ViewModelRegistry.Get<ConsoleViewModel>()!;
     public static LeaderboardViewModel LeaderboardVM => ViewModelRegistry.Get<LeaderboardViewModel>()!;
+    public static VotingViewModel VotingVM => ViewModelRegistry.Get<VotingViewModel>()!;
     
     public static IClassicDesktopStyleApplicationLifetime Application = null!;
     private static IStorageProvider StorageProvider => Application.MainWindow!.StorageProvider;

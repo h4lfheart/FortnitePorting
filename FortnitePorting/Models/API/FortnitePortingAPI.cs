@@ -5,15 +5,17 @@ using FortnitePorting.Application;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.Help;
 using FortnitePorting.Models.Leaderboard;
+using FortnitePorting.Models.Voting;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Models.API;
 using FortnitePorting.Shared.Models.API.Responses;
 using Newtonsoft.Json;
 using RestSharp;
+using Poll = FortnitePorting.Models.Voting.Poll;
 
 namespace FortnitePorting.Models.API;
 
-public class FortnitePortingAPI(RestClient client) : APIBase(client)
+public class  FortnitePortingAPI(RestClient client) : APIBase(client)
 {
     public const string NEWS_URL = "https://halfheart.dev/fortnite-porting/api/v3/news.json"; // i need to buy servers lmao
     public const string FEATURED_URL = "https://halfheart.dev/fortnite-porting/api/v3/featured.json";
@@ -34,6 +36,8 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
     
     public const string RELEASE_URL = "https://fortniteporting.halfheart.dev/api/v3/release";
     public const string RELEASE_FILES_URL = "https://fortniteporting.halfheart.dev/api/v3/release/files";
+    
+    public const string POLLS_URL = "https://fortniteporting.halfheart.dev/api/v3/polls";
 
 
     public async Task<NewsResponse[]?> GetNewsAsync()
@@ -248,5 +252,30 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
     public void RefreshAuth()
     {
         RefreshAuthAsync().GetAwaiter().GetResult();
+    }
+    
+    public async Task<Poll[]> GetPollsAsync()
+    {
+        return await ExecuteAsync<Poll[]>(POLLS_URL) ?? [];
+    }
+
+    public Poll[] GetPolls()
+    {
+        return GetPollsAsync().GetAwaiter().GetResult();
+    }
+    
+    public async Task PostVoteAsync(string identifier, string choice)
+    {
+        await ExecuteAsync(POLLS_URL, Method.Post, parameters:
+        [
+            new QueryParameter("identifier", identifier),
+            new QueryParameter("choice", choice),
+            new HeaderParameter("token", AppSettings.Current.Online.Auth!.Token)
+        ]);
+    }
+
+    public void PostVote(string identifier, string choice)
+    {
+        PostVoteAsync(identifier, choice).GetAwaiter().GetResult();
     }
 }

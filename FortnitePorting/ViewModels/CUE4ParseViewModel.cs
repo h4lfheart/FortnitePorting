@@ -47,12 +47,14 @@ public class CUE4ParseViewModel : ViewModelBase
     public readonly HybridFileProvider Provider = AppSettings.Current.Installation.CurrentProfile.FortniteVersion switch
     {
         EFortniteVersion.LatestOnDemand => new HybridFileProvider(new VersionContainer(AppSettings.Current.Installation.CurrentProfile.UnrealVersion)),
+        EFortniteVersion.LatestInstalled => new HybridFileProvider(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, ExtraDirectories, new VersionContainer(EGame.GAME_UE5_5)),
         _ => new HybridFileProvider(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, ExtraDirectories, new VersionContainer(AppSettings.Current.Installation.CurrentProfile.UnrealVersion)),
     };
     
     public readonly HybridFileProvider OptionalProvider = AppSettings.Current.Installation.CurrentProfile.FortniteVersion switch
     {
         EFortniteVersion.LatestOnDemand => new HybridFileProvider(new VersionContainer(AppSettings.Current.Installation.CurrentProfile.UnrealVersion), isOptionalLoader: true),
+        EFortniteVersion.LatestInstalled => new HybridFileProvider(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, ExtraDirectories, new VersionContainer(EGame.GAME_UE5_5), isOptionalLoader: true),
         _ => new HybridFileProvider(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, ExtraDirectories, new VersionContainer(AppSettings.Current.Installation.CurrentProfile.UnrealVersion), isOptionalLoader: true),
     };
     
@@ -105,7 +107,9 @@ public class CUE4ParseViewModel : ViewModelBase
         
         Provider.PostMount();
         await LoadConsoleVariables();
-        
+
+        Provider.LoadObject<UStaticMesh>(
+            "FortniteGame/Content/Environments/Apollo/Sets/Coliseum/Props/Meshes/S_Coliseum_Statue_01");
 
         await LoadAssetRegistries();
 
@@ -213,8 +217,9 @@ public class CUE4ParseViewModel : ViewModelBase
                 Authorization = new AuthenticationHeaderValue("Bearer", AppSettings.Current.Online.EpicAuth?.Token),
                 Timeout = TimeSpan.FromSeconds(30)
             };
-            
-            await Provider.RegisterVfs(new IoChunkToc(onDemandFile), options);
+
+            var chunkToc = new IoChunkToc(onDemandFile);
+            await Provider.RegisterVfs(chunkToc, options);
             await Provider.MountAsync();
         }
         catch (Exception e)
