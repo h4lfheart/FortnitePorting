@@ -117,30 +117,6 @@ public class ExporterInstance
                 ));
             }
         }
-
-        if (poseAsset.RetargetSourceAssetReferencePose is null) return;
-        if (poseAsset.Skeleton is null) return;
-        if (!poseAsset.Skeleton.TryLoad<USkeleton>(out var skeleton)) return;
-
-        var referenceMap = new Dictionary<string, int>(skeleton.ReferenceSkeleton.FinalNameToIndexMap, StringComparer.OrdinalIgnoreCase);
-        foreach (var boneName in poseContainer.Tracks)
-        {
-            var boneNameStr = boneName.PlainText;
-            if (!referenceMap.TryGetValue(boneNameStr, out var idx))
-            {
-                Log.Warning($"{poseAsset.Name}: {boneNameStr} missing from referenceSkeleton ({skeleton.Name})");
-                continue;
-            }
-
-            if (idx >= poseAsset.RetargetSourceAssetReferencePose.Length)
-            {
-                Log.Warning($"{poseAsset.Name}: {boneNameStr} index {idx} is outside the bounds of the RetargetSourceAssetReferencePose");
-                continue;
-            }
-
-            var transform = poseAsset.RetargetSourceAssetReferencePose[idx];
-            meta.ReferencePose.Add(new ReferencePose(boneNameStr, transform.Translation, transform.Rotation, transform.Scale3D));
-        }
     }
 
     public ExportPart? CharacterPart(UObject part)
