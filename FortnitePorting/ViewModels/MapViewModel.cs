@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -14,6 +15,7 @@ using CUE4Parse_Conversion.Textures;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
+using CUE4Parse.UE4.Assets.Objects.Properties;
 using CUE4Parse.UE4.IO;
 using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.Engine;
@@ -59,7 +61,7 @@ public partial class MapViewModel : ViewModelBase
             "FortniteGame/Content/Athena/Helios/Maps/Helios_Terrain",
             "FortniteGame/Content/Athena/Apollo/Maps/UI/Apollo_Terrain_Minimap",
             "FortniteGame/Content/Athena/Apollo/Maps/UI/T_MiniMap_Mask",
-            0.014f, -64, 128, 92, true
+            0.014f, 0, 128, 92, true
         ),
         new MapInfo(
             "Rufus",
@@ -172,6 +174,44 @@ public partial class WorldPartitionMap : ObservableObject
             && worldSettings.GetOrDefault<UObject>("WorldPartition") is { } worldPartition
             && worldPartition.GetOrDefault<UObject>("RuntimeHash") is { } runtimeHash)
         {
+            foreach (var streamingData in runtimeHash.GetOrDefault("RuntimeStreamingData", Array.Empty<FStructFallback>()))
+            {
+                var cells = new List<FPackageIndex>();
+                cells.AddRange(streamingData.GetOrDefault("SpatiallyLoadedCells", Array.Empty<FPackageIndex>()));
+                cells.AddRange(streamingData.GetOrDefault("NonSpatiallyLoadedCells", Array.Empty<FPackageIndex>()));
+
+                foreach (var cell in cells)
+                {
+                    var gridCell = await cell.LoadAsync();
+                    if (gridCell is null) continue;
+                
+                    var levelStreaming = gridCell.GetOrDefault<UObject?>("LevelStreaming");
+                    if (levelStreaming is null) continue;
+
+
+                    var position = FVector.ZeroVector;
+                    var runtimeCellData = gridCell.Get<UObject>("RuntimeCellData");
+                    var boundsProperty = runtimeCellData.GetOrDefault<StructProperty?>("CellBounds");
+                    if (boundsProperty is not null)
+                    {
+                        var bounds = boundsProperty.GetValue<FBox>();
+                        position = bounds.GetCenter();
+                    }
+                
+                    var worldAsset = levelStreaming.Get<FSoftObjectPath>("WorldAsset");
+                    if (Grids.FirstOrDefault(grid => grid.OriginalPosition == position) is { } targetGrid)
+                    {
+                        targetGrid.Maps.Add(new WorldPartitionGridMap(worldAsset.AssetPathName.Text));
+                    }
+                    else
+                    {
+                        var grid = new WorldPartitionGrid(position, Info);
+                        grid.Maps.Add(new WorldPartitionGridMap(worldAsset.AssetPathName.Text));
+                        Grids.Add(grid);
+                    }
+                }
+            }
+            
             foreach (var streamingGrid in runtimeHash.GetOrDefault("StreamingGrids", Array.Empty<FStructFallback>()))
             {
                 foreach (var gridLevel in streamingGrid.GetOrDefault("GridLevels", Array.Empty<FStructFallback>()))
@@ -185,6 +225,7 @@ public partial class WorldPartitionMap : ObservableObject
 
                     var runtimeCellData = gridCell.Get<UObject>("RuntimeCellData");
                     var position = runtimeCellData.GetOrDefault<FVector>("Position");
+                
                     if (Grids.FirstOrDefault(grid => grid.OriginalPosition == position) is { } targetGrid)
                     {
                         targetGrid.Maps.Add(new WorldPartitionGridMap(worldAsset.AssetPathName.Text));
@@ -196,9 +237,9 @@ public partial class WorldPartitionMap : ObservableObject
                         Grids.Add(grid);
                     }
                 }
-
-                break;
             }
+
+           
         }
         
         Directory.CreateDirectory(ExportPath);
