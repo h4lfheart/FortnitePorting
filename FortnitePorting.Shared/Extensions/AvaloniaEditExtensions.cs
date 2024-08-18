@@ -51,7 +51,6 @@ public class IndentGuideLinesRenderer : IBackgroundRenderer
 
     public void Draw(TextView textView, DrawingContext drawingContext)
     {
-        var pixelSize = PixelSnapHelpers.GetPixelSize(_editor);
         textView.EnsureVisualLines();
 
         foreach (var visualLine in textView.VisualLines)
@@ -78,3 +77,4 @@ public class IndentGuideLinesRenderer : IBackgroundRenderer
         }
     }
 }
+

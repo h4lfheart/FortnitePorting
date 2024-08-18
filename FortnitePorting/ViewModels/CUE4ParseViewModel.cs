@@ -106,11 +106,7 @@ public class CUE4ParseViewModel : ViewModelBase
         await LoadMappings();
         
         Provider.PostMount();
-        await LoadConsoleVariables();
-
-        Provider.LoadObject<UStaticMesh>(
-            "FortniteGame/Content/Environments/Apollo/Sets/Coliseum/Props/Meshes/S_Coliseum_Statue_01");
-
+        
         await LoadAssetRegistries();
 
         HomeVM.UpdateStatus("Loading Application Assets");
@@ -343,25 +339,6 @@ public class CUE4ParseViewModel : ViewModelBase
 
         var latestUsmap = usmapFiles.MaxBy(x => x.CreationTime);
         return latestUsmap?.FullName;
-    }
-    
-    private async Task LoadConsoleVariables()
-    {
-        var tokens = Provider.DefaultEngine.Sections.FirstOrDefault(source => source.Name == "ConsoleVariables")?.Tokens ?? [];
-        foreach (var token in tokens)
-        {
-            if (token is not InstructionToken instructionToken) continue;
-            var value = instructionToken.Value.Equals("1");
-            
-            switch (instructionToken.Key)
-            {
-                case "r.StaticMesh.KeepMobileMinLODSettingOnDesktop":
-                case "r.SkeletalMesh.KeepMobileMinLODSettingOnDesktop":
-                    Provider.Versions[instructionToken.Key[2..]] = value;
-                    OptionalProvider.Versions[instructionToken.Key[2..]] = value;
-                    continue;
-            }
-        }
     }
     
     private async Task LoadAssetRegistries()
