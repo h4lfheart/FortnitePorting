@@ -556,7 +556,7 @@ class DataImportTask:
         if target_skeleton is None:
             MessageServer.instance.send("An armature must be selected to import an animation. Please select an armature and try again.")
             return
-        
+
         if target_skeleton.get("is_tasty_rig"):
             MessageServer.instance.send("Tasty Rig currently does not support emotes. Please use a character with the Default Rig and try again.")
             return
@@ -585,18 +585,18 @@ class DataImportTask:
             is_metahuman = any(skeleton.data.bones, lambda bone: bone.name == "FACIAL_C_FacialRoot")
             for section in sections:
                 path = section.get("Path")
-    
+
                 total_frames += time_to_frame(section.get("Length"))
-    
+
                 anim = self.import_anim(path, skeleton)
                 clear_bone_poses_recursive(skeleton, anim, "faceAttach")
-                
+
                 section_name = section.get("Name")
                 time_offset = section.get("Time")
                 loop_count = 999 if self.options.get("LoopAnimation") and section.get("Loop") else 1
                 strip = track.strips.new(section_name, time_to_frame(time_offset), anim)
                 strip.repeat = loop_count
-                
+
                 if (curves := section.get("Curves")) and len(curves) > 0 and active_mesh.data.shape_keys is not None and is_main_skeleton:
                     key_blocks = active_mesh.data.shape_keys.key_blocks
                     for key_block in key_blocks:
@@ -622,7 +622,7 @@ class DataImportTask:
                         strip.repeat = loop_count
                         active_mesh.data.shape_keys.animation_data.action = None
             return total_frames
-        
+
         total_frames = import_sections(data.get("Sections"), target_skeleton, target_track, True)
         if self.options.get("UpdateTimelineLength"):
             bpy.context.scene.frame_end = total_frames
@@ -631,7 +631,7 @@ class DataImportTask:
         if len(props) > 0:
             if master_skeleton := first(target_skeleton.children, lambda child: child.name == "Master_Skeleton"):
                 bpy.data.objects.remove(master_skeleton)
-                
+
             master_skeleton = self.import_model(data.get("Skeleton"))
             master_skeleton.name = "Master_Skeleton"
             master_skeleton.parent = target_skeleton
@@ -641,7 +641,7 @@ class DataImportTask:
             master_track.name = "Sections"
 
             import_sections(data.get("Sections"), master_skeleton, master_track)
-            
+
             for prop in props:
                 mesh = self.import_model(prop.get("Mesh"))
                 constraint_object(mesh, master_skeleton, prop.get("SocketName"), [0, 0, 0])
@@ -656,26 +656,41 @@ class DataImportTask:
                     import_sections(anims, mesh, mesh_track)
 
             master_skeleton.hide_set(True)
-            
+
         if self.options.get("ImportSounds"):
             for sound in data.get("Sounds"):
                 path = sound.get("Path")
                 self.import_sound(path, time_to_frame(sound.get("Time")))
-                
-                
+
+
     def import_texture_data(self, data):
         import_type = ETextureExportTypes(self.options.get("TextureExportType"))
         path = data.get("Path")
-        
-        match import_type:
-            case ETextureExportTypes.DATA:
-                self.import_image(path)
-            case ETextureExportTypes.PLANE:
-                if "io_import_images_as_planes" not in bpy.context.preferences.addons:
-                    bpy.ops.preferences.addon_enable(module='io_import_images_as_planes')
+        image = self.import_image(path)
 
-                path, name = self.format_image_path(path)
-                bpy.ops.import_image.to_plane(shader="EMISSION", files=[{"name": path}])
+        if image is not None and import_type == ETextureExportTypes.PLANE:
+            bpy.ops.mesh.primitive_plane_add()
+            plane = bpy.context.active_object
+            plane.name = image.name
+            plane.scale.x = image.size[0] / image.size[1]
+
+            material = bpy.data.materials.new(image.name)
+            material.use_nodes = True
+            material.surface_render_method = "BLENDED"
+
+            nodes = material.node_tree.nodes
+            nodes.clear()
+            links = material.node_tree.links
+            links.clear()
+
+            output_node = nodes.new(type="ShaderNodeOutputMaterial")
+            output_node.location = (300, 0)
+
+            image_node = nodes.new(type="ShaderNodeTexImage")
+            image_node.image = image
+            links.new(image_node.outputs[0], output_node.inputs[0])
+
+            plane.data.materials.append(material)
 
 
     def import_sound_data(self, data):
@@ -1224,14 +1239,14 @@ class DataImportTask:
             socket_mappings = foliage_mappings
             material.use_sss_translucency = True
 
-
-        if "MM_BeanCharacter_Body" in material_data.get("AbsoluteParent"):
-            replace_shader_node("FP Bean Base")
-            socket_mappings = bean_base_mappings
-
-        if "MM_BeanCharacter_Costume" in material_data.get("AbsoluteParent"):
-            replace_shader_node("FP Bean Costume")
-            socket_mappings = bean_head_costume_mappings if meta_data.get("IsHead") else bean_costume_mappings
+        if material_data.get("AbsoluteParent") is not None:
+            if "MM_BeanCharacter_Body" in material_data.get("AbsoluteParent"):
+                replace_shader_node("FP Bean Base")
+                socket_mappings = bean_base_mappings
+    
+            if "MM_BeanCharacter_Costume" in material_data.get("AbsoluteParent"):
+                replace_shader_node("FP Bean Costume")
+                socket_mappings = bean_head_costume_mappings if meta_data.get("IsHead") else bean_costume_mappings
             
         def setup_params(mappings, target_node, add_unused_params = False):
             for texture in textures:
@@ -1265,8 +1280,8 @@ class DataImportTask:
 
             # find better detection to do this
             '''if (diffuse_links := shader_node.inputs["Diffuse"].links) and len(diffuse_links) > 0:
-				diffuse_node = diffuse_links[0].from_node
-				links.new(diffuse_node.outputs[1], shader_node.inputs["Alpha"])'''
+                diffuse_node = diffuse_links[0].from_node
+                links.new(diffuse_node.outputs[1], shader_node.inputs["Alpha"])'''
 
             if (skin_color := meta_data.get("SkinColor")) and skin_color["A"] != 0:
                 shader_node.inputs["Skin Color"].default_value = (skin_color["R"], skin_color["G"], skin_color["B"], 1.0)
