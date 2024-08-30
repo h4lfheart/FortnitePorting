@@ -189,11 +189,10 @@ public partial class FilesViewModel : ViewModelBase
             {
                 AppWM.Dialog("Unimplemented Exporter", 
                     $"A file exporter for \"{asset.ExportType}\" assets has not been implemented and/or will not be supported.");
+                return;
             }
-            else
-            {
-                exports.Add(new KeyValuePair<UObject, EExportType>(asset, exportType));
-            }
+
+            exports.Add(new KeyValuePair<UObject, EExportType>(asset, exportType));
         }
         
         if (exports.Count == 0) return;

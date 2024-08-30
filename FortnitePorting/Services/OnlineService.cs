@@ -75,14 +75,15 @@ public static class OnlineService
                 {
                     if (Client is null) break;
                     
-                    while (!Client.Connected && AppSettings.Current.Online.UseIntegration && DisconnectReason == DisconnectReason.Normal)
+                    while (!Client.Connected && AppSettings.Current.Online.UseIntegration && DisconnectReason != DisconnectReason.AuthFailure)
                     {
                         try
                         {
                             Client.Connect();
                         }
-                        catch (Exception)
+                        catch (Exception e)
                         {
+                            Log.Error(e.ToString());
                             // lol
                         }
 
@@ -287,16 +288,15 @@ public static class OnlineService
                             {
                                 AppWM.Dialog("Unimplemented Exporter",
                                     $"A file exporter for \"{asset.ExportType}\" assets has not been implemented and/or will not be supported.");
+                                return;
                             }
-                            else
-                            {
-                                // todo allow user to select export location
-                                await Exporter.Export(asset, exportType, AppSettings.Current.CreateExportMeta());
+
+                            // todo allow user to select export location
+                            await Exporter.Export(asset, exportType, AppSettings.Current.CreateExportMeta());
                                 
-                                if (AppSettings.Current.Online.UseIntegration)
-                                {
-                                    await ApiVM.FortnitePorting.PostExportAsync(new PersonalExport(asset.GetPathName()));
-                                }
+                            if (AppSettings.Current.Online.UseIntegration)
+                            {
+                                await ApiVM.FortnitePorting.PostExportAsync(new PersonalExport(asset.GetPathName()));
                             }
 
                         })

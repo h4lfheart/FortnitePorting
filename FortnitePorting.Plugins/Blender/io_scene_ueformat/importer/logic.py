@@ -30,7 +30,8 @@ from ..importer.classes import (
     UEWorld,
 )
 from ..importer.reader import FArchiveReader
-from ..importer.utils import get_active_armature, get_case_insensitive, make_axis_vector, make_quat, make_vector
+from ..importer.utils import get_active_armature, get_case_insensitive, make_axis_vector, make_quat, make_vector, \
+    has_vertex_weights
 from ..logging import Log
 from ..options import UEAnimOptions, UEFormatOptions, UEModelOptions, UEWorldOptions
 
@@ -317,7 +318,14 @@ class UEFormatImport:
                     else:
                         avg_child_pos = Vector()
                         avg_child_length = 0.0
+                        allowed_children = None
+                        if self.options.allowed_reorient_children is not None:
+                            allowed_children = self.options.allowed_reorient_children.get(bone.name)
+                            
                         for child in children:
+                            if allowed_children is not None and child.name not in allowed_children:
+                                continue
+                                
                             pos = Vector(child["orig_loc"])
                             avg_child_pos += pos
                             avg_child_length += pos.length
@@ -427,7 +435,7 @@ class UEFormatImport:
 
                 # bone colors
                 for bone in armature_object.pose.bones:
-                    if lod.vertex_groups.get(bone.name) is None:
+                    if not (vertex_group := lod.vertex_groups.get(bone.name)) or not has_vertex_weights(lod, vertex_group):
                         bone.color.palette = "THEME14"
                         continue
 

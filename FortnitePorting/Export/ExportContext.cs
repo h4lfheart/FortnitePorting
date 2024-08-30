@@ -10,6 +10,7 @@ using CUE4Parse_Conversion.Meshes;
 using CUE4Parse_Conversion.Meshes.UEFormat;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.GameTypes.FN.Assets.Exports;
+using CUE4Parse.UE4.Assets;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.Component.SkeletalMesh;
@@ -133,6 +134,22 @@ public class ExportContext
                     {
                         AttachToSocket = part.GetOrDefault("bAttachToSocket", true),
                         Socket = additionalData.GetOrDefault<FName?>("AttachSocketName")?.Text
+                    };
+                    exportPart.Meta = meta;
+                    break;
+                }
+                case "CustomCharacterBodyPartData":
+                {
+                    var masterSkeletalMeshes = part.GetOrDefault("MasterSkeletalMeshes", Array.Empty<FSoftObjectPath>());
+                    var masterSkeletalMesh = masterSkeletalMeshes
+                        .Select(index => index.LoadOrDefault<USkeletalMesh>())
+                        .FirstOrDefault(mesh => mesh is not null);
+                    
+                    if (masterSkeletalMesh is null) break;
+
+                    var meta = new ExportMasterSkeletonMeta
+                    {
+                        MasterSkeletalMesh = Mesh(masterSkeletalMesh)
                     };
                     exportPart.Meta = meta;
                     break;
@@ -699,6 +716,7 @@ public class ExportContext
         {
             USkeletalMesh skeletalMesh => Mesh(skeletalMesh),
             UStaticMesh staticMesh => Mesh(staticMesh),
+            USkeleton skeleton => Skeleton(skeleton),
             _ => null
         };
     }

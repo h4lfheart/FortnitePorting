@@ -32,6 +32,7 @@ class UEModelOptions(UEFormatOptions):
     import_morph_targets: bool = True
     import_virtual_bones: bool = False
     target_lod: int = 0
+    allowed_reorient_children: dict = None
 
 
 @dataclass(slots=True)

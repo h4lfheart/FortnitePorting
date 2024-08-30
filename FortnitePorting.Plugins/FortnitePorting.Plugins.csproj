@@ -14,4 +14,9 @@
         <AvaloniaResource Include="Blender\**" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Unity\" />
+      <Folder Include="Unreal\" />
+    </ItemGroup>
+
 </Project>

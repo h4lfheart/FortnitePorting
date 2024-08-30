@@ -10,6 +10,11 @@ public class BaseMeta
     
 }
 
+public class ExportMasterSkeletonMeta : BaseMeta
+{
+    public ExportMesh MasterSkeletalMesh;
+}
+
 public class ExportPoseDataMeta : BaseMeta
 {
     public List<PoseData> PoseData = [];

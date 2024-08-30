@@ -19,6 +19,7 @@ public class HybridFileProvider : AbstractVfsFileProvider
     public HybridFileProvider(VersionContainer? version = null, bool isOptionalLoader = false)  : base(CaseInsensitive, version)
     {
         IsOptionalLoader = isOptionalLoader;
+        SkipReferencedTextures = true;
     }
 
     public HybridFileProvider(string directory, List<DirectoryInfo>? extraDirectories = null, VersionContainer? version = null, bool isOptionalLoader = false) : this(version)
@@ -26,6 +27,7 @@ public class HybridFileProvider : AbstractVfsFileProvider
         WorkingDirectory = new DirectoryInfo(directory);
         ExtraDirectories = extraDirectories?.Where(dir => dir.Exists) ?? [];
         IsOptionalLoader = isOptionalLoader;
+        SkipReferencedTextures = true;
     }
 
     public override void Initialize()

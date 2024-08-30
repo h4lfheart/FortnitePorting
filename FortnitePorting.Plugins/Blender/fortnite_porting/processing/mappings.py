@@ -59,3 +59,12 @@ metahuman_mappings = {
     "tongue_forward_pose": ["tongueOut"],
     "tongue_up_pose": ["tongueUp"],
 }
+
+allowed_reorient_children = {
+    "pelvis": ["spine_01"],
+    "spine_01": ["spine_02"],
+    "spine_02": ["spine_03"],
+    "spine_03": ["spine_04"],
+    "spine_04": ["spine_05"],
+    "spine_05": ["neck_01"],
+}

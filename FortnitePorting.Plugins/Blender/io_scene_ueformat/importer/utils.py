@@ -58,3 +58,7 @@ def make_quat(rot):
 
 def make_vector(vec):
     return Vector((vec[0], vec[1], vec[2]))
+
+def has_vertex_weights(obj, vertex_group):
+    mesh = obj.data
+    return any(vertex_group.index in [g.group for g in v.groups] for v in mesh.vertices)

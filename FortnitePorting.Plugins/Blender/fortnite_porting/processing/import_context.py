@@ -8,13 +8,11 @@ from .mappings import *
 from .material import *
 from .enums import *
 from .utils import *
+from .tasty import *
 from ..utils import *
 from ..logger import Log
 from ...io_scene_ueformat.importer.logic import UEFormatImport
 from ...io_scene_ueformat.options import UEModelOptions, UEAnimOptions
-
-SCALE_FACTOR = 0.01
-
 
 class ImportContext:
 
@@ -25,6 +23,7 @@ class ImportContext:
     def run(self, data):
         self.name = data.get("Name")
         self.type = EExportType(data.get("Type"))
+        self.scale = 0.01 if self.options.get("ScaleDown") else 1
         self.meshes = []
         self.override_materials = []
         self.override_parameters = []
@@ -90,6 +89,38 @@ class ImportContext:
                 vertex_crunch_modifier = master_mesh.modifiers.new("FP Full Vertex Crunch", type="NODES")
                 vertex_crunch_modifier.node_group = bpy.data.node_groups.get("FP Full Vertex Crunch")
                 set_geo_nodes_param(vertex_crunch_modifier, "Material", material)
+                
+            if ERigType(self.options.get("RigType")) == ERigType.TASTY:
+                create_tasty_rig(self, master_skeleton, TastyRigOptions(scale=self.scale))
+
+    def gather_metadata(self, *search_props):
+        out_props = {}
+        for mesh in self.meshes:
+            meta = mesh.get("Meta")
+            if meta is None:
+                continue
+
+            for search_prop in search_props:
+                if found_key := first(meta.keys(), lambda key: key == search_prop):
+                    if out_props.get(found_key):
+                        if meta.get(found_key):
+                            Log.warn(f"{found_key}: metadata already set "
+                                     "with content from different mesh but "
+                                     f"also found on {mesh.get('Name')} "
+                                     "which will be ignored")
+                        continue
+                    out_props[found_key] = meta.get(found_key)
+        return out_props
+
+    def get_metadata(self, search_prop):
+        for mesh in self.meshes:
+            meta = mesh.get("Meta")
+            if meta is None:
+                continue
+
+            if found_key := first(meta.keys(), lambda key: key == search_prop):
+                return meta.get(found_key)
+        return None
 
     def import_model(self, mesh, parent=None):
         path = mesh.get("Path")
@@ -102,7 +133,7 @@ class ImportContext:
 
             empty_object.parent = parent
             empty_object.rotation_euler = make_euler(mesh.get("Rotation"))
-            empty_object.location = make_vector(mesh.get("Location"), unreal_coords_correction=True) * SCALE_FACTOR
+            empty_object.location = make_vector(mesh.get("Location"), unreal_coords_correction=True) * self.scale
             empty_object.scale = make_vector(mesh.get("Scale"))
             
             self.collection.objects.link(empty_object)
@@ -122,7 +153,7 @@ class ImportContext:
 
         imported_object.parent = parent
         imported_object.rotation_euler = make_euler(mesh.get("Rotation"))
-        imported_object.location = make_vector(mesh.get("Location"), unreal_coords_correction=True) * SCALE_FACTOR
+        imported_object.location = make_vector(mesh.get("Location"), unreal_coords_correction=True) * self.scale
         imported_object.scale = make_vector(mesh.get("Scale"))
 
         imported_mesh = get_armature_mesh(imported_object)
@@ -135,27 +166,8 @@ class ImportContext:
         })
 
         # metadata handling
-        def gather_metadata(*search_props):
-            out_props = {}
-            for mesh in self.meshes:
-                meta = mesh.get("Meta")
-                if meta is None:
-                    continue
-
-                for search_prop in search_props:
-                    if found_key := first(meta.keys(), lambda key: key == search_prop):
-                        if out_props.get(found_key):
-                            if meta.get(found_key):
-                                Log.warn(f"{found_key}: metadata already set "
-                                         "with content from different mesh but "
-                                         f"also found on {mesh.get('Name')} "
-                                         "which will be ignored")
-                            continue
-                        out_props[found_key] = meta.get(found_key)
-            return out_props
-
         # todo extract meta reading to function bc this is too big
-        meta = gather_metadata("PoseData")
+        meta = self.gather_metadata("PoseData")
 
         # pose asset
         if imported_mesh is not None and (pose_data := meta.get("PoseData")):
@@ -178,7 +190,7 @@ class ImportContext:
                              "bones will be considered during import of "
                              "PoseData")
 
-                loc_scale = (SCALE_FACTOR if self.options.get("ScaleDown") else 1)
+                loc_scale = self.scale
                 for pose in pose_data:
                     # If there are no influences, don't bother
                     if not (influences := pose.get('Keys')):
@@ -284,9 +296,9 @@ class ImportContext:
 
         match part_type:
             case EFortCustomPartType.BODY:
-                meta.update(gather_metadata("SkinColor"))
+                meta.update(self.gather_metadata("SkinColor"))
             case EFortCustomPartType.HEAD:
-                meta.update(gather_metadata("MorphNames", "HatType"))
+                meta.update(self.gather_metadata("MorphNames", "HatType"))
                 meta["IsHead"] = True
                 shape_keys = imported_mesh.data.shape_keys
                 if (morphs := meta.get("MorphNames")) and (morph_name := morphs.get(meta.get("HatType"))) and shape_keys is not None:
@@ -335,7 +347,7 @@ class ImportContext:
             
             instance_parent = bpy.data.objects.new("InstanceParent_" + name, None)
             instance_parent.rotation_euler = make_euler(mesh.get("Rotation"))
-            instance_parent.location = make_vector(mesh.get("Location"), unreal_coords_correction=True) * SCALE_FACTOR
+            instance_parent.location = make_vector(mesh.get("Location"), unreal_coords_correction=True) * self.scale
             instance_parent.scale = make_vector(mesh.get("Scale"))
             instance_parent.parent = parent
             bpy.context.collection.objects.link(instance_parent)
@@ -346,7 +358,7 @@ class ImportContext:
     
                 instance_object.parent = instance_parent
                 instance_object.rotation_euler = make_euler(instance_transform.get("Rotation"))
-                instance_object.location = make_vector(instance_transform.get("Location"), unreal_coords_correction=True) * SCALE_FACTOR
+                instance_object.location = make_vector(instance_transform.get("Location"), unreal_coords_correction=True) * self.scale
                 instance_object.scale = make_vector(instance_transform.get("Scale"))
             
         return imported_object
@@ -367,25 +379,26 @@ class ImportContext:
         
         light.parent = parent
         light.rotation_euler = make_euler(point_light.get("Rotation"))
-        light.location = make_vector(point_light.get("Location"), unreal_coords_correction=True) * SCALE_FACTOR
+        light.location = make_vector(point_light.get("Location"), unreal_coords_correction=True) * self.scale
         light.scale = make_vector(point_light.get("Scale"))
         
         color = point_light.get("Color")
         light_data.color = (color["R"], color["G"], color["B"])
         light_data.energy = point_light.get("Intensity")
         light_data.use_custom_distance = True
-        light_data.cutoff_distance = point_light.get("AttenuationRadius") * SCALE_FACTOR
-        light_data.shadow_soft_size = point_light.get("Radius") * SCALE_FACTOR
+        light_data.cutoff_distance = point_light.get("AttenuationRadius") * self.scale
+        light_data.shadow_soft_size = point_light.get("Radius") * self.scale
         light_data.use_shadow = point_light.get("CastShadows")
 
     def import_mesh(self, path: str):
-        options = UEModelOptions(scale_factor=0.01 if self.options.get("ScaleDown") else 1,
+        options = UEModelOptions(scale_factor=self.scale,
                                  reorient_bones=self.options.get("ReorientBones"),
                                  bone_length=self.options.get("BoneLength"),
                                  import_sockets=self.options.get("ImportSockets"),
                                  import_virtual_bones=self.options.get("ImportVirtualBones"),
                                  import_collision=self.options.get("ImportCollision"),
-                                 target_lod=self.options.get("TargetLOD"))
+                                 target_lod=self.options.get("TargetLOD"),
+                                 allowed_reorient_children=allowed_reorient_children)
 
         path = path[1:] if path.startswith("/") else path
 
@@ -947,6 +960,9 @@ class ImportContext:
                     diffuse_node.location = [-500, 0]
                     links.new(diffuse_node.outputs[0], mix_node.inputs[1])
                     links.new(mix_node.outputs[0], shader_node.inputs["Diffuse"])
+                    
+                if (diffuse_links := shader_node.inputs["Diffuse"].links) and len(diffuse_links) > 0 and (diffuse_node := diffuse_links[0].from_node):
+                    nodes.active = diffuse_node
 
             case "FP Glass":
                 mask_slot = shader_node.inputs["Mask"]
@@ -1123,7 +1139,7 @@ class ImportContext:
         anim_path = os.path.join(self.assets_root, file_path + ".ueanim")
         options = UEAnimOptions(link=False,
                                 override_skeleton=override_skeleton,
-                                scale_factor=0.01 if self.options.get("ScaleDown") else 1)
+                                scale_factor=self.scale)
         anim = UEFormatImport(options).import_file(anim_path)
         anim["Skeleton"] = override_skeleton.name
         return anim
