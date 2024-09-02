@@ -67,4 +67,6 @@ allowed_reorient_children = {
     "spine_03": ["spine_04"],
     "spine_04": ["spine_05"],
     "spine_05": ["neck_01"],
+    "neck_01": ["neck_02"],
+    "neck_02": ["head"],
 }

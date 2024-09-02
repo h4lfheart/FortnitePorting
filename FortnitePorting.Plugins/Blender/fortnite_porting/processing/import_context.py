@@ -53,6 +53,12 @@ class ImportContext:
                 pass
 
     def import_mesh_data(self, data):
+        rig_type = ERigType(self.options.get("RigType"))
+        
+        if rig_type == ERigType.TASTY:
+            self.options["MergeArmatures"] = True
+            self.options["ReorientBones"] = True
+        
         self.override_materials = data.get("OverrideMaterials")
         self.override_parameters = data.get("OverrideParameters")
         
@@ -90,7 +96,7 @@ class ImportContext:
                 vertex_crunch_modifier.node_group = bpy.data.node_groups.get("FP Full Vertex Crunch")
                 set_geo_nodes_param(vertex_crunch_modifier, "Material", material)
                 
-            if ERigType(self.options.get("RigType")) == ERigType.TASTY:
+            if rig_type == ERigType.TASTY:
                 create_tasty_rig(self, master_skeleton, TastyRigOptions(scale=self.scale))
 
     def gather_metadata(self, *search_props):
@@ -623,7 +629,7 @@ class ImportContext:
 
                 value = mappings.value_func(value) if mappings.value_func else value
                 target_socket = target_node.inputs[mappings.slot]
-                
+
                 match target_socket.type:
                     case "INT":
                         target_socket.default_value = int(value)
@@ -634,7 +640,7 @@ class ImportContext:
                     
                 if mappings.switch_slot:
                     target_node.inputs[mappings.switch_slot].default_value = 1 if value else 0
-            except KeyError:
+            except KeyError as e:
                 pass
             except Exception:
                 traceback.print_exc()
@@ -755,7 +761,7 @@ class ImportContext:
             replace_shader_node("FP Valet")
             socket_mappings = valet_mappings
 
-        is_glass = material_data.get("PhysMaterialName") == "Glass" or (base_blend_mode is EBlendMode.BLEND_Translucent and translucency_lighting_mode in [ETranslucencyLightingMode.TLM_SurfacePerPixelLighting, ETranslucencyLightingMode.TLM_VolumetricPerVertexDirectional])
+        is_glass = material_data.get("PhysMaterialName") == "Glass" or any(glass_master_names, lambda x: x in base_material_path) or (base_blend_mode is EBlendMode.BLEND_Translucent and translucency_lighting_mode in [ETranslucencyLightingMode.TLM_SurfacePerPixelLighting, ETranslucencyLightingMode.TLM_VolumetricPerVertexDirectional])
         if is_glass:
             replace_shader_node("FP Glass")
             socket_mappings = glass_mappings
@@ -961,13 +967,16 @@ class ImportContext:
                     links.new(diffuse_node.outputs[0], mix_node.inputs[1])
                     links.new(mix_node.outputs[0], shader_node.inputs["Diffuse"])
                     
-                if (diffuse_links := shader_node.inputs["Diffuse"].links) and len(diffuse_links) > 0 and (diffuse_node := diffuse_links[0].from_node):
+                if diffuse_node := get_node(shader_node, "Diffuse"):
                     nodes.active = diffuse_node
 
             case "FP Glass":
                 mask_slot = shader_node.inputs["Mask"]
                 if len(mask_slot.links) > 0 and get_param(switches, "Use Diffuse Texture for Color [ignores alpha channel]"):
                     links.remove(mask_slot.links[0])
+
+                if color_node := get_node(shader_node, "Color"):
+                    nodes.active = color_node
             
             case "FP Bean Costume":
                 set_param("Ambient Occlusion", self.options.get("AmbientOcclusion"))
@@ -995,6 +1004,9 @@ class ImportContext:
                 for texture_mapping in socket_mappings.textures:
                     if node := get_node(shader_node, texture_mapping.slot):
                         links.new(pre_eye_node.outputs["EyeUVs"], node.inputs[0])
+
+                if diffuse_node := get_node(shader_node, "Diffuse"):
+                    nodes.active = diffuse_node
 
     def import_sound_data(self, data):
         for sound in data.get("Sounds"):

@@ -20,7 +20,7 @@ class TastyRigOptions:
         self.master_skeleton = master_skeleton
         
 class CustomShape:
-    def __init__(self, bone_name, object_name, palette_name, wire_width=2.5, offset=(0.0, 0.0, 0.0), rotation=(0.0, 0.0, 0.0), scale=1.0, scale_to_bone_length=False):
+    def __init__(self, bone_name, object_name, palette_name, wire_width=2.5, offset=(0.0, 0.0, 0.0), rotation=(0.0, 0.0, 0.0), scale=1.0, scale_to_bone_length=False, collection=None):
         self.bone_name = bone_name
         self.object_name = object_name
         self.palette_name = palette_name
@@ -29,6 +29,7 @@ class CustomShape:
         self.rotation = rotation
         self.scale = scale
         self.scale_to_bone_length = scale_to_bone_length
+        self.collection = collection
 
 class IKBone:
     def __init__(self, bone_name, target_name, pole_name, chain_length, pole_angle=180, use_rotation=False, lock_axes=None):
@@ -43,19 +44,27 @@ class IKBone:
         
 def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
     armature_data = target_skeleton.data
+    is_metahuman = any(armature_data.bones, lambda bone: bone.name == "FACIAL_C_FacialRoot")
 
     base_collection = armature_data.collections.new("Base")
     rig_collection = armature_data.collections.new("Rig")
+    face_collection = armature_data.collections.new("Face")
     twist_collection = armature_data.collections.new("Twist")
     dynamic_collection = armature_data.collections.new("Dynamic")
     deform_collection = armature_data.collections.new("Deform")
     extra_collection = armature_data.collections.new("Extra")
+    extra_collection.is_visible = False
     
     has_original_ik_bones = any(armature_data.bones, lambda bone: bone.name in ["ik_hand_root", "ik_foot_root"])
     if not has_original_ik_bones:
         mesh = context.get_metadata("MasterSkeletalMesh")
         master_skeletal_mesh = context.import_model(mesh)
-
+        master_skeletal_mesh.select_set(False)
+        
+        for child in master_skeletal_mesh.children:
+            child.select_set(True)
+        bpy.ops.object.delete()
+            
         bpy.context.view_layer.objects.active = master_skeletal_mesh
         master_skeletal_mesh.select_set(True)
         
@@ -81,8 +90,6 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
         ("ik_hand_parent_l", "hand_l", "ik_hand_l"),
         ("ik_hand_target_r", "hand_r", "ik_hand_parent_r"),
         ("ik_hand_target_l", "hand_l", "ik_hand_parent_l"),
-        ("ik_foot_rot_ctrl_r", "foot_r", "ik_foot_target_r"),
-        ("ik_foot_rot_ctrl_l", "foot_l", "ik_foot_target_l"),
 
         ("ik_finger_pole_thumb_r", "thumb_02_r", "ik_hand_target_r"),
         ("ik_finger_pole_index_r", "index_02_r", "ik_hand_target_r"),
@@ -108,6 +115,9 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
         bone.head = target_bone.head
         bone.tail = target_bone.tail
         bone.roll = target_bone.roll
+        
+    r_eye_name = "FACIAL_R_Eye" if is_metahuman else "R_eye"
+    l_eye_name = "FACIAL_L_Eye" if is_metahuman else "L_eye"
 
     # new name, parent name, (head, tail, roll)
     new_bones = [
@@ -122,6 +132,7 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
         ("ik_foot_roll_front_r", "ik_foot_roll_outer_r", Lazy(lambda: (edit_bones["ball_r"].head, edit_bones["ball_r"].tail, edit_bones["ball_r"].roll + radians(180)))),
         ("ik_foot_roll_back_r", "ik_foot_roll_front_r", Lazy(lambda: (Vector((edit_bones["foot_r"].head.x, edit_bones["foot_r"].head.y + 0.065, 0)), Vector((edit_bones["foot_r"].tail.x, edit_bones["foot_r"].tail.y + 0.065, 0)), edit_bones["ball_r"].roll))),
         ("ik_foot_target_r", "ik_foot_roll_back_r", Lazy(lambda: (edit_bones["ik_foot_r"].head, edit_bones["ik_foot_r"].tail, edit_bones["ik_foot_r"].roll))),
+        ("ik_foot_rot_ctrl_r", "ik_foot_target_r", Lazy(lambda: (edit_bones["foot_r"].head, edit_bones["foot_r"].tail, edit_bones["foot_r"].roll))),
 
         ("ik_foot_ctrl_l", "ik_foot_l", Lazy(lambda: (edit_bones["ball_l"].head + Vector((0, 0.2, 0)), edit_bones["ball_l"].tail + Vector((0, 0.2, 0)), edit_bones["ball_l"].roll))),
         ("ik_foot_roll_inner_l", "ik_foot_l", Lazy(lambda: (Vector((edit_bones["ball_l"].head.x + 0.04, edit_bones["ball_l"].head.y, 0)), Vector((edit_bones["ball_l"].tail.x + 0.04, edit_bones["ball_l"].tail.y, 0)), edit_bones["ball_l"].roll))),
@@ -129,6 +140,7 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
         ("ik_foot_roll_front_l", "ik_foot_roll_outer_l", Lazy(lambda: (edit_bones["ball_l"].head, edit_bones["ball_l"].tail, edit_bones["ball_l"].roll + radians(180)))),
         ("ik_foot_roll_back_l", "ik_foot_roll_front_l", Lazy(lambda: (Vector((edit_bones["foot_l"].head.x, edit_bones["foot_l"].head.y + 0.065, 0)), Vector((edit_bones["foot_l"].tail.x, edit_bones["foot_l"].tail.y + 0.065, 0)), edit_bones["ball_l"].roll))),
         ("ik_foot_target_l", "ik_foot_roll_back_l", Lazy(lambda: (edit_bones["ik_foot_l"].head, edit_bones["ik_foot_l"].tail, edit_bones["ik_foot_l"].roll))),
+        ("ik_foot_rot_ctrl_l", "ik_foot_target_l", Lazy(lambda: (edit_bones["foot_l"].head, edit_bones["foot_l"].tail, edit_bones["foot_l"].roll))),
 
         ("ik_finger_thumb_r", "ik_hand_target_r", Lazy(lambda: (edit_bones["thumb_03_r"].tail, 2 * edit_bones["thumb_03_r"].tail - edit_bones["thumb_03_r"].head, edit_bones["thumb_03_r"].roll))),
         ("ik_finger_index_r", "ik_hand_target_r", Lazy(lambda: (edit_bones["index_03_r"].tail, 2 * edit_bones["index_03_r"].tail - edit_bones["index_03_r"].head, edit_bones["index_03_r"].roll))),
@@ -142,6 +154,9 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
         ("ik_finger_ring_l", "ik_hand_target_l", Lazy(lambda: (edit_bones["ring_03_l"].tail, 2 * edit_bones["ring_03_l"].tail - edit_bones["ring_03_l"].head, edit_bones["ring_03_l"].roll))),
         ("ik_finger_pinky_l", "ik_hand_target_l", Lazy(lambda: (edit_bones["pinky_03_l"].tail, 2 * edit_bones["pinky_03_l"].tail - edit_bones["pinky_03_l"].head, edit_bones["pinky_03_l"].roll))),
 
+        ("eye_control_r", "head", Lazy(lambda: (edit_bones[r_eye_name].head - Vector((0, 0.325, 0)), edit_bones[r_eye_name].head - Vector((0, 0.35, 0)), edit_bones[r_eye_name].roll))),
+        ("eye_control_l", "head", Lazy(lambda: (edit_bones[l_eye_name].head - Vector((0, 0.325, 0)), edit_bones[l_eye_name].head - Vector((0, 0.35, 0)), edit_bones[l_eye_name].roll))),
+        ("eye_control_parent", "head", Lazy(lambda: ((edit_bones["eye_control_r"].head + edit_bones["eye_control_l"].head) / 2, (edit_bones["eye_control_r"].tail + edit_bones["eye_control_l"].tail) / 2, 0))),
     ]
 
     for new_name, parent_name, lazy in new_bones:
@@ -155,22 +170,43 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
         bone.head = head
         bone.tail = tail
         bone.roll = roll
-        
-    parent_bones = [
-        #("ik_foot_r", "ik_foot_roll_back_r")
+
+    parent_adjustment_bones = [
+        ("L_eye_lid_lower_mid", "faceAttach"),
+        ("L_eye_lid_upper_mid", "faceAttach"),
+        ("R_eye_lid_lower_mid", "faceAttach"),
+        ("R_eye_lid_upper_mid", "faceAttach"),
+        ("eye_control_r", "eye_control_parent"),
+        ("eye_control_l", "eye_control_parent"),
     ]
-    
-    for bone_name, target_name in parent_bones:
-        if not (existing_bone := edit_bones.get(bone_name)): continue
-        if not (target_bone := edit_bones.get(target_name)): continue
-        
-        existing_bone.parent = target_bone
+
+    for name, parent in parent_adjustment_bones:
+        if not (bone := edit_bones.get(name)): continue
+        if not (parent_bone := edit_bones.get(parent)): continue
+
+        bone.parent = parent_bone
+
+    head_adjustment_bones = [
+        ("R_eye_lid_upper_mid", Lazy(lambda: edit_bones["R_eye"].head)),
+        ("R_eye_lid_lower_mid", Lazy(lambda: edit_bones["R_eye"].head)),
+        ("L_eye_lid_upper_mid", Lazy(lambda: edit_bones["L_eye"].head)),
+        ("L_eye_lid_lower_mid", Lazy(lambda: edit_bones["L_eye"].head)),
+    ]
+
+    for bone_name, lazy in head_adjustment_bones:
+        if not (bone := edit_bones.get(bone_name)): continue
+        if not (position := lazy.value()): continue
+
+        bone.head = position
 
     tail_adjustment_bones = [
         ("lowerarm_r", Lazy(lambda: edit_bones["ik_hand_r" if has_original_ik_bones else "hand_r"].head)),
         ("lowerarm_l", Lazy(lambda: edit_bones["ik_hand_l" if has_original_ik_bones else "hand_l"].head)),
         ("calf_r", Lazy(lambda: edit_bones["ik_foot_r" if has_original_ik_bones else "foot_r"].head)),
         ("calf_l", Lazy(lambda: edit_bones["ik_foot_l" if has_original_ik_bones else "foot_l"].head)),
+        ("R_eye", Lazy(lambda: edit_bones["R_eye"].head - Vector((0, 0.1, 0)))),
+        ("L_eye", Lazy(lambda: edit_bones["L_eye"].head - Vector((0, 0.1, 0)))),
+        ("C_jaw", Lazy(lambda: edit_bones["C_jaw"].head - Vector((0, 0.1, 0)))),
     ]
 
     for bone_name, lazy in tail_adjustment_bones:
@@ -178,6 +214,15 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
         if not (position := lazy.value()): continue
     
         bone.tail = position
+
+    roll_adjustment_bones = [
+        ("C_jaw", 0),
+    ]
+
+    for name, roll in roll_adjustment_bones:
+        if not (bone := edit_bones.get(name)): continue
+
+        bone.roll = roll
 
     transform_adjustment_bones = [
         ("ik_finger_pole_thumb_r", Vector((0.05, 0.0, 0.0))),
@@ -198,13 +243,15 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
 
         bone.matrix @= Matrix.Translation(transform)
 
-
+    if (lower_lip_bone := edit_bones.get("FACIAL_C_LowerLipRotation")) and (jaw_bone := edit_bones.get("FACIAL_C_Jaw")):
+        lower_lip_bone.parent = jaw_bone
 
     # pose bone modifications
     bpy.ops.object.mode_set(mode='POSE')
 
     pose_bones = target_skeleton.pose.bones
 
+    # TODO definitely rewrite this ew
     def add_foot_ik_constraints(suffix):
         is_left = suffix == "l"
         ctrl_bone_name = f"ik_foot_ctrl_{suffix}"
@@ -333,23 +380,33 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
         for axis in ik_bone.lock_axes:
             setattr(bone, f"lock_ik_{axis.lower()}", True)
 
-    # bone name, target name, mix, space, weight
+    # bone name, target name, target space, owner space, mix, weight
     copy_rotation_bones = [
-        ("hand_r", "ik_hand_target_r", "POSE", "REPLACE", 1.0),
-        ("hand_l", "ik_hand_target_l", "POSE", "REPLACE", 1.0),
-        ("foot_r", "ik_foot_rot_ctrl_r", "POSE", "REPLACE", 1.0),
-        ("foot_l", "ik_foot_rot_ctrl_l", "POSE", "REPLACE", 1.0),
+        ("hand_r", "ik_hand_parent_r", "POSE", "POSE", "REPLACE", 1.0),
+        ("hand_l", "ik_hand_parent_l", "POSE", "POSE", "REPLACE", 1.0),
+        ("foot_r", "ik_foot_rot_ctrl_r", "POSE", "POSE", "REPLACE", 1.0),
+        ("foot_l", "ik_foot_rot_ctrl_l", "POSE", "POSE", "REPLACE", 1.0),
+
+        ("R_eye_lid_upper_mid", "R_eye", "LOCAL_OWNER_ORIENT", "LOCAL_WITH_PARENT", "REPLACE", 0.25),
+        ("R_eye_lid_lower_mid", "R_eye", "LOCAL_OWNER_ORIENT", "LOCAL_WITH_PARENT", "REPLACE", 0.25),
+        ("L_eye_lid_upper_mid", "L_eye", "LOCAL_OWNER_ORIENT", "LOCAL_WITH_PARENT", "REPLACE", 0.25),
+        ("L_eye_lid_lower_mid", "L_eye", "LOCAL_OWNER_ORIENT", "LOCAL_WITH_PARENT", "REPLACE", 0.25),
+
+        ("FACIAL_R_EyelidUpperA", "FACIAL_R_Eye", "LOCAL_OWNER_ORIENT", "LOCAL_WITH_PARENT", "REPLACE", 0.25),
+        ("FACIAL_R_EyelidLowerA", "FACIAL_R_Eye", "LOCAL_OWNER_ORIENT", "LOCAL_WITH_PARENT", "REPLACE", 0.25),
+        ("FACIAL_L_EyelidUpperA", "FACIAL_L_Eye", "LOCAL_OWNER_ORIENT", "LOCAL_WITH_PARENT", "REPLACE", 0.25),
+        ("FACIAL_L_EyelidLowerA", "FACIAL_L_Eye", "LOCAL_OWNER_ORIENT", "LOCAL_WITH_PARENT", "REPLACE", 0.25),
     ]
 
-    for bone_name, target_name, space, mix, weight in copy_rotation_bones:
+    for bone_name, target_name, target_space, owner_space, mix, weight in copy_rotation_bones:
         if not (bone := pose_bones.get(bone_name)): continue
 
         constraint = bone.constraints.new("COPY_ROTATION")
         constraint.target = target_skeleton
         constraint.subtarget = target_name
         constraint.influence = weight
-        constraint.target_space = space
-        constraint.owner_space = space
+        constraint.target_space = target_space
+        constraint.owner_space = owner_space
         constraint.mix_mode = mix
 
     # bone name, space, axis -> dict[axis, list[min, max]]
@@ -391,8 +448,33 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
         constraint.target_space = space
         constraint.owner_space = space
 
-    # bone name, object name, palette name, wire width
+    track_bones = [
+        ("eye_control_parent", "head")
+    ]
+
+    for bone_name, target_name in track_bones:
+        if not (bone := pose_bones.get(bone_name)): continue
+
+        constraint = bone.constraints.new('TRACK_TO')
+        constraint.target = target_skeleton
+        constraint.subtarget = target_name
+        constraint.track_axis = 'TRACK_NEGATIVE_Y'
+        constraint.up_axis = 'UP_Z'
+        
+    damped_track_bones = [
+        ("R_eye", "eye_control_r"),
+        ("L_eye", "eye_control_l"),
+        ("FACIAL_R_Eye", "eye_control_r"),
+        ("FACIAL_L_Eye", "eye_control_l"),
+    ]
     
+    for bone_name, target_name in damped_track_bones:
+        if not (bone := pose_bones.get(bone_name)): continue
+        
+        constraint = bone.constraints.new('DAMPED_TRACK')
+        constraint.target = target_skeleton
+        constraint.subtarget = target_name
+
     rig_bones = [
         CustomShape("root", "CTRL_Root", "THEME03"),
         CustomShape("ik_hand_r", "CTRL_Box", "THEME01"),
@@ -452,19 +534,44 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
         CustomShape("middle_metacarpal_l", "CTRL_Metacarpal", "THEME04", scale_to_bone_length=True),
         CustomShape("ring_metacarpal_l", "CTRL_Metacarpal", "THEME04", scale_to_bone_length=True),
         CustomShape("pinky_metacarpal_l", "CTRL_Metacarpal", "THEME04", scale_to_bone_length=True),
+
+        CustomShape("eye_control_parent", "CTRL_Pole", "THEME02", scale=0.35, collection=face_collection),
+        CustomShape("eye_control_r", "CTRL_Pole", "THEME02", scale=0.2, collection=face_collection),
+        CustomShape("eye_control_l", "CTRL_Pole", "THEME02", scale=0.2, collection=face_collection),
+
+        CustomShape("R_eye", "CTRL_Eye", "THEME02", collection=face_collection),
+        CustomShape("L_eye", "CTRL_Eye", "THEME02", collection=face_collection),
+        CustomShape("C_jaw", "CTRL_Jaw", "THEME02", rotation=(radians(-45), 0, 0), collection=face_collection),
+        CustomShape("FACIAL_R_Eye", "CTRL_Eye", "THEME02", collection=face_collection),
+        CustomShape("FACIAL_L_Eye", "CTRL_Eye", "THEME02", collection=face_collection),
+        CustomShape("FACIAL_C_Jaw", "CTRL_Jaw", "THEME02", collection=face_collection),
+        
+        # reserve to not be affected by automatic facial bone detection
+        CustomShape("R_eye_lid_upper_mid", None, "THEME02", collection=face_collection),
+        CustomShape("R_eye_lid_lower_mid", None, "THEME02", collection=face_collection),
+        CustomShape("L_eye_lid_upper_mid", None, "THEME02", collection=face_collection),
+        CustomShape("L_eye_lid_lower_mid", None, "THEME02", collection=face_collection),
+        CustomShape("FACIAL_R_EyelidUpperA", None, "THEME02", collection=face_collection),
+        CustomShape("FACIAL_R_EyelidLowerA", None, "THEME02", collection=face_collection),
+        CustomShape("FACIAL_L_EyelidUpperA", None, "THEME02", collection=face_collection),
+        CustomShape("FACIAL_L_EyelidLowerA", None, "THEME02", collection=face_collection),
     ]
     
     for custom_shape in rig_bones:
         if not (pose_bone := pose_bones.get(custom_shape.bone_name)): continue
             
-        pose_bone.custom_shape = bpy.data.objects.get(custom_shape.object_name)
+        if custom_shape.object_name is not None:
+            pose_bone.custom_shape = bpy.data.objects.get(custom_shape.object_name)
+            
         pose_bone.color.palette = custom_shape.palette_name
         pose_bone.use_custom_shape_bone_size = custom_shape.scale_to_bone_length
         pose_bone.custom_shape_wire_width = custom_shape.wire_width
         pose_bone.custom_shape_scale_xyz = (custom_shape.scale, custom_shape.scale, custom_shape.scale)
         pose_bone.custom_shape_translation = custom_shape.offset
         pose_bone.custom_shape_rotation_euler = custom_shape.rotation
-        rig_collection.assign(pose_bone)
+        
+        target_collection = custom_shape.collection or rig_collection
+        target_collection.assign(pose_bone)
         
     base_bones = [
         "upperarm_r",
@@ -538,8 +645,8 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
         
         base_collection.assign(pose_bone)
         pose_bone.color.palette = "THEME10"
-        
 
+    face_root_bones = ["faceAttach", "FACIAL_C_FacialRoot"]
     for pose_bone in pose_bones:
         existing_collections = pose_bone.bone.collections
         if any(existing_collections, lambda col: col.name == "Sockets"):
@@ -551,7 +658,7 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
             
         has_vertex_group = pose_bone.color.palette != "THEME14"
             
-        if "dyn_" in pose_bone.name and "_mstr" not in pose_bone.name:
+        if "dyn_" in pose_bone.name and "_mstr" not in pose_bone.name.casefold():
             dynamic_collection.assign(pose_bone)
 
             pose_bone.custom_shape = bpy.data.objects.get("CTRL_Dynamic")
@@ -576,6 +683,14 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
             pose_bone.use_custom_shape_bone_size = False
             pose_bone.custom_shape_wire_width = 2.5
             
+            continue
+
+        if any(pose_bone.bone.parent_recursive, lambda parent: parent.name.casefold() in [name.casefold() for name in face_root_bones]):
+            face_collection.assign(pose_bone)
+
+            pose_bone.custom_shape = bpy.data.objects.get("CTRL_Face")
+            pose_bone.color.palette = "THEME02"
+            pose_bone.use_custom_shape_bone_size = False
             continue
 
         extra_collection.assign(pose_bone)

@@ -322,6 +322,7 @@ glass_mappings = MappingCollection(
         SlotMapping("Color_DarkTint"),
         SlotMapping("Diffuse", "Color"),
         SlotMapping("Diffuse Texture", "Color"),
+        SlotMapping("Diffuse Texture with Alpha Mask", "Color"),
         SlotMapping("Normals"),
         SlotMapping("BakedNormal", "Normals"),
         SlotMapping("Diffuse Texture with Alpha Mask", "Color", alpha_slot="Mask")

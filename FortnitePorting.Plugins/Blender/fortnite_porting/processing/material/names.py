@@ -39,3 +39,5 @@ emissive_crop_switch_names = [
 texture_ignore_names = ["DefaultTexture"]
 
 vertex_crunch_names = ["MI_VertexCrunch", "M_VertexCrunch"]
+
+glass_master_names = ["M_MED_Glass_Master"]
