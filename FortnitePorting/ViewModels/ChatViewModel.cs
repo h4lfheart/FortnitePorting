@@ -41,6 +41,7 @@ public partial class ChatViewModel : ViewModelBase
     [ObservableProperty] private ObservableCollection<ChatUser> _users = [];
     [ObservableProperty] private ObservableCollection<ChatMessage> _messages = [];
     [ObservableProperty] private ObservableCollection<string> _commands = [];
+    [ObservableProperty] private bool _areServicesDown;
     
     public override async Task Initialize()
     {

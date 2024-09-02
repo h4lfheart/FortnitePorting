@@ -51,7 +51,7 @@ public static class OnlineService
         {
             if (!EstablishedFirstConnection)
                 ViewModelRegistry.New<ChatViewModel>();
-
+            
             Client = new WatsonTcpClient(MultiplayerGlobals.SOCKET_IP, MultiplayerGlobals.SOCKET_PORT);
             Client.Settings.Guid = AppSettings.Current.Online.Identification.Identifier;
             Client.Callbacks.SyncRequestReceivedAsync = SyncRequestReceivedAsync;
@@ -67,13 +67,16 @@ public static class OnlineService
                 DisconnectReason = args.Reason;
             };
             
-            Client.Connect();
-
             TaskService.Run(async () =>
             {
                 while (true)
                 {
                     if (Client is null) break;
+
+                    if (Client.Connected)
+                    {
+                        ChatVM.AreServicesDown = false;
+                    }
                     
                     while (!Client.Connected && AppSettings.Current.Online.UseIntegration && DisconnectReason != DisconnectReason.AuthFailure)
                     {
@@ -84,7 +87,7 @@ public static class OnlineService
                         catch (Exception e)
                         {
                             Log.Error(e.ToString());
-                            // lol
+                            ChatVM.AreServicesDown = true;
                         }
 
                         await Task.Delay(5000);
@@ -121,7 +124,7 @@ public static class OnlineService
                     .With("MessageFetchCount", AppSettings.Current.Online.MessageFetchCount)
                     .With("Version", Globals.VersionString)
                     .Build();
-                var response = new SyncResponse(arg, meta, Array.Empty<byte>());;
+                var response = new SyncResponse(arg, meta, Array.Empty<byte>());
                 EstablishedFirstConnection = true;
                 return response;
             }

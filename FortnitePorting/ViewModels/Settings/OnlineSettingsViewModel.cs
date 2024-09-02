@@ -84,8 +84,8 @@ public partial class OnlineSettingsViewModel : ViewModelBase
          {
             OnlineService.DeInit();
             Auth = auth;
-            await LoadIdentification();
             UseIntegration = true;
+            await LoadIdentification();
             OnlineService.Init();
             AppWM.OnlineAndGameTabsAreVisible = true;
             AppWM.Message("Discord Integration", $"Successfully authenticated user \"{UserName}\" via Discord.", severity: InfoBarSeverity.Success, closeTime: 2.5f);
