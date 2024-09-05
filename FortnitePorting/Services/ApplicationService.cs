@@ -124,6 +124,7 @@ public static class ApplicationService
     public static void OnStartup(object? sender, ControlledApplicationLifetimeStartupEventArgs e)
     {
         ViewModelRegistry.New<APIViewModel>();
+        ViewModelRegistry.New<ChatViewModel>();
         DependencyService.EnsureDependencies();
 
         TaskService.Run(async () => await AppWM.Initialize());

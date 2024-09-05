@@ -99,32 +99,46 @@ public static class TaskService
     
     public static void RunDispatcher(Action function, DispatcherPriority priority = default)
     {
-        Dispatcher.UIThread.Invoke(() =>
+        try
         {
-            try
+            Dispatcher.UIThread.Invoke(() =>
             {
-                function();
-            }
-            catch (Exception e)
-            {
-                Exception?.Invoke(e);
-            }
-        }, priority);
+                try
+                {
+                    function();
+                }
+                catch (Exception e)
+                {
+                    Exception?.Invoke(e);
+                }
+            }, priority);
+        }
+        catch (Exception e)
+        {
+            Exception?.Invoke(e);
+        }
     }
 
     public static async Task RunDispatcherAsync(Action function, DispatcherPriority priority = default)
     {
-        await Dispatcher.UIThread.InvokeAsync(() =>
+        try
         {
-            try
+            await Dispatcher.UIThread.InvokeAsync(() =>
             {
-                function();
-            }
-            catch (Exception e)
-            {
-                Exception?.Invoke(e);
-            }
-        }, priority);
+                try
+                {
+                    function();
+                }
+                catch (Exception e)
+                {
+                    Exception?.Invoke(e);
+                }
+            }, priority);
+        }
+        catch (Exception e)
+        {
+            Exception?.Invoke(e);
+        }
     }
 
     public static void RunAsynchronously(this Task task)

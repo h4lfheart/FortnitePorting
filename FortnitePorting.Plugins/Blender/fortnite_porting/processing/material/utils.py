@@ -44,7 +44,11 @@ def replace_or_add_parameter(list, replace_item):
         list.append(replace_item)
         
 def get_node(shader_node, name):
-    links = shader_node.inputs[name].links
+    input = shader_node.inputs.get(name)
+    if input is None:
+        return None
+        
+    links = input.links
     if links is None or len(links) == 0:
         return None
 

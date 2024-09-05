@@ -23,7 +23,7 @@ public class Identification : IDualSerialize
         _ => !string.IsNullOrWhiteSpace(AvatarId) ? $"https://cdn.discordapp.com/avatars/{Id}/{AvatarId}.png?size=128" : "https://fortniteporting.halfheart.dev/sockets/default.png"
     };
 
-    public string Version;
+    public string? Version;
 
     public static Identification System = new()
     {
@@ -47,11 +47,11 @@ public class Identification : IDualSerialize
     public void Serialize(BinaryWriter writer)
     {
         writer.Write((int) RoleType);
-        writer.Write(Id);
-        writer.Write(AvatarId);
-        writer.Write(UserName);
-        writer.Write(GlobalName);
-        writer.Write(Version);
+        writer.Write(Id ?? string.Empty);
+        writer.Write(AvatarId ?? string.Empty);
+        writer.Write(UserName ?? string.Empty);
+        writer.Write(GlobalName ?? string.Empty);
+        writer.Write(Version ?? string.Empty);
     }
 
     public void Deserialize(BinaryReader reader)

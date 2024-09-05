@@ -17,7 +17,6 @@ public enum EPacketType
     Reaction,
     OnlineUsers,
     Export,
-    
-    // Owner
     SetRole,
+    MessageHistory
 }

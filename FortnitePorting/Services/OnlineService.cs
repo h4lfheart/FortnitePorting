@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -49,9 +50,6 @@ public static class OnlineService
     {
         try
         {
-            if (!EstablishedFirstConnection)
-                ViewModelRegistry.New<ChatViewModel>();
-            
             Client = new WatsonTcpClient(MultiplayerGlobals.SOCKET_IP, MultiplayerGlobals.SOCKET_PORT);
             Client.Settings.Guid = AppSettings.Current.Online.Identification.Identifier;
             Client.Callbacks.SyncRequestReceivedAsync = SyncRequestReceivedAsync;
@@ -71,28 +69,38 @@ public static class OnlineService
             {
                 while (true)
                 {
-                    if (Client is null) break;
-
-                    if (Client.Connected)
+                    try
                     {
-                        ChatVM.AreServicesDown = false;
+                        if (Client is null) break;
+
+                        if (Client.Connected)
+                        {
+                            ChatVM.AreServicesDown = false;
+                        }
+
+                        while (!Client.Connected && AppSettings.Current.Online.UseIntegration &&
+                               DisconnectReason != DisconnectReason.AuthFailure)
+                        {
+                            try
+                            {
+                                Client.Connect();
+                            }
+                            catch (Exception e)
+                            {
+                                Log.Error(e.ToString());
+                                ChatVM.AreServicesDown = true;
+                            }
+
+                            await Task.Delay(5000);
+                        }
                     }
-                    
-                    while (!Client.Connected && AppSettings.Current.Online.UseIntegration && DisconnectReason != DisconnectReason.AuthFailure)
+                    catch (Exception e)
                     {
-                        try
-                        {
-                            Client.Connect();
-                        }
-                        catch (Exception e)
-                        {
-                            Log.Error(e.ToString());
-                            ChatVM.AreServicesDown = true;
-                        }
-
-                        await Task.Delay(5000);
+                        Log.Error(e.ToString());
                     }
                 }
+                
+                Log.Error("quit the connect sequence");
             });
         }
         catch (Exception e)
@@ -308,6 +316,63 @@ public static class OnlineService
                     await dialog.ShowAsync();
                 });
 
+                break;
+            }
+            case EPacketType.MessageHistory:
+            {
+                var messageHistory = e.Data.ReadPacket<MessageHistoryPacket>();
+
+                var messages = new List<ChatMessage>();
+                for (var index = 0; index < messageHistory.Packets.Count; index++)
+                {
+                    var messagePacket = messageHistory.Packets[index];
+                    
+                    Bitmap? bitmap = null;
+                    if (messagePacket.HasAttachmentData)
+                    {
+                        try
+                        {
+                            var stream = new MemoryStream(messagePacket.AttachmentData);
+                            bitmap = new Bitmap(stream);
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Error(ex.ToString());
+                            continue;
+                        }
+                    }
+
+                    var messageUser = GetArgument<Identification>("User")!;
+                    messages.InsertSorted(new ChatMessage
+                    {
+                        User = new ChatUser
+                        {
+                            DisplayName = messageUser.DisplayName,
+                            UserName = messageUser.UserName,
+                            ProfilePictureURL = messageUser.AvatarURL,
+                            Id = messageUser.Id,
+                            Role = messageUser.RoleType,
+                            Version = messageUser.Version
+                        },
+                        Text = messagePacket.Message,
+                        Id = GetArgument<Guid>("ID"),
+                        Timestamp = GetArgument<DateTime>("Timestamp").ToLocalTime(),
+                        Bitmap = bitmap,
+                        BitmapName = messagePacket.AttachmentName,
+                        ReactionCount = GetArgument<int>("Reactions"),
+                        ReactedTo = GetArgument<bool>("HasReacted"),
+                    }, SortExpressionComparer<ChatMessage>.Descending(message => message.Timestamp));
+                    continue;
+
+                    T? GetArgument<T>(string name)
+                    {
+                        var meta = messageHistory.Metas[index].Build();
+                        return (T?) meta!.GetValueOrDefault(name, null);
+                    }
+                }
+
+                ChatVM.Messages = [..messages];
+                
                 break;
             }
             default:

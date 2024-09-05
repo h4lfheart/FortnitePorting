@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -30,7 +31,7 @@ namespace FortnitePorting.ViewModels;
 
 public partial class ChatViewModel : ViewModelBase
 {
-    [ObservableProperty] private ScrollViewer _scroll;
+    [ObservableProperty] private ScrollViewer? _scroll;
     [ObservableProperty] private TeachingTip _imageFlyout;
 
     [ObservableProperty] private EPermissions _permissions;
@@ -75,11 +76,23 @@ public partial class ChatViewModel : ViewModelBase
     public async Task ClipboardPaste()
     {
         if (await AvaloniaClipboard.GetImageAsync() is not { } image) return;
-        
         SelectedImageName = "image.png";
         SelectedImage = image;
         ImageFlyout.IsOpen = true;
     }
 
+    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+    {
+        base.OnPropertyChanged(e);
+
+        switch (e.PropertyName)
+        {
+            case nameof(Messages) when Scroll is not null:
+            {
+                TaskService.RunDispatcher(Scroll.ScrollToEnd);
+                break;
+            }
+        }
+    }
 }
 

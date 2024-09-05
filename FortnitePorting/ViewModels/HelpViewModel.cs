@@ -17,7 +17,6 @@ using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
-using Microsoft.VisualBasic.Logging;
 using RestSharp;
 using Log = Serilog.Log;
 
