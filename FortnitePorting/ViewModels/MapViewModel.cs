@@ -113,7 +113,7 @@ public partial class MapViewModel : ViewModelBase
 
         if (Maps.Count == 0)
         {
-            AppWM.Dialog("Unsupported Maps", "Failed to find any supported maps for processing.");
+            AppWM.Dialog("No Supported Maps", "Failed to find any supported maps for processing.");
         }
 
         foreach (var map in Maps)
@@ -188,15 +188,18 @@ public partial class WorldPartitionMap : ObservableObject
                     var levelStreaming = gridCell.GetOrDefault<UObject?>("LevelStreaming");
                     if (levelStreaming is null) continue;
 
-
                     var position = FVector.ZeroVector;
                     var runtimeCellData = gridCell.Get<UObject>("RuntimeCellData");
                     var boundsProperty = runtimeCellData.GetOrDefault<StructProperty?>("CellBounds");
-                    if (boundsProperty is not null)
+                    if (boundsProperty?.GetValue<FBox>() is { } bounds)
                     {
-                        var bounds = boundsProperty.GetValue<FBox>();
                         position = bounds.GetCenter();
+
+                        // please don't break other maps
+                        position.X -= position.X % 12800;
+                        position.Y -= position.Y % 12800;
                     }
+
                 
                     var worldAsset = levelStreaming.Get<FSoftObjectPath>("WorldAsset");
                     if (Grids.FirstOrDefault(grid => grid.OriginalPosition == position) is { } targetGrid)

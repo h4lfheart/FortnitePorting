@@ -95,7 +95,7 @@
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItem Content="Export" Tag="ExportSettings">
                      <ui:NavigationViewItem.IconSource>
-                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry Download}"/>
+                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry FileCog}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItem Content="Plugin" Tag="Plugin">

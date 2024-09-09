@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.Texture;
@@ -19,17 +20,17 @@ public record ExportMaterial : ParameterCollection
 {
     public string Name = string.Empty;
     public string Path = string.Empty;
-    public string BaseMaterialPath => BaseMaterial.GetPathName();
+    public string BaseMaterialPath => BaseMaterial?.GetPathName() ?? string.Empty;
     public int Slot;
     public int Hash;
 
     public string PhysMaterialName;
     public EBlendMode OverrideBlendMode;
-    public EBlendMode BaseBlendMode => BaseMaterial.BlendMode;
-    public ETranslucencyLightingMode TranslucencyLightingMode => BaseMaterial.TranslucencyLightingMode;
-    public EMaterialShadingModel ShadingModel => BaseMaterial.ShadingModel;
+    public EBlendMode BaseBlendMode => BaseMaterial?.BlendMode ?? EBlendMode.BLEND_Opaque;
+    public ETranslucencyLightingMode TranslucencyLightingMode => BaseMaterial?.TranslucencyLightingMode ?? ETranslucencyLightingMode.TLM_VolumetricDirectional;
+    public EMaterialShadingModel ShadingModel => BaseMaterial?.ShadingModel ?? EMaterialShadingModel.MSM_DefaultLit;
 
-    [JsonIgnore] public UMaterial BaseMaterial;
+    [JsonIgnore] public UMaterial? BaseMaterial;
 }
 
 public record ExportOverrideMaterial

@@ -476,7 +476,7 @@ public class ExportContext
                     
                     exportMesh.Location = transform.Translation;
                     exportMesh.Rotation = transform.Rotator();
-                    exportMesh.Scale = FVector.OneVector + transform.Scale3D;
+                    exportMesh.Scale = transform.Scale3D;
 
                     meshes.Add(exportMesh);
                 }
@@ -1032,6 +1032,7 @@ public class ExportContext
         var shouldExport = asset switch
         {
             UTexture texture => IsTextureHigherResolutionThanExisting(texture, path),
+            ALandscapeProxy => true,
             _ => !File.Exists(path)
         };
 
