@@ -23,6 +23,10 @@ def ensure_blend_data():
             if not bpy.data.objects.get(obj):
                 data_to.objects.append(obj)
 
+        for font in data_from.fonts:
+            if not bpy.data.fonts.get(font):
+                data_to.fonts.append(font)
+
 def hash_code(num):
     return hex(abs(num))[2:]
 

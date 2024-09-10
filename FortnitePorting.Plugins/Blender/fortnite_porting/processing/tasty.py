@@ -14,6 +14,32 @@ class Lazy:
         except Exception as e:
             return None
 
+class DriverVariable:
+
+    def __init__(self, name, type, target, path):
+        self.name = name
+        self.type = type
+        self.target = target
+        self.path = path
+        
+class DriverBuilder:
+    def __init__(self, expression: str, variables: list[DriverVariable]):
+        self.expression = expression
+        self.variables = variables
+        
+    def add_to(self, target_object, property_name: str):
+        driver = target_object.driver_add(property_name).driver
+        driver.expression = self.expression
+        
+        for variable in self.variables:
+            new_var = driver.variables.new()
+            new_var.name = variable.name
+            new_var.type = variable.type
+            
+            target = new_var.targets[0]
+            target.id = variable.target.id_data
+            target.data_path = variable.path
+
 class TastyRigOptions:
     def __init__(self, scale: float = 0.01, master_skeleton=None):
         self.scale = scale
@@ -32,7 +58,7 @@ class CustomShape:
         self.collection = collection
 
 class IKBone:
-    def __init__(self, bone_name, target_name, pole_name, chain_length, pole_angle=180, use_rotation=False, lock_axes=None):
+    def __init__(self, bone_name, target_name, pole_name, chain_length, pole_angle=180, use_rotation=False, lock_axes=None, limit_axes=None, driver=None, name=None):
         self.bone_name = bone_name
         self.target_name = target_name
         self.pole_name = pole_name
@@ -40,9 +66,16 @@ class IKBone:
         self.pole_angle = pole_angle
         self.use_rotation = use_rotation
         self.lock_axes = lock_axes or []
+        self.limit_axes = limit_axes or {}
+        self.driver = driver
+        self.name = name or "IK"
         
+        
+TOGGLE_ON = 0.1
+TOGGLE_OFF = 0.0
         
 def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
+    target_skeleton["is_tasty"] = True
     armature_data = target_skeleton.data
     is_metahuman = any(armature_data.bones, lambda bone: bone.name == "FACIAL_C_FacialRoot")
 
@@ -79,6 +112,21 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
         target_skeleton.select_set(True)
         master_skeletal_mesh.select_set(True)
         bpy.ops.object.join()
+        
+    if tasty_options_obj := bpy.data.objects.get("Tasty_Options"):
+        bpy.context.collection.objects.link(tasty_options_obj)
+
+        bpy.context.view_layer.objects.active = target_skeleton
+        target_skeleton.select_set(True)
+        tasty_options_obj.select_set(True)
+        bpy.ops.object.join()
+        
+        if ik_finger_toggle := target_skeleton.pose.bones.get("finger_toggle"):
+            ik_finger_toggle.location[0] = TOGGLE_OFF
+
+        if world_space_pole_toggle := target_skeleton.pose.bones.get("pole_toggle"):
+            world_space_pole_toggle.location[0] = TOGGLE_ON
+        
     
     # bone creation and modification
     bpy.ops.object.mode_set(mode='EDIT')
@@ -102,6 +150,18 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
         ("ik_finger_pole_middle_l", "middle_02_l", "ik_hand_target_l"),
         ("ik_finger_pole_ring_l", "ring_02_l", "ik_hand_target_l"),
         ("ik_finger_pole_pinky_l", "pinky_02_l", "ik_hand_target_l"),
+
+        ("thumb_control_r", "thumb_02_r", "thumb_01_r"),
+        ("index_control_r", "index_01_r", "index_metacarpal_r"),
+        ("middle_control_r", "middle_01_r", "middle_metacarpal_r"),
+        ("ring_control_r", "ring_01_r", "ring_metacarpal_r"),
+        ("pinky_control_r", "pinky_01_r", "pinky_metacarpal_r"),
+
+        ("thumb_control_l", "thumb_02_l", "thumb_01_l"),
+        ("index_control_l", "index_01_l", "index_metacarpal_l"),
+        ("middle_control_l", "middle_01_l", "middle_metacarpal_l"),
+        ("ring_control_l", "ring_01_l", "ring_metacarpal_l"),
+        ("pinky_control_l", "pinky_01_l", "pinky_metacarpal_l"),
     ]
             
 
@@ -121,10 +181,10 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
 
     # new name, parent name, (head, tail, roll)
     new_bones = [
-        ("ik_foot_pole_r", "ik_foot_r", Lazy(lambda: (edit_bones["calf_r"].head + Vector((-0.05, -0.75, 0)), edit_bones["calf_r"].head + Vector((-0.05, -0.7, 0)), 0))),
-        ("ik_foot_pole_l", "ik_foot_l", Lazy(lambda: (edit_bones["calf_l"].head + Vector((0.05, -0.75, 0)), edit_bones["calf_l"].head + Vector((0.05, -0.7, 0)), 0))),
-        ("ik_hand_pole_r", "ik_hand_r", Lazy(lambda: (edit_bones["lowerarm_r"].head + Vector((0, 0.75, 0)), edit_bones["lowerarm_r"].head + Vector((0, 0.7, 0)), 0))),
-        ("ik_hand_pole_l", "ik_hand_l", Lazy(lambda: (edit_bones["lowerarm_l"].head + Vector((0, 0.75, 0)), edit_bones["lowerarm_l"].head + Vector((0, 0.7, 0)), 0))),
+        ("ik_foot_pole_r", "ik_foot_root", Lazy(lambda: (edit_bones["calf_r"].head + Vector((-0.05, -0.75, 0)), edit_bones["calf_r"].head + Vector((-0.05, -0.7, 0)), 0))),
+        ("ik_foot_pole_l", "ik_foot_root", Lazy(lambda: (edit_bones["calf_l"].head + Vector((0.05, -0.75, 0)), edit_bones["calf_l"].head + Vector((0.05, -0.7, 0)), 0))),
+        ("ik_hand_pole_r", "ik_hand_root", Lazy(lambda: (edit_bones["lowerarm_r"].head + Vector((0, 0.75, 0)), edit_bones["lowerarm_r"].head + Vector((0, 0.7, 0)), 0))),
+        ("ik_hand_pole_l", "ik_hand_root", Lazy(lambda: (edit_bones["lowerarm_l"].head + Vector((0, 0.75, 0)), edit_bones["lowerarm_l"].head + Vector((0, 0.7, 0)), 0))),
 
         ("ik_foot_ctrl_r", "ik_foot_r", Lazy(lambda: (edit_bones["ball_r"].head + Vector((0, 0.2, 0)), edit_bones["ball_r"].tail + Vector((0, 0.2, 0)), edit_bones["ball_r"].roll))),
         ("ik_foot_roll_inner_r", "ik_foot_r", Lazy(lambda: (Vector((edit_bones["ball_r"].head.x + 0.04, edit_bones["ball_r"].head.y, 0)), Vector((edit_bones["ball_r"].tail.x + 0.04, edit_bones["ball_r"].tail.y, 0)), edit_bones["ball_r"].roll))),
@@ -142,17 +202,17 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
         ("ik_foot_target_l", "ik_foot_roll_back_l", Lazy(lambda: (edit_bones["ik_foot_l"].head, edit_bones["ik_foot_l"].tail, edit_bones["ik_foot_l"].roll))),
         ("ik_foot_rot_ctrl_l", "ik_foot_target_l", Lazy(lambda: (edit_bones["foot_l"].head, edit_bones["foot_l"].tail, edit_bones["foot_l"].roll))),
 
-        ("ik_finger_thumb_r", "ik_hand_target_r", Lazy(lambda: (edit_bones["thumb_03_r"].tail, 2 * edit_bones["thumb_03_r"].tail - edit_bones["thumb_03_r"].head, edit_bones["thumb_03_r"].roll))),
-        ("ik_finger_index_r", "ik_hand_target_r", Lazy(lambda: (edit_bones["index_03_r"].tail, 2 * edit_bones["index_03_r"].tail - edit_bones["index_03_r"].head, edit_bones["index_03_r"].roll))),
-        ("ik_finger_middle_r", "ik_hand_target_r", Lazy(lambda: (edit_bones["middle_03_r"].tail, 2 * edit_bones["middle_03_r"].tail - edit_bones["middle_03_r"].head, edit_bones["middle_03_r"].roll))),
-        ("ik_finger_ring_r", "ik_hand_target_r", Lazy(lambda: (edit_bones["ring_03_r"].tail, 2 * edit_bones["ring_03_r"].tail - edit_bones["ring_03_r"].head, edit_bones["ring_03_r"].roll))),
-        ("ik_finger_pinky_r", "ik_hand_target_r", Lazy(lambda: (edit_bones["pinky_03_r"].tail, 2 * edit_bones["pinky_03_r"].tail - edit_bones["pinky_03_r"].head, edit_bones["pinky_03_r"].roll))),
+        ("ik_finger_thumb_r", "ik_hand_parent_r", Lazy(lambda: (edit_bones["thumb_03_r"].tail, 2 * edit_bones["thumb_03_r"].tail - edit_bones["thumb_03_r"].head, edit_bones["thumb_03_r"].roll))),
+        ("ik_finger_index_r", "ik_hand_parent_r", Lazy(lambda: (edit_bones["index_03_r"].tail, 2 * edit_bones["index_03_r"].tail - edit_bones["index_03_r"].head, edit_bones["index_03_r"].roll))),
+        ("ik_finger_middle_r", "ik_hand_parent_r", Lazy(lambda: (edit_bones["middle_03_r"].tail, 2 * edit_bones["middle_03_r"].tail - edit_bones["middle_03_r"].head, edit_bones["middle_03_r"].roll))),
+        ("ik_finger_ring_r", "ik_hand_parent_r", Lazy(lambda: (edit_bones["ring_03_r"].tail, 2 * edit_bones["ring_03_r"].tail - edit_bones["ring_03_r"].head, edit_bones["ring_03_r"].roll))),
+        ("ik_finger_pinky_r", "ik_hand_parent_r", Lazy(lambda: (edit_bones["pinky_03_r"].tail, 2 * edit_bones["pinky_03_r"].tail - edit_bones["pinky_03_r"].head, edit_bones["pinky_03_r"].roll))),
         
-        ("ik_finger_thumb_l", "ik_hand_target_l", Lazy(lambda: (edit_bones["thumb_03_l"].tail, 2 * edit_bones["thumb_03_l"].tail - edit_bones["thumb_03_l"].head, edit_bones["thumb_03_l"].roll))),
-        ("ik_finger_index_l", "ik_hand_target_l", Lazy(lambda: (edit_bones["index_03_l"].tail, 2 * edit_bones["index_03_l"].tail - edit_bones["index_03_l"].head, edit_bones["index_03_l"].roll))),
-        ("ik_finger_middle_l", "ik_hand_target_l", Lazy(lambda: (edit_bones["middle_03_l"].tail, 2 * edit_bones["middle_03_l"].tail - edit_bones["middle_03_l"].head, edit_bones["middle_03_l"].roll))),
-        ("ik_finger_ring_l", "ik_hand_target_l", Lazy(lambda: (edit_bones["ring_03_l"].tail, 2 * edit_bones["ring_03_l"].tail - edit_bones["ring_03_l"].head, edit_bones["ring_03_l"].roll))),
-        ("ik_finger_pinky_l", "ik_hand_target_l", Lazy(lambda: (edit_bones["pinky_03_l"].tail, 2 * edit_bones["pinky_03_l"].tail - edit_bones["pinky_03_l"].head, edit_bones["pinky_03_l"].roll))),
+        ("ik_finger_thumb_l", "ik_hand_parent_l", Lazy(lambda: (edit_bones["thumb_03_l"].tail, 2 * edit_bones["thumb_03_l"].tail - edit_bones["thumb_03_l"].head, edit_bones["thumb_03_l"].roll))),
+        ("ik_finger_index_l", "ik_hand_parent_l", Lazy(lambda: (edit_bones["index_03_l"].tail, 2 * edit_bones["index_03_l"].tail - edit_bones["index_03_l"].head, edit_bones["index_03_l"].roll))),
+        ("ik_finger_middle_l", "ik_hand_parent_l", Lazy(lambda: (edit_bones["middle_03_l"].tail, 2 * edit_bones["middle_03_l"].tail - edit_bones["middle_03_l"].head, edit_bones["middle_03_l"].roll))),
+        ("ik_finger_ring_l", "ik_hand_parent_l", Lazy(lambda: (edit_bones["ring_03_l"].tail, 2 * edit_bones["ring_03_l"].tail - edit_bones["ring_03_l"].head, edit_bones["ring_03_l"].roll))),
+        ("ik_finger_pinky_l", "ik_hand_parent_l", Lazy(lambda: (edit_bones["pinky_03_l"].tail, 2 * edit_bones["pinky_03_l"].tail - edit_bones["pinky_03_l"].head, edit_bones["pinky_03_l"].roll))),
 
         ("eye_control_r", "head", Lazy(lambda: (edit_bones[r_eye_name].head - Vector((0, 0.325, 0)), edit_bones[r_eye_name].head - Vector((0, 0.35, 0)), edit_bones[r_eye_name].roll))),
         ("eye_control_l", "head", Lazy(lambda: (edit_bones[l_eye_name].head - Vector((0, 0.325, 0)), edit_bones[l_eye_name].head - Vector((0, 0.35, 0)), edit_bones[l_eye_name].roll))),
@@ -236,6 +296,18 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
         ("ik_finger_pole_middle_l", Vector((0.05, 0.0, 0.0))),
         ("ik_finger_pole_ring_l", Vector((0.05, 0.0, 0.0))),
         ("ik_finger_pole_pinky_l", Vector((0.05, 0.0, 0.0))),
+
+        ("thumb_control_r", Vector((0.025, 0.0, 0.0))),
+        ("index_control_r", Vector((0.025, 0.0, 0.0))),
+        ("middle_control_r", Vector((0.025, 0.0, 0.0))),
+        ("ring_control_r", Vector((0.025, 0.0, 0.0))),
+        ("pinky_control_r", Vector((0.025, 0.0, 0.0))),
+
+        ("thumb_control_l", Vector((0.025, 0.0, 0.0))),
+        ("index_control_l", Vector((0.025, 0.0, 0.0))),
+        ("middle_control_l", Vector((0.025, 0.0, 0.0))),
+        ("ring_control_l", Vector((0.025, 0.0, 0.0))),
+        ("pinky_control_l", Vector((0.025, 0.0, 0.0))),
     ]
 
     for name, transform in transform_adjustment_bones:
@@ -342,31 +414,54 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
 
     add_foot_ik_constraints("r")
     add_foot_ik_constraints("l")
+
+
+    use_pole_driver = DriverBuilder("loc > 0.05", [
+        DriverVariable("loc", "SINGLE_PROP", target_skeleton, 'pose.bones["pole_toggle"].location[0]')
+    ])
+
+    dont_use_pole_driver = DriverBuilder("loc < 0.05", [
+        DriverVariable("loc", "SINGLE_PROP", target_skeleton, 'pose.bones["pole_toggle"].location[0]')
+    ])
+
+    use_ik_finger_driver = DriverBuilder("loc > 0.05", [
+        DriverVariable("loc", "SINGLE_PROP", target_skeleton, 'pose.bones["finger_toggle"].location[0]')
+    ])
+
+    dont_use_ik_finger_driver = DriverBuilder("loc < 0.05", [
+        DriverVariable("loc", "SINGLE_PROP", target_skeleton, 'pose.bones["finger_toggle"].location[0]')
+    ])
     
     # bone name, target name, chain count, use rotation, lock axes
     ik_bones = [
-        IKBone("lowerarm_r", "ik_hand_r", "ik_hand_pole_r", 2),
-        IKBone("lowerarm_l", "ik_hand_l", "ik_hand_pole_l", 2),
-        IKBone("calf_r", "ik_foot_target_r", "ik_foot_pole_r", 2, lock_axes=["X"]),
-        IKBone("calf_l", "ik_foot_target_l", "ik_foot_pole_l", 2, lock_axes=["X"]),
+        IKBone("lowerarm_r", "ik_hand_target_r", "ik_hand_pole_r", 2, name="IK w/ Pole", lock_axes=["X"], limit_axes={"Y": [-45, 45], "Z": [-120, 30]}, driver=use_pole_driver),
+        IKBone("lowerarm_l", "ik_hand_target_l", "ik_hand_pole_l", 2, name="IK w/ Pole", lock_axes=["X"], limit_axes={"Y": [-45, 45], "Z": [-120, 30]}, driver=use_pole_driver),
+        IKBone("calf_r", "ik_foot_target_r", "ik_foot_pole_r", 2, name="IK w/ Pole", lock_axes=["X"], limit_axes={"Y": [-15, 15], "Z": [-135, 5]}, driver=use_pole_driver),
+        IKBone("calf_l", "ik_foot_target_l", "ik_foot_pole_l", 2, name="IK w/ Pole", lock_axes=["X"], limit_axes={"Y": [-15, 15], "Z": [-135, 5]}, driver=use_pole_driver),
         
-        IKBone("thumb_03_r", "ik_finger_thumb_r", "ik_finger_pole_thumb_r", 2, pole_angle=0),
-        IKBone("index_03_r", "ik_finger_index_r", "ik_finger_pole_index_r", 3, pole_angle=0),
-        IKBone("middle_03_r", "ik_finger_middle_r", "ik_finger_pole_middle_r", 3, pole_angle=0),
-        IKBone("ring_03_r", "ik_finger_ring_r", "ik_finger_pole_ring_r", 3, pole_angle=0),
-        IKBone("pinky_03_r", "ik_finger_pinky_r", "ik_finger_pole_pinky_r", 3, pole_angle=0),
+        IKBone("lowerarm_r", "ik_hand_target_r", None, 2, name="IK w/o Pole", lock_axes=["X"], limit_axes={"Y": [-45, 45], "Z": [-120, 30]}, driver=dont_use_pole_driver),
+        IKBone("lowerarm_l", "ik_hand_target_l", None, 2, name="IK w/o Pole", lock_axes=["X"], limit_axes={"Y": [-45, 45], "Z": [-120, 30]}, driver=dont_use_pole_driver),
+        IKBone("calf_r", "ik_foot_target_r", None, 2, name="IK w/o Pole", lock_axes=["X"], limit_axes={"Y": [-15, 15], "Z": [-135, 5]}, driver=dont_use_pole_driver),
+        IKBone("calf_l", "ik_foot_target_l", None, 2, name="IK w/o Pole", lock_axes=["X"], limit_axes={"Y": [-15, 15], "Z": [-135, 5]}, driver=dont_use_pole_driver),
         
-        IKBone("thumb_03_l", "ik_finger_thumb_l", "ik_finger_pole_thumb_l", 2, pole_angle=0),
-        IKBone("index_03_l", "ik_finger_index_l", "ik_finger_pole_index_l", 3, pole_angle=0),
-        IKBone("middle_03_l", "ik_finger_middle_l", "ik_finger_pole_middle_l", 3, pole_angle=0),
-        IKBone("ring_03_l", "ik_finger_ring_l", "ik_finger_pole_ring_l", 3, pole_angle=0),
-        IKBone("pinky_03_l", "ik_finger_pinky_l", "ik_finger_pole_pinky_l", 3, pole_angle=0),
+        IKBone("thumb_03_r", "ik_finger_thumb_r", "ik_finger_pole_thumb_r", 2, pole_angle=0, driver=use_ik_finger_driver),
+        IKBone("index_03_r", "ik_finger_index_r", "ik_finger_pole_index_r", 3, pole_angle=0, driver=use_ik_finger_driver),
+        IKBone("middle_03_r", "ik_finger_middle_r", "ik_finger_pole_middle_r", 3, pole_angle=0, driver=use_ik_finger_driver),
+        IKBone("ring_03_r", "ik_finger_ring_r", "ik_finger_pole_ring_r", 3, pole_angle=0, driver=use_ik_finger_driver),
+        IKBone("pinky_03_r", "ik_finger_pinky_r", "ik_finger_pole_pinky_r", 3, pole_angle=0, driver=use_ik_finger_driver),
+        
+        IKBone("thumb_03_l", "ik_finger_thumb_l", "ik_finger_pole_thumb_l", 2, pole_angle=0, driver=use_ik_finger_driver),
+        IKBone("index_03_l", "ik_finger_index_l", "ik_finger_pole_index_l", 3, pole_angle=0, driver=use_ik_finger_driver),
+        IKBone("middle_03_l", "ik_finger_middle_l", "ik_finger_pole_middle_l", 3, pole_angle=0, driver=use_ik_finger_driver),
+        IKBone("ring_03_l", "ik_finger_ring_l", "ik_finger_pole_ring_l", 3, pole_angle=0, driver=use_ik_finger_driver),
+        IKBone("pinky_03_l", "ik_finger_pinky_l", "ik_finger_pole_pinky_l", 3, pole_angle=0, driver=use_ik_finger_driver),
     ]
 
     for ik_bone in ik_bones:
         if not (bone := pose_bones.get(ik_bone.bone_name)): continue
 
         constraint = bone.constraints.new("IK")
+        constraint.name = ik_bone.name
         constraint.target = target_skeleton
         constraint.subtarget = ik_bone.target_name
         constraint.chain_count = ik_bone.chain_length
@@ -380,25 +475,62 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
         for axis in ik_bone.lock_axes:
             setattr(bone, f"lock_ik_{axis.lower()}", True)
 
+        for axis, values in ik_bone.limit_axes.items():
+            setattr(bone, f"ik_min_{axis.lower()}", values[0])
+            setattr(bone, f"ik_max_{axis.lower()}", values[1])
+            
+        if ik_bone.driver:
+            ik_bone.driver.add_to(constraint, "influence")
+
     # bone name, target name, target space, owner space, mix, weight
     copy_rotation_bones = [
-        ("hand_r", "ik_hand_parent_r", "POSE", "POSE", "REPLACE", 1.0),
-        ("hand_l", "ik_hand_parent_l", "POSE", "POSE", "REPLACE", 1.0),
-        ("foot_r", "ik_foot_rot_ctrl_r", "POSE", "POSE", "REPLACE", 1.0),
-        ("foot_l", "ik_foot_rot_ctrl_l", "POSE", "POSE", "REPLACE", 1.0),
+        ("hand_r", "ik_hand_parent_r", "POSE", "POSE", "REPLACE", 1.0, None),
+        ("hand_l", "ik_hand_parent_l", "POSE", "POSE", "REPLACE", 1.0, None),
+        ("foot_r", "ik_foot_rot_ctrl_r", "POSE", "POSE", "REPLACE", 1.0, None),
+        ("foot_l", "ik_foot_rot_ctrl_l", "POSE", "POSE", "REPLACE", 1.0, None),
 
-        ("R_eye_lid_upper_mid", "R_eye", "LOCAL_OWNER_ORIENT", "LOCAL_WITH_PARENT", "REPLACE", 0.25),
-        ("R_eye_lid_lower_mid", "R_eye", "LOCAL_OWNER_ORIENT", "LOCAL_WITH_PARENT", "REPLACE", 0.25),
-        ("L_eye_lid_upper_mid", "L_eye", "LOCAL_OWNER_ORIENT", "LOCAL_WITH_PARENT", "REPLACE", 0.25),
-        ("L_eye_lid_lower_mid", "L_eye", "LOCAL_OWNER_ORIENT", "LOCAL_WITH_PARENT", "REPLACE", 0.25),
+        ("R_eye_lid_upper_mid", "R_eye", "LOCAL_OWNER_ORIENT", "LOCAL_WITH_PARENT", "REPLACE", 0.25, None),
+        ("R_eye_lid_lower_mid", "R_eye", "LOCAL_OWNER_ORIENT", "LOCAL_WITH_PARENT", "REPLACE", 0.25, None),
+        ("L_eye_lid_upper_mid", "L_eye", "LOCAL_OWNER_ORIENT", "LOCAL_WITH_PARENT", "REPLACE", 0.25, None),
+        ("L_eye_lid_lower_mid", "L_eye", "LOCAL_OWNER_ORIENT", "LOCAL_WITH_PARENT", "REPLACE", 0.25, None),
 
-        ("FACIAL_R_EyelidUpperA", "FACIAL_R_Eye", "LOCAL_OWNER_ORIENT", "LOCAL_WITH_PARENT", "REPLACE", 0.25),
-        ("FACIAL_R_EyelidLowerA", "FACIAL_R_Eye", "LOCAL_OWNER_ORIENT", "LOCAL_WITH_PARENT", "REPLACE", 0.25),
-        ("FACIAL_L_EyelidUpperA", "FACIAL_L_Eye", "LOCAL_OWNER_ORIENT", "LOCAL_WITH_PARENT", "REPLACE", 0.25),
-        ("FACIAL_L_EyelidLowerA", "FACIAL_L_Eye", "LOCAL_OWNER_ORIENT", "LOCAL_WITH_PARENT", "REPLACE", 0.25),
+        ("FACIAL_R_EyelidUpperA", "FACIAL_R_Eye", "LOCAL_OWNER_ORIENT", "LOCAL_WITH_PARENT", "REPLACE", 0.25, None),
+        ("FACIAL_R_EyelidLowerA", "FACIAL_R_Eye", "LOCAL_OWNER_ORIENT", "LOCAL_WITH_PARENT", "REPLACE", 0.25, None),
+        ("FACIAL_L_EyelidUpperA", "FACIAL_L_Eye", "LOCAL_OWNER_ORIENT", "LOCAL_WITH_PARENT", "REPLACE", 0.25, None),
+        ("FACIAL_L_EyelidLowerA", "FACIAL_L_Eye", "LOCAL_OWNER_ORIENT", "LOCAL_WITH_PARENT", "REPLACE", 0.25, None),
+
+        ("thumb_02_r", "thumb_control_r", "LOCAL", "LOCAL", "ADD", 1.0, dont_use_ik_finger_driver),
+        ("thumb_03_r", "thumb_control_r", "LOCAL", "LOCAL", "ADD", 1.0, dont_use_ik_finger_driver),
+        ("index_01_r", "index_control_r", "LOCAL", "LOCAL", "ADD", 1.0, dont_use_ik_finger_driver),
+        ("index_02_r", "index_control_r", "LOCAL", "LOCAL", "ADD", 1.0, dont_use_ik_finger_driver),
+        ("index_03_r", "index_control_r", "LOCAL", "LOCAL", "ADD", 1.0, dont_use_ik_finger_driver),
+        ("middle_01_r", "middle_control_r", "LOCAL", "LOCAL", "ADD", 1.0, dont_use_ik_finger_driver),
+        ("middle_02_r", "middle_control_r", "LOCAL", "LOCAL", "ADD", 1.0, dont_use_ik_finger_driver),
+        ("middle_03_r", "middle_control_r", "LOCAL", "LOCAL", "ADD", 1.0, dont_use_ik_finger_driver),
+        ("ring_01_r", "ring_control_r", "LOCAL", "LOCAL", "ADD", 1.0, dont_use_ik_finger_driver),
+        ("ring_02_r", "ring_control_r", "LOCAL", "LOCAL", "ADD", 1.0, dont_use_ik_finger_driver),
+        ("ring_03_r", "ring_control_r", "LOCAL", "LOCAL", "ADD", 1.0, dont_use_ik_finger_driver),
+        ("pinky_01_r", "pinky_control_r", "LOCAL", "LOCAL", "ADD", 1.0, dont_use_ik_finger_driver),
+        ("pinky_02_r", "pinky_control_r", "LOCAL", "LOCAL", "ADD", 1.0, dont_use_ik_finger_driver),
+        ("pinky_03_r", "pinky_control_r", "LOCAL", "LOCAL", "ADD", 1.0, dont_use_ik_finger_driver),
+
+        ("thumb_02_l", "thumb_control_l", "LOCAL", "LOCAL", "ADD", 1.0, dont_use_ik_finger_driver),
+        ("thumb_03_l", "thumb_control_l", "LOCAL", "LOCAL", "ADD", 1.0, dont_use_ik_finger_driver),
+        ("index_01_l", "index_control_l", "LOCAL", "LOCAL", "ADD", 1.0, dont_use_ik_finger_driver),
+        ("index_02_l", "index_control_l", "LOCAL", "LOCAL", "ADD", 1.0, dont_use_ik_finger_driver),
+        ("index_03_l", "index_control_l", "LOCAL", "LOCAL", "ADD", 1.0, dont_use_ik_finger_driver),
+        ("middle_01_l", "middle_control_l", "LOCAL", "LOCAL", "ADD", 1.0, dont_use_ik_finger_driver),
+        ("middle_02_l", "middle_control_l", "LOCAL", "LOCAL", "ADD", 1.0, dont_use_ik_finger_driver),
+        ("middle_03_l", "middle_control_l", "LOCAL", "LOCAL", "ADD", 1.0, dont_use_ik_finger_driver),
+        ("ring_01_l", "ring_control_l", "LOCAL", "LOCAL", "ADD", 1.0, dont_use_ik_finger_driver),
+        ("ring_02_l", "ring_control_l", "LOCAL", "LOCAL", "ADD", 1.0, dont_use_ik_finger_driver),
+        ("ring_03_l", "ring_control_l", "LOCAL", "LOCAL", "ADD", 1.0, dont_use_ik_finger_driver),
+        ("pinky_01_l", "pinky_control_l", "LOCAL", "LOCAL", "ADD", 1.0, dont_use_ik_finger_driver),
+        ("pinky_02_l", "pinky_control_l", "LOCAL", "LOCAL", "ADD", 1.0, dont_use_ik_finger_driver),
+        ("pinky_03_l", "pinky_control_l", "LOCAL", "LOCAL", "ADD", 1.0, dont_use_ik_finger_driver),
     ]
 
-    for bone_name, target_name, target_space, owner_space, mix, weight in copy_rotation_bones:
+    for bone_name, target_name, target_space, owner_space, mix, weight, driver in copy_rotation_bones:
         if not (bone := pose_bones.get(bone_name)): continue
 
         constraint = bone.constraints.new("COPY_ROTATION")
@@ -408,6 +540,9 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
         constraint.target_space = target_space
         constraint.owner_space = owner_space
         constraint.mix_mode = mix
+        
+        if driver:
+            driver.add_to(constraint, "influence")
 
     # bone name, space, axis -> dict[axis, list[min, max]]
     limit_rotation_bones = [
@@ -475,8 +610,11 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
         constraint.target = target_skeleton
         constraint.subtarget = target_name
 
+        
+
     rig_bones = [
         CustomShape("root", "CTRL_Root", "THEME03"),
+        CustomShape("ik_hand_gun", "CTRL_Socket", "THEME01", scale=0.1),
         CustomShape("ik_hand_r", "CTRL_Box", "THEME01"),
         CustomShape("ik_hand_l", "CTRL_Box", "THEME04"),
         CustomShape("ik_hand_target_r", "CTRL_Box", "THEME01", scale=0.5),
@@ -534,6 +672,18 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
         CustomShape("middle_metacarpal_l", "CTRL_Metacarpal", "THEME04", scale_to_bone_length=True),
         CustomShape("ring_metacarpal_l", "CTRL_Metacarpal", "THEME04", scale_to_bone_length=True),
         CustomShape("pinky_metacarpal_l", "CTRL_Metacarpal", "THEME04", scale_to_bone_length=True),
+
+        CustomShape("thumb_control_r", "CTRL_Finger_Rotation", "THEME01", scale_to_bone_length=True),
+        CustomShape("index_control_r", "CTRL_Finger_Rotation", "THEME01", scale_to_bone_length=True),
+        CustomShape("middle_control_r", "CTRL_Finger_Rotation", "THEME01", scale_to_bone_length=True),
+        CustomShape("ring_control_r", "CTRL_Finger_Rotation", "THEME01", scale_to_bone_length=True),
+        CustomShape("pinky_control_r", "CTRL_Finger_Rotation", "THEME01", scale_to_bone_length=True),
+
+        CustomShape("thumb_control_l", "CTRL_Finger_Rotation", "THEME04", scale_to_bone_length=True),
+        CustomShape("index_control_l", "CTRL_Finger_Rotation", "THEME04", scale_to_bone_length=True),
+        CustomShape("middle_control_l", "CTRL_Finger_Rotation", "THEME04", scale_to_bone_length=True),
+        CustomShape("ring_control_l", "CTRL_Finger_Rotation", "THEME04", scale_to_bone_length=True),
+        CustomShape("pinky_control_l", "CTRL_Finger_Rotation", "THEME04", scale_to_bone_length=True),
 
         CustomShape("eye_control_parent", "CTRL_Pole", "THEME02", scale=0.35, collection=face_collection),
         CustomShape("eye_control_r", "CTRL_Pole", "THEME02", scale=0.2, collection=face_collection),
@@ -650,7 +800,7 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
     for pose_bone in pose_bones:
         existing_collections = pose_bone.bone.collections
         if any(existing_collections, lambda col: col.name == "Sockets"):
-            pose_bone.custom_shape = bpy.data.objects.get("CTRL_Deform")
+            pose_bone.custom_shape = bpy.data.objects.get("CTRL_Socket")
             pose_bone.custom_shape_scale_xyz = (0.25, 0.25, 0.25)
         
         if len(existing_collections) > 0:
@@ -672,6 +822,7 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
 
             pose_bone.custom_shape = bpy.data.objects.get("CTRL_Deform")
             pose_bone.color.palette = "THEME07"
+            pose_bone.custom_shape_scale_xyz = (0.25, 0.25, 0.25)
 
             continue
 
@@ -723,6 +874,53 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
     for bone_name in hide_bones:
         if not (bone := bones.get(bone_name)): continue
         bone.hide = True
+        
+    driver_hide_bones = [
+        ("ik_finger_thumb_r", dont_use_ik_finger_driver),
+        ("ik_finger_index_r", dont_use_ik_finger_driver),
+        ("ik_finger_middle_r", dont_use_ik_finger_driver),
+        ("ik_finger_ring_r", dont_use_ik_finger_driver),
+        ("ik_finger_pinky_r", dont_use_ik_finger_driver),
+        ("ik_finger_pole_thumb_r", dont_use_ik_finger_driver),
+        ("ik_finger_pole_index_r", dont_use_ik_finger_driver),
+        ("ik_finger_pole_middle_r", dont_use_ik_finger_driver),
+        ("ik_finger_pole_ring_r", dont_use_ik_finger_driver),
+        ("ik_finger_pole_pinky_r", dont_use_ik_finger_driver),
+        ("ik_hand_target_r", dont_use_ik_finger_driver),
+
+        ("ik_finger_thumb_l", dont_use_ik_finger_driver),
+        ("ik_finger_index_l", dont_use_ik_finger_driver),
+        ("ik_finger_middle_l", dont_use_ik_finger_driver),
+        ("ik_finger_ring_l", dont_use_ik_finger_driver),
+        ("ik_finger_pinky_l", dont_use_ik_finger_driver),
+        ("ik_finger_pole_thumb_l", dont_use_ik_finger_driver),
+        ("ik_finger_pole_index_l", dont_use_ik_finger_driver),
+        ("ik_finger_pole_middle_l", dont_use_ik_finger_driver),
+        ("ik_finger_pole_ring_l", dont_use_ik_finger_driver),
+        ("ik_finger_pole_pinky_l", dont_use_ik_finger_driver),
+        ("ik_hand_target_l", dont_use_ik_finger_driver),
+
+        ("ik_hand_pole_r", dont_use_pole_driver),
+        ("ik_hand_pole_l", dont_use_pole_driver),
+        ("ik_foot_pole_r", dont_use_pole_driver),
+        ("ik_foot_pole_l", dont_use_pole_driver),
+
+        ("thumb_control_r", use_ik_finger_driver),
+        ("index_control_r", use_ik_finger_driver),
+        ("middle_control_r", use_ik_finger_driver),
+        ("ring_control_r", use_ik_finger_driver),
+        ("pinky_control_r", use_ik_finger_driver),
+
+        ("thumb_control_l", use_ik_finger_driver),
+        ("index_control_l", use_ik_finger_driver),
+        ("middle_control_l", use_ik_finger_driver),
+        ("ring_control_l", use_ik_finger_driver),
+        ("pinky_control_l", use_ik_finger_driver),
+    ]
+
+    for bone_name, driver in driver_hide_bones:
+        if not (bone := bones.get(bone_name)): continue
+        driver.add_to(bone, "hide")
             
 
     bpy.ops.object.mode_set(mode='OBJECT')

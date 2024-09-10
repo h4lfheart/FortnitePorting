@@ -1007,6 +1007,10 @@ class ImportContext:
 
                 if diffuse_node := get_node(shader_node, "Diffuse"):
                     nodes.active = diffuse_node
+            
+            case "FP Layer":
+                if diffuse_node := get_node(shader_node, "Diffuse"):
+                    nodes.active = diffuse_node
 
     def import_sound_data(self, data):
         for sound in data.get("Sounds"):
@@ -1036,27 +1040,48 @@ class ImportContext:
             #MessageServer.instance.send("An armature must be selected to import an animation. Please select an armature and try again.")
             return
 
-        if target_skeleton.get("is_tasty_rig"):
-            # TODO make obsolete with tasty rig v3
-            #MessageServer.instance.send("Tasty Rig currently does not support emotes. Please use a character with the Default Rig and try again.")
-            return
+        if target_skeleton.get("is_tasty"):
+            bpy.ops.object.mode_set(mode="POSE")
+            
+            if ik_finger_toggle := target_skeleton.pose.bones.get("finger_toggle"):
+                ik_finger_toggle.location[0] = TOGGLE_OFF
+
+            if world_space_pole_toggle := target_skeleton.pose.bones.get("pole_toggle"):
+                world_space_pole_toggle.location[0] = TOGGLE_OFF
+                
+            bpy.ops.object.mode_set(mode="OBJECT")
+            
 
         # clear old data
-        target_skeleton.animation_data_clear()
+        if anim_data := target_skeleton.animation_data:
+           anim_data.action = None
+           
+           for track in anim_data.nla_tracks:
+               anim_data.nla_tracks.remove(track)
+        else:
+            target_skeleton.animation_data_create()
+
+        active_mesh = get_armature_mesh(target_skeleton)
+        if active_mesh.data.shape_keys is not None:
+            active_mesh.data.shape_keys.name = "Pose Asset Controls"
+            
+            if shape_key_anim_data := active_mesh.data.shape_keys.animation_data:
+                shape_key_anim_data.action = None
+                for track in shape_key_anim_data.nla_tracks:
+                    shape_key_anim_data.nla_tracks.remove(track)
+            else:
+                active_mesh.data.shape_keys.animation_data_create()
+            
         if bpy.context.scene.sequence_editor:
             sequences_to_remove = where(bpy.context.scene.sequence_editor.sequences, lambda seq: seq.get("FPSound"))
             for sequence in sequences_to_remove:
                 bpy.context.scene.sequence_editor.sequences.remove(sequence)
 
         # start import
-        target_skeleton.animation_data_create()
         target_track = target_skeleton.animation_data.nla_tracks.new(prev=None)
         target_track.name = "Sections"
 
-        active_mesh = get_armature_mesh(target_skeleton)
         if active_mesh.data.shape_keys is not None:
-            active_mesh.data.shape_keys.name = "Pose Asset Controls"
-            active_mesh.data.shape_keys.animation_data_create()
             mesh_track = active_mesh.data.shape_keys.animation_data.nla_tracks.new(prev=None)
             mesh_track.name = "Sections"
 
