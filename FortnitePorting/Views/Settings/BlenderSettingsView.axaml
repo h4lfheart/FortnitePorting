@@ -70,12 +70,6 @@
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
             
-            <ui:SettingsExpander Header="Finger IK" Description="Fingers will use inverse kinematics instead of bone-chaining." IsVisible="{Binding IsTastyRig}">
-                <ui:SettingsExpander.Footer>
-                    <ToggleSwitch IsChecked="{Binding UseFingerIK}"/>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
-            
             <ui:SettingsExpander Header="Dynamic Bone Shape" Description="Dynamic bones, usually used for physics, will have a rectangular bone shape." IsVisible="{Binding IsTastyRig}">
                 <ui:SettingsExpander.Footer>
                     <ToggleSwitch IsChecked="{Binding UseDynamicBoneShape}"/>
