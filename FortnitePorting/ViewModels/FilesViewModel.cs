@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -33,6 +35,7 @@ using FortnitePorting.Shared.Services;
 using FortnitePorting.Windows;
 using Newtonsoft.Json;
 using ReactiveUI;
+using Serilog;
 
 namespace FortnitePorting.ViewModels;
 
@@ -44,40 +47,119 @@ public partial class FilesViewModel : ViewModelBase
     [ObservableProperty] private bool _useRegex = false;
     [ObservableProperty] private bool _showLoadingSplash = true;
 
-    [ObservableProperty] private List<FlatViewItem> _selectedFlatViewItems = [];
-    [ObservableProperty] private ReadOnlyObservableCollection<FlatViewItem> _flatViewCollection = new([]);
+    [ObservableProperty] private List<FlatItem> _selectedFlatViewItems = [];
+    [ObservableProperty] private ReadOnlyObservableCollection<FlatItem> _flatViewCollection = new([]);
 
-    public SourceCache<FlatViewItem, int> AssetCache = new(item => item.Id);
+    [ObservableProperty] private TreeItem _selectedTreeItem;
+    [ObservableProperty] private ObservableCollection<TreeItem> _treeViewCollection = new([]);
+    
+    public readonly SourceList<FlatItem> FlatViewAssetList = new();
+    
+    private Dictionary<string, TreeItem> _treeViewBuildHierarchy = [];
     
     public override async Task Initialize()
     {
         foreach (var (_, file) in CUE4ParseVM.Provider.Files)
         {
             var path = file.Path;
-            if (IsValidFilePath(path))
+            if (!IsValidFilePath(path)) continue;
+            
+            FlatViewAssetList.Add(new FlatItem(path));
+
+            var folderNames = path.Split("/", StringSplitOptions.RemoveEmptyEntries);
+            var children = _treeViewBuildHierarchy;
+            for (var i = 0; i < folderNames.Length; i++)
             {
-                AssetCache.AddOrUpdate(new FlatViewItem(path.GetHashCode(), path));
+                var folderName = folderNames[i];
+                if (!children.TryGetValue(folderName, out var foundNode))
+                {
+                    var isFile = i == folderNames.Length - 1;
+                    foundNode = new TreeItem(folderName, isFile ? ENodeType.File : ENodeType.Folder,
+                        isFile ? path : string.Empty);
+                    children.Add(folderName, foundNode);
+                }
+
+                children = foundNode.Children;
             }
         }
+
+        void SortChildren(ref Dictionary<string, TreeItem> items)
+        {
+            items = items
+                .OrderBy(item => item.Value.Name)
+                .OrderByDescending(item => item.Value.Type == ENodeType.Folder)
+                .ToDictionary();
+
+            foreach (var child in items)
+            {
+                var tempReference = child.Value.Children;
+                SortChildren(ref tempReference);
+                child.Value.Children = tempReference;
+            }
+        }
+        
+        SortChildren(ref _treeViewBuildHierarchy);
+        
 
         var assetFilter = this
             .WhenAnyValue(viewModel => viewModel.SearchFilter, viewmodel => viewmodel.UseRegex)
             .Select(CreateAssetFilter);
         
-        AssetCache.Connect()
+        FlatViewAssetList.Connect()
             .ObserveOn(RxApp.TaskpoolScheduler)
             .Filter(assetFilter)
-            .Sort(SortExpressionComparer<FlatViewItem>.Ascending(x => x.Path))
-            .Bind(out var temporaryCollection)
+            .Sort(SortExpressionComparer<FlatItem>.Ascending(x => x.Path))
+            .Bind(out var flatCollection)
             .Subscribe();
 
-        FlatViewCollection = temporaryCollection;
+        FlatViewCollection = flatCollection;
 
         await TaskService.RunAsync(() =>
         {
             while (FlatViewCollection.Count == 0) { }
+            TreeViewCollection = [.._treeViewBuildHierarchy.Values];
             ShowLoadingSplash = false;
         });
+    }
+    
+    public void FlatViewJumpTo(string directory)
+    {
+        foreach (var flatItem in FlatViewCollection)
+        {
+            if (!flatItem.Path.Equals(directory)) continue;
+
+            SelectedFlatViewItems = [flatItem];
+            break;
+        }
+    }
+    
+    public void TreeViewJumpTo(string directory)
+    {
+        var i = 0;
+        var folders = directory.Split('/');
+        var children = _treeViewBuildHierarchy; // start at root
+        while (true)
+        {
+            foreach (var (_, item) in children)
+            {
+                if (!item.Name.Equals(folders[i], StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                if (item.Type == ENodeType.File)
+                {
+                    SelectedTreeItem = item;
+                    return;
+                }
+
+                item.Expanded = true;
+                children = item.Children;
+                break;
+            }
+
+            i++;
+            
+            if (children.Count == 0) break;
+        }
     }
 
     [RelayCommand]
@@ -219,7 +301,7 @@ public partial class FilesViewModel : ViewModelBase
         return isValidExtension && !isOptionalSegment && !isEngine;
     }
     
-    private Func<FlatViewItem, bool> CreateAssetFilter((string, bool) items)
+    private Func<FlatItem, bool> CreateAssetFilter((string, bool) items)
     {
         var (filter, useRegex) = items;
         if (useRegex)

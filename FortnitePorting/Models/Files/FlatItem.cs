@@ -16,14 +16,12 @@ using FortnitePorting.Shared.Extensions;
 
 namespace FortnitePorting.Models.Files;
 
-public partial class FlatViewItem : ObservableObject
+public partial class FlatItem : ObservableObject
 {
-    [ObservableProperty] private int _id;
     [ObservableProperty] private string _path;
 
-    public FlatViewItem(int id, string path)
+    public FlatItem(string path)
     {
-        Id = id;
         Path = path;
     }
 
