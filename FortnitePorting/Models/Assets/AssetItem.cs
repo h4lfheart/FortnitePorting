@@ -38,6 +38,7 @@ namespace FortnitePorting.Models.Assets;
 
 public partial class AssetItem : ObservableObject
 {
+    public Guid Id { get; set; }
     public AssetItemCreationArgs CreationData { get; set; }
 
     [ObservableProperty] private bool _isFavorite;
@@ -59,6 +60,7 @@ public partial class AssetItem : ObservableObject
     
     public AssetItem(AssetItemCreationArgs args)
     {
+        Id = Guid.NewGuid();
         CreationData = args;
 
         Rarity = CreationData.Object.GetOrDefault("Rarity", EFortRarity.Uncommon);

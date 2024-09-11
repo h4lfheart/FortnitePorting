@@ -49,7 +49,7 @@ public partial class AssetLoader : ObservableObject
     public Func<UObject, FGameplayTagContainer?> GameplayTagHandler = GetGameplayTags;
     
     public readonly ReadOnlyObservableCollection<AssetItem> Filtered;
-    public SourceList<AssetItem> Source = new();
+    public SourceCache<AssetItem, Guid> Source = new(asset => asset.Id);
     public readonly ConcurrentBag<string> FilteredAssetBag = [];
 
     private List<FAssetData> Assets;
@@ -221,7 +221,7 @@ public partial class AssetLoader : ObservableObject
                     SearchAutoComplete.AddUnique(customAsset.Name);
                 });
                 
-                Source.Add(new AssetItem(customAsset.Name, customAsset.Description, customAsset.IconBitmap, Type, HideRarity));
+                Source.AddOrUpdate(new AssetItem(customAsset.Name, customAsset.Description, customAsset.IconBitmap, Type, HideRarity));
             }
             catch (Exception e)
             {
@@ -269,7 +269,7 @@ public partial class AssetLoader : ObservableObject
             GameplayTags = GameplayTagHandler(asset)
         };
 
-        Source.Add(new AssetItem(args));
+        Source.AddOrUpdate(new AssetItem(args));
     }
     
     private async Task LoadAsset(ManuallyDefinedAsset manualAsset)
@@ -298,7 +298,7 @@ public partial class AssetLoader : ObservableObject
             GameplayTags = GameplayTagHandler(asset)
         };
 
-        Source.Add(new AssetItem(args));
+        Source.AddOrUpdate(new AssetItem(args));
     }
     
     public static UTexture2D? GetIcon(UObject asset)

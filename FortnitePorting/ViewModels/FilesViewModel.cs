@@ -63,7 +63,7 @@ public partial class FilesViewModel : ViewModelBase
     [ObservableProperty] private TreeItem _selectedTreeItem;
     [ObservableProperty] private ObservableCollection<TreeItem> _treeViewCollection = new([]);
     
-    public readonly SourceList<FlatItem> FlatViewAssetList = new();
+    public readonly SourceCache<FlatItem, string> FlatViewAssetList = new(item => item.Path);
     
     private Dictionary<string, TreeItem> _treeViewBuildHierarchy = [];
     
@@ -74,7 +74,7 @@ public partial class FilesViewModel : ViewModelBase
             var path = file.Path;
             if (!IsValidFilePath(path)) continue;
             
-            FlatViewAssetList.Add(new FlatItem(path));
+            FlatViewAssetList.AddOrUpdate(new FlatItem(path));
 
             var folderNames = path.Split("/", StringSplitOptions.RemoveEmptyEntries);
             var children = _treeViewBuildHierarchy;
