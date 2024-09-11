@@ -65,7 +65,7 @@ public partial class MusicPackItem : ObservableObject
         }
         else if (lobbyMusic.ExportType == "MetaSoundSource") // TODO proper impl with class
         {
-            var rootMetasoundDocument = lobbyMusic.Get<FStructFallback>("RootMetasoundDocument");
+            var rootMetasoundDocument = lobbyMusic.Get<FStructFallback>("RootMetaSoundDocument");
             var rootGraph = rootMetasoundDocument.Get<FStructFallback>("RootGraph");
             var interFace = rootGraph.Get<FStructFallback>("Interface");
             var inputs = interFace.Get<FStructFallback[]>("Inputs");

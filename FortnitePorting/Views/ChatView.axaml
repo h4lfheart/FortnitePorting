@@ -86,11 +86,6 @@
                             </ui:FABorder>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <VirtualizingStackPanel/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
                 </ItemsControl>
             </ScrollViewer>
             
@@ -181,7 +176,7 @@
                 </Grid>
             </ui:FABorder>
         </Grid>
-        <TextBlock IsVisible="{Binding AreServicesDown}" Text="Online Services are currently down, please notify the developer." Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <TextBlock IsVisible="{Binding AreServicesDown}" Text="Online Services are currently down or you have been disconnected." Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" HorizontalAlignment="Center" VerticalAlignment="Center"/>
     </Grid>
    
 </UserControl>

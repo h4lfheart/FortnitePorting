@@ -14,7 +14,7 @@ public static class MiscExtensions
 {
     public static bool Filter(string input, string filter)
     {
-        var filters = filter.Trim().Split(' ');
+        var filters = filter.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
         return filters.All(x => input.Contains(x, StringComparison.OrdinalIgnoreCase));
     }
 

@@ -52,7 +52,7 @@
                     <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
                         <ListBox ItemsSource="{Binding FlatViewCollection}" SelectionMode="Multiple"
                                  SelectedItems="{Binding SelectedFlatViewItems, Mode=TwoWay}"
-                                 AutoScrollToSelectedItem="True" SelectionChanged="OnFlatItemSelected">
+                                 AutoScrollToSelectedItem="True" DoubleTapped="OnFlatItemDoubleTapped">
                             <ListBox.ItemTemplate>
                                 <DataTemplate DataType="files:FlatItem">
                                     <ContentControl>
@@ -81,12 +81,11 @@
             
             <ui:FABorder Grid.Row="0" Grid.Column="2">
                 <TreeView ItemsSource="{Binding TreeViewCollection}" SelectedItem="{Binding SelectedTreeItem, Mode=TwoWay}"
-                          SelectionChanged="OnTreeItemSelected">
+                          Tapped="OnTreeItemTapped">
                      <TreeView.ItemContainerTheme>
                             <ControlTheme x:DataType="files:TreeItem" TargetType="TreeViewItem" BasedOn="{StaticResource {x:Type TreeViewItem}}">
                                 <Setter Property="IsExpanded" Value="{Binding Expanded, Mode=TwoWay}" />
                                 <Setter Property="IsSelected" Value="{Binding Selected, Mode=TwoWay}" />
-                                <Setter Property="Focusable" Value="False"/>
                             </ControlTheme>
                         </TreeView.ItemContainerTheme>
                         <TreeView.ItemTemplate>

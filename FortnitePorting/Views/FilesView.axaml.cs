@@ -24,8 +24,15 @@ public partial class FilesView : ViewBase<FilesViewModel>
 
         ViewModel.SearchFilter = textBox.Text ?? string.Empty;
     }
-    
-    private void OnTreeItemSelected(object? sender, SelectionChangedEventArgs e)
+
+    private void OnFlatItemDoubleTapped(object? sender, TappedEventArgs e)
+    { 
+        if (sender is not ListBox listBox) return;
+        if (listBox.SelectedItem is not FlatItem item) return;
+        ViewModel.TreeViewJumpTo(item.Path);
+    }
+
+    private void OnTreeItemTapped(object? sender, TappedEventArgs e)
     {
         if (sender is not TreeView treeView) return;
         if (treeView.SelectedItem is not TreeItem item) return;
@@ -37,12 +44,5 @@ public partial class FilesView : ViewBase<FilesViewModel>
         
         ViewModel.SearchFilter = string.Empty;
         ViewModel.FlatViewJumpTo(item.FilePath);
-    }
-
-    private void OnFlatItemSelected(object? sender, SelectionChangedEventArgs e)
-    {
-        if (sender is not ListBox listBox) return;
-        if (listBox.SelectedItem is not FlatItem item) return;
-        ViewModel.TreeViewJumpTo(item.Path);
     }
 }

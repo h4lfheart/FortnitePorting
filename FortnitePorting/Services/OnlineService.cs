@@ -91,7 +91,7 @@ public static class OnlineService
                                 ChatVM.AreServicesDown = true;
                             }
 
-                            await Task.Delay(5000);
+                            await Task.Delay(1000);
                         }
                     }
                     catch (Exception e)
@@ -99,8 +99,6 @@ public static class OnlineService
                         Log.Error(e.ToString());
                     }
                 }
-                
-                Log.Error("quit the connect sequence");
             });
         }
         catch (Exception e)

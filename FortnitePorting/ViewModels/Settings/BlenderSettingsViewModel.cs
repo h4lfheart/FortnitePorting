@@ -22,7 +22,7 @@ public partial class BlenderSettingsViewModel : BaseExportSettings
     [ObservableProperty] private bool _reorientBones = false;
     [ObservableProperty] private bool _importSockets = true;
     [ObservableProperty] private bool _importVirtualBones = false;
-    [ObservableProperty] private bool _useDynamicBoneShape = false;
+    [ObservableProperty] private bool _useDynamicBoneShape = true;
     [ObservableProperty] private float _boneLength = 4.0f;
     
     // Mesh

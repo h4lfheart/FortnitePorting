@@ -42,8 +42,18 @@ namespace FortnitePorting.ViewModels;
 public partial class FilesViewModel : ViewModelBase
 {
     [ObservableProperty] private EExportLocation _exportLocation = EExportLocation.Blender;
-    
-    [ObservableProperty] private string _searchFilter = string.Empty;
+
+    // fixes freezes when using ObservableProperty
+    private string _searchFilter = string.Empty;
+    public string SearchFilter
+    {
+        get => _searchFilter;
+        set
+        {
+            _searchFilter = value;
+            OnPropertyChanged();
+        }
+    }
     [ObservableProperty] private bool _useRegex = false;
     [ObservableProperty] private bool _showLoadingSplash = true;
 
@@ -304,6 +314,8 @@ public partial class FilesViewModel : ViewModelBase
     private Func<FlatItem, bool> CreateAssetFilter((string, bool) items)
     {
         var (filter, useRegex) = items;
+        if (string.IsNullOrWhiteSpace(filter)) return asset => true;
+        
         if (useRegex)
         {
             return asset => Regex.IsMatch(asset.Path, filter);
