@@ -97,7 +97,7 @@ class ImportContext:
                 set_geo_nodes_param(vertex_crunch_modifier, "Material", material)
                 
             if rig_type == ERigType.TASTY:
-                create_tasty_rig(self, master_skeleton, TastyRigOptions(scale=self.scale))
+                create_tasty_rig(self, master_skeleton, TastyRigOptions(scale=self.scale, use_dynamic_bone_shape=self.options.get("UseDynamicBoneShape")))
 
     def gather_metadata(self, *search_props):
         out_props = {}
@@ -1076,6 +1076,8 @@ class ImportContext:
             sequences_to_remove = where(bpy.context.scene.sequence_editor.sequences, lambda seq: seq.get("FPSound"))
             for sequence in sequences_to_remove:
                 bpy.context.scene.sequence_editor.sequences.remove(sequence)
+
+        bpy.context.scene.frame_set(0)
 
         # start import
         target_track = target_skeleton.animation_data.nla_tracks.new(prev=None)

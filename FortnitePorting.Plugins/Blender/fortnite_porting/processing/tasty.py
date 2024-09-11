@@ -41,8 +41,9 @@ class DriverBuilder:
             target.data_path = variable.path
 
 class TastyRigOptions:
-    def __init__(self, scale: float = 0.01, master_skeleton=None):
+    def __init__(self, scale: float = 0.01, use_dynamic_bone_shape=True, master_skeleton=None):
         self.scale = scale
+        self.use_dynamic_bone_shape = use_dynamic_bone_shape
         self.master_skeleton = master_skeleton
         
 class CustomShape:
@@ -186,20 +187,24 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
         ("ik_hand_pole_r", "ik_hand_root", Lazy(lambda: (edit_bones["lowerarm_r"].head + Vector((0, 0.75, 0)), edit_bones["lowerarm_r"].head + Vector((0, 0.7, 0)), 0))),
         ("ik_hand_pole_l", "ik_hand_root", Lazy(lambda: (edit_bones["lowerarm_l"].head + Vector((0, 0.75, 0)), edit_bones["lowerarm_l"].head + Vector((0, 0.7, 0)), 0))),
 
-        ("ik_foot_ctrl_r", "ik_foot_r", Lazy(lambda: (edit_bones["ball_r"].head + Vector((0, 0.2, 0)), edit_bones["ball_r"].tail + Vector((0, 0.2, 0)), edit_bones["ball_r"].roll))),
-        ("ik_foot_roll_inner_r", "ik_foot_r", Lazy(lambda: (Vector((edit_bones["ball_r"].head.x + 0.04, edit_bones["ball_r"].head.y, 0)), Vector((edit_bones["ball_r"].tail.x + 0.04, edit_bones["ball_r"].tail.y, 0)), edit_bones["ball_r"].roll))),
+        ("ik_foot_ctrl_r", "ik_foot_r", Lazy(lambda: (edit_bones["ball_r"].head + Vector((0, 0.25, 0.05)), edit_bones["ball_r"].tail + Vector((0, 0.25, 0.05)), edit_bones["ball_r"].roll))),
+        ("ik_foot_roll_front_r", "ik_foot_r", Lazy(lambda: (Vector((edit_bones["ball_r"].head.x, edit_bones["ball_r"].head.y - 0.05, 0)), Vector((edit_bones["ball_r"].tail.x, edit_bones["ball_r"].tail.y - 0.05, 0)), edit_bones["ball_r"].roll))),
+        ("ik_foot_roll_inner_r", "ik_foot_roll_front_r", Lazy(lambda: (Vector((edit_bones["ball_r"].head.x + 0.04, edit_bones["ball_r"].head.y, 0)), Vector((edit_bones["ball_r"].tail.x + 0.04, edit_bones["ball_r"].tail.y, 0)), edit_bones["ball_r"].roll))),
         ("ik_foot_roll_outer_r", "ik_foot_roll_inner_r", Lazy(lambda: (Vector((edit_bones["ball_r"].head.x - 0.04, edit_bones["ball_r"].head.y, 0)), Vector((edit_bones["ball_r"].tail.x - 0.04, edit_bones["ball_r"].tail.y, 0)), edit_bones["ball_r"].roll))),
-        ("ik_foot_roll_front_r", "ik_foot_roll_outer_r", Lazy(lambda: (edit_bones["ball_r"].head, edit_bones["ball_r"].tail, edit_bones["ball_r"].roll + radians(180)))),
-        ("ik_foot_roll_back_r", "ik_foot_roll_front_r", Lazy(lambda: (Vector((edit_bones["foot_r"].head.x, edit_bones["foot_r"].head.y + 0.065, 0)), Vector((edit_bones["foot_r"].tail.x, edit_bones["foot_r"].tail.y + 0.065, 0)), edit_bones["ball_r"].roll))),
-        ("ik_foot_target_r", "ik_foot_roll_back_r", Lazy(lambda: (edit_bones["ik_foot_r"].head, edit_bones["ik_foot_r"].tail, edit_bones["ik_foot_r"].roll))),
+        ("ik_foot_roll_back_r", "ik_foot_roll_outer_r", Lazy(lambda: (Vector((edit_bones["foot_r"].head.x, edit_bones["foot_r"].head.y + 0.065, 0)), Vector((edit_bones["foot_r"].tail.x, edit_bones["foot_r"].tail.y + 0.065, 0)), edit_bones["ball_r"].roll))),
+        ("ik_ball_roll_r", "ik_foot_roll_back_r", Lazy(lambda:  (edit_bones["ball_r"].head, edit_bones["ik_foot_r"].head, edit_bones["ball_r"].roll))),
+        ("ik_ball_ctrl_r", "ik_foot_roll_back_r", Lazy(lambda: (edit_bones["ball_r"].head, edit_bones["ball_r"].tail, edit_bones["ball_r"].roll))),
+        ("ik_foot_target_r", "ik_ball_roll_r", Lazy(lambda: (edit_bones["ik_foot_r"].head, edit_bones["ik_foot_r"].tail, edit_bones["ik_foot_r"].roll))),
         ("ik_foot_rot_ctrl_r", "ik_foot_target_r", Lazy(lambda: (edit_bones["foot_r"].head, edit_bones["foot_r"].tail, edit_bones["foot_r"].roll))),
 
-        ("ik_foot_ctrl_l", "ik_foot_l", Lazy(lambda: (edit_bones["ball_l"].head + Vector((0, 0.2, 0)), edit_bones["ball_l"].tail + Vector((0, 0.2, 0)), edit_bones["ball_l"].roll))),
-        ("ik_foot_roll_inner_l", "ik_foot_l", Lazy(lambda: (Vector((edit_bones["ball_l"].head.x + 0.04, edit_bones["ball_l"].head.y, 0)), Vector((edit_bones["ball_l"].tail.x + 0.04, edit_bones["ball_l"].tail.y, 0)), edit_bones["ball_l"].roll))),
+        ("ik_foot_ctrl_l", "ik_foot_l", Lazy(lambda: (edit_bones["ball_l"].head + Vector((0, 0.25, 0.05)), edit_bones["ball_l"].tail + Vector((0, 0.25, 0.05)), edit_bones["ball_l"].roll))),
+        ("ik_foot_roll_front_l", "ik_foot_l", Lazy(lambda: (Vector((edit_bones["ball_l"].head.x, edit_bones["ball_l"].head.y - 0.05, 0)), Vector((edit_bones["ball_l"].tail.x, edit_bones["ball_l"].tail.y - 0.05, 0)), edit_bones["ball_l"].roll))),
+        ("ik_foot_roll_inner_l", "ik_foot_roll_front_l", Lazy(lambda: (Vector((edit_bones["ball_l"].head.x + 0.04, edit_bones["ball_l"].head.y, 0)), Vector((edit_bones["ball_l"].tail.x + 0.04, edit_bones["ball_l"].tail.y, 0)), edit_bones["ball_l"].roll))),
         ("ik_foot_roll_outer_l", "ik_foot_roll_inner_l", Lazy(lambda: (Vector((edit_bones["ball_l"].head.x - 0.04, edit_bones["ball_l"].head.y, 0)), Vector((edit_bones["ball_l"].tail.x - 0.04, edit_bones["ball_l"].tail.y, 0)), edit_bones["ball_l"].roll))),
-        ("ik_foot_roll_front_l", "ik_foot_roll_outer_l", Lazy(lambda: (edit_bones["ball_l"].head, edit_bones["ball_l"].tail, edit_bones["ball_l"].roll + radians(180)))),
-        ("ik_foot_roll_back_l", "ik_foot_roll_front_l", Lazy(lambda: (Vector((edit_bones["foot_l"].head.x, edit_bones["foot_l"].head.y + 0.065, 0)), Vector((edit_bones["foot_l"].tail.x, edit_bones["foot_l"].tail.y + 0.065, 0)), edit_bones["ball_l"].roll))),
-        ("ik_foot_target_l", "ik_foot_roll_back_l", Lazy(lambda: (edit_bones["ik_foot_l"].head, edit_bones["ik_foot_l"].tail, edit_bones["ik_foot_l"].roll))),
+        ("ik_foot_roll_back_l", "ik_foot_roll_outer_l", Lazy(lambda: (Vector((edit_bones["foot_l"].head.x, edit_bones["foot_l"].head.y + 0.065, 0)), Vector((edit_bones["foot_l"].tail.x, edit_bones["foot_l"].tail.y + 0.065, 0)), edit_bones["ball_l"].roll))),
+        ("ik_ball_roll_l", "ik_foot_roll_back_l", Lazy(lambda:  (edit_bones["ball_l"].head, edit_bones["ik_foot_l"].head, edit_bones["ball_l"].roll))),
+        ("ik_ball_ctrl_l", "ik_foot_roll_back_l", Lazy(lambda: (edit_bones["ball_l"].head, edit_bones["ball_l"].tail, edit_bones["ball_l"].roll))),
+        ("ik_foot_target_l", "ik_ball_roll_l", Lazy(lambda: (edit_bones["ik_foot_l"].head, edit_bones["ik_foot_l"].tail, edit_bones["ik_foot_l"].roll))),
         ("ik_foot_rot_ctrl_l", "ik_foot_target_l", Lazy(lambda: (edit_bones["foot_l"].head, edit_bones["foot_l"].tail, edit_bones["foot_l"].roll))),
 
         ("ik_finger_thumb_r", "ik_hand_parent_r", Lazy(lambda: (edit_bones["thumb_03_r"].tail, 2 * edit_bones["thumb_03_r"].tail - edit_bones["thumb_03_r"].head, edit_bones["thumb_03_r"].roll))),
@@ -214,8 +219,14 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
         ("ik_finger_ring_l", "ik_hand_parent_l", Lazy(lambda: (edit_bones["ring_03_l"].tail, 2 * edit_bones["ring_03_l"].tail - edit_bones["ring_03_l"].head, edit_bones["ring_03_l"].roll))),
         ("ik_finger_pinky_l", "ik_hand_parent_l", Lazy(lambda: (edit_bones["pinky_03_l"].tail, 2 * edit_bones["pinky_03_l"].tail - edit_bones["pinky_03_l"].head, edit_bones["pinky_03_l"].roll))),
 
-        ("eye_control_r", "head", Lazy(lambda: (edit_bones[r_eye_name].head - Vector((0, 0.325, 0)), edit_bones[r_eye_name].head - Vector((0, 0.35, 0)), edit_bones[r_eye_name].roll))),
-        ("eye_control_l", "head", Lazy(lambda: (edit_bones[l_eye_name].head - Vector((0, 0.325, 0)), edit_bones[l_eye_name].head - Vector((0, 0.35, 0)), edit_bones[l_eye_name].roll))),
+        ("ik_dog_ball_r", "ik_foot_target_r", Lazy(lambda: (edit_bones["dog_ball_r"].tail, 2 * edit_bones["dog_ball_r"].tail - edit_bones["dog_ball_r"].head, edit_bones["dog_ball_r"].roll))),
+        ("ik_dog_ball_l", "ik_foot_target_l", Lazy(lambda: (edit_bones["dog_ball_l"].tail, 2 * edit_bones["dog_ball_l"].tail - edit_bones["dog_ball_l"].head, edit_bones["dog_ball_l"].roll))),
+
+        ("ik_wolf_ball_r", "ik_foot_target_r", Lazy(lambda: (edit_bones["wolf_ball_r"].tail, edit_bones["wolf_ball_r"].tail + Vector((0, 0.25, 0)), edit_bones["wolf_ball_r"].roll))),
+        ("ik_wolf_ball_l", "ik_foot_target_l", Lazy(lambda: (edit_bones["wolf_ball_l"].tail,edit_bones["wolf_ball_l"].tail + Vector((0, 0.25, 0)), edit_bones["wolf_ball_l"].roll))),
+
+        ("eye_control_r", "head", Lazy(lambda: (edit_bones["wolf_ball_r"].tail, 2 * edit_bones["wolf_ball_r"].tail - edit_bones["wolf_ball_r"].head, edit_bones["wolf_ball_r"].roll))),
+        ("eye_control_l", "head", Lazy(lambda: (edit_bones["wolf_ball_l"].tail, 2 * edit_bones["wolf_ball_l"].tail - edit_bones["wolf_ball_l"].head, edit_bones["wolf_ball_l"].roll))),
         ("eye_control_parent", "head", Lazy(lambda: ((edit_bones["eye_control_r"].head + edit_bones["eye_control_l"].head) / 2, (edit_bones["eye_control_r"].tail + edit_bones["eye_control_l"].tail) / 2, 0))),
     ]
 
@@ -367,14 +378,13 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
             copy_rotation.use_x = False
             copy_rotation.use_y = False
             copy_rotation.use_z = True
-            copy_rotation.invert_z = True
             copy_rotation.target_space = "LOCAL"
             copy_rotation.owner_space = "LOCAL"
 
             limit_rotation = front_roll_bone.constraints.new("LIMIT_ROTATION")
             limit_rotation.use_limit_z = True
-            limit_rotation.min_z = 0
-            limit_rotation.max_z = radians(180)
+            limit_rotation.min_z = radians(-180)
+            limit_rotation.max_z = 0
             limit_rotation.owner_space = "LOCAL"
 
         if back_roll_bone := pose_bones.get(f"ik_foot_roll_back_{suffix}"):
@@ -394,23 +404,46 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
             limit_rotation.max_z = 0
             limit_rotation.owner_space = "LOCAL"
 
+        if ball_roll_bone := pose_bones.get(f"ik_ball_roll_{suffix}"):
+            transformation = ball_roll_bone.constraints.new("TRANSFORM")
+            transformation.target = target_skeleton
+            transformation.subtarget = ctrl_bone_name
+            transformation.target_space = "LOCAL"
+            transformation.owner_space = "LOCAL"
+            
+            transformation.map_from = "LOCATION"
+            transformation.from_min_x = 0
+            transformation.from_max_x = 0.1
+
+            transformation.map_to = "ROTATION"
+            transformation.map_to_z_from = "X"
+            transformation.to_min_z_rot = 0
+            transformation.to_max_z_rot = radians(-55)
+            
         if ball_bone := pose_bones.get(f"ball_{suffix}"):
             copy_rotation = ball_bone.constraints.new("COPY_ROTATION")
             copy_rotation.target = target_skeleton
-            copy_rotation.subtarget = ctrl_bone_name    
-            copy_rotation.use_x = False
-            copy_rotation.use_y = False
+            copy_rotation.subtarget = f"ik_ball_ctrl_{suffix}"    
+            copy_rotation.use_x = True
+            copy_rotation.use_y = True
             copy_rotation.use_z = True
-            copy_rotation.invert_z = True
-            copy_rotation.mix_mode = "ADD"
-            copy_rotation.target_space = "LOCAL"
-            copy_rotation.owner_space = "LOCAL"
-
-            limit_rotation = ball_bone.constraints.new("LIMIT_ROTATION")
-            limit_rotation.use_limit_z = True
-            limit_rotation.min_z = 0
-            limit_rotation.max_z = radians(180)
-            limit_rotation.owner_space = "LOCAL"
+            copy_rotation.target_space = "WORLD"
+            copy_rotation.owner_space = "WORLD"
+            
+        if ctrl_bone := pose_bones.get(ctrl_bone_name):
+            limit_location = ctrl_bone.constraints.new("LIMIT_LOCATION")
+            limit_location.use_min_x = True
+            limit_location.use_min_y = True
+            limit_location.use_min_z = True
+            limit_location.use_max_x = True
+            limit_location.use_max_y = True
+            limit_location.use_max_z = True
+            limit_location.min_x = 0
+            limit_location.max_x = 0.1
+            limit_location.owner_space = "LOCAL"
+            limit_location.use_transform_limit = True
+            
+            
 
     add_foot_ik_constraints("r")
     add_foot_ik_constraints("l")
@@ -443,7 +476,17 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
         IKBone("lowerarm_l", "ik_hand_target_l", None, 2, name="IK w/o Pole", lock_axes=["X"], limit_axes={"Y": [-45, 45], "Z": [-120, 30]}, driver=dont_use_pole_driver),
         IKBone("calf_r", "ik_foot_target_r", None, 2, name="IK w/o Pole", lock_axes=["X"], limit_axes={"Y": [-15, 15], "Z": [-135, 5]}, driver=dont_use_pole_driver),
         IKBone("calf_l", "ik_foot_target_l", None, 2, name="IK w/o Pole", lock_axes=["X"], limit_axes={"Y": [-15, 15], "Z": [-135, 5]}, driver=dont_use_pole_driver),
-        
+
+        IKBone("dog_ball_r", "ik_dog_ball_r", "ik_foot_pole_r", 4, use_rotation=True, name="IK w/ Pole", lock_axes=["X"], limit_axes={"Y": [-15, 15], "Z": [-135, 5]}, driver=use_pole_driver),
+        IKBone("dog_ball_l", "ik_dog_ball_l", "ik_foot_pole_l", 4, use_rotation=True, name="IK w/ Pole", lock_axes=["X"], limit_axes={"Y": [-15, 15], "Z": [-135, 5]}, driver=use_pole_driver),
+        IKBone("dog_ball_r", "ik_dog_ball_r", None, 4, use_rotation=True, name="IK w/o Pole", lock_axes=["X"], limit_axes={"Y": [-15, 15], "Z": [-135, 5]}, driver=dont_use_pole_driver),
+        IKBone("dog_ball_l", "ik_dog_ball_l", None, 4, use_rotation=True, name="IK w/o Pole", lock_axes=["X"], limit_axes={"Y": [-15, 15], "Z": [-135, 5]}, driver=dont_use_pole_driver),
+
+        IKBone("wolf_ball_r", "ik_wolf_ball_r", "ik_foot_pole_r", 4, use_rotation=True, name="IK w/ Pole", lock_axes=["X"], limit_axes={"Y": [-15, 15], "Z": [-135, 5]}, driver=use_pole_driver),
+        IKBone("wolf_ball_l", "ik_wolf_ball_l", "ik_foot_pole_l", 4, use_rotation=True, name="IK w/ Pole", lock_axes=["X"], limit_axes={"Y": [-15, 15], "Z": [-135, 5]}, driver=use_pole_driver),
+        IKBone("wolf_ball_r", "ik_wolf_ball_r", None, 4, use_rotation=True, name="IK w/o Pole", lock_axes=["X"], limit_axes={"Y": [-15, 15], "Z": [-135, 5]}, driver=dont_use_pole_driver),
+        IKBone("wolf_ball_l", "ik_wolf_ball_l", None, 4, use_rotation=True, name="IK w/o Pole", lock_axes=["X"], limit_axes={"Y": [-15, 15], "Z": [-135, 5]}, driver=dont_use_pole_driver),
+
         IKBone("thumb_03_r", "ik_finger_thumb_r", "ik_finger_pole_thumb_r", 2, pole_angle=0, driver=use_ik_finger_driver),
         IKBone("index_03_r", "ik_finger_index_r", "ik_finger_pole_index_r", 3, pole_angle=0, driver=use_ik_finger_driver),
         IKBone("middle_03_r", "ik_finger_middle_r", "ik_finger_pole_middle_r", 3, pole_angle=0, driver=use_ik_finger_driver),
@@ -481,6 +524,20 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
             
         if ik_bone.driver:
             ik_bone.driver.add_to(constraint, "influence")
+            
+    lock_ik_bones = [
+        ("dog_foot_r", ["X"]),
+        ("dog_foot_l", ["X"]),
+        ("wolf_foot_r", ["X"]),
+        ("wolf_foot_l", ["X"]),
+    ]
+    
+    for name, axes in lock_ik_bones:
+        if not (bone := pose_bones.get(name)): continue
+
+        for axis in axes:
+            setattr(bone, f"lock_ik_{axis.lower()}", True)
+        
 
     # bone name, target name, target space, owner space, mix, weight
     copy_rotation_bones = [
@@ -638,8 +695,8 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
         CustomShape("ik_foot_pole_l", "CTRL_Pole", "THEME04"),
         CustomShape("ik_hand_pole_r", "CTRL_Pole", "THEME01"),
         CustomShape("ik_hand_pole_l", "CTRL_Pole", "THEME04"),
-        CustomShape("ik_foot_ctrl_r", "CTRL_Modify", "THEME01"),
-        CustomShape("ik_foot_ctrl_l", "CTRL_Modify", "THEME04"),
+        CustomShape("ik_foot_ctrl_r", "CTRL_Foot_Ctrl", "THEME01"),
+        CustomShape("ik_foot_ctrl_l", "CTRL_Foot_Ctrl", "THEME04"),
         
         CustomShape("ik_finger_thumb_r", "CTRL_Box", "THEME01", scale=0.2),
         CustomShape("ik_finger_index_r", "CTRL_Box", "THEME01", scale=0.2),
@@ -811,9 +868,10 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
         if "dyn_" in pose_bone.name and "_mstr" not in pose_bone.name.casefold():
             dynamic_collection.assign(pose_bone)
 
-            pose_bone.custom_shape = bpy.data.objects.get("CTRL_Dynamic")
+            if options.use_dynamic_bone_shape:
+                pose_bone.custom_shape = bpy.data.objects.get("CTRL_Dynamic")
+                pose_bone.custom_shape_translation = (0.0, 0.025, 0.0)
             pose_bone.color.palette = "THEME07"
-            pose_bone.custom_shape_translation = (0.0, 0.025, 0.0)
             
             continue
 
@@ -855,6 +913,8 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
         "ik_foot_roll_back_r",
         "ik_foot_target_r",
         "ik_foot_rot_ctrl_r",
+        "ik_ball_roll_r",
+        "ik_ball_ctrl_r"
         "ik_dog_ball_r",
         "ik_wolf_ball_r",
         
@@ -864,6 +924,8 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
         "ik_foot_roll_back_l",
         "ik_foot_target_l",
         "ik_foot_rot_ctrl_l",
+        "ik_ball_roll_l",
+        "ik_ball_ctrl_l"
         "ik_dog_ball_l",
         "ik_wolf_ball_l",
 
