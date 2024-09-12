@@ -124,11 +124,11 @@
                     
                     <TextBlock Grid.Row="0" Text="{Binding Users.Count, StringFormat='Online - {0}'}" Classes="BodyStrongTextBlockStyle" FontWeight="SemiBold" HorizontalAlignment="Left"/>
                     
-                    <ScrollViewer Grid.Row="2" >
+                    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Hidden">
                         <ItemsControl ItemsSource="{Binding Users}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="chat:ChatUser">
-                                    <ui:FABorder HorizontalAlignment="Stretch" Cursor="Hand" PointerPressed="OnUserPressed">
+                                    <ui:FABorder HorizontalAlignment="Stretch" Cursor="Hand" PointerPressed="OnUserPressed" Margin="{ext:Space 0, 0, 0, 0.5}">
                                         <FlyoutBase.AttachedFlyout>
                                             <MenuFlyout>
                                                 <MenuItem Header="Copy GUID" Command="{Binding CopyGUIDCommand}"/>
@@ -148,24 +148,28 @@
                                             </MenuFlyout>
                                         </FlyoutBase.AttachedFlyout>
                                         <Grid HorizontalAlignment="Left" Margin="{ext:Space 1}">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+                                            
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="{ext:Space 1}"/>
                                                 <ColumnDefinition Width="Auto"/>
                                                 <ColumnDefinition Width="{ext:Space 1}"/>
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
                                         
-                                            <Border Grid.Column="0" CornerRadius="4" ClipToBounds="True">
+                                            <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" CornerRadius="4" ClipToBounds="True">
                                                 <Image asyncImageLoader:ImageLoader.Source="{Binding ProfilePictureURL}" 
                                                        Width="32" Height="32" Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center"/>
                                             </Border>
                                         
-                                            <TextBlock Grid.Column="2" Text="{Binding DisplayName}"
+                                            <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding DisplayName}"
                                                        Foreground="{Binding Brush}"
                                                        Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center"/>
                                             
-                                            <TextBlock Grid.Column="4" Text="{Binding Version}"
+                                            <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding Version}"
+                                                       FontSize="12"
                                                        Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" VerticalAlignment="Center"/>
                                         </Grid>
                                     </ui:FABorder>

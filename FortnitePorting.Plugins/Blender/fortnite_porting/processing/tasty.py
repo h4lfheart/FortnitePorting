@@ -429,6 +429,12 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
             copy_rotation.use_z = True
             copy_rotation.target_space = "WORLD"
             copy_rotation.owner_space = "WORLD"
+
+            driver = DriverBuilder("loc > 0", [
+                DriverVariable("loc", "SINGLE_PROP", target_skeleton, f'pose.bones["ik_foot_ctrl_{suffix}"].location[0]')
+            ])
+
+            driver.add_to(copy_rotation, "influence")
             
         if ctrl_bone := pose_bones.get(ctrl_bone_name):
             limit_location = ctrl_bone.constraints.new("LIMIT_LOCATION")
