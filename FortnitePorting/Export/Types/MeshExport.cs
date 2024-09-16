@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CUE4Parse_Conversion.Meshes;
 using CUE4Parse.GameTypes.FN.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Component.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Component.StaticMesh;
+using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
@@ -353,6 +355,61 @@ public class MeshExport : BaseExport
                 parameterSet.Hash = parameterSet.GetHashCode();
                 
                 OverrideParameters.Add(parameterSet);
+                
+                break;
+            }
+            case EExportType.FestivalBass:
+            case EExportType.FestivalDrum:
+            case EExportType.FestivalGuitar:
+            case EExportType.FestivalKeytar:
+            case EExportType.FestivalMic:
+            {
+                if (asset.TryGetValue(out USkeletalMesh mesh, "Mesh"))
+                {
+                    var exportMesh = Exporter.Mesh(mesh);
+
+                    var material = asset.GetOrDefault<UMaterialInterface>("Material");
+                    exportMesh?.Materials.AddIfNotNull(Exporter.Material(material, 0));
+
+                    Meshes.AddIfNotNull(exportMesh);
+                }
+
+                if (asset.TryGetValue(out USkeletalMesh leftHandMesh, "LeftHandMesh"))
+                {
+                    var exportMesh = Exporter.Mesh(leftHandMesh);
+
+                    var material = asset.GetOrDefault<UMaterialInterface>("LeftHandMaterial");
+                    exportMesh?.Materials.AddIfNotNull(Exporter.Material(material, 0));
+
+                    Meshes.AddIfNotNull(exportMesh);
+                }
+
+                if (asset.TryGetValue(out USkeletalMesh auxiliaryMesh, "AuxiliaryMesh"))
+                {
+                    var exportMesh = Exporter.Mesh(auxiliaryMesh);
+                    if (exportMesh is null) break;
+
+                    if (asset.TryGetValue(out UMaterialInterface auxMaterial, "AuxiliaryMaterial"))
+                        exportMesh?.Materials.AddIfNotNull(Exporter.Material(auxMaterial, 0));
+
+                    if (asset.TryGetValue(out UMaterialInterface auxMaterial2, "AuxiliaryMaterial2"))
+                        exportMesh?.Materials.AddIfNotNull(Exporter.Material(auxMaterial2, 1));
+
+                    Meshes.AddIfNotNull(exportMesh);
+                }
+
+
+                break;
+            }
+            case EExportType.Wildlife:
+            {
+                Meshes.AddIfNotNull(Exporter.Mesh(asset));
+                break;
+            }
+            case EExportType.Vehicle:
+            {
+                var blueprint = asset.Get<UBlueprintGeneratedClass>("VehicleActorClass");
+                AddObjects(Exporter.Blueprint(blueprint));
                 
                 break;
             }

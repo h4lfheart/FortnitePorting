@@ -29,13 +29,14 @@
         <PackageReference Include="FluentAvalonia.ProgressRing" Version="1.69.2" />
         <PackageReference Include="FluentAvaloniaUI" Version="2.0.5" />
         <PackageReference Condition="'$(Configuration)' == 'Release'" Include="Fody" Version="6.8.1">
-          <PrivateAssets>all</PrivateAssets>
+            <PrivateAssets>all</PrivateAssets>
         </PackageReference>
         <PackageReference Condition="'$(Configuration)' == 'Release'" Include="Costura.Fody" Version="5.8.0-alpha0098">
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
         <PackageReference Include="Material.Icons.Avalonia" Version="2.1.9" />
         <PackageReference Include="NAudio" Version="2.2.1" />
+        <PackageReference Include="NAudio.Vorbis" Version="1.5.0" />
         <PackageReference Include="ReactiveUI" Version="20.0.1" />
         <PackageReference Include="RestSharp" Version="110.2.1-alpha.0.20" />
         <PackageReference Include="RestSharp.Serializers.NewtonsoftJson" Version="110.2.1-alpha.0.20" />
@@ -44,12 +45,10 @@
         <PackageReference Include="Tomlyn" Version="0.17.0" />
         <PackageReference Include="z440.atl.core" Version="5.24.0" />
     </ItemGroup>
-
     
     <ItemGroup>
         <AvaloniaResource Include="Assets\**" />
     </ItemGroup>
-
     
     <ItemGroup>
       <ProjectReference Include="..\Dependencies\CUE4Parse\CUE4Parse-Conversion\CUE4Parse-Conversion.csproj" />
@@ -60,22 +59,5 @@
       <ProjectReference Include="..\FortnitePorting.Plugins\FortnitePorting.Plugins.csproj" />
       <ProjectReference Include="..\FortnitePorting.Shared\FortnitePorting.Shared.csproj" />
     </ItemGroup>
-
-    
-    <ItemGroup>
-      <Compile Update="Windows\PropertiesPreviewWindow.axaml.cs">
-        <DependentUpon>PropertiesPreviewWindow.axaml</DependentUpon>
-        <SubType>Code</SubType>
-      </Compile>
-      <Compile Update="Controls\IconText.axaml.cs">
-        <DependentUpon>IconText.axaml</DependentUpon>
-        <SubType>Code</SubType>
-      </Compile>
-      <Compile Update="Views\VotingView.axaml.cs">
-        <DependentUpon>VotingView.axaml</DependentUpon>
-        <SubType>Code</SubType>
-      </Compile>
-    </ItemGroup>
-    
 
 </Project>

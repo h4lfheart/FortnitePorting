@@ -323,9 +323,12 @@ glass_mappings = MappingCollection(
         SlotMapping("Diffuse", "Color"),
         SlotMapping("Diffuse Texture", "Color"),
         SlotMapping("Diffuse Texture with Alpha Mask", "Color"),
+        SlotMapping("Diffuse Texture with Alpha Mask", "Color", alpha_slot="Mask"),
+        SlotMapping("PM_Diffuse", "Color"),
+        
         SlotMapping("Normals"),
         SlotMapping("BakedNormal", "Normals"),
-        SlotMapping("Diffuse Texture with Alpha Mask", "Color", alpha_slot="Mask")
+        SlotMapping("PM_Normals", "Normals"),
     ],
     scalars=[
         SlotMapping("Specular"),

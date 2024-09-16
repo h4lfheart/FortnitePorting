@@ -526,6 +526,32 @@ public class ExportContext
                 meshes.Add(exportMesh);
             }
             
+            if (actor.TryGetValue(out USkeletalMeshComponent skeletalMeshComponent, "SkeletalMeshComponent", "SkeletalMesh"))
+            {
+                var exportMesh = MeshComponent(skeletalMeshComponent) ?? new ExportMesh { IsEmpty = true };
+                exportMesh.Name = actor.Name;
+                exportMesh.Location = skeletalMeshComponent.GetOrDefault("RelativeLocation", FVector.ZeroVector);
+                exportMesh.Rotation = skeletalMeshComponent.GetOrDefault("RelativeRotation", FRotator.ZeroRotator);
+                exportMesh.Scale = skeletalMeshComponent.GetOrDefault("RelativeScale3D", FVector.OneVector);
+
+                foreach (var extraMesh in ExtraActorMeshes(actor))
+                {
+                    exportMesh.Children.AddIfNotNull(extraMesh);
+                }
+                
+                if (loadTemplate && actor.Template?.Load() is { } template)
+                {
+                    var basePath = template.GetPathName().SubstringBeforeLast(".");
+                    var blueprintPath = $"{basePath}.{basePath.SubstringAfterLast("/")}_C";
+                    var templateBlueprintGeneratedClass = CUE4ParseVM.Provider.LoadObject<UObject>(blueprintPath);
+                    
+                    exportMesh.AddChildren(ConstructionScript(templateBlueprintGeneratedClass));
+                    exportMesh.AddChildren(InheritableComponentHandler(templateBlueprintGeneratedClass));
+                }
+
+                meshes.Add(exportMesh);
+            }
+            
             // extra meshes i.e. doors and such
             var targetMesh = meshes.FirstOrDefault();
             foreach (var extraMesh in ExtraActorMeshes(actor))
@@ -691,6 +717,11 @@ public class ExportContext
             if (material is null) continue;
             
             exportMesh.OverrideMaterials.AddIfNotNull(Material(material, idx));
+        }
+
+        if (meshComponent.LODData?.FirstOrDefault()?.PaintedVertices is { } paintedVertices)
+        {
+            Debugger.Break();
         }
 
         return exportMesh;
