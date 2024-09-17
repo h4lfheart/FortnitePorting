@@ -134,20 +134,7 @@ public partial class AssetsViewModel : ViewModelBase
             {
                 Classes = ["AthenaCharacterItemDefinition"],
                 Filters = ["_NPC", "_TBD", "CID_VIP", "_Creative", "_SG"],
-                DisAllowNames = ["Bean_"],
-                IconHandler = asset =>
-                {
-                    asset.TryGetValue(out UTexture2D? previewImage, "SmallPreviewImage", "LargePreviewImage");
-                    if (previewImage is null && asset.TryGetValue(out UObject heroDef, "HeroDefinition"))
-                    {
-                        previewImage = AssetLoader.GetAssetIcon(heroDef);
-                        previewImage ??= heroDef.GetAnyOrDefault<UTexture2D>("SmallPreviewImage", "LargePreviewImage");
-
-                    }
-
-                    previewImage ??= AssetLoader.GetAssetIcon(asset);
-                    return previewImage;
-                }
+                DisAllowNames = ["Bean_", "CID_Bean"]
             },
 
             new(EAssetType.LegoOutfit)
