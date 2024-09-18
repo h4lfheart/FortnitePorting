@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using Avalonia;
+using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using CUE4Parse.UE4.Objects.Core.Misc;
@@ -42,5 +43,23 @@ public static class ImageExtensions
         CachedBitmaps[path] = bitmap;
         return bitmap;
 
+    }
+    
+    public static Color LerpColor(Color color1, Color color2, double factor)
+    {
+        return new Color(
+            (byte)(color1.A + (color2.A - color1.A) * factor),
+            (byte)(color1.R + (color2.R - color1.R) * factor),
+            (byte)(color1.G + (color2.G - color1.G) * factor),
+            (byte)(color1.B + (color2.B - color1.B) * factor));
+    }
+    
+    public static Color LerpColor(Color color1, double alpha1, Color color2, double alpha2, double factor)
+    {
+        return new Color(
+            (byte)((alpha1 + (alpha2 - alpha1) * factor) * byte.MaxValue),
+            (byte)(color1.R + (color2.R - color1.R) * factor),
+            (byte)(color1.G + (color2.G - color1.G) * factor),
+            (byte)(color1.B + (color2.B - color1.B) * factor));
     }
 }

@@ -20,6 +20,7 @@ using FortnitePorting.Shared.Models;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
 using FortnitePorting.ViewModels.Settings;
+using FortnitePorting.Views;
 using Log = Serilog.Log;
 
 namespace FortnitePorting.WindowModels;
@@ -37,6 +38,9 @@ public partial class AppWindowModel : WindowModelBase
 
     [ObservableProperty] private SolidColorBrush _rainbowBrush = new(Colors.White);
     [ObservableProperty] private bool _isRainbowBrushRunning;
+
+    [ObservableProperty] private bool _timeWasterOpen;
+    [ObservableProperty] private TimeWasterView? _timeWaster;
     
     public OnlineSettingsViewModel OnlineRef => AppSettings.Current.Online;
     

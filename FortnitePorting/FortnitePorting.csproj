@@ -59,5 +59,9 @@
       <ProjectReference Include="..\FortnitePorting.Plugins\FortnitePorting.Plugins.csproj" />
       <ProjectReference Include="..\FortnitePorting.Shared\FortnitePorting.Shared.csproj" />
     </ItemGroup>
+    
+    <ItemGroup>
+      <Folder Include="Controls\TimeWaster\" />
+    </ItemGroup>
 
 </Project>

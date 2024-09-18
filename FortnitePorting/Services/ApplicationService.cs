@@ -42,6 +42,7 @@ public static class ApplicationService
     public static ConsoleViewModel ConsoleVM => ViewModelRegistry.Get<ConsoleViewModel>()!;
     public static LeaderboardViewModel LeaderboardVM => ViewModelRegistry.Get<LeaderboardViewModel>()!;
     public static VotingViewModel VotingVM => ViewModelRegistry.Get<VotingViewModel>()!;
+    public static TimeWasterViewModel TimeWasterVM => ViewModelRegistry.Get<TimeWasterViewModel>()!;
     
     public static IClassicDesktopStyleApplicationLifetime Application = null!;
     private static IStorageProvider StorageProvider => Application.MainWindow!.StorageProvider;
@@ -126,6 +127,8 @@ public static class ApplicationService
         ViewModelRegistry.New<APIViewModel>();
         ViewModelRegistry.New<ChatViewModel>();
         DependencyService.EnsureDependencies();
+        
+        TimeWasterViewModel.LoadResources();
 
         TaskService.Run(async () => await AppWM.Initialize());
         

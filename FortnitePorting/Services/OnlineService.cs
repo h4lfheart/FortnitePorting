@@ -41,9 +41,7 @@ public static class OnlineService
 
     public static MetadataBuilder DefaultMeta => new MetadataBuilder()
         .With("Token", AppSettings.Current.Online.Auth.Token);
-
-    private static Task ConnectTask;
-
+    
     public static DisconnectReason DisconnectReason;
     
     public static void Init()
