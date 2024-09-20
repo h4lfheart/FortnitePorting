@@ -32,8 +32,8 @@ public partial class TimeWasterView : ViewBase<TimeWasterViewModel>
     
     private void OnPointerMove(object? sender, PointerEventArgs e)
     {
-        var point = e.GetCurrentPoint(null);
-        var normalizedPoint = point.Position - new Point(Bounds.Width / 2, Bounds.Height / 2);
+        var point = e.GetCurrentPoint(GameGrid);
+        var normalizedPoint = point.Position - new Point(GameGrid.Width / 2, GameGrid.Height / 2);
         ViewModel.Player.Target.X = normalizedPoint.X;
     }
     

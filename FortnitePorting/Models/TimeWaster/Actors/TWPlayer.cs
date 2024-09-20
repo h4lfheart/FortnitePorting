@@ -15,7 +15,7 @@ public partial class TWPlayer : TWActor
     [ObservableProperty] private TWVector2 _target = TWVector2.Zero;
     [ObservableProperty] private double _blinkOpacity = 1.0;
     [ObservableProperty] private double _boosterOpacity = 0.0;
-    [ObservableProperty] private bool _dead = false;
+    [ObservableProperty] private bool _dead = true;
 
     public bool FinishedSpawn => Math.Abs(Target.Y - Position.Y) < 10;
     private bool BlinkedSinceSpawn = true;

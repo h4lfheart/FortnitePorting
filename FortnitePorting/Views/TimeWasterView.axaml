@@ -6,12 +6,11 @@
              xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
              xmlns:timeWaster="clr-namespace:FortnitePorting.Models.TimeWaster"
              xmlns:actors="clr-namespace:FortnitePorting.Models.TimeWaster.Actors"
-             mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720"
+             mc:Ignorable="d" d:DesignWidth="1160" d:DesignHeight="770"
              x:Class="FortnitePorting.Views.TimeWasterView"
              x:DataType="viewModels:TimeWasterViewModel" 
              FontFamily="{StaticResource TimeWasterFontFamily}"
-             PointerMoved="OnPointerMove" PointerPressed="OnPointerPressed" 
-             Bounds="{Binding ViewportBounds, Mode=TwoWay}">
+             PointerMoved="OnPointerMove" PointerPressed="OnPointerPressed">
     <Grid Background="Black">
         <Grid>
             <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
@@ -66,74 +65,229 @@
             </Image>
         </Grid>
         
-        <ItemsControl ItemsSource="{Binding Projectiles}">
-            <ItemsControl.ItemTemplate>
-                <DataTemplate DataType="actors:TWProjectile">
-                    <Grid VerticalAlignment="Center" HorizontalAlignment="Center" RenderTransform="{Binding RenderTransform}">
-                        <Border Background="#1ea7c9" CornerRadius="0" Opacity="0.9">
+        <Viewbox Stretch="Fill">
+            <Grid x:Name="GameGrid" Width="{Binding ViewportBounds.Width}" Height="{Binding ViewportBounds.Height}">
+                <ItemsControl ItemsSource="{Binding Projectiles}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="actors:TWProjectile">
+                            <Grid VerticalAlignment="Center" HorizontalAlignment="Center" RenderTransform="{Binding RenderTransform}">
+                                <Border Background="#1ea7c9" CornerRadius="0" Opacity="0.9">
+                                    <Border.OpacityMask>
+                                        <ImageBrush Source="/Assets/TimeWaster/Sprites/T_Glow_Mask.png" Stretch="Fill"/>
+                                    </Border.OpacityMask>
+                                    <Border.RenderTransform>
+                                        <ScaleTransform ScaleX="2" ScaleY="2"/>
+                                    </Border.RenderTransform>
+                                </Border>
+                                <Image Source="/Assets/TimeWaster/Sprites/T_Projectile.png" Stretch="None" Opacity="0.75"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Grid/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+                
+                <ItemsControl ItemsSource="{Binding Obstacles}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="actors:TWObstacle">
+                            <Grid VerticalAlignment="Center" HorizontalAlignment="Center" RenderTransform="{Binding RenderTransform}">
+                                <Image Source="/Assets/TimeWaster/Sprites/T_UI_Durrburger.png" Stretch="None"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Grid/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+                <ItemsControl ItemsSource="{Binding Pineapples}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="actors:TWPineapple">
+                            <Grid VerticalAlignment="Center" HorizontalAlignment="Center" RenderTransform="{Binding RenderTransform}">
+                                <Border Background="#B9A137" CornerRadius="0" Opacity="0.75">
+                                    <Border.OpacityMask>
+                                        <ImageBrush Source="/Assets/TimeWaster/Sprites/T_Glow_Mask.png" Stretch="Fill"/>
+                                    </Border.OpacityMask>
+                                    <Border.RenderTransform>
+                                        <ScaleTransform ScaleX="1.5" ScaleY="1.5"/>
+                                    </Border.RenderTransform>
+                                </Border>
+                                <Image Source="/Assets/TimeWaster/Sprites/T_Pineapple.png" Stretch="None" Opacity="0.9"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Grid/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+                
+                <ItemsControl ItemsSource="{Binding ObstacleExplosions}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="actors:TWObstacleExplosion">
+                            <Grid VerticalAlignment="Center" HorizontalAlignment="Center" RenderTransform="{Binding RenderTransform}">
+                                <Image Source="{Binding ImageBitmap}" Stretch="None" 
+                                       RenderTransform="{Binding SpriteActor.RenderTransform}"/>
+                                <TextBlock Text="{Binding Score, StringFormat='N0'}" FontSize="24" LetterSpacing="1.4" Foreground="{Binding TextBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Bottom" IsVisible="{Binding ShowScore}">
+                                    <TextBlock.RenderTransform>
+                                        <TransformGroup>
+                                            <ScaleTransform ScaleX="0.95" ScaleY="0.85"/>
+                                            <SkewTransform AngleX="-5"/>
+                                        </TransformGroup>
+                                    </TextBlock.RenderTransform>
+                                </TextBlock>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Grid/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+                
+                <Grid DataContext="{Binding Boss}" 
+                      RenderTransform="{Binding RenderTransform}"
+                      IsVisible="{Binding IsActive}"
+                      VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <Border Background="Red" Opacity="1">
+                        <Border.OpacityMask>
+                            <ImageBrush Source="/Assets/TimeWaster/Sprites/T_Glow_Mask.png" Stretch="Fill"/>
+                        </Border.OpacityMask>
+                        <Border.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform ScaleX="0.5" ScaleY="0.5"/>
+                                <TranslateTransform X="165" Y="-75"/>
+                            </TransformGroup>
+                        </Border.RenderTransform>
+                    </Border>
+                    <Border Background="Red" Opacity="1">
+                        <Border.OpacityMask>
+                            <ImageBrush Source="/Assets/TimeWaster/Sprites/T_Glow_Mask.png" Stretch="Fill"/>
+                        </Border.OpacityMask>
+                        <Border.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform ScaleX="0.5" ScaleY="0.5"/>
+                                <TranslateTransform X="-160" Y="-85"/>
+                            </TransformGroup>
+                        </Border.RenderTransform>
+                    </Border>
+                    <Image Source="/Assets/TimeWaster/Sprites/T_UI_Durrburger.png" Stretch="None"/>
+                    <Border Opacity="{Binding HitOpacity}" Background="Red">
+                        <Border.OpacityMask>
+                            <ImageBrush Source="/Assets/TimeWaster/Sprites/T_UI_Durrburger.png"/>
+                        </Border.OpacityMask>
+                    </Border>
+                </Grid>
+                
+                <Grid DataContext="{Binding Player}" 
+                      RenderTransform="{Binding RenderTransform}"
+                      VerticalAlignment="Center" HorizontalAlignment="Center" 
+                      Opacity="{Binding BlinkOpacity}">
+                    <Grid IsVisible="{Binding !Dead}">
+                        <Grid Opacity="{Binding BoosterOpacity}">
+                            <Border Background="#0fbdf2" CornerRadius="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                                <Border.OpacityMask>
+                                    <LinearGradientBrush StartPoint="50%, 0%" EndPoint="50%, 100%">
+                                        <GradientStops>
+                                            <GradientStop Offset="0.0" Color="White"/>
+                                            <GradientStop Offset="1.0" Color="Transparent"/>
+                                        </GradientStops>
+                                    </LinearGradientBrush>
+                                </Border.OpacityMask>
+                                <Border.RenderTransform>
+                                    <TransformGroup>
+                                        <ScaleTransform ScaleX="0.1" ScaleY="0.5"/>
+                                        <TranslateTransform X="-12" Y="45"/>
+                                    </TransformGroup>
+                                </Border.RenderTransform>
+                            </Border>
+                            <Border Background="#0fbdf2" CornerRadius="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                                <Border.OpacityMask>
+                                    <LinearGradientBrush StartPoint="50%, 0%" EndPoint="50%, 100%">
+                                        <GradientStops>
+                                            <GradientStop Offset="0.0" Color="White"/>
+                                            <GradientStop Offset="1.0" Color="Transparent"/>
+                                        </GradientStops>
+                                    </LinearGradientBrush>
+                                </Border.OpacityMask>
+                                <Border.RenderTransform>
+                                    <TransformGroup>
+                                        <ScaleTransform ScaleX="0.1" ScaleY="0.5"/>
+                                        <TranslateTransform X="12" Y="45"/>
+                                    </TransformGroup>
+                                </Border.RenderTransform>
+                            </Border>
+                        </Grid>
+                        <Border Background="#B9A137" CornerRadius="0" Margin="{ext:Space 0, 1, 0, 0}" Opacity="0.75">
                             <Border.OpacityMask>
                                 <ImageBrush Source="/Assets/TimeWaster/Sprites/T_Glow_Mask.png" Stretch="Fill"/>
                             </Border.OpacityMask>
                             <Border.RenderTransform>
-                                <ScaleTransform ScaleX="2" ScaleY="2"/>
+                                <ScaleTransform ScaleX="2.5" ScaleY="3"/>
                             </Border.RenderTransform>
                         </Border>
-                        <Image Source="/Assets/TimeWaster/Sprites/T_Projectile.png" Stretch="None" Opacity="0.75"/>
+                        <Image Source="/Assets/TimeWaster/Sprites/T_Pizza.png" Stretch="None">
+                            <Image.RenderTransform>
+                                <ScaleTransform ScaleX="1.2" ScaleY="1.2"/>
+                            </Image.RenderTransform>
+                        </Image>
                     </Grid>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <Grid/>
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-        </ItemsControl>
-        
-        <ItemsControl ItemsSource="{Binding Obstacles}">
-            <ItemsControl.ItemTemplate>
-                <DataTemplate DataType="actors:TWObstacle">
-                    <Grid VerticalAlignment="Center" HorizontalAlignment="Center" RenderTransform="{Binding RenderTransform}">
-                        <Image Source="/Assets/TimeWaster/Sprites/T_UI_Durrburger.png" Stretch="None"/>
-                    </Grid>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <Grid/>
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-        </ItemsControl>
-        <ItemsControl ItemsSource="{Binding Pineapples}">
-            <ItemsControl.ItemTemplate>
-                <DataTemplate DataType="actors:TWPineapple">
-                    <Grid VerticalAlignment="Center" HorizontalAlignment="Center" RenderTransform="{Binding RenderTransform}">
-                        <Border Background="#B9A137" CornerRadius="0" Opacity="0.75">
+                </Grid>
+                
+                <Grid DataContext="{Binding PlayerExplosion}" IsVisible="{Binding IsActive}"
+                      RenderTransform="{Binding RenderTransform}"
+                      VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <Border Background="{Binding Brush}" CornerRadius="0" Width="48" Height="48">
+                        <Border.OpacityMask>
+                            <ImageBrush Source="/Assets/TimeWaster/Sprites/T_Explode.png" Stretch="Fill"/>
+                        </Border.OpacityMask>
+                        <Border.RenderTransform>
+                            <ScaleTransform ScaleX="2" ScaleY="2"/>
+                        </Border.RenderTransform>
+                    </Border>
+                </Grid>
+                
+                <Grid DataContext="{Binding VictoryText}" 
+                      IsVisible="{Binding IsActive}" 
+                      RenderTransform="{Binding RenderTransform}"
+                      Opacity="{Binding Opacity}"
+                      VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <Border Background="#0fbdf2" CornerRadius="0" Opacity="0.9">
+                        <Border.OpacityMask>
+                            <ImageBrush Source="/Assets/TimeWaster/Sprites/T_Glow_Mask.png" Stretch="Fill"/>
+                        </Border.OpacityMask>
+                        <Border.RenderTransform>
+                            <ScaleTransform ScaleX="2.25" ScaleY="2"/>
+                        </Border.RenderTransform>
+                    </Border>
+                    <TextBlock Text="VICDURRRY" Foreground="#0fd7f2" FontSize="125" LetterSpacing="1.5">
+                        <TextBlock.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform ScaleX="0.95" ScaleY="0.85"/>
+                            </TransformGroup>
+                        </TextBlock.RenderTransform>
+                    </TextBlock>
+                </Grid>
+                
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Margin="{ext:Space 2}" Opacity="0.9">
+                    <Grid>
+                        <Border Background="Red" CornerRadius="0" Opacity="0.8">
                             <Border.OpacityMask>
                                 <ImageBrush Source="/Assets/TimeWaster/Sprites/T_Glow_Mask.png" Stretch="Fill"/>
                             </Border.OpacityMask>
                             <Border.RenderTransform>
-                                <ScaleTransform ScaleX="1.5" ScaleY="1.5"/>
+                                <ScaleTransform ScaleX="2.5" ScaleY="2"/>
                             </Border.RenderTransform>
                         </Border>
-                        <Image Source="/Assets/TimeWaster/Sprites/T_Pineapple.png" Stretch="None"/>
-                    </Grid>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <Grid/>
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-        </ItemsControl>
-        
-        <ItemsControl ItemsSource="{Binding ObstacleExplosions}">
-            <ItemsControl.ItemTemplate>
-                <DataTemplate DataType="actors:TWObstacleExplosion">
-                    <Grid VerticalAlignment="Center" HorizontalAlignment="Center" RenderTransform="{Binding RenderTransform}">
-                        <Image Source="{Binding ImageBitmap}" Stretch="None" 
-                               RenderTransform="{Binding SpriteActor.RenderTransform}"/>
-                        <TextBlock Text="{Binding Score, StringFormat='N0'}" FontSize="24" LetterSpacing="1.4" Foreground="{Binding TextBrush}"
-                                   HorizontalAlignment="Center" VerticalAlignment="Bottom" IsVisible="{Binding ShowScore}">
+                        <TextBlock Text="HIGH SCORE" Foreground="Red" LetterSpacing="1.5" FontSize="28" 
+                                   HorizontalAlignment="Center">
                             <TextBlock.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform ScaleX="0.95" ScaleY="0.85"/>
@@ -142,181 +296,30 @@
                             </TextBlock.RenderTransform>
                         </TextBlock>
                     </Grid>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <Grid/>
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-        </ItemsControl>
-        
-        <Grid DataContext="{Binding Boss}" 
-              RenderTransform="{Binding RenderTransform}"
-              IsVisible="{Binding IsActive}"
-              VerticalAlignment="Center" HorizontalAlignment="Center">
-            <Border Background="Red" Opacity="1">
-                <Border.OpacityMask>
-                    <ImageBrush Source="/Assets/TimeWaster/Sprites/T_Glow_Mask.png" Stretch="Fill"/>
-                </Border.OpacityMask>
-                <Border.RenderTransform>
-                    <TransformGroup>
-                        <ScaleTransform ScaleX="0.5" ScaleY="0.5"/>
-                        <TranslateTransform X="165" Y="-75"/>
-                    </TransformGroup>
-                </Border.RenderTransform>
-            </Border>
-            <Border Background="Red" Opacity="1">
-                <Border.OpacityMask>
-                    <ImageBrush Source="/Assets/TimeWaster/Sprites/T_Glow_Mask.png" Stretch="Fill"/>
-                </Border.OpacityMask>
-                <Border.RenderTransform>
-                    <TransformGroup>
-                        <ScaleTransform ScaleX="0.5" ScaleY="0.5"/>
-                        <TranslateTransform X="-160" Y="-85"/>
-                    </TransformGroup>
-                </Border.RenderTransform>
-            </Border>
-            <Image Source="/Assets/TimeWaster/Sprites/T_UI_Durrburger.png" Stretch="None"/>
-            <Border Opacity="{Binding HitOpacity}" Background="Red">
-                <Border.OpacityMask>
-                    <ImageBrush Source="/Assets/TimeWaster/Sprites/T_UI_Durrburger.png"/>
-                </Border.OpacityMask>
-            </Border>
-        </Grid>
-        
-        <Grid DataContext="{Binding Player}" 
-              RenderTransform="{Binding RenderTransform}"
-              VerticalAlignment="Center" HorizontalAlignment="Center" 
-              Opacity="{Binding BlinkOpacity}">
-            <Grid IsVisible="{Binding !Dead}">
-                <Grid Opacity="{Binding BoosterOpacity}">
-                    <Border Background="#0fbdf2" CornerRadius="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-                        <Border.OpacityMask>
-                            <LinearGradientBrush StartPoint="50%, 0%" EndPoint="50%, 100%">
-                                <GradientStops>
-                                    <GradientStop Offset="0.0" Color="White"/>
-                                    <GradientStop Offset="1.0" Color="Transparent"/>
-                                </GradientStops>
-                            </LinearGradientBrush>
-                        </Border.OpacityMask>
-                        <Border.RenderTransform>
-                            <TransformGroup>
-                                <ScaleTransform ScaleX="0.1" ScaleY="0.5"/>
-                                <TranslateTransform X="-12" Y="45"/>
-                            </TransformGroup>
-                        </Border.RenderTransform>
-                    </Border>
-                    <Border Background="#0fbdf2" CornerRadius="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-                        <Border.OpacityMask>
-                            <LinearGradientBrush StartPoint="50%, 0%" EndPoint="50%, 100%">
-                                <GradientStops>
-                                    <GradientStop Offset="0.0" Color="White"/>
-                                    <GradientStop Offset="1.0" Color="Transparent"/>
-                                </GradientStops>
-                            </LinearGradientBrush>
-                        </Border.OpacityMask>
-                        <Border.RenderTransform>
-                            <TransformGroup>
-                                <ScaleTransform ScaleX="0.1" ScaleY="0.5"/>
-                                <TranslateTransform X="12" Y="45"/>
-                            </TransformGroup>
-                        </Border.RenderTransform>
-                    </Border>
-                </Grid>
-                <Border Background="#B9A137" CornerRadius="0" Margin="{ext:Space 0, 1, 0, 0}" Opacity="0.75">
-                    <Border.OpacityMask>
-                        <ImageBrush Source="/Assets/TimeWaster/Sprites/T_Glow_Mask.png" Stretch="Fill"/>
-                    </Border.OpacityMask>
-                    <Border.RenderTransform>
-                        <ScaleTransform ScaleX="2.5" ScaleY="3"/>
-                    </Border.RenderTransform>
-                </Border>
-                <Image Source="/Assets/TimeWaster/Sprites/T_Pizza.png" Stretch="None">
-                    <Image.RenderTransform>
-                        <ScaleTransform ScaleX="1.2" ScaleY="1.2"/>
-                    </Image.RenderTransform>
-                </Image>
+                    
+                    <Grid RenderTransform="{Binding ScoreTextTransform}" RenderTransformOrigin="50%, 0%">
+                        <Border Background="White" CornerRadius="0" Opacity="0.6">
+                            <Border.OpacityMask>
+                                <ImageBrush Source="/Assets/TimeWaster/Sprites/T_Glow_Mask.png" Stretch="Fill"/>
+                            </Border.OpacityMask>
+                            <Border.RenderTransform>
+                                <ScaleTransform ScaleX="2" ScaleY="2"/>
+                            </Border.RenderTransform>
+                        </Border>
+                        <TextBlock Text="{Binding Score, StringFormat='N0'}" 
+                                   Foreground="White" LetterSpacing="1.5" FontSize="24"
+                                   HorizontalAlignment="Center">
+                            <TextBlock.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform ScaleX="0.95" ScaleY="0.85"/>
+                                    <SkewTransform AngleX="-5"/>
+                                </TransformGroup>
+                            </TextBlock.RenderTransform>
+                        </TextBlock>
+                    </Grid>
+                </StackPanel>
             </Grid>
-        </Grid>
-        
-        <Grid DataContext="{Binding PlayerExplosion}" IsVisible="{Binding IsActive}"
-              RenderTransform="{Binding RenderTransform}"
-              VerticalAlignment="Center" HorizontalAlignment="Center">
-            <Border Background="{Binding Brush}" CornerRadius="0" Width="48" Height="48">
-                <Border.OpacityMask>
-                    <ImageBrush Source="/Assets/TimeWaster/Sprites/T_Explode.png" Stretch="Fill"/>
-                </Border.OpacityMask>
-                <Border.RenderTransform>
-                    <ScaleTransform ScaleX="2" ScaleY="2"/>
-                </Border.RenderTransform>
-            </Border>
-        </Grid>
-        
-        <Grid DataContext="{Binding VictoryText}" 
-              IsVisible="{Binding IsActive}" 
-              RenderTransform="{Binding RenderTransform}"
-              Opacity="{Binding Opacity}"
-              VerticalAlignment="Center" HorizontalAlignment="Center">
-            <Border Background="#0fbdf2" CornerRadius="0" Opacity="0.9">
-                <Border.OpacityMask>
-                    <ImageBrush Source="/Assets/TimeWaster/Sprites/T_Glow_Mask.png" Stretch="Fill"/>
-                </Border.OpacityMask>
-                <Border.RenderTransform>
-                    <ScaleTransform ScaleX="2.25" ScaleY="2"/>
-                </Border.RenderTransform>
-            </Border>
-            <TextBlock Text="VICDURRRY" Foreground="#0fd7f2" FontSize="125" LetterSpacing="1.5">
-                <TextBlock.RenderTransform>
-                    <TransformGroup>
-                        <ScaleTransform ScaleX="0.95" ScaleY="0.85"/>
-                    </TransformGroup>
-                </TextBlock.RenderTransform>
-            </TextBlock>
-        </Grid>
-        
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Margin="{ext:Space 2}" Opacity="0.9">
-            <Grid>
-                <Border Background="Red" CornerRadius="0" Opacity="0.8">
-                    <Border.OpacityMask>
-                        <ImageBrush Source="/Assets/TimeWaster/Sprites/T_Glow_Mask.png" Stretch="Fill"/>
-                    </Border.OpacityMask>
-                    <Border.RenderTransform>
-                        <ScaleTransform ScaleX="2.5" ScaleY="2"/>
-                    </Border.RenderTransform>
-                </Border>
-                <TextBlock Text="HIGH SCORE" Foreground="Red" LetterSpacing="1.5" FontSize="28" 
-                           HorizontalAlignment="Center">
-                    <TextBlock.RenderTransform>
-                        <TransformGroup>
-                            <ScaleTransform ScaleX="0.95" ScaleY="0.85"/>
-                            <SkewTransform AngleX="-5"/>
-                        </TransformGroup>
-                    </TextBlock.RenderTransform>
-                </TextBlock>
-            </Grid>
-            
-            <Grid RenderTransform="{Binding ScoreTextTransform}" RenderTransformOrigin="50%, 0%">
-                <Border Background="White" CornerRadius="0" Opacity="0.6">
-                    <Border.OpacityMask>
-                        <ImageBrush Source="/Assets/TimeWaster/Sprites/T_Glow_Mask.png" Stretch="Fill"/>
-                    </Border.OpacityMask>
-                    <Border.RenderTransform>
-                        <ScaleTransform ScaleX="2" ScaleY="2"/>
-                    </Border.RenderTransform>
-                </Border>
-                <TextBlock Text="{Binding Score, StringFormat='N0'}" 
-                           Foreground="White" LetterSpacing="1.5" FontSize="24"
-                           HorizontalAlignment="Center">
-                    <TextBlock.RenderTransform>
-                        <TransformGroup>
-                            <ScaleTransform ScaleX="0.95" ScaleY="0.85"/>
-                            <SkewTransform AngleX="-5"/>
-                        </TransformGroup>
-                    </TextBlock.RenderTransform>
-                </TextBlock>
-            </Grid>
-        </StackPanel>
+        </Viewbox>
         
         <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Opacity="0.2">
             <Border.Background>

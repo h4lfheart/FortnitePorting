@@ -102,7 +102,7 @@ public partial class TWBoss : TWActor
             Position =
             {
                 X = Position.X,
-                Y = Position.Y + 50
+                Y = Position.Y + 100
             },
             Rotation = angle,
             Velocity = new TWVector2(x, y) * -7.5

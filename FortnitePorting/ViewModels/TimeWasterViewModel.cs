@@ -36,7 +36,7 @@ public partial class TimeWasterViewModel : ViewModelBase
     [ObservableProperty] private int _score = 0;
     [ObservableProperty] private bool _fightingBoss = false;
 
-    [ObservableProperty] private Rect _viewportBounds;
+    [ObservableProperty] private Rect _viewportBounds = new(0, 0, 1160, 770);
     
     [ObservableProperty] private double _backgroundRotation = 0;
     [ObservableProperty] private double _barPosition = 0;
