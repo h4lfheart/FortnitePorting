@@ -12,6 +12,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using FortnitePorting.Models.TimeWaster;
 using FortnitePorting.Models.TimeWaster.Actors;
 using FortnitePorting.Models.TimeWaster.Audio;
+using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
 using NAudio.Vorbis;
@@ -27,9 +28,11 @@ public partial class TimeWasterViewModel : ViewModelBase
     [ObservableProperty] private ObservableCollection<TWProjectile> _projectiles = [];
     [ObservableProperty] private ObservableCollection<TWObstacle> _obstacles = [];
     [ObservableProperty] private ObservableCollection<TWObstacleExplosion> _obstacleExplosions = [];
+    [ObservableProperty] private ObservableCollection<TWPineapple> _pineapples = [];
     [ObservableProperty] private TWPlayer _player = new();
     [ObservableProperty] private TWPlayerExplosion _playerExplosion = new();
     [ObservableProperty] private TWBoss _boss = new();
+    [ObservableProperty] private TWVictoryText _victoryText = new();
     [ObservableProperty] private int _score = 0;
     [ObservableProperty] private bool _fightingBoss = false;
 
@@ -62,7 +65,7 @@ public partial class TimeWasterViewModel : ViewModelBase
     private const int OBSTACLE_SPAWN_MARGIN = 100;
     private const int OBSTACLE_INTERACT_MARGIN = 40;
     private const int BOSS_INTERACT_MARGIN = 125;
-    private const int BOSS_SCORE_DISTANCE = 200;
+    private const int BOSS_SCORE_DISTANCE = 3000;
     private const int BOSS_SCORE = 5000;
     private const float DELTA_TIME = 1.0f / 60f;
 
@@ -81,6 +84,7 @@ public partial class TimeWasterViewModel : ViewModelBase
     public override async Task Initialize()
     {
         if (!(AppWM?.TimeWasterOpen ?? false)) return; // removes debug preview sounds
+        Spawn.Play();
         await TaskService.RunDispatcherAsync(Player.Initialize);
         
         RegisterUpdater(UpdateBackground);
@@ -107,6 +111,7 @@ public partial class TimeWasterViewModel : ViewModelBase
 
     public override async Task OnViewExited()
     {
+        AudioSystem.Instance.Stop();
         Updaters.ForEach(updater => updater.Stop());
         OutputDevice.Stop();
         OutputDevice.Dispose();
@@ -114,15 +119,40 @@ public partial class TimeWasterViewModel : ViewModelBase
 
     public override void OnApplicationExit()
     {
+        AudioSystem.Instance.Stop();
         Updaters.ForEach(updater => updater.Stop());
         OutputDevice.Stop();
         OutputDevice.Dispose();
     }
 
-    [ObservableProperty] private bool _showWinText;
 
     private void UpdateBoss()
     {
+        VictoryText.Update();
+        Boss.Update();
+
+        foreach (var pineapple in Pineapples.ToArray())
+        {
+            if (Math.Abs(Player.Position.X - pineapple.Position.X) <= OBSTACLE_INTERACT_MARGIN
+                && Math.Abs(Player.Position.Y - pineapple.Position.Y) <= OBSTACLE_INTERACT_MARGIN
+                && Player is { Dead: false, IsVulnerable: true })
+            {
+                Pineapples.Remove(pineapple);
+                PlayerExplosion.Execute(Player.Position);
+                Death.Play();
+                
+                Player.Kill();
+                TaskService.RunDispatcher(async () =>
+                {
+                    await Task.Delay(4000);
+                    Player.Spawn();
+                    Spawn.Play();
+                });
+            }
+
+            pineapple.Update();
+        }
+        
         if (!FightingBoss && Score == NextBossScore)
         {
             FightingBoss = true;
@@ -135,13 +165,15 @@ public partial class TimeWasterViewModel : ViewModelBase
                 BossAppear.Play();
             });
         }
+
         
-        Boss.Update();
-        
-        if (Boss.IsActive && Projectiles.FirstOrDefault(proj => Math.Abs(proj.Position.X - Boss.Position.X) <= BOSS_INTERACT_MARGIN 
-                                                            && Math.Abs(proj.Position.Y - Boss.Position.Y) <= BOSS_INTERACT_MARGIN) is { } projectile)
+        if (Boss.IsActive
+            && Projectiles.FirstOrDefault(proj => Math.Abs(proj.Position.X - Boss.Position.X) <= BOSS_INTERACT_MARGIN 
+            && Math.Abs(proj.Position.Y - Boss.Position.Y) <= BOSS_INTERACT_MARGIN) is { } projectile)
         {
             Projectiles.Remove(projectile);
+            if (Boss.State is EBossState.Spawning) return;
+            
             BossHit.Play();
             Boss.Health--;
             
@@ -153,13 +185,8 @@ public partial class TimeWasterViewModel : ViewModelBase
                 OnObstacleDestroyed(Boss, score: BOSS_SCORE, scale: 3);
                 FightingBoss = false;
                 NextBossScore += BOSS_SCORE;
-                
-                TaskService.Run(async () =>
-                {
-                    ShowWinText = true;
-                    await Task.Delay(3000);
-                    ShowWinText = false;
-                });
+
+                VictoryText.Display();
                 
                 return;
             }
@@ -181,6 +208,7 @@ public partial class TimeWasterViewModel : ViewModelBase
     public void ShootProjectile()
     {
         if (Player.Dead) return;
+        if (!Player.FinishedSpawn) return;
         if (TimeSinceLastProjectile <= 0.2f) return;
         
         var projectile = new TWProjectile
@@ -252,19 +280,18 @@ public partial class TimeWasterViewModel : ViewModelBase
             
             if (Math.Abs(Player.Position.X - obstacle.Position.X) <= OBSTACLE_INTERACT_MARGIN 
                 && Math.Abs(Player.Position.Y - obstacle.Position.Y) <= OBSTACLE_INTERACT_MARGIN
-                && Player is { Dead: false, Time: >= 1.0f })
+                && Player is { Dead: false, IsVulnerable: true })
             {
                 Obstacles.Remove(obstacle);
                 PlayerExplosion.Execute(Player.Position);
                 Death.Play();
-                Player.Dead = true;
-
-                TaskService.Run(async () =>
+                
+                Player.Kill();
+                TaskService.RunDispatcher(async () =>
                 {
                     await Task.Delay(4000);
-                    Player.Position.X = 0;
-                    Player.Time = 0;
-                    Player.Dead = false;
+                    Player.Spawn();
+                    Spawn.Play();
                 });
                 
                 continue;
@@ -366,7 +393,6 @@ public partial class TimeWasterViewModel : ViewModelBase
         obstacle.Initialize();
         Obstacles.Add(obstacle);
     }
-
 
     private void OnObstacleDestroyed(TWActor obstacle, int score = 100, double scale = 1.0)
     {

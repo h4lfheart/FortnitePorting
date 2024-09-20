@@ -103,6 +103,28 @@
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
         </ItemsControl>
+        <ItemsControl ItemsSource="{Binding Pineapples}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="actors:TWPineapple">
+                    <Grid VerticalAlignment="Center" HorizontalAlignment="Center" RenderTransform="{Binding RenderTransform}">
+                        <Border Background="#B9A137" CornerRadius="0" Opacity="0.75">
+                            <Border.OpacityMask>
+                                <ImageBrush Source="/Assets/TimeWaster/Sprites/T_Glow_Mask.png" Stretch="Fill"/>
+                            </Border.OpacityMask>
+                            <Border.RenderTransform>
+                                <ScaleTransform ScaleX="1.5" ScaleY="1.5"/>
+                            </Border.RenderTransform>
+                        </Border>
+                        <Image Source="/Assets/TimeWaster/Sprites/T_Pineapple.png" Stretch="None"/>
+                    </Grid>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
         
         <ItemsControl ItemsSource="{Binding ObstacleExplosions}">
             <ItemsControl.ItemTemplate>
@@ -165,8 +187,43 @@
         
         <Grid DataContext="{Binding Player}" 
               RenderTransform="{Binding RenderTransform}"
-              VerticalAlignment="Center" HorizontalAlignment="Center">
+              VerticalAlignment="Center" HorizontalAlignment="Center" 
+              Opacity="{Binding BlinkOpacity}">
             <Grid IsVisible="{Binding !Dead}">
+                <Grid Opacity="{Binding BoosterOpacity}">
+                    <Border Background="#0fbdf2" CornerRadius="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                        <Border.OpacityMask>
+                            <LinearGradientBrush StartPoint="50%, 0%" EndPoint="50%, 100%">
+                                <GradientStops>
+                                    <GradientStop Offset="0.0" Color="White"/>
+                                    <GradientStop Offset="1.0" Color="Transparent"/>
+                                </GradientStops>
+                            </LinearGradientBrush>
+                        </Border.OpacityMask>
+                        <Border.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform ScaleX="0.1" ScaleY="0.5"/>
+                                <TranslateTransform X="-12" Y="45"/>
+                            </TransformGroup>
+                        </Border.RenderTransform>
+                    </Border>
+                    <Border Background="#0fbdf2" CornerRadius="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                        <Border.OpacityMask>
+                            <LinearGradientBrush StartPoint="50%, 0%" EndPoint="50%, 100%">
+                                <GradientStops>
+                                    <GradientStop Offset="0.0" Color="White"/>
+                                    <GradientStop Offset="1.0" Color="Transparent"/>
+                                </GradientStops>
+                            </LinearGradientBrush>
+                        </Border.OpacityMask>
+                        <Border.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform ScaleX="0.1" ScaleY="0.5"/>
+                                <TranslateTransform X="12" Y="45"/>
+                            </TransformGroup>
+                        </Border.RenderTransform>
+                    </Border>
+                </Grid>
                 <Border Background="#B9A137" CornerRadius="0" Margin="{ext:Space 0, 1, 0, 0}" Opacity="0.75">
                     <Border.OpacityMask>
                         <ImageBrush Source="/Assets/TimeWaster/Sprites/T_Glow_Mask.png" Stretch="Fill"/>
@@ -196,10 +253,11 @@
             </Border>
         </Grid>
         
-        <Grid IsVisible="{Binding ShowWinText}" VerticalAlignment="Center" HorizontalAlignment="Center">
-            <Grid.RenderTransform>
-                <TranslateTransform Y="-125"/>
-            </Grid.RenderTransform>
+        <Grid DataContext="{Binding VictoryText}" 
+              IsVisible="{Binding IsActive}" 
+              RenderTransform="{Binding RenderTransform}"
+              Opacity="{Binding Opacity}"
+              VerticalAlignment="Center" HorizontalAlignment="Center">
             <Border Background="#0fbdf2" CornerRadius="0" Opacity="0.9">
                 <Border.OpacityMask>
                     <ImageBrush Source="/Assets/TimeWaster/Sprites/T_Glow_Mask.png" Stretch="Fill"/>

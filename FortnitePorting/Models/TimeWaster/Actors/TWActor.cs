@@ -96,6 +96,16 @@ public partial class TWVector2 : ObservableObject
         Y = value;
     }
 
+    public static TWVector2 operator+(TWVector2 first, TWVector2 second)
+    {
+        return new TWVector2(first.X + second.X, first.Y + second.Y);
+    }
+    
+    public static TWVector2 operator*(TWVector2 vector, double scalar)
+    {
+        return new TWVector2(vector.X * scalar, vector.Y * scalar);
+    }
+
     public TWVector2 Copy()
     {
         return new TWVector2(X, Y);

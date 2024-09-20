@@ -40,6 +40,11 @@ public class AudioSystem : IDisposable
     {
         _mixer.AddMixerInput(waveProvider);
     }
+
+    public void Stop()
+    {
+        _mixer.RemoveAllMixerInputs();
+    }
     
     public void Dispose()
     {
