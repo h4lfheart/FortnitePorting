@@ -74,7 +74,7 @@
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Fortnite vXX.XX - " Classes="BodyStrongTextBlockStyle" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <TextBlock Text="Any other older version of Fortnite. The versions listed are the currently supported versions." HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <TextBlock Text="Any other older version of Fortnite that has been explicitly supported. The versions listed are the currently supported versions." HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </StackPanel>
             </ui:SettingsExpander>
             <ui:SettingsExpander Header="Archive Directory" Description="The directory that contains all of the required game files. (*.pak, *.sig, *.ucas, *.utoc)" IsEnabled="{Binding CurrentProfile.ArchiveDirectoryEnabled}">

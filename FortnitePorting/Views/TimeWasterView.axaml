@@ -318,13 +318,13 @@
                         </TextBlock>
                     </Grid>
                 </StackPanel>
+                
+                <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Opacity="0.2">
+                    <Border.Background>
+                        <ImageBrush Source="/Assets/TimeWaster/T_Bars.png" Transform="{Binding BarsTransform}" Stretch="UniformToFill" TileMode="Tile" TransformOrigin="50%, 50%"/>
+                    </Border.Background>
+                </Border>
             </Grid>
         </Viewbox>
-        
-        <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Opacity="0.2">
-            <Border.Background>
-                <ImageBrush Source="/Assets/TimeWaster/T_Bars.png" Transform="{Binding BarsTransform}" Stretch="UniformToFill" TileMode="Tile" TransformOrigin="50%, 50%"/>
-            </Border.Background>
-        </Border>
     </Grid>
 </UserControl>

@@ -51,8 +51,10 @@ public partial class TimeWasterViewModel : ViewModelBase
     private float TimeSinceLastProjectile;
     private int NextBossScore = BOSS_SCORE_DISTANCE;
     
-    private readonly WaveOutEvent OutputDevice = new();
-    private static LoopStream BackgroundLoop;
+    private readonly WaveOutEvent AmbientOutput = new();
+    private readonly WaveOutEvent GameOutput = new();
+    private static LoopStream AmbientBackground;
+    private static LoopStream GameBackground;
     private static CachedSound Spawn;
     private static CachedSound Shoot;
     private static CachedSound Explode;
@@ -71,7 +73,8 @@ public partial class TimeWasterViewModel : ViewModelBase
 
     public static void LoadResources()
     { 
-        BackgroundLoop = new LoopStream(new VorbisWaveReader(AssetLoader.Open(new Uri("avares://FortnitePorting/Assets/TimeWaster/Event_Night_Night_Post_Loop.ogg"))));
+        AmbientBackground = new LoopStream(new VorbisWaveReader(AssetLoader.Open(new Uri("avares://FortnitePorting/Assets/TimeWaster/Music/Ambient_Music.ogg"))));
+        GameBackground = new LoopStream(new VorbisWaveReader(AssetLoader.Open(new Uri("avares://FortnitePorting/Assets/TimeWaster/Music/Game_Music.ogg"))));
         Spawn = new CachedSound("avares://FortnitePorting/Assets/TimeWaster/SFX/PMB_Spawn_01.ogg");
         Shoot = new CachedSound("avares://FortnitePorting/Assets/TimeWaster/SFX/PMB_Shoot_01.ogg");
         Explode = new CachedSound("avares://FortnitePorting/Assets/TimeWaster/SFX/PMB_Explo_01.ogg");
@@ -84,7 +87,6 @@ public partial class TimeWasterViewModel : ViewModelBase
     public override async Task Initialize()
     {
         if (!(AppWM?.TimeWasterOpen ?? false)) return; // removes debug preview sounds
-        Spawn.Play();
         await TaskService.RunDispatcherAsync(Player.Initialize);
         
         RegisterUpdater(UpdateBackground);
@@ -95,34 +97,26 @@ public partial class TimeWasterViewModel : ViewModelBase
         RegisterUpdater(UpdateBoss);
         RegisterUpdater(ProjectileTimerHandler);
         RegisterUpdater(CreateObstacles, seconds: 1.4f);
-    }
+        
+        Spawn.Play();
 
-    public override async Task OnViewOpened()
-    {
-        if (!(AppWM?.TimeWasterOpen ?? false)) return; // removes debug preview sounds
-        BackgroundLoop.Position = 0;
-        OutputDevice.Init(BackgroundLoop);
-        OutputDevice.Play();
-        while (OutputDevice.PlaybackState == PlaybackState.Playing)
-        {
-            await Task.Delay(1);
-        }
+        InitAudio(AmbientOutput, AmbientBackground);
+        InitAudio(GameOutput, GameBackground);
     }
 
     public override async Task OnViewExited()
     {
-        AudioSystem.Instance.Stop();
-        Updaters.ForEach(updater => updater.Stop());
-        OutputDevice.Stop();
-        OutputDevice.Dispose();
+        OnApplicationExit();
     }
 
     public override void OnApplicationExit()
     {
         AudioSystem.Instance.Stop();
         Updaters.ForEach(updater => updater.Stop());
-        OutputDevice.Stop();
-        OutputDevice.Dispose();
+        AmbientOutput.Stop();
+        AmbientOutput.Dispose();
+        GameOutput.Stop();
+        GameOutput.Dispose();
     }
 
 
@@ -423,6 +417,21 @@ public partial class TimeWasterViewModel : ViewModelBase
         double centerX = 0, double centerY = 0, double centerZ = 0, int depth = 2000)
     {
         return new Rotate3DTransform(x, y, z, centerX, centerY, centerZ, depth);
+    }
+    
+    private void InitAudio(WaveOutEvent waveOut, LoopStream wave)
+    {
+        TaskService.Run(async () =>
+        {
+            wave.Position = 0;
+            waveOut.Init(wave);
+            waveOut.Play();
+
+            while (waveOut.PlaybackState == PlaybackState.Playing)
+            {
+                await Task.Delay(25);
+            }
+        });
     }
 
     private static List<DispatcherTimer> Updaters = [];

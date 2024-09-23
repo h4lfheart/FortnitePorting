@@ -71,7 +71,7 @@ public static class OnlineService
                     {
                         if (Client is null) break;
 
-                        if (Client.Connected)
+                        if (Client.Connected && ChatVM is not null)
                         {
                             ChatVM.AreServicesDown = false;
                         }
