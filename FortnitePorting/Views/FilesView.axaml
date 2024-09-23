@@ -15,6 +15,9 @@
              d:DesignHeight="770" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.FilesView"
              x:DataType="viewModels:FilesViewModel">
+    <UserControl.KeyBindings>
+        <KeyBinding Gesture="P" Command="{Binding PreviewCommand}"/>
+    </UserControl.KeyBindings>
     <Grid>
         <Grid Margin="{ext:Space 1}">
             <Grid.RowDefinitions>

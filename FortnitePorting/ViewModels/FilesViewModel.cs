@@ -190,7 +190,22 @@ public partial class FilesViewModel : ViewModelBase
         var selectedItem = SelectedFlatViewItems.FirstOrDefault();
         if (selectedItem is null) return;
         
-        var asset = await CUE4ParseVM.Provider.LoadObjectAsync(Exporter.FixPath(selectedItem.Path));
+        var basePath = Exporter.FixPath(selectedItem.Path);
+            
+        UObject? asset = null;
+        if (selectedItem.Path.EndsWith(".umap"))
+        {
+            var package = await CUE4ParseVM.Provider.LoadPackageAsync(basePath);
+            asset = package.GetExports().OfType<UWorld>().FirstOrDefault();
+        }
+        else
+        {
+            asset = await CUE4ParseVM.Provider.TryLoadObjectAsync(basePath);
+            asset ??= await CUE4ParseVM.Provider.TryLoadObjectAsync($"{basePath}.{basePath.SubstringAfterLast("/")}_C");
+        }
+            
+        if (asset is null) return;
+        
         var name = asset.Name;
 
         switch (asset)
