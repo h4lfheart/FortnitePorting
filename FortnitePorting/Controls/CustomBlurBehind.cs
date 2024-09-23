@@ -19,13 +19,18 @@ public class CustomBlurBehind : Control
         set => SetValue(RadiusProperty, value);
     }
 
-    private static readonly ImmutableExperimentalAcrylicMaterial Material = (ImmutableExperimentalAcrylicMaterial) new ExperimentalAcrylicMaterial()
+    private static ImmutableExperimentalAcrylicMaterial Material;
+
+    public CustomBlurBehind()
     {
-        MaterialOpacity = 0.5,
-        TintColor = Colors.Azure,
-        TintOpacity = 0.5,
-        PlatformTransparencyCompensationLevel = 0
-    }.ToImmutable();
+        Material = (ImmutableExperimentalAcrylicMaterial) new ExperimentalAcrylicMaterial
+        {
+            BackgroundSource = AcrylicBackgroundSource.Digger,
+            MaterialOpacity = 1.5,
+            TintColor = AppWM.Theme.BackgroundColor,
+            TintOpacity = 1
+        }.ToImmutable();
+    }
 
     static CustomBlurBehind()
     {
@@ -82,7 +87,7 @@ file class BlurBehindRenderOperation(ImmutableExperimentalAcrylicMaterial Materi
         var tintColor = Material.TintColor;
         var tint = new SKColor(tintColor.R, tintColor.G, tintColor.B, tintColor.A);
 
-        using var backdrop = SKShader.CreateColor(new SKColor(Material.MaterialColor.R, Material.MaterialColor.G, Material.MaterialColor.B, Material.MaterialColor.A));
+        using var backdrop = SKShader.CreateColor(new SKColor(Material.MaterialColor.R, Material.MaterialColor.G, Material.MaterialColor.B, 128));
         using var tintShader = SKShader.CreateColor(tint);
         using var effectiveTint = SKShader.CreateCompose(backdrop, tintShader);
         using var compose = SKShader.CreateCompose(effectiveTint, AcrylicNoiseShader);

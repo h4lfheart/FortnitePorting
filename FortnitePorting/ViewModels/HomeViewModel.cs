@@ -11,6 +11,7 @@ using CommunityToolkit.Mvvm.Input;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
 using FortnitePorting.Controls;
+using FortnitePorting.Models.API.Responses;
 using FortnitePorting.OnlineServices.Models;
 using FortnitePorting.OnlineServices.Packet;
 using FortnitePorting.Services;
@@ -28,8 +29,8 @@ namespace FortnitePorting.ViewModels;
 public partial class HomeViewModel : ViewModelBase
 {
     [ObservableProperty] private string _statusText = string.Empty;
-    [ObservableProperty] private ObservableCollection<NewsControl> _newsControls = [];
-    [ObservableProperty] private ObservableCollection<FeaturedControl> _featuredControls = [];
+    [ObservableProperty] private ObservableCollection<NewsResponse> _news = [];
+    [ObservableProperty] private ObservableCollection<FeaturedResponse> _featured = [];
 
     public OnlineSettingsViewModel OnlineRef => AppSettings.Current.Online;
     
@@ -52,26 +53,11 @@ public partial class HomeViewModel : ViewModelBase
             await FilesVM.Initialize();
         });
         
+        var news = await ApiVM.FortnitePorting.GetNewsAsync();
+        News = [..news.OrderByDescending(item => item.Date)];
         
-        await TaskService.RunDispatcherAsync(async () =>
-        {
-            var news = await ApiVM.FortnitePorting.GetNewsAsync();
-            if (news is null) return;
-
-            var controls = news
-                .OrderByDescending(item => item.Date)
-                .Select(item => new NewsControl(item));
-            NewsControls = [..controls];
-        });
-        
-        await TaskService.RunDispatcherAsync(async () =>
-        {
-            var featured = await ApiVM.FortnitePorting.GetFeaturedAsync();
-            if (featured is null) return;
-
-            var controls = featured.Select(item => new FeaturedControl(item));
-            FeaturedControls = [..controls];
-        });
+        var featured = await ApiVM.FortnitePorting.GetFeaturedAsync();
+        Featured = [..featured];
     }
     
     public void UpdateStatus(string text)

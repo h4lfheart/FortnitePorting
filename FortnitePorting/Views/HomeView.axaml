@@ -98,12 +98,30 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="{ext:Space 1}"/>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="{ext:Space 1}"/>
                 </Grid.RowDefinitions>
                 
                 <StackPanel Grid.Row="0" HorizontalAlignment="Stretch">
                     <TextBlock Text="News &amp; Updates" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
-                    <ItemsControl ItemsSource="{Binding NewsControls}" HorizontalAlignment="Center" Margin="{ext:Space 0, 0.5}">
+                    <ItemsControl ItemsSource="{Binding News}" HorizontalAlignment="Center" Margin="{ext:Space 0, 0.5}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border MinHeight="140" MinWidth="260" Margin="{ext:Space 0.5}" CornerRadius="4" ClipToBounds="True" Cursor="Hand" PointerPressed="OnNewsPressed">
+                                    <Border.Background>
+                                        <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding Image}" Stretch="UniformToFill"/>
+                                    </Border.Background>
+                                    
+                                    <Grid RowDefinitions="1.0*, 1.1*">
+                                        <controls:CustomBlurBehind Grid.Row="1"/>
+                                        <Border Grid.Row="1" Background="Black" Opacity="0.25" CornerRadius="0 0 4 4"/>
+                                        <StackPanel Grid.Row="1" Margin="{ext:Space 1, 0.5, 1, 0}">
+                                            <TextBlock HorizontalAlignment="Center" Text="{Binding Title}" Classes="SubtitleTextBlockStyle"/>
+                                            <TextBlock HorizontalAlignment="Center" Text="{Binding SubTitle}" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"/>
+                                            <TextBlock HorizontalAlignment="Center" Text="{Binding Date, StringFormat='{}{0:MM/dd/yyyy}'}" Classes="CaptionTextBlockStyle TextFillColorTertiaryBrush"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <WrapPanel VerticalAlignment="Center" HorizontalAlignment="Center"/>
@@ -111,21 +129,35 @@
                         </ItemsControl.ItemsPanel>
                     </ItemsControl>
                 </StackPanel>
-                
-                <Separator Grid.Row="1"/>
                 
                 <StackPanel Grid.Row="2" HorizontalAlignment="Stretch">
                     <TextBlock Text="Featured Art" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
-                    <ItemsControl ItemsSource="{Binding FeaturedControls}" HorizontalAlignment="Center" Margin="{ext:Space 0, 0.5}">
+                    <ItemsControl ItemsSource="{Binding Featured}" HorizontalAlignment="Center" Margin="{ext:Space 0, 0.5}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border MinHeight="140" MinWidth="260" Margin="{ext:Space 0.5}" CornerRadius="4" ClipToBounds="True" Cursor="Hand" PointerPressed="OnFeaturedPressed">
+                                    <Border.Background>
+                                        <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding Image}" Stretch="UniformToFill"/>
+                                    </Border.Background>
+                                    
+                                    <Grid RowDefinitions="1.5*, 1.0*">
+                                        <controls:CustomBlurBehind Grid.Row="1"/>
+                                        <Border Grid.Row="1" Background="Black" Opacity="0.25" CornerRadius="0 0 4 4"/>
+                                        <StackPanel Grid.Row="1" Margin="{ext:Space 1, 0.5, 1, 0}">
+                                            <TextBlock HorizontalAlignment="Center" Text="{Binding Title}" Classes="SubtitleTextBlockStyle"/>
+                                            <TextBlock HorizontalAlignment="Center" Text="{Binding Artist}" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <WrapPanel VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                <controls:AlignableWrapPanel HorizontalContentAlignment="Center" VerticalAlignment="Top" HorizontalAlignment="Left"/>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                     </ItemsControl>
                 </StackPanel>
-                
-                <Separator Grid.Row="3"/>
             </Grid>
         </ScrollViewer>
     </Grid>

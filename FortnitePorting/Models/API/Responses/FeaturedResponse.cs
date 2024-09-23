@@ -6,4 +6,5 @@ public class FeaturedResponse
     public string Artist { get; set; }
     public string Social { get; set; }
     public string Image { get; set; }
+    
 }
