@@ -34,7 +34,7 @@ def get_params(source, names):
 
 def get_socket_pos(node, index):
     start_y = -100
-    offset_y = -28
+    offset_y = -25
     return node.location.x, node.location.y + start_y + offset_y * index
 
 def replace_or_add_parameter(list, replace_item):
