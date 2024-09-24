@@ -62,7 +62,8 @@
     </ItemGroup>
     
     <ItemGroup>
-      <Folder Include="Controls\TimeWaster\" />
+      <UpToDateCheckInput Remove="Controls\Home\FeaturedControl.axaml" />
+      <UpToDateCheckInput Remove="Controls\Home\NewsControl.axaml" />
     </ItemGroup>
 
 </Project>

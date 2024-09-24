@@ -28,8 +28,6 @@ using NAudio.Wave;
 using Newtonsoft.Json;
 using ReactiveUI;
 using Serilog;
-using FeaturedControl = FortnitePorting.Controls.Home.FeaturedControl;
-using NewsControl = FortnitePorting.Controls.Home.NewsControl;
 
 namespace FortnitePorting.ViewModels;
 

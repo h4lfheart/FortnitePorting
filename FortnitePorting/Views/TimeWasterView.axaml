@@ -52,7 +52,7 @@
                 </Image.OpacityMask>
             </Image>
             
-            <Image Source="/Assets/TimeWaster/T_Black_Hole2.png" VerticalAlignment="Center" HorizontalAlignment="Center" 
+            <Image Source="/Assets/TimeWaster/FNBR_S11Launch_BlackHole1.png" VerticalAlignment="Center" HorizontalAlignment="Center" 
                    RenderTransform="{Binding BlackHoleTransform}" RenderTransformOrigin="50%, 50%">
                 <Image.OpacityMask>
                     <RadialGradientBrush RadiusX="25%" RadiusY="25%">

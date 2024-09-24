@@ -4,7 +4,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
 
-namespace FortnitePorting.Controls;
+namespace FortnitePorting.Controls.WrapPanel;
 
 public class AlignableWrapPanel : Panel
 {

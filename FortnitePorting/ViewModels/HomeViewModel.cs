@@ -21,8 +21,6 @@ using FortnitePorting.Shared.Models;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels.Settings;
 using Serilog;
-using FeaturedControl = FortnitePorting.Controls.Home.FeaturedControl;
-using NewsControl = FortnitePorting.Controls.Home.NewsControl;
 
 namespace FortnitePorting.ViewModels;
 

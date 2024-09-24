@@ -10,6 +10,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
              xmlns:avaloniaGif="clr-namespace:AvaloniaGif;assembly=AvaloniaGif"
+             xmlns:wrapPanel="clr-namespace:FortnitePorting.Controls.WrapPanel"
              d:DesignHeight="770" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.HomeView"
              x:DataType="viewModels:HomeViewModel">
@@ -155,7 +156,7 @@
                         </ItemsControl.ItemTemplate>
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <controls:AlignableWrapPanel HorizontalContentAlignment="Center" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                                <wrapPanel:AlignableWrapPanel HorizontalContentAlignment="Center" VerticalAlignment="Top" HorizontalAlignment="Left"/>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                     </ItemsControl>

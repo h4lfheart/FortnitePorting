@@ -333,8 +333,8 @@ public partial class TimeWasterViewModel : ViewModelBase
         {
             Children =
             [
-                Create3DRotation(0, 5, BackgroundRotation * -0.25),
-                new ScaleTransform(0.5, 0.5)
+                Create3DRotation(0, 0, BackgroundRotation * -0.25, centerX: -2.5, centerY: 5),
+                new ScaleTransform(1.0, 1.0)
             ]
         };
         
