@@ -4,6 +4,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
+using Avalonia.Controls;
+using Avalonia.Markup.Xaml;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.Utils;
 using DynamicData.Binding;
@@ -193,6 +195,13 @@ public static class MiscExtensions
     public static T CreateValue<T>(this Lazy<T> lazy)
     {
         return lazy.Value;
+    }
+
+    public static T CreateXaml<T>(this string xaml, dynamic bindings) where T : Control
+    {
+        var content = AvaloniaRuntimeXamlLoader.Parse<T>(xaml);
+        content.DataContext = bindings;
+        return content;
     }
 }
 

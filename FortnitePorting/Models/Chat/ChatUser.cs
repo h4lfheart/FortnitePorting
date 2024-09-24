@@ -63,7 +63,6 @@ public partial class ChatUser : ObservableObject
     [RelayCommand]
     public async Task SendMessage()
     {
-        
         var dialog = new ContentDialog
         {
             Title = $"Send Message to {DisplayName}",

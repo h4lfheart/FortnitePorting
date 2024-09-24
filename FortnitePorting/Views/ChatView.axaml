@@ -34,7 +34,7 @@
                  <ItemsControl ItemsSource="{Binding Messages}" Margin="{ext:Space 1, 1, 2, 0}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <ui:FABorder x:Name="PointerOverTarget" Margin="{ext:Space 0, 0, 0, 0.5}">
+                            <ui:FABorder x:Name="PointerOverTarget" Background="{Binding BackgroundBrush}" Margin="{ext:Space 0, 0, 0, 0.5}">
                                 <Grid Margin="{ext:Space 1}">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
@@ -72,7 +72,8 @@
                                     
                                     <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="7" IsVisible="{Binding HasTextData}"
                                                Text="{Binding Text}" TextWrapping="Wrap" 
-                                               Classes="BodyTextBlockStyle" VerticalAlignment="Center"/>
+                                               Classes="BodyTextBlockStyle" VerticalAlignment="Center"
+                                               Foreground="{Binding TextBrush}"/>
                                     
                                     <Border Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="7" 
                                             IsVisible="{Binding HasImageData}"

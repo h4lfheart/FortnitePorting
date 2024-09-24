@@ -1,4 +1,5 @@
 using System;
+using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FortnitePorting.Application;
@@ -17,6 +18,10 @@ public partial class ChatMessage : ObservableObject
     [ObservableProperty] private int _reactionCount;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(UserTitleText))] private bool _isPrivate;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(UserTitleText))] private string _targetUserName;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(BackgroundBrush))] private bool _isPing;
+
+    public SolidColorBrush BackgroundBrush => new(IsPing ? Color.Parse("#0DFFFF62") : Color.Parse("#0DFFFFFF"));
+    public SolidColorBrush TextBrush => new(IsPing ? Color.Parse("#10acff") : Colors.White);
 
     public string UserTitleText => IsPrivate ? $"Message {(User.DisplayName.Equals(AppSettings.Current.Online.GlobalName) ? $"To {TargetUserName}" : $"From {User.DisplayName}")}" : User.DisplayName;
 

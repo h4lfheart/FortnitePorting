@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Avalonia.Controls;
+using Avalonia.Layout;
+using Avalonia.Markup.Xaml;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.Input;
 using DesktopNotifications;
@@ -24,6 +27,7 @@ using FortnitePorting.ViewModels;
 using FortnitePorting.ViewModels.Settings;
 using FortnitePorting.Views;
 using Microsoft.Toolkit.Uwp.Notifications;
+using Org.BouncyCastle.Asn1.X509;
 using Serilog;
 using Serilog.Core;
 using WatsonTcp;
@@ -187,7 +191,8 @@ public static class OnlineService
 
                 var isInChatView = AppWM.IsInView<ChatView>();
                 var isPrivate = e.GetArgument<bool>("IsPrivate");
-                if (isPrivate && !isInChatView && AppSettings.Current.Online.OnlineStatus == EOnlineStatus.Online)
+                var isPing = messagePacket.Message.Contains("@everyone") && user.HasPermission(EPermissions.Staff) || messagePacket.Message.Contains($"@{AppSettings.Current.Online.GlobalName}");
+                if (AppSettings.Current.Online.OnlineStatus == EOnlineStatus.Online && !isInChatView && (isPrivate || isPing))
                 {
                     var notification = new Notification
                     {
@@ -225,7 +230,8 @@ public static class OnlineService
                     ReactionCount = e.GetArgument<int>("Reactions"),
                     ReactedTo = e.GetArgument<bool>("HasReacted"),
                     IsPrivate = isPrivate,
-                    TargetUserName = e.GetArgument<string>("TargetUserName")
+                    TargetUserName = e.GetArgument<string>("TargetUserName"),
+                    IsPing = isPing
                 }, SortExpressionComparer<ChatMessage>.Descending(message => message.Timestamp));
                 break;
             }
@@ -279,10 +285,38 @@ public static class OnlineService
                 
                 await TaskService.RunDispatcherAsync(async () =>
                 {
+                    var xaml =
+                        """
+                            <ContentControl xmlns="https://github.com/avaloniaui"
+                                        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                                        xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
+                                        xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared">
+                                <StackPanel HorizontalAlignment="Stretch">
+                                    <TextBlock Text="{Binding DisplayText}" TextWrapping="Wrap"/>
+                                    <ComboBox x:Name="ExportLocationBox" SelectedIndex="0" Margin="{ext:Space 0, 1, 0, 0}"
+                                              ItemsSource="{ext:EnumToItemsSource {x:Type shared:EExportLocation}}"
+                                              HorizontalAlignment="Stretch">
+                                        <ComboBox.ItemContainerTheme>
+                                            <ControlTheme x:DataType="ext:EnumRecord" TargetType="ComboBoxItem" BasedOn="{StaticResource {x:Type ComboBoxItem}}">
+                                                <Setter Property="IsEnabled" Value="{Binding !IsDisabled}"/>
+                                            </ControlTheme>
+                                        </ComboBox.ItemContainerTheme>
+                                    </ComboBox>
+                                </StackPanel>
+                            </ContentControl>
+                        """;
+                    
+                    var content = xaml.CreateXaml<ContentControl>(new
+                    {
+                        DisplayText = $"{user.DisplayName} sent a request to export \"{export.Path}.\" Accept?"
+                    });
+                    
+                    var comboBox = content.FindControl<ComboBox>("ExportLocationBox");
+                    
                     var dialog = new ContentDialog
                     {
                         Title = "Incoming Export Request",
-                        Content = $"{user.DisplayName} sent a request to export \"{export.Path}.\" Accept?",
+                        Content = content,
                         CloseButtonText = "No",
                         PrimaryButtonText = "Yes",
                         PrimaryButtonCommand = new RelayCommand(async () =>
@@ -298,8 +332,9 @@ public static class OnlineService
                                 return;
                             }
 
-                            // todo allow user to select export location
-                            await Exporter.Export(asset, exportType, AppSettings.Current.CreateExportMeta());
+                            var enumRecord = (EnumRecord) comboBox.SelectedItem;
+                            var exportLocation = (EExportLocation) enumRecord.Value;
+                            await Exporter.Export(asset, exportType, AppSettings.Current.CreateExportMeta(exportLocation));
                                 
                             if (AppSettings.Current.Online.UseIntegration)
                             {

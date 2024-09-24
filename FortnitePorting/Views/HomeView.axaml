@@ -130,6 +130,8 @@
                     </ItemsControl>
                 </StackPanel>
                 
+                <Separator Grid.Row="1"/>
+                
                 <StackPanel Grid.Row="2" HorizontalAlignment="Stretch">
                     <TextBlock Text="Featured Art" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
                     <ItemsControl ItemsSource="{Binding Featured}" HorizontalAlignment="Center" Margin="{ext:Space 0, 0.5}">
