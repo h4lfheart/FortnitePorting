@@ -142,6 +142,7 @@ default_mappings = MappingCollection(
     vectors=[
         SlotMapping("Skin Boost Color And Exponent", "Skin Color", alpha_slot="Skin Boost"),
         SlotMapping("SkinTint", "Skin Color", alpha_slot="Skin Boost"),
+        SlotMapping("SkinColor", "Skin Color", alpha_slot="Skin Boost"),
         SlotMapping("EmissiveMultiplier", "Emission Multiplier"),
         SlotMapping("Emissive Multiplier", "Emission Multiplier"),
         SlotMapping("Emissive Color", "Emission Multiplier"),
@@ -504,5 +505,30 @@ eye_mappings = MappingCollection(
         SlotMapping("Eye Use Sun Highlight"),
         SlotMapping("Eye Use UV Highlight"),
         SlotMapping("UseEyeColorTinting")
+    ]
+)
+
+superhero_mappings = MappingCollection(
+    textures=[
+        SlotMapping("Pattern"),
+        SlotMapping("Normals"),
+        SlotMapping("PrimaryNormal"),
+        SlotMapping("SecondaryNormal"),
+        SlotMapping("ZE_SecondaryNormal", "SecondaryNormal"),
+        SlotMapping("SpecularMasks")
+    ],
+    vectors=[
+        SlotMapping("PrimaryColor"),
+        SlotMapping("SecondaryColor"),
+        SlotMapping("AccessoryColor"),
+        SlotMapping("PrimaryMaterial"),
+        SlotMapping("SecondaryMaterial"),
+        SlotMapping("AccessoryMaterial"),
+        SlotMapping("Sticker MSRE")
+    ],
+    scalars=[
+        SlotMapping("PrimaryCloth"),
+        SlotMapping("SecondaryCloth"),
+        SlotMapping("ElasticStickerMult")
     ]
 )
