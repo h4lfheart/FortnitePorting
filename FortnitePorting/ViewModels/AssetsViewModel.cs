@@ -137,15 +137,16 @@ public partial class AssetsViewModel : ViewModelBase
                 DisAllowNames = ["Bean_"],
                 IconHandler = asset =>
                 {
-                    asset.TryGetValue(out UTexture2D? previewImage, "SmallPreviewImage", "LargePreviewImage");
+                    UTexture2D? previewImage = AssetLoader.GetAssetIcon(asset);
+                    if (previewImage is null) {
+                        asset.TryGetValue(out previewImage, "SmallPreviewImage", "LargePreviewImage");
+                    }
                     if (previewImage is null && asset.TryGetValue(out UObject heroDef, "HeroDefinition"))
                     {
                         previewImage = AssetLoader.GetAssetIcon(heroDef);
                         previewImage ??= heroDef.GetAnyOrDefault<UTexture2D>("SmallPreviewImage", "LargePreviewImage");
-
                     }
-
-                    previewImage ??= AssetLoader.GetAssetIcon(asset);
+                    
                     return previewImage;
                 }
             },
