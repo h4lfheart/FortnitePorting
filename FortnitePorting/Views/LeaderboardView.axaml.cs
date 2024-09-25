@@ -6,7 +6,7 @@ using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.VisualTree;
 using FluentAvalonia.UI.Controls;
-using FortnitePorting.Controls.Assets;
+
 using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.Leaderboard;
 using FortnitePorting.Services;

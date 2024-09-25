@@ -35,6 +35,21 @@ public record EnumRecord(Type EnumType, Enum Value, string Description, bool IsD
     }
 }
 
+public class EnumToStringConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        var enumValue = value as Enum;
+        return enumValue.GetDescription();
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+
 public class EnumToRecordConverter : IValueConverter
 {
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)

@@ -5,7 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
-using FortnitePorting.Controls.Assets;
+
 using FortnitePorting.Export;
 using FortnitePorting.Export.Models;
 using FortnitePorting.Models.Assets;
@@ -14,6 +14,7 @@ using FortnitePorting.Shared;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
 using RestSharp;
+using AssetLoaderCollection = FortnitePorting.Models.Assets.Loading.AssetLoaderCollection;
 
 namespace FortnitePorting.ViewModels;
 
@@ -33,24 +34,33 @@ public partial class AssetsViewModel : ViewModelBase
     [RelayCommand]
     public async Task Export()
     {
-        if (AssetLoaderCollection.ActiveLoader.SelectedAssets.FirstOrDefault(asset => asset.Data.Asset.IsCustom) is
+        if (AssetLoaderCollection.ActiveLoader.SelectedAssetInfos.FirstOrDefault(info => info.Asset.IsCustom) is
             { } customAsset)
         {
-            AppWM.Message("Unsupported Asset", $"{customAsset.Data.Asset.CreationData.DisplayName} cannot be exported.");
+            AppWM.Message("Unsupported Asset", $"{customAsset.Asset.CreationData.DisplayName} cannot be exported.");
             return;
         }
         
-        await Exporter.Export(AssetLoaderCollection.ActiveLoader.SelectedAssets, AppSettings.Current.CreateExportMeta(ExportLocation));
+        await Exporter.Export(AssetLoaderCollection.ActiveLoader.SelectedAssetInfos, AppSettings.Current.CreateExportMeta(ExportLocation));
 
         if (AppSettings.Current.Online.UseIntegration)
         {
-            var exports = AssetLoaderCollection.ActiveLoader.SelectedAssets.Select(asset =>
+            var exports = AssetLoaderCollection.ActiveLoader.SelectedAssetInfos.Select(asset =>
             {
-                var creationData = asset.Data.Asset.CreationData;
+                var creationData = asset.Asset.CreationData;
                 return new PersonalExport(creationData.Object.GetPathName());
             });
             
             await ApiVM.FortnitePorting.PostExportsAsync(exports);
+        }
+    }
+    
+    [RelayCommand]
+    public async Task Favorite()
+    {
+        foreach (var info in AssetLoaderCollection.ActiveLoader.SelectedAssetInfos)
+        {
+            info.Asset.Favorite();
         }
     }
 }

@@ -5,22 +5,15 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using Avalonia.Collections;
-using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.AssetRegistry.Objects;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Texture;
-using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
-using CUE4Parse.UE4.Objects.Core.Misc;
 using CUE4Parse.UE4.Objects.GameplayTags;
-using CUE4Parse.Utils;
 using DynamicData;
 using DynamicData.Binding;
-using FortnitePorting.Controls;
-using FortnitePorting.Controls.Assets;
-using FortnitePorting.Extensions;
+using FortnitePorting.Models.Assets.Filters;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Services;
@@ -28,7 +21,7 @@ using Material.Icons;
 using ReactiveUI;
 using Serilog;
 
-namespace FortnitePorting.Models.Assets;
+namespace FortnitePorting.Models.Assets.Loading;
 
 public partial class AssetLoader : ObservableObject
 {
@@ -57,99 +50,129 @@ public partial class AssetLoader : ObservableObject
     private bool BeganLoading;
     private bool IsPaused;
     
-    [ObservableProperty] private ObservableCollection<AssetInfo> _selectedAssets = [];
+    [ObservableProperty] private ObservableCollection<AssetInfo> _selectedAssetInfos = [];
     
     [ObservableProperty, NotifyPropertyChangedFor(nameof(FinishedLoading))] private int _loadedAssets;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(FinishedLoading))] private int _totalAssets;
     public bool FinishedLoading => LoadedAssets == TotalAssets;
     
     public readonly IObservable<SortExpressionComparer<AssetItem>> AssetSort;
-    
     [ObservableProperty] private EAssetSortType _sortType = EAssetSortType.None;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(SortIcon))] private bool _descendingSort = false;
     public MaterialIconKind SortIcon => DescendingSort ? MaterialIconKind.SortDescending : MaterialIconKind.SortAscending;
     
     public readonly IObservable<Func<AssetItem, bool>> AssetFilter;
-    [ObservableProperty] private AvaloniaDictionary<string, Predicate<AssetItem>> _filters = [];
     [ObservableProperty] private string _searchFilter = string.Empty;
     [ObservableProperty] private ObservableCollection<string> _searchAutoComplete = [];
+
     
-    private static readonly Dictionary<string, Predicate<AssetItem>> FilterPredicates = new()
-    {
-        // Application
-        { "Favorite", x => x.IsFavorite },
-        { "Hidden Assets", x => x.CreationData.IsHidden },
-        
-        // Cosmetic
-        { "Battle Pass", x => x.CreationData.GameplayTags.ContainsAny("BattlePass") },
-        { "Item Shop", x => x.CreationData.GameplayTags.ContainsAny("ItemShop") },
-        
-        // Emote
-        { "Synced", x => x.CreationData.GameplayTags.ContainsAny("Synced") },
-        { "Traversal", x => x.CreationData.GameplayTags.ContainsAny("Traversal") },
-        
-        // Game
-        { "Save The World", x => x.CreationData.GameplayTags.ContainsAny("CampaignHero", "SaveTheWorld") || x.CreationData.Object.GetPathName().Contains("SaveTheWorld", StringComparison.OrdinalIgnoreCase) },
-        { "Battle Royale", x => !x.CreationData.GameplayTags.ContainsAny("CampaignHero", "SaveTheWorld") && !x.CreationData.Object.GetPathName().Contains("SaveTheWorld", StringComparison.OrdinalIgnoreCase) },
-        
-        // Prefab
-        { "Galleries", x => x.CreationData.GameplayTags.ContainsAny("Gallery") },
-        { "Prefabs", x => x.CreationData.GameplayTags.ContainsAny("Prefab") },
-        { "Devices", x => x.CreationData.GameplayTags.ContainsAny("Device") },
-        
-        // Item
-        { "Weapons", x => x.CreationData.GameplayTags.ContainsAny("Weapon") },
-        { "Gadgets", x => x.CreationData.Object.ExportType.Equals("AthenaGadgetItemDefinition", StringComparison.OrdinalIgnoreCase) },
-        { "Melee", x => x.CreationData.GameplayTags.ContainsAny("Melee") },
-        { "Consumables", x => x.CreationData.GameplayTags.ContainsAny("Consume") },
-        { "Lego", x => x.CreationData.GameplayTags.ContainsAny("Juno") },
-        
-    };
-    
-    public bool HasCosmeticFilters => CosmeticFilterTypes.Contains(Type);
-    private readonly EExportType[] CosmeticFilterTypes =
+    [ObservableProperty] private ObservableCollection<FilterItem> _activeFilters = [];
+    public List<FilterCategory> FilterCategories { get; } =
     [
-        EExportType.Outfit,
-        EExportType.Backpack,
-        EExportType.Pickaxe,
-        EExportType.Glider,
-        EExportType.Pet,
-        EExportType.Toy,
-        EExportType.Emote,
-        EExportType.Emoticon,
-        EExportType.Spray,
-        EExportType.LoadingScreen
+        new FilterCategory("Application")
+        {
+            Filters = 
+            [
+                new FilterItem("Favorites", asset => asset.IsFavorite),
+                new FilterItem("Hidden Items", asset => asset.CreationData.IsHidden)
+            ]
+        },
+        new FilterCategory("Cosmetic")
+        {
+            Filters = 
+            [
+                new FilterItem("Battle Pass", asset => asset.CreationData.GameplayTags.ContainsAny("BattlePass")),
+                new FilterItem("Item Shop", asset => asset.CreationData.GameplayTags.ContainsAny("ItemShop"))
+            ],
+            AllowedTypes = 
+            [
+                EExportType.Outfit,
+                EExportType.Backpack,
+                EExportType.Pickaxe,
+                EExportType.Glider,
+                EExportType.Pet,
+                EExportType.Toy,
+                EExportType.Emote,
+                EExportType.Emoticon,
+                EExportType.Spray,
+                EExportType.LoadingScreen
+            ]
+        },
+        new FilterCategory("Emote")
+        {
+            Filters = 
+            [
+                new FilterItem("Synced", asset => asset.CreationData.GameplayTags.ContainsAny("Synced")),
+                new FilterItem("Traversal", asset => asset.CreationData.GameplayTags.ContainsAny("Traversal"))
+            ],
+            AllowedTypes = 
+            [
+                EExportType.Emote
+            ]
+        },
+        new FilterCategory("Game")
+        {
+            Filters = 
+            [
+                new FilterItem("Battle Royale", asset => !(asset.CreationData.GameplayTags.ContainsAny("CampaignHero", "SaveTheWorld") 
+                                                         || asset.CreationData.Object.GetPathName().Contains("SaveTheWorld", StringComparison.OrdinalIgnoreCase))),
+                new FilterItem("Save The World", asset => asset.CreationData.GameplayTags.ContainsAny("CampaignHero", "SaveTheWorld") 
+                                                           || asset.CreationData.Object.GetPathName().Contains("SaveTheWorld", StringComparison.OrdinalIgnoreCase))
+            ],
+            AllowedTypes = 
+            [
+                EExportType.Outfit,
+                EExportType.Backpack,
+                EExportType.Pickaxe,
+                EExportType.Glider,
+                EExportType.Banner,
+                EExportType.LoadingScreen,
+                EExportType.Item,
+                EExportType.Resource,
+                EExportType.Trap
+            ]
+        },
+        new FilterCategory("Creative")
+        {
+            Filters = 
+            [
+                new FilterItem("Galleries", asset => asset.CreationData.GameplayTags.ContainsAny("Gallery")),
+                new FilterItem("Prefabs", asset => asset.CreationData.GameplayTags.ContainsAny("Prefab")),
+                new FilterItem("Devices", asset => asset.CreationData.GameplayTags.ContainsAny("Device")),
+            ],
+            AllowedTypes = 
+            [
+               EExportType.Prefab
+            ]
+        },
+        new FilterCategory("Item")
+        {
+            Filters = 
+            [
+                new FilterItem("Weapons", asset => asset.CreationData.GameplayTags.ContainsAny("Weapon")),
+                new FilterItem("Gadgets", asset => asset.CreationData.Object.ExportType.Equals("AthenaGadgetItemDefinition", StringComparison.OrdinalIgnoreCase)),
+                new FilterItem("Melee", asset => asset.CreationData.GameplayTags.ContainsAny("Melee")),
+                new FilterItem("Consumables", asset => asset.CreationData.GameplayTags.ContainsAny("Consume")),
+                new FilterItem("Lego", asset => asset.CreationData.GameplayTags.ContainsAny("Juno")),
+            ],
+            AllowedTypes = 
+            [
+                EExportType.Item
+            ]
+        }
     ];
-    
-    public bool HasGameFilters => GameFilterTypes.Contains(Type);
-    private readonly EExportType[] GameFilterTypes =
-    [
-        EExportType.Outfit,
-        EExportType.Backpack,
-        EExportType.Pickaxe,
-        EExportType.Glider,
-        EExportType.Banner,
-        EExportType.LoadingScreen,
-        EExportType.Item,
-        EExportType.Resource,
-        EExportType.Trap
-    ];
-    
-    public bool HasPrefabFilters => Type is EExportType.Prefab;
-    public bool HasItemFilters => Type is EExportType.Item;
-    public bool HasEmoteFilters => Type is EExportType.Emote;
 
     public AssetLoader(EExportType exportType)
     {
         Type = exportType;
         
         AssetFilter = this
-            .WhenAnyValue(loader => loader.SearchFilter, loader => loader.Filters)
-            .Select(CreateAssetFilter);
+            .WhenAnyValue(loader => loader.SearchFilter, loader => loader.ActiveFilters)
+            .Select<(string, ObservableCollection<FilterItem>), Func<AssetItem, bool>>(CreateAssetFilter);
         
         AssetSort = this
             .WhenAnyValue(loader => loader.SortType, loader => loader.DescendingSort)
-            .Select(CreateAssetSort);
+            .Select<(EAssetSortType, bool), SortExpressionComparer<AssetItem>>(CreateAssetSort);
         
         Source.Connect()
             .ObserveOn(RxApp.MainThreadScheduler)
@@ -232,7 +255,7 @@ public partial class AssetLoader : ObservableObject
         }
 
         LoadedAssets = TotalAssets; 
-        await TaskService.RunDispatcherAsync(() => SearchAutoComplete.AddRange(Source.Items.Select(asset => asset.CreationData.DisplayName)));
+        await TaskService.RunDispatcherAsync(() => ListEx.AddRange(SearchAutoComplete, Source.Items.Select(asset => asset.CreationData.DisplayName)));
     }
 
     private async Task LoadAsset(FAssetData data)
@@ -313,17 +336,24 @@ public partial class AssetLoader : ObservableObject
                ?? asset.GetOrDefault<FGameplayTagContainer?>("GameplayTags");
     }
     
-    public void ModifyFilters(string tag, bool enable)
+    public void UpdateFilterVisibility()
     {
-        if (!FilterPredicates.TryGetValue(tag, out var predicate)) return;
+        foreach (var category in FilterCategories)
+        {
+            category.IsVisible = category.AllowedTypes.Count == 0 || category.AllowedTypes.Contains(Type);
+        }
+    }
 
-        if (enable)
-            Filters.AddUnique(tag, predicate);
+    public void UpdateFilters(FilterItem item, bool add)
+    {
+        if (add)
+            ActiveFilters.Add(item);
         else
-            Filters.Remove(tag);
-
+            ActiveFilters.Remove(item);
+        
         FakeRefreshFilters();
     }
+    
     
     public void Pause()
     {
@@ -340,11 +370,12 @@ public partial class AssetLoader : ObservableObject
         while (IsPaused) await Task.Delay(1);
     }
     
-    private static Func<AssetItem, bool> CreateAssetFilter((string, AvaloniaDictionary<string, Predicate<AssetItem>>) values)
+    private static Func<AssetItem, bool> CreateAssetFilter((string, ObservableCollection<FilterItem>) values)
     {
         var (searchFilter, filters) = values;
         
-        return asset => asset.Match(searchFilter) && filters.All(x => x.Value.Invoke(asset)) && asset.CreationData.IsHidden == filters.ContainsKey("Hidden Assets");
+        return asset => asset.Match(searchFilter) && filters.All(x => x.Predicate.Invoke(asset)) 
+                                                  && asset.CreationData.IsHidden == filters.Any(filter => filter.Title.Equals("Hidden Assets"));
     }
 
     private static SortExpressionComparer<AssetItem> CreateAssetSort((EAssetSortType, bool) values)
@@ -366,9 +397,9 @@ public partial class AssetLoader : ObservableObject
     // scuffed fix to get filter to update
     private void FakeRefreshFilters()
     {
-        var temp = Filters;
-        Filters = [];
-        Filters = temp;
+        var temp = ActiveFilters;
+        ActiveFilters = [];
+        ActiveFilters = temp;
     }
     
 }

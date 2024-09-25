@@ -5,8 +5,9 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.VisualTree;
 using FluentAvalonia.UI.Controls;
-using FortnitePorting.Controls.Assets;
+
 using FortnitePorting.Models.Assets;
+using FortnitePorting.Models.Assets.Filters;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Framework;
@@ -33,10 +34,10 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
         if (listBox.SelectedItems is null) return;
         if (listBox.SelectedItems.Count == 0) return;
         
-        ViewModel.AssetLoaderCollection.ActiveLoader.SelectedAssets = [];
+        ViewModel.AssetLoaderCollection.ActiveLoader.SelectedAssetInfos = [];
         foreach (var asset in listBox.SelectedItems.Cast<AssetItem>())
         {
-            ViewModel.AssetLoaderCollection.ActiveLoader.SelectedAssets.Add(new AssetInfo(asset));
+            ViewModel.AssetLoaderCollection.ActiveLoader.SelectedAssetInfos.Add(new AssetInfo(asset));
         }
     }
     
@@ -58,18 +59,10 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
     {
         if (sender is not CheckBox checkBox) return;
         if (checkBox.Content is null) return;
-        if (!checkBox.IsChecked.HasValue) return;
+        if (checkBox.IsChecked is not { } isChecked) return;
+        if (checkBox.DataContext is not FilterItem filterItem) return;
 
-        ViewModel.AssetLoaderCollection.ActiveLoader.ModifyFilters(checkBox.Content.ToString()!, checkBox.IsChecked.Value);
-    }
-
-    private void OnFilterClearClicked(object? sender, RoutedEventArgs e)
-    {
-        ViewModel.AssetLoaderCollection.ActiveLoader.Filters.Clear();
-        foreach (var checkBox in FilterPanelParent.GetVisualDescendants().OfType<CheckBox>())
-        {
-            checkBox.IsChecked = false;
-        }
+        ViewModel.AssetLoaderCollection.ActiveLoader.UpdateFilters(filterItem, isChecked);
     }
 
     private void OnNavigationViewItemInvoked(object? sender, NavigationViewItemInvokedEventArgs e)

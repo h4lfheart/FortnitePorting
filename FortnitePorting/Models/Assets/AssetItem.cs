@@ -18,6 +18,7 @@ using CUE4Parse.UE4.Objects.GameplayTags;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using FluentAvalonia.UI.Controls;
+using FortnitePorting.Application;
 using FortnitePorting.Export;
 using FortnitePorting.Extensions;
 using FortnitePorting.Models.Fortnite;
@@ -30,6 +31,7 @@ using FortnitePorting.Shared.Models.Clipboard;
 using FortnitePorting.Windows;
 using Newtonsoft.Json;
 using Serilog;
+using SharpGLTF.Schema2;
 using SkiaSharp;
 using SkiaExtensions = FortnitePorting.Shared.Extensions.SkiaExtensions;
 
@@ -62,6 +64,8 @@ public partial class AssetItem : ObservableObject
     {
         Id = Guid.NewGuid();
         CreationData = args;
+
+        IsFavorite = AppSettings.Current.FavoriteAssets.Contains(CreationData.Object.GetPathName());
 
         Rarity = CreationData.Object.GetOrDefault("Rarity", EFortRarity.Uncommon);
         
@@ -196,6 +200,21 @@ public partial class AssetItem : ObservableObject
     public async Task CopyIcon(bool withBackground = false)
     {
         await AvaloniaClipboard.SetImageAsync(withBackground ? DisplayImage : IconDisplayImage);
+    }
+    
+    [RelayCommand]
+    public void Favorite()
+    {
+        var path = CreationData.Object.GetPathName();
+        if (AppSettings.Current.FavoriteAssets.Add(path))
+        {
+            IsFavorite = true;
+        }
+        else
+        {
+            AppSettings.Current.FavoriteAssets.Remove(path);
+            IsFavorite = false;
+        }
     }
 }
 

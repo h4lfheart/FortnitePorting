@@ -19,6 +19,7 @@ using FortnitePorting.Shared.Models.Fortnite;
 using OpenTK.Graphics.OpenGL;
 using SkiaSharp;
 using AssetLoader = Avalonia.Platform.AssetLoader;
+using AssetLoaderCollection = FortnitePorting.Models.Assets.Loading.AssetLoaderCollection;
 
 namespace FortnitePorting.Models.Leaderboard;
 

@@ -15,7 +15,7 @@ using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.Utils;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
-using FortnitePorting.Controls.Assets;
+
 using FortnitePorting.Export.Models;
 using FortnitePorting.Export.Types;
 using FortnitePorting.Models.API;
@@ -31,6 +31,7 @@ using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
 using Newtonsoft.Json;
 using Serilog;
+using AssetLoaderCollection = FortnitePorting.Models.Assets.Loading.AssetLoaderCollection;
 
 namespace FortnitePorting.Export;
 
@@ -79,8 +80,8 @@ public static class Exporter
     {
         await Export(() => assets.Select(assetInfo =>
         {
-            var asset = assetInfo.Data.Asset;
-            var styles = assetInfo.Data.GetSelectedStyles();
+            var asset = assetInfo.Asset;
+            var styles = assetInfo.GetSelectedStyles();
             var exportType = asset.CreationData.ExportType;
 
             return CreateExport(asset.CreationData.DisplayName, asset.CreationData.Object, exportType, styles,

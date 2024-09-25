@@ -13,9 +13,13 @@
              xmlns:controls1="clr-namespace:Avalonia.Controls"
              xmlns:wrapPanel="clr-namespace:FortnitePorting.Controls.WrapPanel"
              xmlns:assets="clr-namespace:FortnitePorting.Models.Assets"
+             xmlns:filters="clr-namespace:FortnitePorting.Models.Assets.Filters"
              d:DesignHeight="720" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.AssetsView"
              x:DataType="viewModels:AssetsViewModel">
+    <UserControl.KeyBindings>
+        <KeyBinding Gesture="Ctrl+F" Command="{Binding FavoriteCommand}" />
+    </UserControl.KeyBindings>
     <Grid>
         <ui:NavigationView Classes="NoBackground" PaneDisplayMode="LeftCompact" CompactPaneLength="48"
                            IsPaneToggleButtonVisible="False" IsSettingsVisible="False" 
@@ -61,57 +65,33 @@
                         <DropDownButton Grid.Column="6" HorizontalAlignment="Stretch">
                             <DropDownButton.Flyout>
                                 <Flyout>
-                                    <!-- TODO Create from code only so you only have to update there to add filter s-->
-                                    <!-- TODO Drive filter enabling by bindings so you dont have to access ui objects -->
-                                    <StackPanel x:Name="FilterPanelParent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-                                        <StackPanel>
-                                            <TextBlock Text="Application" Classes="BodyStrongTextBlockStyle" Margin="{ext:Space 0, 0, 0, 0.5}"/>
-                                            <Separator HorizontalAlignment="Stretch"/>
-                                            <CheckBox Content="Favorite" IsCheckedChanged="OnFilterChecked"/>
-                                            <CheckBox Content="Hidden Assets" IsCheckedChanged="OnFilterChecked"/>
-                                        </StackPanel>
-                                        <StackPanel IsVisible="{Binding AssetLoaderCollection.ActiveLoader.HasCosmeticFilters}">
-                                            <TextBlock Text="Cosmetic" Classes="BodyStrongTextBlockStyle" Margin="{ext:Space 0, 1, 0, 0.5}"/>
-                                            <Separator HorizontalAlignment="Stretch"/>
-                                            <CheckBox Content="Battle Pass" IsCheckedChanged="OnFilterChecked"/>
-                                            <CheckBox Content="Item Shop" IsCheckedChanged="OnFilterChecked"/>
-                                        </StackPanel>
-                                        <StackPanel IsVisible="{Binding AssetLoaderCollection.ActiveLoader.HasEmoteFilters}">
-                                            <TextBlock Text="Emote" Classes="BodyStrongTextBlockStyle" Margin="{ext:Space 0, 1, 0, 0.5}"/>
-                                            <Separator HorizontalAlignment="Stretch"/>
-                                            <CheckBox Content="Synced" IsCheckedChanged="OnFilterChecked"/>
-                                            <CheckBox Content="Traversal" IsCheckedChanged="OnFilterChecked"/>
-                                        </StackPanel>
-                                        <StackPanel IsVisible="{Binding AssetLoaderCollection.ActiveLoader.HasGameFilters}">
-                                            <TextBlock Text="Game" Classes="BodyStrongTextBlockStyle" Margin="{ext:Space 0, 1, 0, 0.5}"/>
-                                            <Separator HorizontalAlignment="Stretch"/>
-                                            <CheckBox Content="Battle Royale" IsCheckedChanged="OnFilterChecked"/>
-                                            <CheckBox Content="Save The World" IsCheckedChanged="OnFilterChecked"/>
-                                        </StackPanel>
-                                        <StackPanel IsVisible="{Binding AssetLoaderCollection.ActiveLoader.HasPrefabFilters}">
-                                            <TextBlock Text="Creative" Classes="BodyStrongTextBlockStyle" Margin="{ext:Space 0, 1, 0, 0.5}"/>
-                                            <Separator HorizontalAlignment="Stretch"/>
-                                            <CheckBox Content="Galleries" IsCheckedChanged="OnFilterChecked" />
-                                            <CheckBox Content="Prefabs" IsCheckedChanged="OnFilterChecked" />
-                                            <CheckBox Content="Devices" IsCheckedChanged="OnFilterChecked" />
-                                        </StackPanel>
-                                        <StackPanel IsVisible="{Binding AssetLoaderCollection.ActiveLoader.HasItemFilters}">
-                                            <TextBlock Text="Items" Classes="BodyStrongTextBlockStyle" Margin="{ext:Space 0, 1, 0, 0.5}"/>
-                                            <Separator HorizontalAlignment="Stretch"/>
-                                            <CheckBox Content="Weapons" IsCheckedChanged="OnFilterChecked" />
-                                            <CheckBox Content="Gadgets" IsCheckedChanged="OnFilterChecked" />
-                                            <CheckBox Content="Melee" IsCheckedChanged="OnFilterChecked" />
-                                            <CheckBox Content="Consumables" IsCheckedChanged="OnFilterChecked" />
-                                            <CheckBox Content="Lego" IsCheckedChanged="OnFilterChecked" />
-                                        </StackPanel>
-                                        
-                                        <Button HorizontalAlignment="Stretch" Margin="{ext:Space 0, 1, 0, 0}" Click="OnFilterClearClicked">
-                                            <StackPanel Orientation="Horizontal">
-                                                <material:MaterialIcon Kind="Delete" Margin="{ext:Space 0, 0, 1, 0}"/>
-                                                <TextBlock Text="Clear Filters"/>
-                                            </StackPanel>
-                                        </Button>
-                                    </StackPanel>
+                                    <ItemsControl ItemsSource="{Binding AssetLoaderCollection.ActiveLoader.FilterCategories}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate DataType="filters:FilterCategory">
+                                                <StackPanel IsVisible="{Binding IsVisible}">
+                                                    <TextBlock Text="{Binding Title}" Classes="BodyStrongTextBlockStyle" Margin="{ext:Space 0, 0, 0, 0.5}"/>
+                                                    <Separator HorizontalAlignment="Stretch"/>
+                                                    <ItemsControl ItemsSource="{Binding Filters}">
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate DataType="filters:FilterItem">
+                                                                <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}" Content="{Binding Title}" IsCheckedChanged="OnFilterChecked"/>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                        <ItemsControl.ItemsPanel>
+                                                            <ItemsPanelTemplate>
+                                                                <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                                                            </ItemsPanelTemplate>
+                                                        </ItemsControl.ItemsPanel>
+                                                    </ItemsControl>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                    </ItemsControl>
                                 </Flyout>
                             </DropDownButton.Flyout>
                             
@@ -142,6 +122,7 @@
                                     <ContentControl Padding="8">
                                         <ContentControl.ContextMenu>
                                             <ContextMenu>
+                                                <MenuItem Header="Favorite" Icon="{material:MaterialIconExt Heart}" Command="{Binding FavoriteCommand}"/>
                                                 <MenuItem Header="Send to User" Icon="{material:MaterialIconExt Download}" Command="{Binding SendToUserCommand}"/>
                                                 <MenuItem Header="View Properties" Icon="{material:MaterialIconExt Xml}" Command="{Binding PreviewPropertiesCommand}"/>
                                                 <MenuItem Header="Copy Path" Icon="{material:MaterialIconExt Clipboard}" Command="{Binding CopyPathCommand}"/>
@@ -162,6 +143,9 @@
                                                         <ImageBrush Stretch="UniformToFill" Source="{Binding DisplayImage}" />
                                                     </ui:FABorder.Background>
                                                 </ui:FABorder>
+                                                <Image IsVisible="{Binding IsFavorite}"
+                                                       Source="/Assets/FN/Favorite.png" Width="24" Height="24" HorizontalAlignment="Right"
+                                                       VerticalAlignment="Top" />
                                             </Grid>
                                             <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="12" TextTrimming="CharacterEllipsis"
                                                        Text="{Binding CreationData.DisplayName, Converter={StaticResource TitleCaseString}}" />
@@ -181,14 +165,88 @@
 
                 </Grid>
                 
-                <Grid Grid.Column="2" IsVisible="{Binding !!AssetLoaderCollection.ActiveLoader.SelectedAssets.Count}">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    
+                <Grid Grid.Column="2" RowDefinitions="*,Auto"
+                      IsVisible="{Binding !!AssetLoaderCollection.ActiveLoader.SelectedAssetInfos.Count}">
+
                     <ScrollViewer Grid.Row="0" Classes="FixedScrollbar" VerticalScrollBarVisibility="Hidden" PointerWheelChanged="OnScrollAssets">
-                        <ItemsControl ItemsSource="{Binding AssetLoaderCollection.ActiveLoader.SelectedAssets}" />
+                        <ItemsControl ItemsSource="{Binding AssetLoaderCollection.ActiveLoader.SelectedAssetInfos}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="2*" />
+                                            <RowDefinition Height="{ext:Space 1}" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+                                        
+                                        <ui:FABorder Grid.Row="0">
+                                            <Grid RowDefinitions="* 2*" ColumnDefinitions="* 0.15* 2.5*">
+                                                <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" CornerRadius="4">
+                                                    <Border.Background>
+                                                        <ImageBrush Stretch="Uniform" Source="{Binding Asset.IconDisplayImage}" />
+                                                    </Border.Background>
+                                                    <Image Opacity="0" Source="{Binding Asset.IconDisplayImage}" />
+                                                </Border>
+                                                <TextBlock Grid.Row="0" Grid.Column="2" Classes="BodyStrongTextBlockStyle" VerticalAlignment="Bottom" TextAlignment="Left"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           Text="{Binding Asset.CreationData.DisplayName}"/>
+                                                <TextBlock Grid.Row="1" Grid.Column="2" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush" VerticalAlignment="Top"
+                                                           Text="{Binding Asset.CreationData.Description}" Margin="{ext:Space 0, 0, 1, 0}"
+                                                           TextAlignment="Left" TextWrapping="Wrap" Opacity="0.75"/>
+                                            </Grid>
+                                        </ui:FABorder>
+                                        
+                                        <ItemsControl Grid.Row="2" ItemsSource="{Binding StyleInfos}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate DataType="assets:AssetStyleInfo">
+                                                    <ui:FABorder Margin="{ext:Space 0, 0, 0, 1}" IsVisible="{Binding IsVisible}">
+                                                        <Grid Margin="{ext:Space 0, 1, 0, 1}">
+                                                            <Grid.RowDefinitions>
+                                                                <RowDefinition Height="*" />
+                                                                <RowDefinition Height="{ext:Space 1}" />
+                                                                <RowDefinition Height="Auto" />
+                                                            </Grid.RowDefinitions>
+                                                        
+                                                            <TextBlock Grid.Row="0" Text="{Binding ChannelName}" HorizontalAlignment="Center" 
+                                                                       Classes="BodyStrongTextBlockStyle"/>
+                                                            <ListBox Grid.Row="2" SelectedIndex="{Binding SelectedStyleIndex, Mode=TwoWay}" 
+                                                                     ItemsSource="{Binding StyleDatas}" HorizontalAlignment="Center">
+                                                                <ListBox.ItemsPanel>
+                                                                    <ItemsPanelTemplate>
+                                                                        <WrapPanel VerticalAlignment="Top" HorizontalAlignment="Left" />
+                                                                    </ItemsPanelTemplate>
+                                                                </ListBox.ItemsPanel>
+                                                                <ListBox.Styles>
+                                                                    <Style Selector="ListBoxItem">
+                                                                        <Setter Property="MinWidth" Value="0"/>
+                                                                        <Setter Property="Padding" Value="0"/>
+                                                                    </Style>
+                                                                </ListBox.Styles>
+                                                                <ListBox.ItemTemplate>
+                                                                    <DataTemplate DataType="assets:AssetStyleData">
+                                                                        <ContentControl Padding="8">
+                                                                            <Grid MaxWidth="48" RowDefinitions="*, Auto">
+                                                                                <Border Grid.Row="0" Width="48" Height="48">
+                                                                                    <Border.Background>
+                                                                                        <ImageBrush Source="{Binding StyleDisplayImage}" />
+                                                                                    </Border.Background>
+                                                                                </Border>
+                                                                                <TextBlock Grid.Row="1" Text="{Binding StyleName}" HorizontalAlignment="Center" 
+                                                                                           Classes="CaptionTextBlockStyle" TextTrimming="CharacterEllipsis"/>
+                                                                            </Grid>
+                                                                        </ContentControl>
+                                                                    </DataTemplate>
+                                                                </ListBox.ItemTemplate>
+                                                            </ListBox>
+                                                        </Grid>
+                                                    </ui:FABorder>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
                     </ScrollViewer>
                     
                     <ui:FABorder Grid.Row="1" Margin="{ext:Space 0, 1, 0, 0}">
@@ -224,7 +282,7 @@
                         </Grid>
                     </ui:FABorder>
                 </Grid>
-                <TextBlock Grid.Column="2" IsVisible="{Binding !AssetLoaderCollection.ActiveLoader.SelectedAssets.Count}" Text="No Asset Selected" 
+                <TextBlock Grid.Column="2" IsVisible="{Binding !AssetLoaderCollection.ActiveLoader.SelectedAssetInfos.Count}" Text="No Asset Selected" 
                            Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"
                            HorizontalAlignment="Center" VerticalAlignment="Center" />
             </Grid>

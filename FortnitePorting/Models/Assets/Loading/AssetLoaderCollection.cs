@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Texture;
@@ -13,15 +12,12 @@ using CUE4Parse.UE4.Objects.GameplayTags;
 using CUE4Parse.UE4.Objects.UObject;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
-using FortnitePorting.Controls;
-using FortnitePorting.Extensions;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Services;
-using Serilog;
 using SkiaSharp;
 
-namespace FortnitePorting.Models.Assets;
+namespace FortnitePorting.Models.Assets.Loading;
 
 public partial class AssetLoaderCollection : ObservableObject
 {
@@ -29,7 +25,7 @@ public partial class AssetLoaderCollection : ObservableObject
     
     public AssetLoader[] Loaders => Categories.SelectMany(category => category.Loaders).ToArray();
     
-    public readonly List<AssetLoaderCategory> Categories =
+    public List<AssetLoaderCategory> Categories { get; set; } =
     [
         new AssetLoaderCategory(EAssetCategory.Cosmetics)
         {
@@ -382,6 +378,7 @@ public partial class AssetLoaderCollection : ObservableObject
     {
         ActiveLoader = Get(type);
         ActiveCollection = ActiveLoader.Filtered;
+        ActiveLoader.UpdateFilterVisibility();
     }
 
     public AssetLoader Get(EExportType type)

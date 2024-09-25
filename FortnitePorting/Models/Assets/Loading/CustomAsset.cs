@@ -1,7 +1,6 @@
-using Avalonia.Media.Imaging;
 using SkiaSharp;
 
-namespace FortnitePorting.Models.Assets;
+namespace FortnitePorting.Models.Assets.Loading;
 
 public class CustomAsset
 {

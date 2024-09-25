@@ -1,8 +1,7 @@
 using System.Collections.Generic;
-using CommunityToolkit.Mvvm.ComponentModel;
 using FortnitePorting.Shared;
 
-namespace FortnitePorting.Models.Assets;
+namespace FortnitePorting.Models.Assets.Loading;
 
 public class AssetLoaderCategory(EAssetCategory category)
 {
