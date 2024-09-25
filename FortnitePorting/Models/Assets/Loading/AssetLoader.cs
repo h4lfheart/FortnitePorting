@@ -31,6 +31,7 @@ public partial class AssetLoader : ObservableObject
     public string[] ClassNames = [];
     public string[] AllowNames = [];
     public string[] HideNames = [];
+    public string[] DisallowedNames = [];
     public ManuallyDefinedAsset[] ManuallyDefinedAssets = [];
     public CustomAsset[] CustomAssets = [];
     public bool LoadHiddenAssets;
@@ -195,6 +196,8 @@ public partial class AssetLoader : ObservableObject
             .ToList();
         Assets.RemoveAll(data => data.AssetName.Text.EndsWith("Random", StringComparison.OrdinalIgnoreCase));
 
+        Assets.RemoveAll(asset => DisallowedNames.Any(name => asset.PackageName.Text.Contains(name, StringComparison.OrdinalIgnoreCase)));
+        
         if (AllowNames.Length > 0)
         {
             Assets.RemoveAll(asset => !AllowNames.Any(name => asset.PackageName.Text.Contains(name, StringComparison.OrdinalIgnoreCase)));
@@ -204,6 +207,7 @@ public partial class AssetLoader : ObservableObject
         {
             Assets.RemoveAll(asset => HideNames.Any(name => asset.PackageName.Text.Contains(name, StringComparison.OrdinalIgnoreCase)));
         }
+        
 
 
         TotalAssets = Assets.Count + ManuallyDefinedAssets.Length + CustomAssets.Length;
@@ -258,7 +262,7 @@ public partial class AssetLoader : ObservableObject
         }
 
         LoadedAssets = TotalAssets; 
-        await TaskService.RunDispatcherAsync(() => SearchAutoComplete.AddRange(Source.Items.Select(asset => asset.CreationData.DisplayName)));
+        await TaskService.RunDispatcherAsync(() => SearchAutoComplete.AddRange(Source.Items.Select(asset => asset.CreationData.DisplayName).Distinct()));
     }
 
     private async Task LoadAsset(FAssetData data)
@@ -380,7 +384,7 @@ public partial class AssetLoader : ObservableObject
         var (searchFilter, filters) = values;
         
         return asset => asset.Match(searchFilter) && filters.All(x => x.Predicate.Invoke(asset)) 
-                                                  && asset.CreationData.IsHidden == filters.Any(filter => filter.Title.Equals("Hidden Assets"));
+                                                  && asset.CreationData.IsHidden == filters.Any(filter => filter.Title.Equals("Hidden Items"));
     }
 
     private static SortExpressionComparer<AssetItem> CreateAssetSort((EAssetSortType, bool) values)

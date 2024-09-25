@@ -37,15 +37,11 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
         ViewModel.AssetLoaderCollection.ActiveLoader.SelectedAssetInfos = [];
         foreach (var asset in listBox.SelectedItems.Cast<AssetItem>())
         {
-            if (ViewModel.AssetLoaderCollection.ActiveLoader.StyleDictionary.TryGetValue(asset.CreationData.DisplayName,
-                    out var stylePaths))
-            {
-                ViewModel.AssetLoaderCollection.ActiveLoader.SelectedAssetInfos.Add(new AssetInfo(asset, stylePaths));
-            }
-            else
-            {
-                ViewModel.AssetLoaderCollection.ActiveLoader.SelectedAssetInfos.Add(new AssetInfo(asset));
-            }
+            ViewModel.AssetLoaderCollection.ActiveLoader.SelectedAssetInfos.Add(
+                ViewModel.AssetLoaderCollection.ActiveLoader.StyleDictionary.TryGetValue(asset.CreationData.DisplayName,
+                    out var stylePaths)
+                    ? new AssetInfo(asset, stylePaths.OrderBy(x => x))
+                    : new AssetInfo(asset));
         }
     }
     

@@ -11,6 +11,7 @@ public abstract partial class BaseStyleData : ObservableObject
 {
     [ObservableProperty] private string _styleName;
     [ObservableProperty] private Bitmap _styleDisplayImage;
+    [ObservableProperty] private bool _showName = true;
 }
 
 public partial class AssetStyleData : BaseStyleData
@@ -35,6 +36,7 @@ public partial class ObjectStyleData : BaseStyleData
     
     public ObjectStyleData(string name, UObject styleData, Bitmap previewImage)
     {
+        ShowName = false;
         StyleData = styleData;
         StyleName = name;
         StyleDisplayImage = previewImage;

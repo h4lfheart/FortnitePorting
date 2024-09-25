@@ -34,8 +34,10 @@ public partial class AssetLoaderCollection : ObservableObject
                 new AssetLoader(EExportType.Outfit)
                 {
                     ClassNames = ["AthenaCharacterItemDefinition"],
-                    HideNames = ["Bean_", "BeanCharacter"],
+                    HideNames = ["_NPC", "_TBD", "CID_VIP", "_Creative", "_SG"],
+                    DisallowedNames = ["Bean_", "BeanCharacter"],
                     PlaceholderIconPath = "FortniteGame/Content/Athena/Prototype/Textures/T_Placeholder_Item_Outfit",
+                    LoadHiddenAssets = true,
                     IconHandler = asset =>
                     {
                         var previewImage = AssetLoader.GetIcon(asset);
@@ -111,17 +113,7 @@ public partial class AssetLoaderCollection : ObservableObject
                     HideRarity = true,
                     HidePredicate = (loader, asset, name) =>
                     {
-                        // if prop has already been filtered, dont load it
-                        // then compare names w/ the already loaded assets
-                        // if they have the same name, they're a duplicate and should be filtered
-                        // slow on first load, otherwise a LOT faster
-                        // filtered assets are put into styles of main asset on click
-                        
-                        if (loader.FilteredAssetBag.Contains(name))
-                        {
-                            return true;
-                        }
-                        
+                        if (loader.FilteredAssetBag.Contains(name)) return true;
                         loader.FilteredAssetBag.Add(name);
                         return false;
                     },
@@ -159,7 +151,18 @@ public partial class AssetLoaderCollection : ObservableObject
                         "FortWeaponMeleeItemDefinition", "FortCreativeWeaponMeleeItemDefinition", 
                         "FortCreativeWeaponRangedItemDefinition", "FortWeaponMeleeDualWieldItemDefinition"],
                     HideNames = ["_Harvest", "Weapon_Pickaxe_", "Weapons_Pickaxe_", "Dev_WID"],
-                    HidePredicate = (loader, asset, name) =>  false // TODO item filtering
+                    HidePredicate = (loader, asset, name) =>
+                    {
+                        if (loader.FilteredAssetBag.Contains(name)) return true;
+                        loader.FilteredAssetBag.Add(name);
+                        return false;
+                    },
+                    AddStyleHandler = (loader, asset, name) =>
+                    {
+                        var path = asset.GetPathName();
+                        loader.StyleDictionary.TryAdd(name, []);
+                        loader.StyleDictionary[name].Add(path);
+                    }
                 },
                 new AssetLoader(EExportType.Resource)
                 {
@@ -170,7 +173,12 @@ public partial class AssetLoaderCollection : ObservableObject
                 {
                     ClassNames = ["FortTrapItemDefinition"],
                     HideNames = ["TID_Creative", "TID_Floor_Minigame_Trigger_Plate"],
-                    HidePredicate = (loader, asset, name) =>  false // TODO trap filtering
+                    HidePredicate = (loader, asset, name) =>
+                    {
+                        if (loader.FilteredAssetBag.Contains(name)) return true;
+                        loader.FilteredAssetBag.Add(name);
+                        return false;
+                    }
                     
                 },
                 new AssetLoader(EExportType.Vehicle)
@@ -178,7 +186,8 @@ public partial class AssetLoaderCollection : ObservableObject
                     ClassNames = ["FortVehicleItemDefinition"],
                     IconHandler = asset => asset.GetVehicleMetadata<UTexture2D>("Icon", "SmallPreviewImage", "LargePreviewImage"),
                     DisplayNameHandler = asset => asset.GetVehicleMetadata<FText>("DisplayName", "ItemName")?.Text,
-                    HideRarity = true
+                    HideRarity = true,
+                    
                 },
                 new AssetLoader(EExportType.Wildlife)
                 {
