@@ -115,19 +115,22 @@ public partial class AssetLoaderCollection : ObservableObject
                         // then compare names w/ the already loaded assets
                         // if they have the same name, they're a duplicate and should be filtered
                         // slow on first load, otherwise a LOT faster
-                        // TODO put filtered assets into styles of main asset on click
-                        var path = asset.GetPathName();
-                        if (AppSettings.Current.FilteredProps.Contains(path)) return true;
-
+                        // filtered assets are put into styles of main asset on click
+                        
                         if (loader.FilteredAssetBag.Contains(name))
                         {
-                            AppSettings.Current.FilteredProps.Add(path);
                             return true;
                         }
                         
                         loader.FilteredAssetBag.Add(name);
                         return false;
-                    } 
+                    },
+                    AddStyleHandler = (loader, asset, name) =>
+                    {
+                        var path = asset.GetPathName();
+                        loader.StyleDictionary.TryAdd(name, []);
+                        loader.StyleDictionary[name].Add(path);
+                    }
                 },
                 new AssetLoader(EExportType.Prefab)
                 {

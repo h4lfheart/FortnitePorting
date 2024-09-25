@@ -19,6 +19,7 @@ using CUE4Parse.Utils;
 using DynamicData;
 using FortnitePorting.Export.Models;
 using FortnitePorting.Extensions;
+using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.CUE4Parse;
 using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Models.Unreal;
@@ -37,7 +38,7 @@ public class AnimExport : BaseExport
     public readonly List<ExportSound> Sounds = new();
     public readonly List<ExportProp> Props = new();
     
-    public AnimExport(string name, UObject asset, FStructFallback[] styles, EExportType exportType, ExportDataMeta metaData) : base(name, asset, styles, exportType, metaData)
+    public AnimExport(string name, UObject asset, BaseStyleData[] styles, EExportType exportType, ExportDataMeta metaData) : base(name, asset, styles, exportType, metaData)
     {
         switch (exportType)
         {

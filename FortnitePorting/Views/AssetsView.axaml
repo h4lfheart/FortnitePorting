@@ -209,7 +209,9 @@
                                                         
                                                             <TextBlock Grid.Row="0" Text="{Binding ChannelName}" HorizontalAlignment="Center" 
                                                                        Classes="BodyStrongTextBlockStyle"/>
-                                                            <ListBox Grid.Row="2" SelectedIndex="{Binding SelectedStyleIndex, Mode=TwoWay}" 
+                                                            <ListBox Grid.Row="2" SelectionMode="{Binding SelectionMode}"
+                                                                     SelectedItems="{Binding SelectedItems}"
+                                                                     SelectedIndex="{Binding SelectedStyleIndex, Mode=TwoWay}" 
                                                                      ItemsSource="{Binding StyleDatas}" HorizontalAlignment="Center">
                                                                 <ListBox.ItemsPanel>
                                                                     <ItemsPanelTemplate>
@@ -223,8 +225,8 @@
                                                                     </Style>
                                                                 </ListBox.Styles>
                                                                 <ListBox.ItemTemplate>
-                                                                    <DataTemplate DataType="assets:AssetStyleData">
-                                                                        <ContentControl Padding="8">
+                                                                    <DataTemplate DataType="assets:BaseStyleData">
+                                                                        <ContentControl Padding="8" ToolTip.Tip="{Binding StyleName}">
                                                                             <Grid MaxWidth="48" RowDefinitions="*, Auto">
                                                                                 <Border Grid.Row="0" Width="48" Height="48">
                                                                                     <Border.Background>

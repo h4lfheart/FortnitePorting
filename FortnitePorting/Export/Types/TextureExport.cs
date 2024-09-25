@@ -17,6 +17,7 @@ using CUE4Parse.Utils;
 using DynamicData;
 using FortnitePorting.Export.Models;
 using FortnitePorting.Extensions;
+using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.CUE4Parse;
 using FortnitePorting.Models.Unreal;
 using FortnitePorting.Models.Unreal.Landscape;
@@ -40,7 +41,7 @@ public class TextureExport : BaseExport
         { EExportType.Emoticon, "SpriteSheet" }
     };
     
-    public TextureExport(string name, UObject asset, FStructFallback[] styles, EExportType exportType, ExportDataMeta metaData) : base(name, asset, styles, exportType, metaData)
+    public TextureExport(string name, UObject asset, BaseStyleData[] styles, EExportType exportType, ExportDataMeta metaData) : base(name, asset, styles, exportType, metaData)
     {
         var textures = new List<UTexture>();
         switch (asset)

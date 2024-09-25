@@ -1,6 +1,7 @@
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Objects;
 using FortnitePorting.Export.Models;
+using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.CUE4Parse;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Models;
@@ -16,7 +17,7 @@ public class BaseExport
 
     protected ExportContext Exporter;
 
-    public BaseExport(string name, UObject asset, FStructFallback[] styles, EExportType exportType, ExportDataMeta metaData)
+    public BaseExport(string name, UObject asset, BaseStyleData[] styles, EExportType exportType, ExportDataMeta metaData)
     {
         Name = name;
         Type = exportType;

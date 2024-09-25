@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -35,6 +36,7 @@ public partial class AssetLoader : ObservableObject
     public bool LoadHiddenAssets;
     public bool HideRarity;
     public Func<AssetLoader, UObject, string, bool> HidePredicate = (loader, asset, name) => false;
+    public Action<AssetLoader, UObject, string> AddStyleHandler = (loader, asset, name) => {};
     public string PlaceholderIconPath = "FortniteGame/Content/Athena/Prototype/Textures/T_Placeholder_Generic";
     public Func<UObject, UTexture2D?> IconHandler = GetIcon;
     public Func<UObject, string?> DisplayNameHandler = asset => asset.GetAnyOrDefault<FText?>("DisplayName", "ItemName")?.Text;
@@ -44,6 +46,7 @@ public partial class AssetLoader : ObservableObject
     public readonly ReadOnlyObservableCollection<AssetItem> Filtered;
     public SourceCache<AssetItem, Guid> Source = new(asset => asset.Id);
     public readonly ConcurrentBag<string> FilteredAssetBag = [];
+    public readonly ConcurrentDictionary<string, ConcurrentBag<string>> StyleDictionary = [];
 
     private List<FAssetData> Assets;
 
@@ -186,7 +189,7 @@ public partial class AssetLoader : ObservableObject
     {
         if (BeganLoading) return;
         BeganLoading = true;
-        
+
         Assets = CUE4ParseVM.AssetRegistry
             .Where(data => ClassNames.Contains(data.AssetClass.Text))
             .ToList();
@@ -255,7 +258,7 @@ public partial class AssetLoader : ObservableObject
         }
 
         LoadedAssets = TotalAssets; 
-        await TaskService.RunDispatcherAsync(() => ListEx.AddRange(SearchAutoComplete, Source.Items.Select(asset => asset.CreationData.DisplayName)));
+        await TaskService.RunDispatcherAsync(() => SearchAutoComplete.AddRange(Source.Items.Select(asset => asset.CreationData.DisplayName)));
     }
 
     private async Task LoadAsset(FAssetData data)
@@ -273,6 +276,8 @@ public partial class AssetLoader : ObservableObject
     {
         var displayName = DisplayNameHandler(asset);
         if (string.IsNullOrWhiteSpace(displayName)) displayName = asset.Name;
+        
+        AddStyleHandler(this, asset, displayName);
         
         var isHidden = HideNames.Any(name => asset.Name.Contains(name, StringComparison.OrdinalIgnoreCase)) || HidePredicate(this, asset, displayName);
         if (isHidden && !LoadHiddenAssets) return;

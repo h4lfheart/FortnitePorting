@@ -19,6 +19,7 @@ using CUE4Parse.Utils;
 using DynamicData;
 using FortnitePorting.Export.Models;
 using FortnitePorting.Extensions;
+using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.CUE4Parse;
 using FortnitePorting.Models.Unreal.Landscape;
 using FortnitePorting.Shared;
@@ -35,7 +36,26 @@ public class MeshExport : BaseExport
     public readonly List<ExportOverrideParameters> OverrideParameters = [];
     public ExportLightCollection Lights = new();
     
-    public MeshExport(string name, UObject asset, FStructFallback[] styles, EExportType exportType, ExportDataMeta metaData) : base(name, asset, styles, exportType, metaData)
+    public MeshExport(string name, UObject asset, BaseStyleData[] styles, EExportType exportType, ExportDataMeta metaData) : base(name, asset, styles, exportType, metaData)
+    {
+        var objectStyles = styles.OfType<ObjectStyleData>().ToArray();
+        if (objectStyles.Length > 0)
+        {
+            foreach (var objectStyle in objectStyles)
+            {
+                Export(objectStyle.StyleData, exportType);
+            }
+            
+            return;
+        }
+
+        Export(asset, exportType);
+        
+        var assetStyles = styles.OfType<AssetStyleData>();
+        ExportStyles(asset, assetStyles);
+    }
+
+    public void Export(UObject asset, EExportType exportType)
     {
         switch (exportType)
         {
@@ -414,8 +434,6 @@ public class MeshExport : BaseExport
                 break;
             }
         }
-
-        ExportStyles(asset, styles);
     }
 
     private void AddObjects(IEnumerable<ExportObject> objects)
@@ -433,11 +451,13 @@ public class MeshExport : BaseExport
         }
     }
     
-    private void ExportStyles(UObject asset, FStructFallback[] styles)
+    private void ExportStyles(UObject asset, IEnumerable<AssetStyleData> styles)
     {
         var metaTagsToApply = new List<FGameplayTag>();
         var metaTagsToRemove = new List<FGameplayTag>();
-        foreach (var style in styles)
+
+        var styleDatas = styles.Select(data => data.StyleData).ToArray();
+        foreach (var style in styleDatas)
         {
             var tags = style.Get<FStructFallback>("MetaTags");
 
@@ -465,7 +485,7 @@ public class MeshExport : BaseExport
             }
         }
 
-        foreach (var style in styles) ExportStyleData(style);
+        foreach (var style in styleDatas) ExportStyleData(style);
     }
 
     private void ExportStyleData(FStructFallback style)

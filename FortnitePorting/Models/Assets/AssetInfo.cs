@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -19,7 +20,6 @@ public partial class AssetInfo : ObservableObject
     public AssetInfo(AssetItem asset)
     {
         Asset = asset;
-        
         if (Asset.CreationData.Object is null) return;
         
         var styles = Asset.CreationData.Object.GetOrDefault("ItemVariants", Array.Empty<UObject>());
@@ -42,17 +42,32 @@ public partial class AssetInfo : ObservableObject
             if (options.Length == 0) continue;
 
             var styleInfo = new AssetStyleInfo(channel, options, Asset.IconDisplayImage);
-            if (styleInfo.StyleDatas.Count == 0) continue;
-            
-            StyleInfos.Add(styleInfo);
+            if (styleInfo.StyleDatas.Count > 0) StyleInfos.Add(styleInfo);
         }
     }
     
-    public FStructFallback[] GetSelectedStyles()
+    public AssetInfo(AssetItem asset, IEnumerable<string> stylePaths)
+    {
+        Asset = asset;
+        if (Asset.CreationData.Object is null) return;
+
+        var styleObjects = new List<UObject>();
+        foreach (var stylePath in stylePaths)
+        {
+            if (CUE4ParseVM.Provider.TryLoadObject(stylePath, out var styleObject))
+            {
+                styleObjects.Add(styleObject);
+            }
+        }
+        
+        var styleInfo = new AssetStyleInfo("Styles", styleObjects, Asset.IconDisplayImage);
+        if (styleInfo.StyleDatas.Count > 0) StyleInfos.Add(styleInfo);
+    }
+    
+    public BaseStyleData[] GetSelectedStyles()
     {
         return StyleInfos
-            .Select(info => info.StyleDatas[info.SelectedStyleIndex])
-            .Select(data => data.StyleData)
+            .SelectMany(info => info.SelectedItems)
             .ToArray();
     }
 }

@@ -38,9 +38,6 @@ public partial class SettingsViewModel : ViewModelBase
     // Assets
     [ObservableProperty] private HashSet<string> _favoriteAssets = [];
 
-    // Filtered Data
-    [ObservableProperty] private HashSet<string> _filteredProps = [];
-
     // Radio
     [ObservableProperty] private RadioPlaylistSerializeData[] _playlists = [];
     [ObservableProperty] private int _audioDeviceIndex = 0;

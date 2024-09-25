@@ -157,7 +157,7 @@ public static class Exporter
         return outPath;
     }
     
-    private static BaseExport CreateExport(string name, UObject asset, EExportType exportType, FStructFallback[] styles, ExportDataMeta metaData)
+    private static BaseExport CreateExport(string name, UObject asset, EExportType exportType, BaseStyleData[] styles, ExportDataMeta metaData)
     {
         var path = asset.GetPathName();
         AppWM.Message($"Exporting {name}", $"Exporting: {asset.Name}", id: path, autoClose: false);
