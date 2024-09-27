@@ -94,6 +94,8 @@ public partial class MusicPackItem : ObservableObject
         {
             ESoundFormat.MP3 => Globals.MP3FileType,
             ESoundFormat.WAV => Globals.WAVFileType,
+            ESoundFormat.OGG => Globals.OGGFileType,
+            ESoundFormat.FLAC => Globals.FLACFileType,
         };
         
         if (await SaveFileDialog(suggestedFileName: Id, fileType) is not { } path) return;
@@ -110,11 +112,25 @@ public partial class MusicPackItem : ObservableObject
 
             switch (soundFormat)
             {
-                case ESoundFormat.MP3:
+                case ESoundFormat.WAV:
                 {
-                    // convert to mp3
+                    File.Copy(wavPath, path);
+                    
+                    var track = new Track(path)
+                    {
+                        Title = TrackName,
+                        Description = TrackDescription,
+                        Artist = "Epic Games"
+                    };
+            
+                    track.Save();
+                    
+                    break;
+                }
+                default:
+                {
                     await FFMpegArguments.FromFileInput(wavPath)
-                        .OutputToFile(path, true, options => options.ForceFormat("mp3"))
+                        .OutputToFile(path, true, options => options.ForceFormat(Path.GetExtension(path)[1..]))
                         .ProcessAsynchronously();
             
                     var file = new FileInfo(path);
@@ -137,21 +153,6 @@ public partial class MusicPackItem : ObservableObject
                     track.EmbeddedPictures.Add(PictureInfo.fromBinaryData(coverStream.ToArray(), PictureInfo.PIC_TYPE.Front));
             
                     track.Save();
-                    break;
-                }
-                case ESoundFormat.WAV:
-                {
-                    File.Copy(wavPath, path);
-                    
-                    var track = new Track(path)
-                    {
-                        Title = TrackName,
-                        Description = TrackDescription,
-                        Artist = "Epic Games"
-                    };
-            
-                    track.Save();
-                    
                     break;
                 }
             }

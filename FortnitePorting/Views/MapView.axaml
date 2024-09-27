@@ -58,18 +58,19 @@
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                 </ItemsControl>
-                <TextBlock Text="A preview of this map is not available." 
-                           HorizontalAlignment="Center" VerticalAlignment="Center"
-                           Classes="TextFillColorTertiaryBrush" FontSize="36">
-                    <TextBlock.IsVisible>
-                        <MultiBinding Converter="{x:Static BoolConverters.And}">
-                            <Binding Path="!SelectedMap.SelectedMaps.Count"/>
-                            <Binding Path="SelectedMap.Info.IsUEFN"/>
-                        </MultiBinding>
-                    </TextBlock.IsVisible>
-                </TextBlock>
             </Grid>
         </Viewbox>
+        
+        <TextBlock Grid.Column="0" Text="A preview of this map is not available." 
+                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Classes="BodyTextBlockStyle TextFillColorTertiaryBrush">
+            <TextBlock.IsVisible>
+                <MultiBinding Converter="{x:Static BoolConverters.And}">
+                    <Binding Path="!SelectedMap.SelectedMaps.Count"/>
+                    <Binding Path="SelectedMap.Info.IsUEFN"/>
+                </MultiBinding>
+            </TextBlock.IsVisible>
+        </TextBlock>
         
         <ui:FABorder Grid.Column="1" Padding="{ext:Space 1}" CornerRadius="0"
                      Background="#22000000" HorizontalAlignment="Stretch">

@@ -3,6 +3,12 @@ from enum import IntEnum, auto
 class EImageFormat(IntEnum):
     PNG = 0
     TGA = 1
+    
+class ESoundFormat(IntEnum):
+    WAV = 0
+    MP3 = 1
+    OGG = 2
+    FLAC = 3
 
 
 class EExportType(IntEnum):

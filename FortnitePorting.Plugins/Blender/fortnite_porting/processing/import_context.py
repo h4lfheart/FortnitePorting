@@ -1026,7 +1026,8 @@ class ImportContext:
         if not bpy.context.scene.sequence_editor:
             bpy.context.scene.sequence_editor_create()
 
-        sound_path = os.path.join(self.assets_root, file_path + ".wav")  # TODO mp3 import as well bc there's an option
+        ext = ESoundFormat(self.options.get("SoundFormat")).name.lower()
+        sound_path = os.path.join(self.assets_root, f"{file_path}.{ext}")
         sound = bpy.context.scene.sequence_editor.sequences.new_sound(name, sound_path, 0, time)
         sound["FPSound"] = True
         return sound

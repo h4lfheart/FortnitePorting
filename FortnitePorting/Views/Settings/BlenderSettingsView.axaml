@@ -137,12 +137,6 @@
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
             
-            <ui:SettingsExpander Header="Import Sounds" Description="Whether or not to import sounds collected from animations.">
-                <ui:SettingsExpander.Footer>
-                    <ToggleSwitch IsChecked="{Binding ImportSounds}"/>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
-            
             <ui:SettingsExpander Header="Import Lobby Animations" Description="Whether or not to import lobby animations. (Outfit Only)">
                 <ui:SettingsExpander.Footer>
                     <ToggleSwitch IsChecked="{Binding ImportLobbyPoses}"/>
@@ -218,6 +212,22 @@
                 <ui:SettingsExpander.Footer>
                     <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type settings:ETextureImportMethod}}"
                               SelectedItem="{Binding TextureImportMethod, Converter={StaticResource EnumToRecord}}" />
+                </ui:SettingsExpander.Footer>
+            </ui:SettingsExpander>
+            
+            <TextBlock Text="Sound" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
+            
+            <ui:SettingsExpander Header="Import Sounds" Description="Whether or not to import sounds collected from animation notifies.">
+                <ui:SettingsExpander.Footer>
+                    <ToggleSwitch IsChecked="{Binding ImportSounds}"/>
+                </ui:SettingsExpander.Footer>
+            </ui:SettingsExpander>
+
+            
+            <ui:SettingsExpander Header="Sound Format" Description="The file type that sounds should be exported as." IsEnabled="{Binding ImportSounds}">
+                <ui:SettingsExpander.Footer>
+                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type shared:ESoundFormat}}"
+                              SelectedItem="{Binding SoundFormat, Converter={StaticResource EnumToRecord}}" />
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
             
