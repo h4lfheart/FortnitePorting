@@ -12,12 +12,10 @@
              xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:icons="clr-namespace:Material.Icons;assembly=Material.Icons"
              xmlns:files="clr-namespace:FortnitePorting.Models.Files"
+             xmlns:views="clr-namespace:FortnitePorting.Views"
              d:DesignHeight="770" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.FilesView"
              x:DataType="viewModels:FilesViewModel">
-    <UserControl.KeyBindings>
-        <KeyBinding Gesture="P" Command="{Binding PreviewCommand}"/>
-    </UserControl.KeyBindings>
     <Grid>
         <Grid Margin="{ext:Space 1}">
             <Grid.RowDefinitions>
@@ -56,6 +54,10 @@
                         <ListBox ItemsSource="{Binding FlatViewCollection}" SelectionMode="Multiple"
                                  SelectedItems="{Binding SelectedFlatViewItems, Mode=TwoWay}"
                                  AutoScrollToSelectedItem="True" DoubleTapped="OnFlatItemDoubleTapped">
+                            <ListBox.KeyBindings>
+                                <KeyBinding Gesture="P" Command="{Binding PreviewCommand}"/>
+                                <KeyBinding Gesture="E" Command="{Binding ExportCommand}"/>
+                            </ListBox.KeyBindings>
                             <ListBox.ItemTemplate>
                                 <DataTemplate DataType="files:FlatItem">
                                     <ContentControl>
