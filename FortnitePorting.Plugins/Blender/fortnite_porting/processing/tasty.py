@@ -89,30 +89,28 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
     extra_collection = armature_data.collections.new("Extra")
     extra_collection.is_visible = False
     
-    has_original_ik_bones = any(armature_data.bones, lambda bone: bone.name in ["ik_hand_root", "ik_foot_root"])
-    if not has_original_ik_bones:
-        mesh = context.get_metadata("MasterSkeletalMesh")
-        master_skeletal_mesh = context.import_model(mesh)
-        master_skeletal_mesh.select_set(False)
+    # fill missing ik parts
+    master_skeletal_mesh = context.import_model(context.get_metadata("MasterSkeletalMesh"))
+    master_skeletal_mesh.select_set(False)
+    
+    for child in master_skeletal_mesh.children:
+        child.select_set(True)
+    bpy.ops.object.delete()
         
-        for child in master_skeletal_mesh.children:
-            child.select_set(True)
-        bpy.ops.object.delete()
-            
-        bpy.context.view_layer.objects.active = master_skeletal_mesh
-        master_skeletal_mesh.select_set(True)
-        
-        bpy.ops.object.mode_set(mode='EDIT')
-        bpy.ops.armature.select_all(action='DESELECT')
-        bpy.ops.object.select_pattern(pattern="*ik_*")
-        bpy.ops.armature.select_all(action='INVERT')
-        bpy.ops.armature.delete()
+    bpy.context.view_layer.objects.active = master_skeletal_mesh
+    master_skeletal_mesh.select_set(True)
+    
+    bpy.ops.object.mode_set(mode='EDIT')
+    bpy.ops.armature.select_all(action='DESELECT')
+    bpy.ops.object.select_pattern(pattern="*ik_*")
+    bpy.ops.armature.select_all(action='INVERT')
+    bpy.ops.armature.delete()
 
-        bpy.ops.object.mode_set(mode='OBJECT')
-        bpy.context.view_layer.objects.active = target_skeleton
-        target_skeleton.select_set(True)
-        master_skeletal_mesh.select_set(True)
-        bpy.ops.object.join()
+    bpy.ops.object.mode_set(mode='OBJECT')
+    bpy.context.view_layer.objects.active = target_skeleton
+    target_skeleton.select_set(True)
+    master_skeletal_mesh.select_set(True)
+    bpy.ops.object.join()
         
     if tasty_options_obj := bpy.data.objects.get("Tasty_Options"):
         bpy.context.collection.objects.link(tasty_options_obj)
@@ -225,8 +223,8 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
         ("ik_wolf_ball_r", "ik_foot_target_r", Lazy(lambda: (edit_bones["wolf_ball_r"].tail, edit_bones["wolf_ball_r"].tail + Vector((0, 0.25, 0)), edit_bones["wolf_ball_r"].roll))),
         ("ik_wolf_ball_l", "ik_foot_target_l", Lazy(lambda: (edit_bones["wolf_ball_l"].tail,edit_bones["wolf_ball_l"].tail + Vector((0, 0.25, 0)), edit_bones["wolf_ball_l"].roll))),
 
-        ("eye_control_r", "head", Lazy(lambda: (edit_bones["wolf_ball_r"].tail, 2 * edit_bones["wolf_ball_r"].tail - edit_bones["wolf_ball_r"].head, edit_bones["wolf_ball_r"].roll))),
-        ("eye_control_l", "head", Lazy(lambda: (edit_bones["wolf_ball_l"].tail, 2 * edit_bones["wolf_ball_l"].tail - edit_bones["wolf_ball_l"].head, edit_bones["wolf_ball_l"].roll))),
+        ("eye_control_r", "head", Lazy(lambda: (edit_bones[r_eye_name].head - Vector((0, 0.325, 0)), edit_bones[r_eye_name].head - Vector((0, 0.35, 0)), edit_bones[r_eye_name].roll))),
+        ("eye_control_l", "head", Lazy(lambda: (edit_bones[l_eye_name].head - Vector((0, 0.325, 0)), edit_bones[l_eye_name].head - Vector((0, 0.35, 0)), edit_bones[l_eye_name].roll))),
         ("eye_control_parent", "head", Lazy(lambda: ((edit_bones["eye_control_r"].head + edit_bones["eye_control_l"].head) / 2, (edit_bones["eye_control_r"].tail + edit_bones["eye_control_l"].tail) / 2, 0))),
     ]
 

@@ -128,7 +128,7 @@ class ImportContext:
                 return meta.get(found_key)
         return None
 
-    def import_model(self, mesh, parent=None):
+    def import_model(self, mesh, parent=None, can_reorient=True):
         path = mesh.get("Path")
         name = mesh.get("Name")
         part_type = EFortCustomPartType(mesh.get("Type"))
@@ -154,7 +154,7 @@ class ImportContext:
             imported_object = bpy.data.objects.new(name, existing_mesh_data)
             self.collection.objects.link(imported_object)
         else:
-            imported_object = self.import_mesh(path)
+            imported_object = self.import_mesh(path, can_reorient=can_reorient)
             imported_object.name = name
 
         imported_object.parent = parent
@@ -396,9 +396,9 @@ class ImportContext:
         light_data.shadow_soft_size = point_light.get("Radius") * self.scale
         light_data.use_shadow = point_light.get("CastShadows")
 
-    def import_mesh(self, path: str):
+    def import_mesh(self, path: str, can_reorient=True):
         options = UEModelOptions(scale_factor=self.scale,
-                                 reorient_bones=self.options.get("ReorientBones"),
+                                 reorient_bones=self.options.get("ReorientBones") and can_reorient,
                                  bone_length=self.options.get("BoneLength"),
                                  import_sockets=self.options.get("ImportSockets"),
                                  import_virtual_bones=self.options.get("ImportVirtualBones"),
@@ -1101,7 +1101,12 @@ class ImportContext:
                 section_name = section.get("Name")
                 time_offset = section.get("Time")
                 loop_count = 999 if self.options.get("LoopAnimation") and section.get("Loop") else 1
-                strip = track.strips.new(section_name, time_to_frame(time_offset), anim)
+                frame = time_to_frame(time_offset)
+
+                if len(track.strips) > 0 and frame < track.strips[-1].frame_end:
+                    frame = int(track.strips[-1].frame_end)
+
+                strip = track.strips.new(section_name, frame, anim)
                 strip.repeat = loop_count
 
                 if (curves := section.get("Curves")) and len(curves) > 0 and active_mesh.data.shape_keys is not None and is_main_skeleton:
@@ -1124,7 +1129,7 @@ class ImportContext:
                                         target_block.keyframe_insert(data_path="value", frame=key.get("Time") * 30)
 
                     if active_mesh.data.shape_keys.animation_data.action is not None:
-                        strip = mesh_track.strips.new(section_name, time_to_frame(time_offset), active_mesh.data.shape_keys.animation_data.action)
+                        strip = mesh_track.strips.new(section_name, frame, active_mesh.data.shape_keys.animation_data.action)
                         strip.name = section_name
                         strip.repeat = loop_count
                         active_mesh.data.shape_keys.animation_data.action = None
@@ -1139,7 +1144,7 @@ class ImportContext:
             if master_skeleton := first(target_skeleton.children, lambda child: child.name == "Master_Skeleton"):
                 bpy.data.objects.remove(master_skeleton)
 
-            master_skeleton = self.import_model(data.get("Skeleton"))
+            master_skeleton = self.import_model(data.get("Skeleton"), can_reorient=False)
             master_skeleton.name = "Master_Skeleton"
             master_skeleton.parent = target_skeleton
             master_skeleton.animation_data_create()

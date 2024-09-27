@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CUE4Parse_Conversion.Animations;
 using CUE4Parse.GameTypes.FN.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Animation;
@@ -151,9 +152,14 @@ public class AnimExport : BaseExport
                 
                 var animSections = new List<ExportAnimSection>();
                 
-                var montage = propNotify.SkeletalMeshPropMontage;
-                if (montage is not null) HandleSectionTree(animSections, montage, montage.CompositeSections.First());
-                if (animSections.Count == 0) animSections.AddIfNotNull(Exporter.AnimSequence(propNotify.SkeletalMeshPropAnimation));
+                if (propNotify.SkeletalMeshPropMontage is { } montage) HandleSectionTree(animSections, montage, montage.CompositeSections.First());
+                if (animSections.Count == 0 && propNotify.SkeletalMeshPropAnimationMontage is { } secondMontage)
+                {
+                    var propExport = new AnimExport(secondMontage.Name, secondMontage, [], EExportType.Animation,
+                        Exporter.Meta);
+
+                    animSections = propExport.Sections;
+                }
                 
                 var prop = new ExportProp
                 {

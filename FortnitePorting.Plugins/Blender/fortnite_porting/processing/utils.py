@@ -83,7 +83,8 @@ def merge_armatures(parts):
         if socket.casefold() == "hat":
             socket = "head"
 
-        constraint_object(skeleton, master_skeleton, socket, [0, radians(90), 0])  # TODO makes this proper for v3
+        constraint_object(skeleton, master_skeleton, socket, [0, 0, 0], rot=False)
+        constraint_object(skeleton, master_skeleton, socket, [0, 0, 0], loc=False, scale=False, use_inverse=True)
 
     return master_skeleton
 
@@ -116,13 +117,33 @@ def get_selected_armature():
     else:
         return None
 
-def constraint_object(child: bpy.types.Object, parent: bpy.types.Object, bone: str, rot):
+def constraint_object(child: bpy.types.Object, parent: bpy.types.Object, bone: str, rotation, loc=True, rot=True, scale=True, use_inverse=False):
     constraint = child.constraints.new('CHILD_OF')
     constraint.target = parent
     constraint.subtarget = bone
     child.rotation_mode = 'XYZ'
-    child.rotation_euler = rot
-    constraint.inverse_matrix = Matrix()
+    child.rotation_euler = rotation
+    
+    constraint.use_location_x = loc
+    constraint.use_location_y = loc
+    constraint.use_location_z = loc
+
+    constraint.use_rotation_x = rot
+    constraint.use_rotation_y = rot
+    constraint.use_rotation_z = rot
+    
+    constraint.use_scale_x = scale
+    constraint.use_scale_y = scale
+    constraint.use_scale_z = scale
+    
+    if use_inverse:
+        try:
+            with bpy.context.temp_override(active_object=child):
+                bpy.ops.constraint.childof_set_inverse(constraint=constraint.name, owner='OBJECT')
+        except RuntimeError:
+            pass
+    else:
+        constraint.inverse_matrix = Matrix()
 
 def bone_hierarchy_has_vertex_groups(bone, vertex_groups):
     if bone.name in vertex_groups:

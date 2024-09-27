@@ -18,5 +18,6 @@ public class FortAnimNotifyState_SpawnProp : UObject
     [UProperty] public UStaticMesh? StaticMeshProp;
     [UProperty] public USkeletalMesh? SkeletalMeshProp;
     [UProperty] public UAnimSequence? SkeletalMeshPropAnimation;
+    [UProperty("SkeletalMeshPropAnimation")] public UAnimMontage? SkeletalMeshPropAnimationMontage;
     [UProperty] public UAnimMontage? SkeletalMeshPropMontage;
 }

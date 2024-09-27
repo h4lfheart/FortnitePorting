@@ -73,7 +73,6 @@ class UEFormatImport:
         read_archive = ar
         is_compressed = ar.read_bool()
         if is_compressed:
-            from .. import zstd_decompressor
 
             compression_type = ar.read_fstring()
             uncompressed_size = ar.read_int()
@@ -82,6 +81,7 @@ class UEFormatImport:
             if compression_type == "GZIP":
                 read_archive = FArchiveReader(gzip.decompress(ar.read_to_end()))
             elif compression_type == "ZSTD":
+                from .. import zstd_decompressor
                 read_archive = FArchiveReader(
                     zstd_decompressor.decompress(
                         ar.read_to_end(),

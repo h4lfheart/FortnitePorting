@@ -839,7 +839,6 @@ public class ExportContext
             Time = time
         };
         
-        // todo this is already serialized in ueanim, figure out better way to access that rather than serializing in export response
         var floatCurves = animSequence.CompressedCurveData.FloatCurves ?? [];
         foreach (var curve in floatCurves)
         {
