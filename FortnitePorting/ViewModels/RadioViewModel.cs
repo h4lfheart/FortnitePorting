@@ -61,12 +61,9 @@ public partial class RadioViewModel : ViewModelBase
     
     [ObservableProperty] private bool _isLooping;
     [ObservableProperty] private bool _isShuffling;
-
-    [ObservableProperty] private int _selectedDeviceIndex = 0;
-    public DirectSoundDeviceInfo[] Devices => DirectSoundOut.Devices.ToArray()[1..];
     
     public WaveFileReader? AudioReader;
-    public WaveOutEvent OutputDevice = new();
+    public WaveOutEvent OutputDevice;
     
     public readonly ReadOnlyObservableCollection<MusicPackItem> Filtered;
     public readonly ReadOnlyObservableCollection<MusicPackItem> PlaylistMusicPacks;
@@ -102,11 +99,11 @@ public partial class RadioViewModel : ViewModelBase
             .Subscribe();
 
         ActiveCollection = Filtered;
+        OutputDevice = new WaveOutEvent { DeviceNumber = AppSettings.Current.Application.AudioDeviceIndex };
     }
 
     public override async Task Initialize()
     {
-        SelectedDeviceIndex = AppSettings.Current.AudioDeviceIndex;
         Volume = AppSettings.Current.Volume;
         foreach (var serializeData in AppSettings.Current.Playlists)
         {
@@ -137,7 +134,6 @@ public partial class RadioViewModel : ViewModelBase
         base.OnApplicationExit();
         
         AppSettings.Current.Playlists = CustomPlaylists.Select(RadioPlaylistSerializeData.FromPlaylist).ToArray();
-        AppSettings.Current.AudioDeviceIndex = SelectedDeviceIndex;
         AppSettings.Current.Volume = Volume;
     }
 
@@ -179,14 +175,13 @@ public partial class RadioViewModel : ViewModelBase
 
     public void UpdateOutputDevice()
     {
-        Stop();
+        OutputDevice.Stop();
+        OutputDevice = new WaveOutEvent { DeviceNumber = AppSettings.Current.Application.AudioDeviceIndex };
+        OutputDevice.Init(AudioReader);
         
-        OutputDevice = new WaveOutEvent { DeviceNumber = SelectedDeviceIndex };
-        
-        if (AudioReader is not null)
+        if (IsPlaying && AudioReader is not null)
         {
-            OutputDevice.Init(AudioReader);
-            Play();
+            OutputDevice.Play();
         }
     }
     
@@ -335,19 +330,5 @@ public partial class RadioViewModel : ViewModelBase
         if (playlist is null) return _ => true;
         
         return item => playlist.ContainsID(item.Id);
-    }
-
-    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
-    {
-        base.OnPropertyChanged(e);
-
-        switch (e.PropertyName)
-        {
-            case nameof(SelectedDeviceIndex):
-            {
-                UpdateOutputDevice();
-                break;
-            }
-        }
     }
 }

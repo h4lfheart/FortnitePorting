@@ -17,6 +17,13 @@ public abstract class WindowBase<T> : Window where T : ViewModelBase, new()
         }
     }
 
+    protected override void OnClosed(EventArgs e)
+    {
+        base.OnClosed(e);
+
+        ViewModelRegistry.Unregister<T>();
+    }
+
     public void BringToTop()
     {
        Topmost = true;

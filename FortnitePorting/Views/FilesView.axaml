@@ -25,12 +25,59 @@
             </Grid.RowDefinitions>
             
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*"/>
-                <ColumnDefinition Width="{ext:Space 1}"/>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="{ext:Space 1}"/>
+                <ColumnDefinition Width="2.5*"/>
             </Grid.ColumnDefinitions>
             
-            <Grid Grid.Row="0" Grid.Column="0">
+            <ui:FABorder Grid.Row="0" Grid.Column="0">
+                <TreeView ItemsSource="{Binding TreeViewCollection}" AutoScrollToSelectedItem="True"
+                          SelectedItem="{Binding SelectedTreeItem, Mode=TwoWay}"
+                          Tapped="OnTreeItemTapped">
+                    <TreeView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <VirtualizingStackPanel />
+                        </ItemsPanelTemplate>
+                    </TreeView.ItemsPanel>
+                    <TreeView.ItemContainerTheme>
+                        <ControlTheme x:DataType="files:TreeItem" TargetType="TreeViewItem" BasedOn="{StaticResource {x:Type TreeViewItem}}">
+                            <Setter Property="IsExpanded" Value="{Binding Expanded, Mode=TwoWay}" />
+                            <Setter Property="IsSelected" Value="{Binding Selected, Mode=TwoWay}" />
+                        </ControlTheme>
+                    </TreeView.ItemContainerTheme>
+                    <TreeView.ItemTemplate>
+                        <TreeDataTemplate ItemsSource="{Binding Children.Values}">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                <material:MaterialIcon Width="16" Height="16" Margin="0 0 8 0"
+                                                       Classes.File="{Binding Type, 
+                                                           Converter={StaticResource EnumEquals}, 
+                                                           ConverterParameter={x:Static files:ENodeType.File}}"
+                                                       Classes.Folder="{Binding Type, 
+                                                           Converter={StaticResource EnumEquals}, 
+                                                           ConverterParameter={x:Static files:ENodeType.Folder}}">
+                                    <material:MaterialIcon.Styles>
+                                        <Style Selector="material|MaterialIcon.File">
+                                            <Style.Setters>
+                                                <Setter Property="Kind" Value="File" />
+                                            </Style.Setters>
+                                        </Style>
+                                        <Style Selector="material|MaterialIcon.Folder">
+                                            <Style.Setters>
+                                                <Setter Property="Kind" Value="Folder" />
+                                            </Style.Setters>
+                                        </Style>
+                                    </material:MaterialIcon.Styles>
+                                </material:MaterialIcon>
+                                <TextBlock Text="{Binding Name}" />
+                            </StackPanel>
+                        </TreeDataTemplate>
+                    </TreeView.ItemTemplate>
+                </TreeView>
+            </ui:FABorder>
+            
+            <GridSplitter Grid.Row="0" Grid.Column="1" Opacity="0"/>
+            
+            <Grid Grid.Row="0" Grid.Column="2">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="{ext:Space 1}"/>
@@ -81,53 +128,6 @@
                     </ScrollViewer>
                 </ui:FABorder>
             </Grid>
-            
-            <GridSplitter Grid.Row="0" Grid.Column="1" Opacity="0"/>
-            
-            <ui:FABorder Grid.Row="0" Grid.Column="2">
-                <TreeView ItemsSource="{Binding TreeViewCollection}" AutoScrollToSelectedItem="True"
-                          SelectedItem="{Binding SelectedTreeItem, Mode=TwoWay}"
-                          Tapped="OnTreeItemTapped">
-                    <TreeView.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <VirtualizingStackPanel />
-                        </ItemsPanelTemplate>
-                    </TreeView.ItemsPanel>
-                    <TreeView.ItemContainerTheme>
-                        <ControlTheme x:DataType="files:TreeItem" TargetType="TreeViewItem" BasedOn="{StaticResource {x:Type TreeViewItem}}">
-                            <Setter Property="IsExpanded" Value="{Binding Expanded, Mode=TwoWay}" />
-                            <Setter Property="IsSelected" Value="{Binding Selected, Mode=TwoWay}" />
-                        </ControlTheme>
-                    </TreeView.ItemContainerTheme>
-                    <TreeView.ItemTemplate>
-                        <TreeDataTemplate ItemsSource="{Binding Children.Values}">
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                                <material:MaterialIcon Width="16" Height="16" Margin="0 0 8 0"
-                                                       Classes.File="{Binding Type, 
-                                                           Converter={StaticResource EnumEquals}, 
-                                                           ConverterParameter={x:Static files:ENodeType.File}}"
-                                                       Classes.Folder="{Binding Type, 
-                                                           Converter={StaticResource EnumEquals}, 
-                                                           ConverterParameter={x:Static files:ENodeType.Folder}}">
-                                    <material:MaterialIcon.Styles>
-                                        <Style Selector="material|MaterialIcon.File">
-                                            <Style.Setters>
-                                                <Setter Property="Kind" Value="File" />
-                                            </Style.Setters>
-                                        </Style>
-                                        <Style Selector="material|MaterialIcon.Folder">
-                                            <Style.Setters>
-                                                <Setter Property="Kind" Value="Folder" />
-                                            </Style.Setters>
-                                        </Style>
-                                    </material:MaterialIcon.Styles>
-                                </material:MaterialIcon>
-                                <TextBlock Text="{Binding Name}" />
-                            </StackPanel>
-                        </TreeDataTemplate>
-                    </TreeView.ItemTemplate>
-                </TreeView>
-            </ui:FABorder>
             
             <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Stretch">
                 <Grid.ColumnDefinitions>

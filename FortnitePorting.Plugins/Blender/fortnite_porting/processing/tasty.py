@@ -269,10 +269,10 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
         bone.head = position
 
     tail_adjustment_bones = [
-        ("lowerarm_r", Lazy(lambda: edit_bones["ik_hand_r" if has_original_ik_bones else "hand_r"].head)),
-        ("lowerarm_l", Lazy(lambda: edit_bones["ik_hand_l" if has_original_ik_bones else "hand_l"].head)),
-        ("calf_r", Lazy(lambda: edit_bones["ik_foot_r" if has_original_ik_bones else "foot_r"].head)),
-        ("calf_l", Lazy(lambda: edit_bones["ik_foot_l" if has_original_ik_bones else "foot_l"].head)),
+        ("lowerarm_r", Lazy(lambda: edit_bones["hand_r"].head)),
+        ("lowerarm_l", Lazy(lambda: edit_bones["hand_l"].head)),
+        ("calf_r", Lazy(lambda: edit_bones["foot_r"].head)),
+        ("calf_l", Lazy(lambda: edit_bones["foot_l"].head)),
         ("R_eye", Lazy(lambda: edit_bones["R_eye"].head - Vector((0, 0.1, 0)))),
         ("L_eye", Lazy(lambda: edit_bones["L_eye"].head - Vector((0, 0.1, 0)))),
         ("C_jaw", Lazy(lambda: edit_bones["C_jaw"].head - Vector((0, 0.1, 0)))),

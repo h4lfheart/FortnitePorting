@@ -63,9 +63,10 @@ public partial class MusicPackItem : ObservableObject
         {
             SoundWave = soundCue.HandleSoundTree().MaxBy(sound => sound.Time)?.SoundWave;
         }
-        else if (lobbyMusic.ExportType == "MetaSoundSource") // TODO proper impl with class
+        else if (lobbyMusic is UMetaSoundSource metaSoundSource) // TODO proper impl with class
         {
-            var rootMetasoundDocument = lobbyMusic.Get<FStructFallback>("RootMetaSoundDocument");
+            var rootMetasoundDocument = metaSoundSource.GetOrDefault<FStructFallback?>("RootMetaSoundDocument") 
+                                        ?? metaSoundSource.GetOrDefault<FStructFallback?>("RootMetasoundDocument");
             var rootGraph = rootMetasoundDocument.Get<FStructFallback>("RootGraph");
             var interFace = rootGraph.Get<FStructFallback>("Interface");
             var inputs = interFace.Get<FStructFallback[]>("Inputs");
