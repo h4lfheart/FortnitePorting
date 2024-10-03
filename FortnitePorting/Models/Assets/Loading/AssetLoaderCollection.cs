@@ -12,6 +12,7 @@ using CUE4Parse.UE4.Objects.GameplayTags;
 using CUE4Parse.UE4.Objects.UObject;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
+using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Services;
@@ -388,6 +389,7 @@ public partial class AssetLoaderCollection : ObservableObject
     
     public void Set(EExportType type)
     {
+        DiscordService.Update(type);
         ActiveLoader = Get(type);
         ActiveCollection = ActiveLoader.Filtered;
         ActiveLoader.UpdateFilterVisibility();

@@ -137,6 +137,11 @@ public partial class RadioViewModel : ViewModelBase
         AppSettings.Current.Volume = Volume;
     }
 
+    public override async Task OnViewOpened()
+    {
+        DiscordService.Update("Browsing Music", "Music");
+    }
+
     private void OnUpdateTimerTick(object? sender, EventArgs e)
     {
         if (AudioReader is null) return;
@@ -161,6 +166,8 @@ public partial class RadioViewModel : ViewModelBase
 
         ActiveItem = musicPackItem;
         AudioReader = new WaveFileReader(stream);
+        
+        DiscordService.Update($"Listening to \"{ActiveItem.TrackName}\"", "Music");
         
         TaskService.Run(() =>
         {

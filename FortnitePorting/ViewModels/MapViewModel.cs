@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -26,6 +27,7 @@ using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Models.Leaderboard;
 using FortnitePorting.Models.Unreal;
 using FortnitePorting.Models.Unreal.Landscape;
+using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Framework;
@@ -121,6 +123,25 @@ public partial class MapViewModel : ViewModelBase
             await map.Load();
         }
         
+    }
+    
+    public override async Task OnViewOpened()
+    {
+        DiscordService.Update($"Browsing Map: \"{SelectedMap.Info.Name}\"", "Map");
+    }
+
+    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+    {
+        base.OnPropertyChanged(e);
+
+        switch (e.PropertyName)
+        {
+            case nameof(SelectedMap):
+            {
+                DiscordService.Update($"Browsing Map: \"{SelectedMap.Info.Name}\"", "Map");
+                break;
+            }
+        }
     }
 }
 

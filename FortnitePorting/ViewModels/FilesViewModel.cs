@@ -28,6 +28,7 @@ using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.Files;
 using FortnitePorting.Models.Leaderboard;
 using FortnitePorting.Models.Unreal;
+using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Framework;
@@ -131,7 +132,12 @@ public partial class FilesViewModel : ViewModelBase
             ShowLoadingSplash = false;
         });
     }
-    
+
+    public override async Task OnViewOpened()
+    {
+        DiscordService.Update("Browsing Files", "Files");
+    }
+
     public void FlatViewJumpTo(string directory)
     {
         foreach (var flatItem in FlatViewCollection)

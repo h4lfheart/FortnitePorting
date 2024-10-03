@@ -6,6 +6,7 @@ using FortnitePorting.Application;
 using FortnitePorting.Models.API;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Shared;
+using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Services;
 using Newtonsoft.Json;
 using RestSharp;
@@ -26,7 +27,7 @@ public static class DiscordService
         },
         Assets = new Assets
         {
-            LargeImageText = $"Fortnite Porting v{Globals.VersionString}",
+            LargeImageText = $"Fortnite Porting {Globals.VersionString}",
             LargeImageKey = "logo"
         },
         Buttons = 
@@ -67,5 +68,22 @@ public static class DiscordService
         Client.Deinitialize();
         Client.Dispose();
         IsInitialized = false;
+    }
+
+    public static void Update(EExportType exportType)
+    {
+        if (!IsInitialized) return;
+
+        var name = exportType.GetDescription();
+        Client.UpdateState($"Browsing {name}");
+        Client.UpdateSmallAsset(exportType.ToString().ToLower(), name);
+    }
+    
+    public static void Update(string message, string iconKey, string? iconTooltip = null)
+    {
+        if (!IsInitialized) return;
+        
+        Client.UpdateState(message);
+        Client.UpdateSmallAsset(iconKey.ToLower(), iconTooltip ?? iconKey);
     }
 }
