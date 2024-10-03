@@ -111,6 +111,8 @@
                                         <ContentControl.ContextMenu>
                                             <ContextMenu>
                                                 <MenuItem Header="Copy Path" Command="{Binding CopyPathCommand}"/>
+                                                <MenuItem Header="Copy Properties" Command="{Binding CopyPropertiesCommand}"/>
+                                                <MenuItem Header="Save Properties" Command="{Binding SavePropertiesCommand}"/>
                                                 <MenuItem Header="Send to User" Command="{Binding SendToUserCommand}"/>
                                             </ContextMenu>
                                         </ContentControl.ContextMenu>
