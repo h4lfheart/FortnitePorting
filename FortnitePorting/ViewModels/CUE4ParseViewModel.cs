@@ -173,7 +173,7 @@ public class CUE4ParseViewModel : ViewModelBase
                 var fileManifests = manifest.FileManifestList.Where(fileManifest => FortniteArchiveRegex.IsMatch(fileManifest.FileName));
                 foreach (var fileManifest in fileManifests)
                 {
-                    Provider.RegisterVfs(fileManifest.FileName, [fileManifest.GetStream()],
+                    Provider.RegisterVfs(fileManifest.FileName, (Stream[]) [fileManifest.GetStream()],
                         name => new FStreamArchive(name,
                             manifest.FileManifestList.First(file => file.FileName.Equals(name)).GetStream()));
                 }

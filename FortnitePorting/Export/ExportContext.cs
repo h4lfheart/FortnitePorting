@@ -13,6 +13,7 @@ using CUE4Parse.GameTypes.FN.Assets.Exports;
 using CUE4Parse.UE4.Assets;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Animation;
+using CUE4Parse.UE4.Assets.Exports.Component;
 using CUE4Parse.UE4.Assets.Exports.Component.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Component.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Material;
@@ -465,18 +466,20 @@ public class ExportContext
         {
             if (actor.TryGetValue(out FPackageIndex[] instanceComponents, "InstanceComponents"))
             {
-                var transform = actor.GetAbsoluteTransformFromRootComponent();
                 foreach (var instanceComponentLazy in instanceComponents)
                 {
                     var instanceComponent = instanceComponentLazy.Load<UInstancedStaticMeshComponent>();
                     if (instanceComponent is null) continue;
+                    if (instanceComponent.ExportType == "HLODInstancedStaticMeshComponent") continue;
 
                     var exportMesh = MeshComponent(instanceComponent);
                     if (exportMesh is null) continue;
+
+                    var instanceTransform = instanceComponent.GetAbsoluteTransform();
                     
-                    exportMesh.Location = transform.Translation;
-                    exportMesh.Rotation = transform.Rotator();
-                    exportMesh.Scale = transform.Scale3D;
+                    exportMesh.Location = instanceTransform.Translation;
+                    exportMesh.Rotation = instanceTransform.Rotator();
+                    exportMesh.Scale = instanceTransform.Scale3D;
 
                     meshes.Add(exportMesh);
                 }
@@ -651,7 +654,7 @@ public class ExportContext
         return lightComponent switch
         {
             UPointLightComponent pointLightComponent => LightComponent(pointLightComponent),
-            _ => throw new NotImplementedException(lightComponent.ExportType)
+            _ => null
         };
     }
 
@@ -719,9 +722,9 @@ public class ExportContext
             exportMesh.OverrideMaterials.AddIfNotNull(Material(material, idx));
         }
 
-        if (meshComponent.LODData?.FirstOrDefault()?.PaintedVertices is { } paintedVertices)
+        if (meshComponent.LODData?.FirstOrDefault()?.OverrideVertexColors is { } overrideVertexColors)
         {
-            Debugger.Break();
+            exportMesh.OverrideVertexColors = overrideVertexColors.Data;
         }
 
         return exportMesh;

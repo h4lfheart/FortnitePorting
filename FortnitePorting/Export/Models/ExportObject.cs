@@ -24,6 +24,7 @@ public record ExportMesh : ExportObject
     public readonly List<ExportTextureData> TextureData = [];
     public readonly List<ExportMesh> Children = [];
     public readonly List<ExportTransform> Instances = [];
+    public FColor[] OverrideVertexColors = [];
     public ExportLightCollection Lights = new();
 
     public void AddChildren(IEnumerable<ExportObject> objects)

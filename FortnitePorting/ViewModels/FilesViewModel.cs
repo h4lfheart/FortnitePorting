@@ -273,14 +273,17 @@ public partial class FilesViewModel : ViewModelBase
         var exports = new List<KeyValuePair<UObject, EExportType>>();
         foreach (var item in SelectedFlatViewItems)
         {
-            
             var basePath = Exporter.FixPath(item.Path);
             
             UObject? asset = null;
             if (item.Path.EndsWith(".umap"))
             {
-                var package = await CUE4ParseVM.Provider.LoadPackageAsync(basePath);
-                asset = package.GetExports().OfType<UWorld>().FirstOrDefault();
+                asset = await CUE4ParseVM.Provider.TryLoadObjectAsync(basePath);
+                if (asset is not UWorld)
+                {
+                    var package = await CUE4ParseVM.Provider.LoadPackageAsync(basePath);
+                    asset = package.GetExports().OfType<UWorld>().FirstOrDefault();
+                }
             }
             else
             {

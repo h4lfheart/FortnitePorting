@@ -164,6 +164,24 @@ class ImportContext:
 
         imported_mesh = get_armature_mesh(imported_object)
         
+        if (override_vertex_colors := mesh.get("OverrideVertexColors")) and len(override_vertex_colors) > 0:
+            imported_mesh.data = imported_mesh.data.copy()
+            vertex_color = imported_mesh.data.color_attributes.new(
+                domain="CORNER",
+                type="BYTE_COLOR",
+                name="INSTCOL0",
+            )
+
+
+            color_data = []
+            for col in override_vertex_colors:
+                color_data.append((col["R"], col["G"], col["B"], col["A"]))
+
+            for polygon in imported_mesh.data.polygons:
+                for vertex_index, loop_index in zip(polygon.vertices, polygon.loop_indices):
+                    color = color_data[vertex_index]
+                    vertex_color.data[loop_index].color = color[0] / 255, color[1] / 255, color[2] / 255, color[3] / 255
+        
         self.imported_meshes.append({
             "Skeleton": imported_object,
             "Mesh": imported_mesh,
@@ -347,15 +365,15 @@ class ImportContext:
             
         instances = mesh.get("Instances")
         if len(instances) > 0:
-            mesh_data = imported_mesh.data.copy()
+            mesh_data = imported_mesh.data
             imported_object.select_set(True)
             bpy.ops.object.delete()
             
             instance_parent = bpy.data.objects.new("InstanceParent_" + name, None)
+            instance_parent.parent = parent
             instance_parent.rotation_euler = make_euler(mesh.get("Rotation"))
             instance_parent.location = make_vector(mesh.get("Location"), unreal_coords_correction=True) * self.scale
             instance_parent.scale = make_vector(mesh.get("Scale"))
-            instance_parent.parent = parent
             bpy.context.collection.objects.link(instance_parent)
             
             for instance_index, instance_transform in enumerate(instances):
@@ -378,7 +396,6 @@ class ImportContext:
     
     def import_point_light(self, point_light, parent=None):
         name = point_light.get("Name")
-        Log.info(point_light)
         light_data = bpy.data.lights.new(name=name, type='POINT')
         light = bpy.data.objects.new(name=name, object_data=light_data)
         self.collection.objects.link(light)
