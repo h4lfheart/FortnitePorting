@@ -315,6 +315,8 @@ public partial class WorldPartitionMap : ObservableObject
     {
         var meta = AppSettings.Current.CreateExportMeta();
         meta.WorldFlags = EWorldFlags.Actors;
+        if (meta.Settings.ImportInstancedFoliage)
+            meta.WorldFlags |= EWorldFlags.InstancedFoliage;
         await Exporter.Export(_world, EExportType.World, meta);
     }
     
@@ -323,6 +325,8 @@ public partial class WorldPartitionMap : ObservableObject
     {
         var meta = AppSettings.Current.CreateExportMeta();
         meta.WorldFlags = EWorldFlags.WorldPartitionGrids;
+        if (meta.Settings.ImportInstancedFoliage)
+            meta.WorldFlags |= EWorldFlags.InstancedFoliage;
         await Exporter.Export(_world, EExportType.World, meta);
     }
     
@@ -331,6 +335,8 @@ public partial class WorldPartitionMap : ObservableObject
     {
         var meta = AppSettings.Current.CreateExportMeta();
         meta.WorldFlags = EWorldFlags.Actors | EWorldFlags.Landscape | EWorldFlags.WorldPartitionGrids;
+        if (meta.Settings.ImportInstancedFoliage)
+            meta.WorldFlags |= EWorldFlags.InstancedFoliage;
         await Exporter.Export(_world, EExportType.World, meta);
     }
     
@@ -365,8 +371,12 @@ public partial class WorldPartitionMap : ObservableObject
             var world = await CUE4ParseVM.Provider.LoadObjectAsync<UWorld>(map.Path);
             worlds.Add(world);
         }
-        
-        await Exporter.Export(worlds, EExportType.World, AppSettings.Current.CreateExportMeta());
+
+        var meta = AppSettings.Current.CreateExportMeta();
+        meta.WorldFlags = EWorldFlags.Actors | EWorldFlags.Landscape | EWorldFlags.WorldPartitionGrids;
+        if (meta.Settings.ImportInstancedFoliage)
+            meta.WorldFlags |= EWorldFlags.InstancedFoliage;
+        await Exporter.Export(worlds, EExportType.World, meta);
         
         if (AppSettings.Current.Online.UseIntegration)
         {

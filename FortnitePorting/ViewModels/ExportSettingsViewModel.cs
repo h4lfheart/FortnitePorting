@@ -61,6 +61,8 @@ public partial class BaseExportSettings : ViewModelBase
 
     [ObservableProperty] private bool _exportMaterials = true;
     
+    [ObservableProperty] private bool _importInstancedFoliage = true;
+    
     public virtual ExporterOptions CreateExportOptions()
     {
         return new ExporterOptions();

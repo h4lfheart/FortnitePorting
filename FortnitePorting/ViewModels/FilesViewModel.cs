@@ -347,8 +347,13 @@ public partial class FilesViewModel : ViewModelBase
         }
         
         if (exports.Count == 0) return;
+
+        var meta = AppSettings.Current.CreateExportMeta(ExportLocation);
+        meta.WorldFlags = EWorldFlags.Actors | EWorldFlags.Landscape | EWorldFlags.WorldPartitionGrids;
+        if (meta.Settings.ImportInstancedFoliage)
+            meta.WorldFlags |= EWorldFlags.InstancedFoliage;
         
-        await Exporter.Export(exports, AppSettings.Current.CreateExportMeta(ExportLocation));
+        await Exporter.Export(exports, meta);
 
         if (AppSettings.Current.Online.UseIntegration)
         {
@@ -374,14 +379,14 @@ public partial class FilesViewModel : ViewModelBase
     private Func<FlatItem, bool> CreateAssetFilter((string, bool, ObservableCollection<string>) items)
     {
         var (filter, useRegex, gameNames) = items;
-        if (string.IsNullOrWhiteSpace(filter)) return asset => gameNames.Count > 0 && MiscExtensions.Filter(asset.Path, gameNames);
+        if (string.IsNullOrWhiteSpace(filter)) return asset => gameNames.Count > 0 && MiscExtensions.FilterAny(asset.Path, gameNames);
         
         if (useRegex)
         {
-            return asset => Regex.IsMatch(asset.Path, filter) && MiscExtensions.Filter(asset.Path, gameNames);
+            return asset => Regex.IsMatch(asset.Path, filter) && MiscExtensions.FilterAny(asset.Path, gameNames);
         }
 
-        return asset => MiscExtensions.Filter(asset.Path, filter) && MiscExtensions.Filter(asset.Path, gameNames);
+        return asset => MiscExtensions.Filter(asset.Path, filter) && MiscExtensions.FilterAny(asset.Path, gameNames);
     }
     
     // scuffed fix to get filter to update

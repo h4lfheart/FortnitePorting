@@ -475,6 +475,8 @@ public class ExportContext
                     if (instanceComponent is null) continue;
                     if (instanceComponent.ExportType == "HLODInstancedStaticMeshComponent") continue;
 
+                    if (instanceComponent.Name.StartsWith("ISM_") && !Meta.WorldFlags.HasFlag(EWorldFlags.InstancedFoliage)) continue;
+                    
                     var exportMesh = MeshComponent(instanceComponent);
                     if (exportMesh is null) continue;
 

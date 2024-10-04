@@ -57,7 +57,6 @@ public partial class BlenderSettingsViewModel : BaseExportSettings
             ExportMaterials = false
         };
     }
-
 }
 public enum ERigType
 {
