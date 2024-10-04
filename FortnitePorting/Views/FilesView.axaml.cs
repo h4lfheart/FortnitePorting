@@ -1,10 +1,12 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Models.Files;
+using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.ViewModels;
 
@@ -44,5 +46,20 @@ public partial class FilesView : ViewBase<FilesViewModel>
         
         ViewModel.SearchFilter = string.Empty;
         ViewModel.FlatViewJumpTo(item.FilePath);
+    }
+
+    private void OnGameNameChecked(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not CheckBox checkBox) return;
+        if (checkBox.DataContext is not FileGameFilter fileGameFilter) return;
+        if (checkBox.IsChecked is not { } isChecked) return;
+        if (isChecked == fileGameFilter.IsChecked) return;
+        
+        if (isChecked)
+            ViewModel.SelectedGameNames.Add(fileGameFilter.SearchName);
+        else
+            ViewModel.SelectedGameNames.Remove(fileGameFilter.SearchName);
+
+        ViewModel.FakeRefreshFilters();
     }
 }

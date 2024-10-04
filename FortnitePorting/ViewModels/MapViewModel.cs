@@ -101,9 +101,8 @@ public partial class MapViewModel : ViewModelBase
             if (gameFeatureDataFile.Value is null) continue;
 
             var gameFeatureData = await CUE4ParseVM.Provider.TryLoadObjectAsync<UFortGameFeatureData>(gameFeatureDataFile.Value.PathWithoutExtension);
-            if (gameFeatureData is null) continue;
 
-            if (gameFeatureData.ExperienceData?.DefaultMap is not { } defaultMapPath) continue;
+            if (gameFeatureData?.ExperienceData?.DefaultMap is not { } defaultMapPath) continue;
 
             var defaultMap = await defaultMapPath.LoadAsync();
             if (defaultMap.Name.StartsWith("FMJam_")) continue;

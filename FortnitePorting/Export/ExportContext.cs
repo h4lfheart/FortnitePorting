@@ -449,6 +449,9 @@ public class ExportContext
             var actor = actorLazy.Load();
             if (actor is null) continue;
             if (actor.ExportType == "LODActor") continue;
+            if (actor.Name.StartsWith("Device_") 
+                || actor.Name.StartsWith("VerseDevice_")
+                || actor.Name.StartsWith("BP_Device_")) continue;
 
             Log.Information("Processing {ActorName}: {CurrentActor}/{TotalActors}", actor.Name, currentActor, totalActors);
             Meta.OnUpdateProgress(actor.Name, currentActor, totalActors);

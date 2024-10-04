@@ -7,6 +7,7 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Avalonia.Collections;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.UE4.Assets.Exports;
@@ -15,6 +16,7 @@ using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
+using CUE4Parse.UE4.IO;
 using CUE4Parse.UE4.IO.Objects;
 using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.Utils;
@@ -26,6 +28,7 @@ using FortnitePorting.Export.Models;
 using FortnitePorting.Extensions;
 using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.Files;
+using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Models.Leaderboard;
 using FortnitePorting.Models.Unreal;
 using FortnitePorting.Services;
@@ -58,6 +61,13 @@ public partial class FilesViewModel : ViewModelBase
     [ObservableProperty] private bool _useRegex = false;
     [ObservableProperty] private bool _showLoadingSplash = true;
 
+    [ObservableProperty] private ObservableCollection<FileGameFilter> _gameNames = 
+    [
+        new FileGameFilter("FortniteGame")
+    ];
+
+    [ObservableProperty] private ObservableCollection<string> _selectedGameNames = [];
+
     [ObservableProperty] private List<FlatItem> _selectedFlatViewItems = [];
     [ObservableProperty] private ReadOnlyObservableCollection<FlatItem> _flatViewCollection = new([]);
 
@@ -70,6 +80,28 @@ public partial class FilesViewModel : ViewModelBase
     
     public override async Task Initialize()
     {
+        foreach (var mountedVfs in CUE4ParseVM.Provider.MountedVfs)
+        {
+            if (mountedVfs is not IoStoreReader { Name: "plugin.utoc" } ioStoreReader) continue;
+
+            var gameFeatureDataFile = ioStoreReader.Files.FirstOrDefault(file => file.Key.EndsWith("GameFeatureData.uasset", StringComparison.OrdinalIgnoreCase));
+            if (gameFeatureDataFile.Value is null) continue;
+
+            var gameFeatureData = await CUE4ParseVM.Provider.TryLoadObjectAsync<UFortGameFeatureData>(gameFeatureDataFile.Value.PathWithoutExtension);
+
+            if (gameFeatureData?.ExperienceData?.DefaultMap is not { } defaultMapPath) continue;
+
+            var defaultMap = await defaultMapPath.LoadAsync();
+            if (defaultMap.Name.StartsWith("FMJam_")) continue;
+
+            GameNames.Add(new FileGameFilter(defaultMap.Name, defaultMapPath.AssetPathName.Text[1..].SubstringBefore("/")));
+        }
+
+        foreach (var gameName in GameNames)
+        {
+            SelectedGameNames.AddUnique(gameName.SearchName);
+        }
+        
         foreach (var (_, file) in CUE4ParseVM.Provider.Files)
         {
             var path = file.Path;
@@ -111,9 +143,10 @@ public partial class FilesViewModel : ViewModelBase
         
         SortChildren(ref _treeViewBuildHierarchy);
         
-
         var assetFilter = this
-            .WhenAnyValue(viewModel => viewModel.SearchFilter, viewmodel => viewmodel.UseRegex)
+            .WhenAnyValue(viewModel => viewModel.SearchFilter, 
+                viewmodel => viewmodel.UseRegex,
+                viewmodel => viewmodel.SelectedGameNames)
             .Select(CreateAssetFilter);
         
         FlatViewAssetList.Connect()
@@ -334,19 +367,28 @@ public partial class FilesViewModel : ViewModelBase
         var isValidExtension = path.EndsWith(".uasset") || path.EndsWith(".umap");
         var isOptionalSegment = path.Contains(".o.");
         var isEngine = path.StartsWith("Engine", StringComparison.OrdinalIgnoreCase);
-        return isValidExtension && !isOptionalSegment && !isEngine;
+        var isVerse = path.Contains("/_Verse/");
+        return isValidExtension && !isOptionalSegment && !isEngine && !isVerse;
     }
     
-    private Func<FlatItem, bool> CreateAssetFilter((string, bool) items)
+    private Func<FlatItem, bool> CreateAssetFilter((string, bool, ObservableCollection<string>) items)
     {
-        var (filter, useRegex) = items;
-        if (string.IsNullOrWhiteSpace(filter)) return asset => true;
+        var (filter, useRegex, gameNames) = items;
+        if (string.IsNullOrWhiteSpace(filter)) return asset => gameNames.Count > 0 && MiscExtensions.Filter(asset.Path, gameNames);
         
         if (useRegex)
         {
-            return asset => Regex.IsMatch(asset.Path, filter);
+            return asset => Regex.IsMatch(asset.Path, filter) && MiscExtensions.Filter(asset.Path, gameNames);
         }
 
-        return asset => MiscExtensions.Filter(asset.Path, filter);
+        return asset => MiscExtensions.Filter(asset.Path, filter) && MiscExtensions.Filter(asset.Path, gameNames);
+    }
+    
+    // scuffed fix to get filter to update
+    public void FakeRefreshFilters()
+    {
+        var temp = SelectedGameNames;
+        SelectedGameNames = [];
+        SelectedGameNames = temp;
     }
 }

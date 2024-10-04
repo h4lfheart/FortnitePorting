@@ -19,6 +19,11 @@ public static class MiscExtensions
         var filters = filter.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
         return filters.All(x => input.Contains(x, StringComparison.OrdinalIgnoreCase));
     }
+    
+    public static bool Filter(string input, IEnumerable<string> filters)
+    {
+        return filters.All(x => input.Contains(x, StringComparison.OrdinalIgnoreCase));
+    }
 
     public static void InsertMany<T>(this List<T> list, int index, T item, int count)
     {
