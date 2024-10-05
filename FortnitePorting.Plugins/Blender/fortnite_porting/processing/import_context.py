@@ -75,7 +75,7 @@ class ImportContext:
 
         self.meshes = target_meshes
         for mesh in target_meshes:
-            self.import_model(mesh)
+            self.import_model(mesh, can_spawn_at_3d_cursor=True)
 
         self.import_light_data(data.get("Lights"))
             
@@ -98,6 +98,9 @@ class ImportContext:
                 
             if rig_type == ERigType.TASTY:
                 create_tasty_rig(self, master_skeleton, TastyRigOptions(scale=self.scale, use_dynamic_bone_shape=self.options.get("UseDynamicBoneShape")))
+
+            if anim_data := data.get("Animation"):
+                self.import_anim_data(anim_data, master_skeleton)
 
     def gather_metadata(self, *search_props):
         out_props = {}
@@ -128,7 +131,7 @@ class ImportContext:
                 return meta.get(found_key)
         return None
 
-    def import_model(self, mesh, parent=None, can_reorient=True):
+    def import_model(self, mesh, parent=None, can_reorient=True, can_spawn_at_3d_cursor=False):
         path = mesh.get("Path")
         name = mesh.get("Name")
         part_type = EFortCustomPartType(mesh.get("Type"))
@@ -161,6 +164,9 @@ class ImportContext:
         imported_object.rotation_euler = make_euler(mesh.get("Rotation"))
         imported_object.location = make_vector(mesh.get("Location"), unreal_coords_correction=True) * self.scale
         imported_object.scale = make_vector(mesh.get("Scale"))
+        
+        if self.options.get("ImportAt3DCursor") and can_spawn_at_3d_cursor:
+            imported_object.location += bpy.context.scene.cursor.location
 
         imported_mesh = get_armature_mesh(imported_object)
         
@@ -172,7 +178,6 @@ class ImportContext:
                 name="INSTCOL0",
             )
 
-
             color_data = []
             for col in override_vertex_colors:
                 color_data.append((col["R"], col["G"], col["B"], col["A"]))
@@ -181,6 +186,13 @@ class ImportContext:
                 for vertex_index, loop_index in zip(polygon.vertices, polygon.loop_indices):
                     color = color_data[vertex_index]
                     vertex_color.data[loop_index].color = color[0] / 255, color[1] / 255, color[2] / 255, color[3] / 255
+
+        if imported_mesh is not None and EPolygonType(self.options.get("PolygonType")) == EPolygonType.QUADS:
+            bpy.context.view_layer.objects.active = imported_mesh
+            bpy.ops.object.mode_set(mode='EDIT')
+            bpy.ops.mesh.tris_convert_to_quads(uvs=True)
+            bpy.ops.object.mode_set(mode='OBJECT')
+            bpy.context.view_layer.objects.active = imported_object
         
         self.imported_meshes.append({
             "Skeleton": imported_object,

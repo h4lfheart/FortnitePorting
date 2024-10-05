@@ -43,7 +43,6 @@ public partial class BlenderSettingsViewModel : BaseExportSettings
     [ObservableProperty] private bool _loopAnimation = false;
     [ObservableProperty] private bool _updateTimelineLength = false;
     [ObservableProperty] private bool _importSounds = false;
-    [ObservableProperty] private bool _importLobbyPoses = false;
     
     public override ExporterOptions CreateExportOptions()
     {

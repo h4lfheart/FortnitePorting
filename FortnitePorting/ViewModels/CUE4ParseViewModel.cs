@@ -32,6 +32,7 @@ using FortnitePorting.Models.CUE4Parse;
 using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
+using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.Windows;
@@ -63,12 +64,26 @@ public class CUE4ParseViewModel : ViewModelBase
     public readonly Dictionary<int, FColor> BeanstalkColors = [];
     public readonly Dictionary<int, FLinearColor> BeanstalkMaterialProps = [];
     public readonly Dictionary<int, FVector> BeanstalkAtlasTextureUVs = [];
+    public readonly List<UAnimMontage> MaleLobbyMontages = [];
+    public readonly List<UAnimMontage> FemaleLobbyMontages = [];
     
     private static readonly Regex FortniteArchiveRegex = new(@"^FortniteGame(/|\\)Content(/|\\)Paks(/|\\)(pakchunk(?:0|10.*|\w+)-WindowsClient|global)\.(pak|utoc)$", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly List<DirectoryInfo> ExtraDirectories = 
     [
         new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "FortniteGame", "Saved", "PersistentDownloadDir", "GameCustom", "InstalledBundles"))
+    ];
+    
+    private static readonly List<string> MaleLobbyMontagePaths = 
+    [
+        "FortniteGame/Content/Animation/Game/MainPlayer/Menu/BR/Male_Commando_Idle_01_M",
+        "FortniteGame/Content/Animation/Game/MainPlayer/Menu/BR/Male_commando_Idle_2_M"
+    ];
+    
+    private static readonly List<string> FemaleLobbyMontagePaths = 
+    [
+        "FortniteGame/Content/Animation/Game/MainPlayer/Menu/BR/Female_Commando_Idle_02_Rebirth_Montage",
+        "FortniteGame/Content/Animation/Game/MainPlayer/Menu/BR/Female_Commando_Idle_03_Montage"
     ];
     
     public override async Task Initialize()
@@ -436,8 +451,17 @@ public class CUE4ParseViewModel : ViewModelBase
                     
                     BeanstalkAtlasTextureUVs[index] = property.Tag.GetValue<FVector>();
                 }
-                
             }
+        }
+        
+        foreach (var path in MaleLobbyMontagePaths)
+        {
+            MaleLobbyMontages.AddIfNotNull(await Provider.TryLoadObjectAsync<UAnimMontage>(path));
+        }
+        
+        foreach (var path in FemaleLobbyMontagePaths)
+        {
+            FemaleLobbyMontages.AddIfNotNull(await Provider.TryLoadObjectAsync<UAnimMontage>(path));
         }
     }
 }
