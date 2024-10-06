@@ -406,11 +406,32 @@ public class ExportContext
         
         actors.AddRangeIfNotNull(Level(level));
         
-        if (Meta.WorldFlags.HasFlag(EWorldFlags.WorldPartitionGrids) &&  level.GetOrDefault<UObject>("WorldSettings") is { } worldSettings
+        if (Meta.WorldFlags.HasFlag(EWorldFlags.WorldPartitionGrids) && level.GetOrDefault<UObject>("WorldSettings") is { } worldSettings
             && worldSettings.GetOrDefault<UObject>("WorldPartition") is { } worldPartition
             && worldPartition.GetOrDefault<UObject>("RuntimeHash") is { } runtimeHash)
         {
             Meta.WorldFlags |= EWorldFlags.Actors;
+            
+            foreach (var streamingData in runtimeHash.GetOrDefault("RuntimeStreamingData", Array.Empty<FStructFallback>()))
+            {
+                var cells = new List<FPackageIndex>();
+                cells.AddRange(streamingData.GetOrDefault("SpatiallyLoadedCells", Array.Empty<FPackageIndex>()));
+                cells.AddRange(streamingData.GetOrDefault("NonSpatiallyLoadedCells", Array.Empty<FPackageIndex>()));
+
+                foreach (var cell in cells)
+                {
+                    var gridCell = cell.Load();
+                    var levelStreaming = gridCell?.GetOrDefault<UObject?>("LevelStreaming");
+                    if (levelStreaming is null) continue;
+
+                    var worldAsset = levelStreaming.Get<FSoftObjectPath>("WorldAsset");
+                    var subWorld = worldAsset.Load<UWorld>();
+                    var subLevel = subWorld.PersistentLevel.Load<ULevel>();
+                    if (subLevel is null) continue;
+                    
+                    actors.AddRangeIfNotNull(Level(subLevel));
+                }
+            }
             
             foreach (var streamingGrid in runtimeHash.GetOrDefault("StreamingGrids", Array.Empty<FStructFallback>()))
             {

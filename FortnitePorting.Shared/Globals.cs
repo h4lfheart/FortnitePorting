@@ -12,7 +12,7 @@ public static class Globals
 #if DEBUG
     public static readonly FPVersion Version = new(3, 0, 0, 0);
 #else
-    public static readonly FPVersion Version = new(3, 4, 0, 0, "beta");
+    public static readonly FPVersion Version = new(3, 3, 4, 0, "beta");
 #endif
     
     public static readonly FilePickerFileType MappingsFileType = new("Unreal Mappings") { Patterns = [ "*.usmap" ] };

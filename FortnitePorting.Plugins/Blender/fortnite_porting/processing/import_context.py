@@ -151,14 +151,45 @@ class ImportContext:
                 self.import_model(child, parent=empty_object)
                 
             return
+        
+        if self.type in [EExportType.PREFAB, EExportType.WORLD] and mesh in self.meshes:
+            Log.info(f"Importing Actor: {name} {self.meshes.index(mesh)} / {len(self.meshes)}")
 
         mesh_name = path.split(".")[1]
         if self.type in [EExportType.PREFAB, EExportType.WORLD] and (existing_mesh_data := bpy.data.meshes.get(mesh_name + "_LOD0")):
             imported_object = bpy.data.objects.new(name, existing_mesh_data)
             self.collection.objects.link(imported_object)
+            
+            imported_mesh = get_armature_mesh(imported_object)
         else:
             imported_object = self.import_mesh(path, can_reorient=can_reorient)
             imported_object.name = name
+
+            imported_mesh = get_armature_mesh(imported_object)
+
+            if EPolygonType(self.options.get("PolygonType")) == EPolygonType.QUADS and imported_mesh is not None:
+                bpy.context.view_layer.objects.active = imported_mesh
+                bpy.ops.object.mode_set(mode='EDIT')
+                bpy.ops.mesh.tris_convert_to_quads(uvs=True)
+                bpy.ops.object.mode_set(mode='OBJECT')
+                bpy.context.view_layer.objects.active = imported_object
+
+            if (override_vertex_colors := mesh.get("OverrideVertexColors")) and len(override_vertex_colors) > 0:
+                imported_mesh.data = imported_mesh.data.copy()
+                vertex_color = imported_mesh.data.color_attributes.new(
+                    domain="CORNER",
+                    type="BYTE_COLOR",
+                    name="INSTCOL0",
+                )
+    
+                color_data = []
+                for col in override_vertex_colors:
+                    color_data.append((col["R"], col["G"], col["B"], col["A"]))
+    
+                for polygon in imported_mesh.data.polygons:
+                    for vertex_index, loop_index in zip(polygon.vertices, polygon.loop_indices):
+                        color = color_data[vertex_index]
+                        vertex_color.data[loop_index].color = color[0] / 255, color[1] / 255, color[2] / 255, color[3] / 255
 
         imported_object.parent = parent
         imported_object.rotation_euler = make_euler(mesh.get("Rotation"))
@@ -168,32 +199,6 @@ class ImportContext:
         if self.options.get("ImportAt3DCursor") and can_spawn_at_3d_cursor:
             imported_object.location += bpy.context.scene.cursor.location
 
-        imported_mesh = get_armature_mesh(imported_object)
-        
-        if (override_vertex_colors := mesh.get("OverrideVertexColors")) and len(override_vertex_colors) > 0:
-            imported_mesh.data = imported_mesh.data.copy()
-            vertex_color = imported_mesh.data.color_attributes.new(
-                domain="CORNER",
-                type="BYTE_COLOR",
-                name="INSTCOL0",
-            )
-
-            color_data = []
-            for col in override_vertex_colors:
-                color_data.append((col["R"], col["G"], col["B"], col["A"]))
-
-            for polygon in imported_mesh.data.polygons:
-                for vertex_index, loop_index in zip(polygon.vertices, polygon.loop_indices):
-                    color = color_data[vertex_index]
-                    vertex_color.data[loop_index].color = color[0] / 255, color[1] / 255, color[2] / 255, color[3] / 255
-
-        if imported_mesh is not None and EPolygonType(self.options.get("PolygonType")) == EPolygonType.QUADS:
-            bpy.context.view_layer.objects.active = imported_mesh
-            bpy.ops.object.mode_set(mode='EDIT')
-            bpy.ops.mesh.tris_convert_to_quads(uvs=True)
-            bpy.ops.object.mode_set(mode='OBJECT')
-            bpy.context.view_layer.objects.active = imported_object
-        
         self.imported_meshes.append({
             "Skeleton": imported_object,
             "Mesh": imported_mesh,
@@ -389,6 +394,10 @@ class ImportContext:
             bpy.context.collection.objects.link(instance_parent)
             
             for instance_index, instance_transform in enumerate(instances):
+                instance_name = f"Instance_{instance_index}_" + name
+                
+                Log.info(f"Importing Instance: {instance_name} {instance_index} / {len(instances)}")
+                
                 instance_object = bpy.data.objects.new(f"Instance_{instance_index}_" + name, mesh_data)
                 self.collection.objects.link(instance_object)
     
