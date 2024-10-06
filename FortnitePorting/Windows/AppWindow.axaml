@@ -75,35 +75,35 @@
                  
              </ui:NavigationView.MenuItems>
              <ui:NavigationView.FooterMenuItems>
-                 <ui:NavigationViewItem Content="Help" Tag="Help">
+                 <ui:NavigationViewItem Content="Help" Tag="Help" IsEnabled="{Binding !SetupTabsAreVisible}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Help}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Export" Tag="ExportSettings">
+                 <ui:NavigationViewItem Content="Export" Tag="ExportSettings" IsEnabled="{Binding !SetupTabsAreVisible}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry FileCog}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Plugin" Tag="Plugin">
+                 <ui:NavigationViewItem Content="Plugin" Tag="Plugin" IsEnabled="{Binding !SetupTabsAreVisible}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Plug}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Console" Tag="Console">
+                 <ui:NavigationViewItem Content="Console" Tag="Console" IsEnabled="{Binding !SetupTabsAreVisible}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Console}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Settings" Tag="Settings">
+                 <ui:NavigationViewItem Content="Settings" Tag="Settings" IsEnabled="{Binding !SetupTabsAreVisible}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Settings}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
                  
-                 <ui:NavigationViewItem Content="Update" Tag="Update" SelectsOnInvoked="False" PointerPressed="OnUpdatePressed">
+                 <ui:NavigationViewItem Content="Update" Tag="Update" SelectsOnInvoked="False" PointerPressed="OnUpdatePressed" IsEnabled="{Binding !SetupTabsAreVisible}">
                      <ui:NavigationViewItem.IconSource>
-                         <ui:PathIconSource Foreground="{Binding RainbowBrush}" Data="{ext:MaterialKindToGeometry Download}"/>
+                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry Download}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
              </ui:NavigationView.FooterMenuItems>

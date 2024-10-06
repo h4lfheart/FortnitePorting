@@ -70,4 +70,11 @@ public partial class AssetInfo : ObservableObject
             .SelectMany(info => info.SelectedItems)
             .ToArray();
     }
+    
+    public BaseStyleData[] GetAllStyles()
+    {
+        return StyleInfos
+            .SelectMany(info => info.StyleDatas)
+            .ToArray();
+    }
 }

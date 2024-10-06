@@ -81,7 +81,7 @@ public static class Exporter
         await Export(() => assets.Select(assetInfo =>
         {
             var asset = assetInfo.Asset;
-            var styles = assetInfo.GetSelectedStyles();
+            var styles = metaData.ExportLocation.IsFolder() ? assetInfo.GetAllStyles() : assetInfo.GetSelectedStyles();
             var exportType = asset.CreationData.ExportType;
 
             return CreateExport(asset.CreationData.DisplayName, asset.CreationData.Object, exportType, styles,

@@ -43,6 +43,11 @@
                         </ui:FABorder>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <VirtualizingStackPanel/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
             </ItemsControl>
         </ScrollViewer>
         

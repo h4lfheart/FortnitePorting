@@ -36,9 +36,6 @@ public partial class AppWindowModel : WindowModelBase
     [ObservableProperty] private ObservableCollection<InfoBarData> _infoBars = [];
     [ObservableProperty] private int _chatNotifications;
 
-    [ObservableProperty] private SolidColorBrush _rainbowBrush = new(Colors.White);
-    [ObservableProperty] private bool _isRainbowBrushRunning;
-
     [ObservableProperty] private bool _timeWasterOpen;
     [ObservableProperty] private TimeWasterView? _timeWaster;
     
@@ -56,23 +53,6 @@ public partial class AppWindowModel : WindowModelBase
         var releaseInfo = await ApiVM.FortnitePorting.GetReleaseAsync();
         if (releaseInfo is not null && releaseInfo.Version > Globals.Version)
         {
-            if (!IsRainbowBrushRunning)
-            {
-                IsRainbowBrushRunning = true;
-                TaskService.Run(async () =>
-                {
-                    while (true)
-                    {
-                        for (var hue = 0; hue < 360; hue += 2)
-                        {
-                            var color = HsvColor.ToRgb(hue, 1.0, 1.0);
-                            await TaskService.RunDispatcherAsync(() => RainbowBrush.Color = color);
-                            await Task.Delay(1);
-                        }
-                    }
-                });
-            }
-
             if (isAutomatic && AppSettings.Current.Application.LastOnlineVersion == releaseInfo.Version) return;
 
             AppSettings.Current.Application.LastOnlineVersion = releaseInfo.Version;
@@ -117,9 +97,6 @@ public partial class AppWindowModel : WindowModelBase
         }
         else
         {
-            IsRainbowBrushRunning = false;
-            await TaskService.RunDispatcherAsync(() => RainbowBrush.Color = Colors.White);
-            
             if (isAutomatic) return;
             
             await TaskService.RunDispatcherAsync(async () =>
