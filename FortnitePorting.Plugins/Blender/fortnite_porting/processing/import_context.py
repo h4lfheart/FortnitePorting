@@ -571,7 +571,7 @@ class ImportContext:
         output_node.location = (200, 0)
 
         shader_node = nodes.new(type="ShaderNodeGroup")
-        shader_node.node_tree = bpy.data.node_groups.get("FP Material")
+        shader_node.node_tree = bpy.data.node_groups.get("FP Material Lite" if self.type in lite_shader_types else "FP Material")
 
         def replace_shader_node(name):
             nonlocal shader_node

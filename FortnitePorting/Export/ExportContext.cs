@@ -859,6 +859,37 @@ public class ExportContext
 
         return exportSequence;
     }
+    
+    public ExportAnimSection? AnimSequence(UAnimSequence? additiveSequence, UAnimSequence? baseSequence, float time = 0.0f)
+    {
+        if (additiveSequence is null) return null;
+        if (baseSequence is null) return null;
+        
+        additiveSequence.RefPoseSeq = new ResolvedLoadedObject(baseSequence);
+
+        var exportSequence = new ExportAnimSection
+        {
+            Path = Export(additiveSequence),
+            Name = additiveSequence.Name,
+            Length = additiveSequence.SequenceLength,
+            Time = time
+        };
+        
+        var baseFloatCurves = baseSequence.CompressedCurveData.FloatCurves ?? [];
+        var additiveFloatCurves = additiveSequence.CompressedCurveData.FloatCurves ?? [];
+
+        FFloatCurve[] floatCurves = [..baseFloatCurves, ..additiveFloatCurves];
+        foreach (var curve in floatCurves)
+        {
+            exportSequence.Curves.Add(new ExportCurve
+            {
+                Name = curve.CurveName.Text,
+                Keys = curve.FloatCurve.Keys.Select(x => new ExportCurveKey(x.Time, x.Value)).ToList()
+            });
+        }
+
+        return exportSequence;
+    }
 
     public ExportMaterial? Material(UMaterialInterface material, int index)
     {

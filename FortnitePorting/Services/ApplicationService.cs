@@ -172,7 +172,7 @@ public static class ApplicationService
         }
         
         AppSettings.Save();
-        //DiscordService.Deinitialize();
+        DiscordService.Deinitialize();
     }
     
     public static void Launch(string location, bool shellExecute = true)

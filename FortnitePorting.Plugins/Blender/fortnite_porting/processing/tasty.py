@@ -523,8 +523,9 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
             setattr(bone, f"lock_ik_{axis.lower()}", True)
 
         for axis, values in ik_bone.limit_axes.items():
-            setattr(bone, f"ik_min_{axis.lower()}", values[0])
-            setattr(bone, f"ik_max_{axis.lower()}", values[1])
+            setattr(bone, f"use_ik_limit_{axis.lower()}", True)
+            setattr(bone, f"ik_min_{axis.lower()}", radians(values[0]))
+            setattr(bone, f"ik_max_{axis.lower()}", radians(values[1]))
             
         if ik_bone.driver:
             ik_bone.driver.add_to(constraint, "influence")

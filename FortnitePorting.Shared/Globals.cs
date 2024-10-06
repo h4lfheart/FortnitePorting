@@ -10,7 +10,7 @@ public static class Globals
 {
     public static string VersionString => Version.GetDisplayString(EVersionStringType.IdentifierPrefix);
 #if DEBUG
-    public static readonly FPVersion Version = new(3, 0, 0, 0, "release candidate");
+    public static readonly FPVersion Version = new(3, 0, 0, 0);
 #else
     public static readonly FPVersion Version = new(3, 4, 0, 0, "beta");
 #endif
