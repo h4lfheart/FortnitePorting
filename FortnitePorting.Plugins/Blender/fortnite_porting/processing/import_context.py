@@ -828,6 +828,10 @@ class ImportContext:
             replace_shader_node("FP 3L Eyes")
             socket_mappings = eye_mappings
 
+        if "M_HairParent_2023_Parent" in base_material_path:
+            replace_shader_node("FP Hair")
+            socket_mappings = hair_mappings
+
         setup_params(socket_mappings, shader_node, True)
 
         links.new(shader_node.outputs[0], output_node.inputs[0])
@@ -957,7 +961,7 @@ class ImportContext:
 
                     gmap_node = nodes.new("ShaderNodeValue")
                     gmap_node.location = -1000, -120
-                    gmap_node.outputs[0].default_value = 1
+                    gmap_node.outputs[0].default_value = 0.5
 
                     setup_params(gradient_mappings, gradient_node)
 
