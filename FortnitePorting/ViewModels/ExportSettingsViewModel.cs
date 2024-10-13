@@ -68,7 +68,12 @@ public partial class BaseExportSettings : ViewModelBase
     
     public virtual ExporterOptions CreateExportOptions()
     {
-        return new ExporterOptions();
+        return new ExporterOptions()
+        {
+            MeshFormat = MeshFormat,
+            AnimFormat = AnimFormat,
+            CompressionFormat = CompressionFormat
+        };
     }
 }
 

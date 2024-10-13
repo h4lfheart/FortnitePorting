@@ -48,6 +48,7 @@ public partial class MapViewModel : ViewModelBase
 {
     [ObservableProperty] private ObservableCollection<WorldPartitionMap> _maps = [];
     [ObservableProperty] private WorldPartitionMap _selectedMap;
+    [ObservableProperty] private EExportLocation _exportLocation = EExportLocation.Blender;
     
     public bool IsDebug =>
 #if DEBUG
@@ -305,7 +306,7 @@ public partial class WorldPartitionMap : ObservableObject
     public async Task ExportLandscape()
     {
         // todo allow user to select export location
-        var meta = AppSettings.Current.CreateExportMeta();
+        var meta = AppSettings.Current.CreateExportMeta(MapVM.ExportLocation);
         meta.WorldFlags = EWorldFlags.Landscape;
         await Exporter.Export(_world, EExportType.World, meta);
     }
@@ -313,7 +314,7 @@ public partial class WorldPartitionMap : ObservableObject
     [RelayCommand]
     public async Task ExportActors()
     {
-        var meta = AppSettings.Current.CreateExportMeta();
+        var meta = AppSettings.Current.CreateExportMeta(MapVM.ExportLocation);
         meta.WorldFlags = EWorldFlags.Actors;
         if (meta.Settings.ImportInstancedFoliage)
             meta.WorldFlags |= EWorldFlags.InstancedFoliage;
@@ -323,7 +324,7 @@ public partial class WorldPartitionMap : ObservableObject
     [RelayCommand]
     public async Task ExportWorldPartitionActors()
     {
-        var meta = AppSettings.Current.CreateExportMeta();
+        var meta = AppSettings.Current.CreateExportMeta(MapVM.ExportLocation);
         meta.WorldFlags = EWorldFlags.WorldPartitionGrids;
         if (meta.Settings.ImportInstancedFoliage)
             meta.WorldFlags |= EWorldFlags.InstancedFoliage;
@@ -333,7 +334,7 @@ public partial class WorldPartitionMap : ObservableObject
     [RelayCommand]
     public async Task ExportFullMap()
     {
-        var meta = AppSettings.Current.CreateExportMeta();
+        var meta = AppSettings.Current.CreateExportMeta(MapVM.ExportLocation);
         meta.WorldFlags = EWorldFlags.Actors | EWorldFlags.Landscape | EWorldFlags.WorldPartitionGrids;
         if (meta.Settings.ImportInstancedFoliage)
             meta.WorldFlags |= EWorldFlags.InstancedFoliage;
@@ -372,7 +373,7 @@ public partial class WorldPartitionMap : ObservableObject
             worlds.Add(world);
         }
 
-        var meta = AppSettings.Current.CreateExportMeta();
+        var meta = AppSettings.Current.CreateExportMeta(MapVM.ExportLocation);
         meta.WorldFlags = EWorldFlags.Actors | EWorldFlags.Landscape | EWorldFlags.WorldPartitionGrids;
         if (meta.Settings.ImportInstancedFoliage)
             meta.WorldFlags |= EWorldFlags.InstancedFoliage;

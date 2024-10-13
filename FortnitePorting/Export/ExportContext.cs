@@ -538,7 +538,10 @@ public class ExportContext
                 {
                     foreach (var additionalWorldPath in additionalWorlds)
                     {
-                        exportMesh.Children.AddRange(World(additionalWorldPath.Load<UWorld>()));
+                        if (additionalWorldPath.TryLoad<UWorld>(out var world))
+                        {
+                            exportMesh.Children.AddRange(World(world));
+                        }
                     }
                 }
                 

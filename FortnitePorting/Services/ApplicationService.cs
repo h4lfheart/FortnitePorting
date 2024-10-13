@@ -45,6 +45,7 @@ public static class ApplicationService
     public static LeaderboardViewModel LeaderboardVM => ViewModelRegistry.Get<LeaderboardViewModel>()!;
     public static VotingViewModel VotingVM => ViewModelRegistry.Get<VotingViewModel>()!;
     public static TimeWasterViewModel TimeWasterVM => ViewModelRegistry.Get<TimeWasterViewModel>()!;
+    public static MapViewModel MapVM => ViewModelRegistry.Get<MapViewModel>()!;
     
     public static IClassicDesktopStyleApplicationLifetime Application = null!;
     private static IStorageProvider StorageProvider => Application.MainWindow!.StorageProvider;

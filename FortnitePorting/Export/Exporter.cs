@@ -57,7 +57,7 @@ public static class Exporter
                 if (await ApiVM.FortnitePortingServer.PingAsync(serverType) is false)
                 {
                     var serverName = serverType.GetDescription();
-                    AppWM.Message($"{serverName} Server", $"The {serverName} Server for Fortnite Porting is not currently running.", InfoBarSeverity.Error, false);
+                    AppWM.Message($"{serverName} Server", $"The {serverName} Server for Fortnite Porting is not currently running or is busy.", InfoBarSeverity.Error, false);
                     return;
                 }
 
@@ -71,7 +71,7 @@ public static class Exporter
                 };
             
                 var data = JsonConvert.SerializeObject(exportData);
-                await ApiVM.FortnitePortingServer.SendAsync(data, EExportServerType.Blender);
+                await ApiVM.FortnitePortingServer.SendAsync(data, serverType);
             }
         });
     }

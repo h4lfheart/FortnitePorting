@@ -8,8 +8,79 @@
              xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
              xmlns:settings="clr-namespace:FortnitePorting.ViewModels.Settings"
              xmlns:plugin="clr-namespace:FortnitePorting.ViewModels.Plugin"
+             xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FortnitePorting.Views.Plugin.UnrealPluginView"
              x:DataType="plugin:UnrealPluginViewModel">
-    <TextBlock Text="Unreal export has not been implemented yet." Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <Grid Margin="{ext:Space 1}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="{ext:Space 1}" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="{ext:Space 1}" />
+            <RowDefinition Height="7*" />
+            <RowDefinition Height="{ext:Space 1}" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" HorizontalAlignment="Center">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="{ext:Space 1}" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="{ext:Space 1}" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="{ext:Space 1}" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0" Text="Unreal Projects" Classes="SubtitleTextBlockStyle" />
+            <Button Grid.Column="2" Content="{material:MaterialIconExt Plus}" Command="{Binding AddProject}" />
+            <Button Grid.Column="4" Content="{material:MaterialIconExt Minus}" Command="{Binding RemoveProject}" />
+            <Button Grid.Column="6" Content="{material:MaterialIconExt Sync}" Command="{Binding SyncProjects}" />
+        </Grid>
+        
+        <ui:SettingsExpander Grid.Row="2" Header="Automatic Sync" Description="Whether or not to automatically sync the Unreal plugin after an update has occurred. It is highly recommended to keep this enabled.">
+            <ui:SettingsExpander.Footer>
+                <ToggleSwitch IsChecked="{Binding AutomaticallySync}"/>
+            </ui:SettingsExpander.Footer>
+        </ui:SettingsExpander>
+
+        <TextBlock Grid.Row="4" Text="There are no Unreal projects registered yet." IsVisible="{Binding !Projects.Count}"
+                   Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" HorizontalAlignment="Center"
+                   VerticalAlignment="Center" />
+
+        <ui:FABorder Grid.Row="4" VerticalAlignment="Stretch">
+            <ListBox Margin="{ext:Space 1}" ItemsSource="{Binding Projects}" SelectedIndex="{Binding SelectedProjectIndex, Mode=TwoWay}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="{ext:Space 0, 1}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="{ext:Space 1}" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0" CornerRadius="4" ClipToBounds="True">
+                                <Image Source="{Binding Image}" Width="48" Height="48" RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                            </Border>
+                            
+                            <Grid Grid.Column="2">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="{ext:Space 0.5}" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Text="{Binding Name}"
+                                           Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center"/>
+                                
+                                <TextBlock Grid.Row="2" Text="{Binding Version, TargetNullValue='???'}" Classes="BodyTextBlockStyle" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </ui:FABorder>
+        
+    </Grid>
 </UserControl>

@@ -26,6 +26,7 @@ public static class DependencyService
             EnsureResourceBased("Assets/Dependencies/FortnitePorting.Updater.exe", UpdaterFile);
             EnsureVgmStream();
             EnsureBlenderExtensions();
+            EnsureUnrealPlugins();
             Finished = true;
         });
     }
@@ -58,6 +59,20 @@ public static class DependencyService
     public static void EnsureBlenderExtensions()
     {
         var assets = AssetLoader.GetAssets(new Uri("avares://FortnitePorting.Plugins/Blender"), null);
+        foreach (var asset in assets)
+        {
+            var assetStream = AssetLoader.Open(asset);
+            var targetFile = new FileInfo(Path.Combine(PluginsFolder.FullName, asset.AbsolutePath[1..]));
+            if (targetFile is { Exists: true, Length: > 0 } && targetFile.GetHash() == assetStream.GetHash()) continue;
+            targetFile.Directory?.Create();
+            
+            File.WriteAllBytes(targetFile.FullName, assetStream.ReadToEnd());
+        }
+    }
+    
+    public static void EnsureUnrealPlugins()
+    {
+        var assets = AssetLoader.GetAssets(new Uri("avares://FortnitePorting.Plugins/Unreal"), null);
         foreach (var asset in assets)
         {
             var assetStream = AssetLoader.Open(asset);
