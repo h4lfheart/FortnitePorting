@@ -125,6 +125,23 @@
             <Setter Property="Background" Value="Transparent" />
         </Style>
         
+        <Style Selector="Button.TWExitButton">
+            <Setter Property="Foreground" Value="#c7655d" />
+            <Setter Property="Background" Value="#82632B2A" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+
+        <Style Selector="Button.TWExitButton:pointerover /template/ ContentPresenter">
+            <Setter Property="CornerRadius" Value="4" />
+            <Setter Property="Background" Value="#733231" />
+        </Style>
+        
+        <Style Selector="Button.TWExitButton:pressed /template/ ContentPresenter">
+            <Setter Property="CornerRadius" Value="4" />
+            <Setter Property="Background" Value="#733231" />
+        </Style>
+        
         <Style Selector="ToggleButton.RadioButton">
             <Setter Property="Padding" Value="0"/>
             <Setter Property="Foreground" Value="#48FFFFFF" />

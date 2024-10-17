@@ -10,7 +10,7 @@
              x:Class="FortnitePorting.Views.TimeWasterView"
              x:DataType="viewModels:TimeWasterViewModel" 
              FontFamily="{StaticResource TimeWasterFontFamily}"
-             PointerMoved="OnPointerMove" PointerPressed="OnPointerPressed">
+             PointerMoved="OnPointerMove" PointerPressed="OnPointerPressed" >
     <Grid Background="Black">
         <Grid>
             <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
@@ -276,7 +276,50 @@
                     </TextBlock>
                 </Grid>
                 
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Margin="{ext:Space 2}" Opacity="0.9">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Margin="{ext:Space 2}" Opacity="0.9" IsVisible="{Binding !IsGame}">
+                    <Grid>
+                        <Border Background="#0fd7f2" CornerRadius="0" Opacity="0.8">
+                            <Border.OpacityMask>
+                                <ImageBrush Source="/Assets/TimeWaster/Sprites/T_Glow_Mask.png" Stretch="Fill"/>
+                            </Border.OpacityMask>
+                            <Border.RenderTransform>
+                                <ScaleTransform ScaleX="2" ScaleY="2"/>
+                            </Border.RenderTransform>
+                        </Border>
+                        <TextBlock Text="FORTNITE PORTING IS CURRENTLY DOWN" Foreground="#0fd7f2" LetterSpacing="1.5" FontSize="28" 
+                                   HorizontalAlignment="Center">
+                            <TextBlock.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform ScaleX="0.95" ScaleY="0.85"/>
+                                    <SkewTransform AngleX="-5"/>
+                                </TransformGroup>
+                            </TextBlock.RenderTransform>
+                        </TextBlock>
+                    </Grid>
+                    
+                    <Grid RenderTransform="{Binding ScoreTextTransform}" RenderTransformOrigin="50%, 0%">
+                        <Border Background="White" CornerRadius="0" Opacity="0.8">
+                            <Border.OpacityMask>
+                                <ImageBrush Source="/Assets/TimeWaster/Sprites/T_Glow_Mask.png" Stretch="Fill"/>
+                            </Border.OpacityMask>
+                            <Border.RenderTransform>
+                                <ScaleTransform ScaleX="2" ScaleY="2"/>
+                            </Border.RenderTransform>
+                        </Border>
+                        <TextBlock Text="PLEASE WAIT FOR ENCRYPTION KEYS AND MAPPINGS"
+                                   Foreground="White" LetterSpacing="1.5" FontSize="24"
+                                   HorizontalAlignment="Center">
+                            <TextBlock.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform ScaleX="0.95" ScaleY="0.85"/>
+                                    <SkewTransform AngleX="-5"/>
+                                </TransformGroup>
+                            </TextBlock.RenderTransform>
+                        </TextBlock>
+                    </Grid>
+                </StackPanel>
+                
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Margin="{ext:Space 2}" Opacity="0.9" IsVisible="{Binding IsGame}">
                     <Grid>
                         <Border Background="Red" CornerRadius="0" Opacity="0.8">
                             <Border.OpacityMask>
@@ -319,12 +362,24 @@
                     </Grid>
                 </StackPanel>
                 
-                <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Opacity="0.2">
+                <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Opacity="0.2" IsVisible="{Binding IsGame}">
                     <Border.Background>
                         <ImageBrush Source="/Assets/TimeWaster/T_Bars.png" Transform="{Binding BarsTransform}" Stretch="UniformToFill" TileMode="Tile" TransformOrigin="50%, 50%"/>
                     </Border.Background>
                 </Border>
             </Grid>
         </Viewbox>
+        
+        <Button Classes="TWExitButton" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="{ext:Space 1}" Command="{Binding ExitCommand}">
+            <TextBlock Text="EXIT" Foreground="#c7655d" LetterSpacing="1.5" FontSize="20" FontFamily="{StaticResource TimeWasterFontFamily}"
+                       HorizontalAlignment="Center">
+                <TextBlock.RenderTransform>
+                    <TransformGroup>
+                        <ScaleTransform ScaleX="0.95" ScaleY="0.85"/>
+                        <SkewTransform AngleX="-5"/>
+                    </TransformGroup>
+                </TextBlock.RenderTransform>
+            </TextBlock>
+        </Button>
     </Grid>
 </UserControl>

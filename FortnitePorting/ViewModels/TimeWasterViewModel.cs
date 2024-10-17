@@ -9,6 +9,7 @@ using Avalonia.Media;
 using Avalonia.Platform;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using FortnitePorting.Models.TimeWaster;
 using FortnitePorting.Models.TimeWaster.Actors;
 using FortnitePorting.Models.TimeWaster.Audio;
@@ -25,6 +26,8 @@ namespace FortnitePorting.ViewModels;
 
 public partial class TimeWasterViewModel : ViewModelBase
 {
+    [ObservableProperty] private bool _isGame = true;
+    
     [ObservableProperty] private ObservableCollection<TWProjectile> _projectiles = [];
     [ObservableProperty] private ObservableCollection<TWObstacle> _obstacles = [];
     [ObservableProperty] private ObservableCollection<TWObstacleExplosion> _obstacleExplosions = [];
@@ -62,6 +65,7 @@ public partial class TimeWasterViewModel : ViewModelBase
     private static CachedSound BossAppear;
     private static CachedSound BossHit;
     private static CachedSound Win;
+    private static List<CachedSound> PianoSnippets = [];
     
     private const int ACTOR_DESPAWN_MARGIN = 200;
     private const int OBSTACLE_SPAWN_MARGIN = 100;
@@ -82,14 +86,51 @@ public partial class TimeWasterViewModel : ViewModelBase
         BossAppear = new CachedSound("avares://FortnitePorting/Assets/TimeWaster/SFX/PMB_BossAppear_01.ogg");
         BossHit = new CachedSound("avares://FortnitePorting/Assets/TimeWaster/SFX/PMB_BossHit_01.ogg");
         Win = new CachedSound("avares://FortnitePorting/Assets/TimeWaster/SFX/PMB_Win_01.ogg");
+
+        for (var index = 1; index <= 8; index++)
+        {
+            PianoSnippets.Add(new CachedSound($"avares://FortnitePorting/Assets/TimeWaster/Music/PianoSnippets/NightNight_Music_PianoSnip_{index:D2}.ogg"));
+        }
     }
     
     public override async Task Initialize()
     {
         if (!(AppWM?.TimeWasterOpen ?? false)) return; // removes debug preview sounds
-        await TaskService.RunDispatcherAsync(Player.Initialize);
         
         RegisterUpdater(UpdateBackground);
+        InitAudio(AmbientOutput, AmbientBackground);
+
+        TaskService.Run(async () =>
+        {
+            while (!IsGame)
+            {
+                var waitTime = Random.Shared.Next(10000, 30000);
+                await Task.Delay(waitTime);
+                
+                if (IsGame) break;
+                PianoSnippets.Random()?.Play();
+            }
+        });
+
+        if (IsGame)
+        {
+            await InitializeGame();
+        }
+        
+    }
+
+    [RelayCommand]
+    public void Exit()
+    {
+        OnApplicationExit();
+        AppWM.ToggleVisibility(true);
+        AppWM.TimeWasterOpen = false;
+        AppWM.TimeWaster = null;
+    }
+
+    public async Task InitializeGame()
+    {
+        await TaskService.RunDispatcherAsync(Player.Initialize);
         RegisterUpdater(UpdatePlayer);
         RegisterUpdater(UpdateProjectiles);
         RegisterUpdater(UpdateObstacles);
@@ -100,7 +141,6 @@ public partial class TimeWasterViewModel : ViewModelBase
         
         Spawn.Play();
 
-        InitAudio(AmbientOutput, AmbientBackground);
         InitAudio(GameOutput, GameBackground);
     }
 
@@ -333,7 +373,7 @@ public partial class TimeWasterViewModel : ViewModelBase
         {
             Children =
             [
-                Create3DRotation(0, 0, BackgroundRotation * -0.25, centerX: -2.5, centerY: 5),
+                Create3DRotation(0, 0, BackgroundRotation * -0.4, centerX: -2.5, centerY: 5),
                 new ScaleTransform(1.0, 1.0)
             ]
         };

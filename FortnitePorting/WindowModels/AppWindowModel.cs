@@ -185,4 +185,9 @@ public partial class AppWindowModel : WindowModelBase
         });
         return result;
     }
+
+    public void ToggleVisibility(bool vis)
+    {
+        ContentFrame.IsVisible = vis;
+    }
 }

@@ -64,6 +64,14 @@
     <ItemGroup>
       <UpToDateCheckInput Remove="Controls\Home\FeaturedControl.axaml" />
       <UpToDateCheckInput Remove="Controls\Home\NewsControl.axaml" />
+      <UpToDateCheckInput Remove="Assets\TimeWaster\SFX\PianoSnippets\NightNight_Music_PianoSnip_01.ogg" />
+      <UpToDateCheckInput Remove="Assets\TimeWaster\SFX\PianoSnippets\NightNight_Music_PianoSnip_02.ogg" />
+      <UpToDateCheckInput Remove="Assets\TimeWaster\SFX\PianoSnippets\NightNight_Music_PianoSnip_03.ogg" />
+      <UpToDateCheckInput Remove="Assets\TimeWaster\SFX\PianoSnippets\NightNight_Music_PianoSnip_04.ogg" />
+      <UpToDateCheckInput Remove="Assets\TimeWaster\SFX\PianoSnippets\NightNight_Music_PianoSnip_05.ogg" />
+      <UpToDateCheckInput Remove="Assets\TimeWaster\SFX\PianoSnippets\NightNight_Music_PianoSnip_06.ogg" />
+      <UpToDateCheckInput Remove="Assets\TimeWaster\SFX\PianoSnippets\NightNight_Music_PianoSnip_07.ogg" />
+      <UpToDateCheckInput Remove="Assets\TimeWaster\SFX\PianoSnippets\NightNight_Music_PianoSnip_08.ogg" />
     </ItemGroup>
 
 </Project>

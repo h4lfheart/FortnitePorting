@@ -47,6 +47,7 @@ public partial class AppWindow : WindowBase<AppWindowModel>
     {
         if (e.Key == Key.Escape && AppWM.TimeWasterOpen)
         {
+            AppWM.ToggleVisibility(true);
             AppWM.TimeWasterOpen = false;
             AppWM.TimeWaster = null;
             KonamiKeyPresses.Clear();
