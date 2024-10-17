@@ -128,6 +128,8 @@ default_mappings = MappingCollection(
         SlotMapping("Fuzz Fresnel Blend"),
         SlotMapping("Cloth Base Color Intensity"),
         SlotMapping("Cloth_BaseColorIntensity", "Cloth Base Color Intensity"),
+        SlotMapping("Cloth Roughness"),
+        SlotMapping("Cloth_Roughness", "Cloth Roughness"),
         
         SlotMapping("Undercoat Roughness"),
         SlotMapping("UndercoatRoughness"),
@@ -163,6 +165,8 @@ default_mappings = MappingCollection(
         SlotMapping("ClothFuzzMaskChannel", "Cloth Channel"),
         
         SlotMapping("Fuzz Tint"),
+        SlotMapping("ClothFuzzTint", "Fuzz Tint"),
+        SlotMapping("Cloth Fuzz Tint", "Fuzz Tint"),
 
         SlotMapping("FlipbookTint")
     ],
