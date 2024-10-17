@@ -49,7 +49,7 @@ public partial class OnlineSettingsViewModel : ViewModelBase
    [JsonIgnore]
    public string? ProfilePictureURL => !string.IsNullOrWhiteSpace(Identification?.AvatarId)
       ? $"https://cdn.discordapp.com/avatars/{Identification.DiscordId}/{Identification.AvatarId}.png?size=128"
-      : "https://fortniteporting.halfheart.dev/sockets/default.png";
+      : "https://fortniteporting.halfheart.dev/logo/default.png";
    
 
    public async Task LoadIdentification()

@@ -100,43 +100,49 @@ public partial class ChatUser : ObservableObject
     [RelayCommand]
     public async Task SendExport()
     {
+        var xaml =
+            """
+                <ContentControl xmlns="https://github.com/avaloniaui"
+                            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                            xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
+                            xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared">
+                    <StackPanel HorizontalAlignment="Stretch">
+                        <TextBox x:Name="InputBox" Watermark="File Path" TextWrapping="Wrap"/>
+                        <TextBox x:Name="MessageBox" Watermark="Message (Optional)" TextWrapping="Wrap" Margin="{ext:Space 0, 1, 0, 0}"/>
+                    </StackPanel>
+                </ContentControl>
+            """;
+                    
+        var content = xaml.CreateXaml<ContentControl>(new
+        {
+            Users = ChatVM.Users.Select(user => user.DisplayName)
+        });
+                    
+        var inputBox = content.FindControl<TextBox>("InputBox");
+        var messageBox = content.FindControl<TextBox>("MessageBox");
+        
         var dialog = new ContentDialog
         {
             Title = $"Send Export to {DisplayName}",
             CloseButtonText = "Close",
-            PrimaryButtonText = "Send"
-        };
-        
-        var inputBox = new TextBox
-        {
-            Watermark = "Enter a path"
-            
-        };
-        
-        dialog.Content = inputBox;
-        dialog.PrimaryButtonCommand = new RelayCommand(async () =>
-        {
-            if (inputBox.Text is not { } text) return;
-
-            var path = Exporter.FixPath(text);
-            var asset = await CUE4ParseVM.Provider.TryLoadObjectAsync(path);
-            if (asset is null)
+            PrimaryButtonText = "Send",
+            Content = content,
+            PrimaryButtonCommand = new RelayCommand(async () =>
             {
-                AppWM.Message("Failed to Send Export", $"Could not load \"{text}\"", InfoBarSeverity.Error);
-                return;
-            }
+                if (inputBox?.Text is not { } text) return;
+                if (messageBox?.Text is not { } message) return;
 
-            await OnlineService.Send(new ExportPacket(path), new MetadataBuilder().With("Target", Guid));
-        });
-        
-        inputBox.AddHandler(InputElement.KeyDownEvent, (sender, args) =>
-        {
-            if (args.Key != Key.Enter) return;
-            
-            dialog.PrimaryButtonCommand.Execute(null);
-            dialog.Hide();
-        }, RoutingStrategies.Tunnel);
-        
+                var path = Exporter.FixPath(text);
+                var asset = await CUE4ParseVM.Provider.TryLoadObjectAsync(path);
+                if (asset is null)
+                {
+                    AppWM.Message("Failed to Send Export", $"Could not load \"{text}\"", InfoBarSeverity.Error);
+                    return;
+                }
+
+                await OnlineService.Send(new ExportPacket(path, message), new MetadataBuilder().With("Target", Guid));
+            })
+        };
 
         await dialog.ShowAsync();
     }

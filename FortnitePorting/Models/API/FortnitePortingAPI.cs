@@ -118,7 +118,7 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
     {
         await ExecuteAsync(STATS_URL, Method.Post, parameters:
         [
-            new HeaderParameter("guid", AppSettings.Current.Online.Identification.Identifier.ToString()),
+            new HeaderParameter("token", AppSettings.Current.Online.Auth.Token),
             new HeaderParameter("version", Globals.Version.ToString()),
         ]);
     }

@@ -524,10 +524,8 @@ public class ExportContext
                     exportMesh.Children.AddIfNotNull(extraMesh);
                 }
 
-                // todo global solution for accumulating all uobject heirarchy properties
+                actor.GatherTemplateProperties();
                 var textureDatas = actor.GetAllProperties<UBuildingTextureData>("TextureData");
-                if (textureDatas.Count == 0 && actor.Template is not null)
-                    textureDatas = actor.Template.Load()!.GetAllProperties<UBuildingTextureData>("TextureData");
 
                 foreach (var (textureData, index) in textureDatas)
                 {

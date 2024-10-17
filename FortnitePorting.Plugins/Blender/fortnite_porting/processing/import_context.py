@@ -188,6 +188,9 @@ class ImportContext:
     
                 for polygon in imported_mesh.data.polygons:
                     for vertex_index, loop_index in zip(polygon.vertices, polygon.loop_indices):
+                        if vertex_index >= len(color_data):
+                            continue
+                            
                         color = color_data[vertex_index]
                         vertex_color.data[loop_index].color = color[0] / 255, color[1] / 255, color[2] / 255, color[3] / 255
 

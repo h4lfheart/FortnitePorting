@@ -20,13 +20,13 @@ using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.IO;
 using CUE4Parse.UE4.Objects.Core.Math;
-using CUE4Parse.UE4.Objects.Core.Misc;
 using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Readers;
 using CUE4Parse.UE4.Versions;
 using CUE4Parse.UE4.VirtualFileSystem;
 using CUE4Parse.Utils;
 using EpicManifestParser;
+using EpicManifestParser.UE;
 using FortnitePorting.Application;
 using FortnitePorting.Models.CUE4Parse;
 using FortnitePorting.Models.Fortnite;
@@ -38,6 +38,7 @@ using FortnitePorting.Shared.Services;
 using FortnitePorting.Windows;
 using Serilog;
 using UE4Config.Parsing;
+using FGuid = CUE4Parse.UE4.Objects.Core.Misc.FGuid;
 
 namespace FortnitePorting.ViewModels;
 
@@ -58,6 +59,8 @@ public class CUE4ParseViewModel : ViewModelBase
         EFortniteVersion.LatestInstalled => new HybridFileProvider(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, ExtraDirectories, new VersionContainer(EGame.GAME_UE5_5), isOptionalLoader: true),
         _ => new HybridFileProvider(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, ExtraDirectories, new VersionContainer(AppSettings.Current.Installation.CurrentProfile.UnrealVersion), isOptionalLoader: true),
     };
+
+    public FBuildPatchAppManifest? LiveManifest;
     
     public readonly List<FAssetData> AssetRegistry = [];
     public readonly List<FRarityCollection> RarityColors = [];
@@ -182,6 +185,7 @@ public class CUE4ParseViewModel : ViewModelBase
                 };
                 
                 var (manifest, element) = await manifestInfo.DownloadAndParseAsync(options);
+                LiveManifest = manifest;
 
                 HomeVM.UpdateStatus($"Loading Fortnite On-Demand (This may take a while)");
 
@@ -253,9 +257,8 @@ public class CUE4ParseViewModel : ViewModelBase
             }
             case EFortniteVersion.LatestOnDemand:
             {
-                // TODO live cosmetic streaming
-                //var onDemandFile = FortniteLive?.FileManifests.FirstOrDefault(x => x.Name.Equals("Cloud/IoStoreOnDemand.ini", StringComparison.OrdinalIgnoreCase));
-                //if (onDemandFile is not null) onDemandText = onDemandFile.GetStream().ReadToEnd().BytesToString();
+                var onDemandFile = LiveManifest?.FileManifestList.FirstOrDefault(x => x.FileName.Equals("Cloud/IoStoreOnDemand.ini", StringComparison.OrdinalIgnoreCase));
+                if (onDemandFile is not null) onDemandText = onDemandFile.GetStream().ReadToEnd().BytesToString();
                 break;
             }
         }

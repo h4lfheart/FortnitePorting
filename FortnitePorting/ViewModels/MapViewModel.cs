@@ -171,7 +171,6 @@ public partial class WorldPartitionMap : ObservableObject
     {
         Info = info;
         
-        // todo turn this into attribute if possible -> NotifyCollectionChangedFor
         Grids.CollectionChanged += (sender, args) => OnPropertyChanged(nameof(GridCount));
     }
 
@@ -305,7 +304,6 @@ public partial class WorldPartitionMap : ObservableObject
     [RelayCommand]
     public async Task ExportLandscape()
     {
-        // todo allow user to select export location
         var meta = AppSettings.Current.CreateExportMeta(MapVM.ExportLocation);
         meta.WorldFlags = EWorldFlags.Landscape;
         await Exporter.Export(_world, EExportType.World, meta);
@@ -480,7 +478,7 @@ public partial class WorldPartitionMap : ObservableObject
             // TODO can definitely be done using index offset for faster memory access
             case EMapTextureExportType.Height:
             {
-                async Task ExportHeightMap(string folderName = "", Predicate<MapTextureTileInfo>? predicate = null)
+                async Task ExportHeightMap(string folderName = "")
                 {
                     var heightImage = new Image<L16>(2048, 2048);
                     heightImage.Mutate(ctx => ctx.Fill(Info.Name.Equals("Rufus") ? Color.Black : HeightBaseColor));
@@ -499,8 +497,8 @@ public partial class WorldPartitionMap : ObservableObject
                 
                 if (Info.Name.Equals("Rufus"))
                 {
-                    await ExportHeightMap("BaseMap", info => info.Image.Width <= 128 || info.Image.Height <= 128);
-                    await ExportHeightMap("SnowBiome", info => info.Image.Width > 128 || info.Image.Height > 128);
+                    await ExportHeightMap("BaseMap");
+                    await ExportHeightMap("SnowBiome");
                 }
                 else
                 {
