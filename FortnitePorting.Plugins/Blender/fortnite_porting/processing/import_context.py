@@ -1015,6 +1015,63 @@ class ImportContext:
                 if diffuse_node := get_node(shader_node, "Diffuse"):
                     nodes.active = diffuse_node
 
+                if "Elastic_Master" in base_material_path and "_Head_" not in base_material_path:
+                    superhero_node = nodes.new(type="ShaderNodeGroup")
+                    superhero_node.node_tree = bpy.data.node_groups.get("FP Superhero")
+                    superhero_node.location = -600, 0
+                    setup_params(superhero_mappings, superhero_node, False)
+                    
+                    base_normal = superhero_node.inputs["Normals"].links[0].from_node
+                    if len(superhero_node.inputs["PrimaryNormal"].links) == 0:
+                        links.new(base_normal.outputs[0], superhero_node.inputs["PrimaryNormal"])
+                    if len(superhero_node.inputs["SecondaryNormal"].links) == 0:
+                        links.new(base_normal.outputs[0], superhero_node.inputs["SecondaryNormal"])
+
+                    if sticker_texture_data := get_param_info(textures, "Sticker"):
+                        if "/Game/Global/Textures/Default/Blanks/" not in sticker_texture_data.get("Value"):
+                            sticker_node = nodes.new(type="ShaderNodeTexImage")
+                            sticker_node.image = self.import_image(sticker_texture_data.get("Value"))
+                            sticker_node.image.alpha_mode = 'CHANNEL_PACKED'
+                            sticker_node.image.colorspace_settings.name = "sRGB" if sticker_texture_data.get("sRGB") else "Non-Color"
+                            sticker_node.interpolation = "Smart"
+                            sticker_node.extension = "CLIP"
+                            sticker_node.hide = True
+                            sticker_node.location = [-885, -585]
+                            
+                            back_sticker_node = nodes.new(type="ShaderNodeTexImage")
+                            back_sticker_node.image = self.import_image(sticker_texture_data.get("Value"))
+                            back_sticker_node.image.alpha_mode = 'CHANNEL_PACKED'
+                            back_sticker_node.image.colorspace_settings.name = "sRGB" if sticker_texture_data.get("sRGB") else "Non-Color"
+                            back_sticker_node.interpolation = "Smart"
+                            back_sticker_node.extension = "CLIP"
+                            back_sticker_node.hide = True
+                            back_sticker_node.location = [-885, -640]
+                        
+                            pre_superhero_node = nodes.new(type="ShaderNodeGroup")
+                            pre_superhero_node.node_tree = bpy.data.node_groups.get("FP Pre Superhero")
+                            pre_superhero_node.location = -1150, -560
+                            pre_superhero_node.inputs["StickerPosition"].default_value = get_vector_param(vectors, "StickerPosition")
+                            pre_superhero_node.inputs["StickerScale"].default_value = get_vector_param(vectors, "StickerScale")
+                            pre_superhero_node.inputs["BackStickerPosition"].default_value = get_vector_param(vectors, "BackStickerPosition")
+                            pre_superhero_node.inputs["BackStickerScale"].default_value = get_vector_param(vectors, "BackStickerScale")
+
+                            links.new(pre_superhero_node.outputs["StickerUV"], sticker_node.inputs[0])
+                            links.new(pre_superhero_node.outputs["StickerMask"], superhero_node.inputs["StickerMask"])
+                            links.new(sticker_node.outputs[0], superhero_node.inputs["Sticker"])
+                            links.new(sticker_node.outputs[1], superhero_node.inputs["StickerAlpha"])
+
+                            links.new(pre_superhero_node.outputs["BackStickerUV"], back_sticker_node.inputs[0])
+                            links.new(pre_superhero_node.outputs["BackStickerMask"], superhero_node.inputs["BackStickerMask"])
+                            links.new(back_sticker_node.outputs[0], superhero_node.inputs["BackSticker"])
+                            links.new(back_sticker_node.outputs[1], superhero_node.inputs["BackStickerAlpha"])
+
+                    shader_node.inputs["Background Diffuse Alpha"].default_value = 0.0
+                    links.new(superhero_node.outputs["Diffuse"], shader_node.inputs["Background Diffuse"])
+                    links.new(superhero_node.outputs["Normals"], shader_node.inputs["Normals"])
+                    links.new(superhero_node.outputs["SpecularMasks"], shader_node.inputs["SpecularMasks"])
+                    links.new(superhero_node.outputs["ClothFuzzChannel"], shader_node.inputs["Cloth Channel"])
+                    
+
             case "FP Glass":
                 mask_slot = shader_node.inputs["Mask"]
                 if len(mask_slot.links) > 0 and get_param(switches, "Use Diffuse Texture for Color [ignores alpha channel]"):
@@ -1108,7 +1165,7 @@ class ImportContext:
             target_skeleton.animation_data_create()
 
         active_mesh = get_armature_mesh(target_skeleton)
-        if active_mesh.data.shape_keys is not None:
+        if active_mesh is not None and active_mesh.data.shape_keys is not None:
             active_mesh.data.shape_keys.name = "Pose Asset Controls"
             
             if shape_key_anim_data := active_mesh.data.shape_keys.animation_data:

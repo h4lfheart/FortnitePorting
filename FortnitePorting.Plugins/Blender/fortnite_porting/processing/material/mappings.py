@@ -128,6 +128,8 @@ default_mappings = MappingCollection(
         SlotMapping("Fuzz Fresnel Blend"),
         SlotMapping("Cloth Base Color Intensity"),
         SlotMapping("Cloth_BaseColorIntensity", "Cloth Base Color Intensity"),
+        SlotMapping("Cloth Roughness"),
+        SlotMapping("Cloth_Roughness", "Cloth Roughness"),
         
         SlotMapping("Undercoat Roughness"),
         SlotMapping("UndercoatRoughness"),
@@ -149,6 +151,7 @@ default_mappings = MappingCollection(
     vectors=[
         SlotMapping("Skin Boost Color And Exponent", "Skin Color", alpha_slot="Skin Boost"),
         SlotMapping("SkinTint", "Skin Color", alpha_slot="Skin Boost"),
+        SlotMapping("SkinColor", "Skin Color", alpha_slot="Skin Boost"),
         SlotMapping("EmissiveMultiplier", "Emission Multiplier"),
         SlotMapping("Emissive Multiplier", "Emission Multiplier"),
         SlotMapping("Emissive Color", "Emission Multiplier"),
@@ -162,6 +165,8 @@ default_mappings = MappingCollection(
         SlotMapping("ClothFuzzMaskChannel", "Cloth Channel"),
         
         SlotMapping("Fuzz Tint"),
+        SlotMapping("ClothFuzzTint", "Fuzz Tint"),
+        SlotMapping("Cloth Fuzz Tint", "Fuzz Tint"),
 
         SlotMapping("FlipbookTint")
     ],
@@ -568,5 +573,30 @@ hair_mappings = MappingCollection(
         SlotMapping("Eye Use Sun Highlight"),
         SlotMapping("Eye Use UV Highlight"),
         SlotMapping("UseEyeColorTinting")
+    ]
+)
+
+superhero_mappings = MappingCollection(
+    textures=[
+        SlotMapping("Pattern"),
+        SlotMapping("Normals"),
+        SlotMapping("PrimaryNormal"),
+        SlotMapping("SecondaryNormal"),
+        SlotMapping("ZE_SecondaryNormal", "SecondaryNormal"),
+        SlotMapping("SpecularMasks")
+    ],
+    vectors=[
+        SlotMapping("PrimaryColor"),
+        SlotMapping("SecondaryColor"),
+        SlotMapping("AccessoryColor"),
+        SlotMapping("PrimaryMaterial"),
+        SlotMapping("SecondaryMaterial"),
+        SlotMapping("AccessoryMaterial"),
+        SlotMapping("Sticker MSRE")
+    ],
+    scalars=[
+        SlotMapping("PrimaryCloth"),
+        SlotMapping("SecondaryCloth"),
+        SlotMapping("ElasticStickerMult")
     ]
 )

@@ -8,6 +8,13 @@ def get_param(source, name):
     return found.get("Value")
 
 
+def get_vector_param(source, name):
+    found = first(source, lambda param: param.get("Name").casefold() == name.casefold())
+    if found is None:
+        return None
+    found_value = found.get("Value")
+    return Vector((found_value.get('R'), found_value.get('G'), found_value.get('B')))
+
 def get_param_multiple(source, names):
     found = first(source, lambda param: param.get("Name").casefold() in [name.casefold() for name in names])
     if found is None:
@@ -27,7 +34,7 @@ def get_params(source, names):
 
 def get_socket_pos(node, index):
     start_y = -100
-    offset_y = -22
+    offset_y = -25
     return node.location.x, node.location.y + start_y + offset_y * index
 
 def replace_or_add_parameter(list, replace_item):
