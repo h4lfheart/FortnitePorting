@@ -101,7 +101,7 @@ public class CUE4ParseViewModel : ViewModelBase
         if (AppSettings.Current.Installation.CurrentProfile.FortniteVersion is EFortniteVersion.LatestInstalled
             && await ApiVM.FortniteCentral.GetKeysAsync() is { } aes
             && !new PakFileReader(Path.Combine(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory,
-                "pakchunk0-WindowsClient.pak")).TestAesKey(new FAesKey(aes.MainKey[..^1] + "F")))
+                "pakchunk0-WindowsClient.pak")).TestAesKey(new FAesKey(aes.MainKey)))
         {
             await TaskService.RunDispatcherAsync(() =>
             {
