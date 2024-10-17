@@ -10,6 +10,7 @@ namespace FortnitePorting.Models.CUE4Parse;
 
 public class HybridFileProvider : AbstractVfsFileProvider
 {
+    public bool LoadExtraDirectories;
     private readonly bool IsOptionalLoader;
     private readonly DirectoryInfo WorkingDirectory;
     private readonly IEnumerable<DirectoryInfo> ExtraDirectories;
@@ -35,9 +36,13 @@ public class HybridFileProvider : AbstractVfsFileProvider
         if (!WorkingDirectory.Exists) throw new DirectoryNotFoundException($"Provided installation folder does not exist: {WorkingDirectory.FullName}");
         
         RegisterFiles(WorkingDirectory);
-        foreach (var extraDirectory in ExtraDirectories)
+        
+        if (LoadExtraDirectories)
         {
-            RegisterFiles(extraDirectory);
+            foreach (var extraDirectory in ExtraDirectories)
+            {
+                RegisterFiles(extraDirectory);
+            }
         }
     }
 
