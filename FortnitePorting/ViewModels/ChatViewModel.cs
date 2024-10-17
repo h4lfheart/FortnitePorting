@@ -57,11 +57,6 @@ public partial class ChatViewModel : ViewModelBase
         };
     }
 
-    public override async void OnApplicationExit()
-    {
-        base.OnApplicationExit();
-    }
-
     [RelayCommand]
     public async Task OpenImage()
     {

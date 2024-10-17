@@ -222,12 +222,19 @@
                     <ToggleSwitch IsChecked="{Binding ImportSounds}"/>
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
-
             
             <ui:SettingsExpander Header="Sound Format" Description="The file type that sounds should be exported as." IsEnabled="{Binding ImportSounds}">
                 <ui:SettingsExpander.Footer>
                     <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type shared:ESoundFormat}}"
                               SelectedItem="{Binding SoundFormat, Converter={StaticResource EnumToRecord}}" />
+                </ui:SettingsExpander.Footer>
+            </ui:SettingsExpander>
+            
+            <TextBlock Text="World" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
+            
+            <ui:SettingsExpander Header="Import Instanced Foliage" Description="Whether or not to import instanced foliage meshes.">
+                <ui:SettingsExpander.Footer>
+                    <ToggleSwitch IsChecked="{Binding ImportInstancedFoliage}"/>
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
             

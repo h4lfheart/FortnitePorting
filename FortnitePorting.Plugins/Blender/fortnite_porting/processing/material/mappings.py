@@ -21,6 +21,7 @@ default_mappings = MappingCollection(
         SlotMapping("Diffuse"),
         SlotMapping("D", "Diffuse"),
         SlotMapping("Base Color", "Diffuse"),
+        SlotMapping("BaseColor", "Diffuse"),
         SlotMapping("Concrete", "Diffuse"),
         SlotMapping("Trunk_BaseColor", "Diffuse"),
         SlotMapping("Diffuse Top", "Diffuse"),
@@ -38,6 +39,7 @@ default_mappings = MappingCollection(
         SlotMapping("S", "SpecularMasks"),
         SlotMapping("SRM", "SpecularMasks"),
         SlotMapping("Specular Mask", "SpecularMasks"),
+        SlotMapping("SpecularMask", "SpecularMasks"),
         SlotMapping("Concrete_SpecMask", "SpecularMasks"),
         SlotMapping("Trunk_Specular", "SpecularMasks"),
         SlotMapping("Specular Top", "SpecularMasks"),
@@ -55,6 +57,9 @@ default_mappings = MappingCollection(
         SlotMapping("Normal_Trunk", "Normals"),
         SlotMapping("CliffNormal", "Normals"),
         SlotMapping("PM_Normals", "Normals"),
+        
+        SlotMapping("AnisotropicTangentWeight", alpha_slot="AnisotropicTangentWeight Alpha"),
+        SlotMapping("AnisotropigTangentWeight", "AnisotropicTangentWeight", alpha_slot="AnisotropicTangentWeight Alpha"),
 
         SlotMapping("Emissive", "Emission"),
         SlotMapping("EmissiveTexture", "Emission"),
@@ -114,6 +119,8 @@ default_mappings = MappingCollection(
         SlotMapping("Emissive Fres EX", "EmissiveFresnelPower"),
         SlotMapping("Invert Emissive Fresnel", "InvertEmissiveFresnel"),
         
+        SlotMapping("AnisotropyMaxWeight"),
+        
         SlotMapping("Fuzz Tiling"),
         SlotMapping("ClothFuzzTiling", "Fuzz Tiling"),
         SlotMapping("Fuzz Exponent"),
@@ -164,6 +171,7 @@ default_mappings = MappingCollection(
         SlotMapping("UseEmissiveFresnel"),
         SlotMapping("Use Emissive Fresnel", "UseEmissiveFresnel"),
         SlotMapping("InvertEmissiveFresnel"),
+        SlotMapping("UseAnisotropicShading"),
         SlotMapping("Use Thin Film"),
         SlotMapping("UseThinFilm", "Use Thin Film"),
         SlotMapping("Use Cloth Fuzz"),
@@ -197,7 +205,7 @@ layer_mappings = MappingCollection(
 
         SlotMapping("Diffuse_Texture_2", alpha_slot="MaskTexture_2"),
         SlotMapping("SpecularMasks_2"),
-        SlotMapping("Normals_Texture_2"),
+        SlotMapping("Norm"),
         SlotMapping("Emissive_Texture_2"),
         SlotMapping("MaskTexture_2"),
         SlotMapping("Background Diffuse 2", alpha_slot="Background Diffuse Alpha 2"),
@@ -502,6 +510,62 @@ eye_mappings = MappingCollection(
     ],
     switches=[
         SlotMapping("SwizzleRoughnessToGreen"),
+        SlotMapping("Eye Use Sun Highlight"),
+        SlotMapping("Eye Use UV Highlight"),
+        SlotMapping("UseEyeColorTinting")
+    ]
+)
+
+hair_mappings = MappingCollection(
+    textures=[
+        SlotMapping("Diffuse"),
+        SlotMapping("M"),
+        SlotMapping("Mask", "M"),
+        SlotMapping("Hair Mask"),
+        SlotMapping("SpecularMasks"),
+        SlotMapping("SRM", "SpecularMasks"),
+        SlotMapping("AnisotropicTangentWeight", alpha_slot="AnisotropicTangentWeight Alpha"),
+        SlotMapping("Normals"),
+        SlotMapping("Strands Normal"),
+        SlotMapping("Emissive")
+    ],
+    vectors=[
+        SlotMapping("Hair_Color_Variation"),
+        SlotMapping("Paint_Hair_Color_Darkness"),
+        SlotMapping("Paint_Hair_Color_Brightness")
+    ],
+    scalars=[
+        SlotMapping("AmbientOcclusion_Black"),
+        SlotMapping("BaseColor_Fresnel_Brightness"),
+        SlotMapping("Basecolor_Fresnel_Exponent"),
+        SlotMapping("Fresnel_Brightness_Multiple"),
+        
+        SlotMapping("Paint_Hair_Contrast"),
+        SlotMapping("Gmap_intensity"),
+        
+        SlotMapping("Specular_POWER"),
+        SlotMapping("Specular _POWER", "Specular_POWER"),
+        SlotMapping("Hair_Specular_MIN"),
+        SlotMapping("Hair_Specular_MAX"),
+        SlotMapping("Hair_Metallic"),
+        SlotMapping("Roughness_power"),
+        SlotMapping("Roughness Min"),
+        SlotMapping("Roughness Max"),
+        SlotMapping("Roughness_Noise_Tiling"),
+        SlotMapping("Hair_Noise_Roughness_Min"),
+        
+        SlotMapping("Emissive_Brightness"),
+        
+        SlotMapping("AnisotropyMaxWeight"),
+        SlotMapping("Hair_Anisotropy_Min"),
+        SlotMapping("Hair_Anisotropy_Max"),
+        SlotMapping("Scraggle"),
+        
+        SlotMapping("Hair_Mesh_Normal_Flatness"),
+        SlotMapping("Paint_Hair_Normal_Flatness"),
+    ],
+    switches=[
+        SlotMapping("UseAnisotropicShading"),
         SlotMapping("Eye Use Sun Highlight"),
         SlotMapping("Eye Use UV Highlight"),
         SlotMapping("UseEyeColorTinting")

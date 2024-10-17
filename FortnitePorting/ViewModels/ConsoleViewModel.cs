@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using FortnitePorting.Models.Serilog;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
@@ -40,5 +41,17 @@ public partial class ConsoleViewModel : ViewModelBase, ILogEventSink
     public void Emit(LogEvent logEvent)
     {
         Logs.Add(new FortnitePortingLogEvent(logEvent));
+    }
+
+    [RelayCommand]
+    private async Task OpenLog()
+    {
+        Launch(LogFilePath);
+    }
+    
+    [RelayCommand]
+    private async Task OpenLogsFolder()
+    {
+        LaunchSelected(LogFilePath);
     }
 }

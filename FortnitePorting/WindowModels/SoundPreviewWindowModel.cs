@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.Assets.Exports.Sound;
 using FortnitePorting.Application;
 using FortnitePorting.Extensions;
+using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
 using Material.Icons;
 using NAudio.Wave;
@@ -24,7 +25,7 @@ public partial class SoundPreviewWindowModel : WindowModelBase
     public MaterialIconKind PauseIcon => IsPaused ? MaterialIconKind.Play : MaterialIconKind.Pause;
 
     public WaveFileReader AudioReader;
-    public readonly WaveOutEvent OutputDevice = new();
+    public WaveOutEvent OutputDevice = new();
     
     private readonly DispatcherTimer UpdateTimer = new();
 
@@ -72,5 +73,17 @@ public partial class SoundPreviewWindowModel : WindowModelBase
     public void Scrub(TimeSpan time)
     {
         AudioReader.CurrentTime = time;
+    }
+    
+    public void UpdateOutputDevice()
+    {
+        OutputDevice.Stop();
+        OutputDevice = new WaveOutEvent { DeviceNumber = AppSettings.Current.Application.AudioDeviceIndex };
+        OutputDevice.Init(AudioReader);
+        
+        if (!IsPaused && AudioReader is not null)
+        {
+            OutputDevice.Play();
+        }
     }
 }

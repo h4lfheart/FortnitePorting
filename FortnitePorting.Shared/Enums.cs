@@ -22,15 +22,14 @@ public enum EExportLocation
     [Description("Blender")]
     Blender,
     
+    [Description("Unreal Engine")]
+    Unreal,
+    
     [Description("Assets Folder")]
     AssetsFolder,
     
     [Description("Custom Folder")]
     CustomFolder,
-    
-    [Description("Unreal Engine (Not Implemented)")]
-    [Disabled]
-    Unreal,
     
     [Description("Unity (Not Implemented)")]
     [Disabled]
@@ -245,5 +244,6 @@ public enum EWorldFlags
 {
     Actors = 1 << 0,
     WorldPartitionGrids = 1 << 1,
-    Landscape = 1 << 2
+    Landscape = 1 << 2,
+    InstancedFoliage = 1 << 3
 }

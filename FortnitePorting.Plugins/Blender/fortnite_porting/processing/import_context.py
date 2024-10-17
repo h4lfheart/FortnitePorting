@@ -36,7 +36,7 @@ class ImportContext:
 
         ensure_blend_data()
 
-        pyperclip.copy(json.dumps(data))
+        #pyperclip.copy(json.dumps(data))
 
         import_type = EPrimitiveExportType(data.get("PrimitiveType"))
         match import_type:
@@ -75,7 +75,7 @@ class ImportContext:
 
         self.meshes = target_meshes
         for mesh in target_meshes:
-            self.import_model(mesh)
+            self.import_model(mesh, can_spawn_at_3d_cursor=True)
 
         self.import_light_data(data.get("Lights"))
             
@@ -98,6 +98,9 @@ class ImportContext:
                 
             if rig_type == ERigType.TASTY:
                 create_tasty_rig(self, master_skeleton, TastyRigOptions(scale=self.scale, use_dynamic_bone_shape=self.options.get("UseDynamicBoneShape")))
+
+            if anim_data := data.get("Animation"):
+                self.import_anim_data(anim_data, master_skeleton)
 
     def gather_metadata(self, *search_props):
         out_props = {}
@@ -128,7 +131,7 @@ class ImportContext:
                 return meta.get(found_key)
         return None
 
-    def import_model(self, mesh, parent=None, can_reorient=True):
+    def import_model(self, mesh, parent=None, can_reorient=True, can_spawn_at_3d_cursor=False):
         path = mesh.get("Path")
         name = mesh.get("Name")
         part_type = EFortCustomPartType(mesh.get("Type"))
@@ -148,22 +151,57 @@ class ImportContext:
                 self.import_model(child, parent=empty_object)
                 
             return
+        
+        if self.type in [EExportType.PREFAB, EExportType.WORLD] and mesh in self.meshes:
+            Log.info(f"Importing Actor: {name} {self.meshes.index(mesh)} / {len(self.meshes)}")
 
         mesh_name = path.split(".")[1]
         if self.type in [EExportType.PREFAB, EExportType.WORLD] and (existing_mesh_data := bpy.data.meshes.get(mesh_name + "_LOD0")):
             imported_object = bpy.data.objects.new(name, existing_mesh_data)
             self.collection.objects.link(imported_object)
+            
+            imported_mesh = get_armature_mesh(imported_object)
         else:
             imported_object = self.import_mesh(path, can_reorient=can_reorient)
             imported_object.name = name
+
+            imported_mesh = get_armature_mesh(imported_object)
+
+            if EPolygonType(self.options.get("PolygonType")) == EPolygonType.QUADS and imported_mesh is not None:
+                bpy.context.view_layer.objects.active = imported_mesh
+                bpy.ops.object.mode_set(mode='EDIT')
+                bpy.ops.mesh.tris_convert_to_quads(uvs=True)
+                bpy.ops.object.mode_set(mode='OBJECT')
+                bpy.context.view_layer.objects.active = imported_object
+
+            if (override_vertex_colors := mesh.get("OverrideVertexColors")) and len(override_vertex_colors) > 0:
+                imported_mesh.data = imported_mesh.data.copy()
+                vertex_color = imported_mesh.data.color_attributes.new(
+                    domain="CORNER",
+                    type="BYTE_COLOR",
+                    name="INSTCOL0",
+                )
+    
+                color_data = []
+                for col in override_vertex_colors:
+                    color_data.append((col["R"], col["G"], col["B"], col["A"]))
+    
+                for polygon in imported_mesh.data.polygons:
+                    for vertex_index, loop_index in zip(polygon.vertices, polygon.loop_indices):
+                        if vertex_index >= len(color_data):
+                            continue
+                            
+                        color = color_data[vertex_index]
+                        vertex_color.data[loop_index].color = color[0] / 255, color[1] / 255, color[2] / 255, color[3] / 255
 
         imported_object.parent = parent
         imported_object.rotation_euler = make_euler(mesh.get("Rotation"))
         imported_object.location = make_vector(mesh.get("Location"), unreal_coords_correction=True) * self.scale
         imported_object.scale = make_vector(mesh.get("Scale"))
-
-        imported_mesh = get_armature_mesh(imported_object)
         
+        if self.options.get("ImportAt3DCursor") and can_spawn_at_3d_cursor:
+            imported_object.location += bpy.context.scene.cursor.location
+
         self.imported_meshes.append({
             "Skeleton": imported_object,
             "Mesh": imported_mesh,
@@ -347,18 +385,22 @@ class ImportContext:
             
         instances = mesh.get("Instances")
         if len(instances) > 0:
-            mesh_data = imported_mesh.data.copy()
+            mesh_data = imported_mesh.data
             imported_object.select_set(True)
             bpy.ops.object.delete()
             
             instance_parent = bpy.data.objects.new("InstanceParent_" + name, None)
+            instance_parent.parent = parent
             instance_parent.rotation_euler = make_euler(mesh.get("Rotation"))
             instance_parent.location = make_vector(mesh.get("Location"), unreal_coords_correction=True) * self.scale
             instance_parent.scale = make_vector(mesh.get("Scale"))
-            instance_parent.parent = parent
             bpy.context.collection.objects.link(instance_parent)
             
             for instance_index, instance_transform in enumerate(instances):
+                instance_name = f"Instance_{instance_index}_" + name
+                
+                Log.info(f"Importing Instance: {instance_name} {instance_index} / {len(instances)}")
+                
                 instance_object = bpy.data.objects.new(f"Instance_{instance_index}_" + name, mesh_data)
                 self.collection.objects.link(instance_object)
     
@@ -378,7 +420,6 @@ class ImportContext:
     
     def import_point_light(self, point_light, parent=None):
         name = point_light.get("Name")
-        Log.info(point_light)
         light_data = bpy.data.lights.new(name=name, type='POINT')
         light = bpy.data.objects.new(name=name, object_data=light_data)
         self.collection.objects.link(light)
@@ -542,7 +583,7 @@ class ImportContext:
         output_node.location = (200, 0)
 
         shader_node = nodes.new(type="ShaderNodeGroup")
-        shader_node.node_tree = bpy.data.node_groups.get("FP Material")
+        shader_node.node_tree = bpy.data.node_groups.get("FP Material Lite" if self.type in lite_shader_types else "FP Material")
 
         def replace_shader_node(name):
             nonlocal shader_node
@@ -790,6 +831,10 @@ class ImportContext:
             replace_shader_node("FP 3L Eyes")
             socket_mappings = eye_mappings
 
+        if "M_HairParent_2023_Parent" in base_material_path:
+            replace_shader_node("FP Hair")
+            socket_mappings = hair_mappings
+
         setup_params(socket_mappings, shader_node, True)
 
         links.new(shader_node.outputs[0], output_node.inputs[0])
@@ -919,7 +964,7 @@ class ImportContext:
 
                     gmap_node = nodes.new("ShaderNodeValue")
                     gmap_node.location = -1000, -120
-                    gmap_node.outputs[0].default_value = 1
+                    gmap_node.outputs[0].default_value = 0.5
 
                     setup_params(gradient_mappings, gradient_node)
 

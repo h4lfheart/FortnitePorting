@@ -10,6 +10,7 @@ using FortnitePorting.Export;
 using FortnitePorting.Export.Models;
 using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.Leaderboard;
+using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
@@ -29,6 +30,11 @@ public partial class AssetsViewModel : ViewModelBase
     {
         AssetLoaderCollection = new AssetLoaderCollection();
         await AssetLoaderCollection.Load(EExportType.Outfit);
+    }
+
+    public override async Task OnViewOpened()
+    {
+        DiscordService.Update(AssetLoaderCollection?.ActiveLoader?.Type ?? EExportType.Outfit);
     }
 
     [RelayCommand]

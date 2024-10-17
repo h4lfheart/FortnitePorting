@@ -29,4 +29,8 @@
       <ProjectReference Include="..\Dependencies\CUE4Parse\CUE4Parse\CUE4Parse.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Attributes\" />
+    </ItemGroup>
+
 </Project>

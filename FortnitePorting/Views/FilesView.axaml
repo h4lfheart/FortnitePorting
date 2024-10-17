@@ -25,66 +25,12 @@
             </Grid.RowDefinitions>
             
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*"/>
-                <ColumnDefinition Width="{ext:Space 1}"/>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="{ext:Space 1}"/>
+                <ColumnDefinition Width="2.5*"/>
             </Grid.ColumnDefinitions>
             
-            <Grid Grid.Row="0" Grid.Column="0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="{ext:Space 1}"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                
-                <Grid Grid.Row="0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="{ext:Space 1}"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBox Grid.Column="0" Watermark="Search" KeyDown="OnSearchKeyDown"/>
-                
-                    <ToggleButton Grid.Column="2" ToolTip.Tip="Regex" HorizontalAlignment="Right" 
-                                  Content="{material:MaterialIconExt Regex}" IsChecked="{Binding UseRegex}"/>
-                </Grid>
-                
-                <ui:FABorder Grid.Row="2">
-                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                        <ListBox ItemsSource="{Binding FlatViewCollection}" SelectionMode="Multiple"
-                                 SelectedItems="{Binding SelectedFlatViewItems, Mode=TwoWay}"
-                                 AutoScrollToSelectedItem="True" DoubleTapped="OnFlatItemDoubleTapped">
-                            <ListBox.KeyBindings>
-                                <KeyBinding Gesture="P" Command="{Binding PreviewCommand}"/>
-                                <KeyBinding Gesture="E" Command="{Binding ExportCommand}"/>
-                            </ListBox.KeyBindings>
-                            <ListBox.ItemTemplate>
-                                <DataTemplate DataType="files:FlatItem">
-                                    <ContentControl>
-                                        <ContentControl.ContextMenu>
-                                            <ContextMenu>
-                                                <MenuItem Header="Copy Path" Command="{Binding CopyPathCommand}"/>
-                                                <MenuItem Header="Send to User" Command="{Binding SendToUserCommand}"/>
-                                            </ContextMenu>
-                                        </ContentControl.ContextMenu>
-                                        
-                                        <TextBlock Text="{Binding Path}"/>
-                                    </ContentControl>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                            <ListBox.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <VirtualizingStackPanel Margin="{ext:Space 0, 0, 1.5, 0}"/>
-                                </ItemsPanelTemplate>
-                            </ListBox.ItemsPanel>
-                        </ListBox>
-                    </ScrollViewer>
-                </ui:FABorder>
-            </Grid>
-            
-            <GridSplitter Grid.Row="0" Grid.Column="1" Opacity="0"/>
-            
-            <ui:FABorder Grid.Row="0" Grid.Column="2">
+            <ui:FABorder Grid.Row="0" Grid.Column="0">
                 <TreeView ItemsSource="{Binding TreeViewCollection}" AutoScrollToSelectedItem="True"
                           SelectedItem="{Binding SelectedTreeItem, Mode=TwoWay}"
                           Tapped="OnTreeItemTapped">
@@ -128,6 +74,90 @@
                     </TreeView.ItemTemplate>
                 </TreeView>
             </ui:FABorder>
+            
+            <GridSplitter Grid.Row="0" Grid.Column="1" Opacity="0"/>
+            
+            <Grid Grid.Row="0" Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="{ext:Space 1}"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="{ext:Space 1}"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="{ext:Space 1}"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox Grid.Column="0" Watermark="Search" KeyDown="OnSearchKeyDown"/>
+                
+                    <ToggleButton Grid.Column="2" ToolTip.Tip="Regex" HorizontalAlignment="Right" 
+                                  Content="{material:MaterialIconExt Regex}" IsChecked="{Binding UseRegex}"/>
+                    
+                    <DropDownButton Grid.Column="4" HorizontalAlignment="Stretch" Padding="{ext:Space 4, 0}">
+                        <DropDownButton.Flyout>
+                            <Flyout>
+                                <ItemsControl ItemsSource="{Binding GameNames}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <CheckBox Content="{Binding DisplayName}" 
+                                                      IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                                                      IsCheckedChanged="OnGameNameChecked"/>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                </ItemsControl>
+                            </Flyout>
+                        </DropDownButton.Flyout>
+                        
+                        <StackPanel Orientation="Horizontal">
+                            <material:MaterialIcon Kind="Filter" Margin="{ext:Space 0, 0, 1, 0}"/>
+                            <TextBlock Text="Game Filters"/>
+                        </StackPanel>
+                    </DropDownButton>
+                </Grid>
+                
+                <ui:FABorder Grid.Row="2">
+                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                        <ListBox ItemsSource="{Binding FlatViewCollection}" SelectionMode="Multiple"
+                                 SelectedItems="{Binding SelectedFlatViewItems, Mode=TwoWay}"
+                                 AutoScrollToSelectedItem="True" DoubleTapped="OnFlatItemDoubleTapped">
+                            <ListBox.KeyBindings>
+                                <KeyBinding Gesture="P" Command="{Binding PreviewCommand}"/>
+                                <KeyBinding Gesture="E" Command="{Binding ExportCommand}"/>
+                            </ListBox.KeyBindings>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate DataType="files:FlatItem">
+                                    <ContentControl>
+                                        <ContentControl.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Header="Copy Path" Command="{Binding CopyPathCommand}"/>
+                                                <MenuItem Header="Copy Properties" Command="{Binding CopyPropertiesCommand}"/>
+                                                <MenuItem Header="Save Properties" Command="{Binding SavePropertiesCommand}"/>
+                                                <MenuItem Header="Send to User" Command="{Binding SendToUserCommand}"/>
+                                            </ContextMenu>
+                                        </ContentControl.ContextMenu>
+                                        
+                                        <TextBlock Text="{Binding Path}"/>
+                                    </ContentControl>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel Margin="{ext:Space 0, 0, 1.5, 0}"/>
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                        </ListBox>
+                    </ScrollViewer>
+                </ui:FABorder>
+            </Grid>
             
             <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Stretch">
                 <Grid.ColumnDefinitions>

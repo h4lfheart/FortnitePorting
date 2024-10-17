@@ -276,7 +276,7 @@ public static class CUE4ParseExtensions
         return new FTransform(rotation, location, scale);
     }
     
-    private static FTransform GetAbsoluteTransform(this USceneComponent component)
+    public static FTransform GetAbsoluteTransform(this USceneComponent component)
     {
         var result = new FTransform(component.RelativeRotation, component.RelativeLocation, component.RelativeScale3D);
         for (var attachParent = GetAttachParent(component); attachParent != null; attachParent = attachParent.GetAttachParent())
@@ -286,7 +286,7 @@ public static class CUE4ParseExtensions
         return result;
     }
     
-    private static USceneComponent? GetAttachParent(this USceneComponent component)
+    public static USceneComponent? GetAttachParent(this USceneComponent component)
     {
         return component.GetOrDefault("AttachParent", new FPackageIndex()).Load<USceneComponent>();
     }

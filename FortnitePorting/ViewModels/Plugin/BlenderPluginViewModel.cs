@@ -41,9 +41,12 @@ public partial class BlenderPluginViewModel : ViewModelBase
 
     public void SyncExtensionVersions()
     {
-        foreach (var installation in Installations)
+        foreach (var installation in Installations.ToArray())
         {
-            installation.SyncExtensionVersion();
+            if (!installation.SyncExtensionVersion())
+            {
+                Installations.Remove(installation);
+            }
         }
     }
 
@@ -77,6 +80,8 @@ public partial class BlenderPluginViewModel : ViewModelBase
 
     public async Task RemoveInstallation()
     {
+        if (Installations.Count == 0) return;
+        
         await TaskService.RunAsync(() =>
         {
             var installation = Installations[SelectedInstallationIndex];

@@ -19,6 +19,16 @@ public static class MiscExtensions
         var filters = filter.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
         return filters.All(x => input.Contains(x, StringComparison.OrdinalIgnoreCase));
     }
+    
+    public static bool FilterAll(string input, IEnumerable<string> filters)
+    {
+        return filters.All(x => input.Contains(x, StringComparison.OrdinalIgnoreCase));
+    }
+    
+    public static bool FilterAny(string input, IEnumerable<string> filters)
+    {
+        return filters.Any(x => input.Contains(x, StringComparison.OrdinalIgnoreCase));
+    }
 
     public static void InsertMany<T>(this List<T> list, int index, T item, int count)
     {
@@ -202,6 +212,26 @@ public static class MiscExtensions
         var content = AvaloniaRuntimeXamlLoader.Parse<T>(xaml);
         content.DataContext = bindings;
         return content;
+    }
+    
+    public static void Copy(string sourceDirectory, string targetDirectory)
+    {
+        Copy(new DirectoryInfo(sourceDirectory), new DirectoryInfo(targetDirectory));
+    }
+
+    public static void Copy(DirectoryInfo source, DirectoryInfo target)
+    {
+        Directory.CreateDirectory(target.FullName);
+
+        foreach (var file in source.GetFiles())
+        {
+            file.CopyTo(Path.Combine(target.FullName, file.Name), true);
+        }
+
+        foreach (var subDirectory in source.GetDirectories())
+        {
+            Copy(subDirectory, target.CreateSubdirectory(subDirectory.Name));
+        }
     }
 }
 

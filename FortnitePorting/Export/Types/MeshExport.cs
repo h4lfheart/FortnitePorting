@@ -4,6 +4,7 @@ using System.Linq;
 using CUE4Parse_Conversion.Meshes;
 using CUE4Parse.GameTypes.FN.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.Component.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Component.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Material;
@@ -24,6 +25,7 @@ using FortnitePorting.Models.CUE4Parse;
 using FortnitePorting.Models.Unreal.Landscape;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
+using FortnitePorting.Shared.Models.Fortnite;
 using Serilog;
 
 namespace FortnitePorting.Export.Types;
@@ -35,6 +37,7 @@ public class MeshExport : BaseExport
     public readonly List<ExportOverrideMaterial> OverrideMaterials = [];
     public readonly List<ExportOverrideParameters> OverrideParameters = [];
     public ExportLightCollection Lights = new();
+    public AnimExport? Animation;
     
     public MeshExport(string name, UObject asset, BaseStyleData[] styles, EExportType exportType, ExportDataMeta metaData) : base(name, asset, styles, exportType, metaData)
     {
@@ -61,10 +64,37 @@ public class MeshExport : BaseExport
         {
             case EExportType.Outfit:
             {
+                UAnimMontage? montage = null;
                 var parts = asset.GetOrDefault("BaseCharacterParts", Array.Empty<UObject>());
+                if (asset.TryGetValue(out UObject heroDefinition, "HeroDefinition"))
+                {
+                    if (parts.Length == 0 && heroDefinition.TryGetValue(out UObject[] specializations, "Specializations"))
+                    {
+                        parts = specializations.First().GetOrDefault("CharacterParts", Array.Empty<UObject>());
+                    }
+
+                    montage ??= heroDefinition.GetOrDefault<UAnimMontage?>("FrontendAnimMontageIdleOverride");
+                }
+                
                 foreach (var part in parts)
                 {
                     Meshes.AddIfNotNull(Exporter.CharacterPart(part));
+                    
+                    montage ??= part.GetOrDefault<UAnimMontage?>("FrontendAnimMontageIdleOverride");
+                }
+
+                if (Meshes.FirstOrDefault(mesh => mesh is ExportPart { Type: EFortCustomPartType.Body }) is ExportPart bodyPart)
+                {
+                    montage ??= bodyPart.GenderPermitted switch
+                    {
+                        EFortCustomGender.Female => CUE4ParseVM.FemaleLobbyMontages.Random()!,
+                        _ => CUE4ParseVM.MaleLobbyMontages.Random()!
+                    };
+                }
+                
+                if (Exporter.Meta.Settings.ImportLobbyPoses && montage is not null)
+                {
+                    Animation = new AnimExport(montage.Name, montage, [], EExportType.Animation, Exporter.Meta);
                 }
                 
                 break;

@@ -107,6 +107,8 @@
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="{ext:Space 1}"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="{ext:Space 1}"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     
                     <TextBlock Grid.Row="0" Classes="SubtitleTextBlockStyle" Text="Map" HorizontalAlignment="Center"/>
@@ -257,6 +259,22 @@
                                 <TextBlock Text="Export"/>
                             </StackPanel>
                         </Button>
+                        
+                    </Grid>
+                    
+                    <Grid Grid.Row="32" ColumnDefinitions="Auto *">
+                        <TextBlock Grid.Column="0" Text="Export To" VerticalAlignment="Center"
+                                   Margin="{ext:Space 1, 0, 1, 0.25}" />
+                        <ComboBox Grid.Column="1"
+                                  HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                                  ItemsSource="{ext:EnumToItemsSource {x:Type shared:EExportLocation}}"
+                                  SelectedItem="{Binding ExportLocation, Converter={StaticResource EnumToRecord}}">
+                            <ComboBox.ItemContainerTheme>
+                                <ControlTheme x:DataType="ext:EnumRecord" TargetType="ComboBoxItem" BasedOn="{StaticResource {x:Type ComboBoxItem}}">
+                                    <Setter Property="IsEnabled" Value="{Binding !IsDisabled}"/>
+                                </ControlTheme>
+                            </ComboBox.ItemContainerTheme>
+                        </ComboBox>
                     </Grid>
                 </Grid>
             </ui:FABorder>

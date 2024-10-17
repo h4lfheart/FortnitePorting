@@ -18,9 +18,9 @@ public class Identification : IDualSerialize
 
     public string AvatarURL => RoleType switch
     {
-        ERoleType.System => "https://fortniteporting.halfheart.dev/sockets/system.png",
-        ERoleType.SystemExport => "https://fortniteporting.halfheart.dev/sockets/export.png",
-        _ => !string.IsNullOrWhiteSpace(AvatarId) ? $"https://cdn.discordapp.com/avatars/{Id}/{AvatarId}.png?size=128" : "https://fortniteporting.halfheart.dev/sockets/default.png"
+        ERoleType.System => "https://fortniteporting.halfheart.dev/logo/system.png",
+        ERoleType.SystemExport => "https://fortniteporting.halfheart.dev/logo/export.png",
+        _ => !string.IsNullOrWhiteSpace(AvatarId) ? $"https://cdn.discordapp.com/avatars/{Id}/{AvatarId}.png?size=128" : "https://fortniteporting.halfheart.dev/logo/default.png"
     };
 
     public string? Version;

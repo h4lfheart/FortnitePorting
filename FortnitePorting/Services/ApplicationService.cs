@@ -19,6 +19,7 @@ using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
 using FortnitePorting.Views;
+using FortnitePorting.WindowModels;
 using Microsoft.Win32;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
@@ -30,6 +31,7 @@ namespace FortnitePorting.Services;
 public static class ApplicationService
 {
     public static AppWindowModel AppWM => ViewModelRegistry.Get<AppWindowModel>()!;
+    public static SoundPreviewWindowModel SoundPreviewWM => ViewModelRegistry.Get<SoundPreviewWindowModel>()!;
     public static WelcomeViewModel WelcomeVM => ViewModelRegistry.Get<WelcomeViewModel>()!;
     public static HomeViewModel HomeVM => ViewModelRegistry.Get<HomeViewModel>()!;
     public static CUE4ParseViewModel CUE4ParseVM => ViewModelRegistry.Get<CUE4ParseViewModel>()!;
@@ -43,6 +45,7 @@ public static class ApplicationService
     public static LeaderboardViewModel LeaderboardVM => ViewModelRegistry.Get<LeaderboardViewModel>()!;
     public static VotingViewModel VotingVM => ViewModelRegistry.Get<VotingViewModel>()!;
     public static TimeWasterViewModel TimeWasterVM => ViewModelRegistry.Get<TimeWasterViewModel>()!;
+    public static MapViewModel MapVM => ViewModelRegistry.Get<MapViewModel>()!;
     
     public static IClassicDesktopStyleApplicationLifetime Application = null!;
     private static IStorageProvider StorageProvider => Application.MainWindow!.StorageProvider;
@@ -170,7 +173,7 @@ public static class ApplicationService
         }
         
         AppSettings.Save();
-        //DiscordService.Deinitialize();
+        DiscordService.Deinitialize();
     }
     
     public static void Launch(string location, bool shellExecute = true)

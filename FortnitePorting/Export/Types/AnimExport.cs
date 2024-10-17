@@ -78,11 +78,6 @@ public class AnimExport : BaseExport
         }
     }
     
-    public static AnimExport From(UAnimMontage montage, EExportType exportType, ExportDataMeta metaData)
-    {
-        return new AnimExport(montage.Name, montage, [], exportType, metaData);
-    }
-    
     private void AnimMontage(UAnimMontage montage)
     {
         Skeleton = Exporter.Skeleton(montage.Skeleton.Load<USkeleton>())!;
@@ -99,17 +94,27 @@ public class AnimExport : BaseExport
 
     private void HandleSectionTree(List<ExportAnimSection> sections, UAnimMontage montageRef, FCompositeSection currentSection, float time = 0.0f)
     {
-        var sequence = currentSection.LinkedSequence.Load<UAnimSequence>();
-        if (sequence is null) return;
+        var baseSequence = currentSection.LinkedSequence.Load<UAnimSequence>();
+        if (baseSequence is null) return;
+
+        ExportAnimSection? anim = null;
+        if (montageRef.SlotAnimTracks.FirstOrDefault(slot => slot.SlotName.Text.Equals("AdditiveCorrective")) is
+            { } additiveSlot)
+        {
+            var additiveSection = additiveSlot.AnimTrack.AnimSegments.FirstOrDefault(x => Math.Abs(x.StartPos - currentSection.SegmentBeginTime) < 0.01);
+            var additiveSequence = additiveSection?.AnimReference.Load<UAnimSequence>();
+            anim = Exporter.AnimSequence(additiveSequence, baseSequence);
+        }
         
-        var anim = Exporter.AnimSequence(sequence);
+        anim ??= Exporter.AnimSequence(baseSequence);
+        
         if (anim is not null)
         {
             anim.Name = currentSection.SectionName.Text;
             anim.Time = currentSection.SegmentBeginTime + time;
             anim.LinkValue = currentSection.LinkValue;
             anim.Loop = currentSection.SectionName == currentSection.NextSectionName || currentSection.NextSectionName.IsNone;
-            anim.AssetRef = sequence;
+            anim.AssetRef = baseSequence;
             
             sections.Add(anim);
         

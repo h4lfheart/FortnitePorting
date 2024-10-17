@@ -191,7 +191,8 @@ public static class OnlineService
 
                 var isInChatView = AppWM.IsInView<ChatView>();
                 var isPrivate = e.GetArgument<bool>("IsPrivate");
-                var isPing = messagePacket.Message.Contains("@everyone") && user.HasPermission(EPermissions.Staff) || messagePacket.Message.Contains($"@{AppSettings.Current.Online.GlobalName}");
+                var isPing = messagePacket.Message.Contains("@everyone") && user.HasPermission(EPermissions.Staff) 
+                             || messagePacket.Message.Contains($"@{AppSettings.Current.Online.GlobalName}");
                 if (AppSettings.Current.Online.OnlineStatus == EOnlineStatus.Online && !isInChatView && (isPrivate || isPing))
                 {
                     var notification = new Notification
@@ -308,7 +309,9 @@ public static class OnlineService
                     
                     var content = xaml.CreateXaml<ContentControl>(new
                     {
-                        DisplayText = $"{user.DisplayName} sent a request to export \"{export.Path}.\" Accept?"
+                        DisplayText = !string.IsNullOrWhiteSpace(export.Message) 
+                            ? $"{user.DisplayName} says \"{export.Message}\" with a request to export \"{export.Path}.\" Accept?"
+                            : $"{user.DisplayName} sent a request to export \"{export.Path}.\" Accept?"
                     });
                     
                     var comboBox = content.FindControl<ComboBox>("ExportLocationBox");
@@ -372,7 +375,10 @@ public static class OnlineService
                             continue;
                         }
                     }
-
+                    
+                    var isPing = messagePacket.Message.Contains("@everyone") && user.HasPermission(EPermissions.Staff) 
+                                 || messagePacket.Message.Contains($"@{AppSettings.Current.Online.GlobalName}");
+                    
                     var messageUser = GetArgument<Identification>("User")!;
                     messages.InsertSorted(new ChatMessage
                     {
@@ -392,6 +398,7 @@ public static class OnlineService
                         BitmapName = messagePacket.AttachmentName,
                         ReactionCount = GetArgument<int>("Reactions"),
                         ReactedTo = GetArgument<bool>("HasReacted"),
+                        IsPing = isPing
                     }, SortExpressionComparer<ChatMessage>.Descending(message => message.Timestamp));
                     continue;
 

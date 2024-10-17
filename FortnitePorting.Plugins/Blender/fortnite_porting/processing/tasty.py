@@ -269,10 +269,10 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
         bone.head = position
 
     tail_adjustment_bones = [
-        ("lowerarm_r", Lazy(lambda: edit_bones["ik_hand_r" if has_original_ik_bones else "hand_r"].head)),
-        ("lowerarm_l", Lazy(lambda: edit_bones["ik_hand_l" if has_original_ik_bones else "hand_l"].head)),
-        ("calf_r", Lazy(lambda: edit_bones["ik_foot_r" if has_original_ik_bones else "foot_r"].head)),
-        ("calf_l", Lazy(lambda: edit_bones["ik_foot_l" if has_original_ik_bones else "foot_l"].head)),
+        ("lowerarm_r", Lazy(lambda: edit_bones["hand_r"].head)),
+        ("lowerarm_l", Lazy(lambda: edit_bones["hand_l"].head)),
+        ("calf_r", Lazy(lambda: edit_bones["foot_r"].head)),
+        ("calf_l", Lazy(lambda: edit_bones["foot_l"].head)),
         ("R_eye", Lazy(lambda: edit_bones["R_eye"].head - Vector((0, 0.1, 0)))),
         ("L_eye", Lazy(lambda: edit_bones["L_eye"].head - Vector((0, 0.1, 0)))),
         ("C_jaw", Lazy(lambda: edit_bones["C_jaw"].head - Vector((0, 0.1, 0)))),
@@ -523,8 +523,9 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
             setattr(bone, f"lock_ik_{axis.lower()}", True)
 
         for axis, values in ik_bone.limit_axes.items():
-            setattr(bone, f"ik_min_{axis.lower()}", values[0])
-            setattr(bone, f"ik_max_{axis.lower()}", values[1])
+            setattr(bone, f"use_ik_limit_{axis.lower()}", True)
+            setattr(bone, f"ik_min_{axis.lower()}", radians(values[0]))
+            setattr(bone, f"ik_max_{axis.lower()}", radians(values[1]))
             
         if ik_bone.driver:
             ik_bone.driver.add_to(constraint, "influence")

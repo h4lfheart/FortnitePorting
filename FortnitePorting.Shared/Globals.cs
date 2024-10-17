@@ -9,9 +9,14 @@ namespace FortnitePorting.Shared;
 public static class Globals
 {
     public static string VersionString => Version.GetDisplayString(EVersionStringType.IdentifierPrefix);
-    public static readonly FPVersion Version = new(3, 0, 0);
+#if DEBUG
+    public static readonly FPVersion Version = new(3, 0, 0, 0);
+#else
+    public static readonly FPVersion Version = new(3, 3, 5, 0, "beta");
+#endif
     
     public static readonly FilePickerFileType MappingsFileType = new("Unreal Mappings") { Patterns = [ "*.usmap" ] };
+    public static readonly FilePickerFileType JSONFileType = new("JSON") { Patterns = [ "*.json" ] };
     public static readonly FilePickerFileType MP3FileType = new("MP3 Audio") { Patterns = [ "*.mp3" ] };
     public static readonly FilePickerFileType WAVFileType = new("WAV Audio") { Patterns = [ "*.wav" ] };
     public static readonly FilePickerFileType OGGFileType = new("OGG Audio") { Patterns = [ "*.ogg" ] };
@@ -22,6 +27,7 @@ public static class Globals
     public static readonly FilePickerFileType PlaylistFileType = new("Fortnite Porting Playlist") { Patterns = [ "*.fp.playlist" ] };
     public static readonly FilePickerFileType ChatAttachmentFileType = new("Image") { Patterns = [ "*.png", "*.jpg", "*.jpeg" ] };
     public static readonly FilePickerFileType BlenderFileType = new("Blender") { Patterns = ["blender.exe"] };
+    public static readonly FilePickerFileType UnrealProjectFileType = new("Unreal Project") { Patterns = ["*.uproject"] };
     
     public static readonly FGuid ZERO_GUID = new();
     public const string ZERO_CHAR = "0x0000000000000000000000000000000000000000000000000000000000000000";

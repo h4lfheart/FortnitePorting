@@ -13,6 +13,7 @@ using CUE4Parse.GameTypes.FN.Assets.Exports;
 using CUE4Parse.UE4.Assets;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Animation;
+using CUE4Parse.UE4.Assets.Exports.Component;
 using CUE4Parse.UE4.Assets.Exports.Component.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Component.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Material;
@@ -405,11 +406,32 @@ public class ExportContext
         
         actors.AddRangeIfNotNull(Level(level));
         
-        if (Meta.WorldFlags.HasFlag(EWorldFlags.WorldPartitionGrids) &&  level.GetOrDefault<UObject>("WorldSettings") is { } worldSettings
+        if (Meta.WorldFlags.HasFlag(EWorldFlags.WorldPartitionGrids) && level.GetOrDefault<UObject>("WorldSettings") is { } worldSettings
             && worldSettings.GetOrDefault<UObject>("WorldPartition") is { } worldPartition
             && worldPartition.GetOrDefault<UObject>("RuntimeHash") is { } runtimeHash)
         {
             Meta.WorldFlags |= EWorldFlags.Actors;
+            
+            foreach (var streamingData in runtimeHash.GetOrDefault("RuntimeStreamingData", Array.Empty<FStructFallback>()))
+            {
+                var cells = new List<FPackageIndex>();
+                cells.AddRange(streamingData.GetOrDefault("SpatiallyLoadedCells", Array.Empty<FPackageIndex>()));
+                cells.AddRange(streamingData.GetOrDefault("NonSpatiallyLoadedCells", Array.Empty<FPackageIndex>()));
+
+                foreach (var cell in cells)
+                {
+                    var gridCell = cell.Load();
+                    var levelStreaming = gridCell?.GetOrDefault<UObject?>("LevelStreaming");
+                    if (levelStreaming is null) continue;
+
+                    var worldAsset = levelStreaming.Get<FSoftObjectPath>("WorldAsset");
+                    var subWorld = worldAsset.Load<UWorld>();
+                    var subLevel = subWorld.PersistentLevel.Load<ULevel>();
+                    if (subLevel is null) continue;
+                    
+                    actors.AddRangeIfNotNull(Level(subLevel));
+                }
+            }
             
             foreach (var streamingGrid in runtimeHash.GetOrDefault("StreamingGrids", Array.Empty<FStructFallback>()))
             {
@@ -448,6 +470,9 @@ public class ExportContext
             var actor = actorLazy.Load();
             if (actor is null) continue;
             if (actor.ExportType == "LODActor") continue;
+            if (actor.Name.StartsWith("Device_") 
+                || actor.Name.StartsWith("VerseDevice_")
+                || actor.Name.StartsWith("BP_Device_")) continue;
 
             Log.Information("Processing {ActorName}: {CurrentActor}/{TotalActors}", actor.Name, currentActor, totalActors);
             Meta.OnUpdateProgress(actor.Name, currentActor, totalActors);
@@ -465,18 +490,22 @@ public class ExportContext
         {
             if (actor.TryGetValue(out FPackageIndex[] instanceComponents, "InstanceComponents"))
             {
-                var transform = actor.GetAbsoluteTransformFromRootComponent();
                 foreach (var instanceComponentLazy in instanceComponents)
                 {
                     var instanceComponent = instanceComponentLazy.Load<UInstancedStaticMeshComponent>();
                     if (instanceComponent is null) continue;
+                    if (instanceComponent.ExportType == "HLODInstancedStaticMeshComponent") continue;
 
+                    if (instanceComponent.Name.StartsWith("ISM_") && !Meta.WorldFlags.HasFlag(EWorldFlags.InstancedFoliage)) continue;
+                    
                     var exportMesh = MeshComponent(instanceComponent);
                     if (exportMesh is null) continue;
+
+                    var instanceTransform = instanceComponent.GetAbsoluteTransform();
                     
-                    exportMesh.Location = transform.Translation;
-                    exportMesh.Rotation = transform.Rotator();
-                    exportMesh.Scale = transform.Scale3D;
+                    exportMesh.Location = instanceTransform.Translation;
+                    exportMesh.Rotation = instanceTransform.Rotator();
+                    exportMesh.Scale = instanceTransform.Scale3D;
 
                     meshes.Add(exportMesh);
                 }
@@ -495,10 +524,8 @@ public class ExportContext
                     exportMesh.Children.AddIfNotNull(extraMesh);
                 }
 
-                // todo global solution for accumulating all uobject heirarchy properties
+                actor.GatherTemplateProperties();
                 var textureDatas = actor.GetAllProperties<UBuildingTextureData>("TextureData");
-                if (textureDatas.Count == 0 && actor.Template is not null)
-                    textureDatas = actor.Template.Load()!.GetAllProperties<UBuildingTextureData>("TextureData");
 
                 foreach (var (textureData, index) in textureDatas)
                 {
@@ -509,7 +536,10 @@ public class ExportContext
                 {
                     foreach (var additionalWorldPath in additionalWorlds)
                     {
-                        exportMesh.Children.AddRange(World(additionalWorldPath.Load<UWorld>()));
+                        if (additionalWorldPath.TryLoad<UWorld>(out var world))
+                        {
+                            exportMesh.Children.AddRange(World(world));
+                        }
                     }
                 }
                 
@@ -651,7 +681,7 @@ public class ExportContext
         return lightComponent switch
         {
             UPointLightComponent pointLightComponent => LightComponent(pointLightComponent),
-            _ => throw new NotImplementedException(lightComponent.ExportType)
+            _ => null
         };
     }
 
@@ -719,9 +749,9 @@ public class ExportContext
             exportMesh.OverrideMaterials.AddIfNotNull(Material(material, idx));
         }
 
-        if (meshComponent.LODData?.FirstOrDefault()?.PaintedVertices is { } paintedVertices)
+        if (meshComponent.LODData?.FirstOrDefault()?.OverrideVertexColors is { } overrideVertexColors)
         {
-            Debugger.Break();
+            exportMesh.OverrideVertexColors = overrideVertexColors.Data;
         }
 
         return exportMesh;
@@ -840,6 +870,37 @@ public class ExportContext
         };
         
         var floatCurves = animSequence.CompressedCurveData.FloatCurves ?? [];
+        foreach (var curve in floatCurves)
+        {
+            exportSequence.Curves.Add(new ExportCurve
+            {
+                Name = curve.CurveName.Text,
+                Keys = curve.FloatCurve.Keys.Select(x => new ExportCurveKey(x.Time, x.Value)).ToList()
+            });
+        }
+
+        return exportSequence;
+    }
+    
+    public ExportAnimSection? AnimSequence(UAnimSequence? additiveSequence, UAnimSequence? baseSequence, float time = 0.0f)
+    {
+        if (additiveSequence is null) return null;
+        if (baseSequence is null) return null;
+        
+        additiveSequence.RefPoseSeq = new ResolvedLoadedObject(baseSequence);
+
+        var exportSequence = new ExportAnimSection
+        {
+            Path = Export(additiveSequence),
+            Name = additiveSequence.Name,
+            Length = additiveSequence.SequenceLength,
+            Time = time
+        };
+        
+        var baseFloatCurves = baseSequence.CompressedCurveData.FloatCurves ?? [];
+        var additiveFloatCurves = additiveSequence.CompressedCurveData.FloatCurves ?? [];
+
+        FFloatCurve[] floatCurves = [..baseFloatCurves, ..additiveFloatCurves];
         foreach (var curve in floatCurves)
         {
             exportSequence.Curves.Add(new ExportCurve

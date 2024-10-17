@@ -11,6 +11,11 @@ class ESoundFormat(IntEnum):
     FLAC = 3
 
 
+class EPolygonType(IntEnum):
+    TRIANGLES = 0
+    QUADS = 1
+
+
 class EExportType(IntEnum):
     NONE = 0
 

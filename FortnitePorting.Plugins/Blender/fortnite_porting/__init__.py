@@ -6,11 +6,11 @@ from .processing.importer import Importer
 
 bl_info = {
     "name": "Fortnite Porting",
-    "description": "Fortnite Porting Server for Blender",
+    "description": "Import Server for Fortnite Porting",
     "author": "Half",
     "blender": (4, 2, 0),
     "version": (3, 0, 0),
-    "category": "Import",
+    "category": "Import-Export",
 }
 
 

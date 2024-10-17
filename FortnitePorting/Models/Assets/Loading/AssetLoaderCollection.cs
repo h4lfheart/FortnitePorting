@@ -12,6 +12,7 @@ using CUE4Parse.UE4.Objects.GameplayTags;
 using CUE4Parse.UE4.Objects.UObject;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
+using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Services;
@@ -213,6 +214,18 @@ public partial class AssetLoaderCollection : ObservableObject
                         },
                         new ManuallyDefinedAsset
                         {
+                            Name = "Zombie Chicken",
+                            AssetPath = "/NugZ/Meshes/Chicken_Zombie_Bird",
+                            IconPath = "/NugZ/Icons/T-T-Icon-BR-ChickenZombieFauna"
+                        },
+                        new ManuallyDefinedAsset
+                        {
+                            Name = "Klombo",
+                            AssetPath = "FortniteGame/Plugins/GameFeatures/Juno/JunoCreature_ButterCakeMamma/Content/SkeletalMesh/Butter_Cake_Mammal",
+                            IconPath = "FortniteGame/Plugins/GameFeatures/Juno/JunoCreature_ButterCakeMamma/Content/Textures/T-T-Icon-BR-ButterCake"
+                        },
+                        new ManuallyDefinedAsset
+                        {
                             Name = "Frog",
                             AssetPath = "/Irwin/AI/Simple/Smackie/Meshes/Smackie_Amphibian",
                             IconPath = "/Irwin/Icons/T-Icon-Fauna-Frog"
@@ -388,6 +401,7 @@ public partial class AssetLoaderCollection : ObservableObject
     
     public void Set(EExportType type)
     {
+        DiscordService.Update(type);
         ActiveLoader = Get(type);
         ActiveCollection = ActiveLoader.Filtered;
         ActiveLoader.UpdateFilterVisibility();

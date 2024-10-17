@@ -57,7 +57,7 @@ public static class Exporter
                 if (await ApiVM.FortnitePortingServer.PingAsync(serverType) is false)
                 {
                     var serverName = serverType.GetDescription();
-                    AppWM.Message($"{serverName} Server", $"The {serverName} Server for Fortnite Porting is not currently running.", InfoBarSeverity.Error, false);
+                    AppWM.Message($"{serverName} Server", $"The {serverName} Server for Fortnite Porting is not currently running or is busy.", InfoBarSeverity.Error, false);
                     return;
                 }
 
@@ -71,7 +71,7 @@ public static class Exporter
                 };
             
                 var data = JsonConvert.SerializeObject(exportData);
-                await ApiVM.FortnitePortingServer.SendAsync(data, EExportServerType.Blender);
+                await ApiVM.FortnitePortingServer.SendAsync(data, serverType);
             }
         });
     }
@@ -81,7 +81,7 @@ public static class Exporter
         await Export(() => assets.Select(assetInfo =>
         {
             var asset = assetInfo.Asset;
-            var styles = assetInfo.GetSelectedStyles();
+            var styles = metaData.ExportLocation.IsFolder() ? assetInfo.GetAllStyles() : assetInfo.GetSelectedStyles();
             var exportType = asset.CreationData.ExportType;
 
             return CreateExport(asset.CreationData.DisplayName, asset.CreationData.Object, exportType, styles,

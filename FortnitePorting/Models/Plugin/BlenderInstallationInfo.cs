@@ -32,11 +32,18 @@ public partial class BlenderInstallationInfo : ObservableObject
         BlenderPath = blenderPath;
     }
 
-    public void SyncExtensionVersion()
+    public bool SyncExtensionVersion()
     {
+        if (!File.Exists(ManifestPath))
+        {
+            return false;
+        }
+        
+        
         var manifestContents = File.ReadAllText(ManifestPath);
         var manifestToml = Toml.ToModel(manifestContents);
         ExtensionVersion = new Version((string) manifestToml["version"]);
+        return true;
     }
     
 }

@@ -49,7 +49,7 @@ public partial class OnlineSettingsViewModel : ViewModelBase
    [JsonIgnore]
    public string? ProfilePictureURL => !string.IsNullOrWhiteSpace(Identification?.AvatarId)
       ? $"https://cdn.discordapp.com/avatars/{Identification.DiscordId}/{Identification.AvatarId}.png?size=128"
-      : "https://fortniteporting.halfheart.dev/sockets/default.png";
+      : "https://fortniteporting.halfheart.dev/logo/default.png";
    
 
    public async Task LoadIdentification()
@@ -89,6 +89,8 @@ public partial class OnlineSettingsViewModel : ViewModelBase
             OnlineService.Init();
             AppWM.OnlineAndGameTabsAreVisible = true;
             AppWM.Message("Discord Integration", $"Successfully authenticated user \"{UserName}\" via Discord.", severity: InfoBarSeverity.Success, closeTime: 2.5f);
+            
+            AppSettings.Save();
             return;
          }
 
@@ -107,6 +109,7 @@ public partial class OnlineSettingsViewModel : ViewModelBase
       OnlineService.DeInit();
       AppWM.OnlineAndGameTabsAreVisible = false;
       AppWM.Message("Discord Integration", $"Successfully de-authenticated user \"{removedUsername}\" via Discord.", closeTime: 2.5f);
+      AppSettings.Save();
    }
 
    public async Task PromptForAuthentication()

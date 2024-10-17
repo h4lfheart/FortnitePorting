@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -26,6 +27,7 @@ using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Models.Leaderboard;
 using FortnitePorting.Models.Unreal;
 using FortnitePorting.Models.Unreal.Landscape;
+using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Framework;
@@ -46,6 +48,7 @@ public partial class MapViewModel : ViewModelBase
 {
     [ObservableProperty] private ObservableCollection<WorldPartitionMap> _maps = [];
     [ObservableProperty] private WorldPartitionMap _selectedMap;
+    [ObservableProperty] private EExportLocation _exportLocation = EExportLocation.Blender;
     
     public bool IsDebug =>
 #if DEBUG
@@ -99,9 +102,8 @@ public partial class MapViewModel : ViewModelBase
             if (gameFeatureDataFile.Value is null) continue;
 
             var gameFeatureData = await CUE4ParseVM.Provider.TryLoadObjectAsync<UFortGameFeatureData>(gameFeatureDataFile.Value.PathWithoutExtension);
-            if (gameFeatureData is null) continue;
 
-            if (gameFeatureData.ExperienceData?.DefaultMap is not { } defaultMapPath) continue;
+            if (gameFeatureData?.ExperienceData?.DefaultMap is not { } defaultMapPath) continue;
 
             var defaultMap = await defaultMapPath.LoadAsync();
             if (defaultMap.Name.StartsWith("FMJam_")) continue;
@@ -121,6 +123,25 @@ public partial class MapViewModel : ViewModelBase
             await map.Load();
         }
         
+    }
+    
+    public override async Task OnViewOpened()
+    {
+        DiscordService.Update($"Browsing Map: \"{SelectedMap.Info.Name}\"", "Map");
+    }
+
+    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+    {
+        base.OnPropertyChanged(e);
+
+        switch (e.PropertyName)
+        {
+            case nameof(SelectedMap):
+            {
+                DiscordService.Update($"Browsing Map: \"{SelectedMap.Info.Name}\"", "Map");
+                break;
+            }
+        }
     }
 }
 
@@ -150,7 +171,6 @@ public partial class WorldPartitionMap : ObservableObject
     {
         Info = info;
         
-        // todo turn this into attribute if possible -> NotifyCollectionChangedFor
         Grids.CollectionChanged += (sender, args) => OnPropertyChanged(nameof(GridCount));
     }
 
@@ -284,8 +304,7 @@ public partial class WorldPartitionMap : ObservableObject
     [RelayCommand]
     public async Task ExportLandscape()
     {
-        // todo allow user to select export location
-        var meta = AppSettings.Current.CreateExportMeta();
+        var meta = AppSettings.Current.CreateExportMeta(MapVM.ExportLocation);
         meta.WorldFlags = EWorldFlags.Landscape;
         await Exporter.Export(_world, EExportType.World, meta);
     }
@@ -293,24 +312,30 @@ public partial class WorldPartitionMap : ObservableObject
     [RelayCommand]
     public async Task ExportActors()
     {
-        var meta = AppSettings.Current.CreateExportMeta();
+        var meta = AppSettings.Current.CreateExportMeta(MapVM.ExportLocation);
         meta.WorldFlags = EWorldFlags.Actors;
+        if (meta.Settings.ImportInstancedFoliage)
+            meta.WorldFlags |= EWorldFlags.InstancedFoliage;
         await Exporter.Export(_world, EExportType.World, meta);
     }
     
     [RelayCommand]
     public async Task ExportWorldPartitionActors()
     {
-        var meta = AppSettings.Current.CreateExportMeta();
+        var meta = AppSettings.Current.CreateExportMeta(MapVM.ExportLocation);
         meta.WorldFlags = EWorldFlags.WorldPartitionGrids;
+        if (meta.Settings.ImportInstancedFoliage)
+            meta.WorldFlags |= EWorldFlags.InstancedFoliage;
         await Exporter.Export(_world, EExportType.World, meta);
     }
     
     [RelayCommand]
     public async Task ExportFullMap()
     {
-        var meta = AppSettings.Current.CreateExportMeta();
+        var meta = AppSettings.Current.CreateExportMeta(MapVM.ExportLocation);
         meta.WorldFlags = EWorldFlags.Actors | EWorldFlags.Landscape | EWorldFlags.WorldPartitionGrids;
+        if (meta.Settings.ImportInstancedFoliage)
+            meta.WorldFlags |= EWorldFlags.InstancedFoliage;
         await Exporter.Export(_world, EExportType.World, meta);
     }
     
@@ -345,8 +370,12 @@ public partial class WorldPartitionMap : ObservableObject
             var world = await CUE4ParseVM.Provider.LoadObjectAsync<UWorld>(map.Path);
             worlds.Add(world);
         }
-        
-        await Exporter.Export(worlds, EExportType.World, AppSettings.Current.CreateExportMeta());
+
+        var meta = AppSettings.Current.CreateExportMeta(MapVM.ExportLocation);
+        meta.WorldFlags = EWorldFlags.Actors | EWorldFlags.Landscape | EWorldFlags.WorldPartitionGrids;
+        if (meta.Settings.ImportInstancedFoliage)
+            meta.WorldFlags |= EWorldFlags.InstancedFoliage;
+        await Exporter.Export(worlds, EExportType.World, meta);
         
         if (AppSettings.Current.Online.UseIntegration)
         {
@@ -449,7 +478,7 @@ public partial class WorldPartitionMap : ObservableObject
             // TODO can definitely be done using index offset for faster memory access
             case EMapTextureExportType.Height:
             {
-                async Task ExportHeightMap(string folderName = "", Predicate<MapTextureTileInfo>? predicate = null)
+                async Task ExportHeightMap(string folderName = "")
                 {
                     var heightImage = new Image<L16>(2048, 2048);
                     heightImage.Mutate(ctx => ctx.Fill(Info.Name.Equals("Rufus") ? Color.Black : HeightBaseColor));
@@ -468,8 +497,8 @@ public partial class WorldPartitionMap : ObservableObject
                 
                 if (Info.Name.Equals("Rufus"))
                 {
-                    await ExportHeightMap("BaseMap", info => info.Image.Width <= 128 || info.Image.Height <= 128);
-                    await ExportHeightMap("SnowBiome", info => info.Image.Width > 128 || info.Image.Height > 128);
+                    await ExportHeightMap("BaseMap");
+                    await ExportHeightMap("SnowBiome");
                 }
                 else
                 {

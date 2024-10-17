@@ -10,6 +10,7 @@ using FortnitePorting.Shared;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Models;
 using FortnitePorting.Shared.Validators;
+using NAudio.Wave;
 using Newtonsoft.Json;
 using Serilog;
 
@@ -20,6 +21,7 @@ public partial class ApplicationSettingsViewModel : ViewModelBase
     [NotifyDataErrorInfo] [DirectoryExists("Assets Path")] [ObservableProperty]
     private string _assetsPath;
 
+    [ObservableProperty] private int _audioDeviceIndex = 0;
     [ObservableProperty] private int _chunkCacheLifetime = 1;
     [ObservableProperty] private bool _downloadDebuggingSymbols;
 
@@ -35,6 +37,9 @@ public partial class ApplicationSettingsViewModel : ViewModelBase
     public NavigationTransitionInfo Transition => UseTabTransitions
         ? new SlideNavigationTransitionInfo()
         : new SuppressNavigationTransitionInfo();
+    
+    
+    public DirectSoundDeviceInfo[] AudioDevices => DirectSoundOut.Devices.ToArray()[1..];
 
 
     [RelayCommand]
@@ -66,6 +71,12 @@ public partial class ApplicationSettingsViewModel : ViewModelBase
                     foreach (var pdbFile in pdbFiles) pdbFile.Delete();
                 }
 
+                break;
+            }
+            case nameof(AudioDeviceIndex):
+            {
+                RadioVM?.UpdateOutputDevice();
+                SoundPreviewWM?.UpdateOutputDevice();
                 break;
             }
         }

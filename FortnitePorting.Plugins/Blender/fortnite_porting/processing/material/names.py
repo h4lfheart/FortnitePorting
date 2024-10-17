@@ -1,3 +1,5 @@
+from ..enums import *
+
 layer_switch_names = [
     "Use 2 Layers", "Use 3 Layers", "Use 4 Layers", "Use 5 Layers", "Use 6 Layers", "Use 7 Layers",
     "Use 2 Materials", "Use 3 Materials", "Use 4 Materials", "Use 5 Materials", "Use 6 Materials", "Use 7 Materials",
@@ -41,3 +43,5 @@ texture_ignore_names = ["DefaultTexture"]
 vertex_crunch_names = ["MI_VertexCrunch", "M_VertexCrunch"]
 
 glass_master_names = ["M_MED_Glass_Master"]
+
+lite_shader_types = [EExportType.PROP, EExportType.PREFAB, EExportType.WORLD]

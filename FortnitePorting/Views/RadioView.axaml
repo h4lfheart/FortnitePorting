@@ -266,17 +266,7 @@
                                VerticalAlignment="Center" />
                 </Grid>
                 
-                <ComboBox Grid.Row="0" Grid.Column="4" ItemsSource="{Binding Devices}" 
-                          SelectedIndex="{Binding SelectedDeviceIndex, Mode=TwoWay}"
-                          HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{ext:Space 2, 1, 2, 0}">
-                    <ComboBox.ItemTemplate>
-                        <DataTemplate DataType="wave:DirectSoundDeviceInfo">
-                            <TextBlock Text="{Binding Description}"/>
-                        </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                </ComboBox>
-                
-                <Grid Grid.Row="1" Grid.Column="4" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="4" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="{ext:Space 1}" />

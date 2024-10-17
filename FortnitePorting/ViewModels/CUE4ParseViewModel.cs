@@ -20,23 +20,25 @@ using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.IO;
 using CUE4Parse.UE4.Objects.Core.Math;
-using CUE4Parse.UE4.Objects.Core.Misc;
 using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Readers;
 using CUE4Parse.UE4.Versions;
 using CUE4Parse.UE4.VirtualFileSystem;
 using CUE4Parse.Utils;
 using EpicManifestParser;
+using EpicManifestParser.UE;
 using FortnitePorting.Application;
 using FortnitePorting.Models.CUE4Parse;
 using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
+using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.Windows;
 using Serilog;
 using UE4Config.Parsing;
+using FGuid = CUE4Parse.UE4.Objects.Core.Misc.FGuid;
 
 namespace FortnitePorting.ViewModels;
 
@@ -48,21 +50,25 @@ public class CUE4ParseViewModel : ViewModelBase
     {
         EFortniteVersion.LatestOnDemand => new HybridFileProvider(new VersionContainer(AppSettings.Current.Installation.CurrentProfile.UnrealVersion)),
         EFortniteVersion.LatestInstalled => new HybridFileProvider(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, ExtraDirectories, new VersionContainer(EGame.GAME_UE5_5)),
-        _ => new HybridFileProvider(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, ExtraDirectories, new VersionContainer(AppSettings.Current.Installation.CurrentProfile.UnrealVersion)),
+        _ => new HybridFileProvider(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, [], new VersionContainer(AppSettings.Current.Installation.CurrentProfile.UnrealVersion)),
     };
     
     public readonly HybridFileProvider OptionalProvider = AppSettings.Current.Installation.CurrentProfile.FortniteVersion switch
     {
         EFortniteVersion.LatestOnDemand => new HybridFileProvider(new VersionContainer(AppSettings.Current.Installation.CurrentProfile.UnrealVersion), isOptionalLoader: true),
-        EFortniteVersion.LatestInstalled => new HybridFileProvider(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, ExtraDirectories, new VersionContainer(EGame.GAME_UE5_5), isOptionalLoader: true),
-        _ => new HybridFileProvider(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, ExtraDirectories, new VersionContainer(AppSettings.Current.Installation.CurrentProfile.UnrealVersion), isOptionalLoader: true),
+        EFortniteVersion.LatestInstalled => new HybridFileProvider(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, [], new VersionContainer(EGame.GAME_UE5_5), isOptionalLoader: true),
+        _ => new HybridFileProvider(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, [], new VersionContainer(AppSettings.Current.Installation.CurrentProfile.UnrealVersion), isOptionalLoader: true),
     };
+
+    public FBuildPatchAppManifest? LiveManifest;
     
     public readonly List<FAssetData> AssetRegistry = [];
     public readonly List<FRarityCollection> RarityColors = [];
     public readonly Dictionary<int, FColor> BeanstalkColors = [];
     public readonly Dictionary<int, FLinearColor> BeanstalkMaterialProps = [];
     public readonly Dictionary<int, FVector> BeanstalkAtlasTextureUVs = [];
+    public readonly List<UAnimMontage> MaleLobbyMontages = [];
+    public readonly List<UAnimMontage> FemaleLobbyMontages = [];
     
     private static readonly Regex FortniteArchiveRegex = new(@"^FortniteGame(/|\\)Content(/|\\)Paks(/|\\)(pakchunk(?:0|10.*|\w+)-WindowsClient|global)\.(pak|utoc)$", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
@@ -71,10 +77,24 @@ public class CUE4ParseViewModel : ViewModelBase
         new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "FortniteGame", "Saved", "PersistentDownloadDir", "GameCustom", "InstalledBundles"))
     ];
     
+    private static readonly List<string> MaleLobbyMontagePaths = 
+    [
+        "FortniteGame/Content/Animation/Game/MainPlayer/Menu/BR/Male_Commando_Idle_01_M",
+        "FortniteGame/Content/Animation/Game/MainPlayer/Menu/BR/Male_commando_Idle_2_M"
+    ];
+    
+    private static readonly List<string> FemaleLobbyMontagePaths = 
+    [
+        "FortniteGame/Content/Animation/Game/MainPlayer/Menu/BR/Female_Commando_Idle_02_Rebirth_Montage",
+        "FortniteGame/Content/Animation/Game/MainPlayer/Menu/BR/Female_Commando_Idle_03_Montage"
+    ];
+    
     public override async Task Initialize()
     {
 		ObjectTypeRegistry.RegisterEngine(Assembly.Load("FortnitePorting"));
         ObjectTypeRegistry.RegisterEngine(Assembly.Load("FortnitePorting.Shared"));
+
+        Provider.LoadExtraDirectories = AppSettings.Current.Installation.CurrentProfile.LoadCreativeMaps;
 
         await CleanupCache();
 
@@ -167,13 +187,14 @@ public class CUE4ParseViewModel : ViewModelBase
                 };
                 
                 var (manifest, element) = await manifestInfo.DownloadAndParseAsync(options);
+                LiveManifest = manifest;
 
                 HomeVM.UpdateStatus($"Loading Fortnite On-Demand (This may take a while)");
 
                 var fileManifests = manifest.FileManifestList.Where(fileManifest => FortniteArchiveRegex.IsMatch(fileManifest.FileName));
                 foreach (var fileManifest in fileManifests)
                 {
-                    Provider.RegisterVfs(fileManifest.FileName, [fileManifest.GetStream()],
+                    Provider.RegisterVfs(fileManifest.FileName, (Stream[]) [fileManifest.GetStream()],
                         name => new FStreamArchive(name,
                             manifest.FileManifestList.First(file => file.FileName.Equals(name)).GetStream()));
                 }
@@ -238,9 +259,8 @@ public class CUE4ParseViewModel : ViewModelBase
             }
             case EFortniteVersion.LatestOnDemand:
             {
-                // TODO live cosmetic streaming
-                //var onDemandFile = FortniteLive?.FileManifests.FirstOrDefault(x => x.Name.Equals("Cloud/IoStoreOnDemand.ini", StringComparison.OrdinalIgnoreCase));
-                //if (onDemandFile is not null) onDemandText = onDemandFile.GetStream().ReadToEnd().BytesToString();
+                var onDemandFile = LiveManifest?.FileManifestList.FirstOrDefault(x => x.FileName.Equals("Cloud/IoStoreOnDemand.ini", StringComparison.OrdinalIgnoreCase));
+                if (onDemandFile is not null) onDemandText = onDemandFile.GetStream().ReadToEnd().BytesToString();
                 break;
             }
         }
@@ -436,8 +456,17 @@ public class CUE4ParseViewModel : ViewModelBase
                     
                     BeanstalkAtlasTextureUVs[index] = property.Tag.GetValue<FVector>();
                 }
-                
             }
+        }
+        
+        foreach (var path in MaleLobbyMontagePaths)
+        {
+            MaleLobbyMontages.AddIfNotNull(await Provider.TryLoadObjectAsync<UAnimMontage>(path));
+        }
+        
+        foreach (var path in FemaleLobbyMontagePaths)
+        {
+            FemaleLobbyMontages.AddIfNotNull(await Provider.TryLoadObjectAsync<UAnimMontage>(path));
         }
     }
 }

@@ -53,17 +53,27 @@ public partial class ExportSettingsViewModel : ViewModelBase
 
 public partial class BaseExportSettings : ViewModelBase
 {
-    [ObservableProperty] private EMeshFormat _meshFormat = EMeshFormat.UEFormat;
-    [ObservableProperty] private EAnimFormat _animFormat = EAnimFormat.UEFormat;
     [ObservableProperty] private EFileCompressionFormat _compressionFormat = EFileCompressionFormat.ZSTD;
-    [ObservableProperty] private EImageFormat _imageFormat = EImageFormat.PNG;
-    [ObservableProperty] private ESoundFormat _soundFormat = ESoundFormat.WAV;
 
+    [ObservableProperty] private EImageFormat _imageFormat = EImageFormat.PNG;
     [ObservableProperty] private bool _exportMaterials = true;
+    
+    [ObservableProperty] private EMeshFormat _meshFormat = EMeshFormat.UEFormat;
+    [ObservableProperty] private bool _importInstancedFoliage = true;
+    
+    [ObservableProperty] private EAnimFormat _animFormat = EAnimFormat.UEFormat;
+    [ObservableProperty] private bool _importLobbyPoses = false;
+    
+    [ObservableProperty] private ESoundFormat _soundFormat = ESoundFormat.WAV;
     
     public virtual ExporterOptions CreateExportOptions()
     {
-        return new ExporterOptions();
+        return new ExporterOptions()
+        {
+            MeshFormat = MeshFormat,
+            AnimFormat = AnimFormat,
+            CompressionFormat = CompressionFormat
+        };
     }
 }
 
