@@ -237,6 +237,18 @@ public class ExportContext
         {
             exportWeapons.AddIfNotNull(Mesh(weaponMesh));
         }
+        
+        if (exportWeapons.FirstOrDefault() is { } targetMesh 
+            && weaponDefinition.GetDataListItem<FSoftObjectPath[]>("WeaponMaterialOverrides") is { } materialOverrides)
+        {
+            var slot = 0;
+            foreach (var materialOverridePath in materialOverrides)
+            {
+                var materialOverride = materialOverridePath.Load<UMaterialInterface>();
+                targetMesh.OverrideMaterials.AddIfNotNull(Material(materialOverride, slot));
+                slot++;
+            }
+        }
 
         return exportWeapons;
     }
@@ -247,6 +259,8 @@ public class ExportContext
 
         var skeletalMesh = weaponDefinition.GetOrDefault<USkeletalMesh?>("WeaponMeshOverride");
         skeletalMesh ??= weaponDefinition.GetOrDefault<USkeletalMesh?>("PickupSkeletalMesh");
+        skeletalMesh ??= weaponDefinition.GetDataListItem<USkeletalMesh?>("WeaponMeshOverride");
+        skeletalMesh ??= weaponDefinition.GetDataListItem<USkeletalMesh?>("PickupSkeletalMesh");
         exportWeapons.AddIfNotNull(skeletalMesh);
 
         var offhandSkeletalMesh = weaponDefinition.GetOrDefault<USkeletalMesh?>("WeaponMeshOffhandOverride");

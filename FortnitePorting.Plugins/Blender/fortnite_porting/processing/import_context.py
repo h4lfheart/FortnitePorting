@@ -37,7 +37,7 @@ class ImportContext:
 
         ensure_blend_data()
 
-        #pyperclip.copy(json.dumps(data))
+        pyperclip.copy(json.dumps(data))
 
         import_type = EPrimitiveExportType(data.get("PrimitiveType"))
         match import_type:
@@ -65,7 +65,7 @@ class ImportContext:
         
         self.collection = create_or_get_collection(self.name) if self.options.get("ImportIntoCollection") else bpy.context.scene.collection
 
-        if self.type in [EExportType.OUTFIT, EExportType.BACKPACK, EExportType.FALL_GUYS_OUTFIT]:
+        if self.type in [EExportType.OUTFIT, EExportType.BACKPACK, EExportType.PICKAXE, EExportType.FALL_GUYS_OUTFIT]:
             target_meshes = data.get("OverrideMeshes")
             normal_meshes = data.get("Meshes")
             for mesh in normal_meshes:

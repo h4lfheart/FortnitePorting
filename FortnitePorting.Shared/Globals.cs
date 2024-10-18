@@ -9,11 +9,7 @@ namespace FortnitePorting.Shared;
 public static class Globals
 {
     public static string VersionString => Version.GetDisplayString(EVersionStringType.IdentifierPrefix);
-#if DEBUG
-    public static readonly FPVersion Version = new(3, 0, 0, 0);
-#else
-    public static readonly FPVersion Version = new(3, 3, 5, 0, "beta");
-#endif
+    public static readonly FPVersion Version = new(3, 0, 0, 0, "rc1");
     
     public static readonly FilePickerFileType MappingsFileType = new("Unreal Mappings") { Patterns = [ "*.usmap" ] };
     public static readonly FilePickerFileType JSONFileType = new("JSON") { Patterns = [ "*.json" ] };

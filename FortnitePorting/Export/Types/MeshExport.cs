@@ -9,6 +9,7 @@ using CUE4Parse.UE4.Assets.Exports.Component.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Component.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
+using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.Math;
@@ -528,5 +529,12 @@ public class MeshExport : BaseExport
 
         var variantParameters = style.GetOrDefault("VariantMaterialParams", Array.Empty<FStructFallback>());
         foreach (var parameters in variantParameters) OverrideParameters.AddIfNotNull(Exporter.OverrideParameters(parameters));
+        
+        var variantMeshes = style.GetOrDefault("VariantMeshes", Array.Empty<FStructFallback>());
+        foreach (var mesh in variantMeshes)
+        {
+            var overrideMesh = mesh.GetOrDefault<USkeletalMesh>("OverrideMesh");
+            OverrideMeshes.AddIfNotNull(Exporter.Mesh(overrideMesh));
+        }
     }
 }

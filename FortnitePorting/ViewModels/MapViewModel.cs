@@ -363,7 +363,6 @@ public partial class WorldPartitionMap : ObservableObject
     [RelayCommand]
     public async Task Export()
     {
-        // TODO obtain landscape chunks from main world
         var worlds = new List<UObject>();
         foreach (var map in SelectedMaps)
         {
