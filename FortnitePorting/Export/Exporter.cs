@@ -87,7 +87,6 @@ public static class Exporter
             return CreateExport(asset.CreationData.DisplayName, asset.CreationData.Object, exportType, styles,
                 metaData);
         }), metaData);
-        
     }
     
     public static async Task Export(List<KeyValuePair<UObject, EExportType>> assets, ExportDataMeta metaData)
@@ -184,6 +183,7 @@ public static class Exporter
         AppWM.CloseMessage(id: path);
         metaData.UpdateProgress -= updateDelegate;
 
+        GC.Collect();
         return export;
     }
 }
