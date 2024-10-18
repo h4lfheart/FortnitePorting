@@ -30,6 +30,7 @@ class ImportContext:
         self.imported_meshes = []
         self.full_vertex_crunch_materials = []
         self.partial_vertex_crunch_materials = {}
+        self.add_toon_outline = False
 
         if bpy.context.mode != "OBJECT":
             bpy.ops.object.mode_set(mode='OBJECT')
@@ -95,6 +96,17 @@ class ImportContext:
                 vertex_crunch_modifier = master_mesh.modifiers.new("FP Full Vertex Crunch", type="NODES")
                 vertex_crunch_modifier.node_group = bpy.data.node_groups.get("FP Full Vertex Crunch")
                 set_geo_nodes_param(vertex_crunch_modifier, "Material", material)
+
+            if self.add_toon_outline:
+                master_mesh.data.materials.append(bpy.data.materials.get("M_FP_Outline"))
+
+                solidify = master_mesh.modifiers.new(name="Outline", type='SOLIDIFY')
+                solidify.thickness = 0.001
+                solidify.offset = 1
+                solidify.thickness_clamp = 5.0
+                solidify.use_rim = False
+                solidify.use_flip_normals = True
+                solidify.material_offset = len(master_mesh.data.materials) - 1
                 
             if rig_type == ERigType.TASTY:
                 create_tasty_rig(self, master_skeleton, TastyRigOptions(scale=self.scale, use_dynamic_bone_shape=self.options.get("UseDynamicBoneShape")))
@@ -1096,6 +1108,7 @@ class ImportContext:
                 
             case "FP Toon":
                 set_param("Brightness", self.options.get("ToonShadingBrightness"))
+                self.add_toon_outline = True
             
             case "FP 3L Eyes":
                 pre_eye_node = nodes.new(type="ShaderNodeGroup")
