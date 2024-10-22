@@ -967,6 +967,15 @@ class ImportContext:
                     diffuse_node = shader_node.inputs["Diffuse"].links[0].from_node
                     links.new(diffuse_node.outputs[0], shader_node.inputs["Emission Multiplier"])
 
+                if get_param(switches, "Use Engine Colorized GMap"):
+                    gmap_node = nodes.new(type="ShaderNodeGroup")
+                    gmap_node.node_tree = bpy.data.node_groups.get(".FP GMap Material")
+                    gmap_node.location = -1100, -69
+                    if len(shader_node.inputs["Diffuse"].links) > 0:
+                        nodes.remove(shader_node.inputs["Diffuse"].links[0].from_node)
+                    links.new(gmap_node.outputs[0], shader_node.inputs[0])
+                    setup_params(gmap_material_mappings, gmap_node)
+
                 if get_param(switches, "useGmapGradientLayers"):
                     gradient_node = nodes.new(type="ShaderNodeGroup")
                     gradient_node.node_tree = bpy.data.node_groups.get("FP Gradient")
@@ -974,9 +983,10 @@ class ImportContext:
                     nodes.remove(shader_node.inputs["Diffuse"].links[0].from_node)
                     links.new(gradient_node.outputs[0], shader_node.inputs[0])
 
-                    gmap_node = nodes.new("ShaderNodeValue")
-                    gmap_node.location = -1000, -120
-                    gmap_node.outputs[0].default_value = 0.5
+                    gmap_node = nodes.new(type="ShaderNodeGroup")
+                    gmap_node.node_tree = bpy.data.node_groups.get(".FP GMap")
+                    gmap_node.location = -1120, -240
+                    setup_params(gmap_mappings, gmap_node, False)
 
                     setup_params(gradient_mappings, gradient_node)
 
