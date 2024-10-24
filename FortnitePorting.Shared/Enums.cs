@@ -182,7 +182,10 @@ public enum EExportType
     Animation,
     
     [Description("Sound"), Export(EPrimitiveExportType.Sound)]
-    Sound
+    Sound,
+    
+    [Description("Font"), Export(EPrimitiveExportType.Font)]
+    Font
 }
 
 public enum EPrimitiveExportType
@@ -197,7 +200,10 @@ public enum EPrimitiveExportType
     Texture,
     
     [Description("Sound")]
-    Sound
+    Sound,
+    
+    [Description("Font")]
+    Font
 }
 
 public enum EAssetSortType

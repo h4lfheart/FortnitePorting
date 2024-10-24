@@ -66,6 +66,7 @@ class EExportType(IntEnum):
     TEXTURE = auto()
     ANIMATION = auto()
     SOUND = auto()
+    FONT = auto()
 
 
 class EPrimitiveExportType(IntEnum):
@@ -73,6 +74,7 @@ class EPrimitiveExportType(IntEnum):
     ANIMATION = auto()
     TEXTURE = auto()
     SOUND = auto()
+    FONT = auto()
 
 
 class EFortCustomPartType(IntEnum):

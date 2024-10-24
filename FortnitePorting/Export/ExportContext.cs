@@ -16,6 +16,7 @@ using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.Component;
 using CUE4Parse.UE4.Assets.Exports.Component.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Component.StaticMesh;
+using CUE4Parse.UE4.Assets.Exports.Engine.Font;
 using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.Material.Editor;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
@@ -1133,7 +1134,8 @@ public class ExportContext
                 ESoundFormat.OGG => "ogg",
                 ESoundFormat.FLAC => "flac",
             },
-            ALandscapeProxy => "uemodel"
+            ALandscapeProxy => "uemodel",
+            UFontFace => "ttf"
         };
 
         var path = GetExportPath(asset, extension, embeddedAsset, excludeGamePath: Meta.CustomPath is not null);
@@ -1275,6 +1277,15 @@ public class ExportContext
                 model.Save(archive);
 
                 File.WriteAllBytes(path, archive.GetBuffer());
+                break;
+            }
+            case UFontFace fontFace:
+            {
+                if (!CUE4ParseVM.Provider.TrySavePackage(fontFace.GetPathName().SubstringBeforeLast(".") + ".ufont",
+                        out var assets) || assets.Count == 0) break;
+
+                var fontData = assets.First().Value;
+                File.WriteAllBytes(path, fontData);
                 break;
             }
         }

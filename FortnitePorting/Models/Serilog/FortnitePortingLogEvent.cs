@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Serilog.Events;
@@ -40,5 +41,15 @@ public partial class FortnitePortingLogEvent : ObservableObject
         Message = logEvent.RenderMessage();
         Timestamp = logEvent.Timestamp;
         Level = logEvent.Level;
+
+        var messageBuilder = new StringBuilder();
+        messageBuilder.Append(logEvent.RenderMessage());
+        if (logEvent.Exception is { } exception)
+        {
+            messageBuilder.Append('\n');
+            messageBuilder.Append(exception);
+        }
+
+        Message = messageBuilder.ToString();
     }
 }

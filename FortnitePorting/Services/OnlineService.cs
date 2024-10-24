@@ -376,10 +376,10 @@ public static class OnlineService
                         }
                     }
                     
-                    var isPing = messagePacket.Message.Contains("@everyone") && user.HasPermission(EPermissions.Staff) 
+                    var messageUser = GetArgument<Identification>("User")!;
+                    var isPing = messagePacket.Message.Contains("@everyone") && messageUser.HasPermission(EPermissions.Staff) 
                                  || messagePacket.Message.Contains($"@{AppSettings.Current.Online.GlobalName}");
                     
-                    var messageUser = GetArgument<Identification>("User")!;
                     messages.InsertSorted(new ChatMessage
                     {
                         User = new ChatUser

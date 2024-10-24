@@ -52,6 +52,9 @@ class ImportContext:
             case EPrimitiveExportType.SOUND:
                 self.import_sound_data(data)
                 pass
+            case EPrimitiveExportType.FONT:
+                self.import_font_data(data)
+                pass
 
     def import_mesh_data(self, data):
         rig_type = ERigType(self.options.get("RigType"))
@@ -186,25 +189,26 @@ class ImportContext:
                 bpy.ops.object.mode_set(mode='OBJECT')
                 bpy.context.view_layer.objects.active = imported_object
 
-            if (override_vertex_colors := mesh.get("OverrideVertexColors")) and len(override_vertex_colors) > 0:
-                imported_mesh.data = imported_mesh.data.copy()
-                vertex_color = imported_mesh.data.color_attributes.new(
-                    domain="CORNER",
-                    type="BYTE_COLOR",
-                    name="INSTCOL0",
-                )
-    
-                color_data = []
-                for col in override_vertex_colors:
-                    color_data.append((col["R"], col["G"], col["B"], col["A"]))
-    
-                for polygon in imported_mesh.data.polygons:
-                    for vertex_index, loop_index in zip(polygon.vertices, polygon.loop_indices):
-                        if vertex_index >= len(color_data):
-                            continue
-                            
-                        color = color_data[vertex_index]
-                        vertex_color.data[loop_index].color = color[0] / 255, color[1] / 255, color[2] / 255, color[3] / 255
+        if (override_vertex_colors := mesh.get("OverrideVertexColors")) and len(override_vertex_colors) > 0:
+            imported_mesh.data = imported_mesh.data.copy()
+
+            vertex_color = imported_mesh.data.color_attributes.new(
+                domain="CORNER",
+                type="BYTE_COLOR",
+                name="INSTCOL0",
+            )
+
+            color_data = []
+            for col in override_vertex_colors:
+                color_data.append((col["R"], col["G"], col["B"], col["A"]))
+
+            for polygon in imported_mesh.data.polygons:
+                for vertex_index, loop_index in zip(polygon.vertices, polygon.loop_indices):
+                    if vertex_index >= len(color_data):
+                        continue
+                        
+                    color = color_data[vertex_index]
+                    vertex_color.data[loop_index].color = color[0] / 255, color[1] / 255, color[2] / 255, color[3] / 255
 
         imported_object.parent = parent
         imported_object.rotation_euler = make_euler(mesh.get("Rotation"))
@@ -1303,3 +1307,12 @@ class ImportContext:
         anim = UEFormatImport(options).import_file(anim_path)
         anim["Skeleton"] = override_skeleton.name
         return anim
+    
+    def import_font_data(self, data):
+        self.import_font(data.get("Path"))
+        
+    def import_font(self, path: str):
+        path = path[1:] if path.startswith("/") else path
+        file_path, name = path.split(".")
+        font_path = os.path.join(self.assets_root, file_path + ".ttf")
+        bpy.ops.font.open(filepath=font_path, check_existing=True)

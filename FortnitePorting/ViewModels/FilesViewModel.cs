@@ -369,7 +369,7 @@ public partial class FilesViewModel : ViewModelBase
 
     private bool IsValidFilePath(string path)
     {
-        var isValidExtension = path.EndsWith(".uasset") || path.EndsWith(".umap");
+        var isValidExtension = path.EndsWith(".uasset") || path.EndsWith(".umap") || path.EndsWith(".ufont");
         var isOptionalSegment = path.Contains(".o.");
         var isEngine = path.StartsWith("Engine", StringComparison.OrdinalIgnoreCase);
         var isVerse = path.Contains("/_Verse/");

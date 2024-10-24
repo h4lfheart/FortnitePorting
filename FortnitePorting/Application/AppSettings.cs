@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using FortnitePorting.ViewModels;
 using Newtonsoft.Json;
+using Serilog;
 
 namespace FortnitePorting.Application;
 
@@ -14,13 +15,31 @@ public class AppSettings
 
     public static void Load()
     {
-        if (!DirectoryPath.Exists) DirectoryPath.Create();
-        if (!FilePath.Exists) return;
-        Current = JsonConvert.DeserializeObject<SettingsViewModel>(File.ReadAllText(FilePath.FullName)) ?? new SettingsViewModel();
+        try
+        {
+            if (!DirectoryPath.Exists) DirectoryPath.Create();
+            if (!FilePath.Exists) return;
+            Current = JsonConvert.DeserializeObject<SettingsViewModel>(File.ReadAllText(FilePath.FullName)) ??
+                      new SettingsViewModel();
+        }
+        catch (Exception e)
+        {
+            Log.Error("Failed to load settings:");
+            Log.Error(e.ToString());
+        }
     }
 
     public static void Save()
     {
-        File.WriteAllText(FilePath.FullName, JsonConvert.SerializeObject(Current, Formatting.Indented));
+        try
+        {
+            
+            File.WriteAllText(FilePath.FullName, JsonConvert.SerializeObject(Current, Formatting.Indented));
+        }
+        catch (Exception e)
+        {
+            Log.Error("Failed to save settings:");
+            Log.Error(e.ToString());
+        }
     }
 }

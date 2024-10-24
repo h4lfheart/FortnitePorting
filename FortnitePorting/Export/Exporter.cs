@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using CUE4Parse_Conversion.Animations;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Animation;
+using CUE4Parse.UE4.Assets.Exports.Engine.Font;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
@@ -120,6 +121,7 @@ public static class Exporter
             USoundCue => EExportType.Sound,
             UAnimSequence => EExportType.Animation,
             UAnimMontage => EExportType.Animation,
+            UFontFace => EExportType.Font,
             _ => EExportType.None
         };
 
@@ -177,6 +179,7 @@ public static class Exporter
             EPrimitiveExportType.Texture => new TextureExport(name, asset, styles, exportType, metaData),
             EPrimitiveExportType.Sound => new SoundExport(name, asset, styles, exportType, metaData),
             EPrimitiveExportType.Animation => new AnimExport(name, asset, styles, exportType, metaData),
+            EPrimitiveExportType.Font => new FontExport(name, asset, styles, exportType, metaData),
             _ => throw new NotImplementedException($"Exporting {primitiveType} assets is not supported yet.")
         };
         
