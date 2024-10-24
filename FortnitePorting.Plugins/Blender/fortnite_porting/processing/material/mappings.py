@@ -269,6 +269,8 @@ toon_mappings = MappingCollection(
         SlotMapping("InkLineColor", "InkLineColor_Texture"),
         SlotMapping("Color_Lit", "LitDiffuse"),
         SlotMapping("Color_Shaded", "ShadedDiffuse"),
+        SlotMapping("SpecularTint"),
+        SlotMapping("Specular Tint", "SpecularTint"),
     ]
 )
 
@@ -419,6 +421,12 @@ gradient_mappings = MappingCollection(
     ]
 )
 
+gmap_mappings = MappingCollection(
+    textures=[
+        SlotMapping("M")
+    ]
+)
+
 bean_base_mappings = MappingCollection(
     textures=[
         SlotMapping("Body_Pattern", coords="UV1"),
@@ -472,6 +480,65 @@ bean_head_costume_mappings = MappingCollection(
         SlotMapping("Head_Costume_SecondaryMaterialProps", "Costume_SecondaryMaterialProps"),
         SlotMapping("Head_Costume_AccentColor", "Costume_AccentColor"),
         SlotMapping("Head_Costume_AccentMaterialProps", "Costume_AccentMaterialProps"),
+    ]
+)
+
+gmap_material_mappings = MappingCollection(
+    textures=[
+        SlotMapping("Diffuse"),
+        SlotMapping("M"),
+        SlotMapping("Color Mask 1"),
+        SlotMapping("Color Mask 2"),
+        SlotMapping("Color Mask 3"),
+        SlotMapping("ColorVariety/Scratch/Dirt Mask"),
+    ],
+    vectors=[
+        SlotMapping("Base Color: Color A"),
+        SlotMapping("Base Color: Color B"),
+        SlotMapping("Base Color: Color C"),
+        SlotMapping("Color Mask 1-R: Color A"),
+        SlotMapping("Color Mask 1-R: Color B"),
+        SlotMapping("Color Mask 1-R: Color C"),
+        SlotMapping("Color Mask 1-G: Color A"),
+        SlotMapping("Color Mask 1-G: Color B"),
+        SlotMapping("Color Mask 1-G: Color C"),
+        SlotMapping("Color Mask 1-B: Color A"),
+        SlotMapping("Color Mask 1-B: Color B"),
+        SlotMapping("Color Mask 1-B: Color C"),
+        SlotMapping("Color Mask 2-R: Color A"),
+        SlotMapping("Color Mask 2-R: Color B"),
+        SlotMapping("Color Mask 2-R: Color C"),
+        SlotMapping("Color Mask 2-G: Color A"),
+        SlotMapping("Color Mask 2-G: Color B"),
+        SlotMapping("Color Mask 2-G: Color C"),
+        SlotMapping("Color Mask 2-B: Color A"),
+        SlotMapping("Color Mask 2-B: Color B"),
+        SlotMapping("Color Mask 2-B: Color C"),
+        SlotMapping("Color Mask 3-R: Color A"),
+        SlotMapping("Color Mask 3-R: Color B"),
+        SlotMapping("Color Mask 3-R: Color C"),
+        SlotMapping("Color Mask 3-G: Color A"),
+        SlotMapping("Color Mask 3-G: Color B"),
+        SlotMapping("Color Mask 3-G: Color C"),
+        SlotMapping("Color Mask 3-B: Color A"),
+        SlotMapping("Color Mask 3-B: Color B"),
+        SlotMapping("Color Mask 3-B: Color C"),
+        SlotMapping("Color Variety Mask: Color A"),
+        SlotMapping("Color Variety Mask: Color B"),
+        SlotMapping("Color Variety Mask: Color C"),
+        SlotMapping("Scratch Color A"),
+        SlotMapping("Scratch Color B"),
+        SlotMapping("Dirt Color A"),
+        SlotMapping("Dirt Color B"),
+    ],
+    scalars=[
+        SlotMapping("Color Variety Mask: Opacity"),
+    ],
+    switches=[
+        SlotMapping("Use Diffuse as Base Color"),
+        SlotMapping("Uses 2+ Color Masks"),
+        SlotMapping("Uses 3 Color Masks"),
+        SlotMapping("Uses ColorVariety/Scratch/Dirt Mask")
     ]
 )
 
