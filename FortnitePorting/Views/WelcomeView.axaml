@@ -159,7 +159,7 @@
                         </ListBox>
                     </Grid>
                 </ui:SettingsExpander>
-                <ui:SettingsExpander Header="Mappings File" Description="The mappings file required for asset parsing to work properly. Required for Fortnite v14.30+" IsEnabled="{Binding Profile.MappingsFileEnabled}">
+                <ui:SettingsExpander Header="Mappings File" Description="The mappings file required for asset parsing to work properly. Required for Fortnite v14.40+" IsEnabled="{Binding Profile.MappingsFileEnabled}">
                     <ui:SettingsExpander.Footer>
                         <StackPanel Orientation="Horizontal">
                             <CheckBox IsChecked="{Binding Profile.UseMappingsFile}"/>

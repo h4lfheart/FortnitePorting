@@ -72,7 +72,7 @@ public partial class InstallationProfile : ObservableValidator
     
     public async Task BrowseMappingsFile()
     {
-        if (await BrowseFileDialog(fileTypes: Globals.MappingsFileType) is { } path)
+        if (await BrowseFileDialog(fileTypes: Globals.MappingsFileType, suggestedFileName: MappingsFile) is { } path)
         {
             MappingsFile = path;
         }
@@ -112,7 +112,12 @@ public partial class InstallationProfile : ObservableValidator
         var mappingsFilePath = Path.Combine(DataFolder.FullName, targetMappings.Filename);
         if (!File.Exists(mappingsFilePath))
         {
-            await ApiVM.DownloadFileAsync(targetMappings.URL, mappingsFilePath);    
+            var downloadedMappingsInfo = await ApiVM.DownloadFileAsync(targetMappings.URL, mappingsFilePath);
+            if (!downloadedMappingsInfo.Exists)
+            {
+                AppWM.Message("Fetch Mappings", $"Unsuccessfully downloaded mappings for v{FetchMappingsVersion}", InfoBarSeverity.Error);
+                return;
+            }
         }
         
         MappingsFile = mappingsFilePath;

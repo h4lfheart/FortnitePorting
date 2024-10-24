@@ -387,7 +387,7 @@ class UEFormatImport:
 
                 # bone colors
                 for bone in template_armature_object.pose.bones:
-                    if bone.children and len(bone.children) == 0:
+                    if not bone.children or len(bone.children) == 0:
                         bone.color.palette = "THEME03"
 
                 # socket colors
@@ -439,7 +439,7 @@ class UEFormatImport:
                         bone.color.palette = "THEME14"
                         continue
 
-                    if bone.children and len(bone.children) == 0:
+                    if not bone.children or len(bone.children) == 0:
                         bone.color.palette = "THEME03"
 
                 # socket colors

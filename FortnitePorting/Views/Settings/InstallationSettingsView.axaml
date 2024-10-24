@@ -158,11 +158,11 @@
                     </ListBox>
                 </Grid>
             </ui:SettingsExpander>
-            <ui:SettingsExpander Header="Mappings File" Description="The mappings file required for asset parsing to work properly. Required for Fortnite v14.30+" IsEnabled="{Binding CurrentProfile.MappingsFileEnabled}">
+            <ui:SettingsExpander Header="Mappings File" Description="The mappings file required for asset parsing to work properly. Required for Fortnite v14.40+" IsEnabled="{Binding CurrentProfile.MappingsFileEnabled}">
                 <ui:SettingsExpander.Footer>
                     <StackPanel Orientation="Horizontal">
                         <CheckBox IsChecked="{Binding CurrentProfile.UseMappingsFile}"/>
-                        <TextBox Text="{Binding CurrentProfile.MappingsFile}" 
+                        <TextBox Text="{Binding CurrentProfile.MappingsFile, Mode=TwoWay}" 
                                  Watermark="Ex. C:/Users/FortnitePorting/Downloads/Mappings.usmap" 
                                  IsEnabled="{Binding CurrentProfile.UseMappingsFile}"
                                  MaxWidth="500"/>

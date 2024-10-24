@@ -16,6 +16,12 @@ public class HybridFileProvider : AbstractVfsFileProvider
     private readonly IEnumerable<DirectoryInfo> ExtraDirectories;
     private const bool CaseInsensitive = true;
     private const SearchOption SearchOption = System.IO.SearchOption.AllDirectories;
+    
+    private static readonly EnumerationOptions EnumerationOptions = new()
+    {
+        RecurseSubdirectories = SearchOption == SearchOption.AllDirectories,
+        IgnoreInaccessible = true,
+    };
 
     public HybridFileProvider(VersionContainer? version = null, bool isOptionalLoader = false)  : base(CaseInsensitive, version)
     {
@@ -48,7 +54,7 @@ public class HybridFileProvider : AbstractVfsFileProvider
 
     public void RegisterFiles(DirectoryInfo directory)
     {
-        foreach (var file in directory.EnumerateFiles("*.*", SearchOption))
+        foreach (var file in directory.EnumerateFiles("*.*", EnumerationOptions))
         {
             var extension = file.Extension.SubstringAfter('.').ToLower();
             if (extension is not ("pak" or "utoc")) continue;

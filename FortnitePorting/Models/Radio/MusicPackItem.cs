@@ -74,6 +74,9 @@ public partial class MusicPackItem : ObservableObject
             {
                 var typeName = input.Get<FName>("TypeName");
                 if (!typeName.Text.Equals("WaveAsset")) continue;
+                
+                var name = input.Get<FName>("Name");
+                if (!name.Text.Equals("Loop")) continue;
 
                 var defaultLiteral = input.Get<FStructFallback>("DefaultLiteral");
                 SoundWave = defaultLiteral.Get<FPackageIndex[]>("AsUObject").First();
