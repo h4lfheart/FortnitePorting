@@ -283,7 +283,17 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
     
     public async Task<OnlineResponse?> GetOnlineStatusAsync()
     {
+#if DEBUG
+        return new OnlineResponse
+        {
+            Chat = true,
+            Canvas = true,
+            Leaderboard = true,
+            Voting = true
+        };
+#else
         return await ExecuteAsync<OnlineResponse>(ONLINE_URL);
+#endif
     }
 
     public OnlineResponse? GetOnlineStatus()

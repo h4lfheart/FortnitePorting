@@ -26,4 +26,5 @@ public enum EPacketType
     // Place
     PlaceCanvasInfo,
     PlacePixel,
+    PlaceStatusInfo,
 }

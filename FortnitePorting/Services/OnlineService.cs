@@ -420,8 +420,19 @@ public static class OnlineService
 
             case EPacketType.PlacePixel:
             {
+                if (!AppWM.IsInView<CanvasView>()) break;
+                if (CanvasVM?.Bitmap is null) break;
+                
                 var packet = e.Data.ReadPacket<PlacePixelPacket>();
                 var targetPixel = packet.Pixel;
+                
+                CanvasVM.Pixels.Add(new CanvasPixel
+                {
+                    X = targetPixel.X,
+                    Y = targetPixel.Y,
+                    Color = new Color(255, targetPixel.R, targetPixel.G, targetPixel.B),
+                    Name = targetPixel.Name
+                });
 
                 var color = new Color(byte.MaxValue, targetPixel.R, targetPixel.G, targetPixel.B);
                 
@@ -443,42 +454,51 @@ public static class OnlineService
             }
             case EPacketType.PlaceCanvasInfo:
             {
-                var packet = e.Data.ReadPacket<PlaceInfoPacket>();
+                var packet = e.Data.ReadPacket<PlaceCanvasInfoPacket>();
 
                 CanvasVM.X = packet.X;
                 CanvasVM.Y = packet.Y;
-
                 
-                CanvasVM.Bitmap = new WriteableBitmap(new PixelSize(CanvasVM.X, CanvasVM.Y), new Vector(96, 96), PixelFormat.Rgba8888, AlphaFormat.Opaque);
-        
-                using (var framebuffer = CanvasVM.Bitmap.Lock())
+                var bitmap = new WriteableBitmap(new PixelSize(CanvasVM.X, CanvasVM.Y), new Vector(96, 96), PixelFormat.Rgba8888, AlphaFormat.Opaque);
+                using (var framebuffer = bitmap.Lock())
                 {
                     unsafe
                     {
+                        var width = packet.X;
+                        var height = packet.Y;
                         var buffer = framebuffer.Address;
-                        var ptr = (int*) buffer.ToPointer();
-            
-                        for (ushort x = 0; x < CanvasVM.X; x++)
+
+                        var pixelPtr = (int*) buffer;
+                        for (var i = 0; i < width * height; i++)
                         {
-                            for (ushort y = 0; y < CanvasVM.Y; y++)
+                            pixelPtr[i] = int.MaxValue;
+                        }
+                        
+                        foreach (var pixel in packet.Pixels)
+                        {
+                            CanvasVM.Pixels.Add(new CanvasPixel
                             {
-                                int foundColor;
-                                if (packet.Pixels.FirstOrDefault(pixel => pixel.X == x && pixel.Y == y) is { } foundPixel)
-                                {
-                                    foundColor = (byte.MaxValue << 24) | (foundPixel.B << 16) | (foundPixel.G << 8) | foundPixel.R;
-                                }
-                                else
-                                {
-                                    foundColor = int.MaxValue;
-                                }
-                                var offset = y * CanvasVM.X + x;
-                                ptr[offset] = foundColor;
-                            }
+                                X = pixel.X,
+                                Y = pixel.Y,
+                                Name = pixel.Name
+                            });
+
+                            var offset = pixel.Y * width + pixel.X;
+                            pixelPtr[offset] = (byte.MaxValue << 24) | (pixel.B << 16) | (pixel.G << 8) | pixel.R;
                         }
                     }
                 }
-                
+
+                CanvasVM.Bitmap = bitmap;
                 await TaskService.RunDispatcherAsync(CanvasVM.BitmapSource.InvalidateVisual);
+                
+                break;
+            }
+            case EPacketType.PlaceStatusInfo:
+            {
+                var packet = e.Data.ReadPacket<PlaceStatusInfoPacket>();
+
+                CanvasVM.NextPlacementTime = packet.NextPixelTime;
                 
                 break;
             }

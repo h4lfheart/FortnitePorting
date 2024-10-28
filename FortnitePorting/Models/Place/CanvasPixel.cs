@@ -10,6 +10,7 @@ public partial class CanvasPixel : ObservableObject
     [ObservableProperty, NotifyPropertyChangedFor(nameof(OffsetMargin))] private ushort _x;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(OffsetMargin))] private ushort _y;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(OffsetMargin))] private ushort _size = 15;
+    [ObservableProperty] private string _name;
 
     [ObservableProperty, NotifyPropertyChangedFor(nameof(Brush))] private Color _color;
 

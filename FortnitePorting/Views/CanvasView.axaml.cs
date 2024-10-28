@@ -55,9 +55,32 @@ public partial class CanvasView : ViewBase<CanvasViewModel>
         var cursorPoint = e.GetCurrentPoint(CanvasViewBox);
         var xSnap = CanvasViewBox.Bounds.Width / CanvasVM.X;
         var ySnap = CanvasViewBox.Bounds.Width / CanvasVM.Y;
+
+        var xPixel = (int) (cursorPoint.Position.X / xSnap);
+        var yPixel = (int)(cursorPoint.Position.Y / ySnap);
         
-        var pixelPos = new Point((int) (cursorPoint.Position.X / xSnap) * xSnap, 
-            (int) (cursorPoint.Position.Y / ySnap) * ySnap);
+        var pixelPos = new Point(xPixel * xSnap, yPixel * ySnap);
+        
+        if (ViewModel.ShowPixelAuthors && ViewModel.Pixels.ToArray().FirstOrDefault(pixel => pixel.X == xPixel && pixel.Y == yPixel) is
+            { } existingPixel && !string.IsNullOrWhiteSpace(existingPixel.Name))
+        {
+            var popupParentPos = e.GetCurrentPoint(PopupParent);
+            ViewModel.PopupName = existingPixel.Name;
+            NamePopup.IsOpen = true;
+            NamePopup.HorizontalOffset = popupParentPos.Position.X - PopupParent.Bounds.Width / 2;
+            NamePopup.VerticalOffset = popupParentPos.Position.Y - PopupParent.Bounds.Height / 2 + 30;
+        }
+        else
+        {
+            NamePopup.IsOpen = false;
+        }
+        
+        if (!ViewModel.ReadyToPlace)
+        {
+            HighlightCell.IsVisible = false;
+            return;
+        }
+        
 
         HighlightCell.RenderTransform = new TranslateTransform(pixelPos.X - CanvasViewBox.Bounds.Width / 2 + xSnap / 2, 
             pixelPos.Y - CanvasViewBox.Bounds.Height / 2 + ySnap / 2);
@@ -67,11 +90,13 @@ public partial class CanvasView : ViewBase<CanvasViewModel>
     
     private void OnPointerEntered(object? sender, PointerEventArgs e)
     {
+        if (!ViewModel.ReadyToPlace) return;
         HighlightCell.IsVisible = true;
     }
     
     private void OnPointerExited(object? sender, PointerEventArgs e)
     {
+        if (!ViewModel.ReadyToPlace) return;
         HighlightCell.IsVisible = false;
     }
 

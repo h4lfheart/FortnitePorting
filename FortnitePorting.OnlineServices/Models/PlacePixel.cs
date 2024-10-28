@@ -8,17 +8,7 @@ public class PlacePixel() : IDualSerialize
     public byte R { get; set; }
     public byte G { get; set; }
     public byte B { get; set; }
-
-    public PlacePixel(ushort x, ushort y, byte r, byte g, byte b) : this()
-    {
-        DatabaseUniqueIdentifier = $"{x},{y}";
-        
-        X = x;
-        Y = y;
-        R = r;
-        G = g;
-        B = b;
-    }
+    public string Name { get; set; }
         
     public void Serialize(BinaryWriter writer)
     {
@@ -27,6 +17,7 @@ public class PlacePixel() : IDualSerialize
         writer.Write(R);
         writer.Write(G);
         writer.Write(B);
+        writer.Write(Name ?? string.Empty);
     }
 
     public void Deserialize(BinaryReader reader)
@@ -36,5 +27,6 @@ public class PlacePixel() : IDualSerialize
         R = reader.ReadByte();
         G = reader.ReadByte();
         B = reader.ReadByte();
+        Name = reader.ReadString();
     }
 }

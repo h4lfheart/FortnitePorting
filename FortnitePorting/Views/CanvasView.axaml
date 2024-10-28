@@ -27,7 +27,7 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         
-        <Grid Grid.Column="0">
+        <Grid Grid.Column="0" x:Name="PopupParent">
             <ScrollViewer HorizontalScrollBarVisibility="Auto">
                 <Grid>
                     <Viewbox x:Name="CanvasViewBox" Width="600" Height="600">
@@ -47,6 +47,18 @@
                 <Button Classes="ZoomButton" Content="−" Margin="{ext:Space 0, 0, 1, 0}" Click="ZoomOut"/>
                 <Button Classes="ZoomButton" Content="+" Click="ZoomIn"/>
             </StackPanel>
+            
+            
+            <TextBlock Text="{Binding TimeUntilNextPlacement, StringFormat='Next Pixel in {0:ss}s', FallbackValue='00:00'}" 
+                       IsVisible="{Binding !ReadyToPlace}" Classes="SubtitleTextBlockStyle"
+                       HorizontalAlignment="Center" VerticalAlignment="Top" Margin="{ext:Space 0, 1, 0, 0}"/>
+            
+            <Popup x:Name="NamePopup" Placement="Center" IsHitTestVisible="False">
+                <ui:FABorder Padding="{ext:Space 1}" Background="#2c2c2c">
+                    <TextBlock Text="{Binding PopupName, StringFormat='Placed by {0}'}"/>
+                </ui:FABorder>
+            </Popup>
+            
         </Grid>
         
         <ui:FABorder Grid.Column="2" Background="#22000000" CornerRadius="0">
@@ -56,6 +68,8 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="{ext:Space 1}"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="{ext:Space 1}"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="{ext:Space 1}"/>
                     <RowDefinition Height="Auto"/>
@@ -80,6 +94,11 @@
                                  IsColorPaletteVisible="False" IsAlphaEnabled="False" IsAlphaVisible="False"/>
                 </StackPanel>
                 
+                <StackPanel Grid.Row="8" Orientation="Horizontal" HorizontalAlignment="Center">
+                    <TextBlock Text="Show Pixel Authors" Classes="BodyStrongTextBlockStyle" Margin="{ext:Space 0, 0, 1, 0}" VerticalAlignment="Center"/>
+                    <ToggleSwitch IsChecked="{Binding ShowPixelAuthors}" VerticalAlignment="Center"
+                                  OffContent="{x:Null}" OnContent="{x:Null}"/>
+                </StackPanel>
             </Grid>
         </ui:FABorder>
     </Grid>

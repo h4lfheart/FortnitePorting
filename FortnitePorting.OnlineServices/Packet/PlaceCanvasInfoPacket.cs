@@ -3,13 +3,13 @@ using Serilog;
 
 namespace FortnitePorting.OnlineServices.Packet;
 
-public class PlaceInfoPacket() : IPacket
+public class PlaceCanvasInfoPacket() : IPacket
 {
     public ushort X;
     public ushort Y;
     public List<PlacePixel> Pixels = [];
 
-    public PlaceInfoPacket(ushort x, ushort y, List<PlacePixel> pixels) : this()
+    public PlaceCanvasInfoPacket(ushort x, ushort y, List<PlacePixel> pixels) : this()
     {
         X = x;
         Y = y;
