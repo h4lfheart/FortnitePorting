@@ -31,7 +31,8 @@
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Home}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Chat" Tag="Chat" IsEnabled="{Binding OnlineRef.UseIntegration}">
+                 <ui:NavigationViewItem Content="Chat" Tag="Chat" IsEnabled="{Binding OnlineRef.UseIntegration}"
+                                        IsVisible="{Binding OnlineStatus.Chat, FallbackValue=True}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry ChatBubble}"/>
                      </ui:NavigationViewItem.IconSource>
@@ -39,13 +40,20 @@
                          <ui:InfoBadge Value="{Binding ChatNotifications}" IsVisible="{Binding !!ChatNotifications}"/>
                      </ui:NavigationViewItem.InfoBadge>
                  </ui:NavigationViewItem>
-                 
-                 <ui:NavigationViewItem Content="Voting" Tag="Voting" IsEnabled="{Binding OnlineRef.UseIntegration}">
+                 <ui:NavigationViewItem Content="Canvas" Tag="Canvas" IsEnabled="{Binding OnlineRef.UseIntegration}"
+                                        IsVisible="{Binding OnlineStatus.Canvas, FallbackValue=True}">
+                     <ui:NavigationViewItem.IconSource>
+                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry Palette}"/>
+                     </ui:NavigationViewItem.IconSource>
+                 </ui:NavigationViewItem>
+                 <ui:NavigationViewItem Content="Voting" Tag="Voting" IsEnabled="{Binding OnlineRef.UseIntegration}"
+                                        IsVisible="{Binding OnlineStatus.Voting, FallbackValue=True}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Poll}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Leaderboard" Tag="Leaderboard" IsEnabled="{Binding OnlineAndGameTabsAreVisible}">
+                 <ui:NavigationViewItem Content="Leaderboard" Tag="Leaderboard" IsEnabled="{Binding OnlineAndGameTabsAreVisible}"
+                                        IsVisible="{Binding OnlineStatus.Leaderboard, FallbackValue=True}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Trophy}"/>
                      </ui:NavigationViewItem.IconSource>

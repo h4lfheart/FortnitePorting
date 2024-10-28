@@ -8,7 +8,7 @@ public class MetadataBuilder : IDualSerialize
 {
     private Dictionary<string, object> Arguments = [];
 
-    public MetadataBuilder WithType(EPacketType packetType)
+    public MetadataBuilder WithType(Enum packetType)
     {
         Arguments.Add("Type", packetType);
         return this;

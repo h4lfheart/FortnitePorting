@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Markup.Xaml;
+using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 using CommunityToolkit.Mvvm.Input;
 using DesktopNotifications;
 using DynamicData;
@@ -16,6 +19,7 @@ using FortnitePorting.Application;
 using FortnitePorting.Export;
 using FortnitePorting.Models.Chat;
 using FortnitePorting.Models.Leaderboard;
+using FortnitePorting.Models.Place;
 using FortnitePorting.OnlineServices.Extensions;
 using FortnitePorting.OnlineServices.Models;
 using FortnitePorting.OnlineServices.Packet;
@@ -410,6 +414,71 @@ public static class OnlineService
                 }
 
                 ChatVM.Messages = [..messages];
+                
+                break;
+            }
+
+            case EPacketType.PlacePixel:
+            {
+                var packet = e.Data.ReadPacket<PlacePixelPacket>();
+                var targetPixel = packet.Pixel;
+
+                var color = new Color(byte.MaxValue, targetPixel.R, targetPixel.G, targetPixel.B);
+                
+                using (var framebuffer = CanvasVM.Bitmap.Lock())
+                {
+                    unsafe
+                    {
+                        var buffer = framebuffer.Address;
+                        var ptr = (int*) buffer.ToPointer();
+            
+                        var offset = targetPixel.Y * CanvasVM.X + targetPixel.X;
+                        ptr[offset] = (color.A << 24) | (color.B << 16) | (color.G << 8) | color.R;
+                    }
+                }
+                
+                await TaskService.RunDispatcherAsync(CanvasVM.BitmapSource.InvalidateVisual);
+                
+                break;
+            }
+            case EPacketType.PlaceCanvasInfo:
+            {
+                var packet = e.Data.ReadPacket<PlaceInfoPacket>();
+
+                CanvasVM.X = packet.X;
+                CanvasVM.Y = packet.Y;
+
+                
+                CanvasVM.Bitmap = new WriteableBitmap(new PixelSize(CanvasVM.X, CanvasVM.Y), new Vector(96, 96), PixelFormat.Rgba8888, AlphaFormat.Opaque);
+        
+                using (var framebuffer = CanvasVM.Bitmap.Lock())
+                {
+                    unsafe
+                    {
+                        var buffer = framebuffer.Address;
+                        var ptr = (int*) buffer.ToPointer();
+            
+                        for (ushort x = 0; x < CanvasVM.X; x++)
+                        {
+                            for (ushort y = 0; y < CanvasVM.Y; y++)
+                            {
+                                int foundColor;
+                                if (packet.Pixels.FirstOrDefault(pixel => pixel.X == x && pixel.Y == y) is { } foundPixel)
+                                {
+                                    foundColor = (byte.MaxValue << 24) | (foundPixel.B << 16) | (foundPixel.G << 8) | foundPixel.R;
+                                }
+                                else
+                                {
+                                    foundColor = int.MaxValue;
+                                }
+                                var offset = y * CanvasVM.X + x;
+                                ptr[offset] = foundColor;
+                            }
+                        }
+                    }
+                }
+                
+                await TaskService.RunDispatcherAsync(CanvasVM.BitmapSource.InvalidateVisual);
                 
                 break;
             }
