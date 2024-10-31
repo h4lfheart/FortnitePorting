@@ -73,5 +73,12 @@
       <UpToDateCheckInput Remove="Assets\TimeWaster\SFX\PianoSnippets\NightNight_Music_PianoSnip_07.ogg" />
       <UpToDateCheckInput Remove="Assets\TimeWaster\SFX\PianoSnippets\NightNight_Music_PianoSnip_08.ogg" />
     </ItemGroup>
+    
+    <ItemGroup>
+      <Compile Update="Views\CanvasView.axaml.cs">
+        <DependentUpon>PlaceView.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+    </ItemGroup>
 
 </Project>

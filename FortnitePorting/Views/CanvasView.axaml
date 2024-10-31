@@ -1,0 +1,105 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
+             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+             xmlns:versions="clr-namespace:CUE4Parse.UE4.Versions;assembly=CUE4Parse"
+             xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:controls1="clr-namespace:Avalonia.Controls"
+             xmlns:wrapPanel="clr-namespace:FortnitePorting.Controls.WrapPanel"
+             xmlns:assets="clr-namespace:FortnitePorting.Models.Assets"
+             xmlns:md="https://github.com/whistyun/Markdown.Avalonia"
+             xmlns:help="clr-namespace:FortnitePorting.Models.Help"
+             xmlns:views="clr-namespace:FortnitePorting.Views"
+             xmlns:gif="clr-namespace:AvaloniaGif;assembly=AvaloniaGif"
+             d:DesignHeight="720" d:DesignWidth="1160"
+             x:Class="FortnitePorting.Views.CanvasView"
+             x:DataType="viewModels:CanvasViewModel">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3.5*"/>
+            <ColumnDefinition Width="{ext:Space 1}" />
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        
+        <Grid Grid.Column="0" x:Name="PopupParent">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto">
+                <Grid>
+                    <Viewbox x:Name="CanvasViewBox" Width="600" Height="600">
+                        <Image x:Name="BitmapImage" RenderOptions.BitmapInterpolationMode="None" Source="{Binding BitmapSource}" 
+                               HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                               PointerPressed="OnPointerPressed" PointerMoved="OnPointerMoved" 
+                               PointerEntered="OnPointerEntered" PointerExited="OnPointerExited"/>
+                    </Viewbox>
+                
+                    <Border x:Name="HighlightCell" IsVisible="False"
+                            Background="{Binding Brush}" BorderThickness="0"
+                            CornerRadius="0" IsHitTestVisible="False"/>
+                </Grid>
+            </ScrollViewer>
+            
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="{ext:Space 1}">
+                <Button Classes="ZoomButton" Content="−" Margin="{ext:Space 0, 0, 1, 0}" Click="ZoomOut"/>
+                <Button Classes="ZoomButton" Content="+" Click="ZoomIn"/>
+            </StackPanel>
+            
+            <TextBlock Text="{Binding TimeUntilNextPlacement, StringFormat='Next Pixel in {0:ss}s', FallbackValue='00:00'}" 
+                       IsVisible="{Binding !ReadyToPlace}" Classes="SubtitleTextBlockStyle"
+                       HorizontalAlignment="Center" VerticalAlignment="Top" Margin="{ext:Space 0, 1, 0, 0}"
+                       Foreground="{DynamicResource SystemAccentColor}"/>
+            
+            <Popup x:Name="NamePopup" Placement="Center">
+                <ui:FABorder Padding="{ext:Space 1}" Background="#2c2c2c" IsHitTestVisible="False">
+                    <TextBlock Text="{Binding PopupName, StringFormat='Placed by {0}'}"/>
+                </ui:FABorder>
+            </Popup>
+            
+        </Grid>
+        
+        <ui:FABorder Grid.Column="2" Background="#22000000" CornerRadius="0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="{ext:Space 1}"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="{ext:Space 1}"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="{ext:Space 1}"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="{ext:Space 1}"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="1">
+                    <Ellipse Height="104" Width="104" Fill="#2F000000"/>
+                    <Ellipse Height="104" Width="104" 
+                             StrokeThickness="5" Stroke="#00000000">
+                        <Ellipse.Fill>
+                            <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding OnlineRef.ProfilePictureURL, TargetNullValue='avares://FortnitePorting/Assets/DefaultProfile.png'}" Stretch="UniformToFill"/>
+                        </Ellipse.Fill>
+                    </Ellipse>
+                </Grid>
+                <TextBlock Grid.Row="3" Text="{Binding OnlineRef.GlobalName, TargetNullValue='No User'}" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
+                <TextBlock Grid.Row="4" Text="{Binding OnlineRef.UserName, TargetNullValue='Unauthenticated'}" Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" HorizontalAlignment="Center"/>
+                <Separator Grid.Row="5" Margin="{ext:Space 1}"/>
+                
+                <StackPanel Grid.Row="6" Orientation="Horizontal" HorizontalAlignment="Center">
+                    <TextBlock Text="Color" Classes="BodyStrongTextBlockStyle" Margin="{ext:Space 0, 0, 1, 0}" VerticalAlignment="Center"/>
+                    <ColorPicker Color="{Binding Color}" ColorSpectrumShape="Ring" 
+                                 VerticalAlignment="Center"
+                                 IsColorPaletteVisible="False" IsAlphaEnabled="False" IsAlphaVisible="False"/>
+                </StackPanel>
+                
+                <StackPanel Grid.Row="8" Orientation="Horizontal" HorizontalAlignment="Center">
+                    <TextBlock Text="Show Pixel Authors" Classes="BodyStrongTextBlockStyle" Margin="{ext:Space 0, 0, 1, 0}" VerticalAlignment="Center"/>
+                    <ToggleSwitch IsChecked="{Binding ShowPixelAuthors}" VerticalAlignment="Center"
+                                  OffContent="{x:Null}" OnContent="{x:Null}"/>
+                </StackPanel>
+            </Grid>
+        </ui:FABorder>
+    </Grid>
+</UserControl>

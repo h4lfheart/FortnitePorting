@@ -142,6 +142,22 @@
             <Setter Property="Background" Value="#733231" />
         </Style>
         
+        <Style Selector="Button.ZoomButton">
+            <Setter Property="Background" Value="{DynamicResource SystemAccentColor}" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+
+        <Style Selector="Button.ZoomButton:pointerover /template/ ContentPresenter">
+            <Setter Property="CornerRadius" Value="4" />
+            <Setter Property="Background" Value="{DynamicResource SystemAccentColorDark1}" />
+        </Style>
+        
+        <Style Selector="Button.ZoomButton:pressed /template/ ContentPresenter">
+            <Setter Property="CornerRadius" Value="4" />
+            <Setter Property="Background" Value="{DynamicResource SystemAccentColorDark1}" />
+        </Style>
+        
         <Style Selector="ToggleButton.RadioButton">
             <Setter Property="Padding" Value="0"/>
             <Setter Property="Foreground" Value="#48FFFFFF" />

@@ -9,14 +9,23 @@ public interface IPacket : IDualSerialize
 
 public enum EPacketType
 {
+    // General
     Connect,
     Disconnect,
     Ping,
     Permissions,
+    
+    // Chat
     Message,
     Reaction,
     OnlineUsers,
     Export,
     SetRole,
-    MessageHistory
+    MessageHistory,
+    
+    // Canvas
+    RequestCanvasInfo,
+    CanvasInfo,
+    CanvasPlacementInfo,
+    CanvasPixel,
 }

@@ -36,8 +36,10 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
     
     public const string RELEASE_URL = "https://fortniteporting.halfheart.dev/api/v3/release";
     public const string RELEASE_FILES_URL = "https://fortniteporting.halfheart.dev/api/v3/release/files";
-    
+
     public const string POLLS_URL = "https://fortniteporting.halfheart.dev/api/v3/polls";
+        
+    public const string ONLINE_URL = "https://fortniteporting.halfheart.dev/api/v3/online";
 
 
     public async Task<NewsResponse[]> GetNewsAsync()
@@ -277,5 +279,15 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
     public void PostVote(string identifier, string choice)
     {
         PostVoteAsync(identifier, choice).GetAwaiter().GetResult();
+    }
+    
+    public async Task<OnlineResponse?> GetOnlineStatusAsync()
+    {
+        return await ExecuteAsync<OnlineResponse>(ONLINE_URL);
+    }
+
+    public OnlineResponse? GetOnlineStatus()
+    {
+        return GetOnlineStatusAsync().GetAwaiter().GetResult();
     }
 }

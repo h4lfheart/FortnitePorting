@@ -38,12 +38,16 @@ public partial class AppWindowModel : WindowModelBase
 
     [ObservableProperty] private bool _timeWasterOpen;
     [ObservableProperty] private TimeWasterView? _timeWaster;
+
+    [ObservableProperty] private OnlineResponse? _onlineStatus;
     
     public OnlineSettingsViewModel OnlineRef => AppSettings.Current.Online;
     
     public override async Task Initialize()
     {
         SetupTabsAreVisible = !AppSettings.Current.Installation.FinishedWelcomeScreen;
+
+        OnlineStatus = await ApiVM.FortnitePorting.GetOnlineStatusAsync();
 
         await CheckForUpdate(isAutomatic: true);
     }

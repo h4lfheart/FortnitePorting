@@ -46,6 +46,7 @@ public static class ApplicationService
     public static VotingViewModel VotingVM => ViewModelRegistry.Get<VotingViewModel>()!;
     public static TimeWasterViewModel TimeWasterVM => ViewModelRegistry.Get<TimeWasterViewModel>()!;
     public static MapViewModel MapVM => ViewModelRegistry.Get<MapViewModel>()!;
+    public static CanvasViewModel CanvasVM => ViewModelRegistry.Get<CanvasViewModel>()!;
     
     public static IClassicDesktopStyleApplicationLifetime Application = null!;
     private static IStorageProvider StorageProvider => Application.MainWindow!.StorageProvider;
@@ -129,6 +130,7 @@ public static class ApplicationService
     {
         ViewModelRegistry.New<APIViewModel>();
         ViewModelRegistry.New<ChatViewModel>();
+        ViewModelRegistry.New<CanvasViewModel>();
         DependencyService.EnsureDependencies();
         
         TimeWasterViewModel.LoadResources();

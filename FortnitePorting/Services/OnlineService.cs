@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Markup.Xaml;
+using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 using CommunityToolkit.Mvvm.Input;
 using DesktopNotifications;
 using DynamicData;
@@ -14,6 +17,7 @@ using DynamicData.Binding;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
 using FortnitePorting.Export;
+using FortnitePorting.Models.Canvas;
 using FortnitePorting.Models.Chat;
 using FortnitePorting.Models.Leaderboard;
 using FortnitePorting.OnlineServices.Extensions;
@@ -410,6 +414,81 @@ public static class OnlineService
                 }
 
                 ChatVM.Messages = [..messages];
+                
+                break;
+            }
+
+            case EPacketType.CanvasPixel:
+            {
+                if (!AppWM.IsInView<CanvasView>()) break;
+                if (CanvasVM.BitmapSource is null) break;
+                
+                var packet = e.Data.ReadPacket<CanvasPixelPacket>();
+                var pixel = packet.Pixel;
+                
+                CanvasVM.PixelMetadata[new Point(pixel.X, pixel.Y)] = new PixelMetadata(pixel.Name);
+
+                var color = new Color(byte.MaxValue, pixel.R, pixel.G, pixel.B);
+                
+                using (var framebuffer = CanvasVM.BitmapSource.Lock())
+                {
+                    unsafe
+                    {
+                        var buffer = framebuffer.Address;
+                        var ptr = (int*) buffer.ToPointer();
+            
+                        var offset = pixel.Y * CanvasVM.Width + pixel.X;
+                        ptr[offset] = (color.A << 24) | (color.B << 16) | (color.G << 8) | color.R;
+                    }
+                }
+                
+                await TaskService.RunDispatcherAsync(CanvasVM.BitmapImage.InvalidateVisual);
+                
+                break;
+            }
+            case EPacketType.CanvasInfo:
+            {
+                var packet = e.Data.ReadPacket<CanvasInfoPacket>();
+
+                CanvasVM.Width = packet.X;
+                CanvasVM.Height = packet.Y;
+                
+                var bitmap = new WriteableBitmap(new PixelSize(CanvasVM.Width, CanvasVM.Height), new Vector(96, 96), PixelFormat.Rgba8888, AlphaFormat.Opaque);
+                using (var framebuffer = bitmap.Lock())
+                {
+                    unsafe
+                    {
+                        var width = packet.X;
+                        var height = packet.Y;
+                        var buffer = framebuffer.Address;
+
+                        var pixelPtr = (int*) buffer;
+                        for (var i = 0; i < width * height; i++)
+                        {
+                            pixelPtr[i] = int.MaxValue;
+                        }
+                        
+                        foreach (var pixel in packet.Pixels)
+                        {
+                            CanvasVM.PixelMetadata[new Point(pixel.X, pixel.Y)] = new PixelMetadata(pixel.Name);
+
+                            var offset = pixel.Y * width + pixel.X;
+                            if (offset > width * height) continue;
+                            
+                            pixelPtr[offset] = (byte.MaxValue << 24) | (pixel.B << 16) | (pixel.G << 8) | pixel.R;
+                        }
+                    }
+                }
+
+                CanvasVM.BitmapSource = bitmap;
+                
+                break;
+            }
+            case EPacketType.CanvasPlacementInfo:
+            {
+                var packet = e.Data.ReadPacket<CanvasPlacementInfoPacket>();
+
+                CanvasVM.NextPlacementTime = packet.NextPixelTime;
                 
                 break;
             }
