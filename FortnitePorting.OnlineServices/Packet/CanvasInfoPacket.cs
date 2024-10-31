@@ -3,20 +3,20 @@ using Serilog;
 
 namespace FortnitePorting.OnlineServices.Packet;
 
-public class PlaceCanvasInfoPacket() : IPacket
+public class CanvasInfoPacket() : IPacket
 {
     public ushort X;
     public ushort Y;
     public List<PlacePixel> Pixels = [];
 
-    public PlaceCanvasInfoPacket(ushort x, ushort y, List<PlacePixel> pixels) : this()
+    public CanvasInfoPacket(ushort x, ushort y, List<PlacePixel> pixels) : this()
     {
         X = x;
         Y = y;
         Pixels = pixels;
     }
 
-    public EPacketType PacketType => EPacketType.PlaceCanvasInfo;
+    public EPacketType PacketType => EPacketType.CanvasInfo;
     
     public void Serialize(BinaryWriter writer)
     {

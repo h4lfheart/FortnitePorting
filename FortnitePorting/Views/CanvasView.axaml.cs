@@ -7,7 +7,6 @@ using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.VisualTree;
 using FortnitePorting.Models.API.Responses;
-using FortnitePorting.Models.Place;
 using FortnitePorting.OnlineServices.Models;
 using FortnitePorting.OnlineServices.Packet;
 using FortnitePorting.Services;
@@ -25,7 +24,7 @@ public partial class CanvasView : ViewBase<CanvasViewModel>
     {
         InitializeComponent();
 
-        ViewModel.BitmapSource = BitmapSource;
+        ViewModel.BitmapImage = BitmapImage;
         
         KeyDownEvent.AddClassHandler<TopLevel>(OnKeyDown, handledEventsToo: true);
     }
@@ -35,8 +34,8 @@ public partial class CanvasView : ViewBase<CanvasViewModel>
         if (sender is not Image image) return;
 
         var cursorPoint = e.GetCurrentPoint(image);
-        var pixelPos = new Point((int) (cursorPoint.Position.X / (image.Bounds.Width / CanvasVM.X)), 
-            (int) (cursorPoint.Position.Y / (image.Bounds.Height / CanvasVM.Y)));
+        var pixelPos = new Point((int) (cursorPoint.Position.X / (image.Bounds.Width / CanvasVM.Width)), 
+            (int) (cursorPoint.Position.Y / (image.Bounds.Height / CanvasVM.Height)));
         
         var newPixel = new PlacePixel
         {
@@ -47,22 +46,23 @@ public partial class CanvasView : ViewBase<CanvasViewModel>
             B = ViewModel.Color.B,
         };
         
-        await OnlineService.Send(new PlacePixelPacket(newPixel));
+        await OnlineService.Send(new CanvasPixelPacket(newPixel));
     }
 
     private void OnPointerMoved(object? sender, PointerEventArgs e)
     {
         var cursorPoint = e.GetCurrentPoint(CanvasViewBox);
-        var xSnap = CanvasViewBox.Bounds.Width / CanvasVM.X;
-        var ySnap = CanvasViewBox.Bounds.Width / CanvasVM.Y;
+        var xSnap = CanvasViewBox.Bounds.Width / CanvasVM.Width;
+        var ySnap = CanvasViewBox.Bounds.Width / CanvasVM.Height;
 
         var xPixel = (int) (cursorPoint.Position.X / xSnap);
         var yPixel = (int)(cursorPoint.Position.Y / ySnap);
         
         var pixelPos = new Point(xPixel * xSnap, yPixel * ySnap);
         
-        if (ViewModel.ShowPixelAuthors && ViewModel.Pixels.ToArray().FirstOrDefault(pixel => pixel.X == xPixel && pixel.Y == yPixel) is
-            { } existingPixel && !string.IsNullOrWhiteSpace(existingPixel.Name))
+        if (ViewModel.ShowPixelAuthors 
+            && ViewModel.PixelMetadata.TryGetValue(new Point(xPixel, yPixel), out var existingPixel)
+            && !string.IsNullOrWhiteSpace(existingPixel.Name))
         {
             var popupParentPos = e.GetCurrentPoint(PopupParent);
             ViewModel.PopupName = existingPixel.Name;
@@ -80,7 +80,6 @@ public partial class CanvasView : ViewBase<CanvasViewModel>
             HighlightCell.IsVisible = false;
             return;
         }
-        
 
         HighlightCell.RenderTransform = new TranslateTransform(pixelPos.X - CanvasViewBox.Bounds.Width / 2 + xSnap / 2, 
             pixelPos.Y - CanvasViewBox.Bounds.Height / 2 + ySnap / 2);
@@ -91,12 +90,14 @@ public partial class CanvasView : ViewBase<CanvasViewModel>
     private void OnPointerEntered(object? sender, PointerEventArgs e)
     {
         if (!ViewModel.ReadyToPlace) return;
+        
         HighlightCell.IsVisible = true;
     }
     
     private void OnPointerExited(object? sender, PointerEventArgs e)
     {
         if (!ViewModel.ReadyToPlace) return;
+        
         HighlightCell.IsVisible = false;
     }
 
@@ -112,6 +113,7 @@ public partial class CanvasView : ViewBase<CanvasViewModel>
         else if (e.Key is Key.Subtract or Key.OemMinus)
         {
             if (CanvasViewBox.Width <= 100 || CanvasViewBox.Height <= 50) return;
+            
             CanvasViewBox.Width -= 50;
             CanvasViewBox.Height -= 50;
         }
@@ -120,6 +122,7 @@ public partial class CanvasView : ViewBase<CanvasViewModel>
     private void ZoomOut(object? sender, RoutedEventArgs routedEventArgs)
     {
         if (CanvasViewBox.Width <= 100 || CanvasViewBox.Height <= 50) return;
+        
         CanvasViewBox.Width -= 50;
         CanvasViewBox.Height -= 50;
     }

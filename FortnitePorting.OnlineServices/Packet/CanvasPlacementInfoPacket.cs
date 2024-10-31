@@ -3,16 +3,16 @@ using Serilog;
 
 namespace FortnitePorting.OnlineServices.Packet;
 
-public class PlaceStatusInfoPacket() : IPacket
+public class CanvasPlacementInfoPacket() : IPacket
 {
     public DateTime NextPixelTime;
 
-    public PlaceStatusInfoPacket(DateTime nextPixelTime) : this()
+    public CanvasPlacementInfoPacket(DateTime nextPixelTime) : this()
     {
         NextPixelTime = nextPixelTime;
     }
 
-    public EPacketType PacketType => EPacketType.PlaceStatusInfo;
+    public EPacketType PacketType => EPacketType.CanvasPlacementInfo;
     
     public void Serialize(BinaryWriter writer)
     {

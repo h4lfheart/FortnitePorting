@@ -31,7 +31,7 @@
             <ScrollViewer HorizontalScrollBarVisibility="Auto">
                 <Grid>
                     <Viewbox x:Name="CanvasViewBox" Width="600" Height="600">
-                        <Image x:Name="BitmapSource" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Bitmap}" 
+                        <Image x:Name="BitmapImage" RenderOptions.BitmapInterpolationMode="None" Source="{Binding BitmapSource}" 
                                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                PointerPressed="OnPointerPressed" PointerMoved="OnPointerMoved" 
                                PointerEntered="OnPointerEntered" PointerExited="OnPointerExited"/>
@@ -48,13 +48,13 @@
                 <Button Classes="ZoomButton" Content="+" Click="ZoomIn"/>
             </StackPanel>
             
-            
             <TextBlock Text="{Binding TimeUntilNextPlacement, StringFormat='Next Pixel in {0:ss}s', FallbackValue='00:00'}" 
                        IsVisible="{Binding !ReadyToPlace}" Classes="SubtitleTextBlockStyle"
-                       HorizontalAlignment="Center" VerticalAlignment="Top" Margin="{ext:Space 0, 1, 0, 0}"/>
+                       HorizontalAlignment="Center" VerticalAlignment="Top" Margin="{ext:Space 0, 1, 0, 0}"
+                       Foreground="{DynamicResource SystemAccentColor}"/>
             
-            <Popup x:Name="NamePopup" Placement="Center" IsHitTestVisible="False">
-                <ui:FABorder Padding="{ext:Space 1}" Background="#2c2c2c">
+            <Popup x:Name="NamePopup" Placement="Center">
+                <ui:FABorder Padding="{ext:Space 1}" Background="#2c2c2c" IsHitTestVisible="False">
                     <TextBlock Text="{Binding PopupName, StringFormat='Placed by {0}'}"/>
                 </ui:FABorder>
             </Popup>

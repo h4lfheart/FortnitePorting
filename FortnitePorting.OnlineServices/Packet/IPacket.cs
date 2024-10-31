@@ -23,8 +23,9 @@ public enum EPacketType
     SetRole,
     MessageHistory,
     
-    // Place
-    PlaceCanvasInfo,
-    PlacePixel,
-    PlaceStatusInfo,
+    // Canvas
+    RequestCanvasInfo,
+    CanvasInfo,
+    CanvasPlacementInfo,
+    CanvasPixel,
 }

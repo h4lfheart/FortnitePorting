@@ -37,12 +37,18 @@ public static class MiscExtensions
 
     public static List<string> GetCommands(this EPermissions permissions)
     {
-        
+        var commands = new List<string> { "/shrug" };
+
         if (permissions.HasFlag(EPermissions.Staff))
         {
-            return ["/shrug", "/add-profanity", "/remove-profanity"];
+            commands.AddRange(["/add-profanity", "/remove-profanity"]);
         }
         
-        return ["/shrug"];
+        if (permissions.HasFlag(EPermissions.Owner))
+        {
+            commands.AddRange(["/clear-canvas", "/resize-canvas", "/set-canvas-cooldown"]);
+        }
+        
+        return commands;
     }
 }
