@@ -180,7 +180,7 @@ public class ExportContext
             return;
         }
 
-        var poseNames = poseContainer.PoseFNames;
+        var poseNames = poseContainer.GetPoseNames().ToArray();
         if (poseNames is null || poseNames.Length == 0)
         {
             Log.Warning($"{poseAsset.Name}: PoseFNames is null or empty");
@@ -189,44 +189,81 @@ public class ExportContext
 
         /* Assert number of tracks == number of bones for given skeleton */
         var poseTracks = poseContainer.Tracks;
-        var poseTrackInfluences = poseContainer.TrackPoseInfluenceIndices;
-        if (poseTracks.Length != poseTrackInfluences.Length)
-        {
-            Log.Warning($"{poseAsset.Name}: length of Tracks != length of TrackPoseInfluenceIndices");
-            return;
-        }
 
-        /* Add poses by name first in order they appear */
-        for (var i = 0; i < poses.Length; i++)
+        if (poseContainer.TrackPoseInfluenceIndices is not null)
         {
-            var pose = poses[i];
-            var poseName = poseNames[i];
-            var poseData = new PoseData(poseName.PlainText, pose.CurveData);
-            meta.PoseData.Add(poseData);
-        }
-
-        /* Discover connection between bone name and relative location. */
-        for (var i = 0; i < poseTrackInfluences.Length; i++)
-        {
-            var poseTrackInfluence = poseTrackInfluences[i];
-            if (poseTrackInfluence is null) continue;
-
-            var poseTrackName = poseTracks[i];
-            foreach (var influence in poseTrackInfluence.Influences)
+            var poseTrackInfluences = poseContainer.TrackPoseInfluenceIndices;
+            if (poseTracks.Length != poseTrackInfluences.Length)
             {
-                var pose = meta.PoseData[influence.PoseIndex];
-                var transform = poses[influence.PoseIndex].LocalSpacePose[influence.BoneTransformIndex];
-                if (!transform.Rotation.IsNormalized)
-                    transform.Rotation.Normalize();
+                Log.Warning($"{poseAsset.Name}: length of Tracks != length of TrackPoseInfluenceIndices");
+                return;
+            }
 
-                pose.Keys.Add(new PoseKey(
-                    poseTrackName.PlainText, /* Bone name to move */
-                    transform.Translation,
-                    transform.Rotation,
-                    transform.Scale3D,
-                    influence.PoseIndex,
-                    influence.BoneTransformIndex
-                ));
+            /* Add poses by name first in order they appear */
+            for (var i = 0; i < poses.Length; i++)
+            {
+                var pose = poses[i];
+                var poseName = poseNames[i];
+                var poseData = new PoseData(poseName, pose.CurveData);
+                meta.PoseData.Add(poseData);
+            }
+
+            /* Discover connection between bone name and relative location. */
+            for (var i = 0; i < poseTrackInfluences.Length; i++)
+            {
+                var poseTrackInfluence = poseTrackInfluences[i];
+                if (poseTrackInfluence is null) continue;
+
+                var poseTrackName = poseTracks[i];
+                foreach (var influence in poseTrackInfluence.Influences)
+                {
+                    var pose = meta.PoseData[influence.PoseIndex];
+                    var transform = poses[influence.PoseIndex].LocalSpacePose[influence.BoneTransformIndex];
+                    if (!transform.Rotation.IsNormalized)
+                        transform.Rotation.Normalize();
+
+                    pose.Keys.Add(new PoseKey(
+                        poseTrackName.PlainText, /* Bone name to move */
+                        transform.Translation,
+                        transform.Rotation,
+                        transform.Scale3D,
+                        influence.PoseIndex,
+                        influence.BoneTransformIndex
+                    ));
+                }
+            }
+        }
+        else
+        {
+            /* Add poses by name first in order they appear */
+            for (var i = 0; i < poses.Length; i++)
+            {
+                var pose = poses[i];
+                var poseName = poseNames[i];
+                var poseData = new PoseData(poseName, pose.CurveData);
+                meta.PoseData.Add(poseData);
+            }
+
+            /* Discover connection between bone name and relative location. */
+            for (var i = 0; i < poses.Length; i++)
+            {
+                var poseData = poses[i];
+
+                foreach (var (trackIndex, bufferIndex) in poseData.TrackToBufferIndex)
+                {
+                    var transform = poseData.LocalSpacePose[bufferIndex];
+                    if (!transform.Rotation.IsNormalized)
+                        transform.Rotation.Normalize();
+
+                    meta.PoseData[i].Keys.Add(new PoseKey(
+                        poseTracks[trackIndex].PlainText, /* Bone name to move */
+                        transform.Translation,
+                        transform.Rotation,
+                        transform.Scale3D,
+                        trackIndex,
+                        bufferIndex
+                    ));
+                }
             }
         }
     }

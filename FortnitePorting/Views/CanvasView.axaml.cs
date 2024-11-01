@@ -99,6 +99,7 @@ public partial class CanvasView : ViewBase<CanvasViewModel>
         if (!ViewModel.ReadyToPlace) return;
         
         HighlightCell.IsVisible = false;
+        NamePopup.IsOpen = false;
     }
 
     private void OnKeyDown(object? sender, KeyEventArgs e)
