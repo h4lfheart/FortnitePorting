@@ -100,6 +100,12 @@ public class MeshExport : BaseExport
                 
                 break;
             }
+            case EExportType.CharacterPart:
+            {
+                Meshes.AddIfNotNull(Exporter.CharacterPart(asset));
+                
+                break;
+            }
             case EExportType.Backpack:
             {
                 var parts = asset.GetOrDefault("CharacterParts", Array.Empty<UObject>());

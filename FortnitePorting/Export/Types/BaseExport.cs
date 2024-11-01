@@ -1,6 +1,7 @@
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Objects;
 using FortnitePorting.Export.Models;
+using FortnitePorting.Models;
 using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.CUE4Parse;
 using FortnitePorting.Shared;

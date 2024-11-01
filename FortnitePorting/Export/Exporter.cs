@@ -13,12 +13,14 @@ using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Engine;
+using CUE4Parse.UE4.Objects.Engine.Animation;
 using CUE4Parse.Utils;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
 
 using FortnitePorting.Export.Models;
 using FortnitePorting.Export.Types;
+using FortnitePorting.Models;
 using FortnitePorting.Models.API;
 using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.Unreal;
@@ -122,8 +124,18 @@ public static class Exporter
             UAnimSequence => EExportType.Animation,
             UAnimMontage => EExportType.Animation,
             UFontFace => EExportType.Font,
+            UPoseAsset => EExportType.PoseAsset,
             _ => EExportType.None
         };
+
+        if (exportType is EExportType.None)
+        {
+            exportType = asset.ExportType switch
+            {
+                "CustomCharacterPart" => EExportType.CharacterPart,
+                _ => EExportType.None
+            };
+        }
 
         if (exportType is EExportType.None)
         {
@@ -180,6 +192,7 @@ public static class Exporter
             EPrimitiveExportType.Sound => new SoundExport(name, asset, styles, exportType, metaData),
             EPrimitiveExportType.Animation => new AnimExport(name, asset, styles, exportType, metaData),
             EPrimitiveExportType.Font => new FontExport(name, asset, styles, exportType, metaData),
+            EPrimitiveExportType.PoseAsset => new PoseAssetExport(name, asset, styles, exportType, metaData),
             _ => throw new NotImplementedException($"Exporting {primitiveType} assets is not supported yet.")
         };
         

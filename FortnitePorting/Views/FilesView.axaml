@@ -13,6 +13,7 @@
              xmlns:icons="clr-namespace:Material.Icons;assembly=Material.Icons"
              xmlns:files="clr-namespace:FortnitePorting.Models.Files"
              xmlns:views="clr-namespace:FortnitePorting.Views"
+             xmlns:fortnitePorting="clr-namespace:FortnitePorting"
              d:DesignHeight="770" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.FilesView"
              x:DataType="viewModels:FilesViewModel">
@@ -175,7 +176,7 @@
                                Margin="{ext:Space 1, 0, 1, 0.25}" />
                     <ComboBox Grid.Column="1"
                               HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                              ItemsSource="{ext:EnumToItemsSource {x:Type shared:EExportLocation}}"
+                              ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EExportLocation}}"
                               SelectedItem="{Binding ExportLocation, Converter={StaticResource EnumToRecord}}">
                         <ComboBox.ItemContainerTheme>
                             <ControlTheme x:DataType="ext:EnumRecord" TargetType="ComboBoxItem" BasedOn="{StaticResource {x:Type ComboBoxItem}}">

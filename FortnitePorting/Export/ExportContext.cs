@@ -35,6 +35,7 @@ using FortnitePorting.Export.Models;
 using FortnitePorting.Extensions;
 using FortnitePorting.Models.CUE4Parse;
 using FortnitePorting.Models.Fortnite;
+using FortnitePorting.Models.Unreal;
 using FortnitePorting.Models.Unreal.Landscape;
 using FortnitePorting.Models.Unreal.Lights;
 using FortnitePorting.Shared;
@@ -420,6 +421,15 @@ public class ExportContext
         var actors = new List<ExportMesh>();
         
         actors.AddRangeIfNotNull(Level(level));
+
+        foreach (var streamingLevelLazy in world.StreamingLevels)
+        {
+            if (streamingLevelLazy.Load() is not ULevelStreaming levelStreaming) continue;
+            if (levelStreaming.WorldAsset.Load() is not UWorld worldAsset) continue;
+            if (worldAsset.PersistentLevel.Load() is not ULevel streamingLevel) continue;
+            
+            actors.AddRangeIfNotNull(Level(streamingLevel));
+        }
         
         if (Meta.WorldFlags.HasFlag(EWorldFlags.WorldPartitionGrids) && level.GetOrDefault<UObject>("WorldSettings") is { } worldSettings
             && worldSettings.GetOrDefault<UObject>("WorldPartition") is { } worldPartition

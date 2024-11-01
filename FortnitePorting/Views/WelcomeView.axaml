@@ -8,6 +8,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:fortnitePorting="clr-namespace:FortnitePorting"
              d:DesignHeight="770" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.WelcomeView"
              x:DataType="viewModels:WelcomeViewModel">
@@ -57,7 +58,7 @@
                 
                 <ui:SettingsExpander Header="Fortnite Version" Description="The version of Fortnite that Fortnite Porting will be loading.">
                     <ui:SettingsExpander.Footer>
-                        <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type shared:EFortniteVersion}}"
+                        <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EFortniteVersion}}"
                                   SelectedItem="{Binding Profile.FortniteVersion, Converter={StaticResource EnumToRecord}}" />
                     </ui:SettingsExpander.Footer>
                     

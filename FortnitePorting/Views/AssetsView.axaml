@@ -14,6 +14,7 @@
              xmlns:wrapPanel="clr-namespace:FortnitePorting.Controls.WrapPanel"
              xmlns:assets="clr-namespace:FortnitePorting.Models.Assets"
              xmlns:filters="clr-namespace:FortnitePorting.Models.Assets.Filters"
+             xmlns:fortnitePorting="clr-namespace:FortnitePorting"
              d:DesignHeight="720" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.AssetsView"
              x:DataType="viewModels:AssetsViewModel">
@@ -60,7 +61,7 @@
                             <material:MaterialIcon Kind="{Binding AssetLoaderCollection.ActiveLoader.SortIcon}"/>
                         </ToggleButton>
                         <ComboBox Grid.Column="4" ToolTip.Tip="Sorting" HorizontalAlignment="Stretch"
-                                  ItemsSource="{ext:EnumToItemsSource {x:Type shared:EAssetSortType}}"
+                                  ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EAssetSortType}}"
                                   SelectedItem="{Binding AssetLoaderCollection.ActiveLoader.SortType, Converter={StaticResource EnumToRecord}}" />
                         <DropDownButton Grid.Column="6" HorizontalAlignment="Stretch">
                             <DropDownButton.Flyout>
@@ -266,7 +267,7 @@
                                            Margin="3 0 0 2" />
                                 <ComboBox Grid.Column="1"
                                           HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                                          ItemsSource="{ext:EnumToItemsSource {x:Type shared:EExportLocation}}"
+                                          ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EExportLocation}}"
                                           SelectedItem="{Binding ExportLocation, Converter={StaticResource EnumToRecord}}">
                                     <ComboBox.ItemContainerTheme>
                                         <ControlTheme x:DataType="ext:EnumRecord" TargetType="ComboBoxItem" BasedOn="{StaticResource {x:Type ComboBoxItem}}">

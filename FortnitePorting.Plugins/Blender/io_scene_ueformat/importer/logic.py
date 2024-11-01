@@ -460,7 +460,7 @@ class UEFormatImport:
         if self.options.import_collision and data.collisions:
             for index, collision in enumerate(data.collisions):
                 collision_name = index if collision.name == "None" else collision.name
-                collision_object_name = name + f"_Collision_{collision_name}"
+                collision_object_name = f"UCX_{name}_{collision_name}"
                 collision_mesh_data = bpy.data.meshes.new(collision_object_name)
                 collision_mesh_data.from_pydata(collision.vertices, [], collision.indices)  # type: ignore[reportArgumentType]
 

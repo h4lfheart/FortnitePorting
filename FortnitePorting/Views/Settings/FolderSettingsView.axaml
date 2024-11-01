@@ -9,6 +9,7 @@
              xmlns:enums="clr-namespace:CUE4Parse_Conversion.UEFormat.Enums;assembly=CUE4Parse-Conversion"
              xmlns:meshes="clr-namespace:CUE4Parse_Conversion.Meshes;assembly=CUE4Parse-Conversion"
              xmlns:animations="clr-namespace:CUE4Parse_Conversion.Animations;assembly=CUE4Parse-Conversion"
+             xmlns:fortnitePorting="clr-namespace:FortnitePorting"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FortnitePorting.Views.Settings.FolderSettingsView"
              x:DataType="settings:FolderSettingsViewModel">
@@ -69,7 +70,7 @@
             
             <ui:SettingsExpander Header="Image Format" Description="The file type that textures should be exported as.">
                 <ui:SettingsExpander.Footer>
-                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type shared:EImageFormat}}"
+                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EImageFormat}}"
                               SelectedItem="{Binding ImageFormat, Converter={StaticResource EnumToRecord}}" />
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
@@ -78,7 +79,7 @@
             
             <ui:SettingsExpander Header="Sound Format" Description="The file type that sounds should be exported as.">
                 <ui:SettingsExpander.Footer>
-                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type shared:ESoundFormat}}"
+                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:ESoundFormat}}"
                               SelectedItem="{Binding SoundFormat, Converter={StaticResource EnumToRecord}}" />
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>

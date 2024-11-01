@@ -12,6 +12,7 @@
              xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:icons="clr-namespace:Material.Icons;assembly=Material.Icons"
              xmlns:files="clr-namespace:FortnitePorting.Models.Files"
+             xmlns:fortnitePorting="clr-namespace:FortnitePorting"
              d:DesignHeight="770" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.MapView"
              x:DataType="viewModels:MapViewModel">
@@ -67,7 +68,7 @@
             <TextBlock.IsVisible>
                 <MultiBinding Converter="{x:Static BoolConverters.And}">
                     <Binding Path="!SelectedMap.SelectedMaps.Count"/>
-                    <Binding Path="SelectedMap.Info.IsUEFN"/>
+                    <Binding Path="SelectedMap.Info.IsNonDisplay"/>
                 </MultiBinding>
             </TextBlock.IsVisible>
         </TextBlock>
@@ -121,7 +122,7 @@
                         <Button.IsEnabled>
                             <MultiBinding Converter="{x:Static BoolConverters.And}">
                                 <Binding Path="SelectedMap.DataLoaded"/>
-                                <Binding Path="!SelectedMap.Info.IsUEFN"/>
+                                <Binding Path="!SelectedMap.Info.IsNonDisplay"/>
                             </MultiBinding>
                         </Button.IsEnabled>
                         <StackPanel Orientation="Horizontal">
@@ -191,11 +192,11 @@
                     
                     <TextBlock Grid.Row="24" Text="World Partition" Margin="{ext:Space 0, 1, 0, 0}"
                                Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center" 
-                               IsVisible="{Binding !SelectedMap.Info.IsUEFN}"/>
+                               IsVisible="{Binding !SelectedMap.Info.IsNonDisplay}"/>
                     
                     <TextBlock Grid.Row="26" Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" 
                                Text="{Binding SelectedMap.GridCount, StringFormat='{}{0} Maps Loaded'}" 
-                               HorizontalAlignment="Center" IsVisible="{Binding !SelectedMap.Info.IsUEFN}"/>
+                               HorizontalAlignment="Center" IsVisible="{Binding !SelectedMap.Info.IsNonDisplay}"/>
                     
                     <ScrollViewer Grid.Row="28">
                         <ItemsControl ItemsSource="{Binding SelectedMap.SelectedMaps, Mode=TwoWay}" HorizontalAlignment="Center">
@@ -219,12 +220,12 @@
                         <TextBlock.IsVisible>
                             <MultiBinding Converter="{x:Static BoolConverters.And}">
                                 <Binding Path="!SelectedMap.SelectedMaps.Count"/>
-                                <Binding Path="!SelectedMap.Info.IsUEFN"/>
+                                <Binding Path="!SelectedMap.Info.IsNonDisplay"/>
                             </MultiBinding>
                         </TextBlock.IsVisible>
                     </TextBlock>
                     
-                    <Grid Grid.Row="30" IsVisible="{Binding !SelectedMap.Info.IsUEFN}">
+                    <Grid Grid.Row="30" IsVisible="{Binding !SelectedMap.Info.IsNonDisplay}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="{ext:Space 1}"/>
@@ -267,7 +268,7 @@
                                    Margin="{ext:Space 1, 0, 1, 0.25}" />
                         <ComboBox Grid.Column="1"
                                   HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                                  ItemsSource="{ext:EnumToItemsSource {x:Type shared:EExportLocation}}"
+                                  ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EExportLocation}}"
                                   SelectedItem="{Binding ExportLocation, Converter={StaticResource EnumToRecord}}">
                             <ComboBox.ItemContainerTheme>
                                 <ControlTheme x:DataType="ext:EnumRecord" TargetType="ComboBoxItem" BasedOn="{StaticResource {x:Type ComboBoxItem}}">

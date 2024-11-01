@@ -1,12 +1,7 @@
-using System.Collections.ObjectModel;
-using System.Threading.Tasks;
-using Avalonia.Rendering.Composition;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using FluentAvalonia.UI.Controls;
-using FortnitePorting.Shared.Services;
 
-namespace FortnitePorting.Models;
+namespace FortnitePorting.Models.App;
 
 public partial class InfoBarData : ObservableObject
 {

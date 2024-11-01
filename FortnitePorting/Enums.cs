@@ -1,8 +1,10 @@
+using System;
 using System.ComponentModel;
+using FortnitePorting.Models;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Models;
 
-namespace FortnitePorting.Shared;
+namespace FortnitePorting;
 
 public enum EFortniteVersion
 {
@@ -72,6 +74,9 @@ public enum EExportType
     
     [Description("Outfits"), Export(EPrimitiveExportType.Mesh)]
     Outfit,
+    
+    [Description("Character Parts"), Export(EPrimitiveExportType.Mesh)]
+    CharacterPart,
 
     [Description("Backpacks"), Export(EPrimitiveExportType.Mesh)]
     Backpack,
@@ -185,7 +190,10 @@ public enum EExportType
     Sound,
     
     [Description("Font"), Export(EPrimitiveExportType.Font)]
-    Font
+    Font,
+    
+    [Description("Pose Asset"), Export(EPrimitiveExportType.PoseAsset)]
+    PoseAsset
 }
 
 public enum EPrimitiveExportType
@@ -203,7 +211,10 @@ public enum EPrimitiveExportType
     Sound,
     
     [Description("Font")]
-    Font
+    Font,
+    
+    [Description("PoseAsset")]
+    PoseAsset
 }
 
 public enum EAssetSortType

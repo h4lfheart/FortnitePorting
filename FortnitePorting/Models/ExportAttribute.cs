@@ -1,4 +1,7 @@
-namespace FortnitePorting.Shared.Models;
+using System;
+using System.Linq;
+
+namespace FortnitePorting.Models;
 
 public class ExportAttribute(EPrimitiveExportType type) : Attribute
 {

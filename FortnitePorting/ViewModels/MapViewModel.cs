@@ -79,7 +79,9 @@ public partial class MapViewModel : ViewModelBase
             "/BlastBerry/Minimap/Capture_Iteration_Discovered_BlastBerry",
             "/BlastBerry/MiniMap/T_MiniMap_Mask",
             0.023f, 32, 168, 150, false
-        )
+        ),
+        MapInfo.CreateNonDisplay("Athena", "FortniteGame/Content/Athena/Maps/Athena_Terrain"),
+        MapInfo.CreateNonDisplay("Apollo", "FortniteGame/Content/Athena/Apollo/Maps/Apollo_Terrain")
     ];
     
 
@@ -176,7 +178,7 @@ public partial class WorldPartitionMap : ObservableObject
 
     public async Task Load()
     {
-        if (!Info.IsUEFN)
+        if (!Info.IsNonDisplay)
         {
             var maskTexture = await CUE4ParseVM.Provider.LoadObjectAsync<UTexture2D>(Info.MaskPath);
             MaskBitmap = maskTexture.Decode()!.ToWriteableBitmap();
@@ -608,8 +610,7 @@ public partial class WorldPartitionMap : ObservableObject
 
     public override string ToString()
     {
-        var prefix = Info.IsUEFN ? "UEFN" : "In-Game";
-        return $"{prefix}: {Info.Name}";
+        return $"{Info.SourceName}: {Info.Name}";
     }
 }
 
@@ -676,7 +677,7 @@ public enum EMapTextureExportType
     Weight
 }
 
-public record MapInfo(string Name, string MapPath, string MinimapPath, string MaskPath, float Scale, int XOffset, int YOffset, int CellSize, bool UseMask, bool IsUEFN = false)
+public record MapInfo(string Name, string MapPath, string MinimapPath, string MaskPath, float Scale, int XOffset, int YOffset, int CellSize, bool UseMask, bool IsNonDisplay = false, string SourceName = "Battle Royale")
 {
     public static MapInfo CreateNonDisplay(string name, string mapPath)
     {

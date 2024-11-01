@@ -7,22 +7,23 @@
              xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:fortnitePorting="clr-namespace:FortnitePorting"
              d:DesignHeight="770" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.ExportSettingsView"
              x:DataType="viewModels:ExportSettingsViewModel">
     <ui:NavigationView x:Name="NavigationView" Classes="NoBackground" PaneDisplayMode="LeftCompact" OpenPaneLength="120" IsPaneToggleButtonVisible="False" IsSettingsVisible="False" ItemInvoked="OnItemInvoked">
         <ui:NavigationView.MenuItems>
-            <ui:NavigationViewItem Content="Blender" Tag="{x:Static shared:EExportLocation.Blender}" IsSelected="True">
+            <ui:NavigationViewItem Content="Blender" Tag="{x:Static fortnitePorting:EExportLocation.Blender}" IsSelected="True">
                 <ui:NavigationViewItem.IconSource>
                     <ui:ImageIconSource Source="/Assets/Icons/Blender.png"/>
                 </ui:NavigationViewItem.IconSource>
             </ui:NavigationViewItem>
-            <ui:NavigationViewItem Content="Unreal" Tag="{x:Static shared:EExportLocation.Unreal}">
+            <ui:NavigationViewItem Content="Unreal" Tag="{x:Static fortnitePorting:EExportLocation.Unreal}">
                 <ui:NavigationViewItem.IconSource>
                     <ui:ImageIconSource Source="/Assets/Icons/Unreal.png"/>
                 </ui:NavigationViewItem.IconSource>
             </ui:NavigationViewItem>
-            <ui:NavigationViewItem Content="Folder" Tag="{x:Static shared:EExportLocation.AssetsFolder}">
+            <ui:NavigationViewItem Content="Folder" Tag="{x:Static fortnitePorting:EExportLocation.AssetsFolder}">
                 <ui:NavigationViewItem.IconSource>
                     <ui:PathIconSource Data="{ext:MaterialKindToGeometry Folder}"/>
                 </ui:NavigationViewItem.IconSource>

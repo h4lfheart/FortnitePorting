@@ -9,6 +9,7 @@
              xmlns:settings="clr-namespace:FortnitePorting.ViewModels.Settings"
              xmlns:versions="clr-namespace:CUE4Parse.UE4.Versions;assembly=CUE4Parse"
              xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:fortnitePorting="clr-namespace:FortnitePorting"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FortnitePorting.Views.Settings.InstallationSettingsView"
              x:DataType="settings:InstallationSettingsViewModel">
@@ -56,7 +57,7 @@
             
             <ui:SettingsExpander Header="Fortnite Version" Description="The version of Fortnite that Fortnite Porting will be loading.">
                 <ui:SettingsExpander.Footer>
-                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type shared:EFortniteVersion}}"
+                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EFortniteVersion}}"
                               SelectedItem="{Binding CurrentProfile.FortniteVersion, Converter={StaticResource EnumToRecord}}" />
                 </ui:SettingsExpander.Footer>
                 

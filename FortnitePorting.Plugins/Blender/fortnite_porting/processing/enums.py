@@ -21,6 +21,7 @@ class EExportType(IntEnum):
 
     # COSMETICS
     OUTFIT = auto()
+    CHARACTER_PART = auto()
     BACKPACK = auto()
     PICKAXE = auto()
     GLIDER = auto()
@@ -67,6 +68,7 @@ class EExportType(IntEnum):
     ANIMATION = auto()
     SOUND = auto()
     FONT = auto()
+    POSE_ASSET = auto()
 
 
 class EPrimitiveExportType(IntEnum):
@@ -75,6 +77,7 @@ class EPrimitiveExportType(IntEnum):
     TEXTURE = auto()
     SOUND = auto()
     FONT = auto()
+    POSE_ASSET = auto()
 
 
 class EFortCustomPartType(IntEnum):
