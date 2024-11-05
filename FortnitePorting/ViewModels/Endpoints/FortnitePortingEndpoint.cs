@@ -64,7 +64,7 @@ public class FortnitePortingEndpoint : EndpointBase
     {
         await ExecuteAsync(STATS_URL, Method.Post, 
         [
-            new HeaderParameter("guid", AppSettings.Current.UUID.ToString()),
+            new HeaderParameter("token", AppSettings.Current.UUID.ToString()),
             new HeaderParameter("version", Globals.Version.ToString()),
         ]);
     }

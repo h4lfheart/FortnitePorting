@@ -183,8 +183,8 @@ public class CUE4ParseViewModel : ViewModelBase
 
         var files = FortniteLive.FileManifestList.Where(fileManifest => FortniteLiveRegex.IsMatch(fileManifest.FileName));
         foreach (var fileManifest in files)
-            Provider.RegisterVfs(fileManifest.FileName, [fileManifest.GetStream()]
-                , it => new FStreamArchive(it, manifest.FileManifestList.First(x => x.FileName.Equals(it)).GetStream(), Provider.Versions));
+            Provider.RegisterVfs(fileManifest.FileName, (Stream[]) [fileManifest.GetStream()],
+                it => new FStreamArchive(it, manifest.FileManifestList.First(x => x.FileName.Equals(it)).GetStream(), Provider.Versions));
     }
 
     private async Task LoadCosmeticStreaming()

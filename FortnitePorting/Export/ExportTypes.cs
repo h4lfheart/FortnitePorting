@@ -73,7 +73,7 @@ public record ExportParameterContainer
     [JsonIgnore] public UMaterial? AbsoluteParentMaterial;
     
     public int Hash;
-    public string? AbsoluteParent;
+    public string AbsoluteParent = string.Empty;
     public List<TextureParameter> Textures = [];
     public List<ScalarParameter> Scalars = [];
     public List<VectorParameter> Vectors = [];

@@ -526,7 +526,7 @@ public class ExporterInstance
 
         AccumulateParameters(material, ref exportMaterial);
 
-        exportMaterial.AbsoluteParent = exportMaterial.AbsoluteParentMaterial?.Name;
+        exportMaterial.AbsoluteParent = exportMaterial.AbsoluteParentMaterial?.Name ?? string.Empty;
         exportMaterial.UseGlassMaterial = exportMaterial.AbsoluteParentMaterial is { BlendMode: EBlendMode.BLEND_Translucent, TranslucencyLightingMode: ETranslucencyLightingMode.TLM_SurfacePerPixelLighting or ETranslucencyLightingMode.TLM_VolumetricPerVertexDirectional };
         exportMaterial.UseFoliageMaterial = exportMaterial.AbsoluteParentMaterial is { BlendMode: EBlendMode.BLEND_Masked, ShadingModel: EMaterialShadingModel.MSM_TwoSidedFoliage or EMaterialShadingModel.MSM_Subsurface };
         exportMaterial.IsTransparent = material is UMaterialInstance materialInstance ? materialInstance.BasePropertyOverrides?.BlendMode != EBlendMode.BLEND_Opaque : exportMaterial.AbsoluteParentMaterial?.BlendMode != EBlendMode.BLEND_Opaque;

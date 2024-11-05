@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using ATL;
@@ -16,7 +17,9 @@ using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.UObject;
 using FortnitePorting.Export;
 using FortnitePorting.Extensions;
+using FortnitePorting.Framework.Controls;
 using FortnitePorting.Services;
+using Serilog;
 using SkiaSharp;
 
 namespace FortnitePorting.Controls.Radio;
@@ -41,15 +44,20 @@ public partial class RadioSongPicker : UserControl
 
         var coverArtTexture = asset.Get<UTexture2D>("CoverArtImage");
         CoverArtImage = new Bitmap(coverArtTexture.Decode()!.Encode(SKEncodedImageFormat.Png, 100).AsStream());
+
+        if (!asset.TryGetValue(out UObject lobbyMusic, "FrontEndLobbyMusic"))
+        {
+            return;
+        }
         
-        var lobbyMusic = asset.Get<UObject>("FrontEndLobbyMusic");
         if (lobbyMusic is USoundCue soundCue)
         {
             SoundWave = soundCue.HandleSoundTree().MaxBy(sound => sound.Time)?.SoundWave;
         }
-        else if (lobbyMusic.ExportType == "MetaSoundSource") // TODO proper impl with class
+        else if (lobbyMusic is UMetaSoundSource metaSoundSource) // TODO proper impl with class
         {
-            var rootMetasoundDocument = lobbyMusic.Get<FStructFallback>("RootMetasoundDocument");
+            var rootMetasoundDocument = metaSoundSource.GetOrDefault<FStructFallback?>("RootMetaSoundDocument") 
+                                        ?? metaSoundSource.GetOrDefault<FStructFallback?>("RootMetasoundDocument");
             var rootGraph = rootMetasoundDocument.Get<FStructFallback>("RootGraph");
             var interFace = rootGraph.Get<FStructFallback>("Interface");
             var inputs = interFace.Get<FStructFallback[]>("Inputs");
@@ -57,9 +65,20 @@ public partial class RadioSongPicker : UserControl
             {
                 var typeName = input.Get<FName>("TypeName");
                 if (!typeName.Text.Equals("WaveAsset")) continue;
+                
+                var name = input.Get<FName>("Name");
+                if (!name.Text.Equals("Loop")) continue;
 
-                var defaultLiteral = input.Get<FStructFallback>("DefaultLiteral");
-                SoundWave = defaultLiteral.Get<FPackageIndex[]>("AsUObject").First();
+                var literal = input.GetOrDefault<FStructFallback?>("DefaultLiteral");
+                if (literal is null && input.TryGetValue(out FStructFallback[] defaults, "Defaults"))
+                {
+                    literal = defaults.FirstOrDefault()?.GetOrDefault<FStructFallback?>("Literal");
+                }
+                
+                if (literal is null) continue;
+                
+                SoundWave = literal.Get<FPackageIndex[]>("AsUObject").First();
+                
                 break;
             }
         }
@@ -67,6 +86,12 @@ public partial class RadioSongPicker : UserControl
 
     public USoundWave? GetSound()
     {
+        if (SoundWave is null)
+        {
+            MessageWindow.Show("Unsupported Lobby Music Format", $"\"{Title}\" uses a new format for lobby music that is currently unsupported.");
+            return null;
+        }
+        
         return SoundWave.Load<USoundWave>();
 
     }
