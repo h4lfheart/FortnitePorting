@@ -110,6 +110,8 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="{ext:Space 1}"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="{ext:Space 1}"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     
                     <TextBlock Grid.Row="0" Classes="SubtitleTextBlockStyle" Text="Map" HorizontalAlignment="Center"/>
@@ -225,7 +227,52 @@
                         </TextBlock.IsVisible>
                     </TextBlock>
                     
-                    <Grid Grid.Row="30" IsVisible="{Binding !SelectedMap.Info.IsNonDisplay}">
+                    <Grid Grid.Row="30" RowDefinitions="* * *" IsVisible="{Binding IsDebug}">
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Offset X:" Classes="BodyTextBlockStyle" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="{ext:Space 0, 0, 1, 0}"/>
+                                <ui:NumberBox Value="{Binding SelectedMap.Info.XOffset}" 
+                                             
+                                              SpinButtonPlacementMode="Compact"/>
+                        
+                                <TextBlock Text="Offset Y:" Classes="BodyTextBlockStyle" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="{ext:Space 0, 0, 1, 0}"/>
+                                <ui:NumberBox Value="{Binding SelectedMap.Info.YOffset}" 
+                                              
+                                              SpinButtonPlacementMode="Compact"/>
+                            </StackPanel>
+                        </StackPanel>
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Scale:" Classes="BodyTextBlockStyle" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="{ext:Space 0, 0, 1, 0}"/>
+                                <ui:NumberBox Value="{Binding SelectedMap.Info.Scale}" 
+                                              Minimum="0" 
+                                              SpinButtonPlacementMode="Compact"/>
+                        
+                                <TextBlock Text="Cell Size:" Classes="BodyTextBlockStyle" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="{ext:Space 0, 0, 1, 0}"/>
+                                <ui:NumberBox Value="{Binding SelectedMap.Info.CellSize}" 
+                                              Minimum="0" SimpleNumberFormat="0.0000"
+                                              SpinButtonPlacementMode="Compact"/>
+                            </StackPanel>
+                        </StackPanel>
+                        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock Text="Min Grid Dist:" Classes="BodyTextBlockStyle" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="{ext:Space 0, 0, 1, 0}"/>
+                            <ui:NumberBox Value="{Binding SelectedMap.Info.MinGridDistance}" 
+                                          Minimum="0"
+                                          SpinButtonPlacementMode="Compact"/>
+                            <CheckBox IsChecked="{Binding SelectedMap.Info.UseMask}">Use Mask</CheckBox>
+                            <Button ToolTip.Tip="Reload"
+                                    Command="{Binding ReloadMap}"
+                                    HorizontalAlignment="Stretch">
+                                <StackPanel Orientation="Horizontal">
+                                    <material:MaterialIcon Kind="Reload" Margin="{ext:Space 0, 0, 1, 0}"/>
+                                    <TextBlock Text="Reload"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                        
+                    </Grid>
+                    
+                    <Grid Grid.Row="32" IsVisible="{Binding !SelectedMap.Info.IsNonDisplay}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="{ext:Space 1}"/>
@@ -263,7 +310,7 @@
                         
                     </Grid>
                     
-                    <Grid Grid.Row="32" ColumnDefinitions="Auto *">
+                    <Grid Grid.Row="34" ColumnDefinitions="Auto *">
                         <TextBlock Grid.Column="0" Text="Export To" VerticalAlignment="Center"
                                    Margin="{ext:Space 1, 0, 1, 0.25}" />
                         <ComboBox Grid.Column="1"

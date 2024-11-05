@@ -31,14 +31,16 @@ public partial class MusicPackItem : ObservableObject
 {
     [ObservableProperty] private WriteableBitmap _coverArtBitmap;
     [ObservableProperty] private UTexture2D? _alternateCoverTexture;
+    [ObservableProperty] private bool _isUnsupported;
     [ObservableProperty] private string _id;
     [ObservableProperty] private string _filePath;
     [ObservableProperty] private string _trackName;
     [ObservableProperty] private string _trackDescription;
     [ObservableProperty] private string _coverArtName;
-    [ObservableProperty] private FPackageIndex _soundWave;
+    [ObservableProperty] private FPackageIndex? _soundWave;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(PlayIconKind))] private bool _isPlaying;
     public MaterialIconKind PlayIconKind => IsPlaying ? MaterialIconKind.Pause : MaterialIconKind.Play;
+    
     
     public MusicPackItem(UObject asset)
     {
@@ -58,28 +60,46 @@ public partial class MusicPackItem : ObservableObject
         AlternateCoverTexture = asset.GetAnyOrDefault<UTexture2D>("SmallPreviewImage", "LargePreviewImage", "Icon", "LargeIcon");
         AlternateCoverTexture ??= asset.GetDataListItem<UTexture2D>("SmallPreviewImage", "LargePreviewImage", "Icon", "LargeIcon");
 
-        var lobbyMusic = asset.Get<UObject>("FrontEndLobbyMusic");
-        if (lobbyMusic is USoundCue soundCue)
+        var lobbyMusic = asset.GetOrDefault<UObject?>("FrontEndLobbyMusic");
+        switch (lobbyMusic)
         {
-            SoundWave = soundCue.HandleSoundTree().MaxBy(sound => sound.Time)?.SoundWave;
-        }
-        else if (lobbyMusic is UMetaSoundSource metaSoundSource) // TODO proper impl with class
-        {
-            var rootMetasoundDocument = metaSoundSource.GetOrDefault<FStructFallback?>("RootMetaSoundDocument") 
-                                        ?? metaSoundSource.GetOrDefault<FStructFallback?>("RootMetasoundDocument");
-            var rootGraph = rootMetasoundDocument.Get<FStructFallback>("RootGraph");
-            var interFace = rootGraph.Get<FStructFallback>("Interface");
-            var inputs = interFace.Get<FStructFallback[]>("Inputs");
-            foreach (var input in inputs)
+            case null:
+                IsUnsupported = true;
+                return;
+            case USoundCue soundCue:
+                SoundWave = soundCue.HandleSoundTree().MaxBy(sound => sound.Time)?.SoundWave;
+                break;
+            // TODO proper impl with class
+            case UMetaSoundSource metaSoundSource:
             {
-                var typeName = input.Get<FName>("TypeName");
-                if (!typeName.Text.Equals("WaveAsset")) continue;
+                var rootMetasoundDocument = metaSoundSource.GetOrDefault<FStructFallback?>("RootMetaSoundDocument") 
+                                            ?? metaSoundSource.GetOrDefault<FStructFallback?>("RootMetasoundDocument");
+                if (rootMetasoundDocument is null) break;
                 
-                var name = input.Get<FName>("Name");
-                if (!name.Text.Equals("Loop")) continue;
+                var rootGraph = rootMetasoundDocument.Get<FStructFallback>("RootGraph");
+                var interFace = rootGraph.Get<FStructFallback>("Interface");
+                var inputs = interFace.Get<FStructFallback[]>("Inputs");
+                foreach (var input in inputs)
+                {
+                    var typeName = input.Get<FName>("TypeName");
+                    if (!typeName.Text.Equals("WaveAsset")) continue;
+                
+                    var name = input.Get<FName>("Name");
+                    if (!name.Text.Equals("Loop")) continue;
 
-                var defaultLiteral = input.Get<FStructFallback>("DefaultLiteral");
-                SoundWave = defaultLiteral.Get<FPackageIndex[]>("AsUObject").First();
+                    var literal = input.GetOrDefault<FStructFallback?>("DefaultLiteral");
+                    if (literal is null && input.TryGetValue(out FStructFallback[] defaults, "Defaults"))
+                    {
+                        literal = defaults.FirstOrDefault()?.GetOrDefault<FStructFallback?>("Literal");
+                    }
+                
+                    if (literal is null) continue;
+                
+                    SoundWave = literal.Get<FPackageIndex[]>("AsUObject").First();
+                
+                    break;
+                }
+
                 break;
             }
         }

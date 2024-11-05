@@ -159,7 +159,13 @@ public partial class RadioViewModel : ViewModelBase
     }
     
     public void Play(MusicPackItem musicPackItem)
-    { 
+    {
+        if (musicPackItem.IsUnsupported)
+        {
+            AppWM.Message("Unsupported Lobby Music Format", $"\"{musicPackItem.TrackName}\" uses a new format for lobby music that is currently unsupported.");
+            return;
+        }
+        
         if (!SoundExtensions.TrySaveSoundToAssets(musicPackItem.SoundWave.Load<USoundWave>(), AppSettings.Current.Application.AssetPath, out Stream stream)) return;
         
         Stop();

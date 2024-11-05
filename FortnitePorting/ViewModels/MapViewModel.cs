@@ -59,31 +59,50 @@ public partial class MapViewModel : ViewModelBase
 
     public static MapInfo[] MapInfos =
     [
-        new MapInfo(
+        new(
             "Helios",
             "FortniteGame/Content/Athena/Helios/Maps/Helios_Terrain",
             "FortniteGame/Content/Athena/Apollo/Maps/UI/Apollo_Terrain_Minimap",
             "FortniteGame/Content/Athena/Apollo/Maps/UI/T_MiniMap_Mask",
-            0.014f, 0, 128, 92, true
+            0.014f, 0, 128, 92, 12800, true
         ),
-        new MapInfo(
+        new(
             "Rufus",
             "FortniteGame/Plugins/GameFeatures/Rufus/Content/Game/Athena/Maps/Athena_Terrain",
             "FortniteGame/Plugins/GameFeatures/Rufus/Content/Game/UI/Capture_Iteration_Discovered_Rufus_03",
             "FortniteGame/Content/Athena/UI/Rufus/Rufus_Map_Frosty_PostMask",
-            0.0155f, 256, 448, 102, true
+            0.0155f, 256, 448, 102, 12800, true
         ),
-        new MapInfo(
+        new(
+            "Apollo_Retro",
+            "FortniteGame/Plugins/GameFeatures/Clyde/Content/Apollo_Terrain_Retro",
+            "FortniteGame/Content/Athena/Apollo/Maps/Clyde/Textures/Week1_Adjusted",
+            "FortniteGame/Content/Athena/Apollo/Maps/Clyde/Textures/T_Clyde_Minimap_PostMask",
+            0.032f, -25, 96, 205, 12800, true
+        ),
+        new(
             "BlastBerry",
             "/BlastBerryMap/Maps/BlastBerry_Terrain",
             "/BlastBerry/Minimap/Capture_Iteration_Discovered_BlastBerry",
             "/BlastBerry/MiniMap/T_MiniMap_Mask",
-            0.023f, 32, 168, 150, false
+            0.046f, 32, 168, 300, 12800, false
+        ),
+        new(
+            "PunchBerry",
+            "FortniteGame/Plugins/GameFeatures/632de27e-4506-41f8-532f-93ac01dc10ca/Content/Maps/PunchBerry_Terrain",
+            "FortniteGame/Plugins/GameFeatures/BlastBerry/Content/MiniMap/Discovered_PunchBerry",
+            "FortniteGame/Plugins/GameFeatures/BlastBerry/Content/MiniMap/T_PB_MiniMap_Mask",
+            0.0475f, 0, 384, 305, 12800, true
         ),
         MapInfo.CreateNonDisplay("Athena", "FortniteGame/Content/Athena/Maps/Athena_Terrain"),
         MapInfo.CreateNonDisplay("Apollo", "FortniteGame/Content/Athena/Apollo/Maps/Apollo_Terrain")
     ];
-    
+
+    private static string[] PluginRemoveList =
+    [
+        "FMJam_",
+        "PunchBerry_Terrain"
+    ];
 
     public override async Task Initialize()
     {
@@ -108,7 +127,7 @@ public partial class MapViewModel : ViewModelBase
             if (gameFeatureData?.ExperienceData?.DefaultMap is not { } defaultMapPath) continue;
 
             var defaultMap = await defaultMapPath.LoadAsync();
-            if (defaultMap.Name.StartsWith("FMJam_")) continue;
+            if (PluginRemoveList.Any(item => defaultMap.Name.Contains(item, StringComparison.OrdinalIgnoreCase))) continue;
 
             var mapInfo = MapInfo.CreateNonDisplay(defaultMap.Name, defaultMap.GetPathName().SubstringBeforeLast("."));
             
@@ -125,6 +144,12 @@ public partial class MapViewModel : ViewModelBase
             await map.Load();
         }
         
+    }
+    
+    [RelayCommand]
+    public async Task ReloadMap()
+    {
+        await SelectedMap.Load();
     }
     
     public override async Task OnViewOpened()
@@ -178,9 +203,11 @@ public partial class WorldPartitionMap : ObservableObject
 
     public async Task Load()
     {
+        Grids = [];
+        
         if (!Info.IsNonDisplay)
         {
-            var maskTexture = await CUE4ParseVM.Provider.LoadObjectAsync<UTexture2D>(Info.MaskPath);
+            var maskTexture = await CUE4ParseVM.Provider.LoadObjectAsync<UTexture2D>(Info.UseMask ? Info.MaskPath : "FortniteGame/Content/Global/Textures/Default/Blanks/T_White");
             MaskBitmap = maskTexture.Decode()!.ToWriteableBitmap();
         
             var mapTexture = await CUE4ParseVM.Provider.LoadObjectAsync<UTexture2D>(Info.MinimapPath);
@@ -218,8 +245,8 @@ public partial class WorldPartitionMap : ObservableObject
                         position = bounds.GetCenter();
 
                         // please don't break other maps
-                        position.X -= position.X % 12800;
-                        position.Y -= position.Y % 12800;
+                        position.X -= position.X % Info.MinGridDistance;
+                        position.Y -= position.Y % Info.MinGridDistance;
                     }
 
                 
@@ -250,7 +277,7 @@ public partial class WorldPartitionMap : ObservableObject
 
                     var runtimeCellData = gridCell.Get<UObject>("RuntimeCellData");
                     var position = runtimeCellData.GetOrDefault<FVector>("Position");
-                
+
                     if (Grids.FirstOrDefault(grid => grid.OriginalPosition == position) is { } targetGrid)
                     {
                         targetGrid.Maps.Add(new WorldPartitionGridMap(worldAsset.AssetPathName.Text));
@@ -677,11 +704,11 @@ public enum EMapTextureExportType
     Weight
 }
 
-public record MapInfo(string Name, string MapPath, string MinimapPath, string MaskPath, float Scale, int XOffset, int YOffset, int CellSize, bool UseMask, bool IsNonDisplay = false, string SourceName = "Battle Royale")
+public record MapInfo(string Name, string MapPath, string MinimapPath, string MaskPath, float Scale, int XOffset, int YOffset, int CellSize, int MinGridDistance, bool UseMask, bool IsNonDisplay = false, string SourceName = "Battle Royale")
 {
     public static MapInfo CreateNonDisplay(string name, string mapPath)
     {
-        return new MapInfo(name, mapPath, null, null, 0, 0, 0, 0, false, true);
+        return new MapInfo(name, mapPath, null, null, 0, 0, 0, 0, 12800, false, true);
     }
     
     public bool IsValid()

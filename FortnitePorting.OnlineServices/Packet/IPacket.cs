@@ -28,4 +28,7 @@ public enum EPacketType
     CanvasInfo,
     CanvasPlacementInfo,
     CanvasPixel,
+    
+    // Misc
+    Title
 }

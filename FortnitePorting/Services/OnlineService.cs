@@ -492,9 +492,16 @@ public static class OnlineService
                 
                 break;
             }
+            case EPacketType.Title:
+            {
+                var packet = e.Data.ReadPacket<TitlePacket>();
+                AppWM.Title(packet.Title, packet.Subtitle);
+                break;
+            }
             default:
             {
-                throw new NotImplementedException(type.ToString());
+                Log.Error($"Receiving invalid packet type: {type.ToString()}");
+                break;
             }
         }
     }

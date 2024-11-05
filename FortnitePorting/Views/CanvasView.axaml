@@ -23,12 +23,22 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="3.5*"/>
-            <ColumnDefinition Width="{ext:Space 1}" />
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         
         <Grid Grid.Column="0" x:Name="PopupParent">
-            <ScrollViewer HorizontalScrollBarVisibility="Auto">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="{ext:Space 1}"/>
+                <RowDefinition Height="20*"/>
+                <RowDefinition Height="1.5*"/>
+            </Grid.RowDefinitions>
+            
+            <TextBlock Grid.Row="0" Text="{Binding TimeUntilNextPlacement, StringFormat='Next Pixel in {0:ss}s', FallbackValue='00:00'}" 
+                       IsVisible="{Binding !ReadyToPlace}" Classes="SubtitleTextBlockStyle"
+                       HorizontalAlignment="Center" VerticalAlignment="Top" Margin="{ext:Space 0, 1, 0, 0}"/>
+            
+            <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Auto">
                 <Grid>
                     <Viewbox x:Name="CanvasViewBox" Width="600" Height="600">
                         <Image x:Name="BitmapImage" RenderOptions.BitmapInterpolationMode="None" Source="{Binding BitmapSource}" 
@@ -43,17 +53,12 @@
                 </Grid>
             </ScrollViewer>
             
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="{ext:Space 1}">
-                <Button Classes="ZoomButton" Content="−" Margin="{ext:Space 0, 0, 1, 0}" Click="ZoomOut"/>
-                <Button Classes="ZoomButton" Content="+" Click="ZoomIn"/>
+            <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="{ext:Space 1}">
+                <Button Content="−" Margin="{ext:Space 0, 0, 1, 0}" Click="ZoomOut"/>
+                <Button Content="+" Click="ZoomIn"/>
             </StackPanel>
             
-            <TextBlock Text="{Binding TimeUntilNextPlacement, StringFormat='Next Pixel in {0:ss}s', FallbackValue='00:00'}" 
-                       IsVisible="{Binding !ReadyToPlace}" Classes="SubtitleTextBlockStyle"
-                       HorizontalAlignment="Center" VerticalAlignment="Top" Margin="{ext:Space 0, 1, 0, 0}"
-                       Foreground="{DynamicResource SystemAccentColor}"/>
-            
-            <Popup x:Name="NamePopup" Placement="Center">
+            <Popup Grid.Row="0" Grid.RowSpan="4" x:Name="NamePopup" Placement="Center">
                 <ui:FABorder Padding="{ext:Space 1}" Background="#2c2c2c" IsHitTestVisible="False">
                     <TextBlock Text="{Binding PopupName, StringFormat='Placed by {0}'}"/>
                 </ui:FABorder>
@@ -61,7 +66,7 @@
             
         </Grid>
         
-        <ui:FABorder Grid.Column="2" Background="#22000000" CornerRadius="0">
+        <ui:FABorder Grid.Column="1" Background="#22000000" CornerRadius="0">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="{ext:Space 1}"/>

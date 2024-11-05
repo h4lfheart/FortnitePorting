@@ -13,6 +13,7 @@ using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
 using FortnitePorting.Models;
 using FortnitePorting.Models.API.Responses;
+using FortnitePorting.Models.App;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
@@ -35,6 +36,7 @@ public partial class AppWindowModel : WindowModelBase
     [ObservableProperty] private Frame _contentFrame;
     [ObservableProperty] private NavigationView _navigationView;
     [ObservableProperty] private ObservableCollection<InfoBarData> _infoBars = [];
+    [ObservableProperty] private TitleData? _titleData;
     [ObservableProperty] private int _chatNotifications;
 
     [ObservableProperty] private bool _timeWasterOpen;
@@ -164,6 +166,17 @@ public partial class AppWindowModel : WindowModelBase
             await dialog.ShowAsync();
         });
     }
+
+    public void Title(string title, string subTitle, float time = 5.0f)
+    {
+        TitleData = new TitleData(title, subTitle);
+        TaskService.Run(async () =>
+        {
+            await Task.Delay((int) (time * 1000));
+            TitleData = null;
+        });
+    }
+    
 
     public void Navigate<T>()
     {

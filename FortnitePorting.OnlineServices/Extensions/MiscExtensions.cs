@@ -46,7 +46,7 @@ public static class MiscExtensions
         
         if (permissions.HasFlag(EPermissions.Owner))
         {
-            commands.AddRange(["/clear-canvas", "/resize-canvas", "/set-canvas-cooldown"]);
+            commands.AddRange(["/clear-canvas", "/resize-canvas", "/set-canvas-cooldown", "/title"]);
         }
         
         return commands;
