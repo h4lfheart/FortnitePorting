@@ -1,59 +1,43 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
-using Avalonia.Layout;
-using Avalonia.Media.Imaging;
-using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.GameTypes.FN.Enums;
-using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Texture;
-using CUE4Parse.UE4.Assets.Objects;
-using CUE4Parse.UE4.Objects.Core.i18N;
-using CUE4Parse.UE4.Objects.GameplayTags;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
 using FortnitePorting.Export;
-using FortnitePorting.Extensions;
 using FortnitePorting.Models.Fortnite;
 using FortnitePorting.OnlineServices.Models;
 using FortnitePorting.OnlineServices.Packet;
 using FortnitePorting.Services;
-using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Models.Clipboard;
 using FortnitePorting.Windows;
 using Newtonsoft.Json;
-using Serilog;
-using SharpGLTF.Schema2;
 using SkiaSharp;
 using SkiaExtensions = FortnitePorting.Shared.Extensions.SkiaExtensions;
 
-namespace FortnitePorting.Models.Assets;
+namespace FortnitePorting.Models.Assets.Asset;
 
 
-public partial class AssetItem : ObservableObject
+public partial class AssetItem : Base.BaseAssetItem
 {
-    public Guid Id { get; set; }
-    public AssetItemCreationArgs CreationData { get; set; }
-
-    [ObservableProperty] private bool _isFavorite;
+    public new AssetItemCreationArgs CreationData
+    {
+        get => (AssetItemCreationArgs) base.CreationData;
+        private init => base.CreationData = value;
+    }
 
     public EFortRarity Rarity { get; set; }
     public int Season { get; set; }
     public UFortItemSeriesDefinition? Series { get; set; }
-    public WriteableBitmap DisplayImage { get; set; }
-    public WriteableBitmap IconDisplayImage { get; set; }
-    public bool IsCustom { get; set; }
-
-    public float DisplayWidth { get; set; } = 64;
-    public float DisplayHeight { get; set; } = 80;
+    
 
     private static SKColor InnerBackgroundColor = SKColor.Parse("#50C8FF");
     private static SKColor OuterBackgroundColor = SKColor.Parse("#1B7BCF");
@@ -83,24 +67,7 @@ public partial class AssetItem : ObservableObject
         DisplayImage = CreateDisplayImage(iconBitmap).ToWriteableBitmap();
     }
 
-    public AssetItem(string name, string description, SKBitmap iconBitmap, EExportType exportType, bool hideRarity = false)
-    {
-        CreationData = new AssetItemCreationArgs
-        {
-            Object = null,
-            Icon = null,
-            DisplayName = name,
-            Description = description,
-            ExportType = exportType,
-            HideRarity = hideRarity
-        };
-
-        IconDisplayImage = iconBitmap.ToWriteableBitmap();
-        DisplayImage = CreateDisplayImage(iconBitmap).ToWriteableBitmap();
-        IsCustom = true;
-    }
-
-    public SKBitmap CreateDisplayImage(SKBitmap iconBitmap)
+    protected sealed override SKBitmap CreateDisplayImage(SKBitmap iconBitmap)
     {
         var bitmap = new SKBitmap(128, 160, iconBitmap.ColorType, SKAlphaType.Opaque);
         using (var canvas = new SKCanvas(bitmap))
@@ -147,27 +114,19 @@ public partial class AssetItem : ObservableObject
         return bitmap;
     }
     
-    public bool Match(string filter)
-    {
-        return MiscExtensions.Filter(CreationData.DisplayName, filter) || MiscExtensions.Filter(CreationData.Object.Name, filter);
-    }
-    
-    [RelayCommand]
-    public async Task CopyPath()
+    public override async Task CopyPath()
     {
         await Clipboard.SetTextAsync(CreationData.Object.GetPathName());
     }
 
-    [RelayCommand]
-    public async Task PreviewProperties()
+    public override async Task PreviewProperties()
     {
         var assets = await CUE4ParseVM.Provider.LoadAllObjectsAsync(Exporter.FixPath(CreationData.Object.GetPathName()));
         var json = JsonConvert.SerializeObject(assets, Formatting.Indented);
         PropertiesPreviewWindow.Preview(CreationData.Object.Name, json);
     }
     
-    [RelayCommand]
-    public async Task SendToUser()
+    public override async Task SendToUser()
     {
         var xaml =
             """
@@ -220,14 +179,12 @@ public partial class AssetItem : ObservableObject
         await dialog.ShowAsync();
     }
     
-    [RelayCommand]
-    public async Task CopyIcon(bool withBackground = false)
+    public override async Task CopyIcon(bool withBackground = false)
     {
         await AvaloniaClipboard.SetImageAsync(withBackground ? DisplayImage : IconDisplayImage);
     }
     
-    [RelayCommand]
-    public void Favorite()
+    public override void Favorite()
     {
         var path = CreationData.Object.GetPathName();
         if (AppSettings.Current.FavoriteAssets.Add(path))
@@ -240,16 +197,4 @@ public partial class AssetItem : ObservableObject
             IsFavorite = false;
         }
     }
-}
-
-public class AssetItemCreationArgs
-{
-    public required UObject Object { get; set; }
-    public required UTexture2D Icon { get; set; }
-    public required string DisplayName { get; set; }
-    public required string Description { get; set; }
-    public required EExportType ExportType { get; set; }
-    public bool IsHidden { get; set; } = false;
-    public bool HideRarity { get; set; } = false;
-    public FGameplayTagContainer? GameplayTags { get; set; }
 }

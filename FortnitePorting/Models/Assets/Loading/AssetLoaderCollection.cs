@@ -12,6 +12,9 @@ using CUE4Parse.UE4.Objects.GameplayTags;
 using CUE4Parse.UE4.Objects.UObject;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
+using FortnitePorting.Export.Custom;
+using FortnitePorting.Export.Types;
+using FortnitePorting.Models.Assets.Custom;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
@@ -255,7 +258,50 @@ public partial class AssetLoaderCollection : ObservableObject
                         {
                             Name = "Oshawott",
                             Description = "No Description.",
-                            IconBitmap = SKBitmap.Decode(Avalonia.Platform.AssetLoader.Open(new Uri("avares://FortnitePorting/Assets/Custom/T_Oshawott-L.png")))
+                            IconBitmap = SKBitmap.Decode(Avalonia.Platform.AssetLoader.Open(new Uri("avares://FortnitePorting/Assets/Custom/Oshawott/T_Oshawott-L.png"))),
+                            Mesh = new MeshDefinition
+                            {
+                                Path = "Assets/Custom/Oshawott/Oshawott.uemodel",
+                                Materials = 
+                                [
+                                    new MaterialDefinition
+                                    {
+                                        Name = "MijumaruEyeNl",
+                                        Textures = 
+                                        [
+                                            new TextureDefinition
+                                            {
+                                                Path = "Assets/Custom/Oshawott/MijumaruEyeNl.png",
+                                                Slot = "Diffuse"
+                                            }
+                                        ]
+                                    },
+                                    new MaterialDefinition
+                                    {
+                                        Name = "MijumaruBodyNl",
+                                        Textures = 
+                                        [
+                                            new TextureDefinition
+                                            {
+                                                Path = "Assets/Custom/Oshawott/MijumaruBodyNl.png",
+                                                Slot = "Diffuse"
+                                            }
+                                        ]
+                                    },
+                                    new MaterialDefinition
+                                    {
+                                        Name = "MijumaruMouthNl",
+                                        Textures = 
+                                        [
+                                            new TextureDefinition
+                                            {
+                                                Path = "Assets/Custom/Oshawott/MijumaruMouthNl.png",
+                                                Slot = "Diffuse"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
                         }
                     ],
                     HideRarity = true
@@ -360,7 +406,7 @@ public partial class AssetLoaderCollection : ObservableObject
     [ObservableProperty] private NavigationViewItem _selectedNavItem;
     
     [ObservableProperty] private AssetLoader _activeLoader;
-    [ObservableProperty] private ReadOnlyObservableCollection<AssetItem> _activeCollection;
+    [ObservableProperty] private ReadOnlyObservableCollection<Base.BaseAssetItem> _activeCollection;
 
     public AssetLoaderCollection(bool isForUi = true)
     {

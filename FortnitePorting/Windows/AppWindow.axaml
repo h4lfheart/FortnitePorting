@@ -154,30 +154,34 @@
             </TransitioningContentControl.PageTransition>
         </TransitioningContentControl>
         
-        <Border Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Black" Opacity="0.5"
-                IsVisible="{Binding TitleData, Converter={x:Static ObjectConverters.IsNotNull}}"/>
-        
-        <Grid Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" 
+        <Grid Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsHitTestVisible="False"
               IsVisible="{Binding TitleData, Converter={x:Static ObjectConverters.IsNotNull}}">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="{ext:Space 1}"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
             
-            <TextBlock Grid.Row="0" Text="{Binding TitleData.Title}" Classes="TitleTextBlockStyle"
-                       HorizontalAlignment="Center" VerticalAlignment="Center">
-                <TextBlock.Effect>
-                    <DropShadowEffect BlurRadius="15"/>
-                </TextBlock.Effect>
-            </TextBlock>
-            <TextBlock Grid.Row="2" Text="{Binding TitleData.SubTitle}" Classes="SubtitleTextBlockStyle"
-                       HorizontalAlignment="Center" VerticalAlignment="Center">
-                <TextBlock.Effect>
-                    <DropShadowEffect BlurRadius="15"/>
-                </TextBlock.Effect>
-            </TextBlock>
+            <Border Background="Black" Opacity="0.5"/>
+            
+            <Grid HorizontalAlignment="Center" VerticalAlignment="Center" 
+                  IsVisible="{Binding TitleData, Converter={x:Static ObjectConverters.IsNotNull}}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="{ext:Space 1}"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+            
+                <TextBlock Grid.Row="0" Text="{Binding TitleData.Title}" Classes="TitleTextBlockStyle"
+                           HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock.Effect>
+                        <DropShadowEffect BlurRadius="15"/>
+                    </TextBlock.Effect>
+                </TextBlock>
+                <TextBlock Grid.Row="2" Text="{Binding TitleData.SubTitle}" Classes="SubtitleTextBlockStyle"
+                           HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock.Effect>
+                        <DropShadowEffect BlurRadius="15"/>
+                    </TextBlock.Effect>
+                </TextBlock>
+            </Grid>
         </Grid>
+        
         
         <Grid Grid.Row="0" Background="Transparent" HorizontalAlignment="Stretch" PointerPressed="OnPointerPressedUpperBar">
             <Grid.ColumnDefinitions>

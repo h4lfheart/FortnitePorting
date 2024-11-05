@@ -7,12 +7,16 @@ using Avalonia.VisualTree;
 using FluentAvalonia.UI.Controls;
 
 using FortnitePorting.Models.Assets;
+using FortnitePorting.Models.Assets.Asset;
+using FortnitePorting.Models.Assets.Custom;
 using FortnitePorting.Models.Assets.Filters;
+using FortnitePorting.Models.Assets.Loading;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
+using BaseAssetItem = FortnitePorting.Models.Assets.Base.BaseAssetItem;
 
 namespace FortnitePorting.Views;
 
@@ -35,13 +39,21 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
         if (listBox.SelectedItems.Count == 0) return;
         
         ViewModel.AssetLoaderCollection.ActiveLoader.SelectedAssetInfos = [];
-        foreach (var asset in listBox.SelectedItems.Cast<AssetItem>())
+        foreach (var asset in listBox.SelectedItems.Cast<BaseAssetItem>())
         {
-            ViewModel.AssetLoaderCollection.ActiveLoader.SelectedAssetInfos.Add(
-                ViewModel.AssetLoaderCollection.ActiveLoader.StyleDictionary.TryGetValue(asset.CreationData.DisplayName,
-                    out var stylePaths)
-                    ? new AssetInfo(asset, stylePaths.OrderBy(x => x))
-                    : new AssetInfo(asset));
+            if (asset is AssetItem assetItem)
+            {
+                
+                ViewModel.AssetLoaderCollection.ActiveLoader.SelectedAssetInfos.Add(
+                    ViewModel.AssetLoaderCollection.ActiveLoader.StyleDictionary.TryGetValue(asset.CreationData.DisplayName,
+                        out var stylePaths)
+                        ? new AssetInfo(assetItem, stylePaths.OrderBy(x => x))
+                        : new AssetInfo(assetItem));
+            }
+            else if (asset is CustomAssetItem customAsset)
+            {
+                ViewModel.AssetLoaderCollection.ActiveLoader.SelectedAssetInfos.Add(new CustomAssetInfo(customAsset));
+            }
         }
     }
     

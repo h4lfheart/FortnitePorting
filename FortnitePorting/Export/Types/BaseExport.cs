@@ -26,6 +26,14 @@ public class BaseExport
         Exporter = new ExportContext(metaData);
     }
     
+    public BaseExport(string name, EExportType exportType, ExportDataMeta metaData)
+    {
+        Name = name;
+        Type = exportType;
+
+        Exporter = new ExportContext(metaData);
+    }
+    
     public void WaitForExports()
     {
         foreach (var task in Exporter.ExportTasks)

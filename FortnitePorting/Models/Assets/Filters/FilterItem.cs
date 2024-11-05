@@ -1,5 +1,6 @@
 using System;
 using CommunityToolkit.Mvvm.ComponentModel;
+using FortnitePorting.Models.Assets.Asset;
 
 namespace FortnitePorting.Models.Assets.Filters;
 

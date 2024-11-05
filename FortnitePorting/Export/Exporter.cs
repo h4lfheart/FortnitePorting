@@ -23,6 +23,8 @@ using FortnitePorting.Export.Types;
 using FortnitePorting.Models;
 using FortnitePorting.Models.API;
 using FortnitePorting.Models.Assets;
+using FortnitePorting.Models.Assets.Asset;
+using FortnitePorting.Models.Assets.Custom;
 using FortnitePorting.Models.Unreal;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
@@ -35,6 +37,7 @@ using FortnitePorting.ViewModels;
 using Newtonsoft.Json;
 using Serilog;
 using AssetLoaderCollection = FortnitePorting.Models.Assets.Loading.AssetLoaderCollection;
+using BaseAssetInfo = FortnitePorting.Models.Assets.Base.BaseAssetInfo;
 
 namespace FortnitePorting.Export;
 
@@ -79,17 +82,27 @@ public static class Exporter
         });
     }
     
-    public static async Task Export(IEnumerable<AssetInfo> assets, ExportDataMeta metaData)
+    public static async Task Export(IEnumerable<BaseAssetInfo> assets, ExportDataMeta metaData)
     {
-        await Export(() => assets.Select(assetInfo =>
+        await Export(() => assets.Select(baseAssetInfo =>
         {
-            var asset = assetInfo.Asset;
-            var styles = metaData.ExportLocation.IsFolder() ? assetInfo.GetAllStyles() : assetInfo.GetSelectedStyles();
-            var exportType = asset.CreationData.ExportType;
+            if (baseAssetInfo is AssetInfo assetInfo)
+            {
+                var asset = assetInfo.Asset;
+                var styles = metaData.ExportLocation.IsFolder() ? assetInfo.GetAllStyles() : assetInfo.GetSelectedStyles();
+                var exportType = asset.CreationData.ExportType;
 
-            return CreateExport(asset.CreationData.DisplayName, asset.CreationData.Object, exportType, styles,
-                metaData);
-        }), metaData);
+                return CreateExport(asset.CreationData.DisplayName, asset.CreationData.Object, exportType, styles,
+                    metaData);
+            }
+
+            if (baseAssetInfo is CustomAssetInfo customAssetInfo)
+            {
+                return new MeshExport(customAssetInfo.Asset.Asset, customAssetInfo.Asset.CreationData.ExportType, metaData);
+            }
+
+            return null;
+        })!, metaData);
     }
     
     public static async Task Export(List<KeyValuePair<UObject, EExportType>> assets, ExportDataMeta metaData)

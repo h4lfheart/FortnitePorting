@@ -17,6 +17,7 @@ public partial class MapView : ViewBase<MapViewModel>
     public MapView()
     {
         InitializeComponent();
+        ViewModel.GridsControl = GridsControl;
     }
 
     private void OnCellPressed(object? sender, PointerPressedEventArgs e)

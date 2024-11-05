@@ -23,26 +23,16 @@
                 <Border CornerRadius="16" ClipToBounds="True">
                     <Image x:Name="MapImage" Source="{Binding SelectedMap.MapBitmap, TargetNullValue=Assets/DefaultProfile.png}"/>
                 </Border>
-                <ItemsControl ItemsSource="{Binding SelectedMap.Grids}"
+                <ItemsControl x:Name="GridsControl" ItemsSource="{Binding SelectedMap.Grids}"
                               Width="{Binding Bounds.Width, ElementName=MapImage}"
-                              Height="{Binding Bounds.Height, ElementName=MapImage}"
-                              Classes.UseMask="{Binding SelectedMap.Info.UseMask}" Classes.DontUseMask="{Binding !SelectedMap.Info.UseMask}">
-                    <ItemsControl.Styles>
-                        <Style Selector="ItemsControl.UseMask">
-                            <Setter Property="OpacityMask">
-                                <ImageBrush Source="{Binding SelectedMap.MaskBitmap}" TransformOrigin="50%,50%">
-                                    <ImageBrush.Transform>
-                                        <ScaleTransform ScaleX="0.95" ScaleY="0.95"/>
-                                    </ImageBrush.Transform>
-                                </ImageBrush>
-                            </Setter>
-                        </Style>
-                        <Style Selector="ItemsControl.DontUseMask">
-                            <Setter Property="OpacityMask">
-                                <SolidColorBrush Color="White"/>
-                            </Setter>
-                        </Style>
-                    </ItemsControl.Styles>
+                              Height="{Binding Bounds.Height, ElementName=MapImage}">
+                    <ItemsControl.OpacityMask>
+                        <ImageBrush Source="{Binding SelectedMap.MaskBitmap}" TransformOrigin="50%,50%">
+                            <ImageBrush.Transform>
+                                <ScaleTransform ScaleX="0.95" ScaleY="0.95"/>
+                            </ImageBrush.Transform>
+                        </ImageBrush>
+                    </ItemsControl.OpacityMask>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Border ToolTip.Tip="{Binding ToolTipNames}" Opacity="0.35"

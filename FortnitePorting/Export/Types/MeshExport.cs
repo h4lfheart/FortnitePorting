@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using Avalonia.Controls.Shapes;
 using CUE4Parse_Conversion.Meshes;
 using CUE4Parse.GameTypes.FN.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports;
@@ -22,12 +24,14 @@ using DynamicData;
 using FortnitePorting.Export.Models;
 using FortnitePorting.Extensions;
 using FortnitePorting.Models.Assets;
+using FortnitePorting.Models.Assets.Custom;
 using FortnitePorting.Models.CUE4Parse;
 using FortnitePorting.Models.Unreal.Landscape;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Models.Fortnite;
 using Serilog;
+using Path = System.IO.Path;
 
 namespace FortnitePorting.Export.Types;
 
@@ -57,6 +61,48 @@ public class MeshExport : BaseExport
         
         var assetStyles = styles.OfType<AssetStyleData>();
         ExportStyles(asset, assetStyles);
+    }
+
+    public MeshExport(CustomAsset customAsset, EExportType exportType, ExportDataMeta metaData) : base(customAsset.Name, exportType, metaData)
+    {
+        string ExportCustom(string path)
+        {
+            var stream = Avalonia.Platform.AssetLoader.Open(new Uri($"avares://FortnitePorting/{path}"));
+            
+            var outPathPortion = path.SubstringAfter("Assets/");
+            var outPath = Path.Combine(metaData.AssetsRoot, outPathPortion);
+            Directory.CreateDirectory(outPath.SubstringBeforeLast("/"));
+            File.WriteAllBytes(outPath, stream.ReadToEnd());
+
+            return outPathPortion;
+        }
+        
+        var mesh = customAsset.Mesh;
+
+        var exportMesh = new ExportMesh();
+        exportMesh.Name = customAsset.Name;
+        exportMesh.Path = ExportCustom(mesh.Path);
+
+        for (var matIndex = 0; matIndex < mesh.Materials.Length; matIndex++)
+        {
+            var material = mesh.Materials[matIndex];
+            
+            var exportMaterial = new ExportMaterial();
+            exportMaterial.Name = material.Name;
+            exportMaterial.Slot = matIndex;
+            exportMaterial.Hash = material.Name.GetHashCode();
+
+            foreach (var texture in material.Textures)
+            {
+                exportMaterial.Textures.Add(new TextureParameter(texture.Slot, ExportCustom(texture.Path), true,
+                    TextureCompressionSettings.TC_Default));
+            }
+            
+            exportMesh.Materials.Add(exportMaterial);
+        }
+        
+        Meshes.Add(exportMesh);
+        
     }
 
     public void Export(UObject asset, EExportType exportType)

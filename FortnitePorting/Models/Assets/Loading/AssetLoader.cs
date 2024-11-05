@@ -14,12 +14,15 @@ using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.GameplayTags;
 using DynamicData;
 using DynamicData.Binding;
+using FortnitePorting.Models.Assets.Asset;
+using FortnitePorting.Models.Assets.Custom;
 using FortnitePorting.Models.Assets.Filters;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Services;
 using Material.Icons;
 using ReactiveUI;
+using ScottPlot.Colormaps;
 using Serilog;
 
 namespace FortnitePorting.Models.Assets.Loading;
@@ -44,8 +47,8 @@ public partial class AssetLoader : ObservableObject
     public Func<UObject, string?> DescriptionHandler = asset => asset.GetAnyOrDefault<FText?>("Description", "ItemDescription")?.Text;
     public Func<UObject, FGameplayTagContainer?> GameplayTagHandler = GetGameplayTags;
     
-    public readonly ReadOnlyObservableCollection<AssetItem> Filtered;
-    public SourceCache<AssetItem, Guid> Source = new(asset => asset.Id);
+    public readonly ReadOnlyObservableCollection<Base.BaseAssetItem> Filtered;
+    public SourceCache<Base.BaseAssetItem, Guid> Source = new(asset => asset.Id);
     public readonly ConcurrentBag<string> FilteredAssetBag = [];
     public readonly ConcurrentDictionary<string, ConcurrentBag<string>> StyleDictionary = [];
 
@@ -54,18 +57,18 @@ public partial class AssetLoader : ObservableObject
     private bool BeganLoading;
     private bool IsPaused;
     
-    [ObservableProperty] private ObservableCollection<AssetInfo> _selectedAssetInfos = [];
+    [ObservableProperty] private ObservableCollection<Base.BaseAssetInfo> _selectedAssetInfos = [];
     
     [ObservableProperty, NotifyPropertyChangedFor(nameof(FinishedLoading))] private int _loadedAssets;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(FinishedLoading))] private int _totalAssets;
     public bool FinishedLoading => LoadedAssets == TotalAssets;
     
-    public readonly IObservable<SortExpressionComparer<AssetItem>> AssetSort;
+    public readonly IObservable<SortExpressionComparer<Base.BaseAssetItem>> AssetSort;
     [ObservableProperty] private EAssetSortType _sortType = EAssetSortType.None;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(SortIcon))] private bool _descendingSort = false;
     public MaterialIconKind SortIcon => DescendingSort ? MaterialIconKind.SortDescending : MaterialIconKind.SortAscending;
     
-    public readonly IObservable<Func<AssetItem, bool>> AssetFilter;
+    public readonly IObservable<Func<Base.BaseAssetItem, bool>> AssetFilter;
     [ObservableProperty] private string _searchFilter = string.Empty;
     [ObservableProperty] private ObservableCollection<string> _searchAutoComplete = [];
 
@@ -172,11 +175,11 @@ public partial class AssetLoader : ObservableObject
         
         AssetFilter = this
             .WhenAnyValue(loader => loader.SearchFilter, loader => loader.ActiveFilters)
-            .Select<(string, ObservableCollection<FilterItem>), Func<AssetItem, bool>>(CreateAssetFilter);
+            .Select(CreateAssetFilter);
         
         AssetSort = this
             .WhenAnyValue(loader => loader.SortType, loader => loader.DescendingSort)
-            .Select<(EAssetSortType, bool), SortExpressionComparer<AssetItem>>(CreateAssetSort);
+            .Select(CreateAssetSort);
         
         Source.Connect()
             .ObserveOn(RxApp.MainThreadScheduler)
@@ -208,7 +211,6 @@ public partial class AssetLoader : ObservableObject
             Assets.RemoveAll(asset => HideNames.Any(name => asset.PackageName.Text.Contains(name, StringComparison.OrdinalIgnoreCase)));
         }
         
-
 
         TotalAssets = Assets.Count + ManuallyDefinedAssets.Length + CustomAssets.Length;
         foreach (var asset in Assets)
@@ -246,12 +248,7 @@ public partial class AssetLoader : ObservableObject
             await WaitIfPausedAsync();
             try
             {
-                await TaskService.RunDispatcherAsync(() =>
-                {
-                    SearchAutoComplete.AddUnique(customAsset.Name);
-                });
-                
-                Source.AddOrUpdate(new AssetItem(customAsset.Name, customAsset.Description, customAsset.IconBitmap, Type, HideRarity));
+                await LoadAsset(customAsset);
             }
             catch (Exception e)
             {
@@ -293,6 +290,7 @@ public partial class AssetLoader : ObservableObject
         {
             Object = asset,
             Icon = icon,
+            ID = asset.Name,
             DisplayName = displayName,
             Description = DescriptionHandler(asset) ?? "No Description.",
             ExportType = Type,
@@ -314,15 +312,11 @@ public partial class AssetLoader : ObservableObject
         var icon = await CUE4ParseVM.Provider.TryLoadObjectAsync<UTexture2D>(manualAsset.IconPath) ?? await CUE4ParseVM.Provider.TryLoadObjectAsync<UTexture2D>(PlaceholderIconPath);
         if (icon is null) return;
         
-        await TaskService.RunDispatcherAsync(() =>
-        {
-            SearchAutoComplete.AddUnique(displayName);
-        });
-        
         var args = new AssetItemCreationArgs
         {
             Object = asset,
             Icon = icon,
+            ID = asset.Name,
             DisplayName = displayName,
             Description = manualAsset.Description,
             ExportType = Type,
@@ -331,6 +325,11 @@ public partial class AssetLoader : ObservableObject
         };
 
         Source.AddOrUpdate(new AssetItem(args));
+    }
+    
+    private async Task LoadAsset(CustomAsset customAsset)
+    {
+        Source.AddOrUpdate(new CustomAssetItem(customAsset, Type));
     }
     
     public static UTexture2D? GetIcon(UObject asset)
@@ -379,28 +378,38 @@ public partial class AssetLoader : ObservableObject
         while (IsPaused) await Task.Delay(1);
     }
     
-    private static Func<AssetItem, bool> CreateAssetFilter((string, ObservableCollection<FilterItem>) values)
+    private static Func<Base.BaseAssetItem, bool> CreateAssetFilter((string, ObservableCollection<FilterItem>) values)
     {
         var (searchFilter, filters) = values;
+        return asset =>
+        {
+            if (asset is AssetItem assetItem)
+            {
+                return assetItem.Match(searchFilter) && filters.All(x => x.Predicate.Invoke(assetItem)) 
+                                                     && assetItem.CreationData.IsHidden == filters.Any(filter => filter.Title.Equals("Hidden Items"));
+            }
+            else
+            {
+                return asset.Match(searchFilter);
+            }
+        };
         
-        return asset => asset.Match(searchFilter) && filters.All(x => x.Predicate.Invoke(asset)) 
-                                                  && asset.CreationData.IsHidden == filters.Any(filter => filter.Title.Equals("Hidden Items"));
     }
 
-    private static SortExpressionComparer<AssetItem> CreateAssetSort((EAssetSortType, bool) values)
+    private static SortExpressionComparer<Base.BaseAssetItem> CreateAssetSort((EAssetSortType, bool) values)
     {
         var (type, descending) = values;
-        Func<AssetItem, IComparable> sort = type switch
+        Func<Base.BaseAssetItem, IComparable> sort = type switch
         {
             EAssetSortType.AZ => asset => asset.CreationData.DisplayName,
-            EAssetSortType.Season => asset => asset.Season + (double) asset.Rarity * 0.01,
-            EAssetSortType.Rarity => asset => asset.Series?.DisplayName.Text + (int) asset.Rarity,
-            _ => asset => asset.CreationData.Object?.Name ?? string.Empty
+            EAssetSortType.Season => asset => asset is AssetItem assetItem ? assetItem.Season + (double) assetItem.Rarity * 0.01 : asset.CreationData.DisplayName,
+            EAssetSortType.Rarity => asset => asset is AssetItem assetItem ? assetItem.Series?.DisplayName.Text + (int) assetItem.Rarity : asset.CreationData.DisplayName,
+            _ => asset => asset is AssetItem assetItem ? assetItem.CreationData.Object?.Name ?? string.Empty : asset.CreationData.DisplayName
         };
 
         return descending
-            ? SortExpressionComparer<AssetItem>.Descending(sort)
-            : SortExpressionComparer<AssetItem>.Ascending(sort);
+            ? SortExpressionComparer<Base.BaseAssetItem>.Descending(sort)
+            : SortExpressionComparer<Base.BaseAssetItem>.Ascending(sort);
     }
     
     // scuffed fix to get filter to update

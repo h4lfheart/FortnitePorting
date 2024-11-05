@@ -1,21 +1,20 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
-
 using FortnitePorting.Shared.Extensions;
-using SharpGLTF.Schema2;
 
-namespace FortnitePorting.Models.Assets;
+namespace FortnitePorting.Models.Assets.Asset;
 
-public partial class AssetInfo : ObservableObject
+public partial class AssetInfo : Base.BaseAssetInfo
 {
-    [ObservableProperty] private AssetItem _asset;
-    [ObservableProperty] private ObservableCollection<AssetStyleInfo> _styleInfos = [];
+    public new AssetItem Asset
+    {
+        get => (AssetItem) base.Asset;
+        private init => base.Asset = value;
+    }
     
     public AssetInfo(AssetItem asset)
     {
@@ -66,15 +65,15 @@ public partial class AssetInfo : ObservableObject
     
     public BaseStyleData[] GetSelectedStyles()
     {
-        return StyleInfos
-            .SelectMany(info => info.SelectedItems)
+        return Enumerable
+            .SelectMany<AssetStyleInfo, BaseStyleData>(StyleInfos, info => info.SelectedItems)
             .ToArray();
     }
     
     public BaseStyleData[] GetAllStyles()
     {
-        return StyleInfos
-            .SelectMany(info => info.StyleDatas)
+        return Enumerable
+            .SelectMany<AssetStyleInfo, BaseStyleData>(StyleInfos, info => info.StyleDatas)
             .ToArray();
     }
 }

@@ -15,6 +15,7 @@
              xmlns:assets="clr-namespace:FortnitePorting.Models.Assets"
              xmlns:filters="clr-namespace:FortnitePorting.Models.Assets.Filters"
              xmlns:fortnitePorting="clr-namespace:FortnitePorting"
+             xmlns:base="clr-namespace:FortnitePorting.Models.Assets.Base"
              d:DesignHeight="720" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.AssetsView"
              x:DataType="viewModels:AssetsViewModel">
@@ -119,7 +120,7 @@
                                 </Style>
                             </ListBox.Styles>
                             <ListBox.ItemTemplate>
-                                <DataTemplate DataType="assets:AssetItem">
+                                <DataTemplate DataType="base:BaseAssetItem">
                                     <ContentControl Padding="8">
                                         <ContentControl.ContextMenu>
                                             <ContextMenu>
@@ -134,7 +135,7 @@
                                             </ContextMenu>
                                         </ContentControl.ContextMenu>
                                         <StackPanel Width="{Binding DisplayWidth}" 
-                                                    ToolTip.Tip="{Binding CreationData.Object.Name}">
+                                                    ToolTip.Tip="{Binding CreationData.ID}">
                                             <Grid>
                                                 <ui:FABorder Width="{Binding DisplayWidth}" 
                                                              Height="{Binding DisplayHeight}"/>

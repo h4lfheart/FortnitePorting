@@ -37,7 +37,7 @@ class ImportContext:
 
         ensure_blend_data()
 
-        #pyperclip.copy(json.dumps(data))
+        pyperclip.copy(json.dumps(data))
 
         import_type = EPrimitiveExportType(data.get("PrimitiveType"))
         match import_type:

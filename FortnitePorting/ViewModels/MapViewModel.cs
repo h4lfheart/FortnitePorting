@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -49,6 +50,8 @@ public partial class MapViewModel : ViewModelBase
     [ObservableProperty] private ObservableCollection<WorldPartitionMap> _maps = [];
     [ObservableProperty] private WorldPartitionMap _selectedMap;
     [ObservableProperty] private EExportLocation _exportLocation = EExportLocation.Blender;
+
+    public ItemsControl? GridsControl;
     
     public bool IsDebug =>
 #if DEBUG
@@ -129,7 +132,7 @@ public partial class MapViewModel : ViewModelBase
             var defaultMap = await defaultMapPath.LoadAsync();
             if (PluginRemoveList.Any(item => defaultMap.Name.Contains(item, StringComparison.OrdinalIgnoreCase))) continue;
 
-            var mapInfo = MapInfo.CreateNonDisplay(defaultMap.Name, defaultMap.GetPathName().SubstringBeforeLast("."));
+            var mapInfo = MapInfo.CreateNonDisplay(defaultMap.Name, defaultMap.GetPathName().SubstringBeforeLast("."), sourceName: "UEFN");
             
             Maps.Add(new WorldPartitionMap(mapInfo));
         }
@@ -165,6 +168,8 @@ public partial class MapViewModel : ViewModelBase
         {
             case nameof(SelectedMap):
             {
+                GridsControl?.InvalidateVisual();
+                
                 DiscordService.Update($"Browsing Map: \"{SelectedMap.Info.Name}\"", "Map");
                 break;
             }
@@ -706,9 +711,9 @@ public enum EMapTextureExportType
 
 public record MapInfo(string Name, string MapPath, string MinimapPath, string MaskPath, float Scale, int XOffset, int YOffset, int CellSize, int MinGridDistance, bool UseMask, bool IsNonDisplay = false, string SourceName = "Battle Royale")
 {
-    public static MapInfo CreateNonDisplay(string name, string mapPath)
+    public static MapInfo CreateNonDisplay(string name, string mapPath, string sourceName = "Battle Royale")
     {
-        return new MapInfo(name, mapPath, null, null, 0, 0, 0, 0, 12800, false, true);
+        return new MapInfo(name, mapPath, null, null, 0, 0, 0, 0, 12800, false, true, sourceName);
     }
     
     public bool IsValid()

@@ -9,6 +9,7 @@ using FortnitePorting.Application;
 using FortnitePorting.Export;
 using FortnitePorting.Export.Models;
 using FortnitePorting.Models.Assets;
+using FortnitePorting.Models.Assets.Asset;
 using FortnitePorting.Models.Leaderboard;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
@@ -40,18 +41,11 @@ public partial class AssetsViewModel : ViewModelBase
     [RelayCommand]
     public async Task Export()
     {
-        if (AssetLoaderCollection.ActiveLoader.SelectedAssetInfos.FirstOrDefault(info => info.Asset.IsCustom) is
-            { } customAsset)
-        {
-            AppWM.Message("Unsupported Asset", $"{customAsset.Asset.CreationData.DisplayName} cannot be exported.");
-            return;
-        }
-        
         await Exporter.Export(AssetLoaderCollection.ActiveLoader.SelectedAssetInfos, AppSettings.Current.CreateExportMeta(ExportLocation));
 
         if (AppSettings.Current.Online.UseIntegration)
         {
-            var exports = AssetLoaderCollection.ActiveLoader.SelectedAssetInfos.Select(asset =>
+            var exports = AssetLoaderCollection.ActiveLoader.SelectedAssetInfos.OfType<AssetInfo>().Select(asset =>
             {
                 var creationData = asset.Asset.CreationData;
                 return new PersonalExport(creationData.Object.GetPathName());
