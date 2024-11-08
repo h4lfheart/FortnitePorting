@@ -77,7 +77,7 @@ void FImportContext::ImportMeshData(const FMeshExport& Export)
 
 			const auto ImportedModel = ImportModel(Mesh);
 			
-			if (const auto StaticMesh = static_cast<UStaticMesh*>(ImportedModel); Export.Type == EExportType::World)
+			if (const auto StaticMesh = Cast<UStaticMesh>(ImportedModel); Export.Type == EExportType::World)
 			{
 				const auto Actor = World->SpawnActor<AFortPortActor>();
 				Actor->SetActorLabel(*Mesh.Name);
@@ -157,7 +157,7 @@ UObject* FImportContext::ImportMesh(const FString& GamePath)
 	bool Canceled;
 	Mesh = ModelFactory->FactoryCreateFile(nullptr, Package, FName(*PathData.ObjectName), RF_Public | RF_Standalone, MeshPath, nullptr, nullptr, Canceled);
 
-	if (const auto StaticMesh = static_cast<UStaticMesh*>(Mesh))
+	if (const auto StaticMesh = Cast<UStaticMesh>(Mesh))
 	{
 		StaticMesh->GetSourceModel(0).BuildSettings.bGenerateLightmapUVs = false;
 		StaticMesh->GetSourceModel(0).BuildSettings.bRecomputeNormals = false;
@@ -202,6 +202,11 @@ UMaterialInstanceConstant* FImportContext::ImportMaterial(const FExportMaterial&
 			if (Texture == nullptr) continue;
 			
 			MaterialInstance->SetTextureParameterValueEditorOnly(FMaterialParameterInfo(*Mapping->Slot, GlobalParameter), Texture);
+
+			if (!Mapping->SwitchSlot.IsEmpty())
+			{
+				MaterialInstance->SetStaticSwitchParameterValueEditorOnly(FMaterialParameterInfo(*Mapping->SwitchSlot, GlobalParameter), true);
+			}
 		}
 	}
 	

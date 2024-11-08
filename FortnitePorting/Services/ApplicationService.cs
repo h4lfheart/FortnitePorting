@@ -131,6 +131,7 @@ public static class ApplicationService
         ViewModelRegistry.New<APIViewModel>();
         ViewModelRegistry.New<ChatViewModel>();
         ViewModelRegistry.New<CanvasViewModel>();
+        ViewModelRegistry.New<VotingViewModel>(initialize: true);
         DependencyService.EnsureDependencies();
         
         TimeWasterViewModel.LoadResources();

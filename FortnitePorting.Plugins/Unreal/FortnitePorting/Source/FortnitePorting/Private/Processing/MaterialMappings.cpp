@@ -22,7 +22,7 @@ const FMappingCollection FMaterialMappings::Default {
 
 		FSlotMapping("SpecularMasks"),
 		FSlotMapping("S", "SpecularMasks"),
-		FSlotMapping("SRM", "SpecularMasks"),
+		FSlotMapping("SRM", "SpecularMasks", "SwizzleRoughnessToGreen"),
 		FSlotMapping("Specular Mask", "SpecularMasks"),
 		FSlotMapping("SpecularMask", "SpecularMasks"),
 		FSlotMapping("Concrete_SpecMask", "SpecularMasks"),

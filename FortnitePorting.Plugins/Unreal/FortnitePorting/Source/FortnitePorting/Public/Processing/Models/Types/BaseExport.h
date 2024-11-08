@@ -17,6 +17,7 @@ enum class EExportType : uint8
     
     // COSMETIC
     Outfit,
+	CharacterPart,
     Backpack,
     Pickaxe,
     Glider,
@@ -61,7 +62,9 @@ enum class EExportType : uint8
     World,
     Texture,
     Animation,
-    Sound
+    Sound,
+	Font,
+	PoseAsset
 };
 
 USTRUCT()

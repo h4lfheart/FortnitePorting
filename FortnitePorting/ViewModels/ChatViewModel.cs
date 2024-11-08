@@ -70,10 +70,16 @@ public partial class ChatViewModel : ViewModelBase
 
     public async Task ClipboardPaste()
     {
-        if (await AvaloniaClipboard.GetImageAsync() is not { } image) return;
-        SelectedImageName = "image.png";
-        SelectedImage = image;
-        ImageFlyout.IsOpen = true;
+        if (await AvaloniaClipboard.GetTextAsync() is { } text)
+        {
+            Text += text;
+        }
+        else if (await AvaloniaClipboard.GetImageAsync() is { } image)
+        {
+            SelectedImageName = "clipboard.png";
+            SelectedImage = image;
+            ImageFlyout.IsOpen = true;
+        }
     }
 
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)

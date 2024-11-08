@@ -1,3 +1,5 @@
+using FortnitePorting.Shared.Services;
+
 namespace FortnitePorting.Shared.Framework;
 
 public class ViewModelRegistry
@@ -10,9 +12,10 @@ public class ViewModelRegistry
         return Registry.TryGetValue(type, out var value) ? (T) value : null;
     }
 
-    public static T New<T>() where T : ViewModelBase, new()
+    public static T New<T>(bool initialize = false) where T : ViewModelBase, new()
     {
         var newViewModel = new T();
+        if (initialize) TaskService.Run(newViewModel.Initialize);
         Registry[typeof(T)] = newViewModel;
         return newViewModel;
     }

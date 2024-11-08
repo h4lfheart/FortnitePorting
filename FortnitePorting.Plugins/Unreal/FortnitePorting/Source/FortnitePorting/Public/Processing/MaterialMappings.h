@@ -5,13 +5,15 @@ struct FSlotMapping
 {
 	FString Name;
 	FString Slot;
+	FString SwitchSlot;
 	
 	FSlotMapping() { }
 	
-	FSlotMapping(const FString& Name, const FString& Slot = "")
+	FSlotMapping(const FString& Name, const FString& Slot = "", const FString& SwitchSlot = "")
 	{
 		this->Name = Name;
 		this->Slot = Slot.IsEmpty() ? Name : Slot;
+		this-> SwitchSlot = SwitchSlot;
 	}
 };
 

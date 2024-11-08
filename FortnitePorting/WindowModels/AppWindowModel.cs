@@ -37,7 +37,9 @@ public partial class AppWindowModel : WindowModelBase
     [ObservableProperty] private NavigationView _navigationView;
     [ObservableProperty] private ObservableCollection<InfoBarData> _infoBars = [];
     [ObservableProperty] private TitleData? _titleData;
+    
     [ObservableProperty] private int _chatNotifications;
+    [ObservableProperty] private int _unsubmittedPolls;
 
     [ObservableProperty] private bool _timeWasterOpen;
     [ObservableProperty] private TimeWasterView? _timeWaster;

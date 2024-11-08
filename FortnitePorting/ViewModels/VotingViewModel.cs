@@ -24,6 +24,11 @@ public partial class VotingViewModel : ViewModelBase
     
     public OnlineSettingsViewModel OnlineRef => AppSettings.Current.Online;
 
+    public override async Task Initialize()
+    {
+        await RefreshPolls();
+    }
+
     public override async Task OnViewOpened()
     {
         await RefreshPolls();
@@ -35,5 +40,7 @@ public partial class VotingViewModel : ViewModelBase
         
         var polls = await ApiVM.FortnitePorting.GetPollsAsync();
         Polls = [.. polls.OrderBy(poll => poll.Submitted)];
+
+        AppWM.UnsubmittedPolls = IncompletePollCount;
     }
 }
