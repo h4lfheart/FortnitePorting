@@ -26,7 +26,7 @@ public partial class InstallViewModel : ViewModelBase
 
     public override async Task Initialize()
     {
-        if (!IntroVM.ExtractOnly)
+        if (IntroVM.InstallDependencies)
         {
             foreach (var dependency in IntroVM.ReleaseInfo.Dependencies)
             {

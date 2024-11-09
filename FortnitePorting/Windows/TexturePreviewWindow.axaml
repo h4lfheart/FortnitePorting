@@ -7,7 +7,7 @@
         x:Class="FortnitePorting.Windows.TexturePreviewWindow"
         x:DataType="windowModels:TexturePreviewWindowModel"
         Width="960" Height="540" RequestedThemeVariant="Dark" FontFamily="Segoe UI" SizeToContent="Width" MinWidth="540" MaxWidth="960"
-        TransparencyLevelHint="AcrylicBlur" ExtendClientAreaToDecorationsHint="True" WindowStartupLocation="CenterOwner"
+        TransparencyLevelHint="{Binding Theme.TransparencyHints}" ExtendClientAreaToDecorationsHint="True" WindowStartupLocation="CenterOwner"
         Icon="/Assets/LogoV3.ico" Background="{x:Null}"
         Title="Texture Viewer">
     <Grid>

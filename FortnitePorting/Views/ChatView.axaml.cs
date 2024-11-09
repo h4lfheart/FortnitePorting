@@ -14,6 +14,7 @@ using CUE4Parse.Utils;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Models;
 using FortnitePorting.Models.Chat;
+using FortnitePorting.OnlineServices.Models;
 using FortnitePorting.OnlineServices.Packet;
 using FortnitePorting.Services;
 using FortnitePorting.Shared.Framework;
@@ -40,6 +41,13 @@ public partial class ChatView : ViewBase<ChatViewModel>
         
         if (e.Key == Key.Enter && !e.KeyModifiers.HasFlag(KeyModifiers.Shift))
         {
+            if (text.Length > 400)
+            {
+                AppWM.Message("Character Limit", "Your message is over the character limit of 400 characters.");
+                e.Handled = true;
+                return;
+            }
+            
             if (text.StartsWith("/shrug"))
             {
                 await OnlineService.Send(new MessagePacket(@"¯\_(ツ)_/¯"));
@@ -122,5 +130,13 @@ public partial class ChatView : ViewBase<ChatViewModel>
 
         message.ReactedTo = !message.ReactedTo;
         await OnlineService.Send(new ReactionPacket(message.Id, message.ReactedTo));
+    }
+
+    private async void OnDeletePressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (sender is not Control control) return;
+        if (control.DataContext is not ChatMessage message) return;
+        
+        await OnlineService.Send(new DeleteMessagePacket(), new MetadataBuilder().With("Id", message.Id));
     }
 }

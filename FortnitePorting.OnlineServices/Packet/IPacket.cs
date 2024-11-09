@@ -22,6 +22,7 @@ public enum EPacketType
     Export,
     SetRole,
     MessageHistory,
+    DeleteMessage,
     
     // Canvas
     RequestCanvasInfo,

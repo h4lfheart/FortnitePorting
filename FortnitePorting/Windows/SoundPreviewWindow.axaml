@@ -8,7 +8,7 @@
         x:Class="FortnitePorting.Windows.SoundPreviewWindow"
         x:DataType="windowModels:SoundPreviewWindowModel"
         Width="540" RequestedThemeVariant="Dark" FontFamily="Segoe UI" SizeToContent="Height" Background="{x:Null}"
-        TransparencyLevelHint="AcrylicBlur" ExtendClientAreaToDecorationsHint="True" WindowStartupLocation="CenterOwner"
+        TransparencyLevelHint="{Binding Theme.TransparencyHints}" ExtendClientAreaToDecorationsHint="True" WindowStartupLocation="CenterOwner"
         Icon="/Assets/LogoV3.ico"
         Title="Sound Viewer">
     <Grid RowDefinitions="30, *">

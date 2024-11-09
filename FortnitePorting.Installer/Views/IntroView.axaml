@@ -37,7 +37,7 @@
             
         </Grid>
         
-        <CheckBox Grid.Row="4" Content="Extract Only" IsChecked="{Binding ExtractOnly}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <CheckBox Grid.Row="4" Content="Install Dependencies" IsChecked="{Binding InstallDependencies}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         
         <Border Grid.Row="6" Background="#0DFFFFFF" CornerRadius="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Padding="{ext:Space 1}">
             <Button Content="Install" Command="{Binding InstallCommand}"

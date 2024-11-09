@@ -19,7 +19,7 @@ public partial class IntroViewModel : ViewModelBase
     [ObservableProperty] private string _installationPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "FortnitePorting");
     [ObservableProperty] private ReleaseResponse _releaseInfo;
     [ObservableProperty] private string _releaseVersion;
-    [ObservableProperty] private bool _extractOnly;
+    [ObservableProperty] private bool _installDependencies;
 
     public override async Task Initialize()
     {

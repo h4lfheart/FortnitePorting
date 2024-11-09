@@ -240,6 +240,16 @@ public static class OnlineService
                 }, SortExpressionComparer<ChatMessage>.Descending(message => message.Timestamp));
                 break;
             }
+            case EPacketType.DeleteMessage:
+            {
+                var messageId = e.GetArgument<Guid>("Id");
+                if (ChatVM.Messages.FirstOrDefault(message => message.Id == messageId) is { } foundMessage)
+                {
+                    ChatVM.Messages.Remove(foundMessage);
+                }
+                
+                break;
+            }
             case EPacketType.OnlineUsers:
             {
                 var onlineUsers = e.Data.ReadPacket<OnlineUsersPacket>().Users;

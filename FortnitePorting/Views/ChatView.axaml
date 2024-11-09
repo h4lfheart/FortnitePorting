@@ -67,7 +67,13 @@
                                         <TextBlock Text="{Binding ReactionCount}" Opacity="0.5" Margin="{ext:Space 0, 0, 1, 0}"/>
                                         <Image ToolTip.Tip="Yeah!" Width="16" Height="16" Cursor="Hand"
                                                Source="{Binding YeahImageSource}"
+                                               Margin="{ext:Space 0, 0, 1, 0}"
                                                PointerPressed='OnYeahPressed'/>
+                                        <material:MaterialIcon Kind="Delete" PointerPressed="OnDeletePressed" Opacity="0.5"
+                                                               Cursor="Hand"
+                                                                IsVisible="{Binding $parent[views:ChatView].((viewModels:ChatViewModel)DataContext).Permissions, 
+                                                                Converter={StaticResource EnumHasFlag}, 
+                                                                ConverterParameter={x:Static packet:EPermissions.Staff}}"/>
                                     </StackPanel>
                                     
                                     <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="7" IsVisible="{Binding HasTextData}"

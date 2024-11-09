@@ -9,7 +9,7 @@
         x:Class="FortnitePorting.Windows.PropertiesPreviewWindow"
         x:DataType="windowModels:PropertiesPreviewWindowModel"
         Width="1280" Height="720" RequestedThemeVariant="Dark" FontFamily="Segoe UI"
-        TransparencyLevelHint="AcrylicBlur" ExtendClientAreaToDecorationsHint="True" WindowStartupLocation="CenterOwner"
+        TransparencyLevelHint="{Binding Theme.TransparencyHints}" ExtendClientAreaToDecorationsHint="True" WindowStartupLocation="CenterOwner"
         Icon="/Assets/LogoV3.ico" Background="{x:Null}"
         Title="Properties Viewer">
     <Grid>
