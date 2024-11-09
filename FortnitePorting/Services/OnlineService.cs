@@ -295,11 +295,12 @@ public static class OnlineService
                             <ContentControl xmlns="https://github.com/avaloniaui"
                                         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                                         xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
-                                        xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared">
+                                        xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
+                                        xmlns:fortnitePorting="clr-namespace:FortnitePorting">
                                 <StackPanel HorizontalAlignment="Stretch">
                                     <TextBlock Text="{Binding DisplayText}" TextWrapping="Wrap"/>
                                     <ComboBox x:Name="ExportLocationBox" SelectedIndex="0" Margin="{ext:Space 0, 1, 0, 0}"
-                                              ItemsSource="{ext:EnumToItemsSource {x:Type shared:EExportLocation}}"
+                                              ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EExportLocation}}"
                                               HorizontalAlignment="Stretch">
                                         <ComboBox.ItemContainerTheme>
                                             <ControlTheme x:DataType="ext:EnumRecord" TargetType="ComboBoxItem" BasedOn="{StaticResource {x:Type ComboBoxItem}}">

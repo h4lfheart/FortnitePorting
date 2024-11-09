@@ -87,7 +87,7 @@
                         <Button Content="{controls:ImageText 'Discord', /Assets/Icons/Discord.png}" Command="{Binding LaunchDiscord}"/>
                         <Button Content="{controls:IconText 'Twitter', Twitter}" Command="{Binding LaunchTwitter}"/>
                         <Button Content="{controls:IconText 'GitHub', Github}" Command="{Binding LaunchGitHub}"/>
-                        <Button Content="{controls:ImageText 'Ko-Fi', /Assets/Icons/KoFi.png}" Command="{Binding LaunchKoFi}"/>
+                        <Button Content="{controls:ImageText 'Donate Here', /Assets/Icons/KoFi.png}" Command="{Binding LaunchKoFi}"/>
                     </StackPanel>
                 </StackPanel>
             </Grid>
