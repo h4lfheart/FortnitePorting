@@ -199,7 +199,7 @@ public class ExportContext
             var poseTrackInfluences = poseContainer.TrackPoseInfluenceIndices;
             if (poseTracks.Length != poseTrackInfluences.Length)
             {
-                Log.Warning($"{poseAsset.Name}: length of CurveTrackNames != length of TrackPoseInfluenceIndices");
+                Log.Warning($"{poseAsset.Name}: length of Tracks != length of TrackPoseInfluenceIndices");
                 return;
             }
 
