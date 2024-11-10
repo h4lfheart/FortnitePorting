@@ -190,12 +190,16 @@ public class ExportContext
         /* Assert number of tracks == number of bones for given skeleton */
         var poseTracks = poseContainer.Tracks;
 
+        /* Propagate CurveTrackNames for CurveData processing. */
+        if (poseContainer.Curves is not null)
+            meta.CurveTrackNames = poseContainer.Curves.Select(x => x.CurveName.PlainText).ToArray();
+
         if (poseContainer.TrackPoseInfluenceIndices is not null)
         {
             var poseTrackInfluences = poseContainer.TrackPoseInfluenceIndices;
             if (poseTracks.Length != poseTrackInfluences.Length)
             {
-                Log.Warning($"{poseAsset.Name}: length of Tracks != length of TrackPoseInfluenceIndices");
+                Log.Warning($"{poseAsset.Name}: length of CurveTrackNames != length of TrackPoseInfluenceIndices");
                 return;
             }
 
