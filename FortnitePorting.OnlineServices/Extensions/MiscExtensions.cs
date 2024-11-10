@@ -30,6 +30,7 @@ public static class MiscExtensions
         ERoleType.Muted => EPermissions.None,
         ERoleType.User => EPermissions.Text,
         ERoleType.Trusted => EPermissions.Text | EPermissions.SendAttachments,
+        ERoleType.Verified => EPermissions.Text | EPermissions.SendAttachments | EPermissions.LoadPluginFiles,
         ERoleType.Staff => EPermissions.Staff,
         ERoleType.Owner => EPermissions.Owner,
         _ => EPermissions.Text,

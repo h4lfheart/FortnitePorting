@@ -37,7 +37,7 @@ public partial class PollItem : ObservableObject
     [NotifyPropertyChangedFor(nameof(Background))]
     private ObservableCollection<Guid> _voters = [];
 
-    public bool VotedFor => Voters.Contains(AppSettings.Current.Online.Identification.Identifier);
+    public bool VotedFor => AppSettings.Current.Online.Identification is not null && Voters.Contains(AppSettings.Current.Online.Identification.Identifier);
     public SolidColorBrush Background => VotedFor ? SolidColorBrush.Parse("#0FFFFFFF") : SolidColorBrush.Parse("#1E000000");
     
     [ObservableProperty] private bool _isChecked;

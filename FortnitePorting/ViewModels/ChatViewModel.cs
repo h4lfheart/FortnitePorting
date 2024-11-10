@@ -34,7 +34,7 @@ public partial class ChatViewModel : ViewModelBase
     [ObservableProperty] private ScrollViewer? _scroll;
     [ObservableProperty] private TeachingTip _imageFlyout;
 
-    [ObservableProperty] private EPermissions _permissions;
+    [ObservableProperty] private EPermissions _permissions = EPermissions.None;
     [ObservableProperty] private string _text = string.Empty;
     [ObservableProperty] private Bitmap _selectedImage;
     [ObservableProperty] private string _selectedImageName;

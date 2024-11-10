@@ -36,6 +36,9 @@ public enum ERoleType
     [Description("Trusted")]
     Trusted,
     
+    [Description("Verified")]
+    Verified,
+    
     [Description("Muted")]
     Muted,
     

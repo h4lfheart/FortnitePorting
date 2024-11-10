@@ -28,6 +28,7 @@ using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Models.Leaderboard;
 using FortnitePorting.Models.Unreal;
 using FortnitePorting.Models.Unreal.Landscape;
+using FortnitePorting.OnlineServices.Packet;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
@@ -116,25 +117,27 @@ public partial class MapViewModel : ViewModelBase
             
             Maps.Add(new WorldPartitionMap(mapInfo));
         }
-        
-        // uefn maps
-        foreach (var mountedVfs in CUE4ParseVM.Provider.MountedVfs)
+
+        if (ChatVM.Permissions.HasFlag(EPermissions.LoadPluginFiles))
         {
-            if (mountedVfs is not IoStoreReader { Name: "plugin.utoc" } ioStoreReader) continue;
+            foreach (var mountedVfs in CUE4ParseVM.Provider.MountedVfs)
+            {
+                if (mountedVfs is not IoStoreReader { Name: "plugin.utoc" } ioStoreReader) continue;
 
-            var gameFeatureDataFile = ioStoreReader.Files.FirstOrDefault(file => file.Key.EndsWith("GameFeatureData.uasset", StringComparison.OrdinalIgnoreCase));
-            if (gameFeatureDataFile.Value is null) continue;
+                var gameFeatureDataFile = ioStoreReader.Files.FirstOrDefault(file => file.Key.EndsWith("GameFeatureData.uasset", StringComparison.OrdinalIgnoreCase));
+                if (gameFeatureDataFile.Value is null) continue;
 
-            var gameFeatureData = await CUE4ParseVM.Provider.TryLoadObjectAsync<UFortGameFeatureData>(gameFeatureDataFile.Value.PathWithoutExtension);
+                var gameFeatureData = await CUE4ParseVM.Provider.TryLoadObjectAsync<UFortGameFeatureData>(gameFeatureDataFile.Value.PathWithoutExtension);
 
-            if (gameFeatureData?.ExperienceData?.DefaultMap is not { } defaultMapPath) continue;
+                if (gameFeatureData?.ExperienceData?.DefaultMap is not { } defaultMapPath) continue;
 
-            var defaultMap = await defaultMapPath.LoadAsync();
-            if (PluginRemoveList.Any(item => defaultMap.Name.Contains(item, StringComparison.OrdinalIgnoreCase))) continue;
+                var defaultMap = await defaultMapPath.LoadAsync();
+                if (PluginRemoveList.Any(item => defaultMap.Name.Contains(item, StringComparison.OrdinalIgnoreCase))) continue;
 
-            var mapInfo = MapInfo.CreateNonDisplay(defaultMap.Name, defaultMap.GetPathName().SubstringBeforeLast("."), sourceName: "UEFN");
+                var mapInfo = MapInfo.CreateNonDisplay(defaultMap.Name, defaultMap.GetPathName().SubstringBeforeLast("."), sourceName: "UEFN");
             
-            Maps.Add(new WorldPartitionMap(mapInfo));
+                Maps.Add(new WorldPartitionMap(mapInfo));
+            }
         }
 
         if (Maps.Count == 0)

@@ -44,10 +44,11 @@ public enum EPermissions : uint
     
     Text = 1 << 0,
     SendAttachments = 1 << 1,
+    LoadPluginFiles = 1 << 2,
     
-    SetRole = 1 << 2,
+    SetRole = 1 << 3,
     
-    Staff = (1 << 3) - 1,
+    Staff = (1 << 4) - 1,
     
     Owner = 0xFFFFFFFF
 }
