@@ -278,7 +278,7 @@ public static class OnlineService
                         Id = onlineUser.Id,
                         Role = onlineUser.RoleType,
                         Version = onlineUser.Version
-                    }, SortExpressionComparer<ChatUser>.Ascending(sortedUser => sortedUser.Role));
+                    }, SortExpressionComparer<ChatUser>.Descending(sortedUser => ((int) ERoleType.Owner - (int) sortedUser.Role) * 100 + sortedUser.DisplayName)); // ugly but works
                 }
                 
                 break;

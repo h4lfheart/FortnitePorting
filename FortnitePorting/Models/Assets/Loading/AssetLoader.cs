@@ -15,6 +15,7 @@ using CUE4Parse.UE4.Objects.GameplayTags;
 using DynamicData;
 using DynamicData.Binding;
 using FortnitePorting.Models.Assets.Asset;
+using FortnitePorting.Models.Assets.Base;
 using FortnitePorting.Models.Assets.Custom;
 using FortnitePorting.Models.Assets.Filters;
 using FortnitePorting.Shared;
@@ -47,8 +48,8 @@ public partial class AssetLoader : ObservableObject
     public Func<UObject, string?> DescriptionHandler = asset => asset.GetAnyOrDefault<FText?>("Description", "ItemDescription")?.Text;
     public Func<UObject, FGameplayTagContainer?> GameplayTagHandler = GetGameplayTags;
     
-    public readonly ReadOnlyObservableCollection<Base.BaseAssetItem> Filtered;
-    public SourceCache<Base.BaseAssetItem, Guid> Source = new(asset => asset.Id);
+    public readonly ReadOnlyObservableCollection<BaseAssetItem> Filtered;
+    public SourceCache<BaseAssetItem, Guid> Source = new(asset => asset.Id);
     public readonly ConcurrentBag<string> FilteredAssetBag = [];
     public readonly ConcurrentDictionary<string, ConcurrentBag<string>> StyleDictionary = [];
 
@@ -57,18 +58,18 @@ public partial class AssetLoader : ObservableObject
     private bool BeganLoading;
     private bool IsPaused;
     
-    [ObservableProperty] private ObservableCollection<Base.BaseAssetInfo> _selectedAssetInfos = [];
+    [ObservableProperty] private ObservableCollection<BaseAssetInfo> _selectedAssetInfos = [];
     
     [ObservableProperty, NotifyPropertyChangedFor(nameof(FinishedLoading))] private int _loadedAssets;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(FinishedLoading))] private int _totalAssets;
     public bool FinishedLoading => LoadedAssets == TotalAssets;
     
-    public readonly IObservable<SortExpressionComparer<Base.BaseAssetItem>> AssetSort;
+    public readonly IObservable<SortExpressionComparer<BaseAssetItem>> AssetSort;
     [ObservableProperty] private EAssetSortType _sortType = EAssetSortType.None;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(SortIcon))] private bool _descendingSort = false;
     public MaterialIconKind SortIcon => DescendingSort ? MaterialIconKind.SortDescending : MaterialIconKind.SortAscending;
     
-    public readonly IObservable<Func<Base.BaseAssetItem, bool>> AssetFilter;
+    public readonly IObservable<Func<BaseAssetItem, bool>> AssetFilter;
     [ObservableProperty] private string _searchFilter = string.Empty;
     [ObservableProperty] private ObservableCollection<string> _searchAutoComplete = [];
 
@@ -76,7 +77,7 @@ public partial class AssetLoader : ObservableObject
     [ObservableProperty] private ObservableCollection<FilterItem> _activeFilters = [];
     public List<FilterCategory> FilterCategories { get; } =
     [
-        new FilterCategory("Application")
+        new("Application")
         {
             Filters = 
             [
@@ -84,7 +85,7 @@ public partial class AssetLoader : ObservableObject
                 new FilterItem("Hidden Items", asset => asset.CreationData.IsHidden)
             ]
         },
-        new FilterCategory("Cosmetic")
+        new("Cosmetic")
         {
             Filters = 
             [
@@ -105,7 +106,7 @@ public partial class AssetLoader : ObservableObject
                 EExportType.LoadingScreen
             ]
         },
-        new FilterCategory("Emote")
+        new("Emote")
         {
             Filters = 
             [
@@ -117,7 +118,7 @@ public partial class AssetLoader : ObservableObject
                 EExportType.Emote
             ]
         },
-        new FilterCategory("Game")
+        new("Game")
         {
             Filters = 
             [
@@ -139,7 +140,7 @@ public partial class AssetLoader : ObservableObject
                 EExportType.Trap
             ]
         },
-        new FilterCategory("Creative")
+        new("Creative")
         {
             Filters = 
             [
@@ -152,7 +153,7 @@ public partial class AssetLoader : ObservableObject
                EExportType.Prefab
             ]
         },
-        new FilterCategory("Item")
+        new("Item")
         {
             Filters = 
             [
@@ -378,7 +379,7 @@ public partial class AssetLoader : ObservableObject
         while (IsPaused) await Task.Delay(1);
     }
     
-    private static Func<Base.BaseAssetItem, bool> CreateAssetFilter((string, ObservableCollection<FilterItem>) values)
+    private static Func<BaseAssetItem, bool> CreateAssetFilter((string, ObservableCollection<FilterItem>) values)
     {
         var (searchFilter, filters) = values;
         return asset =>
@@ -396,10 +397,10 @@ public partial class AssetLoader : ObservableObject
         
     }
 
-    private static SortExpressionComparer<Base.BaseAssetItem> CreateAssetSort((EAssetSortType, bool) values)
+    private static SortExpressionComparer<BaseAssetItem> CreateAssetSort((EAssetSortType, bool) values)
     {
         var (type, descending) = values;
-        Func<Base.BaseAssetItem, IComparable> sort = type switch
+        Func<BaseAssetItem, IComparable> sort = type switch
         {
             EAssetSortType.AZ => asset => asset.CreationData.DisplayName,
             EAssetSortType.Season => asset => asset is AssetItem assetItem ? assetItem.Season + (double) assetItem.Rarity * 0.01 : asset.CreationData.DisplayName,
@@ -408,8 +409,8 @@ public partial class AssetLoader : ObservableObject
         };
 
         return descending
-            ? SortExpressionComparer<Base.BaseAssetItem>.Descending(sort)
-            : SortExpressionComparer<Base.BaseAssetItem>.Ascending(sort);
+            ? SortExpressionComparer<BaseAssetItem>.Descending(sort)
+            : SortExpressionComparer<BaseAssetItem>.Ascending(sort);
     }
     
     // scuffed fix to get filter to update

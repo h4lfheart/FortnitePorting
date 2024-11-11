@@ -29,7 +29,7 @@
                     <StackPanel Orientation="Horizontal">
                         <CheckBox IsChecked="{Binding UseAssetsPath}"/>
                         <TextBox Text="{Binding AssetsPath}" Watermark="Ex. D:/Art/FortnitePorting/Assets/" IsEnabled="{Binding UseAssetsPath}"/>
-                        <Button Margin="4 0 0 0" Command="{Binding BrowseAssetsPathCommand}" IsEnabled="{Binding UseAssetsPath}">
+                        <Button Margin="4 0 0 0" Command="{Binding BrowseAssetsPath}" IsEnabled="{Binding UseAssetsPath}">
                             <ui:SymbolIcon Symbol="Folder"/>
                         </Button>
                     </StackPanel>

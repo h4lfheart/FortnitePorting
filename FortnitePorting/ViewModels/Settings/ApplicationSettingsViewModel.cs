@@ -41,8 +41,6 @@ public partial class ApplicationSettingsViewModel : ViewModelBase
     
     public DirectSoundDeviceInfo[] AudioDevices => DirectSoundOut.Devices.ToArray()[1..];
 
-
-    [RelayCommand]
     public async Task BrowseAssetsPath()
     {
         if (await BrowseFolderDialog() is { } path) AssetsPath = path;
