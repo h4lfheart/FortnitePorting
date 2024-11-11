@@ -17,7 +17,7 @@ FortnitePorting - Automation of the Fortnite Porting Process
 To build FortnitePorting from source, first clone the repository and all of its submodules.
 
 ```
-git clone -b v2 https://github.com/halfuwu/FortnitePorting --recursive
+git clone -b v3 https://github.com/halfuwu/FortnitePorting --recursive
 ```
 
 Then open the project directory in a terminal window and publish
