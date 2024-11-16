@@ -17,6 +17,7 @@
              xmlns:help="clr-namespace:FortnitePorting.Models.Help"
              xmlns:views="clr-namespace:FortnitePorting.Views"
              xmlns:gif="clr-namespace:AvaloniaGif;assembly=AvaloniaGif"
+             xmlns:packet="clr-namespace:FortnitePorting.OnlineServices.Packet;assembly=FortnitePorting.OnlineServices"
              d:DesignHeight="720" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.CanvasView"
              x:DataType="viewModels:CanvasViewModel">
@@ -78,6 +79,8 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="{ext:Space 1}"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="{ext:Space 1}"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <Grid Grid.Row="1">
                     <Ellipse Height="104" Width="104" Fill="#2F000000"/>
@@ -102,6 +105,15 @@
                 <StackPanel Grid.Row="8" Orientation="Horizontal" HorizontalAlignment="Center">
                     <TextBlock Text="Show Pixel Authors" Classes="BodyStrongTextBlockStyle" Margin="{ext:Space 0, 0, 1, 0}" VerticalAlignment="Center"/>
                     <ToggleSwitch IsChecked="{Binding ShowPixelAuthors}" VerticalAlignment="Center"
+                                  OffContent="{x:Null}" OnContent="{x:Null}"/>
+                </StackPanel>
+                
+                <StackPanel Grid.Row="10" Orientation="Horizontal" HorizontalAlignment="Center"
+                            IsVisible="{Binding Permissions, 
+                            Converter={StaticResource EnumHasFlag}, 
+                            ConverterParameter={x:Static packet:EPermissions.Staff}}">
+                    <TextBlock Text="Delete Mode" Classes="BodyStrongTextBlockStyle" Margin="{ext:Space 0, 0, 1, 0}" VerticalAlignment="Center"/>
+                    <ToggleSwitch IsChecked="{Binding IsDeleteMode}" VerticalAlignment="Center"
                                   OffContent="{x:Null}" OnContent="{x:Null}"/>
                 </StackPanel>
             </Grid>

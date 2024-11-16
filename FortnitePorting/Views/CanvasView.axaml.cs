@@ -44,6 +44,7 @@ public partial class CanvasView : ViewBase<CanvasViewModel>
             R = ViewModel.Color.R,
             G = ViewModel.Color.G,
             B = ViewModel.Color.B,
+            IsDeletion = ViewModel.IsDeleteMode
         };
         
         await OnlineService.Send(new CanvasPixelPacket(newPixel));

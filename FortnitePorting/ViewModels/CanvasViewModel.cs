@@ -33,8 +33,9 @@ namespace FortnitePorting.ViewModels;
 public partial class CanvasViewModel : ViewModelBase
 {
     [ObservableProperty] private bool _showPixelAuthors = true;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(Brush))] private bool _isDeleteMode = false;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(Brush))] private Color _color;
-    public SolidColorBrush Brush => new(Color);
+    public Brush Brush => IsDeleteMode ? XBrush() : new SolidColorBrush(Color);
     
     [ObservableProperty] private ushort _width;
     [ObservableProperty] private ushort _height;
@@ -47,6 +48,8 @@ public partial class CanvasViewModel : ViewModelBase
 
     [ObservableProperty] private WriteableBitmap _bitmapSource;
     [ObservableProperty] private Image _bitmapImage;
+
+    [ObservableProperty] private EPermissions _permissions;
 
     public ConcurrentDictionary<Point, PixelMetadata> PixelMetadata = [];
     
@@ -68,5 +71,25 @@ public partial class CanvasViewModel : ViewModelBase
     public override async Task OnViewOpened()
     {
         await OnlineService.Send([], EPacketType.RequestCanvasInfo);
+    }
+
+    public Brush XBrush()
+    {
+        var brush = new DrawingBrush();
+
+        var drawingGroup = new DrawingGroup();
+        drawingGroup.Children.Add(new GeometryDrawing
+        {
+            Pen = new Pen(Brushes.Red, 5),
+            Geometry = new LineGeometry(new Point(0, 0), new Point(1, 1))
+        });
+        drawingGroup.Children.Add(new GeometryDrawing
+        {
+            Pen = new Pen(Brushes.Red, 5),
+            Geometry = new LineGeometry(new Point(0, 1), new Point(1, 0))
+        });
+
+        brush.Drawing = drawingGroup;
+        return brush;
     }
 }

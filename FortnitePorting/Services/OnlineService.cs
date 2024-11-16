@@ -164,6 +164,7 @@ public static class OnlineService
                 var permissionEnum = permissions.Permissions; // lol
                 
                 if (HelpVM is not null) HelpVM.Permissions = permissionEnum;
+                if (CanvasVM is not null) CanvasVM.Permissions = permissionEnum;
                 ChatVM.Permissions = permissionEnum;
                 Permissions = permissionEnum;
                 
@@ -436,10 +437,17 @@ public static class OnlineService
                 
                 var packet = e.Data.ReadPacket<CanvasPixelPacket>();
                 var pixel = packet.Pixel;
-                
-                CanvasVM.PixelMetadata[new Point(pixel.X, pixel.Y)] = new PixelMetadata(pixel.Name);
 
+                var point = new Point(pixel.X, pixel.Y);
                 var color = new Color(byte.MaxValue, pixel.R, pixel.G, pixel.B);
+                if (pixel.IsDeletion)
+                {
+                    CanvasVM.PixelMetadata.Remove(point, out _);
+                }
+                else
+                {
+                    CanvasVM.PixelMetadata[point] = new PixelMetadata(pixel.Name);
+                }
                 
                 using (var framebuffer = CanvasVM.BitmapSource.Lock())
                 {
@@ -463,6 +471,7 @@ public static class OnlineService
 
                 CanvasVM.Width = packet.X;
                 CanvasVM.Height = packet.Y;
+                CanvasVM.PixelMetadata.Clear();
                 
                 var bitmap = new WriteableBitmap(new PixelSize(CanvasVM.Width, CanvasVM.Height), new Vector(96, 96), PixelFormat.Rgba8888, AlphaFormat.Opaque);
                 using (var framebuffer = bitmap.Lock())

@@ -80,7 +80,7 @@ public partial class MapViewModel : ViewModelBase
         new(
             "Apollo_Retro",
             "FortniteGame/Plugins/GameFeatures/Clyde/Content/Apollo_Terrain_Retro",
-            "FortniteGame/Content/Athena/Apollo/Maps/Clyde/Textures/Week1_Adjusted",
+            "FortniteGame/Content/Athena/Apollo/Maps/Clyde/Textures/Week3_Adjusted",
             "FortniteGame/Content/Athena/Apollo/Maps/Clyde/Textures/T_Clyde_Minimap_PostMask",
             0.032f, -25, 96, 205, 12800, true
         ),
