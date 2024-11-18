@@ -32,29 +32,51 @@ public partial class CanvasView : ViewBase<CanvasViewModel>
     private async void OnPointerPressed(object? sender, PointerPressedEventArgs e)
     {
         if (sender is not Image image) return;
+        
 
         var cursorPoint = e.GetCurrentPoint(image);
         var pixelPos = new Point((int) (cursorPoint.Position.X / (image.Bounds.Width / CanvasVM.Width)), 
             (int) (cursorPoint.Position.Y / (image.Bounds.Height / CanvasVM.Height)));
-        
-        var newPixel = new PlacePixel
+        if (cursorPoint.Properties.IsLeftButtonPressed)
         {
-            X = (ushort) pixelPos.X,
-            Y = (ushort) pixelPos.Y,
-            R = ViewModel.Color.R,
-            G = ViewModel.Color.G,
-            B = ViewModel.Color.B,
-            IsDeletion = ViewModel.IsDeleteMode
-        };
+            var newPixel = new PlacePixel
+            {
+                X = (ushort) pixelPos.X,
+                Y = (ushort) pixelPos.Y,
+                R = ViewModel.Color.R,
+                G = ViewModel.Color.G,
+                B = ViewModel.Color.B,
+                IsDeletion = ViewModel.IsDeleteMode
+            };
         
-        await OnlineService.Send(new CanvasPixelPacket(newPixel));
+            await OnlineService.Send(new CanvasPixelPacket(newPixel));
+        }
+        else if (cursorPoint.Properties.IsRightButtonPressed)
+        {
+            using (var framebuffer = ViewModel.BitmapSource.Lock())
+            {
+                unsafe
+                {
+                    var width = ViewModel.BitmapSource.Size.Width;
+                    var height = ViewModel.BitmapSource.Size.Height;
+                    var buffer = framebuffer.Address;
+
+                    var pixelPtr = (int*) buffer;
+                    var offset = (int) (pixelPos.Y * width + pixelPos.X);
+
+                    var colorFromPtr = Color.FromUInt32((uint)pixelPtr[offset]);
+                    ViewModel.Color = new Color(colorFromPtr.A, colorFromPtr.B, colorFromPtr.G, colorFromPtr.R);
+                }
+            }
+        }
+        
     }
 
     private void OnPointerMoved(object? sender, PointerEventArgs e)
     {
         var cursorPoint = e.GetCurrentPoint(CanvasViewBox);
         var xSnap = CanvasViewBox.Bounds.Width / CanvasVM.Width;
-        var ySnap = CanvasViewBox.Bounds.Width / CanvasVM.Height;
+        var ySnap = CanvasViewBox.Bounds.Height / CanvasVM.Height;
 
         var xPixel = (int) (cursorPoint.Position.X / xSnap);
         var yPixel = (int)(cursorPoint.Position.Y / ySnap);

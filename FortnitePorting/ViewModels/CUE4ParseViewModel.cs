@@ -29,6 +29,7 @@ using CUE4Parse.Utils;
 using EpicManifestParser;
 using EpicManifestParser.UE;
 using FortnitePorting.Application;
+using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.CUE4Parse;
 using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Services;
@@ -296,7 +297,7 @@ public class CUE4ParseViewModel : ViewModelBase
             case EFortniteVersion.LatestInstalled:
             case EFortniteVersion.LatestOnDemand:
             {
-                var aes = await ApiVM.FortniteCentral.GetKeysAsync();
+                var aes = await ApiVM.FortniteCentral.GetKeysAsync() ?? await ApiVM.FortnitePorting.GetKeysAsync();
                 if (aes is null) return;
                 
                 await Provider.SubmitKeyAsync(Globals.ZERO_GUID, new FAesKey(aes.MainKey));
@@ -351,20 +352,30 @@ public class CUE4ParseViewModel : ViewModelBase
     
     private async Task<string?> GetEndpointMappings()
     {
-        var mappings =  await ApiVM.FortniteCentral.GetMappingsAsync();
-        if (mappings is null) return null;
-        if (mappings.Length <= 0) return null;
+        async Task<string?> GetMappings(Func<string, Task<MappingsResponse[]?>> mappingsFunc)
+        {
+            var mappings = await mappingsFunc(string.Empty);
+            if (mappings is null) return null;
+            if (mappings.Length <= 0) return null;
 
-        var foundMappings = mappings.FirstOrDefault();
-        if (foundMappings is null) return null;
+            var foundMappings = mappings.FirstOrDefault();
+            if (foundMappings is null) return null;
 
-        var mappingsFilePath = Path.Combine(DataFolder.FullName, foundMappings.Filename);
-        if (File.Exists(mappingsFilePath)) return mappingsFilePath;
+            var mappingsFilePath = Path.Combine(DataFolder.FullName, foundMappings.Filename);
+            if (File.Exists(mappingsFilePath)) return mappingsFilePath;
 
-        await ApiVM.DownloadFileAsync(foundMappings.URL, mappingsFilePath);
-        File.SetCreationTime(mappingsFilePath, foundMappings.Uploaded);
-        return mappingsFilePath;
+            var createdFile = await ApiVM.DownloadFileAsync(foundMappings.URL, mappingsFilePath);
+            if (createdFile is null) return null;
+            
+            File.SetCreationTime(mappingsFilePath, foundMappings.Uploaded);
+
+            return mappingsFilePath;
+        }
+        
+        
+        return await GetMappings(ApiVM.FortniteCentral.GetMappingsAsync) ?? await GetMappings(ApiVM.FortnitePorting.GetMappingsAsync);
     }
+
 
     private string? GetLocalMappings()
     {

@@ -47,7 +47,9 @@ public class APIViewModelBase : ViewModelBase
     {
         var request = new RestRequest(url);
         var data = await _client.DownloadDataAsync(request);
-        if (data is not null) await File.WriteAllBytesAsync(destination, data);
+        if (data is null) return null;
+        
+        await File.WriteAllBytesAsync(destination, data);
         return new FileInfo(destination);
     }
     
