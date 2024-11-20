@@ -98,6 +98,13 @@ public partial class MapViewModel : ViewModelBase
             "FortniteGame/Plugins/GameFeatures/BlastBerry/Content/MiniMap/T_PB_MiniMap_Mask",
             0.0475f, 0, 384, 305, 12800, true
         ),
+        new(
+            "Asteria",
+            "FortniteGame/Content/Athena/Asteria/Maps/Asteria_Terrain",
+            "FortniteGame/Content/Athena/Apollo/Maps/UI/Apollo_Terrain_Minimap",
+            "FortniteGame/Content/Athena/Apollo/Maps/UI/T_MiniMap_Mask",
+            0.01375f, 132, 140, 90, 12800, true
+        ),
         MapInfo.CreateNonDisplay("Athena", "FortniteGame/Content/Athena/Maps/Athena_Terrain"),
         MapInfo.CreateNonDisplay("Apollo", "FortniteGame/Content/Athena/Apollo/Maps/Apollo_Terrain")
     ];

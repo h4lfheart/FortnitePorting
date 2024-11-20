@@ -846,11 +846,11 @@ class ImportContext:
             replace_shader_node("FP Bean Costume")
             socket_mappings = bean_head_costume_mappings if meta.get("IsHead") else bean_costume_mappings
 
-        if "M_Eyes_Parent" in base_material_path:
+        if "M_Eyes_Parent" in base_material_path or get_param(scalars, "Eye Cornea IOR") is not None:
             replace_shader_node("FP 3L Eyes")
             socket_mappings = eye_mappings
 
-        if "M_HairParent_2023_Parent" in base_material_path:
+        if "M_HairParent_2023" in base_material_path or get_param(textures, "Hair Mask") is not None:
             replace_shader_node("FP Hair")
             socket_mappings = hair_mappings
 
@@ -873,7 +873,7 @@ class ImportContext:
                 setup_params(socket_mappings, pre_fx_node, False)
 
                 thin_film_node = get_node(shader_node, "Thin Film Texture")
-                if get_param_multiple(switches, ["Use Thin Film", "UseThinFilm"]):
+                if get_param_multiple(switches, ["Use Thin Film", "UseThinFilm"]) or "M_ReconExpert_FNCS_Parent" in base_material_path:
                     if thin_film_node is None:
                         thin_film_node = nodes.new(type="ShaderNodeTexImage")
                         thin_film_node.image = bpy.data.images.get("T_ThinFilm_Spectrum_COLOR")
