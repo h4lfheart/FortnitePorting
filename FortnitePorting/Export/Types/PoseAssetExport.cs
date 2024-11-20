@@ -31,7 +31,8 @@ namespace FortnitePorting.Export.Types;
 public class PoseAssetExport : BaseExport
 {
     public List<PoseData> PoseData = [];
-    
+    public string[] CurveTrackNames = [];
+
     public PoseAssetExport(string name, UObject asset, BaseStyleData[] styles, EExportType exportType, ExportDataMeta metaData) : base(name, asset, styles, exportType, metaData)
     {
         if (asset is not UPoseAsset poseAsset) return;
@@ -45,6 +46,7 @@ public class PoseAssetExport : BaseExport
         Exporter.PoseAsset(poseAsset, meta);
 
         PoseData = meta.PoseData;
+        CurveTrackNames = meta.CurveTrackNames;
     }
     
 }

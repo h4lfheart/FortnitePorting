@@ -191,6 +191,10 @@ public class ExportContext
         /* Assert number of tracks == number of bones for given skeleton */
         var poseTracks = poseContainer.Tracks;
 
+        /* Propagate CurveTrackNames for CurveData processing. */
+        if (poseContainer.Curves is not null)
+            meta.CurveTrackNames = poseContainer.Curves.Select(x => x.CurveName.PlainText).ToArray();
+
         if (poseContainer.TrackPoseInfluenceIndices is not null)
         {
             var poseTrackInfluences = poseContainer.TrackPoseInfluenceIndices;

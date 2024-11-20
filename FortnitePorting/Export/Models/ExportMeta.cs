@@ -18,6 +18,7 @@ public class ExportMasterSkeletonMeta : BaseMeta
 public class ExportPoseDataMeta : BaseMeta
 {
     public List<PoseData> PoseData = [];
+    public string[] CurveTrackNames = [];
 }
 
 public class ExportAttachMeta : BaseMeta
