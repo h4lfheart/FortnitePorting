@@ -253,7 +253,7 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
         if not (bone := edit_bones.get(name)): continue
         if not (parent_bone := edit_bones.get(parent)): continue
 
-        bone.parent = parent_bone
+        bone_parent(bone, parent_bone)
 
     head_adjustment_bones = [
         ("R_eye_lid_upper_mid", Lazy(lambda: edit_bones["R_eye"].head)),
@@ -266,7 +266,7 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
         if not (bone := edit_bones.get(bone_name)): continue
         if not (position := lazy.value()): continue
 
-        bone.head = position
+        bone_head(bone, position)
 
     tail_adjustment_bones = [
         ("lowerarm_r", Lazy(lambda: edit_bones["hand_r"].head)),
@@ -281,8 +281,8 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
     for bone_name, lazy in tail_adjustment_bones:
         if not (bone := edit_bones.get(bone_name)): continue
         if not (position := lazy.value()): continue
-    
-        bone.tail = position
+
+        bone_tail(bone, position)
 
     roll_adjustment_bones = [
         ("C_jaw", 0),
@@ -291,7 +291,7 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
     for name, roll in roll_adjustment_bones:
         if not (bone := edit_bones.get(name)): continue
 
-        bone.roll = roll
+        bone_roll(bone, roll)
 
     transform_adjustment_bones = [
         ("ik_finger_pole_thumb_r", Vector((0.05, 0.0, 0.0))),
@@ -325,7 +325,7 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
         bone.matrix @= Matrix.Translation(transform)
 
     if (lower_lip_bone := edit_bones.get("FACIAL_C_LowerLipRotation")) and (jaw_bone := edit_bones.get("FACIAL_C_Jaw")):
-        lower_lip_bone.parent = jaw_bone
+        bone_parent(lower_lip_bone, jaw_bone)
 
     # pose bone modifications
     bpy.ops.object.mode_set(mode='POSE')

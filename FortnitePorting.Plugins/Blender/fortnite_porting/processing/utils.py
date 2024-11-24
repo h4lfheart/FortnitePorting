@@ -31,7 +31,6 @@ def merge_armatures(parts):
 
     bpy.ops.object.join()
     master_skeleton = bpy.context.active_object
-    master_mesh = get_armature_mesh(bpy.context.active_object)
     bpy.ops.object.select_all(action='DESELECT')
 
     # merge meshes
@@ -47,6 +46,15 @@ def merge_armatures(parts):
 
     bpy.ops.object.join()
     bpy.ops.object.select_all(action='DESELECT')
+
+    # move curve blendshapes to bottom if there are any
+    if master_mesh := get_armature_mesh(bpy.context.active_object):
+        for shape_key in list(master_mesh.data.shape_keys.key_blocks):
+            if not shape_key.name.startswith('curves_'):
+                continue
+            master_mesh.active_shape_key_index = master_mesh.data.shape_keys.key_blocks.find(shape_key.name)
+            bpy.ops.object.shape_key_move(type='BOTTOM')
+        master_mesh.active_shape_key_index = 0
 
     # rebuild master bone tree
     bone_tree = {}
@@ -106,6 +114,7 @@ def get_armature_mesh(obj):
 
     if obj.type == 'MESH':
         return obj
+    return None
     
 def get_selected_armature():
     selected = bpy.context.active_object
@@ -116,6 +125,15 @@ def get_selected_armature():
         return armature_modifier.object
     else:
         return None
+
+def disable_constraints(armature: bpy.types.Object) -> list[bpy.types.Constraint]:
+    constraints_muted = []
+    for bone in armature.pose.bones:
+        for constraint in bone.constraints:
+            if not constraint.mute:
+                constraint.mute = True
+                constraints_muted.append(constraint)
+    return constraints_muted
 
 def constraint_object(child: bpy.types.Object, parent: bpy.types.Object, bone: str, rotation, loc=True, rot=True, scale=True, use_inverse=False):
     constraint = child.constraints.new('CHILD_OF')
@@ -158,6 +176,66 @@ def bone_has_parent(child, parent):
     if child == parent:
         return True
     return parent in child.parent_recursive
+
+def bone_roll(bone: bpy.types.EditBone, roll: float):
+    assert 'orig_roll' not in bone
+    bone['orig_roll'] = bone.roll
+    bone.roll = roll
+
+def bone_tail(bone: bpy.types.EditBone, tail):
+    assert 'orig_tail' not in bone
+    bone['orig_tail'] = bone.tail
+    bone.tail = tail
+
+def bone_head(bone: bpy.types.EditBone, head):
+    assert 'orig_head' not in bone
+    bone['orig_head'] = bone.head
+    bone.head = head
+
+def bone_parent(child: bpy.types.EditBone, parent_to: bpy.types.EditBone):
+    assert child != parent_to
+
+    # Save original parent as a custom property
+    if child.parent:
+        assert 'orig_parent' not in child
+        child['orig_parent'] = child.parent.name
+
+    child.parent = parent_to
+
+def bone_swap_properties(all_bones: bpy.types.ArmatureEditBones, bone: bpy.types.EditBone):
+    if orig_roll := bone.get('orig_roll'):
+        curr_roll = bone.roll
+        bone.roll = orig_roll
+        bone['orig_roll'] = curr_roll
+
+    if orig_tail := bone.get('orig_tail'):
+        curr_tail = bone.tail.copy()
+        bone.tail = orig_tail
+        bone['orig_tail'] = curr_tail
+
+    if orig_head := bone.get('orig_head'):
+        curr_head = bone.head.copy()
+        bone.head = orig_head
+        bone['orig_head'] = curr_head
+
+    if orig_parent := bone.get('orig_parent'):
+        curr_bone_parent_name = bone.parent.name
+        bone.parent = all_bones.get(orig_parent)
+        bone['orig_parent'] = curr_bone_parent_name
+
+def bone_swap_orig_parents(armature_obj: bpy.types.Object):
+    original_mode = bpy.context.active_object.mode
+    original_selected_object = bpy.context.active_object
+    try:
+        bpy.context.view_layer.objects.active = armature_obj
+        edit_bones = armature_obj.data.edit_bones
+        bpy.ops.object.mode_set(mode='EDIT')
+        # Iterate all edit bones and reparent back to 'orig_parent' if property exists and make note of existing parent.
+        for edit_bone in edit_bones:
+            bone_swap_properties(edit_bones, edit_bone)
+    finally:
+        bpy.ops.object.mode_set(mode=original_mode)
+        bpy.context.view_layer.objects.active = original_selected_object
 
 def make_vector(data, unreal_coords_correction=False):
     return Vector((data.get("X"), data.get("Y") * (-1 if unreal_coords_correction else 1), data.get("Z")))

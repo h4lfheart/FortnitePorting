@@ -56,7 +56,7 @@ class ImportContext:
                 self.import_font_data(data)
                 pass
             case EPrimitiveExportType.POSE_ASSET:
-                self.import_pose_asset_data(data)
+                self.import_pose_asset_data(data, get_selected_armature(), None)
                 pass
 
     def import_mesh_data(self, data):
@@ -230,131 +230,13 @@ class ImportContext:
 
         # metadata handling
         # todo extract meta reading to function bc this is too big
-        meta = self.gather_metadata("PoseData")
+        meta = self.gather_metadata("PoseData", "CurveTrackNames")
 
         # pose asset
-        if imported_mesh is not None and (pose_data := meta.get("PoseData")):
-            shape_keys = imported_mesh.data.shape_keys
-            armature = imported_object
-            original_mode = bpy.context.active_object.mode
-            try:
-                bpy.ops.object.mode_set(mode='OBJECT')
-                armature_modifier: bpy.types.ArmatureModifier = first(imported_mesh.modifiers, lambda mod: mod.type == "ARMATURE")
+        if imported_mesh is not None:
+            bpy.context.view_layer.objects.active = imported_mesh
+            self.import_pose_asset_data(meta, get_selected_armature(), part_type)
 
-                if not shape_keys:
-                    # Create Basis shape key
-                    imported_mesh.shape_key_add(name="Basis", from_mix=False)
-
-                root_bone_name = 'neck_01'
-                root_bone = get_case_insensitive(armature.pose.bones, root_bone_name)
-                if not root_bone:
-                    Log.warn(f"{imported_mesh.name}: Failed to find root bone "
-                             f"'{root_bone_name}' in '{armature.name}', all "
-                             "bones will be considered during import of "
-                             "PoseData")
-
-                loc_scale = self.scale
-                for pose in pose_data:
-                    # If there are no influences, don't bother
-                    if not (influences := pose.get('Keys')):
-                        continue
-
-                    if not (pose_name := pose.get('Name')):
-                        Log.warn(f"{imported_mesh.name}: skipping pose data "
-                                 f"with no pose name: {pose}")
-                        continue
-
-                    # Enter pose mode
-                    bpy.context.view_layer.objects.active = armature
-                    bpy.ops.object.mode_set(mode='POSE')
-
-                    # Reset all transforms to default
-                    bpy.ops.pose.select_all(action='SELECT')
-                    bpy.ops.pose.transforms_clear()
-                    bpy.ops.pose.select_all(action='DESELECT')
-
-                    # Move bones accordingly
-                    contributed = False
-                    for bone in influences:
-                        if not (bone_name := bone.get('Name')):
-                            Log.warn(f"{imported_mesh.name} - {pose_name}: "
-                                     f"empty bone name for pose '{pose}'")
-                            continue
-
-                        pose_bone: bpy.types.PoseBone = get_case_insensitive(armature.pose.bones, bone_name)
-                        if not pose_bone:
-                            # For cases where pose data tries to move a non-existent bone
-                            # i.e. Poseidon has no 'Tongue' but it's in the pose asset
-                            if part_type is EFortCustomPartType.HEAD:
-                                # There are likely many missing bones in non-Head parts, but we
-                                # process as many as we can.
-                                Log.warn(f"{imported_mesh.name} - {pose_name}: "
-                                         f"'{bone_name}' influence skipped "
-                                         "since it was not found in "
-                                         f"'{armature.name}'")
-                            continue
-
-                        if root_bone and not bone_has_parent(pose_bone, root_bone):
-                            Log.warn(f"{imported_mesh.name} - {pose_name}: "
-                                     f"skipped '{pose_bone.name}' since it does "
-                                     f"not have '{root_bone.name}' as a parent")
-                            continue
-
-                        # Verify that the current bone and all of its children
-                        # have at least one vertex group associated with it
-                        if not bone_hierarchy_has_vertex_groups(pose_bone, imported_mesh.vertex_groups):
-                            continue
-
-                        # Reset bone to identity
-                        pose_bone.matrix_basis.identity()
-
-                        rotation = bone.get('Rotation')
-                        if not rotation.get('IsNormalized'):
-                            Log.warn(f"rotation not normalized for {bone_name} in pose {pose_name}")
-
-                        edit_bone = pose_bone.bone
-                        post_quat = Quaternion(post_quat) if (post_quat := edit_bone.get("post_quat")) else Quaternion()
-
-                        q = post_quat.copy()
-                        q.rotate(make_quat(rotation))
-                        quat = post_quat.copy()
-                        quat.rotate(q.conjugated())
-                        pose_bone.rotation_quaternion = quat.conjugated() @ pose_bone.rotation_quaternion
-
-                        loc = (make_vector(bone.get('Location'), unreal_coords_correction=True))
-                        loc.rotate(post_quat.conjugated())
-
-                        pose_bone.location = pose_bone.location + loc * loc_scale
-                        pose_bone.scale = (Vector((1, 1, 1)) + make_vector(bone.get('Scale')))
-
-                        pose_bone.rotation_quaternion.normalize()
-                        contributed = True
-
-                    # Do not create shape keys if nothing changed
-                    if not contributed:
-                        continue
-
-                    # Create blendshape from armature
-                    bpy.ops.object.mode_set(mode='OBJECT')
-                    bpy.context.view_layer.objects.active = imported_mesh
-                    imported_mesh.select_set(True)
-                    bpy.ops.object.modifier_apply_as_shapekey(keep_modifier=True,
-                                                              modifier=armature_modifier.name)
-
-                    # Use name from pose data
-                    imported_mesh.data.shape_keys.key_blocks[-1].name = pose_name
-            except Exception as e:
-                Log.error("Failed to import PoseAsset data from "
-                          f"{imported_mesh.name}: {e}")
-            finally:
-                # Final reset before re-entering regular import mode.
-                bpy.context.view_layer.objects.active = armature
-                bpy.ops.object.mode_set(mode='POSE')
-                bpy.ops.pose.select_all(action='SELECT')
-                bpy.ops.pose.transforms_clear()
-                bpy.ops.pose.select_all(action='DESELECT')
-                bpy.ops.object.mode_set(mode=original_mode)
-                
         # end
 
         match part_type:
@@ -846,11 +728,11 @@ class ImportContext:
             replace_shader_node("FP Bean Costume")
             socket_mappings = bean_head_costume_mappings if meta.get("IsHead") else bean_costume_mappings
 
-        if "M_Eyes_Parent" in base_material_path:
+        if "M_Eyes_Parent" in base_material_path or get_param(scalars, "Eye Cornea IOR") is not None:
             replace_shader_node("FP 3L Eyes")
             socket_mappings = eye_mappings
 
-        if "M_HairParent_2023_Parent" in base_material_path:
+        if "M_HairParent_2023" in base_material_path or get_param(textures, "Hair Mask") is not None:
             replace_shader_node("FP Hair")
             socket_mappings = hair_mappings
 
@@ -873,7 +755,7 @@ class ImportContext:
                 setup_params(socket_mappings, pre_fx_node, False)
 
                 thin_film_node = get_node(shader_node, "Thin Film Texture")
-                if get_param_multiple(switches, ["Use Thin Film", "UseThinFilm"]):
+                if get_param_multiple(switches, ["Use Thin Film", "UseThinFilm"]) or "M_ReconExpert_FNCS_Parent" in base_material_path:
                     if thin_film_node is None:
                         thin_film_node = nodes.new(type="ShaderNodeTexImage")
                         thin_film_node.image = bpy.data.images.get("T_ThinFilm_Spectrum_COLOR")
@@ -1330,107 +1212,156 @@ class ImportContext:
         font_path = os.path.join(self.assets_root, file_path + ".ttf")
         bpy.ops.font.open(filepath=font_path, check_existing=True)
         
-    def import_pose_asset_data(self, data):
+    def import_pose_asset_data(self, data, selected_armature, part_type):
         pose_data = data.get("PoseData")
-        
+        if not pose_data:
+            return
+
+        tracks = data.get("CurveTrackNames")
+
         original_selected_object = bpy.context.active_object
-        selected_armature = get_selected_armature()
         if selected_armature is None:
             return
-            
-        selected_mesh = get_armature_mesh(selected_armature)
-        
+
+        selected_mesh: bpy.types.Object = get_armature_mesh(selected_armature)
+
         shape_keys = selected_mesh.data.shape_keys
+        original_shape_key_lock = selected_mesh.show_only_shape_key
         original_mode = bpy.context.active_object.mode
+        muted_constraints = []
         try:
-            bpy.ops.object.mode_set(mode='OBJECT')
-            armature_modifier: bpy.types.ArmatureModifier = first(selected_mesh.modifiers, lambda mod: mod.type == "ARMATURE")
+            bpy.ops.object.mode_set(mode="OBJECT")
+            armature_modifier: bpy.types.ArmatureModifier = first(
+                selected_mesh.modifiers, lambda mod: mod.type == "ARMATURE"
+            )
+
+            # Turn off shape key lock if it's on otherwise shape keys fail to
+            # import.
+            selected_mesh.show_only_shape_key = False
+
+            # Temporarily mutate all bone constraints since pose assets
+            # are bone based and we don't want constraints to influence
+            # the final pose.
+            muted_constraints = disable_constraints(selected_armature)
+
+            # Swap parents where applicable
+            bone_swap_orig_parents(selected_armature)
 
             if not shape_keys:
                 # Create Basis shape key
                 selected_mesh.shape_key_add(name="Basis", from_mix=False)
 
-            root_bone_name = 'neck_01'
-            root_bone = get_case_insensitive(selected_armature.pose.bones, root_bone_name)
+            root_bone_name = "neck_01"
+            root_bone = get_case_insensitive(
+                selected_armature.pose.bones, root_bone_name
+            )
             if not root_bone:
-                Log.warn(f"{selected_mesh.name}: Failed to find root bone "
-                         f"'{root_bone_name}' in '{selected_armature.name}', all "
-                         "bones will be considered during import of "
-                         "PoseData")
+                Log.warn(
+                    f"{selected_mesh.name}: Failed to find root bone "
+                    f"'{root_bone_name}' in '{selected_armature.name}', all "
+                    "bones will be considered during import of "
+                    "PoseData"
+                )
 
             loc_scale = self.scale
+            pose_names = []
             for pose in pose_data:
-                # If there are no influences, don't bother
-                if not (influences := pose.get('Keys')):
+                if not (pose_name := pose.get("Name")):
+                    Log.warn(
+                        f"{selected_mesh.name}: skipping pose data "
+                        f"with no pose name:\n{pose}"
+                    )
                     continue
+                pose_names.append(pose_name)
 
-                if not (pose_name := pose.get('Name')):
-                    Log.warn(f"{selected_mesh.name}: skipping pose data "
-                             f"with no pose name: {pose}")
+                # If there are no influences, don't bother
+                if not (influences := pose.get("Keys")):
                     continue
 
                 # Enter pose mode
                 bpy.context.view_layer.objects.active = selected_armature
-                bpy.ops.object.mode_set(mode='POSE')
+                bpy.ops.object.mode_set(mode="POSE")
 
                 # Reset all transforms to default
-                bpy.ops.pose.select_all(action='SELECT')
+                bpy.ops.pose.select_all(action="SELECT")
                 bpy.ops.pose.transforms_clear()
-                bpy.ops.pose.select_all(action='DESELECT')
+                bpy.ops.pose.select_all(action="DESELECT")
 
                 # Move bones accordingly
                 contributed = False
                 for bone in influences:
-                    if not (bone_name := bone.get('Name')):
-                        Log.warn(f"{selected_mesh.name} - {pose_name}: "
-                                 f"empty bone name for pose '{pose}'")
+                    if not (bone_name := bone.get("Name")):
+                        Log.warn(
+                            f"{selected_mesh.name} - {pose_name}: "
+                            f"empty bone name for pose:\n{pose}"
+                        )
                         continue
 
-                    pose_bone: bpy.types.PoseBone = get_case_insensitive(selected_armature.pose.bones, bone_name)
+                    pose_bone: bpy.types.PoseBone = get_case_insensitive(
+                        selected_armature.pose.bones, bone_name
+                    )
                     if not pose_bone:
                         # For cases where pose data tries to move a non-existent bone
                         # i.e. Poseidon has no 'Tongue' but it's in the pose asset
-                        if part_type is EFortCustomPartType.HEAD:
+                        if not part_type or part_type is EFortCustomPartType.HEAD:
                             # There are likely many missing bones in non-Head parts, but we
                             # process as many as we can.
-                            Log.warn(f"{selected_mesh.name} - {pose_name}: "
-                                     f"'{bone_name}' influence skipped "
-                                     "since it was not found in "
-                                     f"'{selected_armature.name}'")
+                            Log.warn(
+                                f"{selected_mesh.name} - {pose_name}: "
+                                f"'{bone_name}' influence skipped "
+                                "since it was not found in "
+                                f"'{selected_armature.name}'"
+                            )
                         continue
 
                     if root_bone and not bone_has_parent(pose_bone, root_bone):
-                        Log.warn(f"{selected_mesh.name} - {pose_name}: "
-                                 f"skipped '{pose_bone.name}' since it does "
-                                 f"not have '{root_bone.name}' as a parent")
+                        Log.warn(
+                            f"{selected_mesh.name} - {pose_name}: "
+                            f"skipped '{pose_bone.name}' since it does "
+                            f"not have '{root_bone.name}' as a parent"
+                        )
                         continue
 
                     # Verify that the current bone and all of its children
                     # have at least one vertex group associated with it
-                    if not bone_hierarchy_has_vertex_groups(pose_bone, selected_mesh.vertex_groups):
+                    if not bone_hierarchy_has_vertex_groups(
+                        pose_bone, selected_mesh.vertex_groups
+                    ):
                         continue
 
                     # Reset bone to identity
                     pose_bone.matrix_basis.identity()
 
-                    rotation = bone.get('Rotation')
-                    if not rotation.get('IsNormalized'):
-                        Log.warn(f"rotation not normalized for {bone_name} in pose {pose_name}")
+                    rotation = bone.get("Rotation")
+                    if not rotation.get("IsNormalized"):
+                        Log.warn(
+                            f"{selected_mesh.name} - {pose_name}: "
+                            f"rotation not normalized for '{bone_name}' in "
+                            "pose"
+                        )
 
                     edit_bone = pose_bone.bone
-                    post_quat = Quaternion(post_quat) if (post_quat := edit_bone.get("post_quat")) else Quaternion()
+                    post_quat = (
+                        Quaternion(post_quat)
+                        if (post_quat := edit_bone.get("post_quat"))
+                        else Quaternion()
+                    )
 
                     q = post_quat.copy()
                     q.rotate(make_quat(rotation))
                     quat = post_quat.copy()
                     quat.rotate(q.conjugated())
-                    pose_bone.rotation_quaternion = quat.conjugated() @ pose_bone.rotation_quaternion
+                    pose_bone.rotation_quaternion = (
+                        quat.conjugated() @ pose_bone.rotation_quaternion
+                    )
 
-                    loc = (make_vector(bone.get('Location'), unreal_coords_correction=True))
+                    loc = make_vector(
+                        bone.get("Location"), unreal_coords_correction=True
+                    )
                     loc.rotate(post_quat.conjugated())
 
                     pose_bone.location = pose_bone.location + loc * loc_scale
-                    pose_bone.scale = (Vector((1, 1, 1)) + make_vector(bone.get('Scale')))
+                    pose_bone.scale = Vector((1, 1, 1)) + make_vector(bone.get("Scale"))
 
                     pose_bone.rotation_quaternion.normalize()
                     contributed = True
@@ -1440,23 +1371,121 @@ class ImportContext:
                     continue
 
                 # Create blendshape from armature
-                bpy.ops.object.mode_set(mode='OBJECT')
+                bpy.ops.object.mode_set(mode="OBJECT")
                 bpy.context.view_layer.objects.active = selected_mesh
                 selected_mesh.select_set(True)
-                bpy.ops.object.modifier_apply_as_shapekey(keep_modifier=True,
-                                                          modifier=armature_modifier.name)
+                bpy.ops.object.modifier_apply_as_shapekey(
+                    keep_modifier=True, modifier=armature_modifier.name
+                )
 
                 # Use name from pose data
                 selected_mesh.data.shape_keys.key_blocks[-1].name = pose_name
+
+            if not tracks:
+                return
+
+            bpy.ops.object.mode_set(mode="OBJECT")
+            bpy.context.view_layer.objects.active = selected_mesh
+            selected_mesh.select_set(True)
+
+            # Now that base blendshapes are imported, cycle through all
+            # PoseData again to create blendshapes based on CurveData.
+            for pose in pose_data:
+                if not (curves := pose.get("CurveData")):
+                    continue
+
+                if not (pose_name := pose.get("Name")):
+                    Log.warn(
+                        f"{selected_mesh.name} - {pose_name}: skipping pose "
+                        f"data from curve data with no pose name:\n{pose}"
+                    )
+                    continue
+
+                # Not sure what it means when there's curve data on a pose
+                # also containing bone transforms. So if there's an existing
+                # shape key, just prepend curves_ to distinguish it.
+                # Also, if it exists in the original set of shape keys but it
+                # failed to import for some reason (i.e. missing bone), also
+                # distinguish that name to prevent confusion since the name
+                # of that key may not do what the user expects
+                # (i.e. tongue_up_pose on Fish Thicc created from CurveData).
+                # If we import outside the context of a full character import
+                # (i.e. part_type is None), then only prepend curves_ for
+                # existing shape keys.
+                if pose_name in selected_mesh.data.shape_keys.key_blocks or \
+                   (part_type is EFortCustomPartType.HEAD and pose_name in pose_names):
+                    pose_name = f"curves_{pose_name}"
+
+                # Verify length of CurveData matches that of tracks
+                if len(curves) != len(tracks):
+                    Log.warn(
+                        f"{selected_mesh.name} - {pose_name}: skipped since "
+                        "length of curve data for pose does not match the "
+                        "length of Tracks array"
+                    )
+                    continue
+
+                # If all curve values are basically 0, skip
+                if all(curves, lambda curve_value: abs(curve_value) < 0.00001):
+                    continue
+
+                contributed = False
+                for track_idx, curve_value in enumerate(curves):
+                    # Sometimes curve_value is a very small number (1.7881586e-06).
+                    # Probably best to just normalize it to 0
+                    if abs(curve_value) < 0.00001:
+                        curve_value = 0.0
+
+                    # Even if the curve_value is zero, let it be set anyway
+                    # since this is essentially a free reset to zero for the
+                    # relevant shape keys.
+                    shape_key_name = tracks[track_idx]
+                    if shape_key := selected_mesh.data.shape_keys.key_blocks.get(
+                        shape_key_name
+                    ):
+                        # Influence above / below 1.0 is possible with curve data
+                        if curve_value < shape_key.slider_min:
+                            shape_key.slider_min = curve_value - 1.0
+                        if curve_value > shape_key.slider_max:
+                            shape_key.slider_max = curve_value + 1.0
+                        shape_key.value = curve_value
+                        contributed = True
+                    else:
+                        if not part_type or part_type is EFortCustomPartType.HEAD:
+                            Log.warn(
+                                f"{selected_mesh.name} - {pose_name}: did not "
+                                "apply influence to missing shape key: "
+                                f"'{shape_key_name}'"
+                            )
+
+                # Do not create shape keys if nothing changed
+                if not contributed:
+                    continue
+
+                selected_mesh.shape_key_add(name=pose_name, from_mix=True)
+
+            # Set all shape keys in the track back to 0
+            for shape_key_name in tracks:
+                if shape_key := selected_mesh.data.shape_keys.key_blocks.get(
+                    shape_key_name
+                ):
+                    shape_key.slider_min = 0.0
+                    shape_key.slider_max = 1.0
+                    shape_key.value = 0.0
         except Exception as e:
-            Log.error("Failed to import PoseAsset data from "
-                      f"{selected_mesh.name}: {e}")
+            Log.error(f"Failed to import PoseAsset data from {selected_mesh.name}: {e}")
         finally:
             # Final reset before re-entering regular import mode.
             bpy.context.view_layer.objects.active = selected_armature
-            bpy.ops.object.mode_set(mode='POSE')
-            bpy.ops.pose.select_all(action='SELECT')
+            bpy.ops.object.mode_set(mode="POSE")
+            bpy.ops.pose.select_all(action="SELECT")
             bpy.ops.pose.transforms_clear()
-            bpy.ops.pose.select_all(action='DESELECT')
+            bpy.ops.pose.select_all(action="DESELECT")
+
+            bone_swap_orig_parents(selected_armature)
+            for constraint in muted_constraints:
+                constraint.mute = False
+
+            selected_mesh.show_only_shape_key = original_shape_key_lock
             bpy.ops.object.mode_set(mode=original_mode)
             bpy.context.view_layer.objects.active = original_selected_object

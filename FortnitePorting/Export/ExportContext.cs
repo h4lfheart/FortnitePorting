@@ -104,8 +104,9 @@ public class ExportContext
 
                     if (additionalData.TryGetValue(out UAnimBlueprintGeneratedClass animBlueprint, "AnimClass"))
                     {
-                        var animBlueprintData = animBlueprint.ClassDefaultObject.Load()!;
-                        if (animBlueprintData.TryGetValue(out FStructFallback poseAssetNode, "AnimGraphNode_PoseBlendNode"))
+                        if (animBlueprint.ClassDefaultObject != null 
+                            && animBlueprint.ClassDefaultObject.TryLoad(out var animBlueprintData) 
+                            && animBlueprintData.TryGetValue(out FStructFallback poseAssetNode, "AnimGraphNode_PoseBlendNode"))
                         {
                             PoseAsset(poseAssetNode.Get<UPoseAsset>("PoseAsset"), meta);
                         }
@@ -189,6 +190,10 @@ public class ExportContext
 
         /* Assert number of tracks == number of bones for given skeleton */
         var poseTracks = poseContainer.Tracks;
+
+        /* Propagate CurveTrackNames for CurveData processing. */
+        if (poseContainer.Curves is not null)
+            meta.CurveTrackNames = poseContainer.Curves.Select(x => x.CurveName.PlainText).ToArray();
 
         if (poseContainer.TrackPoseInfluenceIndices is not null)
         {
@@ -681,7 +686,7 @@ public class ExportContext
         objects.AddRangeIfNotNull(ConstructionScript(blueprintGeneratedClass));
         objects.AddRangeIfNotNull(InheritableComponentHandler(blueprintGeneratedClass));
 
-        if (blueprintGeneratedClass.ClassDefaultObject.TryLoad(out var classDefaultObject))
+        if (blueprintGeneratedClass.ClassDefaultObject != null && blueprintGeneratedClass.ClassDefaultObject.TryLoad(out var classDefaultObject))
         {
             objects.AddRangeIfNotNull(Actor(classDefaultObject!, loadTemplate: false));
         }
@@ -821,6 +826,10 @@ public class ExportContext
         {
             exportMesh.OverrideVertexColors = overrideVertexColors.Data;
         }
+
+        exportMesh.Location = meshComponent.RelativeLocation;
+        exportMesh.Rotation = meshComponent.RelativeRotation;
+        exportMesh.Scale = meshComponent.RelativeScale3D;
 
         return exportMesh;
     }
@@ -1049,7 +1058,10 @@ public class ExportContext
             {
                 if (parameterCollection.Textures.Any(x => x.Name.Equals(param.Name))) continue;
                 if (!param.ParameterValue.TryLoad(out UTexture texture)) continue;
-                parameterCollection.Textures.AddUnique(new TextureParameter(param.Name, Export(texture), texture.SRGB, texture.CompressionSettings));
+                var embeddedAsset = materialInstance.Owner != null 
+                                    && texture.Owner != null 
+                                    && materialInstance.Owner.Name.Equals(texture.Owner.Name);
+                parameterCollection.Textures.AddUnique(new TextureParameter(param.Name, Export(texture, embeddedAsset: embeddedAsset), texture.SRGB, texture.CompressionSettings));
             }
 
             foreach (var param in materialInstance.ScalarParameterValues)

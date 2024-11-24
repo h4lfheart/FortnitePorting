@@ -209,7 +209,7 @@ layer_mappings = MappingCollection(
 
         SlotMapping("Diffuse_Texture_2", alpha_slot="MaskTexture_2"),
         SlotMapping("SpecularMasks_2"),
-        SlotMapping("Norm"),
+        SlotMapping("Normals_Texture_2"),
         SlotMapping("Emissive_Texture_2"),
         SlotMapping("MaskTexture_2"),
         SlotMapping("Background Diffuse 2", alpha_slot="Background Diffuse Alpha 2"),
