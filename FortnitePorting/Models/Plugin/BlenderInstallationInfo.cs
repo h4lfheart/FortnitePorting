@@ -36,9 +36,9 @@ public partial class BlenderInstallationInfo : ObservableObject
     {
         if (!File.Exists(ManifestPath))
         {
+            AppWM.Message("Blender Extension", "Failed to find plugin manifest, installation may have gone wrong. Please remove the installation and try again.");
             return false;
         }
-        
         
         var manifestContents = File.ReadAllText(ManifestPath);
         var manifestToml = Toml.ToModel(manifestContents);

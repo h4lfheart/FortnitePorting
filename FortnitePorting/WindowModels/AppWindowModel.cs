@@ -123,9 +123,9 @@ public partial class AppWindowModel : WindowModelBase
         
     }
     
-    public void Message(string title, string message, InfoBarSeverity severity = InfoBarSeverity.Informational, bool autoClose = true, string id = "", float closeTime = 3f)
+    public void Message(string title, string message, InfoBarSeverity severity = InfoBarSeverity.Informational, bool autoClose = true, string id = "", float closeTime = 3f, bool useButton = false, string buttonTitle = "", Action? buttonCommand = null)
     {
-        Message(new InfoBarData(title, message, severity, autoClose, id, closeTime));
+        Message(new InfoBarData(title, message, severity, autoClose, id, closeTime, useButton, buttonTitle, buttonCommand));
     }
 
     public void Message(InfoBarData data)

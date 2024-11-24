@@ -85,7 +85,7 @@ public partial class BlenderPluginViewModel : ViewModelBase
         await TaskService.RunAsync(() =>
         {
             var installation = Installations[SelectedInstallationIndex];
-            installation.Status = "(Removing)";
+            installation.Status = "Removing";
             
             if (File.Exists(installation.BlenderPath)) {
                 
@@ -140,15 +140,15 @@ public partial class BlenderPluginViewModel : ViewModelBase
     }
     public async Task Sync(BlenderInstallationInfo installation)
     {
-        installation.Status = "(Syncing)";
+        installation.Status = "Syncing";
         
         await TaskService.Run(() =>
         {
-            var ueFormatZip = BuildPlugin("io_scene_ueformat", installation.BlenderPath);
-            var fnPortingZip = BuildPlugin("fortnite_porting", installation.BlenderPath);
+            var ueFormatZip = BuildPlugin(installation, "io_scene_ueformat", installation.BlenderPath);
+            var fnPortingZip = BuildPlugin(installation, "fortnite_porting", installation.BlenderPath);
 
-            InstallPlugin(ueFormatZip, installation.BlenderPath);
-            InstallPlugin(fnPortingZip, installation.BlenderPath);
+            InstallPlugin(installation, ueFormatZip, installation.BlenderPath);
+            InstallPlugin(installation, fnPortingZip, installation.BlenderPath);
 
             installation.SyncExtensionVersion();
         });
@@ -156,16 +156,19 @@ public partial class BlenderPluginViewModel : ViewModelBase
         installation.Status = string.Empty;
     }
 
-    public string BuildPlugin(string name, string blenderPath)
+    public string BuildPlugin(BlenderInstallationInfo installation, string name, string blenderPath)
     {
+        installation.Status = $"Building {name}";
+        
         var outPath = Path.Combine(BlenderRoot.FullName, $"{name}.zip");
         BlenderExtensionCommand("build", $"--output-filepath \"{outPath}\"", blenderPath,
             workingDirectory: Path.Combine(BlenderRoot.FullName, name));
         return outPath;
     }
     
-    public void InstallPlugin(string zipPath, string blenderPath)
+    public void InstallPlugin(BlenderInstallationInfo installation, string zipPath, string blenderPath)
     {
+        installation.Status = $"Installing {Path.GetFileName(zipPath)}";
         BlenderExtensionCommand("install-file", $"\"{zipPath}\" -r user_default -e", blenderPath);
     }
     
@@ -195,8 +198,6 @@ public partial class BlenderPluginViewModel : ViewModelBase
         {
             AppWM.Message("Blender Extension", $"A lock has been put on the user_default extension repository. Please delete \"{lockMatch.Groups[1].Value.Trim()}\" and try again.");
         }
-        
-        Log.Information(output);
     }
 
     public bool TryGetBlenderProcess(string path, out Process process)

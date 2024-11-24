@@ -47,6 +47,7 @@ public static class ApplicationService
     public static TimeWasterViewModel TimeWasterVM => ViewModelRegistry.Get<TimeWasterViewModel>()!;
     public static MapViewModel MapVM => ViewModelRegistry.Get<MapViewModel>()!;
     public static CanvasViewModel CanvasVM => ViewModelRegistry.Get<CanvasViewModel>()!;
+    public static PluginViewModel PluginVM => ViewModelRegistry.Get<PluginViewModel>()!;
     
     public static IClassicDesktopStyleApplicationLifetime Application = null!;
     private static IStorageProvider StorageProvider => Application.MainWindow!.StorageProvider;

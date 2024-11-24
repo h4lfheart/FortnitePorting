@@ -317,6 +317,26 @@
                             </TextBlock.RenderTransform>
                         </TextBlock>
                     </Grid>
+                    <Grid RenderTransform="{Binding ScoreTextTransform}" RenderTransformOrigin="50%, 0%">
+                        <Border Background="White" CornerRadius="0" Opacity="0.8">
+                            <Border.OpacityMask>
+                                <ImageBrush Source="/Assets/TimeWaster/Sprites/T_Glow_Mask.png" Stretch="Fill"/>
+                            </Border.OpacityMask>
+                            <Border.RenderTransform>
+                                <ScaleTransform ScaleX="1.5" ScaleY="2"/>
+                            </Border.RenderTransform>
+                        </Border>
+                        <TextBlock Text="OR UPDATE YOUR GAME IF YOU HAVEN'T YET"
+                                   Foreground="White" LetterSpacing="1.5" FontSize="24"
+                                   HorizontalAlignment="Center">
+                            <TextBlock.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform ScaleX="0.95" ScaleY="0.85"/>
+                                    <SkewTransform AngleX="-5"/>
+                                </TransformGroup>
+                            </TextBlock.RenderTransform>
+                        </TextBlock>
+                    </Grid>
                 </StackPanel>
                 
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Margin="{ext:Space 2}" Opacity="0.9" IsVisible="{Binding IsGame}">

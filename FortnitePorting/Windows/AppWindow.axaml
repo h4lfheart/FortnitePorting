@@ -132,6 +132,12 @@
                                          Message="{Binding Message}" 
                                          Severity="{Binding Severity}"
                                          Background="#2F2C35">
+                                 <ui:InfoBar.ActionButton>
+                                     <ui:HyperlinkButton IsVisible="{Binding UseButton}" 
+                                                         Content="{Binding ButtonTitle}" 
+                                                         Command="{Binding ButtonCommand}"
+                                                         Padding="6"/>
+                                 </ui:InfoBar.ActionButton>
                                  <ui:InfoBar.Styles>
                                      <Style Selector="ui|InfoBar.FadeIn">
                                          <Style.Animations>

@@ -34,6 +34,7 @@ using FortnitePorting.Shared.Models;
 using FortnitePorting.Shared.Models.Fortnite;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
+using FortnitePorting.Views;
 using Newtonsoft.Json;
 using Serilog;
 using AssetLoaderCollection = FortnitePorting.Models.Assets.Loading.AssetLoaderCollection;
@@ -63,7 +64,13 @@ public static class Exporter
                 if (await ApiVM.FortnitePortingServer.PingAsync(serverType) is false)
                 {
                     var serverName = serverType.GetDescription();
-                    AppWM.Message($"{serverName} Server", $"The {serverName} Plugin for Fortnite Porting is not currently installed, running, or is busy.", InfoBarSeverity.Error, false);
+                    AppWM.Message($"{serverName} Server", $"The {serverName} Plugin for Fortnite Porting is not currently installed, running, or is busy.", 
+                        severity: InfoBarSeverity.Error, false,
+                        useButton: true, buttonTitle: "Install Plugin", buttonCommand: () =>
+                        {
+                            AppWM.Navigate<PluginView>();
+                            PluginVM.Navigate(metaData.ExportLocation);
+                        });
                     return;
                 }
 
