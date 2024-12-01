@@ -122,7 +122,7 @@ def get_selected_armature():
         return selected
     elif selected.type == 'MESH':
         armature_modifier = first(selected.modifiers, lambda modifier: modifier.type == 'ARMATURE')
-        return armature_modifier.object
+        return armature_modifier.object if armature_modifier is not None else None
     else:
         return None
 
