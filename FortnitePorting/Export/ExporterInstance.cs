@@ -267,6 +267,7 @@ public class ExporterInstance
     public List<ExportMesh> LevelSaveRecord(ULevelSaveRecord levelSaveRecord)
     {
         var exportMeshes = new List<ExportMesh>();
+        if (levelSaveRecord is { TemplateRecords: null }) return exportMeshes;
         foreach (var (index, templateRecord) in levelSaveRecord.TemplateRecords)
         {
             var actor = templateRecord.ActorClass.Load<UBlueprintGeneratedClass>().ClassDefaultObject.Load();
