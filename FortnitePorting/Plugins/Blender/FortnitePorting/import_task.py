@@ -1003,7 +1003,6 @@ class DataImportTask:
         material = material_slot.material
         material.use_nodes = True
         material.blend_method = "CLIP"
-        material.shadow_method = "CLIP"
         nodes = material.node_tree.nodes
         nodes.clear()
         links = material.node_tree.links
