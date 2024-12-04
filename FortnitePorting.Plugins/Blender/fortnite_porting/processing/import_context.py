@@ -742,7 +742,7 @@ class ImportContext:
 
         # post parameter handling
         
-        if material_name in vertex_crunch_names or get_param(scalars, "HT_CrunchVerts") == 1:
+        if material_name in vertex_crunch_names or get_param(scalars, "HT_CrunchVerts") == 1 or any(toon_outline_names, lambda x: x in material_name):
             self.full_vertex_crunch_materials.append(material)
             return
 

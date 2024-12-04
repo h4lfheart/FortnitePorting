@@ -65,11 +65,11 @@ public partial class MapViewModel : ViewModelBase
     public static MapInfo[] MapInfos =
     [
         new(
-            "Helios",
-            "FortniteGame/Content/Athena/Helios/Maps/Helios_Terrain",
+            "Asteria",
+            "FortniteGame/Content/Athena/Asteria/Maps/Asteria_Terrain",
             "FortniteGame/Content/Athena/Apollo/Maps/UI/Apollo_Terrain_Minimap",
             "FortniteGame/Content/Athena/Apollo/Maps/UI/T_MiniMap_Mask",
-            0.014f, 0, 128, 92, 12800, true
+            0.01375f, 132, 140, 90, 12800, true
         ),
         new(
             "Rufus",
@@ -79,32 +79,46 @@ public partial class MapViewModel : ViewModelBase
             0.0155f, 256, 448, 102, 12800, true
         ),
         new(
+            "Helios",
+            "FortniteGame/Content/Athena/Helios/Maps/Helios_Terrain",
+            "FortniteGame/Content/Athena/Apollo/Maps/UI/Apollo_Terrain_Minimap",
+            "FortniteGame/Content/Athena/Apollo/Maps/UI/T_MiniMap_Mask",
+            0.014f, 0, 128, 92, 12800, true
+        ),
+        new(
             "Apollo_Retro",
             "FortniteGame/Plugins/GameFeatures/Clyde/Content/Apollo_Terrain_Retro",
             "FortniteGame/Content/Athena/Apollo/Maps/Clyde/Textures/Week3_Adjusted",
             "FortniteGame/Content/Athena/Apollo/Maps/Clyde/Textures/T_Clyde_Minimap_PostMask",
             0.032f, -25, 96, 205, 12800, true
         ),
+        // new( // Requires large file chunk loading
+        //     "Hermes",
+        //     "FortniteGame/Plugins/GameFeatures/BRMapCh6/Content/Maps/Hermes_Terrain",
+        //     "FortniteGame/Content/Athena/Apollo/Maps/UI/Apollo_Terrain_Minimap",
+        //     "FortniteGame/Content/Athena/Apollo/Maps/UI/T_MiniMap_Mask",
+        //     0.0146f, -100, -25, 96, 12800, true, false
+        // ),
+        new(
+            "Athena_OG",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S01_Map/Content/Athena_Terrain_S01",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S01_MapUI/Content/MiniMapAthena_S01_New",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S01_MapUI/Content/T_MiniMap_Mask_Figment",
+            0.017f, 380, 470, 110, 12800, true
+        ),
         new(
             "BlastBerry",
             "/BlastBerryMap/Maps/BlastBerry_Terrain",
             "/BlastBerry/Minimap/Capture_Iteration_Discovered_BlastBerry",
             "/BlastBerry/MiniMap/T_MiniMap_Mask",
-            0.046f, 32, 168, 300, 12800, false
+            0.023f, -20, 215, 150, 12800, false
         ),
         new(
             "PunchBerry",
             "FortniteGame/Plugins/GameFeatures/632de27e-4506-41f8-532f-93ac01dc10ca/Content/Maps/PunchBerry_Terrain",
             "FortniteGame/Plugins/GameFeatures/BlastBerry/Content/MiniMap/Discovered_PunchBerry",
             "FortniteGame/Plugins/GameFeatures/BlastBerry/Content/MiniMap/T_PB_MiniMap_Mask",
-            0.0475f, 0, 384, 305, 12800, true
-        ),
-        new(
-            "Asteria",
-            "FortniteGame/Content/Athena/Asteria/Maps/Asteria_Terrain",
-            "FortniteGame/Content/Athena/Apollo/Maps/UI/Apollo_Terrain_Minimap",
-            "FortniteGame/Content/Athena/Apollo/Maps/UI/T_MiniMap_Mask",
-            0.01375f, 132, 140, 90, 12800, true
+            0.023f, -20, 215, 150, 12800, true
         ),
         MapInfo.CreateNonDisplay("Athena", "FortniteGame/Content/Athena/Maps/Athena_Terrain"),
         MapInfo.CreateNonDisplay("Apollo", "FortniteGame/Content/Athena/Apollo/Maps/Apollo_Terrain")
@@ -712,7 +726,7 @@ public partial class WorldPartitionGrid : ObservableObject
     {
         OriginalPosition = position;
 
-        var rotatedPosition = RotateAboutOrigin(new Vector2(position.X, position.Y), Vector2.Zero);
+        var rotatedPosition = mapInfo.RotateGrid ? RotateAboutOrigin(new Vector2(position.X, position.Y), Vector2.Zero) : new Vector2(position.X, position.Y);
         Position = new FVector(rotatedPosition.X, rotatedPosition.Y, 0);
         MapInfo = mapInfo;
         CellSize = mapInfo.CellSize;
@@ -753,11 +767,11 @@ public enum EMapTextureExportType
     Weight
 }
 
-public record MapInfo(string Name, string MapPath, string MinimapPath, string MaskPath, float Scale, int XOffset, int YOffset, int CellSize, int MinGridDistance, bool UseMask, bool IsNonDisplay = false, string SourceName = "Battle Royale")
+public record MapInfo(string Name, string MapPath, string MinimapPath, string MaskPath, float Scale, int XOffset, int YOffset, int CellSize, int MinGridDistance, bool UseMask, bool RotateGrid = true, bool IsNonDisplay = false, string SourceName = "Battle Royale")
 {
     public static MapInfo CreateNonDisplay(string name, string mapPath, string sourceName = "Battle Royale")
     {
-        return new MapInfo(name, mapPath, null, null, 0, 0, 0, 0, 12800, false, true, sourceName);
+        return new MapInfo(name, mapPath, null, null, 0, 0, 0, 0, 12800, false, true, true, sourceName);
     }
     
     public bool IsValid()

@@ -49,12 +49,13 @@ def merge_armatures(parts):
 
     # move curve blendshapes to bottom if there are any
     if master_mesh := get_armature_mesh(bpy.context.active_object):
-        for shape_key in list(master_mesh.data.shape_keys.key_blocks):
-            if not shape_key.name.startswith('curves_'):
-                continue
-            master_mesh.active_shape_key_index = master_mesh.data.shape_keys.key_blocks.find(shape_key.name)
-            bpy.ops.object.shape_key_move(type='BOTTOM')
-        master_mesh.active_shape_key_index = 0
+        if master_mesh.data.shape_keys is not None:
+            for shape_key in list(master_mesh.data.shape_keys.key_blocks):
+                if not shape_key.name.startswith('curves_'):
+                    continue
+                master_mesh.active_shape_key_index = master_mesh.data.shape_keys.key_blocks.find(shape_key.name)
+                bpy.ops.object.shape_key_move(type='BOTTOM')
+            master_mesh.active_shape_key_index = 0
 
     # rebuild master bone tree
     bone_tree = {}

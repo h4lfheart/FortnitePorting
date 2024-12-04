@@ -429,12 +429,14 @@ public class ExportContext
             var doorRotation = actor.GetOrDefault("DoorRotationOffset", FRotator.ZeroRotator);
             doorRotation.Pitch *= -1;
                 
-            var exportDoorMesh = Mesh(doorMesh)!;
-            exportDoorMesh.Location = doorOffset;
-            exportDoorMesh.Rotation = doorRotation;
-            extraMeshes.AddIfNotNull(exportDoorMesh);
-
-            if (actor.GetOrDefault("bDoubleDoor", false))
+            var exportDoorMesh = Mesh(doorMesh);
+            if (exportDoorMesh != null)
+            {
+                exportDoorMesh.Location = doorOffset;
+                exportDoorMesh.Rotation = doorRotation;
+                extraMeshes.AddIfNotNull(exportDoorMesh);
+            }
+            if (exportDoorMesh != null && actor.GetOrDefault("bDoubleDoor", false))
             {
                 var exportDoubleDoorMesh = exportDoorMesh with
                 {
