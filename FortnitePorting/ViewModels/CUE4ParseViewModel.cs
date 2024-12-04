@@ -52,14 +52,14 @@ public class CUE4ParseViewModel : ViewModelBase
     public readonly HybridFileProvider Provider = AppSettings.Current.Installation.CurrentProfile.FortniteVersion switch
     {
         EFortniteVersion.LatestOnDemand => new HybridFileProvider(new VersionContainer(AppSettings.Current.Installation.CurrentProfile.UnrealVersion)),
-        EFortniteVersion.LatestInstalled => new HybridFileProvider(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, ExtraDirectories, new VersionContainer(EGame.GAME_UE5_5)),
+        EFortniteVersion.LatestInstalled => new HybridFileProvider(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, ExtraDirectories, new VersionContainer(LATEST_GAME_VERSION)),
         _ => new HybridFileProvider(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, [], new VersionContainer(AppSettings.Current.Installation.CurrentProfile.UnrealVersion)),
     };
     
     public readonly HybridFileProvider OptionalProvider = AppSettings.Current.Installation.CurrentProfile.FortniteVersion switch
     {
         EFortniteVersion.LatestOnDemand => new HybridFileProvider(new VersionContainer(AppSettings.Current.Installation.CurrentProfile.UnrealVersion), isOptionalLoader: true),
-        EFortniteVersion.LatestInstalled => new HybridFileProvider(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, [], new VersionContainer(EGame.GAME_UE5_5), isOptionalLoader: true),
+        EFortniteVersion.LatestInstalled => new HybridFileProvider(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, [], new VersionContainer(LATEST_GAME_VERSION), isOptionalLoader: true),
         _ => new HybridFileProvider(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, [], new VersionContainer(AppSettings.Current.Installation.CurrentProfile.UnrealVersion), isOptionalLoader: true),
     };
 
@@ -91,7 +91,9 @@ public class CUE4ParseViewModel : ViewModelBase
         "FortniteGame/Content/Animation/Game/MainPlayer/Menu/BR/Female_Commando_Idle_02_Rebirth_Montage",
         "FortniteGame/Content/Animation/Game/MainPlayer/Menu/BR/Female_Commando_Idle_03_Montage"
     ];
-    
+
+    private const EGame LATEST_GAME_VERSION = EGame.GAME_UE5_6;
+
     public override async Task Initialize()
     {
 		ObjectTypeRegistry.RegisterEngine(Assembly.Load("FortnitePorting"));
@@ -197,7 +199,8 @@ public class CUE4ParseViewModel : ViewModelBase
                     ChunkBaseUrl = "http://epicgames-download1.akamaized.net/Builds/Fortnite/CloudDir/",
                     ChunkCacheDirectory = CacheFolder.FullName,
                     ManifestCacheDirectory = CacheFolder.FullName,
-                    Zlibng = ZlibHelper.Instance,
+                    Decompressor = ManifestZlibStreamDecompressor.Decompress,
+                    DecompressorState = ZlibHelper.Instance,
                     CacheChunksAsIs = true
                 };
                 
@@ -206,12 +209,12 @@ public class CUE4ParseViewModel : ViewModelBase
 
                 HomeVM.UpdateStatus($"Loading Fortnite On-Demand (This may take a while)");
 
-                var fileManifests = manifest.FileManifestList.Where(fileManifest => FortniteArchiveRegex.IsMatch(fileManifest.FileName));
+                var fileManifests = manifest.Files.Where(fileManifest => FortniteArchiveRegex.IsMatch(fileManifest.FileName));
                 foreach (var fileManifest in fileManifests)
                 {
                     Provider.RegisterVfs(fileManifest.FileName, (Stream[]) [fileManifest.GetStream()],
                         name => new FStreamArchive(name,
-                            manifest.FileManifestList.First(file => file.FileName.Equals(name)).GetStream()));
+                            manifest.Files.First(file => file.FileName.Equals(name)).GetStream()));
                 }
                 
                 break;
@@ -274,7 +277,7 @@ public class CUE4ParseViewModel : ViewModelBase
             }
             case EFortniteVersion.LatestOnDemand:
             {
-                var onDemandFile = LiveManifest?.FileManifestList.FirstOrDefault(x => x.FileName.Equals("Cloud/IoStoreOnDemand.ini", StringComparison.OrdinalIgnoreCase));
+                var onDemandFile = LiveManifest?.Files.FirstOrDefault(x => x.FileName.Equals("Cloud/IoStoreOnDemand.ini", StringComparison.OrdinalIgnoreCase));
                 if (onDemandFile is not null) onDemandText = onDemandFile.GetStream().ReadToEnd().BytesToString();
                 break;
             }

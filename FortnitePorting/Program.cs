@@ -1,13 +1,10 @@
 ﻿using Avalonia;
 using System;
-using ATL.Logging;
 using Avalonia.Controls.ApplicationLifetimes;
-using DesktopNotifications;
 using DesktopNotifications.FreeDesktop;
 using DesktopNotifications.Windows;
 using FortnitePorting.Application;
-using FortnitePorting.Services;
-using Log = Serilog.Log;
+using Serilog;
 
 namespace FortnitePorting;
 
@@ -36,32 +33,40 @@ internal static class Program
     
     public static AppBuilder SetupDesktopNotifications(this AppBuilder builder)
     {
-        if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+        try
         {
-            var context = WindowsApplicationContext.FromCurrentProcess();
-            NotificationManager = new WindowsNotificationManager(context);
-        }
-        else if (Environment.OSVersion.Platform == PlatformID.Unix)
-        {
-            var context = FreeDesktopApplicationContext.FromCurrentProcess();
-            NotificationManager = new FreeDesktopNotificationManager(context);
-        }
-        else
-        {
-            NotificationManager = null;
-            return builder;
-        }
-
-        NotificationManager.Initialize().GetAwaiter().GetResult();
-
-        builder.AfterSetup(b =>
-        {
-            if (b.Instance?.ApplicationLifetime is IControlledApplicationLifetime lifetime)
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
             {
-                lifetime.Exit += (s, e) => { NotificationManager.Dispose(); };
+                var context = WindowsApplicationContext.FromCurrentProcess();
+                NotificationManager = new WindowsNotificationManager(context);
             }
-        });
+            else if (Environment.OSVersion.Platform == PlatformID.Unix)
+            {
+                var context = FreeDesktopApplicationContext.FromCurrentProcess();
+                NotificationManager = new FreeDesktopNotificationManager(context);
+            }
+            else
+            {
+                NotificationManager = null;
+                return builder;
+            }
 
+            NotificationManager.Initialize().GetAwaiter().GetResult();
+
+            builder.AfterSetup(b =>
+            {
+                if (b.Instance?.ApplicationLifetime is IControlledApplicationLifetime lifetime)
+                {
+                    lifetime.Exit += (s, e) => { NotificationManager.Dispose(); };
+                }
+            });
+
+        }
+        catch (Exception)
+        {
+            Log.Error("Failed to setup notification manager.");
+        }
+        
         return builder;
     }
 

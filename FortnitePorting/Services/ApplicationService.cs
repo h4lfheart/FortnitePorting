@@ -52,7 +52,7 @@ public static class ApplicationService
     public static IClassicDesktopStyleApplicationLifetime Application = null!;
     private static IStorageProvider StorageProvider => Application.MainWindow!.StorageProvider;
     public static IClipboard Clipboard => Application.MainWindow!.Clipboard!;
-    public static INotificationManager NotificationManager;
+    public static INotificationManager? NotificationManager;
     
     public static readonly DirectoryInfo AssetsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets"));
     public static readonly DirectoryInfo MapsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Maps"));

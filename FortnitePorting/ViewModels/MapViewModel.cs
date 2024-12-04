@@ -35,6 +35,7 @@ using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Windows;
 using OpenTK.Mathematics;
+using Serilog;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
@@ -149,12 +150,28 @@ public partial class MapViewModel : ViewModelBase
 
         if (Maps.Count == 0)
         {
-            AppWM.Dialog("No Supported Maps", "Failed to find any supported maps for processing.");
+            AppWM.Message("No Supported Maps", "Failed to find any supported maps for processing.");
         }
 
-        foreach (var map in Maps)
+        foreach (var map in Maps.ToArray())
         {
-            await map.Load();
+            try
+            {
+                await map.Load();
+            }
+            catch (Exception e)
+            {
+                AppWM.Dialog("Map Export", $"Failed to load {map.WorldName} for export, skipping.");
+
+                if (IsDebug)
+                {
+                    Log.Error(e.ToString());
+                }
+                else
+                {
+                    Maps.Remove(map);
+                }
+            }
         }
         
     }
@@ -445,16 +462,18 @@ public partial class WorldPartitionMap : ObservableObject
         async Task<int> CollectTileInfos(ULevel level)
         {
             var proxyDetectedCount = 0;
-            foreach (var actor in level.Actors)
+            foreach (var actorLazy in level.Actors)
             {
-                if (!actor.Name.StartsWith("LandscapeStreamingProxy")) continue;
-
-                var landscapeStreamingProxy = await actor.LoadAsync();
-                if (landscapeStreamingProxy is null) continue;
+                if (actorLazy.IsNull) continue;
+                
+                var actor = await actorLazy.LoadAsync();
+                if (actor is null) continue;
+                
+                if (actor.ExportType != "Landscape") continue;
 
                 proxyDetectedCount++;
                 
-                var landscapeComponents = landscapeStreamingProxy.GetOrDefault("LandscapeComponents", Array.Empty<UObject>());
+                var landscapeComponents = actor.GetOrDefault("LandscapeComponents", Array.Empty<UObject>());
                 foreach (var landscapeComponent in landscapeComponents)
                 {
                     var x = landscapeComponent.GetOrDefault<int>("SectionBaseX");
@@ -525,7 +544,12 @@ public partial class WorldPartitionMap : ObservableObject
                 {
                     var heightImage = new Image<L16>(2048, 2048);
                     heightImage.Mutate(ctx => ctx.Fill(Info.Name.Equals("Rufus") ? Color.Black : HeightBaseColor));
-                    foreach (var heightTileInfo in heightTileInfos)
+
+                    var minX = Math.Abs(heightTileInfos.Min(x => x.X));
+                    var minY = Math.Abs(heightTileInfos.Min(x => x.X));
+
+                    var normalizedTiles = heightTileInfos.Select(info => info with { X = info.X + minX, Y = info.Y + minY });
+                    foreach (var heightTileInfo in normalizedTiles)
                     {
                         if (heightTileInfo.Image.Width > 128 || heightTileInfo.Image.Height > 128) continue;
                         PixelOperations(heightTileInfo, (color, x, y, _) =>
@@ -555,7 +579,12 @@ public partial class WorldPartitionMap : ObservableObject
                 {
                     var normalImage = new Image<Rgb24>(2048, 2048);
                     normalImage.Mutate(ctx => ctx.Fill(NormalBaseColor));
-                    foreach (var heightTileInfo in heightTileInfos)
+                    
+                    var minX = Math.Abs(heightTileInfos.Min(x => x.X));
+                    var minY = Math.Abs(heightTileInfos.Min(x => x.X));
+
+                    var normalizedTiles = heightTileInfos.Select(info => info with { X = info.X + minX, Y = info.Y + minY });
+                    foreach (var heightTileInfo in normalizedTiles)
                     {
                         if (predicate is not null && !predicate(heightTileInfo)) continue;
                         PixelOperations(heightTileInfo, (color, x, y, _) =>
@@ -584,7 +613,12 @@ public partial class WorldPartitionMap : ObservableObject
                 async Task ExportWeightMap(string layerName, List<MapTextureTileInfo> weightTileInfos, string folderName = "", Predicate<MapTextureTileInfo>? predicate = null)
                 {
                     var weightImage = new Image<L8>(2048, 2048);
-                    foreach (var weightTileInfo in weightTileInfos)
+                    
+                    var minX = Math.Abs(weightTileInfos.Min(x => x.X));
+                    var minY = Math.Abs(weightTileInfos.Min(x => x.X));
+
+                    var normalizedTiles = weightTileInfos.Select(info => info with { X = info.X + minX, Y = info.Y + minY });
+                    foreach (var weightTileInfo in normalizedTiles)
                     {
                         if (predicate is not null && !predicate(weightTileInfo)) continue;
                         PixelOperations(weightTileInfo, (color, x, y, channel) =>

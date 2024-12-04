@@ -198,7 +198,7 @@ public static class OnlineService
                 var isPrivate = e.GetArgument<bool>("IsPrivate");
                 var isPing = messagePacket.Message.Contains("@everyone") && user.HasPermission(EPermissions.Staff) 
                              || messagePacket.Message.Contains($"@{AppSettings.Current.Online.GlobalName}");
-                if (AppSettings.Current.Online.OnlineStatus == EOnlineStatus.Online && !isInChatView && (isPrivate || isPing))
+                if (NotificationManager is not null && AppSettings.Current.Online.OnlineStatus == EOnlineStatus.Online && !isInChatView && (isPrivate || isPing))
                 {
                     var notification = new Notification
                     {

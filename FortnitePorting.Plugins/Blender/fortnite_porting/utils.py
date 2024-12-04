@@ -12,10 +12,7 @@ def ensure_blend_data():
                 data_to.node_groups.append(node_group)
 
         for mat in data_from.materials:
-            found_material = bpy.data.materials.get(mat)
-            if hash(found_material) != hash(mat):
-                if found_material:
-                    bpy.data.materials.remove(mat)
+            if not bpy.data.materials.get(mat):
                 data_to.materials.append(mat)
 
         for image in data_from.images:
@@ -23,10 +20,7 @@ def ensure_blend_data():
                 data_to.images.append(image)
 
         for obj in data_from.objects:
-            found_object = bpy.data.objects.get(obj)
-            if hash(found_object) != hash(obj):
-                if found_object:
-                    bpy.data.objects.remove(obj)
+            if not bpy.data.objects.get(obj):
                 data_to.objects.append(obj)
 
         for font in data_from.fonts:
