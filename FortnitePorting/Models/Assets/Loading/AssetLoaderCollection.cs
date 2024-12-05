@@ -3,22 +3,25 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.UE4.Assets.Exports.Engine;
+using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.GameplayTags;
 using CUE4Parse.UE4.Objects.UObject;
+using DynamicData;
 using FluentAvalonia.UI.Controls;
-using FortnitePorting.Application;
 using FortnitePorting.Export.Custom;
-using FortnitePorting.Export.Types;
+using FortnitePorting.Models.Assets.Asset;
 using FortnitePorting.Models.Assets.Custom;
 using FortnitePorting.Services;
-using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Services;
+using Serilog;
 using SkiaSharp;
 
 namespace FortnitePorting.Models.Assets.Loading;
@@ -166,6 +169,99 @@ public partial class AssetLoaderCollection : ObservableObject
                         var path = asset.GetPathName();
                         loader.StyleDictionary.TryAdd(name, []);
                         loader.StyleDictionary[name].Add(path);
+                    }
+                },
+                new AssetLoader(EExportType.WeaponMod)
+                {
+                    ClassNames = [
+                        "FortWeaponModItemDefinition", 
+                        "FortWeaponModItemDefinitionMagazine",
+                        "FortWeaponModItemDefinitionOptic"
+                    ],
+                    CustomLoadingHandler = async loader =>
+                    {
+                        var weaponModTable =
+                            await CUE4ParseVM.Provider.LoadObjectAsync<UDataTable>(
+                                "WeaponMods/DataTables/WeaponModOverrideData");
+                        var assets = CUE4ParseVM.AssetRegistry.Where(data => loader.ClassNames.Contains(data.AssetClass.Text))
+                            .ToList();
+
+                        loader.TotalAssets = assets.Count;
+                        foreach (var data in assets)
+                        {
+                            await loader.WaitIfPausedAsync();
+                            try
+                            {
+                                var asset = await CUE4ParseVM.Provider.TryLoadObjectAsync(data.ObjectPath);
+                                if (asset is null) continue;
+
+                                var icon = AssetLoader.GetIcon(asset) ??
+                                           asset.GetOrDefault<UTexture2D>("LargePreviewImage");
+                                var tag = asset.GetOrDefault<FGameplayTag>("PluginTuningTag");
+
+                                var defaultModData = asset.GetOrDefault<FStructFallback?>("DefaultModData");
+                                var mainModMeshData = defaultModData?.GetOrDefault<FStructFallback?>("MeshData");
+                                var mainModMesh = mainModMeshData?.GetOrDefault<UStaticMesh?>("ModMesh");
+
+                                var overridesAdded = 0;
+                                foreach (var weaponModData in weaponModTable.RowMap.Values)
+                                {
+                                    var weaponModTag = weaponModData.GetOrDefault<FGameplayTag>("ModTag");
+                                    if (!tag.ToString().Equals(weaponModTag.ToString())) continue;
+
+                                    var modMeshData = weaponModData.GetOrDefault<FStructFallback>("ModMeshData");
+                                    var modMesh = modMeshData.GetOrDefault<UStaticMesh?>("ModMesh");
+                                    modMesh ??= mainModMesh;
+                                    if (modMesh is null) continue;
+
+                                    var name = modMesh.Name;
+                                    if (loader.FilteredAssetBag.Contains(name)) continue;
+                                    var assetArgs = new AssetItemCreationArgs()
+                                    {
+                                        DisplayName = name,
+                                        Description = "No Description",
+                                        Object = modMesh,
+                                        Icon = icon,
+                                        GameplayTags = loader.GameplayTagHandler(modMesh),
+                                        ExportType = EExportType.WeaponMod,
+                                        HideRarity = true,
+                                        ID = name
+                                    };
+
+                                    await TaskService.RunDispatcherAsync(
+                                        () => loader.Source.AddOrUpdate(new AssetItem(assetArgs)),
+                                        DispatcherPriority.Background);
+                                    loader.FilteredAssetBag.Add(name);
+                                    overridesAdded++;
+                                }
+
+                                if (overridesAdded == 0 && mainModMesh is not null)
+                                {
+                                    var assetArgs = new AssetItemCreationArgs()
+                                    {
+                                        DisplayName = mainModMesh.Name,
+                                        Description = "No Description",
+                                        Object = mainModMesh,
+                                        Icon = icon,
+                                        GameplayTags = loader.GameplayTagHandler(mainModMesh),
+                                        ExportType = EExportType.WeaponMod,
+                                        HideRarity = true,
+                                        ID = mainModMesh.Name
+                                    };
+
+                                    await TaskService.RunDispatcherAsync(
+                                        () => loader.Source.AddOrUpdate(new AssetItem(assetArgs)),
+                                        DispatcherPriority.Background);
+                                    loader.LoadedAssets++;
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                Log.Error("{0}", e);
+                            }
+                        }
+
+                        loader.LoadedAssets = loader.TotalAssets;
                     }
                 },
                 new AssetLoader(EExportType.Resource)

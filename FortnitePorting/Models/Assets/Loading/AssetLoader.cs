@@ -47,6 +47,7 @@ public partial class AssetLoader : ObservableObject
     public Func<UObject, string?> DisplayNameHandler = asset => asset.GetAnyOrDefault<FText?>("DisplayName", "ItemName")?.Text;
     public Func<UObject, string?> DescriptionHandler = asset => asset.GetAnyOrDefault<FText?>("Description", "ItemDescription")?.Text;
     public Func<UObject, FGameplayTagContainer?> GameplayTagHandler = GetGameplayTags;
+    public Func<AssetLoader, Task>? CustomLoadingHandler;
     
     public readonly ReadOnlyObservableCollection<BaseAssetItem> Filtered;
     public SourceCache<BaseAssetItem, Guid> Source = new(asset => asset.Id);
@@ -195,6 +196,12 @@ public partial class AssetLoader : ObservableObject
         if (BeganLoading) return;
         BeganLoading = true;
 
+        if (CustomLoadingHandler is not null)
+        {
+            await CustomLoadingHandler(this);
+            return;
+        }
+        
         Assets = CUE4ParseVM.AssetRegistry
             .Where(data => ClassNames.Contains(data.AssetClass.Text))
             .ToList();
@@ -374,7 +381,7 @@ public partial class AssetLoader : ObservableObject
         IsPaused = false;
     }
 
-    private async Task WaitIfPausedAsync()
+    public async Task WaitIfPausedAsync()
     {
         while (IsPaused) await Task.Delay(1);
     }

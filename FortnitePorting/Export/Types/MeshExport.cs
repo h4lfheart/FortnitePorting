@@ -292,6 +292,7 @@ public class MeshExport : BaseExport
 
                 break;
             }
+            case EExportType.WeaponMod:
             case EExportType.Mesh:
             {
                 if (asset is UBlueprintGeneratedClass blueprintGeneratedClass)
