@@ -598,7 +598,8 @@ hair_mappings = MappingCollection(
         SlotMapping("AnisotropicTangentWeight", alpha_slot="AnisotropicTangentWeight Alpha"),
         SlotMapping("Normals"),
         SlotMapping("Strands Normal"),
-        SlotMapping("Emissive")
+        SlotMapping("Emissive"),
+        SlotMapping("Emission", "Emissive")
     ],
     vectors=[
         SlotMapping("Hair_Color_Variation"),
@@ -626,6 +627,7 @@ hair_mappings = MappingCollection(
         SlotMapping("Hair_Noise_Roughness_Min"),
         
         SlotMapping("Emissive_Brightness"),
+        SlotMapping("EmissiveBrightness"),
         
         SlotMapping("AnisotropyMaxWeight"),
         SlotMapping("Hair_Anisotropy_Min"),
