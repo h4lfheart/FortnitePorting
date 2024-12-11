@@ -92,15 +92,15 @@ public partial class MapViewModel : ViewModelBase
             "FortniteGame/Content/Athena/Apollo/Maps/Clyde/Textures/T_Clyde_Minimap_PostMask",
             0.032f, -25, 96, 205, 12800, true
         ),
-        // new( // Requires large file chunk loading
-        //     "Hermes",
-        //     "FortniteGame/Plugins/GameFeatures/BRMapCh6/Content/Maps/Hermes_Terrain",
-        //     "FortniteGame/Content/Athena/Apollo/Maps/UI/Apollo_Terrain_Minimap",
-        //     "FortniteGame/Content/Athena/Apollo/Maps/UI/T_MiniMap_Mask",
-        //     0.0146f, -100, -25, 96, 12800, true, false
-        // ),
         new(
-            "Athena_OG",
+            "Hermes",
+            "FortniteGame/Plugins/GameFeatures/BRMapCh6/Content/Maps/Hermes_Terrain",
+            "FortniteGame/Content/Athena/Apollo/Maps/UI/Apollo_Terrain_Minimap",
+            "FortniteGame/Content/Athena/Apollo/Maps/UI/T_MiniMap_Mask",
+            0.0146f, -100, -25, 96, 12800, true, false
+        ),
+        new(
+            "Figment",
             "FortniteGame/Plugins/GameFeatures/Figment/Figment_S01_Map/Content/Athena_Terrain_S01",
             "FortniteGame/Plugins/GameFeatures/Figment/Figment_S01_MapUI/Content/MiniMapAthena_S01_New",
             "FortniteGame/Plugins/GameFeatures/Figment/Figment_S01_MapUI/Content/T_MiniMap_Mask_Figment",
@@ -115,10 +115,18 @@ public partial class MapViewModel : ViewModelBase
         ),
         new(
             "PunchBerry",
-            "FortniteGame/Plugins/GameFeatures/632de27e-4506-41f8-532f-93ac01dc10ca/Content/Maps/PunchBerry_Terrain",
+            "/632de27e-4506-41f8-532f-93ac01dc10ca/Maps/PunchBerry_Terrain",
             "FortniteGame/Plugins/GameFeatures/BlastBerry/Content/MiniMap/Discovered_PunchBerry",
             "FortniteGame/Plugins/GameFeatures/BlastBerry/Content/MiniMap/T_PB_MiniMap_Mask",
             0.023f, -20, 215, 150, 12800, true
+        ),
+        new(
+            "FeralCorgi_2Bombsite_Map",
+            "/e1729c50-4845-01ba-18da-478919f7de66/Levels/FeralCorgi_2Bombsite_Map",
+            "/e1729c50-4845-01ba-18da-478919f7de66/MiniMap/T_KuraiMiniMap_FullAlpha",
+            "/e1729c50-4845-01ba-18da-478919f7de66/MiniMap/T_KuraiMiniMap_FullAlpha",
+            1, 0, 0, 0, 12800, true,
+            SourceName: "Ballistic"
         ),
         MapInfo.CreateNonDisplay("Athena", "FortniteGame/Content/Athena/Maps/Athena_Terrain"),
         MapInfo.CreateNonDisplay("Apollo", "FortniteGame/Content/Athena/Apollo/Maps/Apollo_Terrain")
@@ -127,7 +135,8 @@ public partial class MapViewModel : ViewModelBase
     private static string[] PluginRemoveList =
     [
         "FMJam_",
-        "PunchBerry_Terrain"
+        "PunchBerry_Terrain",
+        "FeralCorgi_2Bombsite_Map"
     ];
 
     public override async Task Initialize()
@@ -483,7 +492,7 @@ public partial class WorldPartitionMap : ObservableObject
                 var actor = await actorLazy.LoadAsync();
                 if (actor is null) continue;
                 
-                if (actor.ExportType != "Landscape") continue;
+                if (actor is not ALandscapeProxy && actor.ExportType != "Landscape") continue;
 
                 proxyDetectedCount++;
                 
@@ -560,7 +569,7 @@ public partial class WorldPartitionMap : ObservableObject
                     heightImage.Mutate(ctx => ctx.Fill(Info.Name.Equals("Rufus") ? Color.Black : HeightBaseColor));
 
                     var minX = Math.Abs(heightTileInfos.Min(x => x.X));
-                    var minY = Math.Abs(heightTileInfos.Min(x => x.X));
+                    var minY = Math.Abs(heightTileInfos.Min(x => x.Y));
 
                     var normalizedTiles = heightTileInfos.Select(info => info with { X = info.X + minX, Y = info.Y + minY });
                     foreach (var heightTileInfo in normalizedTiles)
@@ -595,7 +604,7 @@ public partial class WorldPartitionMap : ObservableObject
                     normalImage.Mutate(ctx => ctx.Fill(NormalBaseColor));
                     
                     var minX = Math.Abs(heightTileInfos.Min(x => x.X));
-                    var minY = Math.Abs(heightTileInfos.Min(x => x.X));
+                    var minY = Math.Abs(heightTileInfos.Min(x => x.Y));
 
                     var normalizedTiles = heightTileInfos.Select(info => info with { X = info.X + minX, Y = info.Y + minY });
                     foreach (var heightTileInfo in normalizedTiles)
@@ -629,7 +638,7 @@ public partial class WorldPartitionMap : ObservableObject
                     var weightImage = new Image<L8>(2048, 2048);
                     
                     var minX = Math.Abs(weightTileInfos.Min(x => x.X));
-                    var minY = Math.Abs(weightTileInfos.Min(x => x.X));
+                    var minY = Math.Abs(weightTileInfos.Min(x => x.Y));
 
                     var normalizedTiles = weightTileInfos.Select(info => info with { X = info.X + minX, Y = info.Y + minY });
                     foreach (var weightTileInfo in normalizedTiles)

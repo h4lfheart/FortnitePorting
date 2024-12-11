@@ -36,7 +36,7 @@ public partial class AssetLoader : ObservableObject
     public string[] AllowNames = [];
     public string[] HideNames = [];
     public string[] DisallowedNames = [];
-    public ManuallyDefinedAsset[] ManuallyDefinedAssets = [];
+    public Lazy<ManuallyDefinedAsset[]> ManuallyDefinedAssets = new([]);
     public CustomAsset[] CustomAssets = [];
     public bool LoadHiddenAssets;
     public bool HideRarity;
@@ -211,9 +211,10 @@ public partial class AssetLoader : ObservableObject
         {
             Assets.RemoveAll(asset => HideNames.Any(name => asset.PackageName.Text.Contains(name, StringComparison.OrdinalIgnoreCase)));
         }
-        
 
-        TotalAssets = Assets.Count + ManuallyDefinedAssets.Length + CustomAssets.Length;
+
+        var manuallyDefinedAssets = ManuallyDefinedAssets.Value;
+        TotalAssets = Assets.Count + manuallyDefinedAssets.Length + CustomAssets.Length;
         foreach (var asset in Assets)
         {
             await WaitIfPausedAsync();
@@ -229,7 +230,7 @@ public partial class AssetLoader : ObservableObject
             LoadedAssets++;
         }
 
-        foreach (var manualAsset in ManuallyDefinedAssets)
+        foreach (var manualAsset in manuallyDefinedAssets)
         {
             await WaitIfPausedAsync();
             try

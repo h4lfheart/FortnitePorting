@@ -115,6 +115,7 @@ class UEFormatImport:
             data = self.deserialize_model_legacy(ar)
 
         # meshes
+        return_object = None
         target_lod = min(self.options.target_lod, len(data.lods) - 1)
         created_lods: list[Object] = []
         for index, lod in enumerate(data.lods):

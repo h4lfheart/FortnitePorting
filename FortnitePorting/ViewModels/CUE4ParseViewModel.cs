@@ -301,12 +301,20 @@ public class CUE4ParseViewModel : ViewModelBase
             case EFortniteVersion.LatestOnDemand:
             {
                 var aes = await ApiVM.FortniteCentral.GetKeysAsync() ?? await ApiVM.FortnitePorting.GetKeysAsync();
-                if (aes is null) return;
-                
+                if (aes is null)
+                {
+                    await LoadLocalKeys();
+                    break;
+                }
+
+                AppSettings.Current.Installation.CurrentProfile.MainKey = new FileEncryptionKey(aes.MainKey);
                 await Provider.SubmitKeyAsync(Globals.ZERO_GUID, new FAesKey(aes.MainKey));
                 await OptionalProvider.SubmitKeyAsync(Globals.ZERO_GUID, new FAesKey(aes.MainKey));
+                
+                AppSettings.Current.Installation.CurrentProfile.ExtraKeys.Clear();
                 foreach (var key in aes.DynamicKeys)
                 {
+                    AppSettings.Current.Installation.CurrentProfile.ExtraKeys.Add(new FileEncryptionKey(key.Key));
                     await Provider.SubmitKeyAsync(new FGuid(key.GUID), new FAesKey(key.Key));
                     await OptionalProvider.SubmitKeyAsync(new FGuid(key.GUID), new FAesKey(key.Key));
                 }
@@ -315,24 +323,29 @@ public class CUE4ParseViewModel : ViewModelBase
             }
             default:
             {
-                var mainKey = AppSettings.Current.Installation.CurrentProfile.MainKey;
-                if (mainKey.IsEmpty) mainKey = FileEncryptionKey.Empty;
-                
-                await Provider.SubmitKeyAsync(Globals.ZERO_GUID, mainKey.EncryptionKey);
-                await OptionalProvider.SubmitKeyAsync(Globals.ZERO_GUID, mainKey.EncryptionKey);
-                
-                foreach (var vfs in Provider.UnloadedVfs.ToArray())
-                {
-                    foreach (var extraKey in AppSettings.Current.Installation.CurrentProfile.ExtraKeys)
-                    {
-                        if (extraKey.IsEmpty) continue;
-                        if (!vfs.TestAesKey(extraKey.EncryptionKey)) continue;
-                        
-                        await Provider.SubmitKeyAsync(vfs.EncryptionKeyGuid, extraKey.EncryptionKey);
-                        await OptionalProvider.SubmitKeyAsync(vfs.EncryptionKeyGuid, extraKey.EncryptionKey);
-                    }
-                }
+                await LoadLocalKeys();
                 break;
+            }
+        }
+    }
+    
+    private async Task LoadLocalKeys()
+    {
+        var mainKey = AppSettings.Current.Installation.CurrentProfile.MainKey;
+        if (mainKey.IsEmpty) mainKey = FileEncryptionKey.Empty;
+                
+        await Provider.SubmitKeyAsync(Globals.ZERO_GUID, mainKey.EncryptionKey);
+        await OptionalProvider.SubmitKeyAsync(Globals.ZERO_GUID, mainKey.EncryptionKey);
+                
+        foreach (var vfs in Provider.UnloadedVfs.ToArray())
+        {
+            foreach (var extraKey in AppSettings.Current.Installation.CurrentProfile.ExtraKeys)
+            {
+                if (extraKey.IsEmpty) continue;
+                if (!vfs.TestAesKey(extraKey.EncryptionKey)) continue;
+                        
+                await Provider.SubmitKeyAsync(vfs.EncryptionKeyGuid, extraKey.EncryptionKey);
+                await OptionalProvider.SubmitKeyAsync(vfs.EncryptionKeyGuid, extraKey.EncryptionKey);
             }
         }
     }

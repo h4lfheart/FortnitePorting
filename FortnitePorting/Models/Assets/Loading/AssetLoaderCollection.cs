@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.UE4.Assets.Exports.Engine;
+using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
@@ -14,6 +17,7 @@ using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
 using FortnitePorting.Export.Custom;
 using FortnitePorting.Export.Types;
+using FortnitePorting.Models.Assets.Asset;
 using FortnitePorting.Models.Assets.Custom;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
@@ -168,6 +172,67 @@ public partial class AssetLoaderCollection : ObservableObject
                         loader.StyleDictionary[name].Add(path);
                     }
                 },
+                new AssetLoader(EExportType.WeaponMod)
+                {
+                    ManuallyDefinedAssets = new Lazy<ManuallyDefinedAsset[]>(() =>
+                    {
+                        string[] weaponModClasses = ["FortWeaponModItemDefinition", "FortWeaponModItemDefinitionMagazine", "FortWeaponModItemDefinitionOptic"];
+                        var weaponModTable = CUE4ParseVM.Provider.LoadObject<UDataTable>("WeaponMods/DataTables/WeaponModOverrideData");
+                        var assetDatas = CUE4ParseVM.AssetRegistry.Where(data => weaponModClasses.Contains(data.AssetClass.Text));
+
+                        var weaponModAssets = new List<ManuallyDefinedAsset>();
+                        var alreadyAddedNames = new HashSet<string>();
+                        foreach (var assetData in assetDatas)
+                        {
+                            if (!CUE4ParseVM.Provider.TryLoadObject(assetData.ObjectPath, out var asset)) continue;
+
+                            var icon = AssetLoader.GetIcon(asset);
+                            if (icon is null) continue;
+                            
+                            var tag = asset.GetOrDefault<FGameplayTag>("PluginTuningTag").ToString();
+
+                            var defaultModData = asset.GetOrDefault<FStructFallback?>("DefaultModData");
+                            var mainModMeshData = defaultModData?.GetOrDefault<FStructFallback?>("MeshData");
+                            var mainModMesh = mainModMeshData?.GetOrDefault<UStaticMesh?>("ModMesh");
+
+                            var addedOverrides = false;
+                            foreach (var weaponModData in weaponModTable.RowMap.Values)
+                            {
+                                var weaponModTag = weaponModData.GetOrDefault<FGameplayTag>("ModTag").ToString();
+                                if (!tag.Equals(weaponModTag)) continue;
+
+                                var modMeshData = weaponModData.GetOrDefault<FStructFallback>("ModMeshData");
+                                var modMesh = modMeshData.GetOrDefault<UStaticMesh?>("ModMesh");
+                                modMesh ??= mainModMesh;
+                                if (modMesh is null) continue;
+
+                                var name = modMesh.Name;
+                                if (alreadyAddedNames.Contains(name)) continue;
+
+                                weaponModAssets.Add(new ManuallyDefinedAsset
+                                {
+                                    Name = name,
+                                    AssetPath = modMesh.GetPathName(),
+                                    IconPath = icon.GetPathName()
+                                });
+                                alreadyAddedNames.Add(name);
+                                addedOverrides = true;
+                            }
+
+                            if (mainModMesh is not null && !addedOverrides)
+                            {
+                                weaponModAssets.Add(new ManuallyDefinedAsset
+                                {
+                                    Name = mainModMesh.Name,
+                                    AssetPath = mainModMesh.GetPathName(),
+                                    IconPath = icon.GetPathName()
+                                });
+                            }
+                        }
+
+                        return weaponModAssets.ToArray();
+                    })
+                },
                 new AssetLoader(EExportType.Resource)
                 {
                     ClassNames = ["FortIngredientItemDefinition", "FortResourceItemDefinition"],
@@ -195,7 +260,7 @@ public partial class AssetLoaderCollection : ObservableObject
                 },
                 new AssetLoader(EExportType.Wildlife)
                 {
-                    ManuallyDefinedAssets = 
+                    ManuallyDefinedAssets = new Lazy<ManuallyDefinedAsset[]>(
                     [
                         new ManuallyDefinedAsset
                         {
@@ -251,7 +316,7 @@ public partial class AssetLoaderCollection : ObservableObject
                             AssetPath = "/Irwin/AI/Predators/Grandma/Meshes/Grandma_Mammal",
                             IconPath = "/Irwin/Icons/T-Icon-Fauna-Wolf"
                         }
-                    ],
+                    ]),
                     CustomAssets = 
                     [
                         new CustomAsset
