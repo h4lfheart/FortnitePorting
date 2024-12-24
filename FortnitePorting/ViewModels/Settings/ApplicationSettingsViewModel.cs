@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FluentAvalonia.UI.Media.Animation;
+using FortnitePorting.Models.TimeWaster.Audio;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Models;
@@ -75,6 +76,7 @@ public partial class ApplicationSettingsViewModel : ViewModelBase
             {
                 RadioVM?.UpdateOutputDevice();
                 SoundPreviewWM?.UpdateOutputDevice();
+                AudioSystem.Instance.ReloadOutputDevice();
                 break;
             }
         }

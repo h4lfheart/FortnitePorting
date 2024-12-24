@@ -40,6 +40,18 @@
                     <ColorPicker Color="{Binding AccentColor}" ColorSpectrumShape="Ring" IsColorPaletteVisible="False" IsAlphaEnabled="False" IsAlphaVisible="False"/>
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
+            
+            <ui:SettingsExpander Header="Winter Theme" Description="Whether or not to use the winter theme for the background.">
+                <ui:SettingsExpander.Footer>
+                    <ToggleSwitch IsChecked="{Binding UseWinter}"/>
+                </ui:SettingsExpander.Footer>
+            </ui:SettingsExpander>
+            
+            <ui:SettingsExpander Header="Winter BGM" Description="Whether or not to use the winter background music.">
+                <ui:SettingsExpander.Footer>
+                    <ToggleSwitch IsChecked="{Binding UseWinterBGM}"/>
+                </ui:SettingsExpander.Footer>
+            </ui:SettingsExpander>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

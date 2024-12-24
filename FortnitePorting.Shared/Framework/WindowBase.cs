@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using FortnitePorting.Shared.Services;
 
 namespace FortnitePorting.Shared.Framework;
@@ -16,13 +17,22 @@ public abstract class WindowBase<T> : Window where T : ViewModelBase, new()
             TaskService.Run(WindowModel.Initialize);
         }
     }
-
-    protected override void OnClosed(EventArgs e)
+    
+    protected override async void OnLoaded(RoutedEventArgs e)
     {
-        base.OnClosed(e);
+        base.OnLoaded(e);
 
+        await WindowModel.OnViewOpened();
+    }
+
+    protected override async void OnUnloaded(RoutedEventArgs e)
+    {
+        base.OnUnloaded(e);
+        
+        await WindowModel.OnViewExited();
         ViewModelRegistry.Unregister<T>();
     }
+
 
     public void BringToTop()
     {
