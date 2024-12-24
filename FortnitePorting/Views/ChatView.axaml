@@ -53,15 +53,36 @@
                                     </Grid.RowDefinitions>
                                     
                                     <Image Grid.Row="0" Grid.Column="0" asyncImageLoader:ImageLoader.Source="{Binding User.ProfilePictureURL}" 
-                                           Width="16" Height="16" Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center"/>
+                                           Width="16" Height="16" Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center"
+                                           PointerPressed="OnMessageUserPressed" Cursor="Hand">
+                                        <FlyoutBase.AttachedFlyout>
+                                            <MenuFlyout>
+                                                <MenuItem Header="Copy GUID" Command="{Binding User.CopyGUIDCommand}"/>
+                                                <MenuItem Header="Copy ID" Command="{Binding User.CopyIDCommand}"/>
+                                                <MenuItem Header="Send Message" Command="{Binding User.SendMessageCommand}"
+                                                          IsVisible="{Binding $parent[views:ChatView].((viewModels:ChatViewModel)DataContext).Permissions, 
+                                                          Converter={StaticResource EnumHasFlag}, 
+                                                          ConverterParameter={x:Static packet:EPermissions.Text}}"/>
+                                                <MenuItem Header="Send Export" Command="{Binding User.SendExportCommand}"
+                                                          IsVisible="{Binding $parent[views:ChatView].((viewModels:ChatViewModel)DataContext).Permissions, 
+                                                          Converter={StaticResource EnumHasFlag}, 
+                                                          ConverterParameter={x:Static packet:EPermissions.Text}}"/>
+                                                <MenuItem Header="Set Role" Command="{Binding User.SetRoleCommand}" 
+                                                          IsVisible="{Binding $parent[views:ChatView].((viewModels:ChatViewModel)DataContext).Permissions, 
+                                                          Converter={StaticResource EnumHasFlag}, 
+                                                          ConverterParameter={x:Static packet:EPermissions.SetRole}}"/>
+                                            </MenuFlyout>
+                                        </FlyoutBase.AttachedFlyout>
+                                    </Image>
                                     
                                     <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding UserTitleText}"
                                                Foreground="{Binding User.Brush}"
-                                               Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center"/>
+                                               Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center"
+                                               PointerPressed="OnMessageUserPressed"/>
                                     
-                                    <TextBlock Grid.Row="0" Grid.Column="4" Text="{Binding Timestamp, StringFormat=hh:mm tt}"
+                                    <TextBlock Grid.Row="0" Grid.Column="4" Text="{Binding Timestamp, StringFormat='g'}"
                                                TextWrapping="Wrap" Opacity="0.5"
-                                               Classes="BodyTextBlockStyle" VerticalAlignment="Center"/>
+                                               Classes="CaptionTextBlockStyle" VerticalAlignment="Center"/>
                                     
                                     <StackPanel Grid.Row="0" Grid.Column="6" HorizontalAlignment="Right" VerticalAlignment="Top" Orientation="Horizontal">
                                         <TextBlock Text="{Binding ReactionCount}" Opacity="0.5" Margin="{ext:Space 0, 0, 1, 0}"/>
@@ -69,11 +90,18 @@
                                                Source="{Binding YeahImageSource}"
                                                Margin="{ext:Space 0, 0, 1, 0}"
                                                PointerPressed='OnYeahPressed'/>
+                                        
+                                        <material:MaterialIcon Kind="Reply" PointerPressed="OnReplyPressed" Opacity="0.5"
+                                                               Cursor="Hand"
+                                                               IsVisible="{Binding IsPrivate}"
+                                                               Margin="{ext:Space 0, 0, 1, 0}"/>
+
                                         <material:MaterialIcon Kind="Delete" PointerPressed="OnDeletePressed" Opacity="0.5"
                                                                Cursor="Hand"
                                                                 IsVisible="{Binding $parent[views:ChatView].((viewModels:ChatViewModel)DataContext).Permissions, 
                                                                 Converter={StaticResource EnumHasFlag}, 
-                                                                ConverterParameter={x:Static packet:EPermissions.Staff}}"/>
+                                                                ConverterParameter={x:Static packet:EPermissions.Staff}}"
+                                                               />
                                     </StackPanel>
                                     
                                     <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="7" IsVisible="{Binding HasTextData}"

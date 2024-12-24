@@ -139,4 +139,19 @@ public partial class ChatView : ViewBase<ChatViewModel>
         
         await OnlineService.Send(new DeleteMessagePacket(), new MetadataBuilder().With("Id", message.Id));
     }
+
+    private void OnMessageUserPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (sender is not Control control) return;
+        
+        FlyoutBase.ShowAttachedFlyout(control);
+    }
+
+    private async void OnReplyPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (sender is not Control control) return;
+        if (control.DataContext is not ChatMessage chatMessage) return;
+
+        await chatMessage.User.SendMessage();
+    }
 }
