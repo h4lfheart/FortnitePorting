@@ -77,7 +77,8 @@ void FImportContext::ImportMeshData(const FMeshExport& Export)
 
 			const auto ImportedModel = ImportModel(Mesh);
 			
-			if (const auto StaticMesh = Cast<UStaticMesh>(ImportedModel); Export.Type == EExportType::World)
+			if (const auto StaticMesh = Cast<UStaticMesh>(ImportedModel); Export.Type == EExportType::World
+																	   || Export.Type == EExportType::Prefab)
 			{
 				const auto Actor = World->SpawnActor<AFortPortActor>();
 				Actor->SetActorLabel(*Mesh.Name);

@@ -1,7 +1,7 @@
 {
 	"FileVersion": 3,
 	"Version": 3,
-	"VersionName": "3.0.0",
+	"VersionName": "3.0.1",
 	"FriendlyName": "FortnitePorting",
 	"Description": "Import Server for Fortnite Porting",
 	"Category": "Importers",
