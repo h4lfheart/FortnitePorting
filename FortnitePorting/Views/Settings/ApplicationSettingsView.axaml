@@ -70,6 +70,14 @@
                     <ToggleSwitch IsChecked="{Binding DownloadDebuggingSymbols}"/>
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
+            
+            <ui:SettingsExpander Header="Request Timeout Length" Description="The number of seconds in which web request should wait for before cancelling.">
+                <ui:SettingsExpander.Footer>
+                    <ui:NumberBox Value="{Binding RequestTimeoutSeconds}" 
+                                  Minimum="0"
+                                  SpinButtonPlacementMode="Inline"/>
+                </ui:SettingsExpander.Footer>
+            </ui:SettingsExpander>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

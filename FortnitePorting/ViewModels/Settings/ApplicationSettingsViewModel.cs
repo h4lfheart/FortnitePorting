@@ -24,12 +24,14 @@ public partial class ApplicationSettingsViewModel : ViewModelBase
     [ObservableProperty] private int _audioDeviceIndex = 0;
     [ObservableProperty] private int _chunkCacheLifetime = 1;
     [ObservableProperty] private bool _downloadDebuggingSymbols;
+    [ObservableProperty] private int _requestTimeoutSeconds = 10;
 
     [ObservableProperty] private FPVersion _lastOnlineVersion = Globals.Version;
 
     [ObservableProperty] private bool _useAssetsPath;
 
     [ObservableProperty] private bool _useTabTransitions = true;
+    
     public string AssetPath => UseAssetsPath && Directory.Exists(AssetsPath) ? AssetsPath : AssetsFolder.FullName;
 
 

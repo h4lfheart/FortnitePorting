@@ -1,6 +1,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using CUE4Parse.Utils;
+using FortnitePorting.Application;
 using FortnitePorting.Models.API;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Framework;
@@ -19,7 +20,7 @@ public class APIViewModel : APIViewModelBase
     public readonly EpicGamesAPI EpicGames;
 
 
-    public APIViewModel()
+    public APIViewModel() : base(AppSettings.Current.Application.RequestTimeoutSeconds)
     {
         FortnitePorting = new FortnitePortingAPI(_client);
         FortniteCentral = new FortniteCentralAPI(_client);

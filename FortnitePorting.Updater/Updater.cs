@@ -28,7 +28,7 @@ public static class Updater
             
             while (IsExecutableRunning(applicationFile)) { }
 
-            File.SetAttributes(applicationFile, FileAttributes.Normal);
+            File.Delete(applicationFile);
             File.Move(updatedFile, applicationFile, overwrite: true);
             Log.Information($"Moved {updatedFile} to {applicationFile}");
 
