@@ -308,6 +308,7 @@ public partial class FilesViewModel : ViewModelBase
     public async Task Export()
     {
         var exports = new List<KeyValuePair<UObject, EExportType>>();
+        var unsupportedExportTypes = new HashSet<string>();
         foreach (var item in SelectedFlatViewItems)
         {
             var basePath = Exporter.FixPath(item.Path);
@@ -342,15 +343,18 @@ public partial class FilesViewModel : ViewModelBase
             var exportType = Exporter.DetermineExportType(asset);
             if (exportType is EExportType.None)
             {
-                AppWM.Dialog("Unimplemented Exporter", 
-                    $"A file exporter for \"{asset.ExportType}\" assets has not been implemented and/or will not be supported.");
-                return;
+                unsupportedExportTypes.Add(asset.ExportType);
+                continue;
             }
 
             exports.Add(new KeyValuePair<UObject, EExportType>(asset, exportType));
         }
-        
-        if (exports.Count == 0) return;
+
+        if (exports.Count == 0)
+        {
+            AppWM.Message("Unimplemented Exporter", $"Assets with these types could not be exported: {unsupportedExportTypes.CommaJoin()}.");
+            return;
+        }
 
         var meta = AppSettings.Current.CreateExportMeta(ExportLocation);
         meta.WorldFlags = EWorldFlags.Actors | EWorldFlags.Landscape | EWorldFlags.WorldPartitionGrids;

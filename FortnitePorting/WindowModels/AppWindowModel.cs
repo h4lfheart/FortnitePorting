@@ -130,7 +130,9 @@ public partial class AppWindowModel : WindowModelBase
 
     public void Message(InfoBarData data)
     {
-        InfoBars.RemoveAll(bar => bar.Id.Equals(data.Id));
+        if (!string.IsNullOrEmpty(data.Id))
+            InfoBars.RemoveAll(bar => bar.Id.Equals(data.Id));
+        
         InfoBars.Add(data);
         if (!data.AutoClose) return;
         
