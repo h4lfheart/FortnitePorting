@@ -69,6 +69,8 @@ class EExportType(IntEnum):
     SOUND = auto()
     FONT = auto()
     POSE_ASSET = auto()
+    MATERIAL = auto()
+    MATERIAL_INSTANCE = auto()
 
 
 class EPrimitiveExportType(IntEnum):
@@ -78,6 +80,7 @@ class EPrimitiveExportType(IntEnum):
     SOUND = auto()
     FONT = auto()
     POSE_ASSET = auto()
+    MATERIAL = auto()
 
 
 class EFortCustomPartType(IntEnum):
