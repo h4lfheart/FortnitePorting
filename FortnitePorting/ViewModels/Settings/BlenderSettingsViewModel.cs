@@ -35,6 +35,7 @@ public partial class BlenderSettingsViewModel : BaseExportSettings
     [ObservableProperty] private float _cavity = 0.0f;
     [ObservableProperty] private float _subsurface = 0.0f;
     [ObservableProperty] private float _toonShadingBrightness = 0.5f;
+    [ObservableProperty] private EMaterialImportMethod _materialImportMethod = EMaterialImportMethod.Data;
     
     // Texture
     [ObservableProperty] private ETextureImportMethod _textureImportMethod = ETextureImportMethod.Data;
@@ -78,6 +79,15 @@ public enum EPolygonType
 public enum ETextureImportMethod
 {
     [Description("As Texture Data")]
+    Data,
+
+    [Description("As Object")]
+    Object
+}
+
+public enum EMaterialImportMethod
+{
+    [Description("As Material Data")]
     Data,
 
     [Description("As Object")]

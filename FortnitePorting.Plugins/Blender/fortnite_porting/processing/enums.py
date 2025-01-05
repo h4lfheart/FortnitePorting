@@ -101,6 +101,10 @@ class EFortCustomPartType(IntEnum):
 class ETextureImportMethod(IntEnum):
     DATA = 0
     OBJECT = auto()
+
+class EMaterialImportMethod(IntEnum):
+    DATA = 0
+    OBJECT = auto()
     
 class ERigType(IntEnum):
     DEFAULT = 0

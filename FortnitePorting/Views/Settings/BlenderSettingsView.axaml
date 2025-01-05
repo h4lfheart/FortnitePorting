@@ -200,6 +200,13 @@
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
             
+            <ui:SettingsExpander Header="Method" Description="The way standalone materials should be imported.">
+                <ui:SettingsExpander.Footer>
+                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type settings:EMaterialImportMethod}}"
+                              SelectedItem="{Binding MaterialImportMethod, Converter={StaticResource EnumToRecord}}" />
+                </ui:SettingsExpander.Footer>
+            </ui:SettingsExpander>
+            
             <TextBlock Text="Texture" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
                
             <ui:SettingsExpander Header="Image Format" Description="The file type that textures should be exported as.">
