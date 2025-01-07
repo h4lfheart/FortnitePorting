@@ -441,9 +441,10 @@ class ImportContext:
             material_hash += additional_hash
             material_name += f"_{hash_code(material_hash)}"
             
-        if existing_material := first(bpy.data.materials, lambda mat: mat.get("Hash") == hash_code(material_hash)) and not as_material_data:
-            material_slot.material = existing_material
-            return
+        if existing_material := first(bpy.data.materials, lambda mat: mat.get("Hash") == hash_code(material_hash)):
+            if not as_material_data:
+                material_slot.material = existing_material
+                return
 
         # same name but different hash
         if (name_existing := first(bpy.data.materials, lambda mat: mat.name == material_name)) and name_existing.get("Hash") != material_hash:
