@@ -92,8 +92,8 @@ def merge_armatures(parts):
         if socket.casefold() == "hat":
             socket = "head"
 
-        # Could just change the constrain_object() calls to use socket.casefold(), but didn't want to assume all were lowercase
-        if socket == "Tail":
+        # Account for skins with lowercase tail socket bone
+        if socket == "Tail" and "tail" in master_skeleton.pose.bones:
             socket = "tail"
 
         constraint_object(skeleton, master_skeleton, socket, [0, 0, 0], rot=False)

@@ -193,7 +193,13 @@ public enum EExportType
     Font,
     
     [Description("Pose Asset"), Export(EPrimitiveExportType.PoseAsset)]
-    PoseAsset
+    PoseAsset,
+    
+    [Description("Material"), Export(EPrimitiveExportType.Material)]
+    Material,
+    
+    [Description("MaterialInstance"), Export(EPrimitiveExportType.Material)]
+    MaterialInstance
 }
 
 public enum EPrimitiveExportType
@@ -214,7 +220,10 @@ public enum EPrimitiveExportType
     Font,
     
     [Description("PoseAsset")]
-    PoseAsset
+    PoseAsset,
+    
+    [Description("Material")]
+    Material
 }
 
 public enum EAssetSortType

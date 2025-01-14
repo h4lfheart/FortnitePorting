@@ -4,6 +4,7 @@ import pyperclip
 
 import bpy
 import traceback
+from math import radians
 from .mappings import *
 from .material import *
 from .enums import *
@@ -57,6 +58,9 @@ class ImportContext:
                 pass
             case EPrimitiveExportType.POSE_ASSET:
                 self.import_pose_asset_data(data, get_selected_armature(), None)
+                pass
+            case EPrimitiveExportType.MATERIAL:
+                self.import_material_standalone(data)
                 pass
 
     def import_mesh_data(self, data):
@@ -181,6 +185,9 @@ class ImportContext:
             imported_mesh = get_armature_mesh(imported_object)
         else:
             imported_object = self.import_mesh(path, can_reorient=can_reorient)
+            if imported_object is None:
+                Log.warn(f"Import failed for object at path: {path}")
+                return imported_object
             imported_object.name = name
 
             imported_mesh = get_armature_mesh(imported_object)
@@ -408,44 +415,49 @@ class ImportContext:
 
         return bpy.data.images.load(path, check_existing=True)
 
-    def import_material(self, material_slot, material_data, meta):
+    def import_material(self, material_slot, material_data, meta, as_material_data=False):
 
         # object ref mat slots for instancing
-        temp_material = material_slot.material
-        material_slot.link = 'OBJECT' if self.type in [EExportType.WORLD, EExportType.PREFAB] else 'DATA'
-        material_slot.material = temp_material
+        if not as_material_data:
+            temp_material = material_slot.material
+            material_slot.link = 'OBJECT' if self.type in [EExportType.WORLD, EExportType.PREFAB] else 'DATA'
+            material_slot.material = temp_material
 
         material_name = material_data.get("Name")
         material_hash = material_data.get("Hash")
         additional_hash = 0
 
         texture_data = meta.get("TextureData")
-        for data in texture_data:
-            additional_hash += data.get("Hash")
+        if texture_data is not None:
+            for data in texture_data:
+                additional_hash += data.get("Hash")
         
         override_parameters = where(self.override_parameters, lambda param: param.get("MaterialNameToAlter") in [material_name, "Global"])
-        for parameters in override_parameters:
-            additional_hash += parameters.get("Hash")
+        if override_parameters is not None:
+            for parameters in override_parameters:
+                additional_hash += parameters.get("Hash")
 
         if additional_hash != 0:
             material_hash += additional_hash
             material_name += f"_{hash_code(material_hash)}"
             
         if existing_material := first(bpy.data.materials, lambda mat: mat.get("Hash") == hash_code(material_hash)):
-            material_slot.material = existing_material
-            return
+            if not as_material_data:
+                material_slot.material = existing_material
+                return
 
         # same name but different hash
         if (name_existing := first(bpy.data.materials, lambda mat: mat.name == material_name)) and name_existing.get("Hash") != material_hash:
             material_name += f"_{hash_code(material_hash)}"
             
-        if material_slot.material.name.casefold() != material_name.casefold():
+        if not as_material_data and material_slot.material.name.casefold() != material_name.casefold():
             material_slot.material = bpy.data.materials.new(material_name)
 
-        material_slot.material["Hash"] = hash_code(material_hash)
-        material_slot.material["OriginalName"] = material_data.get("Name")
+        if not as_material_data:
+            material_slot.material["Hash"] = hash_code(material_hash)
+            material_slot.material["OriginalName"] = material_data.get("Name")
 
-        material = material_slot.material
+        material = bpy.data.materials.new(material_name) if as_material_data else material_slot.material
         material.use_nodes = True
         material.surface_render_method = "DITHERED"
 
@@ -465,20 +477,22 @@ class ImportContext:
         switches = material_data.get("Switches")
         component_masks = material_data.get("ComponentMasks")
 
-        for data in texture_data:
-            replace_or_add_parameter(textures, data.get("Diffuse"))
-            replace_or_add_parameter(textures, data.get("Normal"))
-            replace_or_add_parameter(textures, data.get("Specular"))
+        if texture_data is not None:
+            for data in texture_data:
+                replace_or_add_parameter(textures, data.get("Diffuse"))
+                replace_or_add_parameter(textures, data.get("Normal"))
+                replace_or_add_parameter(textures, data.get("Specular"))
 
-        for parameters in override_parameters:
-            for texture in parameters.get("Textures"):
-                replace_or_add_parameter(textures, texture)
-
-            for scalar in parameters.get("Scalars"):
-                replace_or_add_parameter(scalars, scalar)
-
-            for vector in parameters.get("Vectors"):
-                replace_or_add_parameter(vectors, vector)
+        if override_parameters is not None:
+            for parameters in override_parameters:
+                for texture in parameters.get("Textures"):
+                    replace_or_add_parameter(textures, texture)
+    
+                for scalar in parameters.get("Scalars"):
+                    replace_or_add_parameter(scalars, scalar)
+    
+                for vector in parameters.get("Vectors"):
+                    replace_or_add_parameter(vectors, vector)
 
         output_node = nodes.new(type="ShaderNodeOutputMaterial")
         output_node.location = (200, 0)
@@ -1489,3 +1503,25 @@ class ImportContext:
             selected_mesh.show_only_shape_key = original_shape_key_lock
             bpy.ops.object.mode_set(mode=original_mode)
             bpy.context.view_layer.objects.active = original_selected_object
+
+    def import_material_standalone(self, data):
+        is_object_import = EMaterialImportMethod.OBJECT == EMaterialImportMethod(self.options.get("MaterialImportMethod"))
+        materials = data.get("Materials")
+
+        if materials is None:
+            return
+        
+        if is_object_import:
+            self.collection = create_or_get_collection("Materials") if self.options.get("ImportIntoCollection") else bpy.context.scene.collection
+            
+        for material in materials:
+            name = material.get("Name")
+            Log.info(f"Importing Material: {name}")
+            if is_object_import:
+                bpy.ops.mesh.primitive_ico_sphere_add()
+                mat_mesh = bpy.context.active_object
+                mat_mesh.name = name
+                mat_mesh.data.materials.append(bpy.data.materials.new(name))
+                self.import_material(mat_mesh.material_slots[material.get("Slot")], material, {})
+            else:
+                self.import_material(None, material, {}, True)
