@@ -72,6 +72,8 @@ public class CUE4ParseViewModel : ViewModelBase
     public readonly Dictionary<int, FVector> BeanstalkAtlasTextureUVs = [];
     public readonly List<UAnimMontage> MaleLobbyMontages = [];
     public readonly List<UAnimMontage> FemaleLobbyMontages = [];
+
+    private OnlineResponse _onlineStatus;
     
     private static readonly Regex FortniteArchiveRegex = new(@"^FortniteGame(/|\\)Content(/|\\)Paks(/|\\)(pakchunk(?:0|10.*|\w+)-WindowsClient|global)\.(pak|utoc)$", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
@@ -100,9 +102,13 @@ public class CUE4ParseViewModel : ViewModelBase
         ObjectTypeRegistry.RegisterEngine(Assembly.Load("FortnitePorting.Shared"));
 
         Provider.LoadExtraDirectories = AppSettings.Current.Installation.CurrentProfile.LoadCreativeMaps;
-
+        
+        _onlineStatus = await ApiVM.FortnitePorting.GetOnlineStatusAsync();
+        
         if (AppSettings.Current.Installation.CurrentProfile.FortniteVersion is EFortniteVersion.LatestInstalled
-            && await ApiVM.FortniteCentral.GetKeysAsync() is { } aes
+            && (_onlineStatus.Backup.Keys 
+                ? await ApiVM.FortnitePorting.GetKeysAsync() 
+                : await ApiVM.FortniteCentral.GetKeysAsync() ?? await ApiVM.FortnitePorting.GetKeysAsync()) is { } aes
             && !new PakFileReader(Path.Combine(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory,
                 "pakchunk0-WindowsClient.pak")).TestAesKey(new FAesKey(aes.MainKey)))
         {
@@ -300,7 +306,10 @@ public class CUE4ParseViewModel : ViewModelBase
             case EFortniteVersion.LatestInstalled:
             case EFortniteVersion.LatestOnDemand:
             {
-                var aes = await ApiVM.FortniteCentral.GetKeysAsync() ?? await ApiVM.FortnitePorting.GetKeysAsync();
+                var aes = _onlineStatus.Backup.Keys 
+                    ? await ApiVM.FortnitePorting.GetKeysAsync() 
+                    : await ApiVM.FortniteCentral.GetKeysAsync() ?? await ApiVM.FortnitePorting.GetKeysAsync();
+                
                 if (aes is null)
                 {
                     await LoadLocalKeys();
@@ -389,7 +398,9 @@ public class CUE4ParseViewModel : ViewModelBase
         }
         
         
-        return await GetMappings(ApiVM.FortniteCentral.GetMappingsAsync) ?? await GetMappings(ApiVM.FortnitePorting.GetMappingsAsync);
+        return  _onlineStatus.Backup.Mappings
+        ? await GetMappings(ApiVM.FortnitePorting.GetMappingsAsync)
+        : await GetMappings(ApiVM.FortniteCentral.GetMappingsAsync) ?? await GetMappings(ApiVM.FortnitePorting.GetMappingsAsync);
     }
 
 
