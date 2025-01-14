@@ -6,6 +6,7 @@ public class OnlineResponse
     public CanvasStatus Canvas { get; set; } = new();
     public OnlineStatus Voting { get; set; } = new();
     public OnlineStatus Leaderboard { get; set; } = new();
+    public BackupStatus Backup { get; set; } = new();
 }
 
 public class OnlineStatus
@@ -18,4 +19,10 @@ public class CanvasStatus : OnlineStatus
     public int Width { get; set; } = 200;
     public int Height { get; set; } = 200;
     public int Cooldown { get; set; } = 30;
+}
+
+public class BackupStatus : OnlineStatus
+{
+    public bool Keys { get; set; } = false;
+    public bool Mappings { get; set; } = false;
 }
