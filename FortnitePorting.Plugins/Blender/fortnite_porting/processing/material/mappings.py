@@ -28,16 +28,19 @@ default_mappings = MappingCollection(
         SlotMapping("BaseColor_Trunk", "Diffuse"),
         SlotMapping("CliffTexture", "Diffuse"),
         SlotMapping("PM_Diffuse", "Diffuse"),
+        SlotMapping("___Diffuse", "Diffuse"),
 
         SlotMapping("Background Diffuse", alpha_slot="Background Diffuse Alpha"),
         SlotMapping("BG Diffuse Texture", "Background Diffuse", alpha_slot="Background Diffuse Alpha"),
 
         SlotMapping("M"),
         SlotMapping("Mask", "M"),
+        SlotMapping("M Mask", "M"),
 
         SlotMapping("SpecularMasks"),
         SlotMapping("S", "SpecularMasks"),
         SlotMapping("SRM", "SpecularMasks"),
+        SlotMapping("S Mask", "SpecularMasks"),
         SlotMapping("Specular Mask", "SpecularMasks"),
         SlotMapping("SpecularMask", "SpecularMasks"),
         SlotMapping("Concrete_SpecMask", "SpecularMasks"),
@@ -46,6 +49,7 @@ default_mappings = MappingCollection(
         SlotMapping("SMR_Trunk", "SpecularMasks"),
         SlotMapping("Cliff Spec Texture", "SpecularMasks"),
         SlotMapping("PM_SpecularMasks", "SpecularMasks"),
+        SlotMapping("__PBR Masks", "SpecularMasks"),
 
         SlotMapping("Normals"),
         SlotMapping("N", "Normals"),
@@ -57,6 +61,7 @@ default_mappings = MappingCollection(
         SlotMapping("Normal_Trunk", "Normals"),
         SlotMapping("CliffNormal", "Normals"),
         SlotMapping("PM_Normals", "Normals"),
+        SlotMapping("_Normal", "Normals"),
         
         SlotMapping("AnisotropicTangentWeight", alpha_slot="AnisotropicTangentWeight Alpha"),
         SlotMapping("AnisotropigTangentWeight", "AnisotropicTangentWeight", alpha_slot="AnisotropicTangentWeight Alpha"),
@@ -168,7 +173,9 @@ default_mappings = MappingCollection(
         SlotMapping("ClothFuzzTint", "Fuzz Tint"),
         SlotMapping("Cloth Fuzz Tint", "Fuzz Tint"),
 
-        SlotMapping("FlipbookTint")
+        SlotMapping("FlipbookTint"),
+        
+        SlotMapping("CloatcoatMaskChannel")
     ],
     switches=[
         SlotMapping("SwizzleRoughnessToGreen"),
