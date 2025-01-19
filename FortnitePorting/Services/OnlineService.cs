@@ -134,7 +134,7 @@ public static class OnlineService
                 var meta = DefaultMeta
                     .With("RequestingMessageHistory", !EstablishedFirstConnection)
                     .With("MessageFetchCount", AppSettings.Current.Online.MessageFetchCount)
-                    .With("Version", Globals.VersionString)
+                    .With("Version", !string.IsNullOrWhiteSpace(Globals.OnlineTag) ? $"{Globals.OnlineTag} {Globals.VersionString}" : Globals.VersionString)
                     .Build();
                 var response = new SyncResponse(arg, meta, Array.Empty<byte>());
                 EstablishedFirstConnection = true;
