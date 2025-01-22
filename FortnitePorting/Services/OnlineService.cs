@@ -68,12 +68,6 @@ public static class OnlineService
                         "You have been disconnected from the online services due to an invalid authentication. Please re-authenticate in online settings.");
                 }
                 
-                if (args.Reason == DisconnectReason.Removed)
-                {
-                    AppWM.Dialog("Disconnected",
-                        "You have been disconnected from the online services due to a version mismatch. Please update to the latest version of the application.");
-                }
-                
                 DisconnectReason = args.Reason;
             };
             
@@ -161,6 +155,8 @@ public static class OnlineService
 
     private static async void OnMessageReceived(object? sender, MessageReceivedEventArgs e)
     {
+        if (e.Data.Length == 0 && e.Metadata is null) return;
+        
         var type = e.GetArgument<EPacketType>("Type");
         var user = e.GetArgument<Identification>("User")!;
         switch (type)
