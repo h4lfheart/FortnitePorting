@@ -2,8 +2,10 @@ using FortnitePorting.OnlineServices.Extensions;
 
 namespace FortnitePorting.OnlineServices.Packet;
 
-public class PermissionsPacket() : IPacket
+public class PermissionsPacket() : BasePacket
 {
+    public EPermissionsVersion DataVersion = EPermissionsVersion.Latest;
+    
     public EPermissions Permissions;
     public List<string> Commands = [];
 
@@ -13,10 +15,12 @@ public class PermissionsPacket() : IPacket
         Commands = Permissions.GetCommands();
     }
     
-    public EPacketType PacketType => EPacketType.Permissions;
+    public override EPacketType PacketType => EPacketType.Permissions;
     
-    public void Serialize(BinaryWriter writer)
+    public override void Serialize(BinaryWriter writer)
     {
+        writer.Write((byte) DataVersion);
+        
         writer.Write((uint) Permissions);
         writer.Write(Commands.Count);
         foreach (var command in Commands)
@@ -25,8 +29,10 @@ public class PermissionsPacket() : IPacket
         }
     }
 
-    public void Deserialize(BinaryReader reader)
+    public override void Deserialize(BinaryReader reader)
     {
+        DataVersion = (EPermissionsVersion) reader.ReadByte();
+        
         Permissions = (EPermissions) reader.ReadUInt32();
 
         var commandCount = reader.ReadInt32();
@@ -51,4 +57,12 @@ public enum EPermissions : uint
     Staff = (1 << 4) - 1,
     
     Owner = 0xFFFFFFFF
+}
+
+public enum EPermissionsVersion : byte
+{
+    BeforeCustomVersionWasAdded,
+    
+    LatestPlusOne,
+    Latest = LatestPlusOne - 1,
 }

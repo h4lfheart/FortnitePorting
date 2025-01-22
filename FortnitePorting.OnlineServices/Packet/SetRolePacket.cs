@@ -2,8 +2,10 @@ using System.ComponentModel;
 
 namespace FortnitePorting.OnlineServices.Packet;
 
-public class SetRolePacket() : IPacket
+public class SetRolePacket() : BasePacket
 {
+    public ESetRoleVersion DataVersion = ESetRoleVersion.Latest;
+    
     public Guid Id;
     public ERoleType Role;
 
@@ -13,16 +15,20 @@ public class SetRolePacket() : IPacket
         Role = role;
     }
     
-    public EPacketType PacketType => EPacketType.SetRole;
+    public override EPacketType PacketType => EPacketType.SetRole;
     
-    public void Serialize(BinaryWriter writer)
+    public override void Serialize(BinaryWriter writer)
     {
+        writer.Write((byte) DataVersion);
+        
         writer.Write(Id.ToString());
         writer.Write((int) Role);
     }
 
-    public void Deserialize(BinaryReader reader)
+    public override void Deserialize(BinaryReader reader)
     {
+        DataVersion = (ESetRoleVersion) reader.ReadByte();
+        
         Id = Guid.Parse(reader.ReadString());
         Role = (ERoleType)reader.ReadInt32();
     }
@@ -50,4 +56,12 @@ public enum ERoleType
     
     System,
     SystemExport
+}
+
+public enum ESetRoleVersion : byte
+{
+    BeforeCustomVersionWasAdded,
+    
+    LatestPlusOne,
+    Latest = LatestPlusOne - 1,
 }

@@ -2,7 +2,7 @@ using FortnitePorting.OnlineServices.Models;
 
 namespace FortnitePorting.OnlineServices.Packet;
 
-public class CanvasPixelPacket() : IPacket
+public class CanvasPixelPacket() : BasePacket
 {
     public PlacePixel Pixel;
 
@@ -11,15 +11,15 @@ public class CanvasPixelPacket() : IPacket
         Pixel = pixel;
     }
 
-    public EPacketType PacketType => EPacketType.CanvasPixel;
+    public override EPacketType PacketType => EPacketType.CanvasPixel;
     
-    public void Serialize(BinaryWriter writer)
+    public override void Serialize(BinaryWriter writer)
     {
         Pixel.Serialize(writer);
     }
 
-    public void Deserialize(BinaryReader reader)
+    public override void Deserialize(BinaryReader reader)
     {
-        Pixel = IDualSerialize.Deserialize<PlacePixel>(reader);
+        Pixel = BaseDualSerialize.Deserialize<PlacePixel>(reader);
     }
 }

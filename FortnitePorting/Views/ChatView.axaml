@@ -40,7 +40,9 @@
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="{ext:Space 1}"/>
                                         <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="{ext:Space 1}"/>
+                                        <ColumnDefinition Width="{ext:Space 0.5}"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="{ext:Space 0.5}"/>
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="{ext:Space 1}"/>
                                         <ColumnDefinition Width="*"/>
@@ -80,11 +82,15 @@
                                                Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center"
                                                PointerPressed="OnMessageUserPressed"/>
                                     
-                                    <TextBlock Grid.Row="0" Grid.Column="4" Text="{Binding Timestamp, StringFormat='g'}"
+                                    <TextBlock Grid.Row="0" Grid.Column="4" Text="{Binding User.Tag, StringFormat='g'}"
                                                TextWrapping="Wrap" Opacity="0.5"
                                                Classes="CaptionTextBlockStyle" VerticalAlignment="Center"/>
                                     
-                                    <StackPanel Grid.Row="0" Grid.Column="6" HorizontalAlignment="Right" VerticalAlignment="Top" Orientation="Horizontal">
+                                    <TextBlock Grid.Row="0" Grid.Column="6" Text="{Binding Timestamp, StringFormat='g'}"
+                                               TextWrapping="Wrap" Opacity="0.5"
+                                               Classes="CaptionTextBlockStyle" VerticalAlignment="Center"/>
+                                    
+                                    <StackPanel Grid.Row="0" Grid.Column="8" HorizontalAlignment="Right" VerticalAlignment="Top" Orientation="Horizontal">
                                         <TextBlock Text="{Binding ReactionCount}" Opacity="0.5" Margin="{ext:Space 0, 0, 1, 0}"/>
                                         <Image ToolTip.Tip="Yeah!" Width="16" Height="16" Cursor="Hand"
                                                Source="{Binding YeahImageSource}"
@@ -203,7 +209,7 @@
                                                        Foreground="{Binding Brush}"
                                                        Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center"/>
                                             
-                                            <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding Version}"
+                                            <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding OnlineVersion}"
                                                        FontSize="12"
                                                        Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" VerticalAlignment="Center"/>
                                         </Grid>

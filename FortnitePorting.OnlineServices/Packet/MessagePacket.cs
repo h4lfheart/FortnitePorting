@@ -1,7 +1,9 @@
 namespace FortnitePorting.OnlineServices.Packet;
 
-public class MessagePacket() : IPacket
+public class MessagePacket() : BasePacket
 {
+    public EMessageVersion DataVersion = EMessageVersion.Latest;
+    
     public string Message;
     public byte[] AttachmentData = [];
     public string AttachmentName = string.Empty;
@@ -15,10 +17,12 @@ public class MessagePacket() : IPacket
         HasAttachmentData = AttachmentData is { Length: > 0 };
     }
 
-    public EPacketType PacketType => EPacketType.Message;
+    public override EPacketType PacketType => EPacketType.Message;
 
-    public void Serialize(BinaryWriter writer)
+    public override void Serialize(BinaryWriter writer)
     {
+        writer.Write((byte) DataVersion);
+        
         writer.Write(HasAttachmentData);
         writer.Write(Message);
 
@@ -30,8 +34,10 @@ public class MessagePacket() : IPacket
         }
     }
 
-    public void Deserialize(BinaryReader reader)
+    public override void Deserialize(BinaryReader reader)
     {
+        DataVersion = (EMessageVersion) reader.ReadByte();
+        
         HasAttachmentData = reader.ReadBoolean();
         Message = reader.ReadString();
 
@@ -53,4 +59,12 @@ public enum EMessageFlags
     Gif,
     Video,
     File
+}
+
+public enum EMessageVersion : byte
+{
+    BeforeCustomVersionWasAdded,
+    
+    LatestPlusOne,
+    Latest = LatestPlusOne - 1,
 }

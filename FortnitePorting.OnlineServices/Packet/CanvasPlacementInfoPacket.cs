@@ -3,8 +3,9 @@ using Serilog;
 
 namespace FortnitePorting.OnlineServices.Packet;
 
-public class CanvasPlacementInfoPacket() : IPacket
+public class CanvasPlacementInfoPacket() : BasePacket
 {
+    public ECanvasPlacementInfoVersion DataVersion = ECanvasPlacementInfoVersion.Latest;
     public DateTime NextPixelTime;
 
     public CanvasPlacementInfoPacket(DateTime nextPixelTime) : this()
@@ -12,15 +13,25 @@ public class CanvasPlacementInfoPacket() : IPacket
         NextPixelTime = nextPixelTime;
     }
 
-    public EPacketType PacketType => EPacketType.CanvasPlacementInfo;
+    public override EPacketType PacketType => EPacketType.CanvasPlacementInfo;
     
-    public void Serialize(BinaryWriter writer)
+    public override void Serialize(BinaryWriter writer)
     {
+        writer.Write((byte) DataVersion);
         writer.Write(NextPixelTime.ToOADate());
     }
 
-    public void Deserialize(BinaryReader reader)
+    public override void Deserialize(BinaryReader reader)
     {
+        DataVersion = (ECanvasPlacementInfoVersion) reader.ReadByte();
         NextPixelTime = DateTime.FromOADate(reader.ReadDouble());
     }
+}
+
+public enum ECanvasPlacementInfoVersion : byte
+{
+    BeforeCustomVersionWasAdded,
+    
+    LatestPlusOne,
+    Latest = LatestPlusOne - 1,
 }

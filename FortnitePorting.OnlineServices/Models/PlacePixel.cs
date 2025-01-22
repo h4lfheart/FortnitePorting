@@ -1,7 +1,8 @@
 namespace FortnitePorting.OnlineServices.Models;
 
-public class PlacePixel() : IDualSerialize
+public class PlacePixel() : BaseDualSerialize
 {
+    public EPixelVersion DataVersion = EPixelVersion.Latest;
     public Guid Id { get; set; }
     public ushort X { get; set; }
     public ushort Y { get; set; }
@@ -13,8 +14,9 @@ public class PlacePixel() : IDualSerialize
     public bool IsActive { get; set; }
     public bool IsDeletion { get; set; }
         
-    public void Serialize(BinaryWriter writer)
+    public override void Serialize(BinaryWriter writer)
     {
+        writer.Write((byte) DataVersion);
         writer.Write(X);
         writer.Write(Y);
         writer.Write(R);
@@ -24,8 +26,9 @@ public class PlacePixel() : IDualSerialize
         writer.Write(IsDeletion);
     }
 
-    public void Deserialize(BinaryReader reader)
+    public override void Deserialize(BinaryReader reader)
     {
+        DataVersion = (EPixelVersion) reader.ReadByte();
         X = reader.ReadUInt16();
         Y = reader.ReadUInt16();
         R = reader.ReadByte();
@@ -34,4 +37,12 @@ public class PlacePixel() : IDualSerialize
         Name = reader.ReadString();
         IsDeletion = reader.ReadBoolean();
     }
+}
+
+public enum EPixelVersion : byte
+{
+    BeforeCustomVersionWasAdded,
+    
+    LatestPlusOne,
+    Latest = LatestPlusOne - 1,
 }

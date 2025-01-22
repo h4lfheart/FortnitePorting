@@ -1,7 +1,9 @@
 namespace FortnitePorting.OnlineServices.Packet;
 
-public class ReactionPacket() : IPacket
+public class ReactionPacket() : BasePacket
 {
+    public EReactionVersion DataVersion = EReactionVersion.Latest;
+    
     public Guid MessageId;
     public bool Increment;
 
@@ -11,18 +13,30 @@ public class ReactionPacket() : IPacket
         Increment = increment;
     }
     
-    public EPacketType PacketType => EPacketType.Reaction;
+    public override EPacketType PacketType => EPacketType.Reaction;
     
     
-    public void Serialize(BinaryWriter writer)
+    public override void Serialize(BinaryWriter writer)
     {
+        writer.Write((byte) DataVersion);
+        
         writer.Write(MessageId.ToString());
         writer.Write(Increment);
     }
 
-    public void Deserialize(BinaryReader reader)
+    public override void Deserialize(BinaryReader reader)
     {
+        DataVersion = (EReactionVersion) reader.ReadByte();
+        
         MessageId = Guid.Parse(reader.ReadString());
         Increment = reader.ReadBoolean();
     }
+}
+
+public enum EReactionVersion : byte
+{
+    BeforeCustomVersionWasAdded,
+    
+    LatestPlusOne,
+    Latest = LatestPlusOne - 1,
 }

@@ -65,7 +65,13 @@ public static class OnlineService
                 if (args.Reason == DisconnectReason.AuthFailure)
                 {
                     AppWM.Dialog("Disconnected",
-                        "You have been disconnected from the online services due to an invalid authentication. Please re-authenticate in online settings");
+                        "You have been disconnected from the online services due to an invalid authentication. Please re-authenticate in online settings.");
+                }
+                
+                if (args.Reason == DisconnectReason.Removed)
+                {
+                    AppWM.Dialog("Disconnected",
+                        "You have been disconnected from the online services due to a version mismatch. Please update to the latest version of the application.");
                 }
                 
                 DisconnectReason = args.Reason;
@@ -85,7 +91,7 @@ public static class OnlineService
                         }
 
                         while (!Client.Connected && AppSettings.Current.Online.UseIntegration &&
-                               DisconnectReason != DisconnectReason.AuthFailure)
+                               DisconnectReason is not (DisconnectReason.AuthFailure or DisconnectReason.Removed))
                         {
                             try
                             {
@@ -134,9 +140,11 @@ public static class OnlineService
                 var meta = DefaultMeta
                     .With("RequestingMessageHistory", !EstablishedFirstConnection)
                     .With("MessageFetchCount", AppSettings.Current.Online.MessageFetchCount)
-                    .With("Version", !string.IsNullOrWhiteSpace(Globals.OnlineTag) ? $"{Globals.OnlineTag} {Globals.VersionString}" : Globals.VersionString)
+                    .With("Version", Globals.VersionString)
+                    .With("Tag", Globals.OnlineTag)
+                    .With("AcceptsVersionedData", true)
                     .Build();
-                var response = new SyncResponse(arg, meta, Array.Empty<byte>());
+                var response = new SyncResponse(arg, meta, []);
                 EstablishedFirstConnection = true;
                 return response;
             }
@@ -226,7 +234,8 @@ public static class OnlineService
                         ProfilePictureURL = user.AvatarURL,
                         Id = user.Id,
                         Role = user.RoleType,
-                        Version = user.Version
+                        Version = user.Version,
+                        Tag = user.Tag
                     },
                     Text = messagePacket.Message,
                     Id = e.GetArgument<Guid>("ID"),
@@ -278,7 +287,8 @@ public static class OnlineService
                         ProfilePictureURL = onlineUser.AvatarURL,
                         Id = onlineUser.Id,
                         Role = onlineUser.RoleType,
-                        Version = onlineUser.Version
+                        Version = onlineUser.Version,
+                        Tag = onlineUser.Tag
                     }, SortExpressionComparer<ChatUser>.Descending(sortedUser => ((int) ERoleType.Owner - (int) sortedUser.Role) * 100 + sortedUser.DisplayName)); // ugly but works
                 }
                 
@@ -405,7 +415,8 @@ public static class OnlineService
                             ProfilePictureURL = messageUser.AvatarURL,
                             Id = messageUser.Id,
                             Role = messageUser.RoleType,
-                            Version = messageUser.Version
+                            Version = messageUser.Version,
+                            Tag = messageUser.Tag
                         },
                         Text = messagePacket.Message,
                         Id = GetArgument<Guid>("ID"),
@@ -526,7 +537,7 @@ public static class OnlineService
         }
     }
     
-    public static async Task Send(IPacket packet, MetadataBuilder? additionalMeta = null)
+    public static async Task Send(BasePacket packet, MetadataBuilder? additionalMeta = null)
     {
         await Send(packet.WritePacket(), packet.PacketType, additionalMeta);
     }

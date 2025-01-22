@@ -2,9 +2,9 @@ using FortnitePorting.OnlineServices.Models;
 
 namespace FortnitePorting.OnlineServices.Packet;
 
-public interface IPacket : IDualSerialize
+public abstract class BasePacket : BaseDualSerialize
 {
-    public EPacketType PacketType { get; }
+    public abstract EPacketType PacketType { get; }
 }
 
 public enum EPacketType

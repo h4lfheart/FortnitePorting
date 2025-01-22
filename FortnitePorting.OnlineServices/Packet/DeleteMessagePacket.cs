@@ -1,14 +1,26 @@
 namespace FortnitePorting.OnlineServices.Packet;
 
-public class DeleteMessagePacket() : IPacket
+public class DeleteMessagePacket() : BasePacket
 {
-    public EPacketType PacketType => EPacketType.DeleteMessage;
+    public EDeleteMessageVersion DataVersion = EDeleteMessageVersion.Latest;
+    
+    public override EPacketType PacketType => EPacketType.DeleteMessage;
 
-    public void Serialize(BinaryWriter writer)
+    public override void Serialize(BinaryWriter writer)
     {
+        writer.Write((byte) DataVersion);
     }
 
-    public void Deserialize(BinaryReader reader)
+    public override void Deserialize(BinaryReader reader)
     {
+        DataVersion = (EDeleteMessageVersion) reader.ReadByte();
     }
+}
+
+public enum EDeleteMessageVersion : byte
+{
+    BeforeCustomVersionWasAdded,
+    
+    LatestPlusOne,
+    Latest = LatestPlusOne - 1,
 }

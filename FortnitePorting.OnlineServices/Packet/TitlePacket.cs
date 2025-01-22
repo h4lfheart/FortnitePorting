@@ -1,7 +1,9 @@
 namespace FortnitePorting.OnlineServices.Packet;
 
-public class TitlePacket() : IPacket
+public class TitlePacket() : BasePacket
 {
+    public ETitleVersion DataVersion = ETitleVersion.Latest;
+    
     public string Title;
     public string Subtitle;
     
@@ -11,17 +13,29 @@ public class TitlePacket() : IPacket
         Subtitle = subtitle;
     }
 
-    public EPacketType PacketType => EPacketType.Title;
+    public override EPacketType PacketType => EPacketType.Title;
 
-    public void Serialize(BinaryWriter writer)
+    public override void Serialize(BinaryWriter writer)
     {
+        writer.Write((byte) DataVersion);
+        
         writer.Write(Title);
         writer.Write(Subtitle);
     }
 
-    public void Deserialize(BinaryReader reader)
+    public override void Deserialize(BinaryReader reader)
     {
+        DataVersion = (ETitleVersion) reader.ReadByte();
+        
         Title = reader.ReadString();
         Subtitle = reader.ReadString();
     }
+}
+
+public enum ETitleVersion : byte
+{
+    BeforeCustomVersionWasAdded,
+    
+    LatestPlusOne,
+    Latest = LatestPlusOne - 1,
 }

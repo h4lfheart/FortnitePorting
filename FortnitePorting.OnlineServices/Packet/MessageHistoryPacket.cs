@@ -3,8 +3,10 @@ using FortnitePorting.OnlineServices.Models;
 
 namespace FortnitePorting.OnlineServices.Packet;
 
-public class MessageHistoryPacket() : IPacket
+public class MessageHistoryPacket() : BasePacket
 {
+    public EMessageHistoryVersion DataVersion = EMessageHistoryVersion.Latest;
+    
     public List<MessagePacket> Packets = [];
     public List<MetadataBuilder> Metas = [];
     
@@ -14,10 +16,12 @@ public class MessageHistoryPacket() : IPacket
         Metas = metas;
     }
 
-    public EPacketType PacketType => EPacketType.MessageHistory;
+    public override EPacketType PacketType => EPacketType.MessageHistory;
 
-    public void Serialize(BinaryWriter writer)
+    public override void Serialize(BinaryWriter writer)
     {
+        writer.Write((byte) DataVersion);
+        
         writer.Write(Packets.Count);
         foreach (var packet in Packets)
         {
@@ -31,18 +35,28 @@ public class MessageHistoryPacket() : IPacket
         }
     }
 
-    public void Deserialize(BinaryReader reader)
+    public override void Deserialize(BinaryReader reader)
     {
+        DataVersion = (EMessageHistoryVersion) reader.ReadByte();
+        
         var packetCount = reader.ReadInt32();
         for (var i = 0; i < packetCount; i++)
         {
-            Packets.Add(IDualSerialize.Deserialize<MessagePacket>(reader));
+            Packets.Add(BaseDualSerialize.Deserialize<MessagePacket>(reader));
         }
 
         var metaCount = reader.ReadInt32();
         for (var i = 0; i < metaCount; i++)
         {
-            Metas.Add(IDualSerialize.Deserialize<MetadataBuilder>(reader));
+            Metas.Add(BaseDualSerialize.Deserialize<MetadataBuilder>(reader));
         }
     }
+}
+
+public enum EMessageHistoryVersion : byte
+{
+    BeforeCustomVersionWasAdded,
+    
+    LatestPlusOne,
+    Latest = LatestPlusOne - 1,
 }

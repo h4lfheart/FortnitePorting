@@ -1,7 +1,9 @@
 namespace FortnitePorting.OnlineServices.Packet;
 
-public class ExportPacket() : IPacket
+public class ExportPacket() : BasePacket
 {
+    public EExportVersion DataVersion = EExportVersion.Latest;
+    
     public string Path;
     public string Message;
     
@@ -11,17 +13,27 @@ public class ExportPacket() : IPacket
         Message = message;
     }
 
-    public EPacketType PacketType => EPacketType.Export;
+    public override EPacketType PacketType => EPacketType.Export;
 
-    public void Serialize(BinaryWriter writer)
+    public override void Serialize(BinaryWriter writer)
     {
+        writer.Write((byte) DataVersion);
         writer.Write(Path);
         writer.Write(Message);
     }
 
-    public void Deserialize(BinaryReader reader)
+    public override void Deserialize(BinaryReader reader)
     {
+        DataVersion = (EExportVersion) reader.ReadByte();
         Path = reader.ReadString();
         Message = reader.ReadString();
     }
+}
+
+public enum EExportVersion : byte
+{
+    BeforeCustomVersionWasAdded,
+    
+    LatestPlusOne,
+    Latest = LatestPlusOne - 1,
 }

@@ -3,8 +3,10 @@ using Serilog;
 
 namespace FortnitePorting.OnlineServices.Packet;
 
-public class CanvasInfoPacket() : IPacket
+public class CanvasInfoPacket() : BasePacket
 {
+    public ECanvasInfoVersion DataVersion = ECanvasInfoVersion.Latest;
+    
     public ushort X;
     public ushort Y;
     public List<PlacePixel> Pixels = [];
@@ -16,10 +18,12 @@ public class CanvasInfoPacket() : IPacket
         Pixels = pixels;
     }
 
-    public EPacketType PacketType => EPacketType.CanvasInfo;
+    public override EPacketType PacketType => EPacketType.CanvasInfo;
     
-    public void Serialize(BinaryWriter writer)
+    public override void Serialize(BinaryWriter writer)
     {
+        writer.Write((byte) DataVersion);
+        
         writer.Write(X);
         writer.Write(Y);
         
@@ -30,15 +34,24 @@ public class CanvasInfoPacket() : IPacket
         }
     }
 
-    public void Deserialize(BinaryReader reader)
+    public override void Deserialize(BinaryReader reader)
     {
+        DataVersion = (ECanvasInfoVersion) reader.ReadByte();
         X = reader.ReadUInt16();
         Y = reader.ReadUInt16();
 
         var pixelCount = reader.ReadInt32();
         for (var i = 0; i < pixelCount; i++)
         {
-            Pixels.Add(IDualSerialize.Deserialize<PlacePixel>(reader));
+            Pixels.Add(BaseDualSerialize.Deserialize<PlacePixel>(reader));
         }
     }
+}
+
+public enum ECanvasInfoVersion : byte
+{
+    BeforeCustomVersionWasAdded,
+    
+    LatestPlusOne,
+    Latest = LatestPlusOne - 1,
 }

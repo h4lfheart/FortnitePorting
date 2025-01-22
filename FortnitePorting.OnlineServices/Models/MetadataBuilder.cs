@@ -4,7 +4,7 @@ using Serilog;
 
 namespace FortnitePorting.OnlineServices.Models;
 
-public class MetadataBuilder : IDualSerialize
+public class MetadataBuilder : BaseDualSerialize
 {
     private Dictionary<string, object> Arguments = [];
 
@@ -57,7 +57,7 @@ public class MetadataBuilder : IDualSerialize
         return new MetadataBuilder().WithType(type).Build();
     }
 
-    public void Serialize(BinaryWriter writer)
+    public override void Serialize(BinaryWriter writer)
     {
         writer.Write(Arguments.Count);
         foreach (var (key, value) in Arguments)
@@ -114,13 +114,15 @@ public class MetadataBuilder : IDualSerialize
         }
     }
 
-    public void Deserialize(BinaryReader reader)
+    public override void Deserialize(BinaryReader reader)
     {
         var argumentCount = reader.ReadInt32();
         for (var i = 0; i < argumentCount; i++)
         {
             var key = reader.ReadString();
             var propertyType = (EPropertyType) reader.ReadByte();
+            
+            if (propertyType > EPropertyType.Max) break;
 
             Arguments[key] = propertyType switch
             {
@@ -129,7 +131,7 @@ public class MetadataBuilder : IDualSerialize
                 EPropertyType.Bool => reader.ReadBoolean(),
                 EPropertyType.Guid => new Guid(reader.ReadString()),
                 EPropertyType.String => reader.ReadString(),
-                EPropertyType.Identification => IDualSerialize.Deserialize<Identification>(reader),
+                EPropertyType.Identification => BaseDualSerialize.Deserialize<Identification>(reader),
                 EPropertyType.DateTime => DateTime.FromBinary(reader.ReadInt64()),
                 _ => throw new NotImplementedException()
             };
@@ -145,5 +147,8 @@ public enum EPropertyType : byte
     Guid,
     String,
     Identification,
-    DateTime
+    DateTime,
+    
+    MaxPlusOne,
+    Max = MaxPlusOne - 1
 }

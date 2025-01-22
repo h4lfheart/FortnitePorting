@@ -33,7 +33,10 @@ public partial class ChatUser : ObservableObject
     [ObservableProperty] private string _profilePictureURL;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(Guid))] private string _id;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(Brush))] private ERoleType _role;
-    [ObservableProperty] private string _version;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(OnlineVersion))] private string _version;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(OnlineVersion))] private string _tag;
+
+    public string OnlineVersion => !string.IsNullOrWhiteSpace(Tag) ? $"{Tag} {Version}" : Version;
 
     public Guid Guid => Id.ToFpGuid();
     
