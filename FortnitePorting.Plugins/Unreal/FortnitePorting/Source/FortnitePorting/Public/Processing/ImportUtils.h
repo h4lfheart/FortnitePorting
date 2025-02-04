@@ -54,4 +54,42 @@ public:
 			RootName
 		};
 	}
+
+	static void InsertUniqueKeyToFStringFStringMap(TMap<FString, FString>& Map, FString Key, FString Value)
+	{
+		int NextIndex = -1;
+
+		for (const auto& MapItem : Map)
+		{
+			FString ItemKey = MapItem.Key;
+			
+			if(ItemKey.Equals(Key))
+			{
+				if (NextIndex < 0)
+				{
+					NextIndex = 1;
+				}
+			}
+			else if(ItemKey.StartsWith(*Key, true))
+			{
+				FString Remainder = ItemKey.Replace(*Key, TEXT(""));
+				int CurrentIndex = FCString::Atoi(*Remainder);
+
+				if(CurrentIndex > 0 && CurrentIndex + 1 > NextIndex)
+				{
+					NextIndex = CurrentIndex + 1;
+				}
+			}
+		}
+
+		if (NextIndex > 0)
+		{
+			FString NextKey = Key + FString::FromInt(NextIndex);
+			Map.Add(NextKey, Value);
+		}
+		else
+		{
+			Map.Add(Key, Value);
+		}
+	}
 };
