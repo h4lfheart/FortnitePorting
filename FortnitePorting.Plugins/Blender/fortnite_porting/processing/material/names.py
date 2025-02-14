@@ -40,7 +40,7 @@ emissive_crop_switch_names = [
 
 texture_ignore_names = ["DefaultTexture"]
 
-vertex_crunch_names = ["MI_VertexCrunch", "M_VertexCrunch"]
+vertex_crunch_names = ["MI_VertexCrunch", "M_VertexCrunch", "M_Invis"]
 
 toon_outline_names = ["Outline", "Toon_Lines"]
 
