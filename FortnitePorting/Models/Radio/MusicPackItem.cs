@@ -184,10 +184,19 @@ public partial class MusicPackItem : ObservableObject
         });
     }
     
-    public async Task SaveAudio(DirectoryInfo directory, ESoundFormat soundFormat)
+    public async Task SaveAudio(DirectoryInfo directory)
     {
-        var path = Path.Combine(directory.FullName, Id + ".mp3");
-        await SaveAudio(path, soundFormat);
+        var extension = RadioVM.SoundFormat switch
+        {
+            ESoundFormat.MP3 => ".mp3",
+            ESoundFormat.WAV => ".wav",
+            ESoundFormat.OGG => ".ogg",
+            ESoundFormat.FLAC => ".flac",
+            _ => ".mp3"
+        };
+
+        var path = Path.Combine(directory.FullName, Id + extension);
+        await SaveAudio(path, RadioVM.SoundFormat);
     }
     
     [RelayCommand]
