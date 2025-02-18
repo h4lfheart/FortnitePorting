@@ -36,7 +36,7 @@ public partial class BlenderInstallationInfo : ObservableObject
     {
         if (!File.Exists(ManifestPath))
         {
-            AppWM.Message("Blender Extension", "Failed to find plugin manifest, installation may have gone wrong. Please remove the installation and try again.");
+            AppWM.Message("Blender Extension", $"Plugin manifest does not exist at path {ManifestPath}, installation may have gone wrong.\nPlease remove the installation from Blender and Fortnite Porting and try again.");
             return false;
         }
         

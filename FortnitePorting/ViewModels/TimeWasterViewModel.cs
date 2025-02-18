@@ -108,6 +108,8 @@ public partial class TimeWasterViewModel : ViewModelBase
                 await Task.Delay(waitTime);
                 
                 if (IsGame) break;
+                if (!AppWM.TimeWasterOpen) break;
+                
                 PianoSnippets.Random()?.Play();
             }
         });

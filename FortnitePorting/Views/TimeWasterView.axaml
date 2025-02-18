@@ -286,7 +286,7 @@
                                 <ScaleTransform ScaleX="2" ScaleY="2"/>
                             </Border.RenderTransform>
                         </Border>
-                        <TextBlock Text="FORTNITE PORTING IS CURRENTLY DOWN" Foreground="#0fd7f2" LetterSpacing="1.5" FontSize="28" 
+                        <TextBlock Text="FORTNITE PORTING IS CURRENTLY &quot;DOWN&quot;" Foreground="#0fd7f2" LetterSpacing="1.5" FontSize="28" 
                                    HorizontalAlignment="Center">
                             <TextBlock.RenderTransform>
                                 <TransformGroup>
@@ -306,7 +306,7 @@
                                 <ScaleTransform ScaleX="2" ScaleY="2"/>
                             </Border.RenderTransform>
                         </Border>
-                        <TextBlock Text="PLEASE WAIT FOR ENCRYPTION KEYS AND MAPPINGS"
+                        <TextBlock Text="YOUR INSTALLATION PROFILE DID NOT LOAD A VALID ENCRYPTION KEY"
                                    Foreground="White" LetterSpacing="1.5" FontSize="24"
                                    HorizontalAlignment="Center">
                             <TextBlock.RenderTransform>
@@ -323,10 +323,10 @@
                                 <ImageBrush Source="/Assets/TimeWaster/Sprites/T_Glow_Mask.png" Stretch="Fill"/>
                             </Border.OpacityMask>
                             <Border.RenderTransform>
-                                <ScaleTransform ScaleX="1.5" ScaleY="2"/>
+                                <ScaleTransform ScaleX="2" ScaleY="2"/>
                             </Border.RenderTransform>
                         </Border>
-                        <TextBlock Text="OR UPDATE YOUR GAME IF YOU HAVEN'T YET"
+                        <TextBlock Text="PLEASE WAIT FOR ENCRYPTION KEYS AND/OR UPDATE YOUR GAME"
                                    Foreground="White" LetterSpacing="1.5" FontSize="24"
                                    HorizontalAlignment="Center">
                             <TextBlock.RenderTransform>

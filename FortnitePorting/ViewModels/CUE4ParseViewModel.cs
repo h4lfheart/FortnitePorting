@@ -18,6 +18,7 @@ using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
+using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.IO;
 using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.Engine;
@@ -98,27 +99,15 @@ public class CUE4ParseViewModel : ViewModelBase
 
     public override async Task Initialize()
     {
+        FByteBulkData.LazyLoad = false;
 		ObjectTypeRegistry.RegisterEngine(Assembly.Load("FortnitePorting"));
         ObjectTypeRegistry.RegisterEngine(Assembly.Load("FortnitePorting.Shared"));
 
         Provider.LoadExtraDirectories = AppSettings.Current.Installation.CurrentProfile.LoadCreativeMaps;
         
-        _onlineStatus = await ApiVM.FortnitePorting.GetOnlineStatusAsync();
+        _onlineStatus = await ApiVM.FortnitePorting.GetOnlineStatusAsync() ?? new OnlineResponse();
         
-        if (AppSettings.Current.Installation.CurrentProfile.FortniteVersion is EFortniteVersion.LatestInstalled
-            && (_onlineStatus.Backup.Keys 
-                ? await ApiVM.FortnitePorting.GetKeysAsync() 
-                : await ApiVM.FortniteCentral.GetKeysAsync() ?? await ApiVM.FortnitePorting.GetKeysAsync()) is { } aes
-            && !new PakFileReader(Path.Combine(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory,
-                "pakchunk0-WindowsClient.pak")).TestAesKey(new FAesKey(aes.MainKey)))
-        {
-            await TaskService.RunDispatcherAsync(() =>
-            {
-                AppWM.TimeWasterOpen = true;
-                AppWM.TimeWaster = new TimeWasterView(game: false);
-            });
-        }
-
+        await CheckBlackHole();
         await CleanupCache();
 
         Provider.VfsMounted += (sender, _) =>
@@ -158,6 +147,29 @@ public class CUE4ParseViewModel : ViewModelBase
         HomeVM.UpdateStatus(string.Empty);
 
         FinishedLoading = true;
+    }
+
+    private async Task CheckBlackHole()
+    {
+        if (AppSettings.Current.Installation.CurrentProfile.FortniteVersion is not EFortniteVersion.LatestInstalled) return;
+        
+        var aes = _onlineStatus.Backup.Keys
+            ? await ApiVM.FortnitePorting.GetKeysAsync()
+            : await ApiVM.FortniteCentral.GetKeysAsync() ?? await ApiVM.FortnitePorting.GetKeysAsync();
+        if (aes is null) return;
+        
+        var mainPakPath = Path.Combine(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory,
+            "pakchunk0-WindowsClient.pak");
+        if (!File.Exists(mainPakPath)) return;
+
+        var mainPakReader = new PakFileReader(mainPakPath);
+        if (mainPakReader.TestAesKey(new FAesKey(aes.MainKey))) return;
+        
+        await TaskService.RunDispatcherAsync(() =>
+        {
+            AppWM.TimeWasterOpen = true;
+            AppWM.TimeWaster = new TimeWasterView(game: false);
+        });
     }
     
     private async Task CleanupCache()
