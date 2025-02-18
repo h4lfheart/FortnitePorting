@@ -17,6 +17,7 @@ using DynamicData.Binding;
 using FortnitePorting.Application;
 using FortnitePorting.Controls;
 using FortnitePorting.Extensions;
+using FortnitePorting.Models.App;
 using FortnitePorting.Models.Radio;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
@@ -289,10 +290,22 @@ public partial class RadioViewModel : ViewModelBase
         if (await BrowseFolderDialog() is not { } exportPath) return;
 
         var directory = new DirectoryInfo(exportPath);
-        foreach (var item in Source.Items)
+
+        var infoBar = new InfoBarData("Music Packs", "Exporting...", autoClose: false, id: "RadioExportAll");
+        AppWM.Message(infoBar);
+
+        var exportItems = Source.Items.ToArray();
+        var currentItemIndex = -1;
+        foreach (var item in exportItems)
         {
+            currentItemIndex++;
+            if (item.IsUnsupported) continue;
+            
+            AppWM.UpdateMessage("RadioExportAll", $"Exporting {item.TrackName}: {currentItemIndex} / {exportItems.Length}");
             await item.SaveAudio(directory, SoundFormat);
         }
+        
+        AppWM.CloseMessage("RadioExportAll");
     }
     
     [RelayCommand]
