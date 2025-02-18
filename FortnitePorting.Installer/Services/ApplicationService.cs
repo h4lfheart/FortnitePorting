@@ -53,7 +53,7 @@ public static class ApplicationService
         
         TaskService.Exception += HandleException;
         
-        Log.Information($"Fortnite Porting Installer {Globals.VersionString}");
+        Log.Information($"Fortnite Porting Installer");
         Log.Information($".NET Version: {RuntimeInformation.FrameworkDescription}");
     }
     

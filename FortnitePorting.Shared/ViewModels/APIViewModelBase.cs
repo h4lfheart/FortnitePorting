@@ -5,11 +5,11 @@ using RestSharp.Serializers.NewtonsoftJson;
 
 namespace FortnitePorting.Shared.ViewModels;
 
-public class APIViewModelBase(int timeout = 10) : ViewModelBase
+public class APIViewModelBase(string userAgentVersion = "", int timeout = 10) : ViewModelBase
 {
     protected readonly RestClient _client = new(new RestClientOptions
     {
-        UserAgent = $"FortnitePorting/{Globals.VersionString}",
+        UserAgent = $"FortnitePorting/{userAgentVersion}",
         MaxTimeout = 1000 * timeout,
     }, configureSerialization: s => s.UseSerializer<JsonNetSerializer>());
     

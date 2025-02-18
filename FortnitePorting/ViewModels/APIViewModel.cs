@@ -20,7 +20,7 @@ public class APIViewModel : APIViewModelBase
     public readonly EpicGamesAPI EpicGames;
 
 
-    public APIViewModel() : base(AppSettings.Current.Debug.RequestTimeoutSeconds)
+    public APIViewModel() : base(Globals.VersionString, AppSettings.Current.Debug.RequestTimeoutSeconds)
     {
         FortnitePorting = new FortnitePortingAPI(_client);
         FortniteCentral = new FortniteCentralAPI(_client);

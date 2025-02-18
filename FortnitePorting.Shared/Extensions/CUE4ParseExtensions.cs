@@ -4,6 +4,7 @@ using CUE4Parse.FileProvider;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Component;
 using CUE4Parse.UE4.Assets.Exports.Material.Parameters;
+using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.Math;
@@ -165,6 +166,12 @@ public static class CUE4ParseExtensions
     public static CStaticMesh Convert(this UStaticMesh staticMesh)
     {
         staticMesh.TryConvert(out var convertedMesh);
+        return convertedMesh;
+    }
+    
+    public static CSkeletalMesh Convert(this USkeletalMesh skeletalMesh)
+    {
+        skeletalMesh.TryConvert(out var convertedMesh);
         return convertedMesh;
     }
 

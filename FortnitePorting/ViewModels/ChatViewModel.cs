@@ -25,7 +25,7 @@ using FortnitePorting.Shared.Models.Clipboard;
 using FortnitePorting.Shared.Services;
 using Serilog;
 using SixLabors.ImageSharp.PixelFormats;
-using Globals = FortnitePorting.Shared.Globals;
+using Globals = FortnitePorting.Globals;
 
 namespace FortnitePorting.ViewModels;
 

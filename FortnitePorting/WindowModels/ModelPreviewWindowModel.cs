@@ -13,14 +13,29 @@ public partial class ModelPreviewWindowModel : WindowModelBase
 {
     [ObservableProperty] private string _meshName;
     [ObservableProperty] private ModelPreviewControl _viewerControl;
-    [ObservableProperty] private ObservableCollection<UObject> _queuedObjects = [];
+    [ObservableProperty] private Queue<UObject> _queuedObjects = [];
+    [ObservableProperty] private bool _isLoading = true;
 
     public override async Task Initialize()
     {
         await TaskService.RunDispatcherAsync(() =>
         {
             ViewerControl = new ModelPreviewControl();
-            ViewerControl.Context.QueuedObjects.AddRange(QueuedObjects);
+        });
+        
+        LoadQueue(QueuedObjects);
+    }
+
+    public void LoadQueue(Queue<UObject> queue)
+    {
+        ViewerControl.Context.Renderer.Clear();
+        ViewerControl.Context.ModelQueue = queue;
+        
+        TaskService.Run(() =>
+        {
+            IsLoading = true;
+            while (ViewerControl.Context.LoadingModelQueue) { }
+            IsLoading = false;
         });
     }
 }

@@ -17,7 +17,7 @@ using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Windows;
 using Newtonsoft.Json;
-using Globals = FortnitePorting.Shared.Globals;
+using Globals = FortnitePorting.Globals;
 
 namespace FortnitePorting.Models.Files;
 

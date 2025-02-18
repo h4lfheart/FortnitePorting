@@ -19,8 +19,7 @@ internal static class Program
         }
         catch (Exception e)
         {
-            Log.Error(e.ToString());
-            Log.CloseAndFlush();
+            Log.Fatal(e.ToString());
         }
     }
 

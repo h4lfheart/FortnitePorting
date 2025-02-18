@@ -35,7 +35,7 @@ public partial class ModelPreviewWindow : WindowBase<ModelPreviewWindowModel>
         if (Instance is not null)
         {
             Instance.WindowModel.MeshName = string.Empty;
-            Instance.WindowModel.ViewerControl.Context.QueuedObjects.AddRange(objects);
+            Instance.WindowModel.LoadQueue(new Queue<UObject>(objects));
             Instance.BringToTop();
             return;
         }
@@ -44,7 +44,7 @@ public partial class ModelPreviewWindow : WindowBase<ModelPreviewWindowModel>
         {
             Instance = new ModelPreviewWindow();
             Instance.WindowModel.MeshName = string.Empty;
-            Instance.WindowModel.QueuedObjects = [..objects];
+            Instance.WindowModel.QueuedObjects = new Queue<UObject>(objects);
             Instance.Show();
             Instance.BringToTop();
         });

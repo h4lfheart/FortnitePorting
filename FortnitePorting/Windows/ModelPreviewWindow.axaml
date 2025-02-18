@@ -1,7 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
-        xmlns:ui="using:FluentAvalonia.UI.Controls"
+        xmlns:progressRing="using:FluentAvalonia.UI.Controls"
         xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
         xmlns:windowModels="clr-namespace:FortnitePorting.WindowModels"
         x:Class="FortnitePorting.Windows.ModelPreviewWindow"
@@ -36,8 +36,14 @@
                        HorizontalAlignment="Left" VerticalAlignment="Center" />
         </Grid>
         
-        <Border Grid.Row="1" Margin="{ext:Space 1, 0, 1, 1}" CornerRadius="4" ClipToBounds="True">
-            <ContentControl Content="{Binding ViewerControl}" CornerRadius="4"/>
-        </Border>
+        <Grid Grid.Row="1" Margin="{ext:Space 1, 0, 1, 1}" ClipToBounds="True">
+            <ContentControl Content="{Binding ViewerControl}" CornerRadius="4" IsVisible="{Binding !IsLoading}"/>
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding IsLoading}">
+                <progressRing:ProgressRing IsIndeterminate="True" Background="Transparent" Width="50" Height="50" BorderThickness="5"/>
+                <TextBlock Text="Loading Assets"
+                           Classes="BodyStrongTextBlockStyle" HorizontalAlignment="Center"
+                           Margin="{ext:Space 0, 2, 0, 0}"/>
+            </StackPanel>
+        </Grid>
     </Grid>
 </Window>

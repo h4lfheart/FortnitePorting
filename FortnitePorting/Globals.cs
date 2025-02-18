@@ -1,15 +1,15 @@
+global using static FortnitePorting.Services.ApplicationService;
+
 using Avalonia.Platform.Storage;
 using CUE4Parse.UE4.Objects.Core.Misc;
-using CUE4Parse.UE4.Versions;
-using FluentAvalonia.UI.Media.Animation;
 using FortnitePorting.Shared.Models;
 
-namespace FortnitePorting.Shared;
+namespace FortnitePorting;
 
 public static class Globals
 {
     public static string VersionString => Version.GetDisplayString(EVersionStringType.IdentifierPrefix);
-    public static readonly FPVersion Version = new(3, 0, 5);
+    public static readonly FPVersion Version = new(3, 0, 6);
     public const string OnlineTag = "FortnitePorting";
     
     public static readonly FilePickerFileType MappingsFileType = new("Unreal Mappings") { Patterns = [ "*.usmap" ] };
