@@ -33,6 +33,11 @@
                     <ui:PathIconSource Data="{ext:MaterialKindToGeometry PaletteSwatch}"/>
                 </ui:NavigationViewItem.IconSource>
             </ui:NavigationViewItem>
+            <ui:NavigationViewItem Content="Debug" Tag="Debug">
+                <ui:NavigationViewItem.IconSource>
+                    <ui:PathIconSource Data="{ext:MaterialKindToGeometry Bug}"/>
+                </ui:NavigationViewItem.IconSource>
+            </ui:NavigationViewItem>
         </ui:NavigationView.MenuItems>
         
         <ui:Frame x:Name="ContentFrame"/>

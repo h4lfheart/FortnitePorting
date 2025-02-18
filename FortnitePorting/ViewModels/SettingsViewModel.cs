@@ -34,6 +34,7 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private ThemeSettingsViewModel _theme = new();
     [ObservableProperty] private OnlineSettingsViewModel _online = new();
     [ObservableProperty] private PluginViewModel _plugin = new();
+    [ObservableProperty] private DebugSettingsViewModel _debug = new();
     
     // Assets
     [ObservableProperty] private HashSet<string> _favoriteAssets = [];

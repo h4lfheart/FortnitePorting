@@ -10,8 +10,8 @@
              xmlns:versions="clr-namespace:CUE4Parse.UE4.Versions;assembly=CUE4Parse"
              xmlns:wave="clr-namespace:NAudio.Wave;assembly=NAudio.Core"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="FortnitePorting.Views.Settings.ApplicationSettingsView"
-             x:DataType="settings:ApplicationSettingsViewModel">
+             x:Class="FortnitePorting.Views.Settings.DebugSettingsView"
+             x:DataType="settings:DebugSettingsViewModel">
     
     <ScrollViewer>
         <StackPanel VerticalAlignment="Top" Margin="{ext:Space 1, 1, 2, 1}">
@@ -24,36 +24,31 @@
                 </Style>
             </StackPanel.Styles>
             
-            <ui:SettingsExpander Header="Assets Path" Description="The path in which all assets will export to.">
+            <ui:SettingsExpander Header="Use Debugging Symbols" Description="Downloads .pdb debugging symbols for use in error reporting. Only enable this if required in a support ticket.">
                 <ui:SettingsExpander.Footer>
-                    <StackPanel Orientation="Horizontal">
-                        <CheckBox IsChecked="{Binding UseAssetsPath}"/>
-                        <TextBox Text="{Binding AssetsPath}" Watermark="Ex. D:/Art/FortnitePorting/Assets/" IsEnabled="{Binding UseAssetsPath}"/>
-                        <Button Margin="4 0 0 0" Command="{Binding BrowseAssetsPath}" IsEnabled="{Binding UseAssetsPath}">
-                            <ui:SymbolIcon Symbol="Folder"/>
-                        </Button>
-                    </StackPanel>
+                    <ToggleSwitch IsChecked="{Binding DownloadDebuggingSymbols}"/>
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
             
-            <ui:SettingsExpander Header="Audio Device" Description="The device that should be used for audio playback.">
+            <ui:SettingsExpander Header="Cached Chunk Lifetime" Description="The number of days any cached chunks should be kept for. Set this value to zero to keep chunks for forever.">
                 <ui:SettingsExpander.Footer>
-                    <ComboBox Grid.Row="0" Grid.Column="4" ItemsSource="{Binding AudioDevices}" 
-                              SelectedIndex="{Binding AudioDeviceIndex, Mode=TwoWay}"
-                              HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{ext:Space 2, 1, 2, 0}">
-                        <ComboBox.ItemTemplate>
-                            <DataTemplate DataType="wave:DirectSoundDeviceInfo">
-                                <TextBlock Text="{Binding Description}"/>
-                            </DataTemplate>
-                        </ComboBox.ItemTemplate>
-                    </ComboBox>
-
+                    <ui:NumberBox Value="{Binding ChunkCacheLifetime}" 
+                                  Minimum="0"
+                                  SpinButtonPlacementMode="Inline"/>
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
             
-            <ui:SettingsExpander Header="Tab Transitions" Description="Toggles the transition that plays when switching between tabs.">
+            <ui:SettingsExpander Header="Request Timeout Length" Description="The number of seconds in which web request should wait for before cancelling.">
                 <ui:SettingsExpander.Footer>
-                    <ToggleSwitch IsChecked="{Binding UseTabTransitions}"/>
+                    <ui:NumberBox Value="{Binding RequestTimeoutSeconds}" 
+                                  Minimum="0"
+                                  SpinButtonPlacementMode="Inline"/>
+                </ui:SettingsExpander.Footer>
+            </ui:SettingsExpander>
+            
+            <ui:SettingsExpander Header="Show Map Grid Information" Description="Displays tools to modify and debug map grids in the map tab.">
+                <ui:SettingsExpander.Footer>
+                    <ToggleSwitch IsChecked="{Binding ShowMapDebugInfo}"/>
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
         </StackPanel>

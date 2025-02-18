@@ -142,7 +142,7 @@ public partial class MapViewModel : ViewModelBase
 
     public override async Task Initialize()
     {
-        ShowDebugInfo = AppSettings.Current.Application.ShowMapDebugInfo;
+        ShowDebugInfo = AppSettings.Current.Debug.ShowMapDebugInfo;
         
         // in-game maps
         foreach (var mapInfo in MapInfos)

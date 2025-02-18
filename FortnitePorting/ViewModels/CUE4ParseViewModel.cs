@@ -175,7 +175,7 @@ public class CUE4ParseViewModel : ViewModelBase
     private async Task CleanupCache()
     {
         var files = CacheFolder.GetFiles("*.*chunk");
-        var cutoffDate = DateTime.Now - TimeSpan.FromDays(AppSettings.Current.Application.ChunkCacheLifetime);
+        var cutoffDate = DateTime.Now - TimeSpan.FromDays(AppSettings.Current.Debug.ChunkCacheLifetime);
         foreach (var file in files)
         {
             if (file.LastWriteTime >= cutoffDate) continue;
