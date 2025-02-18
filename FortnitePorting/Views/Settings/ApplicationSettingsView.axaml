@@ -78,6 +78,12 @@
                                   SpinButtonPlacementMode="Inline"/>
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
+            
+            <ui:SettingsExpander Header="Show Map Debug Information" Description="Displays tools to modify and debug map grids in the map tab.">
+                <ui:SettingsExpander.Footer>
+                    <ToggleSwitch IsChecked="{Binding ShowMapDebugInfo}"/>
+                </ui:SettingsExpander.Footer>
+            </ui:SettingsExpander>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

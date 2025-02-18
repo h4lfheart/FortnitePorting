@@ -217,7 +217,7 @@
                         </TextBlock.IsVisible>
                     </TextBlock>
                     
-                    <Grid Grid.Row="30" RowDefinitions="* * *" IsVisible="{Binding IsDebug}">
+                    <Grid Grid.Row="30" RowDefinitions="* * *" IsVisible="{Binding ShowDebugInfo}">
                         <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="Offset X:" Classes="BodyTextBlockStyle" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="{ext:Space 0, 0, 1, 0}"/>

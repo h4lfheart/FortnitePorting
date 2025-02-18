@@ -186,7 +186,16 @@ public partial class MusicPackItem : ObservableObject
     
     public async Task SaveAudio(DirectoryInfo directory, ESoundFormat soundFormat)
     {
-        var path = Path.Combine(directory.FullName, Id + ".mp3");
+        var extension = soundFormat switch
+        {
+            ESoundFormat.MP3 => ".mp3",
+            ESoundFormat.WAV => ".wav",
+            ESoundFormat.OGG => ".ogg",
+            ESoundFormat.FLAC => ".flac",
+            _ => ".mp3"
+        };
+
+        var path = Path.Combine(directory.FullName, Id + extension);
         await SaveAudio(path, soundFormat);
     }
     

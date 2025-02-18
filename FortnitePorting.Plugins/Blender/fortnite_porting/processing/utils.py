@@ -257,6 +257,7 @@ def time_to_frame(time, fps = 30):
     return int(round(time * fps))
 
 def clear_children_bone_transforms(skeleton, anim, bone_name):
+    bpy.context.view_layer.objects.active = skeleton
     bpy.ops.object.mode_set(mode='POSE')
     bpy.ops.pose.select_all(action='DESELECT')
     pose_bones = skeleton.pose.bones

@@ -52,15 +52,9 @@ public partial class MapViewModel : ViewModelBase
     [ObservableProperty] private ObservableCollection<WorldPartitionMap> _maps = [];
     [ObservableProperty] private WorldPartitionMap _selectedMap;
     [ObservableProperty] private EExportLocation _exportLocation = EExportLocation.Blender;
+    [ObservableProperty] private bool _showDebugInfo = false;
 
     public ItemsControl? GridsControl;
-    
-    public bool IsDebug =>
-#if DEBUG
-        true;
-#else
-        false;
-#endif
 
     public static MapInfo[] MapInfos =
     [
@@ -100,24 +94,31 @@ public partial class MapViewModel : ViewModelBase
             0.0146f, -100, -25, 96, 12800, true, false
         ),
         new(
-            "Figment",
+            "Figment_S01",
             "FortniteGame/Plugins/GameFeatures/Figment/Figment_S01_Map/Content/Athena_Terrain_S01",
             "FortniteGame/Plugins/GameFeatures/Figment/Figment_S01_MapUI/Content/MiniMapAthena_S01_New",
             "FortniteGame/Plugins/GameFeatures/Figment/Figment_S01_MapUI/Content/T_MiniMap_Mask_Figment",
             0.017f, 380, 470, 110, 12800, true
         ),
         new(
+            "Figment_S02",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S02_Map/Content/Athena_Terrain_S02",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S02_MapUI/Content/MiniMapAthena_S02_New",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S02_MapUI/Content/T_MiniMap_Mask_Figment",
+            0.017f, 380, 470, 110, 12800, true
+        ),
+        new(
             "BlastBerry",
             "/BlastBerryMap/Maps/BlastBerry_Terrain",
-            "/BlastBerry/Minimap/Capture_Iteration_Discovered_BlastBerry",
-            "/BlastBerry/MiniMap/T_MiniMap_Mask",
+            "/BlastBerryMapUI/Minimap/Capture_Iteration_Discovered_BlastBerry",
+            "/BlastBerryMapUI/MiniMap/T_MiniMap_Mask",
             0.023f, -20, 215, 150, 12800, false
         ),
         new(
             "PunchBerry",
             "/632de27e-4506-41f8-532f-93ac01dc10ca/Maps/PunchBerry_Terrain",
-            "FortniteGame/Plugins/GameFeatures/BlastBerry/Content/MiniMap/Discovered_PunchBerry",
-            "FortniteGame/Plugins/GameFeatures/BlastBerry/Content/MiniMap/T_PB_MiniMap_Mask",
+            "/BlastBerryMapUI/MiniMap/Discovered_PunchBerry",
+            "/BlastBerryMapUI/MiniMap/T_PB_MiniMap_Mask",
             0.023f, -20, 215, 150, 12800, true
         ),
         new(
@@ -141,6 +142,8 @@ public partial class MapViewModel : ViewModelBase
 
     public override async Task Initialize()
     {
+        ShowDebugInfo = AppSettings.Current.Application.ShowMapDebugInfo;
+        
         // in-game maps
         foreach (var mapInfo in MapInfos)
         {
@@ -184,16 +187,12 @@ public partial class MapViewModel : ViewModelBase
             }
             catch (Exception e)
             {
-                AppWM.Dialog("Map Export", $"Failed to load {map.WorldName} for export, skipping.");
-
-                if (IsDebug)
-                {
-                    Log.Error(e.ToString());
-                }
-                else
-                {
-                    Maps.Remove(map);
-                }
+                AppWM.Dialog("Map Export", $"Failed to load {map.Info.Name} for export, skipping.");
+#if DEBUG
+                Log.Error(e.ToString());
+#else
+                Maps.Remove(map);
+#endif
             }
         }
         
