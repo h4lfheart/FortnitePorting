@@ -291,7 +291,7 @@ public partial class RadioViewModel : ViewModelBase
         var directory = new DirectoryInfo(exportPath);
         foreach (var item in Source.Items)
         {
-            await item.SaveAudio(directory);
+            await item.SaveAudio(directory, SoundFormat);
         }
     }
     

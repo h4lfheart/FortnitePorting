@@ -184,9 +184,9 @@ public partial class MusicPackItem : ObservableObject
         });
     }
     
-    public async Task SaveAudio(DirectoryInfo directory)
+    public async Task SaveAudio(DirectoryInfo directory, ESoundFormat soundFormat)
     {
-        var extension = RadioVM.SoundFormat switch
+        var extension = soundFormat switch
         {
             ESoundFormat.MP3 => ".mp3",
             ESoundFormat.WAV => ".wav",
@@ -196,7 +196,7 @@ public partial class MusicPackItem : ObservableObject
         };
 
         var path = Path.Combine(directory.FullName, Id + extension);
-        await SaveAudio(path, RadioVM.SoundFormat);
+        await SaveAudio(path, soundFormat);
     }
     
     [RelayCommand]
