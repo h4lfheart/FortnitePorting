@@ -31,6 +31,7 @@ public partial class ApplicationSettingsViewModel : ViewModelBase
     [ObservableProperty] private bool _useAssetsPath;
 
     [ObservableProperty] private bool _useTabTransitions = true;
+    [ObservableProperty] private bool _showMapDebugInfo = false;
     
     public string AssetPath => UseAssetsPath && Directory.Exists(AssetsPath) ? AssetsPath : AssetsFolder.FullName;
 
@@ -77,6 +78,12 @@ public partial class ApplicationSettingsViewModel : ViewModelBase
             {
                 RadioVM?.UpdateOutputDevice();
                 SoundPreviewWM?.UpdateOutputDevice();
+                break;
+            }
+            case nameof(ShowMapDebugInfo):
+            {
+                if (MapVM is not null)
+                    MapVM.ShowDebugInfo = ShowMapDebugInfo;
                 break;
             }
         }

@@ -52,15 +52,9 @@ public partial class MapViewModel : ViewModelBase
     [ObservableProperty] private ObservableCollection<WorldPartitionMap> _maps = [];
     [ObservableProperty] private WorldPartitionMap _selectedMap;
     [ObservableProperty] private EExportLocation _exportLocation = EExportLocation.Blender;
+    [ObservableProperty] private bool _showDebugInfo = false;
 
     public ItemsControl? GridsControl;
-    
-    public bool IsDebug =>
-#if DEBUG
-        true;
-#else
-        false;
-#endif
 
     public static MapInfo[] MapInfos =
     [
@@ -148,6 +142,8 @@ public partial class MapViewModel : ViewModelBase
 
     public override async Task Initialize()
     {
+        ShowDebugInfo = AppSettings.Current.Application.ShowMapDebugInfo;
+        
         // in-game maps
         foreach (var mapInfo in MapInfos)
         {
@@ -192,15 +188,11 @@ public partial class MapViewModel : ViewModelBase
             catch (Exception e)
             {
                 AppWM.Dialog("Map Export", $"Failed to load {map.Info.Name} for export, skipping.");
-
-                if (IsDebug)
-                {
-                    Log.Error(e.ToString());
-                }
-                else
-                {
-                    Maps.Remove(map);
-                }
+#if DEBUG
+                Log.Error(e.ToString());
+#else
+                Maps.Remove(map);
+#endif
             }
         }
         
