@@ -346,7 +346,7 @@ public static class OnlineService
                         PrimaryButtonText = "Yes",
                         PrimaryButtonCommand = new RelayCommand(async () =>
                         {
-                            var asset = await CUE4ParseVM.Provider.TryLoadObjectAsync(Exporter.FixPath(export.Path));
+                            var asset = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync(Exporter.FixPath(export.Path));
                             if (asset is null) return;
 
                             var exportType = Exporter.DetermineExportType(asset);

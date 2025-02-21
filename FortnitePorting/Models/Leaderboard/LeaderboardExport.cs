@@ -51,7 +51,7 @@ public partial class LeaderboardExport : ObservableObject
 
         if (!CachedObjects.TryGetValue(ObjectPath, out var asset))
         {
-            asset = await CUE4ParseVM.Provider.TryLoadObjectAsync(ObjectPath);
+            asset = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync(ObjectPath);
         }
         
         if (asset is null) 

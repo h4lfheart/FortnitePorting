@@ -120,7 +120,7 @@ public partial class RadioViewModel : ViewModelBase
         {
             try
             {
-                var musicPack = await CUE4ParseVM.Provider.LoadObjectAsync(asset.ObjectPath);
+                var musicPack = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync(asset.ObjectPath);
                 Source.Add(new MusicPackItem(musicPack));
             }
             catch (Exception e)

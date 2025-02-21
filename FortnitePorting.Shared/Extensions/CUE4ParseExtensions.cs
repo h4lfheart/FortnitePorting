@@ -105,10 +105,10 @@ public static class CUE4ParseExtensions
     
     public static bool TryLoadObjectExports(this AbstractFileProvider provider, string path, out IEnumerable<UObject> exports)
     {
-        exports = Enumerable.Empty<UObject>();
+        exports = [];
         try
         {
-            exports = provider.LoadAllObjects(path);
+            exports = provider.LoadPackage(path).GetExports();
         }
         catch (KeyNotFoundException)
         {
@@ -120,6 +120,17 @@ public static class CUE4ParseExtensions
         }
 
         return true;
+    }
+    
+    public static IEnumerable<UObject> LoadAllObjects(this AbstractFileProvider provider, string path)
+    {
+        return provider.LoadPackage(path).GetExports();
+    }
+    
+    public static async Task<IEnumerable<UObject>> LoadAllObjectsAsync(this AbstractFileProvider provider, string path)
+    {
+        var package = await provider.LoadPackageAsync(path);
+        return package.GetExports();
     }
     
     public static async Task<T?> LoadOrDefaultAsync<T>(this FPackageIndex packageIndex, T def = default) where T : UObject

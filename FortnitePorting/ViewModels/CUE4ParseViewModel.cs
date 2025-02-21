@@ -133,11 +133,15 @@ public class CUE4ParseViewModel : ViewModelBase
         await InitializeTextureStreaming();
         
         await LoadKeys();
-        Provider.LoadLocalization(AppSettings.Current.Installation.CurrentProfile.GameLanguage);
         Provider.LoadVirtualPaths();
-        await LoadMappings();
-        
         Provider.PostMount();
+        
+        if (!Provider.TryChangeCulture(Provider.GetLanguageCode(AppSettings.Current.Installation.CurrentProfile.GameLanguage)))
+        {
+            AppWM.Message("Internationalization", $"Failed to load language \"{AppSettings.Current.Installation.CurrentProfile.GameLanguage.GetDescription()}\"");
+        }
+        
+        await LoadMappings();
         
         await LoadAssetRegistries();
 
@@ -437,7 +441,7 @@ public class CUE4ParseViewModel : ViewModelBase
             if (path.Contains("Plugin", StringComparison.OrdinalIgnoreCase) || path.Contains("Editor", StringComparison.OrdinalIgnoreCase)) continue;
 
             HomeVM.UpdateStatus($"Loading {file.Name}");
-            var assetArchive = await file.TryCreateReaderAsync();
+            var assetArchive = await file.SafeCreateReaderAsync();
             if (assetArchive is null) continue;
 
             try
@@ -456,13 +460,13 @@ public class CUE4ParseViewModel : ViewModelBase
     
     private async Task LoadApplicationAssets()
     {
-        if (await Provider.TryLoadObjectAsync("FortniteGame/Content/Balance/RarityData") is { } rarityData)
+        if (await Provider.SafeLoadPackageObjectAsync("FortniteGame/Content/Balance/RarityData") is { } rarityData)
         {
             for (var i = 0; i < rarityData.Properties.Count; i++)
                 RarityColors.Add(rarityData.GetByIndex<FRarityCollection>(i));
         }
 
-        if (await Provider.TryLoadObjectAsync("/BeanstalkCosmetics/Cosmetics/DataTables/DT_BeanstalkCosmetics_Colors") is UDataTable beanstalkColorTable)
+        if (await Provider.SafeLoadPackageObjectAsync("/BeanstalkCosmetics/Cosmetics/DataTables/DT_BeanstalkCosmetics_Colors") is UDataTable beanstalkColorTable)
         {
             foreach (var (name, fallback) in beanstalkColorTable.RowMap)
             {
@@ -471,7 +475,7 @@ public class CUE4ParseViewModel : ViewModelBase
             }
         }
         
-        if (await Provider.TryLoadObjectAsync("/BeanstalkCosmetics/Cosmetics/DataTables/DT_BeanstalkCosmetics_MaterialTypes") is UDataTable beanstalkMaterialTypesTable)
+        if (await Provider.SafeLoadPackageObjectAsync("/BeanstalkCosmetics/Cosmetics/DataTables/DT_BeanstalkCosmetics_MaterialTypes") is UDataTable beanstalkMaterialTypesTable)
         {
             foreach (var (name, fallback) in beanstalkMaterialTypesTable.RowMap)
             {
@@ -506,7 +510,7 @@ public class CUE4ParseViewModel : ViewModelBase
             }
         }
         
-        if (await Provider.TryLoadObjectAsync("/BeanstalkCosmetics/Cosmetics/DataTables/DT_PatternAtlasTextureSlots") is UDataTable beanstalkAtlasSlotsTable)
+        if (await Provider.SafeLoadPackageObjectAsync("/BeanstalkCosmetics/Cosmetics/DataTables/DT_PatternAtlasTextureSlots") is UDataTable beanstalkAtlasSlotsTable)
         {
             foreach (var (name, fallback) in beanstalkAtlasSlotsTable.RowMap)
             {
@@ -525,12 +529,12 @@ public class CUE4ParseViewModel : ViewModelBase
         
         foreach (var path in MaleLobbyMontagePaths)
         {
-            MaleLobbyMontages.AddIfNotNull(await Provider.TryLoadObjectAsync<UAnimMontage>(path));
+            MaleLobbyMontages.AddIfNotNull(await Provider.SafeLoadPackageObjectAsync<UAnimMontage>(path));
         }
         
         foreach (var path in FemaleLobbyMontagePaths)
         {
-            FemaleLobbyMontages.AddIfNotNull(await Provider.TryLoadObjectAsync<UAnimMontage>(path));
+            FemaleLobbyMontages.AddIfNotNull(await Provider.SafeLoadPackageObjectAsync<UAnimMontage>(path));
         }
     }
 }

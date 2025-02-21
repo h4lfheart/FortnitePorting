@@ -161,7 +161,7 @@ public partial class MapViewModel : ViewModelBase
                 var gameFeatureDataFile = ioStoreReader.Files.FirstOrDefault(file => file.Key.EndsWith("GameFeatureData.uasset", StringComparison.OrdinalIgnoreCase));
                 if (gameFeatureDataFile.Value is null) continue;
 
-                var gameFeatureData = await CUE4ParseVM.Provider.TryLoadObjectAsync<UFortGameFeatureData>(gameFeatureDataFile.Value.PathWithoutExtension);
+                var gameFeatureData = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync<UFortGameFeatureData>(gameFeatureDataFile.Value.PathWithoutExtension);
 
                 if (gameFeatureData?.ExperienceData?.DefaultMap is not { } defaultMapPath) continue;
 
@@ -261,16 +261,16 @@ public partial class WorldPartitionMap : ObservableObject
         
         if (!Info.IsNonDisplay)
         {
-            var maskTexture = await CUE4ParseVM.Provider.LoadObjectAsync<UTexture2D>(Info.UseMask ? Info.MaskPath : "FortniteGame/Content/Global/Textures/Default/Blanks/T_White");
+            var maskTexture = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync<UTexture2D>(Info.UseMask ? Info.MaskPath : "FortniteGame/Content/Global/Textures/Default/Blanks/T_White");
             MaskBitmap = maskTexture.Decode()!.ToWriteableBitmap();
         
-            var mapTexture = await CUE4ParseVM.Provider.LoadObjectAsync<UTexture2D>(Info.MinimapPath);
+            var mapTexture = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync<UTexture2D>(Info.MinimapPath);
             MapBitmap = mapTexture.Decode()!.ToWriteableBitmap();
         }
         
         WorldName = Info.MapPath.SubstringAfterLast("/");
         
-        _world = await CUE4ParseVM.Provider.LoadObjectAsync<UWorld>(Info.MapPath);
+        _world = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync<UWorld>(Info.MapPath);
         _level = await _world.PersistentLevel.LoadAsync<ULevel>();
 
         if (_level.GetOrDefault<UObject>("WorldSettings") is { } worldSettings
@@ -434,7 +434,7 @@ public partial class WorldPartitionMap : ObservableObject
         var levels = new List<UObject>();
         foreach (var map in SelectedMaps)
         {
-            var world = await CUE4ParseVM.Provider.LoadObjectAsync<UWorld>(map.Path);
+            var world = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync<UWorld>(map.Path);
             var level = await world.PersistentLevel.LoadAsync<ULevel>();
             levels.Add(level);
         }
@@ -449,7 +449,7 @@ public partial class WorldPartitionMap : ObservableObject
         var worlds = new List<UObject>();
         foreach (var map in SelectedMaps)
         {
-            var world = await CUE4ParseVM.Provider.LoadObjectAsync<UWorld>(map.Path);
+            var world = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync<UWorld>(map.Path);
             worlds.Add(world);
         }
 

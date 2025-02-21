@@ -90,7 +90,7 @@ public partial class FilesViewModel : ViewModelBase
                 var gameFeatureDataFile = ioStoreReader.Files.FirstOrDefault(file => file.Key.EndsWith("GameFeatureData.uasset", StringComparison.OrdinalIgnoreCase));
                 if (gameFeatureDataFile.Value is null) continue;
 
-                var gameFeatureData = await CUE4ParseVM.Provider.TryLoadObjectAsync<UFortGameFeatureData>(gameFeatureDataFile.Value.PathWithoutExtension);
+                var gameFeatureData = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync<UFortGameFeatureData>(gameFeatureDataFile.Value.PathWithoutExtension);
 
                 if (gameFeatureData?.ExperienceData?.DefaultMap is not { } defaultMapPath) continue;
 
@@ -243,8 +243,8 @@ public partial class FilesViewModel : ViewModelBase
         }
         else
         {
-            asset = await CUE4ParseVM.Provider.TryLoadObjectAsync(basePath);
-            asset ??= await CUE4ParseVM.Provider.TryLoadObjectAsync($"{basePath}.{basePath.SubstringAfterLast("/")}_C");
+            asset = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync(basePath);
+            asset ??= await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync($"{basePath}.{basePath.SubstringAfterLast("/")}_C");
         }
             
         if (asset is null) return;
@@ -316,7 +316,7 @@ public partial class FilesViewModel : ViewModelBase
             UObject? asset = null;
             if (item.Path.EndsWith(".umap"))
             {
-                asset = await CUE4ParseVM.Provider.TryLoadObjectAsync(basePath);
+                asset = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync(basePath);
                 if (asset is not UWorld)
                 {
                     var package = await CUE4ParseVM.Provider.LoadPackageAsync(basePath);
@@ -325,8 +325,8 @@ public partial class FilesViewModel : ViewModelBase
             }
             else
             {
-                asset = await CUE4ParseVM.Provider.TryLoadObjectAsync(basePath);
-                asset ??= await CUE4ParseVM.Provider.TryLoadObjectAsync($"{basePath}.{basePath.SubstringAfterLast("/")}_C");
+                asset = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync(basePath);
+                asset ??= await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync($"{basePath}.{basePath.SubstringAfterLast("/")}_C");
             }
             
             if (asset is null) continue;
