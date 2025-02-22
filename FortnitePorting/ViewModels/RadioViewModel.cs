@@ -128,7 +128,7 @@ public partial class RadioViewModel : ViewModelBase
         Total = musicPacks.Count;
         foreach (var musicPack in musicPacks)
         {
-            var asset = await CUE4ParseVM.Provider.LoadObjectAsync(musicPack.ObjectPath);
+            var asset = await CUE4ParseVM.Provider.LoadPackageObjectAsync(musicPack.ObjectPath);
             await TaskService.RunDispatcherAsync(() =>
             {
                 var loadedSong = new RadioSongPicker(asset);

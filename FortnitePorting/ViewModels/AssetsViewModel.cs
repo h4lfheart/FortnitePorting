@@ -429,7 +429,7 @@ public partial class AssetsViewModel : ViewModelBase
                 CustomLoadingHandler = async loader =>
                 {
                     var weaponModTable =
-                        await CUE4ParseVM.Provider.LoadObjectAsync<UDataTable>(
+                        await CUE4ParseVM.Provider.LoadPackageObjectAsync<UDataTable>(
                             "WeaponMods/DataTables/WeaponModOverrideData");
                     var assets = CUE4ParseVM.AssetRegistry.Where(data => loader.Classes.Contains(data.AssetClass.Text))
                         .ToList();
@@ -440,7 +440,7 @@ public partial class AssetsViewModel : ViewModelBase
                         await loader.Pause.WaitIfPaused();
                         try
                         {
-                            var asset = await CUE4ParseVM.Provider.TryLoadObjectAsync(data.ObjectPath);
+                            var asset = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync(data.ObjectPath);
                             if (asset is null) continue;
 
                             var icon = AssetLoader.GetAssetIcon(asset) ??
@@ -718,7 +718,7 @@ public partial class AssetLoader : ObservableObject
 
     private async Task LoadAsset(FAssetData data)
     {
-        var asset = await CUE4ParseVM.Provider.TryLoadObjectAsync(data.ObjectPath);
+        var asset = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync(data.ObjectPath);
         if (asset is null) return;
 
         var displayName = data.AssetName.Text;
@@ -783,8 +783,8 @@ file class ManualAssetItemEntry
         return new ManualAssetItemEntry
         {
             Name = name,
-            Mesh = await CUE4ParseVM.Provider.LoadObjectAsync(meshPath),
-            PreviewImage = await CUE4ParseVM.Provider.LoadObjectAsync<UTexture2D>(imagePath)
+            Mesh = await CUE4ParseVM.Provider.LoadPackageObjectAsync(meshPath),
+            PreviewImage = await CUE4ParseVM.Provider.LoadPackageObjectAsync<UTexture2D>(imagePath)
         };
     }
 }

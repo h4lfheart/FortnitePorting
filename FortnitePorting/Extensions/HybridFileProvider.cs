@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -14,10 +15,9 @@ public class HybridFileProvider : AbstractVfsFileProvider
     private readonly bool IsOptionalLoader;
     private readonly DirectoryInfo WorkingDirectory;
     private readonly IEnumerable<DirectoryInfo> ExtraDirectories;
-    private const bool CaseInsensitive = true;
     private const SearchOption SearchOption = System.IO.SearchOption.AllDirectories;
 
-    public HybridFileProvider(VersionContainer? version = null)  : base(CaseInsensitive, version)
+    public HybridFileProvider(VersionContainer? version = null)  : base(version, StringComparer.OrdinalIgnoreCase)
     {
         SkipReferencedTextures = true;
     }

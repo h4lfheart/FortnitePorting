@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using CUE4Parse.FileProvider;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Material.Parameters;
@@ -104,7 +105,7 @@ public static class CUE4ParseExtensions
     public static bool TryLoadEditorData<T>(this UObject asset, out T? editorData) where T : UObject
     {
         var path = asset.GetPathName().SubstringBeforeLast(".") + ".o.uasset";
-        if (CUE4ParseVM.OptionalProvider.TryLoadObjectExports(path, out var exports))
+        if (CUE4ParseVM.OptionalProvider.TryLoadPackageObjectExports(path, out var exports))
         {
             editorData = exports.FirstOrDefault() as T;
             return editorData is not null;
@@ -114,7 +115,7 @@ public static class CUE4ParseExtensions
         return false;
     }
     
-    public static bool TryLoadObjectExports(this AbstractFileProvider provider, string path, out IEnumerable<UObject> exports)
+    public static bool TryLoadPackageObjectExports(this AbstractFileProvider provider, string path, out IEnumerable<UObject> exports)
     {
         exports = Enumerable.Empty<UObject>();
         try
@@ -131,6 +132,17 @@ public static class CUE4ParseExtensions
         }
 
         return true;
+    }
+    
+    public static IEnumerable<UObject> LoadAllObjects(this AbstractFileProvider provider, string path)
+    {
+        return provider.LoadPackage(path).GetExports();
+    }
+    
+    public static async Task<IEnumerable<UObject>> LoadAllObjectsAsync(this AbstractFileProvider provider, string path)
+    {
+        var package = await provider.LoadPackageAsync(path);
+        return package.GetExports();
     }
     
     public static T? GetDataListItem<T>(this IPropertyHolder propertyHolder, params string[] names)

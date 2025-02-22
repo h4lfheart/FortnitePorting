@@ -346,7 +346,7 @@ public class CUE4ParseViewModel : ViewModelBase
         {
             if (path.Contains("Plugin", StringComparison.OrdinalIgnoreCase) || path.Contains("Editor", StringComparison.OrdinalIgnoreCase)) continue;
             HomeVM.Update($"Loading {file.Name}");
-            var assetArchive = await file.TryCreateReaderAsync();
+            var assetArchive = await file.SafeCreateReaderAsync();
             if (assetArchive is null) continue;
 
             try
@@ -364,21 +364,21 @@ public class CUE4ParseViewModel : ViewModelBase
 
     private async Task LoadRequiredAssets()
     {
-        if (await Provider.TryLoadObjectAsync("FortniteGame/Content/Balance/RarityData") is { } rarityData)
+        if (await Provider.SafeLoadPackageObjectAsync("FortniteGame/Content/Balance/RarityData") is { } rarityData)
             for (var i = 0; i < 8; i++)
                 RarityColors[i] = rarityData.GetByIndex<RarityCollection>(i);
 
         foreach (var path in MaleLobbyMontagePaths)
         {
-            MaleLobbyMontages.AddIfNotNull(await Provider.TryLoadObjectAsync<UAnimMontage>(path));
+            MaleLobbyMontages.AddIfNotNull(await Provider.SafeLoadPackageObjectAsync<UAnimMontage>(path));
         }
         
         foreach (var path in FemaleLobbyMontagePaths)
         {
-            FemaleLobbyMontages.AddIfNotNull(await Provider.TryLoadObjectAsync<UAnimMontage>(path));
+            FemaleLobbyMontages.AddIfNotNull(await Provider.SafeLoadPackageObjectAsync<UAnimMontage>(path));
         }
         
-        if (await Provider.TryLoadObjectAsync("/BeanstalkCosmetics/Cosmetics/DataTables/DT_BeanstalkCosmetics_Colors") is UDataTable beanstalkColorTable)
+        if (await Provider.SafeLoadPackageObjectAsync("/BeanstalkCosmetics/Cosmetics/DataTables/DT_BeanstalkCosmetics_Colors") is UDataTable beanstalkColorTable)
         {
             foreach (var (name, fallback) in beanstalkColorTable.RowMap)
             {
@@ -387,7 +387,7 @@ public class CUE4ParseViewModel : ViewModelBase
             }
         }
 
-        if (await Provider.TryLoadObjectAsync("/BeanstalkCosmetics/Cosmetics/DataTables/DT_BeanstalkCosmetics_MaterialTypes") is UDataTable beanstalkMaterialTypesTable)
+        if (await Provider.SafeLoadPackageObjectAsync("/BeanstalkCosmetics/Cosmetics/DataTables/DT_BeanstalkCosmetics_MaterialTypes") is UDataTable beanstalkMaterialTypesTable)
         {
             foreach (var (name, fallback) in beanstalkMaterialTypesTable.RowMap)
             {
@@ -422,7 +422,7 @@ public class CUE4ParseViewModel : ViewModelBase
             }
         }
 
-        if (await Provider.TryLoadObjectAsync("/BeanstalkCosmetics/Cosmetics/DataTables/DT_PatternAtlasTextureSlots") is UDataTable beanstalkAtlasSlotsTable)
+        if (await Provider.SafeLoadPackageObjectAsync("/BeanstalkCosmetics/Cosmetics/DataTables/DT_PatternAtlasTextureSlots") is UDataTable beanstalkAtlasSlotsTable)
         {
             foreach (var (name, fallback) in beanstalkAtlasSlotsTable.RowMap)
             {

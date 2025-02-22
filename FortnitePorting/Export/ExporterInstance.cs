@@ -160,7 +160,7 @@ public class ExporterInstance
                             ParsePoseAsset(poseAssetNode.Get<UPoseAsset>("PoseAsset"), meta);
                         }
                         else if (skeletalMesh.ReferenceSkeleton.FinalRefBoneInfo.Any(bone => bone.Name.Text.Equals("FACIAL_C_FacialRoot", StringComparison.OrdinalIgnoreCase))
-                                 && CUE4ParseVM.Provider.TryLoadObject("/BRCosmetics/Characters/Player/Male/Medium/Heads/M_MED_Jonesy3L_Head/Meshes/3L/3L_lod2_Facial_Poses_PoseAsset", out UPoseAsset poseAsset))
+                                 && CUE4ParseVM.Provider.TryLoadPackageObject("/BRCosmetics/Characters/Player/Male/Medium/Heads/M_MED_Jonesy3L_Head/Meshes/3L/3L_lod2_Facial_Poses_PoseAsset", out UPoseAsset poseAsset))
                         {
                             ParsePoseAsset(poseAsset, meta);
                         }
@@ -306,7 +306,7 @@ public class ExporterInstance
                 {
                     var textureDataPath = textureDataRawPaths[i];
                     if (textureDataPath is null || string.IsNullOrEmpty(textureDataPath)) continue;
-                    if (!CUE4ParseVM.Provider.TryLoadObject(textureDataPath, out UBuildingTextureData textureData)) continue;
+                    if (!CUE4ParseVM.Provider.TryLoadPackageObject(textureDataPath, out UBuildingTextureData textureData)) continue;
                     textureDatas.Add(i, textureData);
                 }
             }
@@ -782,16 +782,23 @@ public class ExporterInstance
             case UTexture texture:
             {
                 using var fileStream = File.OpenWrite(exportPath);
-                var textureBitmap = texture.Decode();
-                switch (AppExportOptions.ImageType)
+                try
                 {
-                    case EImageType.PNG:
+                    var textureBitmap = texture.Decode();
+                    switch (AppExportOptions.ImageType)
                     {
-                        textureBitmap?.Encode(SKEncodedImageFormat.Png, 100).SaveTo(fileStream); 
-                        break;
+                        case EImageType.PNG:
+                        {
+                            textureBitmap?.Encode(SKEncodedImageFormat.Png, 100).SaveTo(fileStream); 
+                            break;
+                        }
+                        case EImageType.TGA:
+                            throw new NotImplementedException("TARGA (.tga) export not currently supported.");
                     }
-                    case EImageType.TGA:
-                        throw new NotImplementedException("TARGA (.tga) export not currently supported.");
+                }
+                catch (Exception e)
+                {
+                    Log.Error("Failed to export {TextureName}", texture.Name);
                 }
 
                 break;

@@ -185,7 +185,7 @@ public partial class FilesViewModel : ViewModelBase
         var exports = new List<KeyValuePair<UObject, EAssetType>>();
         foreach (var item in SelectedExportItems)
         {
-            var asset = await CUE4ParseVM.Provider.LoadObjectAsync(FixPath(item.Path));
+            var asset = await CUE4ParseVM.Provider.LoadPackageObjectAsync(FixPath(item.Path));
             if (asset is UVirtualTextureBuilder vtBuilder) asset = vtBuilder.Texture.Load<UVirtualTexture2D>();
             
             var assetType = asset switch
@@ -236,7 +236,7 @@ public partial class FilesViewModel : ViewModelBase
                     var percentage = index / total * 100;
                     if (Math.Abs(ScanPercentage - percentage) > 0.01f) ScanPercentage = percentage;
 
-                    var obj = await CUE4ParseVM.Provider.TryLoadObjectAsync(file.PathWithoutExtension);
+                    var obj = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync(file.PathWithoutExtension);
                     if (obj is null || !ValidExportTypes.Any(type => obj.GetType().IsAssignableTo(type))) AppSettings.Current.HiddenFilePaths.Add(fixPath);
                 }
                 catch (Exception e)
@@ -253,7 +253,7 @@ public partial class FilesViewModel : ViewModelBase
     public async Task Preview()
     {
         var item = SelectedExportItems.FirstOrDefault();
-        var asset = await CUE4ParseVM.Provider.LoadObjectAsync(FixPath(item.Path));
+        var asset = await CUE4ParseVM.Provider.LoadPackageObjectAsync(FixPath(item.Path));
         if (asset is UVirtualTextureBuilder vtBuilder) asset = vtBuilder.Texture.Load<UVirtualTexture2D>();;
 
         switch (asset)
