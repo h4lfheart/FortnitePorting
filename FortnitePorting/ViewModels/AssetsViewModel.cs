@@ -41,7 +41,9 @@ public partial class AssetsViewModel : ViewModelBase
     [RelayCommand]
     public async Task Export()
     {
+        AssetLoaderCollection.ActiveLoader.Pause();
         await Exporter.Export(AssetLoaderCollection.ActiveLoader.SelectedAssetInfos, AppSettings.Current.CreateExportMeta(ExportLocation));
+        AssetLoaderCollection.ActiveLoader.Unpause();
 
         if (AppSettings.Current.Online.UseIntegration)
         {

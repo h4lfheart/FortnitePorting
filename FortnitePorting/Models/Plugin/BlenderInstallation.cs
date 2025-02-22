@@ -105,21 +105,12 @@ public partial class BlenderInstallation(string blenderExecutablePath) : Observa
             FileName = BlenderPath,
             Arguments = $"--command extension {command} {args}",
             WorkingDirectory = workingDirectory,
-            RedirectStandardOutput = true,
-            UseShellExecute = false,
-            CreateNoWindow = true
+            UseShellExecute = true,
         };
 
         Log.Information($"Executing {BlenderPath} {command} {args}");
         buildProcess.Start();
         buildProcess.WaitForExit();
-        
-        var output = buildProcess.StandardOutput.ReadToEnd();
-        var lockMatch = Regex.Match(output, "Error: Lock exists: lock is held by other session: (.*)");
-        if (lockMatch.Groups.Count > 1)
-        {
-            AppWM.Message("Blender Extension", $"A lock has been put on the fortnite_porting extension repository. Please delete \"{lockMatch.Groups[1].Value.Trim()}\" and try again.");
-        }
     }
     
 }
