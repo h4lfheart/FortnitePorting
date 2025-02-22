@@ -95,16 +95,16 @@ class ImportContext:
             master_mesh = get_armature_mesh(master_skeleton)
             
             for material, elements in self.partial_vertex_crunch_materials.items():
-                vertex_crunch_modifier = master_mesh.modifiers.new("FP Vertex Crunch", type="NODES")
-                vertex_crunch_modifier.node_group = bpy.data.node_groups.get("FP Vertex Crunch")
+                vertex_crunch_modifier = master_mesh.modifiers.new("FPv3 Vertex Crunch", type="NODES")
+                vertex_crunch_modifier.node_group = bpy.data.node_groups.get("FPv3 Vertex Crunch")
 
                 set_geo_nodes_param(vertex_crunch_modifier, "Material", material)
                 for name, value in elements.items():
                     set_geo_nodes_param(vertex_crunch_modifier, name, value == 1)
                     
             for material in self.full_vertex_crunch_materials:
-                vertex_crunch_modifier = master_mesh.modifiers.new("FP Full Vertex Crunch", type="NODES")
-                vertex_crunch_modifier.node_group = bpy.data.node_groups.get("FP Full Vertex Crunch")
+                vertex_crunch_modifier = master_mesh.modifiers.new("FPv3 Full Vertex Crunch", type="NODES")
+                vertex_crunch_modifier.node_group = bpy.data.node_groups.get("FPv3 Full Vertex Crunch")
                 set_geo_nodes_param(vertex_crunch_modifier, "Material", material)
 
             if self.add_toon_outline:
@@ -498,7 +498,7 @@ class ImportContext:
         output_node.location = (200, 0)
 
         shader_node = nodes.new(type="ShaderNodeGroup")
-        shader_node.node_tree = bpy.data.node_groups.get("FP Material Lite" if self.type in lite_shader_types else "FP Material")
+        shader_node.node_tree = bpy.data.node_groups.get("FPv3 Material Lite" if self.type in lite_shader_types else "FPv3 Material")
 
         def replace_shader_node(name):
             nonlocal shader_node
@@ -663,7 +663,7 @@ class ImportContext:
                     if add_unused_params:
                         nonlocal unused_parameter_height
                         node = nodes.new("ShaderNodeGroup")
-                        node.node_tree = bpy.data.node_groups.get("FP Switch")
+                        node.node_tree = bpy.data.node_groups.get("FPv3 Switch")
                         node.inputs[0].default_value = 1 if value else 0
                         node.label = name
                         node.width = 250
@@ -704,22 +704,22 @@ class ImportContext:
         base_material_path = material_data.get("BaseMaterialPath")
 
         if get_param_multiple(switches, layer_switch_names) and get_param_multiple(textures, extra_layer_names):
-            replace_shader_node("FP Layer")
+            replace_shader_node("FPv3 Layer")
             socket_mappings = layer_mappings
 
             set_param("Is Transparent", override_blend_mode is not EBlendMode.BLEND_Opaque)
 
         if get_param_multiple(textures, toon_texture_names) or get_param_multiple(vectors, toon_vector_names):
-            replace_shader_node("FP Toon")
+            replace_shader_node("FPv3 Toon")
             socket_mappings = toon_mappings
 
         if "M_FN_Valet_Master" in base_material_path:
-            replace_shader_node("FP Valet")
+            replace_shader_node("FPv3 Valet")
             socket_mappings = valet_mappings
 
         is_glass = material_data.get("PhysMaterialName") == "Glass" or any(glass_master_names, lambda x: x in base_material_path) or (base_blend_mode is EBlendMode.BLEND_Translucent and translucency_lighting_mode in [ETranslucencyLightingMode.TLM_SurfacePerPixelLighting, ETranslucencyLightingMode.TLM_VolumetricPerVertexDirectional])
         if is_glass:
-            replace_shader_node("FP Glass")
+            replace_shader_node("FPv3 Glass")
             socket_mappings = glass_mappings
 
             material.surface_render_method = "BLENDED"
@@ -731,23 +731,23 @@ class ImportContext:
 
         is_foliage = base_blend_mode is EBlendMode.BLEND_Masked and shading_model in [EMaterialShadingModel.MSM_TwoSidedFoliage, EMaterialShadingModel.MSM_Subsurface]
         if is_foliage and not is_trunk:
-            replace_shader_node("FP Foliage")
+            replace_shader_node("FPv3 Foliage")
             socket_mappings = foliage_mappings
 
         if "MM_BeanCharacter_Body" in base_material_path:
-            replace_shader_node("FP Bean Base")
+            replace_shader_node("FPv3 Bean Base")
             socket_mappings = bean_base_mappings
             
         if "MM_BeanCharacter_Costume" in base_material_path:
-            replace_shader_node("FP Bean Costume")
+            replace_shader_node("FPv3 Bean Costume")
             socket_mappings = bean_head_costume_mappings if meta.get("IsHead") else bean_costume_mappings
 
         if "M_Eyes_Parent" in base_material_path or get_param(scalars, "Eye Cornea IOR") is not None:
-            replace_shader_node("FP 3L Eyes")
+            replace_shader_node("FPv3 3L Eyes")
             socket_mappings = eye_mappings
 
         if "M_HairParent_2023" in base_material_path or get_param(textures, "Hair Mask") is not None:
-            replace_shader_node("FP Hair")
+            replace_shader_node("FPv3 Hair")
             socket_mappings = hair_mappings
 
         setup_params(socket_mappings, shader_node, True)
@@ -761,10 +761,10 @@ class ImportContext:
             return
 
         match shader_node.node_tree.name:
-            case "FP Material":
+            case "FPv3 Material":
                 # PRE FX START
                 pre_fx_node = nodes.new(type="ShaderNodeGroup")
-                pre_fx_node.node_tree = bpy.data.node_groups.get("FP Pre FX")
+                pre_fx_node.node_tree = bpy.data.node_groups.get("FPv3 Pre FX")
                 pre_fx_node.location = -600, -700
                 setup_params(socket_mappings, pre_fx_node, False)
 
@@ -858,7 +858,7 @@ class ImportContext:
                     emission_node.extension = "CLIP"
     
                     crop_texture_node = nodes.new("ShaderNodeGroup")
-                    crop_texture_node.node_tree = bpy.data.node_groups.get("FP Texture Cropping")
+                    crop_texture_node.node_tree = bpy.data.node_groups.get("FPv3 Texture Cropping")
                     crop_texture_node.location = emission_node.location + Vector((-200, 25))
                     crop_texture_node.inputs["Left"].default_value = crop_bounds.get('R')
                     crop_texture_node.inputs["Top"].default_value = crop_bounds.get('G')
@@ -881,7 +881,7 @@ class ImportContext:
 
                 if get_param(switches, "useGmapGradientLayers"):
                     gradient_node = nodes.new(type="ShaderNodeGroup")
-                    gradient_node.node_tree = bpy.data.node_groups.get("FP Gradient")
+                    gradient_node.node_tree = bpy.data.node_groups.get("FPv3 Gradient")
                     gradient_node.location = -500, 0
                     nodes.remove(shader_node.inputs["Diffuse"].links[0].from_node)
                     links.new(gradient_node.outputs[0], shader_node.inputs[0])
@@ -942,7 +942,7 @@ class ImportContext:
 
                 if "Elastic_Master" in base_material_path and "_Head_" not in base_material_path:
                     superhero_node = nodes.new(type="ShaderNodeGroup")
-                    superhero_node.node_tree = bpy.data.node_groups.get("FP Superhero")
+                    superhero_node.node_tree = bpy.data.node_groups.get("FPv3 Superhero")
                     superhero_node.location = -600, 0
                     setup_params(superhero_mappings, superhero_node, False)
                     
@@ -973,7 +973,7 @@ class ImportContext:
                             back_sticker_node.location = [-885, -640]
                         
                             pre_superhero_node = nodes.new(type="ShaderNodeGroup")
-                            pre_superhero_node.node_tree = bpy.data.node_groups.get("FP Pre Superhero")
+                            pre_superhero_node.node_tree = bpy.data.node_groups.get("FPv3 Pre Superhero")
                             pre_superhero_node.location = -1150, -560
                             pre_superhero_node.inputs["StickerPosition"].default_value = get_vector_param(vectors, "StickerPosition")
                             pre_superhero_node.inputs["StickerScale"].default_value = get_vector_param(vectors, "StickerScale")
@@ -997,7 +997,7 @@ class ImportContext:
                     links.new(superhero_node.outputs["ClothFuzzChannel"], shader_node.inputs["Cloth Channel"])
                     
 
-            case "FP Glass":
+            case "FPv3 Glass":
                 mask_slot = shader_node.inputs["Mask"]
                 if len(mask_slot.links) > 0 and get_param(switches, "Use Diffuse Texture for Color [ignores alpha channel]"):
                     links.remove(mask_slot.links[0])
@@ -1005,7 +1005,7 @@ class ImportContext:
                 if color_node := get_node(shader_node, "Color"):
                     nodes.active = color_node
             
-            case "FP Bean Costume":
+            case "FPv3 Bean Costume":
                 set_param("Ambient Occlusion", self.options.get("AmbientOcclusion"))
                 mask_slot = shader_node.inputs["MaterialMasking"]
                 position = get_param(vectors, "Head_Costume_UVPatternPosition" if meta.get("IsHead") else "Costume_UVPatternPosition")
@@ -1014,18 +1014,18 @@ class ImportContext:
                     mask_node.extension = "CLIP"
 
                     mask_position_node = nodes.new("ShaderNodeGroup")
-                    mask_position_node.node_tree = bpy.data.node_groups.get("FP Bean Mask Position")
+                    mask_position_node.node_tree = bpy.data.node_groups.get("FPv3 Bean Mask Position")
                     mask_position_node.location = mask_node.location + Vector((-200, 25))
                     mask_position_node.inputs["Costume_UVPatternPosition"].default_value = position.get('R'), position.get('G'), position.get('B')
                     links.new(mask_position_node.outputs[0], mask_node.inputs[0])
                 
-            case "FP Toon":
+            case "FPv3 Toon":
                 set_param("Brightness", self.options.get("ToonShadingBrightness"))
                 self.add_toon_outline = True
             
-            case "FP 3L Eyes":
+            case "FPv3 3L Eyes":
                 pre_eye_node = nodes.new(type="ShaderNodeGroup")
-                pre_eye_node.node_tree = bpy.data.node_groups.get("FP Pre 3L Eyes")
+                pre_eye_node.node_tree = bpy.data.node_groups.get("FPv3 Pre 3L Eyes")
                 pre_eye_node.location = -600, 0
                 setup_params(socket_mappings, pre_eye_node, False)
                 
@@ -1036,7 +1036,7 @@ class ImportContext:
                 if diffuse_node := get_node(shader_node, "Diffuse"):
                     nodes.active = diffuse_node
             
-            case "FP Layer":
+            case "FPv3 Layer":
                 if diffuse_node := get_node(shader_node, "Diffuse"):
                     nodes.active = diffuse_node
 
