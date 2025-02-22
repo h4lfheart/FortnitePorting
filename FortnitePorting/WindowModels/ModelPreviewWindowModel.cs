@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.Assets.Exports;
 using FortnitePorting.Rendering;
@@ -14,7 +15,7 @@ public partial class ModelPreviewWindowModel : WindowModelBase
     [ObservableProperty] private string _meshName;
     [ObservableProperty] private ModelPreviewControl _viewerControl;
     [ObservableProperty] private Queue<UObject> _queuedObjects = [];
-    [ObservableProperty] private bool _isLoading = true;
+    [ObservableProperty] private bool _isLoading = false;
 
     public override async Task Initialize()
     {
@@ -28,7 +29,7 @@ public partial class ModelPreviewWindowModel : WindowModelBase
 
     public void LoadQueue(Queue<UObject> queue)
     {
-        ViewerControl.Context.Renderer.Clear();
+        ViewerControl.Context.Renderer?.Clear();
         ViewerControl.Context.ModelQueue = queue;
         
         TaskService.Run(() =>
