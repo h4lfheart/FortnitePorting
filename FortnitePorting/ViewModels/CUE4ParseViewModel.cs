@@ -49,20 +49,9 @@ namespace FortnitePorting.ViewModels;
 public class CUE4ParseViewModel : ViewModelBase
 {
     public bool FinishedLoading;
-    
-    public readonly HybridFileProvider Provider = AppSettings.Current.Installation.CurrentProfile.FortniteVersion switch
-    {
-        EFortniteVersion.LatestOnDemand => new HybridFileProvider(new VersionContainer(AppSettings.Current.Installation.CurrentProfile.UnrealVersion)),
-        EFortniteVersion.LatestInstalled => new HybridFileProvider(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, ExtraDirectories, new VersionContainer(LATEST_GAME_VERSION)),
-        _ => new HybridFileProvider(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, [], new VersionContainer(AppSettings.Current.Installation.CurrentProfile.UnrealVersion)),
-    };
-    
-    public readonly HybridFileProvider OptionalProvider = AppSettings.Current.Installation.CurrentProfile.FortniteVersion switch
-    {
-        EFortniteVersion.LatestOnDemand => new HybridFileProvider(new VersionContainer(AppSettings.Current.Installation.CurrentProfile.UnrealVersion), isOptionalLoader: true),
-        EFortniteVersion.LatestInstalled => new HybridFileProvider(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, [], new VersionContainer(LATEST_GAME_VERSION), isOptionalLoader: true),
-        _ => new HybridFileProvider(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, [], new VersionContainer(AppSettings.Current.Installation.CurrentProfile.UnrealVersion), isOptionalLoader: true),
-    };
+
+    public readonly HybridFileProvider Provider;
+    public readonly HybridFileProvider OptionalProvider;
 
     public FBuildPatchAppManifest? LiveManifest;
     
@@ -96,6 +85,23 @@ public class CUE4ParseViewModel : ViewModelBase
     ];
 
     private const EGame LATEST_GAME_VERSION = EGame.GAME_UE5_6;
+
+    public CUE4ParseViewModel()
+    {
+        Provider = AppSettings.Current.Installation.CurrentProfile.FortniteVersion switch
+        {
+            EFortniteVersion.LatestOnDemand => new HybridFileProvider(new VersionContainer(AppSettings.Current.Installation.CurrentProfile.UnrealVersion)),
+            EFortniteVersion.LatestInstalled => new HybridFileProvider(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, ExtraDirectories, new VersionContainer(LATEST_GAME_VERSION)),
+            _ => new HybridFileProvider(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, [], new VersionContainer(AppSettings.Current.Installation.CurrentProfile.UnrealVersion)),
+        };
+        
+        OptionalProvider = AppSettings.Current.Installation.CurrentProfile.FortniteVersion switch
+        {
+            EFortniteVersion.LatestOnDemand => new HybridFileProvider(new VersionContainer(AppSettings.Current.Installation.CurrentProfile.UnrealVersion), isOptionalLoader: true),
+            EFortniteVersion.LatestInstalled => new HybridFileProvider(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, [], new VersionContainer(LATEST_GAME_VERSION), isOptionalLoader: true),
+            _ => new HybridFileProvider(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, [], new VersionContainer(AppSettings.Current.Installation.CurrentProfile.UnrealVersion), isOptionalLoader: true),
+        };
+    }
 
     public override async Task Initialize()
     {

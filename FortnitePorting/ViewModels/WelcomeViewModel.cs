@@ -31,7 +31,8 @@ public partial class WelcomeViewModel : ViewModelBase
 {
     [ObservableProperty] private InstallationProfile _profile = new()
     {
-        ProfileName = "Default"
+        ProfileName = "Default",
+        ArchiveDirectory = string.Empty
     };
     
     public override async Task Initialize()
@@ -60,7 +61,6 @@ public partial class WelcomeViewModel : ViewModelBase
     [RelayCommand]
     public async Task FinishSetup()
     {
-        
         AppSettings.Current.Installation.Profiles.Add(Profile);
         AppSettings.Current.Installation.FinishedWelcomeScreen = true;
         
