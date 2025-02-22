@@ -18,5 +18,5 @@ public static class Globals
 
     public static readonly FGuid ZERO_GUID = new();
     public const string ZERO_CHAR = "0x0000000000000000000000000000000000000000000000000000000000000000";
-    public const EGame LatestGameVersion = EGame.GAME_UE5_6;
+    public const EGame LatestGameVersion = EGame.GAME_UE5_5;
 }

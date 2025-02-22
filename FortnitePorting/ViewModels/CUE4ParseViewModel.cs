@@ -173,7 +173,8 @@ public class CUE4ParseViewModel : ViewModelBase
                 ChunkBaseUrl = "http://epicgames-download1.akamaized.net/Builds/Fortnite/CloudDir/",
                 ChunkCacheDirectory = ChunkCacheFolder.FullName,
                 ManifestCacheDirectory = ChunkCacheFolder.FullName,
-                Zlibng = ZlibHelper.Instance,
+                Decompressor = ManifestZlibStreamDecompressor.Decompress,
+                DecompressorState = ZlibHelper.Instance,
                 CacheChunksAsIs = true
             });
 
@@ -181,10 +182,10 @@ public class CUE4ParseViewModel : ViewModelBase
 
         FortniteLive = manifest;
 
-        var files = FortniteLive.FileManifestList.Where(fileManifest => FortniteLiveRegex.IsMatch(fileManifest.FileName));
+        var files = FortniteLive.Files.Where(fileManifest => FortniteLiveRegex.IsMatch(fileManifest.FileName));
         foreach (var fileManifest in files)
             Provider.RegisterVfs(fileManifest.FileName, (Stream[]) [fileManifest.GetStream()],
-                it => new FStreamArchive(it, manifest.FileManifestList.First(x => x.FileName.Equals(it)).GetStream(), Provider.Versions));
+                it => new FStreamArchive(it, manifest.Files.First(x => x.FileName.Equals(it)).GetStream(), Provider.Versions));
     }
 
     private async Task LoadCosmeticStreaming()
