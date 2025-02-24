@@ -13,7 +13,8 @@ public static class DependencyService
     
     public static readonly FileInfo UpdaterFile = new(Path.Combine(DataFolder.FullName, "release", "FortnitePorting.Updater.exe"));
     
-    public static readonly FileInfo BinkaFile = new(Path.Combine(DataFolder.FullName, "binka", "binkadec.exe"));
+    public static readonly FileInfo BinkaDecoderFile = new(Path.Combine(DataFolder.FullName, "binka", "binkadec.exe"));
+    public static readonly FileInfo RadaDecoderFile = new(Path.Combine(DataFolder.FullName, "rada", "radadec.exe"));
     public static readonly FileInfo VgmStreamFile = new(Path.Combine(DataFolder.FullName, "vgmstream-cli.exe"));
     
     public static readonly DirectoryInfo VgmStreamFolder = new(Path.Combine(DataFolder.FullName, "vgmstream"));
@@ -22,7 +23,8 @@ public static class DependencyService
     {
         TaskService.Run(() =>
         {
-            EnsureResourceBased("Assets/Dependencies/binkadec.exe", BinkaFile);
+            EnsureResourceBased("Assets/Dependencies/binkadec.exe", BinkaDecoderFile);
+            EnsureResourceBased("Assets/Dependencies/radadec.exe", RadaDecoderFile);
             EnsureResourceBased("Assets/Dependencies/FortnitePorting.Updater.exe", UpdaterFile);
             EnsureVgmStream();
             EnsureBlenderExtensions();

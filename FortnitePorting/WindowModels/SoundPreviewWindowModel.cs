@@ -54,6 +54,8 @@ public partial class SoundPreviewWindowModel : WindowModelBase
         OutputDevice.Init(AudioReader);
         OutputDevice.Play();
         while (OutputDevice.PlaybackState != PlaybackState.Stopped) { }
+
+        await stream.DisposeAsync();
     }
 
     public void TogglePause()
