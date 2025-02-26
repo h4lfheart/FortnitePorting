@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -42,7 +43,7 @@ public partial class AssetItem : Base.BaseAssetItem
     private static SKColor InnerBackgroundColor = SKColor.Parse("#50C8FF");
     private static SKColor OuterBackgroundColor = SKColor.Parse("#1B7BCF");
 
-    private static Dictionary<string, UFortItemSeriesDefinition> SeriesCache = [];
+    private static ConcurrentDictionary<string, UFortItemSeriesDefinition> SeriesCache = [];
     
     public AssetItem(AssetItemCreationArgs args)
     {

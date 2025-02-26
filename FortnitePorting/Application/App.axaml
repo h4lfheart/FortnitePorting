@@ -53,6 +53,19 @@
             <Setter Property="CornerRadius" Value="4"/>
         </Style>
         
+        <Style Selector="MenuItem.Checked">
+            <Setter Property="ToggleType" Value="CheckBox"/>
+            <Setter Property="StaysOpenOnClick" Value="True"/>
+            <Setter Property="Icon">
+                <Template>
+                    <Grid>
+                        <material:MaterialIcon Kind="Close" IsVisible="{Binding !$parent[MenuItem].IsChecked}" />
+                        <material:MaterialIcon Kind="Check" IsVisible="{Binding $parent[MenuItem].IsChecked}" />
+                    </Grid>
+                </Template>
+            </Setter>
+        </Style>
+        
         <Style Selector="TabItem > TextBlock">
             <Setter Property="FontSize" Value="12"/>
         </Style>

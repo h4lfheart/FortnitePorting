@@ -45,6 +45,8 @@ public partial class DebugSettingsViewModel : ViewModelBase
                     var pdbFiles = executingDirectory.GetFiles("*.pdb");
                     foreach (var pdbFile in pdbFiles) pdbFile.Delete();
                 }
+                
+                AppWM.Message("Debugging Symbols", "Finished downloading debugging symbols. Please restart the application.");
 
                 break;
             }

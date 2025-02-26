@@ -2,7 +2,7 @@ from threading import Thread, Event
 from werkzeug.serving import make_server
 from flask import Flask, request
 from .logger import Log
-
+from collections import deque
 
 class Server(Thread):
     def __init__(self, app):
@@ -11,8 +11,7 @@ class Server(Thread):
         self.context = app.app_context()
         self.context.push()
 
-        self.event = Event()
-        self.data = ""
+        self.queue = deque()
 
     @staticmethod
     def create():
@@ -21,9 +20,9 @@ class Server(Thread):
 
         @app.route('/fortnite-porting/data', methods=['POST'])
         def post_data():
-            server.data = request.get_data().decode('utf-8')
-            server.event.set()
-            return server.data
+            data = request.get_data().decode('utf-8')
+            server.queue.append(data)
+            return data
 
         @app.route('/fortnite-porting/ping', methods=['GET'])
         def ping():
@@ -40,8 +39,7 @@ class Server(Thread):
         self.server.shutdown()
 
     def get_data(self):
-        if self.event.is_set():
-            self.event.clear()
-            return self.data
+        if len(self.queue) > 0:
+            return self.queue.popleft()
         else:
             return None
