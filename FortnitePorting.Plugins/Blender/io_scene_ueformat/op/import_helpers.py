@@ -7,7 +7,7 @@ from bpy_extras.io_utils import ImportHelper
 
 from .panels import UEFORMAT_PT_Panel
 from ..importer.logic import UEFormatImport
-from ..options import UEAnimOptions, UEFormatOptions, UEModelOptions, UEWorldOptions
+from ..options import UEAnimOptions, UEFormatOptions, UEModelOptions
 from ..typing import UFormatContext
 
 T = TypeVar("T", bound=UEFormatOptions)
@@ -64,23 +64,6 @@ class UFImportUEAnim(UFImportBase):
     def draw(self, context: UFormatContext) -> None:
         UEFORMAT_PT_Panel.draw_general_options(self, context.scene.uf_settings)
         UEFORMAT_PT_Panel.draw_anim_options(
-            self,
-            context.scene.uf_settings,
-            import_menu=True,
-        )
-
-class UFImportUEWorld(UFImportBase):
-    bl_idname = "uf.import_ueworld"
-    bl_label = "Import World"
-
-    filename_ext = ".ueworld"
-    filter_glob: StringProperty(default="*.ueworld", options={"HIDDEN"}, maxlen=255)
-
-    options_class = UEWorldOptions
-
-    def draw(self, context: UFormatContext) -> None:
-        UEFORMAT_PT_Panel.draw_general_options(self, context.scene.uf_settings)
-        UEFORMAT_PT_Panel.draw_world_options(
             self,
             context.scene.uf_settings,
             import_menu=True,

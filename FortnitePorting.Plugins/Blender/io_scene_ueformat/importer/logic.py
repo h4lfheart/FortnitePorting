@@ -14,7 +14,6 @@ from ..importer.classes import (
     ANIM_IDENTIFIER,
     MAGIC,
     MODEL_IDENTIFIER,
-    WORLD_IDENTIFIER,
     Bone,
     ConvexCollision,
     EUEFormatVersion,
@@ -27,13 +26,12 @@ from ..importer.classes import (
     UEModelSkeleton,
     VertexColor,
     Weight,
-    UEWorld,
 )
 from ..importer.reader import FArchiveReader
 from ..importer.utils import get_active_armature, get_case_insensitive, make_axis_vector, make_quat, make_vector, \
     has_vertex_weights
 from ..logging import Log
-from ..options import UEAnimOptions, UEFormatOptions, UEModelOptions, UEWorldOptions
+from ..options import UEAnimOptions, UEFormatOptions, UEModelOptions
 
 
 class UEFormatImport:
@@ -62,9 +60,9 @@ class UEFormatImport:
             raise ValueError(msg)
 
         identifier = ar.read_fstring()
-        self.file_version = EUEFormatVersion(int.from_bytes(ar.read_byte(), byteorder="big"))
-        if self.file_version > EUEFormatVersion.LatestVersion:
-            msg = f"File Version {self.file_version} is not supported for this version of the importer."
+        file_version = EUEFormatVersion(int.from_bytes(ar.read_byte(), byteorder="big"))
+        if file_version > EUEFormatVersion.LatestVersion:
+            msg = f"File Version {file_version} is not supported for this version of the importer."
             Log.error(msg)
             raise ValueError(msg)
         object_name = ar.read_fstring()
@@ -93,23 +91,23 @@ class UEFormatImport:
                 Log.error(msg)
                 raise ValueError(msg)
 
+        read_archive.file_version = file_version
+
         if identifier == MODEL_IDENTIFIER:
             return self.import_uemodel_data(read_archive, object_name)
         if identifier == ANIM_IDENTIFIER:
             return self.import_ueanim_data(read_archive, object_name)
-        if identifier == WORLD_IDENTIFIER:
-            return self.import_ueworld_data(read_archive, object_name)
 
         msg = f"Unknown identifier: {identifier}"
         Log.error(msg)
         raise ValueError
 
-    # TODO: clean up code quality, esp in the skeleton department  # noqa: TD002, FIX002, TD003
+    # TODO: clean up code quality, esp in the skeleton department
     def import_uemodel_data(self, ar: FArchiveReader, name: str) -> Object:
         assert isinstance(self.options, UEModelOptions)  # noqa: S101
 
         data: UEModel
-        if self.file_version >= EUEFormatVersion.LevelOfDetailFormatRestructure:
+        if ar.file_version >= EUEFormatVersion.LevelOfDetailFormatRestructure:
             data = UEModel.from_archive(ar, self.options.scale_factor)
         else:
             data = self.deserialize_model_legacy(ar)
@@ -555,45 +553,8 @@ class UEFormatImport:
             bone.matrix_basis.identity()  # type: ignore[reportAttributeAccessIssue]
 
         return action
-
-    def import_ueworld_data(self, ar: FArchiveReader, name: str) -> Object:
-        assert isinstance(self.options, UEWorldOptions)  # noqa: S101
-
-        data = UEWorld.from_archive(ar, self.options.scale_factor)
-        
-        world_parent = bpy.data.objects.new(name, None)
-        bpy.context.collection.objects.link(world_parent)
-        
-        meshes = {}
-        mesh_import_settings = UEModelOptions.from_settings(bpy.context.scene.uf_settings)
-        mesh_import_settings.link = False
-        mesh_importer = UEFormatImport(mesh_import_settings)
-
-        mesh_index = 0
-        mesh_total = len(data.meshes)
-        for mesh in data.meshes:
-            mesh_index += 1
-            print(f"{mesh_index} / {mesh_total}")
-            meshes[mesh.hash] = mesh_importer.import_data_by_reader(mesh.model_reader)
-        
-        actor_index = 0
-        actor_total = len(data.actors)
-        for actor in data.actors:
-            actor_index += 1
-            print(f"{actor_index} / {actor_total}")
-            mesh = meshes[actor.model_hash]
-            mesh_data = mesh.data if self.options.instance_meshes else mesh.data.copy()
-            
-            obj = bpy.data.objects.new(actor.name, mesh_data)
-            obj.location = make_vector(actor.location)
-            obj.rotation_mode = "QUATERNION"
-            obj.rotation_quaternion = make_quat(actor.rotation)
-            obj.scale = make_vector(actor.scale)
-            obj.parent = world_parent
-            bpy.context.scene.collection.objects.link(obj)
-        
-        return world_parent
-
+    
+    
     def deserialize_model_legacy(self, ar: FArchiveReader) -> UEModel:
         data = UEModel()
         data.skeleton = UEModelSkeleton()
@@ -611,7 +572,7 @@ class UEFormatImport:
             elif header_name == "INDICES":
                 lod.indices = np.array(ar.read_int_vector(array_size), dtype=np.int32).reshape(array_size // 3, 3)
             elif header_name == "NORMALS":
-                if self.file_version >= EUEFormatVersion.SerializeBinormalSign:
+                if ar.file_version >= EUEFormatVersion.SerializeBinormalSign:
                     flattened = np.array(
                         ar.read_float_vector(array_size * 4),
                     )  # W XYZ # TODO: change to XYZ W  # noqa: TD002, FIX002, TD003
@@ -623,7 +584,7 @@ class UEFormatImport:
                 ar.skip(array_size * 3 * 3)
                 # flattened = np.array(ar.read_float_vector(array_size * 3)).reshape(array_size, 3)  # noqa: ERA001
             elif header_name == "VERTEXCOLORS":
-                if self.file_version >= EUEFormatVersion.AddMultipleVertexColors:
+                if ar.file_version >= EUEFormatVersion.AddMultipleVertexColors:
                     lod.colors = [VertexColor.from_archive(ar) for _ in range(array_size)]
                 else:
                     lod.colors = [
@@ -658,7 +619,7 @@ class UEFormatImport:
                     array_size,
                     lambda ar: Socket.from_archive(ar, self.options.scale_factor),
                 )
-            elif header_name == "COLLISION" and self.file_version >= EUEFormatVersion.AddConvexCollisionGeom:
+            elif header_name == "COLLISION":
                 data.collisions = ar.read_array(
                     array_size,
                     lambda ar: ConvexCollision.from_archive(ar, self.options.scale_factor),

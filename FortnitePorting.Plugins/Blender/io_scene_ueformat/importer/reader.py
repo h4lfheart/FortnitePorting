@@ -2,9 +2,12 @@ from __future__ import annotations
 
 import io
 import struct
+import numpy as np
+import numpy.typing as npt
 from typing import TYPE_CHECKING, BinaryIO, Literal, TypeVar, overload
 
 from ..importer.utils import bytes_to_str
+from ..importer.classes import EUEFormatVersion
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -18,6 +21,7 @@ class FArchiveReader:
         self.data: BinaryIO = io.BytesIO(data)
         self.size = len(data)
         self.data.seek(0)
+        self.file_version = EUEFormatVersion.BeforeCustomVersionWasAdded
 
     def __enter__(self) -> FArchiveReader:
         self.data.seek(0)
@@ -80,8 +84,8 @@ class FArchiveReader:
     @overload
     def read_float_vector(self, size: int) -> tuple[float, ...]: ...
 
-    def read_float_vector(self, size: int) -> tuple[float, ...]:
-        return struct.unpack(str(size) + "f", self.data.read(size * 4))
+    def read_float_vector(self, size: int) -> npt.NDArray[float]:
+        return np.array(struct.unpack(str(size) + "f", self.data.read(size * 4)))
 
     def read_byte_vector(self, size: int) -> tuple[int, ...]:
         return struct.unpack(str(size) + "B", self.data.read(size))
@@ -101,4 +105,7 @@ class FArchiveReader:
         return [predicate(self) for _ in range(count)]
 
     def chunk(self, size: int) -> FArchiveReader:
-        return FArchiveReader(self.read(size))
+        new_reader = FArchiveReader(self.read(size))
+        new_reader.file_version = self.file_version
+        
+        return new_reader
