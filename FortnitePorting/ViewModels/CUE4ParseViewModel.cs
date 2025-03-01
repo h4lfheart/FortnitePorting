@@ -105,7 +105,6 @@ public class CUE4ParseViewModel : ViewModelBase
 
     public override async Task Initialize()
     {
-        FByteBulkData.LazyLoad = false;
 		ObjectTypeRegistry.RegisterEngine(Assembly.Load("FortnitePorting"));
         ObjectTypeRegistry.RegisterEngine(Assembly.Load("FortnitePorting.Shared"));
 

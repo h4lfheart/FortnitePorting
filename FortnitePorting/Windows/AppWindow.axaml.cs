@@ -45,6 +45,7 @@ public partial class AppWindow : WindowBase<AppWindowModel>
 
     private void OnKeyDown(object? sender, KeyEventArgs e)
     {
+        if (AppWM is null) return; // happens when focused on other tabs for some reason ?
         if (e.Key == Key.Escape && AppWM.TimeWasterOpen)
         {
             AppWM.ToggleVisibility(true);

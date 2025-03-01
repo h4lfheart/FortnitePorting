@@ -297,7 +297,7 @@ public class ExportContext
         return exportWeapons;
     }
     
-    public static List<UObject> WeaponDefinitionMeshes(UObject weaponDefinition)
+    private static List<UObject> WeaponDefinitionMeshes(UObject weaponDefinition)
     {
         var exportWeapons = new List<UObject>();
 

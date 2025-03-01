@@ -64,7 +64,8 @@ public partial class FilesViewModel : ViewModelBase
 
     [ObservableProperty] private ObservableCollection<FileGameFilter> _gameNames = 
     [
-        new("FortniteGame")
+        new("FortniteGame"),
+        new("Engine"),
     ];
 
     [ObservableProperty] private ObservableCollection<string> _selectedGameNames = [];
@@ -95,8 +96,6 @@ public partial class FilesViewModel : ViewModelBase
                 if (gameFeatureData?.ExperienceData?.DefaultMap is not { } defaultMapPath) continue;
 
                 var defaultMap = await defaultMapPath.LoadAsync();
-                if (defaultMap.Name.StartsWith("FMJam_")) continue;
-
                 GameNames.Add(new FileGameFilter(defaultMap.Name, defaultMapPath.AssetPathName.Text[1..].SubstringBefore("/")));
             }
         }

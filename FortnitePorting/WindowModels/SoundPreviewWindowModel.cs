@@ -36,6 +36,12 @@ public partial class SoundPreviewWindowModel : WindowModelBase
         UpdateTimer.Start();
     }
 
+    public override async Task OnViewExited()
+    {
+        OutputDevice.Dispose();
+        await AudioReader.DisposeAsync();
+    }
+
     private void OnUpdateTimerTick(object? sender, EventArgs e)
     {
         if (AudioReader is null) return;
@@ -54,8 +60,6 @@ public partial class SoundPreviewWindowModel : WindowModelBase
         OutputDevice.Init(AudioReader);
         OutputDevice.Play();
         while (OutputDevice.PlaybackState != PlaybackState.Stopped) { }
-
-        await stream.DisposeAsync();
     }
 
     public void TogglePause()
