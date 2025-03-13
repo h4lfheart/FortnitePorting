@@ -26,6 +26,7 @@ using FortnitePorting.Models.API;
 using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.Assets.Asset;
 using FortnitePorting.Models.Assets.Custom;
+using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Models.Unreal;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;

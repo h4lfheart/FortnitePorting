@@ -14,7 +14,7 @@ using CUE4Parse.UE4.Objects.Core.i18N;
 using FortnitePorting.Shared.Extensions;
 using SkiaSharp;
 using AssetLoader = FortnitePorting.Models.Assets.Loading.AssetLoader;
-using SkiaExtensions = FortnitePorting.Shared.Extensions.SkiaExtensions;
+using SkiaExtensions = FortnitePorting.Extensions.SkiaExtensions;
 
 namespace FortnitePorting.Models.Assets;
 

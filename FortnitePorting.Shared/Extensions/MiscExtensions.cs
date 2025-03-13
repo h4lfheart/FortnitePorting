@@ -6,8 +6,6 @@ using System.Security.Cryptography;
 using System.Text;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using CUE4Parse.UE4.Assets.Exports;
-using CUE4Parse.Utils;
 using DynamicData.Binding;
 
 namespace FortnitePorting.Shared.Extensions;
@@ -147,15 +145,6 @@ public static class MiscExtensions
         {
             return false;
         }
-    }
-    
-    public static string GetCleanedExportPath(UObject obj)
-    {
-        var path = obj.Owner != null ? obj.Owner.Name : string.Empty;
-        path = path.SubstringBeforeLast('.');
-        if (path.StartsWith("/")) path = path[1..];
-        
-        return path;
     }
 
     public static void ForEach<T>(this IEnumerable<T> array, Action<T> action)

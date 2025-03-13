@@ -19,6 +19,7 @@ using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using FortnitePorting.Application;
 using FortnitePorting.Export;
+using FortnitePorting.Extensions;
 using FortnitePorting.Models.Leaderboard;
 using FortnitePorting.Models.Unreal.Landscape;
 using FortnitePorting.Shared.Extensions;

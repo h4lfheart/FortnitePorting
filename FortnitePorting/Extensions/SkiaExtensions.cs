@@ -1,7 +1,8 @@
+using System.Linq;
 using CUE4Parse.UE4.Objects.Core.Math;
 using SkiaSharp;
 
-namespace FortnitePorting.Shared.Extensions;
+namespace FortnitePorting.Extensions;
 
 public static class SkiaExtensions
 {

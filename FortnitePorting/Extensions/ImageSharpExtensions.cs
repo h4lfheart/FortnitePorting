@@ -1,10 +1,11 @@
+using System;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SkiaSharp;
 
-namespace FortnitePorting.Shared.Extensions;
+namespace FortnitePorting.Extensions;
 
 public static class ImageSharpExtensions
 {

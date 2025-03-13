@@ -9,7 +9,6 @@ using Avalonia.Data.Converters;
 using Avalonia.Layout;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using CUE4Parse.Utils;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Launcher.Application;
 using FortnitePorting.Launcher.Models.Downloads;

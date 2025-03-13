@@ -56,7 +56,7 @@ public static class SoundExtensions
     
     public static bool TrySaveSoundToAssets(USoundWave soundWave, string assetsRoot, out string path)
     {
-        path = Path.Combine(assetsRoot, MiscExtensions.GetCleanedExportPath(soundWave) + ".wav");
+        path = Path.Combine(assetsRoot, CUE4ParseExtensions.GetCleanedExportPath(soundWave) + ".wav");
         Directory.CreateDirectory(path.SubstringBeforeLast("/"));
         
         if (File.Exists(path) || TrySaveSoundToPath(soundWave, path))
@@ -69,7 +69,7 @@ public static class SoundExtensions
     
     public static bool TrySaveSoundToAssets(USoundWave soundWave, string assetsRoot, out Stream stream)
     {
-        var path = Path.Combine(assetsRoot, MiscExtensions.GetCleanedExportPath(soundWave) + ".wav");
+        var path = Path.Combine(assetsRoot, CUE4ParseExtensions.GetCleanedExportPath(soundWave) + ".wav");
         Directory.CreateDirectory(path.SubstringBeforeLast("/"));
         
         if (File.Exists(path) || TrySaveSoundToPath(soundWave, path))

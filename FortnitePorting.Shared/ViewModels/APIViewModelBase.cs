@@ -1,5 +1,3 @@
-
-using CUE4Parse.Utils;
 using FortnitePorting.Shared.Framework;
 using RestSharp;
 using RestSharp.Serializers.NewtonsoftJson;
@@ -78,7 +76,7 @@ public class APIViewModelBase(string userAgentVersion = "", int timeout = 10) : 
 
     public async Task<FileInfo> DownloadFileAsync(string url, DirectoryInfo destination)
     {
-        var outPath = Path.Combine(destination.FullName, url.SubstringAfterLast("/").SubstringAfterLast("\\"));
+        var outPath = Path.Combine(destination.FullName, Path.GetFileName(url));
         var request = new RestRequest(url);
         var data = await _client.DownloadDataAsync(request);
         if (data is not null) await File.WriteAllBytesAsync(outPath, data);

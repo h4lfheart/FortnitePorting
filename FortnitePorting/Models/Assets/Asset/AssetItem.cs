@@ -13,6 +13,7 @@ using CUE4Parse.Utils;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
 using FortnitePorting.Export;
+using FortnitePorting.Extensions;
 using FortnitePorting.Models.Fortnite;
 using FortnitePorting.OnlineServices.Models;
 using FortnitePorting.OnlineServices.Packet;
@@ -22,7 +23,7 @@ using FortnitePorting.Shared.Models.Clipboard;
 using FortnitePorting.Windows;
 using Newtonsoft.Json;
 using SkiaSharp;
-using SkiaExtensions = FortnitePorting.Shared.Extensions.SkiaExtensions;
+using SkiaExtensions = FortnitePorting.Extensions.SkiaExtensions;
 
 namespace FortnitePorting.Models.Assets.Asset;
 

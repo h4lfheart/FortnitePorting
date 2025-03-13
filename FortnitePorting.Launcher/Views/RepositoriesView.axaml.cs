@@ -4,7 +4,6 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using CommunityToolkit.Mvvm.Input;
-using CUE4Parse.Utils;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Launcher.Application;
 using FortnitePorting.Launcher.Models.Installation;

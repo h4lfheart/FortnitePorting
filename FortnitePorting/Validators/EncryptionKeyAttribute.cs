@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using CUE4Parse.Utils;
 
-namespace FortnitePorting.Shared.Validators;
+namespace FortnitePorting.Validators;
 
 public class EncryptionKeyAttribute : ValidationAttribute
 {
