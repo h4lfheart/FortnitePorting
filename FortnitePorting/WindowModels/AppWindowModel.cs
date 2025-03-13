@@ -22,7 +22,7 @@ using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
 using FortnitePorting.ViewModels.Settings;
 using FortnitePorting.Views;
-using InfoBarData = FortnitePorting.Models.App.InfoBarData;
+using InfoBarData = FortnitePorting.Shared.Models.App.InfoBarData;
 using Log = Serilog.Log;
 
 namespace FortnitePorting.WindowModels;

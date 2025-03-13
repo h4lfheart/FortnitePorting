@@ -20,6 +20,16 @@ public class ViewModelRegistry
         return newViewModel;
     }
     
+    public static T NewOrExisting<T>(bool initialize = false) where T : ViewModelBase, new()
+    {
+        if (Registry.ContainsKey(typeof(T)))
+        {
+            return Get<T>()!;
+        }
+        
+        return New<T>(initialize);
+    }
+    
     public static T Register<T>(ViewModelBase existing) where T : ViewModelBase, new()
     {
         Registry[typeof(T)] = existing;

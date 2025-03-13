@@ -1,0 +1,289 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+             xmlns:fluentStyle="clr-namespace:FluentAvalonia.Styling;assembly=FluentAvalonia"
+             xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
+             x:Class="FortnitePorting.Launcher.Application.App"
+             RequestedThemeVariant="Dark">
+
+     <Application.Resources>
+         <ext:EnumToStringConverter x:Key="EnumToString" />
+         <ext:EnumToRecordConverter x:Key="EnumToRecord" />
+         <ext:EnumHasFlagConverter x:Key="EnumHasFlag" />
+         <ext:EnumEqualsConverter x:Key="EnumEquals" />
+         <ext:TitleCaseStringConverter x:Key="TitleCaseString" />
+         <ext:StringToDocumentConverter x:Key="StringToDocument" />
+         <ext:ScrollViewerMarginConverter x:Key="ScrollViewerMargin" />
+         
+         <Brush x:Key="ToggleSwitchKnobFillOn">#FFFFFFFF</Brush>
+         <Brush x:Key="ToggleSwitchKnobFillOnPointerOver">#FFFFFFFF</Brush>
+         <Brush x:Key="ToggleSwitchKnobFillOnPressed">#FFFFFFFF</Brush>
+         <Brush x:Key="ToggleSwitchKnobFillOnDisabled">#5DFFFFFF</Brush>
+         <Brush x:Key="CheckBoxCheckGlyphForegroundChecked">#FFFFFFFF</Brush>
+         <Brush x:Key="CheckBoxCheckGlyphForegroundCheckedPointerOver">#FFFFFFFF</Brush>
+         <Brush x:Key="CheckBoxCheckGlyphForegroundCheckedPressed">#FFFFFFFF</Brush>
+         <Brush x:Key="CheckBoxCheckGlyphForegroundCheckedDisabled">#5DFFFFFF</Brush>
+         <Brush x:Key="ScrollViewerScrollBarsSeparatorBackground">#00000000</Brush>
+         <x:Double x:Key="NavigationViewItemOnLeftIconBoxHeight">14</x:Double>
+         <Brush x:Key="TabViewItemHeaderBackgroundSelected">#10000000</Brush>
+         <Brush x:Key="TabViewItemSeparator">#30000000</Brush>
+         
+     </Application.Resources>
+             
+    <Application.Styles>
+        <FluentTheme />
+        <fluentStyle:FluentAvaloniaTheme/>
+        <material:MaterialIconStyles/>
+        
+        <Style Selector="ui|FABorder">
+            <Setter Property="Background" Value="#0DFFFFFF"/>
+            <Setter Property="BorderBrush" Value="#19000000"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="MinHeight" Value="32"/>
+        </Style>
+        
+        <Style Selector="Border">
+            <Setter Property="CornerRadius" Value="4"/>
+        </Style>
+        
+        <Style Selector="MenuItem.Checked">
+            <Setter Property="ToggleType" Value="CheckBox"/>
+            <Setter Property="StaysOpenOnClick" Value="True"/>
+            <Setter Property="Icon">
+                <Template>
+                    <Grid>
+                        <material:MaterialIcon Kind="Close" IsVisible="{Binding !$parent[MenuItem].IsChecked}" />
+                        <material:MaterialIcon Kind="Check" IsVisible="{Binding $parent[MenuItem].IsChecked}" />
+                    </Grid>
+                </Template>
+            </Setter>
+        </Style>
+        
+        <Style Selector="TabItem > TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+        
+        <Style Selector="TextBlock:disabled">
+            <Setter Property="Foreground" Value="#5DFFFFFF"/>
+        </Style>
+       
+        <Style Selector="ui|HyperlinkButton.HyperLink">
+           <Setter Property="Padding" Value="0" />
+           <Setter Property="Background" Value="Transparent" />
+        </Style>
+
+        <Style Selector="ui|HyperlinkButton.HyperLink:pointerover /template/ ContentPresenter">
+           <Setter Property="Background" Value="Transparent" />
+        </Style>
+
+        <Style Selector="Expander:pointerover /template/ ContentPresenter">
+           <Setter Property="Background" Value="Transparent"/>
+        </Style>
+
+        <Style Selector="Expander ToggleButton:pointerover /template/ ContentPresenter">
+           <Setter Property="Background" Value="Transparent"/>
+        </Style>
+
+        <Style Selector="Expander ToggleButton:pointerover /template/ Border">
+           <Setter Property="Background" Value="#26FFFFFF"/>
+        </Style>
+
+        <Style Selector="Expander ToggleButton:pointerover /template/ Border#ExpandCollapseChevronBorder">
+           <Setter Property="Background" Value="Transparent"/>
+        </Style>
+                   
+        <Style Selector="Expander ToggleButton:expanded /template/ ContentPresenter">
+           <Setter Property="Background" Value="Transparent"/>
+        </Style>
+
+        <Style Selector="Expander ToggleButton:expanded /template/ Border">
+           <Setter Property="Background" Value="#26FFFFFF"/>
+        </Style>
+
+        <Style Selector="Expander ToggleButton:checked /template/ ContentPresenter">
+           <Setter Property="Background" Value="Transparent"/>
+        </Style>
+        
+        <Style Selector="ui|NavigationView.NoBackground /template/ Border#ContentGridBorder">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+        
+        <Style Selector="ui|NavigationView.NoBackground /template/ StackPanel#TopNavArea">
+            <Setter Property="Background" Value="#16000000"/>
+        </Style>
+        
+        <Style Selector="material|MaterialIcon">
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        
+        <Style Selector="Button.RadioButton">
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Foreground" Value="#FFFFFF" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+
+        <Style Selector="Button.RadioButton:pointerover /template/ ContentPresenter">
+            <Setter Property="Foreground" Value="#FFFFFF" />
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        
+        <Style Selector="Button.RedButton">
+            <Setter Property="Foreground" Value="#c7655d" />
+            <Setter Property="Background" Value="#82632B2A" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+
+        <Style Selector="Button.RedButton:pointerover /template/ ContentPresenter">
+            <Setter Property="CornerRadius" Value="4" />
+            <Setter Property="Background" Value="#733231" />
+        </Style>
+        
+        <Style Selector="Button.RedButton:pressed /template/ ContentPresenter">
+            <Setter Property="CornerRadius" Value="4" />
+            <Setter Property="Background" Value="#733231" />
+        </Style>
+        
+        <Style Selector="Button.GreenButton">
+            <Setter Property="Foreground" Value="#8dc75d" />
+            <Setter Property="Background" Value="#822a6332" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+
+        <Style Selector="Button.GreenButton:pointerover /template/ ContentPresenter">
+            <Setter Property="CornerRadius" Value="4" />
+            <Setter Property="Background" Value="#367331" />
+        </Style>
+        
+        <Style Selector="Button.GreenButton:pressed /template/ ContentPresenter">
+            <Setter Property="CornerRadius" Value="4" />
+            <Setter Property="Background" Value="#367331" />
+        </Style>
+        
+        <Style Selector="Button.ZoomButton">
+            <Setter Property="Background" Value="{DynamicResource SystemAccentColor}" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+
+        <Style Selector="Button.ZoomButton:pointerover /template/ ContentPresenter">
+            <Setter Property="CornerRadius" Value="4" />
+            <Setter Property="Background" Value="{DynamicResource SystemAccentColorDark1}" />
+        </Style>
+        
+        <Style Selector="Button.ZoomButton:pressed /template/ ContentPresenter">
+            <Setter Property="CornerRadius" Value="4" />
+            <Setter Property="Background" Value="{DynamicResource SystemAccentColorDark1}" />
+        </Style>
+        
+        <Style Selector="ToggleButton.RadioButton">
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Foreground" Value="#48FFFFFF" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+
+        <Style Selector="ToggleButton.RadioButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Foreground" Value="#48FFFFFF" />
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+
+        <Style Selector="ToggleButton.RadioButton:checked /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Foreground" Value="#FFFFFF" />
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        
+        <Style Selector="TextBox.RadioTextBlockRename:not(:focus)">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Grid Background="Transparent">
+                            <TextPresenter x:Name="PART_TextPresenter" FontSize="14" FontWeight="SemiBold" 
+                                           Text="{TemplateBinding Text}" 
+                                           TextWrapping="Wrap" VerticalAlignment="Center"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+       
+       <Style Selector="TextBlock.CaptionTextBlockStyle">
+           <Setter Property="FontSize" Value="12"/>
+           <Setter Property="FontWeight" Value="Normal"/>
+       </Style>
+       
+       <Style Selector="TextBlock.BodyTextBlockStyle">
+           <Setter Property="FontSize" Value="14"/>
+           <Setter Property="FontWeight" Value="Normal"/>
+       </Style>
+        
+        <Style Selector="TextBlock.BodyStrongTextBlockStyle">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        
+        <Style Selector="TextBlock.SubtitleTextBlockStyle">
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        
+        <Style Selector="TextBlock.TitleTextBlockStyle">
+            <Setter Property="FontSize" Value="28"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        
+        <Style Selector="TextBlock.TitleLargeTextBlockStyle">
+            <Setter Property="FontSize" Value="40"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        
+        <Style Selector="TextBlock.TextFillColorPrimaryBrush">
+            <Setter Property="Foreground" Value="#E4E4E4"/>
+        </Style>
+        
+        <Style Selector="TextBlock.TextFillColorSecondaryBrush">
+            <Setter Property="Foreground" Value="#C5FFFFFF"/>
+        </Style>
+        
+        <Style Selector="TextBlock.TextFillColorTertiaryBrush">
+            <Setter Property="Foreground" Value="#9E9E9E"/>
+        </Style>
+        
+        <Style Selector="TextBlock.TextFillColorQuaternaryBrush">
+            <Setter Property="Foreground" Value="#727272"/>
+        </Style>
+        
+        <Style Selector="TextBlock.TextFillColorDisabledBrush">
+            <Setter Property="Foreground" Value="#5C5C5C"/>
+        </Style>
+        
+        <Style Selector="CheckBox.Red /template/ Border#NormalRectangle">
+            <Setter Property="Background" Value="#FFE81123" />
+            <Setter Property="BorderBrush" Value="#FFFF4343" />
+        </Style>
+    
+        <Style Selector="CheckBox.Green /template/ Border#NormalRectangle">
+            <Setter Property="Background" Value="#FF10893E" />
+            <Setter Property="BorderBrush" Value="#FF00CC6A" />
+        </Style>
+    
+        <Style Selector="CheckBox.Blue /template/ Border#NormalRectangle">
+            <Setter Property="Background" Value="#FF0063B1" />
+            <Setter Property="BorderBrush" Value="#FF0099BC" />
+        </Style>
+    
+        <Style Selector="CheckBox.Alpha /template/ Border#NormalRectangle">
+            <Setter Property="Background" Value="#FF6B6B6B" />
+            <Setter Property="BorderBrush" Value="#FFA3A3A3" />
+        </Style>
+    </Application.Styles>
+</Application>

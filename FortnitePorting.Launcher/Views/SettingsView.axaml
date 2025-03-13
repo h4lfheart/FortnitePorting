@@ -1,0 +1,46 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:FortnitePorting.Launcher.ViewModels"
+             xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+             xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
+             xmlns:viewModels1="clr-namespace:FortnitePorting.Launcher.ViewModels"
+             xmlns:materialIcon="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             x:Class="FortnitePorting.Launcher.Views.SettingsView"
+             x:DataType="viewModels1:SettingsViewModel">
+    <Grid>
+        <ScrollViewer Grid.Row="2" Margin="{ext:Space 1}">
+            <StackPanel Margin="{Binding $parent[ScrollViewer], Converter={StaticResource ScrollViewerMargin}}">
+                <StackPanel.Styles>
+                    <Style Selector="ui|SettingsExpander">
+                        <Setter Property="Margin" Value="0 0 0 4"/>
+                    </Style>
+                </StackPanel.Styles>
+                
+                <ui:SettingsExpander Header="Installation Location" Description="The directory where Fortnite Porting installations will be stored.">
+                    <ui:SettingsExpander.Footer>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox Text="{Binding InstallationPath}" Watermark="Installation Path"/>
+                            <Button Margin="4 0 0 0" Command="{Binding BrowseInstallationPath}">
+                                <ui:SymbolIcon Symbol="Folder"/>
+                            </Button>
+                        </StackPanel>
+                    </ui:SettingsExpander.Footer>
+                </ui:SettingsExpander>
+                
+                <ui:SettingsExpander Header="Download Location" Description="The directory where Fortnite Porting versions will be downloaded.">
+                    <ui:SettingsExpander.Footer>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox Text="{Binding DownloadsPath}" Watermark="Download Path"/>
+                            <Button Margin="4 0 0 0" Command="{Binding BrowseDownloadsPath}">
+                                <ui:SymbolIcon Symbol="Folder"/>
+                            </Button>
+                        </StackPanel>
+                    </ui:SettingsExpander.Footer>
+                </ui:SettingsExpander>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

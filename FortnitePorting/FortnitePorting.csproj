@@ -14,7 +14,6 @@
     <!-- todo make build target for updater -->
     
     <ItemGroup>
-        <PackageReference Include="AsyncImageLoader.Avalonia" Version="3.2.1" />
         <PackageReference Include="Avalonia" Version="11.1.3" />
         <PackageReference Include="Avalonia.Desktop" Version="11.1.3" />
         <PackageReference Include="Avalonia.Markup.Xaml.Loader" Version="11.1.3" />
@@ -59,34 +58,6 @@
       <ProjectReference Include="..\FortnitePorting.Rendering\FortnitePorting.Rendering.csproj" />
       <ProjectReference Include="..\FortnitePorting.Plugins\FortnitePorting.Plugins.csproj" />
       <ProjectReference Include="..\FortnitePorting.Shared\FortnitePorting.Shared.csproj" />
-    </ItemGroup>
-    
-    <ItemGroup>
-      <UpToDateCheckInput Remove="Controls\Home\FeaturedControl.axaml" />
-      <UpToDateCheckInput Remove="Controls\Home\NewsControl.axaml" />
-      <UpToDateCheckInput Remove="Assets\TimeWaster\SFX\PianoSnippets\NightNight_Music_PianoSnip_01.ogg" />
-      <UpToDateCheckInput Remove="Assets\TimeWaster\SFX\PianoSnippets\NightNight_Music_PianoSnip_02.ogg" />
-      <UpToDateCheckInput Remove="Assets\TimeWaster\SFX\PianoSnippets\NightNight_Music_PianoSnip_03.ogg" />
-      <UpToDateCheckInput Remove="Assets\TimeWaster\SFX\PianoSnippets\NightNight_Music_PianoSnip_04.ogg" />
-      <UpToDateCheckInput Remove="Assets\TimeWaster\SFX\PianoSnippets\NightNight_Music_PianoSnip_05.ogg" />
-      <UpToDateCheckInput Remove="Assets\TimeWaster\SFX\PianoSnippets\NightNight_Music_PianoSnip_06.ogg" />
-      <UpToDateCheckInput Remove="Assets\TimeWaster\SFX\PianoSnippets\NightNight_Music_PianoSnip_07.ogg" />
-      <UpToDateCheckInput Remove="Assets\TimeWaster\SFX\PianoSnippets\NightNight_Music_PianoSnip_08.ogg" />
-    </ItemGroup>
-    
-    <ItemGroup>
-      <Compile Update="Views\CanvasView.axaml.cs">
-        <DependentUpon>PlaceView.axaml</DependentUpon>
-        <SubType>Code</SubType>
-      </Compile>
-      <Compile Update="Views\Settings\DebugSettingsView.axaml.cs">
-        <DependentUpon>DebugSettingsView.axaml</DependentUpon>
-        <SubType>Code</SubType>
-      </Compile>
-    </ItemGroup>
-    
-    <ItemGroup>
-      <None Remove="..\..\..\.nuget\packages\naudio.vorbis\1.5.0\contentFiles\any\netstandard2.0\README.md" />
     </ItemGroup>
 
 </Project>

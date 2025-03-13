@@ -1,0 +1,90 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:FortnitePorting.Launcher.ViewModels"
+             xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+             xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
+             xmlns:viewModels1="clr-namespace:FortnitePorting.Launcher.ViewModels"
+             xmlns:materialIcon="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             x:Class="FortnitePorting.Launcher.Views.SetupView"
+             x:DataType="viewModels1:SetupViewModel">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="{ext:Space 1}"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="{ext:Space 1}"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <Grid Grid.Row="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>   
+            
+            <Image Grid.Row="0" Grid.RowSpan="2" Source="/Assets/DefaultSplash.png" Stretch="UniformToFill" Margin="0 0 0 0" Opacity="0.75">
+                <Image.OpacityMask>
+                    <LinearGradientBrush StartPoint="0, 0" EndPoint="0, 180">
+                        <GradientStops>
+                            <GradientStop Color="White" Offset="0"/>
+                            <GradientStop Color="Transparent" Offset="1"/>
+                        </GradientStops>
+                    </LinearGradientBrush>
+                </Image.OpacityMask>
+            </Image>
+            
+            <TextBlock Grid.Row="0" Text="Fortnite Porting Launcher Setup" Classes="TitleLargeTextBlockStyle" HorizontalAlignment="Center"
+                       VerticalAlignment="Center" TextWrapping="WrapWithOverflow" TextAlignment="Center" Margin="{ext:Space 0, 5, 0, 0}">
+                <TextBlock.Effect>
+                    <DropShadowEffect BlurRadius="15" Color="#5F000000" OffsetX="0" OffsetY="0" />
+                </TextBlock.Effect>
+            </TextBlock>
+            
+            <TextBlock Grid.Row="1" Text="Please customize the important options below to your liking.&#x0a;They can be modified again in the settings tab."
+                       HorizontalAlignment="Center" TextAlignment="Center"
+                       VerticalAlignment="Center" Classes="BodyTextBlockStyle" Margin="{ext:Space 0, 0, 0, 5}">
+                <TextBlock.Effect>
+                    <DropShadowEffect BlurRadius="15" Color="#5F000000" OffsetX="0" OffsetY="0" />
+                </TextBlock.Effect>
+            </TextBlock>
+        </Grid>
+        
+        <ScrollViewer Grid.Row="2" Margin="{ext:Space 1}">
+            <StackPanel Margin="{Binding $parent[ScrollViewer], Converter={StaticResource ScrollViewerMargin}}">
+                <StackPanel.Styles>
+                    <Style Selector="ui|SettingsExpander">
+                        <Setter Property="Margin" Value="0 0 0 4"/>
+                    </Style>
+                </StackPanel.Styles>
+                
+                <ui:SettingsExpander Header="Installation Location" Description="The directory where Fortnite Porting installations will be stored.">
+                    <ui:SettingsExpander.Footer>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox Text="{Binding InstallationPath}" Watermark="Installation Path"/>
+                            <Button Margin="4 0 0 0" Command="{Binding BrowseInstallationPath}">
+                                <ui:SymbolIcon Symbol="Folder"/>
+                            </Button>
+                        </StackPanel>
+                    </ui:SettingsExpander.Footer>
+                </ui:SettingsExpander>
+                
+                <ui:SettingsExpander Header="Download Location" Description="The directory where Fortnite Porting versions will be downloaded.">
+                    <ui:SettingsExpander.Footer>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox Text="{Binding DownloadsPath}" Watermark="Download Path"/>
+                            <Button Margin="4 0 0 0" Command="{Binding BrowseDownloadsPath}">
+                                <ui:SymbolIcon Symbol="Folder"/>
+                            </Button>
+                        </StackPanel>
+                    </ui:SettingsExpander.Footer>
+                </ui:SettingsExpander>
+            </StackPanel>
+        </ScrollViewer>
+        
+        <Button Grid.Row="4" Content="Continue" Command="{Binding ContinueCommand}"
+                HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{ext:Space 1}"/>
+    </Grid>
+</UserControl>

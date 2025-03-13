@@ -23,6 +23,7 @@ using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Framework;
+using FortnitePorting.Shared.Models.App;
 using FortnitePorting.Shared.Services;
 using Material.Icons;
 using NAudio.Wave;

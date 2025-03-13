@@ -1,0 +1,61 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+        <ApplicationManifest>Application/app.manifest</ApplicationManifest>
+        <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+        <ApplicationIcon>Assets/ManagerLogo.ico</ApplicationIcon>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Avalonia" Version="11.1.3"/>
+        <PackageReference Include="Avalonia.Desktop" Version="11.1.3"/>
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.1.3"/>
+        <PackageReference Include="Avalonia.Fonts.Inter" Version="11.1.3"/>
+        <PackageReference Include="Avalonia.Diagnostics" Version="11.1.3"/>
+        <PackageReference Include="ReactiveUI" Version="20.0.1" />
+
+        <PackageReference Condition="'$(Configuration)' == 'Release'" Include="Fody" Version="6.8.1">
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Condition="'$(Configuration)' == 'Release'" Include="Costura.Fody" Version="5.8.0-alpha0098">
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+    </ItemGroup>
+
+
+    <ItemGroup>
+        <AvaloniaResource Include="Assets\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\FortnitePorting.Shared\FortnitePorting.Shared.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Views\DownloadsView.axaml.cs">
+        <DependentUpon>DownloadsView.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Views\ProfilesView.axaml.cs">
+        <DependentUpon>InstallationsView.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Views\RepositoriesView.axaml.cs">
+        <DependentUpon>RepositoriesView.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Views\SettingsView.axaml.cs">
+        <DependentUpon>SettingsView.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <UpToDateCheckInput Remove="Controls\CreateProfileDialog.axaml" />
+    </ItemGroup>
+</Project>

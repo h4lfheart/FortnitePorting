@@ -258,7 +258,7 @@ public class CUE4ParseViewModel : ViewModelBase
     private async Task InitializeTextureStreaming()
     {
         if (AppSettings.Current.Installation.CurrentProfile.FortniteVersion is not (EFortniteVersion.LatestInstalled or EFortniteVersion.LatestOnDemand)) return;
-        if (AppSettings.Current.Installation.CurrentProfile.FortniteVersion == EFortniteVersion.LatestInstalled && !AppSettings.Current.Installation.CurrentProfile.TextureStreamingEnabled) return;
+        if (!AppSettings.Current.Installation.CurrentProfile.UseTextureStreaming) return;
 
         try
         {

@@ -36,6 +36,8 @@ public partial class VotingViewModel : ViewModelBase
 
     public async Task RefreshPolls()
     {
+        if (!OnlineRef.UseIntegration) return;
+        
         Polls.Clear();
         
         var polls = await ApiVM.FortnitePorting.GetPollsAsync();

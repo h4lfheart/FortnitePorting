@@ -1,0 +1,63 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+             xmlns:installation="clr-namespace:FortnitePorting.Launcher.Models.Installation"
+             xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
+             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="FortnitePorting.Launcher.Models.Installation.CreateProfileDialog"
+             x:DataType="installation:CreateProfileDialogContext">
+    <StackPanel>
+        <TextBlock Text="Profile Type" Classes="BodyStrongTextBlockStyle" Margin="{ext:Space 0, 0, 0, 1}"/>
+        <ComboBox
+            HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="{ext:Space 0, 0, 0, 1}"
+            ItemsSource="{ext:EnumToItemsSource {x:Type installation:EProfileType}}"
+            SelectedItem="{Binding ProfileType, Converter={StaticResource EnumToRecord}}">
+        </ComboBox>
+        
+        <Separator HorizontalAlignment="Stretch" Margin="{ext:Space 0, 0.5, 0, 1}"/>
+        
+        <StackPanel IsVisible="{Binding ProfileType, 
+            Converter={StaticResource EnumEquals}, 
+            ConverterParameter={x:Static installation:EProfileType.Repository}}">
+            
+            <TextBlock Text="Repository" Classes="BodyStrongTextBlockStyle" Margin="{ext:Space 0, 0, 0, 1}"/>
+            <ComboBox ItemsSource="{Binding Repositories}" 
+                      SelectedItem="{Binding SelectedRepository, Mode=TwoWay}"
+                      HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <Image asyncImageLoader:ImageLoader.Source="{Binding IconUrl}" 
+                                   Width="24" Height="24" Margin="{ext:Space 0, 0, 1, 0}"
+                                   RenderOptions.BitmapInterpolationMode="MediumQuality"/>
+                            <StackPanel>
+                                <TextBlock Text="{Binding Title}" Margin="{ext:Space 0, 0, 0, 1}"/>
+                                <TextBlock Text="{Binding Description}" Classes="CaptionTextBlockStyle TextFillColorTertiaryBrush"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+        </StackPanel>
+        
+        <StackPanel IsVisible="{Binding ProfileType, 
+            Converter={StaticResource EnumEquals}, 
+            ConverterParameter={x:Static installation:EProfileType.Custom}}">
+            <TextBlock Text="Version" Classes="BodyStrongTextBlockStyle" Margin="{ext:Space 0, 0, 0, 1}"/>
+            <ComboBox ItemsSource="{Binding Versions}" 
+                      SelectedItem="{Binding SelectedVersion, Mode=TwoWay, TargetNullValue='No Versions Downloaded'}"
+                      HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel>
+                            <TextBlock Text="{Binding Name}"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+        </StackPanel>
+    </StackPanel>
+</UserControl>

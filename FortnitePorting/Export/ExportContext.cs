@@ -175,7 +175,7 @@ public class ExportContext
 
         var poseContainer = poseAsset.PoseContainer;
         var poses = poseContainer.Poses;
-        if (poses.Length == 0)
+        if (poses is null || poses.Length == 0)
         {
             Log.Warning($"{poseAsset.Name}: has no poses");
             return;

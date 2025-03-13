@@ -1,14 +1,15 @@
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using Avalonia.Data.Converters;
 
 namespace FortnitePorting.Shared.Extensions;
 
 public static class StringExtensions
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string TitleCase(this string text)
     {
-        var textInfo = CultureInfo.CurrentCulture.TextInfo;
-        return textInfo.ToTitleCase(text);
+        return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(text);
     }
 }
 
