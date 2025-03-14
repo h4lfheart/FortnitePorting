@@ -7,7 +7,6 @@ using Avalonia.VisualTree;
 using AvaloniaEdit;
 using AvaloniaEdit.Document;
 using AvaloniaEdit.Rendering;
-using AvaloniaEdit.Utils;
 
 namespace FortnitePorting.Shared.Extensions;
 

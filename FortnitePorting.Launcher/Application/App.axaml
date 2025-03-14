@@ -13,7 +13,6 @@
          <ext:EnumHasFlagConverter x:Key="EnumHasFlag" />
          <ext:EnumEqualsConverter x:Key="EnumEquals" />
          <ext:TitleCaseStringConverter x:Key="TitleCaseString" />
-         <ext:StringToDocumentConverter x:Key="StringToDocument" />
          <ext:ScrollViewerMarginConverter x:Key="ScrollViewerMargin" />
          
          <Brush x:Key="ToggleSwitchKnobFillOn">#FFFFFFFF</Brush>

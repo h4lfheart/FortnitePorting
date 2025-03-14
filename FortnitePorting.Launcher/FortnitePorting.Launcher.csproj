@@ -35,27 +35,4 @@
     <ItemGroup>
       <ProjectReference Include="..\FortnitePorting.Shared\FortnitePorting.Shared.csproj" />
     </ItemGroup>
-
-    <ItemGroup>
-      <Compile Update="Views\DownloadsView.axaml.cs">
-        <DependentUpon>DownloadsView.axaml</DependentUpon>
-        <SubType>Code</SubType>
-      </Compile>
-      <Compile Update="Views\ProfilesView.axaml.cs">
-        <DependentUpon>InstallationsView.axaml</DependentUpon>
-        <SubType>Code</SubType>
-      </Compile>
-      <Compile Update="Views\RepositoriesView.axaml.cs">
-        <DependentUpon>RepositoriesView.axaml</DependentUpon>
-        <SubType>Code</SubType>
-      </Compile>
-      <Compile Update="Views\SettingsView.axaml.cs">
-        <DependentUpon>SettingsView.axaml</DependentUpon>
-        <SubType>Code</SubType>
-      </Compile>
-    </ItemGroup>
-
-    <ItemGroup>
-      <UpToDateCheckInput Remove="Controls\CreateProfileDialog.axaml" />
-    </ItemGroup>
 </Project>

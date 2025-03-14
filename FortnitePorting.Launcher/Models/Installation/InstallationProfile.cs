@@ -3,13 +3,17 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using AsyncImageLoader;
 using Avalonia.Controls;
 using Avalonia.Layout;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Launcher.Application;
+using FortnitePorting.Shared.Models;
+using Newtonsoft.Json;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;
 
 namespace FortnitePorting.Launcher.Models.Installation;
@@ -18,16 +22,21 @@ public partial class InstallationProfile : ObservableObject
 {
     [ObservableProperty] private Guid _id;
     [ObservableProperty] private string _name;
-    [ObservableProperty] private string _versionName;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(DescriptionString))] private FPVersion _version;
     [ObservableProperty] private string _directory;
     [ObservableProperty] private string _executableName;
     [ObservableProperty] private EProfileType _profileType;
+    
+    [ObservableProperty] private string? _iconUrl;
+    [ObservableProperty] private string? _repositoryUrl;
 
-    public string ExecutablePath => Path.Combine(Directory, ExecutableName);
+    [JsonIgnore] public string ExecutablePath => Path.Combine(Directory, ExecutableName);
+    [JsonIgnore] public string DescriptionString => $"{Version} - {Id}";
+    [JsonIgnore] public Task<Bitmap?> IconImage => ImageLoader.AsyncImageLoader.ProvideImageAsync(IconUrl ?? string.Empty);
 
     public async Task Launch()
     {
-        AppWM.Message(Name, $"Launching {VersionName}");
+        AppWM.Message("Launch", $"Launching {Name}");
         
         Process.Start(new ProcessStartInfo
         {
@@ -65,7 +74,7 @@ public partial class InstallationProfile : ObservableObject
         LaunchSelected(ExecutablePath);
     }
     
-    public async Task ChangeVersion()
+    public async Task ChangeVersionPrompt()
     {
         var comboBox = new ComboBox
         {
@@ -84,18 +93,51 @@ public partial class InstallationProfile : ObservableObject
             {
                 if (comboBox.SelectedItem is not InstallationVersion newVersion) return;
 
-                if (Name.Equals(VersionName)) // if version name is identical to display name, change it to new version name
-                {
-                    Name = newVersion.Name;
-                }
-                
-                File.Delete(ExecutablePath);
-                File.Copy(newVersion.ExecutablePath, ExecutablePath);
-                ExecutableName = Path.GetFileName(newVersion.ExecutablePath);
+                ChangeVersion(newVersion);
             })
         };
 
         await dialog.ShowAsync();
+    }
+    
+    public async Task Update()
+    {
+        await Update(verbose: true);
+    }
+
+    public async Task Update(bool verbose)
+    {
+        if (ProfileType != EProfileType.Repository) return;
+        
+        var targetRepository = RepositoriesVM.Repositories.FirstOrDefault(repo => repo.RepositoryUrl.Equals(RepositoryUrl));
+            
+        var newestVersion = targetRepository?.Versions.MaxBy(version => version.Version);
+        if (newestVersion is null) return;
+
+        if (newestVersion.Version <= Version)
+        {
+            if (verbose)
+                AppWM.Message("Update", $"{Name} {Version} is up to date");
+            return;
+        }
+
+        var oldVersion = Version;
+        ChangeVersion(await newestVersion.DownloadInstallationVersion(), verbose: false);
+            
+        if (verbose)
+            AppWM.Message("Update", $"{Name} was updated from \"{oldVersion}\" to \"{Version}\"");
+    }
+
+    public void ChangeVersion(InstallationVersion newVersion, bool verbose = true)
+    {
+        File.Delete(ExecutablePath);
+        File.Copy(newVersion.ExecutablePath, ExecutablePath);
+        ExecutableName = Path.GetFileName(newVersion.ExecutablePath);
+        
+        Version = newVersion.Version;
+        
+        if (verbose)
+            AppWM.Message("Update", $"{Name} was changed to \"{Version}\"");
     }
 
     public async Task DeleteAndCleanup()

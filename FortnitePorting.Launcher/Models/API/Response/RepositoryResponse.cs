@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using FortnitePorting.Shared.Models;
 
 namespace FortnitePorting.Launcher.Models.API.Response;
 
@@ -14,7 +15,7 @@ public class RepositoryResponse
 
 public class RepositoryVersion
 {
-    public string VersionString;
+    public FPVersion Version;
     public string ExecutableURL;
     public DateTime UploadTime;
 }

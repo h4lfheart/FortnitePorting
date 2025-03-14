@@ -11,6 +11,7 @@ using FortnitePorting.Launcher.Extensions;
 using FortnitePorting.Launcher.Models.API.Response;
 using FortnitePorting.Launcher.Models.Installation;
 using FortnitePorting.Shared.Extensions;
+using FortnitePorting.Shared.Models;
 using Newtonsoft.Json;
 
 namespace FortnitePorting.Launcher.Models.Downloads;
@@ -19,26 +20,28 @@ public partial class DownloadVersion : ObservableObject
 {
     [ObservableProperty] private DownloadRepository _parentRepository;
     
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(DisplayString))] private string _versionString;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(DisplayString))] private FPVersion _version;
     [ObservableProperty] private string _executableUrl;
     [ObservableProperty] private DateTime _uploadTime;
     [ObservableProperty] private bool _isCurrentlyDownloading;
 
     [ObservableProperty, JsonIgnore] private float _downloadProgressFraction;
 
-    public string DisplayString => $"{ParentRepository.Title} {VersionString}";
+    public string DisplayString => $"{ParentRepository.Title} {Version}";
 
     public bool IsDownloaded => File.Exists(ExecutableDownloadPath) && !IsCurrentlyDownloading;
 
-    public string ExecutableDownloadPath => Path.Combine(AppSettings.Current.DownloadsPath, ParentRepository.Title, VersionString, ExecutableUrl.SubstringAfterLast("/"));
+    public string ExecutableDownloadPath => Path.Combine(AppSettings.Current.DownloadsPath, ParentRepository.Title, Version.ToString(), ExecutableUrl.SubstringAfterLast("/"));
 
     public InstallationVersion CreateInstallationVersion()
     {
         return new InstallationVersion
         {
-            Name = $"{ParentRepository.Title} {VersionString}",
             RepositoryName = ParentRepository.Title,
-            ExecutablePath = ExecutableDownloadPath
+            Version = Version,
+            ExecutablePath = ExecutableDownloadPath,
+            RepositoryUrl = ParentRepository.RepositoryUrl,
+            IconUrl = ParentRepository.IconUrl
         };
     }
 
@@ -80,7 +83,7 @@ public partial class DownloadVersion : ObservableObject
     public async Task Delete()
     {
         var profilesUsingVersion = AppSettings.Current.Profiles.Profiles
-            .Where(profile => profile.VersionName.Equals(DisplayString))
+            .Where(profile => profile.Version.Equals(Version))
             .ToArray();
 
         var cancelledDeletion = false;
@@ -111,7 +114,7 @@ public partial class DownloadVersion : ObservableObject
         if (cancelledDeletion) return;
         
         File.Delete(ExecutableDownloadPath);
-        Directory.Delete(Path.Combine(AppSettings.Current.DownloadsPath, ParentRepository.Title, VersionString));
+        Directory.Delete(Path.Combine(AppSettings.Current.DownloadsPath, ParentRepository.Title, Version.ToString()));
 
         AppSettings.Current.DownloadedVersions.RemoveAll(version => version.ExecutablePath == ExecutableDownloadPath);
         

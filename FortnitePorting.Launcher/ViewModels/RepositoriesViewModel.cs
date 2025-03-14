@@ -21,6 +21,8 @@ public partial class RepositoriesViewModel : ViewModelBase
     public override async Task Initialize()
     {
         await Refresh();
+
+        await ProfilesVM.UpdateRepositoryProfiles();
     }
 
     [RelayCommand]
@@ -32,11 +34,7 @@ public partial class RepositoriesViewModel : ViewModelBase
         {
             if (await ApiVM.FortnitePorting.GetRepositoryAsync(repositoryUrlContainer.RepositoryUrl) is not { } repositoryResponse) continue;
 
-            Repositories.Add(new DownloadRepository(repositoryResponse)
-            {
-                RepositoryUrl = repositoryUrlContainer.RepositoryUrl,
-                UnderlyingResponse = repositoryResponse
-            });
+            Repositories.Add(new DownloadRepository(repositoryResponse, repositoryUrlContainer.RepositoryUrl));
         }
     }
 

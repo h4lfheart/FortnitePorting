@@ -3,7 +3,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using AvaloniaEdit.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DynamicData;
@@ -47,6 +46,11 @@ public partial class DownloadsViewModel : ViewModelBase
         Versions = versionCollection;
     }
 
+    public override async Task Initialize()
+    {
+        await Refresh();
+    }
+
     public override async Task OnViewOpened()
     {
         OnPropertyChanged(nameof(VisibleRepositories));
@@ -60,23 +64,17 @@ public partial class DownloadsViewModel : ViewModelBase
         
         foreach (var repository in RepositoriesVM.Repositories)
         {
-            foreach (var version in repository.UnderlyingResponse.Versions)
+            await repository.Refresh();
+            
+            foreach (var version in repository.Versions)
             {
-                var downloadVersion = new DownloadVersion
+                if (version.IsDownloaded 
+                    && !AppSettings.Current.DownloadedVersions.Any(v => v.ExecutablePath.Equals(version.ExecutableDownloadPath)))
                 {
-                    ParentRepository = repository,
-                    VersionString = version.VersionString,
-                    ExecutableUrl = version.ExecutableURL,
-                    UploadTime = version.UploadTime
-                };
-                
-                if (downloadVersion.IsDownloaded 
-                    && !AppSettings.Current.DownloadedVersions.Any(v => v.ExecutablePath.Equals(downloadVersion.ExecutableDownloadPath)))
-                {
-                    AppSettings.Current.DownloadedVersions.Add(downloadVersion.CreateInstallationVersion());
+                    AppSettings.Current.DownloadedVersions.Add(version.CreateInstallationVersion());
                 }
                 
-                DownloadVersions.Add(downloadVersion);
+                DownloadVersions.Add(version);
             }
         }
     }

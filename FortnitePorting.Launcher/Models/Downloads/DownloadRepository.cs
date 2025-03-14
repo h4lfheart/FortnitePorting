@@ -1,5 +1,7 @@
 using System;
+using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using AsyncImageLoader;
 using Avalonia.Media;
@@ -19,19 +21,39 @@ public partial class DownloadRepository : ObservableObject
     [ObservableProperty] private string _description;
     [ObservableProperty] private string? _iconUrl;
     [ObservableProperty] private string _repositoryUrl;
+
+    [ObservableProperty] private ObservableCollection<DownloadVersion> _versions = [];
     
     [ObservableProperty] private bool _isFilterEnabled = true;
-
-    [ObservableProperty, JsonIgnore] private RepositoryResponse _underlyingResponse;
-
+    
     [JsonIgnore] public Task<Bitmap?> IconImage => ImageLoader.AsyncImageLoader.ProvideImageAsync(IconUrl);
 
 
-    public DownloadRepository(RepositoryResponse response)
+    public DownloadRepository(RepositoryResponse response, string repositoryUrl)
+    {
+        RepositoryUrl = repositoryUrl;
+        SetPropertiesFrom(response);
+    }
+
+    public void SetPropertiesFrom(RepositoryResponse response)
     {
         Id = response.Id;
         Title = response.Title;
         Description = response.Description;
         IconUrl = response.Icon;
+        Versions = [..response.Versions.Select(version => new DownloadVersion
+        {
+            ParentRepository = this,
+            Version = version.Version,
+            ExecutableUrl = version.ExecutableURL,
+            UploadTime = version.UploadTime
+        })];
+    }
+
+    public async Task Refresh()
+    {
+        if (await ApiVM.FortnitePorting.GetRepositoryAsync(RepositoryUrl) is not { } response) return;
+
+        SetPropertiesFrom(response);
     }
 }

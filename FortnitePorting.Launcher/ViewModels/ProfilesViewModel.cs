@@ -2,6 +2,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Data;
@@ -22,7 +23,19 @@ public partial class ProfilesViewModel : ViewModelBase
 {
     [ObservableProperty] private ObservableCollection<InstallationProfile> _profiles = [];
 
-    public bool CanCreateProfile => AppSettings.Current.DownloadedVersions.Count > 0 || AppSettings.Current.Repositories.Count > 0;
+    [JsonIgnore] public bool CanCreateProfile => AppSettings.Current.DownloadedVersions.Count > 0 || AppSettings.Current.Repositories.Count > 0;
+
+    public async Task UpdateRepositoryProfiles()
+    {
+        var repositoryProfiles = Profiles
+            .Where(profile => profile.ProfileType == EProfileType.Repository)
+            .ToArray();
+
+        foreach (var profile in repositoryProfiles)
+        {
+            await profile.Update(verbose: false);
+        }
+    }
 
     public override async Task OnViewOpened()
     {
@@ -43,11 +56,9 @@ public partial class ProfilesViewModel : ViewModelBase
                 if (content.DataContext is not CreateProfileDialogContext dialogContext) return;
                 
                 InstallationVersion targetVersion;
-
                 if (dialogContext.ProfileType == EProfileType.Repository)
                 {
-                    var targetDownloadVersion = DownloadsVM.Versions
-                        .Where(version => version.ParentRepository == dialogContext.SelectedRepository)
+                    var targetDownloadVersion = dialogContext.SelectedRepository.Versions
                         .MaxBy(version => version.UploadTime)!;
 
                     targetVersion = await targetDownloadVersion.DownloadInstallationVersion();
@@ -63,12 +74,14 @@ public partial class ProfilesViewModel : ViewModelBase
                 
                 var profile = new InstallationProfile
                 {
+                    ProfileType = dialogContext.ProfileType,
                     Name = dialogContext.ProfileType == EProfileType.Repository ? targetVersion.RepositoryName : targetVersion.Name,
-                    VersionName = targetVersion.Name,
+                    Version = targetVersion.Version,
                     Directory = profilePath,
                     ExecutableName = Path.GetFileName(targetVersion.ExecutablePath),
                     Id = id,
-                    ProfileType = dialogContext.ProfileType
+                    IconUrl = targetVersion.IconUrl,
+                    RepositoryUrl = targetVersion.RepositoryUrl
                 };
                 
                 File.Copy(targetVersion.ExecutablePath, profile.ExecutablePath);

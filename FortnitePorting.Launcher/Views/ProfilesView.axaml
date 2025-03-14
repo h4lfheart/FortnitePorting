@@ -24,8 +24,11 @@
         <ItemsControl Grid.Row="0" ItemsSource="{Binding Profiles}" Margin="{ext:Space 1}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <ui:SettingsExpander Header="{Binding Name}" Description="{Binding Id}" 
+                    <ui:SettingsExpander Header="{Binding Name}" Description="{Binding DescriptionString}" 
                                          Margin="{ext:Space 0, 0, 0, 1}">
+                        <ui:SettingsExpander.IconSource>
+                            <ui:ImageIconSource Source="{Binding IconImage.Result}"/>
+                        </ui:SettingsExpander.IconSource>
                         <ui:SettingsExpander.Footer>
                             <StackPanel Orientation="Horizontal">
                                 <Button Content="{avalonia:MaterialIconExt Launch}" Command="{Binding Launch}"
@@ -45,11 +48,17 @@
                                         Command="{Binding OpenFolder}"
                                         ToolTip.Tip="Open Folder"/>
                                 
-                                <Button Content="{avalonia:MaterialIconExt Update}" Command="{Binding ChangeVersion}" 
+                                <Button Content="{avalonia:MaterialIconExt Update}" Command="{Binding ChangeVersionPrompt}" 
                                         ToolTip.Tip="Change Version"
                                         Margin="{ext:Space 1, 0, 0, 0}" IsVisible="{Binding ProfileType, 
                                             Converter={StaticResource EnumEquals},
                                             ConverterParameter={x:Static installation:EProfileType.Custom}}"/>
+                                
+                                <Button Content="{avalonia:MaterialIconExt Download}" Command="{Binding Update}" 
+                                        ToolTip.Tip="Update"
+                                        Margin="{ext:Space 1, 0, 0, 0}" IsVisible="{Binding ProfileType, 
+                                            Converter={StaticResource EnumEquals},
+                                            ConverterParameter={x:Static installation:EProfileType.Repository}}"/>
                             </StackPanel>
                         </ui:SettingsExpander.Footer>
                     </ui:SettingsExpander>
