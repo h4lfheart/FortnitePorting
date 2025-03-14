@@ -7,9 +7,9 @@ public abstract class WindowBase<T> : Window where T : ViewModelBase, new()
 {
     protected readonly T WindowModel;
 
-    public WindowBase(bool initializeWindowModel = true)
+    public WindowBase(ViewModelBase? templateWindowModel = null, bool initializeWindowModel = true)
     {
-        WindowModel = ViewModelRegistry.New<T>();
+        WindowModel = templateWindowModel is not null ? ViewModelRegistry.Register<T>(templateWindowModel) : ViewModelRegistry.New<T>();
 
         if (initializeWindowModel)
         {
@@ -23,10 +23,13 @@ public abstract class WindowBase<T> : Window where T : ViewModelBase, new()
 
         ViewModelRegistry.Unregister<T>();
     }
+}
 
-    public void BringToTop()
+public static class WindowExtensions 
+{
+    public static void BringToTop(this Window window)
     {
-       Topmost = true;
-       Topmost = false;
+        window.Topmost = true;
+        window.Topmost = false;
     }
 }

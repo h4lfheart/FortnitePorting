@@ -14,6 +14,7 @@ using FluentAvalonia.UI.Controls;
 using FortnitePorting.Launcher.Application;
 using FortnitePorting.Shared.Models;
 using Newtonsoft.Json;
+using Serilog;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;
 
 namespace FortnitePorting.Launcher.Models.Installation;
@@ -117,7 +118,7 @@ public partial class InstallationProfile : ObservableObject
         if (newestVersion.Version <= Version)
         {
             if (verbose)
-                AppWM.Message("Update", $"{Name} {Version} is up to date");
+                AppWM.Message("Update", $"{Name} is up to date");
             return;
         }
 
@@ -126,6 +127,8 @@ public partial class InstallationProfile : ObservableObject
             
         if (verbose)
             AppWM.Message("Update", $"{Name} was updated from \"{oldVersion}\" to \"{Version}\"");
+        
+        Log.Information($"{Name} was updated from \"{oldVersion}\" to \"{Version}\"");
     }
 
     public void ChangeVersion(InstallationVersion newVersion, bool verbose = true)

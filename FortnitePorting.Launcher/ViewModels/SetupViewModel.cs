@@ -21,6 +21,9 @@ public partial class SetupViewModel : ViewModelBase
     [ObservableProperty] 
     [DirectoryExists("Downloads Path")]
     private string _downloadsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "FortnitePortingLauncher", "Downloads");
+    
+    [ObservableProperty] private bool _launchOnStartup = false;
+    [ObservableProperty] private bool _minimizeToTray = false;
 
     [RelayCommand]
     public async Task Continue()
@@ -28,7 +31,12 @@ public partial class SetupViewModel : ViewModelBase
         AppSettings.Current.InstallationPath = InstallationPath;
         AppSettings.Current.DownloadsPath = DownloadsPath;
         AppSettings.Current.Repositories = [new RepositoryUrlContainer(Globals.DEFAULT_FP_REPOSITORY)];
+        AppSettings.Current.LaunchOnStartup = LaunchOnStartup;
+        AppSettings.Current.MinimizeToTray = MinimizeToTray;
         AppSettings.Current.FinishedSetup = true;
+        
+        ViewModelRegistry.New<RepositoriesViewModel>(initialize: true);
+        ViewModelRegistry.New<DownloadsViewModel>(initialize: true);
         
         AppWM.Navigate<ProfilesView>();
     }

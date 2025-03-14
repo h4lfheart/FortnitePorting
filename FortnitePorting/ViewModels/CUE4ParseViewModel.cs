@@ -421,7 +421,7 @@ public class CUE4ParseViewModel : ViewModelBase
         
         return  _onlineStatus.Backup.Mappings
         ? await GetMappings(ApiVM.FortnitePorting.GetMappingsAsync)
-        : await GetMappings(ApiVM.FortniteCentral.GetMappingsAsync) ?? await GetMappings(ApiVM.FortnitePorting.GetMappingsAsync);
+        : await GetMappings(ApiVM.FortniteCentral.GetMappingsAsync);
     }
 
 

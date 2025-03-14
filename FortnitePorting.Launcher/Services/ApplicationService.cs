@@ -3,8 +3,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input.Platform;
+using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using FluentAvalonia.UI.Controls;
@@ -24,7 +26,6 @@ public static class ApplicationService
 {
     public static AppWindowModel AppWM => ViewModelRegistry.Get<AppWindowModel>()!;
     public static APIViewModel ApiVM => ViewModelRegistry.Get<APIViewModel>()!;
-    public static ProfilesViewModel ProfilesVM => ViewModelRegistry.Get<ProfilesViewModel>()!;
     public static DownloadsViewModel DownloadsVM => ViewModelRegistry.Get<DownloadsViewModel>()!;
     public static RepositoriesViewModel RepositoriesVM => ViewModelRegistry.Get<RepositoriesViewModel>()!;
     
@@ -32,21 +33,30 @@ public static class ApplicationService
     public static IStorageProvider StorageProvider => Application.MainWindow!.StorageProvider;
     public static IClipboard Clipboard => Application.MainWindow!.Clipboard!;
     
+    public static readonly DirectoryInfo LogsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs"));
     public static readonly DirectoryInfo LauncherDataFolder = new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "FortnitePortingLauncher"));
+    public static string LogFilePath;
     
     public static void Initialize()
     {
         Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
 
+        LogFilePath = Path.Combine(LogsFolder.FullName, $"FortnitePorting-{DateTime.Now:yyyy-MM-dd-hh-mm-ss}.log");
         Log.Logger = new LoggerConfiguration()
             .WriteTo.Console(theme: AnsiConsoleTheme.Literate)
+            .WriteTo.File(LogFilePath)
             .CreateLogger();
         
         AppSettings.Load();
         
+        LogsFolder.Create();
         LauncherDataFolder.Create();
+
+        if (!Application.Args?.Contains("--startup") ?? true)
+        {
+            OpenAppWindow();
+        }
         
-        Application.MainWindow = new AppWindow();
         Application.Startup += OnStartup;
         Application.Exit += OnExit;
         
@@ -58,28 +68,24 @@ public static class ApplicationService
         
         TaskService.Exception += HandleException;
     }
-    
-    public static void HandleException(Exception e)
+
+    public static void OpenAppWindow()
     {
-        var exceptionString = e.ToString();
-        Log.Error(exceptionString);
-                
-        TaskService.RunDispatcher(async () =>
+        if (Application.MainWindow is null)
         {
-            var dialog = new ContentDialog
-            {
-                Title = "An unhandled exception has occurred",
-                Content = exceptionString,
-                CloseButtonText = "Continue"
-            };
-            await dialog.ShowAsync();
-        });
+            Application.MainWindow = new AppWindow();
+            Application.MainWindow.Loaded += OnWindowLoaded;
+            Application.MainWindow.Show();
+            return;
+        }
+        
+        Application.MainWindow.WindowState = WindowState.Normal;
+        Application.MainWindow.Show();
+        Application.MainWindow.BringToTop();
     }
 
-    public static void OnStartup(object? sender, ControlledApplicationLifetimeStartupEventArgs e)
+    private static void OnWindowLoaded(object? sender, RoutedEventArgs e)
     {
-        ViewModelRegistry.New<APIViewModel>();
-        
         AppWM.FinishedSetup = AppSettings.Current.FinishedSetup;
 
         if (AppWM.FinishedSetup)
@@ -92,9 +98,41 @@ public static class ApplicationService
         }
     }
     
+    private static void OnStartup(object? sender, ControlledApplicationLifetimeStartupEventArgs e)
+    {
+        ViewModelRegistry.NewOrExisting<AppWindowModel>();
+        ViewModelRegistry.New<APIViewModel>();
+
+        if (AppSettings.Current.FinishedSetup)
+        {
+            ViewModelRegistry.New<RepositoriesViewModel>(initialize: true);
+            ViewModelRegistry.New<DownloadsViewModel>(initialize: true);
+        }
+        
+    }
+    
     public static void OnExit(object? sender, ControlledApplicationLifetimeExitEventArgs e)
     {
         AppSettings.Save();
+    }
+    
+    public static void HandleException(Exception e)
+    {
+        var exceptionString = e.ToString();
+        Log.Error(exceptionString);
+                
+        if (Application.MainWindow is null) return;
+        
+        TaskService.RunDispatcher(async () =>
+        {
+            var dialog = new ContentDialog
+            {
+                Title = "An unhandled exception has occurred",
+                Content = exceptionString,
+                CloseButtonText = "Continue"
+            };
+            await dialog.ShowAsync();
+        });
     }
     
     public static void Launch(string location, bool shellExecute = true)

@@ -21,6 +21,10 @@ internal static class Program
         {
             Log.Fatal(e.ToString());
         }
+        finally
+        {
+            Log.CloseAndFlush();
+        }
     }
 
     public static AppBuilder BuildAvaloniaApp()

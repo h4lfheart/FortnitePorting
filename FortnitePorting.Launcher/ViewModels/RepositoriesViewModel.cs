@@ -22,7 +22,7 @@ public partial class RepositoriesViewModel : ViewModelBase
     {
         await Refresh();
 
-        await ProfilesVM.UpdateRepositoryProfiles();
+        await AppSettings.Current.Profiles.UpdateRepositoryProfiles();
     }
 
     [RelayCommand]

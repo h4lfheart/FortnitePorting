@@ -19,8 +19,5 @@ public partial class ProfilesView : ViewBase<ProfilesViewModel>
     public ProfilesView() : base(AppSettings.Current.Profiles, initializeViewModel: false)
     {
         InitializeComponent();
-        
-        ViewModelRegistry.New<RepositoriesViewModel>(initialize: true);
-        ViewModelRegistry.New<DownloadsViewModel>(initialize: true);
     }
 }

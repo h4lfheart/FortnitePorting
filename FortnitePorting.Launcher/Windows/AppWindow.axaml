@@ -8,15 +8,15 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="FortnitePorting.Launcher.Windows.AppWindow"
         x:DataType="windowModels:AppWindowModel"
-        Width="800" Height="600" RequestedThemeVariant="Dark" FontFamily="Segoe UI" Background="{x:Null}"
+        Width="800" Height="640" RequestedThemeVariant="Dark" FontFamily="Segoe UI" Background="{x:Null}"
         ExtendClientAreaToDecorationsHint="True"
-        WindowStartupLocation="CenterScreen"
+        WindowStartupLocation="CenterScreen" ClosingBehavior="OwnerAndChildWindows" Closing="OnClosing"
         Icon="/Assets/ManagerLogo.ico"
         Title="Fortnite Porting Launcher">
     <Grid RowDefinitions="30, *" Margin="{Binding $parent[Window].OffScreenMargin}">
         <ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False">
             <ExperimentalAcrylicBorder.Material>
-                <ExperimentalAcrylicMaterial BackgroundSource="Digger" MaterialOpacity="1.5" TintColor="#3A2F52" TintOpacity="1"/>
+                <ExperimentalAcrylicMaterial BackgroundSource="Digger" MaterialOpacity="1.5" TintColor="#34384f" TintOpacity="1"/>
             </ExperimentalAcrylicBorder.Material>
         </ExperimentalAcrylicBorder>
 
@@ -61,7 +61,7 @@
                                          Title="{Binding Title}" 
                                          Message="{Binding Message}" 
                                          Severity="{Binding Severity}"
-                                         Background="#2F2C35">
+                                         Background="#2c2d35">
                                  <ui:InfoBar.ActionButton>
                                      <ui:HyperlinkButton IsVisible="{Binding UseButton}" 
                                                          Content="{Binding ButtonTitle}" 

@@ -81,6 +81,18 @@
                         </StackPanel>
                     </ui:SettingsExpander.Footer>
                 </ui:SettingsExpander>
+                
+                <ui:SettingsExpander Header="Launch on Startup" Description="Whether or not to open the launcher in the system tray on startup">
+                    <ui:SettingsExpander.Footer>
+                        <ToggleSwitch IsChecked="{Binding LaunchOnStartup}"/>
+                    </ui:SettingsExpander.Footer>
+                </ui:SettingsExpander>
+                
+                <ui:SettingsExpander Header="Minimize to Tray" Description="Whether or not to minimize the application to the system tray on exit">
+                    <ui:SettingsExpander.Footer>
+                        <ToggleSwitch IsChecked="{Binding MinimizeToTray, Mode=TwoWay}"/>
+                    </ui:SettingsExpander.Footer>
+                </ui:SettingsExpander>
             </StackPanel>
         </ScrollViewer>
         

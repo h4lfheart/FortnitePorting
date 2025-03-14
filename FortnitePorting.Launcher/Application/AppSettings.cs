@@ -21,6 +21,8 @@ public class AppSettings
             if (!FilePath.Exists) return;
             Current = JsonConvert.DeserializeObject<SettingsViewModel>(File.ReadAllText(FilePath.FullName)) ??
                       new SettingsViewModel();
+            
+            Log.Information($"Loaded settings from {FilePath.FullName}");
         }
         catch (Exception e)
         {
@@ -34,6 +36,7 @@ public class AppSettings
         try
         {
             File.WriteAllText(FilePath.FullName, JsonConvert.SerializeObject(Current, Formatting.Indented));
+            Log.Information($"Saved settings to {FilePath.FullName}");
         }
         catch (Exception e)
         {

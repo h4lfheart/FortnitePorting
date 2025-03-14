@@ -6,8 +6,22 @@
              xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
              x:Class="FortnitePorting.Launcher.Application.App"
              RequestedThemeVariant="Dark">
+    
+    <TrayIcon.Icons>
+        <TrayIcons>
+            <TrayIcon Icon="/Assets/ManagerLogo.ico" ToolTipText="FortnitePorting Launcher" Clicked="OnTrayIconOpen">
+                <TrayIcon.Menu>
+                    <NativeMenu>
+                        <NativeMenuItem Icon="/Assets/ManagerLogo.png" Header="FortnitePorting Launcher" IsEnabled="False"/>
+                        <NativeMenuItemSeparator/>
+                        <NativeMenuItem Header="Quit FortnitePorting Launcher" Click="OnTrayIconQuit"/>
+                    </NativeMenu>
+                </TrayIcon.Menu>
+            </TrayIcon>
+        </TrayIcons>
+    </TrayIcon.Icons>
 
-     <Application.Resources>
+    <Application.Resources>
          <ext:EnumToStringConverter x:Key="EnumToString" />
          <ext:EnumToRecordConverter x:Key="EnumToRecord" />
          <ext:EnumHasFlagConverter x:Key="EnumHasFlag" />
