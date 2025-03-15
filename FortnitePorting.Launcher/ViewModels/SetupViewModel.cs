@@ -4,6 +4,7 @@ using System.IO;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using FluentAvalonia.UI.Controls;
 using FortnitePorting.Launcher.Application;
 using FortnitePorting.Launcher.Models.Repository;
 using FortnitePorting.Launcher.Views;
@@ -39,6 +40,20 @@ public partial class SetupViewModel : ViewModelBase
         ViewModelRegistry.New<DownloadsViewModel>(initialize: true);
         
         AppWM.Navigate<ProfilesView>();
+
+        var importDialog = new ContentDialog
+        {
+            Title = "Import Existing Installation",
+            Content = "Would you like to import any existing installations?",
+            PrimaryButtonText = "Yes",
+            CloseButtonText = "No",
+            PrimaryButtonCommand = new RelayCommand(async () =>
+            {
+                await AppSettings.Current.Profiles.ImportInstallation();
+            })
+        };
+
+        await importDialog.ShowAsync();
     }
     
     public async Task BrowseInstallationPath()

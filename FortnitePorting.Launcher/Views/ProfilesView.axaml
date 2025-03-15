@@ -72,9 +72,14 @@
         
         <ui:FABorder Grid.Row="2" CornerRadius="0" Padding="{ext:Space 1}" Background="#22000000" 
                      IsEnabled="{Binding CanCreateProfile}">
-            <Button HorizontalAlignment="Right" VerticalAlignment="Center" Command="{Binding CreateProfile}">
-                <controls:IconText Icon="Add" Text="Create Profile"/>
-            </Button>
+            <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal">
+                <Button Command="{Binding ImportInstallation}" Margin="{ext:Space 0, 0, 1, 0}">
+                    <controls:IconText Icon="Import" Text="Import Installation"/>
+                </Button>
+                <Button Command="{Binding CreateProfile}">
+                    <controls:IconText Icon="Add" Text="Create Profile"/>
+                </Button>
+            </StackPanel>
         </ui:FABorder>
         
     </Grid>

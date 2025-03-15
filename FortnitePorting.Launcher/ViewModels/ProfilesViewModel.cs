@@ -15,6 +15,7 @@ using FortnitePorting.Launcher.Application;
 using FortnitePorting.Launcher.Models.Downloads;
 using FortnitePorting.Launcher.Models.Installation;
 using FortnitePorting.Launcher.Services;
+using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Framework;
 
 namespace FortnitePorting.Launcher.ViewModels;
@@ -91,6 +92,58 @@ public partial class ProfilesViewModel : ViewModelBase
             })
         };
 
+        await dialog.ShowAsync();
+    }
+
+    public async Task ImportInstallation()
+    {
+        if (await BrowseFileDialog(fileTypes: [Globals.ExecutableFileType]) is not { } executablePath) return;
+        
+        var content = new CreateProfileDialog();
+        var dialog = new ContentDialog
+        {
+            Title = "Import Installation",
+            Content = content,
+            CloseButtonText = "Cancel",
+            PrimaryButtonText = "Import",
+            PrimaryButtonCommand = new RelayCommand(async () =>
+            {
+                if (content.DataContext is not CreateProfileDialogContext dialogContext) return;
+
+                InstallationVersion targetVersion;
+                if (dialogContext.ProfileType == EProfileType.Repository)
+                {
+                    var targetDownloadVersion = dialogContext.SelectedRepository.Versions
+                        .MaxBy(version => version.UploadTime)!;
+
+                    targetVersion = await targetDownloadVersion.DownloadInstallationVersion();
+                }
+                else
+                {
+                    targetVersion = dialogContext.SelectedVersion;
+                }
+                
+                var id = Guid.NewGuid();
+                
+                var profile = new InstallationProfile
+                {
+                    ProfileType = dialogContext.ProfileType,
+                    Name = Path.GetFileNameWithoutExtension(executablePath),
+                    Version = targetVersion.Version,
+                    Directory = Path.GetDirectoryName(executablePath)!,
+                    ExecutableName = Path.GetFileName(executablePath),
+                    Id = id,
+                    IconUrl = targetVersion.IconUrl,
+                    RepositoryUrl = targetVersion.RepositoryUrl
+                };
+                
+                File.Copy(targetVersion.ExecutablePath, profile.ExecutablePath, true);
+                
+                Profiles.Add(profile);
+                
+            })
+        };
+            
         await dialog.ShowAsync();
     }
     
