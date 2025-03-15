@@ -29,15 +29,7 @@
 
         <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
             
-            <Image Source="/Assets/DefaultSplash.png" Stretch="UniformToFill" Opacity="0.75">
-                <Image.OpacityMask>
-                    <LinearGradientBrush StartPoint="0, 0" EndPoint="0, 180">
-                        <GradientStops>
-                            <GradientStop Color="White" Offset="0"/>
-                            <GradientStop Color="Transparent" Offset="1"/>
-                        </GradientStops>
-                    </LinearGradientBrush>
-                </Image.OpacityMask>
+            <Image Source="/Assets/FortnitePorting-Large.png" Stretch="Uniform" Opacity="0.5">
             </Image>
             <TextBlock Text="FortnitePorting" Classes="TitleLargeTextBlockStyle" HorizontalAlignment="Center"
                        VerticalAlignment="Center">
@@ -107,14 +99,14 @@
                     <ItemsControl ItemsSource="{Binding News}" HorizontalAlignment="Center" Margin="{ext:Space 0, 0.5}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border MinHeight="140" MinWidth="260" Margin="{ext:Space 0.5}" CornerRadius="4" ClipToBounds="True" Cursor="Hand" PointerPressed="OnNewsPressed">
+                                <Border MinHeight="140" MinWidth="260" Margin="{ext:Space 0.5}" ClipToBounds="True" Cursor="Hand" PointerPressed="OnNewsPressed">
                                     <Border.Background>
                                         <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding Image}" Stretch="UniformToFill"/>
                                     </Border.Background>
                                     
                                     <Grid RowDefinitions="1.0*, 1.1*">
                                         <customControls:CustomBlurBehind Grid.Row="1"/>
-                                        <Border Grid.Row="1" Background="Black" Opacity="0.25" CornerRadius="0 0 4 4"/>
+                                        <Border Grid.Row="1" Background="Black" Opacity="0.25"/>
                                         <StackPanel Grid.Row="1" Margin="{ext:Space 1, 0.5, 1, 0}">
                                             <TextBlock HorizontalAlignment="Center" Text="{Binding Title}" Classes="SubtitleTextBlockStyle"/>
                                             <TextBlock HorizontalAlignment="Center" Text="{Binding SubTitle}" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"/>
@@ -139,14 +131,14 @@
                     <ItemsControl ItemsSource="{Binding Featured}" HorizontalAlignment="Center" Margin="{ext:Space 0, 0.5}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border MinHeight="140" MinWidth="260" Margin="{ext:Space 0.5}" CornerRadius="4" ClipToBounds="True" Cursor="Hand" PointerPressed="OnFeaturedPressed">
+                                <Border MinHeight="140" MinWidth="260" Margin="{ext:Space 0.5}" ClipToBounds="True" Cursor="Hand" PointerPressed="OnFeaturedPressed">
                                     <Border.Background>
                                         <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding Image}" Stretch="UniformToFill"/>
                                     </Border.Background>
                                     
                                     <Grid RowDefinitions="1.5*, 1.0*">
                                         <customControls:CustomBlurBehind Grid.Row="1"/>
-                                        <Border Grid.Row="1" Background="Black" Opacity="0.25" CornerRadius="0 0 4 4"/>
+                                        <Border Grid.Row="1" Background="Black" Opacity="0.25"/>
                                         <StackPanel Grid.Row="1" Margin="{ext:Space 1, 0.5, 1, 0}">
                                             <TextBlock HorizontalAlignment="Center" Text="{Binding Title}" Classes="SubtitleTextBlockStyle"/>
                                             <TextBlock HorizontalAlignment="Center" Text="{Binding Artist}" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"/>

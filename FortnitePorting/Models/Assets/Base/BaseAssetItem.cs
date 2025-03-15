@@ -25,7 +25,7 @@ public abstract partial class BaseAssetItem : ObservableObject
     public WriteableBitmap IconDisplayImage { get; set; }
     
     public float DisplayWidth { get; set; } = 64;
-    public float DisplayHeight { get; set; } = 80;
+    public float DisplayHeight { get; set; } = 64;
 
     private SKColor InnerBackgroundColor { get; set; } = SKColor.Parse("#50C8FF");
     private SKColor OuterBackgroundColor { get; set; } = SKColor.Parse("#1B7BCF");

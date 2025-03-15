@@ -75,14 +75,14 @@ file class BlurBehindRenderOperation(ImmutableExperimentalAcrylicMaterial Materi
         using var blurPaint = new SKPaint();
         blurPaint.Shader = backdropShader;
         blurPaint.ImageFilter = filter;
-        blurred.Canvas.DrawRoundRect(0, 0, (float)Bounds.Width, (float)Bounds.Height, Radius, Radius, blurPaint);
+        blurred.Canvas.DrawRoundRect(0, 0, (float)Bounds.Width, (float)Bounds.Height, 0, 0, blurPaint);
         
         using var blurSnap = blurred.Snapshot();
         using var blurSnapShader = SKShader.CreateImage(blurSnap);
         using var blurSnapPaint = new SKPaint();
         blurSnapPaint.Shader = blurSnapShader;
         blurSnapPaint.IsAntialias = true;
-        skia.SkCanvas.DrawRoundRect(0, 0, (float) Bounds.Width, (float) Bounds.Height, Radius, Radius, blurSnapPaint);
+        skia.SkCanvas.DrawRoundRect(0, 0, (float) Bounds.Width, (float) Bounds.Height, 0, 0, blurSnapPaint);
 
         var tintColor = Material.TintColor;
         var tint = new SKColor(tintColor.R, tintColor.G, tintColor.B, tintColor.A);
@@ -95,7 +95,7 @@ file class BlurBehindRenderOperation(ImmutableExperimentalAcrylicMaterial Materi
         using var acrylicPaint = new SKPaint();
         acrylicPaint.IsAntialias = true;
         acrylicPaint.Shader = compose;
-        skia.SkCanvas.DrawRoundRect(0, 0, (float) Bounds.Width, (float) Bounds.Height, Radius, Radius, acrylicPaint);
+        skia.SkCanvas.DrawRoundRect(0, 0, (float) Bounds.Width, (float) Bounds.Height, 0, 0, acrylicPaint);
     }
 
 

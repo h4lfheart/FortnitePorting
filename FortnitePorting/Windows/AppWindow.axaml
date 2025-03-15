@@ -11,12 +11,7 @@
         WindowStartupLocation="CenterScreen"
         Icon="/Assets/LogoV3.ico"
         Title="Fortnite Porting">
-    <Grid RowDefinitions="30, *" Margin="{Binding $parent[Window].OffScreenMargin}">
-        <ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False" IsVisible="{Binding !Theme.UseMica}">
-            <ExperimentalAcrylicBorder.Material>
-                <ExperimentalAcrylicMaterial BackgroundSource="Digger" MaterialOpacity="1.5" TintColor="{Binding Theme.BackgroundColor}" TintOpacity="1"/>
-            </ExperimentalAcrylicBorder.Material>
-        </ExperimentalAcrylicBorder>
+    <Grid RowDefinitions="30, *" Margin="{Binding $parent[Window].OffScreenMargin}" Background="#2A2B34">
 
         <ui:NavigationView x:Name="NavigationView" Grid.Row="1" IsPaneOpen="False" OpenPaneLength="152" ItemInvoked="OnItemInvoked" IsSettingsVisible="False">
              <ui:NavigationView.MenuItems>
@@ -122,7 +117,7 @@
              </ui:NavigationView.FooterMenuItems>
              
              <Grid>
-                 <ui:Frame x:Name="ContentFrame" Transitions="{x:Null}"/>
+                 <ui:Frame x:Name="ContentFrame" Transitions="{x:Null}" Background="#FF262630"/>
                  <ItemsControl VerticalAlignment="Bottom" Margin="{ext:Space 1}" ItemsSource="{Binding InfoBars}">
                      <ItemsControl.ItemTemplate>
                          <DataTemplate>
@@ -204,7 +199,7 @@
 
             <TextBlock Grid.Column="1" Text="FortnitePorting" FontWeight="SemiBold" FontSize="16"
                        HorizontalAlignment="Left" VerticalAlignment="Center" />
-            <TextBlock Grid.Column="3" Text="{Binding VersionString}" Classes="TextFillColorTertiaryBrush" FontSize="13" Margin="-2 2 0 0"
+            <TextBlock Grid.Column="3" Text="OG" Classes="TextFillColorTertiaryBrush" FontSize="13" Margin="0 2 0 0"
                        HorizontalAlignment="Left" VerticalAlignment="Center" />
         </Grid>
     </Grid>

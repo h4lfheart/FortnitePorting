@@ -71,7 +71,8 @@ public partial class AssetItem : Base.BaseAssetItem
 
     protected sealed override SKBitmap CreateDisplayImage(SKBitmap iconBitmap)
     {
-        var bitmap = new SKBitmap(128, 160, iconBitmap.ColorType, SKAlphaType.Opaque);
+        var margin = 4;
+        var bitmap = new SKBitmap(128, 128, iconBitmap.ColorType, SKAlphaType.Opaque);
         using (var canvas = new SKCanvas(bitmap))
         {
             var colors = Series?.Colors ?? CUE4ParseVM.RarityColors[(int) Rarity];
@@ -79,36 +80,40 @@ public partial class AssetItem : Base.BaseAssetItem
             var backgroundRect = new SKRect(0, 0, bitmap.Width, bitmap.Height);
             if (Series?.BackgroundTexture.LoadOrDefault<UTexture2D>() is { } seriesBackground)
             {
-                canvas.DrawBitmap(seriesBackground.Decode(), backgroundRect);
+                canvas.DrawRect(backgroundRect, new SKPaint
+                {
+                    Shader = SkiaExtensions.LinearGradient(new SKPoint(128 / 2f, 128), new SKPoint(128, 128 / 4f), Series.Colors.Color2, Series.Colors.Color1)
+                });
+                canvas.DrawBitmap(seriesBackground.Decode(), new SKRect(margin, margin, bitmap.Width - margin, bitmap.Height - margin));
             }
             else if (!CreationData.HideRarity)
             {
+                canvas.DrawRect(backgroundRect, new SKPaint
+                {
+                    Shader = SkiaExtensions.LinearGradient(new SKPoint(128 / 2f, 128), new SKPoint(128, 128 / 4f), colors.Color2, colors.Color1)
+                });
+
                 var backgroundPaint = new SKPaint { Shader = SkiaExtensions.RadialGradient(bitmap.Height, colors.Color1, colors.Color3) };
-                canvas.DrawRect(backgroundRect, backgroundPaint);
+                canvas.DrawRect(new SKRect(margin, margin, bitmap.Width - margin, bitmap.Height - margin), backgroundPaint);
             }
             else
             {
+                canvas.DrawRect(backgroundRect, new SKPaint
+                {
+                    Shader = SkiaExtensions.LinearGradient(new SKPoint(128 / 2f, 128), new SKPoint(128, 128 / 4f), OuterBackgroundColor, InnerBackgroundColor)
+                });
+                
                 var backgroundPaint = new SKPaint { Shader = SkiaExtensions.RadialGradient(bitmap.Height, InnerBackgroundColor, OuterBackgroundColor) };
-                canvas.DrawRect(backgroundRect, backgroundPaint);
+                canvas.DrawRect(new SKRect(margin, margin, bitmap.Width - margin, bitmap.Height - margin), backgroundPaint);
             }
 
             if (CreationData.HideRarity)
             {
-                canvas.DrawBitmap(iconBitmap, backgroundRect with { Left = -16, Right = bitmap.Width + 16 });
+                canvas.DrawBitmap(iconBitmap, backgroundRect);
             }
             else
             {
-                canvas.DrawBitmap(iconBitmap, backgroundRect with { Left = -8, Right = bitmap.Width + 8, Bottom = bitmap.Height - 16 });
-            }
-
-            if (!CreationData.HideRarity)
-            {
-                var coolRectPaint = new SKPaint { Shader = SkiaExtensions.LinearGradient(bitmap.Width, true, colors.Color1, colors.Color2) };
-                coolRectPaint.Color = coolRectPaint.Color.WithAlpha((byte) (0.75 * byte.MaxValue));
-
-                canvas.RotateDegrees(-4);
-                canvas.DrawRect(new SKRect(-16, bitmap.Height - 12, bitmap.Width + 16, bitmap.Height + 16), coolRectPaint);
-                canvas.RotateDegrees(4);
+                canvas.DrawBitmap(iconBitmap, backgroundRect);
             }
             
         }

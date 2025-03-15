@@ -26,6 +26,7 @@
          <Brush x:Key="CheckBoxCheckGlyphForegroundCheckedDisabled">#5DFFFFFF</Brush>
          <Brush x:Key="ScrollViewerScrollBarsSeparatorBackground">#00000000</Brush>
          <x:Double x:Key="NavigationViewItemOnLeftIconBoxHeight">14</x:Double>
+         <CornerRadius x:Key="NavigationViewContentGridCornerRadius">0</CornerRadius>
          <FontFamily x:Key="SymbolThemeFontFamily">avares://FortnitePorting/Assets/Fonts/Segoe Fluent Icons.ttf#Segoe Fluent Icons</FontFamily>
          <FontFamily x:Key="TimeWasterFontFamily">avares://FortnitePorting/Assets/TimeWaster/Fonts/BurbankBigRegular-Bold.ttf#Burbank Big</FontFamily>
          <Brush x:Key="TabViewItemHeaderBackgroundSelected">#10000000</Brush>
@@ -41,11 +42,55 @@
         <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
         <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
         
+        <Style Selector="ComboBox">
+            <Setter Property="CornerRadius" Value="0"/>
+        </Style>
+        
+        <Style Selector="Button">
+            <Setter Property="CornerRadius" Value="0"/>
+        </Style>
+        
+        <Style Selector="DropDownButton">
+            <Setter Property="CornerRadius" Value="0"/>
+        </Style>
+        
+        <Style Selector="ToggleButton">
+            <Setter Property="CornerRadius" Value="0"/>
+        </Style>
+        
+        <Style Selector="TextBox">
+            <Setter Property="CornerRadius" Value="0"/>
+        </Style>
+        
+        <Style Selector="AutoCompleteBox">
+            <Setter Property="CornerRadius" Value="0"/>
+        </Style>
+        
+        <Style Selector="ui|NavigationView /template/ Border#ContentGridBorder">
+            <Setter Property="CornerRadius" Value="0"/>
+        </Style>
+        
+        <Style Selector="Border">
+            <Setter Property="CornerRadius" Value="0"/>
+        </Style>
+        
+        <Style Selector="ListBoxItem">
+            <Setter Property="CornerRadius" Value="0"/>
+        </Style>
+        
+        <Style Selector="CheckBox">
+            <Setter Property="CornerRadius" Value="0"/>
+        </Style>
+
+        <Style Selector="uip|NavigationViewItemPresenter">
+            <Setter Property="CornerRadius" Value="0"/>
+        </Style>
+        
         <Style Selector="ui|FABorder">
             <Setter Property="Background" Value="#0DFFFFFF"/>
             <Setter Property="BorderBrush" Value="#19000000"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="CornerRadius" Value="0"/>
             <Setter Property="MinHeight" Value="32"/>
         </Style>
         

@@ -27,4 +27,14 @@ public static class SkiaExtensions
     {
         return LinearGradient(size, horizontal, colors.Select(col => SKColor.Parse(col.Hex)).ToArray());
     }
+    
+    public static SKShader LinearGradient(SKPoint start, SKPoint end, params SKColor[] colors)
+    {
+        return SKShader.CreateLinearGradient(start, end, colors, SKShaderTileMode.Clamp);
+    }
+
+    public static SKShader LinearGradient(SKPoint start, SKPoint end, params FLinearColor[] colors)
+    {
+        return LinearGradient(start, end, colors.Select(col => SKColor.Parse(col.Hex)).ToArray());
+    }
 }
