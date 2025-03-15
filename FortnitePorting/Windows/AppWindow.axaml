@@ -4,6 +4,7 @@
         xmlns:ui="using:FluentAvalonia.UI.Controls"
         xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
         xmlns:windowModels="clr-namespace:FortnitePorting.WindowModels"
+        xmlns:controls="clr-namespace:FortnitePorting.Controls"
         x:Class="FortnitePorting.Windows.AppWindow"
         x:DataType="windowModels:AppWindowModel"
         Width="1160" Height="770" RequestedThemeVariant="Dark" FontFamily="Segoe UI" Background="{x:Null}"
@@ -21,6 +22,12 @@
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItemSeparator IsVisible="{Binding SetupTabsAreVisible}"/>
+                 <ui:NavigationViewItem x:Name="TimeWasterButton" Content="???" Tag="TimeWaster" SelectsOnInvoked="False">
+                     <ui:NavigationViewItem.IconSource>
+                         <ui:PathIconSource/>
+                     </ui:NavigationViewItem.IconSource>
+                 </ui:NavigationViewItem>
+                 <ui:NavigationViewItemSeparator/>
                  <ui:NavigationViewItem Content="Home" Tag="Home" IsEnabled="{Binding !SetupTabsAreVisible}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Home}"/>
@@ -153,6 +160,32 @@
                  </ItemsControl>
              </Grid>
          </ui:NavigationView>
+        
+        <Grid x:Name="TimeWasterIcon" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False">
+            <Grid RenderTransform="Scale(0.4)">
+                <Border x:Name="SpinningGlow" Background="#B9A137" CornerRadius="0" Margin="{ext:Space 0, 2, 0, 0}" Opacity="1">
+                    <Border.OpacityMask>
+                        <ImageBrush Source="/Assets/TimeWaster/T_Glow_Detail_Mask.png" Stretch="Fill"/>
+                    </Border.OpacityMask>
+                    <Border.RenderTransform>
+                        <ScaleTransform ScaleX="4" ScaleY="5"/>
+                    </Border.RenderTransform>
+                </Border>
+                <Border Background="#B9A137" CornerRadius="0" Margin="{ext:Space 0, 1, 0, 0}" Opacity="0.75">
+                    <Border.OpacityMask>
+                        <ImageBrush Source="/Assets/TimeWaster/Sprites/T_Glow_Mask.png" Stretch="Fill"/>
+                    </Border.OpacityMask>
+                    <Border.RenderTransform>
+                        <ScaleTransform ScaleX="2.5" ScaleY="3"/>
+                    </Border.RenderTransform>
+                </Border>
+                <Image Source="/Assets/TimeWaster/Sprites/T_Pizza.png" Stretch="None">
+                    <Image.RenderTransform>
+                        <ScaleTransform ScaleX="1.2" ScaleY="1.2"/>
+                    </Image.RenderTransform>
+                </Image>
+            </Grid>
+        </Grid>
         
         <TransitioningContentControl Grid.Row="0" Grid.RowSpan="2" Content="{Binding TimeWaster}">
             <TransitioningContentControl.PageTransition>

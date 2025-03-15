@@ -1,9 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.Media;
+using Avalonia.Threading;
+using Avalonia.VisualTree;
 using FluentAvalonia.UI.Controls;
+using FortnitePorting.Controls;
+using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
@@ -22,11 +30,53 @@ public partial class AppWindow : WindowBase<AppWindowModel>
         WindowModel.NavigationView = NavigationView;
         
         KeyDownEvent.AddClassHandler<TopLevel>(OnKeyDown, handledEventsToo: true);
-        //WindowModel.TimeWaster = new TimeWasterView();
+        
     }
+
+    protected override void OnLoaded(RoutedEventArgs e)
+    {
+        base.OnLoaded(e);
+
+        var transformUpdater = new TransformUpdater(TimeWasterButton, TimeWasterIcon, new Point(-9, -12));
+        var angle = 0f;
+        var timer = new DispatcherTimer(TimeSpan.FromMilliseconds(16), DispatcherPriority.Background, (sender, args) =>
+        {
+            angle += 1;
+            
+            SpinningGlow.RenderTransform = new TransformGroup
+            {
+                Children =
+                [
+                    new ScaleTransform(4, 5),
+                    new RotateTransform(angle, 0.5, 0.5)
+                ]
+            };
+            
+            transformUpdater.UpdateTransform();
+        });
+        
+        timer.Start();
+    }
+
+    public void MoveControlToPosition(Control movingControl, Control targetControl, Matrix initialPos)
+    {
+        var targetTransform = targetControl.GetTransformedBounds()!.Value.Transform;
+
+        movingControl.RenderTransform = new TranslateTransform((initialPos.OffsetX()- targetTransform.OffsetX()) * -1 - 8,
+            (initialPos.OffsetY() - targetTransform.OffsetY()) * -1 - 12);
+    }
+
 
     private void OnItemInvoked(object? sender, NavigationViewItemInvokedEventArgs e)
     {
+        if (e.InvokedItemContainer.Tag.Equals("TimeWaster"))
+        {
+            WindowModel.TimeWasterOpen = true;
+            WindowModel.TimeWaster = new TimeWasterView();
+            KonamiKeyPresses.Clear();
+            return;
+        }
+        
         var viewName = $"FortnitePorting.Views.{e.InvokedItemContainer.Tag}View";
         
         var type = Type.GetType(viewName);

@@ -153,7 +153,7 @@ public partial class ProfilesViewModel : ViewModelBase
         var dialog = new ContentDialog
         {
             Title = $"Delete \"{profile.Name}\"",
-            Content = "Are you sure you want to delete this profile?",
+            Content = "Are you sure you want to delete this profile? All files related to this installation will be deleted.",
             CloseButtonText = "No",
             PrimaryButtonText = "Yes",
             PrimaryButtonCommand = new RelayCommand(async () =>
