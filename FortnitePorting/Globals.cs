@@ -1,5 +1,5 @@
 global using static FortnitePorting.Services.ApplicationService;
-
+using System;
 using Avalonia.Platform.Storage;
 using CUE4Parse.UE4.Objects.Core.Misc;
 using FortnitePorting.Shared.Models;
@@ -10,7 +10,7 @@ public static class Globals
 {
     public static string VersionString => Version.GetDisplayString(EVersionStringType.IdentifierPrefix);
     public static readonly FPVersion Version = new(3, 0, 7, 1);
-    public const string OnlineTag = "FortnitePorting";
+    public const string OnlineTag = "FortnitePorting OG";
     
     public static readonly FilePickerFileType MappingsFileType = new("Unreal Mappings") { Patterns = [ "*.usmap" ] };
     public static readonly FilePickerFileType JSONFileType = new("JSON") { Patterns = [ "*.json" ] };
@@ -33,4 +33,32 @@ public static class Globals
     public const string TWITTER_URL = "https://twitter.com/FortnitePorting";
     public const string GITHUB_URL = "https://github.com/h4lfheart/FortnitePorting";
     public const string KOFI_URL = "https://ko-fi.com/halfuwu";
+
+    public static string GetSeededOGProfileURL(object? obj)
+    {
+        return OGProfileURLs[Math.Abs(obj?.GetHashCode() ?? 0) % 7];
+    }
+    
+    public static readonly string[] OGProfileURLs = 
+    [
+        "https://fortniteporting.halfheart.dev/OG/T-Soldier-HID-001-Athena-Commando-F-L.png",
+        "https://fortniteporting.halfheart.dev/OG/T-Soldier-HID-002-Athena-Commando-F-L.png",
+        "https://fortniteporting.halfheart.dev/OG/T-Soldier-HID-003-Athena-Commando-F-L.png",
+        "https://fortniteporting.halfheart.dev/OG/T-Soldier-HID-004-Athena-Commando-F-L.png",
+        "https://fortniteporting.halfheart.dev/OG/T-Soldier-HID-005-Athena-Commando-M-L.png",
+        "https://fortniteporting.halfheart.dev/OG/T-Soldier-HID-006-Athena-Commando-M-L.png",
+        "https://fortniteporting.halfheart.dev/OG/T-Soldier-HID-007-Athena-Commando-M-L.png",
+        "https://fortniteporting.halfheart.dev/OG/T-Soldier-HID-008-Athena-Commando-M-L.png",
+    ];
+    
+    public static string GetSeededOGStaffProfileURL(object? obj)
+    {
+        return OGStaffProfileURLs[Math.Abs(obj?.GetHashCode() ?? 0) % 2];
+    }
+    
+    public static readonly string[] OGStaffProfileURLs = 
+    [
+        "https://fortniteporting.halfheart.dev/OG/T-Soldier-HID-017-Athena-Commando-M-L.png",
+        "https://fortniteporting.halfheart.dev/OG/T-Soldier-HID-028-Athena-Commando-F-L.png"
+    ];
 }

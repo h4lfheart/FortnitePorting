@@ -31,8 +31,8 @@
          <FontFamily x:Key="TimeWasterFontFamily">avares://FortnitePorting/Assets/TimeWaster/Fonts/BurbankBigRegular-Bold.ttf#Burbank Big</FontFamily>
          <Brush x:Key="TabViewItemHeaderBackgroundSelected">#10000000</Brush>
          <Brush x:Key="TabViewItemSeparator">#30000000</Brush>
-         
      </Application.Resources>
+
              
     <Application.Styles>
         <FluentTheme />
@@ -41,6 +41,10 @@
         <StyleInclude Source="avares://FluentAvalonia.ProgressRing/Styling/Controls/ProgressRing.axaml" />
         <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
         <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
+        
+        <Style Selector="TextBlock">
+            <Setter Property="FontFamily" Value="{StaticResource TimeWasterFontFamily}"/>
+        </Style>
         
         <Style Selector="ComboBox">
             <Setter Property="CornerRadius" Value="0"/>

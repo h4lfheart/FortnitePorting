@@ -7,27 +7,27 @@
         xmlns:controls="clr-namespace:FortnitePorting.Controls"
         x:Class="FortnitePorting.Windows.AppWindow"
         x:DataType="windowModels:AppWindowModel"
-        Width="1160" Height="770" RequestedThemeVariant="Dark" FontFamily="Segoe UI" Background="{x:Null}"
+        Width="1160" Height="770" RequestedThemeVariant="Dark" FontFamily="{StaticResource TimeWasterFontFamily}" Background="{x:Null}"
         TransparencyLevelHint="{Binding Theme.TransparencyHints}" ExtendClientAreaToDecorationsHint="True"
         WindowStartupLocation="CenterScreen"
         Icon="/Assets/LogoV3.ico"
-        Title="Fortnite Porting">
+        Title="Fortnite Porting OG">
     <Grid RowDefinitions="30, *" Margin="{Binding $parent[Window].OffScreenMargin}" Background="#2A2B34">
 
-        <ui:NavigationView x:Name="NavigationView" Grid.Row="1" IsPaneOpen="False" OpenPaneLength="152" ItemInvoked="OnItemInvoked" IsSettingsVisible="False">
-             <ui:NavigationView.MenuItems>
-                 <ui:NavigationViewItem Content="Welcome" Tag="Welcome" IsSelected="True" IsVisible="{Binding SetupTabsAreVisible}">
+        <ui:NavigationView x:Name="NavigationView" Grid.Row="1" IsPaneOpen="False" OpenPaneLength="152" ItemInvoked="OnItemInvoked" IsSettingsVisible="False" IsPaneToggleButtonVisible="False">
+            <ui:NavigationView.MenuItems>
+                <ui:NavigationViewItem x:Name="TimeWasterButton" Content="???" Tag="TimeWaster" SelectsOnInvoked="False" IsVisible="{Binding !SetupTabsAreVisible}">
+                    <ui:NavigationViewItem.IconSource>
+                        <ui:PathIconSource/>
+                    </ui:NavigationViewItem.IconSource>
+                </ui:NavigationViewItem>
+                <ui:NavigationViewItemSeparator IsVisible="{Binding !SetupTabsAreVisible}"/>
+                <ui:NavigationViewItem Content="Welcome" Tag="Welcome" IsSelected="True" IsVisible="{Binding SetupTabsAreVisible}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry CheckboxesMarked}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
-                 <ui:NavigationViewItemSeparator IsVisible="{Binding SetupTabsAreVisible}"/>
-                 <ui:NavigationViewItem x:Name="TimeWasterButton" Content="???" Tag="TimeWaster" SelectsOnInvoked="False">
-                     <ui:NavigationViewItem.IconSource>
-                         <ui:PathIconSource/>
-                     </ui:NavigationViewItem.IconSource>
-                 </ui:NavigationViewItem>
-                 <ui:NavigationViewItemSeparator/>
+                <ui:NavigationViewItemSeparator IsVisible="{Binding SetupTabsAreVisible}"/>
                  <ui:NavigationViewItem Content="Home" Tag="Home" IsEnabled="{Binding !SetupTabsAreVisible}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Home}"/>
@@ -161,7 +161,10 @@
              </Grid>
          </ui:NavigationView>
         
-        <Grid x:Name="TimeWasterIcon" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False">
+        <Grid x:Name="TimeWasterIcon" Grid.Row="0" Grid.RowSpan="2" HorizontalAlignment="Left" VerticalAlignment="Top" IsHitTestVisible="False" IsVisible="{Binding !SetupTabsAreVisible}">
+            <Grid.RenderTransform>
+                <TranslateTransform X="-9" Y="21" />
+            </Grid.RenderTransform>
             <Grid RenderTransform="Scale(0.4)">
                 <Border x:Name="SpinningGlow" Background="#B9A137" CornerRadius="0" Margin="{ext:Space 0, 2, 0, 0}" Opacity="1">
                     <Border.OpacityMask>

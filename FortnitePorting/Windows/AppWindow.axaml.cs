@@ -6,6 +6,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.LogicalTree;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
@@ -37,7 +38,6 @@ public partial class AppWindow : WindowBase<AppWindowModel>
     {
         base.OnLoaded(e);
 
-        var transformUpdater = new TransformUpdater(TimeWasterButton, TimeWasterIcon, new Point(-9, -12));
         var angle = 0f;
         var timer = new DispatcherTimer(TimeSpan.FromMilliseconds(16), DispatcherPriority.Background, (sender, args) =>
         {
@@ -51,19 +51,9 @@ public partial class AppWindow : WindowBase<AppWindowModel>
                     new RotateTransform(angle, 0.5, 0.5)
                 ]
             };
-            
-            transformUpdater.UpdateTransform();
         });
         
         timer.Start();
-    }
-
-    public void MoveControlToPosition(Control movingControl, Control targetControl, Matrix initialPos)
-    {
-        var targetTransform = targetControl.GetTransformedBounds()!.Value.Transform;
-
-        movingControl.RenderTransform = new TranslateTransform((initialPos.OffsetX()- targetTransform.OffsetX()) * -1 - 8,
-            (initialPos.OffsetY() - targetTransform.OffsetY()) * -1 - 12);
     }
 
 

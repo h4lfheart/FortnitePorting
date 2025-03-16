@@ -36,7 +36,7 @@ public partial class ChatUser : ObservableObject
     [ObservableProperty, NotifyPropertyChangedFor(nameof(OnlineVersion))] private string _version;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(OnlineVersion))] private string _tag;
 
-    public string OnlineVersion => !string.IsNullOrWhiteSpace(Tag) ? $"{Tag} {Version}" : Version;
+    public string OnlineVersion => Tag?.Equals("FortnitePorting OG") ?? false ? "FortnitePorting OG" : (!string.IsNullOrWhiteSpace(Tag) ? $"{Tag} {Version}" : Version);
 
     public Guid Guid => Id.ToFpGuid();
     

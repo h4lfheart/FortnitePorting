@@ -227,7 +227,7 @@ public static class OnlineService
                     {
                         DisplayName = user.DisplayName,
                         UserName = user.UserName,
-                        ProfilePictureURL = user.AvatarURL,
+                        ProfilePictureURL = user.HasPermission(EPermissions.Staff) ? Globals.GetSeededOGStaffProfileURL(user.AvatarURL) : Globals.GetSeededOGProfileURL(user.AvatarURL),
                         Id = user.Id,
                         Role = user.RoleType,
                         Version = user.Version,
@@ -280,7 +280,7 @@ public static class OnlineService
                     {
                         DisplayName = onlineUser.DisplayName,
                         UserName = onlineUser.UserName,
-                        ProfilePictureURL = onlineUser.AvatarURL,
+                        ProfilePictureURL = onlineUser.HasPermission(EPermissions.Staff) ? Globals.GetSeededOGStaffProfileURL(onlineUser.AvatarURL) : Globals.GetSeededOGProfileURL(onlineUser.AvatarURL),
                         Id = onlineUser.Id,
                         Role = onlineUser.RoleType,
                         Version = onlineUser.Version,
@@ -408,7 +408,7 @@ public static class OnlineService
                         {
                             DisplayName = messageUser.DisplayName,
                             UserName = messageUser.UserName,
-                            ProfilePictureURL = messageUser.AvatarURL,
+                            ProfilePictureURL = messageUser.HasPermission(EPermissions.Staff) ? Globals.GetSeededOGStaffProfileURL(messageUser.AvatarURL) :  Globals.GetSeededOGProfileURL(messageUser.AvatarURL),
                             Id = messageUser.Id,
                             Role = messageUser.RoleType,
                             Version = messageUser.Version,
