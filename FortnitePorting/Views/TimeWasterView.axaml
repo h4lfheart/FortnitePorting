@@ -306,7 +306,7 @@
                                 <ScaleTransform ScaleX="2" ScaleY="2"/>
                             </Border.RenderTransform>
                         </Border>
-                        <TextBlock Text="YOUR INSTALLATION PROFILE DID NOT LOAD A VALID ENCRYPTION KEY"
+                        <TextBlock Text="PLEASE ENSURE YOUR GAME IS UP TO DATE"
                                    Foreground="White" LetterSpacing="1.5" FontSize="24"
                                    HorizontalAlignment="Center">
                             <TextBlock.RenderTransform>
@@ -326,7 +326,7 @@
                                 <ScaleTransform ScaleX="2" ScaleY="2"/>
                             </Border.RenderTransform>
                         </Border>
-                        <TextBlock Text="PLEASE WAIT FOR ENCRYPTION KEYS AND/OR UPDATE YOUR GAME"
+                        <TextBlock Text="AND BE PATIENT IF AN UPDATE JUST RELEASED"
                                    Foreground="White" LetterSpacing="1.5" FontSize="24"
                                    HorizontalAlignment="Center">
                             <TextBlock.RenderTransform>

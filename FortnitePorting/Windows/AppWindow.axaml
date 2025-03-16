@@ -10,7 +10,7 @@
         Width="1160" Height="770" RequestedThemeVariant="Dark" FontFamily="{StaticResource TimeWasterFontFamily}" Background="{x:Null}"
         TransparencyLevelHint="{Binding Theme.TransparencyHints}" ExtendClientAreaToDecorationsHint="True"
         WindowStartupLocation="CenterScreen"
-        Icon="/Assets/LogoV3.ico"
+        Icon="/Assets/FPOGIcon.ico"
         Title="Fortnite Porting OG">
     <Grid RowDefinitions="30, *" Margin="{Binding $parent[Window].OffScreenMargin}" Background="#2A2B34">
 
