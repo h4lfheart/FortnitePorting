@@ -101,7 +101,7 @@ public partial class DownloadVersion : ObservableObject
                     foreach (var profile in profilesUsingVersion)
                     {
                         await profile.DeleteAndCleanup();
-                        AppSettings.Current.Profiles.Profiles.Remove(profile);
+                        AppSettings.Current.Profiles.ProfilesSource.Remove(profile);
                     }
                 }),
                 CloseButtonText = "Cancel",

@@ -2,6 +2,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Avalonia.Controls;
@@ -10,6 +11,8 @@ using Avalonia.Data.Converters;
 using Avalonia.Layout;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using DynamicData;
+using DynamicData.Binding;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Launcher.Application;
 using FortnitePorting.Launcher.Models.Downloads;
@@ -17,14 +20,37 @@ using FortnitePorting.Launcher.Models.Installation;
 using FortnitePorting.Launcher.Services;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Framework;
+using ReactiveUI;
 
 namespace FortnitePorting.Launcher.ViewModels;
 
 public partial class ProfilesViewModel : ViewModelBase
 {
-    [ObservableProperty] private ObservableCollection<InstallationProfile> _profiles = [];
-
+    [ObservableProperty] private string _searchFilter = string.Empty;
+    
+    [ObservableProperty] private ReadOnlyObservableCollection<InstallationProfile> _profiles = new([]);
+    
     [JsonIgnore] public bool CanCreateProfile => AppSettings.Current.DownloadedVersions.Count > 0 || AppSettings.Current.Repositories.Count > 0;
+    
+    public readonly SourceList<InstallationProfile> ProfilesSource = new();
+
+    public ProfilesViewModel()
+    {
+        var filter = this
+            .WhenAnyValue(viewModel => viewModel.SearchFilter)
+            .Select(searchFilter =>
+            {
+                return new Func<InstallationProfile, bool>(profile => 
+                    MiscExtensions.Filter(profile.Name, searchFilter) || MiscExtensions.Filter(profile.Version.ToString(), searchFilter));
+            });
+        
+        ProfilesSource.Connect()
+            .Filter(filter)
+            .Bind(out var collection)
+            .Subscribe();
+        
+        Profiles = collection;
+    }
 
     public async Task UpdateRepositoryProfiles()
     {
@@ -87,7 +113,7 @@ public partial class ProfilesViewModel : ViewModelBase
                 
                 File.Copy(targetVersion.ExecutablePath, profile.ExecutablePath);
                 
-                Profiles.Add(profile);
+                ProfilesSource.Add(profile);
                 
             })
         };
@@ -139,7 +165,7 @@ public partial class ProfilesViewModel : ViewModelBase
                 
                 File.Copy(targetVersion.ExecutablePath, profile.ExecutablePath, true);
                 
-                Profiles.Add(profile);
+                ProfilesSource.Add(profile);
                 
             })
         };
@@ -159,7 +185,7 @@ public partial class ProfilesViewModel : ViewModelBase
             PrimaryButtonCommand = new RelayCommand(async () =>
             {
                 await profile.DeleteAndCleanup();
-                Profiles.Remove(profile);
+                ProfilesSource.Remove(profile);
             })
         };
 
