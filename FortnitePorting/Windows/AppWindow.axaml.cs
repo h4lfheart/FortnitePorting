@@ -51,6 +51,15 @@ public partial class AppWindow : WindowBase<AppWindowModel>
                     new RotateTransform(angle, 0.5, 0.5)
                 ]
             };
+
+            SpinningBurger.RenderTransform = new TransformGroup
+            {
+                Children =
+                [
+                    new ScaleTransform(1.2, 1.2),
+                    new RotateTransform(angle * -0.6, 0.5, 0.5)
+                ]
+            };
         });
         
         timer.Start();

@@ -182,7 +182,7 @@
                         <ScaleTransform ScaleX="2.5" ScaleY="3"/>
                     </Border.RenderTransform>
                 </Border>
-                <Image Source="/Assets/TimeWaster/Sprites/T_Pizza.png" Stretch="None">
+                <Image x:Name="SpinningBurger" Source="/Assets/TimeWaster/Sprites/T_UI_Durrburger_Small.png" Stretch="None">
                     <Image.RenderTransform>
                         <ScaleTransform ScaleX="1.2" ScaleY="1.2"/>
                     </Image.RenderTransform>
