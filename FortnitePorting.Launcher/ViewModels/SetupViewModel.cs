@@ -49,7 +49,7 @@ public partial class SetupViewModel : ViewModelBase
             CloseButtonText = "No",
             PrimaryButtonCommand = new RelayCommand(async () =>
             {
-                await AppSettings.Current.Profiles.ImportInstallation();
+                await ProfilesVM.ImportInstallation();
             })
         };
 

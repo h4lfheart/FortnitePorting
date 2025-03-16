@@ -35,6 +35,8 @@ public class AppSettings
     {
         try
         {
+            Current.Profiles = [..ProfilesVM.ProfilesSource.Items];
+            
             File.WriteAllText(FilePath.FullName, JsonConvert.SerializeObject(Current, Formatting.Indented));
             Log.Information($"Saved settings to {FilePath.FullName}");
         }

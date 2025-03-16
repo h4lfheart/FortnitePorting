@@ -50,6 +50,8 @@ public partial class ProfilesViewModel : ViewModelBase
             .Subscribe();
         
         Profiles = collection;
+        
+        ProfilesSource.AddRange(AppSettings.Current.Profiles);
     }
 
     public async Task UpdateRepositoryProfiles()

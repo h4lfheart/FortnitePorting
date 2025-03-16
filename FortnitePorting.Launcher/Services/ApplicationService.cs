@@ -28,6 +28,7 @@ public static class ApplicationService
     public static APIViewModel ApiVM => ViewModelRegistry.Get<APIViewModel>()!;
     public static DownloadsViewModel DownloadsVM => ViewModelRegistry.Get<DownloadsViewModel>()!;
     public static RepositoriesViewModel RepositoriesVM => ViewModelRegistry.Get<RepositoriesViewModel>()!;
+    public static ProfilesViewModel ProfilesVM => ViewModelRegistry.Get<ProfilesViewModel>()!;
     
     public static IClassicDesktopStyleApplicationLifetime Application = null!;
     public static IStorageProvider StorageProvider => Application.MainWindow!.StorageProvider;
@@ -105,6 +106,7 @@ public static class ApplicationService
 
         if (AppSettings.Current.FinishedSetup)
         {
+            ViewModelRegistry.New<ProfilesViewModel>(initialize: true);
             ViewModelRegistry.New<RepositoriesViewModel>(initialize: true);
             ViewModelRegistry.New<DownloadsViewModel>(initialize: true);
         }

@@ -82,7 +82,7 @@ public partial class DownloadVersion : ObservableObject
     [RelayCommand]
     public async Task Delete()
     {
-        var profilesUsingVersion = AppSettings.Current.Profiles.Profiles
+        var profilesUsingVersion = ProfilesVM.ProfilesSource.Items
             .Where(profile => profile.Version.Equals(Version))
             .ToArray();
 
@@ -101,7 +101,7 @@ public partial class DownloadVersion : ObservableObject
                     foreach (var profile in profilesUsingVersion)
                     {
                         await profile.DeleteAndCleanup();
-                        AppSettings.Current.Profiles.ProfilesSource.Remove(profile);
+                        ProfilesVM.ProfilesSource.Remove(profile);
                     }
                 }),
                 CloseButtonText = "Cancel",

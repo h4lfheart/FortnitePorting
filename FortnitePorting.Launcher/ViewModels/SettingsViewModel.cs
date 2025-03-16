@@ -17,8 +17,6 @@ namespace FortnitePorting.Launcher.ViewModels;
 
 public partial class SettingsViewModel : ViewModelBase
 {
-    [ObservableProperty] private ProfilesViewModel _profiles = new();
-    
     [ObservableProperty] private string _installationPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "FortnitePortingLauncher", "Installations");
     [ObservableProperty] private string _downloadsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "FortnitePortingLauncher", "Downloads");
     [ObservableProperty] private bool _launchOnStartup = false;
@@ -26,6 +24,7 @@ public partial class SettingsViewModel : ViewModelBase
     
     [ObservableProperty] private ObservableCollection<RepositoryUrlContainer> _repositories = [];
     [ObservableProperty] private ObservableCollection<InstallationVersion> _downloadedVersions = [];
+    [ObservableProperty] private ObservableCollection<InstallationProfile> _profiles = [];
     
     [ObservableProperty] private bool _finishedSetup = false;
     
