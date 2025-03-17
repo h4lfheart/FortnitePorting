@@ -56,6 +56,12 @@
                     <ToggleSwitch IsChecked="{Binding UseTabTransitions}"/>
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
+            
+            <ui:SettingsExpander Header="OG Sound Effects" Description="Whether or not to use sound effects for Fortnite Porting OG.">
+                <ui:SettingsExpander.Footer>
+                    <ToggleSwitch IsChecked="{Binding UseOGAudio}"/>
+                </ui:SettingsExpander.Footer>
+            </ui:SettingsExpander>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

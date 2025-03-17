@@ -9,7 +9,7 @@
         x:DataType="windowModels:AppWindowModel"
         Width="1160" Height="770" RequestedThemeVariant="Dark" FontFamily="{StaticResource TimeWasterFontFamily}" Background="{x:Null}"
         TransparencyLevelHint="{Binding Theme.TransparencyHints}" ExtendClientAreaToDecorationsHint="True"
-        WindowStartupLocation="CenterScreen"
+        WindowStartupLocation="CenterScreen" Bounds="{Binding Bounds, Mode=TwoWay}"
         Icon="/Assets/FPOGIcon.ico"
         Title="Fortnite Porting OG">
     <Grid RowDefinitions="30, *" Margin="{Binding $parent[Window].OffScreenMargin}" Background="#2A2B34">
@@ -188,6 +188,12 @@
                     </Image.RenderTransform>
                 </Image>
             </Grid>
+        </Grid>
+        
+        <Grid Grid.Row="0" Grid.RowSpan="2" IsVisible="{Binding SupplyDrop.IsAlive}"
+              RenderTransform="{Binding SupplyDrop.Transform}" 
+              HorizontalAlignment="Left" VerticalAlignment="Top">
+            <Image Source="/Assets/OG/SupplyDrop.png" Cursor="Hand" Width="96" Height="96" PointerPressed="OnSupplyDropPressed"/>
         </Grid>
         
         <TransitioningContentControl Grid.Row="0" Grid.RowSpan="2" Content="{Binding TimeWaster}">

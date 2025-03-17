@@ -122,4 +122,9 @@ public partial class AppWindow : WindowBase<AppWindowModel>
     {
         BeginMoveDrag(e);
     }
+
+    private void OnSupplyDropPressed(object? sender, PointerPressedEventArgs e)
+    {
+        WindowModel.SupplyDrop.Open();
+    }
 }

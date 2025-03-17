@@ -4,9 +4,13 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using ATL.Logging;
+using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Media;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FluentAvalonia.UI.Controls;
@@ -14,6 +18,8 @@ using FortnitePorting.Application;
 using FortnitePorting.Models;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.App;
+using FortnitePorting.Models.OG;
+using FortnitePorting.Models.TimeWaster.Audio;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
@@ -45,8 +51,12 @@ public partial class AppWindowModel : WindowModelBase
     [ObservableProperty] private TimeWasterView? _timeWaster;
 
     [ObservableProperty] private OnlineResponse? _onlineStatus;
+
+    [ObservableProperty] private Rect _bounds;
+    [ObservableProperty] private SupplyDrop _supplyDrop = new();
     
     public OnlineSettingsViewModel OnlineRef => AppSettings.Current.Online;
+    
     
     public override async Task Initialize()
     {
@@ -55,6 +65,44 @@ public partial class AppWindowModel : WindowModelBase
         OnlineStatus = await ApiVM.FortnitePorting.GetOnlineStatusAsync();
 
         await CheckForUpdate(isAutomatic: true);
+    }
+    
+    public override async Task OnViewOpened()
+    {
+        if (Design.IsDesignMode) return;
+
+        var isWaitingForSpawn = false;
+        DispatcherTimer.Run(() =>
+        {
+            if (!CUE4ParseVM.FinishedLoading) return true;
+            if (TimeWasterOpen) return true;
+            if (isWaitingForSpawn) return true;
+            if (SupplyDrop.IsOpening) return true;
+            
+            if (SupplyDrop.IsAlive)
+            {
+                SupplyDrop.Update();
+
+                if (SupplyDrop.YPosition > Bounds.Height + 100)
+                {
+                    SupplyDrop.Destroy();
+                }
+            }
+            else
+            {
+                isWaitingForSpawn = true;
+                TaskService.Run(async () =>
+                {
+                    var time = Random.Shared.Next(15000, 30000);
+                    await Task.Delay(time);
+
+                    SupplyDrop.Spawn();
+                    isWaitingForSpawn = false;
+                });
+            }
+
+            return true;
+        }, TimeSpan.FromSeconds(SupplyDrop.DELTA_TIME), DispatcherPriority.Background);
     }
 
     public async Task CheckForUpdate(bool isAutomatic = false)

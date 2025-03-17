@@ -34,10 +34,14 @@ public partial class HomeViewModel : ViewModelBase
     
     public override async Task Initialize()
     {
-        if (!AppSettings.Current.Online.HasReceivedFirstPrompt)
+        TaskService.Run(async () =>
         {
-            await AppSettings.Current.Online.PromptForAuthentication();
-        }
+            var news = await ApiVM.FortnitePorting.GetNewsAsync();
+            News = [..news.OrderByDescending(item => item.Date)];
+
+            var featured = await ApiVM.FortnitePorting.GetFeaturedAsync();
+            Featured = [..featured];
+        });
         
         TaskService.Run(async () =>
         {
@@ -51,11 +55,16 @@ public partial class HomeViewModel : ViewModelBase
             await FilesVM.Initialize();
         });
         
-        var news = await ApiVM.FortnitePorting.GetNewsAsync();
-        News = [..news.OrderByDescending(item => item.Date)];
+        if (!AppSettings.Current.Online.HasReceivedFirstPrompt)
+        {
+            await AppSettings.Current.Online.PromptForAuthentication();
+        }
+
+        if (AppSettings.Current.Application.FirstTimeUsingOG)
+        {
+            await AskForOGAudioPermissions();
+        }
         
-        var featured = await ApiVM.FortnitePorting.GetFeaturedAsync();
-        Featured = [..featured];
     }
     
     public void UpdateStatus(string text)
@@ -81,5 +90,26 @@ public partial class HomeViewModel : ViewModelBase
     public void LaunchKoFi()
     {
         Launch(Globals.KOFI_URL);
+    }
+
+    private async Task AskForOGAudioPermissions()
+    {
+        await TaskService.RunDispatcherAsync(async () =>
+        {
+            AppSettings.Current.Application.FirstTimeUsingOG = false;
+            
+            var dialog = new ContentDialog
+            {
+                Title = "Welcome to FortnitePorting OG!!",
+                Content = "Would you like to enable sound effects? This can be changed at any time in application settings.",
+                PrimaryButtonText = "Yes",
+                CloseButtonText = "No",
+                PrimaryButtonCommand = new RelayCommand(() => AppSettings.Current.Application.UseOGAudio = true),
+                CloseButtonCommand = new RelayCommand(() => AppSettings.Current.Application.UseOGAudio = false),
+            };
+
+            await dialog.ShowAsync();
+
+        });
     }
 }
