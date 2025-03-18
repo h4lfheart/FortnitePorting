@@ -57,7 +57,9 @@ public partial class AssetLoader : ObservableObject
     private List<FAssetData> Assets;
 
     private bool BeganLoading;
-    private bool IsPaused;
+    
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(PauseIcon))] private bool _isPaused = false;
+    public MaterialIconKind PauseIcon => IsPaused ? MaterialIconKind.Play : MaterialIconKind.Pause;
     
     [ObservableProperty] private ObservableCollection<BaseAssetInfo> _selectedAssetInfos = [];
     
