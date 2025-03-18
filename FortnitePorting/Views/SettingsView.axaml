@@ -40,6 +40,14 @@
             </ui:NavigationViewItem>
         </ui:NavigationView.MenuItems>
         
+        <ui:NavigationView.FooterMenuItems>
+            <ui:NavigationViewItem Content="Reset" Tag="Reset">
+                <ui:NavigationViewItem.IconSource>
+                    <ui:PathIconSource Data="{ext:MaterialKindToGeometry Trash}"/>
+                </ui:NavigationViewItem.IconSource>
+            </ui:NavigationViewItem>
+        </ui:NavigationView.FooterMenuItems>
+        
         <ui:Frame x:Name="ContentFrame"/>
     </ui:NavigationView>
 </UserControl>
