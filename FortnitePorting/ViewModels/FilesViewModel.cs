@@ -356,7 +356,7 @@ public partial class FilesViewModel : ViewModelBase
         }
 
         var meta = AppSettings.Current.CreateExportMeta(ExportLocation);
-        meta.WorldFlags = EWorldFlags.Actors | EWorldFlags.Landscape | EWorldFlags.WorldPartitionGrids;
+        meta.WorldFlags = EWorldFlags.Actors | EWorldFlags.Landscape | EWorldFlags.WorldPartitionGrids | EWorldFlags.HLODs;
         if (meta.Settings.ImportInstancedFoliage)
             meta.WorldFlags |= EWorldFlags.InstancedFoliage;
         

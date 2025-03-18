@@ -260,7 +260,6 @@
                                 <RowDefinition Height="*"/>
                                 <RowDefinition Height="{ext:Space 1}"/>
                                 <RowDefinition Height="*"/>
-                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
                             
                             <Grid Grid.Row="0" ColumnDefinitions="* 3*">
@@ -278,12 +277,24 @@
                                 </ComboBox>
                             </Grid>
                             
-                            <Button Grid.Row="2" HorizontalAlignment="Stretch" Command="{Binding ExportCommand}">
-                                <StackPanel Orientation="Horizontal">
-                                    <material:MaterialIcon Kind="Download" Margin="{ext:Space 0, 0, 1, 0}"/>
-                                    <TextBlock Text="Export"/>
-                                </StackPanel>
-                            </Button>
+                            <Grid Grid.Row="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="{ext:Space 1}"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <Button Grid.Column="0" HorizontalAlignment="Stretch" Command="{Binding ExportCommand}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <material:MaterialIcon Kind="Download" Margin="{ext:Space 0, 0, 1, 0}"/>
+                                        <TextBlock Text="Export"/>
+                                    </StackPanel>
+                                </Button>
+                                
+                                <Button Grid.Column="2" ToolTip.Tip="Export Settings" Content="{material:MaterialIconExt Settings}"
+                                        Command="{Binding OpenSettingsCommand}"/>
+                            </Grid>
+                            
                         </Grid>
                     </ui:FABorder>
                 </Grid>

@@ -19,7 +19,7 @@ public class ExportDataMeta
 
     [JsonIgnore] public EExportLocation ExportLocation;
     [JsonIgnore] public string? CustomPath;
-    [JsonIgnore] public EWorldFlags WorldFlags = EWorldFlags.Actors | EWorldFlags.WorldPartitionGrids | EWorldFlags.Landscape | EWorldFlags.InstancedFoliage;
+    [JsonIgnore] public EWorldFlags WorldFlags = EWorldFlags.Actors | EWorldFlags.WorldPartitionGrids | EWorldFlags.Landscape | EWorldFlags.InstancedFoliage | EWorldFlags.HLODs;
 
     public event ExportProgressUpdate UpdateProgress;
 

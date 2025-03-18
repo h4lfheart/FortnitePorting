@@ -4,6 +4,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
@@ -119,5 +120,13 @@ public partial class MapView : ViewBase<MapViewModel>
                Matrix.CreateScale(scale, scale) *
                Matrix.CreateTranslation(centerX, centerY) *
                matrix;
+    }
+
+    private void OnMapDeleteClicked(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Control control) return;
+        if (control.DataContext is not WorldPartitionGridMap map) return;
+
+        ViewModel.SelectedMap.SelectedMaps.Remove(map);
     }
 }

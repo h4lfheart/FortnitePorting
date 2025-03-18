@@ -81,6 +81,7 @@
                                     <MenuItem Header="World Partition Actors" Classes="Checked" IsChecked="{Binding SelectedMap.WorldFlagsWorldPartition, Mode=TwoWay}"/>
                                     <MenuItem Header="Instanced &amp; Foliage Actors" Classes="Checked" IsChecked="{Binding SelectedMap.WorldFlagsInstancedFoliage, Mode=TwoWay}"/>
                                     <MenuItem Header="Landscape" Classes="Checked" IsChecked="{Binding SelectedMap.WorldFlagsLandscape, Mode=TwoWay}"/>
+                                    <MenuItem Header="HLODs" Classes="Checked" IsChecked="{Binding SelectedMap.WorldFlagsHLODs, Mode=TwoWay}"/>
                                 </MenuFlyout>
                             </DropDownButton.Flyout>
                             
@@ -160,20 +161,41 @@
                                IsVisible="{Binding !SelectedMap.SelectedMaps.Count}">
                     </TextBlock>
                     
-                    <Grid Grid.Row="4" VerticalAlignment="Bottom">
+                    <Grid Grid.Row="4" VerticalAlignment="Bottom" IsEnabled="{Binding !!SelectedMap.SelectedMaps.Count}">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="{ext:Space 1}"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
                         
-                        <Button Grid.Row="0" Command="{Binding SelectedMap.ExportWorldPartitionCommand}"
-                                HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
-                            <StackPanel Orientation="Horizontal">
-                                <material:MaterialIcon Kind="Download" Margin="{ext:Space 0, 0, 1, 0}"/>
-                                <TextBlock Text="Export"/>
-                            </StackPanel>
-                        </Button>
+                        <Grid Grid.Row="0" >
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="{ext:Space 1}"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <DropDownButton Grid.Column="0" HorizontalAlignment="Stretch">
+                                <DropDownButton.Flyout>
+                                    <MenuFlyout>
+                                        <!-- TODO enum flags converter -->
+                                        <MenuItem Header="Actors" Classes="Checked" IsChecked="{Binding SelectedMap.WorldPartitionFlagsMainActors, Mode=TwoWay}"/>
+                                        <MenuItem Header="Instanced &amp; Foliage Actors" Classes="Checked" IsChecked="{Binding SelectedMap.WorldPartitionFlagsInstancedFoliage, Mode=TwoWay}"/>
+                                        <MenuItem Header="HLODs" Classes="Checked" IsChecked="{Binding SelectedMap.WorldPartitionFlagsHLODs, Mode=TwoWay}"/>
+                                    </MenuFlyout>
+                                </DropDownButton.Flyout>
+                            
+                                <TextBlock Text="Export Flags"/>
+                            </DropDownButton>
+                        
+                            <Button Grid.Column="2" Command="{Binding SelectedMap.ExportWorldPartitionCommand}"
+                                    HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
+                                <StackPanel Orientation="Horizontal">
+                                    <material:MaterialIcon Kind="Download" Margin="{ext:Space 0, 0, 1, 0}"/>
+                                    <TextBlock Text="Export"/>
+                                </StackPanel>
+                            </Button>
+                        </Grid>
                     
                         <Button Grid.Row="2" Command="{Binding SelectedMap.ClearSelectedMapsCommand}"
                                 HorizontalAlignment="Stretch" VerticalAlignment="Bottom">

@@ -308,6 +308,8 @@ public class MeshExport : BaseExport
             case EExportType.World:
             {
                 if (asset is not UWorld world) break;
+
+                Name = world.Owner?.Name.SubstringAfterLast("/") ?? world.Name;
                 Meshes.AddRange(Exporter.World(world));
                 break;
             }
