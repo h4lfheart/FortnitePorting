@@ -62,6 +62,12 @@
                     <ToggleSwitch IsChecked="{Binding UseOGAudio}"/>
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
+            
+            <ui:SettingsExpander Header="OG Supply Drops" Description="Whether or not to spawn supply drops.">
+                <ui:SettingsExpander.Footer>
+                    <ToggleSwitch IsChecked="{Binding UseSupplyDrops}"/>
+                </ui:SettingsExpander.Footer>
+            </ui:SettingsExpander>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

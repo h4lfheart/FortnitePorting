@@ -74,6 +74,16 @@ public partial class AppWindowModel : WindowModelBase
         var isWaitingForSpawn = false;
         DispatcherTimer.Run(() =>
         {
+            if (!AppSettings.Current.Application.UseSupplyDrops)
+            {
+                if (SupplyDrop.IsAlive)
+                {
+                    SupplyDrop.Destroy();
+                    AudioSystem.Instance.Stop();
+                }
+                return true;
+            }
+            
             if (!CUE4ParseVM.FinishedLoading) return true;
             if (TimeWasterOpen) return true;
             if (isWaitingForSpawn) return true;
@@ -93,7 +103,7 @@ public partial class AppWindowModel : WindowModelBase
                 isWaitingForSpawn = true;
                 TaskService.Run(async () =>
                 {
-                    var time = Random.Shared.Next(15000, 30000);
+                    var time = Random.Shared.Next(1000, 2500); //Random.Shared.Next(60_000, 240_000);
                     await Task.Delay(time);
 
                     SupplyDrop.Spawn();

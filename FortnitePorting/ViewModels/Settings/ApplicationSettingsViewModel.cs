@@ -31,6 +31,7 @@ public partial class ApplicationSettingsViewModel : ViewModelBase
     [ObservableProperty] private bool _useTabTransitions = true;
     [ObservableProperty] private bool _firstTimeUsingOG = true;
     [ObservableProperty] private bool _useOGAudio = false;
+    [ObservableProperty] private bool _useSupplyDrops = true;
     
     public string AssetPath => UseAssetsPath && Directory.Exists(AssetsPath) ? AssetsPath : AssetsFolder.FullName;
 
