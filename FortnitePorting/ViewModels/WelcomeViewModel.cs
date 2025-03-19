@@ -32,7 +32,7 @@ public partial class WelcomeViewModel : ViewModelBase
     [ObservableProperty] private InstallationProfile _profile = new()
     {
         ProfileName = "Default",
-        ArchiveDirectory = string.Empty
+        ArchiveDirectory = null
     };
     
     public override async Task Initialize()

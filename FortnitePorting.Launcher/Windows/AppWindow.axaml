@@ -97,9 +97,9 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <TextBlock Grid.Column="1" Text="FortnitePorting" FontWeight="SemiBold" FontSize="16"
+            <TextBlock Grid.Column="1" Text="Portle" FontWeight="SemiBold" FontSize="16"
                        HorizontalAlignment="Left" VerticalAlignment="Center" />
-            <TextBlock Grid.Column="3" Text="Launcher" Classes="TextFillColorTertiaryBrush" FontSize="13" Margin="0 0 0 0"
+            <TextBlock Grid.Column="3" Text="Version Manager" Classes="TextFillColorTertiaryBrush" FontSize="13" Margin="0 0 0 0"
                        HorizontalAlignment="Left" VerticalAlignment="Center" />
         </Grid>
     </Grid>

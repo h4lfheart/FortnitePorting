@@ -1,11 +1,22 @@
+using System;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
+using System.Linq;
+using FortnitePorting.Models.Settings;
 
-namespace FortnitePorting.Shared.Validators;
+namespace FortnitePorting.Validators;
 
-public class ArchiveDirectoryAttribute : ValidationAttribute
+public class ArchiveDirectoryAttribute(string? canValidateProperty = null) : ValidationAttribute
 {
     protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
     {
+        if (!string.IsNullOrWhiteSpace(canValidateProperty))
+        {
+            var property = validationContext.ObjectType.GetProperty(canValidateProperty);
+            var isEnabled = (bool?) property?.GetValue(validationContext.ObjectInstance) ?? false;
+            if (!isEnabled) return ValidationResult.Success;
+        }
+        
         var directory = value as string;
         if (!Directory.Exists(directory))
             return new ValidationResult("Archive directory must exist.");
