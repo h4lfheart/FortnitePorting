@@ -271,5 +271,6 @@ public enum EWorldFlags
     Actors = 1 << 0,
     WorldPartitionGrids = 1 << 1,
     Landscape = 1 << 2,
-    InstancedFoliage = 1 << 3
+    InstancedFoliage = 1 << 3,
+    HLODs = 1 << 4,
 }

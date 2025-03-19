@@ -15,6 +15,7 @@ using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
+using FortnitePorting.Views;
 using RestSharp;
 using AssetLoaderCollection = FortnitePorting.Models.Assets.Loading.AssetLoaderCollection;
 
@@ -64,5 +65,12 @@ public partial class AssetsViewModel : ViewModelBase
         {
             info.Asset.Favorite();
         }
+    }
+
+    [RelayCommand]
+    public async Task OpenSettings()
+    {
+        AppWM.Navigate<ExportSettingsView>();
+        AppSettings.Current.ExportSettings.Navigate(ExportLocation);
     }
 }

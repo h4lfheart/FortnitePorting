@@ -160,6 +160,10 @@
            <Setter Property="Background" Value="Transparent"/>
         </Style>
         
+        <Style Selector="TabControl WrapPanel">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+        </Style>
+        
         <Style Selector="ui|NavigationView.NoBackground /template/ Border#ContentGridBorder">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderBrush" Value="Transparent"/>

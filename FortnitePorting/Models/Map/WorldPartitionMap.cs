@@ -47,6 +47,11 @@ public partial class WorldPartitionMap : ObservableObject
     [ObservableProperty] private bool _worldFlagsWorldPartition = true;
     [ObservableProperty] private bool _worldFlagsInstancedFoliage = true;
     [ObservableProperty] private bool _worldFlagsLandscape = true;
+    [ObservableProperty] private bool _worldFlagsHLODs = false;
+    
+    [ObservableProperty] private bool _worldPartitionFlagsMainActors = true;
+    [ObservableProperty] private bool _worldPartitionFlagsInstancedFoliage = true;
+    [ObservableProperty] private bool _worldPartitionFlagsHLODs = false;
     
     [ObservableProperty] private ObservableCollection<WorldPartitionGridMap> _selectedMaps = [];
     
@@ -197,6 +202,7 @@ public partial class WorldPartitionMap : ObservableObject
         if (WorldFlagsWorldPartition) meta.WorldFlags |= EWorldFlags.WorldPartitionGrids;
         if (WorldFlagsInstancedFoliage) meta.WorldFlags |= EWorldFlags.InstancedFoliage;
         if (WorldFlagsLandscape) meta.WorldFlags |= EWorldFlags.Landscape;
+        if (WorldFlagsHLODs) meta.WorldFlags |= EWorldFlags.HLODs;
         
         await Exporter.Export(_world, EExportType.World, meta);
     }
@@ -207,16 +213,16 @@ public partial class WorldPartitionMap : ObservableObject
         SelectedMaps.ForEach(map => map.Status = EWorldPartitionGridMapStatus.Waiting);
         
         var meta = AppSettings.Current.CreateExportMeta(MapVM.ExportLocation);
-        meta.WorldFlags = EWorldFlags.Actors | EWorldFlags.Landscape | EWorldFlags.WorldPartitionGrids;
+        meta.WorldFlags = 0;
+        if (WorldPartitionFlagsMainActors) meta.WorldFlags |= EWorldFlags.Actors;
+        if (WorldPartitionFlagsInstancedFoliage) meta.WorldFlags |= EWorldFlags.InstancedFoliage;
+        if (WorldPartitionFlagsHLODs) meta.WorldFlags |= EWorldFlags.HLODs;
         foreach (var map in SelectedMaps)
         {
             map.Status = EWorldPartitionGridMapStatus.Exporting;
             
             var world = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync<UWorld>(map.Path);
             if (world is null) continue;
-            
-            if (meta.Settings.ImportInstancedFoliage)
-                meta.WorldFlags |= EWorldFlags.InstancedFoliage;
             
             await Exporter.Export(world, EExportType.World, meta);
             

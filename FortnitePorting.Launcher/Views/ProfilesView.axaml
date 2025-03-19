@@ -16,12 +16,16 @@
              x:DataType="viewModels:ProfilesViewModel">
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="{ext:Space 0}"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="{ext:Space 1}"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         
-        <ItemsControl Grid.Row="0" ItemsSource="{Binding Profiles}" Margin="{ext:Space 1}">
+        <TextBox Grid.Row="0" Grid.Column="0" Watermark="Search..." Text="{Binding SearchFilter, Mode=TwoWay}" Margin="{ext:Space 1, 1, 1, 0}"/>
+        
+        <ItemsControl Grid.Row="2" ItemsSource="{Binding Profiles}" Margin="{ext:Space 1}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <ui:SettingsExpander Header="{Binding Name}" Description="{Binding DescriptionString}" 
@@ -66,11 +70,11 @@
             </ItemsControl.ItemTemplate>
         </ItemsControl>
         
-        <TextBlock Grid.Row="0" Text="No Installation Profiles Found" IsVisible="{Binding !Profiles.Count}"
+        <TextBlock Grid.Row="2" Text="No Installation Profiles Found" IsVisible="{Binding !Profiles.Count}"
                    HorizontalAlignment="Center" VerticalAlignment="Center" 
                    Classes="BodyTextBlockStyle TextFillColorTertiaryBrush"/>
         
-        <ui:FABorder Grid.Row="2" CornerRadius="0" Padding="{ext:Space 1}" Background="#22000000" 
+        <ui:FABorder Grid.Row="4" CornerRadius="0" Padding="{ext:Space 1}" Background="#22000000" 
                      IsEnabled="{Binding CanCreateProfile}">
             <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal">
                 <Button Command="{Binding ImportInstallation}" Margin="{ext:Space 0, 0, 1, 0}">

@@ -16,7 +16,7 @@ namespace FortnitePorting.Launcher.Views;
 
 public partial class ProfilesView : ViewBase<ProfilesViewModel>
 {
-    public ProfilesView() : base(AppSettings.Current.Profiles, initializeViewModel: false)
+    public ProfilesView() : base(ProfilesVM, initializeViewModel: false)
     {
         InitializeComponent();
     }

@@ -180,6 +180,40 @@ public static class ApplicationService
         DiscordService.Deinitialize();
     }
     
+    public static void RestartWithMessage(string title, string content, Action? onRestart = null, bool mandatory = false)
+    {
+        var dialog = new ContentDialog
+        {
+            Title = title,
+            Content = content,
+            CloseButtonText = "Restart",
+            CloseButtonCommand = new RelayCommand(() =>
+            {
+                onRestart?.Invoke();
+                Restart();
+            }),
+        };
+
+        if (mandatory)
+        {
+            dialog.PrimaryButtonText = "Cancel";
+            dialog.PrimaryButtonCommand = new RelayCommand(() => { });
+        }
+
+        dialog.ShowAsync();
+    }
+    
+    public static void Restart()
+    {
+        Launch(AppDomain.CurrentDomain.FriendlyName, false);
+        Shutdown();
+    }
+
+    public static void Shutdown()
+    {
+        Application.Shutdown();
+    }
+    
     public static void Launch(string location, bool shellExecute = true)
     {
         Process.Start(new ProcessStartInfo { FileName = location, UseShellExecute = shellExecute });
