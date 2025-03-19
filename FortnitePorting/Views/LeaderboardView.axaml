@@ -26,113 +26,152 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         
-        <ScrollViewer Grid.Column="0">
-            <Grid Margin="{ext:Space 1, 1, 2, 1}">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="{ext:Space 1}"/>
-                    <RowDefinition Height="3*"/>
-                    <RowDefinition Height="{ext:Space 1}"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="{ext:Space 1}"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                
-                <TextBlock Grid.Row="0" Grid.Column="0" Text="Top Users" 
-                           Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
-                
-                <ItemsControl Grid.Column="0" Grid.Row="2" ItemsSource="{Binding LeaderboardUsers}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <ui:FABorder Padding="{ext:Space 1}" Margin="{ext:Space 0, 0, 0, 1}">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="{ext:Space 1}"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="{ext:Space 1}"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="{ext:Space 1}"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                            
-                                    <Grid Grid.Column="0">
-                                        <Ellipse Height="64" Width="64" Fill="#2F000000"/>
-                                        <Ellipse Height="64" Width="64" 
-                                                 StrokeThickness="5" Stroke="#00000000">
-                                            <Ellipse.Fill>
-                                                <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding ProfilePicture, TargetNullValue='avares://FortnitePorting/Assets/DefaultProfile.png'}" Stretch="UniformToFill"/>
-                                            </Ellipse.Fill>
-                                        </Ellipse>
-                                    </Grid>
-                                    <Image Grid.Column="0" Source="{Binding MedalBitmap}" Width="36" Margin="38 38 0 0 "/>
-                                    <TextBlock Grid.Column="2" Text="{Binding Ranking}" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                                    <Grid Grid.Column="4" VerticalAlignment="Center" Margin="{ext:Space 1, 0, 0, 0}" RowDefinitions="* *">
-                                        <TextBlock Grid.Row="0" Text="{Binding GlobalName}" Classes="BodyStrongTextBlockStyle"/>
-                                        <TextBlock Grid.Row="1" Text="{Binding Username}" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"/>
-                                    </Grid>
-                                    <TextBlock Grid.Column="6" Text="{Binding ExportCount, StringFormat=N0}" 
-                                               Classes="SubtitleTextBlockStyle" Margin="{ext:Space 0, 0, 1, 0}"
-                                               HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                                </Grid>
-                            </ui:FABorder>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-                
-                <TextBlock Grid.Column="0" Grid.Row="2" Text="User Data Unavailable" 
-                           Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"
-                           VerticalAlignment="Center" HorizontalAlignment="Center"
-                           IsVisible="{Binding !LeaderboardUsers.Count}"/>
-
-                
-                <TextBlock Grid.Row="0" Grid.Column="2" Text="Top Exports" 
-                           Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
-                
-                <ItemsControl Grid.Column="2" Grid.Row="2" ItemsSource="{Binding LeaderboardExports}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <ui:FABorder Padding="{ext:Space 1}" Margin="{ext:Space 0, 0, 0, 1}">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="{ext:Space 1}"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="{ext:Space 1}"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="{ext:Space 1}"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                            
-                                    <Border Grid.Column="0" CornerRadius="4" ClipToBounds="True">
-                                        <Image Source="{Binding ExportBitmap}" Width="64"/>
-                                    </Border>
-                                    <Image Grid.Column="0" Source="{Binding MedalBitmap}" IsVisible="{Binding ShowMedal}"
-                                           Width="36" Margin="38 38 0 0 "/>
-                                    <TextBlock Grid.Column="2" Text="{Binding Ranking}" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                                    <Grid Grid.Column="4" VerticalAlignment="Center" Margin="{ext:Space 1, 0, 0, 0}" RowDefinitions="* *">
-                                        <TextBlock Grid.Row="0" Text="{Binding ObjectName}" Classes="BodyStrongTextBlockStyle"/>
-                                        <TextBlock Grid.Row="1" Text="{Binding ID}" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush" TextWrapping="Wrap"/>
-                                    </Grid>
-                                    <TextBlock Grid.Column="6" Text="{Binding ExportCount, StringFormat=N0}" 
-                                               Classes="SubtitleTextBlockStyle" Margin="{ext:Space 0, 0, 1, 0}"
-                                               HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                                </Grid>
-                            </ui:FABorder>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-                
-                <TextBlock Grid.Column="2" Grid.Row="2" Text="Export Data Unavailable" 
-                           Classes="BodyTextBlockStyle TextFillColorSecondaryBrush" 
-                           VerticalAlignment="Center" HorizontalAlignment="Center"
-                           IsVisible="{Binding !LeaderboardExports.Count}"/>
-            </Grid>
-        </ScrollViewer>
+        <TabControl Grid.Column="0" HorizontalAlignment="Stretch" Padding="{ext:Space 1, 0, 0, 0}">
+            <TabItem Header="Users">
+                <Grid>
+                    <ScrollViewer>
+                        <ItemsControl ItemsSource="{Binding LeaderboardUsers}" Margin="{ext:Space 0, 0, 2, 0}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <ui:FABorder Padding="{ext:Space 1}" Margin="{ext:Space 0, 0, 0, 1}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="{ext:Space 1}"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="{ext:Space 1}"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="{ext:Space 1}"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                    
+                                            <Grid Grid.Column="0">
+                                                <Ellipse Height="64" Width="64" Fill="#2F000000"/>
+                                                <Ellipse Height="64" Width="64" 
+                                                         StrokeThickness="5" Stroke="#00000000">
+                                                    <Ellipse.Fill>
+                                                        <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding ProfilePicture, TargetNullValue='avares://FortnitePorting/Assets/DefaultProfile.png'}" Stretch="UniformToFill"/>
+                                                    </Ellipse.Fill>
+                                                </Ellipse>
+                                            </Grid>
+                                            <Image Grid.Column="0" Source="{Binding MedalBitmap}" Width="36" Margin="38 38 0 0 "/>
+                                            <TextBlock Grid.Column="2" Text="{Binding Ranking}" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                            <Grid Grid.Column="4" VerticalAlignment="Center" Margin="{ext:Space 1, 0, 0, 0}" RowDefinitions="* *">
+                                                <TextBlock Grid.Row="0" Text="{Binding GlobalName}" Classes="BodyStrongTextBlockStyle"/>
+                                                <TextBlock Grid.Row="1" Text="{Binding Username}" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"/>
+                                            </Grid>
+                                            <TextBlock Grid.Column="6" Text="{Binding ExportCount, StringFormat=N0}" 
+                                                       Classes="SubtitleTextBlockStyle" Margin="{ext:Space 0, 0, 1, 0}"
+                                                       HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </ui:FABorder>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                    
+                    <TextBlock Text="User Data Unavailable" 
+                               Classes="BodyTextBlockStyle TextFillColorTertiaryBrush"
+                               VerticalAlignment="Center" HorizontalAlignment="Center"
+                               IsVisible="{Binding !LeaderboardUsers.Count}"/>
+                </Grid>
+            </TabItem>
+            
+            <TabItem Header="Exports">
+                <Grid>
+                    <ScrollViewer>
+                        <ItemsControl ItemsSource="{Binding LeaderboardExports}" Margin="{ext:Space 0, 0, 2, 0}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <ui:FABorder Padding="{ext:Space 1}" Margin="{ext:Space 0, 0, 0, 1}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="{ext:Space 1}"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="{ext:Space 1}"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="{ext:Space 1}"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                    
+                                            <Border Grid.Column="0" CornerRadius="4" ClipToBounds="True">
+                                                <Image Source="{Binding ExportBitmap}" Width="64"/>
+                                            </Border>
+                                            <Image Grid.Column="0" Source="{Binding MedalBitmap}" IsVisible="{Binding ShowMedal}"
+                                                   Width="36" Margin="38 38 0 0 "/>
+                                            <TextBlock Grid.Column="2" Text="{Binding Ranking}" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                            <Grid Grid.Column="4" VerticalAlignment="Center" Margin="{ext:Space 1, 0, 0, 0}" RowDefinitions="* *">
+                                                <TextBlock Grid.Row="0" Text="{Binding ObjectName}" Classes="BodyStrongTextBlockStyle"/>
+                                                <TextBlock Grid.Row="1" Text="{Binding ID}" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush" TextWrapping="Wrap"/>
+                                            </Grid>
+                                            <TextBlock Grid.Column="6" Text="{Binding ExportCount, StringFormat=N0}" 
+                                                       Classes="SubtitleTextBlockStyle" Margin="{ext:Space 0, 0, 1, 0}"
+                                                       HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </ui:FABorder>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                    
+                    <TextBlock Text="Export Data Unavailable" 
+                               Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" 
+                               VerticalAlignment="Center" HorizontalAlignment="Center"
+                               IsVisible="{Binding !LeaderboardExports.Count}"/>
+                </Grid>
+            </TabItem>
+            
+            <TabItem Header="Streaks">
+                <Grid>
+                    <ScrollViewer>
+                        <ItemsControl ItemsSource="{Binding LeaderboardStreaks}" Margin="{ext:Space 0, 0, 2, 0}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <ui:FABorder Padding="{ext:Space 1}" Margin="{ext:Space 0, 0, 0, 1}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="{ext:Space 1}"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="{ext:Space 1}"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="{ext:Space 1}"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                    
+                                            <Grid Grid.Column="0">
+                                                <Ellipse Height="64" Width="64" Fill="#2F000000"/>
+                                                <Ellipse Height="64" Width="64" 
+                                                         StrokeThickness="5" Stroke="#00000000">
+                                                    <Ellipse.Fill>
+                                                        <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding ProfilePicture, TargetNullValue='avares://FortnitePorting/Assets/DefaultProfile.png'}" Stretch="UniformToFill"/>
+                                                    </Ellipse.Fill>
+                                                </Ellipse>
+                                            </Grid>
+                                            <Image Grid.Column="0" Source="{Binding MedalBitmap}" Width="36" Margin="38 38 0 0 "/>
+                                            <TextBlock Grid.Column="2" Text="{Binding Ranking}" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                            <Grid Grid.Column="4" VerticalAlignment="Center" Margin="{ext:Space 1, 0, 0, 0}" RowDefinitions="* *">
+                                                <TextBlock Grid.Row="0" Text="{Binding GlobalName}" Classes="BodyStrongTextBlockStyle"/>
+                                                <TextBlock Grid.Row="1" Text="{Binding Username}" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"/>
+                                            </Grid>
+                                            <TextBlock Grid.Column="6" Text="{Binding StreakCount, StringFormat='{}{0} Days'}" 
+                                                       Classes="SubtitleTextBlockStyle" Margin="{ext:Space 0, 0, 1, 0}"
+                                                       HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </ui:FABorder>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                    
+                    <TextBlock Text="Streak Data Unavailable" 
+                               Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" 
+                               VerticalAlignment="Center" HorizontalAlignment="Center"
+                               IsVisible="{Binding !LeaderboardExports.Count}"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
         
         <ui:FABorder Grid.Column="2" Background="#22000000" CornerRadius="0">
             <Grid>
@@ -141,6 +180,10 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="{ext:Space 1}"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="{ext:Space 1}"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="{ext:Space 1}"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="{ext:Space 1}"/>
                     <RowDefinition Height="Auto"/>
@@ -188,7 +231,7 @@
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
                                 
-                                <TextBlock Grid.Row="0" Text="Statistics" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
+                                <TextBlock Grid.Row="0" Text="Statistics" Classes="BodyStrongTextBlockStyle" HorizontalAlignment="Center"/>
                                 
                                 <ContentControl Grid.Row="2" Height="100" Content="{Binding Graph}" PointerMoved="OnGraphPointerMoved" PointerExited="OnGraphPointerExited"/>
                             
@@ -220,6 +263,10 @@
                 <TextBlock Grid.Row="6" Text="Top Assets" IsVisible="False"
                            Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
                 
+                <Separator Grid.Row="7" Margin="{ext:Space 1}"/>
+                
+                <TextBlock Grid.Row="8" Text="Current Streak" Classes="BodyStrongTextBlockStyle" HorizontalAlignment="Center"/>
+                <TextBlock Grid.Row="10" Text="{Binding StreaksResponse.CurrentStreak, StringFormat='{}{0} Days'}" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
             </Grid>
         </ui:FABorder>
     </Grid>
