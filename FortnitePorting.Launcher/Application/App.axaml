@@ -9,10 +9,10 @@
     
     <TrayIcon.Icons>
         <TrayIcons>
-            <TrayIcon Icon="/Assets/ManagerLogo.ico" ToolTipText="FortnitePorting Launcher" Clicked="OnTrayIconOpen">
+            <TrayIcon Icon="/Assets/PortleLogo.ico" ToolTipText="FortnitePorting Launcher" Clicked="OnTrayIconOpen">
                 <TrayIcon.Menu>
                     <NativeMenu>
-                        <NativeMenuItem Icon="/Assets/ManagerLogo.png" Header="FortnitePorting Launcher" IsEnabled="False"/>
+                        <NativeMenuItem Icon="/Assets/PortleLogo.png" Header="FortnitePorting Launcher" IsEnabled="False"/>
                         <NativeMenuItemSeparator/>
                         <NativeMenuItem Header="Quit FortnitePorting Launcher" Click="OnTrayIconQuit"/>
                     </NativeMenu>

@@ -56,19 +56,25 @@ public partial class RepositoriesViewModel : ViewModelBase
                 var newUrl = textBox.Text;
                 if (string.IsNullOrWhiteSpace(newUrl)) return;
 
-                if (AppSettings.Current.Repositories.Any(repo => repo.RepositoryUrl.Equals(newUrl)))
-                {
-                    AppWM.Message("Repositories", $"A repository already exists with the url \"{newUrl}\"");
-                    return;
-                }
-                
-                AppSettings.Current.Repositories.Add(new RepositoryUrlContainer(newUrl));
-                await Refresh();
-                await DownloadsVM.Refresh();
+                await AddRepository(newUrl, verbose: true);
             })
         };
 
         await dialog.ShowAsync();
+    }
+
+    public async Task AddRepository(string url, bool verbose = false)
+    {
+        if (AppSettings.Current.Repositories.Any(repo => repo.RepositoryUrl.Equals(url)))
+        {
+            if (verbose)
+                AppWM.Message("Repositories", $"A repository already exists with the url \"{url}\"");
+            return;
+        }
+                
+        AppSettings.Current.Repositories.Add(new RepositoryUrlContainer(url));
+        await Refresh();
+        await DownloadsVM.Refresh();
     }
     
     public async Task Delete(DownloadRepository repository)

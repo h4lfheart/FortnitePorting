@@ -26,11 +26,6 @@ public partial class App : Avalonia.Application
         {
             ApplicationService.Application = desktop;
             ApplicationService.Initialize();
-            
-            if (!desktop.Args?.Contains("--startup") ?? true)
-            {
-                OpenAppWindow();
-            }
         }
 
         base.OnFrameworkInitializationCompleted();

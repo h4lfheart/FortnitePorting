@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -9,11 +10,16 @@ using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
+using DynamicData;
+using FluentAvalonia.Core;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Launcher.Application;
+using FortnitePorting.Launcher.Models.Installation;
+using FortnitePorting.Launcher.Models.Repository;
 using FortnitePorting.Launcher.ViewModels;
 using FortnitePorting.Launcher.Views;
 using FortnitePorting.Launcher.WindowModels;
+using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
 using Serilog;
@@ -52,11 +58,6 @@ public static class ApplicationService
         
         LogsFolder.Create();
         LauncherDataFolder.Create();
-
-        if (!Application.Args?.Contains("--startup") ?? true)
-        {
-            OpenAppWindow();
-        }
         
         Application.Startup += OnStartup;
         Application.Exit += OnExit;
@@ -103,14 +104,15 @@ public static class ApplicationService
     {
         ViewModelRegistry.NewOrExisting<AppWindowModel>();
         ViewModelRegistry.New<APIViewModel>();
-
+        
         if (AppSettings.Current.FinishedSetup)
         {
-            ViewModelRegistry.New<ProfilesViewModel>(initialize: true);
-            ViewModelRegistry.New<RepositoriesViewModel>(initialize: true);
-            ViewModelRegistry.New<DownloadsViewModel>(initialize: true);
+            ViewModelRegistry.New<ProfilesViewModel>(initialize: true, blocking: true);
+            ViewModelRegistry.New<RepositoriesViewModel>(initialize: true, blocking: true);
+            ViewModelRegistry.New<DownloadsViewModel>(initialize: true, blocking: true);
         }
         
+        ExecuteArguments(Application.Args);
     }
     
     public static void OnExit(object? sender, ControlledApplicationLifetimeExitEventArgs e)
@@ -135,6 +137,89 @@ public static class ApplicationService
             };
             await dialog.ShowAsync();
         });
+    }
+    
+    public static async void ExecuteArguments(string[] args)
+    {
+        if (args.IndexOf("--skip-setup") is not -1 && !AppSettings.Current.FinishedSetup)
+        {
+            AppSettings.Current.FinishedSetup = true;
+            
+            ViewModelRegistry.NewOrExisting<ProfilesViewModel>(initialize: true, blocking: true);
+            ViewModelRegistry.NewOrExisting<RepositoriesViewModel>(initialize: true, blocking: true);
+            ViewModelRegistry.NewOrExisting<DownloadsViewModel>(initialize: true, blocking: true);
+        }
+        
+        if (args.IndexOf("--startup") is -1 && args.IndexOf("--silent") is -1)
+        {
+            OpenAppWindow();
+        }
+
+        if (args.IndexOf("--add-repository") is var addRepoIndex and not -1)
+        {
+            var repositoryUrl = args[addRepoIndex + 1].Trim('"');
+            await RepositoriesVM.AddRepository(repositoryUrl);
+            
+            Log.Information("Added repository {repositoryUrl}", repositoryUrl);
+        }
+
+        if (args.IndexOf("--import-profile") is var importProfileCommandIndex and not -1)
+        {
+            var profileName = args[importProfileCommandIndex + 1].Trim('"');
+            var executablePath = args[importProfileCommandIndex + 2].Trim('"');
+            var repositoryId = args[importProfileCommandIndex + 3].Trim('"');
+
+            var profileExists = ProfilesVM.ProfilesSource.Items.Any(profile => profile.Name.Equals(profileName));
+            var targetRepository = RepositoriesVM.Repositories.FirstOrDefault(repo => repo.Id.Equals(repositoryId));
+            if (!profileExists && targetRepository is not null)
+            {
+                var targetDownloadVersion = targetRepository.Versions.MaxBy(version => version.UploadTime)!;
+                var targetVersion = await targetDownloadVersion.DownloadInstallationVersion();
+
+                var id = Guid.NewGuid();
+
+                var profile = new InstallationProfile
+                {
+                    ProfileType = EProfileType.Repository,
+                    Name = profileName,
+                    Version = targetVersion.Version,
+                    Directory = Path.GetDirectoryName(executablePath)!,
+                    ExecutableName = Path.GetFileName(executablePath),
+                    Id = id,
+                    IconUrl = targetVersion.IconUrl,
+                    RepositoryUrl = targetVersion.RepositoryUrl
+                };
+
+                Directory.CreateDirectory(Path.GetDirectoryName(profile.ExecutablePath)!);
+                File.Copy(targetVersion.ExecutablePath, profile.ExecutablePath, true);
+
+                ProfilesVM.ProfilesSource.Add(profile);
+                
+                Log.Information("Created Profile {profileName}", profileName);
+            }
+        }
+        
+        if (args.IndexOf("--launch-profile") is var launchProfileIndex and not -1)
+        {
+            var profileName = args[launchProfileIndex + 1].Trim('"');
+            if (ProfilesVM.ProfilesSource.Items.FirstOrDefault(profile => profile.Name.Equals(profileName)) is
+                { } existingProfile)
+            {
+                await existingProfile.Launch();
+                Log.Information("Launched Profile {profileName}", profileName);
+            }
+        }
+        
+        if (args.IndexOf("--update-profile") is var updateProfileIndex and not -1)
+        {
+            var profileName = args[updateProfileIndex + 1].Trim('"');
+            if (ProfilesVM.ProfilesSource.Items.FirstOrDefault(profile => profile.Name.Equals(profileName)) is
+                { } existingProfile)
+            {
+                await existingProfile.Update(verbose: false);
+                Log.Information("Updated Profile {profileName}", profileName);
+            }
+        }
     }
     
     public static void Launch(string location, bool shellExecute = true)

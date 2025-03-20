@@ -11,8 +11,8 @@
         Width="800" Height="640" RequestedThemeVariant="Dark" FontFamily="Segoe UI" Background="{x:Null}"
         ExtendClientAreaToDecorationsHint="True"
         WindowStartupLocation="CenterScreen" ClosingBehavior="OwnerAndChildWindows" Closing="OnClosing"
-        Icon="/Assets/ManagerLogo.ico"
-        Title="Fortnite Porting Launcher">
+        Icon="/Assets/PortleLogo.ico"
+        Title="Portle">
     <Grid RowDefinitions="30, *" Margin="{Binding $parent[Window].OffScreenMargin}">
         <ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False">
             <ExperimentalAcrylicBorder.Material>

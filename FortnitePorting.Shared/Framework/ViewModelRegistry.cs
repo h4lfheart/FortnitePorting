@@ -12,22 +12,29 @@ public class ViewModelRegistry
         return Registry.TryGetValue(type, out var value) ? (T) value : null;
     }
 
-    public static T New<T>(bool initialize = false) where T : ViewModelBase, new()
+    public static T New<T>(bool initialize = false, bool blocking = false) where T : ViewModelBase, new()
     {
         var newViewModel = new T();
-        if (initialize) TaskService.Run(newViewModel.Initialize);
         Registry[typeof(T)] = newViewModel;
+        
+        if (initialize)
+        {
+            if (blocking)
+                TaskService.Run(newViewModel.Initialize).ConfigureAwait(false).GetAwaiter().GetResult();
+            else
+                TaskService.Run(newViewModel.Initialize);
+        }
         return newViewModel;
     }
     
-    public static T NewOrExisting<T>(bool initialize = false) where T : ViewModelBase, new()
+    public static T NewOrExisting<T>(bool initialize = false, bool blocking = false) where T : ViewModelBase, new()
     {
         if (Registry.ContainsKey(typeof(T)))
         {
             return Get<T>()!;
         }
         
-        return New<T>(initialize);
+        return New<T>(initialize, blocking);
     }
     
     public static T Register<T>(ViewModelBase existing) where T : ViewModelBase, new()
