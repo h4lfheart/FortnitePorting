@@ -1,10 +1,12 @@
 import json
+import math
 import traceback
 import pyperclip
 
 import bpy
 import traceback
 from math import radians
+
 from .mappings import *
 from .material import *
 from .enums import *
@@ -1118,11 +1120,11 @@ class ImportContext:
 
         def import_sections(sections, skeleton, track, is_main_skeleton = False):
             total_frames = 0
-            is_metahuman = any(skeleton.data.bones, lambda bone: bone.name == "FACIAL_C_FacialRoot")
             for section in sections:
                 path = section.get("Path")
 
-                total_frames += time_to_frame(section.get("Length"))
+                section_length_frames = time_to_frame(section.get("Length"))
+                total_frames += section_length_frames
 
                 anim = self.import_anim(path, skeleton)
                 clear_children_bone_transforms(skeleton, anim, "faceAttach")
@@ -1143,19 +1145,162 @@ class ImportContext:
                     for key_block in key_blocks:
                         key_block.value = 0
 
-                    for curve in curves:
-                        curve_name = curve.get("Name")
-                        if target_block := key_blocks.get(curve_name.replace("CTRL_expressions_", "")):
-                            for key in curve.get("Keys"):
-                                target_block.value = key.get("Value")
-                                target_block.keyframe_insert(data_path="value", frame=key.get("Time") * 30)
+                    def interpolate_keyframes(keyframes: list, frame: float, fps: int = 30) -> float:
+                        if not keyframes:
+                            raise ValueError("Keyframes list cannot be empty.")
 
-                        if is_metahuman and (curve_mappings := metahuman_mappings.get(curve_name)):
-                            for curve_mapping in curve_mappings:
-                                if target_block := key_blocks.get(curve_mapping.replace("CTRL_expressions_", "")):
-                                    for key in curve.get("Keys"):
-                                        target_block.value = key.get("Value")
-                                        target_block.keyframe_insert(data_path="value", frame=key.get("Time") * 30)
+                        keyframes = sorted(keyframes, key=lambda k: k['Time'])
+
+                        frame_time = frame / fps
+
+                        if frame_time <= keyframes[0]['Time']:
+                            return keyframes[0]['Value']
+                        if frame_time >= keyframes[-1]['Time']:
+                            return keyframes[-1]['Value']
+
+                        for i in range(len(keyframes) - 1):
+                            k1 = keyframes[i]
+                            k2 = keyframes[i + 1]
+                            if k1['Time'] <= frame_time <= k2['Time']:
+                                t = (frame_time - k1['Time']) / (k2['Time'] - k1['Time'])
+                                return k1['Value'] * (1 - t) + k2['Value'] * t
+
+                        return keyframes[-1]['Value']
+                    
+                    def import_curve_mapping(curve_mapping):
+                        for curve_mapping in curve_mapping:
+                            curve_name = curve_mapping.get("Name")
+                            if target_block := key_blocks.get(curve_name.replace("CTRL_expressions_", "")):
+                                for frame in range(section_length_frames):
+                                    value_stack = []
+
+                                    for element in curve_mapping.get("ExpressionStack"):
+                                        element_type = EOpElementType(element.get("ElementType"))
+                                        element_value = element.get("Value")
+                                        match element_type:
+                                            case EOpElementType.OPERATOR:
+                                                operator_type = EOperator(element_value)
+
+                                                if operator_type == EOperator.NEGATE:
+                                                    item_two = 1
+                                                    item_one = value_stack.pop()
+                                                else:
+                                                    item_two = value_stack.pop()
+                                                    item_one = value_stack.pop()
+
+                                                match operator_type:
+                                                    case EOperator.NEGATE:
+                                                        value_stack.append(-item_one)
+                                                    case EOperator.ADD:
+                                                        value_stack.append(item_one + item_two)
+                                                    case EOperator.SUBTRACT:
+                                                        value_stack.append(item_one - item_two)
+                                                    case EOperator.MULTIPLY:
+                                                        value_stack.append(item_one * item_two)
+                                                    case EOperator.DIVIDE:
+                                                        value_stack.append(item_one / item_two)
+                                                    case EOperator.MODULO:
+                                                        value_stack.append(item_one % item_two)
+                                                    case EOperator.POWER:
+                                                        value_stack.append(item_one ** item_two)
+                                                    case EOperator.FLOOR_DIVIDE:
+                                                        value_stack.append(item_one // item_two)
+
+                                            case EOpElementType.NAME:
+                                                sub_curve_name = str(element_value)
+                                                target_curve = first(curves, lambda curve: curve.get("Name") == sub_curve_name)
+                                                if target_curve:
+                                                    target_value = interpolate_keyframes(target_curve.get("Keys"), frame, fps=30)
+                                                    value_stack.append(target_value)
+                                                else:
+                                                    value_stack.append(0)
+
+                                            case EOpElementType.FUNCTION_REF:
+                                                function_index = element_value
+                                                argumentCount = 0
+                                                match function_index:
+                                                    case 0:
+                                                        argumentCount = 3
+                                                    case function_index if 1 <= function_index <= 2:
+                                                        argumentCount = 2
+                                                    case function_index if 3 <= function_index <= 16:
+                                                        argumentCount = 1
+                                                    case function_index if 17 <= function_index <= 19:
+                                                        argumentCount = 0
+                                                    
+                                                arguments = [0] * argumentCount
+                                                for arg_index in range(argumentCount):
+                                                    arguments[argumentCount - arg_index - 1] = value_stack.pop()
+                                                    
+                                                match function_index:
+                                                    case 0: # clamp
+                                                        value_stack.append(min(max(arguments[1], arguments[0]), arguments[2]))
+                                                    case 1: # min
+                                                        value_stack.append(min(arguments[0], arguments[1]))
+                                                    case 2: # max
+                                                        value_stack.append(max(arguments[0], arguments[1]))
+                                                    case 3: # abs
+                                                        value_stack.append(abs(arguments[0]))
+                                                    case 4: # round
+                                                        value_stack.append(round(arguments[0]))
+                                                    case 5: # ceil
+                                                        value_stack.append(math.ceil(arguments[0]))
+                                                    case 6: # floor
+                                                        value_stack.append(math.floor(arguments[0]))
+                                                    case 7: # sin
+                                                        value_stack.append(math.sin(arguments[0]))
+                                                    case 8: # cos
+                                                        value_stack.append(math.cos(arguments[0]))
+                                                    case 9: # tan
+                                                        value_stack.append(math.tan(arguments[0]))
+                                                    case 10: # arcsin
+                                                        value_stack.append(math.asin(arguments[0]))
+                                                    case 11: # arccos
+                                                        value_stack.append(math.acos(arguments[0]))
+                                                    case 12: # arctan
+                                                        value_stack.append(math.atan(arguments[0]))
+                                                    case 13: # sqrt
+                                                        value_stack.append(math.sqrt(arguments[0]))
+                                                    case 14: # invsqrt
+                                                        value_stack.append(1 / math.sqrt(arguments[0]))
+                                                    case 15: # log
+                                                        value_stack.append(math.log(arguments[0], math.e))
+                                                    case 16: # exp
+                                                        value_stack.append(math.exp(arguments[0]))
+                                                    case 17: # exp
+                                                        value_stack.append(math.e)
+                                                    case 18: # exp
+                                                        value_stack.append(math.pi)
+                                                    case 19: # undef
+                                                        value_stack.append(float('nan'))
+
+                                            case EOpElementType.FLOAT:
+                                                value_stack.append(float(element_value))
+
+                                    target_block.value = value_stack.pop()
+                                    target_block.keyframe_insert(data_path="value", frame=frame)
+
+                                target_block.value = 0
+
+                    is_skeleton_legacy = any(skeleton.data.bones, lambda bone: bone.name == "faceAttach")
+                    is_skeleton_metahuman = any(skeleton.data.bones, lambda bone: bone.name == "FACIAL_C_FacialRoot")
+                    
+                    is_anim_legacy = any(curves, lambda curve: curve.get("Name") in legacy_curve_names)
+                    is_anim_metahuman = any(curves, lambda curve: curve.get("Name") == "is_3L")
+                    
+                    if (is_skeleton_legacy and is_anim_legacy) or (is_anim_metahuman and is_anim_metahuman):
+                        for curve in curves:
+                            curve_name = curve.get("Name")
+                            if target_block := key_blocks.get(curve_name.replace("CTRL_expressions_", "")):
+                                for key in curve.get("Keys"):
+                                    target_block.value = key.get("Value")
+                                    target_block.keyframe_insert(data_path="value", frame=key.get("Time") * 30)
+                                
+                    if is_skeleton_metahuman and is_anim_legacy and (legacy_to_metahuman_mappings := data.get("LegacyToMetahumanMappings")):
+                        import_curve_mapping(legacy_to_metahuman_mappings)
+
+                    if is_skeleton_legacy and is_anim_metahuman and (metahuman_to_legacy_mappings := data.get("MetahumanToLegacyMappings")):
+                        import_curve_mapping(metahuman_to_legacy_mappings)
 
                     if active_mesh.data.shape_keys.animation_data.action is not None:
                         strip = mesh_track.strips.new(section_name, frame, active_mesh.data.shape_keys.animation_data.action)

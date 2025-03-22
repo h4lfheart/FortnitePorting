@@ -5,6 +5,7 @@ using CUE4Parse_Conversion.Animations;
 using CUE4Parse.GameTypes.FN.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Animation;
+using CUE4Parse.UE4.Assets.Exports.Animation.CurveExpression;
 using CUE4Parse.UE4.Assets.Exports.Component.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Component.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
@@ -38,6 +39,8 @@ public class AnimExport : BaseExport
     public readonly List<ExportAnimSection> Sections = new();
     public readonly List<ExportSound> Sounds = new();
     public readonly List<ExportProp> Props = new();
+    public List<ExportCurveMapping> LegacyToMetahumanMappings = [];
+    public List<ExportCurveMapping> MetahumanToLegacyMappings = [];
     
     public AnimExport(string name, UObject asset, BaseStyleData[] styles, EExportType exportType, ExportDataMeta metaData) : base(name, asset, styles, exportType, metaData)
     {
@@ -75,6 +78,20 @@ public class AnimExport : BaseExport
                 AnimMontage(montage);
                 break;
             }
+        }
+
+        if (CUE4ParseVM.Provider.TryLoadPackageObject<UCurveExpressionsDataAsset>(
+                "FortniteGame/Content/Characters/Player/Common/Fortnite_Base_Head/Facials/CurveMappings/FN_LegacyTo3L_Main_Mapping",
+                out var legacyToMetahumanCurves))
+        {
+            LegacyToMetahumanMappings = CurveMappings(legacyToMetahumanCurves);
+        }
+        
+        if (CUE4ParseVM.Provider.TryLoadPackageObject<UCurveExpressionsDataAsset>(
+                "FortniteGame/Content/Characters/Player/Common/Fortnite_Base_Head/Facials/CurveMappings/FN_3LToLegacy_Main_Mapping",
+                out var metahumanToLegacyCurves))
+        {
+            MetahumanToLegacyMappings = CurveMappings(metahumanToLegacyCurves);
         }
     }
     
@@ -180,6 +197,31 @@ public class AnimExport : BaseExport
                 break;
             }
         }
+    }
+
+    private List<ExportCurveMapping> CurveMappings(UCurveExpressionsDataAsset curveExpressions)
+    {
+        var mappings = new List<ExportCurveMapping>();
+
+        foreach (var (curveName, expr) in curveExpressions.ExpressionData.ExpressionMap)
+        {
+            var expressionStack = expr.Expression.Select(element => element switch
+                {
+                    OpElement<EOperator> op => new ExportCurveExpressionElement(OpElement.EOperator, op.Value),
+                    OpElement<FName> name => new ExportCurveExpressionElement(OpElement.FName, name.Value.Text),
+                    OpElement<FFunctionRef> functionRef => new ExportCurveExpressionElement(OpElement.FFunctionRef, functionRef.Value.Index),
+                    OpElement<float> single => new ExportCurveExpressionElement(OpElement.Float, single.Value),
+                })
+                .ToList();
+
+            mappings.Add(new ExportCurveMapping
+            {
+                Name = curveName.Text,
+                ExpressionStack = expressionStack
+            });
+        }
+        
+        return mappings;
     }
     
 }
