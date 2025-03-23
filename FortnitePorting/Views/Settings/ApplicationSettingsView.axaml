@@ -36,6 +36,19 @@
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
             
+            
+            <ui:SettingsExpander Header="Portle Path" Description="The executable path for your Portle version manager.">
+                <ui:SettingsExpander.Footer>
+                    <StackPanel Orientation="Horizontal">
+                        <CheckBox IsChecked="{Binding UsePortlePath}"/>
+                        <TextBox Text="{Binding PortleExecutablePath}" Watermark="Ex. D:/Art/FortnitePorting/Portle.exe" IsEnabled="{Binding UsePortlePath}"/>
+                        <Button Margin="4 0 0 0" Command="{Binding BrowsePortlePath}" IsEnabled="{Binding UsePortlePath}">
+                            <ui:SymbolIcon Symbol="Folder"/>
+                        </Button>
+                    </StackPanel>
+                </ui:SettingsExpander.Footer>
+            </ui:SettingsExpander>
+            
             <ui:SettingsExpander Header="Audio Device" Description="The device that should be used for audio playback.">
                 <ui:SettingsExpander.Footer>
                     <ComboBox Grid.Row="0" Grid.Column="4" ItemsSource="{Binding AudioDevices}" 

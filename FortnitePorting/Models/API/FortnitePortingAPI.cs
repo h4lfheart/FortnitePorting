@@ -38,6 +38,8 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
     
     public const string RELEASE_URL = "https://fortniteporting.halfheart.dev/api/v3/release";
     public const string RELEASE_FILES_URL = "https://fortniteporting.halfheart.dev/api/v3/release/files";
+    
+    public const string REPOSITORY_URL = "https://fortniteporting.halfheart.dev/api/v3/repository";
 
     public const string POLLS_URL = "https://fortniteporting.halfheart.dev/api/v3/polls";
         
@@ -262,6 +264,16 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
     public ReleaseResponse? GetRelease()
     {
         return GetReleaseAsync().GetAwaiter().GetResult();
+    }
+    
+    public async Task<RepositoryResponse?> GetRepositoryAsync(string url = REPOSITORY_URL)
+    {
+        return await ExecuteAsync<RepositoryResponse>(url);
+    }
+
+    public RepositoryResponse? GetRepository(string url = REPOSITORY_URL)
+    {
+        return GetRepositoryAsync(url).GetAwaiter().GetResult();
     }
     
     public async Task<string[]> GetReleaseFilesAsync()

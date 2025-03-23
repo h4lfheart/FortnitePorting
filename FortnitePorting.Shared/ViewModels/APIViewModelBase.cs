@@ -87,4 +87,11 @@ public class APIViewModelBase(string userAgentVersion = "", int timeout = 10) : 
     {
         return DownloadFileAsync(url, destination).GetAwaiter().GetResult();
     }
+
+    public string? GetHash(string url)
+    {
+        var response = _client.Head(new RestRequest(url));
+        var hashHeader = response.Headers?.FirstOrDefault(header => header.Name?.Equals("Hash") ?? false);
+        return hashHeader?.Value?.ToString();
+    }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Security.Cryptography;
@@ -122,7 +123,12 @@ public static class MiscExtensions
     
     public static string GetHash(this FileInfo fileInfo)
     {
-        return BitConverter.ToString(SHA256.HashData(File.ReadAllBytes(fileInfo.FullName))).Replace("-", string.Empty);
+        return GetHash(fileInfo.FullName);
+    }
+    
+    public static string GetHash(string path)
+    {
+        return BitConverter.ToString(SHA256.HashData(File.ReadAllBytes(path))).Replace("-", string.Empty);
     }
     
     public static T? Random<T>(this IEnumerable<T> enumerable)
@@ -221,6 +227,20 @@ public static class MiscExtensions
         {
             Copy(subDirectory, target.CreateSubdirectory(subDirectory.Name));
         }
+    }
+
+    public static bool IsProcessRunning(string processPath)
+    {
+        var processName = Path.GetFileNameWithoutExtension(processPath);
+        var processes = Process.GetProcessesByName(processName);
+        return processes.Any(process => process.MainModule?.FileName.StartsWith(processPath, StringComparison.OrdinalIgnoreCase) ?? false);
+    }
+    
+    public static Process? GetRunningProcess(string processPath)
+    {
+        var processName = Path.GetFileNameWithoutExtension(processPath);
+        var processes = Process.GetProcessesByName(processName);
+        return processes.FirstOrDefault(process => process.MainModule?.FileName.StartsWith(processPath, StringComparison.OrdinalIgnoreCase) ?? false);
     }
 }
 

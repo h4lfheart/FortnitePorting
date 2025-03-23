@@ -30,6 +30,12 @@
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
             
+            <ui:SettingsExpander Header="Show Console" Description="Displays the console tab for debugging purposes.">
+                <ui:SettingsExpander.Footer>
+                    <ToggleSwitch IsChecked="{Binding IsConsoleVisible}"/>
+                </ui:SettingsExpander.Footer>
+            </ui:SettingsExpander>
+            
             <ui:SettingsExpander Header="Cached Chunk Lifetime" Description="The number of days any cached chunks should be kept for. Set this value to zero to keep chunks for forever.">
                 <ui:SettingsExpander.Footer>
                     <ui:NumberBox Value="{Binding ChunkCacheLifetime}" 

@@ -20,16 +20,23 @@ public partial class ApplicationSettingsViewModel : ViewModelBase
 {
     [NotifyDataErrorInfo] [DirectoryExists("Assets Path")] [ObservableProperty]
     private string _assetsPath;
+    
+     [ObservableProperty]
+    private string _portleExecutablePath;
 
     [ObservableProperty] private int _audioDeviceIndex = 0;
 
     [ObservableProperty] private FPVersion _lastOnlineVersion = Globals.Version;
 
     [ObservableProperty] private bool _useAssetsPath;
+    [ObservableProperty] private bool _usePortlePath;
 
     [ObservableProperty] private bool _useTabTransitions = true;
     
     public string AssetPath => UseAssetsPath && Directory.Exists(AssetsPath) ? AssetsPath : AssetsFolder.FullName;
+    public string PortlePath => UsePortlePath && Directory.Exists(PortleExecutablePath) 
+        ? PortleExecutablePath 
+        : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Portle", "Portle.exe");
 
 
     [JsonIgnore]
@@ -43,6 +50,11 @@ public partial class ApplicationSettingsViewModel : ViewModelBase
     public async Task BrowseAssetsPath()
     {
         if (await BrowseFolderDialog() is { } path) AssetsPath = path;
+    }
+    
+    public async Task BrowsePortlePath()
+    {
+        if (await BrowseFileDialog() is { } path) PortleExecutablePath = path;
     }
 
     protected override async void OnPropertyChanged(PropertyChangedEventArgs e)
