@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Avalonia;
+using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -32,26 +33,38 @@ using Microsoft.VisualBasic.Logging;
 using ScottPlot.Colormaps;
 using ColorSpectrumShape = Avalonia.Controls.ColorSpectrumShape;
 using Log = Serilog.Log;
+using Orientation = Avalonia.Layout.Orientation;
 
 namespace FortnitePorting.WindowModels;
 
 public partial class MaterialPreviewWindowModel : WindowModelBase
 {
-    [ObservableProperty] private UMaterial _material;
+    [ObservableProperty] private UObject _asset;
     [ObservableProperty] private ObservableCollection<MaterialNode> _nodes = [];
     [ObservableProperty] private ObservableCollection<MaterialNodeConnection> _connections = [];
+    [ObservableProperty] private MaterialNode? _selectedNode;
+
+    private static string[] UnusedPropertyNames = 
+    [
+        "Input", "FunctionInputs", "FunctionOutputs", "Inputs", "Outputs",
+        "MaterialExpressionEditorX", "MaterialExpressionEditorY", 
+        "MaterialExpressionGuid", "ExpressionGUID",
+        "Material"
+    ];
 
     [RelayCommand]
     public async Task Refresh()
     {
         Nodes.Clear();
         Connections.Clear();
-        LoadMaterial(Material);
+        
+        if (Asset is UMaterial material)
+            LoadMaterial(material);
     }
 
     public void LoadMaterial(UMaterial material)
     {
-        Material = material;
+        Asset = material;
         
         if (!material.TryLoadEditorData<UMaterialEditorOnlyData>(out var editorData)) return;
         if (editorData is null) return;
@@ -76,6 +89,13 @@ public partial class MaterialPreviewWindowModel : WindowModelBase
             });
         }
 
+        /*var expressions = expressionCollection.GetOrDefault<FPackageIndex[]>("Expressions", []);
+        foreach (var expressionLazy in expressions)
+        {
+            var expression = expressionLazy.Load<UMaterialExpression>();
+            if (expression is null) continue;
+        }*/
+
         var parentNode = new MaterialNode(material.Name, isExpressionName: false);
         Nodes.Add(parentNode);
 
@@ -93,11 +113,14 @@ public partial class MaterialPreviewWindowModel : WindowModelBase
             var input = new MaterialNodeSocket(property.Name.Text, parent: parentNode);
             parentNode.Inputs.Add(input);
             
-            AddNode(expression, input);
+            AddNode(expression, input, expressionInput.OutputIndex);
         }
+
+        var maxRightPositionNode = Nodes.MaxBy(x => x.Location.X)!;
+        parentNode.Location = new Point(maxRightPositionNode.Location.X + 300, maxRightPositionNode.Location.Y);
     }
 
-    private void AddNode(UMaterialExpression? expression, MaterialNodeSocket parentNodeSocket)
+    private void AddNode(UMaterialExpression? expression, MaterialNodeSocket parentNodeSocket, int connectionIndex)
     {
         if (expression is null) return;
 
@@ -106,7 +129,13 @@ public partial class MaterialPreviewWindowModel : WindowModelBase
 
         var node = new MaterialNode(expression.Name)
         {
-            Location = new Point(x, y)
+            Location = new Point(x, y),
+            Properties = [..expression.Properties.Select(prop => new MaterialNodeProperty
+            {
+                Key = prop.Name.Text,
+                Value = prop.Tag.GenericValue,
+            }).Where(prop => !UnusedPropertyNames.Contains(prop.Key))
+            .Where(prop => prop.Value is not FScriptStruct)]
         };
         
         Nodes.Add(node);
@@ -115,17 +144,22 @@ public partial class MaterialPreviewWindowModel : WindowModelBase
 
         if (node.Outputs.Count == 0)
         {
-            var outputSocket = new MaterialNodeSocket("Result", parent: node);
+            var outputSocket = new MaterialNodeSocket(string.Empty, parent: node);
             node.Outputs.Add(outputSocket);
         
             Connections.Add(new MaterialNodeConnection(outputSocket, parentNodeSocket));
+        }
+        else
+        {
+            Connections.Add(new MaterialNodeConnection(node.Outputs[connectionIndex], parentNodeSocket));
         }
 
         foreach (var property in expression.Properties)
         {
             if (property.Tag?.GetValue<FExpressionInput>() is { } expressionInput)
             {
-                AddInput(ref node, expressionInput, nameOverride: property.Name.Text);
+                var name = property.Name.Text;
+                AddInput(ref node, expressionInput, nameOverride: name.Equals("Input") ? string.Empty : name);
             }
         }
     }
@@ -133,24 +167,29 @@ public partial class MaterialPreviewWindowModel : WindowModelBase
     private void AddInput(ref MaterialNode node, FExpressionInput expressionInput, string? nameOverride = null)
     {
         var inputSocket = new MaterialNodeSocket(nameOverride ?? expressionInput.InputName.Text, parent: node);
-        
         node.Inputs.Add(inputSocket);
                 
         if (expressionInput.Expression?.Load<UMaterialExpression>() is { } subExpresssion)
         {
             if (Nodes.FirstOrDefault(node => node.ExpressionName.Equals(subExpresssion.Name)) is { } existingNode)
             {
-                var existingSocket = existingNode.GetOutput(0);
-                if (existingSocket is not null)
+                try
                 {
-                    Connections.Add(new MaterialNodeConnection(existingSocket, inputSocket));
-                    return;
-                }
+                    var existingSocket = existingNode.GetOutput(expressionInput.OutputIndex);
                     
-                Debugger.Break();
+                    if (existingSocket is not null)
+                    {
+                        Connections.Add(new MaterialNodeConnection(existingSocket, inputSocket));
+                        return;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debugger.Break();
+                }
             }
                 
-            AddNode(subExpresssion, inputSocket);
+            AddNode(subExpresssion, inputSocket, connectionIndex: expressionInput.OutputIndex);
         }
     }
 
@@ -226,6 +265,8 @@ public partial class MaterialPreviewWindowModel : WindowModelBase
                     Source = bitmap,
                     Margin = SpaceExtension.Space(1)
                 };
+
+                AddColorInputs(ref node, includeRGBA: true);
                 
                 break;
             }
@@ -253,6 +294,9 @@ public partial class MaterialPreviewWindowModel : WindowModelBase
                         node.Label = expression.Get<FName>("ParameterName").Text;
                         break;
                 }
+                
+                
+                AddColorInputs(ref node);
             
                 var normalizedColor = constantColor.ToFColor(false);    
                 node.Content = new ColorPicker
@@ -263,9 +307,15 @@ public partial class MaterialPreviewWindowModel : WindowModelBase
                     IsAlphaEnabled = true,
                     IsAlphaVisible = true,
                     Margin = SpaceExtension.Space(1),
-                    Width = 96
+                    Width = 96,
+                    Height = 64,
                 };
                 
+                break;
+            }
+            case "MaterialExpressionParticleColor":
+            {
+                AddColorInputs(ref node);
                 break;
             }
             case "MaterialExpressionScalarParameter":
@@ -274,8 +324,6 @@ public partial class MaterialPreviewWindowModel : WindowModelBase
                 var sliderMin = expression.GetOrDefault<float>("SliderMin", 0);
                 var sliderMax = expression.GetOrDefault<float>("SliderMax", 1);
                 var defaultValue = expression.GetOrDefault<float>("DefaultValue");
-                
-                if (name.Equals("SphereMaskRadius")) Debugger.Break();
                 
                 node.Label = name;
                 node.Content = new NumberBox
@@ -314,8 +362,36 @@ public partial class MaterialPreviewWindowModel : WindowModelBase
                 
                 break;
             }
+            case "MaterialExpressionCurveAtlasRowParameter":
+            {
+                AddColorInputs(ref node);
+                
+                break;
+            }
         }
+    }
 
+    private void AddColorInputs(ref MaterialNode node, bool includeRGBA = false)
+    {
+        node.Outputs.Add(new MaterialNodeSocket("RGB", parent: node));
+        node.Outputs.Add(new MaterialNodeSocket("R", parent: node)
+        {
+            SocketColor = Colors.Red
+        });
+        node.Outputs.Add(new MaterialNodeSocket("G", parent: node)
+        {
+            SocketColor = Colors.Green
+        });
+        node.Outputs.Add(new MaterialNodeSocket("B", parent: node)
+        {
+            SocketColor = Colors.Blue
+        });
+        node.Outputs.Add(new MaterialNodeSocket("A", parent: node)
+        {
+            SocketColor = Colors.DarkGray
+        });
+        if (includeRGBA)
+            node.Outputs.Add(new MaterialNodeSocket("RGBA", parent: node));
     }
 
 }
@@ -334,8 +410,9 @@ public partial class MaterialNode(string? expressionName = "", bool isExpression
 
     [ObservableProperty] private ObservableCollection<MaterialNodeSocket> _inputs = [];
     [ObservableProperty] private ObservableCollection<MaterialNodeSocket> _outputs = [];
-    
 
+    [ObservableProperty] private ObservableCollection<MaterialNodeProperty> _properties = [];
+    
     public MaterialNodeSocket? GetInput(string name)
     {
         return Inputs.FirstOrDefault(input => input.Name.Equals(name));
@@ -357,6 +434,12 @@ public partial class MaterialNode(string? expressionName = "", bool isExpression
     }
 }
 
+public partial class MaterialNodeProperty : ObservableObject
+{
+    [ObservableProperty] private string _key;
+    [ObservableProperty] private object _value;
+}
+
 public partial class MaterialNodeComment(string text) : MaterialNode(text)
 {
     [ObservableProperty] private Size _size;
@@ -371,6 +454,9 @@ public partial class MaterialNodeSocket(string name, MaterialNode? parent = null
 {
     [ObservableProperty] private string _name = name;
     [ObservableProperty] private Point _anchor;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(SocketBrush))] private Color _socketColor = Colors.LightGray;
+
+    public SolidColorBrush SocketBrush => new(SocketColor);
 
     public MaterialNode Parent = parent;
 }

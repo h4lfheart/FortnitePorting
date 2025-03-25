@@ -19,6 +19,7 @@ using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
 using FortnitePorting.WindowModels;
+using Nodify;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
@@ -42,5 +43,12 @@ public partial class MaterialPreviewWindow : WindowBase<MaterialPreviewWindowMod
         window.BringToTop();
         
         window.WindowModel.LoadMaterial(material);
+    }
+
+    private void OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (sender is not NodifyEditor editor) return;
+
+        WindowModel.SelectedNode = (MaterialNode) editor.SelectedItem;
     }
 }

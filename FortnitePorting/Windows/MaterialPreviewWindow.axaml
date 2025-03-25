@@ -35,14 +35,14 @@
 
             <TextBlock Grid.Column="1" Text="Material Viewer" FontWeight="SemiBold" FontSize="16"
                        HorizontalAlignment="Left" VerticalAlignment="Center" />
-            <TextBlock Grid.Column="3" Text="{Binding Material.Name}" Classes="TextFillColorTertiaryBrush" FontSize="13" Margin="-2 2 0 0"
+            <TextBlock Grid.Column="3" Text="{Binding Asset.Name}" Classes="TextFillColorTertiaryBrush" FontSize="13" Margin="-2 2 0 0"
                        HorizontalAlignment="Left" VerticalAlignment="Center" />
         </Grid>
         
         <Grid Grid.Row="1" Margin="{ext:Space 1, 0, 1, 1}" ClipToBounds="True">
             <nodify:NodifyEditor ItemsSource="{Binding Nodes}"
                                  Connections="{Binding Connections}"
-                                 Background="#FF1A1A1C" ViewportZoom="0.2">
+                                 Background="#FF1A1A1C" ViewportZoom="1" SelectionChanged="OnSelectionChanged">
                 <nodify:NodifyEditor.ItemTemplate>
                     <DataTemplate>
                        <ContentControl Content="{Binding}">
@@ -63,12 +63,13 @@
                                                 Input="{Binding Inputs}"
                                                 Output="{Binding Outputs}"
                                                 Content="{Binding Content}"
-                                                HeaderBrush="{Binding HeaderBrush}" ContentBrush="Transparent" Background="#C0262629">
+                                                HeaderBrush="{Binding HeaderBrush}" 
+                                                ContentBrush="Transparent" Background="#C0262629">
                                        <nodify:Node.InputConnectorTemplate>
                                            <DataTemplate DataType="{x:Type windowModels:MaterialNodeSocket}">
                                                <nodify:NodeInput Header="{Binding Name}" 
                                                                  Anchor="{Binding Anchor, Mode=OneWayToSource}"
-                                                                 IsConnected="True" Background="Transparent"/>
+                                                                 IsConnected="True" Background="Transparent" BorderBrush="{Binding SocketBrush}"/>
                                            </DataTemplate>
                                        </nodify:Node.InputConnectorTemplate>
 
@@ -76,7 +77,7 @@
                                            <DataTemplate DataType="{x:Type windowModels:MaterialNodeSocket}">
                                                <nodify:NodeOutput Header="{Binding Name}" 
                                                                   Anchor="{Binding Anchor, Mode=OneWayToSource}"
-                                                                  IsConnected="True" Background="Transparent"/>
+                                                                  IsConnected="True" Background="Transparent" BorderBrush="{Binding SocketBrush}"/>
                                            </DataTemplate>
                                        </nodify:Node.OutputConnectorTemplate>
                                    </nodify:Node>
@@ -89,17 +90,38 @@
                     <DataTemplate DataType="{x:Type windowModels:MaterialNodeConnection}">
                         <nodify:Connection Source="{Binding From.Anchor}"
                                                Target="{Binding To.Anchor}"
-                                               ArrowEnds="None" SourceOffsetMode="None" TargetOffsetMode="None"
-                                               ZIndex="-9"/>
+                                               ArrowEnds="None" 
+                                               SourceOffsetMode="None" TargetOffsetMode="None"
+                                               Fill="LightGray" Stroke="LightGray" Opacity="0.5"/>
                     </DataTemplate>
                 </nodify:NodifyEditor.ConnectionTemplate>
                 <nodify:NodifyEditor.ItemContainerTheme>
                     <ControlTheme TargetType="{x:Type nodify:ItemContainer}">
                         <Setter Property="Location" x:DataType="windowModels:MaterialNode"
-                                Value="{Binding Location}" />
+                                Value="{Binding Location, Mode=TwoWay}" />
+                        <Setter Property="IsSelectable" x:DataType="windowModels:MaterialNode"
+                                Value="True" />
                     </ControlTheme>
                 </nodify:NodifyEditor.ItemContainerTheme>
             </nodify:NodifyEditor>
+            
+            <ui:FABorder HorizontalAlignment="Left" VerticalAlignment="Top" Margin="{ext:Space 1}" Padding="{ext:Space 1}"
+                IsVisible="{Binding SelectedNode, Converter={x:Static ObjectConverters.IsNotNull}}">
+                <StackPanel>
+                    <TextBlock Text="{Binding SelectedNode.ExpressionName}"
+                               Margin="{ext:Space 0, 0, 0, 1}" Classes="SubtitleTextBlockStyle"/>
+                    <ItemsControl ItemsSource="{Binding SelectedNode.Properties}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding Key}" Classes="BodyStrongTextBlockStyle" Margin="{ext:Space 0, 0, 1, 0}"/> 
+                                    <TextBlock Text="{Binding Value}"/> 
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </ui:FABorder>
             
             <StackPanel HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="{ext:Space 1}">
                 <Button ToolTip.Tip="Refresh"
