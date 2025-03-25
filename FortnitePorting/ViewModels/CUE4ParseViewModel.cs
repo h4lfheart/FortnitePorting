@@ -14,6 +14,7 @@ using CUE4Parse.UE4.AssetRegistry.Objects;
 using CUE4Parse.UE4.Assets;
 using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.Engine;
+using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
@@ -51,7 +52,6 @@ public class CUE4ParseViewModel : ViewModelBase
     public bool FinishedLoading;
 
     public readonly HybridFileProvider Provider;
-    public readonly HybridFileProvider OptionalProvider;
 
     public FBuildPatchAppManifest? LiveManifest;
     
@@ -94,13 +94,6 @@ public class CUE4ParseViewModel : ViewModelBase
             EFortniteVersion.LatestInstalled => new HybridFileProvider(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, ExtraDirectories, new VersionContainer(LATEST_GAME_VERSION)),
             _ => new HybridFileProvider(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, [], new VersionContainer(AppSettings.Current.Installation.CurrentProfile.UnrealVersion)),
         };
-        
-        OptionalProvider = AppSettings.Current.Installation.CurrentProfile.FortniteVersion switch
-        {
-            EFortniteVersion.LatestOnDemand => new HybridFileProvider(new VersionContainer(AppSettings.Current.Installation.CurrentProfile.UnrealVersion), isOptionalLoader: true),
-            EFortniteVersion.LatestInstalled => new HybridFileProvider(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, [], new VersionContainer(LATEST_GAME_VERSION), isOptionalLoader: true),
-            _ => new HybridFileProvider(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, [], new VersionContainer(AppSettings.Current.Installation.CurrentProfile.UnrealVersion), isOptionalLoader: true),
-        };
     }
 
     public override async Task Initialize()
@@ -116,13 +109,6 @@ public class CUE4ParseViewModel : ViewModelBase
         await CleanupCache();
 
         Provider.VfsMounted += (sender, _) =>
-        {
-            if (sender is not IAesVfsReader reader) return;
-
-            HomeVM.UpdateStatus($"Loading {reader.Name}");
-        };
-        
-        OptionalProvider.VfsMounted += (sender, _) =>
         {
             if (sender is not IAesVfsReader reader) return;
 
@@ -147,6 +133,14 @@ public class CUE4ParseViewModel : ViewModelBase
         }
         
         await LoadMappings();
+        
+#if DEBUG
+        var material = await Provider.SafeLoadPackageObjectAsync<UMaterial>("FortniteGame/Content/Weapons/FORT_Melee/Pickaxe_HistorianMale/Materials/M_HistorianMale");
+        TaskService.RunDispatcher(() =>
+        {
+            MaterialPreviewWindow.Preview(material!);
+        });
+#endif
         
         await LoadAssetRegistries();
 
@@ -249,7 +243,6 @@ public class CUE4ParseViewModel : ViewModelBase
             default:
             {
                 Provider.Initialize();
-                OptionalProvider.Initialize();
                 break;
             }
         }
@@ -339,14 +332,12 @@ public class CUE4ParseViewModel : ViewModelBase
 
                 AppSettings.Current.Installation.CurrentProfile.MainKey = new FileEncryptionKey(aes.MainKey);
                 await Provider.SubmitKeyAsync(Globals.ZERO_GUID, new FAesKey(aes.MainKey));
-                await OptionalProvider.SubmitKeyAsync(Globals.ZERO_GUID, new FAesKey(aes.MainKey));
                 
                 AppSettings.Current.Installation.CurrentProfile.ExtraKeys.Clear();
                 foreach (var key in aes.DynamicKeys)
                 {
                     AppSettings.Current.Installation.CurrentProfile.ExtraKeys.Add(new FileEncryptionKey(key.Key));
                     await Provider.SubmitKeyAsync(new FGuid(key.GUID), new FAesKey(key.Key));
-                    await OptionalProvider.SubmitKeyAsync(new FGuid(key.GUID), new FAesKey(key.Key));
                 }
                 
                 break;
@@ -365,7 +356,6 @@ public class CUE4ParseViewModel : ViewModelBase
         if (mainKey.IsEmpty) mainKey = FileEncryptionKey.Empty;
                 
         await Provider.SubmitKeyAsync(Globals.ZERO_GUID, mainKey.EncryptionKey);
-        await OptionalProvider.SubmitKeyAsync(Globals.ZERO_GUID, mainKey.EncryptionKey);
                 
         foreach (var vfs in Provider.UnloadedVfs.ToArray())
         {
@@ -375,7 +365,6 @@ public class CUE4ParseViewModel : ViewModelBase
                 if (!vfs.TestAesKey(extraKey.EncryptionKey)) continue;
                         
                 await Provider.SubmitKeyAsync(vfs.EncryptionKeyGuid, extraKey.EncryptionKey);
-                await OptionalProvider.SubmitKeyAsync(vfs.EncryptionKeyGuid, extraKey.EncryptionKey);
             }
         }
     }
@@ -392,7 +381,6 @@ public class CUE4ParseViewModel : ViewModelBase
         if (string.IsNullOrEmpty(mappingsPath)) return;
         
         Provider.MappingsContainer = new FileUsmapTypeMappingsProvider(mappingsPath);
-        OptionalProvider.MappingsContainer = new FileUsmapTypeMappingsProvider(mappingsPath);
         Log.Information("Loaded Mappings: {Path}", mappingsPath);
     }
     

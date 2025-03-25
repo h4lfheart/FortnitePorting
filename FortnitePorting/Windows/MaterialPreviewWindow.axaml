@@ -1,0 +1,111 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
+        xmlns:ui="using:FluentAvalonia.UI.Controls"
+        xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
+        xmlns:windowModels="clr-namespace:FortnitePorting.WindowModels"
+        xmlns:windows="clr-namespace:FortnitePorting.Windows"
+        xmlns:nodify="https://miroiu.github.io/nodify"
+        xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+        x:Class="FortnitePorting.Windows.MaterialPreviewWindow"
+        x:DataType="windowModels:MaterialPreviewWindowModel"
+        Width="960" Height="540" RequestedThemeVariant="Dark" FontFamily="Segoe UI" Background="{x:Null}"
+        TransparencyLevelHint="{Binding Theme.TransparencyHints}" ExtendClientAreaToDecorationsHint="True" WindowStartupLocation="CenterOwner"
+        Icon="/Assets/LogoV3.ico"
+        Title="Model Viewer">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False" IsVisible="{Binding !Theme.UseMica}">
+            <ExperimentalAcrylicBorder.Material>
+                <ExperimentalAcrylicMaterial BackgroundSource="Digger" MaterialOpacity="1.5" TintColor="{Binding Theme.BackgroundColor}" TintOpacity="1"/>
+            </ExperimentalAcrylicBorder.Material>
+        </ExperimentalAcrylicBorder>
+        
+        <Grid Grid.Row="0" Background="Transparent" HorizontalAlignment="Stretch" IsHitTestVisible="False">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="{ext:Space 1}" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="{ext:Space 0.25}" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="1" Text="Material Viewer" FontWeight="SemiBold" FontSize="16"
+                       HorizontalAlignment="Left" VerticalAlignment="Center" />
+            <TextBlock Grid.Column="3" Text="{Binding Material.Name}" Classes="TextFillColorTertiaryBrush" FontSize="13" Margin="-2 2 0 0"
+                       HorizontalAlignment="Left" VerticalAlignment="Center" />
+        </Grid>
+        
+        <Grid Grid.Row="1" Margin="{ext:Space 1, 0, 1, 1}" ClipToBounds="True">
+            <nodify:NodifyEditor ItemsSource="{Binding Nodes}"
+                                 Connections="{Binding Connections}"
+                                 Background="#FF1A1A1C" ViewportZoom="0.2">
+                <nodify:NodifyEditor.ItemTemplate>
+                    <DataTemplate>
+                       <ContentControl Content="{Binding}">
+                           <ContentControl.DataTemplates>
+                               <DataTemplate DataType="windowModels:MaterialNodeReroute">
+                                   <nodify:KnotNode Content="{Binding }"/>
+                               </DataTemplate>
+                               
+                               <DataTemplate DataType="windowModels:MaterialNodeComment">
+                                   <nodify:GroupingNode Header="{Binding DisplayName}"
+                                                        Width="{Binding Size.Width}"
+                                                        Height="{Binding Size.Height}"
+                                                        HeaderBrush="#C01E1E1E"/>
+                               </DataTemplate>
+                               
+                               <DataTemplate DataType="windowModels:MaterialNode">
+                                   <nodify:Node Header="{Binding DisplayName}" 
+                                                Input="{Binding Inputs}"
+                                                Output="{Binding Outputs}"
+                                                Content="{Binding Content}"
+                                                HeaderBrush="{Binding HeaderBrush}" ContentBrush="Transparent" Background="#C0262629">
+                                       <nodify:Node.InputConnectorTemplate>
+                                           <DataTemplate DataType="{x:Type windowModels:MaterialNodeSocket}">
+                                               <nodify:NodeInput Header="{Binding Name}" 
+                                                                 Anchor="{Binding Anchor, Mode=OneWayToSource}"
+                                                                 IsConnected="True" Background="Transparent"/>
+                                           </DataTemplate>
+                                       </nodify:Node.InputConnectorTemplate>
+
+                                       <nodify:Node.OutputConnectorTemplate>
+                                           <DataTemplate DataType="{x:Type windowModels:MaterialNodeSocket}">
+                                               <nodify:NodeOutput Header="{Binding Name}" 
+                                                                  Anchor="{Binding Anchor, Mode=OneWayToSource}"
+                                                                  IsConnected="True" Background="Transparent"/>
+                                           </DataTemplate>
+                                       </nodify:Node.OutputConnectorTemplate>
+                                   </nodify:Node>
+                               </DataTemplate>
+                           </ContentControl.DataTemplates>
+                       </ContentControl>
+                    </DataTemplate>
+                </nodify:NodifyEditor.ItemTemplate>
+                <nodify:NodifyEditor.ConnectionTemplate>
+                    <DataTemplate DataType="{x:Type windowModels:MaterialNodeConnection}">
+                        <nodify:Connection Source="{Binding From.Anchor}"
+                                               Target="{Binding To.Anchor}"
+                                               ArrowEnds="None" SourceOffsetMode="None" TargetOffsetMode="None"
+                                               ZIndex="-9"/>
+                    </DataTemplate>
+                </nodify:NodifyEditor.ConnectionTemplate>
+                <nodify:NodifyEditor.ItemContainerTheme>
+                    <ControlTheme TargetType="{x:Type nodify:ItemContainer}">
+                        <Setter Property="Location" x:DataType="windowModels:MaterialNode"
+                                Value="{Binding Location}" />
+                    </ControlTheme>
+                </nodify:NodifyEditor.ItemContainerTheme>
+            </nodify:NodifyEditor>
+            
+            <StackPanel HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="{ext:Space 1}">
+                <Button ToolTip.Tip="Refresh"
+                        Content="{avalonia:MaterialIconExt Refresh}" 
+                        Command="{Binding RefreshCommand}"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>

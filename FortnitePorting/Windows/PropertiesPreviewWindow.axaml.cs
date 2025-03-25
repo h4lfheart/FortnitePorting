@@ -16,7 +16,6 @@ namespace FortnitePorting.Windows;
 
 public partial class PropertiesPreviewWindow : WindowBase<PropertiesPreviewWindowModel>
 {
-    public static PropertiesPreviewWindow? Instance;
     
     public PropertiesPreviewWindow(string name, string json)
     {
@@ -40,28 +39,5 @@ public partial class PropertiesPreviewWindow : WindowBase<PropertiesPreviewWindo
         var window = new PropertiesPreviewWindow(name, json);
         window.Show();
         window.BringToTop();
-        return;
-        
-        if (Instance is not null)
-        {
-            Instance.WindowModel.AssetName = name;
-            Instance.WindowModel.PropertiesJson = json;
-            Instance.BringToTop();
-            return;
-        }
-
-        TaskService.RunDispatcher(() =>
-        {
-            Instance = new PropertiesPreviewWindow(name, json);
-            Instance.Show();
-            Instance.BringToTop();
-        });
-    }
-
-    protected override void OnClosed(EventArgs e)
-    {
-        base.OnClosed(e);
-
-        Instance = null;
     }
 }
