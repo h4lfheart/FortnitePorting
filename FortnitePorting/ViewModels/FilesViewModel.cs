@@ -32,6 +32,7 @@ using FortnitePorting.Models.Files;
 using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Models.Leaderboard;
 using FortnitePorting.Models.Unreal;
+using FortnitePorting.Models.Unreal.Material;
 using FortnitePorting.OnlineServices.Packet;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
@@ -275,6 +276,11 @@ public partial class FilesViewModel : ViewModelBase
             case UMaterial material:
             {
                 MaterialPreviewWindow.Preview(material);
+                break;
+            }
+            case UMaterialFunction materialFunction:
+            {
+                MaterialPreviewWindow.Preview(materialFunction);
                 break;
             }
             case UStaticMesh:

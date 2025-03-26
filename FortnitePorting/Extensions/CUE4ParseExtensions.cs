@@ -28,7 +28,7 @@ public static class CUE4ParseExtensions
         var path = asset.GetPathName().SubstringBeforeLast(".") + ".o.uasset";
         if (CUE4ParseVM.Provider.TryLoadObjectExports(path, out var exports))
         {
-            editorData = exports.FirstOrDefault() as T;
+            editorData = exports.FirstOrDefault(export => export.GetType() == typeof(T)) as T;
             return editorData is not null;
         }
 

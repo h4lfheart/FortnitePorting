@@ -5,6 +5,7 @@
              xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
              xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:uip="clr-namespace:FluentAvalonia.UI.Controls.Primitives;assembly=FluentAvalonia"
+             xmlns:nodify="https://miroiu.github.io/nodify"
              x:Class="FortnitePorting.Application.App"
              RequestedThemeVariant="Dark">
 

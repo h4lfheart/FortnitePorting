@@ -48,7 +48,7 @@
                        <ContentControl Content="{Binding}">
                            <ContentControl.DataTemplates>
                                <DataTemplate DataType="windowModels:MaterialNodeReroute">
-                                   <nodify:KnotNode Content="{Binding }"/>
+                                   <nodify:KnotNode BorderBrush="LightGray" Opacity="0.5"/>
                                </DataTemplate>
                                
                                <DataTemplate DataType="windowModels:MaterialNodeComment">
@@ -64,7 +64,19 @@
                                                 Output="{Binding Outputs}"
                                                 Content="{Binding Content}"
                                                 HeaderBrush="{Binding HeaderBrush}" 
-                                                ContentBrush="Transparent" Background="#C0262629">
+                                                BorderBrush="{Binding BorderBrush}"
+                                                BorderThickness="2"
+                                                ContentBrush="Transparent" Background="#C0262629" PointerPressed="OnNodePressed">
+                                       <nodify:Node.HeaderContainerStyle>
+                                           <ControlTheme TargetType="Border">
+                                               <Setter Property="Padding" Value="{ext:Space 0.5}"/>
+                                           </ControlTheme>
+                                       </nodify:Node.HeaderContainerStyle>
+                                       <nodify:Node.HeaderTemplate>
+                                           <DataTemplate x:DataType="x:String">
+                                               <TextBlock Text="{Binding}" Classes="BodyStrongTextBlockStyle"/>
+                                           </DataTemplate>
+                                       </nodify:Node.HeaderTemplate>
                                        <nodify:Node.InputConnectorTemplate>
                                            <DataTemplate DataType="{x:Type windowModels:MaterialNodeSocket}">
                                                <nodify:NodeInput Header="{Binding Name}" 
@@ -96,16 +108,18 @@
                     </DataTemplate>
                 </nodify:NodifyEditor.ConnectionTemplate>
                 <nodify:NodifyEditor.ItemContainerTheme>
-                    <ControlTheme TargetType="{x:Type nodify:ItemContainer}">
-                        <Setter Property="Location" x:DataType="windowModels:MaterialNode"
+                    <ControlTheme TargetType="{x:Type nodify:ItemContainer}" x:DataType="windowModels:MaterialNode">
+                        <Setter Property="Location"
                                 Value="{Binding Location, Mode=TwoWay}" />
-                        <Setter Property="IsSelectable" x:DataType="windowModels:MaterialNode"
+                        <Setter Property="IsSelectable"
                                 Value="True" />
+                        <Setter Property="IsSelected"
+                                Value="{Binding IsSelected, Mode=TwoWay}" />
                     </ControlTheme>
                 </nodify:NodifyEditor.ItemContainerTheme>
             </nodify:NodifyEditor>
             
-            <ui:FABorder HorizontalAlignment="Left" VerticalAlignment="Top" Margin="{ext:Space 1}" Padding="{ext:Space 1}"
+            <!--ui:FABorder HorizontalAlignment="Left" VerticalAlignment="Top" Margin="{ext:Space 1}" Padding="{ext:Space 1}"
                 IsVisible="{Binding SelectedNode, Converter={x:Static ObjectConverters.IsNotNull}}">
                 <StackPanel>
                     <TextBlock Text="{Binding SelectedNode.ExpressionName}"
@@ -121,7 +135,7 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </StackPanel>
-            </ui:FABorder>
+            </ui:FABorder-->
             
             <StackPanel HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="{ext:Space 1}">
                 <Button ToolTip.Tip="Refresh"

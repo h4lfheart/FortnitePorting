@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Controls;
@@ -24,6 +23,8 @@ using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Extensions;
+using FortnitePorting.Models.Unreal;
+using FortnitePorting.Models.Unreal.Material;
 using FortnitePorting.Rendering;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Services;
@@ -44,14 +45,6 @@ public partial class MaterialPreviewWindowModel : WindowModelBase
     [ObservableProperty] private ObservableCollection<MaterialNodeConnection> _connections = [];
     [ObservableProperty] private MaterialNode? _selectedNode;
 
-    private static string[] UnusedPropertyNames = 
-    [
-        "Input", "FunctionInputs", "FunctionOutputs", "Inputs", "Outputs",
-        "MaterialExpressionEditorX", "MaterialExpressionEditorY", 
-        "MaterialExpressionGuid", "ExpressionGUID",
-        "Material"
-    ];
-
     [RelayCommand]
     public async Task Refresh()
     {
@@ -60,6 +53,19 @@ public partial class MaterialPreviewWindowModel : WindowModelBase
         
         if (Asset is UMaterial material)
             LoadMaterial(material);
+        if (Asset is UMaterialFunction materialFunction)
+            LoadMaterialFunction(materialFunction);
+    }
+
+    public void LoadMaterialFunction(UMaterialFunction materialFunction)
+    {
+        Asset = materialFunction;
+
+        if (!materialFunction.TryLoadEditorData<UMaterialFunctionEditorOnlyData>(out var editorData)) return;
+        if (editorData is null) return;
+        
+        var expressionCollection = editorData.GetOrDefault<FStructFallback>("ExpressionCollection");
+        LoadExpressionCollection(expressionCollection);
     }
 
     public void LoadMaterial(UMaterial material)
@@ -70,6 +76,32 @@ public partial class MaterialPreviewWindowModel : WindowModelBase
         if (editorData is null) return;
         
         var expressionCollection = editorData.GetOrDefault<FStructFallback>("ExpressionCollection");
+        LoadExpressionCollection(expressionCollection);
+
+        var parentNode = new MaterialNode(material.Name, isExpressionName: false);
+        Nodes.Add(parentNode);
+
+        if (editorData.Properties.FirstOrDefault(prop => prop.Name.Text.Equals("MaterialAttributes")) is
+            { } materialAttributesProperty)
+        {
+            if (materialAttributesProperty.Tag?.GetValue<FExpressionInput>() is { } expressionInput)
+            {
+                AddInput(ref parentNode, expressionInput, materialAttributesProperty.Name.Text);
+            }
+        }
+        else
+        {
+            foreach (var property in editorData.Properties)
+            {
+                if (property.Tag?.GetValue<FExpressionInput>() is not { } expressionInput) continue;
+            
+                AddInput(ref parentNode, expressionInput, property.Name.Text);
+            }
+        }
+    }
+
+    public void LoadExpressionCollection(FStructFallback expressionCollection)
+    {
         var editorComments = expressionCollection.GetOrDefault<FPackageIndex[]>("EditorComments", []);
         foreach (var editorCommentLazy in editorComments)
         {
@@ -89,124 +121,68 @@ public partial class MaterialPreviewWindowModel : WindowModelBase
             });
         }
 
-        /*var expressions = expressionCollection.GetOrDefault<FPackageIndex[]>("Expressions", []);
+        var expressions = expressionCollection.GetOrDefault<FPackageIndex[]>("Expressions", []);
         foreach (var expressionLazy in expressions)
         {
             var expression = expressionLazy.Load<UMaterialExpression>();
             if (expression is null) continue;
-        }*/
 
-        var parentNode = new MaterialNode(material.Name, isExpressionName: false);
-        Nodes.Add(parentNode);
+            if (Nodes.Any(node => node.ExpressionName.Equals(expression.Name, StringComparison.OrdinalIgnoreCase))) continue;
 
-        foreach (var property in editorData.Properties)
-        {
-            if (property.Tag?.GetValue<FExpressionInput>() is not { } expressionInput) continue;
-            if (expressionInput.Expression?.Load<UMaterialExpression>() is not { } expression) continue;
-
-            if (property.Name.Text.Equals("MaterialAttributes"))
-            {
-                Connections.RemoveAll(con => con.To.Parent.Equals(parentNode));
-                parentNode.Inputs.Clear();
-            }
-
-            var input = new MaterialNodeSocket(property.Name.Text, parent: parentNode);
-            parentNode.Inputs.Add(input);
-            
-            AddNode(expression, input, expressionInput.OutputIndex);
+            AddNode(expression);
         }
-
-        var maxRightPositionNode = Nodes.MaxBy(x => x.Location.X)!;
-        parentNode.Location = new Point(maxRightPositionNode.Location.X + 300, maxRightPositionNode.Location.Y);
     }
 
-    private void AddNode(UMaterialExpression? expression, MaterialNodeSocket parentNodeSocket, int connectionIndex)
+    private MaterialNode AddNode(UMaterialExpression expression)
     {
-        if (expression is null) return;
-
         var x = expression.GetOrDefault<int>("MaterialExpressionEditorX");
         var y = expression.GetOrDefault<int>("MaterialExpressionEditorY");
 
         var node = new MaterialNode(expression.Name)
         {
-            Location = new Point(x, y),
-            Properties = [..expression.Properties.Select(prop => new MaterialNodeProperty
-            {
-                Key = prop.Name.Text,
-                Value = prop.Tag.GenericValue,
-            }).Where(prop => !UnusedPropertyNames.Contains(prop.Key))
-            .Where(prop => prop.Value is not FScriptStruct)]
+            Location = new Point(x, y)
         };
         
         Nodes.Add(node);
         
-        CustomNodeContent(ref node, expression, parentNodeSocket);
-
-        if (node.Outputs.Count == 0)
-        {
-            var outputSocket = new MaterialNodeSocket(string.Empty, parent: node);
-            node.Outputs.Add(outputSocket);
-        
-            Connections.Add(new MaterialNodeConnection(outputSocket, parentNodeSocket));
-        }
-        else
-        {
-            Connections.Add(new MaterialNodeConnection(node.Outputs[connectionIndex], parentNodeSocket));
-        }
+        SetupNodeContent(ref node, expression);
 
         foreach (var property in expression.Properties)
         {
-            if (property.Tag?.GetValue<FExpressionInput>() is { } expressionInput)
-            {
-                var name = property.Name.Text;
-                AddInput(ref node, expressionInput, nameOverride: name.Equals("Input") ? string.Empty : name);
-            }
+            if (property.Tag?.GetValue<FExpressionInput>() is not { } expressionInput) continue;
+            
+            var name = property.Name.Text;
+            AddInput(ref node, expressionInput, nameOverride: name.Equals("Input") ? string.Empty : name);
         }
+
+        return node;
     }
 
     private void AddInput(ref MaterialNode node, FExpressionInput expressionInput, string? nameOverride = null)
     {
-        var inputSocket = new MaterialNodeSocket(nameOverride ?? expressionInput.InputName.Text, parent: node);
-        node.Inputs.Add(inputSocket);
-                
-        if (expressionInput.Expression?.Load<UMaterialExpression>() is { } subExpresssion)
-        {
-            if (Nodes.FirstOrDefault(node => node.ExpressionName.Equals(subExpresssion.Name)) is { } existingNode)
-            {
-                try
-                {
-                    var existingSocket = existingNode.GetOutput(expressionInput.OutputIndex);
-                    
-                    if (existingSocket is not null)
-                    {
-                        Connections.Add(new MaterialNodeConnection(existingSocket, inputSocket));
-                        return;
-                    }
-                }
-                catch (Exception e)
-                {
-                    Debugger.Break();
-                }
-            }
-                
-            AddNode(subExpresssion, inputSocket, connectionIndex: expressionInput.OutputIndex);
-        }
+        if (expressionInput.Expression?.Load<UMaterialExpression>() is not { } subExpression) return;
+        
+        var targetNode = Nodes.FirstOrDefault(node => node.ExpressionName.Equals(subExpression.Name, StringComparison.OrdinalIgnoreCase), AddNode(subExpression));
+        
+        var inputSocket = node.AddInput(new MaterialNodeSocket(nameOverride ?? expressionInput.InputName.Text));
+        if (expressionInput.OutputIndex < targetNode.Outputs.Count)
+            Connections.Add(new MaterialNodeConnection(targetNode.Outputs[expressionInput.OutputIndex], inputSocket));
+        else
+            Log.Warning("Expression {expressionName} has no output index {outputIndex}", targetNode.ExpressionName, expressionInput.OutputIndex);
     }
 
-    private void CustomNodeContent(ref MaterialNode node, UMaterialExpression expression, MaterialNodeSocket parentNodeSocket)
+    private void SetupNodeContent(ref MaterialNode node, UMaterialExpression expression)
     {
-        //if (expression.Name.Contains("SetMaterialAttributes")) Debugger.Break();
         switch (expression.ExportType)
         {
             case "MaterialExpressionMaterialFunctionCall":
             {
                 var materialFunction = expression.Get<FPackageIndex>("MaterialFunction");
-                var inputs = expression.GetOrDefault<FStructFallback[]>("FunctionInputs", []);
-                var outputs = expression.GetOrDefault<FStructFallback[]>("FunctionOutputs", []);
-                
+                node.DoubleClickPackage = materialFunction;
                 node.Label = materialFunction.ResolvedObject?.Name.Text ?? "Material Function";
                 
                 node.Inputs.Clear();
+                var inputs = expression.GetOrDefault<FStructFallback[]>("FunctionInputs", []);
                 foreach (var functionInput in inputs)
                 {
                     var expressionInput = functionInput.Get<FExpressionInput>("Input");
@@ -214,19 +190,45 @@ public partial class MaterialPreviewWindowModel : WindowModelBase
                 }
                 
                 node.Outputs.Clear();
+                var outputs = expression.GetOrDefault<FStructFallback[]>("FunctionOutputs", []);
                 foreach (var functionOutput in outputs)
                 {
                     var output = functionOutput.Get<FStructFallback>("Output");
                     var outputName = output.Get<FName>("OutputName");
-                    
-                    var outputSocket = new MaterialNodeSocket(outputName.Text, parent: node);
-                    node.Outputs.Add(outputSocket);
-        
-                    Connections.Add(new MaterialNodeConnection(outputSocket, parentNodeSocket));
+
+                    node.AddOutput(outputName.Text);
                 }
                 
                 break;
             }
+            case "MaterialExpressionFunctionInput":
+            {
+                var name = expression.Get<FName>("InputName").Text;
+                node.Label = name;
+                node.HeaderColor = new Color(255, 255 / 2, 0, 0);
+                break;
+            }
+            case "MaterialExpressionFunctionOutput":
+            {
+                var name = expression.GetOrDefault<FName?>("OutputName")?.Text ?? "Output";
+                node.Label = name;
+                node.HeaderColor = new Color(255, 255 / 2, 0, 0);
+                break;
+            }
+
+            case "MaterialExpressionDynamicParameter":
+            {
+                var outputs = expression.GetOrDefault<FStructFallback[]>("Outputs", []);
+                node.Outputs.Clear();
+                foreach (var output in outputs)
+                {
+                    var outputName = output.Get<FName>("OutputName");
+
+                    node.AddOutput(outputName.Text);
+                }
+                break;
+            }
+            
             case "MaterialExpressionSetMaterialAttributes":
             {
                 var expressionInputs = expression.GetOrDefault<FExpressionInput[]>("Inputs", []);
@@ -238,10 +240,18 @@ public partial class MaterialPreviewWindowModel : WindowModelBase
                 
                 break;
             }
+            
             case "MaterialExpressionNamedRerouteDeclaration":
+            case "MaterialExpressionNamedRerouteUsage":
             {
-                var name = expression.Get<FName>("Name").Text;
-                var nodeColor = expression.GetOrDefault<FLinearColor>("NodeColor");
+                var declaration = expression.ExportType switch
+                {
+                    "MaterialExpressionNamedRerouteUsage" => expression.Get<UMaterialExpression>("Declaration"),
+                    _ => expression
+                };
+                
+                var name = declaration.Get<FName>("Name").Text;
+                var nodeColor = declaration.GetOrDefault<FLinearColor>("NodeColor");
                 nodeColor.R *= 0.25f;
                 nodeColor.G *= 0.25f;
                 nodeColor.B *= 0.25f;
@@ -251,10 +261,13 @@ public partial class MaterialPreviewWindowModel : WindowModelBase
                 node.HeaderColor = new Color(normalizedColor.A, normalizedColor.R, normalizedColor.G, normalizedColor.B);
                 break;
             }
+            
             case "MaterialExpressionTextureSampleParameter2D":
             case "MaterialExpressionTextureSample":
             {
-                if (expression.GetOrDefault<UTexture2D>("Texture") is not { } texture) break;
+                AddColorInputs(ref node, includeRGBA: true);
+                
+                if (expression.GetOrDefault<UTexture>("Texture") is not { } texture) break;
                 if (texture.Decode()?.ToWriteableBitmap() is not { } bitmap) break;
                 
                 node.Label = texture.Name;
@@ -265,11 +278,20 @@ public partial class MaterialPreviewWindowModel : WindowModelBase
                     Source = bitmap,
                     Margin = SpaceExtension.Space(1)
                 };
-
-                AddColorInputs(ref node, includeRGBA: true);
                 
                 break;
             }
+            case "MaterialExpressionRuntimeVirtualTextureSample":
+            {
+                node.AddOutput("BaseColor");
+                node.AddOutput("Specular");
+                node.AddOutput("Roughness");
+                node.AddOutput("Normal");
+                node.AddOutput("WorldHeight");
+                node.AddOutput("Mask");
+                break;
+            }
+            
             case "MaterialExpressionConstant2Vector":
             case "MaterialExpressionConstant3Vector":
             case "MaterialExpressionConstant4Vector":
@@ -318,6 +340,35 @@ public partial class MaterialPreviewWindowModel : WindowModelBase
                 AddColorInputs(ref node);
                 break;
             }
+            case "MaterialExpressionComponentMask":
+            {
+                var r = expression.GetOrDefault<bool>("R");
+                var g = expression.GetOrDefault<bool>("G");
+                var b = expression.GetOrDefault<bool>("B");
+                var a = expression.GetOrDefault<bool>("A");
+
+                var enabledComponents = new List<string>();
+                if (r) enabledComponents.Add("R");
+                if (g) enabledComponents.Add("G");
+                if (b) enabledComponents.Add("B");
+                if (a) enabledComponents.Add("A");
+
+                node.Label = $"Mask ( {string.Join(' ', enabledComponents)} )";
+                break;
+            }
+            case "MaterialExpressionCurveAtlasRowParameter":
+            {
+                AddColorInputs(ref node);
+                
+                break;
+            }
+            case "MaterialExpressionVertexColor":
+            {
+                AddColorInputs(ref node);
+                
+                break;
+            }
+            
             case "MaterialExpressionScalarParameter":
             {
                 var name = expression.Get<FName>("ParameterName").Text;
@@ -335,22 +386,6 @@ public partial class MaterialPreviewWindowModel : WindowModelBase
                 };
                 break;
             }
-            case "MaterialExpressionComponentMask":
-            {
-                var r = expression.GetOrDefault<bool>("R");
-                var g = expression.GetOrDefault<bool>("G");
-                var b = expression.GetOrDefault<bool>("B");
-                var a = expression.GetOrDefault<bool>("A");
-
-                var enabledComponents = new List<string>();
-                if (r) enabledComponents.Add("R");
-                if (g) enabledComponents.Add("G");
-                if (b) enabledComponents.Add("B");
-                if (a) enabledComponents.Add("A");
-
-                node.Label = $"Mask ( {string.Join(' ', enabledComponents)} )";
-                break;
-            }
             case "MaterialExpressionConstant":
             {
                 var value = expression.GetOrDefault<float>("R");
@@ -362,48 +397,89 @@ public partial class MaterialPreviewWindowModel : WindowModelBase
                 
                 break;
             }
-            case "MaterialExpressionCurveAtlasRowParameter":
+            
+            case "MaterialExpressionGetMaterialAttributes":
             {
-                AddColorInputs(ref node);
-                
+                var outputs = expression.GetOrDefault<FStructFallback[]>("Outputs", []);
+                node.Outputs.Clear();
+                foreach (var output in outputs)
+                {
+                    var outputName = output.Get<FName>("OutputName");
+
+                    node.AddOutput(outputName.Text);
+                }
                 break;
             }
+
+            case "MaterialExpressionCustom":
+            {
+                var inputs = expression.GetOrDefault<FStructFallback[]>("Inputs", []);
+                foreach (var input in inputs)
+                {
+                    var overrideName = input.GetOrDefault<FName?>("InputName")?.Text ?? "Input";
+                    AddInput(ref node, input.Get<FExpressionInput>("Input"), overrideName);
+                }
+
+                node.Content = new TextBox
+                {
+                    Text = expression.GetOrDefault<string>("Code"),
+                    Margin = SpaceExtension.Space(1)
+                };
+                break;
+            }
+        }
+        
+        if (node.Outputs.Count == 0)
+        {
+            node.AddOutput(string.Empty);
         }
     }
 
     private void AddColorInputs(ref MaterialNode node, bool includeRGBA = false)
     {
-        node.Outputs.Add(new MaterialNodeSocket("RGB", parent: node));
-        node.Outputs.Add(new MaterialNodeSocket("R", parent: node)
+        node.AddOutput(new MaterialNodeSocket("RGB"));
+        node.Outputs.Add(new MaterialNodeSocket("R")
         {
             SocketColor = Colors.Red
         });
-        node.Outputs.Add(new MaterialNodeSocket("G", parent: node)
+        node.AddOutput(new MaterialNodeSocket("G")
         {
             SocketColor = Colors.Green
         });
-        node.Outputs.Add(new MaterialNodeSocket("B", parent: node)
+        node.AddOutput(new MaterialNodeSocket("B")
         {
             SocketColor = Colors.Blue
         });
-        node.Outputs.Add(new MaterialNodeSocket("A", parent: node)
+        node.AddOutput(new MaterialNodeSocket("A")
         {
             SocketColor = Colors.DarkGray
         });
         if (includeRGBA)
-            node.Outputs.Add(new MaterialNodeSocket("RGBA", parent: node));
+            node.AddOutput(new MaterialNodeSocket("RGBA"));
     }
 
 }
 
-public partial class MaterialNode(string? expressionName = "", bool isExpressionName = true) : ObservableObject
+public partial class MaterialNode(string expressionName = "", bool isExpressionName = true) : ObservableObject
 {
     [ObservableProperty, NotifyPropertyChangedFor(nameof(DisplayName))] private string _expressionName = expressionName;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(DisplayName))] private string _label = expressionName;
     public string DisplayName => Label.Equals(ExpressionName) && isExpressionName ? Label.Replace("MaterialExpression", string.Empty).SubstringBefore("_") : Label;
 
     [ObservableProperty, NotifyPropertyChangedFor(nameof(HeaderBrush))] private Color _headerColor = Color.Parse("#C00f3547");
-    public SolidColorBrush HeaderBrush => new SolidColorBrush(HeaderColor);
+    public Brush HeaderBrush => new LinearGradientBrush
+    {
+        StartPoint = new RelativePoint(0, 0, RelativeUnit.Relative),
+        EndPoint = new RelativePoint(1, 0, RelativeUnit.Relative),
+        GradientStops = 
+        [
+            new GradientStop(HeaderColor, 0),
+            new GradientStop(new Color(255 / 4, HeaderColor.R, HeaderColor.G, HeaderColor.B), 1),
+        ]
+    };
+    
+    [ObservableProperty,NotifyPropertyChangedFor(nameof(BorderBrush))] private bool _isSelected;
+    public SolidColorBrush BorderBrush => new(IsSelected ? Color.Parse("#d77601") : Colors.Transparent);
     
     [ObservableProperty] private Point _location;
     [ObservableProperty] private object? _content;
@@ -412,25 +488,31 @@ public partial class MaterialNode(string? expressionName = "", bool isExpression
     [ObservableProperty] private ObservableCollection<MaterialNodeSocket> _outputs = [];
 
     [ObservableProperty] private ObservableCollection<MaterialNodeProperty> _properties = [];
+
+    public FPackageIndex? DoubleClickPackage;
     
-    public MaterialNodeSocket? GetInput(string name)
+    public MaterialNodeSocket AddInput(MaterialNodeSocket socket)
     {
-        return Inputs.FirstOrDefault(input => input.Name.Equals(name));
+        socket.Parent = this;
+        Inputs.Add(socket);
+        return socket;
     }
     
-    public MaterialNodeSocket? GetOutput(string name)
+    public MaterialNodeSocket AddOutput(MaterialNodeSocket socket)
     {
-        return Outputs.FirstOrDefault(input => input.Name.Equals(name));
+        socket.Parent = this;
+        Outputs.Add(socket);
+        return socket;
     }
     
-    public MaterialNodeSocket? GetInput(int index)
+    public MaterialNodeSocket AddInput(string socketName)
     {
-        return Inputs[index];
+        return AddInput(new MaterialNodeSocket(socketName));
     }
     
-    public MaterialNodeSocket? GetOutput(int index)
+    public MaterialNodeSocket AddOutput(string socketName)
     {
-        return Outputs[index];
+        return AddOutput(new MaterialNodeSocket(socketName));
     }
 }
 
@@ -445,12 +527,9 @@ public partial class MaterialNodeComment(string text) : MaterialNode(text)
     [ObservableProperty] private Size _size;
 }
 
-public partial class MaterialNodeReroute : MaterialNode
-{
-    
-}
+public partial class MaterialNodeReroute(string expressionName) : MaterialNode(expressionName);
 
-public partial class MaterialNodeSocket(string name, MaterialNode? parent = null) : ObservableObject
+public partial class MaterialNodeSocket(string name) : ObservableObject
 {
     [ObservableProperty] private string _name = name;
     [ObservableProperty] private Point _anchor;
@@ -458,7 +537,7 @@ public partial class MaterialNodeSocket(string name, MaterialNode? parent = null
 
     public SolidColorBrush SocketBrush => new(SocketColor);
 
-    public MaterialNode Parent = parent;
+    public MaterialNode Parent;
 }
 
 public partial class MaterialNodeConnection(MaterialNodeSocket from, MaterialNodeSocket to) : ObservableObject

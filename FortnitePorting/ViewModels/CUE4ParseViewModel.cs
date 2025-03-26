@@ -34,6 +34,7 @@ using FortnitePorting.Application;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.CUE4Parse;
 using FortnitePorting.Models.Fortnite;
+using FortnitePorting.Models.Unreal.Material;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
@@ -135,7 +136,7 @@ public class CUE4ParseViewModel : ViewModelBase
         await LoadMappings();
         
 #if DEBUG
-        var material = await Provider.SafeLoadPackageObjectAsync<UMaterial>("FortniteGame/Content/Weapons/FORT_Melee/Pickaxe_HistorianMale/Materials/M_HistorianMale");
+        var material = await Provider.SafeLoadPackageObjectAsync<UMaterialFunction>("FortniteGame/Plugins/GameFeatures/Juno/JunoGame/Content/TimeOfDay/TODM/Juno_MF_SkyDome_Gradient");
         TaskService.RunDispatcher(() =>
         {
             MaterialPreviewWindow.Preview(material!);
