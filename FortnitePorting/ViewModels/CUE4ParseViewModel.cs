@@ -136,11 +136,8 @@ public class CUE4ParseViewModel : ViewModelBase
         await LoadMappings();
         
 #if DEBUG
-        var material = await Provider.SafeLoadPackageObjectAsync<UMaterialFunction>("FortniteGame/Plugins/GameFeatures/Juno/JunoGame/Content/TimeOfDay/TODM/Juno_MF_SkyDome_Gradient");
-        TaskService.RunDispatcher(() =>
-        {
-            MaterialPreviewWindow.Preview(material!);
-        });
+        var material = await Provider.SafeLoadPackageObjectAsync<UMaterial>("Engine/Content/EngineMaterials/WorldGridMaterial");
+        MaterialPreviewWindow.Preview(material!);
 #endif
         
         await LoadAssetRegistries();

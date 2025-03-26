@@ -35,7 +35,9 @@
              <x:Double x:Key="NavigationViewItemOnLeftIconBoxHeight">14</x:Double>
              <FontFamily x:Key="SymbolThemeFontFamily">avares://FortnitePorting/Assets/Fonts/Segoe Fluent Icons.ttf#Segoe Fluent Icons</FontFamily>
              <FontFamily x:Key="TimeWasterFontFamily">avares://FortnitePorting/Assets/TimeWaster/Fonts/BurbankBigRegular-Bold.ttf#Burbank Big</FontFamily>
-             <Brush x:Key="TabViewItemHeaderBackgroundSelected">#10000000</Brush>
+             <Brush x:Key="TabViewItemHeaderBackgroundSelected">#FF1A1A1C</Brush>
+             <Brush x:Key="TabViewItemHeaderBackgroundPointerOver">#343438</Brush>
+             <Brush x:Key="TabViewItemHeaderBackground">#28282b</Brush>
              <Brush x:Key="TabViewItemSeparator">#30000000</Brush>
          </ResourceDictionary>
          
@@ -48,6 +50,8 @@
         <StyleInclude Source="avares://FluentAvalonia.ProgressRing/Styling/Controls/ProgressRing.axaml" />
         <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
         <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
+        
+        <Style></Style>
         
         <Style Selector="ui|FABorder">
             <Setter Property="Background" Value="#0DFFFFFF"/>

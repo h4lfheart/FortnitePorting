@@ -5,7 +5,7 @@ namespace FortnitePorting.Shared.Framework;
 
 public abstract class WindowBase<T> : Window where T : ViewModelBase, new()
 {
-    protected readonly T WindowModel;
+    public readonly T WindowModel;
 
     public WindowBase(ViewModelBase? templateWindowModel = null, bool initializeWindowModel = true)
     {
