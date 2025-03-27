@@ -136,7 +136,7 @@ public class CUE4ParseViewModel : ViewModelBase
         await LoadMappings();
         
 #if DEBUG
-        var material = await Provider.SafeLoadPackageObjectAsync<UMaterial>("Engine/Content/EngineMaterials/WorldGridMaterial");
+        var material = await Provider.SafeLoadPackageObjectAsync<UMaterial>("FortniteGame/Content/Packages/Fortress_SharedMaterials/Base_Material/M_FN_Character_MASTER");
         MaterialPreviewWindow.Preview(material!);
 #endif
         

@@ -23,15 +23,15 @@ public partial class MaterialNodeBase(string expressionName, bool isExpressionNa
 public partial class MaterialNode(string expressionName = "", bool isExpressionName = true) : MaterialNodeBase(expressionName, isExpressionName)
 {
 
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(HeaderBrush))] private Color _headerColor = Color.Parse("#C00f3547");
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(HeaderBrush))] private Color? _headerColor;
     public Brush HeaderBrush => new LinearGradientBrush
     {
         StartPoint = new RelativePoint(0, 0, RelativeUnit.Relative),
         EndPoint = new RelativePoint(1, 0, RelativeUnit.Relative),
         GradientStops = 
         [
-            new GradientStop(HeaderColor, 0),
-            new GradientStop(new Color(255 / 4, HeaderColor.R, HeaderColor.G, HeaderColor.B), 1),
+            new GradientStop(HeaderColor.Value, 0),
+            new GradientStop(new Color(255 / 4, HeaderColor.Value.R, HeaderColor.Value.G, HeaderColor.Value.B), 1),
         ]
     };
     
@@ -47,6 +47,7 @@ public partial class MaterialNode(string expressionName = "", bool isExpressionN
     };
     
     [ObservableProperty] private object? _content;
+    [ObservableProperty] private object? _footerContent;
 
     [ObservableProperty] private ObservableCollection<MaterialNodeSocket> _inputs = [];
     [ObservableProperty] private ObservableCollection<MaterialNodeSocket> _outputs = [];

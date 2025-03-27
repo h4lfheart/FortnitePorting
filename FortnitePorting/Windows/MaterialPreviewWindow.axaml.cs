@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Threading;
 using Avalonia;
 using Avalonia.Controls;
@@ -114,5 +115,27 @@ public partial class MaterialPreviewWindow : WindowBase<MaterialPreviewWindowMod
     private void OnTitleBarPressed(object? sender, PointerPressedEventArgs e)
     {
         BeginMoveDrag(e);
+    }
+
+    private void OnTabSelectionChanged(object sender, SelectionChangedEventArgs args)
+    {
+        CenterViewport();
+    }
+
+    private void OnEditorKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Home)
+        {
+            CenterViewport();
+        }
+    }
+
+    private void CenterViewport()
+    {
+        var nodes = WindowModel.SelectedMaterialData!.Nodes;
+        var avgX = nodes.Sum(node => node.Location.X) / nodes.Count;
+        var avgY = nodes.Sum(node => node.Location.Y) / nodes.Count;
+
+        Editor.ViewportLocation = new Point(avgX - Editor.ViewportSize.Width / 2, avgY - Editor.ViewportSize.Height / 2);
     }
 }

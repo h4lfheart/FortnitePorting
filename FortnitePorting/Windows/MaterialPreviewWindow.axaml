@@ -15,7 +15,7 @@
         Icon="/Assets/LogoV3.ico"
         Title="Material Viewer">
     <Grid RowDefinitions="Auto, *">
-        <ui:TabView Grid.Row="0" IsAddTabButtonVisible="False" TabCloseRequested="OnTabClosed"
+        <ui:TabView Grid.Row="0" IsAddTabButtonVisible="False" SelectionChanged="OnTabSelectionChanged" TabCloseRequested="OnTabClosed"
                     TabItems="{Binding LoadedMaterialDatas}" 
                     SelectedItem="{Binding SelectedMaterialData, Mode=TwoWay}">
             <ui:TabView.TabItemTemplate>
@@ -33,8 +33,10 @@
             </ui:TabView.Styles>
             <ui:TabView.TabStripHeaderTemplate>
                 <DataTemplate>
-                    <TextBlock Text="Material Viewer" FontWeight="SemiBold" FontSize="16"
-                               HorizontalAlignment="Left" VerticalAlignment="Center" Margin="{ext:Space 1.5, 0, 1, 0}"/>
+                    <Border Background="Transparent" PointerPressed="OnTitleBarPressed">
+                        <TextBlock Text="Material Viewer" FontWeight="SemiBold" FontSize="16"
+                                   HorizontalAlignment="Left" VerticalAlignment="Center" Margin="{ext:Space 1.5, 0, 1, 0}" />
+                    </Border>
                 </DataTemplate>
             </ui:TabView.TabStripHeaderTemplate>
             <ui:TabView.TabStripFooterTemplate>
@@ -45,11 +47,11 @@
         </ui:TabView>
         
         <Grid Grid.Row="1">
-            <nodify:NodifyEditor DataContext="{Binding SelectedMaterialData}"
+            <nodify:NodifyEditor x:Name="Editor" DataContext="{Binding SelectedMaterialData}"
                                  ItemsSource="{Binding Nodes}"
                                  Connections="{Binding Connections}"
                                  Background="#FF1A1A1C" ViewportZoom="1" MaxViewportZoom="3"
-                                 SelectionChanged="OnSelectionChanged" >
+                                 SelectionChanged="OnSelectionChanged" KeyDown="OnEditorKeyDown">
                 <nodify:NodifyEditor.ItemTemplate>
                     <DataTemplate>
                        <ContentControl Content="{Binding}">
@@ -66,7 +68,11 @@
                                                         Background="{Binding BackgroundBrush}">
                                        <nodify:GroupingNode.HeaderTemplate>
                                            <DataTemplate x:DataType="x:String">
-                                               <TextBlock Text="{Binding}" Classes="BodyStrongTextBlockStyle"/>
+                                               <TextBlock Text="{Binding}" Classes="BodyStrongTextBlockStyle">
+                                                   <TextBlock.Effect>
+                                                       <DropShadowEffect Color="Black" Opacity="0.5" OffsetX="1" OffsetY="1" BlurRadius="0"/>
+                                                   </TextBlock.Effect>
+                                               </TextBlock>
                                            </DataTemplate>
                                        </nodify:GroupingNode.HeaderTemplate>
                                    </nodify:GroupingNode>
@@ -80,7 +86,7 @@
                                                 HeaderBrush="{Binding HeaderBrush}" 
                                                 BorderBrush="{Binding BorderBrush}"
                                                 Background="{Binding BackgroundBrush}"
-                                                BorderThickness="2"
+                                                BorderThickness="2" Footer="{Binding FooterContent}"
                                                 ContentBrush="Transparent" PointerPressed="OnNodePressed">
                                        <nodify:Node.Styles>
                                            <Style Selector="Border#PART_Header">
@@ -90,22 +96,46 @@
                                        </nodify:Node.Styles>
                                        <nodify:Node.HeaderTemplate>
                                            <DataTemplate x:DataType="x:String">
-                                               <TextBlock Text="{Binding}" Classes="BodyStrongTextBlockStyle"/>
+                                               <TextBlock Text="{Binding}" Classes="BodyStrongTextBlockStyle">
+                                                   <TextBlock.Effect>
+                                                       <DropShadowEffect Color="Black" Opacity="0.5" OffsetX="1" OffsetY="1" BlurRadius="0"/>
+                                                   </TextBlock.Effect>
+                                               </TextBlock>
                                            </DataTemplate>
                                        </nodify:Node.HeaderTemplate>
                                        <nodify:Node.InputConnectorTemplate>
                                            <DataTemplate DataType="{x:Type material:MaterialNodeSocket}">
-                                               <nodify:NodeInput Header="{Binding Name}" FontSize="12"
+                                               <nodify:NodeInput Header="{Binding Name}"
                                                                  Anchor="{Binding Anchor, Mode=OneWayToSource}"
-                                                                 IsConnected="True" Background="Transparent" BorderBrush="{Binding SocketBrush}"/>
+                                                                 IsConnected="True" Background="Transparent" BorderBrush="{Binding SocketBrush}">
+                                                   <nodify:NodeInput.HeaderTemplate>
+                                                       <DataTemplate DataType="x:String">
+                                                           <TextBlock Text="{Binding}" FontSize="12">
+                                                               <TextBlock.Effect>
+                                                                   <DropShadowEffect Color="Black" Opacity="0.5" OffsetX="1" OffsetY="1" BlurRadius="0"/>
+                                                               </TextBlock.Effect>
+                                                           </TextBlock>
+                                                       </DataTemplate>
+                                                   </nodify:NodeInput.HeaderTemplate>
+                                               </nodify:NodeInput>
                                            </DataTemplate>
                                        </nodify:Node.InputConnectorTemplate>
 
                                        <nodify:Node.OutputConnectorTemplate>
                                            <DataTemplate DataType="{x:Type material:MaterialNodeSocket}">
-                                               <nodify:NodeOutput Header="{Binding Name}" FontSize="12"
+                                               <nodify:NodeOutput Header="{Binding Name}"
                                                                   Anchor="{Binding Anchor, Mode=OneWayToSource}"
-                                                                  IsConnected="True" Background="Transparent" BorderBrush="{Binding SocketBrush}"/>
+                                                                  IsConnected="True" Background="Transparent" BorderBrush="{Binding SocketBrush}">
+                                                   <nodify:NodeOutput.HeaderTemplate>
+                                                       <DataTemplate DataType="x:String">
+                                                           <TextBlock Text="{Binding}" FontSize="12">
+                                                               <TextBlock.Effect>
+                                                                   <DropShadowEffect Color="Black" Opacity="0.5" OffsetX="1" OffsetY="1" BlurRadius="0"/>
+                                                               </TextBlock.Effect>
+                                                           </TextBlock>
+                                                       </DataTemplate>
+                                                   </nodify:NodeOutput.HeaderTemplate>
+                                               </nodify:NodeOutput>
                                            </DataTemplate>
                                        </nodify:Node.OutputConnectorTemplate>
                                    </nodify:Node>

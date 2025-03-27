@@ -34,6 +34,17 @@ public partial class MaterialData : ObservableObject
     [ObservableProperty] private ObservableCollection<MaterialNodeBase> _nodes = [];
     [ObservableProperty] private ObservableCollection<MaterialNodeConnection> _connections = [];
     [ObservableProperty] private MaterialNode? _selectedNode;
+
+    private static Dictionary<string, Color> HeaderColorMappings = new()
+    {
+        ["Vector"] = Color.Parse("#877020"),
+        ["Scalar"] = Color.Parse("#547a2f"),
+        ["TextureCoordinate"] = Color.Parse("#8c1313"),
+        ["Texture"] = Color.Parse("#136384"),
+        ["Bool"] = Color.Parse("#561a1a"),
+        ["Switch"] = Color.Parse("#561a1a"),
+        ["MaterialFunction"] = Color.Parse("#466e86"),
+    };
     
     [RelayCommand]
     public async Task Refresh()
@@ -75,7 +86,10 @@ public partial class MaterialData : ObservableObject
         var expressionCollection = editorData.GetOrDefault<FStructFallback>("ExpressionCollection");
         LoadExpressionCollection(expressionCollection);
 
-        var parentNode = new MaterialNode(material.Name, isExpressionName: false);
+        var parentNode = new MaterialNode(material.Name, isExpressionName: false)
+        {
+            HeaderColor = Color.Parse("#786859")
+        };
         Nodes.Add(parentNode);
 
         if (editorData.Properties.FirstOrDefault(prop => prop.Name.Text.Equals("MaterialAttributes")) is
@@ -263,13 +277,16 @@ public partial class MaterialData : ObservableObject
             
             case "MaterialExpressionTextureSampleParameter2D":
             case "MaterialExpressionTextureSample":
+            case "MaterialExpressionTextureObjectParameter":
             {
                 AddColorInputs(ref node, includeRGBA: true);
                 
+                node.Label = expression.GetOrDefault<FName?>("ParameterName")?.Text ?? "Texture";
+                
                 if (expression.GetOrDefault<UTexture>("Texture") is not { } texture) break;
                 if (texture.Decode()?.ToWriteableBitmap() is not { } bitmap) break;
-                
-                node.Label = texture.Name;
+
+                node.Label ??= texture.Name;
                 node.Content = new Image
                 {
                     Width = 128,
@@ -426,6 +443,59 @@ public partial class MaterialData : ObservableObject
                 };
                 break;
             }
+
+            case "MaterialExpressionStaticSwitchParameter":
+            {
+                node.Label = expression.GetOrDefault<FName?>("ParameterName")?.Text ?? expression.Name;
+                break;
+            }
+            case "MaterialExpressionStaticBoolParameter":
+            {
+                node.Label = expression.GetOrDefault<FName?>("ParameterName")?.Text ?? expression.Name;
+                node.Content = new ToggleSwitch
+                {
+                    IsChecked = expression.GetOrDefault<bool>("DefaultValue")
+                };
+                break;
+            }
+            case "MaterialExpressionStaticComponentMaskParameter":
+            {
+                node.Label = expression.GetOrDefault<FName?>("ParameterName")?.Text ?? expression.Name;
+                node.Content = new StackPanel
+                {
+                    Children =
+                    {
+                        new CheckBox { Content = "R", IsChecked = expression.GetOrDefault<bool>("DefaultR") },
+                        new CheckBox { Content = "G", IsChecked = expression.GetOrDefault<bool>("DefaultG") },
+                        new CheckBox { Content = "B", IsChecked = expression.GetOrDefault<bool>("DefaultB") },
+                        new CheckBox { Content = "A", IsChecked = expression.GetOrDefault<bool>("DefaultA") },
+                    }
+                };
+                break;
+            }
+            case "MaterialExpressionChannelMaskParameter":
+            {
+                node.Label = expression.GetOrDefault<FName?>("ParameterName")?.Text ?? expression.Name;
+                
+                break;
+            }
+        }
+
+        if (node.HeaderColor is null)
+        {
+            if (HeaderColorMappings.FirstOrDefault(kvp => expression.ExportType.Contains(kvp.Key, StringComparison.OrdinalIgnoreCase)) is { Key: not null } colorMapping)
+            {
+                node.HeaderColor = colorMapping.Value;
+            }
+            else
+            {
+                node.HeaderColor = Color.Parse("#60815c");
+            }
+        }
+
+        if (expression.GetOrDefault<string?>("Desc") is { } description)
+        {
+            node.FooterContent = description;
         }
         
         if (node.Outputs.Count == 0)
