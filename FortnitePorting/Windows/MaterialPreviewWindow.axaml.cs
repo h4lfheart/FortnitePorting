@@ -68,35 +68,41 @@ public partial class MaterialPreviewWindow : WindowBase<MaterialPreviewWindowMod
 
         Instance = null;
     }
-
-    private void OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
-    {
-        if (sender is not NodifyEditor editor) return;
-        if (editor.SelectedItem is not MaterialNode node) return;
-
-        WindowModel.SelectedMaterialData.SelectedNode = node;
-    }
-
+    
     private void OnNodePressed(object? sender, PointerPressedEventArgs e)
     {
         if (e.ClickCount != 2) return;
         if (sender is not Control control) return;
         if (control.DataContext is not MaterialNode node) return;
-        if (node.DoubleClickPackage is null || node.DoubleClickPackage.IsNull) return;
 
-        var package = node.DoubleClickPackage.Load();
-        switch (package)
+        if (node.Package is not null && !node.Package.IsNull)
         {
-            case UMaterial material:
+            var package = node.Package.Load();
+            switch (package)
             {
-                Preview(material);
-                break;
+                case UMaterial material:
+                {
+                    Preview(material);
+                    break;
+                }
+                case UMaterialFunction materialFunction:
+                {
+                    Preview(materialFunction);
+                    break;
+                }
             }
-            case UMaterialFunction materialFunction:
-            {
-                Preview(materialFunction);
-                break;
-            }
+        }
+
+        if (node.Subgraph is not null)
+        {
+            WindowModel.Load(node.Subgraph);
+        }
+
+        if (node.LinkedNode is not null)
+        {
+            Editor.ViewportZoom = 1;
+            Editor.ViewportLocation = new Point(node.LinkedNode.Location.X - Editor.ViewportSize.Width / 2, node.LinkedNode.Location.Y - Editor.ViewportSize.Height / 2);
+            Editor.SelectedItem = node.LinkedNode;
         }
     }
 

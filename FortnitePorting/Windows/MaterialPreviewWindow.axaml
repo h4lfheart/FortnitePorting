@@ -20,7 +20,7 @@
                     SelectedItem="{Binding SelectedMaterialData, Mode=TwoWay}">
             <ui:TabView.TabItemTemplate>
                 <DataTemplate x:DataType="material:MaterialData">
-                    <TextBlock Text="{Binding Asset.Name}"/>
+                    <TextBlock Text="{Binding DataName}"/>
                 </DataTemplate>
             </ui:TabView.TabItemTemplate>
             <ui:TabView.Styles>
@@ -46,12 +46,24 @@
             </ui:TabView.TabStripFooterTemplate>
         </ui:TabView>
         
-        <Grid Grid.Row="1">
-            <nodify:NodifyEditor x:Name="Editor" DataContext="{Binding SelectedMaterialData}"
+        <Grid Grid.Row="1" Background="#FF1A1A1C">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="3*"/>
+            </Grid.ColumnDefinitions>
+            
+            <nodify:NodifyEditor Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="2" x:Name="Editor" DataContext="{Binding SelectedMaterialData}"
                                  ItemsSource="{Binding Nodes}"
                                  Connections="{Binding Connections}"
-                                 Background="#FF1A1A1C" ViewportZoom="1" MaxViewportZoom="3"
-                                 SelectionChanged="OnSelectionChanged" KeyDown="OnEditorKeyDown">
+                                 SelectedItem="{Binding SelectedNode}"
+                                 CanSelectMultipleItems="False"
+                                 Background="Transparent" ViewportZoom="1" MaxViewportZoom="3"
+                                 KeyDown="OnEditorKeyDown">
                 <nodify:NodifyEditor.ItemTemplate>
                     <DataTemplate>
                        <ContentControl Content="{Binding}">
@@ -165,8 +177,39 @@
                 </nodify:NodifyEditor.ItemContainerTheme>
             </nodify:NodifyEditor>
             
-            <StackPanel HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="{ext:Space 1}">
-                <Button ToolTip.Tip="Refresh"
+            <ui:FABorder Grid.Row="0" Grid.Column="0" DataContext="{Binding SelectedMaterialData.SelectedNode}"
+                         IsVisible="{Binding Converter={x:Static ObjectConverters.IsNotNull}}"
+                         Margin="{ext:Space 1}" Background="{Binding BackgroundBrush}">
+                <Grid Margin="{ext:Space 1}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="{ext:Space 1}"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock Grid.Row="0" Text="{Binding ExpressionName}"
+                               Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    
+                    <ItemsControl Grid.Row="2" ItemsSource="{Binding Properties}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Margin="{ext:Space 1}">
+                                    <TextBlock Text="{Binding Key}"
+                                               Classes="BodyStrongTextBlockStyle" 
+                                               HorizontalAlignment="Left" VerticalAlignment="Center"
+                                               Margin="{ext:Space 0, 0, 1, 0}"/>
+                                    
+                                    <TextBlock Text="{Binding Value}"
+                                               Classes="BodyTextBlockStyle" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
+            </ui:FABorder>
+            
+            <StackPanel Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="{ext:Space 1}">
+                <Button ToolTip.Tip="Refresh" IsVisible="{Binding SelectedMaterialData.Asset, Converter={x:Static ObjectConverters.IsNotNull}}"
                         Content="{avalonia:MaterialIconExt Refresh}" 
                         Command="{Binding SelectedMaterialData.RefreshCommand}"/>
             </StackPanel>

@@ -1,4 +1,6 @@
+using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using Avalonia;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -54,7 +56,9 @@ public partial class MaterialNode(string expressionName = "", bool isExpressionN
 
     [ObservableProperty] private ObservableCollection<MaterialNodeProperty> _properties = [];
 
-    public FPackageIndex? DoubleClickPackage;
+    public FPackageIndex? Package;
+    public MaterialData? Subgraph;
+    public MaterialNode? LinkedNode;
     
     public MaterialNodeSocket AddInput(MaterialNodeSocket socket)
     {
@@ -78,6 +82,16 @@ public partial class MaterialNode(string expressionName = "", bool isExpressionN
     public MaterialNodeSocket AddOutput(string socketName)
     {
         return AddOutput(new MaterialNodeSocket(socketName));
+    }
+    
+    public MaterialNodeSocket? GetInput(string socketName)
+    {
+        return Inputs.FirstOrDefault(input => input.Name.Equals(socketName, StringComparison.OrdinalIgnoreCase));
+    }
+    
+    public MaterialNodeSocket? GetOutput(string socketName)
+    {
+        return Outputs.FirstOrDefault(output => output.Name.Equals(socketName, StringComparison.OrdinalIgnoreCase));
     }
 }
 

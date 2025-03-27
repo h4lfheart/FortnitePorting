@@ -43,10 +43,22 @@ public partial class MaterialPreviewWindowModel : WindowModelBase
 {
     [ObservableProperty] private ObservableCollection<MaterialData> _loadedMaterialDatas = [];
     [ObservableProperty] private MaterialData? _selectedMaterialData;
+    
+    
+    [ObservableProperty] private Brush _backgroundBrush = new LinearGradientBrush
+    {
+        StartPoint = new RelativePoint(0, 1, RelativeUnit.Relative),
+        EndPoint = new RelativePoint(1, 0, RelativeUnit.Relative),
+        GradientStops = 
+        [
+            new GradientStop(Color.Parse("#9D111111"), 0),
+            new GradientStop(Color.Parse("#82212121"), 1),
+        ]
+    };
 
     public void Load(UObject obj)
     {
-        if (LoadedMaterialDatas.FirstOrDefault(data => data.Asset.Equals(obj)) is { } existingData)
+        if (LoadedMaterialDatas.FirstOrDefault(data => data.Asset?.Equals(obj) ?? false) is { } existingData)
         {
             SelectedMaterialData = existingData;
         }
@@ -56,6 +68,19 @@ public partial class MaterialPreviewWindowModel : WindowModelBase
             data.Load(obj);
             LoadedMaterialDatas.Add(data);
             SelectedMaterialData = data;
+        }
+    }
+    
+    public void Load(MaterialData materialData)
+    {
+        if (LoadedMaterialDatas.FirstOrDefault(data => data.DataName.Equals(materialData.DataName)) is { } existingData)
+        {
+            SelectedMaterialData = existingData;
+        }
+        else
+        {
+            LoadedMaterialDatas.Add(materialData);
+            SelectedMaterialData = materialData;
         }
     }
 }

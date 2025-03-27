@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
+using AvaloniaEdit.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse_Conversion.Textures;
@@ -16,8 +17,10 @@ using CUE4Parse.UE4.Assets.Exports.Material.Editor;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.Math;
+using CUE4Parse.UE4.Objects.Core.Misc;
 using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Objects.UObject;
+using DynamicData;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Extensions;
 using FortnitePorting.Models.Unreal.Material;
@@ -30,10 +33,13 @@ namespace FortnitePorting.Models.Material;
 
 public partial class MaterialData : ObservableObject
 {
-    [ObservableProperty] private UObject _asset;
+    [ObservableProperty] private string _dataName;
+    [ObservableProperty] private UObject? _asset;
     [ObservableProperty] private ObservableCollection<MaterialNodeBase> _nodes = [];
     [ObservableProperty] private ObservableCollection<MaterialNodeConnection> _connections = [];
     [ObservableProperty] private MaterialNode? _selectedNode;
+
+    public List<(MaterialNode, UMaterialExpression)> DeferredSubgraphs = [];
 
     private static Dictionary<string, Color> HeaderColorMappings = new()
     {
@@ -44,13 +50,26 @@ public partial class MaterialData : ObservableObject
         ["Bool"] = Color.Parse("#561a1a"),
         ["Switch"] = Color.Parse("#561a1a"),
         ["MaterialFunction"] = Color.Parse("#466e86"),
+        ["Composite"] = Color.Parse("#272827")
     };
+
+    private static Type[] IgnoredPropertyTypes =
+    [
+        typeof(FScriptStruct), typeof(FStructFallback), typeof(FPackageIndex), typeof(FGuid)
+    ];
+    
+    private static string[] IgnoredPropertyNames =
+    [
+        "MaterialExpressionEditorX",
+        "MaterialExpressionEditorY"
+    ];
     
     [RelayCommand]
     public async Task Refresh()
     {
         Nodes.Clear();
         Connections.Clear();
+        DeferredSubgraphs.Clear();
         
         if (Asset is UMaterial material)
             LoadMaterial(material);
@@ -61,6 +80,7 @@ public partial class MaterialData : ObservableObject
     public void Load(UObject obj)
     {
         Asset = obj;
+        DataName = Asset.Name;
         
         if (Asset is UMaterial material)
             LoadMaterial(material);
@@ -144,6 +164,127 @@ public partial class MaterialData : ObservableObject
 
             AddNode(expression);
         }
+
+        foreach (var (node, expression) in DeferredSubgraphs)
+        {
+            MaterialNode endPinNode = null!;
+            
+            var inputExpressionsLazy = expression.GetOrDefault<FPackageIndex?>("InputExpressions");
+            if (inputExpressionsLazy?.Load<UMaterialExpression>() is { } inputExpressions)
+            {
+                var startPinNode = (MaterialNode) Nodes.FirstOrDefault(node =>
+                    node.ExpressionName.Equals(inputExpressions.Name, StringComparison.OrdinalIgnoreCase))!;
+                
+                node.Inputs.Clear();
+                
+                var reroutePins = inputExpressions.GetOrDefault<FStructFallback[]>("ReroutePins", []);
+                foreach (var reroutePin in reroutePins)
+                {
+                    if (reroutePin.Get<FPackageIndex?>("Expression")?.Load<UMaterialExpression>() is not { } targetExpression) continue;
+                    
+                    var pinName = reroutePin.GetOrDefault<FName?>("Name")?.Text ?? "Pin";
+                    var pinInput = node.AddInput(pinName);
+
+                    var targetRerouteNode = (MaterialNode?) Nodes.FirstOrDefault(node =>
+                        node.ExpressionName.Equals(targetExpression.Name, StringComparison.OrdinalIgnoreCase));
+                    if (targetRerouteNode is null) continue;
+
+                    var existingInputs = Connections.Where(con => con.To.Parent.Equals(targetRerouteNode)).ToArray();
+                    foreach (var existingInput in existingInputs)
+                    {
+                        Connections.Add(new MaterialNodeConnection(existingInput.From, pinInput));
+                    }
+                    
+                    var existingOutputs = Connections.Where(con => con.From.Parent.Equals(targetRerouteNode)).ToArray();
+                    foreach (var existingOutput in existingOutputs)
+                    {
+                        Connections.Add(new MaterialNodeConnection(startPinNode.GetOutput(pinName)!, existingOutput.To));
+                    }
+                    
+                    Connections.RemoveMany(existingInputs);
+                    Connections.RemoveMany(existingOutputs);
+                    Nodes.Remove(targetRerouteNode);
+
+                }
+            }
+            
+            var outputExpressionsLazy = expression.GetOrDefault<FPackageIndex?>("OutputExpressions");
+            if (outputExpressionsLazy?.Load<UMaterialExpression>() is { } outputExpressions)
+            {
+                endPinNode = (MaterialNode) Nodes.FirstOrDefault(node =>
+                    node.ExpressionName.Equals(outputExpressions.Name, StringComparison.OrdinalIgnoreCase))!;
+                
+                node.Outputs.Clear();
+                
+                var reroutePins = outputExpressions.GetOrDefault<FStructFallback[]>("ReroutePins", []);
+                foreach (var reroutePin in reroutePins)
+                {
+                    if (reroutePin.Get<FPackageIndex?>("Expression")?.Load<UMaterialExpression>() is not { } targetExpression) continue;
+                    
+                    var pinName = reroutePin.GetOrDefault<FName?>("Name")?.Text ?? "Pin";
+                    var pinOutput = node.AddOutput(pinName);
+                    
+                    var targetRerouteNode = (MaterialNode?) Nodes.FirstOrDefault(node => node.ExpressionName.Equals(targetExpression.Name, StringComparison.OrdinalIgnoreCase));
+                    if (targetRerouteNode is null) continue;
+                    
+                    var existingInputs = Connections.Where(con => con.To.Parent.Equals(targetRerouteNode)).ToArray();
+                    foreach (var existingInput in existingInputs)
+                    {
+                        Connections.Add(new MaterialNodeConnection(existingInput.From, endPinNode.GetInput(pinName)!));
+                    }
+                    
+                    var existingOutputs = Connections.Where(con => con.From.Parent.Equals(targetRerouteNode)).ToArray();
+                    foreach (var existingOutput in existingOutputs)
+                    {
+                        Connections.Add(new MaterialNodeConnection(pinOutput, existingOutput.To));
+                    }
+                    
+                    Connections.RemoveMany(existingInputs);
+                    Connections.RemoveMany(existingOutputs);
+                    Nodes.Remove(targetRerouteNode);
+                }
+            }
+
+            var subgraphNodes = new HashSet<MaterialNode>();
+            var subgraphConnections = new HashSet<MaterialNodeConnection>();
+
+            CollectSubgraphNodes(endPinNode);
+
+            node.Subgraph = new MaterialData
+            {
+                DataName = node.Label,
+                Nodes = [..subgraphNodes],
+                Connections = [..subgraphConnections],
+            };
+            
+            Nodes.RemoveMany(subgraphNodes);
+            Connections.RemoveMany(subgraphConnections);
+            continue;
+
+            void CollectSubgraphNodes(MaterialNode current)
+            {
+                subgraphNodes.Add(current);
+                
+                var childConnections = Connections
+                    .Where(con => con.To.Parent.Equals(current))
+                    .ToArray();
+                
+                if (childConnections.Length == 0) return;
+                
+                subgraphConnections.AddRange(childConnections);
+                
+                var childNodes = childConnections
+                    .Select(con => con.From.Parent)
+                    .ToArray();
+
+                subgraphNodes.AddRange(childNodes);
+                foreach (var childNode in childNodes)
+                {
+                    CollectSubgraphNodes(childNode);
+                }
+                
+            }
+        }
     }
 
     private MaterialNode AddNode(UMaterialExpression expression)
@@ -157,6 +298,21 @@ public partial class MaterialData : ObservableObject
         };
         
         Nodes.Add(node);
+
+        foreach (var property in expression.Properties)
+        {
+            if (property.Tag is null) continue;
+            if (IgnoredPropertyNames.Contains(property.Name.Text)) continue;
+
+            var propType = property.Tag.GenericValue?.GetType();
+            if (IgnoredPropertyTypes.Contains(propType)) continue;
+            
+            node.Properties.Add(new MaterialNodeProperty
+            {
+                Key = property.Name.Text,
+                Value = property.Tag!.GenericValue!
+            });
+        }
         
         SetupNodeContent(ref node, expression);
 
@@ -178,10 +334,11 @@ public partial class MaterialData : ObservableObject
         var targetNode = (MaterialNode?) Nodes.FirstOrDefault(node => node.ExpressionName.Equals(subExpression.Name, StringComparison.OrdinalIgnoreCase)) ?? AddNode(subExpression);
 
         var inputSocket = node.AddInput(new MaterialNodeSocket(nameOverride ?? expressionInput.InputName.Text));
-        if (expressionInput.OutputIndex < targetNode.Outputs.Count)
-            Connections.Add(new MaterialNodeConnection(targetNode.Outputs[expressionInput.OutputIndex], inputSocket));
-        else
+        
+        if (expressionInput.OutputIndex >= targetNode.Outputs.Count)
             Log.Warning("Expression {expressionName} has no output index {outputIndex}", targetNode.ExpressionName, expressionInput.OutputIndex);
+        
+        Connections.Add(new MaterialNodeConnection(targetNode.Outputs[Math.Min(expressionInput.OutputIndex, targetNode.Outputs.Count - 1)], inputSocket));
     }
 
     private void SetupNodeContent(ref MaterialNode node, UMaterialExpression expression)
@@ -191,7 +348,7 @@ public partial class MaterialData : ObservableObject
             case "MaterialExpressionMaterialFunctionCall":
             {
                 var materialFunction = expression.Get<FPackageIndex>("MaterialFunction");
-                node.DoubleClickPackage = materialFunction;
+                node.Package = materialFunction;
                 node.Label = materialFunction.ResolvedObject?.Name.Text ?? "Material Function";
                 
                 node.Inputs.Clear();
@@ -210,6 +367,42 @@ public partial class MaterialData : ObservableObject
                     var outputName = output.Get<FName>("OutputName");
 
                     node.AddOutput(outputName.Text);
+                }
+                
+                break;
+            }
+            case "MaterialExpressionComposite":
+            {
+                var name = expression.GetOrDefault<string?>("SubgraphName") ?? "Subgraph";
+                node.Label = name;
+                
+                DeferredSubgraphs.Add((node, expression));
+                break;
+            }
+            case "MaterialExpressionPinBase":
+            {
+                var pinDirection = expression.GetOrDefault<FName?>("PinDirection")?.Text;
+                if (pinDirection == "EEdGraphPinDirection::EGPD_Output")
+                {
+                    node.Label = "Input";
+                    
+                    var outputs = expression.GetOrDefault<FStructFallback[]>("Outputs", []);
+                    foreach (var output in outputs)
+                    {
+                        var outputName = output.Get<FName>("OutputName");
+                        node.AddOutput(outputName.Text);
+                    }
+                }
+                else
+                {
+                    node.Label = "Output";
+                    
+                    var reroutePins = expression.GetOrDefault<FStructFallback[]>("ReroutePins", []);
+                    foreach (var reroutePin in reroutePins)
+                    {
+                        var pinName = reroutePin.GetOrDefault<FName?>("Name")?.Text ?? "Pin";
+                        node.AddInput(pinName);
+                    }
                 }
                 
                 break;
@@ -268,10 +461,19 @@ public partial class MaterialData : ObservableObject
                 nodeColor.R *= 0.25f;
                 nodeColor.G *= 0.25f;
                 nodeColor.B *= 0.25f;
+                
                 var normalizedColor = nodeColor.ToFColor(true);
                 
                 node.Label = name;
                 node.HeaderColor = new Color(normalizedColor.A, normalizedColor.R, normalizedColor.G, normalizedColor.B);
+
+              
+                if (expression.ExportType == "MaterialExpressionNamedRerouteUsage")
+                {
+                    var declarationNode = (MaterialNode?) Nodes.FirstOrDefault(node => node.ExpressionName.Equals(declaration.Name)) 
+                                          ?? AddNode(declaration);
+                    node.LinkedNode = declarationNode;
+                }
                 break;
             }
             
@@ -286,7 +488,8 @@ public partial class MaterialData : ObservableObject
                 if (expression.GetOrDefault<UTexture>("Texture") is not { } texture) break;
                 if (texture.Decode()?.ToWriteableBitmap() is not { } bitmap) break;
 
-                node.Label ??= texture.Name;
+                if (node.Label.Equals("Texture"))
+                    node.Label = texture.Name;
                 node.Content = new Image
                 {
                     Width = 128,
