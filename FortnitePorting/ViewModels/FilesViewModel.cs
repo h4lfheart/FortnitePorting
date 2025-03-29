@@ -23,6 +23,7 @@ using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.Utils;
 using DynamicData;
 using DynamicData.Binding;
+using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
 using FortnitePorting.Export;
 using FortnitePorting.Export.Models;
@@ -273,14 +274,16 @@ public partial class FilesViewModel : ViewModelBase
                 TexturePreviewWindow.Preview(name, texture);
                 break;
             }
-            case UMaterial material:
+            case UMaterial:
+            case UMaterialFunction:
             {
-                MaterialPreviewWindow.Preview(material);
-                break;
-            }
-            case UMaterialFunction materialFunction:
-            {
-                MaterialPreviewWindow.Preview(materialFunction);
+                if (!CUE4ParseVM.Provider.MountedVfs.Any(vfs => vfs.Name.Contains(".o.")))
+                {
+                    AppWM.Message("Material Preview", "Material node-tree data cannot be loaded because UEFN is not installed.", closeTime: 5, severity: InfoBarSeverity.Error);
+                    break;
+                }
+                
+                MaterialPreviewWindow.Preview(asset);
                 break;
             }
             case UStaticMesh:

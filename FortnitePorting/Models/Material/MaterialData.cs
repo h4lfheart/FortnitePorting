@@ -490,6 +490,7 @@ public partial class MaterialData : ObservableObject
 
                 if (node.Label.Equals("Texture"))
                     node.Label = texture.Name;
+                
                 node.Content = new Image
                 {
                     Width = 128,

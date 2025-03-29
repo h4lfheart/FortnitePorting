@@ -44,6 +44,8 @@ public partial class MaterialPreviewWindowModel : WindowModelBase
     [ObservableProperty] private ObservableCollection<MaterialData> _loadedMaterialDatas = [];
     [ObservableProperty] private MaterialData? _selectedMaterialData;
     
+    [ObservableProperty] private uint _gridSpacing = 25;
+    
     
     [ObservableProperty] private Brush _backgroundBrush = new LinearGradientBrush
     {

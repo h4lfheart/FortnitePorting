@@ -14,6 +14,27 @@
         ExtendClientAreaToDecorationsHint="True" WindowStartupLocation="CenterOwner"
         Icon="/Assets/LogoV3.ico"
         Title="Material Viewer">
+    <Window.Resources>
+        <GeometryDrawing x:Key="SmallGridGeometry"
+                         Geometry="M0,0 L0,1 0.03,1 0.03,0.03 1,0.03 1,0 Z"
+                         Brush="#343434" />
+
+        <GeometryDrawing x:Key="LargeGridGeometry"
+                         Geometry="M0,0 L0,1 0.015,1 0.015,0.015 1,0.015 1,0 Z"
+                         Brush="#161616" />
+
+        <DrawingBrush x:Key="SmallGridLinesDrawingBrush"
+                      TileMode="Tile"
+                      DestinationRect="0 0 25 25"
+                      Transform="{Binding DpiScaledViewportTransform, ElementName=Editor}"
+                      Drawing="{StaticResource SmallGridGeometry}" />
+
+        <DrawingBrush x:Key="LargeGridLinesDrawingBrush"
+                      TileMode="Tile"
+                      DestinationRect="0 0 250 250"
+                      Transform="{Binding DpiScaledViewportTransform, ElementName=Editor}"
+                      Drawing="{StaticResource LargeGridGeometry}" />
+    </Window.Resources>
     <Grid RowDefinitions="Auto, *">
         <ui:TabView Grid.Row="0" IsAddTabButtonVisible="False" SelectionChanged="OnTabSelectionChanged" TabCloseRequested="OnTabClosed"
                     TabItems="{Binding LoadedMaterialDatas}" 
@@ -62,7 +83,7 @@
                                  Connections="{Binding Connections}"
                                  SelectedItem="{Binding SelectedNode}"
                                  CanSelectMultipleItems="False"
-                                 Background="Transparent" ViewportZoom="1" MaxViewportZoom="3"
+                                 Background="{StaticResource SmallGridLinesDrawingBrush}" ViewportZoom="1" MaxViewportZoom="3"
                                  KeyDown="OnEditorKeyDown">
                 <nodify:NodifyEditor.ItemTemplate>
                     <DataTemplate>
@@ -176,6 +197,9 @@
                     </ControlTheme>
                 </nodify:NodifyEditor.ItemContainerTheme>
             </nodify:NodifyEditor>
+            
+            <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="2" ZIndex="-2"
+                  Background="{StaticResource LargeGridLinesDrawingBrush}"/>
             
             <ui:FABorder Grid.Row="0" Grid.Column="0" DataContext="{Binding SelectedMaterialData.SelectedNode}"
                          IsVisible="{Binding Converter={x:Static ObjectConverters.IsNotNull}}"
