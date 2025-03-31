@@ -20,6 +20,7 @@ using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
 using FortnitePorting.Views;
 using FortnitePorting.WindowModels;
+using LibVLCSharp.Shared;
 using Microsoft.Win32;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
@@ -84,7 +85,8 @@ public static class ApplicationService
         
         DependencyService.EnsureDependencies();
         
-        while (DependencyService.VLCFinished) { }
+        while (!DependencyService.VLCFinished) { }
+        Core.Initialize(Path.Combine(DataFolder.FullName, "vlc"));
         
         Application.MainWindow = new AppWindow();
         Application.Startup += OnStartup;

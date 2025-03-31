@@ -39,11 +39,11 @@ public static class DependencyService
     
     public static void EnsureVLC()
     {
-        var assets = AssetLoader.GetAssets(new Uri("avares://FortnitePorting/Assets/Dependencies/libvlc"), null);
+        var assets = AssetLoader.GetAssets(new Uri("avares://FortnitePorting/Assets/Dependencies/vlc"), null);
         foreach (var asset in assets)
         {
             var assetStream = AssetLoader.Open(asset);
-            var targetFile = new FileInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, asset.AbsolutePath[1..].Replace("Assets/Dependencies/", string.Empty)));
+            var targetFile = new FileInfo(Path.Combine(DataFolder.FullName, asset.AbsolutePath[1..].Replace("Assets/Dependencies/", string.Empty)));
             if (targetFile is { Exists: true, Length: > 0 } && targetFile.GetHash() == assetStream.GetHash()) continue;
             targetFile.Directory?.Create();
             

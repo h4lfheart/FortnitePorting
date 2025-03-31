@@ -62,12 +62,17 @@
     </ItemGroup>
     
     <PropertyGroup>
-        <VlcWindowsX86Enabled>false</VlcWindowsX86Enabled>
+        <VlcWindowsX64TargetDir>.data/vlc/</VlcWindowsX64TargetDir>
         <VlcWindowsX64Enabled>true</VlcWindowsX64Enabled>
+        <VlcWindowsX86Enabled>false</VlcWindowsX86Enabled>
     </PropertyGroup>
     
     <ItemGroup>
       <None Remove="..\..\..\.nuget\packages\naudio.vorbis\1.5.0\contentFiles\any\netstandard2.0\README.md" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <Folder Include="Assets\Dependencies\vlc\win-x64\" />
     </ItemGroup>
 
 </Project>
