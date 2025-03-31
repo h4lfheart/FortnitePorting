@@ -45,6 +45,7 @@ public partial class HomeViewModel : ViewModelBase
         
         TaskService.Run(async () =>
         {
+            while (AppWM.SplashOpen) { }
             ViewModelRegistry.New<CUE4ParseViewModel>();
             await CUE4ParseVM.Initialize();
             
@@ -101,7 +102,7 @@ public partial class HomeViewModel : ViewModelBase
             var dialog = new ContentDialog
             {
                 Title = "Welcome to FortnitePorting OG!!",
-                Content = "Would you like to enable sound effects? This can be changed at any time in application settings.",
+                Content = "Would you like to enable audio? This can be changed at any time in application settings.",
                 PrimaryButtonText = "Yes",
                 CloseButtonText = "No",
                 PrimaryButtonCommand = new RelayCommand(() => AppSettings.Current.Application.UseOGAudio = true),

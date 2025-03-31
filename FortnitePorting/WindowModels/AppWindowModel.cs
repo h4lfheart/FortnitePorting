@@ -28,6 +28,7 @@ using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
 using FortnitePorting.ViewModels.Settings;
 using FortnitePorting.Views;
+using LibVLCSharp.Shared;
 using InfoBarData = FortnitePorting.Shared.Models.App.InfoBarData;
 using Log = Serilog.Log;
 
@@ -43,6 +44,12 @@ public partial class AppWindowModel : WindowModelBase
     [ObservableProperty] private NavigationView _navigationView;
     [ObservableProperty] private ObservableCollection<InfoBarData> _infoBars = [];
     [ObservableProperty] private TitleData? _titleData;
+
+    [ObservableProperty] private MediaPlayer _mediaPlayer;
+    [ObservableProperty] private bool _splashOpen = true;
+    [ObservableProperty] private bool _closingSplash;
+    [ObservableProperty] private float _fadeOutBlackOpacity = 0.0f;
+    [ObservableProperty] private float _fadeInBackOpacity = 1.0f;
     
     [ObservableProperty] private int _chatNotifications;
     [ObservableProperty] private int _unsubmittedPolls;
@@ -57,15 +64,88 @@ public partial class AppWindowModel : WindowModelBase
     
     public OnlineSettingsViewModel OnlineRef => AppSettings.Current.Online;
     
-    
+    private readonly LibVLC _vlc = new("--input-repeat=2");
+
+
     public override async Task Initialize()
     {
+        MediaPlayer = new MediaPlayer(_vlc)
+        {
+            Volume = 75,
+            Scale = 1
+        };
+
         SetupTabsAreVisible = !AppSettings.Current.Installation.FinishedWelcomeScreen;
 
         OnlineStatus = await ApiVM.FortnitePorting.GetOnlineStatusAsync();
 
         await CheckForUpdate(isAutomatic: true);
     }
+
+    public void PlayOGSplash()
+    {
+        SplashOpen = true;
+        
+        using var media = new Media(_vlc, new Uri("https://fortniteporting.halfheart.dev/OG/FPOGSplash.mp4"));
+        MediaPlayer.Play(media);
+    }
+    
+    // idc about code quality for a 1 day release
+    
+    public void StopOGSplash()
+    {
+        if (ClosingSplash) return;
+
+        ClosingSplash = true;
+        
+        var totalTime = 0.0f;
+        var fadeTime = 1.0f;
+        var deltaTime = 1f / 60f;
+        
+        var fadeInTimer = new DispatcherTimer(DispatcherPriority.Background);
+        fadeInTimer.Interval = TimeSpan.FromSeconds(deltaTime);
+        fadeInTimer.Tick += (sender, args) =>
+        {
+            if (totalTime >= fadeTime)
+            {
+                fadeInTimer.Stop();
+                return;
+            }
+            
+            FadeInBackOpacity = float.Lerp(1, 0, totalTime / fadeTime);
+
+            totalTime += deltaTime;
+        };
+        
+        var fadeOutTimer = new DispatcherTimer(DispatcherPriority.Background);
+        fadeOutTimer.Interval = TimeSpan.FromSeconds(deltaTime);
+        fadeOutTimer.Tick += (sender, args) =>
+        {
+            if (totalTime >= fadeTime)
+            {
+                // idk why but this stops it from crashing
+                var oldPlayer = MediaPlayer;
+                MediaPlayer.Stop();
+                MediaPlayer = null;
+                oldPlayer.Dispose();
+                
+                SplashOpen = false;
+
+                totalTime = 0;
+                fadeInTimer.Start();
+                fadeOutTimer.Stop();
+                return;
+            }
+
+            MediaPlayer.Volume = (int)float.Lerp(75, 0, totalTime / fadeTime);
+            FadeOutBlackOpacity = totalTime / fadeTime;
+
+            totalTime += deltaTime;
+        };
+        
+        fadeOutTimer.Start();
+    }
+
     
     public override async Task OnViewOpened()
     {
@@ -83,6 +163,8 @@ public partial class AppWindowModel : WindowModelBase
                 }
                 return true;
             }
+
+            if (MediaPlayer.IsPlaying) return true;
             
             if (!CUE4ParseVM.FinishedLoading) return true;
             if (TimeWasterOpen) return true;
@@ -103,7 +185,7 @@ public partial class AppWindowModel : WindowModelBase
                 isWaitingForSpawn = true;
                 TaskService.Run(async () =>
                 {
-                    var time = Random.Shared.Next(1000, 2500); //Random.Shared.Next(60_000, 240_000);
+                    var time = Random.Shared.Next(60_000, 240_000);
                     await Task.Delay(time);
 
                     SupplyDrop.Spawn();

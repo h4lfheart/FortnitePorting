@@ -28,10 +28,19 @@
         </Grid.ColumnDefinitions>
 
         <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
-            
+            <Image Source="/Assets/OG/Splash.png" Stretch="UniformToFill" Opacity="0.75">
+                <Image.OpacityMask>
+                    <LinearGradientBrush StartPoint="0, 0" EndPoint="0, 180">
+                        <GradientStops>
+                            <GradientStop Color="White" Offset="0"/>
+                            <GradientStop Color="Transparent" Offset="1"/>
+                        </GradientStops>
+                    </LinearGradientBrush>
+                </Image.OpacityMask>
+            </Image>
             <Image Source="/Assets/FortnitePorting-Large.png" Stretch="Uniform" Opacity="0.5">
             </Image>
-            <TextBlock Text="FortnitePorting" Classes="TitleLargeTextBlockStyle" HorizontalAlignment="Center"
+            <TextBlock Text="FortnitePorting OG" Classes="TitleLargeTextBlockStyle" HorizontalAlignment="Center"
                        VerticalAlignment="Center">
                 <TextBlock.Effect>
                     <DropShadowEffect BlurRadius="15" Color="#5F000000" OffsetX="0" OffsetY="0" />

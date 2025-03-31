@@ -5,6 +5,8 @@
         xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
         xmlns:windowModels="clr-namespace:FortnitePorting.WindowModels"
         xmlns:controls="clr-namespace:FortnitePorting.Controls"
+        xmlns:shared="clr-namespace:LibVLCSharp.Shared;assembly=LibVLCSharp"
+        xmlns:avalonia="clr-namespace:LibVLCSharp.Avalonia;assembly=LibVLCSharp.Avalonia"
         x:Class="FortnitePorting.Windows.AppWindow"
         x:DataType="windowModels:AppWindowModel"
         Width="1160" Height="770" RequestedThemeVariant="Dark" FontFamily="{StaticResource TimeWasterFontFamily}" Background="{x:Null}"
@@ -230,7 +232,6 @@
             </Grid>
         </Grid>
         
-        
         <Grid Grid.Row="0" Background="Transparent" HorizontalAlignment="Stretch" PointerPressed="OnPointerPressedUpperBar">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="{ext:Space 1}" />
@@ -244,5 +245,26 @@
             <TextBlock Grid.Column="3" Text="OG" Classes="TextFillColorTertiaryBrush" FontSize="13" Margin="0 2 0 0"
                        HorizontalAlignment="Left" VerticalAlignment="Center" />
         </Grid>
+        
+        <avalonia:VideoView Grid.Row="0" Grid.RowSpan="2" IsVisible="{Binding SplashOpen}"
+                            MediaPlayer="{Binding MediaPlayer}"
+                            HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                            Loaded="OnVideoLoaded">
+            <Border Background="Black" Opacity="{Binding FadeOutBlackOpacity}" Cursor="Hand"
+                    HorizontalAlignment="Stretch" 
+                    VerticalAlignment="Stretch"
+                    PointerPressed="OnVideoPointerPressed"
+                    KeyDown="OnVideoKeyPressed">
+                
+            </Border>
+        </avalonia:VideoView>
+        
+        <Border Grid.Row="0" Grid.RowSpan="2" Background="Black" 
+                Opacity="{Binding FadeInBackOpacity}" 
+                IsHitTestVisible="False"
+                HorizontalAlignment="Stretch" 
+                VerticalAlignment="Stretch">
+                
+        </Border>
     </Grid>
 </Window>

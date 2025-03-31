@@ -17,6 +17,7 @@ using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
 using FortnitePorting.Views;
+using LibVLCSharp.Shared;
 using AppWindowModel = FortnitePorting.WindowModels.AppWindowModel;
 
 namespace FortnitePorting.Windows;
@@ -38,6 +39,8 @@ public partial class AppWindow : WindowBase<AppWindowModel>
     {
         base.OnLoaded(e);
 
+        this.BringToTop();
+        
         var angle = 0f;
         var timer = new DispatcherTimer(TimeSpan.FromMilliseconds(16), DispatcherPriority.Background, (sender, args) =>
         {
@@ -126,5 +129,21 @@ public partial class AppWindow : WindowBase<AppWindowModel>
     private void OnSupplyDropPressed(object? sender, PointerPressedEventArgs e)
     {
         WindowModel.SupplyDrop.Open();
+    }
+
+    private void OnVideoKeyPressed(object? sender, KeyEventArgs e)
+    {
+        WindowModel.StopOGSplash();
+    }
+
+    private void OnVideoPointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (!e.GetCurrentPoint(this).Properties.IsLeftButtonPressed) return;
+        WindowModel.StopOGSplash();
+    }
+
+    private void OnVideoLoaded(object? sender, RoutedEventArgs e)
+    {
+        WindowModel.PlayOGSplash();
     }
 }

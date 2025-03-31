@@ -84,6 +84,13 @@ public partial class MapViewModel : ViewModelBase
             0.017f, 380, 470, 110, 12800, true
         ),
         new(
+            "Figment_S03",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S03_Map/Content/Athena_Terrain_S03",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S03_MapUI/Content/MiniMapAthena_S03",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S03_MapUI/Content/MiniMapAthena_S03_Mask",
+            0.017f, 380, 470, 110, 12800, true
+        ),
+        new(
             "BlastBerry",
             "/BlastBerryMap/Maps/BlastBerry_Terrain",
             "/BlastBerryMapUI/Minimap/Capture_Iteration_Discovered_BlastBerry",

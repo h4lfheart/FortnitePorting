@@ -346,10 +346,30 @@
                                 <ImageBrush Source="/Assets/TimeWaster/Sprites/T_Glow_Mask.png" Stretch="Fill"/>
                             </Border.OpacityMask>
                             <Border.RenderTransform>
-                                <ScaleTransform ScaleX="2.5" ScaleY="2"/>
+                                <ScaleTransform ScaleX="1" ScaleY="2"/>
                             </Border.RenderTransform>
                         </Border>
                         <TextBlock Text="HIGH SCORE" Foreground="Red" LetterSpacing="1.5" FontSize="28" 
+                                   HorizontalAlignment="Center">
+                            <TextBlock.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform ScaleX="0.95" ScaleY="0.85"/>
+                                    <SkewTransform AngleX="-5"/>
+                                </TransformGroup>
+                            </TextBlock.RenderTransform>
+                        </TextBlock>
+                    </Grid>
+                    
+                    <Grid>
+                        <Border Background="Red" CornerRadius="0" Opacity="0.8">
+                            <Border.OpacityMask>
+                                <ImageBrush Source="/Assets/TimeWaster/Sprites/T_Glow_Mask.png" Stretch="Fill"/>
+                            </Border.OpacityMask>
+                            <Border.RenderTransform>
+                                <ScaleTransform ScaleX="2" ScaleY="2"/>
+                            </Border.RenderTransform>
+                        </Border>
+                        <TextBlock Text="POST YOUR HIGHEST SCORE WITH #FortnitePortingOG" Foreground="Red" LetterSpacing="1.5" FontSize="18" 
                                    HorizontalAlignment="Center">
                             <TextBlock.RenderTransform>
                                 <TransformGroup>
@@ -366,7 +386,7 @@
                                 <ImageBrush Source="/Assets/TimeWaster/Sprites/T_Glow_Mask.png" Stretch="Fill"/>
                             </Border.OpacityMask>
                             <Border.RenderTransform>
-                                <ScaleTransform ScaleX="2" ScaleY="2"/>
+                                <ScaleTransform ScaleX="0.5" ScaleY="2"/>
                             </Border.RenderTransform>
                         </Border>
                         <TextBlock Text="{Binding Score, StringFormat='N0'}" 
