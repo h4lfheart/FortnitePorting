@@ -44,7 +44,6 @@
         <PackageReference Include="ScottPlot.Avalonia" Version="5.0.36" />
         <PackageReference Include="Serilog.Sinks.File" Version="5.0.1-dev-00972" />
         <PackageReference Include="Tomlyn" Version="0.17.0" />
-        <PackageReference Include="VideoLAN.LibVLC.Windows" Version="3.0.21" />
         <PackageReference Include="z440.atl.core" Version="5.24.0" />
     </ItemGroup>
     
@@ -61,6 +60,11 @@
       <ProjectReference Include="..\FortnitePorting.Plugins\FortnitePorting.Plugins.csproj" />
       <ProjectReference Include="..\FortnitePorting.Shared\FortnitePorting.Shared.csproj" />
     </ItemGroup>
+    
+    <PropertyGroup>
+        <VlcWindowsX86Enabled>false</VlcWindowsX86Enabled>
+        <VlcWindowsX64Enabled>true</VlcWindowsX64Enabled>
+    </PropertyGroup>
     
     <ItemGroup>
       <None Remove="..\..\..\.nuget\packages\naudio.vorbis\1.5.0\contentFiles\any\netstandard2.0\README.md" />

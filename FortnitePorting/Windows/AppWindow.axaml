@@ -240,13 +240,13 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <TextBlock Grid.Column="1" Text="FortnitePorting" FontWeight="SemiBold" FontSize="16"
-                       HorizontalAlignment="Left" VerticalAlignment="Center" />
-            <TextBlock Grid.Column="3" Text="OG" Classes="TextFillColorTertiaryBrush" FontSize="13" Margin="0 2 0 0"
+            <TextBlock Grid.Column="1" Text="FortnitePorting" FontWeight="SemiBold" FontSize="16" IsVisible="{Binding !SplashOpen}"
+                       HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="3" Text="OG" Classes="TextFillColorTertiaryBrush" FontSize="13" Margin="0 2 0 0"  IsVisible="{Binding !SplashOpen}"
                        HorizontalAlignment="Left" VerticalAlignment="Center" />
         </Grid>
         
-        <avalonia:VideoView Grid.Row="0" Grid.RowSpan="2" IsVisible="{Binding SplashOpen}"
+        <avalonia:VideoView Grid.Row="1" IsVisible="{Binding SplashOpen}" Margin="0 0 0 32"
                             MediaPlayer="{Binding MediaPlayer}"
                             HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                             Loaded="OnVideoLoaded">

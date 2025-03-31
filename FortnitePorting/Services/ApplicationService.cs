@@ -82,6 +82,10 @@ public static class ApplicationService
         
         AppSettings.Load();
         
+        DependencyService.EnsureDependencies();
+        
+        while (DependencyService.VLCFinished) { }
+        
         Application.MainWindow = new AppWindow();
         Application.Startup += OnStartup;
         Application.Exit += OnExit;
@@ -131,7 +135,6 @@ public static class ApplicationService
     {
         ViewModelRegistry.New<APIViewModel>();
         ViewModelRegistry.New<ChatViewModel>();
-        DependencyService.EnsureDependencies();
         
         TimeWasterViewModel.LoadResources();
 

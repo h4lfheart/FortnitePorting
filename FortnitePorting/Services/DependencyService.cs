@@ -10,6 +10,7 @@ namespace FortnitePorting.Services;
 public static class DependencyService
 {
     public static bool Finished;
+    public static bool VLCFinished;
     
     public static readonly FileInfo UpdaterFile = new(Path.Combine(DataFolder.FullName, "release", "FortnitePorting.Updater.exe"));
     
@@ -23,6 +24,9 @@ public static class DependencyService
     {
         TaskService.Run(() =>
         {
+            EnsureVLC();
+            VLCFinished = true;
+            
             EnsureResourceBased("Assets/Dependencies/binkadec.exe", BinkaDecoderFile);
             EnsureResourceBased("Assets/Dependencies/radadec.exe", RadaDecoderFile);
             EnsureResourceBased("Assets/Dependencies/FortnitePorting.Updater.exe", UpdaterFile);
@@ -31,6 +35,20 @@ public static class DependencyService
             EnsureUnrealPlugins();
             Finished = true;
         });
+    }
+    
+    public static void EnsureVLC()
+    {
+        var assets = AssetLoader.GetAssets(new Uri("avares://FortnitePorting/Assets/Dependencies/libvlc"), null);
+        foreach (var asset in assets)
+        {
+            var assetStream = AssetLoader.Open(asset);
+            var targetFile = new FileInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, asset.AbsolutePath[1..].Replace("Assets/Dependencies/", string.Empty)));
+            if (targetFile is { Exists: true, Length: > 0 } && targetFile.GetHash() == assetStream.GetHash()) continue;
+            targetFile.Directory?.Create();
+            
+            File.WriteAllBytes(targetFile.FullName, assetStream.ReadToEnd());
+        }
     }
 
     private static void EnsureResourceBased(string path, FileInfo targetFile)

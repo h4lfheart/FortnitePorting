@@ -64,15 +64,15 @@ public partial class AppWindowModel : WindowModelBase
     
     public OnlineSettingsViewModel OnlineRef => AppSettings.Current.Online;
     
-    private readonly LibVLC _vlc = new("--input-repeat=2");
+    private readonly LibVLC _vlc = new(options: "--input-repeat=2");
 
 
     public override async Task Initialize()
     {
+        
         MediaPlayer = new MediaPlayer(_vlc)
         {
-            Volume = 75,
-            Scale = 1
+            Volume = 75
         };
 
         SetupTabsAreVisible = !AppSettings.Current.Installation.FinishedWelcomeScreen;
