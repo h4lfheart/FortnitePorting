@@ -22,7 +22,11 @@ using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using FluentAvalonia.UI.Controls;
+using FortnitePorting.Application;
+using FortnitePorting.Export;
 using FortnitePorting.Extensions;
+using FortnitePorting.Framework;
+using FortnitePorting.Models.Leaderboard;
 using FortnitePorting.Models.Material;
 using FortnitePorting.Models.Unreal;
 using FortnitePorting.Models.Unreal.Material;
@@ -30,6 +34,7 @@ using FortnitePorting.Rendering;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
+using FortnitePorting.Views;
 using FortnitePorting.Windows;
 using Microsoft.VisualBasic.Logging;
 using ScottPlot.Colormaps;
@@ -57,6 +62,27 @@ public partial class MaterialPreviewWindowModel : WindowModelBase
             new GradientStop(Color.Parse("#82212121"), 1),
         ]
     };
+    
+    [RelayCommand]
+    public async Task Preview(FPackageIndex index)
+    {
+        var asset = await index.LoadOrDefaultAsync<UObject>();
+        if (asset is null) return;
+
+        await FilesVM.PreviewAsset(asset);
+    }
+
+    [RelayCommand]
+    public async Task NavigateTo(FPackageIndex index)
+    {
+        var asset = await index.LoadOrDefaultAsync<UObject>();
+        if (asset is null) return;
+
+        FilesVM.ClearSearchFilter();
+        FilesVM.FlatViewJumpTo(CUE4ParseVM.Provider.FixPath(asset.GetPathName().SubstringBefore(".")));
+        AppWM.Navigate<FilesView>();
+        AppWM.Window.BringToTop();
+    }
 
     public void Load(UObject obj)
     {

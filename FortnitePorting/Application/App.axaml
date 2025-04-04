@@ -21,6 +21,7 @@
              <ext:EnumHasFlagConverter x:Key="EnumHasFlag" />
              <ext:EnumEqualsConverter x:Key="EnumEquals" />
              <ext:TitleCaseStringConverter x:Key="TitleCaseString" />
+             <ext:UnrealCaseStringConverter x:Key="UnrealCaseString" />
              <ext:StringToDocumentConverter x:Key="StringToDocument" />
          
              <Brush x:Key="ToggleSwitchKnobFillOn">#FFFFFFFF</Brush>

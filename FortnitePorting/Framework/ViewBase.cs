@@ -2,7 +2,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using FortnitePorting.Shared.Services;
 
-namespace FortnitePorting.Shared.Framework;
+namespace FortnitePorting.Framework;
 
 public abstract class ViewBase<T> : UserControl where T : ViewModelBase, new()
 {

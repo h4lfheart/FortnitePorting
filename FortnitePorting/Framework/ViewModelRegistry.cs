@@ -1,6 +1,9 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using FortnitePorting.Shared.Services;
 
-namespace FortnitePorting.Shared.Framework;
+namespace FortnitePorting.Framework;
 
 public class ViewModelRegistry
 {

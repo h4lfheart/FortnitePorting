@@ -28,6 +28,7 @@ using FortnitePorting.Application;
 using FortnitePorting.Export;
 using FortnitePorting.Export.Models;
 using FortnitePorting.Extensions;
+using FortnitePorting.Framework;
 using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.Files;
 using FortnitePorting.Models.Fortnite;
@@ -38,7 +39,6 @@ using FortnitePorting.OnlineServices.Packet;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
-using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.Windows;
 using Newtonsoft.Json;
@@ -50,6 +50,8 @@ namespace FortnitePorting.ViewModels;
 public partial class FilesViewModel : ViewModelBase
 {
     [ObservableProperty] private EExportLocation _exportLocation = EExportLocation.Blender;
+
+    [ObservableProperty] private string _actualSearchText;
 
     // fixes freezes when using ObservableProperty
     private string _searchFilter = string.Empty;
@@ -79,7 +81,7 @@ public partial class FilesViewModel : ViewModelBase
     [ObservableProperty] private TreeItem _selectedTreeItem;
     [ObservableProperty] private ObservableCollection<TreeItem> _treeViewCollection = new([]);
     
-    public readonly SourceCache<FlatItem, string> FlatViewAssetList = new(item => item.Path);
+    public readonly SourceCache<FlatItem, string> FlatViewAssetCache = new(item => item.Path);
     
     private Dictionary<string, TreeItem> _treeViewBuildHierarchy = [];
     
@@ -113,7 +115,7 @@ public partial class FilesViewModel : ViewModelBase
             var path = file.Path;
             if (!IsValidFilePath(path)) continue;
             
-            FlatViewAssetList.AddOrUpdate(new FlatItem(path));
+            FlatViewAssetCache.AddOrUpdate(new FlatItem(path));
 
             var folderNames = path.Split("/", StringSplitOptions.RemoveEmptyEntries);
             var children = _treeViewBuildHierarchy;
@@ -155,7 +157,7 @@ public partial class FilesViewModel : ViewModelBase
                 viewmodel => viewmodel.SelectedGameNames)
             .Select(CreateAssetFilter);
         
-        FlatViewAssetList.Connect()
+        FlatViewAssetCache.Connect()
             .ObserveOn(RxApp.TaskpoolScheduler)
             .Filter(assetFilter)
             .Sort(SortExpressionComparer<FlatItem>.Ascending(x => x.Path))
@@ -177,15 +179,18 @@ public partial class FilesViewModel : ViewModelBase
         DiscordService.Update("Browsing Files", "Files");
     }
 
+    public void ClearSearchFilter()
+    {
+        ActualSearchText = string.Empty;
+        SearchFilter = string.Empty;
+    }
+
     public void FlatViewJumpTo(string directory)
     {
-        foreach (var flatItem in FlatViewCollection)
-        {
-            if (!flatItem.Path.Equals(directory)) continue;
+        var foundItem = FlatViewAssetCache.Lookup(directory);
+        if (!foundItem.HasValue) return;
 
-            SelectedFlatViewItems = [flatItem];
-            break;
-        }
+        SelectedFlatViewItems = [foundItem.Value];
     }
     
     public void TreeViewJumpTo(string directory)
@@ -228,7 +233,6 @@ public partial class FilesViewModel : ViewModelBase
         PropertiesPreviewWindow.Preview(selectedItem.Path.SubstringAfterLast("/").SubstringBefore("."), json);
     }
     
-    
     [RelayCommand]
     public async Task Preview()
     {
@@ -250,7 +254,12 @@ public partial class FilesViewModel : ViewModelBase
         }
             
         if (asset is null) return;
-        
+
+        await PreviewAsset(asset);
+    }
+
+    public async Task PreviewAsset(UObject asset)
+    {
         var name = asset.Name;
 
         switch (asset)
@@ -258,6 +267,12 @@ public partial class FilesViewModel : ViewModelBase
             case UVirtualTextureBuilder virtualTextureBuilder:
             {
                 asset = virtualTextureBuilder.Texture.Load<UVirtualTexture2D>();
+                break;
+            }
+            
+            case UPaperSprite paperSprite:
+            {
+                asset = paperSprite.BakedSourceTexture.Load<UTexture2D>();
                 break;
             }
             case UWorld world:
@@ -350,6 +365,11 @@ public partial class FilesViewModel : ViewModelBase
                 case UVirtualTextureBuilder virtualTextureBuilder:
                 {
                     asset = virtualTextureBuilder.Texture.Load<UVirtualTexture2D>();
+                    break;
+                }
+                case UPaperSprite paperSprite:
+                {
+                    asset = paperSprite.BakedSourceTexture.Load<UTexture2D>();
                     break;
                 }
             }

@@ -18,11 +18,11 @@ using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Objects.Core.Math;
 using FluentAvalonia.UI.Controls;
+using FortnitePorting.Framework;
 using FortnitePorting.Models.Material;
 using FortnitePorting.Models.Unreal.Material;
 using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
-using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
 using FortnitePorting.WindowModels;
@@ -140,7 +140,7 @@ public partial class MaterialPreviewWindow : WindowBase<MaterialPreviewWindowMod
 
     private void CenterViewport()
     {
-        var nodes = WindowModel.SelectedMaterialData!.Nodes;
+        var nodes = WindowModel.SelectedMaterialData?.Nodes ?? [];
         var avgX = nodes.Sum(node => node.Location.X) / nodes.Count;
         var avgY = nodes.Sum(node => node.Location.Y) / nodes.Count;
 

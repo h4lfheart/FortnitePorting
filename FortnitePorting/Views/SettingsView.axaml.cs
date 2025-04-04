@@ -4,7 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
-using FortnitePorting.Shared.Framework;
+using FortnitePorting.Framework;
 using FortnitePorting.ViewModels;
 using FortnitePorting.Views.Settings;
 

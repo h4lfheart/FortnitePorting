@@ -31,6 +31,7 @@ using CUE4Parse.Utils;
 using EpicManifestParser;
 using EpicManifestParser.UE;
 using FortnitePorting.Application;
+using FortnitePorting.Framework;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.CUE4Parse;
 using FortnitePorting.Models.Fortnite;
@@ -38,7 +39,6 @@ using FortnitePorting.Models.Unreal.Material;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
-using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.Views;
 using FortnitePorting.Windows;
@@ -134,11 +134,6 @@ public class CUE4ParseViewModel : ViewModelBase
         }
         
         await LoadMappings();
-        
-#if DEBUG
-        var material = await Provider.SafeLoadPackageObjectAsync<UMaterial>("FortniteGame/Plugins/GameFeatures/OfferCatalog/Content/Art/M_UI_OfferImage_Master");
-        MaterialPreviewWindow.Preview(material!);
-#endif
         
         await LoadAssetRegistries();
 

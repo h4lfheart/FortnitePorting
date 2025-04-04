@@ -12,9 +12,10 @@ namespace FortnitePorting.Models.Material;
 
 public partial class MaterialNodeBase(string expressionName, bool isExpressionName = true) : ObservableObject
 {
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(DisplayName))] private string _expressionName = expressionName;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(DisplayName)), NotifyPropertyChangedFor(nameof(ExpressionDisplayName))] private string _expressionName = expressionName;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(DisplayName))] private string _label = expressionName;
     public string DisplayName => Label.Equals(ExpressionName) && isExpressionName ? Label.Replace("MaterialExpression", string.Empty).SubstringBefore("_") : Label;
+    public string ExpressionDisplayName => ExpressionName.SubstringBefore("_");
     
     [ObservableProperty] private Point _location;
     

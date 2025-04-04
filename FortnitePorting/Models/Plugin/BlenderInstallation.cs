@@ -55,6 +55,7 @@ public partial class BlenderInstallation(string blenderExecutablePath) : Observa
         return true;
     }
     
+    // TODO popup for enabling plugin
     public void Install()
     {
         Status = "Installing";
@@ -89,7 +90,7 @@ public partial class BlenderInstallation(string blenderExecutablePath) : Observa
     private void InstallPlugin(string zipPath)
     {
         Status = $"Installing {Path.GetFileName(zipPath)}";
-        BlenderExtensionCommand("install-file", $"\"{zipPath}\" -r user_default -e");
+        BlenderExtensionCommand("install-file", $"\"{zipPath}\" -r user_default");
     }
 
     private void RemovePlugin(string name)

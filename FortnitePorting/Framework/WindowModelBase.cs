@@ -1,11 +1,12 @@
-using System.Threading.Tasks;
+using Avalonia.Controls;
 using FortnitePorting.Application;
-using FortnitePorting.Shared.Framework;
 using FortnitePorting.ViewModels.Settings;
 
-namespace FortnitePorting.WindowModels;
+namespace FortnitePorting.Framework;
 
 public class WindowModelBase : ViewModelBase
 {
     public ThemeSettingsViewModel Theme => AppSettings.Current.Theme;
+
+    public Window Window;
 }

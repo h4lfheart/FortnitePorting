@@ -1,6 +1,7 @@
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace FortnitePorting.Shared.Framework;
+namespace FortnitePorting.Framework;
 
 public class ViewModelBase : ObservableValidator
 {

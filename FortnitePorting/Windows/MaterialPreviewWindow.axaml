@@ -8,9 +8,11 @@
         xmlns:nodify="https://miroiu.github.io/nodify"
         xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         xmlns:material="clr-namespace:FortnitePorting.Models.Material"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:objects="clr-namespace:CUE4Parse.UE4.Objects.UObject;assembly=CUE4Parse"
         x:Class="FortnitePorting.Windows.MaterialPreviewWindow"
         x:DataType="windowModels:MaterialPreviewWindowModel"
-        Width="960" Height="540" RequestedThemeVariant="Dark" FontFamily="Segoe UI" Background="#FF202020"
+        Width="1280" Height="720" RequestedThemeVariant="Dark" FontFamily="Segoe UI" Background="#FF202020"
         ExtendClientAreaToDecorationsHint="True" WindowStartupLocation="CenterOwner"
         Icon="/Assets/LogoV3.ico"
         Title="Material Viewer">
@@ -67,18 +69,75 @@
             </ui:TabView.TabStripFooterTemplate>
         </ui:TabView>
         
-        <Grid Grid.Row="1" Background="#FF1A1A1C">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            
+        <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="{ext:Space 0.5}"/>
+                <ColumnDefinition Width="4*"/>
             </Grid.ColumnDefinitions>
             
-            <nodify:NodifyEditor Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="2" x:Name="Editor" DataContext="{Binding SelectedMaterialData}"
+            <ui:FABorder Grid.Column="0"
+                         DataContext="{Binding SelectedMaterialData.SelectedNode}"
+                         CornerRadius="0" BorderThickness="0"
+                         Background="#1a1a1a">
+                <StackPanel>
+                    <Expander IsExpanded="True" CornerRadius="0" IsVisible="{Binding Converter={x:Static ObjectConverters.IsNotNull}}">
+                        <Expander.Styles>
+                            <Style Selector="Expander /template/ ContentPresenter#PART_ContentPresenter">
+                                <Setter Property="Margin" Value="{ext:Space 1.5}"/>
+                            </Style>
+                            
+                            <Style Selector="Expander /template/ ui|FABorder#rOOT">
+                                <Setter Property="Padding" Value="{ext:Space 1.5, 0, 0, 0}"/>
+                            </Style>
+                        </Expander.Styles>
+                        <Expander.Header>
+                            <TextBlock Text="{Binding ExpressionDisplayName, Converter={StaticResource UnrealCaseString}}" 
+                                       Classes="CaptionTextBlockStyle" FontWeight="Bold" TextWrapping="Wrap"/>
+                        </Expander.Header>
+                        <ItemsControl ItemsSource="{Binding Properties}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="{ext:Space 0, 0.5}" ColumnDefinitions="*,*">
+                                        <TextBlock Grid.Column="0" Text="{Binding Key}"
+                                                   Classes="CaptionTextBlockStyle" FontWeight="Bold"
+                                                   HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                    
+                                        <ContentControl Grid.Column="1" Content="{Binding Value}"
+                                                          HorizontalAlignment="Right" VerticalAlignment="Center">
+                                            <ContentControl.DataTemplates>
+                                                <DataTemplate DataType="objects:FPackageIndex">
+                                                    <Button Content="{avalonia:MaterialIconExt Folder}" ToolTip.Tip="Navigate To"
+                                                            Command="{Binding $parent[windows:MaterialPreviewWindow].WindowModel.NavigateTo}"
+                                                            CommandParameter="{Binding}"/>
+                                                </DataTemplate>
+                                                
+                                                <DataTemplate DataType="objects:FName">
+                                                    <TextBlock Text="{Binding Text}" Classes="CaptionTextBlockStyle"/>
+                                                </DataTemplate>
+                                                
+                                                <DataTemplate DataType="sys:Single">
+                                                    <ui:NumberBox Value="{Binding }"/>
+                                                </DataTemplate>
+                                                
+                                                <DataTemplate DataType="sys:Object">
+                                                    <TextBlock Text="{Binding}" Classes="CaptionTextBlockStyle"/>
+                                                </DataTemplate>
+                                            </ContentControl.DataTemplates>
+                                        </ContentControl>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Expander>
+                </StackPanel>
+            </ui:FABorder>
+            
+            <GridSplitter Grid.Column="1" Background="Transparent"/>
+            
+            <Grid Grid.Column="1" Grid.ColumnSpan="2" Background="#262626" ZIndex="-2"/>
+            <nodify:NodifyEditor Grid.Column="2" x:Name="Editor"
+                                 DataContext="{Binding SelectedMaterialData}"
                                  ItemsSource="{Binding Nodes}"
                                  Connections="{Binding Connections}"
                                  SelectedItem="{Binding SelectedNode}"
@@ -198,41 +257,10 @@
                 </nodify:NodifyEditor.ItemContainerTheme>
             </nodify:NodifyEditor>
             
-            <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="2" ZIndex="-2"
+            <Grid Grid.Column="2" ZIndex="-2"
                   Background="{StaticResource LargeGridLinesDrawingBrush}"/>
             
-            <ui:FABorder Grid.Row="0" Grid.Column="0" DataContext="{Binding SelectedMaterialData.SelectedNode}"
-                         IsVisible="{Binding Converter={x:Static ObjectConverters.IsNotNull}}"
-                         Margin="{ext:Space 1}" Background="{Binding BackgroundBrush}">
-                <Grid Margin="{ext:Space 1}">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="{ext:Space 1}"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    
-                    <TextBlock Grid.Row="0" Text="{Binding ExpressionName}"
-                               Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    
-                    <ItemsControl Grid.Row="2" ItemsSource="{Binding Properties}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal" Margin="{ext:Space 1}">
-                                    <TextBlock Text="{Binding Key}"
-                                               Classes="BodyStrongTextBlockStyle" 
-                                               HorizontalAlignment="Left" VerticalAlignment="Center"
-                                               Margin="{ext:Space 0, 0, 1, 0}"/>
-                                    
-                                    <TextBlock Text="{Binding Value}"
-                                               Classes="BodyTextBlockStyle" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </Grid>
-            </ui:FABorder>
-            
-            <StackPanel Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="{ext:Space 1}">
+            <StackPanel Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="{ext:Space 1}">
                 <Button ToolTip.Tip="Refresh" IsVisible="{Binding SelectedMaterialData.Asset, Converter={x:Static ObjectConverters.IsNotNull}}"
                         Content="{avalonia:MaterialIconExt Refresh}" 
                         Command="{Binding SelectedMaterialData.RefreshCommand}"/>

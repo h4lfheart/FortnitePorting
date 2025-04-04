@@ -1,8 +1,8 @@
 using System;
 using Avalonia.Controls;
 using CUE4Parse.UE4.Assets.Exports.Texture;
+using FortnitePorting.Framework;
 using FortnitePorting.Services;
-using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
 using FortnitePorting.WindowModels;

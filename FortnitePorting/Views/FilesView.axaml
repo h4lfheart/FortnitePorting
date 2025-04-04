@@ -93,7 +93,7 @@
                         <ColumnDefinition Width="{ext:Space 1}"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBox Grid.Column="0" Watermark="Search" KeyDown="OnSearchKeyDown"/>
+                    <TextBox Grid.Column="0" Text="{Binding ActualSearchText, Mode=TwoWay}" Watermark="Search" KeyDown="OnSearchKeyDown"/>
                 
                     <ToggleButton Grid.Column="2" ToolTip.Tip="Regex" HorizontalAlignment="Right" 
                                   Content="{material:MaterialIconExt Regex}" IsChecked="{Binding UseRegex}"/>

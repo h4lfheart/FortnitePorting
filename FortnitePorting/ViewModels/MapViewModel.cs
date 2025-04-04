@@ -11,11 +11,11 @@ using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.UE4.IO;
 using CUE4Parse.Utils;
 using FortnitePorting.Application;
+using FortnitePorting.Framework;
 using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Models.Map;
 using FortnitePorting.OnlineServices.Packet;
 using FortnitePorting.Services;
-using FortnitePorting.Shared.Framework;
 using Serilog;
 
 namespace FortnitePorting.ViewModels;
@@ -81,6 +81,13 @@ public partial class MapViewModel : ViewModelBase
             "FortniteGame/Plugins/GameFeatures/Figment/Figment_S02_Map/Content/Athena_Terrain_S02",
             "FortniteGame/Plugins/GameFeatures/Figment/Figment_S02_MapUI/Content/MiniMapAthena_S02_New",
             "FortniteGame/Plugins/GameFeatures/Figment/Figment_S02_MapUI/Content/T_MiniMap_Mask_Figment",
+            0.017f, 380, 470, 110, 12800, true
+        ),
+        new(
+            "Figment_S03",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S03_Map/Content/Athena_Terrain_S03",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S03_MapUI/Content/MiniMapAthena_S03",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S03_MapUI/Content/MiniMapAthena_S03_Mask",
             0.017f, 380, 470, 110, 12800, true
         ),
         new(

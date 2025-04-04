@@ -55,13 +55,17 @@ public partial class MaterialData : ObservableObject
 
     private static Type[] IgnoredPropertyTypes =
     [
-        typeof(FScriptStruct), typeof(FStructFallback), typeof(FPackageIndex), typeof(FGuid)
+        typeof(FScriptStruct), typeof(FStructFallback), typeof(FGuid), typeof(UScriptArray)
     ];
     
     private static string[] IgnoredPropertyNames =
     [
         "MaterialExpressionEditorX",
-        "MaterialExpressionEditorY"
+        "MaterialExpressionEditorY",
+        "Material",
+        "InputExpressions",
+        "OutputExpressions",
+        "Declaration"
     ];
     
     [RelayCommand]
@@ -305,6 +309,8 @@ public partial class MaterialData : ObservableObject
             if (IgnoredPropertyNames.Contains(property.Name.Text)) continue;
 
             var propType = property.Tag.GenericValue?.GetType();
+            if (propType is null) continue;
+            if (propType.IsArray) continue;
             if (IgnoredPropertyTypes.Contains(propType)) continue;
             
             node.Properties.Add(new MaterialNodeProperty

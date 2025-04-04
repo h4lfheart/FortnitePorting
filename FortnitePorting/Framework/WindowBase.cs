@@ -1,16 +1,18 @@
+using System;
 using Avalonia.Controls;
 using FortnitePorting.Shared.Services;
 
-namespace FortnitePorting.Shared.Framework;
+namespace FortnitePorting.Framework;
 
-public abstract class WindowBase<T> : Window where T : ViewModelBase, new()
+public abstract class WindowBase<T> : Window where T : WindowModelBase, new()
 {
-    public readonly T WindowModel;
+    public T WindowModel { get; set; }
 
-    public WindowBase(ViewModelBase? templateWindowModel = null, bool initializeWindowModel = true)
+    public WindowBase(WindowModelBase? templateWindowModel = null, bool initializeWindowModel = true)
     {
         WindowModel = templateWindowModel is not null ? ViewModelRegistry.Register<T>(templateWindowModel) : ViewModelRegistry.New<T>();
-
+        WindowModel.Window = this;
+        
         if (initializeWindowModel)
         {
             TaskService.Run(WindowModel.Initialize);

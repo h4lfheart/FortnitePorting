@@ -1,8 +1,13 @@
-using FortnitePorting.Shared.Framework;
+using System;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
+using FortnitePorting.Framework;
 using RestSharp;
 using RestSharp.Serializers.NewtonsoftJson;
 
-namespace FortnitePorting.Shared.ViewModels;
+namespace FortnitePorting.ViewModels;
 
 public class APIViewModelBase(string userAgentVersion = "", int timeout = 10) : ViewModelBase
 {

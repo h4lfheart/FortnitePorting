@@ -4,10 +4,10 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.UE4.Versions;
+using FortnitePorting.Framework;
 using FortnitePorting.Models.CUE4Parse;
 using FortnitePorting.Models.Settings;
 using FortnitePorting.Shared;
-using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Validators;
 using Newtonsoft.Json;
 

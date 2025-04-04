@@ -1,8 +1,8 @@
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using FortnitePorting.Framework;
 using FortnitePorting.Models.Serilog;
-using FortnitePorting.Shared.Framework;
 using FortnitePorting.ViewModels;
 
 namespace FortnitePorting.Views;

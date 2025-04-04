@@ -5,8 +5,8 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
 using CommunityToolkit.Mvvm.ComponentModel;
+using FortnitePorting.Framework;
 using FortnitePorting.Models.Radio;
-using FortnitePorting.Shared.Framework;
 using FortnitePorting.ViewModels;
 
 namespace FortnitePorting.Views;

@@ -1,4 +1,4 @@
-using FortnitePorting.Shared.Framework;
+using FortnitePorting.Framework;
 using FortnitePorting.ViewModels;
 
 namespace FortnitePorting.Views;
