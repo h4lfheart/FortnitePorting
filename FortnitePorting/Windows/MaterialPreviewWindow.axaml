@@ -38,6 +38,12 @@
                       Drawing="{StaticResource LargeGridGeometry}" />
     </Window.Resources>
     <Grid RowDefinitions="Auto, *">
+        <ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False" IsVisible="{Binding !Theme.UseMica}">
+            <ExperimentalAcrylicBorder.Material>
+                <ExperimentalAcrylicMaterial BackgroundSource="Digger" MaterialOpacity="1.5" TintColor="{Binding Theme.BackgroundColor}" TintOpacity="1"/>
+            </ExperimentalAcrylicBorder.Material>
+        </ExperimentalAcrylicBorder>
+        
         <ui:TabView Grid.Row="0" IsAddTabButtonVisible="False" SelectionChanged="OnTabSelectionChanged" TabCloseRequested="OnTabClosed"
                     TabItems="{Binding LoadedMaterialDatas}" 
                     SelectedItem="{Binding SelectedMaterialData, Mode=TwoWay}">

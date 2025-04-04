@@ -63,9 +63,10 @@ public partial class MaterialData : ObservableObject
         "MaterialExpressionEditorX",
         "MaterialExpressionEditorY",
         "Material",
+        "Function",
+        "Declaration",
         "InputExpressions",
         "OutputExpressions",
-        "Declaration"
     ];
     
     [RelayCommand]
@@ -193,13 +194,13 @@ public partial class MaterialData : ObservableObject
                         node.ExpressionName.Equals(targetExpression.Name, StringComparison.OrdinalIgnoreCase));
                     if (targetRerouteNode is null) continue;
 
-                    var existingInputs = Connections.Where(con => con.To.Parent.Equals(targetRerouteNode)).ToArray();
+                    var existingInputs = Connections.Where(con => targetRerouteNode.Equals(con.To.Parent)).ToArray();
                     foreach (var existingInput in existingInputs)
                     {
                         Connections.Add(new MaterialNodeConnection(existingInput.From, pinInput));
                     }
                     
-                    var existingOutputs = Connections.Where(con => con.From.Parent.Equals(targetRerouteNode)).ToArray();
+                    var existingOutputs = Connections.Where(con => targetRerouteNode.Equals(con.From.Parent)).ToArray();
                     foreach (var existingOutput in existingOutputs)
                     {
                         Connections.Add(new MaterialNodeConnection(startPinNode.GetOutput(pinName)!, existingOutput.To));
@@ -231,13 +232,13 @@ public partial class MaterialData : ObservableObject
                     var targetRerouteNode = (MaterialNode?) Nodes.FirstOrDefault(node => node.ExpressionName.Equals(targetExpression.Name, StringComparison.OrdinalIgnoreCase));
                     if (targetRerouteNode is null) continue;
                     
-                    var existingInputs = Connections.Where(con => con.To.Parent.Equals(targetRerouteNode)).ToArray();
+                    var existingInputs = Connections.Where(con => targetRerouteNode.Equals(con.To.Parent)).ToArray();
                     foreach (var existingInput in existingInputs)
                     {
                         Connections.Add(new MaterialNodeConnection(existingInput.From, endPinNode.GetInput(pinName)!));
                     }
                     
-                    var existingOutputs = Connections.Where(con => con.From.Parent.Equals(targetRerouteNode)).ToArray();
+                    var existingOutputs = Connections.Where(con => targetRerouteNode.Equals(con.From.Parent)).ToArray();
                     foreach (var existingOutput in existingOutputs)
                     {
                         Connections.Add(new MaterialNodeConnection(pinOutput, existingOutput.To));
