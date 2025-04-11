@@ -135,6 +135,8 @@ public class CUE4ParseViewModel : ViewModelBase
         
         await LoadMappings();
         
+        MaterialPreviewWindow.Preview(await Provider.LoadPackageObjectAsync<UMaterial>("Engine/Content/EngineMaterials/WorldGridMaterial"));
+        
         await LoadAssetRegistries();
 
         HomeVM.UpdateStatus("Loading Application Assets");

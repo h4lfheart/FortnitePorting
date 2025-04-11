@@ -15,12 +15,14 @@ public partial class MaterialNodeBase(string expressionName, bool isExpressionNa
     [ObservableProperty, NotifyPropertyChangedFor(nameof(DisplayName)), NotifyPropertyChangedFor(nameof(ExpressionDisplayName))] private string _expressionName = expressionName;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(DisplayName))] private string _label = expressionName;
     public string DisplayName => Label.Equals(ExpressionName) && isExpressionName ? Label.Replace("MaterialExpression", string.Empty).SubstringBefore("_") : Label;
-    public string ExpressionDisplayName => ExpressionName.SubstringBefore("_");
+    public string ExpressionDisplayName => isExpressionName ? ExpressionName.SubstringBefore("_") : ExpressionName.Replace("_", " ");
     
     [ObservableProperty] private Point _location;
     
     [ObservableProperty, NotifyPropertyChangedFor(nameof(BorderBrush))] private bool _isSelected;
     public SolidColorBrush BorderBrush => new(IsSelected ? Color.Parse("#d77601") : Color.Parse("#99121212"));
+    
+    [ObservableProperty] private ObservableCollection<MaterialNodeProperty> _properties = [];
 }
 
 public partial class MaterialNode(string expressionName = "", bool isExpressionName = true) : MaterialNodeBase(expressionName, isExpressionName)
@@ -54,8 +56,6 @@ public partial class MaterialNode(string expressionName = "", bool isExpressionN
 
     [ObservableProperty] private ObservableCollection<MaterialNodeSocket> _inputs = [];
     [ObservableProperty] private ObservableCollection<MaterialNodeSocket> _outputs = [];
-
-    [ObservableProperty] private ObservableCollection<MaterialNodeProperty> _properties = [];
 
     public FPackageIndex? Package;
     public MaterialData? Subgraph;
@@ -96,7 +96,7 @@ public partial class MaterialNode(string expressionName = "", bool isExpressionN
     }
 }
 
-public partial class MaterialNodeComment(string text) : MaterialNodeBase(text)
+public partial class MaterialNodeComment(string expressionName, bool isExpressionName = true) : MaterialNodeBase(expressionName, isExpressionName)
 {
     [ObservableProperty] private Size _size;
     

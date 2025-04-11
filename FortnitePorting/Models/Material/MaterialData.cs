@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -21,11 +22,14 @@ using CUE4Parse.UE4.Objects.Core.Misc;
 using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Objects.UObject;
 using DynamicData;
+using DynamicData.Binding;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Extensions;
+using FortnitePorting.Models.Files;
 using FortnitePorting.Models.Unreal.Material;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.WindowModels;
+using ReactiveUI;
 using Serilog;
 using ColorSpectrumShape = Avalonia.Controls.ColorSpectrumShape;
 
@@ -35,9 +39,13 @@ public partial class MaterialData : ObservableObject
 {
     [ObservableProperty] private string _dataName;
     [ObservableProperty] private UObject? _asset;
-    [ObservableProperty] private ObservableCollection<MaterialNodeBase> _nodes = [];
+    [ObservableProperty] private ReadOnlyObservableCollection<MaterialNodeBase> _nodes = new([]);
     [ObservableProperty] private ObservableCollection<MaterialNodeConnection> _connections = [];
-    [ObservableProperty] private MaterialNode? _selectedNode;
+    [ObservableProperty] private MaterialNodeBase? _selectedNode;
+    [ObservableProperty] private string _searchFilter = string.Empty;
+
+
+    public SourceCache<MaterialNodeBase, string> NodeCache { get; set; } = new(item => item.ExpressionName);
 
     public List<(MaterialNode, UMaterialExpression)> DeferredSubgraphs = [];
 
@@ -68,11 +76,32 @@ public partial class MaterialData : ObservableObject
         "InputExpressions",
         "OutputExpressions",
     ];
+
+    public MaterialData()
+    {
+        var assetFilter = this
+            .WhenAnyValue(viewModel => viewModel.SearchFilter)
+            .Select(CreateAssetFilter);
+        
+        NodeCache.Connect()
+            .ObserveOn(RxApp.TaskpoolScheduler)
+            .Filter(assetFilter)
+            .Sort(SortExpressionComparer<MaterialNodeBase>.Ascending(x => x.ExpressionName))
+            .Bind(out var flatCollection)
+            .Subscribe();
+
+        Nodes = flatCollection;
+    }
+    
+    private Func<MaterialNodeBase, bool> CreateAssetFilter(string searchFilter)
+    {
+        return asset => MiscExtensions.Filter(asset.Label, searchFilter) || MiscExtensions.Filter(asset.ExpressionName, searchFilter);
+    }
     
     [RelayCommand]
     public async Task Refresh()
     {
-        Nodes.Clear();
+        NodeCache.Clear();
         Connections.Clear();
         DeferredSubgraphs.Clear();
         
@@ -115,7 +144,8 @@ public partial class MaterialData : ObservableObject
         {
             HeaderColor = Color.Parse("#786859")
         };
-        Nodes.Add(parentNode);
+        
+        NodeCache.AddOrUpdate(parentNode);
 
         if (editorData.Properties.FirstOrDefault(prop => prop.Name.Text.Equals("MaterialAttributes")) is
             { } materialAttributesProperty)
@@ -141,21 +171,23 @@ public partial class MaterialData : ObservableObject
         var editorComments = expressionCollection.GetOrDefault<FPackageIndex[]>("EditorComments", []);
         foreach (var editorCommentLazy in editorComments)
         {
-            var editorComment = editorCommentLazy.Load();
-            if (editorComment is null) continue;
+            var editorCommentExpression = editorCommentLazy.Load<UMaterialExpression>();
+            if (editorCommentExpression is null) continue;
             
-            var x = editorComment.GetOrDefault<int>("MaterialExpressionEditorX");
-            var y = editorComment.GetOrDefault<int>("MaterialExpressionEditorY");
-            var sizeX = editorComment.GetOrDefault<int>("SizeX");
-            var sizeY = editorComment.GetOrDefault<int>("SizeY");
-            var text = editorComment.GetOrDefault<string>("Text");
-            var commentColor = editorComment.GetOrDefault<FLinearColor?>("CommentColor")?.ToFColor(false);
+            var x = editorCommentExpression.GetOrDefault<int>("MaterialExpressionEditorX");
+            var y = editorCommentExpression.GetOrDefault<int>("MaterialExpressionEditorY");
+            var sizeX = editorCommentExpression.GetOrDefault<int>("SizeX");
+            var sizeY = editorCommentExpression.GetOrDefault<int>("SizeY");
+            var text = editorCommentExpression.GetOrDefault<string>("Text");
+            var commentColor = editorCommentExpression.GetOrDefault<FLinearColor?>("CommentColor")?.ToFColor(false);
             
-            Nodes.Add(new MaterialNodeComment(text)
+            NodeCache.AddOrUpdate(new MaterialNodeComment(editorCommentExpression.Name)
             {
+                Label = text,
                 Location = new Point(x, y),
                 Size = new Size(sizeX, sizeY),
-                CommentColor = commentColor is { } color ? new Color(color.A, color.R, color.G, color.B) : null
+                CommentColor = commentColor is { } color ? new Color(color.A, color.R, color.G, color.B) : null,
+                Properties = CollectProperties(editorCommentExpression)
             });
         }
 
@@ -165,7 +197,7 @@ public partial class MaterialData : ObservableObject
             var expression = expressionLazy.Load<UMaterialExpression>();
             if (expression is null) continue;
 
-            if (Nodes.Any(node => node.ExpressionName.Equals(expression.Name, StringComparison.OrdinalIgnoreCase))) continue;
+            if (NodeCache.Items.Any(node => node.ExpressionName.Equals(expression.Name, StringComparison.OrdinalIgnoreCase))) continue;
 
             AddNode(expression);
         }
@@ -177,7 +209,7 @@ public partial class MaterialData : ObservableObject
             var inputExpressionsLazy = expression.GetOrDefault<FPackageIndex?>("InputExpressions");
             if (inputExpressionsLazy?.Load<UMaterialExpression>() is { } inputExpressions)
             {
-                var startPinNode = (MaterialNode) Nodes.FirstOrDefault(node =>
+                var startPinNode = (MaterialNode) NodeCache.Items.FirstOrDefault(node =>
                     node.ExpressionName.Equals(inputExpressions.Name, StringComparison.OrdinalIgnoreCase))!;
                 
                 node.Inputs.Clear();
@@ -190,7 +222,7 @@ public partial class MaterialData : ObservableObject
                     var pinName = reroutePin.GetOrDefault<FName?>("Name")?.Text ?? "Pin";
                     var pinInput = node.AddInput(pinName);
 
-                    var targetRerouteNode = (MaterialNode?) Nodes.FirstOrDefault(node =>
+                    var targetRerouteNode = (MaterialNode?) NodeCache.Items.FirstOrDefault(node =>
                         node.ExpressionName.Equals(targetExpression.Name, StringComparison.OrdinalIgnoreCase));
                     if (targetRerouteNode is null) continue;
 
@@ -208,7 +240,7 @@ public partial class MaterialData : ObservableObject
                     
                     Connections.RemoveMany(existingInputs);
                     Connections.RemoveMany(existingOutputs);
-                    Nodes.Remove(targetRerouteNode);
+                    NodeCache.Remove(targetRerouteNode);
 
                 }
             }
@@ -216,7 +248,7 @@ public partial class MaterialData : ObservableObject
             var outputExpressionsLazy = expression.GetOrDefault<FPackageIndex?>("OutputExpressions");
             if (outputExpressionsLazy?.Load<UMaterialExpression>() is { } outputExpressions)
             {
-                endPinNode = (MaterialNode) Nodes.FirstOrDefault(node =>
+                endPinNode = (MaterialNode) NodeCache.Items.FirstOrDefault(node =>
                     node.ExpressionName.Equals(outputExpressions.Name, StringComparison.OrdinalIgnoreCase))!;
                 
                 node.Outputs.Clear();
@@ -229,7 +261,7 @@ public partial class MaterialData : ObservableObject
                     var pinName = reroutePin.GetOrDefault<FName?>("Name")?.Text ?? "Pin";
                     var pinOutput = node.AddOutput(pinName);
                     
-                    var targetRerouteNode = (MaterialNode?) Nodes.FirstOrDefault(node => node.ExpressionName.Equals(targetExpression.Name, StringComparison.OrdinalIgnoreCase));
+                    var targetRerouteNode = (MaterialNode?) NodeCache.Items.FirstOrDefault(node => node.ExpressionName.Equals(targetExpression.Name, StringComparison.OrdinalIgnoreCase));
                     if (targetRerouteNode is null) continue;
                     
                     var existingInputs = Connections.Where(con => targetRerouteNode.Equals(con.To.Parent)).ToArray();
@@ -246,7 +278,7 @@ public partial class MaterialData : ObservableObject
                     
                     Connections.RemoveMany(existingInputs);
                     Connections.RemoveMany(existingOutputs);
-                    Nodes.Remove(targetRerouteNode);
+                    NodeCache.Remove(targetRerouteNode);
                 }
             }
 
@@ -258,11 +290,12 @@ public partial class MaterialData : ObservableObject
             node.Subgraph = new MaterialData
             {
                 DataName = node.Label,
-                Nodes = [..subgraphNodes],
                 Connections = [..subgraphConnections],
             };
             
-            Nodes.RemoveMany(subgraphNodes);
+            node.Subgraph.NodeCache.AddOrUpdate(subgraphNodes);
+            
+            NodeCache.RemoveKeys(subgraphNodes.Select(node => node.ExpressionName));
             Connections.RemoveMany(subgraphConnections);
             continue;
 
@@ -299,28 +332,11 @@ public partial class MaterialData : ObservableObject
 
         var node = new MaterialNode(expression.Name)
         {
-            Location = new Point(x, y)
+            Location = new Point(x, y),
+            Properties = CollectProperties(expression)
         };
         
-        Nodes.Add(node);
-
-        foreach (var property in expression.Properties)
-        {
-            if (property.Tag is null) continue;
-            if (IgnoredPropertyNames.Contains(property.Name.Text)) continue;
-
-            var propType = property.Tag.GenericValue?.GetType();
-            if (propType is null) continue;
-            if (propType.IsArray) continue;
-            if (IgnoredPropertyTypes.Contains(propType)) continue;
-            
-            node.Properties.Add(new MaterialNodeProperty
-            {
-                Key = property.Name.Text,
-                Value = property.Tag!.GenericValue!
-            });
-        }
-        
+        NodeCache.AddOrUpdate(node);
         SetupNodeContent(ref node, expression);
 
         foreach (var property in expression.Properties)
@@ -334,11 +350,34 @@ public partial class MaterialData : ObservableObject
         return node;
     }
 
+    private ObservableCollection<MaterialNodeProperty> CollectProperties(UMaterialExpression expression)
+    {
+        var properties = new ObservableCollection<MaterialNodeProperty>();
+        foreach (var property in expression.Properties)
+        {
+            if (property.Tag is null) continue;
+            if (IgnoredPropertyNames.Contains(property.Name.Text)) continue;
+
+            var propType = property.Tag.GenericValue?.GetType();
+            if (propType is null) continue;
+            if (propType.IsArray) continue;
+            if (IgnoredPropertyTypes.Contains(propType)) continue;
+            
+            properties.Add(new MaterialNodeProperty
+            {
+                Key = property.Name.Text,
+                Value = property.Tag!.GenericValue!
+            });
+        }
+
+        return properties;
+    }
+
     private void AddInput(ref MaterialNode node, FExpressionInput expressionInput, string? nameOverride = null)
     {
         if (expressionInput.Expression?.Load<UMaterialExpression>() is not { } subExpression) return;
         
-        var targetNode = (MaterialNode?) Nodes.FirstOrDefault(node => node.ExpressionName.Equals(subExpression.Name, StringComparison.OrdinalIgnoreCase)) ?? AddNode(subExpression);
+        var targetNode = (MaterialNode?) NodeCache.Items.FirstOrDefault(node => node.ExpressionName.Equals(subExpression.Name, StringComparison.OrdinalIgnoreCase)) ?? AddNode(subExpression);
 
         var inputSocket = node.AddInput(new MaterialNodeSocket(nameOverride ?? expressionInput.InputName.Text));
         
@@ -477,7 +516,7 @@ public partial class MaterialData : ObservableObject
               
                 if (expression.ExportType == "MaterialExpressionNamedRerouteUsage")
                 {
-                    var declarationNode = (MaterialNode?) Nodes.FirstOrDefault(node => node.ExpressionName.Equals(declaration.Name)) 
+                    var declarationNode = (MaterialNode?) NodeCache.Items.FirstOrDefault(node => node.ExpressionName.Equals(declaration.Name)) 
                                           ?? AddNode(declaration);
                     node.LinkedNode = declarationNode;
                 }

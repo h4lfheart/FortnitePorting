@@ -38,12 +38,6 @@
                       Drawing="{StaticResource LargeGridGeometry}" />
     </Window.Resources>
     <Grid RowDefinitions="Auto, *">
-        <ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False" IsVisible="{Binding !Theme.UseMica}">
-            <ExperimentalAcrylicBorder.Material>
-                <ExperimentalAcrylicMaterial BackgroundSource="Digger" MaterialOpacity="1.5" TintColor="{Binding Theme.BackgroundColor}" TintOpacity="1"/>
-            </ExperimentalAcrylicBorder.Material>
-        </ExperimentalAcrylicBorder>
-        
         <ui:TabView Grid.Row="0" IsAddTabButtonVisible="False" SelectionChanged="OnTabSelectionChanged" TabCloseRequested="OnTabClosed"
                     TabItems="{Binding LoadedMaterialDatas}" 
                     SelectedItem="{Binding SelectedMaterialData, Mode=TwoWay}">
@@ -83,11 +77,19 @@
             </Grid.ColumnDefinitions>
             
             <ui:FABorder Grid.Column="0"
-                         DataContext="{Binding SelectedMaterialData.SelectedNode}"
                          CornerRadius="0" BorderThickness="0"
                          Background="#1a1a1a">
-                <StackPanel>
-                    <Expander IsExpanded="True" CornerRadius="0" IsVisible="{Binding Converter={x:Static ObjectConverters.IsNotNull}}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="{ext:Space 1}"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <Expander Grid.Row="0" 
+                              DataContext="{Binding SelectedMaterialData.SelectedNode}" 
+                              IsExpanded="True" CornerRadius="0" 
+                              IsVisible="{Binding Converter={x:Static ObjectConverters.IsNotNull}}">
                         <Expander.Styles>
                             <Style Selector="Expander /template/ ContentPresenter#PART_ContentPresenter">
                                 <Setter Property="Margin" Value="{ext:Space 1.5}"/>
@@ -136,7 +138,28 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </Expander>
-                </StackPanel>
+                    
+                    <Grid Grid.Row="2" Margin="{ext:Space 1}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="{ext:Space 1}"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        
+                        <TextBox Grid.Row="0" Text="{Binding SelectedMaterialData.SearchFilter}" Watermark="Search..."/>
+                        
+                        <ListBox Grid.Row="2" ItemsSource="{Binding SelectedMaterialData.Nodes}" SelectionMode="Single" SelectionChanged="OnSearchSelectionChanged">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Margin="{ext:Space 0, 1}">
+                                        <TextBlock Text="{Binding ExpressionDisplayName, Converter={StaticResource UnrealCaseString}}" Classes="CaptionTextBlockStyle"/>
+                                        <TextBlock Text="{Binding Label}" Classes="CaptionTextBlockStyle TextFillColorTertiaryBrush"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
+                </Grid>
             </ui:FABorder>
             
             <GridSplitter Grid.Column="1" Background="Transparent"/>
@@ -144,9 +167,9 @@
             <Grid Grid.Column="1" Grid.ColumnSpan="2" Background="#262626" ZIndex="-2"/>
             <nodify:NodifyEditor Grid.Column="2" x:Name="Editor"
                                  DataContext="{Binding SelectedMaterialData}"
-                                 ItemsSource="{Binding Nodes}"
+                                 ItemsSource="{Binding NodeCache.Items}"
                                  Connections="{Binding Connections}"
-                                 SelectedItem="{Binding SelectedNode}"
+                                 SelectedItem="{Binding SelectedNode, Mode=TwoWay}"
                                  CanSelectMultipleItems="False"
                                  Background="{StaticResource SmallGridLinesDrawingBrush}" ViewportZoom="1" MaxViewportZoom="3"
                                  KeyDown="OnEditorKeyDown">

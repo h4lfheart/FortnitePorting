@@ -18,8 +18,8 @@ public static partial class StringExtensions
     {
         return UnrealCaseRegex().Replace(text, " $0");
     }
-
-    [GeneratedRegex(@"((?<=\p{Ll})\p{Lu})|((?!\A)\p{Lu}(?>\p{Ll}))")]
+    
+    [GeneratedRegex(@"((?<=\p{Ll})\p{Lu})|((?!\A)\p{Lu}(?>\p{Ll}))|(?<=\D)(?=\d)|(?<=\d)(?=\D)")]
     private static partial Regex UnrealCaseRegex();
 }
 
