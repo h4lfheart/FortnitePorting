@@ -10,4 +10,4 @@ An UEFormat .uemodel/.ueanim importer for Unreal Engine 5
 
 ## Credits
 - https://github.com/KaiserM21 (Importer)
-- https://github.com/halfuwu (custom file format)
+- https://github.com/h4lfheart (custom file format)

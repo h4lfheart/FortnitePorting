@@ -8,7 +8,7 @@ version = "3.0.8"
 blender_version_min = "4.2.0"
 name = "Fortnite Porting"
 tagline = "Import Server for Fortnite Porting"
-maintainer = "https://github.com/halfuwu"
+maintainer = "https://github.com/h4lfheart"
 
 tags = ["Import-Export"]
 
