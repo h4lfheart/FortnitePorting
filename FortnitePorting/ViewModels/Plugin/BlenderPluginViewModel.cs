@@ -133,7 +133,7 @@ public partial class BlenderPluginViewModel : ViewModelBase
             }
 
             var previousVersion = installation.ExtensionVersion;
-            installation.Install();
+            installation.Install(verbose);
 
             AppWM.Message("Blender Extension", $"Successfully updated the Blender {installation.BlenderVersion} extension from {previousVersion} to {currentVersion}");
         }

@@ -235,7 +235,7 @@ public partial class AppWindowModel : WindowModelBase
         InfoBars.RemoveAll(info => info.Id == id);
     }
     
-    public void Dialog(string title, string content)
+    public void Dialog(string title, string content, string? primaryButtonText = null, Action? primaryButtonAction = null)
     {
         TaskService.RunDispatcher(async () =>
         {
@@ -243,13 +243,15 @@ public partial class AppWindowModel : WindowModelBase
             {
                 Title = title,
                 Content = content,
-                CloseButtonText = "Continue"
+                CloseButtonText = "Continue",
+                PrimaryButtonText = primaryButtonText,
+                PrimaryButtonCommand = primaryButtonAction is not null ? new RelayCommand(primaryButtonAction) : null
             };
             
             await dialog.ShowAsync();
         });
     }
-
+    
     public void Title(string title, string subTitle, float time = 5.0f)
     {
         TitleData = new TitleData(title, subTitle);
