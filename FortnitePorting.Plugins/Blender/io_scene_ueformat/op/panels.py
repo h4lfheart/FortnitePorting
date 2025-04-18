@@ -20,7 +20,6 @@ class UEFORMAT_PT_Panel(Panel):  # noqa: N801
         self.draw_general_options(self, uf_settings)
         self.draw_model_options(self, uf_settings)
         self.draw_anim_options(self, uf_settings)
-        self.draw_world_options(self, uf_settings)
 
     @staticmethod
     def draw_general_options(obj: Panel | Operator, settings: UFSettings) -> None:
@@ -61,17 +60,3 @@ class UEFORMAT_PT_Panel(Panel):  # noqa: N801
 
         if not import_menu:
             box.row().operator("uf.import_ueanim", icon="ANIM")
-
-    @staticmethod
-    def draw_world_options(
-            obj: Panel | Operator,
-            settings: UFSettings,
-            *,
-            import_menu: bool = False,
-    ) -> None:
-        box = obj.layout.box()
-        box.label(text="World", icon="WORLD")
-        box.row().prop(settings, "instance_meshes")
-
-        if not import_menu:
-            box.row().operator("uf.import_ueworld", icon="OUTLINER_COLLECTION")

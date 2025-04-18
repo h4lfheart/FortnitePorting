@@ -1,13 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using CUE4Parse.UE4.Assets.Exports;
-using CUE4Parse.Utils;
 using DynamicData.Binding;
 
 namespace FortnitePorting.Shared.Extensions;
@@ -103,8 +102,10 @@ public static class MiscExtensions
         return true;
     }
     
-    public static void AddRangeIfNotNull<T>(this List<T> list, IEnumerable<T?> items)
+    public static void AddRangeIfNotNull<T>(this List<T> list, IEnumerable<T?>? items)
     {
+        if (items is null) return;
+        
         foreach (var item in items)
         {
             if (item is null) continue;
@@ -124,7 +125,12 @@ public static class MiscExtensions
     
     public static string GetHash(this FileInfo fileInfo)
     {
-        return BitConverter.ToString(SHA256.HashData(File.ReadAllBytes(fileInfo.FullName))).Replace("-", string.Empty);
+        return GetHash(fileInfo.FullName);
+    }
+    
+    public static string GetHash(string path)
+    {
+        return BitConverter.ToString(SHA256.HashData(File.ReadAllBytes(path))).Replace("-", string.Empty);
     }
     
     public static T? Random<T>(this IEnumerable<T> enumerable)
@@ -147,15 +153,6 @@ public static class MiscExtensions
         {
             return false;
         }
-    }
-    
-    public static string GetCleanedExportPath(UObject obj)
-    {
-        var path = obj.Owner != null ? obj.Owner.Name : string.Empty;
-        path = path.SubstringBeforeLast('.');
-        if (path.StartsWith("/")) path = path[1..];
-        
-        return path;
     }
 
     public static void ForEach<T>(this IEnumerable<T> array, Action<T> action)
@@ -232,6 +229,20 @@ public static class MiscExtensions
         {
             Copy(subDirectory, target.CreateSubdirectory(subDirectory.Name));
         }
+    }
+
+    public static bool IsProcessRunning(string processPath)
+    {
+        var processName = Path.GetFileNameWithoutExtension(processPath);
+        var processes = Process.GetProcessesByName(processName);
+        return processes.Any(process => process.MainModule?.FileName.StartsWith(processPath, StringComparison.OrdinalIgnoreCase) ?? false);
+    }
+    
+    public static Process? GetRunningProcess(string processPath)
+    {
+        var processName = Path.GetFileNameWithoutExtension(processPath);
+        var processes = Process.GetProcessesByName(processName);
+        return processes.FirstOrDefault(process => process.MainModule?.FileName.StartsWith(processPath, StringComparison.OrdinalIgnoreCase) ?? false);
     }
 }
 

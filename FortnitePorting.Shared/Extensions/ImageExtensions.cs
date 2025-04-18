@@ -1,10 +1,11 @@
+using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
-using CUE4Parse.UE4.Objects.Core.Misc;
 using SkiaSharp;
+using PixelFormat = Avalonia.Platform.PixelFormat;
 
 namespace FortnitePorting.Shared.Extensions;
 

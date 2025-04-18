@@ -3,14 +3,16 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DynamicData;
 using FortnitePorting.Application;
+using FortnitePorting.Framework;
+using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.Leaderboard;
 using FortnitePorting.Shared.Extensions;
-using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels.Settings;
 using ScottPlot;
@@ -25,8 +27,10 @@ public partial class LeaderboardViewModel : ViewModelBase
 {
     [ObservableProperty] private ObservableCollection<LeaderboardUser> _leaderboardUsers = [];
     [ObservableProperty] private ObservableCollection<LeaderboardExport> _leaderboardExports = [];
+    [ObservableProperty] private ObservableCollection<LeaderboardStreaksUser> _leaderboardStreaks = [];
     [ObservableProperty] private ObservableCollection<PersonalExport> _personalExports = [];
     [ObservableProperty] private ObservableCollection<StatisticsModel> _statisticsModels = [];
+    [ObservableProperty] private StreaksResponse? _streaksResponse;
 
     [ObservableProperty] private Bitmap? _medalBitmap;
 
@@ -36,10 +40,17 @@ public partial class LeaderboardViewModel : ViewModelBase
 
     public override async Task OnViewOpened()
     {
+        if (Design.IsDesignMode) return;
+        
         TaskService.Run(Load);
         
         var personalExports = await ApiVM.FortnitePorting.GetPersonalExportsAsync();
         PersonalExports = [..personalExports];
+        
+        var leaderboardStreaks = await ApiVM.FortnitePorting.GetStreaksAsync();
+        LeaderboardStreaks = [..leaderboardStreaks];
+
+        StreaksResponse = await ApiVM.FortnitePorting.GetPersonalStreaksAsync();
         
         StatisticsModels =
         [

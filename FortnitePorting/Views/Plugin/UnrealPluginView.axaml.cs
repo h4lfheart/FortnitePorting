@@ -1,5 +1,5 @@
 using FortnitePorting.Application;
-using FortnitePorting.Shared.Framework;
+using FortnitePorting.Framework;
 using FortnitePorting.ViewModels.Plugin;
 
 namespace FortnitePorting.Views.Plugin;

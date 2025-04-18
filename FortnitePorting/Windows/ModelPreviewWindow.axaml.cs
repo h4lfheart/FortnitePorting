@@ -7,8 +7,8 @@ using Avalonia.Threading;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
+using FortnitePorting.Framework;
 using FortnitePorting.Services;
-using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
 using FortnitePorting.WindowModels;
@@ -35,7 +35,7 @@ public partial class ModelPreviewWindow : WindowBase<ModelPreviewWindowModel>
         if (Instance is not null)
         {
             Instance.WindowModel.MeshName = string.Empty;
-            Instance.WindowModel.ViewerControl.Context.QueuedObjects.AddRange(objects);
+            Instance.WindowModel.LoadQueue(new Queue<UObject>(objects));
             Instance.BringToTop();
             return;
         }
@@ -44,7 +44,7 @@ public partial class ModelPreviewWindow : WindowBase<ModelPreviewWindowModel>
         {
             Instance = new ModelPreviewWindow();
             Instance.WindowModel.MeshName = string.Empty;
-            Instance.WindowModel.QueuedObjects = [..objects];
+            Instance.WindowModel.QueuedObjects = new Queue<UObject>(objects);
             Instance.Show();
             Instance.BringToTop();
         });

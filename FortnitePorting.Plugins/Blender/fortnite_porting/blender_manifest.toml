@@ -4,7 +4,7 @@ type = "add-on"
 license = ["SPDX:GPL-3.0-or-later"]
 
 id = "fortnite_porting"
-version = "3.0.5"
+version = "3.1.0"
 blender_version_min = "4.2.0"
 name = "Fortnite Porting"
 tagline = "Import Server for Fortnite Porting"

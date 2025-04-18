@@ -9,12 +9,12 @@ using CUE4Parse.UE4.Versions;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
 using FortnitePorting.Export.Models;
+using FortnitePorting.Framework;
 using FortnitePorting.Models.API;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.Radio;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
-using FortnitePorting.Shared.Framework;
 using FortnitePorting.ViewModels.Settings;
 using NAudio.Wave;
 using Newtonsoft.Json;
@@ -34,6 +34,7 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private ThemeSettingsViewModel _theme = new();
     [ObservableProperty] private OnlineSettingsViewModel _online = new();
     [ObservableProperty] private PluginViewModel _plugin = new();
+    [ObservableProperty] private DebugSettingsViewModel _debug = new();
     
     // Assets
     [ObservableProperty] private HashSet<string> _favoriteAssets = [];

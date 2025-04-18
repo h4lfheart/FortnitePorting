@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using DynamicData;
 using FortnitePorting.Application;
+using FortnitePorting.Framework;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.Voting;
-using FortnitePorting.Shared.Framework;
 using FortnitePorting.ViewModels.Settings;
 using Poll = FortnitePorting.Models.Voting.Poll;
 
@@ -36,6 +36,8 @@ public partial class VotingViewModel : ViewModelBase
 
     public async Task RefreshPolls()
     {
+        if (!OnlineRef.UseIntegration) return;
+        
         Polls.Clear();
         
         var polls = await ApiVM.FortnitePorting.GetPollsAsync();

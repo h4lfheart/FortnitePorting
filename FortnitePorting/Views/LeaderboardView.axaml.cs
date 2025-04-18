@@ -6,12 +6,11 @@ using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.VisualTree;
 using FluentAvalonia.UI.Controls;
-
+using FortnitePorting.Framework;
 using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.Leaderboard;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
-using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
 using ScottPlot;

@@ -10,11 +10,11 @@ using Avalonia.Platform;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using FortnitePorting.Framework;
 using FortnitePorting.Models.TimeWaster;
 using FortnitePorting.Models.TimeWaster.Actors;
 using FortnitePorting.Models.TimeWaster.Audio;
 using FortnitePorting.Shared.Extensions;
-using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
 using NAudio.Vorbis;
 using NAudio.Wave;
@@ -108,6 +108,8 @@ public partial class TimeWasterViewModel : ViewModelBase
                 await Task.Delay(waitTime);
                 
                 if (IsGame) break;
+                if (!AppWM.TimeWasterOpen) break;
+                
                 PianoSnippets.Random()?.Play();
             }
         });

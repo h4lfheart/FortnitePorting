@@ -32,7 +32,8 @@
 
             <TextBlock Grid.Column="0" Text="Blender Extensions" Classes="SubtitleTextBlockStyle" />
             <Button Grid.Column="2" Content="{material:MaterialIconExt Plus}" Command="{Binding AddInstallation}" />
-            <Button Grid.Column="4" Content="{material:MaterialIconExt Minus}" Command="{Binding RemoveInstallation}" />
+            <Button Grid.Column="4" Content="{material:MaterialIconExt Minus}" Command="{Binding RemoveInstallation}"
+                    IsEnabled="{Binding !!Installations.Count}"/>
             <Button Grid.Column="6" Content="{material:MaterialIconExt Sync}" Command="{Binding SyncInstallations}" />
         </Grid>
         
@@ -72,7 +73,7 @@
                                     <TextBlock Text="{Binding Status}" Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" 
                                                Margin="{ext:Space 1, 0, 0, 0}" VerticalAlignment="Center" />
                                 </StackPanel>
-                                <TextBlock Grid.Row="2" Text="{Binding ExtensionVersion, TargetNullValue='???'}" Classes="BodyTextBlockStyle" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Row="2" Text="{Binding ExtensionVersion, TargetNullValue='???'}" Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" VerticalAlignment="Center"/>
                             </Grid>
                         </Grid>
                     </DataTemplate>

@@ -53,7 +53,7 @@ public partial class AssetInfo : Base.BaseAssetInfo
         var styleObjects = new List<UObject>();
         foreach (var stylePath in stylePaths)
         {
-            if (CUE4ParseVM.Provider.TryLoadObject(stylePath, out var styleObject))
+            if (CUE4ParseVM.Provider.TryLoadPackageObject(stylePath, out var styleObject))
             {
                 styleObjects.Add(styleObject);
             }
@@ -65,15 +65,15 @@ public partial class AssetInfo : Base.BaseAssetInfo
     
     public BaseStyleData[] GetSelectedStyles()
     {
-        return Enumerable
-            .SelectMany<AssetStyleInfo, BaseStyleData>(StyleInfos, info => info.SelectedItems)
+        return StyleInfos
+            .SelectMany<AssetStyleInfo, BaseStyleData>(info => info.SelectedItems)
             .ToArray();
     }
     
     public BaseStyleData[] GetAllStyles()
     {
-        return Enumerable
-            .SelectMany<AssetStyleInfo, BaseStyleData>(StyleInfos, info => info.StyleDatas)
+        return StyleInfos
+            .SelectMany<AssetStyleInfo, BaseStyleData>(info => info.StyleDatas)
             .ToArray();
     }
 }

@@ -110,12 +110,12 @@
                                                                />
                                     </StackPanel>
                                     
-                                    <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="7" IsVisible="{Binding HasTextData}"
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="9" IsVisible="{Binding HasTextData}"
                                                Text="{Binding Text}" TextWrapping="Wrap" 
                                                Classes="BodyTextBlockStyle" VerticalAlignment="Center"
                                                Foreground="{Binding TextBrush}"/>
                                     
-                                    <Border Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="7" 
+                                    <Border Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="9" 
                                             IsVisible="{Binding HasImageData}"
                                             CornerRadius="4" ClipToBounds="True" HorizontalAlignment="Left" Margin="{ext:Space 0, 1, 0, 0}">
                                         <Image Source="{Binding Bitmap}" VerticalAlignment="Center" MaxHeight="300"

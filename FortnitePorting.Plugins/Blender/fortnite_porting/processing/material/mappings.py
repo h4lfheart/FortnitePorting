@@ -80,6 +80,7 @@ default_mappings = MappingCollection(
         SlotMapping("SkinFX_Mask"),
         SlotMapping("SkinFX Mask", "SkinFX_Mask"),
         SlotMapping("TechArtMask", "SkinFX_Mask"),
+        SlotMapping("FxMask", "SkinFX_Mask"),
         
         SlotMapping("Thin Film Texture"),
 

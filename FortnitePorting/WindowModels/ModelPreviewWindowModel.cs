@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.Assets.Exports;
+using FortnitePorting.Framework;
 using FortnitePorting.Rendering;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
@@ -13,14 +15,29 @@ public partial class ModelPreviewWindowModel : WindowModelBase
 {
     [ObservableProperty] private string _meshName;
     [ObservableProperty] private ModelPreviewControl _viewerControl;
-    [ObservableProperty] private ObservableCollection<UObject> _queuedObjects = [];
+    [ObservableProperty] private Queue<UObject> _queuedObjects = [];
+    [ObservableProperty] private bool _isLoading = false;
 
     public override async Task Initialize()
     {
         await TaskService.RunDispatcherAsync(() =>
         {
             ViewerControl = new ModelPreviewControl();
-            ViewerControl.Context.QueuedObjects.AddRange(QueuedObjects);
+        });
+        
+        LoadQueue(QueuedObjects);
+    }
+
+    public void LoadQueue(Queue<UObject> queue)
+    {
+        ViewerControl.Context.Renderer?.Clear();
+        ViewerControl.Context.ModelQueue = queue;
+        
+        TaskService.Run(() =>
+        {
+            IsLoading = true;
+            while (ViewerControl.Context.LoadingModelQueue) { }
+            IsLoading = false;
         });
     }
 }

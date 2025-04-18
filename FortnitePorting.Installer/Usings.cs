@@ -1,1 +1,0 @@
-global using static FortnitePorting.Installer.Services.ApplicationService;

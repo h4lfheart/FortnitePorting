@@ -14,6 +14,7 @@ using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.GameplayTags;
 using DynamicData;
 using DynamicData.Binding;
+using FortnitePorting.Extensions;
 using FortnitePorting.Models.Assets.Asset;
 using FortnitePorting.Models.Assets.Base;
 using FortnitePorting.Models.Assets.Custom;
@@ -56,7 +57,9 @@ public partial class AssetLoader : ObservableObject
     private List<FAssetData> Assets;
 
     private bool BeganLoading;
-    private bool IsPaused;
+    
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(PauseIcon))] private bool _isPaused = false;
+    public MaterialIconKind PauseIcon => IsPaused ? MaterialIconKind.Play : MaterialIconKind.Pause;
     
     [ObservableProperty] private ObservableCollection<BaseAssetInfo> _selectedAssetInfos = [];
     
@@ -266,7 +269,7 @@ public partial class AssetLoader : ObservableObject
 
     private async Task LoadAsset(FAssetData data)
     {
-        var asset = await CUE4ParseVM.Provider.TryLoadObjectAsync(data.ObjectPath);
+        var asset = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync(data.ObjectPath);
         if (asset is null) return;
 
         /*data.TagsAndValues.TryGetValue("DisplayName", out var displayName);
@@ -285,7 +288,7 @@ public partial class AssetLoader : ObservableObject
         var isHidden = HideNames.Any(name => asset.Name.Contains(name, StringComparison.OrdinalIgnoreCase)) || HidePredicate(this, asset, displayName);
         if (isHidden && !LoadHiddenAssets) return;
         
-        var icon = IconHandler(asset) ?? await CUE4ParseVM.Provider.TryLoadObjectAsync<UTexture2D>(PlaceholderIconPath);
+        var icon = IconHandler(asset) ?? await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync<UTexture2D>(PlaceholderIconPath);
         if (icon is null) return;
         
         var args = new AssetItemCreationArgs
@@ -306,12 +309,12 @@ public partial class AssetLoader : ObservableObject
     
     private async Task LoadAsset(ManuallyDefinedAsset manualAsset)
     {
-        var asset = await CUE4ParseVM.Provider.TryLoadObjectAsync(manualAsset.AssetPath);
+        var asset = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync(manualAsset.AssetPath);
         if (asset is null) return;
 
         var displayName = manualAsset.Name;
             
-        var icon = await CUE4ParseVM.Provider.TryLoadObjectAsync<UTexture2D>(manualAsset.IconPath) ?? await CUE4ParseVM.Provider.TryLoadObjectAsync<UTexture2D>(PlaceholderIconPath);
+        var icon = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync<UTexture2D>(manualAsset.IconPath) ?? await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync<UTexture2D>(PlaceholderIconPath);
         if (icon is null) return;
         
         var args = new AssetItemCreationArgs

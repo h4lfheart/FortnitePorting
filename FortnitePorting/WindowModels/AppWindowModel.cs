@@ -11,7 +11,9 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
+using FortnitePorting.Framework;
 using FortnitePorting.Models;
+using FortnitePorting.Models.API;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.App;
 using FortnitePorting.Services;
@@ -22,7 +24,7 @@ using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
 using FortnitePorting.ViewModels.Settings;
 using FortnitePorting.Views;
-using InfoBarData = FortnitePorting.Models.App.InfoBarData;
+using InfoBarData = FortnitePorting.Shared.Models.App.InfoBarData;
 using Log = Serilog.Log;
 
 namespace FortnitePorting.WindowModels;
@@ -33,6 +35,7 @@ public partial class AppWindowModel : WindowModelBase
     [ObservableProperty] private bool _gameBasedTabsAreReady = false;
     [ObservableProperty] private bool _setupTabsAreVisible = true;
     [ObservableProperty] private bool _onlineAndGameTabsAreVisible = false;
+    [ObservableProperty] private bool _consoleIsVisible = false;
     [ObservableProperty] private Frame _contentFrame;
     [ObservableProperty] private NavigationView _navigationView;
     [ObservableProperty] private ObservableCollection<InfoBarData> _infoBars = [];
@@ -47,10 +50,13 @@ public partial class AppWindowModel : WindowModelBase
     [ObservableProperty] private OnlineResponse? _onlineStatus;
     
     public OnlineSettingsViewModel OnlineRef => AppSettings.Current.Online;
+
+    private const string PORTLE_URL = "https://portle.halfheart.dev/release/Portle.exe";
     
     public override async Task Initialize()
     {
         SetupTabsAreVisible = !AppSettings.Current.Installation.FinishedWelcomeScreen;
+        ConsoleIsVisible = AppSettings.Current.Debug.IsConsoleVisible;
 
         OnlineStatus = await ApiVM.FortnitePorting.GetOnlineStatusAsync();
 
@@ -58,6 +64,89 @@ public partial class AppWindowModel : WindowModelBase
     }
 
     public async Task CheckForUpdate(bool isAutomatic = false)
+    {
+        void NoUpdate()
+        {
+            if (isAutomatic) return;
+            
+            TaskService.RunDispatcher(async () =>
+            {
+                var dialog = new ContentDialog
+                {
+                    Title = "No Update Available",
+                    Content = "Fortnite Porting is up to date.",
+                    CloseButtonText = "Continue"
+                };
+
+                await dialog.ShowAsync();
+            });
+        }
+        
+        var repositoryInfo = await ApiVM.FortnitePorting.GetRepositoryAsync();
+        if (repositoryInfo is not null)
+        {
+            var newestRelease = repositoryInfo.Versions.MaxBy(version => version.UploadTime)!;
+            if (newestRelease.Version <= Globals.Version)
+            {
+                NoUpdate();
+                return;
+            }
+
+            if (isAutomatic && AppSettings.Current.Application.LastOnlineVersion == newestRelease.Version)
+            {
+                return;
+            }
+
+            AppSettings.Current.Application.LastOnlineVersion = newestRelease.Version;
+            
+            await TaskService.RunDispatcherAsync(async () =>
+            {
+                var dialog = new ContentDialog
+                {
+                    Title = "Update Available",
+                    Content = $"Fortnite Porting {newestRelease.Version.GetDisplayString(EVersionStringType.IdentifierPrefix)} is now available. Would you like to update?",
+                    CloseButtonText = "No",
+                    PrimaryButtonText = "Yes",
+                    PrimaryButtonCommand = new RelayCommand(async () =>
+                    {
+                        if (!File.Exists(AppSettings.Current.Application.PortlePath) || 
+                            (!AppSettings.Current.Application.UsePortlePath && (ApiVM.GetHash(PORTLE_URL)?.Equals(MiscExtensions.GetHash(AppSettings.Current.Application.PortlePath)) ?? false)))
+                        {
+                            await ApiVM.DownloadFileAsync(PORTLE_URL, AppSettings.Current.Application.PortlePath);
+                        }
+
+                        var args = new[]
+                        {
+                            "--silent",
+                            "--skip-setup",
+                            $"--add-repository {FortnitePortingAPI.REPOSITORY_URL}",
+                            $"--import-profile \"Fortnite Porting\" \"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AppDomain.CurrentDomain.FriendlyName + ".exe")}\" \"FortnitePorting\"",
+                            "--update-profile \"Fortnite Porting\" -force",
+                            "--launch-profile \"Fortnite Porting\"",
+                        };
+                        
+                        Process.Start(new ProcessStartInfo
+                        {
+                            FileName = AppSettings.Current.Application.PortlePath,
+                            Arguments = string.Join(' ', args),
+                            WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory,
+                            UseShellExecute = true
+                        });
+                        
+                        ApplicationService.Application.Shutdown();
+                    })
+                };
+
+                await dialog.ShowAsync();
+            });
+            
+            return;
+        }
+
+        NoUpdate();
+    }
+
+    public async Task CheckForUpdateOld(bool isAutomatic = false)
     {
         var releaseInfo = await ApiVM.FortnitePorting.GetReleaseAsync();
         if (releaseInfo is not null && releaseInfo.Version > Globals.Version)
@@ -87,16 +176,6 @@ public partial class AppWindowModel : WindowModelBase
                         var applicationPath = Process.GetCurrentProcess().MainModule!.FileName;
                         
                         using var updateProcess = new Process();
-                        updateProcess.StartInfo = new ProcessStartInfo
-                        {
-                            FileName = DependencyService.UpdaterFile.FullName,
-                            Arguments = $"\"{updatedPath}\" \"{applicationPath}\"",
-                            WorkingDirectory = Path.GetDirectoryName(applicationPath),
-                            UseShellExecute = true
-                        };
-
-                        updateProcess.Start();
-                        
                         ApplicationService.Application.Shutdown();
                     })
                 };
@@ -156,7 +235,7 @@ public partial class AppWindowModel : WindowModelBase
         InfoBars.RemoveAll(info => info.Id == id);
     }
     
-    public void Dialog(string title, string content)
+    public void Dialog(string title, string content, string? primaryButtonText = null, Action? primaryButtonAction = null)
     {
         TaskService.RunDispatcher(async () =>
         {
@@ -164,13 +243,15 @@ public partial class AppWindowModel : WindowModelBase
             {
                 Title = title,
                 Content = content,
-                CloseButtonText = "Continue"
+                CloseButtonText = "Continue",
+                PrimaryButtonText = primaryButtonText,
+                PrimaryButtonCommand = primaryButtonAction is not null ? new RelayCommand(primaryButtonAction) : null
             };
             
             await dialog.ShowAsync();
         });
     }
-
+    
     public void Title(string title, string subTitle, float time = 5.0f)
     {
         TitleData = new TitleData(title, subTitle);

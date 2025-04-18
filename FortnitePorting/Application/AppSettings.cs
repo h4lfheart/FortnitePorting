@@ -33,12 +33,24 @@ public class AppSettings
     {
         try
         {
-            
             File.WriteAllText(FilePath.FullName, JsonConvert.SerializeObject(Current, Formatting.Indented));
         }
         catch (Exception e)
         {
             Log.Error("Failed to save settings:");
+            Log.Error(e.ToString());
+        }
+    }
+    
+    public static void Reset()
+    {
+        try
+        {
+            Current = new SettingsViewModel();
+        }
+        catch (Exception e)
+        {
+            Log.Error("Failed to reset settings:");
             Log.Error(e.ToString());
         }
     }

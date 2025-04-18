@@ -5,31 +5,42 @@
              xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
              xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:uip="clr-namespace:FluentAvalonia.UI.Controls.Primitives;assembly=FluentAvalonia"
+             xmlns:nodify="https://miroiu.github.io/nodify"
              x:Class="FortnitePorting.Application.App"
              RequestedThemeVariant="Dark">
 
      <Application.Resources>
-         <ext:EnumToStringConverter x:Key="EnumToString" />
-         <ext:EnumToRecordConverter x:Key="EnumToRecord" />
-         <ext:EnumHasFlagConverter x:Key="EnumHasFlag" />
-         <ext:EnumEqualsConverter x:Key="EnumEquals" />
-         <ext:TitleCaseStringConverter x:Key="TitleCaseString" />
-         <ext:StringToDocumentConverter x:Key="StringToDocument" />
+         <ResourceDictionary>
+             <ResourceDictionary.MergedDictionaries>
+                 <ResourceInclude Source="avares://Nodify/Themes/Generic.xaml" />
+                 <ResourceInclude Source="avares://Nodify/Themes/Dark.xaml" />
+             </ResourceDictionary.MergedDictionaries>
+             
+             <ext:EnumToStringConverter x:Key="EnumToString" />
+             <ext:EnumToRecordConverter x:Key="EnumToRecord" />
+             <ext:EnumHasFlagConverter x:Key="EnumHasFlag" />
+             <ext:EnumEqualsConverter x:Key="EnumEquals" />
+             <ext:TitleCaseStringConverter x:Key="TitleCaseString" />
+             <ext:UnrealCaseStringConverter x:Key="UnrealCaseString" />
+             <ext:StringToDocumentConverter x:Key="StringToDocument" />
          
-         <Brush x:Key="ToggleSwitchKnobFillOn">#FFFFFFFF</Brush>
-         <Brush x:Key="ToggleSwitchKnobFillOnPointerOver">#FFFFFFFF</Brush>
-         <Brush x:Key="ToggleSwitchKnobFillOnPressed">#FFFFFFFF</Brush>
-         <Brush x:Key="ToggleSwitchKnobFillOnDisabled">#5DFFFFFF</Brush>
-         <Brush x:Key="CheckBoxCheckGlyphForegroundChecked">#FFFFFFFF</Brush>
-         <Brush x:Key="CheckBoxCheckGlyphForegroundCheckedPointerOver">#FFFFFFFF</Brush>
-         <Brush x:Key="CheckBoxCheckGlyphForegroundCheckedPressed">#FFFFFFFF</Brush>
-         <Brush x:Key="CheckBoxCheckGlyphForegroundCheckedDisabled">#5DFFFFFF</Brush>
-         <Brush x:Key="ScrollViewerScrollBarsSeparatorBackground">#00000000</Brush>
-         <x:Double x:Key="NavigationViewItemOnLeftIconBoxHeight">14</x:Double>
-         <FontFamily x:Key="SymbolThemeFontFamily">avares://FortnitePorting/Assets/Fonts/Segoe Fluent Icons.ttf#Segoe Fluent Icons</FontFamily>
-         <FontFamily x:Key="TimeWasterFontFamily">avares://FortnitePorting/Assets/TimeWaster/Fonts/BurbankBigRegular-Bold.ttf#Burbank Big</FontFamily>
-         <Brush x:Key="TabViewItemHeaderBackgroundSelected">#10000000</Brush>
-         <Brush x:Key="TabViewItemSeparator">#30000000</Brush>
+             <Brush x:Key="ToggleSwitchKnobFillOn">#FFFFFFFF</Brush>
+             <Brush x:Key="ToggleSwitchKnobFillOnPointerOver">#FFFFFFFF</Brush>
+             <Brush x:Key="ToggleSwitchKnobFillOnPressed">#FFFFFFFF</Brush>
+             <Brush x:Key="ToggleSwitchKnobFillOnDisabled">#5DFFFFFF</Brush>
+             <Brush x:Key="CheckBoxCheckGlyphForegroundChecked">#FFFFFFFF</Brush>
+             <Brush x:Key="CheckBoxCheckGlyphForegroundCheckedPointerOver">#FFFFFFFF</Brush>
+             <Brush x:Key="CheckBoxCheckGlyphForegroundCheckedPressed">#FFFFFFFF</Brush>
+             <Brush x:Key="CheckBoxCheckGlyphForegroundCheckedDisabled">#5DFFFFFF</Brush>
+             <Brush x:Key="ScrollViewerScrollBarsSeparatorBackground">#00000000</Brush>
+             <x:Double x:Key="NavigationViewItemOnLeftIconBoxHeight">14</x:Double>
+             <FontFamily x:Key="SymbolThemeFontFamily">avares://FortnitePorting/Assets/Fonts/Segoe Fluent Icons.ttf#Segoe Fluent Icons</FontFamily>
+             <FontFamily x:Key="TimeWasterFontFamily">avares://FortnitePorting/Assets/TimeWaster/Fonts/BurbankBigRegular-Bold.ttf#Burbank Big</FontFamily>
+             <Brush x:Key="TabViewItemHeaderBackgroundSelected">#FF1A1A1C</Brush>
+             <Brush x:Key="TabViewItemHeaderBackgroundPointerOver">#343438</Brush>
+             <Brush x:Key="TabViewItemHeaderBackground">#28282b</Brush>
+             <Brush x:Key="TabViewItemSeparator">#30000000</Brush>
+         </ResourceDictionary>
          
      </Application.Resources>
              
@@ -41,6 +52,8 @@
         <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
         <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
         
+        <Style></Style>
+        
         <Style Selector="ui|FABorder">
             <Setter Property="Background" Value="#0DFFFFFF"/>
             <Setter Property="BorderBrush" Value="#19000000"/>
@@ -51,6 +64,19 @@
         
         <Style Selector="Border">
             <Setter Property="CornerRadius" Value="4"/>
+        </Style>
+        
+        <Style Selector="MenuItem.Checked">
+            <Setter Property="ToggleType" Value="CheckBox"/>
+            <Setter Property="StaysOpenOnClick" Value="True"/>
+            <Setter Property="Icon">
+                <Template>
+                    <Grid>
+                        <material:MaterialIcon Kind="Close" IsVisible="{Binding !$parent[MenuItem].IsChecked}" />
+                        <material:MaterialIcon Kind="Check" IsVisible="{Binding $parent[MenuItem].IsChecked}" />
+                    </Grid>
+                </Template>
+            </Setter>
         </Style>
         
         <Style Selector="TabItem > TextBlock">
@@ -96,6 +122,10 @@
 
         <Style Selector="Expander ToggleButton:checked /template/ ContentPresenter">
            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+        
+        <Style Selector="TabControl WrapPanel">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
         </Style>
         
         <Style Selector="ui|NavigationView.NoBackground /template/ Border#ContentGridBorder">

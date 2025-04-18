@@ -137,7 +137,7 @@ public partial class ChatUser : ObservableObject
                 if (messageBox?.Text is not { } message) return;
 
                 var path = Exporter.FixPath(text);
-                var asset = await CUE4ParseVM.Provider.TryLoadObjectAsync(path);
+                var asset = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync(path);
                 if (asset is null)
                 {
                     AppWM.Message("Failed to Send Export", $"Could not load \"{text}\"", InfoBarSeverity.Error);

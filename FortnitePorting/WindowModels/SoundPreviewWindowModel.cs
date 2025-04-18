@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.Assets.Exports.Sound;
 using FortnitePorting.Application;
 using FortnitePorting.Extensions;
+using FortnitePorting.Framework;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
 using Material.Icons;
@@ -34,6 +35,12 @@ public partial class SoundPreviewWindowModel : WindowModelBase
         UpdateTimer.Tick += OnUpdateTimerTick;
         UpdateTimer.Interval = TimeSpan.FromMilliseconds(1);
         UpdateTimer.Start();
+    }
+
+    public override async Task OnViewExited()
+    {
+        OutputDevice.Dispose();
+        await AudioReader.DisposeAsync();
     }
 
     private void OnUpdateTimerTick(object? sender, EventArgs e)

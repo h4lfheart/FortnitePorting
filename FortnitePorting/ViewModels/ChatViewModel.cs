@@ -15,17 +15,17 @@ using CommunityToolkit.Mvvm.Input;
 using CUE4Parse;
 using DynamicData;
 using FluentAvalonia.UI.Controls;
+using FortnitePorting.Framework;
 using FortnitePorting.Models;
 using FortnitePorting.Models.Chat;
 using FortnitePorting.OnlineServices.Packet;
 using FortnitePorting.Services;
-using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Models;
 using FortnitePorting.Shared.Models.Clipboard;
 using FortnitePorting.Shared.Services;
 using Serilog;
 using SixLabors.ImageSharp.PixelFormats;
-using Globals = FortnitePorting.Shared.Globals;
+using Globals = FortnitePorting.Globals;
 
 namespace FortnitePorting.ViewModels;
 

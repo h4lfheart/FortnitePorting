@@ -19,6 +19,7 @@ using FortnitePorting.Export.Models;
 using FortnitePorting.Extensions;
 using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.CUE4Parse;
+using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Models.Unreal;
 using FortnitePorting.Models.Unreal.Landscape;
 using FortnitePorting.Shared;

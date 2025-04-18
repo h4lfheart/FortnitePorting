@@ -9,7 +9,7 @@ using FortnitePorting.Models.Assets.Custom;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Models.Clipboard;
 using SkiaSharp;
-using SkiaExtensions = FortnitePorting.Shared.Extensions.SkiaExtensions;
+using SkiaExtensions = FortnitePorting.Extensions.SkiaExtensions;
 
 namespace FortnitePorting.Models.Assets.Base;
 

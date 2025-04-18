@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Copyright © 2025 Marcel K. All rights reserved.
 
 #pragma once
 #include "CoreMinimal.h"
@@ -7,8 +7,6 @@
 class FUEFormatModule : public IModuleInterface
 {
 public:
-
-	/** IModuleInterface implementation */
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
 };

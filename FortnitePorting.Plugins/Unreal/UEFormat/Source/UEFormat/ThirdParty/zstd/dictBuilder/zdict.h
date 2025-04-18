@@ -1,3 +1,4 @@
+#pragma warning(disable: 4668)
 /*
  * Copyright (c) 2016-present, Yann Collet, Facebook, Inc.
  * All rights reserved.

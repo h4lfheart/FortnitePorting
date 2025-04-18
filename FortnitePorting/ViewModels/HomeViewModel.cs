@@ -11,12 +11,12 @@ using CommunityToolkit.Mvvm.Input;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
 using FortnitePorting.Controls;
+using FortnitePorting.Framework;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.OnlineServices.Models;
 using FortnitePorting.OnlineServices.Packet;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
-using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Models;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels.Settings;
@@ -37,6 +37,27 @@ public partial class HomeViewModel : ViewModelBase
         if (!AppSettings.Current.Online.HasReceivedFirstPrompt)
         {
             await AppSettings.Current.Online.PromptForAuthentication();
+        }
+
+        if (!AppSettings.Current.Application.DontAskAboutKofi &&
+            DateTime.Now.Date >= AppSettings.Current.Application.NextKofiAskDate)
+        {
+            AppSettings.Current.Application.NextKofiAskDate = DateTime.Today.AddDays(7);
+            await TaskService.RunDispatcherAsync(async () =>
+            {
+                var dialog = new ContentDialog
+                {
+                    Title = "Enjoying FortnitePorting?",
+                    Content = "Consider donating to the Ko-Fi to support the development of the project!!",
+                    CloseButtonText = "No",
+                    PrimaryButtonText = "Donate",
+                    PrimaryButtonCommand = new RelayCommand(LaunchKoFi),
+                    SecondaryButtonText = "Don't Ask Again",
+                    SecondaryButtonCommand = new RelayCommand(() => AppSettings.Current.Application.DontAskAboutKofi = true)
+                };
+
+                await dialog.ShowAsync();
+            });
         }
         
         TaskService.Run(async () =>

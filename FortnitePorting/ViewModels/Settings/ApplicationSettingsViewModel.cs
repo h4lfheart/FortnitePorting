@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FluentAvalonia.UI.Media.Animation;
+using FortnitePorting.Framework;
 using FortnitePorting.Shared;
-using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Models;
 using FortnitePorting.Shared.Validators;
 using NAudio.Wave;
@@ -20,19 +20,26 @@ public partial class ApplicationSettingsViewModel : ViewModelBase
 {
     [NotifyDataErrorInfo] [DirectoryExists("Assets Path")] [ObservableProperty]
     private string _assetsPath;
+    
+     [ObservableProperty]
+    private string _portleExecutablePath;
 
     [ObservableProperty] private int _audioDeviceIndex = 0;
-    [ObservableProperty] private int _chunkCacheLifetime = 1;
-    [ObservableProperty] private bool _downloadDebuggingSymbols;
-    [ObservableProperty] private int _requestTimeoutSeconds = 10;
 
     [ObservableProperty] private FPVersion _lastOnlineVersion = Globals.Version;
 
     [ObservableProperty] private bool _useAssetsPath;
+    [ObservableProperty] private bool _usePortlePath;
 
     [ObservableProperty] private bool _useTabTransitions = true;
     
+    [ObservableProperty] private bool _dontAskAboutKofi;
+    [ObservableProperty] private DateTime _nextKofiAskDate = DateTime.Today;
+    
     public string AssetPath => UseAssetsPath && Directory.Exists(AssetsPath) ? AssetsPath : AssetsFolder.FullName;
+    public string PortlePath => UsePortlePath && Directory.Exists(PortleExecutablePath) 
+        ? PortleExecutablePath 
+        : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Portle", "Portle.exe");
 
 
     [JsonIgnore]
@@ -47,6 +54,11 @@ public partial class ApplicationSettingsViewModel : ViewModelBase
     {
         if (await BrowseFolderDialog() is { } path) AssetsPath = path;
     }
+    
+    public async Task BrowsePortlePath()
+    {
+        if (await BrowseFileDialog() is { } path) PortleExecutablePath = path;
+    }
 
     protected override async void OnPropertyChanged(PropertyChangedEventArgs e)
     {
@@ -54,25 +66,6 @@ public partial class ApplicationSettingsViewModel : ViewModelBase
 
         switch (e.PropertyName)
         {
-            case nameof(DownloadDebuggingSymbols):
-            {
-                if (ApiVM is null) break;
-                
-                var executingDirectory = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
-                if (DownloadDebuggingSymbols)
-                {
-                    var fileNames = await ApiVM.FortnitePorting.GetReleaseFilesAsync();
-                    var pdbFiles = fileNames.Where(fileName => fileName.EndsWith(".pdb"));
-                    foreach (var pdbFile in pdbFiles) await ApiVM.DownloadFileAsync(pdbFile, executingDirectory);
-                }
-                else
-                {
-                    var pdbFiles = executingDirectory.GetFiles("*.pdb");
-                    foreach (var pdbFile in pdbFiles) pdbFile.Delete();
-                }
-
-                break;
-            }
             case nameof(AudioDeviceIndex):
             {
                 RadioVM?.UpdateOutputDevice();

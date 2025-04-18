@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright © 2025 Marcel K. All rights reserved.
 
 #pragma once
 #include "CoreMinimal.h"
@@ -15,8 +15,7 @@ enum class UEFAnimImportOptionDlgResponse : uint8
 class UEFORMAT_API UEFAnimWidget : public SCompoundWidget
 {
 public:
-	SLATE_BEGIN_ARGS(UEFAnimWidget) : _WidgetWindow()
-	{}
+	SLATE_BEGIN_ARGS(UEFAnimWidget) : _WidgetWindow(){}
 
 	SLATE_ARGUMENT(TSharedPtr<SWindow>, WidgetWindow)
 	SLATE_END_ARGS()

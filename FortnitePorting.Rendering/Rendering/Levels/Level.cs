@@ -4,6 +4,8 @@ using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.Engine;
+using FortnitePorting.Models.Fortnite;
+using FortnitePorting.Rendering.Extensions;
 using FortnitePorting.Rendering.Rendering.Meshes;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Models.Fortnite;

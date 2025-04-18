@@ -33,9 +33,13 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
     public const string LEADERBOARD_USERS_URL = "https://fortniteporting.halfheart.dev/api/v3/leaderboard/users";
     public const string LEADERBOARD_EXPORTS_URL = "https://fortniteporting.halfheart.dev/api/v3/leaderboard/exports";
     public const string LEADERBOARD_EXPORTS_PERSONAL_URL = "https://fortniteporting.halfheart.dev/api/v3/leaderboard/exports/personal";
+    public const string LEADERBOARD_STREAKS_URL = "https://fortniteporting.halfheart.dev/api/v3/leaderboard/streaks";
+    public const string LEADERBOARD_STREAKS_PERSONAL_URL = "https://fortniteporting.halfheart.dev/api/v3/leaderboard/streaks/personal";
     
     public const string RELEASE_URL = "https://fortniteporting.halfheart.dev/api/v3/release";
     public const string RELEASE_FILES_URL = "https://fortniteporting.halfheart.dev/api/v3/release/files";
+    
+    public const string REPOSITORY_URL = "https://fortniteporting.halfheart.dev/api/v3/repository";
 
     public const string POLLS_URL = "https://fortniteporting.halfheart.dev/api/v3/polls";
         
@@ -43,8 +47,7 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
     
     public const string AES_URL = "https://fortniteporting.halfheart.dev/api/v3/aes";
     public const string MAPPINGS_URL = "https://fortniteporting.halfheart.dev/api/v3/mappings";
-
-
+    
     public async Task<NewsResponse[]> GetNewsAsync()
     {
         return await ExecuteAsync<NewsResponse[]>(NEWS_URL) ?? [];
@@ -226,6 +229,33 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
         return GetPersonalExportsAsync().GetAwaiter().GetResult();
     }
     
+    public async Task<LeaderboardStreaksUser[]> GetStreaksAsync(int min = 1, int max = 10)
+    {
+        return await ExecuteAsync<LeaderboardStreaksUser[]>(LEADERBOARD_STREAKS_URL, verbose: false, parameters: 
+        [
+            new QueryParameter("min", min.ToString()),
+            new QueryParameter("max", max.ToString())
+        ]) ?? [];
+    }
+
+    public LeaderboardStreaksUser[] GetStreaks(int min = 1, int max = 10)
+    {
+        return GetStreaksAsync(min, max).GetAwaiter().GetResult();
+    }
+    
+    public async Task<StreaksResponse?> GetPersonalStreaksAsync()
+    {
+        return await ExecuteAsync<StreaksResponse>(LEADERBOARD_STREAKS_PERSONAL_URL, verbose: false, parameters: 
+        [
+            new HeaderParameter("token", AppSettings.Current.Online.Auth!.Token)
+        ]);
+    }
+
+    public StreaksResponse? GetPersonalStreaks()
+    {
+        return GetPersonalStreaksAsync().GetAwaiter().GetResult();
+    }
+    
     public async Task<ReleaseResponse?> GetReleaseAsync()
     {
         return await ExecuteAsync<ReleaseResponse>(RELEASE_URL);
@@ -234,6 +264,16 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
     public ReleaseResponse? GetRelease()
     {
         return GetReleaseAsync().GetAwaiter().GetResult();
+    }
+    
+    public async Task<RepositoryResponse?> GetRepositoryAsync(string url = REPOSITORY_URL)
+    {
+        return await ExecuteAsync<RepositoryResponse>(url);
+    }
+
+    public RepositoryResponse? GetRepository(string url = REPOSITORY_URL)
+    {
+        return GetRepositoryAsync(url).GetAwaiter().GetResult();
     }
     
     public async Task<string[]> GetReleaseFilesAsync()

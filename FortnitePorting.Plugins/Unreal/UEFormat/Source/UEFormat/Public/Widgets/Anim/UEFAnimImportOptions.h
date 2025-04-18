@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright © 2025 Marcel K. All rights reserved.
 
 #pragma once
 #include "CoreMinimal.h"

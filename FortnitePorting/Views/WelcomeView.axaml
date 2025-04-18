@@ -200,6 +200,6 @@
             </StackPanel>
         </ScrollViewer>
         
-        <Button Grid.Row="3" Content="Finish Setup" Command="{Binding FinishSetupCommand}" HorizontalAlignment="Center" VerticalAlignment="Center" IsEnabled="{Binding !HasErrors}"/>
+        <Button Grid.Row="3" Content="Finish Setup" Command="{Binding FinishSetupCommand}" HorizontalAlignment="Center" VerticalAlignment="Center" IsEnabled="{Binding !Profile.HasErrors}"/>
     </Grid>
 </UserControl>

@@ -19,7 +19,8 @@ public class ModelViewerContext : GameWindow
     public int Width;
     public int Height;
 
-    public List<UObject> QueuedObjects = [];
+    public Queue<UObject> ModelQueue = [];
+    public bool LoadingModelQueue = true;
 
     public RenderManager Renderer;
     public Camera Camera = new();
@@ -92,18 +93,23 @@ public class ModelViewerContext : GameWindow
 
     private void Update()
     {
-        var queuedObjects = QueuedObjects.ToArray();
-        foreach (var queuedObject in queuedObjects)
+        while (ModelQueue.Count > 0)
         {
-            Renderer.Add(queuedObject);
-            QueuedObjects.Remove(queuedObject);
+            LoadingModelQueue = true;
+            
+            var obj = ModelQueue.Dequeue();
+            if (obj is null) continue;
+            
+            Renderer.Add(obj);
 
-            if (Renderer.Objects.LastOrDefault() is Level level)
+            if (ModelQueue.Count == 0 && Renderer.Objects.LastOrDefault() is Level level)
             {
                 var averagePosition = level.Actors.Aggregate(Vector3.Zero, (pos, actor) => pos + actor.Transform.ExtractTranslation()) / level.Actors.Count;
                 Camera.Position = averagePosition + new Vector3(0, 50, 0);
             }
         }
+
+        LoadingModelQueue = false;
         
         if (SizeChanged)
         {

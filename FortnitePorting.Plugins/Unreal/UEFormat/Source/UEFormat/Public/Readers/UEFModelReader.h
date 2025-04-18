@@ -1,28 +1,29 @@
-﻿#pragma once
+﻿// Copyright © 2025 Marcel K. All rights reserved.
+
+#pragma once
 #include <fstream>
 #include "Math/Quat.h"
 #include "Containers/Array.h"
 
 template<typename T>
-void ReadArray(std::ifstream& Ar, int ArraySize, TArray<T>& Data) {
-    Data.SetNum(ArraySize);
-    for (auto i = 0; i < ArraySize; i++) {
-        Ar.read(reinterpret_cast<char*>(&Data[i]), sizeof(T));
-    }
-}
-
-template<typename T>
 T ReadData(std::ifstream& Ar) {
     T Data;
     Ar.read(reinterpret_cast<char*>(&Data), sizeof(T));
+
     return Data;
 }
-
-FQuat4f ReadQuat(std::ifstream& Ar);
 
 std::string ReadString(std::ifstream& Ar, int32 Size);
 
 std::string ReadFString(std::ifstream& Ar);
+
+template<typename T>
+T ReadBufferData(const char* DataArray, int& Offset) {
+    T Data;
+    std::memcpy(&Data, &DataArray[Offset], sizeof(T));
+    Offset += sizeof(T);
+    return Data;
+}
 
 template<typename T>
 void ReadBufferArray(const char* DataArray, int& Offset, int ArraySize, TArray<T>& Data) {
@@ -31,14 +32,6 @@ void ReadBufferArray(const char* DataArray, int& Offset, int ArraySize, TArray<T
         std::memcpy(&Data[i], &DataArray[Offset], sizeof(T));
         Offset += sizeof(T);
     }
-}
-
-template<typename T>
-T ReadBufferData(const char* DataArray, int& Offset) {
-    T Data;
-    std::memcpy(&Data, &DataArray[Offset], sizeof(T));
-    Offset += sizeof(T);
-    return Data;
 }
 
 FQuat4f ReadBufferQuat(const char* DataArray, int& Offset);
@@ -71,8 +64,8 @@ struct FSocketChunk {
     FVector3f SocketScale;
 };
 struct FMaterialChunk {
-    int32 MatIndex;
     std::string Name;
+    std::string Path;
     int32 FirstIndex;
     int32 NumFaces;
 };
@@ -85,6 +78,11 @@ struct FMorphTargetChunk {
     std::string MorphName;
     TArray<FMorphTargetDataChunk> MorphDeltas;
 };
+struct FVirtualBoneChunk {
+    std::string SourceBoneName;
+    std::string TargetBoneName;
+    std::string VirtualBoneName;
+};
 struct FUEFormatHeader {
     std::string Identifier;
     std::byte FileVersionBytes;
@@ -94,7 +92,6 @@ struct FUEFormatHeader {
     int32 CompressedSize;
     int32 UncompressedSize;
 };
-
 struct FLODData {
     TArray<FVector3f> Vertices;
     TArray<int32> Indices;
@@ -106,27 +103,30 @@ struct FLODData {
     TArray<FWeightChunk> Weights;
     TArray<FMorphTargetChunk> Morphs;
 };
-
 struct FSkeletonData {
+    std::string Path;
     TArray<FBoneChunk> Bones;
     TArray<FSocketChunk> Sockets;
+    TArray<FVirtualBoneChunk> VirtualBones;
 };
 
-class UEFModelReader {
+class UEFORMAT_API UEFModelReader {
 public:
     UEFModelReader(const FString Filename);
+    ~UEFModelReader();
+    
     bool Read();
-    void ReadBuffer(const char* Buffer, int BufferSize);
-
-    const std::string GMAGIC = "UEFORMAT";
-
+    
     FUEFormatHeader Header;
     TArray<FLODData> LODs;
     FSkeletonData Skeleton;
 
 private:
+    const std::string GMAGIC = "UEFORMAT";
+    const std::string GZIP = "GZIP";
+    const std::string ZSTD = "ZSTD";
+    
     std::ifstream Ar;
-    void ReadLODChunk(const char* Buffer, int& Offset, int LODIndex);
-    void ReadChunks(const char* Buffer, int& Offset, const std::string& ChunkName, int32 ArraySize, int32 ByteSize, int LODIndex);
+    void ReadBuffer(const char* Buffer, int32 BufferSize);
+    void ReadChunks(const char* Buffer, int& Offset, int32 ByteSize, int LODIndex);
 };
-

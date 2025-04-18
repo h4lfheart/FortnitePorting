@@ -14,6 +14,7 @@ using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.Utils;
 using FortnitePorting.Models.Assets;
+using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Models.Fortnite;
 using OpenTK.Graphics.OpenGL;
@@ -51,7 +52,7 @@ public partial class LeaderboardExport : ObservableObject
 
         if (!CachedObjects.TryGetValue(ObjectPath, out var asset))
         {
-            asset = await CUE4ParseVM.Provider.TryLoadObjectAsync(ObjectPath);
+            asset = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync(ObjectPath);
         }
         
         if (asset is null) 

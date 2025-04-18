@@ -111,7 +111,7 @@ public class MeshExport : BaseExport
         {
             case EExportType.Outfit:
             {
-                UAnimMontage? montage = null;
+                UAnimMontage? montage = asset.GetOrDefault<UAnimMontage?>("FrontendAnimMontageIdleOverride");
                 var parts = asset.GetOrDefault("BaseCharacterParts", Array.Empty<UObject>());
                 if (asset.TryGetValue(out UObject heroDefinition, "HeroDefinition"))
                 {
@@ -308,6 +308,8 @@ public class MeshExport : BaseExport
             case EExportType.World:
             {
                 if (asset is not UWorld world) break;
+
+                Name = world.Owner?.Name.SubstringAfterLast("/") ?? world.Name;
                 Meshes.AddRange(Exporter.World(world));
                 break;
             }

@@ -7,8 +7,8 @@ using Avalonia.Controls;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FluentAvalonia.Styling;
+using FortnitePorting.Framework;
 using FortnitePorting.Shared.Extensions;
-using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Validators;
 using Newtonsoft.Json;
 

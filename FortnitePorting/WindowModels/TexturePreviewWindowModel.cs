@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using FluentAvalonia.Core;
+using FortnitePorting.Framework;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.ViewModels;
 using SkiaSharp;

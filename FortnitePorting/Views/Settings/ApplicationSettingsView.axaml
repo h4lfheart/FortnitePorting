@@ -36,6 +36,19 @@
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
             
+            
+            <ui:SettingsExpander Header="Portle Path" Description="The executable path for your Portle version manager.">
+                <ui:SettingsExpander.Footer>
+                    <StackPanel Orientation="Horizontal">
+                        <CheckBox IsChecked="{Binding UsePortlePath}"/>
+                        <TextBox Text="{Binding PortleExecutablePath}" Watermark="Ex. D:/Art/FortnitePorting/Portle.exe" IsEnabled="{Binding UsePortlePath}"/>
+                        <Button Margin="4 0 0 0" Command="{Binding BrowsePortlePath}" IsEnabled="{Binding UsePortlePath}">
+                            <ui:SymbolIcon Symbol="Folder"/>
+                        </Button>
+                    </StackPanel>
+                </ui:SettingsExpander.Footer>
+            </ui:SettingsExpander>
+            
             <ui:SettingsExpander Header="Audio Device" Description="The device that should be used for audio playback.">
                 <ui:SettingsExpander.Footer>
                     <ComboBox Grid.Row="0" Grid.Column="4" ItemsSource="{Binding AudioDevices}" 
@@ -54,28 +67,6 @@
             <ui:SettingsExpander Header="Tab Transitions" Description="Toggles the transition that plays when switching between tabs.">
                 <ui:SettingsExpander.Footer>
                     <ToggleSwitch IsChecked="{Binding UseTabTransitions}"/>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
-            
-            <ui:SettingsExpander Header="Cached Chunk Lifetime" Description="The number of days any cached chunks should be kept for. Set this value to zero to keep chunks for forever.">
-                <ui:SettingsExpander.Footer>
-                    <ui:NumberBox Value="{Binding ChunkCacheLifetime}" 
-                                  Minimum="0"
-                                  SpinButtonPlacementMode="Inline"/>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
-            
-            <ui:SettingsExpander Header="Use Debugging Symbols" Description="Downloads .pdb debugging symbols for use in error reporting. Only enable this if required in a support ticket.">
-                <ui:SettingsExpander.Footer>
-                    <ToggleSwitch IsChecked="{Binding DownloadDebuggingSymbols}"/>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
-            
-            <ui:SettingsExpander Header="Request Timeout Length" Description="The number of seconds in which web request should wait for before cancelling.">
-                <ui:SettingsExpander.Footer>
-                    <ui:NumberBox Value="{Binding RequestTimeoutSeconds}" 
-                                  Minimum="0"
-                                  SpinButtonPlacementMode="Inline"/>
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
         </StackPanel>

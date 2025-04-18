@@ -8,10 +8,10 @@
         x:DataType="windowModels:AppWindowModel"
         Width="1160" Height="770" RequestedThemeVariant="Dark" FontFamily="Segoe UI" Background="{x:Null}"
         TransparencyLevelHint="{Binding Theme.TransparencyHints}" ExtendClientAreaToDecorationsHint="True"
-        WindowStartupLocation="CenterScreen"
+        WindowStartupLocation="CenterScreen" ClosingBehavior="OwnerAndChildWindows" ExtendClientAreaTitleBarHeightHint="35"
         Icon="/Assets/LogoV3.ico"
         Title="Fortnite Porting">
-    <Grid RowDefinitions="30, *" Margin="{Binding $parent[Window].OffScreenMargin}">
+    <Grid RowDefinitions="35, *" Margin="{Binding $parent[Window].OffScreenMargin}">
         <ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False" IsVisible="{Binding !Theme.UseMica}">
             <ExperimentalAcrylicBorder.Material>
                 <ExperimentalAcrylicMaterial BackgroundSource="Digger" MaterialOpacity="1.5" TintColor="{Binding Theme.BackgroundColor}" TintOpacity="1"/>
@@ -93,9 +93,10 @@
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Help}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Export" Tag="ExportSettings" IsEnabled="{Binding !SetupTabsAreVisible}">
+                 <ui:NavigationViewItemSeparator/>
+                 <ui:NavigationViewItem Content="Console" Tag="Console" IsEnabled="{Binding !SetupTabsAreVisible}" IsVisible="{Binding ConsoleIsVisible}">
                      <ui:NavigationViewItem.IconSource>
-                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry FileCog}"/>
+                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry Console}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItem Content="Plugin" Tag="Plugin" IsEnabled="{Binding !SetupTabsAreVisible}">
@@ -103,9 +104,9 @@
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Plug}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Console" Tag="Console" IsEnabled="{Binding !SetupTabsAreVisible}">
+                 <ui:NavigationViewItem Content="Export" Tag="ExportSettings" IsEnabled="{Binding !SetupTabsAreVisible}">
                      <ui:NavigationViewItem.IconSource>
-                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry Console}"/>
+                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry FileCog}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItem Content="Settings" Tag="Settings" IsEnabled="{Binding !SetupTabsAreVisible}">
@@ -113,7 +114,7 @@
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Settings}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
-                 
+                 <ui:NavigationViewItemSeparator/>
                  <ui:NavigationViewItem Content="Update" Tag="Update" SelectsOnInvoked="False" PointerPressed="OnUpdatePressed" IsEnabled="{Binding !SetupTabsAreVisible}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Download}"/>
@@ -194,17 +195,20 @@
         </Grid>
         
         
-        <Grid Grid.Row="0" Background="Transparent" HorizontalAlignment="Stretch" PointerPressed="OnPointerPressedUpperBar">
+        <Grid Grid.Row="0" Background="Transparent" HorizontalAlignment="Center" PointerPressed="OnPointerPressedUpperBar">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="{ext:Space 1}" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="{ext:Space 0.25}" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
+            
+            <ui:ImageIcon Grid.Column="0" Source="/Assets/LogoV3.png" Width="20" Height="20" RenderOptions.BitmapInterpolationMode="HighQuality"></ui:ImageIcon>
 
-            <TextBlock Grid.Column="1" Text="FortnitePorting" FontWeight="SemiBold" FontSize="16"
+            <TextBlock Grid.Column="2" Text="FortnitePorting" FontWeight="SemiBold" FontSize="16"
                        HorizontalAlignment="Left" VerticalAlignment="Center" />
-            <TextBlock Grid.Column="3" Text="{Binding VersionString}" Classes="TextFillColorTertiaryBrush" FontSize="13" Margin="-2 2 0 0"
+            <TextBlock Grid.Column="4" Text="{Binding VersionString}" Classes="TextFillColorTertiaryBrush" FontSize="13" Margin="0 0 0 0"
                        HorizontalAlignment="Left" VerticalAlignment="Center" />
         </Grid>
     </Grid>

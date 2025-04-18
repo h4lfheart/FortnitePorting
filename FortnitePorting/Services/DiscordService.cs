@@ -73,6 +73,7 @@ public static class DiscordService
     public static void Update(EExportType exportType)
     {
         if (!IsInitialized) return;
+        if (Client is null) return;
 
         var name = exportType.GetDescription();
         Client.UpdateState($"Browsing {name}");
@@ -82,6 +83,7 @@ public static class DiscordService
     public static void Update(string message, string iconKey, string? iconTooltip = null)
     {
         if (!IsInitialized) return;
+        if (Client is null) return;
         
         Client.UpdateState(message);
         Client.UpdateSmallAsset(iconKey.ToLower(), iconTooltip ?? iconKey);

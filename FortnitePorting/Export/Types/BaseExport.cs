@@ -16,14 +16,14 @@ public class BaseExport
     public EExportType Type;
     public EPrimitiveExportType PrimitiveType => Type.GetPrimitiveType();
 
-    protected ExportContext Exporter;
+    protected Context.ExportContext Exporter;
 
     public BaseExport(string name, UObject asset, BaseStyleData[] styles, EExportType exportType, ExportDataMeta metaData)
     {
         Name = name;
         Type = exportType;
 
-        Exporter = new ExportContext(metaData);
+        Exporter = new Context.ExportContext(metaData);
     }
     
     public BaseExport(string name, EExportType exportType, ExportDataMeta metaData)
@@ -31,7 +31,7 @@ public class BaseExport
         Name = name;
         Type = exportType;
 
-        Exporter = new ExportContext(metaData);
+        Exporter = new Context.ExportContext(metaData);
     }
     
     public void WaitForExports()

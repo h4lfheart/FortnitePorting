@@ -17,6 +17,7 @@ using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
 using FortnitePorting.Export.Custom;
 using FortnitePorting.Export.Types;
+using FortnitePorting.Extensions;
 using FortnitePorting.Models.Assets.Asset;
 using FortnitePorting.Models.Assets.Custom;
 using FortnitePorting.Services;
@@ -177,14 +178,14 @@ public partial class AssetLoaderCollection : ObservableObject
                     ManuallyDefinedAssets = new Lazy<ManuallyDefinedAsset[]>(() =>
                     {
                         string[] weaponModClasses = ["FortWeaponModItemDefinition", "FortWeaponModItemDefinitionMagazine", "FortWeaponModItemDefinitionOptic"];
-                        var weaponModTable = CUE4ParseVM.Provider.LoadObject<UDataTable>("WeaponMods/DataTables/WeaponModOverrideData");
+                        var weaponModTable = CUE4ParseVM.Provider.LoadPackageObject<UDataTable>("WeaponMods/DataTables/WeaponModOverrideData");
                         var assetDatas = CUE4ParseVM.AssetRegistry.Where(data => weaponModClasses.Contains(data.AssetClass.Text));
 
                         var weaponModAssets = new List<ManuallyDefinedAsset>();
                         var alreadyAddedNames = new HashSet<string>();
                         foreach (var assetData in assetDatas)
                         {
-                            if (!CUE4ParseVM.Provider.TryLoadObject(assetData.ObjectPath, out var asset)) continue;
+                            if (!CUE4ParseVM.Provider.TryLoadPackageObject(assetData.ObjectPath, out var asset)) continue;
 
                             var icon = AssetLoader.GetIcon(asset);
                             if (icon is null) continue;

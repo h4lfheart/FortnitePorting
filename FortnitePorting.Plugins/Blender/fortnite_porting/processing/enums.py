@@ -109,3 +109,19 @@ class EMaterialImportMethod(IntEnum):
 class ERigType(IntEnum):
     DEFAULT = 0
     TASTY = auto()
+    
+class EOpElementType(IntEnum):
+    OPERATOR = 0
+    NAME = 1
+    FUNCTION_REF = 2
+    FLOAT = 3
+    
+class EOperator(IntEnum):
+    NEGATE = 0
+    ADD = auto()
+    SUBTRACT = auto()
+    MULTIPLY = auto()
+    DIVIDE = auto()
+    MODULO = auto()
+    POWER = auto()
+    FLOOR_DIVIDE = auto()

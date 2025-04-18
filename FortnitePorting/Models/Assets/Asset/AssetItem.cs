@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ using CUE4Parse.Utils;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
 using FortnitePorting.Export;
+using FortnitePorting.Extensions;
 using FortnitePorting.Models.Fortnite;
 using FortnitePorting.OnlineServices.Models;
 using FortnitePorting.OnlineServices.Packet;
@@ -21,7 +23,7 @@ using FortnitePorting.Shared.Models.Clipboard;
 using FortnitePorting.Windows;
 using Newtonsoft.Json;
 using SkiaSharp;
-using SkiaExtensions = FortnitePorting.Shared.Extensions.SkiaExtensions;
+using SkiaExtensions = FortnitePorting.Extensions.SkiaExtensions;
 
 namespace FortnitePorting.Models.Assets.Asset;
 
@@ -42,7 +44,7 @@ public partial class AssetItem : Base.BaseAssetItem
     private static SKColor InnerBackgroundColor = SKColor.Parse("#50C8FF");
     private static SKColor OuterBackgroundColor = SKColor.Parse("#1B7BCF");
 
-    private static Dictionary<string, UFortItemSeriesDefinition> SeriesCache = [];
+    private static ConcurrentDictionary<string, UFortItemSeriesDefinition> SeriesCache = [];
     
     public AssetItem(AssetItemCreationArgs args)
     {

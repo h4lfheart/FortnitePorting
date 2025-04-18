@@ -5,7 +5,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.VisualTree;
 using FluentAvalonia.UI.Controls;
-
+using FortnitePorting.Framework;
 using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.Assets.Asset;
 using FortnitePorting.Models.Assets.Custom;
@@ -13,7 +13,6 @@ using FortnitePorting.Models.Assets.Filters;
 using FortnitePorting.Models.Assets.Loading;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
-using FortnitePorting.Shared.Framework;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
 using BaseAssetItem = FortnitePorting.Models.Assets.Base.BaseAssetItem;
