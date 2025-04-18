@@ -13,9 +13,7 @@ public partial class UnrealProjectInfo : ObservableObject
 {
     [ObservableProperty, NotifyPropertyChangedFor(nameof(Name))] private string _projectFilePath;
     [ObservableProperty] private Version? _version;
-    [ObservableProperty]
-    [field: JsonIgnore]
-    private Bitmap _image = ImageExtensions.AvaresBitmap("avares://FortnitePorting/Assets/UnrealLogo.png");
+    [JsonIgnore] public Bitmap Image { get; set; } = ImageExtensions.AvaresBitmap("avares://FortnitePorting/Assets/UnrealLogo.png");
 
     public string Name => ProjectFilePath.SubstringAfterLast("/").SubstringBeforeLast(".");
 
@@ -43,6 +41,7 @@ public partial class UnrealProjectInfo : ObservableObject
         if (File.Exists(imageFilePath))
         {
             Image = new Bitmap(imageFilePath);
+            OnPropertyChanged(nameof(Image));
         }
     }
 }

@@ -10,7 +10,7 @@
         TransparencyLevelHint="{Binding Theme.TransparencyHints}" ExtendClientAreaToDecorationsHint="True" WindowStartupLocation="CenterOwner"
         Icon="/Assets/LogoV3.ico" Background="{x:Null}"
         Title="Texture Viewer">
-    <Grid>
+    <Grid Margin="{Binding $parent[Window].OffScreenMargin}">
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>
             <RowDefinition Height="Auto"/>

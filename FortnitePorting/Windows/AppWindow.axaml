@@ -200,7 +200,7 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="{ext:Space 1}" />
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="{ext:Space 0.5}" />
+                <ColumnDefinition Width="{ext:Space 0.25}" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             

@@ -37,7 +37,7 @@
                       Transform="{Binding DpiScaledViewportTransform, ElementName=Editor}"
                       Drawing="{StaticResource LargeGridGeometry}" />
     </Window.Resources>
-    <Grid RowDefinitions="Auto, *">
+    <Grid RowDefinitions="Auto, *" Margin="{Binding $parent[Window].OffScreenMargin}">
         <ui:TabView Grid.Row="0" IsAddTabButtonVisible="False" SelectionChanged="OnTabSelectionChanged" TabCloseRequested="OnTabClosed"
                     TabItems="{Binding LoadedMaterialDatas}" 
                     SelectedItem="{Binding SelectedMaterialData, Mode=TwoWay}">
@@ -138,6 +138,8 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </Expander>
+                    
+                    <GridSplitter Grid.Row="1" Background="Transparent"/>
                     
                     <Grid Grid.Row="2" Margin="{ext:Space 1}">
                         <Grid.RowDefinitions>
@@ -288,12 +290,6 @@
             
             <Grid Grid.Column="2" ZIndex="-2"
                   Background="{StaticResource LargeGridLinesDrawingBrush}"/>
-            
-            <StackPanel Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="{ext:Space 1}">
-                <Button ToolTip.Tip="Refresh" IsVisible="{Binding SelectedMaterialData.Asset, Converter={x:Static ObjectConverters.IsNotNull}}"
-                        Content="{avalonia:MaterialIconExt Refresh}" 
-                        Command="{Binding SelectedMaterialData.RefreshCommand}"/>
-            </StackPanel>
         </Grid>
     </Grid>
 </Window>

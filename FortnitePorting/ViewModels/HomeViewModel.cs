@@ -38,6 +38,27 @@ public partial class HomeViewModel : ViewModelBase
         {
             await AppSettings.Current.Online.PromptForAuthentication();
         }
+
+        if (!AppSettings.Current.Application.DontAskAboutKofi &&
+            DateTime.Now.Date >= AppSettings.Current.Application.NextKofiAskDate)
+        {
+            AppSettings.Current.Application.NextKofiAskDate = DateTime.Today.AddDays(7);
+            await TaskService.RunDispatcherAsync(async () =>
+            {
+                var dialog = new ContentDialog
+                {
+                    Title = "Enjoying FortnitePorting?",
+                    Content = "Consider donating to the Ko-Fi to support the development of the project!!",
+                    CloseButtonText = "No",
+                    PrimaryButtonText = "Donate",
+                    PrimaryButtonCommand = new RelayCommand(LaunchKoFi),
+                    SecondaryButtonText = "Don't Ask Again",
+                    SecondaryButtonCommand = new RelayCommand(() => AppSettings.Current.Application.DontAskAboutKofi = true)
+                };
+
+                await dialog.ShowAsync();
+            });
+        }
         
         TaskService.Run(async () =>
         {
