@@ -153,9 +153,9 @@ public class AnimExport : BaseExport
         {
             case FortAnimNotifyState_EmoteSound soundNotify:
             {
-                var sounds = soundNotify.EmoteSound1P?.HandleSoundTree(notify.TriggerTimeOffset);
-                if (sounds is null) break;
-                    
+                var sounds = new List<Sound>();
+                sounds.AddRangeIfNotNull(soundNotify.EmoteSound1P?.HandleSoundTree(notify.TriggerTimeOffset));
+                sounds.AddRangeIfNotNull(HandleMetaSound(soundNotify.MetaEmoteSound1P, notify.TriggerTimeOffset));
                 foreach (var sound in sounds)
                 {
                     Sounds.Add(new ExportSound
@@ -222,6 +222,41 @@ public class AnimExport : BaseExport
         }
         
         return mappings;
+    }
+
+    private List<Sound> HandleMetaSound(UMetaSoundSource? metaSoundSource, float offsetTime = 0.0f)
+    {
+        if (metaSoundSource is null) return [];
+        
+        var rootMetasoundDocument = metaSoundSource.GetOrDefault<FStructFallback?>("RootMetaSoundDocument") 
+                                    ?? metaSoundSource.GetOrDefault<FStructFallback?>("RootMetasoundDocument");
+        if (rootMetasoundDocument is null) return [];
+
+        var sounds = new List<Sound>();
+        var rootGraph = rootMetasoundDocument.Get<FStructFallback>("RootGraph");
+        var interFace = rootGraph.Get<FStructFallback>("Interface");
+        var inputs = interFace.Get<FStructFallback[]>("Inputs");
+        foreach (var input in inputs)
+        {
+            var typeName = input.Get<FName>("TypeName");
+            if (!typeName.Text.Contains("WaveAsset")) continue;
+                
+            var name = input.Get<FName>("Name");
+            if (!name.Text.Contains("Loop")) continue;
+            
+            var literal = input.GetOrDefault<FStructFallback?>("DefaultLiteral");
+            if (literal is null && input.TryGetValue(out FStructFallback[] defaults, "Defaults"))
+            {
+                literal = defaults.FirstOrDefault()?.GetOrDefault<FStructFallback?>("Literal");
+            }
+
+            var soundWave = literal?.Get<FPackageIndex[]>("AsUObject").FirstOrDefault();
+            if (soundWave is null) continue;
+            
+            sounds.Add(SoundExtensions.CreateSound(soundWave));
+        }
+
+        return sounds;
     }
     
 }

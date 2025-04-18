@@ -1303,10 +1303,15 @@ class ImportContext:
                         import_curve_mapping(metahuman_to_legacy_mappings)
 
                     if active_mesh.data.shape_keys.animation_data.action is not None:
-                        strip = mesh_track.strips.new(section_name, frame, active_mesh.data.shape_keys.animation_data.action)
-                        strip.name = section_name
-                        strip.repeat = loop_count
+                        try:
+                            strip = mesh_track.strips.new(section_name, frame, active_mesh.data.shape_keys.animation_data.action)
+                            strip.name = section_name
+                            strip.repeat = loop_count
+                        except Exception:
+                            pass
+
                         active_mesh.data.shape_keys.animation_data.action = None
+                        
             return total_frames
 
         total_frames = import_sections(data.get("Sections"), target_skeleton, target_track, True)
