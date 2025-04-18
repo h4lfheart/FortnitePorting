@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright © 2025 Marcel K. All rights reserved.
 
 #include "Widgets/Anim/UEFAnimWidget.h"
 #include "SPrimaryButton.h"

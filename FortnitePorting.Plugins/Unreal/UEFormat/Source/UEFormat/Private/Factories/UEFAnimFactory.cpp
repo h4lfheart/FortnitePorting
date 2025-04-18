@@ -1,4 +1,5 @@
-﻿
+﻿// Copyright © 2025 Marcel K. All rights reserved.
+
 #include "Factories/UEFAnimFactory.h"
 #include "ComponentReregisterContext.h"
 #include "Animation/AnimSequence.h"
@@ -25,13 +26,13 @@ UObject* UEFAnimFactory::FactoryCreateFile(UClass* Class, UObject* Parent, FName
 {
 	FScopedSlowTask SlowTask(5, NSLOCTEXT("UEFAnimFactory", "BeginReadUEAnimFile", "Reading UEAnim file"), true);
 	if (Warn->GetScopeStack().Num() == 0)
-	{
 		SlowTask.MakeDialog(true);
-	}
+
 	SlowTask.EnterProgressFrame(0);
 
 	UEFAnimReader Data = UEFAnimReader(Filename);
-	if (!Data.Read()) return nullptr;
+	if (!Data.Read())
+		return nullptr;
 
 	//Ui
 	if (SettingsImporter->bInitialized == false)
@@ -45,10 +46,7 @@ UObject* UEFAnimFactory::FactoryCreateFile(UClass* Class, UObject* Parent, FName
 		}
 
 		TSharedRef<SWindow> Window = SNew(SWindow).Title(FText::FromString(TEXT("Animation Import Options"))).SizingRule(ESizingRule::Autosized);
-		Window->SetContent
-		(
-			SAssignNew(ImportOptionsWindow, UEFAnimWidget).WidgetWindow(Window)
-		);
+		Window->SetContent(SAssignNew(ImportOptionsWindow, UEFAnimWidget).WidgetWindow(Window));
 		SettingsImporter = ImportOptionsWindow.Get()->Stun;
 		FSlateApplication::Get().AddModalWindow(Window, ParentWindow, false);
 		bImport = ImportOptionsWindow.Get()->ShouldImport();
@@ -56,7 +54,7 @@ UObject* UEFAnimFactory::FactoryCreateFile(UClass* Class, UObject* Parent, FName
 		SettingsImporter->bInitialized = true;
 	}
 
-	UAnimSequence* AnimSequence = NewObject<UAnimSequence>(Parent, Data.Header.ObjectName.c_str(), Flags);
+	UAnimSequence* AnimSequence = NewObject<UAnimSequence>(Parent, Name, Flags);
 	IAnimationDataController& Controller = AnimSequence->GetController();
 	USkeleton* Skeleton = SettingsImporter->Skeleton;
 
@@ -71,14 +69,15 @@ UObject* UEFAnimFactory::FactoryCreateFile(UClass* Class, UObject* Parent, FName
 	FScopedSlowTask ImportTask(Data.Tracks.Num(), FText::FromString("Importing UEAnim Animation"));
 	ImportTask.MakeDialog(false);
 
-	for (auto i = 0; i < Data.Tracks.Num(); i++)
+	//Import Tracks
+	for (const auto& Track : Data.Tracks)
 	{
 		ImportTask.EnterProgressFrame();
 
-		FName BoneName = Data.Tracks[i].TrackName.c_str();
-		auto PosKeys = Data.Tracks[i].TrackPosKeys;
-		auto RotKeys = Data.Tracks[i].TrackRotKeys;
-		auto ScaleKeys = Data.Tracks[i].TrackScaleKeys;
+		FName BoneName = Track.TrackName.c_str();
+		auto PosKeys = Track.TrackPosKeys;
+		auto RotKeys = Track.TrackRotKeys;
+		auto ScaleKeys = Track.TrackScaleKeys;
 
 		TArray<FVector3f> FinalPosKeys;
 		TArray<FQuat4f> FinalRotKeys;
@@ -97,9 +96,6 @@ UObject* UEFAnimFactory::FactoryCreateFile(UClass* Class, UObject* Parent, FName
 			//position keys
 			if (PosIndex < PosKeys.Num() && PosKeys[PosIndex].Frame == j)
 			{
-				//fix export dodo
-				PosKeys[PosIndex].VectorValue.Y = -PosKeys[PosIndex].VectorValue.Y;
-        
 				FinalPosKeys[j] = PosKeys[PosIndex].VectorValue;
 				PrevPos = PosKeys[PosIndex].VectorValue;
 				PosIndex++;
@@ -110,10 +106,6 @@ UObject* UEFAnimFactory::FactoryCreateFile(UClass* Class, UObject* Parent, FName
 			//rotation keys
 			if (RotIndex < RotKeys.Num() && RotKeys[RotIndex].Frame == j)
 			{
-				//fix export dodo
-				RotKeys[RotIndex].QuatValue.Y = -RotKeys[RotIndex].QuatValue.Y;
-				RotKeys[RotIndex].QuatValue.W = -RotKeys[RotIndex].QuatValue.W;
-        
 				FinalRotKeys[j] = RotKeys[RotIndex].QuatValue;
 				PrevRot = RotKeys[RotIndex].QuatValue;
 				RotIndex++;
@@ -134,6 +126,25 @@ UObject* UEFAnimFactory::FactoryCreateFile(UClass* Class, UObject* Parent, FName
 
 		Controller.AddBoneCurve(BoneName);
 		Controller.SetBoneTrackKeys(BoneName, FinalPosKeys, FinalRotKeys, FinalScaleKeys);
+	}
+
+	//Import Curves
+	for (auto i = 0; i < Data.Curves.Num(); i++)
+	{
+		ImportTask.EnterProgressFrame();
+
+		TArray<FRichCurveKey> RichCurves;
+		for (const auto& Key : Data.Curves[i].CurveKeys)
+		{
+			FRichCurveKey RichKey;
+			RichKey.Time = Key.Frame / Data.FramesPerSecond; //Time is in seconds
+			RichKey.Value = Key.FloatValue;
+			RichCurves.Add(RichKey);
+		}
+
+		FAnimationCurveIdentifier CurveIdentifier(Data.Curves[i].CurveName.c_str(), ERawCurveTrackTypes::RCT_Float);
+		Controller.AddCurve(CurveIdentifier);
+		Controller.SetCurveKeys(CurveIdentifier, RichCurves, false);
 	}
 	
 	if (!bImportAll)
