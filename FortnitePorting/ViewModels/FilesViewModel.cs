@@ -301,6 +301,35 @@ public partial class FilesViewModel : ViewModelBase
                 MaterialPreviewWindow.Preview(asset);
                 break;
             }
+            case UMaterialInstanceConstant instance:
+            {
+                var dialog = new ContentDialog
+                {
+                    Title = $"Preview {instance.Name}",
+                    Content = "What asset type would you like to preview?",
+                    CloseButtonText = "Cancel",
+                    SecondaryButtonText = "Material Instance",
+                    SecondaryButtonCommand = new RelayCommand(async () =>
+                    {
+                        await Properties();
+                    }),
+                    PrimaryButtonText = "Parent Material",
+                    PrimaryButtonCommand = new RelayCommand(() =>
+                    {
+                        UUnrealMaterial? parentMaterial = instance;
+                        while (parentMaterial is UMaterialInstanceConstant parentMaterialInstance)
+                        {
+                            parentMaterial = parentMaterialInstance.Parent;
+                        }
+                        
+                        if (parentMaterial is not null)
+                            MaterialPreviewWindow.Preview(parentMaterial);
+                    })
+                };
+
+                await dialog.ShowAsync();
+                break;
+            }
             case UStaticMesh:
             case USkeletalMesh:
             case ULevel:
