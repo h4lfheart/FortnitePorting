@@ -1169,8 +1169,9 @@ class ImportContext:
                     
                     def import_curve_mapping(curve_mapping):
                         for curve_mapping in curve_mapping:
-                            curve_name = curve_mapping.get("Name")
-                            if target_block := key_blocks.get(curve_name.replace("CTRL_expressions_", "")):
+                            curve_name = curve_mapping.get("Name").lower().replace("ctrl_expressions_", "")
+                            
+                            if target_block := first(key_blocks, lambda block: block.name.lower() == curve_name):
                                 for frame in range(section_length_frames):
                                     value_stack = []
 
@@ -1208,7 +1209,7 @@ class ImportContext:
 
                                             case EOpElementType.NAME:
                                                 sub_curve_name = str(element_value)
-                                                target_curve = first(curves, lambda curve: curve.get("Name") == sub_curve_name)
+                                                target_curve = first(curves, lambda curve: curve.get("Name").lower().replace("ctrl_expressions_", "") == sub_curve_name.lower())
                                                 if target_curve:
                                                     target_value = interpolate_keyframes(target_curve.get("Keys"), frame, fps=30)
                                                     value_stack.append(target_value)
@@ -1290,8 +1291,9 @@ class ImportContext:
                     
                     if (is_skeleton_legacy and is_anim_legacy) or (is_anim_metahuman and is_anim_metahuman):
                         for curve in curves:
-                            curve_name = curve.get("Name")
-                            if target_block := key_blocks.get(curve_name.replace("CTRL_expressions_", "")):
+                            curve_name = curve.get("Name").lower().replace("ctrl_expressions_", "")
+
+                            if target_block := first(key_blocks, lambda block: block.name.lower() == curve_name):
                                 for key in curve.get("Keys"):
                                     target_block.value = key.get("Value")
                                     target_block.keyframe_insert(data_path="value", frame=key.get("Time") * 30)

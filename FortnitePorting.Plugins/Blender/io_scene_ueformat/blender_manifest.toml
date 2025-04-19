@@ -8,6 +8,6 @@ version = "1.0.0"
 blender_version_min = "4.2.0"
 name = "UE Format (.uemodel / .ueanim)"
 tagline = "Importer for UEFormat Files"
-maintainer = "https://github.com/halfuwu"
+maintainer = "https://github.com/h4lfheart"
 
 tags = ["Import-Export"]

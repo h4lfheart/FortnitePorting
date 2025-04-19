@@ -195,19 +195,22 @@
         </Grid>
         
         
-        <Grid Grid.Row="0" Background="Transparent" HorizontalAlignment="Center" PointerPressed="OnPointerPressedUpperBar">
+        <Grid Grid.Row="0" Background="Transparent" HorizontalAlignment="Stretch" PointerPressed="OnPointerPressedUpperBar">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="{ext:Space 0.75}" />
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="{ext:Space 1}" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="{ext:Space 0.25}" />
-                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="{ext:Space 0.5}" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             
-            <ui:ImageIcon Grid.Column="0" Source="/Assets/LogoV3.png" Width="20" Height="20" RenderOptions.BitmapInterpolationMode="HighQuality"></ui:ImageIcon>
+            <ui:ImageIcon Grid.Column="0" Source="/Assets/LogoV3.png" 
+                          HorizontalAlignment="Right"
+                          Width="20" Height="20" 
+                          RenderOptions.BitmapInterpolationMode="HighQuality"/>
 
             <TextBlock Grid.Column="2" Text="FortnitePorting" FontWeight="SemiBold" FontSize="16"
-                       HorizontalAlignment="Left" VerticalAlignment="Center" />
+                       HorizontalAlignment="Center" VerticalAlignment="Center" />
             <TextBlock Grid.Column="4" Text="{Binding VersionString}" Classes="TextFillColorTertiaryBrush" FontSize="13" Margin="0 0 0 0"
                        HorizontalAlignment="Left" VerticalAlignment="Center" />
         </Grid>

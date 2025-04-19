@@ -74,7 +74,7 @@
                                 <TextBlock Grid.Row="0" Text="{Binding Name}"
                                            Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center"/>
                                 
-                                <TextBlock Grid.Row="2" Text="{Binding Version, TargetNullValue='???'}" Classes="BodyTextBlockStyle" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Row="2" Text="{Binding Version, TargetNullValue='Not Installed'}" Classes="BodyTextBlockStyle" VerticalAlignment="Center"/>
                             </Grid>
                         </Grid>
                     </DataTemplate>
