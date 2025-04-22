@@ -57,6 +57,8 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="{ext:Space 1}"/>
                             <ColumnDefinition Width="3*"/>
+                            <ColumnDefinition Width="{ext:Space 1}"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         
                         <ToggleButton Grid.Column="0" IsChecked="{Binding AssetLoaderCollection.ActiveLoader.IsPaused}" ToolTip.Tip="Pause/Resume Loading">
@@ -111,6 +113,9 @@
                         <AutoCompleteBox Grid.Column="10" FilterMode="ContainsOrdinal" Watermark="Search"
                                          ItemsSource="{Binding AssetLoaderCollection.ActiveLoader.SearchAutoComplete}" 
                                          Text="{Binding AssetLoaderCollection.ActiveLoader.SearchFilter, Mode=TwoWay}"/>
+                        
+                        <ToggleButton Grid.Column="12" ToolTip.Tip="Regex" HorizontalAlignment="Right" 
+                                      Content="{material:MaterialIconExt Regex}" IsChecked="{Binding AssetLoaderCollection.ActiveLoader.UseRegex}"/>
                         
                     </Grid>
                     
