@@ -22,6 +22,7 @@ class FArchiveReader:
         self.size = len(data)
         self.data.seek(0)
         self.file_version = EUEFormatVersion.BeforeCustomVersionWasAdded
+        self.metadata = {}
 
     def __enter__(self) -> FArchiveReader:
         self.data.seek(0)
@@ -54,7 +55,8 @@ class FArchiveReader:
     def read_fstring(self) -> str:
         (size,) = struct.unpack("i", self.data.read(4))
         string = self.data.read(size)
-        return bytes_to_str(string)
+        ret = bytes_to_str(string)
+        return ret
 
     def read_int(self) -> int:
         return struct.unpack("i", self.data.read(4))[0]
@@ -93,7 +95,7 @@ class FArchiveReader:
     def skip(self, size: int) -> None:
         self.data.seek(size, 1)
 
-    def read_bulk_array(self, predicate: Callable[[FArchiveReader], R]) -> list[R]:
+    def read_serialized_array(self, predicate: Callable[[FArchiveReader], R]) -> list[R]:
         count = self.read_int()
         return self.read_array(count, predicate)
 
@@ -107,5 +109,6 @@ class FArchiveReader:
     def chunk(self, size: int) -> FArchiveReader:
         new_reader = FArchiveReader(self.read(size))
         new_reader.file_version = self.file_version
+        new_reader.metadata = self.metadata
         
         return new_reader

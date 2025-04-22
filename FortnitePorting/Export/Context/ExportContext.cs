@@ -7,6 +7,7 @@ using CUE4Parse_Conversion;
 using CUE4Parse_Conversion.Animations;
 using CUE4Parse_Conversion.Meshes;
 using CUE4Parse_Conversion.Meshes.UEFormat;
+using CUE4Parse_Conversion.PoseAsset;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.GameTypes.FN.Assets.Exports;
 using CUE4Parse.UE4.Assets;
@@ -77,6 +78,7 @@ public partial class ExportContext
                 EAnimFormat.UEFormat => "ueanim",
                 EAnimFormat.ActorX => "psa"
             },
+            UPoseAsset => "uepose",
             UTexture => Meta.Settings.ImageFormat switch
             {
                 EImageFormat.PNG => "png",
@@ -180,6 +182,12 @@ public partial class ExportContext
                 {
                     File.WriteAllBytes(path, sequence.FileData);
                 }
+                break;
+            }
+            case UPoseAsset poseAsset:
+            {
+                var exporter = new PoseAssetExporter(poseAsset, FileExportOptions);
+                File.WriteAllBytes(path, exporter.PoseAsset.FileData);
                 break;
             }
             case UTexture texture:
