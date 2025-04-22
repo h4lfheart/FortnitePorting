@@ -270,7 +270,7 @@ public partial class ExportContext
         }
     }
 
-    private void ExportBitmap(SKBitmap? bitmap, string path)
+    private void ExportBitmap(CTexture? bitmap, string path)
     {
         using var fileStream = File.OpenWrite(path); 
                 
@@ -279,8 +279,8 @@ public partial class ExportContext
             EImageFormat.PNG => ETextureFormat.Png,
             EImageFormat.TGA => ETextureFormat.Tga
         };
-                
-        bitmap?.Encode(format, 100).SaveTo(fileStream); 
+        
+        fileStream.Write(bitmap?.Encode(format, out _));
     }
     
     public string GetExportPath(UObject obj, string ext, bool embeddedAsset = false, bool excludeGamePath = false)

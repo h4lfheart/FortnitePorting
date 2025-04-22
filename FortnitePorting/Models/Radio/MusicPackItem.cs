@@ -55,7 +55,7 @@ public partial class MusicPackItem : ObservableObject
         
         var coverArtImage = asset.Get<UTexture2D>("CoverArtImage");
         CoverArtName = coverArtImage.Name;
-        CoverArtBitmap = coverArtImage.Decode()!.ToWriteableBitmap();
+        CoverArtBitmap = coverArtImage.Decode()?.ToWriteableBitmap();
 
         AlternateCoverTexture = asset.GetAnyOrDefault<UTexture2D>("SmallPreviewImage", "LargePreviewImage", "Icon", "LargeIcon");
         AlternateCoverTexture ??= asset.GetDataListItem<UTexture2D>("SmallPreviewImage", "LargePreviewImage", "Icon", "LargeIcon");
