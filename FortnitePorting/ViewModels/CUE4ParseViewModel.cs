@@ -326,7 +326,7 @@ public class CUE4ParseViewModel : ViewModelBase
             {
                 var aes = _onlineStatus.Backup.Keys 
                     ? await ApiVM.FortnitePorting.GetKeysAsync() 
-                    : await ApiVM.FortniteCentral.GetKeysAsync() ?? await ApiVM.FortnitePorting.GetKeysAsync();
+                    : await ApiVM.FortniteCentral.GetKeysAsync();
                 
                 if (aes is null)
                 {
