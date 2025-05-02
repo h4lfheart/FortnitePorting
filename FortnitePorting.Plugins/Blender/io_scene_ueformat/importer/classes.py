@@ -84,14 +84,14 @@ class UEModel:
             pos = ar.data.tell()
             if header_name == "VERTICES":
                 flattened = ar.read_float_vector(array_size * 3)
-                lod.vertices = (np.array(flattened) * self.options.scale_factor).reshape(array_size, 3)
+                lod.vertices = (np.array(flattened) * ar.metadata["scale"]).reshape(array_size, 3)
             elif header_name == "INDICES":
                 lod.indices = np.array(ar.read_int_vector(array_size), dtype=np.int32).reshape(array_size // 3, 3)
             elif header_name == "NORMALS":
                 if ar.file_version >= EUEFormatVersion.SerializeBinormalSign:
                     flattened = np.array(
                         ar.read_float_vector(array_size * 4),
-                    )  # W XYZ # noqa: TD002, FIX002, TD003
+                    )  # W XYZ #  # noqa: TD002, FIX002, TD003
                     lod.normals = flattened.reshape(-1, 4)[:, 1:]
                 else:
                     flattened = np.array(ar.read_float_vector(array_size * 3)).reshape(array_size, 3)
@@ -123,22 +123,22 @@ class UEModel:
             elif header_name == "MORPHTARGETS":
                 lod.morphs = ar.read_array(
                     array_size,
-                    lambda ar: MorphTarget.from_archive(ar, self.options.scale_factor),
+                    lambda ar: MorphTarget.from_archive(ar),
                 )
             elif header_name == "BONES":
                 data.skeleton.bones = ar.read_array(
                     array_size,
-                    lambda ar: Bone.from_archive(ar, self.options.scale_factor),
+                    lambda ar: Bone.from_archive(ar),
                 )
             elif header_name == "SOCKETS":
                 data.skeleton.sockets = ar.read_array(
                     array_size,
-                    lambda ar: Socket.from_archive(ar, self.options.scale_factor),
+                    lambda ar: Socket.from_archive(ar),
                 )
             elif header_name == "COLLISION":
                 data.collisions = ar.read_array(
                     array_size,
-                    lambda ar: ConvexCollision.from_archive(ar, self.options.scale_factor),
+                    lambda ar: ConvexCollision.from_archive(ar),
                 )
             else:
                 Log.warn(f"Unknown Data: {header_name}")
