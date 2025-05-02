@@ -92,7 +92,6 @@ public static class OnlineService
                             }
                             catch (Exception e)
                             {
-                                Log.Error(e.ToString());
                                 ChatVM.AreServicesDown = true;
                             }
 

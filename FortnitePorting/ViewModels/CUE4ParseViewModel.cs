@@ -154,15 +154,18 @@ public class CUE4ParseViewModel : ViewModelBase
         
         var aes = _onlineStatus.Backup.Keys
             ? await ApiVM.FortnitePorting.GetKeysAsync()
-            : await ApiVM.FortniteCentral.GetKeysAsync() ?? await ApiVM.FortnitePorting.GetKeysAsync();
-        if (aes is null) return;
+            : await ApiVM.FortniteCentral.GetKeysAsync();
+        
+        var mainKey = aes is not null
+            ? new FAesKey(aes.MainKey)
+            : AppSettings.Current.Installation.CurrentProfile.MainKey.EncryptionKey;
         
         var mainPakPath = Path.Combine(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory,
             "pakchunk0-WindowsClient.pak");
         if (!File.Exists(mainPakPath)) return;
 
         var mainPakReader = new PakFileReader(mainPakPath);
-        if (mainPakReader.TestAesKey(new FAesKey(aes.MainKey))) return;
+        if (mainPakReader.TestAesKey(mainKey)) return;
         
         await TaskService.RunDispatcherAsync(() =>
         {
