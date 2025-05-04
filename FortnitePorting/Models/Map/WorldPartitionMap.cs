@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -93,10 +94,9 @@ public partial class WorldPartitionMap : ObservableObject
         _world = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync<UWorld>(Info.MapPath);
         _level = await _world.PersistentLevel.LoadAsync<ULevel>();
 
-        if (_level.GetOrDefault<UObject>("WorldSettings") is { } worldSettings
-            && worldSettings.GetOrDefault<UObject>("WorldPartition") is { } worldPartition
-            && worldPartition.GetOrDefault<UObject>("RuntimeHash") is { } runtimeHash)
+        async Task RuntimeHash(UObject runtimeHash)
         {
+            var cellToStreamingData = runtimeHash.GetOrDefault<UScriptMap?>("CellToStreamingData");
             foreach (var streamingData in runtimeHash.GetOrDefault("RuntimeStreamingData", Array.Empty<FStructFallback>()))
             {
                 var cells = new List<FPackageIndex>();
@@ -107,10 +107,7 @@ public partial class WorldPartitionMap : ObservableObject
                 {
                     var gridCell = await cell.LoadAsync();
                     if (gridCell is null) continue;
-                
-                    var levelStreaming = gridCell.GetOrDefault<UObject?>("LevelStreaming");
-                    if (levelStreaming is null) continue;
-
+                    
                     var position = FVector.ZeroVector;
                     var runtimeCellData = gridCell.Get<UObject>("RuntimeCellData");
                     var boundsProperty = runtimeCellData.GetOrDefault<StructProperty?>("CellBounds");
@@ -123,8 +120,23 @@ public partial class WorldPartitionMap : ObservableObject
                         position.Y -= position.Y % Info.MinGridDistance;
                     }
 
+                    FSoftObjectPath? worldAssetPath = null;
+                    if (gridCell.GetOrDefault<UObject?>("LevelStreaming") is { } levelStreamingObject)
+                    {
+                        worldAssetPath = levelStreamingObject.Get<FSoftObjectPath>("WorldAsset");
+                    }
+
+                    if (worldAssetPath is null && cellToStreamingData is not null)
+                    {
+                        var (worldNameProperty, worldDataProperty) = cellToStreamingData.Properties.FirstOrDefault(prop =>
+                            prop.Key.GetValue<FName?>()?.Text?.Equals(gridCell.Name) ?? false);
+
+                        var worldData = worldDataProperty?.GetValue<FStructFallback>();
+                        worldAssetPath = worldData?.GetOrDefault<FSoftObjectPath>("WorldAsset");
+                    }
+                    
+                    if (worldAssetPath is not { } worldAsset) continue;
                 
-                    var worldAsset = levelStreaming.Get<FSoftObjectPath>("WorldAsset");
                     if (Grids.FirstOrDefault(grid => grid.OriginalPosition == position) is { } targetGrid)
                     {
                         targetGrid.Maps.Add(new WorldPartitionGridMap(worldAsset.AssetPathName.Text));
@@ -164,8 +176,25 @@ public partial class WorldPartitionMap : ObservableObject
                     }
                 }
             }
+        }
 
-           
+
+        if (_level.GetOrDefault<UObject>("WorldSettings") is { } worldSettings
+            && worldSettings.GetOrDefault<UObject>("WorldPartition") is { } worldPartition
+            && worldPartition.GetOrDefault<UObject>("RuntimeHash") is { } worldPartitionRuntimeHash)
+        {
+            await RuntimeHash(worldPartitionRuntimeHash);
+        }
+
+        var streamingObjectFiles = CUE4ParseVM.Provider.Files.Where(kvp =>
+            kvp.Key.Contains($"{_world.Name}/_Generated_/StreamingObject", StringComparison.OrdinalIgnoreCase));
+        foreach (var (path, streamingObjectFile) in streamingObjectFiles)
+        {
+            var streamingObjectPackage = await CUE4ParseVM.Provider.LoadPackageAsync(streamingObjectFile);
+            var streamingObjectRuntimeHash = streamingObjectPackage.GetExportOrNull("RuntimeHashExternalStreamingObjectBase", StringComparison.OrdinalIgnoreCase);
+            if (streamingObjectRuntimeHash is null) continue;
+            
+            await RuntimeHash(streamingObjectRuntimeHash);
         }
         
         Directory.CreateDirectory(ExportPath);
