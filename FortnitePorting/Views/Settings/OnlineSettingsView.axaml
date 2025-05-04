@@ -26,7 +26,12 @@
             
             <ui:SettingsExpander Header="Discord Integration" Description="Integrates with your discord account for use with online features.">
                 <ui:SettingsExpander.Footer>
-                    
+                    <Grid>
+                        <Button Content="Sign In" IsVisible="{Binding !SupaBase.IsActive}"
+                                Command="{Binding SupaBase.SignIn}"/>
+                        <Button Content="Sign Out" IsVisible="{Binding SupaBase.IsActive}"
+                                Command="{Binding SupaBase.SignOut}"/>
+                    </Grid>
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
             

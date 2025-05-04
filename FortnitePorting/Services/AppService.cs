@@ -59,7 +59,6 @@ public class AppService : IService
         
         if (SupaBase.IsActive)
         {
-            ViewModelRegistry.New<VotingViewModel>(initialize: true);
             TaskService.Run(async () =>
             {
                 await Api.FortnitePorting.PostStatsAsync();

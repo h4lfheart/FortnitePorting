@@ -52,6 +52,7 @@ public partial class BlackHoleService : ObservableObject, IService
     
     public void Close()
     {
+        TimeWasterVM.CleanupResources();
         Content = null; // TODO check that this disposes properly
     }
 }

@@ -276,7 +276,7 @@
                     </TextBlock>
                 </Grid>
                 
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Margin="{ext:Space 2}" Opacity="0.9" IsVisible="{Binding !IsGame}">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Margin="{ext:Space 2, 4, 2, 2}" Opacity="0.9" IsVisible="{Binding !IsGame}">
                     <Grid>
                         <Border Background="#0fd7f2" CornerRadius="0" Opacity="0.8">
                             <Border.OpacityMask>
@@ -339,7 +339,7 @@
                     </Grid>
                 </StackPanel>
                 
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Margin="{ext:Space 2}" Opacity="0.9" IsVisible="{Binding IsGame}">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Margin="{ext:Space 2, 4, 2, 2}" Opacity="0.9" IsVisible="{Binding IsGame}">
                     <Grid>
                         <Border Background="Red" CornerRadius="0" Opacity="0.8">
                             <Border.OpacityMask>

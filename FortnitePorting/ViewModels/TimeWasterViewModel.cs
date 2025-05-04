@@ -125,7 +125,7 @@ public partial class TimeWasterViewModel : ViewModelBase
     [RelayCommand]
     public void Exit()
     {
-        OnApplicationExit();
+        BlackHole.Close();
     }
 
     public async Task InitializeGame()
@@ -146,10 +146,15 @@ public partial class TimeWasterViewModel : ViewModelBase
 
     public override async Task OnViewExited()
     {
-        OnApplicationExit();
+        CleanupResources();
     }
 
     public override void OnApplicationExit()
+    {
+        CleanupResources();
+    }
+
+    public void CleanupResources()
     {
         AudioSystem.Instance.Stop();
         Updaters.ForEach(updater => updater.Stop());

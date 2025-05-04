@@ -25,7 +25,7 @@ using SkiaSharp;
 
 namespace FortnitePorting.Services;
 
-public partial class AssetLoaderService : ObservableObject
+public partial class AssetLoaderService : ObservableObject, IService
 {
     [ObservableProperty] private AssetLoader _activeLoader;
     [ObservableProperty] private ReadOnlyObservableCollection<BaseAssetItem> _activeCollection;

@@ -56,6 +56,6 @@ public class NavigatorContext
         NavigationView.SelectedItem = NavigationView.MenuItems
             .Concat(NavigationView.FooterMenuItems)
             .OfType<NavigationViewItem>()
-            .FirstOrDefault(item => item.Tag == obj);
+            .FirstOrDefault(item => item.Tag?.Equals(obj) ?? false);
     }
 }

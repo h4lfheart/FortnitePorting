@@ -28,6 +28,8 @@ namespace FortnitePorting.ViewModels.Settings;
 
 public partial class OnlineSettingsViewModel : ViewModelBase
 {
+   [JsonIgnore] public SupabaseService SupaBase => AppServices.SupaBase;
+   
    [ObservableProperty] private UserSessionInfo? _sessionInfo;
 
    [ObservableProperty] private bool _askedFirstTimePopup;
