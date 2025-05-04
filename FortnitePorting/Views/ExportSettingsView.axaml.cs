@@ -18,7 +18,16 @@ public partial class ExportSettingsView : ViewBase<ExportSettingsViewModel>
     {
         InitializeComponent();
         Navigation.ExportSettings.Initialize(NavigationView);
-        Navigation.ExportSettings.Open(EExportLocation.Blender.SettingsViewType());
+        Navigation.ExportSettings.AddTypeResolver<EExportLocation>(location =>
+        {
+            var name = location.ToString();
+            var viewName = $"FortnitePorting.Views.Settings.{name}SettingsView";
+        
+            var type = Type.GetType(viewName);
+            return type;
+        });
+        
+        Navigation.ExportSettings.Open(EExportLocation.Blender);
         
     }
     
@@ -26,6 +35,6 @@ public partial class ExportSettingsView : ViewBase<ExportSettingsViewModel>
     {
         if (e.InvokedItemContainer.Tag is not EExportLocation exportType) return;
         
-        Navigation.ExportSettings.Open(exportType.SettingsViewType());
+        Navigation.ExportSettings.Open(exportType);
     }
 }

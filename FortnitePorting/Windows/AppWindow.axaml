@@ -4,6 +4,7 @@
         xmlns:ui="using:FluentAvalonia.UI.Controls"
         xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
         xmlns:windowModels="clr-namespace:FortnitePorting.WindowModels"
+        xmlns:views="clr-namespace:FortnitePorting.Views"
         x:Class="FortnitePorting.Windows.AppWindow"
         x:DataType="windowModels:AppWindowModel"
         Width="1160" Height="770" RequestedThemeVariant="Dark" FontFamily="Segoe UI" Background="{x:Null}"
@@ -20,19 +21,19 @@
 
         <ui:NavigationView x:Name="NavigationView" Grid.Row="1" IsPaneOpen="False" OpenPaneLength="152" ItemInvoked="OnItemInvoked" IsSettingsVisible="False">
              <ui:NavigationView.MenuItems>
-                 <ui:NavigationViewItem Content="Welcome" Tag="Welcome" IsSelected="True" IsVisible="{Binding !Settings.Installation.FinishedSetup}">
+                 <ui:NavigationViewItem Content="Welcome" Tag="{x:Type views:WelcomeView}" IsSelected="True" IsVisible="{Binding !Settings.Installation.FinishedSetup}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry CheckboxesMarked}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItemSeparator IsVisible="{Binding !Settings.Installation.FinishedSetup}"/>
-                 <ui:NavigationViewItem Content="Home" Tag="Home" IsEnabled="{Binding }">
+                 <ui:NavigationViewItem Content="Home" Tag="{x:Type views:HomeView}" IsEnabled="{Binding }">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Home}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItemSeparator/>
-                 <ui:NavigationViewItem Content="Chat" Tag="Chat"
+                 <ui:NavigationViewItem Content="Chat" Tag="{x:Type views:ChatView}"
                                         IsVisible="{Binding OnlineStatus.Chat.Enabled, FallbackValue=True}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry ChatBubble}"/>
@@ -41,7 +42,7 @@
                          <ui:InfoBadge Value="{Binding ChatNotifications}" IsVisible="{Binding !!ChatNotifications}"/>
                      </ui:NavigationViewItem.InfoBadge>
                  </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Voting" Tag="Voting"
+                 <ui:NavigationViewItem Content="Voting" Tag="{x:Type views:VotingView}"
                                         IsVisible="{Binding OnlineStatus.Voting.Enabled, FallbackValue=True}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Poll}"/>
@@ -51,30 +52,30 @@
                          <ui:InfoBadge Value="{Binding UnsubmittedPolls}" IsVisible="{Binding !!UnsubmittedPolls}"/>
                      </ui:NavigationViewItem.InfoBadge>
                  </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Leaderboard" Tag="Leaderboard" IsEnabled="{Binding SupaBase.IsActive}"
+                 <ui:NavigationViewItem Content="Leaderboard" Tag="{x:Type views:LeaderboardView}" IsEnabled="{Binding SupaBase.IsActive}"
                                         IsVisible="{Binding OnlineStatus.Leaderboard.Enabled, FallbackValue=True}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Trophy}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItemSeparator/>
-                 <ui:NavigationViewItem Content="Assets" Tag="Assets" IsEnabled="{Binding UEParse.FinishedLoading}">
+                 <ui:NavigationViewItem Content="Assets" Tag="{x:Type views:AssetsView}" IsEnabled="{Binding UEParse.FinishedLoading}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry File}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Files" Tag="Files" IsEnabled="{Binding UEParse.FinishedLoading}">
+                 <ui:NavigationViewItem Content="Files" Tag="{x:Type views:FilesView}" IsEnabled="{Binding UEParse.FinishedLoading}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Folder}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItemSeparator/>
-                 <ui:NavigationViewItem Content="Radio" Tag="Radio" IsEnabled="{Binding UEParse.FinishedLoading}">
+                 <ui:NavigationViewItem Content="Radio" Tag="{x:Type views:RadioView}" IsEnabled="{Binding UEParse.FinishedLoading}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Radio}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Map" Tag="Map" IsEnabled="{Binding UEParse.FinishedLoading}">
+                 <ui:NavigationViewItem Content="Map" Tag="{x:Type views:MapView}" IsEnabled="{Binding UEParse.FinishedLoading}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Map}"/>
                      </ui:NavigationViewItem.IconSource>
@@ -82,28 +83,28 @@
                  
              </ui:NavigationView.MenuItems>
              <ui:NavigationView.FooterMenuItems>
-                 <ui:NavigationViewItem Content="Help" Tag="Help" IsEnabled="{Binding Settings.Installation.FinishedSetup}">
+                 <ui:NavigationViewItem Content="Help" Tag="{x:Type views:HelpView}" IsEnabled="{Binding Settings.Installation.FinishedSetup}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Help}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItemSeparator/>
-                 <ui:NavigationViewItem Content="Console" Tag="Console" IsEnabled="{Binding Settings.Installation.FinishedSetup}" IsVisible="{Binding Settings.Debug.IsConsoleVisible}">
+                 <ui:NavigationViewItem Content="Console" Tag="{x:Type views:ConsoleView}" IsEnabled="{Binding Settings.Installation.FinishedSetup}" IsVisible="{Binding Settings.Debug.IsConsoleVisible}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Console}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Plugin" Tag="Plugin" IsEnabled="{Binding Settings.Installation.FinishedSetup}">
+                 <ui:NavigationViewItem Content="Plugin" Tag="{x:Type views:PluginView}" IsEnabled="{Binding Settings.Installation.FinishedSetup}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Plug}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Export" Tag="ExportSettings" IsEnabled="{Binding Settings.Installation.FinishedSetup}">
+                 <ui:NavigationViewItem Content="Export" Tag="{x:Type views:ExportSettingsView}" IsEnabled="{Binding Settings.Installation.FinishedSetup}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry FileCog}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Settings" Tag="Settings" IsEnabled="{Binding Settings.Installation.FinishedSetup}">
+                 <ui:NavigationViewItem Content="Settings" Tag="{x:Type views:SettingsView}" IsEnabled="{Binding Settings.Installation.FinishedSetup}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Settings}"/>
                      </ui:NavigationViewItem.IconSource>

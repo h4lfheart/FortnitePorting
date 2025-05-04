@@ -20,10 +20,17 @@ public class NavigatorContext
     private NavigationView? NavigationView;
     private Frame ContentFrame = null!;
 
+    private Dictionary<Type, Func<object, Type?>> TypeResolvers = new();
+
     public void Initialize(NavigationView navigationView)
     {
         NavigationView = navigationView;
         ContentFrame = navigationView.GetLogicalDescendants().OfType<Frame>().First();
+    }
+
+    public void AddTypeResolver<T>(Func<T, Type?> resolver)
+    {
+        TypeResolvers[typeof(T)] = obj => resolver.Invoke((T) obj);
     }
 
     public void Open<T>()
@@ -31,16 +38,24 @@ public class NavigatorContext
         Open(typeof(T));
     }
     
-    public void Open(Type? type)
+    public void Open(object? obj)
     {
-        if (type is null) return;
+        if (obj is null) return;
         if (NavigationView is null) return;
+
+        var viewType = obj switch
+        {
+            Type type => type,
+            _ => TypeResolvers.GetValueOrDefault(obj.GetType())?.Invoke(obj)
+        };
         
-        ContentFrame.Navigate(type, null, AppSettings.Application.Transition);
+        if (viewType is null) return;
+        
+        ContentFrame.Navigate(viewType, null, AppSettings.Application.Transition);
 
         NavigationView.SelectedItem = NavigationView.MenuItems
             .Concat(NavigationView.FooterMenuItems)
             .OfType<NavigationViewItem>()
-            .FirstOrDefault(item => (Type) item.Tag! == type);
+            .FirstOrDefault(item => item.Tag == obj);
     }
 }

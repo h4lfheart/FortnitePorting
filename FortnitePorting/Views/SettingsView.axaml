@@ -8,32 +8,33 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:settings="clr-namespace:FortnitePorting.Views.Settings"
              d:DesignHeight="770" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.SettingsView"
              x:DataType="viewModels:SettingsViewModel">
     <ui:NavigationView x:Name="NavigationView" Classes="NoBackground" PaneDisplayMode="Left" OpenPaneLength="150" IsPaneToggleButtonVisible="False" IsSettingsVisible="False" ItemInvoked="OnItemInvoked">
         <ui:NavigationView.MenuItems>
-            <ui:NavigationViewItem Content="Application" Tag="Application" IsSelected="True">
+            <ui:NavigationViewItem Content="Application" Tag="{x:Type settings:ApplicationSettingsView}" IsSelected="True">
                 <ui:NavigationViewItem.IconSource>
                     <ui:PathIconSource Data="{ext:MaterialKindToGeometry ApplicationCog}"/>
                 </ui:NavigationViewItem.IconSource>
             </ui:NavigationViewItem>
-            <ui:NavigationViewItem Content="Installation" Tag="Installation">
+            <ui:NavigationViewItem Content="Installation" Tag="{x:Type settings:InstallationSettingsView}">
                 <ui:NavigationViewItem.IconSource>
                     <ui:PathIconSource Data="{ext:MaterialKindToGeometry Folder}"/>
                 </ui:NavigationViewItem.IconSource>
             </ui:NavigationViewItem>
-            <ui:NavigationViewItem Content="Online" Tag="Online">
+            <ui:NavigationViewItem Content="Online" Tag="{x:Type settings:OnlineSettingsView}">
                 <ui:NavigationViewItem.IconSource>
                     <ui:PathIconSource Data="{ext:MaterialKindToGeometry Web}"/>
                 </ui:NavigationViewItem.IconSource>
             </ui:NavigationViewItem>
-            <ui:NavigationViewItem Content="Theme" Tag="Theme">
+            <ui:NavigationViewItem Content="Theme" Tag="{x:Type settings:ThemeSettingsView}">
                 <ui:NavigationViewItem.IconSource>
                     <ui:PathIconSource Data="{ext:MaterialKindToGeometry PaletteSwatch}"/>
                 </ui:NavigationViewItem.IconSource>
             </ui:NavigationViewItem>
-            <ui:NavigationViewItem Content="Debug" Tag="Debug">
+            <ui:NavigationViewItem Content="Debug" Tag="{x:Type settings:DebugSettingsView}">
                 <ui:NavigationViewItem.IconSource>
                     <ui:PathIconSource Data="{ext:MaterialKindToGeometry Bug}"/>
                 </ui:NavigationViewItem.IconSource>

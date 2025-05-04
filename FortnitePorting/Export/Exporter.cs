@@ -71,7 +71,7 @@ public static class Exporter
                         useButton: true, buttonTitle: "Install Plugin", buttonCommand: () =>
                         {
                             Navigation.App.Open<PluginView>();
-                            Navigation.Plugin.Open(metaData.ExportLocation.PluginViewType());
+                            Navigation.Plugin.Open(metaData.ExportLocation);
                         });
                     return;
                 }

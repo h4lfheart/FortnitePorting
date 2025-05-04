@@ -108,6 +108,6 @@ public partial class AssetsViewModel() : ViewModelBase
     public async Task OpenSettings()
     {
         Navigation.App.Open<ExportSettingsView>();
-        Navigation.ExportSettings.Open(ExportLocation.SettingsViewType());
+        Navigation.ExportSettings.Open(ExportLocation);
     }
 }

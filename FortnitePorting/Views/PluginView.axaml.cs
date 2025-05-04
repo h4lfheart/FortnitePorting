@@ -19,13 +19,22 @@ public partial class PluginView : ViewBase<PluginViewModel>
     {
         InitializeComponent();
         Navigation.Plugin.Initialize(NavigationView);
-        Navigation.Plugin.Open(EExportLocation.Blender.PluginViewType());
+        Navigation.Plugin.AddTypeResolver<EExportLocation>(location =>
+        {
+            var name = location.ToString();
+            var viewName = $"FortnitePorting.Views.Plugin.{name}PluginView";
+        
+            var type = Type.GetType(viewName);
+            return type;
+        });
+        
+        Navigation.Plugin.Open(EExportLocation.Blender);
     }
     
     private void OnItemInvoked(object? sender, NavigationViewItemInvokedEventArgs e)
     {
         if (e.InvokedItemContainer.Tag is not EExportLocation exportType) return;
 
-        Navigation.Plugin.Open(exportType.PluginViewType());
+        Navigation.Plugin.Open(exportType);
     }
 }
