@@ -51,7 +51,7 @@ public partial class AssetItem : Base.BaseAssetItem
         Id = Guid.NewGuid();
         CreationData = args;
 
-        IsFavorite = AppSettings.Current.FavoriteAssets.Contains(CreationData.Object.GetPathName());
+        IsFavorite = AppSettings.Application.FavoriteAssets.Contains(CreationData.Object.GetPathName());
 
         Rarity = CreationData.Object.GetOrDefault("Rarity", EFortRarity.Uncommon);
         
@@ -74,7 +74,7 @@ public partial class AssetItem : Base.BaseAssetItem
         var bitmap = new SKBitmap(128, 160, iconBitmap.ColorType, SKAlphaType.Opaque);
         using (var canvas = new SKCanvas(bitmap))
         {
-            var colors = Series?.Colors ?? CUE4ParseVM.RarityColors[(int) Rarity];
+            var colors = Series?.Colors ?? UEParse.RarityColors[(int) Rarity];
             // background
             var backgroundRect = new SKRect(0, 0, bitmap.Width, bitmap.Height);
             if (Series?.BackgroundTexture.LoadOrDefault<UTexture2D>() is { } seriesBackground)
@@ -111,12 +111,12 @@ public partial class AssetItem : Base.BaseAssetItem
     
     public override async Task CopyPath()
     {
-        await Clipboard.SetTextAsync(CreationData.Object.GetPathName());
+        await App.Clipboard.SetTextAsync(CreationData.Object.GetPathName());
     }
 
     public override async Task PreviewProperties()
     {
-        var assets = await CUE4ParseVM.Provider.LoadAllObjectsAsync(Exporter.FixPath(CreationData.Object.GetPathName()));
+        var assets = await UEParse.Provider.LoadAllObjectsAsync(Exporter.FixPath(CreationData.Object.GetPathName()));
         var json = JsonConvert.SerializeObject(assets, Formatting.Indented);
         PropertiesPreviewWindow.Preview(CreationData.Object.Name, json);
     }
@@ -166,8 +166,7 @@ public partial class AssetItem : Base.BaseAssetItem
                 var targetUser = ChatVM.Users.FirstOrDefault(user => user.DisplayName.Equals(comboBox!.SelectionBoxItem));
                 if (targetUser is null) return;
                 
-                await OnlineService.Send(new ExportPacket(CreationData.Object.GetPathName(), message), new MetadataBuilder().With("Target", targetUser.Guid));
-                AppWM.Message("Export Sent", $"Successfully sent {CreationData.DisplayName} to {targetUser.DisplayName}");
+                Info.Message("Export Sent", $"Successfully sent {CreationData.DisplayName} to {targetUser.DisplayName}");
             })
         };
 
@@ -182,13 +181,13 @@ public partial class AssetItem : Base.BaseAssetItem
     public override void Favorite()
     {
         var path = CreationData.Object.GetPathName();
-        if (AppSettings.Current.FavoriteAssets.Add(path))
+        if (AppSettings.Application.FavoriteAssets.Add(path))
         {
             IsFavorite = true;
         }
         else
         {
-            AppSettings.Current.FavoriteAssets.Remove(path);
+            AppSettings.Application.FavoriteAssets.Remove(path);
             IsFavorite = false;
         }
     }

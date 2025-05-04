@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using System;
+using System.Diagnostics;
 using Avalonia.Controls.ApplicationLifetimes;
 using DesktopNotifications.FreeDesktop;
 using DesktopNotifications.Windows;
@@ -19,6 +20,7 @@ internal static class Program
         }
         catch (Exception e)
         {
+            Debugger.Break();
             Log.Fatal(e.ToString());
         }
         finally
@@ -28,7 +30,7 @@ internal static class Program
     }
 
     public static AppBuilder BuildAvaloniaApp()
-        => AppBuilder.Configure<App>()
+        => AppBuilder.Configure<FortnitePortingApp>()
             .UsePlatformDetect()
             .SetupDesktopNotifications()
             .LogToTrace()
@@ -41,26 +43,26 @@ internal static class Program
             if (Environment.OSVersion.Platform == PlatformID.Win32NT)
             {
                 var context = WindowsApplicationContext.FromCurrentProcess();
-                NotificationManager = new WindowsNotificationManager(context);
+                App.NotificationManager = new WindowsNotificationManager(context);
             }
             else if (Environment.OSVersion.Platform == PlatformID.Unix)
             {
                 var context = FreeDesktopApplicationContext.FromCurrentProcess();
-                NotificationManager = new FreeDesktopNotificationManager(context);
+                App.NotificationManager = new FreeDesktopNotificationManager(context);
             }
             else
             {
-                NotificationManager = null;
+                App.NotificationManager = null;
                 return builder;
             }
 
-            NotificationManager.Initialize().GetAwaiter().GetResult();
+            App.NotificationManager.Initialize().GetAwaiter().GetResult();
 
             builder.AfterSetup(b =>
             {
                 if (b.Instance?.ApplicationLifetime is IControlledApplicationLifetime lifetime)
                 {
-                    lifetime.Exit += (s, e) => { NotificationManager.Dispose(); };
+                    lifetime.Exit += (s, e) => { App.NotificationManager.Dispose(); };
                 }
             });
 

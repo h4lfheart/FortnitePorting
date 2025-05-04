@@ -7,17 +7,17 @@ using Ionic.Zip;
 
 namespace FortnitePorting.Services;
 
-public static class DependencyService
+public class DependencyService : IService
 {
-    public static bool Finished;
+    public bool FinishedEnsuring;
     
-    public static readonly FileInfo BinkaDecoderFile = new(Path.Combine(DataFolder.FullName, "binka", "binkadec.exe"));
-    public static readonly FileInfo RadaDecoderFile = new(Path.Combine(DataFolder.FullName, "rada", "radadec.exe"));
-    public static readonly FileInfo VgmStreamFile = new(Path.Combine(DataFolder.FullName, "vgmstream-cli.exe"));
+    public readonly FileInfo BinkaDecoderFile = new(Path.Combine(App.DataFolder.FullName, "binka", "binkadec.exe"));
+    public readonly FileInfo RadaDecoderFile = new(Path.Combine(App.DataFolder.FullName, "rada", "radadec.exe"));
+    public readonly FileInfo VgmStreamFile = new(Path.Combine(App.DataFolder.FullName, "vgmstream-cli.exe"));
     
-    public static readonly DirectoryInfo VgmStreamFolder = new(Path.Combine(DataFolder.FullName, "vgmstream"));
+    public readonly DirectoryInfo VgmStreamFolder = new(Path.Combine(App.DataFolder.FullName, "vgmstream"));
 
-    public static void EnsureDependencies()
+    public void Ensure()
     {
         TaskService.Run(() =>
         {
@@ -26,11 +26,11 @@ public static class DependencyService
             EnsureVgmStream();
             EnsureBlenderExtensions();
             EnsureUnrealPlugins();
-            Finished = true;
+            FinishedEnsuring = true;
         });
     }
 
-    private static void EnsureResourceBased(string path, FileInfo targetFile)
+    private void EnsureResourceBased(string path, FileInfo targetFile)
     {
         var assetStream = AssetLoader.Open(new Uri($"avares://FortnitePorting/{path}"));
         if (targetFile is { Exists: true, Length: > 0 } && targetFile.GetHash() == assetStream.GetHash()) return;
@@ -40,12 +40,12 @@ public static class DependencyService
         File.WriteAllBytes(targetFile.FullName, assetStream.ReadToEnd());
     }
 
-    private static void EnsureVgmStream()
+    private void EnsureVgmStream()
     {
         if (VgmStreamFile is { Exists: true, Length: > 0 } ) return;
         
         VgmStreamFolder.Create();
-        var file = ApiVM.DownloadFile("https://github.com/vgmstream/vgmstream/releases/latest/download/vgmstream-win.zip", VgmStreamFolder);
+        var file = Api.DownloadFile("https://github.com/vgmstream/vgmstream/releases/latest/download/vgmstream-win.zip", VgmStreamFolder);
         if (!file.Exists || file.Length == 0) return;
         
         var zip = ZipFile.Read(file.FullName);
@@ -55,13 +55,13 @@ public static class DependencyService
         }
     }
 
-    public static void EnsureBlenderExtensions()
+    public void EnsureBlenderExtensions()
     {
         var assets = AssetLoader.GetAssets(new Uri("avares://FortnitePorting.Plugins/Blender"), null);
         foreach (var asset in assets)
         {
             var assetStream = AssetLoader.Open(asset);
-            var targetFile = new FileInfo(Path.Combine(PluginsFolder.FullName, asset.AbsolutePath[1..]));
+            var targetFile = new FileInfo(Path.Combine(App.PluginsFolder.FullName, asset.AbsolutePath[1..]));
             if (targetFile is { Exists: true, Length: > 0 } && targetFile.GetHash() == assetStream.GetHash()) continue;
             targetFile.Directory?.Create();
             
@@ -69,13 +69,13 @@ public static class DependencyService
         }
     }
     
-    public static void EnsureUnrealPlugins()
+    public void EnsureUnrealPlugins()
     {
         var assets = AssetLoader.GetAssets(new Uri("avares://FortnitePorting.Plugins/Unreal"), null);
         foreach (var asset in assets)
         {
             var assetStream = AssetLoader.Open(asset);
-            var targetFile = new FileInfo(Path.Combine(PluginsFolder.FullName, asset.AbsolutePath[1..]));
+            var targetFile = new FileInfo(Path.Combine(App.PluginsFolder.FullName, asset.AbsolutePath[1..]));
             if (targetFile is { Exists: true, Length: > 0 } && targetFile.GetHash() == assetStream.GetHash()) continue;
             targetFile.Directory?.Create();
             

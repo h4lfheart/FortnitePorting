@@ -4,7 +4,7 @@ using FluentAvalonia.UI.Controls;
 
 namespace FortnitePorting.Shared.Models.App;
 
-public partial class InfoBarData : ObservableObject
+public partial class MessageData : ObservableObject
 {
     [ObservableProperty] private string _title;
     [ObservableProperty] private string _message;
@@ -17,7 +17,7 @@ public partial class InfoBarData : ObservableObject
     [ObservableProperty] private string _buttonTitle;
     [ObservableProperty] private RelayCommand _buttonCommand;
 
-    public InfoBarData(string title, string message, InfoBarSeverity severity = InfoBarSeverity.Informational, bool autoClose = true, string id = "", float closeTime = 2.0f,
+    public MessageData(string title, string message, InfoBarSeverity severity = InfoBarSeverity.Informational, bool autoClose = true, string id = "", float closeTime = 2.0f,
         bool useButton = false, string buttonTitle = "", Action? buttonCommand = null)
     {
         Title = title;

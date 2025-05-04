@@ -7,32 +7,32 @@
         x:Class="FortnitePorting.Windows.AppWindow"
         x:DataType="windowModels:AppWindowModel"
         Width="1160" Height="770" RequestedThemeVariant="Dark" FontFamily="Segoe UI" Background="{x:Null}"
-        TransparencyLevelHint="{Binding Theme.TransparencyHints}" ExtendClientAreaToDecorationsHint="True"
+        TransparencyLevelHint="{Binding Settings.Theme.TransparencyHints}" ExtendClientAreaToDecorationsHint="True"
         WindowStartupLocation="CenterScreen" ClosingBehavior="OwnerAndChildWindows" ExtendClientAreaTitleBarHeightHint="35"
         Icon="/Assets/LogoV3.ico"
         Title="Fortnite Porting">
     <Grid RowDefinitions="35, *" Margin="{Binding $parent[Window].OffScreenMargin}">
-        <ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False" IsVisible="{Binding !Theme.UseMica}">
+        <ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False" IsVisible="{Binding !Settings.Theme.UseMica}">
             <ExperimentalAcrylicBorder.Material>
-                <ExperimentalAcrylicMaterial BackgroundSource="Digger" MaterialOpacity="1.5" TintColor="{Binding Theme.BackgroundColor}" TintOpacity="1"/>
+                <ExperimentalAcrylicMaterial BackgroundSource="Digger" MaterialOpacity="1.5" TintColor="{Binding Settings.Theme.BackgroundColor}" TintOpacity="1"/>
             </ExperimentalAcrylicBorder.Material>
         </ExperimentalAcrylicBorder>
 
         <ui:NavigationView x:Name="NavigationView" Grid.Row="1" IsPaneOpen="False" OpenPaneLength="152" ItemInvoked="OnItemInvoked" IsSettingsVisible="False">
              <ui:NavigationView.MenuItems>
-                 <ui:NavigationViewItem Content="Welcome" Tag="Welcome" IsSelected="True" IsVisible="{Binding SetupTabsAreVisible}">
+                 <ui:NavigationViewItem Content="Welcome" Tag="Welcome" IsSelected="True" IsVisible="{Binding !Settings.Installation.FinishedSetup}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry CheckboxesMarked}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
-                 <ui:NavigationViewItemSeparator IsVisible="{Binding SetupTabsAreVisible}"/>
-                 <ui:NavigationViewItem Content="Home" Tag="Home" IsEnabled="{Binding !SetupTabsAreVisible}">
+                 <ui:NavigationViewItemSeparator IsVisible="{Binding !Settings.Installation.FinishedSetup}"/>
+                 <ui:NavigationViewItem Content="Home" Tag="Home" IsEnabled="{Binding }">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Home}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItemSeparator/>
-                 <ui:NavigationViewItem Content="Chat" Tag="Chat" IsEnabled="{Binding OnlineRef.UseIntegration}"
+                 <ui:NavigationViewItem Content="Chat" Tag="Chat"
                                         IsVisible="{Binding OnlineStatus.Chat.Enabled, FallbackValue=True}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry ChatBubble}"/>
@@ -41,13 +41,7 @@
                          <ui:InfoBadge Value="{Binding ChatNotifications}" IsVisible="{Binding !!ChatNotifications}"/>
                      </ui:NavigationViewItem.InfoBadge>
                  </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Canvas" Tag="Canvas" IsEnabled="{Binding OnlineRef.UseIntegration}"
-                                        IsVisible="{Binding OnlineStatus.Canvas.Enabled, FallbackValue=True}">
-                     <ui:NavigationViewItem.IconSource>
-                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry Palette}"/>
-                     </ui:NavigationViewItem.IconSource>
-                 </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Voting" Tag="Voting" IsEnabled="{Binding OnlineRef.UseIntegration}"
+                 <ui:NavigationViewItem Content="Voting" Tag="Voting"
                                         IsVisible="{Binding OnlineStatus.Voting.Enabled, FallbackValue=True}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Poll}"/>
@@ -57,30 +51,30 @@
                          <ui:InfoBadge Value="{Binding UnsubmittedPolls}" IsVisible="{Binding !!UnsubmittedPolls}"/>
                      </ui:NavigationViewItem.InfoBadge>
                  </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Leaderboard" Tag="Leaderboard" IsEnabled="{Binding OnlineAndGameTabsAreVisible}"
+                 <ui:NavigationViewItem Content="Leaderboard" Tag="Leaderboard" IsEnabled="{Binding SupaBase.IsActive}"
                                         IsVisible="{Binding OnlineStatus.Leaderboard.Enabled, FallbackValue=True}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Trophy}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItemSeparator/>
-                 <ui:NavigationViewItem Content="Assets" Tag="Assets" IsEnabled="{Binding GameBasedTabsAreReady}">
+                 <ui:NavigationViewItem Content="Assets" Tag="Assets" IsEnabled="{Binding UEParse.FinishedLoading}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry File}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Files" Tag="Files" IsEnabled="{Binding GameBasedTabsAreReady}">
+                 <ui:NavigationViewItem Content="Files" Tag="Files" IsEnabled="{Binding UEParse.FinishedLoading}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Folder}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItemSeparator/>
-                 <ui:NavigationViewItem Content="Radio" Tag="Radio" IsEnabled="{Binding GameBasedTabsAreReady}">
+                 <ui:NavigationViewItem Content="Radio" Tag="Radio" IsEnabled="{Binding UEParse.FinishedLoading}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Radio}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Map" Tag="Map" IsEnabled="{Binding GameBasedTabsAreReady}">
+                 <ui:NavigationViewItem Content="Map" Tag="Map" IsEnabled="{Binding UEParse.FinishedLoading}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Map}"/>
                      </ui:NavigationViewItem.IconSource>
@@ -88,34 +82,34 @@
                  
              </ui:NavigationView.MenuItems>
              <ui:NavigationView.FooterMenuItems>
-                 <ui:NavigationViewItem Content="Help" Tag="Help" IsEnabled="{Binding !SetupTabsAreVisible}">
+                 <ui:NavigationViewItem Content="Help" Tag="Help" IsEnabled="{Binding Settings.Installation.FinishedSetup}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Help}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItemSeparator/>
-                 <ui:NavigationViewItem Content="Console" Tag="Console" IsEnabled="{Binding !SetupTabsAreVisible}" IsVisible="{Binding ConsoleIsVisible}">
+                 <ui:NavigationViewItem Content="Console" Tag="Console" IsEnabled="{Binding Settings.Installation.FinishedSetup}" IsVisible="{Binding Settings.Debug.IsConsoleVisible}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Console}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Plugin" Tag="Plugin" IsEnabled="{Binding !SetupTabsAreVisible}">
+                 <ui:NavigationViewItem Content="Plugin" Tag="Plugin" IsEnabled="{Binding Settings.Installation.FinishedSetup}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Plug}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Export" Tag="ExportSettings" IsEnabled="{Binding !SetupTabsAreVisible}">
+                 <ui:NavigationViewItem Content="Export" Tag="ExportSettings" IsEnabled="{Binding Settings.Installation.FinishedSetup}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry FileCog}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Settings" Tag="Settings" IsEnabled="{Binding !SetupTabsAreVisible}">
+                 <ui:NavigationViewItem Content="Settings" Tag="Settings" IsEnabled="{Binding Settings.Installation.FinishedSetup}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Settings}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItemSeparator/>
-                 <ui:NavigationViewItem Content="Update" Tag="Update" SelectsOnInvoked="False" PointerPressed="OnUpdatePressed" IsEnabled="{Binding !SetupTabsAreVisible}">
+                 <ui:NavigationViewItem Content="Update" Tag="Update" SelectsOnInvoked="False" PointerPressed="OnUpdatePressed" IsEnabled="{Binding Settings.Installation.FinishedSetup}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Download}"/>
                      </ui:NavigationViewItem.IconSource>
@@ -123,8 +117,8 @@
              </ui:NavigationView.FooterMenuItems>
              
              <Grid>
-                 <ui:Frame x:Name="ContentFrame" Transitions="{x:Null}"/>
-                 <ItemsControl VerticalAlignment="Bottom" Margin="{ext:Space 1}" ItemsSource="{Binding InfoBars}">
+                 <ui:Frame x:Name="ContentFrame" Transitions="{x:Null}" IsVisible="{Binding !BlackHole.IsActive}"/>
+                 <ItemsControl VerticalAlignment="Bottom" Margin="{ext:Space 1}" ItemsSource="{Binding Info.Messages}">
                      <ItemsControl.ItemTemplate>
                          <DataTemplate>
                              <ui:InfoBar IsOpen="True" 
@@ -160,32 +154,32 @@
              </Grid>
          </ui:NavigationView>
         
-        <TransitioningContentControl Grid.Row="0" Grid.RowSpan="2" Content="{Binding TimeWaster}">
+        <TransitioningContentControl Grid.Row="0" Grid.RowSpan="2" Content="{Binding BlackHole.Content}">
             <TransitioningContentControl.PageTransition>
                 <CrossFade Duration="0:00:00.25"/>
             </TransitioningContentControl.PageTransition>
         </TransitioningContentControl>
         
         <Grid Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsHitTestVisible="False"
-              IsVisible="{Binding TitleData, Converter={x:Static ObjectConverters.IsNotNull}}">
+              IsVisible="{Binding Info.TitleData, Converter={x:Static ObjectConverters.IsNotNull}}">
             
             <Border Background="Black" Opacity="0.5"/>
             
             <Grid HorizontalAlignment="Center" VerticalAlignment="Center" 
-                  IsVisible="{Binding TitleData, Converter={x:Static ObjectConverters.IsNotNull}}">
+                  IsVisible="{Binding Info.TitleData, Converter={x:Static ObjectConverters.IsNotNull}}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="{ext:Space 1}"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
             
-                <TextBlock Grid.Row="0" Text="{Binding TitleData.Title}" Classes="TitleTextBlockStyle"
+                <TextBlock Grid.Row="0" Text="{Binding Info.TitleData.Title}" Classes="TitleTextBlockStyle"
                            HorizontalAlignment="Center" VerticalAlignment="Center">
                     <TextBlock.Effect>
                         <DropShadowEffect BlurRadius="15"/>
                     </TextBlock.Effect>
                 </TextBlock>
-                <TextBlock Grid.Row="2" Text="{Binding TitleData.SubTitle}" Classes="SubtitleTextBlockStyle"
+                <TextBlock Grid.Row="2" Text="{Binding Info.TitleData.SubTitle}" Classes="SubtitleTextBlockStyle"
                            HorizontalAlignment="Center" VerticalAlignment="Center">
                     <TextBlock.Effect>
                         <DropShadowEffect BlurRadius="15"/>

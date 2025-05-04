@@ -40,21 +40,21 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
         if (listBox.SelectedItems is null) return;
         if (listBox.SelectedItems.Count == 0) return;
         
-        ViewModel.AssetLoaderCollection.ActiveLoader.SelectedAssetInfos = [];
+        ViewModel.AssetLoader.ActiveLoader.SelectedAssetInfos = [];
         foreach (var asset in listBox.SelectedItems.Cast<BaseAssetItem>())
         {
             if (asset is AssetItem assetItem)
             {
                 
-                ViewModel.AssetLoaderCollection.ActiveLoader.SelectedAssetInfos.Add(
-                    ViewModel.AssetLoaderCollection.ActiveLoader.StyleDictionary.TryGetValue(asset.CreationData.DisplayName,
+                ViewModel.AssetLoader.ActiveLoader.SelectedAssetInfos.Add(
+                    ViewModel.AssetLoader.ActiveLoader.StyleDictionary.TryGetValue(asset.CreationData.DisplayName,
                         out var stylePaths)
                         ? new AssetInfo(assetItem, stylePaths.OrderBy(x => x))
                         : new AssetInfo(assetItem));
             }
             else if (asset is CustomAssetItem customAsset)
             {
-                ViewModel.AssetLoaderCollection.ActiveLoader.SelectedAssetInfos.Add(new CustomAssetInfo(customAsset));
+                ViewModel.AssetLoader.ActiveLoader.SelectedAssetInfos.Add(new CustomAssetInfo(customAsset));
             }
         }
     }
@@ -80,19 +80,19 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
         if (checkBox.IsChecked is not { } isChecked) return;
         if (checkBox.DataContext is not FilterItem filterItem) return;
 
-        ViewModel.AssetLoaderCollection.ActiveLoader.UpdateFilters(filterItem, isChecked);
+        ViewModel.AssetLoader.ActiveLoader.UpdateFilters(filterItem, isChecked);
     }
 
     private void OnNavigationViewItemInvoked(object? sender, NavigationViewItemInvokedEventArgs e)
     {
         if (e.InvokedItemContainer is not NavigationViewItem navItem) return;
         if (navItem.Tag is not EExportType assetType) return;
-        if (ViewModel.AssetLoaderCollection.ActiveLoader.Type == assetType) return;
+        if (ViewModel.AssetLoader.ActiveLoader.Type == assetType) return;
         
         AssetsListBox.SelectedItems.Clear();
         
         //DiscordService.Update(Type);
-        var loaders = ViewModel.AssetLoaderCollection.Loaders;
+        var loaders = ViewModel.AssetLoader.Categories.SelectMany(category => category.Loaders);
         foreach (var loader in loaders)
         {
             if (loader.Type == assetType)
@@ -107,7 +107,7 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
         
         TaskService.Run(async () =>
         {
-            await AssetsVM.AssetLoaderCollection.Load(assetType);
+            await ViewModel.AssetLoader.Load(assetType);
         });
     }
 }

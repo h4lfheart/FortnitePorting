@@ -70,19 +70,19 @@ public abstract partial class BaseAssetItem : ObservableObject
     [RelayCommand]
     public virtual async Task CopyPath()
     {
-        AppWM.Message("Unsupported Asset", "Cannot copy the path of this type of asset.");
+        Info.Message("Unsupported Asset", "Cannot copy the path of this type of asset.");
     }
 
     [RelayCommand]
     public virtual async Task PreviewProperties()
     {
-        AppWM.Message("Unsupported Asset", "Cannot view the properties of this type of asset.");
+        Info.Message("Unsupported Asset", "Cannot view the properties of this type of asset.");
     }
     
     [RelayCommand]
     public virtual async Task SendToUser()
     {
-        AppWM.Message("Unsupported Asset", "Cannot send this type of asset to others.");
+        Info.Message("Unsupported Asset", "Cannot send this type of asset to others.");
     }
     
     [RelayCommand]
@@ -95,13 +95,13 @@ public abstract partial class BaseAssetItem : ObservableObject
     public virtual void Favorite()
     {
         var id = CreationData.ID;
-        if (AppSettings.Current.FavoriteAssets.Add(id))
+        if (AppSettings.Application.FavoriteAssets.Add(id))
         {
             IsFavorite = true;
         }
         else
         {
-            AppSettings.Current.FavoriteAssets.Remove(id);
+            AppSettings.Application.FavoriteAssets.Remove(id);
             IsFavorite = false;
         }
     }

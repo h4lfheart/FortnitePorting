@@ -400,3 +400,6 @@ FodyWeavers.xsd
 
 # Blender Extensions
 *.blender_ext
+
+# Supabase
+*/supabase.toml

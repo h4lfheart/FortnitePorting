@@ -12,6 +12,7 @@
              xmlns:wrapPanel="clr-namespace:FortnitePorting.Controls.WrapPanel"
              xmlns:controls="clr-namespace:FortnitePorting.Shared.Controls;assembly=FortnitePorting.Shared"
              xmlns:customControls="clr-namespace:FortnitePorting.Controls"
+             xmlns:services="clr-namespace:FortnitePorting.Services"
              d:DesignHeight="770" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.HomeView"
              x:DataType="viewModels:HomeViewModel">
@@ -45,7 +46,7 @@
                     <DropShadowEffect BlurRadius="15" Color="#5F000000" OffsetX="0" OffsetY="0" />
                 </TextBlock.Effect>
             </TextBlock>
-            <TextBlock Margin="0 80 0 0" Text="{Binding StatusText}" HorizontalAlignment="Center"
+            <TextBlock Margin="0 80 0 0" Text="{Binding UEParse.Status}" HorizontalAlignment="Center"
                        VerticalAlignment="Center" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush">
                 <TextBlock.Effect>
                     <DropShadowEffect BlurRadius="15" Color="#5F000000" OffsetX="0" OffsetY="0" />
@@ -69,12 +70,12 @@
                     <Ellipse Height="104" Width="104" 
                              StrokeThickness="5" Stroke="#00000000">
                         <Ellipse.Fill>
-                            <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding OnlineRef.ProfilePictureURL, TargetNullValue='avares://FortnitePorting/Assets/DefaultProfile.png'}" Stretch="UniformToFill"/>
+                            <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding SupaBase.UserInfo.AvatarURL, TargetNullValue='avares://FortnitePorting/Assets/DefaultProfile.png'}" Stretch="UniformToFill"/>
                         </Ellipse.Fill>
                     </Ellipse>
                 </Grid>
-                <TextBlock Grid.Row="3" Text="{Binding OnlineRef.GlobalName, TargetNullValue='No User'}" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
-                <TextBlock Grid.Row="4" Text="{Binding OnlineRef.UserName, TargetNullValue='Unauthenticated'}" Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" HorizontalAlignment="Center"/>
+                <TextBlock Grid.Row="3" Text="{Binding SupaBase.UserInfo.DisplayName, TargetNullValue='No User'}" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
+                <TextBlock Grid.Row="4" Text="{Binding SupaBase.UserInfo.UserName, TargetNullValue='Not Signed In'}" Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" HorizontalAlignment="Center"/>
                 <Separator Grid.Row="5" Margin="{ext:Space 1}"/>
                 <StackPanel Grid.Row="6">
                     <TextBlock Text="Socials" Classes="SubtitleTextBlockStyle" FontWeight="SemiBold" HorizontalAlignment="Center"/>

@@ -127,7 +127,7 @@ public partial class MaterialData : ObservableObject
     {
         if (!materialFunction.TryLoadEditorData<UMaterialFunctionEditorOnlyData>(out var editorData) || editorData is null)
         {
-            AppWM.Dialog("Material Preview", $"Failed to load {materialFunction.Name} because it has no editor-only data.");
+            Info.Dialog("Material Preview", $"Failed to load {materialFunction.Name} because it has no editor-only data.");
             return;
         }
         
@@ -139,7 +139,7 @@ public partial class MaterialData : ObservableObject
     {
         if (!material.TryLoadEditorData<UMaterialEditorOnlyData>(out var editorData) || editorData is null)
         {
-            AppWM.Dialog("Material Preview", $"Failed to load {material.Name} because it has no editor-only data.");
+            Info.Dialog("Material Preview", $"Failed to load {material.Name} because it has no editor-only data.");
             return;
         }
         

@@ -3,19 +3,38 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using FortnitePorting.Framework;
+using FortnitePorting.Application;
+using FortnitePorting.Models.API;
 using RestSharp;
 using RestSharp.Serializers.NewtonsoftJson;
 
-namespace FortnitePorting.ViewModels;
+namespace FortnitePorting.Services;
 
-public class APIViewModelBase(string userAgentVersion = "", int timeout = 10) : ViewModelBase
+public class APIService : IService
 {
-    protected readonly RestClient _client = new(new RestClientOptions
+    
+    public readonly FortnitePortingAPI FortnitePorting;
+    public readonly FortnitePortingAPIV2 FortnitePortingV2;
+    public readonly FortnitePortingServerAPI FortnitePortingServer;
+    public readonly FortniteCentralAPI FortniteCentral;
+    public readonly EpicGamesAPI EpicGames;
+    
+    public APIService()
     {
-        UserAgent = $"FortnitePorting/{userAgentVersion}",
-        MaxTimeout = 1000 * timeout,
-    }, configureSerialization: s => s.UseSerializer<JsonNetSerializer>());
+        _client = new(new RestClientOptions
+        {
+            UserAgent = $"FortnitePorting/{Globals.VersionString}",
+            MaxTimeout = 1000 * AppServices.AppSettings.Debug.RequestTimeoutSeconds,
+        }, configureSerialization: s => s.UseSerializer<JsonNetSerializer>());
+        
+        FortnitePorting = new FortnitePortingAPI(_client);
+        FortnitePortingV2 = new FortnitePortingAPIV2(_client);
+        FortniteCentral = new FortniteCentralAPI(_client);
+        FortnitePortingServer = new FortnitePortingServerAPI(_client);
+        EpicGames = new EpicGamesAPI(_client);
+    }
+
+    protected readonly RestClient _client;
     
     public string GetUrl(RestRequest request)
     {

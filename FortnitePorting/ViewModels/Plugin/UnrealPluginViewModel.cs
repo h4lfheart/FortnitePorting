@@ -19,7 +19,7 @@ public partial class UnrealPluginViewModel : ViewModelBase
     [ObservableProperty] private ObservableCollection<UnrealProjectInfo> _projects = [];
     [ObservableProperty, JsonIgnore] private int _selectedProjectIndex = 0;
     
-    private static readonly DirectoryInfo UnrealRoot = new(Path.Combine(PluginsFolder.FullName, "Unreal"));
+    private static readonly DirectoryInfo UnrealRoot = new(Path.Combine(App.PluginsFolder.FullName, "Unreal"));
 
     public override async Task Initialize()
     {
@@ -28,7 +28,7 @@ public partial class UnrealPluginViewModel : ViewModelBase
 
     public async Task AddProject()
     {
-        if (await BrowseFileDialog(fileTypes: Globals.UnrealProjectFileType) is not { } projectPath) return;
+        if (await App.BrowseFileDialog(fileTypes: Globals.UnrealProjectFileType) is not { } projectPath) return;
 
         var project = new UnrealProjectInfo(projectPath);
         Projects.Add(project);
@@ -67,7 +67,7 @@ public partial class UnrealPluginViewModel : ViewModelBase
             {
                 if (verbose)
                 {
-                    AppWM.Message("Unreal Plugin", $"{project.Name} is already up to date.");
+                    Info.Message("Unreal Plugin", $"{project.Name} is already up to date.");
                 }
                 
                 continue;
@@ -76,13 +76,13 @@ public partial class UnrealPluginViewModel : ViewModelBase
             var previousVersion = project.Version;
             await Sync(project);
 
-            AppWM.Message("Unreal Plugin", $"Successfully updated the {project.Name} plugin from {previousVersion} to {currentVersion}");
+            Info.Message("Unreal Plugin", $"Successfully updated the {project.Name} plugin from {previousVersion} to {currentVersion}");
         }
     }
 
     public async Task Sync(UnrealProjectInfo unrealProjectInfo)
     {
-        MiscExtensions.Copy(Path.Combine(PluginsFolder.FullName, "Unreal"), unrealProjectInfo.PluginsFolder);
+        MiscExtensions.Copy(Path.Combine(App.PluginsFolder.FullName, "Unreal"), unrealProjectInfo.PluginsFolder);
         unrealProjectInfo.Update();
     }
 }

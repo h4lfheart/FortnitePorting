@@ -80,14 +80,14 @@ public class AnimExport : BaseExport
             }
         }
 
-        if (CUE4ParseVM.Provider.TryLoadPackageObject<UCurveExpressionsDataAsset>(
+        if (UEParse.Provider.TryLoadPackageObject<UCurveExpressionsDataAsset>(
                 "FortniteGame/Content/Characters/Player/Common/Fortnite_Base_Head/Facials/CurveMappings/FN_LegacyTo3L_Main_Mapping",
                 out var legacyToMetahumanCurves))
         {
             LegacyToMetahumanMappings = CurveMappings(legacyToMetahumanCurves);
         }
         
-        if (CUE4ParseVM.Provider.TryLoadPackageObject<UCurveExpressionsDataAsset>(
+        if (UEParse.Provider.TryLoadPackageObject<UCurveExpressionsDataAsset>(
                 "FortniteGame/Content/Characters/Player/Common/Fortnite_Base_Head/Facials/CurveMappings/FN_3LToLegacy_Main_Mapping",
                 out var metahumanToLegacyCurves))
         {

@@ -6,7 +6,7 @@ namespace FortnitePorting.Views.Settings;
 
 public partial class BlenderSettingsView : ViewBase<BlenderSettingsViewModel>
 {
-    public BlenderSettingsView() : base(AppSettings.Current.ExportSettings.Blender)
+    public BlenderSettingsView() : base(AppSettings.ExportSettings.Blender)
     {
         InitializeComponent();
     }

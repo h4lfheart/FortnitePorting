@@ -29,21 +29,19 @@ public partial class HelpViewModel : ViewModelBase
     [ObservableProperty, NotifyPropertyChangedFor(nameof(AllowedToOpenBuilder))] private EPermissions _permissions = EPermissions.None;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(BuilderButtonText))] private bool _isBuilderOpen = false;
     public string BuilderButtonText => IsBuilderOpen ? "Open Help Articles List" : "Open Help Article Builder";
-    public bool AllowedToOpenBuilder => AppSettings.Current.Online.UseIntegration && Permissions.HasFlag(EPermissions.Staff);
+    public bool AllowedToOpenBuilder => SupaBase.IsActive && Permissions.HasFlag(EPermissions.Staff);
     
     [ObservableProperty] private HelpArticle _builderArticle = new();
     [ObservableProperty] private int _selectedSectionIndex = 0;
 
     public override async Task Initialize()
     {
-        Permissions = OnlineService.Permissions;
-
         await UpdateArticles();
     }
 
     public async Task UpdateArticles()
     {
-        var helpArticles = await ApiVM.FortnitePorting.GetHelpAsync();
+        var helpArticles = await Api.FortnitePorting.GetHelpAsync();
         if (helpArticles is not null) Articles = [..helpArticles];
     }
 
@@ -68,7 +66,7 @@ public partial class HelpViewModel : ViewModelBase
                 {
                     var newArticle = BuilderArticle;
                     BuilderArticle = new HelpArticle();
-                    newArticle.Author ??= AppSettings.Current.Online.GlobalName;
+                    newArticle.Author ??= SupaBase.UserInfo.DisplayName;
                     newArticle.PostTime = DateTime.UtcNow;
 
                     if (string.IsNullOrWhiteSpace(newArticle.Title)) newArticle.Title = "Untitled";
@@ -82,14 +80,14 @@ public partial class HelpViewModel : ViewModelBase
                         
                         var imageFile = new FileInfo(section.Content);
                         var newImageUrl =
-                            await ApiVM.FortnitePorting.PostHelpImageAsync(await File.ReadAllBytesAsync(section.Content),
+                            await Api.FortnitePorting.PostHelpImageAsync(await File.ReadAllBytesAsync(section.Content),
                                 $"image/{imageFile.Extension[1..]}");
 
                         section.Content = newImageUrl;
                     }
 
-                    await ApiVM.FortnitePorting.PostHelpAsync(newArticle);
-                    AppWM.Message("Uploaded Article", $"Successfully uploaded help article entitled \"{newArticle.Title}\"");
+                    await Api.FortnitePorting.PostHelpAsync(newArticle);
+                    Info.Message("Uploaded Article", $"Successfully uploaded help article entitled \"{newArticle.Title}\"");
                     
                     await UpdateArticles();
                 }),
@@ -119,8 +117,8 @@ public partial class HelpViewModel : ViewModelBase
                 PrimaryButtonText = "Delete",
                 PrimaryButtonCommand = new RelayCommand(async () =>
                 {
-                    await ApiVM.FortnitePorting.DeleteHelpAsync(title);
-                    await HelpVM.UpdateArticles();
+                    await Api.FortnitePorting.DeleteHelpAsync(title);
+                    await UpdateArticles();
                 }),
                 CloseButtonText = "Go Back",
             };

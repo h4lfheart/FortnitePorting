@@ -34,7 +34,7 @@ public partial class FlatItem : ObservableObject
     [RelayCommand]
     public async Task CopyPath()
     {
-        await Clipboard.SetTextAsync(Path);
+        await App.Clipboard.SetTextAsync(Path);
     }
     
     [RelayCommand]
@@ -84,8 +84,7 @@ public partial class FlatItem : ObservableObject
                 var targetUser = ChatVM.Users.FirstOrDefault(user => user.DisplayName.Equals(comboBox.SelectionBoxItem));
                 if (targetUser is null) return;
                 
-                await OnlineService.Send(new ExportPacket(Exporter.FixPath(Path), message), new MetadataBuilder().With("Target", targetUser.Guid));
-                AppWM.Message("Export Sent", $"Successfully sent \"{name}\" to {targetUser.DisplayName}");
+                Info.Message("Export Sent", $"Successfully sent \"{name}\" to {targetUser.DisplayName}");
             })
         };
 
@@ -95,18 +94,18 @@ public partial class FlatItem : ObservableObject
     [RelayCommand]
     public async Task CopyProperties()
     {
-        var assets = await CUE4ParseVM.Provider.LoadAllObjectsAsync(Exporter.FixPath(Path));
+        var assets = await UEParse.Provider.LoadAllObjectsAsync(Exporter.FixPath(Path));
         var json = JsonConvert.SerializeObject(assets, Formatting.Indented);
-        await Clipboard.SetTextAsync(json);
+        await App.Clipboard.SetTextAsync(json);
     }
     
     [RelayCommand]
     public async Task SaveProperties()
     {
-        if (await SaveFileDialog(suggestedFileName: Path.SubstringAfterLast("/").SubstringBefore("."),
+        if (await App.SaveFileDialog(suggestedFileName: Path.SubstringAfterLast("/").SubstringBefore("."),
                 Globals.JSONFileType) is { } path)
         {
-            var assets = await CUE4ParseVM.Provider.LoadAllObjectsAsync(Exporter.FixPath(Path));
+            var assets = await UEParse.Provider.LoadAllObjectsAsync(Exporter.FixPath(Path));
             var json = JsonConvert.SerializeObject(assets, Formatting.Indented);
             await File.WriteAllTextAsync(path, json);
         }

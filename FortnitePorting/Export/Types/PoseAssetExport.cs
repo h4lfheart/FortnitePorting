@@ -37,7 +37,7 @@ public class PoseAssetExport : BaseExport
         if (asset is not UPoseAsset poseAsset) return;
         if (metaData.ExportLocation.IsFolder())
         {
-            AppWM.Message("Pose Asset Export", "Pose Assets cannot be exported to a folder.");
+            Info.Message("Pose Asset Export", "Pose Assets cannot be exported to a folder.");
             return;
         }
 

@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace FortnitePorting.Models.App;
+namespace FortnitePorting.Models.Information;
 
 public partial class TitleData : ObservableObject
 {

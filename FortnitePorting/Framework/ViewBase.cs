@@ -1,16 +1,21 @@
+using System;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using FortnitePorting.Application;
+using FortnitePorting.Services;
 using FortnitePorting.Shared.Services;
+using FortnitePorting.ViewModels;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FortnitePorting.Framework;
 
-public abstract class ViewBase<T> : UserControl where T : ViewModelBase, new()
+public abstract class ViewBase<T> : UserControl where T : ViewModelBase
 {
     protected readonly T ViewModel;
 
-    public ViewBase(ViewModelBase? templateViewModel = null, bool initializeViewModel = true)
+    public ViewBase(T? templateViewModel = null, bool initializeViewModel = true)
     {
-        ViewModel = templateViewModel is not null ? ViewModelRegistry.Register<T>(templateViewModel) : ViewModelRegistry.New<T>();
+        ViewModel = templateViewModel ?? AppServices.Services.GetRequiredService<T>();
         DataContext = ViewModel;
 
         if (initializeViewModel)

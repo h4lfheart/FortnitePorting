@@ -17,7 +17,7 @@ public partial class TexturePreviewWindow : WindowBase<TexturePreviewWindowModel
     {
         InitializeComponent();
         DataContext = WindowModel;
-        Owner = ApplicationService.Application.MainWindow;
+        Owner = App.Lifetime.MainWindow;
 
         WindowModel.TextureName = name;
         WindowModel.Texture = texture;

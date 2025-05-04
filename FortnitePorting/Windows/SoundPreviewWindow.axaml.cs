@@ -18,7 +18,7 @@ public partial class SoundPreviewWindow : WindowBase<SoundPreviewWindowModel>
     {
         InitializeComponent();
         DataContext = WindowModel;
-        Owner = ApplicationService.Application.MainWindow;
+        Owner = App.Lifetime.MainWindow;
 
         WindowModel.SoundName = soundWave.Name;
         WindowModel.SoundWave = soundWave;

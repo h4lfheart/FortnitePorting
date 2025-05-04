@@ -6,6 +6,7 @@ using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse_Conversion.Textures.BC;
 using CUE4Parse.Compression;
@@ -16,15 +17,8 @@ using CUE4Parse.UE4.AssetRegistry.Objects;
 using CUE4Parse.UE4.Assets;
 using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.Engine;
-using CUE4Parse.UE4.Assets.Exports.Material;
-using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
-using CUE4Parse.UE4.Assets.Exports.Sound;
-using CUE4Parse.UE4.Assets.Exports.StaticMesh;
-using CUE4Parse.UE4.Assets.Exports.Texture;
-using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.IO;
 using CUE4Parse.UE4.Objects.Core.Math;
-using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Pak;
 using CUE4Parse.UE4.Readers;
 using CUE4Parse.UE4.Versions;
@@ -33,28 +27,24 @@ using CUE4Parse.Utils;
 using EpicManifestParser;
 using EpicManifestParser.UE;
 using FortnitePorting.Application;
-using FortnitePorting.Framework;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.CUE4Parse;
 using FortnitePorting.Models.Fortnite;
-using FortnitePorting.Models.Unreal.Material;
-using FortnitePorting.Services;
-using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.Views;
-using FortnitePorting.Windows;
 using Serilog;
 using UE4Config.Parsing;
 using FGuid = CUE4Parse.UE4.Objects.Core.Misc.FGuid;
 
-namespace FortnitePorting.ViewModels;
+namespace FortnitePorting.Services;
 
-public class CUE4ParseViewModel : ViewModelBase
+public partial class CUE4ParseService : ObservableObject, IService
 {
-    public bool FinishedLoading;
+    [ObservableProperty] private string _status;
+    [ObservableProperty] private bool _finishedLoading;
 
-    public readonly HybridFileProvider Provider;
+    public HybridFileProvider Provider;
 
     public FBuildPatchAppManifest? LiveManifest;
     
@@ -88,25 +78,29 @@ public class CUE4ParseViewModel : ViewModelBase
     ];
 
     private const EGame LATEST_GAME_VERSION = EGame.GAME_UE5_6;
+    
+    public static readonly DirectoryInfo CacheFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".cache"));
 
-    public CUE4ParseViewModel()
+    public CUE4ParseService()
     {
-        Provider = AppSettings.Current.Installation.CurrentProfile.FortniteVersion switch
-        {
-            EFortniteVersion.LatestOnDemand => new HybridFileProvider(new VersionContainer(AppSettings.Current.Installation.CurrentProfile.UnrealVersion)),
-            EFortniteVersion.LatestInstalled => new HybridFileProvider(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, ExtraDirectories, new VersionContainer(LATEST_GAME_VERSION)),
-            _ => new HybridFileProvider(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, [], new VersionContainer(AppSettings.Current.Installation.CurrentProfile.UnrealVersion)),
-        };
+        CacheFolder.Create();
     }
 
-    public override async Task Initialize()
+    public async Task Initialize()
     {
+        Provider = AppSettings.Installation.CurrentProfile.FortniteVersion switch
+        {
+            EFortniteVersion.LatestOnDemand => new HybridFileProvider(new VersionContainer(AppSettings.Installation.CurrentProfile.UnrealVersion)),
+            EFortniteVersion.LatestInstalled => new HybridFileProvider(AppSettings.Installation.CurrentProfile.ArchiveDirectory, ExtraDirectories, new VersionContainer(LATEST_GAME_VERSION)),
+            _ => new HybridFileProvider(AppSettings.Installation.CurrentProfile.ArchiveDirectory, [], new VersionContainer(AppSettings.Installation.CurrentProfile.UnrealVersion)),
+        };
+        
 		ObjectTypeRegistry.RegisterEngine(Assembly.Load("FortnitePorting"));
         ObjectTypeRegistry.RegisterEngine(Assembly.Load("FortnitePorting.Shared"));
 
-        Provider.LoadExtraDirectories = AppSettings.Current.Installation.CurrentProfile.LoadCreativeMaps;
+        Provider.LoadExtraDirectories = AppSettings.Installation.CurrentProfile.LoadCreativeMaps;
         
-        _onlineStatus = await ApiVM.FortnitePorting.GetOnlineStatusAsync() ?? new OnlineResponse();
+        _onlineStatus = await Api.FortnitePorting.GetOnlineStatusAsync() ?? new OnlineResponse();
         
         await CheckBlackHole();
         await CleanupCache();
@@ -115,15 +109,15 @@ public class CUE4ParseViewModel : ViewModelBase
         {
             if (sender is not IAesVfsReader reader) return;
 
-            HomeVM.UpdateStatus($"Loading {reader.Name}");
+            UpdateStatus($"Loading {reader.Name}");
         };
         
-        HomeVM.UpdateStatus("Loading Native Libraries");
+        UpdateStatus("Loading Native Libraries");
         await InitializeOodle();
         await InitializeZlib();
         await InitializeDetex();
         
-        HomeVM.UpdateStatus("Loading Game Files");
+        UpdateStatus("Loading Game Files");
         await InitializeProvider();
         await InitializeTextureStreaming();
         
@@ -131,50 +125,51 @@ public class CUE4ParseViewModel : ViewModelBase
         Provider.LoadVirtualPaths();
         Provider.PostMount();
         
-        if (!Provider.TryChangeCulture(Provider.GetLanguageCode(AppSettings.Current.Installation.CurrentProfile.GameLanguage)))
+        if (!Provider.TryChangeCulture(Provider.GetLanguageCode(AppSettings.Installation.CurrentProfile.GameLanguage)))
         {
-            AppWM.Message("Internationalization", $"Failed to load language \"{AppSettings.Current.Installation.CurrentProfile.GameLanguage.GetDescription()}\"");
+            Info.Message("Internationalization", $"Failed to load language \"{AppSettings.Installation.CurrentProfile.GameLanguage.GetDescription()}\"");
         }
         
         await LoadMappings();
         
         await LoadAssetRegistries();
 
-        HomeVM.UpdateStatus("Loading Application Assets");
+        UpdateStatus("Loading Application Assets");
         await LoadApplicationAssets();
 
-        HomeVM.UpdateStatus(string.Empty);
+        UpdateStatus(string.Empty);
 
         FinishedLoading = true;
     }
 
+    private void UpdateStatus(string status)
+    {
+        Status = status;
+    }
+
     private async Task CheckBlackHole()
     {
-        if (AppSettings.Current.Installation.CurrentProfile.FortniteVersion is not EFortniteVersion.LatestInstalled) return;
+        if (AppSettings.Installation.CurrentProfile.FortniteVersion is not EFortniteVersion.LatestInstalled) return;
         
         var aes = _onlineStatus.Backup.Keys
-            ? await ApiVM.FortnitePorting.GetKeysAsync()
-            : await ApiVM.FortniteCentral.GetKeysAsync() ?? await ApiVM.FortnitePorting.GetKeysAsync();
+            ? await Api.FortnitePorting.GetKeysAsync()
+            : await Api.FortniteCentral.GetKeysAsync() ?? await Api.FortnitePorting.GetKeysAsync();
         if (aes is null) return;
         
-        var mainPakPath = Path.Combine(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory,
+        var mainPakPath = Path.Combine(AppSettings.Installation.CurrentProfile.ArchiveDirectory,
             "pakchunk0-WindowsClient.pak");
         if (!File.Exists(mainPakPath)) return;
 
         var mainPakReader = new PakFileReader(mainPakPath);
         if (mainPakReader.TestAesKey(new FAesKey(aes.MainKey))) return;
         
-        await TaskService.RunDispatcherAsync(() =>
-        {
-            AppWM.TimeWasterOpen = true;
-            AppWM.TimeWaster = new TimeWasterView(game: false);
-        });
+        BlackHole.Open(isMinigame: false);
     }
     
     private async Task CleanupCache()
     {
         var files = CacheFolder.GetFiles("*.*chunk");
-        var cutoffDate = DateTime.Now - TimeSpan.FromDays(AppSettings.Current.Debug.ChunkCacheLifetime);
+        var cutoffDate = DateTime.Now - TimeSpan.FromDays(AppSettings.Debug.ChunkCacheLifetime);
         foreach (var file in files)
         {
             if (file.LastWriteTime >= cutoffDate) continue;
@@ -185,14 +180,14 @@ public class CUE4ParseViewModel : ViewModelBase
     
     private async Task InitializeOodle()
     {
-        var oodlePath = Path.Combine(DataFolder.FullName, OodleHelper.OODLE_DLL_NAME);
+        var oodlePath = Path.Combine(App.DataFolder.FullName, OodleHelper.OODLE_DLL_NAME);
         if (!File.Exists(oodlePath)) await OodleHelper.DownloadOodleDllAsync(oodlePath);
         OodleHelper.Initialize(oodlePath);
     }
     
     private async Task InitializeZlib()
     {
-        var zlibPath = Path.Combine(DataFolder.FullName, ZlibHelper.DLL_NAME);
+        var zlibPath = Path.Combine(App.DataFolder.FullName, ZlibHelper.DLL_NAME);
         if (!File.Exists(zlibPath)) await ZlibHelper.DownloadDllAsync(zlibPath);
         ZlibHelper.Initialize(zlibPath);
     }
@@ -200,23 +195,23 @@ public class CUE4ParseViewModel : ViewModelBase
     private async Task InitializeDetex()
     {
         TextureDecoder.UseAssetRipperTextureDecoder = true;
-        var detexPath = Path.Combine(DataFolder.FullName, DetexHelper.DLL_NAME);
+        var detexPath = Path.Combine(App.DataFolder.FullName, DetexHelper.DLL_NAME);
         if (!File.Exists(detexPath)) await DetexHelper.LoadDllAsync(detexPath);
         DetexHelper.Initialize(detexPath);
     }
     
     private async Task InitializeProvider()
     {
-        if (AppSettings.Current.Installation.CurrentProfile.FortniteVersion is EFortniteVersion.LatestInstalled or EFortniteVersion.LatestOnDemand)
+        if (AppSettings.Installation.CurrentProfile.FortniteVersion is EFortniteVersion.LatestInstalled or EFortniteVersion.LatestOnDemand)
         {
-            await ApiVM.EpicGames.VerifyAuthAsync();
+            await Api.EpicGames.VerifyAuthAsync();
         }
         
-        switch (AppSettings.Current.Installation.CurrentProfile.FortniteVersion)
+        switch (AppSettings.Installation.CurrentProfile.FortniteVersion)
         {
             case EFortniteVersion.LatestOnDemand:
             {
-                var manifestInfo = await ApiVM.EpicGames.GetManifestInfoAsync();
+                var manifestInfo = await Api.EpicGames.GetManifestInfoAsync();
                 if (manifestInfo is null) break;
 
                 var options = new ManifestParseOptions
@@ -232,7 +227,7 @@ public class CUE4ParseViewModel : ViewModelBase
                 var (manifest, element) = await manifestInfo.DownloadAndParseAsync(options);
                 LiveManifest = manifest;
 
-                HomeVM.UpdateStatus($"Loading Fortnite On-Demand (This may take a while)");
+                UpdateStatus($"Loading Fortnite On-Demand (This may take a while)");
 
                 var fileManifests = manifest.Files.Where(fileManifest => FortniteArchiveRegex.IsMatch(fileManifest.FileName));
                 foreach (var fileManifest in fileManifests)
@@ -254,26 +249,26 @@ public class CUE4ParseViewModel : ViewModelBase
 
     private async Task InitializeTextureStreaming()
     {
-        if (AppSettings.Current.Installation.CurrentProfile.FortniteVersion is not (EFortniteVersion.LatestInstalled or EFortniteVersion.LatestOnDemand)) return;
-        if (!AppSettings.Current.Installation.CurrentProfile.UseTextureStreaming) return;
+        if (AppSettings.Installation.CurrentProfile.FortniteVersion is not (EFortniteVersion.LatestInstalled or EFortniteVersion.LatestOnDemand)) return;
+        if (!AppSettings.Installation.CurrentProfile.UseTextureStreaming) return;
 
         try
         {
-            var tocPath = await GetTocPath(AppSettings.Current.Installation.CurrentProfile.FortniteVersion);
+            var tocPath = await GetTocPath(AppSettings.Installation.CurrentProfile.FortniteVersion);
             if (string.IsNullOrEmpty(tocPath)) return;
 
             var tocName = tocPath.SubstringAfterLast("/");
-            var onDemandFile = new FileInfo(Path.Combine(DataFolder.FullName, tocName));
+            var onDemandFile = new FileInfo(Path.Combine(App.DataFolder.FullName, tocName));
             if (!onDemandFile.Exists || onDemandFile.Length == 0)
             {
-                await ApiVM.DownloadFileAsync($"https://download.epicgames.com/{tocPath}", onDemandFile.FullName);
+                await Api.DownloadFileAsync($"https://download.epicgames.com/{tocPath}", onDemandFile.FullName);
             }
 
             var options = new IoStoreOnDemandOptions
             {
                 ChunkBaseUri = new Uri("https://download.epicgames.com/ias/fortnite/", UriKind.Absolute),
                 ChunkCacheDirectory = CacheFolder,
-                Authorization = new AuthenticationHeaderValue("Bearer", AppSettings.Current.Online.EpicAuth?.Token),
+                Authorization = new AuthenticationHeaderValue("Bearer", AppSettings.Application.EpicAuth?.Token),
                 Timeout = TimeSpan.FromSeconds(30)
             };
 
@@ -283,7 +278,7 @@ public class CUE4ParseViewModel : ViewModelBase
         }
         catch (Exception e)
         {
-            AppWM.Dialog("Failed to Initialize Texture Streaming", 
+            Info.Dialog("Failed to Initialize Texture Streaming", 
                 $"Please enable the \"Pre-Download Streamed Assets\" option for Fortnite in the Epic Games Launcher and disable texture streaming in installation settings to remove this popup\n\nException: {e}");
         }
     }
@@ -295,7 +290,7 @@ public class CUE4ParseViewModel : ViewModelBase
         {
             case EFortniteVersion.LatestInstalled:
             {
-                var onDemandPath = Path.Combine(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, @"..\..\..\Cloud\IoStoreOnDemand.ini");
+                var onDemandPath = Path.Combine(AppSettings.Installation.CurrentProfile.ArchiveDirectory, @"..\..\..\Cloud\IoStoreOnDemand.ini");
                 if (File.Exists(onDemandPath)) onDemandText = await File.ReadAllTextAsync(onDemandPath);
                 break;
             }
@@ -319,14 +314,14 @@ public class CUE4ParseViewModel : ViewModelBase
 
     private async Task LoadKeys()
     {
-        switch (AppSettings.Current.Installation.CurrentProfile.FortniteVersion)
+        switch (AppSettings.Installation.CurrentProfile.FortniteVersion)
         {
             case EFortniteVersion.LatestInstalled:
             case EFortniteVersion.LatestOnDemand:
             {
                 var aes = _onlineStatus.Backup.Keys 
-                    ? await ApiVM.FortnitePorting.GetKeysAsync() 
-                    : await ApiVM.FortniteCentral.GetKeysAsync();
+                    ? await Api.FortnitePorting.GetKeysAsync() 
+                    : await Api.FortniteCentral.GetKeysAsync();
                 
                 if (aes is null)
                 {
@@ -334,13 +329,13 @@ public class CUE4ParseViewModel : ViewModelBase
                     break;
                 }
 
-                AppSettings.Current.Installation.CurrentProfile.MainKey = new FileEncryptionKey(aes.MainKey);
+                AppSettings.Installation.CurrentProfile.MainKey = new FileEncryptionKey(aes.MainKey);
                 await Provider.SubmitKeyAsync(Globals.ZERO_GUID, new FAesKey(aes.MainKey));
                 
-                AppSettings.Current.Installation.CurrentProfile.ExtraKeys.Clear();
+                AppSettings.Installation.CurrentProfile.ExtraKeys.Clear();
                 foreach (var key in aes.DynamicKeys)
                 {
-                    AppSettings.Current.Installation.CurrentProfile.ExtraKeys.Add(new FileEncryptionKey(key.Key));
+                    AppSettings.Installation.CurrentProfile.ExtraKeys.Add(new FileEncryptionKey(key.Key));
                     await Provider.SubmitKeyAsync(new FGuid(key.GUID), new FAesKey(key.Key));
                 }
                 
@@ -356,14 +351,14 @@ public class CUE4ParseViewModel : ViewModelBase
     
     private async Task LoadLocalKeys()
     {
-        var mainKey = AppSettings.Current.Installation.CurrentProfile.MainKey;
+        var mainKey = AppSettings.Installation.CurrentProfile.MainKey;
         if (mainKey.IsEmpty) mainKey = FileEncryptionKey.Empty;
                 
         await Provider.SubmitKeyAsync(Globals.ZERO_GUID, mainKey.EncryptionKey);
                 
         foreach (var vfs in Provider.UnloadedVfs.ToArray())
         {
-            foreach (var extraKey in AppSettings.Current.Installation.CurrentProfile.ExtraKeys)
+            foreach (var extraKey in AppSettings.Installation.CurrentProfile.ExtraKeys)
             {
                 if (extraKey.IsEmpty) continue;
                 if (!vfs.TestAesKey(extraKey.EncryptionKey)) continue;
@@ -375,10 +370,10 @@ public class CUE4ParseViewModel : ViewModelBase
     
     private async Task LoadMappings()
     {
-        var mappingsPath = AppSettings.Current.Installation.CurrentProfile.FortniteVersion switch
+        var mappingsPath = AppSettings.Installation.CurrentProfile.FortniteVersion switch
         {
             EFortniteVersion.LatestInstalled or EFortniteVersion.LatestOnDemand => await GetEndpointMappings() ?? GetLocalMappings(),
-            _ when AppSettings.Current.Installation.CurrentProfile.UseMappingsFile && File.Exists(AppSettings.Current.Installation.CurrentProfile.MappingsFile) => AppSettings.Current.Installation.CurrentProfile.MappingsFile,
+            _ when AppSettings.Installation.CurrentProfile.UseMappingsFile && File.Exists(AppSettings.Installation.CurrentProfile.MappingsFile) => AppSettings.Installation.CurrentProfile.MappingsFile,
             _ => string.Empty
         };
         
@@ -399,10 +394,10 @@ public class CUE4ParseViewModel : ViewModelBase
             var foundMappings = mappings.FirstOrDefault();
             if (foundMappings is null) return null;
 
-            var mappingsFilePath = Path.Combine(DataFolder.FullName, foundMappings.Filename);
+            var mappingsFilePath = Path.Combine(App.DataFolder.FullName, foundMappings.Filename);
             if (File.Exists(mappingsFilePath)) return mappingsFilePath;
 
-            var createdFile = await ApiVM.DownloadFileAsync(foundMappings.URL, mappingsFilePath);
+            var createdFile = await Api.DownloadFileAsync(foundMappings.URL, mappingsFilePath);
             if (createdFile is null) return null;
             
             File.SetCreationTime(mappingsFilePath, foundMappings.Uploaded);
@@ -412,14 +407,14 @@ public class CUE4ParseViewModel : ViewModelBase
         
         
         return  _onlineStatus.Backup.Mappings
-        ? await GetMappings(ApiVM.FortnitePorting.GetMappingsAsync)
-        : await GetMappings(ApiVM.FortniteCentral.GetMappingsAsync);
+        ? await GetMappings(Api.FortnitePorting.GetMappingsAsync)
+        : await GetMappings(Api.FortniteCentral.GetMappingsAsync);
     }
 
 
     private string? GetLocalMappings()
     {
-        var usmapFiles = DataFolder.GetFiles("*.usmap");
+        var usmapFiles = App.DataFolder.GetFiles("*.usmap");
         if (usmapFiles.Length <= 0) return null;
 
         var latestUsmap = usmapFiles.MaxBy(x => x.CreationTime);
@@ -437,7 +432,7 @@ public class CUE4ParseViewModel : ViewModelBase
             if (!path.EndsWith(".bin")) continue;
             if (path.Contains("Plugin", StringComparison.OrdinalIgnoreCase) || path.Contains("Editor", StringComparison.OrdinalIgnoreCase)) continue;
 
-            HomeVM.UpdateStatus($"Loading {file.Name}");
+            UpdateStatus($"Loading {file.Name}");
             var assetArchive = await file.SafeCreateReaderAsync();
             if (assetArchive is null) continue;
 

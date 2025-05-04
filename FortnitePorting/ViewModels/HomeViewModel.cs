@@ -24,25 +24,47 @@ using Serilog;
 
 namespace FortnitePorting.ViewModels;
 
-public partial class HomeViewModel : ViewModelBase
+public partial class HomeViewModel() : ViewModelBase
 {
-    [ObservableProperty] private string _statusText = string.Empty;
+    [ObservableProperty] private SupabaseService _supaBase;
+    [ObservableProperty] private CUE4ParseService _UEParse;
+    
+    public HomeViewModel(SupabaseService supabase, CUE4ParseService cue4Parse) : this()
+    {
+        SupaBase = supabase;
+        UEParse = cue4Parse;
+    }
+    
     [ObservableProperty] private ObservableCollection<NewsResponse> _news = [];
     [ObservableProperty] private ObservableCollection<FeaturedResponse> _featured = [];
 
-    public OnlineSettingsViewModel OnlineRef => AppSettings.Current.Online;
-    
     public override async Task Initialize()
     {
-        if (!AppSettings.Current.Online.HasReceivedFirstPrompt)
+        if (!AppSettings.Online.AskedFirstTimePopup)
         {
-            await AppSettings.Current.Online.PromptForAuthentication();
+            AppSettings.Online.AskedFirstTimePopup = true;
+            
+            await TaskService.RunDispatcherAsync(async () =>
+            {
+                var discordIntegrationDialog = new ContentDialog
+                {
+                    Title = "Discord Integration",
+                    Content = "To use any of FortnitePorting's online features, you must authenticate yourself via Discord.\n\n" +
+                              "Would you like to authenticate now?\n\n" +
+                              "This choice can be changed any time in the application settings.",
+                    CloseButtonText = "Ignore",
+                    PrimaryButtonText = "Authenticate",
+                    PrimaryButtonCommand = new RelayCommand(async () => await SupaBase.SignIn())
+                };
+
+                await discordIntegrationDialog.ShowAsync();
+            });
         }
 
-        if (!AppSettings.Current.Application.DontAskAboutKofi &&
-            DateTime.Now.Date >= AppSettings.Current.Application.NextKofiAskDate)
+        if (!AppSettings.Application.DontAskAboutKofi &&
+            DateTime.Now.Date >= AppSettings.Application.NextKofiAskDate)
         {
-            AppSettings.Current.Application.NextKofiAskDate = DateTime.Today.AddDays(7);
+            AppSettings.Application.NextKofiAskDate = DateTime.Today.AddDays(7);
             await TaskService.RunDispatcherAsync(async () =>
             {
                 var dialog = new ContentDialog
@@ -53,7 +75,7 @@ public partial class HomeViewModel : ViewModelBase
                     PrimaryButtonText = "Donate",
                     PrimaryButtonCommand = new RelayCommand(LaunchKoFi),
                     SecondaryButtonText = "Don't Ask Again",
-                    SecondaryButtonCommand = new RelayCommand(() => AppSettings.Current.Application.DontAskAboutKofi = true)
+                    SecondaryButtonCommand = new RelayCommand(() => AppSettings.Application.DontAskAboutKofi = true)
                 };
 
                 await dialog.ShowAsync();
@@ -62,45 +84,37 @@ public partial class HomeViewModel : ViewModelBase
         
         TaskService.Run(async () =>
         {
-            ViewModelRegistry.New<CUE4ParseViewModel>();
-            await CUE4ParseVM.Initialize();
-            
-            AppWM.GameBasedTabsAreReady = true;
-            AppWM.OnlineAndGameTabsAreVisible = AppSettings.Current.Online.UseIntegration;
-            
-            ViewModelRegistry.New<FilesViewModel>();
-            await FilesVM.Initialize();
+            await UEParse.Initialize();
         });
         
-        var news = await ApiVM.FortnitePorting.GetNewsAsync();
+        var news = await Api.FortnitePorting.GetNewsAsync();
         News = [..news.OrderByDescending(item => item.Date)];
         
-        var featured = await ApiVM.FortnitePorting.GetFeaturedAsync();
+        var featured = await Api.FortnitePorting.GetFeaturedAsync();
         Featured = [..featured];
     }
     
     public void UpdateStatus(string text)
     {
-        StatusText = text;
     }
     
     public void LaunchDiscord()
     {
-        Launch(Globals.DISCORD_URL);
+        App.Launch(Globals.DISCORD_URL);
     }
     
     public void LaunchTwitter()
     {
-        Launch(Globals.TWITTER_URL);
+        App.Launch(Globals.TWITTER_URL);
     }
     
     public void LaunchGitHub()
     {
-        Launch(Globals.GITHUB_URL);
+        App.Launch(Globals.GITHUB_URL);
     }
     
     public void LaunchKoFi()
     {
-        Launch(Globals.KOFI_URL);
+        App.Launch(Globals.KOFI_URL);
     }
 }

@@ -4,6 +4,7 @@ using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FortnitePorting.Application;
 using FortnitePorting.Extensions;
+using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
 
 namespace FortnitePorting.Models.Chat;
@@ -24,7 +25,7 @@ public partial class ChatMessage : ObservableObject
     public SolidColorBrush BackgroundBrush => new(IsPing ? Color.Parse("#0DFFFF62") : Color.Parse("#0DFFFFFF"));
     public SolidColorBrush TextBrush => new(IsPing ? Color.Parse("#10acff") : Colors.White);
 
-    public string UserTitleText => IsPrivate ? $"Message {(User.DisplayName.Equals(AppSettings.Current.Online.GlobalName) ? $"To {TargetUserName}" : $"From {User.DisplayName}")}" : User.DisplayName;
+    public string UserTitleText => IsPrivate ? $"Message {(User.DisplayName.Equals(SupaBase.UserInfo.DisplayName) ? $"To {TargetUserName}" : $"From {User.DisplayName}")}" : User.DisplayName;
 
     public bool HasImageData => Bitmap is not null;
     public bool HasTextData => !string.IsNullOrWhiteSpace(Text);

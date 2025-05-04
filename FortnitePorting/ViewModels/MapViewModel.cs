@@ -1,6 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
@@ -22,10 +23,16 @@ namespace FortnitePorting.ViewModels;
 
 public partial class MapViewModel : ViewModelBase
 {
+    [ObservableProperty] private SettingsService _appSettings;
+
+    public MapViewModel(SettingsService settings)
+    {
+        AppSettings = settings;
+    }
+    
     [ObservableProperty] private ObservableCollection<WorldPartitionMap> _maps = [];
     [ObservableProperty] private WorldPartitionMap _selectedMap;
     [ObservableProperty] private EExportLocation _exportLocation = EExportLocation.Blender;
-    [ObservableProperty] private bool _showDebugInfo = false;
     
     [ObservableProperty, NotifyPropertyChangedFor(nameof(MapTransform))] private Matrix _mapMatrix = Matrix.Identity;
     public MatrixTransform MapTransform => new(MapMatrix);
@@ -129,6 +136,14 @@ public partial class MapViewModel : ViewModelBase
         MapInfo.CreateNonDisplay("Athena", "FortniteGame/Content/Athena/Maps/Athena_Terrain"),
         MapInfo.CreateNonDisplay("Apollo", "FortniteGame/Content/Athena/Apollo/Maps/Apollo_Terrain")
     ];
+    
+    
+    public static readonly DirectoryInfo MapsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Maps"));
+
+    public MapViewModel()
+    {
+        MapsFolder.Create();
+    }
 
     private static string[] PluginRemoveList =
     [
@@ -139,8 +154,6 @@ public partial class MapViewModel : ViewModelBase
 
     public override async Task Initialize()
     {
-        ShowDebugInfo = AppSettings.Current.Debug.ShowMapDebugInfo;
-        
         // in-game maps
         foreach (var mapInfo in MapInfos)
         {
@@ -151,14 +164,14 @@ public partial class MapViewModel : ViewModelBase
 
         if (ChatVM.Permissions.HasFlag(EPermissions.LoadPluginFiles))
         {
-            foreach (var mountedVfs in CUE4ParseVM.Provider.MountedVfs)
+            foreach (var mountedVfs in UEParse.Provider.MountedVfs)
             {
                 if (mountedVfs is not IoStoreReader { Name: "plugin.utoc" } ioStoreReader) continue;
 
                 var gameFeatureDataFile = ioStoreReader.Files.FirstOrDefault(file => file.Key.EndsWith("GameFeatureData.uasset", StringComparison.OrdinalIgnoreCase));
                 if (gameFeatureDataFile.Value is null) continue;
 
-                var gameFeatureData = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync<UFortGameFeatureData>(gameFeatureDataFile.Value.PathWithoutExtension);
+                var gameFeatureData = await UEParse.Provider.SafeLoadPackageObjectAsync<UFortGameFeatureData>(gameFeatureDataFile.Value.PathWithoutExtension);
 
                 if (gameFeatureData?.ExperienceData?.DefaultMap is not { } defaultMapPath) continue;
 
@@ -173,7 +186,7 @@ public partial class MapViewModel : ViewModelBase
 
         if (Maps.Count == 0)
         {
-            AppWM.Message("No Supported Maps", "Failed to find any supported maps for processing.");
+            Info.Message("No Supported Maps", "Failed to find any supported maps for processing.");
         }
 
         foreach (var map in Maps.ToArray())
@@ -184,7 +197,7 @@ public partial class MapViewModel : ViewModelBase
             }
             catch (Exception e)
             {
-                AppWM.Dialog("Map Export", $"Failed to load {map.Info.Name} for export, skipping.");
+                Info.Dialog("Map Export", $"Failed to load {map.Info.Name} for export, skipping.");
 #if DEBUG
                 Log.Error(e.ToString());
 #else

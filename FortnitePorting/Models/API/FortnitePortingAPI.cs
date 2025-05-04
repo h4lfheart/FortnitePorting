@@ -83,7 +83,6 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
         await ExecuteAsync(HELP_URL, Method.Post, parameters:
         [
             new BodyParameter(JsonConvert.SerializeObject(article), ContentType.Json),
-            new HeaderParameter("token", AppSettings.Current.Online.Auth!.Token),
         ]);
     }
 
@@ -97,7 +96,6 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
         await ExecuteAsync(HELP_URL, Method.Delete, parameters:
         [
             new QueryParameter("title", title),
-            new HeaderParameter("token", AppSettings.Current.Online.Auth!.Token),
         ]);
     }
 
@@ -111,7 +109,6 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
         var response = await ExecuteAsync(HELP_IMAGE_URL, Method.Post, files: [ new ApiFile { PropertyName = "file", Name = "ignoreme.png", Data = data} ], parameters:
         [
             new QueryParameter("contentType", contentType),
-            new HeaderParameter("token", AppSettings.Current.Online.Auth!.Token),
         ]);
 
         return response.Content;
@@ -126,7 +123,6 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
     {
         await ExecuteAsync(STATS_URL, Method.Post, parameters:
         [
-            new HeaderParameter("token", AppSettings.Current.Online.Auth.Token),
             new HeaderParameter("version", Globals.Version.ToString()),
         ]);
     }
@@ -147,13 +143,13 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
         return GetAuthAsync(state).GetAwaiter().GetResult();
     }
     
-    public async Task<UserResponse?> GetUserAsync(string token)
+    public async Task<UserInfoResponse?> GetUserAsync(string token)
     {
-        return await ExecuteAsync<UserResponse>(AUTH_USER_URL,
+        return await ExecuteAsync<UserInfoResponse>(AUTH_USER_URL,
             parameters: new HeaderParameter("token", token));
     }
 
-    public UserResponse? GetUser(string token)
+    public UserInfoResponse? GetUser(string token)
     {
         return GetUserAsync(token).GetAwaiter().GetResult();
     }
@@ -163,7 +159,6 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
         await ExecuteAsync(LEADERBOARD_EXPORTS_URL, Method.Post, verbose: false, parameters: 
         [
             new BodyParameter(JsonConvert.SerializeObject(exports), ContentType.Json),
-            new HeaderParameter("token", AppSettings.Current.Online.Auth!.Token)
         ]);
     }
 
@@ -179,7 +174,6 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
         await ExecuteAsync(LEADERBOARD_EXPORTS_URL, Method.Post, verbose: false, parameters: 
         [
             new BodyParameter(JsonConvert.SerializeObject(exports), ContentType.Json),
-            new HeaderParameter("token", AppSettings.Current.Online.Auth!.Token)
         ]);
     }
 
@@ -220,7 +214,6 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
     {
         return await ExecuteAsync<PersonalExport[]>(LEADERBOARD_EXPORTS_PERSONAL_URL, verbose: false, parameters: 
         [
-            new HeaderParameter("token", AppSettings.Current.Online.Auth!.Token)
         ]) ?? [];
     }
 
@@ -247,7 +240,6 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
     {
         return await ExecuteAsync<StreaksResponse>(LEADERBOARD_STREAKS_PERSONAL_URL, verbose: false, parameters: 
         [
-            new HeaderParameter("token", AppSettings.Current.Online.Auth!.Token)
         ]);
     }
 
@@ -290,7 +282,6 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
     {
         await ExecuteAsync(AUTH_REFRESH_URL, Method.Post, parameters: 
         [
-            new HeaderParameter("token", AppSettings.Current.Online.Auth!.Token)
         ]);
     }
 
@@ -315,7 +306,6 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
         [
             new QueryParameter("identifier", identifier),
             new QueryParameter("choice", choice),
-            new HeaderParameter("token", AppSettings.Current.Online.Auth!.Token)
         ]);
     }
 

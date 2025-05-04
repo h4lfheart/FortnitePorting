@@ -24,7 +24,7 @@ namespace FortnitePorting.Views;
 
 public partial class ChatView : ViewBase<ChatViewModel>
 {
-    public ChatView() : base(ChatVM)
+    public ChatView()
     {
         InitializeComponent();
         ViewModel.Scroll = Scroll;
@@ -43,24 +43,21 @@ public partial class ChatView : ViewBase<ChatViewModel>
         {
             if (text.Length > 400)
             {
-                AppWM.Message("Character Limit", "Your message is over the character limit of 400 characters.");
+                Info.Message("Character Limit", "Your message is over the character limit of 400 characters.");
                 e.Handled = true;
                 return;
             }
             
             if (text.StartsWith("/shrug"))
             {
-                await OnlineService.Send(new MessagePacket(@"¯\_(ツ)_/¯"));
             }
             else if (ImageFlyout.IsOpen)
             {
                 var memoryStream = new MemoryStream();
                 ViewModel.SelectedImage.Save(memoryStream);
-                await OnlineService.Send(new MessagePacket(text, memoryStream.ToArray(), ViewModel.SelectedImageName));
             }
             else
             {
-                await OnlineService.Send(new MessagePacket(text));
             }
             
             textBox.Text = string.Empty;
@@ -82,7 +79,7 @@ public partial class ChatView : ViewBase<ChatViewModel>
         
         Scroll.ScrollToEnd();
         TextBox.Focus();
-        AppWM.ChatNotifications = 0;
+        //AppWM.ChatNotifications = 0;
     }
     
     private async void OnImagePressed(object? sender, PointerPressedEventArgs e)
@@ -106,7 +103,7 @@ public partial class ChatView : ViewBase<ChatViewModel>
             PrimaryButtonText = "Save",
             PrimaryButtonCommand = new RelayCommand(async () =>
             {
-                if (await SaveFileDialog(message.BitmapName, fileTypes: FilePickerFileTypes.ImagePng) is { } path)
+                if (await App.SaveFileDialog(message.BitmapName, fileTypes: FilePickerFileTypes.ImagePng) is { } path)
                 {
                     message.Bitmap.Save(path);
                 }
@@ -129,7 +126,6 @@ public partial class ChatView : ViewBase<ChatViewModel>
         if (control.DataContext is not ChatMessage message) return;
 
         message.ReactedTo = !message.ReactedTo;
-        await OnlineService.Send(new ReactionPacket(message.Id, message.ReactedTo));
     }
 
     private async void OnDeletePressed(object? sender, PointerPressedEventArgs e)
@@ -137,7 +133,6 @@ public partial class ChatView : ViewBase<ChatViewModel>
         if (sender is not Control control) return;
         if (control.DataContext is not ChatMessage message) return;
         
-        await OnlineService.Send(new DeleteMessagePacket(), new MetadataBuilder().With("Id", message.Id));
     }
 
     private void OnMessageUserPressed(object? sender, PointerPressedEventArgs e)

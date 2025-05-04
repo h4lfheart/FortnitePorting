@@ -11,6 +11,7 @@ using CUE4Parse_Conversion.UEFormat.Enums;
 using CUE4Parse.UE4.Versions;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
+using FortnitePorting.Export.Models;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Radio;
 using FortnitePorting.Shared;
@@ -22,32 +23,26 @@ namespace FortnitePorting.ViewModels;
 
 public partial class ExportSettingsViewModel : ViewModelBase
 {
-    [JsonIgnore] public Frame ContentFrame;
-    [JsonIgnore] public NavigationView NavigationView;
-    
     [ObservableProperty] private BlenderSettingsViewModel _blender = new();
     [ObservableProperty] private UnrealSettingsViewModel _unreal = new();
     [ObservableProperty] private FolderSettingsViewModel _folder = new();
+    
+    public ExportDataMeta CreateExportMeta(EExportLocation exportLocation = EExportLocation.Blender, string? customPath = null) => new()
+    {
+        ExportLocation = exportLocation,
+        AssetsRoot = AppSettings.Application.AssetPath,
+        Settings = exportLocation switch
+        {
+            EExportLocation.Blender => Blender,
+            EExportLocation.Unreal => Unreal,
+            EExportLocation.AssetsFolder or EExportLocation.CustomFolder => Folder
+        },
+        CustomPath = customPath
+    };
 
     public override async Task OnViewExited()
     {
         AppSettings.Save();
-    }
-
-    public void Navigate(EExportLocation exportLocation)
-    {
-        var name = exportLocation is EExportLocation.AssetsFolder or EExportLocation.CustomFolder ? "Folder" : exportLocation.ToString();
-        var viewName = $"FortnitePorting.Views.Settings.{name}SettingsView";
-        
-        var type = Type.GetType(viewName);
-        if (type is null) return;
-        
-        ContentFrame.Navigate(type, null, AppSettings.Current.Application.Transition);
-
-        NavigationView.SelectedItem = NavigationView.MenuItems
-            .Concat(NavigationView.FooterMenuItems)
-            .OfType<NavigationViewItem>()
-            .FirstOrDefault(item => (EExportLocation) item.Tag! == exportLocation);
     }
 }
 

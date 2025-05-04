@@ -53,7 +53,7 @@ public partial class AssetInfo : Base.BaseAssetInfo
         var styleObjects = new List<UObject>();
         foreach (var stylePath in stylePaths)
         {
-            if (CUE4ParseVM.Provider.TryLoadPackageObject(stylePath, out var styleObject))
+            if (UEParse.Provider.TryLoadPackageObject(stylePath, out var styleObject))
             {
                 styleObjects.Add(styleObject);
             }

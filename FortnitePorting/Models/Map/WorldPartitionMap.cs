@@ -22,6 +22,7 @@ using FortnitePorting.Export;
 using FortnitePorting.Extensions;
 using FortnitePorting.Models.Leaderboard;
 using FortnitePorting.Models.Unreal.Landscape;
+using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.ViewModels;
 using FortnitePorting.Windows;
@@ -59,6 +60,8 @@ public partial class WorldPartitionMap : ObservableObject
     
     public int GridCount => Grids.Sum(grid => grid.Maps.Count);
     
+    
+    public readonly DirectoryInfo MapsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Maps"));
     private string ExportPath => Path.Combine(MapsFolder.FullName, WorldName);
     
     private UWorld _world;
@@ -80,16 +83,16 @@ public partial class WorldPartitionMap : ObservableObject
         
         if (!Info.IsNonDisplay)
         {
-            var maskTexture = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync<UTexture2D>(Info.UseMask ? Info.MaskPath : "FortniteGame/Content/Global/Textures/Default/Blanks/T_White");
+            var maskTexture = await UEParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>(Info.UseMask ? Info.MaskPath : "FortniteGame/Content/Global/Textures/Default/Blanks/T_White");
             MaskBitmap = maskTexture.Decode()!.ToWriteableBitmap();
         
-            var mapTexture = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync<UTexture2D>(Info.MinimapPath);
+            var mapTexture = await UEParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>(Info.MinimapPath);
             MapBitmap = mapTexture.Decode()!.ToWriteableBitmap();
         }
         
         WorldName = Info.MapPath.SubstringAfterLast("/");
         
-        _world = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync<UWorld>(Info.MapPath);
+        _world = await UEParse.Provider.SafeLoadPackageObjectAsync<UWorld>(Info.MapPath);
         _level = await _world.PersistentLevel.LoadAsync<ULevel>();
 
         if (_level.GetOrDefault<UObject>("WorldSettings") is { } worldSettings
@@ -185,7 +188,7 @@ public partial class WorldPartitionMap : ObservableObject
         {
             MapBitmap.Save(GetExportPath($"Minimap_{WorldName}"));
             MaskBitmap.Save(GetExportPath($"Minimap_Mask_{WorldName}"));
-            Launch(ExportPath);
+            App.Launch(ExportPath);
         }
         else
         {
@@ -196,7 +199,7 @@ public partial class WorldPartitionMap : ObservableObject
     [RelayCommand]
     public async Task ExportMainLevel()
     {
-        var meta = AppSettings.Current.CreateExportMeta(MapVM.ExportLocation);
+        var meta = AppSettings.ExportSettings.CreateExportMeta(MapVM.ExportLocation);
         meta.WorldFlags = 0;
         if (WorldFlagsMainActors) meta.WorldFlags |= EWorldFlags.Actors;
         if (WorldFlagsWorldPartition) meta.WorldFlags |= EWorldFlags.WorldPartitionGrids;
@@ -212,7 +215,7 @@ public partial class WorldPartitionMap : ObservableObject
     {
         SelectedMaps.ForEach(map => map.Status = EWorldPartitionGridMapStatus.Waiting);
         
-        var meta = AppSettings.Current.CreateExportMeta(MapVM.ExportLocation);
+        var meta = AppSettings.ExportSettings.CreateExportMeta(MapVM.ExportLocation);
         meta.WorldFlags = 0;
         if (WorldPartitionFlagsMainActors) meta.WorldFlags |= EWorldFlags.Actors;
         if (WorldPartitionFlagsInstancedFoliage) meta.WorldFlags |= EWorldFlags.InstancedFoliage;
@@ -221,7 +224,7 @@ public partial class WorldPartitionMap : ObservableObject
         {
             map.Status = EWorldPartitionGridMapStatus.Exporting;
             
-            var world = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync<UWorld>(map.Path);
+            var world = await UEParse.Provider.SafeLoadPackageObjectAsync<UWorld>(map.Path);
             if (world is null) continue;
             
             await Exporter.Export(world, EExportType.World, meta);
@@ -229,9 +232,9 @@ public partial class WorldPartitionMap : ObservableObject
             map.Status = EWorldPartitionGridMapStatus.Finished;
         }
         
-        if (AppSettings.Current.Online.UseIntegration)
+        if (SupaBase.IsActive)
         {
-            await ApiVM.FortnitePorting.PostExportsAsync(SelectedMaps.Select(map => new PersonalExport(map.Path)));
+            await Api.FortnitePorting.PostExportsAsync(SelectedMaps.Select(map => new PersonalExport(map.Path)));
         }
         
         SelectedMaps.ForEach(map => map.Status = EWorldPartitionGridMapStatus.None);
@@ -452,7 +455,7 @@ public partial class WorldPartitionMap : ObservableObject
             }
         }
         
-        Launch(ExportPath);
+        App.Launch(ExportPath);
     }
 
     private string GetExportPath(string name, string folderName = "")

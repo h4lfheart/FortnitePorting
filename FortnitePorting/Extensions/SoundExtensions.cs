@@ -91,7 +91,7 @@ public static class SoundExtensions
         {
             binkaProcess.StartInfo = new ProcessStartInfo
             {
-                FileName = DependencyService.BinkaDecoderFile.FullName,
+                FileName = Dependencies.BinkaDecoderFile.FullName,
                 Arguments = $"-i \"{binkaPath}\" -o \"{outPath}\"",
                 UseShellExecute = false,
                 CreateNoWindow = true
@@ -113,7 +113,7 @@ public static class SoundExtensions
         {
             radaProcess.StartInfo = new ProcessStartInfo
             {
-                FileName = DependencyService.RadaDecoderFile.FullName,
+                FileName = Dependencies.RadaDecoderFile.FullName,
                 Arguments = $"-i \"{radaPath}\" -o \"{outPath}\"",
                 UseShellExecute = false,
                 CreateNoWindow = true,
@@ -138,7 +138,7 @@ public static class SoundExtensions
         {
             adpcmProcess.StartInfo = new ProcessStartInfo
             {
-                FileName = DependencyService.VgmStreamFile.FullName,
+                FileName = Dependencies.VgmStreamFile.FullName,
                 Arguments = $"-o \"{outPath}\" \"{adpcmPath}\"",
                 UseShellExecute = false,
                 CreateNoWindow = true

@@ -27,7 +27,7 @@ public class CustomBlurBehind : Control
         {
             BackgroundSource = AcrylicBackgroundSource.Digger,
             MaterialOpacity = 1.5,
-            TintColor = AppWM.Theme.BackgroundColor,
+            TintColor = AppSettings.Theme.BackgroundColor,
             TintOpacity = 1
         }.ToImmutable();
     }

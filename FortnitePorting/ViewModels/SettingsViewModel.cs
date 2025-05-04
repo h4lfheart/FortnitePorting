@@ -24,60 +24,9 @@ namespace FortnitePorting.ViewModels;
 
 public partial class SettingsViewModel : ViewModelBase
 {
-    [JsonIgnore] public Frame ContentFrame;
-    [JsonIgnore] public NavigationView NavigationView;
-    
-    // ViewModels
-    [ObservableProperty] private ExportSettingsViewModel _exportSettings = new();
-    [ObservableProperty] private InstallationSettingsViewModel _installation = new();
-    [ObservableProperty] private ApplicationSettingsViewModel _application = new();
-    [ObservableProperty] private ThemeSettingsViewModel _theme = new();
-    [ObservableProperty] private OnlineSettingsViewModel _online = new();
-    [ObservableProperty] private PluginViewModel _plugin = new();
-    [ObservableProperty] private DebugSettingsViewModel _debug = new();
-    
-    // Assets
-    [ObservableProperty] private HashSet<string> _favoriteAssets = [];
-
-    // Radio
-    [ObservableProperty] private RadioPlaylistSerializeData[] _playlists = [];
-    [ObservableProperty] private int _audioDeviceIndex = 0;
-    [ObservableProperty] private float _volume = 1.0f;
-
     public override async Task OnViewExited()
     {
         AppSettings.Save();
-    }
-
-
-    public ExportDataMeta CreateExportMeta(EExportLocation exportLocation = EExportLocation.Blender, string? customPath = null) => new()
-    {
-        ExportLocation = exportLocation,
-        AssetsRoot = Application.AssetPath,
-        Settings = exportLocation switch
-        {
-            EExportLocation.Blender => ExportSettings.Blender,
-            EExportLocation.Unreal => ExportSettings.Unreal,
-            EExportLocation.AssetsFolder => ExportSettings.Folder,
-            EExportLocation.CustomFolder => ExportSettings.Folder
-        },
-        CustomPath = customPath
-    };
-    
-    public void Navigate<T>()
-    {
-        Navigate(typeof(T));
-    }
-    
-    public void Navigate(Type type)
-    {
-        ContentFrame.Navigate(type, null, AppSettings.Current.Application.Transition);
-
-        var buttonName = type.Name.Replace("SettingsView", string.Empty);
-        NavigationView.SelectedItem = NavigationView.MenuItems
-            .Concat(NavigationView.FooterMenuItems)
-            .OfType<NavigationViewItem>()
-            .FirstOrDefault(item => (string) item.Tag! == buttonName);
     }
     
 }

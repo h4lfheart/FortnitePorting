@@ -21,6 +21,7 @@ using FortnitePorting.Application;
 
 using FortnitePorting.Export.Models;
 using FortnitePorting.Export.Types;
+using FortnitePorting.Extensions;
 using FortnitePorting.Models;
 using FortnitePorting.Models.API;
 using FortnitePorting.Models.Assets;
@@ -36,9 +37,9 @@ using FortnitePorting.Shared.Models.Fortnite;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
 using FortnitePorting.Views;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Serilog;
-using AssetLoaderCollection = FortnitePorting.Models.Assets.Loading.AssetLoaderCollection;
 using BaseAssetInfo = FortnitePorting.Models.Assets.Base.BaseAssetInfo;
 
 namespace FortnitePorting.Export;
@@ -47,14 +48,14 @@ public static class Exporter
 {
     public static async Task Export(Func<IEnumerable<BaseExport>> exportFunction, ExportDataMeta metaData)
     {
-        if (metaData.ExportLocation is EExportLocation.CustomFolder && await BrowseFolderDialog() is { } path)
+        if (metaData.ExportLocation is EExportLocation.CustomFolder && await App.BrowseFolderDialog() is { } path)
         {
             metaData.CustomPath = path;
         }
         
         await TaskService.RunAsync(async () =>
         {
-            var serverType = metaData.ExportLocation.ToServerType();
+            var serverType = metaData.ExportLocation.ServerType();
             if (serverType is EExportServerType.None)
             {
                 var exports = exportFunction.Invoke();
@@ -62,15 +63,15 @@ public static class Exporter
             }
             else
             {
-                if (await ApiVM.FortnitePortingServer.PingAsync(serverType) is false)
+                if (await Api.FortnitePortingServer.PingAsync(serverType) is false)
                 {
                     var serverName = serverType.GetDescription();
-                    AppWM.Message($"{serverName} Server", $"The {serverName} Plugin for Fortnite Porting is not currently installed, running, or is busy.", 
+                    Info.Message($"{serverName} Server", $"The {serverName} Plugin for Fortnite Porting is not currently installed, running, or is busy.", 
                         severity: InfoBarSeverity.Error, false,
                         useButton: true, buttonTitle: "Install Plugin", buttonCommand: () =>
                         {
-                            AppWM.Navigate<PluginView>();
-                            PluginVM.Navigate(metaData.ExportLocation);
+                            Navigation.App.Open<PluginView>();
+                            Navigation.Plugin.Open(metaData.ExportLocation.PluginViewType());
                         });
                     return;
                 }
@@ -85,7 +86,7 @@ public static class Exporter
                 };
             
                 var data = JsonConvert.SerializeObject(exportData);
-                await ApiVM.FortnitePortingServer.SendAsync(data, serverType);
+                await Api.FortnitePortingServer.SendAsync(data, serverType);
             }
         });
     }
@@ -162,7 +163,9 @@ public static class Exporter
 
         if (exportType is EExportType.None)
         {
-            var assetLoaders = AssetLoaderCollection.CategoryAccessor.Categories
+            // TODO do the dependency injection and make an exporter service
+            var assetLoaderService = AppServices.Services.GetRequiredService<AssetLoaderService>();
+            var assetLoaders = assetLoaderService.Categories
                 .SelectMany(category => category.Loaders)
                 .ToArray();
 
@@ -196,12 +199,12 @@ public static class Exporter
     private static BaseExport CreateExport(string name, UObject asset, EExportType exportType, BaseStyleData[] styles, ExportDataMeta metaData)
     {
         var path = asset.GetPathName();
-        AppWM.Message($"Exporting {name}", $"Exporting: {asset.Name}", id: path, autoClose: false);
+        Info.Message($"Exporting {name}", $"Exporting: {asset.Name}", id: path, autoClose: false);
 
         ExportProgressUpdate updateDelegate = (name, current, total) =>
         {
             var message = $"{current} / {total} \"{name}\"";
-            AppWM.UpdateMessage(id: path, message: message);
+            Info.UpdateMessage(id: path, message: message);
             Log.Information(message);
         };
 
@@ -220,7 +223,7 @@ public static class Exporter
             _ => throw new NotImplementedException($"Exporting {primitiveType} assets is not supported yet.")
         };
         
-        AppWM.CloseMessage(id: path);
+        Info.CloseMessage(id: path);
         metaData.UpdateProgress -= updateDelegate;
 
         GC.Collect();

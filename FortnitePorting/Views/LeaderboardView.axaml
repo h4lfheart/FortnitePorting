@@ -16,6 +16,7 @@
              xmlns:ScottPlot="clr-namespace:ScottPlot.Avalonia;assembly=ScottPlot.Avalonia"
              xmlns:oxy="http://oxyplot.org/avalonia"
              xmlns:leaderboard="clr-namespace:FortnitePorting.Models.Leaderboard"
+             xmlns:services="clr-namespace:FortnitePorting.Services"
              d:DesignHeight="720" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.LeaderboardView"
              x:DataType="viewModels:LeaderboardViewModel">
@@ -193,13 +194,12 @@
                     <Ellipse Height="104" Width="104" 
                              StrokeThickness="5" Stroke="#00000000">
                         <Ellipse.Fill>
-                            <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding OnlineRef.ProfilePictureURL, TargetNullValue='avares://FortnitePorting/Assets/DefaultProfile.png'}" Stretch="UniformToFill"/>
+                            <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding SupaBase.UserInfo.AvatarURL, TargetNullValue='avares://FortnitePorting/Assets/DefaultProfile.png'}" Stretch="UniformToFill"/>
                         </Ellipse.Fill>
                     </Ellipse>
                 </Grid>
-                <Image Grid.Row="1" Source="{Binding MedalBitmap}" Width="48" Margin="64 64 0 0 "/>
-                <TextBlock Grid.Row="3" Text="{Binding OnlineRef.GlobalName, TargetNullValue='No User'}" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
-                <TextBlock Grid.Row="4" Text="{Binding OnlineRef.UserName, TargetNullValue='Unauthenticated'}" Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" HorizontalAlignment="Center"/>
+                <TextBlock Grid.Row="3" Text="{Binding SupaBase.UserInfo.DisplayName, TargetNullValue='No User'}" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
+                <TextBlock Grid.Row="4" Text="{Binding SupaBase.UserInfo.UserName, TargetNullValue='Not Signed In'}" Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" HorizontalAlignment="Center"/>
                 <Separator Grid.Row="5" Margin="{ext:Space 1}"/>
                 
                 <Popup x:Name="ValuePopup" Grid.Row="6" Placement="Center">

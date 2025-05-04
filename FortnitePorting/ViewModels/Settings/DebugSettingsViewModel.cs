@@ -32,14 +32,12 @@ public partial class DebugSettingsViewModel : ViewModelBase
         {
             case nameof(DownloadDebuggingSymbols):
             {
-                if (ApiVM is null) break;
-                
                 var executingDirectory = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
                 if (DownloadDebuggingSymbols)
                 {
-                    var fileNames = await ApiVM.FortnitePorting.GetReleaseFilesAsync();
+                    var fileNames = await Api.FortnitePorting.GetReleaseFilesAsync();
                     var pdbFiles = fileNames.Where(fileName => fileName.EndsWith(".pdb"));
-                    foreach (var pdbFile in pdbFiles) await ApiVM.DownloadFileAsync(pdbFile, executingDirectory);
+                    foreach (var pdbFile in pdbFiles) await Api.DownloadFileAsync(pdbFile, executingDirectory);
                 }
                 else
                 {
@@ -47,19 +45,8 @@ public partial class DebugSettingsViewModel : ViewModelBase
                     foreach (var pdbFile in pdbFiles) pdbFile.Delete();
                 }
                 
-                AppWM.Message("Debugging Symbols", "Finished downloading debugging symbols. Please restart the application.");
+                Info.Message("Debugging Symbols", "Finished downloading debugging symbols. Please restart the application.");
 
-                break;
-            }
-            case nameof(ShowMapDebugInfo):
-            {
-                if (MapVM is not null)
-                    MapVM.ShowDebugInfo = ShowMapDebugInfo;
-                break;
-            }
-            case nameof(IsConsoleVisible):
-            {
-                AppWM.ConsoleIsVisible = IsConsoleVisible;
                 break;
             }
         }

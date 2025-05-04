@@ -79,8 +79,8 @@ public partial class MaterialPreviewWindowModel : WindowModelBase
         if (asset is null) return;
 
         FilesVM.ClearSearchFilter();
-        FilesVM.FlatViewJumpTo(CUE4ParseVM.Provider.FixPath(asset.GetPathName().SubstringBefore(".")));
-        AppWM.Navigate<FilesView>();
+        FilesVM.FlatViewJumpTo(UEParse.Provider.FixPath(asset.GetPathName().SubstringBefore(".")));
+        Navigation.App.Open<FilesView>();
         AppWM.Window.BringToTop();
     }
 

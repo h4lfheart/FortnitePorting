@@ -1,4 +1,3 @@
-using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
@@ -7,14 +6,11 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.Versions;
 using FluentAvalonia.UI.Controls;
-using FortnitePorting.Application;
 using FortnitePorting.Models.CUE4Parse;
-using FortnitePorting.Shared;
-using FortnitePorting.Shared.Validators;
 using FortnitePorting.Validators;
 using Newtonsoft.Json;
 
-namespace FortnitePorting.Models.Settings;
+namespace FortnitePorting.Models.Installation;
 
 public partial class InstallationProfile : ObservableValidator
 {
@@ -67,7 +63,7 @@ public partial class InstallationProfile : ObservableValidator
     
     public async Task BrowseArchivePath()
     {
-        if (await BrowseFolderDialog() is { } path)
+        if (await App.BrowseFolderDialog() is { } path)
         {
             ArchiveDirectory = path;
         }
@@ -75,7 +71,7 @@ public partial class InstallationProfile : ObservableValidator
     
     public async Task BrowseMappingsFile()
     {
-        if (await BrowseFileDialog(fileTypes: Globals.MappingsFileType, suggestedFileName: MappingsFile) is { } path)
+        if (await App.BrowseFileDialog(fileTypes: Globals.MappingsFileType, suggestedFileName: MappingsFile) is { } path)
         {
             MappingsFile = path;
         }
@@ -83,10 +79,10 @@ public partial class InstallationProfile : ObservableValidator
 
     public async Task FetchKeys()
     {
-        var keys = await ApiVM.FortniteCentral.GetKeysAsync(FetchKeysVersion);
+        var keys = await Api.FortniteCentral.GetKeysAsync(FetchKeysVersion);
         if (keys is null)  
         {
-            AppWM.Message("Fetch Keys", $"Unsuccessfully fetched keys for v{FetchKeysVersion}", InfoBarSeverity.Error);
+            Info.Message("Fetch Keys", $"Unsuccessfully fetched keys for v{FetchKeysVersion}", InfoBarSeverity.Error);
             return;
         }
 
@@ -99,26 +95,26 @@ public partial class InstallationProfile : ObservableValidator
             ExtraKeys.Add(new FileEncryptionKey(dynamicKey.Key));
         }
         
-        AppWM.Message("Fetch Keys", $"Successfully fetched {keys.DynamicKeys.Count + 1} keys for v{FetchKeysVersion}", InfoBarSeverity.Success);
+        Info.Message("Fetch Keys", $"Successfully fetched {keys.DynamicKeys.Count + 1} keys for v{FetchKeysVersion}", InfoBarSeverity.Success);
     }
     
     public async Task FetchMappings()
     {
-        var mappings = await ApiVM.FortniteCentral.GetMappingsAsync(FetchMappingsVersion);
+        var mappings = await Api.FortniteCentral.GetMappingsAsync(FetchMappingsVersion);
         var targetMappings = mappings?.FirstOrDefault();
         if (targetMappings is null)
         {
-            AppWM.Message("Fetch Mappings", $"Unsuccessfully fetched mappings for v{FetchMappingsVersion}", InfoBarSeverity.Error);
+            Info.Message("Fetch Mappings", $"Unsuccessfully fetched mappings for v{FetchMappingsVersion}", InfoBarSeverity.Error);
             return;
         }
 
-        var mappingsFilePath = Path.Combine(DataFolder.FullName, targetMappings.Filename);
+        var mappingsFilePath = Path.Combine(App.DataFolder.FullName, targetMappings.Filename);
         if (!File.Exists(mappingsFilePath))
         {
-            var downloadedMappingsInfo = await ApiVM.DownloadFileAsync(targetMappings.URL, mappingsFilePath);
+            var downloadedMappingsInfo = await Api.DownloadFileAsync(targetMappings.URL, mappingsFilePath);
             if (!downloadedMappingsInfo.Exists)
             {
-                AppWM.Message("Fetch Mappings", $"Unsuccessfully downloaded mappings for v{FetchMappingsVersion}", InfoBarSeverity.Error);
+                Info.Message("Fetch Mappings", $"Unsuccessfully downloaded mappings for v{FetchMappingsVersion}", InfoBarSeverity.Error);
                 return;
             }
         }
@@ -127,7 +123,7 @@ public partial class InstallationProfile : ObservableValidator
         UseMappingsFile = true;
         File.SetCreationTime(mappingsFilePath, targetMappings.Uploaded);
         
-        AppWM.Message("Fetch Mappings", $"Successfully fetched mappings for v{FetchMappingsVersion}", InfoBarSeverity.Success);
+        Info.Message("Fetch Mappings", $"Successfully fetched mappings for v{FetchMappingsVersion}", InfoBarSeverity.Success);
     }
     
     public async Task AddEncryptionKey()

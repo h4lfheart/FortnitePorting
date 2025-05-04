@@ -6,13 +6,16 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.Assets.Exports;
 using FortnitePorting.Framework;
 using FortnitePorting.Rendering;
+using FortnitePorting.Services;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
 
 namespace FortnitePorting.WindowModels;
 
-public partial class ModelPreviewWindowModel : WindowModelBase
+public partial class ModelPreviewWindowModel(SettingsService settings) : WindowModelBase
 {
+    [ObservableProperty] private SettingsService _settings = settings;
+    
     [ObservableProperty] private string _meshName;
     [ObservableProperty] private ModelPreviewControl _viewerControl;
     [ObservableProperty] private Queue<UObject> _queuedObjects = [];

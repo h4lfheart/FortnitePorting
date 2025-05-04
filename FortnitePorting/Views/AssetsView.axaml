@@ -25,8 +25,8 @@
     <Grid>
         <ui:NavigationView Classes="NoBackground" PaneDisplayMode="LeftCompact" CompactPaneLength="48"
                            IsPaneToggleButtonVisible="False" IsSettingsVisible="False" 
-                           MenuItemsSource="{Binding AssetLoaderCollection.NavItems}"
-                           SelectedItem="{Binding AssetLoaderCollection.SelectedNavItem, Mode=TwoWay}"
+                           MenuItemsSource="{Binding NavItems}"
+                           SelectedItem="{Binding SelectedNavItem, Mode=TwoWay}"
                            IsPaneVisible="{Binding IsPaneOpen}"
                            ItemInvoked="OnNavigationViewItemInvoked">
             <Grid Margin="{ext:Space 0, 1, 1, 1}">
@@ -61,20 +61,20 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         
-                        <ToggleButton Grid.Column="0" IsChecked="{Binding AssetLoaderCollection.ActiveLoader.IsPaused}" ToolTip.Tip="Pause/Resume Loading">
-                            <material:MaterialIcon Kind="{Binding AssetLoaderCollection.ActiveLoader.PauseIcon}"/>
+                        <ToggleButton Grid.Column="0" IsChecked="{Binding AssetLoader.ActiveLoader.IsPaused}" ToolTip.Tip="Pause/Resume Loading">
+                            <material:MaterialIcon Kind="{Binding AssetLoader.ActiveLoader.PauseIcon}"/>
                         </ToggleButton>
                         <Button Grid.Column="2" ToolTip.Tip="Random" Content="{material:MaterialIconExt DiceMultiple}" Click="OnRandomButtonPressed"/>
-                        <ToggleButton Grid.Column="4" IsChecked="{Binding AssetLoaderCollection.ActiveLoader.DescendingSort}" ToolTip.Tip="Ascending or Descending">
-                            <material:MaterialIcon Kind="{Binding AssetLoaderCollection.ActiveLoader.SortIcon}"/>
+                        <ToggleButton Grid.Column="4" IsChecked="{Binding AssetLoader.ActiveLoader.DescendingSort}" ToolTip.Tip="Ascending or Descending">
+                            <material:MaterialIcon Kind="{Binding AssetLoader.ActiveLoader.SortIcon}"/>
                         </ToggleButton>
                         <ComboBox Grid.Column="6" ToolTip.Tip="Sorting" HorizontalAlignment="Stretch"
                                   ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EAssetSortType}}"
-                                  SelectedItem="{Binding AssetLoaderCollection.ActiveLoader.SortType, Converter={StaticResource EnumToRecord}}" />
+                                  SelectedItem="{Binding AssetLoader.ActiveLoader.SortType, Converter={StaticResource EnumToRecord}}" />
                         <DropDownButton Grid.Column="8" HorizontalAlignment="Stretch">
                             <DropDownButton.Flyout>
                                 <Flyout>
-                                    <ItemsControl ItemsSource="{Binding AssetLoaderCollection.ActiveLoader.FilterCategories}">
+                                    <ItemsControl ItemsSource="{Binding AssetLoader.ActiveLoader.FilterCategories}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate DataType="filters:FilterCategory">
                                                 <StackPanel IsVisible="{Binding IsVisible}">
@@ -111,17 +111,17 @@
                         </DropDownButton>
                         
                         <AutoCompleteBox Grid.Column="10" FilterMode="ContainsOrdinal" Watermark="Search"
-                                         ItemsSource="{Binding AssetLoaderCollection.ActiveLoader.SearchAutoComplete}" 
-                                         Text="{Binding AssetLoaderCollection.ActiveLoader.SearchFilter, Mode=TwoWay}"/>
+                                         ItemsSource="{Binding AssetLoader.ActiveLoader.SearchAutoComplete}" 
+                                         Text="{Binding AssetLoader.ActiveLoader.SearchFilter, Mode=TwoWay}"/>
                         
                         <ToggleButton Grid.Column="12" ToolTip.Tip="Regex" HorizontalAlignment="Right" 
-                                      Content="{material:MaterialIconExt Regex}" IsChecked="{Binding AssetLoaderCollection.ActiveLoader.UseRegex}"/>
+                                      Content="{material:MaterialIconExt Regex}" IsChecked="{Binding AssetLoader.ActiveLoader.UseRegex}"/>
                         
                     </Grid>
                     
                     <ui:FABorder Grid.Row="2">
                         <ListBox x:Name="AssetsListBox" SelectionMode="Multiple" AutoScrollToSelectedItem="False"
-                                 ItemsSource="{Binding AssetLoaderCollection.ActiveCollection}" 
+                                 ItemsSource="{Binding AssetLoader.ActiveCollection}" 
                                  SelectionChanged="OnSelectionChanged">
                             <ListBox.Styles>
                                 <Style Selector="ListBoxItem">
@@ -172,15 +172,20 @@
                         </ListBox>
                     </ui:FABorder>
                     
-                    <ProgressBar Grid.Row="3" IsVisible="{Binding !AssetLoaderCollection.ActiveLoader.FinishedLoading}" Margin="{ext:Space 0, 1, 0, 0}" Value="{Binding AssetLoaderCollection.ActiveLoader.LoadedAssets}" Minimum="0" Maximum="{Binding AssetLoaderCollection.ActiveLoader.TotalAssets}"/>
+                    <ProgressBar Grid.Row="3" 
+                                 IsVisible="{Binding !AssetLoader.ActiveLoader.FinishedLoading}"
+                                 Margin="{ext:Space 0, 1, 0, 0}" 
+                                 Value="{Binding AssetLoader.ActiveLoader.LoadedAssets}" 
+                                 Minimum="0" 
+                                 Maximum="{Binding AssetLoader.ActiveLoader.TotalAssets}"/>
 
                 </Grid>
                 
                 <Grid Grid.Column="2" RowDefinitions="*,Auto"
-                      IsVisible="{Binding !!AssetLoaderCollection.ActiveLoader.SelectedAssetInfos.Count}">
+                      IsVisible="{Binding !!AssetLoader.ActiveLoader.SelectedAssetInfos.Count}">
 
                     <ScrollViewer Grid.Row="0" Classes="FixedScrollbar" VerticalScrollBarVisibility="Hidden" PointerWheelChanged="OnScrollAssets">
-                        <ItemsControl ItemsSource="{Binding AssetLoaderCollection.ActiveLoader.SelectedAssetInfos}">
+                        <ItemsControl ItemsSource="{Binding AssetLoader.ActiveLoader.SelectedAssetInfos}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Grid>
@@ -304,7 +309,7 @@
                         </Grid>
                     </ui:FABorder>
                 </Grid>
-                <TextBlock Grid.Column="2" IsVisible="{Binding !AssetLoaderCollection.ActiveLoader.SelectedAssetInfos.Count}" Text="No Asset Selected" 
+                <TextBlock Grid.Column="2" IsVisible="{Binding !AssetLoader.ActiveLoader.SelectedAssetInfos.Count}" Text="No Asset Selected" 
                            Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"
                            HorizontalAlignment="Center" VerticalAlignment="Center" />
             </Grid>

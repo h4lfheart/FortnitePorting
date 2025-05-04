@@ -1,29 +1,15 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using CUE4Parse.UE4.Versions;
-using FluentAvalonia.UI.Controls;
-using FortnitePorting.Application;
 using FortnitePorting.Framework;
-using FortnitePorting.Models.API;
-using FortnitePorting.Models.API.Responses;
-using FortnitePorting.Models.CUE4Parse;
-using FortnitePorting.Models.Settings;
-using FortnitePorting.Services;
-using FortnitePorting.Shared;
-using FortnitePorting.Shared.Services;
-using FortnitePorting.Shared.Validators;
 using FortnitePorting.Views;
 using Newtonsoft.Json;
-using RestSharp;
 using Serilog;
+using InstallationProfile = FortnitePorting.Models.Installation.InstallationProfile;
 
 namespace FortnitePorting.ViewModels;
 
@@ -61,13 +47,12 @@ public partial class WelcomeViewModel : ViewModelBase
     [RelayCommand]
     public async Task FinishSetup()
     {
-        AppSettings.Current.Installation.Profiles.Add(Profile);
-        AppSettings.Current.Installation.FinishedWelcomeScreen = true;
+        AppSettings.Installation.Profiles.Add(Profile);
+        AppSettings.Installation.FinishedSetup = true;
         
-        AppSettings.Current.Application.NextKofiAskDate = DateTime.Today.AddDays(7);
+        AppSettings.Application.NextKofiAskDate = DateTime.Today.AddDays(7);
         
-        AppWM.SetupTabsAreVisible = false;
-        AppWM.Navigate<HomeView>();
+        Navigation.App.Open<HomeView>();
         
         AppSettings.Save();
     }

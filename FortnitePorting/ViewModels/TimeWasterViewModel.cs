@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Platform;
 using Avalonia.Threading;
@@ -95,7 +96,7 @@ public partial class TimeWasterViewModel : ViewModelBase
     
     public override async Task Initialize()
     {
-        if (!(AppWM?.TimeWasterOpen ?? false)) return; // removes debug preview sounds
+        if (Design.IsDesignMode) return;
         
         RegisterUpdater(UpdateBackground);
         InitAudio(AmbientOutput, AmbientBackground);
@@ -108,7 +109,7 @@ public partial class TimeWasterViewModel : ViewModelBase
                 await Task.Delay(waitTime);
                 
                 if (IsGame) break;
-                if (!AppWM.TimeWasterOpen) break;
+                if (!BlackHole.IsActive) break;
                 
                 PianoSnippets.Random()?.Play();
             }
@@ -125,9 +126,6 @@ public partial class TimeWasterViewModel : ViewModelBase
     public void Exit()
     {
         OnApplicationExit();
-        AppWM.ToggleVisibility(true);
-        AppWM.TimeWasterOpen = false;
-        AppWM.TimeWaster = null;
     }
 
     public async Task InitializeGame()

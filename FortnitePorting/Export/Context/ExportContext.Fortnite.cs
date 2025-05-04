@@ -71,7 +71,7 @@ public partial class ExportContext
                             meta.PoseAsset = Export(poseAssetNode.Get<UPoseAsset>("PoseAsset"));
                         }
                         else if (skeletalMesh.ReferenceSkeleton.FinalRefBoneInfo.Any(bone => bone.Name.Text.Equals("FACIAL_C_FacialRoot", StringComparison.OrdinalIgnoreCase))
-                                 && CUE4ParseVM.Provider.TryLoadPackageObject("/BRCosmetics/Characters/Player/Male/Medium/Heads/M_MED_Jonesy3L_Head/Meshes/3L/3L_lod2_Facial_Poses_PoseAsset", out UPoseAsset poseAsset))
+                                 && UEParse.Provider.TryLoadPackageObject("/BRCosmetics/Characters/Player/Male/Medium/Heads/M_MED_Jonesy3L_Head/Meshes/3L/3L_lod2_Facial_Poses_PoseAsset", out UPoseAsset poseAsset))
                         {
                             meta.PoseAsset = Export(poseAsset);
                         }
@@ -246,7 +246,7 @@ public partial class ExportContext
                 {
                     var textureDataPath = textureDataRawPaths[i];
                     if (textureDataPath is null || string.IsNullOrEmpty(textureDataPath)) continue;
-                    if (!CUE4ParseVM.Provider.TryLoadPackageObject(textureDataPath, out UBuildingTextureData textureData)) continue;
+                    if (!UEParse.Provider.TryLoadPackageObject(textureDataPath, out UBuildingTextureData textureData)) continue;
                     textureDatas.Add(i, textureData);
                 }
             }

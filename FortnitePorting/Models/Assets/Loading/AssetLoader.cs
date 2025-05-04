@@ -14,15 +14,18 @@ using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.GameplayTags;
 using DynamicData;
 using DynamicData.Binding;
+using FortnitePorting.Application;
 using FortnitePorting.Extensions;
 using FortnitePorting.Models.Assets.Asset;
 using FortnitePorting.Models.Assets.Base;
 using FortnitePorting.Models.Assets.Custom;
 using FortnitePorting.Models.Assets.Filters;
+using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Services;
 using Material.Icons;
+using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
 using ScottPlot.Colormaps;
 using Serilog;
@@ -199,7 +202,7 @@ public partial class AssetLoader : ObservableObject
         if (BeganLoading) return;
         BeganLoading = true;
 
-        Assets = CUE4ParseVM.AssetRegistry
+        Assets = AppServices.UEParse.AssetRegistry
             .Where(data => ClassNames.Contains(data.AssetClass.Text))
             .ToList();
         Assets.RemoveAll(data => data.AssetName.Text.EndsWith("Random", StringComparison.OrdinalIgnoreCase));
@@ -270,7 +273,7 @@ public partial class AssetLoader : ObservableObject
 
     private async Task LoadAsset(FAssetData data)
     {
-        var asset = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync(data.ObjectPath);
+        var asset = await AppServices.UEParse.Provider.SafeLoadPackageObjectAsync(data.ObjectPath);
         if (asset is null) return;
 
         /*data.TagsAndValues.TryGetValue("DisplayName", out var displayName);
@@ -289,7 +292,7 @@ public partial class AssetLoader : ObservableObject
         var isHidden = HideNames.Any(name => asset.Name.Contains(name, StringComparison.OrdinalIgnoreCase)) || HidePredicate(this, asset, displayName);
         if (isHidden && !LoadHiddenAssets) return;
         
-        var icon = IconHandler(asset) ?? await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync<UTexture2D>(PlaceholderIconPath);
+        var icon = IconHandler(asset) ?? await AppServices.UEParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>(PlaceholderIconPath);
         if (icon is null) return;
         
         var args = new AssetItemCreationArgs
@@ -310,12 +313,12 @@ public partial class AssetLoader : ObservableObject
     
     private async Task LoadAsset(ManuallyDefinedAsset manualAsset)
     {
-        var asset = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync(manualAsset.AssetPath);
+        var asset = await AppServices.UEParse.Provider.SafeLoadPackageObjectAsync(manualAsset.AssetPath);
         if (asset is null) return;
 
         var displayName = manualAsset.Name;
             
-        var icon = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync<UTexture2D>(manualAsset.IconPath) ?? await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync<UTexture2D>(PlaceholderIconPath);
+        var icon = await AppServices.UEParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>(manualAsset.IconPath) ?? await AppServices.UEParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>(PlaceholderIconPath);
         if (icon is null) return;
         
         var args = new AssetItemCreationArgs

@@ -39,7 +39,7 @@ public enum EExportServerType
 
 public static class EExportServerTypeExtensions
 {
-    public static EExportServerType ToServerType(this EExportLocation exportLocation) => exportLocation switch
+    public static EExportServerType ServerType(this EExportLocation exportLocation) => exportLocation switch
     {
         EExportLocation.Blender => EExportServerType.Blender,
         EExportLocation.Unreal => EExportServerType.Unreal,

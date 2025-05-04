@@ -39,7 +39,7 @@ public class FontExport : BaseExport
         if (metaData.ExportLocation.IsFolder())
         {
             var exportPath = Exporter.Export(fontFace, returnRealPath: true, synchronousExport: true);
-            Launch(System.IO.Path.GetDirectoryName(exportPath)!);
+            App.Launch(System.IO.Path.GetDirectoryName(exportPath)!);
         }
         else
         {

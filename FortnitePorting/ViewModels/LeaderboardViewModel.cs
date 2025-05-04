@@ -13,6 +13,7 @@ using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.Leaderboard;
+using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels.Settings;
@@ -24,8 +25,16 @@ using ScottPlot.TickGenerators.TimeUnits;
 
 namespace FortnitePorting.ViewModels;
 
-public partial class LeaderboardViewModel : ViewModelBase
+public partial class LeaderboardViewModel() : ViewModelBase
 {
+    [ObservableProperty] private SupabaseService _supaBase;
+
+    public LeaderboardViewModel(SupabaseService supabase) : this()
+    {
+        SupaBase = supabase;
+    }
+    
+    
     [ObservableProperty] private ObservableCollection<LeaderboardUser> _leaderboardUsers = [];
     [ObservableProperty] private ObservableCollection<LeaderboardExport> _leaderboardExports = [];
     [ObservableProperty] private ObservableCollection<LeaderboardStreaksUser> _leaderboardStreaks = [];
@@ -36,8 +45,6 @@ public partial class LeaderboardViewModel : ViewModelBase
     [ObservableProperty] private Bitmap? _medalBitmap;
 
     [ObservableProperty] private int _popupValue;
-    
-    public OnlineSettingsViewModel OnlineRef => AppSettings.Current.Online;
 
     public override async Task OnViewOpened()
     {
@@ -45,13 +52,13 @@ public partial class LeaderboardViewModel : ViewModelBase
         
         TaskService.Run(Load);
         
-        var personalExports = await ApiVM.FortnitePorting.GetPersonalExportsAsync();
+        var personalExports = await Api.FortnitePorting.GetPersonalExportsAsync();
         PersonalExports = [..personalExports];
         
-        var leaderboardStreaks = await ApiVM.FortnitePorting.GetStreaksAsync();
+        var leaderboardStreaks = await Api.FortnitePorting.GetStreaksAsync();
         LeaderboardStreaks = [..leaderboardStreaks];
 
-        StreaksResponse = await ApiVM.FortnitePorting.GetPersonalStreaksAsync();
+        StreaksResponse = await Api.FortnitePorting.GetPersonalStreaksAsync();
         
         StatisticsModels =
         [
@@ -74,8 +81,8 @@ public partial class LeaderboardViewModel : ViewModelBase
 
     public async Task Load() 
     {
-        var leaderboardUsers = (await ApiVM.FortnitePorting.GetLeaderboardUsersAsync()).ToList();
-        var leaderboardExports = (await ApiVM.FortnitePorting.GetLeaderboardExportsAsync()).ToList();
+        var leaderboardUsers = (await Api.FortnitePorting.GetLeaderboardUsersAsync()).ToList();
+        var leaderboardExports = (await Api.FortnitePorting.GetLeaderboardExportsAsync()).ToList();
         var invalidExportsByUser = new Dictionary<Guid, int>();
         foreach (var export in leaderboardExports)
         {
@@ -107,9 +114,5 @@ public partial class LeaderboardViewModel : ViewModelBase
         LeaderboardExports = [..leaderboardExports];
         LeaderboardUsers = [..leaderboardUsers];
             
-        var foundUser = LeaderboardUsers.FirstOrDefault(user =>
-            user.Identifier == AppSettings.Current.Online.Identification?.Identifier);
-
-        MedalBitmap = foundUser?.MedalBitmap;
     }
 }

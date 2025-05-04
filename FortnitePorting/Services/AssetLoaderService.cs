@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Engine;
@@ -16,27 +15,24 @@ using CUE4Parse.UE4.Objects.UObject;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
 using FortnitePorting.Export.Custom;
-using FortnitePorting.Export.Types;
 using FortnitePorting.Extensions;
-using FortnitePorting.Models.Assets.Asset;
+using FortnitePorting.Models.Assets.Base;
 using FortnitePorting.Models.Assets.Custom;
-using FortnitePorting.Services;
-using FortnitePorting.Shared;
+using FortnitePorting.Models.Assets.Loading;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Services;
 using SkiaSharp;
 
-namespace FortnitePorting.Models.Assets.Loading;
+namespace FortnitePorting.Services;
 
-public partial class AssetLoaderCollection : ObservableObject
+public partial class AssetLoaderService : ObservableObject
 {
-    public static AssetLoaderCollection CategoryAccessor = new(false);
-    
-    public AssetLoader[] Loaders => Categories.SelectMany(category => category.Loaders).ToArray();
+    [ObservableProperty] private AssetLoader _activeLoader;
+    [ObservableProperty] private ReadOnlyObservableCollection<BaseAssetItem> _activeCollection;
     
     public List<AssetLoaderCategory> Categories { get; set; } =
     [
-        new AssetLoaderCategory(EAssetCategory.Cosmetics)
+        new(EAssetCategory.Cosmetics)
         {
             Loaders = 
             [
@@ -112,7 +108,7 @@ public partial class AssetLoaderCollection : ObservableObject
                 }
             ]
         },
-        new AssetLoaderCategory(EAssetCategory.Creative)
+        new(EAssetCategory.Creative)
         {
             Loaders = 
             [
@@ -150,7 +146,7 @@ public partial class AssetLoaderCollection : ObservableObject
                 }
             ]
         },
-        new AssetLoaderCategory(EAssetCategory.Gameplay)
+        new(EAssetCategory.Gameplay)
         {
             Loaders = 
             [
@@ -178,14 +174,14 @@ public partial class AssetLoaderCollection : ObservableObject
                     ManuallyDefinedAssets = new Lazy<ManuallyDefinedAsset[]>(() =>
                     {
                         string[] weaponModClasses = ["FortWeaponModItemDefinition", "FortWeaponModItemDefinitionMagazine", "FortWeaponModItemDefinitionOptic"];
-                        var weaponModTable = CUE4ParseVM.Provider.LoadPackageObject<UDataTable>("WeaponMods/DataTables/WeaponModOverrideData");
-                        var assetDatas = CUE4ParseVM.AssetRegistry.Where(data => weaponModClasses.Contains(data.AssetClass.Text));
+                        var weaponModTable = AppServices.UEParse.Provider.LoadPackageObject<UDataTable>("WeaponMods/DataTables/WeaponModOverrideData");
+                        var assetDatas = AppServices.UEParse.AssetRegistry.Where(data => weaponModClasses.Contains(data.AssetClass.Text));
 
                         var weaponModAssets = new List<ManuallyDefinedAsset>();
                         var alreadyAddedNames = new HashSet<string>();
                         foreach (var assetData in assetDatas)
                         {
-                            if (!CUE4ParseVM.Provider.TryLoadPackageObject(assetData.ObjectPath, out var asset)) continue;
+                            if (!AppServices.UEParse.Provider.TryLoadPackageObject(assetData.ObjectPath, out var asset)) continue;
 
                             var icon = AssetLoader.GetIcon(asset);
                             if (icon is null) continue;
@@ -374,7 +370,7 @@ public partial class AssetLoaderCollection : ObservableObject
                 }
             ]
         },
-        new AssetLoaderCategory(EAssetCategory.Festival)
+        new(EAssetCategory.Festival)
         {
             Loaders = 
             [
@@ -453,7 +449,7 @@ public partial class AssetLoaderCollection : ObservableObject
                 }
             ]
         }*/
-        new AssetLoaderCategory(EAssetCategory.FallGuys)
+        new(EAssetCategory.FallGuys)
         {
             Loaders = 
             [
@@ -468,57 +464,12 @@ public partial class AssetLoaderCollection : ObservableObject
         }
     ];
     
-    [ObservableProperty] private ObservableCollection<NavigationViewItem> _navItems = [];
-    [ObservableProperty] private NavigationViewItem _selectedNavItem;
-    
-    [ObservableProperty] private AssetLoader _activeLoader;
-    [ObservableProperty] private ReadOnlyObservableCollection<Base.BaseAssetItem> _activeCollection;
-
-    public AssetLoaderCollection(bool isForUi = true)
-    {
-        if (!isForUi) return;
-        
-        TaskService.RunDispatcher(() =>
-        {
-            foreach (var category in Categories)
-            {
-                NavItems.Add(new NavigationViewItem
-                {
-                    Tag = category.Category,
-                    Content = category.Category.GetDescription(),
-                    SelectsOnInvoked = false,
-                    IconSource = new ImageIconSource
-                    {
-                        Source = ImageExtensions.AvaresBitmap($"avares://FortnitePorting/Assets/FN/{category.Category.ToString()}.png")
-                    },
-                    MenuItemsSource = category.Loaders.Select(loader => new NavigationViewItem
-                    {
-                        Tag = loader.Type, 
-                        Content = loader.Type.GetDescription(), 
-                        IconSource = new ImageIconSource
-                        {
-                            Source = ImageExtensions.AvaresBitmap($"avares://FortnitePorting/Assets/FN/{loader.Type.ToString()}.png")
-                        },
-                    })
-                });
-            }
-        });
-    }
-    
     public async Task Load(EExportType type)
     {
         Set(type);
         await ActiveLoader.Load();
     }
     
-    public void Set(EExportType type)
-    {
-        DiscordService.Update(type);
-        ActiveLoader = Get(type);
-        ActiveCollection = ActiveLoader.Filtered;
-        ActiveLoader.UpdateFilterVisibility();
-    }
-
     public AssetLoader Get(EExportType type)
     {
         foreach (var category in Categories)
@@ -530,5 +481,13 @@ public partial class AssetLoaderCollection : ObservableObject
         }
 
         return null!; // if this happens it's bc im stupid
+    }
+    
+    public void Set(EExportType type)
+    {
+        DiscordService.Update(type);
+        ActiveLoader = Get(type);
+        ActiveCollection = ActiveLoader.Filtered;
+        ActiveLoader.UpdateFilterVisibility();
     }
 }

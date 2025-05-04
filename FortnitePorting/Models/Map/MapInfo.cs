@@ -9,6 +9,6 @@ public record MapInfo(string Name, string MapPath, string MinimapPath, string Ma
     
     public bool IsValid()
     {
-        return CUE4ParseVM.Provider.Files.ContainsKey(CUE4ParseVM.Provider.FixPath(MapPath + ".umap"));
+        return UEParse.Provider.Files.ContainsKey(UEParse.Provider.FixPath(MapPath + ".umap"));
     }
 }

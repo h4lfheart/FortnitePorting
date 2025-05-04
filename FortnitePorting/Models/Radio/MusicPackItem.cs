@@ -122,7 +122,7 @@ public partial class MusicPackItem : ObservableObject
             ESoundFormat.FLAC => Globals.FLACFileType,
         };
         
-        if (await SaveFileDialog(suggestedFileName: Id, fileType) is not { } path) return;
+        if (await App.SaveFileDialog(suggestedFileName: Id, fileType) is not { } path) return;
         await SaveAudio(path, RadioVM.SoundFormat);
     }
 
@@ -130,7 +130,7 @@ public partial class MusicPackItem : ObservableObject
     {
         await TaskService.RunAsync(async () =>
         {
-            if (!SoundExtensions.TrySaveSoundToAssets(SoundWave.Load<USoundWave>(), AppSettings.Current.Application.AssetPath, out string wavPath)) return;
+            if (!SoundExtensions.TrySaveSoundToAssets(SoundWave.Load<USoundWave>(), AppServices.AppSettings.Application.AssetPath, out string wavPath)) return;
 
             if (File.Exists(path)) return;
 
@@ -204,7 +204,7 @@ public partial class MusicPackItem : ObservableObject
     {
         await TaskService.RunAsync(async () =>
         {
-            if (await SaveFileDialog(suggestedFileName: CoverArtName, Globals.PNGFileType) is not { } pngPath) return;
+            if (await App.SaveFileDialog(suggestedFileName: CoverArtName, Globals.PNGFileType) is not { } pngPath) return;
             CoverArtBitmap.Save(pngPath);
         });
     }
@@ -225,7 +225,7 @@ public partial class MusicPackItem : ObservableObject
     [RelayCommand]
     public async Task CopyPath()
     {
-        await Clipboard.SetTextAsync(FilePath);
+        await App.Clipboard.SetTextAsync(FilePath);
     }
 
     private bool IsCustomPlaylist()

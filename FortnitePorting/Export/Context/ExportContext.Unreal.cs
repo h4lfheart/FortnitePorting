@@ -198,7 +198,7 @@ public partial class ExportContext
                 {
                     var basePath = template.GetPathName().SubstringBeforeLast(".");
                     var blueprintPath = $"{basePath}.{basePath.SubstringAfterLast("/")}_C";
-                    if (CUE4ParseVM.Provider.TryLoadPackageObject(blueprintPath, out var templateBlueprintGeneratedClass))
+                    if (UEParse.Provider.TryLoadPackageObject(blueprintPath, out var templateBlueprintGeneratedClass))
                     {
                         exportMesh.AddChildren(ConstructionScript(templateBlueprintGeneratedClass));
                         exportMesh.AddChildren(InheritableComponentHandler(templateBlueprintGeneratedClass));
@@ -225,7 +225,7 @@ public partial class ExportContext
                 {
                     var basePath = template.GetPathName().SubstringBeforeLast(".");
                     var blueprintPath = $"{basePath}.{basePath.SubstringAfterLast("/")}_C";
-                    if (CUE4ParseVM.Provider.TryLoadPackageObject(blueprintPath, out var templateBlueprintGeneratedClass))
+                    if (UEParse.Provider.TryLoadPackageObject(blueprintPath, out var templateBlueprintGeneratedClass))
                     {
                         exportMesh.AddChildren(ConstructionScript(templateBlueprintGeneratedClass));
                         exportMesh.AddChildren(InheritableComponentHandler(templateBlueprintGeneratedClass));

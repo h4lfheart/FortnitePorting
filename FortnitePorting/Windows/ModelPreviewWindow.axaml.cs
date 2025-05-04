@@ -27,7 +27,7 @@ public partial class ModelPreviewWindow : WindowBase<ModelPreviewWindowModel>
     {
         InitializeComponent();
         DataContext = WindowModel;
-        Owner = ApplicationService.Application.MainWindow;
+        Owner = App.Lifetime.MainWindow;
     }
 
     public static void Preview(IEnumerable<UObject> objects)

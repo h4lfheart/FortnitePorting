@@ -33,6 +33,7 @@
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
         <PackageReference Include="Material.Icons.Avalonia" Version="2.1.9" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0-preview.3.25171.5" />
         <PackageReference Include="NAudio" Version="2.2.1" />
         <PackageReference Include="NAudio.Vorbis" Version="1.5.0" />
         <PackageReference Include="NodifyAvalonia" Version="6.5.0" />
@@ -41,12 +42,14 @@
         <PackageReference Include="RestSharp.Serializers.NewtonsoftJson" Version="110.2.1-alpha.0.20" />
         <PackageReference Include="ScottPlot.Avalonia" Version="5.0.36" />
         <PackageReference Include="Serilog.Sinks.File" Version="5.0.1-dev-00972" />
+        <PackageReference Include="Supabase" Version="1.1.1" />
         <PackageReference Include="Tomlyn" Version="0.17.0" />
         <PackageReference Include="z440.atl.core" Version="5.24.0" />
     </ItemGroup>
     
     <ItemGroup>
         <AvaloniaResource Include="Assets\**" />
+        <AvaloniaResource Include="supabase.toml" />
     </ItemGroup>
     
     <ItemGroup>
@@ -61,6 +64,10 @@
     
     <ItemGroup>
       <None Remove="..\..\..\.nuget\packages\naudio.vorbis\1.5.0\contentFiles\any\netstandard2.0\README.md" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <Folder Include="Models\Supabase\Tables\" />
     </ItemGroup>
 
 </Project>

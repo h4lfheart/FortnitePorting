@@ -13,15 +13,17 @@ using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.Utils;
+using FortnitePorting.Application;
 using FortnitePorting.Extensions;
 using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.Fortnite;
+using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Models.Fortnite;
+using Microsoft.Extensions.DependencyInjection;
 using OpenTK.Graphics.OpenGL;
 using SkiaSharp;
 using AssetLoader = Avalonia.Platform.AssetLoader;
-using AssetLoaderCollection = FortnitePorting.Models.Assets.Loading.AssetLoaderCollection;
 
 namespace FortnitePorting.Models.Leaderboard;
 
@@ -45,7 +47,7 @@ public partial class LeaderboardExport : ObservableObject
     // returns if is a valid export
     public async Task<bool> Load()
     {
-        if (!CUE4ParseVM.FinishedLoading)
+        if (!UEParse.FinishedLoading)
         {
             SetFailureDefaults();
             return false;
@@ -53,7 +55,7 @@ public partial class LeaderboardExport : ObservableObject
 
         if (!CachedObjects.TryGetValue(ObjectPath, out var asset))
         {
-            asset = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync(ObjectPath);
+            asset = await UEParse.Provider.SafeLoadPackageObjectAsync(ObjectPath);
         }
         
         if (asset is null) 
@@ -62,7 +64,12 @@ public partial class LeaderboardExport : ObservableObject
             return false;
         }
         
-        var assetLoader =  AssetLoaderCollection.CategoryAccessor.Loaders.FirstOrDefault(loader => loader.ClassNames.Contains(asset.ExportType));
+        // TODO do the dependency injection and make an exporter service
+        var assetLoaderService = AppServices.Services.GetRequiredService<AssetLoaderService>();
+        var assetLoaders = assetLoaderService.Categories
+            .SelectMany(category => category.Loaders)
+            .ToArray();
+        var assetLoader = assetLoaders.FirstOrDefault(loader => loader.ClassNames.Contains(asset.ExportType));
         if (assetLoader is null)
         {
             ObjectName = ID;

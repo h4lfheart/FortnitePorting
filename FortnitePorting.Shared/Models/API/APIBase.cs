@@ -6,6 +6,8 @@ namespace FortnitePorting.Shared.Models.API;
 
 public class APIBase
 {
+    protected virtual string BaseURL => string.Empty;
+
     protected readonly RestClient _client;
 
     protected APIBase(RestClient client)
@@ -17,7 +19,7 @@ public class APIBase
     {
         try
         {
-            var request = new RestRequest(url, method);
+            var request = new RestRequest(string.IsNullOrEmpty(BaseURL) ? url : $"{BaseURL}/{url}", method);
             foreach (var parameter in parameters) request.AddParameter(parameter);
 
             var response = await _client.ExecuteAsync<T>(request).ConfigureAwait(false);

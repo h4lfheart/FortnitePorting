@@ -43,7 +43,7 @@ public partial class MaterialPreviewWindow : WindowBase<MaterialPreviewWindowMod
     {
         InitializeComponent();
         DataContext = WindowModel;
-        Owner = ApplicationService.Application.MainWindow;
+        Owner = App.Lifetime.MainWindow;
     }
 
     public static void Preview(UObject obj)

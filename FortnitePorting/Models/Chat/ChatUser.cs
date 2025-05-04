@@ -55,13 +55,13 @@ public partial class ChatUser : ObservableObject
     [RelayCommand]
     public async Task CopyGUID()
     {
-        await Clipboard.SetTextAsync(Guid.ToString());
+        await App.Clipboard.SetTextAsync(Guid.ToString());
     }
     
     [RelayCommand]
     public async Task CopyID()
     {
-        await Clipboard.SetTextAsync(Id);
+        await App.Clipboard.SetTextAsync(Id);
     }
     
     [RelayCommand]
@@ -85,8 +85,6 @@ public partial class ChatUser : ObservableObject
         {
             if (inputBox.Text is not { } text) return;
 
-            await OnlineService.Send(new MessagePacket(text), new MetadataBuilder()
-                .With("Target", Guid));
         });
         
         inputBox.AddHandler(InputElement.KeyDownEvent, (sender, args) =>
@@ -137,14 +135,13 @@ public partial class ChatUser : ObservableObject
                 if (messageBox?.Text is not { } message) return;
 
                 var path = Exporter.FixPath(text);
-                var asset = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync(path);
+                var asset = await UEParse.Provider.SafeLoadPackageObjectAsync(path);
                 if (asset is null)
                 {
-                    AppWM.Message("Failed to Send Export", $"Could not load \"{text}\"", InfoBarSeverity.Error);
+                    Info.Message("Failed to Send Export", $"Could not load \"{text}\"", InfoBarSeverity.Error);
                     return;
                 }
 
-                await OnlineService.Send(new ExportPacket(path, message), new MetadataBuilder().With("Target", Guid));
             })
         };
 
@@ -171,10 +168,6 @@ public partial class ChatUser : ObservableObject
             Content = comboBox,
             CloseButtonText = "Cancel",
             PrimaryButtonText = "Set",
-            PrimaryButtonCommand = new RelayCommand(async () =>
-            {
-                await OnlineService.Send(new SetRolePacket(Guid, Enum.GetValues<ERoleType>().FirstOrDefault(role => role.GetDescription().Equals(comboBox.SelectedItem))));
-            })
         };
 
         await dialog.ShowAsync();

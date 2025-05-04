@@ -21,7 +21,7 @@ public partial class PropertiesPreviewWindow : WindowBase<PropertiesPreviewWindo
     {
         InitializeComponent();
         DataContext = WindowModel;
-        Owner = ApplicationService.Application.MainWindow;
+        Owner = App.Lifetime.MainWindow;
 
         WindowModel.AssetName = name;
         WindowModel.PropertiesJson = json;

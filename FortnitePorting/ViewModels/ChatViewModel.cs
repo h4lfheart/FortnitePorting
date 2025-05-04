@@ -60,7 +60,7 @@ public partial class ChatViewModel : ViewModelBase
     [RelayCommand]
     public async Task OpenImage()
     {
-        if (await BrowseFileDialog(fileTypes: Globals.ChatAttachmentFileType) is { } path)
+        if (await App.BrowseFileDialog(fileTypes: Globals.ChatAttachmentFileType) is { } path)
         {
             SelectedImageName = Path.GetFileName(path);
             SelectedImage = new Bitmap(path);

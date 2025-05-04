@@ -33,7 +33,7 @@ public partial class BlenderInstallation(string blenderExecutablePath) : Observa
         "fortnite_porting",
         "blender_manifest.toml");
     
-    public static readonly DirectoryInfo PluginWorkingDirectory = new(Path.Combine(PluginsFolder.FullName, "Blender"));
+    public static readonly DirectoryInfo PluginWorkingDirectory = new(Path.Combine(App.PluginsFolder.FullName, "Blender"));
     public static readonly Version MinimumVersion = new(4, 2);
 
     public static Version GetVersion(string blenderPath)
@@ -45,7 +45,7 @@ public partial class BlenderInstallation(string blenderExecutablePath) : Observa
     {
         if (!File.Exists(ManifestPath))
         {
-            AppWM.Message("Blender Extension", $"Plugin manifest does not exist at path {ManifestPath}, installation may have gone wrong.\nPlease remove the installation from Blender and Fortnite Porting and try again.");
+            Info.Message("Blender Extension", $"Plugin manifest does not exist at path {ManifestPath}, installation may have gone wrong.\nPlease remove the installation from Blender and Fortnite Porting and try again.");
             return false;
         }
         
@@ -70,15 +70,15 @@ public partial class BlenderInstallation(string blenderExecutablePath) : Observa
         {
             if (didSyncProperly)
             {
-                AppWM.Dialog("Plugin Installation Succeeded", 
+                Info.Dialog("Plugin Installation Succeeded", 
                     "Successfully installed the plugin, please enable the UEFormat plugin and then the Fortnite Porting plugin in Blender if this is your first time using it.",
-                    "Open Blender", () => Launch(BlenderPath));
+                    "Open Blender", () => App.Launch(BlenderPath));
             }
             else
             {
-                AppWM.Dialog("Plugin Installation Failed", 
+                Info.Dialog("Plugin Installation Failed", 
                     "Failed to install the plugin, please install it manually by dragging and dropping the UEFormat plugin and then the Fortnite Porting plugin in Blender.", 
-                    "Plugins Folder", () => Launch(PluginsFolder.FullName));
+                    "Plugins Folder", () => App.Launch(App.PluginsFolder.FullName));
 
             }
         }

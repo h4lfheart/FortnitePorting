@@ -248,7 +248,7 @@ public partial class ExportContext
             }
             case UFontFace fontFace:
             {
-                if (!CUE4ParseVM.Provider.TrySavePackage(fontFace.GetPathName().SubstringBeforeLast(".") + ".ufont",
+                if (!UEParse.Provider.TrySavePackage(fontFace.GetPathName().SubstringBeforeLast(".") + ".ufont",
                         out var assets) || assets.Count == 0) break;
 
                 var fontData = assets.First().Value;

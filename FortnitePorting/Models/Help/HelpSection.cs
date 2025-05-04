@@ -37,7 +37,7 @@ public partial class HelpSection : ObservableObject
             EHelpSectionType.Gif => Globals.GIFFileType
         };
         
-        if (await BrowseFileDialog(fileTypes: fileType) is { } path)
+        if (await App.BrowseFileDialog(fileTypes: fileType) is { } path)
         {
             Content = path;
         }
@@ -45,16 +45,16 @@ public partial class HelpSection : ObservableObject
 
     public async Task<MemoryStream> GetContentStream(string url)
     {
-        var fileName = url.SubstringAfterLast("/");
-        var filePath = Path.Combine(CacheFolder.FullName, fileName);
+        /*var fileName = url.SubstringAfterLast("/");
+        var filePath = Path.Combine(App.CacheFolder.FullName, fileName);
         if (File.Exists(filePath))
         {
             return new MemoryStream(await File.ReadAllBytesAsync(filePath));
-          
-        }
 
-        var bytes = await ApiVM.GetBytesAsync(url);
-        await File.WriteAllBytesAsync(filePath, bytes);
+        }*/
+
+        var bytes = await Api.GetBytesAsync(url);
+        //await File.WriteAllBytesAsync(filePath, bytes);
         return new MemoryStream(bytes);
     }
 

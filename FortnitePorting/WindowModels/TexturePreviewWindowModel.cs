@@ -8,14 +8,17 @@ using CUE4Parse.UE4.Assets.Exports.Texture;
 using FluentAvalonia.Core;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
+using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.ViewModels;
 using SkiaSharp;
 
 namespace FortnitePorting.WindowModels;
 
-public partial class TexturePreviewWindowModel : WindowModelBase
+public partial class TexturePreviewWindowModel(SettingsService settings) : WindowModelBase
 {
+    [ObservableProperty] private SettingsService _settings = settings;
+    
     [ObservableProperty] private UTexture _texture;
     [ObservableProperty] private string _textureName = string.Empty;
     [ObservableProperty] private int _targetMipIndex;

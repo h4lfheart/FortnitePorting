@@ -134,8 +134,8 @@ public class MeshExport : BaseExport
                 {
                     montage ??= bodyPart.GenderPermitted switch
                     {
-                        EFortCustomGender.Female => CUE4ParseVM.FemaleLobbyMontages.Random()!,
-                        _ => CUE4ParseVM.MaleLobbyMontages.Random()!
+                        EFortCustomGender.Female => UEParse.FemaleLobbyMontages.Random()!,
+                        _ => UEParse.MaleLobbyMontages.Random()!
                     };
                 }
                 
@@ -196,7 +196,7 @@ public class MeshExport : BaseExport
                 // pet mesh
                 var petAsset = asset.Get<UObject>("DefaultPet");
                 var prefabClassPath = petAsset.Get<FSoftObjectPath>("PetPrefabClass");
-                var prefabExports = CUE4ParseVM.Provider.LoadAllObjects(prefabClassPath.AssetPathName.Text.SubstringBeforeLast("."));
+                var prefabExports = UEParse.Provider.LoadAllObjects(prefabClassPath.AssetPathName.Text.SubstringBeforeLast("."));
                 if (prefabExports.FirstOrDefault(export => export.Name.Equals("PetMesh0")) is not USkeletalMeshComponentBudgeted meshComponent) break;
                 
                 var mesh = meshComponent.GetSkeletalMesh().Load<USkeletalMesh>();
@@ -334,7 +334,7 @@ public class MeshExport : BaseExport
                     Meshes.AddIfNotNull(Exporter.MeshComponent(staticMesh));
                 }
 
-                var components = CUE4ParseVM.Provider.LoadAllObjects(actor.GetPathName().SubstringBeforeLast("."));
+                var components = UEParse.Provider.LoadAllObjects(actor.GetPathName().SubstringBeforeLast("."));
                 foreach (var component in components)
                 {
                     if (component.Name.Equals(staticMesh?.Name)) continue;
@@ -372,7 +372,7 @@ public class MeshExport : BaseExport
                     {
                         if (!field.TryGetValue(out int index, propertyName)) return;
 
-                        var color = CUE4ParseVM.BeanstalkColors[index];
+                        var color = UEParse.BeanstalkColors[index];
                         parameterSet.Vectors.Add(new VectorParameter(shaderName, color.ToLinearColor()));
                     }
                     
@@ -380,7 +380,7 @@ public class MeshExport : BaseExport
                     {
                         if (!field.TryGetValue(out int index, propertyName)) return;
 
-                        var color = CUE4ParseVM.BeanstalkMaterialProps[index];
+                        var color = UEParse.BeanstalkMaterialProps[index];
                         parameterSet.Vectors.Add(new VectorParameter(shaderName, color));
                     }
                     
@@ -402,7 +402,7 @@ public class MeshExport : BaseExport
                             4 => 1
                         };
 
-                        var offset = CUE4ParseVM.BeanstalkAtlasTextureUVs[index];
+                        var offset = UEParse.BeanstalkAtlasTextureUVs[index];
                         parameterSet.Vectors.Add(new VectorParameter(shaderName, new FLinearColor(offset.X, offset.Y, offset.Z, 0)));
                     }
 

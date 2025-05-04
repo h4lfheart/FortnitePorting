@@ -30,7 +30,6 @@ public partial class TimeWasterView : ViewBase<TimeWasterViewModel>
         InitializeComponent();
 
         KeyDownEvent.AddClassHandler<TopLevel>(OnKeyDown, handledEventsToo: true);
-        AppWM.ToggleVisibility(false);
         ViewModel.IsGame = game;
         TaskService.RunDispatcher(ViewModel.Initialize);
     }

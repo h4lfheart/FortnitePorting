@@ -16,7 +16,7 @@
         </Grid.RowDefinitions>
         
         <ScrollViewer x:Name="Scroll" Grid.Row="0">
-            <ItemsControl ItemsSource="{Binding Logs}" Margin="{ext:Space 0, 0, 2, 0}">
+            <ItemsControl ItemsSource="{Binding Info.Logs}" Margin="{ext:Space 0, 0, 2, 0}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <ui:FABorder Margin="{ext:Space 0, 0, 0, 0.5}" Cursor="Hand" PointerPressed="OnLogPointerPressed">
