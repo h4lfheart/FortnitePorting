@@ -11,7 +11,7 @@ using CUE4Parse_Conversion.UEFormat.Enums;
 using CUE4Parse.UE4.Versions;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
-using FortnitePorting.Export.Models;
+using FortnitePorting.Exporting.Models;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Radio;
 using FortnitePorting.Shared;

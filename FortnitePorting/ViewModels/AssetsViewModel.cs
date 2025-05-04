@@ -5,9 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
-
-using FortnitePorting.Export;
-using FortnitePorting.Export.Models;
+using FortnitePorting.Exporting;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.API;
@@ -83,15 +81,13 @@ public partial class AssetsViewModel() : ViewModelBase
         await Exporter.Export(AssetLoader.ActiveLoader.SelectedAssetInfos, AppSettings.ExportSettings.CreateExportMeta(ExportLocation));
         AssetLoader.ActiveLoader.Unpause();
 
-        if (Supabase.IsActive)
+        if (SupaBase.IsActive)
         {
-            var exports = AssetLoader.ActiveLoader.SelectedAssetInfos.OfType<AssetInfo>().Select(asset =>
-            {
-                var creationData = asset.Asset.CreationData;
-                return new PersonalExport(creationData.Object.GetPathName());
-            });
-            
-            await Api.FortnitePorting.PostExportsAsync(exports);
+            await SupaBase.PostExports(
+                AssetLoader.ActiveLoader.SelectedAssetInfos
+                    .OfType<AssetInfo>()
+                    .Select(asset => asset.Asset.CreationData.Object.GetPathName())
+            );
         }
     }
     

@@ -12,7 +12,6 @@ namespace FortnitePorting.Services;
 
 public class APIService : IService
 {
-    
     public readonly FortnitePortingAPI FortnitePorting;
     public readonly FortnitePortingAPIV2 FortnitePortingV2;
     public readonly FortnitePortingServerAPI FortnitePortingServer;
@@ -24,7 +23,7 @@ public class APIService : IService
         _client = new(new RestClientOptions
         {
             UserAgent = $"FortnitePorting/{Globals.VersionString}",
-            MaxTimeout = 1000 * AppServices.AppSettings.Debug.RequestTimeoutSeconds,
+            MaxTimeout = 1000 * AppSettings.Debug.RequestTimeoutSeconds,
         }, configureSerialization: s => s.UseSerializer<JsonNetSerializer>());
         
         FortnitePorting = new FortnitePortingAPI(_client);

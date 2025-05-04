@@ -25,11 +25,6 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
     public const string HELP_URL = "https://fortniteporting.halfheart.dev/api/v3/help";
     public const string HELP_IMAGE_URL = "https://fortniteporting.halfheart.dev/api/v3/help/image";
     
-    public const string AUTH_GET_URL = "https://fortniteporting.halfheart.dev/api/v3/auth";
-    public const string AUTH_USER_URL = "https://fortniteporting.halfheart.dev/api/v3/auth/user";
-    public const string AUTH_REDIRECT_URL = "https://fortniteporting.halfheart.dev/api/v3/auth/redirect";
-    public const string AUTH_REFRESH_URL = "https://fortniteporting.halfheart.dev/api/v3/auth/refresh";
-    
     public const string LEADERBOARD_USERS_URL = "https://fortniteporting.halfheart.dev/api/v3/leaderboard/users";
     public const string LEADERBOARD_EXPORTS_URL = "https://fortniteporting.halfheart.dev/api/v3/leaderboard/exports";
     public const string LEADERBOARD_EXPORTS_PERSONAL_URL = "https://fortniteporting.halfheart.dev/api/v3/leaderboard/exports/personal";
@@ -119,135 +114,6 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
         return PostHelpImageAsync(data, contentType).GetAwaiter().GetResult();
     }
     
-    public async Task PostStatsAsync()
-    {
-        await ExecuteAsync(STATS_URL, Method.Post, parameters:
-        [
-            new HeaderParameter("version", Globals.Version.ToString()),
-        ]);
-    }
-
-    public void PostStats()
-    {
-        PostStatsAsync().GetAwaiter().GetResult();
-    }
-
-    public async Task<AuthResponse?> GetAuthAsync(Guid state)
-    {
-        return await ExecuteAsync<AuthResponse>(AUTH_GET_URL,
-            parameters: new QueryParameter("state", state.ToString()));
-    }
-
-    public AuthResponse? GetAuth(Guid state)
-    {
-        return GetAuthAsync(state).GetAwaiter().GetResult();
-    }
-    
-    public async Task<UserInfoResponse?> GetUserAsync(string token)
-    {
-        return await ExecuteAsync<UserInfoResponse>(AUTH_USER_URL,
-            parameters: new HeaderParameter("token", token));
-    }
-
-    public UserInfoResponse? GetUser(string token)
-    {
-        return GetUserAsync(token).GetAwaiter().GetResult();
-    }
-    
-    public async Task PostExportsAsync(IEnumerable<PersonalExport> exports)
-    {
-        await ExecuteAsync(LEADERBOARD_EXPORTS_URL, Method.Post, verbose: false, parameters: 
-        [
-            new BodyParameter(JsonConvert.SerializeObject(exports), ContentType.Json),
-        ]);
-    }
-
-    public void PostExports(IEnumerable<PersonalExport> exports)
-    {
-        PostExportsAsync(exports).GetAwaiter().GetResult();
-    }
-    
-    public async Task PostExportAsync(PersonalExport export)
-    {
-        PersonalExport[] exports = [export];
-        
-        await ExecuteAsync(LEADERBOARD_EXPORTS_URL, Method.Post, verbose: false, parameters: 
-        [
-            new BodyParameter(JsonConvert.SerializeObject(exports), ContentType.Json),
-        ]);
-    }
-
-    public void PostExport(PersonalExport export)
-    {
-        PostExportAsync(export).GetAwaiter().GetResult();
-    }
-    
-    public async Task<LeaderboardUser[]> GetLeaderboardUsersAsync(int min = 1, int max = 10)
-    {
-        return await ExecuteAsync<LeaderboardUser[]>(LEADERBOARD_USERS_URL, verbose: false, parameters: 
-        [
-            new QueryParameter("min", min.ToString()),
-            new QueryParameter("max", max.ToString())
-        ]) ?? [];
-    }
-
-    public LeaderboardUser[] GetLeaderboardUsers(int min = 1, int max = 10)
-    {
-        return GetLeaderboardUsersAsync(min, max).GetAwaiter().GetResult();
-    }
-    
-    public async Task<LeaderboardExport[]> GetLeaderboardExportsAsync(int min = 1, int max = 10)
-    {
-        return await ExecuteAsync<LeaderboardExport[]>(LEADERBOARD_EXPORTS_URL, verbose: false, parameters: 
-        [
-            new QueryParameter("min", min.ToString()),
-            new QueryParameter("max", max.ToString())
-        ]) ?? [];
-    }
-
-    public LeaderboardExport[] GetLeaderboardExports(int min = 1, int max = 10)
-    {
-        return GetLeaderboardExportsAsync(min, max).GetAwaiter().GetResult();
-    }
-    
-    public async Task<PersonalExport[]> GetPersonalExportsAsync()
-    {
-        return await ExecuteAsync<PersonalExport[]>(LEADERBOARD_EXPORTS_PERSONAL_URL, verbose: false, parameters: 
-        [
-        ]) ?? [];
-    }
-
-    public PersonalExport[] GetPersonalExports()
-    {
-        return GetPersonalExportsAsync().GetAwaiter().GetResult();
-    }
-    
-    public async Task<LeaderboardStreaksUser[]> GetStreaksAsync(int min = 1, int max = 10)
-    {
-        return await ExecuteAsync<LeaderboardStreaksUser[]>(LEADERBOARD_STREAKS_URL, verbose: false, parameters: 
-        [
-            new QueryParameter("min", min.ToString()),
-            new QueryParameter("max", max.ToString())
-        ]) ?? [];
-    }
-
-    public LeaderboardStreaksUser[] GetStreaks(int min = 1, int max = 10)
-    {
-        return GetStreaksAsync(min, max).GetAwaiter().GetResult();
-    }
-    
-    public async Task<StreaksResponse?> GetPersonalStreaksAsync()
-    {
-        return await ExecuteAsync<StreaksResponse>(LEADERBOARD_STREAKS_PERSONAL_URL, verbose: false, parameters: 
-        [
-        ]);
-    }
-
-    public StreaksResponse? GetPersonalStreaks()
-    {
-        return GetPersonalStreaksAsync().GetAwaiter().GetResult();
-    }
-    
     public async Task<ReleaseResponse?> GetReleaseAsync()
     {
         return await ExecuteAsync<ReleaseResponse>(RELEASE_URL);
@@ -276,18 +142,6 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
     public string[] GetReleaseFiles()
     {
         return GetReleaseFilesAsync().GetAwaiter().GetResult();
-    }
-    
-    public async Task RefreshAuthAsync()
-    {
-        await ExecuteAsync(AUTH_REFRESH_URL, Method.Post, parameters: 
-        [
-        ]);
-    }
-
-    public void RefreshAuth()
-    {
-        RefreshAuthAsync().GetAwaiter().GetResult();
     }
     
     public async Task<Poll[]> GetPollsAsync()

@@ -20,7 +20,7 @@ using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using FortnitePorting.Application;
-using FortnitePorting.Export;
+using FortnitePorting.Exporting;
 using FortnitePorting.Extensions;
 using FortnitePorting.Models.Leaderboard;
 using FortnitePorting.Models.Unreal.Landscape;
@@ -261,11 +261,15 @@ public partial class WorldPartitionMap : ObservableObject
             
             map.Status = EWorldPartitionGridMapStatus.Finished;
         }
-        
+
         if (SupaBase.IsActive)
         {
-            await Api.FortnitePorting.PostExportsAsync(SelectedMaps.Select(map => new PersonalExport(map.Path)));
+            await SupaBase.PostExports(
+                SelectedMaps
+                    .Select(map => map.Path)
+            );
         }
+        
         
         SelectedMaps.ForEach(map => map.Status = EWorldPartitionGridMapStatus.None);
         ClearSelectedMaps();

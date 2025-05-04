@@ -21,6 +21,7 @@ using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Models.Fortnite;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using OpenTK.Graphics.OpenGL;
 using SkiaSharp;
 using AssetLoader = Avalonia.Platform.AssetLoader;
@@ -29,11 +30,12 @@ namespace FortnitePorting.Models.Leaderboard;
 
 public partial class LeaderboardExport : ObservableObject
 {
-    [ObservableProperty] private int _ranking;
+    [ObservableProperty] [JsonProperty("rank")] private int _ranking;
+    [ObservableProperty] [JsonProperty("total")] private int _exportCount;
+    [ObservableProperty] [JsonProperty("path")] private string _objectPath;
+    
     [ObservableProperty] private string _objectName;
-    [ObservableProperty] private string _objectPath;
     [ObservableProperty] private string _category;
-    [ObservableProperty] private int _exportCount;
     [ObservableProperty] private Bitmap _exportBitmap;
     [ObservableProperty] private bool _showMedal;
     [ObservableProperty] private Bitmap _medalBitmap;
@@ -73,7 +75,7 @@ public partial class LeaderboardExport : ObservableObject
         if (assetLoader is null)
         {
             ObjectName = ID;
-            ExportBitmap = GetObjectBitmap(asset) ?? LeaderboardVM.GetMedalBitmap(Ranking);
+            ExportBitmap = GetObjectBitmap(asset) ?? ImageExtensions.GetMedalBitmap(Ranking);
             return true;
         }
         
@@ -84,7 +86,7 @@ public partial class LeaderboardExport : ObservableObject
         }
         else
         {
-            ExportBitmap = assetLoader.IconHandler(asset)?.Decode()?.ToWriteableBitmap() ?? GetObjectBitmap(asset) ?? LeaderboardVM.GetMedalBitmap(Ranking);
+            ExportBitmap = assetLoader.IconHandler(asset)?.Decode()?.ToWriteableBitmap() ?? GetObjectBitmap(asset) ?? ImageExtensions.GetMedalBitmap(Ranking);
             CachedBitmaps[ObjectPath] = ExportBitmap;
         }
         
@@ -92,7 +94,7 @@ public partial class LeaderboardExport : ObservableObject
 
         if (Ranking <= 3)
         {
-            MedalBitmap = LeaderboardVM.GetMedalBitmap(Ranking);
+            MedalBitmap = ImageExtensions.GetMedalBitmap(Ranking);
         }
 
         return true;
@@ -116,7 +118,7 @@ public partial class LeaderboardExport : ObservableObject
 
     private void SetFailureDefaults()
     {
-        ExportBitmap = LeaderboardVM.GetMedalBitmap(Ranking);
+        ExportBitmap = ImageExtensions.GetMedalBitmap(Ranking);
         ObjectName = ID;
     }
 }

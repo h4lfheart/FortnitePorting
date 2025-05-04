@@ -51,15 +51,15 @@
                                                 <Ellipse Height="64" Width="64" 
                                                          StrokeThickness="5" Stroke="#00000000">
                                                     <Ellipse.Fill>
-                                                        <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding ProfilePicture, TargetNullValue='avares://FortnitePorting/Assets/DefaultProfile.png'}" Stretch="UniformToFill"/>
+                                                        <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding UserInfo.AvatarURL, TargetNullValue='avares://FortnitePorting/Assets/DefaultProfile.png'}" Stretch="UniformToFill"/>
                                                     </Ellipse.Fill>
                                                 </Ellipse>
                                             </Grid>
                                             <Image Grid.Column="0" Source="{Binding MedalBitmap}" Width="36" Margin="38 38 0 0 "/>
                                             <TextBlock Grid.Column="2" Text="{Binding Ranking}" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                                             <Grid Grid.Column="4" VerticalAlignment="Center" Margin="{ext:Space 1, 0, 0, 0}" RowDefinitions="* *">
-                                                <TextBlock Grid.Row="0" Text="{Binding GlobalName}" Classes="BodyStrongTextBlockStyle"/>
-                                                <TextBlock Grid.Row="1" Text="{Binding Username}" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"/>
+                                                <TextBlock Grid.Row="0" Text="{Binding UserInfo.DisplayName}" Classes="BodyStrongTextBlockStyle"/>
+                                                <TextBlock Grid.Row="1" Text="{Binding UserInfo.UserName}" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"/>
                                             </Grid>
                                             <TextBlock Grid.Column="6" Text="{Binding ExportCount, StringFormat=N0}" 
                                                        Classes="SubtitleTextBlockStyle" Margin="{ext:Space 0, 0, 1, 0}"
@@ -146,17 +146,17 @@
                                                 <Ellipse Height="64" Width="64" 
                                                          StrokeThickness="5" Stroke="#00000000">
                                                     <Ellipse.Fill>
-                                                        <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding ProfilePicture, TargetNullValue='avares://FortnitePorting/Assets/DefaultProfile.png'}" Stretch="UniformToFill"/>
+                                                        <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding UserInfo.AvatarURL, TargetNullValue='avares://FortnitePorting/Assets/DefaultProfile.png'}" Stretch="UniformToFill"/>
                                                     </Ellipse.Fill>
                                                 </Ellipse>
                                             </Grid>
                                             <Image Grid.Column="0" Source="{Binding MedalBitmap}" Width="36" Margin="38 38 0 0 "/>
                                             <TextBlock Grid.Column="2" Text="{Binding Ranking}" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                                             <Grid Grid.Column="4" VerticalAlignment="Center" Margin="{ext:Space 1, 0, 0, 0}" RowDefinitions="* *">
-                                                <TextBlock Grid.Row="0" Text="{Binding GlobalName}" Classes="BodyStrongTextBlockStyle"/>
-                                                <TextBlock Grid.Row="1" Text="{Binding Username}" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"/>
+                                                <TextBlock Grid.Row="0" Text="{Binding UserInfo.DisplayName}" Classes="BodyStrongTextBlockStyle"/>
+                                                <TextBlock Grid.Row="1" Text="{Binding UserInfo.UserName}" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"/>
                                             </Grid>
-                                            <TextBlock Grid.Column="6" Text="{Binding StreakCount, StringFormat='{}{0} Days'}" 
+                                            <TextBlock Grid.Column="6" Text="{Binding Streak, StringFormat='{}{0} Days'}" 
                                                        Classes="SubtitleTextBlockStyle" Margin="{ext:Space 0, 0, 1, 0}"
                                                        HorizontalAlignment="Right" VerticalAlignment="Center"/>
                                         </Grid>
@@ -266,7 +266,7 @@
                 <Separator Grid.Row="7" Margin="{ext:Space 1}"/>
                 
                 <TextBlock Grid.Row="8" Text="Current Streak" Classes="BodyStrongTextBlockStyle" HorizontalAlignment="Center"/>
-                <TextBlock Grid.Row="10" Text="{Binding StreaksResponse.CurrentStreak, StringFormat='{}{0} Days'}" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
+                <TextBlock Grid.Row="10" Text="{Binding CurrentStreak, StringFormat='{}{0} Days'}" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
             </Grid>
         </ui:FABorder>
     </Grid>

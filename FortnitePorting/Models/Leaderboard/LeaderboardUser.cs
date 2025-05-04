@@ -1,17 +1,28 @@
 using System;
+using System.Threading.Tasks;
+using Windows.System.UserProfile;
 using Avalonia.Media.Imaging;
+using CommunityToolkit.Mvvm.ComponentModel;
+using FortnitePorting.Extensions;
+using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Shared.Extensions;
+using Newtonsoft.Json;
 
 namespace FortnitePorting.Models.Leaderboard;
 
-public class LeaderboardUser
+public partial class LeaderboardUser : ObservableObject
 {
-    public int Ranking { get; set; }
-    public Guid Identifier { get; set; }
-    public string GlobalName { get; set; }
-    public string Username { get; set; }
-    public string ProfilePicture { get; set; }
-    public int ExportCount { get; set; }
+    [ObservableProperty] [JsonProperty("rank")] private int _ranking;
+    [ObservableProperty] [JsonProperty("user_id")] private string _userId;
 
-    public Bitmap? MedalBitmap => Ranking <= 3 ? LeaderboardVM.GetMedalBitmap(Ranking) : null;
+    [ObservableProperty] [JsonProperty("total")] private int _exportCount;
+
+    [ObservableProperty] private UserInfoResponse? _userInfo;
+
+    public Bitmap? MedalBitmap => Ranking <= 3 ? ImageExtensions.GetMedalBitmap(Ranking) : null;
+
+    public async Task Load()
+    {
+        UserInfo = await Api.FortnitePortingV2.UserInfo(UserId);
+    }
 }

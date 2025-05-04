@@ -8,7 +8,6 @@ using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.UE4.Versions;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
-using FortnitePorting.Export.Models;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.API;
 using FortnitePorting.Models.API.Responses;

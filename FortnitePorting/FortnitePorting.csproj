@@ -65,9 +65,5 @@
     <ItemGroup>
       <None Remove="..\..\..\.nuget\packages\naudio.vorbis\1.5.0\contentFiles\any\netstandard2.0\README.md" />
     </ItemGroup>
-    
-    <ItemGroup>
-      <Folder Include="Models\Supabase\Tables\" />
-    </ItemGroup>
 
 </Project>

@@ -22,7 +22,7 @@ using FortnitePorting.ViewModels.Settings;
 using NAudio.CoreAudioApi;
 using Newtonsoft.Json;
 using Serilog;
-using Exporter = FortnitePorting.Export.Exporter;
+using Exporter = FortnitePorting.Exporting.Exporter;
 
 namespace FortnitePorting.Models.Chat;
 

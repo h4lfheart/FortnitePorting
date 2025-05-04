@@ -269,7 +269,7 @@ public partial class CUE4ParseService : ObservableObject, IService
                 ChunkBaseUri = new Uri("https://download.epicgames.com/ias/fortnite/", UriKind.Absolute),
                 ChunkCacheDirectory = CacheFolder,
                 Authorization = new AuthenticationHeaderValue("Bearer", AppSettings.Application.EpicAuth?.Token),
-                Timeout = TimeSpan.FromSeconds(30)
+                Timeout = TimeSpan.FromSeconds(AppSettings.Debug.RequestTimeoutSeconds)
             };
 
             var chunkToc = new IoChunkToc(onDemandFile);

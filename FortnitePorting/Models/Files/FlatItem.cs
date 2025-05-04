@@ -10,7 +10,7 @@ using CUE4Parse;
 using CUE4Parse.UE4.IO.Objects;
 using CUE4Parse.Utils;
 using FluentAvalonia.UI.Controls;
-using FortnitePorting.Export;
+using FortnitePorting.Exporting;
 using FortnitePorting.Extensions;
 using FortnitePorting.OnlineServices.Models;
 using FortnitePorting.OnlineServices.Packet;

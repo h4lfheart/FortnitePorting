@@ -25,8 +25,7 @@ using DynamicData;
 using DynamicData.Binding;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
-using FortnitePorting.Export;
-using FortnitePorting.Export.Models;
+using FortnitePorting.Exporting;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Assets;
@@ -436,13 +435,10 @@ public partial class FilesViewModel() : ViewModelBase
 
         if (SupaBase.IsActive)
         {
-            var sendExports = exports.Select(export =>
-            {
-                var (asset, type) = export;
-                return new PersonalExport(asset.GetPathName());
-            });
-            
-            await Api.FortnitePorting.PostExportsAsync(sendExports);
+            await SupaBase.PostExports(
+                exports
+                    .Select(export => export.Key.GetPathName())
+            );
         }
     }
 

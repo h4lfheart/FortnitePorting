@@ -57,14 +57,6 @@ public class AppService : IService
 
         TaskService.Run(AppWM.Initialize);
         
-        if (SupaBase.IsActive)
-        {
-            TaskService.Run(async () =>
-            {
-                await Api.FortnitePorting.PostStatsAsync();
-            });
-        }
-        
         if (AppSettings.Plugin.Blender.AutomaticallySync && Dependencies.FinishedEnsuring)
         {
             TaskService.Run(async () => await AppSettings.Plugin.Blender.SyncInstallations(verbose: false));

@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -8,12 +10,16 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using FortnitePorting.Application;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.Supabase;
+using FortnitePorting.Models.Supabase.Tables;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Services;
+using Microsoft.VisualBasic.Logging;
+using OpenTK.Graphics.OpenGL;
 using Supabase;
 using Supabase.Gotrue;
 using Tomlyn;
 using Client = Supabase.Client;
+using Log = Serilog.Log;
 
 namespace FortnitePorting.Services;
 
@@ -51,6 +57,9 @@ public partial class SupabaseService : ObservableObject, IService
                 AppSettings.Online.SessionInfo = new UserSessionInfo(session.AccessToken, session.RefreshToken);
                 await LoadUserInfo();
             }
+
+            await PostLogin();
+
         });
     }
 
@@ -95,6 +104,22 @@ public partial class SupabaseService : ObservableObject, IService
         Info.Message("Discord Integration", $"Successfully signed out with discord user {UserInfo.UserName}");
         
         AppSettings.Online.SessionInfo = null;
+    }
+
+    public async Task PostExports(IEnumerable<string> objectPaths)
+    {
+        await Client.From<Export>().Insert(new Export
+        {
+            ExportPaths = objectPaths
+        });
+    }
+
+    private async Task PostLogin()
+    {
+        await Client.From<Login>().Insert(new Login
+        {
+            Version = Globals.Version.GetDisplayString()
+        });
     }
 
     private async Task LoadUserInfo()

@@ -37,7 +37,6 @@ public static class AppServices
     
     public static ChatViewModel ChatVM => Services.GetRequiredService<ChatViewModel>();
     public static VotingViewModel VotingVM => Services.GetRequiredService<VotingViewModel>();
-    public static LeaderboardViewModel LeaderboardVM => Services.GetRequiredService<LeaderboardViewModel>();
     
     public static FilesViewModel FilesVM => Services.GetRequiredService<FilesViewModel>();
     public static MapViewModel MapVM => Services.GetRequiredService<MapViewModel>();

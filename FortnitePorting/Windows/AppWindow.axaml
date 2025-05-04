@@ -204,7 +204,7 @@
                           Width="20" Height="20" 
                           RenderOptions.BitmapInterpolationMode="HighQuality"/>
 
-            <TextBlock Grid.Column="2" Text="FortnitePorting" FontWeight="SemiBold" FontSize="16"
+            <TextBlock Grid.Column="2" Text="Fortnite Porting" FontWeight="SemiBold" FontSize="16"
                        HorizontalAlignment="Center" VerticalAlignment="Center" />
             <TextBlock Grid.Column="4" Text="{Binding VersionString}" Classes="TextFillColorTertiaryBrush" FontSize="13" Margin="0 0 0 0"
                        HorizontalAlignment="Left" VerticalAlignment="Center" />
