@@ -402,4 +402,4 @@ FodyWeavers.xsd
 *.blender_ext
 
 # Supabase
-*/supabase.toml
+FortnitePorting/supabase.toml

@@ -279,7 +279,7 @@ public partial class CUE4ParseService : ObservableObject, IService
         catch (Exception e)
         {
             Info.Dialog("Failed to Initialize Texture Streaming", 
-                $"Please enable the \"Pre-Download Streamed Assets\" option for Fortnite in the Epic Games Launcher and disable texture streaming in installation settings to remove this popup\n\nException: {e}");
+                $"Please enable the \"Pre-Download Streamed Assets\" option for Fortnite in the Epic Games Launcher and disable texture streaming in installation settings to remove this popup.");
         }
     }
     

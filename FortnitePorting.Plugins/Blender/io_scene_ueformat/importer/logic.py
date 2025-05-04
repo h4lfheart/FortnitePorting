@@ -490,6 +490,10 @@ class UEFormatImport:
         if self.options.link:
             armature.animation_data_create()
             armature.animation_data.action = action
+
+        if self.options.link and bpy.app.version >= (4, 4, 0):
+            slot = action.slots.new(id_type='OBJECT', name=f"Slot_{armature.name}")
+            armature.animation_data.action_slot = slot
             
 
         # bone anim data
@@ -585,10 +589,6 @@ class UEFormatImport:
                     for key in curve.keys:
                         shape_key.value = key.value
                         shape_key.keyframe_insert(data_path="value", frame=key.frame)
-                    
-        if self.options.link and bpy.app.version >= (4, 4, 0):
-            slot = action.slots.new(id_type='OBJECT', name=f"Slot_{armature.name}")
-            armature.animation_data.action_slot = slot
 
         return action, data
 
