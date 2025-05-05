@@ -17,6 +17,7 @@ using Microsoft.VisualBasic.Logging;
 using OpenTK.Graphics.OpenGL;
 using Supabase;
 using Supabase.Gotrue;
+using Supabase.Realtime.PostgresChanges;
 using Tomlyn;
 using Client = Supabase.Client;
 using Log = Serilog.Log;
@@ -29,6 +30,7 @@ public partial class SupabaseService : ObservableObject, IService
     [ObservableProperty] private bool _isActive;
     
     [ObservableProperty] private UserInfoResponse? _userInfo;
+    [ObservableProperty] private Permissions? _permissions;
 
     private bool PostedLogin;
     
@@ -54,11 +56,8 @@ public partial class SupabaseService : ObservableObject, IService
             {
                 var session = await Client.Auth.SetSession(sessionInfo.AccessToken, sessionInfo.RefreshToken);
                 AppSettings.Online.SessionInfo = new UserSessionInfo(session.AccessToken, session.RefreshToken);
-                await LoadUserInfo();
-                
-                IsActive = true;
-                if (!PostedLogin)
-                    await PostLogin();
+
+                await OnLoggedIn();
             }
 
         });
@@ -121,6 +120,25 @@ public partial class SupabaseService : ObservableObject, IService
             ExportPaths = objectPaths
         });
     }
+
+    private async Task OnLoggedIn()
+    {
+        IsActive = true;
+                
+        await LoadUserInfo();
+                
+        if (!PostedLogin)
+            await PostLogin();
+
+        await Client.From<Permissions>().On(PostgresChangesOptions.ListenType.All, (channel, response) =>
+        {
+            Permissions = response.Model<Permissions>();
+            Info.Message("Permissions", $"Your role has been updated to {Permissions!.Role.ToString()}.");
+        });
+
+        Permissions = await Client.Rpc<Permissions>("permissions", new { });
+    }
+    
 
     private async Task PostLogin()
     {
