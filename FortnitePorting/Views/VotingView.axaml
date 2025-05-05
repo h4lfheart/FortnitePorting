@@ -54,7 +54,7 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Grid>
-                                    <ui:FABorder IsVisible="{Binding !Submitted}" Padding="{ext:Space 1}" Margin="{ext:Space 0, 0, 0, 1}">
+                                    <ui:FABorder IsVisible="{Binding !VotedForPoll}" Padding="{ext:Space 1}" Margin="{ext:Space 0, 0, 0, 1}">
                                         <Grid>
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="Auto"/>
@@ -66,12 +66,12 @@
                                             
                                             <TextBlock Grid.Row="0" Text="{Binding Title}" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
                                             
-                                            <ListBox Grid.Row="2" ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedItem}"
+                                            <ListBox Grid.Row="2" ItemsSource="{Binding Options}" SelectedItem="{Binding SelectedItem}"
                                                      HorizontalAlignment="Stretch">
                                                 <ListBox.ItemTemplate>
                                                     <DataTemplate>
                                                         <StackPanel>
-                                                            <TextBlock Text="{Binding Name}"/>
+                                                            <TextBlock Text="{Binding Text}"/>
                                                             <Border IsVisible="{Binding ImageURL, Converter={x:Static ObjectConverters.IsNotNull}}" 
                                                                     CornerRadius="4" ClipToBounds="True" 
                                                                     HorizontalAlignment="Left" Margin="{ext:Space 0, 1, 0, 0}">
@@ -97,12 +97,12 @@
                                             
                                             <Button Grid.Row="4" Content="Submit" 
                                                     IsEnabled="{Binding SelectedItem, Converter={x:Static ObjectConverters.IsNotNull}}"
-                                                    Command="{Binding SubmitCommand}" 
+                                                    Command="{Binding Submit}" 
                                                     HorizontalAlignment="Stretch"/>
                                         </Grid>
                                     </ui:FABorder>
                                     
-                                    <ui:FABorder IsVisible="{Binding Submitted}" Padding="{ext:Space 1, 1, 1, 0}"  Margin="{ext:Space 0, 0, 0, 1}">
+                                    <ui:FABorder IsVisible="{Binding VotedForPoll}" Padding="{ext:Space 1, 1, 1, 0}"  Margin="{ext:Space 0, 0, 0, 1}">
                                         <Grid>
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="Auto"/>
@@ -112,7 +112,7 @@
                                             
                                             <TextBlock Grid.Row="0" Text="{Binding Title}" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
                                             
-                                            <ItemsControl Grid.Row="2" ItemsSource="{Binding Items}"
+                                            <ItemsControl Grid.Row="2" ItemsSource="{Binding Options}"
                                                      HorizontalAlignment="Stretch">
                                                 <ItemsControl.ItemTemplate>
                                                     <DataTemplate>
@@ -120,8 +120,8 @@
                                                                      BorderThickness="0" Background="{Binding Background}">
                                                             <StackPanel>
                                                                 <Grid>
-                                                                    <TextBlock Text="{Binding Name}" FontSize="14" HorizontalAlignment="Left"/>
-                                                                    <TextBlock Text="{Binding Voters.Count}" FontSize="14" HorizontalAlignment="Right"/>
+                                                                    <TextBlock Text="{Binding Text}" FontSize="14" HorizontalAlignment="Left"/>
+                                                                    <TextBlock Text="{Binding Votes}" FontSize="14" HorizontalAlignment="Right"/>
                                                                 </Grid>
                                                                 
                                                                 <Border IsVisible="{Binding ImageURL, Converter={x:Static ObjectConverters.IsNotNull}}" 
@@ -172,12 +172,12 @@
                     <Ellipse Height="104" Width="104" 
                              StrokeThickness="5" Stroke="#00000000">
                         <Ellipse.Fill>
-                            <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding SupaBase.UserInfo.AvatarURL, TargetNullValue='avares://FortnitePorting/Assets/DefaultProfile.png'}" Stretch="UniformToFill"/>
+                            <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding SupaBase.UserInfo.AvatarURL, FallbackValue='https://fortniteporting.halfheart.dev/logo/default.png'}" Stretch="UniformToFill"/>
                         </Ellipse.Fill>
                     </Ellipse>
                 </Grid>
-                <TextBlock Grid.Row="3" Text="{Binding SupaBase.UserInfo.DisplayName, TargetNullValue='No User'}" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
-                <TextBlock Grid.Row="4" Text="{Binding SupaBase.UserInfo.UserName, TargetNullValue='Not Signed In'}" Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" HorizontalAlignment="Center"/>
+                <TextBlock Grid.Row="3" Text="{Binding SupaBase.UserInfo.DisplayName, FallbackValue='Anonymous'}" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
+                <TextBlock Grid.Row="4" Text="{Binding SupaBase.UserInfo.UserName, FallbackValue='Not Signed In'}" Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" HorizontalAlignment="Center"/>
                 <Separator Grid.Row="5" Margin="{ext:Space 1}"/>
                 
             </Grid>

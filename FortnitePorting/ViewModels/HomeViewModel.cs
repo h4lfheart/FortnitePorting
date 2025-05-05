@@ -13,6 +13,7 @@ using FortnitePorting.Application;
 using FortnitePorting.Controls;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.API.Responses;
+using FortnitePorting.Models.Supabase.Tables;
 using FortnitePorting.OnlineServices.Models;
 using FortnitePorting.OnlineServices.Packet;
 using FortnitePorting.Services;
@@ -21,6 +22,7 @@ using FortnitePorting.Shared.Models;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels.Settings;
 using Serilog;
+using Supabase.Postgrest;
 
 namespace FortnitePorting.ViewModels;
 
@@ -36,10 +38,18 @@ public partial class HomeViewModel() : ViewModelBase
     }
     
     [ObservableProperty] private ObservableCollection<NewsResponse> _news = [];
-    [ObservableProperty] private ObservableCollection<FeaturedResponse> _featured = [];
+    [ObservableProperty] private ObservableCollection<FeaturedArtResponse> _featuredArt = [];
 
     public override async Task Initialize()
     {
+        TaskService.Run(async () =>
+        {
+            News = [..await Api.FortnitePortingV2.News()];
+            FeaturedArt = [..await Api.FortnitePortingV2.FeaturedArt()];
+            
+            await UEParse.Initialize();
+        });
+        
         if (!AppSettings.Online.AskedFirstTimePopup)
         {
             AppSettings.Online.AskedFirstTimePopup = true;
@@ -81,21 +91,6 @@ public partial class HomeViewModel() : ViewModelBase
                 await dialog.ShowAsync();
             });
         }
-        
-        TaskService.Run(async () =>
-        {
-            await UEParse.Initialize();
-        });
-        
-        var news = await Api.FortnitePorting.GetNewsAsync();
-        News = [..news.OrderByDescending(item => item.Date)];
-        
-        var featured = await Api.FortnitePorting.GetFeaturedAsync();
-        Featured = [..featured];
-    }
-    
-    public void UpdateStatus(string text)
-    {
     }
     
     public void LaunchDiscord()

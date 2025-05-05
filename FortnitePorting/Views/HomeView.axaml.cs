@@ -27,7 +27,7 @@ public partial class HomeView : ViewBase<HomeViewModel>
     private void OnFeaturedPressed(object? sender, PointerPressedEventArgs e)
     {
         if (sender is not Control control) return;
-        if (control.DataContext is not FeaturedResponse featured) return;
+        if (control.DataContext is not FeaturedArtResponse featured) return;
         
         App.Launch(featured.Social);
     }

@@ -72,7 +72,7 @@ public static class AppServiceExtensions
 
         foreach (var viewModelType in viewModelTypes)
         {
-            collection.AddTransient(viewModelType);
+            collection.AddSingleton(viewModelType);
         }
     }
 }

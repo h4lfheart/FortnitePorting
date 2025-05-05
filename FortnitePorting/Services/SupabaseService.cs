@@ -25,13 +25,12 @@ namespace FortnitePorting.Services;
 
 public partial class SupabaseService : ObservableObject, IService
 {
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(IsActive))] public Client _client;
-
-    public bool IsActive => Client.Auth.CurrentUser is not null;
-    
+    [ObservableProperty] private Client _client;
+    [ObservableProperty] private bool _isActive;
     
     [ObservableProperty] private UserInfoResponse? _userInfo;
 
+    private bool PostedLogin;
     
     private static readonly SupabaseOptions DefaultOptions = new()
     {
@@ -56,9 +55,11 @@ public partial class SupabaseService : ObservableObject, IService
                 var session = await Client.Auth.SetSession(sessionInfo.AccessToken, sessionInfo.RefreshToken);
                 AppSettings.Online.SessionInfo = new UserSessionInfo(session.AccessToken, session.RefreshToken);
                 await LoadUserInfo();
+                
+                IsActive = true;
+                if (!PostedLogin)
+                    await PostLogin();
             }
-
-            await PostLogin();
 
         });
     }
@@ -96,6 +97,11 @@ public partial class SupabaseService : ObservableObject, IService
         await LoadUserInfo();
 
         Info.Message("Discord Integration", $"Successfully signed in with discord user {UserInfo.UserName}");
+        
+        if (!PostedLogin)
+            await PostLogin();
+        
+        IsActive = true;
 
     }
     
@@ -104,6 +110,8 @@ public partial class SupabaseService : ObservableObject, IService
         Info.Message("Discord Integration", $"Successfully signed out with discord user {UserInfo.UserName}");
         
         AppSettings.Online.SessionInfo = null;
+        UserInfo = null;
+        IsActive = false;
     }
 
     public async Task PostExports(IEnumerable<string> objectPaths)

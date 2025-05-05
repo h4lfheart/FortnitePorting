@@ -56,6 +56,7 @@ public class AppService : IService
         TimeWasterViewModel.LoadResources();
 
         TaskService.Run(AppWM.Initialize);
+        TaskService.Run(VotingVM.Initialize);
         
         if (AppSettings.Plugin.Blender.AutomaticallySync && Dependencies.FinishedEnsuring)
         {

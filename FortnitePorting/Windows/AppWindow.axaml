@@ -34,6 +34,7 @@
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItemSeparator/>
                  <ui:NavigationViewItem Content="Chat" Tag="{x:Type views:ChatView}"
+                                        IsEnabled="{Binding SupaBase.IsActive}"
                                         IsVisible="{Binding OnlineStatus.Chat.Enabled, FallbackValue=True}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry ChatBubble}"/>
@@ -43,6 +44,7 @@
                      </ui:NavigationViewItem.InfoBadge>
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItem Content="Voting" Tag="{x:Type views:VotingView}"
+                                        IsEnabled="{Binding SupaBase.IsActive}"
                                         IsVisible="{Binding OnlineStatus.Voting.Enabled, FallbackValue=True}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Poll}"/>
@@ -52,7 +54,8 @@
                          <ui:InfoBadge Value="{Binding UnsubmittedPolls}" IsVisible="{Binding !!UnsubmittedPolls}"/>
                      </ui:NavigationViewItem.InfoBadge>
                  </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Leaderboard" Tag="{x:Type views:LeaderboardView}" IsEnabled="{Binding SupaBase.IsActive}"
+                 <ui:NavigationViewItem Content="Leaderboard" Tag="{x:Type views:LeaderboardView}" 
+                                        IsEnabled="{Binding SupaBase.IsActive}"
                                         IsVisible="{Binding OnlineStatus.Leaderboard.Enabled, FallbackValue=True}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Trophy}"/>
