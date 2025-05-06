@@ -262,7 +262,7 @@ public partial class WorldPartitionMap : ObservableObject
             map.Status = EWorldPartitionGridMapStatus.Finished;
         }
 
-        if (SupaBase.IsActive)
+        if (SupaBase.IsLoggedIn)
         {
             await SupaBase.PostExports(
                 SelectedMaps

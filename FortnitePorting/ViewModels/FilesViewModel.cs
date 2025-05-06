@@ -433,7 +433,7 @@ public partial class FilesViewModel() : ViewModelBase
         
         await Exporter.Export(exports, meta);
 
-        if (SupaBase.IsActive)
+        if (SupaBase.IsLoggedIn)
         {
             await SupaBase.PostExports(
                 exports

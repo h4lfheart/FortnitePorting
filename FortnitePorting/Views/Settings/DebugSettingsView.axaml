@@ -24,12 +24,6 @@
                 </Style>
             </StackPanel.Styles>
             
-            <ui:SettingsExpander Header="Use Debugging Symbols" Description="Downloads .pdb debugging symbols for use in error reporting. Only enable this if required in a support ticket.">
-                <ui:SettingsExpander.Footer>
-                    <ToggleSwitch IsChecked="{Binding DownloadDebuggingSymbols}"/>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
-            
             <ui:SettingsExpander Header="Show Console" Description="Displays the console tab for debugging purposes.">
                 <ui:SettingsExpander.Footer>
                     <ToggleSwitch IsChecked="{Binding IsConsoleVisible}"/>

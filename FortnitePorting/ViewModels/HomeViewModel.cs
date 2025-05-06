@@ -44,8 +44,8 @@ public partial class HomeViewModel() : ViewModelBase
     {
         TaskService.Run(async () =>
         {
-            News = [..await Api.FortnitePortingV2.News()];
-            FeaturedArt = [..await Api.FortnitePortingV2.FeaturedArt()];
+            News = [..await Api.FortnitePorting.News()];
+            FeaturedArt = [..await Api.FortnitePorting.FeaturedArt()];
             
             await UEParse.Initialize();
         });

@@ -81,7 +81,7 @@ public partial class AssetsViewModel() : ViewModelBase
         await Exporter.Export(AssetLoader.ActiveLoader.SelectedAssetInfos, AppSettings.ExportSettings.CreateExportMeta(ExportLocation));
         AssetLoader.ActiveLoader.Unpause();
 
-        if (SupaBase.IsActive)
+        if (SupaBase.IsLoggedIn)
         {
             await SupaBase.PostExports(
                 AssetLoader.ActiveLoader.SelectedAssetInfos

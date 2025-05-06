@@ -79,10 +79,10 @@ public partial class InstallationProfile : ObservableValidator
 
     public async Task FetchKeys()
     {
-        var keys = await Api.FortniteCentral.GetKeysAsync(FetchKeysVersion);
+        var keys = await Api.FortniteCentral.Aes(FetchKeysVersion);
         if (keys is null)  
         {
-            Info.Message("Fetch Keys", $"Unsuccessfully fetched keys for v{FetchKeysVersion}", InfoBarSeverity.Error);
+            Info.Message("Fetch Keys", $"Failed to fetch keys for v{FetchKeysVersion}, keys for this version may not be available", InfoBarSeverity.Error);
             return;
         }
 
@@ -100,11 +100,11 @@ public partial class InstallationProfile : ObservableValidator
     
     public async Task FetchMappings()
     {
-        var mappings = await Api.FortniteCentral.GetMappingsAsync(FetchMappingsVersion);
+        var mappings = await Api.FortniteCentral.Mappings(FetchMappingsVersion);
         var targetMappings = mappings?.FirstOrDefault();
         if (targetMappings is null)
         {
-            Info.Message("Fetch Mappings", $"Unsuccessfully fetched mappings for v{FetchMappingsVersion}", InfoBarSeverity.Error);
+            Info.Message("Fetch Mappings", $"Failed to fetch mappings for v{FetchMappingsVersion}", InfoBarSeverity.Error);
             return;
         }
 
@@ -114,7 +114,7 @@ public partial class InstallationProfile : ObservableValidator
             var downloadedMappingsInfo = await Api.DownloadFileAsync(targetMappings.URL, mappingsFilePath);
             if (!downloadedMappingsInfo.Exists)
             {
-                Info.Message("Fetch Mappings", $"Unsuccessfully downloaded mappings for v{FetchMappingsVersion}", InfoBarSeverity.Error);
+                Info.Message("Fetch Mappings", $"Failed to download mappings for v{FetchMappingsVersion}", InfoBarSeverity.Error);
                 return;
             }
         }

@@ -14,7 +14,6 @@
              xmlns:wrapPanel="clr-namespace:FortnitePorting.Controls.WrapPanel"
              xmlns:assets="clr-namespace:FortnitePorting.Models.Assets"
              xmlns:md="https://github.com/whistyun/Markdown.Avalonia"
-             xmlns:help="clr-namespace:FortnitePorting.Models.Help"
              xmlns:views="clr-namespace:FortnitePorting.Views"
              xmlns:gif="clr-namespace:AvaloniaGif;assembly=AvaloniaGif"
              xmlns:services="clr-namespace:FortnitePorting.Services"

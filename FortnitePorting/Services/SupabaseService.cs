@@ -27,7 +27,7 @@ namespace FortnitePorting.Services;
 public partial class SupabaseService : ObservableObject, IService
 {
     [ObservableProperty] private Client _client;
-    [ObservableProperty] private bool _isActive;
+    [ObservableProperty] private bool _isLoggedIn;
     
     [ObservableProperty] private UserInfoResponse? _userInfo;
     [ObservableProperty] private Permissions? _permissions;
@@ -92,15 +92,10 @@ public partial class SupabaseService : ObservableObject, IService
         
         var session = await Client.Auth.ExchangeCodeForSession(authState.PKCEVerifier!, code);
         AppSettings.Online.SessionInfo = new UserSessionInfo(session.AccessToken, session.RefreshToken);
-        
-        await LoadUserInfo();
+
+        await OnLoggedIn();
 
         Info.Message("Discord Integration", $"Successfully signed in with discord user {UserInfo.UserName}");
-        
-        if (!PostedLogin)
-            await PostLogin();
-        
-        IsActive = true;
 
     }
     
@@ -110,7 +105,7 @@ public partial class SupabaseService : ObservableObject, IService
         
         AppSettings.Online.SessionInfo = null;
         UserInfo = null;
-        IsActive = false;
+        IsLoggedIn = false;
     }
 
     public async Task PostExports(IEnumerable<string> objectPaths)
@@ -123,7 +118,7 @@ public partial class SupabaseService : ObservableObject, IService
 
     private async Task OnLoggedIn()
     {
-        IsActive = true;
+        IsLoggedIn = true;
                 
         await LoadUserInfo();
                 
@@ -139,7 +134,6 @@ public partial class SupabaseService : ObservableObject, IService
         Permissions = await Client.Rpc<Permissions>("permissions", new { });
     }
     
-
     private async Task PostLogin()
     {
         await Client.From<Login>().Insert(new Login
@@ -150,6 +144,6 @@ public partial class SupabaseService : ObservableObject, IService
 
     private async Task LoadUserInfo()
     {
-        UserInfo = await AppServices.Api.FortnitePortingV2.UserInfo(Client.Auth.CurrentUser!.Id!);
+        UserInfo = await AppServices.Api.FortnitePorting.UserInfo(Client.Auth.CurrentUser!.Id!);
     }
 }

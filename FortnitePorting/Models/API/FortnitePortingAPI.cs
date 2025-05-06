@@ -7,65 +7,17 @@ namespace FortnitePorting.Models.API;
 
 public class FortnitePortingAPI(RestClient client) : APIBase(client)
 {
-    public const string RELEASE_FILES_URL = "https://fortniteporting.halfheart.dev/api/v3/release/files";
-    
-    public const string REPOSITORY_URL = "https://fortniteporting.halfheart.dev/api/v3/repository";
-        
-    public const string ONLINE_URL = "https://fortniteporting.halfheart.dev/api/v3/online";
-    
-    public const string AES_URL = "https://fortniteporting.halfheart.dev/api/v3/aes";
-    public const string MAPPINGS_URL = "https://fortniteporting.halfheart.dev/api/v3/mappings";
-    
-    
-    public async Task<RepositoryResponse?> GetRepositoryAsync(string url = REPOSITORY_URL)
-    {
-        return await ExecuteAsync<RepositoryResponse>(url);
-    }
+    protected override string BaseURL => "https://api.fortniteporting.halfheart.dev";
 
-    public RepositoryResponse? GetRepository(string url = REPOSITORY_URL)
-    {
-        return GetRepositoryAsync(url).GetAwaiter().GetResult();
-    }
+    public async Task<UserInfoResponse?> UserInfo(string id) => await ExecuteAsync<UserInfoResponse>("v1/user", parameters: [
+        new QueryParameter(nameof(id), id)
+    ]);
     
-    public async Task<string[]> GetReleaseFilesAsync()
-    {
-        return await ExecuteAsync<string[]>(RELEASE_FILES_URL) ?? [];
-    }
-
-    public string[] GetReleaseFiles()
-    {
-        return GetReleaseFilesAsync().GetAwaiter().GetResult();
-    }
+    public async Task<NewsResponse[]> News() => await ExecuteAsync<NewsResponse[]>("v1/news") ?? [];
+    public async Task<FeaturedArtResponse[]> FeaturedArt() => await ExecuteAsync<FeaturedArtResponse[]>("v1/featured_art") ?? [];
     
-    public async Task<OnlineResponse?> GetOnlineStatusAsync()
-    {
-        return await ExecuteAsync<OnlineResponse>(ONLINE_URL);
-    }
-
-    public OnlineResponse? GetOnlineStatus()
-    {
-        return GetOnlineStatusAsync().GetAwaiter().GetResult();
-    }
-    
-    public async Task<AesResponse?> GetKeysAsync(string version = "")
-    {
-        Parameter[] parameters = !string.IsNullOrWhiteSpace(version) ? [new QueryParameter("version", version)] : [];
-        return await ExecuteAsync<AesResponse>(AES_URL, parameters: parameters);
-    }
-
-    public AesResponse? GetKeys(string version = "")
-    {
-        return GetKeysAsync(version).GetAwaiter().GetResult();
-    }
-
-    public async Task<MappingsResponse[]?> GetMappingsAsync(string version = "")
-    {
-        Parameter[] parameters = !string.IsNullOrWhiteSpace(version) ? [new QueryParameter("version", version)] : [];
-        return await ExecuteAsync<MappingsResponse[]>(MAPPINGS_URL, parameters: parameters);
-    }
-
-    public MappingsResponse[]? GetMappings(string version = "")
-    {
-        return GetMappingsAsync(version).GetAwaiter().GetResult();
-    }
+    public async Task<AesResponse?> Aes() => await ExecuteAsync<AesResponse>("v1/static/aes");
+    public async Task<MappingsResponse[]?> Mappings() => await ExecuteAsync<MappingsResponse[]?>("v1/static/mappings");
+    public async Task<OnlineResponse?> Online() => await ExecuteAsync<OnlineResponse?>("v1/static/online");
+    public async Task<RepositoryResponse?> Repository() => await ExecuteAsync<RepositoryResponse?>("v1/static/online");
 }

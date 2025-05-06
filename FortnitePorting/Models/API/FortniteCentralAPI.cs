@@ -7,29 +7,15 @@ namespace FortnitePorting.Models.API;
 
 public class FortniteCentralAPI(RestClient client) : APIBase(client)
 {
-    private const string AES_URL = "https://fortnitecentral.genxgames.gg/api/v1/aes";
-    private const string MAPPINGS_URL = "https://fortnitecentral.genxgames.gg/api/v1/mappings";
-
-    public async Task<AesResponse?> GetKeysAsync(string version = "")
-    {
-        Parameter[] parameters = !string.IsNullOrWhiteSpace(version) ? [new QueryParameter("version", version)] : [];
-        var response = await ExecuteAsync<AesResponse>(AES_URL, parameters: parameters);
-        return string.IsNullOrEmpty(response?.MainKey) ? null : response;
-    }
-
-    public AesResponse? GetKeys(string version = "")
-    {
-        return GetKeysAsync(version).GetAwaiter().GetResult();
-    }
-
-    public async Task<MappingsResponse[]?> GetMappingsAsync(string version = "")
-    {
-        Parameter[] parameters = !string.IsNullOrWhiteSpace(version) ? [new QueryParameter("version", version)] : [];
-        return await ExecuteAsync<MappingsResponse[]>(MAPPINGS_URL, parameters: parameters);
-    }
-
-    public MappingsResponse[]? GetMappings(string version = "")
-    {
-        return GetMappingsAsync(version).GetAwaiter().GetResult();
-    }
+    protected override string BaseURL => "https://fortnitecentral.genxgames.gg/api";
+    
+    public async Task<AesResponse?> Aes() => await ExecuteAsync<AesResponse?>("v1/aes");
+    public async Task<AesResponse?> Aes(string version) => await ExecuteAsync<AesResponse?>("v1/aes", parameters: [
+        new QueryParameter("version", version)
+    ]);
+    
+    public async Task<MappingsResponse[]?> Mappings() => await ExecuteAsync<MappingsResponse[]?>("v1/mappings");
+    public async Task<MappingsResponse[]?> Mappings(string version) => await ExecuteAsync<MappingsResponse[]?>("v1/mappings", parameters: [
+        new QueryParameter("version", version)
+    ]);
 }

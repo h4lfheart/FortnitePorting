@@ -100,7 +100,7 @@ public partial class CUE4ParseService : ObservableObject, IService
 
         Provider.LoadExtraDirectories = AppSettings.Installation.CurrentProfile.LoadCreativeMaps;
         
-        _onlineStatus = await Api.FortnitePorting.GetOnlineStatusAsync() ?? new OnlineResponse();
+        _onlineStatus = await Api.FortnitePorting.Online() ?? new OnlineResponse();
         
         await CheckBlackHole();
         await CleanupCache();
@@ -152,8 +152,8 @@ public partial class CUE4ParseService : ObservableObject, IService
         if (AppSettings.Installation.CurrentProfile.FortniteVersion is not EFortniteVersion.LatestInstalled) return;
         
         var aes = _onlineStatus.Backup.Keys
-            ? await Api.FortnitePorting.GetKeysAsync()
-            : await Api.FortniteCentral.GetKeysAsync() ?? await Api.FortnitePorting.GetKeysAsync();
+            ? await Api.FortnitePorting.Aes()
+            : await Api.FortniteCentral.Aes();
         if (aes is null) return;
         
         var mainPakPath = Path.Combine(AppSettings.Installation.CurrentProfile.ArchiveDirectory,
@@ -320,8 +320,8 @@ public partial class CUE4ParseService : ObservableObject, IService
             case EFortniteVersion.LatestOnDemand:
             {
                 var aes = _onlineStatus.Backup.Keys 
-                    ? await Api.FortnitePorting.GetKeysAsync() 
-                    : await Api.FortniteCentral.GetKeysAsync();
+                    ? await Api.FortnitePorting.Aes() 
+                    : await Api.FortniteCentral.Aes();
                 
                 if (aes is null)
                 {
@@ -385,9 +385,9 @@ public partial class CUE4ParseService : ObservableObject, IService
     
     private async Task<string?> GetEndpointMappings()
     {
-        async Task<string?> GetMappings(Func<string, Task<MappingsResponse[]?>> mappingsFunc)
+        async Task<string?> GetMappings(Func<Task<MappingsResponse[]?>> mappingsFunc)
         {
-            var mappings = await mappingsFunc(string.Empty);
+            var mappings = await mappingsFunc();
             if (mappings is null) return null;
             if (mappings.Length <= 0) return null;
 
@@ -407,8 +407,8 @@ public partial class CUE4ParseService : ObservableObject, IService
         
         
         return  _onlineStatus.Backup.Mappings
-        ? await GetMappings(Api.FortnitePorting.GetMappingsAsync)
-        : await GetMappings(Api.FortniteCentral.GetMappingsAsync);
+        ? await GetMappings(Api.FortnitePorting.Mappings)
+        : await GetMappings(Api.FortniteCentral.Mappings);
     }
 
 

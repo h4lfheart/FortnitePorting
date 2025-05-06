@@ -21,6 +21,6 @@ public partial class LeaderboardStreak : ObservableObject
 
     public async Task Load()
     {
-        UserInfo = await Api.FortnitePortingV2.UserInfo(UserId);
+        UserInfo = await Api.FortnitePorting.UserInfo(UserId);
     }
 }

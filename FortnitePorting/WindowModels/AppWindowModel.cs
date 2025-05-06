@@ -51,7 +51,7 @@ public partial class AppWindowModel(
 
     public override async Task Initialize()
     {
-        OnlineStatus = await Api.FortnitePorting.GetOnlineStatusAsync();
+        OnlineStatus = await Api.FortnitePorting.Online();
 
         await CheckForUpdate(isAutomatic: true);
     }
@@ -75,7 +75,7 @@ public partial class AppWindowModel(
             });
         }
 
-        var repositoryInfo = await Api.FortnitePorting.GetRepositoryAsync();
+        var repositoryInfo = await Api.FortnitePorting.Repository();
         if (repositoryInfo is not null)
         {
             var newestRelease = repositoryInfo.Versions.MaxBy(version => version.UploadTime)!;
@@ -114,7 +114,7 @@ public partial class AppWindowModel(
                         {
                             "--silent",
                             "--skip-setup",
-                            $"--add-repository {FortnitePortingAPI.REPOSITORY_URL}",
+                            $"--add-repository https://api.fortniteporting.halfheart.dev/v1/static/repository",
                             $"--import-profile \"Fortnite Porting\" \"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AppDomain.CurrentDomain.FriendlyName + ".exe")}\" \"FortnitePorting\"",
                             "--update-profile \"Fortnite Porting\" -force",
                             "--launch-profile \"Fortnite Porting\"",
