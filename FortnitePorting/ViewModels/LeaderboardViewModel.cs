@@ -18,12 +18,14 @@ using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels.Settings;
+using FortnitePorting.Views;
 using Microsoft.VisualBasic.Logging;
 using ScottPlot;
 using ScottPlot.Avalonia;
 using ScottPlot.Rendering.RenderActions;
 using ScottPlot.TickGenerators;
 using ScottPlot.TickGenerators.TimeUnits;
+using Supabase.Realtime.PostgresChanges;
 using Log = Serilog.Log;
 
 namespace FortnitePorting.ViewModels;
@@ -48,14 +50,24 @@ public partial class LeaderboardViewModel : ViewModelBase
 
     [ObservableProperty] private int _popupValue;
 
-    public override async Task OnViewOpened()
+
+    public override async Task Initialize()
     {
-        if (Design.IsDesignMode) return;
-        
-        TaskService.Run(Load);
+        await SupaBase.Client.From<Export>().On(PostgresChangesOptions.ListenType.Inserts, (sender, change) =>
+        {
+            if (!Navigation.App.IsTabOpen<LeaderboardView>()) return;
+            
+            TaskService.Run(UpdateRealtime);
+        });
     }
 
-    public async Task Load()
+    public override async Task OnViewOpened()
+    {
+        await UpdateStatic();
+        await UpdateRealtime();
+    }
+    
+    public async Task UpdateRealtime()
     {
         var exports = await SupaBase.Client.Rpc<LeaderboardExport[]>("leaderboard_exports", new {}) ?? [];
         exports.ForEach(async export => await export.Load());
@@ -65,6 +77,11 @@ public partial class LeaderboardViewModel : ViewModelBase
         users.ForEach(async user => await user.Load());
         LeaderboardUsers = [..users];
         
+        
+    }
+
+    public async Task UpdateStatic()
+    {
         var streaks = await SupaBase.Client.Rpc<LeaderboardStreak[]>("leaderboard_streaks", new {}) ?? [];
         streaks.ForEach(async streaks => await streaks.Load());
         LeaderboardStreaks = [..streaks];

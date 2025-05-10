@@ -11,6 +11,7 @@ using FortnitePorting.Framework;
 using FortnitePorting.Models.API;
 using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.Assets.Asset;
+using FortnitePorting.Models.Assets.Custom;
 using FortnitePorting.Models.Leaderboard;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
@@ -83,11 +84,14 @@ public partial class AssetsViewModel() : ViewModelBase
 
         if (SupaBase.IsLoggedIn)
         {
-            await SupaBase.PostExports(
-                AssetLoader.ActiveLoader.SelectedAssetInfos
+            await SupaBase.PostExports([
+                ..AssetLoader.ActiveLoader.SelectedAssetInfos
                     .OfType<AssetInfo>()
-                    .Select(asset => asset.Asset.CreationData.Object.GetPathName())
-            );
+                    .Select(asset => asset.Asset.CreationData.Object.GetPathName()),
+                ..AssetLoader.ActiveLoader.SelectedAssetInfos
+                    .OfType<CustomAssetInfo>()
+                    .Select(asset => $"Custom/{asset.Asset.Asset.Name}"),
+            ]);
         }
     }
     

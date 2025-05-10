@@ -49,6 +49,32 @@ public partial class LeaderboardExport : ObservableObject
     // returns if is a valid export
     public async Task<bool> Load()
     {
+        // TODO do the dependency injection and make an exporter service
+        var assetLoaderService = AppServices.Services.GetRequiredService<AssetLoaderService>();
+        var assetLoaders = assetLoaderService.Categories
+            .SelectMany(category => category.Loaders)
+            .ToArray();
+        
+        if (ObjectPath.StartsWith("Custom/") )
+        {
+            ObjectName = ObjectPath.SubstringAfter("/");
+            
+            var customAssets = assetLoaders.SelectMany(loader => loader.CustomAssets);
+            var customAsset = customAssets.FirstOrDefault(asset => asset.Name.Equals(ObjectName));
+            if (customAsset is null) return false;
+            
+            ExportBitmap = customAsset.IconBitmap.ToWriteableBitmap();
+            ShowMedal = true;
+            CachedBitmaps[ObjectPath] = ExportBitmap;
+            
+            if (Ranking <= 3)
+            {
+                MedalBitmap = ImageExtensions.GetMedalBitmap(Ranking);
+            }
+            
+            return true;
+        }
+        
         if (!UEParse.FinishedLoading)
         {
             SetFailureDefaults();
@@ -66,11 +92,6 @@ public partial class LeaderboardExport : ObservableObject
             return false;
         }
         
-        // TODO do the dependency injection and make an exporter service
-        var assetLoaderService = AppServices.Services.GetRequiredService<AssetLoaderService>();
-        var assetLoaders = assetLoaderService.Categories
-            .SelectMany(category => category.Loaders)
-            .ToArray();
         var assetLoader = assetLoaders.FirstOrDefault(loader => loader.ClassNames.Contains(asset.ExportType));
         if (assetLoader is null)
         {
