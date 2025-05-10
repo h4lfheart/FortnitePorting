@@ -162,7 +162,7 @@ public partial class MapViewModel : ViewModelBase
             Maps.Add(new WorldPartitionMap(mapInfo));
         }
 
-        if (ChatVM.Permissions.HasFlag(EPermissions.LoadPluginFiles))
+        //if (ChatVM.Permissions.HasFlag(EPermissions.LoadPluginFiles))
         {
             foreach (var mountedVfs in UEParse.Provider.MountedVfs)
             {

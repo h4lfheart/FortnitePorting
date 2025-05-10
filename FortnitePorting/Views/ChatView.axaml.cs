@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Linq;
 using Avalonia;
@@ -15,9 +16,11 @@ using FluentAvalonia.UI.Controls;
 using FortnitePorting.Framework;
 using FortnitePorting.Models;
 using FortnitePorting.Models.Chat;
+using FortnitePorting.Models.Supabase.Tables;
 using FortnitePorting.OnlineServices.Models;
 using FortnitePorting.OnlineServices.Packet;
 using FortnitePorting.Services;
+using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
 
 namespace FortnitePorting.Views;
@@ -32,7 +35,7 @@ public partial class ChatView : ViewBase<ChatViewModel>
         TextBox.AddHandler(KeyDownEvent, OnTextKeyDown, RoutingStrategies.Tunnel);
     }
 
-    public async void OnTextKeyDown(object? sender, KeyEventArgs e)
+    public void OnTextKeyDown(object? sender, KeyEventArgs e)
     {
         if (sender is not AutoCompleteBox autoCompleteBox) return;
         if (autoCompleteBox.GetVisualDescendants().FirstOrDefault(x => x is TextBox) is not TextBox textBox) return;
@@ -47,17 +50,26 @@ public partial class ChatView : ViewBase<ChatViewModel>
                 e.Handled = true;
                 return;
             }
+
             
             if (text.StartsWith("/shrug"))
             {
+                text = @"¯\_(ツ)_/¯";
             }
-            else if (ImageFlyout.IsOpen)
+            
+            if (ImageFlyout.IsOpen)
             {
                 var memoryStream = new MemoryStream();
                 ViewModel.SelectedImage.Save(memoryStream);
+                throw new NotImplementedException("Image sending has not been added yet");
             }
             else
             {
+                TaskService.Run(async () =>
+                {
+                    await Chat.SendMessage(text, ViewModel.ReplyMessage?.Id);
+                    ViewModel.ReplyMessage = null;
+                });
             }
             
             textBox.Text = string.Empty;
@@ -128,11 +140,17 @@ public partial class ChatView : ViewBase<ChatViewModel>
         message.ReactedTo = !message.ReactedTo;
     }
 
-    private async void OnDeletePressed(object? sender, PointerPressedEventArgs e)
+    private void OnDeletePressed(object? sender, PointerPressedEventArgs e)
     {
         if (sender is not Control control) return;
-        if (control.DataContext is not ChatMessage message) return;
-        
+        if (control.DataContext is not ChatMessageV2 message) return;
+
+        TaskService.Run(async () =>
+        {
+            await SupaBase.Client.From<Message>()
+                .Where(x => x.Id == message.Id)
+                .Delete();
+        });
     }
 
     private void OnMessageUserPressed(object? sender, PointerPressedEventArgs e)
@@ -145,8 +163,38 @@ public partial class ChatView : ViewBase<ChatViewModel>
     private async void OnReplyPressed(object? sender, PointerPressedEventArgs e)
     {
         if (sender is not Control control) return;
-        if (control.DataContext is not ChatMessage chatMessage) return;
+        if (control.DataContext is not ChatMessageV2 chatMessage) return;
 
-        await chatMessage.User.SendMessage();
+        ViewModel.ReplyMessage = chatMessage;
+    }
+
+    private void OnEditPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (sender is not Control control) return;
+        if (control.DataContext is not ChatMessageV2 message) return;
+
+        message.IsEditing = !message.IsEditing;
+    }
+
+    private void OnEditBoxKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (sender is not TextBox control) return;
+        if (control.DataContext is not ChatMessageV2 message) return;
+        
+        if (e.Key == Key.Enter && !e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+        {
+            message.IsEditing = false;
+
+            var newText = control.Text!;
+            TaskService.Run(async () =>
+            {
+                await Chat.UpdateMessage(message, newText);
+            });
+        }
+    }
+
+    private void OnReplyCancelled(object? sender, PointerPressedEventArgs e)
+    {
+        ViewModel.ReplyMessage = null;
     }
 }

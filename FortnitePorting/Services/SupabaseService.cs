@@ -7,12 +7,15 @@ using System.Text;
 using System.Threading.Tasks;
 using Avalonia.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
+using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.Supabase;
 using FortnitePorting.Models.Supabase.Tables;
+using FortnitePorting.Models.Supabase.User;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Services;
+using Mapster;
 using Microsoft.VisualBasic.Logging;
 using OpenTK.Graphics.OpenGL;
 using Supabase;
@@ -30,7 +33,7 @@ public partial class SupabaseService : ObservableObject, IService
     [ObservableProperty] private bool _isLoggedIn;
     
     [ObservableProperty] private UserInfoResponse? _userInfo;
-    [ObservableProperty] private Permissions? _permissions;
+    [ObservableProperty] private UserPermissions _permissions;
 
     private bool PostedLogin;
     
@@ -52,15 +55,23 @@ public partial class SupabaseService : ObservableObject, IService
         {
             await Client.InitializeAsync();
 
-            if (AppSettings.Online.SessionInfo is { } sessionInfo)
+            if (AppSettings.Online.CurrentSessionInfo is { } sessionInfo)
             {
-                var session = await Client.Auth.SetSession(sessionInfo.AccessToken, sessionInfo.RefreshToken);
-                AppSettings.Online.SessionInfo = new UserSessionInfo(session.AccessToken, session.RefreshToken);
-
-                await OnLoggedIn();
+                await SetSession(sessionInfo);
             }
 
         });
+    }
+
+    public async Task SetSession(UserSessionInfo sessionInfo)
+    {
+        var session = await Client.Auth.SetSession(sessionInfo.AccessToken, sessionInfo.RefreshToken);
+                
+        await OnLoggedIn();
+        
+        var target = AppSettings.Online.SessionInfos[AppSettings.Online.SelectedSessionIndex];
+        target.AccessToken = session.AccessToken!;
+        target.RefreshToken = session.RefreshToken!;
     }
 
     public async Task SignIn()
@@ -68,13 +79,13 @@ public partial class SupabaseService : ObservableObject, IService
         var authState = await Client.Auth.SignIn(Constants.Provider.Discord, new SignInOptions
         {
             FlowType = Constants.OAuthFlowType.PKCE,
-            RedirectTo = "http://localhost:19999"
+            RedirectTo = "http://localhost:24000"
         });
         
         App.Launch(authState.Uri.AbsoluteUri);
         
         using var authListener = new HttpListener();
-        authListener.Prefixes.Add("http://localhost:19999/");
+        authListener.Prefixes.Add("http://localhost:24000/");
         authListener.Start();
 
         string? code = null;
@@ -91,21 +102,32 @@ public partial class SupabaseService : ObservableObject, IService
         authListener.Stop();
         
         var session = await Client.Auth.ExchangeCodeForSession(authState.PKCEVerifier!, code);
-        AppSettings.Online.SessionInfo = new UserSessionInfo(session.AccessToken, session.RefreshToken);
+        if (session is null)
+        {
+            Info.Message("Discord Integration", "Failed to sign in with discord.", severity: InfoBarSeverity.Error);
+            return;
+        }
 
         await OnLoggedIn();
+        
+        AppSettings.Online.SessionInfos.Add(new UserSessionInfo(session.AccessToken!, session.RefreshToken!, tag: UserInfo!.UserName));
+        AppSettings.Online.SelectedSessionIndex = Math.Max(0, AppSettings.Online.SelectedSessionIndex);
 
-        Info.Message("Discord Integration", $"Successfully signed in with discord user {UserInfo.UserName}");
+        Info.Message("Discord Integration", $"Successfully signed in discord user {UserInfo.UserName}");
 
     }
     
     public async Task SignOut()
     {
-        Info.Message("Discord Integration", $"Successfully signed out with discord user {UserInfo.UserName}");
-        
-        AppSettings.Online.SessionInfo = null;
+        Info.Message("Discord Integration", $"Successfully signed out discord user {AppSettings.Online.CurrentSessionInfo.Tag}");
+
+        var preRemoveIndex = AppSettings.Online.SelectedSessionIndex;
+        AppSettings.Online.SessionInfos.RemoveAt(AppSettings.Online.SelectedSessionIndex);
+        AppSettings.Online.SelectedSessionIndex = Math.Max(0, preRemoveIndex - 1);
         UserInfo = null;
         IsLoggedIn = false;
+        
+        await Client.Auth.SignOut();
     }
 
     public async Task PostExports(IEnumerable<string> objectPaths)
@@ -127,11 +149,10 @@ public partial class SupabaseService : ObservableObject, IService
 
         await Client.From<Permissions>().On(PostgresChangesOptions.ListenType.All, (channel, response) =>
         {
-            Permissions = response.Model<Permissions>();
-            Info.Message("Permissions", $"Your role has been updated to {Permissions!.Role.ToString()}.");
+            Permissions = response.Model<Permissions>().Adapt<UserPermissions>();
         });
 
-        Permissions = await Client.Rpc<Permissions>("permissions", new { });
+        Permissions = (await Client.Rpc<Permissions>("permissions", new { })).Adapt<UserPermissions>();
     }
     
     private async Task PostLogin()

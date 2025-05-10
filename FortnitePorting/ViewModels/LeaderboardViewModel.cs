@@ -49,17 +49,7 @@ public partial class LeaderboardViewModel : ViewModelBase
     [ObservableProperty] private Bitmap? _medalBitmap;
 
     [ObservableProperty] private int _popupValue;
-
-
-    public override async Task Initialize()
-    {
-        await SupaBase.Client.From<Export>().On(PostgresChangesOptions.ListenType.Inserts, (sender, change) =>
-        {
-            if (!Navigation.App.IsTabOpen<LeaderboardView>()) return;
-            
-            TaskService.Run(UpdateRealtime);
-        });
-    }
+    
 
     public override async Task OnViewOpened()
     {

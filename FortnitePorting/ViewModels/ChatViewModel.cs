@@ -29,8 +29,14 @@ using Globals = FortnitePorting.Globals;
 
 namespace FortnitePorting.ViewModels;
 
-public partial class ChatViewModel : ViewModelBase
+public partial class ChatViewModel(SupabaseService supabase, ChatService chatService) : ViewModelBase
 {
+    [ObservableProperty] private SupabaseService _supaBase = supabase;
+    [ObservableProperty] private ChatService _chat = chatService;
+
+    [ObservableProperty] private ChatMessageV2? _replyMessage;
+    
+    
     [ObservableProperty] private ScrollViewer? _scroll;
     [ObservableProperty] private TeachingTip _imageFlyout;
 

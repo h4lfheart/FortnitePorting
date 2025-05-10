@@ -1,7 +1,8 @@
-namespace FortnitePorting.Models.Supabase;
+namespace FortnitePorting.Models.Supabase.User;
 
-public class UserSessionInfo(string accessToken, string refreshToken)
+public class UserSessionInfo(string accessToken, string refreshToken, string tag)
 {
-    public string AccessToken = accessToken;
-    public string RefreshToken = refreshToken;
+    public string Tag { get; set; } = tag;
+    public string AccessToken { get; set; } = accessToken;
+    public string RefreshToken { get; set; } = refreshToken;
 }

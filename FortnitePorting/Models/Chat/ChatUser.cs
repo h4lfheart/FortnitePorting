@@ -13,6 +13,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse_Conversion;
 using FluentAvalonia.UI.Controls;
+using FortnitePorting.Models.Supabase.Tables;
 using FortnitePorting.OnlineServices.Extensions;
 using FortnitePorting.OnlineServices.Models;
 using FortnitePorting.OnlineServices.Packet;
@@ -152,7 +153,7 @@ public partial class ChatUser : ObservableObject
     public async Task SetRole()
     {
         var enumValues = Enum.GetValues<ERoleType>()
-            .Where(role => role < (ChatVM.Permissions.HasFlag(EPermissions.Owner) ? ERoleType.Owner : ERoleType.Staff))
+            .Where(role => role < ((SupaBase.Permissions.Role == ESupabaseRole.Owner) ? ERoleType.Owner : ERoleType.Staff))
             .Select(role => role.GetDescription());
         
         var comboBox = new ComboBox

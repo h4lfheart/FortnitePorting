@@ -44,7 +44,7 @@ public class APIBase
     {
         files ??= [];
         
-        var request = new RestRequest(url, method);
+        var request = new RestRequest(string.IsNullOrEmpty(BaseURL) ? url : $"{BaseURL}/{url}", method);
         foreach (var parameter in parameters) request.AddParameter(parameter);
         foreach (var file in files) request.AddFile(file.PropertyName, file.Data, file.Name);
 

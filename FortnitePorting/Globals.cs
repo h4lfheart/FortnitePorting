@@ -10,7 +10,7 @@ public static class Globals
 {
     public static string VersionString => Version.GetDisplayString(EVersionStringType.IdentifierPrefix);
     public static readonly FPVersion Version = new(3, 2, 0);
-    public const string OnlineTag = "FortnitePorting";
+    public const string ApplicationTag = "FortnitePorting";
     
     public static readonly FilePickerFileType MappingsFileType = new("Unreal Mappings") { Patterns = [ "*.usmap" ] };
     public static readonly FilePickerFileType JSONFileType = new("JSON") { Patterns = [ "*.json" ] };

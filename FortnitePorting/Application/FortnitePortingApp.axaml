@@ -19,6 +19,7 @@
              <ext:EnumToStringConverter x:Key="EnumToString" />
              <ext:EnumToRecordConverter x:Key="EnumToRecord" />
              <ext:EnumHasFlagConverter x:Key="EnumHasFlag" />
+             <ext:EnumGreaterOrEqualConverter x:Key="EnumGreaterOrEqual" />
              <ext:EnumEqualsConverter x:Key="EnumEquals" />
              <ext:TitleCaseStringConverter x:Key="TitleCaseString" />
              <ext:UnrealCaseStringConverter x:Key="UnrealCaseString" />

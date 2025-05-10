@@ -94,7 +94,7 @@ public partial class FilesViewModel() : ViewModelBase
     
     public override async Task Initialize()
     {
-        if (ChatVM.Permissions.HasFlag(EPermissions.LoadPluginFiles))
+        //if (SupaBase.Permissions.HasFlag(EPermissions.LoadPluginFiles))
         {
             foreach (var mountedVfs in CUE4Parse.Provider.MountedVfs)
             {

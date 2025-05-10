@@ -32,6 +32,7 @@
         <PackageReference Condition="'$(Configuration)' == 'Release'" Include="Costura.Fody" Version="5.8.0-alpha0098">
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
+        <PackageReference Include="Mapster" Version="7.4.2-pre02" />
         <PackageReference Include="Material.Icons.Avalonia" Version="2.1.9" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0-preview.3.25171.5" />
         <PackageReference Include="NAudio" Version="2.2.1" />

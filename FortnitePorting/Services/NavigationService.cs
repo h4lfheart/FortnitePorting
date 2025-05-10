@@ -58,4 +58,25 @@ public class NavigatorContext
             .OfType<NavigationViewItem>()
             .FirstOrDefault(item => item.Tag?.Equals(obj) ?? false);
     }
+
+    public bool IsTabOpen<T>()
+    {
+        return IsTabOpen(typeof(T));
+    }
+    
+    public bool IsTabOpen(object? obj)
+    {
+        if (obj is null) return false;
+        if (NavigationView is null) return false;
+
+        var viewType = obj switch
+        {
+            Type type => type,
+            _ => TypeResolvers.GetValueOrDefault(obj.GetType())?.Invoke(obj)
+        };
+        
+        if (viewType is null) return false;
+        
+        return ContentFrame.CurrentSourcePageType == viewType;
+    }
 }

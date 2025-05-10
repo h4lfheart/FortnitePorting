@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CUE4Parse.Utils;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Models.Serilog;
+using FortnitePorting.Models.Supabase.Tables;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Models.App;
 using FortnitePorting.Shared.Services;
@@ -117,6 +119,19 @@ public partial class InfoService : ObservableObject, ILogEventSink, IService
     {
         var exceptionString = e.ToString();
         Log.Error(exceptionString);
+
+        if (SupaBase.IsLoggedIn)
+        {
+            TaskService.Run(async () =>
+            {
+                await SupaBase.Client.From<Error>().Insert(new Error
+                {
+                    Version = Globals.Version.GetDisplayString(),
+                    Message = $"{e.GetType().FullName}: {e.Message}",
+                    StackTrace = e.StackTrace!.SubstringAfter("at ")
+                });
+            });
+        }
                 
         TaskService.RunDispatcher(async () =>
         {
@@ -131,6 +146,7 @@ public partial class InfoService : ObservableObject, ILogEventSink, IService
                 SecondaryButtonCommand = new RelayCommand(() => Navigation.App.Open<ConsoleView>()),
                 CloseButtonText = "Continue",
             };
+            
             await dialog.ShowAsync();
         });
     }
