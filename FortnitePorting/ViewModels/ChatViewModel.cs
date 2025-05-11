@@ -36,7 +36,6 @@ public partial class ChatViewModel(SupabaseService supabase, ChatService chatSer
 
     [ObservableProperty] private ChatMessageV2? _replyMessage;
     
-    
     [ObservableProperty] private ScrollViewer? _scroll;
     [ObservableProperty] private TeachingTip _imageFlyout;
 
@@ -52,7 +51,7 @@ public partial class ChatViewModel(SupabaseService supabase, ChatService chatSer
     
     public override async Task Initialize()
     {
-        Messages.CollectionChanged += (sender, args) =>
+        Chat.Messages.CollectionChanged += (sender, args) =>
         {
             TaskService.RunDispatcher(() =>
             {

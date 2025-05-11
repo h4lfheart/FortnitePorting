@@ -55,6 +55,7 @@ public class AppService : IService
     {
         TimeWasterViewModel.LoadResources();
 
+        TaskService.Run(Chat.Initialize);
         TaskService.Run(AppWM.Initialize);
         TaskService.Run(VotingVM.Initialize);
         

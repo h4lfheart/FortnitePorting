@@ -107,6 +107,18 @@
                                  Text="{Binding Text}" TextWrapping="Wrap" 
                                  Classes="BodyTextBlockStyle" VerticalAlignment="Center"/>
                         
+                        <Border Grid.Row="3" Grid.Column="2" Grid.ColumnSpan="9" 
+                                IsVisible="{Binding FullImageUrl, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                CornerRadius="4" ClipToBounds="True" HorizontalAlignment="Left" Margin="{ext:Space 0, 1, 0, 0}">
+                            <Border.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Save" Command="{Binding SaveImageCommand}"/>
+                                </ContextMenu>
+                            </Border.ContextMenu>
+                            
+                            <Image asyncImageLoader:ImageLoader.Source="{Binding FullImageUrl}" VerticalAlignment="Center" MaxHeight="300"/>
+                        </Border>
+                        
                         
                     </Grid>
                 </ui:FABorder>
@@ -134,7 +146,7 @@
             </Grid.ColumnDefinitions>
             
             <ScrollViewer Grid.Row="0" Grid.Column="0" x:Name="Scroll">
-                 <ItemsControl ItemsSource="{Binding Chat.Messages}" Margin="{ext:Space 1, 1, 2, 0}" ItemTemplate="{StaticResource MessageTemplate}"/>
+                 <ItemsControl ItemsSource="{Binding Chat.Messages}"  Margin="{ext:Space 1, 1, 2, 0}" ItemTemplate="{StaticResource MessageTemplate}"/>
             </ScrollViewer>
             
             <Border Grid.Row="2" Grid.Column="0" Background="#10000000"/>
@@ -169,7 +181,7 @@
                         <Border Grid.Column="6" Background="Transparent" Cursor="Hand"
                                 HorizontalAlignment="Right" VerticalAlignment="Center"
                                 PointerPressed="OnReplyCancelled">
-                            <material:MaterialIcon Kind="Cancel" Opacity="0.5"/>
+                            <material:MaterialIcon Kind="Close" Opacity="0.5"/>
                         </Border>
                     </Grid>
                 </ui:FABorder>
@@ -190,7 +202,8 @@
                     </Border>
                 </ui:TeachingTip>
                         
-                <AutoCompleteBox Grid.Row="1" Grid.Column="1" x:Name="TextBox" Text="{Binding Text, Mode=TwoWay}" ItemsSource="{Binding Commands}" Watermark="Enter a message"
+                <AutoCompleteBox Grid.Row="1" Grid.Column="1" x:Name="TextBox" Text="{Binding Text}"
+                                 ItemsSource="{Binding Commands}" Watermark="Enter a message"
                                  IsVisible="{Binding !SupaBase.Permissions.Muted}"/>
                 
             </Grid>
@@ -203,14 +216,14 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     
-                    <TextBlock Grid.Row="0" Text="{Binding Users.Count, StringFormat='Online - {0}'}" Classes="BodyStrongTextBlockStyle" FontWeight="SemiBold" HorizontalAlignment="Left"/>
+                    <TextBlock Grid.Row="0" Text="{Binding Chat.Users.Count, StringFormat='Online - {0}'}" Classes="BodyStrongTextBlockStyle" FontWeight="SemiBold" HorizontalAlignment="Left"/>
                     
                     <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Hidden">
-                        <ItemsControl ItemsSource="{Binding Users}">
+                        <ItemsControl ItemsSource="{Binding Chat.Users}" >
                             <ItemsControl.ItemTemplate>
-                                <DataTemplate x:DataType="chat:ChatUser">
-                                    <ui:FABorder HorizontalAlignment="Stretch" Cursor="Hand" PointerPressed="OnUserPressed" Margin="{ext:Space 0, 0, 0, 0.5}">
-                                        <FlyoutBase.AttachedFlyout>
+                                <DataTemplate>
+                                    <ui:FABorder HorizontalAlignment="Stretch" Cursor="Hand" PointerPressed="OnUserPressed" Margin="{ext:Space 0, 0, 0, 0.5}" DataContext="{Binding Value}">
+                                        <!--FlyoutBase.AttachedFlyout>
                                             <MenuFlyout>
                                                 <MenuItem Header="Copy GUID" Command="{Binding CopyGUIDCommand}"/>
                                                 <MenuItem Header="Copy ID" Command="{Binding CopyIDCommand}"/>
@@ -227,7 +240,7 @@
                                                           Converter={StaticResource EnumHasFlag}, 
                                                           ConverterParameter={x:Static packet:EPermissions.SetRole}}"/>
                                             </MenuFlyout>
-                                        </FlyoutBase.AttachedFlyout>
+                                        </FlyoutBase.AttachedFlyout-->
                                         <Grid HorizontalAlignment="Left" Margin="{ext:Space 1}">
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="Auto"/>
@@ -241,7 +254,7 @@
                                             </Grid.ColumnDefinitions>
                                         
                                             <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" CornerRadius="4" ClipToBounds="True">
-                                                <Image asyncImageLoader:ImageLoader.Source="{Binding ProfilePictureURL}" 
+                                                <Image asyncImageLoader:ImageLoader.Source="{Binding AvatarUrl}" 
                                                        Width="32" Height="32" Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center"/>
                                             </Border>
                                         

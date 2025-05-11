@@ -35,15 +35,6 @@ public class ObservableDictionary<TKey, TValue> : ObservableCollection<Observabl
         return this.FirstOrDefault(kvp => kvp.Key.Equals(key)).Value;
     }
     
-    public void SetValue(TKey key, TValue value)
-    {
-        if (this.FirstOrDefault(kvp => kvp.Key.Equals(key)) is { } existing)
-        {
-            existing.Value = value;
-        }
-        
-    }
-
     public bool ContainsKey(TKey key)
     {
         return this.Any(kvp => kvp.Key.Equals(key));
@@ -52,7 +43,7 @@ public class ObservableDictionary<TKey, TValue> : ObservableCollection<Observabl
     public TValue this[TKey key]
     {
         get => GetValue(key);
-        set => SetValue(key, value);
+        set => AddOrUpdate(key, value);
     }
 
     public new void Clear()

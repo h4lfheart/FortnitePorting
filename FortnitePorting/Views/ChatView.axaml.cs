@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using AsyncImageLoader;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
@@ -22,6 +23,7 @@ using FortnitePorting.OnlineServices.Packet;
 using FortnitePorting.Services;
 using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
+using Supabase.Storage.Exceptions;
 
 namespace FortnitePorting.Views;
 
@@ -50,27 +52,35 @@ public partial class ChatView : ViewBase<ChatViewModel>
                 e.Handled = true;
                 return;
             }
-
             
             if (text.StartsWith("/shrug"))
             {
                 text = @"¯\_(ツ)_/¯";
             }
-            
-            if (ImageFlyout.IsOpen)
+
+            var shouldUploadImage = ImageFlyout.IsOpen;
+            TaskService.Run(async () =>
             {
-                var memoryStream = new MemoryStream();
-                ViewModel.SelectedImage.Save(memoryStream);
-                throw new NotImplementedException("Image sending has not been added yet");
-            }
-            else
-            {
-                TaskService.Run(async () =>
+                string? imagePath = null;
+                if (shouldUploadImage)
                 {
-                    await Chat.SendMessage(text, ViewModel.ReplyMessage?.Id);
-                    ViewModel.ReplyMessage = null;
-                });
-            }
+                    var imageBucket = SupaBase.Client.Storage.From("chat-images");
+                    var memoryStream = new MemoryStream();
+                    ViewModel.SelectedImage.Save(memoryStream);
+
+                    try
+                    {
+                        imagePath = await imageBucket.Upload(memoryStream.ToArray(), ViewModel.SelectedImageName);
+                    }
+                    catch (SupabaseStorageException e)
+                    {
+                        imagePath = $"chat-images/{ViewModel.SelectedImageName}";
+                    }
+                }
+                
+                await Chat.SendMessage(text, replyId: ViewModel.ReplyMessage?.Id, imagePath: imagePath);
+                ViewModel.ReplyMessage = null;
+            });
             
             textBox.Text = string.Empty;
             ImageFlyout.IsOpen = false;
@@ -92,37 +102,6 @@ public partial class ChatView : ViewBase<ChatViewModel>
         Scroll.ScrollToEnd();
         TextBox.Focus();
         //AppWM.ChatNotifications = 0;
-    }
-    
-    private async void OnImagePressed(object? sender, PointerPressedEventArgs e)
-    {
-        if (sender is not Control control) return;
-        if (control.DataContext is not ChatMessage message) return;
-
-        var dialog = new ContentDialog
-        {
-            Title = message.BitmapName,
-            Content = new Border
-            {
-                CornerRadius = new CornerRadius(4),
-                ClipToBounds = true,
-                Child = new Image
-                {
-                    Source = message.Bitmap
-                }
-            },
-            CloseButtonText = "Close",
-            PrimaryButtonText = "Save",
-            PrimaryButtonCommand = new RelayCommand(async () =>
-            {
-                if (await App.SaveFileDialog(message.BitmapName, fileTypes: FilePickerFileTypes.ImagePng) is { } path)
-                {
-                    message.Bitmap.Save(path);
-                }
-            })
-        };
-
-        await dialog.ShowAsync();
     }
 
     private void OnUserPressed(object? sender, PointerPressedEventArgs e)
@@ -178,18 +157,23 @@ public partial class ChatView : ViewBase<ChatViewModel>
 
     private void OnEditBoxKeyDown(object? sender, KeyEventArgs e)
     {
-        if (sender is not TextBox control) return;
-        if (control.DataContext is not ChatMessageV2 message) return;
+        if (sender is not TextBox textBox) return;
+        if (textBox.DataContext is not ChatMessageV2 message) return;
         
         if (e.Key == Key.Enter && !e.KeyModifiers.HasFlag(KeyModifiers.Shift))
         {
             message.IsEditing = false;
 
-            var newText = control.Text!;
+            var newText = textBox.Text!;
             TaskService.Run(async () =>
             {
                 await Chat.UpdateMessage(message, newText);
             });
+        }
+        else if (e.Key == Key.Enter && e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+        {
+            textBox.Text += "\n";
+            textBox.CaretIndex = textBox.Text.Length;
         }
     }
 

@@ -12,14 +12,37 @@ namespace FortnitePorting.Models.Supabase.Tables;
 [Table("messages")]
 public class Message : BaseModel
 {
-    [PrimaryKey("id")] public string Id { get; set; }
-    [Column("timestamp", ignoreOnInsert: true, ignoreOnUpdate: true)] public DateTime Timestamp { get; set; }
-    [Column("user_id", ignoreOnInsert: true, ignoreOnUpdate: true)] public string UserId { get; set; }
-    [Column("text")] public string Text { get; set; }
-    [Column("application")] public string Application { get; set; }
-    [Column("was_edited", ignoreOnInsert: true, ignoreOnUpdate: true)] public bool WasEdited { get; set; }
-   
-    [Column("reply_id")] public string? ReplyId { get; set; }
+    [JsonProperty("id")] 
+    [PrimaryKey("id")] 
+    public string Id { get; set; }
+    
+    [JsonProperty("timestamp")] 
+    [Column("timestamp", ignoreOnInsert: true, ignoreOnUpdate: true)] 
+    public DateTime Timestamp { get; set; }
+    
+    [JsonProperty("user_id")] 
+    [Column("user_id", ignoreOnInsert: true, ignoreOnUpdate: true)] 
+    public string UserId { get; set; }
+    
+    [JsonProperty("text")] 
+    [Column("text")] 
+    public string Text { get; set; }
+    
+    [JsonProperty("application")] 
+    [Column("application")] 
+    public string Application { get; set; }
+    
+    [JsonProperty("was_edited")]
+    [Column("was_edited", ignoreOnInsert: true, ignoreOnUpdate: true)] 
+    public bool WasEdited { get; set; }
+    
+    [JsonProperty("reply_id")]
+    [Column("reply_id")]
+    public string? ReplyId { get; set; }
+    
+    [JsonProperty("image_path")] 
+    [Column("image_path")] 
+    public string? ImagePath { get; set; }
 
     static Message()
     {

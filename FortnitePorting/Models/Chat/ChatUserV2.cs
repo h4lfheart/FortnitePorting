@@ -25,6 +25,7 @@ using Mapster;
 using NAudio.CoreAudioApi;
 using Newtonsoft.Json;
 using Serilog;
+using Supabase.Realtime.Models;
 using Exporter = FortnitePorting.Exporting.Exporter;
 
 namespace FortnitePorting.Models.Chat;
@@ -49,4 +50,10 @@ public partial class ChatUserV2 : ObservableObject
         ESupabaseRole.Verified => Color.Parse("#e91c63"),
         ESupabaseRole.User => Colors.White
     });
+}
+
+public class ChatUserPresence : BasePresence
+{
+    [JsonProperty("application")] public string Application;
+    [JsonProperty("version")] public string Version;
 }

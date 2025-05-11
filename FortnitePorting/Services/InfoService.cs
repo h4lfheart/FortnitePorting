@@ -18,6 +18,7 @@ using Serilog;
 using Serilog.Core;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
+using Supabase.Postgrest.Exceptions;
 using TitleData = FortnitePorting.Models.Information.TitleData;
 
 namespace FortnitePorting.Services;
@@ -124,12 +125,19 @@ public partial class InfoService : ObservableObject, ILogEventSink, IService
         {
             TaskService.Run(async () =>
             {
-                await SupaBase.Client.From<Error>().Insert(new Error
+                try
                 {
-                    Version = Globals.Version.GetDisplayString(),
-                    Message = $"{e.GetType().FullName}: {e.Message}",
-                    StackTrace = e.StackTrace!.SubstringAfter("at ")
-                });
+                    await SupaBase.Client.From<Error>().Insert(new Error
+                    {
+                        Version = Globals.Version.GetDisplayString(),
+                        Message = $"{e.GetType().FullName}: {e.Message}",
+                        StackTrace = e.StackTrace!.SubstringAfter("at ")
+                    });
+                }
+                catch (PostgrestException)
+                {
+                    
+                }
             });
         }
                 

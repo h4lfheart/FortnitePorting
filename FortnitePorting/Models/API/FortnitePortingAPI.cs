@@ -17,7 +17,7 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
     {
         if (_userInfoCache.TryGetValue(id, out var existingUserInfo)) return existingUserInfo;
         
-        var userInfo = await ExecuteAsync<UserInfoResponse>("v1/user", parameters: [
+        var userInfo = await ExecuteAsync<UserInfoResponse>("v1/user", verbose: false, parameters: [
             new QueryParameter(nameof(id), id)
         ]);
 

@@ -40,7 +40,7 @@ public partial class SupabaseService : ObservableObject, IService
     private static readonly SupabaseOptions DefaultOptions = new()
     {
         AutoRefreshToken = true,
-        AutoConnectRealtime = true
+        AutoConnectRealtime = true,
     };
     
     public SupabaseService()
