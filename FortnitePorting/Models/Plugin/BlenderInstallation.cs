@@ -55,8 +55,7 @@ public partial class BlenderInstallation(string blenderExecutablePath) : Observa
         return true;
     }
     
-    // TODO popup for enabling plugin
-    public void Install()
+    public void Install(bool verbose = true)
     {
         Status = "Installing";
         
@@ -66,7 +65,23 @@ public partial class BlenderInstallation(string blenderExecutablePath) : Observa
         InstallPlugin(ueFormatZip);
         InstallPlugin(fnPortingZip);
 
-        SyncExtensionVersion();
+        var didSyncProperly = SyncExtensionVersion();
+        if (verbose)
+        {
+            if (didSyncProperly)
+            {
+                AppWM.Dialog("Plugin Installation Succeeded", 
+                    "Successfully installed the plugin, please enable the UEFormat plugin and then the Fortnite Porting plugin in Blender if this is your first time using it.",
+                    "Open Blender", () => Launch(BlenderPath));
+            }
+            else
+            {
+                AppWM.Dialog("Plugin Installation Failed", 
+                    "Failed to install the plugin, please install it manually by dragging and dropping the UEFormat plugin and then the Fortnite Porting plugin in Blender.", 
+                    "Plugins Folder", () => Launch(PluginsFolder.FullName));
+
+            }
+        }
         
         Status = string.Empty;
     }

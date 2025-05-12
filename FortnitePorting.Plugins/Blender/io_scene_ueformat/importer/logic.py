@@ -11,9 +11,10 @@ from mathutils import Matrix, Quaternion, Vector
 from math import *
 
 from ..importer.classes import (
-    ANIM_IDENTIFIER,
     MAGIC,
     MODEL_IDENTIFIER,
+    POSE_IDENTIFIER,
+    ANIM_IDENTIFIER,
     Bone,
     ConvexCollision,
     EUEFormatVersion,
@@ -26,12 +27,12 @@ from ..importer.classes import (
     UEModelSkeleton,
     VertexColor,
     Weight,
+    UEPose
 )
 from ..importer.reader import FArchiveReader
-from ..importer.utils import get_active_armature, get_case_insensitive, make_axis_vector, make_quat, make_vector, \
-    has_vertex_weights
+from ..importer.utils import *
 from ..logging import Log
-from ..options import UEAnimOptions, UEFormatOptions, UEModelOptions
+from ..options import UEAnimOptions, UEFormatOptions, UEModelOptions, UEPoseOptions
 
 
 class UEFormatImport:
@@ -92,25 +93,28 @@ class UEFormatImport:
                 raise ValueError(msg)
 
         read_archive.file_version = file_version
+        read_archive.metadata["scale"] = self.options.scale_factor
 
         if identifier == MODEL_IDENTIFIER:
             return self.import_uemodel_data(read_archive, object_name)
         if identifier == ANIM_IDENTIFIER:
             return self.import_ueanim_data(read_archive, object_name)
+        if identifier == POSE_IDENTIFIER:
+            return self.import_uepose_data(read_archive, object_name)
 
         msg = f"Unknown identifier: {identifier}"
         Log.error(msg)
         raise ValueError
 
     # TODO: clean up code quality, esp in the skeleton department
-    def import_uemodel_data(self, ar: FArchiveReader, name: str) -> Object:
+    def import_uemodel_data(self, ar: FArchiveReader, name: str) -> tuple[bpy.types.Object, UEModel]:
         assert isinstance(self.options, UEModelOptions)  # noqa: S101
 
         data: UEModel
         if ar.file_version >= EUEFormatVersion.LevelOfDetailFormatRestructure:
-            data = UEModel.from_archive(ar, self.options.scale_factor)
+            data = UEModel.from_archive(ar)
         else:
-            data = self.deserialize_model_legacy(ar)
+            data = UEModel.from_archive_legacy(ar)
 
         # meshes
         return_object = None
@@ -468,21 +472,29 @@ class UEFormatImport:
                 if self.options.link:
                     bpy.context.collection.objects.link(collision_mesh_object)
 
-        return return_object
+        return return_object, data
 
-    def import_ueanim_data(self, ar: FArchiveReader, name: str) -> Action:
+    def import_ueanim_data(self, ar: FArchiveReader, name: str) -> tuple[bpy.types.Action, UEAnim]:
         assert isinstance(self.options, UEAnimOptions)  # noqa: S101
 
-        data = UEAnim.from_archive(ar, self.options.scale_factor)
+        data = UEAnim.from_archive(ar)
 
         action = bpy.data.actions.new(name=name)
 
         armature = self.options.override_skeleton or get_active_armature()
         assert isinstance(armature, bpy.types.Object)  # noqa: S101
-
+        
+        if armature_anim_data := armature.animation_data:
+            armature_anim_data.action = None
+        
         if self.options.link:
             armature.animation_data_create()
             armature.animation_data.action = action
+
+        if self.options.link and bpy.app.version >= (4, 4, 0):
+            slot = action.slots.new(id_type='OBJECT', name=f"Slot_{armature.name}")
+            armature.animation_data.action_slot = slot
+            
 
         # bone anim data
         pose_bones = armature.pose.bones
@@ -552,83 +564,190 @@ class UEFormatImport:
 
             bone.matrix_basis.identity()  # type: ignore[reportAttributeAccessIssue]
 
-        return action
+        # curve anim data
+        if self.options.import_curves:
+            if (mesh := get_armature_mesh(armature)) and (shape_keys := mesh.data.shape_keys):
+                shape_keys.name = "Pose Asset"
+                if shape_key_anim_data := shape_keys.animation_data:
+                    shape_key_anim_data.action = None
     
+                shape_keys_action = bpy.data.actions.new(name=f"{name}_Curves")
+                
+                if self.options.link:
+                    shape_keys.animation_data_create()
+                    shape_keys.animation_data.action = shape_keys_action
     
-    def deserialize_model_legacy(self, ar: FArchiveReader) -> UEModel:
-        data = UEModel()
-        data.skeleton = UEModelSkeleton()
-        lod = UEModelLOD(name="LOD0")
+                key_blocks = shape_keys.key_blocks
+                for key_block in key_blocks:
+                    key_block.value = 0
+                    
+                for curve in data.curves:
+                    
+                    if not (shape_key := first(key_blocks, lambda block: block.name.lower() in curve.name.lower())):
+                        continue
+                        
+                    for key in curve.keys:
+                        shape_key.value = key.value
+                        shape_key.keyframe_insert(data_path="value", frame=key.frame)
 
-        while not ar.eof():
-            header_name = ar.read_fstring()
-            array_size = ar.read_int()
-            byte_size = ar.read_int()
+        return action, data
 
-            pos = ar.data.tell()
-            if header_name == "VERTICES":
-                flattened = ar.read_float_vector(array_size * 3)
-                lod.vertices = (np.array(flattened) * self.options.scale_factor).reshape(array_size, 3)
-            elif header_name == "INDICES":
-                lod.indices = np.array(ar.read_int_vector(array_size), dtype=np.int32).reshape(array_size // 3, 3)
-            elif header_name == "NORMALS":
-                if ar.file_version >= EUEFormatVersion.SerializeBinormalSign:
-                    flattened = np.array(
-                        ar.read_float_vector(array_size * 4),
-                    )  # W XYZ # TODO: change to XYZ W  # noqa: TD002, FIX002, TD003
-                    lod.normals = flattened.reshape(-1, 4)[:, 1:]
-                else:
-                    flattened = np.array(ar.read_float_vector(array_size * 3)).reshape(array_size, 3)
-                    lod.normals = flattened
-            elif header_name == "TANGENTS":
-                ar.skip(array_size * 3 * 3)
-                # flattened = np.array(ar.read_float_vector(array_size * 3)).reshape(array_size, 3)  # noqa: ERA001
-            elif header_name == "VERTEXCOLORS":
-                if ar.file_version >= EUEFormatVersion.AddMultipleVertexColors:
-                    lod.colors = [VertexColor.from_archive(ar) for _ in range(array_size)]
-                else:
-                    lod.colors = [
-                        VertexColor(
-                            "COL0",
-                            (np.array(ar.read_byte_vector(array_size * 4)).reshape(array_size, 4) / 255).astype(
-                                np.float32,
-                            ),
-                        ),
-                    ]
-            elif header_name == "TEXCOORDS":
-                lod.uvs = []
-                for _ in range(array_size):
-                    count = ar.read_int()
-                    lod.uvs.append(np.array(ar.read_float_vector(count * 2)).reshape(count, 2))
-            elif header_name == "MATERIALS":
-                lod.materials = ar.read_array(array_size, lambda ar: Material.from_archive(ar))
-            elif header_name == "WEIGHTS":
-                lod.weights = ar.read_array(array_size, lambda ar: Weight.from_archive(ar))
-            elif header_name == "MORPHTARGETS":
-                lod.morphs = ar.read_array(
-                    array_size,
-                    lambda ar: MorphTarget.from_archive(ar, self.options.scale_factor),
-                )
-            elif header_name == "BONES":
-                data.skeleton.bones = ar.read_array(
-                    array_size,
-                    lambda ar: Bone.from_archive(ar, self.options.scale_factor),
-                )
-            elif header_name == "SOCKETS":
-                data.skeleton.sockets = ar.read_array(
-                    array_size,
-                    lambda ar: Socket.from_archive(ar, self.options.scale_factor),
-                )
-            elif header_name == "COLLISION":
-                data.collisions = ar.read_array(
-                    array_size,
-                    lambda ar: ConvexCollision.from_archive(ar, self.options.scale_factor),
-                )
-            else:
-                Log.warn(f"Unknown Data: {header_name}")
-                ar.skip(byte_size)
-            ar.data.seek(pos + byte_size, 0)
+    def import_uepose_data(self, ar: FArchiveReader, name: str):
+        assert isinstance(self.options, UEPoseOptions)  # noqa: S101
+        
+        data = UEPose.from_archive(ar)
 
-        data.lods.append(lod)
+        selected_armature = self.options.override_skeleton or get_active_armature()
+        assert isinstance(selected_armature, bpy.types.Object)  # noqa: S101
+        
+        selected_mesh = get_armature_mesh(selected_armature)
 
-        return data
+        original_shape_key_lock = selected_mesh.show_only_shape_key
+        original_mode = bpy.context.active_object.mode
+        bpy.ops.object.mode_set(mode="OBJECT")
+        armature_modifier: bpy.types.ArmatureModifier = first(
+            selected_mesh.modifiers, lambda mod: mod.type == "ARMATURE"
+        )
+
+        selected_mesh.show_only_shape_key = False
+        
+        bone_swap_orig_parents(selected_armature)
+        muted_constraints = disable_constraints(selected_armature)
+
+        if not selected_mesh.data.shape_keys:
+            # Create Basis shape key
+            selected_mesh.shape_key_add(name="Basis", from_mix=False)
+
+        root_bone = selected_armature.pose.bones.get(self.options.root_bone) or selected_armature.pose.bones[0]
+
+        pose_names = []
+        for pose in data.poses:
+            pose_names.append(pose.name)
+
+            # Enter pose mode
+            bpy.context.view_layer.objects.active = selected_armature
+            bpy.ops.object.mode_set(mode="POSE")
+
+            # Reset all transforms to default
+            bpy.ops.pose.select_all(action="SELECT")
+            bpy.ops.pose.transforms_clear()
+            bpy.ops.pose.select_all(action="DESELECT")
+
+            # Move bones accordingly
+            contributed = False
+            for pose_key in pose.keys:
+
+                pose_bone: bpy.types.PoseBone = get_case_insensitive(
+                    selected_armature.pose.bones, pose_key.bone_name
+                )
+                
+                if not pose_bone:
+                    continue
+
+                if root_bone and not bone_has_parent(pose_bone, root_bone):
+                    continue
+
+                # Verify that the current bone and all of its children
+                # have at least one vertex group associated with it
+                if not bone_hierarchy_has_vertex_groups(
+                        pose_bone, selected_mesh.vertex_groups
+                ):
+                    continue
+
+                # Reset bone to identity
+                pose_bone.matrix_basis.identity()
+
+                rotation = pose_key.rotation
+                edit_bone = pose_bone.bone
+                post_quat = (
+                    Quaternion(post_quat)
+                    if (post_quat := edit_bone.get("post_quat"))
+                    else Quaternion()
+                )
+
+                q = post_quat.copy()
+                q.rotate(make_quat(rotation))
+                quat = post_quat.copy()
+                quat.rotate(q.conjugated())
+                pose_bone.rotation_quaternion = (
+                        quat.conjugated() @ pose_bone.rotation_quaternion
+                )
+
+                loc = make_vector(
+                    pose_key.position
+                )
+                loc.rotate(post_quat.conjugated())
+
+                pose_bone.location = pose_bone.location + loc
+                pose_bone.scale = Vector((1, 1, 1)) + make_vector(pose_key.scale)
+
+                pose_bone.rotation_quaternion.normalize()
+                contributed = True
+
+            # Do not create shape keys if nothing changed
+            if not contributed:
+                continue
+
+            # Create blendshape from armature
+            bpy.ops.object.mode_set(mode="OBJECT")
+            bpy.context.view_layer.objects.active = selected_mesh
+            selected_mesh.select_set(True)
+            bpy.ops.object.modifier_apply_as_shapekey(
+                keep_modifier=True, modifier=armature_modifier.name
+            )
+
+            # Use name from pose data
+            selected_mesh.data.shape_keys.key_blocks[-1].name = pose.name
+
+        bpy.ops.object.mode_set(mode="OBJECT")
+        bpy.context.view_layer.objects.active = selected_mesh
+        selected_mesh.select_set(True)
+
+        # create shape keys from curve data
+        key_blocks = selected_mesh.data.shape_keys.key_blocks
+        for pose in data.poses:
+            if len(pose.curves) == 0:
+                continue
+
+            pose_name = pose.name
+            if pose_name in key_blocks:
+                pose_name = f"curve_{pose_name}"
+            
+            contributed = False
+            for curve in pose.curves:
+                target_curve_name = data.curve_names[curve.curve_index]
+                if not (curve_shape_key := key_blocks.get(target_curve_name)):
+                    continue
+
+                curve_value = curve.influence
+                if curve_value < curve_shape_key.slider_min:
+                    curve_shape_key.slider_min = curve_value - 1.0
+
+                if curve_value > curve_shape_key.slider_max:
+                    curve_shape_key.slider_max = curve_value + 1.0
+
+                curve_shape_key.value = curve_value
+                contributed = True
+
+            if contributed:
+                selected_mesh.shape_key_add(name=pose_name, from_mix=True)
+            
+            for key in key_blocks:
+                key.value = 0
+            
+        # Final reset before re-entering regular import mode.
+        bpy.context.view_layer.objects.active = selected_armature
+        bpy.ops.object.mode_set(mode="POSE")
+        bpy.ops.pose.select_all(action="SELECT")
+        bpy.ops.pose.transforms_clear()
+        bpy.ops.pose.select_all(action="DESELECT")
+
+        bone_swap_orig_parents(selected_armature)
+        for constraint in muted_constraints:
+            constraint.mute = False
+
+        selected_mesh.show_only_shape_key = original_shape_key_lock
+        bpy.ops.object.mode_set(mode=original_mode)
+        bpy.context.view_layer.objects.active = selected_mesh
+        
+    

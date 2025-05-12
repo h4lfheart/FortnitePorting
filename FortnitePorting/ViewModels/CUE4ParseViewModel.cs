@@ -6,6 +6,8 @@ using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using CUE4Parse_Conversion.Textures;
+using CUE4Parse_Conversion.Textures.BC;
 using CUE4Parse.Compression;
 using CUE4Parse.Encryption.Aes;
 using CUE4Parse.MappingsProvider;
@@ -119,6 +121,7 @@ public class CUE4ParseViewModel : ViewModelBase
         HomeVM.UpdateStatus("Loading Native Libraries");
         await InitializeOodle();
         await InitializeZlib();
+        await InitializeDetex();
         
         HomeVM.UpdateStatus("Loading Game Files");
         await InitializeProvider();
@@ -134,8 +137,6 @@ public class CUE4ParseViewModel : ViewModelBase
         }
         
         await LoadMappings();
-        
-        MaterialPreviewWindow.Preview(await Provider.LoadPackageObjectAsync<UMaterial>("Engine/Content/EngineMaterials/WorldGridMaterial"));
         
         await LoadAssetRegistries();
 
@@ -153,15 +154,18 @@ public class CUE4ParseViewModel : ViewModelBase
         
         var aes = _onlineStatus.Backup.Keys
             ? await ApiVM.FortnitePorting.GetKeysAsync()
-            : await ApiVM.FortniteCentral.GetKeysAsync() ?? await ApiVM.FortnitePorting.GetKeysAsync();
-        if (aes is null) return;
+            : await ApiVM.FortniteCentral.GetKeysAsync();
+        
+        var mainKey = aes is not null
+            ? new FAesKey(aes.MainKey)
+            : AppSettings.Current.Installation.CurrentProfile.MainKey.EncryptionKey;
         
         var mainPakPath = Path.Combine(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory,
             "pakchunk0-WindowsClient.pak");
         if (!File.Exists(mainPakPath)) return;
 
         var mainPakReader = new PakFileReader(mainPakPath);
-        if (mainPakReader.TestAesKey(new FAesKey(aes.MainKey))) return;
+        if (mainPakReader.TestAesKey(mainKey)) return;
         
         await TaskService.RunDispatcherAsync(() =>
         {
@@ -194,6 +198,14 @@ public class CUE4ParseViewModel : ViewModelBase
         var zlibPath = Path.Combine(DataFolder.FullName, ZlibHelper.DLL_NAME);
         if (!File.Exists(zlibPath)) await ZlibHelper.DownloadDllAsync(zlibPath);
         ZlibHelper.Initialize(zlibPath);
+    }
+    
+    private async Task InitializeDetex()
+    {
+        TextureDecoder.UseAssetRipperTextureDecoder = true;
+        var detexPath = Path.Combine(DataFolder.FullName, DetexHelper.DLL_NAME);
+        if (!File.Exists(detexPath)) await DetexHelper.LoadDllAsync(detexPath);
+        DetexHelper.Initialize(detexPath);
     }
     
     private async Task InitializeProvider()
@@ -275,7 +287,7 @@ public class CUE4ParseViewModel : ViewModelBase
         catch (Exception e)
         {
             AppWM.Dialog("Failed to Initialize Texture Streaming", 
-                $"Please enable the \"Pre-Download Streamed Assets\" option for Fortnite in the Epic Games Launcher and disable texture streaming in installation settings to remove this popup\n\nException: {e}");
+                $"Please enable the \"Pre-Download Streamed Assets\" option for Fortnite in the Epic Games Launcher and disable texture streaming in installation settings to remove this popup.");
         }
     }
     
@@ -317,7 +329,7 @@ public class CUE4ParseViewModel : ViewModelBase
             {
                 var aes = _onlineStatus.Backup.Keys 
                     ? await ApiVM.FortnitePorting.GetKeysAsync() 
-                    : await ApiVM.FortniteCentral.GetKeysAsync() ?? await ApiVM.FortnitePorting.GetKeysAsync();
+                    : await ApiVM.FortniteCentral.GetKeysAsync();
                 
                 if (aes is null)
                 {

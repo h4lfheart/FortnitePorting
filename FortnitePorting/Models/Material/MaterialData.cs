@@ -125,8 +125,11 @@ public partial class MaterialData : ObservableObject
     
     public void LoadMaterialFunction(UMaterialFunction materialFunction)
     {
-        if (!materialFunction.TryLoadEditorData<UMaterialFunctionEditorOnlyData>(out var editorData)) return;
-        if (editorData is null) return;
+        if (!materialFunction.TryLoadEditorData<UMaterialFunctionEditorOnlyData>(out var editorData) || editorData is null)
+        {
+            AppWM.Dialog("Material Preview", $"Failed to load {materialFunction.Name} because it has no editor-only data.");
+            return;
+        }
         
         var expressionCollection = editorData.GetOrDefault<FStructFallback>("ExpressionCollection");
         LoadExpressionCollection(expressionCollection);
@@ -134,8 +137,11 @@ public partial class MaterialData : ObservableObject
 
     public void LoadMaterial(UMaterial material)
     {
-        if (!material.TryLoadEditorData<UMaterialEditorOnlyData>(out var editorData)) return;
-        if (editorData is null) return;
+        if (!material.TryLoadEditorData<UMaterialEditorOnlyData>(out var editorData) || editorData is null)
+        {
+            AppWM.Dialog("Material Preview", $"Failed to load {material.Name} because it has no editor-only data.");
+            return;
+        }
         
         var expressionCollection = editorData.GetOrDefault<FStructFallback>("ExpressionCollection");
         LoadExpressionCollection(expressionCollection);

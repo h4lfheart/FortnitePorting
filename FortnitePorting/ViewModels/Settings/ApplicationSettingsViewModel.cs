@@ -33,6 +33,9 @@ public partial class ApplicationSettingsViewModel : ViewModelBase
 
     [ObservableProperty] private bool _useTabTransitions = true;
     
+    [ObservableProperty] private bool _dontAskAboutKofi;
+    [ObservableProperty] private DateTime _nextKofiAskDate = DateTime.Today;
+    
     public string AssetPath => UseAssetsPath && Directory.Exists(AssetsPath) ? AssetsPath : AssetsFolder.FullName;
     public string PortlePath => UsePortlePath && Directory.Exists(PortleExecutablePath) 
         ? PortleExecutablePath 

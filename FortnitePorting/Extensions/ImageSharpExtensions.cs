@@ -18,14 +18,15 @@ public static class ImageSharpExtensions
         
         var mip = texture.GetFirstMip();
         if (mip is null) return null;
-
-        TextureDecoder.DecodeTexture(mip, mip.SizeX, mip.SizeY, mip.SizeZ, texture.Format, texture.IsNormalMap, ETexturePlatform.DesktopMobile, out var data, out var colorType);
-
-        Image returnImage = colorType switch
+        
+        var bitmap = texture.Decode(mip)?.ToSkBitmap();
+        if (bitmap is null) return null;
+        
+        Image returnImage = bitmap.ColorType switch
         {
-            SKColorType.Rgba8888 => Image.LoadPixelData<Rgba32>(data, mip.SizeX, mip.SizeY),
-            SKColorType.Bgra8888 => Image.LoadPixelData<Bgra32>(data, mip.SizeX, mip.SizeY),
-            SKColorType.Rgb888x => Image.LoadPixelData<Rgb24>(data, mip.SizeX, mip.SizeY)
+            SKColorType.Rgba8888 => Image.LoadPixelData<Rgba32>(bitmap.GetPixelSpan(), mip.SizeX, mip.SizeY),
+            SKColorType.Bgra8888 => Image.LoadPixelData<Bgra32>(bitmap.GetPixelSpan(), mip.SizeX, mip.SizeY),
+            SKColorType.Rgb888x => Image.LoadPixelData<Rgb24>(bitmap.GetPixelSpan(), mip.SizeX, mip.SizeY)
         };
 
         return returnImage.CloneAs<Rgba32>();

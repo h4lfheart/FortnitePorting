@@ -34,6 +34,7 @@ public partial class MapViewModel : ViewModelBase
 
     private static MapInfo[] MapInfos =
     [
+        // battle royale
         new(
             "Asteria",
             "FortniteGame/Content/Athena/Asteria/Maps/Asteria_Terrain",
@@ -69,6 +70,8 @@ public partial class MapViewModel : ViewModelBase
             "FortniteGame/Content/Athena/Apollo/Maps/UI/T_MiniMap_Mask",
             0.0146f, -100, -25, 96, 12800, true, false
         ),
+        
+        // og
         new(
             "Figment_S01",
             "FortniteGame/Plugins/GameFeatures/Figment/Figment_S01_Map/Content/Athena_Terrain_S01",
@@ -90,6 +93,8 @@ public partial class MapViewModel : ViewModelBase
             "FortniteGame/Plugins/GameFeatures/Figment/Figment_S03_MapUI/Content/MiniMapAthena_S03_Mask",
             0.017f, 380, 470, 110, 12800, true
         ),
+        
+        // reload
         new(
             "BlastBerry",
             "/BlastBerryMap/Maps/BlastBerry_Terrain",
@@ -104,6 +109,15 @@ public partial class MapViewModel : ViewModelBase
             "/BlastBerryMapUI/MiniMap/T_PB_MiniMap_Mask",
             0.023f, -20, 215, 150, 12800, true
         ),
+        new(
+            "DashBerry",
+            "/f4032749-42c4-7fe9-7fa2-c78076f34f54/DashBerry",
+            "/BlastBerryMapUI/MiniMap/Discovered_DashBerry",
+            "/BlastBerryMapUI/MiniMap/MMap_DasBerry_Mask",
+            0.0235f, -20, 210, 153, 12800, true
+        ),
+        
+        // ballistic
         new(
             "FeralCorgi_2Bombsite_Map",
             "/e1729c50-4845-01ba-18da-478919f7de66/Levels/FeralCorgi_2Bombsite_Map",

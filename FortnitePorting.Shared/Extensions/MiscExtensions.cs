@@ -102,8 +102,10 @@ public static class MiscExtensions
         return true;
     }
     
-    public static void AddRangeIfNotNull<T>(this List<T> list, IEnumerable<T?> items)
+    public static void AddRangeIfNotNull<T>(this List<T> list, IEnumerable<T?>? items)
     {
+        if (items is null) return;
+        
         foreach (var item in items)
         {
             if (item is null) continue;

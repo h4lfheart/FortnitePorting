@@ -64,7 +64,7 @@ public partial class AssetItem : Base.BaseAssetItem
                 () => seriesPackage.Load<UFortItemSeriesDefinition>());
         }
         
-        var iconBitmap = CreationData.Icon.Decode()!;
+        var iconBitmap = CreationData.Icon.Decode()!.ToSkBitmap();
         IconDisplayImage = iconBitmap.ToWriteableBitmap();
         DisplayImage = CreateDisplayImage(iconBitmap).ToWriteableBitmap();
     }
@@ -79,7 +79,7 @@ public partial class AssetItem : Base.BaseAssetItem
             var backgroundRect = new SKRect(0, 0, bitmap.Width, bitmap.Height);
             if (Series?.BackgroundTexture.LoadOrDefault<UTexture2D>() is { } seriesBackground)
             {
-                canvas.DrawBitmap(seriesBackground.Decode(), backgroundRect);
+                canvas.DrawBitmap(seriesBackground.Decode()?.ToSkBitmap(), backgroundRect);
             }
             else if (!CreationData.HideRarity)
             {
@@ -92,15 +92,8 @@ public partial class AssetItem : Base.BaseAssetItem
                 canvas.DrawRect(backgroundRect, backgroundPaint);
             }
 
-            if (CreationData.HideRarity)
-            {
-                canvas.DrawBitmap(iconBitmap, backgroundRect with { Left = -16, Right = bitmap.Width + 16 });
-            }
-            else
-            {
-                canvas.DrawBitmap(iconBitmap, backgroundRect with { Left = -8, Right = bitmap.Width + 8, Bottom = bitmap.Height - 16 });
-            }
-
+            canvas.DrawBitmap(iconBitmap, backgroundRect with { Left = -16, Right = bitmap.Width + 16});
+            
             if (!CreationData.HideRarity)
             {
                 var coolRectPaint = new SKPaint { Shader = SkiaExtensions.LinearGradient(bitmap.Width, true, colors.Color1, colors.Color2) };

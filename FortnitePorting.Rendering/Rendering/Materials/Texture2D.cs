@@ -26,7 +26,7 @@ public class Texture2D
         Handle = GL.GenTexture();
         Bind();
 
-        GL.TexImage2D(TextureTarget.Texture2d, 0, InternalFormat.Rgb, bitmap.Width, bitmap.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, bitmap.Bytes);
+        GL.TexImage2D(TextureTarget.Texture2d, 0, InternalFormat.Rgb, bitmap.Width, bitmap.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, bitmap.Data);
 
         GL.TextureParameteri(Handle, TextureParameterName.TextureMinFilter, (int) TextureMinFilter.Linear);
         GL.TextureParameteri(Handle, TextureParameterName.TextureMagFilter, (int) TextureMinFilter.Linear);

@@ -153,8 +153,8 @@ public static class SoundExtensions
     
     public static List<Sound> HandleSoundTree(this USoundCue root, float offsetTime = 0.0f)
     {
-        if (root.FirstNode is null) return (List<Sound>) Enumerable.Empty<Sound>();
-        return HandleSoundTree(root.FirstNode.Load<USoundNode>());
+        if (root.FirstNode is null) return [];
+        return HandleSoundTree(root.FirstNode.Load<USoundNode>(), offsetTime);
     }
 
     public static List<Sound> HandleSoundTree(this USoundNode? root, float offsetTime = 0.0f)
@@ -205,12 +205,12 @@ public static class SoundExtensions
         return sounds;
     }
     
-    private static Sound CreateSound(USoundNodeWavePlayer player, float timeOffset = 0)
+    public static Sound CreateSound(USoundNodeWavePlayer player, float timeOffset = 0)
     {
         return new Sound(player.SoundWave, timeOffset, player.GetOrDefault("bLooping", false));
     }
 
-    private static Sound CreateSound(FPackageIndex soundWave, float timeOffset = 0)
+    public static Sound CreateSound(FPackageIndex soundWave, float timeOffset = 0)
     {
         return new Sound(soundWave, timeOffset, false);
     }

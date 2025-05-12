@@ -64,6 +64,8 @@ public partial class WelcomeViewModel : ViewModelBase
         AppSettings.Current.Installation.Profiles.Add(Profile);
         AppSettings.Current.Installation.FinishedWelcomeScreen = true;
         
+        AppSettings.Current.Application.NextKofiAskDate = DateTime.Today.AddDays(7);
+        
         AppWM.SetupTabsAreVisible = false;
         AppWM.Navigate<HomeView>();
         

@@ -13,18 +13,9 @@ public class ExportAnimSection
     public float Length;
     public float LinkValue;
     public bool Loop;
-    public List<ExportCurve> Curves = [];
 
     [JsonIgnore] public UAnimSequence AssetRef;
 }
-
-public class ExportCurve
-{
-    public string Name;
-    public List<ExportCurveKey> Keys;
-}
-
-public record ExportCurveKey(float Time, float Value);
 
 public class ExportProp
 {

@@ -1,25 +1,39 @@
-using System.Drawing.Imaging;
+using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
+using CUE4Parse_Conversion.Textures;
 using SkiaSharp;
-using PixelFormat = Avalonia.Platform.PixelFormat;
 
-namespace FortnitePorting.Shared.Extensions;
+namespace FortnitePorting.Extensions;
 
 public static class ImageExtensions
 {
+    public static WriteableBitmap ToWriteableBitmap(this CTexture texture, bool ignoreAlpha = false)
+    {
+        return texture.ToSkBitmap().ToWriteableBitmap(ignoreAlpha);
+    }
+    
     public static WriteableBitmap ToWriteableBitmap(this SKBitmap skiaBitmap, bool ignoreAlpha = false)
     {
         using var skiaPixmap = skiaBitmap.PeekPixels();
         using var skiaImage = SKImage.FromPixels(skiaPixmap);
+
+        var bitmapColorType = skiaBitmap.ColorType switch
+        {
+            SKColorType.Rgba8888 => PixelFormat.Rgba8888,
+            SKColorType.Bgra8888 => PixelFormat.Bgra8888,
+            SKColorType.Rgb565 => PixelFormat.Rgb565,
+            SKColorType.RgbaF32 => PixelFormat.Rgb32,
+        };
         
-        var bitmap = new WriteableBitmap(new PixelSize(skiaBitmap.Width, skiaBitmap.Height), new Vector(96, 96), PixelFormat.Bgra8888, ignoreAlpha ? AlphaFormat.Opaque : AlphaFormat.Unpremul);
+        var bitmap = new WriteableBitmap(new PixelSize(skiaBitmap.Width, skiaBitmap.Height), new Vector(96, 96), bitmapColorType, ignoreAlpha ? AlphaFormat.Opaque : AlphaFormat.Unpremul);
         var frameBuffer = bitmap.Lock();
 
-        using (var pixmap = new SKPixmap(new SKImageInfo(skiaBitmap.Width, skiaBitmap.Height, SKColorType.Bgra8888, ignoreAlpha ? SKAlphaType.Opaque : SKAlphaType.Unpremul), frameBuffer.Address, frameBuffer.RowBytes))
+        using (var pixmap = new SKPixmap(new SKImageInfo(skiaBitmap.Width, skiaBitmap.Height, skiaBitmap.ColorType, ignoreAlpha ? SKAlphaType.Opaque : SKAlphaType.Unpremul), frameBuffer.Address, frameBuffer.RowBytes))
         {
             skiaImage.ReadPixels(pixmap, 0, 0);
         }
@@ -28,7 +42,7 @@ public static class ImageExtensions
         return bitmap;
 
     }
-
+    
     public static Dictionary<string, Bitmap> CachedBitmaps = [];
 
     public static Bitmap AvaresBitmap(string path)

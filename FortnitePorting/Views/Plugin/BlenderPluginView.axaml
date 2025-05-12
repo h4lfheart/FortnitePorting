@@ -73,7 +73,7 @@
                                     <TextBlock Text="{Binding Status}" Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" 
                                                Margin="{ext:Space 1, 0, 0, 0}" VerticalAlignment="Center" />
                                 </StackPanel>
-                                <TextBlock Grid.Row="2" Text="{Binding ExtensionVersion, TargetNullValue='Unknown Version'}" Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Row="2" Text="{Binding ExtensionVersion, TargetNullValue='Not Installed'}" Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" VerticalAlignment="Center"/>
                             </Grid>
                         </Grid>
                     </DataTemplate>

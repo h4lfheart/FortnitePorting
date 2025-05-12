@@ -1,5 +1,6 @@
 import json
 import math
+import os.path
 import traceback
 import pyperclip
 
@@ -15,7 +16,8 @@ from .tasty import *
 from ..utils import *
 from ..logger import Log
 from ...io_scene_ueformat.importer.logic import UEFormatImport
-from ...io_scene_ueformat.options import UEModelOptions, UEAnimOptions
+from ...io_scene_ueformat.importer.classes import UEAnim
+from ...io_scene_ueformat.options import UEModelOptions, UEAnimOptions, UEPoseOptions
 
 class ImportContext:
 
@@ -238,8 +240,7 @@ class ImportContext:
         })
 
         # metadata handling
-        # todo extract meta reading to function bc this is too big
-        meta = self.gather_metadata("PoseData", "CurveTrackNames")
+        meta = self.gather_metadata("PoseAsset")
 
         # pose asset
         if imported_mesh is not None:
@@ -361,7 +362,8 @@ class ImportContext:
 
         mesh_path = os.path.join(self.assets_root, path.split(".")[0] + ".uemodel")
 
-        return UEFormatImport(options).import_file(mesh_path)
+        mesh, mesh_data = UEFormatImport(options).import_file(mesh_path)
+        return mesh
     
     def import_texture_data(self, data):
         import_method = ETextureImportMethod(self.options.get("TextureImportMethod"))
@@ -1126,8 +1128,8 @@ class ImportContext:
                 section_length_frames = time_to_frame(section.get("Length"))
                 total_frames += section_length_frames
 
-                anim = self.import_anim(path, skeleton)
-                clear_children_bone_transforms(skeleton, anim, "faceAttach")
+                action, anim_data = self.import_anim(path, skeleton)
+                clear_children_bone_transforms(skeleton, action, "faceAttach")
 
                 section_name = section.get("Name")
                 time_offset = section.get("Time")
@@ -1137,40 +1139,36 @@ class ImportContext:
                 if len(track.strips) > 0 and frame < track.strips[-1].frame_end:
                     frame = int(track.strips[-1].frame_end)
 
-                strip = track.strips.new(section_name, frame, anim)
+                strip = track.strips.new(section_name, frame, action)
                 strip.repeat = loop_count
 
-                if (curves := section.get("Curves")) and len(curves) > 0 and active_mesh.data.shape_keys is not None and is_main_skeleton:
+                if len(anim_data.curves) > 0 and active_mesh.data.shape_keys is not None and is_main_skeleton:
                     key_blocks = active_mesh.data.shape_keys.key_blocks
                     for key_block in key_blocks:
                         key_block.value = 0
 
-                    def interpolate_keyframes(keyframes: list, frame: float, fps: int = 30) -> float:
-                        if not keyframes:
-                            raise ValueError("Keyframes list cannot be empty.")
-
-                        keyframes = sorted(keyframes, key=lambda k: k['Time'])
-
+                    def interpolate_keyframes(keyframes: list, frame: float, fps: float = 30) -> float:
                         frame_time = frame / fps
-
-                        if frame_time <= keyframes[0]['Time']:
-                            return keyframes[0]['Value']
-                        if frame_time >= keyframes[-1]['Time']:
-                            return keyframes[-1]['Value']
-
+                    
+                        if frame_time <= keyframes[0].frame / fps:
+                            return keyframes[0].value
+                        if frame_time >= keyframes[-1].frame / fps:
+                            return keyframes[-1].value
+                    
                         for i in range(len(keyframes) - 1):
                             k1 = keyframes[i]
                             k2 = keyframes[i + 1]
-                            if k1['Time'] <= frame_time <= k2['Time']:
-                                t = (frame_time - k1['Time']) / (k2['Time'] - k1['Time'])
-                                return k1['Value'] * (1 - t) + k2['Value'] * t
-
-                        return keyframes[-1]['Value']
+                            if k1.frame / fps <= frame_time <= k2.frame / fps:
+                                t = (frame_time - k1.frame / fps) / (k2.frame / fps - k1.frame / fps)
+                                return k1.value * (1 - t) + k2.value * t
+                    
+                        return keyframes[-1].value
                     
                     def import_curve_mapping(curve_mapping):
                         for curve_mapping in curve_mapping:
-                            curve_name = curve_mapping.get("Name")
-                            if target_block := key_blocks.get(curve_name.replace("CTRL_expressions_", "")):
+                            curve_name = curve_mapping.get("Name").lower().replace("ctrl_expressions_", "")
+                            
+                            if target_block := first(key_blocks, lambda block: block.name.lower() == curve_name):
                                 for frame in range(section_length_frames):
                                     value_stack = []
 
@@ -1208,9 +1206,9 @@ class ImportContext:
 
                                             case EOpElementType.NAME:
                                                 sub_curve_name = str(element_value)
-                                                target_curve = first(curves, lambda curve: curve.get("Name") == sub_curve_name)
+                                                target_curve = first(anim_data.curves, lambda curve: curve.name.lower().replace("ctrl_expressions_", "") == sub_curve_name.lower())
                                                 if target_curve:
-                                                    target_value = interpolate_keyframes(target_curve.get("Keys"), frame, fps=30)
+                                                    target_value = interpolate_keyframes(target_curve.keys, frame, fps=anim_data.metadata.frames_per_second)
                                                     value_stack.append(target_value)
                                                 else:
                                                     value_stack.append(0)
@@ -1285,16 +1283,17 @@ class ImportContext:
                     is_skeleton_legacy = any(skeleton.data.bones, lambda bone: bone.name == "faceAttach")
                     is_skeleton_metahuman = any(skeleton.data.bones, lambda bone: bone.name == "FACIAL_C_FacialRoot")
                     
-                    is_anim_legacy = any(curves, lambda curve: curve.get("Name") in legacy_curve_names)
-                    is_anim_metahuman = any(curves, lambda curve: curve.get("Name") == "is_3L")
+                    is_anim_legacy = any(anim_data.curves, lambda curve: curve.name in legacy_curve_names)
+                    is_anim_metahuman = any(anim_data.curves, lambda curve: curve.name == "is_3L")
                     
                     if (is_skeleton_legacy and is_anim_legacy) or (is_anim_metahuman and is_anim_metahuman):
-                        for curve in curves:
-                            curve_name = curve.get("Name")
-                            if target_block := key_blocks.get(curve_name.replace("CTRL_expressions_", "")):
-                                for key in curve.get("Keys"):
-                                    target_block.value = key.get("Value")
-                                    target_block.keyframe_insert(data_path="value", frame=key.get("Time") * 30)
+                        for curve in anim_data.curves:
+                            curve_name = curve.name.lower().replace("ctrl_expressions_", "")
+
+                            if target_block := first(key_blocks, lambda block: block.name.lower() == curve_name):
+                                for key in curve.keys:
+                                    target_block.value = key.value
+                                    target_block.keyframe_insert(data_path="value", frame=key.frame)
                                 
                     if is_skeleton_metahuman and is_anim_legacy and (legacy_to_metahuman_mappings := data.get("LegacyToMetahumanMappings")):
                         import_curve_mapping(legacy_to_metahuman_mappings)
@@ -1303,10 +1302,15 @@ class ImportContext:
                         import_curve_mapping(metahuman_to_legacy_mappings)
 
                     if active_mesh.data.shape_keys.animation_data.action is not None:
-                        strip = mesh_track.strips.new(section_name, frame, active_mesh.data.shape_keys.animation_data.action)
-                        strip.name = section_name
-                        strip.repeat = loop_count
+                        try:
+                            strip = mesh_track.strips.new(section_name, frame, active_mesh.data.shape_keys.animation_data.action)
+                            strip.name = section_name
+                            strip.repeat = loop_count
+                        except Exception:
+                            pass
+
                         active_mesh.data.shape_keys.animation_data.action = None
+                        
             return total_frames
 
         total_frames = import_sections(data.get("Sections"), target_skeleton, target_track, True)
@@ -1348,19 +1352,21 @@ class ImportContext:
                 path = sound.get("Path")
                 self.import_sound(path, time_to_frame(sound.get("Time")))
 
-    def import_anim(self, path: str, override_skeleton=None):
+    def import_anim(self, path: str, override_skeleton=None) -> tuple[bpy.types.Action, UEAnim]:
         path = path[1:] if path.startswith("/") else path
         file_path, name = path.split(".")
-        if (existing := bpy.data.actions.get(name)) and existing["Skeleton"] == override_skeleton.name:
-            return existing
+        if (existing := bpy.data.actions.get(name)) and existing["Skeleton"] == override_skeleton.name and not existing["HasCurves"]:
+            return existing, UEAnim()
 
         anim_path = os.path.join(self.assets_root, file_path + ".ueanim")
         options = UEAnimOptions(link=False,
                                 override_skeleton=override_skeleton,
-                                scale_factor=self.scale)
-        anim = UEFormatImport(options).import_file(anim_path)
-        anim["Skeleton"] = override_skeleton.name
-        return anim
+                                scale_factor=self.scale,
+                                import_curves=False)
+        action, anim_data = UEFormatImport(options).import_file(anim_path)
+        action["Skeleton"] = override_skeleton.name
+        action["HasCurves"] = len(anim_data.curves) > 0
+        return action, anim_data
     
     def import_font_data(self, data):
         self.import_font(data.get("Path"))
@@ -1372,282 +1378,20 @@ class ImportContext:
         bpy.ops.font.open(filepath=font_path, check_existing=True)
         
     def import_pose_asset_data(self, data, selected_armature, part_type):
-        pose_data = data.get("PoseData")
-        if not pose_data:
-            return
+        if pose_path := data.get("PoseAsset"):
+            self.import_pose_asset(pose_path, selected_armature)
+    
+    def import_pose_asset(self, path: str, override_skeleton=None):
+        path = path[1:] if path.startswith("/") else path
+        file_path, name = path.split(".")
+        pose_path = os.path.join(self.assets_root, file_path + ".uepose")
 
-        tracks = data.get("CurveTrackNames")
+        options = UEPoseOptions(scale_factor=self.scale,
+                                override_skeleton=override_skeleton,
+                                root_bone="neck_01")
 
-        original_selected_object = bpy.context.active_object
-        if selected_armature is None:
-            return
-
-        selected_mesh: bpy.types.Object = get_armature_mesh(selected_armature)
-
-        shape_keys = selected_mesh.data.shape_keys
-        original_shape_key_lock = selected_mesh.show_only_shape_key
-        original_mode = bpy.context.active_object.mode
-        muted_constraints = []
-        try:
-            bpy.ops.object.mode_set(mode="OBJECT")
-            armature_modifier: bpy.types.ArmatureModifier = first(
-                selected_mesh.modifiers, lambda mod: mod.type == "ARMATURE"
-            )
-
-            # Turn off shape key lock if it's on otherwise shape keys fail to
-            # import.
-            selected_mesh.show_only_shape_key = False
-
-            # Temporarily mutate all bone constraints since pose assets
-            # are bone based and we don't want constraints to influence
-            # the final pose.
-            muted_constraints = disable_constraints(selected_armature)
-
-            # Swap parents where applicable
-            bone_swap_orig_parents(selected_armature)
-
-            if not shape_keys:
-                # Create Basis shape key
-                selected_mesh.shape_key_add(name="Basis", from_mix=False)
-
-            root_bone_name = "neck_01"
-            root_bone = get_case_insensitive(
-                selected_armature.pose.bones, root_bone_name
-            )
-            if not root_bone:
-                Log.warn(
-                    f"{selected_mesh.name}: Failed to find root bone "
-                    f"'{root_bone_name}' in '{selected_armature.name}', all "
-                    "bones will be considered during import of "
-                    "PoseData"
-                )
-
-            loc_scale = self.scale
-            pose_names = []
-            for pose in pose_data:
-                if not (pose_name := pose.get("Name")):
-                    Log.warn(
-                        f"{selected_mesh.name}: skipping pose data "
-                        f"with no pose name:\n{pose}"
-                    )
-                    continue
-                pose_names.append(pose_name)
-
-                # If there are no influences, don't bother
-                if not (influences := pose.get("Keys")):
-                    continue
-
-                # Enter pose mode
-                bpy.context.view_layer.objects.active = selected_armature
-                bpy.ops.object.mode_set(mode="POSE")
-
-                # Reset all transforms to default
-                bpy.ops.pose.select_all(action="SELECT")
-                bpy.ops.pose.transforms_clear()
-                bpy.ops.pose.select_all(action="DESELECT")
-
-                # Move bones accordingly
-                contributed = False
-                for bone in influences:
-                    if not (bone_name := bone.get("Name")):
-                        Log.warn(
-                            f"{selected_mesh.name} - {pose_name}: "
-                            f"empty bone name for pose:\n{pose}"
-                        )
-                        continue
-
-                    pose_bone: bpy.types.PoseBone = get_case_insensitive(
-                        selected_armature.pose.bones, bone_name
-                    )
-                    if not pose_bone:
-                        # For cases where pose data tries to move a non-existent bone
-                        # i.e. Poseidon has no 'Tongue' but it's in the pose asset
-                        if not part_type or part_type is EFortCustomPartType.HEAD:
-                            # There are likely many missing bones in non-Head parts, but we
-                            # process as many as we can.
-                            Log.warn(
-                                f"{selected_mesh.name} - {pose_name}: "
-                                f"'{bone_name}' influence skipped "
-                                "since it was not found in "
-                                f"'{selected_armature.name}'"
-                            )
-                        continue
-
-                    if root_bone and not bone_has_parent(pose_bone, root_bone):
-                        Log.warn(
-                            f"{selected_mesh.name} - {pose_name}: "
-                            f"skipped '{pose_bone.name}' since it does "
-                            f"not have '{root_bone.name}' as a parent"
-                        )
-                        continue
-
-                    # Verify that the current bone and all of its children
-                    # have at least one vertex group associated with it
-                    if not bone_hierarchy_has_vertex_groups(
-                        pose_bone, selected_mesh.vertex_groups
-                    ):
-                        continue
-
-                    # Reset bone to identity
-                    pose_bone.matrix_basis.identity()
-
-                    rotation = bone.get("Rotation")
-                    if not rotation.get("IsNormalized"):
-                        Log.warn(
-                            f"{selected_mesh.name} - {pose_name}: "
-                            f"rotation not normalized for '{bone_name}' in "
-                            "pose"
-                        )
-
-                    edit_bone = pose_bone.bone
-                    post_quat = (
-                        Quaternion(post_quat)
-                        if (post_quat := edit_bone.get("post_quat"))
-                        else Quaternion()
-                    )
-
-                    q = post_quat.copy()
-                    q.rotate(make_quat(rotation))
-                    quat = post_quat.copy()
-                    quat.rotate(q.conjugated())
-                    pose_bone.rotation_quaternion = (
-                        quat.conjugated() @ pose_bone.rotation_quaternion
-                    )
-
-                    loc = make_vector(
-                        bone.get("Location"), unreal_coords_correction=True
-                    )
-                    loc.rotate(post_quat.conjugated())
-
-                    pose_bone.location = pose_bone.location + loc * loc_scale
-                    pose_bone.scale = Vector((1, 1, 1)) + make_vector(bone.get("Scale"))
-
-                    pose_bone.rotation_quaternion.normalize()
-                    contributed = True
-
-                # Do not create shape keys if nothing changed
-                if not contributed:
-                    continue
-
-                # Create blendshape from armature
-                bpy.ops.object.mode_set(mode="OBJECT")
-                bpy.context.view_layer.objects.active = selected_mesh
-                selected_mesh.select_set(True)
-                bpy.ops.object.modifier_apply_as_shapekey(
-                    keep_modifier=True, modifier=armature_modifier.name
-                )
-
-                # Use name from pose data
-                selected_mesh.data.shape_keys.key_blocks[-1].name = pose_name
-
-            if not tracks:
-                return
-
-            bpy.ops.object.mode_set(mode="OBJECT")
-            bpy.context.view_layer.objects.active = selected_mesh
-            selected_mesh.select_set(True)
-
-            # Now that base blendshapes are imported, cycle through all
-            # PoseData again to create blendshapes based on CurveData.
-            for pose in pose_data:
-                if not (curves := pose.get("CurveData")):
-                    continue
-
-                if not (pose_name := pose.get("Name")):
-                    Log.warn(
-                        f"{selected_mesh.name} - {pose_name}: skipping pose "
-                        f"data from curve data with no pose name:\n{pose}"
-                    )
-                    continue
-
-                # Not sure what it means when there's curve data on a pose
-                # also containing bone transforms. So if there's an existing
-                # shape key, just prepend curves_ to distinguish it.
-                # Also, if it exists in the original set of shape keys but it
-                # failed to import for some reason (i.e. missing bone), also
-                # distinguish that name to prevent confusion since the name
-                # of that key may not do what the user expects
-                # (i.e. tongue_up_pose on Fish Thicc created from CurveData).
-                # If we import outside the context of a full character import
-                # (i.e. part_type is None), then only prepend curves_ for
-                # existing shape keys.
-                if pose_name in selected_mesh.data.shape_keys.key_blocks or \
-                   (part_type is EFortCustomPartType.HEAD and pose_name in pose_names):
-                    pose_name = f"curves_{pose_name}"
-
-                # Verify length of CurveData matches that of tracks
-                if len(curves) != len(tracks):
-                    Log.warn(
-                        f"{selected_mesh.name} - {pose_name}: skipped since "
-                        "length of curve data for pose does not match the "
-                        "length of Tracks array"
-                    )
-                    continue
-
-                # If all curve values are basically 0, skip
-                if all(curves, lambda curve_value: abs(curve_value) < 0.00001):
-                    continue
-
-                contributed = False
-                for track_idx, curve_value in enumerate(curves):
-                    # Sometimes curve_value is a very small number (1.7881586e-06).
-                    # Probably best to just normalize it to 0
-                    if abs(curve_value) < 0.00001:
-                        curve_value = 0.0
-
-                    # Even if the curve_value is zero, let it be set anyway
-                    # since this is essentially a free reset to zero for the
-                    # relevant shape keys.
-                    shape_key_name = tracks[track_idx]
-                    if shape_key := selected_mesh.data.shape_keys.key_blocks.get(
-                        shape_key_name
-                    ):
-                        # Influence above / below 1.0 is possible with curve data
-                        if curve_value < shape_key.slider_min:
-                            shape_key.slider_min = curve_value - 1.0
-                        if curve_value > shape_key.slider_max:
-                            shape_key.slider_max = curve_value + 1.0
-                        shape_key.value = curve_value
-                        contributed = True
-                    else:
-                        if not part_type or part_type is EFortCustomPartType.HEAD:
-                            Log.warn(
-                                f"{selected_mesh.name} - {pose_name}: did not "
-                                "apply influence to missing shape key: "
-                                f"'{shape_key_name}'"
-                            )
-
-                # Do not create shape keys if nothing changed
-                if not contributed:
-                    continue
-
-                selected_mesh.shape_key_add(name=pose_name, from_mix=True)
-
-            # Set all shape keys in the track back to 0
-            for shape_key_name in tracks:
-                if shape_key := selected_mesh.data.shape_keys.key_blocks.get(
-                    shape_key_name
-                ):
-                    shape_key.slider_min = 0.0
-                    shape_key.slider_max = 1.0
-                    shape_key.value = 0.0
-        except Exception as e:
-            Log.error(f"Failed to import PoseAsset data from {selected_mesh.name}: {e}")
-        finally:
-            # Final reset before re-entering regular import mode.
-            bpy.context.view_layer.objects.active = selected_armature
-            bpy.ops.object.mode_set(mode="POSE")
-            bpy.ops.pose.select_all(action="SELECT")
-            bpy.ops.pose.transforms_clear()
-            bpy.ops.pose.select_all(action="DESELECT")
-
-            bone_swap_orig_parents(selected_armature)
-            for constraint in muted_constraints:
-                constraint.mute = False
-
-            selected_mesh.show_only_shape_key = original_shape_key_lock
-            bpy.ops.object.mode_set(mode=original_mode)
-            bpy.context.view_layer.objects.active = original_selected_object
+        UEFormatImport(options).import_file(pose_path)
+        
 
     def import_material_standalone(self, data):
         is_object_import = EMaterialImportMethod.OBJECT == EMaterialImportMethod(self.options.get("MaterialImportMethod"))

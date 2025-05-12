@@ -205,13 +205,13 @@ public class MeshExport : BaseExport
                 var exportMesh = Exporter.Mesh<ExportPart>(mesh);
                 if (exportMesh is null) break;
                 
-                var meta = new ExportPoseDataMeta();
+                var meta = new ExportPoseAssetMeta();
                 if (meshComponent.TryGetValue(out UAnimBlueprintGeneratedClass animBlueprint, "AnimClass"))
                 {
                     var animBlueprintData = animBlueprint.ClassDefaultObject.Load()!;
                     if (animBlueprintData.TryGetValue(out UPoseAsset poseAsset, "FacePoseAsset"))
                     {
-                        Exporter.PoseAsset(poseAsset, meta); // most pets have empty pose assets now but whatever
+                        meta.PoseAsset = Exporter.Export(poseAsset); // most pets have empty pose assets now but whatever
                     }
                 }
 

@@ -18,22 +18,7 @@
 		{
 			"Name": "UEFormat",
 			"Type": "Editor",
-			"LoadingPhase": "Default",
-			"AdditionalDependencies": [
-				"EditorScriptingUtilities",
-				"SkeletalMeshModelingTools"
-			]
+			"LoadingPhase": "Default"
 		}
-	],
-	"Plugins": [
-		{
-			"Name": "EditorScriptingUtilities",
-			"Enabled": true
-		},
-		{
-			"Name": "SkeletalMeshModelingTools",
-			"Enabled": true
-		}
-
 	]
 }

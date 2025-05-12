@@ -13,7 +13,8 @@ public class FortniteCentralAPI(RestClient client) : APIBase(client)
     public async Task<AesResponse?> GetKeysAsync(string version = "")
     {
         Parameter[] parameters = !string.IsNullOrWhiteSpace(version) ? [new QueryParameter("version", version)] : [];
-        return await ExecuteAsync<AesResponse>(AES_URL, parameters: parameters);
+        var response = await ExecuteAsync<AesResponse>(AES_URL, parameters: parameters);
+        return string.IsNullOrEmpty(response?.MainKey) ? null : response;
     }
 
     public AesResponse? GetKeys(string version = "")

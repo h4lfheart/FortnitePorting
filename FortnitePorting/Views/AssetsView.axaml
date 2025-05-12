@@ -57,6 +57,8 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="{ext:Space 1}"/>
                             <ColumnDefinition Width="3*"/>
+                            <ColumnDefinition Width="{ext:Space 1}"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         
                         <ToggleButton Grid.Column="0" IsChecked="{Binding AssetLoaderCollection.ActiveLoader.IsPaused}" ToolTip.Tip="Pause/Resume Loading">
@@ -112,6 +114,9 @@
                                          ItemsSource="{Binding AssetLoaderCollection.ActiveLoader.SearchAutoComplete}" 
                                          Text="{Binding AssetLoaderCollection.ActiveLoader.SearchFilter, Mode=TwoWay}"/>
                         
+                        <ToggleButton Grid.Column="12" ToolTip.Tip="Regex" HorizontalAlignment="Right" 
+                                      Content="{material:MaterialIconExt Regex}" IsChecked="{Binding AssetLoaderCollection.ActiveLoader.UseRegex}"/>
+                        
                     </Grid>
                     
                     <ui:FABorder Grid.Row="2">
@@ -144,12 +149,11 @@
                                             <Grid>
                                                 <ui:FABorder Width="{Binding DisplayWidth}" 
                                                              Height="{Binding DisplayHeight}"/>
-                                                <ui:FABorder Width="{Binding DisplayWidth}" 
-                                                             Height="{Binding DisplayHeight}">
-                                                    <ui:FABorder.Background>
-                                                        <ImageBrush Stretch="UniformToFill" Source="{Binding DisplayImage}" />
-                                                    </ui:FABorder.Background>
-                                                </ui:FABorder>
+                                                <Border ClipToBounds="True" CornerRadius="4"
+                                                        Width="{Binding DisplayWidth}" 
+                                                        Height="{Binding DisplayHeight}">
+                                                    <Image Stretch="UniformToFill" Source="{Binding DisplayImage}" />
+                                                </Border>
                                                 <Image IsVisible="{Binding IsFavorite}"
                                                        Source="/Assets/FN/Favorite.png" Width="24" Height="24" HorizontalAlignment="Right"
                                                        VerticalAlignment="Top" />
@@ -187,12 +191,9 @@
                                         </Grid.RowDefinitions>
                                         
                                         <ui:FABorder Grid.Row="0">
-                                            <Grid RowDefinitions="* 2*" ColumnDefinitions="* 0.15* 2.5*" Margin="{ext:Space 0, 0.5}">
-                                                <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" CornerRadius="4">
-                                                    <Border.Background>
-                                                        <ImageBrush Stretch="Uniform" Source="{Binding Asset.IconDisplayImage}" />
-                                                    </Border.Background>
-                                                    <Image Opacity="0" Source="{Binding Asset.IconDisplayImage}" />
+                                            <Grid RowDefinitions="* 2*" ColumnDefinitions="* 0.15* 2.5*" Margin="{ext:Space 0.5}">
+                                                <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" CornerRadius="4" ClipToBounds="True">
+                                                    <Image Source="{Binding Asset.IconDisplayImage}"/>
                                                 </Border>
                                                 <TextBlock Grid.Row="0" Grid.Column="2" Classes="BodyStrongTextBlockStyle" VerticalAlignment="Bottom" TextAlignment="Left"
                                                            TextTrimming="CharacterEllipsis"

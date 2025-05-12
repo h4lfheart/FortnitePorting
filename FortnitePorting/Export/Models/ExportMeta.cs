@@ -15,10 +15,9 @@ public class ExportMasterSkeletonMeta : BaseMeta
     public ExportMesh MasterSkeletalMesh;
 }
 
-public class ExportPoseDataMeta : BaseMeta
+public class ExportPoseAssetMeta : BaseMeta
 {
-    public List<PoseData> PoseData = [];
-    public string[] CurveTrackNames = [];
+    public string PoseAsset;
 }
 
 public class ExportAttachMeta : BaseMeta
@@ -32,25 +31,8 @@ public class ExportHatMeta : ExportAttachMeta
     public string HatType;
 }
 
-public class ExportHeadMeta : ExportPoseDataMeta
+public class ExportHeadMeta : ExportPoseAssetMeta
 {
     public readonly Dictionary<ECustomHatType, string> MorphNames = new();
     public FLinearColor SkinColor;
 }
-
-public class PoseData
-{
-    public string Name;
-    public List<PoseKey> Keys = [];
-    public readonly float[] CurveData;
-
-    public PoseData(string name, float[] curveData)
-    {
-        Name = name;
-        CurveData = curveData;
-    }
-}
-
-public record ReferencePose(string BoneName, FVector Location, FQuat Rotation, FVector Scale);
-
-public record PoseKey(string Name, FVector Location, FQuat Rotation, FVector Scale, int PoseIndex, int BoneTransformIndex);

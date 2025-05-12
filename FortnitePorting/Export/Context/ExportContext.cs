@@ -7,10 +7,12 @@ using CUE4Parse_Conversion;
 using CUE4Parse_Conversion.Animations;
 using CUE4Parse_Conversion.Meshes;
 using CUE4Parse_Conversion.Meshes.UEFormat;
+using CUE4Parse_Conversion.PoseAsset;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.GameTypes.FN.Assets.Exports;
 using CUE4Parse.UE4.Assets;
 using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.UE4.Assets.Exports.Actor;
 using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.Component;
 using CUE4Parse.UE4.Assets.Exports.Component.SkeletalMesh;
@@ -77,6 +79,7 @@ public partial class ExportContext
                 EAnimFormat.UEFormat => "ueanim",
                 EAnimFormat.ActorX => "psa"
             },
+            UPoseAsset => "uepose",
             UTexture => Meta.Settings.ImageFormat switch
             {
                 EImageFormat.PNG => "png",
@@ -182,6 +185,12 @@ public partial class ExportContext
                 }
                 break;
             }
+            case UPoseAsset poseAsset:
+            {
+                var exporter = new PoseAssetExporter(poseAsset, FileExportOptions);
+                File.WriteAllBytes(path, exporter.PoseAsset.FileData);
+                break;
+            }
             case UTexture texture:
             {
                 if (texture is UTexture2DArray && texture.GetFirstMip() is { } mip)
@@ -270,7 +279,7 @@ public partial class ExportContext
         }
     }
 
-    private void ExportBitmap(SKBitmap? bitmap, string path)
+    private void ExportBitmap(CTexture? bitmap, string path)
     {
         using var fileStream = File.OpenWrite(path); 
                 
@@ -279,8 +288,8 @@ public partial class ExportContext
             EImageFormat.PNG => ETextureFormat.Png,
             EImageFormat.TGA => ETextureFormat.Tga
         };
-                
-        bitmap?.Encode(format, 100).SaveTo(fileStream); 
+        
+        fileStream.Write(bitmap?.Encode(format, out _));
     }
     
     public string GetExportPath(UObject obj, string ext, bool embeddedAsset = false, bool excludeGamePath = false)
