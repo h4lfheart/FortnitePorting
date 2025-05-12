@@ -1,4 +1,5 @@
 using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -6,6 +7,7 @@ using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Chat;
 using FortnitePorting.Models.Supabase.Tables;
+using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Services;
 using Mapster;
 using Serilog;
@@ -25,6 +27,9 @@ public partial class ChatService : ObservableObject, IService
     {
         SupaBase = supaBase;
     }
+    
+    [ObservableProperty] private ObservableDictionary<string, ChatMessageV2> _messages = [];
+    [ObservableProperty] private ObservableDictionary<string, ChatUserV2> _users = [];
     
     [ObservableProperty] private ChatUserPresence _presence = new()
     {
@@ -146,9 +151,6 @@ public partial class ChatService : ObservableObject, IService
             }
         });
     }
-
-    [ObservableProperty] private ObservableDictionary<string, ChatMessageV2> _messages = [];
-    [ObservableProperty] private ObservableDictionary<string, ChatUserV2> _users = [];
 
     public async Task SendMessage(string text, string? replyId = null, string? imagePath = null)
     {

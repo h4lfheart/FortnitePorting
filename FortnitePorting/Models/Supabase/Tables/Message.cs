@@ -44,6 +44,10 @@ public class Message : BaseModel
     [Column("image_path")] 
     public string? ImagePath { get; set; }
 
+    [JsonProperty("reactor_ids")]
+    [Column("reactor_ids", ignoreOnInsert: true,  ignoreOnUpdate: true)]
+    public string[] ReactorIds { get; set; } = [];
+
     static Message()
     {
         TypeAdapterConfig<Message, ChatMessageV2>.NewConfig()

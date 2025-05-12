@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Shared.Models.API;
@@ -13,8 +14,9 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
     
     private readonly ConcurrentDictionary<string, UserInfoResponse> _userInfoCache = [];
 
-    public async Task<UserInfoResponse?> UserInfo(string id)
+    public async Task<UserInfoResponse?> UserInfo(string? id)
     {
+        if (id is null) return null;
         if (_userInfoCache.TryGetValue(id, out var existingUserInfo)) return existingUserInfo;
         
         var userInfo = await ExecuteAsync<UserInfoResponse>("v1/user", verbose: false, parameters: [

@@ -1,9 +1,13 @@
 using System;
 using System.Threading.Tasks;
 using Avalonia.Collections;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.Utils;
+using FluentAvalonia.Core;
+using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.Supabase.Tables;
@@ -23,6 +27,16 @@ public partial class ChatMessageV2 : ObservableObject
     [ObservableProperty] private string? _replyId;
     [ObservableProperty] private string? _imagePath;
     
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(
+        nameof(DidReactTo), 
+        nameof(ReactionBitmap),
+        nameof(ReactionBrush)
+    )]
+    private string[] _reactorIds = [];
+
+    
+    
     [ObservableProperty] private bool _isEditing;
 
     [ObservableProperty] private ObservableDictionary<string, ChatMessageV2> _replyMessages = [];
@@ -38,6 +52,14 @@ public partial class ChatMessageV2 : ObservableObject
     public bool CanDelete => SupaBase.Permissions.Role >= ESupabaseRole.Staff || User!.UserId.Equals(SupaBase.UserInfo!.UserId);
     public bool CanEdit => User!.UserId.Equals(SupaBase.UserInfo!.UserId);
     public bool CanReply => ReplyId is null;
+    
+    
+    public bool DidReactTo => ReactorIds.Contains(SupaBase.UserInfo!.UserId);
+    public Bitmap ReactionBitmap => DidReactTo ? ReactOff : ReactOn;
+    public SolidColorBrush ReactionBrush => DidReactTo ? SolidColorBrush.Parse("#FF6de400") : SolidColorBrush.Parse("#80FFFFFF");
+    
+    private static readonly Bitmap ReactOn = ImageExtensions.AvaresBitmap("avares://FortnitePorting/Assets/YeahOff.png");
+    private static readonly Bitmap ReactOff = ImageExtensions.AvaresBitmap("avares://FortnitePorting/Assets/YeahOn.png");
 
     [RelayCommand]
     public async Task SaveImage()

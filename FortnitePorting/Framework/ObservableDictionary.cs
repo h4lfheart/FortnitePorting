@@ -40,6 +40,18 @@ public class ObservableDictionary<TKey, TValue> : ObservableCollection<Observabl
         return this.Any(kvp => kvp.Key.Equals(key));
     }
 
+    public bool TryGetValue(TKey key, out TValue value)
+    {
+        if (ContainsKey(key))
+        {
+            value = GetValue(key);
+            return true;
+        }
+        
+        value = default;
+        return false;
+    }
+
     public TValue this[TKey key]
     {
         get => GetValue(key);

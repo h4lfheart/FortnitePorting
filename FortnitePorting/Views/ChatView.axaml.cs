@@ -114,9 +114,16 @@ public partial class ChatView : ViewBase<ChatViewModel>
     private async void OnYeahPressed(object? sender, PointerPressedEventArgs e)
     {
         if (sender is not Control control) return;
-        if (control.DataContext is not ChatMessage message) return;
+        if (control.DataContext is not ChatMessageV2 message) return;
 
-        message.ReactedTo = !message.ReactedTo;
+        if (message.DidReactTo)
+        {
+            await SupaBase.Client.Rpc("remove_reaction", new { message_id = message.Id });
+        }
+        else
+        {
+            await SupaBase.Client.Rpc("add_reaction", new { message_id = message.Id });
+        }
     }
 
     private void OnDeletePressed(object? sender, PointerPressedEventArgs e)
@@ -152,6 +159,7 @@ public partial class ChatView : ViewBase<ChatViewModel>
         if (sender is not Control control) return;
         if (control.DataContext is not ChatMessageV2 message) return;
 
+        // TODO focus edit textbox
         message.IsEditing = !message.IsEditing;
     }
 

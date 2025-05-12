@@ -23,6 +23,7 @@
             <DataTemplate.DataType>
                 <x:Type TypeName="framework:ObservableKeyValuePair" x:TypeArguments="x:String, chat:ChatMessageV2"/>
             </DataTemplate.DataType>
+            
             <Grid DataContext="{Binding Value}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -83,19 +84,35 @@
                                    Classes="CaptionTextBlockStyle TextFillColorTertiaryBrush" VerticalAlignment="Center"/>
                         
                         <StackPanel Grid.Row="0" Grid.Column="10" HorizontalAlignment="Right" VerticalAlignment="Top" Orientation="Horizontal">
-                            <material:MaterialIcon Kind="Reply" PointerPressed="OnReplyPressed" Opacity="0.5"
-                                                   Cursor="Hand"
-                                                   IsVisible="{Binding CanReply}"
-                                                   Margin="{ext:Space 0, 0, 0.5, 0}"/>
+                            <TextBlock Text="{Binding ReactorIds.Length}" 
+                                       Foreground="{Binding ReactionBrush}"
+                                       Margin="{ext:Space 0, 0, 0.5, 0}"/>
                             
-                            <material:MaterialIcon Kind="Pencil" PointerPressed="OnEditPressed" Opacity="0.5"
-                                                   Cursor="Hand"
-                                                   IsVisible="{Binding CanEdit}"
-                                                   Margin="{ext:Space 0, 0, 0.5, 0}"/>
+                            <Image ToolTip.Tip="Yeah!" Width="16" Height="16" Cursor="Hand"
+                                   Source="{Binding ReactionBitmap}"
+                                   PointerPressed="OnYeahPressed"/>
                             
-                            <material:MaterialIcon Kind="Delete" PointerPressed="OnDeletePressed" Opacity="0.5"
-                                                   Cursor="Hand"
-                                                   IsVisible="{Binding CanDelete}"/>
+                            <StackPanel IsVisible="{Binding IsPointerOver, ElementName=PointerOverTarget}" 
+                                        Margin="{ext:Space 0.5, 0, 0, 0}"
+                                        Orientation="Horizontal">
+                                <material:MaterialIcon Kind="Reply" PointerPressed="OnReplyPressed" 
+                                                       ToolTip.Tip="Reply"
+                                                       Opacity="0.5"
+                                                       Cursor="Hand"
+                                                       IsVisible="{Binding CanReply}"
+                                                       Margin="{ext:Space 0, 0, 0.5, 0}"/>
+                            
+                                <material:MaterialIcon Kind="Pencil" PointerPressed="OnEditPressed" Opacity="0.5"
+                                                       ToolTip.Tip="Edit"
+                                                       Cursor="Hand"
+                                                       IsVisible="{Binding CanEdit}"
+                                                       Margin="{ext:Space 0, 0, 0.5, 0}"/>
+                            
+                                <material:MaterialIcon Kind="Delete" PointerPressed="OnDeletePressed" Opacity="0.5"
+                                                       ToolTip.Tip="Delete"
+                                                       Cursor="Hand"
+                                                       IsVisible="{Binding CanDelete}"/>
+                            </StackPanel>
                         </StackPanel>
                         
                         <TextBlock Grid.Row="1" Grid.RowSpan="2" Grid.Column="2" Grid.ColumnSpan="9" IsVisible="{Binding !IsEditing}"
@@ -151,12 +168,9 @@
             
             <Border Grid.Row="2" Grid.Column="0" Background="#10000000"/>
             
-            <Grid Grid.Row="2" Grid.Column="0" RowDefinitions="Auto *" Margin="{ext:Space 1}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                
+            <Grid Grid.Row="2" Grid.Column="0" RowDefinitions="Auto *" Margin="{ext:Space 1}"
+                  ColumnDefinitions="Auto,*">
+
                 <ui:FABorder Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" 
                              IsVisible="{Binding ReplyMessage, Converter={x:Static ObjectConverters.IsNotNull}}"
                              Margin="{ext:Space 0, 0, 0, 1}">
