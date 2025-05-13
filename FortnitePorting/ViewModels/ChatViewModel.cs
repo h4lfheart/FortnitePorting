@@ -47,7 +47,6 @@ public partial class ChatViewModel(SupabaseService supabase, ChatService chatSer
     [ObservableProperty] private ObservableCollection<ChatUser> _users = [];
     [ObservableProperty] private ObservableCollection<ChatMessage> _messages = [];
     [ObservableProperty] private ObservableCollection<string> _commands = [];
-    [ObservableProperty] private bool _areServicesDown;
     
     public override async Task Initialize()
     {
@@ -93,7 +92,7 @@ public partial class ChatViewModel(SupabaseService supabase, ChatService chatSer
 
         switch (e.PropertyName)
         {
-            case nameof(Messages) when Scroll is not null:
+            case nameof(Chat.Messages) when Scroll is not null:
             {
                 TaskService.RunDispatcher(Scroll.ScrollToEnd);
                 break;

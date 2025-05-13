@@ -24,22 +24,14 @@
                 </Style>
             </StackPanel.Styles>
             
-            <ui:SettingsExpander Header="Discord Integration" Description="The discord account that should be used for online services.">
+            <ui:SettingsExpander Header="Discord Integration" Description="Integrates with your discord account for use with online features.">
                 <ui:SettingsExpander.Footer>
-                    <StackPanel Orientation="Horizontal">
-                        <Button Content="Add Account" Margin="{ext:Space 0, 0, 1, 0}"
+                    <Grid>
+                        <Button Content="Sign In" IsVisible="{Binding !SupaBase.IsLoggedIn}"
                                 Command="{Binding SupaBase.SignIn}"/>
-                        <Button Content="Remove Account" Margin="{ext:Space 0, 0, 1, 0}" IsVisible="{Binding !!SessionInfos.Count}"
+                        <Button Content="Sign Out" IsVisible="{Binding SupaBase.IsLoggedIn}"
                                 Command="{Binding SupaBase.SignOut}"/>
-                        <ComboBox ItemsSource="{Binding SessionInfos}" IsVisible="{Binding !!SessionInfos.Count}"
-                                  SelectedIndex="{Binding SelectedSessionIndex, Mode=TwoWay}">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Tag}"/>
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
-                    </StackPanel>
+                    </Grid>
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
             

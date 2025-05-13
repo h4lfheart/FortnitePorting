@@ -1,6 +1,8 @@
 using System;
 using CommunityToolkit.Mvvm.ComponentModel;
+using FortnitePorting.Application;
 using FortnitePorting.Models.Chat;
+using FortnitePorting.Services;
 using FortnitePorting.Shared.Services;
 using Mapster;
 using Newtonsoft.Json;
@@ -56,8 +58,7 @@ public class Message : BaseModel
             {
                 TaskService.Run(async () =>
                 {
-                    var userInfo = await Api.FortnitePorting.UserInfo(src.UserId);
-                    dest.User = userInfo.Adapt<ChatUserV2>();
+                    dest.User = await AppServices.Chat.GetUser(src.UserId);
                 });
             });
     }

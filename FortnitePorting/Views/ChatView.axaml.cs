@@ -189,4 +189,12 @@ public partial class ChatView : ViewBase<ChatViewModel>
     {
         ViewModel.ReplyMessage = null;
     }
+
+    private void OnCopyPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (sender is not Control control) return;
+        if (control.DataContext is not ChatMessageV2 message) return;
+
+        App.Clipboard.SetTextAsync(message.Text);
+    }
 }

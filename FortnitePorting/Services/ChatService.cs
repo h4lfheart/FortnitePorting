@@ -31,6 +31,8 @@ public partial class ChatService : ObservableObject, IService
     [ObservableProperty] private ObservableDictionary<string, ChatMessageV2> _messages = [];
     [ObservableProperty] private ObservableDictionary<string, ChatUserV2> _users = [];
     
+    [ObservableProperty] private ObservableDictionary<string, ChatUserV2> _userCache = [];
+    
     [ObservableProperty] private ChatUserPresence _presence = new()
     {
         Application = Globals.ApplicationTag,
@@ -68,6 +70,12 @@ public partial class ChatService : ObservableObject, IService
         }
     }
 
+    public async Task Uninitialize()
+    {
+        await _chatPresence.Untrack();
+        _chatChannel.Unsubscribe();
+    }
+
     private async Task InitializePresence()
     {
         _chatPresence = _chatChannel.Register<ChatUserPresence>(SupaBase.UserInfo!.UserId);
@@ -77,29 +85,29 @@ public partial class ChatService : ObservableObject, IService
             
         });
 
-        _chatPresence.AddPresenceEventHandler(IRealtimePresence.EventType.Join, async (sender, type) =>
+        _chatPresence.AddPresenceEventHandler(IRealtimePresence.EventType.Join, (sender, type) =>
         {
-            var currentState = _chatPresence.CurrentState;
-            foreach (var (userId, presences) in currentState)
+            TaskService.Run(async () =>
             {
-                if (Users.ContainsKey(userId)) continue;
+                var currentState = _chatPresence.CurrentState;
+                foreach (var (userId, presences) in currentState)
+                {
+                    if (Users.ContainsKey(userId)) continue;
+                    
+                    var newestPresence = presences.Last();
 
-                var userInfo = await Api.FortnitePorting.UserInfo(userId);
-                if (userInfo is null) continue;
-
-                var newestPresence = presences.Last();
-                
-                var user = userInfo.Adapt<ChatUserV2>();
-                user.Tag = newestPresence.Application;
-                user.Version = newestPresence.Version;
-                Users.AddOrUpdate(userId, user);
-            }
+                    var user = await GetUser(userId);
+                    user.Tag = newestPresence.Application;
+                    user.Version = newestPresence.Version;
+                    Users.AddOrUpdate(userId, user);
+                }
+            });
         });
 
         _chatPresence.AddPresenceEventHandler(IRealtimePresence.EventType.Leave, (sender, type) =>
         {
             var currentState = _chatPresence.CurrentState;
-            foreach (var user in Users)
+            foreach (var user in Users.ToArray())
             {
                 if (!currentState.ContainsKey(user.Key))
                 {
@@ -120,7 +128,6 @@ public partial class ChatService : ObservableObject, IService
             switch (broadcast.Event)
             {
                 case "insert_message":
-                case "update_message":
                 {
                     var message = broadcast.Get<Message>("message").Adapt<ChatMessageV2>();
                     if (message.ReplyId is not null)
@@ -131,6 +138,18 @@ public partial class ChatService : ObservableObject, IService
                     {
                         Messages.AddOrUpdate(message.Id, message);
                     }
+                    break;
+                }
+                case "update_message":
+                {
+                    var updatedMessage = broadcast.Get<Message>("message").Adapt<ChatMessageV2>();
+                    var targetMessage = updatedMessage.ReplyId is not null
+                        ? Messages[updatedMessage.ReplyId].ReplyMessages[updatedMessage.Id]
+                        : Messages[updatedMessage.Id];
+
+                    targetMessage.Text = updatedMessage.Text;
+                    targetMessage.ReactorIds = updatedMessage.ReactorIds;
+                    
                     break;
                 }
                 case "delete_message":
@@ -148,8 +167,27 @@ public partial class ChatService : ObservableObject, IService
                     }
                     break;
                 }
+                case "update_permissions":
+                {
+                    var userId = broadcast.Get<string>("user_id");
+                    var role = broadcast.Get<ESupabaseRole>("role");
+
+                    UserCache.UpdateIfContains(userId, user => user.Role = role);
+                    break;
+                }
             }
         });
+    }
+
+    public async Task<ChatUserV2> GetUser(string id)
+    {
+        if (UserCache.TryGetValue(id, out var existingUser)) return existingUser;
+
+        var userInfo = await Api.FortnitePorting.UserInfo(id);
+        var user = userInfo.Adapt<ChatUserV2>();
+        UserCache[id] = user;
+        
+        return user;
     }
 
     public async Task SendMessage(string text, string? replyId = null, string? imagePath = null)

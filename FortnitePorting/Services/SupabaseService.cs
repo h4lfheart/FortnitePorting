@@ -55,7 +55,7 @@ public partial class SupabaseService : ObservableObject, IService
         {
             await Client.InitializeAsync();
 
-            if (AppSettings.Online.CurrentSessionInfo is { } sessionInfo)
+            if (AppSettings.Online.SessionInfo is { } sessionInfo)
             {
                 await SetSession(sessionInfo);
             }
@@ -68,10 +68,8 @@ public partial class SupabaseService : ObservableObject, IService
         var session = await Client.Auth.SetSession(sessionInfo.AccessToken, sessionInfo.RefreshToken);
                 
         await OnLoggedIn();
-        
-        var target = AppSettings.Online.SessionInfos[AppSettings.Online.SelectedSessionIndex];
-        target.AccessToken = session.AccessToken!;
-        target.RefreshToken = session.RefreshToken!;
+
+        AppSettings.Online.SessionInfo = new UserSessionInfo(session.AccessToken!, session.RefreshToken!);
     }
 
     public async Task SignIn()
@@ -107,23 +105,22 @@ public partial class SupabaseService : ObservableObject, IService
             Info.Message("Discord Integration", "Failed to sign in with discord.", severity: InfoBarSeverity.Error);
             return;
         }
+        
+        AppSettings.Online.SessionInfo = new UserSessionInfo(session.AccessToken!, session.RefreshToken!);
 
         await OnLoggedIn();
-        
-        AppSettings.Online.SessionInfos.Add(new UserSessionInfo(session.AccessToken!, session.RefreshToken!, tag: UserInfo!.UserName));
-        AppSettings.Online.SelectedSessionIndex = Math.Max(0, AppSettings.Online.SelectedSessionIndex);
 
-        Info.Message("Discord Integration", $"Successfully signed in discord user {UserInfo.UserName}");
+        Info.Message("Discord Integration", $"Successfully signed in discord user {UserInfo!.UserName}");
 
     }
     
     public async Task SignOut()
     {
-        Info.Message("Discord Integration", $"Successfully signed out discord user {AppSettings.Online.CurrentSessionInfo.Tag}");
+        Info.Message("Discord Integration", $"Successfully signed out discord user {UserInfo!.UserName}");
 
-        var preRemoveIndex = AppSettings.Online.SelectedSessionIndex;
-        AppSettings.Online.SessionInfos.RemoveAt(AppSettings.Online.SelectedSessionIndex);
-        AppSettings.Online.SelectedSessionIndex = Math.Max(0, preRemoveIndex - 1);
+        await Chat.Uninitialize();
+
+        AppSettings.Online.SessionInfo = null;
         UserInfo = null;
         IsLoggedIn = false;
         
@@ -153,6 +150,8 @@ public partial class SupabaseService : ObservableObject, IService
         });
 
         Permissions = (await Client.Rpc<Permissions>("permissions", new { })).Adapt<UserPermissions>();
+        
+        await Chat.Initialize();
     }
     
     private async Task PostLogin()

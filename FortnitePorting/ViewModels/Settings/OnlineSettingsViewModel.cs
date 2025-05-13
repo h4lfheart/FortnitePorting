@@ -31,27 +31,9 @@ namespace FortnitePorting.ViewModels.Settings;
 public partial class OnlineSettingsViewModel : ViewModelBase
 {
    [JsonIgnore] public SupabaseService SupaBase => AppServices.SupaBase;
-   
-   [ObservableProperty, NotifyPropertyChangedFor(nameof(CurrentSessionInfo))] private ObservableCollection<UserSessionInfo> _sessionInfos = [];
-   [ObservableProperty, NotifyPropertyChangedFor(nameof(CurrentSessionInfo))] private int _selectedSessionIndex = 0;
 
-   [JsonIgnore]
-   public UserSessionInfo? CurrentSessionInfo => 
-      SelectedSessionIndex >= 0 && SelectedSessionIndex < SessionInfos.Count ? SessionInfos[SelectedSessionIndex] : null;
+   [ObservableProperty] private UserSessionInfo? _sessionInfo;
 
    [ObservableProperty] private bool _askedFirstTimePopup;
 
-   protected override async void OnPropertyChanged(PropertyChangedEventArgs e)
-   {
-      base.OnPropertyChanged(e);
-
-      switch (e.PropertyName)
-      {
-         case nameof(SelectedSessionIndex) when CurrentSessionInfo is not null:
-         {
-            await SupaBase.SetSession(CurrentSessionInfo);
-            break;
-         }
-      }
-   }
 }

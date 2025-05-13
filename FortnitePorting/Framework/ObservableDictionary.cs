@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -17,6 +18,12 @@ public class ObservableDictionary<TKey, TValue> : ObservableCollection<Observabl
         {
             Add(new ObservableKeyValuePair<TKey, TValue>(key, value));
         }
+    }
+
+    public void UpdateIfContains(TKey key, Action<TValue> valueModifier)
+    {
+        if (!TryGetValue(key, out var value)) return;
+        valueModifier.Invoke(value);
     }
 
     public bool Remove(TKey key)
