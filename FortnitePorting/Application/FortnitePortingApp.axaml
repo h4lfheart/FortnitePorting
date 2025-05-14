@@ -1,5 +1,3 @@
-
-
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:fluentStyle="using:FluentAvalonia.Styling"
@@ -55,8 +53,6 @@
         <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
         <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
         
-        <Style></Style>
-        
         <Style Selector="ui|FABorder">
             <Setter Property="Background" Value="#0DFFFFFF"/>
             <Setter Property="BorderBrush" Value="#19000000"/>
@@ -67,6 +63,92 @@
         
         <Style Selector="Border">
             <Setter Property="CornerRadius" Value="4"/>
+        </Style>
+        
+        <Style Selector="Button.Purple /template/ ContentPresenter">
+            <Setter Property="Background">
+                <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
+                    <GradientStops>
+                        <GradientStop Color="#8141db" Offset="0"/>
+                        <GradientStop Color="#6931c2" Offset="1"/>
+                    </GradientStops>
+                </LinearGradientBrush>
+            </Setter>
+            <Setter Property="Effect">
+                <DropShadowEffect OffsetX="0" OffsetY="2" BlurRadius="10" Opacity="0.25"/>
+            </Setter>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            
+            <Style Selector="^:pointerover">
+                <Setter Property="Background">
+                    <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
+                        <GradientStops>
+                            <GradientStop Color="#954cfc" Offset="0"/>
+                            <GradientStop Color="#7837de" Offset="1"/>
+                        </GradientStops>
+                    </LinearGradientBrush>
+                </Setter>
+            </Style>
+            
+        </Style>
+        
+        <Style Selector="Button.Red /template/ ContentPresenter">
+            <Setter Property="Background">
+                <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
+                    <GradientStops>
+                        <GradientStop Color="#db4153" Offset="0"/>
+                        <GradientStop Color="#c23142" Offset="1"/>
+                    </GradientStops>
+                </LinearGradientBrush>
+            </Setter>
+            <Setter Property="Effect">
+                <DropShadowEffect OffsetX="0" OffsetY="2" BlurRadius="10" Opacity="0.25"/>
+            </Setter>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            
+            <Style Selector="^:pointerover">
+                <Setter Property="Background">
+                    <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
+                        <GradientStops>
+                            <GradientStop Color="#fc4c98" Offset="0"/>
+                            <GradientStop Color="#de3761" Offset="1"/>
+                        </GradientStops>
+                    </LinearGradientBrush>
+                </Setter>
+            </Style>
+            
+        </Style>
+        
+        <Style Selector="Button.DiscordButton /template/ ContentPresenter">
+            <Setter Property="Background" Value="#7289da"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        
+        <Style Selector="Button.TwitterButton /template/ ContentPresenter">
+            <Setter Property="Background" Value="#1DA1F2"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        
+        <Style Selector="Button.GithubButton /template/ ContentPresenter">
+            <Setter Property="Background" Value="#2b3137"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        
+        <Style Selector="Button.KofiButton /template/ ContentPresenter">
+            <Setter Property="Background" Value="#ff5e5b"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
         </Style>
         
         <Style Selector="MenuItem.Checked">

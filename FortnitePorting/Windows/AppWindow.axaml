@@ -19,14 +19,9 @@
             </ExperimentalAcrylicBorder.Material>
         </ExperimentalAcrylicBorder>
 
-        <ui:NavigationView x:Name="NavigationView" Grid.Row="1" IsPaneOpen="False" OpenPaneLength="152" ItemInvoked="OnItemInvoked" IsSettingsVisible="False">
+        <ui:NavigationView x:Name="NavigationView" Grid.Row="1" IsPaneOpen="False" OpenPaneLength="152" ItemInvoked="OnItemInvoked" IsSettingsVisible="False"
+                           IsVisible="{Binding Settings.Installation.FinishedSetup}">
              <ui:NavigationView.MenuItems>
-                 <ui:NavigationViewItem Content="Welcome" Tag="{x:Type views:WelcomeView}" IsSelected="True" IsVisible="{Binding !Settings.Installation.FinishedSetup}">
-                     <ui:NavigationViewItem.IconSource>
-                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry CheckboxesMarked}"/>
-                     </ui:NavigationViewItem.IconSource>
-                 </ui:NavigationViewItem>
-                 <ui:NavigationViewItemSeparator IsVisible="{Binding !Settings.Installation.FinishedSetup}"/>
                  <ui:NavigationViewItem Content="Home" Tag="{x:Type views:HomeView}" IsEnabled="{Binding }">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Home}"/>
@@ -86,34 +81,34 @@
                  
              </ui:NavigationView.MenuItems>
              <ui:NavigationView.FooterMenuItems>
-                 <ui:NavigationViewItem Content="Help" Tag="{x:Type views:HelpView}" IsEnabled="{Binding Settings.Installation.FinishedSetup}">
+                 <ui:NavigationViewItem Content="Help" Tag="{x:Type views:HelpView}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Help}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItemSeparator/>
-                 <ui:NavigationViewItem Content="Console" Tag="{x:Type views:ConsoleView}" IsEnabled="{Binding Settings.Installation.FinishedSetup}" IsVisible="{Binding Settings.Debug.IsConsoleVisible}">
+                 <ui:NavigationViewItem Content="Console" Tag="{x:Type views:ConsoleView}" IsVisible="{Binding Settings.Debug.IsConsoleVisible}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Console}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Plugin" Tag="{x:Type views:PluginView}" IsEnabled="{Binding Settings.Installation.FinishedSetup}">
+                 <ui:NavigationViewItem Content="Plugin" Tag="{x:Type views:PluginView}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Plug}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Export" Tag="{x:Type views:ExportSettingsView}" IsEnabled="{Binding Settings.Installation.FinishedSetup}">
+                 <ui:NavigationViewItem Content="Export" Tag="{x:Type views:ExportSettingsView}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry FileCog}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Settings" Tag="{x:Type views:SettingsView}" IsEnabled="{Binding Settings.Installation.FinishedSetup}">
+                 <ui:NavigationViewItem Content="Settings" Tag="{x:Type views:SettingsView}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Settings}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItemSeparator/>
-                 <ui:NavigationViewItem Content="Update" Tag="Update" SelectsOnInvoked="False" PointerPressed="OnUpdatePressed" IsEnabled="{Binding Settings.Installation.FinishedSetup}">
+                 <ui:NavigationViewItem Content="Update" Tag="Update" SelectsOnInvoked="False" PointerPressed="OnUpdatePressed">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Download}"/>
                      </ui:NavigationViewItem.IconSource>
@@ -158,7 +153,11 @@
              </Grid>
          </ui:NavigationView>
         
-        <TransitioningContentControl Grid.Row="0" Grid.RowSpan="2" Content="{Binding BlackHole.Content}">
+        <ContentControl Grid.Row="0" Grid.RowSpan="2"  IsVisible="{Binding !Settings.Installation.FinishedSetup}">
+            <views:SetupView/>
+        </ContentControl>
+        
+        <TransitioningContentControl Grid.Row="1" Content="{Binding BlackHole.Content}">
             <TransitioningContentControl.PageTransition>
                 <CrossFade Duration="0:00:00.25"/>
             </TransitioningContentControl.PageTransition>
@@ -205,7 +204,7 @@
             <ui:ImageIcon Grid.Column="0" Source="/Assets/LogoV3.png" 
                           HorizontalAlignment="Right"
                           Width="20" Height="20" 
-                          RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                          RenderOptions.BitmapInterpolationMode="HighQuality" RenderOptions.EdgeMode="Antialias"/>
 
             <TextBlock Grid.Column="2" Text="Fortnite Porting" FontWeight="SemiBold" FontSize="16"
                        HorizontalAlignment="Center" VerticalAlignment="Center" />

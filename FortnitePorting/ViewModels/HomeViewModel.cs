@@ -50,26 +50,6 @@ public partial class HomeViewModel() : ViewModelBase
             await UEParse.Initialize();
         });
         
-        if (!AppSettings.Online.AskedFirstTimePopup)
-        {
-            AppSettings.Online.AskedFirstTimePopup = true;
-            
-            await TaskService.RunDispatcherAsync(async () =>
-            {
-                var discordIntegrationDialog = new ContentDialog
-                {
-                    Title = "Discord Integration",
-                    Content = "To use any of FortnitePorting's online features, you must authenticate yourself via Discord.\n\n" +
-                              "Would you like to authenticate now?\n\n" +
-                              "This choice can be changed any time in the application settings.",
-                    CloseButtonText = "Ignore",
-                    PrimaryButtonText = "Authenticate",
-                    PrimaryButtonCommand = new RelayCommand(async () => await SupaBase.SignIn())
-                };
-
-                await discordIntegrationDialog.ShowAsync();
-            });
-        }
 
         if (!AppSettings.Application.DontAskAboutKofi &&
             DateTime.Now.Date >= AppSettings.Application.NextKofiAskDate)

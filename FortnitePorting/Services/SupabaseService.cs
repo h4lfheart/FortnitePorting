@@ -151,6 +151,7 @@ public partial class SupabaseService : ObservableObject, IService
 
         Permissions = (await Client.Rpc<Permissions>("permissions", new { })).Adapt<UserPermissions>();
         
+        await VotingVM.Initialize();
         await Chat.Initialize();
     }
     

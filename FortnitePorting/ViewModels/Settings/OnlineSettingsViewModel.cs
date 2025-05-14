@@ -34,6 +34,4 @@ public partial class OnlineSettingsViewModel : ViewModelBase
 
    [ObservableProperty] private UserSessionInfo? _sessionInfo;
 
-   [ObservableProperty] private bool _askedFirstTimePopup;
-
 }

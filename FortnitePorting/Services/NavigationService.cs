@@ -10,6 +10,7 @@ namespace FortnitePorting.Services;
 public class NavigationService : IService
 {
     public readonly NavigatorContext App = new();
+    public readonly NavigatorContext Setup = new();
     public readonly NavigatorContext Plugin = new();
     public readonly NavigatorContext Settings = new();
     public readonly NavigatorContext ExportSettings = new();
@@ -27,6 +28,11 @@ public class NavigatorContext
         NavigationView = navigationView;
         ContentFrame = navigationView.GetLogicalDescendants().OfType<Frame>().First();
     }
+    
+    public void Initialize(Frame contentFrame)
+    {
+        ContentFrame = contentFrame;
+    }
 
     public void AddTypeResolver<T>(Func<T, Type?> resolver)
     {
@@ -41,7 +47,6 @@ public class NavigatorContext
     public void Open(object? obj)
     {
         if (obj is null) return;
-        if (NavigationView is null) return;
 
         var viewType = obj switch
         {
@@ -53,10 +58,13 @@ public class NavigatorContext
         
         ContentFrame.Navigate(viewType, null, AppSettings.Application.Transition);
 
-        NavigationView.SelectedItem = NavigationView.MenuItems
-            .Concat(NavigationView.FooterMenuItems)
-            .OfType<NavigationViewItem>()
-            .FirstOrDefault(item => item.Tag?.Equals(obj) ?? false);
+        if (NavigationView is not null)
+        {
+            NavigationView.SelectedItem = NavigationView.MenuItems
+                .Concat(NavigationView.FooterMenuItems)
+                .OfType<NavigationViewItem>()
+                .FirstOrDefault(item => item.Tag?.Equals(obj) ?? false);
+        }
     }
 
     public bool IsTabOpen<T>()
@@ -67,7 +75,6 @@ public class NavigatorContext
     public bool IsTabOpen(object? obj)
     {
         if (obj is null) return false;
-        if (NavigationView is null) return false;
 
         var viewType = obj switch
         {

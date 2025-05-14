@@ -6,19 +6,19 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FortnitePorting.Framework;
-using FortnitePorting.Views;
+using FortnitePorting.Models.Installation;
+using FortnitePorting.Views.Setup;
 using Newtonsoft.Json;
 using Serilog;
-using InstallationProfile = FortnitePorting.Models.Installation.InstallationProfile;
 
-namespace FortnitePorting.ViewModels;
+namespace FortnitePorting.ViewModels.Setup;
 
-public partial class WelcomeViewModel : ViewModelBase
+public partial class InstallationSetupViewModel : ViewModelBase
 {
     [ObservableProperty] private InstallationProfile _profile = new()
     {
         ProfileName = "Default",
-        ArchiveDirectory = null
+        ArchiveDirectory = string.Empty
     };
     
     public override async Task Initialize()
@@ -41,26 +41,23 @@ public partial class WelcomeViewModel : ViewModelBase
         if (fortniteInfo is null) return;
 
         Profile.ArchiveDirectory = fortniteInfo.InstallLocation + @"\FortniteGame\Content\Paks\";
+        OnPropertyChanged(nameof(Profile));
         Log.Information("Found Fortnite Installation at {ArchivePath}", Profile.ArchiveDirectory);
     }
-
+    
     [RelayCommand]
-    public async Task FinishSetup()
+    public async Task Continue()
     {
         AppSettings.Installation.Profiles.Add(Profile);
-        AppSettings.Installation.FinishedSetup = true;
         
-        AppSettings.Application.NextKofiAskDate = DateTime.Today.AddDays(7);
-        
-        Navigation.App.Open<HomeView>();
-        
-        AppSettings.Save();
+        Navigation.Setup.Open<OnlineSetupView>();
     }
 }
 
+
 file class LauncherInstalled
 {
-    public List<LauncherInstalledInfo> InstallationList;
+    public List<LauncherInstalledInfo> InstallationList = [];
 }
 
 file class LauncherInstalledInfo

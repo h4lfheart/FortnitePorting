@@ -56,7 +56,6 @@ public class AppService : IService
         TimeWasterViewModel.LoadResources();
 
         TaskService.Run(AppWM.Initialize);
-        TaskService.Run(VotingVM.Initialize);
         
         if (AppSettings.Plugin.Blender.AutomaticallySync && Dependencies.FinishedEnsuring)
         {
@@ -66,10 +65,6 @@ public class AppService : IService
         if (AppSettings.Installation.FinishedSetup)
         {
             Navigation.App.Open<HomeView>();
-        }
-        else
-        {
-            Navigation.App.Open<WelcomeView>();
         }
     }
 
