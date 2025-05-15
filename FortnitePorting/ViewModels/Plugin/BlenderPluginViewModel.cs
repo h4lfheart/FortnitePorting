@@ -14,9 +14,9 @@ using CUE4Parse.Utils;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Plugin;
+using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
-using FortnitePorting.Shared.Services;
 using Newtonsoft.Json;
 using Serilog;
 

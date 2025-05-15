@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using FortnitePorting.Application;
 using FortnitePorting.Models.Chat;
 using FortnitePorting.Services;
-using FortnitePorting.Shared.Services;
 using Mapster;
 using Newtonsoft.Json;
 using Supabase.Postgrest.Attributes;

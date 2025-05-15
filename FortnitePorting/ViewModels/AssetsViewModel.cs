@@ -16,7 +16,6 @@ using FortnitePorting.Models.Leaderboard;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
-using FortnitePorting.Shared.Services;
 using FortnitePorting.Views;
 using RestSharp;
 

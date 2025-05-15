@@ -22,13 +22,12 @@ using FortnitePorting.Models.Radio;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
-using FortnitePorting.Shared.Models.App;
-using FortnitePorting.Shared.Services;
 using Material.Icons;
 using NAudio.Wave;
 using Newtonsoft.Json;
 using ReactiveUI;
 using Serilog;
+using MessageData = FortnitePorting.Models.Information.MessageData;
 
 namespace FortnitePorting.ViewModels;
 

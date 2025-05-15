@@ -14,9 +14,9 @@ using FortnitePorting.Models.Supabase;
 using FortnitePorting.Models.Supabase.Tables;
 using FortnitePorting.Models.Supabase.User;
 using FortnitePorting.Shared.Extensions;
-using FortnitePorting.Shared.Services;
 using Mapster;
 using Microsoft.VisualBasic.Logging;
+using Newtonsoft.Json;
 using OpenTK.Graphics.OpenGL;
 using Supabase;
 using Supabase.Gotrue;
@@ -147,6 +147,7 @@ public partial class SupabaseService : ObservableObject, IService
         await Client.From<Permissions>().On(PostgresChangesOptions.ListenType.All, (channel, response) =>
         {
             Permissions = response.Model<Permissions>().Adapt<UserPermissions>();
+            Log.Information(JsonConvert.SerializeObject(Permissions));
         });
 
         Permissions = (await Client.Rpc<Permissions>("permissions", new { })).Adapt<UserPermissions>();

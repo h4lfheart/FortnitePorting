@@ -11,7 +11,6 @@ using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.Supabase.Tables;
-using FortnitePorting.Shared.Services;
 using Mapster;
 
 namespace FortnitePorting.Models.Chat;

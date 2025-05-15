@@ -18,11 +18,8 @@ using FluentAvalonia.UI.Controls;
 using FortnitePorting.Framework;
 using FortnitePorting.Models;
 using FortnitePorting.Models.Chat;
-using FortnitePorting.OnlineServices.Packet;
+using FortnitePorting.Models.Clipboard;
 using FortnitePorting.Services;
-using FortnitePorting.Shared.Models;
-using FortnitePorting.Shared.Models.Clipboard;
-using FortnitePorting.Shared.Services;
 using Serilog;
 using SixLabors.ImageSharp.PixelFormats;
 using Globals = FortnitePorting.Globals;
@@ -36,30 +33,15 @@ public partial class ChatViewModel(SupabaseService supabase, ChatService chatSer
 
     [ObservableProperty] private ChatMessageV2? _replyMessage;
     
-    [ObservableProperty] private ScrollViewer? _scroll;
     [ObservableProperty] private TeachingTip _imageFlyout;
-
-    [ObservableProperty] private EPermissions _permissions = EPermissions.None;
+    
     [ObservableProperty] private string _text = string.Empty;
     [ObservableProperty] private Bitmap _selectedImage;
     [ObservableProperty] private string _selectedImageName;
 
-    [ObservableProperty] private ObservableCollection<ChatUser> _users = [];
-    [ObservableProperty] private ObservableCollection<ChatMessage> _messages = [];
+    // TODO do we need this anymore
     [ObservableProperty] private ObservableCollection<string> _commands = [];
     
-    public override async Task Initialize()
-    {
-        Chat.Messages.CollectionChanged += (sender, args) =>
-        {
-            TaskService.RunDispatcher(() =>
-            {
-                var isScrolledToEnd = Math.Abs(Scroll.Offset.Y - Scroll.Extent.Height + Scroll.Viewport.Height) < 500;
-                if (isScrolledToEnd)
-                    Scroll.ScrollToEnd();
-            });
-        };
-    }
 
     [RelayCommand]
     public async Task OpenImage()
@@ -83,20 +65,6 @@ public partial class ChatViewModel(SupabaseService supabase, ChatService chatSer
             SelectedImageName = "clipboard.png";
             SelectedImage = image;
             ImageFlyout.IsOpen = true;
-        }
-    }
-
-    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
-    {
-        base.OnPropertyChanged(e);
-
-        switch (e.PropertyName)
-        {
-            case nameof(Chat.Messages) when Scroll is not null:
-            {
-                TaskService.RunDispatcher(Scroll.ScrollToEnd);
-                break;
-            }
         }
     }
 }

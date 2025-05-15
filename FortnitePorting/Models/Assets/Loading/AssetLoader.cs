@@ -23,7 +23,6 @@ using FortnitePorting.Models.Assets.Filters;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
-using FortnitePorting.Shared.Services;
 using Material.Icons;
 using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;

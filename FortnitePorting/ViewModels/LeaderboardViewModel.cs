@@ -16,7 +16,6 @@ using FortnitePorting.Models.Leaderboard;
 using FortnitePorting.Models.Supabase.Tables;
 using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
-using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels.Settings;
 using FortnitePorting.Views;
 using Microsoft.VisualBasic.Logging;

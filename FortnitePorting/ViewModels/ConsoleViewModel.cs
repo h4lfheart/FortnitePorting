@@ -9,7 +9,6 @@ using CommunityToolkit.Mvvm.Input;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Serilog;
 using FortnitePorting.Services;
-using FortnitePorting.Shared.Services;
 using Serilog.Core;
 using Serilog.Events;
 

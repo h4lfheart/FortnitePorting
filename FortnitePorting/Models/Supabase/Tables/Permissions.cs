@@ -12,13 +12,14 @@ public class Permissions : BaseModel
 {
     [JsonProperty("role")] public ESupabaseRole Role;
     [JsonProperty("uefn_export")] public bool CanExportUEFN;
-    [JsonProperty("muted")] public bool IsMuted;
 }
 
 public enum ESupabaseRole
 {
+    Muted,
     User,
     Verified,
+    Support,
     Staff,
     Owner,
     System

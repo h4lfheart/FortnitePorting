@@ -8,8 +8,6 @@ using CommunityToolkit.Mvvm.Input;
 using FluentAvalonia.UI.Media.Animation;
 using FortnitePorting.Framework;
 using FortnitePorting.Shared;
-using FortnitePorting.Shared.Models;
-using FortnitePorting.Shared.Validators;
 using NAudio.Wave;
 using Newtonsoft.Json;
 using Serilog;

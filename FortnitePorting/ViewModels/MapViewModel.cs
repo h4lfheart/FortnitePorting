@@ -15,7 +15,7 @@ using FortnitePorting.Application;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Models.Map;
-using FortnitePorting.OnlineServices.Packet;
+
 using FortnitePorting.Services;
 using Serilog;
 
@@ -162,7 +162,7 @@ public partial class MapViewModel : ViewModelBase
             Maps.Add(new WorldPartitionMap(mapInfo));
         }
 
-        //if (ChatVM.Permissions.HasFlag(EPermissions.LoadPluginFiles))
+        if (SupaBase.Permissions.CanExportUEFN)
         {
             foreach (var mountedVfs in UEParse.Provider.MountedVfs)
             {

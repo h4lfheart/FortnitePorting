@@ -34,11 +34,10 @@ using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Models.Leaderboard;
 using FortnitePorting.Models.Unreal;
 using FortnitePorting.Models.Unreal.Material;
-using FortnitePorting.OnlineServices.Packet;
+
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
-using FortnitePorting.Shared.Services;
 using FortnitePorting.Windows;
 using Newtonsoft.Json;
 using ReactiveUI;
@@ -94,7 +93,7 @@ public partial class FilesViewModel() : ViewModelBase
     
     public override async Task Initialize()
     {
-        //if (SupaBase.Permissions.HasFlag(EPermissions.LoadPluginFiles))
+        if (SupaBase.Permissions.CanExportUEFN)
         {
             foreach (var mountedVfs in CUE4Parse.Provider.MountedVfs)
             {

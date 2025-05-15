@@ -2,7 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
              xmlns:ui="using:FluentAvalonia.UI.Controls"
-             xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
              xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
              xmlns:versions="clr-namespace:CUE4Parse.UE4.Versions;assembly=CUE4Parse"
              xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
@@ -10,8 +10,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:avaloniaGif="clr-namespace:AvaloniaGif;assembly=AvaloniaGif"
              xmlns:wrapPanel="clr-namespace:FortnitePorting.Controls.WrapPanel"
-             xmlns:controls="clr-namespace:FortnitePorting.Shared.Controls;assembly=FortnitePorting.Shared"
-             xmlns:customControls="clr-namespace:FortnitePorting.Controls"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls"
              xmlns:services="clr-namespace:FortnitePorting.Services"
              d:DesignHeight="770" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.HomeView"
@@ -122,7 +121,7 @@
                                     </Border.Background>
                                     
                                     <Grid RowDefinitions="1.0*, 1.1*">
-                                        <customControls:CustomBlurBehind Grid.Row="1"/>
+                                        <controls:CustomBlurBehind Grid.Row="1"/>
                                         <Border Grid.Row="1" Background="Black" Opacity="0.25" CornerRadius="0 0 4 4"/>
                                         <StackPanel Grid.Row="1" Margin="{ext:Space 1, 0.5, 1, 0}">
                                             <TextBlock HorizontalAlignment="Center" Text="{Binding Title}" Classes="SubtitleTextBlockStyle"/>
@@ -154,7 +153,7 @@
                                     </Border.Background>
                                     
                                     <Grid RowDefinitions="1.5*, 1.0*">
-                                        <customControls:CustomBlurBehind Grid.Row="1"/>
+                                        <controls:CustomBlurBehind Grid.Row="1"/>
                                         <Border Grid.Row="1" Background="Black" Opacity="0.25" CornerRadius="0 0 4 4"/>
                                         <StackPanel Grid.Row="1" Margin="{ext:Space 1, 0.5, 1, 0}">
                                             <TextBlock HorizontalAlignment="Center" Text="{Binding Title}" Classes="SubtitleTextBlockStyle"/>

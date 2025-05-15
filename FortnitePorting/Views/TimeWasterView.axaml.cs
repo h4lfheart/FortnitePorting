@@ -16,7 +16,7 @@ using FortnitePorting.Framework;
 using FortnitePorting.Models.TimeWaster;
 using FortnitePorting.Models.TimeWaster.Actors;
 using FortnitePorting.Models.TimeWaster.Audio;
-using FortnitePorting.Shared.Services;
+using FortnitePorting.Services;
 using FortnitePorting.ViewModels;
 using ScottPlot.Palettes;
 using Serilog;

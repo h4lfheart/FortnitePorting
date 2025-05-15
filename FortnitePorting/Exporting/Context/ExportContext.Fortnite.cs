@@ -16,7 +16,6 @@ using FortnitePorting.Exporting.Models;
 using FortnitePorting.Extensions;
 using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Shared.Extensions;
-using FortnitePorting.Shared.Models.Fortnite;
 
 namespace FortnitePorting.Exporting.Context;
 

@@ -21,8 +21,8 @@ using FortnitePorting.Exporting.Models;
 using FortnitePorting.Extensions;
 using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.Assets.Custom;
+using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Shared.Extensions;
-using FortnitePorting.Shared.Models.Fortnite;
 using Path = System.IO.Path;
 
 namespace FortnitePorting.Exporting.Types;

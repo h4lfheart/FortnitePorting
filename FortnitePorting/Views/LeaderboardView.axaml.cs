@@ -11,7 +11,6 @@ using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.Leaderboard;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
-using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
 using ScottPlot;
 using Serilog;

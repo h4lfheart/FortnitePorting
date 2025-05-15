@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
+using FortnitePorting.Models.API.Base;
 using FortnitePorting.Shared;
-using FortnitePorting.Shared.Models.API;
 using RestSharp;
 
 namespace FortnitePorting.Models.API;

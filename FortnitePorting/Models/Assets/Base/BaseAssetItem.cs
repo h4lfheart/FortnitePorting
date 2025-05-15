@@ -5,10 +5,11 @@ using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FortnitePorting.Application;
+using FortnitePorting.Extensions;
 using FortnitePorting.Models.Assets.Asset;
 using FortnitePorting.Models.Assets.Custom;
+using FortnitePorting.Models.Clipboard;
 using FortnitePorting.Shared.Extensions;
-using FortnitePorting.Shared.Models.Clipboard;
 using SkiaSharp;
 using SkiaExtensions = FortnitePorting.Extensions.SkiaExtensions;
 

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
-using FortnitePorting.Shared.Services;
 using FortnitePorting.Views;
 
 namespace FortnitePorting.Services;

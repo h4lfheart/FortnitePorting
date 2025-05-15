@@ -8,7 +8,6 @@ using CommunityToolkit.Mvvm.Input;
 using FortnitePorting.Application;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Installation;
-using FortnitePorting.Shared.Services;
 using FortnitePorting.Views;
 using FortnitePorting.Views.Setup;
 using Microsoft.Extensions.DependencyInjection;

@@ -8,7 +8,6 @@ using FortnitePorting.Framework;
 using FortnitePorting.Models.Chat;
 using FortnitePorting.Models.Supabase.Tables;
 using FortnitePorting.Shared.Extensions;
-using FortnitePorting.Shared.Services;
 using Mapster;
 using Serilog;
 using Supabase.Realtime;
@@ -27,6 +26,8 @@ public partial class ChatService : ObservableObject, IService
     {
         SupaBase = supaBase;
     }
+
+    public event EventHandler? MessageReceived; 
     
     [ObservableProperty] private ObservableDictionary<string, ChatMessageV2> _messages = [];
     [ObservableProperty] private ObservableDictionary<string, ChatUserV2> _users = [];
@@ -138,6 +139,9 @@ public partial class ChatService : ObservableObject, IService
                     {
                         Messages.AddOrUpdate(message.Id, message);
                     }
+                    
+                    MessageReceived?.Invoke(this, EventArgs.Empty);
+                    
                     break;
                 }
                 case "update_message":

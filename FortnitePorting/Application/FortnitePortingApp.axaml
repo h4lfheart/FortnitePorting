@@ -1,7 +1,7 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:fluentStyle="using:FluentAvalonia.Styling"
-             xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
              xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
              xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:uip="clr-namespace:FluentAvalonia.UI.Controls.Primitives;assembly=FluentAvalonia"
@@ -21,6 +21,7 @@
              <ext:EnumHasFlagConverter x:Key="EnumHasFlag" />
              <ext:EnumGreaterOrEqualConverter x:Key="EnumGreaterOrEqual" />
              <ext:EnumEqualsConverter x:Key="EnumEquals" />
+             <ext:EnumNotEqualsConverter x:Key="EnumNotEquals" />
              <ext:TitleCaseStringConverter x:Key="TitleCaseString" />
              <ext:UnrealCaseStringConverter x:Key="UnrealCaseString" />
              <ext:StringToDocumentConverter x:Key="StringToDocument" />

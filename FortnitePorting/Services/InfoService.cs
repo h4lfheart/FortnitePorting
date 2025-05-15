@@ -11,14 +11,13 @@ using FluentAvalonia.UI.Controls;
 using FortnitePorting.Models.Serilog;
 using FortnitePorting.Models.Supabase.Tables;
 using FortnitePorting.Shared.Extensions;
-using FortnitePorting.Shared.Models.App;
-using FortnitePorting.Shared.Services;
 using FortnitePorting.Views;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
 using Supabase.Postgrest.Exceptions;
+using MessageData = FortnitePorting.Models.Information.MessageData;
 using TitleData = FortnitePorting.Models.Information.TitleData;
 
 namespace FortnitePorting.Services;

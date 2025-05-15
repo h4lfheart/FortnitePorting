@@ -14,12 +14,10 @@ using FortnitePorting.Controls;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.Supabase.Tables;
-using FortnitePorting.OnlineServices.Models;
-using FortnitePorting.OnlineServices.Packet;
+
+
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
-using FortnitePorting.Shared.Models;
-using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels.Settings;
 using Serilog;
 using Supabase.Postgrest;
@@ -48,6 +46,7 @@ public partial class HomeViewModel() : ViewModelBase
             FeaturedArt = [..await Api.FortnitePorting.FeaturedArt()];
             
             await UEParse.Initialize();
+            await FilesVM.Initialize();
         });
         
 

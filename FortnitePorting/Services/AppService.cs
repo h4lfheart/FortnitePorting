@@ -10,7 +10,6 @@ using CommunityToolkit.Mvvm.Input;
 using DesktopNotifications;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Framework;
-using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
 using FortnitePorting.Views;
 using FortnitePorting.Windows;

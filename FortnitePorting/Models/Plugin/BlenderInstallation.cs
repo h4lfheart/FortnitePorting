@@ -4,7 +4,6 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
-using FortnitePorting.Shared.Services;
 using Newtonsoft.Json;
 using Serilog;
 using Tomlyn;

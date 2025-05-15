@@ -3,7 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
-             xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
              xmlns:enums="clr-namespace:CUE4Parse_Conversion.UEFormat.Enums;assembly=CUE4Parse-Conversion"
              xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
              xmlns:settings="clr-namespace:FortnitePorting.ViewModels.Settings"
@@ -196,7 +196,10 @@
                     <ToggleSwitch IsChecked="{Binding CurrentProfile.UseTextureStreaming}"/>
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
-            <ui:SettingsExpander Header="Load Creative Maps" Description="Whether or not to load saved UEFN maps from Fortnite's AppData." IsEnabled="{Binding CurrentProfile.LoadCreativeMapsEnabled}">
+            
+            <ui:SettingsExpander Header="Load Creative Maps" Description="Whether or not to load saved UEFN maps from Fortnite's AppData."
+                                 IsVisible="{Binding SupaBase.Permissions.CanExportUEFN}"
+                                 IsEnabled="{Binding CurrentProfile.LoadCreativeMapsEnabled}">
                 <ui:SettingsExpander.Footer>
                     <ToggleSwitch IsChecked="{Binding CurrentProfile.LoadCreativeMaps}"/>
                 </ui:SettingsExpander.Footer>

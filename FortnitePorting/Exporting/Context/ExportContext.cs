@@ -25,7 +25,7 @@ using FFMpegCore;
 using FortnitePorting.Exporting.Models;
 using FortnitePorting.Extensions;
 using FortnitePorting.Models.CUE4Parse;
-using FortnitePorting.Shared.Services;
+using FortnitePorting.Services;
 using Serilog;
 using Image = System.Drawing.Image;
 

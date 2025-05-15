@@ -1,7 +1,6 @@
 using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FortnitePorting.Models.Chat;
-using FortnitePorting.Shared.Services;
 using Mapster;
 using Newtonsoft.Json;
 using Supabase.Postgrest.Attributes;

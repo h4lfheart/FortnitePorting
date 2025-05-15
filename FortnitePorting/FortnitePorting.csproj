@@ -57,7 +57,6 @@
       <ProjectReference Include="..\Dependencies\CUE4Parse\CUE4Parse-Conversion\CUE4Parse-Conversion.csproj" />
       <ProjectReference Include="..\Dependencies\CUE4Parse\CUE4Parse\CUE4Parse.csproj" />
       <ProjectReference Include="..\Dependencies\EpicManifestParser\src\EpicManifestParser\EpicManifestParser.csproj" />
-      <ProjectReference Include="..\FortnitePorting.OnlineServices\FortnitePorting.OnlineServices.csproj" />
       <ProjectReference Include="..\FortnitePorting.Rendering\FortnitePorting.Rendering.csproj" />
       <ProjectReference Include="..\FortnitePorting.Plugins\FortnitePorting.Plugins.csproj" />
       <ProjectReference Include="..\FortnitePorting.Shared\FortnitePorting.Shared.csproj" />
@@ -65,6 +64,17 @@
     
     <ItemGroup>
       <None Remove="..\..\..\.nuget\packages\naudio.vorbis\1.5.0\contentFiles\any\netstandard2.0\README.md" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <Compile Update="Controls\IconText.axaml.cs">
+        <DependentUpon>IconText.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Controls\ImageText.axaml.cs">
+        <DependentUpon>ImageText.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
     </ItemGroup>
 
 </Project>

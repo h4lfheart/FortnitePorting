@@ -11,10 +11,9 @@ using FortnitePorting.Framework;
 using FortnitePorting.Models.Article;
 using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.Supabase.Tables;
-using FortnitePorting.OnlineServices.Packet;
+
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
-using FortnitePorting.Shared.Services;
 using RestSharp;
 using Log = Serilog.Log;
 

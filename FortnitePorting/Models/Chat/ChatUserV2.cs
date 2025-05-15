@@ -13,11 +13,12 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse_Conversion;
 using FluentAvalonia.UI.Controls;
+using FortnitePorting.Extensions;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.Supabase.Tables;
-using FortnitePorting.OnlineServices.Extensions;
-using FortnitePorting.OnlineServices.Models;
-using FortnitePorting.OnlineServices.Packet;
+
+
+
 using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.ViewModels.Settings;
@@ -48,9 +49,11 @@ public partial class ChatUserV2 : ObservableObject
     {
         ESupabaseRole.System => Color.Parse("#B040FF"),
         ESupabaseRole.Owner => Color.Parse("#acd2f5"),
+        ESupabaseRole.Support => Color.Parse("#635fd4"),
         ESupabaseRole.Staff => Color.Parse("#9856a2"),
         ESupabaseRole.Verified => Color.Parse("#e91c63"),
-        ESupabaseRole.User => Colors.White
+        ESupabaseRole.User => Colors.White,
+        ESupabaseRole.Muted => Color.Parse("#d23940")
     });
     
     [RelayCommand]

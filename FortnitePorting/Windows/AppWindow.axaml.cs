@@ -6,7 +6,6 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Framework;
-using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
 using FortnitePorting.Views;
 using AppWindowModel = FortnitePorting.WindowModels.AppWindowModel;

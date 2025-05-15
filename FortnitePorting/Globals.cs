@@ -2,7 +2,7 @@ global using static FortnitePorting.Application.AppServices;
 
 using Avalonia.Platform.Storage;
 using CUE4Parse.UE4.Objects.Core.Misc;
-using FortnitePorting.Shared.Models;
+using FortnitePorting.Models;
 
 namespace FortnitePorting;
 

@@ -18,10 +18,9 @@ using FortnitePorting.Framework;
 using FortnitePorting.Models;
 using FortnitePorting.Models.Chat;
 using FortnitePorting.Models.Supabase.Tables;
-using FortnitePorting.OnlineServices.Models;
-using FortnitePorting.OnlineServices.Packet;
+
+
 using FortnitePorting.Services;
-using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
 using Supabase.Storage.Exceptions;
 
@@ -32,9 +31,28 @@ public partial class ChatView : ViewBase<ChatViewModel>
     public ChatView()
     {
         InitializeComponent();
-        ViewModel.Scroll = Scroll;
         ViewModel.ImageFlyout = ImageFlyout;
         TextBox.AddHandler(KeyDownEvent, OnTextKeyDown, RoutingStrategies.Tunnel);
+
+        Chat.MessageReceived += (sender, args) =>
+        {
+            TaskService.RunDispatcher(() =>
+            {
+                var isScrolledToEnd = Math.Abs(Scroll.Offset.Y - Scroll.Extent.Height + Scroll.Viewport.Height) < 500;
+                if (isScrolledToEnd)
+                    Scroll.ScrollToEnd();
+            });
+        };
+        
+        Chat.Messages.CollectionChanged += (sender, args) =>
+        {
+            TaskService.RunDispatcher(() =>
+            {
+                var isScrolledToEnd = Math.Abs(Scroll.Offset.Y - Scroll.Extent.Height + Scroll.Viewport.Height) < 500;
+                if (isScrolledToEnd)
+                    Scroll.ScrollToEnd();
+            });
+        };
     }
 
     public void OnTextKeyDown(object? sender, KeyEventArgs e)

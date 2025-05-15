@@ -19,7 +19,6 @@ using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
-using FortnitePorting.Shared.Models.Fortnite;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using OpenTK.Graphics.OpenGL;

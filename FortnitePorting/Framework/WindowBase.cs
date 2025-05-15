@@ -1,7 +1,7 @@
 using System;
 using Avalonia.Controls;
 using FortnitePorting.Application;
-using FortnitePorting.Shared.Services;
+using FortnitePorting.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FortnitePorting.Framework;

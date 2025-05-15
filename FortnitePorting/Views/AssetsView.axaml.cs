@@ -16,7 +16,6 @@ using FortnitePorting.Models.Assets.Filters;
 using FortnitePorting.Models.Assets.Loading;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
-using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
 using BaseAssetItem = FortnitePorting.Models.Assets.Base.BaseAssetItem;
 

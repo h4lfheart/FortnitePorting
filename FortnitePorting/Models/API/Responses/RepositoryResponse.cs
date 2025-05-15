@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using FortnitePorting.Shared.Models;
 
 namespace FortnitePorting.Models.API.Responses;
 
