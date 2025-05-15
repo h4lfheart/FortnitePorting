@@ -69,6 +69,18 @@
                     <ToggleSwitch IsChecked="{Binding UseTabTransitions}"/>
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
+            
+            <ui:SettingsExpander Header="Asset Scale" Description="The scale multiplier for asset icons in the assets tab.">
+                <ui:SettingsExpander.Footer>
+                    <StackPanel Orientation="Horizontal">
+                        <Slider Value="{Binding AssetScale}" MinWidth="200"
+                                Minimum="0.5" Maximum="4"
+                                TickFrequency="0.25" TickPlacement="BottomRight" IsSnapToTickEnabled="True"/>
+                        <TextBlock Text="{Binding AssetScale, StringFormat=N2}" 
+                                   VerticalAlignment="Center" Margin="{ext:Space 1, 0, 0, 0}"/>
+                    </StackPanel>
+                </ui:SettingsExpander.Footer>
+            </ui:SettingsExpander>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

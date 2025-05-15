@@ -109,4 +109,5 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
             await ViewModel.AssetLoader.Load(assetType);
         });
     }
+
 }

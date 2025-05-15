@@ -11,6 +11,7 @@ using FortnitePorting.Application;
 using FortnitePorting.Framework;
 using FortnitePorting.Models;
 using FortnitePorting.Models.API.Responses;
+using FortnitePorting.Models.Assets.Base;
 using FortnitePorting.Models.Radio;
 using FortnitePorting.Shared;
 using FortnitePorting.Validators;
@@ -39,6 +40,7 @@ public partial class ApplicationSettingsViewModel : ViewModelBase
     [ObservableProperty] private bool _usePortlePath;
 
     [ObservableProperty] private bool _useTabTransitions = true;
+    [ObservableProperty] private float _assetScale = 1.0f;
     
     [ObservableProperty] private bool _dontAskAboutKofi;
     [ObservableProperty] private DateTime _nextKofiAskDate = DateTime.Today;
@@ -79,6 +81,11 @@ public partial class ApplicationSettingsViewModel : ViewModelBase
             {
                 RadioVM?.UpdateOutputDevice();
                 SoundPreviewWM?.UpdateOutputDevice();
+                break;
+            }
+            case nameof(AssetScale):
+            {
+                BaseAssetItem.SetScale(AssetScale);
                 break;
             }
         }

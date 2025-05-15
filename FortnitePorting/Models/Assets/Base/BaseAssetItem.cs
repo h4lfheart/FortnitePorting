@@ -17,17 +17,16 @@ namespace FortnitePorting.Models.Assets.Base;
 
 public abstract partial class BaseAssetItem : ObservableObject
 {
-    
     [ObservableProperty] private bool _isFavorite;
+
+    [ObservableProperty] private static float _displayWidth = 64;
+    [ObservableProperty] private static float _displayHeight = 80;
     
     public Guid Id { get; set; }
     public virtual BaseAssetItemCreationArgs CreationData { get; set; }
     
     public WriteableBitmap DisplayImage { get; set; }
     public WriteableBitmap IconDisplayImage { get; set; }
-    
-    public float DisplayWidth { get; set; } = 64;
-    public float DisplayHeight { get; set; } = 80;
 
     private SKColor InnerBackgroundColor { get; set; } = SKColor.Parse("#50C8FF");
     private SKColor OuterBackgroundColor { get; set; } = SKColor.Parse("#1B7BCF");
@@ -105,5 +104,11 @@ public abstract partial class BaseAssetItem : ObservableObject
             AppSettings.Application.FavoriteAssets.Remove(id);
             IsFavorite = false;
         }
+    }
+
+    public static void SetScale(float scale)
+    {
+        _displayWidth = 64 * scale;
+        _displayHeight = 80 * scale;
     }
 }
