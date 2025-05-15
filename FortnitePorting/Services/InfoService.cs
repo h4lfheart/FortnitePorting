@@ -120,6 +120,7 @@ public partial class InfoService : ObservableObject, ILogEventSink, IService
         var exceptionString = e.ToString();
         Log.Error(exceptionString);
 
+#if RELEASE
         if (SupaBase.IsLoggedIn)
         {
             TaskService.Run(async () =>
@@ -139,6 +140,7 @@ public partial class InfoService : ObservableObject, ILogEventSink, IService
                 }
             });
         }
+#endif
                 
         TaskService.RunDispatcher(async () =>
         {
