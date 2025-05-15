@@ -42,7 +42,8 @@ public partial class ExportSettingsViewModel : ViewModelBase
 
     public override async Task OnViewExited()
     {
-        AppSettings.Save();
+        if (AppSettings.ShouldSaveOnExit) 
+            AppSettings.Save();
     }
 }
 

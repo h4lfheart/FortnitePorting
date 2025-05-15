@@ -33,7 +33,7 @@ public partial class SettingsView : ViewBase<SettingsViewModel>
             {
                 if (stringTag.Equals("Reset"))
                 {
-                    App.RestartWithMessage("A restart is required", "To reset all settings, FortnitePorting must be restarted.", AppServices.AppSettings.Reset);
+                    App.RestartWithMessage("A restart is required", "To reset all settings, FortnitePorting must be restarted.", AppSettings.Reset);
                 }
                 
                 break;

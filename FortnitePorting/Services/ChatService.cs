@@ -153,6 +153,7 @@ public partial class ChatService : ObservableObject, IService
 
                     targetMessage.Text = updatedMessage.Text;
                     targetMessage.ReactorIds = updatedMessage.ReactorIds;
+                    targetMessage.WasEdited = updatedMessage.WasEdited;
                     
                     break;
                 }

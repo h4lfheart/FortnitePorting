@@ -25,7 +25,8 @@ public partial class SettingsViewModel : ViewModelBase
 {
     public override async Task OnViewExited()
     {
-        AppSettings.Save();
+        if (AppSettings.ShouldSaveOnExit)
+            AppSettings.Save();
     }
     
 }

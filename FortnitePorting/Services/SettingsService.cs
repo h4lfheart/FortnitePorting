@@ -67,6 +67,7 @@ public partial class SettingsService : ObservableObject, IService
     
     public void Reset()
     {
+        File.Delete(FilePath.FullName);
         ShouldSaveOnExit = false;
     }
 }

@@ -51,7 +51,7 @@ public partial class ChatUserV2 : ObservableObject
         ESupabaseRole.Owner => Color.Parse("#acd2f5"),
         ESupabaseRole.Support => Color.Parse("#635fd4"),
         ESupabaseRole.Staff => Color.Parse("#9856a2"),
-        ESupabaseRole.Verified => Color.Parse("#e91c63"),
+        ESupabaseRole.Verified => Color.Parse("#00ff97"),
         ESupabaseRole.User => Colors.White,
         ESupabaseRole.Muted => Color.Parse("#d23940")
     });
