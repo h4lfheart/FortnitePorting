@@ -50,7 +50,6 @@
     
     <ItemGroup>
         <AvaloniaResource Include="Assets\**" />
-        <AvaloniaResource Include="supabase.toml" />
     </ItemGroup>
     
     <ItemGroup>

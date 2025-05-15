@@ -44,12 +44,22 @@ public partial class AppWindowModel(
     [ObservableProperty] private int _chatNotifications;
     [ObservableProperty] private int _unsubmittedPolls;
 
+    [ObservableProperty] private SetupView? _setupViewContent;
+
     [ObservableProperty] private OnlineResponse? _onlineStatus;
 
     private const string PORTLE_URL = "https://portle.halfheart.dev/release/Portle.exe";
 
     public override async Task Initialize()
     {
+        if (!AppSettings.Installation.FinishedSetup)
+        {
+            await TaskService.RunDispatcherAsync(() =>
+            {
+                SetupViewContent = new SetupView();
+            });
+        }
+        
         OnlineStatus = await Api.FortnitePorting.Online();
 
         await CheckForUpdate(isAutomatic: true);

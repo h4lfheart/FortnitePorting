@@ -13,6 +13,8 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
     protected override string BaseURL => "https://api.fortniteporting.halfheart.dev";
     
     private readonly ConcurrentDictionary<string, UserInfoResponse> _userInfoCache = [];
+    
+    public async Task<AuthResponse?> Auth() => await ExecuteAsync<AuthResponse?>("v1/auth");
 
     public async Task<UserInfoResponse?> UserInfo(string? id)
     {

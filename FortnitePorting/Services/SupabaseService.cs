@@ -29,30 +29,23 @@ namespace FortnitePorting.Services;
 
 public partial class SupabaseService : ObservableObject, IService
 {
-    [ObservableProperty] private Client _client;
-    [ObservableProperty] private bool _isLoggedIn;
-    
-    [ObservableProperty] private UserInfoResponse? _userInfo;
-    [ObservableProperty] private UserPermissions _permissions;
+    [ObservableProperty] private APIService _api;
 
-    private bool PostedLogin;
-    
-    private static readonly SupabaseOptions DefaultOptions = new()
+    public SupabaseService(APIService api)
     {
-        AutoRefreshToken = true,
-        AutoConnectRealtime = true,
-    };
-    
-    public SupabaseService()
-    {
-        var dataStream = AssetLoader.Open(new Uri("avares://FortnitePorting/supabase.toml"));
-        var dataReader = new StreamReader(dataStream);
-        var data = Toml.ToModel(dataReader.ReadToEnd());
-
-        Client = new Client((string)data["SUPABASE_URL"], (string)data["SUPABASE_ANON_KEY"], DefaultOptions);
+        Api = api;
         
         TaskService.Run(async () =>
         {
+            var auth = await Api.FortnitePorting.Auth();
+            if (auth is null)
+            {
+                Info.Message("Online Services", "Failed to retrieve authentication information.", InfoBarSeverity.Error);
+                return;
+            }
+
+            Client = new Client(auth.SupabaseURL, auth.SupabaseAnonKey, DefaultOptions);
+            
             await Client.InitializeAsync();
 
             if (AppSettings.Online.SessionInfo is { } sessionInfo)
@@ -62,6 +55,20 @@ public partial class SupabaseService : ObservableObject, IService
 
         });
     }
+    
+    [ObservableProperty] private Client _client;
+    [ObservableProperty] private bool _isLoggedIn;
+    
+    [ObservableProperty] private UserInfoResponse? _userInfo;
+    [ObservableProperty] private UserPermissions _permissions = new();
+
+    private bool PostedLogin;
+    
+    private static readonly SupabaseOptions DefaultOptions = new()
+    {
+        AutoRefreshToken = true,
+        AutoConnectRealtime = true,
+    };
 
     public async Task SetSession(UserSessionInfo sessionInfo)
     {

@@ -6,6 +6,6 @@ namespace FortnitePorting.Models.Supabase.User;
 
 public partial class UserPermissions : ObservableObject
 {
-    [ObservableProperty] private ESupabaseRole _role;
-    [ObservableProperty] private bool _canExportUEFN;
+    [ObservableProperty] private ESupabaseRole _role = ESupabaseRole.User;
+    [ObservableProperty] private bool _canExportUEFN = false;
 }

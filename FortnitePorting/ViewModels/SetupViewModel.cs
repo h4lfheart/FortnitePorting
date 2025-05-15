@@ -26,6 +26,8 @@ public partial class SetupViewModel : ViewModelBase
 
     public override async Task Initialize()
     {
+        if (SupaBase.Client is null) return;
+        
         var bucket = SupaBase.Client.Storage.From("gallery-images");
         var images = await bucket.List();
         if (images is null) return;
