@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -30,7 +31,15 @@ public partial class ChatService : ObservableObject, IService
     public event EventHandler? MessageReceived; 
     
     [ObservableProperty] private ObservableDictionary<string, ChatMessageV2> _messages = [];
-    [ObservableProperty] private ObservableDictionary<string, ChatUserV2> _users = [];
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(UsersByGroup))] private ObservableDictionary<string, ChatUserV2> _users = [];
+
+    public ObservableDictionary<ESupabaseRole, List<ChatUserV2>> UsersByGroup => new(Users
+            .Select(user => user.Value)
+            .OrderBy(user => user.DisplayName)
+            .GroupBy(user => user.Role)
+            .OrderByDescending(group => group.Key)
+            .ToDictionary(group => group.Key, group => group.ToList())
+    );
     
     [ObservableProperty] private ObservableDictionary<string, ChatUserV2> _userCache = [];
     
@@ -45,6 +54,13 @@ public partial class ChatService : ObservableObject, IService
 
     public async Task Initialize()
     {
+        var egg = Users
+            .Select(user => user.Value)
+            .OrderBy(user => user.DisplayName)
+            .GroupBy(user => user.Role)
+            .OrderBy(group => group.Key)
+            .ToDictionary(group => group.Key, group => group.ToList());
+        
         _chatChannel = SupaBase.Client.Realtime.Channel("chat");
 
         await InitializePresence();
@@ -102,6 +118,8 @@ public partial class ChatService : ObservableObject, IService
                     user.Version = newestPresence.Version;
                     Users.AddOrUpdate(userId, user);
                 }
+                
+                OnPropertyChanged(nameof(UsersByGroup));
             });
         });
 
@@ -115,6 +133,8 @@ public partial class ChatService : ObservableObject, IService
                     Users.Remove(user.Key);
                 }
             }
+            
+            OnPropertyChanged(nameof(UsersByGroup));
         });
         
     }
@@ -178,6 +198,7 @@ public partial class ChatService : ObservableObject, IService
                     var role = broadcast.Get<ESupabaseRole>("role");
 
                     UserCache.UpdateIfContains(userId, user => user.Role = role);
+                    OnPropertyChanged(nameof(UsersByGroup));
                     break;
                 }
             }

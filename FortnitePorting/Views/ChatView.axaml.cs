@@ -21,8 +21,10 @@ using FortnitePorting.Models.Supabase.Tables;
 
 
 using FortnitePorting.Services;
+using FortnitePorting.Shared.Extensions;
 using FortnitePorting.ViewModels;
 using Supabase.Storage.Exceptions;
+using FileOptions = Supabase.Storage.FileOptions;
 
 namespace FortnitePorting.Views;
 
@@ -86,13 +88,18 @@ public partial class ChatView : ViewBase<ChatViewModel>
                     var memoryStream = new MemoryStream();
                     ViewModel.SelectedImage.Save(memoryStream);
 
+                    var fileNameWithoutExtension = ViewModel.SelectedImageName.SubstringBefore(".");
+                    var extension = ViewModel.SelectedImageName.SubstringAfterLast(".");
+                    var hash = memoryStream.GetHash();
+                    var fileName = $"{fileNameWithoutExtension}.{hash}.{extension}";
+                    
                     try
                     {
-                        imagePath = await imageBucket.Upload(memoryStream.ToArray(), ViewModel.SelectedImageName);
+                        imagePath = await imageBucket.Upload(memoryStream.ToArray(), fileName);
                     }
                     catch (SupabaseStorageException e)
                     {
-                        imagePath = $"chat-images/{ViewModel.SelectedImageName}";
+                        imagePath = $"chat-images/{fileName}";
                     }
                 }
                 

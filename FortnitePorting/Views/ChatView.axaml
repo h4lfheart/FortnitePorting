@@ -147,7 +147,9 @@
                                 </ContextMenu>
                             </Border.ContextMenu>
                             
-                            <Image asyncImageLoader:ImageLoader.Source="{Binding FullImageUrl}" VerticalAlignment="Center" MaxHeight="300"/>
+                            <Image asyncImageLoader:ImageLoader.Source="{Binding FullImageUrl}"
+                                   Height="{Binding $self.Source.Size.Height}"
+                                   VerticalAlignment="Center" MaxHeight="300"/>
                         </Border>
                         
                         
@@ -240,58 +242,72 @@
         </Grid>
         
         <ui:FABorder Grid.Row="0" Grid.RowSpan="3" Grid.Column="1" Background="#22000000" CornerRadius="0">
-            <Grid Margin="{ext:Space 1}">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="{ext:Space 1}"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                
-                <TextBlock Grid.Row="0" Text="{Binding Chat.Users.Count, StringFormat='Online - {0}'}" Classes="BodyStrongTextBlockStyle" FontWeight="SemiBold" HorizontalAlignment="Left"/>
-                
-                <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Hidden">
-                    <ItemsControl ItemsSource="{Binding Chat.Users}" >
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <ui:FABorder HorizontalAlignment="Stretch" Cursor="Hand" PointerPressed="OnUserPressed" Margin="{ext:Space 0, 0, 0, 0.5}" DataContext="{Binding Value}">
-                                    <FlyoutBase.AttachedFlyout>
-                                        <MenuFlyout>
-                                            <MenuItem Header="Copy User ID" Command="{Binding CopyIDCommand}"/>
-                                            <MenuItem Header="Set Role" Command="{Binding SetRoleCommand}" 
-                                                      IsVisible="{Binding CanChangeRole}"/>
-                                        </MenuFlyout>
-                                    </FlyoutBase.AttachedFlyout>
-                                    <Grid HorizontalAlignment="Left" Margin="{ext:Space 1}">
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                        </Grid.RowDefinitions>
-                                        
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="{ext:Space 1}"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-                                    
-                                        <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" CornerRadius="4" ClipToBounds="True">
-                                            <Image asyncImageLoader:ImageLoader.Source="{Binding AvatarUrl}" 
-                                                   Width="32" Height="32" Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center"/>
-                                        </Border>
-                                    
-                                        <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding DisplayName}"
-                                                   Foreground="{Binding Brush}"
-                                                   Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center"/>
-                                        
-                                        <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding OnlineVersion}"
-                                                   FontSize="12"
-                                                   Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" VerticalAlignment="Center"/>
-                                    </Grid>
-                                </ui:FABorder>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
-            </Grid>
+            <ItemsControl ItemsSource="{Binding Chat.UsersByGroup}" Margin="{ext:Space 1}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="{ext:Space 0, 0, 0, 1}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="{ext:Space 0.5}"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            
+                            <TextBlock Grid.Row="0" Classes="BodyStrongTextBlockStyle" FontWeight="SemiBold" HorizontalAlignment="Left"
+                                       Margin="{ext:Space 0.25, 0, 0, 0}">
+                                <TextBlock.Text>
+                                    <MultiBinding StringFormat='{}{0} - {1}'>
+                                        <Binding Path="Key"/>
+                                        <Binding Path="Value.Count"/>
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                            
+                            <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Hidden">
+                                <ItemsControl ItemsSource="{Binding Value}" >
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate DataType="chat:ChatUserV2">
+                                            <ui:FABorder HorizontalAlignment="Stretch" Cursor="Hand" PointerPressed="OnUserPressed" Margin="{ext:Space 0, 0, 0, 0.5}">
+                                                <FlyoutBase.AttachedFlyout>
+                                                    <MenuFlyout>
+                                                        <MenuItem Header="Copy User ID" Command="{Binding CopyIDCommand}"/>
+                                                        <MenuItem Header="Set Role" Command="{Binding SetRoleCommand}" 
+                                                                  IsVisible="{Binding CanChangeRole}"/>
+                                                    </MenuFlyout>
+                                                </FlyoutBase.AttachedFlyout>
+                                                <Grid HorizontalAlignment="Left" Margin="{ext:Space 1}">
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                    </Grid.RowDefinitions>
+                                                    
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="{ext:Space 1}"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                
+                                                    <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" CornerRadius="4" ClipToBounds="True">
+                                                        <Image asyncImageLoader:ImageLoader.Source="{Binding AvatarUrl}" 
+                                                               Width="32" Height="32" Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                
+                                                    <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding DisplayName}"
+                                                               Foreground="{Binding Brush}"
+                                                               Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center"/>
+                                                    
+                                                    <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding OnlineVersion}"
+                                                               FontSize="12"
+                                                               Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" VerticalAlignment="Center"/>
+                                                </Grid>
+                                            </ui:FABorder>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
         </ui:FABorder>
     </Grid>
    

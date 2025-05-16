@@ -83,8 +83,8 @@ public static class MiscExtensions
 
     public static byte[] ReadToEnd(this Stream str)
     {
-        var bytes = new BinaryReader(str).ReadBytes((int) str.Length);
         str.Position = 0;
+        var bytes = new BinaryReader(str).ReadBytes((int) str.Length);
         return bytes;
     }
 

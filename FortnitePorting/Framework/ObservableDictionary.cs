@@ -8,6 +8,19 @@ namespace FortnitePorting.Framework;
 
 public class ObservableDictionary<TKey, TValue> : ObservableCollection<ObservableKeyValuePair<TKey, TValue>>
 {
+    public ObservableDictionary()
+    {
+        
+    }
+    
+    public ObservableDictionary(Dictionary<TKey, TValue> dict)
+    {
+        foreach (var (key, value) in dict)
+        {
+            AddOrUpdate(key, value);
+        }
+    }
+    
     public void AddOrUpdate(TKey key, TValue value)
     {
         if (this.FirstOrDefault(kvp => kvp.Key.Equals(key)) is { } existing)
