@@ -504,11 +504,11 @@ public partial class MaterialData : ObservableObject
             {
                 var declaration = expression.ExportType switch
                 {
-                    "MaterialExpressionNamedRerouteUsage" => expression.Get<UMaterialExpression>("Declaration"),
+                    "MaterialExpressionNamedRerouteUsage" => expression.GetOrDefault("Declaration", expression),
                     _ => expression
                 };
                 
-                var name = declaration.Get<FName>("Name").Text;
+                var name = declaration.GetOrDefault("Name", new FName("Invalid Reroute")).Text;
                 var nodeColor = declaration.GetOrDefault<FLinearColor>("NodeColor");
                 nodeColor.R *= 0.25f;
                 nodeColor.G *= 0.25f;
