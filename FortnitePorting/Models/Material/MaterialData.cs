@@ -735,6 +735,38 @@ public partial class MaterialData : ObservableObject
                 
                 break;
             }
+            case "MaterialExpressionSwitch":
+            {
+                var inputs = expression.GetOrDefault<FStructFallback[]>("Inputs", []);
+                for (var i = 0; i < inputs.Length; i++)
+                {
+                    var input = inputs[i];
+                    var overrideName = input.GetOrDefault<FName?>("InputName")?.Text ?? $"{i}";
+                    if ("None".Equals(overrideName, StringComparison.OrdinalIgnoreCase)) overrideName = $"{i}";
+                    AddInput(ref node, input.Get<FExpressionInput>("Input"), overrideName);
+                }
+                break;
+            }
+            case "MaterialExpressionConvert":
+            {
+                node.Label = expression.GetOrDefault("NodeName", expression.Name);
+                var inputs = expression.GetOrDefault<FStructFallback[]>("ConvertInputs", []);
+                foreach (var input in inputs)
+                {
+                    var inputName = input.GetOrDefault<FName?>("Name", new FName(""))?.Text;
+                    AddInput(ref node, input.Get<FExpressionInput>("ExpressionInput"), inputName);
+                }
+                var outputs = expression.GetOrDefault<FStructFallback[]>("Outputs", []);
+                node.Outputs.Clear();
+                for (var i = 0; i < outputs.Length; i++)
+                {
+                    var output = outputs[i];
+                    var outputName = output.Get<FName?>("OutputName")?.Text ?? $"{i}";
+                    if ("None".Equals(outputName, StringComparison.OrdinalIgnoreCase)) outputName = $"{i}";
+                    node.AddOutput(outputName);
+                }
+                break;
+            }
         }
 
         if (node.HeaderColor is null)
