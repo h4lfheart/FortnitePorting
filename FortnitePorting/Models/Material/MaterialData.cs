@@ -504,11 +504,11 @@ public partial class MaterialData : ObservableObject
             {
                 var declaration = expression.ExportType switch
                 {
-                    "MaterialExpressionNamedRerouteUsage" => expression.Get<UMaterialExpression>("Declaration"),
+                    "MaterialExpressionNamedRerouteUsage" => expression.GetOrDefault("Declaration", expression),
                     _ => expression
                 };
                 
-                var name = declaration.Get<FName>("Name").Text;
+                var name = declaration.GetOrDefault("Name", new FName("Invalid Reroute")).Text;
                 var nodeColor = declaration.GetOrDefault<FLinearColor>("NodeColor");
                 nodeColor.R *= 0.25f;
                 nodeColor.G *= 0.25f;
@@ -733,6 +733,38 @@ public partial class MaterialData : ObservableObject
             {
                 node.Label = expression.GetOrDefault<FName?>("ParameterName")?.Text ?? expression.Name;
                 
+                break;
+            }
+            case "MaterialExpressionSwitch":
+            {
+                var inputs = expression.GetOrDefault<FStructFallback[]>("Inputs", []);
+                for (var i = 0; i < inputs.Length; i++)
+                {
+                    var input = inputs[i];
+                    var overrideName = input.GetOrDefault<FName?>("InputName")?.Text ?? $"{i}";
+                    if ("None".Equals(overrideName, StringComparison.OrdinalIgnoreCase)) overrideName = $"{i}";
+                    AddInput(ref node, input.Get<FExpressionInput>("Input"), overrideName);
+                }
+                break;
+            }
+            case "MaterialExpressionConvert":
+            {
+                node.Label = expression.GetOrDefault("NodeName", expression.Name);
+                var inputs = expression.GetOrDefault<FStructFallback[]>("ConvertInputs", []);
+                foreach (var input in inputs)
+                {
+                    var inputName = input.GetOrDefault<FName?>("Name", new FName(""))?.Text;
+                    AddInput(ref node, input.Get<FExpressionInput>("ExpressionInput"), inputName);
+                }
+                var outputs = expression.GetOrDefault<FStructFallback[]>("Outputs", []);
+                node.Outputs.Clear();
+                for (var i = 0; i < outputs.Length; i++)
+                {
+                    var output = outputs[i];
+                    var outputName = output.Get<FName?>("OutputName")?.Text ?? $"{i}";
+                    if ("None".Equals(outputName, StringComparison.OrdinalIgnoreCase)) outputName = $"{i}";
+                    node.AddOutput(outputName);
+                }
                 break;
             }
         }
