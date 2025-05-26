@@ -66,6 +66,7 @@ file class BlurBehindRenderOperation(ImmutableExperimentalAcrylicMaterial Materi
         var skiaFeature = context.PlatformImpl.GetFeature<ISkiaSharpApiLeaseFeature>();
         using var skia = skiaFeature?.Lease();
         if (skia?.SkSurface is null) return;
+        if (skia.GrContext is null) return;
         
         using var backgroundSnapshot = skia.SkSurface.Snapshot();
         using var backdropShader = SKShader.CreateImage(backgroundSnapshot, SKShaderTileMode.Clamp, SKShaderTileMode.Clamp, skia.SkCanvas.TotalMatrix.Invert());

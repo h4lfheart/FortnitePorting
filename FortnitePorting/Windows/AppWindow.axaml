@@ -156,7 +156,7 @@
         <ContentControl Grid.Row="0" Grid.RowSpan="2" Content="{Binding SetupViewContent}" 
                         IsVisible="{Binding !Settings.Installation.FinishedSetup}"/>
         
-        <TransitioningContentControl Grid.Row="1" Content="{Binding BlackHole.Content}">
+        <TransitioningContentControl Grid.Row="0" Grid.RowSpan="2" Content="{Binding BlackHole.Content}">
             <TransitioningContentControl.PageTransition>
                 <CrossFade Duration="0:00:00.25"/>
             </TransitioningContentControl.PageTransition>

@@ -8,6 +8,8 @@ namespace FortnitePorting.Framework;
 
 public class ObservableDictionary<TKey, TValue> : ObservableCollection<ObservableKeyValuePair<TKey, TValue>>
 {
+    private readonly object _lock = new();
+    
     public ObservableDictionary()
     {
         
@@ -23,13 +25,16 @@ public class ObservableDictionary<TKey, TValue> : ObservableCollection<Observabl
     
     public void AddOrUpdate(TKey key, TValue value)
     {
-        if (this.FirstOrDefault(kvp => kvp.Key.Equals(key)) is { } existing)
+        lock (_lock)
         {
-            existing.Value = value;
-        }
-        else
-        {
-            Add(new ObservableKeyValuePair<TKey, TValue>(key, value));
+            if (this.FirstOrDefault(kvp => kvp.Key.Equals(key)) is { } existing)
+            {
+                existing.Value = value;
+            }
+            else
+            {
+                Add(new ObservableKeyValuePair<TKey, TValue>(key, value));
+            }
         }
     }
 
@@ -41,10 +46,13 @@ public class ObservableDictionary<TKey, TValue> : ObservableCollection<Observabl
 
     public bool Remove(TKey key)
     {
-        if (this.FirstOrDefault(kvp => kvp.Key.Equals(key)) is { } existing)
+        lock (_lock)
         {
-            Remove(existing);
-            return true;
+            if (this.FirstOrDefault(kvp => kvp.Key.Equals(key)) is { } existing)
+            {
+                Remove(existing);
+                return true;
+            }
         }
 
         return false;
@@ -52,12 +60,18 @@ public class ObservableDictionary<TKey, TValue> : ObservableCollection<Observabl
 
     public TValue GetValue(TKey key)
     {
-        return this.FirstOrDefault(kvp => kvp.Key.Equals(key)).Value;
+        lock (_lock)
+        {
+            return this.FirstOrDefault(kvp => kvp.Key.Equals(key)).Value;
+        }
     }
     
     public bool ContainsKey(TKey key)
     {
-        return this.Any(kvp => kvp.Key.Equals(key));
+        lock (_lock)
+        {
+            return this.Any(kvp => kvp.Key.Equals(key));
+        }
     }
 
     public bool TryGetValue(TKey key, out TValue value)

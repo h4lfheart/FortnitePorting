@@ -12,165 +12,188 @@
              xmlns:wrapPanel="clr-namespace:FortnitePorting.Controls.WrapPanel"
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
              xmlns:services="clr-namespace:FortnitePorting.Services"
+             xmlns:responses="clr-namespace:FortnitePorting.Models.API.Responses"
              d:DesignHeight="770" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.HomeView"
              x:DataType="viewModels:HomeViewModel">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="180" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="0.4*" />
+            <RowDefinition Height="2*" />
         </Grid.RowDefinitions>
         
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="3.5*"/>
-            <ColumnDefinition Width="{ext:Space 1}" />
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-
-        <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
+        <Image Grid.Row="0" Grid.RowSpan="3" Source="/Assets/Wallpaper.png" Stretch="UniformToFill" Opacity="1">
+            <Image.OpacityMask>
+                <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 50%">
+                    <GradientStops>
+                        <GradientStop Color="#50000000" Offset="0"/>
+                        <GradientStop Color="#00000000" Offset="1"/>
+                    </GradientStops>
+                </LinearGradientBrush>
+            </Image.OpacityMask>
+        </Image>
+        
+        <StackPanel Grid.Row="0" Margin="{ext:Space 1}" VerticalAlignment="Center">
+            <TextBlock Text="Fortnite Porting" Classes="TitleLargeTextBlockStyle"
+                       HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{ext:Space 0, 0, 0, 1}">
+                <TextBlock.Effect>
+                    <DropShadowEffect BlurRadius="15" Color="#5F000000" OffsetX="0" OffsetY="0" />
+                </TextBlock.Effect>
+            </TextBlock>
+            <TextBlock Text="{Binding UEParse.Status, TargetNullValue='Loading pakchunk100-WindowsClient.utoc'}"
+                       IsVisible="{Binding UEParse.Status, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Classes="BodyTextBlockStyle TextFillColorSecondaryBrush">
+                <TextBlock.Effect>
+                    <DropShadowEffect BlurRadius="15" Color="#5F000000" OffsetX="0" OffsetY="0" />
+                </TextBlock.Effect>
+            </TextBlock>
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal" Margin="{ext:Space 0, 2, 0, 0}">
+                <StackPanel.Styles>
+                    <Style Selector="Button">
+                        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                        <Setter Property="Margin" Value="{ext:Space 0.5}"/>
+                    </Style>
+                </StackPanel.Styles>
+                <Button Content="{controls:ImageText 'Discord', /Assets/Icons/Discord.png}" 
+                        Command="{Binding LaunchDiscord}"
+                        Classes="DiscordButton"/>
+                <Button Content="{controls:IconText 'Twitter', Twitter}" 
+                        Command="{Binding LaunchTwitter}"
+                        Classes="TwitterButton"/>
+                <Button Content="{controls:IconText 'GitHub', Github}" 
+                        Command="{Binding LaunchGitHub}"
+                        Classes="GithubButton"/>
+                <Button Content="{controls:ImageText 'Ko-Fi (Donate)', /Assets/Icons/KoFi.png}" 
+                        Command="{Binding LaunchKoFi}"
+                        Classes="KofiButton"/>
+            </StackPanel>
+        </StackPanel>
+        
+        <Grid Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="{ext:Space 0}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="{ext:Space 1}"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
             
-            <Image Source="/Assets/DefaultSplash.png" Stretch="UniformToFill" Opacity="0.75">
-                <Image.OpacityMask>
-                    <LinearGradientBrush StartPoint="0, 0" EndPoint="0, 180">
-                        <GradientStops>
-                            <GradientStop Color="White" Offset="0"/>
-                            <GradientStop Color="Transparent" Offset="1"/>
-                        </GradientStops>
-                    </LinearGradientBrush>
-                </Image.OpacityMask>
-            </Image>
-            <TextBlock Text="FortnitePorting" Classes="TitleLargeTextBlockStyle" HorizontalAlignment="Center"
-                       VerticalAlignment="Center">
-                <TextBlock.Effect>
-                    <DropShadowEffect BlurRadius="15" Color="#5F000000" OffsetX="0" OffsetY="0" />
-                </TextBlock.Effect>
-            </TextBlock>
-            <TextBlock Margin="0 80 0 0" Text="{Binding UEParse.Status}" HorizontalAlignment="Center"
-                       VerticalAlignment="Center" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush">
-                <TextBlock.Effect>
-                    <DropShadowEffect BlurRadius="15" Color="#5F000000" OffsetX="0" OffsetY="0" />
-                </TextBlock.Effect>
-            </TextBlock>
+            <Grid Grid.Column="0">
+                <Ellipse Height="72" Width="72" Fill="#2F000000"/>
+                <Ellipse Height="72" Width="72" 
+                         StrokeThickness="5" Stroke="#00000000">
+                    <Ellipse.Fill>
+                        <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding SupaBase.UserInfo.AvatarUrl, FallbackValue='https://fortniteporting.halfheart.dev/logo/default.png'}" Stretch="UniformToFill"/>
+                    </Ellipse.Fill>
+                </Ellipse>
+            </Grid>
+            
+            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                <TextBlock Text="{Binding SupaBase.UserInfo.DisplayName, FallbackValue='Anonymous'}" 
+                           Classes="SubtitleTextBlockStyle" HorizontalAlignment="Left"/>
+                <TextBlock Text="{Binding SupaBase.UserInfo.UserName, StringFormat='@{0}', FallbackValue='Not Signed In'}" 
+                           Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" HorizontalAlignment="Left"/>
+            </StackPanel>
         </Grid>
         
-        <ui:FABorder Grid.Row="0" Grid.RowSpan="2" Grid.Column="2" Background="#22000000" CornerRadius="0">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="{ext:Space 1}"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="{ext:Space 1}"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="{ext:Space 1}"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                <Grid Grid.Row="1">
-                    <Ellipse Height="104" Width="104" Fill="#2F000000"/>
-                    <Ellipse Height="104" Width="104" 
-                             StrokeThickness="5" Stroke="#00000000">
-                        <Ellipse.Fill>
-                            <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding SupaBase.UserInfo.AvatarUrl, FallbackValue='https://fortniteporting.halfheart.dev/logo/default.png'}" Stretch="UniformToFill"/>
-                        </Ellipse.Fill>
-                    </Ellipse>
-                </Grid>
-                <TextBlock Grid.Row="3" Text="{Binding SupaBase.UserInfo.DisplayName, FallbackValue='Anonymous'}" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
-                <TextBlock Grid.Row="4" Text="{Binding SupaBase.UserInfo.UserName, FallbackValue='Not Signed In'}" Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" HorizontalAlignment="Center"/>
-                <Separator Grid.Row="5" Margin="{ext:Space 1}"/>
-                <StackPanel Grid.Row="6">
-                    <TextBlock Text="Socials" Classes="SubtitleTextBlockStyle" FontWeight="SemiBold" HorizontalAlignment="Center"/>
-                    <StackPanel HorizontalAlignment="Stretch" Margin="{ext:Space 1, 0.5}">
-                        <StackPanel.Styles>
-                            <Style Selector="Button">
-                                <Setter Property="HorizontalAlignment" Value="Stretch"/>
-                                <Setter Property="Margin" Value="{ext:Space 0.5}"/>
-                            </Style>
-                        </StackPanel.Styles>
-                        <Button Content="{controls:ImageText 'Discord', /Assets/Icons/Discord.png}" 
-                                Command="{Binding LaunchDiscord}"
-                                Classes="DiscordButton"/>
-                        <Button Content="{controls:IconText 'Twitter', Twitter}" 
-                                Command="{Binding LaunchTwitter}"
-                                Classes="TwitterButton"/>
-                        <Button Content="{controls:IconText 'GitHub', Github}" 
-                                Command="{Binding LaunchGitHub}"
-                                Classes="GithubButton"/>
-                        <Button Content="{controls:ImageText 'Donate Here', /Assets/Icons/KoFi.png}" 
-                                Command="{Binding LaunchKoFi}"
-                                Classes="KofiButton"/>
-                    </StackPanel>
-                </StackPanel>
-            </Grid>
-        </ui:FABorder>
-        
-        <ScrollViewer Grid.Row="1" Grid.Column="0" Margin="{ext:Space 1, 0.5, 1, 1}">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="{ext:Space 1}"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-                
-                <StackPanel Grid.Row="0" HorizontalAlignment="Stretch">
-                    <TextBlock Text="News &amp; Updates" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
-                    <ItemsControl ItemsSource="{Binding News}" HorizontalAlignment="Center" Margin="{ext:Space 0, 0.5}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
+        <StackPanel Grid.Row="2" VerticalAlignment="Center" Margin="{ext:Space 4, 0}">
+            <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Margin="{ext:Space 1}">
+                <TextBlock Text="News &amp; Updates" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center" Margin="{ext:Space 0, 0, 0, 1}"/>
+                <ItemsControl ItemsSource="{Binding News}" HorizontalAlignment="Stretch">
+                    <ItemsControl.OpacityMask>
+                        <LinearGradientBrush StartPoint="90%, 0%" EndPoint="100%, 0%">
+                            <GradientStops>
+                                <GradientStop Color="#FF000000" Offset="0"/>
+                                <GradientStop Color="#00000000" Offset="1"/>
+                            </GradientStops>
+                        </LinearGradientBrush>
+                    </ItemsControl.OpacityMask>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
                                 <Border MinHeight="140" MinWidth="260" Margin="{ext:Space 0.5}" CornerRadius="4" ClipToBounds="True" Cursor="Hand" PointerPressed="OnNewsPressed">
                                     <Border.Background>
                                         <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding Image}" Stretch="UniformToFill"/>
                                     </Border.Background>
-                                    
-                                    <Grid RowDefinitions="1.0*, 1.1*">
-                                        <controls:CustomBlurBehind Grid.Row="1"/>
-                                        <Border Grid.Row="1" Background="Black" Opacity="0.25" CornerRadius="0 0 4 4"/>
-                                        <StackPanel Grid.Row="1" Margin="{ext:Space 1, 0.5, 1, 0}">
-                                            <TextBlock HorizontalAlignment="Center" Text="{Binding Title}" Classes="SubtitleTextBlockStyle"/>
-                                            <TextBlock HorizontalAlignment="Center" Text="{Binding SubTitle}" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"/>
-                                            <TextBlock HorizontalAlignment="Center" Text="{Binding Date, StringFormat='{}{0:MM/dd/yyyy}'}" Classes="CaptionTextBlockStyle TextFillColorTertiaryBrush"/>
-                                        </StackPanel>
-                                    </Grid>
                                 </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <WrapPanel VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                    </ItemsControl>
-                </StackPanel>
-                
-                <Separator Grid.Row="1"/>
-                
-                <StackPanel Grid.Row="2" HorizontalAlignment="Stretch">
-                    <TextBlock Text="Featured Art" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
-                    <ItemsControl ItemsSource="{Binding FeaturedArt}" HorizontalAlignment="Center" Margin="{ext:Space 0, 0.5}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
+                                
+                                <Border MinHeight="140" MinWidth="260" Margin="{ext:Space 0.5}" CornerRadius="4" ClipToBounds="True" Cursor="Hand" Background="Black">
+                                    <Border.OpacityMask>
+                                        <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
+                                            <GradientStops>
+                                                <GradientStop Color="#00000000" Offset="0"/>
+                                                <GradientStop Color="#00000000" Offset="0.4"/>
+                                                <GradientStop Color="#66000000" Offset="0.6"/>
+                                                <GradientStop Color="#aa000000" Offset="1"/>
+                                            </GradientStops>
+                                        </LinearGradientBrush>
+                                    </Border.OpacityMask>
+                                </Border>
+                                
+                                <Grid RowDefinitions="1.0*, 1.1*">
+                                    <StackPanel Grid.Row="1" Margin="{ext:Space 1, 0.5, 1, 0}">
+                                        <TextBlock HorizontalAlignment="Center" Text="{Binding Title}" Classes="SubtitleTextBlockStyle"/>
+                                        <TextBlock HorizontalAlignment="Center" Text="{Binding SubTitle}" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"/>
+                                        <TextBlock HorizontalAlignment="Center" Text="{Binding Date, StringFormat='{}{0:MM/dd/yyyy}'}" Classes="CaptionTextBlockStyle TextFillColorTertiaryBrush"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </StackPanel>
+            
+            <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Margin="{ext:Space 1}">
+                <TextBlock Text="Featured Art" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center" Margin="{ext:Space 0, 0, 0, 1}"/>
+                <controls:ScrollingItemsGallery ItemsSource="{Binding FeaturedArt}" Speed="1.0" ItemSpacing="4" MinHeight="140">
+                    <controls:ScrollingItemsGallery.OpacityMask>
+                        <LinearGradientBrush StartPoint="0%, 0%" EndPoint="100%, 0%">
+                            <GradientStops>
+                                <GradientStop Color="#00000000" Offset="0"/>
+                                <GradientStop Color="#FF000000" Offset="0.05"/>
+                                <GradientStop Color="#FF000000" Offset="0.95"/>
+                                <GradientStop Color="#00000000" Offset="1"/>
+                            </GradientStops>
+                        </LinearGradientBrush>
+                    </controls:ScrollingItemsGallery.OpacityMask>
+                    <controls:ScrollingItemsGallery.ItemTemplate>
+                        <DataTemplate DataType="responses:FeaturedArtResponse">
+                            <Grid>
                                 <Border MinHeight="140" MinWidth="260" Margin="{ext:Space 0.5}" CornerRadius="4" ClipToBounds="True" Cursor="Hand" PointerPressed="OnFeaturedPressed">
                                     <Border.Background>
                                         <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding Image}" Stretch="UniformToFill"/>
                                     </Border.Background>
-                                    
-                                    <Grid RowDefinitions="1.5*, 1.0*">
-                                        <controls:CustomBlurBehind Grid.Row="1"/>
-                                        <Border Grid.Row="1" Background="Black" Opacity="0.25" CornerRadius="0 0 4 4"/>
-                                        <StackPanel Grid.Row="1" Margin="{ext:Space 1, 0.5, 1, 0}">
-                                            <TextBlock HorizontalAlignment="Center" Text="{Binding Title}" Classes="SubtitleTextBlockStyle"/>
-                                            <TextBlock HorizontalAlignment="Center" Text="{Binding Artist}" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"/>
-                                        </StackPanel>
-                                    </Grid>
                                 </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <wrapPanel:AlignableWrapPanel HorizontalContentAlignment="Center" VerticalAlignment="Top" HorizontalAlignment="Left"/>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                    </ItemsControl>
-                </StackPanel>
-            </Grid>
-        </ScrollViewer>
+                                
+                                <Border MinHeight="140" MinWidth="260" Margin="{ext:Space 0.5}" CornerRadius="4" ClipToBounds="True" Cursor="Hand" Background="Black">
+                                    <Border.OpacityMask>
+                                        <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
+                                            <GradientStops>
+                                                <GradientStop Color="#00000000" Offset="0"/>
+                                                <GradientStop Color="#00000000" Offset="0.4"/>
+                                                <GradientStop Color="#66000000" Offset="0.6"/>
+                                                <GradientStop Color="#aa000000" Offset="1"/>
+                                            </GradientStops>
+                                        </LinearGradientBrush>
+                                    </Border.OpacityMask>
+                                </Border>
+                                
+                                <Grid RowDefinitions="1.5*, 1.0*">
+                                    <StackPanel Grid.Row="1" Margin="{ext:Space 1, 0.5, 1, 1.5}">
+                                        <TextBlock HorizontalAlignment="Center" Text="{Binding Title}" Classes="SubtitleTextBlockStyle"/>
+                                        <TextBlock HorizontalAlignment="Center" Text="{Binding Artist}" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Grid>
+                        </DataTemplate>
+                    </controls:ScrollingItemsGallery.ItemTemplate>
+                </controls:ScrollingItemsGallery>
+            </StackPanel>
+        </StackPanel>
     </Grid>
 </UserControl>
