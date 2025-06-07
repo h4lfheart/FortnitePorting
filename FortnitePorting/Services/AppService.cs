@@ -2,17 +2,22 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input.Platform;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.Input;
+using CUE4Parse.Utils;
 using DesktopNotifications;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Framework;
 using FortnitePorting.ViewModels;
 using FortnitePorting.Views;
 using FortnitePorting.Windows;
+using Microsoft.Win32;
+using RestSharp;
 
 namespace FortnitePorting.Services;
 
@@ -26,6 +31,8 @@ public class AppService : IService
     public readonly DirectoryInfo DataFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".data"));
     public readonly DirectoryInfo AssetsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets"));
     public readonly DirectoryInfo PluginsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Plugins"));
+    
+    private const string SCHEME_NAME = "fortniteporting";
     
     public void InitializeDesktop(IClassicDesktopStyleApplicationLifetime desktop)
     {
@@ -45,9 +52,30 @@ public class AppService : IService
         AssetsFolder.Create();
         PluginsFolder.Create();
 
+        RegisterUrlScheme();
+
         Lifetime.Startup += OnAppStart;
         Lifetime.Exit += OnAppExit;
         Lifetime.MainWindow = new AppWindow();
+    }
+
+    public void HandleUrlScheme(string url)
+    {
+        var request = new RestRequest(url);
+        var path = url.Replace("fortniteporting://", string.Empty).SubstringBefore("?");
+        var queryParameters = request.Parameters.GetParameters(ParameterType.QueryString);
+
+        switch (path)
+        {
+            case "auth/callback":
+            {
+                var codeParameter = queryParameters.FirstOrDefault(param => param.Name?.Equals("code") ?? false);
+                if (codeParameter?.Value is not string code) break;
+                
+                TaskService.Run(async () => await SupaBase.ExchangeCode(code));
+                break;
+            }
+        }
     }
 
     private void OnAppStart(object? sender, ControlledApplicationLifetimeStartupEventArgs e)
@@ -71,6 +99,25 @@ public class AppService : IService
     {
         if (AppSettings.ShouldSaveOnExit)
             AppSettings.Save();
+    }
+
+    private void RegisterUrlScheme()
+    {
+        try
+        {
+            var applicationPath = Environment.ProcessPath;
+
+            using var key = Registry.CurrentUser.CreateSubKey($@"Software\Classes\{SCHEME_NAME}");
+            key.SetValue("", $"URL:{SCHEME_NAME} Protocol");
+            key.SetValue("URL Protocol", "");
+                
+            using var commandKey = key.CreateSubKey(@"shell\open\command");
+            commandKey.SetValue("", $"\"{applicationPath}\" \"%1\"");
+        }
+        catch (Exception e)
+        {
+            Info.Message("URL Scheme", "Failed to register URL scheme, authentication will not work", InfoBarSeverity.Error, closeTime: 5);
+        }
     }
     
     public void Launch(string location, bool shellExecute = true)

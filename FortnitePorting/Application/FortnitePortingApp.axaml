@@ -62,14 +62,6 @@
             <Setter Property="MinHeight" Value="32"/>
         </Style>
         
-        <Style Selector="TextBlock">
-            <Setter Property="FontFamily" Value="Segoe UI"/>
-        </Style>
-        
-        <Style Selector="TextBlock#Icon">
-            <Setter Property="FontFamily" Value="{StaticResource SymbolThemeFontFamily}"/>
-        </Style>
-        
         <Style Selector="Border">
             <Setter Property="CornerRadius" Value="4"/>
         </Style>

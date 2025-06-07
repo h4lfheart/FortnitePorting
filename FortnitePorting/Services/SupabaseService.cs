@@ -46,6 +46,20 @@ public partial class SupabaseService : ObservableObject, IService
 
             Client = new Client(auth.SupabaseURL, auth.SupabaseAnonKey, DefaultOptions);
             
+            Client.Auth.AddStateChangedListener(async (client, state) =>
+            {
+                if (state != Constants.AuthState.SignedIn) return;  
+                if (client.CurrentSession is not { } session) return;
+                
+                
+                AppSettings.Online.SessionInfo = new UserSessionInfo(session.AccessToken!, session.RefreshToken!);
+
+                await OnLoggedIn();
+
+                if (_currentAuthState is not null) // fresh sign in
+                    Info.Message("Discord Integration", $"Successfully signed in discord user {UserInfo!.UserName}");
+            });
+            
             await Client.InitializeAsync();
 
             if (AppSettings.Online.SessionInfo is { } sessionInfo)
@@ -62,7 +76,8 @@ public partial class SupabaseService : ObservableObject, IService
     [ObservableProperty] private UserInfoResponse? _userInfo;
     [ObservableProperty] private UserPermissions _permissions = new();
 
-    private bool PostedLogin;
+    private ProviderAuthState? _currentAuthState;
+    private bool _postedLogin;
     
     private static readonly SupabaseOptions DefaultOptions = new()
     {
@@ -72,53 +87,19 @@ public partial class SupabaseService : ObservableObject, IService
 
     public async Task SetSession(UserSessionInfo sessionInfo)
     {
-        var session = await Client.Auth.SetSession(sessionInfo.AccessToken, sessionInfo.RefreshToken);
-                
-        await OnLoggedIn();
-
-        AppSettings.Online.SessionInfo = new UserSessionInfo(session.AccessToken!, session.RefreshToken!);
+        await Client.Auth.SetSession(sessionInfo.AccessToken, sessionInfo.RefreshToken);
     }
 
     public async Task SignIn()
     {
-        var authState = await Client.Auth.SignIn(Constants.Provider.Discord, new SignInOptions
+        _currentAuthState = await Client.Auth.SignIn(Constants.Provider.Discord, new SignInOptions
         {
             FlowType = Constants.OAuthFlowType.PKCE,
-            RedirectTo = "http://localhost:24000"
+            RedirectTo = "fortniteporting://auth/callback",
+            
         });
         
-        App.Launch(authState.Uri.AbsoluteUri);
-        
-        using var authListener = new HttpListener();
-        authListener.Prefixes.Add("http://localhost:24000/");
-        authListener.Start();
-
-        string? code = null;
-        while (code is null)
-        {
-            var context = await authListener.GetContextAsync();
-                
-            context.Response.OutputStream.Write("Successfully authenticated with discord."u8);
-            context.Response.OutputStream.Close(); 
-                
-            code = context.Request.QueryString.Get("code");
-        }
-        
-        authListener.Stop();
-        
-        var session = await Client.Auth.ExchangeCodeForSession(authState.PKCEVerifier!, code);
-        if (session is null)
-        {
-            Info.Message("Discord Integration", "Failed to sign in with discord.", severity: InfoBarSeverity.Error);
-            return;
-        }
-        
-        AppSettings.Online.SessionInfo = new UserSessionInfo(session.AccessToken!, session.RefreshToken!);
-
-        await OnLoggedIn();
-
-        Info.Message("Discord Integration", $"Successfully signed in discord user {UserInfo!.UserName}");
-
+        App.Launch(_currentAuthState.Uri.AbsoluteUri);
     }
     
     public async Task SignOut()
@@ -134,6 +115,15 @@ public partial class SupabaseService : ObservableObject, IService
         await Client.Auth.SignOut();
     }
 
+    public async Task ExchangeCode(string code)
+    {
+        var session = await Client.Auth.ExchangeCodeForSession(_currentAuthState!.PKCEVerifier!, code);
+        if (session is null)
+        {
+            Info.Message("Discord Integration", "Failed to sign in with discord.", severity: InfoBarSeverity.Error);
+        }
+    }
+
     public async Task PostExports(IEnumerable<string> objectPaths)
     {
         await Client.From<Export>().Insert(new Export
@@ -147,28 +137,31 @@ public partial class SupabaseService : ObservableObject, IService
         IsLoggedIn = true;
                 
         await LoadUserInfo();
-                
-        if (!PostedLogin)
-            await PostLogin();
 
-        await Client.From<Permissions>().On(PostgresChangesOptions.ListenType.All, (channel, response) =>
-        {
-            Permissions = response.Model<Permissions>().Adapt<UserPermissions>();
-            Log.Information(JsonConvert.SerializeObject(Permissions));
-        });
+        await PostLogin();
 
         Permissions = (await Client.Rpc<Permissions>("permissions", new { })).Adapt<UserPermissions>();
         
+        await Client.From<Permissions>().On(PostgresChangesOptions.ListenType.All, (channel, response) =>
+        {
+            Permissions = response.Model<Permissions>().Adapt<UserPermissions>();
+        });
+            
         await VotingVM.Initialize();
         await Chat.Initialize();
     }
     
     private async Task PostLogin()
     {
+        if (_postedLogin) return;
+        
         await Client.From<Login>().Insert(new Login
         {
             Version = Globals.Version.GetDisplayString()
         });
+        
+        
+        _postedLogin = true;
     }
 
     private async Task LoadUserInfo()

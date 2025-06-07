@@ -42,31 +42,29 @@ public partial class ChatService : ObservableObject, IService
     );
     
     [ObservableProperty] private ObservableDictionary<string, ChatUserV2> _userCache = [];
-    
-    [ObservableProperty] private ChatUserPresence _presence = new()
-    {
-        Application = Globals.ApplicationTag,
-        Version = Globals.VersionString
-    };
+
+    [ObservableProperty] private ChatUserPresence _presence;
 
     private RealtimeChannel _chatChannel;
     private RealtimePresence<ChatUserPresence> _chatPresence;
+    private RealtimeBroadcast<BaseBroadcast> _chatBrodcast;
 
     public async Task Initialize()
     {
-        var egg = Users
-            .Select(user => user.Value)
-            .OrderBy(user => user.DisplayName)
-            .GroupBy(user => user.Role)
-            .OrderBy(group => group.Key)
-            .ToDictionary(group => group.Key, group => group.ToList());
-        
         _chatChannel = SupaBase.Client.Realtime.Channel("chat");
 
         await InitializePresence();
         await InitializeBroadcasts();
         
         await _chatChannel.Subscribe();
+        
+        Presence = new ChatUserPresence
+        {
+            UserId = SupaBase.UserInfo!.UserId,
+            Application = Globals.ApplicationTag,
+            Version = Globals.VersionString
+        };
+        
         await _chatPresence.Track(Presence);
         
         var messages = await SupaBase.Client.From<Message>()
@@ -95,6 +93,8 @@ public partial class ChatService : ObservableObject, IService
 
     private async Task InitializePresence()
     {
+        if (_chatPresence is not null) return;
+        
         _chatPresence = _chatChannel.Register<ChatUserPresence>(SupaBase.UserInfo!.UserId);
         
         _chatPresence.AddPresenceEventHandler(IRealtimePresence.EventType.Sync, (sender, type) =>
@@ -107,16 +107,19 @@ public partial class ChatService : ObservableObject, IService
             TaskService.Run(async () =>
             {
                 var currentState = _chatPresence.CurrentState;
-                foreach (var (userId, presences) in currentState)
+                foreach (var (presenceId, presences) in currentState)
                 {
-                    if (Users.ContainsKey(userId)) continue;
+                    var targetPresence = presences.Last();
                     
-                    var newestPresence = presences.Last();
-
-                    var user = await GetUser(userId);
-                    user.Tag = newestPresence.Application;
-                    user.Version = newestPresence.Version;
-                    Users.AddOrUpdate(userId, user);
+                    var targetUser = await GetUser(targetPresence.UserId) ?? await GetUser(presenceId);
+                    if (targetUser is null) continue;
+                    
+                    targetUser.Tag = targetPresence.Application;
+                    targetUser.Version = targetPresence.Version;
+                    
+                    if (Users.ContainsKey(targetUser.UserId)) continue;
+                    
+                    Users.AddOrUpdate(targetPresence.UserId, targetUser);
                 }
                 
                 OnPropertyChanged(nameof(UsersByGroup));
@@ -141,8 +144,10 @@ public partial class ChatService : ObservableObject, IService
 
     private async Task InitializeBroadcasts()
     {
-        var broadcastChannel = _chatChannel.Register<BaseBroadcast>();
-        broadcastChannel.AddBroadcastEventHandler((sender, broadcast) =>
+        if (_chatBrodcast is not null) return;
+        
+        _chatBrodcast = _chatChannel.Register<BaseBroadcast>();
+        _chatBrodcast.AddBroadcastEventHandler((sender, broadcast) =>
         {
             if (broadcast is null) return;
 
@@ -150,6 +155,8 @@ public partial class ChatService : ObservableObject, IService
             {
                 case "insert_message":
                 {
+                    broadcast.Get<Message>("message");
+                    
                     var message = broadcast.Get<Message>("message").Adapt<ChatMessageV2>();
                     if (message.ReplyId is not null)
                     {
@@ -205,11 +212,13 @@ public partial class ChatService : ObservableObject, IService
         });
     }
 
-    public async Task<ChatUserV2> GetUser(string id)
+    public async Task<ChatUserV2?> GetUser(string id)
     {
         if (UserCache.TryGetValue(id, out var existingUser)) return existingUser;
 
         var userInfo = await Api.FortnitePorting.UserInfo(id);
+        if (userInfo is null) return null;
+        
         var user = userInfo.Adapt<ChatUserV2>();
         UserCache[id] = user;
         

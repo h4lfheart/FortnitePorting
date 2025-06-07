@@ -10,7 +10,7 @@ namespace FortnitePorting.Models.API;
 
 public class FortnitePortingAPI(RestClient client) : APIBase(client)
 {
-    protected override string BaseURL => "https://api.fortniteporting.halfheart.dev";
+    protected override string BaseURL => "https://api.fortniteporting.app";
     
     private readonly ConcurrentDictionary<string, UserInfoResponse> _userInfoCache = [];
     

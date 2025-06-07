@@ -112,7 +112,6 @@ public class ScrollingItemsGallery : Canvas
                         {
                             control.DataContext = item;
                             
-                            // Bind height to canvas height for consistent sizing
                             control.Bind(HeightProperty, new Binding("Bounds.Height")
                             {
                                 Source = this
@@ -121,13 +120,10 @@ public class ScrollingItemsGallery : Canvas
                             SetLeft(control, xOffset);
                             Children.Add(control);
 
-                            // For initial positioning, we'll use a default width and adjust later
-                            // The actual width will be determined after the control is measured
-                            xOffset += 200 + ItemSpacing; // Default width + spacing
+                            xOffset += 200 + ItemSpacing;
                         }
                     }
 
-                    // Schedule a layout update to get proper measurements
                     InvalidateMeasure();
                     InvalidateArrange();
                 });
@@ -135,7 +131,6 @@ public class ScrollingItemsGallery : Canvas
         }
         else
         {
-            // Just reposition existing items
             await RepositionItemsAsync();
         }
     }
@@ -161,7 +156,6 @@ public class ScrollingItemsGallery : Canvas
     {
         var result = base.MeasureOverride(availableSize);
         
-        // After measuring, reposition items with correct widths
         Dispatcher.UIThread.Post(async () =>
         {
             await RepositionItemsWithCorrectWidths();

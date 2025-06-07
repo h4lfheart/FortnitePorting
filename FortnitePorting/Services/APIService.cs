@@ -19,7 +19,7 @@ public class APIService : IService
     
     public APIService()
     {
-        _client = new(new RestClientOptions
+        _client = new RestClient(new RestClientOptions
         {
             UserAgent = $"FortnitePorting/{Globals.VersionString}",
             MaxTimeout = 1000 * AppSettings.Debug.RequestTimeoutSeconds,

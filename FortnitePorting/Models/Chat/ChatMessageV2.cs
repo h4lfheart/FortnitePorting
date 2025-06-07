@@ -41,7 +41,7 @@ public partial class ChatMessageV2 : ObservableObject
     [ObservableProperty] private ObservableDictionary<string, ChatMessageV2> _replyMessages = [];
 
     public string? FullImageUrl => ImagePath is not null
-        ? $"https://backend.fortniteporting.halfheart.dev/storage/v1/object/public/{ImagePath}"
+        ? $"https://supabase.fortniteporting.app/storage/v1/object/public/{ImagePath}"
         : null;
 
 

@@ -27,7 +27,7 @@ public class ObservableDictionary<TKey, TValue> : ObservableCollection<Observabl
     {
         lock (_lock)
         {
-            if (this.FirstOrDefault(kvp => kvp.Key.Equals(key)) is { } existing)
+            if (this.FirstOrDefault(kvp => kvp.Key?.Equals(key) ?? false) is { } existing)
             {
                 existing.Value = value;
             }
@@ -48,7 +48,7 @@ public class ObservableDictionary<TKey, TValue> : ObservableCollection<Observabl
     {
         lock (_lock)
         {
-            if (this.FirstOrDefault(kvp => kvp.Key.Equals(key)) is { } existing)
+            if (this.FirstOrDefault(kvp => kvp.Key?.Equals(key) ?? false) is { } existing)
             {
                 Remove(existing);
                 return true;
@@ -58,19 +58,23 @@ public class ObservableDictionary<TKey, TValue> : ObservableCollection<Observabl
         return false;
     }
 
-    public TValue GetValue(TKey key)
+    public TValue? GetValue(TKey? key)
     {
+        if (key is null) return default;
+        
         lock (_lock)
         {
-            return this.FirstOrDefault(kvp => kvp.Key.Equals(key)).Value;
+            return this.FirstOrDefault(kvp => kvp.Key?.Equals(key) ?? false) is not { } found ? default : found.Value;
         }
     }
     
-    public bool ContainsKey(TKey key)
+    public bool ContainsKey(TKey? key)
     {
+        if (key is null) return false;
+        
         lock (_lock)
         {
-            return this.Any(kvp => kvp.Key.Equals(key));
+            return this.Any(kvp => kvp.Key?.Equals(key) ?? false);
         }
     }
 

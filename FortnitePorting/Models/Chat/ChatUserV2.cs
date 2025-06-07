@@ -48,7 +48,7 @@ public partial class ChatUserV2 : ObservableObject
     public SolidColorBrush Brush => new(Role switch
     {
         ESupabaseRole.System => Color.Parse("#B040FF"),
-        ESupabaseRole.Owner => Color.Parse("#acd2f5"),
+        ESupabaseRole.Owner => Color.Parse("#83c4db"),
         ESupabaseRole.Support => Color.Parse("#635fd4"),
         ESupabaseRole.Staff => Color.Parse("#9856a2"),
         ESupabaseRole.Verified => Color.Parse("#00ff97"),
@@ -99,6 +99,7 @@ public partial class ChatUserV2 : ObservableObject
 
 public class ChatUserPresence : BasePresence
 {
+    [JsonProperty("user_id")] public string UserId;
     [JsonProperty("application")] public string Application;
     [JsonProperty("version")] public string Version;
 }
