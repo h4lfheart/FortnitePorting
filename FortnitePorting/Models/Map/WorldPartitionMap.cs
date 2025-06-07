@@ -436,7 +436,7 @@ public partial class WorldPartitionMap : ObservableObject
                 }
                 else
                 {
-                    await ExportNormalMap();
+                    await ExportNormalMap(predicate: info => info.Image is { Width: <= 128, Height: <= 128 });;
                 }
                
                 break;
@@ -482,7 +482,7 @@ public partial class WorldPartitionMap : ObservableObject
                     }
                     else
                     {
-                        await ExportWeightMap(layerName, weightTileInfos);
+                        await ExportWeightMap(layerName, weightTileInfos, predicate: info => info.Image is { Width: <= 128, Height: <= 128 });
                     }
                 }
                 break;

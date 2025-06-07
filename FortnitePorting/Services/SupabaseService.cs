@@ -100,6 +100,11 @@ public partial class SupabaseService : ObservableObject, IService
         });
         
         App.Launch(_currentAuthState.Uri.AbsoluteUri);
+
+        while (!IsLoggedIn)
+        {
+            await Task.Delay(-1);
+        }
     }
     
     public async Task SignOut()

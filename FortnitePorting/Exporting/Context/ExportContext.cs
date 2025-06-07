@@ -44,7 +44,6 @@ public partial class ExportContext
         Meta = metaData;
         FileExportOptions = Meta.Settings.CreateExportOptions();
     }
-    
 
     public async Task<string> ExportAsync(UObject asset, bool returnRealPath = false, bool synchronousExport = false, bool embeddedAsset = false)
     {

@@ -35,7 +35,7 @@ public unsafe class FLandscapeComponentDataInterface : FLandscapeComponentDataIn
 
       var heightMapTexture = Component.HeightmapTexture;
       
-      var data = heightMapTexture.PlatformData.Mips[MipLevel].BulkData.Data;
+      var data = heightMapTexture.GetMip(MipLevel)!.BulkData!.Data;
       if (data is null) throw new ParserException("Heightmap bulk data is null, cannot continue with landscape inteface.");
          
       using var reader = new FByteArchive($"{inComponent.Name}_Height", data);
@@ -53,7 +53,7 @@ public unsafe class FLandscapeComponentDataInterface : FLandscapeComponentDataIn
 		
 		var weightMapTexture = Component.WeightmapTextures[layerAllocation.WeightmapTextureIndex];
 
-		var data = weightMapTexture.PlatformData.Mips[MipLevel].BulkData.Data;
+		var data = weightMapTexture.GetMip(MipLevel)!.BulkData!.Data;
 		if (data is null) throw new ParserException("Weightmap bulk data is null, cannot continue with landscape inteface.");
          
 		using var reader = new FByteArchive($"{Component.Name}_Weight_{layerName}", data);

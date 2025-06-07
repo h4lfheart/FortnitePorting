@@ -113,6 +113,7 @@ public partial class ChatService : ObservableObject, IService
                     
                     var targetUser = await GetUser(targetPresence.UserId) ?? await GetUser(presenceId);
                     if (targetUser is null) continue;
+                    if (targetUser.UserId is null) continue;
                     
                     targetUser.Tag = targetPresence.Application;
                     targetUser.Version = targetPresence.Version;
