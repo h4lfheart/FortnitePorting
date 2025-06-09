@@ -418,10 +418,16 @@ public partial class FilesViewModel() : ViewModelBase
 
             exports.Add(new KeyValuePair<UObject, EExportType>(asset, exportType));
         }
+        
 
         if (exports.Count == 0)
         {
-            Info.Message("Unimplemented Exporter", $"Assets with these types could not be exported: {unsupportedExportTypes.CommaJoin()}.");
+            Info.Message("Exporter",
+                unsupportedExportTypes.Count == 0
+                    ? $"Failed to load any assets for export."
+                    : $"Assets with these types do not have exporters: {unsupportedExportTypes.CommaJoin()}.",
+                InfoBarSeverity.Warning);
+
             return;
         }
 

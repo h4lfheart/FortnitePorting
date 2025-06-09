@@ -585,7 +585,7 @@ public partial class MaterialData : ObservableObject
                         constantColor.A = 1;
                         break;
                     case "MaterialExpressionVectorParameter":
-                        node.Label = expression.Get<FName>("ParameterName").Text;
+                        node.Label = expression.GetOrDefault<FName?>("ParameterName")?.Text ?? expression.Name;
                         break;
                 }
                 
@@ -643,7 +643,7 @@ public partial class MaterialData : ObservableObject
             
             case "MaterialExpressionScalarParameter":
             {
-                var name = expression.Get<FName>("ParameterName").Text;
+                var name = expression.GetOrDefault<FName?>("ParameterName")?.Text ?? expression.Name;
                 var sliderMin = expression.GetOrDefault<float>("SliderMin", 0);
                 var sliderMax = expression.GetOrDefault<float>("SliderMax", 1);
                 var defaultValue = expression.GetOrDefault<float>("DefaultValue");

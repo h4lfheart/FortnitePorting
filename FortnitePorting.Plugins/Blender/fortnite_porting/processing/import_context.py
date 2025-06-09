@@ -405,7 +405,11 @@ class ImportContext:
                 ext = "png"
             case EImageFormat.TGA:
                 ext = "tga"
-        
+                
+        hdr_path = os.path.join(self.assets_root, path + ".hdr")
+        if os.path.exists(hdr_path):
+            return hdr_path, name
+
         texture_path = os.path.join(self.assets_root, path + "." + ext)
         return texture_path, name
 
