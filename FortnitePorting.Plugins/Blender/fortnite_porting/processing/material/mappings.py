@@ -72,7 +72,8 @@ default_mappings = MappingCollection(
         SlotMapping("PM_Emissive", "Emission"),
         SlotMapping("Visor_Emissive", "Emission"),
         SlotMapping("EmissiveDistanceField"),
-        SlotMapping("Visor_EmissiveDistanceField"),
+        SlotMapping("Visor_EmissiveDistanceField", "EmissiveDistanceField"),
+        SlotMapping("Visor_EmissiveDistanceFieldStyle2", "EmissiveDistanceField"),
 
         SlotMapping("MaskTexture"),
         SlotMapping("OpacityMask", "MaskTexture"),
