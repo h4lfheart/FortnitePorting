@@ -5,21 +5,24 @@
         xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
         xmlns:windowModels="clr-namespace:FortnitePorting.WindowModels"
         xmlns:views="clr-namespace:FortnitePorting.Views"
+        xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         x:Class="FortnitePorting.Windows.AppWindow"
         x:DataType="windowModels:AppWindowModel"
-        Width="1160" Height="770" RequestedThemeVariant="Dark" FontFamily="Segoe UI" Background="{x:Null}"
-        TransparencyLevelHint="{Binding Settings.Theme.TransparencyHints}" ExtendClientAreaToDecorationsHint="True"
+        Width="1280" Height="770" RequestedThemeVariant="Dark" FontFamily="Segoe UI" Background="#DB1C1C26"
+        TransparencyLevelHint="{Binding Settings.Theme.TransparencyHints}" ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="NoChrome"
         WindowStartupLocation="CenterScreen" ClosingBehavior="OwnerAndChildWindows" ExtendClientAreaTitleBarHeightHint="35"
         Icon="/Assets/LogoV3.ico"
         Title="Fortnite Porting">
-    <Grid RowDefinitions="35, *" Margin="{Binding $parent[Window].OffScreenMargin}">
-        <ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False" IsVisible="{Binding !Settings.Theme.UseMica}">
+    <Grid RowDefinitions="35, *" Margin="{Binding $parent[Window]}">
+        <!--ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False" IsVisible="{Binding !Settings.Theme.UseMica}">
             <ExperimentalAcrylicBorder.Material>
-                <ExperimentalAcrylicMaterial BackgroundSource="Digger" MaterialOpacity="1.5" TintColor="{Binding Settings.Theme.BackgroundColor}" TintOpacity="1"/>
+                <ExperimentalAcrylicMaterial BackgroundSource="Digger" MaterialOpacity="0.9" TintColor="Black" TintOpacity="1"/>
             </ExperimentalAcrylicBorder.Material>
-        </ExperimentalAcrylicBorder>
+        </ExperimentalAcrylicBorder-->
 
-        <ui:NavigationView x:Name="NavigationView" Grid.Row="1" IsPaneOpen="False" OpenPaneLength="152" ItemInvoked="OnItemInvoked" IsSettingsVisible="False"
+        <ui:NavigationView x:Name="NavigationView" Grid.Row="1" Classes="NoBackground"
+                           IsPaneOpen="False" OpenPaneLength="152" ItemInvoked="OnItemInvoked" 
+                           IsSettingsVisible="False"
                            IsVisible="{Binding Settings.Installation.FinishedSetup}">
              <ui:NavigationView.MenuItems>
                  <ui:NavigationViewItem Content="Home" Tag="{x:Type views:HomeView}" IsEnabled="{Binding }">
@@ -190,25 +193,41 @@
             </Grid>
         </Grid>
         
-        
-        <Grid Grid.Row="0" Background="Transparent" HorizontalAlignment="Stretch" PointerPressed="OnPointerPressedUpperBar">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="{ext:Space 0.75}" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="{ext:Space 0.5}" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
+        <Grid Grid.Row="0" Background="#2F000000" HorizontalAlignment="Stretch" PointerPressed="OnPointerPressedUpperBar">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="{ext:Space 0.75}" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="{ext:Space 0.5}" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
             
-            <ui:ImageIcon Grid.Column="0" Source="/Assets/LogoV3.png" 
-                          HorizontalAlignment="Right"
-                          Width="20" Height="20" 
-                          RenderOptions.BitmapInterpolationMode="HighQuality" RenderOptions.EdgeMode="Antialias"/>
+                <ui:ImageIcon Grid.Column="0" Source="/Assets/LogoV3.png" 
+                              HorizontalAlignment="Right"
+                              Width="20" Height="20" 
+                              RenderOptions.BitmapInterpolationMode="HighQuality" RenderOptions.EdgeMode="Antialias"/>
 
-            <TextBlock Grid.Column="2" Text="Fortnite Porting" FontWeight="SemiBold" FontSize="16"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" />
-            <TextBlock Grid.Column="4" Text="{Binding VersionString}" Classes="TextFillColorTertiaryBrush" FontSize="13" Margin="0 0 0 0"
-                       HorizontalAlignment="Left" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="2" Text="Fortnite Porting" FontWeight="SemiBold" FontSize="16"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="4" Text="{Binding VersionString}" Classes="TextFillColorTertiaryBrush" FontSize="13" Margin="0 0 0 0"
+                           HorizontalAlignment="Left" VerticalAlignment="Center" />
+            </Grid>
+            
+            <Grid HorizontalAlignment="Right">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="{ext:Space 0.5}" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="{ext:Space 0.5}" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="1" />
+                </Grid.ColumnDefinitions>
+            
+                <Border Grid.Column="0" PointerPressed="OnMinimizePressed" Cursor="Hand" CornerRadius="0" Classes="MinimizeMaximize" Child="{avalonia:MaterialIconExt Minus}" Width="35" Height="35"/>
+                <Border Grid.Column="2" PointerPressed="OnMaximizePressed" Cursor="Hand" CornerRadius="0" Classes="MinimizeMaximize" Child="{avalonia:MaterialIconExt Maximize}" Width="35" Height="35"/>
+                <Border Grid.Column="4" PointerPressed="OnClosePressed" Cursor="Hand" CornerRadius="0" Classes="Close" Child="{avalonia:MaterialIconExt Close}" Width="35" Height="35"/>
+            </Grid>
         </Grid>
     </Grid>
 </Window>

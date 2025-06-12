@@ -40,4 +40,19 @@ public partial class AppWindow : WindowBase<AppWindowModel>
     {
         BeginMoveDrag(e);
     }
+
+    private void OnMinimizePressed(object? sender, PointerPressedEventArgs e)
+    {
+        WindowState = WindowState.Minimized;
+    }
+    
+    private void OnMaximizePressed(object? sender, PointerPressedEventArgs e)
+    {
+        WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+    }
+    
+    private void OnClosePressed(object? sender, PointerPressedEventArgs e)
+    {
+        Close();
+    }
 }

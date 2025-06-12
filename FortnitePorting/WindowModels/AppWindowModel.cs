@@ -52,7 +52,7 @@ public partial class AppWindowModel(
 
     public override async Task Initialize()
     {
-        if (!AppSettings.Installation.FinishedSetup)
+        if (!AppSettings.Installation.FinishedSetup || AppSettings.Installation.Profiles.Count == 0)
         {
             await TaskService.RunDispatcherAsync(() =>
             {

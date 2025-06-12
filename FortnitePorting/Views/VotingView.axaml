@@ -20,57 +20,102 @@
              d:DesignHeight="720" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.VotingView"
              x:DataType="viewModels:VotingViewModel">
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="3.5*"/>
-            <ColumnDefinition Width="{ext:Space 1}" />
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-        
-        <ScrollViewer Grid.Column="0">
-            <Grid Margin="{ext:Space 1}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="{ext:Space 1}"/>
-                    <ColumnDefinition Width="6*"/>
-                    <ColumnDefinition Width="{ext:Space 1}"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
+    <ScrollViewer>
+        <Grid Margin="{ext:Space 1}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="{ext:Space 1}"/>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="{ext:Space 1}"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="{ext:Space 1}"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="{ext:Space 1}"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
                 
-                <Grid Grid.Column="2">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="{ext:Space 1}"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="{ext:Space 1}"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    
-                    <TextBlock Grid.Row="0" Text="Polls" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
-                    <TextBlock Grid.Row="2" Text="{Binding IncompletePollNotification}" Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" HorizontalAlignment="Center"/>
-                    
-                    <ItemsControl Grid.Row="4" ItemsSource="{Binding Polls}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Grid>
-                                    <ui:FABorder IsVisible="{Binding !VotedForPoll}" Padding="{ext:Space 1}" Margin="{ext:Space 0, 0, 0, 1}">
-                                        <Grid>
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="{ext:Space 1}"/>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="{ext:Space 1}"/>
-                                                <RowDefinition Height="Auto"/>
-                                            </Grid.RowDefinitions>
-                                            
-                                            <TextBlock Grid.Row="0" Text="{Binding Title}" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
-                                            
-                                            <ListBox Grid.Row="2" ItemsSource="{Binding Options}" SelectedItem="{Binding SelectedItem}"
-                                                     HorizontalAlignment="Stretch">
-                                                <ListBox.ItemTemplate>
-                                                    <DataTemplate>
+                <TextBlock Grid.Row="0" Text="Polls" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
+                <TextBlock Grid.Row="2" Text="{Binding IncompletePollNotification}" Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" HorizontalAlignment="Center"/>
+                
+                <ItemsControl Grid.Row="4" ItemsSource="{Binding Polls}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <ui:FABorder IsVisible="{Binding !VotedForPoll}" Padding="{ext:Space 1}" Margin="{ext:Space 0, 0, 0, 1}">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="{ext:Space 1}"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="{ext:Space 1}"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        
+                                        <TextBlock Grid.Row="0" Text="{Binding Title}" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
+                                        
+                                        <ListBox Grid.Row="2" ItemsSource="{Binding Options}" SelectedItem="{Binding SelectedItem}"
+                                                 HorizontalAlignment="Stretch">
+                                            <ListBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding Text}"/>
+                                                        <Border IsVisible="{Binding ImageURL, Converter={x:Static ObjectConverters.IsNotNull}}" 
+                                                                CornerRadius="4" ClipToBounds="True" 
+                                                                HorizontalAlignment="Left" Margin="{ext:Space 0, 1, 0, 0}">
+                                                            <Image asyncImageLoader:ImageLoader.Source="{Binding ImageURL}" 
+                                                                   MaxHeight="150" HorizontalAlignment="Left"/>
+                                                        </Border>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </ListBox.ItemTemplate>
+                                            <ListBox.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <StackPanel Orientation="Vertical"/>
+                                                </ItemsPanelTemplate>
+                                            </ListBox.ItemsPanel>
+                                            <ListBox.ItemContainerTheme>
+                                                <ControlTheme BasedOn="{StaticResource {x:Type ListBoxItem}}" TargetType="ListBoxItem">
+                                                    <Setter Property="Background" Value="#1E000000"/>
+                                                    <Setter Property="Padding" Value="{ext:Space 1}"/>
+                                                    <Setter Property="Margin" Value="{ext:Space 0, 0, 0, 1}"/>
+                                                </ControlTheme>
+                                            </ListBox.ItemContainerTheme>
+                                        </ListBox>
+                                        
+                                        <Button Grid.Row="4" Content="Submit" 
+                                                IsEnabled="{Binding SelectedItem, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                                Command="{Binding Submit}" 
+                                                HorizontalAlignment="Stretch"/>
+                                    </Grid>
+                                </ui:FABorder>
+                                
+                                <ui:FABorder IsVisible="{Binding VotedForPoll}" Padding="{ext:Space 1, 1, 1, 0}"  Margin="{ext:Space 0, 0, 0, 1}">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="{ext:Space 1}"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        
+                                        <TextBlock Grid.Row="0" Text="{Binding Title}" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
+                                        
+                                        <ItemsControl Grid.Row="2" ItemsSource="{Binding Options}"
+                                                 HorizontalAlignment="Stretch">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <ui:FABorder Padding="{ext:Space 1}" Margin="{ext:Space 0, 0, 0, 1}"
+                                                                 BorderThickness="0" Background="{Binding Background}">
                                                         <StackPanel>
-                                                            <TextBlock Text="{Binding Text}"/>
+                                                            <Grid>
+                                                                <TextBlock Text="{Binding Text}" FontSize="14" HorizontalAlignment="Left"/>
+                                                                <TextBlock Text="{Binding Votes}" FontSize="14" HorizontalAlignment="Right"/>
+                                                            </Grid>
+                                                            
                                                             <Border IsVisible="{Binding ImageURL, Converter={x:Static ObjectConverters.IsNotNull}}" 
                                                                     CornerRadius="4" ClipToBounds="True" 
                                                                     HorizontalAlignment="Left" Margin="{ext:Space 0, 1, 0, 0}">
@@ -78,108 +123,27 @@
                                                                        MaxHeight="150" HorizontalAlignment="Left"/>
                                                             </Border>
                                                         </StackPanel>
-                                                    </DataTemplate>
-                                                </ListBox.ItemTemplate>
-                                                <ListBox.ItemsPanel>
-                                                    <ItemsPanelTemplate>
-                                                        <StackPanel Orientation="Vertical"/>
-                                                    </ItemsPanelTemplate>
-                                                </ListBox.ItemsPanel>
-                                                <ListBox.ItemContainerTheme>
-                                                    <ControlTheme BasedOn="{StaticResource {x:Type ListBoxItem}}" TargetType="ListBoxItem">
-                                                        <Setter Property="Background" Value="#1E000000"/>
-                                                        <Setter Property="Padding" Value="{ext:Space 1}"/>
-                                                        <Setter Property="Margin" Value="{ext:Space 0, 0, 0, 1}"/>
-                                                    </ControlTheme>
-                                                </ListBox.ItemContainerTheme>
-                                            </ListBox>
-                                            
-                                            <Button Grid.Row="4" Content="Submit" 
-                                                    IsEnabled="{Binding SelectedItem, Converter={x:Static ObjectConverters.IsNotNull}}"
-                                                    Command="{Binding Submit}" 
-                                                    HorizontalAlignment="Stretch"/>
-                                        </Grid>
-                                    </ui:FABorder>
-                                    
-                                    <ui:FABorder IsVisible="{Binding VotedForPoll}" Padding="{ext:Space 1, 1, 1, 0}"  Margin="{ext:Space 0, 0, 0, 1}">
-                                        <Grid>
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="{ext:Space 1}"/>
-                                                <RowDefinition Height="Auto"/>
-                                            </Grid.RowDefinitions>
-                                            
-                                            <TextBlock Grid.Row="0" Text="{Binding Title}" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
-                                            
-                                            <ItemsControl Grid.Row="2" ItemsSource="{Binding Options}"
-                                                     HorizontalAlignment="Stretch">
-                                                <ItemsControl.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <ui:FABorder Padding="{ext:Space 1}" Margin="{ext:Space 0, 0, 0, 1}"
-                                                                     BorderThickness="0" Background="{Binding Background}">
-                                                            <StackPanel>
-                                                                <Grid>
-                                                                    <TextBlock Text="{Binding Text}" FontSize="14" HorizontalAlignment="Left"/>
-                                                                    <TextBlock Text="{Binding Votes}" FontSize="14" HorizontalAlignment="Right"/>
-                                                                </Grid>
-                                                                
-                                                                <Border IsVisible="{Binding ImageURL, Converter={x:Static ObjectConverters.IsNotNull}}" 
-                                                                        CornerRadius="4" ClipToBounds="True" 
-                                                                        HorizontalAlignment="Left" Margin="{ext:Space 0, 1, 0, 0}">
-                                                                    <Image asyncImageLoader:ImageLoader.Source="{Binding ImageURL}" 
-                                                                           MaxHeight="150" HorizontalAlignment="Left"/>
-                                                                </Border>
-                                                            </StackPanel>
-                                                        </ui:FABorder>
-                                                    </DataTemplate>
-                                                </ItemsControl.ItemTemplate>
-                                                <ItemsControl.ItemsPanel>
-                                                    <ItemsPanelTemplate>
-                                                        <StackPanel Orientation="Vertical"/>
-                                                    </ItemsPanelTemplate>
-                                                </ItemsControl.ItemsPanel>
-                                            </ItemsControl>
-                                        </Grid>
-                                    </ui:FABorder>
-                                </Grid>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                    
-                    <TextBlock Grid.Row="4" Text="No Polls To Complete" 
-                               Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"
-                               VerticalAlignment="Center" HorizontalAlignment="Center"
-                               IsVisible="{Binding !Polls.Count}"/>
-                </Grid>
-            </Grid>
-        </ScrollViewer>
-        
-        <ui:FABorder Grid.Column="2" Background="#22000000" CornerRadius="0">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="{ext:Space 1}"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="{ext:Space 1}"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="{ext:Space 1}"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
+                                                    </ui:FABorder>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <StackPanel Orientation="Vertical"/>
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                        </ItemsControl>
+                                    </Grid>
+                                </ui:FABorder>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
                 
-                <Grid Grid.Row="1">
-                    <Ellipse Height="104" Width="104" Fill="#2F000000"/>
-                    <Ellipse Height="104" Width="104" 
-                             StrokeThickness="5" Stroke="#00000000">
-                        <Ellipse.Fill>
-                            <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding SupaBase.UserInfo.AvatarUrl, FallbackValue='https://fortniteporting.halfheart.dev/logo/default.png'}" Stretch="UniformToFill"/>
-                        </Ellipse.Fill>
-                    </Ellipse>
-                </Grid>
-                <TextBlock Grid.Row="3" Text="{Binding SupaBase.UserInfo.DisplayName, FallbackValue='Anonymous'}" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
-                <TextBlock Grid.Row="4" Text="{Binding SupaBase.UserInfo.UserName, FallbackValue='Not Signed In'}" Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" HorizontalAlignment="Center"/>
-                <Separator Grid.Row="5" Margin="{ext:Space 1}"/>
-                
+                <TextBlock Grid.Row="4" Text="No Polls To Complete" 
+                           Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"
+                           VerticalAlignment="Center" HorizontalAlignment="Center"
+                           IsVisible="{Binding !Polls.Count}"/>
             </Grid>
-        </ui:FABorder>
-    </Grid>
+        </Grid>
+    </ScrollViewer>
 </UserControl>

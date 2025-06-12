@@ -58,6 +58,8 @@ internal static class Program
             while (true)
             {
                 pipe.WaitForConnection();
+                
+                while (pipe.Length == 0) { }
 
                 var url = reader.ReadString();
                 App.HandleUrlScheme(url);

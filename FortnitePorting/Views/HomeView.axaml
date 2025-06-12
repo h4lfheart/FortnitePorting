@@ -71,7 +71,7 @@
             </StackPanel>
         </StackPanel>
         
-        <Grid Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="{ext:Space 0}">
+        <Grid Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Top">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="{ext:Space 1}"/>
@@ -111,23 +111,28 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Grid>
-                                <Border MinHeight="140" MinWidth="260" Margin="{ext:Space 0.5}" CornerRadius="4" ClipToBounds="True" Cursor="Hand" PointerPressed="OnNewsPressed">
+                                <Border Classes="LiquidGlass"
+                                        MinHeight="140" MinWidth="260" 
+                                        Margin="{ext:Space 0.5}" CornerRadius="8" 
+                                        ClipToBounds="True" Cursor="Hand" 
+                                        PointerPressed="OnNewsPressed">
                                     <Border.Background>
                                         <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding Image}" Stretch="UniformToFill"/>
                                     </Border.Background>
-                                </Border>
-                                
-                                <Border MinHeight="140" MinWidth="260" Margin="{ext:Space 0.5}" CornerRadius="4" ClipToBounds="True" Cursor="Hand" Background="Black">
-                                    <Border.OpacityMask>
-                                        <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
-                                            <GradientStops>
-                                                <GradientStop Color="#00000000" Offset="0"/>
-                                                <GradientStop Color="#00000000" Offset="0.4"/>
-                                                <GradientStop Color="#66000000" Offset="0.6"/>
-                                                <GradientStop Color="#aa000000" Offset="1"/>
-                                            </GradientStops>
-                                        </LinearGradientBrush>
-                                    </Border.OpacityMask>
+                                    
+                                    <Border MinHeight="140" MinWidth="260" CornerRadius="0" ClipToBounds="True" Cursor="Hand" Background="Black" IsVisible="True">
+                                        <Border.OpacityMask>
+                                            <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
+                                                <GradientStops>
+                                                    <GradientStop Color="#00000000" Offset="0"/>
+                                                    <GradientStop Color="#00000000" Offset="0.2"/>
+                                                    <GradientStop Color="#66000000" Offset="0.4"/>
+                                                    <GradientStop Color="#DD000000" Offset="1"/>
+                                                </GradientStops>
+                                            </LinearGradientBrush>
+                                        </Border.OpacityMask>
+                                    </Border>
+
                                 </Border>
                                 
                                 <Grid RowDefinitions="1.0*, 1.1*">
@@ -164,24 +169,28 @@
                     <controls:ScrollingItemsGallery.ItemTemplate>
                         <DataTemplate DataType="responses:FeaturedArtResponse">
                             <Grid>
-                                <Border MinHeight="140" MinWidth="260" Margin="{ext:Space 0.5}" CornerRadius="4" ClipToBounds="True" Cursor="Hand" PointerPressed="OnFeaturedPressed">
+                                <Border Classes="LiquidGlass"
+                                        MinHeight="140" MinWidth="260" 
+                                        Margin="{ext:Space 0.5}" CornerRadius="8" 
+                                        ClipToBounds="True" Cursor="Hand" 
+                                        PointerPressed="OnFeaturedPressed">
                                     <Border.Background>
                                         <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding Image}" Stretch="UniformToFill"/>
                                     </Border.Background>
+                                    <Border MinHeight="140" MinWidth="260" CornerRadius="0" ClipToBounds="True" Cursor="Hand" Background="Black">
+                                        <Border.OpacityMask>
+                                            <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
+                                                <GradientStops>
+                                                    <GradientStop Color="#00000000" Offset="0"/>
+                                                    <GradientStop Color="#00000000" Offset="0.2"/>
+                                                    <GradientStop Color="#66000000" Offset="0.4"/>
+                                                    <GradientStop Color="#DD000000" Offset="1"/>
+                                                </GradientStops>
+                                            </LinearGradientBrush>
+                                        </Border.OpacityMask>
+                                    </Border>
                                 </Border>
                                 
-                                <Border MinHeight="140" MinWidth="260" Margin="{ext:Space 0.5}" CornerRadius="4" ClipToBounds="True" Cursor="Hand" Background="Black">
-                                    <Border.OpacityMask>
-                                        <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
-                                            <GradientStops>
-                                                <GradientStop Color="#00000000" Offset="0"/>
-                                                <GradientStop Color="#00000000" Offset="0.4"/>
-                                                <GradientStop Color="#66000000" Offset="0.6"/>
-                                                <GradientStop Color="#aa000000" Offset="1"/>
-                                            </GradientStops>
-                                        </LinearGradientBrush>
-                                    </Border.OpacityMask>
-                                </Border>
                                 
                                 <Grid RowDefinitions="1.5*, 1.0*">
                                     <StackPanel Grid.Row="1" Margin="{ext:Space 1, 0.5, 1, 1.5}">

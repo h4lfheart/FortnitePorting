@@ -76,6 +76,12 @@ public partial class AssetsViewModel() : ViewModelBase
     }
 
     [RelayCommand]
+    public async Task SetExportLocation(EExportLocation location)
+    {
+        ExportLocation = location;
+    }
+
+    [RelayCommand]
     public async Task Export()
     {
         AssetLoader.ActiveLoader.Pause();

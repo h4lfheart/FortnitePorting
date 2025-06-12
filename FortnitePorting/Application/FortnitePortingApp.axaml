@@ -54,17 +54,103 @@
         <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
         <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
         
+        <Style Selector="Border.LiquidGlass">
+            <Setter Property="BoxShadow">
+                inset 2 2 4 -1 #04000000, 
+                inset 4 8 19 #04000000, 
+                inset 3 3 3 #04ffffff, 
+                inset -4 -8 10 #02ffffff, 
+                inset 1 -3 2 #08000000
+            </Setter>
+            <Setter Property="Effect">
+                <DropShadowEffect BlurRadius="6" OffsetX="1" OffsetY="2" Color="#40000000"/>
+            </Setter>
+        </Style>
+        
         <Style Selector="ui|FABorder">
             <Setter Property="Background" Value="#0DFFFFFF"/>
-            <Setter Property="BorderBrush" Value="#19000000"/>
+            <Setter Property="BorderBrush" Value="#78575757"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="CornerRadius" Value="8"/>
             <Setter Property="MinHeight" Value="32"/>
+        </Style>
+        
+        <Style Selector="Button">
+            <Setter Property="BorderBrush" Value="#78575757"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+        </Style>
+
+        <Style Selector="SplitButton">
+            <Setter Property="BorderBrush" Value="#78575757"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+        </Style>
+        
+        <Style Selector="ToggleButton">
+            <Setter Property="BorderBrush" Value="#78575757"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+        </Style>
+        
+        <Style Selector="ComboBox">
+            <Setter Property="BorderBrush" Value="#78575757"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+        </Style>
+        
+        <Style Selector="DropDownButton">
+            <Setter Property="BorderBrush" Value="#78575757"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+        </Style>
+        
+        <Style Selector="AutoCompleteBox">
+            <Setter Property="BorderBrush" Value="#78575757"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+        </Style>
+        
+        <Style Selector="TextBox">
+            <Setter Property="BorderBrush" Value="#78575757"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+        </Style>
+        
+        <Style Selector="ListBoxItem">
+            <Setter Property="CornerRadius" Value="8"/>
+        </Style>
+        
+        
+        <Style Selector="ScrollBar">
+            <Setter Property="Opacity" Value="0"/>
+            
+            <Style Selector="^:pointerover">
+                <Setter Property="Opacity" Value="1"/>
+                <Setter Property="Margin" Value="{ext:Space 25, 0, 0, 0}"/>
+            </Style>
         </Style>
         
         <Style Selector="Border">
             <Setter Property="CornerRadius" Value="4"/>
         </Style>
+        
+        <Style Selector="Border.MinimizeMaximize">
+            <Setter Property="Background" Value="Transparent"/>
+            
+            <Style Selector="^:pointerover">
+                <Setter Property="Background" Value="#0AFFFFFF"/>
+            </Style>
+        </Style>
+        
+        <Style Selector="Border.Close">
+            <Setter Property="Background" Value="Transparent"/>
+            
+            <Style Selector="^:pointerover">
+                <Setter Property="Background" Value="#FF0022"/>
+            </Style>
+        </Style>
+
         
         <Style Selector="Button.Purple /template/ ContentPresenter">
             <Setter Property="Background">
@@ -214,10 +300,15 @@
             <Setter Property="HorizontalAlignment" Value="Center"/>
         </Style>
         
+        <Style Selector="ui|NavigationViewItemSeparator">
+            <Setter Property="Margin" Value="{ext:Space 1, 0}"/>
+        </Style>
+        
         <Style Selector="ui|NavigationView.NoBackground /template/ Border#ContentGridBorder">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="0"/>
         </Style>
         
         <Style Selector="ui|NavigationView.NoBackground /template/ StackPanel#TopNavArea">
