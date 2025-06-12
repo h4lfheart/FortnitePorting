@@ -216,7 +216,7 @@ public partial class CUE4ParseService : ObservableObject, IService
 
                 var options = new ManifestParseOptions
                 {
-                    ChunkBaseUrl = "http://epicgames-download1.akamaized.net/Builds/Fortnite/CloudDir/",
+                    ChunkBaseUrl = "http://download.epicgames.com/Builds/Fortnite/CloudDir/",
                     ChunkCacheDirectory = CacheFolder.FullName,
                     ManifestCacheDirectory = CacheFolder.FullName,
                     Decompressor = ManifestZlibStreamDecompressor.Decompress,

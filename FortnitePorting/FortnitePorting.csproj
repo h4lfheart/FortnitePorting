@@ -74,6 +74,10 @@
         <DependentUpon>LeaderboardUsersView.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
+      <Compile Update="Views\Leaderboard\LeaderboardStreaksView.axaml.cs">
+        <DependentUpon>LeaderboardStreaksView.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
     </ItemGroup>
 
 </Project>

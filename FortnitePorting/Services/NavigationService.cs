@@ -14,6 +14,7 @@ public class NavigationService : IService
     public readonly NavigatorContext Plugin = new();
     public readonly NavigatorContext Settings = new();
     public readonly NavigatorContext ExportSettings = new();
+    public readonly NavigatorContext Leaderboard = new();
 }
 
 public class NavigatorContext

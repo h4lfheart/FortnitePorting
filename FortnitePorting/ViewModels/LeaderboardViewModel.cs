@@ -38,9 +38,6 @@ public partial class LeaderboardViewModel : ViewModelBase
         SupaBase = supabase;
     }
     
-    [ObservableProperty] private ObservableCollection<LeaderboardUser> _leaderboardUsers = [];
-    [ObservableProperty] private ObservableCollection<LeaderboardExport> _leaderboardExports = [];
-    [ObservableProperty] private ObservableCollection<LeaderboardStreak> _leaderboardStreaks = [];
     [ObservableProperty] private ObservableCollection<LeaderboardPersonalExport> _personalExports = [];
     [ObservableProperty] private ObservableCollection<StatisticsModel> _statisticsModels = [];
     [ObservableProperty] private int _currentStreak;
@@ -48,33 +45,9 @@ public partial class LeaderboardViewModel : ViewModelBase
     [ObservableProperty] private Bitmap? _medalBitmap;
 
     [ObservableProperty] private int _popupValue;
-    
-
-    public override async Task OnViewOpened()
-    {
-        await UpdateStatic();
-        await UpdateRealtime();
-    }
-    
-    public async Task UpdateRealtime()
-    {
-        var exports = await SupaBase.Client.Rpc<LeaderboardExport[]>("leaderboard_exports", new {}) ?? [];
-        exports.ForEach(async export => await export.Load());
-        LeaderboardExports = [..exports];
-        
-        var users = await SupaBase.Client.Rpc<LeaderboardUser[]>("leaderboard_users", new {}) ?? [];
-        users.ForEach(async user => await user.Load());
-        LeaderboardUsers = [..users];
-        
-        
-    }
 
     public async Task UpdateStatic()
     {
-        var streaks = await SupaBase.Client.Rpc<LeaderboardStreak[]>("leaderboard_streaks", new {}) ?? [];
-        streaks.ForEach(async streaks => await streaks.Load());
-        LeaderboardStreaks = [..streaks];
-
         var personalExports = await SupaBase.Client.Rpc<LeaderboardPersonalExport[]>("leaderboard_personal_exports", new { }) ?? [];
         PersonalExports = [..personalExports];
 

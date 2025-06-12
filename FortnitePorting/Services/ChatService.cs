@@ -106,7 +106,7 @@ public partial class ChatService : ObservableObject, IService
         {
             TaskService.Run(async () =>
             {
-                var currentState = _chatPresence.CurrentState;
+                var currentState = _chatPresence.CurrentState.ToDictionary();
                 foreach (var (presenceId, presences) in currentState)
                 {
                     var targetPresence = presences.Last();
