@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.UE4.Assets.Exports.Texture;
+using FortnitePorting.Extensions;
 using FortnitePorting.Shared.Extensions;
 using Newtonsoft.Json;
 
@@ -39,7 +40,7 @@ public partial class RadioPlaylist : ObservableObject
         playlist.IsDefault = false;
         playlist.PlaylistName = serializeData.Name;
         playlist.MusicIDs = new ObservableCollection<string>(serializeData.MusicIDs);
-        if (serializeData.CoverArtPath is not null && await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync<UTexture2D>(serializeData.CoverArtPath) is { } coverArt)
+        if (serializeData.CoverArtPath is not null && await UEParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>(serializeData.CoverArtPath) is { } coverArt)
         {
             playlist.PlaylistCoverPath = serializeData.CoverArtPath;
             playlist.PlaylistCover = coverArt.Decode()!.ToWriteableBitmap();

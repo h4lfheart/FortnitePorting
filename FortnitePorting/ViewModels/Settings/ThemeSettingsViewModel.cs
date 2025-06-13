@@ -9,7 +9,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using FluentAvalonia.Styling;
 using FortnitePorting.Framework;
 using FortnitePorting.Shared.Extensions;
-using FortnitePorting.Shared.Validators;
 using Newtonsoft.Json;
 
 namespace FortnitePorting.ViewModels.Settings;

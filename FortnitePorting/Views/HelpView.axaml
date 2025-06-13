@@ -2,7 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
              xmlns:ui="using:FluentAvalonia.UI.Controls"
-             xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
              xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
              xmlns:versions="clr-namespace:CUE4Parse.UE4.Versions;assembly=CUE4Parse"
              xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
@@ -14,9 +14,9 @@
              xmlns:wrapPanel="clr-namespace:FortnitePorting.Controls.WrapPanel"
              xmlns:assets="clr-namespace:FortnitePorting.Models.Assets"
              xmlns:md="https://github.com/whistyun/Markdown.Avalonia"
-             xmlns:help="clr-namespace:FortnitePorting.Models.Help"
              xmlns:views="clr-namespace:FortnitePorting.Views"
              xmlns:gif="clr-namespace:AvaloniaGif;assembly=AvaloniaGif"
+             xmlns:article="clr-namespace:FortnitePorting.Models.Article"
              d:DesignHeight="720" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.HelpView"
              x:DataType="viewModels:HelpViewModel">
@@ -36,10 +36,6 @@
                         VerticalAlignment="Top" HorizontalAlignment="Left" Margin="{ext:Space 1}"
                         Command="{Binding ToggleBuilderCommand}"/>
                 
-                <Button Grid.Row="0" Content="Refresh" 
-                        VerticalAlignment="Top" HorizontalAlignment="Right" Margin="{ext:Space 1}"
-                        Command="{Binding RefreshCommand}"/>
-                
                 <TextBlock Grid.Row="0" Text="Help Articles" Classes="SubtitleTextBlockStyle"
                            Margin="{ext:Space 0, -1, 0, 0}"
                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -50,12 +46,15 @@
                 <ItemsControl Grid.Row="4" ItemsSource="{Binding Articles}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                             <ui:SettingsExpander Description="{Binding ProperDescription}" 
+                             <ui:SettingsExpander Description="{Binding Description}" 
                                                   Margin="{ext:Space 0, 0, 0, 1}" Padding="{ext:Space 2, 1, 1, 2}">
                                  <ui:SettingsExpander.Header>
                                      <StackPanel Orientation="Horizontal">
                                          <TextBlock Text="{Binding Title}" Classes="BodyTextBlockStyle"/>
-                                         <TextBlock Text="{Binding Tag, Converter={StaticResource EnumToRecord}}" 
+                                         <TextBlock Text="{Binding Tag}"
+                                                    Opacity="0.5" Classes="CaptionTextBlockStyle" VerticalAlignment="Center"
+                                                    Margin="{ext:Space 0.5, 0, 0, 0}"/>
+                                         <TextBlock Text="{Binding Author, StringFormat='- Written by {0}'}"
                                                     Opacity="0.5" Classes="CaptionTextBlockStyle" VerticalAlignment="Center"
                                                     Margin="{ext:Space 0.5, 0, 0, 0}"/>
                                      </StackPanel>
@@ -68,7 +67,7 @@
                                                  Margin="{ext:Space 0, 0, 1, 0}"/>
                                          <Button Content="{material:MaterialIconExt Trash}" 
                                                  Command="{Binding $parent[views:HelpView].((viewModels:HelpViewModel)DataContext).DeleteArticleCommand}"
-                                                 CommandParameter="{Binding Title}"/>
+                                                 CommandParameter="{Binding}"/>
                                      </StackPanel>
                                  </ui:SettingsExpander.Footer>
                                  <ItemsControl ItemsSource="{Binding Sections}">
@@ -79,25 +78,25 @@
                                                            TextWrapping="Wrap"
                                                            IsVisible="{Binding Type, 
                                                            Converter={StaticResource EnumEquals}, 
-                                                           ConverterParameter={x:Static help:EHelpSectionType.Text}}"/>
+                                                           ConverterParameter={x:Static article:EHelpSectionType.Text}}"/>
                                                 
                                                 <TextBlock Text="{Binding Content}" Classes="SubtitleTextBlockStyle"
                                                            TextWrapping="Wrap"
                                                            IsVisible="{Binding Type, 
                                                            Converter={StaticResource EnumEquals}, 
-                                                           ConverterParameter={x:Static help:EHelpSectionType.Heading}}"/>
+                                                           ConverterParameter={x:Static article:EHelpSectionType.Heading}}"/>
                                                 
                                                 <Border CornerRadius="8" ClipToBounds="True" HorizontalAlignment="Left"
                                                         IsVisible="{Binding Type, 
                                                         Converter={StaticResource EnumEquals}, 
-                                                        ConverterParameter={x:Static help:EHelpSectionType.Image}}">
+                                                        ConverterParameter={x:Static article:EHelpSectionType.Image}}">
                                                     <Image asyncImageLoader:ImageLoader.Source="{Binding Content}" ClipToBounds="True" MaxHeight="300"/>
                                                 </Border>
                                                 
                                                 <Border CornerRadius="8" ClipToBounds="True" HorizontalAlignment="Left"
                                                         IsVisible="{Binding Type, 
                                                         Converter={StaticResource EnumEquals}, 
-                                                        ConverterParameter={x:Static help:EHelpSectionType.Gif}}">
+                                                        ConverterParameter={x:Static article:EHelpSectionType.Gif}}">
                                                     <gif:GifImage SourceStream="{Binding ContentStream^}" 
                                                                   StretchDirection="Both" Stretch="Uniform"
                                                                   AutoStart="True" ClipToBounds="True" MaxHeight="300"/>
@@ -106,14 +105,14 @@
                                                 <Separator HorizontalAlignment="Stretch"
                                                           IsVisible="{Binding Type, 
                                                           Converter={StaticResource EnumEquals}, 
-                                                          ConverterParameter={x:Static help:EHelpSectionType.Separator}}"/>
+                                                          ConverterParameter={x:Static article:EHelpSectionType.Separator}}"/>
                                                 
                                                 <HyperlinkButton Content="{Binding Content}" 
                                                                  NavigateUri="{Binding Content}"
                                                                  Classes="SubtitleTextBlockStyle"
                                                                  IsVisible="{Binding Type, 
                                                                  Converter={StaticResource EnumEquals},
-                                                                 ConverterParameter={x:Static help:EHelpSectionType.Hyperlink}}"/>
+                                                                 ConverterParameter={x:Static article:EHelpSectionType.Hyperlink}}"/>
                                             </Grid>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
@@ -170,8 +169,7 @@
                 
                 <TextBox Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="4" Watermark="Title" Text="{Binding BuilderArticle.Title}" HorizontalAlignment="Stretch"/>
                 <TextBox Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="6" Watermark="Description" Text="{Binding BuilderArticle.Description}" HorizontalAlignment="Stretch"/>
-                <ComboBox Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="8" ItemsSource="{ext:EnumToItemsSource {x:Type help:EHelpTag}}"
-                          SelectedItem="{Binding BuilderArticle.Tag, Converter={StaticResource EnumToRecord}}" />
+                <TextBox Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="8" Watermark="Tag" Text="{Binding BuilderArticle.Tag}" HorizontalAlignment="Stretch"/>
                
                 <Separator Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="9"/>
                 
@@ -211,14 +209,14 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                     
-                                <ComboBox Grid.Column="0" ItemsSource="{ext:EnumToItemsSource {x:Type help:EHelpSectionType}}"
+                                <ComboBox Grid.Column="0" ItemsSource="{ext:EnumToItemsSource {x:Type article:EHelpSectionType}}"
                                           SelectedItem="{Binding Type, Converter={StaticResource EnumToRecord}}" />
                                     
                                 <TextBox Grid.Column="2" Watermark="Content" Text="{Binding Content}" 
                                          IsVisible="{Binding HasText}"
                                          AcceptsReturn="{Binding Type, 
                                              Converter={StaticResource EnumEquals}, 
-                                             ConverterParameter={x:Static help:EHelpSectionType.Text}}"/>
+                                             ConverterParameter={x:Static article:EHelpSectionType.Text}}"/>
                                     
                                 <Button Grid.Column="3" Content="{material:MaterialIconExt Folder}" 
                                         Margin="{ext:Space 1, 0, 0, 0}" IsVisible="{Binding HasFile}"
@@ -239,25 +237,25 @@
                                                TextWrapping="Wrap"
                                                IsVisible="{Binding Type, 
                                                Converter={StaticResource EnumEquals}, 
-                                               ConverterParameter={x:Static help:EHelpSectionType.Text}}"/>
+                                               ConverterParameter={x:Static article:EHelpSectionType.Text}}"/>
                                     
                                     <TextBlock Text="{Binding Content}" Classes="SubtitleTextBlockStyle"
                                                TextWrapping="Wrap"
                                                IsVisible="{Binding Type, 
                                                Converter={StaticResource EnumEquals}, 
-                                               ConverterParameter={x:Static help:EHelpSectionType.Heading}}"/>
+                                               ConverterParameter={x:Static article:EHelpSectionType.Heading}}"/>
                                     
                                     <Border CornerRadius="8" ClipToBounds="True" HorizontalAlignment="Left"
                                             IsVisible="{Binding Type, 
                                             Converter={StaticResource EnumEquals}, 
-                                            ConverterParameter={x:Static help:EHelpSectionType.Image}}">
+                                            ConverterParameter={x:Static article:EHelpSectionType.Image}}">
                                         <Image asyncImageLoader:ImageLoader.Source="{Binding Content}" ClipToBounds="True" MaxHeight="300"/>
                                     </Border>
                                     
                                     <Border CornerRadius="8" ClipToBounds="True" HorizontalAlignment="Left"
                                             IsVisible="{Binding Type, 
                                                             Converter={StaticResource EnumEquals}, 
-                                                            ConverterParameter={x:Static help:EHelpSectionType.Gif}}">
+                                                            ConverterParameter={x:Static article:EHelpSectionType.Gif}}">
                                         <gif:GifImage SourceUri="{Binding ContentUri}" 
                                                       StretchDirection="Both" Stretch="Uniform"
                                                       AutoStart="True" ClipToBounds="True" MaxHeight="300"/>
@@ -266,14 +264,14 @@
                                     <Separator HorizontalAlignment="Stretch"
                                               IsVisible="{Binding Type, 
                                               Converter={StaticResource EnumEquals}, 
-                                              ConverterParameter={x:Static help:EHelpSectionType.Separator}}"/>
+                                              ConverterParameter={x:Static article:EHelpSectionType.Separator}}"/>
                                     
                                     <HyperlinkButton Content="{Binding Content}" 
                                                      NavigateUri="{Binding Content}"
                                                      Classes="SubtitleTextBlockStyle"
                                                      IsVisible="{Binding Type,
                                                      Converter={StaticResource EnumEquals},
-                                                     ConverterParameter={x:Static help:EHelpSectionType.Hyperlink}}"/>
+                                                     ConverterParameter={x:Static article:EHelpSectionType.Hyperlink}}"/>
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

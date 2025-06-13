@@ -1,3 +1,4 @@
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -5,63 +6,105 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
-
-using FortnitePorting.Export;
-using FortnitePorting.Export.Models;
+using FortnitePorting.Exporting;
+using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
+using FortnitePorting.Models.API;
 using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.Assets.Asset;
+using FortnitePorting.Models.Assets.Custom;
 using FortnitePorting.Models.Leaderboard;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
-using FortnitePorting.Shared.Services;
+using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Views;
 using RestSharp;
-using AssetLoaderCollection = FortnitePorting.Models.Assets.Loading.AssetLoaderCollection;
 
 namespace FortnitePorting.ViewModels;
 
-public partial class AssetsViewModel : ViewModelBase
+public partial class AssetsViewModel() : ViewModelBase
 {
-    [ObservableProperty] private AssetLoaderCollection _assetLoaderCollection;
+    [ObservableProperty] private AssetLoaderService _assetLoader;
+    [ObservableProperty] private APIService _api;
+    [ObservableProperty] private SupabaseService _supabase;
+
+    public AssetsViewModel(AssetLoaderService assetLoader, APIService api, SupabaseService supabase) : this()
+    {
+        AssetLoader = assetLoader;
+        Api = api;
+        Supabase = supabase;
+    }
     
     [ObservableProperty] private bool _isPaneOpen = true;
     [ObservableProperty] private EExportLocation _exportLocation = EExportLocation.Blender;
     
+    [ObservableProperty] private ObservableCollection<NavigationViewItem> _navItems = [];
+    [ObservableProperty] private NavigationViewItem _selectedNavItem;
+    
     public override async Task Initialize()
     {
-        AssetLoaderCollection = new AssetLoaderCollection();
-        await AssetLoaderCollection.Load(EExportType.Outfit);
+        await TaskService.RunDispatcherAsync(() =>
+        {
+            foreach (var category in AssetLoader.Categories)
+            {
+                NavItems.Add(new NavigationViewItem
+                {
+                    Tag = category.Category,
+                    Content = category.Category.GetDescription(),
+                    SelectsOnInvoked = false,
+                    IconSource = new ImageIconSource
+                    {
+                        Source = ImageExtensions.AvaresBitmap($"avares://FortnitePorting/Assets/FN/{category.Category.ToString()}.png")
+                    },
+                    MenuItemsSource = category.Loaders.Select(loader => new NavigationViewItem
+                    {
+                        Tag = loader.Type, 
+                        Content = loader.Type.GetDescription(), 
+                        IconSource = new ImageIconSource
+                        {
+                            Source = ImageExtensions.AvaresBitmap($"avares://FortnitePorting/Assets/FN/{loader.Type.ToString()}.png")
+                        },
+                    })
+                });
+            }
+        });
     }
 
     public override async Task OnViewOpened()
     {
-        DiscordService.Update(AssetLoaderCollection?.ActiveLoader?.Type ?? EExportType.Outfit);
+        await AssetLoader.Load(EExportType.Outfit);
+    }
+
+    [RelayCommand]
+    public async Task SetExportLocation(EExportLocation location)
+    {
+        ExportLocation = location;
     }
 
     [RelayCommand]
     public async Task Export()
     {
-        AssetLoaderCollection.ActiveLoader.Pause();
-        await Exporter.Export(AssetLoaderCollection.ActiveLoader.SelectedAssetInfos, AppSettings.Current.CreateExportMeta(ExportLocation));
-        AssetLoaderCollection.ActiveLoader.Unpause();
+        AssetLoader.ActiveLoader.Pause();
+        await Exporter.Export(AssetLoader.ActiveLoader.SelectedAssetInfos, AppSettings.ExportSettings.CreateExportMeta(ExportLocation));
+        AssetLoader.ActiveLoader.Unpause();
 
-        if (AppSettings.Current.Online.UseIntegration)
+        if (SupaBase.IsLoggedIn)
         {
-            var exports = AssetLoaderCollection.ActiveLoader.SelectedAssetInfos.OfType<AssetInfo>().Select(asset =>
-            {
-                var creationData = asset.Asset.CreationData;
-                return new PersonalExport(creationData.Object.GetPathName());
-            });
-            
-            await ApiVM.FortnitePorting.PostExportsAsync(exports);
+            await SupaBase.PostExports([
+                ..AssetLoader.ActiveLoader.SelectedAssetInfos
+                    .OfType<AssetInfo>()
+                    .Select(asset => asset.Asset.CreationData.Object.GetPathName()),
+                ..AssetLoader.ActiveLoader.SelectedAssetInfos
+                    .OfType<CustomAssetInfo>()
+                    .Select(asset => $"Custom/{asset.Asset.Asset.Name}"),
+            ]);
         }
     }
     
     [RelayCommand]
     public async Task Favorite()
     {
-        foreach (var info in AssetLoaderCollection.ActiveLoader.SelectedAssetInfos)
+        foreach (var info in AssetLoader.ActiveLoader.SelectedAssetInfos)
         {
             info.Asset.Favorite();
         }
@@ -70,7 +113,7 @@ public partial class AssetsViewModel : ViewModelBase
     [RelayCommand]
     public async Task OpenSettings()
     {
-        AppWM.Navigate<ExportSettingsView>();
-        AppSettings.Current.ExportSettings.Navigate(ExportLocation);
+        Navigation.App.Open<ExportSettingsView>();
+        Navigation.ExportSettings.Open(ExportLocation);
     }
 }

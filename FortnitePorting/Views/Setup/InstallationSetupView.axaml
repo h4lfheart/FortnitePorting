@@ -1,0 +1,211 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
+             xmlns:versions="clr-namespace:CUE4Parse.UE4.Versions;assembly=CUE4Parse"
+             xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:fortnitePorting="clr-namespace:FortnitePorting"
+             xmlns:setup="clr-namespace:FortnitePorting.ViewModels.Setup"
+             d:DesignHeight="770" d:DesignWidth="1160"
+             x:Class="FortnitePorting.Views.Setup.InstallationSetupView"
+             x:DataType="setup:InstallationSetupViewModel">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="{ext:Space 1}"/>
+            <RowDefinition Height="3*"/>
+        </Grid.RowDefinitions>
+        
+        <StackPanel Grid.Row="0" VerticalAlignment="Center">
+            <TextBlock Text="Installation Settings" Classes="TitleLargeTextBlockStyle" 
+                       HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock.Effect>
+                    <DropShadowEffect BlurRadius="15" Color="#5F000000" OffsetX="0" OffsetY="0" />
+                </TextBlock.Effect>
+            </TextBlock>
+            <TextBlock Text="Create your Fortnite installation profile to begin loading assets." HorizontalAlignment="Center"
+                       VerticalAlignment="Center" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"
+                       Margin="{ext:Space 0, 0, 0, 3}">
+                <TextBlock.Effect>
+                    <DropShadowEffect BlurRadius="15" Color="#5F000000" OffsetX="0" OffsetY="0" />
+                </TextBlock.Effect>
+            </TextBlock>
+            
+            <Button Content="Continue" Command="{Binding ContinueCommand}" 
+                    Classes="Purple" IsEnabled="{Binding !Profile.HasErrors}"
+                    HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+        </StackPanel>
+        
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Hidden">
+            <StackPanel VerticalAlignment="Top" Margin="{ext:Space 1, 0}">
+                <StackPanel.Styles>
+                    <Style Selector="ui|SettingsExpander">
+                        <Setter Property="Margin" Value="0 0 0 4"/>
+                    </Style>
+                    <Style Selector="TextBlock.SubtitleTextBlockStyle">
+                        <Setter Property="Margin" Value="0 0 0 8"/>
+                    </Style>
+                </StackPanel.Styles>
+                
+                <ui:SettingsExpander Header="Fortnite Version" 
+                                     Description="The version of Fortnite that Fortnite Porting will be loading.">
+                    <ui:SettingsExpander.Footer>
+                        <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EFortniteVersion}}"
+                                  SelectedItem="{Binding Profile.FortniteVersion, Converter={StaticResource EnumToRecord}}" />
+                    </ui:SettingsExpander.Footer>
+                    
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Latest (Installed) - " Classes="BodyStrongTextBlockStyle" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBlock Text="Fortnite is installed on your computer. The paks directory will need to be provided." HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Latest (On-Demand) - " Classes="BodyStrongTextBlockStyle" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBlock Text="Fortnite is not installed on your computer. Files will be downloaded on-demand as necessary." HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Custom - " Classes="BodyStrongTextBlockStyle" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBlock Text="An unsupported version of Fortnite that requires more setup." HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Fortnite vXX.XX - " Classes="BodyStrongTextBlockStyle" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBlock Text="Any other older version of Fortnite that has been explicitly supported. The versions listed are the currently supported versions." HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </ui:SettingsExpander>
+                <ui:SettingsExpander Header="Archive Directory" 
+                                     Description="The directory that contains all of the required game files. (*.pak, *.sig, *.ucas, *.utoc)" 
+                                     IsVisible="{Binding Profile.ArchiveDirectoryEnabled}">
+                    <ui:SettingsExpander.Footer>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox Text="{Binding Profile.ArchiveDirectory}" Watermark="Ex. C:/Program Files/Epic Games/Fortnite/FortniteGame/Content/Paks"/>
+                            <Button Margin="4 0 0 0" Command="{Binding Profile.BrowseArchivePath}">
+                                <ui:SymbolIcon Symbol="Folder"/>
+                            </Button>
+                        </StackPanel>
+                    </ui:SettingsExpander.Footer>
+                </ui:SettingsExpander>
+                <ui:SettingsExpander Header="Game Language" 
+                                     Description="The language used for in-game text strings such as names, descriptions, styles, etc.">
+                    <ui:SettingsExpander.Footer>
+                        <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type versions:ELanguage}}"
+                                  SelectedItem="{Binding Profile.GameLanguage, Converter={StaticResource EnumToRecord}}" />
+                    </ui:SettingsExpander.Footer>
+                </ui:SettingsExpander>
+                <ui:SettingsExpander Header="Unreal Version" 
+                                     Description="The Unreal Version that aligns with your Fortnite installation." 
+                                     IsVisible="{Binding Profile.UnrealVersionEnabled}">
+                    <ui:SettingsExpander.Footer>
+                        <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type versions:EGame}}"
+                                  SelectedItem="{Binding Profile.UnrealVersion, Converter={StaticResource EnumToRecord}}" />
+                    </ui:SettingsExpander.Footer>
+                </ui:SettingsExpander>
+                <ui:SettingsExpander Header="Encryption Key" 
+                                     Description="The encryption key required to decrypt Fortnite's game files." 
+                                     IsVisible="{Binding Profile.EncryptionKeyEnabled}">
+                    <ui:SettingsExpander.Footer>
+                        <TextBox Text="{Binding Profile.MainKey.KeyString}" Watermark="Ex. 0x0000000000000000000000000000000000000000000000000000000000000000"/>
+                    </ui:SettingsExpander.Footer>
+                    
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="{ext:Space 1}"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="{ext:Space 1}"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Grid.Column="0" Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center" HorizontalAlignment="Left" TextAlignment="Left"
+                                   TextTrimming="CharacterEllipsis"
+                                   Text="Fetch Keys"/>
+                        
+                        <TextBox Grid.Column="2" Watermark="Version Number" Text="{Binding Profile.FetchKeysVersion}"/>
+                        
+                        <Button Grid.Column="4" Content="{material:MaterialIconExt Download}" Command="{Binding Profile.FetchKeys}"/>
+                    </Grid>
+                    
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="{ext:Space 1}"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        
+                        <Grid Grid.Row="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="{ext:Space 1}"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="{ext:Space 1}"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center" HorizontalAlignment="Left" TextAlignment="Left"
+                                       TextTrimming="CharacterEllipsis"
+                                       Text="Extra Keys"/>
+                            <Button Grid.Column="2" ToolTip.Tip="Add Key" HorizontalAlignment="Left" 
+                                    Content="{material:MaterialIconExt Add}" 
+                                    Command="{Binding Profile.AddEncryptionKey}"/>
+                            <Button Grid.Column="4" ToolTip.Tip="Remove Key" HorizontalAlignment="Left"
+                                    Content="{material:MaterialIconExt Minus}"
+                                    Command="{Binding Profile.RemoveEncryptionKey}"/>
+                        </Grid>
+                        
+                        <ListBox Grid.Row="2" ItemsSource="{Binding Profile.ExtraKeys}" SelectedIndex="{Binding Profile.SelectedExtraKeyIndex, Mode=TwoWay}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBox Text="{Binding KeyString}" Watermark="Ex. 0x0000000000000000000000000000000000000000000000000000000000000000"
+                                             Margin="{ext:Space 0, 1, 0, 1}"/>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
+                </ui:SettingsExpander>
+                <ui:SettingsExpander Header="Mappings File" 
+                                     Description="The mappings file required for asset parsing to work properly. Required for Fortnite v14.40+" 
+                                     IsVisible="{Binding Profile.MappingsFileEnabled}">
+                    <ui:SettingsExpander.Footer>
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox IsChecked="{Binding Profile.UseMappingsFile}"/>
+                            <TextBox Text="{Binding Profile.MappingsFile}" 
+                                     Watermark="Ex. C:/Users/FortnitePorting/Downloads/Mappings.usmap" 
+                                     IsEnabled="{Binding Profile.UseMappingsFile}"
+                                     MaxWidth="500"/>
+                            <Button Margin="4 0 0 0" Command="{Binding Profile.BrowseMappingsFile}" IsEnabled="{Binding Profile.UseMappingsFile}">
+                                <ui:SymbolIcon Symbol="Folder"/>
+                            </Button>
+                        </StackPanel>
+                    </ui:SettingsExpander.Footer>
+                    
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="{ext:Space 1}"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="{ext:Space 1}"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Grid.Column="0" Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center" HorizontalAlignment="Left" TextAlignment="Left"
+                                   TextTrimming="CharacterEllipsis"
+                                   Text="Fetch Mappings"/>
+                        
+                        <TextBox Grid.Column="2" Watermark="Version Number" Text="{Binding Profile.FetchMappingsVersion}"/>
+                        
+                        <Button Grid.Column="4" Content="{material:MaterialIconExt Download}" Command="{Binding Profile.FetchMappings}"/>
+                    </Grid>
+                </ui:SettingsExpander>
+                <ui:SettingsExpander Header="On-Demand Texture Streaming" 
+                                     Description="Downloads high resolution cosmetic textures on-demand. Disable if you already have this package installed." 
+                                     IsVisible="{Binding Profile.TextureStreamingEnabled}">
+                    <ui:SettingsExpander.Footer>
+                        <ToggleSwitch IsChecked="{Binding Profile.UseTextureStreaming}"/>
+                    </ui:SettingsExpander.Footer>
+                </ui:SettingsExpander>
+            </StackPanel>
+        </ScrollViewer>
+        
+    </Grid>
+</UserControl>

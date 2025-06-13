@@ -1,6 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
@@ -14,7 +15,7 @@ using FortnitePorting.Application;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Models.Map;
-using FortnitePorting.OnlineServices.Packet;
+
 using FortnitePorting.Services;
 using Serilog;
 
@@ -22,10 +23,16 @@ namespace FortnitePorting.ViewModels;
 
 public partial class MapViewModel : ViewModelBase
 {
+    [ObservableProperty] private SettingsService _appSettings;
+
+    public MapViewModel(SettingsService settings)
+    {
+        AppSettings = settings;
+    }
+    
     [ObservableProperty] private ObservableCollection<WorldPartitionMap> _maps = [];
     [ObservableProperty] private WorldPartitionMap _selectedMap;
     [ObservableProperty] private EExportLocation _exportLocation = EExportLocation.Blender;
-    [ObservableProperty] private bool _showDebugInfo = false;
     
     [ObservableProperty, NotifyPropertyChangedFor(nameof(MapTransform))] private Matrix _mapMatrix = Matrix.Identity;
     public MatrixTransform MapTransform => new(MapMatrix);
@@ -34,6 +41,7 @@ public partial class MapViewModel : ViewModelBase
 
     private static MapInfo[] MapInfos =
     [
+        // battle royale
         new(
             "Asteria",
             "FortniteGame/Content/Athena/Asteria/Maps/Asteria_Terrain",
@@ -69,6 +77,8 @@ public partial class MapViewModel : ViewModelBase
             "FortniteGame/Content/Athena/Apollo/Maps/UI/T_MiniMap_Mask",
             0.0146f, -100, -25, 96, 12800, true, false
         ),
+        
+        // og
         new(
             "Figment_S01",
             "FortniteGame/Plugins/GameFeatures/Figment/Figment_S01_Map/Content/Athena_Terrain_S01",
@@ -91,6 +101,15 @@ public partial class MapViewModel : ViewModelBase
             0.017f, 380, 470, 110, 12800, true
         ),
         new(
+            "Figment_S04",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S04_Map/Content/Athena_Terrain_S04",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S04_MapUI/Content/MiniMapAthena_S04",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S04_MapUI/Content/MiniMapAthena_S04_Mask",
+            0.017f, 380, 470, 110, 12800, true
+        ),
+        
+        // reload
+        new(
             "BlastBerry",
             "/BlastBerryMap/Maps/BlastBerry_Terrain",
             "/BlastBerryMapUI/Minimap/Capture_Iteration_Discovered_BlastBerry",
@@ -105,6 +124,15 @@ public partial class MapViewModel : ViewModelBase
             0.023f, -20, 215, 150, 12800, true
         ),
         new(
+            "DashBerry",
+            "/f4032749-42c4-7fe9-7fa2-c78076f34f54/DashBerry",
+            "/BlastBerryMapUI/MiniMap/Discovered_DashBerry",
+            "/BlastBerryMapUI/MiniMap/MMap_DasBerry_Mask",
+            0.0235f, -20, 210, 153, 12800, true
+        ),
+        
+        // ballistic
+        new(
             "FeralCorgi_2Bombsite_Map",
             "/e1729c50-4845-01ba-18da-478919f7de66/Levels/FeralCorgi_2Bombsite_Map",
             "/e1729c50-4845-01ba-18da-478919f7de66/MiniMap/T_KuraiMiniMap_FullAlpha",
@@ -115,6 +143,14 @@ public partial class MapViewModel : ViewModelBase
         MapInfo.CreateNonDisplay("Athena", "FortniteGame/Content/Athena/Maps/Athena_Terrain"),
         MapInfo.CreateNonDisplay("Apollo", "FortniteGame/Content/Athena/Apollo/Maps/Apollo_Terrain")
     ];
+    
+    
+    public static readonly DirectoryInfo MapsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Maps"));
+
+    public MapViewModel()
+    {
+        MapsFolder.Create();
+    }
 
     private static string[] PluginRemoveList =
     [
@@ -125,8 +161,6 @@ public partial class MapViewModel : ViewModelBase
 
     public override async Task Initialize()
     {
-        ShowDebugInfo = AppSettings.Current.Debug.ShowMapDebugInfo;
-        
         // in-game maps
         foreach (var mapInfo in MapInfos)
         {
@@ -135,16 +169,16 @@ public partial class MapViewModel : ViewModelBase
             Maps.Add(new WorldPartitionMap(mapInfo));
         }
 
-        if (ChatVM.Permissions.HasFlag(EPermissions.LoadPluginFiles))
+        if (SupaBase.Permissions.CanExportUEFN)
         {
-            foreach (var mountedVfs in CUE4ParseVM.Provider.MountedVfs)
+            foreach (var mountedVfs in UEParse.Provider.MountedVfs)
             {
                 if (mountedVfs is not IoStoreReader { Name: "plugin.utoc" } ioStoreReader) continue;
 
                 var gameFeatureDataFile = ioStoreReader.Files.FirstOrDefault(file => file.Key.EndsWith("GameFeatureData.uasset", StringComparison.OrdinalIgnoreCase));
                 if (gameFeatureDataFile.Value is null) continue;
 
-                var gameFeatureData = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync<UFortGameFeatureData>(gameFeatureDataFile.Value.PathWithoutExtension);
+                var gameFeatureData = await UEParse.Provider.SafeLoadPackageObjectAsync<UFortGameFeatureData>(gameFeatureDataFile.Value.PathWithoutExtension);
 
                 if (gameFeatureData?.ExperienceData?.DefaultMap is not { } defaultMapPath) continue;
 
@@ -159,7 +193,7 @@ public partial class MapViewModel : ViewModelBase
 
         if (Maps.Count == 0)
         {
-            AppWM.Message("No Supported Maps", "Failed to find any supported maps for processing.");
+            Info.Message("No Supported Maps", "Failed to find any supported maps for processing.");
         }
 
         foreach (var map in Maps.ToArray())
@@ -170,7 +204,7 @@ public partial class MapViewModel : ViewModelBase
             }
             catch (Exception e)
             {
-                AppWM.Dialog("Map Export", $"Failed to load {map.Info.Name} for export, skipping.");
+                Info.Dialog("Map Export", $"Failed to load {map.Info.Name} for export, skipping.");
 #if DEBUG
                 Log.Error(e.ToString());
 #else

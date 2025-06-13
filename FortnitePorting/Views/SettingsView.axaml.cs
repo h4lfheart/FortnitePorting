@@ -15,26 +15,29 @@ public partial class SettingsView : ViewBase<SettingsViewModel>
     public SettingsView()
     {
         InitializeComponent();
-        ViewModel.ContentFrame = ContentFrame;
-        ViewModel.NavigationView = NavigationView;
-        ViewModel.Navigate<ApplicationSettingsView>();
+        
+        Navigation.Settings.Initialize(NavigationView);
+        Navigation.Settings.Open<ApplicationSettingsView>();
     }
 
     private void OnItemInvoked(object? sender, NavigationViewItemInvokedEventArgs e)
     {
-        if (e.InvokedItemContainer.Tag is not string tagName) return;
-        
-        if (tagName == "Reset")
+        switch (e.InvokedItemContainer.Tag)
         {
-            RestartWithMessage("A restart is required", "To reset all settings, FortnitePorting must be restarted.", AppSettings.Reset);
-            return;
+            case Type type:
+            {
+                Navigation.Settings.Open(type);
+                break;
+            }
+            case string stringTag:
+            {
+                if (stringTag.Equals("Reset"))
+                {
+                    App.RestartWithMessage("A restart is required", "To reset all settings, FortnitePorting must be restarted.", AppSettings.Reset);
+                }
+                
+                break;
+            }
         }
-        
-        var viewName = $"FortnitePorting.Views.Settings.{tagName}SettingsView";
-        
-        var type = Type.GetType(viewName);
-        if (type is null) return;
-        
-        ViewModel.Navigate(type);
     }
 }

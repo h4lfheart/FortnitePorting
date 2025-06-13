@@ -13,36 +13,47 @@ using FortnitePorting.Application;
 using FortnitePorting.Controls;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.API.Responses;
-using FortnitePorting.OnlineServices.Models;
-using FortnitePorting.OnlineServices.Packet;
+using FortnitePorting.Models.Supabase.Tables;
+
+
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
-using FortnitePorting.Shared.Models;
-using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels.Settings;
 using Serilog;
+using Supabase.Postgrest;
 
 namespace FortnitePorting.ViewModels;
 
-public partial class HomeViewModel : ViewModelBase
+public partial class HomeViewModel() : ViewModelBase
 {
-    [ObservableProperty] private string _statusText = string.Empty;
-    [ObservableProperty] private ObservableCollection<NewsResponse> _news = [];
-    [ObservableProperty] private ObservableCollection<FeaturedResponse> _featured = [];
-
-    public OnlineSettingsViewModel OnlineRef => AppSettings.Current.Online;
+    [ObservableProperty] private SupabaseService _supaBase;
+    [ObservableProperty] private CUE4ParseService _UEParse;
     
+    public HomeViewModel(SupabaseService supabase, CUE4ParseService cue4Parse) : this()
+    {
+        SupaBase = supabase;
+        UEParse = cue4Parse;
+    }
+    
+    [ObservableProperty] private ObservableCollection<NewsResponse> _news = [];
+    [ObservableProperty] private ObservableCollection<FeaturedArtResponse> _featuredArt = [];
+
     public override async Task Initialize()
     {
-        if (!AppSettings.Current.Online.HasReceivedFirstPrompt)
+        TaskService.Run(async () =>
         {
-            await AppSettings.Current.Online.PromptForAuthentication();
-        }
+            News = [..await Api.FortnitePorting.News()];
+            FeaturedArt = [..await Api.FortnitePorting.FeaturedArt()];
+            
+            await UEParse.Initialize();
+            await FilesVM.Initialize();
+        });
+        
 
-        if (!AppSettings.Current.Application.DontAskAboutKofi &&
-            DateTime.Now.Date >= AppSettings.Current.Application.NextKofiAskDate)
+        if (!AppSettings.Application.DontAskAboutKofi &&
+            DateTime.Now.Date >= AppSettings.Application.NextKofiAskDate)
         {
-            AppSettings.Current.Application.NextKofiAskDate = DateTime.Today.AddDays(7);
+            AppSettings.Application.NextKofiAskDate = DateTime.Today.AddDays(7);
             await TaskService.RunDispatcherAsync(async () =>
             {
                 var dialog = new ContentDialog
@@ -53,54 +64,31 @@ public partial class HomeViewModel : ViewModelBase
                     PrimaryButtonText = "Donate",
                     PrimaryButtonCommand = new RelayCommand(LaunchKoFi),
                     SecondaryButtonText = "Don't Ask Again",
-                    SecondaryButtonCommand = new RelayCommand(() => AppSettings.Current.Application.DontAskAboutKofi = true)
+                    SecondaryButtonCommand = new RelayCommand(() => AppSettings.Application.DontAskAboutKofi = true)
                 };
 
                 await dialog.ShowAsync();
             });
         }
-        
-        TaskService.Run(async () =>
-        {
-            ViewModelRegistry.New<CUE4ParseViewModel>();
-            await CUE4ParseVM.Initialize();
-            
-            AppWM.GameBasedTabsAreReady = true;
-            AppWM.OnlineAndGameTabsAreVisible = AppSettings.Current.Online.UseIntegration;
-            
-            ViewModelRegistry.New<FilesViewModel>();
-            await FilesVM.Initialize();
-        });
-        
-        var news = await ApiVM.FortnitePorting.GetNewsAsync();
-        News = [..news.OrderByDescending(item => item.Date)];
-        
-        var featured = await ApiVM.FortnitePorting.GetFeaturedAsync();
-        Featured = [..featured];
-    }
-    
-    public void UpdateStatus(string text)
-    {
-        StatusText = text;
     }
     
     public void LaunchDiscord()
     {
-        Launch(Globals.DISCORD_URL);
+        App.Launch(Globals.DISCORD_URL);
     }
     
     public void LaunchTwitter()
     {
-        Launch(Globals.TWITTER_URL);
+        App.Launch(Globals.TWITTER_URL);
     }
     
     public void LaunchGitHub()
     {
-        Launch(Globals.GITHUB_URL);
+        App.Launch(Globals.GITHUB_URL);
     }
     
     public void LaunchKoFi()
     {
-        Launch(Globals.KOFI_URL);
+        App.Launch(Globals.KOFI_URL);
     }
 }

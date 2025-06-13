@@ -1,8 +1,8 @@
 using System.Threading.Tasks;
 using EpicManifestParser.Api;
 using FortnitePorting.Application;
+using FortnitePorting.Models.API.Base;
 using FortnitePorting.Models.API.Responses;
-using FortnitePorting.Shared.Models.API;
 using RestSharp;
 
 namespace FortnitePorting.Models.API;
@@ -18,7 +18,7 @@ public class EpicGamesAPI(RestClient client) : APIBase(client)
     {
         var response = await ExecuteAsync(FORTNITE_LIVE_URL, parameters:
         [
-            new HeaderParameter("Authorization", $"bearer {AppSettings.Current.Online.EpicAuth?.Token}")
+            new HeaderParameter("Authorization", $"bearer {AppServices.AppSettings.Application.EpicAuth?.Token}")
         ]);
         
         return ManifestInfo.Deserialize(response.RawBytes);
@@ -47,12 +47,12 @@ public class EpicGamesAPI(RestClient client) : APIBase(client)
     {
         var auth = await ExecuteAsync<EpicAuthResponse>(OATH_VERIFY_URL, parameters:
         [
-            new HeaderParameter("Authorization", $"bearer {AppSettings.Current.Online.EpicAuth?.Token}")
+            new HeaderParameter("Authorization", $"bearer {AppServices.AppSettings.Application.EpicAuth?.Token}")
         ]);
 
         if (auth is null)
         {
-            AppSettings.Current.Online.EpicAuth = await GetAuthTokenAsync();
+            AppServices.AppSettings.Application.EpicAuth = await GetAuthTokenAsync();
         }
     }
 }

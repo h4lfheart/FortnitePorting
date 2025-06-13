@@ -7,6 +7,8 @@ using FortnitePorting.Application;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.Voting;
+using FortnitePorting.Services;
+using FortnitePorting.Shared.Extensions;
 using FortnitePorting.ViewModels.Settings;
 using Poll = FortnitePorting.Models.Voting.Poll;
 
@@ -14,16 +16,21 @@ namespace FortnitePorting.ViewModels;
 
 public partial class VotingViewModel : ViewModelBase
 {
+    [ObservableProperty] private SupabaseService _supaBase;
+
+    public VotingViewModel(SupabaseService supabase)
+    {
+        SupaBase = supabase;
+    }
+    
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IncompletePollCount))]
     [NotifyPropertyChangedFor(nameof(IncompletePollNotification))]
     private ObservableCollection<Poll> _polls = [];
 
-    public int IncompletePollCount => Polls.Count(poll => !poll.Submitted);
+    public int IncompletePollCount => Polls.Count(poll => !poll.VotedForPoll);
     public string IncompletePollNotification => $"{IncompletePollCount} {(IncompletePollCount == 1 ? "Poll" : "Polls")} to Complete";
     
-    public OnlineSettingsViewModel OnlineRef => AppSettings.Current.Online;
-
     public override async Task Initialize()
     {
         await RefreshPolls();
@@ -36,12 +43,7 @@ public partial class VotingViewModel : ViewModelBase
 
     public async Task RefreshPolls()
     {
-        if (!OnlineRef.UseIntegration) return;
-        
-        Polls.Clear();
-        
-        var polls = await ApiVM.FortnitePorting.GetPollsAsync();
-        Polls = [.. polls.OrderBy(poll => poll.Submitted)];
+        Polls = [..await SupaBase.Client.Rpc<Poll[]>("polls", new { }) ?? []];
 
         AppWM.UnsubmittedPolls = IncompletePollCount;
     }

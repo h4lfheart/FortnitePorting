@@ -18,18 +18,16 @@ using FortnitePorting.Application;
 using FortnitePorting.Controls;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
-using FortnitePorting.Models.App;
 using FortnitePorting.Models.Radio;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
-using FortnitePorting.Shared.Models.App;
-using FortnitePorting.Shared.Services;
 using Material.Icons;
 using NAudio.Wave;
 using Newtonsoft.Json;
 using ReactiveUI;
 using Serilog;
+using MessageData = FortnitePorting.Models.Information.MessageData;
 
 namespace FortnitePorting.ViewModels;
 
@@ -101,18 +99,18 @@ public partial class RadioViewModel : ViewModelBase
             .Subscribe();
 
         ActiveCollection = Filtered;
-        OutputDevice = new WaveOutEvent { DeviceNumber = AppSettings.Current.Application.AudioDeviceIndex };
+        OutputDevice = new WaveOutEvent { DeviceNumber = AppSettings.Application.AudioDeviceIndex };
     }
 
     public override async Task Initialize()
     {
-        Volume = AppSettings.Current.Volume;
-        foreach (var serializeData in AppSettings.Current.Playlists)
+        Volume = AppSettings.Application.Volume;
+        foreach (var serializeData in AppSettings.Application.Playlists)
         {
             Playlists.Add(await RadioPlaylist.FromSerializeData(serializeData));
         }
         
-        var assets = CUE4ParseVM.AssetRegistry
+        var assets = UEParse.AssetRegistry
             .Where(data => data.AssetClass.Text.Equals(CLASS_NAME))
             .Where(data => !IgnoreFilters.Any(filter => data.AssetName.Text.Contains(filter, StringComparison.OrdinalIgnoreCase)))
             .ToList();
@@ -121,7 +119,7 @@ public partial class RadioViewModel : ViewModelBase
         {
             try
             {
-                var musicPack = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync(asset.ObjectPath);
+                var musicPack = await UEParse.Provider.SafeLoadPackageObjectAsync(asset.ObjectPath);
                 Source.Add(new MusicPackItem(musicPack));
             }
             catch (Exception e)
@@ -135,8 +133,8 @@ public partial class RadioViewModel : ViewModelBase
     {
         base.OnApplicationExit();
         
-        AppSettings.Current.Playlists = CustomPlaylists.Select(RadioPlaylistSerializeData.FromPlaylist).ToArray();
-        AppSettings.Current.Volume = Volume;
+        AppSettings.Application.Playlists = CustomPlaylists.Select(RadioPlaylistSerializeData.FromPlaylist).ToArray();
+        AppSettings.Application.Volume = Volume;
     }
 
     public override async Task OnViewOpened()
@@ -164,11 +162,11 @@ public partial class RadioViewModel : ViewModelBase
     {
         if (musicPackItem.IsUnsupported)
         {
-            AppWM.Message("Unsupported Lobby Music Format", $"\"{musicPackItem.TrackName}\" uses a new format for lobby music that is currently unsupported.");
+            Info.Message("Unsupported Lobby Music Format", $"\"{musicPackItem.TrackName}\" uses a new format for lobby music that is currently unsupported.");
             return;
         }
         
-        if (!SoundExtensions.TrySaveSoundToAssets(musicPackItem.SoundWave.Load<USoundWave>(), AppSettings.Current.Application.AssetPath, out Stream stream)) return;
+        if (!SoundExtensions.TrySaveSoundToAssets(musicPackItem.SoundWave.Load<USoundWave>(), AppSettings.Application.AssetPath, out Stream stream)) return;
         
         Stop();
 
@@ -191,7 +189,7 @@ public partial class RadioViewModel : ViewModelBase
     public void UpdateOutputDevice()
     {
         OutputDevice.Stop();
-        OutputDevice = new WaveOutEvent { DeviceNumber = AppSettings.Current.Application.AudioDeviceIndex };
+        OutputDevice = new WaveOutEvent { DeviceNumber = AppSettings.Application.AudioDeviceIndex };
         OutputDevice.Init(AudioReader);
         
         if (IsPlaying && AudioReader is not null)
@@ -288,12 +286,12 @@ public partial class RadioViewModel : ViewModelBase
     [RelayCommand]
     public async Task SaveAll()
     {
-        if (await BrowseFolderDialog() is not { } exportPath) return;
+        if (await App.BrowseFolderDialog() is not { } exportPath) return;
 
         var directory = new DirectoryInfo(exportPath);
 
-        var infoBar = new InfoBarData("Music Packs", "Exporting...", autoClose: false, id: "RadioExportAll");
-        AppWM.Message(infoBar);
+        var infoBar = new MessageData("Music Packs", "Exporting...", autoClose: false, id: "RadioExportAll");
+        Info.Message(infoBar);
 
         var exportItems = Source.Items.ToArray();
         var currentItemIndex = -1;
@@ -302,11 +300,11 @@ public partial class RadioViewModel : ViewModelBase
             currentItemIndex++;
             if (item.IsUnsupported) continue;
             
-            AppWM.UpdateMessage("RadioExportAll", $"Exporting {item.TrackName}: {currentItemIndex} / {exportItems.Length}");
+            Info.UpdateMessage("RadioExportAll", $"Exporting {item.TrackName}: {currentItemIndex} / {exportItems.Length}");
             await item.SaveAudio(directory, SoundFormat);
         }
         
-        AppWM.CloseMessage("RadioExportAll");
+        Info.CloseMessage("RadioExportAll");
     }
     
     [RelayCommand]
@@ -328,7 +326,7 @@ public partial class RadioViewModel : ViewModelBase
     public async Task ExportPlaylist()
     {
         if (ActivePlaylist.IsDefault) return;
-        if (await SaveFileDialog(suggestedFileName: ActivePlaylist.PlaylistName, fileTypes: Globals.PlaylistFileType) is not { } path) return;
+        if (await App.SaveFileDialog(suggestedFileName: ActivePlaylist.PlaylistName, fileTypes: Globals.PlaylistFileType) is not { } path) return;
 
         path = path.SubstringBeforeLast(".").SubstringBeforeLast("."); // scuffed fix for avalonia bug
         var serializeData = RadioPlaylistSerializeData.FromPlaylist(ActivePlaylist);
@@ -338,7 +336,7 @@ public partial class RadioViewModel : ViewModelBase
     [RelayCommand]
     public async Task ImportPlaylist()
     {
-        if (await BrowseFileDialog(fileTypes: Globals.PlaylistFileType) is not { } path) return;
+        if (await App.BrowseFileDialog(fileTypes: Globals.PlaylistFileType) is not { } path) return;
 
         var serializeData = JsonConvert.DeserializeObject<RadioPlaylistSerializeData>(await File.ReadAllTextAsync(path));
         if (serializeData is null) return;

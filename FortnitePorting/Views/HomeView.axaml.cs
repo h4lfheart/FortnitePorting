@@ -21,14 +21,14 @@ public partial class HomeView : ViewBase<HomeViewModel>
         if (sender is not Control control) return;
         if (control.DataContext is not NewsResponse news) return;
         
-        AppWM.Dialog($"{news.Title}: {news.SubTitle}", news.Description);
+        Info.Dialog($"{news.Title}: {news.SubTitle}", news.Description);
     }
 
     private void OnFeaturedPressed(object? sender, PointerPressedEventArgs e)
     {
         if (sender is not Control control) return;
-        if (control.DataContext is not FeaturedResponse featured) return;
+        if (control.DataContext is not FeaturedArtResponse featured) return;
         
-        Launch(featured.Social);
+        App.Launch(featured.Social);
     }
 }

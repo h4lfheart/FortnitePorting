@@ -11,6 +11,7 @@ using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
+using FortnitePorting.Extensions;
 using FortnitePorting.Shared.Extensions;
 using SkiaSharp;
 using AssetLoader = FortnitePorting.Models.Assets.Loading.AssetLoader;
@@ -63,7 +64,7 @@ public partial class AssetStyleInfo : ObservableObject
         foreach (var style in styles)
         {
             var previewBitmap = fallbackPreviewImage;
-            if (AssetLoader.GetIcon(style)?.Decode() is { } iconBitmap)
+            if (AssetLoader.GetIcon(style)?.Decode()?.ToSkBitmap() is { } iconBitmap)
             {
                 var rarity = style.GetOrDefault("Rarity", EFortRarity.Uncommon);
                 var image = CreateDisplayImage(iconBitmap, rarity);
@@ -82,7 +83,7 @@ public partial class AssetStyleInfo : ObservableObject
         var bitmap = new SKBitmap(64, 64, iconBitmap.ColorType, SKAlphaType.Opaque);
         using (var canvas = new SKCanvas(bitmap))
         {
-            var colors = CUE4ParseVM.RarityColors[(int) rarity];
+            var colors = UEParse.RarityColors[(int) rarity];
             var backgroundRect = new SKRect(0, 0, bitmap.Width, bitmap.Height);
             var backgroundPaint = new SKPaint { Shader = SkiaExtensions.RadialGradient(bitmap.Height, colors.Color1, colors.Color3) };
             canvas.DrawRect(backgroundRect, backgroundPaint);

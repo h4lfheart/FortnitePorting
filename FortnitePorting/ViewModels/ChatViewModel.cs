@@ -18,49 +18,35 @@ using FluentAvalonia.UI.Controls;
 using FortnitePorting.Framework;
 using FortnitePorting.Models;
 using FortnitePorting.Models.Chat;
-using FortnitePorting.OnlineServices.Packet;
+using FortnitePorting.Models.Clipboard;
 using FortnitePorting.Services;
-using FortnitePorting.Shared.Models;
-using FortnitePorting.Shared.Models.Clipboard;
-using FortnitePorting.Shared.Services;
 using Serilog;
 using SixLabors.ImageSharp.PixelFormats;
 using Globals = FortnitePorting.Globals;
 
 namespace FortnitePorting.ViewModels;
 
-public partial class ChatViewModel : ViewModelBase
+public partial class ChatViewModel(SupabaseService supabase, ChatService chatService) : ViewModelBase
 {
-    [ObservableProperty] private ScrollViewer? _scroll;
-    [ObservableProperty] private TeachingTip _imageFlyout;
+    [ObservableProperty] private SupabaseService _supaBase = supabase;
+    [ObservableProperty] private ChatService _chat = chatService;
 
-    [ObservableProperty] private EPermissions _permissions = EPermissions.None;
+    [ObservableProperty] private ChatMessageV2? _replyMessage;
+    
+    [ObservableProperty] private TeachingTip _imageFlyout;
+    
     [ObservableProperty] private string _text = string.Empty;
     [ObservableProperty] private Bitmap _selectedImage;
     [ObservableProperty] private string _selectedImageName;
 
-    [ObservableProperty] private ObservableCollection<ChatUser> _users = [];
-    [ObservableProperty] private ObservableCollection<ChatMessage> _messages = [];
+    // TODO do we need this anymore
     [ObservableProperty] private ObservableCollection<string> _commands = [];
-    [ObservableProperty] private bool _areServicesDown;
     
-    public override async Task Initialize()
-    {
-        Messages.CollectionChanged += (sender, args) =>
-        {
-            TaskService.RunDispatcher(() =>
-            {
-                var isScrolledToEnd = Math.Abs(Scroll.Offset.Y - Scroll.Extent.Height + Scroll.Viewport.Height) < 500;
-                if (isScrolledToEnd)
-                    Scroll.ScrollToEnd();
-            });
-        };
-    }
 
     [RelayCommand]
     public async Task OpenImage()
     {
-        if (await BrowseFileDialog(fileTypes: Globals.ChatAttachmentFileType) is { } path)
+        if (await App.BrowseFileDialog(fileTypes: Globals.ChatAttachmentFileType) is { } path)
         {
             SelectedImageName = Path.GetFileName(path);
             SelectedImage = new Bitmap(path);
@@ -79,20 +65,6 @@ public partial class ChatViewModel : ViewModelBase
             SelectedImageName = "clipboard.png";
             SelectedImage = image;
             ImageFlyout.IsOpen = true;
-        }
-    }
-
-    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
-    {
-        base.OnPropertyChanged(e);
-
-        switch (e.PropertyName)
-        {
-            case nameof(Messages) when Scroll is not null:
-            {
-                TaskService.RunDispatcher(Scroll.ScrollToEnd);
-                break;
-            }
         }
     }
 }

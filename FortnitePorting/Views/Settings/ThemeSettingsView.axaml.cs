@@ -6,7 +6,7 @@ namespace FortnitePorting.Views.Settings;
 
 public partial class ThemeSettingsView : ViewBase<ThemeSettingsViewModel>
 {
-    public ThemeSettingsView() : base(AppSettings.Current.Theme)
+    public ThemeSettingsView() : base(AppSettings.Theme)
     {
         InitializeComponent();
     }

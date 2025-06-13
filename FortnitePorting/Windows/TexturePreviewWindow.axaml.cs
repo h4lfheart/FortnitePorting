@@ -3,7 +3,6 @@ using Avalonia.Controls;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using FortnitePorting.Framework;
 using FortnitePorting.Services;
-using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
 using FortnitePorting.WindowModels;
 
@@ -17,7 +16,7 @@ public partial class TexturePreviewWindow : WindowBase<TexturePreviewWindowModel
     {
         InitializeComponent();
         DataContext = WindowModel;
-        Owner = ApplicationService.Application.MainWindow;
+        Owner = App.Lifetime.MainWindow;
 
         WindowModel.TextureName = name;
         WindowModel.Texture = texture;

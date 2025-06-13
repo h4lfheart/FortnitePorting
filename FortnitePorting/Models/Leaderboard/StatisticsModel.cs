@@ -24,14 +24,14 @@ public partial class StatisticsModel : ObservableObject
     [ObservableProperty] private int _instanceExports;
     [ObservableProperty] private int _uniqueExports;
     [ObservableProperty] private int _maximumExports;
-    [ObservableProperty] private ObservableCollection<PersonalExport> _exports;
+    [ObservableProperty] private ObservableCollection<LeaderboardPersonalExport> _exports;
 
-    public StatisticsModel(string name, TimeSpan delta, int dataCount, ObservableCollection<PersonalExport> sourceExports)
+    public StatisticsModel(string name, TimeSpan delta, int dataCount, ObservableCollection<LeaderboardPersonalExport> sourceExports)
     {
         Name = name;
         
         var dataCutoffTime = DateTime.UtcNow - delta * dataCount;
-        Exports = [..sourceExports.Where(export => export.TimeExported >= dataCutoffTime)];
+        Exports = [..sourceExports.Where(export => export.Timestamp >= dataCutoffTime)];
         
         Graph = new AvaPlot();
         Graph.Plot.RenderManager.RenderActions.RemoveAll(action => action is ClearCanvas); // fix avalonia bg rendering bug
@@ -49,11 +49,11 @@ public partial class StatisticsModel : ObservableObject
         {
             var time = startDateTime + i * delta;
             times[i] = time;
-            values[i] = Exports.Count(export => IsValidExport(export.TimeExported, time, delta));
+            values[i] = Exports.Count(export => IsValidExport(export.Timestamp, time, delta));
         }
         
         TotalExports = Exports.Count;
-        InstanceExports = Exports.Select(export => export.InstanceGuid).Distinct().Count();
+        InstanceExports = Exports.Select(export => export.Timestamp).Distinct().Count();
         MaximumExports = values.Max();
         UniqueExports = Exports.Select(export => export.ObjectPath).Distinct().Count();
         
@@ -75,7 +75,7 @@ public partial class StatisticsModel : ObservableObject
     public bool IsValidExport(DateTime exportTime, DateTime targetTime, TimeSpan deltaTime)
     {
         var matchesDay = exportTime.Date.Equals(targetTime.Date);
-        var matchesHour = deltaTime <= TimeSpan.FromHours(1) ? exportTime.Hour.Equals(targetTime.Hour) : true;
+        var matchesHour = deltaTime > TimeSpan.FromHours(1) || exportTime.Hour.Equals(targetTime.Hour);
         return matchesDay && matchesHour;
     }
 }

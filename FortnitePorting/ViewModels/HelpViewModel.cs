@@ -7,52 +7,47 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
-
-using FortnitePorting.Export;
-using FortnitePorting.Export.Models;
 using FortnitePorting.Framework;
+using FortnitePorting.Models.Article;
 using FortnitePorting.Models.Assets;
-using FortnitePorting.Models.Help;
-using FortnitePorting.OnlineServices.Packet;
+using FortnitePorting.Models.Supabase.Tables;
+
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
-using FortnitePorting.Shared.Services;
 using RestSharp;
 using Log = Serilog.Log;
 
 namespace FortnitePorting.ViewModels;
 
-public partial class HelpViewModel : ViewModelBase
+public partial class HelpViewModel(SupabaseService supabase) : ViewModelBase
 {
-    [ObservableProperty] private ObservableCollection<HelpArticle> _articles = [];
+    [ObservableProperty] private SupabaseService _supaBase = supabase;
     
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(AllowedToOpenBuilder))] private EPermissions _permissions = EPermissions.None;
+    [ObservableProperty] private ObservableCollection<Article> _articles = [];
+    
     [ObservableProperty, NotifyPropertyChangedFor(nameof(BuilderButtonText))] private bool _isBuilderOpen = false;
     public string BuilderButtonText => IsBuilderOpen ? "Open Help Articles List" : "Open Help Article Builder";
-    public bool AllowedToOpenBuilder => AppSettings.Current.Online.UseIntegration && Permissions.HasFlag(EPermissions.Staff);
+    public bool AllowedToOpenBuilder => SupaBase.IsLoggedIn && SupaBase.Permissions.Role >= ESupabaseRole.Staff;
     
-    [ObservableProperty] private HelpArticle _builderArticle = new();
+    [ObservableProperty] private Article _builderArticle = new();
     [ObservableProperty] private int _selectedSectionIndex = 0;
 
     public override async Task Initialize()
     {
-        Permissions = OnlineService.Permissions;
-
         await UpdateArticles();
     }
 
     public async Task UpdateArticles()
     {
-        var helpArticles = await ApiVM.FortnitePorting.GetHelpAsync();
-        if (helpArticles is not null) Articles = [..helpArticles];
+        var articles = await SupaBase.Client.From<Article>().Get();
+        Articles = [..articles.Models];
     }
 
-    [RelayCommand]
-    public async Task Refresh()
+    public override async Task OnViewOpened()
     {
         await UpdateArticles();
     }
-    
+
     [RelayCommand]
     public async Task Upload()
     {
@@ -67,13 +62,13 @@ public partial class HelpViewModel : ViewModelBase
                 PrimaryButtonCommand = new RelayCommand(async () =>
                 {
                     var newArticle = BuilderArticle;
-                    BuilderArticle = new HelpArticle();
-                    newArticle.Author ??= AppSettings.Current.Online.GlobalName;
-                    newArticle.PostTime = DateTime.UtcNow;
+                    BuilderArticle = new Article();
+                    newArticle.Author = SupaBase.UserInfo.DisplayName;
 
                     if (string.IsNullOrWhiteSpace(newArticle.Title)) newArticle.Title = "Untitled";
                     if (string.IsNullOrWhiteSpace(newArticle.Description)) newArticle.Description = "No Description.";
 
+                    var imageBucket =  SupaBase.Client.Storage.From("article-images");
                     for (var i = 0; i < newArticle.Sections.Count; i++)
                     {
                         var section = newArticle.Sections[i];
@@ -81,15 +76,22 @@ public partial class HelpViewModel : ViewModelBase
                         if (section.Content.StartsWith("https://")) continue;
                         
                         var imageFile = new FileInfo(section.Content);
-                        var newImageUrl =
-                            await ApiVM.FortnitePorting.PostHelpImageAsync(await File.ReadAllBytesAsync(section.Content),
-                                $"image/{imageFile.Extension[1..]}");
 
-                        section.Content = newImageUrl;
+                        var imageName = $"{Guid.NewGuid()}.{imageFile.Extension[1..]}";
+                        await imageBucket.Upload(await File.ReadAllBytesAsync(section.Content), imageName);
+
+                        section.Content = imageBucket.GetPublicUrl(imageName);
                     }
 
-                    await ApiVM.FortnitePorting.PostHelpAsync(newArticle);
-                    AppWM.Message("Uploaded Article", $"Successfully uploaded help article entitled \"{newArticle.Title}\"");
+                    if (!string.IsNullOrEmpty(newArticle.Id))
+                    {
+                        await SupaBase.Client.From<Article>().Update(newArticle);
+                    }
+                    else
+                    {
+                        await SupaBase.Client.From<Article>().Insert(newArticle);
+                    }
+                    Info.Message("Uploaded Article", $"Successfully uploaded help article entitled \"{newArticle.Title}\"");
                     
                     await UpdateArticles();
                 }),
@@ -100,27 +102,27 @@ public partial class HelpViewModel : ViewModelBase
     }
     
     [RelayCommand]
-    public async Task EditArticle(HelpArticle article)
+    public async Task EditArticle(Article article)
     {
         BuilderArticle = article;
         IsBuilderOpen = true;
     }
     
     [RelayCommand]
-    public async Task DeleteArticle(string title)
+    public async Task DeleteArticle(Article article)
     {
         await TaskService.RunDispatcherAsync(async () =>
         {
             var dialog = new ContentDialog
             {
-                Title = $"Are you sure you would like to delete \"{title}\"?",
+                Title = $"Are you sure you would like to delete \"{article.Title}\"?",
                 Content = "Please make sure that you would like to delete this article.",
                 
                 PrimaryButtonText = "Delete",
                 PrimaryButtonCommand = new RelayCommand(async () =>
                 {
-                    await ApiVM.FortnitePorting.DeleteHelpAsync(title);
-                    await HelpVM.UpdateArticles();
+                    await SupaBase.Client.From<Article>().Delete(article);
+                    await UpdateArticles();
                 }),
                 CloseButtonText = "Go Back",
             };
@@ -137,7 +139,7 @@ public partial class HelpViewModel : ViewModelBase
     [RelayCommand]
     public async Task AddSection()
     {
-        BuilderArticle.Sections.Add(new HelpSection());
+        BuilderArticle.Sections.Add(new ArticleSection());
     }
     
     [RelayCommand]

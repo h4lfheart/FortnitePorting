@@ -11,6 +11,7 @@ using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using DynamicData;
 using FluentAvalonia.UI.Controls;
+using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Map;
 using FortnitePorting.Shared.Extensions;

@@ -2,12 +2,12 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
         xmlns:progressRing="using:FluentAvalonia.UI.Controls"
-        xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
+        xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
         xmlns:windowModels="clr-namespace:FortnitePorting.WindowModels"
         x:Class="FortnitePorting.Windows.ModelPreviewWindow"
         x:DataType="windowModels:ModelPreviewWindowModel"
         Width="960" Height="540" RequestedThemeVariant="Dark" FontFamily="Segoe UI" Background="{x:Null}"
-        TransparencyLevelHint="{Binding Theme.TransparencyHints}" ExtendClientAreaToDecorationsHint="True" WindowStartupLocation="CenterOwner"
+        TransparencyLevelHint="{Binding Settings.Theme.TransparencyHints}" ExtendClientAreaToDecorationsHint="True" WindowStartupLocation="CenterOwner"
         Icon="/Assets/LogoV3.ico"
         Title="Model Viewer">
     <Grid Margin="{Binding $parent[Window].OffScreenMargin}">
@@ -16,9 +16,9 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         
-        <ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="4" IsHitTestVisible="False" IsVisible="{Binding !Theme.UseMica}">
+        <ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="4" IsHitTestVisible="False" IsVisible="{Binding !Settings.Theme.UseMica}">
             <ExperimentalAcrylicBorder.Material>
-                <ExperimentalAcrylicMaterial BackgroundSource="Digger" MaterialOpacity="1.5" TintColor="{Binding Theme.BackgroundColor}" TintOpacity="1"/>
+                <ExperimentalAcrylicMaterial BackgroundSource="Digger" MaterialOpacity="1.5" TintColor="{Binding Settings.Theme.BackgroundColor}" TintOpacity="1"/>
             </ExperimentalAcrylicBorder.Material>
         </ExperimentalAcrylicBorder>
         

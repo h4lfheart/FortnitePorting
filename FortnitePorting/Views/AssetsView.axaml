@@ -2,7 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
              xmlns:ui="using:FluentAvalonia.UI.Controls"
-             xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
              xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
              xmlns:versions="clr-namespace:CUE4Parse.UE4.Versions;assembly=CUE4Parse"
              xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
@@ -16,17 +16,18 @@
              xmlns:filters="clr-namespace:FortnitePorting.Models.Assets.Filters"
              xmlns:fortnitePorting="clr-namespace:FortnitePorting"
              xmlns:base="clr-namespace:FortnitePorting.Models.Assets.Base"
-             d:DesignHeight="720" d:DesignWidth="1160"
+             xmlns:views="clr-namespace:FortnitePorting.Views"
+             d:DesignHeight="720" d:DesignWidth="1280"
              x:Class="FortnitePorting.Views.AssetsView"
              x:DataType="viewModels:AssetsViewModel">
     <UserControl.KeyBindings>
         <KeyBinding Gesture="Ctrl+F" Command="{Binding FavoriteCommand}" />
     </UserControl.KeyBindings>
     <Grid>
-        <ui:NavigationView Classes="NoBackground" PaneDisplayMode="LeftCompact" CompactPaneLength="48"
-                           IsPaneToggleButtonVisible="False" IsSettingsVisible="False" 
-                           MenuItemsSource="{Binding AssetLoaderCollection.NavItems}"
-                           SelectedItem="{Binding AssetLoaderCollection.SelectedNavItem, Mode=TwoWay}"
+        <ui:NavigationView Classes="NoBackground" PaneDisplayMode="LeftCompact" CompactPaneLength="48" OpenPaneLength="180"
+                           IsPaneToggleButtonVisible="False" IsSettingsVisible="False"
+                           MenuItemsSource="{Binding NavItems}"
+                           SelectedItem="{Binding SelectedNavItem, Mode=TwoWay}"
                            IsPaneVisible="{Binding IsPaneOpen}"
                            ItemInvoked="OnNavigationViewItemInvoked">
             <Grid Margin="{ext:Space 0, 1, 1, 1}">
@@ -39,7 +40,7 @@
                 <Grid Grid.Column="0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="{ext:Space 0.5}"/>
+                        <RowDefinition Height="{ext:Space 1}"/>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
@@ -57,22 +58,24 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="{ext:Space 1}"/>
                             <ColumnDefinition Width="3*"/>
+                            <ColumnDefinition Width="{ext:Space 1}"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         
-                        <ToggleButton Grid.Column="0" IsChecked="{Binding AssetLoaderCollection.ActiveLoader.IsPaused}" ToolTip.Tip="Pause/Resume Loading">
-                            <material:MaterialIcon Kind="{Binding AssetLoaderCollection.ActiveLoader.PauseIcon}"/>
+                        <ToggleButton Grid.Column="0" IsChecked="{Binding AssetLoader.ActiveLoader.IsPaused}" ToolTip.Tip="Pause/Resume Loading">
+                            <material:MaterialIcon Kind="{Binding AssetLoader.ActiveLoader.PauseIcon}"/>
                         </ToggleButton>
                         <Button Grid.Column="2" ToolTip.Tip="Random" Content="{material:MaterialIconExt DiceMultiple}" Click="OnRandomButtonPressed"/>
-                        <ToggleButton Grid.Column="4" IsChecked="{Binding AssetLoaderCollection.ActiveLoader.DescendingSort}" ToolTip.Tip="Ascending or Descending">
-                            <material:MaterialIcon Kind="{Binding AssetLoaderCollection.ActiveLoader.SortIcon}"/>
+                        <ToggleButton Grid.Column="4" IsChecked="{Binding AssetLoader.ActiveLoader.DescendingSort}" ToolTip.Tip="Ascending or Descending">
+                            <material:MaterialIcon Kind="{Binding AssetLoader.ActiveLoader.SortIcon}"/>
                         </ToggleButton>
                         <ComboBox Grid.Column="6" ToolTip.Tip="Sorting" HorizontalAlignment="Stretch"
                                   ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EAssetSortType}}"
-                                  SelectedItem="{Binding AssetLoaderCollection.ActiveLoader.SortType, Converter={StaticResource EnumToRecord}}" />
+                                  SelectedItem="{Binding AssetLoader.ActiveLoader.SortType, Converter={StaticResource EnumToRecord}}" />
                         <DropDownButton Grid.Column="8" HorizontalAlignment="Stretch">
                             <DropDownButton.Flyout>
                                 <Flyout>
-                                    <ItemsControl ItemsSource="{Binding AssetLoaderCollection.ActiveLoader.FilterCategories}">
+                                    <ItemsControl ItemsSource="{Binding AssetLoader.ActiveLoader.FilterCategories}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate DataType="filters:FilterCategory">
                                                 <StackPanel IsVisible="{Binding IsVisible}">
@@ -109,14 +112,17 @@
                         </DropDownButton>
                         
                         <AutoCompleteBox Grid.Column="10" FilterMode="ContainsOrdinal" Watermark="Search"
-                                         ItemsSource="{Binding AssetLoaderCollection.ActiveLoader.SearchAutoComplete}" 
-                                         Text="{Binding AssetLoaderCollection.ActiveLoader.SearchFilter, Mode=TwoWay}"/>
+                                         ItemsSource="{Binding AssetLoader.ActiveLoader.SearchAutoComplete}" 
+                                         Text="{Binding AssetLoader.ActiveLoader.SearchFilter, Mode=TwoWay}"/>
+                        
+                        <ToggleButton Grid.Column="12" ToolTip.Tip="Regex" HorizontalAlignment="Right" 
+                                      Content="{material:MaterialIconExt Regex}" IsChecked="{Binding AssetLoader.ActiveLoader.UseRegex}"/>
                         
                     </Grid>
                     
                     <ui:FABorder Grid.Row="2">
                         <ListBox x:Name="AssetsListBox" SelectionMode="Multiple" AutoScrollToSelectedItem="False"
-                                 ItemsSource="{Binding AssetLoaderCollection.ActiveCollection}" 
+                                 ItemsSource="{Binding AssetLoader.ActiveCollection}" 
                                  SelectionChanged="OnSelectionChanged">
                             <ListBox.Styles>
                                 <Style Selector="ListBoxItem">
@@ -130,7 +136,6 @@
                                         <ContentControl.ContextMenu>
                                             <ContextMenu>
                                                 <MenuItem Header="Favorite" Icon="{material:MaterialIconExt Heart}" Command="{Binding FavoriteCommand}"/>
-                                                <MenuItem Header="Send to User" Icon="{material:MaterialIconExt Download}" Command="{Binding SendToUserCommand}"/>
                                                 <MenuItem Header="View Properties" Icon="{material:MaterialIconExt Xml}" Command="{Binding PreviewPropertiesCommand}"/>
                                                 <MenuItem Header="Copy Path" Icon="{material:MaterialIconExt Clipboard}" Command="{Binding CopyPathCommand}"/>
                                                 <MenuItem Header="Copy Icon" Icon="{material:MaterialIconExt Image}">
@@ -144,12 +149,11 @@
                                             <Grid>
                                                 <ui:FABorder Width="{Binding DisplayWidth}" 
                                                              Height="{Binding DisplayHeight}"/>
-                                                <ui:FABorder Width="{Binding DisplayWidth}" 
-                                                             Height="{Binding DisplayHeight}">
-                                                    <ui:FABorder.Background>
-                                                        <ImageBrush Stretch="UniformToFill" Source="{Binding DisplayImage}" />
-                                                    </ui:FABorder.Background>
-                                                </ui:FABorder>
+                                                <Border ClipToBounds="True" CornerRadius="8"
+                                                        Width="{Binding DisplayWidth}" 
+                                                        Height="{Binding DisplayHeight}">
+                                                    <Image Stretch="UniformToFill" Source="{Binding DisplayImage}" />
+                                                </Border>
                                                 <Image IsVisible="{Binding IsFavorite}"
                                                        Source="/Assets/FN/Favorite.png" Width="24" Height="24" HorizontalAlignment="Right"
                                                        VerticalAlignment="Top" />
@@ -168,15 +172,19 @@
                         </ListBox>
                     </ui:FABorder>
                     
-                    <ProgressBar Grid.Row="3" IsVisible="{Binding !AssetLoaderCollection.ActiveLoader.FinishedLoading}" Margin="{ext:Space 0, 1, 0, 0}" Value="{Binding AssetLoaderCollection.ActiveLoader.LoadedAssets}" Minimum="0" Maximum="{Binding AssetLoaderCollection.ActiveLoader.TotalAssets}"/>
+                    <ProgressBar Grid.Row="3" 
+                                 IsVisible="{Binding !AssetLoader.ActiveLoader.FinishedLoading}"
+                                 Margin="{ext:Space 0, 1, 0, 0}" 
+                                 Value="{Binding AssetLoader.ActiveLoader.LoadedAssets}" 
+                                 Minimum="0" 
+                                 Maximum="{Binding AssetLoader.ActiveLoader.TotalAssets}"/>
 
                 </Grid>
                 
-                <Grid Grid.Column="2" RowDefinitions="*,Auto"
-                      IsVisible="{Binding !!AssetLoaderCollection.ActiveLoader.SelectedAssetInfos.Count}">
+                <Grid Grid.Column="2" RowDefinitions="*,Auto" IsVisible="{Binding !!AssetLoader.ActiveLoader.SelectedAssetInfos.Count}">
 
                     <ScrollViewer Grid.Row="0" Classes="FixedScrollbar" VerticalScrollBarVisibility="Hidden" PointerWheelChanged="OnScrollAssets">
-                        <ItemsControl ItemsSource="{Binding AssetLoaderCollection.ActiveLoader.SelectedAssetInfos}">
+                        <ItemsControl ItemsSource="{Binding AssetLoader.ActiveLoader.SelectedAssetInfos}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Grid>
@@ -187,12 +195,9 @@
                                         </Grid.RowDefinitions>
                                         
                                         <ui:FABorder Grid.Row="0">
-                                            <Grid RowDefinitions="* 2*" ColumnDefinitions="* 0.15* 2.5*" Margin="{ext:Space 0, 0.5}">
-                                                <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" CornerRadius="4">
-                                                    <Border.Background>
-                                                        <ImageBrush Stretch="Uniform" Source="{Binding Asset.IconDisplayImage}" />
-                                                    </Border.Background>
-                                                    <Image Opacity="0" Source="{Binding Asset.IconDisplayImage}" />
+                                            <Grid RowDefinitions="* 2*" ColumnDefinitions="* 0.15* 2.5*" Margin="{ext:Space 0.5}">
+                                                <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" CornerRadius="4" ClipToBounds="True">
+                                                    <Image Source="{Binding Asset.IconDisplayImage}"/>
                                                 </Border>
                                                 <TextBlock Grid.Row="0" Grid.Column="2" Classes="BodyStrongTextBlockStyle" VerticalAlignment="Bottom" TextAlignment="Left"
                                                            TextTrimming="CharacterEllipsis"
@@ -259,51 +264,49 @@
                         </ItemsControl>
                     </ScrollViewer>
                     
-                    <ui:FABorder Grid.Row="1" Margin="{ext:Space 0, 1, 0, 0}">
-                        <Grid HorizontalAlignment="Stretch" Margin="{ext:Space 1}">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="{ext:Space 1}"/>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
-                            
-                            <Grid Grid.Row="0" ColumnDefinitions="* 3*">
-                                <TextBlock Grid.Column="0" Text="Export To" VerticalAlignment="Center"
-                                           Margin="3 0 0 2" />
-                                <ComboBox Grid.Column="1"
-                                          HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                                          ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EExportLocation}}"
-                                          SelectedItem="{Binding ExportLocation, Converter={StaticResource EnumToRecord}}">
-                                    <ComboBox.ItemContainerTheme>
-                                        <ControlTheme x:DataType="ext:EnumRecord" TargetType="ComboBoxItem" BasedOn="{StaticResource {x:Type ComboBoxItem}}">
+                    <Grid Grid.Row="1" HorizontalAlignment="Stretch" Margin="{ext:Space 0, 1, 0, 0}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="{ext:Space 1}"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <SplitButton Grid.Column="0" HorizontalAlignment="Stretch" Command="{Binding ExportCommand}">
+                            <SplitButton.Flyout>
+                                <MenuFlyout ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EExportLocation}}">
+                                    <MenuFlyout.ItemContainerTheme>
+                                        <ControlTheme x:DataType="ext:EnumRecord" TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}">
+                                            <Setter Property="Header" Value="{Binding Description}"/>
                                             <Setter Property="IsEnabled" Value="{Binding !IsDisabled}"/>
+                                            <Setter Property="Command" Value="{Binding $parent[views:AssetsView].((viewModels:AssetsViewModel)DataContext).SetExportLocationCommand}"/>
+                                            <Setter Property="CommandParameter" Value="{Binding Value}"/>
+                                            
+                                            <Setter Property="StaysOpenOnClick" Value="False"/>
+                                            <Setter Property="Icon">
+                                                <Template>
+                                                    <Grid>
+                                                        <material:MaterialIcon Kind="Check" IsVisible="{Binding $parent[views:AssetsView].((viewModels:AssetsViewModel)DataContext).ExportLocation, 
+                                                Converter={StaticResource EnumEquals}, 
+                                                ConverterParameter={Binding $parent[MenuItem].((ext:EnumRecord)DataContext).Value}}" />
+                                                    </Grid>
+                                                </Template>
+                                            </Setter>
                                         </ControlTheme>
-                                    </ComboBox.ItemContainerTheme>
-                                </ComboBox>
-                            </Grid>
-                            
-                            <Grid Grid.Row="2">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="{ext:Space 1}"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                
-                                <Button Grid.Column="0" HorizontalAlignment="Stretch" Command="{Binding ExportCommand}">
-                                    <StackPanel Orientation="Horizontal">
-                                        <material:MaterialIcon Kind="Download" Margin="{ext:Space 0, 0, 1, 0}"/>
-                                        <TextBlock Text="Export"/>
-                                    </StackPanel>
-                                </Button>
-                                
-                                <Button Grid.Column="2" ToolTip.Tip="Export Settings" Content="{material:MaterialIconExt Settings}"
-                                        Command="{Binding OpenSettingsCommand}"/>
-                            </Grid>
-                            
-                        </Grid>
-                    </ui:FABorder>
+                                    </MenuFlyout.ItemContainerTheme>
+                                </MenuFlyout>
+                            </SplitButton.Flyout>
+                            <StackPanel Orientation="Horizontal">
+                                <material:MaterialIcon Kind="Download" Margin="{ext:Space 0, 0, 1, 0}"/>
+                                <TextBlock Text="{Binding ExportLocation, Converter={StaticResource EnumToRecord}, StringFormat='Export to {0}'}"/>
+                            </StackPanel>
+                        </SplitButton>
+                        
+                        <Button Grid.Column="2" ToolTip.Tip="Export Settings" Content="{material:MaterialIconExt Settings}"
+                                Command="{Binding OpenSettingsCommand}"/>
+                        
+                    </Grid>
                 </Grid>
-                <TextBlock Grid.Column="2" IsVisible="{Binding !AssetLoaderCollection.ActiveLoader.SelectedAssetInfos.Count}" Text="No Asset Selected" 
+                <TextBlock Grid.Column="2" IsVisible="{Binding !AssetLoader.ActiveLoader.SelectedAssetInfos.Count}" Text="No Asset Selected" 
                            Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"
                            HorizontalAlignment="Center" VerticalAlignment="Center" />
             </Grid>

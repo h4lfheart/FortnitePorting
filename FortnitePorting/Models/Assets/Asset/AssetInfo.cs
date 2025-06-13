@@ -4,6 +4,7 @@ using System.Linq;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
+using FortnitePorting.Extensions;
 using FortnitePorting.Shared.Extensions;
 
 namespace FortnitePorting.Models.Assets.Asset;
@@ -53,7 +54,7 @@ public partial class AssetInfo : Base.BaseAssetInfo
         var styleObjects = new List<UObject>();
         foreach (var stylePath in stylePaths)
         {
-            if (CUE4ParseVM.Provider.TryLoadPackageObject(stylePath, out var styleObject))
+            if (UEParse.Provider.TryLoadPackageObject(stylePath, out var styleObject))
             {
                 styleObjects.Add(styleObject);
             }

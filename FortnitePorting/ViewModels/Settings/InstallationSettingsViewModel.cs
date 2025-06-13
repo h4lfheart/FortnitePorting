@@ -4,18 +4,21 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.UE4.Versions;
+using FortnitePorting.Application;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.CUE4Parse;
-using FortnitePorting.Models.Settings;
+using FortnitePorting.Services;
 using FortnitePorting.Shared;
-using FortnitePorting.Shared.Validators;
 using Newtonsoft.Json;
+using InstallationProfile = FortnitePorting.Models.Installation.InstallationProfile;
 
 namespace FortnitePorting.ViewModels.Settings;
 
 public partial class InstallationSettingsViewModel : ViewModelBase
 {
-    [ObservableProperty] private bool _finishedWelcomeScreen;
+    [JsonIgnore] public SupabaseService SupaBase => AppServices.SupaBase;
+    
+    [ObservableProperty] private bool _finishedSetup;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(CurrentProfile))] private int _currentProfileIndex;
     [ObservableProperty] private ObservableCollection<InstallationProfile> _profiles = [];
     [ObservableProperty] private bool _canRemoveProfiles;

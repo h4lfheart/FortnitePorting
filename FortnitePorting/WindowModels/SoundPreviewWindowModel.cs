@@ -7,15 +7,17 @@ using CUE4Parse.UE4.Assets.Exports.Sound;
 using FortnitePorting.Application;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
-using FortnitePorting.Shared.Services;
+using FortnitePorting.Services;
 using FortnitePorting.ViewModels;
 using Material.Icons;
 using NAudio.Wave;
 
 namespace FortnitePorting.WindowModels;
 
-public partial class SoundPreviewWindowModel : WindowModelBase
+public partial class SoundPreviewWindowModel(SettingsService settings) : WindowModelBase
 {
+    [ObservableProperty] private SettingsService _settings = settings;
+    
     [ObservableProperty] private string _soundName;
     [ObservableProperty] private USoundWave _soundWave;
     
@@ -53,7 +55,7 @@ public partial class SoundPreviewWindowModel : WindowModelBase
 
     public async Task Play()
     {
-        if (!SoundExtensions.TrySaveSoundToAssets(SoundWave, AppSettings.Current.Application.AssetPath, out Stream stream)) return;
+        if (!SoundExtensions.TrySaveSoundToAssets(SoundWave, AppSettings.Application.AssetPath, out Stream stream)) return;
 
         AudioReader = new WaveFileReader(stream);
         
@@ -85,7 +87,7 @@ public partial class SoundPreviewWindowModel : WindowModelBase
     public void UpdateOutputDevice()
     {
         OutputDevice.Stop();
-        OutputDevice = new WaveOutEvent { DeviceNumber = AppSettings.Current.Application.AudioDeviceIndex };
+        OutputDevice = new WaveOutEvent { DeviceNumber = AppSettings.Application.AudioDeviceIndex };
         OutputDevice.Init(AudioReader);
         
         if (!IsPaused && AudioReader is not null)

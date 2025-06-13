@@ -1,6 +1,3 @@
 [submodule "Dependencies/CUE4Parse"]
 	path = Dependencies/CUE4Parse
-	url = https://github.com/halfuwu/CUE4Parse
-[submodule "Dependencies/EpicManifestParser"]
-	path = Dependencies/EpicManifestParser
-	url = https://github.com/NotOfficer/EpicManifestParser
+	url = https://github.com/h4lfheart/CUE4Parse

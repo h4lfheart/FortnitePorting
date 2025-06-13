@@ -1,0 +1,39 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
+             xmlns:versions="clr-namespace:CUE4Parse.UE4.Versions;assembly=CUE4Parse"
+             xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:fortnitePorting="clr-namespace:FortnitePorting"
+             xmlns:setup="clr-namespace:FortnitePorting.ViewModels.Setup"
+             d:DesignHeight="770" d:DesignWidth="1160"
+             x:Class="FortnitePorting.Views.Setup.WelcomeSetupView"
+             x:DataType="setup:WelcomeSetupViewModel">
+    <StackPanel VerticalAlignment="Center">
+        <TextBlock Text="Welcome to FortnitePorting!" Classes="TitleLargeTextBlockStyle" 
+                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Margin="{ext:Space 0, 0, 0, 1}">
+            <TextBlock.Effect>
+                <DropShadowEffect BlurRadius="15" Color="#5F000000" OffsetX="0" OffsetY="0" />
+            </TextBlock.Effect>
+        </TextBlock>
+        <TextBlock Text="The quickest and most efficient way to extract assets from Fortnite." 
+                   HorizontalAlignment="Center" VerticalAlignment="Center" 
+                   Margin="{ext:Space 0, 0, 0, 2}"
+                   Classes="BodyTextBlockStyle TextFillColorSecondaryBrush">
+            <TextBlock.Effect>
+                <DropShadowEffect BlurRadius="15" Color="#5F000000" OffsetX="0" OffsetY="0" />
+            </TextBlock.Effect>
+        </TextBlock>
+        
+        <Button Command="{Binding ContinueCommand}" Classes="Purple"
+                HorizontalAlignment="Center" VerticalAlignment="Center">
+            
+            <TextBlock Text="Continue" />
+        </Button>
+    </StackPanel>
+</UserControl>

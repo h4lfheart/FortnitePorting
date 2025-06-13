@@ -25,8 +25,7 @@ using DynamicData;
 using DynamicData.Binding;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
-using FortnitePorting.Export;
-using FortnitePorting.Export.Models;
+using FortnitePorting.Exporting;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Assets;
@@ -35,11 +34,10 @@ using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Models.Leaderboard;
 using FortnitePorting.Models.Unreal;
 using FortnitePorting.Models.Unreal.Material;
-using FortnitePorting.OnlineServices.Packet;
+
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
-using FortnitePorting.Shared.Services;
 using FortnitePorting.Windows;
 using Newtonsoft.Json;
 using ReactiveUI;
@@ -47,14 +45,22 @@ using Serilog;
 
 namespace FortnitePorting.ViewModels;
 
-public partial class FilesViewModel : ViewModelBase
+public partial class FilesViewModel() : ViewModelBase
 {
+    [ObservableProperty] private CUE4ParseService _CUE4Parse;
+    
+    public FilesViewModel(CUE4ParseService cue4Parse) : this()
+    {
+        CUE4Parse = cue4Parse;
+    }
+    
     [ObservableProperty] private EExportLocation _exportLocation = EExportLocation.Blender;
 
     [ObservableProperty] private string _actualSearchText;
 
     // fixes freezes when using ObservableProperty
     private string _searchFilter = string.Empty;
+    
     public string SearchFilter
     {
         get => _searchFilter;
@@ -87,16 +93,16 @@ public partial class FilesViewModel : ViewModelBase
     
     public override async Task Initialize()
     {
-        if (ChatVM.Permissions.HasFlag(EPermissions.LoadPluginFiles))
+        if (SupaBase.Permissions.CanExportUEFN)
         {
-            foreach (var mountedVfs in CUE4ParseVM.Provider.MountedVfs)
+            foreach (var mountedVfs in CUE4Parse.Provider.MountedVfs)
             {
                 if (mountedVfs is not IoStoreReader { Name: "plugin.utoc" } ioStoreReader) continue;
 
                 var gameFeatureDataFile = ioStoreReader.Files.FirstOrDefault(file => file.Key.EndsWith("GameFeatureData.uasset", StringComparison.OrdinalIgnoreCase));
                 if (gameFeatureDataFile.Value is null) continue;
 
-                var gameFeatureData = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync<UFortGameFeatureData>(gameFeatureDataFile.Value.PathWithoutExtension);
+                var gameFeatureData = await CUE4Parse.Provider.SafeLoadPackageObjectAsync<UFortGameFeatureData>(gameFeatureDataFile.Value.PathWithoutExtension);
 
                 if (gameFeatureData?.ExperienceData?.DefaultMap is not { } defaultMapPath) continue;
 
@@ -110,7 +116,7 @@ public partial class FilesViewModel : ViewModelBase
             SelectedGameNames.AddUnique(gameName.SearchName);
         }
         
-        foreach (var (_, file) in CUE4ParseVM.Provider.Files)
+        foreach (var (_, file) in CUE4Parse.Provider.Files)
         {
             var path = file.Path;
             if (!IsValidFilePath(path)) continue;
@@ -228,7 +234,7 @@ public partial class FilesViewModel : ViewModelBase
         var selectedItem = SelectedFlatViewItems.FirstOrDefault();
         if (selectedItem is null) return;
         
-        var assets = await CUE4ParseVM.Provider.LoadAllObjectsAsync(Exporter.FixPath(selectedItem.Path));
+        var assets = await CUE4Parse.Provider.LoadAllObjectsAsync(Exporter.FixPath(selectedItem.Path));
         var json = JsonConvert.SerializeObject(assets, Formatting.Indented);
         PropertiesPreviewWindow.Preview(selectedItem.Path.SubstringAfterLast("/").SubstringBefore("."), json);
     }
@@ -244,13 +250,13 @@ public partial class FilesViewModel : ViewModelBase
         UObject? asset = null;
         if (selectedItem.Path.EndsWith(".umap"))
         {
-            var package = await CUE4ParseVM.Provider.LoadPackageAsync(basePath);
+            var package = await CUE4Parse.Provider.LoadPackageAsync(basePath);
             asset = package.GetExports().OfType<UWorld>().FirstOrDefault();
         }
         else
         {
-            asset = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync(basePath);
-            asset ??= await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync($"{basePath}.{basePath.SubstringAfterLast("/")}_C");
+            asset = await CUE4Parse.Provider.SafeLoadPackageObjectAsync(basePath);
+            asset ??= await CUE4Parse.Provider.SafeLoadPackageObjectAsync($"{basePath}.{basePath.SubstringAfterLast("/")}_C");
         }
             
         if (asset is null) return;
@@ -292,13 +298,42 @@ public partial class FilesViewModel : ViewModelBase
             case UMaterial:
             case UMaterialFunction:
             {
-                if (!CUE4ParseVM.Provider.MountedVfs.Any(vfs => vfs.Name.Contains(".o.")))
+                if (!CUE4Parse.Provider.MountedVfs.Any(vfs => vfs.Name.Contains(".o.")))
                 {
-                    AppWM.Message("Material Preview", "Material node-tree data cannot be loaded because UEFN is not installed.", closeTime: 5, severity: InfoBarSeverity.Error);
+                    Info.Message("Material Preview", "Material node-tree data cannot be loaded because UEFN is not installed.", closeTime: 5, severity: InfoBarSeverity.Error);
                     break;
                 }
                 
                 MaterialPreviewWindow.Preview(asset);
+                break;
+            }
+            case UMaterialInstanceConstant instance:
+            {
+                var dialog = new ContentDialog
+                {
+                    Title = $"Preview {instance.Name}",
+                    Content = "What asset type would you like to preview?",
+                    CloseButtonText = "Cancel",
+                    SecondaryButtonText = "Material Instance",
+                    SecondaryButtonCommand = new RelayCommand(async () =>
+                    {
+                        await Properties();
+                    }),
+                    PrimaryButtonText = "Parent Material",
+                    PrimaryButtonCommand = new RelayCommand(() =>
+                    {
+                        UUnrealMaterial? parentMaterial = instance;
+                        while (parentMaterial is UMaterialInstanceConstant parentMaterialInstance)
+                        {
+                            parentMaterial = parentMaterialInstance.Parent;
+                        }
+                        
+                        if (parentMaterial is not null)
+                            MaterialPreviewWindow.Preview(parentMaterial);
+                    })
+                };
+
+                await dialog.ShowAsync();
                 break;
             }
             case UStaticMesh:
@@ -324,7 +359,7 @@ public partial class FilesViewModel : ViewModelBase
             }
             default:
             {
-                AppWM.Message("Unimplemented Previewer",
+                Info.Message("Unimplemented Previewer",
                     $"A file previewer for \"{asset.ExportType}\" assets has not been implemented and/or will not be supported.");
                     
                 await Properties();
@@ -345,17 +380,17 @@ public partial class FilesViewModel : ViewModelBase
             UObject? asset = null;
             if (item.Path.EndsWith(".umap"))
             {
-                asset = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync(basePath);
+                asset = await CUE4Parse.Provider.SafeLoadPackageObjectAsync(basePath);
                 if (asset is not UWorld)
                 {
-                    var package = await CUE4ParseVM.Provider.LoadPackageAsync(basePath);
+                    var package = await CUE4Parse.Provider.LoadPackageAsync(basePath);
                     asset = package.GetExports().OfType<UWorld>().FirstOrDefault();
                 }
             }
             else
             {
-                asset = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync(basePath);
-                asset ??= await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync($"{basePath}.{basePath.SubstringAfterLast("/")}_C");
+                asset = await CUE4Parse.Provider.SafeLoadPackageObjectAsync(basePath);
+                asset ??= await CUE4Parse.Provider.SafeLoadPackageObjectAsync($"{basePath}.{basePath.SubstringAfterLast("/")}_C");
             }
             
             if (asset is null) continue;
@@ -383,29 +418,32 @@ public partial class FilesViewModel : ViewModelBase
 
             exports.Add(new KeyValuePair<UObject, EExportType>(asset, exportType));
         }
+        
 
         if (exports.Count == 0)
         {
-            AppWM.Message("Unimplemented Exporter", $"Assets with these types could not be exported: {unsupportedExportTypes.CommaJoin()}.");
+            Info.Message("Exporter",
+                unsupportedExportTypes.Count == 0
+                    ? $"Failed to load any assets for export."
+                    : $"Assets with these types do not have exporters: {unsupportedExportTypes.CommaJoin()}.",
+                InfoBarSeverity.Warning);
+
             return;
         }
 
-        var meta = AppSettings.Current.CreateExportMeta(ExportLocation);
+        var meta = AppSettings.ExportSettings.CreateExportMeta(ExportLocation);
         meta.WorldFlags = EWorldFlags.Actors | EWorldFlags.Landscape | EWorldFlags.WorldPartitionGrids | EWorldFlags.HLODs;
         if (meta.Settings.ImportInstancedFoliage)
             meta.WorldFlags |= EWorldFlags.InstancedFoliage;
         
         await Exporter.Export(exports, meta);
 
-        if (AppSettings.Current.Online.UseIntegration)
+        if (SupaBase.IsLoggedIn)
         {
-            var sendExports = exports.Select(export =>
-            {
-                var (asset, type) = export;
-                return new PersonalExport(asset.GetPathName());
-            });
-            
-            await ApiVM.FortnitePorting.PostExportsAsync(sendExports);
+            await SupaBase.PostExports(
+                exports
+                    .Select(export => export.Key.GetPathName())
+            );
         }
     }
 

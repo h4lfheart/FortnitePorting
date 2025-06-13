@@ -8,21 +8,26 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Serilog;
-using FortnitePorting.Shared.Services;
+using FortnitePorting.Services;
 using Serilog.Core;
 using Serilog.Events;
 
 namespace FortnitePorting.ViewModels;
 
-public partial class ConsoleViewModel : ViewModelBase, ILogEventSink
+public partial class ConsoleViewModel() : ViewModelBase
 {
+    [ObservableProperty] private InfoService _info;
+    
+    public ConsoleViewModel(InfoService info) : this()
+    {
+        Info = info;
+    }
+    
     [ObservableProperty] private ScrollViewer _scroll;
-
-    [ObservableProperty] private ObservableCollection<FortnitePortingLogEvent> _logs = [];
-
+    
     public override async Task Initialize()
     {
-        Logs.CollectionChanged += (sender, args) =>
+        Info.Logs.CollectionChanged += (sender, args) =>
         {
             TaskService.RunDispatcher(() =>
             {
@@ -38,20 +43,15 @@ public partial class ConsoleViewModel : ViewModelBase, ILogEventSink
         Scroll.ScrollToEnd();
     }
 
-    public void Emit(LogEvent logEvent)
-    {
-        Logs.Add(new FortnitePortingLogEvent(logEvent));
-    }
-
     [RelayCommand]
     private async Task OpenLog()
     {
-        Launch(LogFilePath);
+        App.Launch(Info.LogFilePath);
     }
     
     [RelayCommand]
     private async Task OpenLogsFolder()
     {
-        LaunchSelected(LogFilePath);
+        App.LaunchSelected(Info.LogFilePath);
     }
 }

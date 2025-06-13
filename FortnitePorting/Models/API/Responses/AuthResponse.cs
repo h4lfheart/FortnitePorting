@@ -1,8 +1,9 @@
-using System;
+using Newtonsoft.Json;
 
 namespace FortnitePorting.Models.API.Responses;
 
 public class AuthResponse
 {
-    public string Token;
+    [JsonProperty("supabase_url")] public string SupabaseURL;
+    [JsonProperty("supabase_anon_key")] public string SupabaseAnonKey;
 }

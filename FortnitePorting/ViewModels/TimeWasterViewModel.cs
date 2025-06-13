@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Platform;
 using Avalonia.Threading;
@@ -14,8 +15,8 @@ using FortnitePorting.Framework;
 using FortnitePorting.Models.TimeWaster;
 using FortnitePorting.Models.TimeWaster.Actors;
 using FortnitePorting.Models.TimeWaster.Audio;
+using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
-using FortnitePorting.Shared.Services;
 using NAudio.Vorbis;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
@@ -95,7 +96,7 @@ public partial class TimeWasterViewModel : ViewModelBase
     
     public override async Task Initialize()
     {
-        if (!(AppWM?.TimeWasterOpen ?? false)) return; // removes debug preview sounds
+        if (Design.IsDesignMode) return;
         
         RegisterUpdater(UpdateBackground);
         InitAudio(AmbientOutput, AmbientBackground);
@@ -108,7 +109,7 @@ public partial class TimeWasterViewModel : ViewModelBase
                 await Task.Delay(waitTime);
                 
                 if (IsGame) break;
-                if (!AppWM.TimeWasterOpen) break;
+                if (!BlackHole.IsActive) break;
                 
                 PianoSnippets.Random()?.Play();
             }
@@ -124,10 +125,7 @@ public partial class TimeWasterViewModel : ViewModelBase
     [RelayCommand]
     public void Exit()
     {
-        OnApplicationExit();
-        AppWM.ToggleVisibility(true);
-        AppWM.TimeWasterOpen = false;
-        AppWM.TimeWaster = null;
+        BlackHole.Close();
     }
 
     public async Task InitializeGame()
@@ -148,10 +146,15 @@ public partial class TimeWasterViewModel : ViewModelBase
 
     public override async Task OnViewExited()
     {
-        OnApplicationExit();
+        CleanupResources();
     }
 
     public override void OnApplicationExit()
+    {
+        CleanupResources();
+    }
+
+    public void CleanupResources()
     {
         AudioSystem.Instance.Stop();
         Updaters.ForEach(updater => updater.Stop());

@@ -1,5 +1,7 @@
+using System;
 using System.IO;
 using System.Linq;
+using AsyncImageLoader;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
@@ -15,24 +17,47 @@ using FluentAvalonia.UI.Controls;
 using FortnitePorting.Framework;
 using FortnitePorting.Models;
 using FortnitePorting.Models.Chat;
-using FortnitePorting.OnlineServices.Models;
-using FortnitePorting.OnlineServices.Packet;
+using FortnitePorting.Models.Supabase.Tables;
+
+
 using FortnitePorting.Services;
+using FortnitePorting.Shared.Extensions;
 using FortnitePorting.ViewModels;
+using Supabase.Storage.Exceptions;
+using FileOptions = Supabase.Storage.FileOptions;
 
 namespace FortnitePorting.Views;
 
 public partial class ChatView : ViewBase<ChatViewModel>
 {
-    public ChatView() : base(ChatVM)
+    public ChatView()
     {
         InitializeComponent();
-        ViewModel.Scroll = Scroll;
         ViewModel.ImageFlyout = ImageFlyout;
         TextBox.AddHandler(KeyDownEvent, OnTextKeyDown, RoutingStrategies.Tunnel);
+
+        Chat.MessageReceived += (sender, args) =>
+        {
+            TaskService.RunDispatcher(() =>
+            {
+                var isScrolledToEnd = Math.Abs(Scroll.Offset.Y - Scroll.Extent.Height + Scroll.Viewport.Height) < 500;
+                if (isScrolledToEnd)
+                    Scroll.ScrollToEnd();
+            });
+        };
+        
+        Chat.Messages.CollectionChanged += (sender, args) =>
+        {
+            TaskService.RunDispatcher(() =>
+            {
+                var isScrolledToEnd = Math.Abs(Scroll.Offset.Y - Scroll.Extent.Height + Scroll.Viewport.Height) < 500;
+                if (isScrolledToEnd)
+                    Scroll.ScrollToEnd();
+            });
+        };
     }
 
-    public async void OnTextKeyDown(object? sender, KeyEventArgs e)
+    public void OnTextKeyDown(object? sender, KeyEventArgs e)
     {
         if (sender is not AutoCompleteBox autoCompleteBox) return;
         if (autoCompleteBox.GetVisualDescendants().FirstOrDefault(x => x is TextBox) is not TextBox textBox) return;
@@ -43,25 +68,44 @@ public partial class ChatView : ViewBase<ChatViewModel>
         {
             if (text.Length > 400)
             {
-                AppWM.Message("Character Limit", "Your message is over the character limit of 400 characters.");
+                Info.Message("Character Limit", "Your message is over the character limit of 400 characters.");
                 e.Handled = true;
                 return;
             }
             
             if (text.StartsWith("/shrug"))
             {
-                await OnlineService.Send(new MessagePacket(@"¯\_(ツ)_/¯"));
+                text = @"¯\_(ツ)_/¯";
             }
-            else if (ImageFlyout.IsOpen)
+
+            var shouldUploadImage = ImageFlyout.IsOpen;
+            TaskService.Run(async () =>
             {
-                var memoryStream = new MemoryStream();
-                ViewModel.SelectedImage.Save(memoryStream);
-                await OnlineService.Send(new MessagePacket(text, memoryStream.ToArray(), ViewModel.SelectedImageName));
-            }
-            else
-            {
-                await OnlineService.Send(new MessagePacket(text));
-            }
+                string? imagePath = null;
+                if (shouldUploadImage)
+                {
+                    var imageBucket = SupaBase.Client.Storage.From("chat-images");
+                    var memoryStream = new MemoryStream();
+                    ViewModel.SelectedImage.Save(memoryStream);
+
+                    var fileNameWithoutExtension = ViewModel.SelectedImageName.SubstringBefore(".");
+                    var extension = ViewModel.SelectedImageName.SubstringAfterLast(".");
+                    var hash = memoryStream.GetHash();
+                    var fileName = $"{fileNameWithoutExtension}.{hash}.{extension}";
+                    
+                    try
+                    {
+                        imagePath = await imageBucket.Upload(memoryStream.ToArray(), fileName);
+                    }
+                    catch (SupabaseStorageException e)
+                    {
+                        imagePath = $"chat-images/{fileName}";
+                    }
+                }
+                
+                await Chat.SendMessage(text, replyId: ViewModel.ReplyMessage?.Id, imagePath: imagePath);
+                ViewModel.ReplyMessage = null;
+            });
             
             textBox.Text = string.Empty;
             ImageFlyout.IsOpen = false;
@@ -82,38 +126,7 @@ public partial class ChatView : ViewBase<ChatViewModel>
         
         Scroll.ScrollToEnd();
         TextBox.Focus();
-        AppWM.ChatNotifications = 0;
-    }
-    
-    private async void OnImagePressed(object? sender, PointerPressedEventArgs e)
-    {
-        if (sender is not Control control) return;
-        if (control.DataContext is not ChatMessage message) return;
-
-        var dialog = new ContentDialog
-        {
-            Title = message.BitmapName,
-            Content = new Border
-            {
-                CornerRadius = new CornerRadius(4),
-                ClipToBounds = true,
-                Child = new Image
-                {
-                    Source = message.Bitmap
-                }
-            },
-            CloseButtonText = "Close",
-            PrimaryButtonText = "Save",
-            PrimaryButtonCommand = new RelayCommand(async () =>
-            {
-                if (await SaveFileDialog(message.BitmapName, fileTypes: FilePickerFileTypes.ImagePng) is { } path)
-                {
-                    message.Bitmap.Save(path);
-                }
-            })
-        };
-
-        await dialog.ShowAsync();
+        //AppWM.ChatNotifications = 0;
     }
 
     private void OnUserPressed(object? sender, PointerPressedEventArgs e)
@@ -126,18 +139,29 @@ public partial class ChatView : ViewBase<ChatViewModel>
     private async void OnYeahPressed(object? sender, PointerPressedEventArgs e)
     {
         if (sender is not Control control) return;
-        if (control.DataContext is not ChatMessage message) return;
+        if (control.DataContext is not ChatMessageV2 message) return;
 
-        message.ReactedTo = !message.ReactedTo;
-        await OnlineService.Send(new ReactionPacket(message.Id, message.ReactedTo));
+        if (message.DidReactTo)
+        {
+            await SupaBase.Client.Rpc("remove_reaction", new { message_id = message.Id });
+        }
+        else
+        {
+            await SupaBase.Client.Rpc("add_reaction", new { message_id = message.Id });
+        }
     }
 
-    private async void OnDeletePressed(object? sender, PointerPressedEventArgs e)
+    private void OnDeletePressed(object? sender, PointerPressedEventArgs e)
     {
         if (sender is not Control control) return;
-        if (control.DataContext is not ChatMessage message) return;
-        
-        await OnlineService.Send(new DeleteMessagePacket(), new MetadataBuilder().With("Id", message.Id));
+        if (control.DataContext is not ChatMessageV2 message) return;
+
+        TaskService.Run(async () =>
+        {
+            await SupaBase.Client.From<Message>()
+                .Where(x => x.Id == message.Id)
+                .Delete();
+        });
     }
 
     private void OnMessageUserPressed(object? sender, PointerPressedEventArgs e)
@@ -150,8 +174,52 @@ public partial class ChatView : ViewBase<ChatViewModel>
     private async void OnReplyPressed(object? sender, PointerPressedEventArgs e)
     {
         if (sender is not Control control) return;
-        if (control.DataContext is not ChatMessage chatMessage) return;
+        if (control.DataContext is not ChatMessageV2 chatMessage) return;
 
-        await chatMessage.User.SendMessage();
+        ViewModel.ReplyMessage = chatMessage;
+    }
+
+    private void OnEditPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (sender is not Control control) return;
+        if (control.DataContext is not ChatMessageV2 message) return;
+
+        // TODO focus edit textbox
+        message.IsEditing = !message.IsEditing;
+    }
+
+    private void OnEditBoxKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (sender is not TextBox textBox) return;
+        if (textBox.DataContext is not ChatMessageV2 message) return;
+        
+        if (e.Key == Key.Enter && !e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+        {
+            message.IsEditing = false;
+
+            var newText = textBox.Text!;
+            TaskService.Run(async () =>
+            {
+                await Chat.UpdateMessage(message, newText);
+            });
+        }
+        else if (e.Key == Key.Enter && e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+        {
+            textBox.Text += "\n";
+            textBox.CaretIndex = textBox.Text.Length;
+        }
+    }
+
+    private void OnReplyCancelled(object? sender, PointerPressedEventArgs e)
+    {
+        ViewModel.ReplyMessage = null;
+    }
+
+    private void OnCopyPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (sender is not Control control) return;
+        if (control.DataContext is not ChatMessageV2 message) return;
+
+        App.Clipboard.SetTextAsync(message.Text);
     }
 }

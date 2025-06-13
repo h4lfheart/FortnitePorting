@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AssetRipper.TextureDecoder.Rgb.Channels;
 using Avalonia.Controls;
 using Avalonia.Input;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Framework;
-using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
 using FortnitePorting.Views;
 using AppWindowModel = FortnitePorting.WindowModels.AppWindowModel;
@@ -18,21 +18,17 @@ public partial class AppWindow : WindowBase<AppWindowModel>
     {
         InitializeComponent();
         DataContext = WindowModel;
-        WindowModel.ContentFrame = ContentFrame;
-        WindowModel.NavigationView = NavigationView;
         
-        KeyDownEvent.AddClassHandler<TopLevel>(OnKeyDown, handledEventsToo: true);
-        //WindowModel.TimeWaster = new TimeWasterView();
+        Navigation.App.Initialize(NavigationView);
+        
+        KeyDownEvent.AddClassHandler<TopLevel>((sender, args) => BlackHole.HandleKey(args.Key), handledEventsToo: true);
     }
 
     private void OnItemInvoked(object? sender, NavigationViewItemInvokedEventArgs e)
     {
-        var viewName = $"FortnitePorting.Views.{e.InvokedItemContainer.Tag}View";
+        if (e.InvokedItemContainer.Tag is not Type type) return;
         
-        var type = Type.GetType(viewName);
-        if (type is null) return;
-        
-        WindowModel.Navigate(type);
+        Navigation.App.Open(type);
     }
 
     private async void OnUpdatePressed(object? sender, PointerPressedEventArgs e)
@@ -40,37 +36,23 @@ public partial class AppWindow : WindowBase<AppWindowModel>
         await WindowModel.CheckForUpdate();
     }
 
-    private List<Key> KonamiKeyPresses = [];
-    private List<Key> KonamiSequence = [Key.Up, Key.Up, Key.Down, Key.Down, Key.Left, Key.Right, Key.Left, Key.Right, Key.B, Key.A];
-
-    private void OnKeyDown(object? sender, KeyEventArgs e)
-    {
-        if (AppWM is null) return; // happens when focused on other tabs for some reason ?
-        if (e.Key == Key.Escape && AppWM.TimeWasterOpen)
-        {
-            AppWM.ToggleVisibility(true);
-            AppWM.TimeWasterOpen = false;
-            AppWM.TimeWaster = null;
-            KonamiKeyPresses.Clear();
-            return;
-        }
-        
-        if (AppWM.TimeWasterOpen) return;
-        if (!KonamiSequence.Contains(e.Key)) return; // im not keylogging you smh
-        
-        KonamiKeyPresses.Add(e.Key);
-
-        if (KonamiKeyPresses[^Math.Min(KonamiKeyPresses.Count, KonamiSequence.Count)..].SequenceEqual(KonamiSequence))
-        {
-            WindowModel.TimeWasterOpen = true;
-            WindowModel.TimeWaster = new TimeWasterView();
-            KonamiKeyPresses.Clear();
-        }
-
-    }
-
     private void OnPointerPressedUpperBar(object? sender, PointerPressedEventArgs e)
     {
         BeginMoveDrag(e);
+    }
+
+    private void OnMinimizePressed(object? sender, PointerPressedEventArgs e)
+    {
+        WindowState = WindowState.Minimized;
+    }
+    
+    private void OnMaximizePressed(object? sender, PointerPressedEventArgs e)
+    {
+        WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+    }
+    
+    private void OnClosePressed(object? sender, PointerPressedEventArgs e)
+    {
+        Close();
     }
 }

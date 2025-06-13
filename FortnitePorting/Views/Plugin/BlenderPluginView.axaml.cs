@@ -6,7 +6,7 @@ namespace FortnitePorting.Views.Plugin;
 
 public partial class BlenderPluginView : ViewBase<BlenderPluginViewModel>
 {
-    public BlenderPluginView() : base(AppSettings.Current.Plugin.Blender)
+    public BlenderPluginView() : base(AppSettings.Plugin.Blender)
     {
         InitializeComponent();
     }

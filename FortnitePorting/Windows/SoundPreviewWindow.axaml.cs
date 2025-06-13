@@ -4,7 +4,6 @@ using Avalonia.Controls.Primitives;
 using CUE4Parse.UE4.Assets.Exports.Sound;
 using FortnitePorting.Framework;
 using FortnitePorting.Services;
-using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
 using FortnitePorting.WindowModels;
 
@@ -18,7 +17,7 @@ public partial class SoundPreviewWindow : WindowBase<SoundPreviewWindowModel>
     {
         InitializeComponent();
         DataContext = WindowModel;
-        Owner = ApplicationService.Application.MainWindow;
+        Owner = App.Lifetime.MainWindow;
 
         WindowModel.SoundName = soundWave.Name;
         WindowModel.SoundWave = soundWave;

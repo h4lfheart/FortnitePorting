@@ -125,8 +125,11 @@ public partial class MaterialData : ObservableObject
     
     public void LoadMaterialFunction(UMaterialFunction materialFunction)
     {
-        if (!materialFunction.TryLoadEditorData<UMaterialFunctionEditorOnlyData>(out var editorData)) return;
-        if (editorData is null) return;
+        if (!materialFunction.TryLoadEditorData<UMaterialFunctionEditorOnlyData>(out var editorData) || editorData is null)
+        {
+            Info.Dialog("Material Preview", $"Failed to load {materialFunction.Name} because it has no editor-only data.");
+            return;
+        }
         
         var expressionCollection = editorData.GetOrDefault<FStructFallback>("ExpressionCollection");
         LoadExpressionCollection(expressionCollection);
@@ -134,8 +137,11 @@ public partial class MaterialData : ObservableObject
 
     public void LoadMaterial(UMaterial material)
     {
-        if (!material.TryLoadEditorData<UMaterialEditorOnlyData>(out var editorData)) return;
-        if (editorData is null) return;
+        if (!material.TryLoadEditorData<UMaterialEditorOnlyData>(out var editorData) || editorData is null)
+        {
+            Info.Dialog("Material Preview", $"Failed to load {material.Name} because it has no editor-only data.");
+            return;
+        }
         
         var expressionCollection = editorData.GetOrDefault<FStructFallback>("ExpressionCollection");
         LoadExpressionCollection(expressionCollection);
@@ -498,11 +504,11 @@ public partial class MaterialData : ObservableObject
             {
                 var declaration = expression.ExportType switch
                 {
-                    "MaterialExpressionNamedRerouteUsage" => expression.Get<UMaterialExpression>("Declaration"),
+                    "MaterialExpressionNamedRerouteUsage" => expression.GetOrDefault("Declaration", expression),
                     _ => expression
                 };
                 
-                var name = declaration.Get<FName>("Name").Text;
+                var name = declaration.GetOrDefault("Name", new FName("Invalid Reroute")).Text;
                 var nodeColor = declaration.GetOrDefault<FLinearColor>("NodeColor");
                 nodeColor.R *= 0.25f;
                 nodeColor.G *= 0.25f;
@@ -579,7 +585,7 @@ public partial class MaterialData : ObservableObject
                         constantColor.A = 1;
                         break;
                     case "MaterialExpressionVectorParameter":
-                        node.Label = expression.Get<FName>("ParameterName").Text;
+                        node.Label = expression.GetOrDefault<FName?>("ParameterName")?.Text ?? expression.Name;
                         break;
                 }
                 
@@ -637,7 +643,7 @@ public partial class MaterialData : ObservableObject
             
             case "MaterialExpressionScalarParameter":
             {
-                var name = expression.Get<FName>("ParameterName").Text;
+                var name = expression.GetOrDefault<FName?>("ParameterName")?.Text ?? expression.Name;
                 var sliderMin = expression.GetOrDefault<float>("SliderMin", 0);
                 var sliderMax = expression.GetOrDefault<float>("SliderMax", 1);
                 var defaultValue = expression.GetOrDefault<float>("DefaultValue");
@@ -727,6 +733,38 @@ public partial class MaterialData : ObservableObject
             {
                 node.Label = expression.GetOrDefault<FName?>("ParameterName")?.Text ?? expression.Name;
                 
+                break;
+            }
+            case "MaterialExpressionSwitch":
+            {
+                var inputs = expression.GetOrDefault<FStructFallback[]>("Inputs", []);
+                for (var i = 0; i < inputs.Length; i++)
+                {
+                    var input = inputs[i];
+                    var overrideName = input.GetOrDefault<FName?>("InputName")?.Text ?? $"{i}";
+                    if ("None".Equals(overrideName, StringComparison.OrdinalIgnoreCase)) overrideName = $"{i}";
+                    AddInput(ref node, input.Get<FExpressionInput>("Input"), overrideName);
+                }
+                break;
+            }
+            case "MaterialExpressionConvert":
+            {
+                node.Label = expression.GetOrDefault("NodeName", expression.Name);
+                var inputs = expression.GetOrDefault<FStructFallback[]>("ConvertInputs", []);
+                foreach (var input in inputs)
+                {
+                    var inputName = input.GetOrDefault<FName?>("Name", new FName(""))?.Text;
+                    AddInput(ref node, input.Get<FExpressionInput>("ExpressionInput"), inputName);
+                }
+                var outputs = expression.GetOrDefault<FStructFallback[]>("Outputs", []);
+                node.Outputs.Clear();
+                for (var i = 0; i < outputs.Length; i++)
+                {
+                    var output = outputs[i];
+                    var outputName = output.Get<FName?>("OutputName")?.Text ?? $"{i}";
+                    if ("None".Equals(outputName, StringComparison.OrdinalIgnoreCase)) outputName = $"{i}";
+                    node.AddOutput(outputName);
+                }
                 break;
             }
         }

@@ -23,27 +23,7 @@ namespace FortnitePorting.ViewModels;
 
 public partial class PluginViewModel : ViewModelBase
 {
-    [JsonIgnore] public Frame ContentFrame;
-    [JsonIgnore] public NavigationView NavigationView;
-
     [ObservableProperty] private BlenderPluginViewModel _blender = new();
     [ObservableProperty] private UnrealPluginViewModel _unreal = new();
-    
-
-    public void Navigate(EExportLocation exportLocation)
-    {
-        var name = exportLocation.ToString();
-        var viewName = $"FortnitePorting.Views.Plugin.{name}PluginView";
-        
-        var type = Type.GetType(viewName);
-        if (type is null) return;
-        
-        ContentFrame.Navigate(type, null, AppSettings.Current.Application.Transition);
-
-        NavigationView.SelectedItem = NavigationView.MenuItems
-            .Concat(NavigationView.FooterMenuItems)
-            .OfType<NavigationViewItem>()
-            .FirstOrDefault(item => (EExportLocation) item.Tag! == exportLocation);
-    }
 }
 

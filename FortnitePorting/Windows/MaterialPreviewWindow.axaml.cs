@@ -23,7 +23,6 @@ using FortnitePorting.Models.Material;
 using FortnitePorting.Models.Unreal.Material;
 using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
-using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
 using FortnitePorting.WindowModels;
 using Nodify;
@@ -43,7 +42,7 @@ public partial class MaterialPreviewWindow : WindowBase<MaterialPreviewWindowMod
     {
         InitializeComponent();
         DataContext = WindowModel;
-        Owner = ApplicationService.Application.MainWindow;
+        Owner = App.Lifetime.MainWindow;
     }
 
     public static void Preview(UObject obj)

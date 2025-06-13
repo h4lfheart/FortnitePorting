@@ -23,7 +23,6 @@ using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
-using FortnitePorting.Export;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Leaderboard;
@@ -32,7 +31,6 @@ using FortnitePorting.Models.Unreal;
 using FortnitePorting.Models.Unreal.Material;
 using FortnitePorting.Rendering;
 using FortnitePorting.Shared.Extensions;
-using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
 using FortnitePorting.Views;
 using FortnitePorting.Windows;
@@ -79,8 +77,8 @@ public partial class MaterialPreviewWindowModel : WindowModelBase
         if (asset is null) return;
 
         FilesVM.ClearSearchFilter();
-        FilesVM.FlatViewJumpTo(CUE4ParseVM.Provider.FixPath(asset.GetPathName().SubstringBefore(".")));
-        AppWM.Navigate<FilesView>();
+        FilesVM.FlatViewJumpTo(UEParse.Provider.FixPath(asset.GetPathName().SubstringBefore(".")));
+        Navigation.App.Open<FilesView>();
         AppWM.Window.BringToTop();
     }
 

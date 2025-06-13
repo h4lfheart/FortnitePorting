@@ -9,7 +9,7 @@ namespace FortnitePorting.Views.Settings;
 
 public partial class InstallationSettingsView : ViewBase<InstallationSettingsViewModel>
 {
-    public InstallationSettingsView() : base(AppSettings.Current.Installation)
+    public InstallationSettingsView() : base(AppSettings.Installation)
     {
         InitializeComponent();
     }

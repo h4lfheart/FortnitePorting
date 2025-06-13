@@ -14,15 +14,17 @@ using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.GameplayTags;
 using DynamicData;
 using DynamicData.Binding;
+using FortnitePorting.Application;
 using FortnitePorting.Extensions;
 using FortnitePorting.Models.Assets.Asset;
 using FortnitePorting.Models.Assets.Base;
 using FortnitePorting.Models.Assets.Custom;
 using FortnitePorting.Models.Assets.Filters;
+using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
-using FortnitePorting.Shared.Services;
 using Material.Icons;
+using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
 using ScottPlot.Colormaps;
 using Serilog;
@@ -74,6 +76,7 @@ public partial class AssetLoader : ObservableObject
     
     public readonly IObservable<Func<BaseAssetItem, bool>> AssetFilter;
     [ObservableProperty] private string _searchFilter = string.Empty;
+    [ObservableProperty] private bool _useRegex = false;
     [ObservableProperty] private ObservableCollection<string> _searchAutoComplete = [];
 
     
@@ -178,7 +181,7 @@ public partial class AssetLoader : ObservableObject
         Type = exportType;
         
         AssetFilter = this
-            .WhenAnyValue(loader => loader.SearchFilter, loader => loader.ActiveFilters)
+            .WhenAnyValue(loader => loader.SearchFilter, loader => loader.ActiveFilters, loader => loader.UseRegex)
             .Select(CreateAssetFilter);
         
         AssetSort = this
@@ -198,7 +201,7 @@ public partial class AssetLoader : ObservableObject
         if (BeganLoading) return;
         BeganLoading = true;
 
-        Assets = CUE4ParseVM.AssetRegistry
+        Assets = AppServices.UEParse.AssetRegistry
             .Where(data => ClassNames.Contains(data.AssetClass.Text))
             .ToList();
         Assets.RemoveAll(data => data.AssetName.Text.EndsWith("Random", StringComparison.OrdinalIgnoreCase));
@@ -269,7 +272,7 @@ public partial class AssetLoader : ObservableObject
 
     private async Task LoadAsset(FAssetData data)
     {
-        var asset = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync(data.ObjectPath);
+        var asset = await AppServices.UEParse.Provider.SafeLoadPackageObjectAsync(data.ObjectPath);
         if (asset is null) return;
 
         /*data.TagsAndValues.TryGetValue("DisplayName", out var displayName);
@@ -288,7 +291,7 @@ public partial class AssetLoader : ObservableObject
         var isHidden = HideNames.Any(name => asset.Name.Contains(name, StringComparison.OrdinalIgnoreCase)) || HidePredicate(this, asset, displayName);
         if (isHidden && !LoadHiddenAssets) return;
         
-        var icon = IconHandler(asset) ?? await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync<UTexture2D>(PlaceholderIconPath);
+        var icon = IconHandler(asset) ?? await AppServices.UEParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>(PlaceholderIconPath);
         if (icon is null) return;
         
         var args = new AssetItemCreationArgs
@@ -309,12 +312,12 @@ public partial class AssetLoader : ObservableObject
     
     private async Task LoadAsset(ManuallyDefinedAsset manualAsset)
     {
-        var asset = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync(manualAsset.AssetPath);
+        var asset = await AppServices.UEParse.Provider.SafeLoadPackageObjectAsync(manualAsset.AssetPath);
         if (asset is null) return;
 
         var displayName = manualAsset.Name;
             
-        var icon = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync<UTexture2D>(manualAsset.IconPath) ?? await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync<UTexture2D>(PlaceholderIconPath);
+        var icon = await AppServices.UEParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>(manualAsset.IconPath) ?? await AppServices.UEParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>(PlaceholderIconPath);
         if (icon is null) return;
         
         var args = new AssetItemCreationArgs
@@ -383,20 +386,18 @@ public partial class AssetLoader : ObservableObject
         while (IsPaused) await Task.Delay(1);
     }
     
-    private static Func<BaseAssetItem, bool> CreateAssetFilter((string, ObservableCollection<FilterItem>) values)
+    private static Func<BaseAssetItem, bool> CreateAssetFilter((string, ObservableCollection<FilterItem>, bool) values)
     {
-        var (searchFilter, filters) = values;
+        var (searchFilter, filters, useRegex) = values;
         return asset =>
         {
             if (asset is AssetItem assetItem)
             {
-                return assetItem.Match(searchFilter) && filters.All(x => x.Predicate.Invoke(assetItem)) 
+                return assetItem.Match(searchFilter, useRegex) && filters.All(x => x.Predicate.Invoke(assetItem)) 
                                                      && assetItem.CreationData.IsHidden == filters.Any(filter => filter.Title.Equals("Hidden Items"));
             }
-            else
-            {
-                return asset.Match(searchFilter);
-            }
+
+            return asset.Match(searchFilter, useRegex);
         };
         
     }

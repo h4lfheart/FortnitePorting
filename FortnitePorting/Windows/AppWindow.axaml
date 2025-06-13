@@ -2,37 +2,37 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
         xmlns:ui="using:FluentAvalonia.UI.Controls"
-        xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
+        xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
         xmlns:windowModels="clr-namespace:FortnitePorting.WindowModels"
+        xmlns:views="clr-namespace:FortnitePorting.Views"
+        xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         x:Class="FortnitePorting.Windows.AppWindow"
         x:DataType="windowModels:AppWindowModel"
-        Width="1160" Height="770" RequestedThemeVariant="Dark" FontFamily="Segoe UI" Background="{x:Null}"
-        TransparencyLevelHint="{Binding Theme.TransparencyHints}" ExtendClientAreaToDecorationsHint="True"
+        Width="1280" Height="770" RequestedThemeVariant="Dark" FontFamily="Segoe UI" Background="#DB1C1C26"
+        TransparencyLevelHint="{Binding Settings.Theme.TransparencyHints}" ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="NoChrome"
         WindowStartupLocation="CenterScreen" ClosingBehavior="OwnerAndChildWindows" ExtendClientAreaTitleBarHeightHint="35"
         Icon="/Assets/LogoV3.ico"
         Title="Fortnite Porting">
-    <Grid RowDefinitions="35, *" Margin="{Binding $parent[Window].OffScreenMargin}">
-        <ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False" IsVisible="{Binding !Theme.UseMica}">
+    <Grid RowDefinitions="35, *" Margin="{Binding $parent[Window]}">
+        <!--ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False" IsVisible="{Binding !Settings.Theme.UseMica}">
             <ExperimentalAcrylicBorder.Material>
-                <ExperimentalAcrylicMaterial BackgroundSource="Digger" MaterialOpacity="1.5" TintColor="{Binding Theme.BackgroundColor}" TintOpacity="1"/>
+                <ExperimentalAcrylicMaterial BackgroundSource="Digger" MaterialOpacity="0.9" TintColor="Black" TintOpacity="1"/>
             </ExperimentalAcrylicBorder.Material>
-        </ExperimentalAcrylicBorder>
+        </ExperimentalAcrylicBorder-->
 
-        <ui:NavigationView x:Name="NavigationView" Grid.Row="1" IsPaneOpen="False" OpenPaneLength="152" ItemInvoked="OnItemInvoked" IsSettingsVisible="False">
+        <ui:NavigationView x:Name="NavigationView" Grid.Row="1" Classes="NoBackground"
+                           IsPaneOpen="False" OpenPaneLength="152" ItemInvoked="OnItemInvoked" 
+                           IsSettingsVisible="False"
+                           IsVisible="{Binding Settings.Installation.FinishedSetup}">
              <ui:NavigationView.MenuItems>
-                 <ui:NavigationViewItem Content="Welcome" Tag="Welcome" IsSelected="True" IsVisible="{Binding SetupTabsAreVisible}">
-                     <ui:NavigationViewItem.IconSource>
-                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry CheckboxesMarked}"/>
-                     </ui:NavigationViewItem.IconSource>
-                 </ui:NavigationViewItem>
-                 <ui:NavigationViewItemSeparator IsVisible="{Binding SetupTabsAreVisible}"/>
-                 <ui:NavigationViewItem Content="Home" Tag="Home" IsEnabled="{Binding !SetupTabsAreVisible}">
+                 <ui:NavigationViewItem Content="Home" Tag="{x:Type views:HomeView}" IsEnabled="{Binding }">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Home}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItemSeparator/>
-                 <ui:NavigationViewItem Content="Chat" Tag="Chat" IsEnabled="{Binding OnlineRef.UseIntegration}"
+                 <ui:NavigationViewItem Content="Chat" Tag="{x:Type views:ChatView}"
+                                        IsEnabled="{Binding SupaBase.IsLoggedIn}"
                                         IsVisible="{Binding OnlineStatus.Chat.Enabled, FallbackValue=True}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry ChatBubble}"/>
@@ -41,13 +41,8 @@
                          <ui:InfoBadge Value="{Binding ChatNotifications}" IsVisible="{Binding !!ChatNotifications}"/>
                      </ui:NavigationViewItem.InfoBadge>
                  </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Canvas" Tag="Canvas" IsEnabled="{Binding OnlineRef.UseIntegration}"
-                                        IsVisible="{Binding OnlineStatus.Canvas.Enabled, FallbackValue=True}">
-                     <ui:NavigationViewItem.IconSource>
-                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry Palette}"/>
-                     </ui:NavigationViewItem.IconSource>
-                 </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Voting" Tag="Voting" IsEnabled="{Binding OnlineRef.UseIntegration}"
+                 <ui:NavigationViewItem Content="Voting" Tag="{x:Type views:VotingView}"
+                                        IsEnabled="{Binding SupaBase.IsLoggedIn}"
                                         IsVisible="{Binding OnlineStatus.Voting.Enabled, FallbackValue=True}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Poll}"/>
@@ -57,30 +52,31 @@
                          <ui:InfoBadge Value="{Binding UnsubmittedPolls}" IsVisible="{Binding !!UnsubmittedPolls}"/>
                      </ui:NavigationViewItem.InfoBadge>
                  </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Leaderboard" Tag="Leaderboard" IsEnabled="{Binding OnlineAndGameTabsAreVisible}"
+                 <ui:NavigationViewItem Content="Leaderboard" Tag="{x:Type views:LeaderboardView}" 
+                                        IsEnabled="{Binding SupaBase.IsLoggedIn}"
                                         IsVisible="{Binding OnlineStatus.Leaderboard.Enabled, FallbackValue=True}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Trophy}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItemSeparator/>
-                 <ui:NavigationViewItem Content="Assets" Tag="Assets" IsEnabled="{Binding GameBasedTabsAreReady}">
+                 <ui:NavigationViewItem Content="Assets" Tag="{x:Type views:AssetsView}" IsEnabled="{Binding UEParse.FinishedLoading}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry File}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Files" Tag="Files" IsEnabled="{Binding GameBasedTabsAreReady}">
+                 <ui:NavigationViewItem Content="Files" Tag="{x:Type views:FilesView}" IsEnabled="{Binding UEParse.FinishedLoading}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Folder}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItemSeparator/>
-                 <ui:NavigationViewItem Content="Radio" Tag="Radio" IsEnabled="{Binding GameBasedTabsAreReady}">
+                 <ui:NavigationViewItem Content="Radio" Tag="{x:Type views:RadioView}" IsEnabled="{Binding UEParse.FinishedLoading}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Radio}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Map" Tag="Map" IsEnabled="{Binding GameBasedTabsAreReady}">
+                 <ui:NavigationViewItem Content="Map" Tag="{x:Type views:MapView}" IsEnabled="{Binding UEParse.FinishedLoading}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Map}"/>
                      </ui:NavigationViewItem.IconSource>
@@ -88,34 +84,34 @@
                  
              </ui:NavigationView.MenuItems>
              <ui:NavigationView.FooterMenuItems>
-                 <ui:NavigationViewItem Content="Help" Tag="Help" IsEnabled="{Binding !SetupTabsAreVisible}">
+                 <ui:NavigationViewItem Content="Help" Tag="{x:Type views:HelpView}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Help}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItemSeparator/>
-                 <ui:NavigationViewItem Content="Console" Tag="Console" IsEnabled="{Binding !SetupTabsAreVisible}" IsVisible="{Binding ConsoleIsVisible}">
+                 <ui:NavigationViewItem Content="Console" Tag="{x:Type views:ConsoleView}" IsVisible="{Binding Settings.Debug.IsConsoleVisible}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Console}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Plugin" Tag="Plugin" IsEnabled="{Binding !SetupTabsAreVisible}">
+                 <ui:NavigationViewItem Content="Plugin" Tag="{x:Type views:PluginView}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Plug}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Export" Tag="ExportSettings" IsEnabled="{Binding !SetupTabsAreVisible}">
+                 <ui:NavigationViewItem Content="Export" Tag="{x:Type views:ExportSettingsView}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry FileCog}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Settings" Tag="Settings" IsEnabled="{Binding !SetupTabsAreVisible}">
+                 <ui:NavigationViewItem Content="Settings" Tag="{x:Type views:SettingsView}">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Settings}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
                  <ui:NavigationViewItemSeparator/>
-                 <ui:NavigationViewItem Content="Update" Tag="Update" SelectsOnInvoked="False" PointerPressed="OnUpdatePressed" IsEnabled="{Binding !SetupTabsAreVisible}">
+                 <ui:NavigationViewItem Content="Update" Tag="Update" SelectsOnInvoked="False" PointerPressed="OnUpdatePressed">
                      <ui:NavigationViewItem.IconSource>
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Download}"/>
                      </ui:NavigationViewItem.IconSource>
@@ -123,8 +119,8 @@
              </ui:NavigationView.FooterMenuItems>
              
              <Grid>
-                 <ui:Frame x:Name="ContentFrame" Transitions="{x:Null}"/>
-                 <ItemsControl VerticalAlignment="Bottom" Margin="{ext:Space 1}" ItemsSource="{Binding InfoBars}">
+                 <ui:Frame x:Name="ContentFrame" Transitions="{x:Null}" IsVisible="{Binding !BlackHole.IsActive}"/>
+                 <ItemsControl VerticalAlignment="Bottom" Margin="{ext:Space 1}" ItemsSource="{Binding Info.Messages}">
                      <ItemsControl.ItemTemplate>
                          <DataTemplate>
                              <ui:InfoBar IsOpen="True" 
@@ -160,32 +156,35 @@
              </Grid>
          </ui:NavigationView>
         
-        <TransitioningContentControl Grid.Row="0" Grid.RowSpan="2" Content="{Binding TimeWaster}">
+        <ContentControl Grid.Row="0" Grid.RowSpan="2" Content="{Binding SetupViewContent}" 
+                        IsVisible="{Binding !Settings.Installation.FinishedSetup}"/>
+        
+        <TransitioningContentControl Grid.Row="0" Grid.RowSpan="2" Content="{Binding BlackHole.Content}">
             <TransitioningContentControl.PageTransition>
                 <CrossFade Duration="0:00:00.25"/>
             </TransitioningContentControl.PageTransition>
         </TransitioningContentControl>
         
         <Grid Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsHitTestVisible="False"
-              IsVisible="{Binding TitleData, Converter={x:Static ObjectConverters.IsNotNull}}">
+              IsVisible="{Binding Info.TitleData, Converter={x:Static ObjectConverters.IsNotNull}}">
             
             <Border Background="Black" Opacity="0.5"/>
             
             <Grid HorizontalAlignment="Center" VerticalAlignment="Center" 
-                  IsVisible="{Binding TitleData, Converter={x:Static ObjectConverters.IsNotNull}}">
+                  IsVisible="{Binding Info.TitleData, Converter={x:Static ObjectConverters.IsNotNull}}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="{ext:Space 1}"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
             
-                <TextBlock Grid.Row="0" Text="{Binding TitleData.Title}" Classes="TitleTextBlockStyle"
+                <TextBlock Grid.Row="0" Text="{Binding Info.TitleData.Title}" Classes="TitleTextBlockStyle"
                            HorizontalAlignment="Center" VerticalAlignment="Center">
                     <TextBlock.Effect>
                         <DropShadowEffect BlurRadius="15"/>
                     </TextBlock.Effect>
                 </TextBlock>
-                <TextBlock Grid.Row="2" Text="{Binding TitleData.SubTitle}" Classes="SubtitleTextBlockStyle"
+                <TextBlock Grid.Row="2" Text="{Binding Info.TitleData.SubTitle}" Classes="SubtitleTextBlockStyle"
                            HorizontalAlignment="Center" VerticalAlignment="Center">
                     <TextBlock.Effect>
                         <DropShadowEffect BlurRadius="15"/>
@@ -194,22 +193,41 @@
             </Grid>
         </Grid>
         
-        
-        <Grid Grid.Row="0" Background="Transparent" HorizontalAlignment="Center" PointerPressed="OnPointerPressedUpperBar">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="{ext:Space 1}" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="{ext:Space 0.25}" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
+        <Grid Grid.Row="0" Background="#2F000000" HorizontalAlignment="Stretch" PointerPressed="OnPointerPressedUpperBar">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="{ext:Space 0.75}" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="{ext:Space 0.5}" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
             
-            <ui:ImageIcon Grid.Column="0" Source="/Assets/LogoV3.png" Width="20" Height="20" RenderOptions.BitmapInterpolationMode="HighQuality"></ui:ImageIcon>
+                <ui:ImageIcon Grid.Column="0" Source="/Assets/LogoV3.png" 
+                              HorizontalAlignment="Right"
+                              Width="20" Height="20" 
+                              RenderOptions.BitmapInterpolationMode="HighQuality" RenderOptions.EdgeMode="Antialias"/>
 
-            <TextBlock Grid.Column="2" Text="FortnitePorting" FontWeight="SemiBold" FontSize="16"
-                       HorizontalAlignment="Left" VerticalAlignment="Center" />
-            <TextBlock Grid.Column="4" Text="{Binding VersionString}" Classes="TextFillColorTertiaryBrush" FontSize="13" Margin="0 0 0 0"
-                       HorizontalAlignment="Left" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="2" Text="Fortnite Porting" FontWeight="SemiBold" FontSize="16"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="4" Text="{Binding VersionString}" Classes="TextFillColorTertiaryBrush" FontSize="13" Margin="0 0 0 0"
+                           HorizontalAlignment="Left" VerticalAlignment="Center" />
+            </Grid>
+            
+            <Grid HorizontalAlignment="Right">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="{ext:Space 0.5}" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="{ext:Space 0.5}" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="1" />
+                </Grid.ColumnDefinitions>
+            
+                <Border Grid.Column="0" PointerPressed="OnMinimizePressed" Cursor="Hand" CornerRadius="0" Classes="MinimizeMaximize" Child="{avalonia:MaterialIconExt Minus}" Width="35" Height="35"/>
+                <Border Grid.Column="2" PointerPressed="OnMaximizePressed" Cursor="Hand" CornerRadius="0" Classes="MinimizeMaximize" Child="{avalonia:MaterialIconExt Maximize}" Width="35" Height="35"/>
+                <Border Grid.Column="4" PointerPressed="OnClosePressed" Cursor="Hand" CornerRadius="0" Classes="Close" Child="{avalonia:MaterialIconExt Close}" Width="35" Height="35"/>
+            </Grid>
         </Grid>
     </Grid>
 </Window>

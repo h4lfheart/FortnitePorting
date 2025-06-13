@@ -4,224 +4,312 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
              xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
-             xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
              xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
              xmlns:views="clr-namespace:FortnitePorting.Views"
              xmlns:wrapPanel="clr-namespace:FortnitePorting.Controls.WrapPanel"
              xmlns:chat="clr-namespace:FortnitePorting.Models.Chat"
-             xmlns:packet="clr-namespace:FortnitePorting.OnlineServices.Packet;assembly=FortnitePorting.OnlineServices"
+             xmlns:user="clr-namespace:FortnitePorting.Models.Supabase.User"
+             xmlns:tables="clr-namespace:FortnitePorting.Models.Supabase.Tables"
+             xmlns:generic="clr-namespace:System.Collections.Generic;assembly=System.Runtime"
+             xmlns:framework="clr-namespace:FortnitePorting.Framework"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FortnitePorting.Views.ChatView"
              x:DataType="viewModels:ChatViewModel">
-    <Grid>
-        <Grid IsVisible="{Binding !AreServicesDown}">
-            <Grid.KeyBindings>
-                <KeyBinding Gesture="Ctrl+V"  Command="{Binding ClipboardPaste}"/>
-            </Grid.KeyBindings>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="{ext:Space 0}"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+    <UserControl.Resources>
+        <DataTemplate x:Key="MessageTemplate">
+            <DataTemplate.DataType>
+                <x:Type TypeName="framework:ObservableKeyValuePair" x:TypeArguments="x:String, chat:ChatMessageV2"/>
+            </DataTemplate.DataType>
             
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="3*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            
-             <ScrollViewer Grid.Row="0" Grid.Column="0" x:Name="Scroll">
-                 <ItemsControl ItemsSource="{Binding Messages}" Margin="{ext:Space 1, 1, 2, 0}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <ui:FABorder x:Name="PointerOverTarget" Background="{Binding BackgroundBrush}" Margin="{ext:Space 0, 0, 0, 0.5}">
-                                <Grid Margin="{ext:Space 1}">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="{ext:Space 1}"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="{ext:Space 0.5}"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="{ext:Space 0.5}"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="{ext:Space 1}"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="{ext:Space 1}"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    
-                                    <Image Grid.Row="0" Grid.Column="0" asyncImageLoader:ImageLoader.Source="{Binding User.ProfilePictureURL}" 
-                                           Width="16" Height="16" Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center"
-                                           PointerPressed="OnMessageUserPressed" Cursor="Hand">
-                                        <FlyoutBase.AttachedFlyout>
-                                            <MenuFlyout>
-                                                <MenuItem Header="Copy GUID" Command="{Binding User.CopyGUIDCommand}"/>
-                                                <MenuItem Header="Copy ID" Command="{Binding User.CopyIDCommand}"/>
-                                                <MenuItem Header="Send Message" Command="{Binding User.SendMessageCommand}"
-                                                          IsVisible="{Binding $parent[views:ChatView].((viewModels:ChatViewModel)DataContext).Permissions, 
-                                                          Converter={StaticResource EnumHasFlag}, 
-                                                          ConverterParameter={x:Static packet:EPermissions.Text}}"/>
-                                                <MenuItem Header="Send Export" Command="{Binding User.SendExportCommand}"
-                                                          IsVisible="{Binding $parent[views:ChatView].((viewModels:ChatViewModel)DataContext).Permissions, 
-                                                          Converter={StaticResource EnumHasFlag}, 
-                                                          ConverterParameter={x:Static packet:EPermissions.Text}}"/>
-                                                <MenuItem Header="Set Role" Command="{Binding User.SetRoleCommand}" 
-                                                          IsVisible="{Binding $parent[views:ChatView].((viewModels:ChatViewModel)DataContext).Permissions, 
-                                                          Converter={StaticResource EnumHasFlag}, 
-                                                          ConverterParameter={x:Static packet:EPermissions.SetRole}}"/>
-                                            </MenuFlyout>
-                                        </FlyoutBase.AttachedFlyout>
-                                    </Image>
-                                    
-                                    <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding UserTitleText}"
-                                               Foreground="{Binding User.Brush}"
-                                               Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center"
-                                               PointerPressed="OnMessageUserPressed"/>
-                                    
-                                    <TextBlock Grid.Row="0" Grid.Column="4" Text="{Binding User.Tag, StringFormat='g'}"
-                                               TextWrapping="Wrap" Opacity="0.5"
-                                               Classes="CaptionTextBlockStyle" VerticalAlignment="Center"/>
-                                    
-                                    <TextBlock Grid.Row="0" Grid.Column="6" Text="{Binding Timestamp, StringFormat='g'}"
-                                               TextWrapping="Wrap" Opacity="0.5"
-                                               Classes="CaptionTextBlockStyle" VerticalAlignment="Center"/>
-                                    
-                                    <StackPanel Grid.Row="0" Grid.Column="8" HorizontalAlignment="Right" VerticalAlignment="Top" Orientation="Horizontal">
-                                        <TextBlock Text="{Binding ReactionCount}" Opacity="0.5" Margin="{ext:Space 0, 0, 1, 0}"/>
-                                        <Image ToolTip.Tip="Yeah!" Width="16" Height="16" Cursor="Hand"
-                                               Source="{Binding YeahImageSource}"
-                                               Margin="{ext:Space 0, 0, 1, 0}"
-                                               PointerPressed='OnYeahPressed'/>
-                                        
-                                        <material:MaterialIcon Kind="Reply" PointerPressed="OnReplyPressed" Opacity="0.5"
-                                                               Cursor="Hand"
-                                                               IsVisible="{Binding IsPrivate}"
-                                                               Margin="{ext:Space 0, 0, 1, 0}"/>
-
-                                        <material:MaterialIcon Kind="Delete" PointerPressed="OnDeletePressed" Opacity="0.5"
-                                                               Cursor="Hand"
-                                                                IsVisible="{Binding $parent[views:ChatView].((viewModels:ChatViewModel)DataContext).Permissions, 
-                                                                Converter={StaticResource EnumHasFlag}, 
-                                                                ConverterParameter={x:Static packet:EPermissions.Staff}}"
-                                                               />
-                                    </StackPanel>
-                                    
-                                    <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="9" IsVisible="{Binding HasTextData}"
-                                               Text="{Binding Text}" TextWrapping="Wrap" 
-                                               Classes="BodyTextBlockStyle" VerticalAlignment="Center"
-                                               Foreground="{Binding TextBrush}"/>
-                                    
-                                    <Border Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="9" 
-                                            IsVisible="{Binding HasImageData}"
-                                            CornerRadius="4" ClipToBounds="True" HorizontalAlignment="Left" Margin="{ext:Space 0, 1, 0, 0}">
-                                        <Image Source="{Binding Bitmap}" VerticalAlignment="Center" MaxHeight="300"
-                                               Height="{Binding Bitmap.PixelSize.Height}"
-                                               Cursor="Hand" PointerPressed="OnImagePressed"/>
-                                    </Border>
-                                    
-                                </Grid>
-                            </ui:FABorder>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </ScrollViewer>
-            
-            <Border Grid.Row="2" Grid.Column="0" Background="#10000000"/>
-            
-            <Grid Grid.Row="2" Grid.Column="0" Margin="{ext:Space 1}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
+            <Grid DataContext="{Binding Value}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
                 
-                <Button x:Name="ImageButton" Grid.Column="0" IsVisible="{Binding Permissions, Converter={StaticResource EnumHasFlag}, ConverterParameter={x:Static packet:EPermissions.SendAttachments}}" Content="{material:MaterialIconExt Plus}" Command="{Binding OpenImageCommand}" Margin="{ext:Space 0, 0, 1, 0}"/>
-                
-                <ui:TeachingTip x:Name="ImageFlyout" Grid.Column="0" Target="{Binding #ImageButton}" Title="{Binding SelectedImageName}">
-                    <Border CornerRadius="4" ClipToBounds="True">
-                        <Image Source="{Binding SelectedImage}"
-                               VerticalAlignment="Center" MaxHeight="300"
-                               Height="{Binding SelectedImage.PixelSize.Height}"/>
-                    </Border>
-                </ui:TeachingTip>
+                <ui:FABorder x:Name="PointerOverTarget" Grid.Row="0"
+                             Margin="{ext:Space 0, 1, 0, 0}">
+                    <Grid Margin="{ext:Space 1}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="{ext:Space 1}"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="{ext:Space 0.5}"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="{ext:Space 0.5}"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="{ext:Space 0.5}"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="{ext:Space 1}"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
                         
-                <AutoCompleteBox Grid.Column="1" x:Name="TextBox" Text="{Binding Text, Mode=TwoWay}" ItemsSource="{Binding Commands}" Watermark="Enter a message"
-                                 IsVisible="{Binding Permissions,
-                                 Converter={StaticResource EnumHasFlag}, 
-                                 ConverterParameter={x:Static packet:EPermissions.Text}}"/>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="{ext:Space 1}"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        
+                        <Border Grid.Row="0" Grid.RowSpan="3" Grid.Column="0" 
+                                 VerticalAlignment="Top" Margin="{ext:Space 0, 0.5, 0, 0}"
+                                 CornerRadius="4" ClipToBounds="True">
+                            <Image asyncImageLoader:ImageLoader.Source="{Binding User.AvatarUrl}" 
+                                   Width="32" Height="32" Classes="BodyStrongTextBlockStyle" 
+                                   RenderOptions.BitmapInterpolationMode="MediumQuality"
+                                   PointerPressed="OnMessageUserPressed" Cursor="Hand">
+                                <FlyoutBase.AttachedFlyout>
+                                    <MenuFlyout>
+                                        <MenuItem Header="Copy User ID" Command="{Binding User.CopyIDCommand}"/>
+                                        <MenuItem Header="Set Role" Command="{Binding User.SetRoleCommand}" 
+                                                  IsVisible="{Binding User.CanChangeRole}"/>
+                                    </MenuFlyout>
+                                </FlyoutBase.AttachedFlyout>
+                            </Image>
+                        </Border>
+                      
+                        
+                        <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding User.DisplayName}"
+                                   Foreground="{Binding User.Brush}"
+                                   Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center"/>
+                        
+                        <TextBlock Grid.Row="0" Grid.Column="4" Text="{Binding Application}"
+                                   TextWrapping="Wrap" Opacity="0.5"
+                                   Classes="CaptionTextBlockStyle" VerticalAlignment="Center"/>
+                        
+                        <TextBlock Grid.Row="0" Grid.Column="6" Text="{Binding TimestampString}"
+                                   TextWrapping="Wrap" Opacity="0.5"
+                                   Classes="CaptionTextBlockStyle" VerticalAlignment="Center"/>
+                        
+                        <TextBlock Grid.Row="0" Grid.Column="8"  IsVisible="{Binding WasEdited}"
+                                   Text="(edited)" TextWrapping="Wrap" 
+                                   Classes="CaptionTextBlockStyle TextFillColorTertiaryBrush" VerticalAlignment="Center"/>
+                        
+                        <StackPanel Grid.Row="0" Grid.Column="10" HorizontalAlignment="Right" VerticalAlignment="Top" Orientation="Horizontal">
+                            
+                            <StackPanel IsVisible="{Binding IsPointerOver, ElementName=PointerOverTarget}" 
+                                        Orientation="Horizontal">
+                                <material:MaterialIcon Kind="Reply" PointerPressed="OnReplyPressed" 
+                                                       ToolTip.Tip="Reply"
+                                                       Opacity="0.5"
+                                                       Cursor="Hand"
+                                                       IsVisible="{Binding CanReply}"
+                                                       Margin="{ext:Space 0, 0, 0.5, 0}"/>
+                            
+                                <material:MaterialIcon Kind="Pencil" PointerPressed="OnEditPressed" Opacity="0.5"
+                                                       ToolTip.Tip="Edit"
+                                                       Cursor="Hand"
+                                                       IsVisible="{Binding CanEdit}"
+                                                       Margin="{ext:Space 0, 0, 0.5, 0}"/>
+                                
+                                <Viewbox ToolTip.Tip="Copy" Width="14" Height="14"
+                                         Cursor="Hand" PointerPressed="OnCopyPressed" Margin="{ext:Space 0, 0, 0.5, 0}">
+                                    <Path 
+                                          Data="m19,5l-11,0a2,2 0 0 0 -2,2l0,14a2,2 0 0 0 2,2l11,0a2,2 0 0 0 2,-2l0,-14a2,2 0 0 0 -2,-2m-3,-4l-12,0a2,2 0 0 0 -2,2l0,14l2,0l0,-14l12,0l0,-2z"
+                                          Opacity="0.5" Fill="White"/>
+                                </Viewbox>
+                                
+                                <material:MaterialIcon Kind="Delete" PointerPressed="OnDeletePressed" Opacity="0.5"
+                                                       ToolTip.Tip="Delete"
+                                                       Cursor="Hand"
+                                                       IsVisible="{Binding CanDelete}"
+                                                       Margin="{ext:Space 0, 0, 0.5, 0}"/>
+                            </StackPanel>
+                            
+                            <TextBlock Text="{Binding ReactorIds.Length}" 
+                                       Foreground="{Binding ReactionBrush}"
+                                       Margin="{ext:Space 0, 0, 0.5, 0}"/>
+                            
+                            <Image ToolTip.Tip="Yeah!" Width="16" Height="16" Cursor="Hand"
+                                   Source="{Binding ReactionBitmap}"
+                                   PointerPressed="OnYeahPressed"/>
+
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Row="1" Grid.RowSpan="2" Grid.Column="2" Grid.ColumnSpan="9">
+                            <Grid IsVisible="{Binding Text, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                                <TextBlock IsVisible="{Binding !IsEditing}"
+                                           Text="{Binding Text}" TextWrapping="Wrap" 
+                                           Classes="BodyTextBlockStyle" VerticalAlignment="Center">
+                                </TextBlock>
+                        
+                                <TextBox IsVisible="{Binding IsEditing}"
+                                         KeyDown="OnEditBoxKeyDown" Margin="{ext:Space 0, 0.5}"
+                                         Text="{Binding Text}" TextWrapping="Wrap" 
+                                         Classes="BodyTextBlockStyle" VerticalAlignment="Center"/>
+                            </Grid>
+                        
+                            <Border
+                                    IsVisible="{Binding FullImageUrl, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                    CornerRadius="4" ClipToBounds="True" HorizontalAlignment="Left" Margin="{ext:Space 0, 1, 0, 0}">
+                                <Border.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Save" Command="{Binding SaveImageCommand}"/>
+                                    </ContextMenu>
+                                </Border.ContextMenu>
+                            
+                                <Image asyncImageLoader:ImageLoader.Source="{Binding FullImageUrl}"
+                                       Height="{Binding $self.Source.Size.Height}"
+                                       VerticalAlignment="Center" MaxHeight="300"/>
+                            </Border>
+                        </StackPanel>
+                        
+                    </Grid>
+                </ui:FABorder>
                 
+                <ItemsControl Grid.Row="1" Margin="{ext:Space 3, 0, 0, 0}"
+                              ItemsSource="{Binding ReplyMessages}" 
+                              ItemTemplate="{StaticResource MessageTemplate}"/>
             </Grid>
-            
-            <ui:FABorder Grid.Row="0" Grid.RowSpan="3" Grid.Column="1" Background="#22000000" CornerRadius="0">
+        </DataTemplate>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.KeyBindings>
+            <KeyBinding Gesture="Ctrl+V"  Command="{Binding ClipboardPaste}"/>
+        </Grid.KeyBindings>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="{ext:Space 0}"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        
+        <ScrollViewer Grid.Row="0" Grid.Column="0" x:Name="Scroll" >
+             <ItemsControl ItemsSource="{Binding Chat.Messages}" Margin="{ext:Space 1, 1, 1, 0}" ItemTemplate="{StaticResource MessageTemplate}"/>
+        </ScrollViewer>
+        
+        <Grid Grid.Row="2" Grid.Column="0" RowDefinitions="Auto *" Margin="{ext:Space 1}" 
+              IsVisible="{Binding SupaBase.Permissions.Role,
+                Converter={StaticResource EnumNotEquals},
+                ConverterParameter={x:Static tables:ESupabaseRole.Muted}}"
+              ColumnDefinitions="Auto,*">
+
+            <ui:FABorder Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" 
+                         IsVisible="{Binding ReplyMessage, Converter={x:Static ObjectConverters.IsNotNull}}"
+                         Margin="{ext:Space 0, 0, 0, 1}">
                 <Grid Margin="{ext:Space 1}">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="{ext:Space 1}"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="{ext:Space 0.5}"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="{ext:Space 1}"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="{ext:Space 1}"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
                     
-                    <TextBlock Grid.Row="0" Text="{Binding Users.Count, StringFormat='Online - {0}'}" Classes="BodyStrongTextBlockStyle" FontWeight="SemiBold" HorizontalAlignment="Left"/>
+                    <TextBlock Grid.Column="0" Text="Replying to" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     
-                    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Hidden">
-                        <ItemsControl ItemsSource="{Binding Users}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate x:DataType="chat:ChatUser">
-                                    <ui:FABorder HorizontalAlignment="Stretch" Cursor="Hand" PointerPressed="OnUserPressed" Margin="{ext:Space 0, 0, 0, 0.5}">
-                                        <FlyoutBase.AttachedFlyout>
-                                            <MenuFlyout>
-                                                <MenuItem Header="Copy GUID" Command="{Binding CopyGUIDCommand}"/>
-                                                <MenuItem Header="Copy ID" Command="{Binding CopyIDCommand}"/>
-                                                <MenuItem Header="Send Message" Command="{Binding SendMessageCommand}"
-                                                          IsVisible="{Binding $parent[views:ChatView].((viewModels:ChatViewModel)DataContext).Permissions, 
-                                                          Converter={StaticResource EnumHasFlag}, 
-                                                          ConverterParameter={x:Static packet:EPermissions.Text}}"/>
-                                                <MenuItem Header="Send Export" Command="{Binding SendExportCommand}"
-                                                          IsVisible="{Binding $parent[views:ChatView].((viewModels:ChatViewModel)DataContext).Permissions, 
-                                                          Converter={StaticResource EnumHasFlag}, 
-                                                          ConverterParameter={x:Static packet:EPermissions.Text}}"/>
-                                                <MenuItem Header="Set Role" Command="{Binding SetRoleCommand}" 
-                                                          IsVisible="{Binding $parent[views:ChatView].((viewModels:ChatViewModel)DataContext).Permissions, 
-                                                          Converter={StaticResource EnumHasFlag}, 
-                                                          ConverterParameter={x:Static packet:EPermissions.SetRole}}"/>
-                                            </MenuFlyout>
-                                        </FlyoutBase.AttachedFlyout>
-                                        <Grid HorizontalAlignment="Left" Margin="{ext:Space 1}">
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="Auto"/>
-                                            </Grid.RowDefinitions>
-                                            
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="{ext:Space 1}"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                        
-                                            <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" CornerRadius="4" ClipToBounds="True">
-                                                <Image asyncImageLoader:ImageLoader.Source="{Binding ProfilePictureURL}" 
-                                                       Width="32" Height="32" Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center"/>
-                                            </Border>
-                                        
-                                            <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding DisplayName}"
-                                                       Foreground="{Binding Brush}"
-                                                       Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center"/>
-                                            
-                                            <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding OnlineVersion}"
-                                                       FontSize="12"
-                                                       Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" VerticalAlignment="Center"/>
-                                        </Grid>
-                                    </ui:FABorder>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </ScrollViewer>
+                    <TextBlock Grid.Column="2" Text="{Binding ReplyMessage.User.DisplayName}"
+                               Foreground="{Binding ReplyMessage.User.Brush}"
+                               Classes="BodyStrongTextBlockStyle"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    
+                    <Border Grid.Column="6" Background="Transparent" Cursor="Hand"
+                            HorizontalAlignment="Right" VerticalAlignment="Center"
+                            PointerPressed="OnReplyCancelled">
+                        <material:MaterialIcon Kind="Close" Opacity="0.5"/>
+                    </Border>
                 </Grid>
             </ui:FABorder>
+            
+            <Button Grid.Row="1" x:Name="ImageButton" Grid.Column="0" 
+                    IsVisible="{Binding SupaBase.Permissions.Role, 
+                        Converter={StaticResource EnumGreaterOrEqual}, 
+                        ConverterParameter={x:Static tables:ESupabaseRole.Verified}}" 
+                    Content="{material:MaterialIconExt Plus}" 
+                    Command="{Binding OpenImageCommand}" 
+                    Margin="{ext:Space 0, 0, 1, 0}"/>
+            
+            <ui:TeachingTip Grid.Row="1" x:Name="ImageFlyout" Grid.Column="0" 
+                            Target="{Binding #ImageButton}" 
+                            Title="{Binding SelectedImageName}">
+                <Border CornerRadius="4" ClipToBounds="True">
+                    <Image Source="{Binding SelectedImage}"
+                           VerticalAlignment="Center" MaxHeight="300"
+                           Height="{Binding SelectedImage.PixelSize.Height}"/>
+                </Border>
+            </ui:TeachingTip>
+                    
+            <AutoCompleteBox Grid.Row="1" Grid.Column="1" x:Name="TextBox" Text="{Binding Text}"
+                             ItemsSource="{Binding Commands}" Watermark="Enter a message"/>
+            
         </Grid>
-        <TextBlock IsVisible="{Binding AreServicesDown}" Text="Online Services are currently down or you have been disconnected." Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        
+        <Grid Grid.Row="0" Grid.RowSpan="3" Grid.Column="1" Margin="{ext:Space 0, 1, 1, 1}">
+            <ItemsControl ItemsSource="{Binding Chat.UsersByGroup}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="{ext:Space 0, 0, 0, 1}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="{ext:Space 0.5}"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            
+                            <TextBlock Grid.Row="0" Classes="BodyStrongTextBlockStyle" FontWeight="SemiBold" HorizontalAlignment="Left"
+                                       Margin="{ext:Space 0.25, 0, 0, 0}">
+                                <TextBlock.Text>
+                                    <MultiBinding StringFormat='{}{0} - {1}'>
+                                        <Binding Path="Key"/>
+                                        <Binding Path="Value.Count"/>
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                            
+                            <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Hidden">
+                                <ItemsControl ItemsSource="{Binding Value}" >
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate DataType="chat:ChatUserV2">
+                                            <ui:FABorder HorizontalAlignment="Stretch" Cursor="Hand" PointerPressed="OnUserPressed" Margin="{ext:Space 0, 0, 0, 1}">
+                                                <FlyoutBase.AttachedFlyout>
+                                                    <MenuFlyout>
+                                                        <MenuItem Header="Copy User ID" Command="{Binding CopyIDCommand}"/>
+                                                        <MenuItem Header="Set Role" Command="{Binding SetRoleCommand}" 
+                                                                  IsVisible="{Binding CanChangeRole}"/>
+                                                    </MenuFlyout>
+                                                </FlyoutBase.AttachedFlyout>
+                                                <Grid HorizontalAlignment="Left" Margin="{ext:Space 1}">
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                    </Grid.RowDefinitions>
+                                                    
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="{ext:Space 1}"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                
+                                                    <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" CornerRadius="4" ClipToBounds="True">
+                                                        <Image asyncImageLoader:ImageLoader.Source="{Binding AvatarUrl}" 
+                                                               RenderOptions.BitmapInterpolationMode="MediumQuality"
+                                                               Width="32" Height="32" Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                
+                                                    <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding DisplayName}"
+                                                               Foreground="{Binding Brush}"
+                                                               Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center"/>
+                                                    
+                                                    <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding OnlineVersion}"
+                                                               FontSize="12"
+                                                               Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" VerticalAlignment="Center"/>
+                                                </Grid>
+                                            </ui:FABorder>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Grid>
     </Grid>
    
 </UserControl>

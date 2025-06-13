@@ -3,7 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
-             xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
              xmlns:enums="clr-namespace:CUE4Parse_Conversion.UEFormat.Enums;assembly=CUE4Parse-Conversion"
              xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
              xmlns:settings="clr-namespace:FortnitePorting.ViewModels.Settings"
@@ -23,12 +23,6 @@
                     <Setter Property="Margin" Value="0 0 0 8"/>
                 </Style>
             </StackPanel.Styles>
-            
-            <ui:SettingsExpander Header="Use Debugging Symbols" Description="Downloads .pdb debugging symbols for use in error reporting. Only enable this if required in a support ticket.">
-                <ui:SettingsExpander.Footer>
-                    <ToggleSwitch IsChecked="{Binding DownloadDebuggingSymbols}"/>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
             
             <ui:SettingsExpander Header="Show Console" Description="Displays the console tab for debugging purposes.">
                 <ui:SettingsExpander.Footer>

@@ -6,7 +6,7 @@ namespace FortnitePorting.Views.Settings;
 
 public partial class UnrealSettingsView : ViewBase<UnrealSettingsViewModel>
 {
-    public UnrealSettingsView() : base(AppSettings.Current.ExportSettings.Unreal)
+    public UnrealSettingsView() : base(AppSettings.ExportSettings.Unreal)
     {
         InitializeComponent();
     }

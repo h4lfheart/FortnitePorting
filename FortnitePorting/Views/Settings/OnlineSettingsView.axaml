@@ -3,10 +3,11 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
-             xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
              xmlns:enums="clr-namespace:CUE4Parse_Conversion.UEFormat.Enums;assembly=CUE4Parse-Conversion"
              xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
              xmlns:settings="clr-namespace:FortnitePorting.ViewModels.Settings"
+             xmlns:services="clr-namespace:FortnitePorting.Services"
              xmlns:versions="clr-namespace:CUE4Parse.UE4.Versions;assembly=CUE4Parse"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FortnitePorting.Views.Settings.OnlineSettingsView"
@@ -23,35 +24,14 @@
                 </Style>
             </StackPanel.Styles>
             
-            <ui:SettingsExpander Header="Discord Integration" Description="Integrates with your discord account for use with online features..">
+            <ui:SettingsExpander Header="Discord Integration" Description="Integrates with your discord account for use with online features.">
                 <ui:SettingsExpander.Footer>
                     <Grid>
-                        <Button Content="Authenticate" IsVisible="{Binding !UseIntegration}"
-                                Command="{Binding Authenticate}"/>
-                        <Button Content="De-Authenticate" IsVisible="{Binding UseIntegration}"
-                                Command="{Binding Deauthenticate}"/>
+                        <Button Content="Sign In" IsVisible="{Binding !SupaBase.IsLoggedIn}"
+                                Command="{Binding SupaBase.SignIn}"/>
+                        <Button Content="Sign Out" IsVisible="{Binding SupaBase.IsLoggedIn}"
+                                Command="{Binding SupaBase.SignOut}"/>
                     </Grid>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
-            
-            <ui:SettingsExpander Header="Discord Rich Presence" Description="Displays active Fortnite Porting information in your discord profile.">
-                <ui:SettingsExpander.Footer>
-                    <ToggleSwitch IsChecked="{Binding UseRichPresence}"/>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
-            
-            <ui:SettingsExpander Header="Online Status" Description="The status that should be applied to chat features.">
-                <ui:SettingsExpander.Footer>
-                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type settings:EOnlineStatus}}"
-                              SelectedItem="{Binding OnlineStatus, Converter={StaticResource EnumToRecord}}" />
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
-            
-            <ui:SettingsExpander Header="Message Fetch Count" Description="The number of old messages to load upon opening the chat.">
-                <ui:SettingsExpander.Footer>
-                    <ui:NumberBox Value="{Binding MessageFetchCount}" 
-                                  Minimum="0"
-                                  SpinButtonPlacementMode="Inline"/>
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
             

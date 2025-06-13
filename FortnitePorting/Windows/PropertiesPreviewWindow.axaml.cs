@@ -8,7 +8,6 @@ using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
-using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
 using FortnitePorting.WindowModels;
 
@@ -21,7 +20,7 @@ public partial class PropertiesPreviewWindow : WindowBase<PropertiesPreviewWindo
     {
         InitializeComponent();
         DataContext = WindowModel;
-        Owner = ApplicationService.Application.MainWindow;
+        Owner = App.Lifetime.MainWindow;
 
         WindowModel.AssetName = name;
         WindowModel.PropertiesJson = json;

@@ -6,7 +6,7 @@ namespace FortnitePorting.Views.Plugin;
 
 public partial class UnrealPluginView : ViewBase<UnrealPluginViewModel>
 {
-    public UnrealPluginView() : base(AppSettings.Current.Plugin.Unreal)
+    public UnrealPluginView() : base(AppSettings.Plugin.Unreal)
     {
         InitializeComponent();
     }

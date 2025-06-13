@@ -13,10 +13,9 @@ class UFSettings(PropertyGroup):
     import_morph_targets: BoolProperty(name="Import Morph Targets", default=True)
     import_sockets: BoolProperty(name="Import Sockets", default=True)
     import_virtual_bones: BoolProperty(name="Import Virtual Bones", default=False)
-    
+
     rotation_only: BoolProperty(name="Rotation Only", default=False)
-    
-    instance_meshes: BoolProperty(name="Instance Meshes", default=True)
+    import_curves: BoolProperty(name="Import Curves", default=True)
 
     def get_props(self) -> dict[str, Any]:
         props = {}

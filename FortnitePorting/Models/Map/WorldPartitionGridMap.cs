@@ -28,7 +28,8 @@ public partial class WorldPartitionGridMap : ObservableObject
     
     public async Task CopyID()
     {
-        await Clipboard.SetTextAsync(Name);
+        await App.Clipboard.SetTextAsync(Name);
+        Info.Message("Clipboard", $"Copied {Name} to the clipboard");
     }
 }
 

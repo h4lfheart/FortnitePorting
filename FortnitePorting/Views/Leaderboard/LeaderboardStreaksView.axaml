@@ -1,0 +1,66 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions"
+             xmlns:leaderboard="clr-namespace:FortnitePorting.ViewModels.Leaderboard"
+             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="FortnitePorting.Views.Leaderboard.LeaderboardStreaksView"
+             x:DataType="leaderboard:LeaderboardStreaksViewModel">
+    <Grid Margin="{ext:Space 1, 1, 1, 0}">
+        <ScrollViewer>
+            <ItemsControl ItemsSource="{Binding Streaks}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <controls:FABorder Margin="{ext:Space 0, 0, 0, 1}">
+                            <Grid Margin="{ext:Space 1}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="{ext:Space 1}"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="{ext:Space 1}"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="{ext:Space 1}"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="{ext:Space 0.5}"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <TextBlock Grid.Column="0" Text="{Binding Ranking}"
+                                           Classes="SubtitleTextBlockStyle" Margin="{ext:Space 1, 0}"
+                                           HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        
+                                
+                                <Border Grid.Column="2" CornerRadius="32" ClipToBounds="True" HorizontalAlignment="Center" VerticalAlignment="Center" Background="#40000000">
+                                    <Image asyncImageLoader:ImageLoader.Source="{Binding UserInfo.AvatarUrl, TargetNullValue='avares://FortnitePorting/Assets/DefaultProfile.png'}" Width="64"/>
+                                </Border>
+                                <Image Grid.Column="2" Source="{Binding MedalBitmap}"
+                                       Width="36">
+                                    <Image.RenderTransform>
+                                        <TranslateTransform X="19" Y="19"/>
+                                    </Image.RenderTransform>
+                                </Image>
+                                <Grid Grid.Column="4" VerticalAlignment="Center" Margin="{ext:Space 1, 0, 0, 0}" RowDefinitions="* *">
+                                    <TextBlock Grid.Row="0" Text="{Binding UserInfo.DisplayName}" Foreground="{Binding UserBrush}" Classes="BodyStrongTextBlockStyle"/>
+                                    <TextBlock Grid.Row="1" Text="{Binding UserInfo.UserName}" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush" TextWrapping="Wrap"/>
+                                </Grid>
+                                <TextBlock Grid.Column="6" Text="{Binding Streak}" 
+                                           Classes="SubtitleTextBlockStyle"
+                                           HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                <avalonia:MaterialIcon Grid.Column="8" Kind="Fire" Width="24" Height="24"/>
+                            </Grid>
+                        </controls:FABorder>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+        
+        <TextBlock Text="No Streaks Found" 
+                   Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" 
+                   VerticalAlignment="Center" HorizontalAlignment="Center"
+                   IsVisible="{Binding !Streaks.Count}"/>
+    </Grid>
+</UserControl>

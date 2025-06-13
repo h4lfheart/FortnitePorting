@@ -11,8 +11,9 @@ using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.Leaderboard;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
-using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
+using FortnitePorting.ViewModels.Leaderboard;
+using FortnitePorting.Views.Leaderboard;
 using ScottPlot;
 using Serilog;
 
@@ -23,36 +24,20 @@ public partial class LeaderboardView : ViewBase<LeaderboardViewModel>
     public LeaderboardView()
     {
         InitializeComponent();
+        
+        Navigation.Leaderboard.Initialize(NavigationView);
+        Navigation.Leaderboard.Open<LeaderboardExportsView>();
     }
 
-    private void OnGraphPointerMoved(object? sender, PointerEventArgs e)
+    private void OnItemInvoked(object? sender, NavigationViewItemInvokedEventArgs e)
     {
-        if (sender is not ContentControl control) return;
-        if (control.DataContext is not StatisticsModel statisticsModel) return;
-
-        var pointerPosition = e.GetPosition(control);
-        var coordinates = statisticsModel.Graph.Plot.GetCoordinates((float) pointerPosition.X, (float) pointerPosition.Y);
-        var nearest = statisticsModel.Scatter.Data.GetNearest(coordinates, statisticsModel.Graph.Plot.LastRender);
-        if (nearest.IsReal)
+        switch (e.InvokedItemContainer.Tag)
         {
-            ValuePopup.IsOpen = true;
-            ValuePopup.HorizontalOffset = pointerPosition.X - control.Bounds.Width / 2;
-            ValuePopup.VerticalOffset = pointerPosition.Y - control.Bounds.Height / 2;
-            ViewModel.PopupValue = (int) nearest.Y;
-            statisticsModel.Crosshair.IsVisible = true;
-            statisticsModel.Crosshair.Position = new Coordinates(nearest.X, nearest.Y);
-            statisticsModel.Graph.Refresh();
+            case Type type:
+            {
+                Navigation.Leaderboard.Open(type);
+                break;
+            }
         }
-        else
-        {
-            ValuePopup.IsOpen = false;
-            statisticsModel.Crosshair.IsVisible = false;
-            statisticsModel.Graph.Refresh();
-        }
-    }
-    
-    private void OnGraphPointerExited(object? sender, PointerEventArgs e)
-    {
-        ValuePopup.IsOpen = false;
     }
 }

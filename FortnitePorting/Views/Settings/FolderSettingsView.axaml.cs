@@ -6,7 +6,7 @@ namespace FortnitePorting.Views.Settings;
 
 public partial class FolderSettingsView : ViewBase<FolderSettingsViewModel>
 {
-    public FolderSettingsView() : base(AppSettings.Current.ExportSettings.Folder)
+    public FolderSettingsView() : base(AppSettings.ExportSettings.Folder)
     {
         InitializeComponent();
     }

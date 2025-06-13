@@ -5,6 +5,7 @@ using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
+using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Shared;
 using FortnitePorting.ViewModels;
@@ -13,18 +14,27 @@ namespace FortnitePorting.Views;
 
 public partial class ExportSettingsView : ViewBase<ExportSettingsViewModel>
 {
-    public ExportSettingsView() : base(AppSettings.Current.ExportSettings)
+    public ExportSettingsView() : base(AppSettings.ExportSettings)
     {
         InitializeComponent();
-        ViewModel.ContentFrame = ContentFrame;
-        ViewModel.NavigationView = NavigationView;
-        ViewModel.Navigate(EExportLocation.Blender);
+        Navigation.ExportSettings.Initialize(NavigationView);
+        Navigation.ExportSettings.AddTypeResolver<EExportLocation>(location =>
+        {
+            var name = location.ToString();
+            var viewName = $"FortnitePorting.Views.Settings.{name}SettingsView";
+        
+            var type = Type.GetType(viewName);
+            return type;
+        });
+        
+        Navigation.ExportSettings.Open(EExportLocation.Blender);
+        
     }
     
     private void OnItemInvoked(object? sender, NavigationViewItemInvokedEventArgs e)
     {
         if (e.InvokedItemContainer.Tag is not EExportLocation exportType) return;
-
-        ViewModel.Navigate(exportType);
+        
+        Navigation.ExportSettings.Open(exportType);
     }
 }

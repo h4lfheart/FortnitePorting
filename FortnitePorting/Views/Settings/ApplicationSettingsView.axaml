@@ -3,7 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
-             xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
              xmlns:enums="clr-namespace:CUE4Parse_Conversion.UEFormat.Enums;assembly=CUE4Parse-Conversion"
              xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
              xmlns:settings="clr-namespace:FortnitePorting.ViewModels.Settings"
@@ -67,6 +67,18 @@
             <ui:SettingsExpander Header="Tab Transitions" Description="Toggles the transition that plays when switching between tabs.">
                 <ui:SettingsExpander.Footer>
                     <ToggleSwitch IsChecked="{Binding UseTabTransitions}"/>
+                </ui:SettingsExpander.Footer>
+            </ui:SettingsExpander>
+            
+            <ui:SettingsExpander Header="Asset Scale" Description="The scale multiplier for asset icons in the assets tab.">
+                <ui:SettingsExpander.Footer>
+                    <StackPanel Orientation="Horizontal">
+                        <Slider Value="{Binding AssetScale}" MinWidth="200"
+                                Minimum="0.5" Maximum="4"
+                                TickFrequency="0.25" TickPlacement="BottomRight" IsSnapToTickEnabled="True"/>
+                        <TextBlock Text="{Binding AssetScale, StringFormat=N2}" 
+                                   VerticalAlignment="Center" Margin="{ext:Space 1, 0, 0, 0}"/>
+                    </StackPanel>
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
         </StackPanel>

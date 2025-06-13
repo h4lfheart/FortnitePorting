@@ -2,7 +2,6 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using Avalonia.Controls;
@@ -27,6 +26,15 @@ public static class MiscExtensions
     public static bool FilterAny(string input, IEnumerable<string> filters)
     {
         return filters.Any(x => input.Contains(x, StringComparison.OrdinalIgnoreCase));
+    }
+    
+    public static void Shuffle<T>(this List<T> list)
+    {
+        for (var i = list.Count - 1; i > 0; i--)
+        {
+            var j = System.Random.Shared.Next(i + 1);
+            (list[i], list[j]) = (list[j], list[i]);
+        }
     }
 
     public static void InsertMany<T>(this List<T> list, int index, T item, int count)
@@ -75,8 +83,8 @@ public static class MiscExtensions
 
     public static byte[] ReadToEnd(this Stream str)
     {
-        var bytes = new BinaryReader(str).ReadBytes((int) str.Length);
         str.Position = 0;
+        var bytes = new BinaryReader(str).ReadBytes((int) str.Length);
         return bytes;
     }
 

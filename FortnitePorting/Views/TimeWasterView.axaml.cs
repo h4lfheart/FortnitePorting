@@ -16,7 +16,7 @@ using FortnitePorting.Framework;
 using FortnitePorting.Models.TimeWaster;
 using FortnitePorting.Models.TimeWaster.Actors;
 using FortnitePorting.Models.TimeWaster.Audio;
-using FortnitePorting.Shared.Services;
+using FortnitePorting.Services;
 using FortnitePorting.ViewModels;
 using ScottPlot.Palettes;
 using Serilog;
@@ -30,7 +30,6 @@ public partial class TimeWasterView : ViewBase<TimeWasterViewModel>
         InitializeComponent();
 
         KeyDownEvent.AddClassHandler<TopLevel>(OnKeyDown, handledEventsToo: true);
-        AppWM.ToggleVisibility(false);
         ViewModel.IsGame = game;
         TaskService.RunDispatcher(ViewModel.Initialize);
     }

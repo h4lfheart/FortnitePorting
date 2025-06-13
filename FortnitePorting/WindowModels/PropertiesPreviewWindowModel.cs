@@ -15,13 +15,16 @@ using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using FluentAvalonia.Core;
 using FortnitePorting.Framework;
+using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.ViewModels;
 
 namespace FortnitePorting.WindowModels;
 
-public partial class PropertiesPreviewWindowModel : WindowModelBase
+public partial class PropertiesPreviewWindowModel(SettingsService settings) : WindowModelBase
 {
+    [ObservableProperty] private SettingsService _settings = settings;
+    
     [ObservableProperty] private string _assetName;
     [ObservableProperty] private string _propertiesJson;
 

@@ -20,7 +20,7 @@ public partial class ConsoleView : ViewBase<ConsoleViewModel>
         if (sender is not Control control) return;
         if (control.DataContext is not FortnitePortingLogEvent logEvent) return;
 
-        Clipboard.SetTextAsync(logEvent.LogString);
-        AppWM.Message("Info", "Copied log to clipboard!");
+        App.Clipboard.SetTextAsync(logEvent.LogString);
+        Info.Message("Info", "Copied log to clipboard!");
     }
 }

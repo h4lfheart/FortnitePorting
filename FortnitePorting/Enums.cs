@@ -1,8 +1,8 @@
 using System;
 using System.ComponentModel;
+using FortnitePorting.Extensions;
 using FortnitePorting.Models;
 using FortnitePorting.Shared.Extensions;
-using FortnitePorting.Shared.Models;
 
 namespace FortnitePorting;
 
@@ -24,13 +24,13 @@ public enum EExportLocation
     [Description("Blender")]
     Blender,
     
-    [Description("Unreal Engine")]
+    [Description("Unreal")]
     Unreal,
     
-    [Description("Assets Folder")]
+    [Description("Assets")]
     AssetsFolder,
     
-    [Description("Custom Folder")]
+    [Description("Custom")]
     CustomFolder,
     
     [Description("Unity (Not Implemented)")]
