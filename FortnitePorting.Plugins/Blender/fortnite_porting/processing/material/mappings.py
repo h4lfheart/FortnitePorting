@@ -670,11 +670,37 @@ superhero_mappings = MappingCollection(
         SlotMapping("PrimaryMaterial"),
         SlotMapping("SecondaryMaterial"),
         SlotMapping("AccessoryMaterial"),
-        SlotMapping("Sticker MSRE")
+        SlotMapping("Sticker MSRE"),
+        SlotMapping("StickerPosition"),
+        SlotMapping("StickerScale"),
+        SlotMapping("BackStickerPosition"),
+        SlotMapping("BackStickerScale"),
     ],
     scalars=[
         SlotMapping("PrimaryCloth"),
         SlotMapping("SecondaryCloth"),
         SlotMapping("ElasticStickerMult")
+    ]
+)
+
+composite_mappings = MappingCollection(
+    textures=[
+        SlotMapping("UV2Composite_AlphaTexture"),
+        SlotMapping("UV2Composite_Diffuse", alpha_slot="UV2Composite_Diffuse Alpha"),
+        SlotMapping("UV2Composite_Normals"),
+        SlotMapping("UV2Composite_SRM"),
+    ],
+    scalars=[
+        SlotMapping("UV2Composite_AlphaStrength"),
+    ],
+    vectors=[
+        SlotMapping("UV2Composite_AlphaChannel"),
+    ],
+    switches=[
+        SlotMapping("UV2Composite_AlphaTextureUseUV1"),
+        SlotMapping("UseDiffuseAlphaChannel"),
+        SlotMapping("UseUV2Diffuse"),
+        SlotMapping("UseUV2Normals"),
+        SlotMapping("UseUV2SRM"),
     ]
 )
