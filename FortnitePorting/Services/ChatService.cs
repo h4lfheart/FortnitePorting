@@ -124,6 +124,8 @@ public partial class ChatService : ObservableObject, IService
                 }
                 
                 OnPropertyChanged(nameof(UsersByGroup));
+                
+                Discord.Update($"Chatting with {Chat.Users.Count} Users");
             });
         });
 

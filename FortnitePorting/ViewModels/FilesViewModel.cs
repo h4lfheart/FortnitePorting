@@ -124,7 +124,7 @@ public partial class FilesViewModel : ViewModelBase
 
     public override async Task OnViewOpened()
     {
-        DiscordService.Update("Browsing Files", "Files");
+        Discord.Update($"Browsing {UEParse.Provider.Files.Count} Files");
     }
 
     public void ClearSearchFilter()

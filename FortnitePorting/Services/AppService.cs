@@ -82,6 +82,9 @@ public class AppService : IService
     {
         TimeWasterViewModel.LoadResources();
 
+        if (AppSettings.Online.UseDiscordRichPresence)
+            Discord.Initialize();
+
         TaskService.Run(AppWM.Initialize);
         
         if (AppSettings.Plugin.Blender.AutomaticallySync && Dependencies.FinishedEnsuring)

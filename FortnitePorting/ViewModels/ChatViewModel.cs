@@ -42,7 +42,6 @@ public partial class ChatViewModel(SupabaseService supabase, ChatService chatSer
     // TODO do we need this anymore
     [ObservableProperty] private ObservableCollection<string> _commands = [];
     
-
     [RelayCommand]
     public async Task OpenImage()
     {
@@ -66,6 +65,11 @@ public partial class ChatViewModel(SupabaseService supabase, ChatService chatSer
             SelectedImage = image;
             ImageFlyout.IsOpen = true;
         }
+    }
+
+    public override async Task OnViewOpened()
+    {
+        Discord.Update($"Chatting with {Chat.Users.Count} Users");
     }
 }
 

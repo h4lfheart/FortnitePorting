@@ -35,6 +35,12 @@
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
             
+            <ui:SettingsExpander Header="Discord Rich Presence" Description="Displays active Fortnite Porting information in your discord profile.">
+                <ui:SettingsExpander.Footer>
+                    <ToggleSwitch IsChecked="{Binding UseDiscordRichPresence}"/>
+                </ui:SettingsExpander.Footer>
+            </ui:SettingsExpander>
+            
         </StackPanel>
     </ScrollViewer>
 </UserControl>

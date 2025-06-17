@@ -31,6 +31,7 @@ public static class AppServices
     public static CUE4ParseService UEParse => Services.GetRequiredService<CUE4ParseService>();
     public static SupabaseService SupaBase => Services.GetRequiredService<SupabaseService>();
     public static ChatService Chat => Services.GetRequiredService<ChatService>();
+    public static DiscordService Discord => Services.GetRequiredService<DiscordService>();
     public static BlackHoleService BlackHole => Services.GetRequiredService<BlackHoleService>();
     
     // ViewModels

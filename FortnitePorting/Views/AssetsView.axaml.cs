@@ -90,7 +90,7 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
         
         AssetsListBox.SelectedItems.Clear();
         
-        //DiscordService.Update(Type);
+        Discord.Update(assetType);
         var loaders = ViewModel.AssetLoader.Categories.SelectMany(category => category.Loaders);
         foreach (var loader in loaders)
         {
