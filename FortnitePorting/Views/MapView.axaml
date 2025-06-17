@@ -14,13 +14,19 @@
              xmlns:files="clr-namespace:FortnitePorting.Models.Files"
              xmlns:fortnitePorting="clr-namespace:FortnitePorting"
              xmlns:map="clr-namespace:FortnitePorting.Models.Map"
+             xmlns:views="clr-namespace:FortnitePorting.Views"
              d:DesignHeight="770" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.MapView"
              x:DataType="viewModels:MapViewModel">
     <Grid ColumnDefinitions="Auto *">
         
-        <ui:FABorder Grid.Column="1" CornerRadius="0" VerticalAlignment="Stretch"
-                     Background="#22000000" HorizontalAlignment="Stretch">
+        <Grid Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <Image Stretch="UniformToFill" Margin="{ext:Space 1}" Opacity="0.1" Effect="blur(50)"
+                   Source="{Binding SelectedMap.MapBitmap, TargetNullValue=Assets/Transparent1x1.png}"/>
+        </Grid>
+        
+        <ui:FABorder Grid.Column="1" Background="#22000000" Margin="{ext:Space 0, 1, 1, 1}"
+                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
             <Grid Margin="{ext:Space 1}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -43,7 +49,7 @@
                               SelectedItem="{Binding SelectedMap, Mode=TwoWay}"/>
                 </StackPanel>
                 
-                <Separator Grid.Row="1" HorizontalAlignment="Stretch"/>
+                <Separator Grid.Row="1" HorizontalAlignment="Stretch" Margin="0"/>
                 
                 <StackPanel Grid.Row="2" VerticalAlignment="Top">
                     <TextBlock Text="Export To" Classes="BodyStrongTextBlockStyle" Margin="{ext:Space 0, 0, 0, 1}"
@@ -61,7 +67,7 @@
                     </ComboBox>
                 </StackPanel>
                 
-                <Separator Grid.Row="3" HorizontalAlignment="Stretch"/>
+                <Separator Grid.Row="3" HorizontalAlignment="Stretch" Margin="0"/>
                 
                 <StackPanel Grid.Row="4" VerticalAlignment="Top">
                     <TextBlock Text="Main Level" Classes="BodyStrongTextBlockStyle" Margin="{ext:Space 0, 0, 0, 1}"
@@ -99,7 +105,7 @@
                     </Grid>
                 </StackPanel>
                 
-                <Separator Grid.Row="5" HorizontalAlignment="Stretch"/>
+                <Separator Grid.Row="5" HorizontalAlignment="Stretch" Margin="0"/>
                 
                 <StackPanel Grid.Row="6" VerticalAlignment="Top">
                     <TextBlock Text="Textures" Classes="BodyStrongTextBlockStyle" Margin="{ext:Space 0, 0, 0, 1}"
@@ -126,7 +132,7 @@
                     </Grid>
                 </StackPanel>
                 
-                <Separator Grid.Row="7" HorizontalAlignment="Stretch"/>
+                <Separator Grid.Row="7" HorizontalAlignment="Stretch" Margin="0"/>
                 
                 <Grid Grid.Row="8" VerticalAlignment="Stretch" IsVisible="{Binding !SelectedMap.Info.IsNonDisplay}">
                     <Grid.RowDefinitions>
@@ -210,52 +216,59 @@
             </Grid>
         </ui:FABorder>
         
-        <Grid Grid.Column="0" ClipToBounds="True">
-            <Viewbox StretchDirection="Both" Stretch="Uniform" Cursor="Hand"
-                 RenderTransform="{Binding MapTransform}" PointerWheelChanged="OnScrollWheel" PointerMoved="OnPointerMoved">
-                <Grid>
-                    <Border ClipToBounds="True">
-                        <Image x:Name="MapImage" Source="{Binding SelectedMap.MapBitmap, TargetNullValue=Assets/DefaultProfile.png}"/>
-                    </Border>
-                    <ItemsControl x:Name="GridsControl" ItemsSource="{Binding SelectedMap.Grids}"
-                                  Width="{Binding Bounds.Width, ElementName=MapImage}"
-                                  Height="{Binding Bounds.Height, ElementName=MapImage}">
-                        <ItemsControl.OpacityMask>
-                            <ImageBrush Source="{Binding SelectedMap.MaskBitmap}" TransformOrigin="50%,50%">
-                                <ImageBrush.Transform>
-                                    <ScaleTransform ScaleX="0.95" ScaleY="0.95"/>
-                                </ImageBrush.Transform>
-                            </ImageBrush>
-                        </ItemsControl.OpacityMask>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border ToolTip.Tip="{Binding ToolTipNames}" Opacity="0.35"
-                                        Background="{Binding GridBrush}" BorderBrush="White" 
-                                        BorderThickness="2" PointerPressed="OnCellPressed"
-                                        CornerRadius="0" Padding="0" IsHitTestVisible="True"
-                                        Width="{Binding CellSize}" Height="{Binding CellSize}" 
-                                        Margin="{Binding OffsetMargin}"/>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <Grid/>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                    </ItemsControl>
-                </Grid>
-            </Viewbox>
+        
+        <Grid Grid.Column="0"  Margin="{ext:Space 1}">
+            <Border CornerRadius="8" ClipToBounds="True">
+                <Viewbox x:Name="MapBox" StretchDirection="Both" Stretch="Uniform" Cursor="Hand" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                     RenderTransform="{Binding MapTransform}" PointerWheelChanged="OnScrollWheel" PointerMoved="OnPointerMoved">
+                    <Grid>
+                        <Border CornerRadius="0" ClipToBounds="True">
+                            <Image x:Name="MapImage" Source="{Binding SelectedMap.MapBitmap, TargetNullValue=Assets/Transparent1x1.png}"/>
+                        </Border>
+                        <ItemsControl x:Name="GridsControl" ItemsSource="{Binding SelectedMap.Grids}"
+                                      Width="{Binding Bounds.Width, ElementName=MapImage}"
+                                      Height="{Binding Bounds.Height, ElementName=MapImage}">
+                            <ItemsControl.OpacityMask>
+                                <ImageBrush Source="{Binding SelectedMap.MaskBitmap}" TransformOrigin="50%,50%">
+                                    <ImageBrush.Transform>
+                                        <ScaleTransform ScaleX="0.95" ScaleY="0.95"/>
+                                    </ImageBrush.Transform>
+                                </ImageBrush>
+                            </ItemsControl.OpacityMask>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border ToolTip.Tip="{Binding ToolTipNames}" Opacity="0.35"
+                                            Background="{Binding GridBrush}" BorderBrush="White" 
+                                            BorderThickness="2" PointerPressed="OnCellPressed"
+                                            CornerRadius="0" Padding="0" IsHitTestVisible="True"
+                                            Width="{Binding CellSize}" Height="{Binding CellSize}" 
+                                            Margin="{Binding OffsetMargin}"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <Grid/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                    </Grid>
+                </Viewbox>
+            </Border>
+            
+            <ui:FABorder Background="Transparent" IsHitTestVisible="False"/>
         </Grid>
         
-        <TextBlock Grid.Column="0" Text="A preview of this map is not available." 
-                   HorizontalAlignment="Center" VerticalAlignment="Center"
-                   Classes="BodyTextBlockStyle TextFillColorTertiaryBrush">
-            <TextBlock.IsVisible>
-                <MultiBinding Converter="{x:Static BoolConverters.And}">
-                    <Binding Path="!SelectedMap.SelectedMaps.Count"/>
-                    <Binding Path="SelectedMap.Info.IsNonDisplay"/>
-                </MultiBinding>
-            </TextBlock.IsVisible>
-        </TextBlock>
+        <Grid Grid.Column="0" Width="{Binding $parent[views:MapView].Bounds.Height}">
+            <TextBlock Text="A preview of this map is not available." 
+                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Classes="BodyTextBlockStyle TextFillColorTertiaryBrush">
+                <TextBlock.IsVisible>
+                    <MultiBinding Converter="{x:Static BoolConverters.And}">
+                        <Binding Path="!SelectedMap.SelectedMaps.Count"/>
+                        <Binding Path="SelectedMap.Info.IsNonDisplay"/>
+                    </MultiBinding>
+                </TextBlock.IsVisible>
+            </TextBlock>
+        </Grid>
     </Grid>
 </UserControl>

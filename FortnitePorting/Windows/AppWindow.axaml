@@ -8,18 +8,13 @@
         xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         x:Class="FortnitePorting.Windows.AppWindow"
         x:DataType="windowModels:AppWindowModel"
-        Width="1280" Height="770" RequestedThemeVariant="Dark" FontFamily="Segoe UI" Background="#DB1C1C26"
-        TransparencyLevelHint="{Binding Settings.Theme.TransparencyHints}" ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="NoChrome"
+        Width="1280" Height="770" RequestedThemeVariant="Dark" FontFamily="Segoe UI"
+        TransparencyLevelHint="{Binding Settings.Theme.TransparencyHints}" Background="#DB1C1C26"
+        ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="NoChrome"
         WindowStartupLocation="CenterScreen" ClosingBehavior="OwnerAndChildWindows" ExtendClientAreaTitleBarHeightHint="35"
-        Icon="/Assets/LogoV3.ico"
+        Icon="/Assets/LogoRebrand.ico"
         Title="Fortnite Porting">
     <Grid RowDefinitions="35, *" Margin="{Binding $parent[Window]}">
-        <!--ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False" IsVisible="{Binding !Settings.Theme.UseMica}">
-            <ExperimentalAcrylicBorder.Material>
-                <ExperimentalAcrylicMaterial BackgroundSource="Digger" MaterialOpacity="0.9" TintColor="Black" TintOpacity="1"/>
-            </ExperimentalAcrylicBorder.Material>
-        </ExperimentalAcrylicBorder-->
-
         <ui:NavigationView x:Name="NavigationView" Grid.Row="1" Classes="NoBackground"
                            IsPaneOpen="False" OpenPaneLength="152" ItemInvoked="OnItemInvoked" 
                            IsSettingsVisible="False" 
@@ -203,7 +198,7 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
             
-                <ui:ImageIcon Grid.Column="0" Source="/Assets/LogoV3.png" 
+                <ui:ImageIcon Grid.Column="0" Source="/Assets/LogoRebrand.png" 
                               HorizontalAlignment="Right"
                               Width="20" Height="20" 
                               RenderOptions.BitmapInterpolationMode="HighQuality" RenderOptions.EdgeMode="Antialias"/>

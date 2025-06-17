@@ -14,7 +14,7 @@
         x:DataType="windowModels:MaterialPreviewWindowModel"
         Width="1280" Height="720" RequestedThemeVariant="Dark" FontFamily="Segoe UI" Background="#FF202020"
         ExtendClientAreaToDecorationsHint="True" WindowStartupLocation="CenterOwner"
-        Icon="/Assets/LogoV3.ico"
+        Icon="/Assets/LogoRebrand.ico"
         Title="Material Viewer">
     <Window.Resources>
         <GeometryDrawing x:Key="SmallGridGeometry"

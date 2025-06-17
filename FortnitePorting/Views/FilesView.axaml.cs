@@ -47,6 +47,7 @@ public partial class FilesView : ViewBase<FilesViewModel>
     {
         if (args.Item is not TreeItem treeItem) return;
         
+        ViewModel.ClearSearchFilter();
         ViewModel.LoadFileItems(treeItem);
     }
 
@@ -69,7 +70,7 @@ public partial class FilesView : ViewBase<FilesViewModel>
             return;
         }
         
-        ViewModel.SearchFilter = string.Empty;
+        ViewModel.ClearSearchFilter();
         ViewModel.FlatViewJumpTo(item.FilePath);
     }
     
@@ -80,6 +81,7 @@ public partial class FilesView : ViewBase<FilesViewModel>
         
         var treeItem = ViewModel.TreeViewJumpTo(item.Path);
         ViewModel.LoadFileItems(treeItem.Parent);
+        ViewModel.UseFlatView = false;
     }
     
 }

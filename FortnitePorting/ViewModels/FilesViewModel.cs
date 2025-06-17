@@ -217,12 +217,32 @@ public partial class FilesViewModel : ViewModelBase
             return;
         }
 
-        var items = _currentFolder.GetAllChildren()
-            .Where(item => UseRegex ? Regex.IsMatch(item.Name, SearchFilter) : MiscExtensions.Filter(item.Name, SearchFilter));
+        var items = FlattenTree(_currentFolder)
+            .Where(item =>
+                UseRegex ? Regex.IsMatch(item.Name, SearchFilter) : MiscExtensions.Filter(item.Name, SearchFilter))
+            .OrderByDescending(item => item.Type == ENodeType.Folder)
+            .ThenBy(item => item.Name, new CustomComparer<string>(ComparisonExtensions.CompareNatural));
 
         TaskService.Run(() => LoadFileBitmaps(items));
         
         FileViewCollection = new ObservableCollection<TreeItem>(items);
+        
+        IEnumerable<TreeItem> FlattenTree(TreeItem root)
+        {
+            var stack = new Stack<TreeItem>();
+            stack.Push(root);
+
+            while (stack.Count > 0)
+            {
+                var current = stack.Pop();
+                yield return current;
+
+                foreach (var child in current.GetAllChildren().Reverse())
+                {
+                    stack.Push(child);
+                }
+            }
+        }
     }
     
     [RelayCommand]
@@ -241,7 +261,7 @@ public partial class FilesViewModel : ViewModelBase
     [RelayCommand]
     public async Task Properties()
     {
-        var selectedItemPath = UseFlatView ? SelectedFlatViewItems.FirstOrDefault()?.Path : SelectedFileViewItems.FirstOrDefault()?.FilePath;
+        var selectedItemPath = UseFlatView ? SelectedFlatViewItems.FirstOrDefault()?.Path : SelectedFileViewItems.FirstOrDefault(file => file.Type == ENodeType.File)?.FilePath;
         if (selectedItemPath is null) return;
         
         var assets = await UEParse.Provider.LoadAllObjectsAsync(Exporter.FixPath(selectedItemPath));
@@ -252,7 +272,7 @@ public partial class FilesViewModel : ViewModelBase
     [RelayCommand]
     public async Task Preview()
     {
-        var selectedItemPath = UseFlatView ? SelectedFlatViewItems.FirstOrDefault()?.Path : SelectedFileViewItems.FirstOrDefault()?.FilePath;
+        var selectedItemPath = UseFlatView ? SelectedFlatViewItems.FirstOrDefault()?.Path : SelectedFileViewItems.FirstOrDefault(file => file.Type == ENodeType.File)?.FilePath;
         if (selectedItemPath is null) return;
         
         var basePath = Exporter.FixPath(selectedItemPath);
