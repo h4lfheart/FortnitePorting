@@ -16,29 +16,21 @@ public partial class ModelPreviewWindowModel(SettingsService settings) : WindowM
     [ObservableProperty] private SettingsService _settings = settings;
     
     [ObservableProperty] private string _meshName;
-    [ObservableProperty] private ModelPreviewControl _viewerControl;
+    [ObservableProperty] private ModelPreviewControl _control;
     [ObservableProperty] private Queue<UObject> _queuedObjects = [];
     [ObservableProperty] private bool _isLoading = false;
-
-    public override async Task Initialize()
-    {
-        await TaskService.RunDispatcherAsync(() =>
-        {
-            ViewerControl = new ModelPreviewControl();
-        });
-        
-        LoadQueue(QueuedObjects);
-    }
+    
+    [ObservableProperty] private static ModelViewerContext? _context;
 
     public void LoadQueue(Queue<UObject> queue)
     {
-        ViewerControl.Context.Renderer?.Clear();
-        ViewerControl.Context.ModelQueue = queue;
+        Context.Renderer?.Clear();
+        Context.ModelQueue = queue;
         
         TaskService.Run(() =>
         {
             IsLoading = true;
-            while (ViewerControl.Context.LoadingModelQueue) { }
+            while (Context.LoadingModelQueue) { }
             IsLoading = false;
         });
     }

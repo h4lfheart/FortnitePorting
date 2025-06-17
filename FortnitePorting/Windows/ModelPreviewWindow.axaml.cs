@@ -8,6 +8,7 @@ using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using FortnitePorting.Framework;
+using FortnitePorting.Rendering;
 using FortnitePorting.Services;
 using FortnitePorting.ViewModels;
 using FortnitePorting.WindowModels;
@@ -27,6 +28,9 @@ public partial class ModelPreviewWindow : WindowBase<ModelPreviewWindowModel>
         InitializeComponent();
         DataContext = WindowModel;
         Owner = App.Lifetime.MainWindow;
+
+        WindowModel.Context ??= new ModelViewerContext();
+        WindowModel.Control = new ModelPreviewControl(WindowModel.Context);
     }
 
     public static void Preview(IEnumerable<UObject> objects)
@@ -43,7 +47,7 @@ public partial class ModelPreviewWindow : WindowBase<ModelPreviewWindowModel>
         {
             Instance = new ModelPreviewWindow();
             Instance.WindowModel.MeshName = string.Empty;
-            Instance.WindowModel.QueuedObjects = new Queue<UObject>(objects);
+            Instance.WindowModel.LoadQueue(new Queue<UObject>(objects));
             Instance.Show();
             Instance.BringToTop();
         });
@@ -53,7 +57,6 @@ public partial class ModelPreviewWindow : WindowBase<ModelPreviewWindowModel>
     {
         base.OnClosed(e);
 
-        Instance.WindowModel.ViewerControl.Context.Close();
         Instance = null;
     }
 }

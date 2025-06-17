@@ -41,7 +41,7 @@ public class RenderManager : IRenderable
     {
         Skybox.Render(camera);
         
-        Objects.ForEach(obj => obj.Render(camera));
+        Objects.ToList().ForEach(obj => obj.Render(camera));
         
         Grid.Render(camera);
     }

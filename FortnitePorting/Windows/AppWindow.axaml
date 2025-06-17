@@ -22,7 +22,7 @@
 
         <ui:NavigationView x:Name="NavigationView" Grid.Row="1" Classes="NoBackground"
                            IsPaneOpen="False" OpenPaneLength="152" ItemInvoked="OnItemInvoked" 
-                           IsSettingsVisible="False"
+                           IsSettingsVisible="False" 
                            IsVisible="{Binding Settings.Installation.FinishedSetup}">
              <ui:NavigationView.MenuItems>
                  <ui:NavigationViewItem Content="Home" Tag="{x:Type views:HomeView}" IsEnabled="{Binding }">

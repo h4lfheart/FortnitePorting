@@ -307,7 +307,7 @@
                     </Grid>
                 </Grid>
                 <TextBlock Grid.Column="2" IsVisible="{Binding !AssetLoader.ActiveLoader.SelectedAssetInfos.Count}" Text="No Asset Selected" 
-                           Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"
+                           Classes="BodyTextBlockStyle TextFillColorTertiaryBrush"
                            HorizontalAlignment="Center" VerticalAlignment="Center" />
             </Grid>
             

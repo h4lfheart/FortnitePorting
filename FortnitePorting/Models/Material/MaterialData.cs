@@ -386,9 +386,16 @@ public partial class MaterialData : ObservableObject
         var targetNode = (MaterialNode?) NodeCache.Items.FirstOrDefault(node => node.ExpressionName.Equals(subExpression.Name, StringComparison.OrdinalIgnoreCase)) ?? AddNode(subExpression);
 
         var inputSocket = node.AddInput(new MaterialNodeSocket(nameOverride ?? expressionInput.InputName.Text));
-        
+
         if (expressionInput.OutputIndex >= targetNode.Outputs.Count)
+        {
             Log.Warning("Expression {expressionName} has no output index {outputIndex}", targetNode.ExpressionName, expressionInput.OutputIndex);
+
+            if (targetNode.Outputs.Count == 0)
+            {
+                targetNode.AddOutput("Output");
+            }
+        }
         
         Connections.Add(new MaterialNodeConnection(targetNode.Outputs[Math.Min(expressionInput.OutputIndex, targetNode.Outputs.Count - 1)], inputSocket));
     }

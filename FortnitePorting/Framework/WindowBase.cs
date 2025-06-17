@@ -21,11 +21,13 @@ public abstract class WindowBase<T> : Window where T : WindowModelBase
         }
     }
 
-    protected override void OnClosed(EventArgs e)
+    protected override async void OnClosed(EventArgs e)
     {
         base.OnClosed(e);
 
         ViewModelRegistry.Unregister<T>();
+        
+        await WindowModel.OnViewExited();
     }
 }
 

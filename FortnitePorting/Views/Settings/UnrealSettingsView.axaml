@@ -12,15 +12,15 @@
              x:Class="FortnitePorting.Views.Settings.UnrealSettingsView"
              x:DataType="settings:UnrealSettingsViewModel">
    <ScrollViewer>
-        <StackPanel VerticalAlignment="Top" Margin="{ext:Space 1, 1, 2, 1}">
-            <StackPanel.Styles>
-                <Style Selector="ui|SettingsExpander">
-                    <Setter Property="Margin" Value="0 0 0 4"/>
-                </Style>
-                <Style Selector="TextBlock.SubtitleTextBlockStyle">
-                    <Setter Property="Margin" Value="0 0 0 8"/>
-                </Style>
-            </StackPanel.Styles>
+       <StackPanel VerticalAlignment="Top" Margin="{ext:Space 1}">
+           <StackPanel.Styles>
+               <Style Selector="ui|SettingsExpander">
+                   <Setter Property="Margin" Value="{ext:Space 0, 0, 0, 1}"/>
+               </Style>
+               <Style Selector="TextBlock.SubtitleTextBlockStyle">
+                   <Setter Property="Margin" Value="{ext:Space 0, 0, 0, 1}"/>
+               </Style>
+           </StackPanel.Styles>
                     
             <!-- todo auto generate from properties?-->
             <TextBlock Text="General" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>

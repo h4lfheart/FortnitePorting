@@ -51,6 +51,7 @@
         <fluentStyle:FluentAvaloniaTheme/>
         <material:MaterialIconStyles/>
         <StyleInclude Source="avares://FluentAvalonia.ProgressRing/Styling/Controls/ProgressRing.axaml" />
+        <StyleInclude Source="avares://FluentAvalonia.BreadcrumbBar/Styling/Styles.axaml" />
         <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
         <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
         
@@ -149,6 +150,10 @@
             <Style Selector="^:pointerover">
                 <Setter Property="Background" Value="#FF0022"/>
             </Style>
+        </Style>
+        
+        <Style Selector="ui|SettingsExpander:disabled /template/ ui|SymbolIcon#ExpandCollapseChevron">
+            <Setter Property="IsVisible" Value="False"/>
         </Style>
 
         

@@ -10,9 +10,9 @@ public class ModelPreviewControl : NativeControlHost
     public ModelViewerContext Context;
     public PlatformHandle Handle;
     
-    public ModelPreviewControl()
+    public ModelPreviewControl(ModelViewerContext context)
     {
-        Context = new ModelViewerContext();
+        Context = context;
     }
     
     protected override unsafe IPlatformHandle CreateNativeControlCore(IPlatformHandle parent)

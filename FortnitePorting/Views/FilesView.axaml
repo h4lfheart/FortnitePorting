@@ -14,6 +14,7 @@
              xmlns:files="clr-namespace:FortnitePorting.Models.Files"
              xmlns:views="clr-namespace:FortnitePorting.Views"
              xmlns:fortnitePorting="clr-namespace:FortnitePorting"
+             xmlns:wrapPanel="clr-namespace:FortnitePorting.Controls.WrapPanel"
              d:DesignHeight="770" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.FilesView"
              x:DataType="viewModels:FilesViewModel">
@@ -33,8 +34,7 @@
             
             <ui:FABorder Grid.Row="0" Grid.Column="0">
                 <TreeView ItemsSource="{Binding TreeViewCollection}" AutoScrollToSelectedItem="True"
-                          SelectedItem="{Binding SelectedTreeItem, Mode=TwoWay}"
-                          Tapped="OnTreeItemTapped">
+                          Tapped="OnTreeItemTapped" DoubleTapped="OnTreeItemDoubleTapped">
                     <TreeView.ItemsPanel>
                         <ItemsPanelTemplate>
                             <VirtualizingStackPanel />
@@ -44,32 +44,19 @@
                         <ControlTheme x:DataType="files:TreeItem" TargetType="TreeViewItem" BasedOn="{StaticResource {x:Type TreeViewItem}}">
                             <Setter Property="IsExpanded" Value="{Binding Expanded, Mode=TwoWay}" />
                             <Setter Property="IsSelected" Value="{Binding Selected, Mode=TwoWay}" />
+                            <Style Selector="^:empty /template/ ToggleButton#PART_ExpandCollapseChevron">
+                                <Setter Property="IsVisible" Value="{Binding HasFolders}"/>
+                            </Style>
+                            <Style Selector="^:not(:empty) /template/ ToggleButton#PART_ExpandCollapseChevron">
+                                <Setter Property="IsVisible" Value="{Binding HasFolders}"/>
+                            </Style>
                         </ControlTheme>
                     </TreeView.ItemContainerTheme>
                     <TreeView.ItemTemplate>
-                        <TreeDataTemplate ItemsSource="{Binding Children.Values}">
+                        <TreeDataTemplate ItemsSource="{Binding FolderChildren}">
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                                <material:MaterialIcon Width="16" Height="16" Margin="0 0 8 0"
-                                                       Classes.File="{Binding Type, 
-                                                           Converter={StaticResource EnumEquals}, 
-                                                           ConverterParameter={x:Static files:ENodeType.File}}"
-                                                       Classes.Folder="{Binding Type, 
-                                                           Converter={StaticResource EnumEquals}, 
-                                                           ConverterParameter={x:Static files:ENodeType.Folder}}">
-                                    <material:MaterialIcon.Styles>
-                                        <Style Selector="material|MaterialIcon.File">
-                                            <Style.Setters>
-                                                <Setter Property="Kind" Value="File" />
-                                            </Style.Setters>
-                                        </Style>
-                                        <Style Selector="material|MaterialIcon.Folder">
-                                            <Style.Setters>
-                                                <Setter Property="Kind" Value="Folder" />
-                                            </Style.Setters>
-                                        </Style>
-                                    </material:MaterialIcon.Styles>
-                                </material:MaterialIcon>
-                                <TextBlock Text="{Binding Name}" />
+                                <material:MaterialIcon Width="16" Height="16" Margin="0 0 8 0" Kind="Folder"/>
+                                <TextBlock Text="{Binding Name}" Classes="CaptionTextBlockStyle"/>
                             </StackPanel>
                         </TreeDataTemplate>
                     </TreeView.ItemTemplate>
@@ -87,76 +74,139 @@
                 
                 <Grid Grid.Row="0">
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="{ext:Space 1}"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="{ext:Space 1}"/>
                         <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="{ext:Space 1}"/>
-                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBox Grid.Column="0" Text="{Binding ActualSearchText, Mode=TwoWay}" Watermark="Search" KeyDown="OnSearchKeyDown"/>
-                
-                    <ToggleButton Grid.Column="2" ToolTip.Tip="Regex" HorizontalAlignment="Right" 
-                                  Content="{material:MaterialIconExt Regex}" IsChecked="{Binding UseRegex}"/>
                     
-                    <DropDownButton Grid.Column="4" HorizontalAlignment="Stretch" Padding="{ext:Space 4, 0}">
-                        <DropDownButton.Flyout>
-                            <Flyout>
-                                <ItemsControl ItemsSource="{Binding GameNames}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <CheckBox Content="{Binding DisplayName}" 
-                                                      IsChecked="{Binding IsChecked, Mode=TwoWay}"
-                                                      IsCheckedChanged="OnGameNameChecked"/>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                </ItemsControl>
-                            </Flyout>
-                        </DropDownButton.Flyout>
-                        
-                        <StackPanel Orientation="Horizontal">
-                            <material:MaterialIcon Kind="Filter" Margin="{ext:Space 0, 0, 1, 0}"/>
-                            <TextBlock Text="Game Filters"/>
-                        </StackPanel>
-                    </DropDownButton>
+                    <ToggleButton Grid.Column="0" ToolTip.Tip="Flat View" Content="{material:MaterialIconExt FormatListBulleted}" IsChecked="{Binding UseFlatView}"/>
+                    
+                    <TextBox Grid.Column="2" Text="{Binding ActualSearchText, Mode=TwoWay}" Watermark="Search" KeyDown="OnSearchKeyDown"/>
+                
+                    <ToggleButton Grid.Column="4" ToolTip.Tip="Regex" HorizontalAlignment="Right" 
+                                  Content="{material:MaterialIconExt Regex}" IsChecked="{Binding UseRegex}"/>
                 </Grid>
                 
-                <ui:FABorder Grid.Row="2">
-                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                        <ListBox ItemsSource="{Binding FlatViewCollection}" SelectionMode="Multiple"
-                                 SelectedItems="{Binding SelectedFlatViewItems, Mode=TwoWay}"
-                                 AutoScrollToSelectedItem="True" DoubleTapped="OnFlatItemDoubleTapped">
-                            <ListBox.KeyBindings>
-                                <KeyBinding Gesture="P" Command="{Binding PreviewCommand}"/>
-                                <KeyBinding Gesture="E" Command="{Binding ExportCommand}"/>
-                            </ListBox.KeyBindings>
-                            <ListBox.ItemTemplate>
-                                <DataTemplate DataType="files:FlatItem">
-                                    <ContentControl>
-                                        <ContentControl.ContextMenu>
-                                            <ContextMenu>
-                                                <MenuItem Header="Copy Path" Command="{Binding CopyPathCommand}"/>
-                                                <MenuItem Header="Copy Properties" Command="{Binding CopyPropertiesCommand}"/>
-                                                <MenuItem Header="Save Properties" Command="{Binding SavePropertiesCommand}"/>
-                                            </ContextMenu>
-                                        </ContentControl.ContextMenu>
-                                        
-                                        <TextBlock Text="{Binding Path}"/>
-                                    </ContentControl>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                            <ListBox.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <VirtualizingStackPanel Margin="{ext:Space 0, 0, 1.5, 0}"/>
-                                </ItemsPanelTemplate>
-                            </ListBox.ItemsPanel>
-                        </ListBox>
-                    </ScrollViewer>
-                </ui:FABorder>
+                <Grid Grid.Row="2" RowDefinitions="Auto *">
+                    <ui:BreadcrumbBar Grid.Row="0" Margin="{ext:Space 1, 0, 1, 1}"
+                                      ItemsSource="{Binding FileViewStack}"
+                                      IsVisible="{Binding !UseFlatView}" ItemClicked="OnBreadcrumbItemPressed">
+                        <ui:BreadcrumbBar.ItemTemplate>
+                            <DataTemplate DataType="files:TreeItem">
+                                <ui:BreadcrumbBarItem Content="{Binding Name}"/>
+                            </DataTemplate>
+                        </ui:BreadcrumbBar.ItemTemplate>
+                    </ui:BreadcrumbBar>
+                    
+                    <ui:FABorder Grid.Row="1">
+                        <Grid Margin="{ext:Space 1}">
+                            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" IsVisible="{Binding !UseFlatView}">
+                                <ListBox ItemsSource="{Binding FileViewCollection}" SelectionMode="Multiple"
+                                         SelectedItems="{Binding SelectedFileViewItems, Mode=TwoWay}"
+                                         AutoScrollToSelectedItem="True" DoubleTapped="OnFileItemDoubleTapped">
+                                    <ListBox.Styles>
+                                        <Style Selector="ListBoxItem">
+                                            <Setter Property="Padding" Value="0"/>
+                                        </Style>
+                                    </ListBox.Styles>
+                                    <ListBox.KeyBindings>
+                                        <KeyBinding Gesture="P" Command="{Binding PreviewCommand}"/>
+                                        <KeyBinding Gesture="E" Command="{Binding ExportCommand}"/>
+                                    </ListBox.KeyBindings>
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate DataType="files:TreeItem">
+                                             <StackPanel ToolTip.Tip="{Binding FilePath}" Width="96"
+                                                        Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{ext:Space 1}">
+                                                 <StackPanel.ContextMenu>
+                                                     <ContextMenu>
+                                                         <MenuItem Header="Copy Path" Command="{Binding CopyPathCommand}"/>
+                                                     </ContextMenu>
+                                                 </StackPanel.ContextMenu>
+                                                 <ui:FABorder>
+                                                     <Grid>
+                                                         <material:MaterialIcon Width="48" Height="64" IsVisible="{Binding FileBitmap, Converter={x:Static ObjectConverters.IsNull}}"
+                                                                                Classes.File="{Binding Type, 
+                                                                       Converter={StaticResource EnumEquals}, 
+                                                                       ConverterParameter={x:Static files:ENodeType.File}}"
+                                                                                Classes.Folder="{Binding Type, 
+                                                                       Converter={StaticResource EnumEquals}, 
+                                                                       ConverterParameter={x:Static files:ENodeType.Folder}}">
+                                                             <material:MaterialIcon.Styles>
+                                                                 <Style Selector="material|MaterialIcon.File">
+                                                                     <Style.Setters>
+                                                                         <Setter Property="Kind" Value="File" />
+                                                                     </Style.Setters>
+                                                                 </Style>
+                                                                 <Style Selector="material|MaterialIcon.Folder">
+                                                                     <Style.Setters>
+                                                                         <Setter Property="Kind" Value="Folder" />
+                                                                     </Style.Setters>
+                                                                 </Style>
+                                                             </material:MaterialIcon.Styles>
+                                                         </material:MaterialIcon>
+                                                         <Image Source="{Binding FileBitmap}" Width="48" Height="64"
+                                                                IsVisible="{Binding FileBitmap, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                                                     </Grid>
+                                                 </ui:FABorder>
+                                                 
+                                                 
+                                                 <TextBlock Text="{Binding NameWithoutExtension}" Margin="{ext:Space 0, 0.5, 0, 0}"
+                                                            Classes="CaptionTextBlockStyle" HorizontalAlignment="Center" 
+                                                            TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                    <ListBox.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <wrapPanel:VirtualizingWrapPanel/>
+                                        </ItemsPanelTemplate>
+                                    </ListBox.ItemsPanel>
+                                </ListBox>
+                            </ScrollViewer>
+                            
+                            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" IsVisible="{Binding UseFlatView}">
+                                <Grid>
+                                    <ListBox ItemsSource="{Binding FlatViewCollection}" SelectionMode="Multiple"
+                                             SelectedItems="{Binding SelectedFlatViewItems, Mode=TwoWay}"
+                                             AutoScrollToSelectedItem="True" DoubleTapped="OnFlatItemDoubleTapped">
+                                        <ListBox.KeyBindings>
+                                            <KeyBinding Gesture="P" Command="{Binding PreviewCommand}"/>
+                                            <KeyBinding Gesture="E" Command="{Binding ExportCommand}"/>
+                                        </ListBox.KeyBindings>
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate DataType="files:FlatItem">
+                                                <ContentControl>
+                                                    <ContentControl.ContextMenu>
+                                                        <ContextMenu>
+                                                            <MenuItem Header="Copy Path" Command="{Binding CopyPathCommand}"/>
+                                                            <MenuItem Header="Copy Properties" Command="{Binding CopyPropertiesCommand}"/>
+                                                            <MenuItem Header="Save Properties" Command="{Binding SavePropertiesCommand}"/>
+                                                        </ContextMenu>
+                                                    </ContentControl.ContextMenu>
+                                                    
+                                                    <TextBlock Text="{Binding Path}"/>
+                                                </ContentControl>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                        <ListBox.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <VirtualizingStackPanel Margin="{ext:Space 0, 0, 1.5, 0}"/>
+                                            </ItemsPanelTemplate>
+                                        </ListBox.ItemsPanel>
+                                    </ListBox>
+                                    <TextBlock IsVisible="{Binding !FlatViewCollection.Count}" Text="No Files Loaded" 
+                                               Classes="BodyTextBlockStyle TextFillColorTertiaryBrush"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Grid>
+                            </ScrollViewer>
+                        </Grid>
+                    </ui:FABorder>
+                    
+                </Grid>
+                
+                
             </Grid>
             
             <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Stretch">
@@ -167,44 +217,55 @@
                     <ColumnDefinition Width="{ext:Space 1}"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="{ext:Space 1}"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                            
-                <Grid Grid.Column="0" ColumnDefinitions="Auto *">
-                    <TextBlock Grid.Column="0" Text="Export To" VerticalAlignment="Center"
-                               Margin="{ext:Space 1, 0, 1, 0.25}" />
-                    <ComboBox Grid.Column="1"
-                              HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                              ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EExportLocation}}"
-                              SelectedItem="{Binding ExportLocation, Converter={StaticResource EnumToRecord}}">
-                        <ComboBox.ItemContainerTheme>
-                            <ControlTheme x:DataType="ext:EnumRecord" TargetType="ComboBoxItem" BasedOn="{StaticResource {x:Type ComboBoxItem}}">
-                                <Setter Property="IsEnabled" Value="{Binding !IsDisabled}"/>
-                            </ControlTheme>
-                        </ComboBox.ItemContainerTheme>
-                    </ComboBox>
-                </Grid>
-                    
-                <Button Grid.Column="2" HorizontalAlignment="Stretch" Command="{Binding ExportCommand}">
-                    <StackPanel Orientation="Horizontal">
-                        <material:MaterialIcon Kind="Download" Margin="{ext:Space -1, 0, 1, 0}"/>
-                        <TextBlock Text="Export"/>
-                    </StackPanel>
-                </Button>
                 
-                <Button Grid.Column="4" HorizontalAlignment="Stretch" Command="{Binding PropertiesCommand}">
+                <Button Grid.Column="0" HorizontalAlignment="Stretch" Command="{Binding PropertiesCommand}">
                     <StackPanel Orientation="Horizontal">
                         <material:MaterialIcon Kind="Xml" Margin="{ext:Space 0, 0, 1, 0}"/>
                         <TextBlock Text="Properties"/>
                     </StackPanel>
                 </Button>
                 
-                <Button Grid.Column="6" HorizontalAlignment="Stretch" Command="{Binding PreviewCommand}">
+                <Button Grid.Column="2" HorizontalAlignment="Stretch" Command="{Binding PreviewCommand}">
                     <StackPanel Orientation="Horizontal">
                         <material:MaterialIcon Kind="CubeScan" Margin="{ext:Space 0, 0, 1, 0}"/>
                         <TextBlock Text="Preview"/>
                     </StackPanel>
                 </Button>
+                
+                 <SplitButton Grid.Column="4" HorizontalAlignment="Stretch" Command="{Binding ExportCommand}">
+                    <SplitButton.Flyout>
+                        <MenuFlyout ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EExportLocation}}">
+                            <MenuFlyout.ItemContainerTheme>
+                                <ControlTheme x:DataType="ext:EnumRecord" TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}">
+                                    <Setter Property="Header" Value="{Binding Description}"/>
+                                    <Setter Property="IsEnabled" Value="{Binding !IsDisabled}"/>
+                                    <Setter Property="Command" Value="{Binding $parent[views:FilesView].((viewModels:FilesViewModel)DataContext).SetExportLocationCommand}"/>
+                                    <Setter Property="CommandParameter" Value="{Binding Value}"/>
+                                    
+                                    <Setter Property="StaysOpenOnClick" Value="False"/>
+                                    <Setter Property="Icon">
+                                        <Template>
+                                            <Grid>
+                                                <material:MaterialIcon Kind="Check" IsVisible="{Binding $parent[views:FilesView].((viewModels:FilesViewModel)DataContext).ExportLocation, 
+                                        Converter={StaticResource EnumEquals}, 
+                                        ConverterParameter={Binding $parent[MenuItem].((ext:EnumRecord)DataContext).Value}}" />
+                                            </Grid>
+                                        </Template>
+                                    </Setter>
+                                </ControlTheme>
+                            </MenuFlyout.ItemContainerTheme>
+                        </MenuFlyout>
+                    </SplitButton.Flyout>
+                    <StackPanel Orientation="Horizontal">
+                        <material:MaterialIcon Kind="Download" Margin="{ext:Space 0, 0, 1, 0}"/>
+                        <TextBlock Text="{Binding ExportLocation, Converter={StaticResource EnumToRecord}, StringFormat='Export to {0}'}"/>
+                    </StackPanel>
+                </SplitButton>
+                
+                <Button Grid.Column="6" ToolTip.Tip="Export Settings" Content="{material:MaterialIconExt Settings}"
+                        Command="{Binding OpenSettingsCommand}"/>
                     
             </Grid>
         </Grid>

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
@@ -19,6 +20,7 @@ using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.Engine;
 using CUE4Parse.UE4.IO;
 using CUE4Parse.UE4.Objects.Core.Math;
+using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.UE4.Pak;
 using CUE4Parse.UE4.Readers;
 using CUE4Parse.UE4.Versions;
@@ -31,6 +33,7 @@ using FortnitePorting.Extensions;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.CUE4Parse;
 using FortnitePorting.Models.Fortnite;
+using FortnitePorting.Rendering;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Views;
 using Serilog;
@@ -88,6 +91,7 @@ public partial class CUE4ParseService : ObservableObject, IService
 
     public async Task Initialize()
     {
+        
         Provider = AppSettings.Installation.CurrentProfile.FortniteVersion switch
         {
             EFortniteVersion.LatestOnDemand => new HybridFileProvider(new VersionContainer(AppSettings.Installation.CurrentProfile.UnrealVersion)),
@@ -98,7 +102,7 @@ public partial class CUE4ParseService : ObservableObject, IService
 		ObjectTypeRegistry.RegisterEngine(Assembly.Load("FortnitePorting"));
         ObjectTypeRegistry.RegisterEngine(Assembly.Load("FortnitePorting.Shared"));
 
-        Provider.LoadExtraDirectories = AppSettings.Installation.CurrentProfile.LoadCreativeMaps;
+        Provider.LoadExtraDirectories = AppSettings.Installation.CurrentProfile.LoadCreativeMaps && SupaBase.Permissions.CanExportUEFN;
         
         _onlineStatus = await Api.FortnitePorting.Online() ?? new OnlineResponse();
         
@@ -136,7 +140,7 @@ public partial class CUE4ParseService : ObservableObject, IService
 
         UpdateStatus("Loading Application Assets");
         await LoadApplicationAssets();
-
+        
         UpdateStatus(string.Empty);
 
         FinishedLoading = true;

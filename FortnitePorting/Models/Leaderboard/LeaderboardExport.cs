@@ -95,7 +95,7 @@ public partial class LeaderboardExport : ObservableObject
         if (assetLoader is null)
         {
             ObjectName = ID;
-            ExportBitmap = GetObjectBitmap(asset) ?? ImageExtensions.GetMedalBitmap(Ranking);
+            ExportBitmap = asset.GetEditorIconBitmap() ?? ImageExtensions.GetMedalBitmap(Ranking);
             return true;
         }
         
@@ -106,7 +106,7 @@ public partial class LeaderboardExport : ObservableObject
         }
         else
         {
-            ExportBitmap = assetLoader.IconHandler(asset)?.Decode()?.ToWriteableBitmap() ?? GetObjectBitmap(asset) ?? ImageExtensions.GetMedalBitmap(Ranking);
+            ExportBitmap = assetLoader.IconHandler(asset)?.Decode()?.ToWriteableBitmap() ?? asset.GetEditorIconBitmap() ?? ImageExtensions.GetMedalBitmap(Ranking);
             CachedBitmaps[ObjectPath] = ExportBitmap;
         }
         
@@ -120,21 +120,6 @@ public partial class LeaderboardExport : ObservableObject
         return true;
     }
     
-    
-
-    private Bitmap? GetObjectBitmap(UObject obj)
-    {
-        var typeName = obj switch
-        {
-            UBuildingTextureData => "DataAsset",
-            _ => obj.GetType().Name[1..]
-        };
-        
-        var filePath = $"avares://FortnitePorting/Assets/Unreal/{typeName}_64x.png";
-        if (!AssetLoader.Exists(new Uri(filePath))) return null;
-        
-        return ImageExtensions.AvaresBitmap(filePath);
-    }
 
     private void SetFailureDefaults()
     {
