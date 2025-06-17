@@ -289,6 +289,22 @@ class ImportContext:
             for slot in slots:
                 self.import_material(slot, variant_override_material.get("Material"), meta)
                 
+        for texture_data in mesh.get("TextureData"):
+            if not (td_override_material := texture_data.get("OverrideMaterial")):
+                continue
+                
+            Log.info(f"TextureData Override {td_override_material.get('Path')}")
+
+            index = td_override_material.get("Slot")
+            if index >= len(imported_mesh.material_slots):
+                continue
+
+            overridden_material = imported_mesh.material_slots[index]
+            slots = where(imported_mesh.material_slots,
+                          lambda slot: slot.name == overridden_material.name)
+            for slot in slots:
+                self.import_material(slot, td_override_material, meta)
+                
         self.import_light_data(mesh.get("Lights"), imported_object)
 
         for child in mesh.get("Children"):

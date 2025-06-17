@@ -68,11 +68,12 @@ public partial class AssetsViewModel() : ViewModelBase
                 });
             }
         });
+        
+        await AssetLoader.Load(EExportType.Outfit);
     }
 
     public override async Task OnViewOpened()
     {
-        await AssetLoader.Load(EExportType.Outfit);
     }
 
     [RelayCommand]

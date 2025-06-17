@@ -211,6 +211,8 @@ public partial class FilesViewModel : ViewModelBase
 
     partial void OnSearchFilterChanged(string value)
     {
+        if (UseFlatView) return;
+        
         if (string.IsNullOrWhiteSpace(SearchFilter))
         {
             LoadFileItems(_currentFolder);

@@ -34,4 +34,11 @@ public partial class ModelPreviewWindowModel(SettingsService settings) : WindowM
             IsLoading = false;
         });
     }
+
+    public override void OnApplicationExit()
+    {
+        base.OnApplicationExit();
+        
+        Context?.Close();
+    }
 }

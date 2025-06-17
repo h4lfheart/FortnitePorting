@@ -190,7 +190,7 @@ public static class Exporter
     private static BaseExport CreateExport(string name, UObject asset, EExportType exportType, BaseStyleData[] styles, ExportDataMeta metaData)
     {
         var path = asset.GetPathName();
-        Info.Message($"Exporting {name}", $"Exporting: {asset.Name}", id: path, autoClose: false);
+        Info.Message($"Exporter", asset.Name, id: path, autoClose: false);
 
         ExportProgressUpdate updateDelegate = (name, current, total) =>
         {
