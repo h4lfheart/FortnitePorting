@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace FortnitePorting.Models.Properties;
+namespace FortnitePorting.Models.Viewers;
 
 public partial class PropertiesContainer : ObservableObject
 {

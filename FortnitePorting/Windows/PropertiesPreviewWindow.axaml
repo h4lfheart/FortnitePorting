@@ -6,7 +6,7 @@
         xmlns:windowModels="clr-namespace:FortnitePorting.WindowModels"
         xmlns:avaloniaEdit="https://github.com/avaloniaui/avaloniaedit"
         xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
-        xmlns:properties="clr-namespace:FortnitePorting.Models.Properties"
+        xmlns:viewers="clr-namespace:FortnitePorting.Models.Viewers"
         x:Class="FortnitePorting.Windows.PropertiesPreviewWindow"
         x:DataType="windowModels:PropertiesPreviewWindowModel"
         Width="1280" Height="720" RequestedThemeVariant="Dark" FontFamily="Segoe UI"
@@ -61,7 +61,7 @@
                         TabItems="{Binding Assets}" 
                         SelectedItem="{Binding SelectedAsset, Mode=TwoWay}">
                 <ui:TabView.TabItemTemplate>
-                    <DataTemplate x:DataType="properties:PropertiesContainer">
+                    <DataTemplate x:DataType="viewers:PropertiesContainer">
                         <TextBlock Text="{Binding AssetName}"/>
                     </DataTemplate>
                 </ui:TabView.TabItemTemplate>

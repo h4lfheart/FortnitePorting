@@ -30,6 +30,7 @@ using FortnitePorting.Models.Material;
 using FortnitePorting.Models.Unreal;
 using FortnitePorting.Models.Unreal.Material;
 using FortnitePorting.Rendering;
+using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.ViewModels;
 using FortnitePorting.Views;
@@ -42,8 +43,10 @@ using Orientation = Avalonia.Layout.Orientation;
 
 namespace FortnitePorting.WindowModels;
 
-public partial class MaterialPreviewWindowModel : WindowModelBase
+public partial class MaterialPreviewWindowModel(SettingsService settings) : WindowModelBase
 {
+    [ObservableProperty] private SettingsService _settings = settings;
+    
     [ObservableProperty] private ObservableCollection<MaterialData> _loadedMaterialDatas = [];
     [ObservableProperty] private MaterialData? _selectedMaterialData;
     

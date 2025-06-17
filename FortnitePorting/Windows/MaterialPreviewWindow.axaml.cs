@@ -47,20 +47,21 @@ public partial class MaterialPreviewWindow : WindowBase<MaterialPreviewWindowMod
 
     public static void Preview(UObject obj)
     {
-        if (Instance is not null)
+        if (Instance is null)
         {
-            Instance.WindowModel.Load(obj);
+            Instance = new MaterialPreviewWindow();
+            Instance.Show();
             Instance.BringToTop();
+        }
+
+        if (Instance.WindowModel.LoadedMaterialDatas.FirstOrDefault(mat => mat.Asset?.Name.Equals(obj.Name) ?? false) is
+            { } existing)
+        {
+            Instance.WindowModel.SelectedMaterialData = existing;
             return;
         }
         
-        TaskService.RunDispatcher(() =>
-        {
-            Instance = new MaterialPreviewWindow();
-            Instance.WindowModel.Load(obj);
-            Instance.Show();
-            Instance.BringToTop();
-        });
+        Instance.WindowModel.Load(obj);
     }
 
     protected override void OnClosed(EventArgs e)
@@ -117,11 +118,6 @@ public partial class MaterialPreviewWindow : WindowBase<MaterialPreviewWindowMod
         {
             Close();
         }
-    }
-
-    private void OnTitleBarPressed(object? sender, PointerPressedEventArgs e)
-    {
-        BeginMoveDrag(e);
     }
 
     private void OnTabSelectionChanged(object sender, SelectionChangedEventArgs args)

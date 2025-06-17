@@ -43,6 +43,9 @@
              <Brush x:Key="TabViewItemHeaderBackgroundPointerOver">#0DFFFFFF</Brush>
              <Brush x:Key="TabViewItemHeaderBackground">#09FFFFFF</Brush>
              <Brush x:Key="TabViewItemSeparator">#00000000</Brush>
+             <Brush x:Key="ExpanderHeaderBorderBrush">#78575757</Brush>
+             <Brush x:Key="ExpanderHeaderPointerOverBorderBrush">#78575757</Brush>
+             <Brush x:Key="ExpanderContentBorderBrush">#78575757</Brush>
          </ResourceDictionary>
          
      </Application.Resources>

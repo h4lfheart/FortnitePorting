@@ -16,10 +16,10 @@ using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using FluentAvalonia.Core;
 using FortnitePorting.Framework;
-using FortnitePorting.Models.Properties;
 using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.ViewModels;
+using PropertiesContainer = FortnitePorting.Models.Viewers.PropertiesContainer;
 
 namespace FortnitePorting.WindowModels;
 

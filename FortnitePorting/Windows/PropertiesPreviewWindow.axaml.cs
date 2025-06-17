@@ -8,11 +8,11 @@ using CUE4Parse.UE4.Assets.Exports.Texture;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
-using FortnitePorting.Models.Properties;
 using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.ViewModels;
 using FortnitePorting.WindowModels;
+using PropertiesContainer = FortnitePorting.Models.Viewers.PropertiesContainer;
 
 namespace FortnitePorting.Windows;
 
@@ -47,12 +47,15 @@ public partial class PropertiesPreviewWindow : WindowBase<PropertiesPreviewWindo
             Instance.WindowModel.SelectedAsset = existing;
             return;
         }
-        
-        Instance.WindowModel.Assets.Add(new PropertiesContainer
+
+        var container = new PropertiesContainer
         {
             AssetName = name,
             PropertiesData = json
-        });
+        };
+        
+        Instance.WindowModel.Assets.Add(container);
+        Instance.WindowModel.SelectedAsset = container;
     }
 
     protected override void OnClosed(EventArgs e)
