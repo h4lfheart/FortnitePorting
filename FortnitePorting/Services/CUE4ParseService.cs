@@ -91,7 +91,6 @@ public partial class CUE4ParseService : ObservableObject, IService
 
     public async Task Initialize()
     {
-        
         Provider = AppSettings.Installation.CurrentProfile.FortniteVersion switch
         {
             EFortniteVersion.LatestOnDemand => new HybridFileProvider(new VersionContainer(AppSettings.Installation.CurrentProfile.UnrealVersion)),

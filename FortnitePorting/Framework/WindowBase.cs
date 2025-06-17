@@ -13,7 +13,7 @@ public abstract class WindowBase<T> : Window where T : WindowModelBase
 
     public WindowBase(T? templateWindowModel = null, bool initializeWindowModel = true)
     {
-        WindowModel = templateWindowModel ?? AppServices.Services.GetRequiredService<T>();
+        WindowModel = templateWindowModel ?? AppServices.Services.GetService<T>();
         WindowModel.Window = this;
         
         if (initializeWindowModel)
@@ -25,8 +25,6 @@ public abstract class WindowBase<T> : Window where T : WindowModelBase
     protected override async void OnClosed(EventArgs e)
     {
         base.OnClosed(e);
-
-        ViewModelRegistry.Unregister<T>();
         
         await WindowModel.OnViewExited();
     }

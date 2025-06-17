@@ -46,7 +46,7 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Grid>
-                                <ui:FABorder IsVisible="{Binding !VotedForPoll}" Padding="{ext:Space 1}" Margin="{ext:Space 0, 0, 0, 1}">
+                                <controls:FABorder IsVisible="{Binding !VotedForPoll}" Padding="{ext:Space 1}" Margin="{ext:Space 0, 0, 0, 1}">
                                     <Grid>
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto"/>
@@ -92,9 +92,9 @@
                                                 Command="{Binding Submit}" 
                                                 HorizontalAlignment="Stretch"/>
                                     </Grid>
-                                </ui:FABorder>
+                                </controls:FABorder>
                                 
-                                <ui:FABorder IsVisible="{Binding VotedForPoll}" Padding="{ext:Space 1, 1, 1, 0}"  Margin="{ext:Space 0, 0, 0, 1}">
+                                <controls:FABorder IsVisible="{Binding VotedForPoll}" Padding="{ext:Space 1, 1, 1, 0}"  Margin="{ext:Space 0, 0, 0, 1}">
                                     <Grid>
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto"/>
@@ -108,7 +108,7 @@
                                                  HorizontalAlignment="Stretch">
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
-                                                    <ui:FABorder Padding="{ext:Space 1}" Margin="{ext:Space 0, 0, 0, 1}"
+                                                    <controls:FABorder Padding="{ext:Space 1}" Margin="{ext:Space 0, 0, 0, 1}"
                                                                  BorderThickness="0" Background="{Binding Background}">
                                                         <StackPanel>
                                                             <Grid>
@@ -123,7 +123,7 @@
                                                                        MaxHeight="150" HorizontalAlignment="Left"/>
                                                             </Border>
                                                         </StackPanel>
-                                                    </ui:FABorder>
+                                                    </controls:FABorder>
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>
                                             <ItemsControl.ItemsPanel>
@@ -133,7 +133,7 @@
                                             </ItemsControl.ItemsPanel>
                                         </ItemsControl>
                                     </Grid>
-                                </ui:FABorder>
+                                </controls:FABorder>
                             </Grid>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>

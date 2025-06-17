@@ -120,7 +120,7 @@
                         
                     </Grid>
                     
-                    <ui:FABorder Grid.Row="2">
+                    <controls:FABorder Grid.Row="2">
                         <ListBox x:Name="AssetsListBox" SelectionMode="Multiple" AutoScrollToSelectedItem="False"
                                  ItemsSource="{Binding AssetLoader.ActiveCollection}" 
                                  SelectionChanged="OnSelectionChanged">
@@ -147,7 +147,7 @@
                                         <StackPanel Width="{Binding DisplayWidth}" 
                                                     ToolTip.Tip="{Binding CreationData.ID}">
                                             <Grid>
-                                                <ui:FABorder Width="{Binding DisplayWidth}" 
+                                                <controls:FABorder Width="{Binding DisplayWidth}" 
                                                              Height="{Binding DisplayHeight}"/>
                                                 <Border ClipToBounds="True" CornerRadius="8"
                                                         Width="{Binding DisplayWidth}" 
@@ -170,7 +170,7 @@
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
                         </ListBox>
-                    </ui:FABorder>
+                    </controls:FABorder>
                     
                     <ProgressBar Grid.Row="3" 
                                  IsVisible="{Binding !AssetLoader.ActiveLoader.FinishedLoading}"
@@ -194,7 +194,7 @@
                                             <RowDefinition Height="Auto" />
                                         </Grid.RowDefinitions>
                                         
-                                        <ui:FABorder Grid.Row="0">
+                                        <controls:FABorder Grid.Row="0">
                                             <Grid RowDefinitions="* 2*" ColumnDefinitions="* 0.15* 2.5*" Margin="{ext:Space 0.5}">
                                                 <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" CornerRadius="4" ClipToBounds="True">
                                                     <Image Source="{Binding Asset.IconDisplayImage}"/>
@@ -206,12 +206,12 @@
                                                            Text="{Binding Asset.CreationData.Description}" Margin="{ext:Space 0, 0, 1, 0}"
                                                            TextAlignment="Left" TextWrapping="Wrap" Opacity="0.75"/>
                                             </Grid>
-                                        </ui:FABorder>
+                                        </controls:FABorder>
                                         
                                         <ItemsControl Grid.Row="2" ItemsSource="{Binding StyleInfos}">
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate DataType="assets:AssetStyleInfo">
-                                                    <ui:FABorder Margin="{ext:Space 0, 0, 0, 1}" IsVisible="{Binding IsVisible}">
+                                                    <controls:FABorder Margin="{ext:Space 0, 0, 0, 1}" IsVisible="{Binding IsVisible}">
                                                         <Grid Margin="{ext:Space 0, 1, 0, 1}">
                                                             <Grid.RowDefinitions>
                                                                 <RowDefinition Height="*" />
@@ -254,7 +254,7 @@
                                                                 </ListBox.ItemTemplate>
                                                             </ListBox>
                                                         </Grid>
-                                                    </ui:FABorder>
+                                                    </controls:FABorder>
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>
                                         </ItemsControl>

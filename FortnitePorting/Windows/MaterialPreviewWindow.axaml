@@ -10,6 +10,7 @@
         xmlns:material="clr-namespace:FortnitePorting.Models.Material"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:objects="clr-namespace:CUE4Parse.UE4.Objects.UObject;assembly=CUE4Parse"
+        xmlns:controls="clr-namespace:FortnitePorting.Controls"
         x:Class="FortnitePorting.Windows.MaterialPreviewWindow"
         x:DataType="windowModels:MaterialPreviewWindowModel"
         Width="1280" Height="720" RequestedThemeVariant="Dark" FontFamily="Segoe UI" Background="#FF202020"
@@ -76,7 +77,7 @@
                 <ColumnDefinition Width="4*"/>
             </Grid.ColumnDefinitions>
             
-            <ui:FABorder Grid.Column="0"
+            <controls:FABorder Grid.Column="0"
                          CornerRadius="0" BorderThickness="0"
                          Background="#1a1a1a">
                 <Grid>
@@ -95,7 +96,7 @@
                                 <Setter Property="Margin" Value="{ext:Space 1.5}"/>
                             </Style>
                             
-                            <Style Selector="Expander /template/ ui|FABorder#rOOT">
+                            <Style Selector="Expander /template/ controls|FABorder#Root">
                                 <Setter Property="Padding" Value="{ext:Space 1.5, 0, 0, 0}"/>
                             </Style>
                         </Expander.Styles>
@@ -162,7 +163,7 @@
                         </ListBox>
                     </Grid>
                 </Grid>
-            </ui:FABorder>
+            </controls:FABorder>
             
             <GridSplitter Grid.Column="1" Background="Transparent"/>
             

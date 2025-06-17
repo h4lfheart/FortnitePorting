@@ -1,4 +1,5 @@
 using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -15,6 +16,7 @@ using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using FluentAvalonia.Core;
 using FortnitePorting.Framework;
+using FortnitePorting.Models.Properties;
 using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.ViewModels;
@@ -24,9 +26,9 @@ namespace FortnitePorting.WindowModels;
 public partial class PropertiesPreviewWindowModel(SettingsService settings) : WindowModelBase
 {
     [ObservableProperty] private SettingsService _settings = settings;
-    
-    [ObservableProperty] private string _assetName;
-    [ObservableProperty] private string _propertiesJson;
+
+    [ObservableProperty] private ObservableCollection<PropertiesContainer> _assets = [];
+    [ObservableProperty] private PropertiesContainer? _selectedAsset;
 
     public static IHighlightingDefinition JsonHighlighter { get; set; }
 

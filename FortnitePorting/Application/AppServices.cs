@@ -73,7 +73,14 @@ public static class AppServiceExtensions
 
         foreach (var viewModelType in viewModelTypes)
         {
-            collection.AddSingleton(viewModelType);
+            if (viewModelType.IsAssignableTo(typeof(WindowModelBase)))
+            {
+                collection.AddTransient(viewModelType);
+            }
+            else
+            {
+                collection.AddSingleton(viewModelType);
+            }
         }
     }
 }

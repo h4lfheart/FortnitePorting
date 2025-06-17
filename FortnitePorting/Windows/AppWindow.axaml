@@ -125,7 +125,7 @@
                                          Severity="{Binding Severity}"
                                          Background="#2F2C35">
                                  <ui:InfoBar.ActionButton>
-                                     <ui:HyperlinkButton IsVisible="{Binding UseButton}" 
+                                     <HyperlinkButton IsVisible="{Binding UseButton}" 
                                                          Content="{Binding ButtonTitle}" 
                                                          Command="{Binding ButtonCommand}"
                                                          Padding="6"/>

@@ -6,6 +6,7 @@
         xmlns:windowModels="clr-namespace:FortnitePorting.WindowModels"
         xmlns:avaloniaEdit="https://github.com/avaloniaui/avaloniaedit"
         xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+        xmlns:properties="clr-namespace:FortnitePorting.Models.Properties"
         x:Class="FortnitePorting.Windows.PropertiesPreviewWindow"
         x:DataType="windowModels:PropertiesPreviewWindowModel"
         Width="1280" Height="720" RequestedThemeVariant="Dark" FontFamily="Segoe UI"
@@ -55,8 +56,29 @@
             </Grid>
         </Grid>
         
-        <Grid Grid.Row="1">
-            <avaloniaEdit:TextEditor x:Name="Editor" Document="{Binding PropertiesJson, Converter={StaticResource StringToDocument}}"
+        <Grid Grid.Row="1" RowDefinitions="Auto *">
+            <ui:TabView Grid.Row="0" IsAddTabButtonVisible="False" TabCloseRequested="OnTabClosed" TabWidthMode="Compact"
+                        TabItems="{Binding Assets}" 
+                        SelectedItem="{Binding SelectedAsset, Mode=TwoWay}">
+                <ui:TabView.TabItemTemplate>
+                    <DataTemplate x:DataType="properties:PropertiesContainer">
+                        <TextBlock Text="{Binding AssetName}"/>
+                    </DataTemplate>
+                </ui:TabView.TabItemTemplate>
+                <ui:TabView.Styles>
+                    <Style Selector="Border#RightBottomBorderLine">
+                        <Setter Property="IsVisible" Value="False"/>
+                    </Style>
+                    <Style Selector="Border#LeftRightBottomBorderLine">
+                        <Setter Property="IsVisible" Value="False"/>
+                    </Style>
+                </ui:TabView.Styles>
+            </ui:TabView>
+            
+            <Grid Grid.Row="1" Background="#1C000000"/>
+            
+            <avaloniaEdit:TextEditor Grid.Row="1" x:Name="Editor" Document="{Binding SelectedAsset.PropertiesData, Converter={StaticResource StringToDocument}}"
+                                     Background="Transparent"
                                      ShowLineNumbers="True" FontFamily="Cascadia Code, Consolas, Menlo, Monospace"
                                      IsReadOnly="True" SyntaxHighlighting="{Binding JsonHighlighter}"
                                      FontSize="12"/>

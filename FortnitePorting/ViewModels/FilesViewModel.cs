@@ -392,9 +392,6 @@ public partial class FilesViewModel : ViewModelBase
             }
             default:
             {
-                Info.Message("Unimplemented Previewer",
-                    $"A file previewer for \"{asset.ExportType}\" assets has not been implemented and/or will not be supported.");
-                    
                 await Properties();
                 break;
             }
