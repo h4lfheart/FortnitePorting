@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.Assets.Exports;
+using FortnitePorting.Application;
 using FortnitePorting.Framework;
 using FortnitePorting.Rendering;
 using FortnitePorting.Services;
@@ -11,6 +12,7 @@ using FortnitePorting.ViewModels;
 
 namespace FortnitePorting.WindowModels;
 
+[Transient]
 public partial class ModelPreviewWindowModel(SettingsService settings) : WindowModelBase
 {
     [ObservableProperty] private SettingsService _settings = settings;

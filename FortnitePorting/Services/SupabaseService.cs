@@ -103,7 +103,7 @@ public partial class SupabaseService : ObservableObject, IService
 
         while (!IsLoggedIn)
         {
-            await Task.Delay(-1);
+            await Task.Delay(1);
         }
     }
     

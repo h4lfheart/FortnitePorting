@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Reflection;
 using FortnitePorting.Framework;
@@ -74,7 +75,7 @@ public static class AppServiceExtensions
 
         foreach (var viewModelType in viewModelTypes)
         {
-            if (viewModelType.IsAssignableTo(typeof(WindowModelBase)))
+            if (viewModelType.GetCustomAttribute<TransientAttribute>() is not null)
             {
                 collection.AddTransient(viewModelType);
             }
@@ -85,3 +86,5 @@ public static class AppServiceExtensions
         }
     }
 }
+
+public class TransientAttribute : Attribute;

@@ -43,6 +43,7 @@ using Orientation = Avalonia.Layout.Orientation;
 
 namespace FortnitePorting.WindowModels;
 
+[Transient]
 public partial class MaterialPreviewWindowModel(SettingsService settings) : WindowModelBase
 {
     [ObservableProperty] private SettingsService _settings = settings;
