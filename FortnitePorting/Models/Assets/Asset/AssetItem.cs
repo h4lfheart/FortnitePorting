@@ -8,6 +8,7 @@ using CommunityToolkit.Mvvm.Input;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.GameTypes.FN.Enums;
 using CUE4Parse.UE4.Assets.Exports.Texture;
+using CUE4Parse.UE4.Objects.GameplayTags;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using FluentAvalonia.UI.Controls;
@@ -39,6 +40,7 @@ public partial class AssetItem : Base.BaseAssetItem
     public EFortRarity Rarity { get; set; }
     public int Season { get; set; }
     public UFortItemSeriesDefinition? Series { get; set; }
+    public string? SetName { get; set; }
     
 
     private static SKColor InnerBackgroundColor = SKColor.Parse("#50C8FF");
@@ -54,6 +56,13 @@ public partial class AssetItem : Base.BaseAssetItem
         IsFavorite = AppSettings.Application.FavoriteAssets.Contains(CreationData.Object.GetPathName());
 
         Rarity = CreationData.Object.GetOrDefault("Rarity", EFortRarity.Uncommon);
+
+        if (CreationData.GameplayTags?.GetValueOrDefault("Cosmetics.Set")?.Text is { } setTag &&
+            UEParse.SetNames.TryGetValue(setTag, out var setName))
+        {
+            SetName = setName;
+        }
+            
         
         var seasonTag = CreationData.GameplayTags?.GetValueOrDefault("Cosmetics.Filter.Season.")?.Text;
         Season = int.TryParse(seasonTag?.SubstringAfterLast("."), out var seasonNumber) ? seasonNumber : int.MaxValue;
