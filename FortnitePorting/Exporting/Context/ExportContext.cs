@@ -34,7 +34,6 @@ namespace FortnitePorting.Exporting.Context;
 public partial class ExportContext
 {
     public List<Task> ExportTasks = [];
-    private HashSet<ExportMaterial> MaterialCache = [];
 
     public readonly ExportDataMeta Meta;
     private readonly ExporterOptions FileExportOptions;

@@ -115,14 +115,8 @@ public partial class ExportContext
             Log.Information("Processing {ActorName}: {CurrentActor}/{TotalActors}", actor.Name, currentActor, totalActors);
             Meta.OnUpdateProgress(actor.Name, currentActor, totalActors);
             actors.AddRangeIfNotNull(Actor(actor));
-
-            if (currentActor % 250 == 0)
-            {
-                GC.Collect();
-            }
         }
 
-        GC.Collect();
         return actors;
     } 
 

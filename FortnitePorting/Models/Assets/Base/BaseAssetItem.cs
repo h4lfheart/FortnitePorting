@@ -38,8 +38,9 @@ public abstract partial class BaseAssetItem : ObservableObject
             return this switch
             {
                 AssetItem assetItem => Regex.IsMatch(assetItem.CreationData.DisplayName, filter)
-                                                   || Regex.IsMatch(assetItem.CreationData.Object.Name, filter)
-                                                   || (assetItem.SetName is not null && Regex.IsMatch(assetItem.SetName, filter)),
+                                                    || Regex.IsMatch(assetItem.CreationData.Object.Name, filter)
+                                                    || (assetItem.SetName is not null && Regex.IsMatch(assetItem.SetName, filter))
+                                                    || (assetItem.Series is not null && Regex.IsMatch(assetItem.Series.DisplayName.Text, filter)),
                 CustomAssetItem customAssetItem =>  Regex.IsMatch(customAssetItem.CreationData.DisplayName, filter),
                 _ => true
             };
@@ -49,7 +50,8 @@ public abstract partial class BaseAssetItem : ObservableObject
         {
             AssetItem assetItem => MiscExtensions.Filter(assetItem.CreationData.DisplayName, filter)
                                    || MiscExtensions.Filter(assetItem.CreationData.Object.Name, filter)
-                                   || (assetItem.SetName is not null && MiscExtensions.Filter(assetItem.SetName, filter)),
+                                   || (assetItem.SetName is not null && MiscExtensions.Filter(assetItem.SetName, filter))
+                                   || (assetItem.Series is not null && MiscExtensions.Filter(assetItem.Series.DisplayName.Text, filter)),
             CustomAssetItem customAssetItem => MiscExtensions.Filter(customAssetItem.CreationData.DisplayName, filter),
             _ => true
         };
@@ -67,6 +69,12 @@ public abstract partial class BaseAssetItem : ObservableObject
         }
 
         return bitmap;
+    }
+    
+    [RelayCommand]
+    public virtual async Task NavigateTo()
+    {
+        Info.Message("Unsupported Asset", "Cannot navigate to this type of asset.");
     }
     
     [RelayCommand]

@@ -15,12 +15,14 @@ using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
 using FortnitePorting.Exporting;
 using FortnitePorting.Extensions;
+using FortnitePorting.Framework;
 using FortnitePorting.Models.Clipboard;
 using FortnitePorting.Models.Fortnite;
 
 
 using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
+using FortnitePorting.Views;
 using FortnitePorting.Windows;
 using Newtonsoft.Json;
 using SkiaSharp;
@@ -117,7 +119,14 @@ public partial class AssetItem : Base.BaseAssetItem
 
         return bitmap;
     }
-    
+
+    public override async Task NavigateTo()
+    {
+        Navigation.App.Open<FilesView>();
+        FilesVM.FileViewJumpTo(UEParse.Provider.FixPath(CreationData.Object.GetPathName().SubstringBefore(".")));
+        AppWM.Window.BringToTop();
+    }
+
     public override async Task CopyPath()
     {
         await App.Clipboard.SetTextAsync(CreationData.Object.GetPathName());

@@ -137,6 +137,7 @@
                                             <ContextMenu>
                                                 <MenuItem Header="Favorite" Icon="{material:MaterialIconExt Heart}" Command="{Binding FavoriteCommand}"/>
                                                 <MenuItem Header="View Properties" Icon="{material:MaterialIconExt Xml}" Command="{Binding PreviewPropertiesCommand}"/>
+                                                <MenuItem Header="Navigate To" Icon="{material:MaterialIconExt ChevronRight}" Command="{Binding NavigateToCommand}"/>
                                                 <MenuItem Header="Copy Path" Icon="{material:MaterialIconExt Clipboard}" Command="{Binding CopyPathCommand}"/>
                                                 <MenuItem Header="Copy Icon" Icon="{material:MaterialIconExt Image}">
                                                     <MenuItem Header="With Background" Command="{Binding CopyIconCommand}" CommandParameter="{x:True}"/>
