@@ -174,6 +174,12 @@ public partial class FilesViewModel : ViewModelBase
                             childItem.FileBitmap = objectBitmap;
                             break;
                         }
+
+                        if (Exporter.DetermineExportType(obj) is var exportType and not EExportType.None)
+                        {
+                            childItem.FileBitmap = ImageExtensions.AvaresBitmap($"avares://FortnitePorting/Assets/FN/{exportType.ToString()}.png");
+                            break;
+                        }
                     }
                 }
 
@@ -233,7 +239,7 @@ public partial class FilesViewModel : ViewModelBase
 
         var items = FlattenTree(_currentFolder)
             .Where(item =>
-                UseRegex ? Regex.IsMatch(item.Name, SearchFilter) : MiscExtensions.Filter(item.Name, SearchFilter))
+                UseRegex ? Regex.IsMatch(item.FilePath, SearchFilter) : MiscExtensions.Filter(item.FilePath, SearchFilter))
             .OrderByDescending(item => item.Type == ENodeType.Folder)
             .ThenBy(item => item.Name, new CustomComparer<string>(ComparisonExtensions.CompareNatural));
 

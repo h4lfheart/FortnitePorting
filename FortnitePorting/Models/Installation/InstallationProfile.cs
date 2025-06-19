@@ -18,7 +18,6 @@ public partial class InstallationProfile : ObservableValidator
     
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ArchiveDirectoryEnabled))]
-    [NotifyPropertyChangedFor(nameof(ArchiveDirectory))]
     [NotifyPropertyChangedFor(nameof(UnrealVersionEnabled))]
     [NotifyPropertyChangedFor(nameof(EncryptionKeyEnabled))]
     [NotifyPropertyChangedFor(nameof(MappingsFileEnabled))]

@@ -165,6 +165,7 @@ public static class Exporter
                 if (loader.ClassNames.Contains(asset.ExportType))
                 {
                     exportType = loader.Type;
+                    break;
                 }
             }
         }
