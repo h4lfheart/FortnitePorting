@@ -39,6 +39,7 @@ using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Rendering;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Views;
+using FortnitePorting.Windows;
 using Serilog;
 using UE4Config.Parsing;
 using FGuid = CUE4Parse.UE4.Objects.Core.Misc.FGuid;
@@ -138,6 +139,15 @@ public partial class CUE4ParseService : ObservableObject, IService
         }
         
         await LoadMappings();
+
+        await TaskService.RunDispatcherAsync(() =>
+        {
+            SoundCuePreviewWindow.Preview(Provider.LoadPackageObject("FortniteGame/Plugins/GameFeatures/MotherGameplay/Content/Sounds/PastaRipper/PastaRipper_Fire_Cue"));
+            SoundCuePreviewWindow.Preview(Provider.LoadPackageObject("FortniteGame/Plugins/GameFeatures/MotherGameplay/Content/Sounds/PastaRipper/PastaRipper_BulletWhip_Cue"));
+            SoundCuePreviewWindow.Preview(Provider.LoadPackageObject("FortniteGame/Plugins/GameFeatures/BRCosmetics/Content/Sounds/PickAxes/FNCSS20/SC_PickaxeSwing_FNCSS20"));
+            SoundCuePreviewWindow.Preview(Provider.LoadPackageObject("FortniteGame/Content/Athena/Sounds/Ambient/Skytube/Skytube_Enter_Player_Cue"));
+           
+        });
         
         await LoadAssetRegistries();
 

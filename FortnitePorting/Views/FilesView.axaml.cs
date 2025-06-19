@@ -79,9 +79,7 @@ public partial class FilesView : ViewBase<FilesViewModel>
         if (sender is not ListBox listBox) return;
         if (listBox.SelectedItem is not FlatItem item) return;
         
-        var treeItem = ViewModel.TreeViewJumpTo(item.Path);
-        ViewModel.LoadFileItems(treeItem.Parent);
-        ViewModel.UseFlatView = false;
+        ViewModel.FileViewJumpTo(item.Path);
     }
     
 }

@@ -156,7 +156,7 @@ public partial class FilesViewModel : ViewModelBase
 
     private void LoadFileBitmaps(IEnumerable<TreeItem> fileItems)
     {
-        Parallel.ForEach(fileItems, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, childItem => 
+        Parallel.ForEach(fileItems, childItem => 
             {
                 if (childItem.Type == ENodeType.Folder) return;
                 if (childItem.FileBitmap is not null) return;
@@ -182,12 +182,24 @@ public partial class FilesViewModel : ViewModelBase
         );
     }
 
+    public void FileViewJumpTo(string path)
+    { 
+        var treeItem = TreeViewJumpTo(path);
+        if (treeItem?.Parent is null) return;
+        
+        LoadFileItems(treeItem.Parent);
+        UseFlatView = false;
+
+        SelectedFileViewItems = [treeItem];
+    }
+
     public void FlatViewJumpTo(string directory)
     {
         var foundItem = FlatViewAssetCache.Lookup(directory);
         if (!foundItem.HasValue) return;
 
         SelectedFlatViewItems = [foundItem.Value];
+        UseFlatView = true;
     }
     
     public TreeItem? TreeViewJumpTo(string directory)
@@ -383,11 +395,7 @@ public partial class FilesViewModel : ViewModelBase
             }
             case USoundCue soundCue:
             {
-                var sounds = soundCue.HandleSoundTree();
-                var soundWaveLazy = sounds.MaxBy(sound => sound.Time)?.SoundWave;
-                if (soundWaveLazy?.Load<USoundWave>() is not { } soundWave) break;
-                
-                SoundPreviewWindow.Preview(soundWave);
+                SoundCuePreviewWindow.Preview(soundCue);
                 break;
             }
             default:

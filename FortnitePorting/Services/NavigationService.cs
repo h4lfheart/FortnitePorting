@@ -57,6 +57,8 @@ public class NavigatorContext
         
         if (viewType is null) return;
         
+        if (IsTabOpen(viewType)) return;
+        
         ContentFrame.Navigate(viewType, null, AppSettings.Application.Transition);
 
         if (NavigationView is not null)

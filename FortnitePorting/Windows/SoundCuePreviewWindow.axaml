@@ -7,18 +7,18 @@
         xmlns:windows="clr-namespace:FortnitePorting.Windows"
         xmlns:nodify="https://miroiu.github.io/nodify"
         xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
-        xmlns:material="clr-namespace:FortnitePorting.Models.Material"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:objects="clr-namespace:CUE4Parse.UE4.Objects.UObject;assembly=CUE4Parse"
         xmlns:controls="clr-namespace:FortnitePorting.Controls"
-        x:Class="FortnitePorting.Windows.MaterialPreviewWindow"
-        x:DataType="windowModels:MaterialPreviewWindowModel"
+        xmlns:soundCue="clr-namespace:FortnitePorting.Models.SoundCue"
+        x:Class="FortnitePorting.Windows.SoundCuePreviewWindow"
+        x:DataType="windowModels:SoundCuePreviewWindowModel"
         Width="1280" Height="720" RequestedThemeVariant="Dark" FontFamily="Segoe UI" 
         TransparencyLevelHint="{Binding Settings.Theme.TransparencyHints}" Background="#DB1C1C26"
         ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="NoChrome"
         WindowStartupLocation="CenterScreen" ClosingBehavior="OwnerAndChildWindows" ExtendClientAreaTitleBarHeightHint="35"
         Icon="/Assets/LogoRebrand.ico"
-        Title="Material Viewer">
+        Title="Sound Cue Viewer">
     <Window.Resources>
         <GeometryDrawing x:Key="SmallGridGeometry"
                          Geometry="M0,0 L0,1 0.03,1 0.03,0.03 1,0.03 1,0 Z"
@@ -56,7 +56,7 @@
                               Width="20" Height="20" 
                               RenderOptions.BitmapInterpolationMode="HighQuality" RenderOptions.EdgeMode="Antialias"/>
 
-                <TextBlock Grid.Column="2" Text="Material Viewer" FontWeight="SemiBold" FontSize="16"
+                <TextBlock Grid.Column="2" Text="Sound Cue Viewer" FontWeight="SemiBold" FontSize="16"
                            HorizontalAlignment="Center" VerticalAlignment="Center" />
             </Grid>
             
@@ -78,10 +78,10 @@
         
         <Grid Grid.Row="1" RowDefinitions="Auto, *">
             <ui:TabView Grid.Row="0" IsAddTabButtonVisible="False" SelectionChanged="OnTabSelectionChanged" TabCloseRequested="OnTabClosed"
-                        TabItems="{Binding LoadedMaterialDatas}" TabWidthMode="Compact"
-                        SelectedItem="{Binding SelectedMaterialData, Mode=TwoWay}">
+                        TabItems="{Binding LoadedSoundCueDatas}" TabWidthMode="Compact"
+                        SelectedItem="{Binding SelectedSoundCueData, Mode=TwoWay}">
                 <ui:TabView.TabItemTemplate>
-                    <DataTemplate x:DataType="material:MaterialData">
+                    <DataTemplate x:DataType="soundCue:SoundCueData">
                         <TextBlock Text="{Binding DataName}"/>
                     </DataTemplate>
                 </ui:TabView.TabItemTemplate>
@@ -111,7 +111,7 @@
                     
                     
                     <Expander Grid.Row="0" Margin="{ext:Space 0, 1, 1, 0}"
-                              DataContext="{Binding SelectedMaterialData.SelectedNode}" 
+                              DataContext="{Binding SelectedSoundCueData.SelectedNode}" 
                               Background="#0DFFFFFF"
                               IsExpanded="True" CornerRadius="8" 
                               IsVisible="{Binding Converter={x:Static ObjectConverters.IsNotNull}}">
@@ -142,7 +142,13 @@
                                             <ContentControl.DataTemplates>
                                                 <DataTemplate DataType="objects:FPackageIndex">
                                                     <Button Content="{avalonia:MaterialIconExt Folder}" ToolTip.Tip="Navigate To"
-                                                            Command="{Binding $parent[windows:MaterialPreviewWindow].WindowModel.NavigateTo}"
+                                                            Command="{Binding $parent[windows:SoundCuePreviewWindow].WindowModel.NavigateTo}"
+                                                            CommandParameter="{Binding}"/>
+                                                </DataTemplate>
+                                                
+                                                <DataTemplate DataType="objects:FSoftObjectPath">
+                                                    <Button Content="{avalonia:MaterialIconExt Folder}" ToolTip.Tip="Navigate To"
+                                                            Command="{Binding $parent[windows:SoundCuePreviewWindow].WindowModel.NavigateToPath}"
                                                             CommandParameter="{Binding}"/>
                                                 </DataTemplate>
                                                 
@@ -152,6 +158,18 @@
                                                 
                                                 <DataTemplate DataType="sys:Single">
                                                     <ui:NumberBox Value="{Binding }"/>
+                                                </DataTemplate>
+                                                
+                                                <DataTemplate DataType="soundCue:NodePropertyJsonContainer">
+                                                    <DropDownButton>
+                                                        <DropDownButton.Flyout>
+                                                            <Flyout>
+                                                                <TextBox IsReadOnly="True" Text="{Binding JsonData}"/>
+                                                            </Flyout>
+                                                        </DropDownButton.Flyout>
+                                                        
+                                                        <avalonia:MaterialIcon Kind="CodeJson"/>
+                                                    </DropDownButton>
                                                 </DataTemplate>
                                                 
                                                 <DataTemplate DataType="sys:Object">
@@ -174,10 +192,10 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
                         
-                        <TextBox Grid.Row="0" Text="{Binding SelectedMaterialData.SearchFilter}" Watermark="Search..."/>
+                        <TextBox Grid.Row="0" Text="{Binding SelectedSoundCueData.SearchFilter}" Watermark="Search..."/>
                         
                         <controls:FABorder Grid.Row="2">
-                            <ListBox ItemsSource="{Binding SelectedMaterialData.Nodes}" SelectionMode="Single" SelectionChanged="OnSearchSelectionChanged">
+                            <ListBox ItemsSource="{Binding SelectedSoundCueData.Nodes}" SelectionMode="Single" SelectionChanged="OnSearchSelectionChanged">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate>
                                         <StackPanel Margin="{ext:Space 0, 1}">
@@ -198,7 +216,7 @@
                         <Grid Background="#9F262626" ZIndex="-2"/>
                         
                         <nodify:NodifyEditor x:Name="Editor" CornerRadius="8"
-                                             DataContext="{Binding SelectedMaterialData}"
+                                             DataContext="{Binding SelectedSoundCueData}"
                                              ItemsSource="{Binding NodeCache.Items}"
                                              Connections="{Binding Connections}"
                                              SelectedItem="{Binding SelectedNode, Mode=TwoWay}"
@@ -209,29 +227,8 @@
                                 <DataTemplate>
                                    <ContentControl Content="{Binding}">
                                        <ContentControl.DataTemplates>
-                                           <DataTemplate DataType="material:MaterialNodeReroute">
-                                               <nodify:KnotNode BorderBrush="LightGray" Opacity="0.5"/>
-                                           </DataTemplate>
                                            
-                                           <DataTemplate DataType="material:MaterialNodeComment">
-                                               <nodify:GroupingNode Header="{Binding DisplayName}"
-                                                                    Width="{Binding Size.Width}"
-                                                                    Height="{Binding Size.Height}"
-                                                                    HeaderBrush="{Binding HeaderBrush}"
-                                                                    Background="{Binding BackgroundBrush}">
-                                                   <nodify:GroupingNode.HeaderTemplate>
-                                                       <DataTemplate x:DataType="x:String">
-                                                           <TextBlock Text="{Binding}" Classes="BodyStrongTextBlockStyle">
-                                                               <TextBlock.Effect>
-                                                                   <DropShadowEffect Color="Black" Opacity="0.5" OffsetX="1" OffsetY="1" BlurRadius="0"/>
-                                                               </TextBlock.Effect>
-                                                           </TextBlock>
-                                                       </DataTemplate>
-                                                   </nodify:GroupingNode.HeaderTemplate>
-                                               </nodify:GroupingNode>
-                                           </DataTemplate>
-                                           
-                                           <DataTemplate DataType="material:MaterialNode">
+                                           <DataTemplate DataType="soundCue:SoundCueNode">
                                                <nodify:Node Header="{Binding DisplayName}" 
                                                             Input="{Binding Inputs}"
                                                             Output="{Binding Outputs}"
@@ -257,7 +254,7 @@
                                                        </DataTemplate>
                                                    </nodify:Node.HeaderTemplate>
                                                    <nodify:Node.InputConnectorTemplate>
-                                                       <DataTemplate DataType="{x:Type material:MaterialNodeSocket}">
+                                                       <DataTemplate DataType="{x:Type soundCue:SoundCueNodeSocket}">
                                                            <nodify:NodeInput Header="{Binding Name}"
                                                                              Anchor="{Binding Anchor, Mode=OneWayToSource}"
                                                                              IsConnected="True" Background="Transparent" BorderBrush="{Binding SocketBrush}">
@@ -275,7 +272,7 @@
                                                    </nodify:Node.InputConnectorTemplate>
 
                                                    <nodify:Node.OutputConnectorTemplate>
-                                                       <DataTemplate DataType="{x:Type material:MaterialNodeSocket}">
+                                                       <DataTemplate DataType="{x:Type soundCue:SoundCueNodeSocket}">
                                                            <nodify:NodeOutput Header="{Binding Name}"
                                                                               Anchor="{Binding Anchor, Mode=OneWayToSource}"
                                                                               IsConnected="True" Background="Transparent" BorderBrush="{Binding SocketBrush}">
@@ -298,7 +295,7 @@
                                 </DataTemplate>
                             </nodify:NodifyEditor.ItemTemplate>
                             <nodify:NodifyEditor.ConnectionTemplate>
-                                <DataTemplate DataType="{x:Type material:MaterialNodeConnection}">
+                                <DataTemplate DataType="{x:Type soundCue:SoundCueNodeConnection}">
                                     <nodify:Connection Source="{Binding From.Anchor}"
                                                            Target="{Binding To.Anchor}"
                                                            ArrowEnds="None" 
@@ -307,7 +304,7 @@
                                 </DataTemplate>
                             </nodify:NodifyEditor.ConnectionTemplate>
                             <nodify:NodifyEditor.ItemContainerTheme>
-                                <ControlTheme TargetType="{x:Type nodify:ItemContainer}" x:DataType="material:MaterialNodeBase">
+                                <ControlTheme TargetType="{x:Type nodify:ItemContainer}" x:DataType="soundCue:SoundCueNodeBase">
                                     <Setter Property="Location"
                                             Value="{Binding Location, Mode=TwoWay}" />
                                     <Setter Property="IsSelectable"

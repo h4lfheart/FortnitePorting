@@ -13,8 +13,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.UE4.Assets.Exports;
-using CUE4Parse.UE4.Assets.Exports.Material;
-using CUE4Parse.UE4.Assets.Exports.Material.Editor;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.Math;
@@ -26,9 +24,8 @@ using FortnitePorting.Application;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Leaderboard;
-using FortnitePorting.Models.Material;
+using FortnitePorting.Models.SoundCue;
 using FortnitePorting.Models.Unreal;
-using FortnitePorting.Models.Unreal.Material;
 using FortnitePorting.Rendering;
 using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
@@ -44,12 +41,12 @@ using Orientation = Avalonia.Layout.Orientation;
 namespace FortnitePorting.WindowModels;
 
 [Transient]
-public partial class MaterialPreviewWindowModel(SettingsService settings) : WindowModelBase
+public partial class SoundCuePreviewWindowModel(SettingsService settings) : WindowModelBase
 {
     [ObservableProperty] private SettingsService _settings = settings;
     
-    [ObservableProperty] private ObservableCollection<MaterialData> _loadedMaterialDatas = [];
-    [ObservableProperty] private MaterialData? _selectedMaterialData;
+    [ObservableProperty] private ObservableCollection<SoundCueData> _loadedSoundCueDatas = [];
+    [ObservableProperty] private SoundCueData? _selectedSoundCueData;
     
     [ObservableProperty] private uint _gridSpacing = 25;
     
@@ -84,32 +81,43 @@ public partial class MaterialPreviewWindowModel(SettingsService settings) : Wind
         Navigation.App.Open<FilesView>();
         AppWM.Window.BringToTop();
     }
+    
+    [RelayCommand]
+    public async Task NavigateToPath(FSoftObjectPath path)
+    {
+        var asset = await path.LoadOrDefaultAsync<UObject>();
+        if (asset is null) return;
+
+        FilesVM.FileViewJumpTo(UEParse.Provider.FixPath(asset.GetPathName().SubstringBefore(".")));
+        Navigation.App.Open<FilesView>();
+        AppWM.Window.BringToTop();
+    }
 
     public void Load(UObject obj)
     {
-        if (LoadedMaterialDatas.FirstOrDefault(data => data.Asset?.Equals(obj) ?? false) is { } existingData)
+        if (LoadedSoundCueDatas.FirstOrDefault(data => data.Asset?.Equals(obj) ?? false) is { } existingData)
         {
-            SelectedMaterialData = existingData;
+            SelectedSoundCueData = existingData;
         }
         else
         {
-            var data = new MaterialData();
+            var data = new SoundCueData();
             data.Load(obj);
-            LoadedMaterialDatas.Add(data);
-            SelectedMaterialData = data;
+            LoadedSoundCueDatas.Add(data);
+            SelectedSoundCueData = data;
         }
     }
     
-    public void Load(MaterialData materialData)
+    public void Load(SoundCueData soundCueData)
     {
-        if (LoadedMaterialDatas.FirstOrDefault(data => data.DataName.Equals(materialData.DataName)) is { } existingData)
+        if (LoadedSoundCueDatas.FirstOrDefault(data => data.DataName.Equals(soundCueData.DataName)) is { } existingData)
         {
-            SelectedMaterialData = existingData;
+            SelectedSoundCueData = existingData;
         }
         else
         {
-            LoadedMaterialDatas.Add(materialData);
-            SelectedMaterialData = materialData;
+            LoadedSoundCueDatas.Add(soundCueData);
+            SelectedSoundCueData = soundCueData;
         }
     }
 }
