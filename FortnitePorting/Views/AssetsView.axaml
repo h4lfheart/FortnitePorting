@@ -134,8 +134,7 @@
                                 <DataTemplate DataType="base:BaseAssetItem">
                                     <ContentControl Padding="8">
                                         <ContentControl.ContextMenu>
-                                            <ContextMenu>
-                                                <MenuItem Header="Favorite" Icon="{material:MaterialIconExt Heart}" Command="{Binding FavoriteCommand}"/>
+                                            <ContextMenu><MenuItem Header="Favorite" Icon="{material:MaterialIconExt Heart}" Command="{Binding FavoriteCommand}"/>
                                                 <MenuItem Header="View Properties" Icon="{material:MaterialIconExt Xml}" Command="{Binding PreviewPropertiesCommand}"/>
                                                 <MenuItem Header="Navigate To" Icon="{material:MaterialIconExt ChevronRight}" Command="{Binding NavigateToCommand}"/>
                                                 <MenuItem Header="Copy Path" Icon="{material:MaterialIconExt Clipboard}" Command="{Binding CopyPathCommand}"/>

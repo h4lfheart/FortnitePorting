@@ -6,7 +6,8 @@ using Avalonia.Input;
 using CUE4Parse.UE4.Assets.Exports;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Framework;
-using FortnitePorting.Models.SoundCue;
+using FortnitePorting.Models.Nodes;
+using FortnitePorting.Models.Nodes.SoundCue;
 using FortnitePorting.WindowModels;
 
 namespace FortnitePorting.Windows;
@@ -31,10 +32,10 @@ public partial class SoundCuePreviewWindow : WindowBase<SoundCuePreviewWindowMod
             Instance.BringToTop();
         }
 
-        if (Instance.WindowModel.LoadedSoundCueDatas.FirstOrDefault(mat => mat.Asset?.Name.Equals(obj.Name) ?? false) is
+        if (Instance.WindowModel.Trees.FirstOrDefault(mat => mat.Asset?.Name.Equals(obj.Name) ?? false) is
             { } existing)
         {
-            Instance.WindowModel.SelectedSoundCueData = existing;
+            Instance.WindowModel.SelectedTree = existing;
             return;
         }
         
@@ -52,7 +53,7 @@ public partial class SoundCuePreviewWindow : WindowBase<SoundCuePreviewWindowMod
     {
         if (e.ClickCount != 2) return;
         if (sender is not Control control) return;
-        if (control.DataContext is not SoundCueNode node) return;
+        if (control.DataContext is not Node node) return;
         
         if (node.LinkedNode is not null)
         {
@@ -64,11 +65,11 @@ public partial class SoundCuePreviewWindow : WindowBase<SoundCuePreviewWindowMod
 
     private void OnTabClosed(TabView sender, TabViewTabCloseRequestedEventArgs args)
     {
-        if (args.Item is not SoundCueData data) return;
+        if (args.Item is not SoundCueNodeTree tree) return;
 
-        WindowModel.LoadedSoundCueDatas.Remove(data);
+        WindowModel.Trees.Remove(tree);
 
-        if (WindowModel.LoadedSoundCueDatas.Count == 0)
+        if (WindowModel.Trees.Count == 0)
         {
             Close();
         }
@@ -89,7 +90,7 @@ public partial class SoundCuePreviewWindow : WindowBase<SoundCuePreviewWindowMod
 
     private void CenterViewport()
     {
-        var nodes = WindowModel.SelectedSoundCueData?.NodeCache.Items.ToArray() ?? [];
+        var nodes = WindowModel.SelectedTree?.NodeCache.Items.ToArray() ?? [];
         var avgX = nodes.Sum(node => node.Location.X) / nodes.Length;
         var avgY = nodes.Sum(node => node.Location.Y) / nodes.Length;
 
@@ -99,9 +100,9 @@ public partial class SoundCuePreviewWindow : WindowBase<SoundCuePreviewWindowMod
     private void OnSearchSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         if (sender is not ListBox listBox) return;
-        if (listBox.SelectedItem is not SoundCueNodeBase selectedNode) return;
+        if (listBox.SelectedItem is not BaseNode selectedNode) return;
 
-        WindowModel.SelectedSoundCueData.SelectedNode = selectedNode;
+        WindowModel.SelectedTree!.SelectedNode = selectedNode;
         Editor.ViewportLocation = new Point(selectedNode.Location.X - Editor.ViewportSize.Width / 2, selectedNode.Location.Y - Editor.ViewportSize.Height / 2);
     }
 }

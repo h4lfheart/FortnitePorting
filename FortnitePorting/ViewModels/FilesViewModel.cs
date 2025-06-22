@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Avalonia.Collections;
 using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.UE4.Assets;
@@ -175,9 +176,11 @@ public partial class FilesViewModel : ViewModelBase
                             break;
                         }
 
-                        if (Exporter.DetermineExportType(obj) is var exportType and not EExportType.None)
+                        if (Exporter.DetermineExportType(obj) is var exportType and not EExportType.None 
+                            && $"avares://FortnitePorting/Assets/FN/{exportType.ToString()}.png" is { } exportIconPath 
+                            && AssetLoader.Exists(new Uri(exportIconPath)))
                         {
-                            childItem.FileBitmap = ImageExtensions.AvaresBitmap($"avares://FortnitePorting/Assets/FN/{exportType.ToString()}.png");
+                            childItem.FileBitmap = ImageExtensions.AvaresBitmap(exportIconPath);
                             break;
                         }
                     }
@@ -292,26 +295,31 @@ public partial class FilesViewModel : ViewModelBase
     [RelayCommand]
     public async Task Preview()
     {
-        var selectedItemPath = UseFlatView ? SelectedFlatViewItems.FirstOrDefault()?.Path : SelectedFileViewItems.FirstOrDefault(file => file.Type == ENodeType.File)?.FilePath;
-        if (selectedItemPath is null) return;
-        
-        var basePath = Exporter.FixPath(selectedItemPath);
-            
-        UObject? asset = null;
-        if (selectedItemPath.EndsWith(".umap"))
-        {
-            var package = await UEParse.Provider.LoadPackageAsync(basePath);
-            asset = package.GetExports().OfType<UWorld>().FirstOrDefault();
-        }
-        else
-        {
-            asset = await UEParse.Provider.SafeLoadPackageObjectAsync(basePath);
-            asset ??= await UEParse.Provider.SafeLoadPackageObjectAsync($"{basePath}.{basePath.SubstringAfterLast("/")}_C");
-        }
-            
-        if (asset is null) return;
+        var selectedPaths = UseFlatView 
+            ? SelectedFlatViewItems.Select(file => file.Path) 
+            : SelectedFileViewItems.Where(file => file.Type == ENodeType.File).Select(file => file.FilePath);
 
-        await PreviewAsset(asset);
+        foreach (var path in selectedPaths)
+        {
+            var basePath = Exporter.FixPath(path);
+            
+            UObject? asset;
+            if (path.EndsWith(".umap"))
+            {
+                var package = await UEParse.Provider.LoadPackageAsync(basePath);
+                asset = package.GetExports().OfType<UWorld>().FirstOrDefault();
+            }
+            else
+            {
+                asset = await UEParse.Provider.SafeLoadPackageObjectAsync(basePath);
+                asset ??= await UEParse.Provider.SafeLoadPackageObjectAsync($"{basePath}.{basePath.SubstringAfterLast("/")}_C");
+            }
+            
+            if (asset is null) return;
+
+            await PreviewAsset(asset);
+        }
+        
     }
 
     public async Task PreviewAsset(UObject asset)

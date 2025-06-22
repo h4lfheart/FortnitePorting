@@ -1,11 +1,10 @@
 using Avalonia;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
-using FortnitePorting.Models.SoundCue;
 
-namespace FortnitePorting.Models.SoundCue;
+namespace FortnitePorting.Models.Nodes;
 
-public partial class SoundCueNodeSocket(string name) : ObservableObject
+public partial class NodeSocket(string name) : ObservableObject
 {
     [ObservableProperty] private string _name = name;
     [ObservableProperty] private Point _anchor;
@@ -13,5 +12,5 @@ public partial class SoundCueNodeSocket(string name) : ObservableObject
 
     public SolidColorBrush SocketBrush => new(SocketColor);
 
-    public SoundCueNode Parent;
+    public BaseNode Parent;
 }

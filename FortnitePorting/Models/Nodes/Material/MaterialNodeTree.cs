@@ -1,16 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Reactive.Linq;
-using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
 using AvaloniaEdit.Utils;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Material;
@@ -22,33 +17,37 @@ using CUE4Parse.UE4.Objects.Core.Misc;
 using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Objects.UObject;
 using DynamicData;
-using DynamicData.Binding;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Extensions;
-using FortnitePorting.Models.Files;
 using FortnitePorting.Models.Unreal.Material;
-using FortnitePorting.Shared.Extensions;
-using FortnitePorting.WindowModels;
-using ReactiveUI;
 using Serilog;
 using ColorSpectrumShape = Avalonia.Controls.ColorSpectrumShape;
 
-namespace FortnitePorting.Models.Material;
+namespace FortnitePorting.Models.Nodes.Material;
 
-public partial class MaterialData : ObservableObject
+public class MaterialNodeTree : NodeTree
 {
-    [ObservableProperty] private string _dataName;
-    [ObservableProperty] private UObject? _asset;
-    [ObservableProperty] private ReadOnlyObservableCollection<MaterialNodeBase> _nodes = new([]);
-    [ObservableProperty] private ObservableCollection<MaterialNodeConnection> _connections = [];
-    [ObservableProperty] private MaterialNodeBase? _selectedNode;
-    [ObservableProperty] private string _searchFilter = string.Empty;
+    protected override string[] IgnoredPropertyNames { get; set; } =
+    [
+        "MaterialExpressionEditorX",
+        "MaterialExpressionEditorY",
+        "Material",
+        "Function",
+        "Declaration",
+        "InputExpressions",
+        "OutputExpressions",
+        "Input",
+        "Output"
+    ];
 
+    protected override Type[] IgnoredPropertyTypes { get; set; } =
+    [
+        typeof(FExpressionInput),
+        typeof(FGuid)
+    ];
 
-    public SourceCache<MaterialNodeBase, string> NodeCache { get; set; } = new(item => item.ExpressionName);
-
-    public List<(MaterialNode, UMaterialExpression)> DeferredSubgraphs = [];
-
+    private List<(MaterialNode, UMaterialExpression)> DeferredSubgraphs = [];
+    
     private static Dictionary<string, Color> HeaderColorMappings = new()
     {
         ["Vector"] = Color.Parse("#877020"),
@@ -61,65 +60,14 @@ public partial class MaterialData : ObservableObject
         ["Composite"] = Color.Parse("#272827")
     };
 
-    private static Type[] IgnoredPropertyTypes =
-    [
-        typeof(FScriptStruct), typeof(FStructFallback), typeof(FGuid), typeof(UScriptArray)
-    ];
-    
-    private static string[] IgnoredPropertyNames =
-    [
-        "MaterialExpressionEditorX",
-        "MaterialExpressionEditorY",
-        "Material",
-        "Function",
-        "Declaration",
-        "InputExpressions",
-        "OutputExpressions",
-    ];
-
-    public MaterialData()
+    public override void Load(UObject obj)
     {
-        var assetFilter = this
-            .WhenAnyValue(viewModel => viewModel.SearchFilter)
-            .Select(CreateAssetFilter);
+        base.Load(obj);
         
-        NodeCache.Connect()
-            .ObserveOn(RxApp.TaskpoolScheduler)
-            .Filter(assetFilter)
-            .Sort(SortExpressionComparer<MaterialNodeBase>.Ascending(x => x.ExpressionName))
-            .Bind(out var flatCollection)
-            .Subscribe();
-
-        Nodes = flatCollection;
-    }
-    
-    private Func<MaterialNodeBase, bool> CreateAssetFilter(string searchFilter)
-    {
-        return asset => MiscExtensions.Filter(asset.Label, searchFilter) || MiscExtensions.Filter(asset.ExpressionName, searchFilter);
-    }
-    
-    [RelayCommand]
-    public async Task Refresh()
-    {
-        NodeCache.Clear();
-        Connections.Clear();
-        DeferredSubgraphs.Clear();
-        
-        if (Asset is UMaterial material)
-            LoadMaterial(material);
-        if (Asset is UMaterialFunction materialFunction)
-            LoadMaterialFunction(materialFunction);
-    }
-
-    public void Load(UObject obj)
-    {
-        Asset = obj;
-        DataName = Asset.Name;
-        
-        if (Asset is UMaterial material)
+        if (obj is UMaterial material)
             LoadMaterial(material);
         
-        if (Asset is UMaterialFunction materialFunction)
+        if (obj is UMaterialFunction materialFunction)
             LoadMaterialFunction(materialFunction);
     }
     
@@ -146,7 +94,7 @@ public partial class MaterialData : ObservableObject
         var expressionCollection = editorData.GetOrDefault<FStructFallback>("ExpressionCollection");
         LoadExpressionCollection(expressionCollection);
 
-        var parentNode = new MaterialNode(material.Name, isExpressionName: false)
+        var parentNode = new MaterialNode(material.Name, isEngineNode: false)
         {
             HeaderColor = Color.Parse("#786859")
         };
@@ -187,7 +135,7 @@ public partial class MaterialData : ObservableObject
             var text = editorCommentExpression.GetOrDefault<string>("Text");
             var commentColor = editorCommentExpression.GetOrDefault<FLinearColor?>("CommentColor")?.ToFColor(false);
             
-            NodeCache.AddOrUpdate(new MaterialNodeComment(editorCommentExpression.Name)
+            NodeCache.AddOrUpdate(new NodeComment(editorCommentExpression.Name)
             {
                 Label = text,
                 Location = new Point(x, y),
@@ -235,13 +183,13 @@ public partial class MaterialData : ObservableObject
                     var existingInputs = Connections.Where(con => targetRerouteNode.Equals(con.To.Parent)).ToArray();
                     foreach (var existingInput in existingInputs)
                     {
-                        Connections.Add(new MaterialNodeConnection(existingInput.From, pinInput));
+                        Connections.Add(new NodeConnection(existingInput.From, pinInput));
                     }
                     
                     var existingOutputs = Connections.Where(con => targetRerouteNode.Equals(con.From.Parent)).ToArray();
                     foreach (var existingOutput in existingOutputs)
                     {
-                        Connections.Add(new MaterialNodeConnection(startPinNode.GetOutput(pinName)!, existingOutput.To));
+                        Connections.Add(new NodeConnection(startPinNode.GetOutput(pinName)!, existingOutput.To));
                     }
                     
                     Connections.RemoveMany(existingInputs);
@@ -273,13 +221,13 @@ public partial class MaterialData : ObservableObject
                     var existingInputs = Connections.Where(con => targetRerouteNode.Equals(con.To.Parent)).ToArray();
                     foreach (var existingInput in existingInputs)
                     {
-                        Connections.Add(new MaterialNodeConnection(existingInput.From, endPinNode.GetInput(pinName)!));
+                        Connections.Add(new NodeConnection(existingInput.From, endPinNode.GetInput(pinName)!));
                     }
                     
                     var existingOutputs = Connections.Where(con => targetRerouteNode.Equals(con.From.Parent)).ToArray();
                     foreach (var existingOutput in existingOutputs)
                     {
-                        Connections.Add(new MaterialNodeConnection(pinOutput, existingOutput.To));
+                        Connections.Add(new NodeConnection(pinOutput, existingOutput.To));
                     }
                     
                     Connections.RemoveMany(existingInputs);
@@ -288,14 +236,14 @@ public partial class MaterialData : ObservableObject
                 }
             }
 
-            var subgraphNodes = new HashSet<MaterialNode>();
-            var subgraphConnections = new HashSet<MaterialNodeConnection>();
+            var subgraphNodes = new HashSet<BaseNode>();
+            var subgraphConnections = new HashSet<NodeConnection>();
 
             CollectSubgraphNodes(endPinNode);
 
-            node.Subgraph = new MaterialData
+            node.Subgraph = new MaterialNodeTree
             {
-                DataName = node.Label,
+                TreeName = node.Label,
                 Connections = [..subgraphConnections],
             };
             
@@ -305,7 +253,7 @@ public partial class MaterialData : ObservableObject
             Connections.RemoveMany(subgraphConnections);
             continue;
 
-            void CollectSubgraphNodes(MaterialNode current)
+            void CollectSubgraphNodes(BaseNode current)
             {
                 subgraphNodes.Add(current);
                 
@@ -330,8 +278,8 @@ public partial class MaterialData : ObservableObject
             }
         }
     }
-
-    private MaterialNode AddNode(UMaterialExpression expression)
+    
+     private MaterialNode AddNode(UMaterialExpression expression)
     {
         var x = expression.GetOrDefault<int>("MaterialExpressionEditorX");
         var y = expression.GetOrDefault<int>("MaterialExpressionEditorY");
@@ -356,36 +304,13 @@ public partial class MaterialData : ObservableObject
         return node;
     }
 
-    private ObservableCollection<MaterialNodeProperty> CollectProperties(UMaterialExpression expression)
-    {
-        var properties = new ObservableCollection<MaterialNodeProperty>();
-        foreach (var property in expression.Properties)
-        {
-            if (property.Tag is null) continue;
-            if (IgnoredPropertyNames.Contains(property.Name.Text)) continue;
-
-            var propType = property.Tag.GenericValue?.GetType();
-            if (propType is null) continue;
-            if (propType.IsArray) continue;
-            if (IgnoredPropertyTypes.Contains(propType)) continue;
-            
-            properties.Add(new MaterialNodeProperty
-            {
-                Key = property.Name.Text,
-                Value = property.Tag!.GenericValue!
-            });
-        }
-
-        return properties;
-    }
-
     private void AddInput(ref MaterialNode node, FExpressionInput expressionInput, string? nameOverride = null)
     {
         if (expressionInput.Expression?.Load<UMaterialExpression>() is not { } subExpression) return;
         
         var targetNode = (MaterialNode?) NodeCache.Items.FirstOrDefault(node => node.ExpressionName.Equals(subExpression.Name, StringComparison.OrdinalIgnoreCase)) ?? AddNode(subExpression);
 
-        var inputSocket = node.AddInput(new MaterialNodeSocket(nameOverride ?? expressionInput.InputName.Text));
+        var inputSocket = node.AddInput(new NodeSocket(nameOverride ?? expressionInput.InputName.Text));
 
         if (expressionInput.OutputIndex >= targetNode.Outputs.Count)
         {
@@ -397,7 +322,7 @@ public partial class MaterialData : ObservableObject
             }
         }
         
-        Connections.Add(new MaterialNodeConnection(targetNode.Outputs[Math.Min(expressionInput.OutputIndex, targetNode.Outputs.Count - 1)], inputSocket));
+        Connections.Add(new NodeConnection(targetNode.Outputs[Math.Min(expressionInput.OutputIndex, targetNode.Outputs.Count - 1)], inputSocket));
     }
 
     private void SetupNodeContent(ref MaterialNode node, UMaterialExpression expression)
@@ -801,24 +726,24 @@ public partial class MaterialData : ObservableObject
 
     private void AddColorInputs(ref MaterialNode node, bool includeRGBA = false)
     {
-        node.AddOutput(new MaterialNodeSocket("RGB"));
-        node.Outputs.Add(new MaterialNodeSocket("R")
+        node.AddOutput(new NodeSocket("RGB"));
+        node.Outputs.Add(new NodeSocket("R")
         {
             SocketColor = Colors.Red
         });
-        node.AddOutput(new MaterialNodeSocket("G")
+        node.AddOutput(new NodeSocket("G")
         {
             SocketColor = Colors.Green
         });
-        node.AddOutput(new MaterialNodeSocket("B")
+        node.AddOutput(new NodeSocket("B")
         {
             SocketColor = Colors.Blue
         });
-        node.AddOutput(new MaterialNodeSocket("A")
+        node.AddOutput(new NodeSocket("A")
         {
             SocketColor = Colors.DarkGray
         });
         if (includeRGBA)
-            node.AddOutput(new MaterialNodeSocket("RGBA"));
+            node.AddOutput(new NodeSocket("RGBA"));
     }
 }

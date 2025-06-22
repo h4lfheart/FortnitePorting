@@ -12,6 +12,7 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Avalonia.Platform;
 using Avalonia.Threading;
+using CUE4Parse_Conversion.Materials;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
@@ -19,7 +20,8 @@ using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Objects.Core.Math;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Framework;
-using FortnitePorting.Models.Material;
+using FortnitePorting.Models.Nodes;
+using FortnitePorting.Models.Nodes.Material;
 using FortnitePorting.Models.Unreal.Material;
 using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
@@ -54,10 +56,10 @@ public partial class MaterialPreviewWindow : WindowBase<MaterialPreviewWindowMod
             Instance.BringToTop();
         }
 
-        if (Instance.WindowModel.LoadedMaterialDatas.FirstOrDefault(mat => mat.Asset?.Name.Equals(obj.Name) ?? false) is
+        if (Instance.WindowModel.Trees.FirstOrDefault(mat => mat.Asset?.Name.Equals(obj.Name) ?? false) is
             { } existing)
         {
-            Instance.WindowModel.SelectedMaterialData = existing;
+            Instance.WindowModel.SelectedTree = existing;
             return;
         }
         
@@ -97,7 +99,7 @@ public partial class MaterialPreviewWindow : WindowBase<MaterialPreviewWindowMod
 
         if (node.Subgraph is not null)
         {
-            WindowModel.Load(node.Subgraph);
+            WindowModel.Load(node.Subgraph as MaterialNodeTree);
         }
 
         if (node.LinkedNode is not null)
@@ -110,11 +112,11 @@ public partial class MaterialPreviewWindow : WindowBase<MaterialPreviewWindowMod
 
     private void OnTabClosed(TabView sender, TabViewTabCloseRequestedEventArgs args)
     {
-        if (args.Item is not MaterialData data) return;
+        if (args.Item is not MaterialNodeTree tree) return;
 
-        WindowModel.LoadedMaterialDatas.Remove(data);
+        WindowModel.Trees.Remove(tree);
 
-        if (WindowModel.LoadedMaterialDatas.Count == 0)
+        if (WindowModel.Trees.Count == 0)
         {
             Close();
         }
@@ -135,7 +137,7 @@ public partial class MaterialPreviewWindow : WindowBase<MaterialPreviewWindowMod
 
     private void CenterViewport()
     {
-        var nodes = WindowModel.SelectedMaterialData?.NodeCache.Items.ToArray() ?? [];
+        var nodes = WindowModel.SelectedTree?.NodeCache.Items.ToArray() ?? [];
         var avgX = nodes.Sum(node => node.Location.X) / nodes.Length;
         var avgY = nodes.Sum(node => node.Location.Y) / nodes.Length;
 
@@ -145,9 +147,9 @@ public partial class MaterialPreviewWindow : WindowBase<MaterialPreviewWindowMod
     private void OnSearchSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         if (sender is not ListBox listBox) return;
-        if (listBox.SelectedItem is not MaterialNodeBase selectedNode) return;
+        if (listBox.SelectedItem is not BaseNode selectedNode) return;
 
-        WindowModel.SelectedMaterialData.SelectedNode = selectedNode;
+        WindowModel.SelectedTree.SelectedNode = selectedNode;
         Editor.ViewportLocation = new Point(selectedNode.Location.X - Editor.ViewportSize.Width / 2, selectedNode.Location.Y - Editor.ViewportSize.Height / 2);
     }
 }

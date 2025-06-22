@@ -24,7 +24,7 @@ using FortnitePorting.Application;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Leaderboard;
-using FortnitePorting.Models.SoundCue;
+using FortnitePorting.Models.Nodes.SoundCue;
 using FortnitePorting.Models.Unreal;
 using FortnitePorting.Rendering;
 using FortnitePorting.Services;
@@ -45,11 +45,10 @@ public partial class SoundCuePreviewWindowModel(SettingsService settings) : Wind
 {
     [ObservableProperty] private SettingsService _settings = settings;
     
-    [ObservableProperty] private ObservableCollection<SoundCueData> _loadedSoundCueDatas = [];
-    [ObservableProperty] private SoundCueData? _selectedSoundCueData;
+    [ObservableProperty] private ObservableCollection<SoundCueNodeTree> _trees = [];
+    [ObservableProperty] private SoundCueNodeTree? _selectedTree;
     
     [ObservableProperty] private uint _gridSpacing = 25;
-    
     
     [ObservableProperty] private Brush _backgroundBrush = new LinearGradientBrush
     {
@@ -95,29 +94,29 @@ public partial class SoundCuePreviewWindowModel(SettingsService settings) : Wind
 
     public void Load(UObject obj)
     {
-        if (LoadedSoundCueDatas.FirstOrDefault(data => data.Asset?.Equals(obj) ?? false) is { } existingData)
+        if (Trees.FirstOrDefault(data => data.Asset?.Equals(obj) ?? false) is { } existingData)
         {
-            SelectedSoundCueData = existingData;
+            SelectedTree = existingData;
         }
         else
         {
-            var data = new SoundCueData();
+            var data = new SoundCueNodeTree();
             data.Load(obj);
-            LoadedSoundCueDatas.Add(data);
-            SelectedSoundCueData = data;
+            Trees.Add(data);
+            SelectedTree = data;
         }
     }
     
-    public void Load(SoundCueData soundCueData)
+    public void Load(SoundCueNodeTree soundCueData)
     {
-        if (LoadedSoundCueDatas.FirstOrDefault(data => data.DataName.Equals(soundCueData.DataName)) is { } existingData)
+        if (Trees.FirstOrDefault(data => data.TreeName.Equals(soundCueData.TreeName)) is { } existingData)
         {
-            SelectedSoundCueData = existingData;
+            SelectedTree = existingData;
         }
         else
         {
-            LoadedSoundCueDatas.Add(soundCueData);
-            SelectedSoundCueData = soundCueData;
+            Trees.Add(soundCueData);
+            SelectedTree = soundCueData;
         }
     }
 }

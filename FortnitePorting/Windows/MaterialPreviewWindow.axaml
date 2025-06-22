@@ -7,10 +7,12 @@
         xmlns:windows="clr-namespace:FortnitePorting.Windows"
         xmlns:nodify="https://miroiu.github.io/nodify"
         xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
-        xmlns:material="clr-namespace:FortnitePorting.Models.Material"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:objects="clr-namespace:CUE4Parse.UE4.Objects.UObject;assembly=CUE4Parse"
         xmlns:controls="clr-namespace:FortnitePorting.Controls"
+        xmlns:material="clr-namespace:FortnitePorting.Models.Nodes.Material"
+        xmlns:nodes="clr-namespace:FortnitePorting.Models.Nodes"
+        xmlns:fortnitePorting="clr-namespace:FortnitePorting"
         x:Class="FortnitePorting.Windows.MaterialPreviewWindow"
         x:DataType="windowModels:MaterialPreviewWindowModel"
         Width="1280" Height="720" RequestedThemeVariant="Dark" FontFamily="Segoe UI" 
@@ -30,14 +32,14 @@
 
         <DrawingBrush x:Key="SmallGridLinesDrawingBrush"
                       TileMode="Tile"
-                      DestinationRect="0 0 25 25"
-                      Transform="{Binding DpiScaledViewportTransform, ElementName=Editor}"
+                      DestinationRect="0 0 62 62"
+                      Transform="{Binding ViewportTransform, ElementName=Editor}"
                       Drawing="{StaticResource SmallGridGeometry}" />
 
         <DrawingBrush x:Key="LargeGridLinesDrawingBrush"
                       TileMode="Tile"
-                      DestinationRect="0 0 250 250"
-                      Transform="{Binding DpiScaledViewportTransform, ElementName=Editor}"
+                      DestinationRect="0 0 248 248"
+                      Transform="{Binding ViewportTransform, ElementName=Editor}"
                       Drawing="{StaticResource LargeGridGeometry}" />
     </Window.Resources>
     <Grid RowDefinitions="35, *" Margin="{Binding $parent[Window].OffScreenMargin}">
@@ -78,11 +80,11 @@
         
         <Grid Grid.Row="1" RowDefinitions="Auto, *">
             <ui:TabView Grid.Row="0" IsAddTabButtonVisible="False" SelectionChanged="OnTabSelectionChanged" TabCloseRequested="OnTabClosed"
-                        TabItems="{Binding LoadedMaterialDatas}" TabWidthMode="Compact"
-                        SelectedItem="{Binding SelectedMaterialData, Mode=TwoWay}">
+                        TabItems="{Binding Trees}" TabWidthMode="Compact"
+                        SelectedItem="{Binding SelectedTree, Mode=TwoWay}">
                 <ui:TabView.TabItemTemplate>
-                    <DataTemplate x:DataType="material:MaterialData">
-                        <TextBlock Text="{Binding DataName}"/>
+                    <DataTemplate x:DataType="material:MaterialNodeTree">
+                        <TextBlock Text="{Binding TreeName}"/>
                     </DataTemplate>
                 </ui:TabView.TabItemTemplate>
                 <ui:TabView.Styles>
@@ -111,7 +113,7 @@
                     
                     
                     <Expander Grid.Row="0" Margin="{ext:Space 0, 1, 1, 0}"
-                              DataContext="{Binding SelectedMaterialData.SelectedNode}" 
+                              DataContext="{Binding SelectedTree.SelectedNode}" 
                               Background="#0DFFFFFF"
                               IsExpanded="True" CornerRadius="8" 
                               IsVisible="{Binding Converter={x:Static ObjectConverters.IsNotNull}}">
@@ -146,12 +148,30 @@
                                                             CommandParameter="{Binding}"/>
                                                 </DataTemplate>
                                                 
+                                                <DataTemplate DataType="objects:FSoftObjectPath">
+                                                    <Button Content="{avalonia:MaterialIconExt Folder}" ToolTip.Tip="Navigate To"
+                                                            Command="{Binding $parent[windows:MaterialPreviewWindow].WindowModel.NavigateToPath}"
+                                                            CommandParameter="{Binding}"/>
+                                                </DataTemplate>
+                                                
                                                 <DataTemplate DataType="objects:FName">
                                                     <TextBlock Text="{Binding Text}" Classes="CaptionTextBlockStyle"/>
                                                 </DataTemplate>
                                                 
                                                 <DataTemplate DataType="sys:Single">
                                                     <ui:NumberBox Value="{Binding }"/>
+                                                </DataTemplate>
+                                                
+                                                <DataTemplate DataType="nodes:JsonPropertyContainer">
+                                                    <DropDownButton>
+                                                        <DropDownButton.Flyout>
+                                                            <Flyout>
+                                                                <TextBox IsReadOnly="True" Text="{Binding JsonData}"/>
+                                                            </Flyout>
+                                                        </DropDownButton.Flyout>
+                                                        
+                                                        <avalonia:MaterialIcon Kind="CodeJson"/>
+                                                    </DropDownButton>
                                                 </DataTemplate>
                                                 
                                                 <DataTemplate DataType="sys:Object">
@@ -174,10 +194,10 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
                         
-                        <TextBox Grid.Row="0" Text="{Binding SelectedMaterialData.SearchFilter}" Watermark="Search..."/>
+                        <TextBox Grid.Row="0" Text="{Binding SelectedTree.SearchFilter}" Watermark="Search..."/>
                         
                         <controls:FABorder Grid.Row="2">
-                            <ListBox ItemsSource="{Binding SelectedMaterialData.Nodes}" SelectionMode="Single" SelectionChanged="OnSearchSelectionChanged">
+                            <ListBox ItemsSource="{Binding SelectedTree.Nodes}" SelectionMode="Single" SelectionChanged="OnSearchSelectionChanged">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate>
                                         <StackPanel Margin="{ext:Space 0, 1}">
@@ -198,22 +218,19 @@
                         <Grid Background="#9F262626" ZIndex="-2"/>
                         
                         <nodify:NodifyEditor x:Name="Editor" CornerRadius="8"
-                                             DataContext="{Binding SelectedMaterialData}"
+                                             DataContext="{Binding SelectedTree}"
                                              ItemsSource="{Binding NodeCache.Items}"
                                              Connections="{Binding Connections}"
                                              SelectedItem="{Binding SelectedNode, Mode=TwoWay}"
-                                             CanSelectMultipleItems="False"
-                                             Background="{StaticResource SmallGridLinesDrawingBrush}" ViewportZoom="1" MaxViewportZoom="3"
+                                             CanSelectMultipleItems="False" Background="Transparent"
+                                             ViewportZoom="1" MaxViewportZoom="3"
                                              KeyDown="OnEditorKeyDown">
                             <nodify:NodifyEditor.ItemTemplate>
                                 <DataTemplate>
                                    <ContentControl Content="{Binding}">
                                        <ContentControl.DataTemplates>
-                                           <DataTemplate DataType="material:MaterialNodeReroute">
-                                               <nodify:KnotNode BorderBrush="LightGray" Opacity="0.5"/>
-                                           </DataTemplate>
                                            
-                                           <DataTemplate DataType="material:MaterialNodeComment">
+                                           <DataTemplate DataType="nodes:NodeComment">
                                                <nodify:GroupingNode Header="{Binding DisplayName}"
                                                                     Width="{Binding Size.Width}"
                                                                     Height="{Binding Size.Height}"
@@ -257,7 +274,7 @@
                                                        </DataTemplate>
                                                    </nodify:Node.HeaderTemplate>
                                                    <nodify:Node.InputConnectorTemplate>
-                                                       <DataTemplate DataType="{x:Type material:MaterialNodeSocket}">
+                                                       <DataTemplate DataType="{x:Type nodes:NodeSocket}">
                                                            <nodify:NodeInput Header="{Binding Name}"
                                                                              Anchor="{Binding Anchor, Mode=OneWayToSource}"
                                                                              IsConnected="True" Background="Transparent" BorderBrush="{Binding SocketBrush}">
@@ -275,7 +292,7 @@
                                                    </nodify:Node.InputConnectorTemplate>
 
                                                    <nodify:Node.OutputConnectorTemplate>
-                                                       <DataTemplate DataType="{x:Type material:MaterialNodeSocket}">
+                                                       <DataTemplate DataType="{x:Type nodes:NodeSocket}">
                                                            <nodify:NodeOutput Header="{Binding Name}"
                                                                               Anchor="{Binding Anchor, Mode=OneWayToSource}"
                                                                               IsConnected="True" Background="Transparent" BorderBrush="{Binding SocketBrush}">
@@ -298,7 +315,7 @@
                                 </DataTemplate>
                             </nodify:NodifyEditor.ItemTemplate>
                             <nodify:NodifyEditor.ConnectionTemplate>
-                                <DataTemplate DataType="{x:Type material:MaterialNodeConnection}">
+                                <DataTemplate DataType="{x:Type nodes:NodeConnection}">
                                     <nodify:Connection Source="{Binding From.Anchor}"
                                                            Target="{Binding To.Anchor}"
                                                            ArrowEnds="None" 
@@ -307,7 +324,7 @@
                                 </DataTemplate>
                             </nodify:NodifyEditor.ConnectionTemplate>
                             <nodify:NodifyEditor.ItemContainerTheme>
-                                <ControlTheme TargetType="{x:Type nodify:ItemContainer}" x:DataType="material:MaterialNodeBase">
+                                <ControlTheme TargetType="{x:Type nodify:ItemContainer}" x:DataType="nodes:BaseNode">
                                     <Setter Property="Location"
                                             Value="{Binding Location, Mode=TwoWay}" />
                                     <Setter Property="IsSelectable"
@@ -318,6 +335,8 @@
                             </nodify:NodifyEditor.ItemContainerTheme>
                         </nodify:NodifyEditor>
                         
+                        <Grid ZIndex="-3" 
+                              Background="{StaticResource SmallGridLinesDrawingBrush}"/>
                         <Grid ZIndex="-2"
                               Background="{StaticResource LargeGridLinesDrawingBrush}"/>
                     </Grid>

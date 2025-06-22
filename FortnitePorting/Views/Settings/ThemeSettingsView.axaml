@@ -11,7 +11,7 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FortnitePorting.Views.Settings.ThemeSettingsView"
              x:DataType="settings:ThemeSettingsViewModel">
-    
+   
     <ScrollViewer>
         <StackPanel VerticalAlignment="Top" Margin="{ext:Space 1}">
             <StackPanel.Styles>
