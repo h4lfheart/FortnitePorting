@@ -97,7 +97,7 @@ public class ViewerWindow : GameWindow
         base.OnRenderFrame(args);
         
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-        GL.ClearColor(0.2f, 0.2f, 0.2f, 1);
+        GL.ClearColor(36f / 255f, 36f / 255f, 36f / 255f, 1);
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
         
         Scene.Render();

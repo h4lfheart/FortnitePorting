@@ -18,6 +18,8 @@ public class Scene
         {
             Scene = this
         };
+        
+        
     }
 
     public void Update(float deltaTime)
@@ -60,5 +62,10 @@ public class Scene
         manager.Initialize();
 
         return manager;
+    }
+    
+    public T GetManager<T>() where T : Manager, new()
+    {
+        return _managers.OfType<T>().FirstOrDefault();
     }
 }

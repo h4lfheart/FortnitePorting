@@ -12,30 +12,64 @@ namespace FortnitePorting.RenderingX.Managers;
 
 public class InstancedMeshManager : ComponentManager<InstancedMeshComponent>
 {
-    private readonly Dictionary<string, InstancedMeshRenderer> _instancedMeshes = [];
+    private readonly Dictionary<string, InstancedMeshRenderer> _renderers = [];
+    
+    private readonly Dictionary<string, List<InstancedMeshComponent>> _renderQueue = [];
 
+    // TODO dirty system so that transforms aren't recomputed every frame
     public override void Render(CameraComponent camera)
     {
         base.Render(camera);
 
-        foreach (var (key, renderer) in _instancedMeshes)
+        foreach (var (meshName, instancedMeshes) in _renderQueue)
         {
+            if (instancedMeshes.Count == 0) continue;
+
+            var renderer = GetOrCreateRenderer(meshName, instancedMeshes[0].Mesh);
+            
+            renderer.ClearTransforms();
+            foreach (var instancedMeshComponent in instancedMeshes)
+            {
+                renderer.AddTransform(instancedMeshComponent.Owner.Transform!);
+            }
+            renderer.UpdateInstanceBuffer();
+            
             renderer.Render(camera);
         }
     }
 
-    public void Add(UStaticMesh staticMesh, TransformComponent transform)
+    protected override void OnComponentCreated(InstancedMeshComponent component)
     {
-        var renderer = _instancedMeshes.GetOrAdd(staticMesh.Name, () =>
+        base.OnComponentCreated(component);
+        
+        var meshName = component.Mesh.Name;
+
+        var queue = _renderQueue.GetOrAdd(meshName, () => []);
+        queue.Add(component);
+    }
+
+    protected override void OnComponentDestroyed(InstancedMeshComponent component)
+    {
+        base.OnComponentDestroyed(component);
+        
+        var meshName = component.Mesh.Name;
+        
+        var queue = _renderQueue.GetOrAdd(meshName, () => []);
+        queue.Remove(component);
+    }
+
+    private InstancedMeshRenderer GetOrCreateRenderer(string meshName, UStaticMesh staticMesh)
+    {
+        return _renderers.GetOrAdd(meshName, () =>
         {
             staticMesh.TryConvert(out var convertedMesh);
 
             var renderer = new InstancedMeshRenderer(convertedMesh);
             renderer.Initialize();
+
             return renderer;
         });
-        
-        renderer.AddTransform(transform);
+
     }
 
 }

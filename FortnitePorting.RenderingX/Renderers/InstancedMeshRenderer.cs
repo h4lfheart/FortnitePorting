@@ -18,9 +18,9 @@ public class InstancedMeshRenderer : MeshRenderer
         Shader = new ShaderProgram("shader_inst");
     }
 
-    public InstancedMeshRenderer(CStaticMesh staticMesh) : this()
+    public InstancedMeshRenderer(CStaticMesh staticMesh, int lodLevel = 0) : this()
     {
-        var lod = staticMesh.LODs[0];
+        var lod = staticMesh.LODs[lodLevel];
         
         var indices = lod.Indices.Value;
         Indices = new uint[indices.Length];
@@ -44,12 +44,15 @@ public class InstancedMeshRenderer : MeshRenderer
 
         Vertices = buildVertices.ToArray();
     }
+    
+    public void ClearTransforms()
+    {
+        _transforms.Clear();
+    }
 
     public void AddTransform(TransformComponent transform)
     {
         _transforms.Add(transform);
-        
-        UpdateInstanceBuffer();
     }
 
     public void UpdateInstanceBuffer()
