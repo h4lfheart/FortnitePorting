@@ -18,6 +18,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentAvalonia.BreadcrumbBar", "Dependencies\FluentAvalonia.BreadcrumbBar\FluentAvalonia.BreadcrumbBar\FluentAvalonia.BreadcrumbBar.csproj", "{2F47C460-E14B-4241-BB33-7F1E5AEAD4CC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortnitePorting.RenderingX", "FortnitePorting.RenderingX\FortnitePorting.RenderingX.csproj", "{D003D4D5-57DC-4A6B-9125-437EEFEC4600}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortnitePorting.RenderingX.Launcher", "FortnitePorting.RenderingX.Launcher\FortnitePorting.RenderingX.Launcher.csproj", "{CFDEA12F-283B-4B54-A306-F2321121E394}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -52,6 +56,14 @@ Global
 		{2F47C460-E14B-4241-BB33-7F1E5AEAD4CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2F47C460-E14B-4241-BB33-7F1E5AEAD4CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2F47C460-E14B-4241-BB33-7F1E5AEAD4CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D003D4D5-57DC-4A6B-9125-437EEFEC4600}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D003D4D5-57DC-4A6B-9125-437EEFEC4600}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D003D4D5-57DC-4A6B-9125-437EEFEC4600}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D003D4D5-57DC-4A6B-9125-437EEFEC4600}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CFDEA12F-283B-4B54-A306-F2321121E394}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CFDEA12F-283B-4B54-A306-F2321121E394}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CFDEA12F-283B-4B54-A306-F2321121E394}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CFDEA12F-283B-4B54-A306-F2321121E394}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{080F7E8E-25FF-488C-8F7B-F1104F9456F4} = {160B5ECB-2908-45FC-9568-A278D0F5C7BB}
@@ -59,5 +71,7 @@ Global
 		{87627B9B-370B-4B06-AE2B-D67D008CBF13} = {A58495DE-FFF8-4539-9A8B-91EFE442FE4F}
 		{F4D98C69-ED26-4EA3-A60A-9E1F54E78211} = {A58495DE-FFF8-4539-9A8B-91EFE442FE4F}
 		{2F47C460-E14B-4241-BB33-7F1E5AEAD4CC} = {160B5ECB-2908-45FC-9568-A278D0F5C7BB}
+		{D003D4D5-57DC-4A6B-9125-437EEFEC4600} = {A58495DE-FFF8-4539-9A8B-91EFE442FE4F}
+		{CFDEA12F-283B-4B54-A306-F2321121E394} = {A58495DE-FFF8-4539-9A8B-91EFE442FE4F}
 	EndGlobalSection
 EndGlobal

@@ -400,3 +400,5 @@ FodyWeavers.xsd
 
 # Blender Extensions
 *.blender_ext
+
+/FortnitePorting.RenderingX.Launcher/*
