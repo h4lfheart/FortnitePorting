@@ -14,7 +14,7 @@ public class ViewerWindow : GameWindow
     
     private static readonly GameWindowSettings GameSettings = new()
     {
-        UpdateFrequency = 144
+        UpdateFrequency = 60
     };
     
     private static readonly NativeWindowSettings NativeSettings = new()
@@ -33,28 +33,6 @@ public class ViewerWindow : GameWindow
     public ViewerWindow(Scene scene) : base(GameSettings, NativeSettings)
     {
         Scene = scene;
-        
-        MouseMove += delegate(MouseMoveEventArgs args)
-        {
-            var delta = args.Delta * Scene.ActiveCamera.Sensitivity;
-            if (MouseState[MouseButton.Left] || MouseState[MouseButton.Right])
-            {
-                Scene.ActiveCamera.UpdateDirection(delta.X, delta.Y);
-                Cursor = MouseCursor.Empty;
-                CursorState = CursorState.Grabbed;
-            }
-            else
-            {
-                Cursor = MouseCursor.Default;
-                CursorState = CursorState.Normal;
-            }
-        };
-        
-        MouseWheel += delegate(MouseWheelEventArgs args)
-        {
-            Scene.ActiveCamera.Speed += args.OffsetY * 0.01f;
-            Scene.ActiveCamera.Speed = Scene.ActiveCamera.Speed.Clamp(0.001f, 20.0f);
-        };
     }
 
     protected override void OnLoad()
@@ -67,8 +45,33 @@ public class ViewerWindow : GameWindow
         GL.Enable(EnableCap.Multisample);
         GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
-
         IsVisible = true;
+    }
+
+    protected override void OnMouseMove(MouseMoveEventArgs e)
+    {
+        base.OnMouseMove(e);
+        
+        var delta = e.Delta * Scene.ActiveCamera.Sensitivity;
+        if (MouseState[MouseButton.Left] || MouseState[MouseButton.Right])
+        {
+            Scene.ActiveCamera.UpdateDirection(delta.X, delta.Y);
+            Cursor = MouseCursor.Empty;
+            CursorState = CursorState.Grabbed;
+        }
+        else
+        {
+            Cursor = MouseCursor.Default;
+            CursorState = CursorState.Normal;
+        }
+    }
+
+    protected override void OnMouseWheel(MouseWheelEventArgs e)
+    {
+        base.OnMouseWheel(e);
+        
+        Scene.ActiveCamera.Speed += e.OffsetY * 0.01f;
+        Scene.ActiveCamera.Speed = Scene.ActiveCamera.Speed.Clamp(0.001f, 20.0f);
     }
 
     protected override void OnUpdateFrame(FrameEventArgs args)
@@ -77,7 +80,7 @@ public class ViewerWindow : GameWindow
         
         Scene.Update((float) args.Time);
 
-        var transform = Scene.ActiveCamera.Owner.GetComponent<TransformComponent>()!;
+        var transform = Scene.ActiveCamera.Owner.Transform!;
         if (KeyboardState.IsKeyDown(Keys.W))
             transform.LocalPosition += Scene.ActiveCamera.Direction * Scene.ActiveCamera.Speed;
         if (KeyboardState.IsKeyDown(Keys.S))
@@ -96,7 +99,6 @@ public class ViewerWindow : GameWindow
     {
         base.OnRenderFrame(args);
         
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
         GL.ClearColor(36f / 255f, 36f / 255f, 36f / 255f, 1);
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
         

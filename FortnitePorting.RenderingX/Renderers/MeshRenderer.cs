@@ -4,12 +4,14 @@ using FortnitePorting.RenderingX.Components.Rendering;
 using FortnitePorting.RenderingX.Core;
 using FortnitePorting.RenderingX.Data.Buffers;
 using FortnitePorting.RenderingX.Data.Programs;
+using FortnitePorting.RenderingX.Materials;
 
 namespace FortnitePorting.RenderingX.Renderers;
 
 public class MeshRenderer : Renderer
 {
     public ShaderProgram Shader = new("shader");
+    public Material[] Materials = [];
 
     public TransformComponent? Transform;
 
@@ -52,7 +54,13 @@ public class MeshRenderer : Renderer
         Shader.SetMatrix4("uTransform", Transform?.GetWorldMatrix() ?? Matrix4.Identity);
         Shader.SetMatrix4("uView", camera.GetViewMatrix());
         Shader.SetMatrix4("uProjection", camera.GetProjectionMatrix());
-        Shader.SetUniform3("uDirection", camera.Direction);
+        Shader.SetUniform3("fCameraDirection", camera.Direction);
+        Shader.SetUniform3("fCameraPosition", camera.Owner.Transform!.WorldPosition);
+        
+        foreach (var material in Materials)
+        {
+            material.Bind();
+        }
     }
     
     protected virtual void RenderGeometry(CameraComponent camera)

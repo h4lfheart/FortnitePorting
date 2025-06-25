@@ -1,11 +1,13 @@
 using CUE4Parse_Conversion.Meshes;
 using CUE4Parse_Conversion.Meshes.PSK;
+using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.Utils;
 using FortnitePorting.RenderingX.Components;
 using FortnitePorting.RenderingX.Components.Mesh;
 using FortnitePorting.RenderingX.Components.Rendering;
 using FortnitePorting.RenderingX.Core;
+using FortnitePorting.RenderingX.Materials;
 using FortnitePorting.RenderingX.Renderers;
 
 namespace FortnitePorting.RenderingX.Managers;
@@ -26,14 +28,6 @@ public class InstancedMeshManager : ComponentManager<InstancedMeshComponent>
             if (instancedMeshes.Count == 0) continue;
 
             var renderer = GetOrCreateRenderer(meshName, instancedMeshes[0].Mesh);
-            
-            renderer.ClearTransforms();
-            foreach (var instancedMeshComponent in instancedMeshes)
-            {
-                renderer.AddTransform(instancedMeshComponent.Owner.Transform!);
-            }
-            renderer.UpdateInstanceBuffer();
-            
             renderer.Render(camera);
         }
     }
@@ -46,6 +40,10 @@ public class InstancedMeshManager : ComponentManager<InstancedMeshComponent>
 
         var queue = _renderQueue.GetOrAdd(meshName, () => []);
         queue.Add(component);
+        
+        var renderer = GetOrCreateRenderer(meshName, component.Mesh);
+        renderer.AddTransform(component.Owner.Transform!);
+        renderer.UpdateInstanceBuffer();
     }
 
     protected override void OnComponentDestroyed(InstancedMeshComponent component)
@@ -64,8 +62,20 @@ public class InstancedMeshManager : ComponentManager<InstancedMeshComponent>
         {
             staticMesh.TryConvert(out var convertedMesh);
 
-            var renderer = new InstancedMeshRenderer(convertedMesh);
+            var renderer = new InstancedMeshRenderer(convertedMesh, lodLevel: 0);
             renderer.Initialize();
+
+            if (staticMesh.Materials.FirstOrDefault()?.Load<UMaterialInstanceConstant>() is { } instanceMaterial)
+                renderer.Materials = [new Material(instanceMaterial)];
+            
+            if (staticMesh.Materials.FirstOrDefault()?.Load<UMaterial>() is { } material)
+                renderer.Materials = [new Material(material)];
+            
+            foreach (var rendererMaterial in renderer.Materials)
+            {
+                renderer.Shader.Use();
+                rendererMaterial.SetUniforms(renderer.Shader);
+            }
 
             return renderer;
         });

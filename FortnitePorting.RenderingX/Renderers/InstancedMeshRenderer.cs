@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using CUE4Parse_Conversion.Meshes.PSK;
 using FortnitePorting.RenderingX.Components;
 using FortnitePorting.RenderingX.Components.Rendering;
@@ -20,7 +21,7 @@ public class InstancedMeshRenderer : MeshRenderer
 
     public InstancedMeshRenderer(CStaticMesh staticMesh, int lodLevel = 0) : this()
     {
-        var lod = staticMesh.LODs[lodLevel];
+        var lod = staticMesh.LODs[Math.Min(lodLevel, staticMesh.LODs.Count - 1)];
         
         var indices = lod.Indices.Value;
         Indices = new uint[indices.Length];
@@ -30,16 +31,26 @@ public class InstancedMeshRenderer : MeshRenderer
         }
 
         var vertices = lod.Verts;
+        var extraUVs = lod.ExtraUV.Value;
         var buildVertices = new List<float>();
-        foreach (var vertex in vertices)
+        
+        for (var vertexIndex = 0; vertexIndex < vertices.Length; vertexIndex++)
         {
+            var vertex = vertices[vertexIndex];
             var position = vertex.Position * 0.01f;
             var normal = vertex.Normal;
+            var tangent = vertex.Tangent;
+            var uv = vertex.UV;
+            var materialLayer = extraUVs.Length > 0 ? extraUVs[0][vertexIndex].U : 0;
 
             buildVertices.AddRange([
                 position.X, position.Z, position.Y,
-                normal.X, normal.Z, normal.Y
+                normal.X, normal.Z, normal.Y,
+                tangent.X, tangent.Z, tangent.Y,
+                uv.U, uv.V,
+                materialLayer
             ]);
+            
         }
 
         Vertices = buildVertices.ToArray();
@@ -92,6 +103,9 @@ public class InstancedMeshRenderer : MeshRenderer
     {
         RegisterAttribute("Position", 3, VertexAttribPointerType.Float);
         RegisterAttribute("Normal", 3, VertexAttribPointerType.Float);
+        RegisterAttribute("Tangent", 3, VertexAttribPointerType.Float);
+        RegisterAttribute("TexCoord", 2, VertexAttribPointerType.Float);
+        RegisterAttribute("MaterialLayer", 1, VertexAttribPointerType.Float);
         
         base.BuildMesh();
         
@@ -120,7 +134,13 @@ public class InstancedMeshRenderer : MeshRenderer
         
         Shader.SetMatrix4("uView", camera.GetViewMatrix());
         Shader.SetMatrix4("uProjection", camera.GetProjectionMatrix());
-        Shader.SetUniform3("uDirection", camera.Direction);
+        Shader.SetUniform3("fCameraDirection", camera.Direction);
+        Shader.SetUniform3("fCameraPosition", camera.Owner.Transform!.WorldPosition);
+        
+        foreach (var material in Materials)
+        {
+            material.Bind();
+        }
     }
 
     protected override void RenderGeometry(CameraComponent camera)

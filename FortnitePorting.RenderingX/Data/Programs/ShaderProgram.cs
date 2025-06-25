@@ -1,11 +1,14 @@
 using System.Reflection;
 using System.Text;
+using CUE4Parse.Utils;
 
 namespace FortnitePorting.RenderingX.Data.Programs;
 
 public class ShaderProgram : Program
 {
     private readonly List<int> _shaderHandles = [];
+    
+    private readonly Dictionary<string, int> _uniformCache = [];
     
     public ShaderProgram(string shaderName)
     {
@@ -48,7 +51,7 @@ public class ShaderProgram : Program
     
     private int GetUniformLocation(string name)
     {
-        return GL.GetUniformLocation(_handle, name);
+        return _uniformCache.GetOrAdd(name, () => GL.GetUniformLocation(_handle, name));
     }
 
 

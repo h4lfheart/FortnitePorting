@@ -18,8 +18,6 @@ public class Scene
         {
             Scene = this
         };
-        
-        
     }
 
     public void Update(float deltaTime)
