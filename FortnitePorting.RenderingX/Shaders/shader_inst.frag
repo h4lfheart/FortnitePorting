@@ -1,16 +1,22 @@
 #version 460 core
 out vec4 FragColor;
 
-struct Parameters
-{
-    bool useLayers;
+uniform bool useLayers;
 
-    sampler2D diffuse[4];
-    sampler2D normal[4];
-    sampler2D specular[4];
-};
+uniform sampler2D diffuse0;
+uniform sampler2D diffuse1;
+uniform sampler2D diffuse2;
+uniform sampler2D diffuse3;
 
-uniform Parameters parameters;
+uniform sampler2D normal0;
+uniform sampler2D normal1;
+uniform sampler2D normal2;
+uniform sampler2D normal3;
+
+uniform sampler2D specular0;
+uniform sampler2D specular1;
+uniform sampler2D specular2;
+uniform sampler2D specular3;
 
 uniform vec3 fCameraDirection;
 uniform vec3 fCameraPosition;
@@ -21,15 +27,60 @@ in vec3 fTangent;
 in vec2 fTexCoord;
 in float fMaterialLayer;
 
-vec3 samplerToColor(sampler2D tex)
+vec3 sampleTexture(sampler2D tex)
 {
     return texture(tex, fTexCoord).rgb;
 }
 
-vec3 calcNormals(int layer)
+vec3 getDiffuse(int layer) {
+
+    switch (layer) {
+        case 0:
+            return sampleTexture(diffuse0);
+        case 1:
+            return sampleTexture(diffuse1);
+        case 2:
+            return sampleTexture(diffuse2);
+        case 3:
+            return sampleTexture(diffuse3);
+        default:
+            return vec3(0.0);
+    }
+}
+
+vec3 getNormal(int layer) {
+
+    switch (layer) {
+        case 0:
+            return sampleTexture(normal0);
+        case 1:
+            return sampleTexture(normal1);
+        case 2:
+            return sampleTexture(normal2);
+        case 3:
+            return sampleTexture(normal3);
+        default:
+            return vec3(0.0);
+    }
+}
+
+vec3 getSpecular(int layer) {
+    switch (layer) {
+        case 0:
+            return sampleTexture(specular0);
+        case 1:
+            return sampleTexture(specular1);
+        case 2:
+            return sampleTexture(specular2);
+        case 3:
+            return sampleTexture(specular3);
+        default:
+            return vec3(0.0);
+    }
+}
+
+vec3 calculateNormals(vec3 normalMap)
 {
-    vec3 normalMap = texture(parameters.normal[layer], fTexCoord).rgb;
-    
     float temp = normalMap.r;
     normalMap.r = normalMap.b;
     normalMap.b = temp;
@@ -49,19 +100,18 @@ vec3 calcNormals(int layer)
 
 void main()
 {
-    int layer = parameters.useLayers ? int(fMaterialLayer) : 0;
-    
+    int layer = useLayers ? int(fMaterialLayer) : 0;
     
     vec3 lightDir = normalize(vec3(fCameraPosition - fPosition) * 250);
     
-    vec3 normals = calcNormals(layer);
+    vec3 normals = calculateNormals(getNormal(layer));
     
     float diffuseLight = max(dot(normals, lightDir), 0.0);
     
-    vec3 baseColor = samplerToColor(parameters.diffuse[layer]);
+    vec3 baseColor = getDiffuse(layer);
     vec3 diffuse = baseColor * diffuseLight;
     
-    vec3 specularMasks = samplerToColor(parameters.specular[layer]);
+    vec3 specularMasks = getSpecular(layer);
 
     float shininess = pow(2.0, (1.0 - specularMasks.b) * 10.0);
     

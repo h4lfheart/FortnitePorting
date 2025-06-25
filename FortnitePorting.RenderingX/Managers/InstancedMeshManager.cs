@@ -60,22 +60,8 @@ public class InstancedMeshManager : ComponentManager<InstancedMeshComponent>
     {
         return _renderers.GetOrAdd(meshName, () =>
         {
-            staticMesh.TryConvert(out var convertedMesh);
-
-            var renderer = new InstancedMeshRenderer(convertedMesh, lodLevel: 0);
+            var renderer = new InstancedMeshRenderer(staticMesh, lodLevel: 0);
             renderer.Initialize();
-
-            if (staticMesh.Materials.FirstOrDefault()?.Load<UMaterialInstanceConstant>() is { } instanceMaterial)
-                renderer.Materials = [new Material(instanceMaterial)];
-            
-            if (staticMesh.Materials.FirstOrDefault()?.Load<UMaterial>() is { } material)
-                renderer.Materials = [new Material(material)];
-            
-            foreach (var rendererMaterial in renderer.Materials)
-            {
-                renderer.Shader.Use();
-                rendererMaterial.SetUniforms(renderer.Shader);
-            }
 
             return renderer;
         });

@@ -1,10 +1,15 @@
 using System.Diagnostics;
+using CUE4Parse_Conversion.Meshes;
 using CUE4Parse_Conversion.Meshes.PSK;
+using CUE4Parse.UE4.Assets.Exports.Material;
+using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using FortnitePorting.RenderingX.Components;
 using FortnitePorting.RenderingX.Components.Rendering;
 using FortnitePorting.RenderingX.Core;
 using FortnitePorting.RenderingX.Data.Buffers;
 using FortnitePorting.RenderingX.Data.Programs;
+using FortnitePorting.RenderingX.Materials;
+using FortnitePorting.RenderingX.Renderers.Models;
 
 namespace FortnitePorting.RenderingX.Renderers;
 
@@ -19,9 +24,11 @@ public class InstancedMeshRenderer : MeshRenderer
         Shader = new ShaderProgram("shader_inst");
     }
 
-    public InstancedMeshRenderer(CStaticMesh staticMesh, int lodLevel = 0) : this()
+    public InstancedMeshRenderer(UStaticMesh staticMesh, int lodLevel = 0) : this()
     {
-        var lod = staticMesh.LODs[Math.Min(lodLevel, staticMesh.LODs.Count - 1)];
+        staticMesh.TryConvert(out var convertedMesh);
+        
+        var lod = convertedMesh.LODs[Math.Min(lodLevel, convertedMesh.LODs.Count - 1)];
         
         var indices = lod.Indices.Value;
         Indices = new uint[indices.Length];
@@ -54,6 +61,29 @@ public class InstancedMeshRenderer : MeshRenderer
         }
 
         Vertices = buildVertices.ToArray();
+
+        var sections = lod.Sections.Value;
+        Materials = new Material[sections.Length];
+
+        for (var sectionIndex = 0; sectionIndex < sections.Length; sectionIndex++)
+        {
+            var section = sections[sectionIndex];
+            Sections.Add(new Section(section.MaterialIndex, section.NumFaces * 3, section.FirstIndex));
+
+            if (staticMesh.Materials[section.MaterialIndex]?.TryLoad(out var sectionMaterial) ?? false)
+            {
+                Materials[sectionIndex] = sectionMaterial switch
+                {
+                    UMaterialInstanceConstant materialInstance => new Material(materialInstance),
+                    UMaterial material => new Material(material),
+                    _ => new Material()
+                };
+            }
+            else
+            {
+                Materials[sectionIndex] = new Material();
+            }
+        }
     }
     
     public void ClearTransforms()
@@ -137,9 +167,9 @@ public class InstancedMeshRenderer : MeshRenderer
         Shader.SetUniform3("fCameraDirection", camera.Direction);
         Shader.SetUniform3("fCameraPosition", camera.Owner.Transform!.WorldPosition);
         
-        foreach (var material in Materials)
+        foreach (var section in Sections)
         {
-            material.Bind();
+            Materials[section.MaterialIndex].Bind();
         }
     }
 
@@ -147,7 +177,11 @@ public class InstancedMeshRenderer : MeshRenderer
     {
         VertexArray.Bind();
         InstanceBuffer.Bind();
-        GL.DrawElementsInstanced(PrimitiveType.Triangles, Indices.Length, DrawElementsType.UnsignedInt, 0, _transforms.Count);
+        
+        foreach (var section in Sections)
+        {
+            GL.DrawElementsInstanced(PrimitiveType.Triangles, section.FaceCount, DrawElementsType.UnsignedInt, section.FirstFaceIndexPtr, _transforms.Count);
+        }
     }
     
     public override void Destroy()

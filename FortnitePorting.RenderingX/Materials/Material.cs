@@ -112,6 +112,13 @@ public class Material
         "Use 2 Materials", "Use 3 Materials", "Use 4 Materials", "Use 5 Materials", "Use 6 Materials", "Use 7 Materials",
         "Use_Multiple_Material_Textures"
     ];
+
+    public Material()
+    {
+        FillWithDefaults(Diffuse, DefaultDiffuse.Value);
+        FillWithDefaults(Normals, DefaultNormal.Value);
+        FillWithDefaults(SpecularMasks, DefaultSpecular.Value);    
+    }
     
     public Material(UMaterialInstanceConstant materialInstance)
     {
@@ -139,36 +146,32 @@ public class Material
     public void SetUniforms(ShaderProgram shader)
     {
         var unitOffset = 0;
-
-        void SetTextureParameters(string name, Texture2D?[] textures)
+        void SetTextureUnforms(string name, Texture2D?[] textures)
         {
             for (var textureIndex = 0; textureIndex < textures.Length; textureIndex++)
             {
                 var texture = textures[textureIndex];
                 if (texture is null) continue;
                 
-                shader.SetUniform($"{name}[{textureIndex}]", unitOffset);
+                shader.SetUniform($"{name}{textureIndex}", unitOffset);
                 unitOffset++;
             }
         }
         
+        SetTextureUnforms("diffuse", Diffuse);
+        SetTextureUnforms("normal", Normals);
+        SetTextureUnforms("specular", SpecularMasks);
         
-        shader.SetUniform("parameters.useLayers", UseLayers ? 1 : 0);
-
-        SetTextureParameters("parameters.diffuse", Diffuse);
-        SetTextureParameters("parameters.normal", Normals);
-        SetTextureParameters("parameters.specular", SpecularMasks);
+        shader.SetUniform("useLayers", UseLayers ? 1 : 0);
     }
     
     public void Bind()
     {
         var unitOffset = 0;
-
-        void SetTextureParameters(Texture2D?[] textures)
+        void BindTextureArray(Texture2D?[] textures)
         {
-            for (var textureIndex = 0; textureIndex < textures.Length; textureIndex++)
+            foreach (var texture in textures)
             {
-                var texture = textures[textureIndex];
                 if (texture is null) continue;
                 
                 texture.Bind((TextureUnit) ((int) TextureUnit.Texture0 + unitOffset));
@@ -176,9 +179,9 @@ public class Material
             }
         }
 
-        SetTextureParameters(Diffuse);
-        SetTextureParameters(Normals);
-        SetTextureParameters(SpecularMasks);
+        BindTextureArray(Diffuse);
+        BindTextureArray(Normals);
+        BindTextureArray(SpecularMasks);
     }
 
     private void FillWithDefaults(Texture2D?[] textures, Texture2D defaultTexture)

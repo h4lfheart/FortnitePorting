@@ -5,6 +5,7 @@ using FortnitePorting.RenderingX.Core;
 using FortnitePorting.RenderingX.Data.Buffers;
 using FortnitePorting.RenderingX.Data.Programs;
 using FortnitePorting.RenderingX.Materials;
+using FortnitePorting.RenderingX.Renderers.Models;
 
 namespace FortnitePorting.RenderingX.Renderers;
 
@@ -17,6 +18,7 @@ public class MeshRenderer : Renderer
 
     public float[] Vertices = [];
     public uint[] Indices = [];
+    public List<Section> Sections = [];
 
     protected Buffer<float> VertexBuffer;
     protected Buffer<uint> IndexBuffer;
@@ -45,7 +47,6 @@ public class MeshRenderer : Renderer
             VertexArray.VertexAttribPointer((uint) attributeIndex, attribute.Size, attribute.Type, stride, offset);
             offset += attribute.Size;
         }
-        
     }
 
     protected virtual void RenderShader(CameraComponent camera)
@@ -77,6 +78,12 @@ public class MeshRenderer : Renderer
         Shader.Link();
         
         BuildMesh();
+        
+        foreach (var rendererMaterial in Materials)
+        {
+            Shader.Use();
+            rendererMaterial.SetUniforms(Shader);
+        }
     }
 
     public override void Render(CameraComponent camera)
