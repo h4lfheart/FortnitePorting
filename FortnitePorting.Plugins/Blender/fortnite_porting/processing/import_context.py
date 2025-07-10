@@ -1248,7 +1248,7 @@ class ImportContext:
                     
                     def import_curve_mapping(curve_mapping):
                         for curve_mapping in curve_mapping:
-                            if (target_block := first(key_blocks, lambda block: block.name.lower() == curve_mapping.get("Name").lower())) or (target_block := first(key_blocks, lambda block: block.name.lower() in curve_mapping.get("Name").lower())):
+                            if target_block := best(key_blocks, lambda block: block.name.lower(), curve_mapping.get("Name").lower()):
                                 for frame in range(section_length_frames):
                                     value_stack = []
 
@@ -1368,7 +1368,7 @@ class ImportContext:
                     
                     if (is_skeleton_legacy and is_anim_legacy) or (is_anim_metahuman and is_anim_metahuman):
                         for curve in anim_data.curves:
-                            if (target_block := first(key_blocks, lambda block: block.name.lower() == curve.name.lower())) or (target_block := first(key_blocks, lambda block: block.name.lower() in curve.name.lower())):
+                            if target_block := best(key_blocks, lambda block: block.name.lower(), curve.name.lower()):
                                 for key in curve.keys:
                                     target_block.value = key.value
                                     target_block.keyframe_insert(data_path="value", frame=key.frame)

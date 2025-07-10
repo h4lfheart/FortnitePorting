@@ -73,6 +73,7 @@ default_mappings = MappingCollection(
         SlotMapping("PM_Emissive", "Emission"),
         SlotMapping("Visor_Emissive", "Emission"),
         SlotMapping("EmissiveDistanceField"),
+        SlotMapping("DF Texture", "EmissiveDistanceField"),
         SlotMapping("Visor_EmissiveDistanceField", "EmissiveDistanceField"),
         SlotMapping("Visor_EmissiveDistanceFieldStyle2", "EmissiveDistanceField"),
 

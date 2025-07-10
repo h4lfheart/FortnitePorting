@@ -38,6 +38,20 @@ def first(target, expr, default=None):
 
     return next(filtered, default)
 
+def best(target, expr, goal, default=None):
+    if not target:
+        return None
+
+    for item in target:
+        if expr(item) == goal:
+            return item
+
+    for item in target:
+        if expr(item) in goal:
+            return item
+
+    return default
+
 
 def where(target, expr):
     if not target:
