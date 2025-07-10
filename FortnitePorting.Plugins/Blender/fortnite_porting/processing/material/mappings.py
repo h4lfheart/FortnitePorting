@@ -707,3 +707,30 @@ composite_mappings = MappingCollection(
         SlotMapping("UseUV2SRM"),
     ]
 )
+
+detail_mappings = MappingCollection(
+    textures=[
+        SlotMapping("TechArtMask"),
+        SlotMapping("Detail Diffuse"),
+        SlotMapping("Detail Normal"),
+        SlotMapping("Detail SRM"),
+    ],
+    scalars=[
+        SlotMapping("Detail Texture - Tiling"),
+        SlotMapping("Detail Texture - UV Rotation"),
+        SlotMapping("Detail Diffuse - Strength"),
+        SlotMapping("Detail Normal - Flatten Normal"),
+        SlotMapping("Detail Specular - Strength"),
+        SlotMapping("Detail Roughness - Strength"),
+        SlotMapping("Detail Metallic - Strength"),
+    ],
+    vectors=[
+        SlotMapping("Detail Texture - Channel Mask"),
+    ],
+    switches=[
+        SlotMapping("Detail Texture - Use UV2"),
+        SlotMapping("Use Detail Diffuse?"),
+        SlotMapping("Use Detail Normal?"),
+        SlotMapping("Use Detail SRM?"),
+    ]
+)
