@@ -1286,7 +1286,7 @@ class ImportContext:
 
                                             case EOpElementType.NAME:
                                                 sub_curve_name = str(element_value)
-                                                target_curve = first(anim_data.curves, lambda curve: curve.name.lower().replace("ctrl_expressions_", "") == sub_curve_name.lower())
+                                                target_curve = best(anim_data.curves, lambda curve: curve.name.lower(), sub_curve_name.lower())
                                                 if target_curve:
                                                     target_value = interpolate_keyframes(target_curve.keys, frame, fps=anim_data.metadata.frames_per_second)
                                                     value_stack.append(target_value)
