@@ -130,6 +130,13 @@ public partial class MapViewModel : ViewModelBase
             "/BlastBerryMapUI/MiniMap/MMap_DasBerry_Mask",
             0.0235f, -20, 210, 153, 12800, true
         ),
+        new(
+            "TimberStake",
+            "/4c3853ea-4fd0-364f-c3f9-dabd19e43a23/TimberStake",
+            "/BlastBerryMapUI/MiniMap/Discovered_TimberStake",
+            "/BlastBerryMapUI/MiniMap/MMap_TimberStake_Mask",
+            0.027f, 40, 15, 175, 12800, false, false
+        ),
         
         // ballistic
         new(
