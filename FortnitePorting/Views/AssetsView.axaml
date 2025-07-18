@@ -243,9 +243,23 @@
                                                                                     <Setter Property="Padding" Value="0"/>
                                                                                 </Style>
                                                                             </ListBox.Styles>
+                                                                            <ListBox.ItemContainerTheme>
+                                                                                <ControlTheme TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource {x:Type ListBoxItem}}" x:DataType="assets:BaseStyleData">
+                                                                                    <Setter Property="ContextMenu">
+                                                                                        <ContextMenu>
+                                                                                            <MenuItem Header="Copy Icon" Icon="{material:MaterialIconExt Image}" Command="{Binding CopyIconCommand}" />
+                                                                                        </ContextMenu>
+                                                                                    </Setter>
+                                                                                </ControlTheme>
+                                                                            </ListBox.ItemContainerTheme>
                                                                             <ListBox.ItemTemplate>
                                                                                 <DataTemplate DataType="assets:BaseStyleData">
                                                                                     <ContentControl Padding="8" ToolTip.Tip="{Binding StyleName}">
+                                                                                        <ContentControl.ContextMenu>
+                                                                                            <ContextMenu>
+                                                                                                <MenuItem Header="Copy Icon" Icon="{material:MaterialIconExt Image}" Command="{Binding CopyIconCommand}"/>
+                                                                                            </ContextMenu>
+                                                                                        </ContentControl.ContextMenu>
                                                                                         <Grid>
                                                                                             <Grid.ColumnDefinitions>
                                                                                                 <ColumnDefinition Width="Auto"/>
