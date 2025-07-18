@@ -28,8 +28,10 @@ public partial class AssetStyleInfo : ObservableObject
     [ObservableProperty, NotifyPropertyChangedFor(nameof(SelectionMode))] private bool _multiSelect = false;
     public SelectionMode SelectionMode => MultiSelect ? SelectionMode.Multiple : SelectionMode.Single;
     
-    [ObservableProperty] private int _selectedStyleIndex;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(SelectedStyle))] private int _selectedStyleIndex;
     [ObservableProperty] private ObservableCollection<BaseStyleData> _selectedItems = [];
+
+    public BaseStyleData SelectedStyle => StyleDatas[SelectedStyleIndex];
     
     
     public AssetStyleInfo(string channelName, FStructFallback[] styles, Bitmap fallbackPreviewImage)

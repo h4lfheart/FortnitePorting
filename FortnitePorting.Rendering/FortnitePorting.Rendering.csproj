@@ -9,7 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Avalonia" Version="11.2.5" />
+        <PackageReference Include="Avalonia" Version="11.3.2" />
       <PackageReference Include="OpenTK" Version="5.0.0-pre.10" />
       <PackageReference Include="OpenTK.Core" Version="5.0.0-pre.10" />
       <PackageReference Include="OpenTK.Graphics" Version="5.0.0-pre.10" />

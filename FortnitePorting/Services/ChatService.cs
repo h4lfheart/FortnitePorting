@@ -68,7 +68,6 @@ public partial class ChatService : ObservableObject, IService
         await _chatPresence.Track(Presence);
         
         var messages = await SupaBase.Client.From<Message>()
-            .Limit(100)
             .Order("timestamp", Constants.Ordering.Ascending)
             .Get();
         

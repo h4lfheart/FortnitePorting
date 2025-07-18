@@ -122,12 +122,6 @@
             <Setter Property="CornerRadius" Value="8"/>
         </Style>
         
-        <Style Selector="DropDownButton">
-            <Setter Property="BorderBrush" Value="#78575757"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="8"/>
-        </Style>
-        
         <Style Selector="AutoCompleteBox">
             <Setter Property="BorderBrush" Value="#78575757"/>
             <Setter Property="BorderThickness" Value="1"/>
@@ -151,6 +145,25 @@
             <Style Selector="^:pointerover">
                 <Setter Property="Opacity" Value="1"/>
                 <Setter Property="Margin" Value="{ext:Space 25, 0, 0, 0}"/>
+            </Style>
+        </Style>
+        
+        
+        <Style Selector="DropDownButton">
+            <Setter Property="BorderBrush" Value="#78575757"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+        </Style>
+        
+        
+        <Style Selector="DropDownButton.Transparent">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            
+            <Style Selector="^:flyout-open">
+                <Setter Property="Background" Value="#15FFFFFF"/>
             </Style>
         </Style>
         
