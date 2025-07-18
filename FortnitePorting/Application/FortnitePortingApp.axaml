@@ -58,6 +58,11 @@
         <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
         <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
         
+        <!-- font fix for avalonia 11.3.0 -->
+        <Style Selector="ContentPresenter">
+            <Setter Property="FontFamily" Value="{DynamicResource DefaultFont}" />
+        </Style>
+        
         <Style Selector="Border.LiquidGlass">
             <Setter Property="BoxShadow">
                 inset 2 2 4 -1 #04000000, 

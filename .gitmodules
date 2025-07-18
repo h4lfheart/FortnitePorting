@@ -3,4 +3,4 @@
 	url = https://github.com/h4lfheart/CUE4Parse
 [submodule "Dependencies/FluentAvalonia.BreadcrumbBar"]
 	path = Dependencies/FluentAvalonia.BreadcrumbBar
-	url = https://github.com/yuto-trd/FluentAvalonia.BreadcrumbBar
+	url = https://github.com/h4lfheart/FluentAvalonia.BreadcrumbBar
