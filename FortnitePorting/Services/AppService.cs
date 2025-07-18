@@ -75,6 +75,12 @@ public class AppService : IService
                 TaskService.Run(async () => await SupaBase.ExchangeCode(code));
                 break;
             }
+            case var _ when path.StartsWith("route"):
+            {
+                var routePath = path.Replace("route/", string.Empty);
+                Navigation.OpenRoute(routePath);
+                break;
+            }
         }
     }
 

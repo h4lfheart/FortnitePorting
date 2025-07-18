@@ -5,6 +5,7 @@ using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
+using FortnitePorting.Exporting.Models;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Shared;
@@ -20,7 +21,7 @@ public partial class ExportSettingsView : ViewBase<ExportSettingsViewModel>
         Navigation.ExportSettings.Initialize(NavigationView);
         Navigation.ExportSettings.AddTypeResolver<EExportLocation>(location =>
         {
-            var name = location.ToString();
+            var name = location.IsFolder() ? "Folder" : location.ToString();
             var viewName = $"FortnitePorting.Views.Settings.{name}SettingsView";
         
             var type = Type.GetType(viewName);

@@ -17,8 +17,7 @@ namespace FortnitePorting;
 
 internal static class Program
 {
-    
-    private static Mutex _programMutex;
+    private static Mutex _programMutex = null!;
     
     [STAThread]
     public static void Main(string[] args)
@@ -45,6 +44,7 @@ internal static class Program
         finally
         {
             Log.CloseAndFlush();
+            _programMutex.ReleaseMutex();
         }
     }
 
