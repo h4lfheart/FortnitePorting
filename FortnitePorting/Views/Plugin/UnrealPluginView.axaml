@@ -9,6 +9,7 @@
              xmlns:settings="clr-namespace:FortnitePorting.ViewModels.Settings"
              xmlns:plugin="clr-namespace:FortnitePorting.ViewModels.Plugin"
              xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FortnitePorting.Views.Plugin.UnrealPluginView"
              x:DataType="plugin:UnrealPluginViewModel">
@@ -49,7 +50,7 @@
                    Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" HorizontalAlignment="Center"
                    VerticalAlignment="Center" />
 
-        <ui:FABorder Grid.Row="4" VerticalAlignment="Stretch">
+        <controls:FABorder Grid.Row="4" VerticalAlignment="Stretch">
             <ListBox Margin="{ext:Space 1}" ItemsSource="{Binding Projects}" SelectedIndex="{Binding SelectedProjectIndex, Mode=TwoWay}">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
@@ -80,7 +81,7 @@
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
-        </ui:FABorder>
+        </controls:FABorder>
         
     </Grid>
 </UserControl>

@@ -1,8 +1,8 @@
 using System;
 using System.IO;
+using System.IO.Compression;
 using Avalonia.Platform;
 using FortnitePorting.Shared.Extensions;
-using Ionic.Zip;
 
 namespace FortnitePorting.Services;
 
@@ -47,10 +47,12 @@ public class DependencyService : IService
         var file = Api.DownloadFile("https://github.com/vgmstream/vgmstream/releases/latest/download/vgmstream-win.zip", VgmStreamFolder);
         if (!file.Exists || file.Length == 0) return;
         
-        var zip = ZipFile.Read(file.FullName);
-        foreach (var zipFile in zip)
+        var zip = ZipFile.Open(file.FullName, ZipArchiveMode.Read);
+        foreach (var zipFile in zip.Entries)
         {
-            zipFile.Extract(VgmStreamFolder.FullName, ExtractExistingFileAction.OverwriteSilently);
+            using var zipStream = zipFile.Open();
+            using var fileStream = new FileStream(Path.Combine(VgmStreamFolder.FullName, zipFile.FullName), FileMode.OpenOrCreate, FileAccess.Write);
+            zipStream.CopyTo(fileStream);
         }
     }
 

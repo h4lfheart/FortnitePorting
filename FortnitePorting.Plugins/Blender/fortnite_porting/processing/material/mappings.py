@@ -67,11 +67,13 @@ default_mappings = MappingCollection(
         SlotMapping("AnisotropigTangentWeight", "AnisotropicTangentWeight", alpha_slot="AnisotropicTangentWeight Alpha"),
 
         SlotMapping("Emissive", "Emission"),
+        SlotMapping("EmissiveColor", "Emission"),
         SlotMapping("EmissiveTexture", "Emission"),
         SlotMapping("L1_Emissive", "Emission", coords="UV2"),
         SlotMapping("PM_Emissive", "Emission"),
         SlotMapping("Visor_Emissive", "Emission"),
         SlotMapping("EmissiveDistanceField"),
+        SlotMapping("DF Texture", "EmissiveDistanceField"),
         SlotMapping("Visor_EmissiveDistanceField", "EmissiveDistanceField"),
         SlotMapping("Visor_EmissiveDistanceFieldStyle2", "EmissiveDistanceField"),
 
@@ -156,6 +158,8 @@ default_mappings = MappingCollection(
         
     ],
     vectors=[
+        SlotMapping("TintColor", "Diffuse"),
+        
         SlotMapping("Skin Boost Color And Exponent", "Skin Color", alpha_slot="Skin Boost"),
         SlotMapping("SkinTint", "Skin Color", alpha_slot="Skin Boost"),
         SlotMapping("SkinColor", "Skin Color", alpha_slot="Skin Boost"),
@@ -670,11 +674,64 @@ superhero_mappings = MappingCollection(
         SlotMapping("PrimaryMaterial"),
         SlotMapping("SecondaryMaterial"),
         SlotMapping("AccessoryMaterial"),
-        SlotMapping("Sticker MSRE")
+        SlotMapping("Sticker MSRE"),
+        SlotMapping("StickerPosition"),
+        SlotMapping("StickerScale"),
+        SlotMapping("BackStickerPosition"),
+        SlotMapping("BackStickerScale"),
     ],
     scalars=[
         SlotMapping("PrimaryCloth"),
         SlotMapping("SecondaryCloth"),
         SlotMapping("ElasticStickerMult")
+    ]
+)
+
+composite_mappings = MappingCollection(
+    textures=[
+        SlotMapping("UV2Composite_AlphaTexture"),
+        SlotMapping("UV2Composite_Diffuse", alpha_slot="UV2Composite_Diffuse Alpha"),
+        SlotMapping("UV2Composite_Normals"),
+        SlotMapping("UV2Composite_SRM"),
+    ],
+    scalars=[
+        SlotMapping("UV2Composite_AlphaStrength"),
+    ],
+    vectors=[
+        SlotMapping("UV2Composite_AlphaChannel"),
+    ],
+    switches=[
+        SlotMapping("UV2Composite_AlphaTextureUseUV1"),
+        SlotMapping("UseDiffuseAlphaChannel"),
+        SlotMapping("UseUV2Diffuse"),
+        SlotMapping("UseUV2Normals"),
+        SlotMapping("UseUV2SRM"),
+    ]
+)
+
+detail_mappings = MappingCollection(
+    textures=[
+        SlotMapping("TechArtMask"),
+        SlotMapping("Detail Diffuse"),
+        SlotMapping("Detail Normal"),
+        SlotMapping("Detail SRM"),
+    ],
+    scalars=[
+        SlotMapping("Detail Texture - Tiling"),
+        SlotMapping("Detail Texture - UV Rotation"),
+        SlotMapping("Detail Diffuse - Strength"),
+        SlotMapping("Detail Normal - Flatten Normal"),
+        SlotMapping("Detail Specular - Strength"),
+        SlotMapping("Detail Roughness - Strength"),
+        SlotMapping("Detail Metallic - Strength"),
+    ],
+    vectors=[
+        SlotMapping("Detail Texture - Channel Mask"),
+    ],
+    switches=[
+        SlotMapping("Detail Texture - Use UV2"),
+        SlotMapping("Use Detail Diffuse?"),
+        SlotMapping("Use Detail Normal?"),
+        SlotMapping("Use Detail SRM?"),
     ]
 )

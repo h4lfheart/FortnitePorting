@@ -30,4 +30,13 @@ public partial class OnlineSettingsViewModel : ViewModelBase
 
    [ObservableProperty] private UserSessionInfo? _sessionInfo;
 
+   [ObservableProperty] private bool _useDiscordRichPresence = true;
+
+   partial void OnUseDiscordRichPresenceChanged(bool value)
+   {
+      if (value)
+         Discord.Initialize();
+      else
+         Discord.Deinitialize();
+   }
 }

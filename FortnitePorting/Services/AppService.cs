@@ -75,12 +75,21 @@ public class AppService : IService
                 TaskService.Run(async () => await SupaBase.ExchangeCode(code));
                 break;
             }
+            case var _ when path.StartsWith("route"):
+            {
+                var routePath = path.Replace("route/", string.Empty);
+                Navigation.OpenRoute(routePath);
+                break;
+            }
         }
     }
 
     private void OnAppStart(object? sender, ControlledApplicationLifetimeStartupEventArgs e)
     {
         TimeWasterViewModel.LoadResources();
+
+        if (AppSettings.Online.UseDiscordRichPresence)
+            Discord.Initialize();
 
         TaskService.Run(AppWM.Initialize);
         

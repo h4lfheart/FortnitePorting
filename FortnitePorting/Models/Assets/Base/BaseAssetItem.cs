@@ -35,20 +35,24 @@ public abstract partial class BaseAssetItem : ObservableObject
     {
         if (useRegex)
         {
-            return CreationData switch
+            return this switch
             {
-                AssetItemCreationArgs assetArgs => Regex.IsMatch(assetArgs.DisplayName, filter)
-                                                   ||  Regex.IsMatch(assetArgs.Object.Name, filter),
-                CustomAssetItemCreationArgs creationArgs =>  Regex.IsMatch(creationArgs.DisplayName, filter),
+                AssetItem assetItem => Regex.IsMatch(assetItem.CreationData.DisplayName, filter)
+                                                    || Regex.IsMatch(assetItem.CreationData.Object.Name, filter)
+                                                    || (assetItem.SetName is not null && Regex.IsMatch(assetItem.SetName, filter))
+                                                    || (assetItem.Series is not null && Regex.IsMatch(assetItem.Series.DisplayName.Text, filter)),
+                CustomAssetItem customAssetItem =>  Regex.IsMatch(customAssetItem.CreationData.DisplayName, filter),
                 _ => true
             };
         }
         
-        return CreationData switch
+        return this switch
         {
-            AssetItemCreationArgs assetArgs => MiscExtensions.Filter(assetArgs.DisplayName, filter)
-                                               || MiscExtensions.Filter(assetArgs.Object.Name, filter),
-            CustomAssetItemCreationArgs creationArgs => MiscExtensions.Filter(creationArgs.DisplayName, filter),
+            AssetItem assetItem => MiscExtensions.Filter(assetItem.CreationData.DisplayName, filter)
+                                   || MiscExtensions.Filter(assetItem.CreationData.Object.Name, filter)
+                                   || (assetItem.SetName is not null && MiscExtensions.Filter(assetItem.SetName, filter))
+                                   || (assetItem.Series is not null && MiscExtensions.Filter(assetItem.Series.DisplayName.Text, filter)),
+            CustomAssetItem customAssetItem => MiscExtensions.Filter(customAssetItem.CreationData.DisplayName, filter),
             _ => true
         };
     }
@@ -65,6 +69,12 @@ public abstract partial class BaseAssetItem : ObservableObject
         }
 
         return bitmap;
+    }
+    
+    [RelayCommand]
+    public virtual async Task NavigateTo()
+    {
+        Info.Message("Unsupported Asset", "Cannot navigate to this type of asset.");
     }
     
     [RelayCommand]

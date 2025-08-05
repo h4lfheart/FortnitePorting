@@ -289,6 +289,22 @@ class ImportContext:
             for slot in slots:
                 self.import_material(slot, variant_override_material.get("Material"), meta)
                 
+        for texture_data in mesh.get("TextureData"):
+            if not (td_override_material := texture_data.get("OverrideMaterial")):
+                continue
+                
+            Log.info(f"TextureData Override {td_override_material.get('Path')}")
+
+            index = td_override_material.get("Slot")
+            if index >= len(imported_mesh.material_slots):
+                continue
+
+            overridden_material = imported_mesh.material_slots[index]
+            slots = where(imported_mesh.material_slots,
+                          lambda slot: slot.name == overridden_material.name)
+            for slot in slots:
+                self.import_material(slot, td_override_material, meta)
+                
         self.import_light_data(mesh.get("Lights"), imported_object)
 
         for child in mesh.get("Children"):
@@ -627,7 +643,10 @@ class ImportContext:
                     return
 
                 value = mappings.value_func(value) if mappings.value_func else value
-                target_node.inputs[mappings.slot].default_value = (value["R"], value["G"], value["B"], 1.0)
+                if isinstance(target_node.inputs[mappings.slot], bpy.types.NodeSocketColor):
+                    target_node.inputs[mappings.slot].default_value = (value["R"], value["G"], value["B"], 1.0)
+                else:
+                    target_node.inputs[mappings.slot].default_value = (value["R"], value["G"], value["B"])
                 if mappings.alpha_slot:
                     target_node.inputs[mappings.alpha_slot].default_value = value["A"]
                 if mappings.switch_slot:
@@ -706,6 +725,17 @@ class ImportContext:
 
             for switch in switches:
                 switch_param(switch, mappings, target_node, add_unused_params)
+
+        def move_texture_node(target_node, slot_name):
+            if texture_node := get_node(shader_node, slot_name):
+                x, y = get_socket_pos(target_node, target_node.inputs.find(slot_name))
+                texture_node.location = x - 300, y
+                links.new(texture_node.outputs[0], target_node.inputs[slot_name])
+                links.new(target_node.outputs[slot_name], shader_node.inputs[slot_name])
+
+        def connect_texture_uvs(target_node, slot_name, uv_output):
+            if texture_node := get_node(target_node, slot_name):
+                links.new(uv_output, texture_node.inputs[0])
 
         # decide which material type and mappings to use
         socket_mappings = default_mappings
@@ -983,10 +1013,7 @@ class ImportContext:
                             pre_superhero_node = nodes.new(type="ShaderNodeGroup")
                             pre_superhero_node.node_tree = bpy.data.node_groups.get("FPv3 Pre Superhero")
                             pre_superhero_node.location = -1150, -560
-                            pre_superhero_node.inputs["StickerPosition"].default_value = get_vector_param(vectors, "StickerPosition")
-                            pre_superhero_node.inputs["StickerScale"].default_value = get_vector_param(vectors, "StickerScale")
-                            pre_superhero_node.inputs["BackStickerPosition"].default_value = get_vector_param(vectors, "BackStickerPosition")
-                            pre_superhero_node.inputs["BackStickerScale"].default_value = get_vector_param(vectors, "BackStickerScale")
+                            setup_params(superhero_mappings, pre_superhero_node, False)
 
                             links.new(pre_superhero_node.outputs["StickerUV"], sticker_node.inputs[0])
                             links.new(pre_superhero_node.outputs["StickerMask"], superhero_node.inputs["StickerMask"])
@@ -1003,6 +1030,57 @@ class ImportContext:
                     links.new(superhero_node.outputs["Normals"], shader_node.inputs["Normals"])
                     links.new(superhero_node.outputs["SpecularMasks"], shader_node.inputs["SpecularMasks"])
                     links.new(superhero_node.outputs["ClothFuzzChannel"], shader_node.inputs["Cloth Channel"])
+
+                    shader_node.inputs["Background Diffuse Alpha"].default_value = 0.0
+                    links.new(superhero_node.outputs["Diffuse"], shader_node.inputs["Background Diffuse"])
+                    links.new(superhero_node.outputs["Normals"], shader_node.inputs["Normals"])
+                    links.new(superhero_node.outputs["SpecularMasks"], shader_node.inputs["SpecularMasks"])
+                    links.new(superhero_node.outputs["ClothFuzzChannel"], shader_node.inputs["Cloth Channel"])
+
+                if get_param(switches, "UseUV2Composite"):
+                    composite_node = nodes.new(type="ShaderNodeGroup")
+                    composite_node.node_tree = bpy.data.node_groups.get("FPv3 Composite")
+                    composite_node.location = -600, 0
+                    setup_params(composite_mappings, composite_node, False)
+
+                    pre_composite_node = nodes.new(type="ShaderNodeGroup")
+                    pre_composite_node.node_tree = bpy.data.node_groups.get("FPv3 Pre Composite")
+                    pre_composite_node.location = -1150, -225
+                    setup_params(composite_mappings, pre_composite_node, False)
+
+                    connect_texture_uvs(composite_node, "UV2Composite_AlphaTexture", pre_composite_node.outputs[0])
+                    connect_texture_uvs(composite_node, "UV2Composite_Diffuse", pre_composite_node.outputs[1])
+                    connect_texture_uvs(composite_node, "UV2Composite_Normals", pre_composite_node.outputs[1])
+                    connect_texture_uvs(composite_node, "UV2Composite_SRM", pre_composite_node.outputs[1])
+
+                    move_texture_node(composite_node, "Diffuse")
+                    move_texture_node(composite_node, "Normals")
+                    move_texture_node(composite_node, "SpecularMasks")
+
+                    if diffuse_node := get_node(composite_node, "Diffuse"):
+                        nodes.active = diffuse_node
+
+                if "M_Detail_Texturing_Parent_2025" in base_material_path:
+                    detail_node = nodes.new(type="ShaderNodeGroup")
+                    detail_node.node_tree = bpy.data.node_groups.get("FPv3 Detail")
+                    detail_node.location = -600, 0
+                    setup_params(detail_mappings, detail_node, False)
+
+                    pre_detail_node = nodes.new(type="ShaderNodeGroup")
+                    pre_detail_node.node_tree = bpy.data.node_groups.get("FPv3 Pre Detail")
+                    pre_detail_node.location = -1150, -350
+                    setup_params(detail_mappings, pre_detail_node, False)
+
+                    connect_texture_uvs(detail_node, "Detail Diffuse", pre_detail_node.outputs[0])
+                    connect_texture_uvs(detail_node, "Detail Normal", pre_detail_node.outputs[0])
+                    connect_texture_uvs(detail_node, "Detail SRM", pre_detail_node.outputs[0])
+
+                    move_texture_node(detail_node, "Diffuse")
+                    move_texture_node(detail_node, "Normals")
+                    move_texture_node(detail_node, "SpecularMasks")
+
+                    if diffuse_node := get_node(detail_node, "Diffuse"):
+                        nodes.active = diffuse_node
                     
 
             case "FPv3 Glass":
@@ -1170,9 +1248,7 @@ class ImportContext:
                     
                     def import_curve_mapping(curve_mapping):
                         for curve_mapping in curve_mapping:
-                            curve_name = curve_mapping.get("Name").lower().replace("ctrl_expressions_", "")
-                            
-                            if target_block := first(key_blocks, lambda block: block.name.lower() == curve_name):
+                            if target_block := best(key_blocks, lambda block: block.name.lower(), curve_mapping.get("Name").lower()):
                                 for frame in range(section_length_frames):
                                     value_stack = []
 
@@ -1210,8 +1286,7 @@ class ImportContext:
 
                                             case EOpElementType.NAME:
                                                 sub_curve_name = str(element_value)
-                                                target_curve = first(anim_data.curves, lambda curve: curve.name.lower().replace("ctrl_expressions_", "") == sub_curve_name.lower())
-                                                if target_curve:
+                                                if target_curve := best(anim_data.curves, lambda curve: curve.name.lower(), sub_curve_name.lower()):
                                                     target_value = interpolate_keyframes(target_curve.keys, frame, fps=anim_data.metadata.frames_per_second)
                                                     value_stack.append(target_value)
                                                 else:
@@ -1292,9 +1367,7 @@ class ImportContext:
                     
                     if (is_skeleton_legacy and is_anim_legacy) or (is_anim_metahuman and is_anim_metahuman):
                         for curve in anim_data.curves:
-                            curve_name = curve.name.lower().replace("ctrl_expressions_", "")
-
-                            if target_block := first(key_blocks, lambda block: block.name.lower() == curve_name):
+                            if target_block := best(key_blocks, lambda block: block.name.lower(), curve.name.lower()):
                                 for key in curve.keys:
                                     target_block.value = key.value
                                     target_block.keyframe_insert(data_path="value", frame=key.frame)

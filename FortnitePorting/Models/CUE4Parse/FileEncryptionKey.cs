@@ -10,8 +10,6 @@ public partial class FileEncryptionKey : ObservableValidator
 {
     public static FileEncryptionKey Empty => new(Globals.ZERO_CHAR);
     
-    [NotifyDataErrorInfo]
-    [EncryptionKey]
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(EncryptionKey))]
     [NotifyPropertyChangedFor(nameof(IsEmpty))]

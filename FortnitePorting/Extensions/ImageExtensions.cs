@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Avalonia;
@@ -44,7 +45,7 @@ public static class ImageExtensions
 
     }
     
-    public static Dictionary<string, Bitmap> CachedBitmaps = [];
+    public static ConcurrentDictionary<string, Bitmap> CachedBitmaps = [];
 
     public static Bitmap AvaresBitmap(string path)
     {

@@ -1,9 +1,12 @@
+using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using FortnitePorting.Extensions;
+using FortnitePorting.Models.Clipboard;
 using FortnitePorting.Shared.Extensions;
 
 namespace FortnitePorting.Models.Assets;
@@ -13,6 +16,13 @@ public abstract partial class BaseStyleData : ObservableObject
     [ObservableProperty] private string _styleName;
     [ObservableProperty] private Bitmap _styleDisplayImage;
     [ObservableProperty] private bool _showName = true;
+    
+    [RelayCommand]
+    public virtual async Task CopyIcon()
+    {
+        await AvaloniaClipboard.SetImageAsync(StyleDisplayImage);
+    }
+    
 }
 
 public partial class AssetStyleData : BaseStyleData

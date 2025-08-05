@@ -14,6 +14,7 @@ using NAudio.Wave;
 
 namespace FortnitePorting.WindowModels;
 
+[Transient]
 public partial class SoundPreviewWindowModel(SettingsService settings) : WindowModelBase
 {
     [ObservableProperty] private SettingsService _settings = settings;

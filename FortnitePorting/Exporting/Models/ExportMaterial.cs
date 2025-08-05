@@ -60,5 +60,6 @@ public record ExportTextureData
     public TextureParameter? Diffuse;
     public TextureParameter? Normal;
     public TextureParameter? Specular;
+    public ExportMaterial? OverrideMaterial;
 }
 

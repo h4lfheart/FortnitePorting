@@ -26,6 +26,40 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
     public AssetsView()
     {
         InitializeComponent();
+        
+        Navigation.Assets.AddBehaviorResolver<EExportType>(ChangeTab);
+        Navigation.Assets.AddBehaviorResolver<string>(type =>
+        {
+            if (!Enum.TryParse(type, true, out EExportType enumType)) return;
+            
+            ChangeTab(enumType);
+        });
+    }
+
+    private void ChangeTab(EExportType assetType)
+    {
+        if (ViewModel.AssetLoader.ActiveLoader.Type == assetType) return;
+        
+        AssetsListBox.SelectedItems?.Clear();
+        
+        Discord.Update(assetType);
+        var loaders = ViewModel.AssetLoader.Categories.SelectMany(category => category.Loaders);
+        foreach (var loader in loaders)
+        {
+            if (loader.Type == assetType)
+            {
+                loader.Unpause();
+            }
+            else
+            {
+                loader.Pause();
+            }
+        }
+        
+        TaskService.Run(async () =>
+        {
+            await ViewModel.AssetLoader.Load(assetType);
+        });
     }
 
     private void OnRandomButtonPressed(object? sender, RoutedEventArgs routedEventArgs)
@@ -86,28 +120,8 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
     {
         if (e.InvokedItemContainer is not NavigationViewItem navItem) return;
         if (navItem.Tag is not EExportType assetType) return;
-        if (ViewModel.AssetLoader.ActiveLoader.Type == assetType) return;
         
-        AssetsListBox.SelectedItems.Clear();
-        
-        //DiscordService.Update(Type);
-        var loaders = ViewModel.AssetLoader.Categories.SelectMany(category => category.Loaders);
-        foreach (var loader in loaders)
-        {
-            if (loader.Type == assetType)
-            {
-                loader.Unpause();
-            }
-            else
-            {
-                loader.Pause();
-            }
-        }
-        
-        TaskService.Run(async () =>
-        {
-            await ViewModel.AssetLoader.Load(assetType);
-        });
+        ChangeTab(assetType);
     }
 
 }

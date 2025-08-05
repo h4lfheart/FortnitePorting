@@ -2,9 +2,9 @@ using Avalonia;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace FortnitePorting.Models.Material;
+namespace FortnitePorting.Models.Nodes;
 
-public partial class MaterialNodeSocket(string name) : ObservableObject
+public partial class NodeSocket(string name) : ObservableObject
 {
     [ObservableProperty] private string _name = name;
     [ObservableProperty] private Point _anchor;
@@ -12,5 +12,5 @@ public partial class MaterialNodeSocket(string name) : ObservableObject
 
     public SolidColorBrush SocketBrush => new(SocketColor);
 
-    public MaterialNode Parent;
+    public BaseNode Parent;
 }

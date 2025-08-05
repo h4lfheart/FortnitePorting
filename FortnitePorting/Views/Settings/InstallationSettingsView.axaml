@@ -15,13 +15,13 @@
              x:DataType="settings:InstallationSettingsViewModel">
     
     <ScrollViewer>
-        <StackPanel VerticalAlignment="Top" Margin="{ext:Space 1, 1, 2, 1}">
+        <StackPanel VerticalAlignment="Top" Margin="{ext:Space 1}">
             <StackPanel.Styles>
                 <Style Selector="ui|SettingsExpander">
-                    <Setter Property="Margin" Value="0 0 0 4"/>
+                    <Setter Property="Margin" Value="{ext:Space 0, 0, 0, 1}"/>
                 </Style>
                 <Style Selector="TextBlock.SubtitleTextBlockStyle">
-                    <Setter Property="Margin" Value="0 0 0 8"/>
+                    <Setter Property="Margin" Value="{ext:Space 0, 0, 0, 1}"/>
                 </Style>
             </StackPanel.Styles>
             
@@ -197,7 +197,7 @@
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
             
-            <ui:SettingsExpander Header="Load Creative Maps" Description="Whether or not to load saved UEFN maps from Fortnite's AppData."
+            <ui:SettingsExpander Header="Load UEFN Maps" Description="Whether or not to load saved UEFN maps from Fortnite's AppData."
                                  IsVisible="{Binding SupaBase.Permissions.CanExportUEFN}"
                                  IsEnabled="{Binding CurrentProfile.LoadCreativeMapsEnabled}">
                 <ui:SettingsExpander.Footer>

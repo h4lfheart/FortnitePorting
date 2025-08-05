@@ -1,45 +1,63 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
-        xmlns:progressRing="using:FluentAvalonia.UI.Controls"
+        xmlns:ui="using:FluentAvalonia.UI.Controls"
         xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
         xmlns:windowModels="clr-namespace:FortnitePorting.WindowModels"
+        xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         x:Class="FortnitePorting.Windows.ModelPreviewWindow"
         x:DataType="windowModels:ModelPreviewWindowModel"
-        Width="960" Height="540" RequestedThemeVariant="Dark" FontFamily="Segoe UI" Background="{x:Null}"
-        TransparencyLevelHint="{Binding Settings.Theme.TransparencyHints}" ExtendClientAreaToDecorationsHint="True" WindowStartupLocation="CenterOwner"
-        Icon="/Assets/LogoV3.ico"
+        Width="960" Height="540" RequestedThemeVariant="Dark" FontFamily="Segoe UI"
+        TransparencyLevelHint="{Binding Settings.Theme.TransparencyHints}" Background="#DB1C1C26"
+        ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="NoChrome"
+        WindowStartupLocation="CenterScreen" ClosingBehavior="OwnerAndChildWindows" ExtendClientAreaTitleBarHeightHint="35"
+        Icon="/Assets/LogoRebrand.ico"
         Title="Model Viewer">
     <Grid Margin="{Binding $parent[Window].OffScreenMargin}">
         <Grid.RowDefinitions>
-            <RowDefinition Height="30"/>
+            <RowDefinition Height="35"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         
-        <ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="4" IsHitTestVisible="False" IsVisible="{Binding !Settings.Theme.UseMica}">
-            <ExperimentalAcrylicBorder.Material>
-                <ExperimentalAcrylicMaterial BackgroundSource="Digger" MaterialOpacity="1.5" TintColor="{Binding Settings.Theme.BackgroundColor}" TintOpacity="1"/>
-            </ExperimentalAcrylicBorder.Material>
-        </ExperimentalAcrylicBorder>
-        
-        <Grid Grid.Row="0" Background="Transparent" HorizontalAlignment="Stretch" IsHitTestVisible="False">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="{ext:Space 1}" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="{ext:Space 0.25}" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
+       <Grid Grid.Row="0" Background="#2F000000" HorizontalAlignment="Stretch" PointerPressed="OnPointerPressedUpperBar">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="{ext:Space 0.75}" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="{ext:Space 0.5}" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+            
+                <ui:ImageIcon Grid.Column="0" Source="/Assets/LogoRebrand.png" 
+                              HorizontalAlignment="Right"
+                              Width="20" Height="20" 
+                              RenderOptions.BitmapInterpolationMode="HighQuality" RenderOptions.EdgeMode="Antialias"/>
 
-            <TextBlock Grid.Column="1" Text="Model Viewer" FontWeight="SemiBold" FontSize="16"
-                       HorizontalAlignment="Left" VerticalAlignment="Center" />
-            <TextBlock Grid.Column="3" Text="{Binding MeshName}" Classes="TextFillColorTertiaryBrush" FontSize="13" Margin="-2 2 0 0"
-                       HorizontalAlignment="Left" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="2" Text="Model Viewer" FontWeight="SemiBold" FontSize="16"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Grid>
+            
+            <Grid HorizontalAlignment="Right">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="{ext:Space 0.5}" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="{ext:Space 0.5}" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="1" />
+                </Grid.ColumnDefinitions>
+            
+                <Border Grid.Column="0" PointerPressed="OnMinimizePressed" Cursor="Hand" CornerRadius="0" Classes="MinimizeMaximize" Child="{avalonia:MaterialIconExt Minus}" Width="35" Height="35"/>
+                <Border Grid.Column="2" PointerPressed="OnMaximizePressed" Cursor="Hand" CornerRadius="0" Classes="MinimizeMaximize" Child="{avalonia:MaterialIconExt Maximize}" Width="35" Height="35"/>
+                <Border Grid.Column="4" PointerPressed="OnClosePressed" Cursor="Hand" CornerRadius="0" Classes="Close" Child="{avalonia:MaterialIconExt Close}" Width="35" Height="35"/>
+            </Grid>
         </Grid>
         
-        <Grid Grid.Row="1" Margin="{ext:Space 1, 0, 1, 1}" ClipToBounds="True">
-            <ContentControl Content="{Binding ViewerControl}" CornerRadius="4" IsVisible="{Binding !IsLoading}"/>
+        <Grid Grid.Row="1" Margin="{ext:Space 1}" ClipToBounds="True">
+            <ContentControl Content="{Binding Control}" CornerRadius="4" IsVisible="{Binding !IsLoading}"/>
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding IsLoading}">
-                <progressRing:ProgressRing IsIndeterminate="True" Background="Transparent" Width="50" Height="50" BorderThickness="5"/>
+                <ui:ProgressRing IsIndeterminate="True" Background="Transparent" Width="50" Height="50" BorderThickness="5"/>
                 <TextBlock Text="Loading Assets"
                            Classes="BodyStrongTextBlockStyle" HorizontalAlignment="Center"
                            Margin="{ext:Space 0, 2, 0, 0}"/>

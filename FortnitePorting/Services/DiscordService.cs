@@ -14,10 +14,10 @@ using Serilog;
 
 namespace FortnitePorting.Services;
 
-public static class DiscordService
+public class DiscordService : IService
 {
-    public static bool IsInitialized;
-    public static DiscordRpcClient? Client;
+    public bool IsInitialized;
+    public DiscordRpcClient? Client;
 
     private static readonly RichPresence DefaultPresence = new()
     {
@@ -34,15 +34,15 @@ public static class DiscordService
         [
             new Button
             {
-                Label = "Join FortnitePorting",
+                Label = "Join Server",
                 Url = Globals.DISCORD_URL
             }
         ]
     };
     
-    private const string ID = "1233219769478680586";
+    private const string ID = "1384676834230407248";
     
-    public static void Initialize()
+    public void Initialize()
     {
         if (IsInitialized) return;
 
@@ -58,7 +58,7 @@ public static class DiscordService
         Client.SetPresence(DefaultPresence);
     }
 
-    public static void Deinitialize()
+    public void Deinitialize()
     {
         if (!IsInitialized) return;
 
@@ -70,7 +70,7 @@ public static class DiscordService
         IsInitialized = false;
     }
 
-    public static void Update(EExportType exportType)
+    public void Update(EExportType exportType)
     {
         if (!IsInitialized) return;
         if (Client is null) return;
@@ -80,7 +80,7 @@ public static class DiscordService
         Client.UpdateSmallAsset(exportType.ToString().ToLower(), name);
     }
     
-    public static void Update(string message, string iconKey, string? iconTooltip = null)
+    public void Update(string message, string iconKey = "", string? iconTooltip = null)
     {
         if (!IsInitialized) return;
         if (Client is null) return;

@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 using CUE4Parse_Conversion.Meshes;
 using CUE4Parse_Conversion.Meshes.PSK;
 using CUE4Parse.FileProvider;
@@ -16,13 +18,13 @@ using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Objects.GameplayTags;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
+using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Shared.Extensions;
 
 namespace FortnitePorting.Extensions;
 
 public static class CUE4ParseExtensions
 {
-    
     public static bool TryLoadEditorData<T>(this UObject asset, out T? editorData) where T : UObject
     {
         try
@@ -330,5 +332,17 @@ public static class CUE4ParseExtensions
     public static USceneComponent? GetAttachParent(this USceneComponent component)
     {
         return component.GetOrDefault("AttachParent", new FPackageIndex()).Load<USceneComponent>();
+    }
+
+    public static Bitmap? GetEditorIconBitmap(this UObject obj)
+    {
+        var typeName = obj switch
+        {
+            UBuildingTextureData => "DataAsset",
+            _ => obj.GetType().Name[1..]
+        };
+        
+        var filePath = $"avares://FortnitePorting/Assets/Unreal/{typeName}_64x.png";
+        return !AssetLoader.Exists(new Uri(filePath)) ? null : ImageExtensions.AvaresBitmap(filePath);
     }
 }

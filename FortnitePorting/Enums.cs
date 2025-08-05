@@ -24,13 +24,13 @@ public enum EExportLocation
     [Description("Blender")]
     Blender,
     
-    [Description("Unreal")]
+    [Description("Unreal Engine")]
     Unreal,
     
-    [Description("Assets")]
+    [Description("Assets Folder")]
     AssetsFolder,
     
-    [Description("Custom")]
+    [Description("Custom Folder")]
     CustomFolder,
     
     [Description("Unity (Not Implemented)")]

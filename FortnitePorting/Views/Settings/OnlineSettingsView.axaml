@@ -14,13 +14,13 @@
              x:DataType="settings:OnlineSettingsViewModel">
     
     <ScrollViewer>
-        <StackPanel VerticalAlignment="Top" Margin="{ext:Space 1, 1, 2, 1}">
+        <StackPanel VerticalAlignment="Top" Margin="{ext:Space 1}">
             <StackPanel.Styles>
                 <Style Selector="ui|SettingsExpander">
-                    <Setter Property="Margin" Value="0 0 0 4"/>
+                    <Setter Property="Margin" Value="{ext:Space 0, 0, 0, 1}"/>
                 </Style>
                 <Style Selector="TextBlock.SubtitleTextBlockStyle">
-                    <Setter Property="Margin" Value="0 0 0 8"/>
+                    <Setter Property="Margin" Value="{ext:Space 0, 0, 0, 1}"/>
                 </Style>
             </StackPanel.Styles>
             
@@ -32,6 +32,12 @@
                         <Button Content="Sign Out" IsVisible="{Binding SupaBase.IsLoggedIn}"
                                 Command="{Binding SupaBase.SignOut}"/>
                     </Grid>
+                </ui:SettingsExpander.Footer>
+            </ui:SettingsExpander>
+            
+            <ui:SettingsExpander Header="Discord Rich Presence" Description="Displays active Fortnite Porting information in your discord profile.">
+                <ui:SettingsExpander.Footer>
+                    <ToggleSwitch IsChecked="{Binding UseDiscordRichPresence}"/>
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
             

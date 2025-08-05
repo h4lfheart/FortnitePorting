@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Reflection;
 using FortnitePorting.Framework;
@@ -31,6 +32,7 @@ public static class AppServices
     public static CUE4ParseService UEParse => Services.GetRequiredService<CUE4ParseService>();
     public static SupabaseService SupaBase => Services.GetRequiredService<SupabaseService>();
     public static ChatService Chat => Services.GetRequiredService<ChatService>();
+    public static DiscordService Discord => Services.GetRequiredService<DiscordService>();
     public static BlackHoleService BlackHole => Services.GetRequiredService<BlackHoleService>();
     
     // ViewModels
@@ -73,7 +75,16 @@ public static class AppServiceExtensions
 
         foreach (var viewModelType in viewModelTypes)
         {
-            collection.AddSingleton(viewModelType);
+            if (viewModelType.GetCustomAttribute<TransientAttribute>() is not null)
+            {
+                collection.AddTransient(viewModelType);
+            }
+            else
+            {
+                collection.AddSingleton(viewModelType);
+            }
         }
     }
 }
+
+public class TransientAttribute : Attribute;

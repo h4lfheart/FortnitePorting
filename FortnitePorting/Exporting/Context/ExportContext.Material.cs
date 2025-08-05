@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using ConcurrentCollections;
 using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.Material.Editor;
 using CUE4Parse.UE4.Assets.Exports.Texture;
@@ -16,6 +18,8 @@ namespace FortnitePorting.Exporting.Context;
 
 public partial class ExportContext
 {
+    private ConcurrentHashSet<ExportMaterial> MaterialCache = [];
+    
     public ExportMaterial? Material(UMaterialInterface material, int index)
     {
         if (!Meta.Settings.ExportMaterials) return null;

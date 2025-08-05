@@ -1,17 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Avalonia.Collections;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CUE4Parse.UE4.Assets;
 using CUE4Parse.UE4.Assets.Exports;
-using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Sound;
@@ -20,6 +22,7 @@ using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.IO;
 using CUE4Parse.UE4.IO.Objects;
 using CUE4Parse.UE4.Objects.Engine;
+using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using DynamicData;
 using DynamicData.Binding;
@@ -28,16 +31,12 @@ using FortnitePorting.Application;
 using FortnitePorting.Exporting;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
-using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.Files;
-using FortnitePorting.Models.Fortnite;
-using FortnitePorting.Models.Leaderboard;
 using FortnitePorting.Models.Unreal;
 using FortnitePorting.Models.Unreal.Material;
-
 using FortnitePorting.Services;
-using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
+using FortnitePorting.Views;
 using FortnitePorting.Windows;
 using Newtonsoft.Json;
 using ReactiveUI;
@@ -45,122 +44,40 @@ using Serilog;
 
 namespace FortnitePorting.ViewModels;
 
-public partial class FilesViewModel() : ViewModelBase
+public partial class FilesViewModel : ViewModelBase
 {
-    [ObservableProperty] private CUE4ParseService _CUE4Parse;
-    
-    public FilesViewModel(CUE4ParseService cue4Parse) : this()
-    {
-        CUE4Parse = cue4Parse;
-    }
-    
     [ObservableProperty] private EExportLocation _exportLocation = EExportLocation.Blender;
+    [ObservableProperty] private string _actualSearchText = string.Empty;
 
-    [ObservableProperty] private string _actualSearchText;
+    [ObservableProperty]private string _searchFilter = string.Empty;
 
-    // fixes freezes when using ObservableProperty
-    private string _searchFilter = string.Empty;
-    
-    public string SearchFilter
-    {
-        get => _searchFilter;
-        set
-        {
-            _searchFilter = value;
-            OnPropertyChanged();
-        }
-    }
+    [ObservableProperty] private bool _useFlatView = false;
     [ObservableProperty] private bool _useRegex = false;
     [ObservableProperty] private bool _showLoadingSplash = true;
-
-    [ObservableProperty] private ObservableCollection<FileGameFilter> _gameNames = 
-    [
-        new("FortniteGame"),
-        new("Engine"),
-    ];
-
-    [ObservableProperty] private ObservableCollection<string> _selectedGameNames = [];
-
+    
     [ObservableProperty] private List<FlatItem> _selectedFlatViewItems = [];
     [ObservableProperty] private ReadOnlyObservableCollection<FlatItem> _flatViewCollection = new([]);
-
-    [ObservableProperty] private TreeItem _selectedTreeItem;
+    
+    [ObservableProperty] private List<TreeItem> _selectedFileViewItems = [];
+    [ObservableProperty] private ObservableCollection<TreeItem> _fileViewCollection = [];
+    [ObservableProperty] private ObservableCollection<TreeItem> _fileViewStack = [];
     [ObservableProperty] private ObservableCollection<TreeItem> _treeViewCollection = new([]);
+
+    private readonly TreeItem _parentTreeItem = new("Files", ENodeType.Folder)
+    {
+        Expanded = true
+    };
     
-    public readonly SourceCache<FlatItem, string> FlatViewAssetCache = new(item => item.Path);
-    
-    private Dictionary<string, TreeItem> _treeViewBuildHierarchy = [];
+    private TreeItem _currentFolder;
+
+    private readonly SourceCache<FlatItem, string> FlatViewAssetCache = new(item => item.Path);
     
     public override async Task Initialize()
     {
-        if (SupaBase.Permissions.CanExportUEFN)
-        {
-            foreach (var mountedVfs in CUE4Parse.Provider.MountedVfs)
-            {
-                if (mountedVfs is not IoStoreReader { Name: "plugin.utoc" } ioStoreReader) continue;
-
-                var gameFeatureDataFile = ioStoreReader.Files.FirstOrDefault(file => file.Key.EndsWith("GameFeatureData.uasset", StringComparison.OrdinalIgnoreCase));
-                if (gameFeatureDataFile.Value is null) continue;
-
-                var gameFeatureData = await CUE4Parse.Provider.SafeLoadPackageObjectAsync<UFortGameFeatureData>(gameFeatureDataFile.Value.PathWithoutExtension);
-
-                if (gameFeatureData?.ExperienceData?.DefaultMap is not { } defaultMapPath) continue;
-
-                var defaultMap = await defaultMapPath.LoadAsync();
-                GameNames.Add(new FileGameFilter(defaultMap.Name, defaultMapPath.AssetPathName.Text[1..].SubstringBefore("/")));
-            }
-        }
-
-        foreach (var gameName in GameNames)
-        {
-            SelectedGameNames.AddUnique(gameName.SearchName);
-        }
-        
-        foreach (var (_, file) in CUE4Parse.Provider.Files)
-        {
-            var path = file.Path;
-            if (!IsValidFilePath(path)) continue;
-            
-            FlatViewAssetCache.AddOrUpdate(new FlatItem(path));
-
-            var folderNames = path.Split("/", StringSplitOptions.RemoveEmptyEntries);
-            var children = _treeViewBuildHierarchy;
-            for (var i = 0; i < folderNames.Length; i++)
-            {
-                var folderName = folderNames[i];
-                if (!children.TryGetValue(folderName, out var foundNode))
-                {
-                    var isFile = i == folderNames.Length - 1;
-                    foundNode = new TreeItem(folderName, isFile ? ENodeType.File : ENodeType.Folder,
-                        isFile ? path : string.Empty);
-                    children.Add(folderName, foundNode);
-                }
-
-                children = foundNode.Children;
-            }
-        }
-
-        void SortChildren(ref Dictionary<string, TreeItem> items)
-        {
-            items = items
-                .OrderBy(item => item.Value.Name)
-                .OrderByDescending(item => item.Value.Type == ENodeType.Folder)
-                .ToDictionary();
-
-            foreach (var child in items)
-            {
-                var tempReference = child.Value.Children;
-                SortChildren(ref tempReference);
-                child.Value.Children = tempReference;
-            }
-        }
-        
-        SortChildren(ref _treeViewBuildHierarchy);
+        BuildTreeStructure();
         
         var assetFilter = this
-            .WhenAnyValue(viewModel => viewModel.SearchFilter, 
-                viewmodel => viewmodel.UseRegex,
-                viewmodel => viewmodel.SelectedGameNames)
+            .WhenAnyValue(viewModel => viewModel.SearchFilter, viewmodel => viewmodel.UseRegex)
             .Select(CreateAssetFilter);
         
         FlatViewAssetCache.Connect()
@@ -171,24 +88,118 @@ public partial class FilesViewModel() : ViewModelBase
             .Subscribe();
 
         FlatViewCollection = flatCollection;
+        TreeViewCollection = [_parentTreeItem];
+        LoadFileItems(_parentTreeItem);
+            
+        ShowLoadingSplash = false;
+    }
 
-        await TaskService.RunAsync(() =>
+    private void BuildTreeStructure()
+    {
+        foreach (var (_, file) in UEParse.Provider.Files)
         {
-            while (FlatViewCollection.Count == 0) { }
-            TreeViewCollection = [.._treeViewBuildHierarchy.Values];
-            ShowLoadingSplash = false;
-        });
+            var path = file.Path;
+            if (!IsValidFilePath(path)) continue;
+                
+            FlatViewAssetCache.AddOrUpdate(new FlatItem(path));
+
+            var folderNames = path.Split("/", StringSplitOptions.RemoveEmptyEntries);
+            
+            var parent = _parentTreeItem;
+            for (var i = 0; i < folderNames.Length; i++)
+            {
+                var folderName = folderNames[i];
+                if (!parent.TryGetChild(folderName, out var foundNode))
+                {
+                    var isFile = i == folderNames.Length - 1;
+                    var nodePath = isFile ? path : path.SubstringBefore(folderName) + folderName;
+                        
+                    foundNode = new TreeItem(folderName, isFile ? ENodeType.File : ENodeType.Folder, nodePath, parent);
+                    parent.AddChild(folderName, foundNode);
+                }
+
+                parent = foundNode;
+            }
+        }
     }
 
     public override async Task OnViewOpened()
     {
-        DiscordService.Update("Browsing Files", "Files");
+        Discord.Update($"Browsing {UEParse.Provider.Files.Count} Files");
     }
 
     public void ClearSearchFilter()
     {
         ActualSearchText = string.Empty;
         SearchFilter = string.Empty;
+    }
+    
+    public void LoadFileItems(TreeItem item)
+    {
+        _currentFolder = item;
+
+        var allChildren = item.GetAllChildren();
+
+        TaskService.Run(() => LoadFileBitmaps(allChildren));
+        
+        FileViewCollection = new ObservableCollection<TreeItem>(allChildren);
+        
+        var newStack = new List<TreeItem>();
+        var parent = item;
+        while (parent != null)
+        {
+            newStack.Insert(0, parent);
+            parent = parent.Parent;
+        }
+        
+        FileViewStack = new ObservableCollection<TreeItem>(newStack);
+    }
+
+    private void LoadFileBitmaps(IEnumerable<TreeItem> fileItems)
+    {
+        Parallel.ForEach(fileItems, childItem => 
+            {
+                if (childItem.Type == ENodeType.Folder) return;
+                if (childItem.FileBitmap is not null) return;
+                    
+                if (UEParse.Provider.TryLoadPackage(childItem.FilePath, out var package))
+                {
+                    for (var i = 0; i < package.ExportMapLength; i++)
+                    {
+                        var pointer = new FPackageIndex(package, i + 1).ResolvedObject;
+                        if (pointer?.Object is null) continue;
+                        
+                        var obj = ((AbstractUePackage) package).ConstructObject(pointer.Class?.Object?.Value as UStruct, package);
+                        if (obj.GetEditorIconBitmap() is { } objectBitmap)
+                        {
+                            childItem.FileBitmap = objectBitmap;
+                            break;
+                        }
+
+                        if (Exporter.DetermineExportType(obj) is var exportType and not EExportType.None 
+                            && $"avares://FortnitePorting/Assets/FN/{exportType.ToString()}.png" is { } exportIconPath 
+                            && AssetLoader.Exists(new Uri(exportIconPath)))
+                        {
+                            childItem.FileBitmap = ImageExtensions.AvaresBitmap(exportIconPath);
+                            break;
+                        }
+                    }
+                }
+
+                childItem.FileBitmap ??= ImageExtensions.AvaresBitmap("avares://FortnitePorting/Assets/Unreal/DataAsset_64x.png");
+            }
+        );
+    }
+
+    public void FileViewJumpTo(string path)
+    { 
+        var treeItem = TreeViewJumpTo(path);
+        if (treeItem?.Parent is null) return;
+        
+        LoadFileItems(treeItem.Parent);
+        UseFlatView = false;
+
+        SelectedFileViewItems = [treeItem];
     }
 
     public void FlatViewJumpTo(string directory)
@@ -197,71 +208,118 @@ public partial class FilesViewModel() : ViewModelBase
         if (!foundItem.HasValue) return;
 
         SelectedFlatViewItems = [foundItem.Value];
+        UseFlatView = true;
     }
     
-    public void TreeViewJumpTo(string directory)
+    public TreeItem? TreeViewJumpTo(string directory)
     {
-        var i = 0;
-        var folders = directory.Split('/');
-        var children = _treeViewBuildHierarchy; // start at root
-        while (true)
+        var folders = directory.Split('/', StringSplitOptions.RemoveEmptyEntries);
+        
+        var current = _parentTreeItem;
+        foreach (var folder in folders)
         {
-            foreach (var (_, item) in children)
-            {
-                if (!item.Name.Equals(folders[i], StringComparison.OrdinalIgnoreCase))
-                    continue;
-
-                if (item.Type == ENodeType.File)
-                {
-                    SelectedTreeItem = item;
-                    return;
-                }
-
-                item.Expanded = true;
-                children = item.Children;
-                break;
-            }
-
-            i++;
-            
-            if (children.Count == 0) break;
+            if (!current.TryGetChild(folder, out var foundChild))
+                return null;
+                
+            if (foundChild.Type == ENodeType.Folder)
+                foundChild.Expanded = true;
+                
+            current = foundChild;
         }
+
+        return current;
+    }
+
+    partial void OnSearchFilterChanged(string value)
+    {
+        if (UseFlatView) return;
+        
+        if (string.IsNullOrWhiteSpace(SearchFilter))
+        {
+            LoadFileItems(_currentFolder);
+            return;
+        }
+
+        var items = FlattenTree(_currentFolder)
+            .Where(item =>
+                UseRegex ? Regex.IsMatch(item.FilePath, SearchFilter) : MiscExtensions.Filter(item.FilePath, SearchFilter))
+            .OrderByDescending(item => item.Type == ENodeType.Folder)
+            .ThenBy(item => item.Name, new CustomComparer<string>(ComparisonExtensions.CompareNatural));
+
+        TaskService.Run(() => LoadFileBitmaps(items));
+        
+        FileViewCollection = new ObservableCollection<TreeItem>(items);
+        
+        IEnumerable<TreeItem> FlattenTree(TreeItem root)
+        {
+            var stack = new Stack<TreeItem>();
+            stack.Push(root);
+
+            while (stack.Count > 0)
+            {
+                var current = stack.Pop();
+                yield return current;
+
+                foreach (var child in current.GetAllChildren().Reverse())
+                {
+                    stack.Push(child);
+                }
+            }
+        }
+    }
+    
+    [RelayCommand]
+    public async Task OpenSettings()
+    {
+        Navigation.App.Open<ExportSettingsView>();
+        Navigation.ExportSettings.Open(ExportLocation);
+    }
+    
+    [RelayCommand]
+    public async Task SetExportLocation(EExportLocation location)
+    {
+        ExportLocation = location;
     }
 
     [RelayCommand]
     public async Task Properties()
     {
-        var selectedItem = SelectedFlatViewItems.FirstOrDefault();
-        if (selectedItem is null) return;
+        var selectedItemPath = UseFlatView ? SelectedFlatViewItems.FirstOrDefault()?.Path : SelectedFileViewItems.FirstOrDefault(file => file.Type == ENodeType.File)?.FilePath;
+        if (selectedItemPath is null) return;
         
-        var assets = await CUE4Parse.Provider.LoadAllObjectsAsync(Exporter.FixPath(selectedItem.Path));
+        var assets = await UEParse.Provider.LoadAllObjectsAsync(Exporter.FixPath(selectedItemPath));
         var json = JsonConvert.SerializeObject(assets, Formatting.Indented);
-        PropertiesPreviewWindow.Preview(selectedItem.Path.SubstringAfterLast("/").SubstringBefore("."), json);
+        PropertiesPreviewWindow.Preview(selectedItemPath.SubstringAfterLast("/").SubstringBefore("."), json);
     }
     
     [RelayCommand]
     public async Task Preview()
     {
-        var selectedItem = SelectedFlatViewItems.FirstOrDefault();
-        if (selectedItem is null) return;
-        
-        var basePath = Exporter.FixPath(selectedItem.Path);
-            
-        UObject? asset = null;
-        if (selectedItem.Path.EndsWith(".umap"))
-        {
-            var package = await CUE4Parse.Provider.LoadPackageAsync(basePath);
-            asset = package.GetExports().OfType<UWorld>().FirstOrDefault();
-        }
-        else
-        {
-            asset = await CUE4Parse.Provider.SafeLoadPackageObjectAsync(basePath);
-            asset ??= await CUE4Parse.Provider.SafeLoadPackageObjectAsync($"{basePath}.{basePath.SubstringAfterLast("/")}_C");
-        }
-            
-        if (asset is null) return;
+        var selectedPaths = UseFlatView 
+            ? SelectedFlatViewItems.Select(file => file.Path) 
+            : SelectedFileViewItems.Where(file => file.Type == ENodeType.File).Select(file => file.FilePath);
 
-        await PreviewAsset(asset);
+        foreach (var path in selectedPaths)
+        {
+            var basePath = Exporter.FixPath(path);
+            
+            UObject? asset;
+            if (path.EndsWith(".umap"))
+            {
+                var package = await UEParse.Provider.LoadPackageAsync(basePath);
+                asset = package.GetExports().OfType<UWorld>().FirstOrDefault();
+            }
+            else
+            {
+                asset = await UEParse.Provider.SafeLoadPackageObjectAsync(basePath);
+                asset ??= await UEParse.Provider.SafeLoadPackageObjectAsync($"{basePath}.{basePath.SubstringAfterLast("/")}_C");
+            }
+            
+            if (asset is null) return;
+
+            await PreviewAsset(asset);
+        }
+        
     }
 
     public async Task PreviewAsset(UObject asset)
@@ -298,7 +356,7 @@ public partial class FilesViewModel() : ViewModelBase
             case UMaterial:
             case UMaterialFunction:
             {
-                if (!CUE4Parse.Provider.MountedVfs.Any(vfs => vfs.Name.Contains(".o.")))
+                if (!UEParse.Provider.MountedVfs.Any(vfs => vfs.Name.Contains(".o.")))
                 {
                     Info.Message("Material Preview", "Material node-tree data cannot be loaded because UEFN is not installed.", closeTime: 5, severity: InfoBarSeverity.Error);
                     break;
@@ -333,7 +391,8 @@ public partial class FilesViewModel() : ViewModelBase
                     })
                 };
 
-                await dialog.ShowAsync();
+                await dialog.ShowAsync(); 
+                
                 break;
             }
             case UStaticMesh:
@@ -350,18 +409,11 @@ public partial class FilesViewModel() : ViewModelBase
             }
             case USoundCue soundCue:
             {
-                var sounds = soundCue.HandleSoundTree();
-                var soundWaveLazy = sounds.MaxBy(sound => sound.Time)?.SoundWave;
-                if (soundWaveLazy?.Load<USoundWave>() is not { } soundWave) break;
-                
-                SoundPreviewWindow.Preview(soundWave);
+                SoundCuePreviewWindow.Preview(soundCue);
                 break;
             }
             default:
             {
-                Info.Message("Unimplemented Previewer",
-                    $"A file previewer for \"{asset.ExportType}\" assets has not been implemented and/or will not be supported.");
-                    
                 await Properties();
                 break;
             }
@@ -373,24 +425,28 @@ public partial class FilesViewModel() : ViewModelBase
     {
         var exports = new List<KeyValuePair<UObject, EExportType>>();
         var unsupportedExportTypes = new HashSet<string>();
-        foreach (var item in SelectedFlatViewItems)
+
+        var paths = UseFlatView
+            ? SelectedFlatViewItems.Select(x => x.Path)
+            : SelectedFileViewItems.Select(x => x.FilePath);
+        foreach (var path in paths)
         {
-            var basePath = Exporter.FixPath(item.Path);
+            var basePath = Exporter.FixPath(path);
             
             UObject? asset = null;
-            if (item.Path.EndsWith(".umap"))
+            if (path.EndsWith(".umap"))
             {
-                asset = await CUE4Parse.Provider.SafeLoadPackageObjectAsync(basePath);
+                asset = await UEParse.Provider.SafeLoadPackageObjectAsync(basePath);
                 if (asset is not UWorld)
                 {
-                    var package = await CUE4Parse.Provider.LoadPackageAsync(basePath);
+                    var package = await UEParse.Provider.LoadPackageAsync(basePath);
                     asset = package.GetExports().OfType<UWorld>().FirstOrDefault();
                 }
             }
             else
             {
-                asset = await CUE4Parse.Provider.SafeLoadPackageObjectAsync(basePath);
-                asset ??= await CUE4Parse.Provider.SafeLoadPackageObjectAsync($"{basePath}.{basePath.SubstringAfterLast("/")}_C");
+                asset = await UEParse.Provider.SafeLoadPackageObjectAsync(basePath);
+                asset ??= await UEParse.Provider.SafeLoadPackageObjectAsync($"{basePath}.{basePath.SubstringAfterLast("/")}_C");
             }
             
             if (asset is null) continue;
@@ -455,24 +511,15 @@ public partial class FilesViewModel() : ViewModelBase
         return isValidExtension && !isOptionalSegment && !isVerse;
     }
     
-    private Func<FlatItem, bool> CreateAssetFilter((string, bool, ObservableCollection<string>) items)
+    private Func<FlatItem, bool> CreateAssetFilter((string, bool) items)
     {
-        var (filter, useRegex, gameNames) = items;
-        if (string.IsNullOrWhiteSpace(filter)) return asset => gameNames.Count > 0 && MiscExtensions.FilterAny(asset.Path, gameNames);
+        var (filter, useRegex) = items;
         
         if (useRegex)
         {
-            return asset => Regex.IsMatch(asset.Path, filter) && MiscExtensions.FilterAny(asset.Path, gameNames);
+            return asset => Regex.IsMatch(asset.Path, filter);
         }
 
-        return asset => MiscExtensions.Filter(asset.Path, filter) && MiscExtensions.FilterAny(asset.Path, gameNames);
-    }
-    
-    // scuffed fix to get filter to update
-    public void FakeRefreshFilters()
-    {
-        var temp = SelectedGameNames;
-        SelectedGameNames = [];
-        SelectedGameNames = temp;
+        return asset => MiscExtensions.Filter(asset.Path, filter);
     }
 }

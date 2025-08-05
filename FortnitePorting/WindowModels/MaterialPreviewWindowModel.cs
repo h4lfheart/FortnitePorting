@@ -26,10 +26,11 @@ using FortnitePorting.Application;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Leaderboard;
-using FortnitePorting.Models.Material;
+using FortnitePorting.Models.Nodes.Material;
 using FortnitePorting.Models.Unreal;
 using FortnitePorting.Models.Unreal.Material;
 using FortnitePorting.Rendering;
+using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.ViewModels;
 using FortnitePorting.Views;
@@ -42,10 +43,13 @@ using Orientation = Avalonia.Layout.Orientation;
 
 namespace FortnitePorting.WindowModels;
 
-public partial class MaterialPreviewWindowModel : WindowModelBase
+[Transient]
+public partial class MaterialPreviewWindowModel(SettingsService settings) : WindowModelBase
 {
-    [ObservableProperty] private ObservableCollection<MaterialData> _loadedMaterialDatas = [];
-    [ObservableProperty] private MaterialData? _selectedMaterialData;
+    [ObservableProperty] private SettingsService _settings = settings;
+    
+    [ObservableProperty] private ObservableCollection<MaterialNodeTree> _trees = [];
+    [ObservableProperty] private MaterialNodeTree? _selectedTree;
     
     [ObservableProperty] private uint _gridSpacing = 25;
     
@@ -69,6 +73,17 @@ public partial class MaterialPreviewWindowModel : WindowModelBase
 
         await FilesVM.PreviewAsset(asset);
     }
+    
+    [RelayCommand]
+    public async Task NavigateToPath(FSoftObjectPath path)
+    {
+        var asset = await path.LoadOrDefaultAsync<UObject>();
+        if (asset is null) return;
+
+        FilesVM.FileViewJumpTo(UEParse.Provider.FixPath(asset.GetPathName().SubstringBefore(".")));
+        Navigation.App.Open<FilesView>();
+        AppWM.Window.BringToTop();
+    }
 
     [RelayCommand]
     public async Task NavigateTo(FPackageIndex index)
@@ -76,37 +91,36 @@ public partial class MaterialPreviewWindowModel : WindowModelBase
         var asset = await index.LoadOrDefaultAsync<UObject>();
         if (asset is null) return;
 
-        FilesVM.ClearSearchFilter();
-        FilesVM.FlatViewJumpTo(UEParse.Provider.FixPath(asset.GetPathName().SubstringBefore(".")));
+        FilesVM.FileViewJumpTo(UEParse.Provider.FixPath(asset.GetPathName().SubstringBefore(".")));
         Navigation.App.Open<FilesView>();
         AppWM.Window.BringToTop();
     }
 
     public void Load(UObject obj)
     {
-        if (LoadedMaterialDatas.FirstOrDefault(data => data.Asset?.Equals(obj) ?? false) is { } existingData)
+        if (Trees.FirstOrDefault(data => data.Asset?.Equals(obj) ?? false) is { } existingData)
         {
-            SelectedMaterialData = existingData;
+            SelectedTree = existingData;
         }
         else
         {
-            var data = new MaterialData();
+            var data = new MaterialNodeTree();
             data.Load(obj);
-            LoadedMaterialDatas.Add(data);
-            SelectedMaterialData = data;
+            Trees.Add(data);
+            SelectedTree = data;
         }
     }
     
-    public void Load(MaterialData materialData)
+    public void Load(MaterialNodeTree nodeTree)
     {
-        if (LoadedMaterialDatas.FirstOrDefault(data => data.DataName.Equals(materialData.DataName)) is { } existingData)
+        if (Trees.FirstOrDefault(tree => tree.TreeName.Equals(nodeTree.TreeName)) is { } existingTree)
         {
-            SelectedMaterialData = existingData;
+            SelectedTree = existingTree;
         }
         else
         {
-            LoadedMaterialDatas.Add(materialData);
-            SelectedMaterialData = materialData;
+            Trees.Add(nodeTree);
+            SelectedTree = nodeTree;
         }
     }
 }

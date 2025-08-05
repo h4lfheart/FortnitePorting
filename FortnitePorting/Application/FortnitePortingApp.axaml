@@ -6,6 +6,7 @@
              xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:uip="clr-namespace:FluentAvalonia.UI.Controls.Primitives;assembly=FluentAvalonia"
              xmlns:nodify="https://miroiu.github.io/nodify"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls"
              x:Class="FortnitePorting.Application.FortnitePortingApp"
              RequestedThemeVariant="Dark">
 
@@ -38,10 +39,13 @@
              <x:Double x:Key="NavigationViewItemOnLeftIconBoxHeight">14</x:Double>
              <FontFamily x:Key="SymbolThemeFontFamily">avares://FortnitePorting/Assets/Fonts/Segoe Fluent Icons.ttf#Segoe Fluent Icons</FontFamily>
              <FontFamily x:Key="TimeWasterFontFamily">avares://FortnitePorting/Assets/TimeWaster/Fonts/BurbankBigRegular-Bold.ttf#Burbank Big</FontFamily>
-             <Brush x:Key="TabViewItemHeaderBackgroundSelected">#FF1A1A1C</Brush>
-             <Brush x:Key="TabViewItemHeaderBackgroundPointerOver">#343438</Brush>
-             <Brush x:Key="TabViewItemHeaderBackground">#28282b</Brush>
-             <Brush x:Key="TabViewItemSeparator">#30000000</Brush>
+             <Brush x:Key="TabViewItemHeaderBackgroundSelected">#1C000000</Brush>
+             <Brush x:Key="TabViewItemHeaderBackgroundPointerOver">#0DFFFFFF</Brush>
+             <Brush x:Key="TabViewItemHeaderBackground">#09FFFFFF</Brush>
+             <Brush x:Key="TabViewItemSeparator">#00000000</Brush>
+             <Brush x:Key="ExpanderHeaderBorderBrush">#78575757</Brush>
+             <Brush x:Key="ExpanderHeaderPointerOverBorderBrush">#78575757</Brush>
+             <Brush x:Key="ExpanderContentBorderBrush">#78575757</Brush>
          </ResourceDictionary>
          
      </Application.Resources>
@@ -50,9 +54,14 @@
         <FluentTheme />
         <fluentStyle:FluentAvaloniaTheme/>
         <material:MaterialIconStyles/>
-        <StyleInclude Source="avares://FluentAvalonia.ProgressRing/Styling/Controls/ProgressRing.axaml" />
+        <StyleInclude Source="avares://FluentAvalonia.BreadcrumbBar/Styling/Styles.axaml" />
         <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
         <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
+        
+        <!-- font fix for avalonia 11.3.0 -->
+        <Style Selector="ContentPresenter">
+            <Setter Property="FontFamily" Value="{DynamicResource DefaultFont}" />
+        </Style>
         
         <Style Selector="Border.LiquidGlass">
             <Setter Property="BoxShadow">
@@ -67,7 +76,20 @@
             </Setter>
         </Style>
         
-        <Style Selector="ui|FABorder">
+        <Style Selector="ui|TabViewItem /template/ Grid#LayoutRoot /template/ Border#TabContainerBorder /template/ Grid#TabContainer /template/ Button#CloseButton">
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+        
+        <Style Selector="ui|TabViewItem">
+            <Setter Property="Background" Value="#09FFFFFF"/>
+            
+            <Style Selector="^ /template/ Canvas">
+                <Setter Property="IsVisible" Value="False"/>
+            </Style>
+        </Style>
+        
+        <Style Selector="controls|FABorder">
             <Setter Property="Background" Value="#0DFFFFFF"/>
             <Setter Property="BorderBrush" Value="#78575757"/>
             <Setter Property="BorderThickness" Value="1"/>
@@ -78,6 +100,12 @@
         <Style Selector="Button">
             <Setter Property="BorderBrush" Value="#78575757"/>
             <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+        </Style>
+        
+        <Style Selector="Button#CloseButton">
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="CornerRadius" Value="8"/>
         </Style>
 
@@ -94,12 +122,6 @@
         </Style>
         
         <Style Selector="ComboBox">
-            <Setter Property="BorderBrush" Value="#78575757"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="8"/>
-        </Style>
-        
-        <Style Selector="DropDownButton">
             <Setter Property="BorderBrush" Value="#78575757"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="8"/>
@@ -131,6 +153,25 @@
             </Style>
         </Style>
         
+        
+        <Style Selector="DropDownButton">
+            <Setter Property="BorderBrush" Value="#78575757"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+        </Style>
+        
+        
+        <Style Selector="DropDownButton.Transparent">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            
+            <Style Selector="^:flyout-open">
+                <Setter Property="Background" Value="#15FFFFFF"/>
+            </Style>
+        </Style>
+        
         <Style Selector="Border">
             <Setter Property="CornerRadius" Value="4"/>
         </Style>
@@ -149,6 +190,10 @@
             <Style Selector="^:pointerover">
                 <Setter Property="Background" Value="#FF0022"/>
             </Style>
+        </Style>
+        
+        <Style Selector="ui|SettingsExpander:disabled /template/ ui|SymbolIcon#ExpandCollapseChevron">
+            <Setter Property="IsVisible" Value="False"/>
         </Style>
 
         
@@ -212,28 +257,24 @@
         
         <Style Selector="Button.DiscordButton /template/ ContentPresenter">
             <Setter Property="Background" Value="#7289da"/>
-            <Setter Property="CornerRadius" Value="4"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
         </Style>
         
         <Style Selector="Button.TwitterButton /template/ ContentPresenter">
             <Setter Property="Background" Value="#1DA1F2"/>
-            <Setter Property="CornerRadius" Value="4"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
         </Style>
         
         <Style Selector="Button.GithubButton /template/ ContentPresenter">
             <Setter Property="Background" Value="#2b3137"/>
-            <Setter Property="CornerRadius" Value="4"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
         </Style>
         
         <Style Selector="Button.KofiButton /template/ ContentPresenter">
             <Setter Property="Background" Value="#ff5e5b"/>
-            <Setter Property="CornerRadius" Value="4"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
         </Style>
@@ -259,12 +300,12 @@
             <Setter Property="Foreground" Value="#5DFFFFFF"/>
         </Style>
        
-        <Style Selector="ui|HyperlinkButton.HyperLink">
+        <Style Selector="HyperlinkButton.HyperLink">
            <Setter Property="Padding" Value="0" />
            <Setter Property="Background" Value="Transparent" />
         </Style>
 
-        <Style Selector="ui|HyperlinkButton.HyperLink:pointerover /template/ ContentPresenter">
+        <Style Selector="HyperlinkButton.HyperLink:pointerover /template/ ContentPresenter">
            <Setter Property="Background" Value="Transparent" />
         </Style>
 

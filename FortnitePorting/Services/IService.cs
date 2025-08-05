@@ -1,6 +1,3 @@
 namespace FortnitePorting.Services;
 
-public interface IService
-{
-    
-}
+public interface IService;

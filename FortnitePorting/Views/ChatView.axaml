@@ -14,6 +14,7 @@
              xmlns:tables="clr-namespace:FortnitePorting.Models.Supabase.Tables"
              xmlns:generic="clr-namespace:System.Collections.Generic;assembly=System.Runtime"
              xmlns:framework="clr-namespace:FortnitePorting.Framework"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FortnitePorting.Views.ChatView"
              x:DataType="viewModels:ChatViewModel">
@@ -29,7 +30,7 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 
-                <ui:FABorder x:Name="PointerOverTarget" Grid.Row="0"
+                <controls:FABorder x:Name="PointerOverTarget" Grid.Row="0"
                              Margin="{ext:Space 0, 1, 0, 0}">
                     <Grid Margin="{ext:Space 1}">
                         <Grid.ColumnDefinitions>
@@ -156,7 +157,7 @@
                         </StackPanel>
                         
                     </Grid>
-                </ui:FABorder>
+                </controls:FABorder>
                 
                 <ItemsControl Grid.Row="1" Margin="{ext:Space 3, 0, 0, 0}"
                               ItemsSource="{Binding ReplyMessages}" 
@@ -189,7 +190,7 @@
                 ConverterParameter={x:Static tables:ESupabaseRole.Muted}}"
               ColumnDefinitions="Auto,*">
 
-            <ui:FABorder Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" 
+            <controls:FABorder Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" 
                          IsVisible="{Binding ReplyMessage, Converter={x:Static ObjectConverters.IsNotNull}}"
                          Margin="{ext:Space 0, 0, 0, 1}">
                 <Grid Margin="{ext:Space 1}">
@@ -216,7 +217,7 @@
                         <material:MaterialIcon Kind="Close" Opacity="0.5"/>
                     </Border>
                 </Grid>
-            </ui:FABorder>
+            </controls:FABorder>
             
             <Button Grid.Row="1" x:Name="ImageButton" Grid.Column="0" 
                     IsVisible="{Binding SupaBase.Permissions.Role, 
@@ -266,7 +267,7 @@
                                 <ItemsControl ItemsSource="{Binding Value}" >
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate DataType="chat:ChatUserV2">
-                                            <ui:FABorder HorizontalAlignment="Stretch" Cursor="Hand" PointerPressed="OnUserPressed" Margin="{ext:Space 0, 0, 0, 1}">
+                                            <controls:FABorder HorizontalAlignment="Stretch" Cursor="Hand" PointerPressed="OnUserPressed" Margin="{ext:Space 0, 0, 0, 1}">
                                                 <FlyoutBase.AttachedFlyout>
                                                     <MenuFlyout>
                                                         <MenuItem Header="Copy User ID" Command="{Binding CopyIDCommand}"/>
@@ -300,7 +301,7 @@
                                                                FontSize="12"
                                                                Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" VerticalAlignment="Center"/>
                                                 </Grid>
-                                            </ui:FABorder>
+                                            </controls:FABorder>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>

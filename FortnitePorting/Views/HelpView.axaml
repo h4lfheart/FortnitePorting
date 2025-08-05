@@ -228,7 +228,7 @@
                 
                 <TextBlock Grid.Column="2" Grid.Row="10" Text="Preview" HorizontalAlignment="Center" Classes="SubtitleTextBlockStyle"/>
                 
-                <ui:FABorder Grid.Column="2" Grid.Row="12">
+                <controls:FABorder Grid.Column="2" Grid.Row="12">
                     <ItemsControl ItemsSource="{Binding BuilderArticle.Sections}" Margin="{ext:Space 1}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
@@ -276,7 +276,7 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
-                </ui:FABorder>
+                </controls:FABorder>
             </Grid>
         </ScrollViewer>
     </Grid>

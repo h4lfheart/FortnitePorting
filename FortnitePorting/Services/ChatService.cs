@@ -68,7 +68,6 @@ public partial class ChatService : ObservableObject, IService
         await _chatPresence.Track(Presence);
         
         var messages = await SupaBase.Client.From<Message>()
-            .Limit(100)
             .Order("timestamp", Constants.Ordering.Ascending)
             .Get();
         
@@ -124,6 +123,8 @@ public partial class ChatService : ObservableObject, IService
                 }
                 
                 OnPropertyChanged(nameof(UsersByGroup));
+                
+                Discord.Update($"Chatting with {Chat.Users.Count} Users");
             });
         });
 

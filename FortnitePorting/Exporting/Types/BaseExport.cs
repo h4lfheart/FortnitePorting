@@ -1,3 +1,5 @@
+using System;
+using System.Threading.Tasks;
 using CUE4Parse.UE4.Assets.Exports;
 using FortnitePorting.Exporting.Models;
 using FortnitePorting.Models;
@@ -29,11 +31,11 @@ public class BaseExport
         Exporter = new Context.ExportContext(metaData);
     }
     
-    public void WaitForExports()
+    public async Task WaitForExports()
     {
         foreach (var task in Exporter.ExportTasks)
         {
-            task.Wait();
+            await task.WaitAsync(TimeSpan.FromSeconds(5));
         }
     }
 }

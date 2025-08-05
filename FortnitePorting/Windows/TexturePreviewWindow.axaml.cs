@@ -1,7 +1,10 @@
 using System;
+using System.Linq;
 using Avalonia.Controls;
 using CUE4Parse.UE4.Assets.Exports.Texture;
+using FluentAvalonia.UI.Controls;
 using FortnitePorting.Framework;
+using FortnitePorting.Models.Viewers;
 using FortnitePorting.Services;
 using FortnitePorting.ViewModels;
 using FortnitePorting.WindowModels;
@@ -12,34 +15,38 @@ public partial class TexturePreviewWindow : WindowBase<TexturePreviewWindowModel
 {
     public static TexturePreviewWindow? Instance;
     
-    public TexturePreviewWindow(string name, UTexture texture)
+    public TexturePreviewWindow()
     {
         InitializeComponent();
         DataContext = WindowModel;
         Owner = App.Lifetime.MainWindow;
-
-        WindowModel.TextureName = name;
-        WindowModel.Texture = texture;
-        WindowModel.Update();
     }
 
     public static void Preview(string name, UTexture texture)
     {
-        if (Instance is not null)
+        if (Instance is null)
         {
-            Instance.WindowModel.TextureName = name;
-            Instance.WindowModel.Texture = texture;
-            Instance.WindowModel.Update();
+            Instance = new TexturePreviewWindow();
+            Instance.Show();
             Instance.BringToTop();
+        }
+
+        if (Instance.WindowModel.Textures.FirstOrDefault(texture => texture.TextureName.Equals(name)) is { } existing)
+        {
+            Instance.WindowModel.SelectedTexture = existing;
             return;
         }
 
-        TaskService.RunDispatcher(() =>
+        var container = new TextureContainer
         {
-            Instance = new TexturePreviewWindow(name, texture);
-            Instance.Show();
-            Instance.BringToTop();
-        });
+            TextureName = name,
+            Texture = texture
+        };
+        
+        container.Update();
+        
+        Instance.WindowModel.Textures.Add(container);
+        Instance.WindowModel.SelectedTexture = container;
     }
 
     protected override void OnClosed(EventArgs e)
@@ -47,5 +54,17 @@ public partial class TexturePreviewWindow : WindowBase<TexturePreviewWindowModel
         base.OnClosed(e);
 
         Instance = null;
+    }
+    
+    private void OnTabClosed(TabView sender, TabViewTabCloseRequestedEventArgs args)
+    {
+        if (args.Item is not TextureContainer texture) return;
+
+        WindowModel.Textures.Remove(texture);
+
+        if (WindowModel.Textures.Count == 0)
+        {
+            Close();
+        }
     }
 }

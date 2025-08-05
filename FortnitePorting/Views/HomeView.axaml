@@ -23,7 +23,7 @@
             <RowDefinition Height="2*" />
         </Grid.RowDefinitions>
         
-        <Image Grid.Row="0" Grid.RowSpan="3" Source="/Assets/Wallpaper.png" Stretch="UniformToFill" Opacity="1">
+        <Image Grid.Row="0" Grid.RowSpan="3" Source="/Assets/Wallpaper.png" Stretch="UniformToFill" Opacity="0.5">
             <Image.OpacityMask>
                 <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 50%">
                     <GradientStops>
