@@ -2,6 +2,7 @@
 
 #pragma once
 #include <fstream>
+#include <vector>
 #include "Math/Quat.h"
 #include "Containers/Array.h"
 
