@@ -29,6 +29,8 @@ default_mappings = MappingCollection(
         SlotMapping("CliffTexture", "Diffuse"),
         SlotMapping("PM_Diffuse", "Diffuse"),
         SlotMapping("___Diffuse", "Diffuse"),
+        SlotMapping("BaseColorTexture", "Diffuse"),
+        SlotMapping("BaseColor Map", "Diffuse"),
 
         SlotMapping("Background Diffuse", alpha_slot="Background Diffuse Alpha"),
         SlotMapping("BG Diffuse Texture", "Background Diffuse", alpha_slot="Background Diffuse Alpha"),
@@ -50,6 +52,7 @@ default_mappings = MappingCollection(
         SlotMapping("Cliff Spec Texture", "SpecularMasks"),
         SlotMapping("PM_SpecularMasks", "SpecularMasks"),
         SlotMapping("__PBR Masks", "SpecularMasks"),
+        SlotMapping("MetallicRoughnessTexture", "SpecularMasks"),
 
         SlotMapping("Normals"),
         SlotMapping("N", "Normals"),
@@ -62,6 +65,8 @@ default_mappings = MappingCollection(
         SlotMapping("CliffNormal", "Normals"),
         SlotMapping("PM_Normals", "Normals"),
         SlotMapping("_Normal", "Normals"),
+        SlotMapping("NormalTexture", "Normals"),
+        SlotMapping("Normal Map", "Normals"),
         
         SlotMapping("AnisotropicTangentWeight", alpha_slot="AnisotropicTangentWeight Alpha"),
         SlotMapping("AnisotropigTangentWeight", "AnisotropicTangentWeight", alpha_slot="AnisotropicTangentWeight Alpha"),
@@ -181,7 +186,7 @@ default_mappings = MappingCollection(
 
         SlotMapping("FlipbookTint"),
         
-        SlotMapping("CloatcoatMaskChannel")
+        SlotMapping("CloatcoatMaskChannel", "Clear Coat Channel")
     ],
     switches=[
         SlotMapping("SwizzleRoughnessToGreen"),
@@ -205,9 +210,9 @@ default_mappings = MappingCollection(
         SlotMapping("Cloth Channel"),
         SlotMapping("ClothFuzzMaskChannel", "Cloth Channel"),
         SlotMapping("Clear Coat Channel"),
-        SlotMapping("ClearCoatChannel"),
-        SlotMapping("CloatcoatMaskChannel"),
-        SlotMapping("ClearcoatMaskChannel"),
+        SlotMapping("ClearCoatChannel", "Clear Coat Channel"),
+        SlotMapping("CloatcoatMaskChannel", "Clear Coat Channel"),
+        SlotMapping("ClearcoatMaskChannel", "Clear Coat Channel"),
     ]
 )
 
@@ -263,9 +268,11 @@ toon_mappings = MappingCollection(
         SlotMapping("Color_Lit_Map", "LitDiffuse"),
         SlotMapping("ShadedDiffuse"),
         SlotMapping("Color_Shaded_Map", "ShadedDiffuse"),
+        SlotMapping("Diffuse", "ShadedDiffuse"),
         SlotMapping("DistanceField_InkLines"),
         SlotMapping("DFL_Map", "DistanceField_InkLines"),
         SlotMapping("InkLineColor_Texture"),
+        SlotMapping("DFL_Color_Map", "InkLineColor_Texture"),
         SlotMapping("SSC_Texture"),
         SlotMapping("STM_Map", "SSC_Texture"),
         SlotMapping("STT_Map"),
@@ -284,6 +291,9 @@ toon_mappings = MappingCollection(
         SlotMapping("Color_Shaded", "ShadedDiffuse"),
         SlotMapping("SpecularTint"),
         SlotMapping("Specular Tint", "SpecularTint"),
+    ],
+    switches=[
+        SlotMapping("UseFakePBR", "Use PBR Shading")
     ]
 )
 
@@ -384,6 +394,7 @@ glass_mappings = MappingCollection(
     vectors=[
         SlotMapping("ColorFront", "Color"),
         SlotMapping("Base Color", "Color"),
+        SlotMapping("GlassDiffuse", "Color"),
     ]
 )
 
@@ -402,6 +413,7 @@ foliage_mappings = MappingCollection(
     textures=[
         SlotMapping("Diffuse"),
         SlotMapping("Normals"),
+        SlotMapping("NormalMap", "Normals"),
         SlotMapping("MaskTexture"),
     ],
     scalars=[
