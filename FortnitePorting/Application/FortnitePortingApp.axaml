@@ -37,6 +37,7 @@
              <Brush x:Key="CheckBoxCheckGlyphForegroundCheckedDisabled">#5DFFFFFF</Brush>
              <Brush x:Key="ScrollViewerScrollBarsSeparatorBackground">#00000000</Brush>
              <x:Double x:Key="NavigationViewItemOnLeftIconBoxHeight">14</x:Double>
+             <FontFamily x:Key="ContentControlThemeFontFamily">Segoe UI</FontFamily>
              <FontFamily x:Key="SymbolThemeFontFamily">avares://FortnitePorting/Assets/Fonts/Segoe Fluent Icons.ttf#Segoe Fluent Icons</FontFamily>
              <FontFamily x:Key="TimeWasterFontFamily">avares://FortnitePorting/Assets/TimeWaster/Fonts/BurbankBigRegular-Bold.ttf#Burbank Big</FontFamily>
              <Brush x:Key="TabViewItemHeaderBackgroundSelected">#1C000000</Brush>
@@ -57,11 +58,6 @@
         <StyleInclude Source="avares://FluentAvalonia.BreadcrumbBar/Styling/Styles.axaml" />
         <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
         <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
-        
-        <!-- font fix for avalonia 11.3.0 -->
-        <Style Selector="ContentPresenter">
-            <Setter Property="FontFamily" Value="{DynamicResource DefaultFont}" />
-        </Style>
         
         <Style Selector="Border.LiquidGlass">
             <Setter Property="BoxShadow">

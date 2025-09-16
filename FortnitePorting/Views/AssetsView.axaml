@@ -224,7 +224,8 @@
                                                             <TextBlock Grid.Row="0" Text="{Binding ChannelName}" HorizontalAlignment="Center" 
                                                                        Classes="BodyStrongTextBlockStyle"/>
                                                             
-                                                            <DropDownButton Grid.Row="2" Margin="{ext:Space 1, 0}" HorizontalAlignment="Stretch" Classes="Transparent">
+                                                            <DropDownButton Grid.Row="2" Margin="{ext:Space 1, 0}" HorizontalAlignment="Stretch" Classes="Transparent"
+                                                                            IsVisible="{Binding !MultiSelect}">
                                                                 <DropDownButton.Flyout>
                                                                     <Flyout>
                                                                         <ListBox SelectionMode="{Binding SelectionMode}"
@@ -300,6 +301,40 @@
                                                                                IsVisible="{Binding SelectedStyle.ShowName}"/>
                                                                 </Grid>
                                                             </DropDownButton>
+                                                            
+                                                            <ListBox Grid.Row="2" SelectionMode="{Binding SelectionMode}"
+                                                                     SelectedItems="{Binding SelectedItems}"
+                                                                     SelectedIndex="{Binding SelectedStyleIndex, Mode=TwoWay}" 
+                                                                     ItemsSource="{Binding StyleDatas}" HorizontalAlignment="Center"
+                                                                     IsVisible="{Binding MultiSelect}">
+                                                                <ListBox.ItemsPanel>
+                                                                    <ItemsPanelTemplate>
+                                                                        <WrapPanel VerticalAlignment="Top" HorizontalAlignment="Left" />
+                                                                    </ItemsPanelTemplate>
+                                                                </ListBox.ItemsPanel>
+                                                                <ListBox.Styles>
+                                                                    <Style Selector="ListBoxItem">
+                                                                        <Setter Property="MinWidth" Value="0"/>
+                                                                        <Setter Property="Padding" Value="0"/>
+                                                                    </Style>
+                                                                </ListBox.Styles>
+                                                                <ListBox.ItemTemplate>
+                                                                    <DataTemplate DataType="assets:BaseStyleData">
+                                                                        <ContentControl Padding="8" ToolTip.Tip="{Binding StyleName}">
+                                                                            <Grid MaxWidth="48" RowDefinitions="*, Auto">
+                                                                                <Border Grid.Row="0" Width="48" Height="48">
+                                                                                    <Border.Background>
+                                                                                        <ImageBrush Source="{Binding StyleDisplayImage}" />
+                                                                                    </Border.Background>
+                                                                                </Border>
+                                                                                <TextBlock Grid.Row="1" Text="{Binding StyleName}" HorizontalAlignment="Center" 
+                                                                                           Classes="CaptionTextBlockStyle" TextTrimming="CharacterEllipsis"
+                                                                                           IsVisible="{Binding ShowName}"/>
+                                                                            </Grid>
+                                                                        </ContentControl>
+                                                                    </DataTemplate>
+                                                                </ListBox.ItemTemplate>
+                                                            </ListBox>
                                                         </Grid>
                                                     </controls:FABorder>
                                                 </DataTemplate>
