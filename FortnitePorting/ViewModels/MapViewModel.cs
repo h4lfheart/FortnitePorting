@@ -161,7 +161,7 @@ public partial class MapViewModel : ViewModelBase
 
     private static string[] PluginRemoveList =
     [
-        "FMJam_",
+        "FMJam",
         "PunchBerry_Terrain",
         "FeralCorgi_2Bombsite_Map"
     ];

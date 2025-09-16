@@ -337,15 +337,14 @@ public partial class CUE4ParseService : ObservableObject, IService
                     break;
                 }
 
-                AppSettings.Installation.CurrentProfile.MainKey = new FileEncryptionKey(aes.MainKey);
                 await Provider.SubmitKeyAsync(Globals.ZERO_GUID, new FAesKey(aes.MainKey));
                 
-                AppSettings.Installation.CurrentProfile.ExtraKeys.Clear();
                 foreach (var key in aes.DynamicKeys)
                 {
-                    AppSettings.Installation.CurrentProfile.ExtraKeys.Add(new FileEncryptionKey(key.Key));
                     await Provider.SubmitKeyAsync(new FGuid(key.GUID), new FAesKey(key.Key));
                 }
+
+                await LoadLocalExtraKeys();
                 
                 break;
             }
@@ -363,7 +362,12 @@ public partial class CUE4ParseService : ObservableObject, IService
         if (mainKey.IsEmpty) mainKey = FileEncryptionKey.Empty;
                 
         await Provider.SubmitKeyAsync(Globals.ZERO_GUID, mainKey.EncryptionKey);
-                
+
+        await LoadLocalExtraKeys();
+    }
+    
+    private async Task LoadLocalExtraKeys()
+    {
         foreach (var vfs in Provider.UnloadedVfs.ToArray())
         {
             foreach (var extraKey in AppSettings.Installation.CurrentProfile.ExtraKeys)

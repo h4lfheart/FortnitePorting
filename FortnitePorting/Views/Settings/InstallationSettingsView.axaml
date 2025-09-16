@@ -100,9 +100,10 @@
                               SelectedItem="{Binding CurrentProfile.UnrealVersion, Converter={StaticResource EnumToRecord}}" />
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
-            <ui:SettingsExpander Header="Encryption Key" Description="The encryption key required to decrypt Fortnite's game files." IsEnabled="{Binding CurrentProfile.EncryptionKeyEnabled}">
+            <ui:SettingsExpander Header="Encryption Key" Description="The encryption key required to decrypt Fortnite's game files.">
                 <ui:SettingsExpander.Footer>
-                    <TextBox Text="{Binding CurrentProfile.MainKey.KeyString}" Watermark="Ex. 0x0000000000000000000000000000000000000000000000000000000000000000"/>
+                    <TextBox Text="{Binding CurrentProfile.MainKey.KeyString}" Watermark="Ex. 0x0000000000000000000000000000000000000000000000000000000000000000"
+                             IsEnabled="{Binding CurrentProfile.EncryptionKeyEnabled}"/>
                 </ui:SettingsExpander.Footer>
                 
                 <Grid>
