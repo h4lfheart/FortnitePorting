@@ -44,7 +44,7 @@ public partial class ExportContext
         foreach (var streamingLevelLazy in world.StreamingLevels)
         {
             if (streamingLevelLazy.Load() is not ULevelStreaming levelStreaming) continue;
-            if (levelStreaming.WorldAsset.Load() is not UWorld worldAsset) continue;
+            if (levelStreaming.WorldAsset?.Load() is not UWorld worldAsset) continue;
             if (worldAsset.PersistentLevel.Load() is not ULevel streamingLevel) continue;
             
             actors.AddRangeIfNotNull(Level(streamingLevel));
@@ -254,6 +254,12 @@ public partial class ExportContext
             exportMesh.Path = Export(landscapeProxy, embeddedAsset: true, synchronousExport: true);
             exportMesh.Location = transform.Translation;
             exportMesh.Scale = transform.Scale3D;
+
+            if (landscapeProxy.LandscapeMaterial?.Load<UMaterialInterface>() is { } material)
+            {
+                exportMesh.Materials.AddIfNotNull(Material(material, 0));
+            }
+            
             meshes.Add(exportMesh);
         }
 
