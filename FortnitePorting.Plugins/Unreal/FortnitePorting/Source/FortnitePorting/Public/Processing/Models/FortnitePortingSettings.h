@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Settings.generated.h"
+#include "FortnitePortingSettings.generated.h"
 
 UENUM()
 enum EImageFormat
