@@ -25,8 +25,16 @@ public class FortnitePorting : ModuleRules
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"Core", "HttpServer", "JsonUtilities", "Json", "PluginUtils", "UEFormat",
-				"Projects", "UnrealEd", "EditorScriptingUtilities"
+				"Core", 
+				"HttpServer", 
+				"JsonUtilities", 
+				"Json", 
+				"PluginUtils", 
+				"UEFormat",
+				"Projects", 
+				"UnrealEd", 
+				"EditorScriptingUtilities", 
+				"KismetCompiler"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -38,8 +46,9 @@ public class FortnitePorting : ModuleRules
 				"CoreUObject",
 				"Engine",
 				"Slate",
-				"SlateCore"
+				"SlateCore",
 				// ... add private dependencies that you statically link with here ...	
+				"KismetCompiler"
 			}
 			);
 		
