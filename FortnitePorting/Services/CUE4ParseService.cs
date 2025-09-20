@@ -87,7 +87,7 @@ public partial class CUE4ParseService : ObservableObject, IService
 
     private const EGame LATEST_GAME_VERSION = EGame.GAME_UE5_6;
     
-    public static readonly DirectoryInfo CacheFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".cache"));
+    public static DirectoryInfo CacheFolder => new(Path.Combine(App.ApplicationDataFolder.FullName, ".cache"));
 
     public CUE4ParseService()
     {

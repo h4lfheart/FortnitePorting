@@ -152,7 +152,7 @@ public partial class MapViewModel : ViewModelBase
     ];
     
     
-    public static readonly DirectoryInfo MapsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Maps"));
+    public DirectoryInfo MapsFolder => new(Path.Combine(App.ApplicationDataFolder.FullName, "Maps"));
 
     public MapViewModel()
     {

@@ -23,10 +23,19 @@ namespace FortnitePorting.ViewModels.Settings;
 
 public partial class ApplicationSettingsViewModel : ViewModelBase
 {
+    
+    [NotifyDataErrorInfo] [DirectoryExists("Application Data Path")] [ObservableProperty]
+    private string _appDataPath;
+    
+    [ObservableProperty] private bool _useAppDataPath;
+    
     [NotifyDataErrorInfo] [DirectoryExists("Assets Path")] [ObservableProperty]
     private string _assetsPath;
     
+    [ObservableProperty] private bool _useAssetsPath;
+    
     [ObservableProperty] private string _portleExecutablePath;
+    [ObservableProperty] private bool _usePortlePath;
     
     [ObservableProperty] private HashSet<string> _favoriteAssets = [];
 
@@ -36,8 +45,6 @@ public partial class ApplicationSettingsViewModel : ViewModelBase
 
     [ObservableProperty] private FPVersion _lastOnlineVersion = Globals.Version;
 
-    [ObservableProperty] private bool _useAssetsPath;
-    [ObservableProperty] private bool _usePortlePath;
 
     [ObservableProperty] private bool _useTabTransitions = true;
     [ObservableProperty] private float _assetScale = 1.0f;
@@ -61,6 +68,11 @@ public partial class ApplicationSettingsViewModel : ViewModelBase
     
     public DirectSoundDeviceInfo[] AudioDevices => DirectSoundOut.Devices.ToArray()[1..];
 
+    public async Task BrowseAppDataPath()
+    {
+        if (await App.BrowseFolderDialog() is { } path) AppDataPath = path;
+        
+    }
     public async Task BrowseAssetsPath()
     {
         if (await App.BrowseFolderDialog() is { } path) AssetsPath = path;

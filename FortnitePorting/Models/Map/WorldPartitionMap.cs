@@ -63,7 +63,7 @@ public partial class WorldPartitionMap : ObservableObject
     public int GridCount => Grids.Sum(grid => grid.Maps.Count);
     
     
-    public readonly DirectoryInfo MapsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Maps"));
+    public DirectoryInfo MapsFolder => new(Path.Combine(App.ApplicationDataFolder.FullName, "Maps"));
     private string ExportPath => Path.Combine(MapsFolder.FullName, WorldName);
     
     private UWorld _world;

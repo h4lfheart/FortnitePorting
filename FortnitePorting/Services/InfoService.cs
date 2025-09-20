@@ -29,7 +29,7 @@ public partial class InfoService : ObservableObject, ILogEventSink, IService
     [ObservableProperty] private TitleData? _titleData;
     
     public string LogFilePath;
-    public readonly DirectoryInfo LogsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs"));
+    public DirectoryInfo LogsFolder => new(Path.Combine(App.ApplicationDataFolder.FullName, "Logs"));
     
     public InfoService()
     {
