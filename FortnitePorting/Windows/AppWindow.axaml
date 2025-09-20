@@ -124,7 +124,7 @@
                                          Message="{Binding Message}" 
                                          Severity="{Binding Severity}"
                                          CornerRadius="8"
-                                         Background="#FF191921">
+                                         Background="#AA191921">
                                  <ui:InfoBar.ActionButton>
                                      <HyperlinkButton IsVisible="{Binding UseButton}" 
                                                          Content="{Binding ButtonTitle}" 

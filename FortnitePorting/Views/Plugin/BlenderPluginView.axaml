@@ -31,14 +31,14 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <TextBlock Grid.Column="0" Text="Blender Extensions" Classes="SubtitleTextBlockStyle" />
+            <TextBlock Grid.Column="0" Text="Blender Plugin" Classes="SubtitleTextBlockStyle" />
             <Button Grid.Column="2" Content="{material:MaterialIconExt Plus}" Command="{Binding AddInstallation}" />
             <Button Grid.Column="4" Content="{material:MaterialIconExt Minus}" Command="{Binding RemoveInstallation}"
                     IsEnabled="{Binding !!Installations.Count}"/>
             <Button Grid.Column="6" Content="{material:MaterialIconExt Sync}" Command="{Binding SyncInstallations}" />
         </Grid>
         
-        <ui:SettingsExpander Grid.Row="2" Header="Automatic Sync" Description="Whether or not to automatically sync the Blender extension after an update has occurred. It is highly recommended to keep this enabled.">
+        <ui:SettingsExpander Grid.Row="2" Header="Automatic Sync" Description="Whether or not to automatically sync the Blender plugin after an update has occurred. It is highly recommended to keep this enabled.">
             <ui:SettingsExpander.Footer>
                 <ToggleSwitch IsChecked="{Binding AutomaticallySync}"/>
             </ui:SettingsExpander.Footer>

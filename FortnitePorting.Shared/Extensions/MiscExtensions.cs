@@ -253,6 +253,7 @@ public static class MiscExtensions
         var processes = Process.GetProcessesByName(processName);
         return processes.FirstOrDefault(process => process.MainModule?.FileName.StartsWith(processPath, StringComparison.OrdinalIgnoreCase) ?? false);
     }
+
 }
 
 file class FastRepeat<T> : ICollection<T>

@@ -2,7 +2,6 @@ import json
 import math
 import os.path
 import traceback
-import pyperclip
 
 import bpy
 import traceback
@@ -15,9 +14,9 @@ from .utils import *
 from .tasty import *
 from ..utils import *
 from ..logger import Log
-from ...io_scene_ueformat.importer.logic import UEFormatImport
-from ...io_scene_ueformat.importer.classes import UEAnim
-from ...io_scene_ueformat.options import UEModelOptions, UEAnimOptions, UEPoseOptions
+from ..io_scene_ueformat.importer.logic import UEFormatImport
+from ..io_scene_ueformat.importer.classes import UEAnim
+from ..io_scene_ueformat.options import UEModelOptions, UEAnimOptions, UEPoseOptions
 
 class ImportContext:
 
@@ -41,8 +40,6 @@ class ImportContext:
             bpy.ops.object.mode_set(mode='OBJECT')
 
         ensure_blend_data()
-
-        #pyperclip.copy(json.dumps(data))
 
         import_type = EPrimitiveExportType(data.get("PrimitiveType"))
         match import_type:
@@ -360,10 +357,15 @@ class ImportContext:
         bbox_max = (max(x_coords), max(y_coords), max(z_coords))
 
         def map_bounds(point):
-            x_mapped = (point[0] - bbox_min[0]) / (bbox_max[0] - bbox_min[0])
-            y_mapped = (point[1] - bbox_min[1]) / (bbox_max[1] - bbox_min[1])
-            z_mapped = (point[2] - bbox_min[2]) / (bbox_max[2] - bbox_min[2])
-            return (x_mapped, y_mapped, z_mapped)
+            x_range = bbox_max[0] - bbox_min[0]
+            y_range = bbox_max[1] - bbox_min[1]
+            z_range = bbox_max[2] - bbox_min[2]
+    
+            x_mapped = (point[0] - bbox_min[0]) / x_range if x_range != 0 else 0.0
+            y_mapped = (point[1] - bbox_min[1]) / y_range if y_range != 0 else 0.0
+            z_mapped = (point[2] - bbox_min[2]) / z_range if z_range != 0 else 0.0
+            
+            return x_mapped, y_mapped, z_mapped
 
         if new_attribute:
             preskinned_bounds = imported_mesh.data.attributes.new(domain="POINT", type="FLOAT_VECTOR", name="PS_LOCAL_BOUNDS")
