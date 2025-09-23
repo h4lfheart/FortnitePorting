@@ -7,6 +7,8 @@
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "Engine/SkinnedAssetCommon.h"
 #include "Engine/StaticMeshActor.h"
+#include "KismetCompilerModule.h"
+#include "Kismet2/KismetEditorUtilities.h"
 #include "Factories/TextureFactory.h"
 #include "Factories/UEFModelFactory.h"
 #include "FortnitePorting/Public/Utils.h"
@@ -17,7 +19,9 @@
 #include "Processing/MaterialMappings.h"
 #include "Processing/Names.h"
 #include "Processing/Models/Types/MeshExport.h"
+#include "Processing/BlueprintUtils.h"
 #include "World/FortPortActor.h"
+#include "UObject/SavePackage.h"
 
 struct FExportDataMeta;
 
@@ -29,6 +33,7 @@ FImportContext::FImportContext(const FExportDataMeta& Meta) : Meta(Meta)
 void FImportContext::Run(const TSharedPtr<FJsonObject>& Json)
 {
 	auto Type = FUtils::GetEnum<EPrimitiveExportType>(Json, "PrimitiveType");
+
 	switch (Type)
 	{
 	case EPrimitiveExportType::Mesh:
@@ -41,7 +46,86 @@ void FImportContext::Run(const TSharedPtr<FJsonObject>& Json)
 	case EPrimitiveExportType::Sound:
 		break;
 	}
+	
 }
+
+FString FImportContext::WrapPathWithImportRootFolder(const FString& Folder)
+{
+	auto RootName = Folder.RightChop(1);
+	RootName = RootName.Left(RootName.Find("/"));
+
+	if (RootName == "Game")
+	{
+		FString RelativePath;
+		Folder.Split(TEXT("/Game/"), nullptr, &RelativePath);
+		return "/Game/" + IMPORT_ROOT_FOLDER + "/" + RelativePath;
+	}
+
+	return Folder;
+}
+
+UBlueprint* FImportContext::ImportActorBlueprint(FString ActorBlueprintAssetPath, TMap<FString, FString> StaticMeshAssetPaths, TMap<FString, FString> SkeletalMeshAssetPaths)
+{
+	UE_LOG(LogFortnitePorting, Display, TEXT("Creating Actor Blueprint at: %s"),*ActorBlueprintAssetPath);
+	UBlueprint * ActorBlueprint = nullptr;
+	
+	if(StaticLoadObject(UObject::StaticClass(), nullptr, *ActorBlueprintAssetPath) != nullptr)
+	{
+		UE_LOG(LogFortnitePorting, Error, TEXT("An asset already exists at: %s"),*ActorBlueprintAssetPath);
+		return nullptr;
+	}
+
+	UPackage * ActorPackage = CreatePackage(*ActorBlueprintAssetPath);
+	if (ActorPackage == nullptr){
+		UE_LOG(LogFortnitePorting, Error, TEXT("Unable to create package at: %s"),*ActorBlueprintAssetPath);
+		return nullptr;
+	}
+
+	UClass* ActorBlueprintClass = nullptr;
+	UClass* ActorBlueprintGenClass = nullptr;
+
+	FModuleManager::LoadModuleChecked<IKismetCompilerInterface>("KismetCompiler").GetBlueprintTypesForClass(AActor::StaticClass(), ActorBlueprintClass, ActorBlueprintGenClass);
+	ActorBlueprint = FKismetEditorUtilities::CreateBlueprint(AActor::StaticClass(), ActorPackage, *FPaths::GetBaseFilename(ActorBlueprintAssetPath), BPTYPE_Normal, ActorBlueprintClass, ActorBlueprintGenClass);
+   
+	FAssetRegistryModule::AssetCreated(ActorBlueprint);
+	ActorBlueprint->MarkPackageDirty();
+
+	const auto BlueprintPathData = FImportUtils::SplitExportPath(ActorBlueprint->GetPathName());
+		
+	FBlueprintUtils::AddSceneComponentToBlueprint(BlueprintPathData.Path, "Root", "");
+
+	for (const auto& SkeletalMeshAssetPath : SkeletalMeshAssetPaths)
+	{
+		FString ComponentName = SkeletalMeshAssetPath.Key;
+		FString ComponentAssetPath = SkeletalMeshAssetPath.Value;
+		const auto SkeletalMeshPathData = FImportUtils::SplitExportPath(ComponentAssetPath);
+		FString Path = WrapPathWithImportRootFolder(SkeletalMeshPathData.Path);
+		
+		FBlueprintUtils::AddSkeletalMeshComponentToBlueprint(ActorBlueprintAssetPath, ComponentName, "Root", Path);
+	}
+
+	for (const auto& StaticMeshAssetPath : StaticMeshAssetPaths)
+	{
+		FString ComponentName = StaticMeshAssetPath.Key;
+		FString ComponentAssetPath = StaticMeshAssetPath.Value;
+		const auto StaticMeshPathData = FImportUtils::SplitExportPath(ComponentAssetPath);
+		FString Path = WrapPathWithImportRootFolder(StaticMeshPathData.Path);
+
+		FBlueprintUtils::AddStaticMeshComponentToBlueprint(ActorBlueprintAssetPath, ComponentName, "Root", Path);
+	}
+
+	FKismetEditorUtilities::CompileBlueprint(ActorBlueprint, EBlueprintCompileOptions::SkipGarbageCollection);
+	FString PackageFileName = FPackageName::LongPackageNameToFilename(ActorBlueprint->GetPackage()->GetPathName(), FPackageName::GetAssetPackageExtension());
+	FSavePackageArgs SaveArgs;
+	SaveArgs.TopLevelFlags = RF_Standalone | RF_Public;
+	UPackage::SavePackage(ActorBlueprint->GetPackage(), ActorBlueprint, *PackageFileName, SaveArgs);
+	
+	UE_LOG(LogFortnitePorting, Display, TEXT("Created Actor Blueprint at: %s"),*ActorBlueprintAssetPath);
+	
+	return ActorBlueprint;
+}
+
+
 
 void FImportContext::EnsureDependencies()
 {
@@ -54,6 +138,13 @@ void FImportContext::EnsureDependencies()
 
 void FImportContext::ImportMeshData(const FMeshExport& Export)
 {
+	
+	TMap<FString, FString> StaticMeshAssetPaths;
+	TMap<FString, FString> SkeletalMeshAssetPaths;
+
+	FSavePackageArgs SaveArgs;
+	SaveArgs.TopLevelFlags = RF_Standalone | RF_Public;
+
 	const auto Count = Export.Meshes.Num() + Export.OverrideMeshes.Num();
 	
 	FScopedSlowTask ImportTask(Count, FText::FromString("Importing Meshes..."));
@@ -111,11 +202,73 @@ void FImportContext::ImportMeshData(const FMeshExport& Export)
 
 				Actor->OnConstruction(Actor->GetTransform());
 			}
+
+			UStaticMesh * StaticMesh = Cast<UStaticMesh>(ImportedModel);
+			USkeletalMesh * SkeletalMesh = Cast<USkeletalMesh>(ImportedModel);
+			USkeleton * Skeleton = nullptr;
+
+			if (StaticMesh != nullptr)
+			{
+				StaticMesh->PostEditChange();
+				StaticMesh->GetPackage()->MarkPackageDirty();
+				
+				FString StaticMeshPackageFileName = FPackageName::LongPackageNameToFilename(StaticMesh->GetPackage()->GetPathName(), FPackageName::GetAssetPackageExtension());
+				UPackage::SavePackage(StaticMesh->GetPackage(), StaticMesh, *StaticMeshPackageFileName, SaveArgs);
+
+				// FString Path = WrapPathWithImportRootFolder(Mesh.Path);
+				if(!StaticMeshAssetPaths.Contains(Mesh.Name))
+				{
+					FImportUtils::InsertUniqueKeyToFStringFStringMap(StaticMeshAssetPaths, Mesh.Name, Mesh.Path);
+				}
+			}
+			else if (SkeletalMesh != nullptr)
+			{
+				Skeleton = SkeletalMesh->GetSkeleton();
+
+				if (Skeleton != nullptr)
+				{
+					Skeleton->PostEditChange();
+					Skeleton->GetPackage()->MarkPackageDirty();
+					
+					FString SkeletonPackageFileName = FPackageName::LongPackageNameToFilename(Skeleton->GetPackage()->GetPathName(), FPackageName::GetAssetPackageExtension());
+					UPackage::SavePackage(Skeleton->GetPackage(), Skeleton, *SkeletonPackageFileName, SaveArgs);
+				}
+				
+				SkeletalMesh->PostEditChange();
+				SkeletalMesh->GetPackage()->MarkPackageDirty();
+				
+				FString SkeletalMeshPackageFileName = FPackageName::LongPackageNameToFilename(SkeletalMesh->GetPackage()->GetPathName(), FPackageName::GetAssetPackageExtension());
+				UPackage::SavePackage(SkeletalMesh->GetPackage(), SkeletalMesh, *SkeletalMeshPackageFileName, SaveArgs);
+
+				// FString Path = WrapPathWithImportRootFolder(Mesh.Path);
+
+				if(!SkeletalMeshAssetPaths.Contains(Mesh.Name))
+				{
+					FImportUtils::InsertUniqueKeyToFStringFStringMap(SkeletalMeshAssetPaths, Mesh.Name, Mesh.Path);
+				}
+				
+			}
 		}
 	};
 
 	ImportMeshes(Export.Meshes);
 	ImportMeshes(Export.OverrideMeshes);
+
+	FString ImportAssetPath = "/Game/" + IMPORT_ROOT_FOLDER + "/Blueprints";
+	FString SanitizedName = Export.Name.Replace(TEXT(" "),TEXT(""), ESearchCase::CaseSensitive).
+		Replace(TEXT("'"),TEXT(""), ESearchCase::CaseSensitive).
+		Replace(TEXT("\""),TEXT(""), ESearchCase::CaseSensitive);
+	FString ActorBlueprintName = "BP_" + SanitizedName;
+	FString ActorBlueprintAssetPath = FPaths::Combine(ImportAssetPath, ActorBlueprintName);
+	UBlueprint* ActorBlueprint = ImportActorBlueprint(ActorBlueprintAssetPath, StaticMeshAssetPaths, SkeletalMeshAssetPaths);
+	
+	if (ActorBlueprint != nullptr)
+	{
+		TArray<FAssetData> Objects;
+		Objects.Add(ActorBlueprint);
+		GEditor->SyncBrowserToObjects(Objects);	
+	}
+	
 }
 
 UObject* FImportContext::ImportModel(const FExportMesh& Mesh)
@@ -141,7 +294,7 @@ UObject* FImportContext::ImportModel(const FExportMesh& Mesh)
 UObject* FImportContext::ImportMesh(const FString& GamePath)
 {
 	auto PathData = FImportUtils::SplitExportPath(GamePath);
-	auto Package = CreatePackage(*PathData.Path);
+	auto Package = CreatePackage(*WrapPathWithImportRootFolder(PathData.Path));
 	
 	auto Mesh = LoadObject<UObject>(Package, *PathData.ObjectName);
 	if (Mesh != nullptr || PathData.RootName.Equals("Engine")) return Mesh;
@@ -172,7 +325,7 @@ UObject* FImportContext::ImportMesh(const FString& GamePath)
 UMaterialInstanceConstant* FImportContext::ImportMaterial(const FExportMaterial& Material)
 {
 	const auto PathData = FImportUtils::SplitExportPath(Material.Path);
-	const auto Package = CreatePackage(*PathData.Path);
+	const auto Package = CreatePackage(*WrapPathWithImportRootFolder(PathData.Path));
 	
 	auto MaterialInstance = LoadObject<UMaterialInstanceConstant>(Package, *PathData.ObjectName);
 	if (MaterialInstance != nullptr || PathData.RootName.Equals("Engine")) return MaterialInstance;
@@ -232,6 +385,14 @@ UMaterialInstanceConstant* FImportContext::ImportMaterial(const FExportMaterial&
 	MaterialInstance->SetScalarParameterValueEditorOnly(FMaterialParameterInfo("Subsurface", GlobalParameter), Meta.Settings.Subsurface);
 	
 	MaterialInstance->PostEditChange();
+
+	MaterialInstance->MarkPackageDirty();
+
+	FString PackageFileName = FPackageName::LongPackageNameToFilename(Package->GetPathName(), FPackageName::GetAssetPackageExtension());
+	FSavePackageArgs SaveArgs;
+	SaveArgs.TopLevelFlags = RF_Standalone | RF_Public;
+	UPackage::SavePackage(Package, MaterialInstance, *PackageFileName, SaveArgs);
+
 	Package->FullyLoad();
 	
 	FGlobalComponentReregisterContext RecreateComponents;
@@ -242,7 +403,7 @@ UMaterialInstanceConstant* FImportContext::ImportMaterial(const FExportMaterial&
 UTexture* FImportContext::ImportTexture(const FString& GamePath, const bool sRGB = false, const TextureCompressionSettings CompressionSettings = TC_Default)
 {
 	const auto PathData = FImportUtils::SplitExportPath(GamePath);
-	const auto Package = CreatePackage(*PathData.Path);
+	const auto Package = CreatePackage(*WrapPathWithImportRootFolder(PathData.Path));
 
 	auto Texture = LoadObject<UTexture>(Package, *PathData.ObjectName);
 	if (Texture != nullptr || PathData.RootName.Equals("Engine")) return Texture;
@@ -268,6 +429,12 @@ UTexture* FImportContext::ImportTexture(const FString& GamePath, const bool sRGB
 	Texture->SRGB = sRGB;
 	Texture->CompressionSettings = CompressionSettings;
 	Texture->PostEditChange();
+
+	Texture->MarkPackageDirty();
+	FString PackageFileName = FPackageName::LongPackageNameToFilename(Texture->GetPackage()->GetPathName(), FPackageName::GetAssetPackageExtension());
+	FSavePackageArgs SaveArgs;
+	SaveArgs.TopLevelFlags = RF_Standalone | RF_Public;
+	UPackage::SavePackage(Texture->GetPackage(), Texture, *PackageFileName, SaveArgs);
 
 	Package->FullyLoad();
 	return Texture;
