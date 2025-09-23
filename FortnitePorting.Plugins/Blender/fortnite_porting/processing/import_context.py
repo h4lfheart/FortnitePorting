@@ -14,9 +14,9 @@ from .utils import *
 from .tasty import *
 from ..utils import *
 from ..logger import Log
-from ..io_scene_ueformat.importer.logic import UEFormatImport
-from ..io_scene_ueformat.importer.classes import UEAnim
-from ..io_scene_ueformat.options import UEModelOptions, UEAnimOptions, UEPoseOptions
+from ..ueformat.importer.logic import UEFormatImport
+from ..ueformat.importer.classes import UEAnim
+from ..ueformat.options import UEModelOptions, UEAnimOptions, UEPoseOptions
 
 class ImportContext:
 
