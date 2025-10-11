@@ -35,7 +35,7 @@ public partial class InstallationProfile : ObservableValidator
     [ArchiveDirectory(canValidateProperty: nameof(ArchiveDirectoryEnabled))]
     [ObservableProperty] private string _archiveDirectory;
     
-    [ObservableProperty] private EGame _unrealVersion = EGame.GAME_UE5_LATEST;
+    [ObservableProperty] private EGame _unrealVersion = EGame.GAME_UE5_7;
     
     [NotifyDataErrorInfo]
     [EncryptionKey(canValidateProperty: nameof(EncryptionKeyEnabled))]
@@ -105,17 +105,16 @@ public partial class InstallationProfile : ObservableValidator
     public async Task FetchMappings()
     {
         var mappings = await ApiVM.FortniteCentral.GetMappingsAsync(FetchMappingsVersion);
-        var targetMappings = mappings?.FirstOrDefault();
-        if (targetMappings is null)
+        if (mappings?.Mappings.GetMappingsURL() is null)
         {
             AppWM.Message("Fetch Mappings", $"Unsuccessfully fetched mappings for v{FetchMappingsVersion}", InfoBarSeverity.Error);
             return;
         }
 
-        var mappingsFilePath = Path.Combine(DataFolder.FullName, targetMappings.Filename);
+        var mappingsFilePath = Path.Combine(DataFolder.FullName, mappings.Version + ".usmap");
         if (!File.Exists(mappingsFilePath))
         {
-            var downloadedMappingsInfo = await ApiVM.DownloadFileAsync(targetMappings.URL, mappingsFilePath);
+            var downloadedMappingsInfo = await ApiVM.DownloadFileAsync(mappings.Mappings.GetMappingsURL(), mappingsFilePath);
             if (!downloadedMappingsInfo.Exists)
             {
                 AppWM.Message("Fetch Mappings", $"Unsuccessfully downloaded mappings for v{FetchMappingsVersion}", InfoBarSeverity.Error);
@@ -125,7 +124,7 @@ public partial class InstallationProfile : ObservableValidator
         
         MappingsFile = mappingsFilePath;
         UseMappingsFile = true;
-        File.SetCreationTime(mappingsFilePath, targetMappings.Uploaded);
+        File.SetCreationTime(mappingsFilePath, mappings.GetCreationTime());
         
         AppWM.Message("Fetch Mappings", $"Successfully fetched mappings for v{FetchMappingsVersion}", InfoBarSeverity.Success);
     }

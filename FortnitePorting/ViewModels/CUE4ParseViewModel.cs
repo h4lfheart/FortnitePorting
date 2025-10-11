@@ -327,9 +327,8 @@ public class CUE4ParseViewModel : ViewModelBase
             case EFortniteVersion.LatestInstalled:
             case EFortniteVersion.LatestOnDemand:
             {
-                var aes = _onlineStatus.Backup.Keys 
-                    ? await ApiVM.FortnitePorting.GetKeysAsync() 
-                    : await ApiVM.FortniteCentral.GetKeysAsync();
+                var aes = await ApiVM.FortniteCentral.GetKeysAsync()
+                    ?? (_onlineStatus.Backup.Keys ? await ApiVM.FortnitePorting.GetKeysAsync() : null);
                 
                 if (aes is null)
                 {
@@ -393,30 +392,27 @@ public class CUE4ParseViewModel : ViewModelBase
     
     private async Task<string?> GetEndpointMappings()
     {
-        async Task<string?> GetMappings(Func<string, Task<MappingsResponse[]?>> mappingsFunc)
+        async Task<string?> GetMappings(Func<string, Task<MappingsResponse?>> mappingsFunc)
         {
             var mappings = await mappingsFunc(string.Empty);
-            if (mappings is null) return null;
-            if (mappings.Length <= 0) return null;
+            if (mappings?.Mappings.GetMappingsURL() is null) return null;
 
-            var foundMappings = mappings.FirstOrDefault();
-            if (foundMappings is null) return null;
-
-            var mappingsFilePath = Path.Combine(DataFolder.FullName, foundMappings.Filename);
+            var mappingsFilePath = Path.Combine(DataFolder.FullName, mappings.Version + ".usmap");
             if (File.Exists(mappingsFilePath)) return mappingsFilePath;
 
-            var createdFile = await ApiVM.DownloadFileAsync(foundMappings.URL, mappingsFilePath);
+            var createdFile = await ApiVM.DownloadFileAsync(mappings.Mappings.GetMappingsURL(), mappingsFilePath);
             if (createdFile is null) return null;
             
-            File.SetCreationTime(mappingsFilePath, foundMappings.Uploaded);
+            File.SetCreationTime(mappingsFilePath, mappings.GetCreationTime());
 
             return mappingsFilePath;
         }
         
         
-        return  _onlineStatus.Backup.Mappings
-        ? await GetMappings(ApiVM.FortnitePorting.GetMappingsAsync)
-        : await GetMappings(ApiVM.FortniteCentral.GetMappingsAsync);
+        // return  _onlineStatus.Backup.Mappings
+        // ? await GetMappings(ApiVM.FortnitePorting.GetMappingsAsync)
+        // : await GetMappings(ApiVM.FortniteCentral.GetMappingsAsync);
+        return await GetMappings(ApiVM.FortniteCentral.GetMappingsAsync);
     }
 
 

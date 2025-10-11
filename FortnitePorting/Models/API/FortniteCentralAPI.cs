@@ -7,8 +7,8 @@ namespace FortnitePorting.Models.API;
 
 public class FortniteCentralAPI(RestClient client) : APIBase(client)
 {
-    private const string AES_URL = "https://fortnitecentral.genxgames.gg/api/v1/aes";
-    private const string MAPPINGS_URL = "https://fortnitecentral.genxgames.gg/api/v1/mappings";
+    private const string AES_URL = "https://uedb.dev/svc/api/v1/fortnite/aes";
+    private const string MAPPINGS_URL = "https://uedb.dev/svc/api/v1/fortnite/mappings";
 
     public async Task<AesResponse?> GetKeysAsync(string version = "")
     {
@@ -22,13 +22,13 @@ public class FortniteCentralAPI(RestClient client) : APIBase(client)
         return GetKeysAsync(version).GetAwaiter().GetResult();
     }
 
-    public async Task<MappingsResponse[]?> GetMappingsAsync(string version = "")
+    public async Task<MappingsResponse?> GetMappingsAsync(string version = "")
     {
         Parameter[] parameters = !string.IsNullOrWhiteSpace(version) ? [new QueryParameter("version", version)] : [];
-        return await ExecuteAsync<MappingsResponse[]>(MAPPINGS_URL, parameters: parameters);
+        return await ExecuteAsync<MappingsResponse>(MAPPINGS_URL, parameters: parameters);
     }
 
-    public MappingsResponse[]? GetMappings(string version = "")
+    public MappingsResponse? GetMappings(string version = "")
     {
         return GetMappingsAsync(version).GetAwaiter().GetResult();
     }

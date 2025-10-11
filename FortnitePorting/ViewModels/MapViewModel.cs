@@ -93,6 +93,27 @@ public partial class MapViewModel : ViewModelBase
             "FortniteGame/Plugins/GameFeatures/Figment/Figment_S03_MapUI/Content/MiniMapAthena_S03_Mask",
             0.017f, 380, 470, 110, 12800, true
         ),
+        new(
+            "Figment_S04",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S04_Map/Content/Athena_Terrain_S04",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S04_MapUI/Content/MiniMapAthena_S04",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S04_MapUI/Content/MiniMapAthena_S04_Mask",
+            0.017f, 380, 470, 110, 12800, true
+        ),
+        new(
+            "Figment_S05",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S05_Map/Content/Athena_Terrain_S05",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S05_MapUI/Content/MiniMapAthena_S05Temp",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S05_MapUI/Content/MiniMapAthena_S05_MaskTemp",
+            0.017f, 330, 450, 110, 12800, true
+        ),
+        new(
+            "Figment_S06",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S06_Map/Content/Athena_Terrain_S06",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S06_MapUI/Content/MiniMapAthena_S06Temp",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S06_MapUI/Content/MiniMapAthena_S06_MaskTemp",
+            0.017f, 330, 450, 110, 12800, true
+        ),
         
         // reload
         new(
@@ -115,6 +136,20 @@ public partial class MapViewModel : ViewModelBase
             "/BlastBerryMapUI/MiniMap/Discovered_DashBerry",
             "/BlastBerryMapUI/MiniMap/MMap_DasBerry_Mask",
             0.0235f, -20, 210, 153, 12800, true
+        ),
+        new(
+            "TimberStake",
+            "/4c3853ea-4fd0-364f-c3f9-dabd19e43a23/TimberStake",
+            "/BlastBerryMapUI/MiniMap/Discovered_TimberStake",
+            "/BlastBerryMapUI/MiniMap/MMap_TimberStake_Mask",
+            0.027f, 40, 15, 175, 12800, false, false
+        ),
+        new(
+            "SourSpawn",
+            "/8b8c126e-4f3a-816e-1d5c-7983eecfa42a/SourSpawn",
+            "/BlastBerryMapUI/MiniMap/Discovered_SourSpawn",
+            "/BlastBerryMapUI/MiniMap/MMap_SourSpawn_Mask",
+            0.023f, 75, 25, 149, 12800, false, false
         ),
         
         // ballistic
