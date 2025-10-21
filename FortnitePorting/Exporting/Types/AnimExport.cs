@@ -32,7 +32,12 @@ public class AnimExport : BaseExport
             {
                 switch (asset)
                 {
-                    case UAnimSequence animSequence:
+                    case UAnimMontage animMontage:
+                    {
+                        AnimMontage(animMontage);
+                        break;
+                    }
+                    case UAnimSequenceBase animSequence:
                     {
                         if (animSequence.Skeleton.Load<USkeleton>() is { } skeleton)
                         {
@@ -42,13 +47,8 @@ public class AnimExport : BaseExport
                         Sections.AddIfNotNull(Exporter.AnimSequence(animSequence));
                         break;
                     }
-                    case UAnimMontage animMontage:
-                    {
-                        AnimMontage(animMontage);
-                        
-                        break;
-                    }
                 }
+                        
                 break;
             }
             case EExportType.Emote:
@@ -184,12 +184,13 @@ public class AnimExport : BaseExport
     private List<ExportCurveMapping> CurveMappings(UCurveExpressionsDataAsset curveExpressions)
     {
         var mappings = new List<ExportCurveMapping>();
+        if (curveExpressions?.ExpressionData?.ExpressionMap == null) return mappings;
 
         foreach (var (curveName, expr) in curveExpressions.ExpressionData.ExpressionMap)
         {
             var expressionStack = expr.Expression.Select(element => element switch
                 {
-                    OpElement<EOperator> op => new ExportCurveExpressionElement(OpElement.EOperator, op.Value),
+                    OpElement<EOperator> op => new ExportCurveExpressionElement(OpElement.EOperator, (int)op.Value),
                     OpElement<FName> name => new ExportCurveExpressionElement(OpElement.FName, name.Value.Text),
                     OpElement<FFunctionRef> functionRef => new ExportCurveExpressionElement(OpElement.FFunctionRef, functionRef.Value.Index),
                     OpElement<float> single => new ExportCurveExpressionElement(OpElement.Float, single.Value),

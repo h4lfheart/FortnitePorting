@@ -55,7 +55,7 @@ public partial class ExportContext
                 EMeshFormat.Gltf2 => "glb",
                 EMeshFormat.OBJ => "obj",
             },
-            UAnimSequence => Meta.Settings.AnimFormat switch
+            UAnimSequenceBase => Meta.Settings.AnimFormat switch
             {
                 EAnimFormat.UEFormat => "ueanim",
                 EAnimFormat.ActorX => "psa"
@@ -160,6 +160,15 @@ public partial class ExportContext
             case UAnimSequence animSequence:
             {
                 var exporter = new AnimExporter(animSequence, FileExportOptions);
+                foreach (var sequence in exporter.AnimSequences)
+                {
+                    File.WriteAllBytes(path, sequence.FileData);
+                }
+                break;
+            }
+            case UAnimStreamable animStreamable:
+            {
+                var exporter = new AnimExporter(animStreamable, FileExportOptions);
                 foreach (var sequence in exporter.AnimSequences)
                 {
                     File.WriteAllBytes(path, sequence.FileData);
