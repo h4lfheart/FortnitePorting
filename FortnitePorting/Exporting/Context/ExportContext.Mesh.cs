@@ -3,11 +3,13 @@ using System.Linq;
 using CUE4Parse_Conversion.Meshes;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Animation;
+using CUE4Parse.UE4.Assets.Exports.Component;
 using CUE4Parse.UE4.Assets.Exports.Component.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Component.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
+using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.Utils;
 using FortnitePorting.Exporting.Models;
 using FortnitePorting.Shared.Extensions;
@@ -66,7 +68,7 @@ public partial class ExportContext
     public T? Mesh<T>(UStaticMesh? mesh) where T : ExportMesh, new()
     {
         if (mesh is null) return null;
-        if (!mesh.TryConvert(out var convertedMesh)) return null;
+        if (!mesh.TryConvert(out var convertedMesh, Meta.Settings.NaniteMeshFormat)) return null;
         if (convertedMesh.LODs.Count <= 0) return null;
 
         var exportPart = new T
