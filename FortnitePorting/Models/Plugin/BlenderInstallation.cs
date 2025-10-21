@@ -82,7 +82,6 @@ public partial class BlenderInstallation(string blenderExecutablePath) : Observa
     {
         Status = "Uninstalling";
         
-        Directory.Delete(Path.Combine(StartupPath, "io_scene_ueformat"), true);
         Directory.Delete(Path.Combine(StartupPath, "fortnite_porting"), true);
     }
 }

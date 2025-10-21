@@ -4,15 +4,24 @@ namespace FortnitePorting.Models.API.Responses;
 
 public class MappingsResponse
 {
-    public string URL;
-    public string Filename;
-    public long Length;
-    public DateTime Uploaded;
-    public MappingsMeta Meta;
+    public string Version;
+    public DateTime? Updated;
+    public MappingsMeta Mappings;
+
+    public DateTime GetCreationTime()
+    {
+        return Updated ?? DateTime.Now;
+    }
 }
 
 public class MappingsMeta
 {
-    public string Version;
-    public string CompressionMethod;
+    public string? ZStandard;
+    public string? Brotli;
+    public string? Oodle; // Assume this is an option
+
+    public string? GetMappingsURL()
+    {
+        return ZStandard ?? Brotli ?? Oodle;
+    }
 }

@@ -41,7 +41,7 @@ public partial class MapViewModel : ViewModelBase
 
     private static MapInfo[] MapInfos =
     [
-        // battle royale
+        // Battle Royale
         new(
             "Asteria",
             "FortniteGame/Content/Athena/Asteria/Maps/Asteria_Terrain",
@@ -78,7 +78,7 @@ public partial class MapViewModel : ViewModelBase
             0.0146f, -100, -25, 96, 12800, true, false
         ),
         
-        // og
+        // OG
         new(
             "Figment_S01",
             "FortniteGame/Plugins/GameFeatures/Figment/Figment_S01_Map/Content/Athena_Terrain_S01",
@@ -107,6 +107,20 @@ public partial class MapViewModel : ViewModelBase
             "FortniteGame/Plugins/GameFeatures/Figment/Figment_S04_MapUI/Content/MiniMapAthena_S04_Mask",
             0.017f, 380, 470, 110, 12800, true
         ),
+        new(
+            "Figment_S05",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S05_Map/Content/Athena_Terrain_S05",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S05_MapUI/Content/MiniMapAthena_S05Temp",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S05_MapUI/Content/MiniMapAthena_S05_MaskTemp",
+            0.017f, 330, 450, 110, 12800, true
+        ),
+        new(
+            "Figment_S06",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S06_Map/Content/Athena_Terrain_S06",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S06_MapUI/Content/MiniMapAthena_S06Temp",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S06_MapUI/Content/MiniMapAthena_S06_MaskTemp",
+            0.017f, 330, 450, 110, 12800, true
+        ),
         
         // reload
         new(
@@ -114,14 +128,14 @@ public partial class MapViewModel : ViewModelBase
             "/BlastBerryMap/Maps/BlastBerry_Terrain",
             "/BlastBerryMapUI/Minimap/Capture_Iteration_Discovered_BlastBerry",
             "/BlastBerryMapUI/MiniMap/T_MiniMap_Mask",
-            0.023f, -20, 215, 150, 12800, false
+            0.0235f, -20, 210, 153, 12800, false
         ),
         new(
             "PunchBerry",
             "/632de27e-4506-41f8-532f-93ac01dc10ca/Maps/PunchBerry_Terrain",
             "/BlastBerryMapUI/MiniMap/Discovered_PunchBerry",
             "/BlastBerryMapUI/MiniMap/T_PB_MiniMap_Mask",
-            0.023f, -20, 215, 150, 12800, true
+            0.0235f, -20, 210, 153, 12800, true
         ),
         new(
             "DashBerry",
@@ -136,6 +150,13 @@ public partial class MapViewModel : ViewModelBase
             "/BlastBerryMapUI/MiniMap/Discovered_TimberStake",
             "/BlastBerryMapUI/MiniMap/MMap_TimberStake_Mask",
             0.027f, 40, 15, 175, 12800, false, false
+        ),
+        new(
+            "SourSpawn",
+            "/8b8c126e-4f3a-816e-1d5c-7983eecfa42a/SourSpawn",
+            "/BlastBerryMapUI/MiniMap/Discovered_SourSpawn",
+            "/BlastBerryMapUI/MiniMap/MMap_SourSpawn_Mask",
+            0.023f, 75, 25, 149, 12800, false, false
         ),
         
         // ballistic
@@ -162,7 +183,11 @@ public partial class MapViewModel : ViewModelBase
     private static string[] PluginRemoveList =
     [
         "FMJam",
+        "BlastBerry_Terrain",
         "PunchBerry_Terrain",
+        "DashBerry",
+        "TimberStake",
+        "SourSpawn",
         "FeralCorgi_2Bombsite_Map"
     ];
 

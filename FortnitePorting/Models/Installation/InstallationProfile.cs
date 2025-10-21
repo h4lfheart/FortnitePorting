@@ -100,17 +100,16 @@ public partial class InstallationProfile : ObservableValidator
     public async Task FetchMappings()
     {
         var mappings = await Api.FortniteCentral.Mappings(FetchMappingsVersion);
-        var targetMappings = mappings?.FirstOrDefault();
-        if (targetMappings is null)
+        if (mappings?.Mappings.GetMappingsURL() is not null)
         {
             Info.Message("Fetch Mappings", $"Failed to fetch mappings for v{FetchMappingsVersion}", InfoBarSeverity.Error);
             return;
         }
 
-        var mappingsFilePath = Path.Combine(App.DataFolder.FullName, targetMappings.Filename);
+        var mappingsFilePath = Path.Combine(App.DataFolder.FullName, mappings.Version + ".usmap");
         if (!File.Exists(mappingsFilePath))
         {
-            var downloadedMappingsInfo = await Api.DownloadFileAsync(targetMappings.URL, mappingsFilePath);
+            var downloadedMappingsInfo = await Api.DownloadFileAsync(mappings.Mappings.GetMappingsURL(), mappingsFilePath);
             if (!downloadedMappingsInfo.Exists)
             {
                 Info.Message("Fetch Mappings", $"Failed to download mappings for v{FetchMappingsVersion}", InfoBarSeverity.Error);
@@ -120,7 +119,7 @@ public partial class InstallationProfile : ObservableValidator
         
         MappingsFile = mappingsFilePath;
         UseMappingsFile = true;
-        File.SetCreationTime(mappingsFilePath, targetMappings.Uploaded);
+        File.SetCreationTime(mappingsFilePath, mappings.GetCreationTime());
         
         Info.Message("Fetch Mappings", $"Successfully fetched mappings for v{FetchMappingsVersion}", InfoBarSeverity.Success);
     }

@@ -14,8 +14,8 @@ public class FortniteCentralAPI(RestClient client) : APIBase(client)
         new QueryParameter("version", version)
     ]);
     
-    public async Task<MappingsResponse[]?> Mappings() => await ExecuteAsync<MappingsResponse[]?>("v1/mappings");
-    public async Task<MappingsResponse[]?> Mappings(string version) => await ExecuteAsync<MappingsResponse[]?>("v1/mappings", parameters: [
+    public async Task<MappingsResponse?> Mappings() => await ExecuteAsync<MappingsResponse?>("v1/mappings");
+    public async Task<MappingsResponse?> Mappings(string version) => await ExecuteAsync<MappingsResponse?>("v1/mappings", parameters: [
         new QueryParameter("version", version)
     ]);
 }

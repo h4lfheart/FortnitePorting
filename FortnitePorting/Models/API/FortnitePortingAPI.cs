@@ -35,7 +35,7 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
     public async Task<FeaturedArtResponse[]> FeaturedArt() => await ExecuteAsync<FeaturedArtResponse[]>("v1/featured_art") ?? [];
     
     public async Task<AesResponse?> Aes() => await ExecuteAsync<AesResponse>("v1/static/aes");
-    public async Task<MappingsResponse[]?> Mappings() => await ExecuteAsync<MappingsResponse[]?>("v1/static/mappings");
+    public async Task<MappingsResponse?> Mappings() => await ExecuteAsync<MappingsResponse?>("v1/static/mappings");
     public async Task<OnlineResponse?> Online() => await ExecuteAsync<OnlineResponse?>("v1/static/online");
     public async Task<RepositoryResponse?> Repository() => await ExecuteAsync<RepositoryResponse?>("v1/static/repository");
     public async Task Message(string text) => await ExecuteAsync("v1/chat/message", Method.Post, parameters: [
