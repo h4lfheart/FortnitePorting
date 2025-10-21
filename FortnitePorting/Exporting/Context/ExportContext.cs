@@ -12,6 +12,7 @@ using CUE4Parse_Conversion.Textures;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Actor;
 using CUE4Parse.UE4.Assets.Exports.Animation;
+using CUE4Parse.UE4.Assets.Exports.Component.SplineMesh;
 using CUE4Parse.UE4.Assets.Exports.Engine.Font;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Sound;
@@ -80,6 +81,12 @@ public partial class ExportContext
         var path = GetExportPath(asset, extension, embeddedAsset, excludeGamePath: Meta.CustomPath is not null);
         
         var returnValue = returnRealPath ? path : (embeddedAsset ? $"{asset.Owner.Name}/{asset.Name}.{asset.Name}" : asset.GetPathName());
+        
+        if (asset is USplineMeshComponent splineComponent)
+        {
+            var assetName = $"{asset.Name}-{splineComponent.GetMeshId().AsSpan(0, 6)}";
+            returnValue = $"{asset.Owner.Name}/{assetName}.{assetName}";
+        }
 
         var shouldExport = asset switch
         {
@@ -299,6 +306,9 @@ public partial class ExportContext
         var directory = Path.Combine(Meta.CustomPath ?? Meta.AssetsRoot, path);
         Directory.CreateDirectory(directory.SubstringBeforeLast("/"));
 
+        if (obj is USplineMeshComponent splineComponent)
+            directory += string.Concat("-", splineComponent.GetMeshId().AsSpan(0, 6));
+        
         var finalPath = $"{directory}.{ext.ToLower()}";
         return finalPath;
     }
