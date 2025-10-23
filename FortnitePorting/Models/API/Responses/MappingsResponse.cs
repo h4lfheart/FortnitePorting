@@ -6,22 +6,10 @@ public class MappingsResponse
 {
     public string Version;
     public DateTime? Updated;
-    public MappingsMeta Mappings;
+    public string Url;
 
     public DateTime GetCreationTime()
     {
         return Updated ?? DateTime.Now;
-    }
-}
-
-public class MappingsMeta
-{
-    public string? ZStandard;
-    public string? Brotli;
-    public string? Oodle;
-
-    public string? GetMappingsURL()
-    {
-        return ZStandard ?? Brotli ?? Oodle;
     }
 }

@@ -11,7 +11,6 @@ public class AesResponse
 
 public class DynamicKey
 {
-    public string Name;
     public string Key;
     public string GUID;
 }

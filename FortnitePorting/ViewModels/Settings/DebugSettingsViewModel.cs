@@ -59,7 +59,8 @@ public partial class DebugSettingsViewModel : ViewModelBase
             }
             case nameof(IsConsoleVisible):
             {
-                AppWM.ConsoleIsVisible = IsConsoleVisible;
+                if (AppWM is not null)
+                    AppWM.ConsoleIsVisible = IsConsoleVisible;
                 break;
             }
         }

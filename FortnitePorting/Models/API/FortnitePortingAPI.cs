@@ -45,8 +45,8 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
         
     public const string ONLINE_URL = "https://fortniteporting.halfheart.dev/api/v3/online";
     
-    public const string AES_URL = "https://fortniteporting.halfheart.dev/api/v3/aes";
-    public const string MAPPINGS_URL = "https://fortniteporting.halfheart.dev/api/v3/mappings";
+    public const string AES_URL = "https://api.fortniteporting.app/v1/aes";
+    public const string MAPPINGS_URL = "https://api.fortniteporting.app/v1/mappings";
     
     public async Task<NewsResponse[]> GetNewsAsync()
     {
@@ -345,13 +345,13 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
         return GetKeysAsync(version).GetAwaiter().GetResult();
     }
 
-    public async Task<MappingsResponse[]?> GetMappingsAsync(string version = "")
+    public async Task<MappingsResponse?> GetMappingsAsync(string version = "")
     {
         Parameter[] parameters = !string.IsNullOrWhiteSpace(version) ? [new QueryParameter("version", version)] : [];
-        return await ExecuteAsync<MappingsResponse[]>(MAPPINGS_URL, parameters: parameters);
+        return await ExecuteAsync<MappingsResponse>(MAPPINGS_URL, parameters: parameters);
     }
 
-    public MappingsResponse[]? GetMappings(string version = "")
+    public MappingsResponse? GetMappings(string version = "")
     {
         return GetMappingsAsync(version).GetAwaiter().GetResult();
     }

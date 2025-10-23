@@ -83,7 +83,7 @@ public partial class InstallationProfile : ObservableValidator
 
     public async Task FetchKeys()
     {
-        var keys = await ApiVM.FortniteCentral.GetKeysAsync(FetchKeysVersion);
+        var keys = await ApiVM.FortnitePorting.GetKeysAsync(FetchKeysVersion);
         if (keys is null)  
         {
             AppWM.Message("Fetch Keys", $"Unsuccessfully fetched keys for v{FetchKeysVersion}", InfoBarSeverity.Error);
@@ -104,8 +104,8 @@ public partial class InstallationProfile : ObservableValidator
     
     public async Task FetchMappings()
     {
-        var mappings = await ApiVM.FortniteCentral.GetMappingsAsync(FetchMappingsVersion);
-        if (mappings?.Mappings.GetMappingsURL() is null)
+        var mappings = await ApiVM.FortnitePorting.GetMappingsAsync(FetchMappingsVersion);
+        if (mappings?.Url is null)
         {
             AppWM.Message("Fetch Mappings", $"Unsuccessfully fetched mappings for v{FetchMappingsVersion}", InfoBarSeverity.Error);
             return;
@@ -114,7 +114,7 @@ public partial class InstallationProfile : ObservableValidator
         var mappingsFilePath = Path.Combine(DataFolder.FullName, mappings.Version + ".usmap");
         if (!File.Exists(mappingsFilePath))
         {
-            var downloadedMappingsInfo = await ApiVM.DownloadFileAsync(mappings.Mappings.GetMappingsURL(), mappingsFilePath);
+            var downloadedMappingsInfo = await ApiVM.DownloadFileAsync(mappings.Url, mappingsFilePath);
             if (!downloadedMappingsInfo.Exists)
             {
                 AppWM.Message("Fetch Mappings", $"Unsuccessfully downloaded mappings for v{FetchMappingsVersion}", InfoBarSeverity.Error);
