@@ -159,9 +159,7 @@ public partial class CUE4ParseService : ObservableObject, IService
     {
         if (AppSettings.Installation.CurrentProfile.FortniteVersion is not EFortniteVersion.LatestInstalled) return;
         
-        var aes = _onlineStatus.Backup.Keys
-            ? await Api.FortnitePorting.Aes()
-            : await Api.FortniteCentral.Aes();
+        var aes = await Api.FortnitePorting.Aes();
         if (aes is null) return;
         
         var mainPakPath = Path.Combine(AppSettings.Installation.CurrentProfile.ArchiveDirectory,
@@ -327,8 +325,7 @@ public partial class CUE4ParseService : ObservableObject, IService
             case EFortniteVersion.LatestInstalled:
             case EFortniteVersion.LatestOnDemand:
             {
-                var aes =  await Api.FortniteCentral.Aes()
-                        ?? (_onlineStatus.Backup.Keys ? await Api.FortnitePorting.Aes() : null);
+                var aes =  await Api.FortnitePorting.Aes();
                 
                 if (aes is null)
                 {
@@ -396,17 +393,16 @@ public partial class CUE4ParseService : ObservableObject, IService
     
     private async Task<string?> GetEndpointMappings()
     {
-        async Task<string?> GetMappings(Func<Task<MappingsResponse?>> mappingsFunc)
+        async Task<string?> GetMappings(Func<string, Task<MappingsResponse?>> mappingsFunc)
         {
-            var mappings = await mappingsFunc();
+            var mappings = await mappingsFunc(string.Empty);
+            if (mappings?.Url is null) return null;
 
-            if (mappings?.Mappings.GetMappingsURL() is null) return null;
-
-            var mappingsFilePath = Path.Combine(App.DataFolder.FullName, mappings.Version + ".usmap");
+            var mappingsFilePath = Path.Combine(App.DataFolder.FullName, mappings.Url.SubstringAfterLast("/"));
             if (File.Exists(mappingsFilePath)) return mappingsFilePath;
-
-            var createdFile = await Api.DownloadFileAsync(mappings.Mappings.GetMappingsURL(), mappingsFilePath);
-            if (createdFile is null) return null;
+            
+            var createdFile = await Api.DownloadFileAsync(mappings.Url, mappingsFilePath);
+            if (!createdFile.Exists) return null;
             
             File.SetCreationTime(mappingsFilePath, mappings.GetCreationTime());
 
@@ -414,8 +410,7 @@ public partial class CUE4ParseService : ObservableObject, IService
         }
         
         
-        return await GetMappings(Api.FortniteCentral.Mappings)
-            ?? (_onlineStatus.Backup.Mappings ? await GetMappings(Api.FortnitePorting.Mappings) : null);
+        return await GetMappings(Api.FortnitePorting.Mappings);
     }
 
 

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.Versions;
+using CUE4Parse.Utils;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Models.CUE4Parse;
 using FortnitePorting.Validators;
@@ -78,7 +79,7 @@ public partial class InstallationProfile : ObservableValidator
 
     public async Task FetchKeys()
     {
-        var keys = await Api.FortniteCentral.Aes(FetchKeysVersion);
+        var keys = await Api.FortnitePorting.Aes(FetchKeysVersion);
         if (keys is null)  
         {
             Info.Message("Fetch Keys", $"Failed to fetch keys for v{FetchKeysVersion}, keys for this version may not be available", InfoBarSeverity.Error);
@@ -99,17 +100,17 @@ public partial class InstallationProfile : ObservableValidator
     
     public async Task FetchMappings()
     {
-        var mappings = await Api.FortniteCentral.Mappings(FetchMappingsVersion);
-        if (mappings?.Mappings.GetMappingsURL() is not null)
+        var mappings = await Api.FortnitePorting.Mappings(FetchMappingsVersion);
+        if (mappings?.Url is null)
         {
             Info.Message("Fetch Mappings", $"Failed to fetch mappings for v{FetchMappingsVersion}", InfoBarSeverity.Error);
             return;
         }
 
-        var mappingsFilePath = Path.Combine(App.DataFolder.FullName, mappings.Version + ".usmap");
+        var mappingsFilePath = Path.Combine(App.DataFolder.FullName, mappings.Url.SubstringAfterLast("/"));
         if (!File.Exists(mappingsFilePath))
         {
-            var downloadedMappingsInfo = await Api.DownloadFileAsync(mappings.Mappings.GetMappingsURL(), mappingsFilePath);
+            var downloadedMappingsInfo = await Api.DownloadFileAsync(mappings.Url, mappingsFilePath);
             if (!downloadedMappingsInfo.Exists)
             {
                 Info.Message("Fetch Mappings", $"Failed to download mappings for v{FetchMappingsVersion}", InfoBarSeverity.Error);
