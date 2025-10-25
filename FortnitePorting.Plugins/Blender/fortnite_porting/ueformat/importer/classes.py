@@ -45,8 +45,8 @@ class UEModel:
 
     @classmethod
     def from_archive(
-        cls,
-        ar: FArchiveReader
+            cls,
+            ar: FArchiveReader
     ) -> UEModel:
         data = cls()
 
@@ -66,7 +66,7 @@ class UEModel:
                         lambda ar: ConvexCollision.from_archive(ar),
                     )
                 case _:
-                    Log.warn(f"Unknown Mesh Data: {section_name}")
+                    Log.warn(f"Unknown Model Data: {section_name}")
                     ar.skip(byte_size)
         return data
 
@@ -165,8 +165,8 @@ class UEModelLOD:
 
     @classmethod
     def from_archive(
-        cls,
-        ar: FArchiveReader
+            cls,
+            ar: FArchiveReader
     ) -> UEModelLOD:
         data = cls(name=ar.read_fstring())
 
@@ -183,10 +183,10 @@ class UEModelLOD:
             if header_name == "VERTICES":
                 flattened = ar.read_float_vector(array_size * 3)
                 data.vertices = (np.array(flattened) * ar.metadata["scale"]).reshape(array_size, 3)
-                
+
                 if ar.file_version >= EUEFormatVersion.PreserveOriginalTransforms:
                     data.vertices *= (1, -1, 1)
-                    
+
             elif header_name == "INDICES":
                 data.indices = np.array(
                     ar.read_int_vector(array_size),
@@ -199,7 +199,7 @@ class UEModelLOD:
 
                 if ar.file_version >= EUEFormatVersion.PreserveOriginalTransforms:
                     data.normals *= (1, -1, 1)
-                    
+
             elif header_name == "TANGENTS":
                 ar.skip(array_size * 3 * 3)
             elif header_name == "VERTEXCOLORS":
@@ -213,7 +213,7 @@ class UEModelLOD:
                     if ar.file_version >= EUEFormatVersion.PreserveOriginalTransforms:
                         uvs *= (1, -1)
                         uvs += (0, 1)
-                
+
                     data.uvs.append(uvs)
             elif header_name == "MATERIALS":
                 data.materials = ar.read_array(
@@ -231,7 +231,7 @@ class UEModelLOD:
                     lambda ar: MorphTarget.from_archive(ar),
                 )
             else:
-                Log.warn(f"Unknown Mesh Data: {header_name}")
+                Log.warn(f"Unknown LOD Data: {header_name}")
                 ar.skip(byte_size)
 
             ar.data.seek(pos + byte_size, 0)
@@ -248,7 +248,7 @@ class UEModelSkeleton:
     @classmethod
     def from_archive(cls, ar: FArchiveReader) -> UEModelSkeleton:
         data = cls()
-        
+
         while not ar.eof():
             section_name = ar.read_fstring()
             array_size = ar.read_int()
@@ -284,7 +284,7 @@ class UEModelSkeleton:
 @dataclass(slots=True)
 class UEModelSkeletonMetadata:
     skeleton_path: str
-    
+
     @classmethod
     def from_archive(cls, ar: FArchiveReader) -> UEModelSkeletonMetadata:
         return cls(skeleton_path=ar.read_fstring())
@@ -361,7 +361,7 @@ class Bone:
         return cls(
             name=ar.read_fstring(),
             parent_index=ar.read_int(),
-            position=ar.read_float_vector(3) 
+            position=ar.read_float_vector(3)
                      * ar.metadata["scale"]
                      * ((1, -1, 1) if ar.file_version >= EUEFormatVersion.PreserveOriginalTransforms else (1, 1, 1)),
             rotation=ar.read_float_vector(4)
@@ -409,8 +409,8 @@ class MorphTargetData:
     def from_archive(cls, ar: FArchiveReader) -> MorphTargetData:
         return cls(
             position=ar.read_float_vector(3)
-                      * ar.metadata["scale"]
-                      * ((1, -1, 1) if ar.file_version >= EUEFormatVersion.PreserveOriginalTransforms else (1, 1, 1)),
+                     * ar.metadata["scale"]
+                     * ((1, -1, 1) if ar.file_version >= EUEFormatVersion.PreserveOriginalTransforms else (1, 1, 1)),
             normals=ar.read_float_vector(3)
                     * ((1, -1, 1) if ar.file_version >= EUEFormatVersion.PreserveOriginalTransforms else (1, 1, 1)),
             vertex_index=ar.read_int(),
@@ -465,7 +465,7 @@ class UEAnim:
     @classmethod
     def from_archive(cls, ar: FArchiveReader) -> UEAnim:
         data = cls()
-        
+
         if ar.file_version < EUEFormatVersion.SerializeAssetMetadata:
             data.metadata = UEAnimMetadata(num_frames=ar.read_int(), frames_per_second=ar.read_float())
 
@@ -511,12 +511,12 @@ class EAdditiveBasePoseType(IntEnum):
 class UEAnimMetadata:
     num_frames: int
     frames_per_second: float
-    
+
     ref_pose_path: str = ""
     additive_anim_type: EAdditiveAnimationType = EAdditiveAnimationType.AAT_None
     ref_pose_type: EAdditiveBasePoseType = EAdditiveBasePoseType.ABPT_None
     ref_frame_index: int = 0
-    
+
     @classmethod
     def from_archive(cls, ar: FArchiveReader) -> UEAnimMetadata:
         return cls(
@@ -527,7 +527,7 @@ class UEAnimMetadata:
             ref_pose_type=EAdditiveBasePoseType(int.from_bytes(ar.read_byte())),
             ref_frame_index=ar.read_int()
         )
-    
+
 @dataclass(slots=True)
 class Curve:
     name: str
@@ -577,7 +577,7 @@ class VectorKey(AnimKey):
     def from_archive(cls, ar: FArchiveReader, multiplier: float = 1.0, allows_mirror: bool = True) -> VectorKey:
         return cls(
             frame=ar.read_int(),
-            value=ar.read_float_vector(3) 
+            value=ar.read_float_vector(3)
                   * multiplier
                   * ((1, -1, 1) if allows_mirror and ar.file_version >= EUEFormatVersion.PreserveOriginalTransforms else (1, 1, 1)),
         )
@@ -617,7 +617,7 @@ class FloatKey(AnimKey):
 class UEPose:
     poses: list[UEPoseData] = field(default_factory=list)
     curve_names: list[str] = field(default_factory=list)
-    
+
     @classmethod
     def from_archive(cls, ar: FArchiveReader) -> UEPose:
         data = cls()
@@ -635,7 +635,7 @@ class UEPose:
                 case _:
                     Log.warn(f"Unknown Pose Data: {section_name}")
                     ar.skip(byte_size)
-        
+
         return data
 
 @dataclass(slots=True)

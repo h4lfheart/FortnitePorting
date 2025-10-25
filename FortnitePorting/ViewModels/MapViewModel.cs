@@ -152,7 +152,7 @@ public partial class MapViewModel : ViewModelBase
     ];
     
     
-    public static readonly DirectoryInfo MapsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Maps"));
+    public DirectoryInfo MapsFolder => new(Path.Combine(App.ApplicationDataFolder.FullName, "Maps"));
 
     public MapViewModel()
     {
@@ -161,7 +161,7 @@ public partial class MapViewModel : ViewModelBase
 
     private static string[] PluginRemoveList =
     [
-        "FMJam_",
+        "FMJam",
         "PunchBerry_Terrain",
         "FeralCorgi_2Bombsite_Map"
     ];

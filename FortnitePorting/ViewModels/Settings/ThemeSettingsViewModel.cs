@@ -20,8 +20,10 @@ public partial class ThemeSettingsViewModel : ViewModelBase
     private bool _useMica = false;
     public ObservableCollection<WindowTransparencyLevel> TransparencyHints => UseMica ? [WindowTransparencyLevel.Mica, WindowTransparencyLevel.AcrylicBlur] : [WindowTransparencyLevel.AcrylicBlur];
     
-    [ObservableProperty] private Color _backgroundColor = Color.Parse("#3A2F52");
-    [ObservableProperty] private Color _accentColor = Color.Parse("#9B8AFF");
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(BackgroundBrush))] private Color _windowBackgroundColor = Color.Parse("#1C1C26");
+    public SolidColorBrush BackgroundBrush => new(new Color(0xDB, WindowBackgroundColor.R, WindowBackgroundColor.G, WindowBackgroundColor.B));
+    
+    [ObservableProperty] private Color _styleAccentColor = Color.Parse("#8900FF");
     
     public bool IsWindows11 => Environment.OSVersion.Platform == PlatformID.Win32NT && Environment.OSVersion.Version.Build >= 22000;
 
@@ -31,10 +33,10 @@ public partial class ThemeSettingsViewModel : ViewModelBase
        
         switch (e.PropertyName)
         {
-            case nameof(AccentColor):
+            case nameof(StyleAccentColor):
             {
                 var faTheme = Avalonia.Application.Current?.Styles.OfType<FluentAvaloniaTheme>().FirstOrDefault();
-                faTheme.CustomAccentColor = AccentColor;
+                faTheme.CustomAccentColor = StyleAccentColor;
                 break;
             }
         }

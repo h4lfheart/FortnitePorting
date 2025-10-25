@@ -2,7 +2,6 @@ import json
 import math
 import os.path
 import traceback
-import pyperclip
 
 import bpy
 import traceback
@@ -15,9 +14,9 @@ from .utils import *
 from .tasty import *
 from ..utils import *
 from ..logger import Log
-from ...io_scene_ueformat.importer.logic import UEFormatImport
-from ...io_scene_ueformat.importer.classes import UEAnim
-from ...io_scene_ueformat.options import UEModelOptions, UEAnimOptions, UEPoseOptions
+from ..ueformat.importer.logic import UEFormatImport
+from ..ueformat.importer.classes import UEAnim
+from ..ueformat.options import UEModelOptions, UEAnimOptions, UEPoseOptions
 
 class ImportContext:
 
@@ -41,8 +40,6 @@ class ImportContext:
             bpy.ops.object.mode_set(mode='OBJECT')
 
         ensure_blend_data()
-
-        #pyperclip.copy(json.dumps(data))
 
         import_type = EPrimitiveExportType(data.get("PrimitiveType"))
         match import_type:
@@ -97,6 +94,8 @@ class ImportContext:
         if self.type in [EExportType.OUTFIT, EExportType.FALL_GUYS_OUTFIT] and self.options.get("MergeArmatures"):
             master_skeleton = merge_armatures(self.imported_meshes)
             master_mesh = get_armature_mesh(master_skeleton)
+            # Update attribute to account for joined mesh
+            self.update_preskinned_bounds(master_mesh)
             
             for material, elements in self.partial_vertex_crunch_materials.items():
                 vertex_crunch_modifier = master_mesh.modifiers.new("FPv3 Vertex Crunch", type="NODES")
@@ -224,6 +223,18 @@ class ImportContext:
                     color = color_data[vertex_index]
                     vertex_color.data[loop_index].color = color[0] / 255, color[1] / 255, color[2] / 255, color[3] / 255
 
+        if imported_object.type == 'ARMATURE':
+            imported_mesh.data = imported_mesh.data.copy()
+
+            preskinned_pos = imported_mesh.data.attributes.new( domain="POINT", type="FLOAT_VECTOR",  name="PS_LOCAL_POSITION")
+            preskinned_normal = imported_mesh.data.attributes.new(domain="POINT", type="FLOAT_VECTOR", name="PS_LOCAL_NORMAL")
+
+            for vert in imported_mesh.data.vertices:
+                preskinned_pos.data[vert.index].vector = vert.co
+                preskinned_normal.data[vert.index].vector = vert.normal
+
+            self.update_preskinned_bounds(imported_mesh, True)
+
         imported_object.parent = parent
         imported_object.rotation_euler = make_euler(mesh.get("Rotation"))
         imported_object.location = make_vector(mesh.get("Location"), unreal_coords_correction=True) * self.scale
@@ -337,6 +348,33 @@ class ImportContext:
                 instance_object.scale = make_vector(instance_transform.get("Scale"))
             
         return imported_object
+    
+
+    def update_preskinned_bounds(self, imported_mesh, new_attribute=False):
+        corners = imported_mesh.bound_box
+        x_coords, y_coords, z_coords = zip(*corners)
+        bbox_min = (min(x_coords), min(y_coords), min(z_coords))
+        bbox_max = (max(x_coords), max(y_coords), max(z_coords))
+
+        def map_bounds(point):
+            x_range = bbox_max[0] - bbox_min[0]
+            y_range = bbox_max[1] - bbox_min[1]
+            z_range = bbox_max[2] - bbox_min[2]
+    
+            x_mapped = (point[0] - bbox_min[0]) / x_range if x_range != 0 else 0.0
+            y_mapped = (point[1] - bbox_min[1]) / y_range if y_range != 0 else 0.0
+            z_mapped = (point[2] - bbox_min[2]) / z_range if z_range != 0 else 0.0
+            
+            return x_mapped, y_mapped, z_mapped
+
+        if new_attribute:
+            preskinned_bounds = imported_mesh.data.attributes.new(domain="POINT", type="FLOAT_VECTOR", name="PS_LOCAL_BOUNDS")
+        else:
+            preskinned_bounds = imported_mesh.data.attributes.get("PS_LOCAL_BOUNDS")
+
+        for vert in imported_mesh.data.vertices:
+            preskinned_bounds.data[vert.index].vector = map_bounds(vert.co)
+            
     
     def import_light_data(self, lights, parent=None):
         if not lights:
@@ -910,7 +948,7 @@ class ImportContext:
 
                 if get_param(switches, "Use Engine Colorized GMap"):
                     gmap_node = nodes.new(type="ShaderNodeGroup")
-                    gmap_node.node_tree = bpy.data.node_groups.get(".FP GMap Material")
+                    gmap_node.node_tree = bpy.data.node_groups.get(".FPv3 GMap Material")
                     gmap_node.location = -1100, -69
                     if len(shader_node.inputs["Diffuse"].links) > 0:
                         nodes.remove(shader_node.inputs["Diffuse"].links[0].from_node)
@@ -925,7 +963,7 @@ class ImportContext:
                     links.new(gradient_node.outputs[0], shader_node.inputs[0])
 
                     gmap_node = nodes.new(type="ShaderNodeGroup")
-                    gmap_node.node_tree = bpy.data.node_groups.get(".FP GMap")
+                    gmap_node.node_tree = bpy.data.node_groups.get(".FPv3 GMap")
                     gmap_node.location = -1120, -240
                     setup_params(gmap_mappings, gmap_node, False)
 
@@ -1198,7 +1236,7 @@ class ImportContext:
         target_track = target_skeleton.animation_data.nla_tracks.new(prev=None)
         target_track.name = "Sections"
 
-        if active_mesh.data.shape_keys is not None:
+        if active_mesh is not None and active_mesh.data.shape_keys is not None:
             mesh_track = active_mesh.data.shape_keys.animation_data.nla_tracks.new(prev=None)
             mesh_track.name = "Sections"
 
@@ -1207,16 +1245,16 @@ class ImportContext:
             for section in sections:
                 path = section.get("Path")
 
-                section_length_frames = time_to_frame(section.get("Length"))
-                total_frames += section_length_frames
-
                 action, anim_data = self.import_anim(path, skeleton)
                 clear_children_bone_transforms(skeleton, action, "faceAttach")
+
+                section_length_frames = time_to_frame(section.get("Length"), anim_data.metadata.frames_per_second)
+                total_frames += section_length_frames
 
                 section_name = section.get("Name")
                 time_offset = section.get("Time")
                 loop_count = 999 if self.options.get("LoopAnimation") and section.get("Loop") else 1
-                frame = time_to_frame(time_offset)
+                frame = time_to_frame(time_offset, anim_data.metadata.frames_per_second)
 
                 if len(track.strips) > 0 and frame < track.strips[-1].frame_end:
                     frame = int(track.strips[-1].frame_end)

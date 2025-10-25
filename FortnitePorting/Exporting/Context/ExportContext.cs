@@ -278,7 +278,7 @@ public partial class ExportContext
             EImageFormat.TGA => ETextureFormat.Tga,
         };
         
-        fileStream.Write(bitmap?.Encode(format, out _));
+        fileStream.Write(bitmap?.Encode(format, false, out _));
     }
     
     public string GetExportPath(UObject obj, string ext, bool embeddedAsset = false, bool excludeGamePath = false)

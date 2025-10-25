@@ -31,13 +31,13 @@
             
             <ui:SettingsExpander Header="Background Color" Description="The background color for any window created by Fortnite Porting." IsEnabled="{Binding !UseMica}">
                 <ui:SettingsExpander.Footer>
-                    <ColorPicker Color="{Binding BackgroundColor}" ColorSpectrumShape="Ring" IsColorPaletteVisible="False" IsAlphaEnabled="False" IsAlphaVisible="False"/>
+                    <ColorPicker Color="{Binding WindowBackgroundColor}" ColorSpectrumShape="Ring" IsColorPaletteVisible="False" IsAlphaEnabled="False" IsAlphaVisible="False"/>
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
             
             <ui:SettingsExpander Header="Accent Color" Description="The accent color used for UI elements.">
                 <ui:SettingsExpander.Footer>
-                    <ColorPicker Color="{Binding AccentColor}" ColorSpectrumShape="Ring" IsColorPaletteVisible="False" IsAlphaEnabled="False" IsAlphaVisible="False"/>
+                    <ColorPicker Color="{Binding StyleAccentColor}" ColorSpectrumShape="Ring" IsColorPaletteVisible="False" IsAlphaEnabled="False" IsAlphaVisible="False"/>
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
         </StackPanel>

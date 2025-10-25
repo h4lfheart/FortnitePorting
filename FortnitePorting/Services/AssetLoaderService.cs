@@ -311,6 +311,30 @@ public partial class AssetLoaderService : ObservableObject, IService
                             Name = "Wolf",
                             AssetPath = "/Irwin/AI/Predators/Grandma/Meshes/Grandma_Mammal",
                             IconPath = "/Irwin/Icons/T-Icon-Fauna-Wolf"
+                        },
+                        new ManuallyDefinedAsset
+                        {
+                            Name = "Swarmer",
+                            AssetPath = "/ProtoSwarm/Assets/TidalCrane_Swarmer/Meshes/TidalCrane_Swarmer_Creature",
+                            IconPath = "/ProtoSwarm/NPCs/Swarm/TidalCrane_Swarm_Base/Icon/T_Icon_BR_TidalCrane_Swarmer"
+                        },
+                        new ManuallyDefinedAsset
+                        {
+                            Name = "Bomber",
+                            AssetPath = "/ProtoSwarm/Assets/TidalCrane_Brute/Meshes/TidalCrane_Brute_Creature",
+                            IconPath = "/ProtoSwarm/Assets/UI/Icons/T_Icon_BR_TidalCrane_Brute"
+                        },
+                        new ManuallyDefinedAsset
+                        {
+                            Name = "Roly Poly",
+                            AssetPath = "/BouncyBug/Assets/Meshes/RolyPoly_TidalCrane_Creature",
+                            IconPath = "/BouncyBug/UI/Texture/T_UI_Ping_RolyPoly"
+                        },
+                        new ManuallyDefinedAsset
+                        {
+                            Name = "Swarm Queen",
+                            AssetPath = "/TidalCrane_Swarm_Boss/Assets/Meshes/TidalCrane_Boss_Creature",
+                            IconPath = "/TidalCrane_Swarm_Boss/Gameplay/Icon/T_Icon_BR_BugQueen"
                         }
                     ]),
                     CustomAssets = 

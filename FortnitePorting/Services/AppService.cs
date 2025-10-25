@@ -27,10 +27,14 @@ public class AppService : IService
     public IStorageProvider StorageProvider => Lifetime.MainWindow!.StorageProvider;
     public IClipboard Clipboard => Lifetime.MainWindow!.Clipboard!;
     public INotificationManager? NotificationManager;
+
+    public DirectoryInfo ApplicationDataFolder => AppSettings.Application.UseAppDataPath && Directory.Exists(AppSettings.Application.AppDataPath)
+        ? new DirectoryInfo(AppSettings.Application.AppDataPath) 
+        : new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "FortnitePorting"));
     
-    public readonly DirectoryInfo DataFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".data"));
-    public readonly DirectoryInfo AssetsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets"));
-    public readonly DirectoryInfo PluginsFolder = new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Plugins"));
+    public DirectoryInfo DataFolder => new(Path.Combine(App.ApplicationDataFolder.FullName, ".data"));
+    public DirectoryInfo AssetsFolder => new(Path.Combine(App.ApplicationDataFolder.FullName, "Assets"));
+    public DirectoryInfo PluginsFolder => new(Path.Combine(App.ApplicationDataFolder.FullName, "Plugins"));
     
     private const string SCHEME_NAME = "fortniteporting";
     
@@ -43,9 +47,9 @@ public class AppService : IService
 
     public void Initialize()
     {
-        Info.CreateLogger();
-        
         AppSettings.Load();
+        
+        Info.CreateLogger();
         Dependencies.Ensure();
 
         DataFolder.Create();

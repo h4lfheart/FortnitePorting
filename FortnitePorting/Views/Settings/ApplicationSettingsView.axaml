@@ -24,11 +24,23 @@
                 </Style>
             </StackPanel.Styles>
             
+            <ui:SettingsExpander Header="Application Data Path" Description="The path in which all saved application data will default to.">
+                <ui:SettingsExpander.Footer>
+                    <StackPanel Orientation="Horizontal">
+                        <CheckBox IsChecked="{Binding UseAppDataPath}"/>
+                        <TextBox Text="{Binding AppDataPath}" Watermark="Ex. D:/Apps/FortnitePorting" IsEnabled="{Binding UseAppDataPath}"/>
+                        <Button Margin="4 0 0 0" Command="{Binding BrowseAppDataPath}" IsEnabled="{Binding UseAppDataPath}">
+                            <ui:SymbolIcon Symbol="Folder"/>
+                        </Button>
+                    </StackPanel>
+                </ui:SettingsExpander.Footer>
+            </ui:SettingsExpander>
+            
             <ui:SettingsExpander Header="Assets Path" Description="The path in which all assets will export to.">
                 <ui:SettingsExpander.Footer>
                     <StackPanel Orientation="Horizontal">
                         <CheckBox IsChecked="{Binding UseAssetsPath}"/>
-                        <TextBox Text="{Binding AssetsPath}" Watermark="Ex. D:/Art/FortnitePorting/Assets/" IsEnabled="{Binding UseAssetsPath}"/>
+                        <TextBox Text="{Binding AssetsPath}" Watermark="Ex. D:/Art/FortnitePorting/Assets" IsEnabled="{Binding UseAssetsPath}"/>
                         <Button Margin="4 0 0 0" Command="{Binding BrowseAssetsPath}" IsEnabled="{Binding UseAssetsPath}">
                             <ui:SymbolIcon Symbol="Folder"/>
                         </Button>

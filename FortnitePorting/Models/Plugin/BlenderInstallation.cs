@@ -4,6 +4,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
+using FortnitePorting.Shared.Extensions;
 using Newtonsoft.Json;
 using Serilog;
 using Tomlyn;
@@ -23,12 +24,15 @@ public partial class BlenderInstallation(string blenderExecutablePath) : Observa
     private string _status = string.Empty;
 
     public Version BlenderVersion => GetVersion(BlenderPath);
-    private string ManifestPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), 
-        "Blender Foundation", 
-        "Blender", 
-        BlenderVersion.ToString(2), 
-        "extensions", 
-        "user_default",
+
+    private string StartupPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+        "Blender Foundation",
+        "Blender",
+        BlenderVersion.ToString(2),
+        "scripts",
+        "startup");
+    
+    private string ManifestPath => Path.Combine(StartupPath,
         "fortnite_porting",
         "blender_manifest.toml");
     
@@ -58,27 +62,16 @@ public partial class BlenderInstallation(string blenderExecutablePath) : Observa
     {
         Status = "Installing";
         
-        var ueFormatZip = BuildPlugin("io_scene_ueformat");
-        var fnPortingZip = BuildPlugin("fortnite_porting");
-
-        InstallPlugin(ueFormatZip);
-        InstallPlugin(fnPortingZip);
+        MiscExtensions.Copy(Path.Combine(PluginWorkingDirectory.FullName, "fortnite_porting"), Path.Combine(StartupPath, "fortnite_porting"));
 
         var didSyncProperly = SyncExtensionVersion();
         if (verbose)
         {
-            if (didSyncProperly)
-            {
-                Info.Dialog("Plugin Installation Succeeded", 
-                    "Successfully installed the plugin, please enable the UEFormat plugin and then the Fortnite Porting plugin in Blender if this is your first time using it.",
-                    "Open Blender", () => App.Launch(BlenderPath));
-            }
-            else
+            if (!didSyncProperly)
             {
                 Info.Dialog("Plugin Installation Failed", 
-                    "Failed to install the plugin, please install it manually by dragging and dropping the UEFormat plugin and then the Fortnite Porting plugin in Blender.", 
+                    "Failed to install the plugin, please install it manually by dragging and dropping the Fortnite Porting plugin in Blender.", 
                     "Plugins Folder", () => App.Launch(App.PluginsFolder.FullName));
-
             }
         }
         
@@ -88,44 +81,8 @@ public partial class BlenderInstallation(string blenderExecutablePath) : Observa
     public void Uninstall()
     {
         Status = "Uninstalling";
-        RemovePlugin("fortnite_porting");
-        RemovePlugin("io_scene_ueformat");
-    }
-
-    private string BuildPlugin(string name)
-    {
-        Status = $"Building {name}";
         
-        var outPath = Path.Combine(PluginWorkingDirectory.FullName, $"{name}.zip");
-        BlenderExtensionCommand("build", $"--output-filepath \"{outPath}\" --verbose", workingDirectory: Path.Combine(PluginWorkingDirectory.FullName, name));
-        return outPath;
+        Directory.Delete(Path.Combine(StartupPath, "io_scene_ueformat"), true);
+        Directory.Delete(Path.Combine(StartupPath, "fortnite_porting"), true);
     }
-
-    private void InstallPlugin(string zipPath)
-    {
-        Status = $"Installing {Path.GetFileName(zipPath)}";
-        BlenderExtensionCommand("install-file", $"\"{zipPath}\" -r user_default");
-    }
-
-    private void RemovePlugin(string name)
-    {
-        BlenderExtensionCommand("remove", name);
-    }
-
-    private void BlenderExtensionCommand(string command, string args, string workingDirectory = "")
-    {
-        using var buildProcess = new Process();
-        buildProcess.StartInfo = new ProcessStartInfo
-        {
-            FileName = BlenderPath,
-            Arguments = $"--command extension {command} {args}",
-            WorkingDirectory = workingDirectory,
-            UseShellExecute = true,
-        };
-
-        Log.Information($"Executing {BlenderPath} {command} {args}");
-        buildProcess.Start();
-        buildProcess.WaitForExit();
-    }
-    
 }

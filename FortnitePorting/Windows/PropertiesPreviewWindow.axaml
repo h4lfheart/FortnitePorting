@@ -10,7 +10,7 @@
         x:Class="FortnitePorting.Windows.PropertiesPreviewWindow"
         x:DataType="windowModels:PropertiesPreviewWindowModel"
         Width="1280" Height="720" RequestedThemeVariant="Dark" FontFamily="Segoe UI"
-        TransparencyLevelHint="{Binding Settings.Theme.TransparencyHints}" Background="#DB1C1C26"
+        TransparencyLevelHint="{Binding Settings.Theme.TransparencyHints}" Background="{Binding Settings.Theme.BackgroundBrush}"
         ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="NoChrome"
         WindowStartupLocation="CenterScreen" ClosingBehavior="OwnerAndChildWindows" ExtendClientAreaTitleBarHeightHint="35"
         Icon="/Assets/LogoRebrand.ico"
