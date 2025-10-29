@@ -14,7 +14,6 @@ public class APIService : IService
 {
     public readonly FortnitePortingAPI FortnitePorting;
     public readonly FortnitePortingServerAPI FortnitePortingServer;
-    public readonly FortniteCentralAPI FortniteCentral;
     public readonly EpicGamesAPI EpicGames;
     
     public APIService()
@@ -26,7 +25,6 @@ public class APIService : IService
         }, configureSerialization: s => s.UseSerializer<JsonNetSerializer>());
         
         FortnitePorting = new FortnitePortingAPI(_client);
-        FortniteCentral = new FortniteCentralAPI(_client);
         FortnitePortingServer = new FortnitePortingServerAPI(_client);
         EpicGames = new EpicGamesAPI(_client);
     }

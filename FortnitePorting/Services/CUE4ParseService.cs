@@ -103,7 +103,7 @@ public partial class CUE4ParseService : ObservableObject, IService
             _ => new HybridFileProvider(AppSettings.Installation.CurrentProfile.ArchiveDirectory, [], new VersionContainer(AppSettings.Installation.CurrentProfile.UnrealVersion)),
         };
         
-		ObjectTypeRegistry.RegisterEngine(Assembly.Load("FortnitePorting"));
+        ObjectTypeRegistry.RegisterEngine(Assembly.Load("FortnitePorting"));
         ObjectTypeRegistry.RegisterEngine(Assembly.Load("FortnitePorting.Shared"));
 
         Provider.LoadExtraDirectories = AppSettings.Installation.CurrentProfile.LoadCreativeMaps && SupaBase.Permissions.CanExportUEFN;
@@ -159,9 +159,7 @@ public partial class CUE4ParseService : ObservableObject, IService
     {
         if (AppSettings.Installation.CurrentProfile.FortniteVersion is not EFortniteVersion.LatestInstalled) return;
         
-        var aes = _onlineStatus.Backup.Keys
-            ? await Api.FortnitePorting.Aes()
-            : await Api.FortniteCentral.Aes();
+        var aes = await Api.FortnitePorting.Aes();
         if (aes is null) return;
         
         var mainPakPath = Path.Combine(AppSettings.Installation.CurrentProfile.ArchiveDirectory,
@@ -327,9 +325,7 @@ public partial class CUE4ParseService : ObservableObject, IService
             case EFortniteVersion.LatestInstalled:
             case EFortniteVersion.LatestOnDemand:
             {
-                var aes = _onlineStatus.Backup.Keys 
-                    ? await Api.FortnitePorting.Aes() 
-                    : await Api.FortniteCentral.Aes();
+                var aes =  await Api.FortnitePorting.Aes();
                 
                 if (aes is null)
                 {
@@ -397,30 +393,24 @@ public partial class CUE4ParseService : ObservableObject, IService
     
     private async Task<string?> GetEndpointMappings()
     {
-        async Task<string?> GetMappings(Func<Task<MappingsResponse[]?>> mappingsFunc)
+        async Task<string?> GetMappings(Func<string, Task<MappingsResponse?>> mappingsFunc)
         {
-            var mappings = await mappingsFunc();
-            if (mappings is null) return null;
-            if (mappings.Length <= 0) return null;
+            var mappings = await mappingsFunc(string.Empty);
+            if (mappings?.Url is null) return null;
 
-            var foundMappings = mappings.FirstOrDefault();
-            if (foundMappings is null) return null;
-
-            var mappingsFilePath = Path.Combine(App.DataFolder.FullName, foundMappings.Filename);
+            var mappingsFilePath = Path.Combine(App.DataFolder.FullName, mappings.Url.SubstringAfterLast("/"));
             if (File.Exists(mappingsFilePath)) return mappingsFilePath;
-
-            var createdFile = await Api.DownloadFileAsync(foundMappings.URL, mappingsFilePath);
-            if (createdFile is null) return null;
             
-            File.SetCreationTime(mappingsFilePath, foundMappings.Uploaded);
+            var createdFile = await Api.DownloadFileAsync(mappings.Url, mappingsFilePath);
+            if (!createdFile.Exists) return null;
+            
+            File.SetCreationTime(mappingsFilePath, mappings.GetCreationTime());
 
             return mappingsFilePath;
         }
         
         
-        return  _onlineStatus.Backup.Mappings
-        ? await GetMappings(Api.FortnitePorting.Mappings)
-        : await GetMappings(Api.FortniteCentral.Mappings);
+        return await GetMappings(Api.FortnitePorting.Mappings);
     }
 
 
