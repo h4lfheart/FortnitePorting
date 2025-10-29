@@ -1,215 +1,22 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
-        xmlns:ui="using:FluentAvalonia.UI.Controls"
-        xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
         xmlns:windowModels="clr-namespace:FortnitePorting.WindowModels"
+        xmlns:ext="clr-namespace:FortnitePorting.Extensions"
+        xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+        xmlns:navigation="clr-namespace:FortnitePorting.Controls.Navigation"
+        xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+        xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
         xmlns:views="clr-namespace:FortnitePorting.Views"
-        xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         x:Class="FortnitePorting.Windows.AppWindow"
         x:DataType="windowModels:AppWindowModel"
-        Width="1280" Height="770" RequestedThemeVariant="Dark" FontFamily="Segoe UI"
-        TransparencyLevelHint="{Binding Settings.Theme.TransparencyHints}" Background="{Binding Settings.Theme.BackgroundBrush}"
+        Width="1600" Height="900" RequestedThemeVariant="Dark" Background="#0e0e0e" TransparencyLevelHint="Mica"
         ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="NoChrome"
         WindowStartupLocation="CenterScreen" ClosingBehavior="OwnerAndChildWindows" ExtendClientAreaTitleBarHeightHint="35"
         Icon="/Assets/LogoRebrand.ico"
         Title="Fortnite Porting">
+    
     <Grid RowDefinitions="35, *" Margin="{Binding $parent[Window].OffScreenMargin}">
-        <ui:NavigationView x:Name="NavigationView" Grid.Row="1" Classes="NoBackground"
-                           IsPaneOpen="False" OpenPaneLength="152" ItemInvoked="OnItemInvoked" 
-                           IsSettingsVisible="False" 
-                           IsVisible="{Binding Settings.Installation.FinishedSetup}">
-             <ui:NavigationView.MenuItems>
-                 <ui:NavigationViewItem Content="Home" Tag="{x:Type views:HomeView}" IsEnabled="{Binding }">
-                     <ui:NavigationViewItem.IconSource>
-                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry Home}"/>
-                     </ui:NavigationViewItem.IconSource>
-                 </ui:NavigationViewItem>
-                 <ui:NavigationViewItemSeparator/>
-                 <ui:NavigationViewItem Content="Chat" Tag="{x:Type views:ChatView}"
-                                        IsEnabled="{Binding SupaBase.IsLoggedIn}"
-                                        IsVisible="{Binding OnlineStatus.Chat.Enabled, FallbackValue=True}">
-                     <ui:NavigationViewItem.IconSource>
-                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry ChatBubble}"/>
-                     </ui:NavigationViewItem.IconSource>
-                     <ui:NavigationViewItem.InfoBadge>
-                         <ui:InfoBadge Value="{Binding ChatNotifications}" IsVisible="{Binding !!ChatNotifications}"/>
-                     </ui:NavigationViewItem.InfoBadge>
-                 </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Voting" Tag="{x:Type views:VotingView}"
-                                        IsEnabled="{Binding SupaBase.IsLoggedIn}"
-                                        IsVisible="{Binding OnlineStatus.Voting.Enabled, FallbackValue=True}">
-                     <ui:NavigationViewItem.IconSource>
-                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry Poll}"/>
-                     </ui:NavigationViewItem.IconSource>
-                     
-                     <ui:NavigationViewItem.InfoBadge>
-                         <ui:InfoBadge Value="{Binding UnsubmittedPolls}" IsVisible="{Binding !!UnsubmittedPolls}"/>
-                     </ui:NavigationViewItem.InfoBadge>
-                 </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Leaderboard" Tag="{x:Type views:LeaderboardView}" 
-                                        IsEnabled="{Binding SupaBase.IsLoggedIn}"
-                                        IsVisible="{Binding OnlineStatus.Leaderboard.Enabled, FallbackValue=True}">
-                     <ui:NavigationViewItem.IconSource>
-                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry Trophy}"/>
-                     </ui:NavigationViewItem.IconSource>
-                 </ui:NavigationViewItem>
-                 <ui:NavigationViewItemSeparator/>
-                 <ui:NavigationViewItem Content="Assets" Tag="{x:Type views:AssetsView}" IsEnabled="{Binding UEParse.FinishedLoading}">
-                     <ui:NavigationViewItem.IconSource>
-                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry File}"/>
-                     </ui:NavigationViewItem.IconSource>
-                 </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Files" Tag="{x:Type views:FilesView}" IsEnabled="{Binding UEParse.FinishedLoading}">
-                     <ui:NavigationViewItem.IconSource>
-                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry Folder}"/>
-                     </ui:NavigationViewItem.IconSource>
-                 </ui:NavigationViewItem>
-                 <ui:NavigationViewItemSeparator/>
-                 <ui:NavigationViewItem Content="Radio" Tag="{x:Type views:RadioView}" IsEnabled="{Binding UEParse.FinishedLoading}">
-                     <ui:NavigationViewItem.IconSource>
-                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry Radio}"/>
-                     </ui:NavigationViewItem.IconSource>
-                 </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Map" Tag="{x:Type views:MapView}" IsEnabled="{Binding UEParse.FinishedLoading}">
-                     <ui:NavigationViewItem.IconSource>
-                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry Map}"/>
-                     </ui:NavigationViewItem.IconSource>
-                 </ui:NavigationViewItem>
-                 
-             </ui:NavigationView.MenuItems>
-             <ui:NavigationView.FooterMenuItems>
-                 <ui:NavigationViewItem Content="Help" Tag="{x:Type views:HelpView}">
-                     <ui:NavigationViewItem.IconSource>
-                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry Help}"/>
-                     </ui:NavigationViewItem.IconSource>
-                 </ui:NavigationViewItem>
-                 <ui:NavigationViewItemSeparator/>
-                 <ui:NavigationViewItem Content="Console" Tag="{x:Type views:ConsoleView}" IsVisible="{Binding Settings.Debug.IsConsoleVisible}">
-                     <ui:NavigationViewItem.IconSource>
-                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry Console}"/>
-                     </ui:NavigationViewItem.IconSource>
-                 </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Plugin" Tag="{x:Type views:PluginView}">
-                     <ui:NavigationViewItem.IconSource>
-                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry Plug}"/>
-                     </ui:NavigationViewItem.IconSource>
-                 </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Export" Tag="{x:Type views:ExportSettingsView}">
-                     <ui:NavigationViewItem.IconSource>
-                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry FileCog}"/>
-                     </ui:NavigationViewItem.IconSource>
-                 </ui:NavigationViewItem>
-                 <ui:NavigationViewItem Content="Settings" Tag="{x:Type views:SettingsView}">
-                     <ui:NavigationViewItem.IconSource>
-                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry Settings}"/>
-                     </ui:NavigationViewItem.IconSource>
-                 </ui:NavigationViewItem>
-                 <ui:NavigationViewItemSeparator/>
-                 <ui:NavigationViewItem Content="Update" Tag="Update" SelectsOnInvoked="False" PointerPressed="OnUpdatePressed">
-                     <ui:NavigationViewItem.IconSource>
-                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry Download}"/>
-                     </ui:NavigationViewItem.IconSource>
-                 </ui:NavigationViewItem>
-             </ui:NavigationView.FooterMenuItems>
-             
-             <Grid>
-                 <ui:Frame x:Name="ContentFrame" Transitions="{x:Null}" IsVisible="{Binding !BlackHole.IsActive}"/>
-                 <ItemsControl VerticalAlignment="Bottom" Margin="{ext:Space 1}" ItemsSource="{Binding Info.Messages}">
-                     <ItemsControl.ItemTemplate>
-                         <DataTemplate>
-                             <ui:InfoBar IsOpen="True" 
-                                         Classes="FadeIn"
-                                         Title="{Binding Title}" 
-                                         Message="{Binding Message}" 
-                                         Severity="{Binding Severity}"
-                                         CornerRadius="8"
-                                         Background="#AA191921">
-                                 <ui:InfoBar.ActionButton>
-                                     <HyperlinkButton IsVisible="{Binding UseButton}" 
-                                                         Content="{Binding ButtonTitle}" 
-                                                         Command="{Binding ButtonCommand}"
-                                                         Padding="6"/>
-                                 </ui:InfoBar.ActionButton>
-                                 <ui:InfoBar.Styles>
-                                     <Style Selector="ui|InfoBar.FadeIn">
-                                         <Style.Animations>
-                                             <Animation Duration="0:0:0.1">
-                                                 <KeyFrame Cue="0%">
-                                                     <Setter Property="Opacity" Value="0.0"/>
-                                                 </KeyFrame>
-                                                 <KeyFrame Cue="100%">
-                                                     <Setter Property="Opacity" Value="1.0"/>
-                                                 </KeyFrame>
-                                             </Animation>
-                                         </Style.Animations>
-                                     </Style>
-                                 </ui:InfoBar.Styles>
-                             </ui:InfoBar>
-                         </DataTemplate>
-                     </ItemsControl.ItemTemplate>
-                 </ItemsControl>
-             </Grid>
-         </ui:NavigationView>
-        
-        <ContentControl Grid.Row="0" Grid.RowSpan="2" Content="{Binding SetupViewContent}" 
-                        IsVisible="{Binding !Settings.Installation.FinishedSetup}"/>
-        
-        <TransitioningContentControl Grid.Row="0" Grid.RowSpan="2" Content="{Binding BlackHole.Content}">
-            <TransitioningContentControl.PageTransition>
-                <CrossFade Duration="0:00:00.25"/>
-            </TransitioningContentControl.PageTransition>
-        </TransitioningContentControl>
-        
-        <Grid Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsHitTestVisible="False"
-              IsVisible="{Binding Info.TitleData, Converter={x:Static ObjectConverters.IsNotNull}}">
-            
-            <Border Background="Black" Opacity="0.5"/>
-            
-            <Grid HorizontalAlignment="Center" VerticalAlignment="Center" 
-                  IsVisible="{Binding Info.TitleData, Converter={x:Static ObjectConverters.IsNotNull}}">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="{ext:Space 1}"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-            
-                <TextBlock Grid.Row="0" Text="{Binding Info.TitleData.Title}" Classes="TitleTextBlockStyle"
-                           HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <TextBlock.Effect>
-                        <DropShadowEffect BlurRadius="15"/>
-                    </TextBlock.Effect>
-                </TextBlock>
-                <TextBlock Grid.Row="2" Text="{Binding Info.TitleData.SubTitle}" Classes="SubtitleTextBlockStyle"
-                           HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <TextBlock.Effect>
-                        <DropShadowEffect BlurRadius="15"/>
-                    </TextBlock.Effect>
-                </TextBlock>
-            </Grid>
-        </Grid>
-        
-        <Grid Grid.Row="0" Background="#2F000000" HorizontalAlignment="Stretch" PointerPressed="OnPointerPressedUpperBar">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="{ext:Space 0.75}" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="{ext:Space 0.5}" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-            
-                <ui:ImageIcon Grid.Column="0" Source="/Assets/LogoRebrand.png" 
-                              HorizontalAlignment="Right"
-                              Width="20" Height="20" 
-                              RenderOptions.BitmapInterpolationMode="HighQuality" RenderOptions.EdgeMode="Antialias"/>
-
-                <TextBlock Grid.Column="2" Text="Fortnite Porting" FontWeight="SemiBold" FontSize="16"
-                           HorizontalAlignment="Center" VerticalAlignment="Center" />
-                <TextBlock Grid.Column="4" Text="{Binding VersionString}" Classes="TextFillColorTertiaryBrush" FontSize="13" Margin="0 0 0 0"
-                           HorizontalAlignment="Left" VerticalAlignment="Center" />
-            </Grid>
-            
+        <Grid Grid.Row="0" HorizontalAlignment="Stretch" PointerPressed="OnPointerPressedUpperBar">
             <Grid HorizontalAlignment="Right">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -217,13 +24,120 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="{ext:Space 0.5}" />
                     <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="1" />
                 </Grid.ColumnDefinitions>
             
-                <Border Grid.Column="0" PointerPressed="OnMinimizePressed" Cursor="Hand" CornerRadius="0" Classes="MinimizeMaximize" Child="{avalonia:MaterialIconExt Minus}" Width="35" Height="35"/>
-                <Border Grid.Column="2" PointerPressed="OnMaximizePressed" Cursor="Hand" CornerRadius="0" Classes="MinimizeMaximize" Child="{avalonia:MaterialIconExt Maximize}" Width="35" Height="35"/>
-                <Border Grid.Column="4" PointerPressed="OnClosePressed" Cursor="Hand" CornerRadius="0" Classes="Close" Child="{avalonia:MaterialIconExt Close}" Width="35" Height="35"/>
+                <Border Grid.Column="0" PointerPressed="OnMinimizePressed" Cursor="Hand" CornerRadius="0" Classes="MinimizeMaximize" Child="{material:MaterialIconExt Minus}" Width="35" Height="35"/>
+                <Border Grid.Column="2" PointerPressed="OnMaximizePressed" Cursor="Hand" CornerRadius="0" Classes="MinimizeMaximize" Child="{material:MaterialIconExt Maximize}" Width="35" Height="35"/>
+                <Border Grid.Column="4" PointerPressed="OnClosePressed" Cursor="Hand" CornerRadius="0" Classes="Close" Child="{material:MaterialIconExt Close}" Width="35" Height="35"/>
             </Grid>
+        </Grid>
+        
+        
+        <Grid Grid.Row="0" Grid.RowSpan="2" ColumnDefinitions="* 5*">
+            <!-- Sidebar -->
+            <Grid Grid.Column="0">
+                <navigation:Sidebar ItemSelected="OnSidebarItemSelected">
+                    <navigation:Sidebar.Header>
+                        <Grid Grid.Row="0" IsHitTestVisible="False" RowDefinitions="*,*">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="{ext:Space 2}"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                
+                            <Image Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Source="/Assets/LogoRebrand.png" 
+                                   Width="48" Height="48" RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                
+                            <TextBlock Grid.Row="0" Grid.Column="2"
+                                   FontSize="16" FontFamily="{StaticResource SFTextBold}"
+                                   Classes="TextFillColorPrimaryBrush"
+                                   VerticalAlignment="Center">
+                                <Run Text="Fortnite"/>
+                                <Run Text="Porting" Foreground="#953bf8"/>
+                            </TextBlock>
+                
+                            <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding VersionString}"
+                                   FontSize="13" FontFamily="{StaticResource SFTextRegular}"
+                                   Classes="TextFillColorSecondaryBrush"
+                                   VerticalAlignment="Center"/>
+                        </Grid>
+                    </navigation:Sidebar.Header>
+                    <navigation:Sidebar.Items>
+                        <navigation:SidebarItemText Text="GENERAL"/>
+                        <navigation:SidebarItemButton Text="Home" Icon="Home" Tag="{x:Type views:HomeView}"/>
+                        <navigation:SidebarItemButton Text="News &amp; Updates" Icon="Newspaper"/>
+                        <navigation:SidebarItemButton Text="Featured Art" Icon="Art"/>
+                        
+                        <navigation:SidebarItemSeparator/>
+                        
+                        <navigation:SidebarItemText Text="ONLINE"/>
+                        <navigation:SidebarItemButton Text="Chat" Icon="Message" Tag="{x:Type views:ChatView}"/>
+                        <navigation:SidebarItemButton Text="Leaderboard" Icon="Trophy" Tag="{x:Type views:LeaderboardView}"/>
+                        <navigation:SidebarItemButton Text="Voting" Icon="Poll" Tag="{x:Type views:VotingView}"/>
+                        
+                        <navigation:SidebarItemSeparator/>
+                        
+                        <navigation:SidebarItemText Text="EXPORT"/>
+                        <navigation:SidebarItemButton Text="Assets" Icon="File" Tag="{x:Type views:AssetsView}"/>
+                        <navigation:SidebarItemButton Text="Files" Icon="Folder" Tag="{x:Type views:FilesView}"/>
+                        <navigation:SidebarItemButton Text="Map" Icon="Map" Tag="{x:Type views:MapView}"/>
+                        <navigation:SidebarItemButton Text="Music" Icon="Radio" Tag="{x:Type views:RadioView}"/>
+                        
+                        <navigation:SidebarItemSeparator/>
+                        
+                        <navigation:SidebarItemText Text="SETTINGS"/>
+                        <navigation:SidebarItemButton Text="Plugin" Icon="Plug" Tag="{x:Type views:PluginView}"/>
+                        <navigation:SidebarItemButton Text="Export Options" Icon="FileCog" Tag="{x:Type views:ExportSettingsView}"/>
+                        <navigation:SidebarItemButton Text="App Settings" Icon="Settings" Tag="{x:Type views:SettingsView}"/>
+                        <navigation:SidebarItemButton Text="Help" Icon="Help" Tag="{x:Type views:HelpView}"/>
+                        
+                    </navigation:Sidebar.Items>
+                    
+                    <navigation:Sidebar.Footer>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="{ext:Space 2}"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            
+                            <navigation:SidebarItemSeparator Grid.Row="0"/>
+                            
+                            <Grid Grid.Row="2" RowDefinitions="*,*">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="{ext:Space 2}"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+        
+                                <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="0">
+                                    <Ellipse Height="48" Width="48" RenderOptions.BitmapInterpolationMode="HighQuality">
+                                        <Ellipse.Fill>
+                                            <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding SupaBase.UserInfo.AvatarUrl, FallbackValue='https://api.fortniteporting.app/images/UserDefault.png'}" Stretch="UniformToFill"/>
+                                        </Ellipse.Fill>
+                                    </Ellipse>
+                                </Grid>
+        
+                                <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding SupaBase.UserInfo.DisplayName, FallbackValue='Anonymous'}" 
+                                           FontFamily="{StaticResource SFTextSemiBold}"
+                                           Classes="TextFillColorPrimaryBrush" VerticalAlignment="Center"/>
+                            
+                                <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding SupaBase.UserInfo.UserName, StringFormat='@{0}', FallbackValue='@anonymous'}" 
+                                           FontFamily="{StaticResource SFTextRegular}"
+                                           Classes="TextFillColorSecondaryBrush" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Grid>
+                    </navigation:Sidebar.Footer>
+                </navigation:Sidebar>
+            </Grid>
+            
+            <GridSplitter Grid.Column="0" HorizontalAlignment="Right" Opacity="0"/>
+            
+            <Border x:Name="ContentBorder" Grid.Column="1" Background="#0a0a0a"
+                BorderThickness="2 2 0 0" CornerRadius="16 0 0 0"
+                BorderBrush="#212121" Margin="0 35 0 0" ClipToBounds="True">
+                <ui:Frame x:Name="ContentFrame"/>
+            </Border>
         </Grid>
     </Grid>
 </Window>

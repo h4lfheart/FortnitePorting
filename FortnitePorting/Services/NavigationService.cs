@@ -115,6 +115,7 @@ public class NavigatorContext(string name)
         TaskService.RunDispatcher(() =>
         {
             if (obj is null) return;
+            if (ContentFrame is null) return;
 
             if (_behaviorResolvers.TryGetValue(obj.GetType(), out var behaviorResolver))
             {
@@ -152,6 +153,7 @@ public class NavigatorContext(string name)
     public bool IsTabOpen(object? obj)
     {
         if (obj is null) return false;
+        if (ContentFrame is null) return false;
 
         var viewType = obj switch
         {

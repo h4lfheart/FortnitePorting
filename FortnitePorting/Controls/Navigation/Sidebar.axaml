@@ -1,0 +1,33 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions"
+             xmlns:navigation="clr-namespace:FortnitePorting.Controls.Navigation"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="FortnitePorting.Controls.Navigation.Sidebar">
+    <Grid Margin="{ext:Space 2}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="{ext:Space 2}"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="{ext:Space 2}"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="{ext:Space 2}"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <ContentControl Grid.Row="0" Content="{Binding Header, RelativeSource={RelativeSource AncestorType=navigation:Sidebar}}"/>
+        
+        <ItemsControl x:Name="SidebarItems" Grid.Row="2" ItemsSource="{Binding Items, RelativeSource={RelativeSource AncestorType=navigation:Sidebar}}" 
+                      ClipToBounds="False" PointerPressed="OnItemSelected">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Vertical" Spacing="16"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
+        
+        <ContentControl Grid.Row="6" Content="{Binding Footer, RelativeSource={RelativeSource AncestorType=navigation:Sidebar}}"/>
+    </Grid>
+</UserControl>

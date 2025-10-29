@@ -1,0 +1,50 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:navigation="clr-namespace:FortnitePorting.Controls.Navigation"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="FortnitePorting.Controls.Navigation.SidebarItemButton" Margin="{ext:Space -1}">
+    <Grid Cursor="Hand">
+        <controls:FABorder Classes.Selected="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=navigation:SidebarItemButton}}"
+                           Classes.NotSelected="{Binding !IsSelected, RelativeSource={RelativeSource AncestorType=navigation:SidebarItemButton}}">
+            <controls:FABorder.Transitions>
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.083"/>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.083"/>
+                </Transitions>
+            </controls:FABorder.Transitions>
+            <controls:FABorder.Styles>
+                <Style Selector="controls|FABorder.Selected">
+                    <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
+                    <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
+                    <Setter Property="Opacity" Value="1"/>
+                </Style>
+                <Style Selector="controls|FABorder.Selected:pointerover">
+                    <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPointerOver}"/>
+                    <Setter Property="Opacity" Value="1"/>
+                </Style>
+                
+                <Style Selector="controls|FABorder.NotSelected">
+                    <Setter Property="Opacity" Value="0"/>
+                    <Setter Property="BorderBrush" Value="Transparent"/>
+                </Style>
+                <Style Selector="controls|FABorder.NotSelected:pointerover">
+                    <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPointerOver}"/>
+                    <Setter Property="Opacity" Value="0.5"/>
+                </Style>
+            </controls:FABorder.Styles>
+        </controls:FABorder>
+        <Grid ColumnDefinitions="Auto 8 *" Margin="{ext:Space 1}">
+        
+            <material:MaterialIcon Grid.Column="0" Kind="{Binding Icon, RelativeSource={RelativeSource AncestorType=navigation:SidebarItemButton}}"/>
+                                
+            <TextBlock Grid.Column="2" Text="{Binding Text, RelativeSource={RelativeSource AncestorType=navigation:SidebarItemButton}}" 
+                       FontFamily="{StaticResource SFTextRegular}"
+                       Classes="TextFillColorSecondaryBrush"/>
+        </Grid>
+    </Grid>
+</UserControl>

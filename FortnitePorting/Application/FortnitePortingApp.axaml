@@ -47,6 +47,28 @@
              <Brush x:Key="ExpanderHeaderBorderBrush">#78575757</Brush>
              <Brush x:Key="ExpanderHeaderPointerOverBorderBrush">#78575757</Brush>
              <Brush x:Key="ExpanderContentBorderBrush">#78575757</Brush>
+             
+             <FontFamily x:Key="SFTextLight">avares://FortnitePorting/Assets/Fonts/SF/SF-Pro-Text-Light.otf#SF Pro Text</FontFamily>
+             <FontFamily x:Key="SFTextRegular">avares://FortnitePorting/Assets/Fonts/SF/SF-Pro-Text-Regular.otf#SF Pro Text</FontFamily>
+             <FontFamily x:Key="SFTextMedium">avares://FortnitePorting/Assets/Fonts/SF/SF-Pro-Text-Medium.otf#SF Pro Text</FontFamily>
+             <FontFamily x:Key="SFTextHeavy">avares://FortnitePorting/Assets/Fonts/SF/SF-Pro-Text-Heavy.otf#SF Pro Text</FontFamily>
+             <FontFamily x:Key="SFTextSemiBold">avares://FortnitePorting/Assets/Fonts/SF/SF-Pro-Text-Semibold.otf#SF Pro Text</FontFamily>
+             <FontFamily x:Key="SFTextBold">avares://FortnitePorting/Assets/Fonts/SF/SF-Pro-Text-Bold.otf#SF Pro Text</FontFamily>
+             
+             <FontFamily x:Key="SFDisplayThin">avares://FortnitePorting/Assets/Fonts/SF/SF-Pro-Display-Thin.otf#SF Pro Display</FontFamily>
+             <FontFamily x:Key="SFDisplayRegular">avares://FortnitePorting/Assets/Fonts/SF/SF-Pro-Display-Regular.otf#SF Pro Display</FontFamily>
+             <FontFamily x:Key="SFDisplayMedium">avares://FortnitePorting/Assets/Fonts/SF/SF-Pro-Display-Medium.otf#SF Pro Display</FontFamily>
+             <FontFamily x:Key="SFDisplaySemibold">avares://FortnitePorting/Assets/Fonts/SF/SF-Pro-Display-Semibold.otf#SF Pro Display</FontFamily>
+             <FontFamily x:Key="SFDisplayHeavy">avares://FortnitePorting/Assets/Fonts/SF/SF-Pro-Display-Heavy.otf#SF Pro Display</FontFamily>
+             <FontFamily x:Key="SFDisplayBold">avares://FortnitePorting/Assets/Fonts/SF/SF-Pro-Display-Bold.otf#SF Pro Display</FontFamily>
+             <FontFamily x:Key="SFDisplayBlack">avares://FortnitePorting/Assets/Fonts/SF/SF-Pro-Display-Black.otf#SF Pro Display</FontFamily>
+             
+             
+             <Brush x:Key="FPButtonBackground">#18191B</Brush>
+             <Brush x:Key="FPButtonBackgroundPointerOver">#1E1F21</Brush>
+             <Brush x:Key="FPButtonBackgroundPressed">#1B1C1F</Brush>
+             <Brush x:Key="FPButtonBorderBrush">#27282A</Brush>
+             
          </ResourceDictionary>
          
      </Application.Resources>
@@ -86,17 +108,29 @@
         </Style>
         
         <Style Selector="controls|FABorder">
-            <Setter Property="Background" Value="#0DFFFFFF"/>
-            <Setter Property="BorderBrush" Value="#78575757"/>
-            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="#18191B"/>
+            <Setter Property="BorderBrush" Value="#27282A"/>
+            <Setter Property="BorderThickness" Value="2"/>
             <Setter Property="CornerRadius" Value="8"/>
             <Setter Property="MinHeight" Value="32"/>
         </Style>
         
         <Style Selector="Button">
-            <Setter Property="BorderBrush" Value="#78575757"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        
+        <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPointerOver}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
+        </Style>
+
+        <Style Selector="Button:pressed /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPressed}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
         </Style>
         
         <Style Selector="Button#CloseButton">
@@ -466,15 +500,15 @@
         </Style>
         
         <Style Selector="TextBlock.TextFillColorPrimaryBrush">
-            <Setter Property="Foreground" Value="#E4E4E4"/>
+            <Setter Property="Foreground" Value="#e6e6e6"/>
         </Style>
         
         <Style Selector="TextBlock.TextFillColorSecondaryBrush">
-            <Setter Property="Foreground" Value="#C5FFFFFF"/>
+            <Setter Property="Foreground" Value="#aeafb3"/>
         </Style>
         
         <Style Selector="TextBlock.TextFillColorTertiaryBrush">
-            <Setter Property="Foreground" Value="#9E9E9E"/>
+            <Setter Property="Foreground" Value="#6c6d72"/>
         </Style>
         
         <Style Selector="TextBlock.TextFillColorQuaternaryBrush">
