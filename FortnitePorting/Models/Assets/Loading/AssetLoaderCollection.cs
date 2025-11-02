@@ -109,6 +109,11 @@ public partial class AssetLoaderCollection : ObservableObject
                 {
                     ClassNames = ["AthenaDanceItemDefinition"],
                     HideNames = ["_CT", "_NPC"]
+                },
+                new AssetLoader(EExportType.SideKick)
+                {
+                    ClassNames = ["CosmeticCompanionItemDefinition"],
+                    HideNames = ["Companion_SitPlant_PerfTest", "Companion_TestCompanion2_Mutable"]
                 }
             ]
         },

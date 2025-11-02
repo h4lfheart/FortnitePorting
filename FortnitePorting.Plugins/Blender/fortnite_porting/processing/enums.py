@@ -32,6 +32,7 @@ class EExportType(IntEnum):
     BANNER = auto()
     LOADING_SCREEN = auto()
     EMOTE = auto()
+    SIDEKICK = auto()
     
     # CREATIVE
     PROP = auto()
