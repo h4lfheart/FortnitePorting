@@ -427,7 +427,7 @@ public class CUE4ParseViewModel : ViewModelBase
         foreach (var (path, file) in assetRegistries)
         {
             if (!path.EndsWith(".bin")) continue;
-            if (path.Contains("Plugin", StringComparison.OrdinalIgnoreCase) || path.Contains("Editor", StringComparison.OrdinalIgnoreCase)) continue;
+            if (path.Contains("Editor", StringComparison.OrdinalIgnoreCase)) continue;
 
             HomeVM.UpdateStatus($"Loading {file.Name}");
             var assetArchive = await file.SafeCreateReaderAsync();
