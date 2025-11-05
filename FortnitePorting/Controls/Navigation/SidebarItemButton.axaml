@@ -6,8 +6,15 @@
              xmlns:navigation="clr-namespace:FortnitePorting.Controls.Navigation"
              xmlns:ext="clr-namespace:FortnitePorting.Extensions"
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FortnitePorting.Controls.Navigation.SidebarItemButton" Margin="{ext:Space -1}">
+    
+    <UserControl.Styles>
+        <Style Selector="navigation|SidebarItemButton:disabled">
+            <Setter Property="Opacity" Value="0.5"/> 
+        </Style>
+    </UserControl.Styles>
     <Grid Cursor="Hand">
         <controls:FABorder Classes.Selected="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=navigation:SidebarItemButton}}"
                            Classes.NotSelected="{Binding !IsSelected, RelativeSource={RelativeSource AncestorType=navigation:SidebarItemButton}}">
@@ -40,11 +47,20 @@
         </controls:FABorder>
         <Grid ColumnDefinitions="Auto 8 *" Margin="{ext:Space 1}">
         
-            <material:MaterialIcon Grid.Column="0" Kind="{Binding Icon, RelativeSource={RelativeSource AncestorType=navigation:SidebarItemButton}}"/>
+            <material:MaterialIcon Grid.Column="0" 
+                                   IsVisible="{Binding !UseIconBitmap, RelativeSource={RelativeSource AncestorType=navigation:SidebarItemButton}}"
+                                   Kind="{Binding Icon, RelativeSource={RelativeSource AncestorType=navigation:SidebarItemButton}}"/>
+            
+            
+            <Image Grid.Column="0" Width="20" Height="20" RenderOptions.BitmapInterpolationMode="HighQuality"
+                                   IsVisible="{Binding UseIconBitmap, RelativeSource={RelativeSource AncestorType=navigation:SidebarItemButton}}"
+                                   Source="{Binding IconBitmap, RelativeSource={RelativeSource AncestorType=navigation:SidebarItemButton}}"/>
                                 
             <TextBlock Grid.Column="2" Text="{Binding Text, RelativeSource={RelativeSource AncestorType=navigation:SidebarItemButton}}" 
                        FontFamily="{StaticResource SFTextRegular}"
-                       Classes="TextFillColorSecondaryBrush"/>
+                       Classes="TextFillColorSecondaryBrush" VerticalAlignment="Center"/>
+            
+
         </Grid>
     </Grid>
 </UserControl>

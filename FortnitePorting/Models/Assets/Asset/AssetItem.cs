@@ -45,8 +45,8 @@ public partial class AssetItem : Base.BaseAssetItem
     public string? SetName { get; set; }
     
 
-    private static SKColor InnerBackgroundColor = SKColor.Parse("#50C8FF");
-    private static SKColor OuterBackgroundColor = SKColor.Parse("#1B7BCF");
+    private static SKColor InnerBackgroundColor = SKColor.Parse("#2bb5f3");
+    private static SKColor OuterBackgroundColor = SKColor.Parse("#174a89");
 
     private static ConcurrentDictionary<string, UFortItemSeriesDefinition> SeriesCache = [];
     
@@ -85,17 +85,19 @@ public partial class AssetItem : Base.BaseAssetItem
         var bitmap = new SKBitmap(128, 160, iconBitmap.ColorType, SKAlphaType.Opaque);
         using (var canvas = new SKCanvas(bitmap))
         {
-            var colors = Series?.Colors ?? UEParse.RarityColors[(int) Rarity];
-            // background
             var backgroundRect = new SKRect(0, 0, bitmap.Width, bitmap.Height);
-            if (Series?.BackgroundTexture.LoadOrDefault<UTexture2D>() is { } seriesBackground)
+            if (Series?.Colors is { } colors)
             {
-                canvas.DrawBitmap(seriesBackground.Decode()?.ToSkBitmap(), backgroundRect);
-            }
-            else if (!CreationData.HideRarity)
-            {
-                var backgroundPaint = new SKPaint { Shader = SkiaExtensions.RadialGradient(bitmap.Height, colors.Color1, colors.Color3) };
-                canvas.DrawRect(backgroundRect, backgroundPaint);
+                if (Series?.BackgroundTexture.LoadOrDefault<UTexture2D>() is { } seriesBackground)
+                {
+                    canvas.DrawBitmap(seriesBackground.Decode()?.ToSkBitmap(), backgroundRect);
+                }
+                else
+                {
+                    
+                    var backgroundPaint = new SKPaint { Shader = SkiaExtensions.RadialGradient(bitmap.Height, colors.Color1, colors.Color3) };
+                    canvas.DrawRect(backgroundRect, backgroundPaint);
+                }
             }
             else
             {
@@ -104,16 +106,6 @@ public partial class AssetItem : Base.BaseAssetItem
             }
 
             canvas.DrawBitmap(iconBitmap, backgroundRect with { Left = -16, Right = bitmap.Width + 16});
-            
-            if (!CreationData.HideRarity)
-            {
-                var coolRectPaint = new SKPaint { Shader = SkiaExtensions.LinearGradient(bitmap.Width, true, colors.Color1, colors.Color2) };
-                coolRectPaint.Color = coolRectPaint.Color.WithAlpha((byte) (0.75 * byte.MaxValue));
-
-                canvas.RotateDegrees(-4);
-                canvas.DrawRect(new SKRect(-16, bitmap.Height - 12, bitmap.Width + 16, bitmap.Height + 16), coolRectPaint);
-                canvas.RotateDegrees(4);
-            }
             
         }
 

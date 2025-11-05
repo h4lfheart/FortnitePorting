@@ -9,25 +9,30 @@
     <Grid Margin="{ext:Space 2}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="{ext:Space 2}"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="{ext:Space 2}"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="{ext:Space 2}"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        
-        <ContentControl Grid.Row="0" Content="{Binding Header, RelativeSource={RelativeSource AncestorType=navigation:Sidebar}}"/>
-        
-        <ItemsControl x:Name="SidebarItems" Grid.Row="2" ItemsSource="{Binding Items, RelativeSource={RelativeSource AncestorType=navigation:Sidebar}}" 
-                      ClipToBounds="False" PointerPressed="OnItemSelected">
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <StackPanel Orientation="Vertical" Spacing="16"/>
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-        </ItemsControl>
-        
-        <ContentControl Grid.Row="6" Content="{Binding Footer, RelativeSource={RelativeSource AncestorType=navigation:Sidebar}}"/>
+    
+        <ContentControl Grid.Row="0" 
+                        Content="{Binding Header, RelativeSource={RelativeSource AncestorType=navigation:Sidebar}}"
+                        IsVisible="{Binding Header, RelativeSource={RelativeSource AncestorType=navigation:Sidebar}, Converter={x:Static ObjectConverters.IsNotNull}}"
+                        Margin="{ext:Space 0, 0, 0, 2}"/>
+    
+        <ScrollViewer Grid.Row="1" Margin="{ext:Space -1}" ClipToBounds="False" VerticalScrollBarVisibility="Hidden">
+            <ItemsControl x:Name="SidebarItems" Margin="{ext:Space 1}"
+                          ItemsSource="{Binding Items, RelativeSource={RelativeSource AncestorType=navigation:Sidebar}}" 
+                          ClipToBounds="False" PointerPressed="OnItemSelected">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Vertical" Spacing="{ext:Space 2}"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+        </ScrollViewer>
+    
+        <ContentControl Grid.Row="2" 
+                        Content="{Binding Footer, RelativeSource={RelativeSource AncestorType=navigation:Sidebar}}"
+                        IsVisible="{Binding Footer, RelativeSource={RelativeSource AncestorType=navigation:Sidebar}, Converter={x:Static ObjectConverters.IsNotNull}}"
+                        Margin="{ext:Space 0, 2, 0, 0}"/>
     </Grid>
 </UserControl>

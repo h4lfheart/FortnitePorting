@@ -90,6 +90,13 @@ class ImportContext:
             self.import_model(mesh, can_spawn_at_3d_cursor=True)
 
         self.import_light_data(data.get("Lights"))
+
+        if self.type in [EExportType.SIDEKICK]:
+            master_mesh = self.imported_meshes[0]["Mesh"]
+            for material in self.full_vertex_crunch_materials:
+                vertex_crunch_modifier = master_mesh.modifiers.new("FPv3 Full Vertex Crunch", type="NODES")
+                vertex_crunch_modifier.node_group = bpy.data.node_groups.get("FPv3 Full Vertex Crunch")
+                set_geo_nodes_param(vertex_crunch_modifier, "Material", material)
             
         if self.type in [EExportType.OUTFIT, EExportType.FALL_GUYS_OUTFIT] and self.options.get("MergeArmatures"):
             master_skeleton = merge_armatures(self.imported_meshes)
@@ -818,7 +825,7 @@ class ImportContext:
             replace_shader_node("FPv3 Bean Costume")
             socket_mappings = bean_head_costume_mappings if meta.get("IsHead") else bean_costume_mappings
 
-        if "M_Eyes_Parent" in base_material_path or get_param(scalars, "Eye Cornea IOR") is not None:
+        if any(eye_names, lambda eye_mat_name: eye_mat_name in base_material_path) or get_param(scalars, "Eye Cornea IOR") is not None:
             replace_shader_node("FPv3 3L Eyes")
             socket_mappings = eye_mappings
 

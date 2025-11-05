@@ -8,9 +8,14 @@ namespace FortnitePorting.Controls.Navigation;
 public partial class SidebarItemText : UserControl, ISidebarItem
 {
     [AvaDirectProperty] private string _text;
-    
+
     public SidebarItemText()
     {
         InitializeComponent();
+    }
+    
+    public SidebarItemText(string text = "") : this()
+    {
+        Text = text;
     }
 }

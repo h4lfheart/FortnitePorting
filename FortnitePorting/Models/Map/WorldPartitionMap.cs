@@ -250,7 +250,7 @@ public partial class WorldPartitionMap : ObservableObject
         if (WorldPartitionFlagsMainActors) meta.WorldFlags |= EWorldFlags.Actors;
         if (WorldPartitionFlagsInstancedFoliage) meta.WorldFlags |= EWorldFlags.InstancedFoliage;
         if (WorldPartitionFlagsHLODs) meta.WorldFlags |= EWorldFlags.HLODs;
-        foreach (var map in SelectedMaps)
+        foreach (var map in SelectedMaps.ToArray())
         {
             map.Status = EWorldPartitionGridMapStatus.Exporting;
             

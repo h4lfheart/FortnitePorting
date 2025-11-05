@@ -7,10 +7,11 @@
         xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
         xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
         xmlns:views="clr-namespace:FortnitePorting.Views"
+        xmlns:controls="clr-namespace:FortnitePorting.Controls"
         x:Class="FortnitePorting.Windows.AppWindow"
         x:DataType="windowModels:AppWindowModel"
         Width="1600" Height="900" RequestedThemeVariant="Dark" Background="#0e0e0e" TransparencyLevelHint="Mica"
-        ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="NoChrome"
+        ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="NoChrome" FontFamily="{StaticResource SFTextRegular}"
         WindowStartupLocation="CenterScreen" ClosingBehavior="OwnerAndChildWindows" ExtendClientAreaTitleBarHeightHint="35"
         Icon="/Assets/LogoRebrand.ico"
         Title="Fortnite Porting">
@@ -33,10 +34,10 @@
         </Grid>
         
         
-        <Grid Grid.Row="0" Grid.RowSpan="2" ColumnDefinitions="* 5*">
+        <Grid Grid.Row="0" Grid.RowSpan="2" ColumnDefinitions="1* 6*">
             <!-- Sidebar -->
             <Grid Grid.Column="0">
-                <navigation:Sidebar ItemSelected="OnSidebarItemSelected">
+                <navigation:Sidebar x:Name="Sidebar" ItemSelected="OnSidebarItemSelected">
                     <navigation:Sidebar.Header>
                         <Grid Grid.Row="0" IsHitTestVisible="False" RowDefinitions="*,*">
                             <Grid.ColumnDefinitions>
@@ -65,23 +66,23 @@
                     <navigation:Sidebar.Items>
                         <navigation:SidebarItemText Text="GENERAL"/>
                         <navigation:SidebarItemButton Text="Home" Icon="Home" Tag="{x:Type views:HomeView}"/>
-                        <navigation:SidebarItemButton Text="News &amp; Updates" Icon="Newspaper"/>
-                        <navigation:SidebarItemButton Text="Featured Art" Icon="Art"/>
-                        
-                        <navigation:SidebarItemSeparator/>
-                        
-                        <navigation:SidebarItemText Text="ONLINE"/>
-                        <navigation:SidebarItemButton Text="Chat" Icon="Message" Tag="{x:Type views:ChatView}"/>
-                        <navigation:SidebarItemButton Text="Leaderboard" Icon="Trophy" Tag="{x:Type views:LeaderboardView}"/>
-                        <navigation:SidebarItemButton Text="Voting" Icon="Poll" Tag="{x:Type views:VotingView}"/>
+                        <navigation:SidebarItemButton Text="News &amp; Updates" Icon="Newspaper" IsEnabled="False"/>
+                        <navigation:SidebarItemButton Text="Featured Art" Icon="Art" IsEnabled="False"/>
                         
                         <navigation:SidebarItemSeparator/>
                         
                         <navigation:SidebarItemText Text="EXPORT"/>
-                        <navigation:SidebarItemButton Text="Assets" Icon="File" Tag="{x:Type views:AssetsView}"/>
-                        <navigation:SidebarItemButton Text="Files" Icon="Folder" Tag="{x:Type views:FilesView}"/>
-                        <navigation:SidebarItemButton Text="Map" Icon="Map" Tag="{x:Type views:MapView}"/>
-                        <navigation:SidebarItemButton Text="Music" Icon="Radio" Tag="{x:Type views:RadioView}"/>
+                        <navigation:SidebarItemButton Text="Assets" Icon="File" Tag="{x:Type views:AssetsView}" IsEnabled="{Binding UEParse.FinishedLoading}"/>
+                        <navigation:SidebarItemButton Text="Files" Icon="Folder" Tag="{x:Type views:FilesView}" IsEnabled="{Binding UEParse.FinishedLoading}"/>
+                        <navigation:SidebarItemButton Text="Map" Icon="Map" Tag="{x:Type views:MapView}" IsEnabled="{Binding UEParse.FinishedLoading}"/>
+                        <navigation:SidebarItemButton Text="Music" Icon="Radio" Tag="{x:Type views:RadioView}" IsEnabled="{Binding UEParse.FinishedLoading}"/>
+                        
+                        <navigation:SidebarItemSeparator/>
+                        
+                        <navigation:SidebarItemText Text="ONLINE"/>
+                        <navigation:SidebarItemButton Text="Chat" Icon="Message" Tag="{x:Type views:ChatView}" IsEnabled="{Binding SupaBase.IsLoggedIn}"/>
+                        <navigation:SidebarItemButton Text="Leaderboard" Icon="Trophy" Tag="{x:Type views:LeaderboardView}" IsEnabled="{Binding SupaBase.IsLoggedIn}"/>
+                        <navigation:SidebarItemButton Text="Voting" Icon="Poll" Tag="{x:Type views:VotingView}" IsEnabled="{Binding SupaBase.IsLoggedIn}"/>
                         
                         <navigation:SidebarItemSeparator/>
                         
@@ -103,7 +104,7 @@
                             
                             <navigation:SidebarItemSeparator Grid.Row="0"/>
                             
-                            <Grid Grid.Row="2" RowDefinitions="*,*">
+                            <Grid Grid.Row="2" RowDefinitions="*,*" IsVisible="{Binding Settings.Online.SupaBase.IsLoggedIn}">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="{ext:Space 2}"/>
@@ -125,6 +126,12 @@
                                 <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding SupaBase.UserInfo.UserName, StringFormat='@{0}', FallbackValue='@anonymous'}" 
                                            FontFamily="{StaticResource SFTextRegular}"
                                            Classes="TextFillColorSecondaryBrush" VerticalAlignment="Center"/>
+                            </Grid>
+                            
+                            <Grid Grid.Row="2" RowDefinitions="*,*" IsVisible="{Binding !Settings.Online.SupaBase.IsLoggedIn}">
+                                <Button Grid.Row="0" Content="{controls:ImageText 'Sign In', 'avares://FortnitePorting/Assets/Icons/Discord.png'}" 
+                                        HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                                        Command="{Binding Settings.Online.SupaBase.SignIn}"/>
                             </Grid>
                         </Grid>
                     </navigation:Sidebar.Footer>

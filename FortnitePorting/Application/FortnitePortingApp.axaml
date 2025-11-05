@@ -36,7 +36,6 @@
              <Brush x:Key="CheckBoxCheckGlyphForegroundCheckedPressed">#FFFFFFFF</Brush>
              <Brush x:Key="CheckBoxCheckGlyphForegroundCheckedDisabled">#5DFFFFFF</Brush>
              <Brush x:Key="ScrollViewerScrollBarsSeparatorBackground">#00000000</Brush>
-             <x:Double x:Key="NavigationViewItemOnLeftIconBoxHeight">14</x:Double>
              <FontFamily x:Key="ContentControlThemeFontFamily">Segoe UI</FontFamily>
              <FontFamily x:Key="SymbolThemeFontFamily">avares://FortnitePorting/Assets/Fonts/Segoe Fluent Icons.ttf#Segoe Fluent Icons</FontFamily>
              <FontFamily x:Key="TimeWasterFontFamily">avares://FortnitePorting/Assets/TimeWaster/Fonts/BurbankBigRegular-Bold.ttf#Burbank Big</FontFamily>
@@ -68,6 +67,8 @@
              <Brush x:Key="FPButtonBackgroundPointerOver">#1E1F21</Brush>
              <Brush x:Key="FPButtonBackgroundPressed">#1B1C1F</Brush>
              <Brush x:Key="FPButtonBorderBrush">#27282A</Brush>
+             <Brush x:Key="FPButtonBackgroundBright">#FF343538</Brush>
+             <Brush x:Key="FPButtonBorderBrushBright">#FF4A4B4F</Brush>
              
          </ResourceDictionary>
          
@@ -98,6 +99,7 @@
             <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
         </Style>
+        
         
         <Style Selector="ui|TabViewItem">
             <Setter Property="Background" Value="#09FFFFFF"/>
@@ -133,46 +135,146 @@
             <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
         </Style>
         
+        <Style Selector="Button:disabled /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
+            <Setter Property="Opacity" Value="0.5"/>
+        </Style>
+        
+        
         <Style Selector="Button#CloseButton">
             <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="CornerRadius" Value="8"/>
         </Style>
 
+        
         <Style Selector="SplitButton">
-            <Setter Property="BorderBrush" Value="#78575757"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        
+        <Style Selector="SplitButton:pointerover">
+            <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPointerOver}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
+        </Style>
+
+        <Style Selector="SplitButton:pressed">
+            <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPressed}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
         </Style>
         
         <Style Selector="ToggleButton">
-            <Setter Property="BorderBrush" Value="#78575757"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Cursor" Value="Hand"/>
         </Style>
         
-        <Style Selector="ComboBox">
-            <Setter Property="BorderBrush" Value="#78575757"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="8"/>
+        <Style Selector="ToggleButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPointerOver}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
+        </Style>
+
+        <Style Selector="ToggleButton:pressed /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPressed}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
+        </Style>
+        
+        <Style Selector="ToggleButton:disabled /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
+            <Setter Property="Opacity" Value="0.5"/>
+        </Style>
+        
+        <Style Selector="ToggleButton:checked /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{StaticResource FPButtonBackgroundBright}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrushBright}"/>
         </Style>
         
         <Style Selector="AutoCompleteBox">
-            <Setter Property="BorderBrush" Value="#78575757"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="CornerRadius" Value="16"/>
         </Style>
         
         <Style Selector="TextBox">
-            <Setter Property="BorderBrush" Value="#78575757"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        
+        <Style Selector="TextBox:focus-within /template/ Border#PART_BorderElement">
+            <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="2"/>
+        </Style>
+        
+        <Style Selector="TextBox:pointerover /template/ Border#PART_BorderElement">
+            <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPointerOver}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="2"/>
+        </Style>
+
+        <Style Selector="TextBox:pressed /template/ Border#PART_BorderElement">
+            <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPressed}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="2"/>
+        </Style>
+        
+        <Style Selector="TextBox:disabled /template/ Border#PART_BorderElement">
+            <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Opacity" Value="0.5"/>
         </Style>
         
         <Style Selector="ListBoxItem">
             <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="FontFamily" Value="{StaticResource SFTextRegular}"/>
         </Style>
         
+        <Style Selector="FlyoutPresenter">
+            <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="CornerRadius" Value="8"/>
+        </Style>
+        
+        <Style Selector="ComboBox">
+            <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        
+        <Style Selector="ComboBox[IsDropDownOpen=True] /template/ ContentPresenter#ContentPresenter">
+            <Setter Property="Margin" Value="12 0 0 0"/>
+        </Style>
+        
+        <Style Selector="ComboBox[IsDropDownOpen=False] /template/ ContentPresenter#ContentPresenter">
+            <Setter Property="Margin" Value="12 0 0 0"/>
+        </Style>
+
+        <Style Selector="ComboBox[IsDropDownOpen=True] /template/ Border#PopupBorder">
+            <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="CornerRadius" Value="8"/>
+        </Style>
+
+        <Style Selector="ComboBox[IsDropDownOpen=True] Popup">
+            <Setter Property="VerticalOffset" Value="4"/>
+        </Style>
         
         <Style Selector="ScrollBar">
             <Setter Property="Opacity" Value="0"/>
@@ -183,11 +285,12 @@
             </Style>
         </Style>
         
-        
         <Style Selector="DropDownButton">
-            <Setter Property="BorderBrush" Value="#78575757"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Cursor" Value="Hand"/>
         </Style>
         
         
@@ -371,21 +474,6 @@
             <Setter Property="HorizontalAlignment" Value="Center"/>
         </Style>
         
-        <Style Selector="ui|NavigationViewItemSeparator">
-            <Setter Property="Margin" Value="{ext:Space 1, 0}"/>
-        </Style>
-        
-        <Style Selector="ui|NavigationView.NoBackground /template/ Border#ContentGridBorder">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderBrush" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="CornerRadius" Value="0"/>
-        </Style>
-        
-        <Style Selector="ui|NavigationView.NoBackground /template/ StackPanel#TopNavArea">
-            <Setter Property="Background" Value="#16000000"/>
-        </Style>
-        
         <Style Selector="material|MaterialIcon">
             <Setter Property="Foreground" Value="White"/>
         </Style>
@@ -471,32 +559,32 @@
        
        <Style Selector="TextBlock.CaptionTextBlockStyle">
            <Setter Property="FontSize" Value="12"/>
-           <Setter Property="FontWeight" Value="Normal"/>
+           <Setter Property="FontFamily" Value="{StaticResource SFTextRegular}"/>
        </Style>
        
        <Style Selector="TextBlock.BodyTextBlockStyle">
            <Setter Property="FontSize" Value="14"/>
-           <Setter Property="FontWeight" Value="Normal"/>
+           <Setter Property="FontFamily" Value="{StaticResource SFTextRegular}"/>
        </Style>
         
         <Style Selector="TextBlock.BodyStrongTextBlockStyle">
             <Setter Property="FontSize" Value="14"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontFamily" Value="{StaticResource SFTextSemiBold}"/>
         </Style>
         
         <Style Selector="TextBlock.SubtitleTextBlockStyle">
             <Setter Property="FontSize" Value="20"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontFamily" Value="{StaticResource SFTextBold}"/>
         </Style>
         
         <Style Selector="TextBlock.TitleTextBlockStyle">
             <Setter Property="FontSize" Value="28"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontFamily" Value="{StaticResource SFTextHeavy}"/>
         </Style>
         
         <Style Selector="TextBlock.TitleLargeTextBlockStyle">
             <Setter Property="FontSize" Value="40"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontFamily" Value="{StaticResource SFTextHeavy}"/>
         </Style>
         
         <Style Selector="TextBlock.TextFillColorPrimaryBrush">

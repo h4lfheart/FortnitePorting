@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using Avalonia;
 using Avalonia.Collections;
@@ -7,8 +8,10 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using Avalonia.Threading;
 using Avalonia.VisualTree;
 using Lucdem.Avalonia.SourceGenerators.Attributes;
+using Serilog;
 
 namespace FortnitePorting.Controls.Navigation;
 
@@ -21,7 +24,7 @@ public partial class Sidebar : UserControl
 {
     [AvaDirectProperty] private Control _header;
     [AvaDirectProperty] private Control _footer;
-    [AvaDirectProperty] private AvaloniaList<ISidebarItem> _items = [];
+    [AvaDirectProperty] private ObservableCollection<ISidebarItem> _items = [];
 
     private SidebarItemButton? _selectedButton;
     
@@ -39,13 +42,19 @@ public partial class Sidebar : UserControl
     public Sidebar()
     {
         InitializeComponent();
-    }
 
-    protected override void OnLoaded(RoutedEventArgs e)
-    {
-        base.OnLoaded(e);
-        
-        SelectButton(Items.OfType<SidebarItemButton>().FirstOrDefault());
+        AttachedToVisualTree += async (sender, args) =>
+        {
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                var firstValidButton = Items
+                    .OfType<SidebarItemButton>()
+                    .FirstOrDefault(b => b.Tag is not null);
+
+                if (firstValidButton is not null)
+                    SelectButton(firstValidButton);
+            }, DispatcherPriority.Background);
+        };
     }
 
     private void OnItemSelected(object? sender, PointerPressedEventArgs e)
@@ -56,7 +65,7 @@ public partial class Sidebar : UserControl
         SelectButton(button);
     }
 
-    private void SelectButton(SidebarItemButton? button)
+    public void SelectButton(SidebarItemButton? button)
     {
         if (button is null) return;
         
@@ -65,6 +74,7 @@ public partial class Sidebar : UserControl
         
         _selectedButton = button;
         _selectedButton.IsSelected = true;
+        
         var args = new SidebarItemSelectedArgs(button.Tag)
         {
             RoutedEvent = ItemSelectedEvent,

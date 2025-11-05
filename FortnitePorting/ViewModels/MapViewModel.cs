@@ -77,6 +77,13 @@ public partial class MapViewModel : ViewModelBase
             "FortniteGame/Content/Athena/Apollo/Maps/UI/T_MiniMap_Mask",
             0.0146f, -100, -25, 96, 12800, true, false
         ),
+        new(
+            "WildEstate",
+            "FortniteGame/Plugins/GameFeatures/WildEstate/Content/Maps/WildEstate_Terrain",
+            "FortniteGame/Content/Athena/Apollo/Maps/UI/Apollo_Terrain_Minimap",
+            "FortniteGame/Content/Athena/Apollo/Maps/UI/Apollo_Terrain_Minimap_PostMask",
+            0.023f, 75, 25, 149, 12800, true, false
+        ),
         
         // OG
         new(

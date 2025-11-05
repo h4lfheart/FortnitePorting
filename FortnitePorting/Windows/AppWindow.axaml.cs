@@ -21,7 +21,7 @@ public partial class AppWindow : WindowBase<AppWindowModel>
         InitializeComponent();
         DataContext = WindowModel;
         
-        Navigation.App.Initialize(ContentFrame);
+        Navigation.App.Initialize(Sidebar, ContentFrame);
     }
 
     private void OnSidebarItemSelected(object? sender, SidebarItemSelectedArgs args)

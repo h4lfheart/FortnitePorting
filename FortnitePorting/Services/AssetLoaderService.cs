@@ -26,7 +26,7 @@ namespace FortnitePorting.Services;
 
 public partial class AssetLoaderService : ObservableObject, IService
 {
-    [ObservableProperty] private AssetLoader _activeLoader;
+    [ObservableProperty] private AssetLoader? _activeLoader;
     [ObservableProperty] private ReadOnlyObservableCollection<BaseAssetItem> _activeCollection;
     
     public List<AssetLoaderCategory> Categories { get; set; } =
@@ -104,6 +104,11 @@ public partial class AssetLoaderService : ObservableObject, IService
                 {
                     ClassNames = ["AthenaDanceItemDefinition"],
                     HideNames = ["_CT", "_NPC"]
+                },
+                new AssetLoader(EExportType.SideKick)
+                {
+                    ClassNames = ["CosmeticCompanionItemDefinition"],
+                    HideNames = ["Companion_SitPlant_PerfTest", "Companion_TestCompanion2_Mutable"]
                 }
             ]
         },

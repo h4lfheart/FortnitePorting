@@ -28,5 +28,11 @@ public partial class SettingsViewModel : ViewModelBase
         if (AppSettings.ShouldSaveOnExit)
             AppSettings.Save();
     }
+
+    [RelayCommand]
+    public async void Reset()
+    {
+        App.RestartWithMessage("A restart is required", "To reset all settings, FortnitePorting must be restarted.", AppSettings.Reset);
+    }
     
 }

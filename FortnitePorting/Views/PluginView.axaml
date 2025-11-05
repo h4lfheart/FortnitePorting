@@ -8,23 +8,27 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:fortnitePorting="clr-namespace:FortnitePorting"
+             xmlns:navigation="clr-namespace:FortnitePorting.Controls.Navigation"
              d:DesignHeight="770" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.PluginView"
              x:DataType="viewModels:PluginViewModel">
-    <ui:NavigationView x:Name="NavigationView" Classes="NoBackground" PaneDisplayMode="LeftCompact" OpenPaneLength="120" IsPaneToggleButtonVisible="False" IsSettingsVisible="False" ItemInvoked="OnItemInvoked">
-        <ui:NavigationView.MenuItems>
-            <ui:NavigationViewItem Content="Blender" Tag="{x:Static fortnitePorting:EExportLocation.Blender}" IsSelected="True">
-                <ui:NavigationViewItem.IconSource>
-                    <ui:ImageIconSource Source="/Assets/Icons/Blender.png"/>
-                </ui:NavigationViewItem.IconSource>
-            </ui:NavigationViewItem>
-            <ui:NavigationViewItem Content="Unreal" Tag="{x:Static fortnitePorting:EExportLocation.Unreal}">
-                <ui:NavigationViewItem.IconSource>
-                    <ui:ImageIconSource Source="/Assets/Icons/Unreal.png"/>
-                </ui:NavigationViewItem.IconSource>
-            </ui:NavigationViewItem>
-        </ui:NavigationView.MenuItems>
+    
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="6*" />
+        </Grid.ColumnDefinitions>
         
-        <ui:Frame x:Name="ContentFrame"/>
-    </ui:NavigationView>
+        <navigation:Sidebar x:Name="Sidebar" Grid.Column="0" ItemSelected="OnItemSelected">
+            <navigation:Sidebar.Items>
+                <navigation:SidebarItemText Text="PLUGIN"/>
+                <navigation:SidebarItemButton Text="Blender" IconBitmap="/Assets/Icons/Blender.png" Tag="{x:Static fortnitePorting:EExportLocation.Blender}"/>
+                <navigation:SidebarItemButton Text="Unreal" IconBitmap="/Assets/Icons/Unreal.png" Tag="{x:Static fortnitePorting:EExportLocation.Unreal}"/>
+                <navigation:SidebarItemButton Text="Unity" IconBitmap="/Assets/Icons/Unity.png" Tag="{x:Static fortnitePorting:EExportLocation.Unity}" IsEnabled="False"/>
+            </navigation:Sidebar.Items>
+        </navigation:Sidebar>
+        
+        
+        <ui:Frame Grid.Column="1" x:Name="ContentFrame"/>
+    </Grid>
 </UserControl>

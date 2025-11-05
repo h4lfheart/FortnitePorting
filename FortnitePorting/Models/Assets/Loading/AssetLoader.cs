@@ -342,8 +342,8 @@ public partial class AssetLoader : ObservableObject
     
     public static UTexture2D? GetIcon(UObject asset)
     {
-        return asset.GetDataListItem<UTexture2D>("Icon", "LargeIcon")
-               ?? asset.GetAnyOrDefault<UTexture2D?>("Icon", "SmallPreviewImage", "LargeIcon", "LargePreviewImage");
+        return asset.GetDataListItem<UTexture2D>( "LargeIcon")
+               ?? asset.GetAnyOrDefault<UTexture2D?>("LargeIcon", "LargePreviewImage");
     }
     
     public static FGameplayTagContainer? GetGameplayTags(UObject asset)

@@ -5,6 +5,7 @@ using Avalonia.LogicalTree;
 using Avalonia.VisualTree;
 using CUE4Parse.Utils;
 using FluentAvalonia.UI.Controls;
+using FortnitePorting.Controls.Navigation;
 using Serilog;
 
 namespace FortnitePorting.Services;
@@ -56,23 +57,21 @@ public class NavigationService : IService
 public class NavigatorContext(string name)
 {
     public string Name = name;
-    private NavigationView? NavigationView;
-    private Frame ContentFrame = null!;
+    private Sidebar? Sidebar;
+    private Frame? ContentFrame;
 
     private readonly Dictionary<Type, Func<object, Type?>> _typeResolvers = new();
     private readonly Dictionary<Type, Action<object>> _behaviorResolvers = new();
 
-    public void Initialize(NavigationView navigationView)
+    public void Initialize(Sidebar sidebar, Frame? contentFrame = null)
     {
-        NavigationView = navigationView;
-        ContentFrame = navigationView.GetLogicalDescendants().OfType<Frame>().First();
+        Sidebar = sidebar;
+        ContentFrame = contentFrame;
         
         AddTypeResolver<string>(name =>
         {
-            var targetMenuItem = NavigationView.MenuItems
-                .Concat(NavigationView.FooterMenuItems)
-                .OfType<NavigationViewItem>()
-                .FirstOrDefault(item => item.Content?.ToString()?.Replace(" ", string.Empty).Equals(name, StringComparison.OrdinalIgnoreCase) ?? false);
+            var targetMenuItem = sidebar.Items.OfType<SidebarItemButton>()
+                .FirstOrDefault(item => item.Text.Replace(" ", string.Empty).Equals(name, StringComparison.OrdinalIgnoreCase));
             if (targetMenuItem is null) return null;
 
             if (!targetMenuItem.IsEffectivelyEnabled) return null;
@@ -135,13 +134,7 @@ public class NavigatorContext(string name)
         
             ContentFrame.Navigate(viewType, null, AppSettings.Application.Transition);
 
-            if (NavigationView is not null)
-            {
-                NavigationView.SelectedItem = NavigationView.MenuItems
-                    .Concat(NavigationView.FooterMenuItems)
-                    .OfType<NavigationViewItem>()
-                    .FirstOrDefault(item => item.Tag?.Equals(obj) ?? false);
-            }
+            Sidebar?.SelectButton(Sidebar.Items.OfType<SidebarItemButton>().FirstOrDefault(item => item.Tag?.Equals(obj) ?? false));
         });
     }
 

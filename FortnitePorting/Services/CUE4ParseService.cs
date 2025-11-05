@@ -85,7 +85,7 @@ public partial class CUE4ParseService : ObservableObject, IService
         "FortniteGame/Content/Animation/Game/MainPlayer/Menu/BR/Female_Commando_Idle_03_Montage"
     ];
 
-    private const EGame LATEST_GAME_VERSION = EGame.GAME_UE5_6;
+    private const EGame LATEST_GAME_VERSION = EGame.GAME_UE5_8;
     
     public static DirectoryInfo CacheFolder => new(Path.Combine(App.ApplicationDataFolder.FullName, ".cache"));
 
@@ -393,24 +393,18 @@ public partial class CUE4ParseService : ObservableObject, IService
     
     private async Task<string?> GetEndpointMappings()
     {
-        async Task<string?> GetMappings(Func<string, Task<MappingsResponse?>> mappingsFunc)
-        {
-            var mappings = await mappingsFunc(string.Empty);
-            if (mappings?.Url is null) return null;
+        var mappings = await Api.FortnitePorting.Mappings(string.Empty);
+        if (mappings?.Url is null) return null;
 
-            var mappingsFilePath = Path.Combine(App.DataFolder.FullName, mappings.Url.SubstringAfterLast("/"));
-            if (File.Exists(mappingsFilePath)) return mappingsFilePath;
+        var mappingsFilePath = Path.Combine(App.DataFolder.FullName, mappings.Url.SubstringAfterLast("/"));
+        if (File.Exists(mappingsFilePath)) return mappingsFilePath;
             
-            var createdFile = await Api.DownloadFileAsync(mappings.Url, mappingsFilePath);
-            if (!createdFile.Exists) return null;
+        var createdFile = await Api.DownloadFileAsync(mappings.Url, mappingsFilePath);
+        if (!createdFile.Exists) return null;
             
-            File.SetCreationTime(mappingsFilePath, mappings.GetCreationTime());
+        File.SetCreationTime(mappingsFilePath, mappings.GetCreationTime());
 
-            return mappingsFilePath;
-        }
-        
-        
-        return await GetMappings(Api.FortnitePorting.Mappings);
+        return mappingsFilePath;
     }
 
 
@@ -432,7 +426,7 @@ public partial class CUE4ParseService : ObservableObject, IService
         foreach (var (path, file) in assetRegistries)
         {
             if (!path.EndsWith(".bin")) continue;
-            if (path.Contains("Plugin", StringComparison.OrdinalIgnoreCase) || path.Contains("Editor", StringComparison.OrdinalIgnoreCase)) continue;
+            if (path.Contains("Editor", StringComparison.OrdinalIgnoreCase)) continue;
 
             UpdateStatus($"Loading {file.Name}");
             var assetArchive = await file.SafeCreateReaderAsync();

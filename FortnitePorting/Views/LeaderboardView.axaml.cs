@@ -6,6 +6,7 @@ using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.VisualTree;
 using FluentAvalonia.UI.Controls;
+using FortnitePorting.Controls.Navigation;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.Leaderboard;
@@ -25,19 +26,11 @@ public partial class LeaderboardView : ViewBase<LeaderboardViewModel>
     {
         InitializeComponent();
         
-        Navigation.Leaderboard.Initialize(NavigationView);
-        Navigation.Leaderboard.Open<LeaderboardExportsView>();
+        Navigation.Leaderboard.Initialize(Sidebar, ContentFrame);
     }
-
-    private void OnItemInvoked(object? sender, NavigationViewItemInvokedEventArgs e)
+    
+    private void OnItemSelected(object? sender, SidebarItemSelectedArgs e)
     {
-        switch (e.InvokedItemContainer.Tag)
-        {
-            case Type type:
-            {
-                Navigation.Leaderboard.Open(type);
-                break;
-            }
-        }
+        Navigation.Leaderboard.Open(e.Tag);
     }
 }

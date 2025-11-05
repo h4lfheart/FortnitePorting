@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
+using FortnitePorting.Controls.Navigation;
 using FortnitePorting.Framework;
 using FortnitePorting.ViewModels;
 using FortnitePorting.Views.Settings;
@@ -16,28 +17,11 @@ public partial class SettingsView : ViewBase<SettingsViewModel>
     {
         InitializeComponent();
         
-        Navigation.Settings.Initialize(NavigationView);
-        Navigation.Settings.Open<ApplicationSettingsView>();
+        Navigation.Settings.Initialize(ContentFrame);
     }
 
-    private void OnItemInvoked(object? sender, NavigationViewItemInvokedEventArgs e)
+    private void OnItemSelected(object? sender, SidebarItemSelectedArgs e)
     {
-        switch (e.InvokedItemContainer.Tag)
-        {
-            case Type type:
-            {
-                Navigation.Settings.Open(type);
-                break;
-            }
-            case string stringTag:
-            {
-                if (stringTag.Equals("Reset"))
-                {
-                    App.RestartWithMessage("A restart is required", "To reset all settings, FortnitePorting must be restarted.", AppSettings.Reset);
-                }
-                
-                break;
-            }
-        }
+        Navigation.Settings.Open(e.Tag);
     }
 }

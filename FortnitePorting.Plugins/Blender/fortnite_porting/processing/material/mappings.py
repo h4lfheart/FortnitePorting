@@ -579,6 +579,9 @@ eye_mappings = MappingCollection(
         SlotMapping("Eye Right UV Position"),
         SlotMapping("Eye Left UV Position"),
         
+        SlotMapping("Eye Right UV Position (UV0)", "Eye Right UV Position"),
+        SlotMapping("Eye Left UV Position (UV0)", "Eye Left UV Position"),
+        
         SlotMapping("Eye Camera Light Vector"),
         SlotMapping("Eye UV Highlight Pos"),
         

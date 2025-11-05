@@ -8,6 +8,7 @@ using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using FluentAvalonia.UI.Controls;
+using FortnitePorting.Controls.Navigation;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.Assets.Asset;
@@ -27,6 +28,7 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
     {
         InitializeComponent();
         
+        Navigation.Assets.Initialize(Sidebar);
         Navigation.Assets.AddBehaviorResolver<EExportType>(ChangeTab);
         Navigation.Assets.AddBehaviorResolver<string>(type =>
         {
@@ -38,7 +40,7 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
 
     private void ChangeTab(EExportType assetType)
     {
-        if (ViewModel.AssetLoader.ActiveLoader.Type == assetType) return;
+        if (ViewModel.AssetLoader.ActiveLoader?.Type == assetType) return;
         
         AssetsListBox.SelectedItems?.Clear();
         
@@ -116,12 +118,10 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
         ViewModel.AssetLoader.ActiveLoader.UpdateFilters(filterItem, isChecked);
     }
 
-    private void OnNavigationViewItemInvoked(object? sender, NavigationViewItemInvokedEventArgs e)
+    private void OnItemSelected(object? sender, SidebarItemSelectedArgs e)
     {
-        if (e.InvokedItemContainer is not NavigationViewItem navItem) return;
-        if (navItem.Tag is not EExportType assetType) return;
+        if (e.Tag is not EExportType assetType) return;
         
         ChangeTab(assetType);
     }
-
 }
