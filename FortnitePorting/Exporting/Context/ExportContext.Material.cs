@@ -4,6 +4,7 @@ using System.Linq;
 using ConcurrentCollections;
 using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.Material.Editor;
+using CUE4Parse.UE4.Assets.Exports.Nanite;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.Math;
@@ -24,20 +25,27 @@ public partial class ExportContext
     {
         if (!Meta.Settings.ExportMaterials) return null;
 
-        var hash = material.GetPathName().GetHashCode();
+        var exportMat = material;
+        if (Meta.Settings.NaniteMeshFormat != ENaniteMeshFormat.OnlyNormalLODs
+            && material.TryGetValue(out FMaterialOverrideNanite naniteMatStruct, "NaniteOverrideMaterial")
+            && naniteMatStruct.bEnableOverride
+            && naniteMatStruct.OverrideMaterial.TryLoad(out UMaterialInterface naniteMat))
+            exportMat = naniteMat;
+
+        var hash = exportMat.GetPathName().GetHashCode();
         if (MaterialCache.FirstOrDefault(mat => mat.Hash == hash) is { } existing) return existing with { Slot = index};
 
         var exportMaterial = new ExportMaterial
         {
-            Path = material.GetPathName(),
-            Name = material.Name,
+            Path = exportMat.GetPathName(),
+            Name = exportMat.Name,
             Slot = index,
             Hash = hash
         };
 
-        AccumulateParameters(material, ref exportMaterial);
+        AccumulateParameters(exportMat, ref exportMaterial);
 
-        exportMaterial.OverrideBlendMode = (material as UMaterialInstanceConstant)?.BasePropertyOverrides?.BlendMode ?? exportMaterial.BaseBlendMode;
+        exportMaterial.OverrideBlendMode = (exportMat as UMaterialInstanceConstant)?.BasePropertyOverrides?.BlendMode ?? exportMaterial.BaseBlendMode;
 
         MaterialCache.Add(exportMaterial);
         return exportMaterial;
