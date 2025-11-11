@@ -76,12 +76,12 @@
                                    Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center"/>
                         
                         <TextBlock Grid.Row="0" Grid.Column="4" Text="{Binding Application}"
-                                   TextWrapping="Wrap" Opacity="0.5"
-                                   Classes="CaptionTextBlockStyle" VerticalAlignment="Center"/>
+                                   TextWrapping="Wrap"
+                                   Classes="CaptionTextBlockStyle TextFillColorTertiaryBrush" VerticalAlignment="Center"/>
                         
                         <TextBlock Grid.Row="0" Grid.Column="6" Text="{Binding TimestampString}"
-                                   TextWrapping="Wrap" Opacity="0.5"
-                                   Classes="CaptionTextBlockStyle" VerticalAlignment="Center"/>
+                                   TextWrapping="Wrap"
+                                   Classes="CaptionTextBlockStyle TextFillColorTertiaryBrush" VerticalAlignment="Center"/>
                         
                         <TextBlock Grid.Row="0" Grid.Column="8"  IsVisible="{Binding WasEdited}"
                                    Text="(edited)" TextWrapping="Wrap" 
@@ -132,7 +132,7 @@
                             <Grid IsVisible="{Binding Text, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
                                 <TextBlock IsVisible="{Binding !IsEditing}"
                                            Text="{Binding Text}" TextWrapping="Wrap" 
-                                           Classes="BodyTextBlockStyle" VerticalAlignment="Center">
+                                           Classes="BodyTextBlockStyle TextFillColorSecondaryBrush" VerticalAlignment="Center">
                                 </TextBlock>
                         
                                 <TextBox IsVisible="{Binding IsEditing}"

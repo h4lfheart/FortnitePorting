@@ -24,7 +24,7 @@
                           ClipToBounds="False" PointerPressed="OnItemSelected">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <StackPanel Orientation="Vertical" Spacing="{ext:Space 2}"/>
+                        <StackPanel Orientation="Vertical" Spacing="{ext:Space 1.5}"/>
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
             </ItemsControl>

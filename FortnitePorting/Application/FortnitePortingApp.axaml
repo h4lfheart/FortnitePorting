@@ -67,8 +67,10 @@
              <Brush x:Key="FPButtonBackgroundPointerOver">#1E1F21</Brush>
              <Brush x:Key="FPButtonBackgroundPressed">#1B1C1F</Brush>
              <Brush x:Key="FPButtonBorderBrush">#27282A</Brush>
-             <Brush x:Key="FPButtonBackgroundBright">#FF343538</Brush>
-             <Brush x:Key="FPButtonBorderBrushBright">#FF4A4B4F</Brush>
+             <Brush x:Key="FPButtonBackgroundSelected">#27282B</Brush>
+             <Brush x:Key="FPButtonBackgroundSelectedPointerOver">#303236</Brush>
+             <Brush x:Key="FPButtonBackgroundBright">#343538</Brush>
+             <Brush x:Key="FPButtonBackgroundBrightPointerOver">#3e3f42</Brush>
              
          </ResourceDictionary>
          
@@ -110,35 +112,57 @@
         </Style>
         
         <Style Selector="controls|FABorder">
-            <Setter Property="Background" Value="#18191B"/>
-            <Setter Property="BorderBrush" Value="#27282A"/>
-            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Background">
+                <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
+                    <GradientStops>
+                        <GradientStop Color="#1A1B1E" Offset="0"/>
+                        <GradientStop Color="#18191B" Offset="1"/>
+                    </GradientStops>
+                </LinearGradientBrush>
+            </Setter>
+            <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="CornerRadius" Value="8"/>
             <Setter Property="MinHeight" Value="32"/>
+            <Setter Property="ClipToBounds" Value="False"/>
+            <Setter Property="BackgroundSizing" Value="CenterBorder"/>
+            <Setter Property="BoxShadow">
+                inset 0 1 2 -1 #50ffffff,
+                inset 0 -1 2 -2 #50ffffff,
+                0 4 8 #20000000,
+                0 8 12 #10000000
+            </Setter>
         </Style>
         
-        <Style Selector="Button">
+        <Style Selector="Button[IsVisible=true]">
             <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
-            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="CornerRadius" Value="16"/>
             <Setter Property="Cursor" Value="Hand"/>
-        </Style>
+            <Setter Property="ClipToBounds" Value="False"/>
+            
+            <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="ClipToBounds" Value="False"/>
+                <Setter Property="BackgroundSizing" Value="CenterBorder"/>
+                <Setter Property="BoxShadow">
+                    inset 0 1 2 -1 #50ffffff,
+                    inset 0 -1 2 -2 #50ffffff,
+                    0 4 8 #20000000,
+                    0 8 12 #10000000
+                </Setter>
+            </Style>
         
-        <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPointerOver}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
-        </Style>
+            <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPointerOver}"/>
+            </Style>
 
-        <Style Selector="Button:pressed /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPressed}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
-        </Style>
+            <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPressed}"/>
+            </Style>
         
-        <Style Selector="Button:disabled /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
-            <Setter Property="Opacity" Value="0.5"/>
+            <Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
+                <Setter Property="Opacity" Value="0.5"/>
+            </Style>
         </Style>
         
         
@@ -167,73 +191,95 @@
             <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
         </Style>
         
-        <Style Selector="ToggleButton">
+        <Style Selector="ToggleButton[IsVisible=true]">
             <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
-            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="CornerRadius" Value="16"/>
             <Setter Property="Cursor" Value="Hand"/>
-        </Style>
+            <Setter Property="ClipToBounds" Value="False"/>
+            
+            <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="ClipToBounds" Value="False"/>
+                <Setter Property="BackgroundSizing" Value="CenterBorder"/>
+                <Setter Property="BoxShadow">
+                    inset 0 1 2 -1 #50ffffff,
+                    inset 0 -1 2 -2 #50ffffff,
+                    0 4 8 #20000000,
+                    0 8 12 #10000000
+                </Setter>
+            </Style>
         
-        <Style Selector="ToggleButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPointerOver}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
-        </Style>
+            <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPointerOver}"/>
+            </Style>
 
-        <Style Selector="ToggleButton:pressed /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPressed}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
+            <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPressed}"/>
+            </Style>
+        
+            <Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
+                <Setter Property="Opacity" Value="0.5"/>
+            </Style>
+        
+            <Style Selector="^:checked /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackgroundBright}"/>
+                
+                <Style Selector="^:pointerover">
+                    <Setter Property="Background" Value="{StaticResource FPButtonBackgroundBrightPointerOver}"/>
+                </Style>
+            </Style>
         </Style>
         
-        <Style Selector="ToggleButton:disabled /template/ ContentPresenter#PART_ContentPresenter">
+        <Style Selector="TextBox[IsVisible=true]">
             <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
-            <Setter Property="Opacity" Value="0.5"/>
-        </Style>
-        
-        <Style Selector="ToggleButton:checked /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="{StaticResource FPButtonBackgroundBright}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrushBright}"/>
-        </Style>
-        
-        <Style Selector="AutoCompleteBox">
-            <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
-            <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="CornerRadius" Value="16"/>
-        </Style>
-        
-        <Style Selector="TextBox">
-            <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
-            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="ClipToBounds" Value="False"/>
             <Setter Property="CornerRadius" Value="16"/>
             <Setter Property="Cursor" Value="Hand"/>
-        </Style>
+            
+            <Style Selector="^ /template/ DataValidationErrors">
+                <Setter Property="ClipToBounds" Value="False"/>
+            </Style>
+            
+            <Style Selector="^ /template/ ScrollViewer">
+                <Setter Property="Margin" Value="{ext:Space 0.5, 0}"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+            </Style>
+            
+            <Style Selector="^ /template/ Border#PART_BorderElement">
+                <Setter Property="ClipToBounds" Value="False"/>
+                <Setter Property="BackgroundSizing" Value="CenterBorder"/>
+                <Setter Property="BoxShadow">
+                    inset 0 1 2 -1 #50ffffff,
+                    inset 0 -1 2 -2 #50ffffff,
+                    0 4 8 #20000000,
+                    0 8 12 #10000000
+                </Setter>
+            </Style>
+            
+            <Style Selector="^:focus /template/ Border#PART_BorderElement">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
+                <Setter Property="BorderThickness" Value="0"/>
+            </Style>
+            
+            <Style Selector="^:focus-within /template/ Border#PART_BorderElement">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
+                <Setter Property="BorderThickness" Value="0"/>
+            </Style>
         
-        <Style Selector="TextBox:focus-within /template/ Border#PART_BorderElement">
-            <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
-            <Setter Property="BorderThickness" Value="2"/>
-        </Style>
-        
-        <Style Selector="TextBox:pointerover /template/ Border#PART_BorderElement">
-            <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPointerOver}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
-            <Setter Property="BorderThickness" Value="2"/>
-        </Style>
+            <Style Selector="^:pointerover /template/ Border#PART_BorderElement">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPointerOver}"/>
+            </Style>
 
-        <Style Selector="TextBox:pressed /template/ Border#PART_BorderElement">
-            <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPressed}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
-            <Setter Property="BorderThickness" Value="2"/>
-        </Style>
+            <Style Selector="^:pressed /template/ Border#PART_BorderElement">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPressed}"/>
+            </Style>
         
-        <Style Selector="TextBox:disabled /template/ Border#PART_BorderElement">
-            <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
-            <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="Opacity" Value="0.5"/>
+            <Style Selector="^:disabled /template/ Border#PART_BorderElement">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
+                <Setter Property="Opacity" Value="0.5"/>
+            </Style>
         </Style>
         
         <Style Selector="ListBoxItem">
@@ -248,33 +294,93 @@
             <Setter Property="CornerRadius" Value="8"/>
         </Style>
         
-        <Style Selector="ComboBox">
+        <Style Selector="PopupRoot">
+            <Setter Property="ClipToBounds" Value="False"/>
+        </Style>
+        
+        
+        <Style Selector="ComboBox[IsVisible=true]">
             <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
-            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="ClipToBounds" Value="False"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
+            
+            <Style Selector="^ /template/ ContentPresenter#ContentPresenter">
+                <Setter Property="Margin" Value="12 0 0 0"/>
+            </Style>
+            
+            <Style Selector="^ /template/ DataValidationErrors">
+                <Setter Property="ClipToBounds" Value="False"/>
+            </Style>
+            
+            <Style Selector="^ /template/ Border#Background">
+                <Setter Property="ClipToBounds" Value="False"/>
+                <Setter Property="BackgroundSizing" Value="CenterBorder"/>
+                <Setter Property="BoxShadow">
+                    inset 0 1 2 -1 #50ffffff,
+                    inset 0 -1 2 -2 #50ffffff,
+                    0 4 8 #20000000,
+                    0 8 12 #10000000
+                </Setter>
+            </Style>
+
+            <Style Selector="^/template/ Border#PopupBorder">
+                <Setter Property="Background">
+                    <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
+                        <GradientStops>
+                            <GradientStop Color="#1A1B1E" Offset="0"/>
+                            <GradientStop Color="#18191B" Offset="1"/>
+                        </GradientStops>
+                    </LinearGradientBrush>
+                </Setter>
+                
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="CornerRadius" Value="16"/>
+                <Setter Property="Padding" Value="4"/>
+                <Setter Property="Margin" Value="{ext:Space 1}"/>
+                <Setter Property="ClipToBounds" Value="False"/>
+                <Setter Property="BackgroundSizing" Value="CenterBorder"/>
+                <Setter Property="BoxShadow">
+                    inset 0 1 2 -1 #50ffffff,
+                    inset 0 -1 2 -2 #50ffffff,
+                    0 0 8 #20000000,
+                    0 0 12 #10000000
+                </Setter>
+            </Style>
+
+            <Style Selector="^ Popup">
+                <Setter Property="VerticalOffset" Value="4"/>
+                <Setter Property="ClipToBounds" Value="False"/>
+            </Style>
         </Style>
         
-        <Style Selector="ComboBox[IsDropDownOpen=True] /template/ ContentPresenter#ContentPresenter">
-            <Setter Property="Margin" Value="12 0 0 0"/>
+        <Style Selector="ComboBoxItem[IsVisible=True]">
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="ClipToBounds" Value="False"/>
+            
+            <Style Selector="^:selected /template/ Border#LayoutRoot">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackgroundSelected}"/>
+                <Setter Property="ClipToBounds" Value="False"/>
+                <Setter Property="BackgroundSizing" Value="CenterBorder"/>
+                <Setter Property="BoxShadow">
+                    inset 0 1 2 -1 #50ffffff,
+                    inset 0 -1 2 -2 #50ffffff,
+                    0 4 8 #20000000,
+                    0 8 12 #10000000
+                </Setter>
+                
+                <Style Selector="^:pointerover">
+                    <Setter Property="Background" Value="{StaticResource FPButtonBackgroundSelectedPointerOver}"/>
+                </Style>
+            </Style>
+            
+            <Style Selector="^ /template/ Rectangle#Pill">
+                <Setter Property="Opacity" Value="0" />
+            </Style>
         </Style>
         
-        <Style Selector="ComboBox[IsDropDownOpen=False] /template/ ContentPresenter#ContentPresenter">
-            <Setter Property="Margin" Value="12 0 0 0"/>
-        </Style>
-
-        <Style Selector="ComboBox[IsDropDownOpen=True] /template/ Border#PopupBorder">
-            <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
-            <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="CornerRadius" Value="8"/>
-        </Style>
-
-        <Style Selector="ComboBox[IsDropDownOpen=True] Popup">
-            <Setter Property="VerticalOffset" Value="4"/>
-        </Style>
         
         <Style Selector="ScrollBar">
             <Setter Property="Opacity" Value="0"/>
@@ -285,12 +391,23 @@
             </Style>
         </Style>
         
-        <Style Selector="DropDownButton">
+        <Style Selector="DropDownButton[IsVisible=True]">
             <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
-            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="ClipToBounds" Value="False"/>
             <Setter Property="Cursor" Value="Hand"/>
+            
+            <Style Selector="^ /template/ Border#RootBorder">
+                <Setter Property="ClipToBounds" Value="False"/>
+                <Setter Property="BackgroundSizing" Value="CenterBorder"/>
+                <Setter Property="BoxShadow">
+                    inset 0 1 2 -1 #50ffffff,
+                    inset 0 -1 2 -2 #50ffffff,
+                    0 4 8 #20000000,
+                    0 8 12 #10000000
+                </Setter>
+            </Style>
         </Style>
         
         

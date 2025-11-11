@@ -108,7 +108,7 @@ public partial class AssetLoaderService : ObservableObject, IService
                 new AssetLoader(EExportType.SideKick)
                 {
                     ClassNames = ["CosmeticCompanionItemDefinition"],
-                    HideNames = ["Companion_SitPlant_PerfTest", "Companion_TestCompanion2_Mutable"]
+                    HideNames = ["Companion_SitPlant_PerfTest", "Companion_TestCompanion2_Mutable", "Companion_Placeholder"]
                 }
             ]
         },

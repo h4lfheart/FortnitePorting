@@ -33,7 +33,7 @@
                         
                                 
                                 <Border Grid.Column="2" CornerRadius="32" ClipToBounds="True" HorizontalAlignment="Center" VerticalAlignment="Center" Background="#40000000">
-                                    <Image asyncImageLoader:ImageLoader.Source="{Binding UserInfo.AvatarUrl, TargetNullValue='avares://FortnitePorting/Assets/DefaultProfile.png'}" Width="64"/>
+                                    <Image asyncImageLoader:ImageLoader.Source="{Binding UserInfo.AvatarUrl, TargetNullValue='https://api.fortniteporting.app/images/UserDefault.png'}" Width="64"/>
                                 </Border>
                                 <Image Grid.Column="2" Source="{Binding MedalBitmap}"
                                        Width="36">

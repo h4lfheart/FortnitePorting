@@ -8,7 +8,8 @@
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
              xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="FortnitePorting.Controls.Navigation.SidebarItemButton" Margin="{ext:Space -1}">
+             x:Class="FortnitePorting.Controls.Navigation.SidebarItemButton" 
+             Margin="{ext:Space -1, -0.5}" ClipToBounds="False">
     
     <UserControl.Styles>
         <Style Selector="navigation|SidebarItemButton:disabled">
@@ -16,7 +17,8 @@
         </Style>
     </UserControl.Styles>
     <Grid Cursor="Hand">
-        <controls:FABorder Classes.Selected="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=navigation:SidebarItemButton}}"
+        <controls:FABorder CornerRadius="16"
+                            Classes.Selected="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=navigation:SidebarItemButton}}"
                            Classes.NotSelected="{Binding !IsSelected, RelativeSource={RelativeSource AncestorType=navigation:SidebarItemButton}}">
             <controls:FABorder.Transitions>
                 <Transitions>
@@ -38,14 +40,16 @@
                 <Style Selector="controls|FABorder.NotSelected">
                     <Setter Property="Opacity" Value="0"/>
                     <Setter Property="BorderBrush" Value="Transparent"/>
+                    <Setter Property="BoxShadow" Value="none"/>
                 </Style>
                 <Style Selector="controls|FABorder.NotSelected:pointerover">
                     <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPointerOver}"/>
                     <Setter Property="Opacity" Value="0.5"/>
+                    <Setter Property="BoxShadow" Value="none"/>
                 </Style>
             </controls:FABorder.Styles>
         </controls:FABorder>
-        <Grid ColumnDefinitions="Auto 8 *" Margin="{ext:Space 1}">
+        <Grid ColumnDefinitions="Auto 8 *" Margin="{ext:Space 1, 0.5}">
         
             <material:MaterialIcon Grid.Column="0" 
                                    IsVisible="{Binding !UseIconBitmap, RelativeSource={RelativeSource AncestorType=navigation:SidebarItemButton}}"
