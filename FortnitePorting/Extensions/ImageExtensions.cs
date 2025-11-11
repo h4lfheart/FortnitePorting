@@ -28,6 +28,7 @@ public static class ImageExtensions
             SKColorType.Bgra8888 => PixelFormat.Bgra8888,
             SKColorType.Rgb565 => PixelFormat.Rgb565,
             SKColorType.RgbaF32 => PixelFormat.Rgb32,
+            SKColorType.Gray8 => PixelFormats.Gray8
         };
         
         var bitmap = new WriteableBitmap(new PixelSize(skiaBitmap.Width, skiaBitmap.Height), new Vector(96, 96), bitmapColorType, ignoreAlpha ? AlphaFormat.Opaque : AlphaFormat.Unpremul);
