@@ -83,7 +83,7 @@ public partial class AssetLoader : ObservableObject
     [ObservableProperty] private ObservableCollection<FilterItem> _activeFilters = [];
     public List<FilterCategory> FilterCategories { get; } =
     [
-        new("Application")
+        new("APPLICATION")
         {
             Filters = 
             [
@@ -91,7 +91,7 @@ public partial class AssetLoader : ObservableObject
                 new FilterItem("Hidden Items", asset => asset.CreationData.IsHidden)
             ]
         },
-        new("Cosmetic")
+        new("COSMETIC")
         {
             Filters = 
             [
@@ -112,7 +112,7 @@ public partial class AssetLoader : ObservableObject
                 EExportType.LoadingScreen
             ]
         },
-        new("Emote")
+        new("EMOTE")
         {
             Filters = 
             [
@@ -124,7 +124,7 @@ public partial class AssetLoader : ObservableObject
                 EExportType.Emote
             ]
         },
-        new("Game")
+        new("GAME")
         {
             Filters = 
             [
@@ -146,7 +146,7 @@ public partial class AssetLoader : ObservableObject
                 EExportType.Trap
             ]
         },
-        new("Creative")
+        new("CREATIVE")
         {
             Filters = 
             [
@@ -159,7 +159,7 @@ public partial class AssetLoader : ObservableObject
                EExportType.Prefab
             ]
         },
-        new("Item")
+        new("ITEM")
         {
             Filters = 
             [

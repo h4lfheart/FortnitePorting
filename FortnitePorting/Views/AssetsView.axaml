@@ -36,7 +36,7 @@
         
         <Grid Grid.Column="1" Margin="{ext:Space 0, 1, 1, 1}">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2.65*" />
+                <ColumnDefinition Width="2.75*" />
                 <ColumnDefinition Width="{ext:Space 1}" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
@@ -99,10 +99,11 @@
                                 <ItemsControl ItemsSource="{Binding AssetLoader.ActiveLoader.FilterCategories}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate DataType="filters:FilterCategory">
-                                            <StackPanel IsVisible="{Binding IsVisible}">
-                                                <TextBlock Text="{Binding Title}" Classes="BodyStrongTextBlockStyle"
+                                            <StackPanel IsVisible="{Binding IsVisible}" Margin="{ext:Space 0.5}">
+                                                <TextBlock Text="{Binding Title}" FontSize="13"
+                                                           FontFamily="{StaticResource SFTextMedium}"
+                                                           Classes="TextFillColorTertiaryBrush"
                                                            Margin="{ext:Space 0, 0, 0, 0.5}" />
-                                                <Separator HorizontalAlignment="Stretch" />
                                                 <ItemsControl ItemsSource="{Binding Filters}">
                                                     <ItemsControl.ItemTemplate>
                                                         <DataTemplate DataType="filters:FilterItem">
@@ -149,7 +150,7 @@
                 <controls:FABorder Grid.Row="2">
                     <ListBox x:Name="AssetsListBox" SelectionMode="Multiple" AutoScrollToSelectedItem="False"
                              ItemsSource="{Binding AssetLoader.ActiveCollection}"
-                             SelectionChanged="OnSelectionChanged">
+                             SelectionChanged="OnSelectionChanged" Margin="{ext:Space 1}">
                         <ListBox.Styles>
                             <Style Selector="ListBoxItem">
                                 <Setter Property="MinWidth" Value="0" />
@@ -221,7 +222,7 @@
 
             </Grid>
 
-            <GridSplitter Grid.Column="1" Background="Transparent" />
+            <GridSplitter Grid.Column="1" Background="Transparent"/>
 
             <Grid Grid.Column="2" RowDefinitions="*,Auto"
                   IsVisible="{Binding !!AssetLoader.ActiveLoader.SelectedAssetInfos.Count}">
@@ -238,13 +239,18 @@
                                         <RowDefinition Height="Auto" />
                                     </Grid.RowDefinitions>
 
-                                    <controls:FABorder Grid.Row="0">
-                                        <Grid RowDefinitions="* 2*" ColumnDefinitions="* 0.15* 2.5*"
-                                              Margin="{ext:Space 0.5}">
-                                            <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" CornerRadius="4"
-                                                    ClipToBounds="True">
-                                                <Image Source="{Binding Asset.IconDisplayImage}" />
+                                    <controls:FABorder Grid.Row="0" ClipToBounds="True">
+                                        <Grid RowDefinitions="* 2*">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="{ext:Space 1}"/>
+                                                <ColumnDefinition Width="2.5*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" CornerRadius="8"
+                                                    ClipToBounds="True" Margin="{ext:Space 1}">
+                                                <Image Source="{Binding Asset.IconDisplayImage}"/>
                                             </Border>
+                                            
                                             <TextBlock Grid.Row="0" Grid.Column="2" Classes="BodyStrongTextBlockStyle"
                                                        VerticalAlignment="Bottom" TextAlignment="Left"
                                                        TextTrimming="CharacterEllipsis"
@@ -276,7 +282,8 @@
 
                                                         <DropDownButton Grid.Row="2" Margin="{ext:Space 1, 0}"
                                                                         HorizontalAlignment="Stretch"
-                                                                        Classes="Transparent"
+                                                                        Background="#222326"
+                                                                        CornerRadius="12"
                                                                         IsVisible="{Binding !MultiSelect}">
                                                             <DropDownButton.Flyout>
                                                                 <Flyout>
