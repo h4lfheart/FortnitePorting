@@ -30,6 +30,7 @@
         <Grid Grid.Row="0" VerticalAlignment="Center">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="{ext:Space 1}" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
@@ -40,8 +41,13 @@
                 <Run Text="Fortnite" />
                 <Run Text="Porting" Foreground="#953bf8" />
             </TextBlock>
+            
+            <TextBlock Grid.Row="1" Text="{Binding UEParse.Status}" 
+                       VerticalAlignment="Center" HorizontalAlignment="Center" Margin="{ext:Space 0, 1}"
+                       FontSize="14" FontFamily="{StaticResource SFTextMedium}" Classes="TextFillColorSecondaryBrush"
+                       IsVisible="{Binding !UEParse.FinishedLoading}"/>
 
-            <StackPanel Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
+            <StackPanel Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
                 <StackPanel.Styles>
                     <Style Selector="Button">
                         <Setter Property="HorizontalAlignment" Value="Stretch" />
@@ -109,8 +115,7 @@
             
 
         </Grid>
-
-
+        
         <Grid Grid.Row="4" VerticalAlignment="Center">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />

@@ -428,7 +428,7 @@ public partial class CUE4ParseService : ObservableObject, IService
             if (!path.EndsWith(".bin")) continue;
             if (path.Contains("Editor", StringComparison.OrdinalIgnoreCase)) continue;
 
-            UpdateStatus($"Loading {file.Name}");
+            UpdateStatus($"Loading {file.Path}");
             var assetArchive = await file.SafeCreateReaderAsync();
             if (assetArchive is null) continue;
 
