@@ -1242,19 +1242,23 @@ class ImportContext:
 
         def import_sections(sections, skeleton, track, is_main_skeleton = False):
             total_frames = 0
+            anim_fps = 30
             for section in sections:
                 path = section.get("Path")
 
                 action, anim_data = self.import_anim(path, skeleton)
                 clear_children_bone_transforms(skeleton, action, "faceAttach")
 
-                section_length_frames = time_to_frame(section.get("Length"), anim_data.metadata.frames_per_second)
+                if anim_data.metadata is not None:
+                    anim_fps = anim_data.metadata.frames_per_second
+                
+                section_length_frames = time_to_frame(section.get("Length"), anim_fps)
                 total_frames += section_length_frames
 
                 section_name = section.get("Name")
                 time_offset = section.get("Time")
                 loop_count = 999 if self.options.get("LoopAnimation") and section.get("Loop") else 1
-                frame = time_to_frame(time_offset, anim_data.metadata.frames_per_second)
+                frame = time_to_frame(time_offset, anim_fps)
 
                 if len(track.strips) > 0 and frame < track.strips[-1].frame_end:
                     frame = int(track.strips[-1].frame_end)
@@ -1325,7 +1329,7 @@ class ImportContext:
                                             case EOpElementType.NAME:
                                                 sub_curve_name = str(element_value)
                                                 if target_curve := best(anim_data.curves, lambda curve: curve.name.lower(), sub_curve_name.lower()):
-                                                    target_value = interpolate_keyframes(target_curve.keys, frame, fps=anim_data.metadata.frames_per_second)
+                                                    target_value = interpolate_keyframes(target_curve.keys, frame, fps=anim_fps)
                                                     value_stack.append(target_value)
                                                 else:
                                                     value_stack.append(0)
