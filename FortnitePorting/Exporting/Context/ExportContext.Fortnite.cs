@@ -4,6 +4,7 @@ using System.Linq;
 using CUE4Parse.GameTypes.FN.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Material;
+using CUE4Parse.UE4.Assets.Exports.Rig;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
@@ -67,10 +68,20 @@ public partial class ExportContext
                         {
                             meta.PoseAsset = Export(poseAssetNode.Get<UPoseAsset>("PoseAsset"));
                         }
-                        else if (skeletalMesh.ReferenceSkeleton.FinalRefBoneInfo.Any(bone => bone.Name.Text.Equals("FACIAL_C_FacialRoot", StringComparison.OrdinalIgnoreCase))
-                                 && UEParse.Provider.TryLoadPackageObject("/BRCosmetics/Characters/Player/Male/Medium/Heads/M_MED_Jonesy3L_Head/Meshes/3L/3L_lod2_Facial_Poses_PoseAsset", out UPoseAsset poseAsset))
+                        else if (skeletalMesh.ReferenceSkeleton.FinalRefBoneInfo.Any(bone => bone.Name.Text.Equals("FACIAL_C_FacialRoot", StringComparison.OrdinalIgnoreCase)))
                         {
-                            meta.PoseAsset = Export(poseAsset);
+                            var foundDNA = false;
+                            foreach (var userData in skeletalMesh.AssetUserData)
+                            {
+                                if (!userData.TryLoad<UDNAAsset>(out var dna)) continue;
+                                
+                                meta.PoseAsset = Export(dna);
+                                foundDNA = meta.PoseAsset != null; //TODO: how do we know this succeeded? Or should we just assume it did?
+                                break;
+                            }
+                            // Fallback in case DNA exporting fails
+                            if (!foundDNA && UEParse.Provider.TryLoadPackageObject("/BRCosmetics/Characters/Player/Male/Medium/Heads/M_MED_Jonesy3L_Head/Meshes/3L/3L_lod2_Facial_Poses_PoseAsset", out UPoseAsset poseAsset)) 
+                                meta.PoseAsset = Export(poseAsset);
                         }
                     }
 
