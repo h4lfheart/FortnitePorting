@@ -85,7 +85,7 @@ public partial class CUE4ParseService : ObservableObject, IService
         "FortniteGame/Content/Animation/Game/MainPlayer/Menu/BR/Female_Commando_Idle_03_Montage"
     ];
 
-    private const EGame LATEST_GAME_VERSION = EGame.GAME_UE5_6;
+    private const EGame LATEST_GAME_VERSION = EGame.GAME_UE5_7;
     
     public static DirectoryInfo CacheFolder => new(Path.Combine(App.ApplicationDataFolder.FullName, ".cache"));
 
@@ -107,6 +107,9 @@ public partial class CUE4ParseService : ObservableObject, IService
         ObjectTypeRegistry.RegisterEngine(Assembly.Load("FortnitePorting.Shared"));
 
         Provider.LoadExtraDirectories = AppSettings.Installation.CurrentProfile.LoadCreativeMaps && SupaBase.Permissions.CanExportUEFN;
+        
+        // TODO: Control with a per-installation setting, or require restart when changing nanite export format?
+        Provider.ReadNaniteData = true;
         
         _onlineStatus = await Api.FortnitePorting.Online() ?? new OnlineResponse();
         
