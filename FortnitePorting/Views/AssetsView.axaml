@@ -215,20 +215,19 @@
                             </ListBox.ItemsPanel>
                         </ListBox>
                     
-                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="{ext:Space 2}"
-                                    IsVisible="{Binding !AssetLoader.ActiveLoader.FinishedLoading}">
-                            
-                            <TextBlock Text="{Binding AssetLoader.ActiveLoader.LoadingText}" 
+                        <Grid VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding !AssetLoader.ActiveLoader.FinishedLoading}">
+                            <TextBlock Text="{Binding AssetLoader.ActiveLoader.LoadingStatus}" 
+                                       Margin="{ext:Space 0, 0, 0, 8}"
                                        HorizontalAlignment="Center" VerticalAlignment="Center"
                                        FontFamily="{StaticResource SFDisplaySemibold}"
                                        FontSize="20"/>
                                        
-                            <ProgressBar HorizontalAlignment="Center" VerticalAlignment="Center"
+                            <ProgressBar HorizontalAlignment="Center" VerticalAlignment="Center" Height="8"
                                          MinWidth="400"
                                          Value="{Binding AssetLoader.ActiveLoader.LoadedAssets}"
                                          Minimum="0"
                                          Maximum="{Binding AssetLoader.ActiveLoader.TotalAssets}" />
-                        </StackPanel>
+                        </Grid>
                         
                     
                     </Grid>

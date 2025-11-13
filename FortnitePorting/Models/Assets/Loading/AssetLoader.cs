@@ -69,8 +69,7 @@ public partial class AssetLoader : ObservableObject
     [ObservableProperty, NotifyPropertyChangedFor(nameof(FinishedLoading)), NotifyPropertyChangedFor(nameof(LoadingStatus))] private int _loadedAssets;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(FinishedLoading)), NotifyPropertyChangedFor(nameof(LoadingStatus))] private int _totalAssets;
     public bool FinishedLoading => LoadedAssets == TotalAssets;
-    public string LoadingStatus => $"{LoadedAssets * 100f / TotalAssets:N1}%";
-    public string LoadingText => $"Loading {Type.GetDescription()}";
+    public string LoadingStatus => $"Loading {Type.GetDescription()}: {LoadedAssets * 100f / TotalAssets:N0}%";
     
     
     public readonly IObservable<SortExpressionComparer<BaseAssetItem>> AssetSort;
