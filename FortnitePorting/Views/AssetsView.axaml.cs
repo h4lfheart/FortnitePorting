@@ -127,4 +127,11 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
         ChangeTab(assetType);
     }
 
+    private void OnItemRealized(object? sender, ItemRealizedEventArgs e)
+    {
+        if (e.Item is not AssetItem item) return;
+        if (item.IconDisplayImage is not null) return;
+        
+        item.LoadBitmap();
+    }
 }

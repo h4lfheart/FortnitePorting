@@ -716,10 +716,9 @@ public class VirtualizingWrapPanel : VirtualizingPanel
         return null;
     }
 
+  
     private Control? GetRecycledElement(IReadOnlyList<object?> items, int index)
     {
-        Debug.Assert(ItemContainerGenerator is not null);
-
         var generator = ItemContainerGenerator!;
         var item = items[index];
 
@@ -729,15 +728,34 @@ public class VirtualizingWrapPanel : VirtualizingPanel
             _unrealizedFocusedElement.LostFocus -= OnUnrealizedFocusedElementLostFocus;
             _unrealizedFocusedElement = null;
             _unrealizedFocusedIndex = -1;
+        
+            // Clear old data before preparing
+            element.DataContext = null;
+            generator.PrepareItemContainer(element, item, index);
+            generator.ItemContainerPrepared(element, item, index);
             return element;
         }
 
         if (_recyclePool?.Count > 0)
         {
             var recycled = _recyclePool.Pop();
+        
+            // IMPORTANT: Clear DataContext BEFORE making visible
+            recycled.DataContext = null;
             recycled.IsVisible = true;
-            generator.PrepareItemContainer(recycled, item, index);
-            generator.ItemContainerPrepared(recycled, item, index);
+        
+            try
+            {
+                generator.PrepareItemContainer(recycled, item, index);
+                generator.ItemContainerPrepared(recycled, item, index);
+            }
+            catch (Exception ex)
+            {
+                recycled.IsVisible = false;
+                _recyclePool.Push(recycled);
+                return null;
+            }
+        
             return recycled;
         }
 

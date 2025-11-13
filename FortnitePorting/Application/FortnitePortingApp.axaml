@@ -93,19 +93,6 @@
         <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
         <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
         
-        <Style Selector="Border.LiquidGlass">
-            <Setter Property="BoxShadow">
-                inset 2 2 4 -1 #04000000, 
-                inset 4 8 19 #04000000, 
-                inset 3 3 3 #04ffffff, 
-                inset -4 -8 10 #02ffffff, 
-                inset 1 -3 2 #08000000
-            </Setter>
-            <Setter Property="Effect">
-                <DropShadowEffect BlurRadius="6" OffsetX="1" OffsetY="2" Color="#40000000"/>
-            </Setter>
-        </Style>
-        
         <Style Selector="ui|TabViewItem /template/ Grid#LayoutRoot /template/ Border#TabContainerBorder /template/ Grid#TabContainer /template/ Button#CloseButton">
             <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -178,6 +165,7 @@
             <Setter Property="FontFamily" Value="{StaticResource SFTextRegular}"/>
             
             <Style Selector="^ Button /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="FontFamily" Value="{StaticResource SFTextRegular}"/>
                 <Setter Property="Background" Value="Transparent"/>
                 <Setter Property="BoxShadow" Value="none"/>
             </Style>
@@ -599,6 +587,37 @@
             
             <Style Selector="^:pointerover">
                 <Setter Property="Background" Value="#0AFFFFFF"/>
+            </Style>
+        </Style>
+        
+        <Style Selector="ProgressBar[IsVisible=true]">
+            <Setter Property="Height" Value="16"/>
+            <Setter Property="ClipToBounds" Value="False"/>
+            
+            <Style Selector="^ Border#PART_Indicator">
+                <Setter Property="Background" Value="#953bf8"/>
+                <Setter Property="Height" Value="NaN"/>
+                <Setter Property="CornerRadius" Value="16"/>
+                
+                <Setter Property="BoxShadow">
+                    inset 0 1 2 -1 #50ffffff,
+                    inset 0 -1 2 -2 #50ffffff,
+                    0 4 8 #20000000,
+                    0 8 12 #10000000
+                </Setter>
+            </Style>
+            
+            <Style Selector="^ Border#ProgressBarTrack">
+                <Setter Property="Background" Value="#353538"/>
+                <Setter Property="Height" Value="NaN"/>
+                <Setter Property="CornerRadius" Value="16"/>
+                
+                <Setter Property="BoxShadow">
+                    inset 0 1 2 -1 #50ffffff,
+                    inset 0 -1 2 -2 #50ffffff,
+                    0 4 8 #20000000,
+                    0 8 12 #10000000
+                </Setter>
             </Style>
         </Style>
         

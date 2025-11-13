@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.GameTypes.FN.Enums;
@@ -50,6 +51,7 @@ public partial class AssetItem : Base.BaseAssetItem
     private static SKColor OuterBackgroundColor = SKColor.Parse("#174a89");
 
     private static ConcurrentDictionary<string, UFortItemSeriesDefinition> SeriesCache = [];
+    private static ConcurrentDictionary<string, WriteableBitmap> BackgroundCache = [];
     
     public AssetItem(AssetItemCreationArgs args)
     {
@@ -76,25 +78,28 @@ public partial class AssetItem : Base.BaseAssetItem
                 () => seriesPackage.Load<UFortItemSeriesDefinition>());
         }
         
-        LoadBitmap();
+        //LoadBitmap();
     }
 
     public void LoadBitmap()
     {
         var iconBitmap = CreationData.Icon.Decode()!.ToSkBitmap();
         IconDisplayImage = iconBitmap.ToWriteableBitmap();
-        DisplayImage = CreateDisplayImage(iconBitmap).ToWriteableBitmap();
-        
-        OnPropertyChanged(nameof(DisplayImage));
-        OnPropertyChanged(nameof(IconDisplayImage));
+        BackgroundImage = CreateBackgroundImage();
     }
 
-    protected sealed override SKBitmap CreateDisplayImage(SKBitmap iconBitmap)
+    protected sealed override WriteableBitmap CreateBackgroundImage()
     {
-        var bitmap = new SKBitmap(128, 160, iconBitmap.ColorType, SKAlphaType.Opaque);
-        using (var canvas = new SKCanvas(bitmap))
+        var backgroundKey = Series?.Name ?? "Default";
+        if (BackgroundCache.TryGetValue(backgroundKey, out var existingBackground))
         {
-            var backgroundRect = new SKRect(0, 0, bitmap.Width, bitmap.Height);
+            return existingBackground;
+        }
+        
+        var skiaBitmap = new SKBitmap(128, 160, SKColorType.Rgba8888, SKAlphaType.Opaque);
+        using (var canvas = new SKCanvas(skiaBitmap))
+        {
+            var backgroundRect = new SKRect(0, 0, skiaBitmap.Width, skiaBitmap.Height);
             if (Series?.Colors is { } colors)
             {
                 if (Series?.BackgroundTexture.LoadOrDefault<UTexture2D>() is { } seriesBackground)
@@ -104,20 +109,20 @@ public partial class AssetItem : Base.BaseAssetItem
                 else
                 {
                     
-                    var backgroundPaint = new SKPaint { Shader = SkiaExtensions.RadialGradient(bitmap.Height, colors.Color1, colors.Color3) };
+                    var backgroundPaint = new SKPaint { Shader = SkiaExtensions.RadialGradient(skiaBitmap.Height, colors.Color1, colors.Color3) };
                     canvas.DrawRect(backgroundRect, backgroundPaint);
                 }
             }
             else
             {
-                var backgroundPaint = new SKPaint { Shader = SkiaExtensions.RadialGradient(bitmap.Height, InnerBackgroundColor, OuterBackgroundColor) };
+                var backgroundPaint = new SKPaint { Shader = SkiaExtensions.RadialGradient(skiaBitmap.Height, InnerBackgroundColor, OuterBackgroundColor) };
                 canvas.DrawRect(backgroundRect, backgroundPaint);
             }
-
-            canvas.DrawBitmap(iconBitmap, backgroundRect with { Left = -16, Right = bitmap.Width + 16});
             
         }
 
+        var bitmap = skiaBitmap.ToWriteableBitmap();
+        BackgroundCache.GetOrAdd(backgroundKey, bitmap);
         return bitmap;
     }
 
@@ -142,7 +147,7 @@ public partial class AssetItem : Base.BaseAssetItem
     
     public override async Task CopyIcon(bool withBackground = false)
     {
-        await AvaloniaClipboard.SetImageAsync(withBackground ? DisplayImage : IconDisplayImage);
+        await AvaloniaClipboard.SetImageAsync(IconDisplayImage);
     }
     
     public override void Favorite()
