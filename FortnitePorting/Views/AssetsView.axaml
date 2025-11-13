@@ -207,7 +207,7 @@
                         </ListBox.ItemTemplate>
                         <ListBox.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <wrapPanel:VirtualizingWrapPanel />
+                                <wrapPanel:VirtualizingWrapPanel/>
                             </ItemsPanelTemplate>
                         </ListBox.ItemsPanel>
                     </ListBox>

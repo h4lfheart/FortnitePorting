@@ -25,6 +25,7 @@ using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Views;
 using FortnitePorting.Windows;
 using Newtonsoft.Json;
+using Serilog;
 using SkiaSharp;
 using SkiaExtensions = FortnitePorting.Extensions.SkiaExtensions;
 
@@ -75,9 +76,17 @@ public partial class AssetItem : Base.BaseAssetItem
                 () => seriesPackage.Load<UFortItemSeriesDefinition>());
         }
         
+        LoadBitmap();
+    }
+
+    public void LoadBitmap()
+    {
         var iconBitmap = CreationData.Icon.Decode()!.ToSkBitmap();
         IconDisplayImage = iconBitmap.ToWriteableBitmap();
         DisplayImage = CreateDisplayImage(iconBitmap).ToWriteableBitmap();
+        
+        OnPropertyChanged(nameof(DisplayImage));
+        OnPropertyChanged(nameof(IconDisplayImage));
     }
 
     protected sealed override SKBitmap CreateDisplayImage(SKBitmap iconBitmap)

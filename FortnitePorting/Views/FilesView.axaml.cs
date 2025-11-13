@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -5,6 +6,7 @@ using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FluentAvalonia.UI.Controls;
+using FortnitePorting.Controls.WrapPanel;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Files;
 using FortnitePorting.Services;
@@ -81,5 +83,12 @@ public partial class FilesView : ViewBase<FilesViewModel>
         
         ViewModel.FileViewJumpTo(item.Path);
     }
-    
+
+    private void OnItemRealized(object? sender, ItemRealizedEventArgs e)
+    {
+        if (e.Item is not TreeItem item) return;
+        if (item.FileBitmap is not null) return;
+        
+        ViewModel.LoadFileBitmap(ref item);
+    }
 }

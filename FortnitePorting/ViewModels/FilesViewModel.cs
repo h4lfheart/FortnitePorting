@@ -12,6 +12,7 @@ using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CUE4Parse_Conversion.Textures;
 using CUE4Parse.UE4.Assets;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Material;
@@ -65,7 +66,8 @@ public partial class FilesViewModel : ViewModelBase
 
     private readonly TreeItem _parentTreeItem = new("Files", ENodeType.Folder)
     {
-        Expanded = true
+        Expanded = true,
+        Selected = true
     };
     
     private TreeItem _currentFolder;
@@ -140,7 +142,7 @@ public partial class FilesViewModel : ViewModelBase
 
         var allChildren = item.GetAllChildren();
 
-        TaskService.Run(() => LoadFileBitmaps(allChildren));
+        //TaskService.Run(() => LoadFileBitmaps(allChildren));
         
         FileViewCollection = new ObservableCollection<TreeItem>(allChildren);
         
@@ -155,40 +157,42 @@ public partial class FilesViewModel : ViewModelBase
         FileViewStack = new ObservableCollection<TreeItem>(newStack);
     }
 
-    private void LoadFileBitmaps(IEnumerable<TreeItem> fileItems)
+    public void LoadFileBitmap(ref TreeItem item)
     {
-        Parallel.ForEach(fileItems, childItem => 
-            {
-                if (childItem.Type == ENodeType.Folder) return;
-                if (childItem.FileBitmap is not null) return;
+        if (item.Type == ENodeType.Folder) return;
+        if (item.FileBitmap is not null) return;
                     
-                if (UEParse.Provider.TryLoadPackage(childItem.FilePath, out var package))
-                {
-                    for (var i = 0; i < package.ExportMapLength; i++)
-                    {
-                        var pointer = new FPackageIndex(package, i + 1).ResolvedObject;
-                        if (pointer?.Object is null) continue;
+        if (UEParse.Provider.TryLoadPackage(item.FilePath, out var package))
+        {
+            for (var i = 0; i < package.ExportMapLength; i++)
+            {
+                var pointer = new FPackageIndex(package, i + 1).ResolvedObject;
+                if (pointer?.Object is null) continue;
                         
-                        var obj = ((AbstractUePackage) package).ConstructObject(pointer.Class?.Object?.Value as UStruct, package);
-                        if (obj.GetEditorIconBitmap() is { } objectBitmap)
-                        {
-                            childItem.FileBitmap = objectBitmap;
-                            break;
-                        }
-
-                        if (Exporter.DetermineExportType(obj) is var exportType and not EExportType.None 
-                            && $"avares://FortnitePorting/Assets/FN/{exportType.ToString()}.png" is { } exportIconPath 
-                            && AssetLoader.Exists(new Uri(exportIconPath)))
-                        {
-                            childItem.FileBitmap = ImageExtensions.AvaresBitmap(exportIconPath);
-                            break;
-                        }
-                    }
+                var obj = ((AbstractUePackage) package).ConstructObject(pointer.Class?.Object?.Value as UStruct, package);
+                if (obj is UTexture2D && pointer.TryLoad(out var textureObj) && textureObj is UTexture2D texture && texture.Decode() is { } decodedTexture)
+                {
+                    item.FileBitmap = decodedTexture.ToWriteableBitmap();
+                    break;
+                }
+                        
+                if (obj.GetEditorIconBitmap() is { } objectBitmap)
+                {
+                    item.FileBitmap = objectBitmap;
+                    break;
                 }
 
-                childItem.FileBitmap ??= ImageExtensions.AvaresBitmap("avares://FortnitePorting/Assets/Unreal/DataAsset_64x.png");
+                if (Exporter.DetermineExportType(obj) is var exportType and not EExportType.None 
+                    && $"avares://FortnitePorting/Assets/FN/{exportType.ToString()}.png" is { } exportIconPath 
+                    && AssetLoader.Exists(new Uri(exportIconPath)))
+                {
+                    item.FileBitmap = ImageExtensions.AvaresBitmap(exportIconPath);
+                    break;
+                }
             }
-        );
+        }
+
+        item.FileBitmap ??= ImageExtensions.AvaresBitmap("avares://FortnitePorting/Assets/Unreal/DataAsset_64x.png");
     }
 
     public void FileViewJumpTo(string path)
@@ -246,7 +250,7 @@ public partial class FilesViewModel : ViewModelBase
             .OrderByDescending(item => item.Type == ENodeType.Folder)
             .ThenBy(item => item.Name, new CustomComparer<string>(ComparisonExtensions.CompareNatural));
 
-        TaskService.Run(() => LoadFileBitmaps(items));
+        //TaskService.Run(() => LoadFileBitmaps(items));
         
         FileViewCollection = new ObservableCollection<TreeItem>(items);
         

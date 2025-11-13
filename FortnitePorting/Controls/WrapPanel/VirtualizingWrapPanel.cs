@@ -41,6 +41,18 @@ public class VirtualizingWrapPanel : VirtualizingPanel
 
     private static readonly AttachedProperty<bool> ItemIsOwnContainerProperty =
         AvaloniaProperty.RegisterAttached<VirtualizingWrapPanel, Control, bool>("ItemIsOwnContainer");
+    
+    public static readonly RoutedEvent<ItemRealizedEventArgs> ItemRealizedEvent =
+        RoutedEvent.Register<VirtualizingWrapPanel, ItemRealizedEventArgs>(
+            nameof(ItemRealized), 
+            RoutingStrategies.Bubble);
+
+    public event EventHandler<ItemRealizedEventArgs>? ItemRealized
+    {
+        add => AddHandler(ItemRealizedEvent, value);
+        remove => RemoveHandler(ItemRealizedEvent, value);
+    }
+
 
     private static readonly Rect s_invalidViewport = new(double.PositiveInfinity, double.PositiveInfinity, 0, 0);
     private readonly Action<Control, int> _recycleElement;
@@ -619,7 +631,6 @@ public class VirtualizingWrapPanel : VirtualizingPanel
             var e = GetOrCreateElement(items, index);
             e.Measure(childConstraint);
 
-
             if (!firstChildMeasured)
             {
                 size = new UVSize(Orientation,
@@ -629,14 +640,18 @@ public class VirtualizingWrapPanel : VirtualizingPanel
                 firstChildMeasured = true;
             }
 
+            // Calculate position moving backwards
             uv.U -= size.U;
 
             // Test if the item will be moved to the previous row
             if (uv.U < viewport.viewportUVStart.U)
             {
+                // Move to previous row, starting from the right edge
                 var uLength = viewport.viewportUVEnd.U - viewport.viewportUVStart.U;
-                var uConstraint = (int) (uLength / size.U) * size.U;
-                uv.U = uConstraint - size.U;
+                var itemsPerRow = Math.Max(1, (int)(uLength / size.U));
+                var lastItemU = viewport.viewportUVStart.U + ((itemsPerRow - 1) * size.U);
+        
+                uv.U = lastItemU;
                 uv.V -= size.V;
             }
 
@@ -644,16 +659,27 @@ public class VirtualizingWrapPanel : VirtualizingPanel
             --index;
         }
 
-        // We can now recycle elements before the first element.
+// We can now recycle elements before the first element.
         _realizedElements.RecycleElementsBefore(index + 1, _recycleElement, Orientation);
     }
 
     private Control GetOrCreateElement(IReadOnlyList<object?> items, int index)
     {
+        var item = items[index];
+    
         var e = GetRealizedElement(index) ??
                 GetItemIsOwnContainer(items, index) ??
                 GetRecycledElement(items, index) ??
                 CreateElement(items, index);
+    
+        // Always fire the event when an item is realized
+        if (item is not null)
+        {
+            var eventArgs = new ItemRealizedEventArgs(index, e, item);
+            eventArgs.RoutedEvent = ItemRealizedEvent;
+            RaiseEvent(eventArgs);
+        }
+    
         return e;
     }
 

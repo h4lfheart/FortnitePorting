@@ -7,6 +7,7 @@
              xmlns:uip="clr-namespace:FluentAvalonia.UI.Controls.Primitives;assembly=FluentAvalonia"
              xmlns:nodify="https://miroiu.github.io/nodify"
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             xmlns:breadcrumb="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia.BreadcrumbBar"
              x:Class="FortnitePorting.Application.FortnitePortingApp"
              RequestedThemeVariant="Dark">
 
@@ -173,6 +174,14 @@
             </Style>
         </Style>
         
+        <Style Selector="breadcrumb|BreadcrumbBarItem[IsVisible=true]">
+            <Setter Property="FontFamily" Value="{StaticResource SFTextRegular}"/>
+            
+            <Style Selector="^ Button /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="BoxShadow" Value="none"/>
+            </Style>
+        </Style>
         
         <Style Selector="Button#CloseButton">
             <Setter Property="BorderBrush" Value="Transparent"/>
@@ -457,6 +466,33 @@
 
             </Style>
         </Style>
+        
+        <Style Selector="TreeViewItem[IsVisible=True]">
+            <Setter Property="FontFamily" Value="{StaticResource SFTextRegular}"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="ClipToBounds" Value="False"/>
+            
+            <Style Selector="^:selected /template/ Border#PART_LayoutRoot">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackgroundSelected}"/>
+                <Setter Property="ClipToBounds" Value="False"/>
+                <Setter Property="BackgroundSizing" Value="CenterBorder"/>
+                <Setter Property="BoxShadow">
+                    inset 0 1 2 -1 #50ffffff,
+                    inset 0 -1 2 -2 #50ffffff,
+                    0 4 8 #20000000,
+                    0 8 12 #10000000
+                </Setter>
+                
+                <Style Selector="^:pointerover">
+                    <Setter Property="Background" Value="{StaticResource FPButtonBackgroundSelectedPointerOver}"/>
+                </Style>
+            </Style>
+            
+            <Style Selector="^ /template/ Rectangle#SelectionIndicator">
+                <Setter Property="Opacity" Value="0" />
+            </Style>
+        </Style>
+
         
         <Style Selector="ComboBoxItem[IsVisible=True]">
             <Setter Property="CornerRadius" Value="12"/>

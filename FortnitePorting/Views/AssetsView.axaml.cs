@@ -9,6 +9,7 @@ using Avalonia.Threading;
 using Avalonia.VisualTree;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Controls.Navigation;
+using FortnitePorting.Controls.WrapPanel;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.Assets.Asset;
@@ -18,6 +19,7 @@ using FortnitePorting.Models.Assets.Loading;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.ViewModels;
+using Serilog;
 using BaseAssetItem = FortnitePorting.Models.Assets.Base.BaseAssetItem;
 
 namespace FortnitePorting.Views;
@@ -124,4 +126,5 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
         
         ChangeTab(assetType);
     }
+
 }
