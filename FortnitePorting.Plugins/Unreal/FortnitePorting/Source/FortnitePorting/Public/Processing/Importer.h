@@ -19,10 +19,10 @@ public:
 		FImportContext::EnsureDependencies();
 			
 		auto Exports = JsonObject->GetArrayField(TEXT("Exports"));
-
+		
 		FScopedSlowTask ImportTask(Exports.Num(), FText::FromString("Importing Data..."));
 		ImportTask.MakeDialog(true);
-			
+		
 		auto ResponseIndex = 0;
 		const auto Meta = FUtils::GetAsStruct<FExportDataMeta>(JsonObject, "MetaData");
 		for (const auto Export : Exports)
@@ -38,6 +38,7 @@ public:
 			auto ImportContext = FImportContext(Meta);
 			ImportContext.Run(Export->AsObject());
 		}
+		
 		
 	}
 };
