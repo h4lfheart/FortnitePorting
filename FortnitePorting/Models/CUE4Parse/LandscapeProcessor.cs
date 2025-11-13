@@ -132,7 +132,7 @@ public class LandscapeProcessor
             }
         }
 
-        lod.Indices = new Lazy<FRawStaticIndexBuffer>(new FRawStaticIndexBuffer { Indices32 = indices.ToArray() });
+        lod.Indices = new Lazy<uint[]>(indices.ToArray());
 
         lod.ExtraVertexColors = extraVertexColors.Values.ToArray();
 

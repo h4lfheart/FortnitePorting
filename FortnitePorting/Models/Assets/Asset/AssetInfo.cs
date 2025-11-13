@@ -67,7 +67,7 @@ public partial class AssetInfo : Base.BaseAssetInfo
     public BaseStyleData[] GetSelectedStyles()
     {
         return StyleInfos
-            .SelectMany<AssetStyleInfo, BaseStyleData>(info => info.SelectedItems)
+            .SelectMany<AssetStyleInfo, BaseStyleData>(info => info.MultiSelect ? info.SelectedItems : [info.SelectedStyle])
             .ToArray();
     }
     

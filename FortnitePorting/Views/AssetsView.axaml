@@ -229,7 +229,6 @@
                                                                 <DropDownButton.Flyout>
                                                                     <Flyout>
                                                                         <ListBox SelectionMode="{Binding SelectionMode}"
-                                                                                 SelectedItems="{Binding SelectedItems}"
                                                                                  SelectedIndex="{Binding SelectedStyleIndex, Mode=TwoWay}" 
                                                                                  ItemsSource="{Binding StyleDatas}" 
                                                                                  HorizontalAlignment="Stretch" >
