@@ -146,7 +146,7 @@
 
                 </Grid>
 
-                <controls:FABorder Grid.Row="2">
+                <controls:ContentCard Grid.Row="2">
                     <Grid>
                           <ListBox x:Name="AssetsListBox" SelectionMode="Multiple" AutoScrollToSelectedItem="False"
                                  ItemsSource="{Binding AssetLoader.ActiveCollection}"
@@ -183,7 +183,7 @@
                                         <StackPanel Width="{Binding DisplayWidth}"
                                                     ToolTip.Tip="{Binding CreationData.DisplayName}" Spacing="4">
                                             <Grid>
-                                                <controls:FABorder Width="{Binding DisplayWidth}"
+                                                <controls:ContentCard Width="{Binding DisplayWidth}"
                                                                    Height="{Binding DisplayHeight}" />
                                                 <Border ClipToBounds="True" CornerRadius="8"
                                                         Width="{Binding DisplayWidth}"
@@ -231,7 +231,7 @@
                         
                     
                     </Grid>
-                </controls:FABorder>
+                </controls:ContentCard>
 
             </Grid>
 
@@ -252,7 +252,7 @@
                                         <RowDefinition Height="Auto" />
                                     </Grid.RowDefinitions>
 
-                                    <controls:FABorder Grid.Row="0" ClipToBounds="True">
+                                    <controls:ContentCard Grid.Row="0" ClipToBounds="True">
                                         <Grid RowDefinitions="* 2*">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*"/>
@@ -275,12 +275,12 @@
                                                        Margin="{ext:Space 0, 0, 1, 0}"
                                                        TextAlignment="Left" TextWrapping="Wrap" Opacity="0.75" />
                                         </Grid>
-                                    </controls:FABorder>
+                                    </controls:ContentCard>
 
                                     <ItemsControl Grid.Row="2" ItemsSource="{Binding StyleInfos}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate DataType="assets:AssetStyleInfo">
-                                                <controls:FABorder Margin="{ext:Space 0, 0, 0, 1}"
+                                                <controls:ContentCard Margin="{ext:Space 0, 0, 0, 1}"
                                                                    IsVisible="{Binding IsVisible}">
                                                     <Grid Margin="{ext:Space 0, 1, 0, 1}">
                                                         <Grid.RowDefinitions>
@@ -438,7 +438,7 @@
                                                             </ListBox.ItemTemplate>
                                                         </ListBox>
                                                     </Grid>
-                                                </controls:FABorder>
+                                                </controls:ContentCard>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>

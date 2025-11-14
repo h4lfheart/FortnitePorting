@@ -8,7 +8,7 @@
              xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             xmlns:settingsControls="clr-namespace:FortnitePorting.Controls.Settings"
              xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:controls1="clr-namespace:Avalonia.Controls"
              xmlns:wrapPanel="clr-namespace:FortnitePorting.Controls.WrapPanel"
@@ -17,6 +17,7 @@
              xmlns:views="clr-namespace:FortnitePorting.Views"
              xmlns:gif="clr-namespace:AvaloniaGif;assembly=AvaloniaGif"
              xmlns:article="clr-namespace:FortnitePorting.Models.Article"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls"
              d:DesignHeight="720" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.HelpView"
              x:DataType="viewModels:HelpViewModel">
@@ -46,9 +47,9 @@
                 <ItemsControl Grid.Row="4" ItemsSource="{Binding Articles}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                             <ui:SettingsExpander Description="{Binding Description}" 
+                             <settingsControls:SettingsItem Description="{Binding Description}" 
                                                   Margin="{ext:Space 0, 0, 0, 1}" Padding="{ext:Space 2, 1, 1, 2}">
-                                 <ui:SettingsExpander.Header>
+                                 <settingsControls:SettingsItem.Header>
                                      <StackPanel Orientation="Horizontal">
                                          <TextBlock Text="{Binding Title}" Classes="BodyTextBlockStyle"/>
                                          <TextBlock Text="{Binding Tag}"
@@ -58,8 +59,8 @@
                                                     Opacity="0.5" Classes="CaptionTextBlockStyle" VerticalAlignment="Center"
                                                     Margin="{ext:Space 0.5, 0, 0, 0}"/>
                                      </StackPanel>
-                                 </ui:SettingsExpander.Header>
-                                 <ui:SettingsExpander.Footer>
+                                 </settingsControls:SettingsItem.Header>
+                                 <settingsControls:SettingsItem.Footer>
                                      <StackPanel IsVisible="{Binding $parent[views:HelpView].((viewModels:HelpViewModel)DataContext).AllowedToOpenBuilder}" Orientation="Horizontal">
                                          <Button Content="{material:MaterialIconExt Pencil}" 
                                                  Command="{Binding $parent[views:HelpView].((viewModels:HelpViewModel)DataContext).EditArticleCommand}"
@@ -69,7 +70,7 @@
                                                  Command="{Binding $parent[views:HelpView].((viewModels:HelpViewModel)DataContext).DeleteArticleCommand}"
                                                  CommandParameter="{Binding}"/>
                                      </StackPanel>
-                                 </ui:SettingsExpander.Footer>
+                                 </settingsControls:SettingsItem.Footer>
                                  <ItemsControl ItemsSource="{Binding Sections}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
@@ -117,7 +118,7 @@
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
-                             </ui:SettingsExpander>
+                             </settingsControls:SettingsItem>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
@@ -228,7 +229,7 @@
                 
                 <TextBlock Grid.Column="2" Grid.Row="10" Text="Preview" HorizontalAlignment="Center" Classes="SubtitleTextBlockStyle"/>
                 
-                <controls:FABorder Grid.Column="2" Grid.Row="12">
+                <controls:ContentCard Grid.Column="2" Grid.Row="12">
                     <ItemsControl ItemsSource="{Binding BuilderArticle.Sections}" Margin="{ext:Space 1}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
@@ -276,7 +277,7 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
-                </controls:FABorder>
+                </controls:ContentCard>
             </Grid>
         </ScrollViewer>
     </Grid>

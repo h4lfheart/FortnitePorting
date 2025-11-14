@@ -107,7 +107,7 @@
             </Style>
         </Style>
         
-        <Style Selector="controls|FABorder">
+        <Style Selector="controls|ContentCard">
             <Setter Property="Background">
                 <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
                     <GradientStops>
@@ -627,10 +627,6 @@
             <Style Selector="^:pointerover">
                 <Setter Property="Background" Value="#FF0022"/>
             </Style>
-        </Style>
-        
-        <Style Selector="ui|SettingsExpander:disabled /template/ ui|SymbolIcon#ExpandCollapseChevron">
-            <Setter Property="IsVisible" Value="False"/>
         </Style>
 
         

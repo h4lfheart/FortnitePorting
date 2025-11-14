@@ -25,7 +25,7 @@
                    Source="{Binding SelectedMap.MapBitmap, TargetNullValue=Assets/Transparent1x1.png}"/>
         </Grid>
         
-        <controls:FABorder Grid.Column="1" Background="#22000000" Margin="{ext:Space 0, 1, 1, 1}"
+        <controls:ContentCard Grid.Column="1" Background="#22000000" Margin="{ext:Space 0, 1, 1, 1}"
                      VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
             <Grid Margin="{ext:Space 1}">
                 <Grid.RowDefinitions>
@@ -150,13 +150,13 @@
                         <ItemsControl ItemsSource="{Binding SelectedMap.SelectedMaps, Mode=TwoWay}" HorizontalAlignment="Stretch">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <controls:FABorder Background="{Binding BackgroundBrush}" 
+                                    <controls:ContentCard Background="{Binding BackgroundBrush}" 
                                                  Padding="{ext:Space 1}" Margin="{ext:Space 0, 0, 0, 0.5}"
                                                  HorizontalAlignment="Stretch" Cursor="Hand" PointerPressed="OnMapPressed">
                                         <TextBlock Text="{Binding Name}" 
                                                    HorizontalAlignment="Center" VerticalAlignment="Center"
                                                    Classes="BodyStrongTextBlockStyle"/>
-                                    </controls:FABorder>
+                                    </controls:ContentCard>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
@@ -214,7 +214,7 @@
                     
                  </Grid>
             </Grid>
-        </controls:FABorder>
+        </controls:ContentCard>
         
         
         <Grid Grid.Column="0"  Margin="{ext:Space 1}">
@@ -255,7 +255,7 @@
                 </Viewbox>
             </Border>
             
-            <controls:FABorder Background="Transparent" IsHitTestVisible="False"/>
+            <controls:ContentCard Background="Transparent" IsHitTestVisible="False"/>
         </Grid>
         
         <Grid Grid.Column="0" Width="{Binding $parent[views:MapView].Bounds.Height}">

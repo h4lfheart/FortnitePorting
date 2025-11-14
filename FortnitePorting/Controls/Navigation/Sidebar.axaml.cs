@@ -27,6 +27,7 @@ public partial class Sidebar : UserControl
     [AvaDirectProperty] private ObservableCollection<ISidebarItem> _items = [];
 
     private SidebarItemButton? _selectedButton;
+    private bool _hasSelectedFirstButton;
     
     public readonly RoutedEvent<SidebarItemSelectedArgs> ItemSelectedEvent =
         RoutedEvent.Register<Sidebar, SidebarItemSelectedArgs>(
@@ -45,6 +46,8 @@ public partial class Sidebar : UserControl
 
         AttachedToVisualTree += async (sender, args) =>
         {
+            if (_hasSelectedFirstButton) return;
+            
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
                 var firstValidButton = Items
@@ -52,7 +55,10 @@ public partial class Sidebar : UserControl
                     .FirstOrDefault(b => b.Tag is not null);
 
                 if (firstValidButton is not null)
+                {
                     SelectButton(firstValidButton);
+                    _hasSelectedFirstButton = true;
+                }
             }, DispatcherPriority.Background);
         };
     }

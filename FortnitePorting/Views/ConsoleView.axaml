@@ -20,7 +20,7 @@
             <ItemsControl ItemsSource="{Binding Info.Logs}" Margin="{ext:Space 0, 0, 2, 0}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <controls:FABorder Margin="{ext:Space 0, 0, 0, 0.5}" Cursor="Hand" PointerPressed="OnLogPointerPressed">
+                        <controls:ContentCard Margin="{ext:Space 0, 0, 0, 0.5}" Cursor="Hand" PointerPressed="OnLogPointerPressed">
                             <Grid Margin="{ext:Space 1}">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
@@ -41,7 +41,7 @@
                                            Foreground="{Binding TextColor}"
                                            Classes="BodyTextBlockStyle" VerticalAlignment="Top"/>
                             </Grid>
-                        </controls:FABorder>
+                        </controls:ContentCard>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
                 <ItemsControl.ItemsPanel>

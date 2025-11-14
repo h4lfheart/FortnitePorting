@@ -80,7 +80,7 @@
             <ItemsControl Grid.Row="2" ItemsSource="{Binding News}" HorizontalAlignment="Stretch" ClipToBounds="False">
                 <ItemsControl.DataTemplates>
                     <DataTemplate DataType="responses:NewsResponse">
-                        <controls:FABorder HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                        <controls:ContentCard HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                            CornerRadius="16">
                             <Grid RowDefinitions="* 16 Auto 8 Auto" Margin="{ext:Space 2}">
                                 <Border Grid.Row="0" CornerRadius="8" ClipToBounds="False" BoxShadow="0 2 15 #60000000">
@@ -103,7 +103,7 @@
                                 </Button>
                                 
                             </Grid>
-                        </controls:FABorder>
+                        </controls:ContentCard>
                     </DataTemplate>
                 </ItemsControl.DataTemplates>
                 <ItemsControl.ItemsPanel>
@@ -130,7 +130,7 @@
             <ItemsControl Grid.Row="2" ItemsSource="{Binding FeaturedArt}" HorizontalAlignment="Stretch" ClipToBounds="False">
                 <ItemsControl.DataTemplates>
                     <DataTemplate DataType="responses:FeaturedArtResponse">
-                        <controls:FABorder HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                        <controls:ContentCard HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                            CornerRadius="16">
                             <Grid RowDefinitions="* 16 Auto 8 Auto" Margin="{ext:Space 2}">
                                 <Border Grid.Row="0" CornerRadius="8" ClipToBounds="False" BoxShadow="0 2 15 #60000000">
@@ -152,7 +152,7 @@
                                     <material:MaterialIcon Kind="Link"/>
                                 </Button>
                             </Grid>
-                        </controls:FABorder>
+                        </controls:ContentCard>
                     </DataTemplate>
                 </ItemsControl.DataTemplates>
                 <ItemsControl.ItemsPanel>

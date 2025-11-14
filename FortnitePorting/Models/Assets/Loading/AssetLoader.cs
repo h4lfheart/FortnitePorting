@@ -204,7 +204,6 @@ public partial class AssetLoader : ObservableObject
         if (BeganLoading) return;
         BeganLoading = true;
 
-        var stopwatch = Stopwatch.StartNew();
 
         Assets = UEParse.AssetRegistry
             .Where(data => ClassNames.Contains(data.AssetClass.Text))
@@ -271,10 +270,6 @@ public partial class AssetLoader : ObservableObject
             LoadedAssets++;
         }
         
-        
-        stopwatch.Stop();
-        Log.Information("Loaded {total} assets for {tab} in {time:N4}s", LoadedAssets, Type.ToString(), stopwatch.Elapsed.TotalSeconds);
-
         Source.AddOrUpdate(AssetBag);
         AssetBag.Clear();
         LoadedAssets = TotalAssets;

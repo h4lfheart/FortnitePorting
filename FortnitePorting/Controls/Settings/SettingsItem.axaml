@@ -1,0 +1,37 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             xmlns:settings="clr-namespace:FortnitePorting.Controls.Settings"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="FortnitePorting.Controls.Settings.SettingsItem"
+             MinHeight="68">
+    <controls:ContentCard>
+        <Grid ColumnDefinitions="* *" VerticalAlignment="Center" Margin="{ext:Space 2}">
+            <StackPanel Grid.Column="0"
+                        VerticalAlignment="Center" HorizontalAlignment="Left"
+                        Orientation="Vertical">
+                <TextBlock Text="{Binding Title, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}}"
+                           IsVisible="{Binding !UseHeader, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}}"
+                           TextWrapping="Wrap"
+                           FontFamily="{StaticResource SFTextRegular}"
+                           Classes="BodyTextBlockStyle"/>
+                
+                <ContentPresenter HorizontalAlignment="Right" VerticalAlignment="Center"
+                                  IsVisible="{Binding !UseHeader, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}}"
+                                  Content="{Binding Header, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}}"/>
+
+                <TextBlock Text="{Binding Description, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}}"
+                           TextWrapping="Wrap"
+                           FontFamily="{StaticResource SFTextRegular}"
+                           Classes="CaptionTextBlockStyle TextFillColorSecondaryBrush"/>
+            </StackPanel>
+            
+            <ContentPresenter Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center"
+                              Content="{Binding Footer, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}}"/>
+
+        </Grid>
+    </controls:ContentCard>
+</UserControl>

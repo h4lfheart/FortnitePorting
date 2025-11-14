@@ -195,7 +195,7 @@
                         
                         <TextBox Grid.Row="0" Text="{Binding SelectedTree.SearchFilter}" Watermark="Search..."/>
                         
-                        <controls:FABorder Grid.Row="2">
+                        <controls:ContentCard Grid.Row="2">
                             <ListBox ItemsSource="{Binding SelectedTree.Nodes}" SelectionMode="Single" SelectionChanged="OnSearchSelectionChanged">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate>
@@ -206,13 +206,13 @@
                                     </DataTemplate>
                                 </ListBox.ItemTemplate>
                             </ListBox>
-                        </controls:FABorder>
+                        </controls:ContentCard>
                     </Grid>
                 </Grid>
                 
                 <GridSplitter Grid.Column="1" Background="Transparent"/>
                 
-                <controls:FABorder Grid.Column="0" Grid.ColumnSpan="2" ClipToBounds="True" Margin="{ext:Space 1}" CornerRadius="8">
+                <controls:ContentCard Grid.Column="0" Grid.ColumnSpan="2" ClipToBounds="True" Margin="{ext:Space 1}" CornerRadius="8">
                     <Grid>
                         <Grid Background="#9F262626" ZIndex="-2"/>
                         
@@ -339,9 +339,9 @@
                         <Grid ZIndex="-2"
                               Background="{StaticResource LargeGridLinesDrawingBrush}"/>
                     </Grid>
-                </controls:FABorder>
+                </controls:ContentCard>
                 
-                <controls:FABorder Grid.Column="0" Grid.ColumnSpan="2" 
+                <controls:ContentCard Grid.Column="0" Grid.ColumnSpan="2" 
                                    ClipToBounds="True" Margin="{ext:Space 1}" 
                                    Background="Transparent" IsHitTestVisible="False"/>
             </Grid>

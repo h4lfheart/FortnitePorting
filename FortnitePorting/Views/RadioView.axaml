@@ -54,7 +54,7 @@
                 <ColumnDefinition Width="3*"/>
             </Grid.ColumnDefinitions>
             
-            <controls:FABorder Grid.Column="0">
+            <controls:ContentCard Grid.Column="0">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -111,9 +111,9 @@
                         </ListBox.ItemTemplate>
                     </ListBox>
                 </Grid>
-            </controls:FABorder>
+            </controls:ContentCard>
                 
-            <controls:FABorder Grid.Column="2">
+            <controls:ContentCard Grid.Column="2">
                 <ScrollViewer>
                     <ItemsControl ItemsSource="{Binding ActiveCollection}">
                         <ItemsControl.ItemTemplate>
@@ -185,10 +185,10 @@
                         </ItemsControl.ItemsPanel>
                     </ItemsControl>
                 </ScrollViewer>
-            </controls:FABorder>
+            </controls:ContentCard>
         </Grid>
         
-        <controls:FABorder Grid.Row="3" Margin="{ext:Space 0, 1, 0, 0}" IsVisible="{Binding ActiveItem, Converter={x:Static ObjectConverters.IsNotNull}}">
+        <controls:ContentCard Grid.Row="3" Margin="{ext:Space 0, 1, 0, 0}" IsVisible="{Binding ActiveItem, Converter={x:Static ObjectConverters.IsNotNull}}">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
@@ -210,7 +210,7 @@
                         <ColumnDefinition Width="2*"/>
                     </Grid.ColumnDefinitions>
                     
-                    <controls:FABorder Grid.Column="0" Width="72" Height="72"/>
+                    <controls:ContentCard Grid.Column="0" Width="72" Height="72"/>
                     <Border Grid.Column="0" ClipToBounds="True" Width="72" Height="72">
                         <Border.Background>
                             <ImageBrush Source="{Binding ActiveItem.CoverArtBitmap}"/>
@@ -283,6 +283,6 @@
                 </Grid>
                 
             </Grid>
-        </controls:FABorder>
+        </controls:ContentCard>
     </Grid>
 </UserControl>

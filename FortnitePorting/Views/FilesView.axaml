@@ -32,7 +32,7 @@
                 <ColumnDefinition Width="2.5*"/>
             </Grid.ColumnDefinitions>
             
-            <controls:FABorder Grid.Row="0" Grid.Column="0">
+            <controls:ContentCard Grid.Row="0" Grid.Column="0">
                 <TreeView ItemsSource="{Binding TreeViewCollection}" AutoScrollToSelectedItem="True"
                           Tapped="OnTreeItemTapped" DoubleTapped="OnTreeItemDoubleTapped" Margin="{ext:Space 1}">
                     <TreeView.ItemsPanel>
@@ -61,7 +61,7 @@
                         </TreeDataTemplate>
                     </TreeView.ItemTemplate>
                 </TreeView>
-            </controls:FABorder>
+            </controls:ContentCard>
             
             <GridSplitter Grid.Row="0" Grid.Column="1" Opacity="0"/>
             
@@ -100,7 +100,7 @@
                         </ui:BreadcrumbBar.ItemTemplate>
                     </ui:BreadcrumbBar>
                     
-                    <controls:FABorder Grid.Row="1">
+                    <controls:ContentCard Grid.Row="1">
                         <Grid Margin="{ext:Space 1}">
                             <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" IsVisible="{Binding !UseFlatView}">
                                 <ListBox ItemsSource="{Binding FileViewCollection}" SelectionMode="Multiple"
@@ -124,7 +124,7 @@
                                                          <MenuItem Header="Copy Path" Command="{Binding CopyPathCommand}"/>
                                                      </ContextMenu>
                                                  </StackPanel.ContextMenu>
-                                                 <controls:FABorder CornerRadius="12" Background="{StaticResource FPButtonBackgroundBright}" Height="96">
+                                                 <controls:ContentCard CornerRadius="12" Background="{StaticResource FPButtonBackgroundBright}" Height="96">
                                                      <Grid>
                                                          <material:MaterialIcon Margin="{ext:Space 3}" Height="NaN" Width="NaN"
                                                              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
@@ -154,7 +154,7 @@
                                                          </Border>
                                                        
                                                      </Grid>
-                                                 </controls:FABorder>
+                                                 </controls:ContentCard>
                                                  
                                                  <TextBlock Text="{Binding NameWithoutExtension}" Margin="{ext:Space 0, 0.5, 0, 0}"
                                                             Classes="CaptionTextBlockStyle" HorizontalAlignment="Center" 
@@ -206,7 +206,7 @@
                                 </Grid>
                             </ScrollViewer>
                         </Grid>
-                    </controls:FABorder>
+                    </controls:ContentCard>
                     
                 </Grid>
                 

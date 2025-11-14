@@ -29,7 +29,10 @@
                 <navigation:SidebarItemButton Text="Debug" Icon="Bug" Tag="{x:Type settings:DebugSettingsView}"/>
             </navigation:Sidebar.Items>
             <navigation:Sidebar.Footer>
-                <Button Content="{controls:IconText 'Reset Settings', Trash}" Command="{Binding ResetCommand}" HorizontalAlignment="Stretch"/> 
+                <StackPanel Spacing="{ext:Space 1.5}">
+                    <Button Content="{controls:IconText 'Open Data Folder', Folder}" Command="{Binding OpenDataFolderCommand}" HorizontalAlignment="Stretch"/> 
+                    <Button Content="{controls:IconText 'Reset Settings', Trash}" Command="{Binding ResetCommand}" HorizontalAlignment="Stretch"/> 
+                </StackPanel>
             </navigation:Sidebar.Footer>
         </navigation:Sidebar>
         
