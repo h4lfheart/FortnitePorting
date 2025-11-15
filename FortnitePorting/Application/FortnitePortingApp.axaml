@@ -127,6 +127,17 @@
                 0 4 8 #20000000,
                 0 8 12 #10000000
             </Setter>
+            
+            <Style Selector="^:disabled">
+                <Setter Property="Background">
+                    <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
+                        <GradientStops>
+                            <GradientStop Color="#801A1B1E" Offset="0"/>
+                            <GradientStop Color="#8018191B" Offset="1"/>
+                        </GradientStops>
+                    </LinearGradientBrush>
+                </Setter>
+            </Style>
         </Style>
         
         <Style Selector="Button[IsVisible=true]">
@@ -893,6 +904,10 @@
         
         <Style Selector="TextBlock.TextFillColorSecondaryBrush">
             <Setter Property="Foreground" Value="#aeafb3"/>
+            
+            <Style Selector="^:disabled">
+                <Setter Property="Foreground" Value="#80aeafb3"/>
+            </Style>
         </Style>
         
         <Style Selector="TextBlock.TextFillColorTertiaryBrush">

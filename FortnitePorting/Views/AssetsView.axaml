@@ -32,13 +32,46 @@
         
         <navigation:Sidebar x:Name="Sidebar" Grid.Column="0" ItemSelected="OnItemSelected" Items="{Binding SidebarItems}"/>
 
-        <GridSplitter Grid.Column="0" HorizontalAlignment="Right" Opacity="0"/>
+        <GridSplitter Grid.Column="0" HorizontalAlignment="Right" Opacity="0"  IsVisible="{Binding !AssetLoader.ActiveLoader.FinishedLoading, FallbackValue=True}"/>
         
-        <Grid Grid.Column="1" Margin="{ext:Space 0, 1, 1, 1}">
+        <controls:ContentCard Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="{ext:Space 3}"
+                              IsVisible="{Binding !AssetLoader.ActiveLoader.FinishedLoading, FallbackValue=True}">
+            <StackPanel Spacing="{ext:Space 2}">
+                <TextBlock Text="{Binding AssetLoader.ActiveLoader.LoadingStatus}" 
+                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                           FontFamily="{StaticResource SFDisplaySemibold}"
+                           FontSize="20"/>
+                                       
+                <ProgressBar HorizontalAlignment="Center" VerticalAlignment="Center" Height="8"
+                             MinWidth="400"
+                             Value="{Binding AssetLoader.ActiveLoader.LoadedAssets}"
+                             Minimum="0"
+                             Maximum="{Binding AssetLoader.ActiveLoader.TotalAssets}" />
+            </StackPanel>
+        </controls:ContentCard>
+        <!--Grid Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding !AssetLoader.ActiveLoader.FinishedLoading, FallbackValue=True}">
+            <TextBlock Text="{Binding AssetLoader.ActiveLoader.LoadingStatus}" 
+                       Margin="{ext:Space 0, 0, 0, 8}"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                       FontFamily="{StaticResource SFDisplaySemibold}"
+                       FontSize="20"/>
+                                       
+            <ProgressBar HorizontalAlignment="Center" VerticalAlignment="Center" Height="8"
+                         MinWidth="400"
+                         Value="{Binding AssetLoader.ActiveLoader.LoadedAssets}"
+                         Minimum="0"
+                         Maximum="{Binding AssetLoader.ActiveLoader.TotalAssets}" />
+        </Grid-->
+        
+        <Grid Grid.Column="1" Margin="{ext:Space 0, 1, 1, 1}" IsVisible="{Binding AssetLoader.ActiveLoader.FinishedLoading, FallbackValue=False}">
+            <Grid.Resources>
+                <ext:GridLengthConverter x:Key="AssetsBoxConverter" 
+                                           TrueValue="*" 
+                                           FalseValue="0"/>
+            </Grid.Resources>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2.75*" />
-                <ColumnDefinition Width="{ext:Space 1}" />
-                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="2.5*" />
+                <ColumnDefinition Width="{Binding !!AssetLoader.ActiveLoader.SelectedAssetInfos.Count, Converter={StaticResource AssetsBoxConverter}}" />
             </Grid.ColumnDefinitions>
 
             <Grid Grid.Column="0">
@@ -50,8 +83,6 @@
 
                 <Grid Grid.Row="0">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="0" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="{ext:Space 1}" />
                         <ColumnDefinition Width="Auto" />
@@ -67,32 +98,24 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <ToggleButton Grid.Column="0" 
-                                  IsChecked="{Binding AssetLoader.ActiveLoader.IsPaused}"
-                                  IsVisible="{Binding !AssetLoader.ActiveLoader.FinishedLoading}"
-                                  Margin="{ext:Space 0, 0, 1, 0}"
-                                  ToolTip.Tip="Pause/Resume Loading">
-                        <material:MaterialIcon Kind="{Binding AssetLoader.ActiveLoader.PauseIcon}" />
-                    </ToggleButton>
-                    
-                    <Button Grid.Column="2" ToolTip.Tip="Random" Content="{material:MaterialIconExt DiceMultiple}"
+                    <Button Grid.Column="0" ToolTip.Tip="Random" Content="{material:MaterialIconExt DiceMultiple}"
                             Click="OnRandomButtonPressed" />
                     
-                    <ToggleButton Grid.Column="4" IsChecked="{Binding ShowNames}"
+                    <ToggleButton Grid.Column="2" IsChecked="{Binding ShowNames}"
                                   ToolTip.Tip="Show Names">
                         <material:MaterialIcon Kind="{Binding ShowNamesIcon}" />
                     </ToggleButton>
                     
-                    <ToggleButton Grid.Column="6" IsChecked="{Binding AssetLoader.ActiveLoader.DescendingSort}"
+                    <ToggleButton Grid.Column="4" IsChecked="{Binding AssetLoader.ActiveLoader.DescendingSort}"
                                   ToolTip.Tip="Ascending or Descending">
                         <material:MaterialIcon Kind="{Binding AssetLoader.ActiveLoader.SortIcon}" />
                     </ToggleButton>
                     
-                    <ComboBox Grid.Column="8" ToolTip.Tip="Sorting" HorizontalAlignment="Stretch"
+                    <ComboBox Grid.Column="6" ToolTip.Tip="Sorting" HorizontalAlignment="Stretch"
                               ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EAssetSortType}}"
                               SelectedItem="{Binding AssetLoader.ActiveLoader.SortType, Converter={StaticResource EnumToRecord}}" />
                     
-                    <DropDownButton Grid.Column="10" HorizontalAlignment="Stretch">
+                    <DropDownButton Grid.Column="8" HorizontalAlignment="Stretch">
                         <DropDownButton.Flyout>
                             <Flyout VerticalOffset="4">
                                 <ItemsControl ItemsSource="{Binding AssetLoader.ActiveLoader.FilterCategories}">
@@ -136,11 +159,11 @@
                         </StackPanel>
                     </DropDownButton>
 
-                    <AutoCompleteBox Grid.Column="12" FilterMode="ContainsOrdinal" Watermark="Search"
+                    <AutoCompleteBox Grid.Column="10" FilterMode="ContainsOrdinal" Watermark="Search"
                                      ItemsSource="{Binding AssetLoader.ActiveLoader.SearchAutoComplete}"
                                      Text="{Binding AssetLoader.ActiveLoader.SearchFilter, Mode=TwoWay}" />
 
-                    <ToggleButton Grid.Column="14" ToolTip.Tip="Regex" HorizontalAlignment="Right"
+                    <ToggleButton Grid.Column="12" ToolTip.Tip="Regex" HorizontalAlignment="Right"
                                   Content="{material:MaterialIconExt Regex}"
                                   IsChecked="{Binding AssetLoader.ActiveLoader.UseRegex}" />
 
@@ -210,24 +233,11 @@
                             </ListBox.ItemTemplate>
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <wrapPanel:VirtualizingWrapPanel ItemRealized="OnItemRealized"/>
+                                    <wrapPanel:VirtualizingWrapPanel DistributeEvenly="True" ItemRealized="OnItemRealized"/>
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
                         </ListBox>
-                    
-                        <Grid VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding !AssetLoader.ActiveLoader.FinishedLoading}">
-                            <TextBlock Text="{Binding AssetLoader.ActiveLoader.LoadingStatus}" 
-                                       Margin="{ext:Space 0, 0, 0, 8}"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center"
-                                       FontFamily="{StaticResource SFDisplaySemibold}"
-                                       FontSize="20"/>
-                                       
-                            <ProgressBar HorizontalAlignment="Center" VerticalAlignment="Center" Height="8"
-                                         MinWidth="400"
-                                         Value="{Binding AssetLoader.ActiveLoader.LoadedAssets}"
-                                         Minimum="0"
-                                         Maximum="{Binding AssetLoader.ActiveLoader.TotalAssets}" />
-                        </Grid>
+                        
                         
                     
                     </Grid>
@@ -235,9 +245,10 @@
 
             </Grid>
 
-            <GridSplitter Grid.Column="1" Background="Transparent"/>
+            <GridSplitter Grid.Column="0" Background="Transparent" HorizontalAlignment="Right"
+                          IsVisible="{Binding !!AssetLoader.ActiveLoader.SelectedAssetInfos.Count}"/>
 
-            <Grid Grid.Column="2" RowDefinitions="*,Auto"
+            <Grid Grid.Column="1" RowDefinitions="*,Auto" Margin="{ext:Space 1, 0, 0, 0}"
                   IsVisible="{Binding !!AssetLoader.ActiveLoader.SelectedAssetInfos.Count}">
 
                 <ScrollViewer Grid.Row="0" Classes="FixedScrollbar" VerticalScrollBarVisibility="Hidden"
@@ -494,10 +505,6 @@
 
                 </Grid>
             </Grid>
-            <TextBlock Grid.Column="2" IsVisible="{Binding !AssetLoader.ActiveLoader.SelectedAssetInfos.Count}"
-                       Text="No Asset Selected"
-                       Classes="BodyTextBlockStyle TextFillColorTertiaryBrush"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" />
         </Grid>
     </Grid>
 </UserControl>

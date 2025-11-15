@@ -66,10 +66,10 @@ public partial class AssetLoader : ObservableObject
     
     [ObservableProperty] private ObservableCollection<BaseAssetInfo> _selectedAssetInfos = [];
     
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(FinishedLoading)), NotifyPropertyChangedFor(nameof(LoadingStatus))] private int _loadedAssets;
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(FinishedLoading)), NotifyPropertyChangedFor(nameof(LoadingStatus))] private int _totalAssets;
-    public bool FinishedLoading => LoadedAssets == TotalAssets;
-    public string LoadingStatus => $"Loading {Type.GetDescription()}: {LoadedAssets * 100f / TotalAssets:N0}%";
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(LoadingStatus))] private int _loadedAssets;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(LoadingStatus))] private int _totalAssets = int.MaxValue;
+    [ObservableProperty] private bool _finishedLoading = false;
+    public string LoadingStatus => $"Loading {Type.GetDescription()}: {(LoadedAssets == 0 && TotalAssets == 0 ? 0 : LoadedAssets * 100f / TotalAssets):N0}%";
     
     
     public readonly IObservable<SortExpressionComparer<BaseAssetItem>> AssetSort;
@@ -273,11 +273,12 @@ public partial class AssetLoader : ObservableObject
         Source.AddOrUpdate(AssetBag);
         AssetBag.Clear();
         LoadedAssets = TotalAssets;
+        FinishedLoading = true;
     }
 
     private async Task LoadAsset(FAssetData data)
     {
-        var asset = await AppServices.UEParse.Provider.SafeLoadPackageObjectAsync(data.ObjectPath);
+        var asset = await UEParse.Provider.SafeLoadPackageObjectAsync(data.ObjectPath);
         if (asset is null) return;
 
         /*data.TagsAndValues.TryGetValue("DisplayName", out var displayName);
