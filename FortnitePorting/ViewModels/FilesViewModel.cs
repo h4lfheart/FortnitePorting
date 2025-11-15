@@ -48,11 +48,25 @@ namespace FortnitePorting.ViewModels;
 public partial class FilesViewModel : ViewModelBase
 {
     [ObservableProperty] private EExportLocation _exportLocation = EExportLocation.Blender;
-    [ObservableProperty] private string _actualSearchText = string.Empty;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(SearchText))] private string _flatSearchText = string.Empty;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(SearchText))] private string _fileSearchText = string.Empty;
 
-    [ObservableProperty]private string _searchFilter = string.Empty;
+    public string SearchText
+    {
+        get => UseFlatView ? FlatSearchText : FileSearchText;
+        set
+        {
+            if (UseFlatView)
+                FlatSearchText = value;
+            else
+                FileSearchText = value;
+        }
+    }
 
-    [ObservableProperty] private bool _useFlatView = false;
+    [ObservableProperty] private string _flatSearchFilter = string.Empty;
+    [ObservableProperty] private string _fileSearchFilter = string.Empty;
+
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(SearchText))] private bool _useFlatView = false;
     [ObservableProperty] private bool _useRegex = false;
     [ObservableProperty] private bool _showLoadingSplash = true;
     
@@ -79,7 +93,7 @@ public partial class FilesViewModel : ViewModelBase
         BuildTreeStructure();
         
         var assetFilter = this
-            .WhenAnyValue(viewModel => viewModel.SearchFilter, viewmodel => viewmodel.UseRegex)
+            .WhenAnyValue(viewModel => viewModel.FlatSearchFilter, viewmodel => viewmodel.UseRegex)
             .Select(CreateAssetFilter);
         
         FlatViewAssetCache.Connect()
@@ -132,8 +146,11 @@ public partial class FilesViewModel : ViewModelBase
 
     public void ClearSearchFilter()
     {
-        ActualSearchText = string.Empty;
-        SearchFilter = string.Empty;
+        SearchText = string.Empty;
+        if (UseFlatView)
+            FlatSearchFilter = string.Empty;
+        else
+            FileSearchFilter = string.Empty;
     }
     
     public void LoadFileItems(TreeItem item)
@@ -141,8 +158,6 @@ public partial class FilesViewModel : ViewModelBase
         _currentFolder = item;
 
         var allChildren = item.GetAllChildren();
-
-        //TaskService.Run(() => LoadFileBitmaps(allChildren));
         
         FileViewCollection = new ObservableCollection<TreeItem>(allChildren);
         
@@ -155,6 +170,7 @@ public partial class FilesViewModel : ViewModelBase
         }
         
         FileViewStack = new ObservableCollection<TreeItem>(newStack);
+        FileSearchText = string.Empty;
     }
 
     public void LoadFileBitmap(ref TreeItem item)
@@ -234,42 +250,23 @@ public partial class FilesViewModel : ViewModelBase
         return current;
     }
 
-    partial void OnSearchFilterChanged(string value)
+    partial void OnFileSearchFilterChanged(string value)
     {
         if (UseFlatView) return;
         
-        if (string.IsNullOrWhiteSpace(SearchFilter))
+        if (string.IsNullOrWhiteSpace(FileSearchFilter))
         {
             LoadFileItems(_currentFolder);
             return;
         }
 
-        var items = FlattenTree(_currentFolder)
+        var items = _currentFolder.GetAllChildren()
             .Where(item =>
-                UseRegex ? Regex.IsMatch(item.FilePath, SearchFilter) : MiscExtensions.Filter(item.FilePath, SearchFilter))
+                UseRegex ? Regex.IsMatch(item.FilePath, FileSearchFilter) : MiscExtensions.Filter(item.FilePath, FileSearchFilter))
             .OrderByDescending(item => item.Type == ENodeType.Folder)
             .ThenBy(item => item.Name, new CustomComparer<string>(ComparisonExtensions.CompareNatural));
-
-        //TaskService.Run(() => LoadFileBitmaps(items));
         
         FileViewCollection = new ObservableCollection<TreeItem>(items);
-        
-        IEnumerable<TreeItem> FlattenTree(TreeItem root)
-        {
-            var stack = new Stack<TreeItem>();
-            stack.Push(root);
-
-            while (stack.Count > 0)
-            {
-                var current = stack.Pop();
-                yield return current;
-
-                foreach (var child in current.GetAllChildren().Reverse())
-                {
-                    stack.Push(child);
-                }
-            }
-        }
     }
     
     [RelayCommand]

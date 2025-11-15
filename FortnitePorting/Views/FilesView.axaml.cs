@@ -28,7 +28,10 @@ public partial class FilesView : ViewBase<FilesViewModel>
         if (e.Key != Key.Enter) return;
         if (sender is not TextBox textBox) return;
 
-        ViewModel.SearchFilter = textBox.Text ?? string.Empty;
+        if (ViewModel.UseFlatView)
+            ViewModel.FlatSearchFilter = textBox.Text ?? string.Empty;
+        else
+            ViewModel.FileSearchFilter = textBox.Text ?? string.Empty;
     }
 
     private void OnFileItemDoubleTapped(object? sender, TappedEventArgs e)

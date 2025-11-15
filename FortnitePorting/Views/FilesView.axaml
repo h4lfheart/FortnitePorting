@@ -83,7 +83,7 @@
                     
                     <ToggleButton Grid.Column="0" ToolTip.Tip="Flat View" Content="{material:MaterialIconExt FormatListBulleted}" IsChecked="{Binding UseFlatView}"/>
                     
-                    <TextBox Grid.Column="2" Text="{Binding ActualSearchText, Mode=TwoWay}" Watermark="Search" KeyDown="OnSearchKeyDown"/>
+                    <TextBox Grid.Column="2" Text="{Binding SearchText, Mode=TwoWay}" Watermark="Search" KeyDown="OnSearchKeyDown"/>
                 
                     <ToggleButton Grid.Column="4" ToolTip.Tip="Regex" HorizontalAlignment="Right" 
                                   Content="{material:MaterialIconExt Regex}" IsChecked="{Binding UseRegex}"/>
