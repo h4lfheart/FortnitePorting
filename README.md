@@ -1,27 +1,13 @@
-FortnitePorting - Automation of the Fortnite Porting Process
+FortnitePorting - Lightning Quick Automation of the Fortnite Porting Process
 ------------------------------------------
 
 #### Powered by [Avalonia UI](https://avaloniaui.net/) and [CUE4Parse](https://github.com/FabianFG/CUE4Parse)
 
 [![Discord](https://discord.com/api/guilds/866821077769781249/widget.png?style=shield)](https://discord.gg/DZ5YFXdBA6)
-[![Blender](https://img.shields.io/badge/Blender-4.2+-blue?logo=blender&logoColor=white&color=orange)](https://www.blender.org/download/)
-[![Unreal](https://img.shields.io/badge/Unreal-5.4+-blue?logo=unreal-engine&logoColor=white&color=white)](https://www.unrealengine.com/en-US/download)
+[![Blender](https://img.shields.io/badge/Blender-5.0+-blue?logo=blender&logoColor=white&color=orange)](https://www.blender.org/download/)
+[![Unreal](https://img.shields.io/badge/Unreal-5.5+-blue?logo=unreal-engine&logoColor=white&color=white)](https://www.unrealengine.com/en-US/download)
 [![Release](https://img.shields.io/github/release/h4lfheart/FortnitePorting)]()
 [![Downloads](https://img.shields.io/github/downloads/h4lfheart/FortnitePorting/total?color=green)]()
 ***
 
-![image](https://github.com/user-attachments/assets/960d0dc5-695f-43b6-be0c-db74efdf1a17)
-
-## Building FortnitePorting
-
-To build FortnitePorting from source, first clone the repository and all of its submodules.
-
-```
-git clone https://github.com/h4lfheart/FortnitePorting --recursive
-```
-
-Then open the project directory in a terminal window and publish
-
-```
-dotnet publish FortnitePorting -c Release --no-self-contained -r win-x64 -o "./Release" -p:PublishSingleFile=true -p:DebugType=None -p:DebugSymbols=false -p:IncludeNativeLibrariesForSelfExtract=true
-```
+<img width="2000" height="1125" alt="image" src="https://github.com/user-attachments/assets/821b9155-3b81-4aa1-a537-590dbb307261" />
