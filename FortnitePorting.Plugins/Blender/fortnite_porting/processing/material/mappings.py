@@ -580,41 +580,51 @@ eye_mappings = MappingCollection(
         SlotMapping("SpecularMasks"),
         SlotMapping("SRM", "SpecularMasks"),
         SlotMapping("Emissive"),
+        SlotMapping("EyelashMask"),
     ],
     vectors=[
         SlotMapping("Eye Right UV Position"),
         SlotMapping("Eye Left UV Position"),
-        
+        SlotMapping("Eye Right UV Position (UV0)", "Eye Right UV Position"),
+        SlotMapping("Eye Left UV Position (UV0)", "Eye Left UV Position"),
+
         SlotMapping("Eye Camera Light Vector"),
         SlotMapping("Eye UV Highlight Pos"),
-        
-        SlotMapping("EyeTintColor")
+
+        SlotMapping("EyeTintColor"),
+
+        SlotMapping("EyelashVertexColorMaskChannel"),
     ],
     scalars=[
         SlotMapping("Eye Roughness Min"),
         SlotMapping("Eye Metallic Mult"),
-        
+
         SlotMapping("Emissive Mult"),
         SlotMapping("Eye Texture AspectRatio"),
         SlotMapping("Eye Cornea Radius (UV)"),
-        
+
         SlotMapping("Eye UV Highlight Size"),
-        
+
         SlotMapping("Eye Iris Normal Flatten"),
         SlotMapping("EyeTintMask_Radius"),
-        
+
         SlotMapping("Eye Cornea Mask Hardness"),
         SlotMapping("Eye Iris UV Radius"),
         SlotMapping("Eye Refraction Mix"),
         SlotMapping("Eye Refraction Mult"),
         SlotMapping("Eye Iris Depth Scale"),
         SlotMapping("Eye Cornea IOR"),
+
+        SlotMapping("EyelashMetallic"),
+        SlotMapping("EyelashRoughness"),
+        SlotMapping("EyelashSpec"),
     ],
     switches=[
         SlotMapping("SwizzleRoughnessToGreen"),
         SlotMapping("Eye Use Sun Highlight"),
         SlotMapping("Eye Use UV Highlight"),
-        SlotMapping("UseEyeColorTinting")
+        SlotMapping("UseEyeColorTinting"),
+        SlotMapping("UseEyelashes"),
     ]
 )
 
