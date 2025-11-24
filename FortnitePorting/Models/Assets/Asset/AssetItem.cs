@@ -77,8 +77,6 @@ public partial class AssetItem : Base.BaseAssetItem
             Series = SeriesCache!.GetOrAdd(seriesPackage.Name,
                 () => seriesPackage.Load<UFortItemSeriesDefinition>());
         }
-        
-        //LoadBitmap();
     }
 
     public void LoadBitmap()

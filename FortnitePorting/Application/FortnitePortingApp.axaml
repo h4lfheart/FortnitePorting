@@ -194,6 +194,7 @@
             <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
             <Setter Property="BorderThickness" Value="2"/>
             <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="ClipToBounds" Value="False"/>
             <Setter Property="Cursor" Value="Hand"/>
             
             <Style Selector="^ /template/ Button#PART_PrimaryButton">
@@ -210,12 +211,10 @@
             
             <Style Selector="^:pointerover">
                 <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPointerOver}"/>
-                <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
             </Style>
 
             <Style Selector="^:pressed">
                 <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPressed}"/>
-                <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
             </Style>
         </Style>
         
@@ -235,6 +234,11 @@
                     0 4 8 #20000000,
                     0 8 12 #10000000
                 </Setter>
+            </Style>
+            
+            
+            <Style Selector="^ TextBlock">
+                <Setter Property="Foreground" Value="White"/>
             </Style>
         
             <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
@@ -726,14 +730,6 @@
         <Style Selector="MenuItem.Checked">
             <Setter Property="ToggleType" Value="CheckBox"/>
             <Setter Property="StaysOpenOnClick" Value="True"/>
-            <Setter Property="Icon">
-                <Template>
-                    <Grid>
-                        <material:MaterialIcon Kind="Close" IsVisible="{Binding !$parent[MenuItem].IsChecked}" />
-                        <material:MaterialIcon Kind="Check" IsVisible="{Binding $parent[MenuItem].IsChecked}" />
-                    </Grid>
-                </Template>
-            </Setter>
         </Style>
         
         <Style Selector="TabItem > TextBlock">
