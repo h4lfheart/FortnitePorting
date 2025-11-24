@@ -192,7 +192,7 @@
                 </controls:SettingsItem.Footer>
             </controls:SettingsItem>
             
-            <controls:SettingsItem Title="Method" Description="The way standalone materials should be imported.">
+            <controls:SettingsItem Title="Method" Description="The way standalone materials should be imported." IsEnabled="{Binding ExportMaterials}">
                 <controls:SettingsItem.Footer>
                     <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type settings:EMaterialImportMethod}}"
                               SelectedItem="{Binding MaterialImportMethod, Converter={StaticResource EnumToRecord}}" />

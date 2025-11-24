@@ -71,53 +71,55 @@
                                                  CommandParameter="{Binding}"/>
                                      </StackPanel>
                                  </settingsControls:SettingsItem.Footer>
-                                 <ItemsControl ItemsSource="{Binding Sections}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Grid Margin="{ext:Space 1}">
-                                                <TextBlock Text="{Binding Content}" Margin="{ext:Space 2, 0, 0, 0}"
-                                                           TextWrapping="Wrap"
-                                                           IsVisible="{Binding Type, 
-                                                           Converter={StaticResource EnumEquals}, 
-                                                           ConverterParameter={x:Static article:EHelpSectionType.Text}}"/>
-                                                
-                                                <TextBlock Text="{Binding Content}" Classes="SubtitleTextBlockStyle"
-                                                           TextWrapping="Wrap"
-                                                           IsVisible="{Binding Type, 
-                                                           Converter={StaticResource EnumEquals}, 
-                                                           ConverterParameter={x:Static article:EHelpSectionType.Heading}}"/>
-                                                
-                                                <Border CornerRadius="8" ClipToBounds="True" HorizontalAlignment="Left"
-                                                        IsVisible="{Binding Type, 
-                                                        Converter={StaticResource EnumEquals}, 
-                                                        ConverterParameter={x:Static article:EHelpSectionType.Image}}">
-                                                    <Image asyncImageLoader:ImageLoader.Source="{Binding Content}" ClipToBounds="True" MaxHeight="300"/>
-                                                </Border>
-                                                
-                                                <Border CornerRadius="8" ClipToBounds="True" HorizontalAlignment="Left"
-                                                        IsVisible="{Binding Type, 
-                                                        Converter={StaticResource EnumEquals}, 
-                                                        ConverterParameter={x:Static article:EHelpSectionType.Gif}}">
-                                                    <gif:GifImage SourceStream="{Binding ContentStream^}" 
-                                                                  StretchDirection="Both" Stretch="Uniform"
-                                                                  AutoStart="True" ClipToBounds="True" MaxHeight="300"/>
-                                                </Border>
+                                 <settingsControls:SettingsItem.Content>
+                                     <ItemsControl ItemsSource="{Binding Sections}">
+                                         <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid Margin="{ext:Space 1}">
+                                                    <TextBlock Text="{Binding Content}" Margin="{ext:Space 2, 0, 0, 0}"
+                                                               TextWrapping="Wrap"
+                                                               IsVisible="{Binding Type, 
+                                                               Converter={StaticResource EnumEquals}, 
+                                                               ConverterParameter={x:Static article:EHelpSectionType.Text}}"/>
                                                     
-                                                <Separator HorizontalAlignment="Stretch"
-                                                          IsVisible="{Binding Type, 
-                                                          Converter={StaticResource EnumEquals}, 
-                                                          ConverterParameter={x:Static article:EHelpSectionType.Separator}}"/>
-                                                
-                                                <HyperlinkButton Content="{Binding Content}" 
-                                                                 NavigateUri="{Binding Content}"
-                                                                 Classes="SubtitleTextBlockStyle"
-                                                                 IsVisible="{Binding Type, 
-                                                                 Converter={StaticResource EnumEquals},
-                                                                 ConverterParameter={x:Static article:EHelpSectionType.Hyperlink}}"/>
-                                            </Grid>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
+                                                    <TextBlock Text="{Binding Content}" Classes="SubtitleTextBlockStyle"
+                                                               TextWrapping="Wrap"
+                                                               IsVisible="{Binding Type, 
+                                                               Converter={StaticResource EnumEquals}, 
+                                                               ConverterParameter={x:Static article:EHelpSectionType.Heading}}"/>
+                                                    
+                                                    <Border CornerRadius="8" ClipToBounds="True" HorizontalAlignment="Left"
+                                                            IsVisible="{Binding Type, 
+                                                            Converter={StaticResource EnumEquals}, 
+                                                            ConverterParameter={x:Static article:EHelpSectionType.Image}}">
+                                                        <Image asyncImageLoader:ImageLoader.Source="{Binding Content}" ClipToBounds="True" MaxHeight="300"/>
+                                                    </Border>
+                                                    
+                                                    <Border CornerRadius="8" ClipToBounds="True" HorizontalAlignment="Left"
+                                                            IsVisible="{Binding Type, 
+                                                            Converter={StaticResource EnumEquals}, 
+                                                            ConverterParameter={x:Static article:EHelpSectionType.Gif}}">
+                                                        <gif:GifImage SourceStream="{Binding ContentStream^}" 
+                                                                      StretchDirection="Both" Stretch="Uniform"
+                                                                      AutoStart="True" ClipToBounds="True" MaxHeight="300"/>
+                                                    </Border>
+                                                        
+                                                    <Separator HorizontalAlignment="Stretch"
+                                                              IsVisible="{Binding Type, 
+                                                              Converter={StaticResource EnumEquals}, 
+                                                              ConverterParameter={x:Static article:EHelpSectionType.Separator}}"/>
+                                                    
+                                                    <HyperlinkButton Content="{Binding Content}" 
+                                                                     NavigateUri="{Binding Content}"
+                                                                     Classes="SubtitleTextBlockStyle"
+                                                                     IsVisible="{Binding Type, 
+                                                                     Converter={StaticResource EnumEquals},
+                                                                     ConverterParameter={x:Static article:EHelpSectionType.Hyperlink}}"/>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                     </ItemsControl>
+                                 </settingsControls:SettingsItem.Content>
                              </settingsControls:SettingsItem>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>

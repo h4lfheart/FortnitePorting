@@ -60,7 +60,7 @@
             </controls:SettingsItem>
             <controls:SettingsItem Title="Archive Directory"
                                    Description="The directory that contains all of the required game files. (*.pak, *.sig, *.ucas, *.utoc)"
-                                   IsEnabled="{Binding CurrentProfile.ArchiveDirectoryEnabled}">
+                                   IsVisible="{Binding CurrentProfile.ArchiveDirectoryEnabled}">
                 <controls:SettingsItem.Footer>
                     <StackPanel Orientation="Horizontal">
                         <TextBox Text="{Binding CurrentProfile.ArchiveDirectory}"
@@ -80,7 +80,7 @@
             </controls:SettingsItem>
             <controls:SettingsItem Title="Unreal Version"
                                    Description="The Unreal Version that aligns with your Fortnite installation."
-                                   IsEnabled="{Binding CurrentProfile.UnrealVersionEnabled}">
+                                   IsVisible="{Binding CurrentProfile.UnrealVersionEnabled}">
                 <controls:SettingsItem.Footer>
                     <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type versions:EGame}}"
                               SelectedItem="{Binding CurrentProfile.UnrealVersion, Converter={StaticResource EnumToRecord}}" />
@@ -136,7 +136,7 @@
             </controls:SettingsItem>
             <controls:SettingsItem Title="Mappings File"
                                    Description="The mappings file required for asset parsing to work properly. Required for Fortnite v14.40+"
-                                   IsEnabled="{Binding CurrentProfile.MappingsFileEnabled}">
+                                   IsVisible="{Binding CurrentProfile.MappingsFileEnabled}">
                 <controls:SettingsItem.Footer>
                     <StackPanel Orientation="Horizontal">
                         <CheckBox IsChecked="{Binding CurrentProfile.UseMappingsFile}" />
@@ -153,7 +153,7 @@
             </controls:SettingsItem>
             <controls:SettingsItem Title="On-Demand Texture Streaming"
                                    Description="Downloads high resolution cosmetic textures on-demand. Disable if you already have this package installed."
-                                   IsEnabled="{Binding CurrentProfile.TextureStreamingEnabled}">
+                                   IsVisible="{Binding CurrentProfile.TextureStreamingEnabled}">
                 <controls:SettingsItem.Footer>
                     <ToggleSwitch IsChecked="{Binding CurrentProfile.UseTextureStreaming}" />
                 </controls:SettingsItem.Footer>
@@ -161,8 +161,7 @@
 
             <controls:SettingsItem Title="Load UEFN Maps"
                                    Description="Whether or not to load saved UEFN maps from Fortnite's AppData."
-                                   IsVisible="{Binding SupaBase.Permissions.CanExportUEFN}"
-                                   IsEnabled="{Binding CurrentProfile.LoadCreativeMapsEnabled}">
+                                   IsVisible="{Binding CurrentProfile.LoadCreativeMapsEnabled}">
                 <controls:SettingsItem.Footer>
                     <ToggleSwitch IsChecked="{Binding CurrentProfile.LoadCreativeMaps}" />
                 </controls:SettingsItem.Footer>

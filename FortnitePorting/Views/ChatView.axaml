@@ -54,8 +54,8 @@
                         </Grid.RowDefinitions>
                         
                         <Border Grid.Row="0" Grid.RowSpan="3" Grid.Column="0" 
-                                 VerticalAlignment="Top" Margin="{ext:Space 0, 0.5, 0, 0}"
-                                 CornerRadius="4" ClipToBounds="True">
+                                 VerticalAlignment="Top" Margin="0 1 0 0"
+                                 CornerRadius="8" ClipToBounds="True">
                             <Image asyncImageLoader:ImageLoader.Source="{Binding User.AvatarUrl}" 
                                    Width="32" Height="32" Classes="BodyStrongTextBlockStyle" 
                                    RenderOptions.BitmapInterpolationMode="MediumQuality"
@@ -143,7 +143,7 @@
                         
                             <Border
                                     IsVisible="{Binding FullImageUrl, Converter={x:Static ObjectConverters.IsNotNull}}"
-                                    CornerRadius="4" ClipToBounds="True" HorizontalAlignment="Left" Margin="{ext:Space 0, 1, 0, 0}">
+                                    CornerRadius="12" ClipToBounds="True" HorizontalAlignment="Left" Margin="{ext:Space 0, 1, 0, 0}">
                                 <Border.ContextMenu>
                                     <ContextMenu>
                                         <MenuItem Header="Save" Command="{Binding SaveImageCommand}"/>

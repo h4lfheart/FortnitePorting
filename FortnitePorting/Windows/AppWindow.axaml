@@ -80,13 +80,17 @@
                         <navigation:SidebarItemSeparator/>
                         
                         <navigation:SidebarItemText Text="ONLINE"/>
-                        <navigation:SidebarItemButton Text="Chat" Icon="Message" Tag="{x:Type views:ChatView}" IsEnabled="{Binding SupaBase.IsLoggedIn}"/>
-                        <navigation:SidebarItemButton Text="Leaderboard" Icon="Trophy" Tag="{x:Type views:LeaderboardView}" IsEnabled="{Binding SupaBase.IsLoggedIn}"/>
-                        <navigation:SidebarItemButton Text="Voting" Icon="Poll" Tag="{x:Type views:VotingView}" IsEnabled="{Binding SupaBase.IsLoggedIn}"/>
+                        <navigation:SidebarItemButton Text="Chat" Icon="Message" Tag="{x:Type views:ChatView}" 
+                                                      IsEnabled="{Binding SupaBase.IsLoggedIn}"
+                                                      IsVisible="{Binding OnlineStatus.Chat.Enabled}"/>
+                        <navigation:SidebarItemButton Text="Leaderboard" Icon="Trophy" Tag="{x:Type views:LeaderboardView}" 
+                                                      IsEnabled="{Binding SupaBase.IsLoggedIn}"
+                                                      IsVisible="{Binding OnlineStatus.Leaderboard.Enabled}"/>
                         
                         <navigation:SidebarItemSeparator/>
                         
                         <navigation:SidebarItemText Text="SETTINGS"/>
+                        <navigation:SidebarItemButton Text="Console" Icon="Console" Tag="{x:Type views:ConsoleView}" IsVisible="{Binding Settings.Debug.IsConsoleVisible}"/>
                         <navigation:SidebarItemButton Text="Plugin" Icon="Plug" Tag="{x:Type views:PluginView}"/>
                         <navigation:SidebarItemButton Text="Export Options" Icon="FileCog" Tag="{x:Type views:ExportSettingsView}"/>
                         <navigation:SidebarItemButton Text="App Settings" Icon="Settings" Tag="{x:Type views:SettingsView}"/>

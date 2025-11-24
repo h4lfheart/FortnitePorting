@@ -152,7 +152,6 @@ public partial class SupabaseService : ObservableObject, IService
             Permissions = response.Model<Permissions>().Adapt<UserPermissions>();
         });
             
-        await VotingVM.Initialize();
         await Chat.Initialize();
     }
     
