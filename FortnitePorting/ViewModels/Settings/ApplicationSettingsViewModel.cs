@@ -92,7 +92,7 @@ public partial class ApplicationSettingsViewModel : ViewModelBase
         {
             case nameof(AudioDeviceIndex):
             {
-                RadioVM?.UpdateOutputDevice();
+                MusicVM?.UpdateOutputDevice();
                 SoundPreviewWM?.UpdateOutputDevice();
                 break;
             }

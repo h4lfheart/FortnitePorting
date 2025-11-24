@@ -75,7 +75,7 @@
                         <navigation:SidebarItemButton Text="Assets" Icon="File" Tag="{x:Type views:AssetsView}" IsEnabled="{Binding UEParse.FinishedLoading}"/>
                         <navigation:SidebarItemButton Text="Files" Icon="Folder" Tag="{x:Type views:FilesView}" IsEnabled="{Binding UEParse.FinishedLoading}"/>
                         <navigation:SidebarItemButton Text="Map" Icon="Map" Tag="{x:Type views:MapView}" IsEnabled="{Binding UEParse.FinishedLoading}"/>
-                        <navigation:SidebarItemButton Text="Music" Icon="Radio" Tag="{x:Type views:RadioView}" IsEnabled="{Binding UEParse.FinishedLoading}"/>
+                        <navigation:SidebarItemButton Text="Music" Icon="Music" Tag="{x:Type views:MusicView}" IsEnabled="{Binding UEParse.FinishedLoading}"/>
                         
                         <navigation:SidebarItemSeparator/>
                         

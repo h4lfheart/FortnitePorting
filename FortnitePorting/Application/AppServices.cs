@@ -43,7 +43,7 @@ public static class AppServices
     
     public static FilesViewModel FilesVM => Services.GetRequiredService<FilesViewModel>();
     public static MapViewModel MapVM => Services.GetRequiredService<MapViewModel>();
-    public static RadioViewModel RadioVM => Services.GetRequiredService<RadioViewModel>();
+    public static MusicViewModel MusicVM => Services.GetRequiredService<MusicViewModel>();
     
     
     public static ConsoleViewModel ConsoleVM => Services.GetRequiredService<ConsoleViewModel>();
