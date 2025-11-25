@@ -98,7 +98,7 @@ public partial class CUE4ParseService : ObservableObject, IService
     {
         Provider = AppSettings.Installation.CurrentProfile.FortniteVersion switch
         {
-            EFortniteVersion.LatestOnDemand => new HybridFileProvider(new VersionContainer(AppSettings.Installation.CurrentProfile.UnrealVersion)),
+            EFortniteVersion.LatestOnDemand => new HybridFileProvider(new VersionContainer(LATEST_GAME_VERSION)),
             EFortniteVersion.LatestInstalled => new HybridFileProvider(AppSettings.Installation.CurrentProfile.ArchiveDirectory, ExtraDirectories, new VersionContainer(LATEST_GAME_VERSION)),
             _ => new HybridFileProvider(AppSettings.Installation.CurrentProfile.ArchiveDirectory, [], new VersionContainer(AppSettings.Installation.CurrentProfile.UnrealVersion)),
         };
