@@ -93,7 +93,7 @@ public class CUE4ParseViewModel : ViewModelBase
     {
         Provider = AppSettings.Current.Installation.CurrentProfile.FortniteVersion switch
         {
-            EFortniteVersion.LatestOnDemand => new HybridFileProvider(new VersionContainer(AppSettings.Current.Installation.CurrentProfile.UnrealVersion)),
+            EFortniteVersion.LatestOnDemand => new HybridFileProvider(new VersionContainer(LATEST_GAME_VERSION)),
             EFortniteVersion.LatestInstalled => new HybridFileProvider(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, ExtraDirectories, new VersionContainer(LATEST_GAME_VERSION)),
             _ => new HybridFileProvider(AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, [], new VersionContainer(AppSettings.Current.Installation.CurrentProfile.UnrealVersion)),
         };
