@@ -9,6 +9,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:fortnitePorting="clr-namespace:FortnitePorting"
              xmlns:navigation="clr-namespace:FortnitePorting.Controls.Navigation"
+             xmlns:sidebar="clr-namespace:FortnitePorting.Controls.Navigation.Sidebar"
              d:DesignHeight="770" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.ExportSettingsView"
              x:DataType="viewModels:ExportSettingsViewModel">
@@ -18,15 +19,15 @@
             <ColumnDefinition Width="6*" />
         </Grid.ColumnDefinitions>
         
-        <navigation:Sidebar x:Name="Sidebar" Grid.Column="0" ItemSelected="OnItemSelected">
-            <navigation:Sidebar.Items>
-                <navigation:SidebarItemText Text="EXPORT OPTIONS"/>
-                <navigation:SidebarItemButton Text="Blender" IconBitmap="/Assets/Icons/Blender.png" Tag="{x:Static fortnitePorting:EExportLocation.Blender}"/>
-                <navigation:SidebarItemButton Text="Unreal" IconBitmap="/Assets/Icons/Unreal.png" Tag="{x:Static fortnitePorting:EExportLocation.Unreal}"/>
-                <navigation:SidebarItemButton Text="Unity" IconBitmap="/Assets/Icons/Unity.png" Tag="{x:Static fortnitePorting:EExportLocation.Unity}" IsEnabled="False"/>
-                <navigation:SidebarItemButton Text="Folder" Icon="Folder" Tag="{x:Static fortnitePorting:EExportLocation.AssetsFolder}"/>
-            </navigation:Sidebar.Items>
-        </navigation:Sidebar>
+        <sidebar:Sidebar x:Name="Sidebar" Grid.Column="0" ItemSelected="OnItemSelected">
+            <sidebar:Sidebar.Items>
+                <sidebar:SidebarItemText Text="EXPORT OPTIONS"/>
+                <sidebar:SidebarItemButton Text="Blender" IconBitmap="/Assets/Icons/Blender.png" Tag="{x:Static fortnitePorting:EExportLocation.Blender}"/>
+                <sidebar:SidebarItemButton Text="Unreal" IconBitmap="/Assets/Icons/Unreal.png" Tag="{x:Static fortnitePorting:EExportLocation.Unreal}"/>
+                <sidebar:SidebarItemButton Text="Unity" IconBitmap="/Assets/Icons/Unity.png" Tag="{x:Static fortnitePorting:EExportLocation.Unity}" IsEnabled="False"/>
+                <sidebar:SidebarItemButton Text="Folder" Icon="Folder" Tag="{x:Static fortnitePorting:EExportLocation.AssetsFolder}"/>
+            </sidebar:Sidebar.Items>
+        </sidebar:Sidebar>
         
         
         <ui:Frame Grid.Column="1" x:Name="ContentFrame"/>

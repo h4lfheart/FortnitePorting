@@ -6,6 +6,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Controls.Navigation;
+using FortnitePorting.Controls.Navigation.Sidebar;
 using FortnitePorting.Framework;
 using FortnitePorting.Services;
 using FortnitePorting.ViewModels;

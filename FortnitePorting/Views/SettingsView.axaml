@@ -11,6 +11,7 @@
              xmlns:settings="clr-namespace:FortnitePorting.Views.Settings"
              xmlns:navigation="clr-namespace:FortnitePorting.Controls.Navigation"
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             xmlns:sidebar="clr-namespace:FortnitePorting.Controls.Navigation.Sidebar"
              d:DesignHeight="770" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.SettingsView"
              x:DataType="viewModels:SettingsViewModel">
@@ -19,22 +20,22 @@
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="5*"/>
         </Grid.ColumnDefinitions>
-        <navigation:Sidebar Grid.Column="0" ItemSelected="OnItemSelected">
-            <navigation:Sidebar.Items>
-                <navigation:SidebarItemText Text="APP SETTINGS"/>
-                <navigation:SidebarItemButton Text="Application" Icon="ApplicationCog" Tag="{x:Type settings:ApplicationSettingsView}"/>
-                <navigation:SidebarItemButton Text="Installation" Icon="Folder" Tag="{x:Type settings:InstallationSettingsView}"/>
-                <navigation:SidebarItemButton Text="Online" Icon="Web" Tag="{x:Type settings:OnlineSettingsView}"/>
-                <navigation:SidebarItemButton Text="Theme" Icon="PaletteSwatch" Tag="{x:Type settings:ThemeSettingsView}"/>
-                <navigation:SidebarItemButton Text="Debug" Icon="Bug" Tag="{x:Type settings:DebugSettingsView}"/>
-            </navigation:Sidebar.Items>
-            <navigation:Sidebar.Footer>
+        <sidebar:Sidebar Grid.Column="0" ItemSelected="OnItemSelected">
+            <sidebar:Sidebar.Items>
+                <sidebar:SidebarItemText Text="APP SETTINGS"/>
+                <sidebar:SidebarItemButton Text="Application" Icon="ApplicationCog" Tag="{x:Type settings:ApplicationSettingsView}"/>
+                <sidebar:SidebarItemButton Text="Installation" Icon="Folder" Tag="{x:Type settings:InstallationSettingsView}"/>
+                <sidebar:SidebarItemButton Text="Online" Icon="Web" Tag="{x:Type settings:OnlineSettingsView}"/>
+                <sidebar:SidebarItemButton Text="Theme" Icon="PaletteSwatch" Tag="{x:Type settings:ThemeSettingsView}"/>
+                <sidebar:SidebarItemButton Text="Debug" Icon="Bug" Tag="{x:Type settings:DebugSettingsView}"/>
+            </sidebar:Sidebar.Items>
+            <sidebar:Sidebar.Footer>
                 <StackPanel Spacing="{ext:Space 1.5}">
                     <Button Content="{controls:IconText 'Open Data Folder', Folder}" Command="{Binding OpenDataFolderCommand}" HorizontalAlignment="Stretch"/> 
                     <Button Content="{controls:IconText 'Reset Settings', Trash}" Command="{Binding ResetCommand}" HorizontalAlignment="Stretch"/> 
                 </StackPanel>
-            </navigation:Sidebar.Footer>
-        </navigation:Sidebar>
+            </sidebar:Sidebar.Footer>
+        </sidebar:Sidebar>
         
         <ui:Frame Grid.Column="1" x:Name="ContentFrame"/>
     </Grid>

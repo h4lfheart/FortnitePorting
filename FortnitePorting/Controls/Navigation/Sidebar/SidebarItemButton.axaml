@@ -7,19 +7,20 @@
              xmlns:ext="clr-namespace:FortnitePorting.Extensions"
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
              xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+             xmlns:sidebar="clr-namespace:FortnitePorting.Controls.Navigation.Sidebar"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="FortnitePorting.Controls.Navigation.SidebarItemButton" 
+             x:Class="FortnitePorting.Controls.Navigation.Sidebar.SidebarItemButton" 
              Margin="{ext:Space -1, -0.5}" ClipToBounds="False">
     
     <UserControl.Styles>
-        <Style Selector="navigation|SidebarItemButton:disabled">
+        <Style Selector="sidebar|SidebarItemButton:disabled">
             <Setter Property="Opacity" Value="0.5"/> 
         </Style>
     </UserControl.Styles>
     <Grid Cursor="Hand">
         <controls:ContentCard CornerRadius="16"
-                            Classes.Selected="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=navigation:SidebarItemButton}}"
-                           Classes.NotSelected="{Binding !IsSelected, RelativeSource={RelativeSource AncestorType=navigation:SidebarItemButton}}">
+                            Classes.Selected="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=sidebar:SidebarItemButton}}"
+                           Classes.NotSelected="{Binding !IsSelected, RelativeSource={RelativeSource AncestorType=sidebar:SidebarItemButton}}">
             <controls:ContentCard.Transitions>
                 <Transitions>
                     <BrushTransition Property="Background" Duration="0:0:0.083"/>
@@ -49,20 +50,23 @@
                 </Style>
             </controls:ContentCard.Styles>
         </controls:ContentCard>
-        <Grid ColumnDefinitions="Auto 8 *" Margin="{ext:Space 1, 0.5}">
+        <Grid ColumnDefinitions="Auto *" Margin="{ext:Space 1, 0.5}" IsHitTestVisible="False">
         
-            <material:MaterialIcon Grid.Column="0" 
-                                   IsVisible="{Binding !UseIconBitmap, RelativeSource={RelativeSource AncestorType=navigation:SidebarItemButton}}"
-                                   Kind="{Binding Icon, RelativeSource={RelativeSource AncestorType=navigation:SidebarItemButton}}"/>
+            <Grid Grid.Column="0" Margin="{ext:Space 0, 0, 1, 0}"
+                  IsVisible="{Binding ShouldShowIcon, RelativeSource={RelativeSource AncestorType=sidebar:SidebarItemButton}}">
+                <material:MaterialIcon
+                                       IsVisible="{Binding !UseIconBitmap, RelativeSource={RelativeSource AncestorType=sidebar:SidebarItemButton}}"
+                                       Kind="{Binding Icon, RelativeSource={RelativeSource AncestorType=sidebar:SidebarItemButton}}"/>
             
             
-            <Image Grid.Column="0" Width="20" Height="20" RenderOptions.BitmapInterpolationMode="HighQuality"
-                                   IsVisible="{Binding UseIconBitmap, RelativeSource={RelativeSource AncestorType=navigation:SidebarItemButton}}"
-                                   Source="{Binding IconBitmap, RelativeSource={RelativeSource AncestorType=navigation:SidebarItemButton}}"/>
+                <Image  Width="20" Height="20" RenderOptions.BitmapInterpolationMode="HighQuality"
+                       IsVisible="{Binding UseIconBitmap, RelativeSource={RelativeSource AncestorType=sidebar:SidebarItemButton}}"
+                       Source="{Binding IconBitmap, RelativeSource={RelativeSource AncestorType=sidebar:SidebarItemButton}}"/>
+            </Grid>
                                 
-            <TextBlock Grid.Column="2" Text="{Binding Text, RelativeSource={RelativeSource AncestorType=navigation:SidebarItemButton}}" 
+            <TextBlock Grid.Column="1" Text="{Binding Text, RelativeSource={RelativeSource AncestorType=sidebar:SidebarItemButton}}" 
                        FontFamily="{StaticResource SFTextRegular}"
-                       Classes="TextFillColorSecondaryBrush" VerticalAlignment="Center"/>
+                       Classes="TextFillColorSecondaryBrush" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
             
 
         </Grid>

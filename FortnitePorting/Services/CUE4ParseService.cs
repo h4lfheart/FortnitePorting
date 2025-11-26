@@ -19,6 +19,7 @@ using CUE4Parse.UE4.AssetRegistry.Objects;
 using CUE4Parse.UE4.Assets;
 using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.Engine;
+using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.IO;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.Core.Math;
@@ -139,6 +140,15 @@ public partial class CUE4ParseService : ObservableObject, IService
         }
         
         await LoadMappings();
+
+        var tex = Provider.LoadPackageObject<UTexture2D>(
+            "FortniteGame/Content/2dAssets/Loadingscreens/Season11/Textures/T_LS_S11_LoveAndWar_War");
+        await TaskService.RunDispatcherAsync(() => TexturePreviewWindow.Preview(tex.Name, tex));
+        
+        
+        var tex2 = Provider.LoadPackageObject<UTexture2D>(
+            "FortniteGame/Content/2dAssets/Loadingscreens/Season27/T_LS_S27_Rufus_KeyArt");
+        await TaskService.RunDispatcherAsync(() => TexturePreviewWindow.Preview(tex2.Name, tex2));
         
         await LoadAssetRegistries();
 

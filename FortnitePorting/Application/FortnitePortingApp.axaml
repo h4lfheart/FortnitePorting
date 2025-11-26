@@ -93,19 +93,8 @@
         <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
         <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
         
-        <Style Selector="ui|TabViewItem /template/ Grid#LayoutRoot /template/ Border#TabContainerBorder /template/ Grid#TabContainer /template/ Button#CloseButton">
-            <Setter Property="BorderBrush" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-        </Style>
         
         
-        <Style Selector="ui|TabViewItem">
-            <Setter Property="Background" Value="#09FFFFFF"/>
-            
-            <Style Selector="^ /template/ Canvas">
-                <Setter Property="IsVisible" Value="False"/>
-            </Style>
-        </Style>
         
         <Style Selector="controls|ContentCard">
             <Setter Property="Background">
@@ -799,6 +788,86 @@
             </Style>
         </Style>
         
+        <Style Selector="ui|TabViewItem[IsVisible=true]">
+            <Setter Property="Margin" Value="{ext:Space 1, 0, 0, 0}"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            
+            <Style Selector="^ /template/ Border#LayoutRootBorder">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="CornerRadius" Value="16"/>
+                <Setter Property="MinHeight" Value="32"/>
+                <Setter Property="ClipToBounds" Value="False"/>
+                <Setter Property="BackgroundSizing" Value="CenterBorder"/>
+                <Setter Property="BoxShadow">
+                    inset 0 1 2 -1 #50ffffff,
+                    inset 0 -1 2 -2 #50ffffff,
+                    0 4 8 #20000000,
+                    0 8 12 #10000000
+                </Setter>
+                
+                <Style Selector="^:pointerover">
+                    <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPointerOver}"/>
+                </Style>
+                
+                <Style Selector="^:pressed">
+                    <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPressed}"/>
+                </Style>
+            </Style>
+            
+            <Style Selector="^:selected /template/ Border#LayoutRootBorder">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackgroundSelected}"/>
+                
+                <Style Selector="^:pointerover">
+                    <Setter Property="Background" Value="{StaticResource FPButtonBackgroundSelectedPointerOver}"/>
+                </Style>
+            </Style>
+        </Style>
+        
+        <Style Selector="ui|TabViewItem[IsVisible=true] /template/ Button#CloseButton">
+            <Setter Property="Background" Value="{x:Null}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="ClipToBounds" Value="False"/>
+        
+            <Style Selector="^:pointerover /template/ ContentPresenter#ContentPresenter">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackgroundBright}"/>
+            </Style>
+
+            <Style Selector="^:pressed /template/ ContentPresenter#ContentPresenter">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackgroundBright}"/>
+            </Style>
+        </Style>
+        
+        <Style Selector="uip|TabViewListView[IsVisible=true] /template/ ScrollViewer /template/ Border#ScrollDecreaseButtonContainer RepeatButton#ScrollDecreaseButton">
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Content">
+                <Template>
+                    <material:MaterialIcon Kind="ChevronLeft"/>
+                </Template>
+            </Setter>
+        </Style>
+
+        <Style Selector="uip|TabViewListView[IsVisible=true] /template/ ScrollViewer /template/ Border#ScrollIncreaseButtonContainer RepeatButton#ScrollIncreaseButton">
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Content">
+                <Template>
+                    <material:MaterialIcon Kind="ChevronRight"/>
+                </Template>
+            </Setter>
+        </Style>
+        
+        <Style Selector="ui|TabViewItem[IsVisible=true] /template/ ContentPresenter#ContentPresenter">
+            <Setter Property="FontFamily" Value="{StaticResource SFTextRegular}"/>
+            <Setter Property="FontWeight" Value="Regular"/>
+        </Style>
+        
+        
+        <Style Selector="ui|TabViewItem[IsVisible=true] /template/ Border#TabContainerBorder">
+            <Setter Property="Background" Value="{x:Null}"/>
+        </Style>
+        
         
         <Style Selector="MenuItem">
             <Setter Property="CornerRadius" Value="12"/>
@@ -870,6 +939,7 @@
             </Style>
             
         </Style>
+        
         
         <Style Selector="Button.DiscordButton /template/ ContentPresenter">
             <Setter Property="Background" Value="#7289da"/>

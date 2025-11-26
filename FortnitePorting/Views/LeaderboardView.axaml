@@ -18,6 +18,7 @@
              xmlns:services="clr-namespace:FortnitePorting.Services"
              xmlns:leaderboard="clr-namespace:FortnitePorting.Views.Leaderboard"
              xmlns:navigation="clr-namespace:FortnitePorting.Controls.Navigation"
+             xmlns:sidebar="clr-namespace:FortnitePorting.Controls.Navigation.Sidebar"
              d:DesignHeight="720" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.LeaderboardView"
              x:DataType="viewModels:LeaderboardViewModel">
@@ -26,15 +27,15 @@
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="5*"/>
         </Grid.ColumnDefinitions>
-        <navigation:Sidebar x:Name="Sidebar" Grid.Column="0" ItemSelected="OnItemSelected">
-            <navigation:Sidebar.Items>
-                <navigation:SidebarItemText Text="LEADERBOARD"/>
-                <navigation:SidebarItemButton Text="Assets" Icon="Folder" Tag="{x:Type leaderboard:LeaderboardExportsView}"/>
-                <navigation:SidebarItemButton Text="Users" Icon="Account" Tag="{x:Type leaderboard:LeaderboardUsersView}"/>
-                <navigation:SidebarItemButton Text="Streaks" Icon="Fire" Tag="{x:Type leaderboard:LeaderboardStreaksView}"/>
-                <navigation:SidebarItemButton Text="Personal" Icon="Database" IsEnabled="False"/>
-            </navigation:Sidebar.Items>
-        </navigation:Sidebar>
+        <sidebar:Sidebar x:Name="Sidebar" Grid.Column="0" ItemSelected="OnItemSelected">
+            <sidebar:Sidebar.Items>
+                <sidebar:SidebarItemText Text="LEADERBOARD"/>
+                <sidebar:SidebarItemButton Text="Assets" Icon="Folder" Tag="{x:Type leaderboard:LeaderboardExportsView}"/>
+                <sidebar:SidebarItemButton Text="Users" Icon="Account" Tag="{x:Type leaderboard:LeaderboardUsersView}"/>
+                <sidebar:SidebarItemButton Text="Streaks" Icon="Fire" Tag="{x:Type leaderboard:LeaderboardStreaksView}"/>
+                <sidebar:SidebarItemButton Text="Personal" Icon="Database" IsEnabled="False"/>
+            </sidebar:Sidebar.Items>
+        </sidebar:Sidebar>
         
         <ui:Frame Grid.Column="1" x:Name="ContentFrame"/>
     </Grid>

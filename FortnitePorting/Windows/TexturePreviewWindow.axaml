@@ -8,9 +8,8 @@
         xmlns:viewers="clr-namespace:FortnitePorting.Models.Viewers"
         x:Class="FortnitePorting.Windows.TexturePreviewWindow"
         x:DataType="windowModels:TexturePreviewWindowModel"
-        Width="1280" Height="720" RequestedThemeVariant="Dark" FontFamily="Segoe UI" 
-        TransparencyLevelHint="{Binding Settings.Theme.TransparencyHints}" Background="{Binding Settings.Theme.BackgroundBrush}"
-        ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="NoChrome"
+        Width="1280" Height="720" RequestedThemeVariant="Dark" Background="#0e0e0e" TransparencyLevelHint="Mica"
+        ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="NoChrome" FontFamily="{StaticResource SFTextRegular}"
         WindowStartupLocation="CenterScreen" ClosingBehavior="OwnerAndChildWindows" ExtendClientAreaTitleBarHeightHint="35"
         Icon="/Assets/LogoRebrand.ico"
         Title="Texture Viewer">
@@ -20,7 +19,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         
-        <Grid Grid.Row="0" Background="#2F000000" HorizontalAlignment="Stretch" PointerPressed="OnPointerPressedUpperBar">
+        <Grid Grid.Row="0" HorizontalAlignment="Stretch" PointerPressed="OnPointerPressedUpperBar">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -35,7 +34,7 @@
                               Width="20" Height="20" 
                               RenderOptions.BitmapInterpolationMode="HighQuality" RenderOptions.EdgeMode="Antialias"/>
 
-                <TextBlock Grid.Column="2" Text="Texture Viewer" FontWeight="SemiBold" FontSize="16"
+                <TextBlock Grid.Column="2" Text="Texture Viewer" FontFamily="{StaticResource SFTextSemiBold}" FontSize="14"
                            HorizontalAlignment="Center" VerticalAlignment="Center" />
             </Grid>
             
@@ -62,7 +61,7 @@
             </Grid.RowDefinitions>
             
             <ui:TabView Grid.Row="0" IsAddTabButtonVisible="False" TabCloseRequested="OnTabClosed" TabWidthMode="Compact"
-                        TabItems="{Binding Textures}" 
+                        TabItems="{Binding Textures}" Margin="{ext:Space 0, 0, 0, 1}"
                         SelectedItem="{Binding SelectedTexture, Mode=TwoWay}">
                 <ui:TabView.TabItemTemplate>
                     <DataTemplate x:DataType="viewers:TextureContainer">
@@ -79,59 +78,59 @@
                 </ui:TabView.Styles>
             </ui:TabView>
             
-            <Grid Grid.Row="1" Background="#1C000000" DataContext="{Binding SelectedTexture}">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="{ext:Space 1}"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                
-                <Grid Grid.Row="0" HorizontalAlignment="Center" Margin="{ext:Space 0, 1, 0, 0}">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="{ext:Space 1}"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="{ext:Space 1}"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
+            <Border Grid.Row="1" Background="#0a0a0a" CornerRadius="0"
+                    BorderThickness="0 2 0 0" BorderBrush="#212121">
+                <Grid DataContext="{Binding SelectedTexture}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
                     
-                    <StackPanel Grid.Column="0" Orientation="Horizontal">
-                        <TextBlock Text="Mipmap" Classes="BodyStrongTextBlockStyle" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="{ext:Space 0, 0, 1, 0}"/>
-                        <ui:NumberBox Value="{Binding TargetMipIndex}" 
-                                      Minimum="{Binding MinimumMip}" Maximum="{Binding MaximumMip}"
-                                      SpinButtonPlacementMode="Inline"/>
-                    </StackPanel>
+                    <Grid Grid.Row="0" HorizontalAlignment="Center" Margin="{ext:Space 0, 1, 0, 0}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="{ext:Space 1}"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="{ext:Space 1}"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <StackPanel Grid.Column="0" Orientation="Horizontal">
+                            <TextBlock Text="Mipmap" Classes="BodyStrongTextBlockStyle" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="{ext:Space 0, 0, 1, 0}"/>
+                            <ui:NumberBox Value="{Binding TargetMipIndex}" 
+                                          Minimum="{Binding MinimumMip}" Maximum="{Binding MaximumMip}"
+                                          SpinButtonPlacementMode="Inline"/>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Column="2" Orientation="Horizontal">
+                            <TextBlock Text="Layer" Classes="BodyStrongTextBlockStyle" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="{ext:Space 0, 0, 1, 0}"/>
+                            <ui:NumberBox Value="{Binding TargetLayerIndex}" 
+                                          Minimum="0" Maximum="{Binding MaximumLayer}"
+                                          SpinButtonPlacementMode="Inline"/>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Column="4" Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock Text="Channels" Classes="BodyStrongTextBlockStyle" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="{ext:Space 0, 0, 1, 0}"/>
+                            <CheckBox Classes="Red" IsChecked="{Binding ShowRedChannel}"/>
+                            <CheckBox Classes="Green" IsChecked="{Binding ShowGreenChannel}"/>
+                            <CheckBox Classes="Blue" IsChecked="{Binding ShowBlueChannel}"/>
+                            <CheckBox Classes="Alpha" IsChecked="{Binding ShowAlphaChannel}"/>
+                        </StackPanel>
+                    </Grid>
                     
-                    <StackPanel Grid.Column="2" Orientation="Horizontal">
-                        <TextBlock Text="Layer" Classes="BodyStrongTextBlockStyle" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="{ext:Space 0, 0, 1, 0}"/>
-                        <ui:NumberBox Value="{Binding TargetLayerIndex}" 
-                                      Minimum="0" Maximum="{Binding MaximumLayer}"
-                                      SpinButtonPlacementMode="Inline"/>
-                    </StackPanel>
-                    
-                    <StackPanel Grid.Column="4" Orientation="Horizontal" HorizontalAlignment="Center">
-                        <TextBlock Text="Channels" Classes="BodyStrongTextBlockStyle" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="{ext:Space 0, 0, 1, 0}"/>
-                        <CheckBox Classes="Red" IsChecked="{Binding ShowRedChannel}"/>
-                        <CheckBox Classes="Green" IsChecked="{Binding ShowGreenChannel}"/>
-                        <CheckBox Classes="Blue" IsChecked="{Binding ShowBlueChannel}"/>
-                        <CheckBox Classes="Alpha" IsChecked="{Binding ShowAlphaChannel}"/>
-                    </StackPanel>
+                    <Grid Grid.Row="1" Margin="{ext:Space 1}">
+                        <Border CornerRadius="16"
+                                Width="{Binding Bounds.Width, ElementName=TemplateImage}"
+                                Height="{Binding Bounds.Height, ElementName=TemplateImage}">
+                            <Border.Background>
+                                <ImageBrush Source="{Binding DisplayBitmap}"/>
+                            </Border.Background>
+                        </Border>
+                        
+                        <Image x:Name="TemplateImage" Opacity="0" Source="{Binding DisplayBitmap}"/>
+                    </Grid>
                 </Grid>
-                
-                <Separator Grid.Row="1" Margin="{ext:Space 0, 1, 0, 0}"/>
-                
-                <Grid Grid.Row="2" Margin="{ext:Space 1}">
-                    <Border CornerRadius="8"
-                            Width="{Binding Bounds.Width, ElementName=TemplateImage}"
-                            Height="{Binding Bounds.Height, ElementName=TemplateImage}">
-                        <Border.Background>
-                            <ImageBrush Source="{Binding DisplayBitmap}"/>
-                        </Border.Background>
-                    </Border>
-                    
-                    <Image x:Name="TemplateImage" Opacity="0" Source="{Binding DisplayBitmap}"/>
-                </Grid>
-            </Grid>
+            </Border>
         </Grid>
     </Grid>
 </Window>

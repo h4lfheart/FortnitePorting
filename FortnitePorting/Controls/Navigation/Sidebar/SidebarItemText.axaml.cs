@@ -1,9 +1,7 @@
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 using Lucdem.Avalonia.SourceGenerators.Attributes;
 
-namespace FortnitePorting.Controls.Navigation;
+namespace FortnitePorting.Controls.Navigation.Sidebar;
 
 public partial class SidebarItemText : UserControl, ISidebarItem
 {

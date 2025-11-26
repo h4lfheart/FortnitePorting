@@ -18,6 +18,7 @@
              xmlns:base="clr-namespace:FortnitePorting.Models.Assets.Base"
              xmlns:views="clr-namespace:FortnitePorting.Views"
              xmlns:navigation="clr-namespace:FortnitePorting.Controls.Navigation"
+             xmlns:sidebar="clr-namespace:FortnitePorting.Controls.Navigation.Sidebar"
              d:DesignHeight="720" d:DesignWidth="1280"
              x:Class="FortnitePorting.Views.AssetsView"
              x:DataType="viewModels:AssetsViewModel">
@@ -30,7 +31,7 @@
             <ColumnDefinition Width="6*" />
         </Grid.ColumnDefinitions>
         
-        <navigation:Sidebar x:Name="Sidebar" Grid.Column="0" ItemSelected="OnItemSelected" Items="{Binding SidebarItems}"/>
+        <sidebar:Sidebar x:Name="Sidebar" Grid.Column="0" ItemSelected="OnItemSelected" Items="{Binding SidebarItems}"/>
 
         <GridSplitter Grid.Column="0" HorizontalAlignment="Right" Opacity="0"  IsVisible="{Binding !AssetLoader.ActiveLoader.FinishedLoading, FallbackValue=True}"/>
         

@@ -1,8 +1,6 @@
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 
-namespace FortnitePorting.Controls.Navigation;
+namespace FortnitePorting.Controls.Navigation.Sidebar;
 
 public partial class SidebarItemSeparator : UserControl, ISidebarItem
 {

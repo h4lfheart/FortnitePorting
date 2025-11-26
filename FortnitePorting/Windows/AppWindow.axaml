@@ -8,6 +8,7 @@
         xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
         xmlns:views="clr-namespace:FortnitePorting.Views"
         xmlns:controls="clr-namespace:FortnitePorting.Controls"
+        xmlns:sidebar="clr-namespace:FortnitePorting.Controls.Navigation.Sidebar"
         x:Class="FortnitePorting.Windows.AppWindow"
         x:DataType="windowModels:AppWindowModel"
         Width="1600" Height="900" RequestedThemeVariant="Dark" Background="#0e0e0e" TransparencyLevelHint="Mica"
@@ -37,8 +38,8 @@
         <Grid Grid.Row="0" Grid.RowSpan="2" ColumnDefinitions="1* 6*">
             <!-- Sidebar -->
             <Grid Grid.Column="0">
-                <navigation:Sidebar x:Name="Sidebar" ItemSelected="OnSidebarItemSelected">
-                    <navigation:Sidebar.Header>
+                <sidebar:Sidebar x:Name="Sidebar" ItemSelected="OnSidebarItemSelected">
+                    <sidebar:Sidebar.Header>
                         <Grid Grid.Row="0" IsHitTestVisible="False" RowDefinitions="*,*">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
@@ -62,43 +63,43 @@
                                    Classes="TextFillColorSecondaryBrush"
                                    VerticalAlignment="Center"/>
                         </Grid>
-                    </navigation:Sidebar.Header>
-                    <navigation:Sidebar.Items>
-                        <navigation:SidebarItemText Text="GENERAL"/>
-                        <navigation:SidebarItemButton Text="Home" Icon="Home" Tag="{x:Type views:HomeView}"/>
-                        <navigation:SidebarItemButton Text="News &amp; Updates" Icon="Newspaper" IsEnabled="False"/>
-                        <navigation:SidebarItemButton Text="Featured Art" Icon="Art" IsEnabled="False"/>
+                    </sidebar:Sidebar.Header>
+                    <sidebar:Sidebar.Items>
+                        <sidebar:SidebarItemText Text="GENERAL"/>
+                        <sidebar:SidebarItemButton Text="Home" Icon="Home" Tag="{x:Type views:HomeView}"/>
+                        <sidebar:SidebarItemButton Text="News &amp; Updates" Icon="Newspaper" IsEnabled="False"/>
+                        <sidebar:SidebarItemButton Text="Featured Art" Icon="Art" IsEnabled="False"/>
                         
-                        <navigation:SidebarItemSeparator/>
+                        <sidebar:SidebarItemSeparator/>
                         
-                        <navigation:SidebarItemText Text="EXPORT"/>
-                        <navigation:SidebarItemButton Text="Assets" Icon="File" Tag="{x:Type views:AssetsView}" IsEnabled="{Binding UEParse.FinishedLoading}"/>
-                        <navigation:SidebarItemButton Text="Files" Icon="Folder" Tag="{x:Type views:FilesView}" IsEnabled="{Binding UEParse.FinishedLoading}"/>
-                        <navigation:SidebarItemButton Text="Map" Icon="Map" Tag="{x:Type views:MapView}" IsEnabled="{Binding UEParse.FinishedLoading}"/>
-                        <navigation:SidebarItemButton Text="Music" Icon="Music" Tag="{x:Type views:MusicView}" IsEnabled="{Binding UEParse.FinishedLoading}"/>
+                        <sidebar:SidebarItemText Text="EXPORT"/>
+                        <sidebar:SidebarItemButton Text="Assets" Icon="File" Tag="{x:Type views:AssetsView}" IsEnabled="{Binding UEParse.FinishedLoading}"/>
+                        <sidebar:SidebarItemButton Text="Files" Icon="Folder" Tag="{x:Type views:FilesView}" IsEnabled="{Binding UEParse.FinishedLoading}"/>
+                        <sidebar:SidebarItemButton Text="Map" Icon="Map" Tag="{x:Type views:MapView}" IsEnabled="{Binding UEParse.FinishedLoading}"/>
+                        <sidebar:SidebarItemButton Text="Music" Icon="Music" Tag="{x:Type views:MusicView}" IsEnabled="{Binding UEParse.FinishedLoading}"/>
                         
-                        <navigation:SidebarItemSeparator/>
+                        <sidebar:SidebarItemSeparator/>
                         
-                        <navigation:SidebarItemText Text="ONLINE"/>
-                        <navigation:SidebarItemButton Text="Chat" Icon="Message" Tag="{x:Type views:ChatView}" 
+                        <sidebar:SidebarItemText Text="ONLINE"/>
+                        <sidebar:SidebarItemButton Text="Chat" Icon="Message" Tag="{x:Type views:ChatView}" 
                                                       IsEnabled="{Binding SupaBase.IsLoggedIn}"
                                                       IsVisible="{Binding OnlineStatus.Chat.Enabled}"/>
-                        <navigation:SidebarItemButton Text="Leaderboard" Icon="Trophy" Tag="{x:Type views:LeaderboardView}" 
+                        <sidebar:SidebarItemButton Text="Leaderboard" Icon="Trophy" Tag="{x:Type views:LeaderboardView}" 
                                                       IsEnabled="{Binding SupaBase.IsLoggedIn}"
                                                       IsVisible="{Binding OnlineStatus.Leaderboard.Enabled}"/>
                         
-                        <navigation:SidebarItemSeparator/>
+                        <sidebar:SidebarItemSeparator/>
                         
-                        <navigation:SidebarItemText Text="SETTINGS"/>
-                        <navigation:SidebarItemButton Text="Console" Icon="Console" Tag="{x:Type views:ConsoleView}" IsVisible="{Binding Settings.Debug.IsConsoleVisible}"/>
-                        <navigation:SidebarItemButton Text="Plugin" Icon="Plug" Tag="{x:Type views:PluginView}"/>
-                        <navigation:SidebarItemButton Text="Export Options" Icon="FileCog" Tag="{x:Type views:ExportSettingsView}"/>
-                        <navigation:SidebarItemButton Text="App Settings" Icon="Settings" Tag="{x:Type views:SettingsView}"/>
-                        <navigation:SidebarItemButton Text="Help" Icon="Help" Tag="{x:Type views:HelpView}"/>
+                        <sidebar:SidebarItemText Text="SETTINGS"/>
+                        <sidebar:SidebarItemButton Text="Console" Icon="Console" Tag="{x:Type views:ConsoleView}" IsVisible="{Binding Settings.Debug.IsConsoleVisible}"/>
+                        <sidebar:SidebarItemButton Text="Plugin" Icon="Plug" Tag="{x:Type views:PluginView}"/>
+                        <sidebar:SidebarItemButton Text="Export Options" Icon="FileCog" Tag="{x:Type views:ExportSettingsView}"/>
+                        <sidebar:SidebarItemButton Text="App Settings" Icon="Settings" Tag="{x:Type views:SettingsView}"/>
+                        <sidebar:SidebarItemButton Text="Help" Icon="Help" Tag="{x:Type views:HelpView}"/>
                         
-                    </navigation:Sidebar.Items>
+                    </sidebar:Sidebar.Items>
                     
-                    <navigation:Sidebar.Footer>
+                    <sidebar:Sidebar.Footer>
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -106,7 +107,7 @@
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
                             
-                            <navigation:SidebarItemSeparator Grid.Row="0"/>
+                            <sidebar:SidebarItemSeparator Grid.Row="0"/>
                             
                             <Grid Grid.Row="2" RowDefinitions="*,*" IsVisible="{Binding Settings.Online.SupaBase.IsLoggedIn}">
                                 <Grid.ColumnDefinitions>
@@ -138,8 +139,8 @@
                                         Command="{Binding Settings.Online.SupaBase.SignIn}"/>
                             </Grid>
                         </Grid>
-                    </navigation:Sidebar.Footer>
-                </navigation:Sidebar>
+                    </sidebar:Sidebar.Footer>
+                </sidebar:Sidebar>
             </Grid>
             
             <GridSplitter Grid.Column="0" HorizontalAlignment="Right" Opacity="0"/>

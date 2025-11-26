@@ -1,19 +1,14 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using Avalonia;
-using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using Lucdem.Avalonia.SourceGenerators.Attributes;
-using Serilog;
 
-namespace FortnitePorting.Controls.Navigation;
+namespace FortnitePorting.Controls.Navigation.Sidebar;
 
 public class SidebarItemSelectedArgs(object? tag) : RoutedEventArgs
 {
@@ -50,8 +45,8 @@ public partial class Sidebar : UserControl
             
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
-                var firstValidButton = Items
-                    .OfType<SidebarItemButton>()
+                var firstValidButton = Enumerable
+                    .OfType<SidebarItemButton>(Items)
                     .FirstOrDefault(b => b.Tag is not null);
 
                 if (firstValidButton is not null)
