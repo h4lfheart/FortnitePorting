@@ -141,14 +141,6 @@ public partial class CUE4ParseService : ObservableObject, IService
         
         await LoadMappings();
 
-        var tex = Provider.LoadPackageObject<UTexture2D>(
-            "FortniteGame/Content/2dAssets/Loadingscreens/Season11/Textures/T_LS_S11_LoveAndWar_War");
-        await TaskService.RunDispatcherAsync(() => TexturePreviewWindow.Preview(tex.Name, tex));
-        
-        
-        var tex2 = Provider.LoadPackageObject<UTexture2D>(
-            "FortniteGame/Content/2dAssets/Loadingscreens/Season27/T_LS_S27_Rufus_KeyArt");
-        await TaskService.RunDispatcherAsync(() => TexturePreviewWindow.Preview(tex2.Name, tex2));
         
         await LoadAssetRegistries();
 

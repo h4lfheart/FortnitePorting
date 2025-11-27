@@ -1,16 +1,12 @@
 using System;
 using System.Linq;
-using Avalonia.Controls;
 using Avalonia.Interactivity;
-using Avalonia.VisualTree;
-using CUE4Parse.UE4.Assets.Exports;
-using CUE4Parse.UE4.Assets.Exports.Texture;
+using Avalonia.Media;
+using Avalonia.Threading;
+using AvaloniaEdit.Folding;
 using FluentAvalonia.UI.Controls;
-using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
-using FortnitePorting.Services;
-using FortnitePorting.Shared.Extensions;
-using FortnitePorting.ViewModels;
+using FortnitePorting.Models.AvaloniaEdit;
 using FortnitePorting.WindowModels;
 using PropertiesContainer = FortnitePorting.Models.Viewers.PropertiesContainer;
 
@@ -19,6 +15,8 @@ namespace FortnitePorting.Windows;
 public partial class PropertiesPreviewWindow : WindowBase<PropertiesPreviewWindowModel>
 {
     public static PropertiesPreviewWindow? Instance;
+    private FoldingManager _foldingManager;
+    private bool _isInitialized;
     
     public PropertiesPreviewWindow()
     {
@@ -30,19 +28,64 @@ public partial class PropertiesPreviewWindow : WindowBase<PropertiesPreviewWindo
     protected override void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
+        
         Editor.TextArea.TextView.BackgroundRenderers.Add(new IndentGuideLinesRenderer(Editor));
+        //Editor.TextArea.TextView.ElementGenerators.Add(new FilePathElementGenerator());
+        
+        _foldingManager = FoldingManager.Install(Editor.TextArea);
+        StyleFoldingMargin();
+        
+        WindowModel.PropertyChanged += (_, args) =>
+        {
+            if (args.PropertyName == nameof(PropertiesPreviewWindowModel.SelectedAsset) && _isInitialized)
+            {
+                UpdateEditorContent();
+            }
+        };
+
+        _isInitialized = true;
+        
+        if (WindowModel.SelectedAsset != null)
+        {
+            UpdateEditorContent();
+        }
+    }
+
+    private void UpdateEditorContent()
+    {
+        if (WindowModel.SelectedAsset == null) return;
+
+        Dispatcher.UIThread.Post(() =>
+        {
+            Editor.Document.Text = WindowModel.SelectedAsset.PropertiesData;
+            JsonFoldingStrategy.UpdateFoldings(_foldingManager, Editor.Document);
+        }, DispatcherPriority.Background);
+    }
+
+    private void StyleFoldingMargin()
+    {
+        var margin = Editor.TextArea.LeftMargins.OfType<FoldingMargin>().FirstOrDefault();
+        if (margin == null) return;
+
+        margin.SetValue(FoldingMargin.FoldingMarkerBrushProperty, new SolidColorBrush(Color.Parse("#808081")));
+        margin.SetValue(FoldingMargin.FoldingMarkerBackgroundBrushProperty, new SolidColorBrush(Color.Parse("#212121")));
+        margin.SetValue(FoldingMargin.SelectedFoldingMarkerBrushProperty, new SolidColorBrush(Color.Parse("#D0D0D1")));
+        margin.SetValue(FoldingMargin.SelectedFoldingMarkerBackgroundBrushProperty, new SolidColorBrush(Color.Parse("#212121")));
     }
 
     public static void Preview(string name, string json)
     {
-        if (Instance is null)
+        if (Instance == null)
         {
             Instance = new PropertiesPreviewWindow();
             Instance.Show();
             Instance.BringToTop();
         }
+        
+        Instance.Editor.ScrollToHome();
 
-        if (Instance.WindowModel.Assets.FirstOrDefault(asset => asset.AssetName.Equals(name)) is { } existing)
+        var existing = Instance.WindowModel.Assets.FirstOrDefault(asset => asset.AssetName.Equals(name));
+        if (existing != null)
         {
             Instance.WindowModel.SelectedAsset = existing;
             return;
@@ -61,7 +104,6 @@ public partial class PropertiesPreviewWindow : WindowBase<PropertiesPreviewWindo
     protected override void OnClosed(EventArgs e)
     {
         base.OnClosed(e);
-
         Instance = null;
     }
 

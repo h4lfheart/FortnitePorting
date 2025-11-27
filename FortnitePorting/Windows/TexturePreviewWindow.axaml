@@ -54,12 +54,8 @@
             </Grid>
         </Grid>
         
-        <Grid Grid.Row="1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            
+        <Grid Grid.Row="1" RowDefinitions="Auto,*">
+
             <ui:TabView Grid.Row="0" IsAddTabButtonVisible="False" TabCloseRequested="OnTabClosed" TabWidthMode="Compact"
                         TabItems="{Binding Textures}" Margin="{ext:Space 0, 0, 0, 1}"
                         SelectedItem="{Binding SelectedTexture, Mode=TwoWay}">
