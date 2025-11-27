@@ -27,12 +27,6 @@
                     <ColorPicker Color="{Binding WindowBackgroundColor}" ColorSpectrumShape="Ring" IsColorPaletteVisible="False" IsAlphaEnabled="False" IsAlphaVisible="False"/>
                 </controls:SettingsItem.Footer>
             </controls:SettingsItem>
-            
-            <controls:SettingsItem Title="Accent Color" Description="The accent color used for UI elements.">
-                <controls:SettingsItem.Footer>
-                    <ColorPicker Color="{Binding StyleAccentColor}" ColorSpectrumShape="Ring" IsColorPaletteVisible="False" IsAlphaEnabled="False" IsAlphaVisible="False"/>
-                </controls:SettingsItem.Footer>
-            </controls:SettingsItem>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

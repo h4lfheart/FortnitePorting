@@ -4,10 +4,13 @@ using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Threading;
 using AvaloniaEdit.Folding;
+using AvaloniaEdit.Rendering;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.AvaloniaEdit;
+using FortnitePorting.Services;
 using FortnitePorting.WindowModels;
+using Serilog;
 using PropertiesContainer = FortnitePorting.Models.Viewers.PropertiesContainer;
 
 namespace FortnitePorting.Windows;
@@ -17,6 +20,7 @@ public partial class PropertiesPreviewWindow : WindowBase<PropertiesPreviewWindo
     public static PropertiesPreviewWindow? Instance;
     private FoldingManager _foldingManager;
     private bool _isInitialized;
+    private bool _isRestoringScroll;
     
     public PropertiesPreviewWindow()
     {
@@ -35,6 +39,8 @@ public partial class PropertiesPreviewWindow : WindowBase<PropertiesPreviewWindo
         _foldingManager = FoldingManager.Install(Editor.TextArea);
         StyleFoldingMargin();
         
+        Editor.TextArea.TextView.ScrollOffsetChanged += OnScrollOffsetChanged;
+        
         WindowModel.PropertyChanged += (_, args) =>
         {
             if (args.PropertyName == nameof(PropertiesPreviewWindowModel.SelectedAsset) && _isInitialized)
@@ -51,15 +57,31 @@ public partial class PropertiesPreviewWindow : WindowBase<PropertiesPreviewWindo
         }
     }
 
+    private void OnScrollOffsetChanged(object? sender, EventArgs e)
+    {
+        if (_isRestoringScroll) return;
+        
+        var line = Editor.TextArea.TextView.GetDocumentLineByVisualTop(Editor.TextArea.TextView.ScrollOffset.Y);
+        if (line is null) return;
+        
+        WindowModel.SelectedAsset.ScrollLine = line.LineNumber;
+    }
+
     private void UpdateEditorContent()
     {
         if (WindowModel.SelectedAsset == null) return;
 
-        Dispatcher.UIThread.Post(() =>
+        _isRestoringScroll = true;
+        
+        Editor.Document.Text = WindowModel.SelectedAsset.PropertiesData;
+        JsonFoldingStrategy.UpdateFoldings(_foldingManager, Editor.Document);
+        
+        TaskService.RunDispatcher(() =>
         {
-            Editor.Document.Text = WindowModel.SelectedAsset.PropertiesData;
-            JsonFoldingStrategy.UpdateFoldings(_foldingManager, Editor.Document);
-        }, DispatcherPriority.Background);
+            Editor.ScrollTo(WindowModel.SelectedAsset.ScrollLine, 0, VisualYPosition.LineTop, 0, 0);
+
+            _isRestoringScroll = false;
+        }, DispatcherPriority.Render);
     }
 
     private void StyleFoldingMargin()
@@ -79,10 +101,9 @@ public partial class PropertiesPreviewWindow : WindowBase<PropertiesPreviewWindo
         {
             Instance = new PropertiesPreviewWindow();
             Instance.Show();
-            Instance.BringToTop();
         }
         
-        Instance.Editor.ScrollToHome();
+        Instance.BringToTop();
 
         var existing = Instance.WindowModel.Assets.FirstOrDefault(asset => asset.AssetName.Equals(name));
         if (existing != null)
@@ -104,6 +125,7 @@ public partial class PropertiesPreviewWindow : WindowBase<PropertiesPreviewWindo
     protected override void OnClosed(EventArgs e)
     {
         base.OnClosed(e);
+        
         Instance = null;
     }
 

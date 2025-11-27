@@ -6,6 +6,7 @@ using AvaloniaEdit.Document;
 using AvaloniaEdit.Rendering;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.Utils;
+using FortnitePorting.Extensions;
 using FortnitePorting.Windows;
 using Newtonsoft.Json;
 
@@ -70,7 +71,8 @@ public class FilePathVisualLineText(string filePath, VisualLine parentVisualLine
     private void LoadFromPath(string path)
     {
         var fullPath = UEParse.Provider.FixPath(path).SubstringBeforeLast(".");
-        var asset = UEParse.Provider.LoadPackageObject<UObject>(fullPath);
-        PropertiesPreviewWindow.Preview(asset.Name, JsonConvert.SerializeObject(asset, Formatting.Indented));
+        var package = UEParse.Provider.LoadPackage(fullPath);
+        var exports = package.GetExports();
+        PropertiesPreviewWindow.Preview(package.Name.SubstringAfterLast("/"), JsonConvert.SerializeObject(exports, Formatting.Indented));
     }
 }

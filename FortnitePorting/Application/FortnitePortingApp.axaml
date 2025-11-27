@@ -8,6 +8,7 @@
              xmlns:nodify="https://miroiu.github.io/nodify"
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
              xmlns:breadcrumb="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia.BreadcrumbBar"
+             xmlns:editing="https://github.com/avaloniaui/avaloniaedit"
              x:Class="FortnitePorting.Application.FortnitePortingApp"
              RequestedThemeVariant="Dark">
 
@@ -938,6 +939,29 @@
                 </Setter>
             </Style>
             
+        </Style>
+        
+        <Style Selector="editing|SearchPanel[IsVisible=True] /template/ Border#PART_Border">
+            <Setter Property="Background">
+                <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
+                    <GradientStops>
+                        <GradientStop Color="#1A1B1E" Offset="0"/>
+                        <GradientStop Color="#18191B" Offset="1"/>
+                    </GradientStops>
+                </LinearGradientBrush>
+            </Setter>
+            <Setter Property="Margin" Value="{ext:Space 0, 1, 0, 0}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="MinHeight" Value="32"/>
+            <Setter Property="ClipToBounds" Value="False"/>
+            <Setter Property="BackgroundSizing" Value="CenterBorder"/>
+            <Setter Property="BoxShadow">
+                inset 0 1 2 -1 #50ffffff,
+                inset 0 -1 2 -2 #50ffffff,
+                0 4 8 #20000000,
+                0 8 12 #10000000
+            </Setter>
         </Style>
         
         

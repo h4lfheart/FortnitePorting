@@ -4,8 +4,10 @@ using System.Linq;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
+using Avalonia.Media;
 using Avalonia.Threading;
 using DynamicData;
+using FluentAvalonia.Styling;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Framework;
 using FortnitePorting.Services;
@@ -27,6 +29,11 @@ public partial class FortnitePortingApp : Avalonia.Application
     {
         Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
         BindingPlugins.DataValidators.RemoveAll(validator => validator is DataAnnotationsValidationPlugin);
+
+        if (Styles.OfType<FluentAvaloniaTheme>().FirstOrDefault() is { } fluentTheme)
+        {
+            fluentTheme.CustomAccentColor = Color.Parse("#303030");
+        }
         
         AppServices.Initialize();
         
