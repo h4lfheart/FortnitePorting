@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using Avalonia.Interactivity;
 using Avalonia.Media;
@@ -6,10 +7,13 @@ using Avalonia.Threading;
 using AvaloniaEdit.Folding;
 using AvaloniaEdit.Rendering;
 using FluentAvalonia.UI.Controls;
+using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.AvaloniaEdit;
 using FortnitePorting.Services;
 using FortnitePorting.WindowModels;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Serilog;
 using PropertiesContainer = FortnitePorting.Models.Viewers.PropertiesContainer;
 
@@ -33,13 +37,13 @@ public partial class PropertiesPreviewWindow : WindowBase<PropertiesPreviewWindo
     {
         base.OnLoaded(e);
         
+        
+        Editor.TextArea.TextView.ScrollOffsetChanged += OnScrollOffsetChanged;
         Editor.TextArea.TextView.BackgroundRenderers.Add(new IndentGuideLinesRenderer(Editor));
         Editor.TextArea.TextView.ElementGenerators.Add(new FilePathElementGenerator());
         
         _foldingManager = FoldingManager.Install(Editor.TextArea);
         StyleFoldingMargin();
-        
-        Editor.TextArea.TextView.ScrollOffsetChanged += OnScrollOffsetChanged;
         
         WindowModel.PropertyChanged += (_, args) =>
         {
@@ -95,7 +99,7 @@ public partial class PropertiesPreviewWindow : WindowBase<PropertiesPreviewWindo
         margin.SetValue(FoldingMargin.SelectedFoldingMarkerBackgroundBrushProperty, new SolidColorBrush(Color.Parse("#212121")));
     }
 
-    public static void Preview(string name, string json)
+    public static void Preview(string name, string json, int targetIndex = -1)
     {
         if (Instance == null)
         {
@@ -105,21 +109,31 @@ public partial class PropertiesPreviewWindow : WindowBase<PropertiesPreviewWindo
         
         Instance.BringToTop();
 
+        var targetLine = 0;
+        if (targetIndex >= 0)
+        {
+            targetLine = StringExtensions.GetPropertiesExportIndexLine(json, targetIndex);
+            Instance.Editor.ScrollTo(targetLine, 0, VisualYPosition.LineTop, 0, 0);
+        }
+
         var existing = Instance.WindowModel.Assets.FirstOrDefault(asset => asset.AssetName.Equals(name));
         if (existing != null)
         {
             Instance.WindowModel.SelectedAsset = existing;
+            Instance.WindowModel.SelectedAsset.ScrollLine = targetLine;
             return;
         }
-
+        
         var container = new PropertiesContainer
         {
             AssetName = name,
-            PropertiesData = json
+            PropertiesData = json,
+            ScrollLine = targetLine
         };
         
         Instance.WindowModel.Assets.Add(container);
         Instance.WindowModel.SelectedAsset = container;
+
     }
 
     protected override void OnClosed(EventArgs e)

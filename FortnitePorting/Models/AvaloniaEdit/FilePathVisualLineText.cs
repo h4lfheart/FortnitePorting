@@ -70,9 +70,17 @@ public class FilePathVisualLineText(string filePath, VisualLine parentVisualLine
 
     private void LoadFromPath(string path)
     {
-        var fullPath = UEParse.Provider.FixPath(path).SubstringBeforeLast(".");
-        var package = UEParse.Provider.LoadPackage(fullPath);
+        var fullPath = UEParse.Provider.FixPath(path);
+        var package = UEParse.Provider.LoadPackage(fullPath.SubstringBeforeLast("."));
         var exports = package.GetExports();
-        PropertiesPreviewWindow.Preview(package.Name.SubstringAfterLast("/"), JsonConvert.SerializeObject(exports, Formatting.Indented));
+
+        if (int.TryParse(path.SubstringAfterLast("."), out var objectIndex))
+        {
+            PropertiesPreviewWindow.Preview(package.Name.SubstringAfterLast("/"), JsonConvert.SerializeObject(exports, Formatting.Indented), objectIndex);
+        }
+        else
+        {
+            PropertiesPreviewWindow.Preview(package.Name.SubstringAfterLast("/"), JsonConvert.SerializeObject(exports, Formatting.Indented));
+        }
     }
 }
