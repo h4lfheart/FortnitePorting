@@ -8,6 +8,7 @@
              xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
              xmlns:settings="clr-namespace:FortnitePorting.ViewModels.Settings"
              xmlns:fortnitePorting="clr-namespace:FortnitePorting"
+             xmlns:nanite="clr-namespace:CUE4Parse.UE4.Assets.Exports.Nanite;assembly=CUE4Parse"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FortnitePorting.Views.Settings.BlenderSettingsView"
              x:DataType="settings:BlenderSettingsViewModel">
@@ -108,6 +109,13 @@
                     <ui:NumberBox Value="{Binding TargetLOD}" 
                                   Minimum="0"
                                   SpinButtonPlacementMode="Inline"/>
+                </ui:SettingsExpander.Footer>
+            </ui:SettingsExpander>
+            
+            <ui:SettingsExpander Header="Nanite Mesh Format" Description="Controls how Nanite geometry is handled (when available).">
+                <ui:SettingsExpander.Footer>
+                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type nanite:ENaniteMeshFormat}}"
+                              SelectedItem="{Binding NaniteMeshFormat, Converter={StaticResource EnumToRecord}}" />
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
             

@@ -4,8 +4,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
              xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
-             xmlns:settings="clr-namespace:FortnitePorting.ViewModels.Settings"
+             xmlns:nanite="clr-namespace:CUE4Parse.UE4.Assets.Exports.Nanite;assembly=CUE4Parse"
              xmlns:enums="clr-namespace:CUE4Parse_Conversion.UEFormat.Enums;assembly=CUE4Parse-Conversion"
+             xmlns:settings="clr-namespace:FortnitePorting.ViewModels.Settings"
              xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
              xmlns:fortnitePorting="clr-namespace:FortnitePorting"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
@@ -51,6 +52,13 @@
             <ui:SettingsExpander Header="Import Collision Geometry" Description="Imports the convex collision geometry if available.">
                 <ui:SettingsExpander.Footer>
                     <ToggleSwitch IsChecked="{Binding ImportCollision}"/>
+                </ui:SettingsExpander.Footer>
+            </ui:SettingsExpander>
+            
+            <ui:SettingsExpander Header="Nanite Mesh Format" Description="Controls how Nanite geometry is handled (when available).">
+                <ui:SettingsExpander.Footer>
+                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type nanite:ENaniteMeshFormat}}"
+                              SelectedItem="{Binding NaniteMeshFormat, Converter={StaticResource EnumToRecord}}" />
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
             
