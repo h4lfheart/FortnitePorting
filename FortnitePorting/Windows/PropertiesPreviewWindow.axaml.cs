@@ -30,7 +30,7 @@ public partial class PropertiesPreviewWindow : WindowBase<PropertiesPreviewWindo
         base.OnLoaded(e);
         
         Editor.TextArea.TextView.BackgroundRenderers.Add(new IndentGuideLinesRenderer(Editor));
-        //Editor.TextArea.TextView.ElementGenerators.Add(new FilePathElementGenerator());
+        Editor.TextArea.TextView.ElementGenerators.Add(new FilePathElementGenerator());
         
         _foldingManager = FoldingManager.Install(Editor.TextArea);
         StyleFoldingMargin();
