@@ -51,6 +51,7 @@ public partial class ApplicationSettingsViewModel : ViewModelBase
     
     [ObservableProperty] private bool _dontAskAboutKofi;
     [ObservableProperty] private DateTime _nextKofiAskDate = DateTime.Today;
+    [ObservableProperty] private bool _showAssetNames;
         
     [ObservableProperty] private EpicAuthResponse? _epicAuth;
     
@@ -91,7 +92,7 @@ public partial class ApplicationSettingsViewModel : ViewModelBase
         {
             case nameof(AudioDeviceIndex):
             {
-                RadioVM?.UpdateOutputDevice();
+                MusicVM?.UpdateOutputDevice();
                 SoundPreviewWM?.UpdateOutputDevice();
                 break;
             }

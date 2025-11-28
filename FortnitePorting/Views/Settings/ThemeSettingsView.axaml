@@ -8,38 +8,25 @@
              xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
              xmlns:settings="clr-namespace:FortnitePorting.ViewModels.Settings"
              xmlns:versions="clr-namespace:CUE4Parse.UE4.Versions;assembly=CUE4Parse"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls.Settings"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FortnitePorting.Views.Settings.ThemeSettingsView"
              x:DataType="settings:ThemeSettingsViewModel">
    
     <ScrollViewer>
-        <StackPanel VerticalAlignment="Top" Margin="{ext:Space 1}">
-            <StackPanel.Styles>
-                <Style Selector="ui|SettingsExpander">
-                    <Setter Property="Margin" Value="{ext:Space 0, 0, 0, 1}"/>
-                </Style>
-                <Style Selector="TextBlock.SubtitleTextBlockStyle">
-                    <Setter Property="Margin" Value="{ext:Space 0, 0, 0, 1}"/>
-                </Style>
-            </StackPanel.Styles>
+        <StackPanel VerticalAlignment="Top" Margin="{ext:Space 1}" Spacing="{ext:Space 0, 0, 0, 1}">
             
-            <ui:SettingsExpander Header="Mica Styling" Description="Use mica styling instead of acrylic blur for the background. (Windows 11 Only)" IsVisible="{Binding IsWindows11}">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Mica Styling" Description="Use mica styling instead of acrylic blur for the background. (Windows 11 Only)" IsVisible="{Binding IsWindows11}">
+                <controls:SettingsItem.Footer>
                     <ToggleSwitch IsChecked="{Binding UseMica}"/>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
-            <ui:SettingsExpander Header="Background Color" Description="The background color for any window created by Fortnite Porting." IsEnabled="{Binding !UseMica}">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Background Color" Description="The background color for any window created by Fortnite Porting." IsEnabled="{Binding !UseMica}">
+                <controls:SettingsItem.Footer>
                     <ColorPicker Color="{Binding WindowBackgroundColor}" ColorSpectrumShape="Ring" IsColorPaletteVisible="False" IsAlphaEnabled="False" IsAlphaVisible="False"/>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
-            
-            <ui:SettingsExpander Header="Accent Color" Description="The accent color used for UI elements.">
-                <ui:SettingsExpander.Footer>
-                    <ColorPicker Color="{Binding StyleAccentColor}" ColorSpectrumShape="Ring" IsColorPaletteVisible="False" IsAlphaEnabled="False" IsAlphaVisible="False"/>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

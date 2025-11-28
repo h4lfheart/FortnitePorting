@@ -45,6 +45,47 @@ public static class ImageExtensions
 
     }
     
+    public static SKBitmap ToOpacityMask(this SKBitmap bitmap)
+    {
+        var width = bitmap.Width;
+        var height = bitmap.Height;
+    
+        var maskBitmap = new SKBitmap(width, height, SKColorType.Bgra8888, SKAlphaType.Premul);
+    
+        var sourcePixels = bitmap.GetPixels();
+        var maskPixels = maskBitmap.GetPixels();
+    
+        var pixelCount = width * height;
+    
+        unsafe
+        {
+            var srcPtr = (byte*)sourcePixels.ToPointer();
+            var dstPtr = (byte*)maskPixels.ToPointer();
+        
+            for (var i = 0; i < pixelCount; i++)
+            {
+                byte luminance;
+                if (bitmap.ColorType == SKColorType.Gray8)
+                {
+                    luminance = srcPtr[i];
+                }
+                else
+                {
+                    var srcOffset = i * bitmap.BytesPerPixel;
+                    luminance = srcPtr[srcOffset];
+                }
+            
+                var dstOffset = i * 4;
+                dstPtr[dstOffset + 0] = luminance;
+                dstPtr[dstOffset + 1] = luminance;
+                dstPtr[dstOffset + 2] = luminance;
+                dstPtr[dstOffset + 3] = luminance;
+            }
+        }
+
+        return maskBitmap;
+    }
+    
     public static ConcurrentDictionary<string, Bitmap> CachedBitmaps = [];
 
     public static Bitmap AvaresBitmap(string path)

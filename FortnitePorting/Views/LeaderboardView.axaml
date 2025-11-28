@@ -17,33 +17,26 @@
              xmlns:oxy="http://oxyplot.org/avalonia"
              xmlns:services="clr-namespace:FortnitePorting.Services"
              xmlns:leaderboard="clr-namespace:FortnitePorting.Views.Leaderboard"
+             xmlns:navigation="clr-namespace:FortnitePorting.Controls.Navigation"
+             xmlns:sidebar="clr-namespace:FortnitePorting.Controls.Navigation.Sidebar"
              d:DesignHeight="720" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.LeaderboardView"
              x:DataType="viewModels:LeaderboardViewModel">
-    <ui:NavigationView x:Name="NavigationView" Classes="NoBackground" PaneDisplayMode="Left" OpenPaneLength="150" IsPaneToggleButtonVisible="False" IsSettingsVisible="False" ItemInvoked="OnItemInvoked">
-        <ui:NavigationView.MenuItems>
-            <ui:NavigationViewItem Content="Exports" Tag="{x:Type leaderboard:LeaderboardExportsView}" IsSelected="True">
-                <ui:NavigationViewItem.IconSource>
-                    <ui:PathIconSource Data="{ext:MaterialKindToGeometry Folder}"/>
-                </ui:NavigationViewItem.IconSource>
-            </ui:NavigationViewItem>
-            <ui:NavigationViewItem Content="Users" Tag="{x:Type leaderboard:LeaderboardUsersView}">
-                <ui:NavigationViewItem.IconSource>
-                    <ui:PathIconSource Data="{ext:MaterialKindToGeometry Account}"/>
-                </ui:NavigationViewItem.IconSource>
-            </ui:NavigationViewItem>
-            <ui:NavigationViewItem Content="Streaks" Tag="{x:Type leaderboard:LeaderboardStreaksView}">
-                <ui:NavigationViewItem.IconSource>
-                    <ui:PathIconSource Data="{ext:MaterialKindToGeometry Fire}"/>
-                </ui:NavigationViewItem.IconSource>
-            </ui:NavigationViewItem>
-            <ui:NavigationViewItem Content="Personal" IsEnabled="False">
-                <ui:NavigationViewItem.IconSource>
-                    <ui:PathIconSource Data="{ext:MaterialKindToGeometry Database}"/>
-                </ui:NavigationViewItem.IconSource>
-            </ui:NavigationViewItem>
-        </ui:NavigationView.MenuItems>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="5*"/>
+        </Grid.ColumnDefinitions>
+        <sidebar:Sidebar x:Name="Sidebar" Grid.Column="0" ItemSelected="OnItemSelected">
+            <sidebar:Sidebar.Items>
+                <sidebar:SidebarItemText Text="LEADERBOARD"/>
+                <sidebar:SidebarItemButton Text="Assets" Icon="Folder" Tag="{x:Type leaderboard:LeaderboardExportsView}"/>
+                <sidebar:SidebarItemButton Text="Users" Icon="Account" Tag="{x:Type leaderboard:LeaderboardUsersView}"/>
+                <sidebar:SidebarItemButton Text="Streaks" Icon="Fire" Tag="{x:Type leaderboard:LeaderboardStreaksView}"/>
+                <sidebar:SidebarItemButton Text="Personal" Icon="Database" IsEnabled="False"/>
+            </sidebar:Sidebar.Items>
+        </sidebar:Sidebar>
         
-        <ui:Frame x:Name="ContentFrame"/>
-    </ui:NavigationView>
+        <ui:Frame Grid.Column="1" x:Name="ContentFrame"/>
+    </Grid>
 </UserControl>

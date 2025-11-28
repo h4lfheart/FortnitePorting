@@ -6,6 +6,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
+using FortnitePorting.Controls.Navigation;
+using FortnitePorting.Controls.Navigation.Sidebar;
 using FortnitePorting.Exporting;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
@@ -18,6 +20,7 @@ using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Views;
+using Material.Icons;
 using RestSharp;
 
 namespace FortnitePorting.ViewModels;
@@ -38,42 +41,38 @@ public partial class AssetsViewModel() : ViewModelBase
     [ObservableProperty] private bool _isPaneOpen = true;
     [ObservableProperty] private EExportLocation _exportLocation = EExportLocation.Blender;
     
-    [ObservableProperty] private ObservableCollection<NavigationViewItem> _navItems = [];
-    [ObservableProperty] private NavigationViewItem _selectedNavItem;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(ShowNamesIcon))] private bool _showNames = AppSettings.Application.ShowAssetNames;
+
+    public MaterialIconKind ShowNamesIcon => ShowNames ? MaterialIconKind.TextLong : MaterialIconKind.TextShort;
+    
+    [ObservableProperty] private ObservableCollection<ISidebarItem> _sidebarItems = [];
     
     public override async Task Initialize()
     {
         await TaskService.RunDispatcherAsync(() =>
         {
-            foreach (var category in AssetLoader.Categories)
+            foreach (var (index, category) in AssetLoader.Categories.Enumerate())
             {
-                NavItems.Add(new NavigationViewItem
+                SidebarItems.Add(new SidebarItemText(category.Category.GetDescription().ToUpper()));
+
+                foreach (var loader in category.Loaders)
                 {
-                    Tag = category.Category,
-                    Content = category.Category.GetDescription(),
-                    SelectsOnInvoked = false,
-                    IconSource = new ImageIconSource
-                    {
-                        Source = ImageExtensions.AvaresBitmap($"avares://FortnitePorting/Assets/FN/{category.Category.ToString()}.png")
-                    },
-                    MenuItemsSource = category.Loaders.Select(loader => new NavigationViewItem
-                    {
-                        Tag = loader.Type, 
-                        Content = loader.Type.GetDescription(), 
-                        IconSource = new ImageIconSource
-                        {
-                            Source = ImageExtensions.AvaresBitmap($"avares://FortnitePorting/Assets/FN/{loader.Type.ToString()}.png")
-                        },
-                    })
-                });
+                    SidebarItems.Add(new SidebarItemButton(
+                        text: loader.Type.GetDescription(), 
+                        iconBitmap: ImageExtensions.AvaresBitmap($"avares://FortnitePorting/Assets/FN/{loader.Type.ToString()}.png"),
+                        tag: loader.Type
+                    ));
+                }
+                
+                if (index < AssetLoader.Categories.Count - 1)
+                    SidebarItems.Add(new SidebarItemSeparator());
             }
         });
-        
-        await AssetLoader.Load(EExportType.Outfit);
     }
 
-    public override async Task OnViewOpened()
+    public override async Task OnViewExited()
     {
+        AppSettings.Application.ShowAssetNames = ShowNames;
     }
 
     [RelayCommand]

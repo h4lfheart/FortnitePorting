@@ -61,7 +61,7 @@ public enum EAssetCategory
     [Description("Fall Guys")]
     FallGuys,
     
-    [Description("Miscellaneous")]
+    [Description("Misc")]
     Misc
 }
 
@@ -107,6 +107,10 @@ public enum EExportType
 
     [Description("Emotes"), Export(EPrimitiveExportType.Animation)]
     Emote,
+    
+    [Description("Sidekicks"), Export(EPrimitiveExportType.Mesh)]
+    SideKick,
+
     
     // CREATIVE
 

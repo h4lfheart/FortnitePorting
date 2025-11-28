@@ -34,16 +34,16 @@ public static class AppServices
     public static ChatService Chat => Services.GetRequiredService<ChatService>();
     public static DiscordService Discord => Services.GetRequiredService<DiscordService>();
     public static BlackHoleService BlackHole => Services.GetRequiredService<BlackHoleService>();
+    public static AssetLoaderService AssetLoading => Services.GetRequiredService<AssetLoaderService>();
     
     // ViewModels
     public static AppWindowModel AppWM => Services.GetRequiredService<AppWindowModel>();
     
     public static ChatViewModel ChatVM => Services.GetRequiredService<ChatViewModel>();
-    public static VotingViewModel VotingVM => Services.GetRequiredService<VotingViewModel>();
     
     public static FilesViewModel FilesVM => Services.GetRequiredService<FilesViewModel>();
     public static MapViewModel MapVM => Services.GetRequiredService<MapViewModel>();
-    public static RadioViewModel RadioVM => Services.GetRequiredService<RadioViewModel>();
+    public static MusicViewModel MusicVM => Services.GetRequiredService<MusicViewModel>();
     
     
     public static ConsoleViewModel ConsoleVM => Services.GetRequiredService<ConsoleViewModel>();

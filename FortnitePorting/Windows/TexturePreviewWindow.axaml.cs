@@ -28,8 +28,9 @@ public partial class TexturePreviewWindow : WindowBase<TexturePreviewWindowModel
         {
             Instance = new TexturePreviewWindow();
             Instance.Show();
-            Instance.BringToTop();
         }
+        
+        Instance.BringToTop();
 
         if (Instance.WindowModel.Textures.FirstOrDefault(texture => texture.TextureName.Equals(name)) is { } existing)
         {

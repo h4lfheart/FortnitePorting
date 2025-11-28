@@ -151,6 +151,11 @@ public static class MiscExtensions
         return list[index];
     }
     
+    public static IEnumerable<T> Random<T>(this IEnumerable<T> enumerable, int count)
+    {
+        return enumerable.OrderBy(_ => System.Random.Shared.Next()).Take(count);
+    }
+    
     public static bool TryDeleteFile(string path)
     {
         try

@@ -26,7 +26,7 @@ namespace FortnitePorting.Services;
 
 public partial class AssetLoaderService : ObservableObject, IService
 {
-    [ObservableProperty] private AssetLoader _activeLoader;
+    [ObservableProperty] private AssetLoader? _activeLoader;
     [ObservableProperty] private ReadOnlyObservableCollection<BaseAssetItem> _activeCollection;
     
     public List<AssetLoaderCategory> Categories { get; set; } =
@@ -54,7 +54,7 @@ public partial class AssetLoaderService : ObservableObject, IService
                 new AssetLoader(EExportType.Backpack)
                 {
                     ClassNames = ["AthenaBackpackItemDefinition"],
-                    HideNames = ["_STWHeroNoDefaultBackpack", "_TEST", "Dev_", "_NPC", "_TBD"]
+                    HideNames = ["_STWHeroNoDefaultBackpack", "_TEST", "Dev_", "_NPC", "_TBD", "ChaosCloth"]
                 },
                 new AssetLoader(EExportType.Pickaxe)
                 {
@@ -63,8 +63,8 @@ public partial class AssetLoaderService : ObservableObject, IService
                     IconHandler = asset =>
                     {
                         var previewImage = AssetLoader.GetIcon(asset);
-                        if (previewImage is null && asset.TryGetValue(out UObject hero, "WeaponDefinition"))
-                            previewImage = AssetLoader.GetIcon(hero);
+                        if ((previewImage is null || previewImage.Name.Contains("Placeholder", StringComparison.OrdinalIgnoreCase)) && asset.TryGetValue(out UObject weapon, "WeaponDefinition"))
+                            previewImage = AssetLoader.GetIcon(weapon);
 
                         return previewImage;
                     }
@@ -104,6 +104,11 @@ public partial class AssetLoaderService : ObservableObject, IService
                 {
                     ClassNames = ["AthenaDanceItemDefinition"],
                     HideNames = ["_CT", "_NPC"]
+                },
+                new AssetLoader(EExportType.SideKick)
+                {
+                    ClassNames = ["CosmeticCompanionItemDefinition"],
+                    HideNames = ["Companion_SitPlant_PerfTest", "Companion_TestCompanion2_Mutable", "Companion_Placeholder"]
                 }
             ]
         },

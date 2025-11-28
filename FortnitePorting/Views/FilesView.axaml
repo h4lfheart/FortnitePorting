@@ -32,9 +32,9 @@
                 <ColumnDefinition Width="2.5*"/>
             </Grid.ColumnDefinitions>
             
-            <controls:FABorder Grid.Row="0" Grid.Column="0">
+            <controls:ContentCard Grid.Row="0" Grid.Column="0">
                 <TreeView ItemsSource="{Binding TreeViewCollection}" AutoScrollToSelectedItem="True"
-                          Tapped="OnTreeItemTapped" DoubleTapped="OnTreeItemDoubleTapped">
+                          Tapped="OnTreeItemTapped" DoubleTapped="OnTreeItemDoubleTapped" Margin="{ext:Space 1}">
                     <TreeView.ItemsPanel>
                         <ItemsPanelTemplate>
                             <VirtualizingStackPanel />
@@ -56,12 +56,12 @@
                         <TreeDataTemplate ItemsSource="{Binding FolderChildren}">
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                                 <material:MaterialIcon Width="16" Height="16" Margin="0 0 8 0" Kind="Folder"/>
-                                <TextBlock Text="{Binding Name}" Classes="CaptionTextBlockStyle"/>
+                                <TextBlock Text="{Binding Name}" Classes="CaptionTextBlockStyle" VerticalAlignment="Center"/>
                             </StackPanel>
                         </TreeDataTemplate>
                     </TreeView.ItemTemplate>
                 </TreeView>
-            </controls:FABorder>
+            </controls:ContentCard>
             
             <GridSplitter Grid.Row="0" Grid.Column="1" Opacity="0"/>
             
@@ -83,7 +83,7 @@
                     
                     <ToggleButton Grid.Column="0" ToolTip.Tip="Flat View" Content="{material:MaterialIconExt FormatListBulleted}" IsChecked="{Binding UseFlatView}"/>
                     
-                    <TextBox Grid.Column="2" Text="{Binding ActualSearchText, Mode=TwoWay}" Watermark="Search" KeyDown="OnSearchKeyDown"/>
+                    <TextBox Grid.Column="2" Text="{Binding SearchText, Mode=TwoWay}" Watermark="Search" KeyDown="OnSearchKeyDown"/>
                 
                     <ToggleButton Grid.Column="4" ToolTip.Tip="Regex" HorizontalAlignment="Right" 
                                   Content="{material:MaterialIconExt Regex}" IsChecked="{Binding UseRegex}"/>
@@ -100,7 +100,7 @@
                         </ui:BreadcrumbBar.ItemTemplate>
                     </ui:BreadcrumbBar>
                     
-                    <controls:FABorder Grid.Row="1">
+                    <controls:ContentCard Grid.Row="1">
                         <Grid Margin="{ext:Space 1}">
                             <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" IsVisible="{Binding !UseFlatView}">
                                 <ListBox ItemsSource="{Binding FileViewCollection}" SelectionMode="Multiple"
@@ -124,15 +124,17 @@
                                                          <MenuItem Header="Copy Path" Command="{Binding CopyPathCommand}"/>
                                                      </ContextMenu>
                                                  </StackPanel.ContextMenu>
-                                                 <controls:FABorder>
+                                                 <controls:ContentCard CornerRadius="12" Background="{StaticResource FPButtonBackgroundBright}" Height="96">
                                                      <Grid>
-                                                         <material:MaterialIcon Width="48" Height="64" IsVisible="{Binding FileBitmap, Converter={x:Static ObjectConverters.IsNull}}"
-                                                                                Classes.File="{Binding Type, 
-                                                                       Converter={StaticResource EnumEquals}, 
-                                                                       ConverterParameter={x:Static files:ENodeType.File}}"
-                                                                                Classes.Folder="{Binding Type, 
-                                                                       Converter={StaticResource EnumEquals}, 
-                                                                       ConverterParameter={x:Static files:ENodeType.Folder}}">
+                                                         <material:MaterialIcon Margin="{ext:Space 3}" Height="NaN" Width="NaN"
+                                                             HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                                             IsVisible="{Binding FileBitmap, Converter={x:Static ObjectConverters.IsNull}}"
+                                                             Classes.File="{Binding Type,
+                                                                Converter={StaticResource EnumEquals}, 
+                                                                ConverterParameter={x:Static files:ENodeType.File}}"
+                                                             Classes.Folder="{Binding Type, 
+                                                                Converter={StaticResource EnumEquals}, 
+                                                                ConverterParameter={x:Static files:ENodeType.Folder}}">
                                                              <material:MaterialIcon.Styles>
                                                                  <Style Selector="material|MaterialIcon.File">
                                                                      <Style.Setters>
@@ -146,11 +148,13 @@
                                                                  </Style>
                                                              </material:MaterialIcon.Styles>
                                                          </material:MaterialIcon>
-                                                         <Image Source="{Binding FileBitmap}" Width="48" Height="64"
-                                                                IsVisible="{Binding FileBitmap, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                                                         <Border CornerRadius="8" ClipToBounds="True" Margin="{ext:Space 1}"
+                                                                 IsVisible="{Binding FileBitmap, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                                             <Image Source="{Binding FileBitmap}" Stretch="UniformToFill"/>
+                                                         </Border>
+                                                       
                                                      </Grid>
-                                                 </controls:FABorder>
-                                                 
+                                                 </controls:ContentCard>
                                                  
                                                  <TextBlock Text="{Binding NameWithoutExtension}" Margin="{ext:Space 0, 0.5, 0, 0}"
                                                             Classes="CaptionTextBlockStyle" HorizontalAlignment="Center" 
@@ -160,7 +164,7 @@
                                     </ListBox.ItemTemplate>
                                     <ListBox.ItemsPanel>
                                         <ItemsPanelTemplate>
-                                            <wrapPanel:VirtualizingWrapPanel/>
+                                            <wrapPanel:VirtualizingWrapPanel ItemRealized="OnItemRealized"/>
                                         </ItemsPanelTemplate>
                                     </ListBox.ItemsPanel>
                                 </ListBox>
@@ -202,7 +206,7 @@
                                 </Grid>
                             </ScrollViewer>
                         </Grid>
-                    </controls:FABorder>
+                    </controls:ContentCard>
                     
                 </Grid>
                 

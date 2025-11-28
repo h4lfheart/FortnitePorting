@@ -69,9 +69,9 @@ public partial class BlenderInstallation(string blenderExecutablePath) : Observa
         {
             if (!didSyncProperly)
             {
-                Info.Dialog("Plugin Installation Failed", 
+                Info.Message("Plugin Installation Failed", 
                     "Failed to install the plugin, please install it manually by dragging and dropping the Fortnite Porting plugin in Blender.", 
-                    "Plugins Folder", () => App.Launch(App.PluginsFolder.FullName));
+                    useButton: true, buttonTitle: "Open Plugins Folder", buttonCommand: () => App.Launch(App.PluginsFolder.FullName));
             }
         }
         

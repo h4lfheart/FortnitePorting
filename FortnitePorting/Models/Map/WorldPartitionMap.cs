@@ -19,6 +19,7 @@ using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
+using DynamicData;
 using FortnitePorting.Application;
 using FortnitePorting.Exporting;
 using FortnitePorting.Extensions;
@@ -39,29 +40,25 @@ namespace FortnitePorting.Models.Map;
 
 public partial class WorldPartitionMap : ObservableObject
 {
-    [ObservableProperty] private MapInfo _info;
+    [ObservableProperty] private MapInfo _mapInfo;
     [ObservableProperty] private Bitmap _mapBitmap = ImageExtensions.AvaresBitmap("avares://FortnitePorting/Assets/Transparent1x1.png");
     [ObservableProperty] private Bitmap _maskBitmap;
     [ObservableProperty] private string _worldName = string.Empty;
     [ObservableProperty] private bool _dataLoaded = false;
     [ObservableProperty] private EMapTextureExportType _textureExportType = EMapTextureExportType.Minimap;
     
-    [ObservableProperty] private bool _worldFlagsMainActors = true;
-    [ObservableProperty] private bool _worldFlagsWorldPartition = true;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(CanExport))] private bool _worldFlagsMainLevel = false;
+    
+    [ObservableProperty] private bool _worldFlagsActors = true;
     [ObservableProperty] private bool _worldFlagsInstancedFoliage = true;
-    [ObservableProperty] private bool _worldFlagsLandscape = true;
+    [ObservableProperty] private bool _worldFlagsLandscape = false;
     [ObservableProperty] private bool _worldFlagsHLODs = false;
     
-    [ObservableProperty] private bool _worldPartitionFlagsMainActors = true;
-    [ObservableProperty] private bool _worldPartitionFlagsInstancedFoliage = true;
-    [ObservableProperty] private bool _worldPartitionFlagsHLODs = false;
-    
-    [ObservableProperty] private ObservableCollection<WorldPartitionGridMap> _selectedMaps = [];
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(CanExport))] private ObservableCollection<WorldPartitionGridMap> _selectedMaps = [];
     
     [ObservableProperty] private ObservableCollection<WorldPartitionGrid> _grids = [];
-    
-    public int GridCount => Grids.Sum(grid => grid.Maps.Count);
-    
+
+    public bool CanExport => SelectedMaps.Count > 0 || WorldFlagsMainLevel;
     
     public DirectoryInfo MapsFolder => new(Path.Combine(App.ApplicationDataFolder.FullName, "Maps"));
     private string ExportPath => Path.Combine(MapsFolder.FullName, WorldName);
@@ -74,27 +71,27 @@ public partial class WorldPartitionMap : ObservableObject
 
     public WorldPartitionMap(MapInfo info)
     {
-        Info = info;
+        MapInfo = info;
         
-        Grids.CollectionChanged += (sender, args) => OnPropertyChanged(nameof(GridCount));
+        SelectedMaps.CollectionChanged += (sender, args) => OnPropertyChanged(nameof(CanExport));
     }
 
     public async Task Load()
     {
         Grids = [];
         
-        if (!Info.IsNonDisplay)
+        if (!MapInfo.IsNonDisplay)
         {
-            var maskTexture = await UEParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>(Info.UseMask ? Info.MaskPath : "FortniteGame/Content/Global/Textures/Default/Blanks/T_White");
-            MaskBitmap = maskTexture.Decode()!.ToWriteableBitmap();
+            var maskTexture = await UEParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>(MapInfo.UseMask ? MapInfo.MaskPath : "FortniteGame/Content/Global/Textures/Default/Blanks/T_White");
+            MaskBitmap = maskTexture!.Decode()!.ToSkBitmap().ToOpacityMask().ToWriteableBitmap();
         
-            var mapTexture = await UEParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>(Info.MinimapPath);
+            var mapTexture = await UEParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>(MapInfo.MinimapPath);
             MapBitmap = mapTexture.Decode()!.ToWriteableBitmap();
         }
         
-        WorldName = Info.MapPath.SubstringAfterLast("/");
+        WorldName = MapInfo.MapPath.SubstringAfterLast("/");
         
-        _world = await UEParse.Provider.SafeLoadPackageObjectAsync<UWorld>(Info.MapPath);
+        _world = await UEParse.Provider.SafeLoadPackageObjectAsync<UWorld>(MapInfo.MapPath);
         _level = await _world.PersistentLevel.LoadAsync<ULevel>();
 
         async Task RuntimeHash(UObject runtimeHash)
@@ -119,8 +116,8 @@ public partial class WorldPartitionMap : ObservableObject
                         position = bounds.GetCenter();
 
                         // please don't break other maps
-                        position.X -= position.X % Info.MinGridDistance;
-                        position.Y -= position.Y % Info.MinGridDistance;
+                        position.X -= position.X % MapInfo.MinGridDistance;
+                        position.Y -= position.Y % MapInfo.MinGridDistance;
                     }
 
                     FSoftObjectPath? worldAssetPath = null;
@@ -146,7 +143,7 @@ public partial class WorldPartitionMap : ObservableObject
                     }
                     else
                     {
-                        var grid = new WorldPartitionGrid(position, Info);
+                        var grid = new WorldPartitionGrid(position, MapInfo);
                         grid.Maps.Add(new WorldPartitionGridMap(worldAsset.AssetPathName.Text));
                         Grids.Add(grid);
                     }
@@ -173,7 +170,7 @@ public partial class WorldPartitionMap : ObservableObject
                     }
                     else
                     {
-                        var grid = new WorldPartitionGrid(position, Info);
+                        var grid = new WorldPartitionGrid(position, MapInfo);
                         grid.Maps.Add(new WorldPartitionGridMap(worldAsset.AssetPathName.Text));
                         Grids.Add(grid);
                     }
@@ -210,6 +207,21 @@ public partial class WorldPartitionMap : ObservableObject
         Grids.ForEach(grid => grid.IsSelected = false);
         SelectedMaps.Clear();
     }
+    
+    [RelayCommand]
+    public void SelectAllMaps()
+    {
+        SelectedMaps.Clear();
+        Grids.ForEach(grid => grid.IsSelected = true);
+        SelectedMaps.AddRange(Grids.SelectMany(x => x.Maps));
+    }
+    
+    [RelayCommand]
+    public async Task SetTextureExportType(EMapTextureExportType type)
+    {
+        TextureExportType = type;
+    }
+
 
     [RelayCommand]
     public async Task ExportImage()
@@ -227,30 +239,21 @@ public partial class WorldPartitionMap : ObservableObject
     }
     
     [RelayCommand]
-    public async Task ExportMainLevel()
+    public async Task Export()
     {
         var meta = AppSettings.ExportSettings.CreateExportMeta(MapVM.ExportLocation);
         meta.WorldFlags = 0;
-        if (WorldFlagsMainActors) meta.WorldFlags |= EWorldFlags.Actors;
-        if (WorldFlagsWorldPartition) meta.WorldFlags |= EWorldFlags.WorldPartitionGrids;
+        if (WorldFlagsActors) meta.WorldFlags |= EWorldFlags.Actors;
         if (WorldFlagsInstancedFoliage) meta.WorldFlags |= EWorldFlags.InstancedFoliage;
         if (WorldFlagsLandscape) meta.WorldFlags |= EWorldFlags.Landscape;
         if (WorldFlagsHLODs) meta.WorldFlags |= EWorldFlags.HLODs;
         
-        await Exporter.Export(_world, EExportType.World, meta);
-    }
-    
-    [RelayCommand]
-    public async Task ExportWorldPartition()
-    {
+        if (WorldFlagsMainLevel)
+            await Exporter.Export(_world, EExportType.World, meta);
+        
         SelectedMaps.ForEach(map => map.Status = EWorldPartitionGridMapStatus.Waiting);
         
-        var meta = AppSettings.ExportSettings.CreateExportMeta(MapVM.ExportLocation);
-        meta.WorldFlags = 0;
-        if (WorldPartitionFlagsMainActors) meta.WorldFlags |= EWorldFlags.Actors;
-        if (WorldPartitionFlagsInstancedFoliage) meta.WorldFlags |= EWorldFlags.InstancedFoliage;
-        if (WorldPartitionFlagsHLODs) meta.WorldFlags |= EWorldFlags.HLODs;
-        foreach (var map in SelectedMaps)
+        foreach (var map in SelectedMaps.ToArray())
         {
             map.Status = EWorldPartitionGridMapStatus.Exporting;
             
@@ -261,18 +264,20 @@ public partial class WorldPartitionMap : ObservableObject
             
             map.Status = EWorldPartitionGridMapStatus.Finished;
         }
-
+        
         if (SupaBase.IsLoggedIn)
         {
             await SupaBase.PostExports(
                 SelectedMaps
                     .Select(map => map.Path)
+                    .Concat([_world.GetPathName()])
             );
         }
         
         
         SelectedMaps.ForEach(map => map.Status = EWorldPartitionGridMapStatus.None);
         ClearSelectedMaps();
+        
     }
 
     [RelayCommand]
@@ -372,7 +377,7 @@ public partial class WorldPartitionMap : ObservableObject
                 async Task ExportHeightMap(string folderName = "")
                 {
                     var heightImage = new Image<L16>(2048, 2048);
-                    heightImage.Mutate(ctx => ctx.Fill(Info.Name.Equals("Rufus") ? Color.Black : HeightBaseColor));
+                    heightImage.Mutate(ctx => ctx.Fill(MapInfo.Name.Equals("Rufus") ? Color.Black : HeightBaseColor));
 
                     var minX = Math.Abs(heightTileInfos.Min(x => x.X));
                     var minY = Math.Abs(heightTileInfos.Min(x => x.Y));
@@ -393,7 +398,7 @@ public partial class WorldPartitionMap : ObservableObject
                     await heightImage.SaveAsPngAsync(GetExportPath($"Height_{WorldName}", folderName));
                 }
                 
-                if (Info.Name.Equals("Rufus"))
+                if (MapInfo.Name.Equals("Rufus"))
                 {
                     await ExportHeightMap("BaseMap");
                     await ExportHeightMap("SnowBiome");
@@ -429,7 +434,7 @@ public partial class WorldPartitionMap : ObservableObject
                     await normalImage.SaveAsPngAsync(GetExportPath($"Normal_{WorldName}", folderName));
                 }
                 
-                if (Info.Name.Equals("Rufus"))
+                if (MapInfo.Name.Equals("Rufus"))
                 {
                     await ExportNormalMap("BaseMap", info => info.Image.Width <= 128 || info.Image.Height <= 128);
                     await ExportNormalMap("SnowBiome", info => info.Image.Width > 128 || info.Image.Height > 128);
@@ -475,7 +480,7 @@ public partial class WorldPartitionMap : ObservableObject
                 
                 foreach (var (layerName, weightTileInfos) in weightmapTileInfos)
                 {
-                    if (Info.Name.Equals("Rufus"))
+                    if (MapInfo.Name.Equals("Rufus"))
                     {
                         await ExportWeightMap(layerName, weightTileInfos, "BaseMap", info => info.Image.Width <= 128 || info.Image.Height <= 128);
                         await ExportWeightMap(layerName, weightTileInfos, "SnowBiome", info => info.Image.Width > 128 || info.Image.Height > 128);
@@ -521,7 +526,7 @@ public partial class WorldPartitionMap : ObservableObject
 
     public override string ToString()
     {
-        return $"{Info.SourceName}: {Info.Name}";
+        return $"{MapInfo.SourceName}: {MapInfo.Name}";
     }
 }
 

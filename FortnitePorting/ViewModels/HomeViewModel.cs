@@ -18,6 +18,7 @@ using FortnitePorting.Models.Supabase.Tables;
 
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
+using FortnitePorting.Shared.Extensions;
 using FortnitePorting.ViewModels.Settings;
 using Serilog;
 using Supabase.Postgrest;
@@ -42,8 +43,8 @@ public partial class HomeViewModel() : ViewModelBase
     {
         TaskService.Run(async () =>
         {
-            News = [..await Api.FortnitePorting.News()];
-            FeaturedArt = [..await Api.FortnitePorting.FeaturedArt()];
+            News = [..(await Api.FortnitePorting.News()).Take(3)];
+            FeaturedArt = [..(await Api.FortnitePorting.FeaturedArt()).Random(3)];
             
             await UEParse.Initialize();
             await FilesVM.Initialize();
@@ -70,6 +71,16 @@ public partial class HomeViewModel() : ViewModelBase
                 await dialog.ShowAsync();
             });
         }
+    }
+
+    public void OpenNews(NewsResponse news)
+    {
+        Info.Dialog($"{news.Title}: {news.SubTitle}", news.Description);
+    }
+
+    public void OpenFeaturedArt(FeaturedArtResponse featured)
+    {
+        App.Launch(featured.Social);
     }
     
     public void LaunchDiscord()

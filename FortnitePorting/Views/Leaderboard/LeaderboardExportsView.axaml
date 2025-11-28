@@ -14,7 +14,7 @@
             <ItemsControl ItemsSource="{Binding Exports}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <controls:FABorder Margin="{ext:Space 0, 0, 0, 1}">
+                        <controls:ContentCard Margin="{ext:Space 0, 0, 0, 1}">
                             <Grid Margin="{ext:Space 1}">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
@@ -41,14 +41,16 @@
                                     </Image.RenderTransform>
                                 </Image>
                                 <Grid Grid.Column="4" VerticalAlignment="Center" Margin="{ext:Space 1, 0, 0, 0}" RowDefinitions="* *">
-                                    <TextBlock Grid.Row="0" Text="{Binding ObjectName}" Classes="BodyStrongTextBlockStyle"/>
-                                    <TextBlock Grid.Row="1" Text="{Binding ID}" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush" TextWrapping="Wrap"/>
+                                    <TextBlock Grid.Row="0" Text="{Binding ObjectName}" 
+                                               Classes="BodyTextBlockStyle"/>
+                                    <TextBlock Grid.Row="1" Text="{Binding ID}" 
+                                               Classes="CaptionTextBlockStyle TextFillColorSecondaryBrush" TextWrapping="Wrap"/>
                                 </Grid>
                                 <TextBlock Grid.Column="6" Text="{Binding ExportCount, StringFormat=N0}" 
                                            Classes="SubtitleTextBlockStyle" Margin="{ext:Space 0, 0, 1, 0}"
                                            HorizontalAlignment="Right" VerticalAlignment="Center"/>
                             </Grid>
-                        </controls:FABorder>
+                        </controls:ContentCard>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>

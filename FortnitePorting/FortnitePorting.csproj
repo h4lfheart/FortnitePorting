@@ -18,6 +18,7 @@
         <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.2" />
         <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.3.2" />
         <PackageReference Include="Avalonia_Gif" Version="1.0.0" />
+        <PackageReference Include="AvaSourceGenerators" Version="0.2.0" />
         <PackageReference Include="ConcurrentHashSet" Version="1.3.0" />
         <PackageReference Include="DesktopNotifications" Version="1.3.1" />
         <PackageReference Include="DesktopNotifications.Avalonia" Version="1.3.1" />
@@ -53,19 +54,31 @@
     </ItemGroup>
     
     <ItemGroup>
-      <ProjectReference Include="..\Dependencies\CUE4Parse\CUE4Parse-Conversion\CUE4Parse-Conversion.csproj" />
-      <ProjectReference Include="..\Dependencies\CUE4Parse\CUE4Parse\CUE4Parse.csproj" />
-      <ProjectReference Include="..\FortnitePorting.Rendering\FortnitePorting.Rendering.csproj" />
-      <ProjectReference Include="..\FortnitePorting.Plugins\FortnitePorting.Plugins.csproj" />
-      <ProjectReference Include="..\FortnitePorting.Shared\FortnitePorting.Shared.csproj" />
+        <ProjectReference Include="..\Dependencies\CUE4Parse\CUE4Parse-Conversion\CUE4Parse-Conversion.csproj" />
+        <ProjectReference Include="..\Dependencies\CUE4Parse\CUE4Parse\CUE4Parse.csproj" />
+        <ProjectReference Include="..\FortnitePorting.Rendering\FortnitePorting.Rendering.csproj" />
+        <ProjectReference Include="..\FortnitePorting.Plugins\FortnitePorting.Plugins.csproj" />
+        <ProjectReference Include="..\FortnitePorting.Shared\FortnitePorting.Shared.csproj" />
         <ProjectReference Include="..\Dependencies\FluentAvalonia.BreadcrumbBar\FluentAvalonia.BreadcrumbBar\FluentAvalonia.BreadcrumbBar.csproj" />
     </ItemGroup>
     
     <ItemGroup>
-      <Compile Update="Windows\SoundCuePreviewWindow.axaml.cs">
-        <DependentUpon>SoundCuePreviewWindow.axaml</DependentUpon>
+      <Compile Update="Controls\Navigation\Sidebar\Sidebar.axaml.cs">
+        <DependentUpon>Sidebar.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Controls\Navigation\Sidebar\SidebarItemButton.axaml.cs">
+        <DependentUpon>SidebarItemButton.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Controls\Navigation\Sidebar\SidebarItemSeparator.axaml.cs">
+        <DependentUpon>SidebarItemSeparator.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Controls\Navigation\Sidebar\SidebarItemText.axaml.cs">
+        <DependentUpon>SidebarItemText.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
     </ItemGroup>
-
+    
 </Project>

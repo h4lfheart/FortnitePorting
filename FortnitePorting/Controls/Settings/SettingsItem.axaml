@@ -1,0 +1,52 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             xmlns:settings="clr-namespace:FortnitePorting.Controls.Settings"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="FortnitePorting.Controls.Settings.SettingsItem"
+             MinHeight="68" ClipToBounds="False">
+    <Grid RowDefinitions="* Auto">
+        <controls:ContentCard Grid.Row="0">
+            <Grid ColumnDefinitions="* * 8 Auto" VerticalAlignment="Center" Margin="{ext:Space 2}">
+                <StackPanel Grid.Column="0"
+                            VerticalAlignment="Center" HorizontalAlignment="Left"
+                            Orientation="Vertical">
+                    <TextBlock Text="{Binding Title, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}}"
+                               IsVisible="{Binding Header, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}, Converter={x:Static ObjectConverters.IsNull}}"
+                               TextWrapping="Wrap"
+                               FontFamily="{StaticResource SFTextRegular}"
+                               Classes="BodyTextBlockStyle"/>
+                
+                    <ContentPresenter HorizontalAlignment="Right" VerticalAlignment="Center"
+                                      IsVisible="{Binding Header, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}, Converter={x:Static ObjectConverters.IsNotNull}}"
+
+                                      Content="{Binding Header, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}}"/>
+
+                    <TextBlock Text="{Binding Description, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}}"
+                               TextWrapping="Wrap"
+                               FontFamily="{StaticResource SFTextRegular}"
+                               Classes="CaptionTextBlockStyle TextFillColorSecondaryBrush"/>
+                </StackPanel>
+            
+                <ContentPresenter Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                  Content="{Binding Footer, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}}"/>
+                
+                <ToggleButton Grid.Column="3" IsChecked="{Binding Model.IsExpanded, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}}"
+                        IsVisible="{Binding Content, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}, Converter={x:Static ObjectConverters.IsNotNull}}">
+                    <avalonia:MaterialIcon Kind="{Binding Model.ExpandButtonIcon, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}}"/>
+                </ToggleButton>
+
+            </Grid>
+        </controls:ContentCard>
+        
+        <controls:ContentCard Grid.Row="1" Margin="{ext:Space 0, 1, 0, 0}"
+                              IsVisible="{Binding Model.IsExpanded, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}}">
+            <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="{ext:Space 2}"
+                              Content="{Binding Content, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}}"/>
+        </controls:ContentCard>
+    </Grid>
+</UserControl>

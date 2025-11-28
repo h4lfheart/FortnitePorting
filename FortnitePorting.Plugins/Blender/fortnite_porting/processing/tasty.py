@@ -89,7 +89,18 @@ def create_tasty_rig(context, target_skeleton, options: TastyRigOptions):
     extra_collection = armature_data.collections.new("Extra")
     extra_collection.is_visible = False
     
-    # fill missing ik parts
+    # remove existing ik bones
+    bpy.context.view_layer.objects.active = target_skeleton
+    target_skeleton.select_set(True)
+
+    bpy.ops.object.mode_set(mode='EDIT')
+    bpy.ops.armature.select_all(action='DESELECT')
+    bpy.ops.object.select_pattern(pattern="*ik_*")
+    bpy.ops.armature.delete()
+    bpy.ops.object.mode_set(mode='OBJECT')
+    target_skeleton.select_set(False)
+    
+    # fill missing ik parts from master skel
     master_skeletal_mesh = context.import_model(context.get_metadata("MasterSkeletalMesh"))
     master_skeletal_mesh.select_set(False)
     

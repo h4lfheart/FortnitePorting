@@ -511,6 +511,16 @@ public class MeshExport : BaseExport
                 
                 break;
             }
+            case EExportType.SideKick:
+            {
+                var parts = asset.GetOrDefault<UObject[]>("CharacterParts", []);
+                foreach (var part in parts)
+                {
+                    Meshes.AddIfNotNull(Exporter.CharacterPart(part));
+                }
+                
+                break;
+            }
         }
     }
 

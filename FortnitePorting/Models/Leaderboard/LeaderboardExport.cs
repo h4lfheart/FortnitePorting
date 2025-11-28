@@ -48,9 +48,7 @@ public partial class LeaderboardExport : ObservableObject
     // returns if is a valid export
     public async Task<bool> Load()
     {
-        // TODO do the dependency injection and make an exporter service
-        var assetLoaderService = AppServices.Services.GetRequiredService<AssetLoaderService>();
-        var assetLoaders = assetLoaderService.Categories
+        var assetLoaders = AssetLoading.Categories
             .SelectMany(category => category.Loaders)
             .ToArray();
         

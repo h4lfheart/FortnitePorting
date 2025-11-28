@@ -14,19 +14,20 @@
              x:Class="FortnitePorting.Views.Setup.FinishedSetupView"
              x:DataType="setup:FinishedSetupViewModel">
     <StackPanel VerticalAlignment="Center">
-        <TextBlock Text="Setup Complete" Classes="TitleLargeTextBlockStyle" 
+        <TextBlock Text="Setup Complete" FontFamily="{StaticResource SFDisplayBold}" FontSize="40" 
                    HorizontalAlignment="Center" VerticalAlignment="Center"
                    Margin="{ext:Space 0, 0, 0, 1}">
             <TextBlock.Effect>
-                <DropShadowEffect BlurRadius="15" Color="#5F000000" OffsetX="0" OffsetY="0" />
+                <DropShadowEffect BlurRadius="15" Color="#8F000000" OffsetX="0" OffsetY="0" />
             </TextBlock.Effect>
         </TextBlock>
+        
         <TextBlock Text="Press continue to begin using Fortnite Porting!" 
                    HorizontalAlignment="Center" VerticalAlignment="Center" 
                    Margin="{ext:Space 0, 0, 0, 2}"
                    Classes="BodyTextBlockStyle TextFillColorSecondaryBrush">
             <TextBlock.Effect>
-                <DropShadowEffect BlurRadius="15" Color="#5F000000" OffsetX="0" OffsetY="0" />
+                <DropShadowEffect BlurRadius="15" Color="#8F000000" OffsetX="0" OffsetY="0" />
             </TextBlock.Effect>
         </TextBlock>
         

@@ -59,7 +59,7 @@ public partial class InstallationProfile : ObservableValidator
     [JsonIgnore] public bool EncryptionKeyEnabled => IsCustom;
     [JsonIgnore] public bool MappingsFileEnabled => IsCustom;
     [JsonIgnore] public bool TextureStreamingEnabled => FortniteVersion is EFortniteVersion.LatestInstalled;
-    [JsonIgnore] public bool LoadCreativeMapsEnabled => FortniteVersion is EFortniteVersion.LatestInstalled;
+    [JsonIgnore] public bool LoadCreativeMapsEnabled => FortniteVersion is EFortniteVersion.LatestInstalled && SupaBase.Permissions.CanExportUEFN;
     
     public async Task BrowseArchivePath()
     {

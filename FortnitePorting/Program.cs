@@ -71,11 +71,19 @@ internal static class Program
     
     private static void OpenExistingApp(string[] args)
     {
-        using var pipe = new NamedPipeClientStream("FortnitePorting");
-        pipe.Connect(1000);
+        try
+        {
+            using var pipe = new NamedPipeClientStream("FortnitePorting");
+            pipe.Connect(1000);
 
-        var writer = new BinaryWriter(pipe);
-        writer.Write(args[0]);
+            var writer = new BinaryWriter(pipe);
+            writer.Write(args[0]);
+        }
+        catch (Exception e)
+        {
+            Log.Error(e.ToString());
+            StartApp(args);
+        }
     }
 
     private static AppBuilder BuildAvaloniaApp()

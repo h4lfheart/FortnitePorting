@@ -5,6 +5,8 @@ using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
+using FortnitePorting.Controls.Navigation;
+using FortnitePorting.Controls.Navigation.Sidebar;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Shared;
@@ -18,7 +20,7 @@ public partial class PluginView : ViewBase<PluginViewModel>
     public PluginView() : base(AppSettings.Plugin)
     {
         InitializeComponent();
-        Navigation.Plugin.Initialize(NavigationView);
+        Navigation.Plugin.Initialize(Sidebar, ContentFrame);
         Navigation.Plugin.AddTypeResolver<EExportLocation>(location =>
         {
             var name = location.ToString();
@@ -27,14 +29,12 @@ public partial class PluginView : ViewBase<PluginViewModel>
             var type = Type.GetType(viewName);
             return type;
         });
-        
-        Navigation.Plugin.Open(EExportLocation.Blender);
     }
     
-    private void OnItemInvoked(object? sender, NavigationViewItemInvokedEventArgs e)
+    private void OnItemSelected(object? sender, SidebarItemSelectedArgs e)
     {
-        if (e.InvokedItemContainer.Tag is not EExportLocation exportType) return;
+        if (e.Tag is not EExportLocation exportLocation) return;
 
-        Navigation.Plugin.Open(exportType);
+        Navigation.Plugin.Open(exportLocation);
     }
 }

@@ -42,6 +42,18 @@ public class VirtualizingWrapPanel : VirtualizingPanel
     private static readonly AttachedProperty<bool> ItemIsOwnContainerProperty =
         AvaloniaProperty.RegisterAttached<VirtualizingWrapPanel, Control, bool>("ItemIsOwnContainer");
 
+    public static readonly RoutedEvent<ItemRealizedEventArgs> ItemRealizedEvent =
+        RoutedEvent.Register<VirtualizingWrapPanel, ItemRealizedEventArgs>(
+            nameof(ItemRealized),
+            RoutingStrategies.Bubble);
+
+    public event EventHandler<ItemRealizedEventArgs>? ItemRealized
+    {
+        add => AddHandler(ItemRealizedEvent, value);
+        remove => RemoveHandler(ItemRealizedEvent, value);
+    }
+
+
     private static readonly Rect s_invalidViewport = new(double.PositiveInfinity, double.PositiveInfinity, 0, 0);
     private readonly Action<Control, int> _recycleElement;
     private readonly Action<Control> _recycleElementOnItemRemoved;
@@ -159,6 +171,17 @@ public class VirtualizingWrapPanel : VirtualizingPanel
         }
     }
 
+
+    public static readonly StyledProperty<bool> DistributeEvenlyProperty =
+        AvaloniaProperty.Register<VirtualizingWrapPanel, bool>(nameof(DistributeEvenly), false);
+
+    public bool DistributeEvenly
+    {
+        get => GetValue(DistributeEvenlyProperty);
+        set => SetValue(DistributeEvenlyProperty, value);
+    }
+
+
     protected override Size ArrangeOverride(Size finalSize)
     {
         if (_realizedElements is null)
@@ -169,18 +192,149 @@ public class VirtualizingWrapPanel : VirtualizingPanel
         try
         {
             var orientation = Orientation;
+            var horizontal = orientation == Orientation.Horizontal;
 
-            for (var i = 0; i < _realizedElements.Count; ++i)
+            if (!DistributeEvenly)
             {
-                var e = _realizedElements.Elements[i];
-
-                if (e is not null)
+                for (var i = 0; i < _realizedElements.Count; ++i)
                 {
-                    var sizeUV = _realizedElements.SizeUV;
-                    var positionUV = _realizedElements.PositionsUV[i];
-                    var rect = new Rect(positionUV.Width, positionUV.Height, sizeUV.Width, sizeUV.Height);
-                    e.Arrange(rect);
-                    _scrollViewer?.RegisterAnchorCandidate(e);
+                    var e = _realizedElements.Elements[i];
+
+                    if (e is not null)
+                    {
+                        var sizeUV = _realizedElements.SizeUV;
+                        var positionUV = _realizedElements.PositionsUV[i];
+                        var rect = new Rect(positionUV.Width, positionUV.Height, sizeUV.Width, sizeUV.Height);
+                        e.Arrange(rect);
+                        _scrollViewer?.RegisterAnchorCandidate(e);
+                    }
+                }
+            }
+            else
+            {
+                var rows = new Dictionary<double, List<(Control element, UVSize position, int index)>>();
+
+                for (var i = 0; i < _realizedElements.Count; ++i)
+                {
+                    var e = _realizedElements.Elements[i];
+                    if (e is not null)
+                    {
+                        var positionUV = _realizedElements.PositionsUV[i];
+                        var vPos = Math.Round(positionUV.V, 2);
+
+                        if (!rows.ContainsKey(vPos))
+                            rows[vPos] = new List<(Control, UVSize, int)>();
+
+                        rows[vPos].Add((e, positionUV, i));
+                    }
+                }
+
+                var sizeUV = _realizedElements.SizeUV;
+                var availableU = horizontal ? finalSize.Width : finalSize.Height;
+
+                var totalItemCount = Items.Count;
+                var lastItemIndex = totalItemCount - 1;
+                var lastRealizedIndex = _realizedElements.LastIndex;
+                var isLastItemRealized = lastRealizedIndex >= 0 && lastRealizedIndex == lastItemIndex;
+
+                double? lastRowV = null;
+                if (isLastItemRealized && _realizedElements.Count > 0)
+                {
+                    for (var i = _realizedElements.Count - 1; i >= 0; i--)
+                    {
+                        var element = _realizedElements.Elements[i];
+                        if (element is not null)
+                        {
+                            var positions = _realizedElements.PositionsUV;
+                            if (i < positions.Count)
+                            {
+                                lastRowV = Math.Round(positions[i].V, 2);
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                foreach (var kvp in rows)
+                {
+                    var vPos = kvp.Key;
+                    var row = kvp.Value;
+                    var isLastRow = lastRowV.HasValue && Math.Abs(vPos - lastRowV.Value) < 0.01;
+
+                    row.Sort((a, b) => a.position.U.CompareTo(b.position.U));
+
+                    var rowItemCount = row.Count;
+
+                    if (isLastRow)
+                    {
+                        var itemsPerFullRow = Math.Max(1, (int)(availableU / sizeUV.U));
+                        var totalItemWidthFullRow = itemsPerFullRow * sizeUV.U;
+                        var totalSpacingFullRow = availableU - totalItemWidthFullRow;
+                        var spacingFullRow = totalSpacingFullRow / (itemsPerFullRow + 1);
+
+                        for (var i = 0; i < rowItemCount; i++)
+                        {
+                            var (element, positionUV, _) = row[i];
+                            var distributedPosition = new UVSize(orientation)
+                            {
+                                U = spacingFullRow * (i + 1) + sizeUV.U * i,
+                                V = positionUV.V
+                            };
+
+                            var rect = new Rect(
+                                distributedPosition.Width,
+                                distributedPosition.Height,
+                                sizeUV.Width,
+                                sizeUV.Height);
+
+                            element.Arrange(rect);
+                            _scrollViewer?.RegisterAnchorCandidate(element);
+                        }
+                    }
+                    else if (rowItemCount == 1)
+                    {
+                        var (element, positionUV, _) = row[0];
+                        var offset = Math.Max(0, (availableU - sizeUV.U) / 2);
+                        var centeredPosition = new UVSize(orientation)
+                        {
+                            U = offset,
+                            V = positionUV.V
+                        };
+
+                        var rect = new Rect(
+                            centeredPosition.Width,
+                            centeredPosition.Height,
+                            sizeUV.Width,
+                            sizeUV.Height);
+
+                        element.Arrange(rect);
+                        _scrollViewer?.RegisterAnchorCandidate(element);
+                    }
+                    else
+                    {
+                        var totalItemWidth = rowItemCount * sizeUV.U;
+                        var totalSpacing = availableU - totalItemWidth;
+                        var spacing = totalSpacing / (rowItemCount + 1);
+
+                        for (var i = 0; i < rowItemCount; i++)
+                        {
+                            var (element, positionUV, _) = row[i];
+                            var distributedPosition = new UVSize(orientation)
+                            {
+                                U = spacing * (i + 1) + sizeUV.U * i,
+                                V = positionUV.V
+                            };
+
+                            var rect = new Rect(
+                                distributedPosition.Width,
+                                distributedPosition.Height,
+                                sizeUV.Width,
+                                sizeUV.Height);
+
+                            element.Arrange(rect);
+                            _scrollViewer?.RegisterAnchorCandidate(element);
+                        }
+                    }
                 }
             }
 
@@ -217,11 +371,13 @@ public class VirtualizingWrapPanel : VirtualizingPanel
                 _realizedElements.ItemsInserted(e.NewStartingIndex, e.NewItems!.Count, _updateElementIndex);
                 break;
             case NotifyCollectionChangedAction.Remove:
-                _realizedElements.ItemsRemoved(e.OldStartingIndex, e.OldItems!.Count, _updateElementIndex, _recycleElementOnItemRemoved);
+                _realizedElements.ItemsRemoved(e.OldStartingIndex, e.OldItems!.Count, _updateElementIndex,
+                    _recycleElementOnItemRemoved);
                 break;
             case NotifyCollectionChangedAction.Replace:
             case NotifyCollectionChangedAction.Move:
-                _realizedElements.ItemsRemoved(e.OldStartingIndex, e.OldItems!.Count, _updateElementIndex, _recycleElementOnItemRemoved);
+                _realizedElements.ItemsRemoved(e.OldStartingIndex, e.OldItems!.Count, _updateElementIndex,
+                    _recycleElementOnItemRemoved);
                 _realizedElements.ItemsInserted(e.NewStartingIndex, e.NewItems!.Count, _updateElementIndex);
                 break;
             case NotifyCollectionChangedAction.Reset:
@@ -338,10 +494,13 @@ public class VirtualizingWrapPanel : VirtualizingPanel
             _scrollToIndex = index;
 
             var viewport = _viewport != s_invalidViewport ? _viewport : EstimateViewport();
-            var viewportEnd = Orientation == Orientation.Horizontal ? new UVSize(Orientation, viewport.Right, viewport.Bottom) : new UVSize(Orientation, viewport.Bottom, viewport.Right);
+            var viewportEnd = Orientation == Orientation.Horizontal
+                ? new UVSize(Orientation, viewport.Right, viewport.Bottom)
+                : new UVSize(Orientation, viewport.Bottom, viewport.Right);
 
             // Get the expected position of the element and put it in place.
-            var anchorUV = _realizedElements.GetOrEstimateElementUV(index, ref _lastEstimatedElementSizeUV, viewportEnd);
+            var anchorUV =
+                _realizedElements.GetOrEstimateElementUV(index, ref _lastEstimatedElementSizeUV, viewportEnd);
             size = new Size(isItemWidthSet ? itemWidth : _scrollToElement.DesiredSize.Width,
                 isItemHeightSet ? itemHeight : _scrollToElement.DesiredSize.Height);
             var rect = new Rect(anchorUV.Width, anchorUV.Height, size.Width, size.Height);
@@ -461,8 +620,8 @@ public class VirtualizingWrapPanel : VirtualizingPanel
         {
             // Since ItemWidth and ItemHeight are set, we simply compute the actual size
             var uLength = viewport.viewportUVEnd.U;
-            var estimatedItemsPerU = (int) (uLength / estimatedSize.U);
-            var estimatedULanes = Math.Ceiling((double) itemCount / estimatedItemsPerU);
+            var estimatedItemsPerU = (int)(uLength / estimatedSize.U);
+            var estimatedULanes = Math.Ceiling((double)itemCount / estimatedItemsPerU);
             sizeUV.U = estimatedItemsPerU * estimatedSize.U;
             sizeUV.V = estimatedULanes * estimatedSize.V;
         }
@@ -619,7 +778,6 @@ public class VirtualizingWrapPanel : VirtualizingPanel
             var e = GetOrCreateElement(items, index);
             e.Measure(childConstraint);
 
-
             if (!firstChildMeasured)
             {
                 size = new UVSize(Orientation,
@@ -629,14 +787,18 @@ public class VirtualizingWrapPanel : VirtualizingPanel
                 firstChildMeasured = true;
             }
 
+            // Calculate position moving backwards
             uv.U -= size.U;
 
             // Test if the item will be moved to the previous row
             if (uv.U < viewport.viewportUVStart.U)
             {
+                // Move to previous row, starting from the right edge
                 var uLength = viewport.viewportUVEnd.U - viewport.viewportUVStart.U;
-                var uConstraint = (int) (uLength / size.U) * size.U;
-                uv.U = uConstraint - size.U;
+                var itemsPerRow = Math.Max(1, (int)(uLength / size.U));
+                var lastItemU = viewport.viewportUVStart.U + ((itemsPerRow - 1) * size.U);
+
+                uv.U = lastItemU;
                 uv.V -= size.V;
             }
 
@@ -644,16 +806,27 @@ public class VirtualizingWrapPanel : VirtualizingPanel
             --index;
         }
 
-        // We can now recycle elements before the first element.
+// We can now recycle elements before the first element.
         _realizedElements.RecycleElementsBefore(index + 1, _recycleElement, Orientation);
     }
 
     private Control GetOrCreateElement(IReadOnlyList<object?> items, int index)
     {
+        var item = items[index];
+
         var e = GetRealizedElement(index) ??
                 GetItemIsOwnContainer(items, index) ??
                 GetRecycledElement(items, index) ??
                 CreateElement(items, index);
+
+        // Always fire the event when an item is realized
+        if (item is not null)
+        {
+            var eventArgs = new ItemRealizedEventArgs(index, e, item);
+            eventArgs.RoutedEvent = ItemRealizedEvent;
+            RaiseEvent(eventArgs);
+        }
+
         return e;
     }
 
@@ -690,10 +863,9 @@ public class VirtualizingWrapPanel : VirtualizingPanel
         return null;
     }
 
+
     private Control? GetRecycledElement(IReadOnlyList<object?> items, int index)
     {
-        Debug.Assert(ItemContainerGenerator is not null);
-
         var generator = ItemContainerGenerator!;
         var item = items[index];
 
@@ -703,15 +875,34 @@ public class VirtualizingWrapPanel : VirtualizingPanel
             _unrealizedFocusedElement.LostFocus -= OnUnrealizedFocusedElementLostFocus;
             _unrealizedFocusedElement = null;
             _unrealizedFocusedIndex = -1;
+
+            // Clear old data before preparing
+            element.DataContext = null;
+            generator.PrepareItemContainer(element, item, index);
+            generator.ItemContainerPrepared(element, item, index);
             return element;
         }
 
         if (_recyclePool?.Count > 0)
         {
             var recycled = _recyclePool.Pop();
+
+            // IMPORTANT: Clear DataContext BEFORE making visible
+            recycled.DataContext = null;
             recycled.IsVisible = true;
-            generator.PrepareItemContainer(recycled, item, index);
-            generator.ItemContainerPrepared(recycled, item, index);
+
+            try
+            {
+                generator.PrepareItemContainer(recycled, item, index);
+                generator.ItemContainerPrepared(recycled, item, index);
+            }
+            catch (Exception ex)
+            {
+                recycled.IsVisible = false;
+                _recyclePool.Push(recycled);
+                return null;
+            }
+
             return recycled;
         }
 

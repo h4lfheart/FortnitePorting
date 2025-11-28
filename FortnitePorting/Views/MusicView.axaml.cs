@@ -11,15 +11,16 @@ using FortnitePorting.ViewModels;
 
 namespace FortnitePorting.Views;
 
-public partial class RadioView : ViewBase<RadioViewModel>
+public partial class MusicView : ViewBase<MusicViewModel>
 {
-    public RadioView()
+    public MusicView()
     {
         InitializeComponent();
     }
 
     private void OnPlayPointerPressed(object? sender, PointerPressedEventArgs e)
     {
+        if (!e.GetCurrentPoint(this).Properties.IsLeftButtonPressed) return;
         if (sender is not Control control) return;
         if (control.DataContext is not MusicPackItem musicPackItem) return;
 

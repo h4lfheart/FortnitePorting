@@ -31,7 +31,7 @@ using MessageData = FortnitePorting.Models.Information.MessageData;
 
 namespace FortnitePorting.ViewModels;
 
-public partial class RadioViewModel : ViewModelBase
+public partial class MusicViewModel : ViewModelBase
 {
     [ObservableProperty] private ReadOnlyObservableCollection<MusicPackItem> _activeCollection;
     [ObservableProperty] private string _searchFilter = string.Empty;
@@ -77,7 +77,7 @@ public partial class RadioViewModel : ViewModelBase
     
     private readonly DispatcherTimer UpdateTimer = new();
 
-    public RadioViewModel()
+    public MusicViewModel()
     {
         UpdateTimer.Tick += OnUpdateTimerTick;
         UpdateTimer.Interval = TimeSpan.FromMilliseconds(1);

@@ -1,0 +1,39 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions"
+             xmlns:navigation="clr-namespace:FortnitePorting.Controls.Navigation"
+             xmlns:sidebar="clr-namespace:FortnitePorting.Controls.Navigation.Sidebar"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="FortnitePorting.Controls.Navigation.Sidebar.Sidebar">
+    <Grid Margin="{ext:Space 2}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+    
+        <ContentControl Grid.Row="0" 
+                        Content="{Binding Header, RelativeSource={RelativeSource AncestorType=sidebar:Sidebar}}"
+                        IsVisible="{Binding Header, RelativeSource={RelativeSource AncestorType=sidebar:Sidebar}, Converter={x:Static ObjectConverters.IsNotNull}}"
+                        Margin="{ext:Space 0, 0, 0, 2}"/>
+    
+        <ScrollViewer Grid.Row="1" Margin="{ext:Space -1}" ClipToBounds="False" VerticalScrollBarVisibility="Hidden">
+            <ItemsControl x:Name="SidebarItems" Margin="{ext:Space 1}"
+                          ItemsSource="{Binding Items, RelativeSource={RelativeSource AncestorType=sidebar:Sidebar}}" 
+                          ClipToBounds="False" PointerPressed="OnItemSelected">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Vertical" Spacing="{ext:Space 1.5}"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+        </ScrollViewer>
+    
+        <ContentControl Grid.Row="2" 
+                        Content="{Binding Footer, RelativeSource={RelativeSource AncestorType=sidebar:Sidebar}}"
+                        IsVisible="{Binding Footer, RelativeSource={RelativeSource AncestorType=sidebar:Sidebar}, Converter={x:Static ObjectConverters.IsNotNull}}"
+                        Margin="{ext:Space 0, 2, 0, 0}"/>
+    </Grid>
+</UserControl>

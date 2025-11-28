@@ -11,7 +11,8 @@
         <material:MaterialIcon Kind="{Binding Icon, RelativeSource={RelativeSource AncestorType=controls:IconText}}"
                Width="{Binding IconSize, RelativeSource={RelativeSource AncestorType=controls:IconText}}"
                Height="{Binding IconSize, RelativeSource={RelativeSource AncestorType=controls:IconText}}"
-               RenderOptions.BitmapInterpolationMode="HighQuality" Margin="{ext:Space 0, 0, 1, 0}"/>
-        <TextBlock Text="{Binding Text, RelativeSource={RelativeSource AncestorType=controls:IconText}}"/>
+               RenderOptions.BitmapInterpolationMode="HighQuality" Margin="{ext:Space 0, 0, 1, 0}"
+               VerticalAlignment="Center"/>
+        <TextBlock Text="{Binding Text, RelativeSource={RelativeSource AncestorType=controls:IconText}}" VerticalAlignment="Center"/>
     </StackPanel>
 </UserControl>

@@ -40,6 +40,8 @@ public partial class MaterialPreviewWindow : WindowBase<MaterialPreviewWindowMod
 {
     public static MaterialPreviewWindow? Instance;
     
+    private bool isNodePress = false;
+    
     public MaterialPreviewWindow()
     {
         InitializeComponent();
@@ -53,8 +55,9 @@ public partial class MaterialPreviewWindow : WindowBase<MaterialPreviewWindowMod
         {
             Instance = new MaterialPreviewWindow();
             Instance.Show();
-            Instance.BringToTop();
         }
+        
+        Instance.BringToTop();
 
         if (Instance.WindowModel.Trees.FirstOrDefault(mat => mat.Asset?.Name.Equals(obj.Name) ?? false) is
             { } existing)
@@ -72,9 +75,11 @@ public partial class MaterialPreviewWindow : WindowBase<MaterialPreviewWindowMod
 
         Instance = null;
     }
-    
+
     private void OnNodePressed(object? sender, PointerPressedEventArgs e)
     {
+        isNodePress = true;
+        
         if (e.ClickCount != 2) return;
         if (sender is not Control control) return;
         if (control.DataContext is not MaterialNode node) return;
@@ -144,12 +149,16 @@ public partial class MaterialPreviewWindow : WindowBase<MaterialPreviewWindowMod
         Editor.ViewportLocation = new Point(avgX - Editor.ViewportSize.Width / 2, avgY - Editor.ViewportSize.Height / 2);
     }
 
-    private void OnSearchSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    
+    private void OnSearchSelectionChanged(object? sender, SelectionChangedEventArgs selectionChangedEventArgs)
     {
         if (sender is not ListBox listBox) return;
         if (listBox.SelectedItem is not BaseNode selectedNode) return;
 
         WindowModel.SelectedTree.SelectedNode = selectedNode;
-        Editor.ViewportLocation = new Point(selectedNode.Location.X - Editor.ViewportSize.Width / 2, selectedNode.Location.Y - Editor.ViewportSize.Height / 2);
+        if (!isNodePress)
+            Editor.ViewportLocation = new Point(selectedNode.Location.X - Editor.ViewportSize.Width / 2, selectedNode.Location.Y - Editor.ViewportSize.Height / 2);
+
+        isNodePress = false;
     }
 }

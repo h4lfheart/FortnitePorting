@@ -21,6 +21,6 @@ public sealed partial class CustomAssetItem : Base.BaseAssetItem
         };
 
         IconDisplayImage = customAsset.IconBitmap.ToWriteableBitmap();
-        DisplayImage = CreateDisplayImage(customAsset.IconBitmap).ToWriteableBitmap();
+        BackgroundImage = CreateBackgroundImage();
     }
 }

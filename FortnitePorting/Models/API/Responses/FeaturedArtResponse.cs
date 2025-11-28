@@ -8,5 +8,4 @@ public class FeaturedArtResponse
     [JsonProperty("artist_name")] public string Artist { get; set; }
     [JsonProperty("social_url")] public string Social { get; set; }
     [JsonProperty("image_url")] public string Image { get; set; }
-    
 }

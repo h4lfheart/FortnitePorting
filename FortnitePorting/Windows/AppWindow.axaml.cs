@@ -5,7 +5,10 @@ using AssetRipper.TextureDecoder.Rgb.Channels;
 using Avalonia.Controls;
 using Avalonia.Input;
 using FluentAvalonia.UI.Controls;
+using FortnitePorting.Controls.Navigation;
+using FortnitePorting.Controls.Navigation.Sidebar;
 using FortnitePorting.Framework;
+using FortnitePorting.Models.Information;
 using FortnitePorting.Services;
 using FortnitePorting.ViewModels;
 using FortnitePorting.Views;
@@ -20,20 +23,15 @@ public partial class AppWindow : WindowBase<AppWindowModel>
         InitializeComponent();
         DataContext = WindowModel;
         
-        Navigation.App.Initialize(NavigationView);
+        Navigation.App.Initialize(Sidebar, ContentFrame);
         
         KeyDownEvent.AddClassHandler<TopLevel>((sender, args) => BlackHole.HandleKey(args.Key), handledEventsToo: true);
     }
 
-    private void OnItemInvoked(object? sender, NavigationViewItemInvokedEventArgs e)
+    private void OnSidebarItemSelected(object? sender, SidebarItemSelectedArgs args)
     {
-        if (e.InvokedItemContainer.Tag is not Type type) return;
+        if (!AppSettings.Installation.FinishedSetup) return;
         
-        Navigation.App.Open(type);
-    }
-
-    private async void OnUpdatePressed(object? sender, PointerPressedEventArgs e)
-    {
-        await WindowModel.CheckForUpdate();
+        Navigation.App.Open(args.Tag);
     }
 }

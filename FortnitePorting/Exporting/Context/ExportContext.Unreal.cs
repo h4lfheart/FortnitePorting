@@ -137,6 +137,12 @@ public partial class ExportContext
                     
                     var exportMesh = MeshComponent(instanceComponent);
                     if (exportMesh is null) continue;
+                    
+                    var instanceTransform = instanceComponent.GetAbsoluteTransform();
+                    
+                    exportMesh.Location = instanceTransform.Translation;
+                    exportMesh.Rotation = instanceTransform.Rotator();
+                    exportMesh.Scale = instanceTransform.Scale3D;
 
                     meshes.Add(exportMesh);
                 }
@@ -146,6 +152,10 @@ public partial class ExportContext
             {
                 var exportMesh = MeshComponent(staticMeshComponent) ?? new ExportMesh { IsEmpty = true };
                 exportMesh.Name = actor.Name;
+                
+                exportMesh.Location = staticMeshComponent.GetOrDefault("RelativeLocation", FVector.ZeroVector);
+                exportMesh.Rotation = staticMeshComponent.GetOrDefault("RelativeRotation", FRotator.ZeroRotator);
+                exportMesh.Scale = staticMeshComponent.GetOrDefault("RelativeScale3D", FVector.OneVector);
 
                 foreach (var extraMesh in ExtraActorMeshes(actor))
                 {
@@ -189,6 +199,10 @@ public partial class ExportContext
             {
                 var exportMesh = MeshComponent(skeletalMeshComponent) ?? new ExportMesh { IsEmpty = true };
                 exportMesh.Name = actor.Name;
+                
+                exportMesh.Location = staticMeshComponent.GetOrDefault("RelativeLocation", FVector.ZeroVector);
+                exportMesh.Rotation = staticMeshComponent.GetOrDefault("RelativeRotation", FRotator.ZeroRotator);
+                exportMesh.Scale = staticMeshComponent.GetOrDefault("RelativeScale3D", FVector.OneVector);
 
                 foreach (var extraMesh in ExtraActorMeshes(actor))
                 {

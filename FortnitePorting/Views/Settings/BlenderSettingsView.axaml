@@ -8,89 +8,81 @@
              xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
              xmlns:settings="clr-namespace:FortnitePorting.ViewModels.Settings"
              xmlns:fortnitePorting="clr-namespace:FortnitePorting"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls.Settings"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FortnitePorting.Views.Settings.BlenderSettingsView"
              x:DataType="settings:BlenderSettingsViewModel">
     <ScrollViewer>
-        <StackPanel VerticalAlignment="Top" Margin="{ext:Space 1}">
-            <StackPanel.Styles>
-                <Style Selector="ui|SettingsExpander">
-                    <Setter Property="Margin" Value="{ext:Space 0, 0, 0, 1}"/>
-                </Style>
-                <Style Selector="TextBlock.SubtitleTextBlockStyle">
-                    <Setter Property="Margin" Value="{ext:Space 0, 0, 0, 1}"/>
-                </Style>
-            </StackPanel.Styles>
-                    
+        <StackPanel VerticalAlignment="Top" Margin="{ext:Space 1}" Spacing="{ext:Space 0, 0, 0, 1}">
             <!-- todo auto generate from properties?-->
             <TextBlock Text="General" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
             
-            <ui:SettingsExpander Header="Scale Down" Description="Scales the model down to centimeters. Recommended for Blender.">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Scale Down" Description="Scales the model down to centimeters. Recommended for Blender.">
+                <controls:SettingsItem.Footer>
                     <ToggleSwitch IsChecked="{Binding ScaleDown}"/>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
-            <ui:SettingsExpander Header="Import Into Collection" Description="Creates a collection in which all imported assets are put into.">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Import Into Collection" Description="Creates a collection in which all imported assets are put into.">
+                <controls:SettingsItem.Footer>
                     <ToggleSwitch IsChecked="{Binding ImportIntoCollection}"/>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
-            <ui:SettingsExpander Header="Import At 3D Cursor" Description="Creates all imported assets at the 3D Cursor.">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Import At 3D Cursor" Description="Creates all imported assets at the 3D Cursor.">
+                <controls:SettingsItem.Footer>
                     <ToggleSwitch IsChecked="{Binding ImportAt3DCursor}"/>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
-            <ui:SettingsExpander Header="Compression" Description="The type of compression that should be used on 'UE Format' assets.">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Compression" Description="The type of compression that should be used on 'UE Format' assets.">
+                <controls:SettingsItem.Footer>
                     <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type enums:EFileCompressionFormat}}"
                               SelectedItem="{Binding CompressionFormat, Converter={StaticResource EnumToRecord}}" />
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
             <TextBlock Text="Armature" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
             
-            <ui:SettingsExpander Header="Rig" Description="The type of rig that should be applied to the imported object. (Outfit Only)">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Rig" Description="The type of rig that should be applied to the imported object. (Outfit Only)">
+                <controls:SettingsItem.Footer>
                     <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type settings:ERigType}}"
                               SelectedItem="{Binding RigType, Converter={StaticResource EnumToRecord}}" />
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
-            <ui:SettingsExpander Header="Merge Armatures" Description="All imported parts are merged together and properly parented. (Outfit Only)" IsVisible="{Binding !IsTastyRig}">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Merge Armatures" Description="All imported parts are merged together and properly parented. (Outfit Only)" IsVisible="{Binding !IsTastyRig}">
+                <controls:SettingsItem.Footer>
                     <ToggleSwitch IsChecked="{Binding MergeArmatures}"/>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
-            <ui:SettingsExpander Header="Reorient Bones" Description="Reorients bones to point to their average child position." IsVisible="{Binding !IsTastyRig}">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Reorient Bones" Description="Reorients bones to point to their average child position." IsVisible="{Binding !IsTastyRig}">
+                <controls:SettingsItem.Footer>
                     <ToggleSwitch IsChecked="{Binding ReorientBones}"/>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
-            <ui:SettingsExpander Header="Dynamic Bone Shape" Description="Dynamic bones, usually used for physics, will have a rectangular bone shape." IsVisible="{Binding IsTastyRig}">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Dynamic Bone Shape" Description="Dynamic bones, usually used for physics, will have a rectangular bone shape." IsVisible="{Binding IsTastyRig}">
+                <controls:SettingsItem.Footer>
                     <ToggleSwitch IsChecked="{Binding UseDynamicBoneShape}"/>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
-            <ui:SettingsExpander Header="Import Sockets" Description="Whether or not to import bone sockets.">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Import Sockets" Description="Whether or not to import bone sockets.">
+                <controls:SettingsItem.Footer>
                     <ToggleSwitch IsChecked="{Binding ImportSockets}"/>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
-            <ui:SettingsExpander Header="Import Virtual Bones" Description="Whether or not to import virtual bones.">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Import Virtual Bones" Description="Whether or not to import virtual bones.">
+                <controls:SettingsItem.Footer>
                     <ToggleSwitch IsChecked="{Binding ImportVirtualBones}"/>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
-            <ui:SettingsExpander Header="Bone Length" Description="The length of all imported bones.">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Bone Length" Description="The length of all imported bones.">
+                <controls:SettingsItem.Footer>
                     <StackPanel Orientation="Horizontal">
                         <Slider Value="{Binding BoneLength}" MinWidth="200"
                                 Minimum="1" Maximum="5"
@@ -98,62 +90,62 @@
                         <TextBlock Text="{Binding BoneLength, StringFormat=N2}" 
                                    VerticalAlignment="Center" Margin="{ext:Space 1, 0, 0, 0}"/>
                     </StackPanel>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
           
             <TextBlock Text="Mesh" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
             
-            <ui:SettingsExpander Header="Level of Detail" Description="Level of Detail that should be imported for each mesh. The highest quality starts at zero and reduces as the LOD increases.">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Level of Detail" Description="Level of Detail that should be imported for each mesh. The highest quality starts at zero and reduces as the LOD increases.">
+                <controls:SettingsItem.Footer>
                     <ui:NumberBox Value="{Binding TargetLOD}" 
                                   Minimum="0"
                                   SpinButtonPlacementMode="Inline"/>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
-            <ui:SettingsExpander Header="Polygon Type" Description="The type of polygon that imported meshes should use.">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Polygon Type" Description="The type of polygon that imported meshes should use.">
+                <controls:SettingsItem.Footer>
                     <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type settings:EPolygonType}}"
                               SelectedItem="{Binding PolygonType, Converter={StaticResource EnumToRecord}}" />
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
-            <ui:SettingsExpander Header="Import Collision Geometry" Description="Imports the convex collision geometry if available.">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Import Collision Geometry" Description="Imports the convex collision geometry if available.">
+                <controls:SettingsItem.Footer>
                     <ToggleSwitch IsChecked="{Binding ImportCollision}"/>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
             <TextBlock Text="Animation" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
             
-            <ui:SettingsExpander Header="Loop Animation" Description="Whether or not to loop imported animations.">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Loop Animation" Description="Whether or not to loop imported animations.">
+                <controls:SettingsItem.Footer>
                     <ToggleSwitch IsChecked="{Binding LoopAnimation}"/>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
-            <ui:SettingsExpander Header="Update Timeline Length" Description="Whether or not to update the timeline length to the duration of the animation.">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Update Timeline Length" Description="Whether or not to update the timeline length to the duration of the animation.">
+                <controls:SettingsItem.Footer>
                     <ToggleSwitch IsChecked="{Binding UpdateTimelineLength}"/>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
-            <ui:SettingsExpander Header="Import Lobby Animations" Description="Whether or not to import lobby animations. (Outfit Only)">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Import Lobby Animations" Description="Whether or not to import lobby animations. (Outfit Only)">
+                <controls:SettingsItem.Footer>
                     <ToggleSwitch IsChecked="{Binding ImportLobbyPoses}"/>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
             <TextBlock Text="Material" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
             
-            <ui:SettingsExpander Header="Export" Description="Whether or not to export materials.">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Export" Description="Whether or not to export materials.">
+                <controls:SettingsItem.Footer>
                     <ToggleSwitch IsChecked="{Binding ExportMaterials}"/>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
-            <ui:SettingsExpander Header="Ambient Occlusion" Description="Adds darker details in the crevices of materials." IsEnabled="{Binding ExportMaterials}">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Ambient Occlusion" Description="Adds darker details in the crevices of materials." IsEnabled="{Binding ExportMaterials}">
+                <controls:SettingsItem.Footer>
                     <StackPanel Orientation="Horizontal">
                         <Slider Value="{Binding AmbientOcclusion}" MinWidth="200"
                                 Minimum="0" Maximum="1"
@@ -161,11 +153,11 @@
                         <TextBlock Text="{Binding AmbientOcclusion, StringFormat=N2}" 
                                    VerticalAlignment="Center" Margin="{ext:Space 1, 0, 0, 0}"/>
                     </StackPanel>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
-            <ui:SettingsExpander Header="Cavity" Description="Adds contrast to parts of the material using 'Soft Light' blending." IsEnabled="{Binding ExportMaterials}">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Cavity" Description="Adds contrast to parts of the material using 'Soft Light' blending." IsEnabled="{Binding ExportMaterials}">
+                <controls:SettingsItem.Footer>
                     <StackPanel Orientation="Horizontal">
                         <Slider Value="{Binding Cavity}" MinWidth="200"
                                 Minimum="0" Maximum="1"
@@ -173,11 +165,11 @@
                         <TextBlock Text="{Binding Cavity, StringFormat=N2}" 
                                    VerticalAlignment="Center" Margin="{ext:Space 1, 0, 0, 0}"/>
                     </StackPanel>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
-            <ui:SettingsExpander Header="Subsurface Scattering" Description="The scattering of light through skin or other surfaces." IsEnabled="{Binding ExportMaterials}">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Subsurface Scattering" Description="The scattering of light through skin or other surfaces." IsEnabled="{Binding ExportMaterials}">
+                <controls:SettingsItem.Footer>
                     <StackPanel Orientation="Horizontal">
                         <Slider Value="{Binding Subsurface}" MinWidth="200"
                                 Minimum="0" Maximum="1"
@@ -185,11 +177,11 @@
                         <TextBlock Text="{Binding Subsurface, StringFormat=N2}" 
                                    VerticalAlignment="Center" Margin="{ext:Space 1, 0, 0, 0}"/>
                     </StackPanel>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
-            <ui:SettingsExpander Header="Toon Brightness" Description="The brightness of the output of the toon material." IsEnabled="{Binding ExportMaterials}">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Toon Brightness" Description="The brightness of the output of the toon material." IsEnabled="{Binding ExportMaterials}">
+                <controls:SettingsItem.Footer>
                     <StackPanel Orientation="Horizontal">
                         <Slider Value="{Binding ToonShadingBrightness}" MinWidth="200"
                                 Minimum="0" Maximum="1"
@@ -197,54 +189,54 @@
                         <TextBlock Text="{Binding ToonShadingBrightness, StringFormat=N2}" 
                                    VerticalAlignment="Center" Margin="{ext:Space 1, 0, 0, 0}"/>
                     </StackPanel>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
-            <ui:SettingsExpander Header="Method" Description="The way standalone materials should be imported.">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Method" Description="The way standalone materials should be imported." IsEnabled="{Binding ExportMaterials}">
+                <controls:SettingsItem.Footer>
                     <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type settings:EMaterialImportMethod}}"
                               SelectedItem="{Binding MaterialImportMethod, Converter={StaticResource EnumToRecord}}" />
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
             <TextBlock Text="Texture" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
                
-            <ui:SettingsExpander Header="Image Format" Description="The file type that textures should be exported as.">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Image Format" Description="The file type that textures should be exported as.">
+                <controls:SettingsItem.Footer>
                     <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EImageFormat}}"
                               SelectedItem="{Binding ImageFormat, Converter={StaticResource EnumToRecord}}" />
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
-            <ui:SettingsExpander Header="Method" Description="The way textures should be imported.">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Method" Description="The way textures should be imported.">
+                <controls:SettingsItem.Footer>
                     <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type settings:ETextureImportMethod}}"
                               SelectedItem="{Binding TextureImportMethod, Converter={StaticResource EnumToRecord}}" />
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
             <TextBlock Text="Sound" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
             
-            <ui:SettingsExpander Header="Import Sounds" Description="Whether or not to import sounds collected from animation notifies.">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Import Sounds" Description="Whether or not to import sounds collected from animation notifies.">
+                <controls:SettingsItem.Footer>
                     <ToggleSwitch IsChecked="{Binding ImportSounds}"/>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
-            <ui:SettingsExpander Header="Sound Format" Description="The file type that sounds should be exported as." IsEnabled="{Binding ImportSounds}">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Sound Format" Description="The file type that sounds should be exported as." IsEnabled="{Binding ImportSounds}">
+                <controls:SettingsItem.Footer>
                     <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:ESoundFormat}}"
                               SelectedItem="{Binding SoundFormat, Converter={StaticResource EnumToRecord}}" />
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
             <TextBlock Text="World" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
             
-            <ui:SettingsExpander Header="Import Instanced Foliage" Description="Whether or not to import instanced foliage meshes.">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Import Instanced Foliage" Description="Whether or not to import instanced foliage meshes.">
+                <controls:SettingsItem.Footer>
                     <ToggleSwitch IsChecked="{Binding ImportInstancedFoliage}"/>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
         </StackPanel>
     </ScrollViewer>
