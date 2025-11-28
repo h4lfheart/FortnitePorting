@@ -6,14 +6,17 @@ using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CUE4Parse.Utils;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Models.Serilog;
+using FortnitePorting.Models.Supabase.Tables;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Views;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
+using Supabase.Postgrest.Exceptions;
 using MessageData = FortnitePorting.Models.Information.MessageData;
 using TitleData = FortnitePorting.Models.Information.TitleData;
 

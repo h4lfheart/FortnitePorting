@@ -9,7 +9,7 @@ using InstallationProfile = FortnitePorting.Models.Installation.InstallationProf
 
 namespace FortnitePorting.ViewModels.Settings;
 
-public partial class InstallationSettingsViewModel : ViewModelBase
+public partial class InstallationSettingsViewModel : SettingsViewModelBase
 {
     [JsonIgnore] public SupabaseService SupaBase => AppServices.SupaBase;
     

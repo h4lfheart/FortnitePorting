@@ -7,7 +7,7 @@ using FortnitePorting.Framework;
 
 namespace FortnitePorting.ViewModels.Settings;
 
-public partial class ThemeSettingsViewModel : ViewModelBase
+public partial class ThemeSettingsViewModel : SettingsViewModelBase
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(TransparencyHints))]

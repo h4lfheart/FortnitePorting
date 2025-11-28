@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 namespace FortnitePorting.ViewModels.Settings;
 
-public partial class OnlineSettingsViewModel : ViewModelBase
+public partial class OnlineSettingsViewModel : SettingsViewModelBase
 {
    [JsonIgnore] public SupabaseService SupaBase => AppServices.SupaBase;
 

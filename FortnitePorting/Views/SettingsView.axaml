@@ -27,6 +27,7 @@
             <sidebar:Sidebar.Footer>
                 <StackPanel Spacing="{ext:Space 1.5}">
                     <Button Content="{controls:IconText 'Open Data Folder', Folder}" Command="{Binding OpenDataFolderCommand}" HorizontalAlignment="Stretch"/> 
+                    <Button Content="{controls:IconText 'Save Settings', ContentSave}" Command="{Binding SaveCommand}" HorizontalAlignment="Stretch"/> 
                     <Button Content="{controls:IconText 'Reset Settings', Trash}" Command="{Binding ResetCommand}" HorizontalAlignment="Stretch"/> 
                 </StackPanel>
             </sidebar:Sidebar.Footer>
