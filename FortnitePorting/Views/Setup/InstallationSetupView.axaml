@@ -22,22 +22,23 @@
         </Grid.RowDefinitions>
         
         <StackPanel Grid.Row="0" VerticalAlignment="Center">
-            <TextBlock Text="Installation Settings" Classes="TitleLargeTextBlockStyle" 
-                       HorizontalAlignment="Center" VerticalAlignment="Center">
+            <TextBlock Text="Installation Settings" FontFamily="{StaticResource SFDisplayBold}" FontSize="40" 
+                       HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{ext:Space 0, 0, 0, 1}">
                 <TextBlock.Effect>
-                    <DropShadowEffect BlurRadius="15" Color="#5F000000" OffsetX="0" OffsetY="0" />
+                    <DropShadowEffect BlurRadius="15" Color="#8F000000" OffsetX="0" OffsetY="0" />
                 </TextBlock.Effect>
             </TextBlock>
+            
             <TextBlock Text="Create your Fortnite installation profile to begin loading assets." HorizontalAlignment="Center"
                        VerticalAlignment="Center" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"
-                       Margin="{ext:Space 0, 0, 0, 3}">
+                       Margin="{ext:Space 0, 0, 0, 2}">
                 <TextBlock.Effect>
-                    <DropShadowEffect BlurRadius="15" Color="#5F000000" OffsetX="0" OffsetY="0" />
+                    <DropShadowEffect BlurRadius="15" Color="#8F000000" OffsetX="0" OffsetY="0" />
                 </TextBlock.Effect>
             </TextBlock>
             
             <Button Content="Continue" Command="{Binding ContinueCommand}" 
-                    Classes="Purple" IsEnabled="{Binding !Profile.HasErrors}"
+                    IsEnabled="{Binding !Profile.HasErrors}" Classes="Purple"
                     HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
         </StackPanel>
         

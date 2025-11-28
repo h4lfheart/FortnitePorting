@@ -38,7 +38,7 @@
              <Brush x:Key="CheckBoxCheckGlyphForegroundCheckedPressed">#FFFFFFFF</Brush>
              <Brush x:Key="CheckBoxCheckGlyphForegroundCheckedDisabled">#5DFFFFFF</Brush>
              <Brush x:Key="ScrollViewerScrollBarsSeparatorBackground">#00000000</Brush>
-             <FontFamily x:Key="ContentControlThemeFontFamily">Segoe UI</FontFamily>
+             <FontFamily x:Key="ContentControlThemeFontFamily">avares://FortnitePorting/Assets/Fonts/SF/SF-Pro-Text-Regular.otf#SF Pro Text</FontFamily>
              <FontFamily x:Key="SymbolThemeFontFamily">avares://FortnitePorting/Assets/Fonts/Segoe Fluent Icons.ttf#Segoe Fluent Icons</FontFamily>
              <FontFamily x:Key="TimeWasterFontFamily">avares://FortnitePorting/Assets/TimeWaster/Fonts/BurbankBigRegular-Bold.ttf#Burbank Big</FontFamily>
              <Brush x:Key="TabViewItemHeaderBackgroundSelected">#1C000000</Brush>
@@ -872,64 +872,53 @@
                 <Setter Property="Background" Value="#FF0022"/>
             </Style>
         </Style>
-
         
-        <Style Selector="Button.Purple /template/ ContentPresenter">
-            <Setter Property="Background">
-                <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
-                    <GradientStops>
-                        <GradientStop Color="#8141db" Offset="0"/>
-                        <GradientStop Color="#6931c2" Offset="1"/>
-                    </GradientStops>
-                </LinearGradientBrush>
-            </Setter>
-            <Setter Property="Effect">
-                <DropShadowEffect OffsetX="0" OffsetY="2" BlurRadius="10" Opacity="0.25"/>
-            </Setter>
-            <Setter Property="CornerRadius" Value="4"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            
-            <Style Selector="^:pointerover">
+        <Style Selector="Button.Purple">
+            <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background">
+                    <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
+                        <GradientStops>
+                            <GradientStop Color="#8141db" Offset="0"/>
+                            <GradientStop Color="#953bf8" Offset="1"/>
+                        </GradientStops>
+                    </LinearGradientBrush>
+                </Setter>
+            </Style>
+    
+            <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
                 <Setter Property="Background">
                     <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
                         <GradientStops>
                             <GradientStop Color="#954cfc" Offset="0"/>
-                            <GradientStop Color="#7837de" Offset="1"/>
+                            <GradientStop Color="#953bf8" Offset="1"/>
                         </GradientStops>
                     </LinearGradientBrush>
                 </Setter>
             </Style>
-            
-        </Style>
+        </Style> 
         
-        <Style Selector="Button.Red /template/ ContentPresenter">
-            <Setter Property="Background">
-                <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
-                    <GradientStops>
-                        <GradientStop Color="#db4153" Offset="0"/>
-                        <GradientStop Color="#c23142" Offset="1"/>
-                    </GradientStops>
-                </LinearGradientBrush>
-            </Setter>
-            <Setter Property="Effect">
-                <DropShadowEffect OffsetX="0" OffsetY="2" BlurRadius="10" Opacity="0.25"/>
-            </Setter>
-            <Setter Property="CornerRadius" Value="4"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            
-            <Style Selector="^:pointerover">
+        <Style Selector="Button.Red">
+            <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
                 <Setter Property="Background">
                     <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
                         <GradientStops>
-                            <GradientStop Color="#fc4c98" Offset="0"/>
-                            <GradientStop Color="#de3761" Offset="1"/>
+                            <GradientStop Color="#db4153" Offset="0"/>
+                            <GradientStop Color="#c23142" Offset="1"/>
                         </GradientStops>
                     </LinearGradientBrush>
                 </Setter>
             </Style>
-            
+    
+            <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background">
+                    <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
+                        <GradientStops>
+                            <GradientStop Color="#db4153" Offset="0"/>
+                            <GradientStop Color="#c23142" Offset="1"/>
+                        </GradientStops>
+                    </LinearGradientBrush>
+                </Setter>
+            </Style>
         </Style>
         
         <Style Selector="editing|SearchPanel[IsVisible=True] /template/ Border#PART_Border">

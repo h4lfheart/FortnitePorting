@@ -14,17 +14,18 @@
              x:Class="FortnitePorting.Views.Setup.OnlineSetupView"
              x:DataType="setup:OnlineSetupViewModel">
     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-        <TextBlock Text="Online Settings" Classes="TitleLargeTextBlockStyle" 
-                   HorizontalAlignment="Center" VerticalAlignment="Center">
+        <TextBlock Text="Online Settings" FontFamily="{StaticResource SFDisplayBold}" FontSize="40" 
+                   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{ext:Space 0, 0, 0, 1}">
             <TextBlock.Effect>
-                <DropShadowEffect BlurRadius="15" Color="#5F000000" OffsetX="0" OffsetY="0" />
+                <DropShadowEffect BlurRadius="15" Color="#8F000000" OffsetX="0" OffsetY="0" />
             </TextBlock.Effect>
         </TextBlock>
+        
         <TextBlock Text="Please sign in with your discord account to use online features." HorizontalAlignment="Center"
                    VerticalAlignment="Center" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"
-                   Margin="{ext:Space 0, 0, 0, 3}">
+                   Margin="{ext:Space 0, 0, 0, 2}">
             <TextBlock.Effect>
-                <DropShadowEffect BlurRadius="15" Color="#5F000000" OffsetX="0" OffsetY="0" />
+                <DropShadowEffect BlurRadius="15" Color="#8F000000" OffsetX="0" OffsetY="0" />
             </TextBlock.Effect>
         </TextBlock>
             

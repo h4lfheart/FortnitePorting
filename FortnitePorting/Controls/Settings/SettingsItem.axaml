@@ -8,7 +8,7 @@
              xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FortnitePorting.Controls.Settings.SettingsItem"
-             MinHeight="68">
+             MinHeight="68" ClipToBounds="False">
     <Grid RowDefinitions="* Auto">
         <controls:ContentCard Grid.Row="0">
             <Grid ColumnDefinitions="* * 8 Auto" VerticalAlignment="Center" Margin="{ext:Space 2}">

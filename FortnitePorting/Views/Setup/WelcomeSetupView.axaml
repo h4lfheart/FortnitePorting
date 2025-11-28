@@ -14,19 +14,22 @@
              x:Class="FortnitePorting.Views.Setup.WelcomeSetupView"
              x:DataType="setup:WelcomeSetupViewModel">
     <StackPanel VerticalAlignment="Center">
-        <TextBlock Text="Welcome to FortnitePorting!" Classes="TitleLargeTextBlockStyle" 
+        <TextBlock FontFamily="{StaticResource SFDisplayBold}" FontSize="40"
                    HorizontalAlignment="Center" VerticalAlignment="Center"
                    Margin="{ext:Space 0, 0, 0, 1}">
             <TextBlock.Effect>
-                <DropShadowEffect BlurRadius="15" Color="#5F000000" OffsetX="0" OffsetY="0" />
+                <DropShadowEffect BlurRadius="15" Color="#8F000000" OffsetX="0" OffsetY="0" />
             </TextBlock.Effect>
+            <Run Text="Welcome to"/>
+            <Run Text="Fortnite"/>
+            <Run Text="Porting" Foreground="#953bf8"/>
         </TextBlock>
         <TextBlock Text="The quickest and most efficient way to extract assets from Fortnite." 
                    HorizontalAlignment="Center" VerticalAlignment="Center" 
                    Margin="{ext:Space 0, 0, 0, 2}"
                    Classes="BodyTextBlockStyle TextFillColorSecondaryBrush">
             <TextBlock.Effect>
-                <DropShadowEffect BlurRadius="15" Color="#5F000000" OffsetX="0" OffsetY="0" />
+                <DropShadowEffect BlurRadius="15" Color="#8F000000" OffsetX="0" OffsetY="0" />
             </TextBlock.Effect>
         </TextBlock>
         

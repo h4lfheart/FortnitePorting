@@ -24,10 +24,14 @@ public partial class AppWindow : WindowBase<AppWindowModel>
         DataContext = WindowModel;
         
         Navigation.App.Initialize(Sidebar, ContentFrame);
+        
+        KeyDownEvent.AddClassHandler<TopLevel>((sender, args) => BlackHole.HandleKey(args.Key), handledEventsToo: true);
     }
 
     private void OnSidebarItemSelected(object? sender, SidebarItemSelectedArgs args)
     {
+        if (!AppSettings.Installation.FinishedSetup) return;
+        
         Navigation.App.Open(args.Tag);
     }
 }
