@@ -154,9 +154,7 @@ public static class Exporter
 
         if (exportType is EExportType.None)
         {
-            // TODO do the dependency injection and make an exporter service
-            var assetLoaderService = AppServices.Services.GetRequiredService<AssetLoaderService>();
-            var assetLoaders = assetLoaderService.Categories
+            var assetLoaders = AssetLoading.Categories
                 .SelectMany(category => category.Loaders)
                 .ToArray();
 

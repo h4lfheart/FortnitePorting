@@ -185,19 +185,32 @@ public partial class FilesViewModel : ViewModelBase
                 var pointer = new FPackageIndex(package, i + 1).ResolvedObject;
                 if (pointer?.Object is null) continue;
                         
+                // use texture as preview
                 var obj = ((AbstractUePackage) package).ConstructObject(pointer.Class?.Object?.Value as UStruct, package);
                 if (obj is UTexture2D && pointer.TryLoad(out var textureObj) && textureObj is UTexture2D texture && texture.Decode() is { } decodedTexture)
                 {
                     item.FileBitmap = decodedTexture.ToWriteableBitmap();
                     break;
                 }
-                        
+                
+                // use asset loader icon getter as preview
+                var assetLoader = AssetLoading.Categories
+                    .SelectMany(category => category.Loaders)
+                    .FirstOrDefault(loader => loader.ClassNames.Contains(obj.ExportType));
+                if (assetLoader is not null && pointer.TryLoad(out var assetObj))
+                {
+                    item.FileBitmap = assetLoader.IconHandler(assetObj)?.Decode()?.ToWriteableBitmap();
+                    break;
+                }
+                    
+                // use engine-mapped export type as prevoiew
                 if (obj.GetEditorIconBitmap() is { } objectBitmap)
                 {
                     item.FileBitmap = objectBitmap;
                     break;
                 }
 
+                // use fortnite-mapped export type as preview (is this needed with asset loader preview as well?)
                 if (Exporter.DetermineExportType(obj) is var exportType and not EExportType.None 
                     && $"avares://FortnitePorting/Assets/FN/{exportType.ToString()}.png" is { } exportIconPath 
                     && AssetLoader.Exists(new Uri(exportIconPath)))

@@ -34,6 +34,7 @@ public static class AppServices
     public static ChatService Chat => Services.GetRequiredService<ChatService>();
     public static DiscordService Discord => Services.GetRequiredService<DiscordService>();
     public static BlackHoleService BlackHole => Services.GetRequiredService<BlackHoleService>();
+    public static AssetLoaderService AssetLoading => Services.GetRequiredService<AssetLoaderService>();
     
     // ViewModels
     public static AppWindowModel AppWM => Services.GetRequiredService<AppWindowModel>();
