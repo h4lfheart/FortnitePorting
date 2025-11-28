@@ -57,7 +57,7 @@
         
         <Grid Grid.Row="1" RowDefinitions="Auto *">
             <ui:TabView Grid.Row="0" IsAddTabButtonVisible="False" TabCloseRequested="OnTabClosed" TabWidthMode="Compact"
-                        TabItems="{Binding Assets}"  Margin="{ext:Space 0, 0, 0, 1}"
+                        TabItems="{Binding Assets}" Margin="{ext:Space 0, 0, 0, 1}"
                         SelectedItem="{Binding SelectedAsset, Mode=TwoWay}">
                 <ui:TabView.TabItemTemplate>
                     <DataTemplate x:DataType="viewers:PropertiesContainer">

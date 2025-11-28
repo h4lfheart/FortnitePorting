@@ -16,6 +16,8 @@ public partial class SoundCuePreviewWindow : WindowBase<SoundCuePreviewWindowMod
 {
     public static SoundCuePreviewWindow? Instance;
     
+    private bool isNodePress = false;
+    
     public SoundCuePreviewWindow()
     {
         InitializeComponent();
@@ -29,8 +31,9 @@ public partial class SoundCuePreviewWindow : WindowBase<SoundCuePreviewWindowMod
         {
             Instance = new SoundCuePreviewWindow();
             Instance.Show();
-            Instance.BringToTop();
         }
+        
+        Instance.BringToTop();
 
         if (Instance.WindowModel.Trees.FirstOrDefault(mat => mat.Asset?.Name.Equals(obj.Name) ?? false) is
             { } existing)
@@ -51,6 +54,8 @@ public partial class SoundCuePreviewWindow : WindowBase<SoundCuePreviewWindowMod
     
     private void OnNodePressed(object? sender, PointerPressedEventArgs e)
     {
+        isNodePress = true;
+        
         if (e.ClickCount != 2) return;
         if (sender is not Control control) return;
         if (control.DataContext is not Node node) return;
@@ -103,6 +108,9 @@ public partial class SoundCuePreviewWindow : WindowBase<SoundCuePreviewWindowMod
         if (listBox.SelectedItem is not BaseNode selectedNode) return;
 
         WindowModel.SelectedTree!.SelectedNode = selectedNode;
-        Editor.ViewportLocation = new Point(selectedNode.Location.X - Editor.ViewportSize.Width / 2, selectedNode.Location.Y - Editor.ViewportSize.Height / 2);
+        if (!isNodePress)
+            Editor.ViewportLocation = new Point(selectedNode.Location.X - Editor.ViewportSize.Width / 2, selectedNode.Location.Y - Editor.ViewportSize.Height / 2);
+        
+        isNodePress = false;
     }
 }

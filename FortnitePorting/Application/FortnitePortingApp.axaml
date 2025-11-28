@@ -94,9 +94,6 @@
         <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
         <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
         
-        
-        
-        
         <Style Selector="controls|ContentCard">
             <Setter Property="Background">
                 <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
@@ -109,7 +106,6 @@
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="CornerRadius" Value="16"/>
             <Setter Property="MinHeight" Value="32"/>
-            <Setter Property="ClipToBounds" Value="False"/>
             <Setter Property="BackgroundSizing" Value="CenterBorder"/>
             <Setter Property="BoxShadow">
                 inset 0 1 2 -1 #50ffffff,
@@ -255,7 +251,6 @@
         
         
         <Style Selector="ToggleSwitch[IsVisible=true]">
-            <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="CornerRadius" Value="16"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -391,10 +386,6 @@
             
             <Style Selector="^ ScrollViewer[IsVisible=True]">
                 <Setter Property="ClipToBounds" Value="False"/>
-                
-                <Style Selector="^ ScrollContentPresenter">
-                    <Setter Property="ClipToBounds" Value="False"/>
-                </Style>
             </Style>
         
         </Style>
@@ -962,6 +953,12 @@
                 0 4 8 #20000000,
                 0 8 12 #10000000
             </Setter>
+        </Style>
+        
+        
+        <Style Selector="ColorPicker[IsVisible=True]">
+            <Setter Property="ClipToBounds" Value="False"/>
+            <Setter Property="CornerRadius" Value="16"/>
         </Style>
         
         

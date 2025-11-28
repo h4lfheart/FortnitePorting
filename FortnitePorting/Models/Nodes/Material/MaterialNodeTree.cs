@@ -479,13 +479,18 @@ public class MaterialNodeTree : NodeTree
 
                 if (node.Label.Equals("Texture"))
                     node.Label = texture.Name;
-                
-                node.Content = new Image
+
+                node.Content = new Border
                 {
-                    Width = 128,
-                    Height = 128,
-                    Source = bitmap,
-                    Margin = SpaceExtension.Space(1)
+                    CornerRadius = new CornerRadius(4),
+                    ClipToBounds = true,
+                    Margin = SpaceExtension.Space(1),
+                    Child = new Image
+                    {
+                        Width = 128,
+                        Height = 128,
+                        Source = bitmap,
+                    }
                 };
                 
                 break;
