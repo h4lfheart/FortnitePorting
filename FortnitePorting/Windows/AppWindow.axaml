@@ -151,5 +151,107 @@
                 <ui:Frame x:Name="ContentFrame"/>
             </Border>
         </Grid>
+        
+        
+        <ItemsControl Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Right" Width="500"
+                      Margin="{ext:Space 1}" ItemsSource="{Binding Info.Messages}" ClipToBounds="False">
+             <ItemsControl.ItemTemplate>
+                 <DataTemplate>
+                     
+                     <controls:ContentCard ClipToBounds="False" Classes="FadeIn">
+                         <controls:ContentCard.BoxShadow>
+                             inset 0 1 2 -1 #50ffffff,
+                             inset 0 -1 2 -2 #50ffffff,
+                             0 4 8 #20000000,
+                             0 8 12 #10000000,
+                             0 0 16 4 #80000000
+                         </controls:ContentCard.BoxShadow>
+                         <controls:ContentCard.Styles>
+                             <Style Selector="controls|ContentCard.FadeIn">
+                                 <Style.Animations>
+                                     <Animation Duration="0:0:0.1">
+                                         <KeyFrame Cue="0%">
+                                             <Setter Property="Opacity" Value="0.0"/>
+                                         </KeyFrame>
+                                         <KeyFrame Cue="100%">
+                                             <Setter Property="Opacity" Value="1.0"/>
+                                         </KeyFrame>
+                                     </Animation>
+                                 </Style.Animations>
+                             </Style>
+                         </controls:ContentCard.Styles>
+                         <Grid Margin="{ext:Space 1.5}">
+                             <Grid.ColumnDefinitions>
+                                 <ColumnDefinition Width="*"/>
+                                 <ColumnDefinition Width="{ext:Space 1}"/>
+                                 <ColumnDefinition Width="Auto"/>
+                             </Grid.ColumnDefinitions>
+                             <Grid.RowDefinitions>
+                                 <RowDefinition Height="Auto"/>
+                                 <RowDefinition Height="*"/>
+                                 <RowDefinition Height="Auto"/>
+                             </Grid.RowDefinitions>
+                             
+                             <Grid Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                   ColumnDefinitions="Auto 8 *" Margin="{ext:Space 0, 0, 0, 0.5}">
+                                 <material:MaterialIcon Grid.Column="0" Kind="{Binding SeverityIcon}" VerticalAlignment="Center"/>
+                                 
+                                 <TextBlock Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                            Text="{Binding Title}" Classes="BodyStrongTextBlockStyle"/>
+                             </Grid>
+                             
+                           
+                             
+                             <TextBlock Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                        TextWrapping="Wrap"
+                                        Text="{Binding Message}" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"/>
+                             
+                             <Button Grid.Row="0" Grid.RowSpan="2" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Top"
+                                     Margin="{ext:Space -0.5}"
+                                     Content="{material:MaterialIconExt Close}" Command="{Binding CloseCommand}"/>
+                             
+                             <Button Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Margin="{ext:Space 0, 1, 0, 0}" 
+                                     HorizontalAlignment="Stretch"
+                                     IsVisible="{Binding UseButton}"
+                                     Content="{Binding ButtonTitle}"
+                                     Command="{Binding ButtonCommand}"/>
+                         </Grid>
+                     </controls:ContentCard>
+                     <!--ui:InfoBar IsOpen="True" 
+                                 Classes="FadeIn"
+                                 Title="{Binding Title}" 
+                                 Message="{Binding Message}" 
+                                 Severity="{Binding Severity}"
+                                 CornerRadius="8"
+                                 Background="#AA191921">
+                         <ui:InfoBar.ActionButton>
+                             <HyperlinkButton IsVisible="{Binding UseButton}" 
+                                                 Content="{Binding ButtonTitle}" 
+                                                 Command="{Binding ButtonCommand}"
+                                                 Padding="6"/>
+                         </ui:InfoBar.ActionButton>
+                         <ui:InfoBar.Styles>
+                             <Style Selector="ui|InfoBar.FadeIn">
+                                 <Style.Animations>
+                                     <Animation Duration="0:0:0.1">
+                                         <KeyFrame Cue="0%">
+                                             <Setter Property="Opacity" Value="0.0"/>
+                                         </KeyFrame>
+                                         <KeyFrame Cue="100%">
+                                             <Setter Property="Opacity" Value="1.0"/>
+                                         </KeyFrame>
+                                     </Animation>
+                                 </Style.Animations>
+                             </Style>
+                         </ui:InfoBar.Styles>
+                     </ui:InfoBar-->
+                 </DataTemplate>
+             </ItemsControl.ItemTemplate>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Vertical" Spacing="{ext:Space 1}"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+         </ItemsControl>
     </Grid>
 </Window>

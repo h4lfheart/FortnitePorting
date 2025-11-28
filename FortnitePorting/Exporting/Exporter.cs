@@ -57,7 +57,7 @@ public static class Exporter
                 if (await Api.FortnitePortingServer.PingAsync(serverType) is false)
                 {
                     var serverName = serverType.GetDescription();
-                    Info.Message($"{serverName} Server", $"The {serverName} Plugin for Fortnite Porting is not currently installed, enabled, or running.", 
+                    Info.Message($"{serverName} Server", $"The {serverName} Plugin for Fortnite Porting is not currently installed or running.", 
                         severity: InfoBarSeverity.Error, closeTime: 3.0f,
                         useButton: true, buttonTitle: "Install Plugin", buttonCommand: () =>
                         {
@@ -117,7 +117,7 @@ public static class Exporter
     
     public static async Task Export(UObject asset, EExportType type, ExportDataMeta metaData)
     {
-        await Export(() => [CreateExport(asset.Name, asset, type, [], metaData)], metaData);
+        await Export(() => [CreateExport(asset.Outer?.Name.SubstringAfterLast("/") ?? asset.Name, asset, type, [], metaData)], metaData);
     }
 
     public static EExportType DetermineExportType(UObject asset) 
@@ -186,16 +186,18 @@ public static class Exporter
         return outPath;
     }
     
-    private static BaseExport CreateExport(string name, UObject asset, EExportType exportType, BaseStyleData[] styles, ExportDataMeta metaData)
+    private static BaseExport CreateExport(string displayName, UObject asset, EExportType exportType, BaseStyleData[] styles, ExportDataMeta metaData)
     {
         var path = asset.GetPathName();
-        Info.Message($"Exporter", asset.Name, id: path, autoClose: false);
+        Info.Message($"Exporting", asset.Name, id: path, autoClose: false);
 
         ExportProgressUpdate updateDelegate = (name, current, total) =>
         {
-            var message = $"{current} / {total} \"{name}\"";
-            Info.UpdateMessage(id: path, message: message);
-            Log.Information(message);
+            var title = $"{displayName} - {current} / {total}";
+            var message = $"{name}";
+            Info.UpdateTitle(id: path, title);
+            Info.UpdateMessage(id: path, message);
+            Log.Information("{Title}: {Message}", title, message);
         };
 
         metaData.UpdateProgress += updateDelegate;
@@ -203,13 +205,13 @@ public static class Exporter
         var primitiveType = exportType.GetPrimitiveType();
         BaseExport export = primitiveType switch
         {
-            EPrimitiveExportType.Mesh => new MeshExport(name, asset, styles, exportType, metaData),
-            EPrimitiveExportType.Texture => new TextureExport(name, asset, styles, exportType, metaData),
-            EPrimitiveExportType.Sound => new SoundExport(name, asset, styles, exportType, metaData),
-            EPrimitiveExportType.Animation => new AnimExport(name, asset, styles, exportType, metaData),
-            EPrimitiveExportType.Font => new FontExport(name, asset, styles, exportType, metaData),
-            EPrimitiveExportType.PoseAsset => new PoseAssetExport(name, asset, styles, exportType, metaData),
-            EPrimitiveExportType.Material => new MaterialExport(name, asset, styles, exportType, metaData),
+            EPrimitiveExportType.Mesh => new MeshExport(displayName, asset, styles, exportType, metaData),
+            EPrimitiveExportType.Texture => new TextureExport(displayName, asset, styles, exportType, metaData),
+            EPrimitiveExportType.Sound => new SoundExport(displayName, asset, styles, exportType, metaData),
+            EPrimitiveExportType.Animation => new AnimExport(displayName, asset, styles, exportType, metaData),
+            EPrimitiveExportType.Font => new FontExport(displayName, asset, styles, exportType, metaData),
+            EPrimitiveExportType.PoseAsset => new PoseAssetExport(displayName, asset, styles, exportType, metaData),
+            EPrimitiveExportType.Material => new MaterialExport(displayName, asset, styles, exportType, metaData),
             _ => throw new NotImplementedException($"Exporting {primitiveType} assets is not supported yet.")
         };
         

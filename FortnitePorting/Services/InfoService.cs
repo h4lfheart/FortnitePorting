@@ -28,6 +28,8 @@ public partial class InfoService : ObservableObject, ILogEventSink, IService
     [ObservableProperty] private ObservableCollection<MessageData> _messages = [];
     [ObservableProperty] private TitleData? _titleData;
     
+    private readonly object _messageLock = new();
+    
     public string LogFilePath;
     public DirectoryInfo LogsFolder => new(Path.Combine(App.ApplicationDataFolder.FullName, "Logs"));
     
@@ -54,7 +56,7 @@ public partial class InfoService : ObservableObject, ILogEventSink, IService
             .WriteTo.Sink(this)
             .CreateLogger();
     }
-    
+
     public void Message(string title, string message, InfoBarSeverity severity = InfoBarSeverity.Informational, bool autoClose = true, string id = "", float closeTime = 3f, bool useButton = false, string buttonTitle = "", Action? buttonCommand = null)
     {
         Message(new MessageData(title, message, severity, autoClose, id, closeTime, useButton, buttonTitle, buttonCommand));
@@ -71,7 +73,9 @@ public partial class InfoService : ObservableObject, ILogEventSink, IService
         TaskService.Run(async () =>
         {
             await Task.Delay((int) (data.CloseTime * 1000));
-            Messages.Remove(data);
+            
+            lock (_messageLock)
+                Messages.Remove(data);
         });
     }
     
@@ -82,10 +86,18 @@ public partial class InfoService : ObservableObject, ILogEventSink, IService
         
         foundInfoBar.Message = message;
     }
+    public void UpdateTitle(string id, string title)
+    {
+        var foundInfoBar = Messages.FirstOrDefault(infoBar => infoBar.Id == id);
+        if (foundInfoBar is null) return;
+        
+        foundInfoBar.Title = title;
+    }
     
     public void CloseMessage(string id)
     {
-        Messages.RemoveAll(info => info.Id == id);
+        lock (_messageLock)
+            Messages.RemoveAll(info => info.Id == id);
     }
     
     public void Dialog(string title, string content, string? primaryButtonText = null, Action? primaryButtonAction = null)

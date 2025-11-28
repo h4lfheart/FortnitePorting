@@ -8,6 +8,7 @@ using FluentAvalonia.UI.Controls;
 using FortnitePorting.Controls.Navigation;
 using FortnitePorting.Controls.Navigation.Sidebar;
 using FortnitePorting.Framework;
+using FortnitePorting.Models.Information;
 using FortnitePorting.Services;
 using FortnitePorting.ViewModels;
 using FortnitePorting.Views;
