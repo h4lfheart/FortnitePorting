@@ -6,7 +6,7 @@ namespace FortnitePorting.Exporting.Context;
 
 public partial class ExportContext
 {
-    public ExportAnimSection? AnimSequence(UAnimSequence? animSequence, float time = 0.0f)
+    public ExportAnimSection? AnimSequence(UAnimSequenceBase? animSequence, float time = 0.0f)
     {
         if (animSequence is null) return null;
         var exportSequence = new ExportAnimSection
