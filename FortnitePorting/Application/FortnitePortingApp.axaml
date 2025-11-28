@@ -944,11 +944,42 @@
             </Setter>
         </Style>
         
-        
         <Style Selector="ColorPicker[IsVisible=True]">
             <Setter Property="ClipToBounds" Value="False"/>
             <Setter Property="CornerRadius" Value="16"/>
         </Style>
+        
+        <Style Selector="ui|ContentDialog[IsVisible=True]">
+            <Setter Property="CornerRadius" Value="16"/>
+            
+            <Style Selector="^ /template/ Border">
+                <Setter Property="Background" Value="{x:Null}"/>
+                <Setter Property="BorderThickness" Value="0"/>
+            </Style>
+            
+            <Style Selector="^ /template/ Border#BackgroundElement">
+                <Setter Property="Background">
+                    <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
+                        <GradientStops>
+                            <GradientStop Color="#1A1B1E" Offset="0"/>
+                            <GradientStop Color="#18191B" Offset="1"/>
+                        </GradientStops>
+                    </LinearGradientBrush>
+                </Setter>
+                
+                <Setter Property="ClipToBounds" Value="False"/>
+                <Setter Property="BackgroundSizing" Value="CenterBorder"/>
+                <Setter Property="BoxShadow">
+                    inset 0 1 2 -1 #50ffffff,
+                    inset 0 -1 2 -2 #50ffffff,
+                    0 4 8 #20000000,
+                    0 8 12 #10000000
+                </Setter>
+                
+                <Setter Property="BorderThickness" Value="0"/>
+            </Style>
+        </Style>
+
         
         
         <Style Selector="Button.DiscordButton /template/ ContentPresenter">
@@ -1048,54 +1079,20 @@
         
         <Style Selector="Button.TWExitButton">
             <Setter Property="Foreground" Value="#c7655d" />
-            <Setter Property="Background" Value="#82632B2A" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Cursor" Value="Hand" />
-        </Style>
-
-        <Style Selector="Button.TWExitButton:pointerover /template/ ContentPresenter">
-            <Setter Property="CornerRadius" Value="4" />
-            <Setter Property="Background" Value="#733231" />
+            
+            <Style Selector="^ /template/ ContentPresenter">
+                <Setter Property="Background" Value="#632B2A" />
+            </Style>
+            
+            <Style Selector="^:pointerover /template/ ContentPresenter">
+                <Setter Property="Background" Value="#733231" />
+            </Style>
+        
+            <Style Selector="^:pressed /template/ ContentPresenter">
+                <Setter Property="Background" Value="#733231" />
+            </Style>
         </Style>
         
-        <Style Selector="Button.TWExitButton:pressed /template/ ContentPresenter">
-            <Setter Property="CornerRadius" Value="4" />
-            <Setter Property="Background" Value="#733231" />
-        </Style>
-        
-        <Style Selector="Button.ZoomButton">
-            <Setter Property="Background" Value="{DynamicResource SystemAccentColor}" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Cursor" Value="Hand" />
-        </Style>
-
-        <Style Selector="Button.ZoomButton:pointerover /template/ ContentPresenter">
-            <Setter Property="CornerRadius" Value="4" />
-            <Setter Property="Background" Value="{DynamicResource SystemAccentColorDark1}" />
-        </Style>
-        
-        <Style Selector="Button.ZoomButton:pressed /template/ ContentPresenter">
-            <Setter Property="CornerRadius" Value="4" />
-            <Setter Property="Background" Value="{DynamicResource SystemAccentColorDark1}" />
-        </Style>
-        
-        <Style Selector="ToggleButton.RadioButton">
-            <Setter Property="Padding" Value="0"/>
-            <Setter Property="Foreground" Value="#48FFFFFF" />
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Cursor" Value="Hand" />
-        </Style>
-
-        <Style Selector="ToggleButton.RadioButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Foreground" Value="#48FFFFFF" />
-            <Setter Property="Background" Value="Transparent" />
-        </Style>
-
-        <Style Selector="ToggleButton.RadioButton:checked /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Foreground" Value="#FFFFFF" />
-            <Setter Property="Background" Value="Transparent" />
-        </Style>
         
         <Style Selector="TextBox.RadioTextBlockRename:not(:focus)">
             <Setter Property="Template">

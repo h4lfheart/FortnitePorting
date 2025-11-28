@@ -75,7 +75,7 @@ public class MaterialNodeTree : NodeTree
     {
         if (!materialFunction.TryLoadEditorData<UMaterialFunctionEditorOnlyData>(out var editorData) || editorData is null)
         {
-            Info.Dialog("Material Preview", $"Failed to load {materialFunction.Name} because it has no editor-only data.");
+            Info.Message("Material Preview", $"Failed to load {materialFunction.Name} because it has no editor-only data.");
             return;
         }
         
@@ -87,7 +87,7 @@ public class MaterialNodeTree : NodeTree
     {
         if (!material.TryLoadEditorData<UMaterialEditorOnlyData>(out var editorData) || editorData is null)
         {
-            Info.Dialog("Material Preview", $"Failed to load {material.Name} because it has no editor-only data.");
+            Info.Message("Material Preview", $"Failed to load {material.Name} because it has no editor-only data.");
             return;
         }
         

@@ -244,7 +244,7 @@ public partial class MapViewModel : ViewModelBase
             }
             catch (Exception e)
             {
-                Info.Dialog("Map Export", $"Failed to load {map.MapInfo.Name} for export, skipping.");
+                Info.Message("Map Export", $"Failed to load {map.MapInfo.Name} for export, skipping.");
 #if DEBUG
                 Log.Error(e.ToString());
 #else
