@@ -1,25 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Timers;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Interactivity;
-using Avalonia.LogicalTree;
-using Avalonia.Markup.Xaml;
-using Avalonia.Media;
-using Avalonia.Threading;
 using FortnitePorting.Framework;
-using FortnitePorting.Models.TimeWaster;
-using FortnitePorting.Models.TimeWaster.Actors;
-using FortnitePorting.Models.TimeWaster.Audio;
 using FortnitePorting.Services;
 using FortnitePorting.ViewModels;
-using ScottPlot.Palettes;
-using Serilog;
 
 namespace FortnitePorting.Views;
 

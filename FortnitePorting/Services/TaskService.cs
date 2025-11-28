@@ -144,8 +144,12 @@ public static class TaskService
         }
     }
 
-    public static void RunAsynchronously(this Task task)
+    extension(Task task)
     {
-        task.Start();
+        public void RunAsynchronously()
+        {
+            task.Start();
+        }
     }
+    
 }

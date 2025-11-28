@@ -7,7 +7,6 @@ using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using FortnitePorting.Extensions;
 using FortnitePorting.Models.Clipboard;
-using FortnitePorting.Shared.Extensions;
 
 namespace FortnitePorting.Models.Assets;
 

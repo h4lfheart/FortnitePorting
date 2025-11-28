@@ -1,18 +1,11 @@
-using System.Diagnostics;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml;
-using CommunityToolkit.Mvvm.ComponentModel;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Controls.WrapPanel;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Files;
 using FortnitePorting.Services;
-using FortnitePorting.Shared.Extensions;
 using FortnitePorting.ViewModels;
-using Serilog;
 
 namespace FortnitePorting.Views;
 

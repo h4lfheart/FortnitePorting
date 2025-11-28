@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using FortnitePorting.Application;
 using FortnitePorting.Models.API;
 using RestSharp;
 using RestSharp.Serializers.NewtonsoftJson;

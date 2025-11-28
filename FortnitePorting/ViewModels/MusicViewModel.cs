@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
@@ -10,18 +8,13 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.UE4.Assets.Exports.Sound;
-using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.Utils;
 using DynamicData;
 using DynamicData.Binding;
-using FortnitePorting.Application;
-using FortnitePorting.Controls;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Radio;
 using FortnitePorting.Services;
-using FortnitePorting.Shared;
-using FortnitePorting.Shared.Extensions;
 using Material.Icons;
 using NAudio.Wave;
 using Newtonsoft.Json;
@@ -201,8 +194,7 @@ public partial class MusicViewModel : ViewModelBase
 
     public void Scrub(TimeSpan time)
     {
-        if (AudioReader is null) return;
-        AudioReader.CurrentTime = time;
+        AudioReader?.CurrentTime = time;
     }
     
     public void Restart()

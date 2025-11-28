@@ -3,7 +3,6 @@ using System.Text;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Serilog.Events;
-using Color = System.Drawing.Color;
 
 namespace FortnitePorting.Models.Serilog;
 

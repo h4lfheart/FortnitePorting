@@ -1,9 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Input;
-using FortnitePorting.Application;
 using FortnitePorting.Framework;
 using FortnitePorting.ViewModels.Settings;
-using Serilog;
 
 namespace FortnitePorting.Views.Settings;
 

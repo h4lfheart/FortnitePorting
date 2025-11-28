@@ -5,7 +5,6 @@ using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.VisualTree;
 using AvaloniaEdit;
-using AvaloniaEdit.Folding;
 using AvaloniaEdit.Rendering;
 
 namespace FortnitePorting.Models.AvaloniaEdit;

@@ -1,14 +1,9 @@
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using CUE4Parse.UE4.Versions;
 using FortnitePorting.Application;
 using FortnitePorting.Framework;
-using FortnitePorting.Models.CUE4Parse;
 using FortnitePorting.Services;
-using FortnitePorting.Shared;
 using Newtonsoft.Json;
 using InstallationProfile = FortnitePorting.Models.Installation.InstallationProfile;
 

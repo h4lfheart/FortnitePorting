@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using ATL.Logging;
 using CUE4Parse_Conversion.Sounds;
 using CUE4Parse.GameTypes.FN.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Exports.Sound;
@@ -11,7 +10,6 @@ using CUE4Parse.UE4.Assets.Exports.Sound.Node;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
-using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
 using Log = Serilog.Log;
 
@@ -151,59 +149,65 @@ public static class SoundExtensions
         MiscExtensions.TryDeleteFile(adpcmPath);
     }
     
-    public static List<Sound> HandleSoundTree(this USoundCue root, float offsetTime = 0.0f)
+    extension(USoundCue root)
     {
-        if (root.FirstNode is null) return [];
-        return HandleSoundTree(root.FirstNode.Load<USoundNode>(), offsetTime);
-    }
-
-    public static List<Sound> HandleSoundTree(this USoundNode? root, float offsetTime = 0.0f)
-    {
-        var sounds = new List<Sound>();
-        switch (root)
+        public List<Sound> HandleSoundTree(float offsetTime = 0.0f)
         {
-            case USoundNodeWavePlayer player:
-            {
-                sounds.Add(CreateSound(player, offsetTime));
-                break;
-            }
-            case USoundNodeDelay delay:
-            {
-                foreach (var nodeObject in delay.ChildNodes) sounds.AddRange(HandleSoundTree(nodeObject.Load<USoundNode>(), offsetTime + delay.GetOrDefault("DelayMin", delay.GetOrDefault<float>("DelayMax"))));
-
-                break;
-            }
-            case USoundNodeRandom random:
-            {
-                var index = Random.Shared.Next(0, random.ChildNodes.Length);
-                sounds.AddRange(HandleSoundTree(random.ChildNodes[index].Load<USoundNode>(), offsetTime));
-                break;
-            }
-
-            case UFortSoundNodeLicensedContentSwitcher switcher:
-            {
-                sounds.AddRange(HandleSoundTree(switcher.ChildNodes.Last().Load<USoundNode>(), offsetTime));
-                break;
-            }
-            case USoundNodeDialoguePlayer dialoguePlayer:
-            {
-                var dialogueWaveParameter = dialoguePlayer.Get<FStructFallback>("DialogueWaveParameter");
-                var dialogueWave = dialogueWaveParameter.Get<UDialogueWave>("DialogueWave");
-                var contextMappings = dialogueWave.Get<FStructFallback[]>("ContextMappings");
-                var soundWave = contextMappings.First().Get<FPackageIndex>("SoundWave");
-                sounds.Add(CreateSound(soundWave));
-                break;
-            }
-            case not null:
-            {
-                foreach (var nodeObject in root.ChildNodes) sounds.AddRange(HandleSoundTree(nodeObject.Load<USoundNode>(), offsetTime));
-
-                break;
-            }
+            return root.FirstNode is null ? [] : HandleSoundTree(root.FirstNode.Load<USoundNode>(), offsetTime);
         }
-
-        return sounds;
     }
+
+    extension(USoundNode? node)
+    {
+        public List<Sound> HandleSoundTree(float offsetTime = 0.0f)
+        {
+            var sounds = new List<Sound>();
+            switch (node)
+            {
+                case USoundNodeWavePlayer player:
+                {
+                    sounds.Add(CreateSound(player, offsetTime));
+                    break;
+                }
+                case USoundNodeDelay delay:
+                {
+                    foreach (var nodeObject in delay.ChildNodes) sounds.AddRange(HandleSoundTree(nodeObject.Load<USoundNode>(), offsetTime + delay.GetOrDefault("DelayMin", delay.GetOrDefault<float>("DelayMax"))));
+
+                    break;
+                }
+                case USoundNodeRandom random:
+                {
+                    var index = Random.Shared.Next(0, random.ChildNodes.Length);
+                    sounds.AddRange(HandleSoundTree(random.ChildNodes[index].Load<USoundNode>(), offsetTime));
+                    break;
+                }
+
+                case UFortSoundNodeLicensedContentSwitcher switcher:
+                {
+                    sounds.AddRange(HandleSoundTree(switcher.ChildNodes.Last().Load<USoundNode>(), offsetTime));
+                    break;
+                }
+                case USoundNodeDialoguePlayer dialoguePlayer:
+                {
+                    var dialogueWaveParameter = dialoguePlayer.Get<FStructFallback>("DialogueWaveParameter");
+                    var dialogueWave = dialogueWaveParameter.Get<UDialogueWave>("DialogueWave");
+                    var contextMappings = dialogueWave.Get<FStructFallback[]>("ContextMappings");
+                    var soundWave = contextMappings.First().Get<FPackageIndex>("SoundWave");
+                    sounds.Add(CreateSound(soundWave));
+                    break;
+                }
+                case not null:
+                {
+                    foreach (var nodeObject in node.ChildNodes) sounds.AddRange(HandleSoundTree(nodeObject.Load<USoundNode>(), offsetTime));
+
+                    break;
+                }
+            }
+
+            return sounds;
+        }
+    }
+    
     
     public static Sound CreateSound(USoundNodeWavePlayer player, float timeOffset = 0)
     {

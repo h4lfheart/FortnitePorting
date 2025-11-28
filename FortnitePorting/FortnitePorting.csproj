@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFramework>net8.0-windows10.0.17763.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
         <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
         <ApplicationManifest>Application/app.manifest</ApplicationManifest>
@@ -20,8 +20,6 @@
         <PackageReference Include="Avalonia_Gif" Version="1.0.0" />
         <PackageReference Include="AvaSourceGenerators" Version="0.2.0" />
         <PackageReference Include="ConcurrentHashSet" Version="1.3.0" />
-        <PackageReference Include="DesktopNotifications" Version="1.3.1" />
-        <PackageReference Include="DesktopNotifications.Avalonia" Version="1.3.1" />
         <PackageReference Include="DiscordRichPresence" Version="1.2.1.24" />
         <PackageReference Include="DynamicData" Version="8.4.1" />
         <PackageReference Include="EpicManifestParser" Version="2.4.1" />

@@ -1,28 +1,14 @@
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
-using Avalonia.Collections;
-using Avalonia.Controls;
-using Avalonia.Controls.Primitives;
 using Avalonia.Media.Imaging;
-using Clowd.Clipboard;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using CUE4Parse;
-using DynamicData;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Framework;
-using FortnitePorting.Models;
 using FortnitePorting.Models.Chat;
 using FortnitePorting.Models.Clipboard;
 using FortnitePorting.Services;
-using Serilog;
-using SixLabors.ImageSharp.PixelFormats;
-using Globals = FortnitePorting.Globals;
 
 namespace FortnitePorting.ViewModels;
 

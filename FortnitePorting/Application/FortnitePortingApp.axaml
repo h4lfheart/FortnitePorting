@@ -5,10 +5,10 @@
              xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
              xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:uip="clr-namespace:FluentAvalonia.UI.Controls.Primitives;assembly=FluentAvalonia"
-             xmlns:nodify="https://miroiu.github.io/nodify"
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
              xmlns:breadcrumb="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia.BreadcrumbBar"
              xmlns:editing="https://github.com/avaloniaui/avaloniaedit"
+             xmlns:converters="clr-namespace:FortnitePorting.Converters"
              x:Class="FortnitePorting.Application.FortnitePortingApp"
              RequestedThemeVariant="Dark">
 
@@ -19,15 +19,15 @@
                  <ResourceInclude Source="avares://Nodify/Themes/Dark.xaml" />
              </ResourceDictionary.MergedDictionaries>
              
-             <ext:EnumToStringConverter x:Key="EnumToString" />
-             <ext:EnumToRecordConverter x:Key="EnumToRecord" />
-             <ext:EnumHasFlagConverter x:Key="EnumHasFlag" />
-             <ext:EnumGreaterOrEqualConverter x:Key="EnumGreaterOrEqual" />
-             <ext:EnumEqualsConverter x:Key="EnumEquals" />
-             <ext:EnumNotEqualsConverter x:Key="EnumNotEquals" />
-             <ext:TitleCaseStringConverter x:Key="TitleCaseString" />
-             <ext:UnrealCaseStringConverter x:Key="UnrealCaseString" />
-             <ext:StringToDocumentConverter x:Key="StringToDocument" />
+             <converters:EnumToStringConverter x:Key="EnumToString" />
+             <converters:EnumToRecordConverter x:Key="EnumToRecord" />
+             <converters:EnumHasFlagConverter x:Key="EnumHasFlag" />
+             <converters:EnumGreaterOrEqualConverter x:Key="EnumGreaterOrEqual" />
+             <converters:EnumEqualsConverter x:Key="EnumEquals" />
+             <converters:EnumNotEqualsConverter x:Key="EnumNotEquals" />
+             <converters:TitleCaseStringConverter x:Key="TitleCaseString" />
+             <converters:UnrealCaseStringConverter x:Key="UnrealCaseString" />
+             <converters:StringToDocumentConverter x:Key="StringToDocument" />
          
              <Brush x:Key="ToggleSwitchKnobFillOn">#FFFFFFFF</Brush>
              <Brush x:Key="ToggleSwitchKnobFillOnPointerOver">#FFFFFFFF</Brush>
@@ -325,6 +325,10 @@
                         0 4 8 #20000000,
                         0 8 12 #10000000
                     </Setter>
+                </Style>
+                
+                <Style Selector="^ /template/ Ellipse#SliderInnerThumb">
+                    <Setter Property="Fill" Value="#953BF8"/>
                 </Style>
             </Style>
             

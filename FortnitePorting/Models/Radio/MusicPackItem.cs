@@ -1,12 +1,8 @@
-using System;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using ATL;
-using ATL.AudioData;
 using Avalonia.Media.Imaging;
-using Commons;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse_Conversion.Textures;
@@ -20,10 +16,8 @@ using FFMpegCore;
 using FortnitePorting.Application;
 using FortnitePorting.Extensions;
 using FortnitePorting.Services;
-using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
 using Material.Icons;
-using SkiaSharp;
 
 namespace FortnitePorting.Models.Radio;
 

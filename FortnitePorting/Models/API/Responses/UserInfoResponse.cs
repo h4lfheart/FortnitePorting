@@ -1,5 +1,3 @@
-using System;
-using Avalonia.Media.Imaging;
 using FortnitePorting.Models.Supabase.Tables;
 
 namespace FortnitePorting.Models.API.Responses;

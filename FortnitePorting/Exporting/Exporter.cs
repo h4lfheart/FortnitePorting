@@ -14,7 +14,6 @@ using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Objects.Engine.Animation;
 using CUE4Parse.Utils;
 using FluentAvalonia.UI.Controls;
-using FortnitePorting.Application;
 using FortnitePorting.Exporting.Models;
 using FortnitePorting.Exporting.Types;
 using FortnitePorting.Extensions;
@@ -26,9 +25,7 @@ using FortnitePorting.Models.Assets.Custom;
 using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Models.Unreal;
 using FortnitePorting.Services;
-using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Views;
-using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Serilog;
 using BaseAssetInfo = FortnitePorting.Models.Assets.Base.BaseAssetInfo;
@@ -56,7 +53,7 @@ public static class Exporter
             {
                 if (await Api.FortnitePortingServer.PingAsync(serverType) is false)
                 {
-                    var serverName = serverType.GetDescription();
+                    var serverName = serverType.Description;
                     Info.Message($"{serverName} Server", $"The {serverName} Plugin for Fortnite Porting is not currently installed or running.", 
                         severity: InfoBarSeverity.Error, closeTime: 3.0f,
                         useButton: true, buttonTitle: "Install Plugin", buttonCommand: () =>
@@ -89,7 +86,7 @@ public static class Exporter
             if (baseAssetInfo is AssetInfo assetInfo)
             {
                 var asset = assetInfo.Asset;
-                var styles = metaData.ExportLocation.IsFolder() ? assetInfo.GetAllStyles() : assetInfo.GetSelectedStyles();
+                var styles = metaData.ExportLocation.IsFolder ? assetInfo.GetAllStyles() : assetInfo.GetSelectedStyles();
                 var exportType = asset.CreationData.ExportType;
 
                 return CreateExport(asset.CreationData.DisplayName, asset.CreationData.Object, exportType, styles,

@@ -1,14 +1,10 @@
-using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
-using FluentAvalonia.UI.Controls;
-using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Plugin;
 using FortnitePorting.Services;
-using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
 using Newtonsoft.Json;
 

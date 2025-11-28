@@ -1,17 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using AssetRipper.TextureDecoder.Rgb.Channels;
 using Avalonia.Controls;
-using Avalonia.Input;
-using FluentAvalonia.UI.Controls;
-using FortnitePorting.Controls.Navigation;
 using FortnitePorting.Controls.Navigation.Sidebar;
 using FortnitePorting.Framework;
-using FortnitePorting.Models.Information;
-using FortnitePorting.Services;
-using FortnitePorting.ViewModels;
-using FortnitePorting.Views;
 using AppWindowModel = FortnitePorting.WindowModels.AppWindowModel;
 
 namespace FortnitePorting.Windows;

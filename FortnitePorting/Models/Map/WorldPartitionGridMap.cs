@@ -1,8 +1,6 @@
-using System;
 using System.Threading.Tasks;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.Utils;
 
 namespace FortnitePorting.Models.Map;

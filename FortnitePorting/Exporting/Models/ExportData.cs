@@ -31,8 +31,8 @@ public delegate void ExportProgressUpdate(string name, int current, int total);
 
 public static class ExportLocationExtensions
 {
-    public static bool IsFolder(this EExportLocation exportLocation)
+    extension(EExportLocation exportLocation)
     {
-        return exportLocation is EExportLocation.AssetsFolder or EExportLocation.CustomFolder;
+        public bool IsFolder => exportLocation is EExportLocation.AssetsFolder or EExportLocation.CustomFolder;
     }
 }

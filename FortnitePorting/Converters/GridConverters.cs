@@ -1,10 +1,12 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Globalization;
 using Avalonia.Controls;
 using Avalonia.Data.Converters;
 
-namespace FortnitePorting.Extensions;
+namespace FortnitePorting.Converters;
+
 
 public class ConditionalConverter<T> : IValueConverter
 {

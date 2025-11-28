@@ -1,13 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Avalonia.LogicalTree;
-using Avalonia.VisualTree;
 using CUE4Parse.Utils;
 using FluentAvalonia.UI.Controls;
-using FortnitePorting.Controls.Navigation;
 using FortnitePorting.Controls.Navigation.Sidebar;
-using Serilog;
 
 namespace FortnitePorting.Services;
 

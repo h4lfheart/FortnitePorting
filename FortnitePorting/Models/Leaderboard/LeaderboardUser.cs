@@ -1,14 +1,10 @@
-using System;
 using System.Threading.Tasks;
-using Windows.System.UserProfile;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FortnitePorting.Extensions;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.Supabase.Tables;
-using FortnitePorting.Shared.Extensions;
-using NAudio.CoreAudioApi;
 using Newtonsoft.Json;
 
 namespace FortnitePorting.Models.Leaderboard;

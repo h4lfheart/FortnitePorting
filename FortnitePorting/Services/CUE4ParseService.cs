@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
@@ -10,7 +9,6 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse_Conversion.Textures.BC;
-using CUE4Parse_Conversion.UEFormat.Structs;
 using CUE4Parse.Compression;
 using CUE4Parse.Encryption.Aes;
 using CUE4Parse.MappingsProvider;
@@ -19,12 +17,9 @@ using CUE4Parse.UE4.AssetRegistry.Objects;
 using CUE4Parse.UE4.Assets;
 using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.Engine;
-using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.IO;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.Core.Math;
-using CUE4Parse.UE4.Objects.GameplayTags;
-using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.UE4.Pak;
 using CUE4Parse.UE4.Readers;
 using CUE4Parse.UE4.Versions;
@@ -32,15 +27,11 @@ using CUE4Parse.UE4.VirtualFileSystem;
 using CUE4Parse.Utils;
 using EpicManifestParser;
 using EpicManifestParser.UE;
-using FortnitePorting.Application;
 using FortnitePorting.Extensions;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.CUE4Parse;
 using FortnitePorting.Models.Fortnite;
-using FortnitePorting.Rendering;
 using FortnitePorting.Shared.Extensions;
-using FortnitePorting.Views;
-using FortnitePorting.Windows;
 using Serilog;
 using UE4Config.Parsing;
 using FGuid = CUE4Parse.UE4.Objects.Core.Misc.FGuid;
@@ -136,7 +127,7 @@ public partial class CUE4ParseService : ObservableObject, IService
         
         if (!Provider.TryChangeCulture(Provider.GetLanguageCode(AppSettings.Installation.CurrentProfile.GameLanguage)))
         {
-            Info.Message("Internationalization", $"Failed to load language \"{AppSettings.Installation.CurrentProfile.GameLanguage.GetDescription()}\"");
+            Info.Message("Internationalization", $"Failed to load language \"{AppSettings.Installation.CurrentProfile.GameLanguage.Description}\"");
         }
         
         await LoadMappings();

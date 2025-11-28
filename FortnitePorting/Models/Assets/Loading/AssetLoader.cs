@@ -2,7 +2,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -20,13 +19,8 @@ using FortnitePorting.Models.Assets.Asset;
 using FortnitePorting.Models.Assets.Base;
 using FortnitePorting.Models.Assets.Custom;
 using FortnitePorting.Models.Assets.Filters;
-using FortnitePorting.Services;
-using FortnitePorting.Shared;
-using FortnitePorting.Shared.Extensions;
 using Material.Icons;
-using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
-using ScottPlot.Colormaps;
 using Serilog;
 
 namespace FortnitePorting.Models.Assets.Loading;
@@ -69,7 +63,7 @@ public partial class AssetLoader : ObservableObject
     [ObservableProperty, NotifyPropertyChangedFor(nameof(LoadingStatus))] private int _loadedAssets;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(LoadingStatus))] private int _totalAssets = int.MaxValue;
     [ObservableProperty] private bool _finishedLoading = false;
-    public string LoadingStatus => $"Loading {Type.GetDescription()}: {(LoadedAssets == 0 && TotalAssets == 0 ? 0 : LoadedAssets * 100f / TotalAssets):N0}%";
+    public string LoadingStatus => $"Loading {Type.Description}: {(LoadedAssets == 0 && TotalAssets == 0 ? 0 : LoadedAssets * 100f / TotalAssets):N0}%";
     
     
     public readonly IObservable<SortExpressionComparer<BaseAssetItem>> AssetSort;

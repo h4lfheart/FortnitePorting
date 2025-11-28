@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Leaderboard;
-using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
 
 namespace FortnitePorting.ViewModels.Leaderboard;

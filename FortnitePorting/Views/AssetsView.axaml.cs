@@ -1,26 +1,16 @@
 using System;
 using System.Linq;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.Media;
-using Avalonia.Threading;
-using Avalonia.VisualTree;
-using FluentAvalonia.UI.Controls;
-using FortnitePorting.Controls.Navigation;
 using FortnitePorting.Controls.Navigation.Sidebar;
 using FortnitePorting.Controls.WrapPanel;
 using FortnitePorting.Framework;
-using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.Assets.Asset;
 using FortnitePorting.Models.Assets.Custom;
 using FortnitePorting.Models.Assets.Filters;
-using FortnitePorting.Models.Assets.Loading;
 using FortnitePorting.Services;
-using FortnitePorting.Shared;
 using FortnitePorting.ViewModels;
-using Serilog;
 using BaseAssetItem = FortnitePorting.Models.Assets.Base.BaseAssetItem;
 
 namespace FortnitePorting.Views;

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using FortnitePorting.Shared;
 
 namespace FortnitePorting.Models.Assets.Loading;
 

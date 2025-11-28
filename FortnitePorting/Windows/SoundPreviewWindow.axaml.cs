@@ -4,7 +4,6 @@ using Avalonia.Controls.Primitives;
 using CUE4Parse.UE4.Assets.Exports.Sound;
 using FortnitePorting.Framework;
 using FortnitePorting.Services;
-using FortnitePorting.ViewModels;
 using FortnitePorting.WindowModels;
 
 namespace FortnitePorting.Windows;

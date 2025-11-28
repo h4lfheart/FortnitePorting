@@ -5,16 +5,8 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
-using Avalonia.Threading;
-using DynamicData;
 using FluentAvalonia.Styling;
-using FluentAvalonia.UI.Controls;
-using FortnitePorting.Framework;
-using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
-using FortnitePorting.ViewModels;
-using Microsoft.Extensions.DependencyInjection;
-using Serilog;
 
 namespace FortnitePorting.Application;
 

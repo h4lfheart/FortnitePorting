@@ -1,16 +1,10 @@
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Threading.Tasks;
-using Avalonia;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FortnitePorting.Framework;
-using FortnitePorting.Models.Serilog;
 using FortnitePorting.Services;
-using Serilog.Core;
-using Serilog.Events;
 
 namespace FortnitePorting.ViewModels;
 

@@ -1,16 +1,9 @@
 using System;
 using System.Globalization;
-using System.Linq;
-using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Data.Converters;
-using Avalonia.Media;
-using Avalonia.VisualTree;
-using AvaloniaEdit;
 using AvaloniaEdit.Document;
-using AvaloniaEdit.Rendering;
 
-namespace FortnitePorting.Extensions;
+namespace FortnitePorting.Converters;
 
 public class StringToDocumentConverter : IValueConverter
 {

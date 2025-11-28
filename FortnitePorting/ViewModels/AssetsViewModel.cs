@@ -1,27 +1,18 @@
-using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using FluentAvalonia.UI.Controls;
-using FortnitePorting.Application;
-using FortnitePorting.Controls.Navigation;
 using FortnitePorting.Controls.Navigation.Sidebar;
 using FortnitePorting.Exporting;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
-using FortnitePorting.Models.API;
-using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.Assets.Asset;
 using FortnitePorting.Models.Assets.Custom;
-using FortnitePorting.Models.Leaderboard;
 using FortnitePorting.Services;
-using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Views;
 using Material.Icons;
-using RestSharp;
 
 namespace FortnitePorting.ViewModels;
 
@@ -53,12 +44,12 @@ public partial class AssetsViewModel() : ViewModelBase
         {
             foreach (var (index, category) in AssetLoader.Categories.Enumerate())
             {
-                SidebarItems.Add(new SidebarItemText(category.Category.GetDescription().ToUpper()));
+                SidebarItems.Add(new SidebarItemText(category.Category.Description.ToUpper()));
 
                 foreach (var loader in category.Loaders)
                 {
                     SidebarItems.Add(new SidebarItemButton(
-                        text: loader.Type.GetDescription(), 
+                        text: loader.Type.Description, 
                         iconBitmap: ImageExtensions.AvaresBitmap($"avares://FortnitePorting/Assets/FN/{loader.Type.ToString()}.png"),
                         tag: loader.Type
                     ));

@@ -1,24 +1,18 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
-             xmlns:ui="using:FluentAvalonia.UI.Controls"
              xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
-             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
-             xmlns:versions="clr-namespace:CUE4Parse.UE4.Versions;assembly=CUE4Parse"
-             xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
              xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
-             xmlns:controls1="clr-namespace:Avalonia.Controls"
              xmlns:wrapPanel="clr-namespace:FortnitePorting.Controls.WrapPanel"
              xmlns:assets="clr-namespace:FortnitePorting.Models.Assets"
              xmlns:filters="clr-namespace:FortnitePorting.Models.Assets.Filters"
              xmlns:fortnitePorting="clr-namespace:FortnitePorting"
              xmlns:base="clr-namespace:FortnitePorting.Models.Assets.Base"
              xmlns:views="clr-namespace:FortnitePorting.Views"
-             xmlns:navigation="clr-namespace:FortnitePorting.Controls.Navigation"
              xmlns:sidebar="clr-namespace:FortnitePorting.Controls.Navigation.Sidebar"
+             xmlns:converters="clr-namespace:FortnitePorting.Converters"
              d:DesignHeight="720" d:DesignWidth="1280"
              x:Class="FortnitePorting.Views.AssetsView"
              x:DataType="viewModels:AssetsViewModel">
@@ -50,23 +44,10 @@
                              Maximum="{Binding AssetLoader.ActiveLoader.TotalAssets}" />
             </StackPanel>
         </controls:ContentCard>
-        <!--Grid Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding !AssetLoader.ActiveLoader.FinishedLoading, FallbackValue=True}">
-            <TextBlock Text="{Binding AssetLoader.ActiveLoader.LoadingStatus}" 
-                       Margin="{ext:Space 0, 0, 0, 8}"
-                       HorizontalAlignment="Center" VerticalAlignment="Center"
-                       FontFamily="{StaticResource SFDisplaySemibold}"
-                       FontSize="20"/>
-                                       
-            <ProgressBar HorizontalAlignment="Center" VerticalAlignment="Center" Height="8"
-                         MinWidth="400"
-                         Value="{Binding AssetLoader.ActiveLoader.LoadedAssets}"
-                         Minimum="0"
-                         Maximum="{Binding AssetLoader.ActiveLoader.TotalAssets}" />
-        </Grid-->
         
         <Grid Grid.Column="1" Margin="{ext:Space 0, 1, 1, 1}" IsVisible="{Binding AssetLoader.ActiveLoader.FinishedLoading, FallbackValue=False}">
             <Grid.Resources>
-                <ext:GridLengthConverter x:Key="AssetsBoxConverter" 
+                <converters:GridLengthConverter x:Key="AssetsBoxConverter" 
                                            TrueValue="*" 
                                            FalseValue="0"/>
             </Grid.Resources>

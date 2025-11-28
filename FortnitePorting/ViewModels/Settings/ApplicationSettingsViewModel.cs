@@ -5,19 +5,15 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using FluentAvalonia.UI.Media.Animation;
-using FortnitePorting.Application;
 using FortnitePorting.Framework;
 using FortnitePorting.Models;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.Assets.Base;
 using FortnitePorting.Models.Radio;
-using FortnitePorting.Shared;
 using FortnitePorting.Validators;
 using NAudio.Wave;
 using Newtonsoft.Json;
-using Serilog;
 
 namespace FortnitePorting.ViewModels.Settings;
 

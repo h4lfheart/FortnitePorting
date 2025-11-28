@@ -3,7 +3,6 @@ using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FortnitePorting.Extensions;
-using FortnitePorting.Shared.Extensions;
 
 namespace FortnitePorting.Models.TimeWaster.Actors;
 

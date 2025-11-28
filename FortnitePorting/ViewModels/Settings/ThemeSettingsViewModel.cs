@@ -1,15 +1,9 @@
 using System;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Linq;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
-using FluentAvalonia.Styling;
 using FortnitePorting.Framework;
-using FortnitePorting.Shared.Extensions;
-using Newtonsoft.Json;
 
 namespace FortnitePorting.ViewModels.Settings;
 

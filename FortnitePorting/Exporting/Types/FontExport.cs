@@ -13,7 +13,7 @@ public class FontExport : BaseExport
     {
         if (asset is not UFontFace fontFace) return;
 
-        if (metaData.ExportLocation.IsFolder())
+        if (metaData.ExportLocation.IsFolder)
         {
             var exportPath = Exporter.Export(fontFace, returnRealPath: true, synchronousExport: true);
             App.Launch(System.IO.Path.GetDirectoryName(exportPath)!);

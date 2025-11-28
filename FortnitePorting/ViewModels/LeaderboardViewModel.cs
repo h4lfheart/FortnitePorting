@@ -1,31 +1,11 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Threading.Tasks;
-using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using DynamicData;
-using FortnitePorting.Application;
-using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
-using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.Leaderboard;
-using FortnitePorting.Models.Supabase.Tables;
 using FortnitePorting.Services;
-using FortnitePorting.Shared.Extensions;
-using FortnitePorting.ViewModels.Settings;
-using FortnitePorting.Views;
-using Microsoft.VisualBasic.Logging;
-using ScottPlot;
-using ScottPlot.Avalonia;
-using ScottPlot.Rendering.RenderActions;
-using ScottPlot.TickGenerators;
-using ScottPlot.TickGenerators.TimeUnits;
-using Supabase.Realtime.PostgresChanges;
-using Log = Serilog.Log;
 
 namespace FortnitePorting.ViewModels;
 

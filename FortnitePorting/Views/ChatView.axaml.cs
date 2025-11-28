@@ -1,21 +1,13 @@
 using System;
 using System.IO;
 using System.Linq;
-using AsyncImageLoader;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.Media.Imaging;
-using Avalonia.Platform.Storage;
 using Avalonia.VisualTree;
-using Clowd.Clipboard;
-using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.Utils;
-using FluentAvalonia.UI.Controls;
 using FortnitePorting.Framework;
-using FortnitePorting.Models;
 using FortnitePorting.Models.Chat;
 using FortnitePorting.Models.Supabase.Tables;
 
@@ -24,7 +16,6 @@ using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.ViewModels;
 using Supabase.Storage.Exceptions;
-using FileOptions = Supabase.Storage.FileOptions;
 
 namespace FortnitePorting.Views;
 

@@ -53,7 +53,7 @@ public class TextureExport : BaseExport
 
         foreach (var texture in textures)
         {
-            if (metaData.ExportLocation.IsFolder())
+            if (metaData.ExportLocation.IsFolder)
             {
                 var exportPath = Exporter.Export(texture, returnRealPath: true, synchronousExport: true);
                 App.Launch(System.IO.Path.GetDirectoryName(exportPath)!);

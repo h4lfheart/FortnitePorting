@@ -1,24 +1,14 @@
-using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Avalonia.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using CUE4Parse.Utils;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Plugin;
 using FortnitePorting.Services;
-using FortnitePorting.Shared;
-using FortnitePorting.Shared.Extensions;
 using Newtonsoft.Json;
-using Serilog;
 
 namespace FortnitePorting.ViewModels.Plugin;
 

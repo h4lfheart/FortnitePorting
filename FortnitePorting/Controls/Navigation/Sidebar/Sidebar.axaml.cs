@@ -69,10 +69,9 @@ public partial class Sidebar : UserControl
     public void SelectButton(SidebarItemButton? button)
     {
         if (button is null) return;
-        
-        if (_selectedButton is not null)
-            _selectedButton.IsSelected = false;
-        
+
+        _selectedButton?.IsSelected = false;
+
         _selectedButton = button;
         _selectedButton.IsSelected = true;
         

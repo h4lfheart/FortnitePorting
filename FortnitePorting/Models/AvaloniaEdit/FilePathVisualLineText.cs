@@ -2,11 +2,8 @@ using System;
 using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Media.TextFormatting;
-using AvaloniaEdit.Document;
 using AvaloniaEdit.Rendering;
-using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.Utils;
-using FortnitePorting.Extensions;
 using FortnitePorting.Windows;
 using Newtonsoft.Json;
 

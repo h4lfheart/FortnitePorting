@@ -4,7 +4,6 @@ using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.Utils;
 using FortnitePorting.Extensions;
-using FortnitePorting.Shared.Extensions;
 using FortnitePorting.ViewModels.Plugin;
 using Newtonsoft.Json;
 

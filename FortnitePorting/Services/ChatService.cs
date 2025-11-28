@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -8,13 +7,10 @@ using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Chat;
 using FortnitePorting.Models.Supabase.Tables;
-using FortnitePorting.Shared.Extensions;
 using Mapster;
-using Serilog;
 using Supabase.Realtime;
 using Supabase.Realtime.Interfaces;
 using Supabase.Realtime.Models;
-using Supabase.Realtime.PostgresChanges;
 using Constants = Supabase.Postgrest.Constants;
 
 namespace FortnitePorting.Services;
@@ -111,8 +107,7 @@ public partial class ChatService : ObservableObject, IService
                     var targetPresence = presences.Last();
                     
                     var targetUser = await GetUser(targetPresence.UserId) ?? await GetUser(presenceId);
-                    if (targetUser is null) continue;
-                    if (targetUser.UserId is null) continue;
+                    if (targetUser?.UserId is null) continue;
                     
                     targetUser.Tag = targetPresence.Application;
                     targetUser.Version = targetPresence.Version;

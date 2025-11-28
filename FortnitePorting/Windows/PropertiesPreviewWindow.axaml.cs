@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Linq;
 using Avalonia.Interactivity;
 using Avalonia.Media;
@@ -12,9 +11,6 @@ using FortnitePorting.Framework;
 using FortnitePorting.Models.AvaloniaEdit;
 using FortnitePorting.Services;
 using FortnitePorting.WindowModels;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Serilog;
 using PropertiesContainer = FortnitePorting.Models.Viewers.PropertiesContainer;
 
 namespace FortnitePorting.Windows;

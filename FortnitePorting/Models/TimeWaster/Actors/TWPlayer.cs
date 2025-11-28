@@ -1,12 +1,7 @@
 using System;
 using System.Threading.Tasks;
-using ATL.Logging;
-using Avalonia;
-using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FortnitePorting.Services;
-using FortnitePorting.Shared.Extensions;
-using Log = Serilog.Log;
 
 namespace FortnitePorting.Models.TimeWaster.Actors;
 

@@ -1,10 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using CommunityToolkit.HighPerformance;
 using CommunityToolkit.Mvvm.ComponentModel;
-using FluentAvalonia.Core;
 using ScottPlot;
 using ScottPlot.Avalonia;
 using ScottPlot.Plottables;

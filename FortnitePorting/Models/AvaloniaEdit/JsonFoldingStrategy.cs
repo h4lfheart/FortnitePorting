@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using AvaloniaEdit.Document;
 using AvaloniaEdit.Folding;

@@ -1,6 +1,5 @@
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Sound;
-using CUE4Parse.UE4.Assets.Readers;
 
 namespace FortnitePorting.Models.Fortnite;
 

@@ -3,7 +3,6 @@
         xmlns:windowModels="clr-namespace:FortnitePorting.WindowModels"
         xmlns:ext="clr-namespace:FortnitePorting.Extensions"
         xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
-        xmlns:navigation="clr-namespace:FortnitePorting.Controls.Navigation"
         xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
         xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
         xmlns:views="clr-namespace:FortnitePorting.Views"

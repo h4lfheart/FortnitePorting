@@ -1,33 +1,16 @@
 using System;
-using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
-using Avalonia.Data;
-using Avalonia.Input;
-using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using CUE4Parse_Conversion;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Extensions;
-using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.Supabase.Tables;
-
-
-
-using FortnitePorting.Services;
-using FortnitePorting.Shared.Extensions;
-using FortnitePorting.ViewModels.Settings;
-using Mapster;
-using NAudio.CoreAudioApi;
 using Newtonsoft.Json;
-using Serilog;
 using Supabase.Realtime.Models;
-using Exporter = FortnitePorting.Exporting.Exporter;
 
 namespace FortnitePorting.Models.Chat;
 
@@ -67,7 +50,7 @@ public partial class ChatUserV2 : ObservableObject
     {
         var enumValues = Enum.GetValues<ESupabaseRole>()
             .Where(role => role < SupaBase.Permissions.Role)
-            .Select(role => role.GetDescription());
+            .Select(role => role.Description);
         
         var comboBox = new ComboBox
         {
@@ -84,7 +67,7 @@ public partial class ChatUserV2 : ObservableObject
             PrimaryButtonText = "Set",
             PrimaryButtonCommand = new RelayCommand(async () =>
             {
-                var role = Enum.GetValues<ESupabaseRole>().FirstOrDefault(role => role.GetDescription().Equals(comboBox.SelectedItem));
+                var role = Enum.GetValues<ESupabaseRole>().FirstOrDefault(role => role.Description.Equals(comboBox.SelectedItem));
                 await SupaBase.Client.Rpc("set_role", new
                 {
                     target_user_id = UserId,

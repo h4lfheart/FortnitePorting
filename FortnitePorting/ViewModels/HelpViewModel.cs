@@ -1,21 +1,15 @@
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FluentAvalonia.UI.Controls;
-using FortnitePorting.Application;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Article;
-using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.Supabase.Tables;
 
 using FortnitePorting.Services;
-using FortnitePorting.Shared;
-using RestSharp;
-using Log = Serilog.Log;
 
 namespace FortnitePorting.ViewModels;
 

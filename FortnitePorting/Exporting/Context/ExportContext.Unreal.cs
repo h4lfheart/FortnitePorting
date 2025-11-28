@@ -14,7 +14,6 @@ using CUE4Parse.Utils;
 using FortnitePorting.Exporting.Models;
 using FortnitePorting.Extensions;
 using FortnitePorting.Models.Fortnite;
-using FortnitePorting.Models.Unreal;
 using FortnitePorting.Models.Unreal.Lights;
 using FortnitePorting.Shared.Extensions;
 using Serilog;

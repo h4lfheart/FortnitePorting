@@ -1,27 +1,14 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FluentAvalonia.UI.Controls;
-using FortnitePorting.Application;
-using FortnitePorting.Controls;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.API.Responses;
-using FortnitePorting.Models.Supabase.Tables;
-
-
 using FortnitePorting.Services;
-using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
-using FortnitePorting.ViewModels.Settings;
-using Serilog;
-using Supabase.Postgrest;
 
 namespace FortnitePorting.ViewModels;
 

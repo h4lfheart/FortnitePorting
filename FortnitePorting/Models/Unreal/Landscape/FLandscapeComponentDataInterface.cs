@@ -1,13 +1,9 @@
 using System;
 using System.Collections.Concurrent;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
-using CUE4Parse_Conversion.Textures;
-using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Exceptions;
 using CUE4Parse.UE4.Objects.Core.Math;
-using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.UE4.Readers;
 using CUE4Parse.Utils;
 

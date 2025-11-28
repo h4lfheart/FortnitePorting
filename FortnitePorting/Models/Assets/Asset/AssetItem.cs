@@ -1,39 +1,27 @@
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Avalonia.Controls;
 using Avalonia.Media.Imaging;
-using CommunityToolkit.Mvvm.Input;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.GameTypes.FN.Enums;
 using CUE4Parse.UE4.Assets.Exports.Texture;
-using CUE4Parse.UE4.Objects.GameplayTags;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
-using FluentAvalonia.UI.Controls;
-using FortnitePorting.Application;
 using FortnitePorting.Exporting;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Clipboard;
 using FortnitePorting.Models.Fortnite;
-
-
-using FortnitePorting.Services;
-using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Views;
 using FortnitePorting.Windows;
 using Newtonsoft.Json;
-using Serilog;
 using SkiaSharp;
 using SkiaExtensions = FortnitePorting.Extensions.SkiaExtensions;
 
 namespace FortnitePorting.Models.Assets.Asset;
 
 
-public partial class AssetItem : Base.BaseAssetItem
+public class AssetItem : Base.BaseAssetItem
 {
     public new AssetItemCreationArgs CreationData
     {
@@ -62,14 +50,14 @@ public partial class AssetItem : Base.BaseAssetItem
 
         Rarity = CreationData.Object.GetOrDefault("Rarity", EFortRarity.Uncommon);
 
-        if (CreationData.GameplayTags?.GetValueOrDefault("Cosmetics.Set")?.Text is { } setTag &&
+        if (CreationData.GameplayTags.GetValueOrDefault("Cosmetics.Set")?.Text is { } setTag &&
             UEParse.SetNames.TryGetValue(setTag, out var setName))
         {
             SetName = setName;
         }
             
         
-        var seasonTag = CreationData.GameplayTags?.GetValueOrDefault("Cosmetics.Filter.Season.")?.Text;
+        var seasonTag = CreationData.GameplayTags.GetValueOrDefault("Cosmetics.Filter.Season.")?.Text;
         Season = int.TryParse(seasonTag?.SubstringAfterLast("."), out var seasonNumber) ? seasonNumber : int.MaxValue;
 
         if (CreationData.Object.GetDataListItem<FPackageIndex>("Series") is { } seriesPackage)

@@ -55,33 +55,36 @@ public static class AppServices
 
 public static class AppServiceExtensions
 {
-    public static void AddCommonServices(this ServiceCollection collection)
+    extension(ServiceCollection collection)
     {
-        var serviceTypes = Assembly.GetAssembly(typeof(IService))?
-            .GetTypes()
-            .Where(type => !type.IsAbstract && type.IsAssignableTo(typeof(IService))) ?? [];
-
-        foreach (var serviceType in serviceTypes)
+        public  void AddCommonServices()
         {
-            collection.AddSingleton(serviceType);
-        }
-    }
-    
-    public static void AddViewModels(this ServiceCollection collection)
-    {
-        var viewModelTypes = Assembly.GetAssembly(typeof(ViewModelBase))?
-            .GetTypes()
-            .Where(type => !type.IsAbstract && type.IsAssignableTo(typeof(ViewModelBase))) ?? [];
+            var serviceTypes = Assembly.GetAssembly(typeof(IService))?
+                .GetTypes()
+                .Where(type => !type.IsAbstract && type.IsAssignableTo(typeof(IService))) ?? [];
 
-        foreach (var viewModelType in viewModelTypes)
-        {
-            if (viewModelType.GetCustomAttribute<TransientAttribute>() is not null)
+            foreach (var serviceType in serviceTypes)
             {
-                collection.AddTransient(viewModelType);
+                collection.AddSingleton(serviceType);
             }
-            else
+        }
+    
+        public void AddViewModels()
+        {
+            var viewModelTypes = Assembly.GetAssembly(typeof(ViewModelBase))?
+                .GetTypes()
+                .Where(type => !type.IsAbstract && type.IsAssignableTo(typeof(ViewModelBase))) ?? [];
+
+            foreach (var viewModelType in viewModelTypes)
             {
-                collection.AddSingleton(viewModelType);
+                if (viewModelType.GetCustomAttribute<TransientAttribute>() is not null)
+                {
+                    collection.AddTransient(viewModelType);
+                }
+                else
+                {
+                    collection.AddSingleton(viewModelType);
+                }
             }
         }
     }

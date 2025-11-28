@@ -1,7 +1,5 @@
-using System;
 using System.Threading.Tasks;
 using FortnitePorting.Models.API.Base;
-using FortnitePorting.Shared;
 using RestSharp;
 
 namespace FortnitePorting.Models.API;
@@ -39,11 +37,14 @@ public enum EExportServerType
 
 public static class EExportServerTypeExtensions
 {
-    public static EExportServerType ServerType(this EExportLocation exportLocation) => exportLocation switch
+    extension(EExportLocation exportLocation)
     {
-        EExportLocation.Blender => EExportServerType.Blender,
-        EExportLocation.Unreal => EExportServerType.Unreal,
-        EExportLocation.Unity => EExportServerType.Unity,
-        _ => EExportServerType.None
-    };
+        public EExportServerType ServerType() => exportLocation switch
+        {
+            EExportLocation.Blender => EExportServerType.Blender,
+            EExportLocation.Unreal => EExportServerType.Unreal,
+            EExportLocation.Unity => EExportServerType.Unity,
+            _ => EExportServerType.None
+        };
+    }
 }
