@@ -77,6 +77,13 @@ public partial class MapViewModel : ViewModelBase
             "FortniteGame/Content/Athena/Apollo/Maps/UI/Apollo_Terrain_Minimap_PostMask",
             0.0255f, -325, -75, 167, 12800, true, false
         ),
+        new(
+            "Hera",
+            "FortniteGame/Plugins/GameFeatures/Hera_Map/Content/Maps/Hera_Terrain",
+            "FortniteGame/Plugins/GameFeatures/Ch7UI/Content/MiniMap/Art/Hera_Terrain_Minimap",
+            "FortniteGame/Plugins/GameFeatures/Ch7UI/Content/MiniMap/Art/Hera_Terrain_Minimap_PostMask",
+            0.0146f, -140, -30, 96, 12800, true, false
+        ),
         
         // og
         new(
