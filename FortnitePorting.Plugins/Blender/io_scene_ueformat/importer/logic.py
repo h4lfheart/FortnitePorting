@@ -7,6 +7,7 @@ from typing import cast
 import bpy
 import numpy as np
 from bpy.types import Action, ArmatureModifier, ByteColorAttribute, EditBone, FCurve, Object, PoseBone
+from bpy_extras import anim_utils
 from mathutils import Matrix, Quaternion, Vector
 from math import *
 
@@ -153,9 +154,8 @@ class UEFormatImport:
 
             # morph targets
             if self.options.import_morph_targets and lod.morphs:
-                default_key = mesh_object.shape_key_add(from_mix=False)
-                default_key.name = "Default"
-                default_key.interpolation = "KEY_LINEAR"
+                if not mesh_object.data.shape_keys:
+                    mesh_object.shape_key_add(name="Basis", from_mix=False)
 
                 for morph in lod.morphs:
                     key = mesh_object.shape_key_add(from_mix=False)
@@ -164,6 +164,8 @@ class UEFormatImport:
 
                     for delta in morph.deltas:
                         key.data[delta.vertex_index].co += Vector(delta.position)
+                        
+                    key.value = 0
 
             squish = lambda array: array.reshape(
                 array.size,
@@ -513,7 +515,12 @@ class UEFormatImport:
                 path = bone.path_from_id(name)
                 curves: list[FCurve] = []
                 for i in range(count):
-                    curve = action.fcurves.new(path, index=i)
+                    if bpy.app.version < (5, 0, 0):
+                        curve = action.fcurves.new(path, index=i)
+                    else:
+                        slot = action.slots[0] if len(action.slots) > 0 else action.slots.new(id_type='OBJECT', name=f"Slot_{armature.name}")
+                        channelbag = anim_utils.action_ensure_channelbag_for_slot(action, slot)
+                        curve = channelbag.fcurves.new(path, index=i)
                     curve.keyframe_points.add(key_count)
                     curves.append(curve)
                 return curves
@@ -583,7 +590,7 @@ class UEFormatImport:
                     
                 for curve in data.curves:
                     
-                    if not (shape_key := first(key_blocks, lambda block: block.name.lower() in curve.name.lower())):
+                    if not (shape_key := best(key_blocks, lambda block: block.name.lower(), curve.name.lower())):
                         continue
                         
                     for key in curve.keys:
@@ -618,6 +625,14 @@ class UEFormatImport:
             # Create Basis shape key
             selected_mesh.shape_key_add(name="Basis", from_mix=False)
 
+
+        # Store original shape key values so they aren't included in PoseAsset keys
+        original_values = {}
+        for shape_key in selected_mesh.data.shape_keys.key_blocks:
+            if shape_key.value != 0:
+                original_values[shape_key.name] = shape_key.value
+                shape_key.value = 0
+                
         root_bone = selected_armature.pose.bones.get(self.options.root_bone) or selected_armature.pose.bones[0]
 
         pose_names = []
@@ -698,6 +713,7 @@ class UEFormatImport:
 
             # Use name from pose data
             selected_mesh.data.shape_keys.key_blocks[-1].name = pose.name
+            selected_mesh.data.shape_keys.key_blocks[-1].value = 0
 
         bpy.ops.object.mode_set(mode="OBJECT")
         bpy.context.view_layer.objects.active = selected_mesh
@@ -734,6 +750,12 @@ class UEFormatImport:
             
             for key in key_blocks:
                 key.value = 0
+                
+        # Reset shape keys back to original values
+        if len(original_values) > 0:
+            for key_block in key_blocks:
+                if orig_value := original_values.get(key_block.name):
+                    key_block.value = orig_value
             
         # Final reset before re-entering regular import mode.
         bpy.context.view_layer.objects.active = selected_armature

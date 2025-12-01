@@ -1063,12 +1063,12 @@ class ImportContext:
         if existing := bpy.data.sounds.get(name):
             return existing
 
-        if not bpy.context.scene.sequence_editor:
+        if not bpy.context.sequencer_scene:
             bpy.context.scene.sequence_editor_create()
 
         ext = ESoundFormat(self.options.get("SoundFormat")).name.lower()
         sound_path = os.path.join(self.assets_root, f"{file_path}.{ext}")
-        sound = bpy.context.scene.sequence_editor.sequences.new_sound(name, sound_path, 0, time)
+        sound = bpy.context.sequencer_scene.sequences.new_sound(name, sound_path, 0, time)
         sound["FPSound"] = True
         return sound
     
@@ -1113,10 +1113,10 @@ class ImportContext:
             else:
                 active_mesh.data.shape_keys.animation_data_create()
             
-        if bpy.context.scene.sequence_editor:
-            sequences_to_remove = where(bpy.context.scene.sequence_editor.sequences, lambda seq: seq.get("FPSound"))
+        if bpy.context.sequencer_scene:
+            sequences_to_remove = where(bpy.context.sequencer_scene.sequences, lambda seq: seq.get("FPSound"))
             for sequence in sequences_to_remove:
-                bpy.context.scene.sequence_editor.sequences.remove(sequence)
+                bpy.context.sequencer_scene.sequences.remove(sequence)
 
         bpy.context.scene.frame_set(0)
 

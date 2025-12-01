@@ -35,40 +35,13 @@ public partial class MapViewModel : ViewModelBase
     private static MapInfo[] MapInfos =
     [
         // battle royale
+        
         new(
-            "Asteria",
-            "FortniteGame/Content/Athena/Asteria/Maps/Asteria_Terrain",
-            "FortniteGame/Content/Athena/Apollo/Maps/UI/Apollo_Terrain_Minimap",
-            "FortniteGame/Content/Athena/Apollo/Maps/UI/T_MiniMap_Mask",
-            0.01375f, 132, 140, 90, 12800, true
-        ),
-        new(
-            "Rufus",
-            "FortniteGame/Plugins/GameFeatures/Rufus/Content/Game/Athena/Maps/Athena_Terrain",
-            "FortniteGame/Plugins/GameFeatures/Rufus/Content/Game/UI/Capture_Iteration_Discovered_Rufus_03",
-            "FortniteGame/Content/Athena/UI/Rufus/Rufus_Map_Frosty_PostMask",
-            0.0155f, 256, 448, 102, 12800, true
-        ),
-        new(
-            "Helios",
-            "FortniteGame/Content/Athena/Helios/Maps/Helios_Terrain",
-            "FortniteGame/Content/Athena/Apollo/Maps/UI/Apollo_Terrain_Minimap",
-            "FortniteGame/Content/Athena/Apollo/Maps/UI/T_MiniMap_Mask",
-            0.014f, 0, 128, 92, 12800, true
-        ),
-        new(
-            "Apollo_Retro",
-            "FortniteGame/Plugins/GameFeatures/Clyde/Content/Apollo_Terrain_Retro",
-            "FortniteGame/Content/Athena/Apollo/Maps/Clyde/Textures/Week3_Adjusted",
-            "FortniteGame/Content/Athena/Apollo/Maps/Clyde/Textures/T_Clyde_Minimap_PostMask",
-            0.032f, -25, 96, 205, 12800, true
-        ),
-        new(
-            "Hermes",
-            "FortniteGame/Plugins/GameFeatures/BRMapCh6/Content/Maps/Hermes_Terrain",
-            "FortniteGame/Content/Athena/Apollo/Maps/UI/Apollo_Terrain_Minimap",
-            "FortniteGame/Content/Athena/Apollo/Maps/UI/T_MiniMap_Mask",
-            0.0146f, -100, -25, 96, 12800, true, false
+            "Hera",
+            "FortniteGame/Plugins/GameFeatures/Hera_Map/Content/Maps/Hera_Terrain",
+            "FortniteGame/Plugins/GameFeatures/Ch7UI/Content/MiniMap/Art/Hera_Terrain_Minimap",
+            "FortniteGame/Plugins/GameFeatures/Ch7UI/Content/MiniMap/Art/Hera_Terrain_Minimap_PostMask",
+            0.0146f, -140, -30, 96, 12800, true, false
         ),
         new(
             "WildEstate",
@@ -78,11 +51,39 @@ public partial class MapViewModel : ViewModelBase
             0.0255f, -325, -75, 167, 12800, true, false
         ),
         new(
-            "Hera",
-            "FortniteGame/Plugins/GameFeatures/Hera_Map/Content/Maps/Hera_Terrain",
-            "FortniteGame/Plugins/GameFeatures/Ch7UI/Content/MiniMap/Art/Hera_Terrain_Minimap",
-            "FortniteGame/Plugins/GameFeatures/Ch7UI/Content/MiniMap/Art/Hera_Terrain_Minimap_PostMask",
-            0.0146f, -140, -30, 96, 12800, true, false
+            "Hermes",
+            "FortniteGame/Plugins/GameFeatures/BRMapCh6/Content/Maps/Hermes_Terrain",
+            "FortniteGame/Content/Athena/Apollo/Maps/UI/Apollo_Terrain_Minimap",
+            "FortniteGame/Content/Athena/Apollo/Maps/UI/T_MiniMap_Mask",
+            0.0146f, -100, -25, 96, 12800, true, false
+        ),
+        new(
+            "Apollo_Retro",
+            "FortniteGame/Plugins/GameFeatures/Clyde/Content/Apollo_Terrain_Retro",
+            "FortniteGame/Content/Athena/Apollo/Maps/Clyde/Textures/Week3_Adjusted",
+            "FortniteGame/Content/Athena/Apollo/Maps/Clyde/Textures/T_Clyde_Minimap_PostMask",
+            0.032f, -25, 96, 205, 12800, true
+        ),
+        new(
+            "Helios",
+            "FortniteGame/Content/Athena/Helios/Maps/Helios_Terrain",
+            "FortniteGame/Content/Athena/Apollo/Maps/UI/Apollo_Terrain_Minimap",
+            "FortniteGame/Content/Athena/Apollo/Maps/UI/T_MiniMap_Mask",
+            0.014f, 0, 128, 92, 12800, true
+        ),
+        new(
+            "Rufus",
+            "FortniteGame/Plugins/GameFeatures/Rufus/Content/Game/Athena/Maps/Athena_Terrain",
+            "FortniteGame/Plugins/GameFeatures/Rufus/Content/Game/UI/Capture_Iteration_Discovered_Rufus_03",
+            "FortniteGame/Content/Athena/UI/Rufus/Rufus_Map_Frosty_PostMask",
+            0.0155f, 256, 448, 102, 12800, true
+        ),
+        new(
+            "Asteria",
+            "FortniteGame/Content/Athena/Asteria/Maps/Asteria_Terrain",
+            "FortniteGame/Content/Athena/Apollo/Maps/UI/Apollo_Terrain_Minimap",
+            "FortniteGame/Content/Athena/Apollo/Maps/UI/T_MiniMap_Mask",
+            0.01375f, 132, 140, 90, 12800, true
         ),
         
         // og

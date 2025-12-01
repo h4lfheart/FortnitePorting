@@ -43,6 +43,7 @@
         <PackageReference Include="Serilog.Sinks.File" Version="5.0.1-dev-00972" />
         <PackageReference Include="Tomlyn" Version="0.17.0" />
         <PackageReference Include="z440.atl.core" Version="5.24.0" />
+        <PackageReference Include="EpicManifestParser" Version="2.4.1" />
     </ItemGroup>
     
     <ItemGroup>
@@ -52,7 +53,6 @@
     <ItemGroup>
       <ProjectReference Include="..\Dependencies\CUE4Parse\CUE4Parse-Conversion\CUE4Parse-Conversion.csproj" />
       <ProjectReference Include="..\Dependencies\CUE4Parse\CUE4Parse\CUE4Parse.csproj" />
-      <ProjectReference Include="..\Dependencies\EpicManifestParser\src\EpicManifestParser\EpicManifestParser.csproj" />
       <ProjectReference Include="..\FortnitePorting.OnlineServices\FortnitePorting.OnlineServices.csproj" />
       <ProjectReference Include="..\FortnitePorting.Rendering\FortnitePorting.Rendering.csproj" />
       <ProjectReference Include="..\FortnitePorting.Plugins\FortnitePorting.Plugins.csproj" />
