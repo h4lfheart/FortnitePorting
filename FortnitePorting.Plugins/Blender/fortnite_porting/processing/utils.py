@@ -279,3 +279,16 @@ def clear_children_bone_transforms(skeleton, anim, bone_name):
 def set_geo_nodes_param(geo_node_modifier, name, value):
     identifier = geo_node_modifier.node_group.interface.items_tree[name].identifier
     geo_node_modifier[identifier] = value
+    
+def get_sequencer():
+    if bpy.app.version >= (5, 0, 0):
+        if not bpy.context.sequencer_scene:
+            bpy.context.scene.sequence_editor_create()
+            
+        return bpy.context.sequencer_scene
+    
+    if not bpy.context.scene.sequence_editor:
+        bpy.context.scene.sequence_editor_create()
+        
+    return bpy.context.scene.sequence_editor
+    
