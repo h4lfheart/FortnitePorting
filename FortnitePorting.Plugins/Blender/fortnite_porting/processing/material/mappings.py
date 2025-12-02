@@ -593,6 +593,7 @@ eye_mappings = MappingCollection(
 
         SlotMapping("EyeTintColor"),
 
+        SlotMapping("EyelashColor"),
         SlotMapping("EyelashVertexColorMaskChannel"),
     ],
     scalars=[
