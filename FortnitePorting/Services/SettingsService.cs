@@ -19,8 +19,6 @@ public partial class SettingsService : ObservableObject, IService
     [ObservableProperty] private DebugSettingsViewModel _debug = new();
 
     public bool ShouldSaveOnExit = true;
-
-    [ObservableProperty] private bool _promptedSettingsRestart = false;
     
     public static readonly DirectoryInfo DirectoryPath = new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "FortnitePorting"));
     public static readonly FileInfo FilePath = new(Path.Combine(DirectoryPath.FullName, "AppSettingsV4.json"));
@@ -28,21 +26,6 @@ public partial class SettingsService : ObservableObject, IService
     public SettingsService()
     {
         DirectoryPath.Create();
-    }
-    
-    public void NotifyRestartPropertyChanged()
-    {
-        if (PromptedSettingsRestart)
-            return;
-        
-        Info.Message("Restart Required", "A property was changed that requires a restart to take effect",
-            autoClose: false,
-            useButton: true, buttonTitle: "Restart", buttonCommand: () =>
-            {
-                App.Restart();
-            });
-
-        PromptedSettingsRestart = true;
     }
     
     public void Load()

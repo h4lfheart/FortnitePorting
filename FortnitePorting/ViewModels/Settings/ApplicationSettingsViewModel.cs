@@ -19,18 +19,18 @@ namespace FortnitePorting.ViewModels.Settings;
 
 public partial class ApplicationSettingsViewModel : SettingsViewModelBase
 {
-    [property: RequiresRestart] [NotifyDataErrorInfo] [DirectoryExists("Application Data Path")] [ObservableProperty]
+    [NotifyDataErrorInfo] [DirectoryExists("Application Data Path")] [ObservableProperty]
     private string _appDataPath;
     
-    [property: RequiresRestart] [ObservableProperty] private bool _useAppDataPath;
+    [ObservableProperty] private bool _useAppDataPath;
     
-    [property: RequiresRestart] [NotifyDataErrorInfo] [DirectoryExists("Assets Path")] [ObservableProperty]
+    [NotifyDataErrorInfo] [DirectoryExists("Assets Path")] [ObservableProperty]
     private string _assetsPath;
     
-    [property: RequiresRestart] [ObservableProperty] private bool _useAssetsPath;
+    [ObservableProperty] private bool _useAssetsPath;
     
-    [property: RequiresRestart] [ObservableProperty] private string _portleExecutablePath;
-    [property: RequiresRestart] [ObservableProperty] private bool _usePortlePath;
+    [ObservableProperty] private string _portleExecutablePath;
+    [ObservableProperty] private bool _usePortlePath;
     
     [ObservableProperty] private HashSet<string> _favoriteAssets = [];
 
