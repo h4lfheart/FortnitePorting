@@ -230,9 +230,8 @@ class ImportContext:
                     color = color_data[vertex_index]
                     vertex_color.data[loop_index].color = color[0] / 255, color[1] / 255, color[2] / 255, color[3] / 255
 
-        if imported_object.type == 'ARMATURE':
-            imported_mesh.data = imported_mesh.data.copy()
-
+        # Only add preskinned attributes if they don't already exist
+        if imported_mesh is not None and imported_mesh.data.attributes.get("PS_LOCAL_POSITION") is None:
             preskinned_pos = imported_mesh.data.attributes.new( domain="POINT", type="FLOAT_VECTOR",  name="PS_LOCAL_POSITION")
             preskinned_normal = imported_mesh.data.attributes.new(domain="POINT", type="FLOAT_VECTOR", name="PS_LOCAL_NORMAL")
 
