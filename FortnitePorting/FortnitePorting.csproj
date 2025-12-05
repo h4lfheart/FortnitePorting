@@ -60,23 +60,4 @@
         <ProjectReference Include="..\Dependencies\FluentAvalonia.BreadcrumbBar\FluentAvalonia.BreadcrumbBar\FluentAvalonia.BreadcrumbBar.csproj" />
     </ItemGroup>
     
-    <ItemGroup>
-      <Compile Update="Controls\Navigation\Sidebar\Sidebar.axaml.cs">
-        <DependentUpon>Sidebar.axaml</DependentUpon>
-        <SubType>Code</SubType>
-      </Compile>
-      <Compile Update="Controls\Navigation\Sidebar\SidebarItemButton.axaml.cs">
-        <DependentUpon>SidebarItemButton.axaml</DependentUpon>
-        <SubType>Code</SubType>
-      </Compile>
-      <Compile Update="Controls\Navigation\Sidebar\SidebarItemSeparator.axaml.cs">
-        <DependentUpon>SidebarItemSeparator.axaml</DependentUpon>
-        <SubType>Code</SubType>
-      </Compile>
-      <Compile Update="Controls\Navigation\Sidebar\SidebarItemText.axaml.cs">
-        <DependentUpon>SidebarItemText.axaml</DependentUpon>
-        <SubType>Code</SubType>
-      </Compile>
-    </ItemGroup>
-    
 </Project>

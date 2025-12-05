@@ -197,7 +197,7 @@
             <controls:ContentCard Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" 
                          IsVisible="{Binding ReplyMessage, Converter={x:Static ObjectConverters.IsNotNull}}"
                          Margin="{ext:Space 0, 0, 0, 1}">
-                <Grid Margin="{ext:Space 1}">
+                <Grid Margin="{ext:Space 2, 1}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="{ext:Space 0.5}"/>

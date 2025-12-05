@@ -8,7 +8,7 @@
              xmlns:responses="clr-namespace:FortnitePorting.Models.API.Responses"
              xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:views="clr-namespace:FortnitePorting.Views"
-             d:DesignHeight="770" d:DesignWidth="1160"
+             d:DesignHeight="865" d:DesignWidth="1371"
              x:Class="FortnitePorting.Views.HomeView"
              x:DataType="viewModels:HomeViewModel">
     <Grid Margin="{ext:Space 2}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
@@ -73,28 +73,81 @@
             <ItemsControl Grid.Row="2" ItemsSource="{Binding News}" HorizontalAlignment="Stretch" ClipToBounds="False">
                 <ItemsControl.DataTemplates>
                     <DataTemplate DataType="responses:NewsResponse">
-                        <controls:ContentCard HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                           CornerRadius="16">
-                            <Grid RowDefinitions="* 16 Auto 8 Auto" Margin="{ext:Space 2}">
-                                <Border Grid.Row="0" CornerRadius="8" ClipToBounds="False" BoxShadow="0 2 15 #60000000">
-                                    <Border CornerRadius="8" ClipToBounds="True">
-                                        <Image asyncImageLoader:ImageLoader.Source="{Binding Image}"
-                                               VerticalAlignment="Center" Stretch="UniformToFill"/>
-                                    </Border>
+                        <controls:ContentCard Margin="{ext:Space 1}"
+                                              HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="{ext:Space 2}"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="{ext:Space 2}"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="{ext:Space 2}"/>
+                                </Grid.RowDefinitions>
+                                
+                                <Border Grid.Row="0" 
+                                        CornerRadius="16 16 0 0"
+                                        ClipToBounds="True"
+                                        Height="150">
+                                    <Image asyncImageLoader:ImageLoader.Source="{Binding Image}"
+                                           Stretch="UniformToFill"/>
                                 </Border>
 
-                                <TextBlock Grid.Row="2" Text="{Binding Title}" FontFamily="{StaticResource SFTextSemiBold}"
-                                           FontSize="16" />
+                                <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Margin="{ext:Space 2, 0}">
+                                    
+                                    <Border Grid.Column="0"
+                                            CornerRadius="12" 
+                                            Padding="{ext:Space 1, 0.5}"
+                                            HorizontalAlignment="Left" ClipToBounds="False">
+                                        <Border.Background>
+                                            <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
+                                                <GradientStops>
+                                                    <GradientStop Color="#8141db" Offset="0"/>
+                                                    <GradientStop Color="#953bf8" Offset="1"/>
+                                                </GradientStops>
+                                            </LinearGradientBrush>
+                                        </Border.Background>
+                            
+                                        <TextBlock Text="{Binding Tag, Converter={StaticResource StringToUppercase}}" 
+                                                   FontFamily="{StaticResource SFTextSemiBold}"
+                                                   FontSize="12"
+                                                   Foreground="White"/>
+                                    </Border>
+                                    
+                                        
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding Date, StringFormat='MMM dd'}" 
+                                               FontFamily="{StaticResource SFTextRegular}"
+                                               FontSize="12"
+                                               Classes="TextFillColorSecondaryBrush"
+                                               VerticalAlignment="Center"/>
+                                </Grid>
                                 
-                                <TextBlock Grid.Row="4" DockPanel.Dock="Left" Text="{Binding SubTitle}" FontFamily="{StaticResource SFTextRegular}"
-                                           Classes="TextFillColorSecondaryBrush" VerticalAlignment="Center"/>
+                                <Grid Grid.Row="4" Margin="{ext:Space 2, 0}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="{ext:Space 1}"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    
+                                    <TextBlock Grid.Row="0" Text="{Binding Title}" 
+                                               FontFamily="{StaticResource SFTextSemiBold}"
+                                               FontSize="16"/>
+                                    
+                                    <TextBlock Grid.Row="2" Text="{Binding SubTitle}" 
+                                               FontFamily="{StaticResource SFTextRegular}"
+                                               Classes="TextFillColorSecondaryBrush"
+                                               TextWrapping="Wrap"
+                                               MaxLines="3"/>
+                                </Grid>
                                 
-                                <Button Grid.Row="2" Grid.RowSpan="3" DockPanel.Dock="Right" 
-                                        VerticalAlignment="Bottom" HorizontalAlignment="Right"
-                                        Command="{Binding $parent[views:HomeView].((viewModels:HomeViewModel)DataContext).OpenNews}" CommandParameter="{Binding}">
+                                <Button Grid.Row="0" Grid.RowSpan="6" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="{ext:Space 2}"
+                                        Command="{Binding $parent[views:HomeView].((viewModels:HomeViewModel)DataContext).OpenNews}" 
+                                        CommandParameter="{Binding}">
                                     <material:MaterialIcon Kind="Text"/>
                                 </Button>
-                                
+
+
                             </Grid>
                         </controls:ContentCard>
                     </DataTemplate>

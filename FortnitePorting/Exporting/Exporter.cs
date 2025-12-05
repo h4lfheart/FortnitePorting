@@ -35,12 +35,14 @@ namespace FortnitePorting.Exporting;
 
 public static class Exporter
 {
+    
     public static async Task Export(Func<IEnumerable<BaseExport>> exportFunction, ExportDataMeta metaData)
     {
         if (metaData.ExportLocation is EExportLocation.CustomFolder && await App.BrowseFolderDialog() is { } path)
         {
             metaData.CustomPath = path;
         }
+
         
         await TaskService.RunAsync(async () =>
         {

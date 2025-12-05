@@ -180,124 +180,102 @@ public class VirtualizingWrapPanel : VirtualizingPanel
         get => GetValue(DistributeEvenlyProperty);
         set => SetValue(DistributeEvenlyProperty, value);
     }
+    
+    public static readonly StyledProperty<bool> CenterLastLineProperty =
+        AvaloniaProperty.Register<VirtualizingWrapPanel, bool>(nameof(CenterLastLine), false);
 
-
-    protected override Size ArrangeOverride(Size finalSize)
+    public bool CenterLastLine
     {
-        if (_realizedElements is null)
-            return default;
+        get => GetValue(CenterLastLineProperty);
+        set => SetValue(CenterLastLineProperty, value);
+    }
 
-        _isInLayout = true;
 
-        try
+
+    
+protected override Size ArrangeOverride(Size finalSize)
+{
+    if (_realizedElements is null)
+        return default;
+
+    _isInLayout = true;
+
+    try
+    {
+        var orientation = Orientation;
+        var horizontal = orientation == Orientation.Horizontal;
+        var sizeUV = _realizedElements.SizeUV;
+        var availableU = horizontal ? finalSize.Width : finalSize.Height;
+
+        var totalItemCount = Items.Count;
+        var lastItemIndex = totalItemCount - 1;
+        var lastRealizedIndex = _realizedElements.LastIndex;
+        var isLastItemRealized = lastRealizedIndex >= 0 && lastRealizedIndex == lastItemIndex;
+
+        // Group elements by row
+        var rows = new Dictionary<double, List<(Control element, UVSize position, int index)>>();
+        for (var i = 0; i < _realizedElements.Count; ++i)
         {
-            var orientation = Orientation;
-            var horizontal = orientation == Orientation.Horizontal;
-
-            if (!DistributeEvenly)
+            var e = _realizedElements.Elements[i];
+            if (e is not null)
             {
-                for (var i = 0; i < _realizedElements.Count; ++i)
-                {
-                    var e = _realizedElements.Elements[i];
+                var positionUV = _realizedElements.PositionsUV[i];
+                var vPos = Math.Round(positionUV.V, 2);
 
-                    if (e is not null)
+                if (!rows.ContainsKey(vPos))
+                    rows[vPos] = new List<(Control, UVSize, int)>();
+
+                rows[vPos].Add((e, positionUV, i));
+            }
+        }
+
+        // Find the last row V position
+        double? lastRowV = null;
+        if (isLastItemRealized && _realizedElements.Count > 0)
+        {
+            for (var i = _realizedElements.Count - 1; i >= 0; i--)
+            {
+                var element = _realizedElements.Elements[i];
+                if (element is not null)
+                {
+                    var positions = _realizedElements.PositionsUV;
+                    if (i < positions.Count)
                     {
-                        var sizeUV = _realizedElements.SizeUV;
-                        var positionUV = _realizedElements.PositionsUV[i];
-                        var rect = new Rect(positionUV.Width, positionUV.Height, sizeUV.Width, sizeUV.Height);
-                        e.Arrange(rect);
-                        _scrollViewer?.RegisterAnchorCandidate(e);
+                        lastRowV = Math.Round(positions[i].V, 2);
+                        break;
                     }
                 }
             }
-            else
+        }
+
+        // Arrange each row
+        foreach (var kvp in rows)
+        {
+            var vPos = kvp.Key;
+            var row = kvp.Value;
+            var isLastRow = lastRowV.HasValue && Math.Abs(vPos - lastRowV.Value) < 0.01;
+            
+            row.Sort((a, b) => a.position.U.CompareTo(b.position.U));
+            var rowItemCount = row.Count;
+
+            // Check if we should center this row
+            var shouldCenter = CenterLastLine && isLastRow;
+
+            if (!DistributeEvenly)
             {
-                var rows = new Dictionary<double, List<(Control element, UVSize position, int index)>>();
-
-                for (var i = 0; i < _realizedElements.Count; ++i)
+                // Default spacing mode - items are packed together with no gaps
+                if (shouldCenter)
                 {
-                    var e = _realizedElements.Elements[i];
-                    if (e is not null)
+                    // Center the last row as a group (no spacing between items)
+                    var totalItemWidth = rowItemCount * sizeUV.U;
+                    var offset = Math.Max(0, (availableU - totalItemWidth) / 2);
+
+                    for (var i = 0; i < rowItemCount; i++)
                     {
-                        var positionUV = _realizedElements.PositionsUV[i];
-                        var vPos = Math.Round(positionUV.V, 2);
-
-                        if (!rows.ContainsKey(vPos))
-                            rows[vPos] = new List<(Control, UVSize, int)>();
-
-                        rows[vPos].Add((e, positionUV, i));
-                    }
-                }
-
-                var sizeUV = _realizedElements.SizeUV;
-                var availableU = horizontal ? finalSize.Width : finalSize.Height;
-
-                var totalItemCount = Items.Count;
-                var lastItemIndex = totalItemCount - 1;
-                var lastRealizedIndex = _realizedElements.LastIndex;
-                var isLastItemRealized = lastRealizedIndex >= 0 && lastRealizedIndex == lastItemIndex;
-
-                double? lastRowV = null;
-                if (isLastItemRealized && _realizedElements.Count > 0)
-                {
-                    for (var i = _realizedElements.Count - 1; i >= 0; i--)
-                    {
-                        var element = _realizedElements.Elements[i];
-                        if (element is not null)
-                        {
-                            var positions = _realizedElements.PositionsUV;
-                            if (i < positions.Count)
-                            {
-                                lastRowV = Math.Round(positions[i].V, 2);
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                foreach (var kvp in rows)
-                {
-                    var vPos = kvp.Key;
-                    var row = kvp.Value;
-                    var isLastRow = lastRowV.HasValue && Math.Abs(vPos - lastRowV.Value) < 0.01;
-
-                    row.Sort((a, b) => a.position.U.CompareTo(b.position.U));
-
-                    var rowItemCount = row.Count;
-
-                    if (isLastRow)
-                    {
-                        var itemsPerFullRow = Math.Max(1, (int)(availableU / sizeUV.U));
-                        var totalItemWidthFullRow = itemsPerFullRow * sizeUV.U;
-                        var totalSpacingFullRow = availableU - totalItemWidthFullRow;
-                        var spacingFullRow = totalSpacingFullRow / (itemsPerFullRow + 1);
-
-                        for (var i = 0; i < rowItemCount; i++)
-                        {
-                            var (element, positionUV, _) = row[i];
-                            var distributedPosition = new UVSize(orientation)
-                            {
-                                U = spacingFullRow * (i + 1) + sizeUV.U * i,
-                                V = positionUV.V
-                            };
-
-                            var rect = new Rect(
-                                distributedPosition.Width,
-                                distributedPosition.Height,
-                                sizeUV.Width,
-                                sizeUV.Height);
-
-                            element.Arrange(rect);
-                            _scrollViewer?.RegisterAnchorCandidate(element);
-                        }
-                    }
-                    else if (rowItemCount == 1)
-                    {
-                        var (element, positionUV, _) = row[0];
-                        var offset = Math.Max(0, (availableU - sizeUV.U) / 2);
+                        var (element, positionUV, _) = row[i];
                         var centeredPosition = new UVSize(orientation)
                         {
-                            U = offset,
+                            U = offset + (i * sizeUV.U),
                             V = positionUV.V
                         };
 
@@ -310,41 +288,110 @@ public class VirtualizingWrapPanel : VirtualizingPanel
                         element.Arrange(rect);
                         _scrollViewer?.RegisterAnchorCandidate(element);
                     }
-                    else
+                }
+                else
+                {
+                    // Use default positioning
+                    for (var i = 0; i < rowItemCount; i++)
                     {
-                        var totalItemWidth = rowItemCount * sizeUV.U;
-                        var totalSpacing = availableU - totalItemWidth;
-                        var spacing = totalSpacing / (rowItemCount + 1);
-
-                        for (var i = 0; i < rowItemCount; i++)
-                        {
-                            var (element, positionUV, _) = row[i];
-                            var distributedPosition = new UVSize(orientation)
-                            {
-                                U = spacing * (i + 1) + sizeUV.U * i,
-                                V = positionUV.V
-                            };
-
-                            var rect = new Rect(
-                                distributedPosition.Width,
-                                distributedPosition.Height,
-                                sizeUV.Width,
-                                sizeUV.Height);
-
-                            element.Arrange(rect);
-                            _scrollViewer?.RegisterAnchorCandidate(element);
-                        }
+                        var (element, positionUV, _) = row[i];
+                        var rect = new Rect(positionUV.Width, positionUV.Height, sizeUV.Width, sizeUV.Height);
+                        element.Arrange(rect);
+                        _scrollViewer?.RegisterAnchorCandidate(element);
                     }
                 }
             }
+            else
+            {
+                // DistributeEvenly mode - calculate spacing from a full row
+                var itemsPerFullRow = Math.Max(1, (int)(availableU / sizeUV.U));
+                var totalItemWidthFullRow = itemsPerFullRow * sizeUV.U;
+                var totalSpacingFullRow = availableU - totalItemWidthFullRow;
+                var spacingFullRow = totalSpacingFullRow / (itemsPerFullRow + 1);
+                
+                if (shouldCenter)
+                {
+                    // Center the last row using the same spacing as full rows
+                    var totalItemWidth = rowItemCount * sizeUV.U;
+                    var totalSpacingNeeded = (rowItemCount - 1) * spacingFullRow;
+                    var rowWidth = totalItemWidth + totalSpacingNeeded;
+                    var offset = Math.Max(0, (availableU - rowWidth) / 2);
 
-            return finalSize;
+                    for (var i = 0; i < rowItemCount; i++)
+                    {
+                        var (element, positionUV, _) = row[i];
+                        var distributedPosition = new UVSize(orientation)
+                        {
+                            U = offset + (i * (sizeUV.U + spacingFullRow)),
+                            V = positionUV.V
+                        };
+
+                        var rect = new Rect(
+                            distributedPosition.Width,
+                            distributedPosition.Height,
+                            sizeUV.Width,
+                            sizeUV.Height);
+
+                        element.Arrange(rect);
+                        _scrollViewer?.RegisterAnchorCandidate(element);
+                    }
+                }
+                else if (rowItemCount == 1)
+                {
+                    // Single item - center it
+                    var (element, positionUV, _) = row[0];
+                    var offset = Math.Max(0, (availableU - sizeUV.U) / 2);
+                    var centeredPosition = new UVSize(orientation)
+                    {
+                        U = offset,
+                        V = positionUV.V
+                    };
+
+                    var rect = new Rect(
+                        centeredPosition.Width,
+                        centeredPosition.Height,
+                        sizeUV.Width,
+                        sizeUV.Height);
+
+                    element.Arrange(rect);
+                    _scrollViewer?.RegisterAnchorCandidate(element);
+                }
+                else
+                {
+                    // Full row - distribute evenly
+                    var totalItemWidth = rowItemCount * sizeUV.U;
+                    var totalSpacing = availableU - totalItemWidth;
+                    var spacing = totalSpacing / (rowItemCount + 1);
+
+                    for (var i = 0; i < rowItemCount; i++)
+                    {
+                        var (element, positionUV, _) = row[i];
+                        var distributedPosition = new UVSize(orientation)
+                        {
+                            U = spacing * (i + 1) + sizeUV.U * i,
+                            V = positionUV.V
+                        };
+
+                        var rect = new Rect(
+                            distributedPosition.Width,
+                            distributedPosition.Height,
+                            sizeUV.Width,
+                            sizeUV.Height);
+
+                        element.Arrange(rect);
+                        _scrollViewer?.RegisterAnchorCandidate(element);
+                    }
+                }
+            }
         }
-        finally
-        {
-            _isInLayout = false;
-        }
+
+        return finalSize;
     }
+    finally
+    {
+        _isInLayout = false;
+    }
+}
 
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {

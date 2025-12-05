@@ -33,3 +33,20 @@ public class UnrealCaseStringConverter : IValueConverter
         throw new NotImplementedException();
     }
 }
+
+public class StringToUppercaseConverter : IValueConverter
+{
+
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is string s)
+            return s.ToUpper(culture);
+
+        return value;
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        throw new NotImplementedException();
+    }
+}

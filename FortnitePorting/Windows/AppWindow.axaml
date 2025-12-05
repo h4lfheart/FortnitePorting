@@ -18,7 +18,11 @@
     
     <Grid RowDefinitions="35, *" Margin="{Binding $parent[Window].OffScreenMargin}">
         
-        <Grid Grid.Row="0" Grid.RowSpan="2" ColumnDefinitions="1* 6*" IsVisible="{Binding Settings.Installation.FinishedSetup}">
+        <Grid Grid.Row="0" Grid.RowSpan="2" IsVisible="{Binding Settings.Installation.FinishedSetup}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" MinWidth="225"/>
+                <ColumnDefinition Width="6*"/>
+            </Grid.ColumnDefinitions>
             <!-- Sidebar -->
             <Grid Grid.Column="0">
                 <sidebar:Sidebar x:Name="Sidebar" ItemSelected="OnSidebarItemSelected">
@@ -50,7 +54,7 @@
                     <sidebar:Sidebar.Items>
                         <sidebar:SidebarItemText Text="GENERAL"/>
                         <sidebar:SidebarItemButton Text="Home" Icon="Home" Tag="{x:Type views:HomeView}"/>
-                        <sidebar:SidebarItemButton Text="News &amp; Updates" Icon="Newspaper" IsEnabled="False"/>
+                        <sidebar:SidebarItemButton Text="News &amp; Updates" Icon="Newspaper" Tag="{x:Type views:NewsView}"/>
                         <sidebar:SidebarItemButton Text="Featured Art" Icon="Art" IsEnabled="False"/>
                         
                         <sidebar:SidebarItemSeparator/>

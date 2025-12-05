@@ -28,6 +28,7 @@
              <converters:TitleCaseStringConverter x:Key="TitleCaseString" />
              <converters:UnrealCaseStringConverter x:Key="UnrealCaseString" />
              <converters:StringToDocumentConverter x:Key="StringToDocument" />
+             <converters:StringToUppercaseConverter x:Key="StringToUppercase" />
          
              <Brush x:Key="ToggleSwitchKnobFillOn">#FFFFFFFF</Brush>
              <Brush x:Key="ToggleSwitchKnobFillOnPointerOver">#FFFFFFFF</Brush>
@@ -81,6 +82,7 @@
              
              <Brush x:Key="FPButtonBackgroundBright">#343538</Brush>
              <Brush x:Key="FPButtonBackgroundBrightPointerOver">#3e3f42</Brush>
+             
              
          </ResourceDictionary>
          
