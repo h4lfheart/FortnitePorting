@@ -55,7 +55,6 @@
                         <sidebar:SidebarItemText Text="GENERAL"/>
                         <sidebar:SidebarItemButton Text="Home" Icon="Home" Tag="{x:Type views:HomeView}"/>
                         <sidebar:SidebarItemButton Text="News &amp; Updates" Icon="Newspaper" Tag="{x:Type views:NewsView}"/>
-                        <sidebar:SidebarItemButton Text="Featured Art" Icon="Art" IsEnabled="False"/>
                         
                         <sidebar:SidebarItemSeparator/>
                         

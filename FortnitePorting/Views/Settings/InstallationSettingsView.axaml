@@ -157,11 +157,11 @@
                 </controls:SettingsItem.Footer>
             </controls:SettingsItem>
 
-            <controls:SettingsItem Title="Load UEFN Maps"
-                                   Description="Whether or not to load saved UEFN maps from Fortnite's AppData."
-                                   IsVisible="{Binding CurrentProfile.LoadCreativeMapsEnabled}">
+            <controls:SettingsItem Title="Load Installed Bundles"
+                                   Description="Whether or not to load installed bundles from Fortnite's AppData directory."
+                                   IsVisible="{Binding CurrentProfile.LoadInstalledBundlesEnabled}">
                 <controls:SettingsItem.Footer>
-                    <ToggleSwitch IsChecked="{Binding CurrentProfile.LoadCreativeMaps}" />
+                    <ToggleSwitch IsChecked="{Binding CurrentProfile.LoadInstalledBundles}" />
                 </controls:SettingsItem.Footer>
             </controls:SettingsItem>
         </StackPanel>

@@ -14,7 +14,7 @@
     <Grid Margin="{ext:Space 2}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
-            <RowDefinition Height="{ext:Space 2}" />
+            <RowDefinition Height="{ext:Space 1}" />
             <RowDefinition Height="2*" />
             <RowDefinition Height="{ext:Space 2}" />
             <RowDefinition Height="2*" />
@@ -176,27 +176,49 @@
             <ItemsControl Grid.Row="2" ItemsSource="{Binding FeaturedArt}" HorizontalAlignment="Stretch" ClipToBounds="False">
                 <ItemsControl.DataTemplates>
                     <DataTemplate DataType="responses:FeaturedArtResponse">
-                        <controls:ContentCard HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                           CornerRadius="16">
-                            <Grid RowDefinitions="* 16 Auto 8 Auto" Margin="{ext:Space 2}">
-                                <Border Grid.Row="0" CornerRadius="8" ClipToBounds="False" BoxShadow="0 2 15 #60000000">
-                                    <Border CornerRadius="8" ClipToBounds="True">
-                                        <Image asyncImageLoader:ImageLoader.Source="{Binding Image}"
-                                               VerticalAlignment="Center" Stretch="UniformToFill"/>
-                                    </Border>
+                         <controls:ContentCard Margin="{ext:Space 1}"
+                                              HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="{ext:Space 2}"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="{ext:Space 2}"/>
+                                </Grid.RowDefinitions>
+                                
+                                <Border Grid.Row="0" 
+                                        CornerRadius="16 16 0 0"
+                                        ClipToBounds="True"
+                                        Height="175">
+                                    <Image asyncImageLoader:ImageLoader.Source="{Binding Image}"
+                                           Stretch="UniformToFill"/>
                                 </Border>
-
-                                <TextBlock Grid.Row="2" Text="{Binding Title}" FontFamily="{StaticResource SFTextSemiBold}"
-                                           FontSize="16" />
                                 
-                                <TextBlock Grid.Row="4" DockPanel.Dock="Left" Text="{Binding Artist}" FontFamily="{StaticResource SFTextRegular}"
-                                           Classes="TextFillColorSecondaryBrush" VerticalAlignment="Center"/>
+                                <Grid Grid.Row="2" Margin="{ext:Space 2, 0}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="{ext:Space 1}"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    
+                                    <TextBlock Grid.Row="0" Text="{Binding Title}" 
+                                               FontFamily="{StaticResource SFTextSemiBold}"
+                                               FontSize="16"/>
+                                    
+                                    <TextBlock Grid.Row="2" Text="{Binding Artist}" 
+                                               FontFamily="{StaticResource SFTextRegular}"
+                                               Classes="TextFillColorSecondaryBrush"
+                                               TextWrapping="Wrap"
+                                               MaxLines="3"/>
+                                </Grid>
                                 
-                                <Button Grid.Row="2" Grid.RowSpan="3" DockPanel.Dock="Right" 
-                                        VerticalAlignment="Bottom" HorizontalAlignment="Right"
-                                        Command="{Binding $parent[views:HomeView].((viewModels:HomeViewModel)DataContext).OpenFeaturedArt}" CommandParameter="{Binding}">
+                                <Button Grid.Row="0" Grid.RowSpan="4" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="{ext:Space 2}"
+                                        Command="{Binding $parent[views:HomeView].((viewModels:HomeViewModel)DataContext).OpenFeaturedArt}" 
+                                        CommandParameter="{Binding}">
                                     <material:MaterialIcon Kind="Link"/>
                                 </Button>
+
+
                             </Grid>
                         </controls:ContentCard>
                     </DataTemplate>

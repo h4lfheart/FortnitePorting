@@ -98,7 +98,7 @@ public partial class CUE4ParseService : ObservableObject, IService
         ObjectTypeRegistry.RegisterEngine(Assembly.Load("FortnitePorting"));
         ObjectTypeRegistry.RegisterEngine(Assembly.Load("FortnitePorting.Shared"));
 
-        Provider.LoadExtraDirectories = AppSettings.Installation.CurrentProfile.LoadCreativeMaps && SupaBase.Permissions.CanExportUEFN;
+        Provider.LoadExtraDirectories = AppSettings.Installation.CurrentProfile.LoadInstalledBundles;
         
         _onlineStatus = await Api.FortnitePorting.Online() ?? new OnlineResponse();
         

@@ -22,7 +22,7 @@ public partial class InstallationProfile : ObservableValidator
     [NotifyPropertyChangedFor(nameof(EncryptionKeyEnabled))]
     [NotifyPropertyChangedFor(nameof(MappingsFileEnabled))]
     [NotifyPropertyChangedFor(nameof(TextureStreamingEnabled))]
-    [NotifyPropertyChangedFor(nameof(LoadCreativeMapsEnabled))]
+    [NotifyPropertyChangedFor(nameof(LoadInstalledBundlesEnabled))]
     [NotifyPropertyChangedFor(nameof(IsCustom))]
     private EFortniteVersion _fortniteVersion = EFortniteVersion.LatestInstalled;
     
@@ -50,7 +50,7 @@ public partial class InstallationProfile : ObservableValidator
     
     [ObservableProperty] private ELanguage _gameLanguage = ELanguage.English;
     [ObservableProperty] private bool _useTextureStreaming = true;
-    [ObservableProperty] private bool _loadCreativeMaps = true;
+    [ObservableProperty] private bool _loadInstalledBundles = true;
 
     [JsonIgnore] public bool IsCustom => FortniteVersion is EFortniteVersion.Custom;
     [JsonIgnore] public bool ArchiveDirectoryEnabled => FortniteVersion is not EFortniteVersion.LatestOnDemand;
@@ -58,7 +58,7 @@ public partial class InstallationProfile : ObservableValidator
     [JsonIgnore] public bool EncryptionKeyEnabled => IsCustom;
     [JsonIgnore] public bool MappingsFileEnabled => IsCustom;
     [JsonIgnore] public bool TextureStreamingEnabled => FortniteVersion is EFortniteVersion.LatestInstalled;
-    [JsonIgnore] public bool LoadCreativeMapsEnabled => FortniteVersion is EFortniteVersion.LatestInstalled && SupaBase.Permissions.CanExportUEFN;
+    [JsonIgnore] public bool LoadInstalledBundlesEnabled => FortniteVersion is EFortniteVersion.LatestInstalled;
     
     public async Task BrowseArchivePath()
     {

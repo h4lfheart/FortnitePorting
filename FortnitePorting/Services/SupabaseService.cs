@@ -127,11 +127,7 @@ public partial class SupabaseService : ObservableObject, IService
     private async Task OnLoggedIn()
     {
         IsLoggedIn = true;
-                
-        await LoadUserInfo();
-
-        await PostLogin();
-
+        
         Permissions = (await Client.Rpc<Permissions>("permissions", new { })).Adapt<UserPermissions>();
         
         await Client.From<Permissions>().On(PostgresChangesOptions.ListenType.All, (channel, response) =>
@@ -139,6 +135,10 @@ public partial class SupabaseService : ObservableObject, IService
             Permissions = response.Model<Permissions>().Adapt<UserPermissions>();
         });
             
+        await LoadUserInfo();
+
+        await PostLogin();
+
         await Chat.Initialize();
     }
     

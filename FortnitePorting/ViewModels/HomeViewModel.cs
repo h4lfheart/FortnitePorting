@@ -37,6 +37,7 @@ public partial class HomeViewModel() : ViewModelBase
             await FilesVM.Initialize();
         });
         
+        return;
 
         if (!AppSettings.Application.DontAskAboutKofi &&
             DateTime.Now.Date >= AppSettings.Application.NextKofiAskDate)
