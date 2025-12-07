@@ -185,8 +185,13 @@
                                                 </MenuItem>
                                             </ContextMenu>
                                         </ContentControl.ContextMenu>
-                                        <StackPanel Width="{Binding DisplayWidth}"
-                                                    ToolTip.Tip="{Binding CreationData.DisplayName}" Spacing="4">
+                                        <StackPanel Width="{Binding DisplayWidth}" Spacing="4">
+                                            <ToolTip.Tip>
+                                                <StackPanel Spacing="{ext:Space 0.5}" Margin="{ext:Space 0.5}">
+                                                    <TextBlock Text="{Binding CreationData.DisplayName}"/> 
+                                                    <TextBlock Text="{Binding CreationData.ID}" Classes="TextFillColorSecondaryBrush"/> 
+                                                </StackPanel>
+                                            </ToolTip.Tip>
                                             <Grid>
                                                 <controls:ContentCard Width="{Binding DisplayWidth}"
                                                                    Height="{Binding DisplayHeight}" />

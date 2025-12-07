@@ -60,6 +60,11 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
     private void OnRandomButtonPressed(object? sender, RoutedEventArgs routedEventArgs)
     {
         AssetsListBox.SelectedIndex = Random.Shared.Next(0, AssetsListBox.Items.Count);
+        
+        if (AssetsListBox.SelectedItem is not AssetItem item) return;
+        if (item.IconDisplayImage is not null) return;
+        
+        item.LoadBitmap();
     }
 
     private void OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
