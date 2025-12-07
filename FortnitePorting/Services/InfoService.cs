@@ -64,8 +64,8 @@ public partial class InfoService : ObservableObject, ILogEventSink, IService
 
     public void Message(MessageData data)
     {
-        if (!string.IsNullOrEmpty(data.Id))
-            Messages.RemoveAll(bar => bar.Id.Equals(data.Id));
+        //if (!string.IsNullOrEmpty(data.Id))
+           // Messages.RemoveAll(bar => bar.Id.Equals(data.Id));
         
         Messages.Add(data);
         if (!data.AutoClose) return;

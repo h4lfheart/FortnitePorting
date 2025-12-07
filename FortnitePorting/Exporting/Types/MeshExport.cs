@@ -585,7 +585,7 @@ public class MeshExport : BaseExport
         foreach (var material in variantMaterials) OverrideMaterials.AddIfNotNull(Exporter.OverrideMaterialSwap(material));
 
         var variantParameters = style.GetOrDefault("VariantMaterialParams", Array.Empty<FStructFallback>());
-        foreach (var parameters in variantParameters) OverrideParameters.AddIfNotNull(Exporter.OverrideParameters(parameters));
+        foreach (var parameters in variantParameters) OverrideParameters.AddRangeIfNotNull(Exporter.OverrideParameters(parameters));
         
         var variantMeshes = style.GetOrDefault("VariantMeshes", Array.Empty<FStructFallback>());
         foreach (var mesh in variantMeshes)

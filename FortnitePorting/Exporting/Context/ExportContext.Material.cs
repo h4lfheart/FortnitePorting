@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using ConcurrentCollections;
 using CUE4Parse.UE4.Assets.Exports.Material;
@@ -66,17 +67,31 @@ public partial class ExportContext
         };
     }
     
-    public ExportOverrideParameters? OverrideParameters(FStructFallback overrideData)
+    public List<ExportOverrideParameters> OverrideParameters(FStructFallback overrideData)
     {
-        var materialToAlter = overrideData.Get<FSoftObjectPath>("MaterialToAlter");
-        if (materialToAlter.AssetPathName.IsNone) return null; 
-
-        var exportParams = new ExportOverrideParameters();
-        AccumulateParameters(overrideData, ref exportParams);
+        var materialsToAlter = new List<FSoftObjectPath>();
+        if (overrideData.TryGetValue<FSoftObjectPath>(out var alterMaterial, "MaterialToAlter"))
+            materialsToAlter.AddIfNotNull(alterMaterial);
         
-        exportParams.MaterialNameToAlter = materialToAlter.AssetPathName.Text.SubstringAfterLast(".");
-        exportParams.Hash = exportParams.GetHashCode();
-        return exportParams;
+        if (overrideData.TryGetValue<FSoftObjectPath[]>(out var alterMaterials, "MaterialsToAlter"))
+            materialsToAlter.AddRangeIfNotNull(alterMaterials);
+
+        materialsToAlter.RemoveAll(mat =>
+            mat.AssetPathName.IsNone || string.IsNullOrWhiteSpace(mat.AssetPathName.Text));
+
+        var exportParametersSet = new List<ExportOverrideParameters>();
+        foreach (var materialToAlter in materialsToAlter)
+        {
+            var exportParams = new ExportOverrideParameters();
+            AccumulateParameters(overrideData, ref exportParams);
+
+            exportParams.MaterialNameToAlter = materialToAlter.AssetPathName.Text.SubstringAfterLast(".");
+            exportParams.Hash = exportParams.GetHashCode();
+            exportParametersSet.Add(exportParams);
+        }
+
+       
+        return exportParametersSet;
     }
     
     public void AccumulateParameters<T>(UMaterialInterface? materialInterface, ref T parameterCollection) where T : ParameterCollection
