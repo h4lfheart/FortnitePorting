@@ -60,4 +60,11 @@
         <ProjectReference Include="..\Dependencies\FluentAvalonia.BreadcrumbBar\FluentAvalonia.BreadcrumbBar\FluentAvalonia.BreadcrumbBar.csproj" />
     </ItemGroup>
     
+    <ItemGroup>
+      <Compile Update="Windows\ChangelogWindow.axaml.cs">
+        <DependentUpon>ChangelogWindow.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+    </ItemGroup>
+    
 </Project>

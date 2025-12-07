@@ -143,7 +143,8 @@
                                 
                                 <Button Grid.Row="0" Grid.RowSpan="6" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="{ext:Space 2}"
                                         Command="{Binding $parent[views:HomeView].((viewModels:HomeViewModel)DataContext).OpenNews}" 
-                                        CommandParameter="{Binding}">
+                                        CommandParameter="{Binding}"
+                                        ToolTip.Tip="Read Changelog">
                                     <material:MaterialIcon Kind="Text"/>
                                 </Button>
 
@@ -214,7 +215,8 @@
                                 
                                 <Button Grid.Row="0" Grid.RowSpan="4" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="{ext:Space 2}"
                                         Command="{Binding $parent[views:HomeView].((viewModels:HomeViewModel)DataContext).OpenFeaturedArt}" 
-                                        CommandParameter="{Binding}">
+                                        CommandParameter="{Binding}"
+                                        ToolTip.Tip="Open Post">
                                     <material:MaterialIcon Kind="Link"/>
                                 </Button>
 

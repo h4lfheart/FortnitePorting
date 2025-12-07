@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.API.Responses;
+using FortnitePorting.Windows;
 
 namespace FortnitePorting.ViewModels;
 
@@ -17,6 +18,6 @@ public partial class NewsViewModel : ViewModelBase
     
     public void OpenNews(NewsResponse news)
     {
-        Info.Dialog($"{news.Title}: {news.SubTitle}", news.Description);
+        ChangelogWindow.Preview(news.Description);
     }
 }
