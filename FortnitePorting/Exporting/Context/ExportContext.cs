@@ -329,9 +329,16 @@ public partial class ExportContext
         }
         else
         {
-            path = embeddedAsset ? $"{obj.Owner.Name}/{obj.Name}" : obj.Owner?.Name ?? string.Empty;
+            path = embeddedAsset ? $"{obj.Owner.Name}/{obj.Name}" : obj.Owner?.Provider?.FixPath(obj.GetPathName()) ?? string.Empty;
         }
-        
+
+        return GetExportPath(path, ext);
+    }
+    
+    
+    
+    public string GetExportPath(string path, string ext)
+    {
         path = path.SubstringBeforeLast('.');
         if (path.StartsWith("/")) path = path[1..];
 

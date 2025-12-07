@@ -26,7 +26,7 @@ public class EnumToRecordConverter : IValueConverter
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         var enumValue = value as Enum;
-        return new EnumRecord(enumValue.GetType(), enumValue, enumValue.Description, enumValue.IsDisabled);
+        return new EnumRecord(enumValue.GetType(), enumValue, enumValue.Description, enumValue.IsDisabled, enumValue.Icon);
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)

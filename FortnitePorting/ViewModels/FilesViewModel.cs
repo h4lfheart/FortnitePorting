@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text.RegularExpressions;
@@ -23,6 +24,8 @@ using DynamicData;
 using DynamicData.Binding;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Exporting;
+using FortnitePorting.Exporting.Context;
+using FortnitePorting.Exporting.Models;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Files;
@@ -32,12 +35,25 @@ using FortnitePorting.Views;
 using FortnitePorting.Windows;
 using Newtonsoft.Json;
 using ReactiveUI;
+using Serilog;
 
 namespace FortnitePorting.ViewModels;
 
 public partial class FilesViewModel : ViewModelBase
 {
-    [ObservableProperty] private EExportLocation _exportLocation = EExportLocation.Blender;
+    [ObservableProperty] private EExportLocation _assetExportLocation = EExportLocation.Blender;
+    [ObservableProperty] private EExportLocation _dataExportLocation = EExportLocation.AssetsFolder;
+    
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(IsAssetExportTarget))] private EExportTarget _exportTarget = EExportTarget.Asset;
+    
+    public bool IsAssetExportTarget => ExportTarget == EExportTarget.Asset;
+
+    public EnumRecord[] FolderExportLocations =>
+        Enum.GetValues<EExportLocation>()
+            .Where(val => val.IsFolder)
+            .Select(val => val.ToEnumRecord())
+            .ToArray();
+    
     [ObservableProperty, NotifyPropertyChangedFor(nameof(SearchText))] private string _flatSearchText = string.Empty;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(SearchText))] private string _fileSearchText = string.Empty;
 
@@ -276,13 +292,19 @@ public partial class FilesViewModel : ViewModelBase
     public async Task OpenSettings()
     {
         Navigation.App.Open<ExportSettingsView>();
-        Navigation.ExportSettings.Open(ExportLocation);
+        Navigation.ExportSettings.Open(AssetExportLocation);
     }
     
     [RelayCommand]
-    public async Task SetExportLocation(EExportLocation location)
+    public async Task SetAssetExportLocation(EExportLocation location)
     {
-        ExportLocation = location;
+        AssetExportLocation = location;
+    }
+    
+    [RelayCommand]
+    public async Task SetDataExportLocation(EExportLocation location)
+    {
+        DataExportLocation = location;
     }
 
     [RelayCommand]
@@ -427,6 +449,23 @@ public partial class FilesViewModel : ViewModelBase
     [RelayCommand]
     public async Task Export()
     {
+        switch (ExportTarget)
+        {
+            case EExportTarget.Asset:
+                await ExportAssets();
+                break;
+            case EExportTarget.Properties:
+                await ExportProperties();
+                break;
+            case EExportTarget.RawData:
+                await ExportRawData();
+                break;
+        }
+        
+    }
+
+    private async Task ExportAssets()
+    {
         var exports = new List<KeyValuePair<UObject, EExportType>>();
         var unsupportedExportTypes = new HashSet<string>();
 
@@ -479,7 +518,6 @@ public partial class FilesViewModel : ViewModelBase
             exports.Add(new KeyValuePair<UObject, EExportType>(asset, exportType));
         }
         
-
         if (exports.Count == 0)
         {
             Info.Message("Exporter",
@@ -491,7 +529,7 @@ public partial class FilesViewModel : ViewModelBase
             return;
         }
 
-        var meta = AppSettings.ExportSettings.CreateExportMeta(ExportLocation);
+        var meta = AppSettings.ExportSettings.CreateExportMeta(AssetExportLocation);
         meta.WorldFlags = EWorldFlags.Actors | EWorldFlags.Landscape | EWorldFlags.WorldPartitionGrids | EWorldFlags.HLODs;
         if (meta.Settings.ImportInstancedFoliage)
             meta.WorldFlags |= EWorldFlags.InstancedFoliage;
@@ -507,12 +545,85 @@ public partial class FilesViewModel : ViewModelBase
         }
     }
 
+    private async Task ExportProperties()
+    {
+        var paths = UseFlatView
+            ? SelectedFlatViewItems.Select(x => x.Path).ToArray()
+            : SelectedFileViewItems.Select(x => x.FilePath).ToArray();
+
+        if (paths.Length == 0)
+        {
+            Info.Message("Exporter", "Failed to load any assets for export.", InfoBarSeverity.Warning);
+            return;
+        }
+
+        var meta = AppSettings.ExportSettings.CreateExportMeta(DataExportLocation);
+        if (meta.ExportLocation is EExportLocation.CustomFolder && await App.BrowseFolderDialog() is { } customExportPath)
+        {
+            meta.CustomPath = customExportPath;
+        }
+        
+        var context = new ExportContext(meta);
+        
+        foreach (var path in paths)
+        {
+            var basePath = Exporter.FixPath(path);
+            var fileExports = await UEParse.Provider.LoadAllObjectsAsync(basePath);
+            
+            var exportPath = context.GetExportPath(meta.CustomPath is not null 
+                ? basePath.SubstringAfterLast("/").SubstringBeforeLast(".") 
+                : basePath , "json");
+            
+            Log.Information("Exporting Properties: {ExportPath}", exportPath);
+            
+            var propertiesJson = JsonConvert.SerializeObject(fileExports, Formatting.Indented);
+            await File.WriteAllTextAsync(exportPath, propertiesJson);
+        }
+    }
+    
+    private async Task ExportRawData()
+    {
+        var paths = UseFlatView
+            ? SelectedFlatViewItems.Select(x => x.Path).ToArray()
+            : SelectedFileViewItems.Select(x => x.FilePath).ToArray();
+
+        if (paths.Length == 0)
+        {
+            Info.Message("Exporter", "Failed to load any assets for export.", InfoBarSeverity.Warning);
+            return;
+        }
+
+        var meta = AppSettings.ExportSettings.CreateExportMeta(DataExportLocation);
+        if (meta.ExportLocation is EExportLocation.CustomFolder && await App.BrowseFolderDialog() is { } customExportPath)
+        {
+            meta.CustomPath = customExportPath;
+        }
+        
+        var context = new ExportContext(meta);
+        
+        foreach (var path in paths)
+        {
+            if (!UEParse.Provider.TrySavePackage(path, out var assets))
+                continue;
+
+            foreach (var (assetPath, assetData) in assets)
+            {
+                var exportPath = context.GetExportPath(meta.CustomPath is not null 
+                    ? assetPath.SubstringAfterLast("/").SubstringBeforeLast(".") 
+                    : assetPath, assetPath.SubstringAfterLast("."));
+                
+                Log.Information("Exporting Raw Data: {ExportPath}", exportPath);
+            
+                await File.WriteAllBytesAsync(exportPath, assetData);
+            }
+        }
+    }
+
     private bool IsValidFilePath(string path)
     {
         var isValidExtension = path.EndsWith(".uasset") || path.EndsWith(".umap") || path.EndsWith(".ufont");
-        var isOptionalSegment = path.Contains(".o.");
         var isVerse = path.Contains("/_Verse/");
-        return isValidExtension && !isOptionalSegment && !isVerse;
+        return isValidExtension && !isVerse;
     }
     
     private Func<FlatItem, bool> CreateAssetFilter((string, bool) items)

@@ -193,8 +193,6 @@
                                                     <ContentControl.ContextMenu>
                                                         <ContextMenu>
                                                             <MenuItem Header="Copy Path" Command="{Binding CopyPathCommand}"/>
-                                                            <MenuItem Header="Copy Properties" Command="{Binding CopyPropertiesCommand}"/>
-                                                            <MenuItem Header="Save Properties" Command="{Binding SavePropertiesCommand}"/>
                                                         </ContextMenu>
                                                     </ContentControl.ContextMenu>
                                                     
@@ -208,7 +206,8 @@
                                             </ItemsPanelTemplate>
                                         </ListBox.ItemsPanel>
                                     </ListBox>
-                                    <TextBlock IsVisible="{Binding !FlatViewCollection.Count}" Text="No Files Loaded" 
+                                    
+                                    <TextBlock IsVisible="{Binding !FlatViewCollection.Count}" Text="No Files Found" 
                                                Classes="BodyTextBlockStyle TextFillColorTertiaryBrush"
                                                HorizontalAlignment="Center" VerticalAlignment="Center" />
                                 </Grid>
@@ -216,6 +215,9 @@
                         </Grid>
                     </controls:ContentCard>
                     
+                    <TextBlock Grid.Row="1" IsVisible="{Binding !FileViewCollection.Count}" Text="No Files Found In This Folder" 
+                               Classes="BodyTextBlockStyle TextFillColorTertiaryBrush"
+                               HorizontalAlignment="Center" VerticalAlignment="Center" />
                 </Grid>
                 
                 
@@ -228,6 +230,8 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="{ext:Space 1}"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="{ext:Space 1}"/>
+                    <ColumnDefinition Width="0.75*"/>
                     <ColumnDefinition Width="{ext:Space 1}"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
@@ -246,21 +250,22 @@
                     </StackPanel>
                 </Button>
                 
-                 <SplitButton Grid.Column="4" HorizontalAlignment="Stretch" Command="{Binding ExportCommand}">
+                <SplitButton Grid.Column="4" HorizontalAlignment="Stretch" Command="{Binding ExportCommand}" 
+                             IsVisible="{Binding IsAssetExportTarget}">
                     <SplitButton.Flyout>
                         <MenuFlyout ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EExportLocation}}">
                             <MenuFlyout.ItemContainerTheme>
                                 <ControlTheme x:DataType="ext:EnumRecord" TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}">
                                     <Setter Property="Header" Value="{Binding Description}"/>
                                     <Setter Property="IsEnabled" Value="{Binding !IsDisabled}"/>
-                                    <Setter Property="Command" Value="{Binding $parent[views:FilesView].((viewModels:FilesViewModel)DataContext).SetExportLocationCommand}"/>
+                                    <Setter Property="Command" Value="{Binding $parent[views:FilesView].((viewModels:FilesViewModel)DataContext).SetAssetExportLocation}"/>
                                     <Setter Property="CommandParameter" Value="{Binding Value}"/>
                                     
                                     <Setter Property="StaysOpenOnClick" Value="False"/>
                                     <Setter Property="Icon">
                                         <Template>
                                             <Grid>
-                                                <material:MaterialIcon Kind="Check" IsVisible="{Binding $parent[views:FilesView].((viewModels:FilesViewModel)DataContext).ExportLocation, 
+                                                <material:MaterialIcon Kind="Check" IsVisible="{Binding $parent[views:FilesView].((viewModels:FilesViewModel)DataContext).AssetExportLocation, 
                                         Converter={StaticResource EnumEquals}, 
                                         ConverterParameter={Binding $parent[MenuItem].((ext:EnumRecord)DataContext).Value}}" />
                                             </Grid>
@@ -272,11 +277,43 @@
                     </SplitButton.Flyout>
                     <StackPanel Orientation="Horizontal">
                         <material:MaterialIcon Kind="Download" Margin="{ext:Space 0, 0, 1, 0}"/>
-                        <TextBlock Text="{Binding ExportLocation, Converter={StaticResource EnumToRecord}, StringFormat='Export to {0}'}"/>
+                        <TextBlock Text="{Binding AssetExportLocation, Converter={StaticResource EnumToRecord}, StringFormat='Export to {0}'}"/>
                     </StackPanel>
                 </SplitButton>
                 
-                <Button Grid.Column="6" ToolTip.Tip="Export Settings" Content="{material:MaterialIconExt Settings}"
+                <SplitButton Grid.Column="4" HorizontalAlignment="Stretch" Command="{Binding ExportCommand}" 
+                             IsVisible="{Binding !IsAssetExportTarget}">
+                    <SplitButton.Flyout>
+                        <MenuFlyout ItemsSource="{Binding FolderExportLocations}">
+                            <MenuFlyout.ItemContainerTheme>
+                                <ControlTheme x:DataType="ext:EnumRecord" TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}">
+                                    <Setter Property="Header" Value="{Binding Description}"/>
+                                    <Setter Property="IsEnabled" Value="{Binding !IsDisabled}"/>
+                                    <Setter Property="Command" Value="{Binding $parent[views:FilesView].((viewModels:FilesViewModel)DataContext).SetDataExportLocation}"/>
+                                    <Setter Property="CommandParameter" Value="{Binding Value}"/>
+                                    
+                                    <Setter Property="StaysOpenOnClick" Value="False"/>
+                                </ControlTheme>
+                            </MenuFlyout.ItemContainerTheme>
+                        </MenuFlyout>
+                    </SplitButton.Flyout>
+                    <StackPanel Orientation="Horizontal">
+                        <material:MaterialIcon Kind="Download" Margin="{ext:Space 0, 0, 1, 0}"/>
+                        <TextBlock Text="{Binding DataExportLocation, Converter={StaticResource EnumToRecord}, StringFormat='Export to {0}'}"/>
+                    </StackPanel>
+                </SplitButton>
+                
+                <ComboBox Grid.Column="6" ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EExportTarget}}"
+                          SelectedItem="{Binding ExportTarget, Converter={StaticResource EnumToRecord}}"
+                          HorizontalAlignment="Stretch">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate DataType="ext:EnumRecord">
+                            <controls:IconText Text="{Binding Description, StringFormat='Export as {0}'}" Icon="{Binding Icon}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                
+                <Button Grid.Column="8" ToolTip.Tip="Export Settings" Content="{material:MaterialIconExt Settings}"
                         Command="{Binding OpenSettingsCommand}"/>
                     
             </Grid>

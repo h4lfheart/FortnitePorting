@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel;
 using FortnitePorting.Extensions;
 using FortnitePorting.Models;
+using Material.Icons;
 
 namespace FortnitePorting;
 
@@ -35,6 +36,21 @@ public enum EExportLocation
     [Description("Unity (Not Implemented)")]
     [Disabled]
     Unity,
+}
+
+public enum EExportTarget
+{
+    [Description("Asset")]
+    [Icon(MaterialIconKind.File)]
+    Asset,
+    
+    [Description("Properties")]
+    [Icon(MaterialIconKind.CodeJson)]
+    Properties,
+    
+    [Description("Raw Data")]
+    [Icon(MaterialIconKind.Hexadecimal)]
+    RawData,
 }
 
 public enum EAssetCategory
