@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.Utils;
 using FortnitePorting.Extensions;
+using Serilog;
 
 namespace FortnitePorting.Models.Files;
 
@@ -24,6 +25,7 @@ public partial class TreeItem : ObservableObject
     [ObservableProperty] private Bitmap? _fileBitmap;
 
     [ObservableProperty] private TreeItem? _parent;
+    [ObservableProperty] private int _childCount = 0;
     
     [ObservableProperty] private ObservableCollection<TreeItem> _folderChildren = [];
     
@@ -47,6 +49,7 @@ public partial class TreeItem : ObservableObject
         _childrenLookup[name] = child;
         _isSorted = false;
         _childrenLoaded = false;
+        ChildCount++;
     }
 
     public bool TryGetChild(string name, out TreeItem child)
@@ -60,7 +63,7 @@ public partial class TreeItem : ObservableObject
         return _childrenLookup.Values;
     }
 
-    private void EnsureChildrenSorted()
+    public void EnsureChildrenSorted()
     {
         if (!_isSorted)
         {
@@ -68,7 +71,6 @@ public partial class TreeItem : ObservableObject
                 .OrderByDescending(item => item.Value.Type == ENodeType.Folder)
                 .ThenBy(item => item.Value.Name, new CustomComparer<string>(ComparisonExtensions.CompareNatural))
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-            
             _isSorted = true;
         }
 
@@ -77,7 +79,7 @@ public partial class TreeItem : ObservableObject
             FolderChildren = [.._childrenLookup.Values
                 .Where(x => x.Type == ENodeType.Folder)
             ];
-
+        
             _childrenLoaded = true;
         }
     }

@@ -189,9 +189,7 @@ public class VirtualizingWrapPanel : VirtualizingPanel
         get => GetValue(CenterLastLineProperty);
         set => SetValue(CenterLastLineProperty, value);
     }
-
-
-
+    
     
 protected override Size ArrangeOverride(Size finalSize)
 {
@@ -303,15 +301,15 @@ protected override Size ArrangeOverride(Size finalSize)
             }
             else
             {
-                // DistributeEvenly mode - calculate spacing from a full row
-                var itemsPerFullRow = Math.Max(1, (int)(availableU / sizeUV.U));
-                var totalItemWidthFullRow = itemsPerFullRow * sizeUV.U;
-                var totalSpacingFullRow = availableU - totalItemWidthFullRow;
-                var spacingFullRow = totalSpacingFullRow / (itemsPerFullRow + 1);
-                
+                // DistributeEvenly mode
                 if (shouldCenter)
                 {
                     // Center the last row using the same spacing as full rows
+                    var itemsPerFullRow = Math.Max(1, (int)(availableU / sizeUV.U));
+                    var totalItemWidthFullRow = itemsPerFullRow * sizeUV.U;
+                    var totalSpacingFullRow = availableU - totalItemWidthFullRow;
+                    var spacingFullRow = totalSpacingFullRow / (itemsPerFullRow + 1);
+                    
                     var totalItemWidth = rowItemCount * sizeUV.U;
                     var totalSpacingNeeded = (rowItemCount - 1) * spacingFullRow;
                     var rowWidth = totalItemWidth + totalSpacingNeeded;
@@ -323,6 +321,33 @@ protected override Size ArrangeOverride(Size finalSize)
                         var distributedPosition = new UVSize(orientation)
                         {
                             U = offset + (i * (sizeUV.U + spacingFullRow)),
+                            V = positionUV.V
+                        };
+
+                        var rect = new Rect(
+                            distributedPosition.Width,
+                            distributedPosition.Height,
+                            sizeUV.Width,
+                            sizeUV.Height);
+
+                        element.Arrange(rect);
+                        _scrollViewer?.RegisterAnchorCandidate(element);
+                    }
+                }
+                else if (isLastRow)
+                {
+                    // Last row but not centering - use spacing from full rows but left-align
+                    var itemsPerFullRow = Math.Max(1, (int)(availableU / sizeUV.U));
+                    var totalItemWidthFullRow = itemsPerFullRow * sizeUV.U;
+                    var totalSpacingFullRow = availableU - totalItemWidthFullRow;
+                    var spacingFullRow = totalSpacingFullRow / (itemsPerFullRow + 1);
+
+                    for (var i = 0; i < rowItemCount; i++)
+                    {
+                        var (element, positionUV, _) = row[i];
+                        var distributedPosition = new UVSize(orientation)
+                        {
+                            U = spacingFullRow + (i * (sizeUV.U + spacingFullRow)),
                             V = positionUV.V
                         };
 

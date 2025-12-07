@@ -134,7 +134,7 @@
             <Border x:Name="ContentBorder" Grid.Column="1" Background="#0a0a0a"
                 BorderThickness="2 2 0 0" CornerRadius="16 0 0 0"
                 BorderBrush="#212121" Margin="0 35 0 0" ClipToBounds="True">
-                <ui:Frame x:Name="ContentFrame"/>
+                <ui:Frame x:Name="ContentFrame" IsNavigationStackEnabled="False"/>
             </Border>
         </Grid>
         

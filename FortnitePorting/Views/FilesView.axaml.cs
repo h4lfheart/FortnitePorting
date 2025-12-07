@@ -85,6 +85,7 @@ public partial class FilesView : ViewBase<FilesViewModel>
         if (e.Item is not TreeItem item) return;
         if (item.FileBitmap is not null) return;
         
+        item.EnsureChildrenSorted();
         ViewModel.LoadFileBitmap(ref item);
     }
 }
