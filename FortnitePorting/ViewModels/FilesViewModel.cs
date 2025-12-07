@@ -193,7 +193,7 @@ public partial class FilesViewModel : ViewModelBase
                         
                 // use texture as preview
                 var obj = ((AbstractUePackage) package).ConstructObject(pointer.Class?.Object?.Value as UStruct, package);
-                if (obj is UTexture2D && pointer.TryLoad(out var textureObj) && textureObj is UTexture2D texture && texture.Decode() is { } decodedTexture)
+                if (obj is UTexture2D && pointer.TryLoad(out var textureObj) && textureObj is UTexture2D texture && texture.Decode(maxMipSize: 128) is { } decodedTexture)
                 {
                     item.FileBitmap = decodedTexture.ToWriteableBitmap();
                     break;
@@ -205,7 +205,7 @@ public partial class FilesViewModel : ViewModelBase
                     .FirstOrDefault(loader => loader.ClassNames.Contains(obj.ExportType));
                 if (assetLoader is not null && pointer.TryLoad(out var assetObj))
                 {
-                    item.FileBitmap = assetLoader.IconHandler(assetObj)?.Decode()?.ToWriteableBitmap();
+                    item.FileBitmap = assetLoader.IconHandler(assetObj)?.Decode(maxMipSize: 128)?.ToWriteableBitmap();
                     break;
                 }
                     
@@ -470,8 +470,16 @@ public partial class FilesViewModel : ViewModelBase
         var unsupportedExportTypes = new HashSet<string>();
 
         var paths = UseFlatView
-            ? SelectedFlatViewItems.Select(x => x.Path)
-            : SelectedFileViewItems.Select(x => x.FilePath);
+            ? SelectedFlatViewItems.Select(x => x.Path).ToList()
+            : SelectedFileViewItems.Where(x => x.Type == ENodeType.File).Select(x => x.FilePath).ToList();
+
+        var folders = UseFlatView ? [] : SelectedFileViewItems.Where(x => x.Type == ENodeType.Folder);
+        foreach (var folder in folders)
+        {
+            var children = folder.GetAllChildren();
+            paths.AddRange(children.Where(x => x.Type == ENodeType.File).Select(x => x.FilePath));
+        }
+        
         foreach (var path in paths)
         {
             var basePath = Exporter.FixPath(path);
@@ -548,10 +556,17 @@ public partial class FilesViewModel : ViewModelBase
     private async Task ExportProperties()
     {
         var paths = UseFlatView
-            ? SelectedFlatViewItems.Select(x => x.Path).ToArray()
-            : SelectedFileViewItems.Select(x => x.FilePath).ToArray();
+            ? SelectedFlatViewItems.Select(x => x.Path).ToList()
+            : SelectedFileViewItems.Where(x => x.Type == ENodeType.File).Select(x => x.FilePath).ToList();
+        
+        var folders = UseFlatView ? [] : SelectedFileViewItems.Where(x => x.Type == ENodeType.Folder);
+        foreach (var folder in folders)
+        {
+            var children = folder.GetAllChildren();
+            paths.AddRange(children.Where(x => x.Type == ENodeType.File).Select(x => x.FilePath));
+        }
 
-        if (paths.Length == 0)
+        if (paths.Count == 0)
         {
             Info.Message("Exporter", "Failed to load any assets for export.", InfoBarSeverity.Warning);
             return;
@@ -584,10 +599,17 @@ public partial class FilesViewModel : ViewModelBase
     private async Task ExportRawData()
     {
         var paths = UseFlatView
-            ? SelectedFlatViewItems.Select(x => x.Path).ToArray()
-            : SelectedFileViewItems.Select(x => x.FilePath).ToArray();
+            ? SelectedFlatViewItems.Select(x => x.Path).ToList()
+            : SelectedFileViewItems.Where(x => x.Type == ENodeType.File).Select(x => x.FilePath).ToList();
 
-        if (paths.Length == 0)
+        var folders = UseFlatView ? [] : SelectedFileViewItems.Where(x => x.Type == ENodeType.Folder);
+        foreach (var folder in folders)
+        {
+            var children = folder.GetAllChildren();
+            paths.AddRange(children.Where(x => x.Type == ENodeType.File).Select(x => x.FilePath));
+        }
+        
+        if (paths.Count == 0)
         {
             Info.Message("Exporter", "Failed to load any assets for export.", InfoBarSeverity.Warning);
             return;

@@ -55,8 +55,7 @@ public class TextureExport : BaseExport
         {
             if (metaData.ExportLocation.IsFolder)
             {
-                var exportPath = Exporter.Export(texture, returnRealPath: true, synchronousExport: true);
-                App.Launch(System.IO.Path.GetDirectoryName(exportPath)!);
+                Exporter.Export(texture, returnRealPath: true, synchronousExport: true);
             }
             else
             {

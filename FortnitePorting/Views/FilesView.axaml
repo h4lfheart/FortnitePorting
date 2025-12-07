@@ -14,7 +14,7 @@
              x:Class="FortnitePorting.Views.FilesView"
              x:DataType="viewModels:FilesViewModel">
     <Grid>
-        <Grid Margin="{ext:Space 1}">
+        <Grid Margin="{ext:Space 1}" IsVisible="{Binding !ShowLoadingSplash}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="{ext:Space 1}"/>
@@ -215,7 +215,7 @@
                         </Grid>
                     </controls:ContentCard>
                     
-                    <TextBlock Grid.Row="1" IsVisible="{Binding !FileViewCollection.Count}" Text="No Files Found In This Folder" 
+                    <TextBlock Grid.Row="1" IsVisible="{Binding !FileViewCollection.Count}" Text="No Files Found" 
                                Classes="BodyTextBlockStyle TextFillColorTertiaryBrush"
                                HorizontalAlignment="Center" VerticalAlignment="Center" />
                 </Grid>
