@@ -271,9 +271,15 @@ def clear_children_bone_transforms(skeleton, anim, bone_name):
             dispose_paths.append(f'pose.bones["{bone.name}"].location')
             dispose_paths.append(f'pose.bones["{bone.name}"].scale')
             pose_bones[bone.name].matrix_basis = Matrix()
-        dispose_curves = [fcurve for fcurve in anim.fcurves if fcurve.data_path in dispose_paths]
-        for fcurve in dispose_curves:
-            anim.fcurves.remove(fcurve)
+        if bpy.app.version < (5, 0, 0):
+            dispose_curves = [fcurve for fcurve in anim.fcurves if fcurve.data_path in dispose_paths]
+            for fcurve in dispose_curves:
+                anim.fcurves.remove(fcurve)
+        elif len(anim.slots) > 0:
+            channelbag = anim_utils.action_ensure_channelbag_for_slot(anim, anim.slots[0])
+            dispose_curves = [fcurve for fcurve in channelbag.fcurves if fcurve.data_path in dispose_paths]
+            for fcurve in dispose_curves:
+                channelbag.fcurves.remove(fcurve)
     bpy.ops.object.mode_set(mode='OBJECT')
 
 def set_geo_nodes_param(geo_node_modifier, name, value):
