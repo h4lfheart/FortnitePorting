@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFramework>net10.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
+        <LangVersion>preview</LangVersion>
         <Nullable>enable</Nullable>
         <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
         <ApplicationManifest>Application/app.manifest</ApplicationManifest>
@@ -25,10 +26,10 @@
         <PackageReference Include="EpicManifestParser" Version="2.4.1" />
         <PackageReference Include="FFMpegCore" Version="5.1.0" />
         <PackageReference Include="FluentAvaloniaUI" Version="2.3.0" />
-        <PackageReference Condition="'$(Configuration)' == 'Release'" Include="Fody" Version="6.8.1">
+        <PackageReference Condition="'$(Configuration)' == 'Release'" Include="Fody" Version="6.9.3">
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <PackageReference Condition="'$(Configuration)' == 'Release'" Include="Costura.Fody" Version="5.8.0-alpha0098">
+        <PackageReference Condition="'$(Configuration)' == 'Release'" Include="Costura.Fody" Version="6.0.0">
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
         <PackageReference Include="Mapster" Version="7.4.2-pre02" />
@@ -59,12 +60,11 @@
         <ProjectReference Include="..\FortnitePorting.Shared\FortnitePorting.Shared.csproj" />
         <ProjectReference Include="..\Dependencies\FluentAvalonia.BreadcrumbBar\FluentAvalonia.BreadcrumbBar\FluentAvalonia.BreadcrumbBar.csproj" />
     </ItemGroup>
-    
-    <ItemGroup>
-      <Compile Update="Windows\ChangelogWindow.axaml.cs">
-        <DependentUpon>ChangelogWindow.axaml</DependentUpon>
-        <SubType>Code</SubType>
-      </Compile>
-    </ItemGroup>
-    
+
+    <PropertyGroup>
+        <PublishSingleFile>true</PublishSingleFile>
+        <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    </PropertyGroup>
+
+
 </Project>

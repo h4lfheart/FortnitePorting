@@ -98,84 +98,91 @@
                     <controls:ContentCard Grid.Row="1">
                         <Grid Margin="{ext:Space 1}">
                             <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" IsVisible="{Binding !UseFlatView}">
-                                <ListBox ItemsSource="{Binding FileViewCollection}" SelectionMode="Multiple"
+                                <Grid>
+                                    <ListBox ItemsSource="{Binding FileViewCollection}" SelectionMode="Multiple"
                                          SelectedItems="{Binding SelectedFileViewItems, Mode=TwoWay}"
                                          AutoScrollToSelectedItem="True" DoubleTapped="OnFileItemDoubleTapped">
-                                    <ListBox.Styles>
-                                        <Style Selector="ListBoxItem">
-                                            <Setter Property="Padding" Value="0"/>
-                                        </Style>
-                                    </ListBox.Styles>
-                                    <ListBox.KeyBindings>
-                                        <KeyBinding Gesture="P" Command="{Binding PreviewCommand}"/>
-                                        <KeyBinding Gesture="E" Command="{Binding ExportCommand}"/>
-                                    </ListBox.KeyBindings>
-                                    <ListBox.ItemTemplate>
-                                        <DataTemplate DataType="files:TreeItem">
-                                             <StackPanel ToolTip.Tip="{Binding FilePath}" Width="96"
-                                                        Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{ext:Space 1}">
-                                                 <StackPanel.ContextMenu>
-                                                     <ContextMenu>
-                                                         <MenuItem Header="Copy Path" Command="{Binding CopyPathCommand}"/>
-                                                     </ContextMenu>
-                                                 </StackPanel.ContextMenu>
-                                                 <Grid Height="96">
-                                                     <Grid>
-                                                         <material:MaterialIcon Margin="{ext:Space 1.5}" Height="NaN" Width="NaN"
-                                                                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                                                 IsVisible="{Binding FileBitmap, Converter={x:Static ObjectConverters.IsNull}}"
-                                                                 Classes.File="{Binding Type,
-                                                                Converter={StaticResource EnumEquals}, 
-                                                                ConverterParameter={x:Static files:ENodeType.File}}"
-                                                                 Classes.Folder="{Binding Type, 
-                                                                Converter={StaticResource EnumEquals}, 
-                                                                ConverterParameter={x:Static files:ENodeType.Folder}}">
-                                                             <material:MaterialIcon.Styles>
-                                                                 <Style Selector="material|MaterialIcon.File">
-                                                                     <Style.Setters>
-                                                                         <Setter Property="Kind" Value="File" />
-                                                                     </Style.Setters>
-                                                                 </Style>
-                                                                 <Style Selector="material|MaterialIcon.Folder">
-                                                                     <Style.Setters>
-                                                                         <Setter Property="Kind" Value="Folder" />
-                                                                     </Style.Setters>
-                                                                 </Style>
-                                                             </material:MaterialIcon.Styles>
-                                                             <material:MaterialIcon.Effect>
-                                                                 <DropShadowEffect BlurRadius="25" Color="#CC000000" OffsetX="0" OffsetY="0" />
-                                                             </material:MaterialIcon.Effect>
-                                                         </material:MaterialIcon>
-                                                         
-                                                         <controls:ContentCard IsVisible="{Binding Type, Converter={StaticResource EnumEquals}, ConverterParameter={x:Static files:ENodeType.Folder}}" 
-                                                                               Margin="{ext:Space 0, 0, 1, 1}"
-                                                                               Padding="{ext:Space 1, 0.5}"
-                                                                               MinHeight="0"
-                                                                               Background="{StaticResource FPButtonBackgroundBright}"
-                                                                               VerticalAlignment="Bottom" HorizontalAlignment="Right">
-                                                             <TextBlock Text="{Binding ChildCount}"/>
-                                                         </controls:ContentCard>
-                                                         
-                                                         <Border CornerRadius="8" ClipToBounds="True" Margin="{ext:Space 1}"
-                                                                 IsVisible="{Binding FileBitmap, Converter={x:Static ObjectConverters.IsNotNull}}">
-                                                             <Image Source="{Binding FileBitmap}" Stretch="UniformToFill"/>
-                                                         </Border>
-                                                       
+                                        <ListBox.Styles>
+                                            <Style Selector="ListBoxItem">
+                                                <Setter Property="Padding" Value="0"/>
+                                            </Style>
+                                        </ListBox.Styles>
+                                        <ListBox.KeyBindings>
+                                            <KeyBinding Gesture="P" Command="{Binding PreviewCommand}"/>
+                                            <KeyBinding Gesture="E" Command="{Binding ExportCommand}"/>
+                                        </ListBox.KeyBindings>
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate DataType="files:TreeItem">
+                                                 <StackPanel ToolTip.Tip="{Binding FilePath}" Width="96"
+                                                            Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{ext:Space 1}">
+                                                     <StackPanel.ContextMenu>
+                                                         <ContextMenu>
+                                                             <MenuItem Header="Copy Path" Command="{Binding CopyPathCommand}"/>
+                                                         </ContextMenu>
+                                                     </StackPanel.ContextMenu>
+                                                     <Grid Height="96">
+                                                         <Grid>
+                                                             <material:MaterialIcon Margin="{ext:Space 1.5}" Height="NaN" Width="NaN"
+                                                                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                                                     IsVisible="{Binding FileBitmap, Converter={x:Static ObjectConverters.IsNull}}"
+                                                                     Classes.File="{Binding Type,
+                                                                    Converter={StaticResource EnumEquals}, 
+                                                                    ConverterParameter={x:Static files:ENodeType.File}}"
+                                                                     Classes.Folder="{Binding Type, 
+                                                                    Converter={StaticResource EnumEquals}, 
+                                                                    ConverterParameter={x:Static files:ENodeType.Folder}}">
+                                                                 <material:MaterialIcon.Styles>
+                                                                     <Style Selector="material|MaterialIcon.File">
+                                                                         <Style.Setters>
+                                                                             <Setter Property="Kind" Value="File" />
+                                                                         </Style.Setters>
+                                                                     </Style>
+                                                                     <Style Selector="material|MaterialIcon.Folder">
+                                                                         <Style.Setters>
+                                                                             <Setter Property="Kind" Value="Folder" />
+                                                                         </Style.Setters>
+                                                                     </Style>
+                                                                 </material:MaterialIcon.Styles>
+                                                                 <material:MaterialIcon.Effect>
+                                                                     <DropShadowEffect BlurRadius="25" Color="#CC000000" OffsetX="0" OffsetY="0" />
+                                                                 </material:MaterialIcon.Effect>
+                                                             </material:MaterialIcon>
+                                                             
+                                                             <controls:ContentCard IsVisible="{Binding Type, Converter={StaticResource EnumEquals}, ConverterParameter={x:Static files:ENodeType.Folder}}" 
+                                                                                   Margin="{ext:Space 0, 0, 1, 1}"
+                                                                                   Padding="{ext:Space 1, 0.5}"
+                                                                                   MinHeight="0"
+                                                                                   Background="{StaticResource FPButtonBackgroundBright}"
+                                                                                   VerticalAlignment="Bottom" HorizontalAlignment="Right">
+                                                                 <TextBlock Text="{Binding ChildCount}"/>
+                                                             </controls:ContentCard>
+                                                             
+                                                             <Border CornerRadius="8" ClipToBounds="True" Margin="{ext:Space 1}"
+                                                                     IsVisible="{Binding FileBitmap, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                                                 <Image Source="{Binding FileBitmap}" Stretch="UniformToFill"/>
+                                                             </Border>
+                                                           
+                                                         </Grid>
                                                      </Grid>
-                                                 </Grid>
-                                                 
-                                                 <TextBlock Text="{Binding NameWithoutExtension}" Margin="{ext:Space 0, 0.5, 0, 0}"
-                                                            Classes="CaptionTextBlockStyle" HorizontalAlignment="Center" 
-                                                            TextTrimming="CharacterEllipsis"/>
-                                            </StackPanel>
-                                        </DataTemplate>
-                                    </ListBox.ItemTemplate>
-                                    <ListBox.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <wrapPanel:VirtualizingWrapPanel DistributeEvenly="True" CenterLastLine="False" ItemRealized="OnItemRealized"/>
-                                        </ItemsPanelTemplate>
-                                    </ListBox.ItemsPanel>
-                                </ListBox>
+                                                     
+                                                     <TextBlock Text="{Binding NameWithoutExtension}" Margin="{ext:Space 0, 0.5, 0, 0}"
+                                                                Classes="CaptionTextBlockStyle" HorizontalAlignment="Center" 
+                                                                TextTrimming="CharacterEllipsis"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                        <ListBox.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <wrapPanel:VirtualizingWrapPanel DistributeEvenly="True" CenterLastLine="False" ItemRealized="OnItemRealized"/>
+                                            </ItemsPanelTemplate>
+                                        </ListBox.ItemsPanel>
+                                    </ListBox>
+                                    
+                                    
+                                    <TextBlock Grid.Row="1" IsVisible="{Binding !FileViewCollection.Count}" Text="No Files Found" 
+                                               Classes="BodyTextBlockStyle TextFillColorTertiaryBrush"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Grid>
                             </ScrollViewer>
                             
                             <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" IsVisible="{Binding UseFlatView}">
@@ -214,10 +221,6 @@
                             </ScrollViewer>
                         </Grid>
                     </controls:ContentCard>
-                    
-                    <TextBlock Grid.Row="1" IsVisible="{Binding !FileViewCollection.Count}" Text="No Files Found" 
-                               Classes="BodyTextBlockStyle TextFillColorTertiaryBrush"
-                               HorizontalAlignment="Center" VerticalAlignment="Center" />
                 </Grid>
                 
                 
