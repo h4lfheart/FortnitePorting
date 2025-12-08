@@ -86,6 +86,6 @@ public partial class FilesView : ViewBase<FilesViewModel>
         if (item.FileBitmap is not null) return;
         
         item.EnsureChildrenSorted();
-        ViewModel.LoadFileBitmap(ref item);
+        ViewModel.RealizeFileData(ref item);
     }
 }

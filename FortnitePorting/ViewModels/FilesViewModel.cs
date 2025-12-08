@@ -179,7 +179,7 @@ public partial class FilesViewModel : ViewModelBase
         FileSearchText = string.Empty;
     }
 
-    public void LoadFileBitmap(ref TreeItem item)
+    public void RealizeFileData(ref TreeItem item)
     {
         if (item.Type == ENodeType.Folder) return;
         if (item.FileBitmap is not null) return;
@@ -193,6 +193,8 @@ public partial class FilesViewModel : ViewModelBase
                         
                 // use texture as preview
                 var obj = ((AbstractUePackage) package).ConstructObject(pointer.Class?.Object?.Value as UStruct, package);
+                item.ExportType = obj.ExportType;
+                
                 if (obj is UTexture2D && pointer.TryLoad(out var textureObj) && textureObj is UTexture2D texture && texture.Decode(maxMipSize: 128) is { } decodedTexture)
                 {
                     item.FileBitmap = decodedTexture.ToWriteableBitmap();
@@ -312,10 +314,12 @@ public partial class FilesViewModel : ViewModelBase
     {
         var selectedItemPath = UseFlatView ? SelectedFlatViewItems.FirstOrDefault()?.Path : SelectedFileViewItems.FirstOrDefault(file => file.Type == ENodeType.File)?.FilePath;
         if (selectedItemPath is null) return;
-        
-        var assets = await UEParse.Provider.LoadAllObjectsAsync(Exporter.FixPath(selectedItemPath));
-        var json = JsonConvert.SerializeObject(assets, Formatting.Indented);
-        PropertiesPreviewWindow.Preview(selectedItemPath.SubstringAfterLast("/").SubstringBefore("."), json);
+
+        if (UEParse.Provider.TryLoadObjectExports(selectedItemPath, out var exports))
+        {
+            var json = JsonConvert.SerializeObject(exports, Formatting.Indented);
+            PropertiesPreviewWindow.Preview(selectedItemPath.SubstringAfterLast("/").SubstringBefore("."), json);
+        }
     }
     
     [RelayCommand]
@@ -340,8 +344,12 @@ public partial class FilesViewModel : ViewModelBase
                 asset = await UEParse.Provider.SafeLoadPackageObjectAsync(basePath);
                 asset ??= await UEParse.Provider.SafeLoadPackageObjectAsync($"{basePath}.{basePath.SubstringAfterLast("/")}_C");
             }
-            
-            if (asset is null) return;
+
+            if (asset is null)
+            {
+                await Properties();
+                return;
+            }
 
             await PreviewAsset(asset);
         }

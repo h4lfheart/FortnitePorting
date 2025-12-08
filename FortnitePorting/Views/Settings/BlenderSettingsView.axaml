@@ -171,8 +171,8 @@
                 <controls:SettingsItem.Footer>
                     <StackPanel Orientation="Horizontal">
                         <Slider Value="{Binding Subsurface}" MinWidth="200"
-                                Minimum="0" Maximum="1"
-                                TickFrequency="0.05" TickPlacement="BottomRight" IsSnapToTickEnabled="True"/>
+                                Minimum="0" Maximum="0.5"
+                                TickFrequency="0.01" TickPlacement="BottomRight" IsSnapToTickEnabled="True"/>
                         <TextBlock Text="{Binding Subsurface, StringFormat=N2}" 
                                    VerticalAlignment="Center" Margin="{ext:Space 1, 0, 0, 0}"/>
                     </StackPanel>

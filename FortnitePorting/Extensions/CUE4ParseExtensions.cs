@@ -106,6 +106,8 @@ public static class CUE4ParseExtensions
                 UBuildingTextureData => "DataAsset",
                 _ => asset.GetType().Name[1..]
             };
+
+            typeName = typeName.Replace("EditorOnlyData", string.Empty);
         
             var filePath = $"avares://FortnitePorting/Assets/Unreal/{typeName}_64x.png";
             return !AssetLoader.Exists(new Uri(filePath)) ? null : ImageExtensions.AvaresBitmap(filePath);

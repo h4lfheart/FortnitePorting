@@ -13,7 +13,7 @@ namespace FortnitePorting.Models.Files;
 
 public partial class TreeItem : ObservableObject
 {
-    [ObservableProperty] private string _name;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(NameWithoutExtension))] private string _name;
     public string NameWithoutExtension => Name.SubstringBefore(".");
     
     [ObservableProperty] private string _filePath;
@@ -23,9 +23,13 @@ public partial class TreeItem : ObservableObject
     [ObservableProperty] private bool _expanded;
     
     [ObservableProperty] private Bitmap? _fileBitmap;
+    [ObservableProperty] private string? _exportType;
 
     [ObservableProperty] private TreeItem? _parent;
-    [ObservableProperty] private int _childCount = 0;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(TotalChildCount))] private int _fileChildCount = 0;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(TotalChildCount))] private int _folderChildCount = 0;
+
+    public int TotalChildCount => FileChildCount + FolderChildCount;
     
     [ObservableProperty] private ObservableCollection<TreeItem> _folderChildren = [];
     
@@ -49,7 +53,11 @@ public partial class TreeItem : ObservableObject
         _childrenLookup[name] = child;
         _isSorted = false;
         _childrenLoaded = false;
-        ChildCount++;
+
+        if (child.Type is ENodeType.Folder)
+            FolderChildCount++;
+        else
+            FileChildCount++;
     }
 
     public bool TryGetChild(string name, out TreeItem child)

@@ -113,62 +113,65 @@
                                         </ListBox.KeyBindings>
                                         <ListBox.ItemTemplate>
                                             <DataTemplate DataType="files:TreeItem">
-                                                 <StackPanel ToolTip.Tip="{Binding FilePath}" Width="96"
-                                                            Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{ext:Space 1}">
-                                                     <StackPanel.ContextMenu>
-                                                         <ContextMenu>
-                                                             <MenuItem Header="Copy Path" Command="{Binding CopyPathCommand}"/>
-                                                         </ContextMenu>
-                                                     </StackPanel.ContextMenu>
-                                                     <Grid Height="96">
-                                                         <Grid>
-                                                             <material:MaterialIcon Margin="{ext:Space 1.5}" Height="NaN" Width="NaN"
-                                                                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                                                     IsVisible="{Binding FileBitmap, Converter={x:Static ObjectConverters.IsNull}}"
-                                                                     Classes.File="{Binding Type,
-                                                                    Converter={StaticResource EnumEquals}, 
-                                                                    ConverterParameter={x:Static files:ENodeType.File}}"
-                                                                     Classes.Folder="{Binding Type, 
-                                                                    Converter={StaticResource EnumEquals}, 
-                                                                    ConverterParameter={x:Static files:ENodeType.Folder}}">
-                                                                 <material:MaterialIcon.Styles>
-                                                                     <Style Selector="material|MaterialIcon.File">
-                                                                         <Style.Setters>
-                                                                             <Setter Property="Kind" Value="File" />
-                                                                         </Style.Setters>
-                                                                     </Style>
-                                                                     <Style Selector="material|MaterialIcon.Folder">
-                                                                         <Style.Setters>
-                                                                             <Setter Property="Kind" Value="Folder" />
-                                                                         </Style.Setters>
-                                                                     </Style>
-                                                                 </material:MaterialIcon.Styles>
-                                                                 <material:MaterialIcon.Effect>
-                                                                     <DropShadowEffect BlurRadius="25" Color="#CC000000" OffsetX="0" OffsetY="0" />
-                                                                 </material:MaterialIcon.Effect>
-                                                             </material:MaterialIcon>
-                                                             
-                                                             <controls:ContentCard IsVisible="{Binding Type, Converter={StaticResource EnumEquals}, ConverterParameter={x:Static files:ENodeType.Folder}}" 
-                                                                                   Margin="{ext:Space 0, 0, 1, 1}"
-                                                                                   Padding="{ext:Space 1, 0.5}"
-                                                                                   MinHeight="0"
-                                                                                   Background="{StaticResource FPButtonBackgroundBright}"
-                                                                                   VerticalAlignment="Bottom" HorizontalAlignment="Right">
-                                                                 <TextBlock Text="{Binding ChildCount}"/>
-                                                             </controls:ContentCard>
-                                                             
-                                                             <Border CornerRadius="8" ClipToBounds="True" Margin="{ext:Space 1}"
-                                                                     IsVisible="{Binding FileBitmap, Converter={x:Static ObjectConverters.IsNotNull}}">
-                                                                 <Image Source="{Binding FileBitmap}" Stretch="UniformToFill"/>
-                                                             </Border>
-                                                           
+                                                <Panel Background="Transparent">
+                                                    <ToolTip.Tip>
+                                                        <Grid Margin="{ext:Space 0.5}">
+                                                            <StackPanel Spacing="{ext:Space 0.5}"
+                                                                IsVisible="{Binding Type, Converter={StaticResource EnumEquals}, ConverterParameter={x:Static files:ENodeType.Folder}}">
+                                                                <TextBlock Text="{Binding NameWithoutExtension}" FontFamily="{StaticResource SFTextRegular}"/>
+                                                                <TextBlock Text="{Binding FolderChildCount, StringFormat='Folders: {0}'}"
+                                                                           FontFamily="{StaticResource SFTextRegular}"
+                                                                           Classes="TextFillColorSecondaryBrush"/>
+                                                                <TextBlock Text="{Binding FileChildCount, StringFormat='Files: {0}'}"
+                                                                           FontFamily="{StaticResource SFTextRegular}"
+                                                                           Classes="TextFillColorSecondaryBrush"/>
+                                                            </StackPanel>
+                                                            <StackPanel Spacing="{ext:Space 0.5}"
+                                                                IsVisible="{Binding Type, Converter={StaticResource EnumEquals}, ConverterParameter={x:Static files:ENodeType.File}}">
+                                                                <TextBlock Text="{Binding NameWithoutExtension}" FontFamily="{StaticResource SFTextRegular}"/>
+                                                                <TextBlock Text="{Binding ExportType}"
+                                                                           FontFamily="{StaticResource SFTextRegular}"
+                                                                           Classes="TextFillColorSecondaryBrush"/>
+                                                            </StackPanel>
+                                                        </Grid>
+                                                    </ToolTip.Tip>
+                                                    <StackPanel Width="96"
+                                                                Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{ext:Space 1}">
+                                                         <StackPanel.ContextMenu>
+                                                             <ContextMenu>
+                                                                 <MenuItem Header="Copy Path" Command="{Binding CopyPathCommand}"/>
+                                                             </ContextMenu>
+                                                         </StackPanel.ContextMenu>
+                                                         <Grid Height="96">
+                                                             <Grid>
+                                                                 <Image Source="/Assets/Unreal/Folder_256x.png"
+                                                                     IsVisible="{Binding Type, Converter={StaticResource EnumEquals}, ConverterParameter={x:Static files:ENodeType.Folder}}"
+                                                                        Margin="{ext:Space 1.5}" Height="NaN" Width="NaN"
+                                                                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                                                               
+                                                                 
+                                                                 <controls:ContentCard IsVisible="{Binding Type, Converter={StaticResource EnumEquals}, ConverterParameter={x:Static files:ENodeType.Folder}}" 
+                                                                                       Margin="{ext:Space 0, 0, 1, 1.5}"
+                                                                                       Padding="{ext:Space 1.25, 0.5}"
+                                                                                       MinHeight="0"
+                                                                                       Background="{StaticResource FPButtonBackgroundBright}"
+                                                                                       VerticalAlignment="Bottom" HorizontalAlignment="Right">
+                                                                     <TextBlock Text="{Binding TotalChildCount}"/>
+                                                                 </controls:ContentCard>
+                                                                 
+                                                                 <Border CornerRadius="8" ClipToBounds="True" Margin="{ext:Space 1}"
+                                                                         IsVisible="{Binding FileBitmap, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                                                     <Image Source="{Binding FileBitmap}" Stretch="UniformToFill"/>
+                                                                 </Border>
+                                                               
+                                                             </Grid>
                                                          </Grid>
-                                                     </Grid>
-                                                     
-                                                     <TextBlock Text="{Binding NameWithoutExtension}" Margin="{ext:Space 0, 0.5, 0, 0}"
-                                                                Classes="CaptionTextBlockStyle" HorizontalAlignment="Center" 
-                                                                TextTrimming="CharacterEllipsis"/>
-                                                </StackPanel>
+                                                         
+                                                         <TextBlock Text="{Binding NameWithoutExtension}" Margin="{ext:Space 0, 0.5, 0, 0}"
+                                                                    Classes="CaptionTextBlockStyle" HorizontalAlignment="Center" 
+                                                                    TextTrimming="CharacterEllipsis"/>
+                                                    </StackPanel>
+                                                </Panel>
                                             </DataTemplate>
                                         </ListBox.ItemTemplate>
                                         <ListBox.ItemsPanel>
@@ -322,7 +325,6 @@
             </Grid>
         </Grid>
         <Grid IsVisible="{Binding ShowLoadingSplash}">
-            <Border Background="Black" Opacity="0.25" CornerRadius="0"/>
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                 <ui:ProgressRing IsIndeterminate="True" Background="Transparent" Width="50" Height="50" BorderThickness="5"/>
                 <TextBlock Text="Loading Files" Margin="{ext:Space 0, 1, 0, 0}"/>
