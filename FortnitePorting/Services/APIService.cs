@@ -13,7 +13,6 @@ namespace FortnitePorting.Services;
 public class APIService : IService
 {
     public readonly FortnitePortingAPI FortnitePorting;
-    public readonly FortnitePortingServerAPI FortnitePortingServer;
     public readonly EpicGamesAPI EpicGames;
     
     public APIService()
@@ -25,7 +24,6 @@ public class APIService : IService
         }, configureSerialization: s => s.UseSerializer<JsonNetSerializer>());
         
         FortnitePorting = new FortnitePortingAPI(_client);
-        FortnitePortingServer = new FortnitePortingServerAPI(_client);
         EpicGames = new EpicGamesAPI(_client);
     }
 

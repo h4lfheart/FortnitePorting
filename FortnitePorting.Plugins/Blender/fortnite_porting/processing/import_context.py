@@ -14,6 +14,7 @@ from .utils import *
 from .tasty import *
 from ..utils import *
 from ..logger import Log
+from ..server import Server
 from ..ueformat.importer.logic import UEFormatImport
 from ..ueformat.importer.classes import UEAnim
 from ..ueformat.options import UEModelOptions, UEAnimOptions, UEPoseOptions
@@ -1258,8 +1259,7 @@ class ImportContext:
         bpy.context.view_layer.objects.active = target_skeleton
         
         if target_skeleton is None:
-            # TODO message server
-            #MessageServer.instance.send("An armature must be selected to import an animation. Please select an armature and try again.")
+            Server.instance.send_message("An armature must be selected to import an animation onto. Please select an armature and try again.")
             return
 
         if target_skeleton.get("is_tasty"):

@@ -124,7 +124,9 @@ def get_armature_mesh(obj):
     return None
     
 def get_selected_armature():
-    selected = bpy.context.active_object
+    if not (selected := bpy.context.active_object):
+        return None
+        
     if selected.type == 'ARMATURE':
         return selected
     elif selected.type == 'MESH':
