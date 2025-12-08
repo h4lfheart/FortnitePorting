@@ -224,19 +224,11 @@ public partial class ChatService : ObservableObject, IService
 
     public async Task SendMessage(string text, string? replyId = null, string? imagePath = null)
     {
-        await SupaBase.Client.From<Message>().Insert(new Message
-        {
-            Text = text,
-            Application = Globals.ApplicationTag,
-            ReplyId = replyId,
-            ImagePath = imagePath,
-        });
+        await Api.FortnitePorting.PostMessage(text, replyId, imagePath);
     }
     
     public async Task UpdateMessage(ChatMessageV2 message, string text)
     {
-        var editedMessage = message.Adapt<Message>();
-        editedMessage.Text = text;
-        await SupaBase.Client.From<Message>().Update(editedMessage);
+        await Api.FortnitePorting.EditMessage(text, message.Id);
     }
 }
