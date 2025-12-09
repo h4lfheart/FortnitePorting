@@ -95,7 +95,18 @@
                     
                     <ComboBox Grid.Column="6" ToolTip.Tip="Sorting" HorizontalAlignment="Stretch"
                               ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EAssetSortType}}"
-                              SelectedItem="{Binding AssetLoader.ActiveLoader.SortType, Converter={StaticResource EnumToRecord}}" />
+                              SelectedItem="{Binding AssetLoader.ActiveLoader.SortType, Converter={StaticResource EnumToRecord}}">
+                    
+                        <ComboBox.Styles>
+                            <Style Selector="ComboBox[IsVisible=true] /template/ ContentPresenter#ContentPresenter">
+                                <Setter Property="ContentTemplate">
+                                    <DataTemplate DataType="ext:EnumRecord">
+                                        <controls:IconText Text="{Binding Description}" Icon="Sort"/>
+                                    </DataTemplate>
+                                </Setter>
+                            </Style>
+                        </ComboBox.Styles>
+                    </ComboBox>
                     
                     <DropDownButton Grid.Column="8" HorizontalAlignment="Stretch">
                         <DropDownButton.Flyout>

@@ -293,3 +293,17 @@ public enum EWorldFlags
     InstancedFoliage = 1 << 3,
     HLODs = 1 << 4,
 }
+
+public enum EFileFilterType
+{
+    All,
+    Mesh,
+    Skeleton,
+    Animation,
+    Texture,
+    Material,
+    PoseAsset,
+    Sound,
+    Font,
+    Map
+}

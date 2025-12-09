@@ -15,6 +15,7 @@ public partial class TreeItem : ObservableObject
 {
     [ObservableProperty, NotifyPropertyChangedFor(nameof(NameWithoutExtension))] private string _name;
     public string NameWithoutExtension => Name.SubstringBefore(".");
+    public string Extension => Name.SubstringAfterLast(".");
     
     [ObservableProperty] private string _filePath;
     [ObservableProperty] private ENodeType _type;

@@ -71,6 +71,7 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="{ext:Space 1}"/>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="{ext:Space 1}"/>
                         <ColumnDefinition Width="Auto"/>
@@ -78,13 +79,31 @@
                     
                     <ToggleButton Grid.Column="0" ToolTip.Tip="Flat View" Content="{material:MaterialIconExt FormatListBulleted}" IsChecked="{Binding UseFlatView}"/>
                     
-                    <TextBox Grid.Column="2" Text="{Binding SearchText, Mode=TwoWay}" Watermark="Search" KeyDown="OnSearchKeyDown"/>
+                    <ComboBox Grid.Column="2" HorizontalAlignment="Stretch" Margin="{ext:Space 0, 0, 1, 0}"
+                              IsVisible="{Binding !UseFlatView}"
+                              ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EFileFilterType}}"
+                              SelectedItem="{Binding FileTypeFilter, Converter={StaticResource EnumToRecord}}">
+                            
+                        <ComboBox.Styles>
+                            <Style Selector="ComboBox[IsVisible=true] /template/ ContentPresenter#ContentPresenter">
+                                <Setter Property="ContentTemplate">
+                                    <DataTemplate DataType="ext:EnumRecord">
+                                        <controls:IconText Text="{Binding Description}" Icon="Filter"/>
+                                    </DataTemplate>
+                                </Setter>
+                            </Style>
+                        </ComboBox.Styles>
+                    </ComboBox>
+                    
+                    <TextBox Grid.Column="3" Text="{Binding SearchText, Mode=TwoWay}" Watermark="Search" KeyDown="OnSearchKeyDown"/>
                 
-                    <ToggleButton Grid.Column="4" ToolTip.Tip="Regex" HorizontalAlignment="Right" 
+                    <ToggleButton Grid.Column="5" ToolTip.Tip="Regex" HorizontalAlignment="Right" 
                                   Content="{material:MaterialIconExt Regex}" IsChecked="{Binding UseRegex}"/>
                 </Grid>
                 
                 <Grid Grid.Row="2" RowDefinitions="Auto *">
+                    
+                    
                     <ui:BreadcrumbBar Grid.Row="0" Margin="{ext:Space 1, 0, 1, 1}"
                                       ItemsSource="{Binding FileViewStack}"
                                       IsVisible="{Binding !UseFlatView}" ItemClicked="OnBreadcrumbItemPressed">
@@ -94,6 +113,7 @@
                             </DataTemplate>
                         </ui:BreadcrumbBar.ItemTemplate>
                     </ui:BreadcrumbBar>
+                    
                     
                     <controls:ContentCard Grid.Row="1">
                         <Grid Margin="{ext:Space 1}">

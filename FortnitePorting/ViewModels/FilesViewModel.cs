@@ -71,6 +71,21 @@ public partial class FilesViewModel : ViewModelBase
 
     [ObservableProperty] private string _flatSearchFilter = string.Empty;
     [ObservableProperty] private string _fileSearchFilter = string.Empty;
+    
+    [ObservableProperty] private EFileFilterType _fileTypeFilter = EFileFilterType.All;
+    private Dictionary<EFileFilterType, string[]> _searchTermsByFilter = new()
+    {
+        [EFileFilterType.All] = [],
+        [EFileFilterType.Texture] = ["Texture"],
+        [EFileFilterType.Mesh] = ["StaticMesh", "SkeletalMesh"],
+        [EFileFilterType.Skeleton] = ["Skeleton"],
+        [EFileFilterType.Animation] = ["AnimSequence", "AnimMontage"],
+        [EFileFilterType.Material] = ["Material"],
+        [EFileFilterType.Sound] = ["SoundWave", "SoundCue"],
+        [EFileFilterType.Font] = ["Font", "ufont"],
+        [EFileFilterType.PoseAsset] = ["PoseAsset"],
+        [EFileFilterType.Map] = ["World", "umap"]
+    };
 
     [ObservableProperty, NotifyPropertyChangedFor(nameof(SearchText))] private bool _useFlatView = false;
     [ObservableProperty] private bool _useRegex = false;
@@ -177,11 +192,19 @@ public partial class FilesViewModel : ViewModelBase
         
         FileViewStack = new ObservableCollection<TreeItem>(newStack);
         FileSearchText = string.Empty;
+        FileTypeFilter = EFileFilterType.All;
     }
 
     public void RealizeFileData(ref TreeItem item)
     {
-        if (item.Type == ENodeType.Folder) return;
+        if (item.Type == ENodeType.Folder)
+        {
+            item.GetAllChildren()
+                .Where(item => item.Type is ENodeType.File)
+                .ForEach(item => RealizeFileData(ref item));    
+            return;
+        }
+        
         if (item.FileBitmap is not null) return;
                     
         if (UEParse.Provider.TryLoadPackage(item.FilePath, out var package))
@@ -190,6 +213,7 @@ public partial class FilesViewModel : ViewModelBase
             {
                 var pointer = new FPackageIndex(package, i + 1).ResolvedObject;
                 if (pointer?.Object is null) continue;
+                if (!pointer.Name.Text.Equals(item.NameWithoutExtension) && !pointer.Name.Text.Equals(item.NameWithoutExtension + "_C")) continue;
                         
                 // use texture as preview
                 var obj = ((AbstractUePackage) package).ConstructObject(pointer.Class?.Object?.Value as UStruct, package);
@@ -227,9 +251,16 @@ public partial class FilesViewModel : ViewModelBase
                     break;
                 }
             }
+
+            if (item.ExportType is null && new FPackageIndex(package, 1).ResolvedObject is { } zeroPointer)
+            {
+                var zeroObj = ((AbstractUePackage) package).ConstructObject(zeroPointer.Class?.Object?.Value as UStruct, package);
+                item.ExportType = zeroObj.ExportType;
+            }
         }
 
         item.FileBitmap ??= ImageExtensions.AvaresBitmap("avares://FortnitePorting/Assets/Unreal/DataAsset_64x.png");
+        item.ExportType ??= item.Extension;
     }
 
     public void FileViewJumpTo(string path)
@@ -273,23 +304,49 @@ public partial class FilesViewModel : ViewModelBase
 
     partial void OnFileSearchFilterChanged(string value)
     {
+        FilterFiles();
+    }
+
+    partial void OnFileTypeFilterChanged(EFileFilterType value)
+    {
+        FilterFiles();
+    }
+
+    private void FilterFiles()
+    {
         if (UseFlatView) return;
         
-        if (string.IsNullOrWhiteSpace(FileSearchFilter))
-        {
-            LoadFileItems(_currentFolder);
-            return;
-        }
+        RealizeFileData(ref _currentFolder);
 
         var items = _currentFolder.GetAllChildren()
             .Where(item =>
-                UseRegex ? Regex.IsMatch(item.FilePath, FileSearchFilter) : MiscExtensions.Filter(item.FilePath, FileSearchFilter))
+            {
+                if (string.IsNullOrWhiteSpace(FileSearchFilter))
+                    return true;
+                
+                return UseRegex
+                    ? Regex.IsMatch(item.FilePath, FileSearchFilter)
+                    : MiscExtensions.Filter(item.FilePath, FileSearchFilter);
+            })
+            .Where(item =>
+            {
+                if (FileTypeFilter is EFileFilterType.All)
+                    return true;
+                
+                if (item.Type is ENodeType.Folder) 
+                    return false;
+                
+                if (item.ExportType is null)
+                    Log.Information(item.Name);
+                return _searchTermsByFilter[FileTypeFilter].Any(filter => (item.ExportType?.Contains(filter, StringComparison.OrdinalIgnoreCase) ?? false) 
+                                                                          || item.Extension.Contains(filter, StringComparison.OrdinalIgnoreCase));
+            })
             .OrderByDescending(item => item.Type == ENodeType.Folder)
             .ThenBy(item => item.Name, new CustomComparer<string>(ComparisonExtensions.CompareNatural));
         
         FileViewCollection = new ObservableCollection<TreeItem>(items);
     }
-    
+
     [RelayCommand]
     public async Task OpenSettings()
     {
@@ -315,10 +372,17 @@ public partial class FilesViewModel : ViewModelBase
         var selectedItemPath = UseFlatView ? SelectedFlatViewItems.FirstOrDefault()?.Path : SelectedFileViewItems.FirstOrDefault(file => file.Type == ENodeType.File)?.FilePath;
         if (selectedItemPath is null) return;
 
-        if (UEParse.Provider.TryLoadObjectExports(selectedItemPath, out var exports))
+        try
         {
-            var json = JsonConvert.SerializeObject(exports, Formatting.Indented);
-            PropertiesPreviewWindow.Preview(selectedItemPath.SubstringAfterLast("/").SubstringBefore("."), json);
+            if (UEParse.Provider.TryLoadObjectExports(selectedItemPath, out var exports))
+            {
+                var json = JsonConvert.SerializeObject(exports, Formatting.Indented);
+                PropertiesPreviewWindow.Preview(selectedItemPath.SubstringAfterLast("/").SubstringBefore("."), json);
+            }
+        }
+        catch (Exception)
+        {
+            Info.Message("Properties", $"Failed to preview {selectedItemPath}");
         }
     }
     
