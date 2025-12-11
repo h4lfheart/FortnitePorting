@@ -127,6 +127,14 @@ public static class MiscExtensions
     {
         return GetHash(fileInfo.FullName);
     }
+
+    public static string GetFileHashMD5(this FileInfo file)
+    {
+        using var stream = file.OpenRead();
+        using var sha = MD5.Create();
+        var hash = sha.ComputeHash(stream);
+        return Convert.ToHexString(hash).ToLower();
+    }
     
     public static string GetHash(string path)
     {
