@@ -196,6 +196,7 @@
                             <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding OnlineRef.ProfilePictureURL, TargetNullValue='avares://FortnitePorting/Assets/DefaultProfile.png'}" Stretch="UniformToFill"/>
                         </Ellipse.Fill>
                     </Ellipse>
+                    <Image Source="/Assets/Winter/SnowBorder.png" Height="118" Width="118" RenderOptions.BitmapInterpolationMode="HighQuality"/>
                 </Grid>
                 <Image Grid.Row="1" Source="{Binding MedalBitmap}" Width="48" Margin="64 64 0 0 "/>
                 <TextBlock Grid.Row="3" Text="{Binding OnlineRef.GlobalName, TargetNullValue='No User'}" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>

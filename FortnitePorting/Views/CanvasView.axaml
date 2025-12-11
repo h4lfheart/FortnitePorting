@@ -90,6 +90,7 @@
                             <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding OnlineRef.ProfilePictureURL, TargetNullValue='avares://FortnitePorting/Assets/DefaultProfile.png'}" Stretch="UniformToFill"/>
                         </Ellipse.Fill>
                     </Ellipse>
+                    <Image Source="/Assets/Winter/SnowBorder.png" Height="118" Width="118" RenderOptions.BitmapInterpolationMode="HighQuality"/>
                 </Grid>
                 <TextBlock Grid.Row="3" Text="{Binding OnlineRef.GlobalName, TargetNullValue='No User'}" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
                 <TextBlock Grid.Row="4" Text="{Binding OnlineRef.UserName, TargetNullValue='Unauthenticated'}" Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" HorizontalAlignment="Center"/>
