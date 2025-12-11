@@ -107,7 +107,7 @@
                     <ItemsControl ItemsSource="{Binding News}" HorizontalAlignment="Center" Margin="{ext:Space 0, 0.5}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border MinHeight="140" MinWidth="260" Margin="{ext:Space 0.5}" CornerRadius="4" ClipToBounds="True" Cursor="Hand" PointerPressed="OnNewsPressed">
+                                <Border MinHeight="140" MinWidth="260" Margin="{ext:Space 0.5}" CornerRadius="8" ClipToBounds="True" Cursor="Hand" PointerPressed="OnNewsPressed">
                                     <Border.Background>
                                         <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding Image}" Stretch="UniformToFill"/>
                                     </Border.Background>
@@ -139,7 +139,7 @@
                     <ItemsControl ItemsSource="{Binding Featured}" HorizontalAlignment="Center" Margin="{ext:Space 0, 0.5}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border MinHeight="140" MinWidth="260" Margin="{ext:Space 0.5}" CornerRadius="4" ClipToBounds="True" Cursor="Hand" PointerPressed="OnFeaturedPressed">
+                                <Border MinHeight="140" MinWidth="260" Margin="{ext:Space 0.5}" CornerRadius="8" ClipToBounds="True" Cursor="Hand" PointerPressed="OnFeaturedPressed">
                                     <Border.Background>
                                         <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding Image}" Stretch="UniformToFill"/>
                                     </Border.Background>

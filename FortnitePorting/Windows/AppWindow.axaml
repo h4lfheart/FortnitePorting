@@ -8,7 +8,7 @@
         x:DataType="windowModels:AppWindowModel"
         Width="1160" Height="770" RequestedThemeVariant="Dark" FontFamily="Segoe UI" Background="{x:Null}"
         TransparencyLevelHint="{Binding Theme.TransparencyHints}" ExtendClientAreaToDecorationsHint="True"
-        WindowStartupLocation="CenterScreen" ClosingBehavior="OwnerAndChildWindows" ExtendClientAreaTitleBarHeightHint="35"
+        WindowStartupLocation="CenterScreen" Bounds="{Binding Bounds, Mode=TwoWay}"
         Icon="/Assets/LogoV3.ico"
         Title="Fortnite Porting">
     <Grid RowDefinitions="35, *" Margin="{Binding $parent[Window].OffScreenMargin}">
@@ -17,6 +17,26 @@
                 <ExperimentalAcrylicMaterial BackgroundSource="Digger" MaterialOpacity="1.5" TintColor="{Binding Theme.BackgroundColor}" TintOpacity="1"/>
             </ExperimentalAcrylicBorder.Material>
         </ExperimentalAcrylicBorder>
+        
+        <Image Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False" IsVisible="{Binding Theme.UseWinter}"
+               Source="/Assets/Winter/BackgroundBlurred.png" Stretch="UniformToFill" Opacity="0.25"/>
+        
+        <ItemsControl Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False" ItemsSource="{Binding Snowflakes}"
+                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding Theme.UseWinter}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Grid RenderTransform="{Binding SnowflakeTransform}" HorizontalAlignment="Left" VerticalAlignment="Top">
+                        <Image Source="/Assets/Winter/Snowflake.png" Width="24" Height="24"
+                               Opacity="{Binding Opacity}" RenderOptions.BitmapInterpolationMode="MediumQuality"/>
+                    </Grid>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
 
         <ui:NavigationView x:Name="NavigationView" Grid.Row="1" IsPaneOpen="False" OpenPaneLength="152" ItemInvoked="OnItemInvoked" IsSettingsVisible="False">
              <ui:NavigationView.MenuItems>

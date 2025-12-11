@@ -72,7 +72,7 @@
                                                         <StackPanel>
                                                             <TextBlock Text="{Binding Name}"/>
                                                             <Border IsVisible="{Binding ImageURL, Converter={x:Static ObjectConverters.IsNotNull}}" 
-                                                                    CornerRadius="4" ClipToBounds="True" 
+                                                                    CornerRadius="8" ClipToBounds="True" 
                                                                     HorizontalAlignment="Left" Margin="{ext:Space 0, 1, 0, 0}">
                                                                 <Image asyncImageLoader:ImageLoader.Source="{Binding ImageURL}" 
                                                                        MaxHeight="150" HorizontalAlignment="Left"/>
@@ -124,7 +124,7 @@
                                                                 </Grid>
                                                                 
                                                                 <Border IsVisible="{Binding ImageURL, Converter={x:Static ObjectConverters.IsNotNull}}" 
-                                                                        CornerRadius="4" ClipToBounds="True" 
+                                                                        CornerRadius="8" ClipToBounds="True" 
                                                                         HorizontalAlignment="Left" Margin="{ext:Space 0, 1, 0, 0}">
                                                                     <Image asyncImageLoader:ImageLoader.Source="{Binding ImageURL}" 
                                                                            MaxHeight="150" HorizontalAlignment="Left"/>

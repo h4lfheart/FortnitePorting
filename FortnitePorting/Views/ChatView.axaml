@@ -117,7 +117,7 @@
                                     
                                     <Border Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="9" 
                                             IsVisible="{Binding HasImageData}"
-                                            CornerRadius="4" ClipToBounds="True" HorizontalAlignment="Left" Margin="{ext:Space 0, 1, 0, 0}">
+                                            CornerRadius="8" ClipToBounds="True" HorizontalAlignment="Left" Margin="{ext:Space 0, 1, 0, 0}">
                                         <Image Source="{Binding Bitmap}" VerticalAlignment="Center" MaxHeight="300"
                                                Height="{Binding Bitmap.PixelSize.Height}"
                                                Cursor="Hand" PointerPressed="OnImagePressed"/>
@@ -141,7 +141,7 @@
                 <Button x:Name="ImageButton" Grid.Column="0" IsVisible="{Binding Permissions, Converter={StaticResource EnumHasFlag}, ConverterParameter={x:Static packet:EPermissions.SendAttachments}}" Content="{material:MaterialIconExt Plus}" Command="{Binding OpenImageCommand}" Margin="{ext:Space 0, 0, 1, 0}"/>
                 
                 <ui:TeachingTip x:Name="ImageFlyout" Grid.Column="0" Target="{Binding #ImageButton}" Title="{Binding SelectedImageName}">
-                    <Border CornerRadius="4" ClipToBounds="True">
+                    <Border CornerRadius="8" ClipToBounds="True">
                         <Image Source="{Binding SelectedImage}"
                                VerticalAlignment="Center" MaxHeight="300"
                                Height="{Binding SelectedImage.PixelSize.Height}"/>
@@ -200,7 +200,7 @@
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
                                         
-                                            <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" CornerRadius="4" ClipToBounds="True">
+                                            <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" CornerRadius="8" ClipToBounds="True">
                                                 <Image asyncImageLoader:ImageLoader.Source="{Binding ProfilePictureURL}" 
                                                        Width="32" Height="32" Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center"/>
                                             </Border>

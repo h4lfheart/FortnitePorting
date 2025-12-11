@@ -58,12 +58,12 @@
             <Setter Property="Background" Value="#0DFFFFFF"/>
             <Setter Property="BorderBrush" Value="#19000000"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="CornerRadius" Value="8"/>
             <Setter Property="MinHeight" Value="32"/>
         </Style>
         
         <Style Selector="Border">
-            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="CornerRadius" Value="8"/>
         </Style>
         
         <Style Selector="MenuItem.Checked">
@@ -77,6 +77,26 @@
                     </Grid>
                 </Template>
             </Setter>
+        </Style>
+        
+        <Style Selector="Button[IsVisible=True]">
+            <Setter Property="CornerRadius" Value="8"/>
+        </Style>
+        
+        <Style Selector="ToggleButton[IsVisible=True]">
+            <Setter Property="CornerRadius" Value="8"/>
+        </Style>
+        
+        <Style Selector="DropDownButton[IsVisible=True]">
+            <Setter Property="CornerRadius" Value="8"/>
+        </Style>
+        
+        <Style Selector="ComboBox[IsVisible=True]">
+            <Setter Property="CornerRadius" Value="8"/>
+        </Style>
+        
+        <Style Selector="SplitButton[IsVisible=True]">
+            <Setter Property="CornerRadius" Value="8"/>
         </Style>
         
         <Style Selector="TabItem > TextBlock">
@@ -163,12 +183,12 @@
         </Style>
 
         <Style Selector="Button.TWExitButton:pointerover /template/ ContentPresenter">
-            <Setter Property="CornerRadius" Value="4" />
+            <Setter Property="CornerRadius" Value="8" />
             <Setter Property="Background" Value="#733231" />
         </Style>
         
         <Style Selector="Button.TWExitButton:pressed /template/ ContentPresenter">
-            <Setter Property="CornerRadius" Value="4" />
+            <Setter Property="CornerRadius" Value="8" />
             <Setter Property="Background" Value="#733231" />
         </Style>
         
@@ -179,12 +199,12 @@
         </Style>
 
         <Style Selector="Button.ZoomButton:pointerover /template/ ContentPresenter">
-            <Setter Property="CornerRadius" Value="4" />
+            <Setter Property="CornerRadius" Value="8" />
             <Setter Property="Background" Value="{DynamicResource SystemAccentColorDark1}" />
         </Style>
         
         <Style Selector="Button.ZoomButton:pressed /template/ ContentPresenter">
-            <Setter Property="CornerRadius" Value="4" />
+            <Setter Property="CornerRadius" Value="8" />
             <Setter Property="Background" Value="{DynamicResource SystemAccentColorDark1}" />
         </Style>
         

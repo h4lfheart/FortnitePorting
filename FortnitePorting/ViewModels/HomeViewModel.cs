@@ -34,6 +34,25 @@ public partial class HomeViewModel : ViewModelBase
     
     public override async Task Initialize()
     {
+        if (!AppSettings.Current.Application.HasReceivedWinterBGMPrompt)
+        {
+            await TaskService.RunDispatcherAsync(async () =>
+            {
+                var dialog = new ContentDialog
+                {
+                    Title = "Winter Theme",
+                    Content = "Would you like to enable the Winter background music? (This can be changed any time in theme settings)",
+                    CloseButtonText = "No",
+                    PrimaryButtonText = "Yes",
+                    PrimaryButtonCommand = new RelayCommand(() => AppSettings.Current.Theme.UseWinterBGM = true)
+                };
+
+                await dialog.ShowAsync();
+
+                AppSettings.Current.Application.HasReceivedWinterBGMPrompt = true;
+            });
+        }
+        
         if (!AppSettings.Current.Online.HasReceivedFirstPrompt)
         {
             await AppSettings.Current.Online.PromptForAuthentication();

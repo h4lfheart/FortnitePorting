@@ -37,7 +37,7 @@
         </Grid>
         
         <Grid Grid.Row="1" Margin="{ext:Space 1, 0, 1, 1}" ClipToBounds="True">
-            <ContentControl Content="{Binding ViewerControl}" CornerRadius="4" IsVisible="{Binding !IsLoading}"/>
+            <ContentControl Content="{Binding ViewerControl}" CornerRadius="8" IsVisible="{Binding !IsLoading}"/>
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding IsLoading}">
                 <progressRing:ProgressRing IsIndeterminate="True" Background="Transparent" Width="50" Height="50" BorderThickness="5"/>
                 <TextBlock Text="Loading Assets"

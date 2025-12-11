@@ -6,9 +6,13 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using ATL.Logging;
+using Avalonia;
 using Avalonia.Media;
+using Avalonia.Platform;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CUE4Parse.Utils;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
 using FortnitePorting.Framework;
@@ -16,6 +20,7 @@ using FortnitePorting.Models;
 using FortnitePorting.Models.API;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.App;
+using FortnitePorting.Models.TimeWaster.Audio;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
@@ -24,8 +29,13 @@ using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels;
 using FortnitePorting.ViewModels.Settings;
 using FortnitePorting.Views;
+using NAudio.Vorbis;
+using NAudio.Wave;
+using NAudio.Wave.SampleProviders;
+using SharpGLTF.Schema2;
 using InfoBarData = FortnitePorting.Shared.Models.App.InfoBarData;
 using Log = Serilog.Log;
+using SnowflakeParticle = FortnitePorting.Models.Winter.SnowflakeParticle;
 
 namespace FortnitePorting.WindowModels;
 
@@ -40,6 +50,10 @@ public partial class AppWindowModel : WindowModelBase
     [ObservableProperty] private NavigationView _navigationView;
     [ObservableProperty] private ObservableCollection<InfoBarData> _infoBars = [];
     [ObservableProperty] private TitleData? _titleData;
+
+    [ObservableProperty] private ObservableCollection<SnowflakeParticle> _snowflakes = [];
+    [ObservableProperty] private Rect _bounds;
+    private static readonly LoopStream _winterBGMSound = new(new VorbisWaveReader(AssetLoader.Open(new Uri("avares://FortnitePorting/Assets/Winter/MusicPack_004_Holiday.ogg"))));
     
     [ObservableProperty] private int _chatNotifications;
     [ObservableProperty] private int _unsubmittedPolls;
@@ -59,8 +73,40 @@ public partial class AppWindowModel : WindowModelBase
         ConsoleIsVisible = AppSettings.Current.Debug.IsConsoleVisible;
 
         OnlineStatus = await ApiVM.FortnitePorting.GetOnlineStatusAsync();
+        
+        AudioSystem.Instance.Cache("WinterBGM", new WdlResamplingSampleProvider(_winterBGMSound.ToSampleProvider(), AudioSystem.Instance.SampleRate));
+        if (Theme.UseWinterBGM) AudioSystem.Instance.PlaySound("WinterBGM");
 
         await CheckForUpdate(isAutomatic: true);
+    }
+
+    public override async Task OnViewOpened()
+    {
+        for (var i = 0; i < 50; i++)
+        {
+            var speed = Random.Shared.NextSingle().Clamp(0.2f, 1.0f);
+            var xPosition = Random.Shared.NextSingle() * (float) Bounds.Width;
+            var yPosition = Random.Shared.NextSingle() * (float) Bounds.Height;
+            var snowflake = new SnowflakeParticle(speed, xPosition, yPosition);
+            Snowflakes.Add(snowflake);
+        }
+
+        DispatcherTimer.Run(() =>
+        {
+            if (!Theme.UseWinter) return true;
+            
+            foreach (var snowflake in Snowflakes)
+            {
+                snowflake.Update();
+
+                if (snowflake.YPosition > Bounds.Height)
+                {
+                    snowflake.YPosition = -50;
+                }
+            }
+
+            return true;
+        }, TimeSpan.FromSeconds(SnowflakeParticle.DELTA_TIME), DispatcherPriority.Background);
     }
 
     public async Task CheckForUpdate(bool isAutomatic = false)

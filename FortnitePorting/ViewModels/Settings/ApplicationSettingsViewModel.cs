@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FluentAvalonia.UI.Media.Animation;
 using FortnitePorting.Framework;
+using FortnitePorting.Models.TimeWaster.Audio;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Models;
 using FortnitePorting.Shared.Validators;
@@ -27,6 +28,7 @@ public partial class ApplicationSettingsViewModel : ViewModelBase
     [ObservableProperty] private int _audioDeviceIndex = 0;
 
     [ObservableProperty] private FPVersion _lastOnlineVersion = Globals.Version;
+    [ObservableProperty] private bool _hasReceivedWinterBGMPrompt = false;
 
     [ObservableProperty] private bool _useAssetsPath;
     [ObservableProperty] private bool _usePortlePath;
@@ -70,6 +72,7 @@ public partial class ApplicationSettingsViewModel : ViewModelBase
             {
                 RadioVM?.UpdateOutputDevice();
                 SoundPreviewWM?.UpdateOutputDevice();
+                AudioSystem.Instance.ReloadOutputDevice();
                 break;
             }
         }

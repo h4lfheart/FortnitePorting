@@ -18,7 +18,6 @@ using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Windows;
 using Newtonsoft.Json;
-using Globals = FortnitePorting.Globals;
 
 namespace FortnitePorting.Models.Files;
 
@@ -34,7 +33,7 @@ public partial class FlatItem : ObservableObject
     [RelayCommand]
     public async Task CopyPath()
     {
-        await Clipboard.SetTextAsync(Path);
+        await ApplicationService.Clipboard.SetTextAsync(Path);
     }
     
     [RelayCommand]

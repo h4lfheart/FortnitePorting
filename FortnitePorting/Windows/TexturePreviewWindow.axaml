@@ -73,7 +73,7 @@
         <Separator Grid.Row="2" Margin="{ext:Space 0, 1, 0, 0}"/>
         
         <Grid Grid.Row="3" Margin="{ext:Space 1}">
-            <Border CornerRadius="4"
+            <Border CornerRadius="8"
                     Width="{Binding Bounds.Width, ElementName=TemplateImage}"
                     Height="{Binding Bounds.Height, ElementName=TemplateImage}">
                 <Border.Background>

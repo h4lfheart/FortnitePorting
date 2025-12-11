@@ -149,7 +149,7 @@
                                             <Grid>
                                                 <ui:FABorder Width="{Binding DisplayWidth}" 
                                                              Height="{Binding DisplayHeight}"/>
-                                                <Border ClipToBounds="True" CornerRadius="4"
+                                                <Border ClipToBounds="True" CornerRadius="8"
                                                         Width="{Binding DisplayWidth}" 
                                                         Height="{Binding DisplayHeight}">
                                                     <Image Stretch="UniformToFill" Source="{Binding DisplayImage}" />
@@ -192,7 +192,7 @@
                                         
                                         <ui:FABorder Grid.Row="0">
                                             <Grid RowDefinitions="* 2*" ColumnDefinitions="* 0.15* 2.5*" Margin="{ext:Space 0.5}">
-                                                <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" CornerRadius="4" ClipToBounds="True">
+                                                <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" CornerRadius="8" ClipToBounds="True">
                                                     <Image Source="{Binding Asset.IconDisplayImage}"/>
                                                 </Border>
                                                 <TextBlock Grid.Row="0" Grid.Column="2" Classes="BodyStrongTextBlockStyle" VerticalAlignment="Bottom" TextAlignment="Left"

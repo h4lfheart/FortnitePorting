@@ -93,7 +93,7 @@
                                     </Grid.ColumnDefinitions>
                                 
                                     <Border Grid.Column="0"
-                                            Width="64" Height="64" HorizontalAlignment="Left" CornerRadius="4"
+                                            Width="64" Height="64" HorizontalAlignment="Left" CornerRadius="8"
                                             PointerPressed="OnPlayPointerPressed">
                                         <Border.Background>
                                             <ImageBrush Source="{Binding PlaylistCover}"/>
@@ -131,7 +131,7 @@
                                     </Grid.ColumnDefinitions>
                                     
                                     <Border x:Name="PlayPointerTarget" Grid.Row="0" Grid.RowSpan="2" Grid.Column="0"
-                                            Width="64" Height="64" HorizontalAlignment="Left" CornerRadius="4"
+                                            Width="64" Height="64" HorizontalAlignment="Left" CornerRadius="8"
                                             ToolTip.Tip="{Binding Id}"
                                             PointerPressed="OnPlayPointerPressed">
                                         <Border.Background>
