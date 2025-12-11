@@ -394,8 +394,8 @@ public class CUE4ParseViewModel : ViewModelBase
             var mappings = await mappingsFunc(string.Empty);
             if (mappings?.Url is null) return null;
 
-            var mappingsFilePath = Path.Combine(DataFolder.FullName, mappings.Version + ".usmap");
-            if (File.Exists(mappingsFilePath)) return mappingsFilePath;
+            var mappingsFilePath = Path.Combine(DataFolder.FullName, mappings.Url.SubstringAfterLast("/") + ".usmap");
+            if (File.Exists(mappingsFilePath) && new FileInfo(mappingsFilePath).GetFileHashMD5().Equals(mappings.HashMD5)) return mappingsFilePath;
 
             var createdFile = await ApiVM.DownloadFileAsync(mappings.Url, mappingsFilePath);
             if (createdFile is null) return null;
