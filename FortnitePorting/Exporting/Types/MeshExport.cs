@@ -267,9 +267,11 @@ public class MeshExport : BaseExport
                     var levelSaveRecord = prop.GetOrDefault<UObject?>("LevelSaveRecord");
                     if (levelSaveRecord is null) continue;
 
-                    var actorSaveRecord = levelSaveRecord.Get<ULevelSaveRecord>("ActorSaveRecord");
+                    var targetSaveRecord = levelSaveRecord.GetOrDefault<ULevelSaveRecord?>("ActorSaveRecord") ?? prop.GetOrDefault<ULevelSaveRecord?>("LevelSaveRecord");
+                    if (targetSaveRecord is null) continue;
+                    
                     var transform = prop.GetOrDefault<FTransform>("Transform");
-                    var objects = Exporter.LevelSaveRecord(actorSaveRecord);
+                    var objects = Exporter.LevelSaveRecord(targetSaveRecord);
                     foreach (var mesh in objects)
                     {
                         mesh.Location += transform.Translation;

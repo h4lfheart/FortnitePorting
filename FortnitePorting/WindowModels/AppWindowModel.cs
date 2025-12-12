@@ -102,8 +102,8 @@ public partial class AppWindowModel(
                     PrimaryButtonCommand = new RelayCommand(async () =>
                     {
                         if (!File.Exists(Settings.Application.PortlePath) ||
-                            (!Settings.Application.UsePortlePath && (Api.GetHash(PORTLE_URL)
-                                ?.Equals(MiscExtensions.GetHash(Settings.Application.PortlePath)) ?? false)))
+                            (!Settings.Application.UsePortlePath && (!Api.GetHash(PORTLE_URL)
+                                ?.Equals(Settings.Application.PortlePath.GetHash()) ?? false)))
                         {
                             await Api.DownloadFileAsync(PORTLE_URL, Settings.Application.PortlePath);
                         }
