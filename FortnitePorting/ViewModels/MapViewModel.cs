@@ -136,6 +136,13 @@ public partial class MapViewModel : ViewModelBase
             "FortniteGame/Plugins/GameFeatures/Figment/Figment_S06_MapUI/Content/MiniMapAthena_S06_MaskTemp",
             0.017f, 330, 450, 110, 12800, true
         ),
+        new(
+            "Figment_S07",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S07_Map/Content/Athena_Terrain_S07",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S07_MapUI/Content/MiniMapAthena_S07Temp",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S07_MapUI/Content/MiniMapAthena_S07_MaskTemp",
+            0.017f, 330, 450, 110, 12800, true
+        ),
         
         // reload
         new(
