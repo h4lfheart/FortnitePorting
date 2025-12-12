@@ -5,6 +5,7 @@ from .enums import *
 from ..utils import *
 from math import radians
 from mathutils import Matrix, Vector, Euler, Quaternion
+from bpy_extras import anim_utils
 
 def merge_armatures(parts):
     bpy.ops.object.select_all(action='DESELECT')
