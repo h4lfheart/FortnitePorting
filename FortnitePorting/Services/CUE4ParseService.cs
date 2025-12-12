@@ -403,7 +403,7 @@ public partial class CUE4ParseService : ObservableObject, IService
         if (mappings?.Url is null) return null;
 
         var mappingsFilePath = Path.Combine(App.DataFolder.FullName, mappings.Url.SubstringAfterLast("/"));
-        if (File.Exists(mappingsFilePath)) return mappingsFilePath;
+        if (File.Exists(mappingsFilePath) && new FileInfo(mappingsFilePath).GetFileHashMD5().Equals(mappings.HashMD5)) return mappingsFilePath;
             
         var createdFile = await Api.DownloadFileAsync(mappings.Url, mappingsFilePath);
         if (!createdFile.Exists) return null;

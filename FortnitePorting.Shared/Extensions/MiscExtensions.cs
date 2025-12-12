@@ -206,6 +206,14 @@ public static class MiscExtensions
         {
             return GetHash(fileInfo.FullName);
         }
+        
+        public string GetFileHashMD5()
+        {
+            using var stream = fileInfo.OpenRead();
+            using var sha = MD5.Create();
+            var hash = sha.ComputeHash(stream);
+            return Convert.ToHexString(hash).ToLower();
+        }
     }
     
     public static bool TryDeleteFile(string path)
