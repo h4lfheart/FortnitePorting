@@ -156,7 +156,7 @@ public partial class AppWindowModel : WindowModelBase
                     PrimaryButtonCommand = new RelayCommand(async () =>
                     {
                         if (!File.Exists(AppSettings.Current.Application.PortlePath) || 
-                            (!AppSettings.Current.Application.UsePortlePath && (ApiVM.GetHash(PORTLE_URL)?.Equals(MiscExtensions.GetHash(AppSettings.Current.Application.PortlePath)) ?? false)))
+                            (!AppSettings.Current.Application.UsePortlePath && (!ApiVM.GetHash(PORTLE_URL)?.Equals(MiscExtensions.GetHash(AppSettings.Current.Application.PortlePath)) ?? false)))
                         {
                             await ApiVM.DownloadFileAsync(PORTLE_URL, AppSettings.Current.Application.PortlePath);
                         }
