@@ -11,6 +11,7 @@ public static class DependencyService
 {
     public static bool Finished;
     
+    public static readonly FileInfo NoodleFile = new(Path.Combine(DataFolder.FullName, "noodle.dll"));
     public static readonly FileInfo BinkaDecoderFile = new(Path.Combine(DataFolder.FullName, "binka", "binkadec.exe"));
     public static readonly FileInfo RadaDecoderFile = new(Path.Combine(DataFolder.FullName, "rada", "radadec.exe"));
     public static readonly FileInfo VgmStreamFile = new(Path.Combine(DataFolder.FullName, "vgmstream-cli.exe"));
@@ -21,8 +22,9 @@ public static class DependencyService
     {
         TaskService.Run(() =>
         {
-            EnsureResourceBased("Assets/Dependencies/binkadec.exe", BinkaDecoderFile);
-            EnsureResourceBased("Assets/Dependencies/radadec.exe", RadaDecoderFile);
+            EnsureResource("Assets/Dependencies/noodle.dll", NoodleFile);
+            EnsureResource("Assets/Dependencies/binkadec.exe", BinkaDecoderFile);
+            EnsureResource("Assets/Dependencies/radadec.exe", RadaDecoderFile);
             EnsureVgmStream();
             EnsureBlenderExtensions();
             EnsureUnrealPlugins();
@@ -30,7 +32,7 @@ public static class DependencyService
         });
     }
 
-    private static void EnsureResourceBased(string path, FileInfo targetFile)
+    private static void EnsureResource(string path, FileInfo targetFile)
     {
         var assetStream = AssetLoader.Open(new Uri($"avares://FortnitePorting/{path}"));
         if (targetFile is { Exists: true, Length: > 0 } && targetFile.GetHash() == assetStream.GetHash()) return;
