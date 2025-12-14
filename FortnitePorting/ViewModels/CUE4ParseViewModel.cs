@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Reflection;
+using System.Runtime.Intrinsics.X86;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CUE4Parse_Conversion.Textures;
@@ -127,7 +128,10 @@ public class CUE4ParseViewModel : ViewModelBase
         await InitializeProvider();
         await InitializeTextureStreaming();
         
+        HomeVM.UpdateStatus("Submitting Keys");
         await LoadKeys();
+        
+        HomeVM.UpdateStatus("Loading Virtual Paths");
         Provider.LoadVirtualPaths();
         Provider.PostMount();
         
@@ -184,11 +188,13 @@ public class CUE4ParseViewModel : ViewModelBase
         }
     }
     
+   
     private async Task InitializeOodle()
     {
-        var oodlePath = Path.Combine(DataFolder.FullName, OodleHelper.OODLE_DLL_NAME);
-        if (!File.Exists(oodlePath)) await OodleHelper.DownloadOodleDllAsync(oodlePath);
-        OodleHelper.Initialize(oodlePath);
+        if (!File.Exists(DependencyService.NoodleFile.FullName)) 
+            await OodleHelper.DownloadOodleDllAsync(DependencyService.NoodleFile.FullName);
+        
+        OodleHelper.Initialize(DependencyService.NoodleFile.FullName);
     }
     
     private async Task InitializeZlib()
