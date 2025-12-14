@@ -121,7 +121,10 @@ public partial class CUE4ParseService : ObservableObject, IService
         await InitializeProvider();
         await InitializeTextureStreaming();
         
+        UpdateStatus("Submitting Keys");
         await LoadKeys();
+        
+        UpdateStatus("Loading Virtual Paths");
         Provider.LoadVirtualPaths();
         Provider.PostMount();
         
@@ -184,9 +187,10 @@ public partial class CUE4ParseService : ObservableObject, IService
     
     private async Task InitializeOodle()
     {
-        var oodlePath = Path.Combine(App.DataFolder.FullName, OodleHelper.OODLE_DLL_NAME);
-        if (!File.Exists(oodlePath)) await OodleHelper.DownloadOodleDllAsync(oodlePath);
-        OodleHelper.Initialize(oodlePath);
+        if (!File.Exists(Dependencies.NoodleFile.FullName)) 
+            await OodleHelper.DownloadOodleDllAsync(Dependencies.NoodleFile.FullName);
+        
+        OodleHelper.Initialize(Dependencies.NoodleFile.FullName);
     }
     
     private async Task InitializeZlib()
