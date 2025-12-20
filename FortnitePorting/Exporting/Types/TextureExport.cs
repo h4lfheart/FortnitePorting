@@ -12,7 +12,7 @@ namespace FortnitePorting.Exporting.Types;
 
 public class TextureExport : BaseExport
 {
-    public List<string> Textures = [];
+    public List<ExportTexture> Textures = [];
     
     private static readonly Dictionary<EExportType, string> TextureNames = new()
     {
@@ -59,7 +59,7 @@ public class TextureExport : BaseExport
             }
             else
             {
-                Textures.Add(Exporter.Export(texture));
+                Textures.Add(new ExportTexture(Exporter.Export(texture), texture.SRGB, texture.CompressionSettings));
             }
         }
        

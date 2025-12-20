@@ -105,7 +105,8 @@ public partial class ExportContext
                 var embeddedAsset = materialInstance.Owner != null 
                                     && texture.Owner != null 
                                     && materialInstance.Owner.Name.Equals(texture.Owner.Name);
-                parameterCollection.Textures.AddUnique(new TextureParameter(param.Name, Export(texture, embeddedAsset: embeddedAsset), texture.SRGB, texture.CompressionSettings));
+                parameterCollection.Textures.AddUnique(new TextureParameter(param.Name, 
+                    new ExportTexture(Export(texture, embeddedAsset: embeddedAsset), texture.SRGB, texture.CompressionSettings)));
             }
 
             foreach (var param in materialInstance.ScalarParameterValues)
@@ -180,7 +181,7 @@ public partial class ExportContext
         {
             if (value is not UTexture2D texture) continue;
             
-            parameterCollection.Textures.AddUnique(new TextureParameter(name, Export(texture), texture.SRGB, texture.CompressionSettings));
+            parameterCollection.Textures.AddUnique(new TextureParameter(name, new ExportTexture(Export(texture), texture.SRGB, texture.CompressionSettings)));
         }
     }
     
@@ -191,7 +192,7 @@ public partial class ExportContext
         {
             if (parameterCollection.Textures.Any(x => x.Name == param.Name)) continue;
             if (!param.Value.TryLoad(out UTexture texture)) continue;
-            parameterCollection.Textures.AddUnique(new TextureParameter(param.Name, Export(texture), texture.SRGB, texture.CompressionSettings));
+            parameterCollection.Textures.AddUnique(new TextureParameter(param.Name, new ExportTexture(Export(texture), texture.SRGB, texture.CompressionSettings)));
         }
 
         var floatParams = data.GetOrDefault<FStyleParameter<float>[]>("FloatParams");

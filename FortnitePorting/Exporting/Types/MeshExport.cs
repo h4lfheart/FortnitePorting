@@ -86,8 +86,8 @@ public class MeshExport : BaseExport
 
             foreach (var texture in material.Textures)
             {
-                exportMaterial.Textures.Add(new TextureParameter(texture.Slot, ExportCustom(texture.Path), true,
-                    TextureCompressionSettings.TC_Default));
+                exportMaterial.Textures.Add(new TextureParameter(texture.Slot, new ExportTexture(ExportCustom(texture.Path), true,
+                    TextureCompressionSettings.TC_Default)));
             }
             
             exportMesh.Materials.Add(exportMaterial);
@@ -359,7 +359,7 @@ public class MeshExport : BaseExport
                         if (!field.TryGetValue(out UTexture2D texture, propertyName)) return;
                         
                         parameterSet.Textures.AddUnique(new TextureParameter(shaderName, 
-                            Exporter.Export(texture), texture.SRGB, texture.CompressionSettings));
+                            new ExportTexture(Exporter.Export(texture), texture.SRGB, texture.CompressionSettings)));
                     }
                     
                     void ColorIndex(string propertyName, string shaderName)

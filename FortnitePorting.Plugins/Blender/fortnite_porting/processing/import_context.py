@@ -429,8 +429,8 @@ class ImportContext:
     def import_texture_data(self, data):
         import_method = ETextureImportMethod(self.options.get("TextureImportMethod"))
 
-        for path in data.get("Textures"):
-            image = self.import_image(path)
+        for texture in data.get("Textures"):
+            image = self.import_image(texture.get("Path"))
             
             if import_method == ETextureImportMethod.OBJECT:
                 bpy.ops.mesh.primitive_plane_add()
@@ -603,7 +603,7 @@ class ImportContext:
         def texture_param(data, target_mappings, target_node=shader_node, add_unused_params=False):
             try:
                 name = data.get("Name")
-                path = data.get("Value")
+                path = data.get("Texture").get("Path")
                 texture_name = path.split(".")[1]
 
                 node = nodes.new(type="ShaderNodeTexImage")
@@ -992,7 +992,7 @@ class ImportContext:
 
                 if eye_texture_data := get_param_info(textures, "EyeTexture"):
                     eye_texture_node = nodes.new(type="ShaderNodeTexImage")
-                    eye_texture_node.image = self.import_image(eye_texture_data.get("Value"))
+                    eye_texture_node.image = self.import_image(eye_texture_data.get("Texture").get("Path"))
                     eye_texture_node.image.alpha_mode = 'CHANNEL_PACKED'
                     eye_texture_node.image.colorspace_settings.name = "sRGB" if eye_texture_data.get("sRGB") else "Non-Color"
                     eye_texture_node.interpolation = "Smart"
@@ -1039,9 +1039,9 @@ class ImportContext:
                         links.new(base_normal.outputs[0], superhero_node.inputs["SecondaryNormal"])
 
                     if sticker_texture_data := get_param_info(textures, "Sticker"):
-                        if "/Game/Global/Textures/Default/Blanks/" not in sticker_texture_data.get("Value"):
+                        if "/Game/Global/Textures/Default/Blanks/" not in sticker_texture_data.get("Texture").get("Path"):
                             sticker_node = nodes.new(type="ShaderNodeTexImage")
-                            sticker_node.image = self.import_image(sticker_texture_data.get("Value"))
+                            sticker_node.image = self.import_image(sticker_texture_data.get("Texture").get("Path"))
                             sticker_node.image.alpha_mode = 'CHANNEL_PACKED'
                             sticker_node.image.colorspace_settings.name = "sRGB" if sticker_texture_data.get("sRGB") else "Non-Color"
                             sticker_node.interpolation = "Smart"
@@ -1050,7 +1050,7 @@ class ImportContext:
                             sticker_node.location = [-885, -585]
                             
                             back_sticker_node = nodes.new(type="ShaderNodeTexImage")
-                            back_sticker_node.image = self.import_image(sticker_texture_data.get("Value"))
+                            back_sticker_node.image = self.import_image(sticker_texture_data.get("Texture").get("Path"))
                             back_sticker_node.image.alpha_mode = 'CHANNEL_PACKED'
                             back_sticker_node.image.colorspace_settings.name = "sRGB" if sticker_texture_data.get("sRGB") else "Non-Color"
                             back_sticker_node.interpolation = "Smart"

@@ -216,7 +216,13 @@ public partial class ExportContext
     {
         if (textureData is null) return null;
         
-        var exportTextureData = new ExportTextureData();
+        var exportTextureData = new ExportTextureData
+        {
+            Index = index,
+            Path = textureData.GetPathName()
+        };
+        
+        exportTextureData.Hash = exportTextureData.Path.GetHashCode();
 
         var textureSuffix = index > 0 ? $"_Texture_{index + 1}" : string.Empty;
         var specSuffix = index > 0 ? $"_{index + 1}" : string.Empty;
@@ -228,13 +234,11 @@ public partial class ExportContext
         if (textureData.OverrideMaterial is { } overrideMaterial)
             exportTextureData.OverrideMaterial = Material(overrideMaterial, 0);
         
-        exportTextureData.Hash = textureData.GetPathName().GetHashCode();
-        
         return exportTextureData;
         
         TextureParameter? AddData(UTexture? texture, string prefix, string suffix)
         {
-            return texture is null ? null : new TextureParameter(prefix + suffix, Export(texture), texture.SRGB, texture.CompressionSettings);
+            return texture is null ? null : new TextureParameter(prefix + suffix, new ExportTexture(Export(texture), texture.SRGB, texture.CompressionSettings));
         }
     }
     
@@ -251,28 +255,36 @@ public partial class ExportContext
             
             if (objects.Count == 0) continue;
 
-            // todo proper byte actor data parsing
             var textureDatas = new Dictionary<int, UBuildingTextureData>();
             var actorData = levelSaveRecord.ActorData[index];
-            if (actorData.TryGetAllValues(out string?[] textureDataRawPaths, "TextureData"))
+            if (templateRecord.bUsingRecordDataReferenceTable)
             {
-                for (var i = 0; i < textureDataRawPaths.Length; i++)
+                foreach (var property in actorData.Properties)
                 {
-                    var textureDataPath = textureDataRawPaths[i];
-                    if (textureDataPath is null || string.IsNullOrEmpty(textureDataPath)) continue;
-                    if (!UEParse.Provider.TryLoadPackageObject(textureDataPath, out UBuildingTextureData textureData)) continue;
-                    textureDatas.Add(i, textureData);
+                    if (!property.Name.Text.Equals("TextureData"))
+                        continue;
+                    
+                    if (property.Tag?.GetValue<FPackageIndex>() is not { } packageIndex)
+                        continue;
+                    
+                    var textureDataPath = templateRecord.ActorDataReferenceTable[packageIndex.Index];
+                    if (textureDataPath.AssetPathName.IsNone || string.IsNullOrEmpty(textureDataPath.AssetPathName.Text)) continue;
+                    
+                    var textureData = textureDataPath.Load<UBuildingTextureData>();
+                    textureDatas.Add(property.ArrayIndex, textureData);
                 }
             }
             else
             {
-                var textureDataPaths = templateRecord.ActorDataReferenceTable;
-                for (var i = 0; i < textureDataPaths.Length; i++)
+                foreach (var property in actorData.Properties)
                 {
-                    var textureDataPath = textureDataPaths[i];
-                    if (textureDataPath.AssetPathName.IsNone || string.IsNullOrEmpty(textureDataPath.AssetPathName.Text)) continue;
-                    var textureData = textureDataPath.Load<UBuildingTextureData>();
-                    textureDatas.Add(i, textureData);
+                    if (!property.Name.Text.Equals("TextureData"))
+                        continue;
+                    
+                    if (property.Tag?.GetValue<FPackageIndex>()?.Load<UBuildingTextureData>() is not { } textureData)
+                        continue;
+                    
+                    textureDatas.Add(property.ArrayIndex, textureData);
                 }
             }
             
