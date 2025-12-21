@@ -4,7 +4,7 @@
 
 #include "JsonObjectConverter.h"
 
-class FUtils
+class FFortnitePortingUtils
 {
 public:
 	static FString BytesToString(TArray<uint8> Bytes)
@@ -47,43 +47,6 @@ public:
 			Count--;
 		}
 		return Result;
-	}
-	
-	template <typename T>
-	static T GetEnum(const TSharedPtr<FJsonObject>& JsonObject, const FString& Name)
-	{
-		return static_cast<T>(JsonObject->GetNumberField(Name));
-	}
-
-	template <typename T>
-	static TArray<T> GetArray(const TSharedPtr<FJsonObject>& JsonObject, const FString& Name)
-	{
-		TArray<T> FinalArray;
-		for (auto Json : JsonObject->GetArrayField(Name))
-		{
-			FinalArray.Add(FUtils::GetAsStruct<T>(Json));
-		}
-		return FinalArray;
-	}
-
-	template <typename T>
-	static T GetAsStruct(const TSharedPtr<FJsonObject>& JsonObject)
-	{
-		T Ref;
-		FJsonObjectConverter::JsonObjectToUStruct(JsonObject.ToSharedRef(), &Ref);
-		return Ref;
-	}
-	
-	template <typename T>
-	static T GetAsStruct(const TSharedPtr<FJsonObject>& JsonObject, const FString& Name)
-	{
-		return GetAsStruct<T>(JsonObject->GetObjectField(Name));
-	}
-	
-	template <typename T>
-	static T GetAsStruct(const TSharedPtr<FJsonValue>& JsonValue, const FString& Name)
-	{
-		return GetAsStruct<T>(JsonValue->AsObject(), Name);
 	}
 	
 	template<typename T>

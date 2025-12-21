@@ -10,10 +10,10 @@ struct FPathData
 	FString RootName;
 };
 
-class FImportUtils 
+class FEditorUtils 
 {
 public:
-	static FPathData SplitExportPath(const FString& InStr)
+	static FPathData GetPathData(const FString& InStr)
 	{
 		auto RootName = InStr.RightChop(1);
 		RootName = RootName.Left(RootName.Find("/"));

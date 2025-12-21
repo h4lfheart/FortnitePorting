@@ -5,7 +5,7 @@ def get_param(source, name):
     found = first(source, lambda param: param.get("Name").casefold() == name.casefold())
     if found is None:
         return None
-    return found.get("Value")
+    return found.get("Value") or found.get("Texture")
 
 
 def get_vector_param(source, name):
@@ -19,7 +19,7 @@ def get_param_multiple(source, names):
     found = first(source, lambda param: param.get("Name").casefold() in [name.casefold() for name in names])
     if found is None:
         return None
-    return found.get("Value")
+    return found.get("Value") or found.get("Texture")
 
 
 def get_param_info(source, name):

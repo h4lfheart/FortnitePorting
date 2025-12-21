@@ -486,29 +486,61 @@ class ImportContext:
 
     def import_material(self, material_slot, material_data, meta, as_material_data=False):
 
-        # object ref mat slots for instancing
+     # object ref mat slots for instancing
         if not as_material_data:
             temp_material = material_slot.material
             material_slot.link = 'OBJECT' if self.type in [EExportType.WORLD, EExportType.PREFAB] else 'DATA'
             material_slot.material = temp_material
-
+    
         material_name = material_data.get("Name")
         material_hash = material_data.get("Hash")
         additional_hash = 0
-
+    
+        # HANDLE TEXTURE DATA OVERRIDE MATERIAL FIRST
         texture_data = meta.get("TextureData")
         if texture_data is not None:
+            # Check for override material
+            override_material_data = None
             for data in texture_data:
-                additional_hash += data.get("Hash")
+                additional_hash += data.get("Hash")  # Include texture data hash
+                if td_override_material := data.get("OverrideMaterial"):
+                    override_material_data = td_override_material
+                    break
+            
+            # If we found an override material, use it as the base
+            if override_material_data:
+                material_data = override_material_data
+                material_name = override_material_data.get("Name")
+                material_hash = override_material_data.get("Hash")
         
+        # NOW get textures/scalars/vectors from the (potentially overridden) material_data
+        textures = material_data.get("Textures")
+        scalars = material_data.get("Scalars")
+        vectors = material_data.get("Vectors")
+        switches = material_data.get("Switches")
+        component_masks = material_data.get("ComponentMasks")
+        
+        # Apply texture parameter overrides from texture data
+        if texture_data is not None:
+            for data in texture_data:
+                if diffuse := data.get("Diffuse"):
+                    replace_or_add_parameter(textures, diffuse)
+                if normal := data.get("Normal"):
+                    replace_or_add_parameter(textures, normal)
+                if specular := data.get("Specular"):
+                    replace_or_add_parameter(textures, specular)
+        
+        # Handle override parameters
         override_parameters = where(self.override_parameters, lambda param: param.get("MaterialNameToAlter") in [material_name, "Global"])
         if override_parameters is not None:
             for parameters in override_parameters:
                 additional_hash += parameters.get("Hash")
-
+    
+        # Apply final hash
         if additional_hash != 0:
             material_hash += additional_hash
             material_name += f"_{hash_code(material_hash)}"
+                
             
         if existing_material := first(bpy.data.materials, lambda mat: mat.get("Hash") == hash_code(material_hash)):
             if not as_material_data:
@@ -545,13 +577,7 @@ class ImportContext:
         vectors = material_data.get("Vectors")
         switches = material_data.get("Switches")
         component_masks = material_data.get("ComponentMasks")
-
-        if texture_data is not None:
-            for data in texture_data:
-                replace_or_add_parameter(textures, data.get("Diffuse"))
-                replace_or_add_parameter(textures, data.get("Normal"))
-                replace_or_add_parameter(textures, data.get("Specular"))
-
+        
         if override_parameters is not None:
             for parameters in override_parameters:
                 for texture in parameters.get("Textures"):
@@ -813,6 +839,8 @@ class ImportContext:
         socket_mappings = default_mappings
         base_material_path = material_data.get("BaseMaterialPath")
 
+        Log.info("Layer Switches: " + str(get_param_multiple(switches, layer_switch_names)))
+        Log.info("Extra Layer Names: " + str(get_param_multiple(switches, extra_layer_names)))
         if get_param_multiple(switches, layer_switch_names) and get_param_multiple(textures, extra_layer_names):
             replace_shader_node("FPv3 Layer")
             socket_mappings = layer_mappings

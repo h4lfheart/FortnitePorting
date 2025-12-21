@@ -58,7 +58,7 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
 
-                            <Border Grid.Column="0" CornerRadius="4" ClipToBounds="True">
+                            <Border Grid.Column="0" CornerRadius="12" ClipToBounds="True">
                                 <Image Source="{Binding Image}" Width="48" Height="48" RenderOptions.BitmapInterpolationMode="HighQuality"/>
                             </Border>
                             

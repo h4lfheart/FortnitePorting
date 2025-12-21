@@ -1,46 +1,134 @@
 #include "ListenServer.h"
-#include "IHttpRouter.h"
+#include "Common/TcpSocketBuilder.h"
 #include "FortnitePorting/Public/FortnitePorting.h"
-#include "FortnitePorting/Public/Utils.h"
-#include "FortnitePorting/Public/Processing/Importer.h"
+#include "Interfaces/IPv4/IPv4Endpoint.h"
+#include "Processing/ImportContext.h"
+#include "Utilities/FortnitePortingUtils.h"
 
-void FListenServer::Start() const
+FListenServer::FListenServer()
 {
-	TSharedPtr<IHttpRouter> Router = Module.GetHttpRouter(Port);
+	Thread = FRunnableThread::Create(this, TEXT("FortnitePortingListenServer"));
+}
 
-	if (!Router.IsValid())
+bool FListenServer::Init()
+{
+	FIPv4Endpoint::Parse(TEXT("127.0.0.1:40001"), Endpoint);
+	
+	Socket = FTcpSocketBuilder(TEXT("FPV4 Listen Socket"))
+		.AsBlocking()
+		.AsReusable()
+		.BoundToEndpoint(Endpoint)
+		.Listening(5)
+		.Build();
+	
+	
+	bIsRunning = true;
+	
+	return FRunnable::Init();
+}
+
+uint32 FListenServer::Run()
+{
+	UE_LOG(LogFortnitePorting, Log, TEXT("Running FP V4 Server at %s"), *Endpoint.ToString())
+	
+	while (bIsRunning)
 	{
-		UE_LOG(LogFortnitePorting, Log, TEXT("Failed to Start Fortnite Porting Server"))
-		return;
+		bool bHasPendingConnection;
+		if (!Socket->HasPendingConnection(bHasPendingConnection) || !bHasPendingConnection)
+		{
+			FPlatformProcess::Sleep(0.01f);
+			continue;
+		}
+		
+		TSharedRef<FInternetAddr> RemoteAddress = ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->CreateInternetAddr();
+		FSocket* ClientSocket = Socket->Accept(*RemoteAddress, TEXT("FPV4 Client"));
+		
+		if (ClientSocket == nullptr)
+		{
+			UE_LOG(LogFortnitePorting, Warning, TEXT("Failed to accept client connection"));
+			continue;
+		}
+        
+		UE_LOG(LogFortnitePorting, Log, TEXT("Client connected from %s"), *RemoteAddress->ToString(true));
+        
+		AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [this, ClientSocket]()
+		{
+			HandleClient(ClientSocket);
+		});
 	}
 	
+	return 0;
+}
 
-	Router->BindRoute(FHttpPath(DataPath), EHttpServerRequestVerbs::VERB_POST, FHttpRequestHandler::CreateLambda(
-		[](const FHttpServerRequest& Request, const FHttpResultCallback& OnComplete)
+void FListenServer::Stop()
+{
+	FRunnable::Stop();
+	
+	bIsRunning = false;
+	Thread->Kill();
+	
+	UE_LOG(LogFortnitePorting, Log, TEXT("Shutdown FP V4 Server"))
+}
+
+void FListenServer::HandleClient(FSocket* ClientSocket)
+{
+	const TSharedRef<FInternetAddr> ClientAddress = ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->CreateInternetAddr();
+	ClientSocket->GetPeerAddress(*ClientAddress);
+	
+	while (bIsRunning)
 	{
-		auto ResponseBody = FUtils::BytesToString(Request.Body);
-		FImporter::Import(ResponseBody);
+		TArray<uint8> HeaderBytes;
+		if (!Recieve(ClientSocket, HeaderBytes, sizeof(FMessageHeader)))
+			break;
+
+		const FMessageHeader* Header = reinterpret_cast<FMessageHeader*>(HeaderBytes.GetData());
 		
-		return false;
-	}));
+		TArray<uint8> Data;
+		if (!Recieve(ClientSocket, Data, Header->DataSize))
+			break;
+		
+		auto ReceivedString = FFortnitePortingUtils::BytesToString(Data);
 
-	Router->BindRoute(FHttpPath(PingPath), EHttpServerRequestVerbs::VERB_GET, FHttpRequestHandler::CreateLambda(
-		[](const FHttpServerRequest& Request, const FHttpResultCallback& OnComplete)
-	{
-		TUniquePtr<FHttpServerResponse> Response = FHttpServerResponse::Create("Pong!", "text");
-		OnComplete(MoveTemp(Response));
-		return true;
-	}));
+		switch (Header->Type)
+		{
+		case EMessageCommandType::Message:
+			UE_LOG(LogFortnitePorting, Log, TEXT("%s"), *ReceivedString)
+			break;
+		case EMessageCommandType::Data:
+			AsyncTask(ENamedThreads::GameThread, [ReceivedString]
+			{
+				FImportContext::RunExportJson(ReceivedString);
+			});
+			break;
+		}
+	}
 	
-	Module.StartAllListeners();
-	
-	UE_LOG(LogFortnitePorting, Log, TEXT("Started Fortnite Porting Server"))
+	ClientSocket->Close();
+	ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->DestroySocket(ClientSocket);
+	UE_LOG(LogFortnitePorting, Log, TEXT("Client disconnected: %s"), *ClientAddress->ToString(true));
 
 }
 
-void FListenServer::Shutdown() const
+bool FListenServer::Recieve(FSocket* ClientSocket, TArray<uint8>& OutData, int32 Size)
 {
-	Module.StopAllListeners();
+	OutData.SetNumUninitialized(Size);
+	int32 BytesReceived = 0;
 	
-	UE_LOG(LogFortnitePorting, Log, TEXT("Shutdown Fortnite Porting Server"))
+	while (BytesReceived < Size)
+	{
+		int32 BytesRead = 0;
+		if (!ClientSocket->Recv(OutData.GetData() + BytesReceived, Size - BytesReceived, BytesRead))
+		{
+			return false;
+		}
+		
+		if (BytesRead <= 0)
+		{
+			return false;
+		}
+		
+		BytesReceived += BytesRead;
+	}
+	
+	return true;
 }

@@ -1,5 +1,4 @@
 #pragma once
-#include "FortnitePorting/Public/Utils.h"
 
 struct FSlotMapping
 {
