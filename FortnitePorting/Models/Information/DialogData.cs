@@ -18,7 +18,7 @@ public partial class DialogData : ObservableObject
     [RelayCommand]
     public async Task Close()
     {
-        IsOpen = false;
+        await Info.DialogQueue.Close();
     }
 }
 
@@ -31,6 +31,6 @@ public partial class DialogButton : ObservableObject
     public async Task Execute()
     {
         Action();
-        await Info.DialogData.Close();
+        await Info.DialogQueue.Close();
     }
 }

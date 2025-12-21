@@ -242,8 +242,8 @@
         </ItemsControl>
 
         <Grid Grid.Row="0" Grid.RowSpan="2"  ColumnDefinitions="* * *" 
-              DataContext="{Binding Info.DialogData}"
-              Opacity="{Binding IsOpen, Converter={StaticResource BoolToOpacity}}">
+              DataContext="{Binding Info.DialogQueue.Current}"
+              Opacity="{Binding IsOpen, Converter={StaticResource BoolToOpacity}, FallbackValue=0}">
             <Grid.Transitions>
                 <Transitions>
                     <DoubleTransition Property="Opacity"
@@ -255,7 +255,7 @@
             <Border Grid.Column="0" Grid.ColumnSpan="3"
                     Background="#80000000" IsHitTestVisible="False"/>
             
-            <controls:ContentCard Grid.Column="1" ClipToBounds="False" IsEnabled="{Binding IsOpen}"
+            <controls:ContentCard Grid.Column="1" ClipToBounds="False" IsEnabled="{Binding IsOpen, FallbackValue=False}"
                                   VerticalAlignment="Center">
                 <controls:ContentCard.BoxShadow>
                     inset 0 1 2 -1 #50ffffff,

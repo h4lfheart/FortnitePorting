@@ -37,6 +37,7 @@ public partial class AppWindowModel(
     [ObservableProperty] private SetupView? _setupViewContent;
 
     [ObservableProperty] private OnlineResponse? _onlineStatus;
+    [ObservableProperty] private BroadcastResponse[] _broadcasts = [];
 
     private const string PORTLE_URL = "https://portle.halfheart.dev/release/Portle.exe";
 
@@ -51,6 +52,7 @@ public partial class AppWindowModel(
         }
         
         OnlineStatus = await Api.FortnitePorting.Online();
+        Broadcasts = await Api.FortnitePorting.Broadcasts();
 
         await CheckForUpdate(isAutomatic: true);
     }

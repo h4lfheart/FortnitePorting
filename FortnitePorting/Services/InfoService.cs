@@ -26,19 +26,16 @@ public partial class InfoService : ObservableObject, ILogEventSink, IService
 {
     [ObservableProperty] private ObservableCollection<FortnitePortingLogEvent> _logs = [];
     [ObservableProperty] private ObservableCollection<MessageData> _messages = [];
-    [ObservableProperty] private DialogData _dialogData = new()
-    {
-        IsOpen = false
-    };
+    [ObservableProperty] private DialogQueue _dialogQueue = new();
     
     private readonly object _messageLock = new();
     
     public string LogFilePath;
+    
     public DirectoryInfo LogsFolder => new(Path.Combine(App.ApplicationDataFolder.FullName, "Logs"));
     
     public InfoService()
     {
-        
         TaskService.Exception += HandleException;
         
         Dispatcher.UIThread.UnhandledException += (sender, args) =>
@@ -103,15 +100,16 @@ public partial class InfoService : ObservableObject, ILogEventSink, IService
     
     public void Dialog(string title, string? message = null, object? content = null, DialogButton[]? buttons = null, bool canClose = true)
     {
-        DialogData = new DialogData
+        var dialog = new DialogData
         {
-            IsOpen = true,
             Title = title,
             Message = message,
             Content = content,
             Buttons = buttons is not null ? [..buttons] : [],
             CanClose = canClose
         };
+
+        DialogQueue.Enqueue(dialog);
     }
     
     public void HandleException(Exception e)

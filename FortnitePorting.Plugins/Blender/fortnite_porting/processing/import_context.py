@@ -635,7 +635,7 @@ class ImportContext:
                 node = nodes.new(type="ShaderNodeTexImage")
                 node.image = self.import_image(path)
                 node.image.alpha_mode = 'CHANNEL_PACKED'
-                node.image.colorspace_settings.name = "sRGB" if data.get("sRGB") else "Non-Color"
+                node.image.colorspace_settings.name = "sRGB" if data.get("Texture").get("sRGB") else "Non-Color"
                 node.interpolation = "Smart"
                 node.hide = True
 
@@ -1022,7 +1022,7 @@ class ImportContext:
                     eye_texture_node = nodes.new(type="ShaderNodeTexImage")
                     eye_texture_node.image = self.import_image(eye_texture_data.get("Texture").get("Path"))
                     eye_texture_node.image.alpha_mode = 'CHANNEL_PACKED'
-                    eye_texture_node.image.colorspace_settings.name = "sRGB" if eye_texture_data.get("sRGB") else "Non-Color"
+                    eye_texture_node.image.colorspace_settings.name = "sRGB" if eye_texture_data.get("Texture").get("sRGB") else "Non-Color"
                     eye_texture_node.interpolation = "Smart"
                     eye_texture_node.hide = True
                     eye_texture_node.location = [-500, -75]
@@ -1071,7 +1071,7 @@ class ImportContext:
                             sticker_node = nodes.new(type="ShaderNodeTexImage")
                             sticker_node.image = self.import_image(sticker_texture_data.get("Texture").get("Path"))
                             sticker_node.image.alpha_mode = 'CHANNEL_PACKED'
-                            sticker_node.image.colorspace_settings.name = "sRGB" if sticker_texture_data.get("sRGB") else "Non-Color"
+                            sticker_node.image.colorspace_settings.name = "sRGB" if sticker_texture_data.get("Texture").get("sRGB") else "Non-Color"
                             sticker_node.interpolation = "Smart"
                             sticker_node.extension = "CLIP"
                             sticker_node.hide = True
@@ -1080,7 +1080,7 @@ class ImportContext:
                             back_sticker_node = nodes.new(type="ShaderNodeTexImage")
                             back_sticker_node.image = self.import_image(sticker_texture_data.get("Texture").get("Path"))
                             back_sticker_node.image.alpha_mode = 'CHANNEL_PACKED'
-                            back_sticker_node.image.colorspace_settings.name = "sRGB" if sticker_texture_data.get("sRGB") else "Non-Color"
+                            back_sticker_node.image.colorspace_settings.name = "sRGB" if sticker_texture_data.get("Texture").get("sRGB") else "Non-Color"
                             back_sticker_node.interpolation = "Smart"
                             back_sticker_node.extension = "CLIP"
                             back_sticker_node.hide = True
