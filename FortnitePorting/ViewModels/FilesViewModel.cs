@@ -29,7 +29,9 @@ using FortnitePorting.Exporting.Models;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Files;
+using FortnitePorting.Models.Information;
 using FortnitePorting.Models.Unreal;
+using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Views;
 using FortnitePorting.Windows;
@@ -465,31 +467,29 @@ public partial class FilesViewModel : ViewModelBase
             }
             case UMaterialInstanceConstant instance:
             {
-                var dialog = new ContentDialog
-                {
-                    Title = $"Preview {instance.Name}",
-                    Content = "What asset type would you like to preview?",
-                    CloseButtonText = "Cancel",
-                    SecondaryButtonText = "Material Instance",
-                    SecondaryButtonCommand = new RelayCommand(async () =>
+                Info.Dialog($"Preview {instance.Name}", "What asset type would you like to preview?", buttons: 
+                [
+                    new DialogButton
                     {
-                        await Properties();
-                    }),
-                    PrimaryButtonText = "Parent Material",
-                    PrimaryButtonCommand = new RelayCommand(() =>
+                        Text = "Material Properties",
+                        Action = () => TaskService.Run(Properties)
+                    },
+                    new DialogButton
                     {
-                        UUnrealMaterial? parentMaterial = instance;
-                        while (parentMaterial is UMaterialInstanceConstant parentMaterialInstance)
+                        Text = "Material Node Tree",
+                        Action = () =>
                         {
-                            parentMaterial = parentMaterialInstance.Parent;
-                        }
+                            UUnrealMaterial? parentMaterial = instance;
+                            while (parentMaterial is UMaterialInstanceConstant parentMaterialInstance)
+                            {
+                                parentMaterial = parentMaterialInstance.Parent;
+                            }
                         
-                        if (parentMaterial is not null)
-                            MaterialPreviewWindow.Preview(parentMaterial);
-                    })
-                };
-
-                await dialog.ShowAsync(); 
+                            if (parentMaterial is not null)
+                                MaterialPreviewWindow.Preview(parentMaterial);
+                        }
+                    },
+                ]);
                 
                 break;
             }

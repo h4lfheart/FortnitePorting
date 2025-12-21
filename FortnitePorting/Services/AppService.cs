@@ -9,6 +9,7 @@ using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.Utils;
 using FluentAvalonia.UI.Controls;
+using FortnitePorting.Models.Information;
 using FortnitePorting.ViewModels;
 using FortnitePorting.Views;
 using FortnitePorting.Windows;
@@ -165,24 +166,18 @@ public class AppService : IService
 
     public void RestartWithMessage(string title, string content, Action? onRestart = null, bool mandatory = false)
     {
-        var dialog = new ContentDialog
-        {
-            Title = title,
-            Content = content,
-            CloseButtonText = "Restart",
-            CloseButtonCommand = new RelayCommand(() =>
+        Info.Dialog(title, content, canClose: !mandatory, buttons:
+        [
+            new DialogButton
             {
-                onRestart?.Invoke();
-                Restart();
-            }),
-        };
-
-        if (!mandatory)
-        {
-            dialog.PrimaryButtonText = "Cancel";
-        }
-
-        dialog.ShowAsync();
+                Text = "Restart",
+                Action = () =>
+                {
+                    onRestart?.Invoke();
+                    Restart();
+                }
+            }
+        ]);
     }
     
     public void Restart()

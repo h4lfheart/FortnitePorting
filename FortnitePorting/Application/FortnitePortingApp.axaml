@@ -29,6 +29,7 @@
              <converters:UnrealCaseStringConverter x:Key="UnrealCaseString" />
              <converters:StringToDocumentConverter x:Key="StringToDocument" />
              <converters:StringToUppercaseConverter x:Key="StringToUppercase" />
+             <converters:BoolToOpacityConverter x:Key="BoolToOpacity" />
          
              <Brush x:Key="ToggleSwitchKnobFillOn">#FFFFFFFF</Brush>
              <Brush x:Key="ToggleSwitchKnobFillOnPointerOver">#FFFFFFFF</Brush>
@@ -68,9 +69,9 @@
              <Brush x:Key="FPSeparatorColorLayer1">#212123</Brush>
              <Brush x:Key="FPSeparatorColorLayer2">#313133</Brush>
              
-             <Brush x:Key="FPButtonBackground">#18191B</Brush>
-             <Brush x:Key="FPButtonBackgroundPointerOver">#1E1F21</Brush>
-             <Brush x:Key="FPButtonBackgroundPressed">#1B1C1F</Brush>
+             <Brush x:Key="FPButtonBackground">#1E1F21</Brush>
+             <Brush x:Key="FPButtonBackgroundPointerOver">#27292B</Brush>
+             <Brush x:Key="FPButtonBackgroundPressed">#252629</Brush>
              <Brush x:Key="FPButtonBorderBrush">#27282A</Brush>
              
              <Brush x:Key="FPLayer2">#2b2c2e</Brush>
@@ -159,6 +160,7 @@
                 <Setter Property="Opacity" Value="0.5"/>
             </Style>
         </Style>
+        
         
         <Style Selector="breadcrumb|BreadcrumbBarItem[IsVisible=true]">
             <Setter Property="FontFamily" Value="{StaticResource SFTextRegular}"/>
@@ -954,39 +956,6 @@
             <Setter Property="ClipToBounds" Value="False"/>
             <Setter Property="CornerRadius" Value="16"/>
         </Style>
-        
-        <Style Selector="ui|ContentDialog[IsVisible=True]">
-            <Setter Property="CornerRadius" Value="16"/>
-            
-            <Style Selector="^ /template/ Border">
-                <Setter Property="Background" Value="{x:Null}"/>
-                <Setter Property="BorderThickness" Value="0"/>
-            </Style>
-            
-            <Style Selector="^ /template/ Border#BackgroundElement">
-                <Setter Property="Background">
-                    <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
-                        <GradientStops>
-                            <GradientStop Color="#1A1B1E" Offset="0"/>
-                            <GradientStop Color="#18191B" Offset="1"/>
-                        </GradientStops>
-                    </LinearGradientBrush>
-                </Setter>
-                
-                <Setter Property="ClipToBounds" Value="False"/>
-                <Setter Property="BackgroundSizing" Value="CenterBorder"/>
-                <Setter Property="BoxShadow">
-                    inset 0 1 2 -1 #50ffffff,
-                    inset 0 -1 2 -2 #50ffffff,
-                    0 4 8 #20000000,
-                    0 8 12 #10000000
-                </Setter>
-                
-                <Setter Property="BorderThickness" Value="0"/>
-            </Style>
-        </Style>
-
-        
         
         <Style Selector="Button.DiscordButton /template/ ContentPresenter">
             <Setter Property="Background" Value="#7289da"/>

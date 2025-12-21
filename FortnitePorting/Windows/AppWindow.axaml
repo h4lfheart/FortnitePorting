@@ -8,20 +8,23 @@
         xmlns:views="clr-namespace:FortnitePorting.Views"
         xmlns:controls="clr-namespace:FortnitePorting.Controls"
         xmlns:sidebar="clr-namespace:FortnitePorting.Controls.Navigation.Sidebar"
+        xmlns:information="clr-namespace:FortnitePorting.Models.Information"
         x:Class="FortnitePorting.Windows.AppWindow"
         x:DataType="windowModels:AppWindowModel"
         Width="1600" Height="900" RequestedThemeVariant="Dark" Background="#0e0e0e" TransparencyLevelHint="Mica"
-        ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="NoChrome" FontFamily="{StaticResource SFTextRegular}"
-        WindowStartupLocation="CenterScreen" ClosingBehavior="OwnerAndChildWindows" ExtendClientAreaTitleBarHeightHint="35"
+        ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="NoChrome"
+        FontFamily="{StaticResource SFTextRegular}"
+        WindowStartupLocation="CenterScreen" ClosingBehavior="OwnerAndChildWindows"
+        ExtendClientAreaTitleBarHeightHint="35"
         Icon="/Assets/LogoRebrand.ico"
         Title="Fortnite Porting">
-    
+
     <Grid RowDefinitions="35, *" Margin="{Binding $parent[Window].OffScreenMargin}">
-        
+
         <Grid Grid.Row="0" Grid.RowSpan="2" IsVisible="{Binding Settings.Installation.FinishedSetup}">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" MinWidth="225"/>
-                <ColumnDefinition Width="6*"/>
+                <ColumnDefinition Width="*" MinWidth="225" />
+                <ColumnDefinition Width="6*" />
             </Grid.ColumnDefinitions>
             <!-- Sidebar -->
             <Grid Grid.Column="0">
@@ -29,197 +32,295 @@
                     <sidebar:Sidebar.Header>
                         <Grid Grid.Row="0" IsHitTestVisible="False" RowDefinitions="*,*">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="{ext:Space 2}"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="{ext:Space 2}" />
+                                <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                
-                            <Image Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Source="/Assets/LogoRebrand.png" 
-                                   Width="48" Height="48" RenderOptions.BitmapInterpolationMode="HighQuality"/>
-                
+
+                            <Image Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Source="/Assets/LogoRebrand.png"
+                                   Width="48" Height="48" RenderOptions.BitmapInterpolationMode="HighQuality" />
+
                             <TextBlock Grid.Row="0" Grid.Column="2"
-                                   FontSize="16" FontFamily="{StaticResource SFTextBold}"
-                                   Classes="TextFillColorPrimaryBrush"
-                                   VerticalAlignment="Center">
-                                <Run Text="Fortnite"/>
-                                <Run Text="Porting" Foreground="#953bf8"/>
+                                       FontSize="16" FontFamily="{StaticResource SFTextBold}"
+                                       Classes="TextFillColorPrimaryBrush"
+                                       VerticalAlignment="Center">
+                                <Run Text="Fortnite" />
+                                <Run Text="Porting" Foreground="#953bf8" />
                             </TextBlock>
-                
+
                             <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding VersionString}"
-                                   FontSize="13" FontFamily="{StaticResource SFTextRegular}"
-                                   Classes="TextFillColorSecondaryBrush"
-                                   VerticalAlignment="Center"/>
+                                       FontSize="13" FontFamily="{StaticResource SFTextRegular}"
+                                       Classes="TextFillColorSecondaryBrush"
+                                       VerticalAlignment="Center" />
                         </Grid>
                     </sidebar:Sidebar.Header>
                     <sidebar:Sidebar.Items>
-                        <sidebar:SidebarItemText Text="GENERAL"/>
-                        <sidebar:SidebarItemButton Text="Home" Icon="Home" Tag="{x:Type views:HomeView}"/>
-                        <sidebar:SidebarItemButton Text="News &amp; Updates" Icon="Newspaper" Tag="{x:Type views:NewsView}"/>
-                        
-                        <sidebar:SidebarItemSeparator/>
-                        
-                        <sidebar:SidebarItemText Text="EXPORT"/>
-                        <sidebar:SidebarItemButton Text="Assets" Icon="File" Tag="{x:Type views:AssetsView}" IsEnabled="{Binding UEParse.FinishedLoading}"/>
-                        <sidebar:SidebarItemButton Text="Files" Icon="Folder" Tag="{x:Type views:FilesView}" IsEnabled="{Binding UEParse.FinishedLoading}"/>
-                        <sidebar:SidebarItemButton Text="Map" Icon="Map" Tag="{x:Type views:MapView}" IsEnabled="{Binding UEParse.FinishedLoading}"/>
-                        <sidebar:SidebarItemButton Text="Music" Icon="Music" Tag="{x:Type views:MusicView}" IsEnabled="{Binding UEParse.FinishedLoading}"/>
-                        
-                        <sidebar:SidebarItemSeparator/>
-                        
-                        <sidebar:SidebarItemText Text="ONLINE"/>
-                        <sidebar:SidebarItemButton Text="Chat" Icon="Message" Tag="{x:Type views:ChatView}" 
-                                                      IsEnabled="{Binding SupaBase.IsLoggedIn}"
-                                                      IsVisible="{Binding OnlineStatus.Chat.Enabled}"/>
-                        <sidebar:SidebarItemButton Text="Leaderboard" Icon="Trophy" Tag="{x:Type views:LeaderboardView}" 
-                                                      IsEnabled="{Binding SupaBase.IsLoggedIn}"
-                                                      IsVisible="{Binding OnlineStatus.Leaderboard.Enabled}"/>
-                        
-                        <sidebar:SidebarItemSeparator/>
-                        
-                        <sidebar:SidebarItemText Text="SETTINGS"/>
-                        <sidebar:SidebarItemButton Text="Console" Icon="Console" Tag="{x:Type views:ConsoleView}" IsVisible="{Binding Settings.Debug.IsConsoleVisible}"/>
-                        <sidebar:SidebarItemButton Text="Plugin" Icon="Plug" Tag="{x:Type views:PluginView}"/>
-                        <sidebar:SidebarItemButton Text="Export Options" Icon="FileCog" Tag="{x:Type views:ExportSettingsView}"/>
-                        <sidebar:SidebarItemButton Text="App Settings" Icon="Settings" Tag="{x:Type views:SettingsView}"/>
-                        <sidebar:SidebarItemButton Text="Help" Icon="Help" Tag="{x:Type views:HelpView}"/>
-                        
+                        <sidebar:SidebarItemText Text="GENERAL" />
+                        <sidebar:SidebarItemButton Text="Home" Icon="Home" Tag="{x:Type views:HomeView}" />
+                        <sidebar:SidebarItemButton Text="News &amp; Updates" Icon="Newspaper"
+                                                   Tag="{x:Type views:NewsView}" />
+
+                        <sidebar:SidebarItemSeparator />
+
+                        <sidebar:SidebarItemText Text="EXPORT" />
+                        <sidebar:SidebarItemButton Text="Assets" Icon="File" Tag="{x:Type views:AssetsView}"
+                                                   IsEnabled="{Binding UEParse.FinishedLoading}" />
+                        <sidebar:SidebarItemButton Text="Files" Icon="Folder" Tag="{x:Type views:FilesView}"
+                                                   IsEnabled="{Binding UEParse.FinishedLoading}" />
+                        <sidebar:SidebarItemButton Text="Map" Icon="Map" Tag="{x:Type views:MapView}"
+                                                   IsEnabled="{Binding UEParse.FinishedLoading}" />
+                        <sidebar:SidebarItemButton Text="Music" Icon="Music" Tag="{x:Type views:MusicView}"
+                                                   IsEnabled="{Binding UEParse.FinishedLoading}" />
+
+                        <sidebar:SidebarItemSeparator />
+
+                        <sidebar:SidebarItemText Text="ONLINE" />
+                        <sidebar:SidebarItemButton Text="Chat" Icon="Message" Tag="{x:Type views:ChatView}"
+                                                   IsEnabled="{Binding SupaBase.IsLoggedIn}"
+                                                   IsVisible="{Binding OnlineStatus.Chat.Enabled}" />
+                        <sidebar:SidebarItemButton Text="Leaderboard" Icon="Trophy"
+                                                   Tag="{x:Type views:LeaderboardView}"
+                                                   IsEnabled="{Binding SupaBase.IsLoggedIn}"
+                                                   IsVisible="{Binding OnlineStatus.Leaderboard.Enabled}" />
+
+                        <sidebar:SidebarItemSeparator />
+
+                        <sidebar:SidebarItemText Text="SETTINGS" />
+                        <sidebar:SidebarItemButton Text="Console" Icon="Console" Tag="{x:Type views:ConsoleView}"
+                                                   IsVisible="{Binding Settings.Debug.IsConsoleVisible}" />
+                        <sidebar:SidebarItemButton Text="Plugin" Icon="Plug" Tag="{x:Type views:PluginView}" />
+                        <sidebar:SidebarItemButton Text="Export Options" Icon="FileCog"
+                                                   Tag="{x:Type views:ExportSettingsView}" />
+                        <sidebar:SidebarItemButton Text="App Settings" Icon="Settings"
+                                                   Tag="{x:Type views:SettingsView}" />
+                        <sidebar:SidebarItemButton Text="Help" Icon="Help" Tag="{x:Type views:HelpView}" />
+
                     </sidebar:Sidebar.Items>
-                    
+
                     <sidebar:Sidebar.Footer>
                         <Grid>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="{ext:Space 2}"/>
-                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="{ext:Space 2}" />
+                                <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
-                            
-                            <sidebar:SidebarItemSeparator Grid.Row="0"/>
-                            
-                            <Grid Grid.Row="2" RowDefinitions="*,*" IsVisible="{Binding Settings.Online.SupaBase.IsLoggedIn}">
+
+                            <sidebar:SidebarItemSeparator Grid.Row="0" />
+
+                            <Grid Grid.Row="2" RowDefinitions="*,*"
+                                  IsVisible="{Binding Settings.Online.SupaBase.IsLoggedIn}">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="{ext:Space 2}"/>
-                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="{ext:Space 2}" />
+                                    <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-        
+
                                 <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="0">
                                     <Ellipse Height="48" Width="48" RenderOptions.BitmapInterpolationMode="HighQuality">
                                         <Ellipse.Fill>
-                                            <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding SupaBase.UserInfo.AvatarUrl, FallbackValue='https://api.fortniteporting.app/images/UserDefault.png'}" Stretch="UniformToFill"/>
+                                            <ImageBrush
+                                                asyncImageLoader:ImageBrushLoader.Source="{Binding SupaBase.UserInfo.AvatarUrl, FallbackValue='https://api.fortniteporting.app/images/UserDefault.png'}"
+                                                Stretch="UniformToFill" />
                                         </Ellipse.Fill>
                                     </Ellipse>
                                 </Grid>
-        
-                                <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding SupaBase.UserInfo.DisplayName, FallbackValue='Anonymous'}" 
+
+                                <TextBlock Grid.Row="0" Grid.Column="2"
+                                           Text="{Binding SupaBase.UserInfo.DisplayName, FallbackValue='Anonymous'}"
                                            FontFamily="{StaticResource SFTextSemiBold}"
-                                           Classes="TextFillColorPrimaryBrush" VerticalAlignment="Center"/>
-                            
-                                <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding SupaBase.UserInfo.UserName, StringFormat='@{0}', FallbackValue='@anonymous'}" 
+                                           Classes="TextFillColorPrimaryBrush" VerticalAlignment="Center" />
+
+                                <TextBlock Grid.Row="1" Grid.Column="2"
+                                           Text="{Binding SupaBase.UserInfo.UserName, StringFormat='@{0}', FallbackValue='@anonymous'}"
                                            FontFamily="{StaticResource SFTextRegular}"
-                                           Classes="TextFillColorSecondaryBrush" VerticalAlignment="Center"/>
+                                           Classes="TextFillColorSecondaryBrush" VerticalAlignment="Center" />
                             </Grid>
-                            
-                            <Grid Grid.Row="2" RowDefinitions="*,*" IsVisible="{Binding !Settings.Online.SupaBase.IsLoggedIn}">
-                                <Button Grid.Row="0" Content="{controls:ImageText 'Sign In', 'avares://FortnitePorting/Assets/Icons/Discord.png'}" 
+
+                            <Grid Grid.Row="2" RowDefinitions="*,*"
+                                  IsVisible="{Binding !Settings.Online.SupaBase.IsLoggedIn}">
+                                <Button Grid.Row="0"
+                                        Content="{controls:ImageText 'Sign In', 'avares://FortnitePorting/Assets/Icons/Discord.png'}"
                                         HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                                        Command="{Binding Settings.Online.SupaBase.SignIn}"/>
+                                        Command="{Binding Settings.Online.SupaBase.SignIn}" />
                             </Grid>
                         </Grid>
                     </sidebar:Sidebar.Footer>
                 </sidebar:Sidebar>
             </Grid>
-            
-            <GridSplitter Grid.Column="0" HorizontalAlignment="Right" Opacity="0"/>
-            
+
+            <GridSplitter Grid.Column="0" HorizontalAlignment="Right" Opacity="0" />
+
             <Border x:Name="ContentBorder" Grid.Column="1" Background="#0a0a0a"
-                BorderThickness="2 2 0 0" CornerRadius="16 0 0 0"
-                BorderBrush="#212121" Margin="0 35 0 0" ClipToBounds="True">
-                <ui:Frame x:Name="ContentFrame" IsNavigationStackEnabled="False"/>
+                    BorderThickness="2 2 0 0" CornerRadius="16 0 0 0"
+                    BorderBrush="#212121" Margin="0 35 0 0" ClipToBounds="True">
+                <ui:Frame x:Name="ContentFrame" IsNavigationStackEnabled="False" />
             </Border>
         </Grid>
-        
-        <ContentControl Grid.Row="0" Grid.RowSpan="2" Content="{Binding SetupViewContent}" 
-                        IsVisible="{Binding !Settings.Installation.FinishedSetup}"/>
-        
+
+        <ContentControl Grid.Row="0" Grid.RowSpan="2" Content="{Binding SetupViewContent}"
+                        IsVisible="{Binding !Settings.Installation.FinishedSetup}" />
+
         <TransitioningContentControl Grid.Row="0" Grid.RowSpan="2" Content="{Binding BlackHole.Content}">
             <TransitioningContentControl.PageTransition>
-                <CrossFade Duration="0:00:00.25"/>
+                <CrossFade Duration="0:00:00.25" />
             </TransitioningContentControl.PageTransition>
         </TransitioningContentControl>
-        
+
         <ItemsControl Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Right" Width="500"
                       Margin="{ext:Space 1}" ItemsSource="{Binding Info.Messages}" ClipToBounds="False">
-             <ItemsControl.ItemTemplate>
-                 <DataTemplate>
-                     
-                     <controls:ContentCard ClipToBounds="False" Classes="FadeIn">
-                         <controls:ContentCard.BoxShadow>
-                             inset 0 1 2 -1 #50ffffff,
-                             inset 0 -1 2 -2 #50ffffff,
-                             0 4 8 #20000000,
-                             0 8 12 #10000000,
-                             0 0 16 4 #80000000
-                         </controls:ContentCard.BoxShadow>
-                         <controls:ContentCard.Styles>
-                             <Style Selector="controls|ContentCard.FadeIn">
-                                 <Style.Animations>
-                                     <Animation Duration="0:0:0.1">
-                                         <KeyFrame Cue="0%">
-                                             <Setter Property="Opacity" Value="0.0"/>
-                                         </KeyFrame>
-                                         <KeyFrame Cue="100%">
-                                             <Setter Property="Opacity" Value="1.0"/>
-                                         </KeyFrame>
-                                     </Animation>
-                                 </Style.Animations>
-                             </Style>
-                         </controls:ContentCard.Styles>
-                         <Grid Margin="{ext:Space 1.5}">
-                             <Grid.ColumnDefinitions>
-                                 <ColumnDefinition Width="*"/>
-                                 <ColumnDefinition Width="{ext:Space 1}"/>
-                                 <ColumnDefinition Width="Auto"/>
-                             </Grid.ColumnDefinitions>
-                             <Grid.RowDefinitions>
-                                 <RowDefinition Height="Auto"/>
-                                 <RowDefinition Height="*"/>
-                                 <RowDefinition Height="Auto"/>
-                             </Grid.RowDefinitions>
-                             
-                             <Grid Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"
-                                   ColumnDefinitions="Auto 8 *" Margin="{ext:Space 0, 0, 0, 0.5}">
-                                 <material:MaterialIcon Grid.Column="0" Kind="{Binding SeverityIcon}" VerticalAlignment="Center"/>
-                                 
-                                 <TextBlock Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center"
-                                            Text="{Binding Title}" Classes="BodyStrongTextBlockStyle"/>
-                             </Grid>
-                             
-                           
-                             
-                             <TextBlock Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"
-                                        TextWrapping="Wrap"
-                                        Text="{Binding Message}" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"/>
-                             
-                             <Button Grid.Row="0" Grid.RowSpan="2" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Top"
-                                     Margin="{ext:Space -0.5}"
-                                     Content="{material:MaterialIconExt Close}" Command="{Binding CloseCommand}"/>
-                             
-                             <Button Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Margin="{ext:Space 0, 1, 0, 0}" 
-                                     HorizontalAlignment="Stretch"
-                                     IsVisible="{Binding UseButton}"
-                                     Content="{Binding ButtonTitle}"
-                                     Command="{Binding ButtonCommand}"/>
-                         </Grid>
-                     </controls:ContentCard>
-                 </DataTemplate>
-             </ItemsControl.ItemTemplate>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <controls:ContentCard ClipToBounds="False" Classes="FadeIn">
+                        <controls:ContentCard.BoxShadow>
+                            inset 0 1 2 -1 #50ffffff,
+                            inset 0 -1 2 -2 #50ffffff,
+                            0 4 8 #20000000,
+                            0 8 12 #10000000,
+                            0 0 16 4 #80000000
+                        </controls:ContentCard.BoxShadow>
+                        <controls:ContentCard.Styles>
+                            <Style Selector="controls|ContentCard.FadeIn">
+                                <Style.Animations>
+                                    <Animation Duration="0:0:0.1">
+                                        <KeyFrame Cue="0%">
+                                            <Setter Property="Opacity" Value="0.0" />
+                                        </KeyFrame>
+                                        <KeyFrame Cue="100%">
+                                            <Setter Property="Opacity" Value="1.0" />
+                                        </KeyFrame>
+                                    </Animation>
+                                </Style.Animations>
+                            </Style>
+                        </controls:ContentCard.Styles>
+                        <Grid Margin="{ext:Space 1.5}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="{ext:Space 1}" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <Grid Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                  ColumnDefinitions="Auto 8 *" Margin="{ext:Space 0, 0, 0, 0.5}">
+                                <material:MaterialIcon Grid.Column="0" Kind="{Binding SeverityIcon}"
+                                                       VerticalAlignment="Center" />
+
+                                <TextBlock Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                           Text="{Binding Title}" Classes="BodyStrongTextBlockStyle" />
+                            </Grid>
+
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left"
+                                       VerticalAlignment="Center"
+                                       TextWrapping="Wrap"
+                                       Text="{Binding Message}"
+                                       Classes="BodyTextBlockStyle TextFillColorSecondaryBrush" />
+
+                            <Button Grid.Row="0" Grid.RowSpan="2" Grid.Column="2" HorizontalAlignment="Right"
+                                    VerticalAlignment="Top"
+                                    Margin="{ext:Space -0.5}"
+                                    Content="{material:MaterialIconExt Close}" Command="{Binding CloseCommand}" />
+
+                            <Button Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Margin="{ext:Space 0, 1, 0, 0}"
+                                    HorizontalAlignment="Stretch"
+                                    IsVisible="{Binding UseButton}"
+                                    Content="{Binding ButtonTitle}"
+                                    Command="{Binding ButtonCommand}" />
+                        </Grid>
+                    </controls:ContentCard>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <StackPanel Orientation="Vertical" Spacing="{ext:Space 1}"/>
+                    <StackPanel Orientation="Vertical" Spacing="{ext:Space 1}" />
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
-         </ItemsControl>
-        
+        </ItemsControl>
+
+        <Grid Grid.Row="0" Grid.RowSpan="2"  ColumnDefinitions="* * *" 
+              DataContext="{Binding Info.DialogData}"
+              Opacity="{Binding IsOpen, Converter={StaticResource BoolToOpacity}}">
+            <Grid.Transitions>
+                <Transitions>
+                    <DoubleTransition Property="Opacity"
+                                      Duration="0:0:0.2"
+                                      Easing="CubicEaseOut"/>
+                </Transitions>
+            </Grid.Transitions>
+            
+            <Border Grid.Column="0" Grid.ColumnSpan="3"
+                    Background="#80000000" IsHitTestVisible="False"/>
+            
+            <controls:ContentCard Grid.Column="1" ClipToBounds="False" IsEnabled="{Binding IsOpen}"
+                                  VerticalAlignment="Center">
+                <controls:ContentCard.BoxShadow>
+                    inset 0 1 2 -1 #50ffffff,
+                    inset 0 -1 2 -2 #50ffffff,
+                    0 4 8 #20000000,
+                    0 8 12 #10000000,
+                    0 0 16 4 #80000000
+                </controls:ContentCard.BoxShadow>
+                <Grid Margin="{ext:Space 3}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="{ext:Space 1}" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="{ext:Space 1}" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <Grid Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" >
+
+                        <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center"
+                                   Text="{Binding Title}" Classes="BodyStrongTextBlockStyle" FontSize="18" />
+                    </Grid>
+                    
+                    <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Left" VerticalAlignment="Center"
+                               TextWrapping="Wrap"
+                               Text="{Binding Message}" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush" />
+                    
+                    <ContentControl Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" ClipToBounds="False"
+                                    HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                                    Content="{Binding Content}"/>
+                    
+                    <ItemsControl Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" 
+                                  Margin="{ext:Space 0, 2, 0, 0}"
+                                  ItemsSource="{Binding Buttons}"
+                                  ClipToBounds="False">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="information:DialogButton">
+                                <Button Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" ClipToBounds="False"
+                                        HorizontalAlignment="Stretch"
+                                        Content="{Binding Text}"
+                                        Command="{Binding ExecuteCommand}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Spacing="{ext:Space 1.5}"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+
+                    <Button Grid.Row="0" Grid.RowSpan="2" Grid.Column="2" HorizontalAlignment="Right"
+                            IsVisible="{Binding CanClose}"
+                            VerticalAlignment="Top"
+                            Margin="{ext:Space -1}"
+                            Content="{material:MaterialIconExt Close}" Command="{Binding CloseCommand}" />
+
+                </Grid>
+            </controls:ContentCard>
+        </Grid>
+
         <Grid Grid.Row="0" HorizontalAlignment="Stretch" PointerPressed="OnPointerPressedUpperBar">
             <Grid HorizontalAlignment="Right">
                 <Grid.ColumnDefinitions>
@@ -229,10 +330,13 @@
                     <ColumnDefinition Width="{ext:Space 0.5}" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-            
-                <Border Grid.Column="0" PointerPressed="OnMinimizePressed" Cursor="Hand" CornerRadius="0" Classes="MinimizeMaximize" Child="{material:MaterialIconExt Minus}" Width="35" Height="35"/>
-                <Border Grid.Column="2" PointerPressed="OnMaximizePressed" Cursor="Hand" CornerRadius="0" Classes="MinimizeMaximize" Child="{material:MaterialIconExt Maximize}" Width="35" Height="35"/>
-                <Border Grid.Column="4" PointerPressed="OnClosePressed" Cursor="Hand" CornerRadius="0" Classes="Close" Child="{material:MaterialIconExt Close}" Width="35" Height="35"/>
+
+                <Border Grid.Column="0" PointerPressed="OnMinimizePressed" Cursor="Hand" CornerRadius="0"
+                        Classes="MinimizeMaximize" Child="{material:MaterialIconExt Minus}" Width="35" Height="35" />
+                <Border Grid.Column="2" PointerPressed="OnMaximizePressed" Cursor="Hand" CornerRadius="0"
+                        Classes="MinimizeMaximize" Child="{material:MaterialIconExt Maximize}" Width="35" Height="35" />
+                <Border Grid.Column="4" PointerPressed="OnClosePressed" Cursor="Hand" CornerRadius="0" Classes="Close"
+                        Child="{material:MaterialIconExt Close}" Width="35" Height="35" />
             </Grid>
         </Grid>
     </Grid>

@@ -8,6 +8,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Extensions;
+using FortnitePorting.Models.Information;
 using FortnitePorting.Models.Supabase.Tables;
 using Newtonsoft.Json;
 using Supabase.Realtime.Models;
@@ -59,24 +60,22 @@ public partial class ChatUserV2 : ObservableObject
             HorizontalAlignment = HorizontalAlignment.Stretch
         };
         
-        var dialog = new ContentDialog
-        {
-            Title = $"Set Role of {UserName}",
-            Content = comboBox,
-            CloseButtonText = "Cancel",
-            PrimaryButtonText = "Set",
-            PrimaryButtonCommand = new RelayCommand(async () =>
+        Info.Dialog($"Set Role for {UserName}", content: comboBox, buttons: 
+        [
+            new DialogButton
             {
-                var role = Enum.GetValues<ESupabaseRole>().FirstOrDefault(role => role.Description.Equals(comboBox.SelectedItem));
-                await SupaBase.Client.Rpc("set_role", new
+                Text = "Change Role",
+                Action = async () =>
                 {
-                    target_user_id = UserId,
-                    new_role = role.ToString().ToLower()
-                });
-            })
-        };
-
-        await dialog.ShowAsync();
+                    var role = Enum.GetValues<ESupabaseRole>().FirstOrDefault(role => role.Description.Equals(comboBox.SelectedItem));
+                    await SupaBase.Client.Rpc("set_role", new
+                    {
+                        target_user_id = UserId,
+                        new_role = role.ToString().ToLower()
+                    });
+                }
+            }
+        ]);
     }
 }
 
