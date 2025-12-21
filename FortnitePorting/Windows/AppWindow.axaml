@@ -320,6 +320,68 @@
                 </Grid>
             </controls:ContentCard>
         </Grid>
+        
+        
+        <Grid Grid.Row="0" Grid.RowSpan="2"  ColumnDefinitions="* * *" 
+              DataContext="{Binding Info.BroadcastQueue.Current}"
+              Opacity="{Binding IsOpen, Converter={StaticResource BoolToOpacity}, FallbackValue=0}">
+            <Grid.Transitions>
+                <Transitions>
+                    <DoubleTransition Property="Opacity"
+                                      Duration="0:0:0.2"
+                                      Easing="CubicEaseOut"/>
+                </Transitions>
+            </Grid.Transitions>
+            
+            <Border Grid.Column="0" Grid.ColumnSpan="3"
+                    Background="#80000000" IsHitTestVisible="False"/>
+            
+            <controls:ContentCard Grid.Column="1" ClipToBounds="False" IsEnabled="{Binding IsOpen, FallbackValue=False}"
+                                  VerticalAlignment="Center">
+                <controls:ContentCard.BoxShadow>
+                    inset 0 1 2 -1 #50ffffff,
+                    inset 0 -1 2 -2 #50ffffff,
+                    0 4 8 #20000000,
+                    0 8 12 #10000000,
+                    0 0 16 4 #80000000
+                </controls:ContentCard.BoxShadow>
+                <Grid Margin="{ext:Space 3}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="{ext:Space 1}" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="{ext:Space 1}" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                 
+                    <Grid Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"
+                          ColumnDefinitions="Auto 8 * 8 Auto" Margin="{ext:Space 0, 0, 0, 0.5}">
+                        <material:MaterialIcon Grid.Column="0" Kind="Information" VerticalAlignment="Center" />
+
+                        <TextBlock Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                   Text="{Binding Title}" Classes="BodyStrongTextBlockStyle" />
+                        
+                        <TextBlock Grid.Column="4" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                   Text="{Binding Timestamp, StringFormat={}{0:g}}" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush" />
+                    </Grid>
+                    
+                    <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Left" VerticalAlignment="Center"
+                               TextWrapping="Wrap"
+                               Text="{Binding Description}" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush" />
+                    
+                    <Button Grid.Row="0" Grid.RowSpan="2" Grid.Column="2" HorizontalAlignment="Right"
+                            VerticalAlignment="Top"
+                            Margin="{ext:Space -1}"
+                            Content="{material:MaterialIconExt Close}" Command="{Binding CloseCommand}" />
+
+                </Grid>
+            </controls:ContentCard>
+        </Grid>
 
         <Grid Grid.Row="0" HorizontalAlignment="Stretch" PointerPressed="OnPointerPressedUpperBar">
             <Grid HorizontalAlignment="Right">

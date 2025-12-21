@@ -38,20 +38,26 @@ public partial class HomeViewModel() : ViewModelBase
             await UEParse.Initialize();
             await FilesVM.Initialize();
         });
-        
-        Info.Dialog("Enjoying FortnitePorting?", "Consider donating to the Ko-Fi to support the development of the project!!", buttons: 
-        [
-            new DialogButton
-            {
-                Text = "Donate",
-                Action = LaunchKoFi
-            },
-            new DialogButton
-            {
-                Text = "Don't Ask Again",
-                Action = () => AppSettings.Application.DontAskAboutKofi = true
-            }
-        ]);
+
+        if (!AppSettings.Application.DontAskAboutKofi &&
+            DateTime.Now.Date >= AppSettings.Application.NextKofiAskDate)
+        {
+            AppSettings.Application.NextKofiAskDate = DateTime.Today.AddDays(7);
+            
+            Info.Dialog("Enjoying FortnitePorting?", "Consider donating to the Ko-Fi to support the development of the project!!", buttons: 
+            [
+                new DialogButton
+                {
+                    Text = "Donate",
+                    Action = LaunchKoFi
+                },
+                new DialogButton
+                {
+                    Text = "Don't Ask Again",
+                    Action = () => AppSettings.Application.DontAskAboutKofi = true
+                }
+            ]);
+        }
     }
 
     public void OpenNews(NewsResponse news)

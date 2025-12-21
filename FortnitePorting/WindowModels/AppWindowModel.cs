@@ -52,7 +52,11 @@ public partial class AppWindowModel(
         }
         
         OnlineStatus = await Api.FortnitePorting.Online();
-        Broadcasts = await Api.FortnitePorting.Broadcasts();
+
+        foreach (var broadcast in await Api.FortnitePorting.Broadcasts())
+        {
+            Info.Broadcast(broadcast);
+        }
 
         await CheckForUpdate(isAutomatic: true);
     }

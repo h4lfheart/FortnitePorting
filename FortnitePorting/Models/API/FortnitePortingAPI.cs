@@ -33,7 +33,7 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
     public async Task<FeaturedArtResponse[]> FeaturedArt() => await ExecuteAsync<FeaturedArtResponse[]>("v1/featured_art") ?? [];
     public async Task<OnlineResponse?> Online() => await ExecuteAsync<OnlineResponse?>("v1/static/online");
     public async Task<RepositoryResponse?> Repository() => await ExecuteAsync<RepositoryResponse?>("v1/static/repository");
-    public async Task<BroadcastResponse[]> Broadcasts() => await ExecuteAsync<BroadcastResponse[]?>("v1/broadcasts") ?? [];
+    public async Task<BroadcastResponse[]> Broadcasts() => await ExecuteAsync<BroadcastResponse[]?>("v1/broadcast") ?? [];
     
     public async Task PostMessage(string text, string? replyId = null, string? imagePath = null) => await ExecuteAsync("v1/chat/message", Method.Post, verbose: false, parameters: [
         new HeaderParameter("token", SupaBase.Client.Auth.CurrentSession!.AccessToken!),

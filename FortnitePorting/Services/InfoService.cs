@@ -8,6 +8,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.Utils;
 using FluentAvalonia.UI.Controls;
+using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.Information;
 using FortnitePorting.Models.Serilog;
 using FortnitePorting.Models.Supabase.Tables;
@@ -27,6 +28,7 @@ public partial class InfoService : ObservableObject, ILogEventSink, IService
     [ObservableProperty] private ObservableCollection<FortnitePortingLogEvent> _logs = [];
     [ObservableProperty] private ObservableCollection<MessageData> _messages = [];
     [ObservableProperty] private DialogQueue _dialogQueue = new();
+    [ObservableProperty] private BroadcastQueue _broadcastQueue = new();
     
     private readonly object _messageLock = new();
     
@@ -100,16 +102,24 @@ public partial class InfoService : ObservableObject, ILogEventSink, IService
     
     public void Dialog(string title, string? message = null, object? content = null, DialogButton[]? buttons = null, bool canClose = true)
     {
-        var dialog = new DialogData
+        DialogQueue.Enqueue(new DialogData
         {
             Title = title,
             Message = message,
             Content = content,
             Buttons = buttons is not null ? [..buttons] : [],
             CanClose = canClose
-        };
-
-        DialogQueue.Enqueue(dialog);
+        });
+    }
+    
+    public void Broadcast(BroadcastResponse broadcastResponse)
+    {
+        BroadcastQueue.Enqueue(new BroadcastData
+        {
+            Title = broadcastResponse.Title,
+            Description = broadcastResponse.Description,
+            Timestamp = broadcastResponse.Timestamp.ToLocalTime()
+        });
     }
     
     public void HandleException(Exception e)
