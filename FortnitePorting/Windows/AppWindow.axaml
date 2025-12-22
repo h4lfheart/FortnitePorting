@@ -9,6 +9,7 @@
         xmlns:controls="clr-namespace:FortnitePorting.Controls"
         xmlns:sidebar="clr-namespace:FortnitePorting.Controls.Navigation.Sidebar"
         xmlns:information="clr-namespace:FortnitePorting.Models.Information"
+        xmlns:loading="clr-namespace:FortnitePorting.Controls.Loading"
         x:Class="FortnitePorting.Windows.AppWindow"
         x:DataType="windowModels:AppWindowModel"
         Width="1600" Height="900" RequestedThemeVariant="Dark" Background="#0e0e0e" TransparencyLevelHint="Mica"
@@ -62,7 +63,15 @@
 
                         <sidebar:SidebarItemSeparator />
 
-                        <sidebar:SidebarItemText Text="EXPORT" />
+                        <sidebar:SidebarItemContent>
+                            <Grid ColumnDefinitions="* 8 Auto">
+                                
+                                <sidebar:SidebarItemText Grid.Column="0" Text="EXPORT" />
+                                
+                                <loading:ButtonPulseLoading Grid.Column="2" Width="64" Margin="{ext:Space -2, 0}" Opacity="0.5"
+                                                            IsVisible="{Binding !UEParse.FinishedLoading}"/>
+                            </Grid>
+                        </sidebar:SidebarItemContent>
                         <sidebar:SidebarItemButton Text="Assets" Icon="File" Tag="{x:Type views:AssetsView}"
                                                    IsEnabled="{Binding UEParse.FinishedLoading}" />
                         <sidebar:SidebarItemButton Text="Files" Icon="Folder" Tag="{x:Type views:FilesView}"

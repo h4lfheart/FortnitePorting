@@ -234,7 +234,9 @@
                             </ListBox.ItemsPanel>
                         </ListBox>
                         
-                        
+                        <TextBlock IsVisible="{Binding !AssetLoader.ActiveCollection.Count}" Text="No Assets Found" 
+                                   Classes="BodyTextBlockStyle TextFillColorTertiaryBrush"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
                     
                     </Grid>
                 </controls:ContentCard>
