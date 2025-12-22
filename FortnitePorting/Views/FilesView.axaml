@@ -226,7 +226,12 @@
                                                         </ContextMenu>
                                                     </ContentControl.ContextMenu>
                                                     
-                                                    <TextBlock Text="{Binding Path}"/>
+                                                    <controls:HighlightableTextBlock 
+                                                        HighlightBackground="#A9953BF8"
+                                                        HighlightForeground="White"
+                                                        TextToHighlight="{Binding Path}"
+                                                        HighlightText="{Binding $parent[views:FilesView].((viewModels:FilesViewModel)DataContext).FlatSearchFilter}"
+                                                        UseRegex="{Binding $parent[views:FilesView].((viewModels:FilesViewModel)DataContext).UseRegex}"/>
                                                 </ContentControl>
                                             </DataTemplate>
                                         </ListBox.ItemTemplate>
