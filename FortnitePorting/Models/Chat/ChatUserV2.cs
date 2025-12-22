@@ -84,4 +84,5 @@ public class ChatUserPresence : BasePresence
     [JsonProperty("user_id")] public string UserId;
     [JsonProperty("application")] public string Application;
     [JsonProperty("version")] public string Version;
+    [JsonProperty("is_typing")] public bool IsTyping;
 }
