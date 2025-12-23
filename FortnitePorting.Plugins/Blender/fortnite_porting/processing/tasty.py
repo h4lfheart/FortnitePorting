@@ -1,6 +1,7 @@
 import bpy
 
-from .import_context import *
+from .context import *
+from .utils import *
 from ..utils import *
 from mathutils import Matrix, Vector, Euler, Quaternion
 
