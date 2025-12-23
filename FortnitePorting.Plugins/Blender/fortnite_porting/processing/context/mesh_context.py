@@ -52,6 +52,8 @@ class MeshImportContext:
             # Update attribute to account for joined mesh
             self.update_preskinned_bounds(master_mesh)
             
+            self.parent_deform_bones(master_skeleton, ["dfrm_", "deform_"])
+            
             for material, elements in self.partial_vertex_crunch_materials.items():
                 vertex_crunch_modifier = master_mesh.modifiers.new("FPv3 Vertex Crunch", type="NODES")
                 vertex_crunch_modifier.node_group = bpy.data.node_groups.get("FPv3 Vertex Crunch")
@@ -300,6 +302,24 @@ class MeshImportContext:
         for vert in imported_mesh.data.vertices:
             preskinned_bounds.data[vert.index].vector = map_bounds(vert.co)
             
+    def parent_deform_bones(self, skeleton, prefixes):
+        bpy.context.view_layer.objects.active = skeleton
+        bpy.ops.object.mode_set(mode='EDIT')
+    
+        edit_bones = skeleton.data.edit_bones
+    
+        for bone in edit_bones:
+            for prefix in prefixes:
+                if bone.name.startswith(prefix):
+                    parent_name = bone.name[len(prefix):]
+                    parent_bone = edit_bones.get(parent_name)
+    
+                    if parent_bone:
+                        bone.parent = parent_bone
+                        bone.use_connect = False
+                    break
+    
+        bpy.ops.object.mode_set(mode='OBJECT')
     
     def import_light_data(self, lights, parent=None):
         if not lights:
