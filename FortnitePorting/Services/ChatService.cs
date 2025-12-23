@@ -30,7 +30,11 @@ public partial class ChatService : ObservableObject, IService
     public event EventHandler? MessageReceived; 
     
     [ObservableProperty] private ObservableDictionary<string, ChatMessageV2> _messages = [];
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(UsersByGroup))] private ObservableDictionary<string, ChatUserV2> _users = [];
+    
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(UsersByGroup)), NotifyPropertyChangedFor(nameof(UserMentionNames))] 
+    private ObservableDictionary<string, ChatUserV2> _users = [];
+
+    public IEnumerable<string> UserMentionNames => Users.Select(user => $"@{user.Value.UserName}");
     
     [ObservableProperty] private ObservableCollection<ChatUserV2> _typingUsers = [];
 

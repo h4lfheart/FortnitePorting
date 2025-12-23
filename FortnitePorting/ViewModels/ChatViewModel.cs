@@ -25,8 +25,7 @@ public partial class ChatViewModel(SupabaseService supabase, ChatService chatSer
     [ObservableProperty] private Bitmap _selectedImage;
     [ObservableProperty] private string _selectedImageName;
 
-    // TODO do we need this anymore
-    [ObservableProperty] private ObservableCollection<string> _commands = [];
+    public string MentionTextMatch => $"@{SupaBase.UserInfo.UserName}";
     
     [RelayCommand]
     public async Task OpenImage()
@@ -55,7 +54,8 @@ public partial class ChatViewModel(SupabaseService supabase, ChatService chatSer
 
     public override async Task OnViewOpened()
     {
-        Discord.Update($"Chatting with {Chat.Users.Count} Users");
+        Discord.Update($"Chatting with {Chat.Users.Count} {(Chat.Users.Count > 1 ? "Users" : "User")}");
+        
     }
 }
 

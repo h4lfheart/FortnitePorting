@@ -252,14 +252,7 @@
 
         <Grid Grid.Row="0" Grid.RowSpan="2"  ColumnDefinitions="* * *" 
               DataContext="{Binding Info.DialogQueue.Current}"
-              Opacity="{Binding IsOpen, Converter={StaticResource BoolToOpacity}, FallbackValue=0}">
-            <Grid.Transitions>
-                <Transitions>
-                    <DoubleTransition Property="Opacity"
-                                      Duration="0:0:0.2"
-                                      Easing="CubicEaseOut"/>
-                </Transitions>
-            </Grid.Transitions>
+              IsVisible="{Binding IsOpen, FallbackValue=False}">
             
             <Border Grid.Column="0" Grid.ColumnSpan="3"
                     Background="#80000000" IsHitTestVisible="False"/>
@@ -330,17 +323,9 @@
             </controls:ContentCard>
         </Grid>
         
-        
         <Grid Grid.Row="0" Grid.RowSpan="2"  ColumnDefinitions="* * *" 
               DataContext="{Binding Info.BroadcastQueue.Current}"
-              Opacity="{Binding IsOpen, Converter={StaticResource BoolToOpacity}, FallbackValue=0}">
-            <Grid.Transitions>
-                <Transitions>
-                    <DoubleTransition Property="Opacity"
-                                      Duration="0:0:0.2"
-                                      Easing="CubicEaseOut"/>
-                </Transitions>
-            </Grid.Transitions>
+              IsVisible="{Binding IsOpen, FallbackValue=False}">
             
             <Border Grid.Column="0" Grid.ColumnSpan="3"
                     Background="#80000000" IsHitTestVisible="False"/>

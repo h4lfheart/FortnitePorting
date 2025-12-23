@@ -12,6 +12,7 @@
              xmlns:framework="clr-namespace:FortnitePorting.Framework"
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
              xmlns:loading="clr-namespace:FortnitePorting.Controls.Loading"
+             xmlns:views="clr-namespace:FortnitePorting.Views"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FortnitePorting.Views.ChatView"
              x:DataType="viewModels:ChatViewModel">
@@ -127,10 +128,13 @@
                         
                         <StackPanel Grid.Row="1" Grid.RowSpan="2" Grid.Column="2" Grid.ColumnSpan="9">
                             <Grid IsVisible="{Binding Text, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
-                                <TextBlock IsVisible="{Binding !IsEditing}"
-                                           Text="{Binding Text}" TextWrapping="Wrap" 
+                                <controls:HighlightableTextBlock IsVisible="{Binding !IsEditing}"
+                                            HighlightBackground="#A9953BF8"
+                                            HighlightForeground="White"
+                                            HighlightText="{Binding $parent[views:ChatView].((viewModels:ChatViewModel)DataContext).MentionTextMatch}"
+                                           TextToHighlight="{Binding Text}" TextWrapping="Wrap" 
                                            Classes="BodyTextBlockStyle TextFillColorSecondaryBrush" VerticalAlignment="Center">
-                                </TextBlock>
+                                </controls:HighlightableTextBlock>
                         
                                 <TextBox IsVisible="{Binding IsEditing}"
                                          KeyDown="OnEditBoxKeyDown" Margin="{ext:Space 0, 0.5}"
@@ -257,7 +261,7 @@
             </ui:TeachingTip>
                     
             <AutoCompleteBox Grid.Row="2" Grid.Column="1" x:Name="TextBox" Text="{Binding Text}"
-                             ItemsSource="{Binding Commands}" Watermark="Enter a message"
+                             ItemsSource="{Binding Chat.UserMentionNames}" Watermark="Enter a message"
                              TextChanged="OnTextBoxTextChanged"/>
             
         </Grid>

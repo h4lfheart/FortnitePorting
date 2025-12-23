@@ -22,6 +22,8 @@ namespace FortnitePorting.Views;
 
 public partial class ChatView : ViewBase<ChatViewModel>
 {
+    private bool _isAtBottom = true;
+    
     public ChatView()
     {
         InitializeComponent();
@@ -36,6 +38,11 @@ public partial class ChatView : ViewBase<ChatViewModel>
         Chat.Messages.CollectionChanged += (sender, args) =>
         {
             TaskService.RunDispatcher(TryScrollToEnd);
+        };
+
+        Scroll.ScrollChanged += (sender, args) =>
+        {
+            _isAtBottom = Math.Abs(Scroll.Offset.Y - Scroll.Extent.Height + Scroll.Viewport.Height) < 100;
         };
         
         Scroll.LayoutUpdated += (sender, args) =>
@@ -54,6 +61,8 @@ public partial class ChatView : ViewBase<ChatViewModel>
 
     private void TryScrollToEnd()
     {
+        if (!_isAtBottom) return; 
+        
         var isScrolledToEnd = Math.Abs(Scroll.Offset.Y - Scroll.Extent.Height + Scroll.Viewport.Height) < 500;
         if (isScrolledToEnd)
         {
