@@ -14,11 +14,11 @@ public partial class LeaderboardStreak : ObservableObject
     [ObservableProperty] [JsonProperty("rank")] private int _ranking;
     [ObservableProperty] [JsonProperty("user_id")] private string _userId;
 
-    [ObservableProperty] [JsonProperty("streak")] private int _streak;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(DayText))] [JsonProperty("streak")] private int _streak;
     
     [ObservableProperty] private UserInfoResponse? _userInfo;
 
-    public Bitmap? MedalBitmap => Ranking <= 3 ? ImageExtensions.GetMedalBitmap(Ranking) : null;
+    public string DayText => Streak == 1 ? "Day" : "Days";
     
     public SolidColorBrush UserBrush => new(UserInfo?.Role switch
     {

@@ -66,7 +66,15 @@
                                     HorizontalAlignment="Center">
                             
                             <avalonia:MaterialIcon Kind="Fire" VerticalAlignment="Center"
-                                                   Width="24" Height="24"/>
+                                                   Width="24" Height="24">
+                                <avalonia:MaterialIcon.Foreground>
+                                    <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                                        <GradientStop Color="Yellow" Offset="0"/>
+                                        <GradientStop Color="Orange" Offset="0.5"/>
+                                        <GradientStop Color="Red" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </avalonia:MaterialIcon.Foreground>
+                            </avalonia:MaterialIcon>
                             
                             <TextBlock Text="{Binding Stats.CurrentStreak}" 
                                 Classes="SubtitleTextBlockStyle"
@@ -93,8 +101,15 @@
                         <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="{ext:Space 1}"
                                     HorizontalAlignment="Center">
                             
-                            <avalonia:MaterialIcon Kind="Export" VerticalAlignment="Center"
-                                                   Width="24" Height="24"/>
+                            <avalonia:MaterialIcon Kind="Download" Width="24" Height="24" VerticalAlignment="Center">
+                                <avalonia:MaterialIcon.Foreground>
+                                    <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                                        <GradientStop Color="#47E34F" Offset="0"/>
+                                        <GradientStop Color="#388E3C" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </avalonia:MaterialIcon.Foreground>
+                            </avalonia:MaterialIcon>
+
                             
                             <TextBlock Text="{Binding Stats.TotalExports}" 
                                        Classes="SubtitleTextBlockStyle"
@@ -122,7 +137,14 @@
                                     HorizontalAlignment="Center">
                             
                             <avalonia:MaterialIcon Kind="Folder" VerticalAlignment="Center"
-                                                   Width="24" Height="24"/>
+                                                   Width="24" Height="24">
+                                <avalonia:MaterialIcon.Foreground>
+                                    <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                                        <GradientStop Color="#4FC3F7" Offset="0"/>
+                                        <GradientStop Color="#0288D1" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </avalonia:MaterialIcon.Foreground>
+                            </avalonia:MaterialIcon>
                             
                             <TextBlock Text="{Binding Stats.TotalAssets}" 
                                        Classes="SubtitleTextBlockStyle"
@@ -150,7 +172,14 @@
                                     HorizontalAlignment="Center">
                             
                             <avalonia:MaterialIcon Kind="Trophy" VerticalAlignment="Center"
-                                                   Width="24" Height="24"/>
+                                                   Width="24" Height="24">
+                                <avalonia:MaterialIcon.Foreground>
+                                    <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                                        <GradientStop Color="Yellow" Offset="0"/>
+                                        <GradientStop Color="Orange" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </avalonia:MaterialIcon.Foreground>
+                            </avalonia:MaterialIcon>
                             
                             <TextBlock Text="{Binding MostPopularExport.ObjectName, FallbackValue='N/A'}" 
                                        TextTrimming="CharacterEllipsis"
@@ -169,7 +198,7 @@
                 </controls:ContentCard>
             </Grid>
 
-            <ItemsControl Grid.Row="4" ItemsSource="{Binding Exports}" ClipToBounds="False">
+            <ItemsControl Grid.Row="4" ItemsSource="{Binding Items}" ClipToBounds="False">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <controls:ContentCard
@@ -281,12 +310,11 @@
 
             <Grid Grid.Row="6" 
                   ColumnDefinitions="Auto * Auto"
-                  IsVisible="{Binding !!Exports.Count}">
+                  IsVisible="{Binding !!Items.Count}">
                 
                 <Button Grid.Column="0" 
                         Padding="{ext:Space 1, 0.75, 1.5, 0.75}"
-                        Command="{Binding PreviousPageCommand}"
-                        IsEnabled="{Binding !IsLoading}">
+                        Command="{Binding PreviousPageCommand}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <avalonia:MaterialIcon Kind="ChevronLeft" Width="16" Height="16"/>
                         <TextBlock Text="Previous"/>
@@ -305,8 +333,7 @@
 
                 <Button Grid.Column="2" 
                         Padding="{ext:Space 1.5, 0.75, 1, 0.75}"
-                        Command="{Binding NextPageCommand}"
-                        IsEnabled="{Binding !IsLoading}">
+                        Command="{Binding NextPageCommand}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <TextBlock Text="Next"/>
                         <avalonia:MaterialIcon Kind="ChevronRight" Width="16" Height="16"/>

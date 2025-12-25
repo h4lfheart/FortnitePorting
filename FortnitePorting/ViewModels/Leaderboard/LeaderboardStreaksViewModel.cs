@@ -1,20 +1,15 @@
-using System.Collections.ObjectModel;
 using System.Threading.Tasks;
-using CommunityToolkit.Mvvm.ComponentModel;
-using FortnitePorting.Framework;
 using FortnitePorting.Models.Leaderboard;
-using FortnitePorting.Shared.Extensions;
 
 namespace FortnitePorting.ViewModels.Leaderboard;
 
-public partial class LeaderboardStreaksViewModel : ViewModelBase
+public partial class LeaderboardStreaksViewModel : LeaderboardViewModelBase<LeaderboardStreak>
 {
-    [ObservableProperty] private ObservableCollection<LeaderboardStreak> _streaks = [];
+    protected override string PageCountFunctionName => "leaderboard_streaks_page_count";
+    protected override string PageDataFunctionName => "leaderboard_streaks";
 
-    public override async Task OnViewOpened()
+    protected override async Task LoadItem(LeaderboardStreak item)
     {
-        var streaks = await SupaBase.Client.Rpc<LeaderboardStreak[]>("leaderboard_streaks", new {}) ?? [];
-        streaks.ForEach(async streaks => await streaks.Load());
-        Streaks = [..streaks];
+        await item.Load();
     }
 }
