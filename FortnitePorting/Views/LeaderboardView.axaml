@@ -16,10 +16,10 @@
         <sidebar:Sidebar x:Name="Sidebar" Grid.Column="0" ItemSelected="OnItemSelected">
             <sidebar:Sidebar.Items>
                 <sidebar:SidebarItemText Text="LEADERBOARD"/>
+                <sidebar:SidebarItemButton Text="Personal" Icon="Database" Tag="{x:Type leaderboard:LeaderboardPersonalView}"/>
                 <sidebar:SidebarItemButton Text="Assets" Icon="Folder" Tag="{x:Type leaderboard:LeaderboardExportsView}"/>
                 <sidebar:SidebarItemButton Text="Users" Icon="Account" Tag="{x:Type leaderboard:LeaderboardUsersView}"/>
                 <sidebar:SidebarItemButton Text="Streaks" Icon="Fire" Tag="{x:Type leaderboard:LeaderboardStreaksView}"/>
-                <sidebar:SidebarItemButton Text="Personal" Icon="Database" IsEnabled="False"/>
             </sidebar:Sidebar.Items>
         </sidebar:Sidebar>
         

@@ -1,6 +1,8 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using Supabase;
 using Supabase.Realtime.Models;
 
 namespace FortnitePorting.Extensions;
@@ -26,4 +28,24 @@ public static class SupabaseExtensions
             return (T) property;
         }
     }
+
+    extension(Client client)
+    {
+        public async Task<T[]> CallTableFunction<T>(string name, object? args = null)
+        {
+            return await client.Rpc<T[]>(name, args ?? new { }) ?? [];
+        }
+        
+        public async Task<T?> CallPrimitiveFunction<T>(string name, object? args = null)
+        {
+            return await client.Rpc<T>(name, args ?? new { }) ?? default;
+        }
+        
+        public async Task<T?> CallObjectFunction<T>(string name, object? args = null)
+        {
+            var result = await client.Rpc<T[]>(name, args ?? new { });
+            return result is null ? default : result.FirstOrDefault();
+        }
+    }
+    
 }

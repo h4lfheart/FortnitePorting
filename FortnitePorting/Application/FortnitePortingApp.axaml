@@ -129,6 +129,7 @@
             </Style>
         </Style>
         
+        
         <Style Selector="Button[IsVisible=true]">
             <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
             <Setter Property="BorderThickness" Value="0"/>

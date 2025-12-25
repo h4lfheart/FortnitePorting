@@ -60,6 +60,13 @@
         <ProjectReference Include="..\FortnitePorting.Shared\FortnitePorting.Shared.csproj" />
         <ProjectReference Include="..\Dependencies\FluentAvalonia.BreadcrumbBar\FluentAvalonia.BreadcrumbBar\FluentAvalonia.BreadcrumbBar.csproj" />
     </ItemGroup>
+    
+    <ItemGroup>
+      <Compile Update="Views\Leaderboard\LeaderboardPersonalView.axaml.cs">
+        <DependentUpon>LeaderboardPersonalView.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+    </ItemGroup>
 
     <PropertyGroup>
         <PublishSingleFile>true</PublishSingleFile>

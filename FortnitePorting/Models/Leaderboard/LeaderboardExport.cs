@@ -106,7 +106,7 @@ public partial class LeaderboardExport : ObservableObject
 
     private void SetFailureDefaults()
     {
-        ExportBitmap = ImageExtensions.GetMedalBitmap(Ranking);
+        ExportBitmap = ImageExtensions.AvaresBitmap("avares://FortnitePorting/Assets/Unreal/DataAsset_64x.png");
         ObjectName = ID;
     }
 }
