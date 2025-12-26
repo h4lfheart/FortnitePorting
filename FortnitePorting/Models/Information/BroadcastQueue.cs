@@ -49,6 +49,7 @@ public partial class BroadcastQueue : ObservableObject
             else
             {
                 Current?.IsOpen = false;
+                Current = null;
             }
         }
     }

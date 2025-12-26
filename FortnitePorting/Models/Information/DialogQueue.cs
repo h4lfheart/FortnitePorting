@@ -49,6 +49,7 @@ public partial class DialogQueue : ObservableObject
             else
             {
                 Current?.IsOpen = false;
+                Current = null;
             }
         }
     }

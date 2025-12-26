@@ -379,7 +379,7 @@ public partial class FilesViewModel : ViewModelBase
             if (UEParse.Provider.TryLoadObjectExports(selectedItemPath, out var exports))
             {
                 var json = JsonConvert.SerializeObject(exports, Formatting.Indented);
-                PropertiesPreviewWindow.Preview(selectedItemPath.SubstringAfterLast("/").SubstringBefore("."), json);
+                await TaskService.RunDispatcherAsync(() => PropertiesPreviewWindow.Preview(selectedItemPath.SubstringAfterLast("/").SubstringBefore("."), json));
             }
         }
         catch (Exception)
