@@ -1,9 +1,12 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
+using FortnitePorting.Extensions;
 using FortnitePorting.Models.API.Responses;
+using FortnitePorting.Models.Levels;
 using FortnitePorting.Models.Supabase.Tables;
 using FortnitePorting.Models.Supabase.User;
 using Mapster;
@@ -61,8 +64,12 @@ public partial class SupabaseService : ObservableObject, IService
     [ObservableProperty] private bool _isLoggedIn;
     
     [ObservableProperty] private UserInfoResponse? _userInfo;
+    [ObservableProperty] private LevelStats? _levelStats;
+    [ObservableProperty] private LevelStats? _prevLevelStats;
     [ObservableProperty] private UserPermissions _permissions = new();
 
+    public event EventHandler<int> LevelUp; 
+    
     private ProviderAuthState? _currentAuthState;
     private bool _postedLogin;
     
@@ -133,6 +140,19 @@ public partial class SupabaseService : ObservableObject, IService
         await Client.From<Permissions>().On(PostgresChangesOptions.ListenType.All, (channel, response) =>
         {
             Permissions = response.Model<Permissions>().Adapt<UserPermissions>();
+        });
+        
+        LevelStats = await Client.CallObjectFunction<LevelStats>("get_level_stats");
+        
+        await Client.From<Levels>().On(PostgresChangesOptions.ListenType.All, async (channel, response) =>
+        {
+            PrevLevelStats = LevelStats;
+            LevelStats = await Client.CallObjectFunction<LevelStats>("get_level_stats");
+
+            if (PrevLevelStats?.Level != LevelStats?.Level)
+            {
+                LevelUp?.Invoke(this, LevelStats?.Level ?? 0);
+            }
         });
             
         await LoadUserInfo();

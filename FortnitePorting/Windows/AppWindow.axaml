@@ -116,33 +116,68 @@
 
                             <sidebar:SidebarItemSeparator Grid.Row="0" />
 
-                            <Grid Grid.Row="2" RowDefinitions="*,*"
-                                  IsVisible="{Binding Settings.Online.SupaBase.IsLoggedIn}">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="{ext:Space 2}" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
+                            <Grid Grid.Row="2" IsVisible="{Binding Settings.Online.SupaBase.IsLoggedIn}">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="{ext:Space 2}"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                
+                                <Grid Grid.Row="0" RowDefinitions="*,*">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="{ext:Space 2}" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
 
-                                <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="0">
-                                    <Ellipse Height="48" Width="48" RenderOptions.BitmapInterpolationMode="HighQuality">
-                                        <Ellipse.Fill>
-                                            <ImageBrush
-                                                asyncImageLoader:ImageBrushLoader.Source="{Binding SupaBase.UserInfo.AvatarUrl, FallbackValue='https://api.fortniteporting.app/images/UserDefault.png'}"
-                                                Stretch="UniformToFill" />
-                                        </Ellipse.Fill>
-                                    </Ellipse>
+                                    <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="0">
+                                        <Ellipse Height="48" Width="48" RenderOptions.BitmapInterpolationMode="HighQuality">
+                                            <Ellipse.Fill>
+                                                <ImageBrush
+                                                    asyncImageLoader:ImageBrushLoader.Source="{Binding SupaBase.UserInfo.AvatarUrl, FallbackValue='https://api.fortniteporting.app/images/UserDefault.png'}"
+                                                    Stretch="UniformToFill" />
+                                            </Ellipse.Fill>
+                                        </Ellipse>
+                                    </Grid>
+
+                                    <TextBlock Grid.Row="0" Grid.Column="2"
+                                               Text="{Binding SupaBase.UserInfo.DisplayName, FallbackValue='Anonymous'}"
+                                               FontFamily="{StaticResource SFTextSemiBold}"
+                                               Classes="TextFillColorPrimaryBrush" VerticalAlignment="Center" />
+
+                                    <TextBlock Grid.Row="1" Grid.Column="2"
+                                               Text="{Binding SupaBase.UserInfo.UserName, StringFormat='@{0}', FallbackValue='@anonymous'}"
+                                               FontFamily="{StaticResource SFTextRegular}"
+                                               Classes="TextFillColorSecondaryBrush" VerticalAlignment="Center" />
                                 </Grid>
-
-                                <TextBlock Grid.Row="0" Grid.Column="2"
-                                           Text="{Binding SupaBase.UserInfo.DisplayName, FallbackValue='Anonymous'}"
-                                           FontFamily="{StaticResource SFTextSemiBold}"
-                                           Classes="TextFillColorPrimaryBrush" VerticalAlignment="Center" />
-
-                                <TextBlock Grid.Row="1" Grid.Column="2"
-                                           Text="{Binding SupaBase.UserInfo.UserName, StringFormat='@{0}', FallbackValue='@anonymous'}"
-                                           FontFamily="{StaticResource SFTextRegular}"
-                                           Classes="TextFillColorSecondaryBrush" VerticalAlignment="Center" />
+                                
+                                <Grid Grid.Row="2" Margin="{ext:Space 0.5, 0}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="{ext:Space 1}"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    
+                                    <TextBlock Grid.Row="0" Text="{Binding SupaBase.LevelStats.Level, StringFormat='Level {0}'}" Classes="BodyStrongTextBlockStyle"
+                                               HorizontalAlignment="Left"/>
+                                    <TextBlock Grid.Row="0" Text="{Binding SupaBase.LevelStats.XPFractionText}" Classes="CaptionTextBlockStyle TextFillColorSecondaryBrush" 
+                                               HorizontalAlignment="Right"/>
+                                    
+                                    <ProgressBar Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Center" 
+                                                 Height="8" MinWidth="0" Minimum="0"
+                                                 Value="{Binding SupaBase.LevelStats.XPIntoNextLevel}"
+                                                 Maximum="{Binding SupaBase.LevelStats.XPForNextLevel}">
+                                        <ProgressBar.Transitions>
+                                            <Transitions>
+                                                <DoubleTransition Property="Value" Duration="0:0:0.5">
+                                                    <DoubleTransition.Easing>
+                                                        <CubicEaseOut/>
+                                                    </DoubleTransition.Easing>
+                                                </DoubleTransition>
+                                            </Transitions>
+                                        </ProgressBar.Transitions>
+                                    </ProgressBar>
+                                </Grid>
                             </Grid>
 
                             <Grid Grid.Row="2" RowDefinitions="*,*"
@@ -376,6 +411,10 @@
                 </Grid>
             </controls:ContentCard>
         </Grid>
+        
+        <controls:LevelUpOverlay x:Name="LevelUpOverlay" 
+                                 Grid.Row="0" 
+                                 Grid.RowSpan="2" />
 
         <Grid Grid.Row="0" HorizontalAlignment="Stretch" PointerPressed="OnPointerPressedUpperBar">
             <Grid HorizontalAlignment="Right">

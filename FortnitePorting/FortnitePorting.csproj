@@ -66,6 +66,10 @@
         <DependentUpon>LeaderboardPersonalView.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
+      <Compile Update="Views\Leaderboard\LeaderboardLevelsView.axaml.cs">
+        <DependentUpon>LeaderboardLevelsView.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
     </ItemGroup>
 
     <PropertyGroup>
