@@ -16,5 +16,6 @@ public partial class LeaderboardStats : ObservableObject
     [ObservableProperty] [JsonProperty("total_assets")] private int _totalAssets;
     [ObservableProperty] [JsonProperty("most_exported_object_path")] private string _mostPopularObjectPath;
     [ObservableProperty] [JsonProperty("most_exported_object_count")] private int _mostPopularObjectCount;
+    [ObservableProperty] [JsonProperty("total_xp")] private long _totalXP;
 
 }

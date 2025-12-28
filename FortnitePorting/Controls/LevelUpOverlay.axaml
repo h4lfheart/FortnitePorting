@@ -37,7 +37,7 @@
                     VerticalAlignment="Center">
                 <StackPanel Spacing="10">
                     <TextBlock x:Name="LevelText"
-                               Text="42"
+                               Text="0"
                                FontSize="100"
                                FontFamily="{StaticResource SFTextBold}"
                                HorizontalAlignment="Center"
@@ -45,8 +45,8 @@
                                TextAlignment="Center">
                         <TextBlock.Foreground>
                             <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
-                                <GradientStop Color="#953bf8" Offset="0"/>
-                                <GradientStop Color="#b565ff" Offset="1"/>
+                                <GradientStop Color="#b565ff" Offset="0"/>
+                                <GradientStop Color="#953bf8" Offset="1"/>
                             </LinearGradientBrush>
                         </TextBlock.Foreground>
                         <TextBlock.Effect>

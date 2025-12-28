@@ -104,8 +104,8 @@
                             <avalonia:MaterialIcon Kind="Download" Width="24" Height="24" VerticalAlignment="Center">
                                 <avalonia:MaterialIcon.Foreground>
                                     <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
-                                        <GradientStop Color="#47E34F" Offset="0"/>
-                                        <GradientStop Color="#388E3C" Offset="1"/>
+                                        <GradientStop Color="#6CFF73" Offset="0"/>
+                                        <GradientStop Color="#2E7D32" Offset="1"/>
                                     </LinearGradientBrush>
                                 </avalonia:MaterialIcon.Foreground>
                             </avalonia:MaterialIcon>
@@ -171,17 +171,17 @@
                         <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="{ext:Space 1}"
                                     HorizontalAlignment="Center">
                             
-                            <avalonia:MaterialIcon Kind="Trophy" VerticalAlignment="Center"
+                            <avalonia:MaterialIcon Kind="Poll" VerticalAlignment="Center"
                                                    Width="24" Height="24">
                                 <avalonia:MaterialIcon.Foreground>
                                     <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
-                                        <GradientStop Color="Yellow" Offset="0"/>
-                                        <GradientStop Color="Orange" Offset="1"/>
+                                        <GradientStop Color="#b565ff" Offset="0"/>
+                                        <GradientStop Color="#953bf8" Offset="1"/>
                                     </LinearGradientBrush>
                                 </avalonia:MaterialIcon.Foreground>
                             </avalonia:MaterialIcon>
                             
-                            <TextBlock Text="{Binding MostPopularExport.ObjectName, FallbackValue='N/A'}" 
+                            <TextBlock Text="{Binding Stats.TotalXP}" 
                                        TextTrimming="CharacterEllipsis"
                                        Classes="SubtitleTextBlockStyle"
                                        FontSize="22"
@@ -189,9 +189,9 @@
                         </StackPanel>
                      
                         <StackPanel Grid.Row="2" HorizontalAlignment="Center">
-                            <TextBlock Text="Top Asset" HorizontalAlignment="Center"
+                            <TextBlock Text="Total XP" HorizontalAlignment="Center"
                                        Classes="BodyTextBlockStyle"/>
-                            <TextBlock Text="{Binding MostPopularExport.ExportCount, StringFormat='{}{0:N0} exports', FallbackValue='0 exports'}" HorizontalAlignment="Center"
+                            <TextBlock Text="All-Time" HorizontalAlignment="Center"
                                        Classes="CaptionTextBlockStyle TextFillColorSecondaryBrush"/>
                         </StackPanel>
                     </Grid>
