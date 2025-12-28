@@ -110,15 +110,7 @@
                             Content="{controls:IconText 'Clear Selected', Broom}"/>
                 </Grid>
                 
-                <ScrollViewer Grid.Row="4">
-                    <ScrollViewer.OpacityMask>
-                        <LinearGradientBrush StartPoint="0%, 90%" EndPoint="0%, 100%">
-                            <GradientStops>
-                                <GradientStop Color="#FFFFFFFF" Offset="0" />
-                                <GradientStop Color="#00FFFFFF" Offset="1" />
-                            </GradientStops>
-                        </LinearGradientBrush>
-                    </ScrollViewer.OpacityMask>
+                <controls:DynamicFadeScrollViewer Grid.Row="4">
                     <ItemsControl ItemsSource="{Binding SelectedMap.SelectedMaps, Mode=TwoWay}"
                                   HorizontalAlignment="Stretch">
                         <ItemsControl.ItemTemplate>
@@ -139,7 +131,7 @@
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                     </ItemsControl>
-                </ScrollViewer>
+                </controls:DynamicFadeScrollViewer>
 
                 <TextBlock Grid.Row="4" Text="No Grids Selected" TextAlignment="Center" FontFamily="{StaticResource SFTextRegular}"
                            Classes="TextFillColorSecondaryBrush"

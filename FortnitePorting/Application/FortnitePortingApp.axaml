@@ -97,6 +97,20 @@
         <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
         <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
         
+        <Style Selector="controls|DynamicFadeScrollViewer">
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Border Name="PART_FadeContainer">
+                        <ScrollViewer x:Name="PART_ScrollViewer"
+                                      HorizontalScrollBarVisibility="{TemplateBinding HorizontalScrollBarVisibility}"
+                                      VerticalScrollBarVisibility="{TemplateBinding VerticalScrollBarVisibility}">
+                            <ContentPresenter Content="{TemplateBinding Content}"/>
+                        </ScrollViewer>
+                    </Border>
+                </ControlTemplate>
+            </Setter>
+        </Style>
+        
         <Style Selector="controls|ContentCard">
             <Setter Property="Background">
                 <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">

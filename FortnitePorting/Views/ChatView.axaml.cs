@@ -34,9 +34,7 @@ public partial class ChatView : ViewBase<ChatViewModel>
 
         Scroll.ScrollChanged += (sender, args) =>
         {
-            var distanceFromBottom =
-                Scroll.Extent.Height - Scroll.Viewport.Height - Scroll.Offset.Y;
-
+            var distanceFromBottom = Scroll.Extent.Height - Scroll.Viewport.Height - Scroll.Offset.Y;
             _shouldAutoScroll = distanceFromBottom <= AutoScrollThreshold;
 
             if (_shouldAutoScroll)

@@ -182,17 +182,11 @@
         </Grid.ColumnDefinitions>
         
         <Grid Grid.Row="0" Grid.Column="0">
-            <ScrollViewer x:Name="Scroll">
-                <ScrollViewer.OpacityMask>
-                    <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 10%">
-                        <GradientStops>
-                            <GradientStop Color="#00FFFFFF" Offset="0"/> 
-                            <GradientStop Color="#FFFFFFFF" Offset="1"/> 
-                        </GradientStops>
-                    </LinearGradientBrush>
-                </ScrollViewer.OpacityMask>
-                <ItemsControl ItemsSource="{Binding Chat.Messages}" Margin="{ext:Space 1, 1, 1, 0}" ItemTemplate="{StaticResource MessageTemplate}"/>
-            </ScrollViewer>
+            <controls:DynamicFadeScrollViewer x:Name="Scroll"
+                                              HorizontalScrollBarVisibility="Disabled"
+                                              VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding Chat.Messages}" Margin="{ext:Space 1, 0}" ItemTemplate="{StaticResource MessageTemplate}"/>
+            </controls:DynamicFadeScrollViewer>
             
             <Border IsVisible="{Binding ShowNewMessageIndicator}"
                     Background="#953BF8"
