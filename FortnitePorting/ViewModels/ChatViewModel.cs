@@ -27,6 +27,13 @@ public partial class ChatViewModel(SupabaseService supabase, ChatService chatSer
 
     public string MentionTextMatch => $"@{SupaBase.UserInfo.UserName}";
     
+    [ObservableProperty] private bool _showNewMessageIndicator = false;
+    
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(NewMessageCountText))] private int _unreadMessageCount = 0;
+    
+    public string NewMessageCountText => UnreadMessageCount == 1 ? "1 New Message" : $"{UnreadMessageCount} New Messages";
+
+    
     [RelayCommand]
     public async Task OpenImage()
     {
@@ -51,11 +58,21 @@ public partial class ChatViewModel(SupabaseService supabase, ChatService chatSer
             ImageFlyout.IsOpen = true;
         }
     }
+    
+    public void IncrementNewMessageIndicator()
+    {
+        UnreadMessageCount++;
+        ShowNewMessageIndicator = true;
+    }
+
+    public void ClearNewMessageIndicator()
+    {
+        UnreadMessageCount = 0;
+        ShowNewMessageIndicator = false;
+    }
 
     public override async Task OnViewOpened()
     {
         Discord.Update($"Chatting with {Chat.Users.Count} {(Chat.Users.Count > 1 ? "Users" : "User")}");
-        
     }
 }
-
