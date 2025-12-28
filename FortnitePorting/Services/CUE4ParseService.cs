@@ -119,6 +119,8 @@ public partial class CUE4ParseService : ObservableObject, IService
         
         UpdateStatus("Loading Game Files");
         await InitializeProvider();
+        
+        UpdateStatus("Loading Texture Streaming");
         await InitializeTextureStreaming();
         
         UpdateStatus("Submitting Keys");
@@ -149,6 +151,8 @@ public partial class CUE4ParseService : ObservableObject, IService
     private void UpdateStatus(string status)
     {
         Status = status;
+        if (!string.IsNullOrEmpty(status))
+            Log.Information("[STATUS] {status}", status);
     }
 
     private async Task CheckBlackHole()
@@ -174,13 +178,14 @@ public partial class CUE4ParseService : ObservableObject, IService
     
     private async Task CleanupCache()
     {
-        var files = CacheFolder.GetFiles("*.*chunk");
+        var files = CacheFolder.GetFiles();
+
         var cutoffDate = DateTime.Now - TimeSpan.FromDays(AppSettings.Debug.ChunkCacheLifetime);
         foreach (var file in files)
         {
             if (file.LastWriteTime >= cutoffDate) continue;
             
-            Log.Information("Removing old chunk {ChunkName}", file.Name);
+            Log.Information("Removing old cache entry {ChunkName}", file.Name);
             file.Delete();
         }
     }
@@ -264,9 +269,11 @@ public partial class CUE4ParseService : ObservableObject, IService
         {
             var tocPath = await GetTocPath(AppSettings.Installation.CurrentProfile.FortniteVersion);
             if (string.IsNullOrEmpty(tocPath)) return;
+            
+            Log.Information("Found toc path: {tocPath}", tocPath);
 
             var tocName = tocPath.SubstringAfterLast("/");
-            var onDemandFile = new FileInfo(Path.Combine(App.DataFolder.FullName, tocName));
+            var onDemandFile = new FileInfo(Path.Combine(CacheFolder.FullName, tocName));
             if (!onDemandFile.Exists || onDemandFile.Length == 0)
             {
                 await Api.DownloadFileAsync($"https://download.epicgames.com/{tocPath}", onDemandFile.FullName);

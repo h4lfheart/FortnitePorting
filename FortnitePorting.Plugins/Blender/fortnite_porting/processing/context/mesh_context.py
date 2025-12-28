@@ -45,14 +45,16 @@ class MeshImportContext:
                 vertex_crunch_modifier = master_mesh.modifiers.new("FPv3 Full Vertex Crunch", type="NODES")
                 vertex_crunch_modifier.node_group = bpy.data.node_groups.get("FPv3 Full Vertex Crunch")
                 set_geo_nodes_param(vertex_crunch_modifier, "Material", material)
+                
+        if self.type in [EExportType.OUTFIT]:
+            for data in self.imported_meshes:
+                self.parent_deform_bones(data["Skeleton"], ["dfrm_", "deform_"])
             
         if self.type in [EExportType.OUTFIT, EExportType.FALL_GUYS_OUTFIT] and self.options.get("MergeArmatures"):
             master_skeleton = merge_armatures(self.imported_meshes)
             master_mesh = get_armature_mesh(master_skeleton)
             # Update attribute to account for joined mesh
             self.update_preskinned_bounds(master_mesh)
-            
-            self.parent_deform_bones(master_skeleton, ["dfrm_", "deform_"])
             
             for material, elements in self.partial_vertex_crunch_materials.items():
                 vertex_crunch_modifier = master_mesh.modifiers.new("FPv3 Vertex Crunch", type="NODES")

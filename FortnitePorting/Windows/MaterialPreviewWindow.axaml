@@ -265,7 +265,7 @@
                     <controls:ContentCard Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="{ext:Space 0, 1, 1, 0}"
                               DataContext="{Binding SelectedTree.SelectedNode}" 
                               IsVisible="{Binding Converter={x:Static ObjectConverters.IsNotNull}}">
-                        <Grid Margin="{ext:Space 1}">
+                        <Grid Margin="{ext:Space 2}">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="{ext:Space 1}"/>
