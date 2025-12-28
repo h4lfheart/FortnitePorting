@@ -124,14 +124,4 @@ public static class ImageExtensions
             (byte)(color1.G + (color2.G - color1.G) * factor),
             (byte)(color1.B + (color2.B - color1.B) * factor));
     }
-    
-    public static Bitmap GetMedalBitmap(int ranking = -1)
-    {
-        return AvaresBitmap($"avares://FortnitePorting/Assets/FN/{ranking switch {
-            1 => "GoldMedal",
-            2 => "SilverMedal",
-            3 => "BronzeMedal",
-            _ => "NormalMedal"
-        }}.png");
-    }
 }

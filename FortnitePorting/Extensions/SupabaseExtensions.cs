@@ -27,6 +27,20 @@ public static class SupabaseExtensions
         
             return (T) property;
         }
+        
+        public T[] GetArray<T>(string propertyName)
+        {
+            var property = broadcast.Payload![propertyName];
+            if (property is not JArray jsonArray)
+                return [];
+
+            var tokens = jsonArray.ToArray();
+            
+            return [..tokens
+                .Select(token => token.Type == JTokenType.Object ? token.ToObject<T>() : token.Value<T>())
+                .Where(item => item is not null)!
+            ];
+        }
     }
 
     extension(Client client)

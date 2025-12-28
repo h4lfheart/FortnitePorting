@@ -12,22 +12,20 @@ using Newtonsoft.Json;
 
 namespace FortnitePorting.Models.Leaderboard;
 
-public partial class LeaderboardExport : ObservableObject
+public partial class LeaderboardLiveExport(string objectPath) : ObservableObject
 {
-    [ObservableProperty] [JsonProperty("rank")] private int _ranking;
-    [ObservableProperty] [JsonProperty("total")] private int _exportCount;
-    [ObservableProperty] [JsonProperty("path")] private string _objectPath;
+    [ObservableProperty] private string _objectPath = objectPath;
     
     [ObservableProperty] private string _objectName;
     [ObservableProperty] private string _category;
     [ObservableProperty] private Bitmap _exportBitmap;
+    [ObservableProperty] private Dictionary<Guid, int> _contributions;
     
     public string ID => ObjectPath.SubstringAfterLast("/").SubstringBefore(".");
     
     private static Dictionary<string, Bitmap> CachedBitmaps = [];
     private static Dictionary<string, UObject> CachedObjects = [];
 
-    // returns if is a valid export
     public async Task<bool> Load()
     {
         var assetLoaders = AssetLoading.Categories
@@ -44,7 +42,6 @@ public partial class LeaderboardExport : ObservableObject
             
             ExportBitmap = customAsset.IconBitmap.ToWriteableBitmap();
             CachedBitmaps[ObjectPath] = ExportBitmap;
-            
             
             return true;
         }
@@ -70,7 +67,7 @@ public partial class LeaderboardExport : ObservableObject
         if (assetLoader is null)
         {
             ObjectName = ID;
-            ExportBitmap = asset.GetEditorIconBitmap() ?? ImageExtensions.AvaresBitmap("avares://FortnitePorting/Assets/Unreal/DataAsset_64x.png");
+            ExportBitmap = asset.GetEditorIconBitmap();
             return true;
         }
         
@@ -80,11 +77,12 @@ public partial class LeaderboardExport : ObservableObject
         }
         else
         {
-            ExportBitmap = assetLoader.IconHandler(asset)?.Decode()?.ToWriteableBitmap() ?? asset.GetEditorIconBitmap() ?? ImageExtensions.AvaresBitmap("avares://FortnitePorting/Assets/Unreal/DataAsset_64x.png");
+            ExportBitmap = assetLoader.IconHandler(asset)?.Decode()?.ToWriteableBitmap() ?? asset.GetEditorIconBitmap();
             CachedBitmaps[ObjectPath] = ExportBitmap;
         }
         
         ObjectName = assetLoader.DisplayNameHandler(asset) ?? ID;
+
 
         return true;
     }

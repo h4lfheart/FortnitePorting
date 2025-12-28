@@ -8,7 +8,7 @@ using FortnitePorting.Shared.Extensions;
 
 namespace FortnitePorting.ViewModels.Leaderboard;
 
-public abstract partial class LeaderboardViewModelBase<T> : ViewModelBase where T : class
+public abstract partial class PagedLeaderboardViewModelBase<T> : ViewModelBase where T : class
 {
     [ObservableProperty] private ObservableCollection<T> _items = [];
     

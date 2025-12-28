@@ -70,6 +70,10 @@
         <DependentUpon>LeaderboardLevelsView.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
+      <Compile Update="Views\Leaderboard\LeaderboardLiveView.axaml.cs">
+        <DependentUpon>LeaderboardLiveView.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
     </ItemGroup>
 
     <PropertyGroup>

@@ -7,7 +7,7 @@ using FortnitePorting.Shared.Extensions;
 
 namespace FortnitePorting.ViewModels.Leaderboard;
 
-public partial class LeaderboardExportsViewModel : LeaderboardViewModelBase<LeaderboardExport>
+public partial class LeaderboardExportsViewModel : PagedLeaderboardViewModelBase<LeaderboardExport>
 {
     protected override string PageCountFunctionName => "leaderboard_exports_page_count";
     protected override string PageDataFunctionName => "leaderboard_exports";

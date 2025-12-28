@@ -11,7 +11,7 @@ using FortnitePorting.Shared.Extensions;
 namespace FortnitePorting.ViewModels.Leaderboard;
 
 
-public partial class LeaderboardPersonalViewModel() : LeaderboardViewModelBase<LeaderboardExport>
+public partial class LeaderboardPersonalViewModel() : PagedLeaderboardViewModelBase<LeaderboardExport>
 {
     [ObservableProperty] private SupabaseService _supaBase;
 

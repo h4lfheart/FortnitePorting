@@ -3,7 +3,7 @@ using FortnitePorting.Models.Leaderboard;
 
 namespace FortnitePorting.ViewModels.Leaderboard;
 
-public partial class LeaderboardStreaksViewModel : LeaderboardViewModelBase<LeaderboardStreak>
+public partial class LeaderboardStreaksViewModel : PagedLeaderboardViewModelBase<LeaderboardStreak>
 {
     protected override string PageCountFunctionName => "leaderboard_streaks_page_count";
     protected override string PageDataFunctionName => "leaderboard_streaks";

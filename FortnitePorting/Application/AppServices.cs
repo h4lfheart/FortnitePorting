@@ -36,6 +36,7 @@ public static class AppServices
     public static BlackHoleService BlackHole => Services.GetRequiredService<BlackHoleService>();
     public static AssetLoaderService AssetLoading => Services.GetRequiredService<AssetLoaderService>();
     public static ExportClientService ExportClient => Services.GetRequiredService<ExportClientService>();
+    public static LiveExportService LiveExport => Services.GetRequiredService<LiveExportService>();
     
     // ViewModels
     public static AppWindowModel AppWM => Services.GetRequiredService<AppWindowModel>();

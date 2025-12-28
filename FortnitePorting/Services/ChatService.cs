@@ -56,7 +56,7 @@ public partial class ChatService : ObservableObject, IService
 
     private RealtimeChannel _chatChannel;
     public RealtimePresence<ChatUserPresence> ChatPresence;
-    private RealtimeBroadcast<BaseBroadcast> _chatBrodcast;
+    private RealtimeBroadcast<BaseBroadcast> _chatBroadcast;
 
     public async Task Initialize()
     {
@@ -176,10 +176,10 @@ public partial class ChatService : ObservableObject, IService
 
     private async Task InitializeBroadcasts()
     {
-        if (_chatBrodcast is not null) return;
+        if (_chatBroadcast is not null) return;
         
-        _chatBrodcast = _chatChannel.Register<BaseBroadcast>();
-        _chatBrodcast.AddBroadcastEventHandler((sender, broadcast) =>
+        _chatBroadcast = _chatChannel.Register<BaseBroadcast>();
+        _chatBroadcast.AddBroadcastEventHandler((sender, broadcast) =>
         {
             if (broadcast is null) return;
 
@@ -187,8 +187,6 @@ public partial class ChatService : ObservableObject, IService
             {
                 case "insert_message":
                 {
-                    broadcast.Get<Message>("message");
-                    
                     var message = broadcast.Get<Message>("message").Adapt<ChatMessageV2>();
                     if (message.ReplyId is not null)
                     {

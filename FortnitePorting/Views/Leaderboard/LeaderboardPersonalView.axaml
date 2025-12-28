@@ -258,7 +258,7 @@
                                 </Grid>
 
                                 <Border Grid.Column="1" 
-                                        CornerRadius="6" 
+                                        CornerRadius="8" 
                                         ClipToBounds="True" 
                                         Width="40" Height="40"
                                         HorizontalAlignment="Center" 

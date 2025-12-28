@@ -1,0 +1,121 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions"
+             xmlns:leaderboard="clr-namespace:FortnitePorting.ViewModels.Leaderboard"
+             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             xmlns:models="clr-namespace:FortnitePorting.Models.Leaderboard"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             
+             x:Class="FortnitePorting.Views.Leaderboard.LeaderboardLiveView"
+             x:DataType="leaderboard:LeaderboardLiveViewModel">
+    <Grid Margin="{ext:Space 2}">
+        
+        <ScrollViewer>
+            <ItemsControl ItemsSource="{Binding LiveExport.Entries}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <controls:ContentCard Padding="{ext:Space 1}">
+                            <StackPanel Spacing="{ext:Space 0.5}">
+                                <Grid ColumnDefinitions="Auto * Auto"
+                                      Margin="{ext:Space 0, 0, 0, 1}">
+                                    
+                                    <Border Grid.Column="0" 
+                                            CornerRadius="8" 
+                                            ClipToBounds="True" 
+                                            Width="40" Height="40"
+                                            HorizontalAlignment="Center" 
+                                            VerticalAlignment="Center"
+                                            Background="#40000000"
+                                            Margin="{ext:Space 0, 0, 1, 0}">
+                                       <Grid>
+                                           <Image asyncImageLoader:ImageLoader.Source="https://api.fortniteporting.app/images/UserDefault.png"/>
+                                           <Image asyncImageLoader:ImageLoader.Source="{Binding User.AvatarUrl, TargetNullValue='https://api.fortniteporting.app/images/UserDefault.png'}"/>
+                                       </Grid>
+                                    </Border>
+
+                                    <Grid Grid.Column="1" 
+                                          VerticalAlignment="Center" 
+                                          RowDefinitions="Auto Auto">
+                                        <TextBlock Grid.Row="0" 
+                                                   Text="{Binding User.DisplayName}" 
+                                                   Foreground="{Binding User}"
+                                                   Classes="BodyTextBlockStyle"
+                                                   TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Grid.Row="1" 
+                                                   Text="{Binding User.UserName}" 
+                                                   Classes="CaptionTextBlockStyle TextFillColorSecondaryBrush"
+                                                   TextTrimming="CharacterEllipsis"/>
+                                    </Grid>
+
+                                    <TextBlock Grid.Column="2"
+                                               Text="{Binding Timestamp, StringFormat='{}{0:g}'}"
+                                               Classes="CaptionTextBlockStyle TextFillColorSecondaryBrush"
+                                               VerticalAlignment="Center"
+                                               HorizontalAlignment="Right"
+                                               Margin="{ext:Space 1, 0, 0, 0}"/>
+                                </Grid>
+
+                                <ItemsControl
+                                    ItemsSource="{Binding Exports}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border CornerRadius="8"
+                                                    Background="{DynamicResource SubtleFillColorSecondaryBrush}"
+                                                    Padding="{ext:Space 0.75}">
+                                                <Grid ColumnDefinitions="Auto *">
+                                                    <Border Grid.Column="0" 
+                                                            CornerRadius="6" 
+                                                            ClipToBounds="True" 
+                                                            Width="32" Height="32"
+                                                            HorizontalAlignment="Center" 
+                                                            VerticalAlignment="Center"
+                                                            Background="Transparent"
+                                                            Margin="{ext:Space 0, 0, 0.75, 0}">
+                                                        <Image Source="{Binding ExportBitmap}"/>
+                                                    </Border>
+
+                                                    <Grid Grid.Column="1" 
+                                                          VerticalAlignment="Center" 
+                                                          RowDefinitions="Auto Auto">
+                                                        <TextBlock Grid.Row="0" 
+                                                                   Text="{Binding ObjectName}" 
+                                                                   Classes="CaptionTextBlockStyle"
+                                                                   TextTrimming="CharacterEllipsis"/>
+                                                        <TextBlock Grid.Row="1" 
+                                                                   Text="{Binding ID}" 
+                                                                   Classes="CaptionTextBlockStyle TextFillColorSecondaryBrush"
+                                                                   TextTrimming="CharacterEllipsis"
+                                                                   FontSize="10"/>
+                                                    </Grid>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Spacing="{ext:Space 0.5}"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                </ItemsControl>
+                            </StackPanel>
+                        </controls:ContentCard>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Spacing="{ext:Space 1}"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+        </ScrollViewer>
+        
+        <TextBlock Text="No Live Exports Yet" 
+                   Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" 
+                   VerticalAlignment="Center" HorizontalAlignment="Center"
+                   IsVisible="{Binding !LiveExport.Entries.Count}"/>
+    </Grid>
+</UserControl>

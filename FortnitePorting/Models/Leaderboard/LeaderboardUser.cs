@@ -17,8 +17,6 @@ public partial class LeaderboardUser : ObservableObject
     [ObservableProperty] [JsonProperty("total")] private int _exportCount;
 
     [ObservableProperty] private UserInfoResponse? _userInfo;
-
-    public Bitmap? MedalBitmap => Ranking <= 3 ? ImageExtensions.GetMedalBitmap(Ranking) : null;
     
     public SolidColorBrush UserBrush => new(UserInfo?.Role switch
     {
