@@ -50,7 +50,7 @@ public class Message : BaseModel
 
     static Message()
     {
-        TypeAdapterConfig<Message, ChatMessageV2>.NewConfig()
+        TypeAdapterConfig<Message, ChatMessage>.NewConfig()
             .MapToConstructor(true)
             .AfterMapping((src, dest) =>
             {

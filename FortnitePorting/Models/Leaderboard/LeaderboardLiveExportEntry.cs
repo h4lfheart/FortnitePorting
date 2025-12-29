@@ -13,7 +13,7 @@ public partial class LeaderboardLiveExportEntry : ObservableObject
 {
     [ObservableProperty] private string _instanceId;
     [ObservableProperty] private string _userId;
-    [ObservableProperty] private ChatUserV2 _user;
+    [ObservableProperty] private ChatUser _user;
     [ObservableProperty] private DateTime _timestamp;
     [ObservableProperty] private ObservableCollection<LeaderboardLiveExport> _exports = [];
 

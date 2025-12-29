@@ -15,7 +15,7 @@ using Supabase.Realtime.Models;
 
 namespace FortnitePorting.Models.Chat;
 
-public partial class ChatUserV2 : ObservableObject
+public partial class ChatUser : ObservableObject
 {
     [ObservableProperty] private string _userId;
     [ObservableProperty] private string _userName;

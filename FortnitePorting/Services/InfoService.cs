@@ -87,6 +87,7 @@ public partial class InfoService : ObservableObject, ILogEventSink, IService
 
         foundInfoBar?.Message = message;
     }
+    
     public void UpdateTitle(string id, string title)
     {
         var foundInfoBar = Messages.FirstOrDefault(infoBar => infoBar.Id == id);

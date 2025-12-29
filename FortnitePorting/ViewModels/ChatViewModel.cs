@@ -17,7 +17,7 @@ public partial class ChatViewModel(SupabaseService supabase, ChatService chatSer
     [ObservableProperty] private SupabaseService _supaBase = supabase;
     [ObservableProperty] private ChatService _chat = chatService;
 
-    [ObservableProperty] private ChatMessageV2? _replyMessage;
+    [ObservableProperty] private ChatMessage? _replyMessage;
     
     [ObservableProperty] private TeachingTip _imageFlyout;
     

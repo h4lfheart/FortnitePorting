@@ -19,7 +19,7 @@
     <UserControl.Resources>
         <DataTemplate x:Key="MessageTemplate">
             <DataTemplate.DataType>
-                <x:Type TypeName="framework:ObservableKeyValuePair" x:TypeArguments="x:String, chat:ChatMessageV2"/>
+                <x:Type TypeName="framework:ObservableKeyValuePair" x:TypeArguments="x:String, chat:ChatMessage"/>
             </DataTemplate.DataType>
             
             <Grid DataContext="{Binding Value}">
@@ -306,7 +306,7 @@
                             <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Hidden">
                                 <ItemsControl ItemsSource="{Binding Value}" >
                                     <ItemsControl.ItemTemplate>
-                                        <DataTemplate DataType="chat:ChatUserV2">
+                                        <DataTemplate DataType="chat:ChatUser">
                                             <controls:ContentCard HorizontalAlignment="Stretch" Cursor="Hand" PointerPressed="OnUserPressed" Margin="{ext:Space 0, 0, 0, 1}">
                                                 <FlyoutBase.AttachedFlyout>
                                                     <MenuFlyout>

@@ -152,7 +152,13 @@ public class NavigatorContext(string name)
         };
         
         if (viewType is null) return false;
-        
-        return ContentFrame.CurrentSourcePageType == viewType;
+
+        var isOpen = false;
+        TaskService.RunDispatcher(() =>
+        {
+            isOpen = ContentFrame.CurrentSourcePageType == viewType;
+        });
+
+        return isOpen;
     }
 }

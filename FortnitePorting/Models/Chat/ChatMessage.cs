@@ -11,11 +11,11 @@ using FortnitePorting.Models.Supabase.Tables;
 
 namespace FortnitePorting.Models.Chat;
 
-public partial class ChatMessageV2 : ObservableObject
+public partial class ChatMessage : ObservableObject
 {
     [ObservableProperty] private string _id;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(TimestampString))] private DateTime _timestamp;
-    [ObservableProperty] private ChatUserV2 _user;
+    [ObservableProperty] private ChatUser _user;
     [ObservableProperty] private string _text = string.Empty;
     [ObservableProperty] private string _application = string.Empty;
     [ObservableProperty] private bool _wasEdited;
@@ -34,7 +34,7 @@ public partial class ChatMessageV2 : ObservableObject
     
     [ObservableProperty] private bool _isEditing;
 
-    [ObservableProperty] private ObservableDictionary<string, ChatMessageV2> _replyMessages = [];
+    [ObservableProperty] private ObservableDictionary<string, ChatMessage> _replyMessages = [];
 
     public string? FullImageUrl => ImagePath is not null
         ? $"https://supabase.fortniteporting.app/storage/v1/object/public/{ImagePath}"

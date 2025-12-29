@@ -155,7 +155,7 @@ public partial class ChatView : ViewBase<ChatViewModel>
     private async void OnYeahPressed(object? sender, PointerPressedEventArgs e)
     {
         if (sender is not Control control) return;
-        if (control.DataContext is not ChatMessageV2 message) return;
+        if (control.DataContext is not ChatMessage message) return;
 
         if (message.DidReactTo)
         {
@@ -170,7 +170,7 @@ public partial class ChatView : ViewBase<ChatViewModel>
     private void OnDeletePressed(object? sender, PointerPressedEventArgs e)
     {
         if (sender is not Control control) return;
-        if (control.DataContext is not ChatMessageV2 message) return;
+        if (control.DataContext is not ChatMessage message) return;
 
         TaskService.Run(async () =>
         {
@@ -190,7 +190,7 @@ public partial class ChatView : ViewBase<ChatViewModel>
     private async void OnReplyPressed(object? sender, PointerPressedEventArgs e)
     {
         if (sender is not Control control) return;
-        if (control.DataContext is not ChatMessageV2 chatMessage) return;
+        if (control.DataContext is not ChatMessage chatMessage) return;
 
         ViewModel.ReplyMessage = chatMessage;
     }
@@ -198,7 +198,7 @@ public partial class ChatView : ViewBase<ChatViewModel>
     private void OnEditPressed(object? sender, PointerPressedEventArgs e)
     {
         if (sender is not Control control) return;
-        if (control.DataContext is not ChatMessageV2 message) return;
+        if (control.DataContext is not ChatMessage message) return;
 
         // TODO focus edit textbox
         message.IsEditing = !message.IsEditing;
@@ -207,7 +207,7 @@ public partial class ChatView : ViewBase<ChatViewModel>
     private void OnEditBoxKeyDown(object? sender, KeyEventArgs e)
     {
         if (sender is not TextBox textBox) return;
-        if (textBox.DataContext is not ChatMessageV2 message) return;
+        if (textBox.DataContext is not ChatMessage message) return;
         
         if (e.Key == Key.Enter && !e.KeyModifiers.HasFlag(KeyModifiers.Shift))
         {
@@ -234,7 +234,7 @@ public partial class ChatView : ViewBase<ChatViewModel>
     private void OnCopyPressed(object? sender, PointerPressedEventArgs e)
     {
         if (sender is not Control control) return;
-        if (control.DataContext is not ChatMessageV2 message) return;
+        if (control.DataContext is not ChatMessage message) return;
 
         App.Clipboard.SetTextAsync(message.Text);
     }
