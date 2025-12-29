@@ -14,11 +14,11 @@
              x:DataType="leaderboard:LeaderboardLiveViewModel">
     <Grid Margin="{ext:Space 2}">
         
-        <ScrollViewer>
+        <controls:DynamicFadeScrollViewer>
             <ItemsControl ItemsSource="{Binding LiveExport.Entries}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <controls:ContentCard Padding="{ext:Space 1}">
+                        <controls:ContentCard Padding="{ext:Space 1}" Margin="{ext:Space 0, 0, 0, 1}">
                             <StackPanel Spacing="{ext:Space 0.5}">
                                 <Grid ColumnDefinitions="Auto * Auto"
                                       Margin="{ext:Space 0, 0, 0, 1}">
@@ -107,11 +107,11 @@
                 </ItemsControl.ItemTemplate>
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <StackPanel Spacing="{ext:Space 1}"/>
+                        <VirtualizingStackPanel/>
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
             </ItemsControl>
-        </ScrollViewer>
+        </controls:DynamicFadeScrollViewer>
         
         <TextBlock Text="No Live Exports Yet" 
                    Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" 

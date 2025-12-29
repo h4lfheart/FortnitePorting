@@ -106,7 +106,59 @@ public partial class AssetLoaderService : ObservableObject, IService
                 new AssetLoader(EExportType.SideKick)
                 {
                     ClassNames = ["CosmeticCompanionItemDefinition"],
-                    HideNames = ["Companion_SitPlant_PerfTest", "Companion_TestCompanion2_Mutable", "Companion_Placeholder"]
+                    HideNames = ["Companion_SitPlant_PerfTest", "Companion_TestCompanion2_Mutable", "Companion_Placeholder"],
+                    CustomAssets = 
+                    [
+                        new CustomAsset
+                        {
+                            Name = "Oshawott",
+                            Description = "ASHASHASHOWATSHAASHHASHOWSHAHSHWOSGAHWHSHAWATTOSHAGWSHA",
+                            IconBitmap = SKBitmap.Decode(Avalonia.Platform.AssetLoader.Open(new Uri("avares://FortnitePorting/Assets/Custom/Oshawott/T_Oshawott-L.png"))),
+                            Mesh = new MeshDefinition
+                            {
+                                Path = "Assets/Custom/Oshawott/Oshawott.uemodel",
+                                Materials = 
+                                [
+                                    new MaterialDefinition
+                                    {
+                                        Name = "MijumaruEyeNl",
+                                        Textures = 
+                                        [
+                                            new TextureDefinition
+                                            {
+                                                Path = "Assets/Custom/Oshawott/MijumaruEyeNl.png",
+                                                Slot = "Diffuse"
+                                            }
+                                        ]
+                                    },
+                                    new MaterialDefinition
+                                    {
+                                        Name = "MijumaruBodyNl",
+                                        Textures = 
+                                        [
+                                            new TextureDefinition
+                                            {
+                                                Path = "Assets/Custom/Oshawott/MijumaruBodyNl.png",
+                                                Slot = "Diffuse"
+                                            }
+                                        ]
+                                    },
+                                    new MaterialDefinition
+                                    {
+                                        Name = "MijumaruMouthNl",
+                                        Textures = 
+                                        [
+                                            new TextureDefinition
+                                            {
+                                                Path = "Assets/Custom/Oshawott/MijumaruMouthNl.png",
+                                                Slot = "Diffuse"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    ],
                 }
             ]
         },
@@ -340,58 +392,6 @@ public partial class AssetLoaderService : ObservableObject, IService
                             IconPath = "/TidalCrane_Swarm_Boss/Gameplay/Icon/T_Icon_BR_BugQueen"
                         }
                     ]),
-                    CustomAssets = 
-                    [
-                        new CustomAsset
-                        {
-                            Name = "Oshawott",
-                            Description = "No Description.",
-                            IconBitmap = SKBitmap.Decode(Avalonia.Platform.AssetLoader.Open(new Uri("avares://FortnitePorting/Assets/Custom/Oshawott/T_Oshawott-L.png"))),
-                            Mesh = new MeshDefinition
-                            {
-                                Path = "Assets/Custom/Oshawott/Oshawott.uemodel",
-                                Materials = 
-                                [
-                                    new MaterialDefinition
-                                    {
-                                        Name = "MijumaruEyeNl",
-                                        Textures = 
-                                        [
-                                            new TextureDefinition
-                                            {
-                                                Path = "Assets/Custom/Oshawott/MijumaruEyeNl.png",
-                                                Slot = "Diffuse"
-                                            }
-                                        ]
-                                    },
-                                    new MaterialDefinition
-                                    {
-                                        Name = "MijumaruBodyNl",
-                                        Textures = 
-                                        [
-                                            new TextureDefinition
-                                            {
-                                                Path = "Assets/Custom/Oshawott/MijumaruBodyNl.png",
-                                                Slot = "Diffuse"
-                                            }
-                                        ]
-                                    },
-                                    new MaterialDefinition
-                                    {
-                                        Name = "MijumaruMouthNl",
-                                        Textures = 
-                                        [
-                                            new TextureDefinition
-                                            {
-                                                Path = "Assets/Custom/Oshawott/MijumaruMouthNl.png",
-                                                Slot = "Diffuse"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        }
-                    ],
                     HideRarity = true
                 }
             ]
