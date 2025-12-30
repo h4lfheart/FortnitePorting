@@ -125,10 +125,7 @@ public partial class SupabaseService : ObservableObject, IService
 
     public async Task PostExports(IEnumerable<string> objectPaths)
     {
-        await Client.From<Export>().Insert(new Export
-        {
-            ExportPaths = objectPaths
-        });
+        await Api.FortnitePorting.PostExports(objectPaths);
     }
 
     private async Task OnLoggedIn()
@@ -166,13 +163,8 @@ public partial class SupabaseService : ObservableObject, IService
     private async Task PostLogin()
     {
         if (_postedLogin) return;
-        
-        await Client.From<Login>().Insert(new Login
-        {
-            Version = Globals.Version.GetDisplayString()
-        });
-        
-        
+
+        await Api.FortnitePorting.PostLogin();
         _postedLogin = true;
     }
 

@@ -42,10 +42,12 @@ public class APIBase
         return ExecuteAsync<T>(url, method, verbose, parameters).GetAwaiter().GetResult();
     }
 
-    protected async Task<RestResponse> ExecuteAsync(string url, Method method = Method.Get, bool verbose = true, params Parameter[] parameters)
+    protected async Task<RestResponse> ExecuteAsync(string url, Method method = Method.Get, bool verbose = true, object? body = null, params Parameter[] parameters)
     {
         var request = new RestRequest(string.IsNullOrEmpty(BaseURL) ? url : $"{BaseURL}/{url}", method);
         foreach (var parameter in parameters) request.AddParameter(parameter);
+        if (body is not null)
+            request.AddJsonBody(body);
 
         var response = await _client.ExecuteAsync(request).ConfigureAwait(false);
         if (verbose) Log.Information("[{Method}] {StatusDescription} ({StatusCode}): {Uri}", request.Method, response.StatusDescription, (int) response.StatusCode, request.Resource);

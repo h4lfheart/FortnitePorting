@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using Avalonia.Controls;
@@ -47,11 +48,14 @@ public partial class ChatView : ViewBase<ChatViewModel>
         {
             TaskService.RunDispatcher(() =>
             {
+                var distanceFromBottom = Scroll.Extent.Height - Scroll.Viewport.Height - Scroll.Offset.Y;
+                _shouldAutoScroll = distanceFromBottom <= AutoScrollThreshold;
+                
                 if (_shouldAutoScroll)
                 {
                     Scroll.ScrollToEnd();
                 }
-                else
+                else if (args.Action == NotifyCollectionChangedAction.Add)
                 {
                     ViewModel.IncrementNewMessageIndicator();
                 }
@@ -172,12 +176,7 @@ public partial class ChatView : ViewBase<ChatViewModel>
         if (sender is not Control control) return;
         if (control.DataContext is not ChatMessage message) return;
 
-        TaskService.Run(async () =>
-        {
-            await SupaBase.Client.From<Message>()
-                .Where(x => x.Id == message.Id)
-                .Delete();
-        });
+        TaskService.Run(async () => await Api.FortnitePorting.DeleteMessage(message.Id));
     }
 
     private void OnMessageUserPressed(object? sender, PointerPressedEventArgs e)

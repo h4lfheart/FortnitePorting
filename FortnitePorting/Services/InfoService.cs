@@ -131,22 +131,7 @@ public partial class InfoService : ObservableObject, ILogEventSink, IService
 #if RELEASE
         if (SupaBase.IsLoggedIn)
         {
-            TaskService.Run(async () =>
-            {
-                try
-                {
-                    await SupaBase.Client.From<Error>().Insert(new Error
-                    {
-                        Version = Globals.Version.GetDisplayString(),
-                        Message = $"{e.GetType().FullName}: {e.Message}",
-                        StackTrace = e.StackTrace!.SubstringAfter("at ")
-                    });
-                }
-                catch (PostgrestException)
-                {
-                    
-                }
-            });
+            TaskService.Run(async () => await Api.FortnitePorting.PostError(e));
         }
 #endif
         
