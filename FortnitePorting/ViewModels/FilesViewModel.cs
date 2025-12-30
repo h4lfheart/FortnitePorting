@@ -614,9 +614,8 @@ public partial class FilesViewModel : ViewModelBase
         if (meta.Settings.ImportInstancedFoliage)
             meta.WorldFlags |= EWorldFlags.InstancedFoliage;
         
-        await Exporter.Export(exports, meta);
-
-        if (SupaBase.IsLoggedIn)
+        var exportedProperly = await Exporter.Export(exports, meta);
+        if (exportedProperly && SupaBase.IsLoggedIn)
         {
             await SupaBase.PostExports(
                 exports

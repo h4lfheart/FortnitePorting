@@ -241,9 +241,13 @@ public partial class WorldPartitionMap : ObservableObject
         if (WorldFlagsInstancedFoliage) meta.WorldFlags |= EWorldFlags.InstancedFoliage;
         if (WorldFlagsLandscape) meta.WorldFlags |= EWorldFlags.Landscape;
         if (WorldFlagsHLODs) meta.WorldFlags |= EWorldFlags.HLODs;
-        
+
+        var exportedProperly = false;
         if (WorldFlagsMainLevel)
-            await Exporter.Export(_world, EExportType.World, meta);
+            exportedProperly = await Exporter.Export(_world, EExportType.World, meta);
+        
+        if (!exportedProperly)
+            return;
         
         SelectedMaps.ForEach(map => map.Status = EWorldPartitionGridMapStatus.Waiting);
         
@@ -254,12 +258,12 @@ public partial class WorldPartitionMap : ObservableObject
             var world = await UEParse.Provider.SafeLoadPackageObjectAsync<UWorld>(map.Path);
             if (world is null) continue;
             
-            await Exporter.Export(world, EExportType.World, meta);
+            exportedProperly |= await Exporter.Export(world, EExportType.World, meta);
             
             map.Status = EWorldPartitionGridMapStatus.Finished;
         }
         
-        if (SupaBase.IsLoggedIn)
+        if (exportedProperly && SupaBase.IsLoggedIn)
         {
             await SupaBase.PostExports(
                 SelectedMaps
@@ -267,7 +271,6 @@ public partial class WorldPartitionMap : ObservableObject
                     .Concat([_world.GetPathName()])
             );
         }
-        
         
         SelectedMaps.ForEach(map => map.Status = EWorldPartitionGridMapStatus.None);
         ClearSelectedMaps();

@@ -36,14 +36,14 @@ namespace FortnitePorting.Exporting;
 public static class Exporter
 {
     
-    public static async Task Export(Func<IEnumerable<BaseExport>> exportFunction, ExportDataMeta metaData)
+    public static async Task<bool> Export(Func<IEnumerable<BaseExport>> exportFunction, ExportDataMeta metaData)
     {
         if (metaData.ExportLocation is EExportLocation.CustomFolder && await App.BrowseFolderDialog() is { } path)
         {
             metaData.CustomPath = path;
         }
 
-        
+        var exportedProperly = false;
         await TaskService.RunAsync(async () =>
         {
             var serverType = metaData.ExportLocation.ServerType;
@@ -78,12 +78,16 @@ public static class Exporter
             
                 await ExportClient.SendExportAsync(serverType, exportData);
             }
+
+            exportedProperly = true;
         });
+
+        return exportedProperly;
     }
     
-    public static async Task Export(IEnumerable<BaseAssetInfo> assets, ExportDataMeta metaData)
+    public static async Task<bool> Export(IEnumerable<BaseAssetInfo> assets, ExportDataMeta metaData)
     {
-        await Export(() => assets.Select(baseAssetInfo =>
+        return await Export(() => assets.Select(baseAssetInfo =>
         {
             if (baseAssetInfo is AssetInfo assetInfo)
             {
@@ -104,19 +108,19 @@ public static class Exporter
         })!, metaData);
     }
     
-    public static async Task Export(List<KeyValuePair<UObject, EExportType>> assets, ExportDataMeta metaData)
+    public static async Task<bool> Export(List<KeyValuePair<UObject, EExportType>> assets, ExportDataMeta metaData)
     {
-        await Export(() => assets.Select(kvp => CreateExport(kvp.Key.Name, kvp.Key, kvp.Value, [], metaData)), metaData);
+        return await Export(() => assets.Select(kvp => CreateExport(kvp.Key.Name, kvp.Key, kvp.Value, [], metaData)), metaData);
     }
     
-    public static async Task Export(IEnumerable<UObject> assets, EExportType type, ExportDataMeta metaData)
+    public static async Task<bool>? Export(IEnumerable<UObject> assets, EExportType type, ExportDataMeta metaData)
     {
-        await Export(() => assets.Select(asset => CreateExport(asset.Name, asset, type, [], metaData)), metaData);
+        return await Export(() => assets.Select(asset => CreateExport(asset.Name, asset, type, [], metaData)), metaData);
     }
     
-    public static async Task Export(UObject asset, EExportType type, ExportDataMeta metaData)
+    public static async Task<bool> Export(UObject asset, EExportType type, ExportDataMeta metaData)
     {
-        await Export(() => [CreateExport(asset.Outer?.Name.SubstringAfterLast("/") ?? asset.Name, asset, type, [], metaData)], metaData);
+        return await Export(() => [CreateExport(asset.Outer?.Name.SubstringAfterLast("/") ?? asset.Name, asset, type, [], metaData)], metaData);
     }
 
     public static EExportType DetermineExportType(UObject asset) 

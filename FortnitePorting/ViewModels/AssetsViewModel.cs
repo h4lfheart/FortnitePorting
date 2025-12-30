@@ -75,11 +75,12 @@ public partial class AssetsViewModel() : ViewModelBase
     [RelayCommand]
     public async Task Export()
     {
+        if (AssetLoader.ActiveLoader is null) return;
+        
         AssetLoader.ActiveLoader.Pause();
-        await Exporter.Export(AssetLoader.ActiveLoader.SelectedAssetInfos, AppSettings.ExportSettings.CreateExportMeta(ExportLocation));
-        AssetLoader.ActiveLoader.Unpause();
-
-        if (SupaBase.IsLoggedIn)
+        
+        var exportedProperly = await Exporter.Export(AssetLoader.ActiveLoader.SelectedAssetInfos, AppSettings.ExportSettings.CreateExportMeta(ExportLocation));
+        if (exportedProperly && SupaBase.IsLoggedIn)
         {
             await SupaBase.PostExports([
                 ..AssetLoader.ActiveLoader.SelectedAssetInfos
@@ -90,6 +91,8 @@ public partial class AssetsViewModel() : ViewModelBase
                     .Select(asset => $"Custom/{asset.Asset.Asset.Name}"),
             ]);
         }
+        
+        AssetLoader.ActiveLoader.Unpause();
     }
     
     [RelayCommand]
