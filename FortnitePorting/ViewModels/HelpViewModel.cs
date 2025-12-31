@@ -36,8 +36,6 @@ public partial class HelpViewModel : ViewModelBase
 
     public override async Task Initialize()
     {
-        Permissions = OnlineService.Permissions;
-
         await UpdateArticles();
     }
 

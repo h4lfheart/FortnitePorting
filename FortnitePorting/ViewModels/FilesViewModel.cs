@@ -32,7 +32,6 @@ using FortnitePorting.Framework;
 using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.Files;
 using FortnitePorting.Models.Fortnite;
-using FortnitePorting.Models.Leaderboard;
 using FortnitePorting.Models.Unreal;
 using FortnitePorting.Models.Unreal.Material;
 using FortnitePorting.OnlineServices.Packet;
@@ -87,24 +86,6 @@ public partial class FilesViewModel : ViewModelBase
     
     public override async Task Initialize()
     {
-        if (ChatVM.Permissions.HasFlag(EPermissions.LoadPluginFiles))
-        {
-            foreach (var mountedVfs in CUE4ParseVM.Provider.MountedVfs)
-            {
-                if (mountedVfs is not IoStoreReader { Name: "plugin.utoc" } ioStoreReader) continue;
-
-                var gameFeatureDataFile = ioStoreReader.Files.FirstOrDefault(file => file.Key.EndsWith("GameFeatureData.uasset", StringComparison.OrdinalIgnoreCase));
-                if (gameFeatureDataFile.Value is null) continue;
-
-                var gameFeatureData = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync<UFortGameFeatureData>(gameFeatureDataFile.Value.PathWithoutExtension);
-
-                if (gameFeatureData?.ExperienceData?.DefaultMap is not { } defaultMapPath) continue;
-
-                var defaultMap = await defaultMapPath.LoadAsync();
-                GameNames.Add(new FileGameFilter(defaultMap.Name, defaultMapPath.AssetPathName.Text[1..].SubstringBefore("/")));
-            }
-        }
-
         foreach (var gameName in GameNames)
         {
             SelectedGameNames.AddUnique(gameName.SearchName);
@@ -423,19 +404,8 @@ public partial class FilesViewModel : ViewModelBase
         meta.WorldFlags = EWorldFlags.Actors | EWorldFlags.Landscape | EWorldFlags.WorldPartitionGrids | EWorldFlags.HLODs;
         if (meta.Settings.ImportInstancedFoliage)
             meta.WorldFlags |= EWorldFlags.InstancedFoliage;
-        
-        await Exporter.Export(exports, meta);
 
-        if (AppSettings.Current.Online.UseIntegration)
-        {
-            var sendExports = exports.Select(export =>
-            {
-                var (asset, type) = export;
-                return new PersonalExport(asset.GetPathName());
-            });
-            
-            await ApiVM.FortnitePorting.PostExportsAsync(sendExports);
-        }
+        await Exporter.Export(exports, meta);
     }
 
     private bool IsValidFilePath(string path)

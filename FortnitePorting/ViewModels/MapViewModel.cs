@@ -199,28 +199,6 @@ public partial class MapViewModel : ViewModelBase
             Maps.Add(new WorldPartitionMap(mapInfo));
         }
 
-        if (ChatVM.Permissions.HasFlag(EPermissions.LoadPluginFiles))
-        {
-            foreach (var mountedVfs in CUE4ParseVM.Provider.MountedVfs)
-            {
-                if (mountedVfs is not IoStoreReader { Name: "plugin.utoc" } ioStoreReader) continue;
-
-                var gameFeatureDataFile = ioStoreReader.Files.FirstOrDefault(file => file.Key.EndsWith("GameFeatureData.uasset", StringComparison.OrdinalIgnoreCase));
-                if (gameFeatureDataFile.Value is null) continue;
-
-                var gameFeatureData = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync<UFortGameFeatureData>(gameFeatureDataFile.Value.PathWithoutExtension);
-
-                if (gameFeatureData?.ExperienceData?.DefaultMap is not { } defaultMapPath) continue;
-
-                var defaultMap = await defaultMapPath.LoadAsync();
-                if (PluginRemoveList.Any(item => defaultMap.Name.Contains(item, StringComparison.OrdinalIgnoreCase))) continue;
-
-                var mapInfo = MapInfo.CreateNonDisplay(defaultMap.Name, defaultMap.GetPathName().SubstringBeforeLast("."), sourceName: "UEFN");
-            
-                Maps.Add(new WorldPartitionMap(mapInfo));
-            }
-        }
-
         if (Maps.Count == 0)
         {
             AppWM.Message("No Supported Maps", "Failed to find any supported maps for processing.");

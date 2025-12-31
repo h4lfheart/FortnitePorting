@@ -80,12 +80,6 @@ public abstract partial class BaseAssetItem : ObservableObject
     }
     
     [RelayCommand]
-    public virtual async Task SendToUser()
-    {
-        AppWM.Message("Unsupported Asset", "Cannot send this type of asset to others.");
-    }
-    
-    [RelayCommand]
     public virtual async Task CopyIcon(bool withBackground = false)
     {
         await AvaloniaClipboard.SetImageAsync(withBackground ? DisplayImage : IconDisplayImage);

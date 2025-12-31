@@ -66,8 +66,6 @@ public class CUE4ParseViewModel : ViewModelBase
     public readonly Dictionary<int, FVector> BeanstalkAtlasTextureUVs = [];
     public readonly List<UAnimMontage> MaleLobbyMontages = [];
     public readonly List<UAnimMontage> FemaleLobbyMontages = [];
-
-    private OnlineResponse _onlineStatus;
     
     private static readonly Regex FortniteArchiveRegex = new(@"^FortniteGame(/|\\)Content(/|\\)Paks(/|\\)(pakchunk(?:0|10.*|\w+)-WindowsClient|global)\.(pak|utoc)$", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
@@ -106,8 +104,6 @@ public class CUE4ParseViewModel : ViewModelBase
         ObjectTypeRegistry.RegisterEngine(Assembly.Load("FortnitePorting.Shared"));
 
         Provider.LoadExtraDirectories = AppSettings.Current.Installation.CurrentProfile.LoadCreativeMaps;
-        
-        _onlineStatus = await ApiVM.FortnitePorting.GetOnlineStatusAsync() ?? new OnlineResponse();
         
         await CheckBlackHole();
         await CleanupCache();

@@ -26,7 +26,6 @@ using FortnitePorting.Application;
 using FortnitePorting.Export;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
-using FortnitePorting.Models.Leaderboard;
 using FortnitePorting.Models.Material;
 using FortnitePorting.Models.Unreal;
 using FortnitePorting.Models.Unreal.Material;

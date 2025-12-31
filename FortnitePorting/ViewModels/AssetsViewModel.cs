@@ -11,7 +11,6 @@ using FortnitePorting.Export.Models;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.Assets.Asset;
-using FortnitePorting.Models.Leaderboard;
 using FortnitePorting.Services;
 using FortnitePorting.Shared;
 using FortnitePorting.Shared.Services;
@@ -45,17 +44,6 @@ public partial class AssetsViewModel : ViewModelBase
         AssetLoaderCollection.ActiveLoader.Pause();
         await Exporter.Export(AssetLoaderCollection.ActiveLoader.SelectedAssetInfos, AppSettings.Current.CreateExportMeta(ExportLocation));
         AssetLoaderCollection.ActiveLoader.Unpause();
-
-        if (AppSettings.Current.Online.UseIntegration)
-        {
-            var exports = AssetLoaderCollection.ActiveLoader.SelectedAssetInfos.OfType<AssetInfo>().Select(asset =>
-            {
-                var creationData = asset.Asset.CreationData;
-                return new PersonalExport(creationData.Object.GetPathName());
-            });
-            
-            await ApiVM.FortnitePorting.PostExportsAsync(exports);
-        }
     }
     
     [RelayCommand]

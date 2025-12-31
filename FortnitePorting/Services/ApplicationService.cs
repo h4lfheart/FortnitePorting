@@ -38,15 +38,11 @@ public static class ApplicationService
     public static AssetsViewModel AssetsVM => ViewModelRegistry.Get<AssetsViewModel>()!;
     public static RadioViewModel RadioVM => ViewModelRegistry.Get<RadioViewModel>()!;
     public static APIViewModel ApiVM => ViewModelRegistry.Get<APIViewModel>()!;
-    public static ChatViewModel ChatVM => ViewModelRegistry.Get<ChatViewModel>()!;
     public static FilesViewModel FilesVM => ViewModelRegistry.Get<FilesViewModel>()!;
     public static HelpViewModel HelpVM => ViewModelRegistry.Get<HelpViewModel>()!;
     public static ConsoleViewModel ConsoleVM => ViewModelRegistry.Get<ConsoleViewModel>()!;
-    public static LeaderboardViewModel LeaderboardVM => ViewModelRegistry.Get<LeaderboardViewModel>()!;
-    public static VotingViewModel VotingVM => ViewModelRegistry.Get<VotingViewModel>()!;
     public static TimeWasterViewModel TimeWasterVM => ViewModelRegistry.Get<TimeWasterViewModel>()!;
     public static MapViewModel MapVM => ViewModelRegistry.Get<MapViewModel>()!;
-    public static CanvasViewModel CanvasVM => ViewModelRegistry.Get<CanvasViewModel>()!;
     public static PluginViewModel PluginVM => ViewModelRegistry.Get<PluginViewModel>()!;
     
     public static IClassicDesktopStyleApplicationLifetime Application = null!;
@@ -130,7 +126,6 @@ public static class ApplicationService
     public static void OnStartup(object? sender, ControlledApplicationLifetimeStartupEventArgs e)
     {
         ViewModelRegistry.New<APIViewModel>();
-        ViewModelRegistry.New<ChatViewModel>();
         DependencyService.EnsureDependencies();
         
         TimeWasterViewModel.LoadResources();
@@ -139,13 +134,10 @@ public static class ApplicationService
         
         if (AppSettings.Current.Online.UseIntegration)
         {
-            ViewModelRegistry.New<CanvasViewModel>();
-            ViewModelRegistry.New<VotingViewModel>(initialize: true);
             TaskService.Run(async () =>
             {
                 await AppSettings.Current.Online.LoadIdentification();
                 await ApiVM.FortnitePorting.PostStatsAsync();
-                OnlineService.Init();
             });
         }
         
