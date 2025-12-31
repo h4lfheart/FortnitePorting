@@ -504,7 +504,7 @@ public partial class MaterialData : ObservableObject
             {
                 var declaration = expression.ExportType switch
                 {
-                    "MaterialExpressionNamedRerouteUsage" => expression.Get<UMaterialExpression>("Declaration"),
+                    "MaterialExpressionNamedRerouteUsage" => expression.GetOrDefault<UMaterialExpression?>("Declaration") ?? expression,
                     _ => expression
                 };
 
