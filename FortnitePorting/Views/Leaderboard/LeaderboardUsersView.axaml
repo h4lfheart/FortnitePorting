@@ -86,8 +86,8 @@
                                         Background="#40000000"
                                         Margin="{ext:Space 0, 0, 1, 0}">
                                    <Grid>
-                                       <Image asyncImageLoader:ImageLoader.Source="https://api.fortniteporting.app/images/UserDefault.png"/>
-                                       <Image asyncImageLoader:ImageLoader.Source="{Binding UserInfo.AvatarUrl, TargetNullValue='https://api.fortniteporting.app/images/UserDefault.png'}"/>
+                                       <Image asyncImageLoader:ImageLoader.Source="https://cdn.fortniteporting.app/images/avatar/default.png"/>
+                                       <Image asyncImageLoader:ImageLoader.Source="{Binding UserInfo.AvatarUrl, TargetNullValue='https://cdn.fortniteporting.app/images/avatar/default.png'}"/>
                                    </Grid>
                                 </Border>
 

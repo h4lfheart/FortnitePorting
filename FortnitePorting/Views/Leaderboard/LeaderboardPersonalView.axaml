@@ -40,7 +40,7 @@
                         Width="80" Height="80"
                         HorizontalAlignment="Center" 
                         VerticalAlignment="Center">
-                    <Image asyncImageLoader:ImageLoader.Source="{Binding SupaBase.UserInfo.AvatarUrl, FallbackValue='https://api.fortniteporting.app/images/UserDefault.png'}"/>
+                    <Image asyncImageLoader:ImageLoader.Source="{Binding SupaBase.UserInfo.AvatarUrl, FallbackValue='https://cdn.fortniteporting.app/images/avatar/default.png'}"/>
                 </Border>
             </Grid>
 
