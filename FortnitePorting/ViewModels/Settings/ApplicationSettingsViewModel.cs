@@ -51,7 +51,7 @@ public partial class ApplicationSettingsViewModel : SettingsViewModelBase
     [ObservableProperty] private EpicAuthResponse? _epicAuth;
     
     public string AssetPath => UseAssetsPath && Directory.Exists(AssetsPath) ? AssetsPath : App.AssetsFolder.FullName;
-    public string PortlePath => UsePortlePath && Directory.Exists(PortleExecutablePath) 
+    public string PortlePath => UsePortlePath && File.Exists(PortleExecutablePath) 
         ? PortleExecutablePath 
         : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Portle", "Portle.exe");
 

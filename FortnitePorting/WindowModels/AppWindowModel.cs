@@ -35,6 +35,8 @@ public partial class AppWindowModel(
     [ObservableProperty] private int _unsubmittedPolls;
 
     [ObservableProperty] private SetupView? _setupViewContent;
+    
+    [ObservableProperty] private RepositoryVersion? _updateVersion;
 
     [ObservableProperty] private OnlineResponse? _onlineStatus;
     [ObservableProperty] private BroadcastResponse[] _broadcasts = [];
@@ -58,76 +60,46 @@ public partial class AppWindowModel(
             Info.Broadcast(broadcast);
         }
 
-        await CheckForUpdate(isAutomatic: true);
+        await CheckForUpdate();
     }
 
-    public async Task CheckForUpdate(bool isAutomatic = false)
+    [RelayCommand]
+    public async Task Update()
     {
-        void NoUpdate()
+        if (!File.Exists(Settings.Application.PortlePath) ||
+            (!Settings.Application.UsePortlePath && (!Api.GetHash(PORTLE_URL)
+                ?.Equals(Settings.Application.PortlePath.GetHash()) ?? false)))
         {
-            if (isAutomatic) return;
-            
-            Info.Dialog("No Update Available", "Fortnite Porting is up to date.");
+            await Api.DownloadFileAsync(PORTLE_URL, Settings.Application.PortlePath);
         }
 
+        var args = new[]
+        {
+            "--skip-setup",
+            "--add-repository https://api.fortniteporting.app/v1/static/repository",
+            $"--import-profile \"Fortnite Porting\" \"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AppDomain.CurrentDomain.FriendlyName + ".exe")}\" \"FortnitePorting\"",
+            "--update-profile \"Fortnite Porting\" -force",
+            "--launch-profile \"Fortnite Porting\"",
+        };
+
+        Process.Start(new ProcessStartInfo
+        {
+            FileName = Settings.Application.PortlePath,
+            Arguments = string.Join(' ', args),
+            WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory,
+            UseShellExecute = true
+        });
+
+        App.Lifetime.Shutdown();
+    }
+
+    public async Task CheckForUpdate()
+    {
         var repositoryInfo = await Api.FortnitePorting.Repository();
-        if (repositoryInfo is not null)
-        {
-            var newestRelease = repositoryInfo.Versions.MaxBy(version => version.UploadTime)!;
-            if (newestRelease.Version <= Globals.Version)
-            {
-                NoUpdate();
-                return;
-            }
-
-            if (isAutomatic && Settings.Application.LastOnlineVersion == newestRelease.Version)
-            {
-                return;
-            }
-
-            Settings.Application.LastOnlineVersion = newestRelease.Version;
-            
-            Info.Dialog("Update Available",  $"Fortnite Porting {newestRelease.Version.GetDisplayString(EVersionStringType.IdentifierPrefix)} is now available. Would you like to update?", buttons: 
-            [
-                new DialogButton
-                {
-                    Text = "Update",
-                    Action = async () =>
-                    {
-                        if (!File.Exists(Settings.Application.PortlePath) ||
-                            (!Settings.Application.UsePortlePath && (!Api.GetHash(PORTLE_URL)
-                                ?.Equals(Settings.Application.PortlePath.GetHash()) ?? false)))
-                        {
-                            await Api.DownloadFileAsync(PORTLE_URL, Settings.Application.PortlePath);
-                        }
-
-                        var args = new[]
-                        {
-                            "--silent",
-                            "--skip-setup",
-                            "--add-repository https://api.fortniteporting.app/v1/static/repository",
-                            $"--import-profile \"Fortnite Porting\" \"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AppDomain.CurrentDomain.FriendlyName + ".exe")}\" \"FortnitePorting\"",
-                            "--update-profile \"Fortnite Porting\" -force",
-                            "--launch-profile \"Fortnite Porting\"",
-                        };
-
-                        Process.Start(new ProcessStartInfo
-                        {
-                            FileName = Settings.Application.PortlePath,
-                            Arguments = string.Join(' ', args),
-                            WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory,
-                            UseShellExecute = true
-                        });
-
-                        App.Lifetime.Shutdown();
-                    }
-                }
-            ]);
-
-            return;
-        }
-
-        NoUpdate();
+        var newestVersion = repositoryInfo?.Versions.MaxBy(version => version.UploadTime);
+        if (newestVersion is null || newestVersion.Version <= Globals.Version) return;
+        
+        UpdateVersion = newestVersion;
     }
 
 }

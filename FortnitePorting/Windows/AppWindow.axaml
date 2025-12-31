@@ -110,13 +110,29 @@
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
                                 <RowDefinition Height="{ext:Space 2}" />
                                 <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
+                            
+                            <controls:ContentCard Grid.Row="0" Margin="{ext:Space 0, 0, 0, 2}"
+                                                  IsVisible="{Binding UpdateVersion, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                <Grid ColumnDefinitions="* 8 Auto" Margin="{ext:Space 2, 1}">
+                                    <StackPanel Grid.Column="0" Spacing="{ext:Space 0.5}" VerticalAlignment="Center">
+                                        <TextBlock Text="Update Available"/>
+                                        <TextBlock Text="{Binding UpdateVersion.Version}" 
+                                                   Classes="CaptionTextBlockStyle TextFillColorSecondaryBrush"/>
+                                    </StackPanel>
+                                    
+                                    <Button Grid.Column="2" Content="{material:MaterialIconExt Download}"
+                                            Command="{Binding UpdateCommand}"
+                                            HorizontalAlignment="Stretch"/>
+                                </Grid>
+                            </controls:ContentCard>
 
-                            <sidebar:SidebarItemSeparator Grid.Row="0" />
+                            <sidebar:SidebarItemSeparator Grid.Row="1" />
 
-                            <Grid Grid.Row="2" IsVisible="{Binding Settings.Online.SupaBase.IsLoggedIn}">
+                            <Grid Grid.Row="3" IsVisible="{Binding Settings.Online.SupaBase.IsLoggedIn}">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="*"/>
                                     <RowDefinition Height="{ext:Space 2}"/>
@@ -180,7 +196,7 @@
                                 </Grid>
                             </Grid>
 
-                            <Grid Grid.Row="2" RowDefinitions="*,*"
+                            <Grid Grid.Row="3" RowDefinitions="*,*"
                                   IsVisible="{Binding !Settings.Online.SupaBase.IsLoggedIn}">
                                 <Button Grid.Row="0"
                                         Content="{controls:ImageText 'Sign In', 'avares://FortnitePorting/Assets/Icons/Discord.png'}"
