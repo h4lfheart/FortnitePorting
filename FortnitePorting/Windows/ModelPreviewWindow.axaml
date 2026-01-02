@@ -51,20 +51,5 @@
                 <Border Grid.Column="4" PointerPressed="OnClosePressed" Cursor="Hand" CornerRadius="0" Classes="Close" Child="{avalonia:MaterialIconExt Close}" Width="35" Height="35"/>
             </Grid>
         </Grid>
-        
-        
-        <Border Grid.Row="1" Background="#0a0a0a" CornerRadius="0"
-                BorderThickness="0 2 0 0" BorderBrush="#212121">
-            <Grid Margin="{ext:Space 1}" ClipToBounds="True">
-                <ContentControl Content="{Binding Control}" CornerRadius="4" IsVisible="{Binding !IsLoading}"/>
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding IsLoading}">
-                    <ui:ProgressRing IsIndeterminate="True" Background="Transparent" Width="50" Height="50" BorderThickness="5"/>
-                    <TextBlock Text="Loading Assets"
-                               Classes="BodyStrongTextBlockStyle" HorizontalAlignment="Center"
-                               Margin="{ext:Space 0, 2, 0, 0}"/>
-                </StackPanel>
-            </Grid>
-        </Border>
-        
     </Grid>
 </Window>

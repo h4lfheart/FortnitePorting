@@ -7,7 +7,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Framework;
-using FortnitePorting.Models;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.Information;
 using FortnitePorting.Services;

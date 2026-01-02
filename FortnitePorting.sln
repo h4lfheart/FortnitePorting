@@ -6,8 +6,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortnitePorting.Shared", "F
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CUE4Parse", "Dependencies\CUE4Parse\CUE4Parse\CUE4Parse.csproj", "{080F7E8E-25FF-488C-8F7B-F1104F9456F4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortnitePorting.Rendering", "FortnitePorting.Rendering\FortnitePorting.Rendering.csproj", "{87627B9B-370B-4B06-AE2B-D67D008CBF13}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CUE4Parse-Conversion", "Dependencies\CUE4Parse\CUE4Parse-Conversion\CUE4Parse-Conversion.csproj", "{A59C67EA-D088-4235-950C-C98FF12A3052}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortnitePorting.Plugins", "FortnitePorting.Plugins\FortnitePorting.Plugins.csproj", "{7B1D87EB-F55C-4140-8240-180DE2DB83D4}"
@@ -17,6 +15,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{A58495DE-FFF8-4539-9A8B-91EFE442FE4F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentAvalonia.BreadcrumbBar", "Dependencies\FluentAvalonia.BreadcrumbBar\FluentAvalonia.BreadcrumbBar\FluentAvalonia.BreadcrumbBar.csproj", "{2F47C460-E14B-4241-BB33-7F1E5AEAD4CC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortnitePorting.RenderingX", "FortnitePorting.RenderingX\FortnitePorting.RenderingX.csproj", "{10D5E9F1-41B8-4869-99CF-7F6392AD2FC4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortnitePorting.RenderingX.Standalone", "FortnitePorting.RenderingX.Standalone\FortnitePorting.RenderingX.Standalone.csproj", "{9B281DF2-1B36-42CC-BF44-C7A669A216EF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -36,10 +38,6 @@ Global
 		{080F7E8E-25FF-488C-8F7B-F1104F9456F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{080F7E8E-25FF-488C-8F7B-F1104F9456F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{080F7E8E-25FF-488C-8F7B-F1104F9456F4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{87627B9B-370B-4B06-AE2B-D67D008CBF13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{87627B9B-370B-4B06-AE2B-D67D008CBF13}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{87627B9B-370B-4B06-AE2B-D67D008CBF13}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{87627B9B-370B-4B06-AE2B-D67D008CBF13}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A59C67EA-D088-4235-950C-C98FF12A3052}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A59C67EA-D088-4235-950C-C98FF12A3052}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A59C67EA-D088-4235-950C-C98FF12A3052}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -52,12 +50,21 @@ Global
 		{2F47C460-E14B-4241-BB33-7F1E5AEAD4CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2F47C460-E14B-4241-BB33-7F1E5AEAD4CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2F47C460-E14B-4241-BB33-7F1E5AEAD4CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10D5E9F1-41B8-4869-99CF-7F6392AD2FC4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10D5E9F1-41B8-4869-99CF-7F6392AD2FC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10D5E9F1-41B8-4869-99CF-7F6392AD2FC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10D5E9F1-41B8-4869-99CF-7F6392AD2FC4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B281DF2-1B36-42CC-BF44-C7A669A216EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B281DF2-1B36-42CC-BF44-C7A669A216EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B281DF2-1B36-42CC-BF44-C7A669A216EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B281DF2-1B36-42CC-BF44-C7A669A216EF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{080F7E8E-25FF-488C-8F7B-F1104F9456F4} = {160B5ECB-2908-45FC-9568-A278D0F5C7BB}
 		{A59C67EA-D088-4235-950C-C98FF12A3052} = {160B5ECB-2908-45FC-9568-A278D0F5C7BB}
-		{87627B9B-370B-4B06-AE2B-D67D008CBF13} = {A58495DE-FFF8-4539-9A8B-91EFE442FE4F}
 		{F4D98C69-ED26-4EA3-A60A-9E1F54E78211} = {A58495DE-FFF8-4539-9A8B-91EFE442FE4F}
 		{2F47C460-E14B-4241-BB33-7F1E5AEAD4CC} = {160B5ECB-2908-45FC-9568-A278D0F5C7BB}
+		{10D5E9F1-41B8-4869-99CF-7F6392AD2FC4} = {A58495DE-FFF8-4539-9A8B-91EFE442FE4F}
+		{9B281DF2-1B36-42CC-BF44-C7A669A216EF} = {A58495DE-FFF8-4539-9A8B-91EFE442FE4F}
 	EndGlobalSection
 EndGlobal
