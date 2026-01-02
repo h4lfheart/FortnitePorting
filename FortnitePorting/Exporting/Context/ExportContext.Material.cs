@@ -209,4 +209,9 @@ public partial class ExportContext
             parameterCollection.Vectors.AddUnique(new VectorParameter(param.Name, param.Value));
         }
     }
+
+    public ExportTexture? Texture(UTexture? texture)
+    {
+        return texture is null ? null : new ExportTexture(Export(texture), texture.SRGB, texture.CompressionSettings);
+    }
 }

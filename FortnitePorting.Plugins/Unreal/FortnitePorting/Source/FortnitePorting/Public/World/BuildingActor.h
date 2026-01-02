@@ -9,13 +9,7 @@ struct FTextureDataInstance
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FString DiffuseName;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FString NormalsName;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FString SpecularName;
+	int LayerIndex;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UBuildingTextureData> TextureData;

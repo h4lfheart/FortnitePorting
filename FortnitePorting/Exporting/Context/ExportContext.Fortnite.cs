@@ -224,22 +224,14 @@ public partial class ExportContext
         
         exportTextureData.Hash = exportTextureData.Path.GetHashCode();
 
-        var textureSuffix = index > 0 ? $"_Texture_{index + 1}" : string.Empty;
-        var specSuffix = index > 0 ? $"_{index + 1}" : string.Empty;
-        
-        exportTextureData.Diffuse = AddData(textureData.Diffuse, "Diffuse", textureSuffix);
-        exportTextureData.Normal = AddData(textureData.Normal, "Normals", textureSuffix);
-        exportTextureData.Specular = AddData(textureData.Specular, "SpecularMasks", specSuffix);
+        exportTextureData.Diffuse = Texture(textureData.Diffuse);
+        exportTextureData.Normal = Texture(textureData.Normal);
+        exportTextureData.Specular = Texture(textureData.Specular);
         
         if (textureData.OverrideMaterial is { } overrideMaterial)
             exportTextureData.OverrideMaterial = Material(overrideMaterial, 0);
         
         return exportTextureData;
-        
-        TextureParameter? AddData(UTexture? texture, string prefix, string suffix)
-        {
-            return texture is null ? null : new TextureParameter(prefix + suffix, new ExportTexture(Export(texture), texture.SRGB, texture.CompressionSettings));
-        }
     }
     
     

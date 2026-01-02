@@ -38,19 +38,32 @@ void ABuildingActor::OnConstruction(const FTransform& Transform)
 		if (TextureDataInstance.TextureData == nullptr)
 			continue;
 		
-		if (TextureDataInstance.TextureData->Diffuse != nullptr)
-			DynamicMaterial->SetTextureParameterValue(*TextureDataInstance.DiffuseName, TextureDataInstance.TextureData->Diffuse);
-		else 
-			ResetToMaterialDefault(DynamicMaterial, *TextureDataInstance.DiffuseName);
-			
-		if (TextureDataInstance.TextureData->Normal != nullptr)
-			DynamicMaterial->SetTextureParameterValue(*TextureDataInstance.NormalsName, TextureDataInstance.TextureData->Normal);
-		else 
-			ResetToMaterialDefault(DynamicMaterial, *TextureDataInstance.NormalsName);
-			
-		if (TextureDataInstance.TextureData->Specular != nullptr)
-			DynamicMaterial->SetTextureParameterValue(*TextureDataInstance.SpecularName, TextureDataInstance.TextureData->Specular);
-		else 
-			ResetToMaterialDefault(DynamicMaterial, *TextureDataInstance.SpecularName);
+		const int32 Index = Instance.LayerIndex;
+
+		const FString TextureSuffix = Index > 0 ? FString::Printf(TEXT("_Texture_%d"), Index + 1) : TEXT("");
+
+		const FString SpecSuffix = Index > 0 ? FString::Printf(TEXT("_%d"), Index + 1) : TEXT("");
+
+		const FName DiffuseParam = *FString::Printf(TEXT("Diffuse%s"), *TextureSuffix);
+		const FName NormalParam = *FString::Printf(TEXT("Normals%s"), *TextureSuffix);
+		const FName SpecularParam = *FString::Printf(TEXT("SpecularMasks%s"), *SpecSuffix);
+
+		// Diffuse
+		if (Instance.TextureData->Diffuse)
+			DynamicMaterial->SetTextureParameterValue(DiffuseParam, Instance.TextureData->Diffuse);
+		else
+			ResetToMaterialDefault(DynamicMaterial, DiffuseParam);
+
+		// Normal
+		if (Instance.TextureData->Normal)
+			DynamicMaterial->SetTextureParameterValue(NormalParam, Instance.TextureData->Normal);
+		else
+			ResetToMaterialDefault(DynamicMaterial, NormalParam);
+
+		// Specular
+		if (Instance.TextureData->Specular)
+			DynamicMaterial->SetTextureParameterValue(SpecularParam, Instance.TextureData->Specular);
+		else
+			ResetToMaterialDefault(DynamicMaterial, SpecularParam);
 	}
 }

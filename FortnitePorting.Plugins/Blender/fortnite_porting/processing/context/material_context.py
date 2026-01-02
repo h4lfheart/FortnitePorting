@@ -43,13 +43,19 @@ class MaterialImportContext:
         component_masks = material_data.get("ComponentMasks")
         
         if texture_data is not None:
+            
             for data in texture_data:
+                index = data.get("Index")
+
+                texture_suffix = f"_Texture_{index + 1}" if index > 0 else ""
+                spec_suffix = f"_{index + 1}" if index > 0 else ""
+
                 if diffuse := data.get("Diffuse"):
-                    replace_or_add_parameter(textures, diffuse)
+                    replace_or_add_parameter_from_texture(textures, f"Diffuse{texture_suffix}", diffuse)
                 if normal := data.get("Normal"):
-                    replace_or_add_parameter(textures, normal)
+                    replace_or_add_parameter_from_texture(textures, f"Normals{texture_suffix}", normal)
                 if specular := data.get("Specular"):
-                    replace_or_add_parameter(textures, specular)
+                    replace_or_add_parameter_from_texture(textures, f"SpecularMasks{spec_suffix}", specular)
         
         override_parameters = where(self.override_parameters, lambda param: param.get("MaterialNameToAlter") in [material_name, "Global"])
         if override_parameters is not None:

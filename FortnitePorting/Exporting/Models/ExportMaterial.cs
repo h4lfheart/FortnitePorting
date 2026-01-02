@@ -59,9 +59,9 @@ public record ExportTextureData
     public string Path;
     public int Hash;
     public int Index;
-    public TextureParameter? Diffuse;
-    public TextureParameter? Normal;
-    public TextureParameter? Specular;
+    public ExportTexture? Diffuse;
+    public ExportTexture? Normal;
+    public ExportTexture? Specular;
     public ExportMaterial? OverrideMaterial;
 }
 

@@ -154,9 +154,7 @@ UObject* FImportContext::ImportModel(const FJsonWrapper& ExportData, UWorld* Wor
     	for (const auto& TexData : MeshData.GetArray("TextureData"))
     	{
     		Actor->TextureData.Add(FTextureDataInstance {
-				.DiffuseName = TexData["Diffuse"].Get<FString>("Name"),
-				.NormalsName = TexData["Normal"].Get<FString>("Name"),
-				.SpecularName = TexData["Specular"].Get<FString>("Name"),
+				.LayerIndex = TexData.Get<int>("Name"),
 				.TextureData = ImportBuildingTextureData(TexData)
 			});
     	}

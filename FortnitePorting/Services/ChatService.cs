@@ -79,6 +79,7 @@ public partial class ChatService : ObservableObject, IService
         
         var messages = await SupaBase.Client.From<Message>()
             .Order("timestamp", Constants.Ordering.Ascending)
+            .Limit(50)
             .Get();
         
         foreach (var message in messages.Models)
