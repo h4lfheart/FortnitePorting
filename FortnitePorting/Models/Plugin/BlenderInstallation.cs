@@ -34,7 +34,7 @@ public partial class BlenderInstallation(string blenderExecutablePath) : Observa
         "blender_manifest.toml");
     
     public static readonly DirectoryInfo PluginWorkingDirectory = new(Path.Combine(App.PluginsFolder.FullName, "Blender"));
-    public static readonly Version MinimumVersion = new(4, 2);
+    public static readonly Version MinimumVersion = new(5, 0);
 
     public static Version GetVersion(string blenderPath)
     {
