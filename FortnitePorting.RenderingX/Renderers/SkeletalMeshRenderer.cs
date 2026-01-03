@@ -1,6 +1,7 @@
 using CUE4Parse_Conversion.Meshes;
 using CUE4Parse_Conversion.Meshes.PSK;
 using CUE4Parse.UE4.Assets.Exports.Material;
+using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using FortnitePorting.RenderingX.Components.Rendering;
 using FortnitePorting.RenderingX.Data.Programs;
@@ -9,14 +10,14 @@ using FortnitePorting.RenderingX.Materials;
 
 namespace FortnitePorting.RenderingX.Renderers;
 
-public class StaticMeshRenderer : MeshRenderer
+public class SkeletalMeshRenderer : MeshRenderer
 {
     public List<Section> Sections = [];
     public Material[] Materials = [];
     
     private static readonly ShaderProgram _shader = new("shader");
     
-    public StaticMeshRenderer(UStaticMesh staticMesh, int lodLevel = 0) : base(_shader)
+    public SkeletalMeshRenderer(USkeletalMesh staticMesh, int lodLevel = 0) : base(_shader)
     {
         if (!staticMesh.TryConvert(out var convertedMesh))
         {

@@ -9,7 +9,8 @@ public class MeshRendererComponent(MeshRenderer _renderer) : Component
     public override void Initialize()
     {
         base.Initialize();
-        
+
+        _renderer.Owner = this;
         _renderer.Initialize();
     }
     

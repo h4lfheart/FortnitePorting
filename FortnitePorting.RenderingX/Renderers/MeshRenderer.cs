@@ -4,7 +4,6 @@ using FortnitePorting.RenderingX.Components.Rendering;
 using FortnitePorting.RenderingX.Core;
 using FortnitePorting.RenderingX.Data.Buffers;
 using FortnitePorting.RenderingX.Data.Programs;
-using SharpGLTF.Schema2;
 using PrimitiveType = OpenTK.Graphics.OpenGL.PrimitiveType;
 
 namespace FortnitePorting.RenderingX.Renderers;
@@ -12,13 +11,11 @@ namespace FortnitePorting.RenderingX.Renderers;
 public class MeshRenderer(ShaderProgram shaderProgram) : Renderable
 {
     public ShaderProgram Shader = shaderProgram;
-    public Material[] Materials = [];
 
-    public TransformComponent? Transform;
+    public MeshRendererComponent Owner;
 
     public float[] Vertices = [];
     public uint[] Indices = [];
-    public List<BitVector32.Section> Sections = [];
 
     protected Buffer<float> VertexBuffer;
     protected Buffer<uint> IndexBuffer;
@@ -52,16 +49,11 @@ public class MeshRenderer(ShaderProgram shaderProgram) : Renderable
     protected virtual void RenderShader(CameraComponent camera)
     {
         Shader.Use();
-        Shader.SetMatrix4("uTransform", Transform?.WorldMatrix() ?? Matrix4.Identity);
+        Shader.SetMatrix4("uTransform", Owner.Owner.GetComponent<TransformComponent>()?.WorldMatrix() ?? Matrix4.Identity);
         Shader.SetMatrix4("uView", camera.ViewMatrix());
         Shader.SetMatrix4("uProjection", camera.ProjectionMatrix());
         Shader.SetUniform3("fCameraDirection", camera.Direction);
         Shader.SetUniform3("fCameraPosition", camera.Owner.GetComponent<TransformComponent>()!.WorldPosition());
-        
-        /*foreach (var material in Materials)
-        {
-            material.Bind();
-        }*/
     }
     
     protected virtual void RenderGeometry(CameraComponent camera)
@@ -78,12 +70,6 @@ public class MeshRenderer(ShaderProgram shaderProgram) : Renderable
         Shader.Link();
         
         BuildMesh();
-        
-        /*foreach (var rendererMaterial in Materials)
-        {
-            Shader.Use();
-            rendererMaterial.SetUniforms(Shader);
-        }*/
     }
 
     public override void Render(CameraComponent camera)

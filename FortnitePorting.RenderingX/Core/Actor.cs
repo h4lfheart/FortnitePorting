@@ -47,14 +47,19 @@ public class Actor: Renderable
         return component;
     }
     
-    public T? GetComponent<T>() where T : Component, new()
+    public T? GetComponent<T>() where T : Component
     {
         return _components.OfType<T>().FirstOrDefault();
     }
     
-    public IEnumerable<T> GetComponents<T>() where T : Component, new()
+    public IEnumerable<T> GetComponents<T>() where T : Component
     {
         return _components.OfType<T>();
+    }
+    
+    public bool RemoveComponent<T>() where T : Component
+    {
+        return GetComponent<T>() is { } existing && _components.Remove(existing);
     }
 
     public override void Render(CameraComponent camera)
