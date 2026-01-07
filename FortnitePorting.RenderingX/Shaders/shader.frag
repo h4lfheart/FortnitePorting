@@ -136,42 +136,39 @@ void main()
 
     vec3 N = normals;
     vec3 V = normalize(fCameraPosition - fPosition);
-    vec3 L = normalize(fCameraPosition - fPosition);
-    vec3 H = normalize(V + L);
 
-    // reflectivity
+    vec3 cameraRight = normalize(cross(V, vec3(0.0, 1.0, 0.0)));
+    vec3 cameraUp = normalize(cross(cameraRight, V));
+    vec3 L1 = normalize(V + cameraRight * 0.8 + cameraUp * 1.2);
+
+    vec3 L2 = normalize(V - cameraRight * 0.5 + cameraUp * 0.3);
+
+    vec3 H1 = normalize(V + L1);
     vec3 F0 = vec3(0.04);
     F0 = mix(F0, albedo, metallic);
 
-    // brdf
-    float NDF = DistributionGGX(N, H, roughness);
-    float G = GeometrySmith(N, V, L, roughness);
-    vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
+    float NDF1 = DistributionGGX(N, H1, roughness);
+    float G1 = GeometrySmith(N, V, L1, roughness);
+    vec3 F1 = fresnelSchlick(max(dot(H1, V), 0.0), F0);
 
-    vec3 kS = F;
-    vec3 kD = vec3(1.0) - kS;
-    kD *= 1.0 - metallic;
+    vec3 kS1 = F1;
+    vec3 kD1 = vec3(1.0) - kS1;
+    kD1 *= 1.0 - metallic;
 
-    vec3 numerator = NDF * G * F;
-    float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
-    vec3 specular = numerator / denominator;
+    vec3 numerator1 = NDF1 * G1 * F1;
+    float denominator1 = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L1), 0.0) + 0.0001;
+    vec3 specular1 = numerator1 / denominator1;
 
-    /*float distance = length(fCameraPosition - fPosition);
-    float attenuation = 1.0 / (distance * distance);*/
-    vec3 radiance = vec3(7.5);
+    float NdotL1 = max(dot(N, L1), 0.0);
+    vec3 Lo1 = (kD1 * albedo / PI + specular1) * vec3(2.5) * NdotL1;
 
-    float NdotL = max(dot(N, L), 0.0);
-    vec3 Lo = (kD * albedo / PI + specular) * radiance * NdotL;
+    float NdotL2 = max(dot(N, L2), 0.0);
+    vec3 Lo2 = (albedo / PI) * vec3(0.4) * NdotL2;
+    
+    vec3 ambient = vec3(0.02) * albedo;
 
-    // ambient
-    vec3 ambient = vec3(0.1) * albedo;
-
-    vec3 color = ambient + Lo;
-
-    // hdr tonemapping
+    vec3 color = ambient + Lo1 + Lo2;
     color = color / (color + vec3(1.0));
-
-    // gamma
     color = pow(color, vec3(1.0/2.2));
 
     FragColor = vec4(color, 1.0);

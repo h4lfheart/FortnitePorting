@@ -10,8 +10,8 @@ public class GridRenderer : MeshRenderer
     public float GridScale2  = 1.0f;
     public Vector3 GridColor1 =  new(67f / 255f, 67f / 255f, 67f / 255f);
     public Vector3 GridColor2 = new(0f / 255f, 0f / 255f, 0f / 255f);
-    public float FadeStart = 250.0f;
-    public float FadeEnd = 500.0f;
+    public float FadeStart = 0.0f;
+    public float FadeEnd = 250.0f;
     
     private static readonly ShaderProgram _shader = new("grid");
     
@@ -41,7 +41,7 @@ public class GridRenderer : MeshRenderer
         Shader.SetMatrix4("u_Proj", camera.ProjectionMatrix(), transpose: false);
         Shader.SetUniform("u_Near", camera.NearPlane);
         Shader.SetUniform("u_Far", camera.FarPlane);
-        Shader.SetUniform3("u_CameraPos", camera.Owner.GetComponent<TransformComponent>()!.WorldPosition());
+        Shader.SetUniform3("u_CameraPos", camera.Actor.GetComponent<SpatialComponent>()!.WorldPosition());
         
         Shader.SetUniform("u_GridScale1", GridScale1);
         Shader.SetUniform("u_GridScale2", GridScale2);

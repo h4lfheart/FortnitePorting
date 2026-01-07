@@ -1,6 +1,8 @@
+using System.Collections.ObjectModel;
+
 namespace FortnitePorting.RenderingX.Core;
 
 public class Component : Renderable
 {
-    public Actor Owner;
+    public Actor? Actor;
 }

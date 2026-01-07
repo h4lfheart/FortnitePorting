@@ -1,34 +1,19 @@
 using FortnitePorting.RenderingX.Components;
 using FortnitePorting.RenderingX.Components.Rendering;
 using FortnitePorting.RenderingX.Exceptions;
+using FortnitePorting.RenderingX.Managers;
 
 namespace FortnitePorting.RenderingX.Core;
 
 public class Scene
 {
-    public CameraComponent? ActiveCamera { get; private set; }
-    
-    internal readonly Actor Root;
+    public CameraComponent? ActiveCamera { get; set; }
 
-    private List<Manager> _managers = [];
-
-    public Scene()
-    {
-        Root = new Actor
-        {
-            Name = "Root",
-            SceneRef = this
-        };
-    }
+    public ActorManager ActorManager = new();
     
     public void Update(float deltaTime)
     {
-        Root.Update(deltaTime);
-        
-        foreach (var manager in _managers)
-        {
-            manager.Update(deltaTime);
-        }
+        ActorManager.RootActor?.Update(deltaTime);
     }
 
     public void Render()
@@ -38,35 +23,24 @@ public class Scene
             throw new RenderingException("There is no active camera set to render with.");
         }
         
-        Root.Render(ActiveCamera);
+        ActorManager.RootActor?.Render(ActiveCamera);
+    }
 
-        foreach (var manager in _managers)
+    public void Destroy()
+    {
+        ActorManager.RootActor?.Destroy();
+        
+    }
+
+    public void AddActor(Actor actor)
+    {
+        if (ActorManager.RootActor is null)
         {
-            manager.Render(ActiveCamera);
+            ActorManager.RootActor = actor;
         }
-    }
-    
-    public T RegisterManager<T>() where T : Manager, new()
-    {
-        var manager = new T
+        else
         {
-            SceneRef = this
-        };
-        
-        manager.Initialize();
-        
-        _managers.Add(manager);
-        
-        return manager;
-    }
-    
-    public T? GetManager<T>() where T : Manager
-    {
-        return _managers.OfType<T>().FirstOrDefault();
-    }
-
-    public void SetActiveCamera(CameraComponent camera)
-    {
-        ActiveCamera = camera;
+            ActorManager.RootActor.Children.Add(actor);
+        }
     }
 }

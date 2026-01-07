@@ -2,7 +2,7 @@ using FortnitePorting.RenderingX.Core;
 
 namespace FortnitePorting.RenderingX.Components.Rendering;
 
-public class CameraComponent : Component
+public class CameraComponent : SpatialComponent
 {
     public Vector3 Direction = Vector3.UnitX;
     public Vector3 Up = Vector3.UnitY;
@@ -35,18 +35,12 @@ public class CameraComponent : Component
     
     public void LookAt(Vector3 targetPosition)
     {
-        if (Owner?.GetComponent<TransformComponent>() is not { } transform)
-            return;
-
-        Direction = Vector3.Normalize(targetPosition - transform.WorldPosition());
+        Direction = Vector3.Normalize(targetPosition - WorldPosition());
     }
 
     public Matrix4 ViewMatrix()
     {
-        if (Owner?.GetComponent<TransformComponent>() is not { } transform)
-            return Matrix4.Identity;
-            
-        return Matrix4.LookAt(transform.WorldPosition(), transform.WorldPosition() + Direction, Up);
+        return Matrix4.LookAt(WorldPosition(), WorldPosition() + Direction, Up);
     }
 
     public Matrix4 ProjectionMatrix()

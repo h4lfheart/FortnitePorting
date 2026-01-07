@@ -15,9 +15,7 @@ public class SkeletalMeshRenderer : MeshRenderer
     public List<Section> Sections = [];
     public Material[] Materials = [];
     
-    private static readonly ShaderProgram _shader = new("shader");
-    
-    public SkeletalMeshRenderer(USkeletalMesh staticMesh, int lodLevel = 0) : base(_shader)
+    public SkeletalMeshRenderer(USkeletalMesh staticMesh, int lodLevel = 0) : base(new ShaderProgram("shader"))
     {
         if (!staticMesh.TryConvert(out var convertedMesh))
         {

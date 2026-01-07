@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using FortnitePorting.RenderingX.Components;
 using FortnitePorting.RenderingX.Core;
 using OpenTK.Windowing.Common;
@@ -61,7 +62,7 @@ public class RenderingXWindow(Scene _scene) : GameWindow(GameSettings, NativeSet
     {
         base.OnMouseWheel(e);
         
-        _scene.ActiveCamera.Speed = Math.Clamp(_scene.ActiveCamera.Speed + (e.OffsetY * 0.01f), 0.001f, 20.0f);
+        _scene.ActiveCamera.Speed = Math.Clamp(_scene.ActiveCamera.Speed + (e.OffsetY * 0.01f), 0.01f, 20.0f);
     }
     
     protected override void OnUpdateFrame(FrameEventArgs args)
@@ -70,7 +71,7 @@ public class RenderingXWindow(Scene _scene) : GameWindow(GameSettings, NativeSet
         
         _scene.Update((float) args.Time);
 
-        if (_scene.ActiveCamera.Owner?.GetComponent<TransformComponent>() is not { } transform)
+        if (_scene.ActiveCamera.Actor?.GetComponent<SpatialComponent>() is not { } transform)
             return;
         
         if (KeyboardState.IsKeyDown(Keys.W))
@@ -105,5 +106,12 @@ public class RenderingXWindow(Scene _scene) : GameWindow(GameSettings, NativeSet
         base.OnFramebufferResize(e);
         
         GL.Viewport(0, 0, e.Width, e.Height);
+    }
+
+    protected override void OnClosing(CancelEventArgs e)
+    {
+        base.OnClosing(e);
+        
+        _scene.Destroy();
     }
 }

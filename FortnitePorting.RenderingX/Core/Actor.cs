@@ -1,79 +1,128 @@
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using FortnitePorting.RenderingX.Components.Rendering;
+using FortnitePorting.RenderingX.Managers;
 
 namespace FortnitePorting.RenderingX.Core;
 
-public class Actor: Renderable
+public class Actor : Renderable
 {
-    public string Name = "Actor";
+    public string Name;
     public Guid Guid = Guid.NewGuid();
 
     public Actor? Parent;
-    public Scene? SceneRef;
 
-    private List<Component> _components = [];
-    private List<Actor> _children = [];
+    public ComponentCollection Components;
+    public ActorCollection Children;
 
-    public void AddChild(Actor child)
-    {
-        child.Parent = this;
-        child.SceneRef = SceneRef;
-        _children.Add(child);
-    }
+    public ActorManager Manager;
 
-    public void RemoveChild(Actor child)
+    public Actor(string name = "Actor")
     {
-        child.Parent = null;
-        child.SceneRef = null;
-        _children.Remove(child);
-    }
-
-    public void AttachTo(Actor newParent)
-    {
-        Parent?.RemoveChild(this);
-        newParent.AddChild(this);
-    }
-
-    public T AddComponent<T>() where T : Component, new()
-    {
-        return AddComponent(new T());
-    }
-    
-    public T AddComponent<T>(T component) where T : Component
-    {
-        component.Owner = this;
-        component.Initialize();
+        Name = name;
+        Components = [];
+        Children = [];
         
-        _components.Add(component);
-        return component;
+        Children.CollectionChanged += ChildrenOnCollectionChanged;
+        Components.CollectionChanged += ComponentsOnCollectionChanged;
     }
-    
+
     public T? GetComponent<T>() where T : Component
     {
-        return _components.OfType<T>().FirstOrDefault();
-    }
-    
-    public IEnumerable<T> GetComponents<T>() where T : Component
-    {
-        return _components.OfType<T>();
-    }
-    
-    public bool RemoveComponent<T>() where T : Component
-    {
-        return GetComponent<T>() is { } existing && _components.Remove(existing);
+        return Components.OfType<T>().FirstOrDefault();
     }
 
     public override void Render(CameraComponent camera)
     {
         base.Render(camera);
 
-        foreach (var child in _children)
+        // TODO render from actor manager
+        foreach (var child in Children)
         {
             child.Render(camera);
         }
         
-        foreach (var component in _components)
+        // TODO render from component system (i.e. mesh render system picks up on mesh components and renders them)
+        foreach (var component in Components)
         {
             component.Render(camera);
         }
     }
+
+    public override void Destroy()
+    {
+        base.Destroy();
+        
+        foreach (var child in Children)
+        {
+            child.Destroy();
+        }
+        
+        foreach (var component in Components)
+        {
+            component.Destroy();
+        }
+    }
+
+    private void AddChild(Actor actor)
+    {
+        actor.Parent = this;
+    }
+    
+    private void RemoveChild(Actor actor)
+    {
+        actor.Parent = null;
+    }
+
+    private void AddComponent(Component component)
+    {
+        component.Actor = this;
+    }
+
+    private void RemoveComponent(Component component)
+    {
+        component.Actor = null;
+    }
+
+    
+    private void ChildrenOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        switch (e.Action)
+        {
+            case NotifyCollectionChangedAction.Add:
+                foreach (var actor in e.NewItems!.Cast<Actor>())
+                {
+                    AddChild(actor);
+                }
+                break;
+            case NotifyCollectionChangedAction.Remove:
+                foreach (var actor in e.OldItems!.Cast<Actor>())
+                {
+                    RemoveChild(actor);
+                }
+                break;
+        }
+    }
+    
+    private void ComponentsOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        switch (e.Action)
+        {
+            case NotifyCollectionChangedAction.Add:
+                foreach (var component in e.NewItems!.Cast<Component>())
+                {
+                    AddComponent(component);
+                }
+                break;
+            case NotifyCollectionChangedAction.Remove:
+                foreach (var component in e.OldItems!.Cast<Component>())
+                {
+                    RemoveComponent(component);
+                }
+                break;
+        }
+    }
 }
+
+public class ActorCollection : ObservableCollection<Actor>;
+public class ComponentCollection : ObservableCollection<Component>;

@@ -2,7 +2,7 @@ using FortnitePorting.RenderingX.Core;
 
 namespace FortnitePorting.RenderingX.Components;
 
-public class TransformComponent : Component
+public class SpatialComponent : Component
 {
     public Vector3 LocalPosition = Vector3.Zero;
     public Quaternion LocalRotation = Quaternion.Identity;
@@ -10,10 +10,10 @@ public class TransformComponent : Component
     
     public Vector3 WorldPosition()
     {
-        if (Owner?.Parent is null)
+        if (Actor?.Parent is null)
             return LocalPosition;
             
-        var parentTransform = Owner.Parent?.GetComponent<TransformComponent>();
+        var parentTransform = Actor.Parent?.GetComponent<SpatialComponent>();
         if (parentTransform is null)
             return LocalPosition;
                 
@@ -37,13 +37,13 @@ public class TransformComponent : Component
         return LocalMatrix() * parentTransform.WorldMatrix();
     }
     
-    private TransformComponent? ParentTransform()
+    private SpatialComponent? ParentTransform()
     {
-        var currentParent = Owner?.Parent;
+        var currentParent = Actor?.Parent;
         
         while (currentParent is not null)
         {
-            var transform = currentParent.GetComponent<TransformComponent>();
+            var transform = currentParent.GetComponent<SpatialComponent>();
             if (transform is not null)
                 return transform;
                 

@@ -14,9 +14,7 @@ public class StaticMeshRenderer : MeshRenderer
     public List<Section> Sections = [];
     public Material[] Materials = [];
     
-    private static readonly ShaderProgram _shader = new("shader");
-    
-    public StaticMeshRenderer(UStaticMesh staticMesh, int lodLevel = 0) : base(_shader)
+    public StaticMeshRenderer(UStaticMesh staticMesh, int lodLevel = 0) : base(new ShaderProgram("shader"))
     {
         if (!staticMesh.TryConvert(out var convertedMesh))
         {
@@ -110,7 +108,7 @@ public class StaticMeshRenderer : MeshRenderer
 
     protected override void RenderGeometry(CameraComponent camera)
     {
-        base.RenderGeometry(camera);
+        VertexArray.Bind();
         
         foreach (var section in Sections)
         {

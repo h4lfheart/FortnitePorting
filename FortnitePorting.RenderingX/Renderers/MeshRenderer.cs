@@ -1,5 +1,6 @@
 using System.Collections.Specialized;
 using FortnitePorting.RenderingX.Components;
+using FortnitePorting.RenderingX.Components.Mesh;
 using FortnitePorting.RenderingX.Components.Rendering;
 using FortnitePorting.RenderingX.Core;
 using FortnitePorting.RenderingX.Data.Buffers;
@@ -12,7 +13,7 @@ public class MeshRenderer(ShaderProgram shaderProgram) : Renderable
 {
     public ShaderProgram Shader = shaderProgram;
 
-    public MeshRendererComponent Owner;
+    public MeshComponent Component;
 
     public float[] Vertices = [];
     public uint[] Indices = [];
@@ -49,11 +50,11 @@ public class MeshRenderer(ShaderProgram shaderProgram) : Renderable
     protected virtual void RenderShader(CameraComponent camera)
     {
         Shader.Use();
-        Shader.SetMatrix4("uTransform", Owner.Owner.GetComponent<TransformComponent>()?.WorldMatrix() ?? Matrix4.Identity);
+        Shader.SetMatrix4("uTransform", Component.Actor.GetComponent<SpatialComponent>()?.WorldMatrix() ?? Matrix4.Identity);
         Shader.SetMatrix4("uView", camera.ViewMatrix());
         Shader.SetMatrix4("uProjection", camera.ProjectionMatrix());
         Shader.SetUniform3("fCameraDirection", camera.Direction);
-        Shader.SetUniform3("fCameraPosition", camera.Owner.GetComponent<TransformComponent>()!.WorldPosition());
+        Shader.SetUniform3("fCameraPosition", camera.Actor.GetComponent<SpatialComponent>()!.WorldPosition());
     }
     
     protected virtual void RenderGeometry(CameraComponent camera)

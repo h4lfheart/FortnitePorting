@@ -4,19 +4,13 @@ using FortnitePorting.RenderingX.Core;
 
 namespace FortnitePorting.RenderingX.Actors;
 
-public class CameraActor : WorldActor
+public class CameraActor : Actor
 {
-    public CameraComponent Camera;
+    public CameraComponent Camera { get; }
 
-    public override void Initialize()
+    public CameraActor(string name) : base(name)
     {
-        base.Initialize();
-        
-        Camera = AddComponent<CameraComponent>();
-    }
-
-    public void MakeActiveCamera()
-    {
-        SceneRef?.SetActiveCamera(Camera);
+        Camera = new CameraComponent();
+        Components.Add(Camera);
     }
 }

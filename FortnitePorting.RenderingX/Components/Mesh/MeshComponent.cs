@@ -1,18 +1,19 @@
-
-using FortnitePorting.RenderingX.Core;
+using FortnitePorting.RenderingX.Components.Rendering;
 using FortnitePorting.RenderingX.Renderers;
 
-namespace FortnitePorting.RenderingX.Components.Rendering;
+namespace FortnitePorting.RenderingX.Components.Mesh;
 
-public class MeshRendererComponent(MeshRenderer _renderer) : Component
+public class MeshComponent : SpatialComponent
 {
-    public override void Initialize()
-    {
-        base.Initialize();
+    private readonly MeshRenderer _renderer;
 
-        _renderer.Owner = this;
+    public MeshComponent(MeshRenderer renderer)
+    {
+        _renderer = renderer;
+        
+        _renderer.Component = this;
         _renderer.Initialize();
-    }
+    } 
     
     public override void Update(float deltaTime)
     {
