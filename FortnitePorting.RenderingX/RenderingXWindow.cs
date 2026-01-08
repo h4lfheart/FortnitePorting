@@ -62,7 +62,7 @@ public class RenderingXWindow(Scene _scene) : GameWindow(GameSettings, NativeSet
     {
         base.OnMouseWheel(e);
         
-        _scene.ActiveCamera.Speed = Math.Clamp(_scene.ActiveCamera.Speed + (e.OffsetY * 0.01f), 0.01f, 20.0f);
+        _scene.ActiveCamera?.Speed = Math.Clamp(_scene.ActiveCamera.Speed + (e.OffsetY * 0.01f), 0.01f, 20.0f);
     }
     
     protected override void OnUpdateFrame(FrameEventArgs args)
@@ -71,21 +71,21 @@ public class RenderingXWindow(Scene _scene) : GameWindow(GameSettings, NativeSet
         
         _scene.Update((float) args.Time);
 
-        if (_scene.ActiveCamera.Actor?.GetComponent<SpatialComponent>() is not { } transform)
+        if (_scene.ActiveCamera?.Actor.RootComponent is not { } rootCameraComponent)
             return;
         
         if (KeyboardState.IsKeyDown(Keys.W))
-            transform.LocalPosition += _scene.ActiveCamera.Direction * _scene.ActiveCamera.Speed;
+            rootCameraComponent.Transform.Position += _scene.ActiveCamera.Direction * _scene.ActiveCamera.Speed;
         if (KeyboardState.IsKeyDown(Keys.S))
-            transform.LocalPosition -= _scene.ActiveCamera.Direction * _scene.ActiveCamera.Speed;
+            rootCameraComponent.Transform.Position -= _scene.ActiveCamera.Direction * _scene.ActiveCamera.Speed;
         if (KeyboardState.IsKeyDown(Keys.A))
-            transform.LocalPosition -= Vector3.Normalize(Vector3.Cross(_scene.ActiveCamera.Direction, _scene.ActiveCamera.Up)) * _scene.ActiveCamera.Speed;
+            rootCameraComponent.Transform.Position -= Vector3.Normalize(Vector3.Cross(_scene.ActiveCamera.Direction, _scene.ActiveCamera.Up)) * _scene.ActiveCamera.Speed;
         if (KeyboardState.IsKeyDown(Keys.D))
-            transform.LocalPosition += Vector3.Normalize(Vector3.Cross(_scene.ActiveCamera.Direction, _scene.ActiveCamera.Up)) * _scene.ActiveCamera.Speed;
+            rootCameraComponent.Transform.Position += Vector3.Normalize(Vector3.Cross(_scene.ActiveCamera.Direction, _scene.ActiveCamera.Up)) * _scene.ActiveCamera.Speed;
         if (KeyboardState.IsKeyDown(Keys.E))
-            transform.LocalPosition += _scene.ActiveCamera.Up * _scene.ActiveCamera.Speed;
+            rootCameraComponent.Transform.Position += _scene.ActiveCamera.Up * _scene.ActiveCamera.Speed;
         if (KeyboardState.IsKeyDown(Keys.Q))
-            transform.LocalPosition -= _scene.ActiveCamera.Up * _scene.ActiveCamera.Speed;
+            rootCameraComponent.Transform.Position -= _scene.ActiveCamera.Up * _scene.ActiveCamera.Speed;
     }
 
 

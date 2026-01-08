@@ -35,12 +35,12 @@ public class CameraComponent : SpatialComponent
     
     public void LookAt(Vector3 targetPosition)
     {
-        Direction = Vector3.Normalize(targetPosition - WorldPosition());
+        Direction = Vector3.Normalize(targetPosition - WorldPosition);
     }
 
     public Matrix4 ViewMatrix()
     {
-        return Matrix4.LookAt(WorldPosition(), WorldPosition() + Direction, Up);
+        return Matrix4.LookAt(WorldPosition, WorldPosition + Direction, Up);
     }
 
     public Matrix4 ProjectionMatrix()

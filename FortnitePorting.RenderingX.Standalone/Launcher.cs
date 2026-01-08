@@ -58,7 +58,7 @@ public class Launcher
         window.Load += () =>
         {
             var cameraActor = new CameraActor("MainCamera");
-            cameraActor.Camera.LocalPosition = new Vector3(5, 5, 5);
+            cameraActor.Camera.Transform.Position = new Vector3(5, 5, 5);
             cameraActor.Camera.LookAt(Vector3.Zero);
             root.Children.Add(cameraActor);
 
@@ -70,19 +70,18 @@ public class Launcher
             
             var staticMesh = _provider.LoadPackageObject<UStaticMesh>("FortniteGame/Content/Environments/Apollo/Sets/Coliseum_Ruins/Props/Meshes/S_CR_PeelyStatue");
 
-            var meshActor = new Actor(staticMesh.Name);
-            meshActor.Components.Add(new StaticMeshComponent(staticMesh));
+            var meshActor = new MeshActor(staticMesh, new Transform
+            {
+                Position = new Vector3(0, 0.06f, -0.5f),
+                Rotation = Quaternion.FromEulerAngles(new Vector3(10f * MathF.PI / 180f, 0, 0)),
+                Scale = new Vector3(0.2f)
+            });
             root.Children.Add(meshActor);
 
-            var world = new WorldActor(_provider.LoadPackageObject<UWorld>(
-                "FortniteGame/Content/Athena/Artemis/Maps/Buildings/1x1/Artemis_1x1_BusStation_a"))
+            var world = new WorldActor(_provider.LoadPackageObject<UWorld>("FortniteGame/Content/Athena/Artemis/Maps/Buildings/1x1/Artemis_1x1_BusStation_a"), new Transform
             {
-                Transform =
-                {
-                    LocalPosition = new Vector3(-10, 0, 0),
-                    LocalRotation = Quaternion.FromEulerAngles(new Vector3(0, MathF.PI, 0))
-                }
-            };
+                Rotation = Quaternion.FromEulerAngles(new Vector3(0, MathF.PI, 0))
+            });
             root.Children.Add(world);
             
         };

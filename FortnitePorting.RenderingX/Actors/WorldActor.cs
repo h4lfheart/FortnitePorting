@@ -12,13 +12,9 @@ namespace FortnitePorting.RenderingX.Actors;
 
 public class WorldActor : Actor
 {
-    public SpatialComponent Transform;
-
-    public WorldActor(UWorld world) : base(world.Name)
+    public WorldActor(UWorld world, Transform? transform = null) : base(world.Name)
     {
-        Transform = new SpatialComponent();
-        Components.Add(Transform);
-
+        Components.Add(new SpatialComponent("WorldRoot", transform));
         AddActors(world);
     }
     
@@ -57,9 +53,12 @@ public class WorldActor : Actor
             
             var meshRenderer = new MeshComponent(new StaticMeshRenderer(staticMesh))
             {
-                LocalPosition = new Vector3(transform.Translation.X, transform.Translation.Z, transform.Translation.Y) * 0.01f,
-                LocalRotation = new Quaternion(transform.Rotation.X, transform.Rotation.Z, transform.Rotation.Y, -transform.Rotation.W),
-                LocalScale = new Vector3(transform.Scale3D.X, transform.Scale3D.Z, transform.Scale3D.Y)
+                Transform =
+                {
+                    Position = new Vector3(transform.Translation.X, transform.Translation.Z, transform.Translation.Y) * 0.01f,
+                    Rotation = new Quaternion(transform.Rotation.X, transform.Rotation.Z, transform.Rotation.Y, -transform.Rotation.W),
+                    Scale = new Vector3(transform.Scale3D.X, transform.Scale3D.Z, transform.Scale3D.Y)
+                }
             };
             
             actor.Components.Add(meshRenderer);

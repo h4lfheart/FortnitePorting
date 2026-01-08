@@ -41,7 +41,7 @@ public class GridRenderer : MeshRenderer
         Shader.SetMatrix4("u_Proj", camera.ProjectionMatrix(), transpose: false);
         Shader.SetUniform("u_Near", camera.NearPlane);
         Shader.SetUniform("u_Far", camera.FarPlane);
-        Shader.SetUniform3("u_CameraPos", camera.Actor.GetComponent<SpatialComponent>()!.WorldPosition());
+        Shader.SetUniform3("u_CameraPos", camera.Actor.RootComponent!.WorldPosition);
         
         Shader.SetUniform("u_GridScale1", GridScale1);
         Shader.SetUniform("u_GridScale2", GridScale2);

@@ -50,11 +50,11 @@ public class MeshRenderer(ShaderProgram shaderProgram) : Renderable
     protected virtual void RenderShader(CameraComponent camera)
     {
         Shader.Use();
-        Shader.SetMatrix4("uTransform", Component.Actor.GetComponent<SpatialComponent>()?.WorldMatrix() ?? Matrix4.Identity);
+        Shader.SetMatrix4("uTransform", Component.WorldMatrix);
         Shader.SetMatrix4("uView", camera.ViewMatrix());
         Shader.SetMatrix4("uProjection", camera.ProjectionMatrix());
         Shader.SetUniform3("fCameraDirection", camera.Direction);
-        Shader.SetUniform3("fCameraPosition", camera.Actor.GetComponent<SpatialComponent>()!.WorldPosition());
+        Shader.SetUniform3("fCameraPosition", camera.WorldPosition);
     }
     
     protected virtual void RenderGeometry(CameraComponent camera)

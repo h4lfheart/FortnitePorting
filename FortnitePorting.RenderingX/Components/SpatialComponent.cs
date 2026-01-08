@@ -4,48 +4,55 @@ namespace FortnitePorting.RenderingX.Components;
 
 public class SpatialComponent : Component
 {
-    public Vector3 LocalPosition = Vector3.Zero;
-    public Quaternion LocalRotation = Quaternion.Identity;
-    public Vector3 LocalScale = Vector3.One;
-    
-    public Vector3 WorldPosition()
+    public SpatialComponent(string name = "Component", Transform? transform = null) : base(name)
     {
-        if (Actor?.Parent is null)
-            return LocalPosition;
-            
-        var parentTransform = Actor.Parent?.GetComponent<SpatialComponent>();
-        if (parentTransform is null)
-            return LocalPosition;
-                
-        return Vector3.TransformPosition(LocalPosition, parentTransform.WorldMatrix());
+        Transform = transform ?? Transform.Identity;
     }
     
-    public Matrix4 LocalMatrix()
+    public Transform Transform;
+
+    public Vector3 WorldPosition
     {
-        var translation = Matrix4.CreateTranslation(LocalPosition);
-        var rotation = Matrix4.CreateFromQuaternion(LocalRotation);
-        var scale = Matrix4.CreateScale(LocalScale);
+        get
+        {
+            if (Actor.Parent?.RootComponent is not { } parentRootComponent)
+                return Transform.Position;
+                
+            return Vector3.TransformPosition(Transform.Position, parentRootComponent.WorldMatrix);
+        }
+    }
+    
+    public Matrix4 LocalMatrix
+    {
+        get
+        {
+            var translation = Matrix4.CreateTranslation(Transform.Position);
+            var rotation = Matrix4.CreateFromQuaternion(Transform.Rotation);
+            var scale = Matrix4.CreateScale(Transform.Scale);
         
-        return scale * rotation * translation;
+            return scale * rotation * translation;
+        }
     }
 
-    public Matrix4 WorldMatrix()
+    public Matrix4 WorldMatrix
     {
-        if (ParentTransform() is not { } parentTransform)
-            return LocalMatrix();
+        get
+        {
+            if (GetParentRootComponent() is not { } parentTransform)
+                return LocalMatrix;
             
-        return LocalMatrix() * parentTransform.WorldMatrix();
+            return LocalMatrix * parentTransform.WorldMatrix;
+        }
     }
     
-    private SpatialComponent? ParentTransform()
+    private SpatialComponent? GetParentRootComponent()
     {
         var currentParent = Actor?.Parent;
         
         while (currentParent is not null)
         {
-            var transform = currentParent.GetComponent<SpatialComponent>();
-            if (transform is not null)
-                return transform;
+            if (currentParent.RootComponent is { } parentRootComponent)
+                return parentRootComponent;
                 
             currentParent = currentParent.Parent;
         }

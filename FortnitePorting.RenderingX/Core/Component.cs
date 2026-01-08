@@ -2,7 +2,9 @@ using System.Collections.ObjectModel;
 
 namespace FortnitePorting.RenderingX.Core;
 
-public class Component : Renderable
+public class Component(string name) : Renderable
 {
-    public Actor? Actor;
+    public string Name = name;
+    
+    public Actor Actor;
 }

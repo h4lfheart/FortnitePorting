@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using FortnitePorting.RenderingX.Components;
 using FortnitePorting.RenderingX.Components.Rendering;
 using FortnitePorting.RenderingX.Managers;
 
@@ -11,6 +12,7 @@ public class Actor : Renderable
     public Guid Guid = Guid.NewGuid();
 
     public Actor? Parent;
+    public SpatialComponent? RootComponent { get; private set; }
 
     public ComponentCollection Components;
     public ActorCollection Children;
@@ -25,11 +27,6 @@ public class Actor : Renderable
         
         Children.CollectionChanged += ChildrenOnCollectionChanged;
         Components.CollectionChanged += ComponentsOnCollectionChanged;
-    }
-
-    public T? GetComponent<T>() where T : Component
-    {
-        return Components.OfType<T>().FirstOrDefault();
     }
 
     public override void Render(CameraComponent camera)
@@ -77,6 +74,11 @@ public class Actor : Renderable
     private void AddComponent(Component component)
     {
         component.Actor = this;
+
+        if (RootComponent is null && component is SpatialComponent spatialComponent)
+        {
+            RootComponent = spatialComponent;
+        }
     }
 
     private void RemoveComponent(Component component)
