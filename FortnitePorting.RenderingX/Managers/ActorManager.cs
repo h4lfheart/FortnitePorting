@@ -27,6 +27,7 @@ public class ActorManager : Manager
     public ActorManager()
     {
         AddSystem(new MeshRenderSystem());
+        AddSystem(new InstancedMeshRenderSystem());
     }
 
     public override void Update(float deltaTime)

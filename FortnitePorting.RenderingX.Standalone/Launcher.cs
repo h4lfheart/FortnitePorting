@@ -67,21 +67,9 @@ public class Launcher
             var grid = new Actor("Grid");
             grid.Components.Add(new GridMeshComponent());
             root.Children.Add(grid);
-            
-            var staticMesh = _provider.LoadPackageObject<UStaticMesh>("FortniteGame/Content/Environments/Apollo/Sets/Coliseum_Ruins/Props/Meshes/S_CR_PeelyStatue");
 
-            var meshActor = new MeshActor(staticMesh, new Transform
-            {
-                Position = new Vector3(0, 0.06f, -0.5f),
-                Rotation = Quaternion.FromEulerAngles(new Vector3(10f * MathF.PI / 180f, 0, 0)),
-                Scale = new Vector3(0.2f)
-            });
-            root.Children.Add(meshActor);
-
-            var world = new WorldActor(_provider.LoadPackageObject<UWorld>("FortniteGame/Content/Athena/Artemis/Maps/Buildings/1x1/Artemis_1x1_BusStation_a"), new Transform
-            {
-                Rotation = Quaternion.FromEulerAngles(new Vector3(0, MathF.PI, 0))
-            });
+            var world = new WorldActor(_provider.LoadPackageObject<UWorld>(
+                "FortniteGame/Plugins/GameFeatures/CloudberryMapContent/Content/Athena/Apollo/Maps/POI/Apollo_POI_Agency"));
             root.Children.Add(world);
             
         };

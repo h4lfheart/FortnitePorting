@@ -1,8 +1,10 @@
 using CUE4Parse.UE4.Assets.Exports.Actor;
+using CUE4Parse.UE4.Assets.Exports.Component;
 using CUE4Parse.UE4.Assets.Exports.Component.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.Engine;
+using CUE4Parse.UE4.Objects.UObject;
 using FortnitePorting.RenderingX.Components;
 using FortnitePorting.RenderingX.Components.Mesh;
 using FortnitePorting.RenderingX.Core;
@@ -32,7 +34,23 @@ public class WorldActor : Actor
             if (actor is null) continue;
             if (actor.ExportType == "LODActor") continue;
             
-            if (actor.TryGetValue(out UStaticMeshComponent component, "StaticMeshComponent"))
+            if (actor.TryGetValue(out FSoftObjectPath[] additionalWorlds, "AdditionalWorlds"))
+            {
+                foreach (var additionalWorldPath in additionalWorlds)
+                {
+                    if (!additionalWorldPath.TryLoad<UWorld>(out var subWorld)) continue;
+                    if (actor.GetOrDefault<USceneComponent?>("RootComponent") is not { } sceneComponent) continue;
+                    
+                    var transform = new FTransform(
+                        sceneComponent.GetRelativeRotation(),
+                        sceneComponent.GetRelativeLocation(),
+                        sceneComponent.GetRelativeScale3D());
+                    
+                    var subWorldActor = new WorldActor(subWorld, transform);
+                    Children.Add(subWorldActor);
+                }
+            }
+            else if (actor.TryGetValue(out UStaticMeshComponent component, "StaticMeshComponent"))
             {
                 AddStaticMesh(actor, component, this);
             }
@@ -48,7 +66,7 @@ public class WorldActor : Actor
             component.GetRelativeLocation(),
             component.GetRelativeScale3D());
         
-        var meshActor = new MeshActor(staticMesh, transform)
+        var meshActor = new InstancedMeshActor(staticMesh, transform)
         {
             Name = levelActor.Name
         };
