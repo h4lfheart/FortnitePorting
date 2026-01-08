@@ -19,7 +19,7 @@ public class SkeletalMeshRenderer : MeshRenderer
     {
         if (!staticMesh.TryConvert(out var convertedMesh))
         {
-            throw new RenderingException("Failed to convert static mesh.");
+            throw new RenderingXException("Failed to convert static mesh.");
         }
         
         var lod = convertedMesh.LODs[Math.Min(lodLevel, convertedMesh.LODs.Count - 1)];

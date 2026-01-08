@@ -75,7 +75,7 @@ public class ShaderProgram : Program
         GL.GetShaderInfoLog(shader, out var shaderInfo);
         if (!string.IsNullOrWhiteSpace(shaderInfo))
         {
-            throw new ShaderException($"Error Compiling {type} {name}: {shaderInfo}");
+            throw new RenderingXException($"Error Compiling {type} {name}: {shaderInfo}");
         }
 
         return shader;

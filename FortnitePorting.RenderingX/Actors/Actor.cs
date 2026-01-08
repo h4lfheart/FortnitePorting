@@ -2,11 +2,12 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using FortnitePorting.RenderingX.Components;
 using FortnitePorting.RenderingX.Components.Rendering;
+using FortnitePorting.RenderingX.Core;
 using FortnitePorting.RenderingX.Managers;
 
-namespace FortnitePorting.RenderingX.Core;
+namespace FortnitePorting.RenderingX.Actors;
 
-public class Actor : Renderable
+public class Actor
 {
     public string Name;
     public Guid Guid = Guid.NewGuid();
@@ -17,7 +18,7 @@ public class Actor : Renderable
     public ComponentCollection Components;
     public ActorCollection Children;
 
-    public ActorManager Manager;
+    public ActorManager? Manager;
 
     public Actor(string name = "Actor")
     {
@@ -27,38 +28,6 @@ public class Actor : Renderable
         
         Children.CollectionChanged += ChildrenOnCollectionChanged;
         Components.CollectionChanged += ComponentsOnCollectionChanged;
-    }
-
-    public override void Render(CameraComponent camera)
-    {
-        base.Render(camera);
-
-        // TODO render from actor manager
-        foreach (var child in Children)
-        {
-            child.Render(camera);
-        }
-        
-        // TODO render from component system (i.e. mesh render system picks up on mesh components and renders them)
-        foreach (var component in Components)
-        {
-            component.Render(camera);
-        }
-    }
-
-    public override void Destroy()
-    {
-        base.Destroy();
-        
-        foreach (var child in Children)
-        {
-            child.Destroy();
-        }
-        
-        foreach (var component in Components)
-        {
-            component.Destroy();
-        }
     }
 
     private void AddChild(Actor actor)

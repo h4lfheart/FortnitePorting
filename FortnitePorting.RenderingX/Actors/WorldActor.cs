@@ -41,28 +41,19 @@ public class WorldActor : Actor
     
     private void AddStaticMesh(AActor levelActor, UStaticMeshComponent component, Actor parent)
     {
-        var actor = new Actor(levelActor.Name);
-        parent.Children.Add(actor);
+        if (!component.GetStaticMesh().TryLoad(out UStaticMesh staticMesh)) return;
 
-        if (component.GetStaticMesh().TryLoad(out UStaticMesh staticMesh))
-        {
-            var transform = new FTransform(
-                component.GetRelativeRotation(),
-                component.GetRelativeLocation(),
-                component.GetRelativeScale3D());
-            
-            var meshRenderer = new MeshComponent(new StaticMeshRenderer(staticMesh))
-            {
-                Transform =
-                {
-                    Position = new Vector3(transform.Translation.X, transform.Translation.Z, transform.Translation.Y) * 0.01f,
-                    Rotation = new Quaternion(transform.Rotation.X, transform.Rotation.Z, transform.Rotation.Y, -transform.Rotation.W),
-                    Scale = new Vector3(transform.Scale3D.X, transform.Scale3D.Z, transform.Scale3D.Y)
-                }
-            };
-            
-            actor.Components.Add(meshRenderer);
-        }
+        var transform = new FTransform(
+            component.GetRelativeRotation(),
+            component.GetRelativeLocation(),
+            component.GetRelativeScale3D());
         
+        var meshActor = new MeshActor(staticMesh, transform)
+        {
+            Name = levelActor.Name
+        };
+
+        parent.Children.Add(meshActor);
+
     }
 }

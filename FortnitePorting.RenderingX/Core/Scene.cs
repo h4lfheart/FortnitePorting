@@ -1,3 +1,4 @@
+using FortnitePorting.RenderingX.Actors;
 using FortnitePorting.RenderingX.Components;
 using FortnitePorting.RenderingX.Components.Rendering;
 using FortnitePorting.RenderingX.Exceptions;
@@ -13,22 +14,22 @@ public class Scene
     
     public void Update(float deltaTime)
     {
-        ActorManager.RootActor?.Update(deltaTime);
+        ActorManager.Update(deltaTime);
     }
 
     public void Render()
     {
         if (ActiveCamera is null)
         {
-            throw new RenderingException("There is no active camera set to render with.");
+            throw new RenderingXException("There is no active camera set to render with.");
         }
         
-        ActorManager.RootActor?.Render(ActiveCamera);
+        ActorManager.Render(ActiveCamera);
     }
 
     public void Destroy()
     {
-        ActorManager.RootActor?.Destroy();
+        ActorManager.Destroy();
         
     }
 
