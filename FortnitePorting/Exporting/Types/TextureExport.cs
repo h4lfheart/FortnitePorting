@@ -12,7 +12,7 @@ namespace FortnitePorting.Exporting.Types;
 
 public class TextureExport : BaseExport
 {
-    public List<string> Textures = [];
+    public List<ExportTexture> Textures = [];
     
     private static readonly Dictionary<EExportType, string> TextureNames = new()
     {
@@ -53,14 +53,13 @@ public class TextureExport : BaseExport
 
         foreach (var texture in textures)
         {
-            if (metaData.ExportLocation.IsFolder())
+            if (metaData.ExportLocation.IsFolder)
             {
-                var exportPath = Exporter.Export(texture, returnRealPath: true, synchronousExport: true);
-                App.Launch(System.IO.Path.GetDirectoryName(exportPath)!);
+                Exporter.Export(texture, returnRealPath: true, synchronousExport: true);
             }
             else
             {
-                Textures.Add(Exporter.Export(texture));
+                Textures.Add(new ExportTexture(Exporter.Export(texture), texture.SRGB, texture.CompressionSettings));
             }
         }
        

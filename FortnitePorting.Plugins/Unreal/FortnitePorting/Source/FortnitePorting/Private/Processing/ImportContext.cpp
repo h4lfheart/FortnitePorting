@@ -5,42 +5,78 @@
 #include "FortnitePorting.h"
 #include "Utils.h"
 #include "AssetRegistry/AssetRegistryModule.h"
+#include "Classes/BuildingTextureData.h"
 #include "Engine/SkinnedAssetCommon.h"
 #include "Engine/StaticMeshActor.h"
 #include "Factories/TextureFactory.h"
 #include "Factories/UEFModelFactory.h"
-#include "FortnitePorting/Public/Utils.h"
-#include "FortnitePorting/Public/Processing/Models/Data/ExportObject.h"
-#include "FortnitePorting/Public/Processing/Models/Types/BaseExport.h"
+#include "Framework/Notifications/NotificationManager.h"
 #include "Materials/MaterialInstanceConstant.h"
-#include "Processing/ImportUtils.h"
+#include "Processing/Enums.h"
+#include "Utilities/EditorUtils.h"
 #include "Processing/MaterialMappings.h"
 #include "Processing/Names.h"
-#include "Processing/Models/Types/MeshExport.h"
-#include "World/FortPortActor.h"
+#include "Utilities/JsonWrapper.h"
+#include "World/BuildingActor.h"
 
-struct FExportDataMeta;
-
-FImportContext::FImportContext(const FExportDataMeta& Meta) : Meta(Meta)
+FImportContext::FImportContext(const FJsonWrapper& InMetaData) : MetaData(InMetaData)
 {
 	EnsureDependencies();
 }
 
-void FImportContext::Run(const TSharedPtr<FJsonObject>& Json)
+void FImportContext::RunExport(const FJsonWrapper& Json)
 {
-	auto Type = FUtils::GetEnum<EPrimitiveExportType>(Json, "PrimitiveType");
-	switch (Type)
+	const auto PrimitiveType = Json.Get<EPrimitiveExportType>("PrimitiveType");
+	
+	switch (PrimitiveType)
 	{
 	case EPrimitiveExportType::Mesh:
-		ImportMeshData(FUtils::GetAsStruct<FMeshExport>(Json));
-		break;
-	case EPrimitiveExportType::Animation:
+		ImportMeshData(Json);
 		break;
 	case EPrimitiveExportType::Texture:
-		break;
-	case EPrimitiveExportType::Sound:
+		ImportTextureData(Json);
 		break;
 	}
+}
+
+void FImportContext::RunExportJson(const FString& Data)
+{
+	TSharedPtr<FJsonObject> JsonObject = MakeShared<FJsonObject>();
+	TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(Data);
+			
+	if (!FJsonSerializer::Deserialize(Reader, JsonObject))
+	{
+		UE_LOG(LogFortnitePorting, Error, TEXT("Unable to deserialize response from FortnitePorting"))
+		return;
+	}
+
+	const auto Root = FJsonWrapper(JsonObject);
+			
+	auto Exports = Root.GetArray("Exports");
+
+	FScopedSlowTask ImportTask(Exports.Num(), FText::FromString("Importing Data..."));
+	ImportTask.MakeDialog(true);
+		
+	FSlateNotificationManager::Get().SetAllowNotifications(false);
+		
+	auto ResponseIndex = 0;
+	const FJsonWrapper MetaData = Root["MetaData"];
+	for (const auto Export : Exports)
+	{
+		if (ImportTask.ShouldCancel())
+			break;
+				
+		ResponseIndex++;
+			
+		FString ExportName = Export.Get<FString>("Name");
+				
+		ImportTask.DefaultMessage = FText::FromString(FString::Printf(TEXT("Importing Data: %s (%d of %d)"), *ExportName, ResponseIndex, Exports.Num()));
+		ImportTask.EnterProgressFrame();
+				
+		auto ImportContext = FImportContext(MetaData);
+		ImportContext.RunExport(Export);
+	}
+	FSlateNotificationManager::Get().SetAllowNotifications(true);
 }
 
 void FImportContext::EnsureDependencies()
@@ -52,102 +88,122 @@ void FImportContext::EnsureDependencies()
 		LayerMaterial = Cast<UMaterial>(UEditorAssetLibrary::LoadAsset("/FortnitePorting/Materials/M_FP_Layer.M_FP_Layer"));
 }
 
-void FImportContext::ImportMeshData(const FMeshExport& Export)
+void FImportContext::ImportMeshData(const FJsonWrapper& ExportData)
 {
-	const auto Count = Export.Meshes.Num() + Export.OverrideMeshes.Num();
+	auto Meshes = ExportData.GetArray("Meshes");
+	auto OverrideMeshes = ExportData.GetArray("OverrideMeshes");
+	const int32 Count = Meshes.Num() + OverrideMeshes.Num();
 	
 	FScopedSlowTask ImportTask(Count, FText::FromString("Importing Meshes..."));
 	ImportTask.MakeDialog(true);
 	
 	auto WorldContext = GEngine->GetWorldContextFromGameViewport(GEngine->GameViewport);
-	auto World = WorldContext->World();
+	const auto World = WorldContext->World();
 	
-	auto MeshIndex = 0;
-	auto ImportMeshes = [&](TArray<FExportMesh> Meshes)
+	auto ExportType = ExportData.Get<EExportType>("Type");
+	FString ExportName = ExportData.Get<FString>("Name");
+	bool bCreateActor = ExportType == EExportType::World || ExportType == EExportType::Prefab;
+	
+	int32 MeshIndex = 0;
+	auto ImportMeshes = [&](const TArray<FJsonWrapper>& MeshArray)
 	{
-		for (auto Mesh : Meshes)
+		for (const auto& Mesh : MeshArray)
 		{
 			if (ImportTask.ShouldCancel())
-            	break;
+				break;
 			
 			MeshIndex++;
+			FString MeshName = Mesh.Get<FString>("Name");
 			
-			ImportTask.DefaultMessage = FText::FromString(FString::Printf(TEXT("Importing Mesh %d of %d: %s"), MeshIndex, Count, *Mesh.Name));
+			ImportTask.DefaultMessage = FText::FromString(FString::Printf(TEXT("Importing Mesh %d of %d: %s"), MeshIndex, Count, *MeshName));
 			ImportTask.EnterProgressFrame();
-
-			const auto ImportedModel = ImportModel(Mesh);
 			
-			if (const auto StaticMesh = Cast<UStaticMesh>(ImportedModel); Export.Type == EExportType::World
-																	   || Export.Type == EExportType::Prefab)
-			{
-				const auto Actor = World->SpawnActor<AFortPortActor>();
-				Actor->SetActorLabel(*Mesh.Name);
-				Actor->SetActorLocation(Mesh.Location);
-				Actor->SetActorRotation(Mesh.Rotation);
-				Actor->SetActorScale3D(Mesh.Scale);
-				Actor->GetStaticMeshComponent()->ForcedLodModel = 1;
-				Actor->GetStaticMeshComponent()->SetStaticMesh(StaticMesh);
-				Actor->SetFolderPath(*FString::Printf(TEXT("/%s"), *Export.Name));
-
-				for (auto [Hash, Diffuse, Normal, Specular] : Mesh.TextureData)
-				{
-					Actor->TextureDatas.Add(FBuildingTextureData {
-						.Diffuse = FTextureDataItem(Diffuse.Name,
-							ImportTexture(Diffuse.Value,
-								Diffuse.sRGB,
-								Diffuse.CompressionSettings)),
-						
-						.Normals = FTextureDataItem(Normal.Name,
-							ImportTexture(Normal.Value,
-								Normal.sRGB,
-								Normal.CompressionSettings)),
-						
-						.Specular = FTextureDataItem(Specular.Name,
-							ImportTexture(Specular.Value,
-								Specular.sRGB,
-								Specular.CompressionSettings))
-					});
-				}
-
-				Actor->OnConstruction(Actor->GetTransform());
-			}
+			ImportModel(ExportData, World, nullptr, Mesh, bCreateActor);
 		}
 	};
 
-	ImportMeshes(Export.Meshes);
-	ImportMeshes(Export.OverrideMeshes);
+	ImportMeshes(Meshes);
+	ImportMeshes(OverrideMeshes);
 }
 
-UObject* FImportContext::ImportModel(const FExportMesh& Mesh)
+void FImportContext::ImportTextureData(const FJsonWrapper& ExportData)
 {
-	const auto ImportedObject = ImportMesh(Mesh.Path);
-
-	for (auto Material : Mesh.Materials)
+	for (const auto& Texture : ExportData.GetArray("Textures"))
 	{
-		auto ImportedMaterial = ImportMaterial(Material);
-		if (const auto StaticMesh = dynamic_cast<UStaticMesh*>(ImportedObject))
-		{
-			StaticMesh->SetMaterial(Material.Slot, ImportedMaterial);
-		}
-		else if (const auto SkeletalMesh = dynamic_cast<USkeletalMesh*>(ImportedObject))
-		{
-			SkeletalMesh->GetMaterials()[Material.Slot].MaterialInterface = ImportedMaterial;
-		}
+		ImportTexture(Texture);
 	}
-	
-	return ImportedObject;
 }
 
-UObject* FImportContext::ImportMesh(const FString& GamePath)
+UObject* FImportContext::ImportModel(const FJsonWrapper& ExportData, UWorld* World, ABuildingActor* Parent, const FJsonWrapper& MeshData, bool bCreateActor)
 {
-	auto PathData = FImportUtils::SplitExportPath(GamePath);
+    const auto ImportedObject = ImportMesh(MeshData);
+
+    if (const auto StaticMesh = Cast<UStaticMesh>(ImportedObject); bCreateActor)
+    {
+        FTransform SpawnTransform;
+        auto Actor = World->SpawnActorDeferred<ABuildingActor>(ABuildingActor::StaticClass(), SpawnTransform);
+        Actor->Modify();
+
+        Actor->SetActorLabel(*MeshData.Get<FString>("Name"));
+        if (Parent) Actor->AttachToActor(Parent, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
+
+        Actor->SetActorRelativeLocation(MeshData.Get<FVector>("Location", FVector::ZeroVector));
+        Actor->SetActorRelativeRotation(MeshData.Get<FRotator>("Rotation", FRotator::ZeroRotator));
+        Actor->SetActorRelativeScale3D(MeshData.Get<FVector>("Scale", FVector::OneVector));
+
+    	for (const auto& TexData : MeshData.GetArray("TextureData"))
+    	{
+    		Actor->TextureData.Add(FTextureDataInstance {
+				.LayerIndex = TexData.Get<int>("Name"),
+				.TextureData = ImportBuildingTextureData(TexData)
+			});
+    	}
+    	
+        Actor->GetStaticMeshComponent()->ForcedLodModel = 1;
+        Actor->GetStaticMeshComponent()->SetStaticMesh(StaticMesh);
+        Actor->SetFolderPath(*FString::Printf(TEXT("/%s"), *ExportData.Get<FString>("Name")));
+        Actor->FinishSpawning(SpawnTransform);
+        Actor->MarkPackageDirty();
+    	
+    	auto Children = MeshData.GetArray("Children");
+    	if (Children.Num() > 0)
+    	{
+    		FScopedSlowTask ImportTask(Children.Num(), FText::FromString("Importing Children..."));
+    		ImportTask.MakeDialog(true);
+		
+    		int32 ChildIndex = 0;
+		
+    		for (const auto& Child : Children)
+    		{
+    			if (ImportTask.ShouldCancel())
+    				break;
+			
+    			ChildIndex++;
+    			FString ChildName = Child.Get<FString>("Name");
+			
+    			ImportTask.DefaultMessage = FText::FromString(FString::Printf(TEXT("Importing Mesh %d of %d: %s"), ChildIndex, Children.Num(), *ChildName));
+    			ImportTask.EnterProgressFrame();
+    			ImportModel(ExportData, World, Actor, Child, bCreateActor);
+    		}
+    	}
+    }
+
+    return ImportedObject;
+}
+
+
+UObject* FImportContext::ImportMesh(const FJsonWrapper& MeshData)
+{
+	FString MeshPath = MeshData.Get<FString>("Path");
+	auto PathData = FEditorUtils::GetPathData(MeshPath);
 	auto Package = CreatePackage(*PathData.Path);
 	
 	auto Mesh = LoadObject<UObject>(Package, *PathData.ObjectName);
 	if (Mesh != nullptr || PathData.RootName.Equals("Engine")) return Mesh;
-		
-	const auto MeshPath = FPaths::Combine(Meta.AssetsRoot, PathData.Path + ".uemodel");
-	if (!FPaths::FileExists(MeshPath)) return nullptr;
+	
+	FString AssetsRoot = MetaData.Get<FString>("AssetsRoot");
+	const auto ModelPath = FPaths::Combine(AssetsRoot, PathData.Path + ".uemodel");
+	if (!FPaths::FileExists(ModelPath)) return nullptr;
 
 	auto AutomatedData = NewObject<UAutomatedAssetImportData>();
 	AutomatedData->bReplaceExisting = false;
@@ -156,7 +212,7 @@ UObject* FImportContext::ImportMesh(const FString& GamePath)
 	ModelFactory->AutomatedImportData = AutomatedData;
 
 	bool Canceled;
-	Mesh = ModelFactory->FactoryCreateFile(nullptr, Package, FName(*PathData.ObjectName), RF_Public | RF_Standalone, MeshPath, nullptr, nullptr, Canceled);
+	Mesh = ModelFactory->FactoryCreateFile(nullptr, Package, FName(*PathData.ObjectName), RF_Public | RF_Standalone, ModelPath, nullptr, nullptr, Canceled);
 
 	if (const auto StaticMesh = Cast<UStaticMesh>(Mesh))
 	{
@@ -166,12 +222,28 @@ UObject* FImportContext::ImportMesh(const FString& GamePath)
 		StaticMesh->Modify();
 	}
 	
+	for (const auto& Material : MeshData.GetArray("Materials"))
+	{
+		int32 Slot = Material.Get<int32>("Slot");
+		auto ImportedMaterial = ImportMaterial(Material);
+		
+		if (const auto StaticMesh = dynamic_cast<UStaticMesh*>(Mesh))
+		{
+			StaticMesh->SetMaterial(Slot, ImportedMaterial);
+		}
+		else if (const auto SkeletalMesh = dynamic_cast<USkeletalMesh*>(Mesh))
+		{
+			SkeletalMesh->GetMaterials()[Slot].MaterialInterface = ImportedMaterial;
+		}
+	}
+	
 	return Mesh;
 }
 
-UMaterialInstanceConstant* FImportContext::ImportMaterial(const FExportMaterial& Material)
+UMaterialInstanceConstant* FImportContext::ImportMaterial(const FJsonWrapper& MaterialData)
 {
-	const auto PathData = FImportUtils::SplitExportPath(Material.Path);
+	FString MaterialPath = MaterialData.Get<FString>("Path");
+	const auto PathData = FEditorUtils::GetPathData(MaterialPath);
 	const auto Package = CreatePackage(*PathData.Path);
 	
 	auto MaterialInstance = LoadObject<UMaterialInstanceConstant>(Package, *PathData.ObjectName);
@@ -185,51 +257,108 @@ UMaterialInstanceConstant* FImportContext::ImportMaterial(const FExportMaterial&
 	auto TargetMaterial = DefaultMaterial;
 	FMappingCollection TargetMappings = FMaterialMappings::Default;
 	
-	if (FUtils::Any<FSwitchParameter>(Material.Switches, [&](FSwitchParameter Item) { return FNames::LayerSwitchNames.Contains(Item.Name); })
-		&& FUtils::Any<FTextureParameter>(Material.Textures, [&](FTextureParameter Item) { return FNames::LayerTextureNames.Contains(Item.Name); }))
+	bool bIsLayerMaterial = false;
+	for (const auto& Switch : MaterialData.GetArray("Switches"))
 	{
-		TargetMaterial = LayerMaterial;
-		TargetMappings = FMaterialMappings::Layer;
+		if (FNames::LayerSwitchNames.Contains(Switch.Get<FString>("Name")))
+		{
+			bIsLayerMaterial = true;
+			break;
+		}
 	}
 	
-	MaterialInstance->Parent = TargetMaterial;
-	MaterialInstance->BlendMode = Material.OverrideBlendMode;
-	
-	for (auto TextureParameter : Material.Textures)
+	if (bIsLayerMaterial)
 	{
-		if (const auto Mapping = FUtils::FirstOrNull<FSlotMapping>(TargetMappings.Textures, [&](FSlotMapping Item) { return Item.Name.Equals(TextureParameter.Name); }))
+		for (const auto& Texture : MaterialData.GetArray("Textures"))
 		{
-			const auto Texture = ImportTexture(TextureParameter.Value, TextureParameter.sRGB, TextureParameter.CompressionSettings);
-			if (Texture == nullptr) continue;
-			
-			MaterialInstance->SetTextureParameterValueEditorOnly(FMaterialParameterInfo(*Mapping->Slot, GlobalParameter), Texture);
-
-			if (!Mapping->SwitchSlot.IsEmpty())
+			if (FNames::LayerTextureNames.Contains(Texture.Get<FString>("Name")))
 			{
-				MaterialInstance->SetStaticSwitchParameterValueEditorOnly(FMaterialParameterInfo(*Mapping->SwitchSlot, GlobalParameter), true);
+				TargetMaterial = LayerMaterial;
+				TargetMappings = FMaterialMappings::Layer;
+				break;
 			}
 		}
 	}
 	
-	for (auto ScalarParameter : Material.Scalars)
+	MaterialInstance->Parent = TargetMaterial;
+	MaterialInstance->BlendMode = MaterialData.Get<EBlendMode>("OverrideBlendMode");
+	
+	for (const auto& TexParam : MaterialData.GetArray("Textures"))
 	{
-		if (const auto Mapping = FUtils::FirstOrNull<FSlotMapping>(TargetMappings.Textures, [&](FSlotMapping Item) { return Item.Name.Equals(ScalarParameter.Name); }))
+		FString ParamName = TexParam.Get<FString>("Name");
+		
+		const auto Texture = ImportTexture(TexParam["Texture"]);
+		if (Texture == nullptr) continue;
+		
+		for (const auto& Mapping : TargetMappings.Textures)
 		{
-			MaterialInstance->SetScalarParameterValueEditorOnly(FMaterialParameterInfo(*Mapping->Slot, GlobalParameter), ScalarParameter.Value);
+			if (Mapping.Name.Equals(ParamName))
+			{
+				MaterialInstance->SetTextureParameterValueEditorOnly(
+					FMaterialParameterInfo(*Mapping.Slot, GlobalParameter), 
+					Texture
+				);
+
+				if (!Mapping.SwitchSlot.IsEmpty())
+				{
+					MaterialInstance->SetStaticSwitchParameterValueEditorOnly(
+						FMaterialParameterInfo(*Mapping.SwitchSlot, GlobalParameter), 
+						true
+					);
+				}
+				break;
+			}
+		}
+	}
+	
+	for (const auto& Scalar : MaterialData.GetArray("Scalars"))
+	{
+		FString ParamName = Scalar.Get<FString>("Name");
+		float ParamValue = Scalar.Get<float>("Value");
+		
+		for (const auto& Mapping : TargetMappings.Scalars)
+		{
+			if (Mapping.Name.Equals(ParamName))
+			{
+				MaterialInstance->SetScalarParameterValueEditorOnly(
+					FMaterialParameterInfo(*Mapping.Slot, GlobalParameter), 
+					ParamValue
+				);
+				break;
+			}
 		}
 	}
 
-	for (auto SwitchParameter : Material.Switches)
+	for (const auto& Switch : MaterialData.GetArray("Switches"))
 	{
-		if (const auto Mapping = FUtils::FirstOrNull<FSlotMapping>(TargetMappings.Switches, [&](FSlotMapping Item) { return Item.Name.Equals(SwitchParameter.Name); }))
+		FString ParamName = Switch.Get<FString>("Name");
+		bool ParamValue = Switch.Get<bool>("Value");
+		
+		for (const auto& Mapping : TargetMappings.Switches)
 		{
-			MaterialInstance->SetStaticSwitchParameterValueEditorOnly(FMaterialParameterInfo(*Mapping->Slot, GlobalParameter), SwitchParameter.Value);
+			if (Mapping.Name.Equals(ParamName))
+			{
+				MaterialInstance->SetStaticSwitchParameterValueEditorOnly(
+					FMaterialParameterInfo(*Mapping.Slot, GlobalParameter), 
+					ParamValue
+				);
+				break;
+			}
 		}
 	}
 
-	MaterialInstance->SetScalarParameterValueEditorOnly(FMaterialParameterInfo("Ambient Occlusion", GlobalParameter), Meta.Settings.AmbientOcclusion);
-	MaterialInstance->SetScalarParameterValueEditorOnly(FMaterialParameterInfo("Cavity", GlobalParameter), Meta.Settings.Cavity);
-	MaterialInstance->SetScalarParameterValueEditorOnly(FMaterialParameterInfo("Subsurface", GlobalParameter), Meta.Settings.Subsurface);
+	MaterialInstance->SetScalarParameterValueEditorOnly(
+		FMaterialParameterInfo("Ambient Occlusion", GlobalParameter), 
+		MetaData["Settings"].Get<float>("AmbientOcclusion")
+	);
+	MaterialInstance->SetScalarParameterValueEditorOnly(
+		FMaterialParameterInfo("Cavity", GlobalParameter), 
+		MetaData["Settings"].Get<float>("Cavity")
+	);
+	MaterialInstance->SetScalarParameterValueEditorOnly(
+		FMaterialParameterInfo("Subsurface", GlobalParameter), 
+		MetaData["Settings"].Get<float>("Subsurface")
+	);
 	
 	MaterialInstance->PostEditChange();
 	Package->FullyLoad();
@@ -239,16 +368,50 @@ UMaterialInstanceConstant* FImportContext::ImportMaterial(const FExportMaterial&
 	return MaterialInstance;
 }
 
-UTexture* FImportContext::ImportTexture(const FString& GamePath, const bool sRGB = false, const TextureCompressionSettings CompressionSettings = TC_Default)
+UBuildingTextureData* FImportContext::ImportBuildingTextureData(const FJsonWrapper& TexData)
 {
-	const auto PathData = FImportUtils::SplitExportPath(GamePath);
+	const auto PathData = FEditorUtils::GetPathData(TexData.Get<FString>("Path"));
+	const auto Package = CreatePackage(*PathData.Path);
+	
+	auto TextureData = LoadObject<UBuildingTextureData>(Package, *PathData.ObjectName);
+	if (TextureData != nullptr || PathData.RootName.Equals("Engine")) return TextureData;
+	
+	TextureData = NewObject<UBuildingTextureData>(
+		Package,
+		UBuildingTextureData::StaticClass(),
+		*PathData.ObjectName,
+		RF_Public | RF_Standalone
+	);
+	
+	TextureData->MarkPackageDirty();
+	FAssetRegistryModule::AssetCreated(TextureData);
+	
+	TextureData->Diffuse = ImportTexture(TexData["Diffuse"]["Texture"]);
+	TextureData->Normal = ImportTexture(TexData["Diffuse"]["Normal"]);
+	TextureData->Specular = ImportTexture(TexData["Diffuse"]["Specular"]);
+	
+	if (auto OverrideMat = TexData["OverrideMaterial"]; OverrideMat.IsValid())
+	{
+		TextureData->OverrideMaterial = ImportMaterial(OverrideMat);
+	}
+	
+	return TextureData;
+}
+
+UTexture* FImportContext::ImportTexture(const FJsonWrapper& TextureData)
+{
+	const auto PathData = FEditorUtils::GetPathData(TextureData.Get<FString>("Path"));
 	const auto Package = CreatePackage(*PathData.Path);
 
 	auto Texture = LoadObject<UTexture>(Package, *PathData.ObjectName);
 	if (Texture != nullptr || PathData.RootName.Equals("Engine")) return Texture;
 	
-	const auto TexturePath = FPaths::Combine(Meta.AssetsRoot, PathData.Path + ".png");
-	if (!FPaths::FileExists(TexturePath)) return nullptr;
+	FString AssetsRoot = MetaData.Get<FString>("AssetsRoot");
+	auto TexturePath = FPaths::Combine(AssetsRoot, PathData.Path + ".png");
+	if (!FPaths::FileExists(TexturePath)) 
+		TexturePath = FPaths::Combine(AssetsRoot, PathData.Path + ".hdr");
+	if (!FPaths::FileExists(TexturePath)) 
+		return nullptr;
 
 	auto AutomatedData = NewObject<UAutomatedAssetImportData>();
 	AutomatedData->bReplaceExisting = false;
@@ -265,11 +428,11 @@ UTexture* FImportContext::ImportTexture(const FString& GamePath, const bool sRGB
 	FAssetRegistryModule::AssetCreated(Texture);
 		
 	Texture->PreEditChange(nullptr);
-	Texture->SRGB = sRGB;
-	Texture->CompressionSettings = CompressionSettings;
+	Texture->SRGB = TextureData.Get<bool>("sRGB");
+	Texture->CompressionSettings = TextureData.Get<TextureCompressionSettings>("CompressionSettings");
 	Texture->PostEditChange();
 
+	Package->MarkPackageDirty();
 	Package->FullyLoad();
 	return Texture;
 }
-

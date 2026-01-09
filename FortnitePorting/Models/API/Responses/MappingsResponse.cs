@@ -1,18 +1,17 @@
 ﻿using System;
+using Newtonsoft.Json;
 
 namespace FortnitePorting.Models.API.Responses;
 
 public class MappingsResponse
 {
-    public string URL;
-    public string Filename;
-    public long Length;
-    public DateTime Uploaded;
-    public MappingsMeta Meta;
-}
-
-public class MappingsMeta
-{
     public string Version;
-    public string CompressionMethod;
+    public DateTime? Updated;
+    [JsonProperty("hash-md5")] public string HashMD5;
+    public string Url;
+
+    public DateTime GetCreationTime()
+    {
+        return Updated ?? DateTime.Now;
+    }
 }

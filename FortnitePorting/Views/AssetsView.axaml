@@ -1,22 +1,18 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
-             xmlns:ui="using:FluentAvalonia.UI.Controls"
              xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
-             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
-             xmlns:versions="clr-namespace:CUE4Parse.UE4.Versions;assembly=CUE4Parse"
-             xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
              xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
-             xmlns:controls1="clr-namespace:Avalonia.Controls"
              xmlns:wrapPanel="clr-namespace:FortnitePorting.Controls.WrapPanel"
              xmlns:assets="clr-namespace:FortnitePorting.Models.Assets"
              xmlns:filters="clr-namespace:FortnitePorting.Models.Assets.Filters"
              xmlns:fortnitePorting="clr-namespace:FortnitePorting"
              xmlns:base="clr-namespace:FortnitePorting.Models.Assets.Base"
              xmlns:views="clr-namespace:FortnitePorting.Views"
+             xmlns:sidebar="clr-namespace:FortnitePorting.Controls.Navigation.Sidebar"
+             xmlns:converters="clr-namespace:FortnitePorting.Converters"
              d:DesignHeight="720" d:DesignWidth="1280"
              x:Class="FortnitePorting.Views.AssetsView"
              x:DataType="viewModels:AssetsViewModel">
@@ -24,375 +20,489 @@
         <KeyBinding Gesture="Ctrl+F" Command="{Binding FavoriteCommand}" />
     </UserControl.KeyBindings>
     <Grid>
-        <ui:NavigationView Classes="NoBackground" PaneDisplayMode="LeftCompact" CompactPaneLength="48" OpenPaneLength="180"
-                           IsPaneToggleButtonVisible="False" IsSettingsVisible="False"
-                           MenuItemsSource="{Binding NavItems}"
-                           SelectedItem="{Binding SelectedNavItem, Mode=TwoWay}"
-                           IsPaneVisible="{Binding IsPaneOpen}"
-                           ItemInvoked="OnNavigationViewItemInvoked">
-            <Grid Margin="{ext:Space 0, 1, 1, 1}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="2.65*"/>
-                    <ColumnDefinition Width="{ext:Space 1}"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                
-                <Grid Grid.Column="0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="{ext:Space 1}"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="6*" />
+        </Grid.ColumnDefinitions>
+        
+        <sidebar:Sidebar x:Name="Sidebar" Grid.Column="0" ItemSelected="OnItemSelected" Items="{Binding SidebarItems}"/>
+
+        <GridSplitter Grid.Column="0" HorizontalAlignment="Right" Opacity="0"  IsVisible="{Binding !AssetLoader.ActiveLoader.FinishedLoading, FallbackValue=True}"/>
+        
+        <controls:ContentCard Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="{ext:Space 3}"
+                              IsVisible="{Binding !AssetLoader.ActiveLoader.FinishedLoading, FallbackValue=True}">
+            <StackPanel Spacing="{ext:Space 2}">
+                <TextBlock Text="{Binding AssetLoader.ActiveLoader.LoadingStatus}" 
+                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                           FontFamily="{StaticResource SFDisplaySemibold}"
+                           FontSize="20"/>
+                                       
+                <ProgressBar HorizontalAlignment="Center" VerticalAlignment="Center" Height="8"
+                             MinWidth="400"
+                             Value="{Binding AssetLoader.ActiveLoader.LoadedAssets}"
+                             Minimum="0"
+                             Maximum="{Binding AssetLoader.ActiveLoader.TotalAssets}" />
+            </StackPanel>
+        </controls:ContentCard>
+        
+        <Grid Grid.Column="1" Margin="{ext:Space 0, 1, 1, 1}" IsVisible="{Binding AssetLoader.ActiveLoader.FinishedLoading, FallbackValue=False}">
+            <Grid.Resources>
+                <converters:GridLengthConverter x:Key="AssetsBoxConverter" 
+                                           TrueValue="*" 
+                                           FalseValue="0"/>
+            </Grid.Resources>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2.5*" />
+                <ColumnDefinition Width="{Binding !!AssetLoader.ActiveLoader.SelectedAssetInfos.Count, Converter={StaticResource AssetsBoxConverter}}" />
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="{ext:Space 1}" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="{ext:Space 1}" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="{ext:Space 1}" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="{ext:Space 1}" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="{ext:Space 1}" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="{ext:Space 1}" />
+                        <ColumnDefinition Width="3*" />
+                        <ColumnDefinition Width="{ext:Space 1}" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Column="0" ToolTip.Tip="Random" Content="{material:MaterialIconExt DiceMultiple}"
+                            Click="OnRandomButtonPressed" />
                     
-                    <Grid Grid.Row="0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="{ext:Space 1}"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="{ext:Space 1}"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="{ext:Space 1}"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="{ext:Space 1}"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="{ext:Space 1}"/>
-                            <ColumnDefinition Width="3*"/>
-                            <ColumnDefinition Width="{ext:Space 1}"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <ToggleButton Grid.Column="0" IsChecked="{Binding AssetLoader.ActiveLoader.IsPaused}" ToolTip.Tip="Pause/Resume Loading">
-                            <material:MaterialIcon Kind="{Binding AssetLoader.ActiveLoader.PauseIcon}"/>
-                        </ToggleButton>
-                        <Button Grid.Column="2" ToolTip.Tip="Random" Content="{material:MaterialIconExt DiceMultiple}" Click="OnRandomButtonPressed"/>
-                        <ToggleButton Grid.Column="4" IsChecked="{Binding AssetLoader.ActiveLoader.DescendingSort}" ToolTip.Tip="Ascending or Descending">
-                            <material:MaterialIcon Kind="{Binding AssetLoader.ActiveLoader.SortIcon}"/>
-                        </ToggleButton>
-                        <ComboBox Grid.Column="6" ToolTip.Tip="Sorting" HorizontalAlignment="Stretch"
-                                  ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EAssetSortType}}"
-                                  SelectedItem="{Binding AssetLoader.ActiveLoader.SortType, Converter={StaticResource EnumToRecord}}" />
-                        <DropDownButton Grid.Column="8" HorizontalAlignment="Stretch">
-                            <DropDownButton.Flyout>
-                                <Flyout>
-                                    <ItemsControl ItemsSource="{Binding AssetLoader.ActiveLoader.FilterCategories}">
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate DataType="filters:FilterCategory">
-                                                <StackPanel IsVisible="{Binding IsVisible}">
-                                                    <TextBlock Text="{Binding Title}" Classes="BodyStrongTextBlockStyle" Margin="{ext:Space 0, 0, 0, 0.5}"/>
-                                                    <Separator HorizontalAlignment="Stretch"/>
-                                                    <ItemsControl ItemsSource="{Binding Filters}">
-                                                        <ItemsControl.ItemTemplate>
-                                                            <DataTemplate DataType="filters:FilterItem">
-                                                                <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}" Content="{Binding Title}" IsCheckedChanged="OnFilterChecked"/>
-                                                            </DataTemplate>
-                                                        </ItemsControl.ItemTemplate>
-                                                        <ItemsControl.ItemsPanel>
-                                                            <ItemsPanelTemplate>
-                                                                <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-                                                            </ItemsPanelTemplate>
-                                                        </ItemsControl.ItemsPanel>
-                                                    </ItemsControl>
-                                                </StackPanel>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
-                                    </ItemsControl>
-                                </Flyout>
-                            </DropDownButton.Flyout>
-                            
-                            <StackPanel Orientation="Horizontal">
-                                <material:MaterialIcon Kind="Filter" Margin="{ext:Space 0, 0, 1, 0}"/>
-                                <TextBlock Text="Filters"/>
-                            </StackPanel>
-                        </DropDownButton>
-                        
-                        <AutoCompleteBox Grid.Column="10" FilterMode="ContainsOrdinal" Watermark="Search"
-                                         ItemsSource="{Binding AssetLoader.ActiveLoader.SearchAutoComplete}" 
-                                         Text="{Binding AssetLoader.ActiveLoader.SearchFilter, Mode=TwoWay}"/>
-                        
-                        <ToggleButton Grid.Column="12" ToolTip.Tip="Regex" HorizontalAlignment="Right" 
-                                      Content="{material:MaterialIconExt Regex}" IsChecked="{Binding AssetLoader.ActiveLoader.UseRegex}"/>
-                        
-                    </Grid>
+                    <ToggleButton Grid.Column="2" IsChecked="{Binding ShowNames}"
+                                  ToolTip.Tip="Show Names">
+                        <material:MaterialIcon Kind="{Binding ShowNamesIcon}" />
+                    </ToggleButton>
                     
-                    <controls:FABorder Grid.Row="2">
-                        <ListBox x:Name="AssetsListBox" SelectionMode="Multiple" AutoScrollToSelectedItem="False"
-                                 ItemsSource="{Binding AssetLoader.ActiveCollection}" 
-                                 SelectionChanged="OnSelectionChanged">
+                    <ToggleButton Grid.Column="4" IsChecked="{Binding AssetLoader.ActiveLoader.DescendingSort}"
+                                  ToolTip.Tip="Ascending or Descending">
+                        <material:MaterialIcon Kind="{Binding AssetLoader.ActiveLoader.SortIcon}" />
+                    </ToggleButton>
+                    
+                    <ComboBox Grid.Column="6" ToolTip.Tip="Sorting" HorizontalAlignment="Stretch"
+                              ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EAssetSortType}}"
+                              SelectedItem="{Binding AssetLoader.ActiveLoader.SortType, Converter={StaticResource EnumToRecord}}">
+                    
+                        <ComboBox.Styles>
+                            <Style Selector="ComboBox[IsVisible=true] /template/ ContentPresenter#ContentPresenter">
+                                <Setter Property="ContentTemplate">
+                                    <DataTemplate DataType="ext:EnumRecord">
+                                        <controls:IconText Text="{Binding Description}" Icon="Sort"/>
+                                    </DataTemplate>
+                                </Setter>
+                            </Style>
+                        </ComboBox.Styles>
+                    </ComboBox>
+                    
+                    <DropDownButton Grid.Column="8" HorizontalAlignment="Stretch">
+                        <DropDownButton.Flyout>
+                            <Flyout VerticalOffset="4">
+                                <ItemsControl ItemsSource="{Binding AssetLoader.ActiveLoader.FilterCategories}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate DataType="filters:FilterCategory">
+                                            <StackPanel IsVisible="{Binding IsVisible}" Margin="{ext:Space 0.5}">
+                                                <TextBlock Text="{Binding Title}" FontSize="13"
+                                                           FontFamily="{StaticResource SFTextMedium}"
+                                                           Classes="TextFillColorTertiaryBrush"
+                                                           Margin="{ext:Space 0, 0, 0, 0.5}" />
+                                                <ItemsControl ItemsSource="{Binding Filters}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate DataType="filters:FilterItem">
+                                                            <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                                                                      Content="{Binding Title}"
+                                                                      IsCheckedChanged="OnFilterChecked" />
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <StackPanel VerticalAlignment="Stretch"
+                                                                        HorizontalAlignment="Stretch" />
+                                                        </ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                </ItemsControl>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                </ItemsControl>
+                            </Flyout>
+                        </DropDownButton.Flyout>
+
+                        <StackPanel Orientation="Horizontal">
+                            <material:MaterialIcon Kind="Filter" Margin="{ext:Space 0, 0, 1, 0}" />
+                            <TextBlock Text="Filters" />
+                        </StackPanel>
+                    </DropDownButton>
+
+                    <AutoCompleteBox Grid.Column="10" FilterMode="ContainsOrdinal" Watermark="Search"
+                                     ItemsSource="{Binding AssetLoader.ActiveLoader.SearchAutoComplete}"
+                                     Text="{Binding AssetLoader.ActiveLoader.SearchFilter, Mode=TwoWay}" />
+
+                    <ToggleButton Grid.Column="12" ToolTip.Tip="Regex" HorizontalAlignment="Right"
+                                  Content="{material:MaterialIconExt Regex}"
+                                  IsChecked="{Binding AssetLoader.ActiveLoader.UseRegex}" />
+
+                </Grid>
+
+                <controls:ContentCard Grid.Row="2">
+                    <Grid>
+                          <ListBox x:Name="AssetsListBox" SelectionMode="Multiple" AutoScrollToSelectedItem="False"
+                                 ItemsSource="{Binding AssetLoader.ActiveCollection}"
+                                 SelectionChanged="OnSelectionChanged" Margin="{ext:Space 1}">
                             <ListBox.Styles>
                                 <Style Selector="ListBoxItem">
-                                    <Setter Property="MinWidth" Value="0"/>
-                                    <Setter Property="Padding" Value="0"/>
+                                    <Setter Property="MinWidth" Value="0" />
+                                    <Setter Property="Padding" Value="0" />
                                 </Style>
                             </ListBox.Styles>
                             <ListBox.ItemTemplate>
                                 <DataTemplate DataType="base:BaseAssetItem">
                                     <ContentControl Padding="8">
                                         <ContentControl.ContextMenu>
-                                            <ContextMenu><MenuItem Header="Favorite" Icon="{material:MaterialIconExt Heart}" Command="{Binding FavoriteCommand}"/>
-                                                <MenuItem Header="View Properties" Icon="{material:MaterialIconExt Xml}" Command="{Binding PreviewPropertiesCommand}"/>
-                                                <MenuItem Header="Navigate To" Icon="{material:MaterialIconExt ChevronRight}" Command="{Binding NavigateToCommand}"/>
-                                                <MenuItem Header="Copy Path" Icon="{material:MaterialIconExt Clipboard}" Command="{Binding CopyPathCommand}"/>
+                                            <ContextMenu>
+                                                <MenuItem Header="Favorite" Icon="{material:MaterialIconExt Heart}"
+                                                          Command="{Binding FavoriteCommand}" />
+                                                <MenuItem Header="Navigate To"
+                                                          Icon="{material:MaterialIconExt ChevronRight}"
+                                                          Command="{Binding NavigateToCommand}" />
+                                                <MenuItem Header="Copy Path" Icon="{material:MaterialIconExt Clipboard}"
+                                                          Command="{Binding CopyPathCommand}" />
                                                 <MenuItem Header="Copy Icon" Icon="{material:MaterialIconExt Image}">
-                                                    <MenuItem Header="With Background" Command="{Binding CopyIconCommand}" CommandParameter="{x:True}"/>
-                                                    <MenuItem Header="Without Background" Command="{Binding CopyIconCommand}" CommandParameter="{x:False}"/>
+                                                    <MenuItem Header="With Background" Command="{Binding CopyIconCommand}"
+                                                              CommandParameter="{x:True}" />
+                                                    <MenuItem Header="Without Background"
+                                                              Command="{Binding CopyIconCommand}"
+                                                              CommandParameter="{x:False}" />
                                                 </MenuItem>
                                             </ContextMenu>
                                         </ContentControl.ContextMenu>
-                                        <StackPanel Width="{Binding DisplayWidth}" 
-                                                    ToolTip.Tip="{Binding CreationData.ID}">
+                                        <StackPanel Width="{Binding DisplayWidth}" Spacing="4">
+                                            <ToolTip.Tip>
+                                                <StackPanel Spacing="{ext:Space 0.5}" Margin="{ext:Space 0.5}">
+                                                    <TextBlock Text="{Binding CreationData.DisplayName}"/> 
+                                                    <TextBlock Text="{Binding CreationData.ID}" Classes="TextFillColorSecondaryBrush"/> 
+                                                </StackPanel>
+                                            </ToolTip.Tip>
                                             <Grid>
-                                                <controls:FABorder Width="{Binding DisplayWidth}" 
-                                                             Height="{Binding DisplayHeight}"/>
+                                                <controls:ContentCard Width="{Binding DisplayWidth}"
+                                                                   Height="{Binding DisplayHeight}" />
                                                 <Border ClipToBounds="True" CornerRadius="8"
-                                                        Width="{Binding DisplayWidth}" 
+                                                        Width="{Binding DisplayWidth}"
                                                         Height="{Binding DisplayHeight}">
-                                                    <Image Stretch="UniformToFill" Source="{Binding DisplayImage}" />
+                                                    <Grid>
+                                                        <Image Stretch="UniformToFill" Source="{Binding BackgroundImage}" RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                                                        <Image Stretch="UniformToFill" Source="{Binding IconDisplayImage}" RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                                                    </Grid>
                                                 </Border>
                                                 <Image IsVisible="{Binding IsFavorite}"
-                                                       Source="/Assets/FN/Favorite.png" Width="24" Height="24" HorizontalAlignment="Right"
+                                                       Source="/Assets/FN/Favorite.png" Width="24" Height="24"
+                                                       HorizontalAlignment="Right"
                                                        VerticalAlignment="Top" />
                                             </Grid>
-                                            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="12" TextTrimming="CharacterEllipsis"
+                                            
+                                            <TextBlock IsVisible="{Binding $parent[views:AssetsView].((viewModels:AssetsViewModel)DataContext).ShowNames}"
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center" 
+                                                       FontSize="12" TextTrimming="CharacterEllipsis"
                                                        Text="{Binding CreationData.DisplayName, Converter={StaticResource TitleCaseString}}" />
+
                                         </StackPanel>
                                     </ContentControl>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <wrapPanel:VirtualizingWrapPanel/>
+                                    <wrapPanel:VirtualizingWrapPanel DistributeEvenly="True" ItemRealized="OnItemRealized"/>
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
                         </ListBox>
-                    </controls:FABorder>
-                    
-                    <ProgressBar Grid.Row="3" 
-                                 IsVisible="{Binding !AssetLoader.ActiveLoader.FinishedLoading}"
-                                 Margin="{ext:Space 0, 1, 0, 0}" 
-                                 Value="{Binding AssetLoader.ActiveLoader.LoadedAssets}" 
-                                 Minimum="0" 
-                                 Maximum="{Binding AssetLoader.ActiveLoader.TotalAssets}"/>
-
-                </Grid>
-                
-                <GridSplitter Grid.Column="1" Background="Transparent"/>
-                
-                <Grid Grid.Column="2" RowDefinitions="*,Auto" IsVisible="{Binding !!AssetLoader.ActiveLoader.SelectedAssetInfos.Count}">
-
-                    <ScrollViewer Grid.Row="0" Classes="FixedScrollbar" VerticalScrollBarVisibility="Hidden" PointerWheelChanged="OnScrollAssets">
-                        <ItemsControl ItemsSource="{Binding AssetLoader.ActiveLoader.SelectedAssetInfos}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="2*" />
-                                            <RowDefinition Height="{ext:Space 1}" />
-                                            <RowDefinition Height="Auto" />
-                                        </Grid.RowDefinitions>
-                                        
-                                        <controls:FABorder Grid.Row="0">
-                                            <Grid RowDefinitions="* 2*" ColumnDefinitions="* 0.15* 2.5*" Margin="{ext:Space 0.5}">
-                                                <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" CornerRadius="4" ClipToBounds="True">
-                                                    <Image Source="{Binding Asset.IconDisplayImage}"/>
-                                                </Border>
-                                                <TextBlock Grid.Row="0" Grid.Column="2" Classes="BodyStrongTextBlockStyle" VerticalAlignment="Bottom" TextAlignment="Left"
-                                                           TextTrimming="CharacterEllipsis"
-                                                           Text="{Binding Asset.CreationData.DisplayName}"/>
-                                                <TextBlock Grid.Row="1" Grid.Column="2" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush" VerticalAlignment="Top"
-                                                           Text="{Binding Asset.CreationData.Description}" Margin="{ext:Space 0, 0, 1, 0}"
-                                                           TextAlignment="Left" TextWrapping="Wrap" Opacity="0.75"/>
-                                            </Grid>
-                                        </controls:FABorder>
-                                        
-                                        <ItemsControl Grid.Row="2" ItemsSource="{Binding StyleInfos}">
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate DataType="assets:AssetStyleInfo">
-                                                    <controls:FABorder Margin="{ext:Space 0, 0, 0, 1}" IsVisible="{Binding IsVisible}">
-                                                        <Grid Margin="{ext:Space 0, 1, 0, 1}">
-                                                            <Grid.RowDefinitions>
-                                                                <RowDefinition Height="*" />
-                                                                <RowDefinition Height="{ext:Space 1}" />
-                                                                <RowDefinition Height="Auto" />
-                                                            </Grid.RowDefinitions>
-                                                        
-                                                            <TextBlock Grid.Row="0" Text="{Binding ChannelName}" HorizontalAlignment="Center" 
-                                                                       Classes="BodyStrongTextBlockStyle"/>
-                                                            
-                                                            <DropDownButton Grid.Row="2" Margin="{ext:Space 1, 0}" HorizontalAlignment="Stretch" Classes="Transparent"
-                                                                            IsVisible="{Binding !MultiSelect}">
-                                                                <DropDownButton.Flyout>
-                                                                    <Flyout>
-                                                                        <ListBox SelectionMode="{Binding SelectionMode}"
-                                                                                 SelectedItems="{Binding SelectedItems}"
-                                                                                 SelectedIndex="{Binding SelectedStyleIndex, Mode=TwoWay}" 
-                                                                                 ItemsSource="{Binding StyleDatas}" 
-                                                                                 HorizontalAlignment="Stretch" >
-                                                                            <ListBox.ItemsPanel>
-                                                                                <ItemsPanelTemplate>
-                                                                                    <StackPanel VerticalAlignment="Top" HorizontalAlignment="Stretch" Orientation="Vertical"/>
-                                                                                </ItemsPanelTemplate>
-                                                                            </ListBox.ItemsPanel>
-                                                                            <ListBox.Styles>
-                                                                                <Style Selector="ListBoxItem">
-                                                                                    <Setter Property="MinWidth" Value="0"/>
-                                                                                    <Setter Property="Padding" Value="0"/>
-                                                                                </Style>
-                                                                            </ListBox.Styles>
-                                                                            <ListBox.ItemContainerTheme>
-                                                                                <ControlTheme TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource {x:Type ListBoxItem}}" x:DataType="assets:BaseStyleData">
-                                                                                    <Setter Property="ContextMenu">
-                                                                                        <ContextMenu>
-                                                                                            <MenuItem Header="Copy Icon" Icon="{material:MaterialIconExt Image}" Command="{Binding CopyIconCommand}" />
-                                                                                        </ContextMenu>
-                                                                                    </Setter>
-                                                                                </ControlTheme>
-                                                                            </ListBox.ItemContainerTheme>
-                                                                            <ListBox.ItemTemplate>
-                                                                                <DataTemplate DataType="assets:BaseStyleData">
-                                                                                    <ContentControl Padding="8" ToolTip.Tip="{Binding StyleName}">
-                                                                                        <ContentControl.ContextMenu>
-                                                                                            <ContextMenu>
-                                                                                                <MenuItem Header="Copy Icon" Icon="{material:MaterialIconExt Image}" Command="{Binding CopyIconCommand}"/>
-                                                                                            </ContextMenu>
-                                                                                        </ContentControl.ContextMenu>
-                                                                                        <Grid>
-                                                                                            <Grid.ColumnDefinitions>
-                                                                                                <ColumnDefinition Width="Auto"/>
-                                                                                                <ColumnDefinition Width="{ext:Space 1}"/>
-                                                                                                <ColumnDefinition Width="*"/>
-                                                                                            </Grid.ColumnDefinitions>
-                                                                                            <Border Grid.Column="0" Width="48" Height="48">
-                                                                                                <Border.Background>
-                                                                                                    <ImageBrush Source="{Binding StyleDisplayImage}" />
-                                                                                                </Border.Background>
-                                                                                            </Border>
-                                                                                            <TextBlock Grid.Column="2" Text="{Binding StyleName}" 
-                                                                                                HorizontalAlignment="Left" VerticalAlignment="Center"
-                                                                                                Classes="CaptionTextBlockStyle" TextTrimming="CharacterEllipsis"
-                                                                                                IsVisible="{Binding ShowName}"/>
-                                                                                        </Grid>
-                                                                                    </ContentControl>
-                                                                                </DataTemplate>
-                                                                            </ListBox.ItemTemplate>
-                                                                        </ListBox>
-                                                                    </Flyout>
-                                                                </DropDownButton.Flyout>
-                                                                
-                                                                <Grid>
-                                                                    <Grid.ColumnDefinitions>
-                                                                        <ColumnDefinition Width="Auto"/>
-                                                                        <ColumnDefinition Width="{ext:Space 1}"/>
-                                                                        <ColumnDefinition Width="*"/>
-                                                                    </Grid.ColumnDefinitions>
-                                                                    <Border Grid.Column="0" Width="48" Height="48">
-                                                                        <Border.Background>
-                                                                            <ImageBrush Source="{Binding SelectedStyle.StyleDisplayImage}" />
-                                                                        </Border.Background>
-                                                                    </Border>
-                                                                    <TextBlock Grid.Column="2" Text="{Binding SelectedStyle.StyleName}" 
-                                                                               HorizontalAlignment="Left" VerticalAlignment="Center"
-                                                                               Classes="CaptionTextBlockStyle" TextTrimming="CharacterEllipsis"
-                                                                               IsVisible="{Binding SelectedStyle.ShowName}"/>
-                                                                </Grid>
-                                                            </DropDownButton>
-                                                            
-                                                            <ListBox Grid.Row="2" SelectionMode="{Binding SelectionMode}"
-                                                                     SelectedItems="{Binding SelectedItems}"
-                                                                     SelectedIndex="{Binding SelectedStyleIndex, Mode=TwoWay}" 
-                                                                     ItemsSource="{Binding StyleDatas}" HorizontalAlignment="Center"
-                                                                     IsVisible="{Binding MultiSelect}">
-                                                                <ListBox.ItemsPanel>
-                                                                    <ItemsPanelTemplate>
-                                                                        <WrapPanel VerticalAlignment="Top" HorizontalAlignment="Left" />
-                                                                    </ItemsPanelTemplate>
-                                                                </ListBox.ItemsPanel>
-                                                                <ListBox.Styles>
-                                                                    <Style Selector="ListBoxItem">
-                                                                        <Setter Property="MinWidth" Value="0"/>
-                                                                        <Setter Property="Padding" Value="0"/>
-                                                                    </Style>
-                                                                </ListBox.Styles>
-                                                                <ListBox.ItemTemplate>
-                                                                    <DataTemplate DataType="assets:BaseStyleData">
-                                                                        <ContentControl Padding="8" ToolTip.Tip="{Binding StyleName}">
-                                                                            <Grid MaxWidth="48" RowDefinitions="*, Auto">
-                                                                                <Border Grid.Row="0" Width="48" Height="48">
-                                                                                    <Border.Background>
-                                                                                        <ImageBrush Source="{Binding StyleDisplayImage}" />
-                                                                                    </Border.Background>
-                                                                                </Border>
-                                                                                <TextBlock Grid.Row="1" Text="{Binding StyleName}" HorizontalAlignment="Center" 
-                                                                                           Classes="CaptionTextBlockStyle" TextTrimming="CharacterEllipsis"
-                                                                                           IsVisible="{Binding ShowName}"/>
-                                                                            </Grid>
-                                                                        </ContentControl>
-                                                                    </DataTemplate>
-                                                                </ListBox.ItemTemplate>
-                                                            </ListBox>
-                                                        </Grid>
-                                                    </controls:FABorder>
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-                                    </Grid>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </ScrollViewer>
-                    
-                    <Grid Grid.Row="1" HorizontalAlignment="Stretch" Margin="{ext:Space 0, 1, 0, 0}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="{ext:Space 1}"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
                         
-                        <SplitButton Grid.Column="0" HorizontalAlignment="Stretch" Command="{Binding ExportCommand}">
-                            <SplitButton.Flyout>
-                                <MenuFlyout ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EExportLocation}}">
-                                    <MenuFlyout.ItemContainerTheme>
-                                        <ControlTheme x:DataType="ext:EnumRecord" TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}">
-                                            <Setter Property="Header" Value="{Binding Description}"/>
-                                            <Setter Property="IsEnabled" Value="{Binding !IsDisabled}"/>
-                                            <Setter Property="Command" Value="{Binding $parent[views:AssetsView].((viewModels:AssetsViewModel)DataContext).SetExportLocationCommand}"/>
-                                            <Setter Property="CommandParameter" Value="{Binding Value}"/>
+                        <TextBlock IsVisible="{Binding !AssetLoader.ActiveCollection.Count}" Text="No Assets Found" 
+                                   Classes="BodyTextBlockStyle TextFillColorTertiaryBrush"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    
+                    </Grid>
+                </controls:ContentCard>
+
+            </Grid>
+
+            <GridSplitter Grid.Column="0" Background="Transparent" HorizontalAlignment="Right"
+                          IsVisible="{Binding !!AssetLoader.ActiveLoader.SelectedAssetInfos.Count}"/>
+
+            <Grid Grid.Column="1" RowDefinitions="*,Auto" Margin="{ext:Space 1, 0, 0, 0}"
+                  IsVisible="{Binding !!AssetLoader.ActiveLoader.SelectedAssetInfos.Count}">
+
+                <ScrollViewer Grid.Row="0" Classes="FixedScrollbar" VerticalScrollBarVisibility="Hidden"
+                              PointerWheelChanged="OnScrollAssets">
+                    <ItemsControl ItemsSource="{Binding AssetLoader.ActiveLoader.SelectedAssetInfos}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="2*" />
+                                        <RowDefinition Height="{ext:Space 1}" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <controls:ContentCard Grid.Row="0" ClipToBounds="True">
+                                        <Grid RowDefinitions="* 2*">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="{ext:Space 1}"/>
+                                                <ColumnDefinition Width="2.5*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" CornerRadius="8"
+                                                    ClipToBounds="True" Margin="{ext:Space 1}">
+                                                <Image Source="{Binding Asset.IconDisplayImage}"/>
+                                            </Border>
                                             
-                                            <Setter Property="StaysOpenOnClick" Value="False"/>
-                                            <Setter Property="Icon">
-                                                <Template>
-                                                    <Grid>
-                                                        <material:MaterialIcon Kind="Check" IsVisible="{Binding $parent[views:AssetsView].((viewModels:AssetsViewModel)DataContext).ExportLocation, 
+                                            <TextBlock Grid.Row="0" Grid.Column="2" Classes="BodyStrongTextBlockStyle"
+                                                       VerticalAlignment="Bottom" TextAlignment="Left"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       Text="{Binding Asset.CreationData.DisplayName}" />
+                                            <TextBlock Grid.Row="1" Grid.Column="2"
+                                                       Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"
+                                                       VerticalAlignment="Top"
+                                                       Text="{Binding Asset.CreationData.Description}"
+                                                       Margin="{ext:Space 0, 0, 1, 0}"
+                                                       TextAlignment="Left" TextWrapping="Wrap" Opacity="0.75" />
+                                        </Grid>
+                                    </controls:ContentCard>
+
+                                    <ItemsControl Grid.Row="2" ItemsSource="{Binding StyleInfos}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate DataType="assets:AssetStyleInfo">
+                                                <controls:ContentCard Margin="{ext:Space 0, 0, 0, 1}"
+                                                                   IsVisible="{Binding IsVisible}">
+                                                    <Grid Margin="{ext:Space 0, 1, 0, 1}">
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="*" />
+                                                            <RowDefinition Height="{ext:Space 1}" />
+                                                            <RowDefinition Height="Auto" />
+                                                        </Grid.RowDefinitions>
+
+                                                        <TextBlock Grid.Row="0" Text="{Binding ChannelName}"
+                                                                   HorizontalAlignment="Center"
+                                                                   Classes="BodyStrongTextBlockStyle" />
+
+                                                        <DropDownButton Grid.Row="2" Margin="{ext:Space 1, 0}"
+                                                                        HorizontalAlignment="Stretch"
+                                                                        Background="#222326"
+                                                                        CornerRadius="12"
+                                                                        IsVisible="{Binding !MultiSelect}">
+                                                            <DropDownButton.Flyout>
+                                                                <Flyout>
+                                                                    <ListBox SelectionMode="{Binding SelectionMode}"
+                                                                             SelectedItems="{Binding SelectedItems}"
+                                                                             SelectedIndex="{Binding SelectedStyleIndex, Mode=TwoWay}"
+                                                                             ItemsSource="{Binding StyleDatas}"
+                                                                             HorizontalAlignment="Stretch">
+                                                                        <ListBox.ItemsPanel>
+                                                                            <ItemsPanelTemplate>
+                                                                                <StackPanel VerticalAlignment="Top"
+                                                                                    HorizontalAlignment="Stretch"
+                                                                                    Orientation="Vertical" />
+                                                                            </ItemsPanelTemplate>
+                                                                        </ListBox.ItemsPanel>
+                                                                        <ListBox.Styles>
+                                                                            <Style Selector="ListBoxItem">
+                                                                                <Setter Property="MinWidth" Value="0" />
+                                                                                <Setter Property="Padding" Value="0" />
+                                                                            </Style>
+                                                                        </ListBox.Styles>
+                                                                        <ListBox.ItemContainerTheme>
+                                                                            <ControlTheme
+                                                                                TargetType="{x:Type ListBoxItem}"
+                                                                                BasedOn="{StaticResource {x:Type ListBoxItem}}"
+                                                                                x:DataType="assets:BaseStyleData">
+                                                                                <Setter Property="ContextMenu">
+                                                                                    <ContextMenu>
+                                                                                        <MenuItem Header="Copy Icon"
+                                                                                            Icon="{material:MaterialIconExt Image}"
+                                                                                            Command="{Binding CopyIconCommand}" />
+                                                                                    </ContextMenu>
+                                                                                </Setter>
+                                                                            </ControlTheme>
+                                                                        </ListBox.ItemContainerTheme>
+                                                                        <ListBox.ItemTemplate>
+                                                                            <DataTemplate
+                                                                                DataType="assets:BaseStyleData">
+                                                                                <ContentControl Padding="8"
+                                                                                    ToolTip.Tip="{Binding StyleName}">
+                                                                                    <ContentControl.ContextMenu>
+                                                                                        <ContextMenu>
+                                                                                            <MenuItem
+                                                                                                Header="Copy Icon"
+                                                                                                Icon="{material:MaterialIconExt Image}"
+                                                                                                Command="{Binding CopyIconCommand}" />
+                                                                                        </ContextMenu>
+                                                                                    </ContentControl.ContextMenu>
+                                                                                    <Grid>
+                                                                                        <Grid.ColumnDefinitions>
+                                                                                            <ColumnDefinition
+                                                                                                Width="Auto" />
+                                                                                            <ColumnDefinition
+                                                                                                Width="{ext:Space 1}" />
+                                                                                            <ColumnDefinition Width="*" />
+                                                                                        </Grid.ColumnDefinitions>
+                                                                                        <Border Grid.Column="0"
+                                                                                            Width="48" Height="48">
+                                                                                            <Border.Background>
+                                                                                                <ImageBrush
+                                                                                                    Source="{Binding StyleDisplayImage}" />
+                                                                                            </Border.Background>
+                                                                                        </Border>
+                                                                                        <TextBlock Grid.Column="2"
+                                                                                            Text="{Binding StyleName}"
+                                                                                            HorizontalAlignment="Left"
+                                                                                            VerticalAlignment="Center"
+                                                                                            Classes="CaptionTextBlockStyle"
+                                                                                            TextTrimming="CharacterEllipsis"
+                                                                                            IsVisible="{Binding ShowName}" />
+                                                                                    </Grid>
+                                                                                </ContentControl>
+                                                                            </DataTemplate>
+                                                                        </ListBox.ItemTemplate>
+                                                                    </ListBox>
+                                                                </Flyout>
+                                                            </DropDownButton.Flyout>
+
+                                                            <Grid>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="Auto" />
+                                                                    <ColumnDefinition Width="{ext:Space 1}" />
+                                                                    <ColumnDefinition Width="*" />
+                                                                </Grid.ColumnDefinitions>
+                                                                <Border Grid.Column="0" Width="48" Height="48">
+                                                                    <Border.Background>
+                                                                        <ImageBrush
+                                                                            Source="{Binding SelectedStyle.StyleDisplayImage}" />
+                                                                    </Border.Background>
+                                                                </Border>
+                                                                <TextBlock Grid.Column="2"
+                                                                           Text="{Binding SelectedStyle.StyleName}"
+                                                                           HorizontalAlignment="Left"
+                                                                           VerticalAlignment="Center"
+                                                                           Classes="CaptionTextBlockStyle"
+                                                                           TextTrimming="CharacterEllipsis"
+                                                                           IsVisible="{Binding SelectedStyle.ShowName}" />
+                                                            </Grid>
+                                                        </DropDownButton>
+
+                                                        <ListBox Grid.Row="2" SelectionMode="{Binding SelectionMode}"
+                                                                 SelectedItems="{Binding SelectedItems}"
+                                                                 SelectedIndex="{Binding SelectedStyleIndex, Mode=TwoWay}"
+                                                                 ItemsSource="{Binding StyleDatas}"
+                                                                 HorizontalAlignment="Center"
+                                                                 IsVisible="{Binding MultiSelect}">
+                                                            <ListBox.ItemsPanel>
+                                                                <ItemsPanelTemplate>
+                                                                    <WrapPanel VerticalAlignment="Top"
+                                                                               HorizontalAlignment="Left" />
+                                                                </ItemsPanelTemplate>
+                                                            </ListBox.ItemsPanel>
+                                                            <ListBox.Styles>
+                                                                <Style Selector="ListBoxItem">
+                                                                    <Setter Property="MinWidth" Value="0" />
+                                                                    <Setter Property="Padding" Value="0" />
+                                                                </Style>
+                                                            </ListBox.Styles>
+                                                            <ListBox.ItemTemplate>
+                                                                <DataTemplate DataType="assets:BaseStyleData">
+                                                                    <ContentControl Padding="8"
+                                                                        ToolTip.Tip="{Binding StyleName}">
+                                                                        <Grid MaxWidth="48" RowDefinitions="*, Auto">
+                                                                            <Border Grid.Row="0" Width="48" Height="48">
+                                                                                <Border.Background>
+                                                                                    <ImageBrush
+                                                                                        Source="{Binding StyleDisplayImage}" />
+                                                                                </Border.Background>
+                                                                            </Border>
+                                                                            <TextBlock Grid.Row="1"
+                                                                                Text="{Binding StyleName}"
+                                                                                HorizontalAlignment="Center"
+                                                                                Classes="CaptionTextBlockStyle"
+                                                                                TextTrimming="CharacterEllipsis"
+                                                                                IsVisible="{Binding ShowName}" />
+                                                                        </Grid>
+                                                                    </ContentControl>
+                                                                </DataTemplate>
+                                                            </ListBox.ItemTemplate>
+                                                        </ListBox>
+                                                    </Grid>
+                                                </controls:ContentCard>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+
+                <Grid Grid.Row="1" HorizontalAlignment="Stretch" Margin="{ext:Space 0, 1, 0, 0}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="{ext:Space 1}" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <SplitButton Grid.Column="0" HorizontalAlignment="Stretch" Command="{Binding ExportCommand}">
+                        <SplitButton.Flyout>
+                            <MenuFlyout ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EExportLocation}}">
+                                <MenuFlyout.ItemContainerTheme>
+                                    <ControlTheme x:DataType="ext:EnumRecord" TargetType="MenuItem"
+                                                  BasedOn="{StaticResource {x:Type MenuItem}}">
+                                        <Setter Property="Header" Value="{Binding Description}" />
+                                        <Setter Property="IsEnabled" Value="{Binding !IsDisabled}" />
+                                        <Setter Property="Command"
+                                                Value="{Binding $parent[views:AssetsView].((viewModels:AssetsViewModel)DataContext).SetExportLocationCommand}" />
+                                        <Setter Property="CommandParameter" Value="{Binding Value}" />
+
+                                        <Setter Property="StaysOpenOnClick" Value="False" />
+                                        <Setter Property="Icon">
+                                            <Template>
+                                                <Grid>
+                                                    <material:MaterialIcon Kind="Check"
+                                                                           IsVisible="{Binding $parent[views:AssetsView].((viewModels:AssetsViewModel)DataContext).ExportLocation, 
                                                 Converter={StaticResource EnumEquals}, 
                                                 ConverterParameter={Binding $parent[MenuItem].((ext:EnumRecord)DataContext).Value}}" />
-                                                    </Grid>
-                                                </Template>
-                                            </Setter>
-                                        </ControlTheme>
-                                    </MenuFlyout.ItemContainerTheme>
-                                </MenuFlyout>
-                            </SplitButton.Flyout>
-                            <StackPanel Orientation="Horizontal">
-                                <material:MaterialIcon Kind="Download" Margin="{ext:Space 0, 0, 1, 0}"/>
-                                <TextBlock Text="{Binding ExportLocation, Converter={StaticResource EnumToRecord}, StringFormat='Export to {0}'}"/>
-                            </StackPanel>
-                        </SplitButton>
-                        
-                        <Button Grid.Column="2" ToolTip.Tip="Export Settings" Content="{material:MaterialIconExt Settings}"
-                                Command="{Binding OpenSettingsCommand}"/>
-                        
-                    </Grid>
+                                                </Grid>
+                                            </Template>
+                                        </Setter>
+                                    </ControlTheme>
+                                </MenuFlyout.ItemContainerTheme>
+                            </MenuFlyout>
+                        </SplitButton.Flyout>
+                        <StackPanel Orientation="Horizontal">
+                            <material:MaterialIcon Kind="Download" Margin="{ext:Space 0, 0, 1, 0}" />
+                            <TextBlock
+                                Text="{Binding ExportLocation, Converter={StaticResource EnumToRecord}, StringFormat='Export to {0}'}" />
+                        </StackPanel>
+                    </SplitButton>
+
+                    <Button Grid.Column="2" ToolTip.Tip="Export Settings" Content="{material:MaterialIconExt Settings}"
+                            Command="{Binding OpenSettingsCommand}" />
+
                 </Grid>
-                <TextBlock Grid.Column="2" IsVisible="{Binding !AssetLoader.ActiveLoader.SelectedAssetInfos.Count}" Text="No Asset Selected" 
-                           Classes="BodyTextBlockStyle TextFillColorTertiaryBrush"
-                           HorizontalAlignment="Center" VerticalAlignment="Center" />
             </Grid>
-            
-        </ui:NavigationView>
+        </Grid>
     </Grid>
 </UserControl>

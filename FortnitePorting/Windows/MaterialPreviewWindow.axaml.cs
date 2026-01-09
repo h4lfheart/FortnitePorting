@@ -1,44 +1,23 @@
 using System;
-using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Threading;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Presenters;
-using Avalonia.Data.Converters;
 using Avalonia.Input;
-using Avalonia.Markup.Xaml;
-using Avalonia.Media;
-using Avalonia.Platform;
-using Avalonia.Threading;
-using CUE4Parse_Conversion.Materials;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Material;
-using CUE4Parse.UE4.Assets.Exports.StaticMesh;
-using CUE4Parse.UE4.Assets.Exports.Texture;
-using CUE4Parse.UE4.Objects.Core.Math;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Nodes;
 using FortnitePorting.Models.Nodes.Material;
-using FortnitePorting.Models.Unreal.Material;
-using FortnitePorting.Services;
-using FortnitePorting.Shared.Extensions;
-using FortnitePorting.ViewModels;
 using FortnitePorting.WindowModels;
-using Nodify;
-using OpenTK.Mathematics;
-using OpenTK.Windowing.Common;
-using OpenTK.Windowing.Desktop;
-using OpenTK.Windowing.GraphicsLibraryFramework;
-using Serilog;
 
 namespace FortnitePorting.Windows;
 
 public partial class MaterialPreviewWindow : WindowBase<MaterialPreviewWindowModel>
 {
     public static MaterialPreviewWindow? Instance;
+    
+    private bool isNodePress = false;
     
     public MaterialPreviewWindow()
     {
@@ -53,8 +32,9 @@ public partial class MaterialPreviewWindow : WindowBase<MaterialPreviewWindowMod
         {
             Instance = new MaterialPreviewWindow();
             Instance.Show();
-            Instance.BringToTop();
         }
+        
+        Instance.BringToTop();
 
         if (Instance.WindowModel.Trees.FirstOrDefault(mat => mat.Asset?.Name.Equals(obj.Name) ?? false) is
             { } existing)
@@ -72,9 +52,11 @@ public partial class MaterialPreviewWindow : WindowBase<MaterialPreviewWindowMod
 
         Instance = null;
     }
-    
+
     private void OnNodePressed(object? sender, PointerPressedEventArgs e)
     {
+        isNodePress = true;
+        
         if (e.ClickCount != 2) return;
         if (sender is not Control control) return;
         if (control.DataContext is not MaterialNode node) return;
@@ -144,12 +126,16 @@ public partial class MaterialPreviewWindow : WindowBase<MaterialPreviewWindowMod
         Editor.ViewportLocation = new Point(avgX - Editor.ViewportSize.Width / 2, avgY - Editor.ViewportSize.Height / 2);
     }
 
-    private void OnSearchSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    
+    private void OnSearchSelectionChanged(object? sender, SelectionChangedEventArgs selectionChangedEventArgs)
     {
         if (sender is not ListBox listBox) return;
         if (listBox.SelectedItem is not BaseNode selectedNode) return;
 
         WindowModel.SelectedTree.SelectedNode = selectedNode;
-        Editor.ViewportLocation = new Point(selectedNode.Location.X - Editor.ViewportSize.Width / 2, selectedNode.Location.Y - Editor.ViewportSize.Height / 2);
+        if (!isNodePress)
+            Editor.ViewportLocation = new Point(selectedNode.Location.X - Editor.ViewportSize.Width / 2, selectedNode.Location.Y - Editor.ViewportSize.Height / 2);
+
+        isNodePress = false;
     }
 }

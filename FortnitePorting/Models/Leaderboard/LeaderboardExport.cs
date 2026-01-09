@@ -6,24 +6,9 @@ using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.UE4.Assets.Exports;
-using CUE4Parse.UE4.Assets.Exports.Animation;
-using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
-using CUE4Parse.UE4.Assets.Exports.Sound;
-using CUE4Parse.UE4.Assets.Exports.StaticMesh;
-using CUE4Parse.UE4.Assets.Exports.Texture;
-using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.Utils;
-using FortnitePorting.Application;
 using FortnitePorting.Extensions;
-using FortnitePorting.Models.Assets;
-using FortnitePorting.Models.Fortnite;
-using FortnitePorting.Services;
-using FortnitePorting.Shared.Extensions;
-using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
-using OpenTK.Graphics.OpenGL;
-using SkiaSharp;
-using AssetLoader = Avalonia.Platform.AssetLoader;
 
 namespace FortnitePorting.Models.Leaderboard;
 
@@ -36,9 +21,6 @@ public partial class LeaderboardExport : ObservableObject
     [ObservableProperty] private string _objectName;
     [ObservableProperty] private string _category;
     [ObservableProperty] private Bitmap _exportBitmap;
-    [ObservableProperty] private bool _showMedal;
-    [ObservableProperty] private Bitmap _medalBitmap;
-    [ObservableProperty] private Dictionary<Guid, int> _contributions;
     
     public string ID => ObjectPath.SubstringAfterLast("/").SubstringBefore(".");
     
@@ -48,9 +30,7 @@ public partial class LeaderboardExport : ObservableObject
     // returns if is a valid export
     public async Task<bool> Load()
     {
-        // TODO do the dependency injection and make an exporter service
-        var assetLoaderService = AppServices.Services.GetRequiredService<AssetLoaderService>();
-        var assetLoaders = assetLoaderService.Categories
+        var assetLoaders = AssetLoading.Categories
             .SelectMany(category => category.Loaders)
             .ToArray();
         
@@ -63,13 +43,8 @@ public partial class LeaderboardExport : ObservableObject
             if (customAsset is null) return false;
             
             ExportBitmap = customAsset.IconBitmap.ToWriteableBitmap();
-            ShowMedal = true;
             CachedBitmaps[ObjectPath] = ExportBitmap;
             
-            if (Ranking <= 3)
-            {
-                MedalBitmap = ImageExtensions.GetMedalBitmap(Ranking);
-            }
             
             return true;
         }
@@ -95,27 +70,21 @@ public partial class LeaderboardExport : ObservableObject
         if (assetLoader is null)
         {
             ObjectName = ID;
-            ExportBitmap = asset.GetEditorIconBitmap() ?? ImageExtensions.GetMedalBitmap(Ranking);
+            ExportBitmap = asset.GetEditorIconBitmap() ?? ImageExtensions.AvaresBitmap("avares://FortnitePorting/Assets/Unreal/DataAsset_64x.png");
             return true;
         }
         
-        ShowMedal = true;
         if (CachedBitmaps.TryGetValue(ObjectPath, out var existingBitmap))
         {
             ExportBitmap = existingBitmap;
         }
         else
         {
-            ExportBitmap = assetLoader.IconHandler(asset)?.Decode()?.ToWriteableBitmap() ?? asset.GetEditorIconBitmap() ?? ImageExtensions.GetMedalBitmap(Ranking);
+            ExportBitmap = assetLoader.IconHandler(asset)?.Decode()?.ToWriteableBitmap() ?? asset.GetEditorIconBitmap() ?? ImageExtensions.AvaresBitmap("avares://FortnitePorting/Assets/Unreal/DataAsset_64x.png");
             CachedBitmaps[ObjectPath] = ExportBitmap;
         }
         
         ObjectName = assetLoader.DisplayNameHandler(asset) ?? ID;
-
-        if (Ranking <= 3)
-        {
-            MedalBitmap = ImageExtensions.GetMedalBitmap(Ranking);
-        }
 
         return true;
     }
@@ -123,7 +92,7 @@ public partial class LeaderboardExport : ObservableObject
 
     private void SetFailureDefaults()
     {
-        ExportBitmap = ImageExtensions.GetMedalBitmap(Ranking);
+        ExportBitmap = ImageExtensions.AvaresBitmap("avares://FortnitePorting/Assets/Unreal/DataAsset_64x.png");
         ObjectName = ID;
     }
 }

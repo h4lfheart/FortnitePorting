@@ -44,7 +44,7 @@ public record ExportOverrideParameters : ParameterCollection
     public int Hash;
 }
 
-public record TextureParameter(string Name, string Value, bool sRGB, TextureCompressionSettings CompressionSettings);
+public record TextureParameter(string Name, ExportTexture Texture);
 
 public record ScalarParameter(string Name, float Value);
 
@@ -56,10 +56,12 @@ public record ComponentMaskParameter(string Name, FLinearColor Value);
 
 public record ExportTextureData
 {
+    public string Path;
     public int Hash;
-    public TextureParameter? Diffuse;
-    public TextureParameter? Normal;
-    public TextureParameter? Specular;
+    public int Index;
+    public ExportTexture? Diffuse;
+    public ExportTexture? Normal;
+    public ExportTexture? Specular;
     public ExportMaterial? OverrideMaterial;
 }
 

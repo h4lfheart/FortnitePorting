@@ -50,11 +50,15 @@ public abstract class WindowBase<T> : Window where T : WindowModelBase
     }
 }
 
+
 public static class WindowExtensions 
 {
-    public static void BringToTop(this Window window)
+    extension(Window window)
     {
-        window.Topmost = true;
-        window.Topmost = false;
+        public void BringToTop()
+        {
+            window.Topmost = true;
+            window.Topmost = false;
+        }
     }
 }

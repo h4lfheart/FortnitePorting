@@ -3,7 +3,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
-             xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
              xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
@@ -20,7 +19,7 @@
             <ItemsControl ItemsSource="{Binding Info.Logs}" Margin="{ext:Space 0, 0, 2, 0}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <controls:FABorder Margin="{ext:Space 0, 0, 0, 0.5}" Cursor="Hand" PointerPressed="OnLogPointerPressed">
+                        <controls:ContentCard Margin="{ext:Space 0, 0, 0, 0.5}" Cursor="Hand" PointerPressed="OnLogPointerPressed">
                             <Grid Margin="{ext:Space 1}">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
@@ -41,7 +40,7 @@
                                            Foreground="{Binding TextColor}"
                                            Classes="BodyTextBlockStyle" VerticalAlignment="Top"/>
                             </Grid>
-                        </controls:FABorder>
+                        </controls:ContentCard>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
                 <ItemsControl.ItemsPanel>

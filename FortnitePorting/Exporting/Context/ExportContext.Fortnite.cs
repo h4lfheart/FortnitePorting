@@ -4,6 +4,7 @@ using System.Linq;
 using CUE4Parse.GameTypes.FN.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Material;
+using CUE4Parse.UE4.Assets.Exports.Rig;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
@@ -67,10 +68,20 @@ public partial class ExportContext
                         {
                             meta.PoseAsset = Export(poseAssetNode.Get<UPoseAsset>("PoseAsset"));
                         }
-                        else if (skeletalMesh.ReferenceSkeleton.FinalRefBoneInfo.Any(bone => bone.Name.Text.Equals("FACIAL_C_FacialRoot", StringComparison.OrdinalIgnoreCase))
-                                 && UEParse.Provider.TryLoadPackageObject("/BRCosmetics/Characters/Player/Male/Medium/Heads/M_MED_Jonesy3L_Head/Meshes/3L/3L_lod2_Facial_Poses_PoseAsset", out UPoseAsset poseAsset))
+                        else if (skeletalMesh.ReferenceSkeleton.FinalRefBoneInfo.Any(bone => bone.Name.Text.Equals("FACIAL_C_FacialRoot", StringComparison.OrdinalIgnoreCase)))
                         {
-                            meta.PoseAsset = Export(poseAsset);
+                            var foundDNA = false;
+                            foreach (var userData in skeletalMesh.AssetUserData)
+                            {
+                                if (!userData.TryLoad<UDNAAsset>(out var dna)) continue;
+                                
+                                meta.PoseAsset = Export(dna);
+                                foundDNA = meta.PoseAsset is not null; //TODO: how do we know this succeeded? Or should we just assume it did?
+                                break;
+                            }
+                            // Fallback in case DNA exporting fails
+                            if (!foundDNA && UEParse.Provider.TryLoadPackageObject("/BRCosmetics/Characters/Player/Male/Medium/Heads/M_MED_Jonesy3L_Head/Meshes/3L/3L_lod2_Facial_Poses_PoseAsset", out UPoseAsset poseAsset)) 
+                                meta.PoseAsset = Export(poseAsset);
                         }
                     }
 
@@ -205,26 +216,22 @@ public partial class ExportContext
     {
         if (textureData is null) return null;
         
-        var exportTextureData = new ExportTextureData();
-
-        var textureSuffix = index > 0 ? $"_Texture_{index + 1}" : string.Empty;
-        var specSuffix = index > 0 ? $"_{index + 1}" : string.Empty;
+        var exportTextureData = new ExportTextureData
+        {
+            Index = index,
+            Path = textureData.GetPathName()
+        };
         
-        exportTextureData.Diffuse = AddData(textureData.Diffuse, "Diffuse", textureSuffix);
-        exportTextureData.Normal = AddData(textureData.Normal, "Normals", textureSuffix);
-        exportTextureData.Specular = AddData(textureData.Specular, "SpecularMasks", specSuffix);
+        exportTextureData.Hash = exportTextureData.Path.GetHashCode();
+
+        exportTextureData.Diffuse = Texture(textureData.Diffuse);
+        exportTextureData.Normal = Texture(textureData.Normal);
+        exportTextureData.Specular = Texture(textureData.Specular);
         
         if (textureData.OverrideMaterial is { } overrideMaterial)
             exportTextureData.OverrideMaterial = Material(overrideMaterial, 0);
         
-        exportTextureData.Hash = textureData.GetPathName().GetHashCode();
-        
         return exportTextureData;
-        
-        TextureParameter? AddData(UTexture? texture, string prefix, string suffix)
-        {
-            return texture is null ? null : new TextureParameter(prefix + suffix, Export(texture), texture.SRGB, texture.CompressionSettings);
-        }
     }
     
     
@@ -240,28 +247,36 @@ public partial class ExportContext
             
             if (objects.Count == 0) continue;
 
-            // todo proper byte actor data parsing
             var textureDatas = new Dictionary<int, UBuildingTextureData>();
             var actorData = levelSaveRecord.ActorData[index];
-            if (actorData.TryGetAllValues(out string?[] textureDataRawPaths, "TextureData"))
+            if (templateRecord.bUsingRecordDataReferenceTable)
             {
-                for (var i = 0; i < textureDataRawPaths.Length; i++)
+                foreach (var property in actorData.Properties)
                 {
-                    var textureDataPath = textureDataRawPaths[i];
-                    if (textureDataPath is null || string.IsNullOrEmpty(textureDataPath)) continue;
-                    if (!UEParse.Provider.TryLoadPackageObject(textureDataPath, out UBuildingTextureData textureData)) continue;
-                    textureDatas.Add(i, textureData);
+                    if (!property.Name.Text.Equals("TextureData"))
+                        continue;
+                    
+                    if (property.Tag?.GetValue<FPackageIndex>() is not { } packageIndex)
+                        continue;
+                    
+                    var textureDataPath = templateRecord.ActorDataReferenceTable[packageIndex.Index];
+                    if (textureDataPath.AssetPathName.IsNone || string.IsNullOrEmpty(textureDataPath.AssetPathName.Text)) continue;
+                    
+                    var textureData = textureDataPath.Load<UBuildingTextureData>();
+                    textureDatas.Add(property.ArrayIndex, textureData);
                 }
             }
             else
             {
-                var textureDataPaths = templateRecord.ActorDataReferenceTable;
-                for (var i = 0; i < textureDataPaths.Length; i++)
+                foreach (var property in actorData.Properties)
                 {
-                    var textureDataPath = textureDataPaths[i];
-                    if (textureDataPath.AssetPathName.IsNone || string.IsNullOrEmpty(textureDataPath.AssetPathName.Text)) continue;
-                    var textureData = textureDataPath.Load<UBuildingTextureData>();
-                    textureDatas.Add(i, textureData);
+                    if (!property.Name.Text.Equals("TextureData"))
+                        continue;
+                    
+                    if (property.Tag?.GetValue<FPackageIndex>()?.Load<UBuildingTextureData>() is not { } textureData)
+                        continue;
+                    
+                    textureDatas.Add(property.ArrayIndex, textureData);
                 }
             }
             
@@ -303,6 +318,8 @@ public partial class ExportContext
             else if (actor.TryGetValue(out UStaticMesh doubleDoorMesh, "DoubleDoorMesh"))
             {
                 var exportDoubleDoorMesh = Mesh(doubleDoorMesh)!;
+                if (exportDoubleDoorMesh == null) return extraMeshes;
+
                 exportDoubleDoorMesh.Location = doorOffset;
                 exportDoubleDoorMesh.Rotation = doorRotation;
                 extraMeshes.AddIfNotNull(exportDoubleDoorMesh);

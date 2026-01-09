@@ -4,53 +4,42 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
              xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
-             xmlns:enums="clr-namespace:CUE4Parse_Conversion.UEFormat.Enums;assembly=CUE4Parse-Conversion"
-             xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
              xmlns:settings="clr-namespace:FortnitePorting.ViewModels.Settings"
-             xmlns:versions="clr-namespace:CUE4Parse.UE4.Versions;assembly=CUE4Parse"
-             xmlns:wave="clr-namespace:NAudio.Wave;assembly=NAudio.Core"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls.Settings"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FortnitePorting.Views.Settings.DebugSettingsView"
              x:DataType="settings:DebugSettingsViewModel">
     
     <ScrollViewer>
-        <StackPanel VerticalAlignment="Top" Margin="{ext:Space 1}">
-            <StackPanel.Styles>
-                <Style Selector="ui|SettingsExpander">
-                    <Setter Property="Margin" Value="{ext:Space 0, 0, 0, 1}"/>
-                </Style>
-                <Style Selector="TextBlock.SubtitleTextBlockStyle">
-                    <Setter Property="Margin" Value="{ext:Space 0, 0, 0, 1}"/>
-                </Style>
-            </StackPanel.Styles>
+        <StackPanel VerticalAlignment="Top" Margin="{ext:Space 1}" Spacing="{ext:Space 0, 0, 0, 1}">
             
-            <ui:SettingsExpander Header="Show Console" Description="Displays the console tab for debugging purposes.">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Show Console" Description="Displays the console tab for debugging purposes.">
+                <controls:SettingsItem.Footer>
                     <ToggleSwitch IsChecked="{Binding IsConsoleVisible}"/>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
-            <ui:SettingsExpander Header="Cached Chunk Lifetime" Description="The number of days any cached chunks should be kept for. Set this value to zero to keep chunks for forever.">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Cached Chunk Lifetime" Description="The number of days any cached chunks should be kept for. Set this value to zero to keep chunks for forever.">
+                <controls:SettingsItem.Footer>
                     <ui:NumberBox Value="{Binding ChunkCacheLifetime}" 
                                   Minimum="0"
                                   SpinButtonPlacementMode="Inline"/>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
-            <ui:SettingsExpander Header="Request Timeout Length" Description="The number of seconds in which web request should wait for before cancelling.">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Request Timeout Length" Description="The number of seconds in which web request should wait for before cancelling.">
+                <controls:SettingsItem.Footer>
                     <ui:NumberBox Value="{Binding RequestTimeoutSeconds}" 
                                   Minimum="0"
                                   SpinButtonPlacementMode="Inline"/>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
-            <ui:SettingsExpander Header="Show Map Grid Information" Description="Displays tools to modify and debug map grids in the map tab.">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Show Map Grid Information" Description="Displays tools to modify and debug map grids in the map tab.">
+                <controls:SettingsItem.Footer>
                     <ToggleSwitch IsChecked="{Binding ShowMapDebugInfo}"/>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

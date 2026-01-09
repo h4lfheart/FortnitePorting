@@ -1,29 +1,19 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Net;
-using System.Text;
 using System.Threading.Tasks;
-using Avalonia.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
+using FortnitePorting.Extensions;
 using FortnitePorting.Models.API.Responses;
-using FortnitePorting.Models.Supabase;
+using FortnitePorting.Models.Levels;
 using FortnitePorting.Models.Supabase.Tables;
 using FortnitePorting.Models.Supabase.User;
-using FortnitePorting.Shared.Extensions;
 using Mapster;
-using Microsoft.VisualBasic.Logging;
-using Newtonsoft.Json;
-using OpenTK.Graphics.OpenGL;
 using Supabase;
 using Supabase.Gotrue;
 using Supabase.Realtime.PostgresChanges;
-using Tomlyn;
 using Client = Supabase.Client;
-using Log = Serilog.Log;
 
 namespace FortnitePorting.Services;
 
@@ -74,8 +64,12 @@ public partial class SupabaseService : ObservableObject, IService
     [ObservableProperty] private bool _isLoggedIn;
     
     [ObservableProperty] private UserInfoResponse? _userInfo;
+    [ObservableProperty] private LevelStats? _levelStats;
+    [ObservableProperty] private LevelStats? _prevLevelStats;
     [ObservableProperty] private UserPermissions _permissions = new();
 
+    public event EventHandler<int> LevelUp; 
+    
     private ProviderAuthState? _currentAuthState;
     private bool _postedLogin;
     
@@ -131,41 +125,46 @@ public partial class SupabaseService : ObservableObject, IService
 
     public async Task PostExports(IEnumerable<string> objectPaths)
     {
-        await Client.From<Export>().Insert(new Export
-        {
-            ExportPaths = objectPaths
-        });
+        await Api.FortnitePorting.PostExports(objectPaths);
     }
 
     private async Task OnLoggedIn()
     {
         IsLoggedIn = true;
-                
-        await LoadUserInfo();
-
-        await PostLogin();
-
+        
         Permissions = (await Client.Rpc<Permissions>("permissions", new { })).Adapt<UserPermissions>();
         
         await Client.From<Permissions>().On(PostgresChangesOptions.ListenType.All, (channel, response) =>
         {
             Permissions = response.Model<Permissions>().Adapt<UserPermissions>();
         });
+        
+        LevelStats = await Client.CallObjectFunction<LevelStats>("get_level_stats");
+        
+        await Client.From<Levels>().On(PostgresChangesOptions.ListenType.All, async (channel, response) =>
+        {
+            PrevLevelStats = LevelStats;
+            LevelStats = await Client.CallObjectFunction<LevelStats>("get_level_stats");
+
+            if (PrevLevelStats?.Level != LevelStats?.Level)
+            {
+                LevelUp?.Invoke(this, LevelStats?.Level ?? 0);
+            }
+        });
             
-        await VotingVM.Initialize();
+        await LoadUserInfo();
+
+        await PostLogin();
+
         await Chat.Initialize();
+        await LiveExport.Initialize();
     }
     
     private async Task PostLogin()
     {
         if (_postedLogin) return;
-        
-        await Client.From<Login>().Insert(new Login
-        {
-            Version = Globals.Version.GetDisplayString()
-        });
-        
-        
+
+        await Api.FortnitePorting.PostLogin();
         _postedLogin = true;
     }
 

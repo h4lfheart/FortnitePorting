@@ -75,17 +75,31 @@ public partial class ExportContext
         };
     }
     
-    public ExportOverrideParameters? OverrideParameters(FStructFallback overrideData)
+    public List<ExportOverrideParameters> OverrideParameters(FStructFallback overrideData)
     {
-        var materialToAlter = overrideData.Get<FSoftObjectPath>("MaterialToAlter");
-        if (materialToAlter.AssetPathName.IsNone) return null; 
-
-        var exportParams = new ExportOverrideParameters();
-        AccumulateParameters(overrideData, ref exportParams);
+        var materialsToAlter = new List<FSoftObjectPath>();
+        if (overrideData.TryGetValue<FSoftObjectPath>(out var alterMaterial, "MaterialToAlter"))
+            materialsToAlter.AddIfNotNull(alterMaterial);
         
-        exportParams.MaterialNameToAlter = materialToAlter.AssetPathName.Text.SubstringAfterLast(".");
-        exportParams.Hash = exportParams.GetHashCode();
-        return exportParams;
+        if (overrideData.TryGetValue<FSoftObjectPath[]>(out var alterMaterials, "MaterialsToAlter"))
+            materialsToAlter.AddRangeIfNotNull(alterMaterials);
+
+        materialsToAlter.RemoveAll(mat =>
+            mat.AssetPathName.IsNone || string.IsNullOrWhiteSpace(mat.AssetPathName.Text));
+
+        var exportParametersSet = new List<ExportOverrideParameters>();
+        foreach (var materialToAlter in materialsToAlter)
+        {
+            var exportParams = new ExportOverrideParameters();
+            AccumulateParameters(overrideData, ref exportParams);
+
+            exportParams.MaterialNameToAlter = materialToAlter.AssetPathName.Text.SubstringAfterLast(".");
+            exportParams.Hash = exportParams.GetHashCode();
+            exportParametersSet.Add(exportParams);
+        }
+
+       
+        return exportParametersSet;
     }
     
     public void AccumulateParameters<T>(UMaterialInterface? materialInterface, ref T parameterCollection) where T : ParameterCollection
@@ -99,7 +113,8 @@ public partial class ExportContext
                 var embeddedAsset = materialInstance.Owner != null 
                                     && texture.Owner != null 
                                     && materialInstance.Owner.Name.Equals(texture.Owner.Name);
-                parameterCollection.Textures.AddUnique(new TextureParameter(param.Name, Export(texture, embeddedAsset: embeddedAsset), texture.SRGB, texture.CompressionSettings));
+                parameterCollection.Textures.AddUnique(new TextureParameter(param.Name, 
+                    new ExportTexture(Export(texture, embeddedAsset: embeddedAsset), texture.SRGB, texture.CompressionSettings)));
             }
 
             foreach (var param in materialInstance.ScalarParameterValues)
@@ -174,7 +189,7 @@ public partial class ExportContext
         {
             if (value is not UTexture2D texture) continue;
             
-            parameterCollection.Textures.AddUnique(new TextureParameter(name, Export(texture), texture.SRGB, texture.CompressionSettings));
+            parameterCollection.Textures.AddUnique(new TextureParameter(name, new ExportTexture(Export(texture), texture.SRGB, texture.CompressionSettings)));
         }
     }
     
@@ -185,7 +200,7 @@ public partial class ExportContext
         {
             if (parameterCollection.Textures.Any(x => x.Name == param.Name)) continue;
             if (!param.Value.TryLoad(out UTexture texture)) continue;
-            parameterCollection.Textures.AddUnique(new TextureParameter(param.Name, Export(texture), texture.SRGB, texture.CompressionSettings));
+            parameterCollection.Textures.AddUnique(new TextureParameter(param.Name, new ExportTexture(Export(texture), texture.SRGB, texture.CompressionSettings)));
         }
 
         var floatParams = data.GetOrDefault<FStyleParameter<float>[]>("FloatParams");
@@ -201,5 +216,10 @@ public partial class ExportContext
             if (parameterCollection.Vectors.Any(x => x.Name == param.ParamName.Text)) continue;
             parameterCollection.Vectors.AddUnique(new VectorParameter(param.Name, param.Value));
         }
+    }
+
+    public ExportTexture? Texture(UTexture? texture)
+    {
+        return texture is null ? null : new ExportTexture(Export(texture), texture.SRGB, texture.CompressionSettings);
     }
 }

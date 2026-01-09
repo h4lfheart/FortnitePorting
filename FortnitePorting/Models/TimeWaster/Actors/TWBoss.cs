@@ -1,10 +1,7 @@
 using System;
 using System.Threading.Tasks;
-using Avalonia;
-using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FortnitePorting.Services;
-using FortnitePorting.Shared.Extensions;
 
 namespace FortnitePorting.Models.TimeWaster.Actors;
 

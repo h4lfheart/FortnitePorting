@@ -1,23 +1,13 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using CUE4Parse_Conversion.Meshes.PSK;
-using CUE4Parse_Conversion.Meshes.UEFormat;
 using CUE4Parse.UE4.Assets;
-using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Actor;
-using CUE4Parse.UE4.Assets.Exports.Component;
-using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.Meshes;
-using CUE4Parse.UE4.Objects.RenderCore;
-using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
-using DynamicData;
 using FortnitePorting.Models.Unreal.Landscape;
-using Newtonsoft.Json;
 
 namespace FortnitePorting.Models.CUE4Parse;
 
@@ -132,7 +122,7 @@ public class LandscapeProcessor
             }
         }
 
-        lod.Indices = new Lazy<FRawStaticIndexBuffer>(new FRawStaticIndexBuffer { Indices32 = indices.ToArray() });
+        lod.Indices = new Lazy<uint[]>(indices.ToArray());
 
         lod.ExtraVertexColors = extraVertexColors.Values.ToArray();
 

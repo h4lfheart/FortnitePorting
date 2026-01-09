@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
@@ -10,7 +9,6 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse_Conversion.Textures.BC;
-using CUE4Parse_Conversion.UEFormat.Structs;
 using CUE4Parse.Compression;
 using CUE4Parse.Encryption.Aes;
 using CUE4Parse.MappingsProvider;
@@ -22,8 +20,6 @@ using CUE4Parse.UE4.Assets.Exports.Engine;
 using CUE4Parse.UE4.IO;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.Core.Math;
-using CUE4Parse.UE4.Objects.GameplayTags;
-using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.UE4.Pak;
 using CUE4Parse.UE4.Readers;
 using CUE4Parse.UE4.Versions;
@@ -31,15 +27,11 @@ using CUE4Parse.UE4.VirtualFileSystem;
 using CUE4Parse.Utils;
 using EpicManifestParser;
 using EpicManifestParser.UE;
-using FortnitePorting.Application;
 using FortnitePorting.Extensions;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.CUE4Parse;
 using FortnitePorting.Models.Fortnite;
-using FortnitePorting.Rendering;
 using FortnitePorting.Shared.Extensions;
-using FortnitePorting.Views;
-using FortnitePorting.Windows;
 using Serilog;
 using UE4Config.Parsing;
 using FGuid = CUE4Parse.UE4.Objects.Core.Misc.FGuid;
@@ -63,14 +55,12 @@ public partial class CUE4ParseService : ObservableObject, IService
     public readonly List<UAnimMontage> MaleLobbyMontages = [];
     public readonly List<UAnimMontage> FemaleLobbyMontages = [];
     public readonly Dictionary<string, string> SetNames = [];
-
-    private OnlineResponse _onlineStatus;
     
     private static readonly Regex FortniteArchiveRegex = new(@"^FortniteGame(/|\\)Content(/|\\)Paks(/|\\)(pakchunk(?:0|10.*|\w+)-WindowsClient|global)\.(pak|utoc)$", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly List<DirectoryInfo> ExtraDirectories = 
     [
-        new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "FortniteGame", "Saved", "PersistentDownloadDir", "GameCustom", "InstalledBundles"))
+        new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "FortniteGame", "Saved", "PersistentDownloadDir", "GameCustom", "InstalledBundles"))
     ];
     
     private static readonly List<string> MaleLobbyMontagePaths = 
@@ -85,7 +75,7 @@ public partial class CUE4ParseService : ObservableObject, IService
         "FortniteGame/Content/Animation/Game/MainPlayer/Menu/BR/Female_Commando_Idle_03_Montage"
     ];
 
-    private const EGame LATEST_GAME_VERSION = EGame.GAME_UE5_7;
+    private const EGame LATEST_GAME_VERSION = EGame.GAME_UE5_8;
     
     public static DirectoryInfo CacheFolder => new(Path.Combine(App.ApplicationDataFolder.FullName, ".cache"));
 
@@ -98,20 +88,20 @@ public partial class CUE4ParseService : ObservableObject, IService
     {
         Provider = AppSettings.Installation.CurrentProfile.FortniteVersion switch
         {
-            EFortniteVersion.LatestOnDemand => new HybridFileProvider(new VersionContainer(AppSettings.Installation.CurrentProfile.UnrealVersion)),
+            EFortniteVersion.LatestOnDemand => new HybridFileProvider(new VersionContainer(LATEST_GAME_VERSION)),
             EFortniteVersion.LatestInstalled => new HybridFileProvider(AppSettings.Installation.CurrentProfile.ArchiveDirectory, ExtraDirectories, new VersionContainer(LATEST_GAME_VERSION)),
             _ => new HybridFileProvider(AppSettings.Installation.CurrentProfile.ArchiveDirectory, [], new VersionContainer(AppSettings.Installation.CurrentProfile.UnrealVersion)),
         };
         
-		ObjectTypeRegistry.RegisterEngine(Assembly.Load("FortnitePorting"));
+        Log.Information("Installation Type: {Type}", AppSettings.Installation.CurrentProfile.FortniteVersion);
+        Log.Information("Archive Path: {Path}", AppSettings.Installation.CurrentProfile.FortniteVersion is EFortniteVersion.LatestOnDemand ? "On-Demand" : AppSettings.Installation.CurrentProfile.ArchiveDirectory);
+        Log.Information("Unreal Version: {Version}", Provider.Versions.Game.ToString());
+        
+        ObjectTypeRegistry.RegisterEngine(Assembly.Load("FortnitePorting"));
         ObjectTypeRegistry.RegisterEngine(Assembly.Load("FortnitePorting.Shared"));
 
-        Provider.LoadExtraDirectories = AppSettings.Installation.CurrentProfile.LoadCreativeMaps && SupaBase.Permissions.CanExportUEFN;
-        
-        // TODO: Control with a per-installation setting, or require restart when changing nanite export format?
+        Provider.LoadExtraDirectories = AppSettings.Installation.CurrentProfile.LoadInstalledBundles;
         Provider.ReadNaniteData = true;
-        
-        _onlineStatus = await Api.FortnitePorting.Online() ?? new OnlineResponse();
         
         await CheckBlackHole();
         await CleanupCache();
@@ -120,7 +110,9 @@ public partial class CUE4ParseService : ObservableObject, IService
         {
             if (sender is not IAesVfsReader reader) return;
 
-            UpdateStatus($"Loading {reader.Name}");
+            UpdateStatus(reader.Name.Equals("plugin.utoc")
+                ? $"Loading GameFeature {reader.Path.SubstringBeforeLast("\\").SubstringAfterLast("\\")}"
+                : $"Loading File {reader.Name}");
         };
         
         UpdateStatus("Loading Native Libraries");
@@ -130,18 +122,24 @@ public partial class CUE4ParseService : ObservableObject, IService
         
         UpdateStatus("Loading Game Files");
         await InitializeProvider();
+        
+        UpdateStatus("Loading Texture Streaming");
         await InitializeTextureStreaming();
         
+        UpdateStatus("Submitting Keys");
         await LoadKeys();
+        
+        UpdateStatus("Loading Virtual Paths");
         Provider.LoadVirtualPaths();
         Provider.PostMount();
         
         if (!Provider.TryChangeCulture(Provider.GetLanguageCode(AppSettings.Installation.CurrentProfile.GameLanguage)))
         {
-            Info.Message("Internationalization", $"Failed to load language \"{AppSettings.Installation.CurrentProfile.GameLanguage.GetDescription()}\"");
+            Info.Message("Internationalization", $"Failed to load language \"{AppSettings.Installation.CurrentProfile.GameLanguage.Description}\"");
         }
         
         await LoadMappings();
+
         
         await LoadAssetRegistries();
 
@@ -156,15 +154,15 @@ public partial class CUE4ParseService : ObservableObject, IService
     private void UpdateStatus(string status)
     {
         Status = status;
+        if (!string.IsNullOrEmpty(status))
+            Log.Information("[STATUS] {status}", status);
     }
 
     private async Task CheckBlackHole()
     {
         if (AppSettings.Installation.CurrentProfile.FortniteVersion is not EFortniteVersion.LatestInstalled) return;
         
-        var aes = _onlineStatus.Backup.Keys
-            ? await Api.FortnitePorting.Aes()
-            : await Api.FortniteCentral.Aes();
+        var aes = await Api.FortnitePorting.Aes();
         if (aes is null) return;
         
         var mainPakPath = Path.Combine(AppSettings.Installation.CurrentProfile.ArchiveDirectory,
@@ -172,28 +170,35 @@ public partial class CUE4ParseService : ObservableObject, IService
         if (!File.Exists(mainPakPath)) return;
 
         var mainPakReader = new PakFileReader(mainPakPath);
-        if (mainPakReader.TestAesKey(new FAesKey(aes.MainKey))) return;
+        if (mainPakReader.TestAesKey(new FAesKey(aes.MainKey)))
+        {
+            Log.Information("Main key {Key} succeeded on pak {PakName}", aes.MainKey, mainPakPath);
+            return;
+        }
         
         BlackHole.Open(isMinigame: false);
     }
     
     private async Task CleanupCache()
     {
-        var files = CacheFolder.GetFiles("*.*chunk");
+        var files = CacheFolder.GetFiles();
+
         var cutoffDate = DateTime.Now - TimeSpan.FromDays(AppSettings.Debug.ChunkCacheLifetime);
         foreach (var file in files)
         {
             if (file.LastWriteTime >= cutoffDate) continue;
             
+            Log.Information("Removing old cache entry {ChunkName}", file.Name);
             file.Delete();
         }
     }
     
     private async Task InitializeOodle()
     {
-        var oodlePath = Path.Combine(App.DataFolder.FullName, OodleHelper.OODLE_DLL_NAME);
-        if (!File.Exists(oodlePath)) await OodleHelper.DownloadOodleDllAsync(oodlePath);
-        OodleHelper.Initialize(oodlePath);
+        if (!File.Exists(Dependencies.NoodleFile.FullName)) 
+            await OodleHelper.DownloadOodleDllAsync(Dependencies.NoodleFile.FullName);
+        
+        OodleHelper.Initialize(Dependencies.NoodleFile.FullName);
     }
     
     private async Task InitializeZlib()
@@ -267,9 +272,11 @@ public partial class CUE4ParseService : ObservableObject, IService
         {
             var tocPath = await GetTocPath(AppSettings.Installation.CurrentProfile.FortniteVersion);
             if (string.IsNullOrEmpty(tocPath)) return;
+            
+            Log.Information("Found toc path: {tocPath}", tocPath);
 
             var tocName = tocPath.SubstringAfterLast("/");
-            var onDemandFile = new FileInfo(Path.Combine(App.DataFolder.FullName, tocName));
+            var onDemandFile = new FileInfo(Path.Combine(CacheFolder.FullName, tocName));
             if (!onDemandFile.Exists || onDemandFile.Length == 0)
             {
                 await Api.DownloadFileAsync($"https://download.epicgames.com/{tocPath}", onDemandFile.FullName);
@@ -289,7 +296,7 @@ public partial class CUE4ParseService : ObservableObject, IService
         }
         catch (Exception e)
         {
-            Info.Dialog("Failed to Initialize Texture Streaming", 
+            Info.Message("Failed to Initialize Texture Streaming", 
                 $"Please enable the \"Pre-Download Streamed Assets\" option for Fortnite in the Epic Games Launcher and disable texture streaming in installation settings to remove this popup.");
         }
     }
@@ -330,20 +337,19 @@ public partial class CUE4ParseService : ObservableObject, IService
             case EFortniteVersion.LatestInstalled:
             case EFortniteVersion.LatestOnDemand:
             {
-                var aes = _onlineStatus.Backup.Keys 
-                    ? await Api.FortnitePorting.Aes() 
-                    : await Api.FortniteCentral.Aes();
-                
+                var aes =  await Api.FortnitePorting.Aes();
                 if (aes is null)
                 {
                     await LoadLocalKeys();
                     break;
                 }
 
+                Log.Information("Submitting Main Key {Key}", aes.MainKey);
                 await Provider.SubmitKeyAsync(Globals.ZERO_GUID, new FAesKey(aes.MainKey));
                 
                 foreach (var key in aes.DynamicKeys)
                 {
+                    Log.Information("Submitting Dynamic Key {Key} with GUID {Guid}", key.Key, key.GUID);
                     await Provider.SubmitKeyAsync(new FGuid(key.GUID), new FAesKey(key.Key));
                 }
 
@@ -364,6 +370,8 @@ public partial class CUE4ParseService : ObservableObject, IService
         var mainKey = AppSettings.Installation.CurrentProfile.MainKey;
         if (mainKey.IsEmpty) mainKey = FileEncryptionKey.Empty;
                 
+        
+        Log.Information("Submitting Local Main Key {Key}", mainKey.KeyString);
         await Provider.SubmitKeyAsync(Globals.ZERO_GUID, mainKey.EncryptionKey);
 
         await LoadLocalExtraKeys();
@@ -378,6 +386,7 @@ public partial class CUE4ParseService : ObservableObject, IService
                 if (extraKey.IsEmpty) continue;
                 if (!vfs.TestAesKey(extraKey.EncryptionKey)) continue;
                         
+                Log.Information("Submitting Local Extra Key {Key} with GUID {Guid} for {FileName}", extraKey.EncryptionKey, vfs.EncryptionKeyGuid, vfs.Name);
                 await Provider.SubmitKeyAsync(vfs.EncryptionKeyGuid, extraKey.EncryptionKey);
             }
         }
@@ -391,8 +400,12 @@ public partial class CUE4ParseService : ObservableObject, IService
             _ when AppSettings.Installation.CurrentProfile.UseMappingsFile && File.Exists(AppSettings.Installation.CurrentProfile.MappingsFile) => AppSettings.Installation.CurrentProfile.MappingsFile,
             _ => string.Empty
         };
-        
-        if (string.IsNullOrEmpty(mappingsPath)) return;
+
+        if (string.IsNullOrEmpty(mappingsPath))
+        {
+            Log.Information("Failed to load mappings, path is empty");
+            return;
+        }
         
         Provider.MappingsContainer = new FileUsmapTypeMappingsProvider(mappingsPath);
         Log.Information("Loaded Mappings: {Path}", mappingsPath);
@@ -400,30 +413,18 @@ public partial class CUE4ParseService : ObservableObject, IService
     
     private async Task<string?> GetEndpointMappings()
     {
-        async Task<string?> GetMappings(Func<Task<MappingsResponse[]?>> mappingsFunc)
-        {
-            var mappings = await mappingsFunc();
-            if (mappings is null) return null;
-            if (mappings.Length <= 0) return null;
+        var mappings = await Api.FortnitePorting.Mappings(string.Empty);
+        if (mappings?.Url is null) return null;
 
-            var foundMappings = mappings.FirstOrDefault();
-            if (foundMappings is null) return null;
-
-            var mappingsFilePath = Path.Combine(App.DataFolder.FullName, foundMappings.Filename);
-            if (File.Exists(mappingsFilePath)) return mappingsFilePath;
-
-            var createdFile = await Api.DownloadFileAsync(foundMappings.URL, mappingsFilePath);
-            if (createdFile is null) return null;
+        var mappingsFilePath = Path.Combine(App.DataFolder.FullName, mappings.Url.SubstringAfterLast("/"));
+        if (File.Exists(mappingsFilePath) && new FileInfo(mappingsFilePath).GetFileHashMD5().Equals(mappings.HashMD5)) return mappingsFilePath;
             
-            File.SetCreationTime(mappingsFilePath, foundMappings.Uploaded);
+        var createdFile = await Api.DownloadFileAsync(mappings.Url, mappingsFilePath);
+        if (!createdFile.Exists) return null;
+            
+        File.SetCreationTime(mappingsFilePath, mappings.GetCreationTime());
 
-            return mappingsFilePath;
-        }
-        
-        
-        return  _onlineStatus.Backup.Mappings
-        ? await GetMappings(Api.FortnitePorting.Mappings)
-        : await GetMappings(Api.FortniteCentral.Mappings);
+        return mappingsFilePath;
     }
 
 
@@ -445,9 +446,9 @@ public partial class CUE4ParseService : ObservableObject, IService
         foreach (var (path, file) in assetRegistries)
         {
             if (!path.EndsWith(".bin")) continue;
-            if (path.Contains("Plugin", StringComparison.OrdinalIgnoreCase) || path.Contains("Editor", StringComparison.OrdinalIgnoreCase)) continue;
+            if (path.Contains("Editor", StringComparison.OrdinalIgnoreCase)) continue;
 
-            UpdateStatus($"Loading {file.Name}");
+            UpdateStatus($"Loading {file.Path}");
             var assetArchive = await file.SafeCreateReaderAsync();
             if (assetArchive is null) continue;
 

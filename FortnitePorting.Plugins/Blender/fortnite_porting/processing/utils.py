@@ -5,6 +5,7 @@ from .enums import *
 from ..utils import *
 from math import radians
 from mathutils import Matrix, Vector, Euler, Quaternion
+from bpy_extras import anim_utils
 
 def merge_armatures(parts):
     bpy.ops.object.select_all(action='DESELECT')
@@ -123,7 +124,9 @@ def get_armature_mesh(obj):
     return None
     
 def get_selected_armature():
-    selected = bpy.context.active_object
+    if not (selected := bpy.context.active_object):
+        return None
+        
     if selected.type == 'ARMATURE':
         return selected
     elif selected.type == 'MESH':
@@ -263,6 +266,7 @@ def clear_children_bone_transforms(skeleton, anim, bone_name):
     bpy.ops.pose.select_all(action='DESELECT')
     pose_bones = skeleton.pose.bones
     bones = skeleton.data.bones
+    
     if target_bone := first(bones, lambda x: x.name == bone_name):
         target_bones = target_bone.children_recursive
         target_bones.append(target_bone)
@@ -272,11 +276,21 @@ def clear_children_bone_transforms(skeleton, anim, bone_name):
             dispose_paths.append(f'pose.bones["{bone.name}"].location')
             dispose_paths.append(f'pose.bones["{bone.name}"].scale')
             pose_bones[bone.name].matrix_basis = Matrix()
-        dispose_curves = [fcurve for fcurve in anim.fcurves if fcurve.data_path in dispose_paths]
-        for fcurve in dispose_curves:
-            anim.fcurves.remove(fcurve)
+            
+        if len(anim.slots) > 0:
+            channelbag = anim_utils.action_ensure_channelbag_for_slot(anim, anim.slots[0])
+            dispose_curves = [fcurve for fcurve in channelbag.fcurves if fcurve.data_path in dispose_paths]
+            for fcurve in dispose_curves:
+                channelbag.fcurves.remove(fcurve)
     bpy.ops.object.mode_set(mode='OBJECT')
 
 def set_geo_nodes_param(geo_node_modifier, name, value):
     identifier = geo_node_modifier.node_group.interface.items_tree[name].identifier
     geo_node_modifier[identifier] = value
+    
+    
+def get_sequencer():
+    if not bpy.context.sequencer_scene:
+        bpy.context.scene.sequence_editor_create()
+        
+    return bpy.context.sequencer_scene

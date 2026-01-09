@@ -1,9 +1,11 @@
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
+using CUE4Parse.Utils;
 using FortnitePorting.Models.API.Base;
 using FortnitePorting.Models.API.Responses;
+using Newtonsoft.Json;
 using RestSharp;
 
 namespace FortnitePorting.Models.API;
@@ -33,14 +35,85 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
     
     public async Task<NewsResponse[]> News() => await ExecuteAsync<NewsResponse[]>("v1/news") ?? [];
     public async Task<FeaturedArtResponse[]> FeaturedArt() => await ExecuteAsync<FeaturedArtResponse[]>("v1/featured_art") ?? [];
-    
-    public async Task<AesResponse?> Aes() => await ExecuteAsync<AesResponse>("v1/static/aes");
-    public async Task<MappingsResponse[]?> Mappings() => await ExecuteAsync<MappingsResponse[]?>("v1/static/mappings");
     public async Task<OnlineResponse?> Online() => await ExecuteAsync<OnlineResponse?>("v1/static/online");
     public async Task<RepositoryResponse?> Repository() => await ExecuteAsync<RepositoryResponse?>("v1/static/repository");
-    public async Task Message(string text) => await ExecuteAsync("v1/chat/message", Method.Post, parameters: [
-        new HeaderParameter("Authorization", $"bearer {SupaBase.Client.Auth.CurrentSession!.AccessToken}"),
-        new HeaderParameter("text", text),
-        new HeaderParameter("application", Globals.ApplicationTag)
-    ]);
+    public async Task<BroadcastResponse[]> Broadcasts() => await ExecuteAsync<BroadcastResponse[]?>("v1/broadcast") ?? [];
+    
+    public async Task PostExports(IEnumerable<string> objectPaths) => await ExecuteAsync("v1/exports", Method.Post, verbose: false, 
+        body: new
+        {
+            objectPaths = objectPaths,
+        },
+        parameters: [
+            new HeaderParameter("token", SupaBase.Client.Auth.CurrentSession!.AccessToken!)
+        ]
+    );
+    
+    public async Task PostLogin() => await ExecuteAsync("v1/login", Method.Post, verbose: false, 
+        body: new
+        {
+            version = Globals.Version.GetDisplayString(),
+        },
+        parameters: [
+            new HeaderParameter("token", SupaBase.Client.Auth.CurrentSession!.AccessToken!)
+        ]
+    );
+    
+    public async Task PostError(Exception exception) => await ExecuteAsync("v1/error", Method.Post, verbose: false,
+        body: new
+        {
+            version = Globals.Version.GetDisplayString(),
+            message = $"{exception.GetType().FullName}: {exception.Message}",
+            stackTrace = exception.StackTrace?.SubstringAfter("at ") ?? "None",
+        },
+        parameters: [
+            new HeaderParameter("token", SupaBase.Client.Auth.CurrentSession!.AccessToken!)
+        ]
+    );
+    
+    public async Task PostMessage(string text, string? replyId = null, string? imagePath = null) => await ExecuteAsync("v1/chat/message", Method.Post, verbose: false,
+        body: new
+        {
+            text = text,
+            application = Globals.ApplicationTag,
+            replyId = replyId,
+            imagePath = imagePath,
+        },
+        parameters: [
+            new HeaderParameter("token", SupaBase.Client.Auth.CurrentSession!.AccessToken!)
+        ]
+    );
+
+    public async Task EditMessage(string text, string id) => await ExecuteAsync("v1/chat/message", Method.Patch, verbose: false,
+        body: new
+        {
+            id = id,
+            text = text,
+        },
+        parameters: [
+            new HeaderParameter("token", SupaBase.Client.Auth.CurrentSession!.AccessToken!)
+        ]
+    );
+
+    public async Task DeleteMessage(string id) => await ExecuteAsync("v1/chat/message", Method.Delete, verbose: false,
+        body: new
+        {
+            id = id,
+        },
+        parameters: [
+            new HeaderParameter("token", SupaBase.Client.Auth.CurrentSession!.AccessToken!)
+        ]
+    );
+    
+    public async Task<AesResponse?> Aes(string version = "")
+    {
+        Parameter[] parameters = !string.IsNullOrWhiteSpace(version) ? [new QueryParameter("version", version)] : [];
+        return await ExecuteAsync<AesResponse>("v1/aes", parameters: parameters);
+    }
+
+    public async Task<MappingsResponse?> Mappings(string version = "")
+    {
+        Parameter[] parameters = !string.IsNullOrWhiteSpace(version) ? [new QueryParameter("version", version)] : [];
+        return await ExecuteAsync<MappingsResponse>("v1/mappings", parameters: parameters);
+    }
 }

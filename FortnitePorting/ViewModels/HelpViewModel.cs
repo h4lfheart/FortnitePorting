@@ -1,21 +1,16 @@
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FluentAvalonia.UI.Controls;
-using FortnitePorting.Application;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Article;
-using FortnitePorting.Models.Assets;
+using FortnitePorting.Models.Information;
 using FortnitePorting.Models.Supabase.Tables;
 
 using FortnitePorting.Services;
-using FortnitePorting.Shared;
-using RestSharp;
-using Log = Serilog.Log;
 
 namespace FortnitePorting.ViewModels;
 
@@ -51,15 +46,12 @@ public partial class HelpViewModel(SupabaseService supabase) : ViewModelBase
     [RelayCommand]
     public async Task Upload()
     {
-        TaskService.RunDispatcher(async () =>
-        {
-            var dialog = new ContentDialog
+        Info.Dialog("Are you sure you would like to upload?", "Please make sure that all of these changes are final before uploading your article.", buttons: 
+        [
+            new DialogButton
             {
-                Title = "Are you sure you would like to upload?",
-                Content = "Please make sure that all of these changes are final before uploading your article.",
-                
-                PrimaryButtonText = "Upload",
-                PrimaryButtonCommand = new RelayCommand(async () =>
+                Text = "Upload",
+                Action = async () =>
                 {
                     var newArticle = BuilderArticle;
                     BuilderArticle = new Article();
@@ -91,14 +83,14 @@ public partial class HelpViewModel(SupabaseService supabase) : ViewModelBase
                     {
                         await SupaBase.Client.From<Article>().Insert(newArticle);
                     }
+                    
                     Info.Message("Uploaded Article", $"Successfully uploaded help article entitled \"{newArticle.Title}\"");
                     
                     await UpdateArticles();
-                }),
-                CloseButtonText = "Go Back",
-            };
-            await dialog.ShowAsync();
-        });
+                }
+            }
+        ]);
+        
     }
     
     [RelayCommand]
@@ -111,23 +103,19 @@ public partial class HelpViewModel(SupabaseService supabase) : ViewModelBase
     [RelayCommand]
     public async Task DeleteArticle(Article article)
     {
-        await TaskService.RunDispatcherAsync(async () =>
-        {
-            var dialog = new ContentDialog
-            {
-                Title = $"Are you sure you would like to delete \"{article.Title}\"?",
-                Content = "Please make sure that you would like to delete this article.",
-                
-                PrimaryButtonText = "Delete",
-                PrimaryButtonCommand = new RelayCommand(async () =>
+        Info.Dialog($"Are you sure you would like to delete \"{article.Title}\"?",
+            "Please make sure that you would like to delete this article.", buttons:
+            [
+                new DialogButton
                 {
-                    await SupaBase.Client.From<Article>().Delete(article);
-                    await UpdateArticles();
-                }),
-                CloseButtonText = "Go Back",
-            };
-            await dialog.ShowAsync();
-        });
+                    Text = "Delete",
+                    Action = async () =>
+                    {
+                        await SupaBase.Client.From<Article>().Delete(article);
+                        await UpdateArticles();
+                    }
+                }
+            ]);
     }
 
     [RelayCommand]

@@ -1,6 +1,4 @@
 using Avalonia.Controls;
-using FortnitePorting.Application;
-using FortnitePorting.ViewModels.Settings;
 
 namespace FortnitePorting.Framework;
 

@@ -2,6 +2,8 @@
 
 #include "Readers/UEFModelReader.h"
 #include <string>
+#include <vector>
+
 #include "zstd.h"
 #include "Misc/Compression.h"
 

@@ -1,15 +1,6 @@
 using System;
-using System.Net;
-using System.Threading.Tasks;
 using DiscordRPC;
-using FortnitePorting.Application;
 using FortnitePorting.Extensions;
-using FortnitePorting.Models.API;
-using FortnitePorting.Models.API.Responses;
-using FortnitePorting.Shared;
-using FortnitePorting.Shared.Extensions;
-using Newtonsoft.Json;
-using RestSharp;
 using Serilog;
 
 namespace FortnitePorting.Services;
@@ -75,7 +66,7 @@ public class DiscordService : IService
         if (!IsInitialized) return;
         if (Client is null) return;
 
-        var name = exportType.GetDescription();
+        var name = exportType.Description;
         Client.UpdateState($"Browsing {name}");
         Client.UpdateSmallAsset(exportType.ToString().ToLower(), name);
     }

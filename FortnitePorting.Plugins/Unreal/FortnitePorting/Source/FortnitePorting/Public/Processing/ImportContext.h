@@ -2,27 +2,35 @@
 #include "EditorAssetLibrary.h"
 #include "Factories/TextureFactory.h"
 #include "Factories/UEFModelFactory.h"
-#include "Models/ExportData.h"
-#include "Models/Types/MeshExport.h"
+#include "Utilities/JsonWrapper.h"
+#include "World/BuildingActor.h"
 
 class FImportContext
 {
 public:
-	FImportContext(const FExportDataMeta& Meta);
-	void Run(const TSharedPtr<FJsonObject>& Json);
+	FImportContext(const FJsonWrapper& MetaData);
+	void RunExport(const FJsonWrapper& Json);
 	
+	static void RunExportJson(const FString& Data);
 	static void EnsureDependencies();
+	
 	inline static UMaterial* DefaultMaterial;
 	inline static UMaterial* LayerMaterial;
 	
 private:
-	FExportDataMeta Meta;
+	FJsonWrapper MetaData;
 	
-	void ImportMeshData(const FMeshExport& Export);
-	UObject* ImportModel(const FExportMesh& Mesh);
-	UObject* ImportMesh(const FString& GamePath);
+	void ImportMeshData(const FJsonWrapper& ExportData);
+	void ImportTextureData(const FJsonWrapper& ExportData);
 	
-	UMaterialInstanceConstant* ImportMaterial(const FExportMaterial& Material);
 	
-	UTexture* ImportTexture(const FString& GamePath, bool sRGB, TextureCompressionSettings CompressionSettings);
+	UObject* ImportModel(const FJsonWrapper& ExportData, UWorld* World, ABuildingActor* Parent, const FJsonWrapper&
+	                     MeshData, bool bCreateActor);
+	UObject* ImportMesh(const FJsonWrapper& MeshData);
+	
+	UMaterialInstanceConstant* ImportMaterial(const FJsonWrapper& MaterialData);
+
+	UBuildingTextureData* ImportBuildingTextureData(const FJsonWrapper& TexData);
+	
+	UTexture* ImportTexture(const FJsonWrapper& TextureData);
 };

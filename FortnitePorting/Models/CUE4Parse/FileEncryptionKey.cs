@@ -1,7 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.Encryption.Aes;
-using FortnitePorting.Shared;
-using FortnitePorting.Validators;
 using Newtonsoft.Json;
 
 namespace FortnitePorting.Models.CUE4Parse;

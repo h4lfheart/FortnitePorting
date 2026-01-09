@@ -1,23 +1,13 @@
 using System;
-using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.LogicalTree;
-using Avalonia.Markup.Xaml;
-using Avalonia.Media;
-using CommunityToolkit.Mvvm.ComponentModel;
 using DynamicData;
-using FluentAvalonia.UI.Controls;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Map;
-using FortnitePorting.Shared.Extensions;
 using FortnitePorting.ViewModels;
-using Microsoft.VisualBasic.Logging;
-using Log = Serilog.Log;
 
 namespace FortnitePorting.Views;
 

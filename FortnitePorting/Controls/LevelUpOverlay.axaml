@@ -1,0 +1,71 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="FortnitePorting.Controls.LevelUpOverlay"
+             IsVisible="False"
+             IsHitTestVisible="False">
+    
+    <UserControl.Styles>
+        <Style Selector="Border.OverlayBackground">
+            <Setter Property="Opacity" Value="0"/>
+        </Style>
+        
+        <Style Selector="Border.OverlayBackground.Show">
+            <Style.Animations>
+                <Animation Duration="0:0:0.3" FillMode="Forward">
+                    <KeyFrame Cue="0%">
+                        <Setter Property="Opacity" Value="0"/>
+                    </KeyFrame>
+                    <KeyFrame Cue="100%">
+                        <Setter Property="Opacity" Value="1"/>
+                    </KeyFrame>
+                </Animation>
+            </Style.Animations>
+        </Style>
+    </UserControl.Styles>
+    
+    <Border x:Name="OverlayBackground" Classes="OverlayBackground" Background="#80000000">
+        <Grid>
+            <Canvas x:Name="WaveCanvas" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            
+            <Canvas x:Name="ParticleCanvas" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            
+            <Border x:Name="BurstContent"
+                    HorizontalAlignment="Center" 
+                    VerticalAlignment="Center">
+                <StackPanel Spacing="10">
+                    <TextBlock x:Name="LevelText"
+                               Text="0"
+                               FontSize="100"
+                               FontFamily="{StaticResource SFTextBold}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               TextAlignment="Center">
+                        <TextBlock.Foreground>
+                            <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                                <GradientStop Color="#b565ff" Offset="0"/>
+                                <GradientStop Color="#953bf8" Offset="1"/>
+                            </LinearGradientBrush>
+                        </TextBlock.Foreground>
+                        <TextBlock.Effect>
+                            <DropShadowEffect Color="Black" BlurRadius="20" Opacity="0.8" OffsetX="0" OffsetY="4"/>
+                        </TextBlock.Effect>
+                    </TextBlock>
+                    
+                    <TextBlock Text="NEW LEVEL"
+                               FontSize="32"
+                               FontFamily="{StaticResource SFTextBold}"
+                               Foreground="White"
+                               HorizontalAlignment="Center"
+                               LetterSpacing="0">
+                        <TextBlock.Effect>
+                            <DropShadowEffect Color="Black" BlurRadius="12" Opacity="0.8" OffsetX="0" OffsetY="3"/>
+                        </TextBlock.Effect>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</UserControl>

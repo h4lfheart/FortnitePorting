@@ -1,0 +1,148 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="FortnitePorting.Controls.Loading.ButtonPulseLoading">
+
+    <Border x:Name="PART_Border"
+            Background="Transparent"
+            ClipToBounds="True">
+
+        <Border.Styles>
+            <Style Selector="Viewbox">
+                <Setter Property="StretchDirection" Value="Both" />
+                <Setter Property="RenderTransform">
+                    <Setter.Value>
+                        <ScaleTransform ScaleX="0.5" ScaleY="0.5" />
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style Selector="Ellipse">
+                <Setter Property="Width" Value="5" />
+                <Setter Property="Height" Value="5" />
+                <Setter Property="RenderTransform">
+                    <Setter.Value>
+                        <ScaleTransform ScaleX="0.8" ScaleY="0.8" />
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="Opacity" Value="0.6" />
+            </Style>
+
+            <Style Selector="Ellipse#Ellipse1">
+                <Style.Animations>
+                    <Animation Duration="0:0:1.000" IterationCount="Infinite">
+                        <KeyFrame Cue="0%">
+                            <Setter Property="ScaleTransform.ScaleX" Value="0.8" />
+                            <Setter Property="ScaleTransform.ScaleY" Value="0.8" />
+                            <Setter Property="Opacity" Value="0.6" />
+                        </KeyFrame>
+                        <KeyFrame Cue="10%">
+                            <Setter Property="ScaleTransform.ScaleX" Value="0.8" />
+                            <Setter Property="ScaleTransform.ScaleY" Value="0.8" />
+                            <Setter Property="Opacity" Value="0.6" />
+                        </KeyFrame>
+                        <KeyFrame Cue="30%">
+                            <Setter Property="ScaleTransform.ScaleX" Value="1" />
+                            <Setter Property="ScaleTransform.ScaleY" Value="1" />
+                            <Setter Property="Opacity" Value="1" />
+                        </KeyFrame>
+                        <KeyFrame Cue="35%">
+                            <Setter Property="ScaleTransform.ScaleX" Value="1" />
+                            <Setter Property="ScaleTransform.ScaleY" Value="1" />
+                            <Setter Property="Opacity" Value="1" />
+                        </KeyFrame>
+                        <KeyFrame Cue="60%">
+                            <Setter Property="ScaleTransform.ScaleX" Value="0.8" />
+                            <Setter Property="ScaleTransform.ScaleY" Value="0.8" />
+                            <Setter Property="Opacity" Value="0.6" />
+                        </KeyFrame>
+                        <KeyFrame Cue="100%">
+                            <Setter Property="ScaleTransform.ScaleX" Value="0.8" />
+                            <Setter Property="ScaleTransform.ScaleY" Value="0.8" />
+                            <Setter Property="Opacity" Value="0.6" />
+                        </KeyFrame>
+                    </Animation>
+                </Style.Animations>
+            </Style>
+
+            <Style Selector="Ellipse#Ellipse2">
+                <Style.Animations>
+                    <Animation Duration="0:0:1.000" Delay="0:0:0.15" IterationCount="Infinite">
+                        <KeyFrame Cue="0%">
+                            <Setter Property="ScaleTransform.ScaleX" Value="0.8" />
+                            <Setter Property="ScaleTransform.ScaleY" Value="0.8" />
+                            <Setter Property="Opacity" Value="0.6" />
+                        </KeyFrame>
+                        <KeyFrame Cue="30%">
+                            <Setter Property="ScaleTransform.ScaleX" Value="1" />
+                            <Setter Property="ScaleTransform.ScaleY" Value="1" />
+                            <Setter Property="Opacity" Value="1" />
+                        </KeyFrame>
+                        <KeyFrame Cue="35%">
+                            <Setter Property="ScaleTransform.ScaleX" Value="1" />
+                            <Setter Property="ScaleTransform.ScaleY" Value="1" />
+                            <Setter Property="Opacity" Value="1" />
+                        </KeyFrame>
+                        <KeyFrame Cue="60%">
+                            <Setter Property="ScaleTransform.ScaleX" Value="0.8" />
+                            <Setter Property="ScaleTransform.ScaleY" Value="0.8" />
+                            <Setter Property="Opacity" Value="0.6" />
+                        </KeyFrame>
+                        <KeyFrame Cue="100%">
+                            <Setter Property="ScaleTransform.ScaleX" Value="0.8" />
+                            <Setter Property="ScaleTransform.ScaleY" Value="0.8" />
+                            <Setter Property="Opacity" Value="0.6" />
+                        </KeyFrame>
+                    </Animation>
+                </Style.Animations>
+            </Style>
+
+            <Style Selector="Ellipse#Ellipse3">
+                <Style.Animations>
+                    <Animation Duration="0:0:1.000" Delay="0:0:0.30" IterationCount="Infinite">
+                        <KeyFrame Cue="0%">
+                            <Setter Property="ScaleTransform.ScaleX" Value="0.8" />
+                            <Setter Property="ScaleTransform.ScaleY" Value="0.8" />
+                            <Setter Property="Opacity" Value="0.6" />
+                        </KeyFrame>
+                        <KeyFrame Cue="30%">
+                            <Setter Property="ScaleTransform.ScaleX" Value="1" />
+                            <Setter Property="ScaleTransform.ScaleY" Value="1" />
+                            <Setter Property="Opacity" Value="1" />
+                        </KeyFrame>
+                        <KeyFrame Cue="35%">
+                            <Setter Property="ScaleTransform.ScaleX" Value="1" />
+                            <Setter Property="ScaleTransform.ScaleY" Value="1" />
+                            <Setter Property="Opacity" Value="1" />
+                        </KeyFrame>
+                        <KeyFrame Cue="60%">
+                            <Setter Property="ScaleTransform.ScaleX" Value="0.8" />
+                            <Setter Property="ScaleTransform.ScaleY" Value="0.8" />
+                            <Setter Property="Opacity" Value="0.6" />
+                        </KeyFrame>
+                        <KeyFrame Cue="100%">
+                            <Setter Property="ScaleTransform.ScaleX" Value="0.8" />
+                            <Setter Property="ScaleTransform.ScaleY" Value="0.8" />
+                            <Setter Property="Opacity" Value="0.6" />
+                        </KeyFrame>
+                    </Animation>
+                </Style.Animations>
+            </Style>
+        </Border.Styles>
+
+        <Viewbox>
+            <Grid ColumnDefinitions="10,Auto,10,Auto,10">
+                <Ellipse x:Name="Ellipse1"
+                         Grid.Column="0"
+                         Fill="White" />
+
+                <Ellipse x:Name="Ellipse2"
+                         Grid.Column="2"
+                         Fill="White" />
+
+                <Ellipse x:Name="Ellipse3"
+                         Grid.Column="4"
+                         Fill="White" />
+            </Grid>
+        </Viewbox>
+    </Border>
+</UserControl>

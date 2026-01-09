@@ -2,7 +2,7 @@ using System;
 using System.ComponentModel;
 using FortnitePorting.Extensions;
 using FortnitePorting.Models;
-using FortnitePorting.Shared.Extensions;
+using Material.Icons;
 
 namespace FortnitePorting;
 
@@ -38,6 +38,21 @@ public enum EExportLocation
     Unity,
 }
 
+public enum EExportTarget
+{
+    [Description("Asset")]
+    [Icon(MaterialIconKind.File)]
+    Asset,
+    
+    [Description("Properties")]
+    [Icon(MaterialIconKind.CodeJson)]
+    Properties,
+    
+    [Description("Raw Data")]
+    [Icon(MaterialIconKind.Hexadecimal)]
+    RawData,
+}
+
 public enum EAssetCategory
 {
     [Description("Cosmetics")]
@@ -61,7 +76,7 @@ public enum EAssetCategory
     [Description("Fall Guys")]
     FallGuys,
     
-    [Description("Miscellaneous")]
+    [Description("Misc")]
     Misc
 }
 
@@ -107,6 +122,10 @@ public enum EExportType
 
     [Description("Emotes"), Export(EPrimitiveExportType.Animation)]
     Emote,
+    
+    [Description("Sidekicks"), Export(EPrimitiveExportType.Mesh)]
+    SideKick,
+
     
     // CREATIVE
 
@@ -273,4 +292,18 @@ public enum EWorldFlags
     Landscape = 1 << 2,
     InstancedFoliage = 1 << 3,
     HLODs = 1 << 4,
+}
+
+public enum EFileFilterType
+{
+    All,
+    Mesh,
+    Skeleton,
+    Animation,
+    Texture,
+    Material,
+    PoseAsset,
+    Sound,
+    Font,
+    Map
 }

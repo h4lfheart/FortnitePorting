@@ -14,7 +14,6 @@ using CUE4Parse.Utils;
 using FortnitePorting.Exporting.Models;
 using FortnitePorting.Extensions;
 using FortnitePorting.Models.Fortnite;
-using FortnitePorting.Models.Unreal;
 using FortnitePorting.Models.Unreal.Lights;
 using FortnitePorting.Shared.Extensions;
 using Serilog;
@@ -130,8 +129,9 @@ public partial class ExportContext
             {
                 foreach (var instanceComponentLazy in instanceComponents)
                 {
-                    var instanceComponent = instanceComponentLazy.Load<UInstancedStaticMeshComponent>();
-                    if (instanceComponent is null) continue;
+                    if (!instanceComponentLazy.TryLoad<UInstancedStaticMeshComponent>(out var instanceComponent))
+                        continue;
+                        
                     if (instanceComponent.ExportType == "HLODInstancedStaticMeshComponent") continue;
                     
                     var exportMesh = MeshComponent(instanceComponent);
@@ -151,6 +151,7 @@ public partial class ExportContext
             {
                 var exportMesh = MeshComponent(staticMeshComponent) ?? new ExportMesh { IsEmpty = true };
                 exportMesh.Name = actor.Name;
+                
                 exportMesh.Location = staticMeshComponent.GetOrDefault("RelativeLocation", FVector.ZeroVector);
                 exportMesh.Rotation = staticMeshComponent.GetOrDefault("RelativeRotation", FRotator.ZeroRotator);
                 exportMesh.Scale = staticMeshComponent.GetOrDefault("RelativeScale3D", FVector.OneVector);
@@ -197,9 +198,10 @@ public partial class ExportContext
             {
                 var exportMesh = MeshComponent(skeletalMeshComponent) ?? new ExportMesh { IsEmpty = true };
                 exportMesh.Name = actor.Name;
-                exportMesh.Location = skeletalMeshComponent.GetOrDefault("RelativeLocation", FVector.ZeroVector);
-                exportMesh.Rotation = skeletalMeshComponent.GetOrDefault("RelativeRotation", FRotator.ZeroRotator);
-                exportMesh.Scale = skeletalMeshComponent.GetOrDefault("RelativeScale3D", FVector.OneVector);
+                
+                exportMesh.Location = staticMeshComponent.GetOrDefault("RelativeLocation", FVector.ZeroVector);
+                exportMesh.Rotation = staticMeshComponent.GetOrDefault("RelativeRotation", FRotator.ZeroRotator);
+                exportMesh.Scale = staticMeshComponent.GetOrDefault("RelativeScale3D", FVector.OneVector);
 
                 foreach (var extraMesh in ExtraActorMeshes(actor))
                 {

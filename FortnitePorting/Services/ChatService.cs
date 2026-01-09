@@ -9,12 +9,12 @@ using FortnitePorting.Framework;
 using FortnitePorting.Models.Chat;
 using FortnitePorting.Models.Supabase.Tables;
 using FortnitePorting.Shared.Extensions;
+using FortnitePorting.Views;
 using Mapster;
 using Serilog;
 using Supabase.Realtime;
 using Supabase.Realtime.Interfaces;
 using Supabase.Realtime.Models;
-using Supabase.Realtime.PostgresChanges;
 using Constants = Supabase.Postgrest.Constants;
 
 namespace FortnitePorting.Services;
@@ -28,12 +28,22 @@ public partial class ChatService : ObservableObject, IService
         SupaBase = supaBase;
     }
 
-    public event EventHandler? MessageReceived; 
+    public event EventHandler<ChatMessage>? MessageReceived; 
     
-    [ObservableProperty] private ObservableDictionary<string, ChatMessageV2> _messages = [];
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(UsersByGroup))] private ObservableDictionary<string, ChatUserV2> _users = [];
+    [ObservableProperty] private ObservableDictionary<string, ChatMessage> _messages = [];
+    
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(UsersByGroup)), NotifyPropertyChangedFor(nameof(UserMentionNames))] 
+    private ObservableDictionary<string, ChatUser> _users = [];
 
-    public ObservableDictionary<ESupabaseRole, List<ChatUserV2>> UsersByGroup => new(Users
+    public IEnumerable<string> UserMentionNames => Users.Select(user => $"@{user.Value.UserName}");
+    
+    [ObservableProperty] private ObservableCollection<ChatUser> _typingUsers = [];
+
+    public string? TypingUsersText => TypingUsers.Count > 0
+        ? $"{(TypingUsers.Count > 4 ? "Several users" : TypingUsers.Select(user => user.DisplayName).CommaJoin())} {(TypingUsers.Count > 1 ? "are" : "is")} typing..."
+        : null;
+
+    public ObservableDictionary<ESupabaseRole, List<ChatUser>> UsersByGroup => new(Users
             .Select(user => user.Value)
             .OrderBy(user => user.DisplayName)
             .GroupBy(user => user.Role)
@@ -41,13 +51,13 @@ public partial class ChatService : ObservableObject, IService
             .ToDictionary(group => group.Key, group => group.ToList())
     );
     
-    [ObservableProperty] private ObservableDictionary<string, ChatUserV2> _userCache = [];
+    [ObservableProperty] private ObservableDictionary<string, ChatUser> _userCache = [];
 
     [ObservableProperty] private ChatUserPresence _presence;
 
     private RealtimeChannel _chatChannel;
-    private RealtimePresence<ChatUserPresence> _chatPresence;
-    private RealtimeBroadcast<BaseBroadcast> _chatBrodcast;
+    public RealtimePresence<ChatUserPresence> ChatPresence;
+    private RealtimeBroadcast<BaseBroadcast> _chatBroadcast;
 
     public async Task Initialize()
     {
@@ -65,54 +75,79 @@ public partial class ChatService : ObservableObject, IService
             Version = Globals.VersionString
         };
         
-        await _chatPresence.Track(Presence);
+        await ChatPresence.Track(Presence);
         
         var messages = await SupaBase.Client.From<Message>()
             .Order("timestamp", Constants.Ordering.Ascending)
+            .Limit(50)
             .Get();
         
         foreach (var message in messages.Models)
         {
             if (message.ReplyId is not null)
             {
-                Messages[message.ReplyId].ReplyMessages.AddOrUpdate(message.Id, message.Adapt<ChatMessageV2>());
+                Messages[message.ReplyId].ReplyMessages.AddOrUpdate(message.Id, message.Adapt<ChatMessage>());
             }
             else
             {
-                Messages.AddOrUpdate(message.Id, message.Adapt<ChatMessageV2>());
+                Messages.AddOrUpdate(message.Id, message.Adapt<ChatMessage>());
             }
         }
+
+        MessageReceived += (sender, args) =>
+        {
+            if (Navigation.App.IsTabOpen<ChatView>()) return;
+            if (!args.Text.Contains($"@{SupaBase.UserInfo.UserName}")) return;
+            
+            Info.Message($"Chat Message from {args.User.DisplayName}", args.Text, autoClose: false);
+        };
     }
 
     public async Task Uninitialize()
     {
-        await _chatPresence.Untrack();
+        await ChatPresence.Untrack();
         _chatChannel.Unsubscribe();
     }
 
     private async Task InitializePresence()
     {
-        if (_chatPresence is not null) return;
+        if (ChatPresence is not null) return;
         
-        _chatPresence = _chatChannel.Register<ChatUserPresence>(SupaBase.UserInfo!.UserId);
-        
-        _chatPresence.AddPresenceEventHandler(IRealtimePresence.EventType.Sync, (sender, type) =>
-        {
-            
-        });
+        ChatPresence = _chatChannel.Register<ChatUserPresence>(SupaBase.UserInfo!.UserId);
 
-        _chatPresence.AddPresenceEventHandler(IRealtimePresence.EventType.Join, (sender, type) =>
+        TypingUsers.CollectionChanged += (sender, args) => OnPropertyChanged(nameof(TypingUsersText));
+        ChatPresence.AddPresenceEventHandler(IRealtimePresence.EventType.Sync, (sender, type) =>
         {
             TaskService.Run(async () =>
             {
-                var currentState = _chatPresence.CurrentState.ToDictionary();
+                TypingUsers.Clear();
+                
+                var currentState = ChatPresence.CurrentState.ToDictionary();
                 foreach (var (presenceId, presences) in currentState)
                 {
                     var targetPresence = presences.Last();
                     
                     var targetUser = await GetUser(targetPresence.UserId) ?? await GetUser(presenceId);
-                    if (targetUser is null) continue;
-                    if (targetUser.UserId is null) continue;
+                    if (targetUser?.UserId is null || targetUser.UserId.Equals(SupaBase.UserInfo.UserId)) continue;
+                    
+                    if (targetPresence.IsTyping)
+                        TypingUsers.Add(targetUser);
+                }
+            });
+        });
+
+        ChatPresence.AddPresenceEventHandler(IRealtimePresence.EventType.Join, (sender, type) =>
+        {
+            TaskService.Run(async () =>
+            {
+                var currentState = ChatPresence.CurrentState.ToDictionary();
+                var newUsers = 0;
+                foreach (var (presenceId, presences) in currentState)
+                {
+                    var targetPresence = presences.Last();
+                    
+                    var targetUser = await GetUser(targetPresence.UserId) ?? await GetUser(presenceId);
+                    if (targetUser?.UserId is null) continue;
                     
                     targetUser.Tag = targetPresence.Application;
                     targetUser.Version = targetPresence.Version;
@@ -120,36 +155,41 @@ public partial class ChatService : ObservableObject, IService
                     if (Users.ContainsKey(targetUser.UserId)) continue;
                     
                     Users.AddOrUpdate(targetPresence.UserId, targetUser);
+                    newUsers++;
                 }
                 
-                OnPropertyChanged(nameof(UsersByGroup));
+                if (newUsers > 0)
+                    OnPropertyChanged(nameof(UsersByGroup));
                 
-                Discord.Update($"Chatting with {Chat.Users.Count} Users");
+                Discord.Update($"Chatting with {Users.Count} {(Users.Count > 1 ? "Users" : "User")}");
             });
         });
 
-        _chatPresence.AddPresenceEventHandler(IRealtimePresence.EventType.Leave, (sender, type) =>
+        ChatPresence.AddPresenceEventHandler(IRealtimePresence.EventType.Leave, (sender, type) =>
         {
-            var currentState = _chatPresence.CurrentState;
+            var currentState = ChatPresence.CurrentState;
+            var removedUsers = 0;
             foreach (var user in Users.ToArray())
             {
                 if (!currentState.ContainsKey(user.Key))
                 {
                     Users.Remove(user.Key);
+                    removedUsers++;
                 }
             }
             
-            OnPropertyChanged(nameof(UsersByGroup));
+            if (removedUsers > 0)
+                OnPropertyChanged(nameof(UsersByGroup));
         });
         
     }
 
     private async Task InitializeBroadcasts()
     {
-        if (_chatBrodcast is not null) return;
+        if (_chatBroadcast is not null) return;
         
-        _chatBrodcast = _chatChannel.Register<BaseBroadcast>();
-        _chatBrodcast.AddBroadcastEventHandler((sender, broadcast) =>
+        _chatBroadcast = _chatChannel.Register<BaseBroadcast>();
+        _chatBroadcast.AddBroadcastEventHandler((sender, broadcast) =>
         {
             if (broadcast is null) return;
 
@@ -157,9 +197,7 @@ public partial class ChatService : ObservableObject, IService
             {
                 case "insert_message":
                 {
-                    broadcast.Get<Message>("message");
-                    
-                    var message = broadcast.Get<Message>("message").Adapt<ChatMessageV2>();
+                    var message = broadcast.Get<Message>("message").Adapt<ChatMessage>();
                     if (message.ReplyId is not null)
                     {
                         Messages[message.ReplyId].ReplyMessages.AddOrUpdate(message.Id, message);
@@ -169,13 +207,14 @@ public partial class ChatService : ObservableObject, IService
                         Messages.AddOrUpdate(message.Id, message);
                     }
                     
-                    MessageReceived?.Invoke(this, EventArgs.Empty);
+                    
+                    MessageReceived?.Invoke(this, message);
                     
                     break;
                 }
                 case "update_message":
                 {
-                    var updatedMessage = broadcast.Get<Message>("message").Adapt<ChatMessageV2>();
+                    var updatedMessage = broadcast.Get<Message>("message").Adapt<ChatMessage>();
                     var targetMessage = updatedMessage.ReplyId is not null
                         ? Messages[updatedMessage.ReplyId].ReplyMessages[updatedMessage.Id]
                         : Messages[updatedMessage.Id];
@@ -214,14 +253,14 @@ public partial class ChatService : ObservableObject, IService
         });
     }
 
-    public async Task<ChatUserV2?> GetUser(string id)
+    public async Task<ChatUser?> GetUser(string id)
     {
         if (UserCache.TryGetValue(id, out var existingUser)) return existingUser;
 
         var userInfo = await Api.FortnitePorting.UserInfo(id);
         if (userInfo is null) return null;
         
-        var user = userInfo.Adapt<ChatUserV2>();
+        var user = userInfo.Adapt<ChatUser>();
         UserCache[id] = user;
         
         return user;
@@ -229,19 +268,11 @@ public partial class ChatService : ObservableObject, IService
 
     public async Task SendMessage(string text, string? replyId = null, string? imagePath = null)
     {
-        await SupaBase.Client.From<Message>().Insert(new Message
-        {
-            Text = text,
-            Application = Globals.ApplicationTag,
-            ReplyId = replyId,
-            ImagePath = imagePath,
-        });
+        await Api.FortnitePorting.PostMessage(text, replyId, imagePath);
     }
     
-    public async Task UpdateMessage(ChatMessageV2 message, string text)
+    public async Task UpdateMessage(ChatMessage message, string text)
     {
-        var editedMessage = message.Adapt<Message>();
-        editedMessage.Text = text;
-        await SupaBase.Client.From<Message>().Update(editedMessage);
+        await Api.FortnitePorting.EditMessage(text, message.Id);
     }
 }

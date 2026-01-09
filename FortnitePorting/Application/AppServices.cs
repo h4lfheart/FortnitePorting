@@ -34,16 +34,18 @@ public static class AppServices
     public static ChatService Chat => Services.GetRequiredService<ChatService>();
     public static DiscordService Discord => Services.GetRequiredService<DiscordService>();
     public static BlackHoleService BlackHole => Services.GetRequiredService<BlackHoleService>();
+    public static AssetLoaderService AssetLoading => Services.GetRequiredService<AssetLoaderService>();
+    public static ExportClientService ExportClient => Services.GetRequiredService<ExportClientService>();
+    public static LiveExportService LiveExport => Services.GetRequiredService<LiveExportService>();
     
     // ViewModels
     public static AppWindowModel AppWM => Services.GetRequiredService<AppWindowModel>();
     
     public static ChatViewModel ChatVM => Services.GetRequiredService<ChatViewModel>();
-    public static VotingViewModel VotingVM => Services.GetRequiredService<VotingViewModel>();
     
     public static FilesViewModel FilesVM => Services.GetRequiredService<FilesViewModel>();
     public static MapViewModel MapVM => Services.GetRequiredService<MapViewModel>();
-    public static RadioViewModel RadioVM => Services.GetRequiredService<RadioViewModel>();
+    public static MusicViewModel MusicVM => Services.GetRequiredService<MusicViewModel>();
     
     
     public static ConsoleViewModel ConsoleVM => Services.GetRequiredService<ConsoleViewModel>();
@@ -55,33 +57,36 @@ public static class AppServices
 
 public static class AppServiceExtensions
 {
-    public static void AddCommonServices(this ServiceCollection collection)
+    extension(ServiceCollection collection)
     {
-        var serviceTypes = Assembly.GetAssembly(typeof(IService))?
-            .GetTypes()
-            .Where(type => !type.IsAbstract && type.IsAssignableTo(typeof(IService))) ?? [];
-
-        foreach (var serviceType in serviceTypes)
+        public  void AddCommonServices()
         {
-            collection.AddSingleton(serviceType);
-        }
-    }
-    
-    public static void AddViewModels(this ServiceCollection collection)
-    {
-        var viewModelTypes = Assembly.GetAssembly(typeof(ViewModelBase))?
-            .GetTypes()
-            .Where(type => !type.IsAbstract && type.IsAssignableTo(typeof(ViewModelBase))) ?? [];
+            var serviceTypes = Assembly.GetAssembly(typeof(IService))?
+                .GetTypes()
+                .Where(type => !type.IsAbstract && type.IsAssignableTo(typeof(IService))) ?? [];
 
-        foreach (var viewModelType in viewModelTypes)
-        {
-            if (viewModelType.GetCustomAttribute<TransientAttribute>() is not null)
+            foreach (var serviceType in serviceTypes)
             {
-                collection.AddTransient(viewModelType);
+                collection.AddSingleton(serviceType);
             }
-            else
+        }
+    
+        public void AddViewModels()
+        {
+            var viewModelTypes = Assembly.GetAssembly(typeof(ViewModelBase))?
+                .GetTypes()
+                .Where(type => !type.IsAbstract && type.IsAssignableTo(typeof(ViewModelBase))) ?? [];
+
+            foreach (var viewModelType in viewModelTypes)
             {
-                collection.AddSingleton(viewModelType);
+                if (viewModelType.GetCustomAttribute<TransientAttribute>() is not null)
+                {
+                    collection.AddTransient(viewModelType);
+                }
+                else
+                {
+                    collection.AddSingleton(viewModelType);
+                }
             }
         }
     }

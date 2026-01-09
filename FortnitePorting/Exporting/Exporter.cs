@@ -6,6 +6,7 @@ using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.Engine.Font;
 using CUE4Parse.UE4.Assets.Exports.Material;
+using CUE4Parse.UE4.Assets.Exports.Rig;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
@@ -14,7 +15,6 @@ using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Objects.Engine.Animation;
 using CUE4Parse.Utils;
 using FluentAvalonia.UI.Controls;
-using FortnitePorting.Application;
 using FortnitePorting.Exporting.Models;
 using FortnitePorting.Exporting.Types;
 using FortnitePorting.Extensions;
@@ -26,9 +26,7 @@ using FortnitePorting.Models.Assets.Custom;
 using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Models.Unreal;
 using FortnitePorting.Services;
-using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Views;
-using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Serilog;
 using BaseAssetInfo = FortnitePorting.Models.Assets.Base.BaseAssetInfo;
@@ -37,16 +35,18 @@ namespace FortnitePorting.Exporting;
 
 public static class Exporter
 {
-    public static async Task Export(Func<IEnumerable<BaseExport>> exportFunction, ExportDataMeta metaData)
+    
+    public static async Task<bool> Export(Func<IEnumerable<BaseExport>> exportFunction, ExportDataMeta metaData)
     {
         if (metaData.ExportLocation is EExportLocation.CustomFolder && await App.BrowseFolderDialog() is { } path)
         {
             metaData.CustomPath = path;
         }
-        
+
+        var exportedProperly = false;
         await TaskService.RunAsync(async () =>
         {
-            var serverType = metaData.ExportLocation.ServerType();
+            var serverType = metaData.ExportLocation.ServerType;
             if (serverType is EExportServerType.None)
             {
                 var exports = exportFunction.Invoke();
@@ -54,10 +54,10 @@ public static class Exporter
             }
             else
             {
-                if (await Api.FortnitePortingServer.PingAsync(serverType) is false)
+                if (!await ExportClient.IsRunning(serverType))
                 {
-                    var serverName = serverType.GetDescription();
-                    Info.Message($"{serverName} Server", $"The {serverName} Plugin for Fortnite Porting is not currently installed, enabled, or running.", 
+                    var serverName = serverType.Description;
+                    Info.Message($"{serverName} Server", $"The {serverName} Plugin for Fortnite Porting is not currently installed or running.", 
                         severity: InfoBarSeverity.Error, closeTime: 3.0f,
                         useButton: true, buttonTitle: "Install Plugin", buttonCommand: () =>
                         {
@@ -76,20 +76,23 @@ public static class Exporter
                     Exports = exports
                 };
             
-                var data = JsonConvert.SerializeObject(exportData);
-                await Api.FortnitePortingServer.SendAsync(data, serverType);
+                await ExportClient.SendExportAsync(serverType, exportData);
             }
+
+            exportedProperly = true;
         });
+
+        return exportedProperly;
     }
     
-    public static async Task Export(IEnumerable<BaseAssetInfo> assets, ExportDataMeta metaData)
+    public static async Task<bool> Export(IEnumerable<BaseAssetInfo> assets, ExportDataMeta metaData)
     {
-        await Export(() => assets.Select(baseAssetInfo =>
+        return await Export(() => assets.Select(baseAssetInfo =>
         {
             if (baseAssetInfo is AssetInfo assetInfo)
             {
                 var asset = assetInfo.Asset;
-                var styles = metaData.ExportLocation.IsFolder() ? assetInfo.GetAllStyles() : assetInfo.GetSelectedStyles();
+                var styles = metaData.ExportLocation.IsFolder ? assetInfo.GetAllStyles() : assetInfo.GetSelectedStyles();
                 var exportType = asset.CreationData.ExportType;
 
                 return CreateExport(asset.CreationData.DisplayName, asset.CreationData.Object, exportType, styles,
@@ -105,19 +108,19 @@ public static class Exporter
         })!, metaData);
     }
     
-    public static async Task Export(List<KeyValuePair<UObject, EExportType>> assets, ExportDataMeta metaData)
+    public static async Task<bool> Export(List<KeyValuePair<UObject, EExportType>> assets, ExportDataMeta metaData)
     {
-        await Export(() => assets.Select(kvp => CreateExport(kvp.Key.Name, kvp.Key, kvp.Value, [], metaData)), metaData);
+        return await Export(() => assets.Select(kvp => CreateExport(kvp.Key.Name, kvp.Key, kvp.Value, [], metaData)), metaData);
     }
     
-    public static async Task Export(IEnumerable<UObject> assets, EExportType type, ExportDataMeta metaData)
+    public static async Task<bool>? Export(IEnumerable<UObject> assets, EExportType type, ExportDataMeta metaData)
     {
-        await Export(() => assets.Select(asset => CreateExport(asset.Name, asset, type, [], metaData)), metaData);
+        return await Export(() => assets.Select(asset => CreateExport(asset.Name, asset, type, [], metaData)), metaData);
     }
     
-    public static async Task Export(UObject asset, EExportType type, ExportDataMeta metaData)
+    public static async Task<bool> Export(UObject asset, EExportType type, ExportDataMeta metaData)
     {
-        await Export(() => [CreateExport(asset.Name, asset, type, [], metaData)], metaData);
+        return await Export(() => [CreateExport(asset.Outer?.Name.SubstringAfterLast("/") ?? asset.Name, asset, type, [], metaData)], metaData);
     }
 
     public static EExportType DetermineExportType(UObject asset) 
@@ -134,10 +137,11 @@ public static class Exporter
             UBuildingTextureData => EExportType.Texture,
             USoundWave => EExportType.Sound,
             USoundCue => EExportType.Sound,
-            UAnimSequence => EExportType.Animation,
             UAnimMontage => EExportType.Animation,
+            UAnimSequenceBase => EExportType.Animation,
             UFontFace => EExportType.Font,
             UPoseAsset => EExportType.PoseAsset,
+            UDNAAsset => EExportType.PoseAsset,
             UMaterialInstance => EExportType.MaterialInstance,
             UMaterial => EExportType.Material,
             _ => EExportType.None
@@ -154,9 +158,7 @@ public static class Exporter
 
         if (exportType is EExportType.None)
         {
-            // TODO do the dependency injection and make an exporter service
-            var assetLoaderService = AppServices.Services.GetRequiredService<AssetLoaderService>();
-            var assetLoaders = assetLoaderService.Categories
+            var assetLoaders = AssetLoading.Categories
                 .SelectMany(category => category.Loaders)
                 .ToArray();
 
@@ -188,16 +190,18 @@ public static class Exporter
         return outPath;
     }
     
-    private static BaseExport CreateExport(string name, UObject asset, EExportType exportType, BaseStyleData[] styles, ExportDataMeta metaData)
+    private static BaseExport CreateExport(string displayName, UObject asset, EExportType exportType, BaseStyleData[] styles, ExportDataMeta metaData)
     {
         var path = asset.GetPathName();
-        Info.Message($"Exporter", asset.Name, id: path, autoClose: false);
+        Info.Message($"Exporting", asset.Name, id: path, autoClose: false);
 
         ExportProgressUpdate updateDelegate = (name, current, total) =>
         {
-            var message = $"{current} / {total} \"{name}\"";
-            Info.UpdateMessage(id: path, message: message);
-            Log.Information(message);
+            var title = $"{displayName} - {current} / {total}";
+            var message = $"{name}";
+            Info.UpdateTitle(id: path, title);
+            Info.UpdateMessage(id: path, message);
+            Log.Information("{Title}: {Message}", title, message);
         };
 
         metaData.UpdateProgress += updateDelegate;
@@ -205,13 +209,13 @@ public static class Exporter
         var primitiveType = exportType.GetPrimitiveType();
         BaseExport export = primitiveType switch
         {
-            EPrimitiveExportType.Mesh => new MeshExport(name, asset, styles, exportType, metaData),
-            EPrimitiveExportType.Texture => new TextureExport(name, asset, styles, exportType, metaData),
-            EPrimitiveExportType.Sound => new SoundExport(name, asset, styles, exportType, metaData),
-            EPrimitiveExportType.Animation => new AnimExport(name, asset, styles, exportType, metaData),
-            EPrimitiveExportType.Font => new FontExport(name, asset, styles, exportType, metaData),
-            EPrimitiveExportType.PoseAsset => new PoseAssetExport(name, asset, styles, exportType, metaData),
-            EPrimitiveExportType.Material => new MaterialExport(name, asset, styles, exportType, metaData),
+            EPrimitiveExportType.Mesh => new MeshExport(displayName, asset, styles, exportType, metaData),
+            EPrimitiveExportType.Texture => new TextureExport(displayName, asset, styles, exportType, metaData),
+            EPrimitiveExportType.Sound => new SoundExport(displayName, asset, styles, exportType, metaData),
+            EPrimitiveExportType.Animation => new AnimExport(displayName, asset, styles, exportType, metaData),
+            EPrimitiveExportType.Font => new FontExport(displayName, asset, styles, exportType, metaData),
+            EPrimitiveExportType.PoseAsset => new PoseAssetExport(displayName, asset, styles, exportType, metaData),
+            EPrimitiveExportType.Material => new MaterialExport(displayName, asset, styles, exportType, metaData),
             _ => throw new NotImplementedException($"Exporting {primitiveType} assets is not supported yet.")
         };
         

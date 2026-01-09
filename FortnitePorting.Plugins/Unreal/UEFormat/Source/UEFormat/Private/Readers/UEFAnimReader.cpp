@@ -4,6 +4,8 @@
 #include "Readers/UEFModelReader.h"
 #include "Misc/Compression.h"
 #include <string>
+#include <vector>
+
 #include "zstd.h"
 
 UEFAnimReader::UEFAnimReader(const FString Filename) {

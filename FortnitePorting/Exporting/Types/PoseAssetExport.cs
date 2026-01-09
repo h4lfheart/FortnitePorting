@@ -12,7 +12,7 @@ public class PoseAssetExport : BaseExport
     public PoseAssetExport(string name, UObject asset, BaseStyleData[] styles, EExportType exportType, ExportDataMeta metaData) : base(name, asset, styles, exportType, metaData)
     {
         if (asset is not UPoseAsset poseAsset) return;
-        if (metaData.ExportLocation.IsFolder())
+        if (metaData.ExportLocation.IsFolder)
         {
             Info.Message("Pose Asset Export", "Pose Assets cannot be exported to a folder.");
             return;

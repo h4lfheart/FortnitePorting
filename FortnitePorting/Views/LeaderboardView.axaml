@@ -2,48 +2,29 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
              xmlns:ui="using:FluentAvalonia.UI.Controls"
-             xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
-             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
-             xmlns:versions="clr-namespace:CUE4Parse.UE4.Versions;assembly=CUE4Parse"
-             xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:controls="clr-namespace:FortnitePorting.Controls"
-             xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
-             xmlns:controls1="clr-namespace:Avalonia.Controls"
-             xmlns:wrapPanel="clr-namespace:FortnitePorting.Controls.WrapPanel"
-             xmlns:assets="clr-namespace:FortnitePorting.Models.Assets"
-             xmlns:ScottPlot="clr-namespace:ScottPlot.Avalonia;assembly=ScottPlot.Avalonia"
-             xmlns:oxy="http://oxyplot.org/avalonia"
-             xmlns:services="clr-namespace:FortnitePorting.Services"
              xmlns:leaderboard="clr-namespace:FortnitePorting.Views.Leaderboard"
+             xmlns:sidebar="clr-namespace:FortnitePorting.Controls.Navigation.Sidebar"
              d:DesignHeight="720" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.LeaderboardView"
              x:DataType="viewModels:LeaderboardViewModel">
-    <ui:NavigationView x:Name="NavigationView" Classes="NoBackground" PaneDisplayMode="Left" OpenPaneLength="150" IsPaneToggleButtonVisible="False" IsSettingsVisible="False" ItemInvoked="OnItemInvoked">
-        <ui:NavigationView.MenuItems>
-            <ui:NavigationViewItem Content="Exports" Tag="{x:Type leaderboard:LeaderboardExportsView}" IsSelected="True">
-                <ui:NavigationViewItem.IconSource>
-                    <ui:PathIconSource Data="{ext:MaterialKindToGeometry Folder}"/>
-                </ui:NavigationViewItem.IconSource>
-            </ui:NavigationViewItem>
-            <ui:NavigationViewItem Content="Users" Tag="{x:Type leaderboard:LeaderboardUsersView}">
-                <ui:NavigationViewItem.IconSource>
-                    <ui:PathIconSource Data="{ext:MaterialKindToGeometry Account}"/>
-                </ui:NavigationViewItem.IconSource>
-            </ui:NavigationViewItem>
-            <ui:NavigationViewItem Content="Streaks" Tag="{x:Type leaderboard:LeaderboardStreaksView}">
-                <ui:NavigationViewItem.IconSource>
-                    <ui:PathIconSource Data="{ext:MaterialKindToGeometry Fire}"/>
-                </ui:NavigationViewItem.IconSource>
-            </ui:NavigationViewItem>
-            <ui:NavigationViewItem Content="Personal" IsEnabled="False">
-                <ui:NavigationViewItem.IconSource>
-                    <ui:PathIconSource Data="{ext:MaterialKindToGeometry Database}"/>
-                </ui:NavigationViewItem.IconSource>
-            </ui:NavigationViewItem>
-        </ui:NavigationView.MenuItems>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="5*"/>
+        </Grid.ColumnDefinitions>
+        <sidebar:Sidebar x:Name="Sidebar" Grid.Column="0" ItemSelected="OnItemSelected">
+            <sidebar:Sidebar.Items>
+                <sidebar:SidebarItemText Text="LEADERBOARD"/>
+                <sidebar:SidebarItemButton Text="Personal" Icon="Account" Tag="{x:Type leaderboard:LeaderboardPersonalView}"/>
+                <sidebar:SidebarItemButton Text="Levels" Icon="Poll" Tag="{x:Type leaderboard:LeaderboardLevelsView}"/>
+                <sidebar:SidebarItemButton Text="Assets" Icon="Folder" Tag="{x:Type leaderboard:LeaderboardExportsView}"/>
+                <sidebar:SidebarItemButton Text="Users" Icon="AccountGroup" Tag="{x:Type leaderboard:LeaderboardUsersView}"/>
+                <sidebar:SidebarItemButton Text="Streaks" Icon="Fire" Tag="{x:Type leaderboard:LeaderboardStreaksView}"/>
+                <sidebar:SidebarItemButton Text="Live" Icon="Stopwatch" Tag="{x:Type leaderboard:LeaderboardLiveView}"/>
+            </sidebar:Sidebar.Items>
+        </sidebar:Sidebar>
         
-        <ui:Frame x:Name="ContentFrame"/>
-    </ui:NavigationView>
+        <ui:Frame Grid.Column="1" x:Name="ContentFrame"/>
+    </Grid>
 </UserControl>

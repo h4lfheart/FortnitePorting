@@ -5,25 +5,20 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using FluentAvalonia.UI.Media.Animation;
-using FortnitePorting.Application;
 using FortnitePorting.Framework;
 using FortnitePorting.Models;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.Assets.Base;
 using FortnitePorting.Models.Radio;
-using FortnitePorting.Shared;
 using FortnitePorting.Validators;
 using NAudio.Wave;
 using Newtonsoft.Json;
-using Serilog;
 
 namespace FortnitePorting.ViewModels.Settings;
 
-public partial class ApplicationSettingsViewModel : ViewModelBase
+public partial class ApplicationSettingsViewModel : SettingsViewModelBase
 {
-    
     [NotifyDataErrorInfo] [DirectoryExists("Application Data Path")] [ObservableProperty]
     private string _appDataPath;
     
@@ -51,11 +46,12 @@ public partial class ApplicationSettingsViewModel : ViewModelBase
     
     [ObservableProperty] private bool _dontAskAboutKofi;
     [ObservableProperty] private DateTime _nextKofiAskDate = DateTime.Today;
+    [ObservableProperty] private bool _showAssetNames;
         
     [ObservableProperty] private EpicAuthResponse? _epicAuth;
     
     public string AssetPath => UseAssetsPath && Directory.Exists(AssetsPath) ? AssetsPath : App.AssetsFolder.FullName;
-    public string PortlePath => UsePortlePath && Directory.Exists(PortleExecutablePath) 
+    public string PortlePath => UsePortlePath && File.Exists(PortleExecutablePath) 
         ? PortleExecutablePath 
         : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Portle", "Portle.exe");
 
@@ -91,7 +87,7 @@ public partial class ApplicationSettingsViewModel : ViewModelBase
         {
             case nameof(AudioDeviceIndex):
             {
-                RadioVM?.UpdateOutputDevice();
+                MusicVM?.UpdateOutputDevice();
                 SoundPreviewWM?.UpdateOutputDevice();
                 break;
             }

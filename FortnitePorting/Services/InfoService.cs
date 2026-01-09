@@ -8,6 +8,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.Utils;
 using FluentAvalonia.UI.Controls;
+using FortnitePorting.Models.API.Responses;
+using FortnitePorting.Models.Information;
 using FortnitePorting.Models.Serilog;
 using FortnitePorting.Models.Supabase.Tables;
 using FortnitePorting.Shared.Extensions;
@@ -18,7 +20,6 @@ using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
 using Supabase.Postgrest.Exceptions;
 using MessageData = FortnitePorting.Models.Information.MessageData;
-using TitleData = FortnitePorting.Models.Information.TitleData;
 
 namespace FortnitePorting.Services;
 
@@ -26,14 +27,17 @@ public partial class InfoService : ObservableObject, ILogEventSink, IService
 {
     [ObservableProperty] private ObservableCollection<FortnitePortingLogEvent> _logs = [];
     [ObservableProperty] private ObservableCollection<MessageData> _messages = [];
-    [ObservableProperty] private TitleData? _titleData;
+    [ObservableProperty] private DialogQueue _dialogQueue = new();
+    [ObservableProperty] private BroadcastQueue _broadcastQueue = new();
+    
+    private readonly object _messageLock = new();
     
     public string LogFilePath;
+    
     public DirectoryInfo LogsFolder => new(Path.Combine(App.ApplicationDataFolder.FullName, "Logs"));
     
     public InfoService()
     {
-        
         TaskService.Exception += HandleException;
         
         Dispatcher.UIThread.UnhandledException += (sender, args) =>
@@ -54,7 +58,7 @@ public partial class InfoService : ObservableObject, ILogEventSink, IService
             .WriteTo.Sink(this)
             .CreateLogger();
     }
-    
+
     public void Message(string title, string message, InfoBarSeverity severity = InfoBarSeverity.Informational, bool autoClose = true, string id = "", float closeTime = 3f, bool useButton = false, string buttonTitle = "", Action? buttonCommand = null)
     {
         Message(new MessageData(title, message, severity, autoClose, id, closeTime, useButton, buttonTitle, buttonCommand));
@@ -62,8 +66,8 @@ public partial class InfoService : ObservableObject, ILogEventSink, IService
 
     public void Message(MessageData data)
     {
-        if (!string.IsNullOrEmpty(data.Id))
-            Messages.RemoveAll(bar => bar.Id.Equals(data.Id));
+        //if (!string.IsNullOrEmpty(data.Id))
+           // Messages.RemoveAll(bar => bar.Id.Equals(data.Id));
         
         Messages.Add(data);
         if (!data.AutoClose) return;
@@ -71,47 +75,51 @@ public partial class InfoService : ObservableObject, ILogEventSink, IService
         TaskService.Run(async () =>
         {
             await Task.Delay((int) (data.CloseTime * 1000));
-            Messages.Remove(data);
+            
+            lock (_messageLock)
+                Messages.Remove(data);
         });
     }
     
     public void UpdateMessage(string id, string message)
     {
         var foundInfoBar = Messages.FirstOrDefault(infoBar => infoBar.Id == id);
-        if (foundInfoBar is null) return;
-        
-        foundInfoBar.Message = message;
+
+        foundInfoBar?.Message = message;
+    }
+    
+    public void UpdateTitle(string id, string title)
+    {
+        var foundInfoBar = Messages.FirstOrDefault(infoBar => infoBar.Id == id);
+
+        foundInfoBar?.Title = title;
     }
     
     public void CloseMessage(string id)
     {
-        Messages.RemoveAll(info => info.Id == id);
+        lock (_messageLock)
+            Messages.RemoveAll(info => info.Id == id);
     }
     
-    public void Dialog(string title, string content, string? primaryButtonText = null, Action? primaryButtonAction = null)
+    public void Dialog(string title, string? message = null, object? content = null, DialogButton[]? buttons = null, bool canClose = true)
     {
-        TaskService.RunDispatcher(async () =>
+        DialogQueue.Enqueue(new DialogData
         {
-            var dialog = new ContentDialog
-            {
-                Title = title,
-                Content = content,
-                CloseButtonText = "Continue",
-                PrimaryButtonText = primaryButtonText,
-                PrimaryButtonCommand = primaryButtonAction is not null ? new RelayCommand(primaryButtonAction) : null
-            };
-            
-            await dialog.ShowAsync();
+            Title = title,
+            Message = message,
+            Content = content,
+            Buttons = buttons is not null ? [..buttons] : [],
+            CanClose = canClose
         });
     }
     
-    public void Title(string title, string subTitle, float time = 5.0f)
+    public void Broadcast(BroadcastResponse broadcastResponse)
     {
-        TitleData = new TitleData(title, subTitle);
-        TaskService.Run(async () =>
+        BroadcastQueue.Enqueue(new BroadcastData
         {
-            await Task.Delay((int) (time * 1000));
-            TitleData = null;
+            Title = broadcastResponse.Title,
+            Description = broadcastResponse.Description,
+            Timestamp = broadcastResponse.Timestamp.ToLocalTime()
         });
     }
     
@@ -123,41 +131,22 @@ public partial class InfoService : ObservableObject, ILogEventSink, IService
 #if RELEASE
         if (SupaBase.IsLoggedIn)
         {
-            TaskService.Run(async () =>
-            {
-                try
-                {
-                    await SupaBase.Client.From<Error>().Insert(new Error
-                    {
-                        Version = Globals.Version.GetDisplayString(),
-                        Message = $"{e.GetType().FullName}: {e.Message}",
-                        StackTrace = e.StackTrace!.SubstringAfter("at ")
-                    });
-                }
-                catch (PostgrestException)
-                {
-                    
-                }
-            });
+            TaskService.Run(async () => await Api.FortnitePorting.PostError(e));
         }
 #endif
-                
-        TaskService.RunDispatcher(async () =>
-        {
-            var dialog = new ContentDialog
+        
+        Dialog("An unhandled exception has occurred", exceptionString, buttons: [
+            new DialogButton
             {
-                Title = "An unhandled exception has occurred",
-                Content = exceptionString,
-                
-                PrimaryButtonText = "Open Log",
-                PrimaryButtonCommand = new RelayCommand(() => App.LaunchSelected(LogFilePath)),
-                SecondaryButtonText = "Open Console",
-                SecondaryButtonCommand = new RelayCommand(() => Navigation.App.Open<ConsoleView>()),
-                CloseButtonText = "Continue",
-            };
-            
-            await dialog.ShowAsync();
-        });
+                Text = "Open Logs Folder",
+                Action = () => App.LaunchSelected(LogFilePath)
+            },
+            new DialogButton
+            {
+                Text = "Open Console",
+                Action = () =>Navigation.App.Open<ConsoleView>()
+            }
+        ]);
     }
 
     public void Emit(LogEvent logEvent)

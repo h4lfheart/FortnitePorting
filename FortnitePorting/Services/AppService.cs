@@ -2,17 +2,14 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input.Platform;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.Utils;
-using DesktopNotifications;
 using FluentAvalonia.UI.Controls;
-using FortnitePorting.Framework;
+using FortnitePorting.Models.Information;
 using FortnitePorting.ViewModels;
 using FortnitePorting.Views;
 using FortnitePorting.Windows;
@@ -26,7 +23,6 @@ public class AppService : IService
     public IClassicDesktopStyleApplicationLifetime Lifetime;
     public IStorageProvider StorageProvider => Lifetime.MainWindow!.StorageProvider;
     public IClipboard Clipboard => Lifetime.MainWindow!.Clipboard!;
-    public INotificationManager? NotificationManager;
 
     public DirectoryInfo ApplicationDataFolder => AppSettings.Application.UseAppDataPath && Directory.Exists(AppSettings.Application.AppDataPath)
         ? new DirectoryInfo(AppSettings.Application.AppDataPath) 
@@ -90,6 +86,8 @@ public class AppService : IService
 
     private void OnAppStart(object? sender, ControlledApplicationLifetimeStartupEventArgs e)
     {
+        
+        
         TimeWasterViewModel.LoadResources();
 
         if (AppSettings.Online.UseDiscordRichPresence)
@@ -168,24 +166,18 @@ public class AppService : IService
 
     public void RestartWithMessage(string title, string content, Action? onRestart = null, bool mandatory = false)
     {
-        var dialog = new ContentDialog
-        {
-            Title = title,
-            Content = content,
-            CloseButtonText = "Restart",
-            CloseButtonCommand = new RelayCommand(() =>
+        Info.Dialog(title, content, canClose: !mandatory, buttons:
+        [
+            new DialogButton
             {
-                onRestart?.Invoke();
-                Restart();
-            }),
-        };
-
-        if (!mandatory)
-        {
-            dialog.PrimaryButtonText = "Cancel";
-        }
-
-        dialog.ShowAsync();
+                Text = "Restart",
+                Action = () =>
+                {
+                    onRestart?.Invoke();
+                    Restart();
+                }
+            }
+        ]);
     }
     
     public void Restart()

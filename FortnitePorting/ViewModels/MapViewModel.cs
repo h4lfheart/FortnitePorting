@@ -11,12 +11,12 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.UE4.IO;
 using CUE4Parse.Utils;
-using FortnitePorting.Application;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Models.Map;
 
 using FortnitePorting.Services;
+using FortnitePorting.Views;
 using Serilog;
 
 namespace FortnitePorting.ViewModels;
@@ -39,29 +39,30 @@ public partial class MapViewModel : ViewModelBase
 
     public ItemsControl? GridsControl;
 
-    private static MapInfo[] MapInfos =
+     private static MapInfo[] MapInfos =
     [
         // battle royale
+        
         new(
-            "Asteria",
-            "FortniteGame/Content/Athena/Asteria/Maps/Asteria_Terrain",
-            "FortniteGame/Content/Athena/Apollo/Maps/UI/Apollo_Terrain_Minimap",
-            "FortniteGame/Content/Athena/Apollo/Maps/UI/T_MiniMap_Mask",
-            0.01375f, 132, 140, 90, 12800, true
+            "Hera",
+            "FortniteGame/Plugins/GameFeatures/Hera_Map/Content/Maps/Hera_Terrain",
+            "FortniteGame/Plugins/GameFeatures/Ch7UI/Content/MiniMap/Art/Hera_Terrain_Minimap",
+            "FortniteGame/Plugins/GameFeatures/Ch7UI/Content/MiniMap/Art/Hera_Terrain_Minimap_PostMask",
+            0.0146f, -140, -30, 96, 12800, true, false
         ),
         new(
-            "Rufus",
-            "FortniteGame/Plugins/GameFeatures/Rufus/Content/Game/Athena/Maps/Athena_Terrain",
-            "FortniteGame/Plugins/GameFeatures/Rufus/Content/Game/UI/Capture_Iteration_Discovered_Rufus_03",
-            "FortniteGame/Content/Athena/UI/Rufus/Rufus_Map_Frosty_PostMask",
-            0.0155f, 256, 448, 102, 12800, true
+            "WildEstate",
+            "FortniteGame/Plugins/GameFeatures/WildEstate/Content/Maps/WildEstate_Terrain",
+            "FortniteGame/Content/Athena/Apollo/Maps/UI/Apollo_Terrain_Minimap",
+            "FortniteGame/Content/Athena/Apollo/Maps/UI/Apollo_Terrain_Minimap_PostMask",
+            0.0255f, -325, -75, 167, 12800, true, false
         ),
         new(
-            "Helios",
-            "FortniteGame/Content/Athena/Helios/Maps/Helios_Terrain",
+            "Hermes",
+            "FortniteGame/Plugins/GameFeatures/BRMapCh6/Content/Maps/Hermes_Terrain",
             "FortniteGame/Content/Athena/Apollo/Maps/UI/Apollo_Terrain_Minimap",
             "FortniteGame/Content/Athena/Apollo/Maps/UI/T_MiniMap_Mask",
-            0.014f, 0, 128, 92, 12800, true
+            0.0146f, -100, -25, 96, 12800, true, false
         ),
         new(
             "Apollo_Retro",
@@ -71,11 +72,25 @@ public partial class MapViewModel : ViewModelBase
             0.032f, -25, 96, 205, 12800, true
         ),
         new(
-            "Hermes",
-            "FortniteGame/Plugins/GameFeatures/BRMapCh6/Content/Maps/Hermes_Terrain",
+            "Helios",
+            "FortniteGame/Content/Athena/Helios/Maps/Helios_Terrain",
             "FortniteGame/Content/Athena/Apollo/Maps/UI/Apollo_Terrain_Minimap",
             "FortniteGame/Content/Athena/Apollo/Maps/UI/T_MiniMap_Mask",
-            0.0146f, -100, -25, 96, 12800, true, false
+            0.014f, 0, 128, 92, 12800, true
+        ),
+        new(
+            "Rufus",
+            "FortniteGame/Plugins/GameFeatures/Rufus/Content/Game/Athena/Maps/Athena_Terrain",
+            "FortniteGame/Plugins/GameFeatures/Rufus/Content/Game/UI/Capture_Iteration_Discovered_Rufus_03",
+            "FortniteGame/Content/Athena/UI/Rufus/Rufus_Map_Frosty_PostMask",
+            0.0155f, 256, 448, 102, 12800, true
+        ),
+        new(
+            "Asteria",
+            "FortniteGame/Content/Athena/Asteria/Maps/Asteria_Terrain",
+            "FortniteGame/Content/Athena/Apollo/Maps/UI/Apollo_Terrain_Minimap",
+            "FortniteGame/Content/Athena/Apollo/Maps/UI/T_MiniMap_Mask",
+            0.01375f, 132, 140, 90, 12800, true
         ),
         
         // og
@@ -107,6 +122,27 @@ public partial class MapViewModel : ViewModelBase
             "FortniteGame/Plugins/GameFeatures/Figment/Figment_S04_MapUI/Content/MiniMapAthena_S04_Mask",
             0.017f, 380, 470, 110, 12800, true
         ),
+        new(
+            "Figment_S05",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S05_Map/Content/Athena_Terrain_S05",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S05_MapUI/Content/MiniMapAthena_S05Temp",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S05_MapUI/Content/MiniMapAthena_S05_MaskTemp",
+            0.017f, 330, 450, 110, 12800, true
+        ),
+        new(
+            "Figment_S06",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S06_Map/Content/Athena_Terrain_S06",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S06_MapUI/Content/MiniMapAthena_S06Temp",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S06_MapUI/Content/MiniMapAthena_S06_MaskTemp",
+            0.017f, 330, 450, 110, 12800, true
+        ),
+        new(
+            "Figment_S07",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S07_Map/Content/Athena_Terrain_S07",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S07_MapUI/Content/MiniMapAthena_S07Temp",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S07_MapUI/Content/MiniMapAthena_S07_MaskTemp",
+            0.017f, 330, 450, 110, 12800, true
+        ),
         
         // reload
         new(
@@ -137,6 +173,13 @@ public partial class MapViewModel : ViewModelBase
             "/BlastBerryMapUI/MiniMap/MMap_TimberStake_Mask",
             0.027f, 40, 15, 175, 12800, false, false
         ),
+        new(
+            "SourSpawn",
+            "/8b8c126e-4f3a-816e-1d5c-7983eecfa42a/SourSpawn",
+            "/BlastBerryMapUI/MiniMap/Discovered_SourSpawn",
+            "/BlastBerryMapUI/MiniMap/MMap_SourSpawn_Mask",
+            0.023f, 75, 25, 149, 12800, false, false
+        ),
         
         // ballistic
         new(
@@ -162,7 +205,11 @@ public partial class MapViewModel : ViewModelBase
     private static string[] PluginRemoveList =
     [
         "FMJam",
+        "BlastBerry_Terrain",
         "PunchBerry_Terrain",
+        "DashBerry",
+        "TimberStake",
+        "SourSpawn",
         "FeralCorgi_2Bombsite_Map"
     ];
 
@@ -211,7 +258,7 @@ public partial class MapViewModel : ViewModelBase
             }
             catch (Exception e)
             {
-                Info.Dialog("Map Export", $"Failed to load {map.Info.Name} for export, skipping.");
+                Info.Message("Map Export", $"Failed to load {map.MapInfo.Name} for export, skipping.");
 #if DEBUG
                 Log.Error(e.ToString());
 #else
@@ -228,11 +275,25 @@ public partial class MapViewModel : ViewModelBase
         await SelectedMap.Load();
     }
     
+    [RelayCommand]
+    public async Task OpenSettings()
+    {
+        Navigation.App.Open<ExportSettingsView>();
+        Navigation.ExportSettings.Open(ExportLocation);
+    }
+    
+    
+    [RelayCommand]
+    public async Task SetExportLocation(EExportLocation location)
+    {
+        ExportLocation = location;
+    }
+    
     public override async Task OnViewOpened()
     {
         if (SelectedMap is null) return;
         
-        Discord.Update($"Browsing Map: \"{SelectedMap.Info.Name}\"");
+        Discord.Update($"Browsing Map: \"{SelectedMap.MapInfo.Name}\"");
     }
 
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
@@ -245,7 +306,7 @@ public partial class MapViewModel : ViewModelBase
             {
                 GridsControl?.InvalidateVisual();
                 
-                Discord.Update($"Browsing Map: \"{SelectedMap.Info.Name}\"");
+                Discord.Update($"Browsing Map: \"{SelectedMap.MapInfo.Name}\"");
                 break;
             }
         }

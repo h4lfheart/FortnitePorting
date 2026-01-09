@@ -1,5 +1,5 @@
 import json
-from .import_context import ImportContext
+from .context import ImportContext
 
 
 class Importer:

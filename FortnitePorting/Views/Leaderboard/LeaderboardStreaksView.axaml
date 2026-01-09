@@ -2,66 +2,174 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
              xmlns:ext="clr-namespace:FortnitePorting.Extensions"
              xmlns:leaderboard="clr-namespace:FortnitePorting.ViewModels.Leaderboard"
              xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
              xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             xmlns:models="clr-namespace:FortnitePorting.Models.Leaderboard"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FortnitePorting.Views.Leaderboard.LeaderboardStreaksView"
              x:DataType="leaderboard:LeaderboardStreaksViewModel">
-    <Grid Margin="{ext:Space 1, 1, 1, 0}">
-        <ScrollViewer>
-            <ItemsControl ItemsSource="{Binding Streaks}">
+    <Grid Margin="{ext:Space 2}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="{ext:Space 2}"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <ScrollViewer Grid.Row="0">
+            <ItemsControl ItemsSource="{Binding Items}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <controls:FABorder Margin="{ext:Space 0, 0, 0, 1}">
-                            <Grid Margin="{ext:Space 1}">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="{ext:Space 1}"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="{ext:Space 1}"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="{ext:Space 1}"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="{ext:Space 0.5}"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                
-                                <TextBlock Grid.Column="0" Text="{Binding Ranking}"
-                                           Classes="SubtitleTextBlockStyle" Margin="{ext:Space 1, 0}"
-                                           HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                        
-                                
-                                <Border Grid.Column="2" CornerRadius="32" ClipToBounds="True" HorizontalAlignment="Center" VerticalAlignment="Center" Background="#40000000">
-                                    <Image asyncImageLoader:ImageLoader.Source="{Binding UserInfo.AvatarUrl, TargetNullValue='avares://FortnitePorting/Assets/DefaultProfile.png'}" Width="64"/>
-                                </Border>
-                                <Image Grid.Column="2" Source="{Binding MedalBitmap}"
-                                       Width="36">
-                                    <Image.RenderTransform>
-                                        <TranslateTransform X="19" Y="19"/>
-                                    </Image.RenderTransform>
-                                </Image>
-                                <Grid Grid.Column="4" VerticalAlignment="Center" Margin="{ext:Space 1, 0, 0, 0}" RowDefinitions="* *">
-                                    <TextBlock Grid.Row="0" Text="{Binding UserInfo.DisplayName}" Foreground="{Binding UserBrush}" Classes="BodyStrongTextBlockStyle"/>
-                                    <TextBlock Grid.Row="1" Text="{Binding UserInfo.UserName}" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush" TextWrapping="Wrap"/>
+                        <controls:ContentCard Padding="{ext:Space 1}">
+                            <Grid ColumnDefinitions="Auto Auto * Auto ">
+                                <Grid Grid.Column="0" 
+                                      Width="40" Height="40"
+                                      Margin="{ext:Space 0, 0, 1, 0}">
+                                    <Border CornerRadius="8"
+                                            HorizontalAlignment="Stretch"
+                                            VerticalAlignment="Stretch"
+                                            Tag="{Binding Ranking}">
+                                        <Border.BoxShadow>
+                                            inset 0 1 2 -1 #50ffffff,
+                                            inset 0 -1 2 -2 #50ffffff,
+                                            0 4 8 #20000000,
+                                            0 8 12 #10000000
+                                        </Border.BoxShadow>
+                                        <Border.Styles>
+                                            <Style Selector="Border" x:DataType="models:LeaderboardStreak">
+                                                <Setter Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}"/>
+                                            </Style>
+                                            <Style Selector="Border[Tag=1]" x:DataType="models:LeaderboardStreak">
+                                                <Setter Property="Background" Value="#FFD700"/>
+                                            </Style>
+                                            <Style Selector="Border[Tag=2]" x:DataType="models:LeaderboardStreak">
+                                                <Setter Property="Background" Value="#C0C0C0"/>
+                                            </Style>
+                                            <Style Selector="Border[Tag=3]" x:DataType="models:LeaderboardStreak">
+                                                <Setter Property="Background" Value="#CD7F32"/>
+                                            </Style>
+                                        </Border.Styles>
+                                    </Border>
+                                    
+                                    <TextBlock Text="{Binding Ranking}" 
+                                               Classes="BodyTextBlockStyle"
+                                               FontWeight="Bold"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Tag="{Binding Ranking}">
+                                        <TextBlock.Styles>
+                                            <Style Selector="TextBlock" x:DataType="models:LeaderboardStreak">
+                                                <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}"/>
+                                            </Style>
+                                            <Style Selector="TextBlock[Tag=1]" x:DataType="models:LeaderboardStreak">
+                                                <Setter Property="Foreground" Value="#000000"/>
+                                            </Style>
+                                            <Style Selector="TextBlock[Tag=2]" x:DataType="models:LeaderboardStreak">
+                                                <Setter Property="Foreground" Value="#000000"/>
+                                            </Style>
+                                            <Style Selector="TextBlock[Tag=3]" x:DataType="models:LeaderboardStreak">
+                                                <Setter Property="Foreground" Value="#000000"/>
+                                            </Style>
+                                        </TextBlock.Styles>
+                                    </TextBlock>
                                 </Grid>
-                                <TextBlock Grid.Column="6" Text="{Binding Streak}" 
-                                           Classes="SubtitleTextBlockStyle"
-                                           HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                                <avalonia:MaterialIcon Grid.Column="8" Kind="Fire" Width="24" Height="24"/>
+
+                                <Border Grid.Column="1" 
+                                        CornerRadius="8" 
+                                        ClipToBounds="True" 
+                                        Width="40" Height="40"
+                                        HorizontalAlignment="Center" 
+                                        VerticalAlignment="Center"
+                                        Background="#40000000"
+                                        Margin="{ext:Space 0, 0, 1, 0}">
+                                    <Grid>
+                                        <Image asyncImageLoader:ImageLoader.Source="https://cdn.fortniteporting.app/images/avatar/default.png"/>
+                                        <Image asyncImageLoader:ImageLoader.Source="{Binding UserInfo.AvatarUrl, TargetNullValue='https://cdn.fortniteporting.app/images/avatar/default.png'}"/>
+                                    </Grid>
+                                </Border>
+
+                                <Grid Grid.Column="2" 
+                                      VerticalAlignment="Center" 
+                                      RowDefinitions="Auto Auto">
+                                    <TextBlock Grid.Row="0" 
+                                               Text="{Binding UserInfo.DisplayName}" 
+                                               Foreground="{Binding UserBrush}"
+                                               Classes="BodyTextBlockStyle"
+                                               TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Grid.Row="1" 
+                                               Text="{Binding UserInfo.UserName}" 
+                                               Classes="CaptionTextBlockStyle TextFillColorSecondaryBrush"
+                                               TextTrimming="CharacterEllipsis"/>
+                                </Grid>
+
+                                <Grid Grid.Column="3" 
+                                      VerticalAlignment="Center"
+                                      Margin="{ext:Space 0, 0, 1, 0}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Grid.Row="0" 
+                                               Text="{Binding Streak}" 
+                                               Classes="SubtitleTextBlockStyle"
+                                               HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Row="1" 
+                                               Text="{Binding DayText}" 
+                                               Classes="CaptionTextBlockStyle TextFillColorSecondaryBrush"
+                                               HorizontalAlignment="Right"/>
+                                </Grid>
+
                             </Grid>
-                        </controls:FABorder>
+                        </controls:ContentCard>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Spacing="{ext:Space 1}"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
             </ItemsControl>
         </ScrollViewer>
         
-        <TextBlock Text="No Streaks Found" 
+        <TextBlock Grid.Row="0"
+                   Text="No Streaks Found" 
                    Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" 
                    VerticalAlignment="Center" HorizontalAlignment="Center"
-                   IsVisible="{Binding !Streaks.Count}"/>
+                   IsVisible="{Binding !Items.Count}"/>
+
+        <Grid Grid.Row="2" 
+              ColumnDefinitions="Auto * Auto"
+              IsVisible="{Binding !!Items.Count}">
+            
+            <Button Grid.Column="0" 
+                    Padding="{ext:Space 1, 0.75, 1.5, 0.75}"
+                    Command="{Binding PreviousPageCommand}">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <avalonia:MaterialIcon Kind="ChevronLeft" Width="16" Height="16"/>
+                    <TextBlock Text="Previous"/>
+                </StackPanel>
+            </Button>
+
+            <StackPanel Grid.Column="1" 
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Spacing="8">
+                <TextBlock Text="{Binding PageInfo, FallbackValue='Page 1 of 1'}"
+                           Classes="CaptionTextBlockStyle TextFillColorSecondaryBrush"
+                           VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <Button Grid.Column="2" 
+                    Padding="{ext:Space 1.5, 0.75, 1, 0.75}"
+                    Command="{Binding NextPageCommand}">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock Text="Next"/>
+                    <avalonia:MaterialIcon Kind="ChevronRight" Width="16" Height="16"/>
+                </StackPanel>
+            </Button>
+        </Grid>
     </Grid>
 </UserControl>

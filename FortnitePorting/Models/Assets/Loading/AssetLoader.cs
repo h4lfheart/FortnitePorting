@@ -2,7 +2,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -20,13 +19,8 @@ using FortnitePorting.Models.Assets.Asset;
 using FortnitePorting.Models.Assets.Base;
 using FortnitePorting.Models.Assets.Custom;
 using FortnitePorting.Models.Assets.Filters;
-using FortnitePorting.Services;
-using FortnitePorting.Shared;
-using FortnitePorting.Shared.Extensions;
 using Material.Icons;
-using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
-using ScottPlot.Colormaps;
 using Serilog;
 
 namespace FortnitePorting.Models.Assets.Loading;
@@ -51,6 +45,7 @@ public partial class AssetLoader : ObservableObject
     public Func<UObject, string?> DescriptionHandler = asset => asset.GetAnyOrDefault<FText?>("Description", "ItemDescription")?.Text;
     public Func<UObject, FGameplayTagContainer?> GameplayTagHandler = GetGameplayTags;
     
+    public readonly HashSet<BaseAssetItem> AssetBag = [];
     public readonly ReadOnlyObservableCollection<BaseAssetItem> Filtered;
     public SourceCache<BaseAssetItem, Guid> Source = new(asset => asset.Id);
     public readonly ConcurrentBag<string> FilteredAssetBag = [];
@@ -65,9 +60,11 @@ public partial class AssetLoader : ObservableObject
     
     [ObservableProperty] private ObservableCollection<BaseAssetInfo> _selectedAssetInfos = [];
     
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(FinishedLoading))] private int _loadedAssets;
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(FinishedLoading))] private int _totalAssets;
-    public bool FinishedLoading => LoadedAssets == TotalAssets;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(LoadingStatus))] private int _loadedAssets;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(LoadingStatus))] private int _totalAssets = int.MaxValue;
+    [ObservableProperty] private bool _finishedLoading = false;
+    public string LoadingStatus => $"Loading {Type.Description}: {(LoadedAssets == 0 && TotalAssets == 0 ? 0 : LoadedAssets * 100f / TotalAssets):N0}%";
+    
     
     public readonly IObservable<SortExpressionComparer<BaseAssetItem>> AssetSort;
     [ObservableProperty] private EAssetSortType _sortType = EAssetSortType.None;
@@ -83,7 +80,7 @@ public partial class AssetLoader : ObservableObject
     [ObservableProperty] private ObservableCollection<FilterItem> _activeFilters = [];
     public List<FilterCategory> FilterCategories { get; } =
     [
-        new("Application")
+        new("APPLICATION")
         {
             Filters = 
             [
@@ -91,7 +88,7 @@ public partial class AssetLoader : ObservableObject
                 new FilterItem("Hidden Items", asset => asset.CreationData.IsHidden)
             ]
         },
-        new("Cosmetic")
+        new("COSMETIC")
         {
             Filters = 
             [
@@ -112,7 +109,7 @@ public partial class AssetLoader : ObservableObject
                 EExportType.LoadingScreen
             ]
         },
-        new("Emote")
+        new("EMOTE")
         {
             Filters = 
             [
@@ -124,7 +121,7 @@ public partial class AssetLoader : ObservableObject
                 EExportType.Emote
             ]
         },
-        new("Game")
+        new("GAME")
         {
             Filters = 
             [
@@ -146,7 +143,7 @@ public partial class AssetLoader : ObservableObject
                 EExportType.Trap
             ]
         },
-        new("Creative")
+        new("CREATIVE")
         {
             Filters = 
             [
@@ -159,7 +156,7 @@ public partial class AssetLoader : ObservableObject
                EExportType.Prefab
             ]
         },
-        new("Item")
+        new("ITEM")
         {
             Filters = 
             [
@@ -201,7 +198,8 @@ public partial class AssetLoader : ObservableObject
         if (BeganLoading) return;
         BeganLoading = true;
 
-        Assets = AppServices.UEParse.AssetRegistry
+
+        Assets = UEParse.AssetRegistry
             .Where(data => ClassNames.Contains(data.AssetClass.Text))
             .ToList();
         Assets.RemoveAll(data => data.AssetName.Text.EndsWith("Random", StringComparison.OrdinalIgnoreCase));
@@ -215,7 +213,7 @@ public partial class AssetLoader : ObservableObject
 
         if (!LoadHiddenAssets)
         {
-            Assets.RemoveAll(asset => HideNames.Any(name => asset.PackageName.Text.Contains(name, StringComparison.OrdinalIgnoreCase)));
+            Assets.RemoveAll(asset => HideNames.Any(name => asset.PackageName.Text.Contains(name, StringComparison.OrdinalIgnoreCase)) || asset.PackageName.Text.Contains("Placeholder", StringComparison.OrdinalIgnoreCase));
         }
 
 
@@ -265,14 +263,16 @@ public partial class AssetLoader : ObservableObject
 
             LoadedAssets++;
         }
-
-        LoadedAssets = TotalAssets; 
-        await TaskService.RunDispatcherAsync(() => SearchAutoComplete.AddRange(Source.Items.Select(asset => asset.CreationData.DisplayName).Distinct()));
+        
+        Source.AddOrUpdate(AssetBag);
+        AssetBag.Clear();
+        LoadedAssets = TotalAssets;
+        FinishedLoading = true;
     }
 
     private async Task LoadAsset(FAssetData data)
     {
-        var asset = await AppServices.UEParse.Provider.SafeLoadPackageObjectAsync(data.ObjectPath);
+        var asset = await UEParse.Provider.SafeLoadPackageObjectAsync(data.ObjectPath);
         if (asset is null) return;
 
         /*data.TagsAndValues.TryGetValue("DisplayName", out var displayName);
@@ -307,7 +307,7 @@ public partial class AssetLoader : ObservableObject
             GameplayTags = GameplayTagHandler(asset)
         };
 
-        Source.AddOrUpdate(new AssetItem(args));
+        AssetBag.Add(new AssetItem(args));
     }
     
     private async Task LoadAsset(ManuallyDefinedAsset manualAsset)
@@ -332,17 +332,17 @@ public partial class AssetLoader : ObservableObject
             GameplayTags = GameplayTagHandler(asset)
         };
 
-        Source.AddOrUpdate(new AssetItem(args));
+        AssetBag.Add(new AssetItem(args));
     }
     
     private async Task LoadAsset(CustomAsset customAsset)
     {
-        Source.AddOrUpdate(new CustomAssetItem(customAsset, Type));
+        AssetBag.Add(new CustomAssetItem(customAsset, Type));
     }
     
     public static UTexture2D? GetIcon(UObject asset)
     {
-        return asset.GetDataListItem<UTexture2D>("Icon", "LargeIcon")
+        return asset.GetDataListItem<UTexture2D?>( "Icon", "LargeIcon")
                ?? asset.GetAnyOrDefault<UTexture2D?>("Icon", "SmallPreviewImage", "LargeIcon", "LargePreviewImage");
     }
     

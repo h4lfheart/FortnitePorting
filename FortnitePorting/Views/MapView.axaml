@@ -1,17 +1,10 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
-             xmlns:ui="using:FluentAvalonia.UI.Controls"
              xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
-             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
-             xmlns:versions="clr-namespace:CUE4Parse.UE4.Versions;assembly=CUE4Parse"
-             xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
              xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
-             xmlns:icons="clr-namespace:Material.Icons;assembly=Material.Icons"
-             xmlns:files="clr-namespace:FortnitePorting.Models.Files"
              xmlns:fortnitePorting="clr-namespace:FortnitePorting"
              xmlns:map="clr-namespace:FortnitePorting.Models.Map"
              xmlns:views="clr-namespace:FortnitePorting.Views"
@@ -19,211 +12,223 @@
              x:Class="FortnitePorting.Views.MapView"
              x:DataType="viewModels:MapViewModel">
     <Grid ColumnDefinitions="Auto *">
-        
-        <Grid Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-            <Image Stretch="UniformToFill" Margin="{ext:Space 1}" Opacity="0.1" Effect="blur(50)"
-                   Source="{Binding SelectedMap.MapBitmap, TargetNullValue=Assets/Transparent1x1.png}"/>
-        </Grid>
-        
-        <controls:FABorder Grid.Column="1" Background="#22000000" Margin="{ext:Space 0, 1, 1, 1}"
-                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-            <Grid Margin="{ext:Space 1}">
+        <Grid Grid.Column="1" Margin="{ext:Space 1}"
+              VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="{ext:Space 4}" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="{ext:Space 4}" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0" VerticalAlignment="Top">
+                <TextBlock Text="Map" Classes="BodyStrongTextBlockStyle" Margin="{ext:Space 0, 1, 0, 2}"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+                <ComboBox SelectedIndex="0"
+                          ItemsSource="{Binding Maps}" HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                          SelectedItem="{Binding SelectedMap, Mode=TwoWay}" />
+            </StackPanel>
+
+            <Separator Grid.Row="1" HorizontalAlignment="Stretch" Margin="0" />
+
+            <StackPanel Grid.Row="2" VerticalAlignment="Top">
+                <TextBlock Text="Textures" Classes="BodyStrongTextBlockStyle" Margin="{ext:Space 0, 0, 0, 2}"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+                <SplitButton HorizontalAlignment="Stretch" Command="{Binding SelectedMap.ExportImageCommand}">
+                    <SplitButton.Flyout>
+                        <MenuFlyout
+                            ItemsSource="{ext:EnumToItemsSource {x:Type map:EMapTextureExportType}}">
+                            <MenuFlyout.ItemContainerTheme>
+                                <ControlTheme x:DataType="ext:EnumRecord" TargetType="MenuItem"
+                                              BasedOn="{StaticResource {x:Type MenuItem}}">
+                                    <Setter Property="Header" Value="{Binding Description}" />
+                                    <Setter Property="IsEnabled" Value="{Binding !IsDisabled}" />
+                                    <Setter Property="Command"
+                                            Value="{Binding $parent[views:MapView].((viewModels:MapViewModel)DataContext).SelectedMap.SetTextureExportType}" />
+                                    <Setter Property="CommandParameter" Value="{Binding Value}" />
+
+                                    <Setter Property="StaysOpenOnClick" Value="False" />
+                                    <Setter Property="Icon">
+                                        <Template>
+                                            <Grid>
+                                                <material:MaterialIcon Kind="Check"
+                                                                       IsVisible="{Binding $parent[views:MapView].((viewModels:MapViewModel)DataContext).ExportLocation, 
+                                                Converter={StaticResource EnumEquals}, 
+                                                ConverterParameter={Binding $parent[MenuItem].((ext:EnumRecord)DataContext).Value}}" />
+                                            </Grid>
+                                        </Template>
+                                    </Setter>
+                                </ControlTheme>
+                            </MenuFlyout.ItemContainerTheme>
+                        </MenuFlyout>
+                    </SplitButton.Flyout>
+                    
+                    <StackPanel Orientation="Horizontal">
+                        <material:MaterialIcon Kind="Download" Margin="{ext:Space 0, 0, 1, 0}" />
+                        <TextBlock Text="{Binding SelectedMap.TextureExportType, Converter={StaticResource EnumToRecord}, StringFormat='Export {0}'}" />
+                    </StackPanel>
+                </SplitButton>
+            </StackPanel>
+
+            <Separator Grid.Row="3" HorizontalAlignment="Stretch" Margin="0" />
+
+            <Grid Grid.Row="4" VerticalAlignment="Stretch">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="{ext:Space 4}"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="{ext:Space 4}"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="{ext:Space 4}"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="{ext:Space 4}"/>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="{ext:Space 2}" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="{ext:Space 2}" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="{ext:Space 1}" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 
-                <StackPanel Grid.Row="0" VerticalAlignment="Top">
-                    <TextBlock Text="Map" Classes="BodyStrongTextBlockStyle" Margin="{ext:Space 0, 0, 0, 1}"
-                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    
-                    <ComboBox SelectedIndex="0" 
-                              ItemsSource="{Binding Maps}" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                              SelectedItem="{Binding SelectedMap, Mode=TwoWay}"/>
-                </StackPanel>
                 
-                <Separator Grid.Row="1" HorizontalAlignment="Stretch" Margin="0"/>
-                
-                <StackPanel Grid.Row="2" VerticalAlignment="Top">
-                    <TextBlock Text="Export To" Classes="BodyStrongTextBlockStyle" Margin="{ext:Space 0, 0, 0, 1}"
-                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="0" Text="Export" Classes="BodyStrongTextBlockStyle"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="{ext:Space 1}" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
                     
-                    <ComboBox
-                        HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                              ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EExportLocation}}"
-                              SelectedItem="{Binding ExportLocation, Converter={StaticResource EnumToRecord}}">
-                        <ComboBox.ItemContainerTheme>
-                            <ControlTheme x:DataType="ext:EnumRecord" TargetType="ComboBoxItem" BasedOn="{StaticResource {x:Type ComboBoxItem}}">
-                                <Setter Property="IsEnabled" Value="{Binding !IsDisabled}"/>
-                            </ControlTheme>
-                        </ComboBox.ItemContainerTheme>
-                    </ComboBox>
-                </StackPanel>
-                
-                <Separator Grid.Row="3" HorizontalAlignment="Stretch" Margin="0"/>
-                
-                <StackPanel Grid.Row="4" VerticalAlignment="Top">
-                    <TextBlock Text="Main Level" Classes="BodyStrongTextBlockStyle" Margin="{ext:Space 0, 0, 0, 1}"
-                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Button Grid.Column="0" ToolTip.Tip="Select All Maps"
+                            HorizontalAlignment="Stretch"
+                            Command="{Binding SelectedMap.SelectAllMapsCommand}"
+                            Content="{controls:IconText 'Select All', CheckAll}"/>
                     
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="{ext:Space 1}"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                      
-                        <DropDownButton Grid.Column="0" HorizontalAlignment="Stretch">
-                            <DropDownButton.Flyout>
-                                <MenuFlyout>
-                                    <MenuItem Header="Main Actors" Classes="Checked" IsChecked="{Binding SelectedMap.WorldFlagsMainActors, Mode=TwoWay}"/>
-                                    <MenuItem Header="World Partition Actors" Classes="Checked" IsChecked="{Binding SelectedMap.WorldFlagsWorldPartition, Mode=TwoWay}"/>
-                                    <MenuItem Header="Instanced &amp; Foliage Actors" Classes="Checked" IsChecked="{Binding SelectedMap.WorldFlagsInstancedFoliage, Mode=TwoWay}"/>
-                                    <MenuItem Header="Landscape" Classes="Checked" IsChecked="{Binding SelectedMap.WorldFlagsLandscape, Mode=TwoWay}"/>
-                                    <MenuItem Header="HLODs" Classes="Checked" IsChecked="{Binding SelectedMap.WorldFlagsHLODs, Mode=TwoWay}"/>
-                                </MenuFlyout>
-                            </DropDownButton.Flyout>
-                            
-                            <TextBlock Text="Export Flags"/>
-                        </DropDownButton>
-                        
-                        <Button Grid.Column="2"
-                                Command="{Binding SelectedMap.ExportMainLevelCommand}"
-                                HorizontalAlignment="Stretch" VerticalAlignment="Top">
-                            <StackPanel Orientation="Horizontal">
-                                <material:MaterialIcon Kind="Download" Margin="{ext:Space 0, 0, 1, 0}"/>
-                                <TextBlock Text="Export"/>
-                            </StackPanel>
-                        </Button>
-                    </Grid>
-                </StackPanel>
+                    <Button Grid.Column="2" ToolTip.Tip="Clear Selected Maps"
+                            HorizontalAlignment="Stretch"
+                            Command="{Binding SelectedMap.ClearSelectedMapsCommand}"
+                            IsEnabled="{Binding !!SelectedMap.SelectedMaps.Count}"
+                            Content="{controls:IconText 'Clear Selected', Broom}"/>
+                </Grid>
                 
-                <Separator Grid.Row="5" HorizontalAlignment="Stretch" Margin="0"/>
+                <controls:DynamicFadeScrollViewer Grid.Row="4">
+                    <ItemsControl ItemsSource="{Binding SelectedMap.SelectedMaps, Mode=TwoWay}"
+                                  HorizontalAlignment="Stretch">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <controls:ContentCard Background="{Binding BackgroundBrush}"
+                                                      Padding="{ext:Space 1}" Margin="{ext:Space 0, 0, 0, 0.5}"
+                                                      HorizontalAlignment="Stretch"
+                                                      PointerPressed="OnMapPressed">
+                                    <TextBlock Text="{Binding Name}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               Classes="BodyStrongTextBlockStyle" />
+                                </controls:ContentCard>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Vertical" Spacing="{ext:Space 1}" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+                </controls:DynamicFadeScrollViewer>
+
+                <TextBlock Grid.Row="4" Text="No Grids Selected" TextAlignment="Center" FontFamily="{StaticResource SFTextRegular}"
+                           Classes="TextFillColorSecondaryBrush"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                           IsVisible="{Binding !SelectedMap.SelectedMaps.Count}">
+                </TextBlock>
                 
-                <StackPanel Grid.Row="6" VerticalAlignment="Top">
-                    <TextBlock Text="Textures" Classes="BodyStrongTextBlockStyle" Margin="{ext:Space 0, 0, 0, 1}"
-                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Grid Grid.Row="6" VerticalAlignment="Bottom">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="{ext:Space 1}" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="{ext:Space 1}" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
                     
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="{ext:Space 1}"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <ComboBox Grid.Column="0" SelectedIndex="0" 
-                                  ItemsSource="{ext:EnumToItemsSource {x:Type map:EMapTextureExportType}}" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                                  SelectedItem="{Binding SelectedMap.TextureExportType, Mode=TwoWay, Converter={StaticResource EnumToRecord}}"/>
-                        
-                        <Button Grid.Column="2"
-                                Command="{Binding SelectedMap.ExportImageCommand}"
-                                HorizontalAlignment="Stretch" VerticalAlignment="Top">
-                            <StackPanel Orientation="Horizontal">
-                                <material:MaterialIcon Kind="Download" Margin="{ext:Space 0, 0, 1, 0}"/>
-                                <TextBlock Text="Export"/>
-                            </StackPanel>
-                        </Button>
-                    </Grid>
-                </StackPanel>
-                
-                <Separator Grid.Row="7" HorizontalAlignment="Stretch" Margin="0"/>
-                
-                <Grid Grid.Row="8" VerticalAlignment="Stretch" IsVisible="{Binding !SelectedMap.Info.IsNonDisplay}">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="{ext:Space 1}"/>
-                        <RowDefinition Height="3*"/>
-                        <RowDefinition Height="{ext:Space 1}"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    
-                    <TextBlock Grid.Row="0" Text="World Partition" Classes="BodyStrongTextBlockStyle" Margin="{ext:Space 0, 0, 0, 1}"
-                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                
-                    <ScrollViewer Grid.Row="2">
-                        <ItemsControl ItemsSource="{Binding SelectedMap.SelectedMaps, Mode=TwoWay}" HorizontalAlignment="Stretch">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <controls:FABorder Background="{Binding BackgroundBrush}" 
-                                                 Padding="{ext:Space 1}" Margin="{ext:Space 0, 0, 0, 0.5}"
-                                                 HorizontalAlignment="Stretch" Cursor="Hand" PointerPressed="OnMapPressed">
-                                        <TextBlock Text="{Binding Name}" 
-                                                   HorizontalAlignment="Center" VerticalAlignment="Center"
-                                                   Classes="BodyStrongTextBlockStyle"/>
-                                    </controls:FABorder>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </ScrollViewer>
-                    
-                    <TextBlock Grid.Row="2" Text="No Maps Selected" Classes="TextFillColorTertiaryBrush"
-                               HorizontalAlignment="Center" VerticalAlignment="Center" 
-                               IsVisible="{Binding !SelectedMap.SelectedMaps.Count}">
-                    </TextBlock>
-                    
-                    <Grid Grid.Row="4" VerticalAlignment="Bottom" IsEnabled="{Binding !!SelectedMap.SelectedMaps.Count}">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="{ext:Space 1}"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-                        
-                        <Grid Grid.Row="0" >
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="{ext:Space 1}"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            
-                            <DropDownButton Grid.Column="0" HorizontalAlignment="Stretch">
-                                <DropDownButton.Flyout>
-                                    <MenuFlyout>
-                                        <!-- TODO enum flags converter -->
-                                        <MenuItem Header="Actors" Classes="Checked" IsChecked="{Binding SelectedMap.WorldPartitionFlagsMainActors, Mode=TwoWay}"/>
-                                        <MenuItem Header="Instanced &amp; Foliage Actors" Classes="Checked" IsChecked="{Binding SelectedMap.WorldPartitionFlagsInstancedFoliage, Mode=TwoWay}"/>
-                                        <MenuItem Header="HLODs" Classes="Checked" IsChecked="{Binding SelectedMap.WorldPartitionFlagsHLODs, Mode=TwoWay}"/>
-                                    </MenuFlyout>
-                                </DropDownButton.Flyout>
-                            
-                                <TextBlock Text="Export Flags"/>
-                            </DropDownButton>
-                        
-                            <Button Grid.Column="2" Command="{Binding SelectedMap.ExportWorldPartitionCommand}"
-                                    HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
-                                <StackPanel Orientation="Horizontal">
-                                    <material:MaterialIcon Kind="Download" Margin="{ext:Space 0, 0, 1, 0}"/>
-                                    <TextBlock Text="Export"/>
-                                </StackPanel>
-                            </Button>
-                        </Grid>
-                    
-                        <Button Grid.Row="2" Command="{Binding SelectedMap.ClearSelectedMapsCommand}"
-                                HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
-                            <StackPanel Orientation="Horizontal">
-                                <material:MaterialIcon Kind="Delete" Margin="{ext:Space 0, 0, 1, 0}"/>
-                                <TextBlock Text="Clear Selection"/>
-                            </StackPanel>
-                        </Button>
-                    </Grid>
-                    
-                 </Grid>
+                    <DropDownButton Grid.Column="0" HorizontalAlignment="Stretch">
+                        <DropDownButton.Flyout>
+                            <MenuFlyout>
+                                <MenuItem Header="Actors" Classes="Checked"
+                                          IsChecked="{Binding SelectedMap.WorldFlagsActors, Mode=TwoWay}" />
+                                <MenuItem Header="Instanced &amp; Foliage Actors" Classes="Checked"
+                                          IsEnabled="{Binding SelectedMap.WorldFlagsActors, Mode=TwoWay}"
+                                          IsChecked="{Binding SelectedMap.WorldFlagsInstancedFoliage, Mode=TwoWay}" />
+                                <MenuItem Header="Main Level" Classes="Checked"
+                                          IsChecked="{Binding SelectedMap.WorldFlagsMainLevel, Mode=TwoWay}" />
+                                <MenuItem Header="Landscape" Classes="Checked"
+                                          IsEnabled="{Binding SelectedMap.WorldFlagsMainLevel, Mode=TwoWay}"
+                                          IsChecked="{Binding SelectedMap.WorldFlagsLandscape, Mode=TwoWay}"/>
+                                <MenuItem Header="HLODs" Classes="Checked"
+                                          IsChecked="{Binding SelectedMap.WorldFlagsHLODs, Mode=TwoWay}" />
+
+                            </MenuFlyout>
+                        </DropDownButton.Flyout>
+
+                        <StackPanel Orientation="Horizontal">
+                            <material:MaterialIcon Kind="Flag" Margin="{ext:Space 0, 0, 1, 0}" />
+                            <TextBlock Text="Flags" />
+                        </StackPanel>
+                    </DropDownButton>
+
+                    <SplitButton Grid.Column="2" HorizontalAlignment="Stretch" IsEnabled="{Binding SelectedMap.CanExport}"
+                                 Command="{Binding SelectedMap.ExportCommand}">
+                        <SplitButton.Flyout>
+                            <MenuFlyout
+                                ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EExportLocation}}">
+                                <MenuFlyout.ItemContainerTheme>
+                                    <ControlTheme x:DataType="ext:EnumRecord" TargetType="MenuItem"
+                                                  BasedOn="{StaticResource {x:Type MenuItem}}">
+                                        <Setter Property="Header" Value="{Binding Description}" />
+                                        <Setter Property="IsEnabled" Value="{Binding !IsDisabled}" />
+                                        <Setter Property="Command"
+                                                Value="{Binding $parent[views:MapView].((viewModels:MapViewModel)DataContext).SetExportLocationCommand}" />
+                                        <Setter Property="CommandParameter" Value="{Binding Value}" />
+
+                                        <Setter Property="StaysOpenOnClick" Value="False" />
+                                        <Setter Property="Icon">
+                                            <Template>
+                                                <Grid>
+                                                    <material:MaterialIcon Kind="Check"
+                                                                           IsVisible="{Binding $parent[views:MapView].((viewModels:MapViewModel)DataContext).ExportLocation, 
+                                                Converter={StaticResource EnumEquals}, 
+                                                ConverterParameter={Binding $parent[MenuItem].((ext:EnumRecord)DataContext).Value}}" />
+                                                </Grid>
+                                            </Template>
+                                        </Setter>
+                                    </ControlTheme>
+                                </MenuFlyout.ItemContainerTheme>
+                            </MenuFlyout>
+                        </SplitButton.Flyout>
+                        <StackPanel Orientation="Horizontal">
+                            <material:MaterialIcon Kind="Download" Margin="{ext:Space 0, 0, 1, 0}" />
+                            <TextBlock
+                                Text="{Binding ExportLocation, Converter={StaticResource EnumToRecord}, StringFormat='Export to {0}'}" />
+                        </StackPanel>
+                    </SplitButton>
+
+                    <Button Grid.Column="4" ToolTip.Tip="Export Settings"
+                            Content="{material:MaterialIconExt Settings}"
+                            Command="{Binding OpenSettingsCommand}" />
+
+                </Grid>
+
             </Grid>
-        </controls:FABorder>
-        
-        
-        <Grid Grid.Column="0"  Margin="{ext:Space 1}">
-            <Border CornerRadius="8" ClipToBounds="True">
-                <Viewbox x:Name="MapBox" StretchDirection="Both" Stretch="Uniform" Cursor="Hand" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                     RenderTransform="{Binding MapTransform}" PointerWheelChanged="OnScrollWheel" PointerMoved="OnPointerMoved">
+        </Grid>
+
+
+        <Grid Grid.Column="0" Margin="{ext:Space 1}">
+            <Border CornerRadius="12" ClipToBounds="True">
+                <Viewbox x:Name="MapBox" StretchDirection="Both" Stretch="Uniform" Cursor="Hand"
+                         HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                         RenderTransform="{Binding MapTransform}" PointerWheelChanged="OnScrollWheel"
+                         PointerMoved="OnPointerMoved">
                     <Grid>
                         <Border CornerRadius="0" ClipToBounds="True">
-                            <Image x:Name="MapImage" Source="{Binding SelectedMap.MapBitmap, TargetNullValue=Assets/Transparent1x1.png}"/>
+                            <Image x:Name="MapImage"
+                                   Source="{Binding SelectedMap.MapBitmap, TargetNullValue=Assets/Transparent1x1.png}" />
                         </Border>
                         <ItemsControl x:Name="GridsControl" ItemsSource="{Binding SelectedMap.Grids}"
                                       Width="{Binding Bounds.Width, ElementName=MapImage}"
@@ -231,41 +236,41 @@
                             <ItemsControl.OpacityMask>
                                 <ImageBrush Source="{Binding SelectedMap.MaskBitmap}" TransformOrigin="50%,50%">
                                     <ImageBrush.Transform>
-                                        <ScaleTransform ScaleX="0.95" ScaleY="0.95"/>
+                                        <ScaleTransform ScaleX="1" ScaleY="1" />
                                     </ImageBrush.Transform>
                                 </ImageBrush>
                             </ItemsControl.OpacityMask>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Border ToolTip.Tip="{Binding ToolTipNames}" Opacity="0.35"
-                                            Background="{Binding GridBrush}" BorderBrush="White" 
+                                            Background="{Binding GridBrush}" BorderBrush="White"
                                             BorderThickness="2" PointerPressed="OnCellPressed"
                                             CornerRadius="0" Padding="0" IsHitTestVisible="True"
-                                            Width="{Binding CellSize}" Height="{Binding CellSize}" 
-                                            Margin="{Binding OffsetMargin}"/>
+                                            Width="{Binding CellSize}" Height="{Binding CellSize}"
+                                            Margin="{Binding OffsetMargin}" />
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <Grid/>
+                                    <Grid />
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                         </ItemsControl>
                     </Grid>
                 </Viewbox>
             </Border>
-            
-            <controls:FABorder Background="Transparent" IsHitTestVisible="False"/>
+
+            <controls:ContentCard CornerRadius="12" Background="Transparent" IsHitTestVisible="False" />
         </Grid>
-        
+
         <Grid Grid.Column="0" Width="{Binding $parent[views:MapView].Bounds.Height}">
-            <TextBlock Text="A preview of this map is not available." 
+            <TextBlock Text="A preview of this map is not available."
                        HorizontalAlignment="Center" VerticalAlignment="Center"
                        Classes="BodyTextBlockStyle TextFillColorTertiaryBrush">
                 <TextBlock.IsVisible>
                     <MultiBinding Converter="{x:Static BoolConverters.And}">
-                        <Binding Path="!SelectedMap.SelectedMaps.Count"/>
-                        <Binding Path="SelectedMap.Info.IsNonDisplay"/>
+                        <Binding Path="!SelectedMap.SelectedMaps.Count" />
+                        <Binding Path="SelectedMap.MapInfo.IsNonDisplay" />
                     </MultiBinding>
                 </TextBlock.IsVisible>
             </TextBlock>

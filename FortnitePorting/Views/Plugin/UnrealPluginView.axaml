@@ -2,14 +2,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
              xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
-             xmlns:enums="clr-namespace:CUE4Parse_Conversion.UEFormat.Enums;assembly=CUE4Parse-Conversion"
-             xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
-             xmlns:settings="clr-namespace:FortnitePorting.ViewModels.Settings"
              xmlns:plugin="clr-namespace:FortnitePorting.ViewModels.Plugin"
              xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             xmlns:settingsControls="clr-namespace:FortnitePorting.Controls.Settings"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FortnitePorting.Views.Plugin.UnrealPluginView"
              x:DataType="plugin:UnrealPluginViewModel">
@@ -40,17 +37,17 @@
             <Button Grid.Column="6" Content="{material:MaterialIconExt Sync}" Command="{Binding SyncProjects}" />
         </Grid>
         
-        <ui:SettingsExpander Grid.Row="2" Header="Automatic Sync" Description="Whether or not to automatically sync the Unreal plugin after an update has occurred. It is highly recommended to keep this enabled.">
-            <ui:SettingsExpander.Footer>
+        <settingsControls:SettingsItem Grid.Row="2" Title="Automatic Sync" Description="Whether or not to automatically sync the Unreal plugin after an update has occurred. It is highly recommended to keep this enabled.">
+            <settingsControls:SettingsItem.Footer>
                 <ToggleSwitch IsChecked="{Binding AutomaticallySync}"/>
-            </ui:SettingsExpander.Footer>
-        </ui:SettingsExpander>
+            </settingsControls:SettingsItem.Footer>
+        </settingsControls:SettingsItem>
 
         <TextBlock Grid.Row="4" Text="There are no Unreal projects registered yet." IsVisible="{Binding !Projects.Count}"
                    Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" HorizontalAlignment="Center"
                    VerticalAlignment="Center" />
 
-        <controls:FABorder Grid.Row="4" VerticalAlignment="Stretch">
+        <controls:ContentCard Grid.Row="4" VerticalAlignment="Stretch">
             <ListBox Margin="{ext:Space 1}" ItemsSource="{Binding Projects}" SelectedIndex="{Binding SelectedProjectIndex, Mode=TwoWay}">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
@@ -61,7 +58,7 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
 
-                            <Border Grid.Column="0" CornerRadius="4" ClipToBounds="True">
+                            <Border Grid.Column="0" CornerRadius="12" ClipToBounds="True">
                                 <Image Source="{Binding Image}" Width="48" Height="48" RenderOptions.BitmapInterpolationMode="HighQuality"/>
                             </Border>
                             
@@ -81,7 +78,7 @@
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
-        </controls:FABorder>
+        </controls:ContentCard>
         
     </Grid>
 </UserControl>

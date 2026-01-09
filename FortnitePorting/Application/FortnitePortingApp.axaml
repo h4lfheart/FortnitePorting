@@ -5,8 +5,10 @@
              xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
              xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:uip="clr-namespace:FluentAvalonia.UI.Controls.Primitives;assembly=FluentAvalonia"
-             xmlns:nodify="https://miroiu.github.io/nodify"
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             xmlns:breadcrumb="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia.BreadcrumbBar"
+             xmlns:editing="https://github.com/avaloniaui/avaloniaedit"
+             xmlns:converters="clr-namespace:FortnitePorting.Converters"
              x:Class="FortnitePorting.Application.FortnitePortingApp"
              RequestedThemeVariant="Dark">
 
@@ -17,15 +19,17 @@
                  <ResourceInclude Source="avares://Nodify/Themes/Dark.xaml" />
              </ResourceDictionary.MergedDictionaries>
              
-             <ext:EnumToStringConverter x:Key="EnumToString" />
-             <ext:EnumToRecordConverter x:Key="EnumToRecord" />
-             <ext:EnumHasFlagConverter x:Key="EnumHasFlag" />
-             <ext:EnumGreaterOrEqualConverter x:Key="EnumGreaterOrEqual" />
-             <ext:EnumEqualsConverter x:Key="EnumEquals" />
-             <ext:EnumNotEqualsConverter x:Key="EnumNotEquals" />
-             <ext:TitleCaseStringConverter x:Key="TitleCaseString" />
-             <ext:UnrealCaseStringConverter x:Key="UnrealCaseString" />
-             <ext:StringToDocumentConverter x:Key="StringToDocument" />
+             <converters:EnumToStringConverter x:Key="EnumToString" />
+             <converters:EnumToRecordConverter x:Key="EnumToRecord" />
+             <converters:EnumHasFlagConverter x:Key="EnumHasFlag" />
+             <converters:EnumGreaterOrEqualConverter x:Key="EnumGreaterOrEqual" />
+             <converters:EnumEqualsConverter x:Key="EnumEquals" />
+             <converters:EnumNotEqualsConverter x:Key="EnumNotEquals" />
+             <converters:TitleCaseStringConverter x:Key="TitleCaseString" />
+             <converters:UnrealCaseStringConverter x:Key="UnrealCaseString" />
+             <converters:StringToDocumentConverter x:Key="StringToDocument" />
+             <converters:StringToUppercaseConverter x:Key="StringToUppercase" />
+             <converters:BoolToOpacityConverter x:Key="BoolToOpacity" />
          
              <Brush x:Key="ToggleSwitchKnobFillOn">#FFFFFFFF</Brush>
              <Brush x:Key="ToggleSwitchKnobFillOnPointerOver">#FFFFFFFF</Brush>
@@ -36,8 +40,7 @@
              <Brush x:Key="CheckBoxCheckGlyphForegroundCheckedPressed">#FFFFFFFF</Brush>
              <Brush x:Key="CheckBoxCheckGlyphForegroundCheckedDisabled">#5DFFFFFF</Brush>
              <Brush x:Key="ScrollViewerScrollBarsSeparatorBackground">#00000000</Brush>
-             <x:Double x:Key="NavigationViewItemOnLeftIconBoxHeight">14</x:Double>
-             <FontFamily x:Key="ContentControlThemeFontFamily">Segoe UI</FontFamily>
+             <FontFamily x:Key="ContentControlThemeFontFamily">avares://FortnitePorting/Assets/Fonts/SF/SF-Pro-Text-Regular.otf#SF Pro Text</FontFamily>
              <FontFamily x:Key="SymbolThemeFontFamily">avares://FortnitePorting/Assets/Fonts/Segoe Fluent Icons.ttf#Segoe Fluent Icons</FontFamily>
              <FontFamily x:Key="TimeWasterFontFamily">avares://FortnitePorting/Assets/TimeWaster/Fonts/BurbankBigRegular-Bold.ttf#Burbank Big</FontFamily>
              <Brush x:Key="TabViewItemHeaderBackgroundSelected">#1C000000</Brush>
@@ -47,6 +50,41 @@
              <Brush x:Key="ExpanderHeaderBorderBrush">#78575757</Brush>
              <Brush x:Key="ExpanderHeaderPointerOverBorderBrush">#78575757</Brush>
              <Brush x:Key="ExpanderContentBorderBrush">#78575757</Brush>
+             
+             <FontFamily x:Key="SFTextLight">avares://FortnitePorting/Assets/Fonts/SF/SF-Pro-Text-Light.otf#SF Pro Text</FontFamily>
+             <FontFamily x:Key="SFTextRegular">avares://FortnitePorting/Assets/Fonts/SF/SF-Pro-Text-Regular.otf#SF Pro Text</FontFamily>
+             <FontFamily x:Key="SFTextMedium">avares://FortnitePorting/Assets/Fonts/SF/SF-Pro-Text-Medium.otf#SF Pro Text</FontFamily>
+             <FontFamily x:Key="SFTextHeavy">avares://FortnitePorting/Assets/Fonts/SF/SF-Pro-Text-Heavy.otf#SF Pro Text</FontFamily>
+             <FontFamily x:Key="SFTextSemiBold">avares://FortnitePorting/Assets/Fonts/SF/SF-Pro-Text-Semibold.otf#SF Pro Text</FontFamily>
+             <FontFamily x:Key="SFTextBold">avares://FortnitePorting/Assets/Fonts/SF/SF-Pro-Text-Bold.otf#SF Pro Text</FontFamily>
+             
+             <FontFamily x:Key="SFDisplayThin">avares://FortnitePorting/Assets/Fonts/SF/SF-Pro-Display-Thin.otf#SF Pro Display</FontFamily>
+             <FontFamily x:Key="SFDisplayRegular">avares://FortnitePorting/Assets/Fonts/SF/SF-Pro-Display-Regular.otf#SF Pro Display</FontFamily>
+             <FontFamily x:Key="SFDisplayMedium">avares://FortnitePorting/Assets/Fonts/SF/SF-Pro-Display-Medium.otf#SF Pro Display</FontFamily>
+             <FontFamily x:Key="SFDisplaySemibold">avares://FortnitePorting/Assets/Fonts/SF/SF-Pro-Display-Semibold.otf#SF Pro Display</FontFamily>
+             <FontFamily x:Key="SFDisplayHeavy">avares://FortnitePorting/Assets/Fonts/SF/SF-Pro-Display-Heavy.otf#SF Pro Display</FontFamily>
+             <FontFamily x:Key="SFDisplayBold">avares://FortnitePorting/Assets/Fonts/SF/SF-Pro-Display-Bold.otf#SF Pro Display</FontFamily>
+             <FontFamily x:Key="SFDisplayBlack">avares://FortnitePorting/Assets/Fonts/SF/SF-Pro-Display-Black.otf#SF Pro Display</FontFamily>
+             
+             <Brush x:Key="FPSeparatorColorLayer1">#212123</Brush>
+             <Brush x:Key="FPSeparatorColorLayer2">#313133</Brush>
+             
+             <Brush x:Key="FPButtonBackground">#1E1F21</Brush>
+             <Brush x:Key="FPButtonBackgroundPointerOver">#27292B</Brush>
+             <Brush x:Key="FPButtonBackgroundPressed">#252629</Brush>
+             <Brush x:Key="FPButtonBorderBrush">#27282A</Brush>
+             
+             <Brush x:Key="FPLayer2">#2b2c2e</Brush>
+             <Brush x:Key="FPLayer2PointerOver">#3f4144</Brush>
+             <Brush x:Key="FPLayer2Pressed">#353639</Brush>
+             
+             <Brush x:Key="FPButtonBackgroundSelected">#27282B</Brush>
+             <Brush x:Key="FPButtonBackgroundSelectedPointerOver">#303236</Brush>
+             
+             <Brush x:Key="FPButtonBackgroundBright">#343538</Brush>
+             <Brush x:Key="FPButtonBackgroundBrightPointerOver">#3e3f42</Brush>
+             
+             
          </ResourceDictionary>
          
      </Application.Resources>
@@ -59,44 +97,94 @@
         <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
         <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
         
-        <Style Selector="Border.LiquidGlass">
-            <Setter Property="BoxShadow">
-                inset 2 2 4 -1 #04000000, 
-                inset 4 8 19 #04000000, 
-                inset 3 3 3 #04ffffff, 
-                inset -4 -8 10 #02ffffff, 
-                inset 1 -3 2 #08000000
-            </Setter>
-            <Setter Property="Effect">
-                <DropShadowEffect BlurRadius="6" OffsetX="1" OffsetY="2" Color="#40000000"/>
+        <Style Selector="controls|DynamicFadeScrollViewer">
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Border Name="PART_FadeContainer">
+                        <ScrollViewer x:Name="PART_ScrollViewer"
+                                      HorizontalScrollBarVisibility="{TemplateBinding HorizontalScrollBarVisibility}"
+                                      VerticalScrollBarVisibility="{TemplateBinding VerticalScrollBarVisibility}">
+                            <ContentPresenter Content="{TemplateBinding Content}"/>
+                        </ScrollViewer>
+                    </Border>
+                </ControlTemplate>
             </Setter>
         </Style>
         
-        <Style Selector="ui|TabViewItem /template/ Grid#LayoutRoot /template/ Border#TabContainerBorder /template/ Grid#TabContainer /template/ Button#CloseButton">
-            <Setter Property="BorderBrush" Value="Transparent"/>
+        <Style Selector="controls|ContentCard">
+            <Setter Property="Background">
+                <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
+                    <GradientStops>
+                        <GradientStop Color="#1A1B1E" Offset="0"/>
+                        <GradientStop Color="#18191B" Offset="1"/>
+                    </GradientStops>
+                </LinearGradientBrush>
+            </Setter>
             <Setter Property="BorderThickness" Value="0"/>
-        </Style>
-        
-        <Style Selector="ui|TabViewItem">
-            <Setter Property="Background" Value="#09FFFFFF"/>
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="MinHeight" Value="32"/>
+            <Setter Property="BackgroundSizing" Value="CenterBorder"/>
+            <Setter Property="BoxShadow">
+                inset 0 1 2 -1 #50ffffff,
+                inset 0 -1 2 -2 #50ffffff,
+                0 4 8 #20000000,
+                0 8 12 #10000000
+            </Setter>
             
-            <Style Selector="^ /template/ Canvas">
-                <Setter Property="IsVisible" Value="False"/>
+            <Style Selector="^:disabled">
+                <Setter Property="Background">
+                    <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
+                        <GradientStops>
+                            <GradientStop Color="#801A1B1E" Offset="0"/>
+                            <GradientStop Color="#8018191B" Offset="1"/>
+                        </GradientStops>
+                    </LinearGradientBrush>
+                </Setter>
             </Style>
         </Style>
         
-        <Style Selector="controls|FABorder">
-            <Setter Property="Background" Value="#0DFFFFFF"/>
-            <Setter Property="BorderBrush" Value="#78575757"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="8"/>
-            <Setter Property="MinHeight" Value="32"/>
+        
+        <Style Selector="Button[IsVisible=true]">
+            <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="ClipToBounds" Value="False"/>
+            
+            <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="ClipToBounds" Value="False"/>
+                <Setter Property="BackgroundSizing" Value="CenterBorder"/>
+                <Setter Property="BoxShadow">
+                    inset 0 1 2 -1 #50ffffff,
+                    inset 0 -1 2 -2 #50ffffff,
+                    0 4 8 #20000000,
+                    0 8 12 #10000000
+                </Setter>
+            </Style>
+        
+            <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPointerOver}"/>
+            </Style>
+
+            <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPressed}"/>
+            </Style>
+        
+            <Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
+                <Setter Property="Opacity" Value="0.5"/>
+            </Style>
         </Style>
         
-        <Style Selector="Button">
-            <Setter Property="BorderBrush" Value="#78575757"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="8"/>
+        
+        <Style Selector="breadcrumb|BreadcrumbBarItem[IsVisible=true]">
+            <Setter Property="FontFamily" Value="{StaticResource SFTextRegular}"/>
+            
+            <Style Selector="^ Button /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="FontFamily" Value="{StaticResource SFTextRegular}"/>
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="BoxShadow" Value="none"/>
+            </Style>
         </Style>
         
         <Style Selector="Button#CloseButton">
@@ -105,40 +193,544 @@
             <Setter Property="CornerRadius" Value="8"/>
         </Style>
 
-        <Style Selector="SplitButton">
-            <Setter Property="BorderBrush" Value="#78575757"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="8"/>
+        
+        <Style Selector="SplitButton[IsVisible=true]">
+            <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="ClipToBounds" Value="False"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            
+            <Style Selector="^ /template/ Button#PART_PrimaryButton">
+                <Setter Property="CornerRadius" Value="16 0 0 16"/>
+            </Style>
+            
+            <Style Selector="^ /template/ Button#PART_SecondaryButton">
+                <Setter Property="CornerRadius" Value="0 16 16 0"/>
+            </Style>
+            
+            <Style Selector="^ /template/ Border#SeparatorBorder">
+                <Setter Property="IsVisible" Value="False"/>
+            </Style>
+            
+            <Style Selector="^:pointerover">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPointerOver}"/>
+            </Style>
+
+            <Style Selector="^:pressed">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPressed}"/>
+            </Style>
         </Style>
         
-        <Style Selector="ToggleButton">
-            <Setter Property="BorderBrush" Value="#78575757"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="8"/>
+        <Style Selector="ToggleButton[IsVisible=true]">
+            <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="ClipToBounds" Value="False"/>
+            
+            <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="ClipToBounds" Value="False"/>
+                <Setter Property="BackgroundSizing" Value="CenterBorder"/>
+                <Setter Property="BoxShadow">
+                    inset 0 1 2 -1 #50ffffff,
+                    inset 0 -1 2 -2 #50ffffff,
+                    0 4 8 #20000000,
+                    0 8 12 #10000000
+                </Setter>
+            </Style>
+            
+            
+            <Style Selector="^ TextBlock">
+                <Setter Property="Foreground" Value="White"/>
+            </Style>
+        
+            <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPointerOver}"/>
+            </Style>
+
+            <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPressed}"/>
+            </Style>
+        
+            <Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
+                <Setter Property="Opacity" Value="0.5"/>
+            </Style>
+        
+            <Style Selector="^:checked /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackgroundBright}"/>
+                
+                <Style Selector="^:pointerover">
+                    <Setter Property="Background" Value="{StaticResource FPButtonBackgroundBrightPointerOver}"/>
+                </Style>
+            </Style>
         </Style>
         
-        <Style Selector="ComboBox">
-            <Setter Property="BorderBrush" Value="#78575757"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="8"/>
+        
+        <Style Selector="ToggleSwitch[IsVisible=true]">
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="ClipToBounds" Value="False"/>
+            
+            <Style Selector="^ /template/ Border#SwitchKnobBounds">
+                <Setter Property="Background" Value="#953bf8"/>
+                <Setter Property="ClipToBounds" Value="False"/>
+                <Setter Property="BackgroundSizing" Value="CenterBorder"/>
+                <Setter Property="BoxShadow">
+                    inset 0 1 2 -1 #50ffffff,
+                    inset 0 -1 2 -2 #50ffffff,
+                    0 4 8 #20000000,
+                    0 8 12 #10000000
+                </Setter>
+            </Style>
+            
+            
+            <Style Selector="^ /template/ Border#OuterBorder">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="ClipToBounds" Value="False"/>
+                <Setter Property="BackgroundSizing" Value="CenterBorder"/>
+                <Setter Property="BoxShadow">
+                    inset 0 1 2 -1 #50ffffff,
+                    inset 0 -1 2 -2 #50ffffff,
+                    0 4 8 #20000000,
+                    0 8 12 #10000000
+                </Setter>
+            </Style>
+            
         </Style>
         
-        <Style Selector="AutoCompleteBox">
-            <Setter Property="BorderBrush" Value="#78575757"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="8"/>
+        <Style Selector="Slider[IsVisible=true]">
+            
+            <Style Selector="^ /template/ RepeatButton#PART_DecreaseButton">
+                <Style Selector="^ /template/ Border#TrackBackground">
+                    <Setter Property="Background" Value="#953bf8"/>
+                    <Setter Property="ClipToBounds" Value="False"/>
+                    <Setter Property="BackgroundSizing" Value="CenterBorder"/>
+                    <Setter Property="BoxShadow">
+                        inset 0 1 2 -1 #50ffffff,
+                        inset 0 -1 2 -2 #50ffffff,
+                        0 4 8 #20000000,
+                        0 8 12 #10000000
+                    </Setter>
+                </Style>
+            </Style>
+            
+            <Style Selector="^ /template/ RepeatButton#PART_IncreaseButton">
+                <Style Selector="^ /template/ Border#TrackBackground">
+                    <Setter Property="ClipToBounds" Value="False"/>
+                    <Setter Property="BackgroundSizing" Value="CenterBorder"/>
+                    <Setter Property="BoxShadow">
+                        inset 0 1 2 -1 #50ffffff,
+                        inset 0 -1 2 -2 #50ffffff,
+                        0 4 8 #20000000,
+                        0 8 12 #10000000
+                    </Setter>
+                </Style>
+            </Style>
+            
+            
+            <Style Selector="^ /template/ Thumb#thumb">
+                <Style Selector="^ /template/ Border">
+                    <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
+                    <Setter Property="ClipToBounds" Value="False"/>
+                    <Setter Property="BackgroundSizing" Value="CenterBorder"/>
+                    <Setter Property="BoxShadow">
+                        inset 0 1 2 -1 #50ffffff,
+                        inset 0 -1 2 -2 #50ffffff,
+                        0 4 8 #20000000,
+                        0 8 12 #10000000
+                    </Setter>
+                </Style>
+                
+                <Style Selector="^ /template/ Ellipse#SliderInnerThumb">
+                    <Setter Property="Fill" Value="#953BF8"/>
+                </Style>
+            </Style>
+            
         </Style>
         
-        <Style Selector="TextBox">
-            <Setter Property="BorderBrush" Value="#78575757"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="8"/>
+        <Style Selector="DataValidationErrors[IsVisible=True]">
+            <Setter Property="ClipToBounds" Value="False"/>
         </Style>
         
-        <Style Selector="ListBoxItem">
-            <Setter Property="CornerRadius" Value="8"/>
+        <Style Selector="TextBox[IsVisible=true]">
+            <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="ClipToBounds" Value="False"/>
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            
+            <Style Selector="^ /template/ ScrollViewer">
+                <Setter Property="Margin" Value="{ext:Space 0.5, 0}"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+            </Style>
+            
+            <Style Selector="^ /template/ Border#PART_BorderElement">
+                <Setter Property="ClipToBounds" Value="False"/>
+                <Setter Property="BackgroundSizing" Value="CenterBorder"/>
+                <Setter Property="BoxShadow">
+                    inset 0 1 2 -1 #50ffffff,
+                    inset 0 -1 2 -2 #50ffffff,
+                    0 4 8 #20000000,
+                    0 8 12 #10000000
+                </Setter>
+            </Style>
+            
+            <Style Selector="^:focus /template/ Border#PART_BorderElement">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
+                <Setter Property="BorderThickness" Value="0"/>
+            </Style>
+            
+            <Style Selector="^:focus-within /template/ Border#PART_BorderElement">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
+                <Setter Property="BorderThickness" Value="0"/>
+            </Style>
+        
+            <Style Selector="^:pointerover /template/ Border#PART_BorderElement">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPointerOver}"/>
+            </Style>
+
+            <Style Selector="^:pressed /template/ Border#PART_BorderElement">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPressed}"/>
+            </Style>
+        
+            <Style Selector="^:disabled /template/ Border#PART_BorderElement">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
+                <Setter Property="Opacity" Value="0.5"/>
+            </Style>
         </Style>
         
+        <Style Selector="ListBox[IsVisible=True]">
+            <Setter Property="ClipToBounds" Value="False"/>
+            
+            <Style Selector="^ ScrollViewer[IsVisible=True]">
+                <Setter Property="ClipToBounds" Value="False"/>
+            </Style>
+        
+        </Style>
+        
+        <Style Selector="ListBoxItem[IsVisible=True]">
+            <Setter Property="FontFamily" Value="{StaticResource SFTextRegular}"/>
+            <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="ClipToBounds" Value="False"/>
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            
+            <Style Selector="^:selected /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackgroundSelected}"/>
+                <Setter Property="ClipToBounds" Value="False"/>
+                <Setter Property="BackgroundSizing" Value="CenterBorder"/>
+                <Setter Property="BoxShadow">
+                    inset 0 1 2 -1 #50ffffff,
+                    inset 0 -1 2 -2 #50ffffff,
+                    0 4 8 #20000000,
+                    0 8 12 #10000000
+                </Setter>
+            </Style>
+            
+            <Style Selector="^:not(:selected)">
+                <Setter Property="Background" Value="Transparent"/>
+            </Style>
+            
+            
+            <Style Selector="^ /template/ Rectangle#SelectionIndicator">
+                <Setter Property="Opacity" Value="0" />
+            </Style>
+        </Style>
+        
+        <Style Selector="FlyoutPresenter[IsVisible=true]">
+            <Setter Property="Padding" Value="{ext:Space 1}"/>
+            
+            <Style Selector="^ ListBoxItem">
+                <Setter Property="CornerRadius" Value="12"/>
+            </Style>
+            
+            <Style Selector="^ /template/ Border">
+                <Setter Property="Background">
+                    <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
+                        <GradientStops>
+                            <GradientStop Color="#1A1B1E" Offset="0"/>
+                            <GradientStop Color="#18191B" Offset="1"/>
+                        </GradientStops>
+                    </LinearGradientBrush>
+                </Setter>
+                
+                <Setter Property="MinWidth" Value="{Binding $parent[DropDownButton].Bounds.Width}"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="CornerRadius" Value="16"/>
+                <Setter Property="Margin" Value="{ext:Space 1}"/>
+                <Setter Property="ClipToBounds" Value="False"/>
+                <Setter Property="BackgroundSizing" Value="CenterBorder"/>
+                <Setter Property="BoxShadow">
+                    inset 0 1 2 -1 #50ffffff,
+                    inset 0 -1 2 -2 #50ffffff,
+                    0 4 8 #20000000,
+                    0 8 12 #10000000
+                </Setter>
+            </Style>
+        </Style>
+        
+        <Style Selector="MenuFlyoutPresenter[IsVisible=true]">
+            <Setter Property="Padding" Value="{ext:Space 0.5, 0.75}"/>
+            
+            <Style Selector="^ MenuItem">
+                <Setter Property="CornerRadius" Value="12"/>
+            </Style>
+            
+            <Style Selector="^ /template/ Border">
+                <Setter Property="Background">
+                    <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
+                        <GradientStops>
+                            <GradientStop Color="#1A1B1E" Offset="0"/>
+                            <GradientStop Color="#18191B" Offset="1"/>
+                        </GradientStops>
+                    </LinearGradientBrush>
+                </Setter>
+                
+                <Setter Property="MinWidth" Value="{Binding $parent[DropDownButton].Bounds.Width}"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="CornerRadius" Value="16"/>
+                <Setter Property="Margin" Value="{ext:Space 1}"/>
+                <Setter Property="ClipToBounds" Value="False"/>
+                <Setter Property="BackgroundSizing" Value="CenterBorder"/>
+                <Setter Property="BoxShadow">
+                    inset 0 1 2 -1 #50ffffff,
+                    inset 0 -1 2 -2 #50ffffff,
+                    0 4 8 #20000000,
+                    0 8 12 #10000000
+                </Setter>
+            </Style>
+        </Style>
+        
+        
+        <Style Selector="ContextMenu[IsVisible=true]">
+            <Setter Property="Padding" Value="{ext:Space 0.25}"/>
+            
+            <Style Selector="^ MenuItem">
+                <Setter Property="CornerRadius" Value="12"/>
+            </Style>
+            
+            <Style Selector="^ /template/ Border">
+                <Setter Property="Background">
+                    <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
+                        <GradientStops>
+                            <GradientStop Color="#1A1B1E" Offset="0"/>
+                            <GradientStop Color="#18191B" Offset="1"/>
+                        </GradientStops>
+                    </LinearGradientBrush>
+                </Setter>
+                
+                <Setter Property="MinWidth" Value="{Binding $parent[DropDownButton].Bounds.Width}"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="CornerRadius" Value="16"/>
+                <Setter Property="Margin" Value="{ext:Space 1}"/>
+                <Setter Property="ClipToBounds" Value="False"/>
+                <Setter Property="BackgroundSizing" Value="CenterBorder"/>
+                <Setter Property="BoxShadow">
+                    inset 0 1 2 -1 #50ffffff,
+                    inset 0 -1 2 -2 #50ffffff,
+                    0 4 8 #20000000,
+                    0 8 12 #10000000
+                </Setter>
+            </Style>
+        </Style>
+        
+        <Style Selector="PopupRoot">
+            <Setter Property="ClipToBounds" Value="False"/>
+        </Style>
+        
+        <Style Selector="ToolTip[IsVisible=true]">
+            <Setter Property="ClipToBounds" Value="False"/>
+            <Setter Property="FontFamily" Value="{StaticResource SFTextRegular}"/>
+            <Setter Property="Padding" Value="{ext:Space 1}"/>
+            
+            <Style Selector="^ /template/ Border#PART_LayoutRoot">
+                <Setter Property="Background">
+                    <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
+                        <GradientStops>
+                            <GradientStop Color="#1A1B1E" Offset="0"/>
+                            <GradientStop Color="#18191B" Offset="1"/>
+                        </GradientStops>
+                    </LinearGradientBrush>
+                </Setter>
+                
+                <Setter Property="MinWidth" Value="{Binding $parent[DropDownButton].Bounds.Width}"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="CornerRadius" Value="16"/>
+                <Setter Property="Margin" Value="{ext:Space 1}"/>
+                <Setter Property="ClipToBounds" Value="False"/>
+                <Setter Property="BackgroundSizing" Value="CenterBorder"/>
+                <Setter Property="BoxShadow">
+                    inset 0 1 2 -1 #50ffffff,
+                    inset 0 -1 2 -2 #50ffffff,
+                    0 4 8 #20000000,
+                    0 8 12 #10000000
+                </Setter>
+            </Style>
+        </Style>
+        
+        <Style Selector="ComboBox[IsVisible=true]">
+            <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="ClipToBounds" Value="False"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            
+            <Style Selector="^ /template/ ContentPresenter#ContentPresenter">
+                <Setter Property="Margin" Value="12 0 0 0"/>
+            </Style>
+            
+            <Style Selector="^ /template/ Border#Background">
+                <Setter Property="ClipToBounds" Value="False"/>
+                <Setter Property="BackgroundSizing" Value="CenterBorder"/>
+                <Setter Property="BoxShadow">
+                    inset 0 1 2 -1 #50ffffff,
+                    inset 0 -1 2 -2 #50ffffff,
+                    0 4 8 #20000000,
+                    0 8 12 #10000000
+                </Setter>
+            </Style>
+
+            <Style Selector="^/template/ Border#PopupBorder">
+                <Setter Property="Background">
+                    <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
+                        <GradientStops>
+                            <GradientStop Color="#1A1B1E" Offset="0"/>
+                            <GradientStop Color="#18191B" Offset="1"/>
+                        </GradientStops>
+                    </LinearGradientBrush>
+                </Setter>
+                
+                <Setter Property="MinWidth" Value="{Binding $parent[ComboBox].Bounds.Width}"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="CornerRadius" Value="16"/>
+                <Setter Property="Padding" Value="4"/>
+                <Setter Property="Margin" Value="{ext:Space 1}"/>
+                <Setter Property="ClipToBounds" Value="False"/>
+                <Setter Property="BackgroundSizing" Value="CenterBorder"/>
+                <Setter Property="BoxShadow">
+                    inset 0 1 2 -1 #50ffffff,
+                    inset 0 -1 2 -2 #50ffffff,
+                    0 0 8 #20000000,
+                    0 0 12 #10000000
+                </Setter>
+            </Style>
+
+            <Style Selector="^ Popup">
+                <Setter Property="VerticalOffset" Value="4"/>
+                <Setter Property="ClipToBounds" Value="False"/>
+
+            </Style>
+        </Style>
+        
+        <Style Selector="ui|NumberBox[IsVisible=true]">
+            <Setter Property="ClipToBounds" Value="False"/>
+            
+            <Style Selector="^ /template/ RepeatButton">
+                <Setter Property="CornerRadius" Value="12"/>
+            </Style>
+        </Style>
+        
+        <Style Selector="TreeViewItem[IsVisible=True]">
+            <Setter Property="FontFamily" Value="{StaticResource SFTextRegular}"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="ClipToBounds" Value="False"/>
+            
+            <Style Selector="^:selected /template/ Border#PART_LayoutRoot">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackgroundSelected}"/>
+                <Setter Property="ClipToBounds" Value="False"/>
+                <Setter Property="BackgroundSizing" Value="CenterBorder"/>
+                <Setter Property="BoxShadow">
+                    inset 0 1 2 -1 #50ffffff,
+                    inset 0 -1 2 -2 #50ffffff,
+                    0 4 8 #20000000,
+                    0 8 12 #10000000
+                </Setter>
+                
+                <Style Selector="^:pointerover">
+                    <Setter Property="Background" Value="{StaticResource FPButtonBackgroundSelectedPointerOver}"/>
+                </Style>
+            </Style>
+            
+            <Style Selector="^ /template/ Rectangle#SelectionIndicator">
+                <Setter Property="Opacity" Value="0" />
+            </Style>
+        </Style>
+
+        
+        <Style Selector="ComboBoxItem[IsVisible=True]">
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="ClipToBounds" Value="False"/>
+            
+            <Style Selector="^:selected /template/ Border#LayoutRoot">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackgroundSelected}"/>
+                <Setter Property="ClipToBounds" Value="False"/>
+                <Setter Property="BackgroundSizing" Value="CenterBorder"/>
+                <Setter Property="BoxShadow">
+                    inset 0 1 2 -1 #50ffffff,
+                    inset 0 -1 2 -2 #50ffffff,
+                    0 4 8 #20000000,
+                    0 8 12 #10000000
+                </Setter>
+                
+                <Style Selector="^:pointerover">
+                    <Setter Property="Background" Value="{StaticResource FPButtonBackgroundSelectedPointerOver}"/>
+                </Style>
+            </Style>
+            
+            <Style Selector="^ /template/ Rectangle#Pill">
+                <Setter Property="Opacity" Value="0" />
+            </Style>
+        </Style>
+        
+        <Style Selector="CheckBox[IsVisible=true]">
+            <Setter Property="FontFamily" Value="{StaticResource SFTextRegular}"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            
+            <Style Selector="^ /template/ ContentPresenter#ContentPresenter">
+                <Setter Property="Margin" Value="{ext:Space 1, 0}"/>
+            </Style>
+            
+            <Style Selector="^ /template/ ui|FontIcon#CheckGlyph">
+                <Setter Property="IsHitTestVisible" Value="False"/>
+            </Style>
+            
+            <Style Selector="^ /template/ Border#NormalRectangle">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackgroundSelected}"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="CornerRadius" Value="16"/>
+                <Setter Property="ClipToBounds" Value="False"/>
+                <Setter Property="BackgroundSizing" Value="CenterBorder"/>
+                <Setter Property="BoxShadow">
+                    inset 0 1 2 -1 #50ffffff,
+                    inset 0 -1 2 -2 #50ffffff,
+                    0 4 8 #20000000,
+                    0 8 12 #10000000
+                </Setter>
+                
+                <Style Selector="^:pointerover">
+                    <Setter Property="Background" Value="{StaticResource FPButtonBackgroundSelectedPointerOver}"/>
+                </Style>
+            </Style>
+            
+            <Style Selector="^:checked /template/ Border#NormalRectangle">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackgroundBright}"/>
+                
+                <Style Selector="^:pointerover">
+                    <Setter Property="Background" Value="{StaticResource FPButtonBackgroundBrightPointerOver}"/>
+                </Style>
+            </Style>
+            
+            <Style Selector="^ TextBlock">
+                <Setter Property="Foreground" Value="#aeafb3"/>
+            </Style>
+        </Style>
         
         <Style Selector="ScrollBar">
             <Setter Property="Opacity" Value="0"/>
@@ -149,22 +741,22 @@
             </Style>
         </Style>
         
-        
-        <Style Selector="DropDownButton">
-            <Setter Property="BorderBrush" Value="#78575757"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="8"/>
-        </Style>
-        
-        
-        <Style Selector="DropDownButton.Transparent">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderBrush" Value="Transparent"/>
+        <Style Selector="DropDownButton[IsVisible=True]">
+            <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="ClipToBounds" Value="False"/>
+            <Setter Property="Cursor" Value="Hand"/>
             
-            <Style Selector="^:flyout-open">
-                <Setter Property="Background" Value="#15FFFFFF"/>
+            <Style Selector="^ /template/ Border#RootBorder">
+                <Setter Property="ClipToBounds" Value="False"/>
+                <Setter Property="BackgroundSizing" Value="CenterBorder"/>
+                <Setter Property="BoxShadow">
+                    inset 0 1 2 -1 #50ffffff,
+                    inset 0 -1 2 -2 #50ffffff,
+                    0 4 8 #20000000,
+                    0 8 12 #10000000
+                </Setter>
             </Style>
         </Style>
         
@@ -180,6 +772,122 @@
             </Style>
         </Style>
         
+        <Style Selector="ProgressBar[IsVisible=true]">
+            <Setter Property="Height" Value="16"/>
+            <Setter Property="ClipToBounds" Value="False"/>
+            
+            <Style Selector="^ Border#PART_Indicator">
+                <Setter Property="Background" Value="#953bf8"/>
+                <Setter Property="Height" Value="NaN"/>
+                <Setter Property="CornerRadius" Value="16"/>
+                
+                <Setter Property="BoxShadow">
+                    inset 0 1 2 -1 #50ffffff,
+                    inset 0 -1 2 -2 #50ffffff,
+                    0 4 8 #20000000,
+                    0 8 12 #10000000
+                </Setter>
+            </Style>
+            
+            <Style Selector="^ Border#ProgressBarTrack">
+                <Setter Property="Background" Value="#353538"/>
+                <Setter Property="Height" Value="NaN"/>
+                <Setter Property="CornerRadius" Value="16"/>
+                
+                <Setter Property="BoxShadow">
+                    inset 0 1 2 -1 #50ffffff,
+                    inset 0 -1 2 -2 #50ffffff,
+                    0 4 8 #20000000,
+                    0 8 12 #10000000
+                </Setter>
+            </Style>
+        </Style>
+        
+        <Style Selector="ui|TabViewItem[IsVisible=true]">
+            <Setter Property="Margin" Value="{ext:Space 1, 0, 0, 0}"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            
+            <Style Selector="^ /template/ Border#LayoutRootBorder">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="CornerRadius" Value="16"/>
+                <Setter Property="MinHeight" Value="32"/>
+                <Setter Property="ClipToBounds" Value="False"/>
+                <Setter Property="BackgroundSizing" Value="CenterBorder"/>
+                <Setter Property="BoxShadow">
+                    inset 0 1 2 -1 #50ffffff,
+                    inset 0 -1 2 -2 #50ffffff,
+                    0 4 8 #20000000,
+                    0 8 12 #10000000
+                </Setter>
+                
+                <Style Selector="^:pointerover">
+                    <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPointerOver}"/>
+                </Style>
+                
+                <Style Selector="^:pressed">
+                    <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPressed}"/>
+                </Style>
+            </Style>
+            
+            <Style Selector="^:selected /template/ Border#LayoutRootBorder">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackgroundSelected}"/>
+                
+                <Style Selector="^:pointerover">
+                    <Setter Property="Background" Value="{StaticResource FPButtonBackgroundSelectedPointerOver}"/>
+                </Style>
+            </Style>
+        </Style>
+        
+        <Style Selector="ui|TabViewItem[IsVisible=true] /template/ Button#CloseButton">
+            <Setter Property="Background" Value="{x:Null}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="ClipToBounds" Value="False"/>
+        
+            <Style Selector="^:pointerover /template/ ContentPresenter#ContentPresenter">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackgroundBright}"/>
+            </Style>
+
+            <Style Selector="^:pressed /template/ ContentPresenter#ContentPresenter">
+                <Setter Property="Background" Value="{StaticResource FPButtonBackgroundBright}"/>
+            </Style>
+        </Style>
+        
+        <Style Selector="uip|TabViewListView[IsVisible=true] /template/ ScrollViewer /template/ Border#ScrollDecreaseButtonContainer RepeatButton#ScrollDecreaseButton">
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Content">
+                <Template>
+                    <material:MaterialIcon Kind="ChevronLeft"/>
+                </Template>
+            </Setter>
+        </Style>
+
+        <Style Selector="uip|TabViewListView[IsVisible=true] /template/ ScrollViewer /template/ Border#ScrollIncreaseButtonContainer RepeatButton#ScrollIncreaseButton">
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Content">
+                <Template>
+                    <material:MaterialIcon Kind="ChevronRight"/>
+                </Template>
+            </Setter>
+        </Style>
+        
+        <Style Selector="ui|TabViewItem[IsVisible=true] /template/ ContentPresenter#ContentPresenter">
+            <Setter Property="FontFamily" Value="{StaticResource SFTextRegular}"/>
+            <Setter Property="FontWeight" Value="Regular"/>
+        </Style>
+        
+        
+        <Style Selector="ui|TabViewItem[IsVisible=true] /template/ Border#TabContainerBorder">
+            <Setter Property="Background" Value="{x:Null}"/>
+        </Style>
+        
+        
+        <Style Selector="MenuItem">
+            <Setter Property="CornerRadius" Value="12"/>
+        </Style>
+        
         <Style Selector="Border.Close">
             <Setter Property="Background" Value="Transparent"/>
             
@@ -188,67 +896,80 @@
             </Style>
         </Style>
         
-        <Style Selector="ui|SettingsExpander:disabled /template/ ui|SymbolIcon#ExpandCollapseChevron">
-            <Setter Property="IsVisible" Value="False"/>
-        </Style>
-
-        
-        <Style Selector="Button.Purple /template/ ContentPresenter">
-            <Setter Property="Background">
-                <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
-                    <GradientStops>
-                        <GradientStop Color="#8141db" Offset="0"/>
-                        <GradientStop Color="#6931c2" Offset="1"/>
-                    </GradientStops>
-                </LinearGradientBrush>
-            </Setter>
-            <Setter Property="Effect">
-                <DropShadowEffect OffsetX="0" OffsetY="2" BlurRadius="10" Opacity="0.25"/>
-            </Setter>
-            <Setter Property="CornerRadius" Value="4"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            
-            <Style Selector="^:pointerover">
+        <Style Selector="Button.Purple">
+            <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background">
+                    <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
+                        <GradientStops>
+                            <GradientStop Color="#8141db" Offset="0"/>
+                            <GradientStop Color="#953bf8" Offset="1"/>
+                        </GradientStops>
+                    </LinearGradientBrush>
+                </Setter>
+            </Style>
+    
+            <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
                 <Setter Property="Background">
                     <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
                         <GradientStops>
                             <GradientStop Color="#954cfc" Offset="0"/>
-                            <GradientStop Color="#7837de" Offset="1"/>
+                            <GradientStop Color="#953bf8" Offset="1"/>
                         </GradientStops>
                     </LinearGradientBrush>
                 </Setter>
             </Style>
-            
-        </Style>
+        </Style> 
         
-        <Style Selector="Button.Red /template/ ContentPresenter">
-            <Setter Property="Background">
-                <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
-                    <GradientStops>
-                        <GradientStop Color="#db4153" Offset="0"/>
-                        <GradientStop Color="#c23142" Offset="1"/>
-                    </GradientStops>
-                </LinearGradientBrush>
-            </Setter>
-            <Setter Property="Effect">
-                <DropShadowEffect OffsetX="0" OffsetY="2" BlurRadius="10" Opacity="0.25"/>
-            </Setter>
-            <Setter Property="CornerRadius" Value="4"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            
-            <Style Selector="^:pointerover">
+        <Style Selector="Button.Red">
+            <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
                 <Setter Property="Background">
                     <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
                         <GradientStops>
-                            <GradientStop Color="#fc4c98" Offset="0"/>
-                            <GradientStop Color="#de3761" Offset="1"/>
+                            <GradientStop Color="#db4153" Offset="0"/>
+                            <GradientStop Color="#c23142" Offset="1"/>
                         </GradientStops>
                     </LinearGradientBrush>
                 </Setter>
             </Style>
-            
+    
+            <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background">
+                    <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
+                        <GradientStops>
+                            <GradientStop Color="#db4153" Offset="0"/>
+                            <GradientStop Color="#c23142" Offset="1"/>
+                        </GradientStops>
+                    </LinearGradientBrush>
+                </Setter>
+            </Style>
+        </Style>
+        
+        <Style Selector="editing|SearchPanel[IsVisible=True] /template/ Border#PART_Border">
+            <Setter Property="Background">
+                <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
+                    <GradientStops>
+                        <GradientStop Color="#1A1B1E" Offset="0"/>
+                        <GradientStop Color="#18191B" Offset="1"/>
+                    </GradientStops>
+                </LinearGradientBrush>
+            </Setter>
+            <Setter Property="Margin" Value="{ext:Space 0, 1, 0, 0}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="MinHeight" Value="32"/>
+            <Setter Property="ClipToBounds" Value="False"/>
+            <Setter Property="BackgroundSizing" Value="CenterBorder"/>
+            <Setter Property="BoxShadow">
+                inset 0 1 2 -1 #50ffffff,
+                inset 0 -1 2 -2 #50ffffff,
+                0 4 8 #20000000,
+                0 8 12 #10000000
+            </Setter>
+        </Style>
+        
+        <Style Selector="ColorPicker[IsVisible=True]">
+            <Setter Property="ClipToBounds" Value="False"/>
+            <Setter Property="CornerRadius" Value="16"/>
         </Style>
         
         <Style Selector="Button.DiscordButton /template/ ContentPresenter">
@@ -278,14 +999,6 @@
         <Style Selector="MenuItem.Checked">
             <Setter Property="ToggleType" Value="CheckBox"/>
             <Setter Property="StaysOpenOnClick" Value="True"/>
-            <Setter Property="Icon">
-                <Template>
-                    <Grid>
-                        <material:MaterialIcon Kind="Close" IsVisible="{Binding !$parent[MenuItem].IsChecked}" />
-                        <material:MaterialIcon Kind="Check" IsVisible="{Binding $parent[MenuItem].IsChecked}" />
-                    </Grid>
-                </Template>
-            </Setter>
         </Style>
         
         <Style Selector="TabItem > TextBlock">
@@ -337,21 +1050,6 @@
             <Setter Property="HorizontalAlignment" Value="Center"/>
         </Style>
         
-        <Style Selector="ui|NavigationViewItemSeparator">
-            <Setter Property="Margin" Value="{ext:Space 1, 0}"/>
-        </Style>
-        
-        <Style Selector="ui|NavigationView.NoBackground /template/ Border#ContentGridBorder">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderBrush" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="CornerRadius" Value="0"/>
-        </Style>
-        
-        <Style Selector="ui|NavigationView.NoBackground /template/ StackPanel#TopNavArea">
-            <Setter Property="Background" Value="#16000000"/>
-        </Style>
-        
         <Style Selector="material|MaterialIcon">
             <Setter Property="Foreground" Value="White"/>
         </Style>
@@ -371,54 +1069,20 @@
         
         <Style Selector="Button.TWExitButton">
             <Setter Property="Foreground" Value="#c7655d" />
-            <Setter Property="Background" Value="#82632B2A" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Cursor" Value="Hand" />
-        </Style>
-
-        <Style Selector="Button.TWExitButton:pointerover /template/ ContentPresenter">
-            <Setter Property="CornerRadius" Value="4" />
-            <Setter Property="Background" Value="#733231" />
+            
+            <Style Selector="^ /template/ ContentPresenter">
+                <Setter Property="Background" Value="#632B2A" />
+            </Style>
+            
+            <Style Selector="^:pointerover /template/ ContentPresenter">
+                <Setter Property="Background" Value="#733231" />
+            </Style>
+        
+            <Style Selector="^:pressed /template/ ContentPresenter">
+                <Setter Property="Background" Value="#733231" />
+            </Style>
         </Style>
         
-        <Style Selector="Button.TWExitButton:pressed /template/ ContentPresenter">
-            <Setter Property="CornerRadius" Value="4" />
-            <Setter Property="Background" Value="#733231" />
-        </Style>
-        
-        <Style Selector="Button.ZoomButton">
-            <Setter Property="Background" Value="{DynamicResource SystemAccentColor}" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Cursor" Value="Hand" />
-        </Style>
-
-        <Style Selector="Button.ZoomButton:pointerover /template/ ContentPresenter">
-            <Setter Property="CornerRadius" Value="4" />
-            <Setter Property="Background" Value="{DynamicResource SystemAccentColorDark1}" />
-        </Style>
-        
-        <Style Selector="Button.ZoomButton:pressed /template/ ContentPresenter">
-            <Setter Property="CornerRadius" Value="4" />
-            <Setter Property="Background" Value="{DynamicResource SystemAccentColorDark1}" />
-        </Style>
-        
-        <Style Selector="ToggleButton.RadioButton">
-            <Setter Property="Padding" Value="0"/>
-            <Setter Property="Foreground" Value="#48FFFFFF" />
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Cursor" Value="Hand" />
-        </Style>
-
-        <Style Selector="ToggleButton.RadioButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Foreground" Value="#48FFFFFF" />
-            <Setter Property="Background" Value="Transparent" />
-        </Style>
-
-        <Style Selector="ToggleButton.RadioButton:checked /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Foreground" Value="#FFFFFF" />
-            <Setter Property="Background" Value="Transparent" />
-        </Style>
         
         <Style Selector="TextBox.RadioTextBlockRename:not(:focus)">
             <Setter Property="Template">
@@ -437,44 +1101,48 @@
        
        <Style Selector="TextBlock.CaptionTextBlockStyle">
            <Setter Property="FontSize" Value="12"/>
-           <Setter Property="FontWeight" Value="Normal"/>
+           <Setter Property="FontFamily" Value="{StaticResource SFTextRegular}"/>
        </Style>
        
        <Style Selector="TextBlock.BodyTextBlockStyle">
            <Setter Property="FontSize" Value="14"/>
-           <Setter Property="FontWeight" Value="Normal"/>
+           <Setter Property="FontFamily" Value="{StaticResource SFTextRegular}"/>
        </Style>
         
         <Style Selector="TextBlock.BodyStrongTextBlockStyle">
             <Setter Property="FontSize" Value="14"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontFamily" Value="{StaticResource SFTextSemiBold}"/>
         </Style>
         
         <Style Selector="TextBlock.SubtitleTextBlockStyle">
             <Setter Property="FontSize" Value="20"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontFamily" Value="{StaticResource SFTextBold}"/>
         </Style>
         
         <Style Selector="TextBlock.TitleTextBlockStyle">
             <Setter Property="FontSize" Value="28"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontFamily" Value="{StaticResource SFTextHeavy}"/>
         </Style>
         
         <Style Selector="TextBlock.TitleLargeTextBlockStyle">
             <Setter Property="FontSize" Value="40"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontFamily" Value="{StaticResource SFTextHeavy}"/>
         </Style>
         
         <Style Selector="TextBlock.TextFillColorPrimaryBrush">
-            <Setter Property="Foreground" Value="#E4E4E4"/>
+            <Setter Property="Foreground" Value="#e6e6e6"/>
         </Style>
         
         <Style Selector="TextBlock.TextFillColorSecondaryBrush">
-            <Setter Property="Foreground" Value="#C5FFFFFF"/>
+            <Setter Property="Foreground" Value="#aeafb3"/>
+            
+            <Style Selector="^:disabled">
+                <Setter Property="Foreground" Value="#80aeafb3"/>
+            </Style>
         </Style>
         
         <Style Selector="TextBlock.TextFillColorTertiaryBrush">
-            <Setter Property="Foreground" Value="#9E9E9E"/>
+            <Setter Property="Foreground" Value="#6c6d72"/>
         </Style>
         
         <Style Selector="TextBlock.TextFillColorQuaternaryBrush">

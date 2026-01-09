@@ -1,5 +1,4 @@
 using FortnitePorting.Extensions;
-using FortnitePorting.Shared.Extensions;
 
 namespace FortnitePorting.Models.Assets.Custom;
 
@@ -21,6 +20,6 @@ public sealed partial class CustomAssetItem : Base.BaseAssetItem
         };
 
         IconDisplayImage = customAsset.IconBitmap.ToWriteableBitmap();
-        DisplayImage = CreateDisplayImage(customAsset.IconBitmap).ToWriteableBitmap();
+        BackgroundImage = CreateBackgroundImage();
     }
 }

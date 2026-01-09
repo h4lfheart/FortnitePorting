@@ -1,21 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
-using Avalonia.Controls;
-using Avalonia.Platform;
-using Avalonia.Threading;
 using CUE4Parse.UE4.Assets.Exports;
-using CUE4Parse.UE4.Assets.Exports.StaticMesh;
-using CUE4Parse.UE4.Assets.Exports.Texture;
 using FortnitePorting.Framework;
 using FortnitePorting.Rendering;
 using FortnitePorting.Services;
-using FortnitePorting.ViewModels;
 using FortnitePorting.WindowModels;
-using OpenTK.Mathematics;
-using OpenTK.Windowing.Common;
-using OpenTK.Windowing.Desktop;
-using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace FortnitePorting.Windows;
 

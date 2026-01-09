@@ -53,6 +53,7 @@ default_mappings = MappingCollection(
         SlotMapping("PM_SpecularMasks", "SpecularMasks"),
         SlotMapping("__PBR Masks", "SpecularMasks"),
         SlotMapping("MetallicRoughnessTexture", "SpecularMasks"),
+        SlotMapping("Bake Packed Maps", "SpecularMasks"),
 
         SlotMapping("Normals"),
         SlotMapping("N", "Normals"),
@@ -67,6 +68,7 @@ default_mappings = MappingCollection(
         SlotMapping("_Normal", "Normals"),
         SlotMapping("NormalTexture", "Normals"),
         SlotMapping("Normal Map", "Normals"),
+        SlotMapping("Baked Normal", "Normals"),
         
         SlotMapping("AnisotropicTangentWeight", alpha_slot="AnisotropicTangentWeight Alpha"),
         SlotMapping("AnisotropigTangentWeight", "AnisotropicTangentWeight", alpha_slot="AnisotropicTangentWeight Alpha"),
@@ -89,6 +91,7 @@ default_mappings = MappingCollection(
         SlotMapping("SkinFX Mask", "SkinFX_Mask"),
         SlotMapping("TechArtMask", "SkinFX_Mask"),
         SlotMapping("FxMask", "SkinFX_Mask"),
+        SlotMapping("FX_Mask", "SkinFX_Mask"),
         
         SlotMapping("Thin Film Texture"),
 
@@ -164,6 +167,7 @@ default_mappings = MappingCollection(
     ],
     vectors=[
         SlotMapping("TintColor", "Diffuse"),
+        SlotMapping("BaseColorFactor", "Background Diffuse"),
         
         SlotMapping("Skin Boost Color And Exponent", "Skin Color", alpha_slot="Skin Boost"),
         SlotMapping("SkinTint", "Skin Color", alpha_slot="Skin Boost"),
@@ -173,6 +177,7 @@ default_mappings = MappingCollection(
         SlotMapping("Emissive Color", "Emission Multiplier"),
         SlotMapping("EmissiveColor", "Emission Multiplier"),
         SlotMapping("Emissive", "Emission Multiplier"),
+        SlotMapping("TN_Emissive Color", "Emission Multiplier"),
 
         SlotMapping("ThinFilm_Channel"),
         SlotMapping("ThinFilmMaskChannel", "ThinFilm_Channel"),
@@ -186,7 +191,8 @@ default_mappings = MappingCollection(
 
         SlotMapping("FlipbookTint"),
         
-        SlotMapping("CloatcoatMaskChannel", "Clear Coat Channel")
+        SlotMapping("CloatcoatMaskChannel", "Clear Coat Channel"),
+        SlotMapping("ClearCoatMaskChannel", "Clear Coat Channel")
     ],
     switches=[
         SlotMapping("SwizzleRoughnessToGreen"),
@@ -574,20 +580,26 @@ eye_mappings = MappingCollection(
         SlotMapping("SpecularMasks"),
         SlotMapping("SRM", "SpecularMasks"),
         SlotMapping("Emissive"),
+        SlotMapping("EyelashMask"),
     ],
     vectors=[
         SlotMapping("Eye Right UV Position"),
         SlotMapping("Eye Left UV Position"),
-        
+        SlotMapping("Eye Right UV Position (UV0)", "Eye Right UV Position"),
+        SlotMapping("Eye Left UV Position (UV0)", "Eye Left UV Position"),
+
         SlotMapping("Eye Camera Light Vector"),
         SlotMapping("Eye UV Highlight Pos"),
-        
-        SlotMapping("EyeTintColor")
+
+        SlotMapping("EyeTintColor"),
+
+        SlotMapping("EyelashColor"),
+        SlotMapping("EyelashVertexColorMaskChannel"),
     ],
     scalars=[
         SlotMapping("Eye Roughness Min"),
         SlotMapping("Eye Metallic Mult"),
-        
+
         SlotMapping("Emissive Mult"),
         SlotMapping("Eye Texture AspectRatio"),
         SlotMapping("Eye Cornea Radius (UV)"),
@@ -603,12 +615,17 @@ eye_mappings = MappingCollection(
         SlotMapping("Eye Refraction Mult"),
         SlotMapping("Eye Iris Depth Scale"),
         SlotMapping("Eye Cornea IOR"),
+
+        SlotMapping("EyelashMetallic"),
+        SlotMapping("EyelashRoughness"),
+        SlotMapping("EyelashSpec"),
     ],
     switches=[
         SlotMapping("SwizzleRoughnessToGreen"),
         SlotMapping("Eye Use Sun Highlight"),
         SlotMapping("Eye Use UV Highlight"),
-        SlotMapping("UseEyeColorTinting")
+        SlotMapping("UseEyeColorTinting"),
+        SlotMapping("UseEyelashes"),
     ]
 )
 
@@ -746,4 +763,94 @@ detail_mappings = MappingCollection(
         SlotMapping("Use Detail Normal?"),
         SlotMapping("Use Detail SRM?"),
     ]
+)
+
+sequin_mappings = MappingCollection(
+    textures=[
+        SlotMapping("Normals"),
+        SlotMapping("SequinOffset"),
+        SlotMapping("SequinOffest", "SequinOffset"),
+        SlotMapping("SequinRoughness"),
+        SlotMapping("SequinNormal"),
+        SlotMapping("StripeMask"),
+        SlotMapping("SequinThinFilmColor"),
+    ],
+    scalars=[
+        SlotMapping("SequinTile"),
+        SlotMapping("SequinRotationAngle"),
+        SlotMapping("SequinThinFilmUVExponent"),
+        SlotMapping("SequinThinFilmUVScale"),
+        SlotMapping("SequinThinFilmUVOffset"),
+        SlotMapping("SequinThinFilmStrength_Basecolor"),
+        SlotMapping("SequinThinFilmStrength_Emissive"),
+        SlotMapping("SequinFresnel"),
+        SlotMapping("SequinColorOffsetMin"),
+        SlotMapping("SequinColorOffsetMax"),
+        SlotMapping("SequinBrightness"),
+        SlotMapping("SequinEmissiveIntensity"),
+        SlotMapping("Sequin_MinRoughness"),
+        SlotMapping("Sequin_MaxRoughness"),
+        SlotMapping("SequinBaseRoughnessBlendAmount"),
+        SlotMapping("SequinMetalness"),
+        SlotMapping("UseBaseMetalness"),
+        SlotMapping("SequinSparkleSpeed"),
+        SlotMapping("SequinDiamondTile"),
+        SlotMapping("SparkleBrightness"),
+        SlotMapping("SequinNormalIntensity"),
+        SlotMapping("StripedColorBlend"),
+        SlotMapping("StripedNormalBlend"),
+    ],
+    vectors=[
+        SlotMapping("SequinMaskChannel"),
+        SlotMapping("SequinFalloffColor01"),
+        SlotMapping("SequinFalloffColor02"),
+        SlotMapping("SparkleColor"),
+    ],
+    switches=[
+        SlotMapping("UseSequins"),
+        SlotMapping("MFSequin_UseThinFilmOnSequins"),
+        SlotMapping("MFSequin_UseBaseColor"),
+        SlotMapping("SwizzleRoughnessToGreen"),
+        SlotMapping("UseBaseRoughness"),
+        SlotMapping("MFSequin_UseBaseRoughness", "UseBaseRoughness"),
+        SlotMapping("UseBaseNormal"),
+        SlotMapping("MFSequin_UseBaseNormal", "UseBaseNormal"),
+        SlotMapping("UseStripes"),
+    ]
+)
+
+sequin_trim_mappings = MappingCollection(
+    textures=[
+        SlotMapping("SequinOffset_Main", "SequinOffset"),
+        SlotMapping("SequinOffest_Main", "SequinOffset"),
+        SlotMapping("SequinRoughness_Main", "SequinRoughness"),
+        SlotMapping("SequinNormal_,Main", "SequinNormal"),
+        SlotMapping("SequinThinFilm_Trim", "SequinThinFilmColor"),
+    ],
+    scalars=[
+        SlotMapping("SequinRotationAngle_Main", "SequinRotationAngle"),
+    ],
+    vectors=[
+        SlotMapping("Sequin_SecondaryChannel", "SequinMaskChannel"),
+        SlotMapping("SequinFalloffColor01_Main", "SequinFalloffColor01"),
+        SlotMapping("SequinFalloffColor02_Main", "SequinFalloffColor02"),
+    ],
+)
+
+sequin_secondary_mappings = MappingCollection(
+    textures=[
+        SlotMapping("SequinOffset_Secondary", "SequinOffset"),
+        SlotMapping("SequinOffest_Secondary", "SequinOffset"),
+        SlotMapping("SequinRoughness_Secondary", "SequinRoughness"),
+        SlotMapping("SequinNormal_,Secondary", "SequinNormal"),
+        SlotMapping("SequinThinFilm_Secondary", "SequinThinFilmColor"),
+    ],
+    scalars=[
+        SlotMapping("SequinRotationAngle_Secondary", "SequinRotationAngle"),
+    ],
+    vectors=[
+        SlotMapping("Sequin_TrimChannel", "SequinMaskChannel"),
+        SlotMapping("SequinFalloffColor01_Secondary", "SequinFalloffColor01"),
+        SlotMapping("SequinFalloffColor02_Secondary", "SequinFalloffColor02"),
+    ],
 )

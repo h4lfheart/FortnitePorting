@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
@@ -13,36 +11,83 @@ namespace FortnitePorting.Extensions;
 
 public static class ImageExtensions
 {
-    public static WriteableBitmap ToWriteableBitmap(this CTexture texture, bool ignoreAlpha = false)
+    extension(CTexture texture)
     {
-        return texture.ToSkBitmap().ToWriteableBitmap(ignoreAlpha);
+        public WriteableBitmap ToWriteableBitmap(bool ignoreAlpha = false)
+        {
+            return texture.ToSkBitmap().ToWriteableBitmap(ignoreAlpha);
+        }
     }
-    
-    public static WriteableBitmap ToWriteableBitmap(this SKBitmap skiaBitmap, bool ignoreAlpha = false)
+
+    extension(SKBitmap bitmap)
     {
-        using var skiaPixmap = skiaBitmap.PeekPixels();
-        using var skiaImage = SKImage.FromPixels(skiaPixmap);
-
-        var bitmapColorType = skiaBitmap.ColorType switch
+        public WriteableBitmap ToWriteableBitmap(bool ignoreAlpha = false)
         {
-            SKColorType.Rgba8888 => PixelFormat.Rgba8888,
-            SKColorType.Bgra8888 => PixelFormat.Bgra8888,
-            SKColorType.Rgb565 => PixelFormat.Rgb565,
-            SKColorType.RgbaF32 => PixelFormat.Rgb32,
-            SKColorType.Gray8 => PixelFormats.Gray8,
-        };
-        
-        var bitmap = new WriteableBitmap(new PixelSize(skiaBitmap.Width, skiaBitmap.Height), new Vector(96, 96), bitmapColorType, ignoreAlpha ? AlphaFormat.Opaque : AlphaFormat.Unpremul);
-        var frameBuffer = bitmap.Lock();
+            using var skiaPixmap = bitmap.PeekPixels();
+            using var skiaImage = SKImage.FromPixels(skiaPixmap);
 
-        using (var pixmap = new SKPixmap(new SKImageInfo(skiaBitmap.Width, skiaBitmap.Height, skiaBitmap.ColorType, ignoreAlpha ? SKAlphaType.Opaque : SKAlphaType.Unpremul), frameBuffer.Address, frameBuffer.RowBytes))
-        {
-            skiaImage.ReadPixels(pixmap, 0, 0);
+            var bitmapColorType = bitmap.ColorType switch
+            {
+                SKColorType.Rgba8888 => PixelFormat.Rgba8888,
+                SKColorType.Bgra8888 => PixelFormat.Bgra8888,
+                SKColorType.Rgb565 => PixelFormat.Rgb565,
+                SKColorType.RgbaF32 => PixelFormat.Rgb32,
+                SKColorType.Gray8 => PixelFormats.Gray8,
+            };
+            
+            var writeableBitmap = new WriteableBitmap(new PixelSize(bitmap.Width, bitmap.Height), new Vector(96, 96), bitmapColorType, ignoreAlpha ? AlphaFormat.Opaque : AlphaFormat.Unpremul);
+            var frameBuffer = writeableBitmap.Lock();
+
+            using (var pixmap = new SKPixmap(new SKImageInfo(bitmap.Width, bitmap.Height, bitmap.ColorType, ignoreAlpha ? SKAlphaType.Opaque : SKAlphaType.Unpremul), frameBuffer.Address, frameBuffer.RowBytes))
+            {
+                skiaImage.ReadPixels(pixmap, 0, 0);
+            }
+            
+            frameBuffer.Dispose();
+            return writeableBitmap;
+
         }
         
-        frameBuffer.Dispose();
-        return bitmap;
+        public SKBitmap ToOpacityMask()
+        {
+            var width = bitmap.Width;
+            var height = bitmap.Height;
+        
+            var maskBitmap = new SKBitmap(width, height, SKColorType.Bgra8888, SKAlphaType.Premul);
+        
+            var sourcePixels = bitmap.GetPixels();
+            var maskPixels = maskBitmap.GetPixels();
+        
+            var pixelCount = width * height;
+        
+            unsafe
+            {
+                var srcPtr = (byte*)sourcePixels.ToPointer();
+                var dstPtr = (byte*)maskPixels.ToPointer();
+            
+                for (var i = 0; i < pixelCount; i++)
+                {
+                    byte luminance;
+                    if (bitmap.ColorType == SKColorType.Gray8)
+                    {
+                        luminance = srcPtr[i];
+                    }
+                    else
+                    {
+                        var srcOffset = i * bitmap.BytesPerPixel;
+                        luminance = srcPtr[srcOffset];
+                    }
+                
+                    var dstOffset = i * 4;
+                    dstPtr[dstOffset + 0] = luminance;
+                    dstPtr[dstOffset + 1] = luminance;
+                    dstPtr[dstOffset + 2] = luminance;
+                    dstPtr[dstOffset + 3] = luminance;
+                }
+            }
 
+            return maskBitmap;
+        }
     }
     
     public static ConcurrentDictionary<string, Bitmap> CachedBitmaps = [];
@@ -78,15 +123,5 @@ public static class ImageExtensions
             (byte)(color1.R + (color2.R - color1.R) * factor),
             (byte)(color1.G + (color2.G - color1.G) * factor),
             (byte)(color1.B + (color2.B - color1.B) * factor));
-    }
-    
-    public static Bitmap GetMedalBitmap(int ranking = -1)
-    {
-        return AvaresBitmap($"avares://FortnitePorting/Assets/FN/{ranking switch {
-            1 => "GoldMedal",
-            2 => "SilverMedal",
-            3 => "BronzeMedal",
-            _ => "NormalMedal"
-        }}.png");
     }
 }

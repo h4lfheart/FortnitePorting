@@ -1,20 +1,18 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
         xmlns:ui="using:FluentAvalonia.UI.Controls"
         xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
         xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         xmlns:windowModels="clr-namespace:FortnitePorting.WindowModels"
         x:Class="FortnitePorting.Windows.SoundPreviewWindow"
         x:DataType="windowModels:SoundPreviewWindowModel"
-        Width="540" RequestedThemeVariant="Dark" FontFamily="Segoe UI" SizeToContent="Height" 
-        TransparencyLevelHint="{Binding Settings.Theme.TransparencyHints}" Background="{Binding Settings.Theme.BackgroundBrush}"
-        ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="NoChrome"
+        Width="540" SizeToContent="Height" RequestedThemeVariant="Dark" Background="#0e0e0e" TransparencyLevelHint="Mica"
+        ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="NoChrome" FontFamily="{StaticResource SFTextRegular}"
         WindowStartupLocation="CenterScreen" ClosingBehavior="OwnerAndChildWindows" ExtendClientAreaTitleBarHeightHint="35"
         Icon="/Assets/LogoRebrand.ico"
         Title="Sound Viewer">
     <Grid RowDefinitions="35, *" Margin="{Binding $parent[Window].OffScreenMargin}">
-         <Grid Grid.Row="0" Background="#2F000000" HorizontalAlignment="Stretch" PointerPressed="OnPointerPressedUpperBar">
+         <Grid Grid.Row="0" HorizontalAlignment="Stretch" PointerPressed="OnPointerPressedUpperBar">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -29,7 +27,7 @@
                               Width="20" Height="20" 
                               RenderOptions.BitmapInterpolationMode="HighQuality" RenderOptions.EdgeMode="Antialias"/>
 
-                <TextBlock Grid.Column="2" Text="Sound Viewer" FontWeight="SemiBold" FontSize="16"
+                <TextBlock Grid.Column="2" Text="Sound Viewer" FontFamily="{StaticResource SFTextSemiBold}" FontSize="14"
                            HorizontalAlignment="Center" VerticalAlignment="Center" />
             </Grid>
             

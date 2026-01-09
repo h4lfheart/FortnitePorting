@@ -5,8 +5,8 @@
              xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
              xmlns:plugin="clr-namespace:FortnitePorting.ViewModels.Plugin"
              xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
-             xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             xmlns:settingsControls="clr-namespace:FortnitePorting.Controls.Settings"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FortnitePorting.Views.Plugin.BlenderPluginView"
              x:DataType="plugin:BlenderPluginViewModel">
@@ -38,17 +38,17 @@
             <Button Grid.Column="6" Content="{material:MaterialIconExt Sync}" Command="{Binding SyncInstallations}" />
         </Grid>
         
-        <ui:SettingsExpander Grid.Row="2" Header="Automatic Sync" Description="Whether or not to automatically sync the Blender plugin after an update has occurred. It is highly recommended to keep this enabled.">
-            <ui:SettingsExpander.Footer>
+        <settingsControls:SettingsItem Grid.Row="2" Title="Automatic Sync" Description="Whether or not to automatically sync the Blender plugin after an update has occurred. It is highly recommended to keep this enabled.">
+            <settingsControls:SettingsItem.Footer>
                 <ToggleSwitch IsChecked="{Binding AutomaticallySync}"/>
-            </ui:SettingsExpander.Footer>
-        </ui:SettingsExpander>
+            </settingsControls:SettingsItem.Footer>
+        </settingsControls:SettingsItem>
 
         <TextBlock Grid.Row="4" Text="There are no Blender versions registered yet." IsVisible="{Binding !Installations.Count}"
                    Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" HorizontalAlignment="Center"
                    VerticalAlignment="Center" />
 
-        <controls:FABorder Grid.Row="4" VerticalAlignment="Stretch">
+        <controls:ContentCard Grid.Row="4" VerticalAlignment="Stretch">
             <ListBox Margin="{ext:Space 1}" ItemsSource="{Binding Installations}" SelectedIndex="{Binding SelectedInstallationIndex, Mode=TwoWay}">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
@@ -80,7 +80,7 @@
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
-        </controls:FABorder>
+        </controls:ContentCard>
         
     </Grid>
 </UserControl>

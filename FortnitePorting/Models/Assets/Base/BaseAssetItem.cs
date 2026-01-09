@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using FortnitePorting.Application;
 using FortnitePorting.Extensions;
 using FortnitePorting.Models.Assets.Asset;
 using FortnitePorting.Models.Assets.Custom;
@@ -24,9 +23,9 @@ public abstract partial class BaseAssetItem : ObservableObject
     
     public Guid Id { get; set; }
     public virtual BaseAssetItemCreationArgs CreationData { get; set; }
-    
-    public WriteableBitmap DisplayImage { get; set; }
-    public WriteableBitmap IconDisplayImage { get; set; }
+
+    [ObservableProperty] private WriteableBitmap? _iconDisplayImage = null;
+    [ObservableProperty] private WriteableBitmap? _backgroundImage = null;
 
     private SKColor InnerBackgroundColor { get; set; } = SKColor.Parse("#50C8FF");
     private SKColor OuterBackgroundColor { get; set; } = SKColor.Parse("#1B7BCF");
@@ -57,18 +56,17 @@ public abstract partial class BaseAssetItem : ObservableObject
         };
     }
 
-    protected virtual SKBitmap CreateDisplayImage(SKBitmap iconBitmap)
+    protected virtual WriteableBitmap CreateBackgroundImage()
     {
-        var bitmap = new SKBitmap(128, 160, iconBitmap.ColorType, SKAlphaType.Opaque);
+        var bitmap = new SKBitmap(128, 160, SKColorType.Rgba8888, SKAlphaType.Opaque);
         using (var canvas = new SKCanvas(bitmap))
         {
             var backgroundRect = new SKRect(0, 0, bitmap.Width, bitmap.Height);
             var backgroundPaint = new SKPaint { Shader = SkiaExtensions.RadialGradient(bitmap.Height, InnerBackgroundColor, OuterBackgroundColor) };
             canvas.DrawRect(backgroundRect, backgroundPaint);
-            canvas.DrawBitmap(iconBitmap, backgroundRect with { Left = -16, Right = bitmap.Width + 16 });
         }
 
-        return bitmap;
+        return bitmap.ToWriteableBitmap();
     }
     
     [RelayCommand]
@@ -98,7 +96,7 @@ public abstract partial class BaseAssetItem : ObservableObject
     [RelayCommand]
     public virtual async Task CopyIcon(bool withBackground = false)
     {
-        await AvaloniaClipboard.SetImageAsync(withBackground ? DisplayImage : IconDisplayImage);
+        await AvaloniaClipboard.SetImageAsync(IconDisplayImage);
     }
     
     [RelayCommand]

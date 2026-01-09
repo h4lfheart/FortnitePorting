@@ -14,7 +14,7 @@ public class RepositoryResponse
 
 public class RepositoryVersion
 {
-    public FPVersion Version;
-    public string ExecutableURL;
-    public DateTime UploadTime;
+    public FPVersion Version { get; set; }
+    public string ExecutableURL { get; set; }
+    public DateTime UploadTime { get; set; }
 }

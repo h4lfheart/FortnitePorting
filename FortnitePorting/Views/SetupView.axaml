@@ -3,24 +3,32 @@
              xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
              xmlns:ui="using:FluentAvalonia.UI.Controls"
              xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
-             xmlns:versions="clr-namespace:CUE4Parse.UE4.Versions;assembly=CUE4Parse"
-             xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
-             xmlns:fortnitePorting="clr-namespace:FortnitePorting"
-             xmlns:settings="clr-namespace:FortnitePorting.Views.Settings"
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
              d:DesignHeight="770" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.SetupView"
              x:DataType="viewModels:SetupViewModel">
     <Grid RowDefinitions="35, *">
-        <Grid Grid.Row="0" Grid.RowSpan="2" RowDefinitions="* * *" Opacity="{Binding BackgroundOpacity}" Effect="{Binding BackgroundBlur}">
+        <Grid Grid.Row="0" Grid.RowSpan="2" RowDefinitions="* * *" IsHitTestVisible="False"
+              Opacity="{Binding BackgroundOpacity}" 
+              Effect="{Binding BackgroundBlur}">
             <controls:ScrollingGallery Grid.Row="0" ImagePaths="{Binding GalleryPaths[0]}" Speed="0.65"/>
             <controls:ScrollingGallery Grid.Row="1" ImagePaths="{Binding GalleryPaths[1]}" Speed="-0.6"/>
             <controls:ScrollingGallery Grid.Row="2" ImagePaths="{Binding GalleryPaths[2]}" Speed="0.9"/>
         </Grid>
+         
+        <Border Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False" Opacity="0.5">
+            <Border.Background>
+                <RadialGradientBrush Center="50%, 50%">
+                    <GradientStops>
+                        <GradientStop Offset="0" Color="#00000000"/>
+                        <GradientStop Offset="0.5" Color="#00000000"/>
+                        <GradientStop Offset="1" Color="#FF000000"/>
+                    </GradientStops>
+                </RadialGradientBrush>
+            </Border.Background>
+        </Border>
         
-        <ui:Frame Grid.Row="1" x:Name="ContentFrame"/>
+        <ui:Frame Grid.Row="1" x:Name="ContentFrame" Margin="{ext:Space 1}"/>
     </Grid>
 </UserControl>

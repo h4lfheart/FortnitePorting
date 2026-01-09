@@ -1,21 +1,15 @@
 using System;
 using System.Linq;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.Media;
-using Avalonia.Threading;
-using Avalonia.VisualTree;
-using FluentAvalonia.UI.Controls;
+using FortnitePorting.Controls.Navigation.Sidebar;
+using FortnitePorting.Controls.WrapPanel;
 using FortnitePorting.Framework;
-using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.Assets.Asset;
 using FortnitePorting.Models.Assets.Custom;
 using FortnitePorting.Models.Assets.Filters;
-using FortnitePorting.Models.Assets.Loading;
 using FortnitePorting.Services;
-using FortnitePorting.Shared;
 using FortnitePorting.ViewModels;
 using BaseAssetItem = FortnitePorting.Models.Assets.Base.BaseAssetItem;
 
@@ -27,6 +21,7 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
     {
         InitializeComponent();
         
+        Navigation.Assets.Initialize(Sidebar);
         Navigation.Assets.AddBehaviorResolver<EExportType>(ChangeTab);
         Navigation.Assets.AddBehaviorResolver<string>(type =>
         {
@@ -38,7 +33,7 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
 
     private void ChangeTab(EExportType assetType)
     {
-        if (ViewModel.AssetLoader.ActiveLoader.Type == assetType) return;
+        if (ViewModel.AssetLoader.ActiveLoader?.Type == assetType) return;
         
         AssetsListBox.SelectedItems?.Clear();
         
@@ -65,6 +60,11 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
     private void OnRandomButtonPressed(object? sender, RoutedEventArgs routedEventArgs)
     {
         AssetsListBox.SelectedIndex = Random.Shared.Next(0, AssetsListBox.Items.Count);
+        
+        if (AssetsListBox.SelectedItem is not AssetItem item) return;
+        if (item.IconDisplayImage is not null) return;
+        
+        item.LoadBitmap();
     }
 
     private void OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -116,12 +116,18 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
         ViewModel.AssetLoader.ActiveLoader.UpdateFilters(filterItem, isChecked);
     }
 
-    private void OnNavigationViewItemInvoked(object? sender, NavigationViewItemInvokedEventArgs e)
+    private void OnItemSelected(object? sender, SidebarItemSelectedArgs e)
     {
-        if (e.InvokedItemContainer is not NavigationViewItem navItem) return;
-        if (navItem.Tag is not EExportType assetType) return;
+        if (e.Tag is not EExportType assetType) return;
         
         ChangeTab(assetType);
     }
 
+    private void OnItemRealized(object? sender, ItemRealizedEventArgs e)
+    {
+        if (e.Item is not AssetItem item) return;
+        if (item.IconDisplayImage is not null) return;
+        
+        item.LoadBitmap();
+    }
 }

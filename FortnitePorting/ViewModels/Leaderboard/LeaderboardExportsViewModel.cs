@@ -3,19 +3,17 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Leaderboard;
-using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
 
 namespace FortnitePorting.ViewModels.Leaderboard;
 
-public partial class LeaderboardExportsViewModel : ViewModelBase
+public partial class LeaderboardExportsViewModel : PagedLeaderboardViewModelBase<LeaderboardExport>
 {
-    [ObservableProperty] private ObservableCollection<LeaderboardExport> _exports = [];
+    protected override string PageCountFunctionName => "leaderboard_exports_page_count";
+    protected override string PageDataFunctionName => "leaderboard_exports";
 
-    public override async Task OnViewOpened()
+    protected override async Task LoadItem(LeaderboardExport item)
     {
-        var exports = await SupaBase.Client.Rpc<LeaderboardExport[]>("leaderboard_exports", new {}) ?? [];
-        exports.ForEach(async export => await export.Load());
-        Exports = [..exports];
+        await item.Load();
     }
 }

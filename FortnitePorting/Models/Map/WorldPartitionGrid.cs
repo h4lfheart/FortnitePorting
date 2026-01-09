@@ -6,7 +6,6 @@ using Avalonia;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.Objects.Core.Math;
-using FortnitePorting.ViewModels;
 
 namespace FortnitePorting.Models.Map;
 

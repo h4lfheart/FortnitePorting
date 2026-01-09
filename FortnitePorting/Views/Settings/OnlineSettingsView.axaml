@@ -2,44 +2,32 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
              xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
-             xmlns:enums="clr-namespace:CUE4Parse_Conversion.UEFormat.Enums;assembly=CUE4Parse-Conversion"
-             xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
              xmlns:settings="clr-namespace:FortnitePorting.ViewModels.Settings"
-             xmlns:services="clr-namespace:FortnitePorting.Services"
-             xmlns:versions="clr-namespace:CUE4Parse.UE4.Versions;assembly=CUE4Parse"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls.Settings"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FortnitePorting.Views.Settings.OnlineSettingsView"
              x:DataType="settings:OnlineSettingsViewModel">
     
     <ScrollViewer>
-        <StackPanel VerticalAlignment="Top" Margin="{ext:Space 1}">
-            <StackPanel.Styles>
-                <Style Selector="ui|SettingsExpander">
-                    <Setter Property="Margin" Value="{ext:Space 0, 0, 0, 1}"/>
-                </Style>
-                <Style Selector="TextBlock.SubtitleTextBlockStyle">
-                    <Setter Property="Margin" Value="{ext:Space 0, 0, 0, 1}"/>
-                </Style>
-            </StackPanel.Styles>
+        <StackPanel VerticalAlignment="Top" Margin="{ext:Space 1}" Spacing="{ext:Space 0, 0, 0, 1}">
             
-            <ui:SettingsExpander Header="Discord Integration" Description="Integrates with your discord account for use with online features.">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Discord Integration" Description="Integrates with your discord account for use with online features.">
+                <controls:SettingsItem.Footer>
                     <Grid>
                         <Button Content="Sign In" IsVisible="{Binding !SupaBase.IsLoggedIn}"
                                 Command="{Binding SupaBase.SignIn}"/>
                         <Button Content="Sign Out" IsVisible="{Binding SupaBase.IsLoggedIn}"
                                 Command="{Binding SupaBase.SignOut}"/>
                     </Grid>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
-            <ui:SettingsExpander Header="Discord Rich Presence" Description="Displays active Fortnite Porting information in your discord profile.">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Discord Rich Presence" Description="Displays active Fortnite Porting information in your discord profile.">
+                <controls:SettingsItem.Footer>
                     <ToggleSwitch IsChecked="{Binding UseDiscordRichPresence}"/>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
         </StackPanel>
     </ScrollViewer>

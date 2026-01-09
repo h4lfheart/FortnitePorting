@@ -1,12 +1,8 @@
-using System;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using ATL;
-using ATL.AudioData;
 using Avalonia.Media.Imaging;
-using Commons;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse_Conversion.Textures;
@@ -20,10 +16,8 @@ using FFMpegCore;
 using FortnitePorting.Application;
 using FortnitePorting.Extensions;
 using FortnitePorting.Services;
-using FortnitePorting.Shared;
 using FortnitePorting.Shared.Extensions;
 using Material.Icons;
-using SkiaSharp;
 
 namespace FortnitePorting.Models.Radio;
 
@@ -114,7 +108,7 @@ public partial class MusicPackItem : ObservableObject
     [RelayCommand]
     public async Task SaveAudio()
     {
-        var fileType = RadioVM.SoundFormat switch
+        var fileType = MusicVM.SoundFormat switch
         {
             ESoundFormat.MP3 => Globals.MP3FileType,
             ESoundFormat.WAV => Globals.WAVFileType,
@@ -123,7 +117,7 @@ public partial class MusicPackItem : ObservableObject
         };
         
         if (await App.SaveFileDialog(suggestedFileName: Id, fileType) is not { } path) return;
-        await SaveAudio(path, RadioVM.SoundFormat);
+        await SaveAudio(path, MusicVM.SoundFormat);
     }
 
     public async Task SaveAudio(string path, ESoundFormat soundFormat)
@@ -212,14 +206,14 @@ public partial class MusicPackItem : ObservableObject
     [RelayCommand(CanExecute = nameof(IsCustomPlaylist))]
     public async Task RemoveFromPlaylist()
     {
-        RadioVM.ActivePlaylist.MusicIDs.Remove(Id);
+        MusicVM.ActivePlaylist.MusicIDs.Remove(Id);
     }
 
     [RelayCommand(CanExecute = nameof(IsCustomPlaylist))]
     public async Task SetCoverForPlaylist()
     {
-        RadioVM.ActivePlaylist.PlaylistCover = AlternateCoverTexture.Decode()!.ToWriteableBitmap();
-        RadioVM.ActivePlaylist.PlaylistCoverPath = AlternateCoverTexture.GetPathName();
+        MusicVM.ActivePlaylist.PlaylistCover = AlternateCoverTexture.Decode()!.ToWriteableBitmap();
+        MusicVM.ActivePlaylist.PlaylistCoverPath = AlternateCoverTexture.GetPathName();
     }
 
     [RelayCommand]
@@ -230,6 +224,6 @@ public partial class MusicPackItem : ObservableObject
 
     private bool IsCustomPlaylist()
     {
-        return !RadioVM.ActivePlaylist.IsDefault;
+        return !MusicVM.ActivePlaylist.IsDefault;
     }
 }

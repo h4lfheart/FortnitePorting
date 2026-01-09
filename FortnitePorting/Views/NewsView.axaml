@@ -1,0 +1,200 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:responses="clr-namespace:FortnitePorting.Models.API.Responses"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions"
+             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+             xmlns:views="clr-namespace:FortnitePorting.Views"
+             xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:wrapPanel="clr-namespace:FortnitePorting.Controls.WrapPanel"
+             d:DesignHeight="720" d:DesignWidth="1160"
+             x:Class="FortnitePorting.Views.NewsView"
+             x:DataType="viewModels:NewsViewModel" ClipToBounds="False">
+    <ScrollViewer Margin="{ext:Space 2}" ClipToBounds="False">
+        <ScrollViewer.Styles>
+            <Style Selector="ScrollViewer /template/ ScrollContentPresenter">
+                <Setter Property="ClipToBounds" Value="False"/>
+            </Style>
+        </ScrollViewer.Styles>
+        
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="{ext:Space 2}"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
+            <Border Grid.Row="0" CornerRadius="16" ClipToBounds="False" BoxShadow="0 5 15 #60000000">
+                <Grid ClipToBounds="False">
+                    
+                    <Border ClipToBounds="True" CornerRadius="16">
+                        <Grid Background="Black">
+                            <Image asyncImageLoader:ImageLoader.Source="{Binding News[0].Image}"
+                                   Stretch="UniformToFill"
+                                   Height="300">
+                                <Image.OpacityMask>
+                                    <LinearGradientBrush StartPoint="0%, 0%" EndPoint="50%, 0%">
+                                        <GradientStops>
+                                            <GradientStop Color="#33000000" Offset="0"/> 
+                                            <GradientStop Color="#FF000000" Offset="1"/> 
+                                        </GradientStops>
+                                    </LinearGradientBrush>
+                                </Image.OpacityMask>
+                            </Image>
+                        </Grid>
+                    </Border>
+                    
+                    
+                    <Grid Margin="{ext:Space 3}" DataContext="{Binding News[0]}" VerticalAlignment="Bottom">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="{ext:Space 1.5}"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="{ext:Space 1.5}"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="{ext:Space 1.5}"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        
+                        <Border Grid.Row="0"
+                                CornerRadius="12" 
+                                Padding="{ext:Space 1, 0.5}"
+                                HorizontalAlignment="Left" ClipToBounds="False">
+                            <Border.BoxShadow>
+                                inset 0 1 2 -1 #50ffffff,
+                                inset 0 -1 2 -2 #50ffffff,
+                                0 4 8 #20000000,
+                                0 8 12 #10000000
+                            </Border.BoxShadow>
+                            
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
+                                    <GradientStops>
+                                        <GradientStop Color="#8141db" Offset="0"/>
+                                        <GradientStop Color="#953bf8" Offset="1"/>
+                                    </GradientStops>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            
+                            <TextBlock Text="FEATURED" 
+                                       FontFamily="{StaticResource SFTextSemiBold}"
+                                       FontSize="12"
+                                       Foreground="White"/>
+                        </Border>
+                        
+                        <TextBlock Grid.Row="2" Text="{Binding Title}" 
+                                   FontFamily="{StaticResource SFTextBold}"
+                                   FontSize="28"
+                                   TextWrapping="Wrap"/>
+                        
+                        <TextBlock Grid.Row="4" Text="{Binding SubTitle}" 
+                                   FontFamily="{StaticResource SFTextRegular}"
+                                   FontSize="16"/>
+
+                        <TextBlock Grid.Row="6" Text="{Binding Date, StringFormat='{}{0:MMM dd}'}" 
+                                   FontFamily="{StaticResource SFTextRegular}"
+                                   Classes="TextFillColorSecondaryBrush"
+                                   FontSize="13"/>
+                    </Grid>
+
+                </Grid>
+            </Border>
+            
+            <ItemsControl Grid.Row="2" ItemsSource="{Binding News}">
+                <ItemsControl.DataTemplates>
+                    <DataTemplate DataType="responses:NewsResponse">
+                        <controls:ContentCard Margin="{ext:Space 1}"
+                                              Width="380">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="{ext:Space 2}"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="{ext:Space 2}"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="{ext:Space 2}"/>
+                                </Grid.RowDefinitions>
+                                
+                                <Border Grid.Row="0" 
+                                        CornerRadius="16 16 0 0"
+                                        ClipToBounds="True"
+                                        Height="150">
+                                    <Image asyncImageLoader:ImageLoader.Source="{Binding Image}"
+                                           Stretch="UniformToFill"/>
+                                </Border>
+
+                                <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Margin="{ext:Space 2, 0}">
+                                    
+                                    <Border Grid.Column="0"
+                                            CornerRadius="12" 
+                                            Padding="{ext:Space 1, 0.5}"
+                                            HorizontalAlignment="Left" ClipToBounds="False">
+                            
+                                        <Border.Background>
+                                            <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
+                                                <GradientStops>
+                                                    <GradientStop Color="#8141db" Offset="0"/>
+                                                    <GradientStop Color="#953bf8" Offset="1"/>
+                                                </GradientStops>
+                                            </LinearGradientBrush>
+                                        </Border.Background>
+                            
+                                        <TextBlock Text="{Binding Tag, Converter={StaticResource StringToUppercase}}" 
+                                                   FontFamily="{StaticResource SFTextSemiBold}"
+                                                   FontSize="12"
+                                                   Foreground="White"/>
+                                    </Border>
+                                    
+                                        
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding Date, StringFormat='MMM dd'}" 
+                                               FontFamily="{StaticResource SFTextRegular}"
+                                               FontSize="12"
+                                               Classes="TextFillColorSecondaryBrush"
+                                               VerticalAlignment="Center"/>
+                                </Grid>
+                                
+                                <Grid Grid.Row="4" Margin="{ext:Space 2, 0}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="{ext:Space 1}"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="{ext:Space 2}"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    
+                                    <TextBlock Grid.Row="0" Text="{Binding Title}" 
+                                               FontFamily="{StaticResource SFTextSemiBold}"
+                                               FontSize="16"/>
+                                    
+                                    <TextBlock Grid.Row="2" Text="{Binding SubTitle}" 
+                                               FontFamily="{StaticResource SFTextRegular}"
+                                               Classes="TextFillColorSecondaryBrush"
+                                               TextWrapping="Wrap"
+                                               MaxLines="3"/>
+
+                                    <Button Grid.Row="4" HorizontalAlignment="Stretch"
+                                            Command="{Binding $parent[views:NewsView].((viewModels:NewsViewModel)DataContext).OpenNews}" 
+                                            CommandParameter="{Binding}">
+                                        <controls:IconText Icon="Text" Text="Read More" IconSize="20"/>
+                                    </Button>
+
+                                </Grid>
+
+                            </Grid>
+                        </controls:ContentCard>
+                    </DataTemplate>
+                </ItemsControl.DataTemplates>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <wrapPanel:VirtualizingWrapPanel DistributeEvenly="True" CenterLastLine="True"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+            </ItemsControl>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

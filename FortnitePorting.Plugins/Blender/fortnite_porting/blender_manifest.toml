@@ -4,8 +4,8 @@ type = "add-on"
 license = ["SPDX:GPL-3.0-or-later"]
 
 id = "fortnite_porting"
-version = "4.0.0"
-blender_version_min = "4.2.0"
+version = "4.0.8"
+blender_version_min = "5.0.0"
 name = "Fortnite Porting"
 tagline = "Import Server for Fortnite Porting"
 maintainer = "https://github.com/h4lfheart"

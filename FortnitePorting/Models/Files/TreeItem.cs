@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
@@ -8,13 +7,15 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.Utils;
 using FortnitePorting.Extensions;
+using Serilog;
 
 namespace FortnitePorting.Models.Files;
 
 public partial class TreeItem : ObservableObject
 {
-    [ObservableProperty] private string _name;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(NameWithoutExtension))] private string _name;
     public string NameWithoutExtension => Name.SubstringBefore(".");
+    public string Extension => Name.SubstringAfterLast(".");
     
     [ObservableProperty] private string _filePath;
     [ObservableProperty] private ENodeType _type;
@@ -23,8 +24,13 @@ public partial class TreeItem : ObservableObject
     [ObservableProperty] private bool _expanded;
     
     [ObservableProperty] private Bitmap? _fileBitmap;
+    [ObservableProperty] private string? _exportType;
 
     [ObservableProperty] private TreeItem? _parent;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(TotalChildCount))] private int _fileChildCount = 0;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(TotalChildCount))] private int _folderChildCount = 0;
+
+    public int TotalChildCount => FileChildCount + FolderChildCount;
     
     [ObservableProperty] private ObservableCollection<TreeItem> _folderChildren = [];
     
@@ -48,6 +54,11 @@ public partial class TreeItem : ObservableObject
         _childrenLookup[name] = child;
         _isSorted = false;
         _childrenLoaded = false;
+
+        if (child.Type is ENodeType.Folder)
+            FolderChildCount++;
+        else
+            FileChildCount++;
     }
 
     public bool TryGetChild(string name, out TreeItem child)
@@ -61,7 +72,7 @@ public partial class TreeItem : ObservableObject
         return _childrenLookup.Values;
     }
 
-    private void EnsureChildrenSorted()
+    public void EnsureChildrenSorted()
     {
         if (!_isSorted)
         {
@@ -69,7 +80,6 @@ public partial class TreeItem : ObservableObject
                 .OrderByDescending(item => item.Value.Type == ENodeType.Folder)
                 .ThenBy(item => item.Value.Name, new CustomComparer<string>(ComparisonExtensions.CompareNatural))
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-            
             _isSorted = true;
         }
 
@@ -78,7 +88,7 @@ public partial class TreeItem : ObservableObject
             FolderChildren = [.._childrenLookup.Values
                 .Where(x => x.Type == ENodeType.Folder)
             ];
-
+        
             _childrenLoaded = true;
         }
     }

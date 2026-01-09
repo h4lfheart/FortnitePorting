@@ -1,0 +1,345 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions"
+             xmlns:viewmodels="clr-namespace:FortnitePorting.ViewModels.Leaderboard"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:loading="clr-namespace:FortnitePorting.Controls.Loading"
+             xmlns:leaderboard="clr-namespace:FortnitePorting.Models.Leaderboard"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="FortnitePorting.Views.Leaderboard.LeaderboardPersonalView"
+             x:DataType="viewmodels:LeaderboardPersonalViewModel">
+    <ScrollViewer>
+        <Grid Margin="{ext:Space 2}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="{ext:Space 2}"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="{ext:Space 2}"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="{ext:Space 2}"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            
+            <Grid Grid.Row="0" ColumnDefinitions="* Auto">
+                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                    <TextBlock Text="Personal Stats" 
+                               Classes="TitleTextBlockStyle"
+                               Margin="{ext:Space 0, 0, 0, 0.5}"/>
+                    
+                    <TextBlock Text="{Binding SupaBase.UserInfo.UserName, FallbackValue='Anonymous'}" 
+                               Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"/>
+                </StackPanel>
+                
+                <Border Grid.Column="1" 
+                        CornerRadius="40" 
+                        ClipToBounds="True" 
+                        Width="80" Height="80"
+                        HorizontalAlignment="Center" 
+                        VerticalAlignment="Center">
+                    <Image asyncImageLoader:ImageLoader.Source="{Binding SupaBase.UserInfo.AvatarUrl, FallbackValue='https://cdn.fortniteporting.app/images/avatar/default.png'}"/>
+                </Border>
+            </Grid>
+
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="{ext:Space 2}"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="{ext:Space 2}"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="{ext:Space 2}"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <controls:ContentCard Grid.Column="0" Padding="{ext:Space 2}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="{ext:Space 1}"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="{ext:Space 1}"
+                                    HorizontalAlignment="Center">
+                            
+                            <avalonia:MaterialIcon Kind="Fire" VerticalAlignment="Center"
+                                                   Width="24" Height="24">
+                                <avalonia:MaterialIcon.Foreground>
+                                    <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                                        <GradientStop Color="Yellow" Offset="0"/>
+                                        <GradientStop Color="Orange" Offset="0.5"/>
+                                        <GradientStop Color="Red" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </avalonia:MaterialIcon.Foreground>
+                            </avalonia:MaterialIcon>
+                            
+                            <TextBlock Text="{Binding Stats.CurrentStreak}" 
+                                Classes="SubtitleTextBlockStyle"
+                                FontSize="22"
+                                VerticalAlignment="Center"/>
+                        </StackPanel>
+                     
+                        <StackPanel Grid.Row="2" HorizontalAlignment="Center">
+                            <TextBlock Text="Current Streak" HorizontalAlignment="Center"
+                                       Classes="BodyTextBlockStyle"/>
+                            <TextBlock Text="Days in a Row"  HorizontalAlignment="Center"
+                                       Classes="CaptionTextBlockStyle TextFillColorSecondaryBrush"/>
+                        </StackPanel>
+                    </Grid>
+                </controls:ContentCard>
+
+                <controls:ContentCard Grid.Column="2" Padding="{ext:Space 2}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="{ext:Space 1}"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="{ext:Space 1}"
+                                    HorizontalAlignment="Center">
+                            
+                            <avalonia:MaterialIcon Kind="Download" Width="24" Height="24" VerticalAlignment="Center">
+                                <avalonia:MaterialIcon.Foreground>
+                                    <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                                        <GradientStop Color="#6CFF73" Offset="0"/>
+                                        <GradientStop Color="#2E7D32" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </avalonia:MaterialIcon.Foreground>
+                            </avalonia:MaterialIcon>
+
+                            
+                            <TextBlock Text="{Binding Stats.TotalExports}" 
+                                       Classes="SubtitleTextBlockStyle"
+                                       FontSize="22"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                     
+                        <StackPanel Grid.Row="2" HorizontalAlignment="Center">
+                            <TextBlock Text="Total Exports" HorizontalAlignment="Center"
+                                       Classes="BodyTextBlockStyle"/>
+                            <TextBlock Text="Export Instances"  HorizontalAlignment="Center"
+                                       Classes="CaptionTextBlockStyle TextFillColorSecondaryBrush"/>
+                        </StackPanel>
+                    </Grid>
+                </controls:ContentCard>
+
+                <controls:ContentCard Grid.Column="4" Padding="{ext:Space 2}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="{ext:Space 1}"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="{ext:Space 1}"
+                                    HorizontalAlignment="Center">
+                            
+                            <avalonia:MaterialIcon Kind="Folder" VerticalAlignment="Center"
+                                                   Width="24" Height="24">
+                                <avalonia:MaterialIcon.Foreground>
+                                    <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                                        <GradientStop Color="#4FC3F7" Offset="0"/>
+                                        <GradientStop Color="#0288D1" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </avalonia:MaterialIcon.Foreground>
+                            </avalonia:MaterialIcon>
+                            
+                            <TextBlock Text="{Binding Stats.TotalAssets}" 
+                                       Classes="SubtitleTextBlockStyle"
+                                       FontSize="22"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                     
+                        <StackPanel Grid.Row="2" HorizontalAlignment="Center">
+                            <TextBlock Text="Total Assets" HorizontalAlignment="Center"
+                                       Classes="BodyTextBlockStyle"/>
+                            <TextBlock Text="Files Exported"  HorizontalAlignment="Center"
+                                       Classes="CaptionTextBlockStyle TextFillColorSecondaryBrush"/>
+                        </StackPanel>
+                    </Grid>
+                </controls:ContentCard>
+
+                <controls:ContentCard Grid.Column="6" Padding="{ext:Space 2}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="{ext:Space 1}"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="{ext:Space 1}"
+                                    HorizontalAlignment="Center">
+                            
+                            <avalonia:MaterialIcon Kind="Poll" VerticalAlignment="Center"
+                                                   Width="24" Height="24">
+                                <avalonia:MaterialIcon.Foreground>
+                                    <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                                        <GradientStop Color="#b565ff" Offset="0"/>
+                                        <GradientStop Color="#953bf8" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </avalonia:MaterialIcon.Foreground>
+                            </avalonia:MaterialIcon>
+                            
+                            <TextBlock Text="{Binding Stats.TotalXP}" 
+                                       TextTrimming="CharacterEllipsis"
+                                       Classes="SubtitleTextBlockStyle"
+                                       FontSize="22"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                     
+                        <StackPanel Grid.Row="2" HorizontalAlignment="Center">
+                            <TextBlock Text="Total XP" HorizontalAlignment="Center"
+                                       Classes="BodyTextBlockStyle"/>
+                            <TextBlock Text="All-Time" HorizontalAlignment="Center"
+                                       Classes="CaptionTextBlockStyle TextFillColorSecondaryBrush"/>
+                        </StackPanel>
+                    </Grid>
+                </controls:ContentCard>
+            </Grid>
+
+            <ItemsControl Grid.Row="4" ItemsSource="{Binding Items}" ClipToBounds="False">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <controls:ContentCard
+                                Padding="{ext:Space 1}">
+                            
+                            <Grid ColumnDefinitions="Auto Auto * Auto">
+                                <Grid Grid.Column="0" 
+                                      Width="40" Height="40"
+                                      Margin="{ext:Space 0, 0, 1, 0}">
+                                    <Border CornerRadius="8"
+                                            HorizontalAlignment="Stretch"
+                                            VerticalAlignment="Stretch"
+                                            Tag="{Binding Ranking}">
+                                        <Border.BoxShadow>
+                                            inset 0 1 2 -1 #50ffffff,
+                                            inset 0 -1 2 -2 #50ffffff,
+                                            0 4 8 #20000000,
+                                            0 8 12 #10000000
+                                        </Border.BoxShadow>
+                                        <Border.Styles>
+                                            <Style Selector="Border" x:DataType="leaderboard:LeaderboardExport">
+                                                <Setter Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}"/>
+                                            </Style>
+                                            <Style Selector="Border[Tag=1]" x:DataType="leaderboard:LeaderboardExport">
+                                                <Setter Property="Background" Value="#FFD700"/>
+                                            </Style>
+                                            <Style Selector="Border[Tag=2]" x:DataType="leaderboard:LeaderboardExport">
+                                                <Setter Property="Background" Value="#C0C0C0"/>
+                                            </Style>
+                                            <Style Selector="Border[Tag=3]" x:DataType="leaderboard:LeaderboardExport">
+                                                <Setter Property="Background" Value="#CD7F32"/>
+                                            </Style>
+                                        </Border.Styles>
+                                    </Border>
+                                    
+                                    <TextBlock Text="{Binding Ranking}" 
+                                               Classes="BodyTextBlockStyle"
+                                               FontWeight="Bold"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Tag="{Binding Ranking}">
+                                        <TextBlock.Styles>
+                                            <Style Selector="TextBlock" x:DataType="leaderboard:LeaderboardExport">
+                                                <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}"/>
+                                            </Style>
+                                            <Style Selector="TextBlock[Tag=1]" x:DataType="leaderboard:LeaderboardExport">
+                                                <Setter Property="Foreground" Value="#000000"/>
+                                            </Style>
+                                            <Style Selector="TextBlock[Tag=2]" x:DataType="leaderboard:LeaderboardExport">
+                                                <Setter Property="Foreground" Value="#000000"/>
+                                            </Style>
+                                            <Style Selector="TextBlock[Tag=3]" x:DataType="leaderboard:LeaderboardExport">
+                                                <Setter Property="Foreground" Value="#000000"/>
+                                            </Style>
+                                        </TextBlock.Styles>
+                                    </TextBlock>
+                                </Grid>
+
+                                <Border Grid.Column="1" 
+                                        CornerRadius="8" 
+                                        ClipToBounds="True" 
+                                        Width="40" Height="40"
+                                        HorizontalAlignment="Center" 
+                                        VerticalAlignment="Center"
+                                        Background="Transparent"
+                                        Margin="{ext:Space 0, 0, 1, 0}">
+                                    <Image Source="{Binding ExportBitmap}"/>
+                                </Border>
+
+                                <Grid Grid.Column="2" 
+                                      VerticalAlignment="Center" 
+                                      RowDefinitions="Auto Auto">
+                                    <TextBlock Grid.Row="0" 
+                                               Text="{Binding ObjectName}" 
+                                               Classes="BodyTextBlockStyle"
+                                               TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Grid.Row="1" 
+                                               Text="{Binding ID}" 
+                                               Classes="CaptionTextBlockStyle TextFillColorSecondaryBrush"
+                                               TextTrimming="CharacterEllipsis"/>
+                                </Grid>
+
+                                <Grid Grid.Column="3" 
+                                      VerticalAlignment="Center"
+                                      Margin="{ext:Space 0, 0, 1, 0}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Grid.Row="0" 
+                                               Text="{Binding ExportCount, StringFormat=N0}" 
+                                               Classes="SubtitleTextBlockStyle"
+                                               HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Row="1" 
+                                               Text="Exports" 
+                                               Classes="CaptionTextBlockStyle TextFillColorSecondaryBrush"
+                                               HorizontalAlignment="Right"/>
+                                </Grid>
+                            </Grid>
+                        </controls:ContentCard>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Spacing="{ext:Space 1}"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+
+            <Grid Grid.Row="6" 
+                  ColumnDefinitions="Auto * Auto"
+                  IsVisible="{Binding !!Items.Count}">
+                
+                <Button Grid.Column="0" 
+                        Padding="{ext:Space 1, 0.75, 1.5, 0.75}"
+                        Command="{Binding PreviousPageCommand}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <avalonia:MaterialIcon Kind="ChevronLeft" Width="16" Height="16"/>
+                        <TextBlock Text="Previous"/>
+                    </StackPanel>
+                </Button>
+
+                <StackPanel Grid.Column="1" 
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Spacing="8">
+                    <TextBlock Text="{Binding PageInfo, FallbackValue='Page 1 of 1'}"
+                               Classes="CaptionTextBlockStyle TextFillColorSecondaryBrush"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <Button Grid.Column="2" 
+                        Padding="{ext:Space 1.5, 0.75, 1, 0.75}"
+                        Command="{Binding NextPageCommand}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="Next"/>
+                        <avalonia:MaterialIcon Kind="ChevronRight" Width="16" Height="16"/>
+                    </StackPanel>
+                </Button>
+            </Grid>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

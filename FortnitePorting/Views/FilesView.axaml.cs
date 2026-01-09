@@ -1,16 +1,11 @@
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml;
-using CommunityToolkit.Mvvm.ComponentModel;
 using FluentAvalonia.UI.Controls;
+using FortnitePorting.Controls.WrapPanel;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Files;
 using FortnitePorting.Services;
-using FortnitePorting.Shared.Extensions;
 using FortnitePorting.ViewModels;
-using Serilog;
 
 namespace FortnitePorting.Views;
 
@@ -26,7 +21,10 @@ public partial class FilesView : ViewBase<FilesViewModel>
         if (e.Key != Key.Enter) return;
         if (sender is not TextBox textBox) return;
 
-        ViewModel.SearchFilter = textBox.Text ?? string.Empty;
+        if (ViewModel.UseFlatView)
+            ViewModel.FlatSearchFilter = textBox.Text ?? string.Empty;
+        else
+            ViewModel.FileSearchFilter = textBox.Text ?? string.Empty;
     }
 
     private void OnFileItemDoubleTapped(object? sender, TappedEventArgs e)
@@ -81,5 +79,13 @@ public partial class FilesView : ViewBase<FilesViewModel>
         
         ViewModel.FileViewJumpTo(item.Path);
     }
-    
+
+    private void OnItemRealized(object? sender, ItemRealizedEventArgs e)
+    {
+        if (e.Item is not TreeItem item) return;
+        if (item.FileBitmap is not null) return;
+        
+        item.EnsureChildrenSorted();
+        ViewModel.RealizeFileData(ref item);
+    }
 }

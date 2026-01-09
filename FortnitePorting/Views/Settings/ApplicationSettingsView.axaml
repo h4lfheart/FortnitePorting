@@ -4,28 +4,17 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
              xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
-             xmlns:enums="clr-namespace:CUE4Parse_Conversion.UEFormat.Enums;assembly=CUE4Parse-Conversion"
-             xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
              xmlns:settings="clr-namespace:FortnitePorting.ViewModels.Settings"
-             xmlns:versions="clr-namespace:CUE4Parse.UE4.Versions;assembly=CUE4Parse"
              xmlns:wave="clr-namespace:NAudio.Wave;assembly=NAudio.Core"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls.Settings"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FortnitePorting.Views.Settings.ApplicationSettingsView"
              x:DataType="settings:ApplicationSettingsViewModel">
     
     <ScrollViewer>
-        <StackPanel VerticalAlignment="Top" Margin="{ext:Space 1}">
-            <StackPanel.Styles>
-                <Style Selector="ui|SettingsExpander">
-                    <Setter Property="Margin" Value="{ext:Space 0, 0, 0, 1}"/>
-                </Style>
-                <Style Selector="TextBlock.SubtitleTextBlockStyle">
-                    <Setter Property="Margin" Value="{ext:Space 0, 0, 0, 1}"/>
-                </Style>
-            </StackPanel.Styles>
-            
-            <ui:SettingsExpander Header="Application Data Path" Description="The path in which all saved application data will default to.">
-                <ui:SettingsExpander.Footer>
+        <StackPanel VerticalAlignment="Top" Margin="{ext:Space 1}" Spacing="{ext:Space 0, 0, 0, 1}">
+            <controls:SettingsItem Title="Application Data Path" Description="The path in which all saved application data will default to.">
+                <controls:SettingsItem.Footer>
                     <StackPanel Orientation="Horizontal">
                         <CheckBox IsChecked="{Binding UseAppDataPath}"/>
                         <TextBox Text="{Binding AppDataPath}" Watermark="Ex. D:/Apps/FortnitePorting" IsEnabled="{Binding UseAppDataPath}"/>
@@ -33,11 +22,11 @@
                             <ui:SymbolIcon Symbol="Folder"/>
                         </Button>
                     </StackPanel>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
-            <ui:SettingsExpander Header="Assets Path" Description="The path in which all assets will export to.">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Assets Path" Description="The path in which all assets will export to.">
+                <controls:SettingsItem.Footer>
                     <StackPanel Orientation="Horizontal">
                         <CheckBox IsChecked="{Binding UseAssetsPath}"/>
                         <TextBox Text="{Binding AssetsPath}" Watermark="Ex. D:/Art/FortnitePorting/Assets" IsEnabled="{Binding UseAssetsPath}"/>
@@ -45,12 +34,12 @@
                             <ui:SymbolIcon Symbol="Folder"/>
                         </Button>
                     </StackPanel>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
             
-            <ui:SettingsExpander Header="Portle Path" Description="The executable path for your Portle version manager.">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Portle Path" Description="The executable path for your Portle version manager.">
+                <controls:SettingsItem.Footer>
                     <StackPanel Orientation="Horizontal">
                         <CheckBox IsChecked="{Binding UsePortlePath}"/>
                         <TextBox Text="{Binding PortleExecutablePath}" Watermark="Ex. D:/Art/FortnitePorting/Portle.exe" IsEnabled="{Binding UsePortlePath}"/>
@@ -58,14 +47,14 @@
                             <ui:SymbolIcon Symbol="Folder"/>
                         </Button>
                     </StackPanel>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
-            <ui:SettingsExpander Header="Audio Device" Description="The device that should be used for audio playback.">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Audio Device" Description="The device that should be used for audio playback.">
+                <controls:SettingsItem.Footer>
                     <ComboBox Grid.Row="0" Grid.Column="4" ItemsSource="{Binding AudioDevices}" 
                               SelectedIndex="{Binding AudioDeviceIndex, Mode=TwoWay}"
-                              HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{ext:Space 2, 1, 2, 0}">
+                              HorizontalAlignment="Center" VerticalAlignment="Center">
                         <ComboBox.ItemTemplate>
                             <DataTemplate DataType="wave:DirectSoundDeviceInfo">
                                 <TextBlock Text="{Binding Description}"/>
@@ -73,17 +62,17 @@
                         </ComboBox.ItemTemplate>
                     </ComboBox>
 
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
-            <ui:SettingsExpander Header="Tab Transitions" Description="Toggles the transition that plays when switching between tabs.">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Tab Transitions" Description="Toggles the transition that plays when switching between tabs.">
+                <controls:SettingsItem.Footer>
                     <ToggleSwitch IsChecked="{Binding UseTabTransitions}"/>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
-            <ui:SettingsExpander Header="Asset Scale" Description="The scale multiplier for asset icons in the assets tab.">
-                <ui:SettingsExpander.Footer>
+            <controls:SettingsItem Title="Asset Scale" Description="The scale multiplier for asset icons in the assets tab.">
+                <controls:SettingsItem.Footer>
                     <StackPanel Orientation="Horizontal">
                         <Slider Value="{Binding AssetScale}" MinWidth="200"
                                 Minimum="0.5" Maximum="4"
@@ -91,8 +80,8 @@
                         <TextBlock Text="{Binding AssetScale, StringFormat=N2}" 
                                    VerticalAlignment="Center" Margin="{ext:Space 1, 0, 0, 0}"/>
                     </StackPanel>
-                </ui:SettingsExpander.Footer>
-            </ui:SettingsExpander>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

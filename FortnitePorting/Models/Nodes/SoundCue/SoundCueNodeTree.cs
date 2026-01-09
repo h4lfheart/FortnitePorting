@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
@@ -12,7 +11,6 @@ using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using DynamicData;
 using FortnitePorting.Extensions;
-using Newtonsoft.Json;
 
 namespace FortnitePorting.Models.Nodes.SoundCue;
 
@@ -112,10 +110,7 @@ public class SoundCueNodeTree : NodeTree
         foreach (var (nodeName, position) in nodePositions)
         {
             var node = NodeCache.Items.FirstOrDefault(n => n.ExpressionName == nodeName);
-            if (node != null)
-            {
-                node.Location = new Point(position.X, position.Y + 300);
-            }
+            node?.Location = new Point(position.X, position.Y + 300);
         }
     }
     

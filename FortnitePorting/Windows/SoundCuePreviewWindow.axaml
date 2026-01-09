@@ -1,6 +1,5 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
         xmlns:ui="using:FluentAvalonia.UI.Controls"
         xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
         xmlns:windowModels="clr-namespace:FortnitePorting.WindowModels"
@@ -14,9 +13,8 @@
         xmlns:soundCue="clr-namespace:FortnitePorting.Models.Nodes.SoundCue"
         x:Class="FortnitePorting.Windows.SoundCuePreviewWindow"
         x:DataType="windowModels:SoundCuePreviewWindowModel"
-        Width="1280" Height="720" RequestedThemeVariant="Dark" FontFamily="Segoe UI" 
-        TransparencyLevelHint="{Binding Settings.Theme.TransparencyHints}" Background="{Binding Settings.Theme.BackgroundBrush}"
-        ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="NoChrome"
+        Width="1280" Height="720" RequestedThemeVariant="Dark" Background="#0e0e0e" TransparencyLevelHint="Mica"
+        ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="NoChrome" FontFamily="{StaticResource SFTextRegular}"
         WindowStartupLocation="CenterScreen" ClosingBehavior="OwnerAndChildWindows" ExtendClientAreaTitleBarHeightHint="35"
         Icon="/Assets/LogoRebrand.ico"
         Title="Sound Cue Viewer">
@@ -42,7 +40,7 @@
                       Drawing="{StaticResource LargeGridGeometry}" />
     </Window.Resources>
     <Grid RowDefinitions="35, *" Margin="{Binding $parent[Window].OffScreenMargin}">
-        <Grid Grid.Row="0" Background="#2F000000" HorizontalAlignment="Stretch" PointerPressed="OnPointerPressedUpperBar">
+        <Grid Grid.Row="0" HorizontalAlignment="Stretch" PointerPressed="OnPointerPressedUpperBar">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -57,7 +55,7 @@
                               Width="20" Height="20" 
                               RenderOptions.BitmapInterpolationMode="HighQuality" RenderOptions.EdgeMode="Antialias"/>
 
-                <TextBlock Grid.Column="2" Text="Sound Cue Viewer" FontWeight="SemiBold" FontSize="16"
+                <TextBlock Grid.Column="2" Text="Sound Cue Viewer" FontFamily="{StaticResource SFTextSemiBold}" FontSize="14"
                            HorizontalAlignment="Center" VerticalAlignment="Center" />
             </Grid>
             
@@ -80,6 +78,7 @@
         <Grid Grid.Row="1" RowDefinitions="Auto, *">
             <ui:TabView Grid.Row="0" IsAddTabButtonVisible="False" SelectionChanged="OnTabSelectionChanged" TabCloseRequested="OnTabClosed"
                         TabItems="{Binding Trees}" TabWidthMode="Compact"
+                        Margin="{ext:Space 0, 0, 0, 1}"
                         SelectedItem="{Binding SelectedTree, Mode=TwoWay}">
                 <ui:TabView.TabItemTemplate>
                     <DataTemplate x:DataType="soundCue:SoundCueNodeTree">
@@ -96,255 +95,243 @@
                 </ui:TabView.Styles>
             </ui:TabView>
             
-            <Grid Grid.Row="1" Background="#1C000000">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="4*"/>
-                    <ColumnDefinition Width="{ext:Space 0.5}"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                
-                <Grid Grid.Column="2">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="{ext:Space 1}"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
+            
+            <Border Grid.Row="1" Background="#0a0a0a" CornerRadius="0"
+                    BorderThickness="0 2 0 0" BorderBrush="#212121">
+                <Grid Margin="{ext:Space 1}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="4*"/>
+                        <ColumnDefinition Width="{ext:Space 1}"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
                     
                     
-                    <Expander Grid.Row="0" Margin="{ext:Space 0, 1, 1, 0}"
-                              DataContext="{Binding SelectedTree.SelectedNode}" 
-                              Background="#0DFFFFFF"
-                              IsExpanded="True" CornerRadius="8" 
-                              IsVisible="{Binding Converter={x:Static ObjectConverters.IsNotNull}}">
-                        <Expander.Styles>
-                            <Style Selector="Expander /template/ ContentPresenter#PART_ContentPresenter">
-                                <Setter Property="Margin" Value="{ext:Space 1.5}"/>
-                            </Style>
-                            
-                            <Style Selector="Expander /template/ Border#Root">
-                                <Setter Property="Background" Value="#0DFFFFFF"/>
-                                <Setter Property="Padding" Value="{ext:Space 1.5, 0, 0, 0}"/>
-                            </Style>
-                        </Expander.Styles>
-                        <Expander.Header>
-                            <TextBlock Text="{Binding ExpressionDisplayName, Converter={StaticResource UnrealCaseString}}" 
-                                       Classes="CaptionTextBlockStyle" FontWeight="Bold" TextWrapping="Wrap"/>
-                        </Expander.Header>
-                        <ItemsControl ItemsSource="{Binding Properties}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid Margin="{ext:Space 0, 0.5}" ColumnDefinitions="*,*">
-                                        <TextBlock Grid.Column="0" Text="{Binding Key}"
-                                                   Classes="CaptionTextBlockStyle" FontWeight="Bold" TextTrimming="CharacterEllipsis"
-                                                   HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                                    
-                                        <ContentControl Grid.Column="1" Content="{Binding Value}"
-                                                          HorizontalAlignment="Right" VerticalAlignment="Center">
-                                            <ContentControl.DataTemplates>
-                                                <DataTemplate DataType="objects:FPackageIndex">
-                                                    <Button Content="{avalonia:MaterialIconExt Folder}" ToolTip.Tip="Navigate To"
-                                                            Command="{Binding $parent[windows:SoundCuePreviewWindow].WindowModel.NavigateTo}"
-                                                            CommandParameter="{Binding}"/>
-                                                </DataTemplate>
-                                                
-                                                <DataTemplate DataType="objects:FSoftObjectPath">
-                                                    <Button Content="{avalonia:MaterialIconExt Folder}" ToolTip.Tip="Navigate To"
-                                                            Command="{Binding $parent[windows:SoundCuePreviewWindow].WindowModel.NavigateToPath}"
-                                                            CommandParameter="{Binding}"/>
-                                                </DataTemplate>
-                                                
-                                                <DataTemplate DataType="objects:FName">
-                                                    <TextBlock Text="{Binding Text}" Classes="CaptionTextBlockStyle"/>
-                                                </DataTemplate>
-                                                
-                                                <DataTemplate DataType="sys:Single">
-                                                    <ui:NumberBox Value="{Binding }"/>
-                                                </DataTemplate>
-                                                
-                                                <DataTemplate DataType="nodes:JsonPropertyContainer">
-                                                    <DropDownButton>
-                                                        <DropDownButton.Flyout>
-                                                            <Flyout>
-                                                                <TextBox IsReadOnly="True" Text="{Binding JsonData}"/>
-                                                            </Flyout>
-                                                        </DropDownButton.Flyout>
-                                                        
-                                                        <avalonia:MaterialIcon Kind="CodeJson"/>
-                                                    </DropDownButton>
-                                                </DataTemplate>
-                                                
-                                                <DataTemplate DataType="sys:Object">
-                                                    <TextBlock Text="{Binding}" Classes="CaptionTextBlockStyle"/>
-                                                </DataTemplate>
-                                            </ContentControl.DataTemplates>
-                                        </ContentControl>
-                                    </Grid>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </Expander>
-                    
-                    <GridSplitter Grid.Row="1" Background="Transparent"/>
-                    
-                    <Grid Grid.Row="2" Margin="{ext:Space 0, 0, 1, 1}">
+                    <Grid Grid.Column="2">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="{ext:Space 1}"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
-                        
+                            
                         <TextBox Grid.Row="0" Text="{Binding SelectedTree.SearchFilter}" Watermark="Search..."/>
-                        
-                        <controls:FABorder Grid.Row="2">
-                            <ListBox ItemsSource="{Binding SelectedTree.Nodes}" SelectionMode="Single" SelectionChanged="OnSearchSelectionChanged">
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <StackPanel Margin="{ext:Space 0, 1}">
-                                            <TextBlock Text="{Binding ExpressionDisplayName, Converter={StaticResource UnrealCaseString}}" Classes="CaptionTextBlockStyle"/>
-                                            <TextBlock Text="{Binding Label}" Classes="CaptionTextBlockStyle TextFillColorTertiaryBrush"/>
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </ListBox.ItemTemplate>
-                            </ListBox>
-                        </controls:FABorder>
-                    </Grid>
-                </Grid>
-                
-                <GridSplitter Grid.Column="1" Background="Transparent"/>
-                
-                <controls:FABorder Grid.Column="0" Grid.ColumnSpan="2" ClipToBounds="True" Margin="{ext:Space 1}" CornerRadius="8">
-                    <Grid>
-                        <Grid Background="#9F262626" ZIndex="-2"/>
-                        
-                        <nodify:NodifyEditor x:Name="Editor" CornerRadius="8"
-                                             DataContext="{Binding SelectedTree}"
-                                             ItemsSource="{Binding NodeCache.Items}"
-                                             Connections="{Binding Connections}"
-                                             SelectedItem="{Binding SelectedNode, Mode=TwoWay}"
-                                             CanSelectMultipleItems="False"
-                                             Background="Transparent" ViewportZoom="1" MaxViewportZoom="3"
-                                             KeyDown="OnEditorKeyDown">
-                            <nodify:NodifyEditor.ItemTemplate>
+                            
+                        <ListBox Grid.Row="2" ItemsSource="{Binding SelectedTree.Nodes}"
+                                 SelectedItem="{Binding SelectedTree.SelectedNode, Mode=TwoWay}"
+                                 SelectionMode="Single" SelectionChanged="OnSearchSelectionChanged">
+                            <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                   <ContentControl Content="{Binding}">
-                                       <ContentControl.DataTemplates>
-                                           
-                                           <DataTemplate DataType="nodes:NodeComment">
-                                               <nodify:GroupingNode Header="{Binding DisplayName}"
-                                                                    Width="{Binding Size.Width}"
-                                                                    Height="{Binding Size.Height}"
-                                                                    HeaderBrush="{Binding HeaderBrush}"
-                                                                    Background="{Binding BackgroundBrush}">
-                                                   <nodify:GroupingNode.HeaderTemplate>
-                                                       <DataTemplate x:DataType="x:String">
-                                                           <TextBlock Text="{Binding}" Classes="BodyStrongTextBlockStyle">
-                                                               <TextBlock.Effect>
-                                                                   <DropShadowEffect Color="Black" Opacity="0.5" OffsetX="1" OffsetY="1" BlurRadius="0"/>
-                                                               </TextBlock.Effect>
-                                                           </TextBlock>
-                                                       </DataTemplate>
-                                                   </nodify:GroupingNode.HeaderTemplate>
-                                               </nodify:GroupingNode>
-                                           </DataTemplate>
-                                           
-                                           <DataTemplate DataType="nodes:Node">
-                                               <nodify:Node Header="{Binding DisplayName}" 
-                                                            Input="{Binding Inputs}"
-                                                            Output="{Binding Outputs}"
-                                                            Content="{Binding Content}"
-                                                            HeaderBrush="{Binding HeaderBrush}" 
-                                                            BorderBrush="{Binding BorderBrush}"
-                                                            Background="{Binding BackgroundBrush}"
-                                                            BorderThickness="2" Footer="{Binding FooterContent}"
-                                                            ContentBrush="Transparent" PointerPressed="OnNodePressed">
-                                                   <nodify:Node.Styles>
-                                                       <Style Selector="Border#PART_Header">
-                                                           <Setter Property="CornerRadius" Value="3 3 0 0"/>
-                                                           <Setter Property="Padding" Value="{ext:Space 1, 0.5, 1, 0.5}"/>
-                                                       </Style>
-                                                   </nodify:Node.Styles>
-                                                   <nodify:Node.HeaderTemplate>
-                                                       <DataTemplate x:DataType="x:String">
-                                                           <TextBlock Text="{Binding}" Classes="BodyStrongTextBlockStyle">
-                                                               <TextBlock.Effect>
-                                                                   <DropShadowEffect Color="Black" Opacity="0.5" OffsetX="1" OffsetY="1" BlurRadius="0"/>
-                                                               </TextBlock.Effect>
-                                                           </TextBlock>
-                                                       </DataTemplate>
-                                                   </nodify:Node.HeaderTemplate>
-                                                   <nodify:Node.InputConnectorTemplate>
-                                                       <DataTemplate DataType="{x:Type nodes:NodeSocket}">
-                                                           <nodify:NodeInput Header="{Binding Name}"
-                                                                             Anchor="{Binding Anchor, Mode=OneWayToSource}"
-                                                                             IsConnected="True" Background="Transparent" BorderBrush="{Binding SocketBrush}">
-                                                               <nodify:NodeInput.HeaderTemplate>
-                                                                   <DataTemplate DataType="x:String">
-                                                                       <TextBlock Text="{Binding}" FontSize="12">
-                                                                           <TextBlock.Effect>
-                                                                               <DropShadowEffect Color="Black" Opacity="0.5" OffsetX="1" OffsetY="1" BlurRadius="0"/>
-                                                                           </TextBlock.Effect>
-                                                                       </TextBlock>
-                                                                   </DataTemplate>
-                                                               </nodify:NodeInput.HeaderTemplate>
-                                                           </nodify:NodeInput>
-                                                       </DataTemplate>
-                                                   </nodify:Node.InputConnectorTemplate>
-
-                                                   <nodify:Node.OutputConnectorTemplate>
-                                                       <DataTemplate DataType="{x:Type nodes:NodeSocket}">
-                                                           <nodify:NodeOutput Header="{Binding Name}"
-                                                                              Anchor="{Binding Anchor, Mode=OneWayToSource}"
-                                                                              IsConnected="True" Background="Transparent" BorderBrush="{Binding SocketBrush}">
-                                                               <nodify:NodeOutput.HeaderTemplate>
-                                                                   <DataTemplate DataType="x:String">
-                                                                       <TextBlock Text="{Binding}" FontSize="12">
-                                                                           <TextBlock.Effect>
-                                                                               <DropShadowEffect Color="Black" Opacity="0.5" OffsetX="1" OffsetY="1" BlurRadius="0"/>
-                                                                           </TextBlock.Effect>
-                                                                       </TextBlock>
-                                                                   </DataTemplate>
-                                                               </nodify:NodeOutput.HeaderTemplate>
-                                                           </nodify:NodeOutput>
-                                                       </DataTemplate>
-                                                   </nodify:Node.OutputConnectorTemplate>
-                                               </nodify:Node>
-                                           </DataTemplate>
-                                       </ContentControl.DataTemplates>
-                                   </ContentControl>
+                                    <StackPanel Margin="{ext:Space 0, 1}">
+                                        <TextBlock Text="{Binding ExpressionDisplayName, Converter={StaticResource UnrealCaseString}}" Classes="CaptionTextBlockStyle"/>
+                                        <TextBlock Text="{Binding Label}" Classes="CaptionTextBlockStyle TextFillColorSecondaryBrush"/>
+                                    </StackPanel>
                                 </DataTemplate>
-                            </nodify:NodifyEditor.ItemTemplate>
-                            <nodify:NodifyEditor.ConnectionTemplate>
-                                <DataTemplate DataType="{x:Type nodes:NodeConnection}">
-                                    <nodify:Connection Source="{Binding From.Anchor}"
-                                                           Target="{Binding To.Anchor}"
-                                                           ArrowEnds="None" 
-                                                           SourceOffsetMode="None" TargetOffsetMode="None"
-                                                           Fill="LightGray" Stroke="LightGray" Opacity="0.5"/>
-                                </DataTemplate>
-                            </nodify:NodifyEditor.ConnectionTemplate>
-                            <nodify:NodifyEditor.ItemContainerTheme>
-                                <ControlTheme TargetType="{x:Type nodify:ItemContainer}" x:DataType="nodes:BaseNode">
-                                    <Setter Property="Location"
-                                            Value="{Binding Location, Mode=TwoWay}" />
-                                    <Setter Property="IsSelectable"
-                                            Value="True" />
-                                    <Setter Property="IsSelected"
-                                            Value="{Binding IsSelected, Mode=TwoWay}" />
-                                </ControlTheme>
-                            </nodify:NodifyEditor.ItemContainerTheme>
-                        </nodify:NodifyEditor>
-                        
-                        <Grid ZIndex="-3" 
-                              Background="{StaticResource SmallGridLinesDrawingBrush}"/>
-                        <Grid ZIndex="-2"
-                              Background="{StaticResource LargeGridLinesDrawingBrush}"/>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
                     </Grid>
-                </controls:FABorder>
-                
-                <controls:FABorder Grid.Column="0" Grid.ColumnSpan="2" 
-                                   ClipToBounds="True" Margin="{ext:Space 1}" 
-                                   Background="Transparent" IsHitTestVisible="False"/>
-            </Grid>
+                    
+                    <GridSplitter Grid.Column="1" Background="Transparent"/>
+                    
+                    
+                    <controls:ContentCard Grid.Column="0" ClipToBounds="True">
+                        <Grid>
+                            <Grid Background="#9F262626" ZIndex="-2"/>
+                            
+                            <nodify:NodifyEditor x:Name="Editor" CornerRadius="8"
+                                                 DataContext="{Binding SelectedTree}"
+                                                 ItemsSource="{Binding NodeCache.Items}"
+                                                 Connections="{Binding Connections}"
+                                                 SelectedItem="{Binding SelectedNode, Mode=TwoWay}"
+                                                 CanSelectMultipleItems="False" Background="Transparent"
+                                                 ViewportZoom="1" MaxViewportZoom="3"
+                                                 KeyDown="OnEditorKeyDown">
+                                <nodify:NodifyEditor.ItemTemplate>
+                                    <DataTemplate>
+                                       <ContentControl Content="{Binding}">
+                                           <ContentControl.DataTemplates>
+                                               
+                                               <DataTemplate DataType="nodes:NodeComment">
+                                                   <nodify:GroupingNode Header="{Binding DisplayName}"
+                                                                        Width="{Binding Size.Width}"
+                                                                        Height="{Binding Size.Height}"
+                                                                        HeaderBrush="{Binding HeaderBrush}"
+                                                                        Background="{Binding BackgroundBrush}">
+                                                       <nodify:GroupingNode.HeaderTemplate>
+                                                           <DataTemplate x:DataType="x:String">
+                                                               <TextBlock Text="{Binding}" Classes="BodyStrongTextBlockStyle">
+                                                                   <TextBlock.Effect>
+                                                                       <DropShadowEffect Color="Black" Opacity="0.5" OffsetX="1" OffsetY="1" BlurRadius="0"/>
+                                                                   </TextBlock.Effect>
+                                                               </TextBlock>
+                                                           </DataTemplate>
+                                                       </nodify:GroupingNode.HeaderTemplate>
+                                                   </nodify:GroupingNode>
+                                               </DataTemplate>
+                                               
+                                               <DataTemplate DataType="soundCue:SoundCueNode">
+                                                   <nodify:Node Header="{Binding DisplayName}" 
+                                                                Input="{Binding Inputs}"
+                                                                Output="{Binding Outputs}"
+                                                                Content="{Binding Content}"
+                                                                HeaderBrush="{Binding HeaderBrush}" 
+                                                                BorderBrush="{Binding BorderBrush}"
+                                                                Background="{Binding BackgroundBrush}"
+                                                                BorderThickness="2" Footer="{Binding FooterContent}"
+                                                                ContentBrush="Transparent" PointerPressed="OnNodePressed">
+                                                       <nodify:Node.Styles>
+                                                           <Style Selector="Border#PART_Header">
+                                                               <Setter Property="CornerRadius" Value="3 3 0 0"/>
+                                                               <Setter Property="Padding" Value="{ext:Space 1, 0.5, 1, 0.5}"/>
+                                                           </Style>
+                                                       </nodify:Node.Styles>
+                                                       <nodify:Node.HeaderTemplate>
+                                                           <DataTemplate x:DataType="x:String">
+                                                               <TextBlock Text="{Binding}" Classes="BodyStrongTextBlockStyle">
+                                                                   <TextBlock.Effect>
+                                                                       <DropShadowEffect Color="Black" Opacity="0.5" OffsetX="1" OffsetY="1" BlurRadius="0"/>
+                                                                   </TextBlock.Effect>
+                                                               </TextBlock>
+                                                           </DataTemplate>
+                                                       </nodify:Node.HeaderTemplate>
+                                                       <nodify:Node.InputConnectorTemplate>
+                                                           <DataTemplate DataType="{x:Type nodes:NodeSocket}">
+                                                               <nodify:NodeInput Header="{Binding Name}"
+                                                                                 Anchor="{Binding Anchor, Mode=OneWayToSource}"
+                                                                                 IsConnected="True" Background="Transparent" BorderBrush="{Binding SocketBrush}">
+                                                                   <nodify:NodeInput.HeaderTemplate>
+                                                                       <DataTemplate DataType="x:String">
+                                                                           <TextBlock Text="{Binding}" FontSize="12">
+                                                                               <TextBlock.Effect>
+                                                                                   <DropShadowEffect Color="Black" Opacity="0.5" OffsetX="1" OffsetY="1" BlurRadius="0"/>
+                                                                               </TextBlock.Effect>
+                                                                           </TextBlock>
+                                                                       </DataTemplate>
+                                                                   </nodify:NodeInput.HeaderTemplate>
+                                                               </nodify:NodeInput>
+                                                           </DataTemplate>
+                                                       </nodify:Node.InputConnectorTemplate>
+
+                                                       <nodify:Node.OutputConnectorTemplate>
+                                                           <DataTemplate DataType="{x:Type nodes:NodeSocket}">
+                                                               <nodify:NodeOutput Header="{Binding Name}"
+                                                                                  Anchor="{Binding Anchor, Mode=OneWayToSource}"
+                                                                                  IsConnected="True" Background="Transparent" BorderBrush="{Binding SocketBrush}">
+                                                                   <nodify:NodeOutput.HeaderTemplate>
+                                                                       <DataTemplate DataType="x:String">
+                                                                           <TextBlock Text="{Binding}" FontSize="12">
+                                                                               <TextBlock.Effect>
+                                                                                   <DropShadowEffect Color="Black" Opacity="0.5" OffsetX="1" OffsetY="1" BlurRadius="0"/>
+                                                                               </TextBlock.Effect>
+                                                                           </TextBlock>
+                                                                       </DataTemplate>
+                                                                   </nodify:NodeOutput.HeaderTemplate>
+                                                               </nodify:NodeOutput>
+                                                           </DataTemplate>
+                                                       </nodify:Node.OutputConnectorTemplate>
+                                                   </nodify:Node>
+                                               </DataTemplate>
+                                           </ContentControl.DataTemplates>
+                                       </ContentControl>
+                                    </DataTemplate>
+                                </nodify:NodifyEditor.ItemTemplate>
+                                <nodify:NodifyEditor.ConnectionTemplate>
+                                    <DataTemplate DataType="{x:Type nodes:NodeConnection}">
+                                        <nodify:Connection Source="{Binding From.Anchor}"
+                                                               Target="{Binding To.Anchor}"
+                                                               ArrowEnds="None" 
+                                                               SourceOffsetMode="None" TargetOffsetMode="None"
+                                                               Fill="LightGray" Stroke="LightGray" Opacity="0.5"/>
+                                    </DataTemplate>
+                                </nodify:NodifyEditor.ConnectionTemplate>
+                                <nodify:NodifyEditor.ItemContainerTheme>
+                                    <ControlTheme TargetType="{x:Type nodify:ItemContainer}" x:DataType="nodes:BaseNode">
+                                        <Setter Property="Location"
+                                                Value="{Binding Location, Mode=TwoWay}" />
+                                        <Setter Property="IsSelectable"
+                                                Value="True" />
+                                        <Setter Property="IsSelected"
+                                                Value="{Binding IsSelected, Mode=TwoWay}" />
+                                    </ControlTheme>
+                                </nodify:NodifyEditor.ItemContainerTheme>
+                            </nodify:NodifyEditor>
+                            
+                            <Grid ZIndex="-3" 
+                                  Background="{StaticResource SmallGridLinesDrawingBrush}"/>
+                            <Grid ZIndex="-2"
+                                  Background="{StaticResource LargeGridLinesDrawingBrush}"/>
+                        </Grid>
+                    </controls:ContentCard>
+                    
+                    
+                    <controls:ContentCard Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="{ext:Space 0, 1, 1, 0}"
+                              DataContext="{Binding SelectedTree.SelectedNode}" 
+                              IsVisible="{Binding Converter={x:Static ObjectConverters.IsNotNull}}">
+                        <Grid Margin="{ext:Space 2}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="{ext:Space 1}"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Text="{Binding ExpressionDisplayName, Converter={StaticResource UnrealCaseString}}" 
+                                       Classes="BodyStrongTextBlockStyle" TextWrapping="Wrap" HorizontalAlignment="Center"/>
+                            
+                            <ItemsControl Grid.Row="2" ItemsSource="{Binding Properties}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="{ext:Space 0, 0.5}" ColumnDefinitions="*,*">
+                                            <TextBlock Grid.Column="0" Text="{Binding Key}"
+                                                       Classes="CaptionTextBlockStyle" TextTrimming="CharacterEllipsis"
+                                                       HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                        
+                                            <ContentControl Grid.Column="1" Content="{Binding Value}"
+                                                              HorizontalAlignment="Right" VerticalAlignment="Center" ClipToBounds="False">
+                                                <ContentControl.DataTemplates>
+                                                    <DataTemplate DataType="objects:FPackageIndex">
+                                                        <Button Content="{avalonia:MaterialIconExt Folder}" ToolTip.Tip="Navigate To"
+                                                                Command="{Binding $parent[windows:SoundCuePreviewWindow].WindowModel.NavigateTo}"
+                                                                CommandParameter="{Binding}"/>
+                                                    </DataTemplate>
+                                                    
+                                                    <DataTemplate DataType="objects:FSoftObjectPath">
+                                                        <Button Content="{avalonia:MaterialIconExt Folder}" ToolTip.Tip="Navigate To"
+                                                                Command="{Binding $parent[windows:SoundCuePreviewWindow].WindowModel.NavigateToPath}"
+                                                                CommandParameter="{Binding}"/>
+                                                    </DataTemplate>
+                                                    
+                                                    <DataTemplate DataType="objects:FName">
+                                                        <TextBlock Text="{Binding Text}" Classes="CaptionTextBlockStyle"/>
+                                                    </DataTemplate>
+                                                    
+                                                    <DataTemplate DataType="sys:Single">
+                                                        <ui:NumberBox Value="{Binding }"/>
+                                                    </DataTemplate>
+                                                    
+                                                    <DataTemplate DataType="nodes:JsonPropertyContainer">
+                                                        <DropDownButton>
+                                                            <DropDownButton.Flyout>
+                                                                <Flyout>
+                                                                    <TextBox IsReadOnly="True" Text="{Binding JsonData}"/>
+                                                                </Flyout>
+                                                            </DropDownButton.Flyout>
+                                                            
+                                                            <avalonia:MaterialIcon Kind="CodeJson"/>
+                                                        </DropDownButton>
+                                                    </DataTemplate>
+                                                    
+                                                    <DataTemplate DataType="sys:Object">
+                                                        <TextBlock Text="{Binding}" Classes="CaptionTextBlockStyle"/>
+                                                    </DataTemplate>
+                                                </ContentControl.DataTemplates>
+                                            </ContentControl>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Grid>
+                       
+                    </controls:ContentCard>
+                    
+                </Grid>
+            </Border>
         </Grid>
     </Grid>
     

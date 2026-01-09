@@ -1,12 +1,9 @@
 using System;
 using System.Linq;
-using Avalonia.Controls;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Viewers;
-using FortnitePorting.Services;
-using FortnitePorting.ViewModels;
 using FortnitePorting.WindowModels;
 
 namespace FortnitePorting.Windows;
@@ -28,8 +25,9 @@ public partial class TexturePreviewWindow : WindowBase<TexturePreviewWindowModel
         {
             Instance = new TexturePreviewWindow();
             Instance.Show();
-            Instance.BringToTop();
         }
+        
+        Instance.BringToTop();
 
         if (Instance.WindowModel.Textures.FirstOrDefault(texture => texture.TextureName.Equals(name)) is { } existing)
         {

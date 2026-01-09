@@ -86,8 +86,8 @@ public class MeshExport : BaseExport
 
             foreach (var texture in material.Textures)
             {
-                exportMaterial.Textures.Add(new TextureParameter(texture.Slot, ExportCustom(texture.Path), true,
-                    TextureCompressionSettings.TC_Default));
+                exportMaterial.Textures.Add(new TextureParameter(texture.Slot, new ExportTexture(ExportCustom(texture.Path), true,
+                    TextureCompressionSettings.TC_Default)));
             }
             
             exportMesh.Materials.Add(exportMaterial);
@@ -267,9 +267,11 @@ public class MeshExport : BaseExport
                     var levelSaveRecord = prop.GetOrDefault<UObject?>("LevelSaveRecord");
                     if (levelSaveRecord is null) continue;
 
-                    var actorSaveRecord = levelSaveRecord.Get<ULevelSaveRecord>("ActorSaveRecord");
+                    var targetSaveRecord = levelSaveRecord.GetOrDefault<ULevelSaveRecord?>("ActorSaveRecord") ?? prop.GetOrDefault<ULevelSaveRecord?>("LevelSaveRecord");
+                    if (targetSaveRecord is null) continue;
+                    
                     var transform = prop.GetOrDefault<FTransform>("Transform");
-                    var objects = Exporter.LevelSaveRecord(actorSaveRecord);
+                    var objects = Exporter.LevelSaveRecord(targetSaveRecord);
                     foreach (var mesh in objects)
                     {
                         mesh.Location += transform.Translation;
@@ -357,7 +359,7 @@ public class MeshExport : BaseExport
                         if (!field.TryGetValue(out UTexture2D texture, propertyName)) return;
                         
                         parameterSet.Textures.AddUnique(new TextureParameter(shaderName, 
-                            Exporter.Export(texture), texture.SRGB, texture.CompressionSettings));
+                            new ExportTexture(Exporter.Export(texture), texture.SRGB, texture.CompressionSettings)));
                     }
                     
                     void ColorIndex(string propertyName, string shaderName)
@@ -511,6 +513,16 @@ public class MeshExport : BaseExport
                 
                 break;
             }
+            case EExportType.SideKick:
+            {
+                var parts = asset.GetOrDefault<UObject[]>("CharacterParts", []);
+                foreach (var part in parts)
+                {
+                    Meshes.AddIfNotNull(Exporter.CharacterPart(part));
+                }
+                
+                break;
+            }
         }
     }
 
@@ -575,7 +587,7 @@ public class MeshExport : BaseExport
         foreach (var material in variantMaterials) OverrideMaterials.AddIfNotNull(Exporter.OverrideMaterialSwap(material));
 
         var variantParameters = style.GetOrDefault("VariantMaterialParams", Array.Empty<FStructFallback>());
-        foreach (var parameters in variantParameters) OverrideParameters.AddIfNotNull(Exporter.OverrideParameters(parameters));
+        foreach (var parameters in variantParameters) OverrideParameters.AddRangeIfNotNull(Exporter.OverrideParameters(parameters));
         
         var variantMeshes = style.GetOrDefault("VariantMeshes", Array.Empty<FStructFallback>());
         foreach (var mesh in variantMeshes)

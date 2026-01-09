@@ -1,5 +1,3 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -12,9 +10,8 @@ class FFortnitePortingModule : public IModuleInterface
 {
 public:
 
-	FListenServer ListenServer = FListenServer();
+	FListenServer* ListenServer;
 	
-	/** IModuleInterface implementation */
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
 };

@@ -5,7 +5,6 @@ using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using FortnitePorting.Extensions;
-using FortnitePorting.Shared.Extensions;
 
 namespace FortnitePorting.Models.Assets.Asset;
 
@@ -67,7 +66,7 @@ public partial class AssetInfo : Base.BaseAssetInfo
     public BaseStyleData[] GetSelectedStyles()
     {
         return StyleInfos
-            .SelectMany<AssetStyleInfo, BaseStyleData>(info => info.SelectedItems)
+            .SelectMany<AssetStyleInfo, BaseStyleData>(info => info.MultiSelect ? info.SelectedItems : [info.SelectedStyle])
             .ToArray();
     }
     

@@ -20,8 +20,8 @@ public partial class SettingsService : ObservableObject, IService
 
     public bool ShouldSaveOnExit = true;
     
-    private static readonly DirectoryInfo DirectoryPath = new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "FortnitePorting"));
-    private static readonly FileInfo FilePath = new(Path.Combine(DirectoryPath.FullName, "AppSettingsV3.json"));
+    public static readonly DirectoryInfo DirectoryPath = new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "FortnitePorting"));
+    public static readonly FileInfo FilePath = new(Path.Combine(DirectoryPath.FullName, "AppSettingsV4.json"));
 
     public SettingsService()
     {

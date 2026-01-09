@@ -2,11 +2,12 @@ import bpy
 from bpy.props import PointerProperty
 from bpy.types import Context, Menu, Scene
 
-from .import_helpers import UFImportUEAnim, UFImportUEModel, UFImportUEPose
+from .import_helpers import UFImportUEAnim, UFImportUEModel, UFImportUEPose, IO_FH_uemodel, IO_FH_ueanim, IO_FH_uepose
 from .panels import UEFORMAT_PT_Panel
 from .settings import UFSettings
 
-operators = [UEFORMAT_PT_Panel, UFImportUEModel, UFImportUEAnim, UFImportUEPose, UFSettings]
+operators = [UEFORMAT_PT_Panel, UFImportUEModel, UFImportUEAnim, UFImportUEPose, UFSettings,
+             IO_FH_uemodel, IO_FH_ueanim, IO_FH_uepose]
 
 
 def draw_import_menu(self: Menu, context: Context) -> None:  # noqa: ARG001

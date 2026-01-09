@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -22,7 +21,7 @@ public partial class SetupViewModel : ViewModelBase
 
     public float BackgroundOpacity => UseBlur ? 0.1f : 0.25f;
 
-    [ObservableProperty] private ObservableCollection<string[]> _galleryPaths = new(new List<string[]>(3));
+    [ObservableProperty] private ObservableCollection<string[]> _galleryPaths = [[], [], []];
 
     public override async Task Initialize()
     {

@@ -10,13 +10,17 @@ public class ExportAttribute(EPrimitiveExportType type) : Attribute
 
 public static class ExportExtensions
 {
-    public static EPrimitiveExportType GetPrimitiveType(this Enum value)
+    extension(EExportType value)
     {
-        var attribute = value
-            .GetType()
-            .GetField(value.ToString())?
-            .GetCustomAttributes(typeof(ExportAttribute), false)
-            .SingleOrDefault() as ExportAttribute;
-        return attribute.ExportType;
+        public EPrimitiveExportType GetPrimitiveType()
+        {
+            var attribute = value
+                .GetType()
+                .GetField(value.ToString())?
+                .GetCustomAttributes(typeof(ExportAttribute), false)
+                .SingleOrDefault() as ExportAttribute;
+            
+            return attribute?.ExportType ?? 0;
+        }
     }
 }

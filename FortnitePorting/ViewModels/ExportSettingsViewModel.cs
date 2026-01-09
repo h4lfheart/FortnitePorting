@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse_Conversion;
@@ -14,11 +10,7 @@ using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
 using FortnitePorting.Exporting.Models;
 using FortnitePorting.Framework;
-using FortnitePorting.Models.Radio;
-using FortnitePorting.Shared;
 using FortnitePorting.ViewModels.Settings;
-using NAudio.Wave;
-using Newtonsoft.Json;
 
 namespace FortnitePorting.ViewModels;
 

@@ -1,28 +1,14 @@
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
-using Avalonia.Collections;
-using Avalonia.Controls;
-using Avalonia.Controls.Primitives;
 using Avalonia.Media.Imaging;
-using Clowd.Clipboard;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using CUE4Parse;
-using DynamicData;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Framework;
-using FortnitePorting.Models;
 using FortnitePorting.Models.Chat;
 using FortnitePorting.Models.Clipboard;
 using FortnitePorting.Services;
-using Serilog;
-using SixLabors.ImageSharp.PixelFormats;
-using Globals = FortnitePorting.Globals;
 
 namespace FortnitePorting.ViewModels;
 
@@ -31,7 +17,7 @@ public partial class ChatViewModel(SupabaseService supabase, ChatService chatSer
     [ObservableProperty] private SupabaseService _supaBase = supabase;
     [ObservableProperty] private ChatService _chat = chatService;
 
-    [ObservableProperty] private ChatMessageV2? _replyMessage;
+    [ObservableProperty] private ChatMessage? _replyMessage;
     
     [ObservableProperty] private TeachingTip _imageFlyout;
     
@@ -39,8 +25,14 @@ public partial class ChatViewModel(SupabaseService supabase, ChatService chatSer
     [ObservableProperty] private Bitmap _selectedImage;
     [ObservableProperty] private string _selectedImageName;
 
-    // TODO do we need this anymore
-    [ObservableProperty] private ObservableCollection<string> _commands = [];
+    public string MentionTextMatch => $"@{SupaBase.UserInfo.UserName}";
+    
+    [ObservableProperty] private bool _showNewMessageIndicator = false;
+    
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(NewMessageCountText))] private int _unreadMessageCount = 0;
+    
+    public string NewMessageCountText => UnreadMessageCount == 1 ? "1 New Message" : $"{UnreadMessageCount} New Messages";
+
     
     [RelayCommand]
     public async Task OpenImage()
@@ -66,10 +58,21 @@ public partial class ChatViewModel(SupabaseService supabase, ChatService chatSer
             ImageFlyout.IsOpen = true;
         }
     }
+    
+    public void IncrementNewMessageIndicator()
+    {
+        UnreadMessageCount++;
+        ShowNewMessageIndicator = true;
+    }
+
+    public void ClearNewMessageIndicator()
+    {
+        UnreadMessageCount = 0;
+        ShowNewMessageIndicator = false;
+    }
 
     public override async Task OnViewOpened()
     {
-        Discord.Update($"Chatting with {Chat.Users.Count} Users");
+        Discord.Update($"Chatting with {Chat.Users.Count} {(Chat.Users.Count > 1 ? "Users" : "User")}");
     }
 }
-

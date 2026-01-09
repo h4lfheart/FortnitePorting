@@ -4,7 +4,6 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
              xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
-             xmlns:timeWaster="clr-namespace:FortnitePorting.Models.TimeWaster"
              xmlns:actors="clr-namespace:FortnitePorting.Models.TimeWaster.Actors"
              mc:Ignorable="d" d:DesignWidth="1160" d:DesignHeight="770"
              x:Class="FortnitePorting.Views.TimeWasterView"

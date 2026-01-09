@@ -1,5 +1,4 @@
 using System;
-using FortnitePorting.ViewModels;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 
@@ -54,8 +53,11 @@ public class AudioSystem : IDisposable
 
 public static class AudioSystemExtensions
 {
-    public static void Play(this CachedSound sound)
+    extension(CachedSound sound)
     {
-        AudioSystem.Instance.PlaySound(new WdlResamplingSampleProvider(new CachedSoundSampleProvider(sound), AudioSystem.Instance.SampleRate));
+        public void Play()
+        {
+            AudioSystem.Instance.PlaySound(new WdlResamplingSampleProvider(new CachedSoundSampleProvider(sound), AudioSystem.Instance.SampleRate));
+        }
     }
 }

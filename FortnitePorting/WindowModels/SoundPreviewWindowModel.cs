@@ -8,7 +8,6 @@ using FortnitePorting.Application;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Services;
-using FortnitePorting.ViewModels;
 using Material.Icons;
 using NAudio.Wave;
 

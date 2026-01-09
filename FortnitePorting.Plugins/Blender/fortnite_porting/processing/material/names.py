@@ -44,6 +44,8 @@ vertex_crunch_names = ["MI_VertexCrunch", "M_VertexCrunch", "M_Invis", "Transpar
 
 toon_outline_names = ["Outline", "Toon_Lines"]
 
-glass_master_names = ["M_MED_Glass_Master"]
+glass_master_names = ["M_MED_Glass_Master", "M_GlassParent"]
 
 lite_shader_types = [EExportType.PROP, EExportType.PREFAB, EExportType.WORLD]
+
+eye_names = ["M_Companion_Eyes_Parent", "M_Eyes_Parent"]

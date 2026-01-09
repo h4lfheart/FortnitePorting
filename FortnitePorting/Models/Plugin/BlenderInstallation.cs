@@ -1,12 +1,9 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FortnitePorting.Shared.Extensions;
 using Newtonsoft.Json;
-using Serilog;
 using Tomlyn;
 
 namespace FortnitePorting.Models.Plugin;
@@ -37,7 +34,7 @@ public partial class BlenderInstallation(string blenderExecutablePath) : Observa
         "blender_manifest.toml");
     
     public static readonly DirectoryInfo PluginWorkingDirectory = new(Path.Combine(App.PluginsFolder.FullName, "Blender"));
-    public static readonly Version MinimumVersion = new(4, 2);
+    public static readonly Version MinimumVersion = new(5, 0);
 
     public static Version GetVersion(string blenderPath)
     {
@@ -69,9 +66,9 @@ public partial class BlenderInstallation(string blenderExecutablePath) : Observa
         {
             if (!didSyncProperly)
             {
-                Info.Dialog("Plugin Installation Failed", 
+                Info.Message("Plugin Installation Failed", 
                     "Failed to install the plugin, please install it manually by dragging and dropping the Fortnite Porting plugin in Blender.", 
-                    "Plugins Folder", () => App.Launch(App.PluginsFolder.FullName));
+                    useButton: true, buttonTitle: "Open Plugins Folder", buttonCommand: () => App.Launch(App.PluginsFolder.FullName));
             }
         }
         
@@ -82,7 +79,6 @@ public partial class BlenderInstallation(string blenderExecutablePath) : Observa
     {
         Status = "Uninstalling";
         
-        Directory.Delete(Path.Combine(StartupPath, "io_scene_ueformat"), true);
         Directory.Delete(Path.Combine(StartupPath, "fortnite_porting"), true);
     }
 }

@@ -1,14 +1,10 @@
-using System;
 using System.Threading.Tasks;
-using Windows.System.UserProfile;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FortnitePorting.Extensions;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.Supabase.Tables;
-using FortnitePorting.Shared.Extensions;
-using NAudio.CoreAudioApi;
 using Newtonsoft.Json;
 
 namespace FortnitePorting.Models.Leaderboard;
@@ -21,8 +17,6 @@ public partial class LeaderboardUser : ObservableObject
     [ObservableProperty] [JsonProperty("total")] private int _exportCount;
 
     [ObservableProperty] private UserInfoResponse? _userInfo;
-
-    public Bitmap? MedalBitmap => Ranking <= 3 ? ImageExtensions.GetMedalBitmap(Ranking) : null;
     
     public SolidColorBrush UserBrush => new(UserInfo?.Role switch
     {

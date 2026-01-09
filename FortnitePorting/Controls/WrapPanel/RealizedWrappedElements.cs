@@ -185,12 +185,19 @@ internal class RealizedWrappedElements
 
     private UVSize GetPosition(int index, UVSize estimate, UVSize viewportEnd)
     {
-        var maxULength = (int) (viewportEnd.U / estimate.U) * estimate.U;
-
+        // Calculate how many items fit in one row
+        var itemsPerRow = Math.Max(1, (int)(viewportEnd.U / estimate.U));
+    
+        // Calculate which row this index is in
+        var row = index / itemsPerRow;
+    
+        // Calculate position within the row
+        var positionInRow = index % itemsPerRow;
+    
         return new UVSize(viewportEnd.Orientation)
         {
-            U = index * estimate.U % maxULength,
-            V = (int) (index * estimate.U) / maxULength * estimate.V
+            U = positionInRow * estimate.U,
+            V = row * estimate.V
         };
     }
 

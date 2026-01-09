@@ -5,7 +5,7 @@ def get_param(source, name):
     found = first(source, lambda param: param.get("Name").casefold() == name.casefold())
     if found is None:
         return None
-    return found.get("Value")
+    return found.get("Value") or found.get("Texture")
 
 
 def get_vector_param(source, name):
@@ -19,7 +19,7 @@ def get_param_multiple(source, names):
     found = first(source, lambda param: param.get("Name").casefold() in [name.casefold() for name in names])
     if found is None:
         return None
-    return found.get("Value")
+    return found.get("Value") or found.get("Texture")
 
 
 def get_param_info(source, name):
@@ -37,18 +37,26 @@ def get_socket_pos(node, index):
     offset_y = -25
     return node.location.x, node.location.y + start_y + offset_y * index
 
-def replace_or_add_parameter(list, replace_item):
+def replace_or_add_parameter(items, replace_item):
     if replace_item is None:
         return
-    for index, item in enumerate(list):
+
+    name = replace_item.get("Name")
+
+    for index, item in enumerate(items):
         if item is None:
             continue
+        if item.get("Name") == name:
+            items[index] = replace_item
+            return
 
-        if item.get("Name") == replace_item.get("Name"):
-            list[index] = replace_item
-
-    if not any(list, lambda x: x.get("Name") == replace_item.get("Name")):
-        list.append(replace_item)
+    items.append(replace_item)
+    
+def replace_or_add_parameter_from_texture(items, name, tex):
+      replace_or_add_parameter(items, {
+          "Name": name,
+          "Texture": tex
+      })
         
 def get_node(shader_node, name):
     input = shader_node.inputs.get(name)

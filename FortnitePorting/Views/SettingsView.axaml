@@ -3,52 +3,36 @@
              xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
              xmlns:ui="using:FluentAvalonia.UI.Controls"
              xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
-             xmlns:versions="clr-namespace:CUE4Parse.UE4.Versions;assembly=CUE4Parse"
-             xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:settings="clr-namespace:FortnitePorting.Views.Settings"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             xmlns:sidebar="clr-namespace:FortnitePorting.Controls.Navigation.Sidebar"
              d:DesignHeight="770" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.SettingsView"
              x:DataType="viewModels:SettingsViewModel">
-    <ui:NavigationView x:Name="NavigationView" Classes="NoBackground" PaneDisplayMode="Left" OpenPaneLength="150" IsPaneToggleButtonVisible="False" IsSettingsVisible="False" ItemInvoked="OnItemInvoked">
-        <ui:NavigationView.MenuItems>
-            <ui:NavigationViewItem Content="Application" Tag="{x:Type settings:ApplicationSettingsView}" IsSelected="True">
-                <ui:NavigationViewItem.IconSource>
-                    <ui:PathIconSource Data="{ext:MaterialKindToGeometry ApplicationCog}"/>
-                </ui:NavigationViewItem.IconSource>
-            </ui:NavigationViewItem>
-            <ui:NavigationViewItem Content="Installation" Tag="{x:Type settings:InstallationSettingsView}">
-                <ui:NavigationViewItem.IconSource>
-                    <ui:PathIconSource Data="{ext:MaterialKindToGeometry Folder}"/>
-                </ui:NavigationViewItem.IconSource>
-            </ui:NavigationViewItem>
-            <ui:NavigationViewItem Content="Online" Tag="{x:Type settings:OnlineSettingsView}">
-                <ui:NavigationViewItem.IconSource>
-                    <ui:PathIconSource Data="{ext:MaterialKindToGeometry Web}"/>
-                </ui:NavigationViewItem.IconSource>
-            </ui:NavigationViewItem>
-            <ui:NavigationViewItem Content="Theme" Tag="{x:Type settings:ThemeSettingsView}">
-                <ui:NavigationViewItem.IconSource>
-                    <ui:PathIconSource Data="{ext:MaterialKindToGeometry PaletteSwatch}"/>
-                </ui:NavigationViewItem.IconSource>
-            </ui:NavigationViewItem>
-            <ui:NavigationViewItem Content="Debug" Tag="{x:Type settings:DebugSettingsView}">
-                <ui:NavigationViewItem.IconSource>
-                    <ui:PathIconSource Data="{ext:MaterialKindToGeometry Bug}"/>
-                </ui:NavigationViewItem.IconSource>
-            </ui:NavigationViewItem>
-        </ui:NavigationView.MenuItems>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="5*"/>
+        </Grid.ColumnDefinitions>
+        <sidebar:Sidebar Grid.Column="0" ItemSelected="OnItemSelected">
+            <sidebar:Sidebar.Items>
+                <sidebar:SidebarItemText Text="APP SETTINGS"/>
+                <sidebar:SidebarItemButton Text="Application" Icon="ApplicationCog" Tag="{x:Type settings:ApplicationSettingsView}"/>
+                <sidebar:SidebarItemButton Text="Installation" Icon="Folder" Tag="{x:Type settings:InstallationSettingsView}"/>
+                <sidebar:SidebarItemButton Text="Online" Icon="Web" Tag="{x:Type settings:OnlineSettingsView}"/>
+                <sidebar:SidebarItemButton Text="Theme" Icon="PaletteSwatch" Tag="{x:Type settings:ThemeSettingsView}"/>
+                <sidebar:SidebarItemButton Text="Debug" Icon="Bug" Tag="{x:Type settings:DebugSettingsView}"/>
+            </sidebar:Sidebar.Items>
+            <sidebar:Sidebar.Footer>
+                <StackPanel Spacing="{ext:Space 1.5}">
+                    <Button Content="{controls:IconText 'Open Data Folder', Folder}" Command="{Binding OpenDataFolderCommand}" HorizontalAlignment="Stretch"/> 
+                    <Button Content="{controls:IconText 'Save Settings', ContentSave}" Command="{Binding SaveCommand}" HorizontalAlignment="Stretch"/> 
+                    <Button Content="{controls:IconText 'Reset Settings', Trash}" Command="{Binding ResetCommand}" HorizontalAlignment="Stretch"/> 
+                </StackPanel>
+            </sidebar:Sidebar.Footer>
+        </sidebar:Sidebar>
         
-        <ui:NavigationView.FooterMenuItems>
-            <ui:NavigationViewItem Content="Reset" Tag="Reset">
-                <ui:NavigationViewItem.IconSource>
-                    <ui:PathIconSource Data="{ext:MaterialKindToGeometry Trash}"/>
-                </ui:NavigationViewItem.IconSource>
-            </ui:NavigationViewItem>
-        </ui:NavigationView.FooterMenuItems>
-        
-        <ui:Frame x:Name="ContentFrame"/>
-    </ui:NavigationView>
+        <ui:Frame Grid.Column="1" x:Name="ContentFrame"/>
+    </Grid>
 </UserControl>
