@@ -5,10 +5,10 @@ layout (location = 2) in vec3 aTangent;
 layout (location = 3) in vec2 aTexCoord;
 layout (location = 4) in float aMaterialLayer;
 
-layout (location = 5) in vec4 aInstanceMatrix0;
-layout (location = 6) in vec4 aInstanceMatrix1;
-layout (location = 7) in vec4 aInstanceMatrix2;
-layout (location = 8) in vec4 aInstanceMatrix3;
+layout(std430, binding = 0) buffer InstanceMatrices
+{
+    mat4 matrices[];
+};
 
 out vec3 fPosition;
 out vec3 fNormal;
@@ -24,12 +24,7 @@ void main()
 {
     vec4 finalPos = vec4(aPosition, 1.0);
 
-    mat4 instanceMatrix = mat4(
-    aInstanceMatrix0,
-    aInstanceMatrix1,
-    aInstanceMatrix2,
-    aInstanceMatrix3
-    );
+    mat4 instanceMatrix = matrices[gl_InstanceID];
 
     mat3 normalMatrix = mat3(transpose(inverse(instanceMatrix)));
 
@@ -45,4 +40,3 @@ void main()
 
     gl_Position = finalPos * instanceMatrix * uView * uProjection;
 }
-

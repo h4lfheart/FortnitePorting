@@ -140,9 +140,8 @@ void main()
 
     vec3 V_horizontal = normalize(vec3(V.x, 0.0, V.z));
     vec3 cameraRight = normalize(cross(V_horizontal, vec3(0.0, 1.0, 0.0)));
-    vec3 cameraUp = vec3(0.0, 1.0, 0.0); // Always use world up
+    vec3 cameraUp = vec3(0.0, 1.0, 0.0);
 
-    // Lights rotate with camera horizontally but stay fixed vertically
     vec3 L1 = normalize(V_horizontal + cameraRight * 0.8 + cameraUp * 1.2);
     vec3 L2 = normalize(V_horizontal - cameraRight * 0.5 + cameraUp * 0.3);
 
@@ -174,6 +173,5 @@ void main()
     color = color / (color + vec3(1.0));
     color = pow(color, vec3(1.0/2.2));
 
-    FragColor = vec4(color, 1.0);
+    FragColor = vec4(color, 1);
 }
-

@@ -13,7 +13,8 @@ namespace FortnitePorting.RenderingX.Renderers;
 
 public class InstancedMeshRenderer : MeshRenderer
 {
-    protected Buffer<float> InstanceBuffer;
+    protected SSBO<float> InstanceMatrixSSBO;
+    private const int MATRIX_BINDING_POINT = 0;
 
     private readonly List<SpatialComponent> _transforms = [];
     
@@ -101,35 +102,36 @@ public class InstancedMeshRenderer : MeshRenderer
 
     public void UpdateInstanceBuffer()
     {
-        var instanceData = new float[_transforms.Count * 16];
+        var matrixData = new float[_transforms.Count * 16];
         for (var transformIndex = 0; transformIndex < _transforms.Count; transformIndex++)
         {
             var transform = _transforms[transformIndex];
             var matrix = transform.WorldMatrix;
-            var offset = transformIndex * 16;
+            var matrixOffset = transformIndex * 16;
             
-            instanceData[offset + 0] = matrix.M11;
-            instanceData[offset + 1] = matrix.M21;
-            instanceData[offset + 2] = matrix.M31;
-            instanceData[offset + 3] = matrix.M41;
+            // Fill matrix data
+            matrixData[matrixOffset + 0] = matrix.M11;
+            matrixData[matrixOffset + 1] = matrix.M21;
+            matrixData[matrixOffset + 2] = matrix.M31;
+            matrixData[matrixOffset + 3] = matrix.M41;
             
-            instanceData[offset + 4] = matrix.M12;
-            instanceData[offset + 5] = matrix.M22;
-            instanceData[offset + 6] = matrix.M32;
-            instanceData[offset + 7] = matrix.M42;
+            matrixData[matrixOffset + 4] = matrix.M12;
+            matrixData[matrixOffset + 5] = matrix.M22;
+            matrixData[matrixOffset + 6] = matrix.M32;
+            matrixData[matrixOffset + 7] = matrix.M42;
             
-            instanceData[offset + 8] = matrix.M13;
-            instanceData[offset + 9] = matrix.M23;
-            instanceData[offset + 10] = matrix.M33;
-            instanceData[offset + 11] = matrix.M43;
+            matrixData[matrixOffset + 8] = matrix.M13;
+            matrixData[matrixOffset + 9] = matrix.M23;
+            matrixData[matrixOffset + 10] = matrix.M33;
+            matrixData[matrixOffset + 11] = matrix.M43;
             
-            instanceData[offset + 12] = matrix.M14;
-            instanceData[offset + 13] = matrix.M24;
-            instanceData[offset + 14] = matrix.M34;
-            instanceData[offset + 15] = matrix.M44;
+            matrixData[matrixOffset + 12] = matrix.M14;
+            matrixData[matrixOffset + 13] = matrix.M24;
+            matrixData[matrixOffset + 14] = matrix.M34;
+            matrixData[matrixOffset + 15] = matrix.M44;
         }
 
-        InstanceBuffer.Fill(instanceData, BufferUsage.DynamicDraw);
+        InstanceMatrixSSBO.Fill(matrixData, BufferUsage.DynamicDraw);
     }
 
     public override void Initialize()
@@ -153,21 +155,9 @@ public class InstancedMeshRenderer : MeshRenderer
         
         base.BuildMesh();
         
-        InstanceBuffer = new Buffer<float>(BufferTarget.ArrayBuffer);
-        InstanceBuffer.Generate();
-        InstanceBuffer.Bind();
-
-        var instanceStride = 16 * sizeof(float);
-    
-        for (var i = 0; i < 4; i++)
-        {
-            var attributeIndex = (uint)(VertexAttributes.Count + i);
-            var offset = i * 4 * sizeof(float);
-        
-            GL.VertexAttribPointer(attributeIndex, 4, VertexAttribPointerType.Float, false, instanceStride, offset);
-            GL.EnableVertexAttribArray(attributeIndex);
-            GL.VertexAttribDivisor(attributeIndex, 1);
-        }
+        InstanceMatrixSSBO = new SSBO<float>(MATRIX_BINDING_POINT);
+        InstanceMatrixSSBO.Generate();
+        InstanceMatrixSSBO.Bind();
         
         UpdateInstanceBuffer();
     }
@@ -190,7 +180,7 @@ public class InstancedMeshRenderer : MeshRenderer
     protected override void RenderGeometry(CameraComponent camera)
     {
         VertexArray.Bind();
-        InstanceBuffer.Bind();
+        InstanceMatrixSSBO.BindBufferBase();
         
         foreach (var section in Sections)
         {
@@ -202,6 +192,6 @@ public class InstancedMeshRenderer : MeshRenderer
     {
         base.Destroy();
         
-        InstanceBuffer.Delete();
+        InstanceMatrixSSBO.Delete();
     }
 }

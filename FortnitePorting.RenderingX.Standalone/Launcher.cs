@@ -1,4 +1,5 @@
-﻿using CUE4Parse.Compression;
+﻿using System.Diagnostics;
+using CUE4Parse.Compression;
 using CUE4Parse.Encryption.Aes;
 using CUE4Parse.FileProvider;
 using CUE4Parse.MappingsProvider;
@@ -57,6 +58,8 @@ public class Launcher
         
         window.Load += () =>
         {
+            var sw = Stopwatch.StartNew();
+            
             var cameraActor = new CameraActor("MainCamera");
             cameraActor.Camera.Transform.Position = new Vector3(5, 5, 5);
             cameraActor.Camera.LookAt(Vector3.Zero);
@@ -72,6 +75,8 @@ public class Launcher
                 "FortniteGame/Plugins/GameFeatures/CloudberryMapContent/Content/Athena/Apollo/Maps/POI/Apollo_POI_Agency"));
             root.Children.Add(world);
             
+            sw.Stop();
+            Log.Information($"Finished in {sw.Elapsed.TotalSeconds:N3}");
         };
         
         window.Run();
