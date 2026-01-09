@@ -7,6 +7,7 @@
              xmlns:enums="clr-namespace:CUE4Parse_Conversion.UEFormat.Enums;assembly=CUE4Parse-Conversion"
              xmlns:controls="clr-namespace:FortnitePorting.Controls.Settings"
              xmlns:fortnitePorting="clr-namespace:FortnitePorting"
+             xmlns:settings="clr-namespace:FortnitePorting.ViewModels.Settings"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FortnitePorting.Views.Settings.UnrealSettingsView"
              x:DataType="settings:UnrealSettingsViewModel">
@@ -45,7 +46,7 @@
                 </controls:SettingsItem.Footer>
             </controls:SettingsItem>
             
-            <controls:SettingsItem Title="Nanite Mesh Format" Description="Controls how Nanite geometry is handled (when available).">
+            <controls:SettingsItem Title="Nanite Mesh Format" Description="Controls how Nanite geometry is handled. Requires 'Load Nanite Data' from Installation Settings.">
                 <controls:SettingsItem.Footer>
                     <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type nanite:ENaniteMeshFormat}}"
                               SelectedItem="{Binding NaniteMeshFormat, Converter={StaticResource EnumToRecord}}" />

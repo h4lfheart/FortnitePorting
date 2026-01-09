@@ -656,7 +656,7 @@ public partial class FilesViewModel : ViewModelBase
             var basePath = Exporter.FixPath(path);
             var fileExports = await UEParse.Provider.LoadAllObjectsAsync(basePath);
             
-            var exportPath = context.GetExportPath(meta.CustomPath is not null 
+            var exportPath = context.BuildExportPath(meta.CustomPath is not null 
                 ? basePath.SubstringAfterLast("/").SubstringBeforeLast(".") 
                 : basePath , "json");
             
@@ -701,7 +701,7 @@ public partial class FilesViewModel : ViewModelBase
 
             foreach (var (assetPath, assetData) in assets)
             {
-                var exportPath = context.GetExportPath(meta.CustomPath is not null 
+                var exportPath = context.BuildExportPath(meta.CustomPath is not null 
                     ? assetPath.SubstringAfterLast("/").SubstringBeforeLast(".") 
                     : assetPath, assetPath.SubstringAfterLast("."));
                 

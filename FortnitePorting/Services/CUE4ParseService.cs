@@ -101,7 +101,8 @@ public partial class CUE4ParseService : ObservableObject, IService
         ObjectTypeRegistry.RegisterEngine(Assembly.Load("FortnitePorting.Shared"));
 
         Provider.LoadExtraDirectories = AppSettings.Installation.CurrentProfile.LoadInstalledBundles;
-        Provider.ReadNaniteData = true;
+        
+        Provider.ReadNaniteData = AppSettings.Installation.CurrentProfile.LoadNaniteData;
         
         await CheckBlackHole();
         await CleanupCache();

@@ -51,6 +51,7 @@ public partial class InstallationProfile : ObservableValidator
     [ObservableProperty] private ELanguage _gameLanguage = ELanguage.English;
     [ObservableProperty] private bool _useTextureStreaming = true;
     [ObservableProperty] private bool _loadInstalledBundles = true;
+    [ObservableProperty] private bool _loadNaniteData;
 
     [JsonIgnore] public bool IsCustom => FortniteVersion is EFortniteVersion.Custom;
     [JsonIgnore] public bool ArchiveDirectoryEnabled => FortniteVersion is not EFortniteVersion.LatestOnDemand;
