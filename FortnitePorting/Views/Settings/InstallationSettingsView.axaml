@@ -156,6 +156,13 @@
                     <ToggleSwitch IsChecked="{Binding CurrentProfile.UseTextureStreaming}" />
                 </controls:SettingsItem.Footer>
             </controls:SettingsItem>
+            
+            <controls:SettingsItem Title="Load Nanite Data"
+                                   Description="Enable the loading and exporting of Nanite geometry.">
+                <controls:SettingsItem.Footer>
+                    <ToggleSwitch IsChecked="{Binding CurrentProfile.LoadNaniteData}" />
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
 
             <controls:SettingsItem Title="Load Installed Bundles"
                                    Description="Whether or not to load installed bundles from Fortnite's AppData directory."
