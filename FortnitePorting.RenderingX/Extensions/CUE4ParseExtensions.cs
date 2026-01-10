@@ -103,7 +103,7 @@ public static class CUE4ParseExtensions
             var values = new List<KeyValuePair<T, int>>();
             foreach (var property in propertyTags)
             {
-                var propertyValue = (T)property.Tag.GetValue(typeof(T));
+                var propertyValue = property.Tag.GetValue<T>();
                 values.Add(new KeyValuePair<T, int>(propertyValue, property.ArrayIndex));
             }
 

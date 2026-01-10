@@ -4,6 +4,7 @@ using CUE4Parse.GameTypes.FN.Assets.Exports.DataAssets;
 using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
+using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.UObject;
 using FortnitePorting.RenderingX.Cache;
 using FortnitePorting.RenderingX.Components.Rendering;
@@ -17,13 +18,15 @@ public class StaticMeshRenderer : MeshRenderer
 {
     public List<Section> Sections = [];
     public Material[] Materials = [];
-    
+
     public StaticMeshRenderer(UStaticMesh staticMesh, List<KeyValuePair<UBuildingTextureData, int>>? textureData = null, int lodLevel = 0) : base(new ShaderProgram("shader"))
     {
         if (!staticMesh.TryConvert(out var convertedMesh))
         {
             throw new RenderingXException("Failed to convert static mesh.");
         }
+
+        BoundingBox = convertedMesh.BoundingBox;
         
         var lod = convertedMesh.LODs[Math.Min(lodLevel, convertedMesh.LODs.Count - 1)];
         
@@ -53,9 +56,9 @@ public class StaticMeshRenderer : MeshRenderer
 
         Vertices = buildVertices.ToArray();
         
-        
         var sections = lod.Sections.Value;
         Materials = new Material[sections.Length];
+        if (Materials.Length == 0) return;
 
         for (var sectionIndex = 0; sectionIndex < sections.Length; sectionIndex++)
         {

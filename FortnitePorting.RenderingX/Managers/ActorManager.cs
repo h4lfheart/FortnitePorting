@@ -29,6 +29,12 @@ public class ActorManager : Manager
         AddSystem(new MeshRenderSystem());
         AddSystem(new InstancedMeshRenderSystem());
     }
+    
+    public T? GetSystem<T>() where T : class, ISystem
+    {
+        return _systems.FirstOrDefault(s => s.GetType().IsAssignableTo(typeof(T))) as T;
+    }
+
 
     public override void Update(float deltaTime)
     {

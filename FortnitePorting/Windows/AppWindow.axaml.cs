@@ -1,3 +1,4 @@
+using System;
 using Avalonia.Controls;
 using FortnitePorting.Controls.Navigation.Sidebar;
 using FortnitePorting.Framework;
@@ -28,5 +29,12 @@ public partial class AppWindow : WindowBase<AppWindowModel>
         if (!AppSettings.Installation.FinishedSetup) return;
         
         Navigation.App.Open(args.Tag);
+    }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        base.OnClosed(e);
+
+        App.Lifetime.Shutdown();
     }
 }

@@ -3,6 +3,7 @@ using CUE4Parse_Conversion.Meshes.PSK;
 using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
+using CUE4Parse.UE4.Objects.Core.Math;
 using FortnitePorting.RenderingX.Components.Rendering;
 using FortnitePorting.RenderingX.Data.Programs;
 using FortnitePorting.RenderingX.Exceptions;
@@ -21,6 +22,8 @@ public class SkeletalMeshRenderer : MeshRenderer
         {
             throw new RenderingXException("Failed to convert static mesh.");
         }
+
+        BoundingBox = convertedMesh.BoundingBox;
         
         var lod = convertedMesh.LODs[Math.Min(lodLevel, convertedMesh.LODs.Count - 1)];
         

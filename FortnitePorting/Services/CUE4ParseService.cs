@@ -20,6 +20,7 @@ using CUE4Parse.UE4.Assets.Exports.Engine;
 using CUE4Parse.UE4.IO;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.Core.Math;
+using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Pak;
 using CUE4Parse.UE4.Readers;
 using CUE4Parse.UE4.Versions;
@@ -32,6 +33,7 @@ using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.CUE4Parse;
 using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Shared.Extensions;
+using FortnitePorting.Windows;
 using Serilog;
 using UE4Config.Parsing;
 using FGuid = CUE4Parse.UE4.Objects.Core.Misc.FGuid;
@@ -138,7 +140,6 @@ public partial class CUE4ParseService : ObservableObject, IService
         }
         
         await LoadMappings();
-
         
         await LoadAssetRegistries();
 
@@ -209,7 +210,6 @@ public partial class CUE4ParseService : ObservableObject, IService
     
     private async Task InitializeDetex()
     {
-        TextureDecoder.UseAssetRipperTextureDecoder = true;
         var detexPath = Path.Combine(App.DataFolder.FullName, DetexHelper.DLL_NAME);
         if (!File.Exists(detexPath)) await DetexHelper.LoadDllAsync(detexPath);
         DetexHelper.Initialize(detexPath);

@@ -55,7 +55,6 @@ public class AssetItem : Base.BaseAssetItem
         {
             SetName = setName;
         }
-            
         
         var seasonTag = CreationData.GameplayTags.GetValueOrDefault("Cosmetics.Filter.Season.")?.Text;
         Season = int.TryParse(seasonTag?.SubstringAfterLast("."), out var seasonNumber) ? seasonNumber : int.MaxValue;

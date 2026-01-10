@@ -1,4 +1,5 @@
 using System.Collections.Specialized;
+using CUE4Parse.UE4.Objects.Core.Math;
 using FortnitePorting.RenderingX.Components;
 using FortnitePorting.RenderingX.Components.Mesh;
 using FortnitePorting.RenderingX.Components.Rendering;
@@ -14,6 +15,8 @@ public class MeshRenderer(ShaderProgram shaderProgram) : Renderable
     public ShaderProgram Shader = shaderProgram;
 
     public MeshComponent Component;
+
+    public FBox BoundingBox = new();
 
     public float[] Vertices = [];
     public uint[] Indices = [];
@@ -53,7 +56,7 @@ public class MeshRenderer(ShaderProgram shaderProgram) : Renderable
         Shader.SetMatrix4("uTransform", Component.WorldMatrix);
         Shader.SetMatrix4("uView", camera.ViewMatrix());
         Shader.SetMatrix4("uProjection", camera.ProjectionMatrix());
-        Shader.SetUniform3("fCameraDirection", camera.Direction);
+        Shader.SetUniform3("fCameraDirection", camera.Forward);
         Shader.SetUniform3("fCameraPosition", camera.WorldPosition);
     }
     

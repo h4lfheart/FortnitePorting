@@ -51,14 +51,12 @@ public class Launcher
     {
         var scene = new Scene();
         
-        var window = new RenderingXWindow(scene);
-
-        var root = new Actor("Root");
-        scene.AddActor(root);
+        var window = new RenderingXContext(scene);
         
-        window.Load += () =>
+        var sw = Stopwatch.StartNew();
         {
-            var sw = Stopwatch.StartNew();
+            var root = new Actor("Root");
+            scene.AddActor(root);
             
             var cameraActor = new CameraActor("MainCamera");
             cameraActor.Camera.Transform.Position = new Vector3(5, 5, 5);
@@ -74,10 +72,9 @@ public class Launcher
             var world = new WorldActor(_provider.LoadPackageObject<UWorld>(
                 "FortniteGame/Content/Athena/Artemis/Maps/Buildings/3x3/Artemis_3x3_Generic_House_a"));
             root.Children.Add(world);
-            
-            sw.Stop();
-            Log.Information($"Finished in {sw.Elapsed.TotalSeconds:N3}");
-        };
+        }
+        sw.Stop();
+        Log.Information($"Finished in {sw.Elapsed.TotalSeconds:N3}");
         
         window.Run();
     }

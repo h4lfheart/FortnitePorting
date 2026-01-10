@@ -16,11 +16,20 @@ public partial class ModelPreviewWindow : WindowBase<ModelPreviewWindowModel>
         InitializeComponent();
         DataContext = WindowModel;
         Owner = App.Lifetime.MainWindow;
+        
+        WindowModel.InitializeContext();
     }
 
     public static void Preview(IEnumerable<UObject> objects)
     {
-        // TODO model loading
+        if (Instance is null)
+        {
+            Instance = new ModelPreviewWindow();
+            Instance.Show();
+        }
+        
+        Instance.WindowModel.LoadScene(objects);
+        Instance.BringToTop();
     }
 
     protected override void OnClosed(EventArgs e)

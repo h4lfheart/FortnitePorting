@@ -1,7 +1,10 @@
+using CUE4Parse.UE4.Objects.Core.Math;
 using FortnitePorting.RenderingX.Components;
 using FortnitePorting.RenderingX.Components.Mesh;
 using FortnitePorting.RenderingX.Components.Rendering;
 using FortnitePorting.RenderingX.Exceptions;
+using FortnitePorting.RenderingX.Extensions;
+using FortnitePorting.RenderingX.Renderers;
 
 namespace FortnitePorting.RenderingX.Systems;
 
@@ -13,6 +16,22 @@ public class MeshRenderSystem : ISystem
     ];
 
     private HashSet<MeshComponent> _registeredComponents = [];
+
+    public FBox GetBounds()
+    {
+        var bounds = new FBox();
+        foreach (var component in _registeredComponents)
+        {
+            var localBounds = component.Renderer.BoundingBox * 0.01f;
+        
+            var worldMatrix = component.WorldMatrix.ToFMatrix();
+            var worldBounds = localBounds.TransformBy(worldMatrix);
+        
+            bounds += worldBounds;
+        }
+        
+        return bounds;
+    }
     
     public void Update(float deltaTime)
     {

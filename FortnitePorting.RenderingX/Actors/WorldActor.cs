@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using CUE4Parse.GameTypes.FN.Assets.Exports.DataAssets;
+using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Actor;
 using CUE4Parse.UE4.Assets.Exports.Component;
 using CUE4Parse.UE4.Assets.Exports.Component.StaticMesh;
@@ -17,23 +18,24 @@ namespace FortnitePorting.RenderingX.Actors;
 
 public class WorldActor : Actor
 {
-    public WorldActor(UWorld world, Transform? transform = null) : base(world.Name)
+    public WorldActor(UWorld world, Transform? transform = null) : this(world.PersistentLevel.Load<ULevel>(), transform)
     {
-        Components.Add(new SpatialComponent("WorldRoot", transform));
-        AddActors(world);
     }
     
-    private void AddActors(UWorld world)
+    public WorldActor(ULevel? level, Transform? transform = null) : base(level?.Name ?? "World")
     {
-        var level = world.PersistentLevel.Load<ULevel>();
-        if (level is null) return;
-        
-        var actors = world.PersistentLevel.Load<ULevel>()?.Actors ?? [];
-        foreach (var actorPtr in actors)
+        Components.Add(new SpatialComponent("WorldRoot", transform));
+        if (level is not null) 
+            AddActors(level);
+    }
+    
+    private void AddActors(ULevel level)
+    {
+        foreach (var actorPtr in level.Actors)
         {
             if (actorPtr is null || actorPtr.IsNull) continue;
 
-            var actor = actorPtr.Load<AActor>();
+            var actor = actorPtr.Load();
             if (actor is null) continue;
             if (actor.ExportType == "LODActor") continue;
             
@@ -60,7 +62,7 @@ public class WorldActor : Actor
         }
     }
     
-    private void AddStaticMesh(AActor levelActor, UStaticMeshComponent component, Actor parent)
+    private void AddStaticMesh(UObject levelActor, UStaticMeshComponent component, Actor parent)
     {
         if (!component.GetStaticMesh().TryLoad(out UStaticMesh staticMesh)) return;
 
