@@ -1,7 +1,11 @@
 using CUE4Parse_Conversion.Meshes;
 using CUE4Parse_Conversion.Meshes.PSK;
+using CUE4Parse.GameTypes.FN.Assets.Exports.DataAssets;
 using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
+using CUE4Parse.UE4.Assets.Exports.Texture;
+using CUE4Parse.UE4.Objects.UObject;
+using FortnitePorting.RenderingX.Cache;
 using FortnitePorting.RenderingX.Components.Rendering;
 using FortnitePorting.RenderingX.Data.Programs;
 using FortnitePorting.RenderingX.Exceptions;
@@ -14,7 +18,7 @@ public class StaticMeshRenderer : MeshRenderer
     public List<Section> Sections = [];
     public Material[] Materials = [];
     
-    public StaticMeshRenderer(UStaticMesh staticMesh, int lodLevel = 0) : base(new ShaderProgram("shader"))
+    public StaticMeshRenderer(UStaticMesh staticMesh, List<KeyValuePair<UBuildingTextureData, int>>? textureData = null, int lodLevel = 0) : base(new ShaderProgram("shader"))
     {
         if (!staticMesh.TryConvert(out var convertedMesh))
         {
@@ -72,6 +76,27 @@ public class StaticMeshRenderer : MeshRenderer
                 Materials[sectionIndex] = new Material();
             }
         }
+
+        foreach (var (buildingTextureData, layerIndex) in textureData ?? [])
+        {
+            if (buildingTextureData.OverrideMaterial.TryLoad(out UMaterialInterface materialInterface))
+                Materials[0] = materialInterface switch
+                {
+                    UMaterialInstanceConstant materialInstance => new Material(materialInstance),
+                    UMaterial material => new Material(material),
+                    _ => new Material()
+                };
+            
+            if (buildingTextureData.Diffuse.TryLoad(out UTexture2D diffuseTexture))
+                Materials[0].Diffuse[layerIndex] = TextureCache.GetOrCreate(diffuseTexture);
+            
+            if (buildingTextureData.Normal.TryLoad(out UTexture2D normalTexture))
+                Materials[0].Normals[layerIndex] = TextureCache.GetOrCreate(normalTexture);
+            
+            if (buildingTextureData.Specular.TryLoad(out UTexture2D specularTexture))
+                Materials[0].SpecularMasks[layerIndex] = TextureCache.GetOrCreate(specularTexture);
+            
+        }
     }
 
     public override void Initialize()
@@ -99,11 +124,6 @@ public class StaticMeshRenderer : MeshRenderer
     protected override void RenderShader(CameraComponent camera)
     {
         base.RenderShader(camera);
-        
-        foreach (var section in Sections)
-        {
-            Materials[section.MaterialIndex].Bind();
-        }
     }
 
     protected override void RenderGeometry(CameraComponent camera)
@@ -112,6 +132,7 @@ public class StaticMeshRenderer : MeshRenderer
         
         foreach (var section in Sections)
         {
+            Materials[section.MaterialIndex].Bind();
             GL.DrawElements(PrimitiveType.Triangles, section.FaceCount, DrawElementsType.UnsignedInt, section.FirstFaceIndexPtr);
         }
     }

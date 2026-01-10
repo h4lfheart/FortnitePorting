@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using CUE4Parse.GameTypes.FN.Assets.Exports.DataAssets;
 using CUE4Parse.UE4.Assets.Exports.Actor;
 using CUE4Parse.UE4.Assets.Exports.Component;
 using CUE4Parse.UE4.Assets.Exports.Component.StaticMesh;
@@ -8,6 +10,7 @@ using CUE4Parse.UE4.Objects.UObject;
 using FortnitePorting.RenderingX.Components;
 using FortnitePorting.RenderingX.Components.Mesh;
 using FortnitePorting.RenderingX.Core;
+using FortnitePorting.RenderingX.Extensions;
 using FortnitePorting.RenderingX.Renderers;
 
 namespace FortnitePorting.RenderingX.Actors;
@@ -66,7 +69,11 @@ public class WorldActor : Actor
             component.GetRelativeLocation(),
             component.GetRelativeScale3D());
         
-        var meshActor = new InstancedMeshActor(staticMesh, transform)
+        levelActor.GatherTemplateProperties();
+        
+        var textureData = levelActor.GetAllProperties<UBuildingTextureData>("TextureData");
+        
+        var meshActor = new MeshActor(staticMesh, transform, textureData)
         {
             Name = levelActor.Name
         };

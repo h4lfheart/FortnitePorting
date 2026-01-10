@@ -24,7 +24,7 @@ public class RenderingXWindow(Scene _scene) : GameWindow(GameSettings, NativeSet
         APIVersion = new Version(4, 6),
         StartVisible = true,
         Title = "FortnitePorting.RenderingX",
-        NumberOfSamples = 4
+        NumberOfSamples = 16
     };
     
     protected override void OnLoad()

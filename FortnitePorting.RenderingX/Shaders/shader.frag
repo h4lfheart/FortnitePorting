@@ -6,8 +6,10 @@ in vec3 fNormal;
 in vec3 fTangent;
 in vec2 fTexCoord;
 in float fMaterialLayer;
+in float fMirrorFlip;
 
 uniform bool useLayers;
+uniform int maxLayer;
 
 uniform sampler2D diffuse0;
 uniform sampler2D diffuse1;
@@ -75,7 +77,7 @@ vec3 calculateNormals(vec3 normalMap)
     vec3 N = normalize(fNormal);
     vec3 T = normalize(fTangent);
     T = normalize(T - dot(T, N) * N);
-    vec3 B = cross(N, T);
+    vec3 B = cross(N, T) * fMirrorFlip;
 
     mat3 TBN = mat3(T, B, N);
     return normalize(TBN * normalMap);
@@ -125,6 +127,10 @@ void main()
 {
     int layer = useLayers ? int(fMaterialLayer) : 0;
 
+    if (layer >= maxLayer) {
+        layer = 0;
+    }
+
     vec3 albedo = pow(getDiffuse(layer), vec3(2.2));
     vec3 normals = calculateNormals(getNormal(layer));
     vec3 specularMasks = getSpecular(layer);
@@ -137,11 +143,12 @@ void main()
     vec3 N = normals;
     vec3 V = normalize(fCameraPosition - fPosition);
 
-    vec3 cameraRight = normalize(cross(V, vec3(0.0, 1.0, 0.0)));
-    vec3 cameraUp = normalize(cross(cameraRight, V));
-    vec3 L1 = normalize(V + cameraRight * 0.8 + cameraUp * 1.2);
+    vec3 V_horizontal = normalize(vec3(V.x, 0.0, V.z));
+    vec3 cameraRight = normalize(cross(V_horizontal, vec3(0.0, 1.0, 0.0)));
+    vec3 cameraUp = vec3(0.0, 1.0, 0.0);
 
-    vec3 L2 = normalize(V - cameraRight * 0.5 + cameraUp * 0.3);
+    vec3 L1 = normalize(V_horizontal + cameraRight * 0.8 + cameraUp * 1.2);
+    vec3 L2 = normalize(V_horizontal - cameraRight * 0.5 + cameraUp * 0.3);
 
     vec3 H1 = normalize(V + L1);
     vec3 F0 = vec3(0.04);
@@ -164,7 +171,7 @@ void main()
 
     float NdotL2 = max(dot(N, L2), 0.0);
     vec3 Lo2 = (albedo / PI) * vec3(0.4) * NdotL2;
-    
+
     vec3 ambient = vec3(0.02) * albedo;
 
     vec3 color = ambient + Lo1 + Lo2;
@@ -172,4 +179,5 @@ void main()
     color = pow(color, vec3(1.0/2.2));
 
     FragColor = vec4(color, 1.0);
+    
 }

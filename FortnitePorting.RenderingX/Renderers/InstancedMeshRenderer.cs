@@ -170,11 +170,6 @@ public class InstancedMeshRenderer : MeshRenderer
         Shader.SetMatrix4("uProjection", camera.ProjectionMatrix());
         Shader.SetUniform3("fCameraDirection", camera.Direction);
         Shader.SetUniform3("fCameraPosition", camera.WorldPosition);
-        
-        foreach (var section in Sections)
-        {
-            Materials[section.MaterialIndex].Bind();
-        }
     }
 
     protected override void RenderGeometry(CameraComponent camera)
@@ -184,6 +179,7 @@ public class InstancedMeshRenderer : MeshRenderer
         
         foreach (var section in Sections)
         {
+            Materials[section.MaterialIndex].Bind();
             GL.DrawElementsInstanced(PrimitiveType.Triangles, section.FaceCount, DrawElementsType.UnsignedInt, section.FirstFaceIndexPtr, _transforms.Count);
         }
     }

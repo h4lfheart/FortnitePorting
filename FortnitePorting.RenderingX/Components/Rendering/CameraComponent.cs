@@ -6,7 +6,7 @@ public class CameraComponent : SpatialComponent
 {
     public Vector3 Direction = Vector3.UnitX;
     public Vector3 Up = Vector3.UnitY;
-    public float FieldOfView = 60.0f;
+    public float FieldOfView = 70.0f;
     public float AspectRatio = 16.0f / 9.0f;
     public float NearPlane = 0.1f;
     public float FarPlane = 10000.0f;

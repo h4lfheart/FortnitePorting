@@ -11,6 +11,7 @@ out vec3 fNormal;
 out vec3 fTangent;
 out vec2 fTexCoord;
 out float fMaterialLayer;
+out float fMirrorFlip;
 
 uniform mat4 uTransform;
 uniform mat4 uView;
@@ -21,6 +22,9 @@ void main()
     vec4 finalPos = vec4(aPosition, 1.0);
     vec3 transformedNormal = normalize((vec4(aNormal, 0.0) * transpose(inverse(uTransform))).xyz);
     vec3 transformedTangent = normalize((vec4(aTangent, 0.0) * transpose(inverse(uTransform))).xyz);
+
+    float det = determinant(mat3(uTransform));
+    fMirrorFlip = (det < 0.0) ? -1.0 : 1.0;
 
     fPosition = vec3(finalPos * uTransform);
     fNormal = normalize(transformedNormal);

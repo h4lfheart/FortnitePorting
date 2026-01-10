@@ -1,32 +1,36 @@
 using CUE4Parse.UE4.Assets.Exports.Material;
+using CUE4Parse.UE4.Assets.Exports.Material.Editor;
 using FortnitePorting.RenderingX.Data.Programs;
 using FortnitePorting.RenderingX.Data.Textures;
+using FortnitePorting.RenderingX.Extensions;
+using Serilog;
 
 namespace FortnitePorting.RenderingX.Materials;
 
 
 public class Material
 {
-    private Texture2D?[] Diffuse = new Texture2D[4];
-    private Texture2D?[] Normals = new Texture2D[4];
-    private Texture2D?[] SpecularMasks = new Texture2D[4];
+    public Texture2D?[] Diffuse = new Texture2D[4];
+    public Texture2D?[] Normals = new Texture2D[4];
+    public Texture2D?[] SpecularMasks = new Texture2D[4];
     public bool UseLayers;
+    public int MaxLayer;
 
-    private static readonly Lazy<Texture2D> DefaultDiffuse = new(() =>
+    public static readonly Lazy<Texture2D> DefaultDiffuse = new(() =>
     {
         var texture = new Texture2D(1, 1, [178, 178, 178, 255]);
         texture.Generate();
         return texture;
     });
     
-    private static readonly Lazy<Texture2D> DefaultNormal = new(() =>
+    public static readonly Lazy<Texture2D> DefaultNormal = new(() =>
     {
         var texture = new Texture2D(1, 1, [255, 128, 128, 255]);
         texture.Generate();
         return texture;
     });
     
-    private static readonly Lazy<Texture2D> DefaultSpecular = new(() =>
+    public static readonly Lazy<Texture2D> DefaultSpecular = new(() =>
     {
         var texture = new Texture2D(1, 1, [0, 0, 255, 255]);
         texture.Generate();
@@ -127,9 +131,9 @@ public class Material
             NormalMappings.TrySetTexture(Normals, textureParameter);
             SpecularMappings.TrySetTexture(SpecularMasks, textureParameter);
         }
-        
-        UseLayers = materialInstance.StaticParameters?.StaticSwitchParameters.Any(param => UseLayerNames.Contains(param.Name, StringComparer.OrdinalIgnoreCase) && param.Value) ?? false;
-        
+
+        CheckLayerUsage(materialInstance);
+
         FillWithDefaults(Diffuse, DefaultDiffuse.Value);
         FillWithDefaults(Normals, DefaultNormal.Value);
         FillWithDefaults(SpecularMasks, DefaultSpecular.Value); 
@@ -162,6 +166,7 @@ public class Material
         SetTextureUnforms("specular", SpecularMasks);
         
         shader.SetUniform("useLayers", UseLayers ? 1 : 0);
+        shader.SetUniform("maxLayer", MaxLayer);
     }
     
     public void Bind()
@@ -181,6 +186,50 @@ public class Material
         BindTextureArray(Diffuse);
         BindTextureArray(Normals);
         BindTextureArray(SpecularMasks);
+    }
+
+    private void CheckLayerUsage(UUnrealMaterial? material)
+    {
+        if (material is not UMaterialInstanceConstant materialInstance) return;
+        
+        SetLayerParameters(materialInstance.StaticParameters);
+        
+        if (materialInstance.TryLoadEditorData<UMaterialInstanceEditorOnlyData>(out var materialInstanceEditorData) &&
+            materialInstanceEditorData?.StaticParameters is not null)
+        {
+            SetLayerParameters(materialInstanceEditorData.StaticParameters);
+        }
+
+        CheckLayerUsage(materialInstance.Parent);
+    }
+
+    private void SetLayerParameters(FStaticParameterSet? staticParameterSet)
+    {
+        if (staticParameterSet is null)
+            return;
+        
+        UseLayers |= staticParameterSet.StaticSwitchParameters.Any(param => UseLayerNames.Contains(param.Name, StringComparer.OrdinalIgnoreCase) && param.Value);
+        
+        bool HasLayerToggle(params string[] keys)
+        {
+            return keys.Any(key => staticParameterSet.StaticSwitchParameters.Any(param => param.Name.Equals(key, StringComparison.OrdinalIgnoreCase) && param.Value));
+        }
+
+        MaxLayer = 4;
+        if (HasLayerToggle("Use 2 Materials", "Use 2 Layers"))
+        {
+            MaxLayer = 2;
+        } 
+        
+        if (HasLayerToggle("Use 3 Materials", "Use 3 Layers"))
+        {
+            MaxLayer = 3;
+        }
+        
+        if (HasLayerToggle("Use 4 Materials", "Use 4 Layers"))
+        {
+            MaxLayer = 4;
+        }
     }
 
     private void FillWithDefaults(Texture2D?[] textures, Texture2D defaultTexture)

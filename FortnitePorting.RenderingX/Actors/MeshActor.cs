@@ -1,5 +1,7 @@
+using CUE4Parse.GameTypes.FN.Assets.Exports.DataAssets;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
+using CUE4Parse.UE4.Objects.UObject;
 using FortnitePorting.RenderingX.Components.Mesh;
 using FortnitePorting.RenderingX.Core;
 
@@ -7,9 +9,9 @@ namespace FortnitePorting.RenderingX.Actors;
 
 public class MeshActor : Actor
 {
-    public MeshActor(UStaticMesh mesh, Transform transform) : base(mesh.Name)
+    public MeshActor(UStaticMesh mesh, Transform transform, List<KeyValuePair<UBuildingTextureData, int>>? textureData = null) : base(mesh.Name)
     {
-        Components.Add(new StaticMeshComponent(mesh) 
+        Components.Add(new StaticMeshComponent(mesh, textureData) 
         {
             Transform = transform
         });

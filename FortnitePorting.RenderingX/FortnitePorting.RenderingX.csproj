@@ -24,4 +24,8 @@
         <ProjectReference Include="..\Dependencies\CUE4Parse\CUE4Parse\CUE4Parse.csproj" />
     </ItemGroup>
     
+    <ItemGroup>
+      <Compile Remove="Data\Buffers\DrawIndirectBuffer.cs" />
+    </ItemGroup>
+    
 </Project>
