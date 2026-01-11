@@ -352,7 +352,9 @@
         <Grid IsVisible="{Binding ShowLoadingSplash}">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                 <ui:ProgressRing IsIndeterminate="True" Background="Transparent" Width="50" Height="50" BorderThickness="5"/>
-                <TextBlock Text="Loading Files" Margin="{ext:Space 0, 1, 0, 0}"/>
+                <TextBlock Text="Loading Assets"
+                           Classes="BodyStrongTextBlockStyle" HorizontalAlignment="Center"
+                           Margin="{ext:Space 0, 2, 0, 0}"/>
             </StackPanel>
         </Grid>
     </Grid>

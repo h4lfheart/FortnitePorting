@@ -86,8 +86,6 @@ public class AppService : IService
 
     private void OnAppStart(object? sender, ControlledApplicationLifetimeStartupEventArgs e)
     {
-        
-        
         TimeWasterViewModel.LoadResources();
 
         if (AppSettings.Online.UseDiscordRichPresence)

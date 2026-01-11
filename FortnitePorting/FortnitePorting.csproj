@@ -55,8 +55,8 @@
     <ItemGroup>
         <ProjectReference Include="..\Dependencies\CUE4Parse\CUE4Parse-Conversion\CUE4Parse-Conversion.csproj" />
         <ProjectReference Include="..\Dependencies\CUE4Parse\CUE4Parse\CUE4Parse.csproj" />
-        <ProjectReference Include="..\FortnitePorting.Rendering\FortnitePorting.Rendering.csproj" />
         <ProjectReference Include="..\FortnitePorting.Plugins\FortnitePorting.Plugins.csproj" />
+        <ProjectReference Include="..\FortnitePorting.RenderingX\FortnitePorting.RenderingX.csproj" />
         <ProjectReference Include="..\FortnitePorting.Shared\FortnitePorting.Shared.csproj" />
         <ProjectReference Include="..\Dependencies\FluentAvalonia.BreadcrumbBar\FluentAvalonia.BreadcrumbBar\FluentAvalonia.BreadcrumbBar.csproj" />
     </ItemGroup>

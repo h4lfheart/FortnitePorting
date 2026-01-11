@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using CUE4Parse.UE4.Assets.Exports;
 using FortnitePorting.Framework;
-using FortnitePorting.Rendering;
 using FortnitePorting.Services;
 using FortnitePorting.WindowModels;
 
@@ -17,29 +16,20 @@ public partial class ModelPreviewWindow : WindowBase<ModelPreviewWindowModel>
         InitializeComponent();
         DataContext = WindowModel;
         Owner = App.Lifetime.MainWindow;
-
-        WindowModel.Context ??= new ModelViewerContext();
-        WindowModel.Control = new ModelPreviewControl(WindowModel.Context);
+        
+        WindowModel.InitializeContext();
     }
 
     public static void Preview(IEnumerable<UObject> objects)
     {
-        if (Instance is not null)
-        {
-            Instance.WindowModel.MeshName = string.Empty;
-            Instance.WindowModel.LoadQueue(new Queue<UObject>(objects));
-            Instance.BringToTop();
-            return;
-        }
-        
-        TaskService.RunDispatcher(() =>
+        if (Instance is null)
         {
             Instance = new ModelPreviewWindow();
-            Instance.WindowModel.MeshName = string.Empty;
-            Instance.WindowModel.LoadQueue(new Queue<UObject>(objects));
             Instance.Show();
-            Instance.BringToTop();
-        });
+        }
+        
+        Instance.WindowModel.LoadScene(objects);
+        Instance.BringToTop();
     }
 
     protected override void OnClosed(EventArgs e)

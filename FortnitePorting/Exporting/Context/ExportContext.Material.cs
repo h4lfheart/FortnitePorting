@@ -20,9 +20,10 @@ public partial class ExportContext
 {
     private ConcurrentHashSet<ExportMaterial> MaterialCache = [];
     
-    public ExportMaterial? Material(UMaterialInterface material, int index)
+    public ExportMaterial? Material(UMaterialInterface? material, int index)
     {
         if (!Meta.Settings.ExportMaterials) return null;
+        if (material is null) return null;
 
         var hash = material.GetPathName().GetHashCode();
         if (MaterialCache.FirstOrDefault(mat => mat.Hash == hash) is { } existing) return existing with { Slot = index};

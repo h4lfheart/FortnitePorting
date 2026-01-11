@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using CUE4Parse.GameTypes.FN.Assets.Exports;
+using CUE4Parse.GameTypes.FN.Assets.Exports.DataAssets;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.Rig;
@@ -224,12 +225,12 @@ public partial class ExportContext
         
         exportTextureData.Hash = exportTextureData.Path.GetHashCode();
 
-        exportTextureData.Diffuse = Texture(textureData.Diffuse);
-        exportTextureData.Normal = Texture(textureData.Normal);
-        exportTextureData.Specular = Texture(textureData.Specular);
+        exportTextureData.Diffuse = Texture(textureData.Diffuse.Load<UTexture2D>());
+        exportTextureData.Normal = Texture(textureData.Normal.Load<UTexture2D>());
+        exportTextureData.Specular = Texture(textureData.Specular.Load<UTexture2D>());
         
         if (textureData.OverrideMaterial is { } overrideMaterial)
-            exportTextureData.OverrideMaterial = Material(overrideMaterial, 0);
+            exportTextureData.OverrideMaterial = Material(overrideMaterial.Load<UMaterialInterface>(), 0);
         
         return exportTextureData;
     }

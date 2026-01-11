@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using CUE4Parse.GameTypes.FN.Assets.Exports.DataAssets;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using FortnitePorting.Exporting.Models;
@@ -39,9 +40,9 @@ public class TextureExport : BaseExport
             }
             case UBuildingTextureData textureData:
             {
-                textures.AddIfNotNull(textureData.Diffuse);
-                textures.AddIfNotNull(textureData.Normal);
-                textures.AddIfNotNull(textureData.Specular);
+                textures.AddIfNotNull(textureData.Diffuse.Load<UTexture2D>());
+                textures.AddIfNotNull(textureData.Normal.Load<UTexture2D>());
+                textures.AddIfNotNull(textureData.Specular.Load<UTexture2D>());
                 break;
             }
             default:
