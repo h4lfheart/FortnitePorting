@@ -27,7 +27,6 @@ public class ActorManager : Manager
     public ActorManager()
     {
         AddSystem(new MeshRenderSystem());
-        AddSystem(new InstancedMeshRenderSystem());
     }
     
     public T? GetSystem<T>() where T : class, ISystem

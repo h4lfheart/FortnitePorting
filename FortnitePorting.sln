@@ -18,8 +18,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentAvalonia.BreadcrumbBa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortnitePorting.RenderingX", "FortnitePorting.RenderingX\FortnitePorting.RenderingX.csproj", "{10D5E9F1-41B8-4869-99CF-7F6392AD2FC4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortnitePorting.RenderingX.Standalone", "FortnitePorting.RenderingX.Standalone\FortnitePorting.RenderingX.Standalone.csproj", "{9B281DF2-1B36-42CC-BF44-C7A669A216EF}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -54,10 +52,6 @@ Global
 		{10D5E9F1-41B8-4869-99CF-7F6392AD2FC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{10D5E9F1-41B8-4869-99CF-7F6392AD2FC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{10D5E9F1-41B8-4869-99CF-7F6392AD2FC4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9B281DF2-1B36-42CC-BF44-C7A669A216EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9B281DF2-1B36-42CC-BF44-C7A669A216EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9B281DF2-1B36-42CC-BF44-C7A669A216EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9B281DF2-1B36-42CC-BF44-C7A669A216EF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{080F7E8E-25FF-488C-8F7B-F1104F9456F4} = {160B5ECB-2908-45FC-9568-A278D0F5C7BB}
@@ -65,6 +59,5 @@ Global
 		{F4D98C69-ED26-4EA3-A60A-9E1F54E78211} = {A58495DE-FFF8-4539-9A8B-91EFE442FE4F}
 		{2F47C460-E14B-4241-BB33-7F1E5AEAD4CC} = {160B5ECB-2908-45FC-9568-A278D0F5C7BB}
 		{10D5E9F1-41B8-4869-99CF-7F6392AD2FC4} = {A58495DE-FFF8-4539-9A8B-91EFE442FE4F}
-		{9B281DF2-1B36-42CC-BF44-C7A669A216EF} = {A58495DE-FFF8-4539-9A8B-91EFE442FE4F}
 	EndGlobalSection
 EndGlobal
