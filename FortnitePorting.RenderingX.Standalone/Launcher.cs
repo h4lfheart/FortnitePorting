@@ -76,7 +76,7 @@ public class Launcher
             root.Children.Add(grid);
 
             var world = new WorldActor(_provider.LoadPackageObject<UWorld>(
-                "FortniteGame/Content/Athena/Artemis/Maps/Buildings/3x3/Artemis_3x3_Generic_House_a"));
+                "FortniteGame/Plugins/GameFeatures/CloudberryMapContent/Content/Athena/Apollo/Maps/POI/Apollo_POI_Agency"));
             root.Children.Add(world);
 
             var meshSystem = scene.ActorManager.GetSystem<MeshRenderSystem>()!;

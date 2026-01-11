@@ -27,6 +27,11 @@ public partial class ModelPreviewWindowModel : WindowModelBase
     [ObservableProperty] private RenderingXControl? _control;
     [ObservableProperty] private bool _isLoading;
     
+    [ObservableProperty] private int _loadCount;
+    [ObservableProperty] private int _totalCount;
+    [ObservableProperty] private string _loadName;
+    [ObservableProperty] private bool _isLoadingWorld;
+    
     [ObservableProperty] private static RenderingXContext? _context;
     [ObservableProperty] private static Scene _scene = null!;
     [ObservableProperty] private static Actor _previewRoot = null!;
@@ -72,6 +77,34 @@ public partial class ModelPreviewWindowModel : WindowModelBase
 
             foreach (var obj in objects)
             {
+                switch (obj)
+                {
+                    case UStaticMesh staticMesh:
+                    {
+                        PreviewRoot.Children.Add(new MeshActor(staticMesh));
+                        break;
+                    }
+                    case USkeletalMesh skeletalMesh:
+                    {
+                        PreviewRoot.Children.Add(new MeshActor(skeletalMesh));
+                        break;
+                    }
+                    case ULevel level:
+                    {
+                        IsLoadingWorld = true;
+                        
+                        var worldActor = new WorldActor(level, progressHandler: progress =>
+                        {
+                            LoadCount = progress.Current;
+                            TotalCount = progress.Total;
+                            LoadName = progress.Name;
+                        });
+                        PreviewRoot.Children.Add(worldActor);
+                        
+                        IsLoadingWorld = false;
+                        break;
+                    }
+                }
                 PreviewRoot.Children.Add(obj switch
                 {
                     UStaticMesh staticMesh => new MeshActor(staticMesh),

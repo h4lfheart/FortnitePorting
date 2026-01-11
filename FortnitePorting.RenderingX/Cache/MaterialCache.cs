@@ -34,6 +34,9 @@ public static class MaterialCache
     
     public static Material GetOrCreateWithTextureData(UMaterialInterface? materialInterface, List<KeyValuePair<UBuildingTextureData, int>> textureData)
     {
+        if (materialInterface is null)
+            return new Material();
+        
         if (textureData.Count == 0)
             return GetOrCreate(materialInterface);
 
@@ -78,11 +81,11 @@ public static class MaterialCache
         }
     }
 
-    private static string GenerateTextureDataKey(UMaterialInterface? materialInterface, List<KeyValuePair<UBuildingTextureData, int>> textureData)
+    private static string GenerateTextureDataKey(UMaterialInterface materialInterface, List<KeyValuePair<UBuildingTextureData, int>> textureData)
     {
-        var basePath = materialInterface?.GetPathName() ?? "null";
+        var basePath = materialInterface?.GetPathName() ?? "Invalid";
         
-        var overrideData = textureData.FirstOrDefault(td => !td.Key.OverrideMaterial.IsNull);
+        var overrideData = textureData.FirstOrDefault(td => td.Key.OverrideMaterial.IsNull);
         if (overrideData.Key?.OverrideMaterial.TryLoad(out var overrideMaterial) ?? false)
         {
             basePath = overrideMaterial.GetPathName();

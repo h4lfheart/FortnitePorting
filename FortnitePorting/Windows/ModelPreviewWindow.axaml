@@ -57,12 +57,38 @@
             <Grid Margin="{ext:Space 1}" ClipToBounds="True">
                 <ContentControl Content="{Binding Control}" IsVisible="{Binding !IsLoading}"/>
                 
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding IsLoading}">
-                    <ui:ProgressRing IsIndeterminate="True" Background="Transparent" Width="50" Height="50" BorderThickness="5"/>
-                    <TextBlock Text="Loading Assets"
-                               Classes="BodyStrongTextBlockStyle" HorizontalAlignment="Center"
-                               Margin="{ext:Space 0, 2, 0, 0}"/>
-                </StackPanel>
+                <Grid IsVisible="{Binding IsLoading}">
+                    
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding !IsLoadingWorld}">
+                        <ui:ProgressRing IsIndeterminate="True" Background="Transparent" Width="50" Height="50" BorderThickness="5"/>
+                        <TextBlock Text="Loading Assets"
+                                   Classes="BodyStrongTextBlockStyle" HorizontalAlignment="Center"
+                                   Margin="{ext:Space 0, 2, 0, 0}"/>
+                    </StackPanel>
+                    
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding IsLoadingWorld}"
+                                Spacing="{ext:Space 1}">
+                        <TextBlock Text="{Binding LoadName, StringFormat='Loading {0}'}"
+                                   Classes="BodyStrongTextBlockStyle" HorizontalAlignment="Center"/>
+                        
+                        <TextBlock Classes="TextFillColorSecondaryBrush" HorizontalAlignment="Center"
+                                   Margin="{ext:Space 0, 0, 0, 1}">
+                            <TextBlock.Text>
+                                <MultiBinding StringFormat="{}{0} / {1}">
+                                    <Binding Path="LoadCount"/>
+                                    <Binding Path="TotalCount"/>
+                                </MultiBinding>
+                            </TextBlock.Text>
+                        </TextBlock>
+                        
+                        <ProgressBar HorizontalAlignment="Center" VerticalAlignment="Center" Height="8"
+                                     MinWidth="400"
+                                     Value="{Binding LoadCount}"
+                                     Minimum="0"
+                                     Maximum="{Binding TotalCount}" />
+                    </StackPanel>
+                    
+                </Grid>
             </Grid>
         </Border>
     </Grid>

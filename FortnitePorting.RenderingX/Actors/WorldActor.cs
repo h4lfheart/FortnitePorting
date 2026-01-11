@@ -16,14 +16,26 @@ using FortnitePorting.RenderingX.Renderers;
 
 namespace FortnitePorting.RenderingX.Actors;
 
+public class WorldProgress
+{
+    public int Current { get; init; }
+    public int Total { get; init; }
+    public string Name { get; init; }
+}
+
 public class WorldActor : Actor
 {
-    public WorldActor(UWorld world, Transform? transform = null) : this(world.PersistentLevel.Load<ULevel>(), transform)
+    private Action<WorldProgress>? LoadProgressHandler;
+    
+    public WorldActor(UWorld world, Transform? transform = null, Action<WorldProgress>? progressHandler = null) 
+        : this(world.PersistentLevel.Load<ULevel>(), transform, progressHandler)
     {
     }
     
-    public WorldActor(ULevel? level, Transform? transform = null) : base(level?.Name ?? "World")
+    public WorldActor(ULevel? level, Transform? transform = null, Action<WorldProgress>? progressHandler = null) : base(level?.Name ?? "World")
     {
+        LoadProgressHandler = progressHandler;
+        
         Components.Add(new SpatialComponent("WorldRoot", transform));
         if (level is not null) 
             AddActors(level);
@@ -31,13 +43,23 @@ public class WorldActor : Actor
     
     private void AddActors(ULevel level)
     {
+        var actorIdx = 0;
         foreach (var actorPtr in level.Actors)
         {
             if (actorPtr is null || actorPtr.IsNull) continue;
 
             var actor = actorPtr.Load();
+            actorIdx++;
+            
             if (actor is null) continue;
             if (actor.ExportType == "LODActor") continue;
+            
+            LoadProgressHandler?.Invoke(new WorldProgress
+            {
+                Current = actorIdx,
+                Total = level.Actors.Length,
+                Name = actor.Name
+            });
             
             if (actor.TryGetValue(out FSoftObjectPath[] additionalWorlds, "AdditionalWorlds"))
             {
@@ -51,7 +73,7 @@ public class WorldActor : Actor
                         sceneComponent.GetRelativeLocation(),
                         sceneComponent.GetRelativeScale3D());
                     
-                    var subWorldActor = new WorldActor(subWorld, transform);
+                    var subWorldActor = new WorldActor(subWorld, transform, LoadProgressHandler);
                     Children.Add(subWorldActor);
                 }
             }
@@ -73,7 +95,9 @@ public class WorldActor : Actor
         
         levelActor.GatherTemplateProperties();
         
-        var textureData = levelActor.GetAllProperties<UBuildingTextureData>("TextureData");
+        var textureData = levelActor.GetAllProperties<UBuildingTextureData>("TextureData")
+            .Where(td => td.Key is not null)
+            .ToList();
         
         var meshActor = new MeshActor(staticMesh, transform, textureData)
         {

@@ -110,7 +110,7 @@ public class StaticMeshRenderer : MeshRenderer
         
         foreach (var section in Sections)
         {
-            Materials[section.MaterialIndex].Bind();
+            Materials[Math.Min(Materials.Length - 1, section.MaterialIndex)].Bind();
             GL.DrawElements(PrimitiveType.Triangles, section.FaceCount, DrawElementsType.UnsignedInt, section.FirstFaceIndexPtr);
         }
     }
