@@ -22,7 +22,9 @@ using FortnitePorting.RenderingX.Components.Rendering;
 using FortnitePorting.RenderingX.Core;
 using FortnitePorting.RenderingX.Managers;
 using FortnitePorting.RenderingX.Renderers;
+using FortnitePorting.RenderingX.Systems;
 using OpenTK.Mathematics;
+using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using Serilog;
 
@@ -52,9 +54,13 @@ public class Launcher
         var scene = new Scene();
         
         var window = new RenderingXContext(scene);
+        window.WindowBorder = WindowBorder.Resizable;
+        window.CenterWindow();
         
-        var sw = Stopwatch.StartNew();
+        window.EnqueueCommand(() =>
         {
+            var sw = Stopwatch.StartNew();
+            
             var root = new Actor("Root");
             scene.AddActor(root);
             
@@ -72,10 +78,15 @@ public class Launcher
             var world = new WorldActor(_provider.LoadPackageObject<UWorld>(
                 "FortniteGame/Content/Athena/Artemis/Maps/Buildings/3x3/Artemis_3x3_Generic_House_a"));
             root.Children.Add(world);
-        }
-        sw.Stop();
-        Log.Information($"Finished in {sw.Elapsed.TotalSeconds:N3}");
+
+            var meshSystem = scene.ActorManager.GetSystem<MeshRenderSystem>()!;
+            scene.ActiveCamera.FrameBounds(meshSystem.GetBounds());
+            
+            sw.Stop();
+            Log.Information($"Finished in {sw.Elapsed.TotalSeconds:N3}");
+        });
         
+
         window.Run();
     }
 

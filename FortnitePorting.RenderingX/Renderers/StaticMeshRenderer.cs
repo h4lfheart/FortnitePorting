@@ -65,40 +65,15 @@ public class StaticMeshRenderer : MeshRenderer
             var section = sections[sectionIndex];
             Sections.Add(new Section(section.MaterialIndex, section.NumFaces * 3, section.FirstIndex));
 
-            if (staticMesh.Materials[section.MaterialIndex]?.TryLoad(out var sectionMaterial) ?? false)
+            if ((staticMesh.Materials[section.MaterialIndex]?.TryLoad(out var sectionMaterial) ?? false) && sectionMaterial is UMaterialInterface materialInterface)
             {
-                Materials[sectionIndex] = sectionMaterial switch
-                {
-                    UMaterialInstanceConstant materialInstance => new Material(materialInstance),
-                    UMaterial material => new Material(material),
-                    _ => new Material()
-                };
+                var hasTextureData = sectionIndex == 0 && textureData?.Count > 0;
+                Materials[sectionIndex] = hasTextureData ? MaterialCache.GetOrCreateWithTextureData(materialInterface, textureData!) :  MaterialCache.GetOrCreate(materialInterface);
             }
             else
             {
                 Materials[sectionIndex] = new Material();
             }
-        }
-
-        foreach (var (buildingTextureData, layerIndex) in textureData ?? [])
-        {
-            if (buildingTextureData.OverrideMaterial.TryLoad(out UMaterialInterface materialInterface))
-                Materials[0] = materialInterface switch
-                {
-                    UMaterialInstanceConstant materialInstance => new Material(materialInstance),
-                    UMaterial material => new Material(material),
-                    _ => new Material()
-                };
-            
-            if (buildingTextureData.Diffuse.TryLoad(out UTexture2D diffuseTexture))
-                Materials[0].Diffuse[layerIndex] = TextureCache.GetOrCreate(diffuseTexture);
-            
-            if (buildingTextureData.Normal.TryLoad(out UTexture2D normalTexture))
-                Materials[0].Normals[layerIndex] = TextureCache.GetOrCreate(normalTexture);
-            
-            if (buildingTextureData.Specular.TryLoad(out UTexture2D specularTexture))
-                Materials[0].SpecularMasks[layerIndex] = TextureCache.GetOrCreate(specularTexture);
-            
         }
     }
 
