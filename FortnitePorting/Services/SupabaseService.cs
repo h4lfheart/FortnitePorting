@@ -89,7 +89,7 @@ public partial class SupabaseService : ObservableObject, IService
         _currentAuthState = await Client.Auth.SignIn(Constants.Provider.Discord, new SignInOptions
         {
             FlowType = Constants.OAuthFlowType.PKCE,
-            RedirectTo = "fortniteporting://auth/callback",
+            RedirectTo = "https://api.fortniteporting.app/v1/auth/redirect",
             
         });
         
