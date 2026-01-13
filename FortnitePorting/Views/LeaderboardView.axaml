@@ -21,7 +21,6 @@
                 <sidebar:SidebarItemButton Text="Assets" Icon="Folder" Tag="{x:Type leaderboard:LeaderboardExportsView}"/>
                 <sidebar:SidebarItemButton Text="Users" Icon="AccountGroup" Tag="{x:Type leaderboard:LeaderboardUsersView}"/>
                 <sidebar:SidebarItemButton Text="Streaks" Icon="Fire" Tag="{x:Type leaderboard:LeaderboardStreaksView}"/>
-                <sidebar:SidebarItemButton Text="Live" Icon="Stopwatch" Tag="{x:Type leaderboard:LeaderboardLiveView}"/>
             </sidebar:Sidebar.Items>
         </sidebar:Sidebar>
         

@@ -157,7 +157,6 @@ public partial class SupabaseService : ObservableObject, IService
         await PostLogin();
 
         await Chat.Initialize();
-        await LiveExport.Initialize();
     }
     
     private async Task PostLogin()
