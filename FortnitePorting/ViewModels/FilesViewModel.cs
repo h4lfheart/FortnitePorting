@@ -91,7 +91,7 @@ public partial class FilesViewModel : ViewModelBase
 
     [ObservableProperty, NotifyPropertyChangedFor(nameof(SearchText))] private bool _useFlatView = false;
     [ObservableProperty] private bool _useRegex = false;
-    [ObservableProperty] private bool _showLoadingSplash = true;
+    [ObservableProperty] private bool _isLoading = true;
     
     [ObservableProperty] private List<FlatItem> _selectedFlatViewItems = [];
     [ObservableProperty] private ReadOnlyObservableCollection<FlatItem> _flatViewCollection = new([]);
@@ -100,6 +100,10 @@ public partial class FilesViewModel : ViewModelBase
     [ObservableProperty] private ObservableCollection<TreeItem> _fileViewCollection = [];
     [ObservableProperty] private ObservableCollection<TreeItem> _fileViewStack = [];
     [ObservableProperty] private ObservableCollection<TreeItem> _treeViewCollection = new([]);
+    
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(LoadingPercentageText))] private int _loadedFiles;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(LoadingPercentageText))] private int _totalFiles = int.MaxValue;
+    public string LoadingPercentageText => $"{(LoadedFiles == 0 && TotalFiles == 0 ? 0 : LoadedFiles * 100f / TotalFiles):N0}%";
 
     private readonly TreeItem _parentTreeItem = new("Files", ENodeType.Folder)
     {
@@ -113,7 +117,7 @@ public partial class FilesViewModel : ViewModelBase
     
     public override async Task Initialize()
     {
-        BuildTreeStructure();
+        BuildFileList();
         
         var assetFilter = this
             .WhenAnyValue(viewModel => viewModel.FlatSearchFilter, viewmodel => viewmodel.UseRegex)
@@ -130,13 +134,16 @@ public partial class FilesViewModel : ViewModelBase
         TreeViewCollection = [_parentTreeItem];
         LoadFileItems(_parentTreeItem);
             
-        ShowLoadingSplash = false;
+        IsLoading = false;
     }
 
-    private void BuildTreeStructure()
+    private void BuildFileList()
     {
+        TotalFiles = UEParse.Provider.Files.Count;
         foreach (var (_, file) in UEParse.Provider.Files)
         {
+            LoadedFiles++;
+            
             var path = file.Path;
             if (!IsValidFilePath(path)) continue;
                 

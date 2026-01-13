@@ -7,17 +7,19 @@
         x:Class="FortnitePorting.Windows.ModelPreviewWindow"
         x:DataType="windowModels:ModelPreviewWindowModel"
         Width="1280" Height="720" RequestedThemeVariant="Dark" Background="#0e0e0e" TransparencyLevelHint="Mica"
-        ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="NoChrome" FontFamily="{StaticResource SFTextRegular}"
-        WindowStartupLocation="CenterScreen" ClosingBehavior="OwnerAndChildWindows" ExtendClientAreaTitleBarHeightHint="35"
+        ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="NoChrome"
+        FontFamily="{StaticResource SFTextRegular}"
+        WindowStartupLocation="CenterScreen" ClosingBehavior="OwnerAndChildWindows"
+        ExtendClientAreaTitleBarHeightHint="35"
         Icon="/Assets/LogoRebrand.ico"
         Title="Model Viewer">
     <Grid Margin="{Binding $parent[Window].OffScreenMargin}">
         <Grid.RowDefinitions>
-            <RowDefinition Height="35"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="35" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        
-       <Grid Grid.Row="0" HorizontalAlignment="Stretch" PointerPressed="OnPointerPressedUpperBar">
+
+        <Grid Grid.Row="0" HorizontalAlignment="Stretch" PointerPressed="OnPointerPressedUpperBar">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -26,16 +28,17 @@
                     <ColumnDefinition Width="{ext:Space 0.5}" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-            
-                <ui:ImageIcon Grid.Column="0" Source="/Assets/LogoRebrand.png" 
-                              HorizontalAlignment="Right"
-                              Width="20" Height="20" 
-                              RenderOptions.BitmapInterpolationMode="HighQuality" RenderOptions.EdgeMode="Antialias"/>
 
-                <TextBlock Grid.Column="2" Text="Model Viewer" FontFamily="{StaticResource SFTextSemiBold}" FontSize="14"
+                <ui:ImageIcon Grid.Column="0" Source="/Assets/LogoRebrand.png"
+                              HorizontalAlignment="Right"
+                              Width="20" Height="20"
+                              RenderOptions.BitmapInterpolationMode="HighQuality" RenderOptions.EdgeMode="Antialias" />
+
+                <TextBlock Grid.Column="2" Text="Model Viewer" FontFamily="{StaticResource SFTextSemiBold}"
+                           FontSize="14"
                            HorizontalAlignment="Center" VerticalAlignment="Center" />
             </Grid>
-            
+
             <Grid HorizontalAlignment="Right">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -45,49 +48,79 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="1" />
                 </Grid.ColumnDefinitions>
-            
-                <Border Grid.Column="0" PointerPressed="OnMinimizePressed" Cursor="Hand" CornerRadius="0" Classes="MinimizeMaximize" Child="{avalonia:MaterialIconExt Minus}" Width="35" Height="35"/>
-                <Border Grid.Column="2" PointerPressed="OnMaximizePressed" Cursor="Hand" CornerRadius="0" Classes="MinimizeMaximize" Child="{avalonia:MaterialIconExt Maximize}" Width="35" Height="35"/>
-                <Border Grid.Column="4" PointerPressed="OnClosePressed" Cursor="Hand" CornerRadius="0" Classes="Close" Child="{avalonia:MaterialIconExt Close}" Width="35" Height="35"/>
+
+                <Border Grid.Column="0" PointerPressed="OnMinimizePressed" Cursor="Hand" CornerRadius="0"
+                        Classes="MinimizeMaximize" Child="{avalonia:MaterialIconExt Minus}" Width="35" Height="35" />
+                <Border Grid.Column="2" PointerPressed="OnMaximizePressed" Cursor="Hand" CornerRadius="0"
+                        Classes="MinimizeMaximize" Child="{avalonia:MaterialIconExt Maximize}" Width="35" Height="35" />
+                <Border Grid.Column="4" PointerPressed="OnClosePressed" Cursor="Hand" CornerRadius="0" Classes="Close"
+                        Child="{avalonia:MaterialIconExt Close}" Width="35" Height="35" />
             </Grid>
         </Grid>
-        
+
         <Border Grid.Row="1" Background="#0a0a0a"
                 BorderThickness="0 2 0 0" BorderBrush="#212121">
             <Grid Margin="{ext:Space 1}" ClipToBounds="True">
-                <ContentControl Content="{Binding Control}" IsVisible="{Binding !IsLoading}"/>
-                
+                <ContentControl Content="{Binding Control}" IsVisible="{Binding !IsLoading}" />
+
                 <Grid IsVisible="{Binding IsLoading}">
-                    
-                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding !IsLoadingWorld}">
-                        <ui:ProgressRing IsIndeterminate="True" Background="Transparent" Width="50" Height="50" BorderThickness="5"/>
+                    <Ellipse Width="600" Height="600" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Ellipse.Styles>
+                            <Style Selector="Ellipse">
+                                <Style.Animations>
+                                    <Animation Duration="0:0:3" IterationCount="Infinite" PlaybackDirection="Alternate"
+                                               Easing="SineEaseInOut">
+                                        <KeyFrame Cue="0%">
+                                            <Setter Property="Opacity" Value="0.2"/>
+                                        </KeyFrame>
+                                        <KeyFrame Cue="100%">
+                                            <Setter Property="Opacity" Value="0.5"/>
+                                        </KeyFrame>
+                                    </Animation>
+                                </Style.Animations>
+                            </Style>
+                        </Ellipse.Styles>
+                        <Ellipse.Fill>
+                            <RadialGradientBrush>
+                                <GradientStop Color="#33A855F7" Offset="0"/>
+                                <GradientStop Color="#1AA855F7" Offset="0.5"/>
+                                <GradientStop Color="#00A855F7" Offset="1"/>
+                            </RadialGradientBrush>
+                        </Ellipse.Fill>
+                    </Ellipse>
+
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                                IsVisible="{Binding !IsLoadingWorld}">
+                        <ui:ProgressRing IsIndeterminate="True" Background="Transparent" Width="50" Height="50"
+                                         BorderThickness="5" />
                         <TextBlock Text="Loading Assets"
                                    Classes="BodyStrongTextBlockStyle" HorizontalAlignment="Center"
-                                   Margin="{ext:Space 0, 2, 0, 0}"/>
+                                   Margin="{ext:Space 0, 2, 0, 0}" />
                     </StackPanel>
-                    
-                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding IsLoadingWorld}"
+
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                                IsVisible="{Binding IsLoadingWorld}"
                                 Spacing="{ext:Space 1}">
                         <TextBlock Text="{Binding LoadName, StringFormat='Loading {0}'}"
-                                   Classes="BodyStrongTextBlockStyle" HorizontalAlignment="Center"/>
-                        
-                        <TextBlock Classes="TextFillColorSecondaryBrush" HorizontalAlignment="Center"
+                                   Classes="BodyStrongTextBlockStyle" HorizontalAlignment="Center" />
+
+                        <TextBlock Classes="BodyTextBlockStyle TextFillColorSecondaryBrush" HorizontalAlignment="Center"
                                    Margin="{ext:Space 0, 0, 0, 1}">
                             <TextBlock.Text>
                                 <MultiBinding StringFormat="{}{0} / {1}">
-                                    <Binding Path="LoadCount"/>
-                                    <Binding Path="TotalCount"/>
+                                    <Binding Path="LoadCount" />
+                                    <Binding Path="TotalCount" />
                                 </MultiBinding>
                             </TextBlock.Text>
                         </TextBlock>
-                        
+
                         <ProgressBar HorizontalAlignment="Center" VerticalAlignment="Center" Height="8"
                                      MinWidth="400"
                                      Value="{Binding LoadCount}"
                                      Minimum="0"
                                      Maximum="{Binding TotalCount}" />
                     </StackPanel>
-                    
+
                 </Grid>
             </Grid>
         </Border>

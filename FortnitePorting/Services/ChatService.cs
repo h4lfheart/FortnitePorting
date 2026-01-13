@@ -113,11 +113,13 @@ public partial class ChatService : ObservableObject, IService
     {
         if (ChatPresence is not null) return;
         
-        ChatPresence = _chatChannel.Register<ChatUserPresence>(SupaBase.UserInfo!.UserId);
+        ChatPresence = _chatChannel.Register<ChatUserPresence>(SupaBase.UserInfo.UserId);
 
         TypingUsers.CollectionChanged += (sender, args) => OnPropertyChanged(nameof(TypingUsersText));
         ChatPresence.AddPresenceEventHandler(IRealtimePresence.EventType.Sync, (sender, type) =>
         {
+            if (!SupaBase.IsLoggedIn) return;
+            
             TaskService.Run(async () =>
             {
                 TypingUsers.Clear();
@@ -138,6 +140,8 @@ public partial class ChatService : ObservableObject, IService
 
         ChatPresence.AddPresenceEventHandler(IRealtimePresence.EventType.Join, (sender, type) =>
         {
+            if (!SupaBase.IsLoggedIn) return;
+            
             TaskService.Run(async () =>
             {
                 var currentState = ChatPresence.CurrentState.ToDictionary();
@@ -167,6 +171,8 @@ public partial class ChatService : ObservableObject, IService
 
         ChatPresence.AddPresenceEventHandler(IRealtimePresence.EventType.Leave, (sender, type) =>
         {
+            if (!SupaBase.IsLoggedIn) return;
+            
             var currentState = ChatPresence.CurrentState;
             var removedUsers = 0;
             foreach (var user in Users.ToArray())
@@ -191,6 +197,7 @@ public partial class ChatService : ObservableObject, IService
         _chatBroadcast = _chatChannel.Register<BaseBroadcast>();
         _chatBroadcast.AddBroadcastEventHandler((sender, broadcast) =>
         {
+            if (!SupaBase.IsLoggedIn) return;
             if (broadcast is null) return;
 
             switch (broadcast.Event)

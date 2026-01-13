@@ -60,10 +60,12 @@ public partial class AssetLoader : ObservableObject
     
     [ObservableProperty] private ObservableCollection<BaseAssetInfo> _selectedAssetInfos = [];
     
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(LoadingStatus))] private int _loadedAssets;
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(LoadingStatus))] private int _totalAssets = int.MaxValue;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(LoadingPercentageText))] private int _loadedAssets;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(LoadingPercentageText))] private int _totalAssets = int.MaxValue;
     [ObservableProperty] private bool _finishedLoading = false;
-    public string LoadingStatus => $"Loading {Type.Description}: {(LoadedAssets == 0 && TotalAssets == 0 ? 0 : LoadedAssets * 100f / TotalAssets):N0}%";
+    
+    public string LoadingStatus => $"Loading {Type.Description}";
+    public string LoadingPercentageText => $"{(LoadedAssets == 0 && TotalAssets == 0 ? 0 : LoadedAssets * 100f / TotalAssets):N0}%";
     
     
     public readonly IObservable<SortExpressionComparer<BaseAssetItem>> AssetSort;
