@@ -12,6 +12,7 @@ using FortnitePorting.Models.Information;
 using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Views;
+using Serilog;
 
 namespace FortnitePorting.WindowModels;
 
@@ -40,7 +41,7 @@ public partial class AppWindowModel(
     [ObservableProperty] private OnlineResponse? _onlineStatus;
     [ObservableProperty] private BroadcastResponse[] _broadcasts = [];
 
-    private const string PORTLE_URL = "https://portle.halfheart.dev/release/Portle.exe";
+    private const string PORTLE_URL = "https://cdn.fortniteporting.app/portle/Portle.exe";
 
     public override async Task Initialize()
     {
@@ -65,10 +66,12 @@ public partial class AppWindowModel(
     [RelayCommand]
     public async Task Update()
     {
-        if (!File.Exists(Settings.Application.PortlePath) ||
-            (!Settings.Application.UsePortlePath && (!Api.GetHash(PORTLE_URL)
-                ?.Equals(Settings.Application.PortlePath.GetHash()) ?? false)))
+        var remoteHash = Api.GetHash(PORTLE_URL) ?? string.Empty;
+        var localHash = Settings.Application.PortlePath.GetHash();
+        
+        if (!File.Exists(Settings.Application.PortlePath) || (!Settings.Application.UsePortlePath && !remoteHash.Equals(localHash, StringComparison.OrdinalIgnoreCase)))
         {
+            Log.Information($"Updating portle executable from {PORTLE_URL} at {Settings.Application.PortlePath}");
             await Api.DownloadFileAsync(PORTLE_URL, Settings.Application.PortlePath);
         }
 
@@ -80,7 +83,11 @@ public partial class AppWindowModel(
             "--update-profile \"Fortnite Porting\" -force",
             "--launch-profile \"Fortnite Porting\"",
         };
+        
+        Info.Message("Portle", $"Fortnite Porting {UpdateVersion!.Version} is currently being downloaded.");
 
+        await Task.Delay(2500);
+        
         Process.Start(new ProcessStartInfo
         {
             FileName = Settings.Application.PortlePath,
@@ -88,7 +95,7 @@ public partial class AppWindowModel(
             WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory,
             UseShellExecute = true
         });
-
+        
         App.Lifetime.Shutdown();
     }
 
