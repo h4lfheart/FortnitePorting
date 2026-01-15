@@ -24,7 +24,7 @@ public class AnimExport : BaseExport
     public List<ExportCurveMapping> LegacyToMetahumanMappings = [];
     public List<ExportCurveMapping> MetahumanToLegacyMappings = [];
     
-    public AnimExport(string name, UObject asset, BaseStyleData[] styles, EExportType exportType, ExportDataMeta metaData) : base(name, asset, styles, exportType, metaData)
+    public AnimExport(string name, UObject asset, BaseStyleData[] styles, EExportType exportType, ExportDataMeta metaData) : base(name, exportType, metaData)
     {
         switch (exportType)
         {

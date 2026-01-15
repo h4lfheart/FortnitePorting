@@ -490,6 +490,7 @@
                 <Grid Grid.Row="1" HorizontalAlignment="Stretch" Margin="{ext:Space 0, 1, 0, 0}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="{ext:Space 1}" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
@@ -527,8 +528,16 @@
                                 Text="{Binding ExportLocation, Converter={StaticResource EnumToRecord}, StringFormat='Export to {0}'}" />
                         </StackPanel>
                     </SplitButton>
+                    
+                    <Button Grid.Column="1" ToolTip.Tip="Apply Tasty Rig"
+                            Command="{Binding ExportTastyRigCommand}" 
+                            Margin="{ext:Space 1, 0, 0, 0}"
+                            IsVisible="{Binding IsTastyRigApplyVisible}"
+                            RenderOptions.BitmapInterpolationMode="HighQuality" RenderOptions.EdgeMode="Antialias">
+                        <Image Width="16" Height="16" Source="/Assets/Icons/Tasty.png"/>
+                    </Button>
 
-                    <Button Grid.Column="2" ToolTip.Tip="Export Settings" Content="{material:MaterialIconExt Settings}"
+                    <Button Grid.Column="3" ToolTip.Tip="Export Settings" Content="{material:MaterialIconExt Settings}"
                             Command="{Binding OpenSettingsCommand}" />
 
                 </Grid>

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using DynamicData.Binding;
 using FortnitePorting.Controls.Navigation.Sidebar;
 using FortnitePorting.Exporting;
 using FortnitePorting.Extensions;
@@ -27,10 +28,21 @@ public partial class AssetsViewModel() : ViewModelBase
         AssetLoader = assetLoader;
         Api = api;
         Supabase = supabase;
+        
+        AssetLoader.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(AssetLoaderService.ActiveLoader))
+            {
+                OnPropertyChanged(nameof(IsTastyRigApplyVisible));
+            }
+        };
     }
+
+    public bool IsTastyRigApplyVisible => ExportLocation is EExportLocation.Blender && AssetLoader.ActiveLoader?.Type is EExportType.Outfit;
     
-    [ObservableProperty] private bool _isPaneOpen = true;
-    [ObservableProperty] private EExportLocation _exportLocation = EExportLocation.Blender;
+    [ObservableProperty] 
+    [NotifyPropertyChangedFor(nameof(IsTastyRigApplyVisible))]
+    private EExportLocation _exportLocation = EExportLocation.Blender;
     
     [ObservableProperty, NotifyPropertyChangedFor(nameof(ShowNamesIcon))] private bool _showNames = AppSettings.Application.ShowAssetNames;
 
@@ -102,6 +114,12 @@ public partial class AssetsViewModel() : ViewModelBase
         {
             info.Asset.Favorite();
         }
+    }
+    
+    [RelayCommand]
+    public async Task ExportTastyRig()
+    {
+        await Exporter.ExportTastyRig(AppSettings.ExportSettings.CreateExportMeta(ExportLocation));
     }
 
     [RelayCommand]

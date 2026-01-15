@@ -11,6 +11,8 @@ from bpy_extras import anim_utils
 from mathutils import Matrix, Quaternion, Vector
 from math import *
 
+from .reorient_utils import reorient_bones
+
 from ..importer.classes import (
     MAGIC,
     MODEL_IDENTIFIER,
@@ -299,57 +301,12 @@ class UEFormatImport:
             if data.skeleton.bones and self.options.reorient_bones:
                 bpy.ops.object.mode_set(mode="EDIT")
 
-                for bone in armature_data.edit_bones:
-                    bone: EditBone
-                    if bone.get("is_socket"):
-                        continue
-
-                    children = []
-                    for child in bone.children:  # type: ignore[reportOptionalIterable]
-                        if child.get("is_socket"):
-                            continue
-
-                        children.append(child)
-
-                    if len(children) == 0 and bone.parent is None:
-                        continue
-
-                    target_length = bone.length
-                    if len(children) == 0:
-                        new_rot = Vector(bone.parent["reorient_direction"])
-                        new_rot.rotate(Quaternion(bone["orig_quat"]).conjugated())
-
-                        target_rotation = make_axis_vector(new_rot)
-                    else:
-                        avg_child_pos = Vector()
-                        avg_child_length = 0.0
-                        allowed_children = None
-                        if self.options.allowed_reorient_children is not None:
-                            allowed_children = self.options.allowed_reorient_children.get(bone.name)
-                            
-                        for child in children:
-                            if allowed_children is not None and child.name not in allowed_children:
-                                continue
-                                
-                            pos = Vector(child["orig_loc"])
-                            avg_child_pos += pos
-                            avg_child_length += pos.length
-
-                        avg_child_pos /= len(children)
-                        avg_child_length /= len(children)
-
-                        target_rotation = make_axis_vector(avg_child_pos)
-                        bone["reorient_direction"] = target_rotation
-
-                        target_length = avg_child_length
-
-                    post_quat = Vector((0, 1, 0)).rotation_difference(target_rotation)
-                    bone.matrix @= post_quat.to_matrix().to_4x4()  # type: ignore[reportOperatorIssue]
-                    bone.length = max(0.01, target_length)
-
-                    post_quat.rotate(Quaternion(bone["orig_quat"]).conjugated())
-                    bone["post_quat"] = post_quat
-
+                reorient_bones(
+                    armature_data,
+                    bone_length=self.options.bone_length * self.options.scale_factor,
+                    allowed_reorient_children=self.options.allowed_reorient_children
+                )
+            
                 bpy.ops.object.mode_set(mode="OBJECT")
 
             if created_lods:

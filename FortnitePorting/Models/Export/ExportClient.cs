@@ -201,7 +201,7 @@ public class ExportClient(EExportServerType serverType) : IDisposable
                 var dataBytes = ReadExact(stream, length);
                 var jsonData = Encoding.UTF8.GetString(dataBytes);
                 
-                HandleReceivedMessage(commandType, jsonData);
+                HandleReceivedMessage(jsonData);
             }
             catch (Exception ex)
             {
@@ -233,7 +233,7 @@ public class ExportClient(EExportServerType serverType) : IDisposable
     }
 
 
-    private void HandleReceivedMessage(EExportCommandType commandType, string jsonData)
+    private void HandleReceivedMessage(string jsonData)
     {
         var message = JsonConvert.DeserializeObject<string>(jsonData) ?? string.Empty;
         Info.Message($"{serverType.Description} Server", message);

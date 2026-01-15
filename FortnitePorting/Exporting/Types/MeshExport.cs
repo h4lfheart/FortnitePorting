@@ -36,7 +36,7 @@ public class MeshExport : BaseExport
     public ExportLightCollection Lights = new();
     public AnimExport? Animation;
     
-    public MeshExport(string name, UObject asset, BaseStyleData[] styles, EExportType exportType, ExportDataMeta metaData) : base(name, asset, styles, exportType, metaData)
+    public MeshExport(string name, UObject asset, BaseStyleData[] styles, EExportType exportType, ExportDataMeta metaData) : base(name, exportType, metaData)
     {
         var objectStyles = styles.OfType<ObjectStyleData>().ToArray();
         if (objectStyles.Length > 0)

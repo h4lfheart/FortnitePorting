@@ -2,10 +2,10 @@ import os.path
 import math
 import bpy
 
+from .tasty_context import TOGGLE_OFF
 from ..enums import *
 from ..utils import *
 from ..mappings import *
-from ..tasty import TOGGLE_OFF
 from ...utils import *
 from ...logger import Log
 from ...ueformat.importer.logic import UEFormatImport
