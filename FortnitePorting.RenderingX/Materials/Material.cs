@@ -25,7 +25,7 @@ public class Material
     
     public static readonly Lazy<Texture2D> DefaultNormal = new(() =>
     {
-        var texture = new Texture2D(1, 1, [255, 128, 128, 255]);
+        var texture = new Texture2D(1, 1, [128, 128, 255, 255]);
         texture.Generate();
         return texture;
     });

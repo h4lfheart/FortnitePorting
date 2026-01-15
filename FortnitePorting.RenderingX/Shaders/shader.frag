@@ -68,9 +68,6 @@ vec3 getSpecular(int layer) {
 
 vec3 calculateNormals(vec3 normalMap)
 {
-    float temp = normalMap.r;
-    normalMap.r = normalMap.b;
-    normalMap.b = temp;
     normalMap.y = 1 - normalMap.y;
     normalMap = normalize(normalMap * 2.0 - 1.0);
 

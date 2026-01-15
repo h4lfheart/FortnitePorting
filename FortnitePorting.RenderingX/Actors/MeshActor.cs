@@ -9,19 +9,25 @@ namespace FortnitePorting.RenderingX.Actors;
 
 public class MeshActor : Actor
 {
+    public MeshComponent MeshComponent;
+    
     public MeshActor(UStaticMesh mesh, Transform? transform = null, List<KeyValuePair<UBuildingTextureData, int>>? textureData = null) : base(mesh.Name)
     {
-        Components.Add(new StaticMeshComponent(mesh, textureData) 
+        MeshComponent = new StaticMeshComponent(mesh, textureData)
         {
             Transform = transform ?? Transform.Identity
-        });
+        };
+        
+        Components.Add(MeshComponent);
     }
     
     public MeshActor(USkeletalMesh mesh, Transform? transform = null) : base(mesh.Name)
     {
-        Components.Add(new SkeletalMeshComponent(mesh)
+        MeshComponent = new SkeletalMeshComponent(mesh)
         {
-           Transform = transform ?? Transform.Identity
-        });
+            Transform = transform ?? Transform.Identity
+        };
+        
+        Components.Add(MeshComponent);
     }
 }

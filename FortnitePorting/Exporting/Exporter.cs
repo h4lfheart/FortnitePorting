@@ -237,7 +237,7 @@ public static class Exporter
 
         metaData.UpdateProgress += updateDelegate;
         
-        var primitiveType = exportType.GetPrimitiveType();
+        var primitiveType = exportType.PrimitiveType;
         BaseExport export = primitiveType switch
         {
             EPrimitiveExportType.Mesh => new MeshExport(displayName, asset, styles, exportType, metaData),

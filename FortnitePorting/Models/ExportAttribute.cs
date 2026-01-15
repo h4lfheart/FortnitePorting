@@ -12,15 +12,18 @@ public static class ExportExtensions
 {
     extension(EExportType value)
     {
-        public EPrimitiveExportType GetPrimitiveType()
+        public EPrimitiveExportType PrimitiveType
         {
-            var attribute = value
-                .GetType()
-                .GetField(value.ToString())?
-                .GetCustomAttributes(typeof(ExportAttribute), false)
-                .SingleOrDefault() as ExportAttribute;
+            get
+            {
+                var attribute = value
+                    .GetType()
+                    .GetField(value.ToString())?
+                    .GetCustomAttributes(typeof(ExportAttribute), false)
+                    .SingleOrDefault() as ExportAttribute;
             
-            return attribute?.ExportType ?? 0;
+                return attribute?.ExportType ?? 0;
+            }
         }
     }
 }

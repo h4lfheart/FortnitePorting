@@ -69,24 +69,41 @@ public partial class ModelPreviewWindowModel : WindowModelBase
         Context?.EnqueueCommand(() =>
         {
             IsLoading = true;
-            
+
             foreach (var existingChild in PreviewRoot.Children.ToArray())
             {
                 PreviewRoot.Children.Remove(existingChild);
             }
 
+            var placementOffset = Vector3.Zero;
             foreach (var obj in objects)
             {
                 switch (obj)
                 {
                     case UStaticMesh staticMesh:
                     {
-                        PreviewRoot.Children.Add(new MeshActor(staticMesh));
+                        var actor = new MeshActor(staticMesh, new Transform
+                        {
+                            Position = placementOffset
+                        });
+
+                        var boundingBoxSize = actor.MeshComponent.Renderer.BoundingBox.GetSize();
+                        placementOffset.X += boundingBoxSize.X * 0.01f + 1;
+                        
+                        PreviewRoot.Children.Add(actor);
                         break;
                     }
                     case USkeletalMesh skeletalMesh:
                     {
-                        PreviewRoot.Children.Add(new MeshActor(skeletalMesh));
+                        var actor = new MeshActor(skeletalMesh, new Transform
+                        {
+                            Position = placementOffset
+                        });
+
+                        var boundingBoxSize = actor.MeshComponent.Renderer.BoundingBox.GetSize();
+                        placementOffset.X += boundingBoxSize.X * 0.01f + 1;
+                        
+                        PreviewRoot.Children.Add(actor);
                         break;
                     }
                     case ULevel level:
@@ -105,13 +122,6 @@ public partial class ModelPreviewWindowModel : WindowModelBase
                         break;
                     }
                 }
-                PreviewRoot.Children.Add(obj switch
-                {
-                    UStaticMesh staticMesh => new MeshActor(staticMesh),
-                    USkeletalMesh skeletalMesh => new MeshActor(skeletalMesh),
-                    ULevel level => new WorldActor(level),
-                    _ => new Actor(obj.Name)
-                });
             }
 
             var meshSystem = Scene.ActorManager.GetSystem<MeshRenderSystem>();

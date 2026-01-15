@@ -9,7 +9,7 @@ public class BaseExport
 {
     public string Name;
     public EExportType Type;
-    public EPrimitiveExportType PrimitiveType => Type.GetPrimitiveType();
+    public EPrimitiveExportType PrimitiveType => Type.PrimitiveType;
 
     protected Context.ExportContext Exporter;
     
