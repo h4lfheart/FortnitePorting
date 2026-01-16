@@ -118,7 +118,7 @@
                                      MinWidth="400"
                                      Value="{Binding LoadCount}"
                                      Minimum="0"
-                                     Maximum="{Binding TotalCount}" />
+                                     Maximum="{Binding TotalCount}"/>
                     </StackPanel>
 
                 </Grid>

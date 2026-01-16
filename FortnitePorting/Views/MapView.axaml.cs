@@ -1,12 +1,14 @@
 using System;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using DynamicData;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Map;
+using FortnitePorting.Shared.Extensions;
 using FortnitePorting.ViewModels;
 
 namespace FortnitePorting.Views;
@@ -119,5 +121,22 @@ public partial class MapView : ViewBase<MapViewModel>
         if (control.DataContext is not WorldPartitionGridMap map) return;
 
         ViewModel.SelectedMap.SelectedMaps.Remove(map);
+    }
+
+    private void OnMainLevelIncludeChanged(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not ToggleButton button) return;
+
+        var mapPath = ViewModel.SelectedMap.MapInfo.MapPath;
+        if (button.IsChecked ?? false)
+        {
+            ViewModel.SelectedMap.SelectedMaps.Add(new WorldPartitionGridMap(mapPath));
+        }
+        else
+        {
+            ViewModel.SelectedMap.SelectedMaps.RemoveAll(map => map.Path.Equals(mapPath));
+        }
+        
+        ViewModel.SelectedMap.IncludeMainLevel = button.IsChecked ?? false;
     }
 }
