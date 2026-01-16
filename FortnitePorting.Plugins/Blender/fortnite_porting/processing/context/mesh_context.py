@@ -46,8 +46,8 @@ class MeshImportContext:
                 set_geo_nodes_param(vertex_crunch_modifier, "Material", material)
                 
         if self.type in [EExportType.OUTFIT]:
-            for data in self.imported_meshes:
-                self.parent_deform_bones(data["Skeleton"], ["dfrm_", "deform_"])
+            for imported_mesh in self.imported_meshes:
+                self.parent_deform_bones(imported_mesh["Skeleton"], ["dfrm_", "deform_"])
             
         if self.type in [EExportType.OUTFIT, EExportType.FALL_GUYS_OUTFIT] and self.options.get("MergeArmatures"):
             master_skeleton = merge_armatures(self.imported_meshes)

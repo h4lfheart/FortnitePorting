@@ -403,6 +403,7 @@ public partial class FilesViewModel : ViewModelBase
             ? SelectedFlatViewItems.Select(file => file.Path) 
             : SelectedFileViewItems.Where(file => file.Type == ENodeType.File).Select(file => file.FilePath)).ToList();
         
+        
         var loadedAssets = new List<UObject>();
         foreach (var path in selectedPaths)
         {
@@ -436,18 +437,16 @@ public partial class FilesViewModel : ViewModelBase
             return;
         }
 
-        var groupedAssets = loadedAssets.GroupBy(asset => Exporter.DetermineExportType(asset).PrimitiveType);
-        foreach (var assetGroup in groupedAssets)
+        var meshAssets = loadedAssets.Where(x => x is ULevel or UStaticMesh or USkeletalMesh).ToArray();
+        if (meshAssets.Length > 0)
         {
-            if (assetGroup.Key is EPrimitiveExportType.Mesh)
-                ModelPreviewWindow.Preview(assetGroup);
-            else
-            {
-                foreach (var asset in assetGroup)
-                {
-                    await PreviewAsset(asset);
-                }
-            }
+            loadedAssets.RemoveMany(meshAssets);
+            ModelPreviewWindow.Preview(meshAssets);
+        }
+
+        foreach (var asset in loadedAssets)
+        {
+            await PreviewAsset(asset);
         }
     }
 
