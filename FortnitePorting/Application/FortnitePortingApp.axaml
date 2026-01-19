@@ -30,6 +30,7 @@
              <converters:StringToDocumentConverter x:Key="StringToDocument" />
              <converters:StringToUppercaseConverter x:Key="StringToUppercase" />
              <converters:BoolToOpacityConverter x:Key="BoolToOpacity" />
+             <converters:ScaleConverter x:Key="Scale" />
          
              <Brush x:Key="ToggleSwitchKnobFillOn">#FFFFFFFF</Brush>
              <Brush x:Key="ToggleSwitchKnobFillOnPointerOver">#FFFFFFFF</Brush>

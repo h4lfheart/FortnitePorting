@@ -224,7 +224,8 @@
                                                 </MenuItem>
                                             </ContextMenu>
                                         </ContentControl.ContextMenu>
-                                        <StackPanel Width="{Binding DisplayWidth}" Spacing="4">
+                                        <StackPanel Width="{Binding Settings.Application.AssetScale, 
+                                                    Converter={StaticResource Scale}, ConverterParameter='64'}" Spacing="4">
                                             <ToolTip.Tip>
                                                 <StackPanel Spacing="{ext:Space 0.5}" Margin="{ext:Space 0.5}">
                                                     <TextBlock Text="{Binding CreationData.DisplayName}"/> 
@@ -232,11 +233,15 @@
                                                 </StackPanel>
                                             </ToolTip.Tip>
                                             <Grid>
-                                                <controls:ContentCard Width="{Binding DisplayWidth}"
-                                                                   Height="{Binding DisplayHeight}" />
+                                                <controls:ContentCard Width="{Binding Settings.Application.AssetScale, 
+                                                    Converter={StaticResource Scale}, ConverterParameter='64'}"
+                                                                      Height="{Binding Settings.Application.AssetScale, 
+                                                    Converter={StaticResource Scale}, ConverterParameter='80'}" />
                                                 <Border ClipToBounds="True" CornerRadius="8"
-                                                        Width="{Binding DisplayWidth}"
-                                                        Height="{Binding DisplayHeight}">
+                                                        Width="{Binding Settings.Application.AssetScale, 
+                                                    Converter={StaticResource Scale}, ConverterParameter='64'}"
+                                                        Height="{Binding Settings.Application.AssetScale, 
+                                                    Converter={StaticResource Scale}, ConverterParameter='80'}">
                                                     <Grid>
                                                         <Image Stretch="UniformToFill" Source="{Binding BackgroundImage}" RenderOptions.BitmapInterpolationMode="HighQuality"/>
                                                         <Image Stretch="UniformToFill" Source="{Binding IconDisplayImage}" RenderOptions.BitmapInterpolationMode="HighQuality"/>

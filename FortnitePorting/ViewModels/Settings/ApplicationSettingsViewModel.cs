@@ -91,11 +91,6 @@ public partial class ApplicationSettingsViewModel : SettingsViewModelBase
                 SoundPreviewWM?.UpdateOutputDevice();
                 break;
             }
-            case nameof(AssetScale):
-            {
-                BaseAssetItem.SetScale(AssetScale);
-                break;
-            }
         }
     }
 }
