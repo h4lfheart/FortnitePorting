@@ -575,6 +575,39 @@
             </Style>
         </Style>
         
+        <Style Selector="AutoCompleteBox[IsVisible=true]">
+            
+            <Style Selector="^/template/ Border#PART_SuggestionsContainer">
+                <Setter Property="Background">
+                    <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
+                        <GradientStops>
+                            <GradientStop Color="#1A1B1E" Offset="0"/>
+                            <GradientStop Color="#18191B" Offset="1"/>
+                        </GradientStops>
+                    </LinearGradientBrush>
+                </Setter>
+                
+                <Setter Property="MinWidth" Value="{Binding $parent[ComboBox].Bounds.Width}"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="CornerRadius" Value="16"/>
+                <Setter Property="Padding" Value="4"/>
+                <Setter Property="Margin" Value="{ext:Space 1}"/>
+                <Setter Property="ClipToBounds" Value="False"/>
+                <Setter Property="BackgroundSizing" Value="CenterBorder"/>
+                <Setter Property="BoxShadow">
+                    inset 0 1 2 -1 #50ffffff,
+                    inset 0 -1 2 -2 #50ffffff,
+                    0 0 8 #20000000,
+                    0 0 12 #10000000
+                </Setter>
+            </Style>
+
+            <Style Selector="^ Popup">
+                <Setter Property="VerticalOffset" Value="4"/>
+                <Setter Property="ClipToBounds" Value="False"/>
+            </Style>
+        </Style>
+        
         <Style Selector="ComboBox[IsVisible=true]">
             <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -626,7 +659,6 @@
             <Style Selector="^ Popup">
                 <Setter Property="VerticalOffset" Value="4"/>
                 <Setter Property="ClipToBounds" Value="False"/>
-
             </Style>
         </Style>
         

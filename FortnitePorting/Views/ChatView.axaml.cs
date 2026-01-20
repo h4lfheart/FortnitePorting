@@ -26,12 +26,21 @@ public partial class ChatView : ViewBase<ChatViewModel>
     private const double AutoScrollThreshold = 400;
     
     private bool _shouldAutoScroll = true;
+    private bool _didInitialScroll = false;
     
     public ChatView()
     {
         InitializeComponent();
         ViewModel.ImageFlyout = ImageFlyout;
         TextBox.AddHandler(KeyDownEvent, OnTextKeyDown, RoutingStrategies.Tunnel);
+
+        Scroll.LayoutUpdated += (sender, args) =>
+        {
+            if (_didInitialScroll) return;
+            
+            Scroll.ScrollToEnd();
+            _didInitialScroll = true;
+        };
 
         Scroll.ScrollChanged += (sender, args) =>
         {
@@ -109,7 +118,7 @@ public partial class ChatView : ViewBase<ChatViewModel>
                     }
                 }
                 
-                await Chat.SendMessage(text, replyId: ViewModel.ReplyMessage?.Id, imagePath: imagePath);
+                await Chat.SendMessage(Chat.ConvertMentionsToIds(text), replyId: ViewModel.ReplyMessage?.Id, imagePath: imagePath);
                 ViewModel.ReplyMessage = null;
             });
             
@@ -147,6 +156,8 @@ public partial class ChatView : ViewBase<ChatViewModel>
         Scroll.ScrollToEnd();
         TextBox.Focus();
         ViewModel.ClearNewMessageIndicator();
+
+        _didInitialScroll = false;
     }
 
     private void OnUserPressed(object? sender, PointerPressedEventArgs e)

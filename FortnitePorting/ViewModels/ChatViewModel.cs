@@ -24,8 +24,6 @@ public partial class ChatViewModel(SupabaseService supabase, ChatService chatSer
     [ObservableProperty] private string _text = string.Empty;
     [ObservableProperty] private Bitmap _selectedImage;
     [ObservableProperty] private string _selectedImageName;
-
-    public string MentionTextMatch => $"@{SupaBase.UserInfo.UserName}";
     
     [ObservableProperty] private bool _showNewMessageIndicator = false;
     

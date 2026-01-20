@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -22,6 +23,8 @@ public partial class ChatMessage : ObservableObject
     [ObservableProperty] private string? _replyId;
     [ObservableProperty] private string? _imagePath;
     
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(BackgroundBrush))] private bool _isPing;
+    
     [ObservableProperty]
     [NotifyPropertyChangedFor(
         nameof(DidReactTo), 
@@ -29,8 +32,6 @@ public partial class ChatMessage : ObservableObject
         nameof(ReactionBrush)
     )]
     private string[] _reactorIds = [];
-
-    
     
     [ObservableProperty] private bool _isEditing;
 
@@ -40,7 +41,19 @@ public partial class ChatMessage : ObservableObject
         ? $"https://supabase.fortniteporting.app/storage/v1/object/public/{ImagePath}"
         : null;
 
-
+    public IBrush BackgroundBrush => IsPing
+        ? SolidColorBrush.Parse("#FF231B37")
+        : new LinearGradientBrush
+        {
+            StartPoint = new RelativePoint(0, 0, RelativeUnit.Relative),
+            EndPoint = new RelativePoint(0, 1, RelativeUnit.Relative),
+            GradientStops =
+            [
+                new GradientStop(Color.Parse("#1A1B1E"), 0),
+                new GradientStop(Color.Parse("#18191B"), 1)
+            ]
+        };
+    
     public string TimestampString =>
         Timestamp.Date == DateTime.Today ? Timestamp.ToString("t") : Timestamp.ToString("g");
 

@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FortnitePorting.Extensions;
@@ -35,7 +37,17 @@ public partial class ChatService : ObservableObject, IService
     [ObservableProperty, NotifyPropertyChangedFor(nameof(UsersByGroup)), NotifyPropertyChangedFor(nameof(UserMentionNames))] 
     private ObservableDictionary<string, ChatUser> _users = [];
 
-    public IEnumerable<string> UserMentionNames => Users.Select(user => $"@{user.Value.UserName}");
+    public IEnumerable<string> UserMentionNames
+    {
+        get
+        {
+            var baseUsers = Users.Select(user => $"@{user.Value.UserName}");
+            if (SupaBase.UserInfo?.Role >= ESupabaseRole.Staff)
+                baseUsers = baseUsers.Concat(["@everyone"]);
+
+            return baseUsers;
+        }
+    }
     
     [ObservableProperty] private ObservableCollection<ChatUser> _typingUsers = [];
 
@@ -58,6 +70,8 @@ public partial class ChatService : ObservableObject, IService
     private RealtimeChannel _chatChannel;
     public RealtimePresence<ChatUserPresence> ChatPresence;
     private RealtimeBroadcast<BaseBroadcast> _chatBroadcast;
+    
+    private readonly SemaphoreSlim _userGetLock = new(1, 1);
 
     public async Task Initialize()
     {
@@ -78,28 +92,19 @@ public partial class ChatService : ObservableObject, IService
         await ChatPresence.Track(Presence);
         
         var messages = await SupaBase.Client.From<Message>()
-            .Order("timestamp", Constants.Ordering.Ascending)
+            .Order("timestamp", Constants.Ordering.Descending)
             .Limit(50)
             .Get();
         
-        foreach (var message in messages.Models)
+        foreach (var message in messages.Models.OrderBy(message => message.Timestamp))
         {
-            if (message.ReplyId is not null)
-            {
-                Messages[message.ReplyId].ReplyMessages.AddOrUpdate(message.Id, message.Adapt<ChatMessage>());
-            }
-            else
-            {
-                Messages.AddOrUpdate(message.Id, message.Adapt<ChatMessage>());
-            }
+            AddMessage(message, isInit: true);
         }
 
-        MessageReceived += (sender, args) =>
+        MessageReceived += (sender, message) =>
         {
-            if (Navigation.App.IsTabOpen<ChatView>()) return;
-            if (!args.Text.Contains($"@{SupaBase.UserInfo.UserName}")) return;
-            
-            Info.Message($"Chat Message from {args.User.DisplayName}", args.Text, autoClose: false);
+            if (message.IsPing && !Navigation.App.IsTabOpen<ChatView>())
+                Info.Message($"Chat Message from {message.User.DisplayName}", ConvertIdsToMentions(message.Text), autoClose: false);
         };
     }
 
@@ -204,18 +209,8 @@ public partial class ChatService : ObservableObject, IService
             {
                 case "insert_message":
                 {
-                    var message = broadcast.Get<Message>("message").Adapt<ChatMessage>();
-                    if (message.ReplyId is not null)
-                    {
-                        Messages[message.ReplyId].ReplyMessages.AddOrUpdate(message.Id, message);
-                    }
-                    else
-                    {
-                        Messages.AddOrUpdate(message.Id, message);
-                    }
-                    
-                    
-                    MessageReceived?.Invoke(this, message);
+                    var message = broadcast.Get<Message>("message");
+                    AddMessage(message);
                     
                     break;
                 }
@@ -260,17 +255,87 @@ public partial class ChatService : ObservableObject, IService
         });
     }
 
+    public void AddMessage(Message inMessage, bool isInit = false)
+    {
+        var message = inMessage.Adapt<ChatMessage>();
+        if (message.ReplyId is not null)
+        {
+            Messages[message.ReplyId].ReplyMessages.AddOrUpdate(message.Id, message);
+        }
+        else
+        {
+            Messages.AddOrUpdate(message.Id, message);
+        }
+
+        if (message.Text.Contains($"<@{SupaBase.UserInfo?.UserId}>") || message.Text.Contains("<@everyone>"))
+            message.IsPing = true;
+                    
+        if (!isInit)
+            MessageReceived?.Invoke(this, message);
+    }
+    
+    public string ConvertMentionsToIds(string text)
+    {
+        if (string.IsNullOrEmpty(text)) return text;
+
+        var mentionPattern = @"@([\w.]+)";
+        var regex = new Regex(mentionPattern);
+    
+        return regex.Replace(text, match =>
+        {
+            var username = match.Groups[1].Value;
+        
+            if (username.Equals("everyone", StringComparison.OrdinalIgnoreCase))
+                return "<@everyone>";
+        
+            var user = Chat.Users.FirstOrDefault(x => 
+                x.Value.UserName.Equals(username, StringComparison.OrdinalIgnoreCase));
+        
+            return user != null ? $"<@{user.Value.UserId}>" : match.Value;
+        });
+    }
+    
+    public string ConvertIdsToMentions(string text)
+    {
+        if (string.IsNullOrEmpty(text)) return text;
+
+        var mentionPattern = @"<@([a-f0-9\-]+|everyone)>";
+        var regex = new Regex(mentionPattern, RegexOptions.IgnoreCase);
+
+        return regex.Replace(text, match =>
+        {
+            var userId = match.Groups[1].Value;
+    
+            if (userId.Equals("everyone", StringComparison.OrdinalIgnoreCase))
+                return "@everyone";
+    
+            var user = Chat.UserCache.FirstOrDefault(x => 
+                x.Key.Equals(userId, StringComparison.OrdinalIgnoreCase));
+    
+            return user?.Value != null ? $"@{user.Value.DisplayName}" : match.Value;
+        });
+    }
+    
+
     public async Task<ChatUser?> GetUser(string id)
     {
-        if (UserCache.TryGetValue(id, out var existingUser)) return existingUser;
+        await _userGetLock.WaitAsync();
+        try
+        {
+            if (UserCache.TryGetValue(id, out var existingUser)) return existingUser;
 
-        var userInfo = await Api.FortnitePorting.UserInfo(id);
-        if (userInfo is null) return null;
+            var userInfo = await Api.FortnitePorting.UserInfo(id);
+            if (userInfo is null) return null;
         
-        var user = userInfo.Adapt<ChatUser>();
-        UserCache[id] = user;
+            var user = userInfo.Adapt<ChatUser>();
+            UserCache[id] = user;
         
-        return user;
+            return user;
+        }
+        finally
+        {
+            _userGetLock.Release();
+        }
     }
 
     public async Task SendMessage(string text, string? replyId = null, string? imagePath = null)
